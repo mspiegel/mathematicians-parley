@@ -16,11 +16,8 @@ theorem factor-by-root
     proof
     let x ∈ ℂ                                                         (K1)
 
-    2.1.  p(x) = (x − a)·q(x) + p(a)
-          instantiate x := x in line 1
-
-    2.2.  p(x) = (x − a)·q(x)
-          substitute p(a) = 0 (H3) into line 2.1
+    2.1.  p(x) = (x − a)·q(x)
+          substitute p(a) = 0 (H3) into line 1
           requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1
 
 3.  There is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ.

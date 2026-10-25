@@ -53,11 +53,8 @@ theorem fibonacci-even-sum
     proof
     let k ∈ ℕ₀                                                        (K1)
 
-    2.1.  F(k) ∈ ℕ₀ and G(k) ∈ ℕ₀
-          instantiate k := k in line 1
-
-    2.2.  F(k) ∈ ℝ
-          membership, from 2.1
+    2.1.  F(k) ∈ ℝ
+          membership, from 1
 
 let q(k) = F(2k), for k ∈ ℕ                                           (D2)
        reads the even-numbered Fibonacci number F(2k)

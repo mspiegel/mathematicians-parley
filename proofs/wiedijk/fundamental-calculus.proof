@@ -154,27 +154,18 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
     proof
     let x ∈ (a, b)                                                    (K1)
 
-    17.1. H′(x) = G′(x) − F′(x)
-          instantiate x := x in line 16, from K1
+    17.1. H′(x) = f(x) − F′(x)
+          substitute G′(x) = f(x) (line 13) into line 16
 
-    17.2. G′(x) = f(x)
-          instantiate x := x in line 13, from K1
+    17.2. H′(x) = f(x) − f(x)
+          substitute F′(x) = f(x) (H9) into line 17.1
 
-    17.3. F′(x) = f(x)
-          instantiate x := x in H9, from K1
-
-    17.4. H′(x) = f(x) − F′(x)
-          substitute G′(x) = f(x) (line 17.2) into line 17.1
-
-    17.5. H′(x) = f(x) − f(x)
-          substitute F′(x) = f(x) (line 17.3) into line 17.4
-
-    17.6. x ∈ [a, b]
+    17.3. x ∈ [a, b]
           mun:in-subset, from K1, 4
 
-    17.7. H′(x) = 0
-          algebra, from 17.5
-          requires f(x) ∈ ℝ: from H4, 17.6
+    17.4. H′(x) = 0
+          algebra, from 17.2
+          requires f(x) ∈ ℝ: from H4, 17.3
 
 18. H(b) = H(a)
     thm:zero-derivative-ends, from H3, 14, 15, 17

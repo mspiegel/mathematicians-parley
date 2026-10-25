@@ -54,11 +54,8 @@ theorem fibonacci-sum-of-squares
     proof
     let k ∈ ℕ₀                                                        (K1)
 
-    2.1.  F(k) ∈ ℕ₀ and G(k) ∈ ℕ₀
-          instantiate k := k in line 1
-
-    2.2.  F(k) ∈ ℝ
-          membership, from 2.1
+    2.1.  F(k) ∈ ℝ
+          membership, from 1
 
 let q(j) = F(j)², for j ∈ ℕ₀                                          (D2)
        reads the square of the jth Fibonacci number

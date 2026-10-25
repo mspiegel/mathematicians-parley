@@ -522,7 +522,7 @@ fn an_operation_arithmetic_does_not_work_out_is_named_once() {
 
 /// A requires line whose fact the step's own citation gives is not repeated
 /// where a line below needs it: the line below sees only its reason and the
-/// lines above it (R2). Here reals-uncountable's step 3.6 cites line 3.1,
+/// lines above it (R2). Here reals-uncountable's step 3.5 cites line 3.1,
 /// which says N(k + 1) = 10·N(k) + d(k + 1), and `N(k + 1) ∈ ℝ: membership`
 /// below asks that of the line above it.
 #[test]
@@ -534,18 +534,18 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
             "proofs/wiedijk/reals-uncountable.proof",
             Some(
                 "\
-          transitivity, from 3.5, 3.1
-          requires N(k) ∈ ℝ: membership, from 3.4
+          transitivity, from 3.4, 3.1
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 "
                 .to_string(),
             ),
             "\
-          transitivity, from 3.5, 3.1
-          requires N(k) ∈ ℝ: membership, from 3.4
+          transitivity, from 3.4, 3.1
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
           requires N(k + 1) = 10·N(k) + d(k + 1): from 3.1
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.2, 3.4
+          requires N(k + 1) ∈ ℝ: membership, from H1, 2, 3.2
 "
             .to_string(),
         )],
@@ -800,16 +800,16 @@ fn cases() -> Vec<Case> {
             "4 divides 2 is a word divides defines, and arithmetic decides a word only where its record says so in a `decided` field",
         ),
         // A membership step builds a typed value from the type it cites,
-        // never one merely in scope: H1 types d, and with 16.23 left out the
+        // never one merely in scope: H1 types d, and with 16.22 left out the
         // line names nothing saying d(n) is a number.
         case(
             "a membership of a typed value citing nothing",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("                    requires d(n) ∈ ℝ: membership, from 16.23\n\n           16.26.4.".to_string()),
-                "                    requires d(n) ∈ ℝ: membership\n\n           16.26.4.".to_string(),
+                Some("                    requires d(n) ∈ ℝ: membership, from 16.22\n\n           16.25.4.".to_string()),
+                "                    requires d(n) ∈ ℝ: membership\n\n           16.25.4.".to_string(),
             )],
-            "d(n) ∈ ℝ is not built from what step 16.26.3 cites: nothing says d(n) ∈ ℝ, which it needs",
+            "d(n) ∈ ℝ is not built from what step 16.25.3 cites: nothing says d(n) ∈ ℝ, which it needs",
         ),
         // Every atom an inequalities step combines is a real number by a
         // line it names: |c| is, by line 1, which line 2 does not say.
@@ -1103,26 +1103,26 @@ fn cases() -> Vec<Case> {
         ),
         // What a line says at the values may be an implication, whose
         // condition a line the step cites meets: line 13 asks that U(k) be
-        // an upper bound of S, which 15.4 says and 15.3 does not.
+        // an upper bound of S, which line 10 says at k and 15.1 does not.
         case(
             "instantiate an implication whose condition no cited line meets",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("instantiate u := U(k) in line 13, from 15.4".to_string()),
-                "instantiate u := U(k) in line 13, from 15.3".to_string(),
+                Some("instantiate u := U(k) in line 13, from 10".to_string()),
+                "instantiate u := U(k) in line 13, from 15.1".to_string(),
             )],
-            "instantiating at that term wants U(k) is an upper bound of S, which step 15.5 does not supply",
+            "instantiating at that term wants U(k) is an upper bound of S, which step 15.2 does not supply",
         ),
         // An instantiation claims what its line says at the values: H2 says
-        // 0 ≤ d(n) for every n, and not 0 ≥ d(n).
+        // 0 ≤ d(n) for every n, and so 0 ≤ d(k + 1), not 0 ≥ d(k + 1).
         case(
             "instantiate a line for what it does not say there",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("    16.6. 0 ≤ d(n) and d(n) ≤ 9\n          instantiate n := n in H2\n".to_string()),
-                "    16.6. 0 ≥ d(n) and d(n) ≤ 9\n          instantiate n := n in H2\n".to_string(),
+                Some("    3.3.  0 ≤ d(k + 1) and d(k + 1) ≤ 9\n          instantiate n := k + 1 in H2, from 3.2\n".to_string()),
+                "    3.3.  0 ≥ d(k + 1) and d(k + 1) ≤ 9\n          instantiate n := k + 1 in H2, from 3.2\n".to_string(),
             )],
-            "H2 at those terms says 0 ≤ d(n) and d(n) ≤ 9, and the step claims 0 ≥ d(n) and d(n) ≤ 9",
+            "H2 at those terms says 0 ≤ d(k + 1) and d(k + 1) ≤ 9, and the step claims 0 ≥ d(k + 1) and d(k + 1) ≤ 9",
         ),
         // A requires line of `from` alone rests on the lines it names: f(b)
         // is real by f's type H4 and b's place in its domain, and with H4
@@ -1360,10 +1360,10 @@ fn cases() -> Vec<Case> {
             "a substitution that reorders where it drops a 0",
             vec![edit(
                 "proofs/wiedijk/factor.proof",
-                Some("    2.2.  p(x) = (x − a)·q(x)\n".to_string()),
-                "    2.2.  p(x) = q(x)·(x − a)\n".to_string(),
+                Some("    2.1.  p(x) = (x − a)·q(x)\n".to_string()),
+                "    2.1.  p(x) = q(x)·(x − a)\n".to_string(),
             )],
-            "step 2.2 claims p(x) = q(x) · (x − a), which putting one side of p(a) = 0 for the other does not make",
+            "step 2.1 claims p(x) = q(x) · (x − a), which putting one side of p(a) = 0 for the other does not make",
         ),
         // 0 is an identity on the right of a difference and not on its left:
         // C(m, 0 − 1) is not C(m, −1) by any identity law.
@@ -2122,8 +2122,8 @@ fn cases() -> Vec<Case> {
             "cite a function's type for a value without the point's domain",
             vec![edit(
                 "proofs/wiedijk/cauchy-schwarz.proof",
-                Some("mun:square-zero x := a(k), from H2, K4, 5.3.1".to_string()),
-                "mun:square-zero x := a(k), from H2, 5.3.1".to_string(),
+                Some("mun:square-zero x := a(k), from H2, K4, 5.2".to_string()),
+                "mun:square-zero x := a(k), from H2, 5.2".to_string(),
             )],
             "asks for a(k) ∈ ℝ",
         ),
@@ -2566,7 +2566,7 @@ fn cases() -> Vec<Case> {
                 Some("          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1\n".to_string()),
                 "          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1, K6\n".to_string(),
             )],
-            "the requires line of step 16.7 cites K6, and d(n) ∈ ℤ needs nothing it says",
+            "the requires line of step 16.6 cites K6, and d(n) ∈ ℤ needs nothing it says",
         ),
         case(
             "an instantiation naming the let of the letter it puts in",
@@ -2824,15 +2824,15 @@ fn cases() -> Vec<Case> {
             "the requires line of step 2 needs something that mun:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
-        // `mod-natural` asks b ∈ ℕ, and without 4.6.9, which says b(k) ∈ ℕ,
+        // `mod-natural` asks b ∈ ℕ, and without 4.5.9, which says b(k) ∈ ℕ,
         // the line says what is missing rather than that the item concludes
         // something else.
         case(
             "a requires line whose item's hypothesis nothing supplies",
             vec![
-                edit("proofs/wiedijk/euclid.proof", Some("requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.9, 4.6.10\n".to_string()), "requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.10\n".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.9, 4.5.10\n".to_string()), "requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.10\n".to_string()),
             ],
-            "the requires line of step 4.6.12 cites mun:mod-natural, which asks for",
+            "the requires line of step 4.5.12 cites mun:mod-natural, which asks for",
         ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
@@ -3047,9 +3047,9 @@ fn cases() -> Vec<Case> {
         case(
             "a proof block that stops short of its claim",
             vec![
-                edit("proofs/wiedijk/reals-uncountable.proof", Some("    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.3, 4.4, 4.7".to_string()), "    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.3, 4.4".to_string()),
+                edit("proofs/wiedijk/reals-uncountable.proof", Some("    4.7.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.2, 4.3, 4.6".to_string()), "    4.7.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.2, 4.3".to_string()),
             ],
-            "step 4.8 ends the proof block of step 4, which owes",
+            "step 4.7 ends the proof block of step 4, which owes",
         ),
         // What an obtain claims is the "there is" it obtains from, the line
         // it names or what the item gives (`SYNTAX.md`), and no more.
@@ -4432,14 +4432,14 @@ fn cases() -> Vec<Case> {
         ),
         // A claim may bind another letter than the definition it reads, and says
         // the same thing only where the letter it binds is the one it uses: with
-        // b bound and a free, gH = aH is a claim about a, and 12.3 reads K's
+        // b bound and a free, gH = aH is a claim about a, and 11.2 reads K's
         // condition from it.
         case(
             "read a definition with a bound letter the claim does not use",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("    11.2. There is a ∈ G with gH = aH.\n".to_string()), "    11.2. There is b ∈ G with gH = aH.\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is b ∈ G with gH = aH.\n".to_string()),
             ],
-            "step 11.3 claims something that mun:part-builder does not conclude",
+            "step 11.2 claims something that mun:part-builder does not conclude",
         ),
         // K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
         // of gH is not caught by K's. So the sentence written with it caught
@@ -4447,9 +4447,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition at a term its bound letter would catch",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("    11.2. There is a ∈ G with gH = aH.\n".to_string()), "    11.2. There is g ∈ G with gH = gH.\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is g ∈ G with gH = gH.\n".to_string()),
             ],
-            "step 11.3 claims something that mun:part-builder does not conclude",
+            "step 11.2 claims something that mun:part-builder does not conclude",
         ),
         // An obtain from part-builder finds its "there is" in the condition of
         // the set the cited line puts Y in; K20 says only x ∈ Y ∩ Z.
@@ -5539,8 +5539,8 @@ fn cases() -> Vec<Case> {
             "drop a 0 from a term no line says is a number",
             vec![edit(
                 "proofs/wiedijk/factor.proof",
-                Some("          substitute p(a) = 0 (H3) into line 2.1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n".to_string()),
-                "          substitute p(a) = 0 (H3) into line 2.1\n".to_string(),
+                Some("          substitute p(a) = 0 (H3) into line 1\n          requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1\n".to_string()),
+                "          substitute p(a) = 0 (H3) into line 1\n".to_string(),
             )],
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
@@ -5625,7 +5625,7 @@ fn cases() -> Vec<Case> {
                 Some("                  requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2\n\n    6.3.".to_string()),
                 "                  requires Σ(k = 0 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 0, b := n, from 2\n\n    6.3.".to_string(),
             )],
-            "the requires line of step 6.2.11 cites 2, and mun:sum-real asks for nothing it says",
+            "the requires line of step 6.2.10 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A requires line citing a sum's item is read as a step citing it,
         // on a step citing no item itself: step 18 is a transitivity, and

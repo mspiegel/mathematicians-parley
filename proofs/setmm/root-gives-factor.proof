@@ -17,20 +17,17 @@ theorem root-gives-factor
     proof
     let x ∈ ℂ                                                         (K1)
 
-    2.1.  p(x) = (x − a)·q(x) + p(a)
-          instantiate x := x in line 1
+    2.1.  p(x) = (x − a)·q(x) + 0
+          substitute p(a) = 0 (H3) into line 1
 
-    2.2.  p(x) = (x − a)·q(x) + 0
-          substitute p(a) = 0 (H3) into line 2.1
-
-    2.3.  (x − a)·q(x) + 0 = (x − a)·q(x)
+    2.2.  (x − a)·q(x) + 0 = (x − a)·q(x)
           algebra
           requires q(x) ∈ ℂ: mun:polynomial-value p := q, from 1
 
-    2.4.  p(x) = (x − a)·q(x)
+    2.3.  p(x) = (x − a)·q(x)
           calculation
-            p(x) = (x − a)·q(x) + 0     2.2
-                 = (x − a)·q(x)         2.3
+            p(x) = (x − a)·q(x) + 0     2.1
+                 = (x − a)·q(x)         2.2
 
 3.  There is a polynomial q with p(x) = (x − a)·q(x) for all x ∈ ℂ.
     exhibit, from 1, 2

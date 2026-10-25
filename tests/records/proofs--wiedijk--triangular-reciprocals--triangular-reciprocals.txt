@@ -11,25 +11,25 @@ block of 5: 5.1, 5.2, 5.3
   the block owes Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
 block of 6: 6.1, 6.2, 6.3
   the block owes there is N ∈ ℕ with (for all n ∈ ℕ, N ≤ n → |Σ(k = 1 to n) 1 / T(k) − 2| < ε)
-block of 6.2: 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10, 6.2.11
+block of 6.2: 6.2.1, 6.2.2, 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10
   the block owes |Σ(k = 1 to n) 1 / T(k) − 2| < ε
 step 5.1 cites stdlib/sums/sum-termwise group 0; a := 1, b := n, t := property-of(1 / T(k)), u := property-of(2 / k − 2 / (k + 1)), bound k := k; concludes 0 AsWritten; from no line
 step 5.2 cites stdlib/sums/sum-telescopes group 0; a := 1, b := n, t := property-of(2 / k); concludes 0 AsWritten; from no line
 step 6.1 cites stdlib/numbers/archimedean group 0; x := ε / 2; concludes ; from no line
-step 6.2.3 cites stdlib/numbers/reciprocal-order group 0; x := N, y := n + 1; concludes 0 Forward; from 6.2.2 sentence 0
-step 6.2.4 cites stdlib/numbers/reciprocal-positive group 0; x := n + 1; concludes 0 AsWritten; from no line
-step 6.2.11 cites stdlib/numbers/abs-difference-lt group 0; c := 2, x := Σ(k = 1 to n) 1 / T(k), δ := ε; concludes 0 Backward; from 6.2.7 sentence 0, 6.2.10 sentence 0
+step 6.2.2 cites stdlib/numbers/reciprocal-order group 0; x := N, y := n + 1; concludes 0 Forward; from 6.2.1 sentence 0
+step 6.2.3 cites stdlib/numbers/reciprocal-positive group 0; x := n + 1; concludes 0 AsWritten; from no line
+step 6.2.10 cites stdlib/numbers/abs-difference-lt group 0; c := 2, x := Σ(k = 1 to n) 1 / T(k), δ := ε; concludes 0 Backward; from 6.2.6 sentence 0, 6.2.9 sentence 0
 step 7 cites stdlib/calculus/tends-to group 0; L := 2, x := property-of(Σ(k = 1 to n) 1 / T(k)), bound N := N, n := n, ε := ε; concludes 0 Backward; from 6 sentence 0
 step 8 cites stdlib/calculus/series-sum group 0; L := 2, t := property-of(1 / T(k)), bound k := k, n := n; concludes 0 AsWritten; from no line
-requires line 1 of step 6.2.11 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
+requires line 1 of step 6.2.10 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
 requires line 1 of step 7 cites stdlib/sums/sum-real group 0; a := 1, b := n, t := property-of(1 / T(k)); concludes 0 AsWritten; from no line
 step 5.1 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
 step 5.2 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
 step 5.3 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
 step 5.3 says once Σ(k = 1 to n) (2 / k − 2 / (k + 1)) is a number
-step 6.2.5 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
-step 6.2.7 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
-step 6.2.10 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
+step 6.2.4 chains 1 / (n + 1) ≤ 1 / N | 1 / N < ε / 2
+step 6.2.6 chains 2 − ε < 2 − 2 / (n + 1) | Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1)
+step 6.2.9 chains Σ(k = 1 to n) 1 / T(k) = 2 − 2 / (n + 1) | 2 − 2 / (n + 1) < 2 + ε
 step 6.3 exhibits in sentence 0 N := N
 read 11: ℕ  as  number-systems:ℕ  a set
 read 14: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
@@ -74,46 +74,44 @@ read 79: ε/2 > 0  as  order:>(multiplicative:/(name:ε, numeral:2), numeral:0) 
 read 81: For all n ≥ N, |Σ(k = 1 to n) 1/T(k) − 2| < ε  as  for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)), name:ε)))  a statement
 read 83: n ∈ ℕ  as  membership:∈(name:n, number-systems:ℕ)  a statement
 read 84: n ≥ N  as  order:≥(name:n, name:N)  a statement
-read 86: Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)  as  equality:=(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))))  a statement
-read 87: n  as  name:n  a number
-read 89: N ≤ n + 1  as  order:≤(name:N, additive:+(name:n, numeral:1))  a statement
-read 92: 1/(n + 1) ≤ 1/N  as  order:≤(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(numeral:1, name:N))  a statement
-read 93: N  as  name:N  a number
-read 93: n + 1  as  additive:+(name:n, numeral:1)  a number
-read 94: N > 0  as  order:>(name:N, numeral:0)  a statement
-read 95: n + 1 > 0  as  order:>(additive:+(name:n, numeral:1), numeral:0)  a statement
-read 97: 1/(n + 1) > 0  as  order:>(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), numeral:0)  a statement
-read 98: n + 1  as  additive:+(name:n, numeral:1)  a number
-read 99: n + 1 > 0  as  order:>(additive:+(name:n, numeral:1), numeral:0)  a statement
-read 101: 1/(n + 1) < ε/2  as  order:<(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(name:ε, numeral:2))  a statement
-read 104: 2 − ε < 2 − 2/(n + 1)  as  order:<(additive:−(numeral:2, name:ε), additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))))  a statement
-read 106: 1/(n + 1) < ε/2  as  order:<(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(name:ε, numeral:2))  a statement
-read 107: 2  as  numeral:2  a number
-read 107: 2/(n + 1) < ε  as  order:<(multiplicative:/(numeral:2, additive:+(name:n, numeral:1)), name:ε)  a statement
-read 108: 2 − ε < 2 − 2/(n + 1)  as  order:<(additive:−(numeral:2, name:ε), additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))))  a statement
-read 108: 2 − ε − 2/(n + 1)  as  additive:−(additive:−(numeral:2, name:ε), multiplicative:/(numeral:2, additive:+(name:n, numeral:1)))  a number
-read 110: 2 − ε < Σ(k = 1 to n) 1/T(k)  as  order:<(additive:−(numeral:2, name:ε), sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))))  a statement
-read 113: 2 − 2/(n + 1) < 2  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:2)  a statement
-read 115: 1/(n + 1) > 0  as  order:>(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), numeral:0)  a statement
-read 116: −2  as  unary-minus:−(numeral:2)  a number
-read 116: −2/(n + 1) < 0  as  order:<(unary-minus:−(multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:0)  a statement
-read 117: 2  as  numeral:2  a number
-read 117: 2 − 2/(n + 1) < 2  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:2)  a statement
-read 119: 2 − 2/(n + 1) < 2 + ε  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), additive:+(numeral:2, name:ε))  a statement
-read 122: Σ(k = 1 to n) 1/T(k) < 2 + ε  as  order:<(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), additive:+(numeral:2, name:ε))  a statement
-read 125: |Σ(k = 1 to n) 1/T(k) − 2| < ε  as  order:<(absolute-value:||(additive:−(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)), name:ε)  a statement
-read 126: 2  as  numeral:2  a number
-read 126: Σ(k = 1 to n) 1/T(k)  as  sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k)))  a number
-read 126: ε  as  name:ε  a number
-read 127: 1  as  numeral:1  a number
-read 127: n  as  name:n  a number
-read 127: Σ(k = 1 to n) 1/T(k) ∈ ℝ  as  membership:∈(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), number-systems:ℝ)  a statement
-read 129: There exists N ∈ ℕ such that |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N  as  there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)), name:ε))))  a statement
-read 132: Σ(k = 1 to n) 1/T(k) → 2 as n → ∞  as  tends-to:→as→∞(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2, name:n)  a statement
-read 133: 2  as  numeral:2  a number
-read 134: 1  as  numeral:1  a number
-read 134: for all n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ  as  for-all:forall∈,(name:n, number-systems:ℕ, membership:∈(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), number-systems:ℝ))  a statement
-read 134: n  as  name:n  a number
-read 136: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
-read 137: 2  as  numeral:2  a number
-read 138: for all k ∈ ℕ, 1/T(k) ∈ ℝ  as  for-all:forall∈,(name:k, number-systems:ℕ, membership:∈(multiplicative:/(numeral:1, application:()(name:T, name:k)), number-systems:ℝ))  a statement
+read 86: N ≤ n + 1  as  order:≤(name:N, additive:+(name:n, numeral:1))  a statement
+read 89: 1/(n + 1) ≤ 1/N  as  order:≤(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(numeral:1, name:N))  a statement
+read 90: N  as  name:N  a number
+read 90: n + 1  as  additive:+(name:n, numeral:1)  a number
+read 91: N > 0  as  order:>(name:N, numeral:0)  a statement
+read 92: n + 1 > 0  as  order:>(additive:+(name:n, numeral:1), numeral:0)  a statement
+read 94: 1/(n + 1) > 0  as  order:>(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), numeral:0)  a statement
+read 95: n + 1  as  additive:+(name:n, numeral:1)  a number
+read 96: n + 1 > 0  as  order:>(additive:+(name:n, numeral:1), numeral:0)  a statement
+read 98: 1/(n + 1) < ε/2  as  order:<(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(name:ε, numeral:2))  a statement
+read 101: 2 − ε < 2 − 2/(n + 1)  as  order:<(additive:−(numeral:2, name:ε), additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))))  a statement
+read 103: 1/(n + 1) < ε/2  as  order:<(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), multiplicative:/(name:ε, numeral:2))  a statement
+read 104: 2  as  numeral:2  a number
+read 104: 2/(n + 1) < ε  as  order:<(multiplicative:/(numeral:2, additive:+(name:n, numeral:1)), name:ε)  a statement
+read 105: 2 − ε < 2 − 2/(n + 1)  as  order:<(additive:−(numeral:2, name:ε), additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))))  a statement
+read 105: 2 − ε − 2/(n + 1)  as  additive:−(additive:−(numeral:2, name:ε), multiplicative:/(numeral:2, additive:+(name:n, numeral:1)))  a number
+read 107: 2 − ε < Σ(k = 1 to n) 1/T(k)  as  order:<(additive:−(numeral:2, name:ε), sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))))  a statement
+read 110: 2 − 2/(n + 1) < 2  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:2)  a statement
+read 112: 1/(n + 1) > 0  as  order:>(multiplicative:/(numeral:1, additive:+(name:n, numeral:1)), numeral:0)  a statement
+read 113: −2  as  unary-minus:−(numeral:2)  a number
+read 113: −2/(n + 1) < 0  as  order:<(unary-minus:−(multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:0)  a statement
+read 114: 2  as  numeral:2  a number
+read 114: 2 − 2/(n + 1) < 2  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), numeral:2)  a statement
+read 116: 2 − 2/(n + 1) < 2 + ε  as  order:<(additive:−(numeral:2, multiplicative:/(numeral:2, additive:+(name:n, numeral:1))), additive:+(numeral:2, name:ε))  a statement
+read 119: Σ(k = 1 to n) 1/T(k) < 2 + ε  as  order:<(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), additive:+(numeral:2, name:ε))  a statement
+read 122: |Σ(k = 1 to n) 1/T(k) − 2| < ε  as  order:<(absolute-value:||(additive:−(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)), name:ε)  a statement
+read 123: 2  as  numeral:2  a number
+read 123: Σ(k = 1 to n) 1/T(k)  as  sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k)))  a number
+read 123: ε  as  name:ε  a number
+read 124: 1  as  numeral:1  a number
+read 124: n  as  name:n  a number
+read 124: Σ(k = 1 to n) 1/T(k) ∈ ℝ  as  membership:∈(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), number-systems:ℝ)  a statement
+read 126: There exists N ∈ ℕ such that |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N  as  there-is:thereis∈with(name:N, number-systems:ℕ, for-all:forall∈,(name:n, number-systems:ℕ, conditional:ifthen(order:≥(name:n, name:N), order:<(absolute-value:||(additive:−(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)), name:ε))))  a statement
+read 129: Σ(k = 1 to n) 1/T(k) → 2 as n → ∞  as  tends-to:→as→∞(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2, name:n)  a statement
+read 130: 2  as  numeral:2  a number
+read 131: 1  as  numeral:1  a number
+read 131: for all n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ  as  for-all:forall∈,(name:n, number-systems:ℕ, membership:∈(sum:Σ(=to)(name:k, numeral:1, name:n, multiplicative:/(numeral:1, application:()(name:T, name:k))), number-systems:ℝ))  a statement
+read 131: n  as  name:n  a number
+read 133: Σ(k = 1 to ∞) 1/T(k) = 2  as  equality:=(series:Σ(=to∞)(name:k, numeral:1, multiplicative:/(numeral:1, application:()(name:T, name:k))), numeral:2)  a statement
+read 134: 2  as  numeral:2  a number
+read 135: for all k ∈ ℕ, 1/T(k) ∈ ℝ  as  for-all:forall∈,(name:k, number-systems:ℕ, membership:∈(multiplicative:/(numeral:1, application:()(name:T, name:k)), number-systems:ℝ))  a statement

@@ -1290,7 +1290,7 @@ impl<'a> Elaborator<'a> {
         // What the step writes is its requires lines and the lines it cites:
         // a cited `N ∈ ℕ` says N ≠ 0 as surely as a requires line would
         // (`READERS.md`, what a membership says).
-        let known = self.with_cited(Some(step), scope, &known, None)?;
+        let known = self.with_cited(Some(step), scope, &known, None);
         // An `obtain`'s memberships are in the scope under its name rather
         // than in its proved line, and are what it writes all the same.
         for r in &step.just.refs {
@@ -1755,10 +1755,7 @@ impl<'a> Elaborator<'a> {
         let known = Facts::new();
         let whole_proof = self.carried(&where_, facts, lines);
         self.know(&known, held.term.clone(), whole_proof.clone());
-        self.unpack_line(&held, &whole_proof, scope, &known)?;
-        // A value's membership of its domain is what a line the step cites
-        // says, read as the step reads it (`with_cited`).
-        let offered = self.with_cited(Some(step), scope, facts, None)?;
+        self.unpack_line(&held, &whole_proof, scope, &known);
         let universals: Vec<Rpn> = self
             .parts(&held.term)
             .into_iter()
@@ -1908,7 +1905,7 @@ impl<'a> Elaborator<'a> {
                         &[],
                     );
                     let turned = pf!(self.b; w, member, ph, read, "com12");
-                    let required = self.required(step, &member, scope, &offered)?;
+                    let required = self.required(step, &member, scope, facts)?;
                     let carried = pf!(self.b; scope, member, t!(w, ph, "wi"), required, turned, "syl");
                     pf!(self.b; scope, w, ph, proof, carried, "mpd")
                 } else {
@@ -1939,7 +1936,7 @@ impl<'a> Elaborator<'a> {
                 binds! {"ph" => &ph, "ps" => &ps, "x" => &letter, "A" => &at};
             binds.insert(slot.to_string(), domain.clone());
             let applied = self.b.ap(lemma, &binds, &[&asked]);
-            let required = self.required(step, &member, scope, &offered)?;
+            let required = self.required(step, &member, scope, facts)?;
             let carried =
                 pf!(self.b; scope, member, t!(w, ps, "wi"), required, applied, "syl");
             proof = pf!(self.b; scope, w, ps, proof, carried, "mpd");
@@ -2134,7 +2131,12 @@ impl<'a> Elaborator<'a> {
         let held = self.carried(&where_, facts, lines);
         let known = Facts::new();
         self.know(&known, into.term.clone(), held.clone());
-        let at_letters = self.unpack_line(&into, &held, scope, &known)?;
+        self.unpack_line(&into, &held, scope, &known);
+        let at_letters = self
+            .at_letters_of
+            .get(&into.term)
+            .cloned()
+            .unwrap_or_default();
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
         let mut offered = Vec::new();
@@ -2157,10 +2159,13 @@ impl<'a> Elaborator<'a> {
             }
         }
         // A "for all" of the line read at the letter of a block around the
-        // step is a sentence of it there (`know_at_letters`).
-        for start in at_letters {
-            if !starts.contains(&start) {
-                starts.push(start);
+        // step is a sentence of it there (`know_in_scope_at_letters`), and
+        // its parts are offered as a sentence's are.
+        for at in at_letters {
+            for start in self.parts(&at) {
+                if !starts.contains(&start) {
+                    starts.push(start);
+                }
             }
         }
         for start in &starts {
@@ -2620,12 +2625,21 @@ impl<'a> Elaborator<'a> {
         let Some(cited) = lines.get(&at.line) else {
             return Ok(held);
         };
-        let (said, proof) = match at.sentence {
-            Some(i) => {
-                let Some(one) = cited.sentences.get(i) else {
-                    return Ok(held);
-                };
-                let said = self.term(one)?;
+        // A sentence past the line's own is a "for all" of it read at a
+        // block's letter, which the line inside the block says with the
+        // rest (`know_in_scope_at_letters`).
+        let own = cited.sentences.len();
+        let said = match at.sentence {
+            Some(i) if i < own => Some(self.term(&cited.sentences[i])?),
+            Some(i) => self
+                .at_letters_of
+                .get(&cited.term)
+                .and_then(|at| at.get(i - own))
+                .cloned(),
+            None => None,
+        };
+        let (said, proof) = match said {
+            Some(said) => {
                 let Some(proof) = self.held(facts, &said, scope)? else {
                     return Ok(held);
                 };
@@ -2694,7 +2708,7 @@ impl<'a> Elaborator<'a> {
         // asks, as a defined function's argument in its domain where a
         // cited line applies one, comes from these.
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let named = self.with_cited(Some(step), scope, &supplied, None)?;
+        let named = self.with_cited(Some(step), scope, &supplied, None);
         // A line may say several things at once, and what the definition
         // unfolds is the one the checker took the reading from (`firsts_here`).
         let mut chosen = None;
@@ -3018,7 +3032,7 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let held = self.with_cited(Some(step), scope, &supplied, None)?;
+        let held = self.with_cited(Some(step), scope, &supplied, None);
         let want = self.to_term(term);
         for r in &step.just.refs {
             let Some(cited) = lines.get(r) else {
@@ -3027,7 +3041,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, facts, lines);
             self.know(&parts, cited.term.clone(), whole.clone());
-            self.unpack_line(&cited, &whole, scope, &parts)?;
+            self.unpack_line(&cited, &whole, scope, &parts);
             for (said, proof) in parts.entries() {
                 // A part that is the claim leaves `same` nothing to carry.
                 if said == *term {
@@ -3205,7 +3219,7 @@ impl<'a> Elaborator<'a> {
                         (part, carried)
                     } else {
                         let apart = facts.copy();
-                        self.unpack_line(&held, &carried, scope, &apart)?;
+                        self.unpack_line(&held, &carried, scope, &apart);
                         let Some(proof) = self.held(&apart, &part, scope)? else {
                             return Err(self.defect(
                                 step.line,
@@ -3859,7 +3873,7 @@ impl<'a> Elaborator<'a> {
         // comes to somewhere: the standard form reads the name as its rule.
         if defines.contains(cite) && line.term != wanted {
             let supplied = self.supplied(Some(step), scope, facts)?;
-            let known = self.with_cited(Some(step), scope, &supplied, None)?;
+            let known = self.with_cited(Some(step), scope, &supplied, None);
             // The link may be the define's own equation, either way round,
             // over another bound letter: a define of a count read its index
             // before the step's lines took theirs.
@@ -3894,7 +3908,7 @@ impl<'a> Elaborator<'a> {
         // A line may say several things, and the link be one of them.
         let known = Facts::new();
         self.know(&known, line.term.clone(), proof.clone());
-        self.unpack_line(&line, &proof, scope, &known)?;
+        self.unpack_line(&line, &proof, scope, &known);
         for (said_as, held) in known.entries() {
             if said_as == wanted {
                 return Ok(held);
@@ -3962,7 +3976,7 @@ impl<'a> Elaborator<'a> {
         let whole = self.to_term(term);
         if whole.label() == Some("wfn") {
             let supplied = self.supplied(Some(step), scope, facts)?;
-            let held = self.with_cited(Some(step), scope, &supplied, None)?;
+            let held = self.with_cited(Some(step), scope, &supplied, None);
             return self.define_on(&whole, scope, &held);
         }
         if whole.label() != Some("wceq") {
@@ -3978,7 +3992,7 @@ impl<'a> Elaborator<'a> {
             ));
         }
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let held = self.with_cited(Some(step), scope, &supplied, None)?;
+        let held = self.with_cited(Some(step), scope, &supplied, None);
         let (a, b) = (whole.children()[0].clone(), whole.children()[1].clone());
         self.equation_by_define(step, &a, &b, scope, &held)
     }
@@ -5896,7 +5910,7 @@ impl<'a> Elaborator<'a> {
         }
         // What the step writes and cites is what reading the statement over
         // the step's own terms may ask: e(n) ∈ ℤ, to read s at e(n).
-        let read = self.with_cited(Some(step), scope, &known, None)?;
+        let read = self.with_cited(Some(step), scope, &known, None);
         let offered = facts.with(&read);
         let concluded = self.concluded(step, term, &whole, proof, scope, &offered);
         self.resting = kept;

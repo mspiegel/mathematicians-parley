@@ -519,27 +519,60 @@ impl<'a> Elaborator<'a> {
         proof: &Proof,
         scope: &Rpn,
         facts: &Facts,
-    ) -> Checked<Vec<Rpn>> {
+    ) {
         self.unpack_all(&line.term, proof, scope, facts);
         self.know_chains(&line.sentences, &line.term, proof, scope, facts);
-        self.know_parts_at_letters(&line.term, scope, facts)
     }
 
-    /// `know_at_letters` for each part of a line saying `term` that `facts`
-    /// holds: what the parts say at the block's letter.
-    fn know_parts_at_letters(
-        &mut self,
-        term: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-    ) -> Checked<Vec<Rpn>> {
-        let mut out = Vec::new();
-        for part in self.parts(term) {
-            if let Some(held) = self.held(facts, &part, scope)? {
-                out.extend(self.know_at_letters(&part, &held, scope, facts)?);
+    /// Each line written above a block's `let x ∈ X` read as the checker
+    /// reads it inside the block (`SYNTAX.md`): a line with a part "for all
+    /// a ∈ X, P(a)" says P(x) as well, so inside the block it is the line
+    /// and P(x) together, whatever method a step citing it runs. Closing the
+    /// block gives the lines back as they were (`Block::lines`).
+    fn know_in_scope_at_letters(&mut self, scope: &Rpn, facts: &Facts) -> Checked<()> {
+        for (label, line) in self.lines.entries() {
+            let Some(whole) = facts.line_proof(&label, &line.term) else {
+                continue;
+            };
+            let parts = Facts::new();
+            self.know(&parts, line.term.clone(), whole.clone());
+            self.unpack_all(&line.term, &whole, scope, &parts);
+            let mut term = line.term.clone();
+            let mut proof = whole.clone();
+            let mut instances = Vec::new();
+            for part in self.parts(&line.term) {
+                let Some(held) = self.held(&parts, &part, scope)? else {
+                    continue;
+                };
+                let Some(at) = self.know_at_letters(&part, &held, scope, &parts)?
+                else {
+                    continue;
+                };
+                let given = self
+                    .held(&parts, &at, scope)?
+                    .expect("the instance just known");
+                proof = pf!(self.b; scope, term, at, proof, given, "jca");
+                term = t!(term, at, "wa");
+                instances.push(at);
             }
+            if instances.is_empty() {
+                continue;
+            }
+            self.at_letters_of.insert(term.clone(), instances);
+            let proof = Proof {
+                items: proof.items,
+                origin: whole.origin.clone(),
+            };
+            self.know(facts, term.clone(), proof.clone());
+            self.unpack_all(&term, &proof, scope, facts);
+            let read = Line {
+                term,
+                proof,
+                sentences: line.sentences.clone(),
+            };
+            self.lines.set(label, read);
         }
-        Ok(out)
+        Ok(())
     }
 
     /// Record a block's `let x ∈ X` as a letter the lines cited inside the
@@ -848,6 +881,10 @@ impl<'a> Elaborator<'a> {
                     };
                     if o.kind == Intro::Let && function.is_none() {
                         self.add_block_letter(&added, &held, &block.scope.clone());
+                        self.know_in_scope_at_letters(
+                            &block.scope.clone(),
+                            &block.facts,
+                        )?;
                     }
                     if !o.label.is_empty() {
                         self.lines.set(
@@ -1030,6 +1067,7 @@ impl<'a> Elaborator<'a> {
                 .expect("the assumption just laid down");
             if o.kind == Intro::Let && !o.is_hypothesis {
                 self.add_block_letter(&added, &proof, &block.scope.clone());
+                self.know_in_scope_at_letters(&block.scope.clone(), &block.facts)?;
             }
             self.lines.set(
                 o.label.clone(),
@@ -2184,6 +2222,24 @@ impl<'a> Elaborator<'a> {
                         }
                     }
                 }
+                // Or a "for all" of it read at a block's letter
+                // (`know_in_scope_at_letters`).
+                if self.there_is_depth(&ex) < got.len() {
+                    let parts = Facts::new();
+                    self.know(&parts, ex.clone(), p_ex.clone());
+                    self.unpack_all(&ex, &p_ex, scope, &parts);
+                    let at = self.at_letters_of.get(&ex).cloned().unwrap_or_default();
+                    for one in at {
+                        if self.there_is_depth(&one) < got.len() {
+                            continue;
+                        }
+                        if let Some(p) = self.held(&parts, &one, scope)? {
+                            ex = one;
+                            p_ex = p;
+                            break;
+                        }
+                    }
+                }
                 // Eliminating an existential puts the name it binds into the
                 // scope, and the lemma that does it forbids that name in what
                 // the scope already says. So the claim is respelt first, over
@@ -2350,7 +2406,7 @@ impl<'a> Elaborator<'a> {
                         }
                     };
                     let supplied = self.supplied(Some(step), scope, facts)?;
-                    let known = self.with_cited(Some(step), scope, &supplied, None)?;
+                    let known = self.with_cited(Some(step), scope, &supplied, None);
                     let p_given = match self.settle(
                         &self.to_term(&given),
                         scope,
@@ -3297,7 +3353,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         known: &Facts,
         refs: Option<&[String]>,
-    ) -> Checked<Facts> {
+    ) -> Facts {
         let outer = !self.frames.is_empty()
             && *scope != self.frames[self.frames.len() - 1].scope;
         let cited = Facts::new();
@@ -3316,7 +3372,7 @@ impl<'a> Elaborator<'a> {
             let parts = Facts::new();
             let whole = self.carried(r, known, &lines);
             self.know(&parts, line.term.clone(), whole.clone());
-            self.unpack_line(&line, &whole, scope, &parts)?;
+            self.unpack_line(&line, &whole, scope, &parts);
             for (k, v) in parts.entries() {
                 self.know(&cited, k, v);
             }
@@ -3327,7 +3383,7 @@ impl<'a> Elaborator<'a> {
                 self.know(&out, k, v);
             }
         }
-        Ok(out)
+        out
     }
 
     /// Two lines paired, `jca`, the lines paired by what they claim.
@@ -3347,7 +3403,6 @@ impl<'a> Elaborator<'a> {
             let proof = self.carried(r, facts, &lines);
             self.know_conjuncts(&held, &line.term, &proof, scope);
             self.know(&held, line.term.clone(), proof);
-            self.know_parts_at_letters(&line.term, scope, &held)?;
         }
         // A line joined is the claim, or a part of it, as it stands or over
         // other bound letters; and where the step cites a define, with the

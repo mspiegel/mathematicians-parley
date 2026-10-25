@@ -256,49 +256,46 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            16.29.2.  f(s) < 0
                      mun:set-builder, from D1, K2
 
-           16.29.3.  s ≤ c
-                     instantiate s := s in line 10, from K2
-
-           16.29.4.  s ≤ c − δ
+           16.29.3.  s ≤ c − δ
                      contradiction
                      suppose not s ≤ c − δ                            (S2)
 
-                     16.29.4.1.  c − δ < s
+                     16.29.3.1.  c − δ < s
                                  inequalities, from S2
                                  requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.29.4.2.  s < c + δ
-                                 inequalities, from 16.28, 16.29.3
+                     16.29.3.2.  s < c + δ
+                                 inequalities, from 10, 16.28
                                  requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.29.4.3.  |s − c| < δ
+                     16.29.3.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s,
-                                   from 16.29.4.1, 16.29.4.2
+                                   from 16.29.3.1, 16.29.3.2
                                  requires s ∈ ℝ: mun:interval, from 16.29.1
 
-                     16.29.4.4.  |f(s) − f(c)| < f(c)
-                                 instantiate x := s in line 16.28, from 16.29.1, 16.29.4.3
+                     16.29.3.4.  |f(s) − f(c)| < f(c)
+                                 instantiate x := s in line 16.28, from 16.29.1, 16.29.3.3
 
-                     16.29.4.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
+                     16.29.3.5.  −(f(s) − f(c)) ≤ |f(s) − f(c)|
                                  thm:abs-bounds x := f(s) − f(c)
                                  requires f(s) − f(c) ∈ ℝ: mun:real-closure, from H4, 13, 16.29.1
 
-                     16.29.4.6.  −(f(s) − f(c)) < f(c)
-                                 transitivity, from 16.29.4.5, 16.29.4.4
+                     16.29.3.6.  −(f(s) − f(c)) < f(c)
+                                 transitivity, from 16.29.3.5, 16.29.3.4
                                  requires f(s) ∈ ℝ: from H4, 16.29.1
                                  requires f(c) ∈ ℝ: from H4, 13
                                  requires |f(s) − f(c)| ∈ ℝ: mun:abs-real x := f(s) − f(c)
 
-                     16.29.4.7.  0 ≤ f(s)
+                     16.29.3.7.  0 ≤ f(s)
                                  inequalities
-                                   −(f(s) − f(c)) < f(c)      16.29.4.6
+                                   −(f(s) − f(c)) < f(c)      16.29.3.6
                                    0 < f(s)                   adding f(s) − f(c)
                                    0 ≤ f(s)                   weakening
                                  requires f(s) ∈ ℝ: from H4, 16.29.1
                                  requires f(c) ∈ ℝ: from H4, 13
 
-                     16.29.4.8.  not f(s) < 0
-                                 inequalities, from 16.29.4.7, contradicting 16.29.2
+                     16.29.3.8.  not f(s) < 0
+                                 inequalities, from 16.29.3.7, contradicting 16.29.2
                                  requires f(s) ∈ ℝ: from H4, 16.29.1
 
     16.30. c − δ is an upper bound of S

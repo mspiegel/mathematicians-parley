@@ -64,14 +64,11 @@ theorem cauchy-schwarz
           proof
           let k ∈ {1, …, n}                                           (K4)
 
-          5.3.1.  a(k)² = 0
-                  instantiate k := k in line 5.2, from K4
+          5.3.1.  a(k) = 0
+                  mun:square-zero x := a(k), from H2, K4, 5.2
 
-          5.3.2.  a(k) = 0
-                  mun:square-zero x := a(k), from H2, K4, 5.3.1
-
-          5.3.3.  a(k)·b(k) = 0
-                  algebra, from 5.3.2
+          5.3.2.  a(k)·b(k) = 0
+                  algebra, from 5.3.1
                   requires b(k) ∈ ℝ: from H3, K4
 
     5.4.  Σ(k = 1 to n) a(k)·b(k) = Σ(k = 1 to n) 0

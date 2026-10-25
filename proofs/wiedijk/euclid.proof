@@ -122,75 +122,72 @@ theorem euclid
     let k ∈ ℕ₀                                                        (K2)
     assume step 4 is true for k, the induction hypothesis             (IH2)
 
-    4.4.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
-          instantiate k := k in line 3
-
-    4.5.  b(k) = 0 or b(k) ≠ 0
+    4.4.  b(k) = 0 or b(k) ≠ 0
           mun:excluded-middle P := b(k) = 0
 
-    4.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-          cases, from 4.5
+    4.5.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          cases, from 4.4
 
           case
           assume b(k) = 0                                             (C3)
 
-          4.6.1.  a(k + 1) = a(k)
+          4.5.1.  a(k + 1) = a(k)
                   D1, from C3
 
-          4.6.2.  b(k + 1) = 0
+          4.5.2.  b(k + 1) = 0
                   D1, from C3
 
-          4.6.3.  gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))
-                  substitute a(k + 1) = a(k) (line 4.6.1)
+          4.5.3.  gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))
+                  substitute a(k + 1) = a(k) (line 4.5.1)
 
-          4.6.4.  gcd(a(k), b(k + 1)) = gcd(a(k), 0)
-                  substitute b(k + 1) = 0 (line 4.6.2)
+          4.5.4.  gcd(a(k), b(k + 1)) = gcd(a(k), 0)
+                  substitute b(k + 1) = 0 (line 4.5.2)
 
-          4.6.5.  gcd(a(k), 0) = gcd(a(k), b(k))
+          4.5.5.  gcd(a(k), 0) = gcd(a(k), b(k))
                   substitute b(k) = 0 (C3)
 
-          4.6.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          4.5.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                   calculation
-                    gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    4.6.3
-                                            = gcd(a(k), 0)           4.6.4
-                                            = gcd(a(k), b(k))        4.6.5
+                    gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    4.5.3
+                                            = gcd(a(k), 0)           4.5.4
+                                            = gcd(a(k), b(k))        4.5.5
                                             = gcd(M, N)              IH2
 
           case
           assume b(k) ≠ 0                                             (C4)
 
-          4.6.7.  a(k + 1) = b(k)
+          4.5.7.  a(k + 1) = b(k)
                   D1, from C4
 
-          4.6.8.  b(k + 1) = a(k) mod b(k)
+          4.5.8.  b(k + 1) = a(k) mod b(k)
                   D1, from C4
 
-          4.6.9.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from C4, 4.4
+          4.5.9.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from C4, 3
 
-          4.6.10. a(k) ∈ ℤ
-                  mun:nat0-int, from 4.4
+          4.5.10. a(k) ∈ ℤ
+                  mun:nat0-int, from 3
 
-          4.6.11. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
-                  thm:gcd-mod, from 4.6.9, 4.6.10
+          4.5.11. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
+                  thm:gcd-mod, from 4.5.9, 4.5.10
 
-          4.6.12. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
+          4.5.12. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
                   mun:gcd-commutes
-                  requires b(k) ∈ ℤ: mun:nat0-int, from 4.4
-                  requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.6.9, 4.6.10
+                  requires b(k) ∈ ℤ: mun:nat0-int, from 3
+                  requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.9, 4.5.10
 
-          4.6.13. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
-                  substitute a(k + 1) = b(k) (line 4.6.7)
+          4.5.13. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
+                  substitute a(k + 1) = b(k) (line 4.5.7)
 
-          4.6.14. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
-                  substitute b(k + 1) = a(k) mod b(k) (line 4.6.8)
+          4.5.14. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
+                  substitute b(k + 1) = a(k) mod b(k) (line 4.5.8)
 
-          4.6.15. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          4.5.15. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                   calculation
-                    gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         4.6.13
-                                            = gcd(b(k), a(k) mod b(k))    4.6.14
-                                            = gcd(a(k) mod b(k), b(k))    4.6.12
-                                            = gcd(a(k), b(k))             4.6.11
+                    gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         4.5.13
+                                            = gcd(b(k), a(k) mod b(k))    4.5.14
+                                            = gcd(a(k) mod b(k), b(k))    4.5.12
+                                            = gcd(a(k), b(k))             4.5.11
                                             = gcd(M, N)                   IH2
 
 5.  For all k ∈ ℕ₀, b(k) + k ≤ N or b(k) = 0.
@@ -211,70 +208,67 @@ theorem euclid
     let k ∈ ℕ₀                                                        (K3)
     assume step 5 is true for k, the induction hypothesis             (IH3)
 
-    5.3.  a(k) ∈ ℕ₀ and b(k) ∈ ℕ₀
-          instantiate k := k in line 3
-
-    5.4.  b(k) = 0 or b(k) ≠ 0
+    5.3.  b(k) = 0 or b(k) ≠ 0
           mun:excluded-middle P := b(k) = 0
 
-    5.5.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-          cases, from 5.4
+    5.4.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+          cases, from 5.3
 
           case
           assume b(k) = 0                                             (C5)
 
-          5.5.1.  b(k + 1) = 0
+          5.4.1.  b(k + 1) = 0
                   D1, from C5
 
-          5.5.2.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                  mun:or-right, from 5.5.1
+          5.4.2.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-right, from 5.4.1
 
           case
           assume b(k) ≠ 0                                             (C6)
 
-          5.5.3.  b(k + 1) = a(k) mod b(k)
+          5.4.3.  b(k + 1) = a(k) mod b(k)
                   D1, from C6
 
-          5.5.4.  b(k) ∈ ℕ
-                  mun:nat0-nonzero, from C6, 5.3
+          5.4.4.  b(k) ∈ ℕ
+                  mun:nat0-nonzero, from C6, 3
 
-          5.5.5.  a(k) ∈ ℤ
-                  mun:nat0-int, from 5.3
+          5.4.5.  a(k) ∈ ℤ
+                  mun:nat0-int, from 3
 
-          5.5.6.  a(k) mod b(k) < b(k)
-                  mun:mod-less, from 5.5.4, 5.5.5
+          5.4.6.  a(k) mod b(k) < b(k)
+                  mun:mod-less, from 5.4.4, 5.4.5
 
-          5.5.7.  a(k) mod b(k) ∈ ℕ₀
-                  mun:mod-natural, from 5.5.4, 5.5.5
+          5.4.7.  a(k) mod b(k) ∈ ℕ₀
+                  mun:mod-natural, from 5.4.4, 5.4.5
 
-          5.5.8.  b(k + 1) < b(k)
-                  substitute b(k + 1) = a(k) mod b(k) (line 5.5.3) into line 5.5.6
+          5.4.8.  b(k + 1) < b(k)
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.6
 
-          5.5.9.  b(k + 1) ∈ ℕ₀
-                  substitute b(k + 1) = a(k) mod b(k) (line 5.5.3) into line 5.5.7
+          5.4.9.  b(k + 1) ∈ ℕ₀
+                  substitute b(k + 1) = a(k) mod b(k) (line 5.4.3) into line 5.4.7
 
-          5.5.10. b(k + 1) + 1 ≤ b(k)
-                  mun:integer-step, from 5.5.8
-                  requires b(k + 1) ∈ ℤ: mun:nat0-int, from 5.5.9
-                  requires b(k) ∈ ℤ: mun:nat0-int, from 5.3
+          5.4.10. b(k + 1) + 1 ≤ b(k)
+                  mun:integer-step, from 5.4.8
+                  requires b(k + 1) ∈ ℤ: mun:nat0-int, from 5.4.9
+                  requires b(k) ∈ ℤ: mun:nat0-int, from 3
 
-          5.5.11. b(k) + k ≤ N
+          5.4.11. b(k) + k ≤ N
                   mun:disjunctive-syllogism, from C6, IH3
 
-          5.5.12. b(k + 1) + (k + 1) ≤ b(k) + k
+          5.4.12. b(k + 1) + (k + 1) ≤ b(k) + k
                   inequalities
-                    b(k + 1) + 1 ≤ b(k)                  5.5.10
+                    b(k + 1) + 1 ≤ b(k)                  5.4.10
                     b(k + 1) + (k + 1) ≤ b(k) + k        adding k
-                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.5.9
-                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.3
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.4.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 3
 
-          5.5.13. b(k + 1) + (k + 1) ≤ N
-                  transitivity, from 5.5.12, 5.5.11
-                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.5.9
-                  requires b(k) ∈ ℝ: mun:nat0-real, from 5.3
+          5.4.13. b(k + 1) + (k + 1) ≤ N
+                  transitivity, from 5.4.12, 5.4.11
+                  requires b(k + 1) ∈ ℝ: mun:nat0-real, from 5.4.9
+                  requires b(k) ∈ ℝ: mun:nat0-real, from 3
 
-          5.5.14. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-                  mun:or-left, from 5.5.13
+          5.4.14. b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
+                  mun:or-left, from 5.4.13
 
 6.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
     instantiate k := N in line 3

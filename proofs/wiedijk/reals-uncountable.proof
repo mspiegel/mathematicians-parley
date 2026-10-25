@@ -198,133 +198,127 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     3.3.  0 ≤ d(k + 1) and d(k + 1) ≤ 9
           instantiate n := k + 1 in H2, from 3.2
 
-    3.4.  N(k) ∈ ℤ
-          instantiate k := k in line 2
-
-    3.5.  10·N(k) ≤ 10·N(k) + d(k + 1)
+    3.4.  10·N(k) ≤ 10·N(k) + d(k + 1)
           inequalities
             0 ≤ d(k + 1)                             3.3
             10·N(k) ≤ 10·N(k) + d(k + 1)             adding 10·N(k)
-          requires N(k) ∈ ℝ: membership, from 3.4
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.6.  10·N(k) ≤ N(k + 1)
-          transitivity, from 3.5, 3.1
-          requires N(k) ∈ ℝ: membership, from 3.4
+    3.5.  10·N(k) ≤ N(k + 1)
+          transitivity, from 3.4, 3.1
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.7.  10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)
+    3.6.  10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)
           inequalities
             d(k + 1) ≤ 9                             3.3
             10·N(k) + d(k + 1) + 1 ≤ 10·(N(k) + 1)   adding 10·N(k) + 1
-          requires N(k) ∈ ℝ: membership, from 3.4
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.8.  N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1
+    3.7.  N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1
           inequalities
             N(k + 1) = 10·N(k) + d(k + 1)            3.1
             N(k + 1) + 1 = 10·N(k) + d(k + 1) + 1    adding 1
-          requires N(k) ∈ ℝ: membership, from 3.4
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
 
-    3.9.  N(k + 1) + 1 ≤ 10·(N(k) + 1)
-          transitivity, from 3.8, 3.7
-          requires N(k) ∈ ℝ: membership, from 3.4
+    3.8.  N(k + 1) + 1 ≤ 10·(N(k) + 1)
+          transitivity, from 3.7, 3.6
+          requires N(k) ∈ ℝ: membership, from 2
           requires d(k + 1) ∈ ℝ: membership, from H1, 3.2
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
+          requires N(k + 1) ∈ ℝ: membership, from H1, 2, 3.1, 3.2
 
-    3.10. 10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
-          join 3.6, 3.9
+    3.9.  10·N(k) ≤ N(k + 1) and N(k + 1) + 1 ≤ 10·(N(k) + 1)
+          join 3.5, 3.8
 
-    3.11. 10^(k + 1) ∈ ℕ
+    3.10. 10^(k + 1) ∈ ℕ
           mun:power-nat a := 10, m := k + 1
 
-    3.12. 10^(k + 1) = 10^k·10
+    3.11. 10^(k + 1) = 10^k·10
           mun:exponent-step a := 10, m := k
 
-    3.13. N(k)/10^k = (10·N(k))/(10^k·10)
+    3.12. N(k)/10^k = (10·N(k))/(10^k·10)
           algebra
-          requires N(k) ∈ ℝ: membership, from 3.4
+          requires N(k) ∈ ℝ: membership, from 2
 
-    3.14. N(k)/10^k = (10·N(k))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.12) into line 3.13
+    3.13. N(k)/10^k = (10·N(k))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.12
 
-    3.15. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
+    3.14. (N(k) + 1)/10^k = (10·(N(k) + 1))/(10^k·10)
           algebra
-          requires N(k) ∈ ℝ: membership, from 3.4
+          requires N(k) ∈ ℝ: membership, from 2
 
-    3.16. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
-          substitute 10^(k + 1) = 10^k·10 (line 3.12) into line 3.15
+    3.15. (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1)
+          substitute 10^(k + 1) = 10^k·10 (line 3.11) into line 3.14
 
-    3.17. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
-          mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.10
-          requires 10·N(k) ∈ ℝ: membership, from 3.4
-          requires N(k + 1) ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.11
-          requires 10^(k + 1) > 0: inequalities, from 3.11
+    3.16. (10·N(k))/10^(k + 1) ≤ N(k + 1)/10^(k + 1)
+          mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
+          requires 10·N(k) ∈ ℝ: membership, from 2
+          requires N(k + 1) ∈ ℝ: membership, from H1, 2, 3.1, 3.2
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.10
+          requires 10^(k + 1) > 0: inequalities, from 3.10
 
-    3.18. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
-          mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.10
-          requires N(k + 1) + 1 ∈ ℝ: membership, from H1, 3.1, 3.2, 3.4
-          requires 10·(N(k) + 1) ∈ ℝ: membership, from 3.4
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.11
-          requires 10^(k + 1) > 0: inequalities, from 3.11
+    3.17. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
+          mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.9
+          requires N(k + 1) + 1 ∈ ℝ: membership, from H1, 2, 3.1, 3.2
+          requires 10·(N(k) + 1) ∈ ℝ: membership, from 2
+          requires 10^(k + 1) ∈ ℝ: membership, from 3.10
+          requires 10^(k + 1) > 0: inequalities, from 3.10
 
-    3.19. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
-          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.14) into line 3.17
+    3.18. N(k)/10^k ≤ N(k + 1)/10^(k + 1)
+          substitute N(k)/10^k = (10·N(k))/10^(k + 1) (line 3.13) into line 3.16
 
-    3.20. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
-          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.16) into line 3.18
+    3.19. (N(k + 1) + 1)/10^(k + 1) ≤ (N(k) + 1)/10^k
+          substitute (N(k) + 1)/10^k = (10·(N(k) + 1))/10^(k + 1) (line 3.15) into line 3.17
 
-    3.21. L(k) ≤ L(k + 1)
+    3.20. L(k) ≤ L(k + 1)
           calculation
             L(k) = N(k)/10^k                     D5
-                 ≤ N(k + 1)/10^(k + 1)           3.19
+                 ≤ N(k + 1)/10^(k + 1)           3.18
                  = L(k + 1)                      D5
 
-    3.22. U(k + 1) ≤ U(k)
+    3.21. U(k + 1) ≤ U(k)
           calculation
             U(k + 1) = (N(k + 1) + 1)/10^(k + 1)    D6
-                     ≤ (N(k) + 1)/10^k              3.20
+                     ≤ (N(k) + 1)/10^k              3.19
                      = U(k)                         D6
 
-    3.23. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
-          join 3.21, 3.22
+    3.22. L(k) ≤ L(k + 1) and U(k + 1) ≤ U(k)
+          join 3.20, 3.21
 
 4.  For all k ∈ ℕ₀, L(k) ∈ ℝ and U(k) ∈ ℝ and L(k) ≤ U(k).
     proof
     note each lower end and its upper end are real, and in order
     let k ∈ ℕ₀                                                        (K2)
 
-    4.1.  N(k) ∈ ℤ
-          instantiate k := k in line 2
-
-    4.2.  10^k ∈ ℕ
+    4.1.  10^k ∈ ℕ
           mun:power-nat a := 10, m := k
 
-    4.3.  L(k) ∈ ℝ
-          membership, from D5, 4.1
+    4.2.  L(k) ∈ ℝ
+          membership, from D5, 2
 
-    4.4.  U(k) ∈ ℝ
-          membership, from D6, 4.1
+    4.3.  U(k) ∈ ℝ
+          membership, from D6, 2
 
-    4.5.  N(k) ≤ N(k) + 1
+    4.4.  N(k) ≤ N(k) + 1
           inequalities
-          requires N(k) ∈ ℝ: membership, from 4.1
+          requires N(k) ∈ ℝ: membership, from 2
 
-    4.6.  N(k)/10^k ≤ (N(k) + 1)/10^k
-          mun:divide-le x := N(k), y := N(k) + 1, c := 10^k, from 4.5
-          requires N(k) ∈ ℝ: membership, from 4.1
-          requires 10^k > 0: inequalities, from 4.2
+    4.5.  N(k)/10^k ≤ (N(k) + 1)/10^k
+          mun:divide-le x := N(k), y := N(k) + 1, c := 10^k, from 4.4
+          requires N(k) ∈ ℝ: membership, from 2
+          requires 10^k > 0: inequalities, from 4.1
 
-    4.7.  L(k) ≤ U(k)
+    4.6.  L(k) ≤ U(k)
           calculation
             L(k) = N(k)/10^k               D5
-                 ≤ (N(k) + 1)/10^k         4.6
+                 ≤ (N(k) + 1)/10^k         4.5
                  = U(k)                    D6
 
-    4.8.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
-          join 4.3, 4.4, 4.7
+    4.7.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
+          join 4.2, 4.3, 4.6
 
 5.  For all g ∈ ℕ₀, for all p ∈ ℕ₀, L(p) ≤ L(p + g) and U(p + g) ≤ U(p).
     induction on g starting at 0
@@ -335,11 +329,8 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           proof
           let p ∈ ℕ₀                                                  (P1)
 
-          5.1.1.  L(p) ∈ ℝ. U(p) ∈ ℝ. L(p) ≤ U(p).
-                  instantiate k := p in line 4
-
-          5.1.2.  L(p) ≤ L(p) and U(p) ≤ U(p)
-                  inequalities, from 5.1.1
+          5.1.1.  L(p) ≤ L(p) and U(p) ≤ U(p)
+                  inequalities, from 4
 
     step
     let g ∈ ℕ₀                                                        (G)
@@ -478,15 +469,12 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     proof
     let k ∈ ℕ₀                                                        (K8)
 
-    8.1.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
-          instantiate k := k in line 4
-
-    8.2.  L(k) = N(k)/10^k
+    8.1.  L(k) = N(k)/10^k
           D5
 
-    8.3.  L(k) ∈ S
-          mun:set-builder u := L(k), from D4, 8.2
-          requires L(k) ∈ ℝ: from 8.1
+    8.2.  L(k) ∈ S
+          mun:set-builder u := L(k), from D4, 8.1
+          requires L(k) ∈ ℝ: from 4
 
 9.  L(0) ∈ S
     instantiate k := 0 in line 8
@@ -535,24 +523,15 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     note c lies between the two ends after any number of digits
     let k ∈ ℕ₀                                                        (K5)
 
-    15.1. L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).
-          instantiate k := k in line 4
+    15.1. L(k) ≤ c
+          instantiate y := L(k) in line 14, from 8
 
-    15.2. L(k) ∈ S
-          instantiate k := k in line 8
+    15.2. c ≤ U(k)
+          instantiate u := U(k) in line 13, from 10
+          requires U(k) ∈ ℝ: from 4
 
-    15.3. L(k) ≤ c
-          instantiate y := L(k) in line 14, from 15.2
-
-    15.4. U(k) is an upper bound of S
-          instantiate k := k in line 10
-
-    15.5. c ≤ U(k)
-          instantiate u := U(k) in line 13, from 15.4
-          requires U(k) ∈ ℝ: from 15.1
-
-    15.6. L(k) ≤ c and c ≤ U(k)
-          join 15.3, 15.5
+    15.3. L(k) ≤ c and c ≤ U(k)
+          join 15.1, 15.2
 
 16. For all n ∈ ℕ, D(c, n) = d(n) or D(c, n) = s(d(n)).
     proof
@@ -574,157 +553,154 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     16.5. N(n − 1) ∈ ℤ
           instantiate k := n − 1 in line 2, from 16.1
 
-    16.6. 0 ≤ d(n) and d(n) ≤ 9
-          instantiate n := n in H2
-
-    16.7. N(n) ∈ ℤ
+    16.6. N(n) ∈ ℤ
           membership, from 16.4, 16.5
           requires d(n) ∈ ℤ: from H1
 
-    16.8. 10^n ∈ ℕ
+    16.7. 10^n ∈ ℕ
           mun:power-nat a := 10, m := n
 
-    16.9. L(n) ≤ c and c ≤ U(n)
+    16.8. L(n) ≤ c and c ≤ U(n)
           instantiate k := n in line 15
 
-    16.10. 10^n·(N(n)/10^n) ≤ 10^n·c
-           mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.9
-           requires N(n)/10^n ∈ ℝ: membership, from 16.7, 16.8
-           requires 10^n > 0: inequalities, from 16.8
+    16.9. 10^n·(N(n)/10^n) ≤ 10^n·c
+          mun:multiply-le x := N(n)/10^n, y := c, c := 10^n, from D5, 16.8
+          requires N(n)/10^n ∈ ℝ: membership, from 16.6, 16.7
+          requires 10^n > 0: inequalities, from 16.7
 
-    16.11. 10^n·c ≤ 10^n·((N(n) + 1)/10^n)
-           mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from D6, 16.9
-           requires (N(n) + 1)/10^n ∈ ℝ: membership, from 16.7, 16.8
-           requires 10^n > 0: inequalities, from 16.8
+    16.10. 10^n·c ≤ 10^n·((N(n) + 1)/10^n)
+           mun:multiply-le x := c, y := (N(n) + 1)/10^n, c := 10^n, from D6, 16.8
+           requires (N(n) + 1)/10^n ∈ ℝ: membership, from 16.6, 16.7
+           requires 10^n > 0: inequalities, from 16.7
 
-    16.12. 10^n·(N(n)/10^n) = N(n)
+    16.11. 10^n·(N(n)/10^n) = N(n)
            algebra
-           requires N(n) ∈ ℝ: membership, from 16.7
+           requires N(n) ∈ ℝ: membership, from 16.6
 
-    16.13. 10^n·((N(n) + 1)/10^n) = N(n) + 1
+    16.12. 10^n·((N(n) + 1)/10^n) = N(n) + 1
            algebra
-           requires N(n) ∈ ℝ: membership, from 16.7
+           requires N(n) ∈ ℝ: membership, from 16.6
 
-    16.14. N(n) ≤ 10^n·c
-           transitivity, from 16.12, 16.10
-           requires N(n) ∈ ℝ: membership, from 16.7
+    16.13. N(n) ≤ 10^n·c
+           transitivity, from 16.11, 16.9
+           requires N(n) ∈ ℝ: membership, from 16.6
 
-    16.15. 10^n·c ≤ N(n) + 1
-           transitivity, from 16.11, 16.13
-           requires N(n) ∈ ℝ: membership, from 16.7
+    16.14. 10^n·c ≤ N(n) + 1
+           transitivity, from 16.10, 16.12
+           requires N(n) ∈ ℝ: membership, from 16.6
 
-    16.16. ⌊10^n·c⌋ ∈ ℤ
+    16.15. ⌊10^n·c⌋ ∈ ℤ
            mun:floor-integer x := 10^n·c
 
-    16.17. ⌊10^n·c⌋ ≤ 10^n·c
+    16.16. ⌊10^n·c⌋ ≤ 10^n·c
            mun:floor-below x := 10^n·c
 
-    16.18. 10^n·c < ⌊10^n·c⌋ + 1
+    16.17. 10^n·c < ⌊10^n·c⌋ + 1
            mun:floor-above x := 10^n·c
 
-    16.19. N(n) < ⌊10^n·c⌋ + 1
-           transitivity, from 16.14, 16.18
-           requires N(n) ∈ ℝ: membership, from 16.7
-           requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
+    16.18. N(n) < ⌊10^n·c⌋ + 1
+           transitivity, from 16.13, 16.17
+           requires N(n) ∈ ℝ: membership, from 16.6
+           requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
 
-    16.20. ⌊10^n·c⌋ ≤ N(n) + 1
-           transitivity, from 16.17, 16.15
-           requires N(n) ∈ ℝ: membership, from 16.7
-           requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
+    16.19. ⌊10^n·c⌋ ≤ N(n) + 1
+           transitivity, from 16.16, 16.14
+           requires N(n) ∈ ℝ: membership, from 16.6
+           requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
 
-    16.21. N(n) + 1 ≤ ⌊10^n·c⌋ + 1
-           mun:integer-step m := N(n), n := ⌊10^n·c⌋ + 1, from 16.7, 16.19
-           requires ⌊10^n·c⌋ + 1 ∈ ℤ: membership, from 16.16
+    16.20. N(n) + 1 ≤ ⌊10^n·c⌋ + 1
+           mun:integer-step m := N(n), n := ⌊10^n·c⌋ + 1, from 16.6, 16.18
+           requires ⌊10^n·c⌋ + 1 ∈ ℤ: membership, from 16.15
 
-    16.22. D(c, n) = ⌊10^n·c⌋ mod 10
+    16.21. D(c, n) = ⌊10^n·c⌋ mod 10
            D1
 
-    16.23. d(n) ∈ ℕ₀
+    16.22. d(n) ∈ ℕ₀
            mun:nat0-as-int
            requires d(n) ∈ ℤ: from H1
-           requires 0 ≤ d(n): from 16.6
+           requires 0 ≤ d(n): from H2
 
-    16.24. d(n) + 1 ∈ ℤ
-           membership, from 16.23
+    16.23. d(n) + 1 ∈ ℤ
+           membership, from 16.22
 
-    16.25. ⌊10^n·c⌋ ≤ N(n) or not (⌊10^n·c⌋ ≤ N(n))
+    16.24. ⌊10^n·c⌋ ≤ N(n) or not (⌊10^n·c⌋ ≤ N(n))
            mun:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)
 
-    16.26. D(c, n) = d(n) or D(c, n) = s(d(n))
-           cases, from 16.25
+    16.25. D(c, n) = d(n) or D(c, n) = s(d(n))
+           cases, from 16.24
 
            case
            assume ⌊10^n·c⌋ ≤ N(n)                                     (C7)
 
-           16.26.1. N(n) ≤ ⌊10^n·c⌋
-                    inequalities, from 16.21
-                    requires N(n) ∈ ℝ: membership, from 16.7
-                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
+           16.25.1. N(n) ≤ ⌊10^n·c⌋
+                    inequalities, from 16.20
+                    requires N(n) ∈ ℝ: membership, from 16.6
+                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
 
-           16.26.2. ⌊10^n·c⌋ = N(n)
-                    antisymmetry, from C7, 16.26.1
-                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
-                    requires N(n) ∈ ℝ: membership, from 16.7
+           16.25.2. ⌊10^n·c⌋ = N(n)
+                    antisymmetry, from C7, 16.25.1
+                    requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
+                    requires N(n) ∈ ℝ: membership, from 16.6
 
-           16.26.3. N(n − 1)·10 + d(n) = ⌊10^n·c⌋
-                    algebra, from 16.4, 16.26.2
+           16.25.3. N(n − 1)·10 + d(n) = ⌊10^n·c⌋
+                    algebra, from 16.4, 16.25.2
                     requires N(n − 1) ∈ ℝ: membership, from 16.5
-                    requires d(n) ∈ ℝ: membership, from 16.23
+                    requires d(n) ∈ ℝ: membership, from 16.22
 
-           16.26.4. There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋.
-                    exhibit, from 16.5, 16.26.3
+           16.25.4. There is q ∈ ℤ with q·10 + d(n) = ⌊10^n·c⌋.
+                    exhibit, from 16.5, 16.25.3
 
-           16.26.5. ⌊10^n·c⌋ mod 10 = d(n)
-                    mun:mod-remainder a := ⌊10^n·c⌋, m := 10, r := d(n), from 16.16, 16.26.4
-                    requires d(n) ∈ ℕ₀: from 16.23
-                    requires d(n) < 10: inequalities, from 16.6
+           16.25.5. ⌊10^n·c⌋ mod 10 = d(n)
+                    mun:mod-remainder a := ⌊10^n·c⌋, m := 10, r := d(n), from 16.15, 16.25.4
+                    requires d(n) ∈ ℕ₀: from 16.22
+                    requires d(n) < 10: inequalities, from H2
 
-           16.26.6. D(c, n) = d(n)
+           16.25.6. D(c, n) = d(n)
                     calculation
-                      D(c, n) = ⌊10^n·c⌋ mod 10    16.22
-                              = d(n)               16.26.5
+                      D(c, n) = ⌊10^n·c⌋ mod 10    16.21
+                              = d(n)               16.25.5
 
-           16.26.7. D(c, n) = d(n) or D(c, n) = s(d(n))
-                    mun:or-left, from 16.26.6
+           16.25.7. D(c, n) = d(n) or D(c, n) = s(d(n))
+                    mun:or-left, from 16.25.6
 
            case
            assume not (⌊10^n·c⌋ ≤ N(n))                               (C8)
 
-           16.26.8. N(n) < ⌊10^n·c⌋
-                    inequalities, from C8, 16.7, 16.16
+           16.25.8. N(n) < ⌊10^n·c⌋
+                    inequalities, from C8, 16.6, 16.15
 
-           16.26.9. N(n) + 1 ≤ ⌊10^n·c⌋
-                    mun:integer-step m := N(n), n := ⌊10^n·c⌋, from 16.7, 16.16, 16.26.8
+           16.25.9. N(n) + 1 ≤ ⌊10^n·c⌋
+                    mun:integer-step m := N(n), n := ⌊10^n·c⌋, from 16.6, 16.15, 16.25.8
 
-           16.26.10. ⌊10^n·c⌋ = N(n) + 1
-                     antisymmetry, from 16.20, 16.26.9
-                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.16
-                     requires N(n) ∈ ℝ: from 16.7
+           16.25.10. ⌊10^n·c⌋ = N(n) + 1
+                     antisymmetry, from 16.19, 16.25.9
+                     requires ⌊10^n·c⌋ ∈ ℝ: membership, from 16.15
+                     requires N(n) ∈ ℝ: from 16.6
 
-           16.26.11. ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1)
-                     algebra, from 16.4, 16.26.10
+           16.25.11. ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1)
+                     algebra, from 16.4, 16.25.10
                      requires N(n − 1) ∈ ℝ: membership, from 16.5
-                     requires d(n) ∈ ℝ: membership, from 16.23
+                     requires d(n) ∈ ℝ: membership, from 16.22
 
-           16.26.12. D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10
-                     substitute ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1) (line 16.26.11) into line 16.22
+           16.25.12. D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10
+                     substitute ⌊10^n·c⌋ = N(n − 1)·10 + (d(n) + 1) (line 16.25.11) into line 16.21
 
-           16.26.13. (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10
+           16.25.13. (N(n − 1)·10 + (d(n) + 1)) mod 10 = (d(n) + 1) mod 10
                      mun:mod-multiple r := d(n) + 1, m := 10, q := N(n − 1), from 16.5
-                     requires d(n) + 1 ∈ ℤ: from 16.24
+                     requires d(n) + 1 ∈ ℤ: from 16.23
 
-           16.26.14. s(d(n)) = (d(n) + 1) mod 10
+           16.25.14. s(d(n)) = (d(n) + 1) mod 10
                      D2
                      requires d(n) ∈ ℤ: from H1
 
-           16.26.15. D(c, n) = s(d(n))
+           16.25.15. D(c, n) = s(d(n))
                      calculation
-                       D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10    16.26.12
-                               = (d(n) + 1) mod 10                    16.26.13
-                               = s(d(n))                              16.26.14
+                       D(c, n) = (N(n − 1)·10 + (d(n) + 1)) mod 10    16.25.12
+                               = (d(n) + 1) mod 10                    16.25.13
+                               = s(d(n))                              16.25.14
 
-           16.26.16. D(c, n) = d(n) or D(c, n) = s(d(n))
-                     mun:or-right, from 16.26.15
+           16.25.16. D(c, n) = d(n) or D(c, n) = s(d(n))
+                     mun:or-right, from 16.25.15
 
 17. There is x ∈ ℝ with for all n ∈ ℕ, D(x, n) = d(n) or D(x, n) = s(d(n)).
     exhibit, from 16
@@ -769,42 +745,35 @@ let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
     proof
     let n ∈ ℕ                                                         (K2)
 
-    2.1.  D(f(n), n) ∈ ℤ
-          instantiate n := n in line 1
+    2.1.  s(D(f(n), n)) ∈ ℤ
+          membership, from D2, 1
 
-    2.2.  s(D(f(n), n)) ∈ ℤ
-          membership, from D2, 2.1
+    2.2.  0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
+          thm:digit-range t := D(f(n), n), from 1
 
-    2.3.  0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
-          thm:digit-range t := D(f(n), n), from 2.1
+    2.3.  s(D(f(n), n)) ≠ D(f(n), n)
+          thm:digit-step t := D(f(n), n), from 1
 
-    2.4.  s(D(f(n), n)) ≠ D(f(n), n)
-          thm:digit-step t := D(f(n), n), from 2.1
+    2.4.  s(s(D(f(n), n))) ≠ D(f(n), n)
+          thm:digit-step-twice t := D(f(n), n), from 1
 
-    2.5.  s(s(D(f(n), n))) ≠ D(f(n), n)
-          thm:digit-step-twice t := D(f(n), n), from 2.1
-
-    2.6.  s(D(f(n), n)) ∈ ℤ and 0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
+    2.5.  s(D(f(n), n)) ∈ ℤ and 0 ≤ s(D(f(n), n)) and s(D(f(n), n)) ≤ 9
           and s(D(f(n), n)) ≠ D(f(n), n) and s(s(D(f(n), n))) ≠ D(f(n), n)
-          join 2.2, 2.3, 2.4, 2.5
+          join 2.1, 2.2, 2.3, 2.4
 
-    2.7.  e(n) = s(D(f(n), n))
+    2.6.  e(n) = s(D(f(n), n))
           D7
 
-    2.8.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
+    2.7.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
           and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          substitute e(n) = s(D(f(n), n)) (line 2.7) into line 2.6
+          substitute e(n) = s(D(f(n), n)) (line 2.6) into line 2.5
 
 3.  For all n ∈ ℕ, e(n) ∈ ℤ.
     proof
     let n ∈ ℕ                                                         (K3)
 
-    3.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
-          and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2
-
-    3.2.  e(n) ∈ ℤ
-          membership, from 3.1
+    3.1.  e(n) ∈ ℤ
+          membership, from 2
 
 4.  e : ℕ → ℤ
     mun:function-into, from 3
@@ -814,12 +783,8 @@ let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
     proof
     let n ∈ ℕ                                                         (K4)
 
-    5.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
-          and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2
-
-    5.2.  0 ≤ e(n) and e(n) ≤ 9
-          inequalities, from 5.1
+    5.1.  0 ≤ e(n) and e(n) ≤ 9
+          inequalities, from 2
 
 6.  x ∈ ℝ. For all n ∈ ℕ, D(x, n) = e(n) or D(x, n) = s(e(n)).
     obtain x: thm:decimal-number d := e, from 5
@@ -829,34 +794,30 @@ let e(n) = s(D(f(n), n)), for n ∈ ℕ                                  (D7)
     proof
     let n ∈ ℕ                                                         (K5)
 
-    7.1.  e(n) ∈ ℤ and 0 ≤ e(n) and e(n) ≤ 9
-          and e(n) ≠ D(f(n), n) and s(e(n)) ≠ D(f(n), n)
-          instantiate n := n in line 2
-
-    7.2.  D(x, n) = e(n) or D(x, n) = s(e(n))
+    7.1.  D(x, n) = e(n) or D(x, n) = s(e(n))
           instantiate n := n in line 6
 
-    7.3.  D(x, n) ≠ D(f(n), n)
-          cases, from 7.2
+    7.2.  D(x, n) ≠ D(f(n), n)
+          cases, from 7.1
 
           case
           assume D(x, n) = e(n)                                       (C1)
 
-          7.3.1.  D(x, n) ≠ D(f(n), n)
-                  substitute D(x, n) = e(n) (C1) into line 7.1
+          7.2.1.  D(x, n) ≠ D(f(n), n)
+                  substitute D(x, n) = e(n) (C1) into line 2
 
           case
           assume D(x, n) = s(e(n))                                    (C2)
 
-          7.3.2.  D(x, n) ≠ D(f(n), n)
-                  substitute D(x, n) = s(e(n)) (C2) into line 7.1
+          7.2.2.  D(x, n) ≠ D(f(n), n)
+                  substitute D(x, n) = s(e(n)) (C2) into line 2
 
-    7.4.  f(n) ≠ x
+    7.3.  f(n) ≠ x
           contradiction
           suppose f(n) = x                                            (S)
 
-          7.4.1.  D(x, n) = D(f(n), n)
-                  substitute f(n) = x (S), contradicting 7.3
+          7.3.1.  D(x, n) = D(f(n), n)
+                  substitute f(n) = x (S), contradicting 7.2
 
 8.  There is x ∈ ℝ with for all n ∈ ℕ, f(n) ≠ x.
     exhibit, from 7

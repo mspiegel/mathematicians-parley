@@ -26,35 +26,32 @@ theorem mobius-inverse
     4.1.  y ∈ ℝ. y ≠ 5.
           mun:remove-member u := y, Y := ℝ, a := 5, from K1
 
-    4.2.  There is x ∈ ℝ ∖ {2} with y = f(x).
-          instantiate y := y in line 3, from K1
+    4.2.  x ∈ ℝ ∖ {2}. y = f(x).
+          obtain x from line 3
 
-    4.3.  x ∈ ℝ ∖ {2}. y = f(x).
-          obtain x from line 4.2
+    4.3.  x ∈ ℝ. x ≠ 2.
+          mun:remove-member u := x, Y := ℝ, a := 2, from 4.2
 
-    4.4.  x ∈ ℝ. x ≠ 2.
-          mun:remove-member u := x, Y := ℝ, a := 2, from 4.3
+    4.4.  f(x) = (5x + 1)/(x − 2)
+          instantiate x := x in H2, from 4.2
 
-    4.5.  f(x) = (5x + 1)/(x − 2)
-          instantiate x := x in H2, from 4.3
-
-    4.6.  y = (5x + 1)/(x − 2)
+    4.5.  y = (5x + 1)/(x − 2)
           calculation
-            y = f(x)                  4.3
-              = (5x + 1)/(x − 2)      4.5
+            y = f(x)                  4.2
+              = (5x + 1)/(x − 2)      4.4
 
-    4.7.  x = (2y + 1)/(y − 5)
-          algebra, from 4.4, 4.6
-          requires x − 2 ≠ 0: inequalities, from 4.4
+    4.6.  x = (2y + 1)/(y − 5)
+          algebra, from 4.3, 4.5
+          requires x − 2 ≠ 0: inequalities, from 4.3
           requires y − 5 ≠ 0: inequalities, from 4.1
 
-    4.8.  f⁻¹(f(x)) = x
-          mun:inverse-value g := f, y := x, from 1, 4.3
+    4.7.  f⁻¹(f(x)) = x
+          mun:inverse-value g := f, y := x, from 1, 4.2
 
-    4.9.  f⁻¹(y) = x
-          substitute y = f(x) (line 4.3) into line 4.8
+    4.8.  f⁻¹(y) = x
+          substitute y = f(x) (line 4.2) into line 4.7
 
-    4.10. f⁻¹(y) = (2y + 1)/(y − 5)
+    4.9.  f⁻¹(y) = (2y + 1)/(y − 5)
           calculation
-            f⁻¹(y) = x                  4.9
-                   = (2y + 1)/(y − 5)   4.7
+            f⁻¹(y) = x                  4.8
+                   = (2y + 1)/(y − 5)   4.6

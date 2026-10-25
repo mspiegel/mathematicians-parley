@@ -393,12 +393,13 @@ fn firsts_at(
     for first in firsts {
         let found = refs.iter().find_map(|r| {
             let written = scope.get(r)?;
-            line_states(
-                first,
-                r,
-                &known.said_parts(written, Some(&defined)),
-                library,
-            )
+            // A "for all" read at a block's letter counts as a sentence after
+            // the line's own (`Known::at_block_letters`).
+            let mut said = known.said_parts(written, Some(&defined));
+            let read: Vec<Node> = said.iter().flatten().cloned().collect();
+            let at = known.at_block_letters(written, &read, Some(&defined));
+            said.extend(at.into_iter().map(Some));
+            line_states(first, r, &said, library)
         });
         if let Some(at) = found.filter(|at| !out.contains(at)) {
             out.push(at);
@@ -1890,7 +1891,12 @@ pub fn check_obtained_claims(
                     continue;
                 };
                 let defined = known.citing_step(step);
-                let said = known.said_parts(&stated, Some(&defined));
+                let mut said = known.said_parts(&stated, Some(&defined));
+                // A "for all" of the line read at a block's letter is a
+                // sentence of it there (`Known::at_block_letters`).
+                let read: Vec<Node> = said.iter().flatten().cloned().collect();
+                let at = known.at_block_letters(&stated, &read, Some(&defined));
+                said.extend(at.into_iter().map(Some));
                 // A line of several sentences gives its one "there is",
                 // as the build takes it; with none or several the line
                 // states no one existence to obtain from.

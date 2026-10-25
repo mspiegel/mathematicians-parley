@@ -650,7 +650,7 @@ impl<'a> Elaborator<'a> {
         let facts = match step {
             Some(step) => {
                 let supplied = self.supplied(Some(step), scope, facts)?;
-                self.with_cited(Some(step), scope, &supplied, None)?
+                self.with_cited(Some(step), scope, &supplied, None)
             }
             None => facts.clone(),
         };
@@ -3685,7 +3685,7 @@ impl<'a> Elaborator<'a> {
         // Only what the step may rest on is offered, so that a bound the
         // cited lines give is proved from them and not taken from a line in
         // scope that says the same, which the step does not name.
-        let cited = self.with_cited(Some(step), scope, &out.facts, None)?;
+        let cited = self.with_cited(Some(step), scope, &out.facts, None);
         let facts_out = &self.restable(&cited);
         // A plain step adds its facts as they stand, the combination the
         // checker decided it by; a step with rows, a chain and an order
@@ -4245,7 +4245,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let claim = self.to_term(term);
         let supplied = self.supplied(Some(step), scope, facts)?;
-        let cited = self.with_cited(Some(step), scope, &supplied, None)?;
+        let cited = self.with_cited(Some(step), scope, &supplied, None);
         let known = facts.with(&cited);
         match self.member_of(&claim, scope, &known, Some(step))? {
             Built(p) => Ok(Built(p)),

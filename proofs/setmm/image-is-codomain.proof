@@ -19,18 +19,15 @@ theorem image-is-codomain
     proof
     let y ∈ B                                                         (K1)
 
-    2.1.  there is x ∈ A with y = F(x)
-          instantiate y := y in H4, from K1
+    2.1.  x ∈ A. y = F(x).
+          obtain x from H4
 
-    2.2.  x ∈ A. y = F(x).
-          obtain x from line 2.1
-
-    2.3.  F(x) ∈ F[A]
-          mun:value-in-image Y := A, s := x, from 2.2
+    2.2.  F(x) ∈ F[A]
+          mun:value-in-image Y := A, s := x, from 2.1
           requires A ⊆ A: mun:subset-self
 
-    2.4.  y ∈ F[A]
-          substitute y = F(x) (line 2.2) into line 2.3
+    2.3.  y ∈ F[A]
+          substitute y = F(x) (line 2.1) into line 2.2
 
 3.  B ⊆ F[A]
     mun:subset, from 2

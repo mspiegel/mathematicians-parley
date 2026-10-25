@@ -301,6 +301,10 @@ pub struct Elaborator<'a> {
     /// The letters the `let x ∈ X` lines opening the blocks around the
     /// step introduce, outermost first (`know_at_letters`).
     pub block_letters: Vec<BlockLetter>,
+    /// A line as a block reads it, by its term there -> what its "for all"
+    /// parts say at the block's letter, in the order the checker counts them
+    /// as sentences after the line's own (`know_in_scope_at_letters`).
+    pub at_letters_of: IndexMap<Rpn, Vec<Rpn>>,
     /// Readable name -> its membership as each line introducing it says it:
     /// the claim, its proof, and the scope that proof is under, carried to
     /// any scope inside that one (`introduced_membership`). Two cases may
@@ -511,6 +515,7 @@ impl<'a> Elaborator<'a> {
             names: IndexMap::new(),
             sets: IndexMap::new(),
             block_letters: Vec::new(),
+            at_letters_of: IndexMap::new(),
             introduced: IndexMap::new(),
             reserved: IndexSet::new(),
             rules_read: IndexMap::new(),

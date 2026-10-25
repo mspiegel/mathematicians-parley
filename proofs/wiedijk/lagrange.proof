@@ -90,45 +90,42 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
     5.1.  h ∈ H. x = a·h.
           obtain h: mun:coset u := x, g := a, from H2, K4, K5
 
-    5.2.  aH ⊆ G
-          instantiate g := a in line 3, from K4
+    5.2.  x ∈ G
+          mun:in-subset, from K5, 3
 
-    5.3.  x ∈ G
-          mun:in-subset, from K5, 5.2
-
-    5.4.  h ∈ G
+    5.3.  h ∈ G
           mun:in-subset, from 1, 5.1
 
-    5.5.  For all u ∈ xH, u ∈ aH.
+    5.4.  For all u ∈ xH, u ∈ aH.
           proof
           let u ∈ xH                                                  (K6)
 
-          5.5.1.  c ∈ H. u = x·c.
-                  obtain c: mun:coset g := x, from H2, K6, 5.3
+          5.4.1.  c ∈ H. u = x·c.
+                  obtain c: mun:coset g := x, from H2, K6, 5.2
 
-          5.5.2.  c ∈ G
-                  mun:in-subset, from 1, 5.5.1
+          5.4.2.  c ∈ G
+                  mun:in-subset, from 1, 5.4.1
 
-          5.5.3.  h·c ∈ H
-                  mun:subgroup-closed a := h, b := c, from H2, 5.1, 5.5.1
+          5.4.3.  h·c ∈ H
+                  mun:subgroup-closed a := h, b := c, from H2, 5.1, 5.4.1
 
-          5.5.4.  (a·h)·c = a·(h·c)
-                  mun:group-associative b := h, from K4, 5.4, 5.5.2
+          5.4.4.  (a·h)·c = a·(h·c)
+                  mun:group-associative b := h, from K4, 5.3, 5.4.2
 
-          5.5.5.  x·c = (a·h)·c
+          5.4.5.  x·c = (a·h)·c
                   substitute x = a·h (line 5.1)
 
-          5.5.6.  u = a·(h·c)
+          5.4.6.  u = a·(h·c)
                   calculation
-                    u = x·c              5.5.1
-                      = (a·h)·c          5.5.5
-                      = a·(h·c)          5.5.4
+                    u = x·c              5.4.1
+                      = (a·h)·c          5.4.5
+                      = a·(h·c)          5.4.4
 
-          5.5.7.  u ∈ aH
-                  mun:coset g := a, from H2, K4, 5.5.3, 5.5.6
+          5.4.7.  u ∈ aH
+                  mun:coset g := a, from H2, K4, 5.4.3, 5.4.6
 
-    5.6.  xH ⊆ aH
-          mun:subset, from 5.5
+    5.5.  xH ⊆ aH
+          mun:subset, from 5.4
 
 6.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
     proof
@@ -169,14 +166,11 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
               = (a·h)·h⁻¹            6.5
               = x·h⁻¹                6.9
 
-    6.11. aH ⊆ G
-          instantiate g := a in line 3, from K7
+    6.11. x ∈ G
+          mun:in-subset, from K8, 3
 
-    6.12. x ∈ G
-          mun:in-subset, from K8, 6.11
-
-    6.13. a ∈ xH
-          mun:coset u := a, g := x, from H2, 6.3, 6.10, 6.12
+    6.12. a ∈ xH
+          mun:coset u := a, g := x, from H2, 6.3, 6.10, 6.11
 
 7.  For all b ∈ G, for all y ∈ bH, yH = bH.
     proof
@@ -187,20 +181,17 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
     7.1.  yH ⊆ bH
           instantiate a := b, x := y in line 5, from K9, K10
 
-    7.2.  bH ⊆ G
-          instantiate g := b in line 3, from K9
+    7.2.  y ∈ G
+          mun:in-subset, from K10, 3
 
-    7.3.  y ∈ G
-          mun:in-subset, from K10, 7.2
-
-    7.4.  b ∈ yH
+    7.3.  b ∈ yH
           instantiate a := b, x := y in line 6, from K9, K10
 
-    7.5.  bH ⊆ yH
-          instantiate a := y, x := b in line 5, from 7.3, 7.4
+    7.4.  bH ⊆ yH
+          instantiate a := y, x := b in line 5, from 7.2, 7.3
 
-    7.6.  yH = bH
-          mun:subset-antisymmetric, from 7.1, 7.5
+    7.5.  yH = bH
+          mun:subset-antisymmetric, from 7.1, 7.4
 
 8.  For all g ∈ G, |gH| = |H|.
     proof
@@ -291,23 +282,17 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
     note the cosets cover G: g is in its own coset gH
     let g ∈ G                                                         (K17)
 
-    11.1. gH ⊆ G
-          instantiate g := g in line 3, from K17
-
-    11.2. There is a ∈ G with gH = aH.
+    11.1. There is a ∈ G with gH = aH.
           exhibit, from K17
 
-    11.3. gH ∈ K
-          mun:part-builder u := gH, from D1, 11.1, 11.2
+    11.2. gH ∈ K
+          mun:part-builder u := gH, from D1, 3, 11.1
 
-    11.4. g ∈ gH
-          instantiate g := g in line 4, from K17
+    11.3. There is Y ∈ K with g ∈ Y.
+          exhibit, from 4, 11.2
 
-    11.5. There is Y ∈ K with g ∈ Y.
-          exhibit, from 11.3, 11.4
-
-    11.6. g ∈ ⋃(Y ∈ K) Y
-          mun:indexed-union u := g, from 11.5
+    11.4. g ∈ ⋃(Y ∈ K) Y
+          mun:indexed-union u := g, from 11.3
 
 12. G ⊆ ⋃(Y ∈ K) Y
     mun:subset, from 11

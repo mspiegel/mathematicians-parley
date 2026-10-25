@@ -87,11 +87,8 @@ theorem fibonacci-even-iff-three-divides
     proof
     let k ∈ ℕ₀                                                        (K1)
 
-    2.1.  F(k) ∈ ℕ₀ and G(k) ∈ ℕ₀
-          instantiate k := k in line 1
-
-    2.2.  F(k) ∈ ℤ
-          membership, from 2.1
+    2.1.  F(k) ∈ ℤ
+          membership, from 1
 
 3.  For all k ∈ ℕ₀, F(k + 2) = F(k) + F(k + 1).
     proof

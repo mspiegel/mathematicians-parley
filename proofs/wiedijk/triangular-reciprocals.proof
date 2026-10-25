@@ -83,47 +83,44 @@ theorem triangular-reciprocals
           let n ∈ ℕ                                                   (K7)
           assume n ≥ N                                                (A2)
 
-          6.2.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
-                  instantiate n := n in line 5
-
-          6.2.2.  N ≤ n + 1
+          6.2.1.  N ≤ n + 1
                   inequalities, from A2
 
-          6.2.3.  1/(n + 1) ≤ 1/N
-                  mun:reciprocal-order x := N, y := n + 1, from 6.2.2
+          6.2.2.  1/(n + 1) ≤ 1/N
+                  mun:reciprocal-order x := N, y := n + 1, from 6.2.1
                   requires N > 0: inequalities, from 6.1
                   requires n + 1 > 0: inequalities, from K7
 
-          6.2.4.  1/(n + 1) > 0
+          6.2.3.  1/(n + 1) > 0
                   mun:reciprocal-positive x := n + 1
                   requires n + 1 > 0: inequalities, from K7
 
-          6.2.5.  1/(n + 1) < ε/2
-                  transitivity, from 6.2.3, 6.1
+          6.2.4.  1/(n + 1) < ε/2
+                  transitivity, from 6.2.2, 6.1
 
-          6.2.6.  2 − ε < 2 − 2/(n + 1)
+          6.2.5.  2 − ε < 2 − 2/(n + 1)
                   inequalities
-                    1/(n + 1) < ε/2               6.2.5
+                    1/(n + 1) < ε/2               6.2.4
                     2/(n + 1) < ε                 multiplying by 2
                     2 − ε < 2 − 2/(n + 1)         adding 2 − ε − 2/(n + 1)
 
-          6.2.7.  2 − ε < Σ(k = 1 to n) 1/T(k)
-                  transitivity, from 6.2.6, 6.2.1
+          6.2.6.  2 − ε < Σ(k = 1 to n) 1/T(k)
+                  transitivity, from 6.2.5, 5
 
-          6.2.8.  2 − 2/(n + 1) < 2
+          6.2.7.  2 − 2/(n + 1) < 2
                   inequalities
-                    1/(n + 1) > 0                 6.2.4
+                    1/(n + 1) > 0                 6.2.3
                     −2/(n + 1) < 0                multiplying by −2
                     2 − 2/(n + 1) < 2             adding 2
 
-          6.2.9.  2 − 2/(n + 1) < 2 + ε
-                  inequalities, from A1, 6.2.8
+          6.2.8.  2 − 2/(n + 1) < 2 + ε
+                  inequalities, from A1, 6.2.7
 
-          6.2.10. Σ(k = 1 to n) 1/T(k) < 2 + ε
-                  transitivity, from 6.2.1, 6.2.9
+          6.2.9.  Σ(k = 1 to n) 1/T(k) < 2 + ε
+                  transitivity, from 5, 6.2.8
 
-          6.2.11. |Σ(k = 1 to n) 1/T(k) − 2| < ε
-                  mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 6.2.7, 6.2.10
+          6.2.10. |Σ(k = 1 to n) 1/T(k) − 2| < ε
+                  mun:abs-difference-lt x := Σ(k = 1 to n) 1/T(k), c := 2, δ := ε, from 6.2.6, 6.2.9
                   requires Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2
 
     6.3.  There exists N ∈ ℕ such that |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N.
