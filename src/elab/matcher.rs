@@ -3068,7 +3068,10 @@ impl<'a> Elaborator<'a> {
                 self.apply_lemma(label, &goal, where_, held, None, false, None)
             }
             How::Exchanged(label) => {
-                let goal = self.to_term(&t!(a, b, "wb"));
+                // A formula's two orders say the same, ↔; a term's two are
+                // one value, =.
+                let join = if self.is_wff(cur) { "wb" } else { "wceq" };
+                let goal = self.to_term(&t!(a, b, join));
                 self.apply_lemma(label, &goal, where_, held, None, false, None)
             }
             How::Rule(label) => {

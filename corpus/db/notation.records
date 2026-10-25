@@ -519,13 +519,15 @@ notation finite
 notation distance
   pattern     |__|
   sort        point, point → number
-  reads       the distance from the first to the second
+  commutes    any order
+  reads       the distance between the two points
   metamath    ( abs ` ( P − Q ) )
   target      _1 _2 cmin co cabs cfv
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
               |CA| would otherwise read as a product; the point sort is what
-              rules that out, since multiplication takes numbers.
+              rules that out, since multiplication takes numbers. Its two
+              points stand in no order: |AB| and |BA| are one distance.
 
 notation factorial
   pattern     _!

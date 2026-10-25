@@ -1,6 +1,5 @@
 import theorem            proofs/euclid/converse-of-pythagoras/converse-of-pythagoras
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/distance-symmetric
 
 theorem three-four-five
   note        3² + 4² = 5², so the converse of Pythagoras makes the angle at
@@ -14,33 +13,25 @@ theorem three-four-five
   assume |AB| = 5                                                     (H7)
   then ∠BCA = 90°
 
-1.  |AC| = |CA|
-    mun:distance-symmetric P := A, Q := C
-
-2.  |AC| = 4
-    calculation
-      |AC| = |CA|      1
-           = 4         H6
-
-3.  |AB|² = 5²
+1.  |AB|² = 5²
     substitute |AB| = 5 (H7)
 
-4.  |AC|² = 4²
-    substitute |AC| = 4 (line 2)
+2.  |AC|² = 4²
+    substitute |AC| = 4 (H6)
 
-5.  |BC|² = 3²
+3.  |BC|² = 3²
     substitute |BC| = 3 (H5)
 
-6.  |AB|² = |AC|² + |BC|²
-    algebra, from 3, 4, 5
+4.  |AB|² = |AC|² + |BC|²
+    algebra, from 1, 2, 3
 
-7.  ∠ACB = 90°
-    thm:converse-of-pythagoras, from H4, 6
+5.  ∠ACB = 90°
+    thm:converse-of-pythagoras, from H4, 4
 
-8.  ∠ACB = ∠BCA
+6.  ∠ACB = ∠BCA
     mun:angle-symmetric P := A, Q := C, R := B, from H4
 
-9.  ∠BCA = 90°
+7.  ∠BCA = 90°
     calculation
-      ∠BCA = ∠ACB      8
-           = 90°       7
+      ∠BCA = ∠ACB      6
+           = 90°       5

@@ -2,7 +2,6 @@ import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-at-most-straight
 import mundane theorem    stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/distance-symmetric
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
@@ -28,97 +27,85 @@ theorem acute-angle-by-squares
 2.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines P := A, Q := C, R := B, from 1
 
-3.  |BA| = |AB|
-    mun:distance-symmetric P := B, Q := A
-
-4.  |CB| = |BC|
-    mun:distance-symmetric P := C, Q := B
-
-5.  |AB|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    substitute |BA| = |AB| (line 3) into line 2
-
-6.  |AB|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-    substitute |CB| = |BC| (line 4) into line 5
-
-7.  |AC| > 0
+3.  |AC| > 0
     mun:distance-positive P := A, Q := C, from 1
 
-8.  |BC| > 0
+4.  |BC| > 0
     mun:distance-positive P := B, Q := C, from 1
 
-9.  |AC|·|BC| > 0
-    mun:product-positive x := |AC|, y := |BC|, from 7, 8
+5.  |AC|·|BC| > 0
+    mun:product-positive x := |AC|, y := |BC|, from 3, 4
 
-10. ∠ACB ∈ ℝ. ∠ACB ≥ 0.
+6.  ∠ACB ∈ ℝ. ∠ACB ≥ 0.
     mun:angle-real P := A, Q := C, R := B, from 1
 
-11. ∠ACB ≤ 180°
+7.  ∠ACB ≤ 180°
     mun:angle-at-most-straight P := A, Q := C, R := B, from 1
 
-12. ∠ACB ≤ π
-    substitute 180° = π (real arithmetic) into line 11
+8.  ∠ACB ≤ π
+    substitute 180° = π (real arithmetic) into line 7
 
-13. ∠ACB ∈ [0, π]
-    mun:interval x := ∠ACB, from 10, 12
+9.  ∠ACB ∈ [0, π]
+    mun:interval x := ∠ACB, from 6, 8
 
-14. 90° ∈ [0, π]
+10. 90° ∈ [0, π]
     mun:interval x := 90°
     requires 0 ≤ 90°: real arithmetic
     requires 90° ≤ π: real arithmetic
 
-15. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+11. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
     both directions
 
     direction
     assume ∠ACB < 90°                                                 (D1)
 
-    15.1.  cos(90°) < cos(∠ACB)
-           mun:cos-decreasing a := ∠ACB, b := 90°, from D1, 13, 14
+    11.1.  cos(90°) < cos(∠ACB)
+           mun:cos-decreasing a := ∠ACB, b := 90°, from D1, 9, 10
 
-    15.2.  0 < cos(∠ACB)
-           substitute cos(90°) = 0 (real arithmetic) into line 15.1
+    11.2.  0 < cos(∠ACB)
+           substitute cos(90°) = 0 (real arithmetic) into line 11.1
 
-    15.3.  0 < |AC|·|BC|·cos(∠ACB)
-           mun:product-positive x := |AC|·|BC|, y := cos(∠ACB), from 9, 15.2
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 10
+    11.3.  0 < |AC|·|BC|·cos(∠ACB)
+           mun:product-positive x := |AC|·|BC|, y := cos(∠ACB), from 5, 11.2
+           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    15.4.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
+    11.4.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
            inequalities
-             0 < |AC|·|BC|·cos(∠ACB)                                 15.3
+             0 < |AC|·|BC|·cos(∠ACB)                                 11.3
              0 < 2·(|AC|·|BC|·cos(∠ACB))                             multiplying by 2
              |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   adding |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 10
+           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    15.5.  |AB|² < |AC|² + |BC|²
+    11.5.  |AB|² < |AC|² + |BC|²
            calculation
-             |AB|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))        6
-                   < |AC|² + |BC|²                                  15.4
+             |AB|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))        2
+                   < |AC|² + |BC|²                                  11.4
 
     direction
     assume |AB|² < |AC|² + |BC|²                                      (D2)
 
-    15.6.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
+    11.6.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
            calculation
-             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) = |AB|²        6
+             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) = |AB|²        2
                                                      < |AC|² + |BC|²  D2
 
-    15.7.  |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)
+    11.7.  |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)
            inequalities
-             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   15.6
+             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   11.6
              −2·(|AC|·|BC|·cos(∠ACB)) < 0                           adding −(|AC|² + |BC|²)
              |AC|·|BC|·cos(∠ACB) > 0                                multiplying by −1/2
              0 < |AC|·|BC|·cos(∠ACB)                                symmetry
              |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)                      algebra
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 10
+           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    15.8.  0 < cos(∠ACB)
-           mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 9, 15.7
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 10
+    11.8.  0 < cos(∠ACB)
+           mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 5, 11.7
+           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    15.9.  cos(90°) < cos(∠ACB)
+    11.9.  cos(90°) < cos(∠ACB)
            calculation
              cos(90°) = 0                 real arithmetic
-                      < cos(∠ACB)         15.8
+                      < cos(∠ACB)         11.8
 
-    15.10. ∠ACB < 90°
-           mun:cos-decreasing a := ∠ACB, b := 90°, from 13, 14, 15.9
+    11.10. ∠ACB < 90°
+           mun:cos-decreasing a := ∠ACB, b := 90°, from 9, 10, 11.9

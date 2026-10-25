@@ -1959,11 +1959,11 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation that says the link neither way round",
             vec![edit(
-                "proofs/wiedijk/isosceles.proof",
-                Some("           = |CB|       H5\n".to_string()),
-                "           = |CB|       2\n".to_string(),
+                "proofs/euclid/thales.proof",
+                Some("           = |MB|      H7\n".to_string()),
+                "           = |MB|      1\n".to_string(),
             )],
-            "a link of step 3 cites 2, which does not say |CA| = |CB|; a link cites the line that states it, and a substitution is a step of its own",
+            "a link of step 2 cites 1, which does not say |MA| = |MB|; a link cites the line that states it, and a substitution is a step of its own",
         ),
         // A claim of u = a where the item says u ≠ a is not what it says.
         case(
@@ -3396,7 +3396,7 @@ fn cases() -> Vec<Case> {
         case(
             "two names run together into a declared word",
             vec![
-                edit("proofs/wiedijk/isosceles.proof", Some("1.  |AC| = |CA|".to_string()), "1.  |an| = |CA|".to_string()),
+                edit("proofs/euclid/thales.proof", Some("1.  |AM| = |MA|".to_string()), "1.  |an| = |MA|".to_string()),
             ],
             "run together",
         ),
@@ -4187,7 +4187,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite the line that says what sort of thing a name is",
             vec![
-                edit("proofs/wiedijk/isosceles.proof", Some("    mun:distance-symmetric P := A, Q := C\n".to_string()), "    mun:distance-symmetric P := A, Q := C, from H1\n".to_string()),
+                edit("proofs/euclid/thales.proof", Some("    mun:distance-symmetric P := A, Q := M\n".to_string()), "    mun:distance-symmetric P := A, Q := M, from H1\n".to_string()),
             ],
             "step 1 cites H1, and mun:distance-symmetric asks for nothing it says",
         ),
@@ -4387,9 +4387,9 @@ fn cases() -> Vec<Case> {
         case(
             "answer an equation with one that says it neither way round",
             vec![
-                edit("proofs/wiedijk/isosceles.proof", Some("      from H4, H5, 3, 4\n".to_string()), "      from H4, 2, 3, 4\n".to_string()),
+                edit("proofs/wiedijk/isosceles.proof", Some("      from H4, H5, 1\n".to_string()), "      from H4, 1\n".to_string()),
             ],
-            "step 5 cites axi:side-angle-side, which asks for",
+            "step 2 cites axi:side-angle-side, which asks for",
         ),
         // A step citing a define by cases says which case it is in, by a line
         // giving the condition or its negation, and claims that case's value.

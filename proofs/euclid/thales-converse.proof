@@ -61,15 +61,3 @@ theorem thales-converse
 
 14. |CM| = |AM|
     mun:square-equal x := |CM|, y := |AM|, from 11, 12, 13
-
-15. |MC| = |CM|
-    mun:distance-symmetric P := M, Q := C
-
-16. |MA| = |AM|
-    mun:distance-symmetric P := M, Q := A
-
-17. |MC| = |MA|
-    calculation
-      |MC| = |CM|      15
-           = |AM|      14
-           = |MA|      16

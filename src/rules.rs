@@ -1050,11 +1050,14 @@ pub const SYMMETRIC: [&str; 3] = ["eqcom", "addcom", "mulcom"];
 
 /// The lemma that carries a notation's two holes in no order (`commutes any
 /// order of holes 1 and 2`) from one order to the other, by the target the
-/// notation builds: ( ph -> ( P <-> Q ) ), Q being P with the two exchanged,
-/// each hypothesis a hole's term in a number system, as the page's terms in
-/// those holes are. A target named in no entry is put in no order.
-pub const PAIRS_EXCHANGED: &[(&str, &str)] =
-    &[("_3 _1 _2 cmin co cdvds wbr", "gcongcomd")];
+/// notation builds: ( ph -> ( P <-> Q ) ) for a formula and ( ph -> A = B )
+/// for a term, Q or B being P or A with the two exchanged, each hypothesis a
+/// hole's term in a number system, as the page's terms in those holes are.
+/// A target named in no entry is put in no order.
+pub const PAIRS_EXCHANGED: &[(&str, &str)] = &[
+    ("_3 _1 _2 cmin co cdvds wbr", "gcongcomd"),
+    ("_1 _2 cmin co cabs cfv", "abssubd"),
+];
 
 /// The lemmas that exchange two elements next to each other in a listed
 /// set, by which the standard form puts a listing's elements in order: the

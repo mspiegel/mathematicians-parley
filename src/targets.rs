@@ -220,9 +220,16 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
         let patterns = split_entries(r.field_or_empty("target"));
         for (pattern, said) in patterns.iter().zip(says.iter()) {
             let places = slots(pattern);
+            // A target whose two holes a lemma exchanges deeper than one
+            // constructor, |PQ| inside a difference, is a pair in no order
+            // (`pairs_in_any_order`), not one constructor's two children.
+            let paired = crate::rules::PAIRS_EXCHANGED
+                .iter()
+                .any(|(t, _)| t == pattern);
             if !said.is_some_and(Commutes::exchanges)
                 || *pattern == FOLDED
                 || places.len() != 2
+                || paired
             {
                 continue;
             }
@@ -264,8 +271,11 @@ pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let patterns = split_entries(r.field_or_empty("target"));
         for (pattern, said) in patterns.iter().zip(commutes_said(r)) {
-            let Some(Commutes::AnyOrderOf(i, j)) = said else {
-                continue;
+            // Two holes in no order, named or the only two the target has.
+            let (i, j) = match said {
+                Some(Commutes::AnyOrderOf(i, j)) => (i, j),
+                Some(Commutes::AnyOrder) if slots(pattern).len() == 2 => (0, 1),
+                _ => continue,
             };
             let Some((_, lemma)) = crate::rules::PAIRS_EXCHANGED
                 .iter()

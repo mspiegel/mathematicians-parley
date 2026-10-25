@@ -148,30 +148,17 @@ theorem isosceles-median
 32. ∠AMB = 90°
     mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 31
 
-33. |AC| = |CA|
-    mun:distance-symmetric P := A, Q := C
-
-34. |BA| = |CA|
-    calculation
-      |BA| = |AC|      21
-           = |CA|      33
-
-35. |MB| = |MC|
-    calculation
-      |MB| = |BM|      16
-           = |MC|      1
-
-36. ∠BAM = ∠CAM
+33. ∠BAM = ∠CAM
     thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
-      from 4, 5, 34, 35
+      from 1, 4, 5, 21
 
-37. ∠CAM = ∠MAC
+34. ∠CAM = ∠MAC
     mun:angle-turned P := C, Q := A, R := M, from 4, 5
 
-38. ∠BAM = ∠MAC
+35. ∠BAM = ∠MAC
     calculation
-      ∠BAM = ∠CAM      36
-           = ∠MAC      37
+      ∠BAM = ∠CAM      33
+           = ∠MAC      34
 
-39. ∠AMB = 90°. ∠BAM = ∠MAC.
-    join 32, 38
+36. ∠AMB = 90°. ∠BAM = ∠MAC.
+    join 32, 35

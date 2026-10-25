@@ -1,6 +1,5 @@
 import axiom              stdlib/geometry/side-angle-side
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/distance-symmetric
 import definition         stdlib/geometry/congruent
 
 theorem isosceles
@@ -15,36 +14,24 @@ theorem isosceles
   assume |CA| = |CB|                                                  (H5)
   then ∠CAB = ∠CBA
 
-1.  |AC| = |CA|
-    mun:distance-symmetric P := A, Q := C
-
-2.  |CB| = |BC|
-    mun:distance-symmetric P := C, Q := B
-
-3.  |AC| = |BC|
-    calculation
-      |AC| = |CA|       1
-           = |CB|       H5
-           = |BC|       2
-
-4.  ∠ACB = ∠BCA
+1.  ∠ACB = ∠BCA
     mun:angle-symmetric P := A, Q := C, R := B, from H4
 
-5.  triangle ACB ≅ triangle BCA
+2.  triangle ACB ≅ triangle BCA
     axi:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
-      from H4, H5, 3, 4
+      from H4, H5, 1
 
-6.  ∠BAC = ∠ABC
-    def:congruent, from 5
+3.  ∠BAC = ∠ABC
+    def:congruent, from 2
 
-7.  ∠CAB = ∠BAC
+4.  ∠CAB = ∠BAC
     mun:angle-symmetric P := C, Q := A, R := B, from H4
 
-8.  ∠ABC = ∠CBA
+5.  ∠ABC = ∠CBA
     mun:angle-symmetric P := A, Q := B, R := C, from H4
 
-9.  ∠CAB = ∠CBA
+6.  ∠CAB = ∠CBA
     calculation
-      ∠CAB = ∠BAC       7
-           = ∠ABC       6
-           = ∠CBA       8
+      ∠CAB = ∠BAC       4
+           = ∠ABC       3
+           = ∠CBA       5

@@ -73,11 +73,3 @@ theorem midline
 
 18. |NM| = |BC|/2
     mun:square-equal x := |NM|, y := |BC|/2, from 14, 15, 17
-
-19. |MN| = |NM|
-    mun:distance-symmetric P := M, Q := N
-
-20. |MN| = |BC|/2
-    calculation
-      |MN| = |NM|      19
-           = |BC|/2    18

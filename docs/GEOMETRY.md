@@ -238,6 +238,14 @@ phrase, `mun:stdlib/geometry/angle-symmetric` among them, and a proof cites
 its own triangle line for it in whatever order it names the points. Order
 matters only where a statement says which vertex is which, as "triangle ACB
 ≅ triangle BCA" does, and that is another notation.
+
+**A distance is its two points, in no order.** |AB| and |BA| are one term,
+as a segment is the same whichever end is named first. The distance
+notation says `commutes any order`, so the checker matches its two points
+in either order, and the elaborator carries one order to the other by
+`abssub`. No proof writes |AB| = |BA|. `mun:stdlib/geometry/distance-symmetric`
+stays in the library, stating the fact for a reader who looks it up, and no
+step needs to cite it.
 Distinctness of an angle's points is exactly what the `requires` machinery is
 for, and it is not a membership the page says once.
 
