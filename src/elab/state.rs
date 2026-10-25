@@ -204,6 +204,9 @@ pub struct Contradicted {
     /// collinear`: the one that asserts, carried to the order its denial
     /// names, while the block's scope still holds.
     pub reordered: Option<ProvedClaim>,
+    /// Everything else the line says (`line_says`), any of which the last
+    /// step may deny.
+    pub says: Vec<ProvedClaim>,
 }
 
 /// A claim and its proof under the scope it was proved in.

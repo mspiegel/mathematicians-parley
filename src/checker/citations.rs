@@ -8,18 +8,17 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{
-    introduced, listed_seed, typed_in_scope, typed_seed, Known, Search,
+    introduced, listed_seed, typed_in_scope, typed_seed, Known, SaidFrom, Search,
 };
 use super::record::{Cited, FirstAt};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, index_system, obtained, obtains,
-    part_said_otherwise, range_system, readings, said_once, search, stood_for,
-    substitution_unsaid, supplies, supply, taken, taken_ways, type_said_otherwise,
-    with_parts, witnesses_unsaid, Bound, Concluded, Group, Introduced, Library, Parts,
-    Sites, Taken, Ways,
+    function_values, identities_unsaid, index_system, obtained, obtains, range_system,
+    readings, said_once, search, stood_for, substitution_unsaid, supply, taken,
+    taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound, Concluded,
+    Group, Introduced, Library, Parts, Sites, Taken, Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -393,12 +392,17 @@ fn firsts_at(
     for first in firsts {
         let found = refs.iter().find_map(|r| {
             let written = scope.get(r)?;
-            // A "for all" read at a block's letter counts as a sentence after
-            // the line's own (`Known::at_block_letters`).
-            let mut said = known.said_parts(written, Some(&defined));
-            let read: Vec<Node> = said.iter().flatten().cloned().collect();
-            let at = known.at_block_letters(written, &read, Some(&defined));
-            said.extend(at.into_iter().map(Some));
+            // Counted as the build counts them: the line's sentences, then
+            // each "for all" of it read at a block's letter.
+            let says = known.says(written, &defined);
+            let sentences = says
+                .iter()
+                .filter(|s| matches!(s.from, SaidFrom::Sentence(_)));
+            let at = says
+                .iter()
+                .filter(|s| matches!(s.from, SaidFrom::AtLetter { part: None, .. }));
+            let said: Vec<Option<Node>> =
+                sentences.chain(at).map(|s| Some(s.cited.clone())).collect();
             line_states(first, r, &said, library)
         });
         if let Some(at) = found.filter(|at| !out.contains(at)) {
@@ -1076,7 +1080,7 @@ pub fn check_subjects(
         let parts = known.parts(step, library);
         let refs: Vec<&str> = just.refs.iter().map(String::as_str).collect();
         let cites_one = known
-            .lines_say(step, &refs, library)
+            .lines_say(step, &refs)
             .iter()
             .any(|n| library.exists.contains(&n.notation()));
         let claims_one = parts
@@ -1141,11 +1145,10 @@ pub fn check_joins(
         let scope = known.scope(step);
         let mut cited: Vec<(&String, Vec<Node>)> = Vec::new();
         for r in &step.just.refs {
-            let Some(said) = scope.get(r).and_then(|s| known.stated_as_written(s))
-            else {
+            let Some(stated) = scope.get(r).filter(|s| known.reads(s)) else {
                 continue;
             };
-            cited.push((r, conjuncts(&said, library)));
+            cited.push((r, known.writes(stated, &known.citing_step(step))));
         }
         if cited.len() != step.just.refs.len() {
             continue;
@@ -1700,16 +1703,21 @@ pub fn check_substitutes(
         if let Some(source) = source {
             // A define of a name says its equation, as a link citing it
             // reads it; a define of a function is the elaborator's.
-            let said = if defined(&source) {
+            let said: Option<Vec<Node>> = if defined(&source) {
                 super::formulas::define_equation(thm, step, &source, known)
+                    .map(|e| vec![e])
             } else {
                 let scope = known.scope(step);
-                scope.get(&source).and_then(|s| known.stated_as_written(s))
+                scope.get(&source).filter(|s| known.reads(s)).map(|s| {
+                    known
+                        .says(s, &known.citing_step(step))
+                        .into_iter()
+                        .map(|s| s.written)
+                        .collect()
+                })
             };
-            if let Some(said) = said {
+            if let Some(parts) = said {
                 let turned = equation.with_children(vec![right.clone(), left.clone()]);
-                let mut parts = vec![said.clone()];
-                parts.extend(supplies(&said, library));
                 let there = parts
                     .iter()
                     .any(|p| known.alike(p, &equation) || known.alike(p, &turned));
@@ -1748,21 +1756,20 @@ pub fn check_substitutes(
                 }
                 // A reference to nothing is `check_references`'s to report.
                 let scope = known.scope(step);
-                let Some(said) =
-                    scope.get(&into).and_then(|s| known.stated_as_written(s))
-                else {
+                let Some(stated) = scope.get(&into).filter(|s| known.reads(s)) else {
                     continue;
                 };
-                let mut starts = vec![said.clone()];
-                starts.extend(conjuncts(&said, library));
-                // A part of a set is said as `X ⊆ A` or as `X ∈ 𝒫A`, and a
-                // `let X ⊆ A` holds the second: either form is the line put
-                // into, as a reader puts X = ∅ into it to make X ⊆ ∅.
-                let otherwise: Vec<Node> = starts
-                    .iter()
-                    .filter_map(|s| part_said_otherwise(s, library.env, &known.sorts))
+                // Whatever the line says is what the equation may be put
+                // into (`Known::says`): a part of it, an equation of a chain,
+                // a bound of a range, and a part of a set said as `X ⊆ A` or
+                // as `X ∈ 𝒫A` either way, as a reader puts X = ∅ into
+                // `let X ⊆ A` to make X ⊆ ∅.
+                let defined = known.citing_step(step);
+                let starts: Vec<Node> = known
+                    .says(stated, &defined)
+                    .into_iter()
+                    .map(|s| s.written)
                     .collect();
-                starts.extend(otherwise);
                 vec![(starts, claim.clone())]
             }
             None => match claim.children.as_slice() {
@@ -1890,26 +1897,31 @@ pub fn check_obtained_claims(
                 else {
                     continue;
                 };
-                let defined = known.citing_step(step);
-                let mut said = known.said_parts(&stated, Some(&defined));
-                // A "for all" of the line read at a block's letter is a
-                // sentence of it there (`Known::at_block_letters`).
-                let read: Vec<Node> = said.iter().flatten().cloned().collect();
-                let at = known.at_block_letters(&stated, &read, Some(&defined));
-                said.extend(at.into_iter().map(Some));
-                // A line of several sentences gives its one "there is",
-                // as the build takes it; with none or several the line
-                // states no one existence to obtain from.
-                if let [one] = said.as_slice() {
-                    one.clone()
-                } else if said.iter().any(Option::is_none) {
+                if !known.reads(&stated) {
                     continue; // `check_formulas` says a sentence does not read
+                }
+                // The line's one "there is" among what it says
+                // (`Known::says`): a sentence, a part of one, or a "for all"
+                // read at a block's letter; with none or several the line
+                // states no one existence to obtain from.
+                let defined = known.citing_step(step);
+                let said = known.says(&stated, &defined);
+                let existences: Vec<&Node> = said
+                    .iter()
+                    .map(|s| &s.cited)
+                    .filter(|s| library.ctx.existences.contains(&s.notation()))
+                    .collect();
+                let sentences: Vec<&Node> = said
+                    .iter()
+                    .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+                    .map(|s| &s.cited)
+                    .collect();
+                // A line of one sentence with no "there is" is read on: a
+                // part or a function said otherwise is the elaborator's to
+                // read, and a line saying none is told below.
+                if let ([], [one]) = (existences.as_slice(), sentences.as_slice()) {
+                    Some((*one).clone())
                 } else {
-                    let existences: Vec<&Node> = said
-                        .iter()
-                        .flatten()
-                        .filter(|s| library.ctx.existences.contains(&s.notation()))
-                        .collect();
                     match existences.as_slice() {
                         [one] => Some((*one).clone()),
                         none_or_more => {
@@ -3155,7 +3167,7 @@ fn applied_in_cited(
         let Some(stated) = scope.get(r.as_str()) else {
             continue;
         };
-        for part in known.said_parts(stated, None).into_iter().flatten() {
+        for part in known.sentences(stated) {
             let mut bound = BTreeSet::new();
             letters_bound(&part, ctx, &mut bound);
             out.extend(
@@ -3596,7 +3608,7 @@ fn unsaid_by(
         .map(String::from)
         .collect();
     let refs: Vec<&str> = from_links.iter().map(String::as_str).collect();
-    facts.extend(known.lines_say(step, &refs, library));
+    facts.extend(known.lines_say(step, &refs));
     // A claim said of every member puts the member in its domain.
     facts.extend(
         parts
@@ -4076,10 +4088,14 @@ pub fn check_instantiated(
             .map(|v| (v.name, v.value))
             .collect();
         let defined = known.citing_step(step);
-        let said = known
-            .said_parts(&line, Some(&defined))
+        let mut said: Vec<(Option<Node>, Option<Node>)> = known
+            .says(&line, &defined)
             .into_iter()
-            .zip(known.said_parts(&line, None));
+            .map(|s| (Some(s.cited), Some(s.written)))
+            .collect();
+        if !known.reads(&line) {
+            said.push((None, None));
+        }
         // What the values put in the domains need, each found among the
         // step's facts; unjudged where a domain is one `bound_in` does not
         // read, or a membership is missing and reported.
@@ -4090,6 +4106,13 @@ pub fn check_instantiated(
                 judged = false;
                 continue;
             };
+            // The part instantiated is one the values fit, as
+            // `check_instance_claimed` takes it: inside a block, a line
+            // "for all a, for all x" also says "for all x" at the block's
+            // letter, which the values for a and x do not fit.
+            if fit_of(&read, &parts.seed) != Fit::Fits {
+                continue;
+            }
             // A cited line may meet a condition of the line as well, "if ε
             // > 0 then" in "for all ε > 0", which the elaborator judges.
             if read
@@ -4236,14 +4259,9 @@ pub fn check_instance_claimed(
         let seed = &named.seed;
         let defined = known.citing_step(step);
         let parts: Vec<Node> = known
-            .said_parts(&line, Some(&defined))
+            .says(&line, &defined)
             .into_iter()
-            .flatten()
-            .flat_map(|said| {
-                let mut all = vec![said.clone()];
-                all.extend(supplies(&said, library));
-                all
-            })
+            .map(|s| s.cited)
             .collect();
         let fits: Vec<Fit> = parts.iter().map(|said| fit_of(said, seed)).collect();
         // The part instantiated is one the values fit: a part they leave
@@ -4798,19 +4816,16 @@ fn member_in(
 /// citing an item is the step it would be, so it is asked this as a step
 /// is.
 fn does_other_work(
-    stated: Option<&Node>,
+    stated: &[Node],
     asks: &FamilyAsks,
     in_domain: &FxIndexSet<ByShape>,
     known: &Known,
     library: &Library,
 ) -> bool {
-    stated.is_some_and(|n| {
-        asks.states(n, known)
-            || conjuncts(n, library).iter().any(|part| {
-                asks.states(part, known)
-                    || in_domain.contains(&part.by_shape())
-                    || asks.states_values(part, library)
-            })
+    stated.iter().any(|part| {
+        asks.states(part, known)
+            || in_domain.contains(&part.by_shape())
+            || asks.states_values(part, library)
     })
 }
 
@@ -4826,11 +4841,7 @@ fn in_a_domain(step: &Step, r: &str, known: &Known) -> bool {
     let Some(stated) = scope.get(r) else {
         return false;
     };
-    known
-        .said_parts(stated, None)
-        .into_iter()
-        .flatten()
-        .any(|n| types_a_function(&n))
+    known.sentences(stated).iter().any(types_a_function)
 }
 
 /// Whether `lighter`, `step` with a line taken away, is no longer supplied.
@@ -4989,8 +5000,11 @@ pub fn check_surplus(
                 if defines.contains(r.as_str()) || in_a_domain(step, r, known) {
                     continue;
                 }
-                let stated = scope.get(r).and_then(|s| known.stated_as_written(s));
-                if does_other_work(stated.as_ref(), &asks, &in_domain, known, library) {
+                let stated: Vec<Node> = scope
+                    .get(r)
+                    .map(|s| known.writes(s, &known.citing_step(step)))
+                    .unwrap_or_default();
+                if does_other_work(&stated, &asks, &in_domain, known, library) {
                     continue;
                 }
                 let mut lighter = as_step.clone();
@@ -5043,8 +5057,11 @@ pub fn check_surplus(
             if defines.contains(r.as_str()) {
                 continue;
             }
-            let stated = scope.get(r).and_then(|s| known.stated_as_written(s));
-            if does_other_work(stated.as_ref(), &asks, &in_domain, known, library) {
+            let stated: Vec<Node> = scope
+                .get(r)
+                .map(|s| known.writes(s, &known.citing_step(step)))
+                .unwrap_or_default();
+            if does_other_work(&stated, &asks, &in_domain, known, library) {
                 continue;
             }
             let mut lighter = step.clone();

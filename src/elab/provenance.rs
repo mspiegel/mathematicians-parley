@@ -175,8 +175,19 @@ impl<'a> Elaborator<'a> {
                     out.extend(inner.just.refs.iter().cloned());
                 }
                 // A block closed on a contradiction rests on the line its
-                // last step contradicts.
-                out.extend(inner.just.contradicting.iter().cloned());
+                // last step contradicts, read with the defines that step
+                // cites (`SYNTAX.md`, What a cited line says).
+                if inner.just.contradicting.is_some() {
+                    out.extend(inner.just.contradicting.iter().cloned());
+                    out.extend(
+                        inner
+                            .just
+                            .refs
+                            .iter()
+                            .filter(|r| self.thm.defines.iter().any(|d| &d.label == *r))
+                            .cloned(),
+                    );
+                }
             }
         }
         out
@@ -713,6 +724,13 @@ impl<'a> Elaborator<'a> {
                     says_it = true;
                 }
             }
+            // A define cited with the line reads its name in the line as
+            // what it names (`SYNTAX.md`, What a cited line says), so the
+            // line's sentence is the fact in other words.
+            let read_through = refs
+                .iter()
+                .any(|x| self.thm.defines.iter().any(|d| &d.label == x));
+            let says_it = says_it || read_through;
             let held = Facts::new();
             let lines = self.lines.clone();
             let whole = self.carried(r, facts, &lines);

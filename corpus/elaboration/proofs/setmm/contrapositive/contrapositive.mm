@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   proofs.setmm.contrapositive.contrapositive $p |- ( ( A e. RR /\ B e. RR ) -> ( ( A = 0 -> B = 0 ) -> ( -. B = 0 -> -. A = 0 ) ) ) $=
-    ( cr wcel wa cc0 wceq wi wn simpr simpl syl mpd pm2.21dd ex pm2.01d ) ACDZBCDZEZAFGZBFGZHZUAIZTIZHSUBEZUCUDUEUCEZTUFTUDUFTEZUAUDUGTUAUFTJUGUFUBUFTKZUFUEUBUEUCKSUBJLLMUGUFUCUHUEUCJLNOPOO $.
+    ( cr wcel wa cc0 wceq wi wn simpr simpl syl mpd eqcomd pm2.21dd ex pm2.01d ) ACDZBCDZEZAFGZBFGZHZUBIZUAIZHTUCEZUDUEUFUDEZUAUGUAUEUGUAEZUBUEUHFBUHBFUHUAUBUGUAJUHUGUCUGUAKZUGUFUCUFUDKTUCJLLMNNUHUGUDUIUFUDJLOPQPP $.
 $}

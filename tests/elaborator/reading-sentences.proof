@@ -1,0 +1,381 @@
+import mundane theorem    stdlib/reasoning/or-right
+import mundane definition stdlib/divisibility/even
+
+theorem a-second-sentence-filling-an-item
+  note        Rule: sentences, a line of several sentences. Route: from L on
+              a cited item. H3 says a = 1 and b = 2 as two sentences;
+              or-right takes the second as its hypothesis.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b = 2.                                                (H3)
+  then b = 0 or b = 2
+
+1.  b = 0 or b = 2
+    mun:or-right P := b = 0, Q := b = 2, from H3
+
+theorem an-and-part-filling-an-item
+  note        Rule: sentences, a line P and Q. Route: from L on a cited item.
+              H3 says a = 1 and b = 2; or-right takes the second part as its
+              hypothesis.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b = 2                                              (H3)
+  then b = 0 or b = 2
+
+1.  b = 0 or b = 2
+    mun:or-right P := b = 0, Q := b = 2, from H3
+
+theorem a-second-sentence-in-a-calculation-link
+  note        Rule: sentences, a line of several sentences. Route: a
+              calculation link citing L. The first link is b = 2, the second
+              sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b = 2.                                                (H3)
+  then b = 1 + 1
+
+1.  b = 1 + 1
+    calculation
+      b = 2           H3
+        = 1 + 1       arithmetic
+
+theorem an-and-part-in-a-calculation-link
+  note        Rule: sentences, a line P and Q. Route: a calculation link
+              citing L. The first link is b = 2, the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b = 2                                              (H3)
+  then b = 1 + 1
+
+1.  b = 1 + 1
+    calculation
+      b = 2           H3
+        = 1 + 1       arithmetic
+
+theorem a-second-sentence-in-a-requires-line
+  note        Rule: sentences, a line of several sentences. Route: a requires
+              line citing L. The requires line weakens b > 0, the second
+              sentence of H3, to b ≠ 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b > 0.                                                (H3)
+  then a/b·b = a
+
+1.  a/b·b = a
+    algebra
+    requires b ≠ 0: weakening, from H3
+
+theorem an-and-part-in-a-requires-line
+  note        Rule: sentences, a line P and Q. Route: a requires line citing
+              L. The requires line weakens b > 0, the second part of H3, to
+              b ≠ 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b > 0                                              (H3)
+  then a/b·b = a
+
+1.  a/b·b = a
+    algebra
+    requires b ≠ 0: weakening, from H3
+
+theorem a-second-sentence-as-the-substituted-equation
+  note        Rule: sentences, a line of several sentences. Route: substitute
+              e (line L). The equation b = 2 is the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b = 2.                                                (H3)
+  then a + b = a + 2
+
+1.  a + b = a + 2
+    substitute b = 2 (H3)
+
+theorem an-and-part-as-the-substituted-equation
+  note        Rule: sentences, a line P and Q. Route: substitute e (line L).
+              The equation b = 2 is the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b = 2                                              (H3)
+  then a + b = a + 2
+
+1.  a + b = a + 2
+    substitute b = 2 (H3)
+
+theorem a-second-sentence-substituted-into
+  note        Rule: sentences, a line of several sentences. Route:
+              substitute into line L. b = 2 is put into a < b, the second
+              sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. a < b.                                                (H3)
+  assume b = 2                                                        (H4)
+  then a < 2
+
+1.  a < 2
+    substitute b = 2 (H4) into H3
+
+theorem an-and-part-substituted-into
+  note        Rule: sentences, a line P and Q. Route: substitute into line
+              L. b = 2 is put into a < b, the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and a < b                                              (H3)
+  assume b = 2                                                        (H4)
+  then a < 2
+
+1.  a < 2
+    substitute b = 2 (H4) into H3
+
+theorem a-second-sentence-joined
+  note        Rule: sentences, a line of several sentences. Route: join L.
+              The claim is the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b = 2.                                                (H3)
+  then b = 2
+
+1.  b = 2
+    join H3
+
+theorem an-and-part-joined
+  note        Rule: sentences, a line P and Q. Route: join L. The claim is
+              the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b = 2                                              (H3)
+  then b = 2
+
+1.  b = 2
+    join H3
+
+theorem a-second-sentence-contradicted
+  note        Rule: sentences, a line of several sentences. Route:
+              contradicting L. The block's last step claims b = 2, the
+              opposite of b ≠ 2, the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b ≠ 2.                                                (H3)
+  then if b = 2 then a = 0
+
+1.  if b = 2 then a = 0
+    proof
+    assume b = 2                                                      (K1)
+
+    1.1.  b = 2
+          join K1, contradicting H3
+
+theorem an-and-part-contradicted
+  note        Rule: sentences, a line P and Q. Route: contradicting L. The
+              block's last step claims b = 2, the opposite of b ≠ 2, the
+              second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b ≠ 2                                              (H3)
+  then if b = 2 then a = 0
+
+1.  if b = 2 then a = 0
+    proof
+    assume b = 2                                                      (K1)
+
+    1.1.  b = 2
+          join K1, contradicting H3
+
+theorem a-second-sentence-obtained-from
+  note        Rule: sentences, a line of several sentences. Route: obtain x
+              from line L. The "there is" is the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a = 1. There is k ∈ ℤ with b = 2k.                           (H3)
+  then there is j ∈ ℤ with b = 2j
+
+1.  k ∈ ℤ. b = 2k.
+    obtain k from H3
+
+2.  There is j ∈ ℤ with b = 2j.
+    exhibit, from 1
+
+theorem an-and-part-obtained-from
+  note        Rule: sentences, a line P and Q. Route: obtain x from line L.
+              The "there is" is the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a = 1 and there is k ∈ ℤ with b = 2k                         (H3)
+  then there is j ∈ ℤ with b = 2j
+
+1.  k ∈ ℤ. b = 2k.
+    obtain k from H3
+
+2.  There is j ∈ ℤ with b = 2j.
+    exhibit, from 1
+
+theorem a-second-sentence-in-a-transitivity
+  note        Rule: sentences, a line of several sentences. Route:
+              transitivity. The chain's first link is b ≤ c, the second
+              sentence of H4.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = 1. b ≤ c.                                                (H4)
+  assume c < 0                                                        (H5)
+  then b < 0
+
+1.  b < 0
+    transitivity, from H4, H5
+
+theorem an-and-part-in-a-transitivity
+  note        Rule: sentences, a line P and Q. Route: transitivity. The
+              chain's first link is b ≤ c, the second part of H4.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = 1 and b ≤ c                                              (H4)
+  assume c < 0                                                        (H5)
+  then b < 0
+
+1.  b < 0
+    transitivity, from H4, H5
+
+theorem a-second-sentence-added-by-inequalities
+  note        Rule: sentences, a line of several sentences. Route: a plain
+              inequalities step. It adds b > 0, the second sentence of H4,
+              to c > 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = 1. b > 0.                                                (H4)
+  assume c > 0                                                        (H5)
+  then b + c > 0
+
+1.  b + c > 0
+    inequalities, from H4, H5
+
+theorem an-and-part-added-by-inequalities
+  note        Rule: sentences, a line P and Q. Route: a plain inequalities
+              step. It adds b > 0, the second part of H4, to c > 0.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = 1 and b > 0                                              (H4)
+  assume c > 0                                                        (H5)
+  then b + c > 0
+
+1.  b + c > 0
+    inequalities, from H4, H5
+
+theorem a-second-sentence-as-a-first-row
+  note        Rule: sentences, a line of several sentences. Route: an
+              inequalities block's first row. The first row is b > 0, the
+              second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b > 0.                                                (H3)
+  then b + 1 > 1
+
+1.  b + 1 > 1
+    inequalities
+      b > 0                H3
+      b + 1 > 0 + 1        adding 1
+      b + 1 > 1            algebra
+
+theorem an-and-part-as-a-first-row
+  note        Rule: sentences, a line P and Q. Route: an inequalities block's
+              first row. The first row is b > 0, the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b > 0                                              (H3)
+  then b + 1 > 1
+
+1.  b + 1 > 1
+    inequalities
+      b > 0                H3
+      b + 1 > 0 + 1        adding 1
+      b + 1 > 1            algebra
+
+theorem a-second-sentence-instantiated
+  note        Rule: sentences, a line of several sentences. Route:
+              instantiate in line L. The "for all" is the second sentence of
+              H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. For all x ∈ ℝ, x·0 = 0.                               (H3)
+  then b·0 = 0
+
+1.  b·0 = 0
+    instantiate x := b in H3
+
+theorem an-and-part-instantiated
+  note        Rule: sentences, a line P and Q. Route: instantiate in line L.
+              The "for all" is the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and (for all x ∈ ℝ, x·0 = 0)                           (H3)
+  then b·0 = 0
+
+1.  b·0 = 0
+    instantiate x := b in H3
+
+theorem a-second-sentence-unfolded
+  note        Rule: sentences, a line of several sentences. Route: a
+              definition unfolded from L. even is unfolded from b is even,
+              the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a = 1. b is even.                                            (H3)
+  then there is k ∈ ℤ with b = 2k
+
+1.  There is k ∈ ℤ with b = 2k.
+    mun:even n := b, from H3
+
+theorem an-and-part-unfolded
+  note        Rule: sentences, a line P and Q. Route: a definition unfolded
+              from L. even is unfolded from b is even, the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a = 1 and b is even                                          (H3)
+  then there is k ∈ ℤ with b = 2k
+
+1.  There is k ∈ ℤ with b = 2k.
+    mun:even n := b, from H3
+
+theorem a-second-sentence-by-algebra
+  note        Rule: sentences, a line of several sentences. Route: algebra,
+              from L. The equation b = 2 is the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. b = 2.                                                (H3)
+  then b·b = 4
+
+1.  b·b = 4
+    algebra, from H3
+
+theorem an-and-part-by-algebra
+  note        Rule: sentences, a line P and Q. Route: algebra, from L. The
+              equation b = 2 is the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and b = 2                                              (H3)
+  then b·b = 4
+
+1.  b·b = 4
+    algebra, from H3
+
+theorem a-second-sentence-by-membership
+  note        Rule: sentences, a line of several sentences. Route:
+              membership, from L. √b ∈ ℝ is the second sentence of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1. √b ∈ ℝ.                                               (H3)
+  then √b + 1 ∈ ℝ
+
+1.  √b + 1 ∈ ℝ
+    membership, from H3
+
+theorem an-and-part-by-membership
+  note        Rule: sentences, a line P and Q. Route: membership, from L.
+              √b ∈ ℝ is the second part of H3.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 1 and √b ∈ ℝ                                             (H3)
+  then √b + 1 ∈ ℝ
+
+1.  √b + 1 ∈ ℝ
+    membership, from H3

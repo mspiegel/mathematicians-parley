@@ -6,7 +6,7 @@ use std::collections::BTreeSet;
 
 use indexmap::IndexMap;
 
-use super::library::Known;
+use super::library::{Known, SaidFrom, Stated};
 use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
@@ -612,7 +612,7 @@ pub fn check_decided_words(
                 .refs
                 .iter()
                 .filter_map(|r| scope.get(r))
-                .flat_map(|stated| known.stated_at(step, stated))
+                .flat_map(|stated| known.supplied(stated, &known.citing_step(step)))
                 .flat_map(|n| n.walk().iter().map(Node::spelling).collect::<Vec<_>>())
                 .collect();
             if let Some(claim) = known.whole(step, &step.claim) {
@@ -1287,6 +1287,44 @@ pub fn check_impossible(
     }
 }
 
+/// Whether a step's claim and something the line `said` says (`Known::says`,
+/// with the defines the step cites written out) are a formula and that
+/// formula negated, either way round.
+fn opposes(
+    step: &Step,
+    said: &Stated,
+    wrappers: &FxIndexSet<NotationId>,
+    known: &Known,
+) -> bool {
+    let claimed = known.whole(step, &step.claim);
+    known.says(said, &known.citing_step(step)).iter().any(|s| {
+        let there = Some(s.cited.clone());
+        negates(claimed.as_ref(), there.as_ref(), wrappers, known)
+            || negates(there.as_ref(), claimed.as_ref(), wrappers, known)
+    })
+}
+
+/// Whether a step contradicts a line only with all it cites: with the lines
+/// `without` in their place it no longer opposes the line (`opposes`).
+fn reads_contradicted(
+    step: &Step,
+    without: &[String],
+    library: &Library,
+    known: &Known,
+) -> bool {
+    let Some(other) = &step.just.contradicting else {
+        return false;
+    };
+    let Some(said) = known.scope(step).get(other).cloned() else {
+        return false;
+    };
+    let wrappers = wrappers(library.env);
+    let mut lighter = step.clone();
+    lighter.just.refs = without.to_vec();
+    opposes(step, &said, &wrappers, known)
+        && !opposes(&lighter, &said, &wrappers, known)
+}
+
 /// A step written `contradicting N`: its claim and line N are a formula and
 /// that formula negated, and the step is the last of a contradiction block,
 /// which it closes, or of a case, which it shows cannot occur.
@@ -1317,30 +1355,8 @@ pub fn check_contradicting(
         // a line may say several things and be contradicted in one, or in
         // all of them at once, since "A. B" is "A and B".
         let claimed = known.whole(step, &step.claim);
-        let mut there = known.said_parts(said, Some(&known.citing_step(step)));
-        // A sentence joined by "and" says each of its parts, as sentences of
-        // their own would.
-        let joined: Vec<Option<Node>> = there
-            .iter()
-            .flatten()
-            .filter(|n| n.notation() == CONJUNCTION)
-            .flat_map(conjuncts)
-            .map(Some)
-            .collect();
-        if there.len() > 1 {
-            let parts: Option<Vec<Node>> = there.iter().cloned().collect();
-            if let Some(whole) =
-                parts.and_then(|p| crate::formula::page::conjoined(env.g, p))
-            {
-                there.push(Some(whole));
-            }
-        }
-        there.extend(joined);
-        let opposed = there.iter().any(|t| {
-            negates(claimed.as_ref(), t.as_ref(), &wrappers, known)
-                || negates(t.as_ref(), claimed.as_ref(), &wrappers, known)
-        });
-        if claimed.is_some() && there.iter().all(Option::is_some) && !opposed {
+        let opposed = opposes(step, said, &wrappers, known);
+        if claimed.is_some() && known.reads(said) && !opposed {
             report.say(
                 &thm.path,
                 step.just.line,
@@ -1928,10 +1944,27 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
             .map(|o| known.whole_as_written(&o.body(&thm.path)))
             .collect();
         let want = assumed.and_then(|a| disjoined(known.env.g, a));
-        let (Some(want), Some(have)) = (want, known.stated_as_written(said)) else {
+        let Some(want) = want else {
             continue;
         };
-        if !known.alike(&want, &have) {
+        if !known.reads(said) {
+            continue;
+        }
+        // The line as a whole (`SYNTAX.md`, `cases`): its one sentence, or
+        // that sentence read at a block's letter, or its sentences joined.
+        let says = known.says(said, &known.citing_step(owner));
+        let sentences = says
+            .iter()
+            .filter(|s| matches!(s.from, SaidFrom::Sentence(_)))
+            .count();
+        let mut whole = says.iter().filter(|s| match s.from {
+            SaidFrom::Whole => true,
+            SaidFrom::Sentence(_) | SaidFrom::AtLetter { part: None, .. } => {
+                sentences == 1
+            }
+            _ => false,
+        });
+        if !whole.any(|s| known.alike(&want, &s.written)) {
             report.say(
                 &thm.path,
                 owner.just.line,
@@ -2008,8 +2041,8 @@ pub fn check_congruence_integers(
         let mut lines = Vec::new();
         let mut line_of = Vec::new();
         for (i, l) in links.iter().enumerate() {
-            if let Some(whole) = cited_whole(step, &l.line.cite, known) {
-                lines.push(whole);
+            for said in cited_says(step, &l.line.cite, known) {
+                lines.push(said);
                 line_of.push(i);
             }
         }
@@ -2790,6 +2823,10 @@ struct Related {
     right: Node,
     rel: Rel,
     said: Node,
+    /// Whether the line it is taken from writes it; one the line says
+    /// without writing it has no written orientation (`METHODS.md`,
+    /// inequalities, the first row).
+    written: bool,
 }
 
 impl Related {
@@ -2813,6 +2850,7 @@ impl Related {
             right: right.clone(),
             rel,
             said: node.clone(),
+            written: true,
         })
     }
 
@@ -2823,6 +2861,7 @@ impl Related {
             right: self.left.clone(),
             rel: self.rel.converse(),
             said: self.said.clone(),
+            written: self.written,
         }
     }
 
@@ -2869,12 +2908,25 @@ fn starts(term: &Node, link: &Related, known: &Known) -> bool {
 }
 
 /// Each relation of `=`, `≠`, `<`, `≤`, `>` or `≥` the line `r` in a step's
-/// scope says, one to a sentence: the line's own, or of a line saying
-/// several things, `0 < x and x < 1`, each of them.
+/// scope says (`Known::says`), as written: the line's own, or of a line
+/// saying several things, `0 < x and x < 1`, each of them, an equation of a
+/// chain and a bound a membership or a range gives among them, each with
+/// whether the line writes it.
 fn line_relations(step: &Step, r: &str, known: &Known) -> Vec<Related> {
-    cited_whole(step, r, known)
-        .map(|n| conjuncts(&n).iter().filter_map(Related::of).collect())
-        .unwrap_or_default()
+    let Some(stated) = known.scope(step).get(r).cloned() else {
+        return Vec::new();
+    };
+    let mut out: Vec<Related> = Vec::new();
+    for said in known.says(&stated, &known.citing_step(step)) {
+        let Some(mut related) = Related::of(&said.written) else {
+            continue;
+        };
+        related.written = said.from.is_written();
+        if !out.iter().any(|o| known.alike(&o.said, &related.said)) {
+            out.push(related);
+        }
+    }
+    out
 }
 
 /// A define of a theorem names something new, and names a thing.
@@ -2972,12 +3024,62 @@ pub(super) fn define_equation(
     Some(made(known.env.g, EQUALS, vec![named, term.clone()]))
 }
 
-/// What the line `r` in a step's scope states, all of it, as written.
-fn cited_whole(step: &Step, r: &str, known: &Known) -> Option<Node> {
+/// A define of a function cited among a chain's lines, as a calculation's
+/// link citing it is read: an equation between the term the line before
+/// ends at and the one the line after starts from, which the define makes
+/// one. Each such equation the neighbouring lines' terms give, the claim's
+/// first and last terms standing for the lines at the ends; none where `r`
+/// is no define.
+fn define_applied(thm: &Theorem, step: &Step, r: &str, known: &Known) -> Vec<Related> {
+    if !thm.defines.iter().any(|d| d.label == r) {
+        return Vec::new();
+    }
+    let refs = &step.just.refs;
+    let Some(at) = refs.iter().position(|x| x == r) else {
+        return Vec::new();
+    };
+    let claim = known
+        .whole_as_written(&step.claim)
+        .as_ref()
+        .and_then(Related::of);
+    let terms_of = |i: Option<usize>, end: fn(&Related) -> Node| -> Vec<Node> {
+        match i.and_then(|i| refs.get(i)) {
+            Some(other) => line_relations(step, other, known)
+                .iter()
+                .flat_map(|l| [l.left.clone(), l.right.clone()])
+                .collect(),
+            None => claim.iter().map(end).collect(),
+        }
+    };
+    let before = terms_of(at.checked_sub(1), |c| c.left.clone());
+    let after = terms_of(Some(at + 1), |c| c.right.clone());
+    let defined = known.citing(std::slice::from_ref(&r.to_string()));
+    let mut out = Vec::new();
+    for one in &before {
+        for other in &after {
+            let same = known.alike(
+                &known.as_cited(one, &defined),
+                &known.as_cited(other, &defined),
+            );
+            if same && !known.alike(one, other) {
+                let said = made(known.env.g, EQUALS, vec![one.clone(), other.clone()]);
+                out.extend(Related::of(&said));
+            }
+        }
+    }
+    out
+}
+
+/// What the line `r` in a step's scope says (`Known::says`), as written.
+fn cited_says(step: &Step, r: &str, known: &Known) -> Vec<Node> {
+    let Some(stated) = known.scope(step).get(r).cloned() else {
+        return Vec::new();
+    };
     known
-        .scope(step)
-        .get(r)
-        .and_then(|s| known.stated_as_written(s))
+        .says(&stated, &known.citing_step(step))
+        .into_iter()
+        .map(|s| s.written)
+        .collect()
 }
 
 /// The lines a step cites, each as one link, in the order cited
@@ -3004,14 +3106,14 @@ fn cited_links(
                 .and_then(Related::of),
         );
         if said.is_empty() {
+            said = define_applied(thm, step, r, known);
+        }
+        if said.is_empty() {
             // A membership is what a requires line takes from a line, where
             // the page does not say it once.
-            let membership = cited_whole(step, r, known).is_some_and(|whole| {
-                conjuncts(&whole).iter().any(|c| {
-                    c.notation() == MEMBERSHIP
-                        && super::citations::membership_said_once(c, step, known)
-                            .is_none()
-                })
+            let membership = cited_says(step, r, known).iter().any(|c| {
+                c.notation() == MEMBERSHIP
+                    && super::citations::membership_said_once(c, step, known).is_none()
             });
             let instead = if membership {
                 ", and a membership it states is taken by a requires line"
@@ -3027,6 +3129,25 @@ fn cited_links(
             ));
         }
         each.push(said);
+    }
+    // Where a line says several relations, the claim decides
+    // (`METHODS.md`, transitivity): the one taken from each line is the one
+    // making a chain from the claim's first term to its last.
+    if each.iter().any(|said| said.len() > 1) {
+        let reaching = reaching_claim(thm, step, &each, known);
+        match reaching.as_slice() {
+            [one] => return Ok(one.clone()),
+            [_, _, ..] => {
+                return Err(Problem::new(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {number} cites lines by {method} that say several relations, and more than one choice of them reaches the claim"
+                    ),
+                ));
+            }
+            [] => {}
+        }
     }
     let meets = |a: &Related, b: &Related| {
         starts(&a.left, b, known) || starts(&a.right, b, known)
@@ -3059,6 +3180,56 @@ fn cited_links(
         out.push((*one).clone());
     }
     Ok(out)
+}
+
+/// Each choice of one relation from each cited line, `each` in the order
+/// cited, whose chain reaches the step's claim; none where the claim does
+/// not read or no choice reaches it. Choices whose relations are the same
+/// formulas are one.
+fn reaching_claim(
+    thm: &Theorem,
+    step: &Step,
+    each: &[Vec<Related>],
+    known: &Known,
+) -> Vec<Vec<Related>> {
+    let Some(claim) = known
+        .whole_as_written(&step.claim)
+        .as_ref()
+        .and_then(Related::of)
+    else {
+        return Vec::new();
+    };
+    let mut choices: Vec<Vec<Related>> = vec![Vec::new()];
+    for said in each {
+        choices = choices
+            .into_iter()
+            .flat_map(|before| {
+                said.iter().map(move |one| {
+                    let mut next = before.clone();
+                    next.push(one.clone());
+                    next
+                })
+            })
+            .collect();
+    }
+    let mut out: Vec<Vec<Related>> = Vec::new();
+    for choice in choices {
+        let Ok(chained) = chain_of(thm, step, &choice, known) else {
+            continue;
+        };
+        if !claim.says(&chained, known) {
+            continue;
+        }
+        let seen = out.iter().any(|o| {
+            o.iter()
+                .zip(&choice)
+                .all(|(a, b)| known.alike(&a.said, &b.said))
+        });
+        if !seen {
+            out.push(choice);
+        }
+    }
+    out
 }
 
 /// The relation each line a `transitivity` step cites gives its chain, as
@@ -3132,6 +3303,7 @@ fn chain_of(
         right: last.right.clone(),
         rel,
         said: last.said.clone(),
+        written: true,
     })
 }
 
@@ -3244,6 +3416,7 @@ pub fn check_antisymmetry(
             right: below[0].right.clone(),
             rel: Rel::Eq,
             said: claim.clone(),
+            written: true,
         };
         if !Related::of(&claim).is_some_and(|c| c.says(&equation, known)) {
             report.say(
@@ -3424,10 +3597,13 @@ pub fn check_inequality_rows(
             RowReason::Cited(r) => line_relations(step, r, known),
             _ => Vec::new(),
         };
-        if !cited_lines
-            .iter()
-            .any(|line| line.says_as_written(&read[0], known))
-        {
+        // A relation the line says without writing it has no written
+        // orientation, and the row may write it either way round
+        // (`METHODS.md`, inequalities).
+        if !cited_lines.iter().any(|line| {
+            line.says_as_written(&read[0], known)
+                || (!line.written && line.says(&read[0], known))
+        }) {
             // The line turned round is a symmetry row after it, not the
             // first row (`METHODS.md`, inequalities, Rows).
             let turned = cited_lines.iter().any(|line| line.says(&read[0], known));
@@ -3444,7 +3620,7 @@ pub fn check_inequality_rows(
             continue;
         }
         let whole_cited: Vec<Node> = match &written[0].reason {
-            RowReason::Cited(r) => cited_whole(step, r, known).into_iter().collect(),
+            RowReason::Cited(r) => cited_says(step, r, known),
             _ => Vec::new(),
         };
         let mut held = true;
@@ -3699,8 +3875,8 @@ fn report_unreal(
     let mut lines = relations[1..].to_vec();
     let mut line_of: Vec<usize> = (0..links.len()).collect();
     for (i, r) in step.just.refs.iter().enumerate() {
-        if let Some(whole) = cited_whole(step, r, known) {
-            lines.push(whole);
+        for said in cited_says(step, r, known) {
+            lines.push(said);
             line_of.push(i);
         }
     }
@@ -3819,7 +3995,7 @@ pub fn check_requires_combined(
                 .refs
                 .iter()
                 .filter_map(|r| scope.get(r))
-                .filter_map(|s| known.stated_as_written(s)),
+                .flat_map(|s| known.writes(s, &known.citing_step(step))),
         );
         let said: Vec<Option<Node>> = step
             .requires
@@ -4043,6 +4219,12 @@ pub fn check_method_cites_used(
         for r in refs.iter().filter(|r| seen.insert(r.as_str())) {
             let without: Vec<String> =
                 refs.iter().filter(|x| *x != r).cloned().collect();
+            // A define the step cites may be what reads the line it
+            // contradicts, `contradicting 1` where line 1 says e ≠ 0 and the
+            // claim says it of what e names.
+            if reads_contradicted(step, &without, library, known) {
+                continue;
+            }
             if asked.holds_citing(thm, step, &without, known) {
                 report.say(
                     &thm.path,
@@ -4173,7 +4355,7 @@ fn inspection_holds(
         .refs
         .iter()
         .filter_map(|r| scope.get(r))
-        .flat_map(|stated| known.stated_at(at.step, stated))
+        .flat_map(|stated| known.supplied(stated, &known.citing_step(at.step)))
         .map(|n| term_of_node(&n, targets))
         .collect();
     use crate::methods::inspection::{Facts, Inspected};
@@ -5130,7 +5312,7 @@ pub fn check_chain_links(
                 continue;
             };
             let said = known.as_cited(&claim, &defined);
-            let lines = known.lines_say(step, &[cite.as_str()], library);
+            let lines = known.lines_say(step, &[cite.as_str()]);
             if !lines.iter().any(|x| alike_top(&said, x, &library.ctx)) {
                 report.say(
                     &thm.path,

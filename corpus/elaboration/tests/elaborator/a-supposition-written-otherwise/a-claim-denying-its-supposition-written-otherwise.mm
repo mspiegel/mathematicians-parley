@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.a-supposition-written-otherwise.a-claim-denying-its-supposition-written-otherwise $p |- ( ( A e. RR /\ -. A = 1 ) -> -. A = 1 ) $=
-    ( cr wcel c1 wceq wn wa wi simpr wb eqcom a1i bicomd mpbid simpl syl pm2.21dd ex notbid imbi2d mpbird pm2.01d ) ABCZADEZFZGZDAEZFZUEUFUGUFUGUHHUGUEHUFUGUEUFUGGZUDUEUIUGUDUFUGIUIUDUGUDUGJZUIADKZLMNUIUFUEUFUGOUCUEIPQRUFUHUEUGUFUGUDUFUDUGUJUFUKLZMZSZTUAUBUNN $.
+    ( cr wcel c1 wceq wn wa wi simpr simpl syl neqcomd pm2.21dd ex wb eqcom a1i bicomd notbid imbi2d mpbird pm2.01d mpbid ) ABCZADEZFZGZDAEZFZUFUGUHUGUHUIHUHUFHUGUHUFUGUHGZUHUFUGUHIUJADUJUGUFUGUHJUDUFIKLMNUGUIUFUHUGUHUEUGUEUHUEUHOZUGADPZQZRZSZTUAUBUOUC $.
 $}

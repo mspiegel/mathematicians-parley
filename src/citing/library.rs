@@ -11,7 +11,7 @@ use crate::corpus::{Intro, Record, RecordKind, Theorem};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::{chain_links, chain_pairs, Written};
 use crate::formula::Binds;
-use crate::formula::{Node, Sorts};
+use crate::formula::{Grammar, Node, Sorts};
 use crate::matching::{expand, free_names, standard, Context, FxIndexMap, FxIndexSet};
 use crate::methods::terms::Targets;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
@@ -173,12 +173,12 @@ pub struct Library<'a> {
     /// the build's: it then reads no item itself (`read_by_checker`).
     read_by_checker: Option<&'a IndexMap<String, Option<Rc<Vec<Group>>>>>,
     /// Which notations are an existential, a universal, a membership, a
-    /// conjunction, a biconditional, an implication and a negation, taken
-    /// from what they target in the kernel rather than named here.
+    /// biconditional, an implication and a negation, taken from what they
+    /// target in the kernel rather than named here; a conjunction is the
+    /// context's (`Context::conjunctions`).
     pub exists: FxIndexSet<NotationId>,
     pub every: FxIndexSet<NotationId>,
     pub members: FxIndexSet<NotationId>,
-    pub conj: FxIndexSet<NotationId>,
     pub bicond: FxIndexSet<NotationId>,
     pub implies: FxIndexSet<NotationId>,
     pub negations: FxIndexSet<NotationId>,
@@ -219,7 +219,6 @@ impl<'a> Library<'a> {
             exists: FxIndexSet::default(),
             every: FxIndexSet::default(),
             members: FxIndexSet::default(),
-            conj: FxIndexSet::default(),
             bicond: FxIndexSet::default(),
             implies: FxIndexSet::default(),
             negations: FxIndexSet::default(),
@@ -240,7 +239,6 @@ impl<'a> Library<'a> {
                 "wrex" => &mut lib.exists,
                 "wral" => &mut lib.every,
                 "wcel" => &mut lib.members,
-                "wa" => &mut lib.conj,
                 "wb" => &mut lib.bicond,
                 "wi" => &mut lib.implies,
                 "wn" => &mut lib.negations,
@@ -617,7 +615,7 @@ fn pairs_within(node: &Node, library: &Library) -> Vec<Node> {
     if let Some(pairs) = chain_pairs(library.env.g, node) {
         return pairs;
     }
-    if library.conj.contains(&node.notation()) && node.children.len() == 2 {
+    if library.ctx.conjunctions.contains(&node.notation()) && node.children.len() == 2 {
         return node
             .children
             .iter()
@@ -633,12 +631,17 @@ fn pairs_within(node: &Node, library: &Library) -> Vec<Node> {
 /// conjunction at kernel level either way and the projection lives in the
 /// method's expansion.
 pub fn conjuncts(node: &Node, library: &Library) -> Vec<Node> {
-    if let Some(links) = chain_links(library.env.g, node) {
+    conjuncts_in(node, &library.ctx, library.env.g)
+}
+
+/// `conjuncts`, with the notations `ctx` reads and the grammar `g`.
+pub fn conjuncts_in(node: &Node, ctx: &Context, g: &Grammar) -> Vec<Node> {
+    if let Some(links) = chain_links(g, node) {
         return links;
     }
-    if library.conj.contains(&node.notation()) && node.children.len() == 2 {
-        let mut out = conjuncts(&node.children[0], library);
-        out.extend(conjuncts(&node.children[1], library));
+    if ctx.conjunctions.contains(&node.notation()) && node.children.len() == 2 {
+        let mut out = conjuncts_in(&node.children[0], ctx, g);
+        out.extend(conjuncts_in(&node.children[1], ctx, g));
         return out;
     }
     vec![node.clone()]

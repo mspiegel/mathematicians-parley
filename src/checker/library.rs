@@ -9,8 +9,8 @@ use indexmap::IndexMap;
 use super::record::{CheckedTheorem, PageReading, PartKey};
 use super::structure::{labels_in_scope, Declared};
 use crate::citing::{
-    self, at_a_member, finished, introduction, said_once, with_parts, Introduced,
-    Library, Parts, Taken,
+    self, at_a_member, conjuncts_in, finished, implied_facts, introduction, said_once,
+    Introduced, Library, Parts, Taken,
 };
 use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
 use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
@@ -48,6 +48,51 @@ type SearchKey = (usize, usize, Search);
 /// Every line a step's citation may name, by the reference that names it,
 /// with what the line says.
 pub type Statements = IndexMap<String, Stated>;
+
+/// One thing a cited line says (`Known::says`).
+#[derive(Clone, Debug)]
+pub struct Said {
+    /// As the checks compare it: with the defines the citation names written
+    /// out, in the standard order.
+    pub cited: Node,
+    /// As the page writes it; a fact the line says without writing it is
+    /// spelt as its rule spells it.
+    pub written: Node,
+    pub from: SaidFrom,
+}
+
+/// Where in a line one thing it says comes from, each counted from 0.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SaidFrom {
+    /// A sentence as written.
+    Sentence(usize),
+    /// The conjunction of the line's several sentences.
+    Whole,
+    /// A part of a sentence joined by "and".
+    Part { sentence: usize, part: usize },
+    /// An equation of a chain the sentence writes.
+    Pair(usize),
+    /// The sentence, a "for all", read at a block's letter, or with `part`
+    /// a part of that reading joined by "and".
+    AtLetter {
+        sentence: usize,
+        part: Option<usize>,
+    },
+    /// What a membership, a range or a function's type the sentence says
+    /// implies.
+    Implied(usize),
+}
+
+impl SaidFrom {
+    /// Whether the line writes it, as a sentence, a part of one, or their
+    /// conjunction.
+    pub fn is_written(&self) -> bool {
+        matches!(
+            self,
+            SaidFrom::Sentence(_) | SaidFrom::Whole | SaidFrom::Part { .. }
+        )
+    }
+}
 
 /// What a line a citation may name says: formula text, a step's claim or
 /// an assumption; or a `let` line's introduction, which asserts what its
@@ -250,7 +295,7 @@ impl<'a> Known<'a> {
     /// what `defined` writes out and in the standard order (`read_citing`).
     /// One that does not read is None, which `check_formulas` reports of a
     /// sentence and the elaborator of an introduction.
-    pub fn said_parts(
+    fn said_parts(
         &self,
         stated: &Stated,
         defined: Option<&Definitions>,
@@ -294,16 +339,6 @@ impl<'a> Known<'a> {
         }
     }
 
-    /// What a line says, each thing read as the checks of `step` compare it
-    /// (`read`); one that does not read is left out.
-    pub fn stated_at(&self, step: &Step, stated: &Stated) -> Vec<Node> {
-        let defined = self.citing_step(step);
-        self.said_parts(stated, Some(&defined))
-            .into_iter()
-            .flatten()
-            .collect()
-    }
-
     /// The letters a formula binds for itself: each a binder holds, by what
     /// the grammar declares it holds (`for all c ∈ ℕ`, `{c ∈ A : …}`,
     /// `Σ(c = 1 to n)`).
@@ -327,19 +362,6 @@ impl<'a> Known<'a> {
     /// written out (`read_citing`).
     pub fn as_cited(&self, node: &Node, defined: &Definitions) -> Node {
         standard(&expand(node, defined), self.ctx)
-    }
-
-    /// What a line says as one formula with its defined names kept: what it
-    /// says, or the conjunction of the several things, a "for all" read at
-    /// a block's letter among them (`at_block_letters`); None where a part
-    /// does not read.
-    pub fn stated_as_written(&self, stated: &Stated) -> Option<Node> {
-        let read: Option<Vec<Node>> =
-            self.said_parts(stated, None).into_iter().collect();
-        let mut read = read?;
-        let at = self.at_block_letters(stated, &read, None);
-        read.extend(at);
-        conjoined(self.env.g, read)
     }
 
     /// The sentence read with its defined names kept, as a message prints
@@ -488,29 +510,137 @@ impl<'a> Known<'a> {
             .collect()
     }
 
-    /// What a cited line supplies (`SYNTAX.md`), each read with what
-    /// `defined` writes out: each of its sentences, and where it has
-    /// several, their conjunction, since "A. B" and "A and B" are one claim.
-    /// A sentence that does not read is left out, as `check_formulas`
-    /// reports it.
-    pub fn supplied(&self, stated: &Stated, defined: &Definitions) -> Vec<Node> {
-        let parts = self.said_parts(stated, Some(defined));
-        let all = parts.len();
-        let mut said: Vec<Node> = parts.into_iter().flatten().collect();
-        if all > 1 && said.len() == all {
-            said.extend(conjoined(self.env.g, said.clone()));
+    /// Everything a cited line says (`SYNTAX.md`, What a cited line says):
+    /// each sentence, and where it has several their conjunction; the parts
+    /// of a sentence joined by "and"; every equation of a chain; a "for all"
+    /// read at the letter of a block around the step; and what a membership
+    /// implies, a range's bounds and a function's wider types among it.
+    /// Each is given as written and as `defined` writes it out, with where
+    /// in the line it comes from. A sentence that does not read is left
+    /// out, as `check_formulas` reports it.
+    pub fn says(&self, stated: &Stated, defined: &Definitions) -> Vec<Said> {
+        let sentences: Vec<Option<Node>> = self.said_parts(stated, None);
+        let mut written: Vec<(Node, SaidFrom)> = Vec::new();
+        let read: Vec<&Node> = sentences.iter().flatten().collect();
+        for (i, sentence) in sentences.iter().enumerate() {
+            let Some(sentence) = sentence else {
+                continue;
+            };
+            self.say_of(sentence, i, SaidFrom::Sentence(i), &mut written);
+            for at in
+                self.at_block_letters(stated, std::slice::from_ref(sentence), None)
+            {
+                let from = SaidFrom::AtLetter {
+                    sentence: i,
+                    part: None,
+                };
+                self.say_of(&at, i, from, &mut written);
+            }
         }
-        // A chain of equations supplies the equation between any two of its
-        // terms (`SYNTAX.md`).
-        let pairs: Vec<Node> = said
+        if sentences.len() > 1 && read.len() == sentences.len() {
+            let all: Vec<Node> = read.into_iter().cloned().collect();
+            if let Some(whole) = conjoined(self.env.g, all) {
+                written.push((whole, SaidFrom::Whole));
+            }
+        }
+        let mut out: Vec<Said> = Vec::new();
+        for (node, from) in written {
+            let cited = self.as_cited(&node, defined);
+            if out.iter().any(|s| self.alike(&s.cited, &cited)) {
+                continue;
+            }
+            out.push(Said {
+                cited,
+                written: node,
+                from,
+            });
+        }
+        out
+    }
+
+    /// What one sentence of a line, or its reading at a block's letter,
+    /// says: itself as `from`, its "and" parts and a chain's equations, and
+    /// what each of those implies (`implied_facts`).
+    fn say_of(
+        &self,
+        sentence: &Node,
+        i: usize,
+        from: SaidFrom,
+        out: &mut Vec<(Node, SaidFrom)>,
+    ) {
+        let mut here: Vec<(Node, SaidFrom)> = vec![(sentence.clone(), from)];
+        let parts = conjuncts_in(sentence, self.ctx, self.env.g);
+        if parts.len() > 1 {
+            for (j, part) in parts.into_iter().enumerate() {
+                let tag = match from {
+                    SaidFrom::AtLetter { .. } => SaidFrom::AtLetter {
+                        sentence: i,
+                        part: Some(j),
+                    },
+                    _ => SaidFrom::Part {
+                        sentence: i,
+                        part: j,
+                    },
+                };
+                here.push((part, tag));
+            }
+        }
+        let pairs: Vec<Node> = here
             .iter()
-            .filter_map(|s| chain_pairs(self.env.g, s))
+            .filter_map(|(n, _)| chain_pairs(self.env.g, n))
             .flatten()
             .collect();
-        said.extend(pairs);
-        let at = self.at_block_letters(stated, &said, Some(defined));
-        said.extend(at);
-        said
+        here.extend(pairs.into_iter().map(|p| (p, SaidFrom::Pair(i))));
+        let implied: Vec<Node> = here
+            .iter()
+            .flat_map(|(n, _)| implied_facts(n, self.env, &self.sorts))
+            .collect();
+        here.extend(implied.into_iter().map(|n| (n, SaidFrom::Implied(i))));
+        out.extend(here);
+    }
+
+    /// Whether every sentence of a line reads; one that does not is
+    /// `check_formulas`'s to report, and a check of what the line says is
+    /// then not judged.
+    pub fn reads(&self, stated: &Stated) -> bool {
+        self.said_parts(stated, None).iter().all(Option::is_some)
+    }
+
+    /// What a line writes, for `join` (`SYNTAX.md`, What a cited line says),
+    /// as the page has it: each sentence and their conjunction, and the
+    /// parts of a sentence joined by "and", a chain's equations between
+    /// neighbouring terms among them; and a "for all" of it read at a
+    /// block's letter, which is the line as the block reads it. Neither what
+    /// it implies nor a chain's other equations.
+    pub fn writes(&self, stated: &Stated, defined: &Definitions) -> Vec<Node> {
+        self.says(stated, defined)
+            .into_iter()
+            .filter(|s| !matches!(s.from, SaidFrom::Pair(_) | SaidFrom::Implied(_)))
+            .map(|s| s.written)
+            .collect()
+    }
+
+    /// The line's sentences as the page writes them, for a check of how the
+    /// page is written: the letters a sentence binds, the applications it
+    /// writes. A sentence that does not read is left out.
+    pub fn sentences(&self, stated: &Stated) -> Vec<Node> {
+        self.said_parts(stated, None)
+            .into_iter()
+            .flatten()
+            .collect()
+    }
+
+    /// What a cited line says (`says`) for a route that reads what a
+    /// membership implies itself: an item's facts are finished with it
+    /// (`citing::finished`), and a method takes it as an automatic fact
+    /// (`METHODS.md`), so a fact the line only implies is left out here and
+    /// is not counted as a line the step adds.
+    pub fn supplied(&self, stated: &Stated, defined: &Definitions) -> Vec<Node> {
+        self.says(stated, defined)
+            .into_iter()
+            .filter(|s| !matches!(s.from, SaidFrom::Implied(_)))
+            .map(|s| s.cited)
+            .collect()
     }
 
     /// What the "for all" sentences `said` of a line say at the letter of a
@@ -518,7 +648,7 @@ impl<'a> Known<'a> {
     /// block that opened with `let x ∈ X` supplies P(x). The lets are read
     /// as `said` was, with `defined` written out or not; where two give
     /// letters of X the citation says neither.
-    pub fn at_block_letters(
+    fn at_block_letters(
         &self,
         stated: &Stated,
         said: &[Node],
@@ -564,22 +694,16 @@ impl<'a> Known<'a> {
         self.env.g.print(node)
     }
 
-    /// What the lines `refs` name at `step` say, each sentence read, and
-    /// each part of one that is a conjunction (`with_parts`).
-    pub fn lines_say(
-        &self,
-        step: &Step,
-        refs: &[&str],
-        library: &Library,
-    ) -> Vec<Node> {
+    /// Everything the lines `refs` name at `step` say (`says`), as the
+    /// checks of `step` compare it.
+    pub fn lines_say(&self, step: &Step, refs: &[&str]) -> Vec<Node> {
         let scope = self.scope(step);
         let defined = self.citing_step(step);
-        let said: Vec<Node> = refs
-            .iter()
+        refs.iter()
             .filter_map(|r| scope.get(*r))
-            .flat_map(|written| self.supplied(written, &defined))
-            .collect();
-        with_parts(&said, library)
+            .flat_map(|written| self.says(written, &defined))
+            .map(|s| s.cited)
+            .collect()
     }
 
     /// Every line a step's citation may name, by the reference that names
@@ -928,7 +1052,9 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
         .iter()
         .chain(step.requires.iter().flat_map(|r| r.refs()));
     for r in refs {
-        written.extend(scope.get(r).and_then(|s| known.stated_as_written(s)));
+        if let Some(stated) = scope.get(r) {
+            written.extend(known.writes(stated, &known.citing_step(step)));
+        }
     }
     // A sum under a binder of the line, Σ(k = 1 to m) for all m, speaks of
     // a letter the scope does not hold, and no step combines it as it is.

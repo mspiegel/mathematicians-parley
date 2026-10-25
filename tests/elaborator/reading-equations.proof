@@ -1,0 +1,261 @@
+import mundane theorem    stdlib/numbers/square-zero
+import definition         stdlib/divisibility/perfect
+import definition         stdlib/divisibility/σ
+
+theorem a-chain-pair-filling-an-item-hypothesis
+  note        Rule chain, route from L on an item: square-zero asks x² = 0,
+              and H3 says x² = y = 0, whose first and last terms make it.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x² = y = 0                                                   (H3)
+  then x = 0
+
+1.  x = 0
+    mun:square-zero, from H3
+
+theorem a-chain-pair-in-a-calculation-link
+  note        Rule chain, route a calculation link: the first link cites H5,
+              a = b = c, for a = c.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  assume a = b = c                                                    (H5)
+  assume c = d                                                        (H6)
+  then a = d
+
+1.  a = d
+    calculation
+      a = c       H5
+        = d       H6
+
+theorem a-chain-pair-in-a-requires-line
+  note        Rule chain, route a requires line: square-zero's x² = 0 is a
+              requires line citing H3, x² = y = 0.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x² = y = 0                                                   (H3)
+  then x = 0
+
+1.  x = 0
+    mun:square-zero
+    requires x² = 0: from H3
+
+theorem a-chain-pair-substituted
+  note        Rule chain, route substitute e (line L): a = c is taken from
+              H4, a = b = c.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = b = c                                                    (H4)
+  then a + 1 = c + 1
+
+1.  a + 1 = c + 1
+    substitute a = c (H4)
+
+theorem a-chain-pair-substituted-into
+  note        Rule chain, route substitute … into line L: c = 2 is put into
+              the a = c that H4, a = b = c, supplies.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = b = c                                                    (H4)
+  assume c = 2                                                        (H5)
+  then a = 2
+
+1.  a = 2
+    substitute c = 2 (H5) into H4
+
+theorem a-chain-pair-contradicted
+  note        Rule chain, route contradicting L: the block reaches a ≠ c,
+              the opposite of the a = c that H4, a = b = c, supplies.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = b = c                                                    (H4)
+  then a = c
+
+1.  a = c
+    contradiction
+    suppose a ≠ c                                                     (S)
+
+    1.1.  a ≠ c
+          join S, contradicting H4
+
+theorem a-chain-pair-in-a-transitivity
+  note        Rule chain, route transitivity: H5, a = b = c, is read as
+              a = c, which ends where H6 begins.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let d ∈ ℝ                                                           (H4)
+  assume a = b = c                                                    (H5)
+  assume c < d                                                        (H6)
+  then a < d
+
+1.  a < d
+    transitivity, from H5, H6
+
+theorem a-chain-pair-as-a-first-row
+  note        Rule chain, route an inequalities block's first row: the row
+              a = c cites H4, a = b = c.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume a = b = c                                                    (H4)
+  then a ≤ c
+
+1.  a ≤ c
+    inequalities
+      a = c            H4
+      a ≤ c            weakening
+
+theorem a-chain-pair-folding-a-definition
+  note        Rule chain, route a definition folded from L: perfect's side
+              σ(n) = 2n is the first and last terms of H3, σ(n) = m = 2n.
+  let n ∈ ℕ                                                           (H1)
+  let m ∈ ℕ                                                           (H2)
+  assume σ(n) = m = 2n                                                (H3)
+  then n is perfect
+
+1.  n is perfect
+    def:perfect, from H3
+
+theorem a-chain-pair-carrying-a-membership
+  note        Rule chain, route membership, from L: x is real because H4,
+              x = y = r, puts it beside the real r; y is only complex.
+  let x ∈ ℂ                                                           (H1)
+  let y ∈ ℂ                                                           (H2)
+  let r ∈ ℝ                                                           (H3)
+  assume x = y = r                                                    (H4)
+  then x ∈ ℝ
+
+1.  x ∈ ℝ
+    membership, from H4
+
+theorem an-equation-turned-filling-an-item-hypothesis
+  note        Rule either-way, route from L on an item: square-zero asks
+              x² = 0, and H2 says 0 = x².
+  let x ∈ ℝ                                                           (H1)
+  assume 0 = x²                                                       (H2)
+  then x = 0
+
+1.  x = 0
+    mun:square-zero, from H2
+
+theorem an-equation-turned-in-a-calculation-link
+  note        Rule either-way, route a calculation link: the first link
+              a = b cites H4, b = a.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume b = a                                                        (H4)
+  assume b = c                                                        (H5)
+  then a = c
+
+1.  a = c
+    calculation
+      a = b       H4
+        = c       H5
+
+theorem an-equation-turned-in-a-requires-line
+  note        Rule either-way, route a requires line: square-zero's x² = 0
+              is a requires line citing H2, 0 = x².
+  let x ∈ ℝ                                                           (H1)
+  assume 0 = x²                                                       (H2)
+  then x = 0
+
+1.  x = 0
+    mun:square-zero
+    requires x² = 0: from H2
+
+theorem an-equation-turned-substituted
+  note        Rule either-way, route substitute e (line L): the equation
+              written 2 = x is H2, x = 2, read from its other side.
+  let x ∈ ℝ                                                           (H1)
+  assume x = 2                                                        (H2)
+  then 2 + 1 = x + 1
+
+1.  2 + 1 = x + 1
+    substitute 2 = x (H2)
+
+theorem an-equation-turned-substituted-into
+  note        Rule either-way, route substitute … into line L: x = 2 is put
+              into H2, x + 1 = y, read as y = x + 1.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x + 1 = y                                                    (H3)
+  assume x = 2                                                        (H4)
+  then y = 2 + 1
+
+1.  y = 2 + 1
+    substitute x = 2 (H4) into H3
+
+theorem an-equation-turned-joined
+  note        Rule either-way, route join: H3, b = a, read as a = b.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b = a                                                        (H3)
+  then a = b
+
+1.  a = b
+    join H3
+
+theorem an-equation-turned-contradicted
+  note        Rule either-way, route contradicting L: the block reaches
+              a ≠ b, the opposite of H3, b = a, read the other way.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume b = a                                                        (H3)
+  then a = b
+
+1.  a = b
+    contradiction
+    suppose a ≠ b                                                     (S)
+
+    1.1.  a ≠ b
+          join S, contradicting H3
+
+theorem an-equation-turned-in-a-transitivity
+  note        Rule either-way, route transitivity: H4, b = a, is read as
+              a = b to begin the chain that H5 continues.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume b = a                                                        (H4)
+  assume b < c                                                        (H5)
+  then a < c
+
+1.  a < c
+    transitivity, from H4, H5
+
+theorem an-equation-turned-in-an-instantiate
+  note        Rule either-way, route instantiate: H2 says x = x·1 of every
+              real x, and the step claims it at y the other way round.
+  let y ∈ ℝ                                                           (H1)
+  assume for all x ∈ ℝ, x = x·1                                       (H2)
+  then y·1 = y
+
+1.  y·1 = y
+    instantiate x := y in H2
+
+theorem an-equation-turned-folding-a-definition
+  note        Rule either-way, route a definition folded from L: perfect's
+              side σ(n) = 2n is H2, 2n = σ(n).
+  let n ∈ ℕ                                                           (H1)
+  assume 2n = σ(n)                                                    (H2)
+  then n is perfect
+
+1.  n is perfect
+    def:perfect, from H2
+
+theorem an-equation-turned-carrying-a-membership
+  note        Rule either-way, route membership, from L: x is real because
+              H3, r = x, puts it beside the real r.
+  let x ∈ ℂ                                                           (H1)
+  let r ∈ ℝ                                                           (H2)
+  assume r = x                                                        (H3)
+  then x ∈ ℝ
+
+1.  x ∈ ℝ
+    membership, from H3

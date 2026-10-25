@@ -1146,11 +1146,7 @@ pub fn check_capture(report: &mut Report, thm: &Theorem, known: &Known) {
         // `check_formulas`'s to report.
         let landing = known.scope(s).get(&target).cloned();
         let mut bound: BTreeSet<String> = BTreeSet::new();
-        for tree in landing
-            .iter()
-            .flat_map(|l| known.said_parts(l, None))
-            .flatten()
-        {
+        for tree in landing.iter().flat_map(|l| known.sentences(l)) {
             for node in tree.walk() {
                 let Some(binds) = binders.get(&node.notation()) else {
                     continue;

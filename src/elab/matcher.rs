@@ -51,6 +51,16 @@ pub struct Rewrite {
     pub names: Vars,
 }
 
+/// A term with the two holes its notation puts in no order exchanged
+/// (`Elaborator::pair_exchanged`).
+struct PairExchanged {
+    /// The lemma that exchanges them (`rules::PAIRS_EXCHANGED`).
+    lemma: &'static str,
+    term: Term,
+    /// Whether the two stood out of the standard order.
+    out_of_order: bool,
+}
+
 /// How one rewrite toward the standard form is made at the head of a term.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum How {
@@ -2610,6 +2620,22 @@ impl<'a> Elaborator<'a> {
     /// each hole and fitted to the term. None where no such notation built
     /// it or its two are in order.
     fn pair_step(&self, term: &Term) -> Option<(How, Term)> {
+        let exchanged = self.pair_exchanged(term)?;
+        exchanged
+            .out_of_order
+            .then_some((How::Exchanged(exchanged.lemma), exchanged.term))
+    }
+
+    /// `term` with the two holes its notation puts in no order exchanged,
+    /// whichever order they stand in: b ≡ a (mod n) for a ≡ b (mod n). None
+    /// where no such notation built it.
+    pub(crate) fn pair_turned(&self, term: &Term) -> Option<Term> {
+        self.pair_exchanged(term).map(|e| e.term)
+    }
+
+    /// `term` with its two holes no order is put on exchanged, the lemma
+    /// that does it, and whether they stood out of order.
+    fn pair_exchanged(&self, term: &Term) -> Option<PairExchanged> {
         const LETTERS: [&str; 6] = ["A", "B", "C", "D", "E", "F"];
         for p in &self.pairs_in_any_order {
             let head = p.target.split_whitespace().last();
@@ -2632,12 +2658,15 @@ impl<'a> Elaborator<'a> {
             let (Some(a), Some(b)) = (bound.get(&i), bound.get(&j)) else {
                 continue;
             };
-            if self.order_key(b) < self.order_key(a) {
-                let mut swapped = bound.clone();
-                swapped.insert(i, b.clone());
-                swapped.insert(j, a.clone());
-                return Some((How::Exchanged(p.lemma), pattern.substitute(&swapped)));
-            }
+            let out_of_order = self.order_key(b) < self.order_key(a);
+            let mut swapped = bound.clone();
+            swapped.insert(i, b.clone());
+            swapped.insert(j, a.clone());
+            return Some(PairExchanged {
+                lemma: p.lemma,
+                term: pattern.substitute(&swapped),
+                out_of_order,
+            });
         }
         None
     }

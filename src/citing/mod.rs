@@ -22,7 +22,8 @@ pub use conclude::{
     substitution_unsaid, taken, taken_ways, witnesses_unsaid, Concluded, Taken,
 };
 pub use library::{
-    conjuncts, readings, supplies, with_parts, Group, Library, Proved, Way,
+    conjuncts, conjuncts_in, readings, supplies, with_parts, Group, Library, Proved,
+    Way,
 };
 pub use once::{
     a_number_said_once, closed_nonzero, index_system, introduction, log_taken,

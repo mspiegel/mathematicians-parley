@@ -1,0 +1,232 @@
+import mundane definition stdlib/numbers/abs
+
+theorem a-for-all-line-in-a-requires-line
+  note        Block letter, read by a requires line with no method: inside
+              the block letting y ∈ ℝ, line H1 says y² + 1 ≠ 0.
+  assume for all x ∈ ℝ, x² + 1 ≠ 0                                    (H1)
+  then for all y ∈ ℝ, 1/(y² + 1) ∈ ℝ
+
+1.  For all y ∈ ℝ, 1/(y² + 1) ∈ ℝ.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  1/(y² + 1) ∈ ℝ
+          membership
+          requires y² + 1 ≠ 0: from H1
+
+theorem a-for-all-line-in-a-requires-line-by-a-method
+  note        Block letter, read by a requires line's method: inside the
+              block letting y ∈ ℝ, line H1 says y² + 1 > 0, which weakening
+              turns to y² + 1 ≠ 0.
+  assume for all x ∈ ℝ, x² + 1 > 0                                    (H1)
+  then for all y ∈ ℝ, 1/(y² + 1) ∈ ℝ
+
+1.  For all y ∈ ℝ, 1/(y² + 1) ∈ ℝ.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  1/(y² + 1) ∈ ℝ
+          membership
+          requires y² + 1 ≠ 0: weakening, from H1
+
+theorem a-for-all-line-giving-a-substitute-its-equation
+  note        Block letter, read by a substitute's equation: inside the
+              block letting y ∈ ℝ, line H1 says y² = y·y.
+  assume for all x ∈ ℝ, x² = x·x                                      (H1)
+  then for all y ∈ ℝ, y² + 1 = y·y + 1
+
+1.  For all y ∈ ℝ, y² + 1 = y·y + 1.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y² + 1 = y·y + 1
+          substitute y² = y·y (H1)
+
+theorem a-for-all-line-a-substitute-is-put-into
+  note        Block letter, read as the line a substitute is put into:
+              inside the block letting y ∈ ℝ, line H2 says y² ≥ 0.
+  let b ∈ ℝ                                                           (H1)
+  assume for all x ∈ ℝ, x² ≥ 0                                        (H2)
+  then for all y ∈ ℝ, if y = b then b² ≥ 0
+
+1.  For all y ∈ ℝ, if y = b then b² ≥ 0.
+    proof
+    let y ∈ ℝ                                                         (K1)
+    assume y = b                                                      (A1)
+
+    1.1.  b² ≥ 0
+          substitute y = b (A1) into H2
+
+theorem a-for-all-line-contradicted
+  note        Block letter, read as the line a contradiction reaches the
+              opposite of: inside the block letting y ∈ ℝ, line H1 says
+              y² + 1 ≠ 0.
+  assume for all x ∈ ℝ, x² + 1 ≠ 0                                    (H1)
+  then for all y ∈ ℝ, y² + 1 ≠ 0
+
+1.  For all y ∈ ℝ, y² + 1 ≠ 0.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y² + 1 ≠ 0
+          contradiction
+          suppose y² + 1 = 0                                          (S)
+
+          1.1.1.  y² + 1 = 0
+                  join S, contradicting H1
+
+theorem a-for-all-line-obtained-from
+  note        Block letter, read by an obtain: inside the block letting
+              y ∈ ℤ, line H1 says there is k ∈ ℤ with y = 2k.
+  assume for all x ∈ ℤ, there is k ∈ ℤ with x = 2k                    (H1)
+  then for all y ∈ ℤ, there is j ∈ ℤ with y = 2j
+
+1.  For all y ∈ ℤ, there is j ∈ ℤ with y = 2j.
+    proof
+    let y ∈ ℤ                                                         (K1)
+
+    1.1.  k ∈ ℤ. y = 2k.
+          obtain k from H1
+
+    1.2.  There is j ∈ ℤ with y = 2j.
+          exhibit, from 1.1
+
+theorem a-for-all-line-split-by-cases
+  note        Block letter, read as the "or" a cases step splits: inside
+              the block letting y ∈ ℝ, line H1 says y ≥ 0 or y < 0.
+  assume for all x ∈ ℝ, x ≥ 0 or x < 0                                (H1)
+  then for all y ∈ ℝ, |y| ≥ 0
+
+1.  For all y ∈ ℝ, |y| ≥ 0.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  |y| ≥ 0
+          cases, from H1
+
+          case
+          assume y ≥ 0                                                (C1)
+
+          1.1.1.  |y| = y
+                  mun:abs x := y, from C1
+
+          1.1.2.  |y| ≥ 0
+                  calculation
+                    |y| = y         1.1.1
+                        ≥ 0         C1
+
+          case
+          assume y < 0                                                (C2)
+
+          1.1.3.  |y| = −y
+                  mun:abs x := y, from C2
+
+          1.1.4.  −y ≥ 0
+                  inequalities
+                    y < 0                    C2
+                    y + (−y) < 0 + (−y)      adding −y
+                    0 < −y                   algebra
+                    0 ≤ −y                   weakening
+                    −y ≥ 0                   symmetry
+
+          1.1.5.  |y| ≥ 0
+                  calculation
+                    |y| = −y        1.1.3
+                        ≥ 0         1.1.4
+
+theorem a-for-all-line-in-a-transitivity
+  note        Block letter, read as a link of a transitivity: inside the
+              block letting y ∈ ℝ, line H2 says y < y + 1.
+  let b ∈ ℝ                                                           (H1)
+  assume for all x ∈ ℝ, x < x + 1                                     (H2)
+  then for all y ∈ ℝ, if y + 1 < b then y < b
+
+1.  For all y ∈ ℝ, if y + 1 < b then y < b.
+    proof
+    let y ∈ ℝ                                                         (K1)
+    assume y + 1 < b                                                  (A1)
+
+    1.1.  y < b
+          transitivity, from H2, A1
+
+theorem a-for-all-line-in-a-plain-inequalities-step
+  note        Block letter, read by a plain inequalities step: inside the
+              block letting y ∈ ℝ, line H1 says not y² < 0.
+  assume for all x ∈ ℝ, not x² < 0                                    (H1)
+  then for all y ∈ ℝ, y² ≥ 0
+
+1.  For all y ∈ ℝ, y² ≥ 0.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y² ≥ 0
+          inequalities, from H1
+
+theorem a-for-all-line-as-the-first-row-of-inequalities
+  note        Block letter, read as an inequalities block's first row:
+              inside the block letting y ∈ ℝ, line H1 says y² + 1 > 0.
+  assume for all x ∈ ℝ, x² + 1 > 0                                    (H1)
+  then for all y ∈ ℝ, y² + 1 ≥ 0
+
+1.  For all y ∈ ℝ, y² + 1 ≥ 0.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y² + 1 ≥ 0
+          inequalities
+            y² + 1 > 0       H1
+            y² + 1 ≥ 0       weakening
+
+theorem a-for-all-line-instantiated
+  note        Block letter, read as the line an instantiate is made in:
+              inside the block letting y ∈ ℝ, line H1 says for all z ∈ ℝ,
+              y·z = z·y.
+  assume for all x ∈ ℝ, for all z ∈ ℝ, x·z = z·x                      (H1)
+  then for all y ∈ ℝ, y·2 = 2·y
+
+1.  For all y ∈ ℝ, y·2 = 2·y.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y·2 = 2·y
+          instantiate z := 2 in H1
+
+theorem a-for-all-line-unfolding-a-definition
+  note        Block letter, read by a definition unfolded from it: inside
+              the block letting y ∈ ℝ, line H1 says y² ≥ 0, which selects
+              the case of |·| giving |y²| = y².
+  assume for all x ∈ ℝ, x² ≥ 0                                        (H1)
+  then for all y ∈ ℝ, |y²| = y²
+
+1.  For all y ∈ ℝ, |y²| = y².
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  |y²| = y²
+          mun:abs x := y², from H1
+
+theorem a-for-all-line-in-algebra
+  note        Block letter, read by algebra: inside the block letting
+              y ∈ ℝ, line H1 says y² = 2y.
+  assume for all x ∈ ℝ, x² = 2x                                       (H1)
+  then for all y ∈ ℝ, y² + 1 = 2y + 1
+
+1.  For all y ∈ ℝ, y² + 1 = 2y + 1.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  y² + 1 = 2y + 1
+          algebra, from H1
+
+theorem a-for-all-line-in-membership
+  note        Block letter, read by membership: inside the block letting
+              y ∈ ℝ, line H1 says |y| ∈ ℝ.
+  assume for all x ∈ ℝ, |x| ∈ ℝ                                       (H1)
+  then for all y ∈ ℝ, |y| + 1 ∈ ℝ
+
+1.  For all y ∈ ℝ, |y| + 1 ∈ ℝ.
+    proof
+    let y ∈ ℝ                                                         (K1)
+
+    1.1.  |y| + 1 ∈ ℝ
+          membership, from H1

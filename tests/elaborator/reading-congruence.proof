@@ -1,0 +1,108 @@
+import mundane definition stdlib/divisibility/congruent-mod
+import mundane theorem    stdlib/divisibility/congruent-in-range
+
+theorem a-congruence-the-other-way-filling-an-item
+  note        Rule congruence, route 1: congruent-in-range asks x ≡ y (mod n),
+              and the line cited says y ≡ x (mod n).
+  let n ∈ ℕ                                                           (H1)
+  let x ∈ {0, …, n − 1}                                               (H2)
+  let y ∈ {0, …, n − 1}                                               (H3)
+  assume y ≡ x (mod n)                                                (H4)
+  then x = y
+
+1.  x = y
+    mun:congruent-in-range, from H2, H3, H4
+
+theorem a-congruence-the-other-way-in-a-calculation-link
+  note        Rule congruence, route 2: the second link goes from b to c and
+              cites a line saying c ≡ b (mod n).
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume a ≡ b (mod n)                                                (H5)
+  assume c ≡ b (mod n)                                                (H6)
+  then a ≡ c (mod n)
+
+1.  a ≡ c (mod n)
+    calculation
+      a ≡ b (mod n)      H5
+        ≡ c (mod n)      H6
+
+theorem a-congruence-the-other-way-in-a-requires-line
+  note        Rule congruence, route 3: the requires line says x ≡ y (mod n)
+              from a line saying y ≡ x (mod n).
+  let n ∈ ℕ                                                           (H1)
+  let x ∈ {0, …, n − 1}                                               (H2)
+  let y ∈ {0, …, n − 1}                                               (H3)
+  assume y ≡ x (mod n)                                                (H4)
+  then x = y
+
+1.  x = y
+    mun:congruent-in-range, from H2, H3
+    requires x ≡ y (mod n): from H4
+
+theorem a-congruence-the-other-way-substituted-into
+  note        Rule congruence, route 5: a = c put into a line saying
+              b ≡ a (mod n), read as a ≡ b (mod n), makes c ≡ b (mod n).
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume b ≡ a (mod n)                                                (H5)
+  assume a = c                                                        (H6)
+  then c ≡ b (mod n)
+
+1.  c ≡ b (mod n)
+    substitute a = c (H6) into H5
+
+theorem a-congruence-the-other-way-joined
+  note        Rule congruence, route 6: join of a line saying b ≡ a (mod n)
+              claims a ≡ b (mod n).
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume b ≡ a (mod n)                                                (H4)
+  then a ≡ b (mod n)
+
+1.  a ≡ b (mod n)
+    join H4
+
+theorem a-congruence-the-other-way-contradicted
+  note        Rule congruence, route 7: the block's last step says
+              not a ≡ b (mod n), contradicting a line saying b ≡ a (mod n).
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume b ≡ a (mod n)                                                (H4)
+  then a ≡ b (mod n)
+
+1.  a ≡ b (mod n)
+    contradiction
+    suppose not a ≡ b (mod n)                                         (S)
+
+    1.1.  not a ≡ b (mod n)
+          join S, contradicting H4
+
+theorem a-congruence-the-other-way-instantiated
+  note        Rule congruence, route 12: the line instantiated says
+              x² ≡ x (mod n) for all x, and the claim is a ≡ a² (mod n).
+  let a ∈ ℤ                                                           (H1)
+  let n ∈ ℕ                                                           (H2)
+  assume for all x ∈ ℤ, x² ≡ x (mod n)                                (H3)
+  then a ≡ a² (mod n)
+
+1.  a ≡ a² (mod n)
+    instantiate x := a in H3
+
+theorem a-congruence-the-other-way-unfolded
+  note        Rule congruence, route 13: the definition unfolded from a line
+              saying b ≡ a (mod n) gives n divides a − b.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume b ≡ a (mod n)                                                (H4)
+  then n divides a − b
+
+1.  n divides a − b
+    mun:congruent-mod, from H4

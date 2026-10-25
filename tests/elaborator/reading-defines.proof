@@ -1,0 +1,211 @@
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane definition stdlib/divisibility/even
+
+theorem a-define-read-in-an-item-hypothesis
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: from L on a cited item. Line 1 says e > 0;
+              reciprocal-positive asks a + 1 > 0, which line 1 says with e
+              read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume a + 1 > 0                                                    (H2)
+  then 1/(a + 1) > 0
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e > 0
+    substitute e = a + 1 (D1) into H2
+
+2.  1/(a + 1) > 0
+    mun:reciprocal-positive, from D1, 1
+
+theorem a-define-applied-in-a-calculation-link
+  note        Rule: define, a defined function applied is its rule at the
+              argument. Route: a calculation link citing L. The first link
+              is q(a) = a + 1, D1 at a; D1 writes q(j) = j + 1.
+  let a ∈ ℕ                                                           (H1)
+  let q(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more than j
+  then q(a) + 1 = a + 2
+
+1.  (a + 1) + 1 = a + 2
+    algebra
+
+2.  q(a) + 1 = a + 2
+    calculation
+      q(a) + 1 = (a + 1) + 1      D1
+               = a + 2            1
+
+theorem a-define-read-in-a-requires-line
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: a requires line citing L. Line 1 says e ≠ 0;
+              the requires line asks a + 1 ≠ 0, which line 1 says with e
+              read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume a + 1 ≠ 0                                                    (H2)
+  then (a + 1)/(a + 1) = 1
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e ≠ 0
+    substitute e = a + 1 (D1) into H2
+
+2.  (a + 1)/(a + 1) = 1
+    algebra
+    requires a + 1 ≠ 0: from D1, 1
+
+theorem a-define-applied-as-a-substituted-equation
+  note        Rule: define, a defined function applied is its rule at the
+              argument. Route: substitute e (line L), the equation taken
+              from L. The equation is q(a) = a + 1, D1 at a.
+  let a ∈ ℕ                                                           (H1)
+  let q(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more than j
+  then q(a)·2 = (a + 1)·2
+
+1.  q(a)·2 = (a + 1)·2
+    substitute q(a) = a + 1 (D1)
+
+theorem a-define-applied-substituted-into-a-line
+  note        Rule: define, a defined function applied is its rule at the
+              argument. Route: substitute … into line L. The equation put
+              into H2 is q(a) = a + 1, D1 at a.
+  let a ∈ ℕ                                                           (H1)
+  let q(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more than j
+  assume q(a) > 3                                                     (H2)
+  then a + 1 > 3
+
+1.  a + 1 > 3
+    substitute q(a) = a + 1 (D1) into H2
+
+theorem a-define-read-in-a-contradicted-line
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: contradicting L. Line 1 says e ≠ 0; step 2.1
+              reaches a + 1 = 0, the opposite of line 1 with e read as
+              a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume a + 1 ≠ 0                                                    (H2)
+  then a ≠ −1
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e ≠ 0
+    substitute e = a + 1 (D1) into H2
+
+2.  a ≠ −1
+    contradiction
+    suppose a = −1                                                    (S)
+
+    2.1.  a + 1 = 0
+          algebra, from D1, S, contradicting 1
+
+theorem a-define-applied-in-a-transitivity-chain
+  note        Rule: define, a defined function applied is its rule at the
+              argument. Route: transitivity, from L. The chain's middle
+              link is q(a) = a + 1, D1 at a.
+  let a ∈ ℕ                                                           (H1)
+  let x ∈ ℝ                                                           (H2)
+  let y ∈ ℝ                                                           (H3)
+  let q(j) = j + 1, for j ∈ ℕ                                         (D1)
+         reads one more than j
+  assume x < q(a)                                                     (H4)
+  assume a + 1 < y                                                    (H5)
+  then x < y
+
+1.  x < y
+    transitivity, from H4, D1, H5
+
+theorem a-define-read-in-an-inequalities-step
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: inequalities, from L. Line 1 says e > 0; the
+              claim is about a + 1, line 1 with e read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume a + 1 > 0                                                    (H2)
+  then a + 1 > −1
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e > 0
+    substitute e = a + 1 (D1) into H2
+
+2.  a + 1 > −1
+    inequalities, from D1, 1
+
+theorem a-define-read-in-an-instantiated-line
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: instantiate v := t in line L. Line 1 says
+              x + e > x for every x; the claim is its instance at 2 with e
+              read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  assume for all x ∈ ℝ, x + (a + 1) > x                               (H2)
+  then 2 + (a + 1) > 2
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  For all x ∈ ℝ, x + e > x.
+    substitute e = a + 1 (D1) into H2
+
+2.  2 + (a + 1) > 2
+    instantiate x := 2 in line 1, from D1
+
+theorem a-define-read-in-an-unfolded-definition
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: a definition unfolded from L. Line 1 says
+              e = 2b; even at a + 1 asks a + 1 = 2b, line 1 with e read as
+              a + 1.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  assume a + 1 = 2b                                                   (H3)
+  then a + 1 is even
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e = 2b
+    substitute e = a + 1 (D1) into H3
+
+2.  a + 1 is even
+    mun:even n := a + 1, from D1, 1
+
+theorem a-define-read-in-an-algebra-step
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: algebra, from L. Line 1 says e = 2b; the
+              claim solves it for a, with e read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a + 1 = 2b                                                   (H3)
+  then a = 2b − 1
+
+let e = a + 1, a real number                                          (D1)
+    membership
+    reads one more than a
+
+1.  e = 2b
+    substitute e = a + 1 (D1) into H3
+
+2.  a = 2b − 1
+    algebra, from D1, 1
+
+theorem a-define-read-in-a-membership-step
+  note        Rule: define, a step citing a define reads its name as what
+              it names. Route: membership, from L. The claim's divisor is
+              e; H2 says a + 1 ≠ 0, which says e ≠ 0 with e read as a + 1.
+  let a ∈ ℝ                                                           (H1)
+  let e = a + 1                                                       (D1)
+      reads one more than a
+  assume a + 1 ≠ 0                                                   (H2)
+  then 1/e ∈ ℝ
+
+1.  1/e ∈ ℝ
+    membership, from D1, H2

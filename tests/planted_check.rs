@@ -870,16 +870,48 @@ fn cases() -> Vec<Case> {
             )],
             "the last row of step 1 is not its claim",
         ),
-        // A line saying several relations gives a chain the one that meets
-        // it, and one saying two that meet it gives the chain nothing.
+        // A join takes what the lines write, and nothing else a line says
+        // (`SYNTAX.md`, What a cited line says): not a chain's other
+        // equations, a range's bound, what a membership implies or a name
+        // read as what its define names.
         case(
-            "chain a line two of whose relations meet the next",
+            "join an equation of a chain its neighbours do not write",
+            vec![edit(
+                "tests/elaborator/reading-equations.proof",
+                Some("theorem a-chain-pair-substituted\n".to_string()),
+                "theorem a-chain-pair-joined\n  let a ∈ ℝ    (H1)\n  let b ∈ ℝ    (H2)\n  let c ∈ ℝ    (H3)\n  assume a = b = c    (H4)\n  then a = c\n\n1.  a = c\n    join H4\n\ntheorem a-chain-pair-substituted\n".to_string(),
+            )],
+            "step 1 joins H4 and claims a = c, which no line it joins says",
+        ),
+        case(
+            "join a bound a range line says without writing it",
+            vec![edit(
+                "tests/elaborator/reading-memberships.proof",
+                Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
+                "theorem a-range-bound-joined\n  let n ∈ ℤ    (H1)\n  let k ∈ {1, …, n}    (H2)\n  then k ≤ n\n\n1.  k ≤ n\n    join H2\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+            )],
+            "step 1 joins H2 and claims k ≤ n, which no line it joins says",
+        ),
+        case(
+            "join a bound a membership implies",
+            vec![edit(
+                "tests/elaborator/reading-memberships.proof",
+                Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
+                "theorem a-membership-bound-joined\n  let k ∈ ℕ    (H1)\n  then k ≥ 1\n\n1.  k ≥ 1\n    join H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+            )],
+            "step 1 joins H1 and claims k ≥ 1, which no line it joins says",
+        ),
+        // A line saying several relations gives a chain the one that makes
+        // a chain to the claim, and one saying two that both do gives the
+        // chain nothing.
+        case(
+            "chain a line two of whose relations both reach the claim",
             vec![edit(
                 "tests/elaborator/transitivity.proof",
                 Some("  assume 0 < a and a ≤ b    (H4)\n".to_string()),
-                "  assume 0 ≤ b and a ≤ b    (H4)\n".to_string(),
+                "  assume a < b and a ≤ b    (H4)\n".to_string(),
             )],
-            "step 1 cites H4 by transitivity, which says several relations, and not just one of them meets the lines it is cited with",
+            "step 1 cites lines by transitivity that say several relations, and more than one choice of them reaches the claim",
         ),
         // A requires line naming a manipulation is its one line with it: q >
         // 0 weakened is q ≠ 0, and no weakening of it is q ≠ 1.

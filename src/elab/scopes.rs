@@ -677,6 +677,65 @@ impl<'a> Elaborator<'a> {
         Ok(Some(instance))
     }
 
+    /// Everything the cited line `cite` says (`SYNTAX.md`, What a cited line
+    /// says), each with its proof under `scope`: the line, each part of it
+    /// and a chain's equations (`unpack_line`), and what each of those
+    /// implies (`implied`), a membership's and a range's bounds among it.
+    /// Inside a block the line already says its reading at the block's
+    /// letter (`know_in_scope_at_letters`). The line is read from `lines`,
+    /// which a route reading the theorem's hypotheses over the names it
+    /// defines has rewritten (`hypotheses_by_their_names`). Empty where
+    /// `cite` names no line.
+    pub fn line_says(
+        &mut self,
+        cite: &str,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Facts> {
+        let out = Facts::new();
+        let Some(line) = lines.get(cite) else {
+            return Ok(out);
+        };
+        let whole = self.carried(cite, facts, lines);
+        self.know(&out, line.term.clone(), whole.clone());
+        self.unpack_line(&line, &whole, scope, &out);
+        for (claim, proof) in out.entries() {
+            let implied = self.implied(&claim, &proof, scope, facts)?;
+            for (said, given) in implied.entries() {
+                if !self.holds(&out, &said) {
+                    self.know(&out, said, given);
+                }
+            }
+            // A congruence says itself with its sides the other way round,
+            // the lemma exchanging them asking that each is a number.
+            // Held by its standard form already, the turned one is known by
+            // its own spelling, which a route matching terms as written asks.
+            let read = self.to_term(&claim);
+            if let Some(turned) = self.pair_turned(&read) {
+                let other = self.rpn(&turned);
+                // Each side's being a number is the letter's membership said
+                // once, which a step rests on unnamed (`rests_on_named`), not
+                // the line introducing it.
+                let said_once = facts.filtered(|_, p| {
+                    p.origin
+                        .iter()
+                        .all(|o| o.starts_with(super::provenance::MEMBERSHIP))
+                });
+                if !out.keys().contains(&other) {
+                    if let Built(alike) =
+                        self.same(&read, &turned, scope, &said_once, None)?
+                    {
+                        let given =
+                            pf!(self.b; scope, claim, other, proof, alike, "mpbid");
+                        self.know(&out, other, given);
+                    }
+                }
+            }
+        }
+        Ok(out)
+    }
+
     /// Record each conjunct of a fact as a fact of its own.
     pub fn unpack(
         &mut self,
@@ -1235,10 +1294,18 @@ impl<'a> Elaborator<'a> {
             }
             None => None,
         };
+        let says = self
+            .line_says(other, scope, facts, &lines)?
+            .entries()
+            .into_iter()
+            .filter(|(claim, _)| *claim != line.term)
+            .map(|(claim, proof)| ProvedClaim { claim, proof })
+            .collect();
         self.contradicted = Some(Contradicted {
             claim: line.term,
             proof,
             reordered,
+            says,
         });
         Ok(())
     }
@@ -1380,6 +1447,10 @@ impl<'a> Elaborator<'a> {
         if let Some(carried) = other.reordered {
             self.know(&facts, carried.claim.clone(), carried.proof);
             offered.push(carried.claim);
+        }
+        for said in other.says {
+            self.know(&facts, said.claim.clone(), said.proof);
+            offered.push(said.claim);
         }
         let Some((first, second, known)) = self.opposing(&offered, &facts, deep)?
         else {
@@ -1908,7 +1979,17 @@ impl<'a> Elaborator<'a> {
         let mut disjunction = self.carried(&cited, &block.outside, &self.lines.clone());
         let cited_term = self.lines.get(&cited).map(|l| l.term).unwrap_or_default();
         let wanted = t!(which, assumed[last], "wo");
-        if wanted != cited_term {
+        // Inside a block, a "for all" line is the disjunction read at the
+        // block's letter (`line_says`), as the checker takes it.
+        let lines = self.lines.clone();
+        let read_at = self.line_says(&cited, scope, &block.outside, &lines)?;
+        let at_letter = read_at
+            .entries()
+            .into_iter()
+            .find(|(said, _)| *said == wanted);
+        if let Some((_, proof)) = at_letter {
+            disjunction = proof;
+        } else if wanted != cited_term {
             // A case may write its disjunct another way, `0 = b(k)` for
             // `b(k) = 0`; the line is carried across to the cases' spelling.
             let alike = self.same(
@@ -2199,45 +2280,20 @@ impl<'a> Elaborator<'a> {
                 };
                 ex = held.term.clone();
                 p_ex = self.carried(&where_, facts, &self.lines.clone());
-                // A line of several sentences supplies each of them apart
-                // (`SYNTAX.md`), so the "there is" is the one of them that
-                // binds as many names as the step obtains.
+                // A line says each of its sentences and their parts apart, and
+                // a "for all" of it read at a block's letter (`line_says`), so
+                // the "there is" is the one of those that binds as many names
+                // as the step obtains, as the checker takes it.
                 if self.there_is_depth(&ex) < got.len() {
-                    let sentences = held.sentences.clone();
-                    let mut chosen = None;
-                    for one in &sentences {
-                        let term = self.term(one)?;
-                        if self.there_is_depth(&term) >= got.len() {
-                            chosen = Some(term);
-                            break;
-                        }
-                    }
-                    if let Some(one) = chosen {
-                        let parts = Facts::new();
-                        self.know(&parts, ex.clone(), p_ex.clone());
-                        self.unpack_all(&ex, &p_ex, scope, &parts);
-                        if let Some(p) = self.held(&parts, &one, scope)? {
-                            ex = one;
-                            p_ex = p;
-                        }
-                    }
-                }
-                // Or a "for all" of it read at a block's letter
-                // (`know_in_scope_at_letters`).
-                if self.there_is_depth(&ex) < got.len() {
-                    let parts = Facts::new();
-                    self.know(&parts, ex.clone(), p_ex.clone());
-                    self.unpack_all(&ex, &p_ex, scope, &parts);
-                    let at = self.at_letters_of.get(&ex).cloned().unwrap_or_default();
-                    for one in at {
-                        if self.there_is_depth(&one) < got.len() {
-                            continue;
-                        }
-                        if let Some(p) = self.held(&parts, &one, scope)? {
-                            ex = one;
-                            p_ex = p;
-                            break;
-                        }
+                    let lines = self.lines.clone();
+                    let says = self.line_says(&where_, scope, facts, &lines)?;
+                    let found = says
+                        .entries()
+                        .into_iter()
+                        .find(|(one, _)| self.there_is_depth(one) >= got.len());
+                    if let Some((one, p)) = found {
+                        ex = one;
+                        p_ex = p;
                     }
                 }
                 // Eliminating an existential puts the name it binds into the

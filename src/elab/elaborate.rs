@@ -740,6 +740,7 @@ impl<'a> Elaborator<'a> {
                         claim: negated.clone(),
                         proof: proof.clone(),
                         reordered: None,
+                        says: Vec::new(),
                     });
                 }
                 Some(proof)
@@ -2128,15 +2129,7 @@ impl<'a> Elaborator<'a> {
         // them, so each sentence is offered with a proof of itself; and the
         // line as a whole is offered, which a claim of as many sentences
         // rewrites (`SYNTAX.md`: the equation is replaced inside the line).
-        let held = self.carried(&where_, facts, lines);
-        let known = Facts::new();
-        self.know(&known, into.term.clone(), held.clone());
-        self.unpack_line(&into, &held, scope, &known);
-        let at_letters = self
-            .at_letters_of
-            .get(&into.term)
-            .cloned()
-            .unwrap_or_default();
+        let known = self.line_says(&where_, scope, facts, lines)?;
         // A sentence joined by `and` is its parts as surely as a line of two
         // sentences is, so each is offered.
         let mut offered = Vec::new();
@@ -2158,16 +2151,6 @@ impl<'a> Elaborator<'a> {
                 starts.push(start);
             }
         }
-        // A "for all" of the line read at the letter of a block around the
-        // step is a sentence of it there (`know_in_scope_at_letters`), and
-        // its parts are offered as a sentence's are.
-        for at in at_letters {
-            for start in self.parts(&at) {
-                if !starts.contains(&start) {
-                    starts.push(start);
-                }
-            }
-        }
         for start in &starts {
             if !self.holds(&known, start) {
                 if let Some(p) = self.held(facts, start, scope)? {
@@ -2175,26 +2158,12 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        // A part of a set is said as `X ⊆ A` or as `X ∈ 𝒫A`, and a `let
-        // X ⊆ A` holds the second: either form is the line put into, as the
-        // checker reads it (`rules::PARTS`).
-        let mut otherwise = Vec::new();
-        for start in &starts {
-            if !self.part_shaped(start) {
-                continue;
-            }
-            let Some(given) = self.held(&known, start, scope)? else {
-                continue;
-            };
-            let said = self.implied(start, &given, scope, facts)?;
-            for (other, proof) in said.entries() {
-                self.know(&known, other.clone(), proof);
-                otherwise.push(other);
-            }
-        }
-        for other in otherwise {
-            if !starts.contains(&other) {
-                starts.push(other);
+        // After what the line writes, everything else it says (`line_says`):
+        // a "for all" read at a block's letter, a chain's equations, a
+        // congruence turned round, a bound or a part of a set said otherwise.
+        for (said, _) in known.entries() {
+            if !starts.contains(&said) {
+                starts.push(said);
             }
         }
         // The claim as written, and an equation's the other way round: what
@@ -3215,11 +3184,27 @@ impl<'a> Elaborator<'a> {
             let (link, proof) = match chosen.get(i) {
                 Some(sentence) => {
                     let part = self.term(sentence)?;
+                    let define = self.thm.defines.iter().any(|d| d.label == *r);
                     if part == held.term {
                         (part, carried)
+                    } else if define {
+                        // A define in the chain is the equation it makes
+                        // between its neighbours, as a link citing it reads.
+                        let Built(proof) =
+                            self.define_makes(step, &part, scope, facts)?
+                        else {
+                            return Err(self.defect(
+                                step.line,
+                                format!(
+                                    "{} is not what {r} makes it",
+                                    self.render(&part)
+                                ),
+                            ));
+                        };
+                        (part, proof)
                     } else {
-                        let apart = facts.copy();
-                        self.unpack_line(&held, &carried, scope, &apart);
+                        let apart =
+                            facts.with(&self.line_says(r, scope, facts, lines)?);
                         let Some(proof) = self.held(&apart, &part, scope)? else {
                             return Err(self.defect(
                                 step.line,
@@ -3872,28 +3857,7 @@ impl<'a> Elaborator<'a> {
         // A define says what its name is, and a link citing it says what that
         // comes to somewhere: the standard form reads the name as its rule.
         if defines.contains(cite) && line.term != wanted {
-            let supplied = self.supplied(Some(step), scope, facts)?;
-            let known = self.with_cited(Some(step), scope, &supplied, None);
-            // The link may be the define's own equation, either way round,
-            // over another bound letter: a define of a count read its index
-            // before the step's lines took theirs.
-            if let Some(p) = self.held_rebound(&known, &wanted, scope)? {
-                return Ok(p);
-            }
-            if let Some((turned, flip)) = self.turned_claim(&wanted) {
-                if let Some(p) = self.held_rebound(&known, &turned, scope)? {
-                    let Sides { left, right } = self.equation_sides(&turned);
-                    return Ok(pf!(self.b; scope, left, right, p, flip));
-                }
-            }
-            let offered = facts.with(&known);
-            return match self.same(
-                &claim.children()[0],
-                &claim.children()[1],
-                scope,
-                &offered,
-                Some(step),
-            )? {
+            return match self.define_makes(step, &wanted, scope, facts)? {
                 Built(p) => Ok(p),
                 Declined(d) => Err(self.defect(
                     step.line,
@@ -3905,10 +3869,9 @@ impl<'a> Elaborator<'a> {
         if line.term == wanted {
             return Ok(proof);
         }
-        // A line may say several things, and the link be one of them.
-        let known = Facts::new();
-        self.know(&known, line.term.clone(), proof.clone());
-        self.unpack_line(&line, &proof, scope, &known);
+        // A line may say several things, and the link be one of them
+        // (`line_says`).
+        let known = self.line_says(cite, scope, facts, lines)?;
         for (said_as, held) in known.entries() {
             if said_as == wanted {
                 return Ok(held);
@@ -3962,6 +3925,41 @@ impl<'a> Elaborator<'a> {
             }
         }
         Err(self.defect(step.line, format!("{cite} does not say {written}")))
+    }
+
+    /// An equation a define the step cites makes, `wanted`, as a link
+    /// citing the define reads it (`SYNTAX.md`, a step may cite a define):
+    /// the define's own equation, either way round and over another bound
+    /// letter, as a define of a count read its index before the step's lines
+    /// took theirs; or two sides the standard form reads as one, the name
+    /// read as its rule.
+    fn define_makes(
+        &mut self,
+        step: &Step,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let supplied = self.supplied(Some(step), scope, facts)?;
+        let known = self.with_cited(Some(step), scope, &supplied, None);
+        if let Some(p) = self.held_rebound(&known, wanted, scope)? {
+            return Ok(Built(p));
+        }
+        if let Some((turned, flip)) = self.turned_claim(wanted) {
+            if let Some(p) = self.held_rebound(&known, &turned, scope)? {
+                let Sides { left, right } = self.equation_sides(&turned);
+                return Ok(Built(pf!(self.b; scope, left, right, p, flip)));
+            }
+        }
+        let claim = self.to_term(wanted);
+        let offered = facts.with(&known);
+        self.same(
+            &claim.children()[0],
+            &claim.children()[1],
+            scope,
+            &offered,
+            Some(step),
+        )
     }
 
     /// A step citing a define: the name, applied or not, is its value, and

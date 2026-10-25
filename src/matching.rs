@@ -63,6 +63,8 @@ pub struct Context {
     pub sums: FxIndexSet<NotationId>,
     /// The notations saying there is something (`wrex`).
     pub existences: FxIndexSet<NotationId>,
+    /// The notations joining two claims by "and" (`wa`).
+    pub conjunctions: FxIndexSet<NotationId>,
     /// The notations saying something of everything, over a set or not
     /// (`wral`, `wal`).
     pub universals: FxIndexSet<NotationId>,
@@ -200,6 +202,7 @@ impl Context {
             functions_on: ids_of(functions_on(records)),
             sums: ids_of(sums(records)),
             existences: ids_of(existences(records)),
+            conjunctions: ids_of(conjunctions(records)),
             universals: ids_of(universals(records)),
             turned: turned(notations, records),
             filled,
@@ -767,6 +770,22 @@ pub fn existences(records: &[Record]) -> IndexSet<String> {
             r.kind == RecordKind::Notation
                 && str::trim(r.field_or_empty("metamath")).starts_with("wrex")
         })
+        .map(|r| r.name.clone())
+        .collect()
+}
+
+/// The notations joining two claims by "and": the first word of their
+/// `metamath` is `wa`, as "wa, …" may say more after the target.
+pub fn conjunctions(records: &[Record]) -> IndexSet<String> {
+    let first_word = |r: &Record| -> String {
+        str::trim(r.field_or_empty("metamath"))
+            .chars()
+            .take_while(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || *c == '-')
+            .collect()
+    };
+    records
+        .iter()
+        .filter(|r| r.kind == RecordKind::Notation && first_word(r) == "wa")
         .map(|r| r.name.clone())
         .collect()
 }

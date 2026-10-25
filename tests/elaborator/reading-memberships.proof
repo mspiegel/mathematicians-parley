@@ -1,0 +1,261 @@
+import mundane theorem    stdlib/numbers/difference-nat0
+import mundane theorem    stdlib/numbers/multiply-le-nonneg
+import mundane theorem    stdlib/numbers/nat0-successor
+import mundane theorem    stdlib/numbers/product-nonzero
+import mundane theorem    stdlib/numbers/square-positive
+import mundane definition stdlib/sums/range-between
+
+theorem a-range-bound-filling-an-item
+  note        Rule: range-bounds. Route: from L on a cited item. H2 puts k
+              in {0, …, n}, which says k ≤ n; difference-nat0 asks it.
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then n − k ∈ ℕ₀
+
+1.  n − k ∈ ℕ₀
+    mun:difference-nat0, from H2
+
+theorem a-range-bound-in-a-calculation-link
+  note        Rule: range-bounds. Route: a calculation link citing L. The
+              first link is k ≤ n, which H3 says by putting k in {1, …, n}.
+  let n ∈ ℤ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  assume n ≤ m                                                        (H4)
+  then k ≤ m
+
+1.  k ≤ m
+    calculation
+      k ≤ n     H3
+        ≤ m     H4
+
+theorem a-range-bound-in-a-requires-line
+  note        Rule: range-bounds. Route: a requires line citing L.
+              multiply-le-nonneg asks k ≤ n, which H2 says.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  let c ∈ ℝ                                                           (H3)
+  assume c ≥ 0                                                        (H4)
+  then k·c ≤ n·c
+
+1.  k·c ≤ n·c
+    mun:multiply-le-nonneg, from H4
+    requires k ≤ n: from H2
+
+theorem a-range-bound-in-a-requires-line-citing-an-item
+  note        Rule: range-bounds. Route: a requires line applying an item
+              to L. difference-nat0 asks k ≤ n, which H2 says.
+  let n ∈ ℕ₀                                                          (H1)
+  let k ∈ {0, …, n}                                                   (H2)
+  then (n − k) + 1 ∈ ℕ
+
+1.  (n − k) + 1 ∈ ℕ
+    mun:nat0-successor k := n − k
+    requires n − k ∈ ℕ₀: mun:difference-nat0, from H2
+
+theorem a-range-bound-substituted-into
+  note        Rule: range-bounds. Route: substitute into line L. H3 says
+              k ≤ n, and n = m put into it gives k ≤ m.
+  let n ∈ ℤ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  assume n = m                                                        (H4)
+  then k ≤ m
+
+1.  k ≤ m
+    substitute n = m (H4) into H3
+
+theorem a-range-bound-contradicted
+  note        Rule: range-bounds. Route: contradicting L. H2 says k ≤ n,
+              and step 1.1 reaches its opposite.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then not n < k
+
+1.  not n < k
+    contradiction
+    suppose n < k                                                     (S)
+
+    1.1.  not k ≤ n
+          inequalities, from S, contradicting H2
+
+theorem a-range-bound-in-a-transitivity
+  note        Rule: range-bounds. Route: transitivity. H3 says k ≤ n,
+              which meets n < m.
+  let n ∈ ℤ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  assume n < m                                                        (H4)
+  then k < m
+
+1.  k < m
+    transitivity, from H3, H4
+
+theorem a-range-bound-added-by-inequalities
+  note        Rule: range-bounds. Route: a plain inequalities step. H2 says
+              k ≤ n.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then k < n + 1
+
+1.  k < n + 1
+    inequalities, from H2
+
+theorem a-range-bound-as-a-first-row
+  note        Rule: range-bounds. Route: an inequalities block's first row.
+              The first row is k ≤ n, which H2 says.
+  let n ∈ ℤ                                                           (H1)
+  let k ∈ {1, …, n}                                                   (H2)
+  then k + 1 ≤ n + 1
+
+1.  k + 1 ≤ n + 1
+    inequalities
+      k ≤ n                H2
+      k + 1 ≤ n + 1        adding 1
+
+theorem a-range-bound-folding-a-definition
+  note        Rule: range-bounds. Route: a definition folded from L. H3
+              says 1 ≤ k, which range-between asks with k ≤ m.
+  let n ∈ ℤ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  let k ∈ {1, …, n}                                                   (H3)
+  assume k ≤ m                                                        (H4)
+  then k ∈ {1, …, m}
+
+1.  k ∈ {1, …, m}
+    mun:range-between a := 1, b := m, from H3, H4
+
+theorem a-membership-bound-filling-an-item
+  note        Rule: membership. Route: from L on a cited item. H1 says
+              k ∈ ℕ, so k ≠ 0, which square-positive asks.
+  let k ∈ ℕ                                                           (H1)
+  then k² > 0
+
+1.  k² > 0
+    mun:square-positive x := k, from H1
+
+theorem a-membership-bound-in-a-calculation-link
+  note        Rule: membership. Route: a calculation link citing L. The
+              first link is 0 < k, which H1 says by putting k in ℕ.
+  let k ∈ ℕ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume k ≤ m                                                        (H3)
+  then 0 < m
+
+1.  0 < m
+    calculation
+      0 < k     H1
+        ≤ m     H3
+
+theorem a-membership-bound-in-a-requires-line
+  note        Rule: membership. Route: a requires line citing L.
+              multiply-le-nonneg asks c ≥ 0, which H3 says by putting c in
+              ℕ₀.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  let c ∈ ℕ₀                                                          (H3)
+  assume x ≤ y                                                        (H4)
+  then x·c ≤ y·c
+
+1.  x·c ≤ y·c
+    mun:multiply-le-nonneg, from H4
+    requires c ≥ 0: from H3
+
+theorem a-membership-bound-in-a-requires-line-citing-an-item
+  note        Rule: membership. Route: a requires line applying an item to
+              L. product-nonzero asks k ≠ 0, which H3 says by putting k
+              in ℕ.
+  let x ∈ ℝ                                                           (H1)
+  assume x ≠ 0                                                        (H2)
+  let k ∈ ℕ                                                           (H3)
+  then (x·k)² > 0
+
+1.  (x·k)² > 0
+    mun:square-positive x := x·k
+    requires x·k ≠ 0: mun:product-nonzero, from H2, H3
+
+theorem a-membership-bound-substituted-into
+  note        Rule: membership. Route: substitute into line L. H1 says
+              k > 0, and k = m put into it gives m > 0.
+  let k ∈ ℕ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume k = m                                                        (H3)
+  then m > 0
+
+1.  m > 0
+    substitute k = m (H3) into H1
+
+theorem a-membership-bound-contradicted
+  note        Rule: membership. Route: contradicting L. H1 says k > 0,
+              and step 1.1 reaches its opposite.
+  let k ∈ ℕ                                                           (H1)
+  then not k ≤ 0
+
+1.  not k ≤ 0
+    contradiction
+    suppose k ≤ 0                                                     (S)
+
+    1.1.  not k > 0
+          inequalities, from S, contradicting H1
+
+theorem a-membership-bound-in-a-transitivity
+  note        Rule: membership. Route: transitivity. H1 says 0 ≤ c, which
+              meets c ≤ m.
+  let c ∈ ℕ₀                                                          (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume c ≤ m                                                        (H3)
+  then 0 ≤ m
+
+1.  0 ≤ m
+    transitivity, from H1, H3
+
+theorem a-membership-bound-added-by-inequalities
+  note        Rule: membership. Route: a plain inequalities step. H1 says
+              k ≥ 1.
+  let k ∈ ℕ                                                           (H1)
+  then k + 1 ≥ 2
+
+1.  k + 1 ≥ 2
+    inequalities, from H1
+
+theorem a-membership-bound-as-a-first-row
+  note        Rule: membership. Route: an inequalities block's first row.
+              The first row is k ≥ 1, which H1 says.
+  let k ∈ ℕ                                                           (H1)
+  then k + 1 ≥ 2
+
+1.  k + 1 ≥ 2
+    inequalities
+      k ≥ 1                H1
+      k + 1 ≥ 2            adding 1
+
+theorem a-membership-bound-folding-a-definition
+  note        Rule: membership. Route: a definition folded from L. H2 says
+              1 ≤ j, which range-between asks with j ≤ m.
+  let m ∈ ℕ₀                                                          (H1)
+  let j ∈ ℕ                                                           (H2)
+  assume j ≤ m                                                        (H3)
+  then j ∈ {1, …, m}
+
+1.  j ∈ {1, …, m}
+    mun:range-between k := j, a := 1, b := m, from H2, H3
+
+theorem a-membership-bound-read-by-the-membership-method
+  note        Rule: membership. Route: the method membership. H2 puts x in
+              ℕ, which says x ≠ 0, the divisor's.
+  let x ∈ ℝ                                                           (H1)
+  assume x ∈ ℕ                                                        (H2)
+  then 1/x ∈ ℝ
+
+1.  1/x ∈ ℝ
+    membership, from H2
+
+theorem a-membership-bound-read-by-algebra
+  note        Rule: membership. Route: the method algebra. H2 puts x in ℕ,
+              which says x ≠ 0, the divisor's.
+  let x ∈ ℝ                                                           (H1)
+  assume x ∈ ℕ                                                        (H2)
+  then x/x = 1
+
+1.  x/x = 1
+    algebra, from H2
