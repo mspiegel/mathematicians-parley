@@ -121,7 +121,7 @@ theorem rational-reciprocal
               = 0            2.2
 
     2.4.  A ≠ 0
-          join H2, contradicting 2.3
+          restate H2, contradicting 2.3
 
 3.  p < 0 or p = 0 or 0 < p
     mun:trichotomy x := p
@@ -149,7 +149,7 @@ theorem rational-reciprocal
     assume p = 0                                                      (C2)
 
     4.5.  p = 0
-          join C2, contradicting 2
+          restate C2, contradicting 2
 
     case
     assume 0 < p                                                      (C3)
@@ -212,7 +212,7 @@ theorem irrational-sum
           substitute (A + B) − B = A (line 2.2) into line 2.1
 
     2.4.  A ∉ ℚ
-          join 1, contradicting 2.3
+          restate 1, contradicting 2.3
 
 3.  A + B is irrational
     mun:irrational x := A + B, from 2
@@ -243,7 +243,7 @@ theorem irrational-product
           substitute (A·B)/B = A (line 2.2) into line 2.1
 
     2.4.  A ∉ ℚ
-          join 1, contradicting 2.3
+          restate 1, contradicting 2.3
 
 3.  A·B is irrational
     mun:irrational x := A·B, from 2

@@ -117,4 +117,4 @@ theorem square-minus-three
                   requires 2 < 4: arithmetic
 
     1.4.  n² − 3 ≠ 4m
-          join 1.3, contradicting 1.1
+          restate 1.3, contradicting 1.1

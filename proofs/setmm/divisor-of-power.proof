@@ -15,7 +15,7 @@ theorem divisor-of-power
 
     base
     1.1.  K divides M^1
-          join H4
+          restate H4
 
     step
     let m ∈ ℕ                                                         (K)

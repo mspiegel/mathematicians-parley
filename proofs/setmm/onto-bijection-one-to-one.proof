@@ -7,4 +7,4 @@ theorem onto-bijection-one-to-one
   then F : A → B is one-to-one
 
 1.  F : A → B is one-to-one
-    join H3
+    restate H3

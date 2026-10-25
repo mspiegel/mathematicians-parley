@@ -31,7 +31,7 @@ theorem peirce
                   assume a = 0                                        (K2)
 
                   1.2.1.1.  a ≠ 0
-                            join C2, contradicting K2
+                            restate C2, contradicting K2
 
           1.2.2.  a = 0
                   mun:modus-ponens, from K1, 1.2.1

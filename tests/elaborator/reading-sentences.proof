@@ -134,7 +134,7 @@ theorem a-second-sentence-joined
   then b = 2
 
 1.  b = 2
-    join H3
+    restate H3
 
 theorem an-and-part-joined
   note        Rule: sentences, a line P and Q. Route: join L. The claim is
@@ -145,7 +145,7 @@ theorem an-and-part-joined
   then b = 2
 
 1.  b = 2
-    join H3
+    restate H3
 
 theorem a-second-sentence-contradicted
   note        Rule: sentences, a line of several sentences. Route:
@@ -161,7 +161,7 @@ theorem a-second-sentence-contradicted
     assume b = 2                                                      (K1)
 
     1.1.  b = 2
-          join K1, contradicting H3
+          restate K1, contradicting H3
 
 theorem an-and-part-contradicted
   note        Rule: sentences, a line P and Q. Route: contradicting L. The
@@ -177,7 +177,7 @@ theorem an-and-part-contradicted
     assume b = 2                                                      (K1)
 
     1.1.  b = 2
-          join K1, contradicting H3
+          restate K1, contradicting H3
 
 theorem a-second-sentence-obtained-from
   note        Rule: sentences, a line of several sentences. Route: obtain x

@@ -290,10 +290,10 @@ textbook says so without supposing the opposite of what it claims:
           assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
 
           1.1.1.  x = v(0)
-                  join C2
+                  restate C2
 
           1.1.2.  x ≠ v(0)
-                  join C2, contradicting 1.1.1
+                  restate C2, contradicting 1.1.1
 ```
 
 The block's last step reaches the opposite of an earlier line and names it,
@@ -453,14 +453,14 @@ Every way a step cites a line reads all of it: an item's `from`, a method's
 `from`, a requires line's `from`, a calculation's link, an inequalities
 block's first row, `transitivity`, `substitute` (the equation taken and the
 line put into), `contradicting`, `obtain`, `cases`, `instantiate` and a
-definition unfolded. The one exception is `join`, which puts lines together
-and takes only what they write: their sentences, and the parts of a
-sentence joined by "and". Inside a block, a "for all" line written
-outside it over the block's set is written at the block's letter, as
-`cases` reads it, so `join` takes that too. And where the step cites a
-define, a name in a line and what it names are one formula (below, "A
-defined name and the term it names"), so `join` takes the line with the
-name read either way. And `cases` takes the line as a whole: one of the
+definition unfolded. The one exception is `join`, which puts lines together,
+and `restate`, the same for one line. They take only what the lines write:
+their sentences, and the parts of a sentence joined by "and". Inside a
+block, a "for all" line written outside it over the block's set is written
+at the block's letter, as `cases` reads it, so they take that too. And
+where the step cites a define, a name in a line and what it names are one
+formula (below, "A defined name and the term it names"), so they take the
+line with the name read either way. And `cases` takes the line as a whole: one of the
 several things a line says is not the line's "or".
 
 Besides what it writes, a cited line says:
@@ -509,7 +509,8 @@ step of its own.
 | `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
 | `antisymmetry, from L` | L is two lines, `a ≤ b` and `b ≤ a`; the claim is `a = b` |
-| `join L` | the claim is the sentences of the lines L put together; with one cited line it is that line; a chain of equations is the equations between its neighbouring terms. It infers nothing, and takes what the lines write and nothing else a line says (What a cited line says), but for an equation or a congruence either way round, which is the same claim, a "for all" line cited inside a block, read at the block's letter, and a name read as what it names where the step cites its define, which is the same formula. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
+| `join L1, L2, …` | the claim is the sentences of two or more cited lines put together; a chain of equations is the equations between its neighbouring terms. It infers nothing, and takes what the lines write and nothing else a line says (What a cited line says), but for an equation or a congruence either way round, which is the same claim, a "for all" line cited inside a block, read at the block's letter, and a name read as what it names where the step cites its define, which is the same formula. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
+| `restate L` | as `join`, for one cited line: the claim is that line, or what `join` would take from it, such as one of its parts. A define the step cites to read a name is not a line: `restate D1, 1`. A `join` of one line, or a `restate` of several, is refused, and told the word to use |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a closed fact that `arithmetic`, or `real arithmetic` where it holds a square root, π, e or a logarithm, finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does. The claim is one sentence: the block proves one statement, and each other sentence is a step of its own |
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence |

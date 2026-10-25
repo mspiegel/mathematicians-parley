@@ -53,7 +53,7 @@ theorem disjoint-within-difference
                   mun:difference u := s, Y := C, Z := B, from 1.4.1
 
           1.4.3.  s ∉ B
-                  join 1.4.2
+                  restate 1.4.2
 
     1.5.  B ∩ A = ∅
           mun:disjoint-empty Y := B, Z := A, from 1.4

@@ -67,7 +67,7 @@ theorem divides-or-not-prime
                             substitute gcd(a, b) = b (C4) into line 2.2.5
 
           2.2.7.  b divides a
-                  join 2.2.6, contradicting C2
+                  restate 2.2.6, contradicting C2
 
     2.3.  b divides a or not (b is prime)
           mun:or-right P := b divides a, from 2.2

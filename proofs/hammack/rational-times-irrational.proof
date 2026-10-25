@@ -42,7 +42,7 @@ theorem rational-times-irrational
           mun:irrational x := a·b, from H4
 
     1.9.  a·b ∉ ℚ
-          join 1.8, contradicting 1.7
+          restate 1.8, contradicting 1.7
 
 2.  b is irrational
     mun:irrational x := b, from 1

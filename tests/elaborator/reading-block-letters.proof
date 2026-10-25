@@ -73,7 +73,7 @@ theorem a-for-all-line-contradicted
           suppose y² + 1 = 0                                          (S)
 
           1.1.1.  y² + 1 = 0
-                  join S, contradicting H1
+                  restate S, contradicting H1
 
 theorem a-for-all-line-obtained-from
   note        Block letter, read by an obtain: inside the block letting

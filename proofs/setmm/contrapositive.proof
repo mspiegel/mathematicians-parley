@@ -24,4 +24,4 @@ theorem contrapositive
                             mun:modus-ponens, from K1, S
 
                   1.1.1.2.  b ≠ 0
-                            join K2, contradicting 1.1.1.1
+                            restate K2, contradicting 1.1.1.1

@@ -418,7 +418,7 @@ theorem choose-complement
                   mun:range-between k := K, a := 0, b := N, from 2.16.2, 2.16.3
 
           2.16.5. K ∉ {0, …, N}
-                  join C2, contradicting 2.16.4
+                  restate C2, contradicting 2.16.4
 
     2.17. C(N, N − K) = 0
           mun:binomial-outside n := N, k := N − K, from 2.16

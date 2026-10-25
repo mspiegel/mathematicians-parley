@@ -10,7 +10,7 @@ theorem a-claim-denying-its-supposition-written-otherwise
     suppose 1 = a                                                     (S)
 
     1.1.  1 = a
-          join S, contradicting H2
+          restate S, contradicting H2
 
 theorem a-supposition-denying-its-claim-written-otherwise
   note        The block supposes 1 ≠ a and claims a = 1: the claim denied,
@@ -24,4 +24,4 @@ theorem a-supposition-denying-its-claim-written-otherwise
     suppose 1 ≠ a                                                     (S)
 
     1.1.  1 ≠ a
-          join S, contradicting H2
+          restate S, contradicting H2

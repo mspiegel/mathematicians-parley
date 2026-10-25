@@ -314,6 +314,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     ("membership", "proofs/setmm/limit-constant-multiple.proof", "          membership"),
     ("inspection", "proofs/setmm/image-empty.proof", "                  inspection, contradicting 1.1.2"),
     ("join", "proofs/setmm/halves-series.proof", "                  join 3.2.8, 3.2.11"),
+    ("restate", "proofs/setmm/divisor-of-power.proof", "          restate H4"),
     ("contradiction", "proofs/setmm/floor-below-non-integer.proof", "    contradiction"),
     ("proof", "proofs/setmm/halves-series.proof", "    proof"),
     ("induction", "proofs/setmm/halves-series.proof", "    induction on k starting at 1"),
@@ -876,49 +877,49 @@ fn cases() -> Vec<Case> {
         // define it cites reads a name as what it names, and one whose name
         // no sentence needs read is a line the join does not use.
         case(
-            "join citing a define no sentence needs read",
+            "restate citing a define no sentence needs read",
             vec![edit(
                 "tests/elaborator/reading-defines.proof",
                 Some("theorem a-define-read-in-a-case-split\n".to_string()),
-                "theorem an-unneeded-define-in-a-join\n  let a ∈ ℝ    (H1)\n  assume a + 1 > 0    (H2)\n  then a + 1 > 0\n\nlet e = a + 1, a real number    (D1)\n    membership\n    reads one more than a\n\n1.  a + 1 > 0\n    join D1, H2\n\ntheorem a-define-read-in-a-case-split\n".to_string(),
+                "theorem an-unneeded-define-in-a-join\n  let a ∈ ℝ    (H1)\n  assume a + 1 > 0    (H2)\n  then a + 1 > 0\n\nlet e = a + 1, a real number    (D1)\n    membership\n    reads one more than a\n\n1.  a + 1 > 0\n    restate D1, H2\n\ntheorem a-define-read-in-a-case-split\n".to_string(),
             )],
-            "step 1 joins D1, and claims nothing it says",
+            "step 1 restates D1, and claims nothing it says",
         ),
         case(
-            "join an equation of a chain its neighbours do not write",
+            "restate an equation of a chain its neighbours do not write",
             vec![edit(
                 "tests/elaborator/reading-equations.proof",
                 Some("theorem a-chain-pair-substituted\n".to_string()),
-                "theorem a-chain-pair-joined\n  let a ∈ ℝ    (H1)\n  let b ∈ ℝ    (H2)\n  let c ∈ ℝ    (H3)\n  assume a = b = c    (H4)\n  then a = c\n\n1.  a = c\n    join H4\n\ntheorem a-chain-pair-substituted\n".to_string(),
+                "theorem a-chain-pair-joined\n  let a ∈ ℝ    (H1)\n  let b ∈ ℝ    (H2)\n  let c ∈ ℝ    (H3)\n  assume a = b = c    (H4)\n  then a = c\n\n1.  a = c\n    restate H4\n\ntheorem a-chain-pair-substituted\n".to_string(),
             )],
-            "step 1 joins H4 and claims a = c, which no line it joins says",
+            "step 1 restates H4 and claims a = c, which no line it restates says",
         ),
         case(
-            "join a bound a range line says without writing it",
+            "restate a bound a range line says without writing it",
             vec![edit(
                 "tests/elaborator/reading-memberships.proof",
                 Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
-                "theorem a-range-bound-joined\n  let n ∈ ℤ    (H1)\n  let k ∈ {1, …, n}    (H2)\n  then k ≤ n\n\n1.  k ≤ n\n    join H2\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+                "theorem a-range-bound-joined\n  let n ∈ ℤ    (H1)\n  let k ∈ {1, …, n}    (H2)\n  then k ≤ n\n\n1.  k ≤ n\n    restate H2\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
             )],
-            "step 1 joins H2 and claims k ≤ n, which no line it joins says",
+            "step 1 restates H2 and claims k ≤ n, which no line it restates says",
         ),
         case(
-            "join a bound a membership implies",
+            "restate a bound a membership implies",
             vec![edit(
                 "tests/elaborator/reading-memberships.proof",
                 Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
-                "theorem a-membership-bound-joined\n  let k ∈ ℕ    (H1)\n  then k ≥ 1\n\n1.  k ≥ 1\n    join H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+                "theorem a-membership-bound-joined\n  let k ∈ ℕ    (H1)\n  then k ≥ 1\n\n1.  k ≥ 1\n    restate H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
             )],
-            "step 1 joins H1 and claims k ≥ 1, which no line it joins says",
+            "step 1 restates H1 and claims k ≥ 1, which no line it restates says",
         ),
         case(
-            "join the members a subset line says without writing them",
+            "restate the members a subset line says without writing them",
             vec![edit(
                 "tests/elaborator/reading-memberships.proof",
                 Some("theorem a-range-bound-in-a-requires-line\n".to_string()),
-                "theorem a-subset-joined-as-its-members\n  let X ⊆ ℤ    (H1)\n  then for all x ∈ X, x ∈ ℤ\n\n1.  For all x ∈ X, x ∈ ℤ.\n    join H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
+                "theorem a-subset-joined-as-its-members\n  let X ⊆ ℤ    (H1)\n  then for all x ∈ X, x ∈ ℤ\n\n1.  For all x ∈ X, x ∈ ℤ.\n    restate H1\n\ntheorem a-range-bound-in-a-requires-line\n".to_string(),
             )],
-            "step 1 joins H1 and claims",
+            "step 1 restates H1 and claims",
         ),
         // A calculation claims its first term by the chain's relation to
         // its last: a chain with a `>` link claims `>`.
@@ -2536,13 +2537,13 @@ fn cases() -> Vec<Case> {
             "step 1 drops an identity element from what mun:mod-value concludes, and nothing says ⌊A⌋ is a number; a requires line says it",
         ),
         case(
-            "join a sentence no joined line says",
+            "restate a sentence the restated line does not say",
             vec![edit(
                 "proofs/wiedijk/euclid.proof",
                 Some("    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 3.1, 3.2".to_string()),
-                "    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          join 3.1".to_string(),
+                "    3.3.  a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀\n          restate 3.1".to_string(),
             )],
-            "which no line it joins says",
+            "which no line it restates says",
         ),
         case(
             "join a line the claim says nothing of",
@@ -2961,7 +2962,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/one-case.proof",
                 None,
-                "theorem one-case\n  let a ∈ ℝ                                                           (H1)\n  assume a = 0                                                        (H2)\n  then a = 0\n\n1.  a = 0\n    cases, from H2\n\n    case\n    assume a = 0                                                      (C1)\n\n    1.1.  a = 0\n          join C1\n".to_string(),
+                "theorem one-case\n  let a ∈ ℝ                                                           (H1)\n  assume a = 0                                                        (H2)\n  then a = 0\n\n1.  a = 0\n    cases, from H2\n\n    case\n    assume a = 0                                                      (C1)\n\n    1.1.  a = 0\n          restate C1\n".to_string(),
             )],
             "step 1 takes one case, and a case split takes two or more; prove the one case as a plain step",
         ),
@@ -2988,7 +2989,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/claim-stop.proof",
                 None,
-                "theorem claim-stop\n  let x ∈ ℝ                                                           (H1)\n  assume x + 0 = x                                                    (H2)\n  then x + 0 = x\n\n1.  .\n    join H2\n\n2.  x + 0 = x\n    join H2, 1\n".to_string(),
+                "theorem claim-stop\n  let x ∈ ℝ                                                           (H1)\n  assume x + 0 = x                                                    (H2)\n  then x + 0 = x\n\n1.  .\n    restate H2\n\n2.  x + 0 = x\n    join H2, 1\n".to_string(),
             )],
             "step 1 says nothing",
         ),
@@ -3078,7 +3079,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/proof-two.proof",
                 None,
-                "theorem proof-two\n  let a ∈ ℝ                                                           (H1)\n  then if a = 0 then a = 0\n\n1.  If a = 0 then a = 0. If a = 0 then a = 0.\n    proof\n    assume a = 0                                                      (K1)\n\n    1.1.  a = 0\n          join K1\n\n2.  If a = 0 then a = 0.\n    join 1\n".to_string(),
+                "theorem proof-two\n  let a ∈ ℝ                                                           (H1)\n  then if a = 0 then a = 0\n\n1.  If a = 0 then a = 0. If a = 0 then a = 0.\n    proof\n    assume a = 0                                                      (K1)\n\n    1.1.  a = 0\n          restate K1\n\n2.  If a = 0 then a = 0.\n    restate 1\n".to_string(),
             )],
             "step 1 opens a proof block and claims 2 sentences; the block proves one, and each other sentence is a step of its own",
         ),
@@ -3446,7 +3447,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/calculation-block.proof",
                 None,
-                "theorem calculation-block\n  let a ∈ ℝ                                                           (H1)\n  assume a = 1                                                        (H2)\n  then a = 1\n\n1.  a = 1\n    calculation\n      a = 1          H2\n    assume a = a                                                      (A1)\n\n    1.1.  a = 1\n          join H2\n".to_string(),
+                "theorem calculation-block\n  let a ∈ ℝ                                                           (H1)\n  assume a = 1                                                        (H2)\n  then a = 1\n\n1.  a = 1\n    calculation\n      a = 1          H2\n    assume a = a                                                      (A1)\n\n    1.1.  a = 1\n          restate H2\n".to_string(),
             )],
             "step 1 is a calculation, which writes its chain and opens no block of steps",
         ),
@@ -3491,7 +3492,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/degree-no-graph.proof",
                 None,
-                "theorem degree-no-graph\n  let V be a set                                                      (H1)\n  let v ∈ V                                                           (H2)\n  assume deg(v) = 2                                                   (H3)\n  then deg(v) = 2\n\n1.  deg(v) = 2\n    join H3\n".to_string(),
+                "theorem degree-no-graph\n  let V be a set                                                      (H1)\n  let v ∈ V                                                           (H2)\n  assume deg(v) = 2                                                   (H3)\n  then deg(v) = 2\n\n1.  deg(v) = 2\n    restate H3\n".to_string(),
             )],
             "deg(v) is said of a graph, and no `let` line of the theorem introduces one",
         ),
@@ -3906,9 +3907,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite a for-all line inside two blocks letting letters of its set",
             vec![
-                edit("tests/elaborator/a-for-all-line-read-in-a-block.proof", Some("    2.1.  z·1 = z\n          join 1\n".to_string()), "    2.1.  For all w ∈ ℤ, z·1 = z.\n          proof\n          let w ∈ ℤ                                                   (K3)\n\n          2.1.1.  z·1 = z\n                  join 1\n\n    2.2.  z·1 = z\n          instantiate w := z in line 2.1\n".to_string()),
+                edit("tests/elaborator/a-for-all-line-read-in-a-block.proof", Some("    2.1.  z·1 = z\n          restate 1\n".to_string()), "    2.1.  For all w ∈ ℤ, z·1 = z.\n          proof\n          let w ∈ ℤ                                                   (K3)\n\n          2.1.1.  z·1 = z\n                  restate 1\n\n    2.2.  z·1 = z\n          instantiate w := z in line 2.1\n".to_string()),
             ],
-            "step 2.1.1 joins 1 and claims z · 1 = z, which no line it joins says",
+            "step 2.1.1 restates 1 and claims z · 1 = z, which no line it restates says",
         ),
         case(
             "note a case part after its assumption",
@@ -5142,11 +5143,31 @@ fn cases() -> Vec<Case> {
             ],
             "the block of step 1 lets v, and the claim it proves is about every u; the block opens with the claim's own letter",
         ),
+        // `join` puts two lines or more together and `restate` says one
+        // again (`SYNTAX.md`): each refused with the other's count.
+        case(
+            "join one line",
+            vec![edit(
+                "proofs/setmm/divisor-of-power.proof",
+                Some("          restate H4".to_string()),
+                "          join H4".to_string(),
+            )],
+            "joins one line; a step citing one line is written `restate H4`",
+        ),
+        case(
+            "restate two lines",
+            vec![edit(
+                "proofs/setmm/halves-series.proof",
+                Some("                  join 3.2.8, 3.2.11".to_string()),
+                "                  restate 3.2.8, 3.2.11".to_string(),
+            )],
+            "restates 3.2.8, 3.2.11; a step putting several lines together is written `join 3.2.8, 3.2.11`",
+        ),
         case(
             "an induction whose base part has no steps",
             vec![edit(
                 "proofs/setmm/divisor-of-power.proof",
-                Some("    base\n    1.1.  K divides M^1\n          join H4\n".to_string()),
+                Some("    base\n    1.1.  K divides M^1\n          restate H4\n".to_string()),
                 "    base\n".to_string(),
             )],
             "has no steps, so nothing shows what it owes",

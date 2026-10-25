@@ -15,7 +15,7 @@ theorem intersection-subset-left
           mun:intersection, from K1
 
     1.2.  u ∈ A
-          join 1.1
+          restate 1.1
 
 2.  A ∩ B ⊆ A
     mun:subset, from 1
@@ -35,7 +35,7 @@ theorem intersection-subset-right
           mun:intersection, from K1
 
     1.2.  u ∈ B
-          join 1.1
+          restate 1.1
 
 2.  A ∩ B ⊆ B
     mun:subset, from 1

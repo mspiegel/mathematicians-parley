@@ -28,7 +28,7 @@ theorem size-at-least-one
                             exhibit, from S2
 
                   1.1.1.2.  there is no a ∈ A
-                            join S, contradicting 1.1.1.1
+                            restate S, contradicting 1.1.1.1
 
     1.2.  A ∩ A = ∅
           mun:disjoint-empty Y := A, Z := A, from 1.1
@@ -42,7 +42,7 @@ theorem size-at-least-one
               = ∅         1.2
 
     1.5.  not (A = ∅)
-          join H2, contradicting 1.4
+          restate H2, contradicting 1.4
 
 2.  a ∈ A
     obtain a from line 1

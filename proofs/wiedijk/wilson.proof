@@ -546,7 +546,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                             substitute p·a − (a·(p − 1) − 1) = a + 1 (line 5.14.4.5) into line 5.14.4.4
 
                   5.14.4.7. not (p divides a + 1)
-                            join 5.10, contradicting 5.14.4.6
+                            restate 5.10, contradicting 5.14.4.6
 
           5.14.5. 0 < f(a)
                   inequalities, from 5.6, 5.7, 5.14.2
@@ -607,7 +607,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                             mun:disjunctive-syllogism-left, from 5.9, 5.15.1.5
 
                   5.15.1.7. not (p divides a + 1)
-                            join 5.10, contradicting 5.15.1.6
+                            restate 5.10, contradicting 5.15.1.6
 
     5.16. For all a ∈ {2, …, p − 2}, f(f(a)) = a.
           proof

@@ -32,7 +32,7 @@ theorem subset-by-double-difference
                             mun:difference u := t, Y := B, Z := A, from S1, 1.1.1
 
                   1.1.2.2.  t ∉ B ∖ A
-                            join 1.1.1, contradicting 1.1.2.1
+                            restate 1.1.1, contradicting 1.1.2.1
 
     1.2.  B ∖ (B ∖ A) ⊆ A
           mun:subset, from 1.1
@@ -52,7 +52,7 @@ theorem subset-by-double-difference
                             mun:difference u := t, Y := B, Z := A, from S2
 
                   1.3.2.2.  t ∉ A
-                            join 1.3.2.1, contradicting K2
+                            restate 1.3.2.1, contradicting K2
 
           1.3.3.  t ∈ B ∖ (B ∖ A)
                   mun:difference u := t, Y := B, Z := B ∖ A, from 1.3.1, 1.3.2

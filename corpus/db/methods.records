@@ -219,8 +219,8 @@ method antisymmetry
 method join
   form        join L
   block       none
-  checks      the claim is the sentences of the cited lines put together; with
-              one cited line it is that line.
+  checks      the claim is the sentences of two or more cited lines put
+              together.
   decides     nothing. It combines what the cited lines already say and infers
               no new fact, which is why it is the one method named for what it
               does with its arguments rather than for a body of knowledge or a
@@ -236,7 +236,20 @@ method join
               Disjunctive syllogism is mun:stdlib/reasoning/disjunctive-syllogism;
               a doubled negation is not written, since a contradiction block
               proving a negation supposes what the negation denies.
-              Restating one cited line is joining a list of one.
+              A step citing one line is `restate`.
+
+method restate
+  form        restate L
+  block       none
+  checks      the claim is the one cited line, or what join would take from
+              it, such as one of its parts; a define cited beside it to read a
+              name is no line.
+  decides     nothing. It says again what one cited line already says, read as
+              join reads it, so that a block can end on it or a later step
+              cite it by itself
+  hypotheses  none
+  specified-in METHODS.md
+  metamath    the projection lemmas where the line says several sentences
 
 method contradiction
   form        contradiction

@@ -39,7 +39,7 @@ theorem subset-of-a-union-with-a-disjoint-set
           assume t ∈ B                                                (C1)
 
           1.1.4.1.  t ∈ B
-                    join C1, contradicting 1.1.1
+                    restate C1, contradicting 1.1.1
 
           case
           assume t ∈ C, which is the claim                            (C2)

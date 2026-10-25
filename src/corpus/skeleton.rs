@@ -801,7 +801,7 @@ fn method_slots(
         Method::Obtain => obtain(rest, path, line, slots),
         Method::Substitute => substitute(rest, path, line, slots),
         Method::Instantiate => instantiate(rest, pieces, path, line, slots),
-        Method::Join => {
+        Method::Join | Method::Restate => {
             let listed = after_word(pieces[0], head).unwrap_or_default();
             for entry in std::iter::once(listed).chain(pieces[1..].iter().copied()) {
                 if is_ref(entry) {

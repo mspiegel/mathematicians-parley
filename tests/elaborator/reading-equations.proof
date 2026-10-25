@@ -80,7 +80,7 @@ theorem a-chain-pair-contradicted
     suppose a ≠ c                                                     (S)
 
     1.1.  a ≠ c
-          join S, contradicting H4
+          restate S, contradicting H4
 
 theorem a-chain-pair-in-a-transitivity
   note        Rule chain, route transitivity: H5, a = b = c, is read as
@@ -199,7 +199,7 @@ theorem an-equation-turned-joined
   then a = b
 
 1.  a = b
-    join H3
+    restate H3
 
 theorem an-equation-turned-contradicted
   note        Rule either-way, route contradicting L: the block reaches
@@ -214,7 +214,7 @@ theorem an-equation-turned-contradicted
     suppose a ≠ b                                                     (S)
 
     1.1.  a ≠ b
-          join S, contradicting H3
+          restate S, contradicting H3
 
 theorem an-equation-turned-in-a-transitivity
   note        Rule either-way, route transitivity: H4, b = a, is read as

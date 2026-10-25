@@ -1614,7 +1614,8 @@ itself, and the method proves what holds and refuses the rest.
 ### Facts in, fact out, procedure
 
 Each cited line supplies its sentences. The claim must be exactly those
-sentences, in any order. With one cited line the claim is that line. A `cases`
+sentences, in any order. A step citing one line is written `restate`, and
+its claim is that line as `join` reads it. A `cases`
 part whose assumption already is the block's common formula does not end on a
 join of it: its assumption line says `, which is the claim`, and it has no
 steps.

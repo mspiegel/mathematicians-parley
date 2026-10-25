@@ -10,7 +10,7 @@ theorem nothing-below-one-is-two
     assume x ≤ 1 and x = 2                                            (K2)
 
     1.1.  x ≤ 1
-          join K2
+          restate K2
 
     1.2.  2 ≤ 1, which is impossible
           substitute x = 2 (K2) into line 1.1

@@ -19,4 +19,4 @@ theorem empty-sum
     algebra, from 1, 2
 
 4.  Σ(k = 1 to 0) B(k) = 0
-    join 3
+    restate 3

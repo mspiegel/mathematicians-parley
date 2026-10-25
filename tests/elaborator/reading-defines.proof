@@ -122,7 +122,7 @@ let e = a + 1, a real number                                          (D1)
     substitute e = a + 1 (D1) into H2
 
 2.  a + 1 > 0
-    join D1, 1
+    restate D1, 1
 
 theorem a-define-read-in-a-case-split
   note        Rule: define, a step citing a define reads its name as what

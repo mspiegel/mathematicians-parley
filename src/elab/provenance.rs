@@ -171,7 +171,9 @@ impl<'a> Elaborator<'a> {
                 if !name.starts_with(&prefix) || name.matches('.').count() != depth {
                     continue;
                 }
-                if inner.just.head.is(Method::Join) {
+                if inner.just.head.is(Method::Join)
+                    || inner.just.head.is(Method::Restate)
+                {
                     out.extend(inner.just.refs.iter().cloned());
                 }
                 // A block closed on a contradiction rests on the line its

@@ -17,7 +17,7 @@ theorem and-over-or
     assume a = 0 and (b = 0 or c = 0)                                 (D1)
 
     1.1.  b = 0 or c = 0
-          join D1
+          restate D1
 
     1.2.  (a = 0 and b = 0) or (a = 0 and c = 0)
           cases, from 1.1

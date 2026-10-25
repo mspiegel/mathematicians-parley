@@ -6,7 +6,7 @@ theorem a-part-with-a-size
   then there is W ⊆ X with 1 ≤ |W|
 
 1.  There is W ⊆ X with 1 ≤ |W|.
-    join H2
+    restate H2
 
 theorem every-part-with-a-size
   note        The same of a letter every part of X fills.
@@ -15,4 +15,4 @@ theorem every-part-with-a-size
   then for all W ⊆ X, |W| ≤ 2
 
 1.  For all W ⊆ X, |W| ≤ 2.
-    join H2
+    restate H2

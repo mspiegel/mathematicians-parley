@@ -47,13 +47,13 @@ theorem union-and-difference-equal
                   assume u ∈ A                                        (C1)
 
                   1.1.4.1.  u ∉ A
-                            join 1.1.1, contradicting C1
+                            restate 1.1.1, contradicting C1
 
                   case
                   assume u ∈ B                                        (C2)
 
                   1.1.4.2.  u ∈ B
-                            join C2
+                            restate C2
 
     1.2.  C ∖ A ⊆ B
           mun:subset X := C ∖ A, Y := B, from 1.1

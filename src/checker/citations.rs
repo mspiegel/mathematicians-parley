@@ -1115,6 +1115,9 @@ pub fn check_subjects(
 /// infers nothing (`SYNTAX.md`): each sentence of its claim is one a cited
 /// line says, and each cited line says one of them. They are compared as
 /// formulas (`Known::alike`), and the claim may group them otherwise.
+///
+/// `join` cites two lines or more and `restate` one, a define read beside
+/// them counting as no line (`SYNTAX.md`); otherwise the two are one check.
 pub fn check_joins(
     report: &mut Report,
     thm: &Theorem,
@@ -1122,8 +1125,45 @@ pub fn check_joins(
     known: &Known,
 ) {
     for step in &thm.steps {
-        if !step.just.head.is(Method::Join) {
+        let verb = if step.just.head.is(Method::Join) {
+            "joins"
+        } else if step.just.head.is(Method::Restate) {
+            "restates"
+        } else {
             continue;
+        };
+        let lines: Vec<&String> = step
+            .just
+            .refs
+            .iter()
+            .filter(|r| !thm.defines.iter().any(|d| &d.label == *r))
+            .collect();
+        let listed = lines
+            .iter()
+            .map(|r| r.as_str())
+            .collect::<Vec<_>>()
+            .join(", ");
+        if verb == "joins" && lines.len() == 1 {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} joins one line; a step citing one line is written `restate {}`",
+                    step.number,
+                    step.just.refs.join(", ")
+                ),
+            );
+        }
+        if verb == "restates" && lines.len() > 1 {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} restates {listed}; a step putting several lines together is written `join {}`",
+                    step.number,
+                    step.just.refs.join(", ")
+                ),
+            );
         }
         // Putting lines together asks nothing of them, so no requires line
         // under a join is used.
@@ -1132,8 +1172,9 @@ pub fn check_joins(
                 &thm.path,
                 first.line,
                 format!(
-                    "step {} is a join, which asks nothing of the lines it puts together, and carries a requires line",
-                    step.number
+                    "step {} is a {}, which asks nothing of the lines it puts together, and carries a requires line",
+                    step.number,
+                    step.just.head
                 ),
             );
         }
@@ -1173,7 +1214,7 @@ pub fn check_joins(
                 &thm.path,
                 step.just.line,
                 format!(
-                    "step {} joins {} and claims {}, which no line it joins says",
+                    "step {} {verb} {} and claims {}, which no line it {verb} says",
                     step.number,
                     step.just.refs.join(", "),
                     known.print(extra)
@@ -1198,7 +1239,7 @@ pub fn check_joins(
                     &thm.path,
                     step.just.line,
                     format!(
-                        "step {} joins {r}, and claims nothing it says",
+                        "step {} {verb} {r}, and claims nothing it says",
                         step.number
                     ),
                 );

@@ -1374,7 +1374,9 @@ impl<'a> Elaborator<'a> {
                 Method::Calculation => {
                     self.calculation(step, term, scope, facts, lines)?
                 }
-                Method::Join => return self.join(step, scope, facts).map(Built),
+                Method::Join | Method::Restate => {
+                    return self.join(step, scope, facts).map(Built)
+                }
                 Method::Exhibit => {
                     self.exhibit(step, node, term, scope, facts, lines)?
                 }
@@ -6064,7 +6066,7 @@ impl<'a> Elaborator<'a> {
 
 /// The methods the build expands itself; the others open a block or take
 /// apart what a citation gives, and are expanded where those are.
-const EXPANDED: [Method; 13] = [
+const EXPANDED: [Method; 14] = [
     Method::Algebra,
     Method::Arithmetic,
     Method::RealArithmetic,
@@ -6077,6 +6079,7 @@ const EXPANDED: [Method; 13] = [
     Method::Instantiate,
     Method::Calculation,
     Method::Join,
+    Method::Restate,
     Method::Exhibit,
 ];
 

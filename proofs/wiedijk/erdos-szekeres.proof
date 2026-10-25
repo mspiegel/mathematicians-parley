@@ -167,14 +167,14 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           let u ∈ I(k)                                                (K6)
 
           1.11.1. u ∈ ℤ
-                  join 1.10
+                  restate 1.10
 
     1.12. For all u ∈ I(k), u ≤ r − 1.
           proof
           let u ∈ I(k)                                                (K7)
 
           1.12.1. u ≤ r − 1
-                  join 1.10
+                  restate 1.10
 
     1.13. I(k) ⊆ ℤ
           mun:subset, from 1.11
@@ -439,7 +439,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
     let k ∈ {1, …, N}                                                 (K14)
 
     3.1.  L(k) ∈ {1, …, r − 1}
-          join 1
+          restate 1
 
 4.  L : {1, …, N} → {1, …, r − 1}
     mun:function-into, from 3
@@ -626,7 +626,7 @@ theorem erdos-szekeres
                                           mun:pair-parts-equal, from D2, K5, K6, S5
 
                              1.10.4.3.2.  L(i) = L(j)
-                                          join 1.10.4.3.1, contradicting 1.10.4.2
+                                          restate 1.10.4.3.1, contradicting 1.10.4.2
 
                   case
                   note a fall: the longest falling run grows from i to j
@@ -670,7 +670,7 @@ theorem erdos-szekeres
                                           mun:pair-parts-equal, from D2, K5, K6, S6
 
                              1.10.4.10.2. M(i) = M(j)
-                                          join 1.10.4.10.1, contradicting 1.10.4.9
+                                          restate 1.10.4.10.1, contradicting 1.10.4.9
 
     1.11. For all i, j ∈ {1, …, N}, if f(i) = f(j) then i = j.
           proof

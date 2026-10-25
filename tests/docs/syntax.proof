@@ -115,7 +115,7 @@ theorem nothing-to-show
           assume 0 ≤ n and x = v(0) and x ≠ v(0)                      (C2)
 
           1.1.1.  x = v(0)
-                  join C2
+                  restate C2
 
           1.1.2.  x ≠ v(0)
-                  join C2, contradicting 1.1.1
+                  restate C2, contradicting 1.1.1

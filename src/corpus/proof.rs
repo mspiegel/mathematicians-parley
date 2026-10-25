@@ -538,6 +538,8 @@ pub enum Method {
     Membership,
     Inspection,
     Join,
+    /// `join` of one line (`SYNTAX.md`): read as `join` reads it.
+    Restate,
     Contradiction,
     Proof,
     Induction,
@@ -546,7 +548,7 @@ pub enum Method {
     Calculation,
 }
 
-pub const METHODS: [Method; 19] = [
+pub const METHODS: [Method; 20] = [
     Method::Obtain,
     Method::Exhibit,
     Method::Substitute,
@@ -560,6 +562,7 @@ pub const METHODS: [Method; 19] = [
     Method::Membership,
     Method::Inspection,
     Method::Join,
+    Method::Restate,
     Method::Contradiction,
     Method::Proof,
     Method::Induction,
@@ -584,6 +587,7 @@ impl Method {
             Method::Membership => "membership",
             Method::Inspection => "inspection",
             Method::Join => "join",
+            Method::Restate => "restate",
             Method::Contradiction => "contradiction",
             Method::Proof => "proof",
             Method::Induction => "induction",

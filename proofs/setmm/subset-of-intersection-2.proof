@@ -53,14 +53,14 @@ theorem subset-of-intersection
           let u ∈ A                                                   (K3)
 
           1.4.1.  u ∈ B
-                  join 1.3
+                  restate 1.3
 
     1.5.  For all u ∈ A, u ∈ C.
           proof
           let u ∈ A                                                   (K4)
 
           1.5.1.  u ∈ C
-                  join 1.3
+                  restate 1.3
 
     1.6.  A ⊆ B
           mun:subset, from 1.4

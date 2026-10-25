@@ -18,7 +18,7 @@ theorem a-conjunct-of-a-property
     mun:part-builder u := T, from H3
 
 2.  For all p ∈ T, p ≤ N.
-    join 1
+    restate 1
 
 theorem a-member-from-a-property
   note        The other conjunct of the same condition, alone.

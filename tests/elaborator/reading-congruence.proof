@@ -66,7 +66,7 @@ theorem a-congruence-the-other-way-joined
   then a ≡ b (mod n)
 
 1.  a ≡ b (mod n)
-    join H4
+    restate H4
 
 theorem a-congruence-the-other-way-contradicted
   note        Rule congruence, route 7: the block's last step says
@@ -82,7 +82,7 @@ theorem a-congruence-the-other-way-contradicted
     suppose not a ≡ b (mod n)                                         (S)
 
     1.1.  not a ≡ b (mod n)
-          join S, contradicting H4
+          restate S, contradicting H4
 
 theorem a-congruence-the-other-way-instantiated
   note        Rule congruence, route 12: the line instantiated says

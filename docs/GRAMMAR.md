@@ -1010,6 +1010,7 @@ The eighteen heads and the slots each admits:
   | `membership` [ `,` <from> ]
   | `inspection` [ `,` <from> ]
   | `join` <ref> { `,` <ref> }
+  | `restate` <ref> { `,` <ref> }                 -- one line, with any defines that read its names
   | `contradiction`
   | `proof`
   | `induction` `on` <name> <start>
@@ -1020,7 +1021,7 @@ The eighteen heads and the slots each admits:
 <prefix> ::= `axi:` | `thm:` | `def:` | `mun:`
 ```
 
-`join` takes its references directly and never the word `from`.
+`join` and `restate` take their references directly and never the word `from`.
 
 A define's label as the head says the claim is what the define names: the
 name, applied or not, on one side and its value on the other. For a define by

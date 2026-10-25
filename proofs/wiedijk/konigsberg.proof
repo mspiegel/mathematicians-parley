@@ -212,7 +212,7 @@ theorem walk-parity
                              = v(i)       S1
 
           4.2.2.  v(i − 1) = v(i)
-                  join 4.2.1, contradicting 4.1
+                  restate 4.2.1, contradicting 4.1
 
 5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
     mun:count-same, from 3

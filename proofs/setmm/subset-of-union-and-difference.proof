@@ -41,13 +41,13 @@ theorem subset-of-union-and-difference
                   assume u ∈ B                                        (C1)
 
                   1.1.4.1.  u ∉ B
-                            join 1.1.1, contradicting C1
+                            restate 1.1.1, contradicting C1
 
                   case
                   assume u ∈ C                                        (C2)
 
                   1.1.4.2.  u ∈ C
-                            join C2
+                            restate C2
 
     1.2.  A ∖ B ⊆ C
           mun:subset X := A ∖ B, Y := C, from 1.1

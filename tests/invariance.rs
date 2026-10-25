@@ -164,7 +164,7 @@ fn changes() -> Vec<Change> {
             rewrite: Rewrite::File(rewrites::defines_lowered),
         },
         Change {
-            name: "a line cited once restated by a step that joins it",
+            name: "a line cited once restated by a step of its own",
             rewrite: Rewrite::File(rewrites::cited_lines_restated),
         },
         Change {

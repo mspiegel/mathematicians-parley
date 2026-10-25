@@ -27,7 +27,7 @@ theorem an-interval-and-a-pair
     mun:pair-parts-equal, from H3
 
 2.  x = 1
-    join 1
+    restate 1
 
 theorem a-point-by-its-coordinates
   note        Where a point is wanted the same brackets name the point with

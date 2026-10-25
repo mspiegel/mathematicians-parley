@@ -281,6 +281,8 @@ points to that definition.
   two facts with "and" is what "and" means. Eliminating a double negation is
   the step intuitionistic logic refuses, so the text says which logic it is in
   by citing it.
+- by restating ⟨earlier line⟩, which says again what that line says, or one
+  part of it
 - by ⟨theorem⟩, with its statement shown
 - by cases on ⟨condition⟩
 - by induction on ⟨variable⟩

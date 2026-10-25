@@ -2307,6 +2307,7 @@ fn naming_follows(
                 }
                 Method::Substitute
                 | Method::Join
+                | Method::Restate
                 | Method::Instantiate
                 | Method::Exhibit
                 | Method::Obtain
@@ -2355,12 +2356,14 @@ fn fresh_name(ctx: &Context, set: bool, taken: &BTreeSet<String>) -> Option<Stri
 }
 
 /// A citation's text with each step number `map` names said as the new
-/// number, where a citation names a line: in a `from` or `join` list, and
+/// number, where a citation names a line: in a `from`, `join` or `restate`
+/// list, and
 /// after `line`, `contradicting`, `into` or `in`, as `references` and the
 /// proof reader read them. A number anywhere else belongs to a formula.
 fn renumbered_refs(text: &str, map: &BTreeMap<String, String>) -> String {
     let swap = |r: &str| map.get(r).cloned().unwrap_or_else(|| r.to_string());
-    let lists = re(r"\b(from|join)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
+    let lists =
+        re(r"\b(from|join|restate)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
     let text = lists.replace_all(text, |c: &regex::Captures| {
         let items: Vec<String> = c[3]
             .split(',')
@@ -2379,7 +2382,7 @@ fn renumbered_refs(text: &str, map: &BTreeMap<String, String>) -> String {
         .into_owned()
 }
 
-/// Whether line `l` goes on with a `from` or `join` list the line above it
+/// Whether line `l` goes on with a `from`, `join` or `restate` list the line above it
 /// leaves open: the line above ends in a comma inside such a list, or is
 /// itself nothing but more of one. The proof reader joins the two, so the
 /// lines and labels on `l` are cited as surely as those before the break.
@@ -2390,7 +2393,8 @@ fn goes_on_list(lines: &[String], l: usize) -> bool {
     let Some(listed) = above.strip_suffix(',') else {
         return false;
     };
-    let opened = re(r"\b(?:from|join)\s+([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)$");
+    let opened =
+        re(r"\b(?:from|join|restate)\s+([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)$");
     opened.is_match(listed)
         || (listed.split(',').all(|item| is_cited_name(item.trim()))
             && goes_on_list(lines, l - 1))
@@ -3807,7 +3811,8 @@ fn relabelled_refs(
     text: &str,
     map: &BTreeMap<String, Vec<String>>,
 ) -> Result<String, String> {
-    let lists = re(r"\b(from|join)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
+    let lists =
+        re(r"\b(from|join|restate)(\s+)([A-Za-z0-9.′]+(?:\s*,\s*[A-Za-z0-9.′]+)*)");
     let text = lists
         .replace_all(text, |c: &regex::Captures| {
             let items: Vec<String> = c[3]
@@ -4464,9 +4469,9 @@ fn step_on<'t>(
 }
 
 /// Each line cited once, by a step's `from` list, first restated by a step
-/// of its own that `join`s it, written just above the citing step, which
-/// cites the new step instead (`SYNTAX.md`: with one cited line, `join`'s
-/// claim is that line). A step citing several such lines restates the last.
+/// of its own that `restate`s it, written just above the citing step, which
+/// cites the new step instead (`SYNTAX.md`: `restate`'s claim is its one
+/// cited line). A step citing several such lines restates the last.
 pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten {
     let mut text = text.to_string();
     let mut count = 0;
@@ -4553,7 +4558,7 @@ pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten 
             .join(" ");
         let new_step = vec![
             format!("{prefix}{number}.  {claim}"),
-            format!("{indent}join {restated}"),
+            format!("{indent}restate {restated}"),
             String::new(),
         ];
         count += new_step.len() + 1;

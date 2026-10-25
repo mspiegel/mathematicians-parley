@@ -91,7 +91,7 @@ theorem prime-not-divides-factorial
                             assume P divides k!                       (C1)
 
                             2.2.1.8.1.  not (P divides k!)
-                                        join 2.2.1.7, contradicting C1
+                                        restate 2.2.1.7, contradicting C1
 
                             case
                             assume P divides k + 1                    (C2)

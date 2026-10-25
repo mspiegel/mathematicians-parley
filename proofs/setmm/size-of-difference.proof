@@ -89,7 +89,7 @@ theorem size-of-difference
           mun:difference Y := A, Z := B, from K
 
     6.2.  s ∉ B
-          join 6.1
+          restate 6.1
 
 7.  B ∩ (A ∖ B) = ∅
     mun:disjoint-empty Y := B, Z := A ∖ B, from 6

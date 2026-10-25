@@ -18,7 +18,7 @@ theorem divides-neither-factor
           mun:divides-multiple e := x, a := y, x := z, from S1
 
     1.2.  not (x divides y·z)
-          join H5, contradicting 1.1
+          restate H5, contradicting 1.1
 
 2.  not (x divides z)
     contradiction
@@ -34,7 +34,7 @@ theorem divides-neither-factor
           substitute z·y = y·z (line 2.2) into line 2.1
 
     2.4.  not (x divides y·z)
-          join H5, contradicting 2.3
+          restate H5, contradicting 2.3
 
 3.  not (x divides y) and not (x divides z)
     join 1, 2

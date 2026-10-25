@@ -45,7 +45,7 @@ theorem five-divides-power-of-two-multiple
                   substitute 2^0 = 1 (line 1.1.1) into A
 
           1.1.3.  5 divides c
-                  join 1.1.2
+                  restate 1.1.2
 
     step
     let k ∈ ℕ₀                                                        (K)

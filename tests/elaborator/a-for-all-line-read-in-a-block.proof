@@ -49,4 +49,4 @@ theorem a-for-all-line-joined-in-a-block
     let z ∈ ℤ                                                         (K2)
 
     2.1.  z·1 = z
-          join 1
+          restate 1
