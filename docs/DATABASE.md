@@ -76,9 +76,9 @@ has, and a subject is one file:
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
 | `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 51 |
 | `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 30 |
-| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles | 65 |
+| `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles, the foot of a perpendicular, where a point of a line lies, the cosine in a right triangle, a triangle cut off by a point of a side | 71 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
-| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 22 |
+| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 23 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 14 |
 | `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, division by x − a, the Bernoulli polynomials | 5 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 575 |
+| `metamath` | a set.mm label or labels supply it | 582 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -140,7 +140,7 @@ the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
 theorem by its proof. What a record would say beside the statement,
 the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 81 of the 659 name a set.mm
+`note` lines under its `theorem` line; 84 of the 667 name a set.mm
 counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
@@ -494,8 +494,8 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 8 |
-| `theorem` | 61 |
-| `mundane theorem` | 432 |
+| `theorem` | 62 |
+| `mundane theorem` | 438 |
 | `definition` | 12 |
 | `mundane definition` | 63 |
 
@@ -627,14 +627,15 @@ this table is mundane.
 | coprime-square | `theorem` | "coprime numbers whose product is a square are squares", primitive-triple step 54 |
 | area-function, continuous-difference, derivative-difference | `theorem` | "by the fundamental theorem of calculus, part one", "a difference of continuous functions is continuous", "and of differentiable ones differentiable", fundamental-calculus steps 11, 14 and 15 |
 | count-functions, count-one-to-one | `theorem` | "there are \|Y\|^\|X\| functions from X to Y", "and \|Y\|(\|Y\| − 1)⋯ of them are one-to-one", birthday steps 5 and 10 |
-| area-by-sine, law-of-cosines | `theorem` | "the area is half the product of two sides and the sine of the angle between them", "by the law of cosines", heron steps 4 and 5 |
+| area-by-sine, law-of-cosines | `theorem` | "the area is half the product of two sides and the sine of the angle between them", "by the law of cosines", heron steps 4 and 5; `proofs/wiedijk/law-of-cosines.proof` proves law-of-cosines as its own theorem |
 | bernoulli-difference, sum-telescopes-up | `theorem` | "B(n, x + 1) − B(n, x) = n·x^(n − 1)", "the sum telescopes", sum-of-powers steps 1.1 and 3 |
 | absorption | `theorem` | "by the absorption identity", ballot-recurrence step 24 |
 | bernoulli-inequality | `theorem` | "by Bernoulli's inequality", am-gm-power step 1.2.16.3 |
 | phi-prime, product-congruent-termwise, prime-divides-product | `theorem` | "φ(p) = p − 1 for a prime p", "multiply the congruences factor by factor", "by Euclid's lemma", wilson step 5.4, paired-product step 21, wilson step 5.15.1.5 |
 | heron | `theorem` | "by Heron's formula", heron-formula step 3; `proofs/wiedijk/heron.proof` proves it as its own theorem |
-| chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 10, chords-through-circle step 8 |
+| chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 10, chords-through-circle step 8; `proofs/wiedijk/chords.proof` proves intersecting-chords as its own theorem |
 | supplementary-angles | `theorem` | "angles on a line add up to 180°", altitude-mean-proportional step 6 |
+| perpendicular-foot | `theorem` | "drop the perpendicular from P to line QR", law-of-cosines step 1 |
 | triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 18, triangle-equality-case step 1 |
 | continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
 | signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form: not cited by a proof |

@@ -19,8 +19,8 @@ statement's variables.
 
 ## State
 
-All forty-four are written and elaborate from set.mm with nothing assumed;
-none is chosen and not yet started. Each of the forty-four has its proof in
+All forty-seven are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the forty-seven has its proof in
 `proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -47,6 +47,8 @@ none is chosen and not yet started. Each of the forty-four has its proof in
 | 39 | combinations | 40 | ballot |
 | 41 | erdos-szekeres | 42 | ramsey |
 | 43 | am-gm | 44 | wilson |
+| 45 | chords | 46 | ceva |
+| 47 | law-of-cosines | | |
 
 Theorem 17 holds both halves of the Euclid–Euler theorem. Theorem 38 is the
 existence half of the fundamental theorem of arithmetic only; uniqueness is
@@ -55,7 +57,11 @@ the binomial bound, not set.mm's form for any number of colours. Theorem 43,
 the inequality of arithmetic and geometric means, writes the geometric mean
 as the real power (∏ a(k))^(1/n), as set.mm's `amgm` does. Theorem 44 is the
 direction of Wilson's theorem that a reader knows by that name, set.mm's
-`wilthimp`: if p is prime then (p − 1)! ≡ −1 (mod p). The informal
+`wilthimp`: if p is prime then (p − 1)! ≡ −1 (mod p). Theorem 46, Ceva's
+theorem, is stated of distances with O between each vertex and the opposite
+side, where set.mm's `cevath` states it of differences and signed areas.
+Theorem 47 is the law of cosines as Euclid II.12–13 prove it, from
+Pythagoras, beside the library's record from `lawcos`. The informal
 sources of 3, 6, 7, 10, 14 and 20 were written from memory and checked
 against the book after their pilots: only 6 follows Hammack's proof, and
 14 and 20 are ProofWiki's arguments, not his.

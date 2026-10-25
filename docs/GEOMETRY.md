@@ -365,6 +365,20 @@ sines; these are what it and the proof cite:
 `galtfoot` puts each point at a coordinate along PQ, P at 0 and Q at 1, so
 that every quotient of differences it names is a quotient of coordinates.
 
+Ceva and the law of cosines by the foot of the perpendicular add these. The
+page's law of cosines cites Pythagoras, never the library's law of cosines,
+which the library's own lemmas may use:
+
+| lemma | carries |
+| --- | --- |
+| `gtriside` | `triangle-on-side`: a vertex, one end of the opposite side and a point between its ends form a triangle |
+| `gsinsupp` | `sin-supplement`: sin(180° − x) = sin x, from `sinpim` |
+| `gfoot` | `perpendicular-foot`: H = Q + t(R − Q), t the real part of (P − Q)/(R − Q) |
+| `gonline` | `on-line-cases`: the five places of Q + t(R − Q), by t |
+| `gbetends` | `between-ends-apart` |
+| `grttri` | `right-angle-triangle`: a right angle's arms are not on one line |
+| `gcosrt` | `cosine-right-triangle`: from `glawcos` at the right angle and at Q |
+
 ## The angle sum, which adds angles
 
 The angle sum is the second geometry proof, and the first that adds angles,
