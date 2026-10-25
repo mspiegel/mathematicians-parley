@@ -1153,10 +1153,20 @@ pub fn check_joins(
         if cited.len() != step.just.refs.len() {
             continue;
         }
+        // Where the step cites a define, a name and what it names are one
+        // formula (`SYNTAX.md`, A defined name and the term it names), so
+        // a part and a sentence of the claim are also compared with the
+        // names the step cites read out.
+        let defined = known.citing_step(step);
+        let alike = |p: &Node, n: &Node| {
+            known.alike(p, n)
+                || known
+                    .alike(&known.as_cited(p, &defined), &known.as_cited(n, &defined))
+        };
         let said = |n: &Node| {
             cited
                 .iter()
-                .any(|(_, parts)| parts.iter().any(|p| known.alike(p, n)))
+                .any(|(_, parts)| parts.iter().any(|p| alike(p, n)))
         };
         if let Some(extra) = claimed.iter().find(|n| !said(n)) {
             report.say(
@@ -1171,11 +1181,19 @@ pub fn check_joins(
             );
             continue;
         }
-        for (r, parts) in &cited {
-            if !parts
+        // A define cited reads the names in the other lines, and need not
+        // give a sentence of the claim itself where a sentence is said only
+        // with the names read out.
+        let read_out = claimed.iter().any(|n| {
+            !cited
                 .iter()
-                .any(|p| claimed.iter().any(|n| known.alike(p, n)))
-            {
+                .any(|(_, parts)| parts.iter().any(|p| known.alike(p, n)))
+        });
+        for (r, parts) in &cited {
+            if read_out && thm.defines.iter().any(|d| &d.label == *r) {
+                continue;
+            }
+            if !parts.iter().any(|p| claimed.iter().any(|n| alike(p, n))) {
                 report.say(
                     &thm.path,
                     step.just.line,

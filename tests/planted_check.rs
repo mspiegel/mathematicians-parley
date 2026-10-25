@@ -872,8 +872,18 @@ fn cases() -> Vec<Case> {
         ),
         // A join takes what the lines write, and nothing else a line says
         // (`SYNTAX.md`, What a cited line says): not a chain's other
-        // equations, a range's bound, what a membership implies or a name
-        // read as what its define names.
+        // equations, a range's bound or what a membership implies. A
+        // define it cites reads a name as what it names, and one whose name
+        // no sentence needs read is a line the join does not use.
+        case(
+            "join citing a define no sentence needs read",
+            vec![edit(
+                "tests/elaborator/reading-defines.proof",
+                Some("theorem a-define-read-in-a-case-split\n".to_string()),
+                "theorem an-unneeded-define-in-a-join\n  let a ∈ ℝ    (H1)\n  assume a + 1 > 0    (H2)\n  then a + 1 > 0\n\nlet e = a + 1, a real number    (D1)\n    membership\n    reads one more than a\n\n1.  a + 1 > 0\n    join D1, H2\n\ntheorem a-define-read-in-a-case-split\n".to_string(),
+            )],
+            "step 1 joins D1, and claims nothing it says",
+        ),
         case(
             "join an equation of a chain its neighbours do not write",
             vec![edit(
@@ -929,15 +939,6 @@ fn cases() -> Vec<Case> {
                 "theorem a-congruence-claimed-modulo-another\n  let a ∈ ℤ    (H1)\n  let b ∈ ℤ    (H2)\n  let c ∈ ℤ    (H3)\n  assume a = b    (H4)\n  assume b ≡ c (mod 3)    (H5)\n  then a ≡ c (mod 6)\n\n1.  a ≡ c (mod 6)\n    calculation\n      a = b    H4\n        ≡ c (mod 3)    H5\n\ntheorem a-chain-pair-in-a-calculation-link\n".to_string(),
             )],
             "step 1 claims a ≡ c (mod 6), and its chain gives a ≡ c (mod 3)",
-        ),
-        case(
-            "join a line with a name read as what its define names",
-            vec![edit(
-                "tests/elaborator/reading-defines.proof",
-                Some("theorem a-define-applied-in-a-calculation-link\n".to_string()),
-                "theorem a-define-read-in-a-join\n  let a ∈ ℝ    (H1)\n  assume a + 1 > 0    (H2)\n  then a + 1 > 0\n\nlet e = a + 1, a real number    (D1)\n    membership\n    reads one more than a\n\n1.  e > 0\n    substitute e = a + 1 (D1) into H2\n\n2.  a + 1 > 0\n    join D1, 1\n\ntheorem a-define-applied-in-a-calculation-link\n".to_string(),
-            )],
-            "step 2 joins D1, 1 and claims a + 1 > 0, which no line it joins says",
         ),
         // A line saying several relations gives a chain the one that makes
         // a chain to the claim, and one saying two that both do gives the
