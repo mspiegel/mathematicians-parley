@@ -46,11 +46,8 @@ theorem not-either
           contradiction
           suppose a = 0 or b = 0                                      (S3)
 
-          1.4.1.  b ≠ 0
-                  join D2
+          1.4.1.  a = 0
+                  mun:disjunctive-syllogism, from D2, S3
 
-          1.4.2.  a = 0
-                  mun:disjunctive-syllogism, from S3, 1.4.1
-
-          1.4.3.  a ≠ 0
-                  join D2, contradicting 1.4.2
+          1.4.2.  a ≠ 0
+                  join D2, contradicting 1.4.1

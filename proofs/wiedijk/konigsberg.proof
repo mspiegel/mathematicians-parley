@@ -117,31 +117,28 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     6.1.  a ∈ E. x is incident with a.
           mun:set-builder u := a, from D2, K5
 
-    6.2.  x is incident with a
-          join 6.1
-
-    6.3.  There is i ∈ {1, …, n} with a = e(i).
+    6.2.  There is i ∈ {1, …, n} with a = e(i).
           instantiate a := a in H5, from 6.1
 
-    6.4.  i ∈ {1, …, n}. a = e(i).
-          obtain i from line 6.3
+    6.3.  i ∈ {1, …, n}. a = e(i).
+          obtain i from line 6.2
 
-    6.5.  x is incident with e(i)
-          substitute a = e(i) (line 6.4) into line 6.2
+    6.4.  x is incident with e(i)
+          substitute a = e(i) (line 6.3) into line 6.1
 
-    6.6.  i ∈ S
-          mun:set-builder u := i, from D1, 6.4, 6.5
+    6.5.  i ∈ S
+          mun:set-builder u := i, from D1, 6.3, 6.4
 
-    6.7.  g(i) = e(i)
-          D3, from 6.6
+    6.6.  g(i) = e(i)
+          D3, from 6.5
 
-    6.8.  a = g(i)
+    6.7.  a = g(i)
           calculation
-            a = e(i)             6.4
-              = g(i)             6.7
+            a = e(i)             6.3
+              = g(i)             6.6
 
-    6.9.  There is i ∈ S with a = g(i).
-          exhibit, from 6.6, 6.8
+    6.8.  There is i ∈ S with a = g(i).
+          exhibit, from 6.5, 6.7
 
 7.  There is a bijection from S to T.
     mun:bijection, from D1
@@ -209,19 +206,13 @@ theorem walk-parity
           contradiction
           suppose x = v(i − 1) and x = v(i)                           (S1)
 
-          4.2.1.  x = v(i − 1)
-                  join S1
-
-          4.2.2.  x = v(i)
-                  join S1
-
-          4.2.3.  v(i − 1) = v(i)
+          4.2.1.  v(i − 1) = v(i)
                   calculation
-                    v(i − 1) = x          4.2.1
-                             = v(i)       4.2.2
+                    v(i − 1) = x          S1
+                             = v(i)       S1
 
-          4.2.4.  v(i − 1) = v(i)
-                  join 4.2.3, contradicting 4.1
+          4.2.2.  v(i − 1) = v(i)
+                  join 4.2.1, contradicting 4.1
 
 5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
     mun:count-same, from 3

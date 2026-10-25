@@ -121,19 +121,16 @@ theorem two-elements
     direction
     assume there are a, b ∈ V with a ≠ b and V = {a, b}               (C6)
 
-    1.14. there are a, b ∈ V with a ≠ b and V = {a, b}
-          join C6
+    1.14. c ∈ V. d ∈ V. c ≠ d. V = {c, d}
+          obtain c, d from C6
 
-    1.15. c ∈ V. d ∈ V. c ≠ d. V = {c, d}
-          obtain c, d from line 1.14
+    1.15. |{c, d}| = 2
+          mun:card-pair-distinct u := c, w := d, from 1.14
 
-    1.16. |{c, d}| = 2
-          mun:card-pair-distinct u := c, w := d, from 1.15
+    1.16. |V| = |{c, d}|
+          substitute V = {c, d} (line 1.14)
 
-    1.17. |V| = |{c, d}|
-          substitute V = {c, d} (line 1.15)
-
-    1.18. |V| = 2
+    1.17. |V| = 2
           calculation
-            |V| = |{c, d}|     1.17
-                = 2            1.16
+            |V| = |{c, d}|     1.16
+                = 2            1.15

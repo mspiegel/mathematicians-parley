@@ -18,32 +18,29 @@ theorem sum-of-squares-divisible-by-four
     contradiction
     suppose a is odd and b is odd                                     (S)
 
-    2.1.  b is odd
-          join S
-
-    2.2.  m ∈ ℤ. a = 2m + 1.
+    2.1.  m ∈ ℤ. a = 2m + 1.
           obtain m: mun:odd n := a, from S
 
-    2.3.  n ∈ ℤ. b = 2n + 1.
-          obtain n: mun:odd n := b, from 2.1
+    2.2.  n ∈ ℤ. b = 2n + 1.
+          obtain n: mun:odd n := b, from S
 
-    2.4.  a² = (2m + 1)²
-          substitute a = 2m + 1 (line 2.2)
+    2.3.  a² = (2m + 1)²
+          substitute a = 2m + 1 (line 2.1)
 
-    2.5.  b² = (2n + 1)²
-          substitute b = 2n + 1 (line 2.3)
+    2.4.  b² = (2n + 1)²
+          substitute b = 2n + 1 (line 2.2)
 
-    2.6.  (2m + 1)² + (2n + 1)² = 4k
-          algebra, from 1, 2.4, 2.5
+    2.5.  (2m + 1)² + (2n + 1)² = 4k
+          algebra, from 1, 2.3, 2.4
 
-    2.7.  1 = 2(k − m² − m − n² − n)
-          algebra, from 2.6
+    2.6.  1 = 2(k − m² − m − n² − n)
+          algebra, from 2.5
 
-    2.8.  1 is even
-          mun:even n := 1, from 2.7
+    2.7.  1 is even
+          mun:even n := 1, from 2.6
 
-    2.9.  1 is not odd
-          mun:not-both n := 1, from 2.8
+    2.8.  1 is not odd
+          mun:not-both n := 1, from 2.7
 
-    2.10. 1 is odd
-          arithmetic, contradicting 2.9
+    2.9.  1 is odd
+          arithmetic, contradicting 2.8

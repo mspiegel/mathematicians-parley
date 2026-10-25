@@ -5143,11 +5143,20 @@ fn cases() -> Vec<Case> {
             "the block of step 1 lets v, and the claim it proves is about every u; the block opens with the claim's own letter",
         ),
         case(
+            "an induction whose base part has no steps",
+            vec![edit(
+                "proofs/setmm/divisor-of-power.proof",
+                Some("    base\n    1.1.  K divides M^1\n          join H4\n".to_string()),
+                "    base\n".to_string(),
+            )],
+            "has no steps, so nothing shows what it owes",
+        ),
+        case(
             "an obtain naming no item, its line number without the word line",
             vec![
-                edit("proofs/wiedijk/konigsberg.proof", Some("obtain i from line 6.3".to_string()), "obtain i from 6.3".to_string()),
+                edit("proofs/wiedijk/konigsberg.proof", Some("obtain i from line 6.2".to_string()), "obtain i from 6.2".to_string()),
             ],
-            "an obtain naming no item takes its line with the word \"line\": `from line 6.3`",
+            "an obtain naming no item takes its line with the word \"line\": `from line 6.2`",
         ),
         case(
             "the word line before a label",

@@ -36,20 +36,14 @@ theorem or-over-and
           case
           assume b = 0 and c = 0                                      (C2)
 
-          1.1.4.  b = 0
-                  join C2
+          1.1.4.  a = 0 or b = 0
+                  mun:or-right, from C2
 
-          1.1.5.  c = 0
-                  join C2
+          1.1.5.  a = 0 or c = 0
+                  mun:or-right, from C2
 
-          1.1.6.  a = 0 or b = 0
-                  mun:or-right, from 1.1.4
-
-          1.1.7.  a = 0 or c = 0
-                  mun:or-right, from 1.1.5
-
-          1.1.8.  (a = 0 or b = 0) and (a = 0 or c = 0)
-                  join 1.1.6, 1.1.7
+          1.1.6.  (a = 0 or b = 0) and (a = 0 or c = 0)
+                  join 1.1.4, 1.1.5
 
     direction
     assume (a = 0 or b = 0) and (a = 0 or c = 0)                      (D2)

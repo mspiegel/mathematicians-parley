@@ -6927,9 +6927,21 @@ impl<'a> Elaborator<'a> {
                 .keys(),
             None => known.keys(),
         };
-        let mut slots: Vec<Option<&Term>> = antecedents.iter().map(Some).collect();
-        slots.push(None);
-        for slot in slots {
+        // Each antecedent is matched in turn, the one whose letters are most
+        // fixed already first: with ph fixed by the claim, `orel2`'s
+        // ( ph \/ ps ) is answered by one line where ( -. ps ) is answered
+        // by any negation. The loose conjuncts come last.
+        let mut pending: Vec<&Term> = antecedents.iter().collect();
+        let mut loose_done = false;
+        loop {
+            let slot = match most_fixed(&mut pending, &binding) {
+                Some(s) => Some(s),
+                None if !loose_done => {
+                    loose_done = true;
+                    None
+                }
+                None => break,
+            };
             let pieces: Vec<Term> = match slot {
                 None => loose.clone(),
                 Some(s) if s.names().iter().all(|n| binding.contains_key(&**n)) => {
@@ -7500,6 +7512,26 @@ fn page_spelling(term: &Term) -> Term {
         return term.clone();
     }
     Term::apply("wn", vec![Term::apply("wceq", term.children().to_vec())])
+}
+
+/// The antecedent of `pending` whose letters `binding` fixes the largest
+/// share of, taken out of it; the first of those tied. None where none is
+/// left.
+fn most_fixed<'t>(pending: &mut Vec<&'t Term>, binding: &Binding) -> Option<&'t Term> {
+    let share = |t: &Term| {
+        let names = t.names();
+        let fixed = names.iter().filter(|n| binding.contains_key(*n)).count();
+        (fixed, names.len().max(1))
+    };
+    let mut best = 0;
+    for i in 1..pending.len() {
+        let (a, a_all) = share(pending[i]);
+        let (b, b_all) = share(pending[best]);
+        if a * b_all > b * a_all {
+            best = i;
+        }
+    }
+    (!pending.is_empty()).then(|| pending.remove(best))
 }
 
 /// Whether a shape holds the hole numbered `wanted`.

@@ -36,14 +36,8 @@ theorem implication-and-currying
           proof
           assume a = 0 and b = 0                                      (K3)
 
-          1.2.1.  a = 0
-                  join K3
+          1.2.1.  If b = 0 then c = 0.
+                  mun:modus-ponens, from D2, K3
 
-          1.2.2.  b = 0
-                  join K3
-
-          1.2.3.  If b = 0 then c = 0.
-                  mun:modus-ponens, from D2, 1.2.1
-
-          1.2.4.  c = 0
-                  mun:modus-ponens, from 1.2.2, 1.2.3
+          1.2.2.  c = 0
+                  mun:modus-ponens, from K3, 1.2.1

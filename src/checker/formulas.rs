@@ -1579,7 +1579,18 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
                     && s.number.prefix(depth - 1) == owner.number
                     && s.part == part
             }) else {
-                continue; // a case that is the claim has no steps
+                // A case that says it is the claim has no steps; any other
+                // part with none shows nothing of what it owes.
+                let claimed =
+                    owner.openers.iter().any(|o| o.is_claim && o.part == part);
+                if !claimed {
+                    report.say(
+                        &thm.path,
+                        owner.line,
+                        format!("{called} has no steps, so nothing shows what it owes"),
+                    );
+                }
+                continue;
             };
             if contradicts && (last.just.contradicting.is_some() || last.impossible) {
                 continue;

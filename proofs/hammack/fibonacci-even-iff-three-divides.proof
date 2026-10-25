@@ -340,45 +340,39 @@ theorem fibonacci-even-iff-three-divides
           5.16.6. F(3q) is even and F(3q + 1) is odd and F(3q + 2) is odd
                   instantiate k := q in line 4, from 5.15
 
-          5.16.7. F(3q + 1) is odd
-                  join 5.16.6
-
-          5.16.8. F(3q + 1) ∈ ℤ
+          5.16.7. F(3q + 1) ∈ ℤ
                   instantiate k := 3q + 1 in line 2
                   requires 3q + 1 ∈ ℕ₀: membership, from 5.15
 
-          5.16.9. F(3q + 1) is even
+          5.16.8. F(3q + 1) is even
                   substitute n = 3q + 1 (line 5.16.5) into P1
 
-          5.16.10. F(3q + 1) is not odd
-                   mun:not-both n := F(3q + 1), from 5.16.9, contradicting 5.16.7
-                   requires F(3q + 1) ∈ ℤ: from 5.16.8
+          5.16.9. F(3q + 1) is not odd
+                  mun:not-both n := F(3q + 1), from 5.16.8, contradicting 5.16.6
+                  requires F(3q + 1) ∈ ℤ: from 5.16.7
 
           case
           assume n mod 3 = 2                                          (C3)
 
-          5.16.11. q·3 + 2 = n
+          5.16.10. q·3 + 2 = n
                    substitute n mod 3 = 2 (C3) into line 5.5
 
-          5.16.12. n = 3q + 2
-                   algebra, from 5.16.11
+          5.16.11. n = 3q + 2
+                   algebra, from 5.16.10
 
-          5.16.13. F(3q) is even and F(3q + 1) is odd and F(3q + 2) is odd
+          5.16.12. F(3q) is even and F(3q + 1) is odd and F(3q + 2) is odd
                    instantiate k := q in line 4, from 5.15
 
-          5.16.14. F(3q + 2) is odd
-                   join 5.16.13
-
-          5.16.15. F(3q + 2) ∈ ℤ
+          5.16.13. F(3q + 2) ∈ ℤ
                    instantiate k := 3q + 2 in line 2
                    requires 3q + 2 ∈ ℕ₀: membership, from 5.15
 
-          5.16.16. F(3q + 2) is even
-                   substitute n = 3q + 2 (line 5.16.12) into P1
+          5.16.14. F(3q + 2) is even
+                   substitute n = 3q + 2 (line 5.16.11) into P1
 
-          5.16.17. F(3q + 2) is not odd
-                   mun:not-both n := F(3q + 2), from 5.16.16, contradicting 5.16.14
-                   requires F(3q + 2) ∈ ℤ: from 5.16.15
+          5.16.15. F(3q + 2) is not odd
+                   mun:not-both n := F(3q + 2), from 5.16.14, contradicting 5.16.12
+                   requires F(3q + 2) ∈ ℤ: from 5.16.13
 
     direction
     assume 3 divides n                                                (P2)
@@ -408,8 +402,5 @@ theorem fibonacci-even-iff-three-divides
     5.23. F(3k) is even and F(3k + 1) is odd and F(3k + 2) is odd
           instantiate k := k in line 4, from 5.22
 
-    5.24. F(3k) is even
-          join 5.23
-
-    5.25. F(n) is even
-          substitute n = 3·k (line 5.17) into line 5.24
+    5.24. F(n) is even
+          substitute n = 3·k (line 5.17) into line 5.23

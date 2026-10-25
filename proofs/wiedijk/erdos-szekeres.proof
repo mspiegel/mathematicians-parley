@@ -237,208 +237,202 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
     2.5.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
           mun:part-builder u := T, from D1, K8, 2.4
 
-    2.6.  For all p, q ∈ T, if p < q then c(p) < c(q).
-          join 2.5
-
-    2.7.  i < j. c(i) < c(j).
-          join K10
-
-    2.8.  j ∉ T
+    2.6.  j ∉ T
           contradiction
           suppose j ∈ T                                               (S2)
 
-          2.8.1.  j ∈ {1, …, i}
+          2.6.1.  j ∈ {1, …, i}
                   mun:in-subset, from S2, 2.5
 
-          2.8.2.  j ≤ i
-                  mun:range-bounds a := 1, b := i, k := j, from 2.8.1
+          2.6.2.  j ≤ i
+                  mun:range-bounds a := 1, b := i, k := j, from 2.6.1
 
-          2.8.3.  not j ≤ i
-                  inequalities, from 2.7, contradicting 2.8.2
+          2.6.3.  not j ≤ i
+                  inequalities, from K10, contradicting 2.6.2
 
-    2.9.  {1, …, i} is finite
+    2.7.  {1, …, i} is finite
           mun:range-finite a := 1, b := i
 
-    2.10. T is finite
-          mun:finite-part, from 2.5, 2.9
+    2.8.  T is finite
+          mun:finite-part, from 2.5, 2.7
 
-    2.11. 1 ≤ i. i ≤ N.
+    2.9.  1 ≤ i. i ≤ N.
           mun:range-bounds a := 1, b := N, k := i, from K8
 
-    2.12. {1, …, i} ⊆ {1, …, N}
-          mun:range-within, from 2.11
+    2.10. {1, …, i} ⊆ {1, …, N}
+          mun:range-within, from 2.9
 
-    2.13. T ⊆ {1, …, N}
-          mun:subset-transitive, from 2.5, 2.12
+    2.11. T ⊆ {1, …, N}
+          mun:subset-transitive, from 2.5, 2.10
 
-    2.14. i ≤ j
+    2.12. i ≤ j
           inequalities
-            i < j      2.7
+            i < j      K10
             i ≤ j      weakening
 
-    2.15. {1, …, i} ⊆ {1, …, j}
-          mun:range-within, from 2.14
+    2.13. {1, …, i} ⊆ {1, …, j}
+          mun:range-within, from 2.12
 
-    2.16. T ⊆ {1, …, j}
-          mun:subset-transitive, from 2.5, 2.15
+    2.14. T ⊆ {1, …, j}
+          mun:subset-transitive, from 2.5, 2.13
 
-    2.17. 1 ≤ j. j ≤ N.
+    2.15. 1 ≤ j. j ≤ N.
           mun:range-bounds a := 1, b := N, k := j, from K9
 
-    2.18. j ∈ {1, …, j}
-          mun:range-between k := j, a := 1, b := j, from 2.17
+    2.16. j ∈ {1, …, j}
+          mun:range-between k := j, a := 1, b := j, from 2.15
           requires j ≤ j: inequalities
 
-    2.19. {j} ⊆ {1, …, j}
-          mun:singleton-subset, from 2.18
+    2.17. {j} ⊆ {1, …, j}
+          mun:singleton-subset, from 2.16
 
-    2.20. T ∪ {j} ⊆ {1, …, j}
-          mun:union-subset, from 2.16, 2.19
+    2.18. T ∪ {j} ⊆ {1, …, j}
+          mun:union-subset, from 2.14, 2.17
 
-    2.21. j ∈ T ∪ {j}
+    2.19. j ∈ T ∪ {j}
           mun:in-union-singleton
 
-    2.22. For all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q).
+    2.20. For all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q).
           proof
           let p ∈ T ∪ {j}                                             (K11)
           let q ∈ T ∪ {j}                                             (K12)
           assume p < q                                                (K13)
 
-          2.22.1. q ∈ T or q ∈ {j}
+          2.20.1. q ∈ T or q ∈ {j}
                   mun:union, from K12
 
-          2.22.2. p ∈ T or p ∈ {j}
+          2.20.2. p ∈ T or p ∈ {j}
                   mun:union, from K11
 
-          2.22.3. c(p) < c(q)
-                  cases, from 2.22.1
+          2.20.3. c(p) < c(q)
+                  cases, from 2.20.1
 
                   case
                   note q is in T, so it is at most i, and p, below it, is in T too
                   assume q ∈ T                                        (C1)
 
-                  2.22.3.1.  q ∈ {1, …, i}
+                  2.20.3.1.  q ∈ {1, …, i}
                              mun:in-subset, from C1, 2.5
 
-                  2.22.3.2.  q ≤ i
-                             mun:range-bounds a := 1, b := i, k := q, from 2.22.3.1
+                  2.20.3.2.  q ≤ i
+                             mun:range-bounds a := 1, b := i, k := q, from 2.20.3.1
 
-                  2.22.3.3.  c(p) < c(q)
-                             cases, from 2.22.2
+                  2.20.3.3.  c(p) < c(q)
+                             cases, from 2.20.2
 
                              case
                              assume p ∈ T                             (C2)
 
-                             2.22.3.3.1.  c(p) < c(q)
-                                          instantiate p := p, q := q in line 2.6, from C1, C2, K13
+                             2.20.3.3.1.  c(p) < c(q)
+                                          instantiate p := p, q := q in line 2.5, from C1, C2, K13
 
                              case
                              assume p ∈ {j}                           (C3)
 
-                             2.22.3.3.2.  p = j
+                             2.20.3.3.2.  p = j
                                           mun:singleton x := p, a := j, from C3
 
-                             2.22.3.3.3.  j < q
-                                          substitute p = j (line 2.22.3.3.2) into K13
+                             2.20.3.3.3.  j < q
+                                          substitute p = j (line 2.20.3.3.2) into K13
 
-                             2.22.3.3.4.  j < j
-                                          transitivity, from 2.22.3.3.3, 2.22.3.2, 2.7
-                                          requires q ∈ ℤ: mun:range-integer a := 1, b := i, k := q, from 2.22.3.1
+                             2.20.3.3.4.  j < j
+                                          transitivity, from 2.20.3.3.3, 2.20.3.2, K10
+                                          requires q ∈ ℤ: mun:range-integer a := 1, b := i, k := q, from 2.20.3.1
 
-                             2.22.3.3.5.  not j < j
-                                          inequalities, contradicting 2.22.3.3.4
+                             2.20.3.3.5.  not j < j
+                                          inequalities, contradicting 2.20.3.3.4
 
                   case
                   note q is j, and p is i or comes before i in T
                   assume q ∈ {j}                                      (C4)
 
-                  2.22.3.4.  q = j
+                  2.20.3.4.  q = j
                              mun:singleton x := q, a := j, from C4
 
-                  2.22.3.5.  c(p) < c(j)
-                             cases, from 2.22.2
+                  2.20.3.5.  c(p) < c(j)
+                             cases, from 2.20.2
 
                              case
                              assume p ∈ T                             (C5)
 
-                             2.22.3.5.1.  p ∈ {1, …, i}
+                             2.20.3.5.1.  p ∈ {1, …, i}
                                           mun:in-subset, from C5, 2.5
 
-                             2.22.3.5.2.  p ∈ {1, …, N}
-                                          mun:in-subset, from C5, 2.13
+                             2.20.3.5.2.  p ∈ {1, …, N}
+                                          mun:in-subset, from C5, 2.11
 
-                             2.22.3.5.3.  p ≤ i
-                                          mun:range-bounds a := 1, b := i, k := p, from 2.22.3.5.1
+                             2.20.3.5.3.  p ≤ i
+                                          mun:range-bounds a := 1, b := i, k := p, from 2.20.3.5.1
 
-                             2.22.3.5.4.  p < i or p = i
-                                          mun:le-cases x := p, y := i, from 2.22.3.5.3
-                                          requires p ∈ ℤ: mun:range-integer a := 1, b := i, k := p, from 2.22.3.5.1
+                             2.20.3.5.4.  p < i or p = i
+                                          mun:le-cases x := p, y := i, from 2.20.3.5.3
+                                          requires p ∈ ℤ: mun:range-integer a := 1, b := i, k := p, from 2.20.3.5.1
 
-                             2.22.3.5.5.  c(p) < c(j)
-                                          cases, from 2.22.3.5.4
+                             2.20.3.5.5.  c(p) < c(j)
+                                          cases, from 2.20.3.5.4
 
                                           case
                                           assume p < i                (C6)
 
-                                          2.22.3.5.5.1.  c(p) < c(i)
-                                                         instantiate p := p, q := i in line 2.6, from C5, C6, 2.5
+                                          2.20.3.5.5.1.  c(p) < c(i)
+                                                         instantiate p := p, q := i in line 2.5, from C5, C6, 2.5
 
-                                          2.22.3.5.5.2.  c(p) < c(j)
-                                                         transitivity, from 2.22.3.5.5.1, 2.7
-                                                         requires c(p) ∈ ℝ: from H3, 2.22.3.5.2
+                                          2.20.3.5.5.2.  c(p) < c(j)
+                                                         transitivity, from 2.20.3.5.5.1, K10
+                                                         requires c(p) ∈ ℝ: from H3, 2.20.3.5.2
                                                          requires c(i) ∈ ℝ: from H3, K8
                                                          requires c(j) ∈ ℝ: from H3, K9
 
                                           case
                                           assume p = i                (C7)
 
-                                          2.22.3.5.5.3.  c(p) < c(j)
-                                                         substitute p = i (C7) into line 2.7
+                                          2.20.3.5.5.3.  c(p) < c(j)
+                                                         substitute p = i (C7) into K10
 
                              case
                              assume p ∈ {j}                           (C8)
 
-                             2.22.3.5.6.  p = j
+                             2.20.3.5.6.  p = j
                                           mun:singleton x := p, a := j, from C8
 
-                             2.22.3.5.7.  j < q
-                                          substitute p = j (line 2.22.3.5.6) into K13
+                             2.20.3.5.7.  j < q
+                                          substitute p = j (line 2.20.3.5.6) into K13
 
-                             2.22.3.5.8.  j < j
-                                          substitute q = j (line 2.22.3.4) into line 2.22.3.5.7
+                             2.20.3.5.8.  j < j
+                                          substitute q = j (line 2.20.3.4) into line 2.20.3.5.7
 
-                             2.22.3.5.9.  not j < j
-                                          inequalities, contradicting 2.22.3.5.8
+                             2.20.3.5.9.  not j < j
+                                          inequalities, contradicting 2.20.3.5.8
 
-                  2.22.3.6.  c(p) < c(q)
-                             substitute q = j (line 2.22.3.4) into line 2.22.3.5
+                  2.20.3.6.  c(p) < c(q)
+                             substitute q = j (line 2.20.3.4) into line 2.20.3.5
 
-    2.23. j ∈ T ∪ {j} and for all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q)
-          join 2.21, 2.22
+    2.21. j ∈ T ∪ {j} and for all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q)
+          join 2.19, 2.20
 
-    2.24. T ∪ {j} ∈ U(j)
-          mun:part-builder u := T ∪ {j}, from D1, K9, 2.20, 2.23
+    2.22. T ∪ {j} ∈ U(j)
+          mun:part-builder u := T ∪ {j}, from D1, K9, 2.18, 2.21
 
-    2.25. |T ∪ {j}| = |T| + 1
-          mun:card-add-one, from 2.8, 2.10
+    2.23. |T ∪ {j}| = |T| + 1
+          mun:card-add-one, from 2.6, 2.8
 
-    2.26. There is S ∈ U(j) with |T| + 1 = |S|.
-          exhibit, from 2.24, 2.25
+    2.24. There is S ∈ U(j) with |T| + 1 = |S|.
+          exhibit, from 2.22, 2.23
 
-    2.27. |T| + 1 ∈ I(j)
-          mun:set-image u := |T| + 1, from D2, K9, 2.26
+    2.25. |T| + 1 ∈ I(j)
+          mun:set-image u := |T| + 1, from D2, K9, 2.24
 
-    2.28. For all s ∈ I(j), s ≤ L(j).
+    2.26. For all s ∈ I(j), s ≤ L(j).
           mun:upper-bound, from 2.2
 
-    2.29. |T| + 1 ≤ L(j)
-          instantiate s := |T| + 1 in line 2.28, from 2.27
+    2.27. |T| + 1 ≤ L(j)
+          instantiate s := |T| + 1 in line 2.26, from 2.25
 
-    2.30. L(i) + 1 ≤ L(j)
-          substitute L(i) = |T| (line 2.4) into line 2.29
+    2.28. L(i) + 1 ≤ L(j)
+          substitute L(i) = |T| (line 2.4) into line 2.27
 
-    2.31. L(i) < L(j)
-          inequalities, from 2.1, 2.2, 2.30
+    2.29. L(i) < L(j)
+          inequalities, from 2.1, 2.2, 2.28
 
 3.  For all k ∈ {1, …, N}, L(k) ∈ {1, …, r − 1}.
     proof

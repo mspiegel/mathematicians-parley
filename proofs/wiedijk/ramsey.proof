@@ -250,20 +250,17 @@ theorem grow-by-one
                   case
                   assume there is w ∈ W with Y = {v, w}               (C3)
 
-                  4.6.2.2.  There is w ∈ W with Y = {v, w}.
-                            join C3
+                  4.6.2.2.  w ∈ W. Y = {v, w}.
+                            obtain w from C3
 
-                  4.6.2.3.  w ∈ W. Y = {v, w}.
-                            obtain w from line 4.6.2.2
+                  4.6.2.3.  w ∈ N
+                            mun:in-subset, from H10, 4.6.2.2
 
-                  4.6.2.4.  w ∈ N
-                            mun:in-subset, from H10, 4.6.2.3
+                  4.6.2.4.  {v, w} ∈ E
+                            instantiate w := w in H9, from 4.6.2.3
 
-                  4.6.2.5.  {v, w} ∈ E
-                            instantiate w := w in H9, from 4.6.2.4
-
-                  4.6.2.6.  Y ∈ E
-                            substitute Y = {v, w} (line 4.6.2.3) into line 4.6.2.5
+                  4.6.2.5.  Y ∈ E
+                            substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
 
     4.7.  {v} ⊆ X
           mun:singleton-subset, from H7

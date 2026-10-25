@@ -33,17 +33,14 @@ theorem fourteen-divides
     direction
     assume 7 divides a and 2 divides a                                (D2)
 
-    1.7.  2 divides a
-          join D2
-
-    1.8.  m ∈ ℤ. a = 7m.
+    1.7.  m ∈ ℤ. a = 7m.
           obtain m: mun:divides d := 7, n := a, from D2
 
-    1.9.  n ∈ ℤ. a = 2n.
-          obtain n: mun:divides d := 2, n := a, from 1.7
+    1.8.  n ∈ ℤ. a = 2n.
+          obtain n: mun:divides d := 2, n := a, from D2
 
-    1.10. a = 14(n − 3m)
-          algebra, from 1.8, 1.9
+    1.9.  a = 14(n − 3m)
+          algebra, from 1.7, 1.8
 
-    1.11. 14 divides a
-          mun:divides d := 14, n := a, from 1.10
+    1.10. 14 divides a
+          mun:divides d := 14, n := a, from 1.9

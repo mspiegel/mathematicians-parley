@@ -17,59 +17,53 @@ theorem shift-by-rational
     direction
     assume A ∈ ℂ and A + B ∈ ℚ                                        (D1)
 
-    2.1.  A ∈ ℂ
-          join D1
+    2.1.  p ∈ ℤ. q ∈ ℕ. A + B = p/q.
+          obtain p, q: mun:rational x := A + B, from D1
 
-    2.2.  A + B ∈ ℚ
-          join D1
+    2.2.  A = p/q − B
+          algebra, from D1, 2.1
 
-    2.3.  p ∈ ℤ. q ∈ ℕ. A + B = p/q.
-          obtain p, q: mun:rational x := A + B, from 2.2
-
-    2.4.  A = p/q − B
-          algebra, from 2.1, 2.3
-
-    2.5.  p/q − B = p/q − r/s
+    2.3.  p/q − B = p/q − r/s
           substitute B = r/s (line 1)
 
-    2.6.  p/q − r/s = (p·s − r·q)/(q·s)
+    2.4.  p/q − r/s = (p·s − r·q)/(q·s)
           algebra
 
-    2.7.  A = (p·s − r·q)/(q·s)
+    2.5.  A = (p·s − r·q)/(q·s)
           calculation
-            A = p/q − B                2.4
-              = p/q − r/s              2.5
-              = (p·s − r·q)/(q·s)      2.6
+            A = p/q − B                2.2
+              = p/q − r/s              2.3
+              = (p·s − r·q)/(q·s)      2.4
 
-    2.8.  A ∈ ℚ
-          mun:rational x := A, from 2.7
+    2.6.  A ∈ ℚ
+          mun:rational x := A, from 2.5
 
     direction
     assume A ∈ ℚ                                                      (D2)
 
-    2.9.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+    2.7.  p ∈ ℤ. q ∈ ℕ. A = p/q.
           obtain p, q: mun:rational x := A, from D2
 
-    2.10. A ∈ ℂ
+    2.8.  A ∈ ℂ
           membership, from D2
 
-    2.11. A + B = p/q + B
-          substitute A = p/q (line 2.9)
+    2.9.  A + B = p/q + B
+          substitute A = p/q (line 2.7)
 
-    2.12. p/q + B = p/q + r/s
+    2.10. p/q + B = p/q + r/s
           substitute B = r/s (line 1)
 
-    2.13. p/q + r/s = (p·s + r·q)/(q·s)
+    2.11. p/q + r/s = (p·s + r·q)/(q·s)
           algebra
 
-    2.14. A + B = (p·s + r·q)/(q·s)
+    2.12. A + B = (p·s + r·q)/(q·s)
           calculation
-            A + B = p/q + B            2.11
-                  = p/q + r/s          2.12
-                  = (p·s + r·q)/(q·s)  2.13
+            A + B = p/q + B            2.9
+                  = p/q + r/s          2.10
+                  = (p·s + r·q)/(q·s)  2.11
 
-    2.15. A + B ∈ ℚ
-          mun:rational x := A + B, from 2.14
+    2.13. A + B ∈ ℚ
+          mun:rational x := A + B, from 2.12
 
-    2.16. A ∈ ℂ and A + B ∈ ℚ
-          join 2.10, 2.15
+    2.14. A ∈ ℂ and A + B ∈ ℚ
+          join 2.8, 2.13
