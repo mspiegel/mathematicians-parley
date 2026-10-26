@@ -272,10 +272,15 @@ pub fn substitution_unsaid(
     library: &Library,
 ) -> Vec<Node> {
     let ctx = &library.ctx;
+    // Each read in the standard spelling, as whether the substitution holds
+    // was decided (`Known::substituted`): ε > |x| is |x| < ε.
+    let s = |n: &Node| crate::matching::standard(n, ctx);
+    let (aim, left, right) = (&s(aim), &s(left), &s(right));
+    let starts: Vec<Node> = starts.iter().map(s).collect();
     // What dropping an element leaves is asked first, wherever in the term
     // the element stands: C(m, k)·1·1^k is C(m, k)·1^k only where C(m, k)
     // is a number, and a fit at some places would pass over that.
-    for start in starts {
+    for start in &starts {
         for (was, now) in [(left, right), (right, left)] {
             let made = put_everywhere(start, was, now, ctx);
             if alike(&made, aim, ctx, &IndexMap::new(), &IndexMap::new()) {

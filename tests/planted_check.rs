@@ -5685,6 +5685,18 @@ fn cases() -> Vec<Case> {
             )],
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
+        // The same with the claim's order written the other way round: the
+        // substitution is read in the standard spelling, |x| < ε for ε > |x|,
+        // and so is what it drops.
+        case(
+            "drop a 0 into a claim whose order is turned round",
+            vec![edit(
+                "proofs/hammack/abs-limit-zero.proof",
+                Some("          1.4.6.  |a(n) − 0| < ε\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n                  requires |a(n)| ∈ ℝ: from 1.4.4\n".to_string()),
+                "          1.4.6.  ε > |a(n) − 0|\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n".to_string(),
+            )],
+            "drops an identity element from what the substitution makes",
+        ),
         // Each atom a method combines is real, and the step says so where
         // the atom is not a letter, a numeral or built from them by the
         // operations a membership said once covers: A^(k + 1) is a power

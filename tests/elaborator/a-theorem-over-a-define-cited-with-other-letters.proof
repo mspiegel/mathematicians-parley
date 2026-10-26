@@ -1,0 +1,17 @@
+define Q(n) := ∫(0 to 1) t^n dt, for n ∈ ℕ₀                              (D1)
+       reads an integral over t
+
+theorem a-define-written-out-beside-its-own-letter
+  note        A statement over Q that writes Q's integral beside Q, both over t.
+  let n ∈ ℕ₀    (H1)
+  then Q(n) = ∫(0 to 1) t^n dt
+
+1.  Q(n) = ∫(0 to 1) t^n dt
+    D1
+
+theorem a-theorem-over-a-define-cited-with-other-letters
+  note        The cited statement holds two integrals over t, Q's written out and its own, and a citation spells the second over b: each integral's letter is its own.
+  then Q(0) = ∫(0 to 1) b^0 db
+
+1.  Q(0) = ∫(0 to 1) b^0 db
+    thm:a-define-written-out-beside-its-own-letter n := 0

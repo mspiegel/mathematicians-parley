@@ -1,0 +1,11 @@
+define P(n) := ∫(0 to 1) t^n/(1 + t²) dt, for n ∈ ℕ₀                     (D1)
+       reads an integral
+
+theorem a-hypothesis-over-a-define-restated
+  note        A hypothesis naming a define of the file whose rule is an integral, restated: the build compares the two by carrying a change into the integrand.
+  let n ∈ ℕ₀    (H1)
+  assume P(n) = 0    (H2)
+  then P(n) = 0
+
+1.  P(n) = 0
+    restate H2

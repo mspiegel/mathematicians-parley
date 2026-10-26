@@ -12,7 +12,9 @@ use crate::formula::notation_id::NotationId;
 use crate::formula::page::{chain_links, chain_pairs, Written};
 use crate::formula::Binds;
 use crate::formula::{Grammar, Node, Sorts};
-use crate::matching::{expand, free_names, standard, Context, FxIndexMap, FxIndexSet};
+use crate::matching::{
+    expand, free_names, standard, Context, Defined, Definitions, FxIndexMap, FxIndexSet,
+};
 use crate::methods::terms::Targets;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::regex;
@@ -89,6 +91,32 @@ impl Group {
         out.retain(|n| !self.functions.contains(n) && !self.identities.contains(n));
         out
     }
+}
+
+/// Each define's rule with every letter it binds that `names` uses spelt
+/// with a letter neither uses (`matching::bound_apart`).
+fn defines_apart(
+    own: &Definitions,
+    names: &BTreeSet<String>,
+    binders: &FxIndexMap<NotationId, Binds>,
+) -> Definitions {
+    let apart = |t: &Node| {
+        let used: BTreeSet<String> = names.union(&t.names()).cloned().collect();
+        crate::matching::bound_apart(t, names, &used, binders)
+    };
+    own.iter()
+        .map(|(name, defined)| {
+            let spelt = match defined {
+                Defined::Term(t) => Defined::Term(apart(t)),
+                Defined::Rule(rule) => {
+                    let mut rule = rule.clone();
+                    rule.body = apart(&rule.body);
+                    Defined::Rule(rule)
+                }
+            };
+            (name.clone(), spelt)
+        })
+        .collect()
 }
 
 /// The identities the group lines among `lines` name.
@@ -440,15 +468,26 @@ impl<'a> Library<'a> {
                 self.env,
                 &sorts_of_statement(thm, self.env),
             );
-            let facts: Vec<(String, Node)> = self
-                .facts(&lines, &k.sorts)
+            let read_facts = self.facts(&lines, &k.sorts);
+            let conclusion =
+                Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
+            let read_gives = self.trees(&[conclusion], &k.sorts);
+            // A define written out brings the letters its rule binds, which
+            // are spelt apart from the statement's own: P(n) = ∫ t^n dt,
+            // with P's rule an integral over t, holds two integrals, and a
+            // citation may spell their letters as two.
+            let names: BTreeSet<String> = read_facts
+                .iter()
+                .map(|(_, t)| t)
+                .chain(&read_gives)
+                .flat_map(|t| t.names())
+                .collect();
+            let own = defines_apart(&own, &names, &self.ctx.binders);
+            let facts: Vec<(String, Node)> = read_facts
                 .into_iter()
                 .map(|(text, tree)| (text, standard(&expand(&tree, &own), &self.ctx)))
                 .collect();
-            let conclusion =
-                Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
-            let gives: Vec<Node> = self
-                .trees(&[conclusion], &k.sorts)
+            let gives: Vec<Node> = read_gives
                 .iter()
                 .map(|t| standard(&expand(t, &own), &self.ctx))
                 .collect();
