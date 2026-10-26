@@ -69,18 +69,18 @@ has, and a subject is one file:
 | file | holds | items |
 |---|---|---|
 | `corpus/stdlib/reasoning.records` | the laws of logic a proof cites by name | 14 |
-| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value, Bernoulli's inequality | 118 |
+| `corpus/stdlib/numbers.records` | the number systems, closure, order, powers and real powers, roots, absolute value, Bernoulli's inequality | 123 |
 | `corpus/stdlib/divisibility.records` | even and odd, divisors, primes, gcd, division, congruence, Euler's φ, the sum of divisors σ | 80 |
 | `corpus/stdlib/sums.records` | sums over a range, and the ranges; products over a finite set | 56 |
 | `corpus/stdlib/sets.records` | subsets, set-builder, union, intersection, difference, power set, listed sets | 80 |
 | `corpus/stdlib/functions.records` | functions, their values, images, and inverses | 23 |
-| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 51 |
-| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives, bounded sequences | 30 |
+| `corpus/stdlib/counting.records` | the size of a set, factorials, binomial coefficients, counting by parts, the pigeonhole principle | 52 |
+| `corpus/stdlib/calculus.records` | intervals, bounds and completeness, continuity, derivatives and the n-th derivative, the mean value theorems, limits of functions and of sequences, monotone sequences, integrals, series | 55 |
 | `corpus/stdlib/geometry.records` | points, distance, angles and signed angles, triangles and their kinds (isosceles, equilateral, right-angled), congruence, parallels and sides of a line, lines and perpendiculars, midpoints, chords of a circle, area, the laws of sines and cosines, coordinates, supplementary angles, the triangle inequality, the addition of angles, the foot of a perpendicular, where a point of a line lies, the cosine in a right triangle, a triangle cut off by a point of a side | 71 |
 | `corpus/stdlib/groups.records` | groups, their laws, subgroups, cosets | 12 |
-| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement | 23 |
+| `corpus/stdlib/trigonometry.records` | cos and sin, their addition formulas, signs, bounds and order, the special angles, the supplement, arctan with its values, continuity and derivative | 28 |
 | `corpus/stdlib/logarithms.records` | the natural logarithm and the exponential function, their laws, order and signs | 14 |
-| `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, division by x − a, the Bernoulli polynomials | 5 |
+| `corpus/stdlib/polynomials.records` | polynomials with complex coefficients, their values, division by x − a, the Bernoulli polynomials, polynomials with integer coefficients and their degree, algebraic numbers, roots set apart | 10 |
 | `corpus/stdlib/graphs.records` | walks, Euler paths, traversable graphs, degree | 10 |
 
 A proof imports each library item it cites, as it imports each theorem of
@@ -125,7 +125,7 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 582 |
+| `metamath` | a set.mm label or labels supply it | 623 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
 A theorem this corpus proves has no
@@ -494,10 +494,10 @@ mundane definition difference
 |---|---|
 | `axiom` | 4 |
 | `mundane axiom` | 8 |
-| `theorem` | 62 |
-| `mundane theorem` | 438 |
+| `theorem` | 84 |
+| `mundane theorem` | 454 |
 | `definition` | 12 |
-| `mundane definition` | 63 |
+| `mundane definition` | 66 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -637,6 +637,12 @@ this table is mundane.
 | supplementary-angles | `theorem` | "angles on a line add up to 180°", altitude-mean-proportional step 6 |
 | perpendicular-foot | `theorem` | "drop the perpendicular from P to line QR", law-of-cosines step 1 |
 | triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 18, triangle-equality-case step 1 |
+| rolle-on-part, cauchy-mean-value, continuous-extension | `theorem` | "by Rolle's theorem", "by Cauchy's mean value theorem", "extended by its limit, f is continuous at c", cauchy-quotient steps 3.1 and 4, quotient-between step 14 |
+| continuous-constant, continuous-power, continuous-scaled, continuous-quotient, derivative-power, derivative-scaled | `theorem` | "a constant, a power, a multiple and a quotient of continuous functions are continuous", "the power rule", power-integral steps 12 to 17, integrand-continuous steps 15 and 20 |
+| integral-difference, integral-order, integral-nonneg | `theorem` | "the integral of a difference", "a smaller integrand gives a smaller integral", "a nonnegative integrand a nonnegative integral", integral-recurrence step 14, integral-bounds steps 13 and 14 |
+| continuous-arctan, derivative-arctan | `theorem` | "arctan is continuous", "its derivative is 1/(1 + t²)", integral-of-arctan-derivative steps 9 and 10 |
+| continuous-bounded, integer-polynomial-at-a-fraction, roots-isolated, polynomial-on-the-reals | `theorem` | "a continuous function on [a, b] is bounded", "q^N·F(p/q) is an integer", "the roots of a polynomial are isolated", "a polynomial is continuous and differentiable", liouville steps 4, 7 and 14, value-at-a-fraction step 1 |
+| monotone-limit, limit-at-most, limit-at-least, algebraic-root | `theorem` | "an increasing sequence bounded above converges", "a bound the terms keep, the limit keeps", "an algebraic number is a root of a polynomial with integer coefficients", liouville-number steps 12, 14.1, 14.12 and 14.23 |
 | continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
 | signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form: not cited by a proof |
 | prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |

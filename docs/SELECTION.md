@@ -19,8 +19,8 @@ statement's variables.
 
 ## State
 
-All forty-seven are written and elaborate from set.mm with nothing assumed;
-none is chosen and not yet started. Each of the forty-seven has its proof in
+All fifty-one are written and elaborate from set.mm with nothing assumed;
+none is chosen and not yet started. Each of the fifty-one has its proof in
 `proofs/wiedijk/` and its design record in `docs/pilot/`, under the same name:
 
 | # | proof | # | proof |
@@ -48,7 +48,9 @@ none is chosen and not yet started. Each of the forty-seven has its proof in
 | 41 | erdos-szekeres | 42 | ramsey |
 | 43 | am-gm | 44 | wilson |
 | 45 | chords | 46 | ceva |
-| 47 | law-of-cosines | | |
+| 47 | law-of-cosines | 48 | lhopital |
+| 49 | leibniz | 50 | liouville |
+| 51 | liouville-number | | |
 
 Theorem 17 holds both halves of the Euclid–Euler theorem. Theorem 38 is the
 existence half of the fundamental theorem of arithmetic only; uniqueness is
@@ -61,7 +63,16 @@ direction of Wilson's theorem that a reader knows by that name, set.mm's
 theorem, is stated of distances with O between each vertex and the opposite
 side, where set.mm's `cevath` states it of differences and signed areas.
 Theorem 47 is the law of cosines as Euclid II.12–13 prove it, from
-Pythagoras, beside the library's record from `lawcos`. The informal
+Pythagoras, beside the library's record from `lawcos`. Theorem 33 also
+proves Ptolemy's theorem of four points on a circle, `cyclic-ptolemy`, from
+the intersecting chords and the law of cosines; set.mm states only the sine
+form. Theorem 48 is L'Hôpital's rule for 0/0 at a point c inside an
+interval, set.mm's `lhop`. Theorem 49 is Leibniz's series for π, set.mm's
+`leibpisum`, proved through the integrals of t^(2n)/(1 + t²), where set.mm
+goes through the power series of arctan and Abel's theorem. Theorems 50 and
+51 together are Wiedijk's #18: 50 is Liouville's approximation theorem,
+set.mm's `aaliou`, and 51 that Σ 1/2^(k!) is transcendental, set.mm's
+`aaliou3`. The informal
 sources of 3, 6, 7, 10, 14 and 20 were written from memory and checked
 against the book after their pilots: only 6 follows Hammack's proof, and
 14 and 20 are ProofWiki's arguments, not his.
