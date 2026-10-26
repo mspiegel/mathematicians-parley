@@ -1555,7 +1555,13 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
         } else {
             0
         };
-        let relation = words.get(at).copied().unwrap_or("").to_string();
+        let Some(relation) = words.get(at).map(|w| w.to_string()) else {
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                "a chain line writes no relation",
+            )));
+        };
         let rest = words.get(at + 1..).unwrap_or(&[]).join(" ");
         let (term, modulus) = skeleton::chain_modulus(&rest);
         let modulus = modulus.map(|m| Written::new(str::trim(m), path, *no));

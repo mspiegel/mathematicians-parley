@@ -34,6 +34,9 @@ import theorem            stdlib/calculus/integral-order
 import theorem            stdlib/calculus/integral-nonneg
 import mundane theorem    stdlib/calculus/map-continuous-on-part
 import theorem            stdlib/calculus/continuous-bounded
+import theorem            stdlib/calculus/monotone-limit
+import theorem            stdlib/calculus/limit-at-most
+import theorem            stdlib/calculus/limit-at-least
 
 theorem limit-unfolded
   ε, δ range over ℝ
@@ -487,3 +490,39 @@ theorem continuous-is-bounded
 
 1.  There exists M ∈ ℝ such that |h(y)| ≤ M for all y ∈ [c, d].
     thm:continuous-bounded a := c, b := d, f := h, from H4
+
+theorem an-increasing-bounded-sequence-converges
+  let y : ℕ → ℝ                                                       (H1)
+  assume for all m ∈ ℕ, y(m) ≤ y(m + 1)                               (H2)
+  let C ∈ ℝ                                                           (H3)
+  assume for all m ∈ ℕ, y(m) ≤ C                                      (H4)
+  then there is M ∈ ℝ with y(n) → M as n → ∞
+
+1.  There is M ∈ ℝ with y(n) → M as n → ∞.
+    thm:monotone-limit x := y, B := C, from H2, H4
+
+theorem a-limit-below-a-late-bound
+  let y : ℕ → ℝ                                                       (H1)
+  let M ∈ ℝ                                                           (H2)
+  n ranges over ℕ
+  assume y(n) → M as n → ∞                                            (H3)
+  let C ∈ ℝ                                                           (H4)
+  let K ∈ ℕ                                                           (H5)
+  assume y(n) ≤ C for all n ≥ K                                       (H6)
+  then M ≤ C
+
+1.  M ≤ C
+    thm:limit-at-most x := y, L := M, B := C, N := K, from H3, H6
+
+theorem a-limit-above-a-late-bound
+  let y : ℕ → ℝ                                                       (H1)
+  let M ∈ ℝ                                                           (H2)
+  n ranges over ℕ
+  assume y(n) → M as n → ∞                                            (H3)
+  let C ∈ ℝ                                                           (H4)
+  let K ∈ ℕ                                                           (H5)
+  assume C ≤ y(n) for all n ≥ K                                       (H6)
+  then C ≤ M
+
+1.  C ≤ M
+    thm:limit-at-least x := y, L := M, B := C, N := K, from H3, H6

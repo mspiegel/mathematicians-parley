@@ -350,7 +350,9 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
     if sort.is_unsorted() {
         return hole != "group-element";
     }
-    let name = sort.name().unwrap_or("");
+    let Some(name) = sort.name() else {
+        return false;
+    };
     if hole == "any" {
         return TERM_SORTS.contains(&name);
     }

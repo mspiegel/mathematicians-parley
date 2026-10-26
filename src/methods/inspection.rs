@@ -334,7 +334,7 @@ impl Facts {
             .iter()
             .map(|c| self.valued(c, depth))
             .collect();
-        Term::apply(claim.label().unwrap_or(""), children)
+        claim.with_children(children)
     }
 
     /// Whether `element` is one of `elements`: Some(true) where it is,
@@ -545,7 +545,7 @@ fn put(term: &Term, letter: &Term, value: &Term) -> Term {
         .iter()
         .map(|c| put(c, letter, value))
         .collect();
-    Term::apply(term.label().unwrap_or(""), children)
+    term.with_children(children)
 }
 
 /// A value that is a whole number not below zero, as a numeral spells it.

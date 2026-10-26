@@ -30,6 +30,10 @@ $d z F $.  $d z G $.  $d z R $.  $d z A $.  $d z N $.  $d z ph $.
 $d w F $.  $d w G $.  $d w R $.  $d w A $.  $d w N $.  $d w ph $.
 $d r F $.  $d r G $.  $d r R $.  $d r A $.  $d r N $.  $d r ph $.
 $d d F $.  $d d G $.  $d d R $.  $d d A $.  $d d N $.  $d d ph $.
+$( The polynomial an algebraic number is a root of is the witness of a
+   "there is" binding f, taken from set.mm's own, bound by g: both apart
+   from each other, the number and the scope. $)
+$d f g $.  $d f A $.  $d f ph $.  $d g A $.  $d g ph $.
 lemma gplyval
   |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) )
   1 id |- ( F e. ( Poly ` CC ) -> F e. ( Poly ` CC ) )
@@ -561,4 +565,44 @@ lemma grootsiso
   41 anim2d 40 |- ( ph -> ( ( 0 < d /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) -> ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) ) )
   42 reximdv 41 |- ( ph -> ( E. d e. RR ( 0 < d /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) ) )
   43 mpd 19 42 |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+
+# `galgroot`: an algebraic number is a root of a polynomial with integer
+# coefficients of degree at least 1. set.mm's `elaa` gives a polynomial
+# other than 0 with A as a root, `dgrnznn` that a nonzero polynomial with a
+# root has a degree in NN, and `plyf` that it is a function from CC to CC.
+lemma galgroot
+  hypothesis galgroot.1 |- ( ph -> A e. AA )
+  |- ( ph -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) )
+  1 elaa |- ( A e. AA <-> ( A e. CC /\ E. g e. ( ( Poly ` ZZ ) \ { 0p } ) ( g ` A ) = 0 ) )
+  2 sylib galgroot.1 1 |- ( ph -> ( A e. CC /\ E. g e. ( ( Poly ` ZZ ) \ { 0p } ) ( g ` A ) = 0 ) )
+  3 simpld 2 |- ( ph -> A e. CC )
+  4 simprd 2 |- ( ph -> E. g e. ( ( Poly ` ZZ ) \ { 0p } ) ( g ` A ) = 0 )
+  5 simplr |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> g e. ( ( Poly ` ZZ ) \ { 0p } ) )
+  6 eldifi |- ( g e. ( ( Poly ` ZZ ) \ { 0p } ) -> g e. ( Poly ` ZZ ) )
+  7 syl 5 6 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> g e. ( Poly ` ZZ ) )
+  8 eldifsni |- ( g e. ( ( Poly ` ZZ ) \ { 0p } ) -> g =/= 0p )
+  9 syl 5 8 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> g =/= 0p )
+  10 ad2antrr 3 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> A e. CC )
+  11 simpr |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> ( g ` A ) = 0 )
+  12 dgrnznn |- ( ( ( g e. ( Poly ` ZZ ) /\ g =/= 0p ) /\ ( A e. CC /\ ( g ` A ) = 0 ) ) -> ( deg ` g ) e. NN )
+  13 syl22anc 7 9 10 11 12 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> ( deg ` g ) e. NN )
+  14 plyf |- ( g e. ( Poly ` ZZ ) -> g : CC --> CC )
+  15 syl 7 14 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> g : CC --> CC )
+  16 cnex |- CC e. _V
+  17 elmap 16 16 |- ( g e. ( CC ^m CC ) <-> g : CC --> CC )
+  18 sylibr 15 17 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> g e. ( CC ^m CC ) )
+  19 jca 7 13 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> ( g e. ( Poly ` ZZ ) /\ ( deg ` g ) e. NN ) )
+  20 jca 19 11 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> ( ( g e. ( Poly ` ZZ ) /\ ( deg ` g ) e. NN ) /\ ( g ` A ) = 0 ) )
+  21 eleq1 |- ( f = g -> ( f e. ( Poly ` ZZ ) <-> g e. ( Poly ` ZZ ) ) )
+  22 fveq2 |- ( f = g -> ( deg ` f ) = ( deg ` g ) )
+  23 eleq1d 22 |- ( f = g -> ( ( deg ` f ) e. NN <-> ( deg ` g ) e. NN ) )
+  24 anbi12d 21 23 |- ( f = g -> ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) <-> ( g e. ( Poly ` ZZ ) /\ ( deg ` g ) e. NN ) ) )
+  25 fveq1 |- ( f = g -> ( f ` A ) = ( g ` A ) )
+  26 eqeq1d 25 |- ( f = g -> ( ( f ` A ) = 0 <-> ( g ` A ) = 0 ) )
+  27 anbi12d 24 26 |- ( f = g -> ( ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) <-> ( ( g e. ( Poly ` ZZ ) /\ ( deg ` g ) e. NN ) /\ ( g ` A ) = 0 ) ) )
+  28 rspcev 27 |- ( ( g e. ( CC ^m CC ) /\ ( ( g e. ( Poly ` ZZ ) /\ ( deg ` g ) e. NN ) /\ ( g ` A ) = 0 ) ) -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) )
+  29 syl2anc 18 20 28 |- ( ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) /\ ( g ` A ) = 0 ) -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) )
+  30 ex 29 |- ( ( ph /\ g e. ( ( Poly ` ZZ ) \ { 0p } ) ) -> ( ( g ` A ) = 0 -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) ) )
+  31 rexlimdva 30 |- ( ph -> ( E. g e. ( ( Poly ` ZZ ) \ { 0p } ) ( g ` A ) = 0 -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) ) )
+  32 mpd 4 31 |- ( ph -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) )
 

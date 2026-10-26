@@ -125,7 +125,7 @@ impl<'a> Elaborator<'a> {
             )));
         };
         let spare = self.rpn(&letter);
-        let again = self.restated(body, &t!(name, "cv"), &t!(spare, "cv"));
+        let again = self.free_renamed(body, &name, &spare);
         let made = take!(
             self.generalised(scope, facts, &again, &spare, over, prove, implied)?
         );
@@ -142,6 +142,32 @@ impl<'a> Elaborator<'a> {
             &binds! {"ph" => scope, "ps" => &said, "ch" => &want},
             &[&made, &across],
         )))
+    }
+
+    /// `term` with each free `name` spelt `spare`. A class or a formula that
+    /// binds `name` itself, which set.mm writes with the letter as a part of
+    /// its own, keeps it: a map given for F in `A. n e. NN ( F ` n ) <_ C`,
+    /// the map sending n ∈ ℕ to s(n), still sends n to s(n) when the outer n
+    /// is spelt with another letter.
+    pub(crate) fn free_renamed(&self, term: &Term, name: &Rpn, spare: &Rpn) -> Term {
+        if term.variable().is_some() {
+            return if self.rpn(term) == *name {
+                self.to_term(spare)
+            } else {
+                term.clone()
+            };
+        }
+        let binds_it = term.label() != Some("cv")
+            && term.children().iter().any(|c| self.rpn(c) == *name);
+        if binds_it {
+            return term.clone();
+        }
+        term.with_children(
+            term.children()
+                .iter()
+                .map(|c| self.free_renamed(c, name, spare))
+                .collect(),
+        )
     }
 
     /// `for_every` where the scope does not name the variable.
@@ -3147,8 +3173,10 @@ impl<'a> Elaborator<'a> {
             if term.label() != Some("wrex") {
                 break;
             }
+            let Some(var) = term.children()[1].variable().map(Symbol::of) else {
+                break;
+            };
             let fresh = self.spare_var()?;
-            let var = Symbol::of(term.children()[1].variable().unwrap_or(""));
             binding.insert(var, self.var_of(&fresh));
             term = term.children()[0].clone();
         }
@@ -3160,7 +3188,10 @@ impl<'a> Elaborator<'a> {
         let mut out = Vec::new();
         let mut rest = term.clone();
         while matches!(rest.label(), Some("wrex") | Some("wreu")) {
-            out.push(Symbol::of(rest.children()[1].variable().unwrap_or("")));
+            let Some(var) = rest.children()[1].variable() else {
+                break;
+            };
+            out.push(Symbol::of(var));
             rest = rest.children()[0].clone();
         }
         out

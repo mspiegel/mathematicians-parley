@@ -714,7 +714,9 @@ impl Builder {
             .collect();
         let end = match parts.last() {
             Some(Part::Proof(p)) => p.last().to_string(),
-            Some(Part::Text(t)) => t.rsplit(' ').next().unwrap_or("").to_string(),
+            Some(Part::Text(t)) => {
+                t.rsplit_once(' ').map_or(*t, |(_, w)| w).to_string()
+            }
             Some(Part::Tokens(r)) => r.last().map(String::from).unwrap_or_default(),
             None => String::new(),
         };

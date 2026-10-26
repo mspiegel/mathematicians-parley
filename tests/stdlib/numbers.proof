@@ -54,6 +54,8 @@ import mundane theorem    stdlib/numbers/difference-nat0 as numbers-difference-n
 import mundane theorem    stdlib/numbers/integer-sign as numbers-integer-sign
 import mundane theorem    stdlib/numbers/factor-positive as numbers-factor-positive
 import theorem            stdlib/numbers/triangle-inequality as numbers-triangle-inequality
+import mundane theorem    stdlib/numbers/power-exponent-le as numbers-power-exponent-le
+import mundane theorem    stdlib/numbers/nat-plus-nat0 as numbers-nat-plus-nat0
 
 theorem quotient-positive
   let x ∈ ℝ                                                           (H1)
@@ -533,3 +535,22 @@ theorem triangle-inequality
 
 1.  |x + y| ≤ |x| + |y|
     thm:numbers-triangle-inequality a := x, b := y
+
+theorem power-exponent-le
+  let c ∈ ℝ                                                           (H1)
+  let j ∈ ℕ₀                                                          (H2)
+  let k ∈ ℕ₀                                                          (H3)
+  assume 1 ≤ c                                                        (H4)
+  assume j ≤ k                                                        (H5)
+  then c^j ≤ c^k
+
+1.  c^j ≤ c^k
+    mun:numbers-power-exponent-le a := c, m := j, n := k, from H4, H5
+
+theorem nat-plus-nat0
+  let p ∈ ℕ                                                           (H1)
+  let q ∈ ℕ₀                                                          (H2)
+  then p + q ∈ ℕ
+
+1.  p + q ∈ ℕ
+    mun:numbers-nat-plus-nat0 a := p, b := q

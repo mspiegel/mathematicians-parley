@@ -107,8 +107,15 @@ fn identity_pairs(line: &str) -> Vec<String> {
     let rest = &line[end..];
     let mut out = Vec::new();
     for (at, _) in rest.match_indices(" := ") {
-        let name = rest[..at].rsplit([' ', ',']).next().unwrap_or("");
-        let value = rest[at + 4..].split(',').next().unwrap_or("").trim();
+        let before = &rest[..at];
+        let name = before
+            .rsplit_once([' ', ','])
+            .map_or(before, |(_, name)| name);
+        let after = &rest[at + 4..];
+        let value = after
+            .split_once(',')
+            .map_or(after, |(value, _)| value)
+            .trim();
         if !name.is_empty() && name == value {
             out.push(name.to_string());
         }

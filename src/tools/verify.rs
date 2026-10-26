@@ -98,7 +98,10 @@ fn used(text: &str) -> Vec<(&str, Vec<&str>)> {
             let label = c.get(1).map_or("", |m| m.as_str());
             let body = c.get(2).map_or("", |m| m.as_str()).trim_start();
             let labels = match body.strip_prefix('(') {
-                Some(rest) => rest.split(')').next().unwrap_or("").split_whitespace(),
+                Some(rest) => rest
+                    .split_once(')')
+                    .map_or(rest, |(inside, _)| inside)
+                    .split_whitespace(),
                 None => body.split_whitespace(),
             };
             (label, labels.filter(|l| *l != "?").collect())

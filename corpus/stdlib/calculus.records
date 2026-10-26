@@ -188,6 +188,47 @@ theorem convergent-abs-bounded
   note        convergent-bounded on both sides: no term is further than B
               from 0.
 
+theorem monotone-limit
+  let x : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
+  let B ∈ ℝ                                                           (H3)
+  assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
+  then        there is L ∈ ℝ with x(n) → L as n → ∞
+  metamath    climsup, which this corpus proves in this form in
+              elaboration/stdlib/proved.mm
+  target      gmonolim with C := B, F := x
+  note        An increasing sequence bounded above has a limit, its least
+              upper bound: the completeness of the real line, said of
+              sequences.
+
+theorem limit-at-most
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  n ranges over ℕ
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume x(n) ≤ B for all n ≥ N                                       (H6)
+  then        L ≤ B
+  metamath    climle, from some point on, which this corpus proves in
+              this form in elaboration/stdlib/proved.mm
+  target      glimle with F := x, N := N
+  note        A bound the terms keep from some point on, the limit keeps.
+
+theorem limit-at-least
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  n ranges over ℕ
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume B ≤ x(n) for all n ≥ N                                       (H6)
+  then        B ≤ L
+  metamath    climge, from some point on, which this corpus proves in
+              this form in elaboration/stdlib/proved.mm
+  target      glimge with F := x, N := N
+  note        As limit-at-most, from below.
+
 mundane definition upper-bound
   then        u is an upper bound of S ↔ for all s ∈ S, s ≤ u
   metamath    ub as in df-sup

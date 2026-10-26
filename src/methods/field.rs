@@ -1002,10 +1002,9 @@ pub(crate) fn widest<'q>(values: impl IntoIterator<Item = &'q Q>) -> u64 {
 /// it is used. [`Value::Unworked`] where the term has no exact value, and a
 /// decline where it is not built from numerals at all.
 pub fn closed_value(term: &Term) -> Route<Value> {
-    if term.variable().is_some() {
+    let Some(label) = term.label() else {
         return Route::no("it holds a letter");
-    }
-    let label = term.label().unwrap_or("");
+    };
     let value = if let (Some(d), true) = (digit_of(label), term.children().is_empty()) {
         return Built(Value::Exact(q(d as i64)));
     } else if label == "cdc" && term.children().len() == 2 {
@@ -1025,7 +1024,9 @@ pub fn closed_value(term: &Term) -> Route<Value> {
             other => return other,
         }
     } else if label == "co" && term.children().len() == 3 {
-        let how = term.children()[2].label().unwrap_or("");
+        let Some(how) = term.children()[2].label() else {
+            return Route::no("its operation is a letter");
+        };
         let parts: Vec<Route<Value>> =
             term.children()[..2].iter().map(closed_value).collect();
         let (left, right) = match stopped(parts) {

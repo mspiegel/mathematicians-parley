@@ -296,7 +296,9 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("no letter left to walk under this binder by"));
         };
         let moved_to = |term: &Term| moved_letter(term, place, &fresh);
-        let (moved, moved_want) = (moved_to(given), moved_to(want));
+        let (Some(moved), Some(moved_want)) = (moved_to(given), moved_to(want)) else {
+            return Ok(Route::no("the binder binds no letter to walk under it by"));
+        };
         // The new letter is bound where the old one was, and a standard form
         // reads a bound letter as a blank (`order_key`): the walk puts a
         // pair in the order it would have under the old letter.
@@ -382,7 +384,11 @@ impl<'a> Elaborator<'a> {
                 &[&self.rpn(given), &self.rpn(want)],
             ));
         }
-        let label = given.label().unwrap_or("").to_string();
+        let Some(label) = given.label().map(str::to_string) else {
+            return Ok(
+                self.no("{} is a letter, and carries nothing", &[&self.rpn(given)])
+            );
+        };
         let g: Vec<Rpn> = given.children().iter().map(|c| self.rpn(c)).collect();
         let w: Vec<Rpn> = want.children().iter().map(|c| self.rpn(c)).collect();
         // Only the body is carried under the binder here, with the letter's
@@ -526,6 +532,30 @@ impl<'a> Elaborator<'a> {
             return Ok(Built(self.b.ap(
                 "rabbidva",
                 &binds! {"ph" => scope, "ps" => self.rpn(body), "ch" => self.rpn(&other), "x" => &name, "A" => &runs},
+                &[&made],
+            )));
+        }
+        // A map's rule is carried the same way, under its letter's
+        // membership of the domain (`mpteq2dva`): a map applied inside a
+        // map, (n ∈ ℕ ↦ x(n)) at x the map sending j ∈ ℕ to s(j), is read
+        // as s(n) only where n is in ℕ.
+        if label == "cmpt" && g[0] == w[0] && g[1] == w[1] && g[2] != w[2] {
+            let kids = given.children();
+            let (name, runs, body) = (g[0].clone(), g[1].clone(), &kids[2]);
+            if name.alone().is_some_and(|n| scope.has(n)) {
+                return self
+                    .over_spare_letter(given, want, 0, scope, facts, step, leaf);
+            }
+            let member = t!(name, "cv", runs, "wcel");
+            let other = want.children()[2].clone();
+            let made = self.frames_kept(|me| {
+                let (inner, lifted) = me.widen(scope, facts, &member, None);
+                me.congruence(body, &other, &inner, &lifted, step, leaf)
+            })?;
+            let made = take!(made);
+            return Ok(Built(self.b.ap(
+                "mpteq2dva",
+                &binds! {"ph" => scope, "x" => &name, "A" => &runs, "B" => self.rpn(body), "C" => self.rpn(&other)},
                 &[&made],
             )));
         }
@@ -828,8 +858,11 @@ impl<'a> Elaborator<'a> {
             let Some(fresh) = self.unheld(&[&self.to_term(scope), given, want]) else {
                 return Ok(Declined(why));
             };
+            let Some(letter) = variable.variable() else {
+                return Ok(Declined(why));
+            };
             let mut put = Binding::new();
-            put.insert(Symbol::of(variable.variable().unwrap_or("")), fresh);
+            put.insert(Symbol::of(letter), fresh);
             let moved = given.substitute(&put);
             let moved_want = want.substitute(&put);
             let walked = self.under_member(
@@ -1167,7 +1200,9 @@ impl<'a> Elaborator<'a> {
                 "a side works out to a digit but is one only after working out",
             ));
         }
-        let system_label = system.label().unwrap_or("").to_string();
+        let Some(system_label) = system.label().map(str::to_string) else {
+            return Ok(Route::no("the set the digit is in is a letter"));
+        };
         let mut label = format!("{digit}{suffix}");
         if !self.b.sigs.contains_key(&label) {
             label = format!("ax-{label}");
@@ -2869,21 +2904,49 @@ impl<'a> Elaborator<'a> {
 /// their letter in their body and not in the domain, which keeps any letter
 /// of its own spelt as it is; any other binder has the letter moved
 /// throughout.
-fn moved_letter(term: &Term, place: usize, fresh: &Term) -> Term {
-    let mut put = Binding::new();
-    put.insert(
-        Symbol::of(term.children()[place].variable().unwrap_or("")),
-        fresh.clone(),
-    );
+fn moved_letter(term: &Term, place: usize, fresh: &Term) -> Option<Term> {
+    let letter = term.children()[place].variable()?.to_string();
     let over_a_domain = matches!(term.label(), Some("wral" | "wrex" | "crab"))
         && term.children().len() == 3
         && place == 1;
-    if !over_a_domain {
-        return term.substitute(&put);
-    }
     let kids = term.children();
-    Term::apply(
-        term.label().unwrap_or(""),
-        vec![kids[0].substitute(&put), fresh.clone(), kids[2].clone()],
+    let moved = kids
+        .iter()
+        .enumerate()
+        .map(|(at, kid)| {
+            if at == place {
+                fresh.clone()
+            } else if over_a_domain && at == 2 {
+                kid.clone()
+            } else {
+                free_moved(kid, &letter, fresh)
+            }
+        })
+        .collect();
+    Some(term.with_children(moved))
+}
+
+/// `term` with each free occurrence of `letter` made `fresh`. A part that
+/// binds the letter itself, which set.mm writes with the letter as an
+/// operand of its own and not under `cv`, keeps it: a map given for F that
+/// binds n still binds n when an outer n is moved.
+fn free_moved(term: &Term, letter: &str, fresh: &Term) -> Term {
+    if let Some(v) = term.variable() {
+        return if v == letter {
+            fresh.clone()
+        } else {
+            term.clone()
+        };
+    }
+    let binds_it = term.label() != Some("cv")
+        && term.children().iter().any(|c| c.variable() == Some(letter));
+    if binds_it {
+        return term.clone();
+    }
+    term.with_children(
+        term.children()
+            .iter()
+            .map(|c| free_moved(c, letter, fresh))
+            .collect(),
     )
 }

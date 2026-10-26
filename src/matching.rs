@@ -1219,7 +1219,7 @@ fn fit_structure(
     // in some way. An identity element is read away only where it did not.
     let mut written = false;
     if !differs(pattern, ground) {
-        let pattern = bound_as(pattern, ground, variables, ctx);
+        let pattern = bound_as(pattern, ground, binding, variables, ctx);
         // The letters a binder binds are paired before what it binds them
         // over, wherever the notation writes them: ∫(a to x) f(t) dt names
         // its letter last, and f(t) read before t is paired would make f
@@ -1488,15 +1488,20 @@ fn without_identity(
 }
 
 /// The pattern with the letter it binds spelt as the ground spells it,
-/// where the letter is no variable of the pattern's and the ground's letter
-/// is free nowhere in it; the pattern as it is otherwise.
+/// where the letter is no variable of the pattern's, or is one the match
+/// has bound already to another letter, and the ground's letter is free
+/// nowhere in it; the pattern as it is otherwise.
 ///
 /// A definition's formula read at a term binds a letter of its own, and a
 /// line saying the same thing may bind another: `there is b ∈ G with gH =
-/// bH` answers K's `there is g ∈ G with X = gH` at X := gH.
+/// bH` answers K's `there is g ∈ G with X = gH` at X := gH. An item's
+/// hypotheses that each bind n, `x(n) → L as n → ∞` and `x(n) ≤ B for all
+/// n ≥ N`, meet lines that bind n in one and i in the other: the first
+/// pairs n with n, and the second is read as binding i.
 fn bound_as(
     pattern: &Node,
     ground: &Node,
+    binding: &Binding,
     variables: &BTreeSet<String>,
     ctx: &Context,
 ) -> Node {
@@ -1505,10 +1510,14 @@ fn bound_as(
     for at in held {
         let ours = pattern.children[at].clone();
         let theirs = ground.children[at].clone();
+        let paired_elsewhere = binding
+            .get(&ours.text)
+            .is_some_and(|stood| stood.is_name() && stood.text != theirs.text);
         if !ours.is_name()
             || !theirs.is_name()
             || ours.text == theirs.text
-            || variables.contains(ours.text.as_str())
+            || (variables.contains(ours.text.as_str()) && !paired_elsewhere)
+            || variables.contains(theirs.text.as_str())
             || pattern.names().contains(theirs.text.as_str())
         {
             continue;

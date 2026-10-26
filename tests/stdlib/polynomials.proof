@@ -4,6 +4,7 @@ import theorem            stdlib/polynomials/integer-polynomial-at-a-fraction
 import mundane theorem    stdlib/polynomials/integer-polynomial-real
 import theorem            stdlib/polynomials/roots-isolated
 import theorem            stdlib/polynomials/polynomial-on-the-reals
+import theorem            stdlib/polynomials/algebraic-root
 
 theorem bernoulli-value
   let n ∈ ℕ₀                                                          (H1)
@@ -84,3 +85,12 @@ theorem a-polynomial-derivative-continuous
 
 1.  g′ is continuous on ℝ
     thm:polynomial-on-the-reals F := G, f := g, from H2, H4
+
+theorem an-algebraic-number-is-a-root
+  let β ∈ ℂ                                                           (H1)
+  assume β is algebraic                                               (H2)
+  then there is G : ℂ → ℂ with (G is a polynomial with integer coefficients and deg(G) ∈ ℕ and G(β) = 0)
+
+1.  There is G : ℂ → ℂ with (G is a polynomial with integer coefficients
+    and deg(G) ∈ ℕ and G(β) = 0).
+    thm:algebraic-root α := β, from H2

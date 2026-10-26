@@ -24,6 +24,11 @@ $d m n x $.
 $d m B $.  $d n C $.
 $d x A $.  $d x B $.  $d x C $.
 $d m ph $.  $d x ph $.
+$( A limit taken from a bound: the sequence F, its limit A, the bound C
+   and the index N it holds from are apart from the index k that set.mm's
+   comparisons count by; the map's n and the limit's x are apart from F. $)
+$d k n x $.  $d k F $.  $d n F $.  $d x F $.
+$d k A $.  $d k C $.  $d k N $.  $d n N $.  $d k ph $.
 # `gclimbddabs`: ( ph -> E. x e. RR A. m e. NN ( abs ` C ) <_ x ), from
 # every C real, the map ( n e. NN |-> B ) tending to A, and C being B at m.
 lemma gclimbddabs
@@ -89,4 +94,127 @@ lemma gsupex
   |- sup ( A , RR , < ) e. _V
   1 ltso |- < Or RR
   2 supex 1 |- sup ( A , RR , < ) e. _V
+
+# `gclimmptf`: a function on NN tends to A exactly when the map of its
+# values does, the function being that map (`dffn5`).
+lemma gclimmptf
+  hypothesis gclimmptf.1 |- ( ph -> F : NN --> RR )
+  |- ( ph -> ( F ~~> A <-> ( n e. NN |-> ( F ` n ) ) ~~> A ) )
+  1 ffn |- ( F : NN --> RR -> F Fn NN )
+  2 syl gclimmptf.1 1 |- ( ph -> F Fn NN )
+  3 dffn5 |- ( F Fn NN <-> F = ( n e. NN |-> ( F ` n ) ) )
+  4 sylib 2 3 |- ( ph -> F = ( n e. NN |-> ( F ` n ) ) )
+  5 breq1d 4 |- ( ph -> ( F ~~> A <-> ( n e. NN |-> ( F ` n ) ) ~~> A ) )
+
+# `gmonolim`: an increasing real sequence on NN bounded above by C tends to
+# some real x. set.mm's `climsup` gives the supremum of its values as the
+# limit, and `climrecl` that the supremum is real.
+lemma gmonolim
+  hypothesis gmonolim.1 |- ( ph -> F : NN --> RR )
+  hypothesis gmonolim.2 |- ( ph -> A. n e. NN ( F ` n ) <_ ( F ` ( n + 1 ) ) )
+  hypothesis gmonolim.3 |- ( ph -> C e. RR )
+  hypothesis gmonolim.4 |- ( ph -> A. n e. NN ( F ` n ) <_ C )
+  |- ( ph -> E. x e. RR ( n e. NN |-> ( F ` n ) ) ~~> x )
+  1 nnuz |- NN = ( ZZ>= ` 1 )
+  2 1zzd |- ( ph -> 1 e. ZZ )
+  3 fveq2 |- ( n = k -> ( F ` n ) = ( F ` k ) )
+  4 oveq1 |- ( n = k -> ( n + 1 ) = ( k + 1 ) )
+  5 fveq2d 4 |- ( n = k -> ( F ` ( n + 1 ) ) = ( F ` ( k + 1 ) ) )
+  6 breq12d 3 5 |- ( n = k -> ( ( F ` n ) <_ ( F ` ( n + 1 ) ) <-> ( F ` k ) <_ ( F ` ( k + 1 ) ) ) )
+  7 cbvralvw 6 |- ( A. n e. NN ( F ` n ) <_ ( F ` ( n + 1 ) ) <-> A. k e. NN ( F ` k ) <_ ( F ` ( k + 1 ) ) )
+  8 sylib gmonolim.2 7 |- ( ph -> A. k e. NN ( F ` k ) <_ ( F ` ( k + 1 ) ) )
+  9 r19.21bi 8 |- ( ( ph /\ k e. NN ) -> ( F ` k ) <_ ( F ` ( k + 1 ) ) )
+  10 breq1d 3 |- ( n = k -> ( ( F ` n ) <_ C <-> ( F ` k ) <_ C ) )
+  11 cbvralvw 10 |- ( A. n e. NN ( F ` n ) <_ C <-> A. k e. NN ( F ` k ) <_ C )
+  12 sylib gmonolim.4 11 |- ( ph -> A. k e. NN ( F ` k ) <_ C )
+  13 breq2 |- ( x = C -> ( ( F ` k ) <_ x <-> ( F ` k ) <_ C ) )
+  14 ralbidv 13 |- ( x = C -> ( A. k e. NN ( F ` k ) <_ x <-> A. k e. NN ( F ` k ) <_ C ) )
+  15 rspcev 14 |- ( ( C e. RR /\ A. k e. NN ( F ` k ) <_ C ) -> E. x e. RR A. k e. NN ( F ` k ) <_ x )
+  16 syl2anc gmonolim.3 12 15 |- ( ph -> E. x e. RR A. k e. NN ( F ` k ) <_ x )
+  17 climsup 1 2 gmonolim.1 9 16 |- ( ph -> F ~~> sup ( ran F , RR , < ) )
+  18 ffvelcdmda gmonolim.1 |- ( ( ph /\ k e. NN ) -> ( F ` k ) e. RR )
+  19 climrecl 1 2 17 18 |- ( ph -> sup ( ran F , RR , < ) e. RR )
+  20 gclimmptf gmonolim.1 |- ( ph -> ( F ~~> sup ( ran F , RR , < ) <-> ( n e. NN |-> ( F ` n ) ) ~~> sup ( ran F , RR , < ) ) )
+  21 mpbid 17 20 |- ( ph -> ( n e. NN |-> ( F ` n ) ) ~~> sup ( ran F , RR , < ) )
+  22 breq2 |- ( x = sup ( ran F , RR , < ) -> ( ( n e. NN |-> ( F ` n ) ) ~~> x <-> ( n e. NN |-> ( F ` n ) ) ~~> sup ( ran F , RR , < ) ) )
+  23 rspcev 22 |- ( ( sup ( ran F , RR , < ) e. RR /\ ( n e. NN |-> ( F ` n ) ) ~~> sup ( ran F , RR , < ) ) -> E. x e. RR ( n e. NN |-> ( F ` n ) ) ~~> x )
+  24 syl2anc 19 21 23 |- ( ph -> E. x e. RR ( n e. NN |-> ( F ` n ) ) ~~> x )
+
+# `glimle`: a real sequence on NN tending to A, at most C from the N-th
+# term on, has A at most C. set.mm's `climle` compares it over the upper
+# integers from N with the constant sequence C (`climconst2`).
+lemma glimle
+  hypothesis glimle.1 |- ( ph -> F : NN --> RR )
+  hypothesis glimle.2 |- ( ph -> ( n e. NN |-> ( F ` n ) ) ~~> A )
+  hypothesis glimle.3 |- ( ph -> C e. RR )
+  hypothesis glimle.4 |- ( ph -> N e. NN )
+  hypothesis glimle.5 |- ( ph -> A. n e. NN ( N <_ n -> ( F ` n ) <_ C ) )
+  |- ( ph -> A <_ C )
+  1 eqid |- ( ZZ>= ` N ) = ( ZZ>= ` N )
+  2 nnzd glimle.4 |- ( ph -> N e. ZZ )
+  3 gclimmptf glimle.1 |- ( ph -> ( F ~~> A <-> ( n e. NN |-> ( F ` n ) ) ~~> A ) )
+  4 mpbird glimle.2 3 |- ( ph -> F ~~> A )
+  5 ssid |- ( ZZ>= ` N ) C_ ( ZZ>= ` N )
+  6 fvex |- ( ZZ>= ` N ) e. _V
+  7 climconst2 5 6 |- ( ( C e. CC /\ N e. ZZ ) -> ( ( ZZ>= ` N ) X. { C } ) ~~> C )
+  8 recnd glimle.3 |- ( ph -> C e. CC )
+  9 syl2anc 8 2 7 |- ( ph -> ( ( ZZ>= ` N ) X. { C } ) ~~> C )
+  10 adantr glimle.4 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> N e. NN )
+  11 simpr |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> k e. ( ZZ>= ` N ) )
+  12 eluznn |- ( ( N e. NN /\ k e. ( ZZ>= ` N ) ) -> k e. NN )
+  13 syl2anc 10 11 12 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> k e. NN )
+  14 adantr glimle.1 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> F : NN --> RR )
+  15 ffvelcdm |- ( ( F : NN --> RR /\ k e. NN ) -> ( F ` k ) e. RR )
+  16 syl2anc 14 13 15 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( F ` k ) e. RR )
+  17 adantr glimle.3 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> C e. RR )
+  18 fvconst2g |- ( ( C e. RR /\ k e. ( ZZ>= ` N ) ) -> ( ( ( ZZ>= ` N ) X. { C } ) ` k ) = C )
+  19 syl2anc 17 11 18 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( ( ( ZZ>= ` N ) X. { C } ) ` k ) = C )
+  20 eqeltrd 19 17 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( ( ( ZZ>= ` N ) X. { C } ) ` k ) e. RR )
+  21 breq2 |- ( n = k -> ( N <_ n <-> N <_ k ) )
+  22 fveq2 |- ( n = k -> ( F ` n ) = ( F ` k ) )
+  23 breq1d 22 |- ( n = k -> ( ( F ` n ) <_ C <-> ( F ` k ) <_ C ) )
+  24 imbi12d 21 23 |- ( n = k -> ( ( N <_ n -> ( F ` n ) <_ C ) <-> ( N <_ k -> ( F ` k ) <_ C ) ) )
+  25 cbvralvw 24 |- ( A. n e. NN ( N <_ n -> ( F ` n ) <_ C ) <-> A. k e. NN ( N <_ k -> ( F ` k ) <_ C ) )
+  26 sylib glimle.5 25 |- ( ph -> A. k e. NN ( N <_ k -> ( F ` k ) <_ C ) )
+  27 r19.21bi 26 |- ( ( ph /\ k e. NN ) -> ( N <_ k -> ( F ` k ) <_ C ) )
+  28 simpl |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ph )
+  29 syl2anc 28 13 27 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( N <_ k -> ( F ` k ) <_ C ) )
+  30 eluzle |- ( k e. ( ZZ>= ` N ) -> N <_ k )
+  31 syl 11 30 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> N <_ k )
+  32 mpd 31 29 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( F ` k ) <_ C )
+  33 breqtrrd 32 19 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( F ` k ) <_ ( ( ( ZZ>= ` N ) X. { C } ) ` k ) )
+  34 climle 1 2 4 9 16 20 33 |- ( ph -> A <_ C )
+
+# `glimge`: the same from below, by set.mm's `climlec2`.
+lemma glimge
+  hypothesis glimge.1 |- ( ph -> F : NN --> RR )
+  hypothesis glimge.2 |- ( ph -> ( n e. NN |-> ( F ` n ) ) ~~> A )
+  hypothesis glimge.3 |- ( ph -> C e. RR )
+  hypothesis glimge.4 |- ( ph -> N e. NN )
+  hypothesis glimge.5 |- ( ph -> A. n e. NN ( N <_ n -> C <_ ( F ` n ) ) )
+  |- ( ph -> C <_ A )
+  1 eqid |- ( ZZ>= ` N ) = ( ZZ>= ` N )
+  2 nnzd glimge.4 |- ( ph -> N e. ZZ )
+  3 gclimmptf glimge.1 |- ( ph -> ( F ~~> A <-> ( n e. NN |-> ( F ` n ) ) ~~> A ) )
+  4 mpbird glimge.2 3 |- ( ph -> F ~~> A )
+  5 adantr glimge.4 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> N e. NN )
+  6 simpr |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> k e. ( ZZ>= ` N ) )
+  7 eluznn |- ( ( N e. NN /\ k e. ( ZZ>= ` N ) ) -> k e. NN )
+  8 syl2anc 5 6 7 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> k e. NN )
+  9 adantr glimge.1 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> F : NN --> RR )
+  10 ffvelcdm |- ( ( F : NN --> RR /\ k e. NN ) -> ( F ` k ) e. RR )
+  11 syl2anc 9 8 10 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( F ` k ) e. RR )
+  12 breq2 |- ( n = k -> ( N <_ n <-> N <_ k ) )
+  13 fveq2 |- ( n = k -> ( F ` n ) = ( F ` k ) )
+  14 breq2d 13 |- ( n = k -> ( C <_ ( F ` n ) <-> C <_ ( F ` k ) ) )
+  15 imbi12d 12 14 |- ( n = k -> ( ( N <_ n -> C <_ ( F ` n ) ) <-> ( N <_ k -> C <_ ( F ` k ) ) ) )
+  16 cbvralvw 15 |- ( A. n e. NN ( N <_ n -> C <_ ( F ` n ) ) <-> A. k e. NN ( N <_ k -> C <_ ( F ` k ) ) )
+  17 sylib glimge.5 16 |- ( ph -> A. k e. NN ( N <_ k -> C <_ ( F ` k ) ) )
+  18 r19.21bi 17 |- ( ( ph /\ k e. NN ) -> ( N <_ k -> C <_ ( F ` k ) ) )
+  19 simpl |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ph )
+  20 syl2anc 19 8 18 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> ( N <_ k -> C <_ ( F ` k ) ) )
+  21 eluzle |- ( k e. ( ZZ>= ` N ) -> N <_ k )
+  22 syl 6 21 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> N <_ k )
+  23 mpd 22 20 |- ( ( ph /\ k e. ( ZZ>= ` N ) ) -> C <_ ( F ` k ) )
+  24 climlec2 1 2 glimge.3 4 11 23 |- ( ph -> C <_ A )
 

@@ -242,7 +242,8 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
             continue;
         }
         let free = free_names(r, g)?;
-        let file = r.module().rsplit('/').next().unwrap_or("");
+        let module = r.module();
+        let file = module.rsplit_once('/').map_or(module, |(_, file)| file);
         // Each file restates the items of one library file, and cites them,
         // so it imports each as any proof citing it does, and each library
         // function its statements apply. A theorem restating an item takes

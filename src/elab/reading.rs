@@ -354,17 +354,23 @@ impl<'a> Elaborator<'a> {
         if node.notation() == crate::notations::NUMERAL {
             // set.mm writes a numeral of several digits as decimals,
             // `; A B` with A the digits before the last: 10 is `; 1 0`.
-            let digit = |c: char| -> &'static str {
-                NUMERALS
-                    .iter()
-                    .find(|(d, _)| d.starts_with(c))
-                    .map(|(_, l)| *l)
-                    .unwrap_or("")
+            let mut digits: Vec<&'static str> = Vec::new();
+            for c in node.text.chars() {
+                let Some((_, label)) = NUMERALS.iter().find(|(d, _)| d.starts_with(c))
+                else {
+                    return Err(self.defect(
+                        self.at,
+                        format!("{} is no numeral set.mm spells", repr(&node.text)),
+                    ));
+                };
+                digits.push(label);
+            }
+            let Some((first, rest)) = digits.split_first() else {
+                return Err(self.defect(self.at, "a numeral with no digits"));
             };
-            let mut chars = node.text.chars();
-            let mut said = t!(digit(chars.next().unwrap_or('0')));
-            for c in chars {
-                said = t!(said, digit(c), "cdc");
+            let mut said = t!(*first);
+            for label in rest {
+                said = t!(said, *label, "cdc");
             }
             return Ok(said);
         }

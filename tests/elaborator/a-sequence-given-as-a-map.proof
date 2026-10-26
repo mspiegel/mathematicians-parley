@@ -1,0 +1,46 @@
+import theorem            stdlib/calculus/monotone-limit
+import theorem            stdlib/calculus/limit-at-most
+import mundane theorem    stdlib/functions/function-into
+
+define u(n) := 1/n, for n ∈ ℕ                                         (D0)
+       reads one over n
+
+theorem a-limit-of-a-map
+  note        The sequence is given as the map sending n ∈ ℕ to u(n), whose
+              letter is the one monotone-limit binds and keeps apart from it.
+  assume For all n ∈ ℕ, u(n) ≤ u(n + 1).                              (H1)
+  assume For all n ∈ ℕ, u(n) ≤ 1.                                     (H2)
+  assume For all n ∈ ℕ, u(n) ∈ ℝ.                                     (H3)
+  then there is L ∈ ℝ with u(n) → L as n → ∞
+
+1.  L ∈ ℝ. u(n) → L as n → ∞.
+    obtain L: thm:monotone-limit x := (n ∈ ℕ ↦ u(n)), B := 1, from H1, H2
+    requires (n ∈ ℕ ↦ u(n)) : ℕ → ℝ: mun:function-into, from H3
+
+2.  There is L ∈ ℝ with u(n) → L as n → ∞.
+    exhibit, from 1
+
+theorem a-late-bound-over-another-letter
+  note        The bound is said over i where limit-at-most says it over n, as
+              its limit is: each hypothesis binds a letter of its own.
+  let L ∈ ℝ                                                           (H1)
+  i ranges over ℕ
+  assume u(n) → L as n → ∞                                            (H2)
+  assume For all i ≥ 1, u(i) ≤ 1.                                     (H3)
+  assume For all n ∈ ℕ, u(n) ∈ ℝ.                                     (H4)
+  then L ≤ 1
+
+1.  L ≤ 1
+    thm:limit-at-most x := (n ∈ ℕ ↦ u(n)), B := 1, N := 1, L := L, from H2, H3
+    requires (n ∈ ℕ ↦ u(n)) : ℕ → ℝ: mun:function-into, from H4
+
+theorem a-late-bound-of-a-letter
+  let y : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  i ranges over ℕ
+  assume y(n) → L as n → ∞                                            (H3)
+  assume For all i ≥ 1, y(i) ≤ 1.                                     (H4)
+  then L ≤ 1
+
+1.  L ≤ 1
+    thm:limit-at-most x := y, B := 1, N := 1, L := L, from H3, H4

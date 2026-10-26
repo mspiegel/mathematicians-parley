@@ -1423,7 +1423,9 @@ impl<'a> Elaborator<'a> {
         let at = self.denied_if(Revalued { said, valued, iff }, negated, scope);
         let held = if atoms_in {
             let goal = self.to_term(&at.valued);
-            let system = goal.children()[1].label().unwrap_or("").to_string();
+            let Some(system) = goal.children()[1].label().map(str::to_string) else {
+                return Ok(Route::no("the set the value is in is a letter"));
+            };
             let canon = self.rpn(&goal.children()[0]);
             self.membership(&canon, &system, scope, facts)?
         } else {
@@ -1492,7 +1494,9 @@ impl<'a> Elaborator<'a> {
             (Some("co"), [x, y, op]) => {
                 let left = take!(self.valued(x, scope, facts)?);
                 let right = take!(self.valued(y, scope, facts)?);
-                let how = op.label().unwrap_or("").to_string();
+                let Some(how) = op.label().map(str::to_string) else {
+                    return Ok(Route::no("its operation is a letter"));
+                };
                 let op = self.rpn(op);
                 let moved = self.b.ap(
                     "oveq12d",

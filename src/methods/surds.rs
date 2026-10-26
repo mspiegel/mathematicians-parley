@@ -392,7 +392,9 @@ pub fn closed_value(term: &Term) -> Route<Value> {
             other => return other,
         }
     } else if term.label() == Some("co") && kids.len() == 3 {
-        let how = kids[2].label().unwrap_or("");
+        let Some(how) = kids[2].label() else {
+            return Route::no("its operation is a letter");
+        };
         let left = match closed_value(&kids[0]) {
             Built(Value::Exact(v)) => v,
             other => return other,
@@ -589,7 +591,9 @@ fn estimate(term: &Term) -> Result<Estimate, &'static str> {
         let x = estimate(&kids[0])?;
         x.cost.saturating_add(cube(parts(&x.value)))
     } else {
-        let how = kids[2].label().unwrap_or("");
+        let Some(how) = kids[2].label() else {
+            return Err("its operation is a letter");
+        };
         let x = estimate(&kids[0])?;
         let y = estimate(&kids[1])?;
         let here = match how {

@@ -769,13 +769,14 @@ impl<'a> Elaborator<'a> {
                 }
             }
             // The line with its own letters bound: one claim, spelt apart.
-            let label = self.to_term(&line.claim).label().unwrap_or("").to_string();
-            if lookup(rules::BOUND, &label).is_some() {
+            let label = self.to_term(&line.claim).label().map(str::to_string);
+            let label = label.as_deref();
+            if label.is_some_and(|l| lookup(rules::BOUND, l).is_some()) {
                 if let Some(spelt) = self.respelt(&whole, &line.claim, term, scope)? {
                     return Ok(Built(spelt));
                 }
             }
-            if label == "wral" {
+            if label == Some("wral") {
                 if let Some(p) =
                     self.part_at_a_member(&line.claim, &whole, term, scope, facts)?
                 {

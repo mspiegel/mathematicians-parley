@@ -136,7 +136,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.written_form(c))
             .collect();
-        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        let parts = term.with_children(kids);
         if let Some(kept) = self.identity_dropped(&parts) {
             return self.written_form(&kept);
         }
@@ -708,16 +708,18 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.held(&facts, &rpn, scope)? {
             return Ok(Built(p));
         }
-        let label = wanted.label().unwrap_or("");
+        // No label where the wanted claim is a letter, which no route below
+        // that asks what it is built from reads.
+        let label = wanted.label();
         let kids = wanted.children();
         // Truth, the body of a "there is" that says nothing of what it names.
-        if label == "wtru" {
+        if label == Some("wtru") {
             return Ok(Built(pf!(self.b; rpn, scope, self.step("tru"), "a1i")));
         }
         // A map is a function on the domain it writes, said once
         // (`SYNTAX.md`, a map), where each value its rule gives is a set
         // (`mptfng`), as a define's function is (`define_on`).
-        if label == "wfn" && kids.len() == 2 && kids[0].label() == Some("cmpt") {
+        if label == Some("wfn") && kids.len() == 2 && kids[0].label() == Some("cmpt") {
             let map = &kids[0];
             let (letter, over, rule) = (
                 self.rpn(&map.children()[0]),
@@ -748,7 +750,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         // A term equals itself, which no line need write.
-        if label == "wceq"
+        if label == Some("wceq")
             && kids.len() == 2
             && self.rpn(&kids[0]) == self.rpn(&kids[1])
         {
@@ -761,7 +763,7 @@ impl<'a> Elaborator<'a> {
         }
         // A number's membership of a number system is worked out from the
         // numeral, not searched for, and spends none of the depth.
-        if label == "wcel"
+        if label == Some("wcel")
             && kids.len() == 2
             && kids[1]
                 .label()
@@ -786,7 +788,7 @@ impl<'a> Elaborator<'a> {
         // A number spelt in numerals is prime as `inspection` decides it, a
         // closed fact a lemma at a numeral asks, as `2 ∈ Prime` is of
         // `euclemma` at 2, and not searched for.
-        if label == "wcel"
+        if label == Some("wcel")
             && kids.len() == 2
             && kids[1].label() == Some("cprime")
             && self
@@ -802,7 +804,7 @@ impl<'a> Elaborator<'a> {
         }
         // Whether a term is a set is read off its structure, not searched
         // for.
-        if label == "wcel"
+        if label == Some("wcel")
             && kids.len() == 2
             && self.rpn(&kids[1]).alone() == Some("cvv")
         {
@@ -813,7 +815,7 @@ impl<'a> Elaborator<'a> {
         }
         // A membership a requires line wrote in another number system is the
         // one to carry, before the lemmas below are tried in their order.
-        if label == "wcel" && kids.len() == 2 {
+        if label == Some("wcel") && kids.len() == 2 {
             let (s, sys) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
             if let Some(found) = self.bridged(&s, &sys, scope, &facts)? {
                 return Ok(Built(found));
@@ -841,7 +843,7 @@ impl<'a> Elaborator<'a> {
         }
         // A sum, difference, product, power or negation is in a number
         // system because its parts are, spending none of the depth.
-        if label == "wcel"
+        if label == Some("wcel")
             && kids.len() == 2
             && kids[1]
                 .label()
@@ -852,7 +854,7 @@ impl<'a> Elaborator<'a> {
                 return Ok(made);
             }
         }
-        if lookup(rules::BOUND, label).is_some() {
+        if label.is_some_and(|l| lookup(rules::BOUND, l).is_some()) {
             // A `define` and a `proof` block may write the same letter, and one of
             // them is renamed so that they do not collide: the same line.
             for (said, proof) in facts.entries() {
@@ -871,13 +873,13 @@ impl<'a> Elaborator<'a> {
             if let Some(joined) = joined {
                 return Ok(joined);
             }
-            if label == "wrex" {
+            if label == Some("wrex") {
                 if let Some(step) = step {
                     let lines = lines.cloned().unwrap_or_default();
                     return self.witnessed(step, wanted, scope, &facts, &lines);
                 }
             }
-            if label == "wral" {
+            if label == Some("wral") {
                 // A side condition may be asked of every member at once. The
                 // name is fixed, the condition settled of it, and the claim
                 // generalised; going under the binder spends no depth.
@@ -907,7 +909,7 @@ impl<'a> Elaborator<'a> {
                     None => made,
                 });
             }
-            if label == "wf" && !self.map_types_off {
+            if label == Some("wf") && !self.map_types_off {
                 if let Some(found) = self.map_into(wanted, scope, unfiltered, depth)? {
                     return Ok(Built(found));
                 }
@@ -932,6 +934,26 @@ impl<'a> Elaborator<'a> {
         }
         if let Some(found) = self.held_turned_inside(&rpn, scope, &facts)? {
             return Ok(Built(found));
+        }
+        // A map applied to a value is its rule at the value (`applied_body`):
+        // what a line says of s(i) settles what a lemma asks of F(i) at F the
+        // map sending n ∈ ℕ to s(n). Settled as read, and carried back.
+        if depth > 0 {
+            let read = self.maps_read(wanted);
+            if self.rpn(&read) != rpn {
+                if let Built(said) =
+                    self.settle(&read, scope, &facts, depth - 1, None, None)?
+                {
+                    if let Built(alike) =
+                        self.same(&read, wanted, scope, &facts, None)?
+                    {
+                        let was = self.rpn(&read);
+                        return Ok(Built(
+                            pf!(self.b; scope, was, rpn, said, alike, "mpbid"),
+                        ));
+                    }
+                }
+            }
         }
         Ok(self.no("cannot settle {}", &[&rpn]))
     }
@@ -1236,9 +1258,11 @@ impl<'a> Elaborator<'a> {
                     .iter()
                     .map(|c| holed(c, letter, hole))
                     .collect();
-                Term::apply(t.label().unwrap_or(""), kids)
+                t.with_children(kids)
             }
-            let name = whole.children()[1].variable().unwrap_or("").to_string();
+            let Some(name) = whole.children()[1].variable().map(str::to_string) else {
+                continue;
+            };
             let pattern = holed(&body, &name, &Term::var(hole));
             let vars: Vars = [Symbol::of(hole)].into_iter().collect();
             let membership = |t: &Term| {
@@ -1402,17 +1426,20 @@ impl<'a> Elaborator<'a> {
         {
             return HeadKey::Member(self.rpn(&node.children()[1]));
         }
-        HeadKey::Head(node.label().unwrap_or("").to_string())
+        match node.label() {
+            Some(label) => HeadKey::Head(label.to_string()),
+            None => HeadKey::Any,
+        }
     }
 
     /// The keys a lemma's conclusion may carry and still match `wanted`.
     fn head_keys(&self, wanted: &Term) -> IndexSet<HeadKey> {
         let mut keys = IndexSet::new();
         keys.insert(HeadKey::Any);
-        if wanted.variable().is_some() {
+        let Some(label) = wanted.label() else {
             return keys;
-        }
-        keys.insert(HeadKey::Head(wanted.label().unwrap_or("").to_string()));
+        };
+        keys.insert(HeadKey::Head(label.to_string()));
         if wanted.label() == Some("wcel") && wanted.children().len() == 2 {
             keys.insert(HeadKey::Member(self.rpn(&wanted.children()[1])));
         }
@@ -1510,8 +1537,7 @@ impl<'a> Elaborator<'a> {
         if term.variable().is_some() || term.children().is_empty() {
             return term.clone();
         }
-        Term::apply(
-            term.label().unwrap_or(""),
+        term.with_children(
             term.children()
                 .iter()
                 .map(|c| self.replaced(c, was, new))
@@ -2286,10 +2312,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.without_identities(c))
             .collect();
-        if self
-            .identity_dropped(&Term::apply(one.label().unwrap_or(""), kids))
-            .is_none()
-        {
+        if self.identity_dropped(&one.with_children(kids)).is_none() {
             return Ok(None);
         }
         Ok(Some(self.bared(one, where_, held)?))
@@ -2310,7 +2333,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.without_identities(c))
             .collect();
-        let mut cur = Term::apply(term.label().unwrap_or(""), kids);
+        let mut cur = term.with_children(kids);
         if self.rpn(&cur) != self.rpn(term) {
             let made = take!(self.congruence(
                 term,
@@ -2557,7 +2580,7 @@ impl<'a> Elaborator<'a> {
         }
         let mut parts: Vec<String> =
             term.children().iter().map(|c| self.order_key(c)).collect();
-        parts.push(term.label().unwrap_or("").to_string());
+        parts.extend(term.label().map(str::to_string));
         parts.join(" ")
     }
 
@@ -2572,7 +2595,7 @@ impl<'a> Elaborator<'a> {
         } else {
             let kids: Vec<Term> =
                 term.children().iter().map(|c| self.standard(c)).collect();
-            let parts = Term::apply(term.label().unwrap_or(""), kids);
+            let parts = term.with_children(kids);
             match self.standard_step(&parts) {
                 None => parts,
                 Some((_, next)) => self.standard(&next),
@@ -2592,7 +2615,7 @@ impl<'a> Elaborator<'a> {
         }
         let kids: Vec<Term> =
             term.children().iter().map(|c| self.read_out(c)).collect();
-        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        let parts = term.with_children(kids);
         let binding = self.binding.clone();
         if let Some(body) = self.named_body(&parts, &binding) {
             return self.read_out(&body);
@@ -2713,7 +2736,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.pairs_put_in_order(c))
             .collect();
-        let parts = Term::apply(term.label().unwrap_or(""), kids);
+        let parts = term.with_children(kids);
         match self.pair_step(&parts) {
             Some((_, turned)) => turned,
             None => parts,
@@ -2882,7 +2905,7 @@ impl<'a> Elaborator<'a> {
             .collect();
         let through = self.read_through(&at, true, None);
         spelt.extend(self.rpn(&through).tokens().iter().map(|t| t.to_string()));
-        let own = bound.variable().unwrap_or("").to_string();
+        let own = bound.variable()?.to_string();
         let meets = |me: &Self, one: &Term| {
             me.letters_bound(one)
                 .iter()
@@ -2901,6 +2924,21 @@ impl<'a> Elaborator<'a> {
         }
         let was = t!(self.rpn(&bound), "cv");
         Some(self.restated(&rule, &was, &self.rpn(&at)))
+    }
+
+    /// `term` with each map applied to a value read as its rule at the value
+    /// (`applied_body`), parts first, and nothing else changed.
+    pub(crate) fn maps_read(&mut self, term: &Term) -> Term {
+        if term.variable().is_some() || term.children().is_empty() {
+            return term.clone();
+        }
+        let kids: Vec<Term> =
+            term.children().iter().map(|c| self.maps_read(c)).collect();
+        let parts = term.with_children(kids);
+        match self.applied_body(&parts) {
+            Some(body) => self.maps_read(&body),
+            None => parts,
+        }
     }
 
     /// The map of two arguments an application `( A F B )` applies, written
@@ -3052,11 +3090,12 @@ impl<'a> Elaborator<'a> {
             return found.clone();
         }
         let (bound, mut rule) = (f.children()[0].clone(), f.children()[2].clone());
-        let own = bound.variable().unwrap_or("").to_string();
+        // The map's own letter, where it binds one, is the rule's to keep.
+        let own = bound.variable().map(Symbol::of);
         let mut letters: Vec<Symbol> = self
             .letters_bound(&rule)
             .into_iter()
-            .filter(|v| *v != own)
+            .filter(|v| Some(*v) != own)
             .collect();
         letters.sort_by_key(|v| {
             self.b.float_order(&self.float_of(v)).unwrap_or(usize::MAX)
@@ -3238,10 +3277,7 @@ impl<'a> Elaborator<'a> {
         if let Some(apart) = apart {
             let was = t!(self.rpn(&bound), "cv");
             if self.rpn(&self.restated(&rule, &was, &self.rpn(&at))) != c {
-                f = Term::apply(
-                    own.label().unwrap_or(""),
-                    vec![bound.clone(), over.clone(), apart.clone()],
-                );
+                f = own.with_children(vec![bound.clone(), over.clone(), apart.clone()]);
                 rule = apart;
                 renamed = self.class_alpha(&own, &f)?;
                 if renamed.is_none() {
@@ -3318,9 +3354,10 @@ impl<'a> Elaborator<'a> {
 
     /// Whether a term is a statement rather than a class.
     pub fn is_wff(&self, term: &Term) -> bool {
-        let label = match term.variable() {
-            Some(v) => self.float_of(v),
-            None => term.label().unwrap_or("").to_string(),
+        let label = match (term.variable(), term.label()) {
+            (Some(v), _) => self.float_of(v),
+            (None, Some(label)) => label.to_string(),
+            (None, None) => return false,
         };
         self.typecode(&label) == "wff"
     }
@@ -3373,7 +3410,9 @@ impl<'a> Elaborator<'a> {
         }
         let spelt: Vec<Rpn> = one.children().iter().map(|c| self.rpn(c)).collect();
         let theirs: Vec<Rpn> = other.children().iter().map(|c| self.rpn(c)).collect();
-        let label = one.label().unwrap_or("");
+        let Some(label) = one.label() else {
+            return false;
+        };
         if label == "wrex" && spelt[1] != theirs[1] {
             return false;
         }
@@ -3385,6 +3424,10 @@ impl<'a> Elaborator<'a> {
         // An integral's integrand, under its letter between the ends.
         if label == "cdit" && spelt[3] != theirs[3] {
             return spelt[..3] == theirs[..3];
+        }
+        // A map's rule, under its letter over the domain.
+        if label == "cmpt" && spelt[2] != theirs[2] {
+            return spelt[..2] == theirs[..2];
         }
         let mut places = spelt.len();
         if rules::WRAPS.contains(&label) && spelt[places - 1] == theirs[places - 1] {
@@ -3412,7 +3455,7 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         }
         // A function applied keeps its function.
-        let wrapped = rules::WRAPS.contains(&one.label().unwrap_or(""));
+        let wrapped = one.label().is_some_and(|l| rules::WRAPS.contains(&l));
         let n = one.children().len();
         let kids: Vec<Term> = one
             .children()
@@ -3426,7 +3469,7 @@ impl<'a> Elaborator<'a> {
                 }
             })
             .collect();
-        let parts = Term::apply(one.label().unwrap_or(""), kids);
+        let parts = one.with_children(kids);
         if self.rpn(&parts) == self.rpn(other) && self.lifts(one, &parts) {
             return Ok(None);
         }
@@ -3681,7 +3724,9 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Option<Proof>> {
         // A map holds its letter first and its domain after it, and a
         // set-builder its condition, its letter and then its domain.
-        let label = one.label().unwrap_or("").to_string();
+        let Some(label) = one.label().map(str::to_string) else {
+            return Ok(None);
+        };
         let (letter_at, domain_at) = if label == "crab" { (1, 2) } else { (0, 1) };
         let Some(lemma) = lookup(rules::DOMAIN, &label) else {
             return Ok(None);
@@ -3770,12 +3815,94 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let sig = self.sig(lemma).clone();
+        // The lemma keeps pairs of its variables apart, and a class binding
+        // the new letter inside, a map given for F that binds n while n is
+        // the letter renamed to, would break that: renamed inside first.
+        let apart = sig.disjoint.iter().all(|(a, b)| {
+            let (Some(x), Some(y)) = (binding.get(a), binding.get(b)) else {
+                return true;
+            };
+            let theirs = y.names();
+            x.names().iter().all(|n| !theirs.contains(n))
+        });
+        if !apart {
+            if let Some(made) = self.renamed_past_inner(one, other)? {
+                return Ok(Some(made));
+            }
+            return self.class_renamed_within(one, other);
+        }
         let asked = self.essential(&sig.essentials[0]).substitute(&binding);
         let said = self.prove_essential(&asked, &Rpn::default(), &Facts::new())?;
         let Built(said) = said else {
             return self.class_renamed_within(one, other);
         };
         Ok(Some(self.b.ap(lemma, &self.spelt(&binding), &[&said])))
+    }
+
+    /// `class_renamed` where a class inside either binds the letter the
+    /// renaming goes to: `( i e. NN |-> ( ( n e. NN |-> B ) ` i ) )` to `( n
+    /// e. NN |-> ( ( n e. NN |-> B ) ` n ) )`. The inner classes are moved
+    /// to a letter nothing holds, on both sides, the outer letter renamed
+    /// between them, and the three joined; None where a step does not go.
+    fn renamed_past_inner(
+        &mut self,
+        one: &Term,
+        other: &Term,
+    ) -> Checked<Option<Proof>> {
+        let Some(to) = other.children()[0].variable().map(str::to_string) else {
+            return Ok(None);
+        };
+        let Some(spare) = self.unheld(&[one, other]) else {
+            return Ok(None);
+        };
+        let one_moved = inner_moved(one, &to, &spare);
+        let other_moved = inner_moved(other, &to, &spare);
+        if self.rpn(&one_moved) == self.rpn(one)
+            && self.rpn(&other_moved) == self.rpn(other)
+        {
+            return Ok(None);
+        }
+        let first = if self.rpn(&one_moved) == self.rpn(one) {
+            None
+        } else {
+            let Some(p) = self.class_alpha(one, &one_moved)? else {
+                return Ok(None);
+            };
+            Some(p)
+        };
+        let Some(middle) = self.class_renamed(&one_moved, &other_moved)? else {
+            return Ok(None);
+        };
+        let last = if self.rpn(&other_moved) == self.rpn(other) {
+            None
+        } else {
+            let Some(p) = self.class_alpha(&other_moved, other)? else {
+                return Ok(None);
+            };
+            Some(p)
+        };
+        let (a, b, c, d) = (
+            self.rpn(one),
+            self.rpn(&one_moved),
+            self.rpn(&other_moved),
+            self.rpn(other),
+        );
+        let mut made = middle;
+        if let Some(first) = first {
+            made = self.b.ap(
+                "eqtri",
+                &binds! {"A" => &a, "B" => &b, "C" => &c},
+                &[&first, &made],
+            );
+        }
+        if let Some(last) = last {
+            made = self.b.ap(
+                "eqtri",
+                &binds! {"A" => &a, "B" => &c, "C" => &d},
+                &[&made, &last],
+            );
+        }
+        Ok(Some(made))
     }
 
     /// The closed `lemma` applied so that it states `one` against `other`,
@@ -3806,7 +3933,9 @@ impl<'a> Elaborator<'a> {
         {
             return Ok(None);
         }
-        let label = one.label().unwrap_or("").to_string();
+        let Some(label) = one.label().map(str::to_string) else {
+            return Ok(None);
+        };
         if lookup(rules::CLASS_BOUND, &label).is_some() {
             // The renaming lemmas hold their two letters apart, so they are
             // asked only where the letters differ.
@@ -3897,7 +4026,7 @@ impl<'a> Elaborator<'a> {
             };
             let mut kids = here.children().to_vec();
             kids[i] = y.clone();
-            let there = Term::apply(here.label().unwrap_or(""), kids);
+            let there = here.with_children(kids);
             let Some(step) = self.by_lemma(lemma, &here, &there, &[&inner]) else {
                 return Ok(None);
             };
@@ -4577,8 +4706,7 @@ impl<'a> Elaborator<'a> {
         if term.variable().is_some() {
             return term.clone();
         }
-        Term::apply(
-            term.label().unwrap_or(""),
+        term.with_children(
             term.children()
                 .iter()
                 .map(|c| self.restated(c, was, now))
@@ -4675,6 +4803,9 @@ impl<'a> Elaborator<'a> {
                         .variable()
                         .is_some_and(|v| out.contains_key(v))
                 {
+                    let Some(index_letter) = index.variable().map(Symbol::of) else {
+                        continue;
+                    };
                     let held: Vec<&Term> = out.values().collect();
                     let Some(letter) = self.unheld(&held) else {
                         continue;
@@ -4685,7 +4816,7 @@ impl<'a> Elaborator<'a> {
                     ));
                     let now = self.rpn(&Term::apply("cv", vec![letter.clone()]));
                     let value = self.restated(&out[&name].clone(), &was, &now);
-                    out.insert(Symbol::of(index.variable().unwrap_or("")), letter);
+                    out.insert(index_letter, letter);
                     out.insert(*summand, value);
                     continue;
                 }
@@ -4731,7 +4862,9 @@ impl<'a> Elaborator<'a> {
         {
             return Ok(None);
         }
-        let label = given.label().unwrap_or("").to_string();
+        let Some(label) = given.label().map(str::to_string) else {
+            return Ok(None);
+        };
         if let Some((same_lemma, cross)) = lookup(rules::BOUND, &label) {
             let (body, variable, other, renamed, over);
             if given.children().len() == 3 {
@@ -4796,12 +4929,64 @@ impl<'a> Elaborator<'a> {
                 };
                 return Ok(Some(self.b.ap(same_lemma, &binds, &[&inner])));
             }
+            // The cross lemma keeps the new letter apart from the old body
+            // and the old letter apart from the new: a class inside that
+            // binds either is moved to a spare letter first, on its side,
+            // and the three renamings joined.
+            let y = self.rpn(&renamed);
+            let (Some(x_name), Some(y_name)) =
+                (variable.variable(), renamed.variable())
+            else {
+                return Ok(None);
+            };
+            let (x_name, y_name) = (x_name.to_string(), y_name.to_string());
+            let caught = self.rpn(&body).tokens().iter().any(|t| *t == y.to_string())
+                || self
+                    .rpn(&other)
+                    .tokens()
+                    .iter()
+                    .any(|t| *t == x.to_string());
+            if caught {
+                let Some(spare) = self.unheld(&[given, want]) else {
+                    return Ok(None);
+                };
+                let given_moved = inner_moved(given, &y_name, &spare);
+                let want_moved = inner_moved(want, &x_name, &spare);
+                if self.rpn(&given_moved) == self.rpn(given)
+                    && self.rpn(&want_moved) == self.rpn(want)
+                {
+                    return Ok(None);
+                }
+                let mut made: Option<Proof> = None;
+                let from = self.rpn(given);
+                for (one, two) in [
+                    (given.clone(), given_moved.clone()),
+                    (given_moved.clone(), want_moved.clone()),
+                    (want_moved.clone(), want.clone()),
+                ] {
+                    if self.rpn(&one) == self.rpn(&two) {
+                        continue;
+                    }
+                    let Some(step) = self.renaming(&one, &two)? else {
+                        return Ok(None);
+                    };
+                    let to = self.rpn(&two);
+                    made = Some(match made {
+                        None => step,
+                        Some(sofar) => self.b.ap(
+                            "bitri",
+                            &binds! {"ph" => &from, "ps" => self.rpn(&one), "ch" => &to},
+                            &[&sofar, &step],
+                        ),
+                    });
+                }
+                return Ok(made);
+            }
             // The cross lemma changes one binder and wants a hypothesis
             // relating the two bodies at x = y, which a body still spelt two
             // ways inside is not. So the bodies are made to agree first, over
             // this binder as it stands, and only then is it changed.
-            let y = self.rpn(&renamed);
-            let here = self.restated(&other, &t!(y, "cv"), &t!(x, "cv"));
+            let here = self.free_renamed(&other, &y, &x);
             let mut middle = binds.clone();
             middle.insert("ph".to_string(), self.rpn(&here));
             let at = t!(
@@ -5050,7 +5235,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.without_identities(c))
             .collect();
-        let mut out = Term::apply(term.label().unwrap_or(""), kids);
+        let mut out = term.with_children(kids);
         while let Some(kept) = self.identity_dropped(&out) {
             out = kept;
         }
@@ -5094,6 +5279,12 @@ impl<'a> Elaborator<'a> {
     /// and set.mm has no lemma carrying a renaming through a sequence.
     pub fn renaming_apart(&mut self, said: &Rpn, want: &Rpn) -> Checked<Option<Proof>> {
         let mut letters: Vec<Symbol> = Vec::new();
+        // Letters both bind at the same place, and the letters the second
+        // binds where the first binds another: a shared letter that is also
+        // one the renaming goes to is moved too, as the map given for F in
+        // `A. i e. NN ( ( n e. NN |-> B ) ` i ) <_ C` is when i goes to n.
+        let mut shared: Vec<Symbol> = Vec::new();
+        let mut targets: Vec<Symbol> = Vec::new();
         let mut rest = vec![(self.to_term(said), Some(self.to_term(want)))];
         while let Some((node, theirs)) = rest.pop() {
             // Where the two are built alike, each part is compared with the
@@ -5118,11 +5309,24 @@ impl<'a> Elaborator<'a> {
                     continue;
                 };
                 if self.typecode(self.rpn(kid).alone().unwrap_or_default()) != "setvar"
-                    || letters.contains(&letter)
-                    || other.and_then(|o| o.variable_symbol()) == Some(letter)
                 {
                     continue;
                 }
+                let theirs = other.and_then(|o| o.variable_symbol());
+                if theirs == Some(letter) {
+                    shared.push(letter);
+                    continue;
+                }
+                if let Some(theirs) = theirs {
+                    targets.push(theirs);
+                }
+                if !letters.contains(&letter) {
+                    letters.push(letter);
+                }
+            }
+        }
+        for letter in shared {
+            if targets.contains(&letter) && !letters.contains(&letter) {
                 letters.push(letter);
             }
         }
@@ -5250,7 +5454,13 @@ impl<'a> Elaborator<'a> {
                     && !matches!(kinds.get(other.as_str()), None | Some(&"setvar"));
                 let from_fixed = kinds.get(other.as_str()) == Some(&"setvar")
                     && binding.contains_key(other);
-                if from_class || from_fixed {
+                // Or from a class the claim has fixed as one that binds a
+                // letter inside it: ffnfv's x kept apart from F, F the map
+                // sending x ∈ ℝ to F(x), is not the map's x.
+                let from_binding_class =
+                    !matches!(kinds.get(other.as_str()), None | Some(&"setvar"))
+                        && binding.get(other).is_some_and(|v| self.binds_a_letter(v));
+                if from_class || from_fixed || from_binding_class {
                     apart.insert(*one);
                 }
             }
@@ -5359,11 +5569,16 @@ impl<'a> Elaborator<'a> {
             right.children()[1].clone(),
             right.children()[2].clone(),
         );
+        let Some(index_letter) = index.variable().map(Symbol::of) else {
+            return Ok(Route::no(format!(
+                "{label} binds two letters apart where the claim binds one, and the sum's index is no letter"
+            )));
+        };
         let Some(letter) = self.unheld(&[goal]) else {
             return Ok(Route::no("no letter left to rename a sum with"));
         };
         let mut put = Binding::new();
-        put.insert(Symbol::of(index.variable().unwrap_or("")), letter.clone());
+        put.insert(index_letter, letter.clone());
         let moved = summand.substitute(&put);
         let renamed =
             Term::apply("csu", vec![limits.clone(), moved.clone(), letter.clone()]);
@@ -5658,7 +5873,10 @@ impl<'a> Elaborator<'a> {
         let mut marks: Vec<String> = Vec::new();
         let mut rest = goal.clone();
         while rest.label() == Some("wrex") {
-            marks.push(rest.children()[1].variable().unwrap_or("").to_string());
+            let Some(letter) = rest.children()[1].variable() else {
+                return Ok(Route::no("the claim's \"there is\" binds no letter"));
+            };
+            marks.push(letter.to_string());
             rest = rest.children()[0].clone();
         }
         let mark_set: BTreeSet<String> = marks.iter().cloned().collect();
@@ -5697,11 +5915,10 @@ impl<'a> Elaborator<'a> {
         let mut rest = goal.clone();
         while rest.label() == Some("wrex") {
             let kids = rest.children().to_vec();
-            layers.push((
-                kids[0].clone(),
-                kids[1].variable().unwrap_or("").to_string(),
-                self.rpn(&kids[2]),
-            ));
+            let Some(letter) = kids[1].variable() else {
+                return Ok(Route::no("the claim's \"there is\" binds no letter"));
+            };
+            layers.push((kids[0].clone(), letter.to_string(), self.rpn(&kids[2])));
             rest = kids[0].clone();
         }
         let mut proof: Option<Proof> = None;
@@ -6028,8 +6245,17 @@ impl<'a> Elaborator<'a> {
             .flat_map(|s| readings.iter().map(move |r| (s, r)))
         {
             for sown in &seeds {
-                let Some(binding) = self.fit_read(side, theirs, sown, &variables)
-                else {
+                // A map the seed gives is read at what the lemma applies it
+                // to, F(n) at F the map sending p ∈ ℕ to 1/p being 1/n, and
+                // the lemma's other letters fitted to the claim from there.
+                let fitted = match self.fit_read(side, theirs, sown, &variables) {
+                    Some(b) => Some(b),
+                    None => {
+                        let applied = self.maps_read(&side.substitute(sown));
+                        self.fit_read(&applied, theirs, sown, &variables)
+                    }
+                };
+                let Some(binding) = fitted else {
                     continue;
                 };
                 if side.names().iter().any(|n| !binding.contains_key(&**n)) {
@@ -6137,7 +6363,9 @@ impl<'a> Elaborator<'a> {
         {
             return Some(());
         }
-        let label = term.label().unwrap_or("").to_string();
+        let Some(label) = term.label().map(str::to_string) else {
+            return Some(());
+        };
         let mut kids = term.children().to_vec();
         let layout = match label.as_str() {
             "crab" | "wral" | "wrex" => Some((1, 2)),
@@ -6195,7 +6423,9 @@ impl<'a> Elaborator<'a> {
         if term.variable().is_some() || term.children().is_empty() {
             return Some(term.clone());
         }
-        let label = term.label().unwrap_or("");
+        let Some(label) = term.label() else {
+            return Some(term.clone());
+        };
         let kids = term.children();
         let layout = match label {
             "crab" | "wral" | "wrex" => Some((1, 2)),
@@ -6252,7 +6482,9 @@ impl<'a> Elaborator<'a> {
         if term.variable().is_some() || term.children().is_empty() {
             return Some(term.clone());
         }
-        let label = term.label().unwrap_or("");
+        let Some(label) = term.label() else {
+            return Some(term.clone());
+        };
         let kids = term.children();
         // Where each binder holds its letter and its domain.
         let layout = match label {
@@ -6514,7 +6746,7 @@ impl<'a> Elaborator<'a> {
             .zip(term.children())
             .map(|(p, t)| self.respelt_within(p, t, variables, met))
             .collect();
-        Term::apply(term.label().unwrap_or(""), kids)
+        term.with_children(kids)
     }
 
     /// `binding` with a value the reading wrote out put back as `term`
@@ -6600,7 +6832,7 @@ impl<'a> Elaborator<'a> {
             .iter()
             .map(|c| self.read_through(c, named, Some(letters)))
             .collect();
-        let term = Term::apply(term.label().unwrap_or(""), kids);
+        let term = term.with_children(kids);
         if named {
             if let Some(applied) = self.applied_body(&term) {
                 return self.read_through(&applied, named, Some(letters));
@@ -6654,7 +6886,7 @@ impl<'a> Elaborator<'a> {
                 }
             })
             .collect();
-        Term::apply(term.label().unwrap_or(""), kids)
+        term.with_children(kids)
     }
 
     /// `fit_respelt` of a hypothesis to a line, where a letter the binding
@@ -6816,6 +7048,19 @@ impl<'a> Elaborator<'a> {
             }
         }
         None
+    }
+
+    /// Whether some part of `term` binds a set variable of its own.
+    fn binds_a_letter(&self, term: &Term) -> bool {
+        if term.variable().is_some() {
+            return false;
+        }
+        let here = term.label() != Some("cv")
+            && term.children().iter().any(|c| {
+                c.variable()
+                    .is_some_and(|v| self.is_setvar(&self.float_of(v)))
+            });
+        here || term.children().iter().any(|c| self.binds_a_letter(c))
     }
 
     /// Whether a lemma is in deduction form: it states ( ph -> … ) with ph a
@@ -7898,10 +8143,7 @@ pub fn as_class(node: &Term, marks: &BTreeSet<String>) -> Term {
     {
         return node.children()[0].clone();
     }
-    Term::apply(
-        node.label().unwrap_or(""),
-        node.children().iter().map(|c| as_class(c, marks)).collect(),
-    )
+    node.with_children(node.children().iter().map(|c| as_class(c, marks)).collect())
 }
 
 /// Every part of a term, the whole first.
@@ -8094,6 +8336,45 @@ fn listed(term: &Term) -> Option<Vec<Term>> {
 }
 
 /// The lemma carrying a class's equality up through one place of a term.
+/// `term` with each class or formula inside it that binds `letter` moved to
+/// bind `spare`, its own occurrences with it; the term's own binder, where
+/// it binds `letter`, is left as it is (`renamed_past_inner`).
+fn inner_moved(term: &Term, letter: &str, spare: &Term) -> Term {
+    fn moved(term: &Term, letter: &str, spare: &Term) -> Term {
+        if term.variable().is_some() {
+            return term.clone();
+        }
+        let binds_it = term.label() != Some("cv")
+            && term.children().iter().any(|c| c.variable() == Some(letter));
+        if binds_it {
+            let mut put = Binding::new();
+            put.insert(Symbol::of(letter), spare.clone());
+            return term.substitute(&put);
+        }
+        term.with_children(
+            term.children()
+                .iter()
+                .map(|c| moved(c, letter, spare))
+                .collect(),
+        )
+    }
+    if term.variable().is_some() {
+        return term.clone();
+    }
+    term.with_children(
+        term.children()
+            .iter()
+            .map(|c| {
+                if c.variable() == Some(letter) {
+                    c.clone()
+                } else {
+                    moved(c, letter, spare)
+                }
+            })
+            .collect(),
+    )
+}
+
 fn class_lift(label: &str, place: usize) -> Option<&'static str> {
     rules::CLASS_LIFT
         .iter()

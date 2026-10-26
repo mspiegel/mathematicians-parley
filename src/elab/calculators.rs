@@ -3838,7 +3838,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let parts: Vec<Term> = kids.iter().map(|k| self.defined_names_out(k)).collect();
-        Term::apply(term.label().unwrap_or(""), parts)
+        term.with_children(parts)
     }
 
     /// A term with each finite sum, one holding no sum of its own, written
@@ -3862,7 +3862,7 @@ impl<'a> Elaborator<'a> {
             }
         }
         let parts: Vec<Term> = kids.iter().map(|k| self.sums_over(k, letter)).collect();
-        Term::apply(term.label().unwrap_or(""), parts)
+        term.with_children(parts)
     }
 
     /// The claim, the facts and the lines a step or a requires line cites,

@@ -1744,8 +1744,18 @@ impl<'a> Elaborator<'a> {
         // rarely the first of them. Taken apart on its own.
         let known = self.line_supplies(&where_, scope, facts, lines)?;
         // What the lines the step names say gives t ∈ X, a subset's members
-        // at a block's letter among it.
+        // at a block's letter among it; and what each of those says besides,
+        // as the checker reads a cited line: n ∈ ℕ gives 1 ≤ n, the
+        // condition of a "for all i ≥ 1" at n.
         let from_lines = self.with_cited(Some(step), scope, facts, None)?;
+        for cite in &step.just.refs {
+            let says = self.line_says(cite, scope, facts, lines)?;
+            for (said, given) in says.entries() {
+                if !self.holds(&from_lines, &said) {
+                    self.know(&from_lines, said, given);
+                }
+            }
+        }
         let universals: Vec<Rpn> = self
             .line_writes(&where_, lines)
             .into_iter()
@@ -1813,9 +1823,12 @@ impl<'a> Elaborator<'a> {
             .map(|v| (v.name.clone(), v.value.clone()))
             .collect();
         for _ in 0..pairs.len() {
-            let label = whole.label().unwrap_or("").to_string();
-            let found = rules::INSTANCES.iter().find(|(k, _)| *k == label);
-            let Some(instance) = found.map(|(_, i)| (i.lemma, i.domain_var, i.domain))
+            let label = whole.label().map(str::to_string);
+            let found = label
+                .as_deref()
+                .and_then(|label| rules::INSTANCES.iter().find(|(k, _)| *k == label));
+            let (Some(label), Some(instance)) =
+                (label, found.map(|(_, i)| (i.lemma, i.domain_var, i.domain)))
             else {
                 return Err(self.unreached(
                     step.line,
@@ -3469,7 +3482,9 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&whole.children()[1]),
             ),
         };
-        let mut said = whole.label().unwrap_or("").to_string();
+        let Some(mut said) = whole.label().map(str::to_string) else {
+            return Ok(Route::no("the claim is a letter, not a relation"));
+        };
         let mut reached = first_term.clone();
         let mut relation = if said == "wbr" {
             self.rpn(&whole.children()[2]).to_string()
@@ -3492,7 +3507,11 @@ impl<'a> Elaborator<'a> {
             let written = line.quoted(&before.term);
             let joined_term = self.term(&node)?;
             let joined = self.to_term(&joined_term);
-            let joined_label = joined.label().unwrap_or("").to_string();
+            let Some(joined_label) = joined.label().map(str::to_string) else {
+                return Ok(Route::no(
+                    "a line of the chain is a letter, not a relation",
+                ));
+            };
             let joined_congruence = self.congruence_sides(&joined);
             if modulus.is_some() || joined_congruence.is_some() {
                 let ordered = (modulus.is_none() && said == "wbr")
@@ -4795,11 +4814,14 @@ impl<'a> Elaborator<'a> {
             };
             let spare = self.rpn(&letter).to_string();
             stands = t!(spare, "cv");
+            let Some(bound) = whole.children()[1].variable() else {
+                return Err(self.unreached(
+                    step.line,
+                    "the \"there is\" this exhibit claims binds no letter",
+                ));
+            };
             let mut put = Binding::new();
-            put.insert(
-                Symbol::of(whole.children()[1].variable().unwrap_or("")),
-                letter.clone(),
-            );
+            put.insert(Symbol::of(bound), letter.clone());
             body = body.substitute(&put);
             renamed = Some(Term::apply(
                 "wrex",
@@ -5427,7 +5449,7 @@ impl<'a> Elaborator<'a> {
     /// What a `with` target says the lemma's variables stand for, read under
     /// the citation's instantiation.
     fn filling(&mut self, step: &Step, item: &'a Record) -> Checked<Binding> {
-        let (_label, fills) = targets::lemma(item);
+        let (label, fills) = targets::lemma(item);
         if fills.is_empty() {
             return Ok(Binding::new());
         }
@@ -5456,6 +5478,20 @@ impl<'a> Elaborator<'a> {
             bound.insert(Symbol::of(&v.name), value);
         }
         let library = self.item_library();
+        // A class a fill puts in may bind a letter of its own that the lemma
+        // keeps apart from the variable it fills: glimge keeps n apart from
+        // F, and F may be the map sending n ∈ ℕ to s(n). Such a letter is
+        // spelt with one the lemma uses nowhere.
+        let theirs: BTreeSet<String> =
+            match label.as_deref().and_then(|l| self.b.sigs.get(l)) {
+                Some(sig) => sig
+                    .statement
+                    .iter()
+                    .chain(sig.essentials.iter().flatten())
+                    .map(|t| t.to_string())
+                    .collect(),
+                None => BTreeSet::new(),
+            };
         let mut out = Binding::new();
         for (name, formula) in &fills {
             let fill = Written::new(formula, &item.path, item.line);
@@ -5463,9 +5499,45 @@ impl<'a> Elaborator<'a> {
                 self.in_its_names(Item::Record(item), |me| me.read_one(&fill))?;
             let node = filled(&node, &bound, &library.ctx);
             let term = self.term(&node)?;
-            out.insert(Symbol::of(name), self.to_term(&term));
+            let term = self.bound_apart_from(&self.to_term(&term), &theirs)?;
+            out.insert(Symbol::of(name), term);
         }
         Ok(out)
+    }
+
+    /// `term` with each set variable a part of it binds that is one of
+    /// `theirs` moved to a spare letter, one no name of the proof or the
+    /// page holds (`spare_var`), in that part.
+    fn bound_apart_from(
+        &mut self,
+        term: &Term,
+        theirs: &BTreeSet<String>,
+    ) -> Checked<Term> {
+        if term.variable().is_some() {
+            return Ok(term.clone());
+        }
+        let mut term = term.clone();
+        if term.label() != Some("cv") {
+            let caught: Vec<String> = term
+                .children()
+                .iter()
+                .filter_map(|c| c.variable())
+                .filter(|v| theirs.contains(*v) && self.is_setvar(&self.float_of(v)))
+                .map(str::to_string)
+                .collect();
+            for letter in caught {
+                let spare = self.spare_var()?;
+                let mut put = Binding::new();
+                put.insert(Symbol::of(&letter), self.var_of(&spare));
+                term = term.substitute(&put);
+            }
+        }
+        let kids = term
+            .children()
+            .iter()
+            .map(|c| self.bound_apart_from(c, theirs))
+            .collect::<Checked<Vec<Term>>>()?;
+        Ok(term.with_children(kids))
     }
 
     /// What a citation pushes, in the order the cited theorem's own statement
@@ -6616,7 +6688,11 @@ struct Given {
 pub fn statement_of(text: &str) -> Option<String> {
     for line in text.lines() {
         if let Some((_, rest)) = line.split_once(" $p ") {
-            return Some(rest.split("$=").next().unwrap_or("").to_string());
+            return Some(
+                rest.split_once("$=")
+                    .map_or(rest, |(said, _)| said)
+                    .to_string(),
+            );
         }
     }
     None

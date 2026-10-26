@@ -220,15 +220,15 @@ impl Grammar {
             binds_tighter(&self.tighter, &inner.level, &outer.level) == Tighter::Yes;
         match edge {
             Edge::Left => {
-                let level = self
+                let Some(level) = self
                     .notations
                     .iter()
                     .find(|n| n.record_id == child.notation())
                     .map(|n| n.level.as_str())
-                    .unwrap_or("");
-                if level.is_empty() {
+                    .filter(|level| !level.is_empty())
+                else {
                     return false;
-                }
+                };
                 let tighter =
                     binds_tighter(&self.tighter, level, &outer.level) == Tighter::Yes;
                 let chains =

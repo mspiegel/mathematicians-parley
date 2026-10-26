@@ -69,10 +69,11 @@ pub struct Term(Rc<TermData>);
 
 impl std::fmt::Debug for Term {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.0.variable {
-            Some(v) => write!(f, "{v}"),
-            None => {
-                write!(f, "{}(", self.0.label.as_deref().unwrap_or(""))?;
+        match (&self.0.variable, &self.0.label) {
+            (Some(v), _) => write!(f, "{v}"),
+            (None, None) => write!(f, "(neither a variable nor labelled)"),
+            (None, Some(label)) => {
+                write!(f, "{label}(")?;
                 for (i, c) in self.0.children.iter().enumerate() {
                     if i > 0 {
                         write!(f, ", ")?;
@@ -126,6 +127,12 @@ impl Clone for FloatLabels {
 impl Term {
     pub fn apply(label: impl Into<Symbol>, children: Vec<Term>) -> Term {
         Term::make(Some(label.into()), children, None)
+    }
+
+    /// The term with `children` for its own, its label or its variable kept
+    /// as it is: what a rewriter that changes only the parts builds.
+    pub fn with_children(&self, children: Vec<Term>) -> Term {
+        Term::make(self.0.label, children, self.0.variable)
     }
 
     pub fn var(name: impl Into<Symbol>) -> Term {

@@ -447,7 +447,7 @@ theorem liouville
   c ranges over ℝ
   then there exists c > 0 such that for all p ∈ ℤ, for all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|
 
-let f = (t ∈ ℝ ↦ F(t))                                                (D1)
+let f = (x ∈ ℝ ↦ F(x))                                                (D1)
        reads F on the real line
 
 1.  For all x ∈ ℝ, f(x) = F(x).

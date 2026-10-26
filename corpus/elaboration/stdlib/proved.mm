@@ -1259,6 +1259,17 @@ $( Powers: the exponents of 2, 3 and 5 in 2^a 3^b 5^c are a, b and c. $)
     AOPBQRZSCQRZTRZODQRZTRZUAROPEQRZSFQRZTRZOGQRZTRZUARDGAUIUNOUANUBABCDHIJUCAEFGKLMUCUD $.
   $}
 
+  ${
+    gleexp2.1 $e |- ( ph -> A e. RR ) $.
+    gleexp2.2 $e |- ( ph -> M e. NN0 ) $.
+    gleexp2.3 $e |- ( ph -> N e. NN0 ) $.
+    gleexp2.4 $e |- ( ph -> 1 <_ A ) $.
+    gleexp2.5 $e |- ( ph -> M <_ N ) $.
+  gleexp2 $p |- ( ph -> ( A ^ M ) <_ ( A ^ N ) ) $=
+    ( cr wcel c1 cle wbr cuz cfv cexp co cz nn0zd eluz2 syl3anbrc leexp2a
+    syl3anc ) ABJKLBMNDCOPZKZBCQRBDQRMNEHACSKDSKCDMNUFACFTADGTICDUAUBBCDUCUD $.
+  $}
+
 $}
 
 ${
@@ -2626,6 +2637,11 @@ $d m n x $.
 $d m B $.  $d n C $.
 $d x A $.  $d x B $.  $d x C $.
 $d m ph $.  $d x ph $.
+$( A limit taken from a bound: the sequence F, its limit A, the bound C
+   and the index N it holds from are apart from the index k that set.mm's
+   comparisons count by; the map's n and the limit's x are apart from F. $)
+$d k n x $.  $d k F $.  $d n F $.  $d x F $.
+$d k A $.  $d k C $.  $d k N $.  $d n N $.  $d k ph $.
   ${
     gclimbddabs.1 $e |- ( ( ph /\ m e. NN ) -> C e. RR ) $.
     gclimbddabs.2 $e |- ( ph -> ( n e. NN |-> B ) ~~> A ) $.
@@ -2650,6 +2666,53 @@ $d m ph $.  $d x ph $.
 
   gsupex $p |- sup ( A , RR , < ) e. _V $=
     ( cr clt ltso supex ) BACDE $.
+
+  ${
+    gclimmptf.1 $e |- ( ph -> F : NN --> RR ) $.
+  gclimmptf $p |- ( ph -> ( F ~~> A <-> ( n e. NN |-> ( F ` n ) ) ~~> A ) ) $=
+    ( cn cv cfv cmpt cli wfn wceq cr wf ffn syl dffn5 sylib breq1d )
+    ADCFCGZDHZIZBJADFKZDUBLAFMDNUCEFMDOPCFDQRS $.
+  $}
+
+  ${
+    gmonolim.1 $e |- ( ph -> F : NN --> RR ) $.
+    gmonolim.2 $e |- ( ph -> A. n e. NN ( F ` n ) <_ ( F ` ( n + 1 ) ) ) $.
+    gmonolim.3 $e |- ( ph -> C e. RR ) $.
+    gmonolim.4 $e |- ( ph -> A. n e. NN ( F ` n ) <_ C ) $.
+  gmonolim $p |- ( ph -> E. x e. RR ( n e. NN |-> ( F ` n ) ) ~~> x ) $=
+    ( crn cr clt csup wcel cn cv cfv cmpt cli wbr wrex vk c1 nnuz 1zzd caddc
+    co cle wral wceq fveq2 oveq1 fveq2d breq12d cbvralvw sylib r19.21bi
+    breq1d breq2 ralbidv rspcev syl2anc climsup ffvelcdmda climrecl gclimmptf
+    mpbid )
+    AEJZKLMZKNDODPZEQZRZVISTZVLBPZSTZBKUAAVIUBEUCOUDAUEZABUBEUCOUDVPFAUBPZEQZVQUCUFUGZEQZUHTZUBOAVKVJUCUFUGZEQZUHTZDOUIZWAUBOUIZGWDWADUBOVJVQUJZVKVRWCVTUHVJVQEUKZWGWBVSEVJVQUCUFULZUMZUNZUOZUPZUQZACKNZVRCUHTZUBOUIZVRVNUHTZUBOUIZBKUAZHAVKCUHTZDOUIZWQIXAWPDUBOWGVKVRCUHWHURZUOZUPZWSWQBCKVNCUJZWRWPUBOVNCVRUHUSZUTZVAZVBZVCZAOKVQEFVDVEAEVISTVMXKAVIDEFVFVGVOVMBVIKVNVIVLSUSVAVB $.
+  $}
+
+  ${
+    glimle.1 $e |- ( ph -> F : NN --> RR ) $.
+    glimle.2 $e |- ( ph -> ( n e. NN |-> ( F ` n ) ) ~~> A ) $.
+    glimle.3 $e |- ( ph -> C e. RR ) $.
+    glimle.4 $e |- ( ph -> N e. NN ) $.
+    glimle.5 $e |- ( ph -> A. n e. NN ( N <_ n -> ( F ` n ) <_ C ) ) $.
+  glimle $p |- ( ph -> A <_ C ) $=
+    ( vk cuz cfv csn cxp eqid nnzd cli wbr cn cv cmpt gclimmptf mpbird cc
+    wcel cz recnd ssid fvex climconst2 syl2anc wa cr wf adantr simpr eluznn
+    ffvelcdm wceq fvconst2g eqeltrd cle eluzle syl wi simpl wral breq2 fveq2
+    breq1d imbi12d cbvralvw sylib r19.21bi mpd breqtrrd climle )
+    ABCLEFMNZCOZPZFVTVTQAFJRZAEBSTDUADUBZENZUCBSTHABDEGUDUEACUFUGFUHUGWBCSTACIUIWCCFVTVTUJFMUKULUMALUBZVTUGZUNZUAUOEUPZWFUAUGZWFENZUOUGAWIWGGUQWHFUAUGZWGWJAWLWGJUQZAWGURZWFFUSZUMZUAUOWFEUTUMWHWFWBNZCUOWHCUOUGZWGWQCVAZAWRWGIUQZWNVTCWFUOVBZUMZWTVCWHWKCWQVDWHFWFVDTZWKCVDTZWHWGXCWNFWFVEVFWHAWJXCXDVGZAWGVHWPAXELUAAFWDVDTZWECVDTZVGZDUAVIXELUAVIKXHXEDLUAWDWFVAZXFXCXGXDWDWFFVDVJXIWEWKCVDWDWFEVKVLVMVNVOVPUMVQXBVRVS $.
+  $}
+
+  ${
+    glimge.1 $e |- ( ph -> F : NN --> RR ) $.
+    glimge.2 $e |- ( ph -> ( n e. NN |-> ( F ` n ) ) ~~> A ) $.
+    glimge.3 $e |- ( ph -> C e. RR ) $.
+    glimge.4 $e |- ( ph -> N e. NN ) $.
+    glimge.5 $e |- ( ph -> A. n e. NN ( N <_ n -> C <_ ( F ` n ) ) ) $.
+  glimge $p |- ( ph -> C <_ A ) $=
+    ( vk cuz cfv eqid nnzd cli wbr cn cv cmpt gclimmptf mpbird wcel wa cr wf
+    adantr simpr eluznn syl2anc ffvelcdm cle eluzle syl wi simpl wral wceq
+    breq2 fveq2 breq2d imbi12d cbvralvw sylib r19.21bi mpd climlec2 )
+    ACBLEFFMNZVIOAFJPIAEBQRDSDTZENZUABQRHABDEGUBUCALTZVIUDZUEZSUFEUGZVLSUDZVLENZUFUDAVOVMGUHVNFSUDZVMVPAVRVMJUHZAVMUIZVLFUJZUKZSUFVLEULUKVNFVLUMRZCVQUMRZVNVMWCVTFVLUNUOVNAVPWCWDUPZAVMUQWBAWELSAFVJUMRZCVKUMRZUPZDSURWELSURKWHWEDLSVJVLUSZWFWCWGWDVJVLFUMUTWIVKVQCUMVJVLEVAVBVCVDVEVFUKVGVH $.
+  $}
 
 $}
 
@@ -2732,6 +2795,10 @@ $d z F $.  $d z G $.  $d z R $.  $d z A $.  $d z N $.  $d z ph $.
 $d w F $.  $d w G $.  $d w R $.  $d w A $.  $d w N $.  $d w ph $.
 $d r F $.  $d r G $.  $d r R $.  $d r A $.  $d r N $.  $d r ph $.
 $d d F $.  $d d G $.  $d d R $.  $d d A $.  $d d N $.  $d d ph $.
+$( The polynomial an algebraic number is a root of is the witness of a
+   "there is" binding f, taken from set.mm's own, bound by g: both apart
+   from each other, the number and the scope. $)
+$d f g $.  $d f A $.  $d f ph $.  $d g A $.  $d g ph $.
   gplyval $p |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) ) $=
     ( cc cply cfv wcel wa wf id adantr plyf syl simpr ffvelcdm syl2anc ex )
     BCDEZFZACFZABEZCFZRSGZCCBHZSUAUBRUCRRSRIJCBKLRSMCCABNOP $.
@@ -2855,6 +2922,16 @@ $d d F $.  $d d G $.  $d d R $.  $d d A $.  $d d N $.  $d d ph $.
     ad3antrrr fniniseg mpbird rsp sylc mpd ex ralrimiva nfra1 r19.21 sylib
     anim2d reximdv )
     AKFLZMNZBELZOPZQRZWTSNZXBBTZUAZECUBZKUCZUDZUEZUFZFUGUHXAXEXBCRZKTZUFZXFUAZEUGUEZUFZFUGUHABXJEFAXJUIUJZXJUKRZCULRZSNZACUMUNRZUJZCUOUPZXSYBUFGAYAKUPYEAYADKIADHUQURCUOYAKCUOTYAUOULRKCUOULUSUTVAVBVCXJUMCXJVDVEVFVGAXJCVHZVIXJYFVJACXIVKVLAVIVICAYDVIVICVMZGUMCVNZVCZVOVPABJVQVRAXLXRFUGAXKXQXAAXKXPUAZEUGUEXKXQUAAYJEUGAXBUGUJZUFZXKXPYLXKUFZXOXFYMXOUFZXEXFYNXEXNYMXOVSZVGYNXKXBXJUJZXGYLXKXOVTYNYPXBVIUJZXNUFZYNYQXNYNXBAYKXKXOWAVQYNXEXNYOWBWCYNCVIWDZYPYRWEAYSYKXKXOAVIVICYIWFWGVIKXBCWHVCWIXGEXJWJWKWLWMWMWNXKXPEUGXGEXJWOWPWQWRWSWL $.
+  $}
+
+  ${
+    galgroot.1 $e |- ( ph -> A e. AA ) $.
+  galgroot $p |- ( ph -> E. f e. ( CC ^m CC ) ( ( f e. ( Poly ` ZZ ) /\ ( deg ` f ) e. NN ) /\ ( f ` A ) = 0 ) ) $=
+    ( vg cv cfv cc0 wceq cz cply c0p csn cdif wrex wcel cdgr cn wa cc cmap co
+    caa elaa sylib simprd wf simplr eldifi syl plyf cnex elmap sylibr wne
+    eldifsni simpld ad2antrr simpr dgrnznn syl22anc jca eleq1 fveq2 eleq1d
+    anbi12d fveq1 eqeq1d rspcev syl2anc ex rexlimdva mpd )
+    ABEFZGZHIZEJKGZLMZNZOZCFZVQPZWAQGZRPZSZBWAGZHIZSZCTTUAUBZOZABTPZVTABUCPZWKVTSZDBEUDZUEZUFAVPWJEVSAVNVSPZSZVPWJWQVPSZVNWIPZVNVQPZVNQGZRPZSZVPSZWJWRTTVNUGZWSWRWTXEWRWPWTAWPVPUHZVNVQVRUIZUJZJVNUKUJTTVNULULUMUNWRXCVPWRWTXBXHWRWTVNLUOZWKVPXBXHWRWPXIXFVNVQLUPUJAWKWPVPAWKVTWOUQURWQVPUSZBVNJUTVAVBXJVBWHXDCVNWIWAVNIZWEXCWGVPXKWBWTWDXBWAVNVQVCXKWCXARWAVNQVDVEVFXKWFVOHBWAVNVGVHVFVIVJVKVLVM $.
   $}
 
 $}

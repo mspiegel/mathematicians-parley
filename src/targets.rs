@@ -198,7 +198,9 @@ impl Commutes {
 /// A notation record's `commutes` field read, one entry per pattern in the
 /// order the patterns are written; empty where the record has none.
 pub fn commutes_said(r: &Record) -> Vec<Option<Commutes>> {
-    split_entries(r.field_or_empty("commutes"))
+    r.field("commutes")
+        .map(split_entries)
+        .unwrap_or_default()
         .into_iter()
         .map(Commutes::of)
         .collect()
@@ -217,7 +219,7 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
             continue;
         }
         let says = commutes_said(r);
-        let patterns = split_entries(r.field_or_empty("target"));
+        let patterns = r.field("target").map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(says.iter()) {
             let places = slots(pattern);
             // A target whose two holes a lemma exchanges deeper than one
@@ -269,7 +271,7 @@ pub struct PairInAnyOrder {
 pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
     let mut out = Vec::new();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
-        let patterns = split_entries(r.field_or_empty("target"));
+        let patterns = r.field("target").map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(commutes_said(r)) {
             // Two holes in no order, named or the only two the target has.
             let (i, j) = match said {
@@ -318,7 +320,7 @@ pub fn identities(records: &[Record]) -> Vec<Identity> {
             continue;
         };
         let says = split_entries(says);
-        let patterns = split_entries(r.field_or_empty("target"));
+        let patterns = r.field("target").map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(says.iter()) {
             let Some(law) = identity_said(said) else {
                 continue;

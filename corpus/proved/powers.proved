@@ -266,3 +266,20 @@ lemma g235c
       F )
   4 3eqtr3d 1 2 3 |- ( ph -> C = F )
 
+# `gleexp2`: a power of a base at least 1 is at least as large at a larger
+# exponent in NN0. set.mm's `leexp2a` asks the larger exponent be in the
+# upper integers from the smaller (`eluz2`).
+lemma gleexp2
+  hypothesis gleexp2.1 |- ( ph -> A e. RR )
+  hypothesis gleexp2.2 |- ( ph -> M e. NN0 )
+  hypothesis gleexp2.3 |- ( ph -> N e. NN0 )
+  hypothesis gleexp2.4 |- ( ph -> 1 <_ A )
+  hypothesis gleexp2.5 |- ( ph -> M <_ N )
+  |- ( ph -> ( A ^ M ) <_ ( A ^ N ) )
+  1 nn0zd gleexp2.2 |- ( ph -> M e. ZZ )
+  2 nn0zd gleexp2.3 |- ( ph -> N e. ZZ )
+  3 eluz2 |- ( N e. ( ZZ>= ` M ) <-> ( M e. ZZ /\ N e. ZZ /\ M <_ N ) )
+  4 syl3anbrc 1 2 gleexp2.5 3 |- ( ph -> N e. ( ZZ>= ` M ) )
+  5 leexp2a |- ( ( A e. RR /\ 1 <_ A /\ N e. ( ZZ>= ` M ) ) -> ( A ^ M ) <_ ( A ^ N ) )
+  6 syl3anc gleexp2.1 gleexp2.4 4 5 |- ( ph -> ( A ^ M ) <_ ( A ^ N ) )
+

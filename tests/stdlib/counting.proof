@@ -6,6 +6,7 @@ import theorem            stdlib/counting/count-functions
 import theorem            stdlib/counting/count-one-to-one
 import mundane theorem    stdlib/counting/union-finite as counting-union-finite
 import mundane theorem    stdlib/counting/factorial-nonzero as counting-factorial-nonzero
+import mundane theorem    stdlib/counting/factorial-at-most as counting-factorial-at-most
 import theorem            stdlib/counting/absorption as counting-absorption
 import mundane theorem    stdlib/counting/binomial-one as counting-binomial-one
 import mundane theorem    stdlib/counting/binomial-all as counting-binomial-all
@@ -46,6 +47,15 @@ theorem factorial-nonzero
 
 1.  n! ≠ 0
     mun:counting-factorial-nonzero
+
+theorem factorial-at-most
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  assume a ≤ b                                                        (H3)
+  then a! ≤ b!
+
+1.  a! ≤ b!
+    mun:counting-factorial-at-most m := a, n := b, from H3
 
 theorem union-finite
   let X be a set                                                      (H1)

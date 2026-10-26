@@ -135,8 +135,10 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
         if r.kind == RecordKind::Method {
             if let Some(parts) = r.field("parts") {
                 for part in PART_SPLIT.split(parts) {
-                    let word = part.split_whitespace().next().unwrap_or("");
-                    if !word.is_empty() && !PART_MARKERS.contains(&word) {
+                    let Some(word) = part.split_whitespace().next() else {
+                        continue;
+                    };
+                    if !PART_MARKERS.contains(&word) {
                         report.say(
                             &r.path,
                             r.line,

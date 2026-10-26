@@ -137,7 +137,7 @@ impl Memory {
     pub fn copy(from: &dyn Source, dirs: &[&str]) -> io::Result<Memory> {
         let mut files = IndexMap::new();
         for rel in from.files() {
-            let top = rel.split('/').next().unwrap_or("");
+            let top = rel.split_once('/').map_or(rel.as_str(), |(top, _)| top);
             if dirs.contains(&top) {
                 let bytes = from.read(&rel)?;
                 files.insert(rel, bytes);

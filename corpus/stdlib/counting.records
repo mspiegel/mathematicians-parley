@@ -41,6 +41,16 @@ mundane theorem factorial-product
   target      fprodfac
   note        n! is 1·2·…·n, and 0! the empty product.
 
+mundane theorem factorial-at-most
+  let m ∈ ℕ₀                                                          (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume m ≤ n                                                        (H3)
+  then        m! ≤ n!
+  metamath    facwordi
+  target      facwordi
+  note        A larger number has the larger factorial, the product of more
+              factors at least 1.
+
 mundane theorem factorial-divisible
   let n ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)
