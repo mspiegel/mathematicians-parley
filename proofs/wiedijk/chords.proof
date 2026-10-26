@@ -35,7 +35,7 @@ theorem power-of-a-point
     assume O = P                                                      (C1)
 
     2.1.  |PO| = 0
-          mun:distance-zero P := P, Q := O, from C1
+          mun:distance-zero Q := O, from C1
 
     2.2.  |PA|·|PB| = |OA|·|OB|
           substitute P = O (C1)
@@ -59,7 +59,7 @@ theorem power-of-a-point
           thm:law-of-cosines P := O, Q := P, R := B, from C2, 2.5
 
     2.8.  ∠APO + ∠OPB = 180°
-          thm:supplementary-angles A := A, B := P, C := B, D := O, from C2, H5
+          thm:supplementary-angles B := P, C := B, D := O, from C2, H5
 
     2.9.  ∠APO ∈ ℝ
           mun:angle-real P := A, Q := P, R := O, from C2, 2.5
@@ -91,10 +91,10 @@ theorem power-of-a-point
           substitute cos(∠OPB) = −cos(∠APO) (line 2.14) into line 2.15
 
     2.17. |PA| > 0
-          mun:distance-positive P := P, Q := A, from 2.5
+          mun:distance-positive Q := A, from 2.5
 
     2.18. |PB| > 0
-          mun:distance-positive P := P, Q := B, from 2.5
+          mun:distance-positive Q := B, from 2.5
 
     2.19. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
           algebra, from 2.6

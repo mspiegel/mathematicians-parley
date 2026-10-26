@@ -446,7 +446,7 @@ let G(t) = 0       if t = c
     requires G is a function on (a, b): from D2
 
 14. F is continuous on (a, b)
-    thm:continuous-extension U := (a, b), L := 0, f := f, F := F, from H3, H6, H8, 1, 6, 8, 11
+    thm:continuous-extension U := (a, b), L := 0, from H3, H6, H8, 1, 6, 8, 11
     requires (a, b) is open: mun:open-interval-open
 
 15. G is continuous on (a, b)
@@ -458,11 +458,11 @@ let G(t) = 0       if t = c
     requires (a, b) is open: mun:open-interval-open
 
 17. F is differentiable on (a, b) ∖ {c}
-    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := f, F := F,
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c},
       from H6, 1, 2, 3, 4, 8, 11, 16
 
 18. For all t ∈ (a, b) ∖ {c}, F′(t) = f′(t).
-    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := f, F := F,
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c},
       from H6, 1, 2, 3, 4, 8, 11, 16
 
 19. G is differentiable on (a, b) ∖ {c}
@@ -633,7 +633,7 @@ theorem lhopital
            assume x ≠ c and |x − c| < δ                               (A2)
 
            10.3.1.  ξ ∈ (a, b) ∖ {c}. |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
-                    obtain ξ: thm:quotient-between f := f, from H3, H7, H8, H9, H10, H11, K2
+                    obtain ξ: thm:quotient-between, from H3, H7, H8, H9, H10, H11, K2
 
            10.3.2.  |ξ − c| < δ
                     transitivity, from 10.3.1, A2

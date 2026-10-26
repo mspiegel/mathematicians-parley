@@ -32,7 +32,6 @@ use parley::source::Disk;
 /// stands under and the literal it writes.
 const UNWRITTEN: &[&str] = &[
     "notation holds-of ()",
-    "notation map themapsending∈to",
     "notation map-of-two themapsending∈,∈to",
 ];
 

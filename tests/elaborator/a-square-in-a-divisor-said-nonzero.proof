@@ -9,7 +9,7 @@ theorem a-square-in-a-divisor-said-nonzero
   then y ≥ 0
 
 1.  x² ≥ 0
-    mun:square-nonneg x := x
+    mun:square-nonneg
 
 2.  1 + x² > 0
     inequalities, from 1
@@ -24,5 +24,5 @@ theorem a-requires-line-at-an-interval-member
 
 1.  For all x ∈ [0, 1], 1/(1 + x²) ∈ ℝ.
     membership
-    requires x² ≥ 0: mun:square-nonneg x := x
+    requires x² ≥ 0: mun:square-nonneg
     requires 1 + x² > 0: inequalities

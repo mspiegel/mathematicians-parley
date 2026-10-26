@@ -58,7 +58,7 @@ theorem cevian-ratio
     thm:law-of-sines P := C, Q := O, R := D, from 6
 
 11. ∠BDO + ∠ODC = 180°
-    thm:supplementary-angles A := B, B := D, C := C, D := O, from H7
+    thm:supplementary-angles A := B, B := D, D := O, from H7
     requires O ≠ D: mun:triangle, from 5
 
 12. ∠DOB + ∠BOA = 180°
@@ -66,7 +66,7 @@ theorem cevian-ratio
     requires B ≠ O: mun:triangle, from 5
 
 13. ∠AOC + ∠COD = 180°
-    thm:supplementary-angles A := A, B := O, C := D, D := C, from H8
+    thm:supplementary-angles B := O, C := D, D := C, from H8
     requires C ≠ O: mun:triangle, from 6
 
 14. ∠ODC = 180° − ∠BDO

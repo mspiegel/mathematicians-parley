@@ -31,7 +31,7 @@ theorem a-late-bound-over-another-letter
   then L ≤ 1
 
 1.  L ≤ 1
-    thm:limit-at-most x := (n ∈ ℕ ↦ u(n)), B := 1, N := 1, L := L, from H2, H3
+    thm:limit-at-most x := (n ∈ ℕ ↦ u(n)), B := 1, N := 1, from H2, H3
     requires (n ∈ ℕ ↦ u(n)) : ℕ → ℝ: mun:function-into, from H4
 
 theorem a-late-bound-of-a-letter
@@ -43,4 +43,4 @@ theorem a-late-bound-of-a-letter
   then L ≤ 1
 
 1.  L ≤ 1
-    thm:limit-at-most x := y, B := 1, N := 1, L := L, from H3, H4
+    thm:limit-at-most x := y, B := 1, N := 1, from H3, H4

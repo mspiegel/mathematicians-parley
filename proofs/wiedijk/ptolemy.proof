@@ -152,10 +152,10 @@ theorem cyclic-ptolemy
     mun:between-apart R := P, S := B, T := D, from H11
 
 3.  |PA|·|PC| = |PB|·|PD|
-    thm:intersecting-chords A := A, B := C, C := B, D := D, P := P, O := O, from H7, H8, H9, H10, H11
+    thm:intersecting-chords B := C, C := B, from H7, H8, H9, H10, H11
 
 4.  ∠APB + ∠BPC = 180°
-    thm:supplementary-angles A := A, B := P, C := C, D := B, from H10, 2
+    thm:supplementary-angles B := P, D := B, from H10, 2
 
 5.  ∠BPC + ∠CPD = 180°
     thm:supplementary-angles A := B, B := P, C := D, D := C, from H11, 1
@@ -164,7 +164,7 @@ theorem cyclic-ptolemy
     mun:between-symmetric R := P, S := A, T := C, from H10
 
 7.  ∠CPD + ∠DPA = 180°
-    thm:supplementary-angles A := C, B := P, C := A, D := D, from 2, 6
+    thm:supplementary-angles A := C, B := P, C := A, from 2, 6
 
 8.  ∠BPC = 180° − ∠APB
     algebra, from 4
@@ -288,10 +288,10 @@ theorem cyclic-ptolemy
     mun:distance-nonneg P := D, Q := C
 
 38. |PA| ≥ 0
-    mun:distance-nonneg P := P, Q := A
+    mun:distance-nonneg Q := A
 
 39. |PD| ≥ 0
-    mun:distance-nonneg P := P, Q := D
+    mun:distance-nonneg Q := D
 
 40. |BA| ≥ 0
     mun:distance-nonneg P := B, Q := A
@@ -300,7 +300,7 @@ theorem cyclic-ptolemy
     mun:distance-nonneg P := C, Q := B
 
 42. |PB| ≥ 0
-    mun:distance-nonneg P := P, Q := B
+    mun:distance-nonneg Q := B
 
 43. |AD| ≥ 0
     mun:distance-nonneg P := A, Q := D
@@ -377,7 +377,7 @@ theorem cyclic-ptolemy
                                   = (|AC|·|BD|)·|PA|                                                                 63
 
 65. |PA| > 0
-    mun:distance-positive P := P, Q := A, from 1
+    mun:distance-positive Q := A, from 1
 
 66. |AC|·|BD| = |AB|·|CD| + |AD|·|BC|
     mun:multiply-cancel a := |AC|·|BD|, b := |AB|·|CD| + |AD|·|BC|, c := |PA|, from 64

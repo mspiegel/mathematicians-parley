@@ -8,7 +8,7 @@ theorem an-interval-member-is-cited
   then x² ≥ 0
 
 1.  x² ≥ 0
-    mun:square-nonneg x := x
+    mun:square-nonneg
 
 theorem a-closed-interval-member-is-cited
   note        [a, b] lies in ℝ where its ends are real, and its ends are real said once, so x ∈ [a, b] says x ∈ ℝ once too.
@@ -18,7 +18,7 @@ theorem a-closed-interval-member-is-cited
   then x² ≥ 0
 
 1.  x² ≥ 0
-    mun:square-nonneg x := x
+    mun:square-nonneg
 
 theorem an-interval-member-in-a-method
   note        A method's atom introduced in an interval is a number there, as one introduced in ℝ is.
@@ -47,4 +47,4 @@ theorem an-interval-without-a-point
   then x² ≥ 0
 
 1.  x² ≥ 0
-    mun:square-nonneg x := x
+    mun:square-nonneg

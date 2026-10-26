@@ -2582,8 +2582,8 @@ fn cases() -> Vec<Case> {
             "a requires line writing an open interval member's realness",
             vec![edit(
                 "tests/elaborator/an-interval-member-is-cited.proof",
-                Some("  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n".to_string()),
-                "  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n    requires x ∈ ℝ: from H3\n".to_string(),
+                Some("  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg\n".to_string()),
+                "  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg\n    requires x ∈ ℝ: from H3\n".to_string(),
             )],
             "the requires line of step 1 says x ∈ ℝ, which the page says once, where x is introduced",
         ),
@@ -2591,8 +2591,8 @@ fn cases() -> Vec<Case> {
             "an item citing a closed interval let only for its member's realness",
             vec![edit(
                 "tests/elaborator/an-interval-member-is-cited.proof",
-                Some("  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n".to_string()),
-                "  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x, from H3\n".to_string(),
+                Some("  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg\n".to_string()),
+                "  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg, from H3\n".to_string(),
             )],
             "step 1 cites H3, and mun:square-nonneg asks for nothing it says",
         ),

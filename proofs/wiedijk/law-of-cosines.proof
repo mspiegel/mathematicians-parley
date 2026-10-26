@@ -41,7 +41,7 @@ theorem pythagoras-at-foot
     assume H = Q                                                      (C1)
 
     2.1.  |HQ| = 0
-          mun:distance-zero P := H, Q := Q, from C1
+          mun:distance-zero P := H, from C1
 
     2.2.  |PQ|² = |PH|²
           substitute Q = H (C1)
@@ -61,7 +61,7 @@ theorem pythagoras-at-foot
           mun:modus-ponens, from C2, H5
 
     2.6.  P, H, Q form a triangle
-          mun:right-angle-triangle P := P, Q := H, R := Q, from C2, H4, 2.5
+          mun:right-angle-triangle Q := H, R := Q, from C2, H4, 2.5
 
     2.7.  |PQ|² = |PH|² + |HQ|²
           thm:pythagoras A := P, B := Q, C := H, from 2.5, 2.6
@@ -156,7 +156,7 @@ theorem distance-from-foot
           mun:right-angle-by-cosine, from 1, 4.3
 
     4.5.  |HQ| = 0
-          mun:distance-zero P := H, Q := Q, from C1
+          mun:distance-zero P := H, from C1
 
     4.6.  |HR|² = |QR|²
           substitute H = Q (C1)
@@ -223,7 +223,7 @@ theorem distance-from-foot
     assume R is between Q and H                                       (C4)
 
     4.23. Q ≠ H
-          mun:between-ends-apart R := R, S := Q, T := H, from C4
+          mun:between-ends-apart S := Q, T := H, from C4
 
     4.24. ∠PHQ = 90°
           mun:modus-ponens, from H8, 4.23

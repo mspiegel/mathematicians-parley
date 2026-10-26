@@ -224,7 +224,7 @@ theorem limit-at-least
   let N ∈ ℕ                                                           (H5)
   assume B ≤ x(n) for all n ≥ N                                       (H6)
   then        B ≤ L
-  metamath    climge, from some point on, which this corpus proves in
+  metamath    climlec2, from some point on, which this corpus proves in
               this form in elaboration/stdlib/proved.mm
   target      glimge with F := x, N := N
   note        As limit-at-most, from below.

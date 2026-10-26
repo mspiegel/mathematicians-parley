@@ -144,11 +144,39 @@ impl<'a> Shapes<'a> {
             if self.builds.get(&body.notation()).map(String::as_str) != Some("wrex") {
                 return Some(Witnessed {
                     names,
-                    said: body.written(sentence)?,
+                    said: self.said_of(&body, sentence)?,
                 });
             }
             tree = body;
         }
+    }
+
+    /// What a "there is" says of its names, as written: the body's text, or,
+    /// where the body joins a bound to the rest with the binder's own words,
+    /// as "there exists δ > 0 such that P" joins δ > 0 to P, the two as
+    /// sentences of their own, since "δ > 0 such that P" is no sentence.
+    fn said_of(&self, body: &Node, sentence: &str) -> Option<String> {
+        let conjunction =
+            self.builds.get(&body.notation()).map(String::as_str) == Some("wa");
+        if let ([bound, rest], true) = (body.children.as_slice(), conjunction) {
+            let (Some((_, gap_from)), Some((gap_to, _))) = (bound.span(), rest.span())
+            else {
+                return body.written(sentence);
+            };
+            let between: String = sentence
+                .chars()
+                .skip(gap_from)
+                .take(gap_to.saturating_sub(gap_from))
+                .collect();
+            if between.trim() != "and" {
+                return Some(format!(
+                    "{}. {}",
+                    bound.written(sentence)?,
+                    rest.written(sentence)?
+                ));
+            }
+        }
+        body.written(sentence)
     }
 
     /// The sentence saying a name a "there is" introduces is in its set:
