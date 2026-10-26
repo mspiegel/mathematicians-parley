@@ -795,6 +795,21 @@ notation map
               anyway: an opening parenthesis is grouping and is taken before
               any pattern is tried.
 
+notation map-arrow
+  pattern     _ ∈ _ ↦ _
+  sort        α, set of α, β → function from α to β
+  level       binder
+  binds       hole 1 over hole 3
+  spells      map themapsending∈to
+  reads       maps each of the first in the second to the third
+  metamath    cmpt
+  target      _1 _2 _3 cmpt
+  note        The map written short, as a textbook writes x ↦ e with its
+              domain: `the map sending x ∈ A to e` in another spelling, the
+              same tree (`GRAMMAR.md`). It binds more loosely than anything,
+              so inside other notation it stands in brackets, which are
+              grouping: `(x ∈ [a, b] ↦ F(x)) is continuous on [a, b]`.
+
 notation function-type
   pattern     _ : _ → _
   sort        function from α to β, set of α, set of β → formula

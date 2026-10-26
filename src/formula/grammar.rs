@@ -1450,10 +1450,17 @@ impl<'a> Parser<'a> {
                 continue;
             }
             let want = n.holes.first().map_or("", String::as_str);
+            // A binder whose bound letter stands first, `x ∈ A ↦ e`, binds
+            // the name before it, whatever that name was read as so far.
+            let binds_first =
+                left.is_name() && n.binds.as_ref().is_some_and(|b| b.held.contains(&0));
             // What stands before is read as the hole wants it where its
             // pattern has such a reading (`wanted_reading`), as `(0, 1) ⊆ ℝ`
             // reads the interval.
-            if !fits(want, &left.sort) && self.wanted_reading(left, want).is_none() {
+            if !binds_first
+                && !fits(want, &left.sort)
+                && self.wanted_reading(left, want).is_none()
+            {
                 // The tokens after it are the pattern's own, so the text
                 // writes this notation and only the sort of what stands
                 // before it turns it away: say so, in case nothing reads.
@@ -1673,7 +1680,19 @@ impl<'a> Parser<'a> {
                 Part::Hole => {
                     let want = n.holes.get(kids.len()).map_or("any", String::as_str);
                     if let (0, Some(left)) = (k, left) {
-                        kids.push(left.clone());
+                        // A letter the pattern binds here is the binder's,
+                        // whatever it was read as before the binder was seen.
+                        let bound = left.is_name()
+                            && n.binds.as_ref().is_some_and(|b| b.held.contains(&0));
+                        if bound {
+                            let name = Node::name(Sort::unknown(), &left.text);
+                            if let Some((from, to)) = left.span() {
+                                name.set_span(from, to);
+                            }
+                            kids.push(name);
+                        } else {
+                            kids.push(left.clone());
+                        }
                         took.push(None);
                     } else {
                         let at_edge = k == n.parts.len() - 1;

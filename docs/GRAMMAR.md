@@ -549,6 +549,15 @@ of the sets in D.
 When I is empty there are no sets to intersect, and the intersection is not a
 set. A fact about an intersection therefore assumes `I ≠ ∅`.
 
+A map may be written short, `x ∈ A ↦ e`, as a textbook writes x ↦ e with its
+domain. It is `the map sending x ∈ A to e` in another spelling: one notation,
+read and built the same way. It binds more loosely than anything else, so
+wherever it stands inside other notation it is written in brackets, `(x ∈ [a,
+b] ↦ F(x)) is continuous on [a, b]`. Those brackets are grouping, as around
+any term. Within it, `x ∈ A` before the arrow is the map's letter and domain,
+not a membership: the arrow decides, and a reading that reaches it is taken
+over one that stops at `x ∈ A`.
+
 The range a sum runs over is written as a set, `{0, …, n}`, where a line says
 something of every index in it: "for all k ∈ {0, …, m}, …" is the line a
 sum over 0 to m is rewritten term by term from. `C(n, k)`, n choose k, is the

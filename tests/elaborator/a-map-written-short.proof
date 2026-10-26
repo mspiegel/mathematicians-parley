@@ -1,0 +1,26 @@
+theorem a-map-written-short-is-the-map
+  note        x ∈ A ↦ e is the map sending x ∈ A to e, one notation in two spellings.
+  let x ∈ ℝ    (H1)
+  assume (y ∈ ℝ ↦ y + 1)(x) = 3    (H2)
+  then (the map sending y ∈ ℝ to y + 1)(x) = 3
+
+1.  (the map sending y ∈ ℝ to y + 1)(x) = 3
+    restate H2
+
+theorem a-map-written-short-read-at-a-value
+  note        A map written short is read at a value as the map is: its rule there.
+  let x ∈ ℝ    (H1)
+  assume (y ∈ ℝ ↦ y + 1)(x) = 3    (H2)
+  then x + 1 = 3
+
+1.  x + 1 = 3
+    restate H2
+
+theorem a-membership-before-no-arrow
+  note        Without the arrow, x ∈ A is a membership as ever.
+  let x ∈ ℝ    (H1)
+  assume x ∈ ℕ    (H2)
+  then x ∈ ℕ
+
+1.  x ∈ ℕ
+    restate H2
