@@ -1,0 +1,33 @@
+import mundane theorem    stdlib/functions/function-into
+
+theorem a-map-applied-is-its-rule
+  note        A map applied to a value is its rule at the value: the map sending y ∈ ℝ to y + 1, applied to x, is x + 1.
+  let x ∈ ℝ    (H1)
+  assume (the map sending y ∈ ℝ to y + 1)(x) = 3    (H2)
+  then x + 1 = 3
+
+1.  x + 1 = 3
+    restate H2
+
+theorem a-value-assumed
+  note        A function letter applied, for a citation to give as a map.
+  let f : ℝ → ℝ    (H1)
+  let x ∈ ℝ    (H2)
+  assume f(x) = 3    (H3)
+  then f(x) = 3
+
+1.  f(x) = 3
+    restate H3
+
+theorem a-function-letter-given-as-a-map
+  note        A citation giving a function letter as a map reads the letter applied as the map's rule there, and the map is a function on its domain said once: function-into gives its type from its values.
+  let x ∈ ℝ    (H1)
+  assume x + 1 = 3    (H2)
+  then x + 1 = 3
+
+1.  For all y ∈ ℝ, y + 1 ∈ ℝ.
+    membership
+
+2.  x + 1 = 3
+    thm:a-value-assumed f := (the map sending y ∈ ℝ to y + 1), x := x, from H2
+    requires (the map sending y ∈ ℝ to y + 1) : ℝ → ℝ: mun:function-into, from 1

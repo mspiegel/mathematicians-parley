@@ -20,7 +20,9 @@ use crate::corpus::{Record, RecordKind};
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Binds, ByShape, Node, NodeId, Notation};
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO, NUMERAL, PROPERTY_OF};
+use crate::notations::{
+    APPLICATION, APPLICATION_TO_TWO, MAP, MAP_OF_TWO, NUMERAL, PROPERTY_OF,
+};
 use crate::regex;
 
 /// Split on the commas outside brackets.
@@ -694,6 +696,12 @@ enum Standard<'c> {
 /// `standard` of a tree that has a spelling to turn somewhere in it; None
 /// for one that has none, which is kept as it is, with what it was read from.
 fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
+    // A map applied to a value is its rule at the value, as the build reads
+    // it (`applied_body`): the map sending y ∈ D to u(y), applied to x, is
+    // u(x). That x is in D is the step's to say (`SYNTAX.md`, a map).
+    if let Some(read) = map_applied(node, ctx) {
+        return Some(turned_to_standard(&read, ctx).unwrap_or(read));
+    }
     let turned: Vec<Option<Node>> = node
         .children
         .iter()
@@ -741,6 +749,55 @@ fn turned_to_standard(node: &Node, ctx: &Context) -> Option<Node> {
         }
         None => node.with_children(children),
     })
+}
+
+/// A map applied to a value, read as the map's rule with the value for the
+/// letter it binds, and a map of two applied to two values the same way with
+/// each for its letter; None for anything else.
+pub fn map_applied(node: &Node, ctx: &Context) -> Option<Node> {
+    let (letters, rule, values) = match (node.notation(), node.children.as_slice()) {
+        (APPLICATION, [map, at]) => match (map.notation(), map.children.as_slice()) {
+            (MAP, [letter, _, rule]) => (vec![letter], rule, vec![at]),
+            _ => return None,
+        },
+        (APPLICATION_TO_TWO, [map, a, b]) => {
+            match (map.notation(), map.children.as_slice()) {
+                (MAP_OF_TWO, [x, _, y, _, rule]) => (vec![x, y], rule, vec![a, b]),
+                _ => return None,
+            }
+        }
+        _ => return None,
+    };
+    if !letters.iter().all(|l| l.is_name()) {
+        return None;
+    }
+    let binding: Binding = letters
+        .iter()
+        .zip(values)
+        .map(|(l, v)| (l.text, v.clone()))
+        .collect();
+    Some(substitute_apart(rule, &binding, ctx))
+}
+
+/// Each value a map applied in `node` is read at, with the domain the map
+/// gives that value: one for a map, two for a map of two. Empty for
+/// anything else.
+pub fn map_arguments(node: &Node) -> Vec<(Node, Node)> {
+    match (node.notation(), node.children.as_slice()) {
+        (APPLICATION, [map, at]) => match (map.notation(), map.children.as_slice()) {
+            (MAP, [_, domain, _]) => vec![(at.clone(), domain.clone())],
+            _ => Vec::new(),
+        },
+        (APPLICATION_TO_TWO, [map, a, b]) => {
+            match (map.notation(), map.children.as_slice()) {
+                (MAP_OF_TWO, [_, first, _, second, _]) => {
+                    vec![(a.clone(), first.clone()), (b.clone(), second.clone())]
+                }
+                _ => Vec::new(),
+            }
+        }
+        _ => Vec::new(),
+    }
 }
 
 /// The notations whose `metamath` is set.mm's `Fn`: what a define with a
@@ -1007,6 +1064,9 @@ fn fit_each(
         if let Some(filled) = rule_at_open_argument(pattern, binding, variables, ctx) {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
+        if let Some(filled) = map_at_argument(pattern, binding, ctx) {
+            return fit_each(&filled, ground, binding, variables, sites, ctx, then);
+        }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
             return then_kept(fits, before, binding, then);
         }
@@ -1052,6 +1112,20 @@ fn rule_at_open_argument(
     let mut put = Binding::new();
     put.insert(stands.text, arg.clone());
     Some(substitute_apart(&stands.children[0], &put, ctx))
+}
+
+/// t(u) where t is bound already to a map: the map's rule with u, as the
+/// pattern writes it, for the letter it binds (`map_applied`): L'Hôpital's
+/// f(x)/g(x), with f the map sending y ∈ D to u(y), is u(x)/g(x). None
+/// where t is bound to no map.
+fn map_at_argument(pattern: &Node, binding: &Binding, ctx: &Context) -> Option<Node> {
+    let stands = binding.get(&pattern.children[0].text)?;
+    let mut children = vec![stands.clone()];
+    children.extend(pattern.children[1..].iter().cloned());
+    map_applied(
+        &Node::of(pattern.spelling(), pattern.sort.clone(), children),
+        ctx,
+    )
 }
 
 /// The rule `x ↦ g(x)` a function letter t of the pattern may stand for at

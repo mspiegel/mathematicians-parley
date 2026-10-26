@@ -92,4 +92,6 @@ notations! {
     CLOSED_INTERVAL = 60, "closed-interval";
     OPEN_INTERVAL = 61, "open-interval";
     SET_BUILDER = 62, "set-builder";
+    MAP = 63, "map";
+    MAP_OF_TWO = 64, "map-of-two";
 }

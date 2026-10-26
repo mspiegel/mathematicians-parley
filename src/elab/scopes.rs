@@ -3255,17 +3255,15 @@ impl<'a> Elaborator<'a> {
             .filter(|r| self.thm.defines.iter().any(|d| &d.label == *r))
             .cloned()
             .collect();
-        let joined_terms: Vec<(Rpn, Proof)> = if defines.is_empty() {
-            Vec::new()
-        } else {
-            let mut out = Vec::new();
-            for r in step.just.refs.iter().filter(|r| !defines.contains(r)) {
-                if let Some(l) = self.line_written(r, &lines) {
-                    out.push((l.claim, self.carried(r, facts, &lines)));
-                }
+        // And a line is the claim where the two are one in standard form,
+        // as the checker compares them: a map applied is its rule there
+        // (`SYNTAX.md`, a map).
+        let mut joined_terms: Vec<(Rpn, Proof)> = Vec::new();
+        for r in step.just.refs.iter().filter(|r| !defines.contains(r)) {
+            if let Some(l) = self.line_written(r, &lines) {
+                joined_terms.push((l.claim, self.carried(r, facts, &lines)));
             }
-            out
-        };
+        }
         let found = |me: &mut Elaborator,
                      held: &Facts,
                      term: &Rpn,

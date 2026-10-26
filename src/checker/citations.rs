@@ -35,7 +35,7 @@ use crate::matching::{
 use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, BICONDITIONAL, CONDITIONAL, EQUALITY, FOR_ALL,
     FOR_ALL_PART, FOR_ALL_SETS, FUNCTION_ON, FUNCTION_TYPE, IMPLICATION, IN,
-    INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
+    INTEGER_RANGE, LOGICAL_NOT, MAP, MEMBERSHIP, NUMBER_SYSTEMS, NUMERAL, ORDER, PLUS,
     POWERSET, PROPERTY_OF, SUBSET, THERE_IS, THERE_IS_SOME, WITHOUT,
 };
 use crate::outcome::{Built, Declined, Route};
@@ -820,7 +820,129 @@ pub fn check_hypotheses(
                 ),
             );
         }
+        for asked in map_domains_unsaid(step, known, library) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} reads a map at a value, which asks for {}, and nothing the step names says it; a requires line says it",
+                    step.number,
+                    known.print(&asked)
+                ),
+            );
+        }
+        for asked in map_types_unsaid(step, known, library) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {}, which asks for {}, and nothing the step names says it; a requires line says it",
+                    step.number,
+                    step.just.cited_item().unwrap_or_default(),
+                    known.print(&asked)
+                ),
+            );
+        }
     }
+}
+
+/// What a map read at a value asks: that the value is in the map's domain,
+/// where the step's claim or a line it cites applies a map, as the rule is
+/// the map's value only there (`SYNTAX.md`, a map). A value holding a letter
+/// a binder around it binds is said of every member, and asks nothing of
+/// one. Each membership asked and not among the step's facts, those the
+/// page says once included.
+fn map_domains_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node> {
+    let mut written: Vec<Node> =
+        known.whole_as_written(&step.claim).into_iter().collect();
+    let scope = known.scope(step);
+    let defined = known.citing_step(step);
+    for r in &step.just.refs {
+        if let Some(stated) = scope.get(r) {
+            written.extend(known.says(stated, &defined).into_iter().map(|s| s.written));
+        }
+    }
+    let mut asked: Vec<Node> = Vec::new();
+    for node in &written {
+        maps_applied(node, &mut Vec::new(), library, &mut asked);
+    }
+    if asked.is_empty() {
+        return Vec::new();
+    }
+    let parts = known.parts(step, library);
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
+    asked
+        .into_iter()
+        .map(|a| standard(&a, &library.ctx))
+        .filter(|a| !parts.facts.iter().any(|f| known.alike(f, a)))
+        .filter(|a| seen.insert(a.by_shape()))
+        .collect()
+}
+
+/// Each `value ∈ domain` a map applied in `node` asks, where the value holds
+/// no letter of `bound`, the letters the binders around it hold.
+fn maps_applied(
+    node: &Node,
+    bound: &mut Vec<String>,
+    library: &Library,
+    out: &mut Vec<Node>,
+) {
+    for (at, domain) in crate::matching::map_arguments(node) {
+        if at.names().iter().all(|n| !bound.iter().any(|b| b == n)) {
+            out.push(page::made(library.env.g, IN, vec![at, domain]));
+        }
+    }
+    let held: Vec<String> = library
+        .ctx
+        .binders
+        .get(&node.notation())
+        .map(|b| {
+            b.held
+                .iter()
+                .filter_map(|&at| node.children.get(at))
+                .filter(|v| v.is_name())
+                .map(|v| v.text.to_string())
+                .collect()
+        })
+        .unwrap_or_default();
+    let depth = bound.len();
+    bound.extend(held);
+    for child in &node.children {
+        maps_applied(child, bound, library, out);
+    }
+    bound.truncate(depth);
+}
+
+/// The types an item's `let f : X → Y` lines ask of what a citation gives
+/// its function letters, where it gives a map: the map is a function on the
+/// domain it writes, said once, but what it sends each member to is the
+/// step's to say, as `requires (the map sending y ∈ ℝ to y + 1) : ℝ → ℝ:
+/// mun:function-into, from 1` does (`SYNTAX.md`, a map). A letter given as
+/// a letter has its own type in scope, which the citation reads
+/// (`typed_seed`). Each type asked and not among the step's lines.
+fn map_types_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node> {
+    let Some(item) = step.just.cited_item() else {
+        return Vec::new();
+    };
+    let name = step.just.item(&item);
+    let typed = library.function_types(&name);
+    if typed.is_empty() {
+        return Vec::new();
+    }
+    let parts = known.parts(step, library);
+    let stands = crate::citing::stood_for(&parts, &name, library);
+    let given_a_map = |t: &Node| {
+        t.children
+            .first()
+            .and_then(|f| stands.get(&f.text))
+            .is_some_and(|v| v.notation() == MAP)
+    };
+    typed
+        .iter()
+        .filter(|t| given_a_map(t))
+        .map(|t| standard(&substitute_apart(t, &stands, &library.ctx), &library.ctx))
+        .filter(|asked| !parts.facts.iter().any(|f| known.alike(f, asked)))
+        .collect()
 }
 
 /// A citation's claim is what the item concludes, under the binding its
@@ -5021,6 +5143,8 @@ pub fn check_surplus(
     // cited line taken away.
     let holds_given = |step: &Step, requires_concluded: bool| -> bool {
         if unsupplied(step, known, library).is_some()
+            || !map_types_unsaid(step, known, library).is_empty()
+            || !map_domains_unsaid(step, known, library).is_empty()
             || (!requires_concluded && !unconcluded(step, known, library).is_empty())
             || !domains_unsaid(step, &functions, known, library).is_empty()
         {

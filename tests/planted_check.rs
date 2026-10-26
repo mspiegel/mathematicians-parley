@@ -5685,6 +5685,29 @@ fn cases() -> Vec<Case> {
             )],
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
+        // A map is its rule only on its domain: read at x, it asks x is
+        // there, which ℝ's x is not said to be for a map on ℕ.
+        case(
+            "a map read at a value its domain is not said to hold",
+            vec![edit(
+                "tests/elaborator/a-map-applied.proof",
+                Some("  assume (the map sending y ∈ ℝ to y + 1)(x) = 3    (H2)\n".to_string()),
+                "  assume (the map sending y ∈ ℕ to y + 1)(x) = 3    (H2)\n".to_string(),
+            )],
+            "step 1 reads a map at a value, which asks for x ∈ ℕ",
+        ),
+        // A map given for a function letter has the type the item's let asks
+        // where a line says it: what it sends each member to is the step's
+        // to say, as the map's domain is not.
+        case(
+            "a map given for a function letter with no line saying its type",
+            vec![edit(
+                "tests/elaborator/a-map-applied.proof",
+                Some("    requires (the map sending y ∈ ℝ to y + 1) : ℝ → ℝ: mun:function-into, from 1\n".to_string()),
+                String::new(),
+            )],
+            "step 2 cites thm:a-value-assumed, which asks for (the map sending y ∈ ℝ to y + 1) : ℝ → ℝ, and nothing the step names says it; a requires line says it",
+        ),
         // A function to a power is refused: its n-th derivative is written
         // with the order in parentheses, f^(n).
         case(

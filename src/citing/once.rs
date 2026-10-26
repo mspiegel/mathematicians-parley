@@ -26,8 +26,9 @@ use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
     APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE,
-    JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
-    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS, WITHOUT,
+    JUXTAPOSITION, MAP, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS,
+    NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+    WITHOUT,
 };
 use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
@@ -269,7 +270,37 @@ pub fn said_once(
         }
     }
     out.extend(points_in_plane(parts, &seeded, in_plane, library));
+    out.extend(maps_on_domains(parts, &seeded, library));
     parts.facts.extend(out);
+}
+
+/// Each map the step's facts, claims or values write is a function on its
+/// domain, which the map writes and the page so says once (`SYNTAX.md`, a
+/// map): `the map sending y ∈ ℝ to y + 1` is a function on ℝ.
+fn maps_on_domains(parts: &Parts, seeded: &[Node], library: &Library) -> Vec<Node> {
+    let mut seen: FxIndexSet<ByShape> = FxIndexSet::default();
+    let mut out = Vec::new();
+    for node in parts
+        .facts
+        .iter()
+        .chain(&parts.claims)
+        .chain(seeded)
+        .flat_map(|n| n.walk())
+    {
+        let (MAP, [_, domain, _]) = (node.notation(), node.children.as_slice()) else {
+            continue;
+        };
+        if !seen.insert(node.by_shape()) {
+            continue;
+        }
+        let on = vec![node.clone(), domain.clone()];
+        if let Some(made) =
+            crate::formula::page::made_as(library.env.g, "_ is a function on _", on)
+        {
+            out.push(made);
+        }
+    }
+    out
 }
 
 /// A number system's set as the code writes it, `ℝ`, and the membership

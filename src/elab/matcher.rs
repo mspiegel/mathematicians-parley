@@ -714,6 +714,39 @@ impl<'a> Elaborator<'a> {
         if label == "wtru" {
             return Ok(Built(pf!(self.b; rpn, scope, self.step("tru"), "a1i")));
         }
+        // A map is a function on the domain it writes, said once
+        // (`SYNTAX.md`, a map), where each value its rule gives is a set
+        // (`mptfng`), as a define's function is (`define_on`).
+        if label == "wfn" && kids.len() == 2 && kids[0].label() == Some("cmpt") {
+            let map = &kids[0];
+            let (letter, over, rule) = (
+                self.rpn(&map.children()[0]),
+                self.rpn(&map.children()[1]),
+                self.rpn(&map.children()[2]),
+            );
+            if over == self.rpn(&kids[1]) {
+                let every = t!(t!(rule, "cvv", "wcel"), letter, over, "wral");
+                let sets = take!(self.settle(
+                    &self.to_term(&every),
+                    scope,
+                    unfiltered,
+                    depth,
+                    step,
+                    lines
+                )?);
+                let map_rpn = self.rpn(map);
+                let on = self.b.ap(
+                    "mptfng",
+                    &binds! {"F" => &map_rpn, "x" => &letter, "A" => &over, "B" => &rule},
+                    &[&self.b.ap("eqid", &binds! {"A" => &map_rpn}, &[])],
+                );
+                return Ok(Built(self.b.ap(
+                    "sylib",
+                    &binds! {"ph" => scope, "ps" => &every, "ch" => &rpn},
+                    &[&sets, &on],
+                )));
+            }
+        }
         // A term equals itself, which no line need write.
         if label == "wceq"
             && kids.len() == 2

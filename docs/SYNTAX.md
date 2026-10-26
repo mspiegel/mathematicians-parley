@@ -790,6 +790,15 @@ is stated `then G(a, n) = (1 − a^(n + 1))/(1 − a)`: the theorem is a fact ab
 G, and the reader meets G before the fact. A define over the theorem's own
 `let` names, which do not exist above the theorem, goes in its header.
 
+**A map is a function without a name.** `the map sending x ∈ A to e` is read
+as a define's function is. Applied to a value it is e at that value: `(the
+map sending y ∈ ℝ to y + 1)(x)` is x + 1, and a step reading it so says x ∈ A
+where the page does not say it once. It is a function on A, which the page
+says once. It may be given for an item's function letter, `thm:mean-value f
+:= (the map sending x ∈ [a, b] to F(x))`, and what the item says of f(x) is
+then said of F(x). A map of two arguments, `the map sending i ∈ I, j ∈ J to
+e`, is read the same way at two values.
+
 **A function may be defined by cases**, one case to a line, as a textbook
 prints it inside a brace:
 
