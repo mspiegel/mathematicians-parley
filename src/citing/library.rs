@@ -431,7 +431,10 @@ impl<'a> Library<'a> {
                 .collect();
             // A theorem's statement means what it meant in its own file: a
             // definition it names is written out there, so what cites it is
-            // compared with the rule and never with a name of its own.
+            // compared with the rule and never with a name of its own. The
+            // rule written out is put in the standard spelling as the rest
+            // is, as a citing step reads it (`Known::read_citing`): the x² of
+            // a define's rule is x^2.
             let own = statement_definitions(
                 thm,
                 self.env,
@@ -440,14 +443,14 @@ impl<'a> Library<'a> {
             let facts: Vec<(String, Node)> = self
                 .facts(&lines, &k.sorts)
                 .into_iter()
-                .map(|(text, tree)| (text, expand(&tree, &own)))
+                .map(|(text, tree)| (text, standard(&expand(&tree, &own), &self.ctx)))
                 .collect();
             let conclusion =
                 Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
             let gives: Vec<Node> = self
                 .trees(&[conclusion], &k.sorts)
                 .iter()
-                .map(|t| expand(t, &own))
+                .map(|t| standard(&expand(t, &own), &self.ctx))
                 .collect();
             let functions = applied_functions(
                 gives.iter().chain(facts.iter().map(|(_, t)| t)),

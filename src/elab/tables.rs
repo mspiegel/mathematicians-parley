@@ -473,6 +473,37 @@ impl<'a> Elaborator<'a> {
                 &[&moved, &made],
             )));
         }
+        // An integral's integrand is carried under its letter's membership
+        // of [a, b], the integral running forward (`gditgeq3d`): the
+        // integral sees its integrand only between its ends, and a define
+        // read at the letter is its rule only inside its domain.
+        if label == "cdit" && g[..3] == w[..3] && g[3] != w[3] {
+            let kids = given.children();
+            let (name, low, high, body) =
+                (g[0].clone(), g[1].clone(), g[2].clone(), &kids[3]);
+            if name.alone().is_some_and(|n| scope.has(n)) {
+                return self
+                    .over_spare_letter(given, want, 0, scope, facts, step, leaf);
+            }
+            let forward = t!(low, high, "cle", "wbr");
+            let ordered = match self.held(facts, &forward, scope)? {
+                Some(p) => p,
+                None => take!(self.prove_numeral(&forward, scope, facts)?),
+            };
+            let member = t!(name, "cv", t!(low, high, "cicc", "co"), "wcel");
+            let other = want.children()[3].clone();
+            let made = self.frames_kept(|me| {
+                let (inner, lifted) = me.widen(scope, facts, &member, None);
+                me.congruence(body, &other, &inner, &lifted, step, leaf)
+            })?;
+            let made = take!(made);
+            return Ok(Built(self.b.ap(
+                "gditgeq3d",
+                &binds! {"ph" => scope, "A" => &low, "B" => &high, "S" => self.rpn(body),
+                "T" => self.rpn(&other), "x" => &name},
+                &[&ordered, &made],
+            )));
+        }
         // A set-builder's condition is carried the same way, under its
         // letter's membership of the domain.
         if label == "crab" && g[1] == w[1] && g[2] == w[2] && g[0] != w[0] {

@@ -1,0 +1,17 @@
+define P(n) := ∫(0 to 1) t^n/(1 + t²) dt, for n ∈ ℕ₀                     (D1)
+       reads an integral whose rule writes a square
+
+theorem a-define-with-a-square-written-out
+  note        A theorem stated over a define whose rule writes t², which a step citing it reads as t^2.
+  let n ∈ ℕ₀    (H1)
+  then P(n) = ∫(0 to 1) t^n/(1 + t²) dt
+
+1.  P(n) = ∫(0 to 1) t^n/(1 + t²) dt
+    D1
+
+theorem a-theorem-over-a-define-with-a-square
+  note        Citing a theorem of the same file stated over P: its statement, the define written out, is compared in the one spelling of a square.
+  then P(0) = ∫(0 to 1) t^0/(1 + t²) dt
+
+1.  P(0) = ∫(0 to 1) t^0/(1 + t²) dt
+    thm:a-define-with-a-square-written-out n := 0

@@ -15,6 +15,11 @@ import mundane theorem    stdlib/trigonometry/cos-decreasing as trigonometry-cos
 import mundane theorem    stdlib/trigonometry/special-angles as trigonometry-special-angles
 import mundane theorem    stdlib/trigonometry/cos-supplement as trigonometry-cos-supplement
 import mundane theorem    stdlib/trigonometry/sin-supplement as trigonometry-sin-supplement
+import mundane definition stdlib/trigonometry/arctan
+import mundane theorem    stdlib/trigonometry/arctan-values as trigonometry-arctan-values
+import mundane theorem    stdlib/trigonometry/arctan-real as trigonometry-arctan-real
+import theorem            stdlib/trigonometry/continuous-arctan as trigonometry-continuous-arctan
+import theorem            stdlib/trigonometry/derivative-arctan as trigonometry-derivative-arctan
 
 theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -120,3 +125,36 @@ theorem sin-supplement
 
 1.  sin(180° − x) = sin(x)
     mun:trigonometry-sin-supplement
+
+theorem arctan-values
+  then arctan(0) = 0. arctan(1) = π/4.
+
+1.  arctan(0) = 0. arctan(1) = π/4.
+    mun:trigonometry-arctan-values
+
+theorem arctan-real
+  let y ∈ ℝ                                                           (H1)
+  then arctan(y) ∈ ℝ
+
+1.  arctan(y) ∈ ℝ
+    mun:trigonometry-arctan-real x := y
+
+theorem continuous-arctan
+  let E ⊆ ℝ                                                           (H1)
+  let h : E → ℝ                                                       (H2)
+  assume for all y ∈ E, h(y) = arctan(y)                              (H3)
+  then h is continuous on E
+
+1.  h is continuous on E
+    thm:trigonometry-continuous-arctan D := E, g := h, from H1, H3
+
+theorem derivative-arctan
+  let E ⊆ ℝ                                                           (H1)
+  let V ⊆ E                                                           (H2)
+  assume V is open                                                    (H3)
+  let h : E → ℝ                                                       (H4)
+  assume for all y ∈ E, h(y) = arctan(y)                              (H5)
+  then h is differentiable on V. For all y ∈ V, h′(y) = 1/(1 + y²).
+
+1.  h is differentiable on V. For all y ∈ V, h′(y) = 1/(1 + y²).
+    thm:trigonometry-derivative-arctan D := E, U := V, g := h, from H1, H2, H3, H5

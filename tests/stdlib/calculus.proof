@@ -22,6 +22,16 @@ import mundane theorem    stdlib/calculus/derivative-real-on
 import mundane theorem    stdlib/calculus/differentiable-on-part
 import mundane theorem    stdlib/calculus/derivative-local
 import theorem            stdlib/calculus/continuous-extension
+import mundane definition stdlib/calculus/series-sum-from-zero
+import theorem            stdlib/calculus/continuous-constant
+import theorem            stdlib/calculus/continuous-power
+import theorem            stdlib/calculus/continuous-scaled
+import theorem            stdlib/calculus/continuous-quotient
+import theorem            stdlib/calculus/derivative-power
+import theorem            stdlib/calculus/derivative-scaled
+import theorem            stdlib/calculus/integral-difference
+import theorem            stdlib/calculus/integral-order
+import theorem            stdlib/calculus/integral-nonneg
 
 theorem limit-unfolded
   ε, δ range over ℝ
@@ -340,3 +350,118 @@ theorem a-limit-filled-in
 
 1.  H is continuous on U
     thm:continuous-extension c := p, L := 0, f := h, F := H, from H1, H2, H3, H6, H7, H8, H9
+
+theorem a-series-from-its-zeroth-term
+  let s : ℕ₀ → ℝ                                                      (H1)
+  assume Σ(j = 0 to m) s(j) → 3 as m → ∞                              (H2)
+  then Σ(j = 0 to ∞) s(j) = 3
+
+1.  Σ(j = 0 to ∞) s(j) = 3
+    mun:series-sum-from-zero t := s, L := 3, from H2
+
+theorem a-constant-is-continuous
+  let E ⊆ ℝ                                                           (H1)
+  let h : E → ℝ                                                       (H2)
+  assume for all y ∈ E, h(y) = 5                                      (H3)
+  then h is continuous on E
+
+1.  h is continuous on E
+    thm:continuous-constant D := E, c := 5, g := h, from H1, H3
+
+theorem a-power-is-continuous
+  let E ⊆ ℝ                                                           (H1)
+  let h : E → ℝ                                                       (H2)
+  assume for all y ∈ E, h(y) = y^3                                    (H3)
+  then h is continuous on E
+
+1.  h is continuous on E
+    thm:continuous-power D := E, n := 3, g := h, from H1, H3
+
+theorem a-multiple-is-continuous
+  let E ⊆ ℝ                                                           (H1)
+  let h : E → ℝ                                                       (H2)
+  let H : E → ℝ                                                       (H3)
+  assume for all y ∈ E, H(y) = 7·h(y)                                 (H4)
+  assume h is continuous on E                                         (H5)
+  then H is continuous on E
+
+1.  H is continuous on E
+    thm:continuous-scaled D := E, c := 7, F := H, f := h, from H1, H4, H5
+
+theorem a-quotient-is-continuous
+  let E ⊆ ℝ                                                           (H1)
+  let h : E → ℝ                                                       (H2)
+  let k : E → ℝ                                                       (H3)
+  let H : E → ℝ                                                       (H4)
+  assume for all y ∈ E, k(y) ≠ 0                                      (H5)
+  assume for all y ∈ E, H(y) = h(y)/k(y)                              (H6)
+  assume h is continuous on E                                         (H7)
+  assume k is continuous on E                                         (H8)
+  then H is continuous on E
+
+1.  H is continuous on E
+    thm:continuous-quotient D := E, F := H, f := h, g := k, from H1, H5, H6, H7, H8
+
+theorem the-derivative-of-a-power
+  let E ⊆ ℝ                                                           (H1)
+  let V ⊆ E                                                           (H2)
+  assume V is open                                                    (H3)
+  let h : E → ℝ                                                       (H4)
+  assume for all y ∈ E, h(y) = y^(2 + 1)                              (H5)
+  then h is differentiable on V. For all y ∈ V, h′(y) = (2 + 1)·y^2.
+
+1.  h is differentiable on V. For all y ∈ V, h′(y) = (2 + 1)·y^2.
+    thm:derivative-power D := E, U := V, n := 2, g := h, from H1, H2, H3, H5
+
+theorem the-derivative-of-a-multiple
+  let E ⊆ ℝ                                                           (H1)
+  let V ⊆ E                                                           (H2)
+  let h : E → ℝ                                                       (H3)
+  let H : E → ℝ                                                       (H4)
+  assume for all y ∈ E, H(y) = 7·h(y)                                 (H5)
+  assume h is differentiable on V                                     (H6)
+  then H is differentiable on V. For all y ∈ V, H′(y) = 7·h′(y).
+
+1.  H is differentiable on V. For all y ∈ V, H′(y) = 7·h′(y).
+    thm:derivative-scaled D := E, U := V, c := 7, F := H, f := h, from H1, H2, H5, H6
+
+theorem an-integral-of-a-difference
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  assume c < d                                                        (H3)
+  let h : [c, d] → ℝ                                                  (H4)
+  let k : [c, d] → ℝ                                                  (H5)
+  let H : [c, d] → ℝ                                                  (H6)
+  assume for all y ∈ [c, d], H(y) = h(y) − k(y)                       (H7)
+  assume h is continuous on [c, d]                                    (H8)
+  assume k is continuous on [c, d]                                    (H9)
+  then ∫(c to d) H(s) ds = ∫(c to d) h(s) ds − ∫(c to d) k(s) ds
+
+1.  ∫(c to d) H(s) ds = ∫(c to d) h(s) ds − ∫(c to d) k(s) ds
+    thm:integral-difference a := c, b := d, f := h, g := k, h := H, from H3, H7, H8, H9
+
+theorem integrals-in-order
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  assume c < d                                                        (H3)
+  let h : [c, d] → ℝ                                                  (H4)
+  let k : [c, d] → ℝ                                                  (H5)
+  assume for all y ∈ [c, d], h(y) ≤ k(y)                              (H6)
+  assume h is continuous on [c, d]                                    (H7)
+  assume k is continuous on [c, d]                                    (H8)
+  then ∫(c to d) h(s) ds ≤ ∫(c to d) k(s) ds
+
+1.  ∫(c to d) h(s) ds ≤ ∫(c to d) k(s) ds
+    thm:integral-order a := c, b := d, f := h, g := k, from H3, H6, H7, H8
+
+theorem an-integral-not-negative
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  assume c < d                                                        (H3)
+  let h : [c, d] → ℝ                                                  (H4)
+  assume for all y ∈ [c, d], h(y) ≥ 0                                 (H5)
+  assume h is continuous on [c, d]                                    (H6)
+  then ∫(c to d) h(s) ds ≥ 0
+
+1.  ∫(c to d) h(s) ds ≥ 0
+    thm:integral-nonneg a := c, b := d, f := h, from H3, H5, H6

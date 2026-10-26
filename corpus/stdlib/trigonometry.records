@@ -193,3 +193,48 @@ mundane theorem sin-supplement
   target      gsinsupp
   note        Supplementary angles have one sine, as the two angles at a
               point of a line do.
+
+mundane definition arctan
+  sort        number → number
+  builds      _1 catan cfv
+  reads       the arctangent of
+  metamath    df-atan, by the complex logarithm
+  note        As for cos, this definition states nothing but what arctan(x)
+              builds. On ℝ it is the inverse of the tangent on (−π/2, π/2),
+              the function a reader knows; what a proof needs of it is in
+              items of its own.
+
+mundane theorem arctan-values
+  then        arctan(0) = 0. arctan(1) = π/4.
+  metamath    atan0, atan1
+  target      atan0, atan1
+
+mundane theorem arctan-real
+  let x ∈ ℝ                                                           (H1)
+  then        arctan(x) ∈ ℝ
+  metamath    atanrecl
+  target      atanrecl
+
+theorem continuous-arctan
+  let D ⊆ ℝ                                                           (H1)
+  let g : D → ℝ                                                       (H2)
+  assume for all x ∈ D, g(x) = arctan(x)                              (H3)
+  then        g is continuous on D
+  metamath    gcncfatan, which this corpus proves in
+              elaboration/stdlib/proved.mm from atancn and ressatans
+  target      gcncfatanres
+
+theorem derivative-arctan
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  assume U is open                                                    (H3)
+  let g : D → ℝ                                                       (H4)
+  assume for all x ∈ D, g(x) = arctan(x)                              (H5)
+  then        g is differentiable on U.
+              For all x ∈ U, g′(x) = 1/(1 + x²).
+  metamath    gdvatan, gdvatanv, which this corpus proves in
+              elaboration/stdlib/proved.mm from dvatan and dvres
+  target      gdvatan, gdvatanv with D := D
+  note        set.mm's dvatan is taken on the complex domain where arctan
+              is differentiable, which holds ℝ (ressatans); the page asks
+              it of a function on a set of reals, as derivative-square does.

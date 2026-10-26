@@ -18,7 +18,7 @@ use crate::citing::{
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
-use crate::matching::{alike, substitute_apart, Binding, Context};
+use crate::matching::{alike, standard, substitute_apart, Binding, Context};
 use crate::notations::{
     ADDITIVE, APPLICATION, BY_CASES, DIVIDED, EQUALITY, FOR_ALL, GREATER,
     INTEGER_RANGE, JUXTAPOSITION, LESS, LOGICAL_NOT, MEMBERSHIP, MULTIPLICATIVE,
@@ -135,8 +135,16 @@ fn member(term: &Node, system: System, facts: &Facts, depth: usize) -> bool {
     within(term, system, &facts.letters, &nonzero, &said)
 }
 
+/// Whether two terms are one, each read in its standard spelling as
+/// `Known::alike` reads them: x² is x^2, whichever way a line was read.
 fn same(a: &Node, b: &Node, ctx: &Context) -> bool {
-    alike(a, b, ctx, &IndexMap::new(), &IndexMap::new())
+    alike(
+        &standard(a, ctx),
+        &standard(b, ctx),
+        ctx,
+        &IndexMap::new(),
+        &IndexMap::new(),
+    )
 }
 
 /// Whether a divisor is not zero: a numeral other than zero or a term the

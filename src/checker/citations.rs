@@ -147,10 +147,18 @@ fn requires_parts(
         read.extend(read_all(&o.fact));
     }
     // A step said of every member in one line: its requires lines speak
-    // of the member, whose membership the claim gives (`SYNTAX.md`).
+    // of the member, whose membership the claim gives (`SYNTAX.md`), and
+    // which it introduces as the step's citation has it introduced
+    // (`library::citation_parts`): x of "for all x ∈ [0, 1]" is in ℝ.
+    let mut in_scope = introduced(known, step);
     if step.openers.is_empty() {
         if let [claim] = read_all(&step.claim).as_slice() {
             if let Some((member, _)) = claimed_member(claim, library.env.g) {
+                if let Some((letter, system)) =
+                    crate::citing::introduction(&member, &in_scope)
+                {
+                    in_scope.insert(letter, system);
+                }
                 read.push(member);
             }
         }
@@ -176,7 +184,7 @@ fn requires_parts(
     let typed = super::library::typed_in_scope(known, step);
     said_once(
         &mut parts,
-        &introduced(known, step),
+        &in_scope,
         &super::library::points_introduced(known, step),
         &typed,
         library,

@@ -3349,6 +3349,10 @@ impl<'a> Elaborator<'a> {
         if (label == "csu" || label == "cprod") && spelt[1] != theirs[1] {
             return spelt[0] == theirs[0] && spelt[2] == theirs[2];
         }
+        // An integral's integrand, under its letter between the ends.
+        if label == "cdit" && spelt[3] != theirs[3] {
+            return spelt[..3] == theirs[..3];
+        }
         let mut places = spelt.len();
         if rules::WRAPS.contains(&label) && spelt[places - 1] == theirs[places - 1] {
             places -= 1;

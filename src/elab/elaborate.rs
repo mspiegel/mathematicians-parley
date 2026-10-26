@@ -3980,10 +3980,30 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         }
+        let (a, b) = (whole.children()[0].clone(), whole.children()[1].clone());
+        // A define standing inside a side, as ∫(0 to 1) p(t) dt holds p, is
+        // read where it stands, as a calculation's link citing it is.
+        if !self.names_define_at_head(&a) && !self.names_define_at_head(&b) {
+            return self.define_makes(step, term, scope, facts);
+        }
         let supplied = self.supplied(Some(step), scope, facts)?;
         let held = self.with_cited(Some(step), scope, &supplied, None)?;
-        let (a, b) = (whole.children()[0].clone(), whole.children()[1].clone());
         self.equation_by_define(step, &a, &b, scope, &held)
+    }
+
+    /// Whether `one` is a defined name or a defined function applied, which
+    /// `define_value` reads.
+    fn names_define_at_head(&mut self, one: &Term) -> bool {
+        let letters = self.letters_bound(one);
+        let kept = std::mem::replace(&mut self.binding, letters);
+        let head = self.standard_step(one);
+        self.binding = kept;
+        head.is_some_and(|(h, _)| {
+            matches!(
+                h,
+                super::matcher::How::Defined | super::matcher::How::Applied
+            )
+        })
     }
 
     /// ( scope -> a = b ) where one side is a defined name, applied or not,

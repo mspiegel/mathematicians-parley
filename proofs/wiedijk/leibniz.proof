@@ -1,0 +1,971 @@
+import theorem            proofs/wiedijk/fundamental-calculus/fundamental-calculus
+import theorem            stdlib/calculus/continuous-power
+import theorem            stdlib/calculus/continuous-scaled
+import theorem            stdlib/calculus/derivative-power
+import theorem            stdlib/calculus/derivative-scaled
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane theorem    stdlib/calculus/open-within-closed
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/numbers/nat0-successor
+import mundane theorem    stdlib/numbers/one-power
+import mundane theorem    stdlib/numbers/zero-power
+import mundane theorem    stdlib/sets/in-subset
+import theorem            stdlib/calculus/continuous-constant
+import theorem            stdlib/calculus/continuous-square
+import theorem            stdlib/calculus/continuous-sum
+import theorem            stdlib/calculus/continuous-quotient
+import theorem            stdlib/trigonometry/continuous-arctan
+import theorem            stdlib/trigonometry/derivative-arctan
+import mundane definition stdlib/trigonometry/arctan
+import mundane theorem    stdlib/trigonometry/arctan-real
+import mundane theorem    stdlib/trigonometry/arctan-values
+import mundane theorem    stdlib/numbers/square-nonneg
+import mundane theorem    stdlib/numbers/exponent-sum
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/sums/sum-single
+import mundane theorem    stdlib/sums/sum-last
+import mundane theorem    stdlib/sums/sum-real
+import theorem            stdlib/numbers/archimedean
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-negative
+import mundane theorem    stdlib/numbers/abs-one
+import mundane theorem    stdlib/numbers/abs-power
+import mundane theorem    stdlib/numbers/abs-product
+import mundane theorem    stdlib/numbers/reciprocal-order
+import definition         stdlib/calculus/tends-to
+import mundane definition stdlib/calculus/series-sum-from-zero
+import theorem            stdlib/calculus/integral-difference
+import theorem            stdlib/calculus/integral-nonneg
+import theorem            stdlib/calculus/integral-order
+import mundane theorem    stdlib/calculus/integral-real
+import mundane theorem    stdlib/numbers/power-nonneg
+import mundane theorem    stdlib/numbers/quotient-nonneg
+import mundane theorem    stdlib/numbers/quotients-compared
+
+define J(n) := ∫(0 to 1) t^(2n)/(1 + t²) dt, for n ∈ ℕ₀               (D0)
+       reads the integral from 0 to 1 of t^(2n)/(1 + t²)
+
+theorem power-integral
+  note        x^(m + 1)/(m + 1) has derivative x^m, so by the fundamental
+              theorem of calculus the integral from 0 to 1 is its value at 1
+              less its value at 0.
+  let m ∈ ℕ₀                                                          (H1)
+  then ∫(0 to 1) t^m dt = 1/(m + 1)
+
+let p(x) = x^m, for x ∈ [0, 1]                                        (D1)
+       reads the m-th power
+let q(x) = x^(m + 1), for x ∈ [0, 1]                                  (D2)
+       reads the next power
+let F(x) = (1/(m + 1))·q(x), for x ∈ [0, 1]                           (D3)
+       reads x^(m + 1)/(m + 1), whose derivative is the m-th power
+
+1.  m + 1 ∈ ℕ
+    mun:nat0-successor k := m
+
+2.  [0, 1] ⊆ ℝ
+    mun:interval-real
+
+3.  For all x ∈ [0, 1], p(x) = x^m.
+    D1
+
+4.  For all x ∈ [0, 1], q(x) = x^(m + 1).
+    D2
+
+5.  For all x ∈ [0, 1], F(x) = (1/(m + 1))·q(x).
+    D3
+
+6.  For all x ∈ [0, 1], p(x) ∈ ℝ.
+    membership, from D1
+
+7.  For all x ∈ [0, 1], q(x) ∈ ℝ.
+    membership, from D2
+
+8.  For all x ∈ [0, 1], F(x) ∈ ℝ.
+    membership, from D2, D3
+    requires m + 1 ≠ 0: inequalities, from 1
+
+9.  p : [0, 1] → ℝ
+    mun:function-into, from 6
+    requires p is a function on [0, 1]: from D1
+
+10. q : [0, 1] → ℝ
+    mun:function-into, from 7
+    requires q is a function on [0, 1]: from D2
+
+11. F : [0, 1] → ℝ
+    mun:function-into, from 8
+    requires F is a function on [0, 1]: from D3
+
+12. p is continuous on [0, 1]
+    thm:continuous-power D := [0, 1], n := m, from 2, 3, 9
+
+13. q is continuous on [0, 1]
+    thm:continuous-power D := [0, 1], n := m + 1, from 2, 4, 10
+
+14. F is continuous on [0, 1]
+    thm:continuous-scaled D := [0, 1], c := 1/(m + 1), f := q, from 2, 5, 10, 11, 13
+    requires m + 1 ≠ 0: inequalities, from 1
+
+15. q is differentiable on (0, 1)
+    thm:derivative-power D := [0, 1], U := (0, 1), n := m, from 2, 4, 10
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires (0, 1) is open: mun:open-interval-open
+
+16. For all x ∈ (0, 1), q′(x) = (m + 1)·x^m.
+    thm:derivative-power D := [0, 1], U := (0, 1), n := m, from 2, 4, 10
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires (0, 1) is open: mun:open-interval-open
+
+17. F is differentiable on (0, 1)
+    thm:derivative-scaled D := [0, 1], U := (0, 1), c := 1/(m + 1), f := q, from 2, 5, 10, 11, 15
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires m + 1 ≠ 0: inequalities, from 1
+
+18. For all x ∈ (0, 1), F′(x) = (1/(m + 1))·q′(x).
+    thm:derivative-scaled D := [0, 1], U := (0, 1), c := 1/(m + 1), f := q, from 2, 5, 10, 11, 15
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires m + 1 ≠ 0: inequalities, from 1
+
+19. For all x ∈ (0, 1), F′(x) = p(x).
+    proof
+    let x ∈ (0, 1)                                                    (K1)
+
+    19.1.  x ∈ [0, 1]
+           mun:in-subset, from K1
+           requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+
+    19.2.  F′(x) = (1/(m + 1))·q′(x)
+           instantiate x := x in line 18, from K1
+
+    19.3.  q′(x) = (m + 1)·x^m
+           instantiate x := x in line 16, from K1
+
+    19.4.  (1/(m + 1))·q′(x) = (1/(m + 1))·((m + 1)·x^m)
+           substitute q′(x) = (m + 1)·x^m (line 19.3)
+
+    19.5.  (1/(m + 1))·((m + 1)·x^m) = x^m
+           algebra
+           requires m + 1 ≠ 0: inequalities, from 1
+
+    19.6.  p(x) = x^m
+           D1, from 19.1
+
+    19.7.  F′(x) = p(x)
+           calculation
+             F′(x) = (1/(m + 1))·q′(x)              19.2
+                   = (1/(m + 1))·((m + 1)·x^m)      19.4
+                   = x^m                            19.5
+                   = p(x)                           19.6
+
+20. 0 < 1
+    arithmetic
+
+21. ∫(0 to 1) p(t) dt = F(1) − F(0)
+    thm:fundamental-calculus a := 0, b := 1, f := p, F := F, from 9, 11, 12, 14, 17, 19, 20
+
+22. 0 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 0
+    requires 0 ≤ 0: arithmetic
+    requires 0 ≤ 1: arithmetic
+
+23. 1 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 1
+    requires 0 ≤ 1: arithmetic
+    requires 1 ≤ 1: arithmetic
+
+24. q(1) = 1^(m + 1)
+    D2, from 23
+
+25. 1^(m + 1) = 1
+    mun:one-power m := m + 1
+
+26. q(0) = 0^(m + 1)
+    D2, from 22
+
+27. 0^(m + 1) = 0
+    mun:zero-power n := m + 1, from 1
+
+28. F(1) = (1/(m + 1))·q(1)
+    D3, from 23
+
+29. F(0) = (1/(m + 1))·q(0)
+    D3, from 22
+
+30. (1/(m + 1))·q(1) = (1/(m + 1))·1^(m + 1)
+    substitute q(1) = 1^(m + 1) (line 24)
+
+31. (1/(m + 1))·1^(m + 1) = (1/(m + 1))·1
+    substitute 1^(m + 1) = 1 (line 25)
+
+32. (1/(m + 1))·q(0) = (1/(m + 1))·0^(m + 1)
+    substitute q(0) = 0^(m + 1) (line 26)
+
+33. (1/(m + 1))·0^(m + 1) = (1/(m + 1))·0
+    substitute 0^(m + 1) = 0 (line 27)
+
+34. F(1) = (1/(m + 1))·1
+    calculation
+      F(1) = (1/(m + 1))·q(1)          28
+           = (1/(m + 1))·1^(m + 1)     30
+           = (1/(m + 1))·1             31
+
+35. F(0) = (1/(m + 1))·0
+    calculation
+      F(0) = (1/(m + 1))·q(0)          29
+           = (1/(m + 1))·0^(m + 1)     32
+           = (1/(m + 1))·0             33
+
+36. F(1) − F(0) = (1/(m + 1))·1 − F(0)
+    substitute F(1) = (1/(m + 1))·1 (line 34)
+
+37. (1/(m + 1))·1 − F(0) = (1/(m + 1))·1 − (1/(m + 1))·0
+    substitute F(0) = (1/(m + 1))·0 (line 35)
+
+38. (1/(m + 1))·1 − (1/(m + 1))·0 = 1/(m + 1)
+    algebra
+    requires m + 1 ≠ 0: inequalities, from 1
+
+39. ∫(0 to 1) t^m dt = 1/(m + 1)
+    calculation
+      ∫(0 to 1) t^m dt = ∫(0 to 1) p(t) dt                     D1
+                       = F(1) − F(0)                           21
+                       = (1/(m + 1))·1 − F(0)                  36
+                       = (1/(m + 1))·1 − (1/(m + 1))·0         37
+                       = 1/(m + 1)                             38
+
+theorem integrand-continuous
+  note        x^(2n) and 1 + x² are continuous, and 1 + x² is never 0, so
+              their quotient is continuous.
+  let n ∈ ℕ₀                                                          (H1)
+  let g : [0, 1] → ℝ                                                  (H2)
+  assume for all x ∈ [0, 1], g(x) = x^(2n)/(1 + x²)                   (H3)
+  then g is continuous on [0, 1]
+
+let u(x) = x^(2n), for x ∈ [0, 1]                                     (D1)
+       reads the numerator
+let o(x) = 1, for x ∈ [0, 1]                                          (D2)
+       reads the constant 1
+let s(x) = x², for x ∈ [0, 1]                                         (D3)
+       reads the square
+let v(x) = 1 + x², for x ∈ [0, 1]                                     (D4)
+       reads the denominator
+
+1.  [0, 1] ⊆ ℝ
+    mun:interval-real
+
+2.  For all x ∈ [0, 1], u(x) = x^(2n).
+    D1
+
+3.  For all x ∈ [0, 1], o(x) = 1.
+    D2
+
+4.  For all x ∈ [0, 1], s(x) = x².
+    D3
+
+5.  For all x ∈ [0, 1], v(x) = o(x) + s(x).
+    algebra, from D2, D3, D4
+
+6.  For all x ∈ [0, 1], u(x) ∈ ℝ.
+    membership, from D1
+
+7.  u : [0, 1] → ℝ
+    mun:function-into, from 6
+    requires u is a function on [0, 1]: from D1
+
+8.  For all x ∈ [0, 1], o(x) ∈ ℝ.
+    membership, from D2
+
+9.  For all x ∈ [0, 1], s(x) ∈ ℝ.
+    membership, from D3
+
+10. For all x ∈ [0, 1], v(x) ∈ ℝ.
+    membership, from D4
+
+11. o : [0, 1] → ℝ
+    mun:function-into, from 8
+    requires o is a function on [0, 1]: from D2
+
+12. s : [0, 1] → ℝ
+    mun:function-into, from 9
+    requires s is a function on [0, 1]: from D3
+
+13. v : [0, 1] → ℝ
+    mun:function-into, from 10
+    requires v is a function on [0, 1]: from D4
+
+14. u is continuous on [0, 1]
+    thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 7
+
+15. o is continuous on [0, 1]
+    thm:continuous-constant D := [0, 1], c := 1, from 1, 3, 11
+
+16. s is continuous on [0, 1]
+    thm:continuous-square D := [0, 1], from 1, 4, 12
+
+17. v is continuous on [0, 1]
+    thm:continuous-sum D := [0, 1], f := o, g := s, from 1, 5, 11, 12, 13, 15, 16
+
+18. For all x ∈ [0, 1], v(x) ≠ 0.
+    proof
+    let x ∈ [0, 1]                                                    (K1)
+
+    18.1.  x² ≥ 0
+           mun:square-nonneg x := x
+
+    18.2.  1 + x² > 0
+           inequalities, from 18.1
+
+    18.3.  1 + x² ≠ 0
+           inequalities
+             1 + x² > 0    18.2
+             1 + x² ≠ 0    weakening
+
+    18.4.  v(x) = 1 + x²
+           D4, from K1
+
+    18.5.  v(x) ≠ 0
+           substitute v(x) = 1 + x² (line 18.4) into line 18.3
+
+19. For all x ∈ [0, 1], g(x) = u(x)/v(x).
+    proof
+    let x ∈ [0, 1]                                                    (K2)
+
+    19.1.  g(x) = u(x)/v(x)
+           instantiate x := x in H3, from D1, D4, K2
+
+20. g is continuous on [0, 1]
+    thm:continuous-quotient D := [0, 1], F := g, f := u, g := v, from 1, 7, 13, 14, 17, 18, 19
+
+theorem integral-of-arctan-derivative
+  note        arctan has derivative 1/(1 + x²), so by the fundamental
+              theorem of calculus J(0) is arctan(1) − arctan(0), which is
+              π/4.
+  then J(0) = π/4
+
+let g(x) = x^(2·0)/(1 + x²), for x ∈ [0, 1]                            (D1)
+       reads the integrand of J(0)
+let F(x) = arctan(x), for x ∈ [0, 1]                                  (D2)
+       reads the arctangent on [0, 1]
+
+1.  [0, 1] ⊆ ℝ
+    mun:interval-real
+
+2.  For all x ∈ [0, 1], g(x) = x^(2·0)/(1 + x²).
+    D1
+
+3.  For all x ∈ [0, 1], F(x) = arctan(x).
+    D2
+
+4.  For all x ∈ [0, 1], F(x) ∈ ℝ.
+    mun:arctan-real x := x, from D2
+
+5.  F : [0, 1] → ℝ
+    mun:function-into, from 4
+    requires F is a function on [0, 1]: from D2
+
+6.  For all x ∈ [0, 1], g(x) ∈ ℝ.
+    proof
+    let x ∈ [0, 1]                                                    (K1)
+
+    6.1.  x² ≥ 0
+          mun:square-nonneg x := x
+
+    6.2.  g(x) ∈ ℝ
+          membership, from D1, K1
+          requires 1 + x² > 0: inequalities, from 6.1
+
+7.  g : [0, 1] → ℝ
+    mun:function-into, from 6
+    requires g is a function on [0, 1]: from D1
+
+8.  g is continuous on [0, 1]
+    thm:integrand-continuous n := 0, from 2, 7
+
+9.  F is continuous on [0, 1]
+    thm:continuous-arctan D := [0, 1], from 1, 3, 5
+
+10. F is differentiable on (0, 1)
+    thm:derivative-arctan D := [0, 1], U := (0, 1), from 1, 3, 5
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires (0, 1) is open: mun:open-interval-open
+
+11. For all x ∈ (0, 1), F′(x) = 1/(1 + x²).
+    thm:derivative-arctan D := [0, 1], U := (0, 1), from 1, 3, 5
+    requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+    requires (0, 1) is open: mun:open-interval-open
+
+12. For all x ∈ (0, 1), F′(x) = g(x).
+    proof
+    let x ∈ (0, 1)                                                    (K2)
+
+    12.1.  x ∈ [0, 1]
+           mun:in-subset, from K2
+           requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
+
+    12.2.  F′(x) = 1/(1 + x²)
+           instantiate x := x in line 11, from K2
+
+    12.3.  x^(2·0) = x^0
+           substitute 2·0 = 0 (arithmetic)
+
+    12.4.  x^0 = 1
+           algebra
+
+    12.5.  x^(2·0) = 1
+           calculation
+             x^(2·0) = x^0     12.3
+                     = 1       12.4
+
+    12.6.  x^(2·0)/(1 + x²) = 1/(1 + x²)
+           substitute x^(2·0) = 1 (line 12.5)
+
+    12.7.  g(x) = x^(2·0)/(1 + x²)
+           D1, from 12.1
+
+    12.8.  F′(x) = g(x)
+           calculation
+             F′(x) = 1/(1 + x²)              12.2
+                   = x^(2·0)/(1 + x²)        12.6
+                   = g(x)                    12.7
+
+13. 0 < 1
+    arithmetic
+
+14. ∫(0 to 1) g(t) dt = F(1) − F(0)
+    thm:fundamental-calculus a := 0, b := 1, f := g, F := F, from 5, 7, 8, 9, 10, 12, 13
+
+15. 0 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 0
+    requires 0 ≤ 0: arithmetic
+    requires 0 ≤ 1: arithmetic
+
+16. 1 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 1
+    requires 0 ≤ 1: arithmetic
+    requires 1 ≤ 1: arithmetic
+
+17. arctan(0) = 0. arctan(1) = π/4.
+    mun:arctan-values
+
+18. F(1) = arctan(1)
+    D2, from 16
+
+19. F(0) = arctan(0)
+    D2, from 15
+
+20. F(1) = π/4
+    calculation
+      F(1) = arctan(1)      18
+           = π/4            17
+
+21. F(0) = 0
+    calculation
+      F(0) = arctan(0)      19
+           = 0              17
+
+22. J(0) = ∫(0 to 1) g(t) dt
+    D0, from D1
+
+23. F(1) − F(0) = π/4 − F(0)
+    substitute F(1) = π/4 (line 20)
+
+24. π/4 − F(0) = π/4 − 0
+    substitute F(0) = 0 (line 21)
+
+25. J(0) = π/4
+    calculation
+      J(0) = ∫(0 to 1) g(t) dt     22
+           = F(1) − F(0)           14
+           = π/4 − F(0)            23
+           = π/4 − 0               24
+           = π/4                   real arithmetic
+
+theorem integral-recurrence
+  note        t^(2n + 2)/(1 + t²) is t^(2n) less t^(2n)/(1 + t²), so J(n + 1)
+              is the integral of t^(2n), which is 1/(2n + 1), less J(n).
+  let n ∈ ℕ₀                                                          (H1)
+  then J(n + 1) = 1/(2n + 1) − J(n)
+
+let f(x) = x^(2n), for x ∈ [0, 1]                                     (D1)
+       reads the power t^(2n)
+let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
+       reads the integrand of J(n)
+let h(x) = x^(2(n + 1))/(1 + x²), for x ∈ [0, 1]                      (D3)
+       reads the integrand of J(n + 1)
+
+1.  For all x ∈ [0, 1], h(x) = f(x) − g(x).
+    proof
+    let x ∈ [0, 1]                                                    (K1)
+
+    1.1.  2(n + 1) = 2n + 2
+          algebra
+
+    1.2.  x^(2(n + 1)) = x^(2n + 2)
+          substitute 2(n + 1) = 2n + 2 (line 1.1)
+
+    1.3.  x^(2n + 2) = x^(2n)·x^2
+          mun:exponent-sum a := x, m := 2n, n := 2
+
+    1.4.  x^(2(n + 1)) = x^(2n)·x^2
+          calculation
+            x^(2(n + 1)) = x^(2n + 2)       1.2
+                         = x^(2n)·x^2       1.3
+
+    1.5.  x² ≥ 0
+          mun:square-nonneg x := x
+
+    1.6.  1 + x² > 0
+          inequalities, from 1.5
+
+    1.7.  x^(2(n + 1))/(1 + x²) = x^(2n) − x^(2n)/(1 + x²)
+          algebra, from 1.4
+          requires x^(2n) ∈ ℝ: membership
+          requires 1 + x² ≠ 0: weakening, from 1.6
+
+    1.8.  h(x) = x^(2(n + 1))/(1 + x²)
+          D3, from K1
+
+    1.9.  x^(2n) − x^(2n)/(1 + x²) = f(x) − g(x)
+          algebra, from D1, D2, K1
+          requires x^(2n) ∈ ℝ: membership
+          requires 1 + x² ≠ 0: weakening, from 1.6
+
+    1.10. h(x) = f(x) − g(x)
+          calculation
+            h(x) = x^(2(n + 1))/(1 + x²)         1.8
+                 = x^(2n) − x^(2n)/(1 + x²)      1.7
+                 = f(x) − g(x)                   1.9
+
+2.  For all x ∈ [0, 1], f(x) = x^(2n).
+    D1
+
+3.  For all x ∈ [0, 1], g(x) = x^(2n)/(1 + x²).
+    D2
+
+4.  [0, 1] ⊆ ℝ
+    mun:interval-real
+
+5.  For all x ∈ [0, 1], f(x) ∈ ℝ.
+    membership, from D1
+
+6.  For all x ∈ [0, 1], g(x) ∈ ℝ.
+    membership, from D2
+    requires x² ≥ 0: mun:square-nonneg x := x
+    requires 1 + x² > 0: inequalities
+
+7.  For all x ∈ [0, 1], h(x) ∈ ℝ.
+    membership, from D3
+    requires x² ≥ 0: mun:square-nonneg x := x
+    requires 1 + x² > 0: inequalities
+
+8.  f : [0, 1] → ℝ
+    mun:function-into, from 5
+    requires f is a function on [0, 1]: from D1
+
+9.  g : [0, 1] → ℝ
+    mun:function-into, from 6
+    requires g is a function on [0, 1]: from D2
+
+10. h : [0, 1] → ℝ
+    mun:function-into, from 7
+    requires h is a function on [0, 1]: from D3
+
+11. f is continuous on [0, 1]
+    thm:continuous-power D := [0, 1], n := 2n, from 2, 4, 8
+
+12. g is continuous on [0, 1]
+    thm:integrand-continuous n := n, from 3, 9
+
+13. 0 < 1
+    arithmetic
+
+14. ∫(0 to 1) h(t) dt = ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt
+    thm:integral-difference a := 0, b := 1, from 1, 8, 9, 10, 11, 12, 13
+
+15. ∫(0 to 1) t^(2n) dt = 1/(2n + 1)
+    thm:power-integral m := 2n
+
+16. ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt
+    D1
+
+17. ∫(0 to 1) f(t) dt = 1/(2n + 1)
+    calculation
+      ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt     16
+                        = 1/(2n + 1)              15
+
+18. J(n + 1) = ∫(0 to 1) h(t) dt
+    D0, from D3
+
+19. J(n) = ∫(0 to 1) g(t) dt
+    D0, from D2
+
+20. ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt = 1/(2n + 1) − ∫(0 to 1) g(t) dt
+    substitute ∫(0 to 1) f(t) dt = 1/(2n + 1) (line 17)
+
+21. 1/(2n + 1) − ∫(0 to 1) g(t) dt = 1/(2n + 1) − J(n)
+    substitute J(n) = ∫(0 to 1) g(t) dt (line 19)
+
+22. J(n + 1) = 1/(2n + 1) − J(n)
+    calculation
+      J(n + 1) = ∫(0 to 1) h(t) dt                              18
+               = ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt          14
+               = 1/(2n + 1) − ∫(0 to 1) g(t) dt                 20
+               = 1/(2n + 1) − J(n)                              21
+
+theorem integral-bounds
+  note        On [0, 1], t^(2n)/(1 + t²) lies between 0 and t^(2n), so its
+              integral lies between 0 and the integral of t^(2n), which is
+              1/(2n + 1).
+  let n ∈ ℕ₀                                                          (H1)
+  then J(n) ∈ ℝ. J(n) ≥ 0. J(n) ≤ 1/(2n + 1).
+
+let f(x) = x^(2n), for x ∈ [0, 1]                                     (D1)
+       reads the power t^(2n)
+let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
+       reads the integrand of J(n)
+
+1.  [0, 1] ⊆ ℝ
+    mun:interval-real
+
+2.  For all x ∈ [0, 1], f(x) = x^(2n).
+    D1
+
+3.  For all x ∈ [0, 1], g(x) = x^(2n)/(1 + x²).
+    D2
+
+4.  For all x ∈ [0, 1], f(x) ∈ ℝ.
+    membership, from D1
+
+5.  For all x ∈ [0, 1], g(x) ∈ ℝ.
+    membership, from D2
+    requires x² ≥ 0: mun:square-nonneg x := x
+    requires 1 + x² > 0: inequalities
+
+6.  f : [0, 1] → ℝ
+    mun:function-into, from 4
+    requires f is a function on [0, 1]: from D1
+
+7.  g : [0, 1] → ℝ
+    mun:function-into, from 5
+    requires g is a function on [0, 1]: from D2
+
+8.  f is continuous on [0, 1]
+    thm:continuous-power D := [0, 1], n := 2n, from 1, 2, 6
+
+9.  g is continuous on [0, 1]
+    thm:integrand-continuous n := n, from 3, 7
+
+10. For all x ∈ [0, 1], g(x) ≥ 0.
+    proof
+    let x ∈ [0, 1]                                                    (K1)
+
+    10.1.  x ≥ 0
+           mun:interval a := 0, b := 1, x := x, from K1
+
+    10.2.  x^(2n) ≥ 0
+           mun:power-nonneg a := x, m := 2n, from 10.1
+
+    10.3.  x² ≥ 0
+           mun:square-nonneg x := x
+
+    10.4.  1 + x² > 0
+           inequalities, from 10.3
+
+    10.5.  x^(2n)/(1 + x²) ≥ 0
+           mun:quotient-nonneg x := x^(2n), y := 1 + x², from 10.2, 10.4
+           requires x^(2n) ∈ ℝ: membership
+
+    10.6.  g(x) = x^(2n)/(1 + x²)
+           D2, from K1
+
+    10.7.  g(x) ≥ 0
+           transitivity, from 10.6, 10.5
+           requires x^(2n) ∈ ℝ: membership
+           requires 1 + x² ≠ 0: weakening, from 10.4
+
+11. For all x ∈ [0, 1], g(x) ≤ f(x).
+    proof
+    let x ∈ [0, 1]                                                    (K2)
+
+    11.1.  x ≥ 0
+           mun:interval a := 0, b := 1, x := x, from K2
+
+    11.2.  x^(2n) ≥ 0
+           mun:power-nonneg a := x, m := 2n, from 11.1
+
+    11.3.  x² ≥ 0
+           mun:square-nonneg x := x
+
+    11.4.  1 ≤ 1 + x²
+           inequalities, from 11.3
+
+    11.5.  1 + x² > 0
+           inequalities, from 11.3
+
+    11.6.  x^(2n)/(1 + x²) ≤ x^(2n)/1
+           mun:quotients-compared x := x^(2n), y := 1 + x², z := x^(2n), w := 1, from 11.2, 11.4
+           requires x^(2n) ∈ ℝ: membership
+           requires x^(2n) ≤ x^(2n): inequalities
+           requires 0 < 1: arithmetic
+
+    11.7.  g(x) = x^(2n)/(1 + x²)
+           D2, from K2
+
+    11.8.  x^(2n)/1 = f(x)
+           algebra, from D1, K2
+           requires x^(2n) ∈ ℝ: membership
+
+    11.9.  g(x) ≤ f(x)
+           transitivity, from 11.7, 11.6, 11.8
+           requires 1 + x² ≠ 0: weakening, from 11.5
+
+12. 0 < 1
+    arithmetic
+
+13. ∫(0 to 1) g(t) dt ≥ 0
+    thm:integral-nonneg a := 0, b := 1, f := g, from 7, 9, 10, 12
+
+14. ∫(0 to 1) g(t) dt ≤ ∫(0 to 1) f(t) dt
+    thm:integral-order a := 0, b := 1, f := g, g := f, from 6, 7, 8, 9, 11, 12
+
+15. ∫(0 to 1) t^(2n) dt = 1/(2n + 1)
+    thm:power-integral m := 2n
+
+16. ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt
+    D1
+
+17. J(n) = ∫(0 to 1) g(t) dt
+    D0, from D2
+
+18. 1 ∈ [0, 1]
+    mun:interval a := 0, b := 1, x := 1
+    requires 0 ≤ 1: arithmetic
+    requires 1 ≤ 1: arithmetic
+
+19. ∫(0 to 1) g(t) dt ∈ ℝ
+    mun:integral-real a := 0, b := 1, f := g, x := 1, from 7, 9, 12, 18
+
+20. J(n) ∈ ℝ
+    substitute J(n) = ∫(0 to 1) g(t) dt (line 17) into line 19
+
+21. J(n) ≥ 0
+    transitivity, from 17, 13
+    requires J(n) ∈ ℝ: from 20
+
+22. J(n) ≤ 1/(2n + 1)
+    transitivity, from 17, 14, 16, 15
+    requires J(n) ∈ ℝ: from 20
+    requires 2n + 1 ∈ ℕ: mun:nat0-successor k := 2n
+
+23. J(n) ∈ ℝ. J(n) ≥ 0. J(n) ≤ 1/(2n + 1).
+    join 20, 21, 22
+
+theorem series-remainder
+  note        By induction on n: J(0) is π/4, and each term the sum gains is
+              what J loses, J(n + 1) being 1/(2n + 1) − J(n), so the sum
+              differs from π/4 by J(n + 1), above and below in turn.
+  then For all n ∈ ℕ₀, π/4 − Σ(j = 0 to n) (−1)^j/(2j + 1) = (−1)^(n + 1)·J(n + 1).
+
+1.  For all j ∈ ℕ₀, (−1)^j/(2j + 1) ∈ ℝ.
+    membership
+    requires 2j + 1 ∈ ℕ: mun:nat0-successor k := 2j
+
+2.  For all n ∈ ℕ₀, π/4 − Σ(j = 0 to n) (−1)^j/(2j + 1) = (−1)^(n + 1)·J(n + 1).
+    induction on n starting at 0
+
+    base
+    2.1.  Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^0/(2·0 + 1)
+          mun:sum-single a := 0, from 1
+
+    2.2.  Σ(j = 0 to 0) (−1)^j/(2j + 1) = 1
+          calculation
+            Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^0/(2·0 + 1)     2.1
+                                          = 1                    arithmetic
+
+    2.3.  π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = π/4 − 1
+          substitute Σ(j = 0 to 0) (−1)^j/(2j + 1) = 1 (line 2.2)
+
+    2.4.  J(0 + 1) = 1/(2·0 + 1) − J(0)
+          thm:integral-recurrence n := 0
+
+    2.5.  J(0) = π/4
+          thm:integral-of-arctan-derivative
+
+    2.6.  J(0 + 1) = 1/(2·0 + 1) − π/4
+          substitute J(0) = π/4 (line 2.5) into line 2.4
+
+    2.7.  (−1)^(0 + 1)·J(0 + 1) = (−1)·J(0 + 1)
+          substitute (−1)^(0 + 1) = −1 (arithmetic)
+
+    2.8.  (−1)·J(0 + 1) = π/4 − 1
+          algebra, from 2.6
+
+    2.9.  π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^(0 + 1)·J(0 + 1)
+          calculation
+            π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = π/4 − 1                    2.3
+                                                = (−1)·J(0 + 1)              2.8
+                                                = (−1)^(0 + 1)·J(0 + 1)      2.7
+
+    step
+    let n ∈ ℕ₀                                                        (K)
+    assume step 2 is true for n, the induction hypothesis             (IH)
+
+    2.10. Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)
+          mun:sum-last n := n, from 1
+
+    2.11. π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1))
+          substitute Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1) (line 2.10)
+
+    2.12. π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
+          algebra, from IH
+          requires Σ(j = 0 to n) (−1)^j/(2j + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
+          requires (−1)^(n + 1) ∈ ℝ: membership
+          requires 2(n + 1) + 1 ∈ ℕ: mun:nat0-successor k := 2(n + 1)
+          requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
+
+    2.13. J((n + 1) + 1) = 1/(2(n + 1) + 1) − J(n + 1)
+          thm:integral-recurrence n := n + 1
+
+    2.14. (−1)^((n + 1) + 1) = (−1)^(n + 1)·(−1)
+          mun:exponent-step a := −1, m := n + 1
+
+    2.15. (−1)^((n + 1) + 1)·J((n + 1) + 1) = (−1)^(n + 1)·(−1)·J((n + 1) + 1)
+          substitute (−1)^((n + 1) + 1) = (−1)^(n + 1)·(−1) (line 2.14)
+
+    2.16. (−1)^(n + 1)·(−1)·J((n + 1) + 1) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
+          algebra, from 2.13
+          requires (−1)^(n + 1) ∈ ℝ: membership
+          requires 2(n + 1) + 1 ∈ ℕ: mun:nat0-successor k := 2(n + 1)
+          requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
+
+    2.17. π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = (−1)^((n + 1) + 1)·J((n + 1) + 1)
+          calculation
+            π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1))    2.11
+                                                    = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)                    2.12
+                                                    = (−1)^(n + 1)·(−1)·J((n + 1) + 1)                                       2.16
+                                                    = (−1)^((n + 1) + 1)·J((n + 1) + 1)                                      2.15
+
+theorem leibniz
+  metamath    leibpisum
+  note        The partial sums differ from π/4 by J(n + 1), which is at most
+              1/(2n + 3), so they come within any ε > 0 of π/4 and stay there.
+  ε ranges over ℝ
+  n ranges over ℕ
+  then Σ(k = 0 to ∞) (−1)^k/(2k + 1) = π/4
+
+1.  For all k ∈ ℕ₀, (−1)^k/(2k + 1) ∈ ℝ.
+    membership
+    requires 2k + 1 ∈ ℕ: mun:nat0-successor k := 2k
+
+2.  For all n ∈ ℕ₀, π/4 − Σ(k = 0 to n) (−1)^k/(2k + 1) = (−1)^(n + 1)·J(n + 1).
+    thm:series-remainder
+
+3.  For all ε > 0, there exists N ∈ ℕ such that
+    |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    3.1.  N ∈ ℕ. 1/N < ε.
+          obtain N: thm:archimedean x := ε, from A1
+
+    3.2.  For all n ≥ N, |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          3.2.1.  π/4 − Σ(k = 0 to n) (−1)^k/(2k + 1) = (−1)^(n + 1)·J(n + 1)
+                  instantiate n := n in line 2
+
+          3.2.2.  Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4 = −((−1)^(n + 1)·J(n + 1))
+                  algebra, from 3.2.1
+                  requires Σ(k = 0 to n) (−1)^k/(2k + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
+                  requires (−1)^(n + 1) ∈ ℝ: membership
+                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
+
+          3.2.3.  |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = |−((−1)^(n + 1)·J(n + 1))|
+                  substitute Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4 = −((−1)^(n + 1)·J(n + 1)) (line 3.2.2)
+
+          3.2.4.  |−((−1)^(n + 1)·J(n + 1))| = |(−1)^(n + 1)·J(n + 1)|
+                  mun:abs-negative x := (−1)^(n + 1)·J(n + 1)
+                  requires (−1)^(n + 1) ∈ ℝ: membership
+                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
+
+          3.2.5.  |(−1)^(n + 1)·J(n + 1)| = |(−1)^(n + 1)|·|J(n + 1)|
+                  mun:abs-product x := (−1)^(n + 1), y := J(n + 1)
+                  requires (−1)^(n + 1) ∈ ℝ: membership
+                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
+
+          3.2.6.  |(−1)^(n + 1)| = |−1|^(n + 1)
+                  mun:abs-power x := −1, n := n + 1
+
+          3.2.7.  |−1| = |1|
+                  mun:abs-negative x := 1
+
+          3.2.8.  |1| = 1
+                  mun:abs-one
+
+          3.2.9.  |−1| = 1
+                  calculation
+                    |−1| = |1|     3.2.7
+                         = 1       3.2.8
+
+          3.2.10. |−1|^(n + 1) = 1^(n + 1)
+                  substitute |−1| = 1 (line 3.2.9)
+
+          3.2.11. 1^(n + 1) = 1
+                  mun:one-power m := n + 1
+
+          3.2.12. |(−1)^(n + 1)| = 1
+                  calculation
+                    |(−1)^(n + 1)| = |−1|^(n + 1)     3.2.6
+                                   = 1^(n + 1)        3.2.10
+                                   = 1                3.2.11
+
+          3.2.13. J(n + 1) ∈ ℝ. J(n + 1) ≥ 0. J(n + 1) ≤ 1/(2(n + 1) + 1).
+                  thm:integral-bounds n := n + 1
+
+          3.2.14. |J(n + 1)| = J(n + 1)
+                  mun:abs x := J(n + 1), from 3.2.13
+
+          3.2.15. |(−1)^(n + 1)|·|J(n + 1)| = 1·|J(n + 1)|
+                  substitute |(−1)^(n + 1)| = 1 (line 3.2.12)
+
+          3.2.16. 1·|J(n + 1)| = 1·J(n + 1)
+                  substitute |J(n + 1)| = J(n + 1) (line 3.2.14)
+
+          3.2.17. 1·J(n + 1) = J(n + 1)
+                  algebra, from 3.2.13
+
+          3.2.18. |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = J(n + 1)
+                  calculation
+                    |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = |−((−1)^(n + 1)·J(n + 1))|      3.2.3
+                                                          = |(−1)^(n + 1)·J(n + 1)|         3.2.4
+                                                          = |(−1)^(n + 1)|·|J(n + 1)|       3.2.5
+                                                          = 1·|J(n + 1)|                    3.2.15
+                                                          = 1·J(n + 1)                      3.2.16
+                                                          = J(n + 1)                        3.2.17
+
+          3.2.19. N ≤ 2(n + 1) + 1
+                  inequalities, from A2, K2
+
+          3.2.20. 1/(2(n + 1) + 1) ≤ 1/N
+                  mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.19
+                  requires N > 0: inequalities, from 3.1
+                  requires 2(n + 1) + 1 > 0: inequalities, from K2
+
+          3.2.21. |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε
+                  transitivity, from 3.2.18, 3.2.13, 3.2.20, 3.1
+
+    3.3.  There exists N ∈ ℕ such that |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε for all n ≥ N.
+          exhibit, from 3.2
+
+4.  Σ(k = 0 to n) (−1)^k/(2k + 1) → π/4 as n → ∞
+    def:tends-to L := π/4, from 3
+    requires for all n ∈ ℕ, Σ(k = 0 to n) (−1)^k/(2k + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
+
+5.  Σ(k = 0 to ∞) (−1)^k/(2k + 1) = π/4
+    mun:series-sum-from-zero L := π/4, from 4
+    requires for all k ∈ ℕ₀, (−1)^k/(2k + 1) ∈ ℝ: from 1

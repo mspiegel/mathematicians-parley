@@ -154,6 +154,17 @@ mundane definition series-sum
               through a sequence of its own, and `sersumlim` is the join,
               proved below the readable layer from `isumclim3` and `climuni`.
 
+mundane definition series-sum-from-zero
+  let t : ℕ₀ → ℝ                                                      (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume Σ(k = 0 to n) t(k) → L as n → ∞                              (H3)
+  then        Σ(k = 0 to ∞) t(k) = L
+  metamath    sersumlim0, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      sersumlim0
+  note        series-sum, for a series whose first term is the 0th, as
+              1 − 1/3 + 1/5 − … is written.
+
 theorem convergent-bounded
   let x : ℕ → ℝ                                                       (H1)
   let L ∈ ℝ                                                           (H2)
@@ -346,6 +357,52 @@ theorem continuous-square
               elaboration/stdlib/proved.mm from mulcncf, x² being x·x
   target      gcncfsqres
 
+theorem continuous-constant
+  let D ⊆ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let g : D → ℝ                                                       (H3)
+  assume for all x ∈ D, g(x) = c                                      (H4)
+  then        g is continuous on D
+  metamath    gcncfconst, which this corpus proves in
+              elaboration/stdlib/proved.mm from cncfmptc
+  target      gcncfconstres with C := c
+
+theorem continuous-power
+  let D ⊆ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  let g : D → ℝ                                                       (H3)
+  assume for all x ∈ D, g(x) = x^n                                    (H4)
+  then        g is continuous on D
+  metamath    gcncfexp, which this corpus proves in
+              elaboration/stdlib/proved.mm from expcncf
+  target      gcncfexpres with N := n
+
+theorem continuous-scaled
+  let D ⊆ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let F : D → ℝ                                                       (H3)
+  let f : D → ℝ                                                       (H4)
+  assume for all x ∈ D, F(x) = c·f(x)                                 (H5)
+  assume f is continuous on D                                         (H6)
+  then        F is continuous on D
+  metamath    gcncfmulc, which this corpus proves in
+              elaboration/stdlib/proved.mm from mulcncf
+  target      gcncfmulcres with C := c, F := f
+
+theorem continuous-quotient
+  let D ⊆ ℝ                                                           (H1)
+  let F : D → ℝ                                                       (H2)
+  let f : D → ℝ                                                       (H3)
+  let g : D → ℝ                                                       (H4)
+  assume for all x ∈ D, g(x) ≠ 0                                      (H5)
+  assume for all x ∈ D, F(x) = f(x)/g(x)                              (H6)
+  assume f is continuous on D                                         (H7)
+  assume g is continuous on D                                         (H8)
+  then        F is continuous on D
+  metamath    gcncfdiv, which this corpus proves in
+              elaboration/stdlib/proved.mm from divcncf
+  target      gcncfdivres with F := f, G := g
+
 mundane theorem continuous-on-part
   let D ⊆ ℝ                                                           (H1)
   let f : D → ℝ                                                       (H2)
@@ -479,6 +536,37 @@ theorem derivative-square
               function on a set of reals, named apart from its values, as
               derivative-linear does.
 
+theorem derivative-power
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  assume U is open                                                    (H3)
+  let n ∈ ℕ₀                                                          (H4)
+  let g : D → ℝ                                                       (H5)
+  assume for all x ∈ D, g(x) = x^(n + 1)                              (H6)
+  then        g is differentiable on U.
+              For all x ∈ U, g′(x) = (n + 1)·x^n.
+  metamath    gdvexp, gdvexpv, which this corpus proves in
+              elaboration/stdlib/proved.mm from dvexp and dvres
+  target      gdvexp, gdvexpv with D := D, N := n
+  note        The power rule, as derivative-square has it for n = 1. It is
+              written for the power n + 1 so that the derivative's exponent
+              is n itself, a number a power's exponent may be.
+
+theorem derivative-scaled
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let F : D → ℝ                                                       (H4)
+  let f : D → ℝ                                                       (H5)
+  assume for all x ∈ D, F(x) = c·f(x)                                 (H6)
+  assume f is differentiable on U                                     (H7)
+  then        F is differentiable on U.
+              For all x ∈ U, F′(x) = c·f′(x).
+  metamath    gdvmulc, gdvmulcv, which this corpus proves in
+              elaboration/stdlib/proved.mm from dvcmul and dvmulbr
+  target      gdvmulc, gdvmulcv with D := D, C := c, F := f
+  note        As derivative-sum, at each point f is differentiable.
+
 theorem area-function
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
@@ -526,3 +614,55 @@ mundane theorem integral-point
   note        An integral from a point to itself is 0, whatever the
               integrand: set.mm's directed integral over [a, a] is the
               integral over the empty interval (a, a).
+
+theorem integral-difference
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  let g : [a, b] → ℝ                                                  (H5)
+  let h : [a, b] → ℝ                                                  (H6)
+  assume for all x ∈ [a, b], h(x) = f(x) − g(x)                       (H7)
+  assume f is continuous on [a, b]                                    (H8)
+  assume g is continuous on [a, b]                                    (H9)
+  then        ∫(a to b) h(t) dt = ∫(a to b) f(t) dt − ∫(a to b) g(t) dt
+  metamath    gditgsub, which this corpus proves in
+              elaboration/stdlib/proved.mm from itgsub, ditgpos and
+              cniccibl
+  target      gditgsubres with A := a, B := b, F := f, G := g
+  note        The integral of a difference is the difference of the
+              integrals. Each is integrable because it is continuous on
+              [a, b] (cniccibl), so the page never says it.
+
+theorem integral-order
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  let g : [a, b] → ℝ                                                  (H5)
+  assume for all x ∈ [a, b], f(x) ≤ g(x)                              (H6)
+  assume f is continuous on [a, b]                                    (H7)
+  assume g is continuous on [a, b]                                    (H8)
+  then        ∫(a to b) f(t) dt ≤ ∫(a to b) g(t) dt
+  metamath    gditgle, which this corpus proves in
+              elaboration/stdlib/proved.mm from itgle, ditgpos and
+              cniccibl
+  target      gditgleres with A := a, B := b, F := f, G := g
+  note        A smaller function has the smaller integral. set.mm states it
+              of the integral over (a, b), which the directed one is where
+              a ≤ b (ditgpos).
+
+theorem integral-nonneg
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let f : [a, b] → ℝ                                                  (H4)
+  assume for all x ∈ [a, b], f(x) ≥ 0                                 (H5)
+  assume f is continuous on [a, b]                                    (H6)
+  then        ∫(a to b) f(t) dt ≥ 0
+  metamath    gditgge0, which this corpus proves in
+              elaboration/stdlib/proved.mm from itgge0, ditgpos and
+              cniccibl
+  target      gditgge0res with A := a, B := b, F := f
+  note        A function that is never negative has an integral that is
+              not negative.
