@@ -4687,9 +4687,9 @@ impl MembershipIn {
 }
 
 /// The letter a "for all" binds, put in the number system its set lies in,
-/// and where the set is a range, as running over it. A set that is neither,
-/// an interval [a, b], puts the letter in no system: what the member is is
-/// said by the step's requires lines, `requires x ∈ ℝ: mun:interval`
+/// a number system, a range or an interval, and where the set is a range,
+/// as running over it. Any other set, ℝ ∖ {0}, puts the letter in no
+/// system: what the member is is said by the step's requires lines
 /// (`SYNTAX.md`, a step said of every member). False where the letter is
 /// no name.
 fn member_of(
@@ -4704,7 +4704,10 @@ fn member_of(
     let system = match set.notation() {
         NUMBER_SYSTEMS => System::of_sign(&set.text),
         INTEGER_RANGE => crate::citing::range_system(set),
-        _ => return true,
+        _ => match crate::citing::interval_system(set, letters) {
+            Some(system) => Some(system),
+            None => return true,
+        },
     };
     let Some(system) = system else {
         return false;

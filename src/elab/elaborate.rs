@@ -1975,10 +1975,12 @@ impl<'a> Elaborator<'a> {
                 reached = rest;
                 continue;
             }
+            // A line the step cites supplies each part of a conjunction it
+            // says, as `from_lines` holds them.
             let supplied = match self.settle(
                 &self.to_term(&asks),
                 scope,
-                facts,
+                &from_lines,
                 3,
                 None,
                 None,

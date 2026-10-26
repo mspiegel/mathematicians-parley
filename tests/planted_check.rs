@@ -2576,6 +2576,37 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line of step 1 cites H2, and mun:binomial-nat0 asks for nothing it says",
         ),
+        // A letter introduced in an interval is a real number said once, open
+        // or closed, and a line writing or citing it does no work.
+        case(
+            "a requires line writing an open interval member's realness",
+            vec![edit(
+                "tests/elaborator/an-interval-member-is-cited.proof",
+                Some("  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n".to_string()),
+                "  let x ∈ (a, b)    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n    requires x ∈ ℝ: from H3\n".to_string(),
+            )],
+            "the requires line of step 1 says x ∈ ℝ, which the page says once, where x is introduced",
+        ),
+        case(
+            "an item citing a closed interval let only for its member's realness",
+            vec![edit(
+                "tests/elaborator/an-interval-member-is-cited.proof",
+                Some("  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x\n".to_string()),
+                "  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n\n1.  x² ≥ 0\n    mun:square-nonneg x := x, from H3\n".to_string(),
+            )],
+            "step 1 cites H3, and mun:square-nonneg asks for nothing it says",
+        ),
+        // [a, b] lies in ℝ only where its ends are real, so its member is a
+        // real number said once only where they are numbers said once.
+        case(
+            "a closed interval member whose end is not said real",
+            vec![edit(
+                "tests/elaborator/an-interval-member-is-cited.proof",
+                Some("  let b ∈ ℝ    (H2)\n  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n".to_string()),
+                "  let b ∈ ℂ    (H2)\n  let x ∈ [a, b]    (H3)\n  then x² ≥ 0\n".to_string(),
+            )],
+            "step 1 cites mun:square-nonneg, which asks for x ∈ ℝ, and what it cites does not supply it",
+        ),
         // The block's last step is the cases step, not the last step of its
         // last case, and it must name what it contradicts.
         case(

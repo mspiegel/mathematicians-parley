@@ -199,11 +199,7 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
 
     fn letter(&mut self, term: &Term) -> Option<System> {
         let (_, set) = self.me.introduced_in(&self.me.rpn(term))?;
-        let system = match self.me.range_system(&set) {
-            Some((system, _)) => system,
-            None => set.alone()?,
-        };
-        System::of_label(system)
+        System::of_label(self.me.introduced_system(&set)?)
     }
 
     /// A letter the page gives the point sort, as `let A be a point` does.
@@ -2075,12 +2071,7 @@ impl<'a> Elaborator<'a> {
         let letters: Vec<(String, Rpn)> =
             self.sets.clone().into_iter().chain(points).collect();
         for (letter, set) in letters {
-            if set
-                .alone()
-                .and_then(|s| lookup(rules::SYSTEMS, s))
-                .is_none()
-                && self.range_system(&set).is_none()
-            {
+            if self.introduced_system(&set).is_none() {
                 continue;
             }
             let Some(kernel) = self.names.get(&letter).cloned() else {
@@ -2177,13 +2168,58 @@ impl<'a> Elaborator<'a> {
         }
         self.sets.iter().find_map(|(letter, set)| {
             let ours = self.names.get(letter).is_some_and(|k| k == said);
-            let counted = set
-                .alone()
-                .and_then(|s| lookup(rules::SYSTEMS, s))
-                .is_some()
-                || self.range_system(set).is_some();
+            let counted = self.introduced_system(set).is_some();
             (ours && counted).then(|| (letter.clone(), set.clone()))
         })
+    }
+
+    /// The number system a letter introduced in `set` is in first: the
+    /// system itself, the one a range lies in (`range_system`), or the one
+    /// an interval lies in (`interval_within`). None for any other set.
+    fn introduced_system(&self, set: &Rpn) -> Option<&'static str> {
+        if let Some((label, _)) = set
+            .alone()
+            .and_then(|s| rules::SYSTEMS.iter().find(|(label, _)| *label == s))
+        {
+            return Some(label);
+        }
+        if let Some((system, _)) = self.range_system(set) {
+            return Some(system);
+        }
+        self.interval_within(set).map(|i| i.system)
+    }
+
+    /// The row of `rules::INTERVAL_WITHIN` for an interval (a, b) or
+    /// [a, b], or one with points taken out, (a, b) ∖ {c}, which the
+    /// checker reads as well; None for a set that is no interval.
+    fn interval_within(&self, set: &Rpn) -> Option<&'static rules::IntervalWithin> {
+        if let Some(from) = self.taken_from(set) {
+            return self.interval_within(&from);
+        }
+        let interval = self.to_term(set);
+        if interval.variable().is_some()
+            || interval.label() != Some("co")
+            || interval.children().len() != 3
+        {
+            return None;
+        }
+        let operation = self.rpn(&interval.children()[2]);
+        rules::INTERVAL_WITHIN
+            .iter()
+            .find(|i| operation.alone() == Some(i.operation))
+    }
+
+    /// The set a difference A ∖ B takes from, A; None for a set that is no
+    /// difference.
+    fn taken_from(&self, set: &Rpn) -> Option<Rpn> {
+        let difference = self.to_term(set);
+        if difference.variable().is_some()
+            || difference.label() != Some("cdif")
+            || difference.children().len() != 2
+        {
+            return None;
+        }
+        Some(self.rpn(&difference.children()[0]))
     }
 
     /// The number system a range {a, …, b} puts its members in, and the
@@ -2221,10 +2257,12 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        // A range's member is in the system the range lies in first; any
-        // other set a letter is let into is a number system's label.
+        // A range's or an interval's member is in the system the set lies
+        // in first; any other set a letter is let into is a number system's
+        // label.
         let range = self.range_system(set);
-        let base = range.map_or(set.alone().unwrap_or_default(), |(system, _)| system);
+        let interval = self.interval_within(set);
+        let base = self.introduced_system(set).unwrap_or_default();
         if rules::within_path(Some(base), system.alone()).is_none() {
             return Ok(Route::no(format!("{set} is not inside {system}")));
         }
@@ -2259,7 +2297,96 @@ impl<'a> Elaborator<'a> {
                 &[&proof, &law],
             );
         }
+        if let Some(interval) = interval {
+            proof =
+                take!(self.out_of_interval(said, set, interval, proof, scope, facts)?);
+        }
         self.carried_within(said, base, system, proof, scope)
+    }
+
+    /// ( scope -> said e. system ) from `held`, ( scope -> said e. set ),
+    /// where `set` is an interval and `system` the one `interval` puts it
+    /// in. The lemma takes the membership alone, or the interval's two ends
+    /// in the system it asks and then the membership; each end is a
+    /// membership said once, as a lemma's side condition is
+    /// (`introduced_membership`), and a decline where one is not.
+    fn out_of_interval(
+        &mut self,
+        said: &Rpn,
+        set: &Rpn,
+        interval: &rules::IntervalWithin,
+        held: Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let claim = t!(said, set, "wcel");
+        // A member of (a, b) ∖ {c} is a member of (a, b) first.
+        if let Some(from) = self.taken_from(set) {
+            let removed = self.rpn(&self.to_term(set).children()[1]);
+            let law = self.b.ap(
+                "eldifi",
+                &binds! {"A" => said, "B" => &from, "C" => &removed},
+                &[],
+            );
+            let held = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &claim, "ch" => t!(said, &from, "wcel")},
+                &[&held, &law],
+            );
+            return self.out_of_interval(said, &from, interval, held, scope, facts);
+        }
+        let gives = t!(said, interval.system, "wcel");
+        let says = self.statement(interval.lemma);
+        let Some(ends) = interval.ends else {
+            let Some(binding) = fit(
+                &says.children()[0],
+                &self.to_term(&claim),
+                &Binding::new(),
+                &names_of(&says),
+            ) else {
+                return Ok(Route::no(format!(
+                    "{} does not take {claim}",
+                    interval.lemma
+                )));
+            };
+            let law = self.b.ap(interval.lemma, &self.spelt(&binding), &[]);
+            return Ok(Built(self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &claim, "ch" => &gives},
+                &[&held, &law],
+            )));
+        };
+        // ( ( a e. ends /\ b e. ends /\ said e. set ) -> said e. system ),
+        // its antecedent a three-way conjunction, the membership last.
+        let given = &says.children()[0];
+        let Some(binding) = given.children().get(2).and_then(|member| {
+            fit(
+                member,
+                &self.to_term(&claim),
+                &Binding::new(),
+                &names_of(&says),
+            )
+        }) else {
+            return Ok(Route::no(format!(
+                "{} does not take {claim}",
+                interval.lemma
+            )));
+        };
+        let bounds = self.to_term(set);
+        let [low, high, _] = bounds.children() else {
+            return Ok(Route::no(format!("{set} has no two ends")));
+        };
+        let (low, high) = (self.rpn(low), self.rpn(high));
+        let ends_in = t!(ends);
+        let low_in = take!(self.introduced_membership(&low, &ends_in, scope, facts)?);
+        let high_in = take!(self.introduced_membership(&high, &ends_in, scope, facts)?);
+        let law = self.b.ap(interval.lemma, &self.spelt(&binding), &[]);
+        Ok(Built(self.b.ap(
+            "syl3anc",
+            &binds! {"ph" => scope, "ps" => t!(low, ends, "wcel"),
+            "ch" => t!(high, ends, "wcel"), "th" => &claim, "ta" => &gives},
+            &[&low_in, &high_in, &held, &law],
+        )))
     }
 
     /// ( scope -> said e. system ) from ( scope -> said e. set ), along the

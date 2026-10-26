@@ -1899,6 +1899,187 @@ $d z F $.
     ABCDEFGHIJAFCDMNZOUBPQNZRFUCRKAUBFJSTLUA $.
   $}
 
+  ${
+    gelioo2.1 $e |- ( ph -> A e. RR ) $.
+    gelioo2.2 $e |- ( ph -> B e. RR ) $.
+  gelioo2 $p |- ( ph -> ( C e. ( A (,) B ) <-> ( C e. RR /\ A < C /\ C < B ) ) ) $=
+    ( cxr wcel cioo co cr clt wbr w3a wb rexrd elioo2 syl2anc )
+    ABGHCGHDBCIJHDKHBDLMDCLMNOABEPACFPBCDQR $.
+  $}
+
+  ${
+    gopndifsn.1 $e |- ( ph -> U C_ RR ) $.
+    gopndifsn.2 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gopndifsn.3 $e |- ( ph -> C e. U ) $.
+  gopndifsn $p |- ( ph -> ( U \ { C } ) e. ( topGen ` ran (,) ) ) $=
+    ( cioo crn ctg cfv wcel csn ccld cdif cicc co cr sseldd icccld syl2anc
+    cxr wceq rexrd iccid syl eleq1d mpbid uniretop difopn )
+    ACGHZIJZKBLZUKMJZKZCULNUKKEABBOPZUMKZUNABQKZUQUPACQBDFRZURBBSTAUOULUMABUAKUOULUBABURUCBUDUEUFUGCULUKQUHUIT $.
+  $}
+
+  ${
+    gdvrepart.1 $e |- ( ph -> D C_ RR ) $.
+    gdvrepart.2 $e |- ( ph -> F : D --> RR ) $.
+    gdvrepart.3 $e |- ( ph -> U C_ dom ( RR _D F ) ) $.
+    gdvrepart.4 $e |- ( ph -> C e. U ) $.
+  gdvrepart $p |- ( ph -> ( ( RR _D F ) ` C ) e. RR ) $=
+    ( cr cdv co cdm wf wss dvfre syl2anc sseldd ffvelcdmd )
+    AJEKLZMZJBTACJENCJOUAJTNGFCEPQADUABHIRS $.
+  $}
+
+  ${
+    gdvlocres.1 $e |- ( ph -> D C_ RR ) $.
+    gdvlocres.2 $e |- ( ph -> E C_ RR ) $.
+    gdvlocres.3 $e |- ( ph -> U C_ D ) $.
+    gdvlocres.4 $e |- ( ph -> U C_ E ) $.
+    gdvlocres.5 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvlocres.6 $e |- ( ph -> F : D --> RR ) $.
+    gdvlocres.7 $e |- ( ph -> G : E --> RR ) $.
+    gdvlocres.8 $e |- ( ph -> A. x e. U ( G ` x ) = ( F ` x ) ) $.
+  gdvlocres $p |- ( ph -> ( ( RR _D G ) |` U ) = ( ( RR _D F ) |` U ) ) $=
+    ( cr cres cdv co wceq cv cfv wral wcel wa r19.21bi fvres adantl 3eqtr4d
+    ralrimiva wfn wb wss ffnd fnssres syl2anc eqfnfv mpbird oveq2d cioo crn
+    ctg cnt cc wf ax-resscn a1i fssd sstrd ccnfld ctopn eqid tgioo2 dvres
+    syl22anc ctop retop isopn3i reseq2d eqtrd 3eqtr3d )
+    APGDQZRSZPFDQZRSZPGRSZDQZPFRSZDQZAWBWDPRAWBWDTZBUAZWBUBZWKWDUBZTZBDUCZAWNBDAWKDUDZUEWKGUBZWKFUBZWLWMAWQWRTBDOUFWPWLWQTAWKDGUGUHWPWMWRTAWKDFUGUHUIUJAWBDUKZWDDUKZWJWOULAGEUKDEUMWSAEPGNUNKEDGUOUPAFCUKDCUMWTACPFMUNJCDFUOUPBDWBWDUQUPURUSAWCWFDUTVAZVBUBZVCUBZUBZQZWGAPVDUMZEVDGVEEPUMDPUMZWCXETXFAVFVGZAEPVDGNXHVHIADCPJHVIZEDPXBGVJVKUBZXJVLZXJXKVMZVNVOAXDDWFAXBVPUDZDXBUDZXDDTZXMAVQVGZLDXBVRZUPZVSVTAWEWHXDQZWIAXFCVDFVECPUMXGWEXSTXHACPVDFMXHVHHXICDPXBFXJXKXLVNVOAXDDWHXRVSVTWA $.
+  $}
+
+  ${
+    gdvloc.1 $e |- ( ph -> D C_ RR ) $.
+    gdvloc.2 $e |- ( ph -> E C_ RR ) $.
+    gdvloc.3 $e |- ( ph -> U C_ D ) $.
+    gdvloc.4 $e |- ( ph -> U C_ E ) $.
+    gdvloc.5 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvloc.6 $e |- ( ph -> F : D --> RR ) $.
+    gdvloc.7 $e |- ( ph -> G : E --> RR ) $.
+    gdvloc.8 $e |- ( ph -> A. x e. U ( G ` x ) = ( F ` x ) ) $.
+    gdvloc.9 $e |- ( ph -> U C_ dom ( RR _D F ) ) $.
+  gdvloc $p |- ( ph -> U C_ dom ( RR _D G ) ) $=
+    ( cr cdv co cres cdm wceq wss gdvlocres dmeqd ssdmres sylib eqtrd sylibr
+    )
+    AQGRSZDTZUAZDUBDUJUAUCAULQFRSZDTZUAZDAUKUNABCDEFGHIJKLMNOUDUEADUMUAUCUODUBPDUMUFUGUHDUJUFUI $.
+  $}
+
+  ${
+    gdvlocv.1 $e |- ( ph -> D C_ RR ) $.
+    gdvlocv.2 $e |- ( ph -> E C_ RR ) $.
+    gdvlocv.3 $e |- ( ph -> U C_ D ) $.
+    gdvlocv.4 $e |- ( ph -> U C_ E ) $.
+    gdvlocv.5 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gdvlocv.6 $e |- ( ph -> F : D --> RR ) $.
+    gdvlocv.7 $e |- ( ph -> G : E --> RR ) $.
+    gdvlocv.8 $e |- ( ph -> A. x e. U ( G ` x ) = ( F ` x ) ) $.
+  gdvlocv $p |- ( ph -> A. x e. U ( ( RR _D G ) ` x ) = ( ( RR _D F ) ` x ) ) $=
+    ( cv cr cdv co cfv wceq wcel wa cres gdvlocres adantr fveq1d fvres adantl
+    3eqtr3d ralrimiva )
+    ABPZQGRSZTZULQFRSZTZUABDAULDUBZUCZULUMDUDZTZULUODUDZTZUNUPURULUSVAAUSVAUAUQABCDEFGHIJKLMNOUEUFUGUQUTUNUAAULDUMUHUIUQVBUPUAAULDUOUHUIUJUK $.
+  $}
+
+  ${
+    gcncfext.1 $e |- ( ph -> U C_ RR ) $.
+    gcncfext.2 $e |- ( ph -> U e. ( topGen ` ran (,) ) ) $.
+    gcncfext.3 $e |- ( ph -> C e. U ) $.
+    gcncfext.4 $e |- ( ph -> L e. RR ) $.
+    gcncfext.5 $e |- ( ph -> F : ( U \ { C } ) --> RR ) $.
+    gcncfext.6 $e |- ( ph -> G : U --> RR ) $.
+    gcncfext.7 $e |- ( ph -> A. x e. ( U \ { C } ) ( G ` x ) = ( F ` x ) ) $.
+    gcncfext.8 $e |- ( ph -> ( G ` C ) = L ) $.
+    gcncfext.9 $e |- ( ph -> ( U \ { C } ) C_ dom ( RR _D F ) ) $.
+    gcncfext.10 $e |- ( ph -> L e. ( F limCC C ) ) $.
+  gcncfext $p |- ( ph -> ( G |` U ) e. ( U -cn-> RR ) ) $=
+    ( cres cr ccncf co wcel wf cc wss wb ax-resscn a1i cv cfv climc wral fssd
+    csn cdif cun wa ccnfld ctopn crest ccnp cdv cdm adantr difss sstrd ssidd
+    gopndifsn gdvloc simpr sseldd eqid dvcnp2 syl31anc eldifad cnplimc
+    syl2anc mpbid simprd ralrimiva limcdif wceq fvres adantl r19.21bi eqtrd
+    wfn ffnd fnssres eqfnfv mpbird oveq1d eleqtrrd eqeltrd fveq2 oveq2
+    eleq12d ralsng syl jca ralunb sylibr difsnid raleqdv cnlimc mpbir2and
+    cncfcdm gcncfres )
+    AFDRDSTUAZUBFXIUBZAXJDSFUCZMASUDUEZFDUDTUAZUBZXJXKUFXLAUGUHZAXNDUDFUCZBUIZFUJZFXQUKUAZUBZBDULZADSUDFMXOUMZAXTBDCUNZUOZYCUPZULZYAAXTBYDULZXTBYCULZUQYFAYGYHAXTBYDAXQYDUBZUQZXPXTYJFXQURUSUJZDUTUAZYKVAUAZUJZUBZXPXTUQZYJXLXPDSUEZXQSFVBUAZVCZUBYOAXLYIXOVDAXPYIYBVDAYQYIHVDYJYDYSXQAYDYSUEYIABYDYDDEFAYDDSYDDUEZADYCVEZUHZHVFHAYDVGUUBACDHIJVHLMNPVIVDAYIVJZVKDXQSFYLYKYLVLZYKVLZVMVNYJDUDUEZXQDUBYOYPUFAUUFYIADSUDHXOVFZVDYJXQDYCUUCVODXQFYLYKUUEUUDVPVQVRVSVTAYHCFUJZFCUKUAZUBZAUUHGUUIOAGECUKUAZUUIQAUUIFYDRZCUKUAUUKADCFYBWAAUULECUKAUULEWBZXQUULUJZXQEUJZWBZBYDULZAUUPBYDYJUUNXRUUOYIUUNXRWBAXQYDFWCWDAXRUUOWBBYDNWEWFVTAUULYDWGZEYDWGUUMUUQUFAFDWGYTUURADSFMWHUUBDYDFWIVQAYDSELWHBYDUULEWJVQWKWLWFWMWNACDUBZYHUUJUFJXTUUJBCDXQCWBXRUUHXSUUIXQCFWOXQCFUKWPWQWRWSWKWTXTBYDYCXAXBAXTBYEDAUUSYEDWBJDCXCWSXDVRAUUFXNXPYAUQUFUUGBDFXEWSXFDUDSFXGVQWKADFMXHWK $.
+  $}
+
+  ${
+    gdviccres.1 $e |- ( ph -> D C_ RR ) $.
+    gdviccres.2 $e |- ( ph -> A e. RR ) $.
+    gdviccres.3 $e |- ( ph -> B e. RR ) $.
+    gdviccres.4 $e |- ( ph -> F : D --> RR ) $.
+  gdviccres $p |- ( ph -> ( RR _D ( F |` ( A [,] B ) ) ) = ( ( RR _D F ) |` ( A (,) B ) ) ) $=
+    ( cr cicc co cres cdv cioo crn ctg cfv cnt cc wss wf wceq ax-resscn a1i
+    fssd wcel iccssre syl2anc ccnfld ctopn eqid tgioo2 dvres syl22anc iccntr
+    reseq2d eqtrd )
+    AJEBCKLZMZNLZJENLZUSOPZQRZSRZRZMZVBBCOLZMAJTUAZDTEUBDJUAUSJUAZVAVGUCVIAUDUEZADJTEIVKUFFABJUGZCJUGZVJGHBCUHUIDUSJVDEUJUKRZVNULZVNVOUMUNUOAVFVHVBAVLVMVFVHUCGHBCUPUIUQUR $.
+  $}
+
+  ${
+    gdviccdm.1 $e |- ( ph -> D C_ RR ) $.
+    gdviccdm.2 $e |- ( ph -> A e. RR ) $.
+    gdviccdm.3 $e |- ( ph -> B e. RR ) $.
+    gdviccdm.4 $e |- ( ph -> F : D --> RR ) $.
+    gdviccdm.5 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+  gdviccdm $p |- ( ph -> dom ( RR _D ( F |` ( A [,] B ) ) ) = ( A (,) B ) ) $=
+    ( cr cicc co cres cdv cdm cioo gdviccres dmeqd wss wceq ssdmres sylib
+    eqtrd )
+    AKEBCLMZNZOMZPKEOMZBCQMZNZPZUIAUGUJABCDEFGHIRSAUIUHPTUKUIUAJUIUHUBUCUD $.
+  $}
+
+  ${
+    gdviccv.1 $e |- ( ph -> D C_ RR ) $.
+    gdviccv.2 $e |- ( ph -> A e. RR ) $.
+    gdviccv.3 $e |- ( ph -> B e. RR ) $.
+    gdviccv.4 $e |- ( ph -> F : D --> RR ) $.
+  gdviccv $p |- ( ( ph /\ x e. ( A (,) B ) ) -> ( ( RR _D ( F |` ( A [,] B ) ) ) ` x ) = ( ( RR _D F ) ` x ) ) $=
+    ( cv cioo co wcel wa cr cicc cres cdv cfv wceq gdviccres adantr fveq1d
+    fvres adantl eqtrd )
+    ABKZCDLMZNZOZUHPFCDQMZRZSMZTUHPFSMZUIRZTZUHUOTZUKUHUNUPAUNUPUAUJACDEFGHIJUBUCUDUJUQURUAAUHUIUOUEUFUG $.
+  $}
+
+  ${
+    gfvicc.1 $e |- ( ph -> A e. RR ) $.
+    gfvicc.2 $e |- ( ph -> B e. RR ) $.
+    gfvicc.3 $e |- ( ph -> A < B ) $.
+  gfvicc $p |- ( ph -> ( ( ( F |` ( A [,] B ) ) ` A ) = ( F ` A ) /\ ( ( F |` ( A [,] B ) ) ` B ) = ( F ` B ) ) ) $=
+    ( cicc co cres cfv wceq cxr wcel cle wbr rexrd ltled lbicc2 syl3anc
+    fvresd ubicc2 jca )
+    ABDBCHIZJZKBDKLCUEKCDKLABUDDABMNZCMNZBCOPZBUDNABEQZACFQZABCEFGRZBCSTUAACUDDAUFUGUHCUDNUIUJUKBCUBTUAUC $.
+  $}
+
+  ${
+    gcmvthres.1 $e |- ( ph -> D C_ RR ) $.
+    gcmvthres.2 $e |- ( ph -> A e. RR ) $.
+    gcmvthres.3 $e |- ( ph -> B e. RR ) $.
+    gcmvthres.4 $e |- ( ph -> A < B ) $.
+    gcmvthres.5 $e |- ( ph -> ( A [,] B ) C_ D ) $.
+    gcmvthres.6 $e |- ( ph -> F : D --> RR ) $.
+    gcmvthres.7 $e |- ( ph -> G : D --> RR ) $.
+    gcmvthres.8 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gcmvthres.9 $e |- ( ph -> ( G |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    gcmvthres.10 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    gcmvthres.11 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D G ) ) $.
+  gcmvthres $p |- ( ph -> E. x e. ( A (,) B ) ( ( ( F ` B ) - ( F ` A ) ) x. ( ( RR _D G ) ` x ) ) = ( ( ( G ` B ) - ( G ` A ) ) x. ( ( RR _D F ) ` x ) ) ) $=
+    ( cicc co cres cfv cmin cv cr cdv cmul wceq cioo wrex gdviccdm cmvth wcel
+    wa gfvicc simprd simpld oveq12d adantr gdviccv eqeq12d rexbidva mpbid )
+    ADFCDSTZUAZUBZCVEUBZUCTZBUDZUEGVDUAZUFTZUBZUGTZDVJUBZCVJUBZUCTZVIUEVEUFTZUBZUGTZUHZBCDUITZUJDFUBZCFUBZUCTZVIUEGUFTZUBZUGTZDGUBZCGUBZUCTZVIUEFUFTZUBZUGTZUHZBWAUJABCDVEVJIJKOPACDEFHIJMQUKACDEGHIJNRUKULAVTWNBWAAVIWAUMZUNZVMWGVSWMWPVHWDVLWFUGAVHWDUHWOAVFWBVGWCUCAVGWCUHZVFWBUHZACDFIJKUOZUPAWQWRWSUQURUSABCDEGHIJNUTURWPVPWJVRWLUGAVPWJUHWOAVNWHVOWIUCAVOWIUHZVNWHUHZACDGIJKUOZUPAWTXAXBUQURUSABCDEFHIJMUTURVAVBVC $.
+  $}
+
+  ${
+    grollepart.1 $e |- ( ph -> D C_ RR ) $.
+    grollepart.2 $e |- ( ph -> A e. RR ) $.
+    grollepart.3 $e |- ( ph -> B e. RR ) $.
+    grollepart.4 $e |- ( ph -> A < B ) $.
+    grollepart.5 $e |- ( ph -> ( A [,] B ) C_ D ) $.
+    grollepart.6 $e |- ( ph -> F : D --> RR ) $.
+    grollepart.7 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+    grollepart.8 $e |- ( ph -> ( A (,) B ) C_ dom ( RR _D F ) ) $.
+    grollepart.9 $e |- ( ph -> ( F ` A ) = ( F ` B ) ) $.
+  grollepart $p |- ( ph -> E. x e. ( A (,) B ) ( ( RR _D F ) ` x ) = 0 ) $=
+    ( cv cr cicc co cres cdv cfv cc0 wceq cioo wrex gdviccdm gfvicc simpld
+    simprd 3eqtr4d rolle wcel wa gdviccv eqeq1d rexbidva mpbid )
+    ABPZQFCDRSZTZUASZUBZUCUDZBCDUESZUFUSQFUASZUBZUCUDZBVEUFABCDVAHIJMACDEFGHILNUGACFUBZDFUBZCVAUBZDVAUBZOAVKVIUDZVLVJUDZACDFHIJUHZUIAVMVNVOUJUKULAVDVHBVEAUSVEUMUNVCVGUCABCDEFGHILUOUPUQUR $.
+  $}
+
+  geliccre $p |- ( ( A e. RR /\ B e. RR /\ C e. ( A [,] B ) ) -> C e. RR ) $=
+    ( cr wcel cicc co w3a cle wbr elicc2 biimp3a simp1d )
+    ADEZBDEZCABFGZEZHCDEZACIJZCBIJZNOQRSTHABCKLM $.
+
 $}
 
 ${

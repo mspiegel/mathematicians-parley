@@ -1,0 +1,12 @@
+theorem a-define-on-an-open-interval
+  note        A define's domain is read where a set is wanted, as the right
+              of ∈ is: for t ∈ (a, b) runs over the open interval between a
+              and b, not the pair of them.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let h(t) = t + 1, for t ∈ (a, b)                                    (D1)
+         reads one more than t
+  then h is a function on (a, b)
+
+1.  h is a function on (a, b)
+    D1

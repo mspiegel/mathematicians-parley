@@ -1,0 +1,37 @@
+import mundane theorem    stdlib/sets/remove-member
+
+theorem a-value-from-its-type-and-a-conjunct
+  note        A requires line citing a function's type and a line one part
+              of whose conjunction puts the point in its domain gives the
+              value's membership, as a line saying the point alone does.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ (a, b)                                                      (H3)
+  let h : (a, b) → ℝ                                                  (H4)
+  let x ∈ (a, b) ∖ {c}                                                (H5)
+  then h(x) + 1 = 1 + h(x)
+
+1.  x ∈ (a, b) and x ≠ c
+    mun:remove-member, from H5
+
+2.  h(x) + 1 = 1 + h(x)
+    algebra
+    requires h(x) ∈ ℝ: from H4, 1
+
+theorem a-condition-from-a-conjunct
+  note        A line one part of whose conjunction is what a universal asks
+              of the term it is instantiated at supplies it, as a line saying
+              that part alone does.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ (a, b)                                                      (H3)
+  let h : (a, b) → ℝ                                                  (H4)
+  assume for all x ∈ (a, b) with x ≠ c, h(x) = 0                      (H5)
+  let y ∈ (a, b) ∖ {c}                                                (H6)
+  then h(y) = 0
+
+1.  y ∈ (a, b) and y ≠ c
+    mun:remove-member, from H6
+
+2.  h(y) = 0
+    instantiate x := y in H5, from 1

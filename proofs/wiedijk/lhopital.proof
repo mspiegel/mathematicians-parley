@@ -1,0 +1,669 @@
+import theorem            stdlib/calculus/cauchy-mean-value
+import theorem            stdlib/calculus/continuous-extension
+import theorem            stdlib/calculus/rolle-on-part
+import definition         stdlib/calculus/limit-at
+import mundane definition stdlib/calculus/interval
+import mundane definition stdlib/calculus/open-interval
+import mundane theorem    stdlib/calculus/closed-within-open
+import mundane theorem    stdlib/calculus/continuous-on-part
+import mundane theorem    stdlib/calculus/derivative-local
+import mundane theorem    stdlib/calculus/derivative-real-on
+import mundane theorem    stdlib/calculus/differentiable-on-part
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane theorem    stdlib/calculus/open-interval-real
+import mundane theorem    stdlib/calculus/open-within-closed
+import mundane theorem    stdlib/calculus/open-without-point
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/unequal-cases
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/sets/difference-subset
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/remove-member
+import mundane theorem    stdlib/sets/subset-into-difference
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/sets/subset-transitive
+
+theorem cauchy-quotient
+  metamath    cmvth, which says it without the quotient
+  note        Cauchy's mean value theorem gives ξ between p and q with
+              (F(q) − F(p))·G′(ξ) = (G(q) − G(p))·F′(ξ). G′ is never 0, so by
+              Rolle's theorem G(p) ≠ G(q), and both sides divide.
+  let E ⊆ ℝ                                                           (H1)
+  let U ⊆ E                                                           (H2)
+  let p ∈ ℝ                                                           (H3)
+  let q ∈ ℝ                                                           (H4)
+  assume p < q                                                        (H5)
+  assume [p, q] ⊆ E                                                   (H6)
+  assume (p, q) ⊆ U                                                   (H7)
+  let F : E → ℝ                                                       (H8)
+  let G : E → ℝ                                                       (H9)
+  assume F is continuous on [p, q]                                    (H10)
+  assume G is continuous on [p, q]                                    (H11)
+  assume F is differentiable on U                                     (H12)
+  assume G is differentiable on U                                     (H13)
+  assume for all t ∈ U, G′(t) ≠ 0                                     (H14)
+  then G(p) ≠ G(q). There is ξ ∈ (p, q) with (F(q) − F(p))/(G(q) − G(p)) = F′(ξ)/G′(ξ).
+
+1.  F is differentiable on (p, q)
+    mun:differentiable-on-part D := E, S := (p, q), f := F, from H1, H2, H7, H12
+
+2.  G is differentiable on (p, q)
+    mun:differentiable-on-part D := E, S := (p, q), f := G, from H1, H2, H7, H13
+
+3.  G(p) ≠ G(q)
+    contradiction
+    suppose G(p) = G(q)                                               (S)
+
+    3.1.  ξ ∈ (p, q). G′(ξ) = 0.
+          obtain ξ: thm:rolle-on-part D := E, a := p, b := q, f := G, from H1, H5, H6, H11, S, 2
+
+    3.2.  ξ ∈ U
+          mun:in-subset, from H7, 3.1
+
+    3.3.  G′(ξ) ≠ 0
+          instantiate t := ξ in H14, from 3.2, contradicting 3.1
+
+4.  ξ ∈ (p, q). (F(q) − F(p))·G′(ξ) = (G(q) − G(p))·F′(ξ).
+    obtain ξ: thm:cauchy-mean-value D := E, a := p, b := q, f := F, g := G,
+      from H1, H5, H6, H10, H11, 1, 2
+
+5.  ξ ∈ U
+    mun:in-subset, from H7, 4
+
+6.  G′(ξ) ≠ 0
+    instantiate t := ξ in H14, from 5
+
+7.  p ∈ [p, q]
+    mun:interval a := p, b := q, x := p
+    requires p ≤ p: inequalities
+    requires p ≤ q: weakening, from H5
+
+8.  q ∈ [p, q]
+    mun:interval a := p, b := q, x := q
+    requires p ≤ q: weakening, from H5
+    requires q ≤ q: inequalities
+
+9.  p ∈ E
+    mun:in-subset, from H6, 7
+
+10. q ∈ E
+    mun:in-subset, from H6, 8
+
+11. (F(q) − F(p))/(G(q) − G(p)) = F′(ξ)/G′(ξ)
+    algebra, from 4
+    requires F(p) ∈ ℝ: from H8, 9
+    requires F(q) ∈ ℝ: from H8, 10
+    requires G(p) ∈ ℝ: from H9, 9
+    requires G(q) ∈ ℝ: from H9, 10
+    requires G(q) − G(p) ≠ 0: algebra, from 3
+    requires F′(ξ) ∈ ℝ: mun:derivative-real-on D := E, f := F, x := ξ, from H1, H2, H12, 5
+    requires G′(ξ) ∈ ℝ: mun:derivative-real-on D := E, f := G, x := ξ, from H1, H2, H13, 5
+    requires G′(ξ) ≠ 0: from 6
+
+12. There is ξ ∈ (p, q) with (F(q) − F(p))/(G(q) − G(p)) = F′(ξ)/G′(ξ).
+    exhibit, from 4, 11
+
+13. G(p) ≠ G(q). There is ξ ∈ (p, q) with (F(q) − F(p))/(G(q) − G(p)) = F′(ξ)/G′(ξ).
+    join 3, 12
+
+theorem quotient-two-points
+  metamath    cmvth, as cauchy-quotient, between two points in either order
+  note        Between u and v, whichever comes first, the quotient form of
+              Cauchy's mean value theorem gives ξ strictly between them, so
+              nearer u than v is. Where v < u the quotient comes with its
+              ends the other way round, which changes neither side.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let u ∈ (a, b)                                                      (H3)
+  let v ∈ (a, b)                                                      (H4)
+  assume v ≠ u                                                        (H5)
+  let F : (a, b) → ℝ                                                  (H6)
+  let G : (a, b) → ℝ                                                  (H7)
+  assume F is continuous on (a, b)                                    (H8)
+  assume G is continuous on (a, b)                                    (H9)
+  assume F is differentiable on (a, b) ∖ {u}                          (H10)
+  assume G is differentiable on (a, b) ∖ {u}                          (H11)
+  assume for all t ∈ (a, b) ∖ {u}, G′(t) ≠ 0                          (H12)
+  then G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+
+1.  (a, b) ⊆ ℝ
+    mun:open-interval-real
+
+2.  (a, b) ∖ {u} ⊆ (a, b)
+    mun:difference-subset
+
+3.  v < u or u < v
+    mun:unequal-cases x := v, y := u, from H5
+
+4.  G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+    cases, from 3
+
+    case
+    note on [v, u] Cauchy's quotient has its ends the other way round
+    assume v < u                                                      (C1)
+
+    4.1.  [v, u] ⊆ (a, b)
+          mun:closed-within-open p := v, q := u, from H3, H4
+
+    4.2.  (v, u) ⊆ (a, b)
+          mun:subset-transitive X := (v, u), Y := [v, u], Z := (a, b), from 4.1
+          requires (v, u) ⊆ [v, u]: mun:open-within-closed a := v, b := u
+
+    4.3.  u ∉ (v, u)
+          contradiction
+          suppose u ∈ (v, u)                                          (S1)
+
+          4.3.1.  u < u
+                  mun:open-interval a := v, b := u, x := u, from S1
+
+          4.3.2.  not u < u
+                  inequalities, contradicting 4.3.1
+
+    4.4.  (v, u) ⊆ (a, b) ∖ {u}
+          mun:subset-into-difference a := u, X := (a, b), Y := (v, u), from 4.2, 4.3
+
+    4.5.  G(v) ≠ G(u). There is ξ ∈ (v, u) with (F(u) − F(v))/(G(u) − G(v)) = F′(ξ)/G′(ξ).
+          thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := v, q := u,
+            from C1, H10, H11, H12, 1, 2, 4.1, 4.4
+          requires F is continuous on [v, u]: mun:continuous-on-part D := (a, b), S := [v, u], from H8, 1, 4.1
+          requires G is continuous on [v, u]: mun:continuous-on-part D := (a, b), S := [v, u], from H9, 1, 4.1
+
+    4.6.  G(v) ≠ G(u)
+          restate 4.5
+
+    4.7.  G(u) ≠ G(v)
+          inequalities
+            G(v) ≠ G(u)          4.6
+            G(u) ≠ G(v)          symmetry
+          requires G(u) ∈ ℝ: from H3, H7
+          requires G(v) ∈ ℝ: from H4, H7
+
+    4.8.  ξ ∈ (v, u). (F(u) − F(v))/(G(u) − G(v)) = F′(ξ)/G′(ξ).
+          obtain ξ from line 4.5
+
+    4.9.  ξ ∈ (a, b) ∖ {u}
+          mun:in-subset, from 4.4, 4.8
+
+    4.10. (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ)
+          algebra, from 4.8
+          requires F(u) ∈ ℝ: from H3, H6
+          requires F(v) ∈ ℝ: from H4, H6
+          requires G(u) ∈ ℝ: from H3, H7
+          requires G(v) ∈ ℝ: from H4, H7
+          requires G(u) − G(v) ≠ 0: algebra, from 4.6
+          requires G(v) − G(u) ≠ 0: algebra, from 4.6
+          requires F′(ξ) ∈ ℝ: mun:derivative-real-on D := (a, b), U := (a, b) ∖ {u}, f := F, x := ξ, from H10, 1, 2, 4.9
+          requires G′(ξ) ∈ ℝ: mun:derivative-real-on D := (a, b), U := (a, b) ∖ {u}, f := G, x := ξ, from H11, 1, 2, 4.9
+          requires G′(ξ) ≠ 0: instantiate t := ξ in H12, from 4.9
+
+    4.11. ξ ∈ ℝ. v < ξ. ξ < u.
+          mun:open-interval a := v, b := u, x := ξ, from 4.8
+
+    4.12. |ξ − u| = −(ξ − u)
+          mun:abs x := ξ − u
+          requires ξ − u < 0: adding −u, from 4.11
+
+    4.13. |v − u| = −(v − u)
+          mun:abs x := v − u
+          requires v − u < 0: adding −u, from C1
+
+    4.14. −(ξ − u) < −(v − u)
+          inequalities
+            v < ξ                    4.11
+            v − u < ξ − u            adding −u
+            −(v − u) > −(ξ − u)      multiplying by −1
+            −(ξ − u) < −(v − u)      symmetry
+
+    4.15. |ξ − u| < |v − u|
+          calculation
+            |ξ − u| = −(ξ − u)       4.12
+                    < −(v − u)       4.14
+                    = |v − u|        4.13
+
+    4.16. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          exhibit, from 4.9, 4.10, 4.15
+
+    4.17. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          join 4.7, 4.16
+
+    case
+    note on [u, v] Cauchy's quotient is the one claimed
+    assume u < v                                                      (C2)
+
+    4.18. [u, v] ⊆ (a, b)
+          mun:closed-within-open p := u, q := v, from H3, H4
+
+    4.19. (u, v) ⊆ (a, b)
+          mun:subset-transitive X := (u, v), Y := [u, v], Z := (a, b), from 4.18
+          requires (u, v) ⊆ [u, v]: mun:open-within-closed a := u, b := v
+
+    4.20. u ∉ (u, v)
+          contradiction
+          suppose u ∈ (u, v)                                          (S2)
+
+          4.20.1. u < u
+                  mun:open-interval a := u, b := v, x := u, from S2
+
+          4.20.2. not u < u
+                  inequalities, contradicting 4.20.1
+
+    4.21. (u, v) ⊆ (a, b) ∖ {u}
+          mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.19, 4.20
+
+    4.22. G(u) ≠ G(v). There is ξ ∈ (u, v) with (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := u, q := v,
+            from C2, H10, H11, H12, 1, 2, 4.18, 4.21
+          requires F is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H8, 1, 4.18
+          requires G is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H9, 1, 4.18
+
+    4.23. G(u) ≠ G(v)
+          restate 4.22
+
+    4.24. ξ ∈ (u, v). (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          obtain ξ from line 4.22
+
+    4.25. ξ ∈ (a, b) ∖ {u}
+          mun:in-subset, from 4.21, 4.24
+
+    4.26. ξ ∈ ℝ. u < ξ. ξ < v.
+          mun:open-interval a := u, b := v, x := ξ, from 4.24
+
+    4.27. ξ − u > 0
+          inequalities
+            u < ξ                    4.26
+            0 < ξ − u                adding −u
+            ξ − u > 0                symmetry
+
+    4.28. v − u > 0
+          inequalities
+            u < v                    C2
+            0 < v − u                adding −u
+            v − u > 0                symmetry
+
+    4.29. |ξ − u| = ξ − u
+          mun:abs x := ξ − u
+          requires ξ − u ≥ 0: weakening, from 4.27
+
+    4.30. |v − u| = v − u
+          mun:abs x := v − u
+          requires v − u ≥ 0: weakening, from 4.28
+
+    4.31. ξ − u < v − u
+          inequalities
+            ξ < v                    4.26
+            ξ − u < v − u            adding −u
+
+    4.32. |ξ − u| < |v − u|
+          calculation
+            |ξ − u| = ξ − u          4.29
+                    < v − u          4.31
+                    = |v − u|        4.30
+
+    4.33. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          exhibit, from 4.24, 4.25, 4.32
+
+    4.34. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          join 4.23, 4.33
+
+theorem quotient-between
+  metamath    lhop1lem, which bounds the quotient near the limit instead
+  note        F and G are f and g with 0 put in at c, so continuous on (a, b)
+              and differentiable but at c. On the interval between c and x
+              the quotient form of Cauchy's mean value theorem gives ξ with
+              f(x)/g(x) = f′(ξ)/g′(ξ), and ξ is nearer c than x is.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ (a, b)                                                      (H3)
+  let f : (a, b) ∖ {c} → ℝ                                            (H4)
+  let g : (a, b) ∖ {c} → ℝ                                            (H5)
+  assume f is differentiable on (a, b) ∖ {c}                          (H6)
+  assume g is differentiable on (a, b) ∖ {c}                          (H7)
+  assume f tends to 0 at c                                            (H8)
+  assume g tends to 0 at c                                            (H9)
+  assume for all t ∈ (a, b) ∖ {c}, g′(t) ≠ 0                          (H10)
+  let x ∈ (a, b) ∖ {c}                                                (H11)
+  then g(x) ≠ 0. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+
+let F(t) = 0       if t = c
+           f(t)    otherwise,  for t ∈ (a, b)                         (D1)
+       reads f with the value 0 put in at c
+
+let G(t) = 0       if t = c
+           g(t)    otherwise,  for t ∈ (a, b)                         (D2)
+       reads g with the value 0 put in at c
+
+1.  (a, b) ⊆ ℝ
+    mun:open-interval-real
+
+2.  (a, b) ∖ {c} ⊆ (a, b)
+    mun:difference-subset
+
+3.  (a, b) ∖ {c} ⊆ ℝ
+    mun:subset-transitive X := (a, b) ∖ {c}, Y := (a, b), Z := ℝ, from 1, 2
+
+4.  (a, b) ∖ {c} ⊆ (a, b) ∖ {c}
+    mun:subset-self
+
+5.  c = c
+    algebra
+
+6.  F(c) = 0
+    D1, from H3, 5
+
+7.  G(c) = 0
+    D2, from H3, 5
+
+8.  For all t ∈ (a, b) ∖ {c}, F(t) = f(t).
+    proof
+    let t ∈ (a, b) ∖ {c}                                              (K1)
+
+    8.1.  t ∈ (a, b) and t ≠ c
+          mun:remove-member, from K1
+
+    8.2.  F(t) = f(t)
+          D1, from 8.1
+
+9.  For all t ∈ (a, b) ∖ {c}, G(t) = g(t).
+    proof
+    let t ∈ (a, b) ∖ {c}                                              (K2)
+
+    9.1.  t ∈ (a, b) and t ≠ c
+          mun:remove-member, from K2
+
+    9.2.  G(t) = g(t)
+          D2, from 9.1
+
+10. For all t ∈ (a, b), F(t) ∈ ℝ.
+    proof
+    let t ∈ (a, b)                                                    (K3)
+
+    10.1. t = c or not t = c
+          mun:excluded-middle
+
+    10.2. F(t) ∈ ℝ
+          cases, from 10.1
+
+          case
+          assume t = c                                                (C1)
+
+          10.2.1. F(t) = 0
+                  D1, from C1, K3
+
+          10.2.2. F(t) ∈ ℝ
+                  membership, from 10.2.1
+
+          case
+          assume not t = c                                            (C2)
+
+          10.2.3. t ∈ (a, b) ∖ {c}
+                  mun:remove-member, from C2, K3
+
+          10.2.4. F(t) = f(t)
+                  D1, from C2, K3
+
+          10.2.5. F(t) ∈ ℝ
+                  membership, from H4, 10.2.3, 10.2.4
+
+11. F : (a, b) → ℝ
+    mun:function-into, from 10
+    requires F is a function on (a, b): from D1
+
+12. For all t ∈ (a, b), G(t) ∈ ℝ.
+    proof
+    let t ∈ (a, b)                                                    (K4)
+
+    12.1. t = c or not t = c
+          mun:excluded-middle
+
+    12.2. G(t) ∈ ℝ
+          cases, from 12.1
+
+          case
+          assume t = c                                                (C3)
+
+          12.2.1. G(t) = 0
+                  D2, from C3, K4
+
+          12.2.2. G(t) ∈ ℝ
+                  membership, from 12.2.1
+
+          case
+          assume not t = c                                            (C4)
+
+          12.2.3. t ∈ (a, b) ∖ {c}
+                  mun:remove-member, from C4, K4
+
+          12.2.4. G(t) = g(t)
+                  D2, from C4, K4
+
+          12.2.5. G(t) ∈ ℝ
+                  membership, from H5, 12.2.3, 12.2.4
+
+13. G : (a, b) → ℝ
+    mun:function-into, from 12
+    requires G is a function on (a, b): from D2
+
+14. F is continuous on (a, b)
+    thm:continuous-extension U := (a, b), L := 0, f := f, F := F, from H3, H6, H8, 1, 6, 8, 11
+    requires (a, b) is open: mun:open-interval-open
+
+15. G is continuous on (a, b)
+    thm:continuous-extension U := (a, b), L := 0, f := g, F := G, from H3, H7, H9, 1, 7, 9, 13
+    requires (a, b) is open: mun:open-interval-open
+
+16. (a, b) ∖ {c} is open
+    mun:open-without-point U := (a, b), from H3, 1
+    requires (a, b) is open: mun:open-interval-open
+
+17. F is differentiable on (a, b) ∖ {c}
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := f, F := F,
+      from H6, 1, 2, 3, 4, 8, 11, 16
+
+18. For all t ∈ (a, b) ∖ {c}, F′(t) = f′(t).
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := f, F := F,
+      from H6, 1, 2, 3, 4, 8, 11, 16
+
+19. G is differentiable on (a, b) ∖ {c}
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G,
+      from H7, 1, 2, 3, 4, 9, 13, 16
+
+20. For all t ∈ (a, b) ∖ {c}, G′(t) = g′(t).
+    mun:derivative-local D := (a, b) ∖ {c}, E := (a, b), U := (a, b) ∖ {c}, f := g, F := G,
+      from H7, 1, 2, 3, 4, 9, 13, 16
+
+21. For all t ∈ (a, b) ∖ {c}, G′(t) ≠ 0.
+    proof
+    let t ∈ (a, b) ∖ {c}                                              (K5)
+
+    21.1. G′(t) = g′(t)
+          restate 20
+
+    21.2. G′(t) ≠ 0
+          substitute G′(t) = g′(t) (line 21.1) into H10
+
+22. x ∈ (a, b) and x ≠ c
+    mun:remove-member, from H11
+
+23. G(c) ≠ G(x). There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ).
+    thm:quotient-two-points u := c, v := x, from H3, 11, 13, 14, 15, 17, 19, 21, 22
+
+24. G(c) ≠ G(x)
+    restate 23
+
+25. 0 ≠ G(x)
+    substitute G(c) = 0 (line 7) into line 24
+
+26. G(x) ≠ 0
+    inequalities
+      0 ≠ G(x)          25
+      G(x) ≠ 0          symmetry
+    requires G(x) ∈ ℝ: from 13, 22
+
+27. ξ ∈ (a, b) ∖ {c}. |ξ − c| < |x − c| and (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ).
+    obtain ξ from line 23
+
+28. (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ)
+    restate 27
+
+29. F(x)/(G(x) − G(c)) = F′(ξ)/G′(ξ)
+    substitute F(c) = 0 (line 6) into line 28
+    requires F(x) ∈ ℝ: from 11, 22
+
+30. F(x)/G(x) = F′(ξ)/G′(ξ)
+    substitute G(c) = 0 (line 7) into line 29
+    requires G(x) ∈ ℝ: from 13, 22
+
+31. F(x) = f(x)
+    instantiate t := x in line 8, from H11
+
+32. G(x) = g(x)
+    instantiate t := x in line 9, from H11
+
+33. F′(ξ) = f′(ξ)
+    instantiate t := ξ in line 18, from 27
+
+34. G′(ξ) = g′(ξ)
+    instantiate t := ξ in line 20, from 27
+
+35. f(x)/G(x) = F′(ξ)/G′(ξ)
+    substitute F(x) = f(x) (line 31) into line 30
+
+36. f(x)/g(x) = F′(ξ)/G′(ξ)
+    substitute G(x) = g(x) (line 32) into line 35
+
+37. f(x)/g(x) = f′(ξ)/G′(ξ)
+    substitute F′(ξ) = f′(ξ) (line 33) into line 36
+
+38. f(x)/g(x) = f′(ξ)/g′(ξ)
+    substitute G′(ξ) = g′(ξ) (line 34) into line 37
+
+39. |ξ − c| < |x − c|
+    restate 27
+
+40. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+    exhibit, from 27, 38, 39
+
+41. g(x) ≠ 0
+    substitute G(x) = g(x) (line 32) into line 26
+
+42. g(x) ≠ 0. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+    join 40, 41
+
+theorem lhopital
+  metamath    lhop, which asks g be nonzero off c as well and says it on any
+              open set holding c
+  note        Near c, f(x)/g(x) is f′(ξ)/g′(ξ) at a point ξ nearer c than x is
+              (quotient-between). So wherever x is within the δ that keeps
+              f′/g′ within ε of L, so is ξ, and f(x)/g(x) is within ε of L.
+  ε, δ range over ℝ
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ (a, b)                                                      (H3)
+  let L ∈ ℝ                                                           (H4)
+  let f : (a, b) ∖ {c} → ℝ                                            (H5)
+  let g : (a, b) ∖ {c} → ℝ                                            (H6)
+  assume f is differentiable on (a, b) ∖ {c}                          (H7)
+  assume g is differentiable on (a, b) ∖ {c}                          (H8)
+  assume f tends to 0 at c                                            (H9)
+  assume g tends to 0 at c                                            (H10)
+  assume for all x ∈ (a, b) ∖ {c}, g′(x) ≠ 0                          (H11)
+  let q(x) = f′(x)/g′(x), for x ∈ (a, b) ∖ {c}                        (D1)
+         reads the quotient of the derivatives
+  let r(x) = f(x)/g(x), for x ∈ (a, b) ∖ {c}                          (D2)
+         reads the quotient of the functions
+  assume q tends to L at c                                            (H12)
+  then r tends to L at c
+
+1.  (a, b) ⊆ ℝ
+    mun:open-interval-real
+
+2.  (a, b) ∖ {c} ⊆ ℝ
+    mun:subset-transitive X := (a, b) ∖ {c}, Y := (a, b), Z := ℝ, from 1
+    requires (a, b) ∖ {c} ⊆ (a, b): mun:difference-subset
+
+3.  (a, b) ∖ {c} ⊆ (a, b) ∖ {c}
+    mun:subset-self
+
+4.  For all x ∈ (a, b) ∖ {c}, q(x) ∈ ℝ.
+    membership, from D1
+    requires f′(x) ∈ ℝ: mun:derivative-real-on D := (a, b) ∖ {c}, U := (a, b) ∖ {c}, from H7, 2, 3
+    requires g′(x) ∈ ℝ: mun:derivative-real-on D := (a, b) ∖ {c}, U := (a, b) ∖ {c}, f := g, from H8, 2, 3
+    requires g′(x) ≠ 0: from H11
+
+5.  q : (a, b) ∖ {c} → ℝ
+    mun:function-into, from 4
+    requires q is a function on (a, b) ∖ {c}: from D1
+
+6.  For all x ∈ (a, b) ∖ {c}, g(x) ≠ 0.
+    thm:quotient-between f := f, from H3, H7, H8, H9, H10, H11
+
+7.  For all x ∈ (a, b) ∖ {c}, r(x) ∈ ℝ.
+    membership, from D2
+    requires f(x) ∈ ℝ: from H5
+    requires g(x) ∈ ℝ: from H6
+    requires g(x) ≠ 0: from 6
+
+8.  r : (a, b) ∖ {c} → ℝ
+    mun:function-into, from 7
+    requires r is a function on (a, b) ∖ {c}: from D2
+
+9.  For all ε > 0, there exists δ > 0 such that |q(x) − L| < ε
+    for all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ).
+    def:limit-at D := (a, b) ∖ {c}, f := q, from H12, 2, 5
+
+10. For all ε > 0, there exists δ > 0 such that |r(x) − L| < ε
+    for all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ).
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    10.1.  There exists δ > 0 such that |q(x) − L| < ε
+           for all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ).
+           instantiate ε := ε in line 9, from A1
+
+    10.2.  δ ∈ ℝ. δ > 0.
+           For all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ), |q(x) − L| < ε.
+           obtain δ from line 10.1
+
+    10.3.  For all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ), |r(x) − L| < ε.
+           proof
+           let x ∈ (a, b) ∖ {c}                                       (K2)
+           assume x ≠ c and |x − c| < δ                               (A2)
+
+           10.3.1.  ξ ∈ (a, b) ∖ {c}. |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+                    obtain ξ: thm:quotient-between f := f, from H3, H7, H8, H9, H10, H11, K2
+
+           10.3.2.  |ξ − c| < δ
+                    transitivity, from 10.3.1, A2
+                    requires |ξ − c| ∈ ℝ: mun:abs-real x := ξ − c
+                    requires |x − c| ∈ ℝ: mun:abs-real x := x − c
+
+           10.3.3.  ξ ∈ (a, b) and ξ ≠ c
+                    mun:remove-member, from 10.3.1
+
+           10.3.4.  |q(ξ) − L| < ε
+                    instantiate x := ξ in line 10.2, from 10.3.1, 10.3.2, 10.3.3
+
+           10.3.5.  q(ξ) = f′(ξ)/g′(ξ)
+                    D1, from 10.3.1
+
+           10.3.6.  r(x) = f(x)/g(x)
+                    D2, from K2
+
+           10.3.7.  r(x) = q(ξ)
+                    calculation
+                      r(x) = f(x)/g(x)          10.3.6
+                           = f′(ξ)/g′(ξ)        10.3.1
+                           = q(ξ)               10.3.5
+
+           10.3.8.  |r(x) − L| < ε
+                    substitute r(x) = q(ξ) (line 10.3.7) into line 10.3.4
+
+    10.4.  There exists δ > 0 such that |r(x) − L| < ε
+           for all x ∈ (a, b) ∖ {c} with (x ≠ c and |x − c| < δ).
+           exhibit, from 10.2, 10.3
+
+11. r tends to L at c
+    def:limit-at D := (a, b) ∖ {c}, f := r, from 2, 8, 10

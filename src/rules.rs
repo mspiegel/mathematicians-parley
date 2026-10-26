@@ -814,6 +814,48 @@ pub const RANGE_WITHIN: &[(&str, Option<&str>, &str)] = &[
     ("cz", None, "elfzelz"),
 ];
 
+/// An interval a letter may be introduced in, and what puts its member in a
+/// number system (`SYNTAX.md`, a membership said once). The checker reads
+/// the notation and the system, the elaborator the operation, the system,
+/// the lemma and the ends.
+pub struct IntervalWithin {
+    /// The notation the page writes the interval in.
+    pub notation: &'static str,
+    /// The interval's operation, as set.mm names it: `cioo` for (a, b).
+    pub operation: &'static str,
+    /// The number system the interval lies in.
+    pub system: &'static str,
+    /// The lemma putting a member of the interval in `system`: of the
+    /// membership alone, `( x e. I -> x e. system )`, where `ends` is None;
+    /// of the two ends in `ends` and the membership, in that order,
+    /// `( ( a e. ends /\ b e. ends /\ x e. I ) -> x e. system )`, where it
+    /// is a system.
+    pub lemma: &'static str,
+    /// The number system the lemma asks each end be in, or None where it
+    /// asks nothing of them. (a, b) is in ℝ whatever its ends; [a, b] is
+    /// in ℝ* only, unless its ends are real.
+    pub ends: Option<&'static str>,
+}
+
+/// The intervals a letter may be introduced in, each inside ℝ: the checker
+/// reads what a member of one is from it, and so does the elaborator.
+pub const INTERVAL_WITHIN: &[IntervalWithin] = &[
+    IntervalWithin {
+        notation: "open-interval",
+        operation: "cioo",
+        system: "cr",
+        lemma: "elioore",
+        ends: None,
+    },
+    IntervalWithin {
+        notation: "closed-interval",
+        operation: "cicc",
+        system: "cr",
+        lemma: "geliccre",
+        ends: Some("cr"),
+    },
+];
+
 /// The lemmas carrying a member of `small` into `big`, by labels, in order;
 /// empty where the two are one; None where the table does not put `small`
 /// inside `big`. A direct entry is taken over a longer way: set.mm says
@@ -1366,6 +1408,15 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
         put("INSTANCES", &[k, i.lemma]);
         if let Some(d) = i.domain {
             put("INSTANCES", &[d]);
+        }
+    }
+    for interval in INTERVAL_WITHIN {
+        put(
+            "INTERVAL_WITHIN",
+            &[interval.operation, interval.system, interval.lemma],
+        );
+        if let Some(ends) = interval.ends {
+            put("INTERVAL_WITHIN", &[ends]);
         }
     }
     for (k, v) in JOIN {

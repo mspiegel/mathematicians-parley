@@ -597,6 +597,10 @@ of
   where a is 1 and k ∈ ℕ₀ where a is 0, as a sum's index is, with every
   number system containing that one. What else the range says, a ≤ k and
   k ≤ b, is cited, by the line that says the range;
+- a letter introduced in an interval, `let x ∈ (a, b)` or `let x ∈ [a, b]`,
+  or in one with points taken out, `let x ∈ (a, b) ∖ {c}`: x ∈ ℝ, and x ∈ ℂ, where for [a, b] its ends are numbers said once. What
+  else the interval says, a < x and x < b, or a ≤ x and x ≤ b, is cited, by
+  the line that says the interval;
 - a term built from those by +, −, ·, unary −, a power whose exponent is a
   numeral or a letter introduced in ℕ or ℕ₀, and /, in each number system
   closed under what builds it (the table of closure
@@ -661,14 +665,14 @@ from H2 and K. The membership k ∈ X is what the claim's own "for all" gives,
 so no line is cited for it, and a requires line speaks of the member by the
 claim's letter and has its membership as the step does:
 
-    6.  For all x ∈ [a, b], g(x) ∈ ℝ.
-        membership, from D1
-        requires b − a ≠ 0: inequalities, from H1, H2, H3
-        requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H4, 1, 2, H1, H2
-        requires x ∈ ℝ: mun:interval, from H1, H2
+    9.  For all x ∈ [a, b], F(x) ∈ ℝ.
+        membership, from D1, D2
+        requires f(x) ∈ ℝ: from H4
+        requires b − a ≠ 0: weakening, from 1
+        requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
 
-reads x ∈ ℝ off x ∈ [a, b] as the block's line `mun:interval, from H1, H2,
-K` would. "for all X ⊆ A" is read at a part of A. Which reading a
+reads f(x) ∈ ℝ off H4 at the member x, as the block's line `from H4, K`
+would. "for all X ⊆ A" is read at a part of A. Which reading a
 citation takes is read off what it cites, never tried one way and then the
 other: an item whose conclusions say "for all" anywhere is read as written,
 as `sum-zero-terms` gives one and `upper-bound` unfolds to one, and an item

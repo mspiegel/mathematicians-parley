@@ -19,6 +19,7 @@ use num_bigint::BigInt;
 use num_rational::BigRational;
 use num_traits::{One, Signed, ToPrimitive, Zero};
 
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::template;
 use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
@@ -26,7 +27,7 @@ use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet
 use crate::notations::{
     APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE,
     JUXTAPOSITION, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI,
-    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
+    PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS, WITHOUT,
 };
 use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
@@ -38,9 +39,10 @@ use super::parts::{bound_in, function_values, Bound, Parts};
 /// page writes it.
 pub type Introduced = IndexMap<String, System>;
 
-/// The letter and number system a sentence `x ∈ ℝ` introduces; None for any
-/// other sentence, a term in place of the letter included.
-pub fn introduction(said: &Node) -> Option<(String, System)> {
+/// The letter and number system a sentence `x ∈ ℝ` introduces, `letters`
+/// being those introduced before it; None for any other sentence, a term in
+/// place of the letter included.
+pub fn introduction(said: &Node, letters: &Introduced) -> Option<(String, System)> {
     let [letter, set] = said.children.as_slice() else {
         return None;
     };
@@ -50,9 +52,33 @@ pub fn introduction(said: &Node) -> Option<(String, System)> {
     let system = match set.notation() {
         NUMBER_SYSTEMS => System::of_sign(&set.text)?,
         INTEGER_RANGE => range_system(set)?,
-        _ => return None,
+        _ => interval_system(set, letters)?,
     };
     Some((letter.text.to_string(), system))
+}
+
+/// The number system the declared table puts an interval in, ℝ for (a, b)
+/// and for [a, b] whose ends are numbers said once by `letters`
+/// (`rules::INTERVAL_WITHIN`, which the elaborator reads as well), and for
+/// an interval with points taken out, (a, b) ∖ {c}, whose members are its
+/// members; None for a set that is no interval, or a closed one whose ends
+/// are not said once.
+pub fn interval_system(set: &Node, letters: &Introduced) -> Option<System> {
+    if let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) {
+        return interval_system(from, letters);
+    }
+    let interval = rules::INTERVAL_WITHIN
+        .iter()
+        .find(|i| NotationId::of(i.notation) == set.notation())?;
+    if let Some(ends) = interval.ends {
+        let ends = System::of_label(ends)?;
+        let nonzero = |d: &Node| nonzero_said_once(d, letters);
+        let said = |end: &Node| within(end, ends, letters, &nonzero, &|_, _| false);
+        if !set.children.iter().all(said) {
+            return None;
+        }
+    }
+    System::of_label(interval.system)
 }
 
 /// The least number system the declared table puts a range {a, …, b} in:

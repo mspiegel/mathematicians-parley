@@ -6256,6 +6256,10 @@ impl<'a> Elaborator<'a> {
     /// What a lemma's variables stand for where its `pattern` is `term`: as
     /// written, or else with both read in standard form (`read_through`);
     /// None where neither fits.
+    ///
+    /// A define's name the seed gives a variable stays a name in `term`, as
+    /// it stands in the pattern the seed fills: `F ` z` with F given as k
+    /// fits k(x), which k's rule at x would not (`read_holding`).
     pub fn fits_as(
         &mut self,
         pattern: &Term,
@@ -6267,9 +6271,37 @@ impl<'a> Elaborator<'a> {
         if let Some(binding) = fit(pattern, term, &start, variables) {
             return Some(binding);
         }
-        let t = self.read_through(term, true, None);
+        let held: Vars = start
+            .values()
+            .filter_map(|given| self.defined_name(given))
+            .collect();
+        let t = self.read_holding(term, &held);
         let binding = self.fit_read(pattern, &t, &start, variables)?;
         Some(self.refolded(binding, term))
+    }
+
+    /// The letter a define gave, where `term` is that name standing alone;
+    /// else None.
+    fn defined_name(&self, term: &Term) -> Option<Symbol> {
+        if term.variable().is_some() || term.label() != Some("cv") {
+            return None;
+        }
+        let letter = term.children().first()?;
+        let said = self.rpn(letter);
+        let defined = self.definitions.contains_key(said.alone()?);
+        defined.then(|| letter.variable_symbol()).flatten()
+    }
+
+    /// `read_through` with defined names, but for the defines whose letters
+    /// are `held`, which stay names and their values stay applied.
+    fn read_holding(&mut self, term: &Term, held: &Vars) -> Term {
+        let mut letters: Vars = self.letters_bound(term).iter().cloned().collect();
+        letters.extend(held.iter().cloned());
+        let kept = self.binding.clone();
+        self.binding.extend(held.iter().cloned());
+        let read = self.read_through(term, true, Some(&letters));
+        self.binding = kept;
+        read
     }
 
     /// What a lemma's variables stand for where its `pattern`, read in

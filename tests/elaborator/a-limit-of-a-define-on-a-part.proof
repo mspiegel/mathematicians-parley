@@ -1,0 +1,39 @@
+import definition         stdlib/calculus/limit-at
+
+theorem a-limit-of-a-define-off-a-point
+  note        The definition of a limit unfolded at a function the theorem
+              defines on a set with a point taken out: the set the ε–δ
+              condition runs over is read off the claim, where the defined
+              name stays the name the citation gives f.
+  ε, δ range over ℝ
+  let D ⊆ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let L ∈ ℝ                                                           (H3)
+  let h : D ∖ {c} → ℝ                                                 (H4)
+  let k(x) = h(x) + 1, for x ∈ D ∖ {c}                                (D1)
+         reads one more than h
+  assume D ∖ {c} ⊆ ℝ                                                  (H5)
+  assume k : D ∖ {c} → ℝ                                              (H6)
+  assume k tends to L at c                                            (H7)
+  then for all ε > 0, there exists δ > 0 such that |k(x) − L| < ε for all x ∈ D ∖ {c} with (x ≠ c and |x − c| < δ)
+
+1.  For all ε > 0, there exists δ > 0 such that |k(x) − L| < ε for all x ∈ D ∖ {c} with (x ≠ c and |x − c| < δ).
+    def:limit-at D := D ∖ {c}, f := k, from H5, H6, H7
+
+theorem a-limit-of-a-define-on-an-open-interval
+  note        The same on an open interval.
+  ε, δ range over ℝ
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ ℝ                                                           (H3)
+  let L ∈ ℝ                                                           (H4)
+  let h : (a, b) → ℝ                                                  (H5)
+  let k(x) = h(x) + 1, for x ∈ (a, b)                                 (D1)
+         reads one more than h
+  assume (a, b) ⊆ ℝ                                                   (H6)
+  assume k : (a, b) → ℝ                                               (H7)
+  assume k tends to L at c                                            (H8)
+  then for all ε > 0, there exists δ > 0 such that |k(x) − L| < ε for all x ∈ (a, b) with (x ≠ c and |x − c| < δ)
+
+1.  For all ε > 0, there exists δ > 0 such that |k(x) − L| < ε for all x ∈ (a, b) with (x ≠ c and |x − c| < δ).
+    def:limit-at D := (a, b), f := k, from H6, H7, H8

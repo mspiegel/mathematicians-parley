@@ -1,0 +1,50 @@
+import mundane theorem    stdlib/numbers/square-nonneg
+
+theorem an-interval-member-is-cited
+  note        A letter introduced in an interval is a real number as a letter introduced in ℝ is: x ∈ (a, b) says x ∈ ℝ once, and no line writes it.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let x ∈ (a, b)    (H3)
+  then x² ≥ 0
+
+1.  x² ≥ 0
+    mun:square-nonneg x := x
+
+theorem a-closed-interval-member-is-cited
+  note        [a, b] lies in ℝ where its ends are real, and its ends are real said once, so x ∈ [a, b] says x ∈ ℝ once too.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let x ∈ [a, b]    (H3)
+  then x² ≥ 0
+
+1.  x² ≥ 0
+    mun:square-nonneg x := x
+
+theorem an-interval-member-in-a-method
+  note        A method's atom introduced in an interval is a number there, as one introduced in ℝ is.
+  let s ∈ [0, 1]    (H1)
+  let t ∈ (0, 1)    (H2)
+  then s·t + 1 ∈ ℝ
+
+1.  s·t + 1 ∈ ℝ
+    membership
+
+theorem a-member-of-an-interval-is-a-number
+  note        The member a step said of every member speaks of is in its interval, as its block's let would put it there.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  then For all x ∈ [a, b], x·2 + a ∈ ℝ.
+
+1.  For all x ∈ [a, b], x·2 + a ∈ ℝ.
+    membership
+
+theorem an-interval-without-a-point
+  note        A member of an interval with a point taken out is a member of the interval, so a real number said once.
+  let a ∈ ℝ    (H1)
+  let b ∈ ℝ    (H2)
+  let c ∈ ℝ    (H3)
+  let x ∈ [a, b] ∖ {c}    (H4)
+  then x² ≥ 0
+
+1.  x² ≥ 0
+    mun:square-nonneg x := x

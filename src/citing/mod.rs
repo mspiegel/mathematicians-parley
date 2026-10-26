@@ -26,10 +26,10 @@ pub use library::{
     Way,
 };
 pub use once::{
-    a_number_said_once, closed_nonzero, index_system, introduction, log_taken,
-    nonzero_by_parts, nonzero_said_once, range_system, reason, reason_within,
-    root_taken, said_once, sum_said_once, within, Introduced, OnceAsk, OnceReason,
-    Shape,
+    a_number_said_once, closed_nonzero, index_system, interval_system, introduction,
+    log_taken, nonzero_by_parts, nonzero_said_once, range_system, reason,
+    reason_within, root_taken, said_once, sum_said_once, within, Introduced, OnceAsk,
+    OnceReason, Shape,
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,

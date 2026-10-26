@@ -1163,7 +1163,9 @@ reason names, the requires lines above it, and the member its step's claim
 is said of, the record applied once or as often as it takes (`citing::taken`,
 `citing::derives`). `requires C(N, k) ∈ ℕ₀: mun:binomial-nat0`, where H2
 lets k ∈ {0, …, N}, is taken by both with nothing cited: a letter introduced
-in a range is an integer said once (`SYNTAX.md`), as one introduced in ℤ is.
+in a range is an integer said once (`SYNTAX.md`), as one introduced in ℤ is,
+and one introduced in an interval, with or without points taken out, a real
+number, as one introduced in ℝ is.
 
 An item's hypothesis that is an equation whose two sides are one under the
 citation, |X| = m at m := |A|, needs no line (`SYNTAX.md`, "An identity element

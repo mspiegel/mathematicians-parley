@@ -34,7 +34,7 @@ theorem image-of-parabola
           mun:interval a := −3, b := 5, x := s, from 2.2
 
     2.4.  f(s) = s² + 3
-          instantiate x := s in H2, from 2.3
+          instantiate x := s in H2
 
     2.5.  y = s² + 3
           calculation
@@ -42,13 +42,12 @@ theorem image-of-parabola
               = s² + 3     2.4
 
     2.6.  s² ≥ 0
-          mun:square-nonneg x := s, from 2.3
+          mun:square-nonneg x := s
 
     2.7.  s² + 3 ≥ 3
           inequalities
             s² ≥ 0          2.6
             s² + 3 ≥ 3      adding 3
-          requires s ∈ ℝ: from 2.3
 
     2.8.  y ≥ 3
           calculation
@@ -68,7 +67,7 @@ theorem image-of-parabola
             5 − s ≥ 0       symmetry
 
     2.11. (s + 3)·(5 − s) ≥ 0
-          mun:product-nonneg x := s + 3, y := 5 − s, from 2.3, 2.9, 2.10
+          mun:product-nonneg x := s + 3, y := 5 − s, from 2.9, 2.10
 
     2.12. s² + 3 ≤ 2·s + 18
           inequalities
@@ -76,7 +75,6 @@ theorem image-of-parabola
             −((s + 3)·(5 − s)) ≤ 0               multiplying by −1
             s² − 2·s − 15 ≤ 0                    algebra
             s² + 3 ≤ 2·s + 18                    adding 2·s + 18
-          requires s ∈ ℝ: from 2.3
 
     2.13. 2·s + 18 ≤ 28
           inequalities
@@ -91,7 +89,7 @@ theorem image-of-parabola
               ≤ 28          2.13
 
     2.15. y ∈ ℝ
-          membership, from 2.3, 2.5
+          membership, from 2.5
 
     2.16. y ∈ [3, 28]
           mun:interval a := 3, b := 28, x := y, from 2.8, 2.14, 2.15
@@ -113,7 +111,7 @@ theorem image-of-parabola
             y − 3 ≥ 0       symmetry
 
     4.3.  √(y − 3) ∈ ℝ. √(y − 3) ≥ 0. (√(y − 3))² = y − 3.
-          mun:sqrt x := y − 3, from 4.1, 4.2
+          mun:sqrt x := y − 3, from 4.2
 
     4.4.  y − 3 ≤ 25
           inequalities
@@ -140,7 +138,7 @@ theorem image-of-parabola
           instantiate x := √(y − 3) in H2, from 4.3
 
     4.10. f(√(y − 3)) = y
-          algebra, from 4.1, 4.3, 4.9
+          algebra, from 4.3, 4.9
 
     4.11. f(√(y − 3)) ∈ f[[−3, 5]]
           mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8

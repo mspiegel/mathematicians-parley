@@ -710,6 +710,9 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
+        // What each line cited supplies, a part of a conjunction it says
+        // among it, for the value a type and a point give together below.
+        let supplied = facts.copy();
         for r in refs {
             let lines = self.lines.clone();
             let Some(line) = self.line_written(r, &lines) else {
@@ -738,6 +741,9 @@ impl<'a> Elaborator<'a> {
             let held = self.line_supplies(r, scope, facts, &lines)?;
             if let Some(p) = self.held(&held, term, scope)? {
                 return Ok(Built(p));
+            }
+            for (said, proof) in held.entries() {
+                self.know_default(&supplied, said, proof);
             }
             // Or what a membership it states says as well: `let k ∈ ℕ` says
             // k ∈ ℝ and k ≠ 0, each one lemma from it.
@@ -799,7 +805,9 @@ impl<'a> Elaborator<'a> {
                 self.rpn(&wanted.children()[1]),
             );
             if lookup(rules::SYSTEMS, system.alone().unwrap_or_default()).is_some() {
-                if let Some(p) = self.function_value(&value, &system, scope, facts)? {
+                if let Some(p) =
+                    self.function_value(&value, &system, scope, &supplied)?
+                {
                     return Ok(Built(p));
                 }
             }

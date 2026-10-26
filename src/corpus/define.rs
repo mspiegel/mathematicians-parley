@@ -57,10 +57,10 @@ impl Param {
     }
 
     /// The set the argument runs over, as the formula it is, written at
-    /// `line` of `path`: the set written, or for `X ⊆ A` the parts of A,
-    /// made from the tree of A.
+    /// `line` of `path`: the set written, read where a set is wanted, or
+    /// for `X ⊆ A` the parts of A, made from the tree of A.
     pub fn domain_written(&self, path: &str, line: usize) -> Written {
-        let set = Written::new(self.domain.as_str(), path, line);
+        let set = Written::set(Written::new(self.domain.as_str(), path, line));
         match self.within {
             Within::Members => set,
             Within::Parts => Written::parts(self.said.as_str(), set, path, line),

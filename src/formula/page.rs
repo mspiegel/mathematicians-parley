@@ -10,7 +10,7 @@
 
 use std::sync::Arc;
 
-use super::grammar::{parse, Grammar, Sorts};
+use super::grammar::{fits, parse, wanted_reading, Grammar, Sorts};
 use super::node::{Node, Sort};
 use super::notation_id::Spelling;
 use super::symbol::Symbol;
@@ -46,6 +46,10 @@ enum Made {
     },
     /// The domain of `for X ⊆ A`, the parts of A: 𝒫A.
     Parts { of: Written },
+    /// The set a define's argument runs over, A of `for x ∈ A`, read where
+    /// a set is wanted, as the right of ∈ is: `(a, b)` is the open interval
+    /// there and not the pair of its ends (`wanted_reading`).
+    Set { of: Written },
 }
 
 /// One line of a define by cases: its value, and the condition it is
@@ -119,6 +123,17 @@ impl Written {
             path: Arc::from(path),
             line,
             made: Some(Box::new(Made::Parts { of })),
+        }
+    }
+
+    /// The set `for x ∈ A` gives x, A as it is written, read where a set is
+    /// wanted: `for t ∈ (a, b)` runs over the open interval.
+    pub fn set(of: Written) -> Written {
+        Written {
+            text: of.text.clone(),
+            path: of.path.clone(),
+            line: of.line,
+            made: Some(Box::new(Made::Set { of })),
         }
     }
 
@@ -256,7 +271,7 @@ fn parts_of(made: &Made) -> Vec<&Written> {
             .flat_map(|c| [&c.value, &c.condition])
             .chain([otherwise])
             .collect(),
-        Made::Parts { of } => vec![of],
+        Made::Parts { of } | Made::Set { of } => vec![of],
     }
 }
 
@@ -274,6 +289,13 @@ fn made_of(
             filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])
         }
         Made::Parts { .. } => filled("𝒫A", g, sorts, &[("A", &read[0])]),
+        Made::Set { .. } => {
+            let set = read.pop().expect("the set");
+            if fits("set", &set.sort) {
+                return Ok(set);
+            }
+            Ok(wanted_reading(g, &set, "set").unwrap_or(set))
+        }
         Made::Cases { .. } => {
             let mut term = read.pop().expect("the value otherwise");
             while let (Some(condition), Some(value)) = (read.pop(), read.pop()) {

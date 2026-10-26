@@ -10,6 +10,18 @@ import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
 import definition         stdlib/calculus/limit-at
 import theorem            stdlib/calculus/convergent-abs-bounded
+import mundane definition stdlib/calculus/open-interval
+import mundane theorem    stdlib/calculus/open-interval-real
+import mundane theorem    stdlib/calculus/closed-within-open
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane theorem    stdlib/calculus/open-without-point
+import mundane theorem    stdlib/calculus/interval-real
+import theorem            stdlib/calculus/rolle-on-part
+import theorem            stdlib/calculus/cauchy-mean-value
+import mundane theorem    stdlib/calculus/derivative-real-on
+import mundane theorem    stdlib/calculus/differentiable-on-part
+import mundane theorem    stdlib/calculus/derivative-local
+import theorem            stdlib/calculus/continuous-extension
 
 theorem limit-unfolded
   ε, δ range over ℝ
@@ -183,3 +195,148 @@ theorem a-convergent-bounded-on-both-sides
 
 1.  there exists B ∈ ℝ such that for all m ∈ ℕ, |y(m)| ≤ B
     thm:convergent-abs-bounded x := y, L := M, from H3
+
+theorem inside-an-open-interval
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let x ∈ (a, b)                                                      (H3)
+  then x ∈ ℝ and a < x and x < b
+
+1.  x ∈ ℝ and a < x and x < b
+    mun:open-interval, from H3
+
+theorem an-open-interval-is-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then (a, b) ⊆ ℝ
+
+1.  (a, b) ⊆ ℝ
+    mun:open-interval-real
+
+theorem closed-between-two-inner-points
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let p ∈ (a, b)                                                      (H3)
+  let q ∈ (a, b)                                                      (H4)
+  then [p, q] ⊆ (a, b)
+
+1.  [p, q] ⊆ (a, b)
+    mun:closed-within-open, from H3, H4
+
+theorem open-but-for-a-point
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let c ∈ (a, b)                                                      (H3)
+  then (a, b) ∖ {c} is open
+
+1.  (a, b) ∖ {c} is open
+    mun:open-without-point U := (a, b), from H3
+    requires (a, b) ⊆ ℝ: mun:open-interval-real
+    requires (a, b) is open: mun:open-interval-open
+
+theorem rolle-inside-a-larger-domain
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let h : ℝ → ℝ                                                       (H4)
+  assume h is continuous on [a, b]                                    (H5)
+  assume h is differentiable on (a, b)                                (H6)
+  assume h(a) = h(b)                                                  (H7)
+  then there is c ∈ (a, b) with h′(c) = 0
+
+1.  [a, b] ⊆ ℝ
+    mun:interval-real
+
+2.  ℝ ⊆ ℝ
+    mun:subset-self X := ℝ
+
+3.  there is c ∈ (a, b) with h′(c) = 0
+    thm:rolle-on-part D := ℝ, f := h, from H3, H5, H6, H7, 1, 2
+
+theorem cauchy-inside-a-larger-domain
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a < b                                                        (H3)
+  let h : ℝ → ℝ                                                       (H4)
+  let k : ℝ → ℝ                                                       (H5)
+  assume h is continuous on [a, b]                                    (H6)
+  assume k is continuous on [a, b]                                    (H7)
+  assume h is differentiable on (a, b)                                (H8)
+  assume k is differentiable on (a, b)                                (H9)
+  then there is c ∈ (a, b) with (h(b) − h(a))·k′(c) = (k(b) − k(a))·h′(c)
+
+1.  [a, b] ⊆ ℝ
+    mun:interval-real
+
+2.  ℝ ⊆ ℝ
+    mun:subset-self X := ℝ
+
+3.  there is c ∈ (a, b) with (h(b) − h(a))·k′(c) = (k(b) − k(a))·h′(c)
+    thm:cauchy-mean-value D := ℝ, f := h, g := k, from H3, H6, H7, H8, H9, 1, 2
+
+theorem a-derivative-on-a-part-is-real
+  let D ⊆ ℝ                                                           (H1)
+  let h : D → ℝ                                                       (H2)
+  let S ⊆ D                                                           (H3)
+  assume h is differentiable on S                                     (H4)
+  let y ∈ S                                                           (H5)
+  then h′(y) ∈ ℝ
+
+1.  h′(y) ∈ ℝ
+    mun:derivative-real-on U := S, f := h, x := y, from H1, H3, H4, H5
+
+theorem differentiable-on-a-smaller-set
+  let D ⊆ ℝ                                                           (H1)
+  let h : D → ℝ                                                       (H2)
+  let V ⊆ D                                                           (H3)
+  let W ⊆ V                                                           (H4)
+  assume h is differentiable on V                                     (H5)
+  then h is differentiable on W
+
+1.  h is differentiable on W
+    mun:differentiable-on-part U := V, S := W, f := h, from H1, H3, H4, H5
+
+theorem equal-functions-have-one-derivative
+  let D ⊆ ℝ                                                           (H1)
+  let E ⊆ ℝ                                                           (H2)
+  let V ⊆ D                                                           (H3)
+  assume V ⊆ E                                                        (H4)
+  assume V is open                                                    (H5)
+  let h : D → ℝ                                                       (H6)
+  let H : E → ℝ                                                       (H7)
+  assume for all y ∈ V, H(y) = h(y)                                   (H8)
+  assume h is differentiable on V                                     (H9)
+  then for all y ∈ V, H′(y) = h′(y)
+
+1.  For all y ∈ V, H′(y) = h′(y).
+    mun:derivative-local U := V, f := h, F := H, from H1, H2, H3, H4, H5, H8, H9
+
+theorem equal-functions-are-differentiable-together
+  let D ⊆ ℝ                                                           (H1)
+  let E ⊆ ℝ                                                           (H2)
+  let V ⊆ D                                                           (H3)
+  assume V ⊆ E                                                        (H4)
+  assume V is open                                                    (H5)
+  let h : D → ℝ                                                       (H6)
+  let H : E → ℝ                                                       (H7)
+  assume for all y ∈ V, H(y) = h(y)                                   (H8)
+  assume h is differentiable on V                                     (H9)
+  then H is differentiable on V
+
+1.  H is differentiable on V
+    mun:derivative-local U := V, f := h, F := H, from H1, H2, H3, H4, H5, H8, H9
+
+theorem a-limit-filled-in
+  let U ⊆ ℝ                                                           (H1)
+  assume U is open                                                    (H2)
+  let p ∈ U                                                           (H3)
+  let h : U ∖ {p} → ℝ                                                 (H4)
+  let H : U → ℝ                                                       (H5)
+  assume for all y ∈ U ∖ {p}, H(y) = h(y)                             (H6)
+  assume H(p) = 0                                                     (H7)
+  assume h is differentiable on U ∖ {p}                               (H8)
+  assume h tends to 0 at p                                            (H9)
+  then H is continuous on U
+
+1.  H is continuous on U
+    thm:continuous-extension c := p, L := 0, f := h, F := H, from H1, H2, H3, H6, H7, H8, H9

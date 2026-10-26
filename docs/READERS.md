@@ -111,9 +111,9 @@ citing the lemma that a minimum of two reals is real. The repetition is the
 price of each step saying everything it rests on where it is read. One kind of dull fact
 stays a numbered step: a fact said of every member whose own reason needs
 facts said at the member, as `For all x ∈ [a, b], g(x) ∈ ℝ` in the mean value
-proof needs x ∈ ℝ and the slope's membership. A requires line has no requires
+proof needs the slope's membership. A requires line has no requires
 lines of its own, so such a fact is one line, `membership`, with its requires
-lines under it (steps 6 and 8 of the mean value proof, step 5 of the proof
+lines under it (steps 7 and 9 of the mean value proof, step 5 of the proof
 that ℚ is countable).
 
 The viewer may collapse dull facts by default, since it can tell them apart
@@ -174,7 +174,9 @@ and of nothing else:
   it shows a numeral, and so `1 + √2`, `√8/2` and `π + ln 2` by the rule for
   terms built from these, below;
 - **a letter**, in the set its introducing line names and every number system
-  containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ;
+  containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ; a letter introduced in a
+  range of integers, {a, …, b}, is an integer, and one introduced in an
+  interval, (a, b), [a, b] or (a, b) ∖ {c}, a real number;
 - **a distance** |PQ| between two points, in ℝ and ℂ, said once where the
   points are introduced: `|AB| ∈ ℝ`, and so `|AB|·|AC|` and
   `|AB|² + |BC|²` by the rule for terms built from these, below;

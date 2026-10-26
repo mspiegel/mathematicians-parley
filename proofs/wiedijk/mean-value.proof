@@ -59,7 +59,6 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     membership, from D1
     requires b − a ≠ 0: weakening, from 1
     requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
-    requires x ∈ ℝ: mun:interval, from H1, H2
 
 8.  g : [a, b] → ℝ
     mun:function-into, from 7
@@ -70,7 +69,6 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     requires f(x) ∈ ℝ: from H4
     requires b − a ≠ 0: weakening, from 1
     requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
-    requires x ∈ ℝ: mun:interval, from H1, H2
 
 10. F : [a, b] → ℝ
     mun:function-into, from 9

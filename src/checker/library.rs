@@ -978,7 +978,9 @@ fn citation_parts(step: &Step, library: &Library, known: &Known) -> Parts {
             // A step said of every member introduces the member as the same
             // step's block would by its `let`: j of "for all j ∈ {1, …, m}"
             // is in ℕ, the system the range is in (`SYNTAX.md`).
-            if let Some((letter, system)) = crate::citing::introduction(&member) {
+            if let Some((letter, system)) =
+                crate::citing::introduction(&member, &letters)
+            {
                 letters.insert(letter, system);
             }
             let mut facts = facts;
@@ -1013,7 +1015,7 @@ fn introduced_by(known: &Known, introducing: &[Stated]) -> Introduced {
     let mut out = Introduced::new();
     for stated in introducing {
         for node in known.said_parts(stated, None).into_iter().flatten() {
-            if let Some((letter, system)) = introduction(&node) {
+            if let Some((letter, system)) = introduction(&node, &out) {
                 out.insert(letter, system);
             }
         }

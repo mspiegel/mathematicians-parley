@@ -26,12 +26,30 @@ mundane definition interval
   metamath    elicc2
   target      elicc2
 
+mundane definition open-interval
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        x ∈ (a, b) ↔ x ∈ ℝ and a < x and x < b
+  metamath    elioo2, said of real ends, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gelioo2
+  note        As `interval` says what is in [a, b], with the bounds strict.
+              set.mm's `elioo2` takes the ends in the extended reals, and
+              `gelioo2` says it of the real ends the page writes.
+
 mundane theorem interval-real
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        [a, b] ⊆ ℝ
   metamath    iccssre
   target      iccssre
+
+mundane theorem open-interval-real
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  then        (a, b) ⊆ ℝ
+  metamath    ioossre
+  target      ioossre
 
 mundane theorem open-within-closed
   let a ∈ ℝ                                                           (H1)
@@ -40,12 +58,36 @@ mundane theorem open-within-closed
   metamath    ioossicc
   target      ioossicc
 
+mundane theorem closed-within-open
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let p ∈ (a, b)                                                      (H3)
+  let q ∈ (a, b)                                                      (H4)
+  then        [p, q] ⊆ (a, b)
+  metamath    iccssioo2
+  target      iccssioo2
+  note        The closed interval between two points of (a, b) lies in it, as
+              the mean value theorem asks of an interval inside a function's
+              open domain.
+
 mundane theorem open-interval-open
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) is open
   metamath    iooretop
   target      iooretop
+
+mundane theorem open-without-point
+  let U ⊆ ℝ                                                           (H1)
+  assume U is open                                                    (H2)
+  let c ∈ U                                                           (H3)
+  then        U ∖ {c} is open
+  metamath    difopn, icccld and iccid, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gopndifsn
+  note        A point is a closed set, the interval [c, c], and an open set
+              with a closed one taken out is open: (a, b) ∖ {c} is open, as a
+              derivative there asks.
 
 mundane theorem reals-open
   then        ℝ is open
@@ -193,6 +235,46 @@ theorem rolle
   note        rolle asks that f′ be defined on exactly (a, b); the page says
               on (a, b), and for f on [a, b] the two agree (gdvdmicc).
 
+theorem rolle-on-part
+  let D ⊆ ℝ                                                           (H1)
+  let a ∈ ℝ                                                           (H2)
+  let b ∈ ℝ                                                           (H3)
+  assume a < b                                                        (H4)
+  assume [a, b] ⊆ D                                                   (H5)
+  let f : D → ℝ                                                       (H6)
+  assume f is continuous on [a, b]                                    (H7)
+  assume f is differentiable on (a, b)                                (H8)
+  assume f(a) = f(b)                                                  (H9)
+  then        there is c ∈ (a, b) with f′(c) = 0
+  metamath    rolle, of f restricted to [a, b], which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      grollepart with D := D
+  note        Rolle's theorem for a function on a larger set D: f restricted
+              to [a, b] has f′ for its derivative on (a, b), the interior of
+              [a, b] (dvres, iccntr), and f's values at the ends.
+
+theorem cauchy-mean-value
+  let D ⊆ ℝ                                                           (H1)
+  let a ∈ ℝ                                                           (H2)
+  let b ∈ ℝ                                                           (H3)
+  assume a < b                                                        (H4)
+  assume [a, b] ⊆ D                                                   (H5)
+  let f : D → ℝ                                                       (H6)
+  let g : D → ℝ                                                       (H7)
+  assume f is continuous on [a, b]                                    (H8)
+  assume g is continuous on [a, b]                                    (H9)
+  assume f is differentiable on (a, b)                                (H10)
+  assume g is differentiable on (a, b)                                (H11)
+  then        there is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
+  metamath    cmvth, of f and g restricted to [a, b], which this corpus
+              proves in elaboration/stdlib/proved.mm
+  target      gcmvthres with D := D
+  note        Cauchy's mean value theorem: the chord of the curve (g, f) from
+              a to b is parallel to its tangent somewhere between. Written
+              without a quotient, as set.mm writes it, so that it asks
+              nothing to be nonzero. Said of functions on a set D holding
+              [a, b], restricted to it as rolle-on-part is.
+
 mundane theorem derivative-real
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
@@ -206,6 +288,18 @@ mundane theorem derivative-real
   note        A and B are only in the hypotheses of `gdvre`, so the `with`
               says which they are rather than leaving them to the first
               real numbers the step's facts hold.
+
+mundane theorem derivative-real-on
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  let f : D → ℝ                                                       (H3)
+  assume f is differentiable on U                                     (H4)
+  let x ∈ U                                                           (H5)
+  then        f′(x) ∈ ℝ
+  metamath    dvfre, which this corpus applies in
+              elaboration/stdlib/proved.mm
+  target      gdvrepart with D := D, U := U
+  note        derivative-real, for a function on any set of reals.
 
 theorem continuous-sum
   let D ⊆ ℝ                                                           (H1)
@@ -264,6 +358,58 @@ mundane theorem continuous-on-part
   note        A function continuous on a set is continuous on any part of
               it, as the mean value theorem asks of f on [c, x] inside its
               domain.
+
+mundane theorem differentiable-on-part
+  let D ⊆ ℝ                                                           (H1)
+  let U ⊆ D                                                           (H2)
+  let S ⊆ U                                                           (H3)
+  let f : D → ℝ                                                       (H4)
+  assume f is differentiable on U                                     (H5)
+  then        f is differentiable on S
+  metamath    sstr
+  target      sstr
+  note        Differentiable on U says f′ is defined at every point of U, so
+              at every point of a part of U.
+
+mundane theorem derivative-local
+  let D ⊆ ℝ                                                           (H1)
+  let E ⊆ ℝ                                                           (H2)
+  let U ⊆ D                                                           (H3)
+  assume U ⊆ E                                                        (H4)
+  assume U is open                                                    (H5)
+  let f : D → ℝ                                                       (H6)
+  let F : E → ℝ                                                       (H7)
+  assume for all x ∈ U, F(x) = f(x)                                   (H8)
+  assume f is differentiable on U                                     (H9)
+  then        F is differentiable on U.
+              For all x ∈ U, F′(x) = f′(x).
+  metamath    dvres, which this corpus applies in gdvloc and gdvlocv in
+              elaboration/stdlib/proved.mm
+  target      gdvloc, gdvlocv with D := D, E := E, F := f
+  note        A derivative at a point sees only the function near it, so two
+              functions equal on an open set have one derivative there: each
+              restricted to U has its derivative restricted to U (dvres), U
+              being its own interior.
+
+theorem continuous-extension
+  let U ⊆ ℝ                                                           (H1)
+  assume U is open                                                    (H2)
+  let c ∈ U                                                           (H3)
+  let L ∈ ℝ                                                           (H4)
+  let f : U ∖ {c} → ℝ                                                 (H5)
+  let F : U → ℝ                                                       (H6)
+  assume for all x ∈ U ∖ {c}, F(x) = f(x)                             (H7)
+  assume F(c) = L                                                     (H8)
+  assume f is differentiable on U ∖ {c}                               (H9)
+  assume f tends to L at c                                            (H10)
+  then        F is continuous on U
+  metamath    cnlimc, limcdif and dvcnp2, which this corpus proves together
+              in elaboration/stdlib/proved.mm
+  target      gcncfext with C := c, L := L, F := f
+  note        f extended to c by its limit there: F is continuous at c,
+              since it tends to its value, and at every other point, since
+              it is differentiable there (dvcnp2), agreeing with f on the
+              open U ∖ {c}.
 
 theorem derivative-sum
   let D ⊆ ℝ                                                           (H1)
