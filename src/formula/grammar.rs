@@ -996,9 +996,16 @@ fn bound_sorts(
     // outside them.
     for i in 0..tokens.len().saturating_sub(4) {
         let (f, colon) = (&tokens[i], &tokens[i + 1]);
+        // f′ of a function f is its derivative, typed and not named here
+        // (`derivative`): `f′ : ℝ → ℝ` says what the derivative is.
+        let derivative = f
+            .text
+            .strip_suffix('′')
+            .is_some_and(|stem| sort_of(stem).is("function"));
         if f.kind != TokenKind::Name
             || colon.text != ":"
             || !sort_of(&f.text).is_unknown()
+            || derivative
         {
             continue;
         }
@@ -1391,7 +1398,14 @@ impl<'a> Parser<'a> {
                 ),
             ));
         }
-        let node = Node::of(n.spelling(), Sort::of(&n.yields), vec![inner]);
+        // f′ is a function of the kind f is, so f′(x) is a number where f(x)
+        // is one, as |f′(x)| asks to be read.
+        let sort = if inner.sort.is("function") && !inner.sort.is_unknown() {
+            inner.sort.clone()
+        } else {
+            Sort::of(&n.yields)
+        };
+        let node = Node::of(n.spelling(), sort, vec![inner]);
         node.set_span(at, at + text.chars().count());
         Ok(Some(node))
     }

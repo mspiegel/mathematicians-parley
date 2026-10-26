@@ -19,6 +19,17 @@ $( The quotient is the witness of a "there is" binding q, and the remainder
    is said of every x; both letters are apart from the polynomial, the point
    and each other. $)
 $d q x $.  $d q F $.  $d q A $.  $d x F $.  $d x A $.
+$( The bound letters of a root's isolation, the real function's argument
+   and the least distance: each apart from the others, from the polynomial,
+   its roots, the root isolated, the degree, the real function and the
+   scope. $)
+$d x y z w r d $.
+$d x G $.  $d x R $.  $d x N $.  $d x ph $.
+$d y F $.  $d y G $.  $d y R $.  $d y A $.  $d y N $.  $d y ph $.
+$d z F $.  $d z G $.  $d z R $.  $d z A $.  $d z N $.  $d z ph $.
+$d w F $.  $d w G $.  $d w R $.  $d w A $.  $d w N $.  $d w ph $.
+$d r F $.  $d r G $.  $d r R $.  $d r A $.  $d r N $.  $d r ph $.
+$d d F $.  $d d G $.  $d d R $.  $d d A $.  $d d N $.  $d d ph $.
 lemma gplyval
   |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) )
   1 id |- ( F e. ( Poly ` CC ) -> F e. ( Poly ` CC ) )
@@ -228,4 +239,326 @@ lemma gplyrem
       ( F ` x ) = ( ( ( x - A ) x. ( q ` x ) ) + ( F ` A ) ) )
   111 ex 110 |- ( F e. ( Poly ` CC ) -> ( A e. CC -> E. q e. ( Poly ` CC ) A. x e. CC ( F ` x ) = (
       ( ( x - A ) x. ( q ` x ) ) + ( F ` A ) ) ) )
+
+# q^deg(F) * F(p/q) is an integer: `aalioulem1`, its two factors turned
+# (`mulcomd`).
+lemma gaalioulem1
+  hypothesis gaalioulem1.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gaalioulem1.2 |- ( ph -> X e. ZZ )
+  hypothesis gaalioulem1.3 |- ( ph -> Y e. NN )
+  |- ( ph -> ( ( Y ^ ( deg ` F ) ) x. ( F ` ( X / Y ) ) ) e. ZZ )
+  1 aalioulem1 gaalioulem1.1 gaalioulem1.2 gaalioulem1.3 |- ( ph -> ( ( F ` ( X / Y ) ) x. ( Y ^ ( deg ` F ) ) ) e. ZZ )
+  2 plyf |- ( F e. ( Poly ` ZZ ) -> F : CC --> CC )
+  3 syl gaalioulem1.1 2 |- ( ph -> F : CC --> CC )
+  4 zcnd gaalioulem1.2 |- ( ph -> X e. CC )
+  5 nncnd gaalioulem1.3 |- ( ph -> Y e. CC )
+  6 nnne0d gaalioulem1.3 |- ( ph -> Y =/= 0 )
+  7 divcld 4 5 6 |- ( ph -> ( X / Y ) e. CC )
+  8 ffvelcdmd 3 7 |- ( ph -> ( F ` ( X / Y ) ) e. CC )
+  9 dgrcl |- ( F e. ( Poly ` ZZ ) -> ( deg ` F ) e. NN0 )
+  10 syl gaalioulem1.1 9 |- ( ph -> ( deg ` F ) e. NN0 )
+  11 expcld 5 10 |- ( ph -> ( Y ^ ( deg ` F ) ) e. CC )
+  12 mulcomd 8 11 |- ( ph -> ( ( F ` ( X / Y ) ) x. ( Y ^ ( deg ` F ) ) ) = ( ( Y ^ ( deg ` F ) ) x. ( F ` ( X / Y ) ) ) )
+  13 eqeltrrd 12 1 |- ( ph -> ( ( Y ^ ( deg ` F ) ) x. ( F ` ( X / Y ) ) ) e. ZZ )
+
+# A polynomial with integer coefficients has real coefficients (`plyss`),
+# so its restriction to the reals is into the reals (`plyreres`) and its
+# value at a real is real.
+lemma gplyzre
+  hypothesis gplyzre.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyzre.2 |- ( ph -> A e. RR )
+  |- ( ph -> ( F ` A ) e. RR )
+  1 zssre |- ZZ C_ RR
+  2 ax-resscn |- RR C_ CC
+  3 plyss |- ( ( ZZ C_ RR /\ RR C_ CC ) -> ( Poly ` ZZ ) C_ ( Poly ` RR ) )
+  4 mp2an 1 2 3 |- ( Poly ` ZZ ) C_ ( Poly ` RR )
+  5 sseli 4 |- ( F e. ( Poly ` ZZ ) -> F e. ( Poly ` RR ) )
+  6 syl gplyzre.1 5 |- ( ph -> F e. ( Poly ` RR ) )
+  7 plyreres |- ( F e. ( Poly ` RR ) -> ( F |` RR ) : RR --> RR )
+  8 syl 6 7 |- ( ph -> ( F |` RR ) : RR --> RR )
+  9 ffvelcdmd 8 gplyzre.2 |- ( ph -> ( ( F |` RR ) ` A ) e. RR )
+  10 fvres |- ( A e. RR -> ( ( F |` RR ) ` A ) = ( F ` A ) )
+  11 syl gplyzre.2 10 |- ( ph -> ( ( F |` RR ) ` A ) = ( F ` A ) )
+  12 eqeltrrd 11 9 |- ( ph -> ( F ` A ) e. RR )
+
+# The page's f on the reals, equal to F at each real, is F restricted to
+# the reals (`eqfnfvd`, `fvres`).
+lemma gplyreeq
+  hypothesis gplyreeq.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyreeq.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyreeq.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> G = ( F |` RR ) )
+  1 ffnd gplyreeq.2 |- ( ph -> G Fn RR )
+  2 plyf |- ( F e. ( Poly ` ZZ ) -> F : CC --> CC )
+  3 syl gplyreeq.1 2 |- ( ph -> F : CC --> CC )
+  4 ffnd 3 |- ( ph -> F Fn CC )
+  5 ax-resscn |- RR C_ CC
+  6 fnssres |- ( ( F Fn CC /\ RR C_ CC ) -> ( F |` RR ) Fn RR )
+  7 sylancl 4 5 6 |- ( ph -> ( F |` RR ) Fn RR )
+  8 r19.21bi gplyreeq.3 |- ( ( ph /\ x e. RR ) -> ( G ` x ) = ( F ` x ) )
+  9 fvres |- ( x e. RR -> ( ( F |` RR ) ` x ) = ( F ` x ) )
+  10 adantl 9 |- ( ( ph /\ x e. RR ) -> ( ( F |` RR ) ` x ) = ( F ` x ) )
+  11 eqtr4d 8 10 |- ( ( ph /\ x e. RR ) -> ( G ` x ) = ( ( F |` RR ) ` x ) )
+  12 eqfnfvd 1 7 11 |- ( ph -> G = ( F |` RR ) )
+
+# f is continuous on the reals: F is continuous (`plycn`), so is its
+# restriction (`rescncf`), and f's values are real (`cncfcdm`).
+lemma gplyrecn
+  hypothesis gplyrecn.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyrecn.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyrecn.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> ( G |` RR ) e. ( RR -cn-> RR ) )
+  1 gplyreeq gplyrecn.1 gplyrecn.2 gplyrecn.3 |- ( ph -> G = ( F |` RR ) )
+  2 plycn |- ( F e. ( Poly ` ZZ ) -> F e. ( CC -cn-> CC ) )
+  3 syl gplyrecn.1 2 |- ( ph -> F e. ( CC -cn-> CC ) )
+  4 ax-resscn |- RR C_ CC
+  5 rescncf |- ( RR C_ CC -> ( F e. ( CC -cn-> CC ) -> ( F |` RR ) e. ( RR -cn-> CC ) ) )
+  6 ax-mp 4 5 |- ( F e. ( CC -cn-> CC ) -> ( F |` RR ) e. ( RR -cn-> CC ) )
+  7 syl 3 6 |- ( ph -> ( F |` RR ) e. ( RR -cn-> CC ) )
+  8 eqeltrd 1 7 |- ( ph -> G e. ( RR -cn-> CC ) )
+  9 cncfcdm |- ( ( RR C_ CC /\ G e. ( RR -cn-> CC ) ) -> ( G e. ( RR -cn-> RR ) <-> G : RR --> RR ) )
+  10 sylancr 4 8 9 |- ( ph -> ( G e. ( RR -cn-> RR ) <-> G : RR --> RR ) )
+  11 mpbird gplyrecn.2 10 |- ( ph -> G e. ( RR -cn-> RR ) )
+  12 gcncfres gplyrecn.2 |- ( ph -> ( ( G |` RR ) e. ( RR -cn-> RR ) <-> G e. ( RR -cn-> RR ) ) )
+  13 mpbird 11 12 |- ( ph -> ( G |` RR ) e. ( RR -cn-> RR ) )
+
+# f' is F's derivative over the complex numbers restricted to the reals
+# (`dvcnre`), F's derivative being a polynomial (`dvply2`) and so defined
+# on all of the complex numbers.
+lemma gplyredvres
+  hypothesis gplyredvres.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyredvres.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyredvres.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> ( RR _D G ) = ( ( CC _D F ) |` RR ) )
+  1 gplyreeq gplyredvres.1 gplyredvres.2 gplyredvres.3 |- ( ph -> G = ( F |` RR ) )
+  2 oveq2d 1 |- ( ph -> ( RR _D G ) = ( RR _D ( F |` RR ) ) )
+  3 plyf |- ( F e. ( Poly ` ZZ ) -> F : CC --> CC )
+  4 syl gplyredvres.1 3 |- ( ph -> F : CC --> CC )
+  5 dvply2 |- ( F e. ( Poly ` ZZ ) -> ( CC _D F ) e. ( Poly ` CC ) )
+  6 syl gplyredvres.1 5 |- ( ph -> ( CC _D F ) e. ( Poly ` CC ) )
+  7 plyf |- ( ( CC _D F ) e. ( Poly ` CC ) -> ( CC _D F ) : CC --> CC )
+  8 syl 6 7 |- ( ph -> ( CC _D F ) : CC --> CC )
+  9 fdmd 8 |- ( ph -> dom ( CC _D F ) = CC )
+  10 ax-resscn |- RR C_ CC
+  11 a1i 10 |- ( ph -> RR C_ CC )
+  12 sseqtrrd 11 9 |- ( ph -> RR C_ dom ( CC _D F ) )
+  13 dvcnre |- ( ( F : CC --> CC /\ RR C_ dom ( CC _D F ) ) -> ( RR _D ( F |` RR ) ) = ( ( CC _D F ) |` RR ) )
+  14 syl2anc 4 12 13 |- ( ph -> ( RR _D ( F |` RR ) ) = ( ( CC _D F ) |` RR ) )
+  15 eqtrd 2 14 |- ( ph -> ( RR _D G ) = ( ( CC _D F ) |` RR ) )
+
+# f' is a function from the reals to the reals: F's derivative restricted
+# to the reals is defined at every real (`fssres`), and a real function's
+# derivative is real (`dvfre`).
+lemma gplyredvf
+  hypothesis gplyredvf.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyredvf.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyredvf.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> ( RR _D G ) : RR --> RR )
+  1 gplyredvres gplyredvf.1 gplyredvf.2 gplyredvf.3 |- ( ph -> ( RR _D G ) = ( ( CC _D F ) |` RR ) )
+  2 dvply2 |- ( F e. ( Poly ` ZZ ) -> ( CC _D F ) e. ( Poly ` CC ) )
+  3 syl gplyredvf.1 2 |- ( ph -> ( CC _D F ) e. ( Poly ` CC ) )
+  4 plyf |- ( ( CC _D F ) e. ( Poly ` CC ) -> ( CC _D F ) : CC --> CC )
+  5 syl 3 4 |- ( ph -> ( CC _D F ) : CC --> CC )
+  6 ax-resscn |- RR C_ CC
+  7 fssres |- ( ( ( CC _D F ) : CC --> CC /\ RR C_ CC ) -> ( ( CC _D F ) |` RR ) : RR --> CC )
+  8 sylancl 5 6 7 |- ( ph -> ( ( CC _D F ) |` RR ) : RR --> CC )
+  9 feq1d 1 |- ( ph -> ( ( RR _D G ) : RR --> CC <-> ( ( CC _D F ) |` RR ) : RR --> CC ) )
+  10 mpbird 8 9 |- ( ph -> ( RR _D G ) : RR --> CC )
+  11 fdmd 10 |- ( ph -> dom ( RR _D G ) = RR )
+  12 ssid |- RR C_ RR
+  13 dvfre |- ( ( G : RR --> RR /\ RR C_ RR ) -> ( RR _D G ) : dom ( RR _D G ) --> RR )
+  14 sylancl gplyredvf.2 12 13 |- ( ph -> ( RR _D G ) : dom ( RR _D G ) --> RR )
+  15 feq2d 11 |- ( ph -> ( ( RR _D G ) : dom ( RR _D G ) --> RR <-> ( RR _D G ) : RR --> RR ) )
+  16 mpbid 14 15 |- ( ph -> ( RR _D G ) : RR --> RR )
+
+# f is differentiable at every real: its derivative is defined on the
+# reals.
+lemma gplyredv
+  hypothesis gplyredv.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyredv.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyredv.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> RR C_ dom ( RR _D G ) )
+  1 gplyredvf gplyredv.1 gplyredv.2 gplyredv.3 |- ( ph -> ( RR _D G ) : RR --> RR )
+  2 fdmd 1 |- ( ph -> dom ( RR _D G ) = RR )
+  3 eqimss2 |- ( dom ( RR _D G ) = RR -> RR C_ dom ( RR _D G ) )
+  4 syl 2 3 |- ( ph -> RR C_ dom ( RR _D G ) )
+
+# f' is continuous on the reals: F's derivative is a polynomial and so
+# continuous (`dvply2`, `plycn`), and so is its restriction to the reals.
+lemma gplyredvcn
+  hypothesis gplyredvcn.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis gplyredvcn.2 |- ( ph -> G : RR --> RR )
+  hypothesis gplyredvcn.3 |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) )
+  |- ( ph -> ( ( RR _D G ) |` RR ) e. ( RR -cn-> RR ) )
+  1 gplyredvres gplyredvcn.1 gplyredvcn.2 gplyredvcn.3 |- ( ph -> ( RR _D G ) = ( ( CC _D F ) |` RR ) )
+  2 dvply2 |- ( F e. ( Poly ` ZZ ) -> ( CC _D F ) e. ( Poly ` CC ) )
+  3 syl gplyredvcn.1 2 |- ( ph -> ( CC _D F ) e. ( Poly ` CC ) )
+  4 plycn |- ( ( CC _D F ) e. ( Poly ` CC ) -> ( CC _D F ) e. ( CC -cn-> CC ) )
+  5 syl 3 4 |- ( ph -> ( CC _D F ) e. ( CC -cn-> CC ) )
+  6 ax-resscn |- RR C_ CC
+  7 rescncf |- ( RR C_ CC -> ( ( CC _D F ) e. ( CC -cn-> CC ) -> ( ( CC _D F ) |` RR ) e. ( RR -cn-> CC ) ) )
+  8 ax-mp 6 7 |- ( ( CC _D F ) e. ( CC -cn-> CC ) -> ( ( CC _D F ) |` RR ) e. ( RR -cn-> CC ) )
+  9 syl 5 8 |- ( ph -> ( ( CC _D F ) |` RR ) e. ( RR -cn-> CC ) )
+  10 eqeltrd 1 9 |- ( ph -> ( RR _D G ) e. ( RR -cn-> CC ) )
+  11 cncfcdm |- ( ( RR C_ CC /\ ( RR _D G ) e. ( RR -cn-> CC ) ) -> ( ( RR _D G ) e. ( RR -cn-> RR ) <-> ( RR _D G ) : RR --> RR ) )
+  12 sylancr 6 10 11 |- ( ph -> ( ( RR _D G ) e. ( RR -cn-> RR ) <-> ( RR _D G ) : RR --> RR ) )
+  13 gplyredvf gplyredvcn.1 gplyredvcn.2 gplyredvcn.3 |- ( ph -> ( RR _D G ) : RR --> RR )
+  14 mpbird 13 12 |- ( ph -> ( RR _D G ) e. ( RR -cn-> RR ) )
+  15 gcncfres 13 |- ( ph -> ( ( ( RR _D G ) |` RR ) e. ( RR -cn-> RR ) <-> ( RR _D G ) e. ( RR -cn-> RR ) ) )
+  16 mpbird 14 15 |- ( ph -> ( ( RR _D G ) |` RR ) e. ( RR -cn-> RR ) )
+
+# The points of a finite set R other than A lie some distance from A: their
+# distances from A, with 1 added so that there is one, are a finite set of
+# positive reals (`abrexfi`, `absrpcld`), and half its least (`fiminre`) is
+# less than each.
+lemma gfiniso
+  hypothesis gfiniso.1 |- ( ph -> R e. Fin )
+  hypothesis gfiniso.2 |- ( ph -> R C_ CC )
+  hypothesis gfiniso.3 |- ( ph -> A e. CC )
+  |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+  1 diffi |- ( R e. Fin -> ( R \ { A } ) e. Fin )
+  2 syl gfiniso.1 1 |- ( ph -> ( R \ { A } ) e. Fin )
+  3 abrexfi |- ( ( R \ { A } ) e. Fin -> { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } e. Fin )
+  4 syl 2 3 |- ( ph -> { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } e. Fin )
+  5 snfi |- { 1 } e. Fin
+  6 unfi |- ( ( { 1 } e. Fin /\ { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } e. Fin ) -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) e. Fin )
+  7 sylancr 5 4 6 |- ( ph -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) e. Fin )
+  8 1rp |- 1 e. RR+
+  9 snssi |- ( 1 e. RR+ -> { 1 } C_ RR+ )
+  10 ax-mp 8 9 |- { 1 } C_ RR+
+  11 a1i 10 |- ( ph -> { 1 } C_ RR+ )
+  12 eldifsn |- ( z e. ( R \ { A } ) <-> ( z e. R /\ z =/= A ) )
+  13 biimpi 12 |- ( z e. ( R \ { A } ) -> ( z e. R /\ z =/= A ) )
+  14 adantl 13 |- ( ( ph /\ z e. ( R \ { A } ) ) -> ( z e. R /\ z =/= A ) )
+  15 simpld 14 |- ( ( ph /\ z e. ( R \ { A } ) ) -> z e. R )
+  16 simprd 14 |- ( ( ph /\ z e. ( R \ { A } ) ) -> z =/= A )
+  17 adantr gfiniso.2 |- ( ( ph /\ z e. ( R \ { A } ) ) -> R C_ CC )
+  18 sseldd 17 15 |- ( ( ph /\ z e. ( R \ { A } ) ) -> z e. CC )
+  19 adantr gfiniso.3 |- ( ( ph /\ z e. ( R \ { A } ) ) -> A e. CC )
+  20 necomd 16 |- ( ( ph /\ z e. ( R \ { A } ) ) -> A =/= z )
+  21 subne0d 19 18 20 |- ( ( ph /\ z e. ( R \ { A } ) ) -> ( A - z ) =/= 0 )
+  22 subcld 19 18 |- ( ( ph /\ z e. ( R \ { A } ) ) -> ( A - z ) e. CC )
+  23 absrpcld 22 21 |- ( ( ph /\ z e. ( R \ { A } ) ) -> ( abs ` ( A - z ) ) e. RR+ )
+  24 ralrimiva 23 |- ( ph -> A. z e. ( R \ { A } ) ( abs ` ( A - z ) ) e. RR+ )
+  25 nfcv |- F/_ z RR+
+  26 abrexss 25 |- ( A. z e. ( R \ { A } ) ( abs ` ( A - z ) ) e. RR+ -> { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } C_ RR+ )
+  27 syl 24 26 |- ( ph -> { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } C_ RR+ )
+  28 unssd 11 27 |- ( ph -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) C_ RR+ )
+  29 rpssre |- RR+ C_ RR
+  30 sstrdi 28 29 |- ( ph -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) C_ RR )
+  31 1ex |- 1 e. _V
+  32 snid 31 |- 1 e. { 1 }
+  33 elun1 |- ( 1 e. { 1 } -> 1 e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) )
+  34 ax-mp 32 33 |- 1 e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } )
+  35 ne0i |- ( 1 e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) =/= (/) )
+  36 ax-mp 34 35 |- ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) =/= (/)
+  37 a1i 36 |- ( ph -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) =/= (/) )
+  38 fiminre |- ( ( ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) C_ RR /\ ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) e. Fin /\ ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) =/= (/) ) -> E. x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y )
+  39 syl3anc 30 7 37 38 |- ( ph -> E. x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y )
+  40 simplr |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) )
+  41 ad2antrr 28 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) C_ RR+ )
+  42 sseldd 41 40 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> x e. RR+ )
+  43 rphalfcld 42 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> ( x / 2 ) e. RR+ )
+  44 rpred 43 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> ( x / 2 ) e. RR )
+  45 rpgt0d 43 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> 0 < ( x / 2 ) )
+  46 simplr |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> r e. R )
+  47 simpr |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> r =/= A )
+  48 jca 46 47 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( r e. R /\ r =/= A ) )
+  49 eldifsn |- ( r e. ( R \ { A } ) <-> ( r e. R /\ r =/= A ) )
+  50 sylibr 48 49 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> r e. ( R \ { A } ) )
+  51 fvex |- ( abs ` ( A - r ) ) e. _V
+  52 oveq2 |- ( z = r -> ( A - z ) = ( A - r ) )
+  53 fveq2d 52 |- ( z = r -> ( abs ` ( A - z ) ) = ( abs ` ( A - r ) ) )
+  54 eqeq2d 53 |- ( z = r -> ( ( abs ` ( A - r ) ) = ( abs ` ( A - z ) ) <-> ( abs ` ( A - r ) ) = ( abs ` ( A - r ) ) ) )
+  55 rspcev 54 |- ( ( r e. ( R \ { A } ) /\ ( abs ` ( A - r ) ) = ( abs ` ( A - r ) ) ) -> E. z e. ( R \ { A } ) ( abs ` ( A - r ) ) = ( abs ` ( A - z ) ) )
+  56 eqid |- ( abs ` ( A - r ) ) = ( abs ` ( A - r ) )
+  57 mpan2 56 55 |- ( r e. ( R \ { A } ) -> E. z e. ( R \ { A } ) ( abs ` ( A - r ) ) = ( abs ` ( A - z ) ) )
+  58 a1i 51 |- ( r e. ( R \ { A } ) -> ( abs ` ( A - r ) ) e. _V )
+  59 eqeq1 |- ( w = ( abs ` ( A - r ) ) -> ( w = ( abs ` ( A - z ) ) <-> ( abs ` ( A - r ) ) = ( abs ` ( A - z ) ) ) )
+  60 rexbidv 59 |- ( w = ( abs ` ( A - r ) ) -> ( E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) <-> E. z e. ( R \ { A } ) ( abs ` ( A - r ) ) = ( abs ` ( A - z ) ) ) )
+  61 elabd 58 57 60 |- ( r e. ( R \ { A } ) -> ( abs ` ( A - r ) ) e. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } )
+  62 elun2 |- ( ( abs ` ( A - r ) ) e. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } -> ( abs ` ( A - r ) ) e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) )
+  63 syl 61 62 |- ( r e. ( R \ { A } ) -> ( abs ` ( A - r ) ) e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) )
+  64 syl 50 63 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( abs ` ( A - r ) ) e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) )
+  65 simpr |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y )
+  66 ad2antrr 65 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y )
+  67 breq2 |- ( y = ( abs ` ( A - r ) ) -> ( x <_ y <-> x <_ ( abs ` ( A - r ) ) ) )
+  68 rspcv 67 |- ( ( abs ` ( A - r ) ) e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) -> ( A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y -> x <_ ( abs ` ( A - r ) ) ) )
+  69 sylc 64 66 68 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> x <_ ( abs ` ( A - r ) ) )
+  70 ad2antrr 44 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( x / 2 ) e. RR )
+  71 ad2antrr 42 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> x e. RR+ )
+  72 rpred 71 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> x e. RR )
+  73 ad4antr 30 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) C_ RR )
+  74 sseldd 73 64 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( abs ` ( A - r ) ) e. RR )
+  75 rphalflt |- ( x e. RR+ -> ( x / 2 ) < x )
+  76 syl 71 75 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( x / 2 ) < x )
+  77 ltletrd 70 72 74 76 69 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( x / 2 ) < ( abs ` ( A - r ) ) )
+  78 ltnled 70 74 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> ( ( x / 2 ) < ( abs ` ( A - r ) ) <-> -. ( abs ` ( A - r ) ) <_ ( x / 2 ) ) )
+  79 mpbid 77 78 |- ( ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) /\ r =/= A ) -> -. ( abs ` ( A - r ) ) <_ ( x / 2 ) )
+  80 ex 79 |- ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) -> ( r =/= A -> -. ( abs ` ( A - r ) ) <_ ( x / 2 ) ) )
+  81 necon4ad 80 |- ( ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) /\ r e. R ) -> ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) )
+  82 ralrimiva 81 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> A. r e. R ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) )
+  83 jca 45 82 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> ( 0 < ( x / 2 ) /\ A. r e. R ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) ) )
+  84 breq2 |- ( d = ( x / 2 ) -> ( 0 < d <-> 0 < ( x / 2 ) ) )
+  85 breq2 |- ( d = ( x / 2 ) -> ( ( abs ` ( A - r ) ) <_ d <-> ( abs ` ( A - r ) ) <_ ( x / 2 ) ) )
+  86 imbi1d 85 |- ( d = ( x / 2 ) -> ( ( ( abs ` ( A - r ) ) <_ d -> r = A ) <-> ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) ) )
+  87 ralbidv 86 |- ( d = ( x / 2 ) -> ( A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) <-> A. r e. R ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) ) )
+  88 anbi12d 84 87 |- ( d = ( x / 2 ) -> ( ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) <-> ( 0 < ( x / 2 ) /\ A. r e. R ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) ) ) )
+  89 rspcev 88 |- ( ( ( x / 2 ) e. RR /\ ( 0 < ( x / 2 ) /\ A. r e. R ( ( abs ` ( A - r ) ) <_ ( x / 2 ) -> r = A ) ) ) -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+  90 syl2anc 44 83 89 |- ( ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) /\ A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y ) -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+  91 ex 90 |- ( ( ph /\ x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) ) -> ( A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) ) )
+  92 rexlimdva 91 |- ( ph -> ( E. x e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) A. y e. ( { 1 } u. { w | E. z e. ( R \ { A } ) w = ( abs ` ( A - z ) ) } ) x <_ y -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) ) )
+  93 mpd 39 92 |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+
+# A polynomial of degree at least 1 is not 0 (`dgr0`), so its roots are
+# finitely many (`fta1`), and `gfiniso` isolates each real one.
+lemma grootsiso
+  hypothesis grootsiso.1 |- ( ph -> F e. ( Poly ` ZZ ) )
+  hypothesis grootsiso.2 |- ( ph -> N e. NN )
+  hypothesis grootsiso.3 |- ( ph -> ( deg ` F ) = N )
+  hypothesis grootsiso.4 |- ( ph -> A e. RR )
+  |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+  1 nnne0d grootsiso.2 |- ( ph -> N =/= 0 )
+  2 eqnetrd grootsiso.3 1 |- ( ph -> ( deg ` F ) =/= 0 )
+  3 fveq2 |- ( F = 0p -> ( deg ` F ) = ( deg ` 0p ) )
+  4 dgr0 |- ( deg ` 0p ) = 0
+  5 eqtrdi 3 4 |- ( F = 0p -> ( deg ` F ) = 0 )
+  6 necon3i 5 |- ( ( deg ` F ) =/= 0 -> F =/= 0p )
+  7 syl 2 6 |- ( ph -> F =/= 0p )
+  8 eqid |- ( `' F " { 0 } ) = ( `' F " { 0 } )
+  9 fta1 8 |- ( ( F e. ( Poly ` ZZ ) /\ F =/= 0p ) -> ( ( `' F " { 0 } ) e. Fin /\ ( # ` ( `' F " { 0 } ) ) <_ ( deg ` F ) ) )
+  10 syl2anc grootsiso.1 7 9 |- ( ph -> ( ( `' F " { 0 } ) e. Fin /\ ( # ` ( `' F " { 0 } ) ) <_ ( deg ` F ) ) )
+  11 simpld 10 |- ( ph -> ( `' F " { 0 } ) e. Fin )
+  12 cnvimass |- ( `' F " { 0 } ) C_ dom F
+  13 a1i 12 |- ( ph -> ( `' F " { 0 } ) C_ dom F )
+  14 plyf |- ( F e. ( Poly ` ZZ ) -> F : CC --> CC )
+  15 syl grootsiso.1 14 |- ( ph -> F : CC --> CC )
+  16 fdmd 15 |- ( ph -> dom F = CC )
+  17 sseqtrd 13 16 |- ( ph -> ( `' F " { 0 } ) C_ CC )
+  18 recnd grootsiso.4 |- ( ph -> A e. CC )
+  19 gfiniso 11 17 18 |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+  20 simpr |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) )
+  21 simpld 20 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( abs ` ( A - r ) ) <_ d )
+  22 simprd 20 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( F ` r ) = 0 )
+  23 simpllr |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> r e. RR )
+  24 recnd 23 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> r e. CC )
+  25 ffnd 15 |- ( ph -> F Fn CC )
+  26 ad3antrrr 25 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> F Fn CC )
+  27 fniniseg |- ( F Fn CC -> ( r e. ( `' F " { 0 } ) <-> ( r e. CC /\ ( F ` r ) = 0 ) ) )
+  28 syl 26 27 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( r e. ( `' F " { 0 } ) <-> ( r e. CC /\ ( F ` r ) = 0 ) ) )
+  29 jca 24 22 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( r e. CC /\ ( F ` r ) = 0 ) )
+  30 mpbird 29 28 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> r e. ( `' F " { 0 } ) )
+  31 simplr |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) )
+  32 rsp |- ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> ( r e. ( `' F " { 0 } ) -> ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) )
+  33 sylc 31 30 32 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> ( ( abs ` ( A - r ) ) <_ d -> r = A ) )
+  34 mpd 21 33 |- ( ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) /\ ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) ) -> r = A )
+  35 ex 34 |- ( ( ( ph /\ r e. RR ) /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) -> ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) )
+  36 ex 35 |- ( ( ph /\ r e. RR ) -> ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+  37 ralrimiva 36 |- ( ph -> A. r e. RR ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+  38 nfra1 |- F/ r A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A )
+  39 r19.21 38 |- ( A. r e. RR ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) <-> ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+  40 sylib 37 39 |- ( ph -> ( A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) -> A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
+  41 anim2d 40 |- ( ph -> ( ( 0 < d /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) -> ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) ) )
+  42 reximdv 41 |- ( ph -> ( E. d e. RR ( 0 < d /\ A. r e. ( `' F " { 0 } ) ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) ) )
+  43 mpd 19 42 |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) )
 

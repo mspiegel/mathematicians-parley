@@ -1079,6 +1079,10 @@ $( Numbers: a remainder is less than its divisor, a multiple of the
   gznn0neg $p |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) ) $=
     ( cz wcel cr cn0 cneg wo elznn0 simprbi ) ABCADCAECAFECGAHI $.
 
+  gzabsge1 $p |- ( ( N e. ZZ /\ N =/= 0 ) -> 1 <_ ( abs ` N ) ) $=
+    ( cz wcel cc0 wne wa cabs cfv cn c1 cle wbr nnabscl nnge1 syl )
+    ABCADEFAGHZICJPKLAMPNO $.
+
   gcxpgt0 $p |- ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) ) $=
     ( cr wcel cc0 clt wbr w3a simp1 simp2 elrpd simp3 cxpgt0d )
     ACDZEAFGZBCDZHZABQANOPINOPJKNOPLM $.
@@ -1872,6 +1876,27 @@ $d t H $.
   gcncfpart $p |- ( ph -> ( F |` S ) e. ( S -cn-> RR ) ) $=
     ( wss cr ccncf co wcel cres gcncfres mpbid rescncf sylc )
     ACBHDBIJKZLZDCMCIJKLFADBMRLSGABDENOBICDPQ $.
+  $}
+
+  ${
+    gcncfmappart.1 $e |- ( ph -> F : D --> RR ) $.
+    gcncfmappart.2 $e |- ( ph -> U C_ D ) $.
+    gcncfmappart.3 $e |- ( ph -> ( F |` U ) e. ( U -cn-> RR ) ) $.
+  gcncfmappart $p |- ( ph -> ( ( x e. U |-> ( F ` x ) ) |` U ) e. ( U -cn-> RR ) ) $=
+    ( cv cfv cmpt cres cr ccncf co wceq wss ssid resmpt ax-mp a1i wcel
+    feqmptd reseq1d syl eqtrd eleq1d mpbid eqeltrd )
+    ABDBIZEJZKZDLZULDMNOZUMULPZADDQUODRBDDUKSTUAAEDLZUNUBULUNUBHAUPULUNAUPBCUKKZDLZULAEUQDABCMEFUCUDADCQURULPGBCDUKSUEUFUGUHUI $.
+  $}
+
+  ${
+    gcncfbdd.1 $e |- ( ph -> A e. RR ) $.
+    gcncfbdd.2 $e |- ( ph -> B e. RR ) $.
+    gcncfbdd.3 $e |- ( ph -> F : ( A [,] B ) --> RR ) $.
+    gcncfbdd.4 $e |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) ) $.
+  gcncfbdd $p |- ( ph -> E. x e. RR A. y e. ( A [,] B ) ( abs ` ( F ` y ) ) <_ x ) $=
+    ( cr wcel cicc co cc ccncf cv cfv cabs cle wbr wral wrex cres gcncfres
+    mpbid wss ax-resscn ssid cncfss mp2an sseli syl cniccbdd syl3anc )
+    ADKLEKLFDEMNZOPNZLZCQFRSRBQTUACUPUBBKUCGHAFUPKPNZLZURAFUPUDUSLUTJAUPFIUEUFUSUQFKOUGOOUGUSUQUGUHOUIUPKOUJUKULUMBCDEFUNUO $.
   $}
 
   ${
@@ -2696,6 +2721,17 @@ $( The quotient is the witness of a "there is" binding q, and the remainder
    is said of every x; both letters are apart from the polynomial, the point
    and each other. $)
 $d q x $.  $d q F $.  $d q A $.  $d x F $.  $d x A $.
+$( The bound letters of a root's isolation, the real function's argument
+   and the least distance: each apart from the others, from the polynomial,
+   its roots, the root isolated, the degree, the real function and the
+   scope. $)
+$d x y z w r d $.
+$d x G $.  $d x R $.  $d x N $.  $d x ph $.
+$d y F $.  $d y G $.  $d y R $.  $d y A $.  $d y N $.  $d y ph $.
+$d z F $.  $d z G $.  $d z R $.  $d z A $.  $d z N $.  $d z ph $.
+$d w F $.  $d w G $.  $d w R $.  $d w A $.  $d w N $.  $d w ph $.
+$d r F $.  $d r G $.  $d r R $.  $d r A $.  $d r N $.  $d r ph $.
+$d d F $.  $d d G $.  $d d R $.  $d d A $.  $d d N $.  $d d ph $.
   gplyval $p |- ( F e. ( Poly ` CC ) -> ( A e. CC -> ( F ` A ) e. CC ) ) $=
     ( cc cply cfv wcel wa wf id adantr plyf syl simpr ffvelcdm syl2anc ex )
     BCDEZFZACFZABEZCFZRSGZCCBHZSUAUBRUCRRSRIJCBKLRSMCCABNOP $.
@@ -2709,6 +2745,117 @@ $d q x $.  $d q F $.  $d q A $.  $d x F $.  $d x A $.
     oveq2d plyrem fveq1d ffvelcdm eqtr3d wb subcl mulcl subadd mpbid eqcomd
     ralrimiva fveq1 eqeq2d ralbidv rspcev ex )
     CEFGZHZBEHZAIZCGZXIBJKZXIDIZGZLKZBCGZMKZNZAEOZDXFPZXGXHQZCREBSZTZJUAZKZUBKZXFHZXJXKXIYEGZLKZXOMKZNZAEOZXSXTXGYDXFHZYDUCUDZYFXGXGXHXGUEZUFZXTYLYDUGGZUHNZYDUIZUJSZUKZYANZXTXHYLYQUUAULZXGXHUMZBYDYDUNZUOZUPZUQZXTYPUJUDZYMXTYPUHUJXTYLYQUUAUUFURZUHUJUDZXTUSUTZVAZYDUCYPUJYDUCNZYPUCUGGZUJYDUCUGVBZVCVDZVEZUPZECYDVFZVGZXTYJAEXTXIEHZQZYIXJUVBXJYHJKZXONZYIXJNZUVBXICYDYELUAZKZYCKZGZUVCXOUVBUVIXJXIUVGGZJKZUVCUVBCEVHZUVGEVHZQEVIHZUVAQZUVIUVKNUVBUVLUVMXTUVLUVAXTEECVJZUVLXTXGUVPYOECVKZUPZEECVLUPUFXTUVMUVAXTEEUVGVJZUVMXTUVGXFHZUVSXTYLYFUVTUUGUUTEYDYEVMVNEUVGVKUPEEUVGVLUPUFVOUVBUVNUVAUVNUVBVPUTZXTUVAUMZVOZEJCUVGVIXIVQVNUVBUVJYHXJJUVBUVJXIYDGZYGLKZYHUVBYDEVHZYEEVHZQUVOUVJUWENUVBUWFUWGXTUWFUVAXTEEYDVJZUWFXTYLUWHUUGEYDVKUPEEYDVLUPUFXTUWGUVAXTEEYEVJZUWGXTYFUWIUUTEYEVKZUPZEEYEVLUPUFVOUWCELYDYEVIXIVQVNUVBUWDXKYGLUVBUWDXIRGZXIYBGZJKZXKUVBREVHZYBEVHZQUVOUWDUWNNUVBUWOUWPXTUWOUVAXTEERVJZUWOXTRXFHZUWQUWRXTEEVRUHEHUWREVSVTEWAWBUTERVKUPEERVLUPUFXTUWPUVAXTXHUWPUUCEBEWCUPUFVOUWCEJRYBVIXIVQVNUVBUWLXIUWMBJUVBUVAUWLXINUWBXIWDUPUVBXHUVAUWMBNXTXHUVAUUCUFZUWBEBXIEWEVNWFWGWHWGWIWGUVBUVIXIEXOSZTZGZXOUVBXIUVHUXAXTUVHUXANUVABUVHECYDUUDUVHUNWJUFWKUVBXOEHZUVAUXBXONXTUXCUVAXTUVPXHUXCUVRUUCEEBCWLZVNZUFZUWBEXOXIEWEVNWGWMUVBXJEHZYHEHZUXCUVDUVEWNUVBUVPUVAUXGXTUVPUVAUVRUFUWBEEXICWLVNUVBXKEHZYGEHZUXHUVBUVAXHUXIUWBUWSXIBWOVNUVBUWIUVAUXJXTUWIUVAUWKUFUWBEEXIYEWLVNXKYGWPVNUXFXJYHXOWQVGWRWSWTXRYKDYEXFXLYENZXQYJAEUXKXPYIXJUXKXNYHXOMUXKXMYGXKLXIXLYEXAWIWHXBXCXDVNXE $.
+
+  ${
+    gaalioulem1.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gaalioulem1.2 $e |- ( ph -> X e. ZZ ) $.
+    gaalioulem1.3 $e |- ( ph -> Y e. NN ) $.
+  gaalioulem1 $p |- ( ph -> ( ( Y ^ ( deg ` F ) ) x. ( F ` ( X / Y ) ) ) e. ZZ ) $=
+    ( cdiv co cfv cdgr cexp cmul cz cc cply wcel wf plyf syl zcnd nncnd
+    nnne0d divcld ffvelcdmd cn0 dgrcl expcld mulcomd aalioulem1 eqeltrrd )
+    ACDHIZBJZDBKJZLIZMIUOUMMINAUMUOAOOULBABNPJZQZOOBRENBSTACDACFUAADGUBZADGUCUDUEADUNURAUQUNUFQENBUGTUHUIABCDEFGUJUK $.
+  $}
+
+  ${
+    gplyzre.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyzre.2 $e |- ( ph -> A e. RR ) $.
+  gplyzre $p |- ( ph -> ( F ` A ) e. RR ) $=
+    ( cr cres cfv wcel wceq fvres syl cply wf cz wss cc zssre ax-resscn plyss
+    mp2an sseli plyreres ffvelcdmd eqeltrrd )
+    ABCFGZHZBCHZFABFIUGUHJEBFCKLAFFBUFACFMHZIZFFUFNACOMHZIUJDUKUICOFPFQPUKUIPRSOFTUAUBLCUCLEUDUE $.
+  $}
+
+  ${
+    gplyreeq.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyreeq.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyreeq.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyreeq $p |- ( ph -> G = ( F |` RR ) ) $=
+    ( cr cres ffnd cc wfn wss cz cply cfv wcel wf plyf syl ax-resscn fnssres
+    sylancl cv wa wceq r19.21bi fvres adantl eqtr4d eqfnfvd )
+    ABHDCHIZAHHDFJACKLHKMULHLAKKCACNOPQKKCRENCSTJUAKHCUBUCABUDZHQZUEUMDPZUMCPZUMULPZAUOUPUFBHGUGUNUQUPUFAUMHCUHUIUJUK $.
+  $}
+
+  ${
+    gplyrecn.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyrecn.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyrecn.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyrecn $p |- ( ph -> ( G |` RR ) e. ( RR -cn-> RR ) ) $=
+    ( cr cres ccncf co wcel wf cc wss wb ax-resscn gplyreeq cz cply cfv plycn
+    syl wi rescncf ax-mp eqeltrd cncfcdm sylancr mpbird gcncfres )
+    ADHIHHJKZLDULLZAUMHHDMZFAHNOZDHNJKZLUMUNPQADCHIZUPABCDEFGRACNNJKZLZUQUPLZACSTUALUSESCUBUCUOUSUTUDQNNHCUEUFUCUGHNHDUHUIUJAHDFUKUJ $.
+  $}
+
+  ${
+    gplyredvres.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyredvres.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyredvres.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyredvres $p |- ( ph -> ( RR _D G ) = ( ( CC _D F ) |` RR ) ) $=
+    ( cr cdv co cres cc gplyreeq oveq2d wf cdm wss wceq cz cply cfv wcel plyf
+    syl ax-resscn a1i dvply2 fdmd sseqtrrd dvcnre syl2anc eqtrd )
+    AHDIJHCHKZIJZLCIJZHKZADUMHIABCDEFGMNALLCOZHUOPZQUNUPRACSTUAZUBZUQESCUCUDAHLURHLQAUEUFALLUOAUOLTUAZUBZLLUOOAUTVBESCUGUDLUOUCUDUHUICUJUKUL $.
+  $}
+
+  ${
+    gplyredvf.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyredvf.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyredvf.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyredvf $p |- ( ph -> ( RR _D G ) : RR --> RR ) $=
+    ( cr cdv co cdm wf wss ssid dvfre sylancl cc cres cply cfv wcel cz dvply2
+    syl plyf ax-resscn fssres gplyredvres feq1d mpbird fdmd feq2d mpbid )
+    AHDIJZKZHUNLZHHUNLAHHDLHHMUPFHNHDOPAUOHHUNAHQUNAHQUNLHQQCIJZHRZLZAQQUQLZHQMUSAUQQSTZUAZUTACUBSTUAVBEUBCUCUDQUQUEUDUFQQHUQUGPAHQUNURABCDEFGUHUIUJUKULUM $.
+  $}
+
+  ${
+    gplyredv.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyredv.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyredv.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyredv $p |- ( ph -> RR C_ dom ( RR _D G ) ) $=
+    ( cr cdv co cdm wceq wss gplyredvf fdmd eqimss2 syl )
+    AHDIJZKZHLHSMAHHRABCDEFGNOHSPQ $.
+  $}
+
+  ${
+    gplyredvcn.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    gplyredvcn.2 $e |- ( ph -> G : RR --> RR ) $.
+    gplyredvcn.3 $e |- ( ph -> A. x e. RR ( G ` x ) = ( F ` x ) ) $.
+  gplyredvcn $p |- ( ph -> ( ( RR _D G ) |` RR ) e. ( RR -cn-> RR ) ) $=
+    ( cr cdv co cres ccncf wcel wf gplyredvf cc wss wb ax-resscn gplyredvres
+    cply cfv cz dvply2 syl plycn wi rescncf ax-mp eqeltrd cncfcdm sylancr
+    mpbird gcncfres )
+    AHDIJZHKHHLJZMUOUPMZAUQHHUONZABCDEFGOZAHPQZUOHPLJZMUQURRSAUOPCIJZHKZVAABCDEFGTAVBPPLJZMZVCVAMZAVBPUAUBZMZVEACUCUAUBMVHEUCCUDUEPVBUFUEUTVEVFUGSPPHVBUHUIUEUJHPHUOUKULUMAHUOUSUNUM $.
+  $}
+
+  ${
+    gfiniso.1 $e |- ( ph -> R e. Fin ) $.
+    gfiniso.2 $e |- ( ph -> R C_ CC ) $.
+    gfiniso.3 $e |- ( ph -> A e. CC ) $.
+  gfiniso $p |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. R ( ( abs ` ( A - r ) ) <_ d -> r = A ) ) ) $=
+    ( vx cv vy cle wbr c1 csn vw vz cmin co cabs cfv wceq cdif wrex cab cun
+    wral cc0 clt wi wa cr wss cfn wcel c0 wne crp 1rp snssi ax-mp a1i cc
+    adantr eldifsn biimpi adantl simpld sseldd subcld simprd necomd subne0d
+    absrpcld ralrimiva nfcv abrexss syl unssd rpssre sstrdi snfi diffi
+    abrexfi unfi sylancr 1ex snid elun1 ne0i fiminre syl3anc c2 cdiv ad2antrr
+    simplr rphalfcld rpred rpgt0d wn ad4antr simpr jca sylibr cvv fvex eqid
+    oveq2 fveq2d eqeq2d rspcev mpan2 eqeq1 rexbidv elabd elun2 rphalflt breq2
+    rspcv sylc ltletrd ltnled mpbid ex necon4ad imbi1d ralbidv anbi12d
+    syl2anc rexlimdva mpd )
+    AIJZKJZLMZKNOZPJZBQJZRSZTUAZUBZQCBOZUCZUDZPUEZUFZUGZIUUEUDZUHEJZUIMZBDJZRSZTUAZUUHLMZUUJBUBZUJZDCUGZUKZEULUDZAUUEULUMZUUEUNUOZUUEUPUQZUUGAUUEURULAYOUUDURYOURUMZANURUOZUVBUSNURUTZVAZVBZAYSURUOZQUUBUGZUUDURUMZAUVGQUUBAYQUUBUOZUKZYRUVKBYQABVCUOZUVJHVDZUVKCVCYQACVCUMZUVJGVDZUVKYQCUOZYQBUQZUVJUVPUVQUKZAUVJUVRYQCBVEZVFZVGZVHZVIZVJZUVKBYQUVMUWCUVKYQBUVKUVPUVQUWAVKZVLZVMZVNZVOZQPUUBYSURQURVPZVQZVRZVSZVTWAZAYOUNUOUUDUNUOZUUTNWBAUUBUNUOZUWOACUNUOUWPFCUUAWCVRQPUUBYSWDVRYOUUDWEWFUVAANUUEUOZUVANYOUOUWQNWGWHNYOUUDWIVAUUENWJVAVBIKUUEWKWLAUUFUURIUUEAYLUUEUOZUKZUUFUURUWSUUFUKZYLWMWNSZULUOZUHUXAUIMZUULUXALMZUUNUJZDCUGZUKZUURUWTUXAUWTYLUWTUUEURYLAUUEURUMZUWRUUFUWMWOZAUWRUUFWPZVIZWQZWRZUWTUXCUXFUWTUXAUXLWSUWTUXEDCUWTUUJCUOZUKZUXDUUJBUXOUUJBUQZUXDWTZUXOUXPUKZUXAUULUIMUXQUXRUXAYLUULUWTUXBUXNUXPUXMWOZUXRYLUWTYLURUOZUXNUXPUXKWOZWRUXRUUEULUULAUUSUWRUUFUXNUXPUWNXAZUXRUUJUUBUOZUULUUEUOZUXRUXNUXPUKZUYCUXRUXNUXPUWTUXNUXPWPZUXOUXPXBZXCZUUJCBVEZXDZUYCUULUUDUOZUYDUYCUUCUULYSUBZQUUBUDZPUULXEUULXEUOZUYCUUKTXFZVBZUYCUULUULUBZUYMUULXGZUYLUYQQUUJUUBYQUUJUBZYSUULUULUYSYRUUKTYQUUJBRXHZXIZXJZXKZXLZYPUULUBZYTUYLQUUBYPUULYSXMZXNZXOZUULUUDYOXPZVRZVRZVIZUXRUXTUXAYLUIMUYAYLXQVRUXRUYDUUFYLUULLMZVUKUWTUUFUXNUXPUWSUUFXBWOYNVUMKUULUUEYMUULYLLXRXSXTYAUXRUXAUULUXSVULYBYCYDYEVOXCUUQUXGEUXAULUUHUXAUBZUUIUXCUUPUXFUUHUXAUHUIXRVUNUUOUXEDCVUNUUMUXDUUNUUHUXAUULLXRYFYGYHXKYIYDYJYK $.
+  $}
+
+  ${
+    grootsiso.1 $e |- ( ph -> F e. ( Poly ` ZZ ) ) $.
+    grootsiso.2 $e |- ( ph -> N e. NN ) $.
+    grootsiso.3 $e |- ( ph -> ( deg ` F ) = N ) $.
+    grootsiso.4 $e |- ( ph -> A e. RR ) $.
+  grootsiso $p |- ( ph -> E. d e. RR ( 0 < d /\ A. r e. RR ( ( ( abs ` ( A - r ) ) <_ d /\ ( F ` r ) = 0 ) -> r = A ) ) ) $=
+    ( cc0 cv clt wbr cmin co cabs cfv cle wceq wi ccnv csn cima wral wa cr
+    wrex cfn wcel chash cdgr cz cply c0p wne nnne0d eqnetrd fveq2 dgr0 eqtrdi
+    necon3i syl eqid fta1 syl2anc simpld cdm cc wss cnvimass a1i wf plyf fdmd
+    sseqtrd recnd gfiniso simpr simplr simpllr simprd jca wfn wb ffnd
+    ad3antrrr fniniseg mpbird rsp sylc mpd ex ralrimiva nfra1 r19.21 sylib
+    anim2d reximdv )
+    AKFLZMNZBELZOPZQRZWTSNZXBBTZUAZECUBZKUCZUDZUEZUFZFUGUHXAXEXBCRZKTZUFZXFUAZEUGUEZUFZFUGUHABXJEFAXJUIUJZXJUKRZCULRZSNZACUMUNRZUJZCUOUPZXSYBUFGAYAKUPYEAYADKIADHUQURCUOYAKCUOTYAUOULRKCUOULUSUTVAVBVCXJUMCXJVDVEVFVGAXJCVHZVIXJYFVJACXIVKVLAVIVICAYDVIVICVMZGUMCVNZVCZVOVPABJVQVRAXLXRFUGAXKXQXAAXKXPUAZEUGUEXKXQUAAYJEUGAXBUGUJZUFZXKXPYLXKUFZXOXFYMXOUFZXEXFYNXEXNYMXOVSZVGYNXKXBXJUJZXGYLXKXOVTYNYPXBVIUJZXNUFZYNYQXNYNXBAYKXKXOWAVQYNXEXNYOWBWCYNCVIWDZYPYRWEAYSYKXKXOAVIVICYIWFWGVIKXBCWHVCWIXGEXJWJWKWLWMWMWNXKXPEUGXGEXJWOWPWQWRWSWL $.
+  $}
 
 $}
 

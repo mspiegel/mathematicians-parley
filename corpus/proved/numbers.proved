@@ -81,6 +81,15 @@ lemma gznn0neg
   1 elznn0 |- ( N e. ZZ <-> ( N e. RR /\ ( N e. NN0 \/ -u N e. NN0 ) ) )
   2 simprbi 1 |- ( N e. ZZ -> ( N e. NN0 \/ -u N e. NN0 ) )
 
+# ( ( N e. ZZ /\ N =/= 0 ) -> 1 <_ ( abs ` N ) ): an integer other than 0
+# has a whole number for its absolute value (`nnabscl`), and a whole
+# number is at least 1 (`nnge1`), for `mun:stdlib/numbers/nonzero-integer-abs`.
+lemma gzabsge1
+  |- ( ( N e. ZZ /\ N =/= 0 ) -> 1 <_ ( abs ` N ) )
+  1 nnabscl |- ( ( N e. ZZ /\ N =/= 0 ) -> ( abs ` N ) e. NN )
+  2 nnge1 |- ( ( abs ` N ) e. NN -> 1 <_ ( abs ` N ) )
+  3 syl 1 2 |- ( ( N e. ZZ /\ N =/= 0 ) -> 1 <_ ( abs ` N ) )
+
 # ( ( A e. RR /\ 0 < A /\ B e. RR ) -> 0 < ( A ^c B ) ), `cxpgt0d` said of
 # a real greater than 0, as `gmodval` is (for
 # `mun:stdlib/numbers/real-power-positive`).

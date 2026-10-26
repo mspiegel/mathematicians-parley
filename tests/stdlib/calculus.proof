@@ -32,6 +32,8 @@ import theorem            stdlib/calculus/derivative-scaled
 import theorem            stdlib/calculus/integral-difference
 import theorem            stdlib/calculus/integral-order
 import theorem            stdlib/calculus/integral-nonneg
+import mundane theorem    stdlib/calculus/map-continuous-on-part
+import theorem            stdlib/calculus/continuous-bounded
 
 theorem limit-unfolded
   ε, δ range over ℝ
@@ -465,3 +467,23 @@ theorem an-integral-not-negative
 
 1.  ∫(c to d) h(s) ds ≥ 0
     thm:integral-nonneg a := c, b := d, f := h, from H3, H5, H6
+
+theorem a-map-continuous-on-a-part
+  let E ⊆ ℝ                                                           (H1)
+  let T ⊆ E                                                           (H2)
+  let h : E → ℝ                                                       (H3)
+  assume h is continuous on T                                         (H4)
+  then (y ∈ T ↦ h(y)) is continuous on T
+
+1.  (y ∈ T ↦ h(y)) is continuous on T
+    mun:map-continuous-on-part D := E, S := T, f := h, from H1, H2, H4
+
+theorem continuous-is-bounded
+  let c ∈ ℝ                                                           (H1)
+  let d ∈ ℝ                                                           (H2)
+  let h : [c, d] → ℝ                                                  (H3)
+  assume h is continuous on [c, d]                                    (H4)
+  then there exists M ∈ ℝ such that |h(y)| ≤ M for all y ∈ [c, d]
+
+1.  There exists M ∈ ℝ such that |h(y)| ≤ M for all y ∈ [c, d].
+    thm:continuous-bounded a := c, b := d, f := h, from H4

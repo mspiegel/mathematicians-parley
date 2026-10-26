@@ -32,6 +32,9 @@ import mundane theorem    stdlib/numbers/less-scaled as numbers-less-scaled
 import mundane theorem    stdlib/numbers/abs-nonneg as numbers-abs-nonneg
 import mundane theorem    stdlib/numbers/one-power as numbers-one-power
 import mundane theorem    stdlib/numbers/abs-positive as numbers-abs-positive
+import mundane theorem    stdlib/numbers/nonzero-integer-abs as numbers-nonzero-integer-abs
+import mundane theorem    stdlib/numbers/power-at-least-one as numbers-power-at-least-one
+import mundane theorem    stdlib/numbers/abs-difference-le as numbers-abs-difference-le
 import mundane theorem    stdlib/numbers/exponent-sum as numbers-exponent-sum
 import mundane theorem    stdlib/numbers/exponent-sum-integer as numbers-exponent-sum-integer
 import mundane theorem    stdlib/numbers/exponent-negative as numbers-exponent-negative
@@ -300,6 +303,32 @@ theorem abs-positive
 
 1.  |x| > 0
     mun:numbers-abs-positive, from H2
+
+theorem nonzero-integer-abs
+  let m ∈ ℤ                                                           (H1)
+  assume m ≠ 0                                                        (H2)
+  then |m| ≥ 1
+
+1.  |m| ≥ 1
+    mun:numbers-nonzero-integer-abs z := m, from H2
+
+theorem power-at-least-one
+  let b ∈ ℝ                                                           (H1)
+  let m ∈ ℕ₀                                                          (H2)
+  assume 1 ≤ b                                                        (H3)
+  then 1 ≤ b^m
+
+1.  1 ≤ b^m
+    mun:numbers-power-at-least-one a := b, n := m, from H3
+
+theorem abs-difference-le
+  let y ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let e ∈ ℝ                                                           (H3)
+  then |y − b| ≤ e ↔ b − e ≤ y and y ≤ b + e
+
+1.  |y − b| ≤ e ↔ b − e ≤ y and y ≤ b + e
+    mun:numbers-abs-difference-le x := y, c := b, δ := e
 
 theorem exponent-sum
   let a ∈ ℝ                                                           (H1)

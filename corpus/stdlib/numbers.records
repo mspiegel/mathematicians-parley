@@ -518,6 +518,15 @@ mundane theorem abs-difference-lt
   metamath    absdiflt, abslt
   target      absdiflt
 
+mundane theorem abs-difference-le
+  let x ∈ ℝ                                                           (H1)
+  let c ∈ ℝ                                                           (H2)
+  let δ ∈ ℝ                                                           (H3)
+  then        |x − c| ≤ δ ↔ c − δ ≤ x and x ≤ c + δ
+  metamath    absdifle
+  target      absdifle
+  note        As abs-difference-lt, with the ends allowed.
+
 mundane definition min
   sort        number, number → number
   builds      _1 _2 cle wbr _1 _2 cif
@@ -709,6 +718,15 @@ mundane theorem power-positive
   metamath    expgt0
   target      expgt0
 
+mundane theorem power-at-least-one
+  let a ∈ ℝ                                                           (H1)
+  let n ∈ ℕ₀                                                          (H2)
+  assume 1 ≤ a                                                        (H3)
+  then        1 ≤ a^n
+  metamath    expge1
+  target      expge1
+  note        A power of a number at least 1 is at least 1.
+
 mundane theorem power-nonneg
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
@@ -797,6 +815,16 @@ mundane theorem abs-positive
   then        x ≠ 0 ↔ |x| > 0
   metamath    absgt0
   target      absgt0
+
+mundane theorem nonzero-integer-abs
+  let z ∈ ℤ                                                           (H1)
+  assume z ≠ 0                                                        (H2)
+  then        |z| ≥ 1
+  metamath    nnabscl and nnge1, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gzabsge1
+  note        An integer other than 0 is at least 1 in size: its absolute
+              value is a positive integer.
 
 mundane theorem abs-nonneg
   let x ∈ ℂ                                                           (H1)

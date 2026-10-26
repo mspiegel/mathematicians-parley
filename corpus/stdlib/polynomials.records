@@ -65,3 +65,53 @@ theorem bernoulli-difference
   target      bpolydif
   note        The property the Bernoulli polynomials are made for: a step
               of 1 in x changes B(n, x) by n·x^(n − 1).
+
+theorem integer-polynomial-at-a-fraction
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let p ∈ ℤ                                                           (H3)
+  let q ∈ ℕ                                                           (H4)
+  then        q^deg(F)·F(p/q) ∈ ℤ
+  metamath    aalioulem1, its two factors turned, which this corpus proves
+              in elaboration/stdlib/proved.mm
+  target      gaalioulem1
+  note        Each term a·(p/q)^k of F(p/q), k at most the degree, times
+              q^deg(F) is an integer, so the whole is.
+
+mundane theorem integer-polynomial-real
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let x ∈ ℝ                                                           (H3)
+  then        F(x) ∈ ℝ
+  metamath    plyreres, Poly ℤ inside Poly ℝ, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gplyzre with F := F
+
+theorem roots-isolated
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let N ∈ ℕ                                                           (H3)
+  assume deg(F) = N                                                   (H4)
+  let α ∈ ℝ                                                           (H5)
+  assume F(α) = 0                                                     (H6)
+  δ ranges over ℝ
+  then        there exists δ > 0 such that r = α for all r ∈ ℝ with
+              (|α − r| ≤ δ and F(r) = 0)
+  metamath    fta1, which bounds the roots of F by its degree, which this
+              corpus proves into this form in elaboration/stdlib/proved.mm
+  target      grootsiso
+  note        A polynomial other than 0 has finitely many roots, so the
+              others lie some distance from α.
+
+theorem polynomial-on-the-reals
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let f : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, f(x) = F(x)                                   (H4)
+  then        f is continuous on ℝ. f is differentiable on ℝ.
+              f′ : ℝ → ℝ. f′ is continuous on ℝ.
+  metamath    plycn, dvply2 and dvcnre, which this corpus proves of F on the
+              reals in elaboration/stdlib/proved.mm
+  target      gplyrecn, gplyredv, gplyredvf, gplyredvcn
+  note        F on the real line: continuous, differentiable everywhere, and
+              its derivative is a polynomial too, so continuous.

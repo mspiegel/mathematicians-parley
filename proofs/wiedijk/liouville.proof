@@ -1,0 +1,692 @@
+import theorem            proofs/wiedijk/mean-value/mean-value
+import mundane theorem    stdlib/calculus/continuous-on-part
+import mundane theorem    stdlib/calculus/map-continuous-on-part
+import mundane theorem    stdlib/calculus/differentiable-on-part
+import mundane theorem    stdlib/calculus/derivative-local
+import mundane definition stdlib/calculus/interval
+import mundane theorem    stdlib/calculus/interval-real
+import mundane theorem    stdlib/calculus/open-within-closed
+import mundane theorem    stdlib/calculus/open-interval-open
+import mundane theorem    stdlib/calculus/open-interval-real
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/numbers/abs-product
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/calculus/derivative-real-on
+import mundane definition stdlib/numbers/abs
+import mundane theorem    stdlib/numbers/multiply-le-nonneg
+import theorem            stdlib/polynomials/integer-polynomial-at-a-fraction
+import mundane theorem    stdlib/polynomials/integer-polynomial-real
+import mundane theorem    stdlib/numbers/power-positive
+import mundane theorem    stdlib/numbers/product-nonzero
+import mundane theorem    stdlib/numbers/nonzero-integer-abs
+import mundane theorem    stdlib/numbers/divide-le
+import mundane theorem    stdlib/numbers/abs-difference-le
+import mundane theorem    stdlib/numbers/abs-zero
+import mundane theorem    stdlib/numbers/abs-nonneg
+import mundane theorem    stdlib/numbers/abs-negative
+import mundane theorem    stdlib/numbers/product-nonneg
+import mundane theorem    stdlib/numbers/unequal-cases
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/or-left
+import mundane theorem    stdlib/reasoning/or-right
+import theorem            stdlib/polynomials/roots-isolated
+import theorem            stdlib/polynomials/polynomial-on-the-reals
+import theorem            stdlib/calculus/continuous-bounded
+import mundane definition stdlib/numbers/min
+import mundane definition stdlib/numbers/max
+import mundane theorem    stdlib/numbers/min-real
+import mundane theorem    stdlib/numbers/min-le
+import mundane theorem    stdlib/numbers/lt-min
+import mundane theorem    stdlib/numbers/max-real
+import mundane theorem    stdlib/numbers/le-max
+import mundane theorem    stdlib/numbers/power-at-least-one
+import mundane theorem    stdlib/numbers/quotients-compared
+import mundane theorem    stdlib/numbers/reciprocal-positive
+import mundane theorem    stdlib/numbers/quotient-positive
+
+theorem mean-value-bound
+  note        By the mean value theorem f(b) − f(a) is f′(c)·(b − a) at some c
+              between a and b, and |f′(c)| is at most M.
+  let f : ℝ → ℝ                                                       (H1)
+  assume f is continuous on ℝ                                         (H2)
+  assume f is differentiable on ℝ                                     (H3)
+  let a ∈ ℝ                                                           (H4)
+  let b ∈ ℝ                                                           (H5)
+  assume a < b                                                        (H6)
+  let M ∈ ℝ                                                           (H7)
+  assume for all t ∈ [a, b], |f′(t)| ≤ M                              (H8)
+  then |f(b) − f(a)| ≤ M·(b − a)
+
+let g = (t ∈ [a, b] ↦ f(t))                                           (D1)
+       reads f on [a, b]
+
+1.  [a, b] ⊆ ℝ
+    mun:interval-real
+
+2.  ℝ ⊆ ℝ
+    mun:subset-self
+
+3.  f is continuous on [a, b]
+    mun:continuous-on-part D := ℝ, S := [a, b], from H2, 1, 2
+
+4.  g is continuous on [a, b]
+    mun:map-continuous-on-part D := ℝ, S := [a, b], from D1, 1, 2, 3
+
+5.  For all t ∈ [a, b], g(t) ∈ ℝ.
+    membership, from D1, H1
+
+6.  g : [a, b] → ℝ
+    mun:function-into, from D1, 5
+
+7.  (a, b) ⊆ [a, b]
+    mun:open-within-closed
+
+8.  (a, b) ⊆ ℝ
+    mun:open-interval-real
+
+9.  (a, b) is open
+    mun:open-interval-open
+
+10. f is differentiable on (a, b)
+    mun:differentiable-on-part D := ℝ, U := ℝ, S := (a, b), from H3, 2, 8
+
+11. For all x ∈ (a, b), g(x) = f(x).
+    D1
+    requires x ∈ [a, b]: mun:in-subset, from 7
+
+12. g is differentiable on (a, b)
+    mun:derivative-local D := ℝ, E := [a, b], U := (a, b), f := f, F := g, from 1, 2, 6, 7, 8, 9, 10, 11
+
+13. For all x ∈ (a, b), g′(x) = f′(x).
+    mun:derivative-local D := ℝ, E := [a, b], U := (a, b), f := f, F := g, from 1, 2, 6, 7, 8, 9, 10, 11
+
+14. c ∈ (a, b). g′(c) = (g(b) − g(a))/(b − a).
+    obtain c: thm:mean-value f := g, from H6, 4, 6, 12
+
+15. g′(c) = f′(c)
+    instantiate x := c in line 13, from 14
+
+16. a ∈ [a, b]
+    mun:interval x := a
+    requires a ≤ a: inequalities, from H4
+    requires a ≤ b: weakening, from H6
+
+17. b ∈ [a, b]
+    mun:interval x := b
+    requires a ≤ b: weakening, from H6
+    requires b ≤ b: inequalities, from H5
+
+18. g(a) = f(a)
+    D1, from 16
+
+19. g(b) = f(b)
+    D1, from 17
+
+20. (g(b) − g(a))/(b − a) = (f(b) − g(a))/(b − a)
+    substitute g(b) = f(b) (line 19)
+
+21. (f(b) − g(a))/(b − a) = (f(b) − f(a))/(b − a)
+    substitute g(a) = f(a) (line 18)
+
+22. f′(c) = (f(b) − f(a))/(b − a)
+    calculation
+      f′(c) = g′(c)                        15
+            = (g(b) − g(a))/(b − a)        14
+            = (f(b) − g(a))/(b − a)        20
+            = (f(b) − f(a))/(b − a)        21
+
+23. b − a > 0
+    inequalities
+      a < b          H6
+      0 < b − a      adding −a
+      b − a > 0      symmetry
+
+24. f′(c) ∈ ℝ
+    mun:derivative-real-on D := ℝ, U := ℝ, f := f, x := c, from H3, 2
+
+25. f(b) − f(a) = f′(c)·(b − a)
+    algebra, from 22
+    requires f(a) ∈ ℝ: from H1
+    requires f(b) ∈ ℝ: from H1
+    requires b − a ≠ 0: weakening, from 23
+
+26. c ∈ [a, b]
+    mun:in-subset, from 7, 14
+
+27. |f′(c)| ≤ M
+    instantiate t := c in H8, from 26
+
+28. b − a ≥ 0
+    inequalities
+      b − a > 0      23
+      b − a ≥ 0      weakening
+
+29. |f′(c)·(b − a)| = |f′(c)|·|b − a|
+    mun:abs-product x := f′(c), y := b − a, from 24
+
+30. |b − a| = b − a
+    mun:abs x := b − a, from 28
+
+31. |f(b) − f(a)| = |f′(c)·(b − a)|
+    substitute f(b) − f(a) = f′(c)·(b − a) (line 25)
+
+32. |f′(c)|·|b − a| = |f′(c)|·(b − a)
+    substitute |b − a| = b − a (line 30)
+
+33. |f(b) − f(a)| = |f′(c)|·(b − a)
+    calculation
+      |f(b) − f(a)| = |f′(c)·(b − a)|        31
+                    = |f′(c)|·|b − a|        29
+                    = |f′(c)|·(b − a)        32
+
+34. |f′(c)|·(b − a) ≤ M·(b − a)
+    mun:multiply-le-nonneg x := |f′(c)|, y := M, c := b − a, from 27, 28
+    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 24
+
+35. |f(b) − f(a)| ≤ M·(b − a)
+    transitivity, from 33, 34
+    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 24
+
+theorem value-at-a-fraction
+  note        q^N·F(p/q) is an integer, and not 0 where F(p/q) is not, so it
+              is at least 1 in size, and |F(p/q)| is at least 1/q^N.
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let N ∈ ℕ                                                           (H3)
+  assume deg(F) = N                                                   (H4)
+  let p ∈ ℤ                                                           (H5)
+  let q ∈ ℕ                                                           (H6)
+  assume F(p/q) ≠ 0                                                   (H7)
+  then |F(p/q)| ≥ 1/q^N
+
+1.  q^deg(F)·F(p/q) ∈ ℤ
+    thm:integer-polynomial-at-a-fraction, from H2
+
+2.  q^N·F(p/q) ∈ ℤ
+    substitute deg(F) = N (H4) into line 1
+
+3.  F(p/q) ∈ ℝ
+    mun:integer-polynomial-real x := p/q, from H2
+
+4.  q^N > 0
+    mun:power-positive a := q, m := N
+    requires q > 0: inequalities, from H6
+
+5.  q^N·F(p/q) ≠ 0
+    mun:product-nonzero x := q^N, y := F(p/q), from H7, 3
+    requires q^N ≠ 0: weakening, from 4
+
+6.  |q^N·F(p/q)| ≥ 1
+    mun:nonzero-integer-abs z := q^N·F(p/q), from 2, 5
+
+7.  |q^N·F(p/q)| = |q^N|·|F(p/q)|
+    mun:abs-product x := q^N, y := F(p/q), from 3
+
+8.  q^N ≥ 0
+    inequalities
+      q^N > 0      4
+      q^N ≥ 0      weakening
+
+9.  |q^N| = q^N
+    mun:abs x := q^N, from 8
+
+10. |q^N|·|F(p/q)| = q^N·|F(p/q)|
+    substitute |q^N| = q^N (line 9)
+
+11. q^N·|F(p/q)| ≥ 1
+    transitivity, from 10, 7, 6
+    requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q), from 3
+    requires |q^N| ∈ ℝ: mun:abs-real x := q^N
+
+12. 1/q^N ≤ (q^N·|F(p/q)|)/q^N
+    mun:divide-le x := 1, y := q^N·|F(p/q)|, c := q^N, from 4, 11
+    requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q), from 3
+
+13. (q^N·|F(p/q)|)/q^N = |F(p/q)|
+    algebra
+    requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q), from 3
+
+14. |F(p/q)| ≥ 1/q^N
+    transitivity, from 12, 13
+    requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q), from 3
+
+theorem near-a-root
+  note        Within 1 of the root α, the mean value theorem between x and α,
+              on whichever side x lies, bounds f(x) = f(x) − f(α) by K times
+              the distance.
+  let f : ℝ → ℝ                                                       (H1)
+  assume f is continuous on ℝ                                         (H2)
+  assume f is differentiable on ℝ                                     (H3)
+  let α ∈ ℝ                                                           (H4)
+  assume f(α) = 0                                                     (H5)
+  let K ∈ ℝ                                                           (H6)
+  assume K > 0                                                        (H7)
+  assume for all t ∈ [α − 1, α + 1], |f′(t)| ≤ K                      (H8)
+  let x ∈ ℝ                                                           (H9)
+  assume |α − x| ≤ 1                                                  (H10)
+  then |f(x)| ≤ K·|α − x|
+
+1.  x − 1 ≤ α and α ≤ x + 1
+    mun:abs-difference-le x := α, c := x, δ := 1, from H10
+
+2.  α − 1 ≤ x
+    inequalities, from 1
+
+3.  x ≤ α + 1
+    inequalities, from 1
+
+4.  For all t ∈ [x, α], |f′(t)| ≤ K.
+    proof
+    let t ∈ [x, α]                                                    (K1)
+
+    4.1.  t ∈ ℝ and x ≤ t and t ≤ α
+          mun:interval a := x, b := α, x := t, from K1
+
+    4.2.  α − 1 ≤ t
+          transitivity, from 2, 4.1
+
+    4.3.  t ≤ α + 1
+          inequalities, from 4.1
+
+    4.4.  t ∈ [α − 1, α + 1]
+          mun:interval a := α − 1, b := α + 1, x := t
+          requires α − 1 ≤ t: from 4.2
+          requires t ≤ α + 1: from 4.3
+
+    4.5.  |f′(t)| ≤ K
+          instantiate t := t in H8, from 4.4
+
+5.  For all t ∈ [α, x], |f′(t)| ≤ K.
+    proof
+    let t ∈ [α, x]                                                    (K2)
+
+    5.1.  t ∈ ℝ and α ≤ t and t ≤ x
+          mun:interval a := α, b := x, x := t, from K2
+
+    5.2.  α − 1 ≤ t
+          inequalities, from 5.1
+
+    5.3.  t ≤ α + 1
+          transitivity, from 5.1, 3
+
+    5.4.  t ∈ [α − 1, α + 1]
+          mun:interval a := α − 1, b := α + 1, x := t
+          requires α − 1 ≤ t: from 5.2
+          requires t ≤ α + 1: from 5.3
+
+    5.5.  |f′(t)| ≤ K
+          instantiate t := t in H8, from 5.4
+
+6.  x = α or not x = α
+    mun:excluded-middle
+
+7.  |f(x)| ≤ K·|α − x|
+    cases, from 6
+
+    case
+    assume x = α                                                      (C1)
+
+    7.1.  f(x) = 0
+          substitute x = α (C1) into H5
+
+    7.2.  |f(x)| = |0|
+          substitute f(x) = 0 (line 7.1)
+
+    7.3.  |0| = 0
+          mun:abs-zero
+
+    7.4.  |α − x| ≥ 0
+          mun:abs-nonneg x := α − x
+
+    7.5.  K·|α − x| ≥ 0
+          mun:product-nonneg x := K, y := |α − x|, from 7.4
+          requires K ≥ 0: weakening, from H7
+          requires |α − x| ∈ ℝ: mun:abs-real x := α − x
+
+    7.6.  |f(x)| ≤ K·|α − x|
+          transitivity, from 7.2, 7.3, 7.5
+          requires |α − x| ∈ ℝ: mun:abs-real x := α − x
+
+    case
+    assume not x = α                                                  (C2)
+
+    7.7.  x < α or α < x
+          mun:unequal-cases x := x, y := α, from C2
+
+    7.8.  |f(x)| ≤ K·|α − x|
+          cases, from 7.7
+
+          case
+          assume x < α                                                (C3)
+
+          7.8.1.  |f(α) − f(x)| ≤ K·(α − x)
+                  thm:mean-value-bound a := x, b := α, M := K, from C3, H2, H3, 4
+
+          7.8.2.  f(α) − f(x) = −f(x)
+                  algebra, from H5
+                  requires f(x) ∈ ℝ: from H1
+
+          7.8.3.  |f(α) − f(x)| = |−f(x)|
+                  substitute f(α) − f(x) = −f(x) (line 7.8.2)
+
+          7.8.4.  |−f(x)| = |f(x)|
+                  mun:abs-negative x := f(x)
+                  requires f(x) ∈ ℝ: from H1
+
+          7.8.5.  α − x ≥ 0
+                  inequalities
+                    x < α          C3
+                    0 < α − x      adding −x
+                    α − x > 0      symmetry
+                    α − x ≥ 0      weakening
+
+          7.8.6.  |α − x| = α − x
+                  mun:abs x := α − x, from 7.8.5
+
+          7.8.7.  K·(α − x) = K·|α − x|
+                  substitute |α − x| = α − x (line 7.8.6)
+
+          7.8.8.  |f(x)| ≤ K·|α − x|
+                  transitivity, from 7.8.4, 7.8.3, 7.8.1, 7.8.7
+                  requires f(x) ∈ ℝ: from H1
+                  requires |f(x)| ∈ ℝ: mun:abs-real x := f(x)
+                  requires |α − x| ∈ ℝ: mun:abs-real x := α − x
+
+          case
+          assume α < x                                                (C4)
+
+          7.8.9.  |f(x) − f(α)| ≤ K·(x − α)
+                  thm:mean-value-bound a := α, b := x, M := K, from C4, H2, H3, 5
+
+          7.8.10. f(x) − f(α) = f(x)
+                  algebra, from H5
+                  requires f(x) ∈ ℝ: from H1
+
+          7.8.11. |f(x) − f(α)| = |f(x)|
+                  substitute f(x) − f(α) = f(x) (line 7.8.10)
+
+          7.8.12. α − x < 0
+                  inequalities
+                    α < x          C4
+                    α − x < 0      adding −x
+
+          7.8.13. |α − x| = −(α − x)
+                  mun:abs x := α − x, from 7.8.12
+
+          7.8.14. x − α = −(α − x)
+                  algebra
+
+          7.8.15. K·(x − α) = K·(−(α − x))
+                  substitute x − α = −(α − x) (line 7.8.14)
+
+          7.8.16. K·(−(α − x)) = K·|α − x|
+                  substitute |α − x| = −(α − x) (line 7.8.13)
+
+          7.8.17. |f(x)| ≤ K·|α − x|
+                  transitivity, from 7.8.11, 7.8.9, 7.8.15, 7.8.16
+                  requires f(x) ∈ ℝ: from H1
+                  requires |f(x)| ∈ ℝ: mun:abs-real x := f(x)
+                  requires |α − x| ∈ ℝ: mun:abs-real x := α − x
+
+theorem liouville
+  metamath    aaliou
+  note        Take c below 1, below the distance δ from α to any other root,
+              and below 1/(2K), K bounding |F′| near α. A fraction p/q further
+              than that from α is further than c/q^N. One nearer is α itself
+              if it is a root; if not, q^N·F(p/q) is a nonzero integer, so
+              |F(p/q)| ≥ 1/q^N, and the mean value theorem makes |F(p/q)| at
+              most K·|α − p/q|, so |α − p/q| ≥ 1/(K·q^N) > c/q^N.
+  let F : ℂ → ℂ                                                       (H1)
+  assume F is a polynomial with integer coefficients                  (H2)
+  let N ∈ ℕ                                                           (H3)
+  assume deg(F) = N                                                   (H4)
+  let α ∈ ℝ                                                           (H5)
+  assume F(α) = 0                                                     (H6)
+  c ranges over ℝ
+  then there exists c > 0 such that for all p ∈ ℤ, for all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|
+
+let f = (t ∈ ℝ ↦ F(t))                                                (D1)
+       reads F on the real line
+
+1.  For all x ∈ ℝ, f(x) = F(x).
+    D1
+
+2.  For all x ∈ ℝ, f(x) ∈ ℝ.
+    mun:integer-polynomial-real F := F, x := x, from D1, H2
+
+3.  f : ℝ → ℝ
+    mun:function-into, from D1, 2
+
+4.  f is continuous on ℝ. f is differentiable on ℝ. f′ : ℝ → ℝ. f′ is continuous on ℝ.
+    thm:polynomial-on-the-reals, from H2, 1, 3
+
+5.  f(α) = F(α)
+    D1, from H5
+
+6.  f(α) = 0
+    calculation
+      f(α) = F(α)     5
+           = 0        H6
+
+7.  δ ∈ ℝ. δ > 0. r = α for all r ∈ ℝ with (|α − r| ≤ δ and F(r) = 0).
+    obtain δ: thm:roots-isolated, from H2, H4, H6
+
+8.  [α − 1, α + 1] ⊆ ℝ
+    mun:interval-real
+
+9.  ℝ ⊆ ℝ
+    mun:subset-self
+
+10. f′ is continuous on [α − 1, α + 1]
+    mun:continuous-on-part D := ℝ, f := f′, S := [α − 1, α + 1], from 4, 8, 9
+
+11. (t ∈ [α − 1, α + 1] ↦ f′(t)) is continuous on [α − 1, α + 1]
+    mun:map-continuous-on-part D := ℝ, S := [α − 1, α + 1], f := f′, from 4, 8, 9, 10
+
+12. For all t ∈ [α − 1, α + 1], f′(t) ∈ ℝ.
+    mun:derivative-real-on D := ℝ, U := ℝ, f := f, x := t, from 3, 4, 9
+
+13. (t ∈ [α − 1, α + 1] ↦ f′(t)) : [α − 1, α + 1] → ℝ
+    mun:function-into, from 12
+
+14. M ∈ ℝ. |f′(x)| ≤ M for all x ∈ [α − 1, α + 1].
+    obtain M: thm:continuous-bounded a := α − 1, b := α + 1, f := (t ∈ [α − 1, α + 1] ↦ f′(t)), from 11, 13
+
+let K = max(M, 1), a real number                                      (D2)
+    mun:max-real x := M, y := 1, from 14
+    reads a bound on |f′| near α that is at least 1
+
+15. 1 ≤ K
+    mun:le-max x := M, y := 1, from D2
+
+16. K > 0
+    inequalities, from 15
+
+17. For all t ∈ [α − 1, α + 1], |f′(t)| ≤ K.
+    proof
+    let t ∈ [α − 1, α + 1]                                            (K2)
+
+    17.1. |f′(t)| ≤ M
+          instantiate x := t in line 14, from K2
+
+    17.2. M ≤ K
+          mun:le-max x := M, y := 1, from D2
+
+    17.3. |f′(t)| ≤ K
+          transitivity, from 17.1, 17.2
+          requires f′(t) ∈ ℝ: from 12
+          requires |f′(t)| ∈ ℝ: mun:abs-real x := f′(t)
+
+18. min(1, δ) ∈ ℝ
+    mun:min-real x := 1, y := δ
+
+19. 2K > 0
+    inequalities
+      K > 0      16
+      2K > 0     multiplying by 2
+
+20. 1/(2K) ∈ ℝ
+    membership
+    requires 2K ≠ 0: weakening, from 19
+
+let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
+    mun:min-real x := min(1, δ), y := 1/(2K), from 18, 20
+    reads a constant below 1, below δ and below 1/(2K)
+
+21. 0 < 1/(2K)
+    mun:reciprocal-positive x := 2K, from 19
+
+22. 0 < min(1, δ)
+    mun:lt-min z := 0, x := 1, y := δ, from 7
+    requires 0 < 1: arithmetic
+
+23. 0 < c
+    mun:lt-min z := 0, x := min(1, δ), y := 1/(2K), from D3, 18, 20, 21, 22
+
+24. c ≤ min(1, δ). c ≤ 1/(2K).
+    mun:min-le x := min(1, δ), y := 1/(2K), from D3, 18, 20
+
+25. min(1, δ) ≤ 1. min(1, δ) ≤ δ.
+    mun:min-le x := 1, y := δ
+
+26. For all p ∈ ℤ, for all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|.
+    proof
+    let p ∈ ℤ                                                         (K3)
+
+    26.1. For all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|.
+          proof
+          let q ∈ ℕ                                                   (K4)
+
+          26.1.1. |α − p/q| ≤ min(1, δ) or not |α − p/q| ≤ min(1, δ)
+                  mun:excluded-middle
+
+          26.1.2. q^N > 0
+                  mun:power-positive a := q, m := N
+                  requires q > 0: inequalities, from K4
+
+          26.1.3. α = p/q or c/q^N < |α − p/q|
+                  cases, from 26.1.1
+
+                  case
+                  assume |α − p/q| ≤ min(1, δ)                        (C1)
+
+                  26.1.3.1. |α − p/q| ≤ 1
+                            transitivity, from C1, 25
+                            requires min(1, δ) ∈ ℝ: from 18
+                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                  26.1.3.2. |α − p/q| ≤ δ
+                            transitivity, from C1, 25
+                            requires min(1, δ) ∈ ℝ: from 18
+                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                  26.1.3.3. F(p/q) = 0 or not F(p/q) = 0
+                            mun:excluded-middle
+
+                  26.1.3.4. α = p/q or c/q^N < |α − p/q|
+                            cases, from 26.1.3.3
+
+                            case
+                            assume F(p/q) = 0                         (C2)
+
+                            26.1.3.4.1. p/q = α
+                                        instantiate r := p/q in line 7, from C2, 26.1.3.2
+
+                            26.1.3.4.2. α = p/q or c/q^N < |α − p/q|
+                                        mun:or-left, from 26.1.3.4.1
+
+                            case
+                            assume not F(p/q) = 0                     (C3)
+
+                            26.1.3.4.3. |F(p/q)| ≥ 1/q^N
+                                        thm:value-at-a-fraction p := p, q := q, from C3, H2, H4
+
+                            26.1.3.4.4. f(p/q) = F(p/q)
+                                        D1
+
+                            26.1.3.4.5. |f(p/q)| ≤ K·|α − p/q|
+                                        thm:near-a-root f := f, α := α, K := K, x := p/q, from 3, 4, 6, 16, 17, 26.1.3.1
+
+                            26.1.3.4.6. |F(p/q)| ≤ K·|α − p/q|
+                                        substitute f(p/q) = F(p/q) (line 26.1.3.4.4) into line 26.1.3.4.5
+
+                            26.1.3.4.7. 1/q^N ≤ K·|α − p/q|
+                                        transitivity, from 26.1.3.4.3, 26.1.3.4.6
+                                        requires F(p/q) ∈ ℝ: mun:integer-polynomial-real x := p/q, from H2
+                                        requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q)
+                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                            26.1.3.4.8. (1/q^N)/K ≤ (K·|α − p/q|)/K
+                                        mun:divide-le x := 1/q^N, y := K·|α − p/q|, c := K, from 16, 26.1.3.4.7
+                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                            26.1.3.4.9. (K·|α − p/q|)/K = |α − p/q|
+                                        algebra
+                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+                                        requires K ≠ 0: weakening, from 16
+
+                            26.1.3.4.10. c/q^N ≤ (1/(2K))/q^N
+                                         mun:divide-le x := c, y := 1/(2K), c := q^N, from 20, 24, 26.1.2
+
+                            26.1.3.4.11. (1/(2K))/q^N = ((1/q^N)/K)/2
+                                         algebra
+                                         requires K ≠ 0: weakening, from 16
+
+                            26.1.3.4.12. 1/q^N > 0
+                                         mun:reciprocal-positive x := q^N, from 26.1.2
+
+                            26.1.3.4.13. (1/q^N)/K > 0
+                                         mun:quotient-positive x := 1/q^N, y := K, from 16, 26.1.3.4.12
+
+                            26.1.3.4.14. ((1/q^N)/K)/2 < (1/q^N)/K
+                                         inequalities
+                                           (1/q^N)/K > 0                       26.1.3.4.13
+                                           ((1/q^N)/K)/2 > 0                   multiplying by 1/2
+                                           (1/q^N)/K > ((1/q^N)/K)/2           adding ((1/q^N)/K)/2
+                                           ((1/q^N)/K)/2 < (1/q^N)/K           symmetry
+                                         requires K ≠ 0: weakening, from 16
+
+                            26.1.3.4.15. c/q^N < |α − p/q|
+                                         transitivity, from 26.1.3.4.10, 26.1.3.4.11, 26.1.3.4.14, 26.1.3.4.8, 26.1.3.4.9
+                                         requires K ≠ 0: weakening, from 16
+                                         requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                            26.1.3.4.16. α = p/q or c/q^N < |α − p/q|
+                                         mun:or-right, from 26.1.3.4.15
+
+                  case
+                  assume not |α − p/q| ≤ min(1, δ)                    (C4)
+
+                  26.1.3.5. min(1, δ) < |α − p/q|
+                            inequalities, from C4
+                            requires min(1, δ) ∈ ℝ: from 18
+                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                  26.1.3.6. 1 ≤ q^N
+                            mun:power-at-least-one a := q, n := N
+                            requires 1 ≤ q: inequalities, from K4
+
+                  26.1.3.7. c/q^N ≤ c/1
+                            mun:quotients-compared x := c, y := q^N, z := c, w := 1, from 26.1.3.6
+                            requires 0 ≤ c: weakening, from 23
+                            requires c ≤ c: inequalities
+                            requires 0 < 1: arithmetic
+
+                  26.1.3.8. c/1 = c
+                            algebra
+
+                  26.1.3.9. c/q^N < |α − p/q|
+                            transitivity, from 26.1.3.7, 26.1.3.8, 24, 26.1.3.5
+                            requires min(1, δ) ∈ ℝ: from 18
+                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
+
+                  26.1.3.10. α = p/q or c/q^N < |α − p/q|
+                             mun:or-right, from 26.1.3.9
+
+    26.2. For all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|.
+          restate 26.1
+
+27. There exists c > 0 such that for all p ∈ ℤ, for all q ∈ ℕ, α = p/q or c/q^N < |α − p/q|.
+    exhibit, from 23, 26

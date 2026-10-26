@@ -1236,6 +1236,46 @@ lemma gcncfpart
   3 rescncf |- ( S C_ D -> ( F e. ( D -cn-> RR ) -> ( F |` S ) e. ( S -cn-> RR ) ) )
   4 sylc gcncfpart.2 2 3 |- ( ph -> ( F |` S ) e. ( S -cn-> RR ) )
 
+# f restricted to U is the map of its values on U (`feqmptd`, `resmpt`), and
+# that map restricted to U is itself. U and not S, since the head keeps x
+# apart from U, as `resmpt` asks of the set the map runs over.
+lemma gcncfmappart
+  hypothesis gcncfmappart.1 |- ( ph -> F : D --> RR )
+  hypothesis gcncfmappart.2 |- ( ph -> U C_ D )
+  hypothesis gcncfmappart.3 |- ( ph -> ( F |` U ) e. ( U -cn-> RR ) )
+  |- ( ph -> ( ( x e. U |-> ( F ` x ) ) |` U ) e. ( U -cn-> RR ) )
+  1 feqmptd gcncfmappart.1 |- ( ph -> F = ( x e. D |-> ( F ` x ) ) )
+  2 reseq1d 1 |- ( ph -> ( F |` U ) = ( ( x e. D |-> ( F ` x ) ) |` U ) )
+  3 resmpt |- ( U C_ D -> ( ( x e. D |-> ( F ` x ) ) |` U ) = ( x e. U |-> ( F ` x ) ) )
+  4 syl gcncfmappart.2 3 |- ( ph -> ( ( x e. D |-> ( F ` x ) ) |` U ) = ( x e. U |-> ( F ` x ) ) )
+  5 eqtrd 2 4 |- ( ph -> ( F |` U ) = ( x e. U |-> ( F ` x ) ) )
+  6 eleq1d 5 |- ( ph -> ( ( F |` U ) e. ( U -cn-> RR ) <-> ( x e. U |-> ( F ` x ) ) e. ( U -cn-> RR ) ) )
+  7 mpbid gcncfmappart.3 6 |- ( ph -> ( x e. U |-> ( F ` x ) ) e. ( U -cn-> RR ) )
+  8 ssid |- U C_ U
+  9 resmpt |- ( U C_ U -> ( ( x e. U |-> ( F ` x ) ) |` U ) = ( x e. U |-> ( F ` x ) ) )
+  10 ax-mp 8 9 |- ( ( x e. U |-> ( F ` x ) ) |` U ) = ( x e. U |-> ( F ` x ) )
+  11 a1i 10 |- ( ph -> ( ( x e. U |-> ( F ` x ) ) |` U ) = ( x e. U |-> ( F ` x ) ) )
+  12 eqeltrd 11 7 |- ( ph -> ( ( x e. U |-> ( F ` x ) ) |` U ) e. ( U -cn-> RR ) )
+
+# A function continuous on [a, b] is bounded there (`cniccbdd`), said of
+# the page's real function: widened into ℂ by `cncfss`.
+lemma gcncfbdd
+  hypothesis gcncfbdd.1 |- ( ph -> A e. RR )
+  hypothesis gcncfbdd.2 |- ( ph -> B e. RR )
+  hypothesis gcncfbdd.3 |- ( ph -> F : ( A [,] B ) --> RR )
+  hypothesis gcncfbdd.4 |- ( ph -> ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) )
+  |- ( ph -> E. x e. RR A. y e. ( A [,] B ) ( abs ` ( F ` y ) ) <_ x )
+  1 gcncfres gcncfbdd.3 |- ( ph -> ( ( F |` ( A [,] B ) ) e. ( ( A [,] B ) -cn-> RR ) <-> F e. ( ( A [,] B ) -cn-> RR ) ) )
+  2 mpbid gcncfbdd.4 1 |- ( ph -> F e. ( ( A [,] B ) -cn-> RR ) )
+  3 ax-resscn |- RR C_ CC
+  4 ssid |- CC C_ CC
+  5 cncfss |- ( ( RR C_ CC /\ CC C_ CC ) -> ( ( A [,] B ) -cn-> RR ) C_ ( ( A [,] B ) -cn-> CC ) )
+  6 mp2an 3 4 5 |- ( ( A [,] B ) -cn-> RR ) C_ ( ( A [,] B ) -cn-> CC )
+  7 sseli 6 |- ( F e. ( ( A [,] B ) -cn-> RR ) -> F e. ( ( A [,] B ) -cn-> CC ) )
+  8 syl 2 7 |- ( ph -> F e. ( ( A [,] B ) -cn-> CC ) )
+  9 cniccbdd |- ( ( A e. RR /\ B e. RR /\ F e. ( ( A [,] B ) -cn-> CC ) ) -> E. x e. RR A. y e. ( A [,] B ) ( abs ` ( F ` y ) ) <_ x )
+  10 syl3anc gcncfbdd.1 gcncfbdd.2 8 9 |- ( ph -> E. x e. RR A. y e. ( A [,] B ) ( abs ` ( F ` y ) ) <_ x )
+
 lemma gftc1cres
   hypothesis gftc1cres.1 |- ( ph -> A e. RR )
   hypothesis gftc1cres.2 |- ( ph -> B e. RR )

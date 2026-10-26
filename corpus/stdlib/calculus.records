@@ -416,6 +416,29 @@ mundane theorem continuous-on-part
               it, as the mean value theorem asks of f on [c, x] inside its
               domain.
 
+mundane theorem map-continuous-on-part
+  let D ⊆ ℝ                                                           (H1)
+  let S ⊆ D                                                           (H2)
+  let f : D → ℝ                                                       (H3)
+  assume f is continuous on S                                         (H4)
+  then        (x ∈ S ↦ f(x)) is continuous on S
+  metamath    resmpt, f on S being the map of its values there, which this
+              corpus proves in elaboration/stdlib/proved.mm
+  target      gcncfmappart with D := D
+  note        "f is continuous on S" says f restricted to S is, and that
+              restriction is the map sending each x ∈ S to f(x).
+
+theorem continuous-bounded
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  let f : [a, b] → ℝ                                                  (H3)
+  assume f is continuous on [a, b]                                    (H4)
+  then        there exists M ∈ ℝ such that |f(x)| ≤ M for all x ∈ [a, b]
+  metamath    cniccbdd, which this corpus proves in this form in
+              elaboration/stdlib/proved.mm
+  target      gcncfbdd
+  note        A function continuous on a closed interval is bounded there.
+
 mundane theorem differentiable-on-part
   let D ⊆ ℝ                                                           (H1)
   let U ⊆ D                                                           (H2)

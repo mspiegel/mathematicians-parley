@@ -1,5 +1,9 @@
 import definition         stdlib/counting/C
 import definition         stdlib/polynomials/B
+import theorem            stdlib/polynomials/integer-polynomial-at-a-fraction
+import mundane theorem    stdlib/polynomials/integer-polynomial-real
+import theorem            stdlib/polynomials/roots-isolated
+import theorem            stdlib/polynomials/polynomial-on-the-reals
 
 theorem bernoulli-value
   let n ∈ ℕ₀                                                          (H1)
@@ -8,3 +12,75 @@ theorem bernoulli-value
 
 1.  B(n, x) = x^n − Σ(k = 0 to n − 1) C(n, k)·(B(k, x)/((n − k) + 1))
     def:B
+
+theorem a-polynomial-at-a-fraction
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let a ∈ ℤ                                                           (H3)
+  let b ∈ ℕ                                                           (H4)
+  then b^deg(G)·G(a/b) ∈ ℤ
+
+1.  b^deg(G)·G(a/b) ∈ ℤ
+    thm:integer-polynomial-at-a-fraction F := G, p := a, q := b, from H2
+
+theorem a-polynomial-real-at-a-real
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let y ∈ ℝ                                                           (H3)
+  then G(y) ∈ ℝ
+
+1.  G(y) ∈ ℝ
+    mun:integer-polynomial-real F := G, x := y, from H2
+
+theorem a-root-isolated
+  δ ranges over ℝ
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume deg(G) = n                                                   (H4)
+  let β ∈ ℝ                                                           (H5)
+  assume G(β) = 0                                                     (H6)
+  then there exists δ > 0 such that r = β for all r ∈ ℝ with (|β − r| ≤ δ and G(r) = 0)
+
+1.  There exists δ > 0 such that r = β for all r ∈ ℝ with (|β − r| ≤ δ and G(r) = 0).
+    thm:roots-isolated F := G, N := n, α := β, from H2, H4, H6
+
+theorem a-polynomial-derivative-real
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, g(x) = G(x)                                   (H4)
+  then g is continuous on ℝ. g is differentiable on ℝ. g′ : ℝ → ℝ. g′ is continuous on ℝ.
+
+1.  g is continuous on ℝ. g is differentiable on ℝ. g′ : ℝ → ℝ. g′ is continuous on ℝ.
+    thm:polynomial-on-the-reals F := G, f := g, from H2, H4
+
+theorem a-polynomial-continuous-on-the-reals
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, g(x) = G(x)                                   (H4)
+  then g is continuous on ℝ
+
+1.  g is continuous on ℝ
+    thm:polynomial-on-the-reals F := G, f := g, from H2, H4
+
+theorem a-polynomial-differentiable-on-the-reals
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, g(x) = G(x)                                   (H4)
+  then g is differentiable on ℝ
+
+1.  g is differentiable on ℝ
+    thm:polynomial-on-the-reals F := G, f := g, from H2, H4
+
+theorem a-polynomial-derivative-continuous
+  let G : ℂ → ℂ                                                       (H1)
+  assume G is a polynomial with integer coefficients                  (H2)
+  let g : ℝ → ℝ                                                       (H3)
+  assume for all x ∈ ℝ, g(x) = G(x)                                   (H4)
+  then g′ is continuous on ℝ
+
+1.  g′ is continuous on ℝ
+    thm:polynomial-on-the-reals F := G, f := g, from H2, H4

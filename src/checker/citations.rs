@@ -853,8 +853,21 @@ pub fn check_hypotheses(
 /// one. Each membership asked and not among the step's facts, those the
 /// page says once included.
 fn map_domains_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node> {
-    let mut written: Vec<Node> =
-        known.whole_as_written(&step.claim).into_iter().collect();
+    // A claim said of every member is read at the member, whose letter
+    // the step's own: g(x) in "for all x ∈ (a, b), g(x) = f(x)" asks that
+    // x be in g's domain, as the step's block would.
+    let mut member: Option<Node> = None;
+    let mut written: Vec<Node> = known
+        .whole_as_written(&step.claim)
+        .map(|claim| match claimed_member(&claim, library.env.g) {
+            Some((at, body)) => {
+                member = Some(standard(&at, &library.ctx));
+                body
+            }
+            None => claim,
+        })
+        .into_iter()
+        .collect();
     let scope = known.scope(step);
     let defined = known.citing_step(step);
     for r in &step.just.refs {
@@ -862,9 +875,12 @@ fn map_domains_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node
             written.extend(known.says(stated, &defined).into_iter().map(|s| s.written));
         }
     }
+    // A name the step cites a define of is the map it names, g(x) with
+    // g := (t ∈ [a, b] ↦ f(t)) a map read at x.
     let mut asked: Vec<Node> = Vec::new();
     for node in &written {
-        maps_applied(node, &mut Vec::new(), library, &mut asked);
+        let node = expand(node, &defined);
+        maps_applied(&node, &mut Vec::new(), library, &mut asked);
     }
     if asked.is_empty() {
         return Vec::new();
@@ -874,7 +890,7 @@ fn map_domains_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node
     asked
         .into_iter()
         .map(|a| standard(&a, &library.ctx))
-        .filter(|a| !parts.facts.iter().any(|f| known.alike(f, a)))
+        .filter(|a| !parts.facts.iter().chain(&member).any(|f| known.alike(f, a)))
         .filter(|a| seen.insert(a.by_shape()))
         .collect()
 }
@@ -931,11 +947,17 @@ fn map_types_unsaid(step: &Step, known: &Known, library: &Library) -> Vec<Node> 
     }
     let parts = known.parts(step, library);
     let stands = crate::citing::stood_for(&parts, &name, library);
+    // A map, or a derivative f′ or f^(n): a function with no type of its
+    // own in scope. A rule a binder's letter fills is read otherwise.
+    let typeless = |v: &Node| {
+        v.notation() == MAP
+            || matches!(&*v.notation_name(), "derivative" | "nth-derivative")
+    };
     let given_a_map = |t: &Node| {
         t.children
             .first()
             .and_then(|f| stands.get(&f.text))
-            .is_some_and(|v| v.notation() == MAP)
+            .is_some_and(typeless)
     };
     typed
         .iter()

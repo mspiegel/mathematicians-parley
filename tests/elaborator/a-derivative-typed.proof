@@ -1,0 +1,8 @@
+theorem a-derivative-typed
+  note        f′ : ℝ → ℝ says what the derivative of f is; it names nothing new.
+  let f : ℝ → ℝ    (H1)
+  assume f′ : ℝ → ℝ    (H2)
+  then f′ : ℝ → ℝ
+
+1.  f′ : ℝ → ℝ
+    restate H2
