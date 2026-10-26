@@ -592,6 +592,32 @@ fn near_token(text: &str, token: &Token) -> String {
     chars[start..end].iter().collect()
 }
 
+/// `deg(_)` read by its argument's sort (`GRAMMAR.md`): a polynomial's
+/// degree where the argument is said to be a function, as f′ is read off a
+/// stem said to be one (`derivative`), and a vertex's degree in its graph
+/// otherwise, a vertex being given no sort of its own. Other readings are
+/// kept as they are.
+fn degree_read(winners: Vec<&(Node, usize)>) -> Vec<&(Node, usize)> {
+    let named = |w: &&(Node, usize), name: &str| &*w.0.notation_name() == name;
+    let (Some(polynomial), Some(_)) = (
+        winners.iter().find(|w| named(w, "polynomial-degree")),
+        winners.iter().find(|w| named(w, "degree")),
+    ) else {
+        return winners;
+    };
+    let said_function = polynomial
+        .0
+        .children
+        .first()
+        .is_some_and(|arg| arg.sort.is("function"));
+    let dropped = if said_function {
+        "degree"
+    } else {
+        "polynomial-degree"
+    };
+    winners.into_iter().filter(|w| !named(w, dropped)).collect()
+}
+
 /// `a or as b`, `a, as b or as c`: the readings a sentence has, for a
 /// message saying it has more than one.
 fn one_of(readings: &[String]) -> String {
@@ -1619,6 +1645,9 @@ impl<'a> Parser<'a> {
             if !admitted.is_empty() {
                 winners = admitted;
             }
+        }
+        if winners.len() > 1 {
+            winners = degree_read(winners);
         }
         if winners.len() > 1 {
             let readings: std::collections::BTreeSet<String> = winners

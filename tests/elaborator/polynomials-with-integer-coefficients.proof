@@ -1,0 +1,18 @@
+theorem a-polynomial-of-degree-three
+  note        F is a polynomial with integer coefficients, F ∈ Poly ℤ, and deg(F) of a function is its degree as a polynomial (`GRAMMAR.md`).
+  let F : ℂ → ℂ    (H1)
+  assume F is a polynomial with integer coefficients    (H2)
+  assume deg(F) = 3    (H3)
+  then deg(F) = 3
+
+1.  deg(F) = 3
+    restate H3
+
+theorem a-transcendental-number
+  note        α is transcendental is the negation of α is algebraic, α ∉ 𝔸.
+  let α ∈ ℝ    (H1)
+  assume α is transcendental    (H2)
+  then α is transcendental
+
+1.  α is transcendental
+    restate H2

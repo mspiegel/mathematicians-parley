@@ -2051,6 +2051,39 @@ notation is-a-polynomial
   note        "p is a polynomial" is "p ∈ (the polynomials)", built as exactly
               that formula, as `there-is-part` builds its power set.
 
+notation is-an-integer-polynomial
+  pattern     _ is a polynomial with integer coefficients
+  sort        function from number to number → formula
+  level       predicate
+  reads       is a polynomial with integer coefficients
+  metamath    wcel with Poly over ℤ
+  target      _1 cz cply cfv wcel
+  note        "p is a polynomial with integer coefficients" is p ∈ Poly ℤ: a
+              polynomial all of whose coefficients are integers.
+
+notation polynomial-degree
+  pattern     deg(_)
+  sort        function from number to number → number
+  reads       the degree of
+  metamath    cdgr
+  target      _1 cdgr cfv
+  note        The degree of a polynomial, set.mm's deg: the highest power
+              with a coefficient other than 0. `deg(_)` is also a vertex's
+              degree in its graph (`degree`), and the argument's sort decides
+              (`GRAMMAR.md`): of a function from numbers to numbers it is this.
+
+notation algebraic
+  pattern     _ is algebraic        _ is transcendental
+  sort        number → formula
+  level       predicate
+  negates     pattern 2 is logical-not of pattern 1
+  reads       is algebraic, is transcendental
+  metamath    wcel with set.mm's AA
+  target      _1 caa wcel, folded
+  note        α is algebraic when some polynomial with integer coefficients,
+              other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
+              transcendental when it is not algebraic.
+
 notation there-is-a-polynomial
   pattern     there is a polynomial _ with _
   sort        function from number to number, formula → formula

@@ -434,6 +434,10 @@ parentheses: `f^(0)` is f, `f^(1)` is `f′`, and `f^(k + 1)` is the derivative 
 `f^(k)`. The stem's sort decides, as for `f′`: where f is a number, `f^(n)` is a
 power. A function to a power without the parentheses, `f^n`, is refused.
 
+`deg(_)` is read by its argument's sort in the same way: of a vertex, it is
+the vertex's degree in its graph; of a function from numbers to numbers, a
+polynomial's degree.
+
 **A word is at least two letters, and a single letter is always a name.** One
 declared literal is one letter: `a`, from `_, _, _ form a triangle` and
 `there is a bijection from _ to _`. It is also among the commonest variables in
