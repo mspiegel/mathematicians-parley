@@ -1441,6 +1441,14 @@ impl<'a> Parser<'a> {
                     }
                 }
             }
+            // The n-th derivative is read off a stem something says is a
+            // function, as f′ is (`derivative`): a stem nothing sorts is a
+            // power's base, as (a^(p − 2)) is where a is not yet said.
+            if n.name == "nth-derivative"
+                && (left.sort.is_unknown() || left.sort.is_unsorted())
+            {
+                continue;
+            }
             let want = n.holes.first().map_or("", String::as_str);
             // What stands before is read as the hole wants it where its
             // pattern has such a reading (`wanted_reading`), as `(0, 1) ⊆ ℝ`

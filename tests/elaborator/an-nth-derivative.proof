@@ -1,0 +1,30 @@
+theorem an-nth-derivative-defined
+  note        f^(n), f a function, is its n-th derivative, and `is defined at` says c is in its domain.
+  let f : ℝ → ℝ    (H1)
+  let n ∈ ℕ    (H2)
+  let c ∈ ℝ    (H3)
+  assume f^(n) is defined at c    (H4)
+  then f^(n) is defined at c
+
+1.  f^(n) is defined at c
+    restate H4
+
+theorem an-nth-derivative-applied
+  note        f^(n)(c) is the n-th derivative of f applied to c.
+  let f : ℝ → ℝ    (H1)
+  let n ∈ ℕ    (H2)
+  let c ∈ ℝ    (H3)
+  assume f^(n)(c) = 0    (H4)
+  then f^(n)(c) = 0
+
+1.  f^(n)(c) = 0
+    restate H4
+
+theorem a-number-to-a-bracketed-power
+  note        x^(n), x a number, stays a power: the stem's sort decides, as for f′.
+  let x ∈ ℝ    (H1)
+  let n ∈ ℕ    (H2)
+  then x^(n) = x^n
+
+1.  x^(n) = x^n
+    algebra

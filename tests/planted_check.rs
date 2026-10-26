@@ -5685,6 +5685,17 @@ fn cases() -> Vec<Case> {
             )],
             "drops an identity element from what the substitution makes, and nothing says (x − a) · q(x) is a number",
         ),
+        // A function to a power is refused: its n-th derivative is written
+        // with the order in parentheses, f^(n).
+        case(
+            "a function to a power without the parentheses",
+            vec![edit(
+                "tests/elaborator/an-nth-derivative.proof",
+                Some("  assume f^(n)(c) = 0    (H4)\n".to_string()),
+                "  assume f^n(c) = 0    (H4)\n".to_string(),
+            )],
+            "f is a function from numbers to numbers, and `_^_` wants a number",
+        ),
         // The same with the claim's order written the other way round: the
         // substitution is read in the standard spelling, |x| < ε for ε > |x|,
         // and so is what it drops.

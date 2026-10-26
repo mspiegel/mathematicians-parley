@@ -977,6 +977,31 @@ notation derivative
               Declaring f′ beside a function f is a defect, since a reader
               would take it for the derivative.
 
+notation nth-derivative
+  pattern     _^(_)
+  sort        function from number to number, number → function from number to number
+  level       power
+  reads       the derivative of the order
+  metamath    cdvn over ℝ
+  target      _2 cr _1 cdvn co cfv
+  note        f^(n) is the n-th derivative of f, set.mm's ( ( RR Dn F ) ` N ):
+              f^(0) is f, f^(1) is f′, and f^(k + 1) is the derivative of
+              f^(k). The stem's sort decides, as for f′: where f is a number,
+              f^(n) is a power, and a function to a power without the
+              parentheses, f^n, is refused.
+
+notation defined-at
+  pattern     _ is defined at _
+  sort        function from number to number, number → formula
+  level       predicate
+  reads       is defined at
+  metamath    membership of the domain, cdm
+  target      _2 _1 cdm wcel
+  note        f^(n) is defined at c: the n-th derivative of f has a value at
+              c, so f has derivatives up to the n-th near c. Said of any
+              function, it is that c lies in its domain, which is what
+              taylth asks of the n-th derivative.
+
 notation holds-of
   pattern     _(_)
   sort        property of α, α → formula
