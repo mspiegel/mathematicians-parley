@@ -15,6 +15,7 @@ mod structure;
 
 use std::borrow::Cow;
 use std::collections::BTreeSet;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use indexmap::{IndexMap, IndexSet};
 
@@ -108,15 +109,99 @@ pub use crate::said::Said as Outcome;
 
 /// Check the corpus under the source's root.
 pub fn run(source: &dyn Source) -> Outcome {
-    let checked = prepared(source, |report, c| {
-        for (i, thm) in c.theorems.iter().enumerate() {
-            check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
-        }
-    });
-    match checked {
-        Ok((report, counts, ())) => summary(report, counts),
-        Err(out) => out,
+    run_named(source, None)
+}
+
+/// Check the theorem whose full name is `name`, or every theorem of the
+/// proof file it names, `proofs/wiedijk/wilson/wilson` or
+/// `proofs/wiedijk/wilson`; every theorem where there is no name. What
+/// reading the corpus finds outside every theorem is said either way, as
+/// every theorem reads the whole corpus.
+pub fn run_named(source: &dyn Source, name: Option<&str>) -> Outcome {
+    let wanted = |thm: &Theorem| {
+        name.is_none_or(|name| {
+            thm.qualified() == name || thm.module() == name.trim_end_matches(".proof")
+        })
+    };
+    let (report, counts, asked) = match checked_shared(source, &wanted) {
+        Ok(checked) => checked,
+        Err(out) => return out,
+    };
+    match name {
+        Some(name) if asked == 0 => Outcome {
+            printed: String::new(),
+            complained: format!(
+                "no theorem or proof file {}\n",
+                crate::text::repr(name)
+            ),
+            status: 2,
+        },
+        Some(_) => summary(
+            report,
+            Counts {
+                checked: Some(asked),
+                ..counts
+            },
+        ),
+        None => summary(report, counts),
     }
+}
+
+/// Each theorem `wanted` holds checked, the work shared among `threads()`
+/// workers. Each worker reads the corpus for itself, since what it reads is
+/// not shared between threads, and takes the next theorem not yet taken, so
+/// that a theorem with many lines to ask does not hold the others back.
+/// What reading the corpus finds is said once, by the first; with the
+/// counts, and how many theorems were asked.
+fn checked_shared(
+    source: &dyn Source,
+    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
+) -> Result<(Report, Counts, usize), Outcome> {
+    let next = AtomicUsize::new(0);
+    let asked = AtomicUsize::new(0);
+    let workers = crate::threads::threads();
+    let done = std::thread::scope(|scope| {
+        let running: Vec<_> = (0..workers)
+            .map(|_| scope.spawn(|| check_taken(source, wanted, &next, &asked)))
+            .collect();
+        running
+            .into_iter()
+            .map(|h| h.join().expect("no checker thread panicked"))
+            .collect::<Vec<_>>()
+    });
+    let mut merged: Option<(Report, Counts)> = None;
+    for worker in done {
+        let (read, counts, own) = worker?;
+        let (report, _) = merged.get_or_insert((read, counts));
+        report.problems.extend(own.problems);
+    }
+    let (report, counts) = merged.expect("at least one worker");
+    Ok((report, counts, asked.into_inner()))
+}
+
+/// One worker of `checked_shared`: the corpus read, and each theorem it takes
+/// checked, every line of one checked clean asked whether it does work.
+fn check_taken(
+    source: &dyn Source,
+    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
+    next: &AtomicUsize,
+    asked: &AtomicUsize,
+) -> Result<(Report, Counts, Report), Outcome> {
+    prepared(source, |_, c| {
+        let mut own = Report::default();
+        loop {
+            let i = next.fetch_add(1, Ordering::Relaxed);
+            let Some(thm) = c.theorems.get(i) else {
+                break;
+            };
+            if !wanted(thm) {
+                continue;
+            }
+            asked.fetch_add(1, Ordering::Relaxed);
+            check_nth(&mut own, c, i);
+        }
+        own
+    })
 }
 
 /// Every theorem as the checker reads it, by its qualified name: its shape,
@@ -162,7 +247,7 @@ pub fn checked_where(
                 continue;
             }
             let mut own = Report::default();
-            check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
+            check_nth(&mut own, c, i);
             let mut record = CheckedTheorem::of(thm);
             record.sorts = c.known[i].sorts.clone();
             record.problems = own.problems;
@@ -231,7 +316,17 @@ pub fn checked_where(
 
 /// How many theorems, steps, items and methods the corpus holds, which a
 /// summary ends on.
-fn counts_of(corpus: &Corpus) -> (usize, usize, usize, usize) {
+#[derive(Clone, Copy)]
+struct Counts {
+    theorems: usize,
+    steps: usize,
+    items: usize,
+    methods: usize,
+    /// How many of the theorems were checked, where a name asked for some.
+    checked: Option<usize>,
+}
+
+fn counts_of(corpus: &Corpus) -> Counts {
     let steps: usize = corpus.theorems.iter().map(|t| t.steps.len()).sum();
     let items = index(&corpus.records, &corpus.theorems).len();
     let methods = corpus
@@ -239,7 +334,13 @@ fn counts_of(corpus: &Corpus) -> (usize, usize, usize, usize) {
         .iter()
         .filter(|r| r.kind == RecordKind::Method)
         .count();
-    (corpus.theorems.len(), steps, items, methods)
+    Counts {
+        theorems: corpus.theorems.len(),
+        steps,
+        items,
+        methods,
+        checked: None,
+    }
 }
 
 /// Check the corpus under the source's root, after the files `edited` were
@@ -261,12 +362,24 @@ pub fn run_edited(source: &dyn Source, edited: &[String]) -> Outcome {
 }
 
 /// Every theorem an edit to `edited` can reach, checked (`run_edited`).
-fn check_reached(report: &mut Report, c: &Checking<'_>, edited: &[String]) {
+fn check_reached(report: &mut Report, c: &mut Checking<'_>, edited: &[String]) {
     let reached = reached_from(c.scopes, edited);
     for (i, thm) in c.theorems.iter().enumerate() {
         if reached.contains(thm.path.as_str()) {
-            check_theorem(report, c, thm, &c.known[i], &c.clashes[i]);
+            check_nth(report, c, i);
         }
+    }
+}
+
+/// The `i`th theorem checked, and where it is checked clean, each pair it
+/// writes naming a letter for itself asked whether it does work
+/// (`check_pairs_needed`).
+fn check_nth(report: &mut Report, c: &mut Checking<'_>, i: usize) {
+    let (thm, k) = (&c.theorems[i], &c.known[i]);
+    let before = report.problems.len();
+    check_theorem(report, c, thm, k, &c.clashes[i]);
+    if report.problems.len() == before {
+        check_pairs_needed(report, c, thm, k);
     }
 }
 
@@ -445,6 +558,19 @@ impl<'a> Checking<'a> {
         let Some(thm) = theorems.iter().find(|t| t.name == cut.theorem) else {
             return vec![format!("{} has no theorem {}", cut.path, cut.theorem)];
         };
+        self.problems_of(thm, check_theorem)
+    }
+
+    /// Whether `thm`, a theorem with a line taken away, holds as written
+    /// (`check_holds`). Whether each of its lines does work is not asked:
+    /// what is asked is whether the line taken away did.
+    fn holds(&mut self, thm: &Theorem) -> bool {
+        self.problems_of(thm, check_holds).is_empty()
+    }
+
+    /// What `checks` find of `thm`, its lines read afresh: a theorem the
+    /// corpus does not hold as written, one with a line taken away.
+    fn problems_of(&mut self, thm: &Theorem, checks: TheoremChecks) -> Vec<String> {
         let reader = formulas::read_with_citations(
             thm,
             self.env,
@@ -454,7 +580,7 @@ impl<'a> Checking<'a> {
         let library = self.library;
         let k = Known::new(thm, self.env, settled(&reader, &self.store), &library.ctx);
         let mut report = Report::default();
-        check_theorem(&mut report, self, thm, &k, &reader.clashes);
+        checks(&mut report, self, thm, &k, &reader.clashes);
         report.problems.iter().map(|p| p.to_string()).collect()
     }
 }
@@ -801,7 +927,7 @@ fn kept_alike<'k>(kept: &'k FileReads, rel: &str, raw: &[u8]) -> Option<&'k File
 fn prepared<T>(
     source: &dyn Source,
     then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
-) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
+) -> Result<(Report, Counts, T), Outcome> {
     let read = read_corpus(source, &FileReads::new())?;
     prepared_in(&read.corpus, read.report, None, then)
 }
@@ -813,7 +939,7 @@ fn prepared_in<T>(
     mut report: Report,
     reuse: Option<&Reuse>,
     then: impl FnOnce(&mut Report, &mut Checking<'_>) -> T,
-) -> Result<(Report, (usize, usize, usize, usize), T), Outcome> {
+) -> Result<(Report, Counts, T), Outcome> {
     let Corpus {
         records,
         theorems,
@@ -1012,8 +1138,25 @@ fn prepared_in<T>(
     Ok((report, counts, out))
 }
 
+/// A set of checks of one theorem: `check_theorem`, or `check_holds`.
+type TheoremChecks =
+    fn(&mut Report, &Checking<'_>, &Theorem, &Known<'_>, &[infer::Clash]);
+
 /// Everything checked of one theorem, given the corpus read once.
 fn check_theorem(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) {
+    check_holds(report, c, thm, k, clashes);
+    check_requires_work(report, c, thm, k, clashes);
+}
+
+/// Whether the theorem holds as written: every check but whether each line
+/// does work.
+fn check_holds(
     report: &mut Report,
     c: &Checking<'_>,
     thm: &Theorem,
@@ -1023,7 +1166,6 @@ fn check_theorem(
     check_passes(report, c, thm, k, clashes);
     formulas::check_ends_numbered(report, thm, k, c.library);
     citations::check_conclusion_domains(report, thm, c.library, k, c.scopes);
-    check_requires_work(report, c, thm, k, clashes);
 }
 
 /// A requires line does work (`SYNTAX.md`, requires; `DATABASE.md`, a named
@@ -1087,6 +1229,88 @@ fn check_requires_work(
             }
         }
     }
+}
+
+/// Every pair naming a letter for itself does work (`SYNTAX.md`, no pair
+/// says what goes without saying): taken away, the theorem no longer holds.
+/// `f := f` is written only where matching would find something else for
+/// f, and where matching finds f from the claim the pair says nothing.
+/// Whether a requires line does work is `check_requires_work`'s to ask.
+///
+/// Asked only of a theorem with no problem, since what a pair does is told
+/// by the theorem going from clean to not. Each is asked without the ones
+/// already found surplus, so that two pairs either of which would do are
+/// not both said to be.
+fn check_pairs_needed(
+    report: &mut Report,
+    c: &mut Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+) {
+    let mut kept = thm.clone();
+    for (s, step) in thm.steps.iter().enumerate() {
+        for name in pairs_for_themselves(&step.just, k) {
+            let mut lighter = kept.clone();
+            let just = &mut lighter.steps[s].just;
+            just.values = just.values.without(&name);
+            if c.holds(&lighter) {
+                report.say(
+                    &thm.path,
+                    step.just.line,
+                    format!(
+                        "step {} cites with the pair {name} := {name}, and the theorem is checked without it",
+                        step.number
+                    ),
+                );
+                kept = lighter;
+            }
+        }
+        for req in &step.requires {
+            let Ok(by) = &req.by else {
+                continue;
+            };
+            for name in pairs_for_themselves(by, k) {
+                let mut lighter = kept.clone();
+                let Some(there) = lighter.steps[s]
+                    .requires
+                    .iter_mut()
+                    .find(|r| r.line == req.line)
+                else {
+                    continue;
+                };
+                if let Ok(by) = &mut there.by {
+                    by.values = by.values.without(&name);
+                }
+                if c.holds(&lighter) {
+                    report.say(
+                        &thm.path,
+                        req.line,
+                        format!(
+                            "the requires line of step {} cites with the pair {name} := {name}, and the theorem is checked without it",
+                            step.number
+                        ),
+                    );
+                    kept = lighter;
+                }
+            }
+        }
+    }
+}
+
+/// The letters a citation gives as their own values, `f := f`: each pair
+/// whose value reads as the very letter it is given for.
+fn pairs_for_themselves(
+    just: &crate::corpus::Justification,
+    k: &Known<'_>,
+) -> Vec<String> {
+    just.values
+        .pairs()
+        .filter(|(name, value)| {
+            k.whole_as_written(value)
+                .is_some_and(|n| n.is_name() && n.text.as_str() == *name)
+        })
+        .map(|(name, _)| name.to_string())
+        .collect()
 }
 
 /// What the checks find of `step` checked as a theorem of that one step.
@@ -1233,7 +1457,7 @@ fn check_passes(
 }
 
 /// What the run found, as printed, and the exit status.
-fn summary(report: Report, counts: (usize, usize, usize, usize)) -> Outcome {
+fn summary(report: Report, counts: Counts) -> Outcome {
     let mut problems = report.problems;
     problems.sort_by(|a, b| a.path.cmp(&b.path).then(a.line.cmp(&b.line)));
     let mut out = String::new();
@@ -1241,9 +1465,16 @@ fn summary(report: Report, counts: (usize, usize, usize, usize)) -> Outcome {
         out.push_str(&format!("{p}\n"));
     }
     out.push('\n');
-    let (theorems, steps, items, methods) = counts;
+    let Counts {
+        theorems,
+        steps,
+        items,
+        methods,
+        checked,
+    } = counts;
+    let checked = checked.map_or(String::new(), |n| format!(" ({n} checked)"));
     out.push_str(&format!(
-        "{theorems} theorems, {steps} steps, {items} items, {methods} methods\n"
+        "{theorems} theorems{checked}, {steps} steps, {items} items, {methods} methods\n"
     ));
     out.push_str(&format!("{} problem(s)\n", problems.len()));
     Outcome {

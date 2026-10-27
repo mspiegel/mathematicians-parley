@@ -12,7 +12,9 @@ use std::path::{Path, PathBuf};
 
 use indexmap::IndexMap;
 
-pub trait Source {
+/// A source is read from several threads at once, as the checker's workers
+/// each read the corpus for themselves.
+pub trait Source: Sync {
     /// A file's bytes, by its path from the root.
     fn read(&self, rel: &str) -> io::Result<Vec<u8>>;
 

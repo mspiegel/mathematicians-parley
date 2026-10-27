@@ -22,7 +22,7 @@ use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order;
 use parley::tools::build::Libraries;
 use parley::tools::gate::{as_built, as_built_edited, verifies};
-use parley::tools::{assumed, labels, needed, restated, tested};
+use parley::tools::{assumed, labels, restated, tested};
 
 /// set.mm, where it is and as it reads, read once for every stage and case.
 struct SetMm {
@@ -57,16 +57,6 @@ fn restated_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
     restated::run(tree, Some(&setmm.libraries))
 }
 
-/// The proof file the clean run of the needed stage asks.
-const NEEDED_FILE: &str = "proofs/wiedijk/sum-formula.proof";
-
-/// Whether every requires line and every pair naming a variable for itself
-/// is needed, asked of one file: a case asks it of the file it edits, and
-/// the gate asks it of every file.
-fn needed_stage(tree: &dyn Source, _: &SetMm) -> Said {
-    needed::run_over(tree, &[NEEDED_FILE.to_string()])
-}
-
 /// A stage as a case asks it, told the files the case edited. A case passes
 /// only where its stage says what it should, and a stage that does only
 /// the part of its work an edit reaches can only leave something unsaid;
@@ -98,18 +88,13 @@ fn restated_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
     restated::run_edited(tree, Some(&setmm.libraries), edited)
 }
 
-fn needed_case(tree: &dyn Source, _: &SetMm, edited: &[String]) -> Said {
-    needed::run_over(tree, edited)
-}
-
-const STAGES: [(&str, Stage); 7] = [
+const STAGES: [(&str, Stage); 6] = [
     ("set.mm labels", labels_stage),
     ("cited or tested", tested_stage),
     ("taken as stated", assumed_stage),
     ("a fresh build", as_built_stage),
     ("the proofs verify", verify_stage),
     ("items restated", restated_stage),
-    ("requires lines needed", needed_stage),
 ];
 
 /// One planted defect: the stage that must catch it, the file, the text
@@ -223,24 +208,6 @@ fn cases() -> Vec<Case> {
             old: "`stdlib/counting/count-last-fails`.",
             new: "`stdlib/counting/count-last-fails`, `stdlib/sets/union-self`.",
             expect: "ELABORATION.md lists stdlib/sets/union-self as not restated, and it is restated",
-        },
-        Case {
-            name: "a requires line the step is checked and built without",
-            stage: needed_case,
-            file: NEEDED_FILE,
-            old: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n",
-            new: "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ≠ 0: arithmetic\n",
-            expect: "says 2 ≠ 0: arithmetic, and the step is checked and built without it",
-        },
-        // A pair naming a variable for itself is written only where matching
-        // does not find the variable (`SYNTAX.md`); here the claim fixes f.
-        Case {
-            name: "a pair naming a variable for itself that matching finds",
-            stage: needed_case,
-            file: "proofs/wiedijk/euler.proof",
-            old: "    thm:product-congruent X := S, from 4, 5, 11",
-            new: "    thm:product-congruent X := S, f := f, from 4, 5, 11",
-            expect: "cites with the pair f := f, and the step is checked and built without it",
         },
     ]
 }

@@ -93,6 +93,13 @@ fn plant<'a>(case: &Case, clean: &'a Memory) -> Result<Overlay<'a>, String> {
     Ok(tree)
 }
 
+/// What the checker prints of `tree`, the case's edits planted in it, with
+/// the theorems the edits reach checked (`checker::run_edited`).
+fn checked_planted(case: &Case, tree: &dyn Source) -> String {
+    let edited: Vec<String> = case.edits.iter().map(|e| e.file.to_string()).collect();
+    parley::checker::run_edited(tree, &edited).printed
+}
+
 /// What one case says, whether it missed, and everything the checker
 /// printed: a case misses where its edit could not be planted, or the
 /// checker did not report it.
@@ -252,7 +259,7 @@ fn a_file_that_does_not_import_a_library_function_may_use_its_name() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::checker::run(&tree).printed;
+    let out = checked_planted(&case, &tree);
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
@@ -272,7 +279,7 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::checker::run(&tree).printed;
+    let out = checked_planted(&case, &tree);
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
@@ -292,7 +299,7 @@ fn an_unread_substitute_is_told_only_that_it_does_not_read() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::checker::run(&tree).printed;
+    let out = checked_planted(&case, &tree);
     assert!(out.contains("justification matches no production"), "{out}");
     assert!(!out.contains("which putting one side of"), "{out}");
 }
@@ -351,7 +358,7 @@ fn a_reason_that_does_not_read_is_told_only_that() {
             "",
         );
         let tree = plant(&case, &clean).unwrap();
-        let out = parley::checker::run(&tree).printed;
+        let out = checked_planted(&case, &tree);
         let problems: Vec<&str> = out
             .lines()
             .filter(|l| l.starts_with(&format!("{file}:")))
@@ -385,7 +392,7 @@ fn a_hypothesis_not_supplied_is_named_alone() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::checker::run(&tree).printed;
+    let out = checked_planted(&case, &tree);
     assert!(
         out.contains(
             "which asks for p divides n!, and what it cites does not supply it"
@@ -553,7 +560,7 @@ fn a_line_the_step_cites_may_be_restated_for_a_line_below() {
         "",
     );
     let tree = plant(&case, &clean).unwrap();
-    let out = parley::checker::run(&tree).printed;
+    let out = checked_planted(&case, &tree);
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
@@ -5512,6 +5519,27 @@ fn cases() -> Vec<Case> {
                 "theorem planted\n  let x ∈ ℝ    (H1)\n  assume x > 0    (H2)\n  then x + x = 2·x\n\n1.  x + x = 2·x\n    algebra\n    requires x ≠ 0: weakening, from H2\n".to_string(),
             )],
             "the requires line of step 1 says x ≠ 0, and the step neither uses nor asks for it",
+        ),
+        // A pair naming a letter for itself is written only where matching
+        // does not find the letter (`SYNTAX.md`); here the claim fixes f.
+        case(
+            "a pair naming a letter for itself that matching finds",
+            vec![edit(
+                "proofs/wiedijk/euler.proof",
+                Some("    thm:product-congruent X := S, from 4, 5, 11".to_string()),
+                "    thm:product-congruent X := S, f := f, from 4, 5, 11".to_string(),
+            )],
+            "cites with the pair f := f, and the theorem is checked without it",
+        ),
+        // The same of a requires line's citation: the line's claim fixes u.
+        case(
+            "a pair naming a letter for itself in a requires line",
+            vec![edit(
+                "proofs/wiedijk/wilson.proof",
+                Some("          requires u ∈ ℤ: mun:in-subset, from H1, 13.1".to_string()),
+                "          requires u ∈ ℤ: mun:in-subset u := u, from H1, 13.1".to_string(),
+            )],
+            "the requires line of step 13.4 cites with the pair u := u, and the theorem is checked without it",
         ),
         // A method step uses each line it cites: the certificate combines
         // lines 2 and 3, and line 1 says a + b is at least 0 or below it,

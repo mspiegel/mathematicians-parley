@@ -65,6 +65,23 @@ impl Values {
         self.given.iter().map(|g| g.name.as_str())
     }
 
+    /// Each letter with the value given for it, in order.
+    pub fn pairs(&self) -> impl Iterator<Item = (&str, &Written)> {
+        self.given.iter().map(|g| (g.name.as_str(), &g.value))
+    }
+
+    /// These values without the one given for `name`.
+    pub fn without(&self, name: &str) -> Values {
+        Values {
+            given: self
+                .given
+                .iter()
+                .filter(|g| g.name != name)
+                .cloned()
+                .collect(),
+        }
+    }
+
     /// Every value, each read as one formula with the same grammar and
     /// sorts; a defect where one is not a formula that reads.
     pub fn read(&self, g: &Grammar, sorts: &Sorts) -> Checked<Vec<Value>> {

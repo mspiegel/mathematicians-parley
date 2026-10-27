@@ -1027,6 +1027,15 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
         let Some(map) = choose(ctx, thm, &used, &held(ctx, thm)) else {
             continue;
         };
+        if makes_pairs_for_themselves(thm, &map) {
+            declined.push(Declined {
+                theorem: thm.qualified(),
+                why: "the renaming gives a cited letter itself, `B := A` as `B := B`, \
+                      a pair no proof writes where matching finds the letter"
+                    .to_string(),
+            });
+            continue;
+        }
         let mut attempt = lines.clone();
         match rename(ctx, &mut attempt, &lay, &map) {
             Ok(n) => {
@@ -1049,6 +1058,22 @@ fn renaming(ctx: &Context, path: &str, text: &str, choose: Choose) -> Rewritten 
         theorems,
         declined,
     }
+}
+
+/// Whether renaming by `map` turns a pair of `thm`'s citations into one
+/// naming a letter for itself: `B := A`, with A renamed B. A proof written
+/// with B does not write `B := B` where matching finds B (`SYNTAX.md`, no
+/// pair says what goes without saying), so the renamed proof is not one
+/// written with those letters.
+fn makes_pairs_for_themselves(thm: &Theorem, map: &BTreeMap<String, String>) -> bool {
+    let reasons = thm.steps.iter().flat_map(|s| {
+        std::iter::once(&s.just)
+            .chain(s.requires.iter().filter_map(|r| r.by.as_ref().ok()))
+    });
+    reasons.flat_map(|j| j.values.pairs()).any(|(name, value)| {
+        map.get(value.text().trim())
+            .is_some_and(|renamed| renamed == name)
+    })
 }
 
 /// The pair a renaming has to write back. A definition cited with no pair

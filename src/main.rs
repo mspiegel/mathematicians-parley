@@ -5,10 +5,9 @@ use std::process::ExitCode;
 use parley::said::Said;
 use parley::source::Disk;
 
-const USAGE: &str = "usage: parley check
+const USAGE: &str = "usage: parley check [name]
        parley build [name] [set.mm]
        parley gate
-       parley needed
 
 Run from the working tree: the directory holding corpus/ and the proofs.";
 
@@ -34,7 +33,8 @@ fn main() -> ExitCode {
     };
     // At most this many arguments, for each command.
     let most = match sub.as_str() {
-        "check" | "gate" | "needed" => 0,
+        "gate" => 0,
+        "check" => 1,
         "build" => 2,
         other => return refuse(&format!("unknown command {other}")),
     };
@@ -47,14 +47,15 @@ fn main() -> ExitCode {
     // Everything is read from where the command is run.
     let root = Path::new(".");
     match sub.as_str() {
-        "check" => say(parley::checker::run(&Disk::new(root.to_path_buf()))),
+        "check" => say(parley::checker::run_named(
+            &Disk::new(root.to_path_buf()),
+            rest.first().map(String::as_str),
+        )),
         "build" => say(parley::tools::build::run(
             root,
             rest.first().map(String::as_str),
             rest.get(1).map(String::as_str),
         )),
-        // The gate's slowest stage alone: every requires line taken away.
-        "needed" => say(parley::tools::needed::run(&Disk::new(root.to_path_buf()))),
         _ => say(parley::tools::gate::run(root)),
     }
 }

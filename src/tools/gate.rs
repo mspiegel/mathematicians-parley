@@ -1,7 +1,7 @@
 //! Everything about the corpus that must be green before a commit.
 //!
 //! Whether the tool itself is right is `cargo test`; this is whether the
-//! corpus is. Eight stages, in the order they are printed:
+//! corpus is. Seven stages, in the order they are printed:
 //!
 //! 1. the checker over the whole corpus;
 //! 2. every artifact built afresh in memory and compared with the file in
@@ -14,10 +14,7 @@
 //!    of metamath-knife) over every proof the elaborator has written;
 //! 7. every library item with a target restated as a theorem citing it,
 //!    built and verified the same way (`restated`), and each item it cannot
-//!    restate listed in `ELABORATION.md`;
-//! 8. every requires line needed, and every pair naming a variable for
-//!    itself: each taken away in turn, and its theorem checked without it
-//!    (`needed`).
+//!    restate listed in `ELABORATION.md`.
 //!
 //! The verifier stages are the only evidence the elaborator is right rather
 //! than consistent. The others read the corpus against itself or
@@ -46,7 +43,7 @@ use crate::source::{Disk, Source};
 use super::build::{
     artifacts, reached_by, verified, waves, Artifact, Libraries, Maker,
 };
-use super::{assumed, labels, needed, restated, tested, verify};
+use super::{assumed, labels, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
 const TABLES_AT: &str = "src/rules.rs";
@@ -186,10 +183,6 @@ pub fn run(root: &Path) -> Said {
         (
             "every library item gives its target what it asks",
             Box::new(|| restated::run(&source, libraries)),
-        ),
-        (
-            "every requires line and every pair naming a variable for itself is needed",
-            Box::new(|| needed::run(&source)),
         ),
     ];
 
