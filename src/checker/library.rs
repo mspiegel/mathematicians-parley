@@ -20,7 +20,7 @@ use crate::matching::{
     alike, expand, standard, substitute_apart, substituted_in, Binding, Context,
     Definitions, FxIndexMap,
 };
-use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE};
+use crate::notations::{FOR_ALL, MEMBERSHIP, PLANE, POWERSET, SUBSET};
 use crate::outcome::Route;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
@@ -1152,6 +1152,30 @@ pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {
     here.typed
         .get_or_init(|| typed_by(known, &here.introducing))
         .clone()
+}
+
+/// The sets the introducing lines in scope at `step` put inside others, as
+/// pairs (small, big): `let X ⊆ ℤ` says X ∈ 𝒫ℤ, kept as (X, ℤ).
+pub fn parts_in_scope(known: &Known, step: &Step) -> Vec<(Node, Node)> {
+    let here = known.in_scope(step);
+    here.introducing
+        .iter()
+        .flat_map(|stated| known.said_parts(stated, None).into_iter().flatten())
+        .filter_map(|n| part_pair(&n))
+        .collect()
+}
+
+/// The two sets a sentence `X ⊆ Y` or `X ∈ 𝒫Y` says the first is inside
+/// the second of; None for any other sentence.
+fn part_pair(said: &Node) -> Option<(Node, Node)> {
+    match (said.notation(), said.children.as_slice()) {
+        (SUBSET, [small, big]) => Some((small.clone(), big.clone())),
+        (MEMBERSHIP, [small, power]) if power.notation() == POWERSET => power
+            .children
+            .first()
+            .map(|big| (small.clone(), big.clone())),
+        _ => None,
+    }
 }
 
 /// `typed_in_scope`, from the introducing lines in scope.

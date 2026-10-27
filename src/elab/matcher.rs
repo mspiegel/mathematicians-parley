@@ -1025,8 +1025,8 @@ impl<'a> Elaborator<'a> {
         self.rpn(&faced(self, &term))
     }
 
-    /// ( scope -> F : A ⟶ C ), F the name a define gives the map ( x ∈ A ↦
-    /// B ), where B is in C at every point of A (`fmpt`, `feq1d`): a
+    /// ( scope -> F : A ⟶ C ), F the map ( x ∈ A ↦ B ) or the name a define
+    /// gives it, where B is in C at every point of A (`fmpt`, `feq1d`): a
     /// defined function's type, which the page says once where its rule is
     /// a number there by what it says once (`SYNTAX.md`, "A define with a
     /// parameter also states what its function is on").
@@ -1043,6 +1043,11 @@ impl<'a> Elaborator<'a> {
         let [domain, codomain, named] = wanted.children() else {
             return Ok(None);
         };
+        // A map written as a map, as a rule a citation gives a function
+        // letter is read (`rule_as_map`), is typed by its rule alone.
+        if named.label() == Some("cmpt") {
+            return self.map_type(named, domain, codomain, scope, facts, depth);
+        }
         // A define's name is equal to its map by the define's own line,
         // which every step may rest on.
         let var = match (named.label(), named.children()) {

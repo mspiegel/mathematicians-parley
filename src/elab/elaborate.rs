@@ -68,6 +68,10 @@ use crate::{pf, t, take};
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
 
+/// The letters a map read from a rule a citation binds may bind, the first
+/// one free taken (`rule_as_map`).
+const MAP_LETTERS: [&str; 6] = ["u", "v", "w", "s", "r", "q"];
+
 /// The two sides of an equation, as written (`Elaborator::equation_sides`).
 pub(crate) struct Sides {
     /// The side before `=`.
@@ -5743,7 +5747,7 @@ impl<'a> Elaborator<'a> {
     fn corpus_matched(
         &mut self,
         step: &Step,
-        other: &Theorem,
+        other: &'a Theorem,
     ) -> Checked<IndexMap<String, Rpn>> {
         let mut out = IndexMap::new();
         if step.just.head.is(crate::corpus::Method::Obtain) {
@@ -5763,9 +5767,87 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
+            // A function letter the match makes a rule, t := x ↦ x·c, stands
+            // for the map the rule is over the letter's domain, as a
+            // function a define gives by a rule is read where it is written
+            // alone.
+            if node.notation() == crate::notations::PROPERTY_OF {
+                if let Some(map) =
+                    self.rule_as_map(other, name, node, &taken.binding)?
+                {
+                    out.insert(name.to_string(), self.term(&map)?);
+                    continue;
+                }
+            }
             out.insert(name.to_string(), self.term(node)?);
         }
         Ok(out)
+    }
+
+    /// The map a rule bound to a cited theorem's function letter is, over
+    /// the domain the theorem's `let` gives the letter, put in the step's
+    /// names: t := x ↦ x·c, of `let t : X → ℤ`, is the map sending x ∈ X to
+    /// x·c. None where no `let` of the theorem types the letter.
+    fn rule_as_map(
+        &mut self,
+        other: &'a Theorem,
+        name: &str,
+        rule: &Node,
+        binding: &NodeBinding,
+    ) -> Checked<Option<Node>> {
+        // A rule holds its letter as its text and its body as its one part.
+        let [body] = rule.children.as_slice() else {
+            return Ok(None);
+        };
+        for h in other.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
+            let typed = self.in_its_names(Item::Theorem(other), |me| {
+                me.hypothesis_node(Intro::Let, &h.body(&other.path))
+            })?;
+            let (crate::notations::FUNCTION_TYPE, [f, domain, _]) =
+                (typed.notation(), typed.children.as_slice())
+            else {
+                continue;
+            };
+            if !(f.is_name() && f.text == name) {
+                continue;
+            }
+            let domain = crate::matching::substitute_apart_by(
+                domain,
+                binding,
+                &self.g.binders(),
+            );
+            // The map binds a letter of its own, apart from every letter the
+            // step holds, the domain and the body write: where the map is
+            // applied at the bound letter of a sum or product over the
+            // domain, the two are kept apart (`fvmptd3`).
+            let used: BTreeSet<String> = body
+                .names()
+                .into_iter()
+                .chain(domain.names())
+                .chain(self.names.keys().cloned())
+                .collect();
+            let Some(fresh) = MAP_LETTERS.iter().find(|l| !used.contains(**l)) else {
+                return Ok(None);
+            };
+            let sort = body
+                .walk()
+                .into_iter()
+                .find(|n| n.is_name() && n.text == rule.text)
+                .map(|n| n.sort.clone())
+                .or_else(|| domain.sort.held())
+                .unwrap_or_else(crate::formula::Sort::unknown);
+            let letter = Node::name(sort, fresh);
+            let mut put = NodeBinding::new();
+            put.insert(rule.text, letter.clone());
+            let body =
+                crate::matching::substitute_apart_by(body, &put, &self.g.binders());
+            return Ok(crate::formula::page::made_as(
+                self.g,
+                "the map sending _ ∈ _ to _",
+                vec![letter, domain, body],
+            ));
+        }
+        Ok(None)
     }
 
     /// Apply a theorem this corpus proves, as this elaborator states it: its

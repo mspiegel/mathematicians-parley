@@ -1,0 +1,265 @@
+import mundane theorem    stdlib/counting/finite-part
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/functions/function-value
+import mundane theorem    stdlib/counting/card-empty
+import mundane theorem    stdlib/counting/card-add-one
+import mundane theorem    stdlib/counting/card-nat0
+import mundane theorem    stdlib/counting/card-equal
+import mundane theorem    stdlib/counting/card-difference
+import mundane theorem    stdlib/counting/card-zero
+import mundane theorem    stdlib/numbers/exponent-step
+import mundane theorem    stdlib/numbers/power-integer
+import mundane theorem    stdlib/sets/nothing-left-outside
+import mundane theorem    stdlib/sets/in-subset
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/image-within
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/functions/function-into
+import mundane theorem    stdlib/functions/function-on-domain
+import mundane definition stdlib/functions/one-to-one
+import mundane definition stdlib/functions/onto
+import mundane definition stdlib/functions/one-to-one-onto
+import mundane definition stdlib/functions/bijection
+
+mundane theorem product-integer-terms
+  note        A product of finitely many whole numbers is a whole number,
+              over every part of a finite set: the empty product is 1, and a
+              member more multiplies it by one more whole number.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let t : X → ℤ                                                       (H3)
+  then for all Y ⊆ X, ∏(x ∈ Y) t(x) ∈ ℤ
+
+1.  For all Y ⊆ X, ∏(x ∈ Y) t(x) ∈ ℤ.
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    1.1.  ∏(x ∈ ∅) t(x) = 1
+          mun:product-empty
+
+    1.2.  ∏(x ∈ ∅) t(x) ∈ ℤ
+          membership, from 1.1
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 1 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+
+    1.3.  a ∈ X and a ∉ Y
+          mun:difference u := a, Y := X, Z := Y, from K2
+
+    1.4.  Y is finite
+          mun:finite-part, from H2, K
+
+    1.5.  ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
+          mun:product-add-one, from K, 1.3, 1.4
+
+    1.6.  t(a) ∈ ℤ
+          mun:function-value f := t, D := X, E := ℤ, x := a, from H3, 1.3
+
+    1.7.  ∏(x ∈ Y ∪ {a}) t(x) ∈ ℤ
+          membership, from IH, 1.5, 1.6
+
+mundane theorem product-constant
+  note        A product of one number c over a finite set is c to the power
+              of its size: the empty product is c⁰, and a member more is one
+              more factor c.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℝ                                                           (H3)
+  then ∏(x ∈ X) c = c^|X|
+
+1.  For all Y ⊆ X, ∏(x ∈ Y) c = c^|Y|.
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    1.1.  ∏(x ∈ ∅) c = 1
+          mun:product-empty
+
+    1.2.  |∅| = 0
+          mun:card-empty
+
+    1.3.  c^0 = 1
+          algebra
+
+    1.4.  c^|∅| = 1
+          substitute |∅| = 0 (line 1.2) into line 1.3
+
+    1.5.  ∏(x ∈ ∅) c = c^|∅|
+          transitivity, from 1.1, 1.4
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 1 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+
+    1.6.  a ∈ X and a ∉ Y
+          mun:difference u := a, Y := X, Z := Y, from K2
+
+    1.7.  Y is finite
+          mun:finite-part, from H2, K
+
+    1.8.  ∏(x ∈ Y ∪ {a}) c = (∏(x ∈ Y) c)·c
+          mun:product-add-one, from K, 1.6, 1.7
+
+    1.9.  |Y ∪ {a}| = |Y| + 1
+          mun:card-add-one X := Y, from 1.6, 1.7
+
+    1.10. |Y| ∈ ℕ₀
+          mun:card-nat0 X := Y, from 1.7
+
+    1.11. c^(|Y| + 1) = c^|Y|·c
+          mun:exponent-step a := c, m := |Y|, from 1.10
+
+    1.12. ∏(x ∈ Y ∪ {a}) c = c^|Y|·c
+          substitute ∏(x ∈ Y) c = c^|Y| (IH) into line 1.8
+
+    1.13. ∏(x ∈ Y ∪ {a}) c = c^(|Y| + 1)
+          transitivity, from 1.12, 1.11
+
+    1.14. ∏(x ∈ Y ∪ {a}) c = c^|Y ∪ {a}|
+          substitute |Y ∪ {a}| = |Y| + 1 (line 1.9) into line 1.13
+
+2.  ∏(x ∈ X) c = c^|X|
+    instantiate Y := X in line 1
+    requires X ⊆ X: mun:subset-self
+
+theorem product-factor
+  note        A factor common to every term comes out of the product once
+              for each term: the product of the terms x·c is the product of
+              the x's times the product of the c's, which is c^|X|.
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  then ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
+
+1.  For all x ∈ X, x ∈ ℝ.
+    proof
+    let x ∈ X                                                         (K1)
+
+    1.1.  x ∈ ℤ
+          mun:in-subset, from H1, K1
+
+    1.2.  x ∈ ℝ
+          membership, from 1.1
+
+2.  ∏(x ∈ X) x·c = (∏(x ∈ X) x)·∏(x ∈ X) c
+    mun:product-of-products, from H2, 1
+
+3.  ∏(x ∈ X) c = c^|X|
+    mun:product-constant, from H2
+
+4.  ∏(x ∈ X) x·c = (∏(x ∈ X) x)·c^|X|
+    substitute ∏(x ∈ X) c = c^|X| (line 3) into line 2
+
+5.  ∏(x ∈ X) x ∈ ℤ
+    mun:product-integer, from H1, H2
+
+6.  |X| ∈ ℕ₀
+    mun:card-nat0, from H2
+
+7.  ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
+    algebra, from 4
+    requires ∏(x ∈ X) x ∈ ℝ: from 5
+    requires c^|X| ∈ ℤ: mun:power-integer a := c, m := |X|, from 6
+
+theorem product-reorder
+  note        A one-to-one function from a finite set to itself takes each
+              member to a member once, so the values are the members in
+              another order, and their product is the same. Its values f[X]
+              are as many as X (card-equal) and lie in X, so nothing of X is
+              left outside them, and f is onto.
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let f : X → X be one-to-one                                         (H3)
+  then ∏(x ∈ X) f(x) = ∏(x ∈ X) x
+
+1.  f : X → X and for all s, t ∈ X, if f(s) = f(t) then s = t.
+    mun:one-to-one Y := X, from H3
+
+2.  X ⊆ X
+    mun:subset-self
+
+3.  For all x ∈ X, f(x) ∈ f[X].
+    proof
+    let x ∈ X                                                         (K1)
+
+    3.1.  f(x) ∈ f[X]
+          mun:value-in-image W := X, Y := X, s := x, from 2
+
+4.  f : X → f[X]
+    mun:function-into E := f, Y := f[X], from 3
+    requires f is a function on X: mun:function-on-domain Y := X
+
+5.  For all y ∈ f[X], there is x ∈ X with y = f(x).
+    proof
+    let y ∈ f[X]                                                      (K2)
+
+    5.1.  there is x ∈ X with y = f(x)
+          mun:image u := y, W := X, Y := X, from K2, 2
+
+6.  f : X → f[X] is onto
+    mun:onto Y := f[X], from 4, 5
+
+7.  f : X → f[X] is one-to-one
+    mun:one-to-one Y := f[X], from 1, 4
+
+8.  f : X → f[X] is one-to-one and onto
+    mun:one-to-one-onto Y := f[X], from 6, 7
+
+9.  there is a bijection from X to f[X]
+    mun:bijection Y := f[X], from 8
+
+10. |X| = |f[X]|
+    mun:card-equal Y := f[X], from H2, 9
+
+11. f[X] ⊆ X
+    mun:image-within W := X, Y := X
+
+12. |X ∖ f[X]| = |X| − |f[X]|
+    mun:card-difference Y := f[X], from H2, 11
+
+13. |X ∖ f[X]| = 0
+    algebra, from 10, 12
+    requires |X| ∈ ℕ₀: mun:card-nat0, from H2
+
+14. X ∖ f[X] = ∅
+    mun:card-zero X := X ∖ f[X], from 13
+
+15. X ⊆ f[X]
+    mun:nothing-left-outside Y := X, X := f[X], from 14
+
+16. For all y ∈ X, there is x ∈ X with y = f(x).
+    proof
+    let y ∈ X                                                         (K3)
+
+    16.1. y ∈ f[X]
+          mun:in-subset, from K3, 15
+
+    16.2. there is x ∈ X with y = f(x)
+          mun:image u := y, W := X, Y := X, from 2, 16.1
+
+17. f : X → X is onto
+    mun:onto Y := X, from 1, 16
+
+18. f : X → X is one-to-one and onto
+    mun:one-to-one-onto Y := X, from H3, 17
+
+19. For all z ∈ X, z ∈ ℝ.
+    proof
+    let z ∈ X                                                         (K4)
+
+    19.1. z ∈ ℤ
+          mun:in-subset, from H1, K4
+
+    19.2. z ∈ ℝ
+          membership, from 19.1
+
+20. ∏(z ∈ X) z = ∏(y ∈ X) f(y)
+    mun:product-reindex Y := X, Z := X, g := f, from H2, 18, 19
+
+21. ∏(x ∈ X) f(x) = ∏(x ∈ X) x
+    restate 20

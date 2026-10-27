@@ -23,7 +23,7 @@ $d k ph $.
 $d k A $.
 $d k B $.
 $d k D $.
-$d k V $.
+$d k W $.
 $d A x y z $.
 $d ph x y z $.
 $d ps y z $.
@@ -66,24 +66,31 @@ lemma gfinind
   21 ssfid 18 20 |- ( ( ph /\ w e. ~P A ) -> w e. Fin )
   22 findcard2d gfinind.1 gfinind.2 gfinind.3 gfinind.4 1 17 21 |- ( ( ph /\ w e. ~P A ) -> et )
 
-# ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) ), from A
-# finite, B a set not in A, each term a number, and D the term at B.
+# ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) ), from A a
+# finite part of W, B a member of W not in A, each term over W a number,
+# and D the term at B.
 lemma gprodaddone
   hypothesis gprodaddone.1 |- ( ph -> A e. Fin )
-  hypothesis gprodaddone.2 |- ( ph -> B e. V )
-  hypothesis gprodaddone.3 |- ( ph -> -. B e. A )
-  hypothesis gprodaddone.4 |- ( ( ph /\ k e. ( A u. { B } ) ) -> C e. CC )
-  hypothesis gprodaddone.5 |- ( k = B -> C = D )
+  hypothesis gprodaddone.2 |- ( ph -> A C_ W )
+  hypothesis gprodaddone.3 |- ( ph -> B e. W )
+  hypothesis gprodaddone.4 |- ( ph -> -. B e. A )
+  hypothesis gprodaddone.5 |- ( ( ph /\ k e. W ) -> C e. CC )
+  hypothesis gprodaddone.6 |- ( k = B -> C = D )
   |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) )
   1 nfv |- F/ k ph
   2 nfcv |- F/_ k D
-  3 elun1 |- ( k e. A -> k e. ( A u. { B } ) )
-  4 sylan2 3 gprodaddone.4 |- ( ( ph /\ k e. A ) -> C e. CC )
-  5 snidg |- ( B e. V -> B e. { B } )
-  6 syl gprodaddone.2 5 |- ( ph -> B e. { B } )
-  7 elun2 |- ( B e. { B } -> B e. ( A u. { B } ) )
-  8 syl 6 7 |- ( ph -> B e. ( A u. { B } ) )
-  9 ralrimiva gprodaddone.4 |- ( ph -> A. k e. ( A u. { B } ) C e. CC )
-  10 eleq1d gprodaddone.5 |- ( k = B -> ( C e. CC <-> D e. CC ) )
-  11 rspcdva 10 9 8 |- ( ph -> D e. CC )
-  12 fprodsplitsn 1 2 gprodaddone.1 gprodaddone.2 gprodaddone.3 4 gprodaddone.5 11 |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) )
+  3 snssd gprodaddone.3 |- ( ph -> { B } C_ W )
+  4 unssd gprodaddone.2 3 |- ( ph -> ( A u. { B } ) C_ W )
+  5 sseld 4 |- ( ph -> ( k e. ( A u. { B } ) -> k e. W ) )
+  6 imp 5 |- ( ( ph /\ k e. ( A u. { B } ) ) -> k e. W )
+  7 syldan 6 gprodaddone.5 |- ( ( ph /\ k e. ( A u. { B } ) ) -> C e. CC )
+  8 elun1 |- ( k e. A -> k e. ( A u. { B } ) )
+  9 sylan2 8 7 |- ( ( ph /\ k e. A ) -> C e. CC )
+  10 snidg |- ( B e. W -> B e. { B } )
+  11 syl gprodaddone.3 10 |- ( ph -> B e. { B } )
+  12 elun2 |- ( B e. { B } -> B e. ( A u. { B } ) )
+  13 syl 11 12 |- ( ph -> B e. ( A u. { B } ) )
+  14 ralrimiva 7 |- ( ph -> A. k e. ( A u. { B } ) C e. CC )
+  15 eleq1d gprodaddone.6 |- ( k = B -> ( C e. CC <-> D e. CC ) )
+  16 rspcdva 15 14 13 |- ( ph -> D e. CC )
+  17 fprodsplitsn 1 2 gprodaddone.1 gprodaddone.3 gprodaddone.4 9 gprodaddone.6 16 |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) )

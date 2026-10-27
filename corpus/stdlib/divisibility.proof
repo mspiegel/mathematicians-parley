@@ -8,6 +8,16 @@ import mundane theorem    stdlib/numbers/exponent-sum
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/power-positive
 import mundane theorem    stdlib/numbers/power-nat
+import mundane theorem    stdlib/sums/product-empty
+import mundane theorem    stdlib/sums/product-add-one
+import mundane theorem    stdlib/sums/product-integer
+import mundane theorem    stdlib/sums/product-integer-terms
+import mundane theorem    stdlib/counting/finite-part
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/sets/subset-transitive
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/functions/function-value
 
 theorem least-combination-divides
   note        Divide c by d: c = q·d + r with 0 ≤ r < d, r being c mod d.
@@ -606,3 +616,219 @@ theorem prime-powers-unique
 
 22. a = a′. b = b′. c = c′.
     join 13, 17, 21
+
+theorem product-coprime
+  note        A product of numbers with no factor in common with n has none
+              in common with n either: the empty product is 1, and a member
+              more multiplies in one more number sharing no factor with n
+              (coprime-product).
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
+  then gcd(∏(x ∈ X) x, n) = 1
+
+1.  For all x ∈ X, x ∈ ℝ.
+    proof
+    let x ∈ X                                                         (K1)
+
+    1.1.  x ∈ ℤ
+          mun:in-subset, from H1, K1
+
+    1.2.  x ∈ ℝ
+          membership, from 1.1
+
+2.  For all Y ⊆ X, gcd(∏(x ∈ Y) x, n) = 1.
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    2.1.  ∏(x ∈ ∅) x = 1
+          mun:product-empty, from 1
+
+    2.2.  gcd(n, 1) = 1
+          mun:gcd-one a := n
+
+    2.3.  gcd(1, n) = gcd(n, 1)
+          mun:gcd-commutes a := 1, b := n
+
+    2.4.  gcd(1, n) = 1
+          transitivity, from 2.3, 2.2
+
+    2.5.  gcd(∏(x ∈ ∅) x, n) = 1
+          substitute ∏(x ∈ ∅) x = 1 (line 2.1) into line 2.4
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 2 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+
+    2.6.  a ∈ X and a ∉ Y
+          mun:difference u := a, Y := X, Z := Y, from K2
+
+    2.7.  Y is finite
+          mun:finite-part, from H2, K
+
+    2.8.  ∏(x ∈ Y ∪ {a}) x = (∏(x ∈ Y) x)·a
+          mun:product-add-one, from K, 1, 2.6, 2.7
+
+    2.9.  gcd(a, n) = 1
+          instantiate y := a in H4, from 2.6
+
+    2.10. Y ⊆ ℤ
+          mun:subset-transitive X := Y, Y := X, Z := ℤ, from H1, K
+
+    2.11. ∏(x ∈ Y) x ∈ ℤ
+          mun:product-integer X := Y, from 2.7, 2.10
+
+    2.12. a ∈ ℤ
+          mun:in-subset, from H1, 2.6
+
+    2.13. gcd((∏(x ∈ Y) x)·a, n) = 1
+          mun:coprime-product x := ∏(x ∈ Y) x, y := a, from IH, 2.9, 2.11,
+            2.12
+
+    2.14. gcd(∏(x ∈ Y ∪ {a}) x, n) = 1
+          substitute ∏(x ∈ Y ∪ {a}) x = (∏(x ∈ Y) x)·a (line 2.8) into line 2.13
+
+3.  gcd(∏(x ∈ X) x, n) = 1
+    instantiate Y := X in line 2
+    requires X ⊆ X: mun:subset-self
+
+theorem product-congruent-termwise
+  note        Congruences multiply: the products of two lists of whole
+              numbers, congruent term by term, are congruent. A member more
+              multiplies each by its term, and T·t ≡ U·u since T·t − U·u is
+              (T − U)·t + (t − u)·U, which n divides.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  let t : X → ℤ                                                       (H4)
+  let u : X → ℤ                                                       (H5)
+  assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
+  then ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
+
+1.  For all Z ⊆ X, ∏(x ∈ Z) t(x) ∈ ℤ.
+    mun:product-integer-terms, from H2
+
+2.  For all Z ⊆ X, ∏(x ∈ Z) u(x) ∈ ℤ.
+    mun:product-integer-terms t := u, from H2
+
+3.  For all Y ⊆ X, ∏(x ∈ Y) t(x) ≡ ∏(x ∈ Y) u(x) (mod n).
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    3.1.  ∏(x ∈ ∅) t(x) = 1
+          mun:product-empty
+
+    3.2.  ∏(x ∈ ∅) u(x) = 1
+          mun:product-empty t := u
+
+    3.3.  1 − 1 = n·0
+          algebra
+
+    3.4.  n divides 1 − 1
+          mun:divides d := n, n := 1 − 1, from 3.3
+
+    3.5.  1 ≡ 1 (mod n)
+          mun:congruent-mod a := 1, b := 1, from 3.4
+
+    3.6.  ∏(x ∈ ∅) t(x) ≡ 1 (mod n)
+          substitute ∏(x ∈ ∅) t(x) = 1 (line 3.1) into line 3.5
+
+    3.7.  ∏(x ∈ ∅) t(x) ≡ ∏(x ∈ ∅) u(x) (mod n)
+          substitute ∏(x ∈ ∅) u(x) = 1 (line 3.2) into line 3.6
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 3 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+
+    3.8.  a ∈ X and a ∉ Y
+          mun:difference u := a, Y := X, Z := Y, from K2
+
+    3.9.  Y is finite
+          mun:finite-part, from H2, K
+
+    3.10. ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
+          mun:product-add-one, from K, 3.8, 3.9
+
+    3.11. ∏(x ∈ Y ∪ {a}) u(x) = (∏(x ∈ Y) u(x))·u(a)
+          mun:product-add-one t := u, from K, 3.8, 3.9
+
+    3.12. ∏(x ∈ Y) t(x) ∈ ℤ
+          instantiate Z := Y in line 1, from K
+
+    3.13. ∏(x ∈ Y) u(x) ∈ ℤ
+          instantiate Z := Y in line 2, from K
+
+    3.14. t(a) ∈ ℤ
+          mun:function-value f := t, D := X, E := ℤ, x := a, from 3.8
+
+    3.15. u(a) ∈ ℤ
+          mun:function-value f := u, D := X, E := ℤ, x := a, from 3.8
+
+    3.16. n divides ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x)
+          mun:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x),
+            from IH, 3.12, 3.13
+
+    3.17. t(a) ≡ u(a) (mod n)
+          instantiate x := a in H6, from 3.8
+
+    3.18. n divides t(a) − u(a)
+          mun:congruent-mod a := t(a), b := u(a), from 3.14, 3.15, 3.17
+
+    3.19. n divides (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x)
+          mun:divides-combination e := n, a := ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x),
+            b := t(a) − u(a), x := t(a), y := ∏(x ∈ Y) u(x),
+            from 3.12, 3.13, 3.14, 3.15, 3.16, 3.18
+
+    3.20. (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x) = (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)
+          algebra
+          requires ∏(x ∈ Y) t(x) ∈ ℝ: from 3.12
+          requires ∏(x ∈ Y) u(x) ∈ ℝ: from 3.13
+          requires t(a) ∈ ℝ: from 3.14
+          requires u(a) ∈ ℝ: from 3.15
+
+    3.21. n divides (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)
+          substitute (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x) = (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a) (line 3.20) into line 3.19
+
+    3.22. (∏(x ∈ Y) t(x))·t(a) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
+          mun:congruent-mod a := (∏(x ∈ Y) t(x))·t(a),
+            b := (∏(x ∈ Y) u(x))·u(a), from 3.12, 3.13, 3.14, 3.15, 3.21
+
+    3.23. ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
+          substitute ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a) (line 3.10) into line 3.22
+
+    3.24. ∏(x ∈ Y ∪ {a}) t(x) ≡ ∏(x ∈ Y ∪ {a}) u(x) (mod n)
+          substitute ∏(x ∈ Y ∪ {a}) u(x) = (∏(x ∈ Y) u(x))·u(a) (line 3.11) into line 3.23
+
+4.  ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
+    instantiate Y := X in line 3
+    requires X ⊆ X: mun:subset-self
+
+theorem product-congruent
+  note        Congruences multiply: product-congruent-termwise, of the terms
+              x·c and f(x), whole numbers since X holds whole numbers and f
+              sends X into itself.
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  let f : X → X                                                       (H5)
+  assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
+  then ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
+
+1.  For all x ∈ X, x·c ∈ ℤ.
+    proof
+    let x ∈ X                                                         (K1)
+
+    1.1.  x ∈ ℤ
+          mun:in-subset, from H1, K1
+
+    1.2.  x·c ∈ ℤ
+          membership, from 1.1
+
+2.  ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
+    thm:product-congruent-termwise, from H2, H6, 1

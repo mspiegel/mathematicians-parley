@@ -4256,6 +4256,17 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.4 ends the step part of step 1, which owes ∏(y ∈ Y ∪ {a}) 1 = 1",
         ),
+        // A function a `let` declares has a type an item asks where its
+        // declared codomain lies inside the one asked (`citing::codomain_reason`).
+        case(
+            "cite a function declared into a set not inside the codomain asked",
+            vec![edit(
+                "corpus/stdlib/divisibility.proof",
+                Some("  let f : X → X                                                       (H5)".to_string()),
+                "  let f : X → ℚ                                                       (H5)".to_string(),
+            )],
+            "step 2 cites thm:product-congruent-termwise, which asks f : X → ℤ, and f is declared f : X → ℚ, whose values need not be in ℤ",
+        ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.
         case(

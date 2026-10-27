@@ -15,6 +15,7 @@ mod library;
 mod once;
 mod parts;
 mod supply;
+mod typed;
 
 pub use asked::{asked, asks_of, filled, Asked};
 pub use conclude::{
@@ -37,3 +38,4 @@ pub use parts::{
     Bound, Parts,
 };
 pub use supply::{largest_search, names_of, search, set_within, supply, Sites, Ways};
+pub use typed::{codomain_reason, CodomainAsk, CodomainReason};

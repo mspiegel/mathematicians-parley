@@ -687,47 +687,6 @@ mundane theorem mod-equal-congruent
               elaboration/stdlib/proved.mm
   target      gmodeqdvds
 
-theorem product-coprime
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let n ∈ ℕ                                                           (H3)
-  assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
-  then        gcd(∏(x ∈ X) x, n) = 1
-  metamath    gfprodrp, which this corpus proves in
-              elaboration/stdlib/proved.mm by induction on the finite set
-              (findcard2d), a factor at a time (fprodsplitsn, rpmul)
-  target      gfprodrp
-  note        A product of numbers with no factor in common with n has none
-              in common with n either. set.mm's coprmprod says so only of
-              factors that are coprime to each other as well.
-
-theorem product-congruent
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let c ∈ ℤ                                                           (H3)
-  let n ∈ ℕ                                                           (H4)
-  let f : X → X                                                       (H5)
-  assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
-  then        ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
-  metamath    fprodmodd and moddvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodcong
-  note        Congruences multiply: the products of two lists of terms,
-              congruent term by term, are congruent.
-
-theorem product-congruent-termwise
-  let X be a set                                                      (H1)
-  assume X is finite                                                  (H2)
-  let n ∈ ℕ                                                           (H3)
-  let t : X → ℤ                                                       (H4)
-  let u : X → ℤ                                                       (H5)
-  assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
-  then        ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
-  metamath    fprodmodd and moddvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodcongt
-  note        product-congruent for any two lists of integer terms over a
-              finite set, congruent index by index.
 
 mundane theorem divides-square
   let d ∈ ℤ                                                           (H1)

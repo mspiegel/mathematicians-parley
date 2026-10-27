@@ -2515,7 +2515,7 @@ $d k ph $.
 $d k A $.
 $d k B $.
 $d k D $.
-$d k V $.
+$d k W $.
 $d A x y z $.
 $d ph x y z $.
 $d ps y z $.
@@ -2541,14 +2541,15 @@ $d et x $.
 
   ${
     gprodaddone.1 $e |- ( ph -> A e. Fin ) $.
-    gprodaddone.2 $e |- ( ph -> B e. V ) $.
-    gprodaddone.3 $e |- ( ph -> -. B e. A ) $.
-    gprodaddone.4 $e |- ( ( ph /\ k e. ( A u. { B } ) ) -> C e. CC ) $.
-    gprodaddone.5 $e |- ( k = B -> C = D ) $.
+    gprodaddone.2 $e |- ( ph -> A C_ W ) $.
+    gprodaddone.3 $e |- ( ph -> B e. W ) $.
+    gprodaddone.4 $e |- ( ph -> -. B e. A ) $.
+    gprodaddone.5 $e |- ( ( ph /\ k e. W ) -> C e. CC ) $.
+    gprodaddone.6 $e |- ( k = B -> C = D ) $.
   gprodaddone $p |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) ) $=
-    ( nfv nfcv cv wcel csn cun cc elun1 sylan2 wceq eleq1d ralrimiva snidg
-    syl elun2 rspcdva fprodsplitsn )
-    ABCDEFGAFMFENHIJFOZBPAUJBCQZRZPDSPZUJBUKTKUALAUMESPFULCUJCUBDESLUCAUMFULKUDACUKPZCULPACGPUNICGUEUFCUKBUGUFUHUI $.
+    ( nfv nfcv cv wcel csn cun cc elun1 snssd unssd sseld imp syldan sylan2
+    wceq eleq1d ralrimiva snidg syl elun2 rspcdva fprodsplitsn )
+    ABCDEFGAFNFEOHJKFPZBQAUPBCRZSZQZDTQZUPBUQUAAUSUPGQZUTAUSVAAURGUPABUQGIACGJUBZUCZUDZUEZLUFZUGMAUTETQFURCUPCUHDETMUIAUTFURVFUJACUQQZCURQACGQVGJCGUKULCUQBUMULUNUO $.
   $}
 
 $}
