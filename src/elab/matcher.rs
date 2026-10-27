@@ -6874,27 +6874,12 @@ impl<'a> Elaborator<'a> {
         term.with_children(kids)
     }
 
-    /// `binding` with a value the reading wrote out put back as `term`
-    /// writes it, where written out it spells a letter another value binds.
+    /// `binding` with each value the reading wrote out put back as `term`
+    /// writes it. The reading is for finding what the lemma's letters stand
+    /// for, and its conditional rules hold only where their conditions do:
+    /// |A − B| for two points read as A − B by `nn0absid` is a value no
+    /// instance of the lemma can be carried back from to the claim.
     fn refolded(&mut self, binding: Binding, term: &Term) -> Binding {
-        // What each value binds, and a lemma's own letter as the letter it
-        // stands for.
-        let mut binds: IndexMap<String, BTreeSet<String>> = IndexMap::new();
-        for (name, value) in &binding {
-            let mut out: BTreeSet<String> = self
-                .letters_bound(value)
-                .iter()
-                .map(|v| self.float_of(v))
-                .filter(|l| self.is_setvar(l))
-                .collect();
-            if let Some(v) = value.variable() {
-                let l = self.float_of(v);
-                if self.is_setvar(&l) {
-                    out.insert(l);
-                }
-            }
-            binds.insert(name.to_string(), out);
-        }
         // A part behind a defined name is written as the define writes it:
         // a ∈ C, C the set {m ∈ ℝ : |m| = r}, has |m| = r as a part, and the
         // reading's conditional rules take it to m = r.
@@ -6907,18 +6892,8 @@ impl<'a> Elaborator<'a> {
         let mut out = binding.clone();
         for (name, value) in &binding {
             let said = self.rpn(value);
-            let others: BTreeSet<&String> = binds
-                .iter()
-                .filter(|(n, _)| *n != name)
-                .flat_map(|(_, b)| b.iter())
-                .collect();
             if let Some(w) = written.get(&said) {
-                if said
-                    .tokens()
-                    .iter()
-                    .any(|t| others.iter().any(|o| *t == o.as_str()))
-                    && self.rpn(w) != said
-                {
+                if self.rpn(w) != said {
                     out.insert(*name, w.clone());
                 }
             }

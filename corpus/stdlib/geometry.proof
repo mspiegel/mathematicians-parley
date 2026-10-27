@@ -1,6 +1,7 @@
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+import mundane axiom      stdlib/numbers/trichotomy
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -987,3 +988,1351 @@ theorem parallel-through
     on opposite sides of line RQ, and P and Q are on the same side of
     line RD
     exhibit, from 12, 17, 19, 23, 34, 57
+
+theorem greater-angle-greater-side
+  note        Euclid I.19. Were |AC| = |AB| the angles at B and at C would be
+              equal (isosceles-angles), and were |AC| < |AB| the angle at C
+              would be the greater (greater-side-greater-angle).
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠ABC > ∠ACB                                                  (H5)
+  then |AC| > |AB|
+
+1.  |AC| − |AB| < 0 or |AC| − |AB| = 0 or 0 < |AC| − |AB|
+    mun:trichotomy x := |AC| − |AB|
+
+2.  A, C, B form a triangle.
+    mun:triangle-turned P := A, Q := B, R := C, from H4
+
+3.  B, C, A form a triangle.
+    mun:triangle-rotated P := A, Q := B, R := C, from H4
+
+4.  |AC| > |AB|
+    cases, from 1
+
+    case
+    assume |AC| − |AB| < 0                                            (C1)
+
+    4.1.  |AB| > |AC|
+          inequalities
+            |AC| − |AB| < 0   C1
+            |AC| < |AB|       adding |AB|
+            |AB| > |AC|       symmetry
+
+    4.2.  ∠ACB > ∠ABC
+          thm:greater-side-greater-angle B := C, C := B, from 2, 4.1
+
+    4.3.  ∠ABC ≤ ∠ACB
+          inequalities
+            ∠ACB > ∠ABC       4.2
+            ∠ABC < ∠ACB       symmetry
+            ∠ABC ≤ ∠ACB       weakening
+          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
+          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
+
+    4.4.  not (∠ABC > ∠ACB)
+          inequalities, from 4.3, contradicting H5
+          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
+          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
+
+    case
+    assume |AC| − |AB| = 0                                            (C2)
+
+    4.5.  |AB| = |AC|
+          algebra, from C2
+
+    4.6.  ∠ABC = ∠ACB
+          thm:isosceles-angles A := B, B := C, C := A, from 3, 4.5
+
+    4.7.  ∠ABC ≤ ∠ACB
+          inequalities
+            ∠ABC = ∠ACB       4.6
+            ∠ABC ≤ ∠ACB       weakening
+          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
+
+    4.8.  not (∠ABC > ∠ACB)
+          inequalities, from 4.7, contradicting H5
+          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
+          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
+
+    case
+    assume 0 < |AC| − |AB|                                            (C3)
+
+    4.9.  |AC| > |AB|
+          inequalities
+            0 < |AC| − |AB|   C3
+            |AB| < |AC|       adding |AB|
+            |AC| > |AB|       symmetry
+
+theorem triangle-inequality-strict
+  note        Euclid I.20. Produce PQ past Q to D with |QD| = |QR|. The
+              triangle QRD is isosceles, so ∠QRD = ∠QDR; Q is inside the
+              angle PRD, so ∠PRD is ∠QRD and more; so in the triangle PRD
+              the side PD, opposite the greater angle, is the longer
+              (greater-angle-greater-side), and |PD| = |PQ| + |QR|.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then |PR| < |PQ| + |QR|
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H4
+
+2.  |QR| > 0
+    mun:distance-positive P := Q, Q := R, from 1
+
+3.  D ∈ 𝔼². Q is between P and D. |QD| = |QR|.
+    obtain D: mun:segment-extension A := P, B := Q, r := |QR|, from 1, 2
+
+4.  |QR| = |QD|
+    algebra, from 3
+
+5.  P, R, Q form a triangle.
+    mun:triangle-turned, from H4
+
+6.  R, Q, P form a triangle.
+    mun:triangle-rotated Q := R, R := Q, from 5
+
+7.  R, Q, D form a triangle.
+    mun:triangle-extension P := R, R := P, S := D, from 3, 6
+
+8.  R, D, Q form a triangle.
+    mun:triangle-turned P := R, R := D, from 7
+
+9.  ∠QRD = ∠QDR
+    thm:isosceles-angles A := R, B := D, C := Q, from 4, 8
+
+10. Q, P, R form a triangle.
+    mun:triangle-rotated P := R, R := P, from 6
+
+11. not (Q is on line PR)
+    mun:triangle-not-on-line P := Q, Q := P, from 10
+
+12. D, Q, P are collinear.
+    mun:between-collinear R := Q, S := P, T := D, from 3
+
+13. D is on line PQ
+    mun:on-line P := D, A := P, B := Q, from 12
+
+14. P ≠ D
+    mun:between-ends-apart R := Q, S := P, T := D, from 3
+
+15. not (D is on line PR)
+    mun:off-line-through R := P, P := R, S := Q, X := D, from 11, 13, 14
+
+16. D, P, R form a triangle.
+    mun:triangle-off-line P := D, Q := P, from 1, 15
+
+17. P, R, D form a triangle.
+    mun:triangle-rotated P := D, Q := P, from 16
+
+18. P, D, R form a triangle.
+    mun:triangle-turned Q := R, R := D, from 17
+
+19. ∠PRQ + ∠QRD = ∠PRD
+    mun:angle-addition A := P, B := D, C := R, M := Q, from 3, 18
+
+20. ∠PRQ > 0°. ∠PRQ < 180°.
+    axi:angle-measure Q := R, R := Q, from 5
+
+21. R ≠ D. D ≠ Q. R ≠ Q.
+    mun:triangle P := R, Q := D, R := Q, from 8
+
+22. ∠PRQ + ∠QRD > ∠QRD
+    inequalities
+      ∠PRQ > 0°                       20
+      ∠QRD + ∠PRQ > ∠QRD + 0°         adding ∠QRD
+      ∠PRQ + ∠QRD > ∠QRD              algebra
+    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real, from 5
+    requires ∠QRD ∈ ℝ: mun:triangle-angle-real, from 8
+
+23. ∠PRD = ∠PRQ + ∠QRD
+    algebra, from 19
+    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real, from 5
+    requires ∠QRD ∈ ℝ: mun:triangle-angle-real, from 8
+
+24. Q is between D and P
+    mun:between-symmetric R := Q, S := P, T := D, from 3
+
+25. ∠QDR = ∠PDR
+    mun:angle-along-segment P := D, Q := P, S := Q, from 21, 24
+
+26. ∠PRD > ∠PDR
+    calculation
+      ∠PRD = ∠PRQ + ∠QRD       23
+           > ∠QRD              22
+           = ∠QDR              9
+           = ∠PDR              25
+
+27. |PD| > |PR|
+    thm:greater-angle-greater-side A := P, B := R, C := D, from 17, 26
+
+28. |PQ| + |QD| = |PD|
+    mun:segment-addition Q := D, S := Q, from 3
+
+29. |PQ| + |QR| = |PD|
+    algebra, from 4, 28
+
+30. |PQ| + |QR| > |PR|
+    calculation
+      |PQ| + |QR| = |PD|       29
+                  > |PR|       27
+
+31. |PR| < |PQ| + |QR|
+    inequalities
+      |PQ| + |QR| > |PR|       30
+      |PR| < |PQ| + |QR|       symmetry
+
+mundane theorem ray-point
+  note        A length r laid off from A along the ray toward B: short of B,
+              at B, or past it, as r is less than |AB|, equal to it or more.
+              The point is on line AB, and on B's side of any other line
+              through A.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let r ∈ ℝ                                                           (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume r > 0                                                        (H6)
+  then there is X ∈ 𝔼² with X is on line AB, X and B are on the same side of line AC, and |AX| = r
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H5
+
+2.  B, C, A form a triangle.
+    mun:triangle-rotated, from H5
+
+3.  B, A, C form a triangle.
+    mun:triangle-turned P := B, Q := C, R := A, from 2
+
+4.  not (B is on line AC)
+    mun:triangle-not-on-line P := B, Q := A, R := C, from 3
+
+5.  A is on line AC
+    mun:on-line-ends B := C
+
+6.  B is on line AB
+    mun:on-line-ends
+
+7.  r − |AB| < 0 or r − |AB| = 0 or 0 < r − |AB|
+    mun:trichotomy x := r − |AB|
+
+8.  there is X ∈ 𝔼² with X is on line AB, X and B are on the same side of
+    line AC, and |AX| = r
+    cases, from 7
+
+    case
+    assume r − |AB| < 0                                               (C1)
+
+    8.1.  r < |AB|
+          inequalities
+            r − |AB| < 0      C1
+            r < |AB|          adding |AB|
+
+    8.2.  X ∈ 𝔼². X is between A and B. |AX| = r.
+          obtain X: mun:segment-point, from H6, 8.1
+
+    8.3.  X is between B and A
+          mun:between-symmetric R := X, S := A, T := B, from 8.2
+
+    8.4.  X and B are on the same side of line AC
+          mun:segment-off-line B := C, P := B, Q := A, from 1, 4, 5, 8.3
+
+    8.5.  B, X, A are collinear.
+          mun:between-collinear R := X, S := A, T := B, from 8.2
+
+    8.6.  X is on line AB
+          mun:on-line P := X, from 8.5
+
+    8.7.  there is X ∈ 𝔼² with X is on line AB, X and B are on the same
+          side of line AC, and |AX| = r
+          exhibit, from 8.2, 8.4, 8.6
+
+    case
+    assume r − |AB| = 0                                               (C2)
+
+    8.8.  |AB| = r
+          algebra, from C2
+
+    8.9.  M ∈ 𝔼². M is the midpoint of AB.
+          obtain M: mun:midpoint-exists, from 1
+
+    8.10. M is between A and B. |AM| = |MB|.
+          mun:midpoint, from 8.9
+
+    8.11. M is between B and A
+          mun:between-symmetric R := M, S := A, T := B, from 8.10
+
+    8.12. M and B are on the same side of line AC
+          mun:segment-off-line B := C, P := B, Q := A, X := M,
+            from 1, 4, 5, 8.11
+
+    8.13. B and M are on the same side of line AC
+          mun:same-side-turned B := C, P := M, Q := B, from 8.12
+
+    8.14. B and B are on the same side of line AC
+          mun:same-side-same B := C, P := B, Q := M, R := B, from 8.12, 8.13
+
+    8.15. there is X ∈ 𝔼² with X is on line AB, X and B are on the same
+          side of line AC, and |AX| = r
+          exhibit, from 6, 8.8, 8.14
+
+    case
+    assume 0 < r − |AB|                                               (C3)
+
+    8.16. r − |AB| > 0
+          inequalities
+            0 < r − |AB|      C3
+            r − |AB| > 0      symmetry
+
+    8.17. X ∈ 𝔼². B is between A and X. |BX| = r − |AB|.
+          obtain X: mun:segment-extension r := r − |AB|, from 1, 8.16
+
+    8.18. |AB| + |BX| = |AX|
+          mun:segment-addition P := A, Q := X, S := B, from 8.17
+
+    8.19. |AX| = r
+          algebra, from 8.17, 8.18
+
+    8.20. X, B, A are collinear.
+          mun:between-collinear R := B, S := A, T := X, from 8.17
+
+    8.21. X is on line AB
+          mun:on-line P := X, from 8.20
+
+    8.22. B is between X and A
+          mun:between-symmetric R := B, S := A, T := X, from 8.17
+
+    8.23. X and B are on the same side of line AC
+          mun:segment-beyond-off-line B := C, P := X, Q := A, X := B,
+            from 1, 4, 5, 8.22
+
+    8.24. there is X ∈ 𝔼² with X is on line AB, X and B are on the same
+          side of line AC, and |AX| = r
+          exhibit, from 8.19, 8.21, 8.23
+
+theorem angle-side-angle
+  note        Euclid I.26, the side between the two angles. Lay off |AC| from
+              D along DF to G. The triangles BAC and EDG agree in two sides
+              and the angle between them, so ∠DEG = ∠ABC = ∠DEF; G and F
+              are on one side of line DE, so G is on the ray EF
+              (angle-construction-unique), and on line DF, and the two lines
+              meet only at F.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume ∠CAB = ∠FDE                                                  (H9)
+  assume |AB| = |DE|                                                  (H10)
+  assume ∠ABC = ∠DEF                                                  (H11)
+  then triangle ABC ≅ triangle DEF
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H7
+
+2.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H8
+
+3.  |AC| > 0
+    mun:distance-positive P := A, Q := C, from 1
+
+4.  D, F, E form a triangle.
+    mun:triangle-turned P := D, Q := E, R := F, from H8
+
+5.  G ∈ 𝔼². G is on line DF. G and F are on the same side of line DE.
+    |DG| = |AC|.
+    obtain G: mun:ray-point A := D, B := F, C := E, r := |AC|, from 3, 4
+
+6.  ∠EDG = ∠EDF
+    mun:angle-same-ray R := E, P := D, Q := F, X := G, from 5
+
+7.  not (G is on line DE)
+    mun:same-side-off-line A := D, B := E, P := G, Q := F, from 5
+
+8.  G ≠ D. G ≠ E.
+    mun:off-line-apart A := D, B := E, P := G, from 7
+
+9.  G, D, E form a triangle.
+    mun:triangle-off-line P := G, Q := D, R := E, from 2, 7
+
+10. G, E, D form a triangle.
+    mun:triangle-turned P := G, Q := D, R := E, from 9
+
+11. E, D, G form a triangle.
+    mun:triangle-rotated P := G, Q := E, R := D, from 10
+
+12. B, C, A form a triangle.
+    mun:triangle-rotated, from H7
+
+13. B, A, C form a triangle.
+    mun:triangle-turned P := B, Q := C, R := A, from 12
+
+14. ∠BAC = ∠CAB
+    mun:angle-turned P := B, Q := A, R := C, from 1
+
+15. ∠FDE = ∠EDF
+    mun:angle-turned P := F, Q := D, R := E, from 2
+
+16. ∠BAC = ∠EDG
+    calculation
+      ∠BAC = ∠CAB       14
+           = ∠FDE       H9
+           = ∠EDF       15
+           = ∠EDG       6
+
+17. |BA| = |ED|
+    algebra, from H10
+
+18. |AC| = |DG|
+    algebra, from 5
+
+19. triangle BAC ≅ triangle EDG
+    axi:side-angle-side P := B, Q := A, R := C, P′ := E, Q′ := D, R′ := G,
+      from 11, 13, 16, 17, 18
+
+20. ∠CBA = ∠GED
+    def:congruent, from 19
+
+21. ∠DEG = ∠GED
+    mun:angle-turned P := D, Q := E, R := G, from 2, 8
+
+22. ∠ABC = ∠CBA
+    mun:angle-turned P := A, Q := B, R := C, from 1
+
+23. ∠DEF = ∠DEG
+    calculation
+      ∠DEF = ∠ABC       H11
+           = ∠CBA       22
+           = ∠GED       20
+           = ∠DEG       21
+
+24. D is on line DE. E is on line DE.
+    mun:on-line-ends A := D, B := E
+
+25. G and F are on the same side of line ED
+    mun:same-side-of-line A := D, B := E, C := E, P := G, Q := F,
+      from 2, 5, 24
+
+26. F and G are on the same side of line ED
+    mun:same-side-turned A := E, B := D, P := G, Q := F, from 25
+
+27. F and F are on the same side of line ED
+    mun:same-side-same A := E, B := D, P := F, Q := G, R := F, from 25, 26
+
+28. E, F, D form a triangle.
+    mun:triangle-rotated P := D, Q := E, R := F, from H8
+
+29. E, D, F form a triangle.
+    mun:triangle-turned P := E, Q := F, R := D, from 28
+
+30. G ∈ ray EF
+    axi:angle-construction-unique A := E, B := D, C := F, D := F, E := G,
+      from 23, 25, 27, 29
+
+31. G is on line EF
+    mun:ray-on-line P := G, A := E, B := F, from 30
+
+32. not (D is on line EF)
+    mun:triangle-not-on-line P := D, Q := E, R := F, from H8
+
+33. G = F
+    contradiction
+    suppose G ≠ F                                                     (S1)
+
+    33.1. F is on line EF
+          mun:on-line-ends A := E, B := F
+
+    33.2. line GF = line EF
+          axi:line-uniqueness A := G, B := F, C := E, D := F,
+            from S1, 2, 31, 33.1
+
+    33.3. D is on line DF. F is on line DF.
+          mun:on-line-ends A := D, B := F
+
+    33.4. line GF = line DF
+          axi:line-uniqueness A := G, B := F, C := D, D := F,
+            from S1, 2, 5, 33.3
+
+    33.5. line DF = line EF
+          calculation
+            line DF = line GF       33.4
+                    = line EF       33.2
+
+    33.6. D ∈ line DF
+          mun:line P := D, A := D, B := F, from 33.3
+
+    33.7. D ∈ line EF
+          substitute line DF = line EF (line 33.5) into line 33.6
+
+    33.8. D is on line EF
+          mun:line P := D, A := E, B := F, from 33.7, contradicting 32
+
+34. triangle BAC ≅ triangle EDF
+    substitute G = F (line 33) into line 19
+
+35. |AC| = |DF|. |CB| = |FE|. ∠ACB = ∠DFE.
+    def:congruent, from 34
+
+36. |BC| = |EF|
+    algebra, from 35
+
+37. |CA| = |FD|
+    algebra, from 35
+
+38. ∠BCA = ∠ACB
+    mun:angle-turned P := B, Q := C, R := A, from 1
+
+39. ∠DFE = ∠EFD
+    mun:angle-turned P := D, Q := F, R := E, from 2
+
+40. ∠BCA = ∠EFD
+    calculation
+      ∠BCA = ∠ACB       38
+           = ∠DFE       35
+           = ∠EFD       39
+
+41. triangle ABC ≅ triangle DEF
+    def:congruent P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
+      from H9, H10, H11, 36, 37, 40
+
+theorem angle-angle-side
+  note        Euclid I.26, a side opposite one of the two angles. Lay off |BA|
+              from E along ED to G. The triangles ABC and GEF agree in two
+              sides and the angle between them, so ∠FGE = ∠CAB = ∠FDE. Were G
+              not D, one of the two would be between E and the other, and the
+              triangle they make with F would have an angle outside it equal
+              to an angle inside it opposite (exterior-angle-greater-other).
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume ∠CAB = ∠FDE                                                  (H9)
+  assume ∠ABC = ∠DEF                                                  (H10)
+  assume |BC| = |EF|                                                  (H11)
+  then triangle ABC ≅ triangle DEF
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H7
+
+2.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H8
+
+3.  |BA| > 0
+    mun:distance-positive P := B, Q := A, from 1
+
+4.  E, F, D form a triangle.
+    mun:triangle-rotated P := D, Q := E, R := F, from H8
+
+5.  E, D, F form a triangle.
+    mun:triangle-turned P := E, Q := F, R := D, from 4
+
+6.  G ∈ 𝔼². G is on line ED. G and D are on the same side of line EF.
+    |EG| = |BA|.
+    obtain G: mun:ray-point A := E, B := D, C := F, r := |BA|, from 3, 5
+
+7.  ∠FEG = ∠FED
+    mun:angle-same-ray R := F, P := E, Q := D, X := G, from 6
+
+8.  not (G is on line EF)
+    mun:same-side-off-line A := E, B := F, P := G, Q := D, from 6
+
+9.  G ≠ E. G ≠ F.
+    mun:off-line-apart A := E, B := F, P := G, from 8
+
+10. G, E, F form a triangle.
+    mun:triangle-off-line P := G, Q := E, R := F, from 2, 8
+
+11. |AB| = |GE|
+    algebra, from 6
+
+12. ∠GEF = ∠FEG
+    mun:angle-turned P := G, Q := E, R := F, from 2, 9
+
+13. ∠FED = ∠DEF
+    mun:angle-turned P := F, Q := E, R := D, from 2
+
+14. ∠ABC = ∠GEF
+    calculation
+      ∠ABC = ∠DEF       H10
+           = ∠FED       13
+           = ∠FEG       7
+           = ∠GEF       12
+
+15. triangle ABC ≅ triangle GEF
+    axi:side-angle-side P′ := G, Q′ := E, R′ := F, from H7, H11, 10, 11, 14
+
+16. ∠CAB = ∠FGE
+    def:congruent, from 15
+
+17. ∠FGE = ∠FDE
+    calculation
+      ∠FGE = ∠CAB       16
+           = ∠FDE       H9
+
+18. E is on line EF
+    mun:on-line-ends A := E, B := F
+
+19. G = D
+    contradiction
+    suppose G ≠ D                                                     (S1)
+
+    19.1. G = E or G is between E and D or G = D or D is between E and G
+          or E is between G and D
+          mun:on-line-cases P := G, Q := E, R := D, from 2, 6
+
+    19.2. ∠FGE ≠ ∠FDE
+          cases, from 19.1
+
+          case
+          assume G = E                                                (C1)
+
+          19.2.1. G ≠ E
+                  restate 9, contradicting C1
+
+          case
+          assume G is between E and D                                 (C2)
+
+          19.2.2. G is between D and E
+                  mun:between-symmetric R := G, S := E, T := D, from C2
+
+          19.2.3. F, D, E form a triangle.
+                  mun:triangle-rotated P := E, Q := F, R := D, from 4
+
+          19.2.4. F, D, G form a triangle.
+                  mun:triangle-on-side P := F, Q := D, R := E, S := G,
+                    from 19.2.2, 19.2.3
+
+          19.2.5. ∠FGE > ∠FDG
+                  thm:exterior-angle-greater-other A := F, B := D, C := G,
+                    D := E, from 19.2.2, 19.2.4
+
+          19.2.6. ∠GDF = ∠EDF
+                  mun:angle-along-segment P := D, Q := E, S := G, R := F,
+                    from 2, 19.2.2
+
+          19.2.7. ∠FDG = ∠GDF
+                  mun:angle-turned P := F, Q := D, R := G, from S1, 2
+
+          19.2.8. ∠EDF = ∠FDE
+                  mun:angle-turned P := E, Q := D, R := F, from 2
+
+          19.2.9. ∠FGE > ∠FDE
+                  calculation
+                    ∠FGE > ∠FDG       19.2.5
+                         = ∠GDF       19.2.7
+                         = ∠EDF       19.2.6
+                         = ∠FDE       19.2.8
+
+          19.2.10. ∠FGE ≠ ∠FDE
+                   inequalities
+                     ∠FGE > ∠FDE       19.2.9
+                     ∠FGE ≠ ∠FDE       weakening
+                   requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
+                     from 9
+                   requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
+                     from 2
+
+          case
+          assume G = D                                                (C3)
+
+          19.2.11. G ≠ D
+                   restate S1, contradicting C3
+
+          case
+          assume D is between E and G                                 (C4)
+
+          19.2.12. D is between G and E
+                   mun:between-symmetric R := D, S := E, T := G, from C4
+
+          19.2.13. E, F, G form a triangle.
+                   mun:triangle-rotated P := G, Q := E, R := F, from 10
+
+          19.2.14. F, G, E form a triangle.
+                   mun:triangle-rotated P := E, Q := F, R := G, from 19.2.13
+
+          19.2.15. F, G, D form a triangle.
+                   mun:triangle-on-side P := F, Q := G, R := E, S := D,
+                     from 19.2.12, 19.2.14
+
+          19.2.16. ∠FDE > ∠FGD
+                   thm:exterior-angle-greater-other A := F, B := G, C := D,
+                     D := E, from 19.2.12, 19.2.15
+
+          19.2.17. ∠DGF = ∠EGF
+                   mun:angle-along-segment P := G, Q := E, S := D, R := F,
+                     from 9, 19.2.12
+
+          19.2.18. ∠FGD = ∠DGF
+                   mun:angle-turned P := F, Q := G, R := D, from S1, 9
+
+          19.2.19. ∠EGF = ∠FGE
+                   mun:angle-turned P := E, Q := G, R := F, from 9
+
+          19.2.20. ∠FDE > ∠FGE
+                   calculation
+                     ∠FDE > ∠FGD       19.2.16
+                          = ∠DGF       19.2.18
+                          = ∠EGF       19.2.17
+                          = ∠FGE       19.2.19
+
+          19.2.21. ∠FGE ≠ ∠FDE
+                   inequalities
+                     ∠FDE > ∠FGE       19.2.20
+                     ∠FGE < ∠FDE       symmetry
+                     ∠FGE ≠ ∠FDE       weakening
+                   requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
+                     from 9
+                   requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
+                     from 2
+
+          case
+          assume E is between G and D                                 (C5)
+
+          19.2.22. G and D are on opposite sides of line EF
+                   mun:segment-across-line A := E, B := F, P := G, Q := D,
+                     M := E, from C5, 2, 8, 18
+
+          19.2.23. not (G and D are on opposite sides of line EF)
+                   mun:same-not-opposite A := E, B := F, P := G, Q := D,
+                     from 6, contradicting 19.2.22
+
+    19.3. ∠FGE ≠ ∠FDE
+          restate 19.2, contradicting 17
+
+20. triangle ABC ≅ triangle DEF
+    substitute G = D (line 19) into line 15
+
+mundane theorem off-line-along
+  note        Line AX, for X a point of line AB other than A, is line AB
+              (line-uniqueness), so a point off the one is off the other.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let P be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume X is on line AB                                              (H6)
+  assume X ≠ A                                                        (H7)
+  assume not (P is on line AB)                                        (H8)
+  then not (P is on line AX)
+
+1.  A is on line AB
+    mun:on-line-ends
+
+2.  line AX = line AB
+    axi:line-uniqueness B := X, C := A, D := B, from H5, H6, H7, 1
+
+3.  not (P is on line AX)
+    contradiction
+    suppose P is on line AX                                           (S1)
+
+    3.1.  P ∈ line AX
+          mun:line B := X, from S1
+
+    3.2.  P ∈ line AB
+          substitute line AX = line AB (line 2) into line 3.1
+
+    3.3.  P is on line AB
+          mun:line, from 3.2, contradicting H8
+
+mundane theorem crossing-triangle
+  note        X is where the segment DG crosses line EF, and E is another
+              point of that line: E is not on line DG, since the segment
+              from D past X to G stays on X's side of line DE.
+  let D be a point                                                    (H1)
+  let E be a point                                                    (H2)
+  let F be a point                                                    (H3)
+  let G be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume D, E, F form a triangle                                      (H6)
+  assume X is on line EF                                              (H7)
+  assume X is between D and G                                         (H8)
+  assume X ≠ E                                                        (H9)
+  then D, G, E form a triangle
+
+1.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H6
+
+2.  not (D is on line EF)
+    mun:triangle-not-on-line P := D, Q := E, R := F, from H6
+
+3.  not (D is on line EX)
+    mun:off-line-along A := E, B := F, P := D, from H7, H9, 1, 2
+
+4.  D, E, X form a triangle.
+    mun:triangle-off-line P := D, Q := E, R := X, from H9, 3
+
+5.  E, X, D form a triangle.
+    mun:triangle-rotated P := D, Q := E, R := X, from 4
+
+6.  X, D, E form a triangle.
+    mun:triangle-rotated P := E, Q := X, R := D, from 5
+
+7.  not (X is on line DE)
+    mun:triangle-not-on-line P := X, Q := D, R := E, from 6
+
+8.  D is on line DE
+    mun:on-line-ends A := D, B := E
+
+9.  X is between G and D
+    mun:between-symmetric R := X, S := D, T := G, from H8
+
+10. G and X are on the same side of line DE
+    mun:segment-beyond-off-line A := D, B := E, P := G, Q := D,
+      from 1, 7, 8, 9
+
+11. not (G is on line DE)
+    mun:same-side-off-line A := D, B := E, P := G, Q := X, from 10
+
+12. not (E is on line DG)
+    mun:off-line-swap R := D, P := E, Q := G, from 11
+
+13. D ≠ G
+    mun:between-ends-apart R := X, S := D, T := G, from H8
+
+14. E, D, G form a triangle.
+    mun:triangle-off-line P := E, Q := D, R := G, from 12, 13
+
+15. D, G, E form a triangle.
+    mun:triangle-rotated P := E, Q := D, R := G, from 14
+
+theorem isosceles-base-point
+  note        Euclid I.5 read at a point X of the base DG: the rays DX and GX
+              are the rays DG and GD, so the base angles are ∠EDX and ∠EGX.
+  let D be a point                                                    (H1)
+  let G be a point                                                    (H2)
+  let E be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  assume D, G, E form a triangle                                      (H5)
+  assume |ED| = |EG|                                                  (H6)
+  assume X is between D and G                                         (H7)
+  then ∠EDX = ∠EGX
+
+1.  D ≠ G. G ≠ E. D ≠ E.
+    mun:triangle P := D, Q := G, R := E, from H5
+
+2.  ∠EDG = ∠EGD
+    thm:isosceles-angles A := D, B := G, C := E, from H5, H6
+
+3.  D ≠ X. G ≠ X.
+    mun:between-apart R := X, S := D, T := G, from H7
+
+4.  ∠XDE = ∠GDE
+    mun:angle-along-segment P := D, Q := G, S := X, R := E, from H7, 1
+
+5.  X is between G and D
+    mun:between-symmetric R := X, S := D, T := G, from H7
+
+6.  ∠XGE = ∠DGE
+    mun:angle-along-segment P := G, Q := D, S := X, R := E, from 1, 5
+
+7.  ∠EDX = ∠XDE
+    mun:angle-turned P := E, Q := D, R := X, from 1, 3
+
+8.  ∠GDE = ∠EDG
+    mun:angle-turned P := G, Q := D, R := E, from 1
+
+9.  ∠EGD = ∠DGE
+    mun:angle-turned P := E, Q := G, R := D, from 1
+
+10. ∠XGE = ∠EGX
+    mun:angle-turned P := X, Q := G, R := E, from 1, 3
+
+11. ∠EDX = ∠EGX
+    calculation
+      ∠EDX = ∠XDE       7
+           = ∠GDE       4
+           = ∠EDG       8
+           = ∠EGD       2
+           = ∠DGE       9
+           = ∠XGE       6
+           = ∠EGX       10
+
+theorem kite-angles
+  note        D and G on two sides of line EF, each as far from E as the other
+              and as far from F. The segment DG crosses line EF at X, and at X
+              each of the triangles DEG and DFG has its base angles equal
+              (isosceles-base-point). Where X falls on the line, at E, between
+              E and F, at F or beyond one of them, ∠EDF and ∠EGF are the two
+              base angles added or one taken from the other.
+  let D be a point                                                    (H1)
+  let E be a point                                                    (H2)
+  let F be a point                                                    (H3)
+  let G be a point                                                    (H4)
+  assume D, E, F form a triangle                                      (H5)
+  assume D and G are on opposite sides of line EF                     (H6)
+  assume |ED| = |EG|                                                  (H7)
+  assume |FD| = |FG|                                                  (H8)
+  then ∠EDF = ∠EGF
+
+1.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H5
+
+2.  X ∈ 𝔼². X is on line EF. X is between D and G.
+    obtain X: axi:plane-separation-crossing A := E, B := F, P := D, Q := G,
+      from H6, 1
+
+3.  not (G is on line EF)
+    mun:opposite-sides-off-line A := E, B := F, P := D, Q := G, from H6
+
+4.  G ≠ E. G ≠ F.
+    mun:off-line-apart A := E, B := F, P := G, from 3
+
+5.  D ≠ X. G ≠ X.
+    mun:between-apart R := X, S := D, T := G, from 2
+
+6.  G, E, F form a triangle.
+    mun:triangle-off-line P := G, Q := E, R := F, from 1, 3
+
+7.  D, F, E form a triangle.
+    mun:triangle-turned P := D, Q := E, R := F, from H5
+
+8.  E, F, D form a triangle.
+    mun:triangle-rotated P := D, Q := E, R := F, from H5
+
+9.  E, F, G form a triangle.
+    mun:triangle-rotated P := G, Q := E, R := F, from 6
+
+10. not (D is on line EF)
+    mun:triangle-not-on-line P := D, Q := E, R := F, from H5
+
+11. not (D is on line FE)
+    mun:triangle-not-on-line P := D, Q := F, R := E, from 7
+
+12. G, F, E form a triangle.
+    mun:triangle-turned P := G, Q := E, R := F, from 6
+
+13. not (G is on line FE)
+    mun:triangle-not-on-line P := G, Q := F, R := E, from 12
+
+14. X = E or X is between E and F or X = F or F is between E and X or
+    E is between X and F
+    mun:on-line-cases P := X, Q := E, R := F, from 1, 2
+
+15. ∠EDF = ∠EGF
+    cases, from 14
+
+    case
+    assume X = E                                                      (C1)
+
+    15.1.  E is between D and G
+           substitute X = E (C1) into line 2
+
+    15.2.  E is on line FE
+           mun:on-line-ends A := F, B := E
+
+    15.3.  D, G, F form a triangle.
+           mun:crossing-triangle E := F, F := E, X := E,
+             from 1, 7, 15.1, 15.2
+
+    15.4.  ∠FDE = ∠FGE
+           thm:isosceles-base-point E := F, X := E, from H8, 15.1, 15.3
+
+    15.5.  ∠EDF = ∠FDE
+           mun:angle-turned P := E, Q := D, R := F, from 1
+
+    15.6.  ∠FGE = ∠EGF
+           mun:angle-turned P := F, Q := G, R := E, from 4
+
+    15.7.  ∠EDF = ∠EGF
+           calculation
+             ∠EDF = ∠FDE       15.5
+                  = ∠FGE       15.4
+                  = ∠EGF       15.6
+
+    case
+    assume X is between E and F                                       (C2)
+
+    15.8.  E ≠ X. F ≠ X.
+           mun:between-apart R := X, S := E, T := F, from C2
+
+    15.9.  D, G, E form a triangle.
+           mun:crossing-triangle, from H5, 2, 15.8
+
+    15.10. F, X, E are collinear.
+           mun:between-collinear R := X, S := E, T := F, from C2
+
+    15.11. X is on line FE
+           mun:on-line P := X, A := F, B := E, from 15.10
+
+    15.12. D, G, F form a triangle.
+           mun:crossing-triangle E := F, F := E, from 2, 7, 15.8, 15.11
+
+    15.13. ∠EDX = ∠EGX
+           thm:isosceles-base-point, from H7, 2, 15.9
+
+    15.14. ∠FDX = ∠FGX
+           thm:isosceles-base-point E := F, from H8, 2, 15.12
+
+    15.15. ∠EDX + ∠XDF = ∠EDF
+           mun:angle-addition A := E, B := F, C := D, M := X, from C2, 8
+
+    15.16. ∠EGX + ∠XGF = ∠EGF
+           mun:angle-addition A := E, B := F, C := G, M := X, from C2, 9
+
+    15.17. ∠XDF = ∠FDX
+           mun:angle-turned P := X, Q := D, R := F, from 1, 5
+
+    15.18. ∠XGF = ∠FGX
+           mun:angle-turned P := X, Q := G, R := F, from 4, 5
+
+    15.19. ∠EDF = ∠EGF
+           algebra, from 15.13, 15.14, 15.15, 15.16, 15.17, 15.18
+           requires ∠EGX ∈ ℝ: mun:angle-real P := E, Q := G, R := X, from 4, 5
+           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5
+
+    case
+    assume X = F                                                      (C3)
+
+    15.20. F is between D and G
+           substitute X = F (C3) into line 2
+
+    15.21. F is on line EF
+           mun:on-line-ends A := E, B := F
+
+    15.22. D, G, E form a triangle.
+           mun:crossing-triangle X := F, from H5, 1, 15.20, 15.21
+
+    15.23. ∠EDF = ∠EGF
+           thm:isosceles-base-point X := F, from H7, 15.20, 15.22
+
+    case
+    assume F is between E and X                                       (C4)
+
+    15.24. E ≠ X
+           mun:between-ends-apart R := F, S := E, T := X, from C4
+
+    15.25. E ≠ F. X ≠ F.
+           mun:between-apart R := F, S := E, T := X, from C4
+
+    15.26. D, G, E form a triangle.
+           mun:crossing-triangle, from H5, 2, 15.24
+
+    15.27. X, F, E are collinear.
+           mun:between-collinear R := F, S := E, T := X, from C4
+
+    15.28. X is on line FE
+           mun:on-line P := X, A := F, B := E, from 15.27
+
+    15.29. D, G, F form a triangle.
+           mun:crossing-triangle E := F, F := E, from 2, 7, 15.25, 15.28
+
+    15.30. ∠EDX = ∠EGX
+           thm:isosceles-base-point, from H7, 2, 15.26
+
+    15.31. ∠FDX = ∠FGX
+           thm:isosceles-base-point E := F, from H8, 2, 15.29
+
+    15.32. not (D is on line EX)
+           mun:off-line-along A := E, B := F, P := D, from 1, 2, 10, 15.24
+
+    15.33. D, E, X form a triangle.
+           mun:triangle-off-line P := D, Q := E, R := X, from 15.24, 15.32
+
+    15.34. E, X, D form a triangle.
+           mun:triangle-rotated P := D, Q := E, R := X, from 15.33
+
+    15.35. not (G is on line EX)
+           mun:off-line-along A := E, B := F, P := G, from 1, 2, 3, 15.24
+
+    15.36. G, E, X form a triangle.
+           mun:triangle-off-line P := G, Q := E, R := X, from 15.24, 15.35
+
+    15.37. E, X, G form a triangle.
+           mun:triangle-rotated P := G, Q := E, R := X, from 15.36
+
+    15.38. ∠EDF + ∠FDX = ∠EDX
+           mun:angle-addition A := E, B := X, C := D, M := F, from C4, 15.34
+
+    15.39. ∠EGF + ∠FGX = ∠EGX
+           mun:angle-addition A := E, B := X, C := G, M := F, from C4, 15.37
+
+    15.40. ∠EDF = ∠EGF
+           algebra, from 15.30, 15.31, 15.38, 15.39
+           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5
+           requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from 1
+           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 4
+
+    case
+    assume E is between X and F                                       (C5)
+
+    15.41. X ≠ E. F ≠ E.
+           mun:between-apart R := E, S := X, T := F, from C5
+
+    15.42. X ≠ F
+           mun:between-ends-apart R := E, S := X, T := F, from C5
+
+    15.43. D, G, E form a triangle.
+           mun:crossing-triangle, from H5, 2, 15.41
+
+    15.44. F, E, X are collinear.
+           mun:between-collinear R := E, S := X, T := F, from C5
+
+    15.45. X is on line FE
+           mun:on-line P := X, A := F, B := E, from 15.44
+
+    15.46. D, G, F form a triangle.
+           mun:crossing-triangle E := F, F := E, from 2, 7, 15.42, 15.45
+
+    15.47. ∠EDX = ∠EGX
+           thm:isosceles-base-point, from H7, 2, 15.43
+
+    15.48. ∠FDX = ∠FGX
+           thm:isosceles-base-point E := F, from H8, 2, 15.46
+
+    15.49. not (D is on line FX)
+           mun:off-line-along A := F, B := E, P := D, from 1, 11, 15.42, 15.45
+
+    15.50. D, F, X form a triangle.
+           mun:triangle-off-line P := D, Q := F, R := X, from 15.42, 15.49
+
+    15.51. F, X, D form a triangle.
+           mun:triangle-rotated P := D, Q := F, R := X, from 15.50
+
+    15.52. X, D, F form a triangle.
+           mun:triangle-rotated P := F, Q := X, R := D, from 15.51
+
+    15.53. X, F, D form a triangle.
+           mun:triangle-turned P := X, Q := D, R := F, from 15.52
+
+    15.54. not (G is on line FX)
+           mun:off-line-along A := F, B := E, P := G, from 1, 13, 15.42, 15.45
+
+    15.55. G, F, X form a triangle.
+           mun:triangle-off-line P := G, Q := F, R := X, from 15.42, 15.54
+
+    15.56. F, X, G form a triangle.
+           mun:triangle-rotated P := G, Q := F, R := X, from 15.55
+
+    15.57. X, G, F form a triangle.
+           mun:triangle-rotated P := F, Q := X, R := G, from 15.56
+
+    15.58. X, F, G form a triangle.
+           mun:triangle-turned P := X, Q := G, R := F, from 15.57
+
+    15.59. ∠XDE + ∠EDF = ∠XDF
+           mun:angle-addition A := X, B := F, C := D, M := E, from C5, 15.53
+
+    15.60. ∠XGE + ∠EGF = ∠XGF
+           mun:angle-addition A := X, B := F, C := G, M := E, from C5, 15.58
+
+    15.61. ∠XDE = ∠EDX
+           mun:angle-turned P := X, Q := D, R := E, from 1, 5
+
+    15.62. ∠XGE = ∠EGX
+           mun:angle-turned P := X, Q := G, R := E, from 4, 5
+
+    15.63. ∠XDF = ∠FDX
+           mun:angle-turned P := X, Q := D, R := F, from 1, 5
+
+    15.64. ∠XGF = ∠FGX
+           mun:angle-turned P := X, Q := G, R := F, from 4, 5
+
+    15.65. ∠EDF = ∠EGF
+           algebra, from 15.47, 15.48, 15.59, 15.60, 15.61, 15.62, 15.63,
+             15.64
+           requires ∠XGE ∈ ℝ: mun:angle-real P := X, Q := G, R := E, from 4, 5
+           requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from 1
+           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 4
+
+theorem side-side-side
+  note        Euclid I.8, by SMSG's way. Copy the angle at B to E on the other
+              side of line EF from D, and lay off |BA| along its arm to G. The
+              triangles ABC and GEF agree in two sides and the angle between
+              them, so G is as far from E and from F as D is, and the kite
+              DEGF has ∠EDF = ∠EGF (kite-angles); then DEF and GEF agree in two
+              sides and the angle between them too.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume |AB| = |DE|                                                  (H9)
+  assume |BC| = |EF|                                                  (H10)
+  assume |CA| = |FD|                                                  (H11)
+  then triangle ABC ≅ triangle DEF
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H7
+
+2.  D ≠ E. E ≠ F. D ≠ F.
+    mun:triangle P := D, Q := E, R := F, from H8
+
+3.  |DE| > 0
+    mun:distance-positive P := D, Q := E, from 2
+
+4.  H ∈ 𝔼². E is between D and H. |EH| = |DE|.
+    obtain H: mun:segment-extension A := D, B := E, r := |DE|, from 2, 3
+
+5.  E is on line EF
+    mun:on-line-ends A := E, B := F
+
+6.  not (D is on line EF)
+    mun:triangle-not-on-line P := D, Q := E, R := F, from H8
+
+7.  D and H are on opposite sides of line EF
+    mun:segment-across-line A := E, B := F, P := D, Q := H, M := E,
+      from 2, 4, 5, 6
+
+8.  not (H is on line EF)
+    mun:opposite-sides-off-line A := E, B := F, P := D, Q := H, from 7
+
+9.  H, E, F form a triangle.
+    mun:triangle-off-line P := H, Q := E, R := F, from 2, 8
+
+10. E, F, H form a triangle.
+    mun:triangle-rotated P := H, Q := E, R := F, from 9
+
+11. ∠ABC > 0°. ∠ABC < 180°.
+    axi:angle-measure, from H7
+
+12. G′ ∈ 𝔼². G′ and H are on the same side of line EF. ∠FEG′ = ∠ABC.
+    obtain G′: axi:angle-construction A := E, B := F, C := H, x := ∠ABC,
+      from 10, 11
+    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H7
+
+13. not (G′ is on line EF)
+    mun:same-side-off-line A := E, B := F, P := G′, Q := H, from 12
+
+14. G′, E, F form a triangle.
+    mun:triangle-off-line P := G′, Q := E, R := F, from 2, 13
+
+15. E, F, G′ form a triangle.
+    mun:triangle-rotated P := G′, Q := E, R := F, from 14
+
+16. E, G′, F form a triangle.
+    mun:triangle-turned P := E, Q := F, R := G′, from 15
+
+17. |BA| > 0
+    mun:distance-positive P := B, Q := A, from 1
+
+18. G ∈ 𝔼². G is on line EG′. G and G′ are on the same side of line EF.
+    |EG| = |BA|.
+    obtain G: mun:ray-point A := E, B := G′, C := F, r := |BA|, from 16, 17
+
+19. ∠FEG = ∠FEG′
+    mun:angle-same-ray R := F, P := E, Q := G′, X := G, from 18
+
+20. G and H are on the same side of line EF
+    mun:same-side-same A := E, B := F, P := G, Q := G′, R := H, from 12, 18
+
+21. H and D are on opposite sides of line EF
+    mun:opposite-sides-turned A := E, B := F, P := D, Q := H, from 7
+
+22. G and D are on opposite sides of line EF
+    mun:same-opposite-opposite A := E, B := F, P := G, Q := H, R := D,
+      from 20, 21
+
+23. D and G are on opposite sides of line EF
+    mun:opposite-sides-turned A := E, B := F, P := G, Q := D, from 22
+
+24. not (G is on line EF)
+    mun:same-side-off-line A := E, B := F, P := G, Q := H, from 20
+
+25. G ≠ E. G ≠ F.
+    mun:off-line-apart A := E, B := F, P := G, from 24
+
+26. G, E, F form a triangle.
+    mun:triangle-off-line P := G, Q := E, R := F, from 2, 24
+
+27. ∠FEG = ∠GEF
+    mun:angle-turned P := F, Q := E, R := G, from 2, 25
+
+28. ∠ABC = ∠GEF
+    calculation
+      ∠ABC = ∠FEG′      12
+           = ∠FEG       19
+           = ∠GEF       27
+
+29. |AB| = |GE|
+    algebra, from 18
+
+30. triangle ABC ≅ triangle GEF
+    axi:side-angle-side P′ := G, Q′ := E, R′ := F, from H7, H10, 26, 28, 29
+
+31. |CA| = |FG|. ∠BCA = ∠EFG. ∠CAB = ∠FGE.
+    def:congruent, from 30
+
+32. |ED| = |EG|
+    algebra, from H9, 18
+
+33. |FD| = |FG|
+    algebra, from H11, 31
+
+34. ∠EDF = ∠EGF
+    thm:kite-angles, from H8, 23, 32, 33
+
+35. E, F, D form a triangle.
+    mun:triangle-rotated P := D, Q := E, R := F, from H8
+
+36. E, D, F form a triangle.
+    mun:triangle-turned P := E, Q := F, R := D, from 35
+
+37. E, F, G form a triangle.
+    mun:triangle-rotated P := G, Q := E, R := F, from 26
+
+38. E, G, F form a triangle.
+    mun:triangle-turned P := E, Q := F, R := G, from 37
+
+39. |DF| = |GF|
+    algebra, from 33
+
+40. triangle EDF ≅ triangle EGF
+    axi:side-angle-side P := E, Q := D, R := F, P′ := E, Q′ := G, R′ := F,
+      from 32, 34, 36, 38, 39
+
+41. ∠DFE = ∠GFE. ∠FED = ∠FEG.
+    def:congruent, from 40
+
+42. ∠FED = ∠DEF
+    mun:angle-turned P := F, Q := E, R := D, from 2
+
+43. ∠ABC = ∠DEF
+    calculation
+      ∠ABC = ∠GEF       28
+           = ∠FEG       27
+           = ∠FED       41
+           = ∠DEF       42
+
+44. ∠EFG = ∠GFE
+    mun:angle-turned P := E, Q := F, R := G, from 2, 25
+
+45. ∠DFE = ∠EFD
+    mun:angle-turned P := D, Q := F, R := E, from 2
+
+46. ∠BCA = ∠EFD
+    calculation
+      ∠BCA = ∠EFG       31
+           = ∠GFE       44
+           = ∠DFE       41
+           = ∠EFD       45
+
+47. ∠FGE = ∠EGF
+    mun:angle-turned P := F, Q := G, R := E, from 25
+
+48. ∠EDF = ∠FDE
+    mun:angle-turned P := E, Q := D, R := F, from 2
+
+49. ∠CAB = ∠FDE
+    calculation
+      ∠CAB = ∠FGE       31
+           = ∠EGF       47
+           = ∠EDF       34
+           = ∠FDE       48
+
+50. triangle ABC ≅ triangle DEF
+    def:congruent P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
+      from H9, H10, H11, 43, 46, 49

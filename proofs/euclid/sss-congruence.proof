@@ -1,5 +1,4 @@
 import theorem            stdlib/geometry/law-of-cosines
-import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/angle-equal-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
 import mundane axiom      stdlib/geometry/distance-positive
@@ -7,7 +6,7 @@ import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
 import mundane definition stdlib/trigonometry/cos
-import definition         stdlib/geometry/congruent
+import theorem            stdlib/geometry/side-side-side
 
 theorem angle-from-sides
   note        The law of cosines at Q gives the cosine of the angle from
@@ -78,8 +77,8 @@ theorem angle-from-sides
     mun:angle-equal-by-cosine, from H7, H8, H9, H10, 12
 
 theorem sss
-  note        Equal sides give equal angles, one corner at a time
-              (angle-from-sides), and the six equations are congruence.
+  note        Euclid I.8, as the library proves it from the postulates
+              (side-side-side).
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -93,24 +92,5 @@ theorem sss
   assume |CA| = |FD|                                                  (H11)
   then triangle ABC ≅ triangle DEF
 
-1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle P := A, Q := B, R := C, from H7
-
-2.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H8
-
-3.  ∠ABC = ∠DEF
-    thm:angle-from-sides P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
-      from H9, H10, H11, 1, 2
-
-4.  ∠BCA = ∠EFD
-    thm:angle-from-sides P := B, Q := C, R := A, P′ := E, Q′ := F, R′ := D,
-      from H9, H10, H11, 1, 2
-
-5.  ∠CAB = ∠FDE
-    thm:angle-from-sides P := C, Q := A, R := B, P′ := F, Q′ := D, R′ := E,
-      from H9, H10, H11, 1, 2
-
-6.  triangle ABC ≅ triangle DEF
-    def:congruent P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
-      from H9, H10, H11, 3, 4, 5
+1.  triangle ABC ≅ triangle DEF
+    thm:side-side-side, from H7, H8, H9, H10, H11

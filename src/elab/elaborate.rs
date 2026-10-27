@@ -1642,9 +1642,13 @@ impl<'a> Elaborator<'a> {
         };
         let binding: NodeBinding = taken.binding.into_iter().collect();
         let mut out = Vec::new();
+        // The instance holds the proof's values, so it is a term in the
+        // proof's names, as a `with` fill is (`filling`): read in the item's,
+        // a value's letters lose the sorts the proof gives them, and |PQ| of
+        // two points is no longer a distance.
         for node in &groups[taken.group].gives {
             let instance = filled(node, &binding, &library.ctx);
-            out.push(self.in_its_names(Item::Record(item), |me| me.term(&instance))?);
+            out.push(self.term(&instance)?);
         }
         Ok(out)
     }

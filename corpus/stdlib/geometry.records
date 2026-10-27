@@ -475,18 +475,6 @@ theorem triangle-equality-between
               product of the differences from Q with one conjugated has its
               real part equal to minus its size, so it is a negative real.
 
-theorem triangle-inequality-strict
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P, Q, R form a triangle                                      (H4)
-  then        |PR| < |PQ| + |QR|
-  metamath    gtristrict, which this corpus proves in
-              elaboration/stdlib/proved.mm from gtrieq and abs3dif
-  target      gtristrict
-  note        Euclid I.20: equality would put Q between P and R, and the
-              three would be collinear.
-
 mundane theorem angle-addition
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
@@ -1253,6 +1241,54 @@ mundane theorem triangle-off-line
   metamath    gtrioff, which this corpus proves in
               elaboration/stdlib/proved.mm
   target      gtrioff
+
+mundane theorem triangle-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        P, R, Q form a triangle
+  metamath    gtriturn, which this corpus proves in
+              elaboration/stdlib/proved.mm from goffswapd
+  target      gtriturn
+  note        The same triangle with its last two vertices named the other
+              way round.
+
+mundane theorem triangle-rotated
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        Q, R, P form a triangle
+  metamath    gtrirot, which this corpus proves in
+              elaboration/stdlib/proved.mm from gtrinotd
+  target      gtrirot
+  note        The same triangle named from its second vertex. With
+              triangle-turned it names a triangle in any order.
+
+mundane theorem ray-on-line
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  assume P ∈ ray AB                                                   (H4)
+  then        P is on line AB
+  metamath    grayline, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      grayline
+  note        A ray lies on its line.
+
+mundane theorem same-not-opposite
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume P and Q are on the same side of line AB                      (H5)
+  then        not (P and Q are on opposite sides of line AB)
+  metamath    gsidenot, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gsidenot
+  note        The two sides of a line do not meet, which SMSG's plane
+              separation postulate says in calling them two sets.
 
 mundane theorem same-side-turned
   let A be a point                                                    (H1)

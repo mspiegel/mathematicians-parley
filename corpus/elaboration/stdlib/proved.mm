@@ -2217,6 +2217,48 @@ $d x D $.
     ( cc wcel wa wceq cmin co cdiv cr wo wn wne goffapart simprd )
     ADEBDEFCDEFABGCAHIBAHIJIKELMFCANCBNABCOP $.
 
+  ${
+    gtriturnd.1 $e |- ( ph -> P e. CC ) $.
+    gtriturnd.2 $e |- ( ph -> Q e. CC ) $.
+    gtriturnd.3 $e |- ( ph -> R e. CC ) $.
+    gtriturnd.4 $e |- ( ph -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) $.
+  gtriturnd $p |- ( ph -> ( ( ( -. P = R /\ -. R = Q ) /\ -. P = Q ) /\ -. ( ( Q - P ) / ( R - P ) ) e. RR ) ) $=
+    ( wceq wn wa cmin co cdiv cr wcel simpld simprd eqcom notbii sylibr jca
+    wo gtridef sylib goffswapd pm2.46 syl )
+    ABDIZJZDCIZJZKZBCIZJZKCBLMZDBLMZNMZOPZJZAUMUOAUJULAUOCDIZJZKZUJAVCUJKZUQUPNMZOPZJZHQZRAVBULAUOVBAVCUJVHQZRUKVADCSTUAUBAUOVBVIQUBAUIUSUCJUTACDBEFGAVDUNVFUCZJZAVDVGKVDVKKHBCDUDUERUFUIUSUGUHUB $.
+  $}
+
+  gtriturn $p |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) -> ( ( ( -. P = R /\ -. R = Q ) /\ -. P = Q ) /\ -. ( ( Q - P ) / ( R - P ) ) e. RR ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr simplll simpllr simplr simpr
+    gtriturnd )
+    ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZFABCRSUAUPMRSUAUPNTUAUPOUBUPPQ $.
+
+  ${
+    gtrirotd.1 $e |- ( ph -> P e. CC ) $.
+    gtrirotd.2 $e |- ( ph -> Q e. CC ) $.
+    gtrirotd.3 $e |- ( ph -> R e. CC ) $.
+    gtrirotd.4 $e |- ( ph -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) $.
+  gtrirotd $p |- ( ph -> ( ( ( -. Q = R /\ -. R = P ) /\ -. Q = P ) /\ -. ( ( P - Q ) / ( R - Q ) ) e. RR ) ) $=
+    ( wceq wn wa cmin co cdiv cr wcel simpld simprd eqcom notbii sylibr jca
+    wo gtrinotd pm2.46 syl )
+    ACDIZJZDBIZJZKZCBIZJZKBCLMZDCLMZNMZOPZJZAUKUMAUHUJABCIZJZUHAUTUHKZBDIZJZAVAVCKZDBLMZCBLMZNMZOPZJZHQZQZRAVCUJAVAVCVJRUIVBDBSTUAUBAUTUMAUTUHVKQULUSCBSTUAUBAUGUQUCJURABCDEFGHUDUGUQUEUFUB $.
+  $}
+
+  gtrirot $p |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) -> ( ( ( -. Q = R /\ -. R = P ) /\ -. Q = P ) /\ -. ( ( P - Q ) / ( R - Q ) ) e. RR ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr simplll simpllr simplr simpr
+    gtrirotd )
+    ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZFABCRSUAUPMRSUAUPNTUAUPOUBUPPQ $.
+
+  grayline $p |- ( ( ( ( P e. CC /\ A e. CC ) /\ B e. CC ) /\ P e. { u e. CC | ( A = B \/ ( ( ( u - A ) / ( B - A ) ) e. RR /\ 0 <_ ( ( u - A ) / ( B - A ) ) ) ) } ) -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cv cmin co cdiv cr cc0 cle wbr wo crab simpr wb simplll
+    oveq1 oveq1d eleq1d breq2d anbi12d orbi2d elrab3 syl mpbid simpl orim2i )
+    DEFZBEFZGZCEFZGZDBCHZAIZBJKZCBJKZLKZMFZNVBOPZGZQZAERZFZGZURDBJKZVALKZMFZNVKOPZGZQZURVLQVIVHVOUQVHSVIUMVHVOTUMUNUPVHUAVFVOADEUSDHZVEVNURVPVCVLVDVMVPVBVKMVPUTVJVALUSDBJUBZUCZUDVPVBVKNOVRUEUFUGUHUIUJVNVLURVLVMUKULUI $.
+
+  gsidenot $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> -. ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr cxr wn simpr ltrelxr
+    brel syl xrltnsym sylc )
+    AEFZBEFZGZCEFZGZDEFZGZHCAIJZBAIJZKJZLMZDAIJZUMKJZLMZNJZOPZGZHQFZUSQFZGZUTUSHOPRVAUTVDUKUTSZHUSQQOTUAUBVEHUSUCUD $.
+
 $}
 
 ${
