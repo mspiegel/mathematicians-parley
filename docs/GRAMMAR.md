@@ -1093,7 +1093,9 @@ An induction's `step` part opens with `let k ∈ X` and `assume step N is true
 for k, the induction hypothesis (IH)`. The second writes no formula of its
 own: what it assumes is step N's statement after "for all k ∈ X,", taken
 from the tree of N's claim (`Opener::is_hypothesis`), and the k it names is
-the letter that claim binds.
+the letter that claim binds. Over the parts of a set, a claim "for all Y ⊆
+X", it opens with `let Y ⊆ X`, the hypothesis, and `let a ∈ X ∖ Y`, the
+member the step adds.
 
 ## Calculation chains
 
