@@ -6,6 +6,12 @@ import mundane axiom      stdlib/numbers/trichotomy
 import mundane axiom      stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/nonneg-or-neg
+import mundane theorem    stdlib/numbers/factor-positive
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/less-scaled
+import mundane theorem    stdlib/trigonometry/pi-positive
+import mundane definition stdlib/sets/pair
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -5757,3 +5763,481 @@ theorem angle-angle-similar
     35.42. not (X and Q are on opposite sides of line PR)
            mun:same-not-opposite A := P, B := R, P := X, from 5,
              contradicting 35.41
+
+mundane theorem circle-centre-apart
+  note        Two different points at one distance from O are not O: were X
+              at O, its distance would be 0, and so would Y's, putting Y at
+              O as well.
+  let X be a point                                                    (H1)
+  let Y be a point                                                    (H2)
+  let O be a point                                                    (H3)
+  assume X ≠ Y                                                        (H4)
+  assume |XO| = |YO|                                                  (H5)
+  then X ≠ O
+
+1.  X ≠ O
+    contradiction
+    suppose X = O                                                     (S)
+
+    1.1.  |XO| = 0
+          mun:distance-zero P := X, Q := O, from S
+
+    1.2.  |YO| = 0
+          substitute |XO| = |YO| (H5) into line 1.1
+
+    1.3.  Y = O
+          mun:distance-zero P := Y, Q := O, from 1.2
+
+    1.4.  X = Y
+          calculation, contradicting H4
+            X = O          S
+              = Y          1.3
+
+mundane theorem half-turn
+  note        A sum the signed angles of a triangle make, −π or π, is an odd
+              number of half turns: −π is (2·(−1) + 1)·π and π is
+              (2·0 + 1)·π.
+  let x ∈ ℝ                                                           (H1)
+  assume x ∈ {−π, π}                                                  (H2)
+  then there is j ∈ ℤ with x = (2·j + 1)·π
+
+1.  x = −π or x = π
+    mun:pair u := −π, w := π, from H2
+
+2.  There is j ∈ ℤ with x = (2·j + 1)·π.
+    cases, from 1
+
+    case
+    assume x = −π                                                     (C1)
+
+    2.1.  x = (2·(−1) + 1)·π
+          algebra, from C1
+
+    2.2.  There is j ∈ ℤ with x = (2·j + 1)·π.
+          exhibit, from 2.1
+
+    case
+    assume x = π                                                      (C2)
+
+    2.3.  x = (2·0 + 1)·π
+          algebra, from C2
+
+    2.4.  There is j ∈ ℤ with x = (2·j + 1)·π.
+          exhibit, from 2.3
+
+theorem angle-at-centre
+  note        Euclid III.20: the angle at the centre O of a circle is twice
+              the angle at the circle on the same arc. Said of signed
+              angles, it holds wherever O lies, up to whole turns. The
+              triangles OAC and OBC are isosceles, so in each the angles at
+              the circle are equal, and the angle at O makes a half turn
+              with twice either; the rays from O and from C then add up.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume A ≠ C                                                        (H5)
+  assume B ≠ C                                                        (H6)
+  assume |AO| = |BO|                                                  (H7)
+  assume |AO| = |CO|                                                  (H8)
+  then there is k ∈ ℤ with ∡AOB = 2·∡ACB + 2·k·π
+
+1.  A ≠ O
+    mun:circle-centre-apart X := A, Y := C, from H5, H8
+
+2.  C ≠ O
+    mun:circle-centre-apart X := C, Y := A, from H5, H8
+
+3.  |BO| = |CO|
+    calculation
+      |BO| = |AO|    H7
+           = |CO|    H8
+
+4.  B ≠ O
+    mun:circle-centre-apart X := B, Y := C, from H6, 3
+
+5.  ∡OAC = ∡ACO
+    mun:isosceles-signed-angles B := C, Q := O, from H5, H8, 1, 2
+
+6.  ∡OCB = ∡CBO
+    mun:isosceles-signed-angles A := C, Q := O, from H6, 2, 3, 4
+
+7.  ∡COA + ∡ACO + ∡OAC ∈ {−π, π}
+    thm:signed-angle-sum P := A, Q := O, R := C, from H5, 1, 2
+
+8.  ∡BOC + ∡CBO + ∡OCB ∈ {−π, π}
+    thm:signed-angle-sum P := C, Q := O, R := B, from H6, 2, 4
+
+9.  i ∈ ℤ. ∡AOC + ∡COB = ∡AOB + 2·i·π.
+    obtain i: mun:three-rays Q := O, X := C, from 1, 2, 4
+
+10. j ∈ ℤ. ∡ACO + ∡OCB = ∡ACB + 2·j·π.
+    obtain j: mun:three-rays Q := C, X := O, from H5, H6, 2
+
+11. m ∈ ℤ. ∡AOC + ∡COA = ∡AOA + 2·m·π.
+    obtain m: mun:three-rays B := A, Q := O, X := C, from 1, 2
+
+12. p ∈ ℤ. ∡COB + ∡BOC = ∡COC + 2·p·π.
+    obtain p: mun:three-rays A := C, B := C, Q := O, X := B, from 2, 4
+
+13. ∡AOA = 0
+    mun:signed-angle-zero P := A, Q := O, from 1
+
+14. ∡COC = 0
+    mun:signed-angle-zero P := C, Q := O, from 2
+
+15. ∡AOB ∈ ℝ
+    mun:signed-angle-real P := A, Q := O, R := B, from 1, 4
+
+16. ∡ACB ∈ ℝ
+    mun:signed-angle-real P := A, Q := C, R := B, from H5, H6
+
+17. ∡AOC ∈ ℝ
+    mun:signed-angle-real P := A, Q := O, R := C, from 1, 2
+
+18. ∡COB ∈ ℝ
+    mun:signed-angle-real P := C, Q := O, R := B, from 2, 4
+
+19. ∡COA ∈ ℝ
+    mun:signed-angle-real P := C, Q := O, R := A, from 1, 2
+
+20. ∡ACO ∈ ℝ
+    mun:signed-angle-real P := A, Q := C, R := O, from H5, 2
+
+21. ∡OAC ∈ ℝ
+    mun:signed-angle-real P := O, Q := A, R := C, from H5, 1
+
+22. ∡BOC ∈ ℝ
+    mun:signed-angle-real P := B, Q := O, R := C, from 2, 4
+
+23. ∡CBO ∈ ℝ
+    mun:signed-angle-real P := C, Q := B, R := O, from H6, 4
+
+24. ∡OCB ∈ ℝ
+    mun:signed-angle-real P := O, Q := C, R := B, from H6, 2
+
+25. q ∈ ℤ. ∡COA + ∡ACO + ∡OAC = (2·q + 1)·π.
+    obtain q: mun:half-turn x := ∡COA + ∡ACO + ∡OAC, from 7
+    requires ∡COA + ∡ACO + ∡OAC ∈ ℝ: membership, from 19, 20, 21
+
+26. r ∈ ℤ. ∡BOC + ∡CBO + ∡OCB = (2·r + 1)·π.
+    obtain r: mun:half-turn x := ∡BOC + ∡CBO + ∡OCB, from 8
+    requires ∡BOC + ∡CBO + ∡OCB ∈ ℝ: membership, from 22, 23, 24
+
+27. ∡COA + ∡ACO + ∡ACO = (2·q + 1)·π
+    substitute ∡OAC = ∡ACO (line 5) into line 25
+
+28. ∡BOC + ∡OCB + ∡OCB = (2·r + 1)·π
+    substitute ∡CBO = ∡OCB (line 6) into line 26
+
+29. ∡COA = (2·q + 1)·π − 2·∡ACO
+    algebra, from 27
+    requires ∡COA ∈ ℝ: from 19
+    requires ∡ACO ∈ ℝ: from 20
+
+30. ∡BOC = (2·r + 1)·π − 2·∡OCB
+    algebra, from 28
+    requires ∡BOC ∈ ℝ: from 22
+    requires ∡OCB ∈ ℝ: from 24
+
+31. ∡AOC + ∡COA = 0 + 2·m·π
+    substitute ∡AOA = 0 (line 13) into line 11
+
+32. ∡AOC = 2·m·π − ∡COA
+    algebra, from 31
+    requires ∡AOC ∈ ℝ: from 17
+    requires ∡COA ∈ ℝ: from 19
+
+33. ∡COB + ∡BOC = 0 + 2·p·π
+    substitute ∡COC = 0 (line 14) into line 12
+
+34. ∡COB = 2·p·π − ∡BOC
+    algebra, from 33
+    requires ∡COB ∈ ℝ: from 18
+    requires ∡BOC ∈ ℝ: from 22
+
+35. ∡AOB = ∡AOC + ∡COB − 2·i·π
+    algebra, from 9
+    requires ∡AOB ∈ ℝ: from 15
+    requires ∡AOC ∈ ℝ: from 17
+    requires ∡COB ∈ ℝ: from 18
+
+36. ∡AOB = 2·m·π − ∡COA + ∡COB − 2·i·π
+    substitute ∡AOC = 2·m·π − ∡COA (line 32) into line 35
+
+37. ∡AOB = 2·m·π − ∡COA + (2·p·π − ∡BOC) − 2·i·π
+    substitute ∡COB = 2·p·π − ∡BOC (line 34) into line 36
+
+38. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ∡BOC) − 2·i·π
+    substitute ∡COA = (2·q + 1)·π − 2·∡ACO (line 29) into line 37
+
+39. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ((2·r + 1)·π − 2·∡OCB)) − 2·i·π
+    substitute ∡BOC = (2·r + 1)·π − 2·∡OCB (line 30) into line 38
+
+40. ∡AOB = 2·(∡ACO + ∡OCB) + 2·(m + p − i − q − r − 1)·π
+    algebra, from 39
+    requires ∡ACO ∈ ℝ: from 20
+    requires ∡OCB ∈ ℝ: from 24
+
+41. ∡AOB = 2·(∡ACB + 2·j·π) + 2·(m + p − i − q − r − 1)·π
+    substitute ∡ACO + ∡OCB = ∡ACB + 2·j·π (line 10) into line 40
+
+42. ∡AOB = 2·∡ACB + 2·(2·j + m + p − i − q − r − 1)·π
+    algebra, from 41
+    requires ∡ACB ∈ ℝ: from 16
+
+43. There is k ∈ ℤ with ∡AOB = 2·∡ACB + 2·k·π.
+    exhibit, from 42
+
+theorem same-arc-angles
+  note        Euclid III.21: angles at the circle on one arc are equal. By
+              the angle at the centre, twice each is ∡AOB up to whole turns,
+              so the two differ by a whole number of half turns; on one side
+              of AB both turn the same way, each between −π and π, so they
+              differ by less than a half turn, and so by none.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume |AO| = |BO|                                                  (H6)
+  assume |AO| = |CO|                                                  (H7)
+  assume |AO| = |DO|                                                  (H8)
+  assume C and D are on the same side of line AB                      (H9)
+  then ∠ACB = ∠ADB
+
+1.  not (C is on line AB)
+    mun:same-side-off-line P := C, Q := D, from H9
+
+2.  not (D is on line AB)
+    mun:same-side-off-line P := C, Q := D, from H9
+
+3.  C ≠ A
+    mun:off-line-apart P := C, from 1
+
+4.  C ≠ B
+    mun:off-line-apart P := C, from 1
+
+5.  D ≠ A
+    mun:off-line-apart P := D, from 2
+
+6.  D ≠ B
+    mun:off-line-apart P := D, from 2
+
+7.  i ∈ ℤ. ∡AOB = 2·∡ACB + 2·i·π.
+    obtain i: thm:angle-at-centre, from H6, H7, 3, 4
+
+8.  j ∈ ℤ. ∡AOB = 2·∡ADB + 2·j·π.
+    obtain j: thm:angle-at-centre C := D, from H6, H8, 5, 6
+
+9.  ∡ACB ∈ ℝ
+    mun:signed-angle-real P := A, Q := C, R := B, from 3, 4
+
+10. −π < ∡ACB
+    mun:signed-angle-real P := A, Q := C, R := B, from 3, 4
+
+11. ∡ACB ≤ π
+    mun:signed-angle-real P := A, Q := C, R := B, from 3, 4
+
+12. ∡ADB ∈ ℝ
+    mun:signed-angle-real P := A, Q := D, R := B, from 5, 6
+
+13. −π < ∡ADB
+    mun:signed-angle-real P := A, Q := D, R := B, from 5, 6
+
+14. ∡ADB ≤ π
+    mun:signed-angle-real P := A, Q := D, R := B, from 5, 6
+
+15. 2·∡ACB + 2·i·π = 2·∡ADB + 2·j·π
+    calculation
+      2·∡ACB + 2·i·π = ∡AOB                 7
+                     = 2·∡ADB + 2·j·π       8
+
+16. ∡ACB − ∡ADB = (j − i)·π
+    algebra, from 15
+    requires ∡ACB ∈ ℝ: from 9
+    requires ∡ADB ∈ ℝ: from 12
+
+17. ∡ACB·∡ADB > 0
+    mun:same-side-turns-alike, from H9
+
+18. ∡ACB ≥ 0 or ∡ACB < 0
+    mun:nonneg-or-neg x := ∡ACB, from 9
+
+19. −π < ∡ACB − ∡ADB and ∡ACB − ∡ADB < π
+    cases, from 18
+
+    case
+    assume ∡ACB ≥ 0                                                   (C1)
+
+    19.1. ∡ADB > 0
+          mun:factor-positive a := ∡ACB, b := ∡ADB, from C1, 9, 12, 17
+
+    19.2. ∡ADB·∡ACB > 0
+          inequalities
+            ∡ACB·∡ADB > 0        17
+            ∡ADB·∡ACB > 0        algebra
+          requires ∡ACB ∈ ℝ: from 9
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.3. ∡ACB > 0
+          mun:factor-positive a := ∡ADB, b := ∡ACB, from 9, 19.2
+          requires ∡ADB ∈ ℝ: from 12
+          requires ∡ADB ≥ 0: weakening, from 19.1
+
+    19.4. ∡ACB − ∡ADB > −∡ADB
+          inequalities
+            ∡ACB > 0                 19.3
+            ∡ACB − ∡ADB > −∡ADB      adding −∡ADB
+          requires ∡ACB ∈ ℝ: from 9
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.5. −∡ADB ≥ −π
+          inequalities
+            ∡ADB ≤ π                 14
+            −∡ADB ≥ −π               multiplying by −1
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.6. −π < ∡ACB − ∡ADB
+          transitivity, from 19.5, 19.4
+          requires ∡ACB ∈ ℝ: from 9
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.7. ∡ACB − ∡ADB < ∡ACB
+          inequalities
+            ∡ADB > 0                 19.1
+            −∡ADB < 0                multiplying by −1
+            ∡ACB − ∡ADB < ∡ACB       adding ∡ACB
+          requires ∡ACB ∈ ℝ: from 9
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.8. ∡ACB − ∡ADB < π
+          transitivity, from 19.7, 11
+          requires ∡ACB ∈ ℝ: from 9
+          requires ∡ADB ∈ ℝ: from 12
+
+    19.9. −π < ∡ACB − ∡ADB and ∡ACB − ∡ADB < π
+          join 19.6, 19.8
+
+    case
+    assume ∡ACB < 0                                                   (C2)
+
+    19.10. −∡ACB ≥ 0
+           inequalities
+             ∡ACB < 0       C2
+             −∡ACB > 0      multiplying by −1
+             −∡ACB ≥ 0      weakening
+           requires ∡ACB ∈ ℝ: from 9
+
+    19.11. (−∡ACB)·(−∡ADB) > 0
+           inequalities
+             ∡ACB·∡ADB > 0               17
+             (−∡ACB)·(−∡ADB) > 0         algebra
+           requires ∡ACB ∈ ℝ: from 9
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.12. −∡ADB > 0
+           mun:factor-positive a := −∡ACB, b := −∡ADB, from 19.10, 19.11
+           requires −∡ACB ∈ ℝ: membership, from 9
+           requires −∡ADB ∈ ℝ: membership, from 12
+
+    19.13. ∡ACB − ∡ADB > ∡ACB
+           inequalities
+             −∡ADB > 0                   19.12
+             ∡ACB − ∡ADB > ∡ACB          adding ∡ACB
+           requires ∡ACB ∈ ℝ: from 9
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.14. −π < ∡ACB − ∡ADB
+           transitivity, from 10, 19.13
+           requires ∡ACB ∈ ℝ: from 9
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.15. ∡ACB − ∡ADB < −∡ADB
+           inequalities
+             ∡ACB < 0                    C2
+             ∡ACB − ∡ADB < −∡ADB         adding −∡ADB
+           requires ∡ACB ∈ ℝ: from 9
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.16. −∡ADB < π
+           inequalities
+             −π < ∡ADB                   13
+             π > −∡ADB                   multiplying by −1
+             −∡ADB < π                   symmetry
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.17. ∡ACB − ∡ADB < π
+           transitivity, from 19.15, 19.16
+           requires ∡ACB ∈ ℝ: from 9
+           requires ∡ADB ∈ ℝ: from 12
+
+    19.18. −π < ∡ACB − ∡ADB and ∡ACB − ∡ADB < π
+           join 19.14, 19.17
+
+20. −π < (j − i)·π
+    substitute ∡ACB − ∡ADB = (j − i)·π (line 16) into line 19
+
+21. (j − i)·π < π
+    substitute ∡ACB − ∡ADB = (j − i)·π (line 16) into line 19
+
+22. π > 0
+    mun:pi-positive
+
+23. π·(−1) < π·(j − i)
+    inequalities
+      −π < (j − i)·π           20
+      π·(−1) < π·(j − i)       algebra
+
+24. −1 < j − i
+    mun:less-scaled x := −1, y := j − i, c := π, from 22, 23
+
+25. π·(j − i) < π·1
+    inequalities
+      (j − i)·π < π            21
+      π·(j − i) < π·1          algebra
+
+26. j − i < 1
+    mun:less-scaled x := j − i, y := 1, c := π, from 22, 25
+
+27. −1 + 1 ≤ j − i
+    mun:integer-step m := −1, n := j − i, from 24
+
+28. 0 ≤ j − i
+    inequalities
+      −1 + 1 ≤ j − i           27
+      0 ≤ j − i                algebra
+
+29. j − i + 1 ≤ 1
+    mun:integer-step m := j − i, n := 1, from 26
+
+30. j − i ≤ 0
+    inequalities
+      j − i + 1 ≤ 1            29
+      j − i ≤ 0                adding −1
+
+31. j − i = 0
+    antisymmetry, from 28, 30
+
+32. ∡ACB − ∡ADB = 0·π
+    substitute j − i = 0 (line 31) into line 16
+
+33. ∡ACB = ∡ADB
+    algebra, from 32
+    requires ∡ACB ∈ ℝ: from 9
+    requires ∡ADB ∈ ℝ: from 12
+
+34. |∡ACB| = |∡ADB|
+    substitute ∡ACB = ∡ADB (line 33)
+
+35. |∡ACB| = ∠ACB
+    mun:signed-angle-size P := A, Q := C, R := B
+
+36. |∡ADB| = ∠ADB
+    mun:signed-angle-size P := A, Q := D, R := B
+
+37. ∠ACB = ∠ADB
+    calculation
+      ∠ACB = |∡ACB|        35
+           = |∡ADB|        34
+           = ∠ADB          36

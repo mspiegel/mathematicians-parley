@@ -5500,9 +5500,10 @@ impl<'a> Elaborator<'a> {
                 }
                 // Kept apart from a class the claim leaves open, which the
                 // scope may spell; or from another letter the claim has
-                // fixed, which a cited line may bind as well: `gfprodrp`
-                // keeps its x from the product's k, and a line saying "for
-                // all r ∈ S" would hand x the r the product fixed as k.
+                // fixed, which a cited line may bind as well: a lemma about a
+                // product may keep its x from the product's k, and a line
+                // saying "for all r ∈ S" would hand x the r the product fixed
+                // as k.
                 let from_class = !binding.contains_key(other)
                     && !matches!(kinds.get(other.as_str()), None | Some(&"setvar"));
                 let from_fixed = kinds.get(other.as_str()) == Some(&"setvar")

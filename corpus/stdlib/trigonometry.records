@@ -204,6 +204,12 @@ mundane definition arctan
               the function a reader knows; what a proof needs of it is in
               items of its own.
 
+mundane theorem pi-positive
+  then        π > 0
+  metamath    pipos
+  target      pipos
+  note        A half turn is a positive number, as a proof scaling by π asks.
+
 mundane theorem arctan-values
   then        arctan(0) = 0. arctan(1) = π/4.
   metamath    atan0, atan1

@@ -449,7 +449,7 @@ theorem limit-at-least
     1.15. not B ≤ x(M + N)
           inequalities, from 1.10, 1.14, contradicting 1.9
 
-theorem first-terms-bounded
+mundane theorem first-terms-bounded
   note        Finitely many terms have a bound: the first term bounds
               itself, and a bound for the first K terms and the next term's
               size have a larger of the two.
@@ -586,7 +586,7 @@ theorem convergent-abs-bounded
     obtain N from line 2
 
 4.  For all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C.
-    thm:first-terms-bounded
+    mun:first-terms-bounded
 
 5.  There is C ∈ ℝ with for all i ∈ {1, …, N}, |x(i)| ≤ C.
     instantiate K := N in line 4
@@ -724,7 +724,7 @@ theorem convergent-bounded
 4.  There exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B.
     exhibit, from 3
 
-theorem increasing-terms
+mundane theorem increasing-terms
   note        Each term of an increasing sequence is at most the next, so
               at most every later one: one step at a time.
   let x : ℕ → ℝ                                                       (H1)
@@ -859,7 +859,7 @@ theorem monotone-limit
     mun:upper-bound, from 7
 
 9.  For all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n).
-    thm:increasing-terms, from H2
+    mun:increasing-terms, from H2
 
 10. For all ε > 0, there exists N ∈ ℕ such that |x(n) − c| < ε for all n ≥ N.
     proof

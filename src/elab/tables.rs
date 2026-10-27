@@ -1713,7 +1713,9 @@ impl<'a> Elaborator<'a> {
                     proof = self.lifted_to(&claim, &w.proof, &w.at, scope);
                 }
             }
-            // What a requires line wrote, or what a line being cited says.
+            // What a requires line wrote, or what a line being cited says,
+            // and nothing the step does not name besides: a fact resting on
+            // a requires line and on a line above the step is not the step's.
             let Some(proof) = proof else {
                 continue;
             };
@@ -1722,6 +1724,11 @@ impl<'a> Elaborator<'a> {
                 !origin.is_empty() && origin.iter().all(|o| self.citing.contains(o));
             if !(from_requires(&proof) || cited) {
                 continue;
+            }
+            if let Some(resting) = &self.resting {
+                if !origin.iter().all(|o| may_rest_on(resting, o)) {
+                    continue;
+                }
             }
             let push = self.sig(&label).push()[0].to_string();
             let law = self.b.ap(&label, &binds! {push => said}, &[]);

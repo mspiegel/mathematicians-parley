@@ -105,6 +105,62 @@ theorem signed-angle-sum
               counterclockwise or clockwise. The three points need only be
               apart: on one line the angles are 0, 0 and π.
 
+mundane theorem signed-angle-zero
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  assume P ≠ Q                                                        (H3)
+  then        ∡PQP = 0
+  metamath    gsangid, which this corpus proves in
+              elaboration/stdlib/proved.mm from log1
+  target      gsangid
+  note        A ray turned to itself turns through nothing.
+
+mundane theorem three-rays
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume A ≠ Q                                                        (H5)
+  assume B ≠ Q                                                        (H6)
+  assume X ≠ Q                                                        (H7)
+  then        there is k ∈ ℤ with ∡AQX + ∡XQB = ∡AQB + 2·k·π
+  metamath    gsang3, which this corpus proves in
+              elaboration/stdlib/proved.mm from eflogeq
+  target      gsang3
+  note        Three rays from Q: turning from QA to QX and then on to QB
+              turns from QA to QB, give or take whole turns, since each
+              signed angle is kept between −π and π.
+
+mundane theorem isosceles-signed-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let Q be a point                                                    (H3)
+  assume A ≠ Q                                                        (H4)
+  assume B ≠ Q                                                        (H5)
+  assume A ≠ B                                                        (H6)
+  assume |AQ| = |BQ|                                                  (H7)
+  then        ∡QAB = ∡ABQ
+  metamath    gisosctr, set.mm's isosctr, which this corpus states of its
+              angle in elaboration/stdlib/proved.mm
+  target      gisosctr with C := Q
+  note        The base angles of an isosceles triangle, each turned the same
+              way round it, are equal as signed angles: from AQ to AB at A
+              and from BA to BQ at B. isosceles-angles says it unsigned.
+
+mundane theorem same-side-turns-alike
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume C and D are on the same side of line AB                      (H5)
+  then        ∡ACB·∡ADB > 0
+  metamath    gsamesang, which this corpus proves in
+              elaboration/stdlib/proved.mm from gsideang
+  target      gsamesang
+  note        Two points on one side of a line see a segment of it turned
+              the same way: the signed angle ACB is positive when C is on the
+              counterclockwise side of AB and negative on the other.
+
 mundane theorem triangle-angle-real
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
