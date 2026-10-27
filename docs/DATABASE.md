@@ -11,6 +11,8 @@ corpus/db/notation.records   symbols a claim may use
 corpus/db/methods.records    the justification vocabulary
 corpus/stdlib/*.records      the standard library: axioms, theorems and
                              definitions, some marked mundane
+corpus/stdlib/*.proof        Parley proofs of library items, beside the
+                             records of their subject
 corpus/elaboration/          what parley build writes from all of it
 proofs/wiedijk/*.proof       the pilots, theorems of Wiedijk's list of 100
 proofs/setmm/*.proof         theorems set.mm proves, written in proof trials
@@ -438,6 +440,10 @@ is that the readable layer cannot yet *say* something, the thing to weigh is
 teaching it to say that, or teaching the elaborator to work it out, and a
 hand proof is what is left when neither is worth its price.
 
+The geometry postulates take it by design: a reader's axiom that ℂ makes a
+theorem is proved there, so the page can rest on it and the kernel assumes
+nothing.
+
 The four are open for a reason rather than for want of work. Incidence is a
 primitive, and `mun:stdlib/geometry/collinear` says so: in
 the plane collinearity is P = Q, or (R − P)/(Q − P) being real, and subtraction takes
@@ -608,7 +614,8 @@ this table is mundane.
 | completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
 | side-angle-side | `axiom` | "by SAS", isosceles step 5 |
-| parallel-through | `axiom` | "draw the line through R parallel to PQ", angle-sum step 1 |
+| parallel-through | `theorem` | "draw the line through R parallel to PQ", angle-sum step 1; proved on the page from the parallel postulate |
+| the SMSG postulates, line-uniqueness to area-base-height | `axiom` | named as postulates, `GEOMETRY.md` |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |

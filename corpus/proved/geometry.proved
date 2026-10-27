@@ -12,7 +12,8 @@
 # So they are proved here, below the readable layer, beside the other
 # library proofs and after `definitions.mm`'s `df-ang`. A proof file
 # includes what that writes; the database names these labels in a `target`
-# the way it names a set.mm label.
+# the way it names a set.mm label. The postulates the geometry pages read
+# are in postulates.proved.
 
 $( Geometry: what this corpus needs of the plane and set.mm does not
    state. Points are complex numbers, distance is the absolute value of a

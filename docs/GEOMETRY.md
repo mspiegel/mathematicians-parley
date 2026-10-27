@@ -418,6 +418,41 @@ notation, x° being x·π/180; the angle is still the number from 0 to π that
 The three items and the lemmas under them are listed above, under "What it
 took".
 
+## The postulates the page reads
+
+The plane is still ℂ underneath, and nothing is assumed. On the page, plane
+geometry stands on the School Mathematics Study Group's plane postulates,
+with the area postulates said of triangles: "SMSG with area for triangles".
+Each postulate is a stdlib `axiom` record whose target is a lemma of
+`corpus/proved/postulates.proved`, so a reader takes it as given and the
+kernel proves it.
+
+| postulate | record |
+|---|---|
+| 1, a line through two points | `line-uniqueness` |
+| 2, distance | `distance-positive` |
+| 3 and 4, the ruler | `ruler`, `ruler-placement` |
+| 5a, three points | `three-points` |
+| 9, plane separation | `plane-separation`, `plane-separation-convex`, `plane-separation-crossing` |
+| 11, angle measure | `angle-measure` |
+| 12, angle construction | `angle-construction`, `angle-construction-unique` |
+| 13, angle addition | `angle-addition-inside` |
+| 14, supplements | `supplementary-angles` |
+| 15, SAS | `side-angle-side` |
+| 16, parallels | `parallel-uniqueness` |
+| 17 to 20, area | `area-positive`, `area-congruent`, `area-addition`, `area-base-height` |
+
+Lines are not a sort, so a postulate that speaks of lines is stated with two
+points of each line, and `line AB` and `ray AB` are sets of points.
+
+Proved from them on the page, in `corpus/stdlib/geometry.proof`: Euclid I.5,
+I.15 to I.20, I.27, I.29 and I.37, the parallel through a point, ASA, AAS
+and SSS, parallel lines equidistant, VI.1 and VI.2 by area, and AA
+similarity. Trigonometry, the law of cosines, the coordinate proofs and the
+chord theorems stay library theorems over ℂ. Small facts of order, which
+side of a line a point is on or a triangle named in another order, are
+mundane library theorems over ℂ.
+
 ## What would change the answer
 
 **A proof that adds angles everywhere.** The angle sum adds once, and its
@@ -435,7 +470,5 @@ not an axiom system but the area method, whose proofs are short and readable
 by design and which has a literature on measuring exactly that. That is a
 different project and it does not bear on this one proof.
 
-**Someone formalising SMSG.** It is the only system whose angle is the school
-reader's by axiom, and nobody has built it. If it existed, criterion 3 would
-favour it and criterion 1 would still not, since it would be twenty-two
-postulates the corpus asserts.
+**Someone formalising SMSG.** This corpus now reads its geometry from SMSG's
+postulates and asserts none of them: each is a theorem over ℂ.

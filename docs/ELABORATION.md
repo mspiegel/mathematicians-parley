@@ -2228,7 +2228,9 @@ angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `definitions.mm` — and the items set.mm does not state are proved in
 `corpus/elaboration/stdlib/proved.mm`: the four `isosceles` cites, the three of
 the angle sum, and those of Pythagoras, each group in a block of its own. All
-three proofs elaborate and assume nothing.
+three proofs elaborate and assume nothing. The SMSG postulates the page reads
+are proved there too, in `postulates.proved`, with the order facts the page
+proofs take for granted.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
 `ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to

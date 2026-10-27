@@ -139,13 +139,13 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 254
-lines over 53 items, and 346 of the 395 numbered steps that cite a library
-item cite a mundane one. The forty-nine others are thirty-eight steps citing
-named theorems, four citing named axioms (completeness, well-ordering,
-side-angle-side and the parallel through a point) and seven citing named
-definitions (continuity, limits, congruent triangles, C's two zero cases,
-perfect, and Euler's φ). No requires line rests
+pilots every requires line that cites a library item cites a mundane one, 335
+lines over 53 items, and 1,397 of the 1,533 numbered steps that cite a
+library item cite a mundane one. The 136 others are 116 steps citing named
+theorems, twelve citing named axioms (completeness, well-ordering,
+side-angle-side and the supplement postulate) and eight citing named
+definitions (continuity, limits, congruent triangles, C, perfect numbers,
+Euler paths and traversable graphs). No requires line rests
 on a named item; one that did
 would still be written as a requires line, and would be one the reader needs
 to see.
