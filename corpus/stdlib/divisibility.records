@@ -615,23 +615,6 @@ mundane theorem coprime-power
   note        A number sharing no factor with b shares none with b in any
               of its powers.
 
-theorem prime-powers-unique
-  let a ∈ ℕ₀                                                          (H1)
-  let b ∈ ℕ₀                                                          (H2)
-  let c ∈ ℕ₀                                                          (H3)
-  let a′ ∈ ℕ₀                                                         (H4)
-  let b′ ∈ ℕ₀                                                         (H5)
-  let c′ ∈ ℕ₀                                                         (H6)
-  assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
-  then        a = a′. b = b′. c = c′.
-  metamath    g235a, g235b, g235c, which this corpus proves in
-              elaboration/stdlib/proved.mm from pcmul, pcidlem and pcexp
-  target      g235a, g235b, g235c with A := a, B := b, C := c, D := a′, E := b′, F := c′
-  note        A number has one factorisation into primes, so the powers of
-              2, 3 and 5 in it are what they are. set.mm counts how many
-              times a prime divides a number, pCnt, and the count of 2 in
-              2^a·3^b·5^c is a. One target to a sentence.
-
 definition φ
   sort        number → number
   builds      _1 cphi cfv
@@ -667,34 +650,6 @@ mundane theorem coprime-product
   metamath    rpmul, which puts n first in each gcd, and gcdcom, which this
               corpus proves together in elaboration/stdlib/proved.mm
   target      grpmul
-
-theorem congruent-cancel
-  let x ∈ ℤ                                                           (H1)
-  let y ∈ ℤ                                                           (H2)
-  let c ∈ ℤ                                                           (H3)
-  let n ∈ ℕ                                                           (H4)
-  assume x·c ≡ y·c (mod n)                                            (H5)
-  assume gcd(c, n) = 1                                                (H6)
-  then        x ≡ y (mod n)
-  metamath    subdir and coprmdvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gcongrcan
-  note        A factor with no factor in common with n cancels from both
-              sides of a congruence modulo n.
-
-theorem coprime-divides
-  let x ∈ ℤ                                                           (H1)
-  let c ∈ ℤ                                                           (H2)
-  let n ∈ ℕ                                                           (H3)
-  assume n divides x·c                                                (H4)
-  assume gcd(c, n) = 1                                                (H5)
-  then        n divides x
-  metamath    coprmdvds, with the coprime factor first, which this corpus
-              proves in elaboration/stdlib/proved.mm
-  target      gcoprmdvds
-  note        A number dividing a product and sharing no factor with one
-              of its factors divides the other: Euclid's lemma, said of any
-              number and not only of a prime.
 
 mundane theorem congruent-in-range
   let n ∈ ℕ                                                           (H1)
@@ -773,22 +728,6 @@ theorem product-congruent-termwise
   target      gfprodcongt
   note        product-congruent for any two lists of integer terms over a
               finite set, congruent index by index.
-
-theorem coprime-square
-  let s ∈ ℕ                                                           (H1)
-  let t ∈ ℕ                                                           (H2)
-  let w ∈ ℕ                                                           (H3)
-  assume gcd(s, t) = 1                                                (H4)
-  assume w² = s·t                                                     (H5)
-  then        s = gcd(s, w)². t = gcd(t, w)².
-  metamath    coprimeprodsq and coprimeprodsq2, which ask only that s, t
-              and w share no factor all three, and gcd(1, w) = 1 (1gcd);
-              this corpus proves them together in
-              elaboration/stdlib/proved.mm
-  target      gcoprimesq, gcoprimesq2
-  note        Two numbers with no factor in common whose product is a
-              square are squares themselves, of their common factors with
-              the square root.
 
 mundane theorem divides-square
   let d ∈ ℤ                                                           (H1)

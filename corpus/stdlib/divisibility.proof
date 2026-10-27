@@ -1,0 +1,608 @@
+import axiom              stdlib/numbers/well-ordering
+import mundane theorem    stdlib/numbers/pos-int-nat
+import mundane definition stdlib/sets/set-builder
+import mundane theorem    stdlib/sets/set-builder-subset
+import mundane definition stdlib/sets/subset
+import mundane definition stdlib/divisibility/gcd
+import mundane theorem    stdlib/numbers/exponent-sum
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane theorem    stdlib/numbers/power-positive
+import mundane theorem    stdlib/numbers/power-nat
+
+theorem least-combination-divides
+  note        Divide c by d: c = q·d + r with 0 ≤ r < d, r being c mod d.
+              Then r is a·x + b·y as well, so if r were positive, d, the
+              least such number, would be at most r, which is below d. So
+              r = 0 and d divides c.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let d ∈ ℕ                                                           (H4)
+  let u ∈ ℤ                                                           (H5)
+  let v ∈ ℤ                                                           (H6)
+  let x₀ ∈ ℤ                                                          (H7)
+  let y₀ ∈ ℤ                                                          (H8)
+  assume c = a·u + b·v                                                (H9)
+  assume d = a·x₀ + b·y₀                                              (H10)
+  assume for all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y        (H11)
+  then d divides c
+
+1.  c mod d ∈ ℕ₀
+    mun:mod-natural a := c, b := d
+
+2.  c mod d < d
+    mun:mod-less a := c, b := d
+
+3.  q ∈ ℤ. q·d + c mod d = c.
+    obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
+
+4.  c mod d = a·(u − q·x₀) + b·(v − q·y₀)
+    algebra, from H9, H10, 3
+    requires c mod d ∈ ℝ: from 1
+
+5.  c mod d = 0
+    contradiction
+    suppose c mod d ≠ 0                                               (S)
+
+    5.1.  c mod d ∈ ℕ
+          mun:pos-int-nat m := c mod d
+          requires c mod d ∈ ℤ: from 1
+          requires 0 < c mod d: inequalities, from S, 1
+
+    5.2.  a·(u − q·x₀) + b·(v − q·y₀) ∈ ℕ
+          substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.1
+
+    5.3.  d ≤ a·(u − q·x₀) + b·(v − q·y₀)
+          instantiate x := u − q·x₀, y := v − q·y₀ in H11, from 5.2
+
+    5.4.  d ≤ c mod d
+          substitute c mod d = a·(u − q·x₀) + b·(v − q·y₀) (line 4) into line 5.3
+
+    5.5.  not d ≤ c mod d
+          inequalities, from 2, contradicting 5.4
+          requires c mod d ∈ ℝ: from 1
+
+6.  c = d·q
+    algebra, from 3, 5
+
+7.  d divides c
+    mun:divides n := c, from 6
+
+theorem bezout
+  note        Let d be the least positive number of the form a·x + b·y. It
+              divides a and b (least-combination-divides), so d is at most
+              gcd(a, b); and gcd(a, b) divides every a·x + b·y, d among
+              them, so gcd(a, b) is at most d. Said of a whole number a and
+              a positive one b, as Euclid's lemma asks of it.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)
+
+let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
+       reads the positive whole numbers that a and b can be combined into
+
+1.  b = a·0 + b·1
+    algebra
+
+2.  b ∈ S
+    mun:set-builder u := b, from D1, 1
+
+3.  S ⊆ ℕ
+    mun:set-builder-subset, from D1
+
+4.  d ∈ S. For all s ∈ S, d ≤ s.
+    obtain d: axi:well-ordering, from 2, 3
+
+5.  For all t ∈ S, t ∈ ℕ
+    mun:subset, from 3
+
+6.  d ∈ ℕ
+    instantiate t := d in line 5, from 4
+
+7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
+    obtain x₀, y₀: mun:set-builder u := d, from D1, 4
+
+8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
+    proof
+    let x ∈ ℤ                                                         (K1)
+    let y ∈ ℤ                                                         (K2)
+    assume a·x + b·y ∈ ℕ                                              (K3)
+
+    8.1.  a·x + b·y ∈ S
+          mun:set-builder u := a·x + b·y, from D1, K3
+
+    8.2.  d ≤ a·x + b·y
+          instantiate s := a·x + b·y in line 4, from 8.1
+
+9.  a = a·1 + b·0
+    algebra
+
+10. d divides a
+    thm:least-combination-divides c := a, u := 1, v := 0, from 6, 7, 8, 9
+
+11. d divides b
+    thm:least-combination-divides c := b, u := 0, v := 1, from 1, 6, 7, 8
+
+12. gcd(a, b) ∈ ℕ₀. gcd(a, b) divides a. gcd(a, b) divides b.
+    mun:gcd-integer
+
+13. b ≠ 0
+    inequalities, from H2
+
+14. not (a = 0 and b = 0)
+    contradiction
+    suppose a = 0 and b = 0                                           (S)
+
+    14.1. b ≠ 0
+          restate 13, contradicting S
+
+15. gcd(a, b) ∈ ℕ
+    mun:gcd-natural, from 14
+
+16. d divides gcd(a, b)
+    thm:divides-gcd, from 10, 11
+    requires d ∈ ℤ: from 6
+
+17. d ≤ gcd(a, b)
+    mun:divides-le e := d, m := gcd(a, b), from 6, 15, 16
+
+18. gcd(a, b) divides a·x₀ + b·y₀
+    mun:divides-combination e := gcd(a, b), x := x₀, y := y₀, from 12
+
+19. gcd(a, b) divides d
+    substitute d = a·x₀ + b·y₀ (line 7) into line 18
+
+20. gcd(a, b) ≤ d
+    mun:divides-le e := gcd(a, b), m := d, from 6, 15, 19
+
+21. d = gcd(a, b)
+    antisymmetry, from 17, 20
+    requires d ∈ ℝ: from 6
+    requires gcd(a, b) ∈ ℝ: from 15
+
+22. a·x₀ + b·y₀ = gcd(a, b)
+    transitivity, from 7, 21
+
+23. There exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b).
+    exhibit, from 22
+
+theorem coprime-divides
+  note        Euclid's lemma, said of any number and not only of a prime: a
+              number dividing a product and sharing no factor with one of
+              its factors divides the other. By Bezout c·u + n·v = 1, so
+              x = (x·c)·u + n·(x·v), and n divides both terms.
+  let x ∈ ℤ                                                           (H1)
+  let c ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume n divides x·c                                                (H4)
+  assume gcd(c, n) = 1                                                (H5)
+  then n divides x
+
+1.  u ∈ ℤ. v ∈ ℤ. c·u + n·v = gcd(c, n).
+    obtain u, v: thm:bezout a := c, b := n
+
+2.  c·u + n·v = 1
+    substitute gcd(c, n) = 1 (H5) into line 1
+
+3.  n divides n
+    mun:divides-self
+
+4.  n divides (x·c)·u + n·(x·v)
+    mun:divides-combination e := n, a := x·c, b := n, x := u, y := x·v,
+      from H4, 3
+
+5.  x = (x·c)·u + n·(x·v)
+    algebra, from 2
+
+6.  n divides x
+    substitute x = (x·c)·u + n·(x·v) (line 5) into line 4
+
+theorem congruent-cancel
+  note        A factor with no factor in common with n cancels from both
+              sides of a congruence modulo n: n divides x·c − y·c, which is
+              (x − y)·c, so by Euclid's lemma n divides x − y.
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume x·c ≡ y·c (mod n)                                            (H5)
+  assume gcd(c, n) = 1                                                (H6)
+  then x ≡ y (mod n)
+
+1.  n divides x·c − y·c
+    mun:congruent-mod a := x·c, b := y·c, from H5
+
+2.  x·c − y·c = (x − y)·c
+    algebra
+
+3.  n divides (x − y)·c
+    substitute x·c − y·c = (x − y)·c (line 2) into line 1
+
+4.  n divides x − y
+    thm:coprime-divides x := x − y, from H6, 3
+
+5.  x ≡ y (mod n)
+    mun:congruent-mod a := x, b := y, from 4
+
+mundane theorem coprime-square-part
+  note        One of two numbers with no factor in common whose product is
+              the square w² is the square of its common factor g with w.
+              s divides g², since it divides g·s and g·w, whose greatest
+              common factor is g·g; and g² divides s, since it divides s·s
+              and w² = s·t, whose greatest common factor is s·gcd(s, t) = s.
+  let s ∈ ℕ                                                           (H1)
+  let t ∈ ℕ                                                           (H2)
+  let w ∈ ℕ                                                           (H3)
+  assume gcd(s, t) = 1                                                (H4)
+  assume w² = s·t                                                     (H5)
+  then s = gcd(s, w)²
+
+1.  gcd(s, w) ∈ ℕ. gcd(s, w) divides s. gcd(s, w) divides w.
+    For all e ∈ ℕ, if e divides s and e divides w then e ≤ gcd(s, w).
+    mun:gcd a := s, b := w
+
+2.  s divides s
+    mun:divides-self n := s
+
+3.  s divides s·s
+    mun:divides-multiple e := s, a := s, x := s, from 2
+
+4.  s divides s·w
+    mun:divides-multiple e := s, a := s, x := w, from 2
+
+5.  s divides gcd(s·s, s·w)
+    thm:divides-gcd d := s, a := s·s, b := s·w, from 3, 4
+
+6.  gcd(s·s, s·w) = s·gcd(s, w)
+    mun:gcd-scaled c := s, a := s, b := w
+
+7.  s divides s·gcd(s, w)
+    substitute gcd(s·s, s·w) = s·gcd(s, w) (line 6) into line 5
+
+8.  s·gcd(s, w) = gcd(s, w)·s
+    algebra
+    requires gcd(s, w) ∈ ℝ: from 1
+
+9.  s divides gcd(s, w)·s
+    substitute s·gcd(s, w) = gcd(s, w)·s (line 8) into line 7
+
+10. s divides s·t
+    mun:divides-multiple e := s, a := s, x := t, from 2
+
+11. w·w = s·t
+    algebra, from H5
+
+12. s divides w·w
+    substitute w·w = s·t (line 11) into line 10
+
+13. s·w = w·s
+    algebra
+
+14. s divides w·s
+    substitute s·w = w·s (line 13) into line 4
+
+15. s divides gcd(w·s, w·w)
+    thm:divides-gcd d := s, a := w·s, b := w·w, from 12, 14
+
+16. gcd(w·s, w·w) = w·gcd(s, w)
+    mun:gcd-scaled c := w, a := s, b := w
+
+17. s divides w·gcd(s, w)
+    substitute gcd(w·s, w·w) = w·gcd(s, w) (line 16) into line 15
+
+18. w·gcd(s, w) = gcd(s, w)·w
+    algebra
+    requires gcd(s, w) ∈ ℝ: from 1
+
+19. s divides gcd(s, w)·w
+    substitute w·gcd(s, w) = gcd(s, w)·w (line 18) into line 17
+
+20. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
+    thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 9, 19
+    requires gcd(s, w)·s ∈ ℤ: from 1
+    requires gcd(s, w)·w ∈ ℤ: from 1
+
+21. gcd(gcd(s, w)·s, gcd(s, w)·w) = gcd(s, w)·gcd(s, w)
+    mun:gcd-scaled c := gcd(s, w), a := s, b := w, from 1
+
+22. s divides gcd(s, w)·gcd(s, w)
+    substitute gcd(gcd(s, w)·s, gcd(s, w)·w) = gcd(s, w)·gcd(s, w) (line 21) into line 20
+
+23. gcd(s, w)·gcd(s, w) = gcd(s, w)²
+    algebra
+    requires gcd(s, w) ∈ ℝ: from 1
+
+24. s divides gcd(s, w)²
+    substitute gcd(s, w)·gcd(s, w) = gcd(s, w)² (line 23) into line 22
+
+25. gcd(s, w)² divides s²
+    mun:divides-square d := gcd(s, w), n := s, from 1
+
+26. gcd(s, w)² divides w²
+    mun:divides-square d := gcd(s, w), n := w, from 1
+
+27. gcd(s, w)² divides s·t
+    substitute w² = s·t (H5) into line 26
+
+28. s² = s·s
+    algebra
+
+29. gcd(s, w)² divides s·s
+    substitute s² = s·s (line 28) into line 25
+
+30. gcd(s, w)² divides gcd(s·s, s·t)
+    thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 27, 29
+    requires gcd(s, w)² ∈ ℤ: from 1
+
+31. gcd(s·s, s·t) = s·gcd(s, t)
+    mun:gcd-scaled c := s, a := s, b := t
+
+32. gcd(s, w)² divides s·gcd(s, t)
+    substitute gcd(s·s, s·t) = s·gcd(s, t) (line 31) into line 30
+
+33. gcd(s, w)² divides s
+    substitute gcd(s, t) = 1 (H4) into line 32
+
+34. s ≤ gcd(s, w)²
+    mun:divides-le e := s, m := gcd(s, w)², from 24
+    requires gcd(s, w)² ∈ ℕ: from 1
+
+35. gcd(s, w)² ≤ s
+    mun:divides-le e := gcd(s, w)², m := s, from 33
+    requires gcd(s, w)² ∈ ℕ: from 1
+
+36. s = gcd(s, w)²
+    antisymmetry, from 34, 35
+    requires gcd(s, w) ∈ ℝ: from 1
+
+theorem coprime-square
+  note        Two numbers with no factor in common whose product is a
+              square are squares themselves, of their common factors with
+              the square root: coprime-square-part, of s and then of t.
+  let s ∈ ℕ                                                           (H1)
+  let t ∈ ℕ                                                           (H2)
+  let w ∈ ℕ                                                           (H3)
+  assume gcd(s, t) = 1                                                (H4)
+  assume w² = s·t                                                     (H5)
+  then s = gcd(s, w)². t = gcd(t, w)².
+
+1.  s = gcd(s, w)²
+    mun:coprime-square-part, from H4, H5
+
+2.  gcd(t, s) = gcd(s, t)
+    mun:gcd-commutes a := t, b := s
+
+3.  gcd(t, s) = 1
+    transitivity, from 2, H4
+
+4.  w² = t·s
+    algebra, from H5
+
+5.  t = gcd(t, w)²
+    mun:coprime-square-part s := t, t := s, from 3, 4
+
+6.  s = gcd(s, w)². t = gcd(t, w)².
+    join 1, 5
+
+mundane theorem prime-power-not-less
+  note        Where p^a·m = p^a′·m′ with m and m′ sharing no factor with the
+              prime p, a is not less than a′: else cancelling p^a leaves
+              m = p^(a′ − a)·m′, which p divides, and p would divide
+              gcd(m, p) = 1.
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let m ∈ ℤ                                                           (H5)
+  let m′ ∈ ℤ                                                          (H6)
+  assume gcd(m, p) = 1                                                (H7)
+  assume p^a·m = p^a′·m′                                              (H8)
+  then not (a < a′)
+
+1.  p > 1 and for all d ∈ ℕ, if d divides p then d = 1 or d = p.
+    mun:prime, from H2
+
+2.  p > 1
+    restate 1
+
+3.  not (a < a′)
+    contradiction
+    suppose a < a′                                                    (S)
+
+    3.1.  0 < a′ − a
+          inequalities
+            a < a′              S
+            0 < a′ − a          adding −a
+
+    3.2.  a′ − a ∈ ℕ
+          mun:pos-int-nat m := a′ − a, from 3.1
+
+    3.3.  p^(a′ − a) ∈ ℕ
+          mun:power-nat a := p, m := a′ − a, from 3.2
+
+    3.4.  p^(a + (a′ − a)) = p^a·p^(a′ − a)
+          mun:exponent-sum a := p, m := a, n := a′ − a, from 3.2
+
+    3.5.  a + (a′ − a) = a′
+          algebra
+
+    3.6.  p^a′ = p^a·p^(a′ − a)
+          substitute a + (a′ − a) = a′ (line 3.5) into line 3.4
+
+    3.7.  m·p^a = (p^(a′ − a)·m′)·p^a
+          algebra, from H8, 3.6
+          requires p^(a′ − a) ∈ ℝ: from 3.3
+
+    3.8.  p^a > 0
+          mun:power-positive a := p, m := a
+          requires 0 < p: from H1
+
+    3.9.  p^a ≠ 0
+          inequalities
+            p^a > 0             3.8
+            p^a ≠ 0             weakening
+
+    3.10. m = p^(a′ − a)·m′
+          mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a,
+            from 3.7, 3.9
+          requires p^(a′ − a)·m′ ∈ ℝ: from 3.3
+
+    3.11. p divides p
+          mun:divides-self n := p
+
+    3.12. p divides p^(a′ − a)
+          thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.11
+
+    3.13. p divides p^(a′ − a)·m′
+          mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.12
+          requires p^(a′ − a) ∈ ℤ: from 3.3
+
+    3.14. p divides m
+          substitute m = p^(a′ − a)·m′ (line 3.10) into line 3.13
+
+    3.15. p divides gcd(m, p)
+          thm:divides-gcd d := p, a := m, b := p, from 3.11, 3.14
+
+    3.16. p divides 1
+          substitute gcd(m, p) = 1 (H7) into line 3.15
+
+    3.17. p = 1
+          mun:divides-one d := p, from 3.16
+
+    3.18. 1 > 1, which is impossible
+          substitute p = 1 (line 3.17) into line 2
+
+mundane theorem prime-power-unique
+  note        Where p^a·m = p^a′·m′ with m and m′ sharing no factor with the
+              prime p, a = a′: neither is less than the other
+              (prime-power-not-less, each way round).
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let m ∈ ℤ                                                           (H5)
+  let m′ ∈ ℤ                                                          (H6)
+  assume gcd(m, p) = 1                                                (H7)
+  assume gcd(m′, p) = 1                                               (H8)
+  assume p^a·m = p^a′·m′                                              (H9)
+  then a = a′
+
+1.  not (a < a′)
+    mun:prime-power-not-less, from H2, H7, H9
+
+2.  p^a′·m′ = p^a·m
+    restate H9
+
+3.  not (a′ < a)
+    mun:prime-power-not-less a := a′, a′ := a, m := m′, m′ := m,
+      from H2, H8, 2
+
+4.  a′ ≤ a
+    inequalities, from 1
+
+5.  a ≤ a′
+    inequalities, from 3
+
+6.  a = a′
+    antisymmetry, from 4, 5
+
+theorem prime-powers-unique
+  note        A number has one factorisation into primes, so the powers of
+              2, 3 and 5 in it are what they are: for each of the three, the
+              rest of the product shares no factor with it, and
+              prime-power-unique reads off its power.
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  let c ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let b′ ∈ ℕ₀                                                         (H5)
+  let c′ ∈ ℕ₀                                                         (H6)
+  assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
+  then a = a′. b = b′. c = c′.
+
+1.  2 is prime
+    mun:two-prime
+
+2.  3 is prime
+    inspection
+
+3.  5 is prime
+    inspection
+
+4.  gcd(3, 2) = 1
+    mun:prime-coprime p := 3, a := 2, from 2
+    requires not (3 divides 2): arithmetic
+
+5.  gcd(5, 2) = 1
+    mun:prime-coprime p := 5, a := 2, from 3
+    requires not (5 divides 2): arithmetic
+
+6.  gcd(2, 3) = 1
+    mun:prime-coprime p := 2, a := 3, from 1
+    requires not (2 divides 3): arithmetic
+
+7.  gcd(5, 3) = 1
+    mun:prime-coprime p := 5, a := 3, from 3
+    requires not (5 divides 3): arithmetic
+
+8.  gcd(2, 5) = 1
+    mun:prime-coprime p := 2, a := 5, from 1
+    requires not (2 divides 5): arithmetic
+
+9.  gcd(3, 5) = 1
+    mun:prime-coprime p := 3, a := 5, from 2
+    requires not (3 divides 5): arithmetic
+
+10. gcd(3^b·5^c, 2) = 1
+    mun:coprime-product x := 3^b, y := 5^c, n := 2
+    requires gcd(3^b, 2) = 1: mun:coprime-power a := 3, b := 2, k := b, from 4
+    requires gcd(5^c, 2) = 1: mun:coprime-power a := 5, b := 2, k := c, from 5
+
+11. gcd(3^b′·5^c′, 2) = 1
+    mun:coprime-product x := 3^b′, y := 5^c′, n := 2
+    requires gcd(3^b′, 2) = 1: mun:coprime-power a := 3, b := 2, k := b′, from 4
+    requires gcd(5^c′, 2) = 1: mun:coprime-power a := 5, b := 2, k := c′, from 5
+
+12. 2^a·(3^b·5^c) = 2^a′·(3^b′·5^c′)
+    algebra, from H7
+
+13. a = a′
+    mun:prime-power-unique p := 2, m := 3^b·5^c, m′ := 3^b′·5^c′,
+      from 1, 10, 11, 12
+
+14. gcd(2^a·5^c, 3) = 1
+    mun:coprime-product x := 2^a, y := 5^c, n := 3
+    requires gcd(2^a, 3) = 1: mun:coprime-power a := 2, b := 3, k := a, from 6
+    requires gcd(5^c, 3) = 1: mun:coprime-power a := 5, b := 3, k := c, from 7
+
+15. gcd(2^a′·5^c′, 3) = 1
+    mun:coprime-product x := 2^a′, y := 5^c′, n := 3
+    requires gcd(2^a′, 3) = 1: mun:coprime-power a := 2, b := 3, k := a′, from 6
+    requires gcd(5^c′, 3) = 1: mun:coprime-power a := 5, b := 3, k := c′, from 7
+
+16. 3^b·(2^a·5^c) = 3^b′·(2^a′·5^c′)
+    algebra, from H7
+
+17. b = b′
+    mun:prime-power-unique p := 3, a := b, a′ := b′, m := 2^a·5^c,
+      m′ := 2^a′·5^c′, from 2, 14, 15, 16
+
+18. gcd(2^a·3^b, 5) = 1
+    mun:coprime-product x := 2^a, y := 3^b, n := 5
+    requires gcd(2^a, 5) = 1: mun:coprime-power a := 2, b := 5, k := a, from 8
+    requires gcd(3^b, 5) = 1: mun:coprime-power a := 3, b := 5, k := b, from 9
+
+19. gcd(2^a′·3^b′, 5) = 1
+    mun:coprime-product x := 2^a′, y := 3^b′, n := 5
+    requires gcd(2^a′, 5) = 1: mun:coprime-power a := 2, b := 5, k := a′, from 8
+    requires gcd(3^b′, 5) = 1: mun:coprime-power a := 3, b := 5, k := b′, from 9
+
+20. 5^c·(2^a·3^b) = 5^c′·(2^a′·3^b′)
+    algebra, from H7
+
+21. c = c′
+    mun:prime-power-unique p := 5, a := c, a′ := c′, m := 2^a·3^b,
+      m′ := 2^a′·3^b′, from 3, 18, 19, 20
+
+22. a = a′. b = b′. c = c′.
+    join 13, 17, 21
