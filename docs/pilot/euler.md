@@ -85,13 +85,15 @@ a^φ(n) − 1. ∎
    The group now holds bound letters apart and nothing else.
 6. **set.mm has no "a product of numbers coprime to n is coprime to n".**
    `coprmprod` asks the factors to be coprime to each other as well, which
-   remainders are not. `gfprodrp` proves it by induction on the finite set
-   (`findcard2d`), a factor at a time.
+   remainders are not. `product-coprime` is proved on the page, in
+   `corpus/stdlib/divisibility.proof`, by induction over the parts of the
+   finite set, a factor at a time.
 7. **The finish is by divisibility.** A substitution rewrites every
    occurrence, so ∏ r could not be written 1·∏ r on one side only, to cancel
    it as a common factor. The proof does as a textbook does instead: n
    divides (a^φ(n) − 1)·P and is coprime to P, so it divides a^φ(n) − 1, by
-   the general form of Euclid's lemma, `coprime-divides` (`coprmdvds`).
+   the general form of Euclid's lemma, `coprime-divides`, which the library
+   proves on the page from Bézout's identity.
 8. **A restated item may not use one letter for two binders.** The items
    for products first wrote x for both the "for all" and the product, and
    their lemmas hold those letters apart, so the restated test failed; the

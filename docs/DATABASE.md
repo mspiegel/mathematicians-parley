@@ -42,8 +42,12 @@ the rules under "Names". Prose outside a proof, as in this document and the
 records' notes, names an item by its prefix and full name,
 `mun:stdlib/divisibility/odd`, since it has no imports to say where to look.
 
-The standard library is every item a set.mm label supplies or that is still
-open: what a proof cites, or may, and this corpus does not prove.
+The standard library is every item a set.mm label supplies, that a proof in
+`corpus/stdlib/<subject>.proof` proves on the page, or that is still open:
+what a proof cites, or may. A record whose lemma the corpus proves in
+`corpus/proved/` is one the page cannot state the reason for, as a fact about
+the argument of a complex number is; a theorem with a textbook proof from
+what the library already has is proved on the page, and has no record.
 
 An item's statement is written by hand beside the lemma it names, and only a
 citation that elaborates asks whether the two agree: the elaborator applies
@@ -649,7 +653,10 @@ this table is mundane.
 | continuous-bounded, integer-polynomial-at-a-fraction, roots-isolated, polynomial-on-the-reals | `theorem` | "a continuous function on [a, b] is bounded", "q^N·F(p/q) is an integer", "the roots of a polynomial are isolated", "a polynomial is continuous and differentiable", liouville steps 4, 7 and 14, value-at-a-fraction step 1 |
 | monotone-limit, limit-at-most, limit-at-least, algebraic-root | `theorem` | "an increasing sequence bounded above converges", "a bound the terms keep, the limit keeps", "an algebraic number is a root of a polynomial with integer coefficients", liouville-number steps 12, 14.1, 14.12 and 14.23 |
 | continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
-| signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form: not cited by a proof |
+| signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form, angle-at-centre steps 7 and 8 |
+| pythagoras, bezout, least-combination-divides, power-of-a-point | `theorem` | "by Pythagoras", "by Bézout's lemma", "the least positive combination divides both", "the power of P", power-of-a-point steps 8.9 and 8.11.13, coprime-divides step 1, bezout step 10, intersecting-chords step 1; pythagoras and bezout are the library's copies of the Wiedijk proofs of those names, which keep their own |
+| angle-sum | `theorem` | "the angles of a triangle make 180°": not cited by a proof; the library's copy of `proofs/wiedijk/angle-sum.proof` |
+| angle-at-centre, same-arc-angles | `theorem` | "the angle at the centre is twice the angle at the circle" (Euclid III.20), "angles on the same arc are equal" (III.21), same-arc-angles steps 7 and 8, intersecting-chords-by-angles step 16 |
 | prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
@@ -674,6 +681,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 | derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 29 |
+| three-rays, isosceles-signed-angles, same-side-turns-alike, signed-angle-zero, pi-positive | `mundane theorem` | what the circle theorems see in the figure: turning from one ray to a second and on to a third turns from the first to the third, up to whole turns; the base angles of an isosceles triangle turn alike; two points on one side of a line see a segment of it turned alike. Each is a lemma of `corpus/proved/circles.proved`, about arguments of complex numbers, angle-at-centre and same-arc-angles |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or
@@ -681,9 +689,9 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 2,047 of the 2,194 numbered steps whose reason cites a
-library item cite a mundane one. `def:` is rare: 55 steps cite a named
-definition, 42 of them `tends-to` or `C`.
+Counted this way, 3,857 of the 4,188 numbered steps in `proofs/` whose
+reason cites a library item cite a mundane one. `def:` is rare: 93 steps
+cite a named definition, 73 of them `tends-to` or `C`.
 
 ### Follow-ups
 

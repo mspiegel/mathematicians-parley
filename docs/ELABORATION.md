@@ -432,9 +432,9 @@ that may itself say "for all Y ∈ K", binding the same letter. So:
   another of its letters the claim has fixed, and the claim does not fix, is
   given one nothing in the proof holds, whether or not a frame spells the
   lemma's own, and never the one a cited line happens to bind
-  (`letters_unheld`). `gfprodrp` keeps its hypothesis's x apart from the
-  product's k; Euler's step 19 fixes k as r, and line 18, "for all r ∈ S",
-  would otherwise hand x the same r. What the lemma's other variables stand for is
+  (`letters_unheld`). A lemma about a product may keep its hypothesis's x
+  apart from the product's k; a step that fixes k as r, citing a line "for
+  all r ∈ S", would otherwise hand x the same r. What the lemma's other variables stand for is
   still read off the lines, fitted with the fresh letters left open
   (`fit_respelt`). The rule applies where it is redundant too: a lemma whose
   own letter nothing spells still takes a fresh one, so no step depends on

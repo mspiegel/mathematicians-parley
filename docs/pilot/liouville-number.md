@@ -39,12 +39,13 @@ So L is transcendental. ∎
 
 ## Database items
 
-In `corpus/stdlib/calculus.records`: `monotone-limit`, `limit-at-most` and
-`limit-at-least`, which a proof names. In
-`corpus/stdlib/polynomials.records`: `algebraic-root`, which a proof names.
-Mundane: `factorial-at-most` in `counting.records`, and `power-exponent-le`
-and `nat-plus-nat0` in `numbers.records`. Each has its lemma in `proved.mm`
-or is a set.mm label.
+In `stdlib/calculus`: `monotone-limit`, `limit-at-most` and
+`limit-at-least`, which a proof names, each proved on the page in
+`corpus/stdlib/calculus.proof`. In `corpus/stdlib/polynomials.records`:
+`algebraic-root`, which a proof names. Mundane: `factorial-at-most` in
+`counting.records`, and `power-exponent-le` and `nat-plus-nat0` in
+`numbers.records`. Each record has its lemma in `proved.mm` or is a set.mm
+label.
 
 ---
 
