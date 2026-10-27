@@ -1,0 +1,966 @@
+import mundane theorem    stdlib/functions/function-into
+import mundane definition stdlib/functions/image
+import mundane theorem    stdlib/functions/image-within
+import mundane theorem    stdlib/functions/value-in-image
+import mundane theorem    stdlib/sets/subset-self
+import mundane theorem    stdlib/numbers/abs-bounds
+import mundane theorem    stdlib/numbers/abs-difference-lt
+import mundane theorem    stdlib/numbers/abs-real
+import mundane theorem    stdlib/numbers/integer-step
+import mundane theorem    stdlib/numbers/le-cases
+import mundane theorem    stdlib/numbers/le-max
+import mundane definition stdlib/numbers/max
+import mundane theorem    stdlib/numbers/max-real
+import theorem            stdlib/numbers/triangle-inequality
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane definition stdlib/sums/range
+import mundane theorem    stdlib/sets/in-subset
+import mundane theorem    stdlib/sets/subset-transitive
+
+theorem cauchy-mean-value
+  note        Cauchy's mean value theorem: the chord of the curve (g, f) from
+              a to b is parallel to its tangent somewhere between. On [a, b],
+              h = (f(b) − f(a))·g − (g(b) − g(a))·f takes one value at a and
+              at b, so Rolle's theorem gives a c inside where h′(c) = 0, and
+              h′(c) is the difference of the two sides.
+  let D ⊆ ℝ                                                           (H1)
+  let a ∈ ℝ                                                           (H2)
+  let b ∈ ℝ                                                           (H3)
+  assume a < b                                                        (H4)
+  assume [a, b] ⊆ D                                                   (H5)
+  let f : D → ℝ                                                       (H6)
+  let g : D → ℝ                                                       (H7)
+  assume f is continuous on [a, b]                                    (H8)
+  assume g is continuous on [a, b]                                    (H9)
+  assume f is differentiable on (a, b)                                (H10)
+  assume g is differentiable on (a, b)                                (H11)
+  then there is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
+
+let p = (t ∈ [a, b] ↦ f(t))                                           (D1)
+       reads f on [a, b]
+
+let q = (t ∈ [a, b] ↦ g(t))                                           (D2)
+       reads g on [a, b]
+
+let u(x) = (f(b) − f(a))·q(x), for x ∈ [a, b]                         (D3)
+       reads g on [a, b] scaled by the rise of f
+
+let v(x) = (g(b) − g(a))·p(x), for x ∈ [a, b]                         (D4)
+       reads f on [a, b] scaled by the rise of g
+
+let h(x) = u(x) − v(x), for x ∈ [a, b]                                (D5)
+       reads the difference, which takes one value at a and at b
+
+1.  [a, b] ⊆ ℝ
+    mun:interval-real
+
+2.  (a, b) ⊆ [a, b]
+    mun:open-within-closed
+
+3.  (a, b) ⊆ D
+    mun:subset-transitive, from H5, 2
+
+4.  (a, b) is open
+    mun:open-interval-open
+
+5.  a ∈ [a, b]
+    mun:interval x := a
+    requires a ≤ a: inequalities, from H2
+    requires a ≤ b: weakening, from H4
+
+6.  b ∈ [a, b]
+    mun:interval x := b
+    requires a ≤ b: weakening, from H4
+    requires b ≤ b: inequalities, from H3
+
+7.  a ∈ D
+    mun:in-subset, from H5, 5
+
+8.  b ∈ D
+    mun:in-subset, from H5, 6
+
+9.  p is continuous on [a, b]
+    mun:map-continuous-on-part S := [a, b], from D1, H1, H5, H6, H8
+
+10. q is continuous on [a, b]
+    mun:map-continuous-on-part S := [a, b], f := g, from D2, H1, H5, H7, H9
+
+11. For all t ∈ [a, b], p(t) ∈ ℝ.
+    proof
+    let t ∈ [a, b]                                                    (K1)
+
+    11.1. t ∈ D
+          mun:in-subset, from H5, K1
+
+    11.2. p(t) ∈ ℝ
+          membership, from D1, H6, 11.1
+          requires t ∈ [a, b]: from K1
+
+12. For all t ∈ [a, b], q(t) ∈ ℝ.
+    proof
+    let t ∈ [a, b]                                                    (K1)
+
+    12.1. t ∈ D
+          mun:in-subset, from H5, K1
+
+    12.2. q(t) ∈ ℝ
+          membership, from D2, H7, 12.1
+          requires t ∈ [a, b]: from K1
+
+13. p : [a, b] → ℝ
+    mun:function-into, from D1, 11
+
+14. q : [a, b] → ℝ
+    mun:function-into, from D2, 12
+
+15. For all x ∈ (a, b), p(x) = f(x).
+    D1
+    requires x ∈ [a, b]: mun:in-subset, from 2
+
+16. For all x ∈ (a, b), q(x) = g(x).
+    D2
+    requires x ∈ [a, b]: mun:in-subset, from 2
+
+17. p is differentiable on (a, b)
+    mun:derivative-local E := [a, b], U := (a, b), F := p, from H1, H10, 1, 2, 3, 4, 13, 15
+
+18. For all x ∈ (a, b), p′(x) = f′(x).
+    mun:derivative-local E := [a, b], U := (a, b), F := p, from H1, H10, 1, 2, 3, 4, 13, 15
+
+19. q is differentiable on (a, b)
+    mun:derivative-local E := [a, b], U := (a, b), f := g, F := q, from H1, H11, 1, 2, 3, 4, 14, 16
+
+20. For all x ∈ (a, b), q′(x) = g′(x).
+    mun:derivative-local E := [a, b], U := (a, b), f := g, F := q, from H1, H11, 1, 2, 3, 4, 14, 16
+
+21. For all x ∈ [a, b], u(x) = (f(b) − f(a))·q(x).
+    D3
+
+22. For all x ∈ [a, b], v(x) = (g(b) − g(a))·p(x).
+    D4
+
+23. For all x ∈ [a, b], h(x) = u(x) − v(x).
+    D5
+
+24. f(b) − f(a) ∈ ℝ
+    membership, from H6, 7, 8
+
+25. g(b) − g(a) ∈ ℝ
+    membership, from H7, 7, 8
+
+26. For all x ∈ [a, b], u(x) ∈ ℝ.
+    membership, from D3
+    requires q(x) ∈ ℝ: from 14
+    requires f(a) ∈ ℝ: from H6, 7
+    requires f(b) ∈ ℝ: from H6, 8
+
+27. For all x ∈ [a, b], v(x) ∈ ℝ.
+    membership, from D4
+    requires p(x) ∈ ℝ: from 13
+    requires g(a) ∈ ℝ: from H7, 7
+    requires g(b) ∈ ℝ: from H7, 8
+
+28. u : [a, b] → ℝ
+    mun:function-into, from 26
+    requires u is a function on [a, b]: from D3
+
+29. v : [a, b] → ℝ
+    mun:function-into, from 27
+    requires v is a function on [a, b]: from D4
+
+30. For all x ∈ [a, b], h(x) ∈ ℝ.
+    membership, from D5
+    requires u(x) ∈ ℝ: from 28
+    requires v(x) ∈ ℝ: from 29
+
+31. h : [a, b] → ℝ
+    mun:function-into, from 30
+    requires h is a function on [a, b]: from D5
+
+32. u is continuous on [a, b]
+    thm:continuous-scaled D := [a, b], c := f(b) − f(a), F := u, f := q, from 1, 10, 14, 21, 24, 28
+
+33. v is continuous on [a, b]
+    thm:continuous-scaled D := [a, b], c := g(b) − g(a), F := v, f := p, from 1, 9, 13, 22, 25, 29
+
+34. h is continuous on [a, b]
+    thm:continuous-difference D := [a, b], F := h, f := u, g := v, from 1, 23, 28, 29, 31, 32, 33
+
+35. u is differentiable on (a, b)
+    thm:derivative-scaled D := [a, b], U := (a, b), c := f(b) − f(a), F := u, f := q, from 1, 2, 14, 19, 21, 24, 28
+
+36. For all x ∈ (a, b), u′(x) = (f(b) − f(a))·q′(x).
+    thm:derivative-scaled D := [a, b], U := (a, b), c := f(b) − f(a), F := u, f := q, from 1, 2, 14, 19, 21, 24, 28
+
+37. v is differentiable on (a, b)
+    thm:derivative-scaled D := [a, b], U := (a, b), c := g(b) − g(a), F := v, f := p, from 1, 2, 13, 17, 22, 25, 29
+
+38. For all x ∈ (a, b), v′(x) = (g(b) − g(a))·p′(x).
+    thm:derivative-scaled D := [a, b], U := (a, b), c := g(b) − g(a), F := v, f := p, from 1, 2, 13, 17, 22, 25, 29
+
+39. h is differentiable on (a, b)
+    thm:derivative-difference D := [a, b], U := (a, b), F := h, f := u, g := v, from 1, 2, 23, 28, 29, 31, 35, 37
+
+40. For all x ∈ (a, b), h′(x) = u′(x) − v′(x).
+    thm:derivative-difference D := [a, b], U := (a, b), F := h, f := u, g := v, from 1, 2, 23, 28, 29, 31, 35, 37
+
+41. h(a) = u(a) − v(a)
+    D5, from 5
+
+42. u(a) = (f(b) − f(a))·q(a)
+    D3, from 5
+
+43. v(a) = (g(b) − g(a))·p(a)
+    D4, from 5
+
+44. q(a) = g(a)
+    D2, from 5
+
+45. p(a) = f(a)
+    D1, from 5
+
+46. h(b) = u(b) − v(b)
+    D5, from 6
+
+47. u(b) = (f(b) − f(a))·q(b)
+    D3, from 6
+
+48. v(b) = (g(b) − g(a))·p(b)
+    D4, from 6
+
+49. q(b) = g(b)
+    D2, from 6
+
+50. p(b) = f(b)
+    D1, from 6
+
+51. u(a) = (f(b) − f(a))·g(a)
+    substitute q(a) = g(a) (line 44) into line 42
+
+52. v(a) = (g(b) − g(a))·f(a)
+    substitute p(a) = f(a) (line 45) into line 43
+
+53. h(a) = (f(b) − f(a))·g(a) − v(a)
+    substitute u(a) = (f(b) − f(a))·g(a) (line 51) into line 41
+
+54. h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)
+    substitute v(a) = (g(b) − g(a))·f(a) (line 52) into line 53
+
+55. u(b) = (f(b) − f(a))·g(b)
+    substitute q(b) = g(b) (line 49) into line 47
+
+56. v(b) = (g(b) − g(a))·f(b)
+    substitute p(b) = f(b) (line 50) into line 48
+
+57. h(b) = (f(b) − f(a))·g(b) − v(b)
+    substitute u(b) = (f(b) − f(a))·g(b) (line 55) into line 46
+
+58. h(b) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)
+    substitute v(b) = (g(b) − g(a))·f(b) (line 56) into line 57
+
+59. (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)
+    algebra
+    requires f(a) ∈ ℝ: from H6, 7
+    requires f(b) ∈ ℝ: from H6, 8
+    requires g(a) ∈ ℝ: from H7, 7
+    requires g(b) ∈ ℝ: from H7, 8
+
+60. h(a) = h(b)
+    calculation
+      h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)               54
+           = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)               59
+           = h(b)                                                  58
+
+61. c ∈ (a, b). h′(c) = 0.
+    obtain c: thm:rolle f := h, from H4, 31, 34, 39, 60
+
+62. h′(c) = u′(c) − v′(c)
+    instantiate x := c in line 40, from 61
+
+63. u′(c) = (f(b) − f(a))·q′(c)
+    instantiate x := c in line 36, from 61
+
+64. v′(c) = (g(b) − g(a))·p′(c)
+    instantiate x := c in line 38, from 61
+
+65. q′(c) = g′(c)
+    instantiate x := c in line 20, from 61
+
+66. p′(c) = f′(c)
+    instantiate x := c in line 18, from 61
+
+67. u′(c) = (f(b) − f(a))·g′(c)
+    substitute q′(c) = g′(c) (line 65) into line 63
+
+68. v′(c) = (g(b) − g(a))·f′(c)
+    substitute p′(c) = f′(c) (line 66) into line 64
+
+69. h′(c) = (f(b) − f(a))·g′(c) − v′(c)
+    substitute u′(c) = (f(b) − f(a))·g′(c) (line 67) into line 62
+
+70. h′(c) = (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c)
+    substitute v′(c) = (g(b) − g(a))·f′(c) (line 68) into line 69
+
+71. (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = 0
+    calculation
+      (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = h′(c)            70
+                                                = 0                61
+
+72. (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
+    algebra, from 71
+    requires f′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), x := c, from H1, H6, H10, 3, 61
+    requires g′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), f := g, x := c, from H1, H7, H11, 3, 61
+    requires f(a) ∈ ℝ: from H6, 7
+    requires f(b) ∈ ℝ: from H6, 8
+    requires g(a) ∈ ℝ: from H7, 7
+    requires g(b) ∈ ℝ: from H7, 8
+
+73. There is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c).
+    exhibit, from 61, 72
+
+theorem limit-at-most
+  note        A bound the terms keep from some point on, the limit keeps.
+              Were L above B, the terms would come within L − B of L, and
+              so above B, from some point on; one of them past N would be
+              above B and at most B.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume x(n) ≤ B for all n ≥ N                                       (H6)
+  then L ≤ B
+
+1.  L ≤ B
+    contradiction
+    suppose not L ≤ B                                                 (S)
+
+    1.1.  B < L
+          inequalities, from S
+
+    1.2.  L − B > 0
+          inequalities
+            B < L              1.1
+            0 < L − B          adding −B
+            L − B > 0          symmetry
+
+    1.3.  For all ε > 0, there exists M ∈ ℕ such that |x(n) − L| < ε for all n ≥ M.
+          def:tends-to, from H3
+
+    1.4.  There exists M ∈ ℕ such that |x(n) − L| < L − B for all n ≥ M.
+          instantiate ε := L − B in line 1.3, from 1.2
+
+    1.5.  M ∈ ℕ. |x(n) − L| < L − B for all n ≥ M.
+          obtain M from line 1.4
+
+    1.6.  M + N ≥ M
+          inequalities, from H5
+
+    1.7.  M + N ≥ N
+          inequalities, from 1.5
+
+    1.8.  |x(M + N) − L| < L − B
+          instantiate n := M + N in line 1.5, from 1.6
+
+    1.9.  x(M + N) ≤ B
+          instantiate n := M + N in H6, from 1.7
+
+    1.10. x(M + N) ∈ ℝ
+          membership, from H1
+
+    1.11. L − (L − B) < x(M + N) and x(M + N) < L + (L − B)
+          mun:abs-difference-lt x := x(M + N), c := L, δ := L − B, from 1.8, 1.10
+
+    1.12. L − (L − B) < x(M + N)
+          inequalities, from 1.10, 1.11
+
+    1.13. L − (L − B) = B
+          algebra
+
+    1.14. B < x(M + N)
+          substitute L − (L − B) = B (line 1.13) into line 1.12
+
+    1.15. not x(M + N) ≤ B
+          inequalities, from 1.10, 1.14, contradicting 1.9
+
+theorem limit-at-least
+  note        As limit-at-most, from below.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume B ≤ x(n) for all n ≥ N                                       (H6)
+  then B ≤ L
+
+1.  B ≤ L
+    contradiction
+    suppose not B ≤ L                                                 (S)
+
+    1.1.  L < B
+          inequalities, from S
+
+    1.2.  B − L > 0
+          inequalities
+            L < B              1.1
+            0 < B − L          adding −L
+            B − L > 0          symmetry
+
+    1.3.  For all ε > 0, there exists M ∈ ℕ such that |x(n) − L| < ε for all n ≥ M.
+          def:tends-to, from H3
+
+    1.4.  There exists M ∈ ℕ such that |x(n) − L| < B − L for all n ≥ M.
+          instantiate ε := B − L in line 1.3, from 1.2
+
+    1.5.  M ∈ ℕ. |x(n) − L| < B − L for all n ≥ M.
+          obtain M from line 1.4
+
+    1.6.  M + N ≥ M
+          inequalities, from H5
+
+    1.7.  M + N ≥ N
+          inequalities, from 1.5
+
+    1.8.  |x(M + N) − L| < B − L
+          instantiate n := M + N in line 1.5, from 1.6
+
+    1.9.  B ≤ x(M + N)
+          instantiate n := M + N in H6, from 1.7
+
+    1.10. x(M + N) ∈ ℝ
+          membership, from H1
+
+    1.11. L − (B − L) < x(M + N) and x(M + N) < L + (B − L)
+          mun:abs-difference-lt x := x(M + N), c := L, δ := B − L, from 1.8, 1.10
+
+    1.12. x(M + N) < L + (B − L)
+          inequalities, from 1.10, 1.11
+
+    1.13. L + (B − L) = B
+          algebra
+
+    1.14. x(M + N) < B
+          substitute L + (B − L) = B (line 1.13) into line 1.12
+
+    1.15. not B ≤ x(M + N)
+          inequalities, from 1.10, 1.14, contradicting 1.9
+
+theorem first-terms-bounded
+  note        Finitely many terms have a bound: the first term bounds
+              itself, and a bound for the first K terms and the next term's
+              size have a larger of the two.
+  let x : ℕ → ℝ                                                       (H1)
+  then for all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C
+
+1.  For all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C.
+    induction on K starting at 1
+
+    base
+    1.1.  |x(1)| ∈ ℝ
+          mun:abs-real x := x(1)
+          requires x(1) ∈ ℝ: from H1
+
+    1.2.  For all m ∈ {1, …, 1}, |x(m)| ≤ |x(1)|.
+          proof
+          let m ∈ {1, …, 1}                                           (K1)
+
+          1.2.1.  m ∈ ℕ and m ≤ 1
+                  mun:range n := 1, k := m, from K1
+
+          1.2.2.  m ≤ 1
+                  inequalities, from 1.2.1
+
+          1.2.3.  1 ≤ m
+                  inequalities, from K1
+
+          1.2.4.  m = 1
+                  antisymmetry, from 1.2.2, 1.2.3
+
+          1.2.5.  |x(m)| = |x(1)|
+                  substitute m = 1 (line 1.2.4)
+
+          1.2.6.  |x(m)| ≤ |x(1)|
+                  inequalities
+                    |x(m)| = |x(1)|      1.2.5
+                    |x(m)| ≤ |x(1)|      weakening
+                  requires |x(m)| ∈ ℝ: mun:abs-real x := x(m), from H1
+
+    1.3.  There is C ∈ ℝ with for all m ∈ {1, …, 1}, |x(m)| ≤ C.
+          exhibit, from 1.1, 1.2
+
+    step
+    let K ∈ ℕ                                                         (K)
+    assume step 1 is true for K, the induction hypothesis             (IH)
+
+    1.4.  C ∈ ℝ. For all i ∈ {1, …, K}, |x(i)| ≤ C.
+          obtain C from IH
+
+    1.5.  |x(K + 1)| ∈ ℝ
+          mun:abs-real x := x(K + 1)
+          requires x(K + 1) ∈ ℝ: from H1
+
+    let E = max(C, |x(K + 1)|), a real number                         (D)
+        mun:max-real x := C, y := |x(K + 1)|, from 1.4, 1.5
+        reads a bound for the first K terms and the next
+
+    1.6.  C ≤ E
+          mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
+
+    1.7.  |x(K + 1)| ≤ E
+          mun:le-max x := C, y := |x(K + 1)|, from D, 1.5
+
+    1.8.  For all m ∈ {1, …, K + 1}, |x(m)| ≤ E.
+          proof
+          let m ∈ {1, …, K + 1}                                       (K2)
+
+          1.8.1.  m ∈ ℕ and m ≤ K + 1
+                  mun:range n := K + 1, k := m, from K2
+
+          1.8.2.  m < K + 1 or m = K + 1
+                  mun:le-cases x := m, y := K + 1, from 1.8.1
+
+          1.8.3.  |x(m)| ∈ ℝ
+                  mun:abs-real x := x(m), from H1
+
+          1.8.4.  |x(m)| ≤ E
+                  cases, from 1.8.2
+
+                  case
+                  assume m < K + 1                                    (C1)
+
+                  1.8.4.1.  m + 1 ≤ K + 1
+                            mun:integer-step n := K + 1, from C1
+
+                  1.8.4.2.  m ≤ K
+                            inequalities
+                              m + 1 ≤ K + 1      1.8.4.1
+                              m ≤ K              adding −1
+
+                  1.8.4.3.  m ∈ {1, …, K}
+                            mun:range n := K, k := m, from 1.8.4.2
+
+                  1.8.4.4.  |x(m)| ≤ C
+                            instantiate i := m in line 1.4, from 1.8.4.3
+
+                  1.8.4.5.  |x(m)| ≤ E
+                            transitivity, from 1.8.4.4, 1.6
+                            requires |x(m)| ∈ ℝ: from 1.8.3
+
+                  case
+                  assume m = K + 1                                    (C2)
+
+                  1.8.4.6.  |x(m)| = |x(K + 1)|
+                            substitute m = K + 1 (C2)
+
+                  1.8.4.7.  |x(m)| ≤ E
+                            transitivity, from 1.8.4.6, 1.7
+                            requires |x(m)| ∈ ℝ: from 1.8.3
+
+    1.9.  There is C ∈ ℝ with for all m ∈ {1, …, K + 1}, |x(m)| ≤ C.
+          exhibit, from 1.8
+
+theorem convergent-abs-bounded
+  note        convergent-bounded on both sides: no term is further than B
+              from 0. From some N on the terms are within 1 of L, so at
+              most |L| + 1 in size; the first N have a bound C; the larger
+              of the two bounds every term.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
+
+1.  For all ε > 0, there exists N ∈ ℕ such that |x(n) − L| < ε for all n ≥ N.
+    def:tends-to, from H3
+
+2.  There exists N ∈ ℕ such that |x(n) − L| < 1 for all n ≥ N.
+    instantiate ε := 1 in line 1
+    requires 0 < 1: arithmetic
+
+3.  N ∈ ℕ. |x(n) − L| < 1 for all n ≥ N.
+    obtain N from line 2
+
+4.  For all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C.
+    thm:first-terms-bounded
+
+5.  There is C ∈ ℝ with for all i ∈ {1, …, N}, |x(i)| ≤ C.
+    instantiate K := N in line 4
+
+6.  C ∈ ℝ. For all i ∈ {1, …, N}, |x(i)| ≤ C.
+    obtain C from line 5
+
+7.  |L| ∈ ℝ
+    mun:abs-real x := L
+
+8.  |L| + 1 ∈ ℝ
+    membership, from 7
+
+let B = max(C, |L| + 1), a real number                                (D1)
+    mun:max-real x := C, y := |L| + 1, from 6, 8
+    reads a bound for the first N terms and for the rest
+
+9.  C ≤ B
+    mun:le-max x := C, y := |L| + 1, from D1, 8
+
+10. |L| + 1 ≤ B
+    mun:le-max x := C, y := |L| + 1, from D1, 8
+
+11. For all m ∈ ℕ, |x(m)| ≤ B.
+    proof
+    let m ∈ ℕ                                                         (K1)
+
+    11.1. |x(m)| ∈ ℝ
+          mun:abs-real x := x(m), from H1
+
+    11.2. m ≤ N or not m ≤ N
+          mun:excluded-middle P := m ≤ N
+
+    11.3. |x(m)| ≤ B
+          cases, from 11.2
+
+          case
+          assume m ≤ N                                                (C1)
+
+          11.3.1. m ∈ {1, …, N}
+                  mun:range n := N, k := m, from C1
+
+          11.3.2. |x(m)| ≤ C
+                  instantiate i := m in line 6, from 11.3.1
+
+          11.3.3. |x(m)| ≤ B
+                  transitivity, from 11.3.2, 9
+                  requires |x(m)| ∈ ℝ: from 11.1
+
+          case
+          assume not m ≤ N                                            (C2)
+
+          11.3.4. N < m
+                  inequalities, from C2
+
+          11.3.5. m ≥ N
+                  inequalities
+                    N < m      11.3.4
+                    N ≤ m      weakening
+                    m ≥ N      symmetry
+
+          11.3.6. |x(m) − L| < 1
+                  instantiate n := m in line 3, from 11.3.5
+
+          11.3.7. |(x(m) − L) + L| ≤ |x(m) − L| + |L|
+                  thm:triangle-inequality a := x(m) − L, b := L
+                  requires x(m) ∈ ℝ: from H1
+
+          11.3.8. (x(m) − L) + L = x(m)
+                  algebra
+                  requires x(m) ∈ ℝ: from H1
+
+          11.3.9. |x(m)| ≤ |x(m) − L| + |L|
+                  substitute (x(m) − L) + L = x(m) (line 11.3.8) into line 11.3.7
+
+          11.3.10. |x(m) − L| + |L| < |L| + 1
+                   inequalities
+                     |x(m) − L| < 1                  11.3.6
+                     |x(m) − L| + |L| < 1 + |L|      adding |L|
+                     |x(m) − L| + |L| < |L| + 1      algebra
+                   requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
+                   requires |L| ∈ ℝ: from 7
+
+          11.3.11. |x(m)| < |L| + 1
+                   transitivity, from 11.3.9, 11.3.10
+                   requires |x(m)| ∈ ℝ: from 11.1
+                   requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
+                   requires |L| ∈ ℝ: from 7
+
+          11.3.12. |x(m)| < B
+                   transitivity, from 11.3.11, 10
+                   requires |x(m)| ∈ ℝ: from 11.1
+                   requires |L| ∈ ℝ: from 7
+
+          11.3.13. |x(m)| ≤ B
+                   inequalities
+                     |x(m)| < B      11.3.12
+                     |x(m)| ≤ B      weakening
+                   requires |x(m)| ∈ ℝ: from 11.1
+
+12. There exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B.
+    exhibit, from 11
+
+theorem convergent-bounded
+  note        A sequence with a limit is bounded: from some point on its
+              terms are near the limit, and before that there are finitely
+              many of them. A bound on the terms' sizes bounds the terms.
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
+
+1.  There exists B ∈ ℝ such that for all i ∈ ℕ, |x(i)| ≤ B.
+    thm:convergent-abs-bounded, from H3
+
+2.  B ∈ ℝ. For all i ∈ ℕ, |x(i)| ≤ B.
+    obtain B from line 1
+
+3.  For all m ∈ ℕ, x(m) ≤ B.
+    proof
+    let m ∈ ℕ                                                         (K1)
+
+    3.1.  |x(m)| ≤ B
+          instantiate i := m in line 2
+
+    3.2.  x(m) ≤ |x(m)|
+          mun:abs-bounds x := x(m)
+          requires x(m) ∈ ℝ: from H1
+
+    3.3.  x(m) ≤ B
+          transitivity, from 3.2, 3.1
+          requires x(m) ∈ ℝ: from H1
+          requires |x(m)| ∈ ℝ: mun:abs-real x := x(m), from H1
+
+4.  There exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B.
+    exhibit, from 3
+
+theorem increasing-terms
+  note        Each term of an increasing sequence is at most the next, so
+              at most every later one: one step at a time.
+  let x : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
+  then for all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n)
+
+1.  For all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n).
+    induction on n starting at 1
+
+    base
+    1.1.  For all m ∈ ℕ, if m ≤ 1 then x(m) ≤ x(1).
+          proof
+          let m ∈ ℕ                                                   (K1)
+          assume m ≤ 1                                                (A1)
+
+          1.1.1.  1 ≤ m
+                  inequalities, from K1
+
+          1.1.2.  m = 1
+                  antisymmetry, from A1, 1.1.1
+
+          1.1.3.  x(m) = x(1)
+                  substitute m = 1 (line 1.1.2)
+
+          1.1.4.  x(m) ≤ x(1)
+                  inequalities
+                    x(m) = x(1)      1.1.3
+                    x(m) ≤ x(1)      weakening
+                  requires x(m) ∈ ℝ: from H1
+
+    step
+    let n ∈ ℕ                                                         (K)
+    assume step 1 is true for n, the induction hypothesis             (IH)
+
+    1.2.  For all m ∈ ℕ, if m ≤ n + 1 then x(m) ≤ x(n + 1).
+          proof
+          let m ∈ ℕ                                                   (K1)
+          assume m ≤ n + 1                                            (A1)
+
+          1.2.1.  m < n + 1 or m = n + 1
+                  mun:le-cases x := m, y := n + 1, from A1
+
+          1.2.2.  x(m) ≤ x(n + 1)
+                  cases, from 1.2.1
+
+                  case
+                  assume m < n + 1                                    (C1)
+
+                  1.2.2.1.  m + 1 ≤ n + 1
+                            mun:integer-step n := n + 1, from C1
+
+                  1.2.2.2.  m ≤ n
+                            inequalities
+                              m + 1 ≤ n + 1      1.2.2.1
+                              m ≤ n              adding −1
+
+                  1.2.2.3.  x(m) ≤ x(n)
+                            instantiate m := m in IH, from 1.2.2.2
+
+                  1.2.2.4.  x(n) ≤ x(n + 1)
+                            instantiate n := n in H2
+
+                  1.2.2.5.  x(m) ≤ x(n + 1)
+                            transitivity, from 1.2.2.3, 1.2.2.4
+                            requires x(m) ∈ ℝ: from H1
+                            requires x(n) ∈ ℝ: from H1
+                            requires x(n + 1) ∈ ℝ: from H1
+
+                  case
+                  assume m = n + 1                                    (C2)
+
+                  1.2.2.6.  x(m) = x(n + 1)
+                            substitute m = n + 1 (C2)
+
+                  1.2.2.7.  x(m) ≤ x(n + 1)
+                            inequalities
+                              x(m) = x(n + 1)      1.2.2.6
+                              x(m) ≤ x(n + 1)      weakening
+                            requires x(m) ∈ ℝ: from H1
+
+theorem monotone-limit
+  note        An increasing sequence bounded above has a limit, its least
+              upper bound c: the completeness of the real line, said of
+              sequences. However small ε is, c − ε is no upper bound, so
+              some term x(N) is above it; every later term is at least
+              x(N) and at most c, so within ε of c.
+  ε ranges over ℝ
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
+  let B ∈ ℝ                                                           (H3)
+  assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
+  then there is L ∈ ℝ with x(n) → L as n → ∞
+
+1.  ℕ ⊆ ℕ
+    mun:subset-self
+
+2.  x[ℕ] ⊆ ℝ
+    mun:image-within, from H1
+
+3.  x(1) ∈ x[ℕ]
+    mun:value-in-image s := 1, from H1, 1
+
+4.  For all s ∈ x[ℕ], s ≤ B.
+    proof
+    let s ∈ x[ℕ]                                                      (K1)
+
+    4.1.  There is k ∈ ℕ with s = x(k).
+          mun:image u := s, from H1, K1, 1
+
+    4.2.  k ∈ ℕ. s = x(k).
+          obtain k from line 4.1
+
+    4.3.  x(k) ≤ B
+          instantiate n := k in H4
+
+    4.4.  s ≤ B
+          transitivity, from 4.2, 4.3
+          requires x(k) ∈ ℝ: from H1
+
+5.  B is an upper bound of x[ℕ]
+    mun:upper-bound, from 4
+
+6.  c ∈ ℝ. c is a least upper bound of x[ℕ].
+    obtain c: axi:completeness, from 2, 3, 5
+
+7.  c is an upper bound of x[ℕ].
+    For all u ∈ ℝ, if u is an upper bound of x[ℕ] then c ≤ u.
+    mun:least-upper-bound, from 6
+
+8.  For all s ∈ x[ℕ], s ≤ c.
+    mun:upper-bound, from 7
+
+9.  For all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n).
+    thm:increasing-terms, from H2
+
+10. For all ε > 0, there exists N ∈ ℕ such that |x(n) − c| < ε for all n ≥ N.
+    proof
+    let ε ∈ ℝ                                                         (K1)
+    assume ε > 0                                                      (A1)
+
+    10.1. c − ε < c
+          inequalities
+            ε > 0          A1
+            −ε < 0         multiplying by −1
+            c − ε < c      adding c
+
+    10.2. There is s ∈ x[ℕ] with c − ε < s.
+          contradiction
+          suppose there is no s ∈ x[ℕ] with c − ε < s                 (S)
+
+          10.2.1. For all s ∈ x[ℕ], s ≤ c − ε.
+                  proof
+                  let s ∈ x[ℕ]                                        (K2)
+
+                  10.2.1.1. s ∈ ℝ
+                            mun:in-subset, from K2, 2
+
+                  10.2.1.2. s ≤ c − ε
+                            contradiction
+                            suppose not s ≤ c − ε                     (S2)
+
+                            10.2.1.2.1. c − ε < s
+                                        inequalities, from S2, 10.2.1.1
+
+                            10.2.1.2.2. There is s ∈ x[ℕ] with c − ε < s.
+                                        exhibit, from K2, 10.2.1.2.1, contradicting S
+
+          10.2.2. c − ε is an upper bound of x[ℕ]
+                  mun:upper-bound, from 10.2.1
+
+          10.2.3. c ≤ c − ε
+                  instantiate u := c − ε in line 7, from 10.2.2
+
+          10.2.4. not c ≤ c − ε
+                  inequalities, from 10.1, contradicting 10.2.3
+
+    10.3. s ∈ x[ℕ]. c − ε < s.
+          obtain s from line 10.2
+
+    10.4. There is N ∈ ℕ with s = x(N).
+          mun:image u := s, from H1, 1, 10.3
+
+    10.5. N ∈ ℕ. s = x(N).
+          obtain N from line 10.4
+
+    10.6. c − ε < x(N)
+          transitivity, from 10.3, 10.5
+          requires x(N) ∈ ℝ: from H1
+
+    10.7. c < c + ε
+          inequalities
+            ε > 0          A1
+            c + ε > c      adding c
+            c < c + ε      symmetry
+
+    10.8. For all n ≥ N, |x(n) − c| < ε.
+          proof
+          let n ∈ ℕ                                                   (K2)
+          assume n ≥ N                                                (A2)
+
+          10.8.1. N ≤ n
+                  inequalities
+                    n ≥ N      A2
+                    N ≤ n      symmetry
+
+          10.8.2. x(N) ≤ x(n)
+                  instantiate m := N in line 9, from 10.8.1
+
+          10.8.3. x(n) ∈ x[ℕ]
+                  mun:value-in-image s := n, from H1, 1
+
+          10.8.4. x(n) ≤ c
+                  instantiate s := x(n) in line 8, from 10.8.3
+
+          10.8.5. c − ε < x(n)
+                  transitivity, from 10.6, 10.8.2
+                  requires x(N) ∈ ℝ: from H1
+                  requires x(n) ∈ ℝ: from H1
+
+          10.8.6. x(n) < c + ε
+                  transitivity, from 10.8.4, 10.7
+                  requires x(n) ∈ ℝ: from H1
+
+          10.8.7. c − ε < x(n) and x(n) < c + ε
+                  join 10.8.5, 10.8.6
+
+          10.8.8. |x(n) − c| < ε
+                  mun:abs-difference-lt x := x(n), δ := ε, from 10.8.7
+                  requires x(n) ∈ ℝ: from H1
+
+    10.9. There exists N ∈ ℕ such that |x(n) − c| < ε for all n ≥ N.
+          exhibit, from 10.8
+
+11. x(n) → c as n → ∞
+    def:tends-to L := c, from 10
+
+12. There is L ∈ ℝ with x(n) → L as n → ∞.
+    exhibit, from 11

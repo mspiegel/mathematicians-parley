@@ -5620,8 +5620,8 @@ impl<'a> Elaborator<'a> {
         }
         let library = self.item_library();
         // A class a fill puts in may bind a letter of its own that the lemma
-        // keeps apart from the variable it fills: glimge keeps n apart from
-        // F, and F may be the map sending n ∈ ℕ to s(n). Such a letter is
+        // keeps apart from the variable it fills: a lemma about a sequence
+        // may keep n apart from F, and F be the map sending n ∈ ℕ to s(n). Such a letter is
         // spelt with one the lemma uses nowhere.
         let theirs: BTreeSet<String> =
             match label.as_deref().and_then(|l| self.b.sigs.get(l)) {
@@ -5742,17 +5742,16 @@ impl<'a> Elaborator<'a> {
 
     /// What each letter of a cited corpus theorem stands for where the
     /// citation's match fixes it, as a term in the step's own names: the
-    /// binding the checker reads the citation with (`cited_here`). Empty for
-    /// an obtain, which claims no conclusion.
-    fn corpus_matched(
+    /// binding the checker reads the citation with (`cited_here`). An
+    /// obtain's is read off the lines it cites, as `obtain B:
+    /// thm:convergent-bounded, from 1.1` finds x in 1.1.
+    pub(super) fn corpus_matched(
         &mut self,
         step: &Step,
         other: &'a Theorem,
     ) -> Checked<IndexMap<String, Rpn>> {
         let mut out = IndexMap::new();
-        if step.just.head.is(crate::corpus::Method::Obtain) {
-            return Ok(out);
-        }
+        let obtain = step.just.head.is(crate::corpus::Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
         // A name the citation writes a value for takes that value, and a
         // name the match gives itself, as a library function's C in C(m, k)
@@ -5765,6 +5764,12 @@ impl<'a> Elaborator<'a> {
         for (name, node) in &taken.binding {
             if written.contains(name.as_str()) || (node.is_name() && node.text == *name)
             {
+                continue;
+            }
+            // An obtain reads a letter the proof names by the same word as
+            // that name, as it reads the item's sentence; only a letter the
+            // proof has no name for is taken from the lines.
+            if obtain && self.names.contains_key(name.as_str()) {
                 continue;
             }
             // A function letter the match makes a rule, t := x ↦ x·c, stands
@@ -5905,6 +5910,23 @@ impl<'a> Elaborator<'a> {
                 // what goes without saying"): `A ⊆ B ∪ A` cited for
                 // `B ⊆ A ∪ B` puts B for A and A for B.
                 let matched = me.corpus_matched(step, other)?;
+                // A letter read apart stands for a class no value and no name
+                // of the step writes, since the value is put back in for that
+                // class over the whole reading: the citing proof's own first
+                // `let` is cA, as the theorem's is.
+                let held: BTreeSet<&str> = saved
+                    .values()
+                    .chain(values.values())
+                    .chain(matched.values())
+                    .flat_map(|t| t.tokens().iter().map(|s| s.as_str()))
+                    .collect();
+                let mut unheld = CLASS_NAMES
+                    .iter()
+                    .rev()
+                    .copied()
+                    .filter(|c| !held.contains(c))
+                    .collect::<Vec<_>>()
+                    .into_iter();
                 for h in &other.hypotheses {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`
@@ -5995,14 +6017,22 @@ impl<'a> Elaborator<'a> {
                             .or_else(|| matched.get(&name))
                             .or_else(|| saved.get(&name))
                         {
-                            if apart.contains(&name) {
-                                me.names.insert(name.clone(), t!(theirs));
+                            let class = if apart.contains(&name) {
+                                let Some(own) = unheld.next() else {
+                                    return Err(me.defect(
+                                        step.line,
+                                        "no class is left to read the cited theorem's letter apart from what the citation gives it",
+                                    ));
+                                };
+                                me.names.insert(name.clone(), t!(own));
+                                t!(own)
                             } else {
                                 me.names.insert(name.clone(), term.clone());
-                            }
+                                t!(theirs)
+                            };
                             given.push(Given {
                                 name: name.clone(),
-                                class: t!(theirs),
+                                class,
                                 term: term.clone(),
                             });
                         } else {
@@ -6224,9 +6254,10 @@ impl<'a> Elaborator<'a> {
     /// the build gives its bound ones, so the theorem's k is moved to one
     /// nothing holds, and the value put in after: the theorem is read again
     /// with those letters as classes of their own (`again`), and the classes
-    /// and letters substituted together. A reading where no value holds a
-    /// letter the theorem binds is kept as it is.
-    fn apart_from_values(
+    /// and letters substituted together. A value that binds the letter
+    /// itself, as a map does, is moved apart from the same way. A reading
+    /// where no value writes a letter the theorem binds is kept as it is.
+    pub(super) fn apart_from_values(
         &mut self,
         first: Reading,
         again: impl FnOnce(&mut Self, &BTreeSet<String>) -> Checked<Reading>,
@@ -6240,21 +6271,22 @@ impl<'a> Elaborator<'a> {
                 .map(|v| v.to_string())
                 .collect()
         };
-        // The letters a value holds and does not bind itself.
-        let free_in = |me: &Self, term: &Rpn| -> BTreeSet<String> {
-            let bound = me.letters_bound(&me.to_term(term));
+        // The letters a value writes, free or bound: a map the value binds
+        // n in, put where the theorem binds n around it, gives the kernel a
+        // renaming onto n of a body that already binds n, which `cbvralvw`
+        // and the theorem's own disjointness refuse.
+        let spelt_in = |me: &Self, term: &Rpn| -> BTreeSet<String> {
             term.tokens()
                 .iter()
                 .filter(|t| me.is_setvar(t))
                 .filter_map(|t| me.var_of(t).variable().map(String::from))
-                .filter(|v| !bound.contains(v.as_str()))
                 .collect()
         };
         let bound = bound_in(self, &first);
         let apart: BTreeSet<String> = first
             .given
             .iter()
-            .filter(|g| !free_in(self, &g.term).is_disjoint(&bound))
+            .filter(|g| !spelt_in(self, &g.term).is_disjoint(&bound))
             .map(|g| g.name.clone())
             .collect();
         if apart.is_empty() {
@@ -6265,7 +6297,7 @@ impl<'a> Elaborator<'a> {
             .given
             .iter()
             .filter(|g| apart.contains(&g.name))
-            .flat_map(|g| free_in(self, &g.term))
+            .flat_map(|g| spelt_in(self, &g.term))
             .collect();
         let moving: Vec<Symbol> = bound_in(self, &second)
             .intersection(&held)
@@ -6903,23 +6935,23 @@ struct Equated {
 }
 
 /// A cited theorem read under what a citation gives its letters
-/// (`cite_corpus`).
-struct Reading {
+/// (`cite_corpus`, and an obtain from a theorem).
+pub(super) struct Reading {
     /// Its hypotheses, in order.
-    wanted: Vec<Rpn>,
+    pub(super) wanted: Vec<Rpn>,
     /// Its statement.
-    whole: Rpn,
+    pub(super) whole: Rpn,
     /// Each letter the citation or the match gave a value.
-    given: Vec<Given>,
+    pub(super) given: Vec<Given>,
 }
 
 /// One letter of a cited theorem and what the citation puts for it.
-struct Given {
-    name: String,
+pub(super) struct Given {
+    pub(super) name: String,
     /// The class of its own the letter is read as where it is kept apart.
-    class: Rpn,
+    pub(super) class: Rpn,
     /// What it stands for, in the citing proof's kernel spelling.
-    term: Rpn,
+    pub(super) term: Rpn,
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

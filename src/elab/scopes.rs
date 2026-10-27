@@ -11,11 +11,13 @@
 //! and what was known there. A step whose lemma forbids an inner assumption
 //! is proved at an outer frame and carried back in.
 
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
 
-use super::elaborate::Sides;
+use super::elaborate::{Given, Reading, Sides};
+use super::reading::CLASS_NAMES;
 use super::state::{
     number_of, Binding, Block, BlockLetter, Closer, Contradicted, DefineCloser,
     Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
@@ -2353,14 +2355,32 @@ impl<'a> Elaborator<'a> {
             }
             Some(item_name) => {
                 let item = self.item_cited(item_name)?;
-                let claimed = self.names_kept(|me| -> Checked<Rpn> {
+                // Read under what the citation gives the item's letters. A
+                // letter named in `apart` is read as a class nothing else
+                // holds, and its value put in once the item's bound letters
+                // are moved off it, as `cite_corpus` reads a theorem
+                // (`apart_from_values`).
+                let read = |me: &mut Self,
+                            apart: &BTreeSet<String>|
+                 -> Checked<Reading> {
+                    me.names_kept(|me| -> Checked<Reading> {
                     // A record's sentence comes back with each of its letters
                     // already what it stands for (`item_sentence_here`), in
                     // the proof's names. A theorem's is read in its own
                     // letters, which the values name, read in the proof's
                     // names as they stand, before anything is obtained.
+                    // A letter the citation does not write is what the
+                    // checker's reading of it fixes (`corpus_matched`).
                     let values = match item {
-                        Item::Theorem(_) => me.instantiated(&step.just)?,
+                        Item::Theorem(theorem) => {
+                            let mut values = me.instantiated(&step.just)?;
+                            for (name, term) in me.corpus_matched(step, theorem)? {
+                                if !values.iter().any(|(n, _)| *n == name) {
+                                    values.push((name, term));
+                                }
+                            }
+                            values
+                        }
                         Item::Record(_) => Vec::new(),
                     };
                     // A name is a variable of the kernel whatever it is
@@ -2370,12 +2390,35 @@ impl<'a> Elaborator<'a> {
                         let var = me.binder_var(name)?;
                         me.names.insert(name.clone(), t!(var, "cv"));
                     }
+                    let held: BTreeSet<String> = me
+                        .names
+                        .values()
+                        .chain(values.iter().map(|(_, t)| t))
+                        .flat_map(|t| t.tokens().iter().map(|s| s.to_string()))
+                        .collect();
+                    let mut unheld = CLASS_NAMES
+                        .iter()
+                        .rev()
+                        .filter(|c| !held.contains(**c));
                     // The item's letters are what the citation gives them,
                     // even where an obtained name is spelt as one of them:
                     // `obtain x, n: thm:lowest-terms x := √2` gives the
                     // item's x the value √2, and obtains another x.
+                    let mut given: Vec<Given> = Vec::new();
                     for (name, term) in values {
-                        me.names.insert(name, term);
+                        let class = if apart.contains(&name) {
+                            let Some(own) = unheld.next() else {
+                                return Err(me.defect(
+                                    step.line,
+                                    "no class is left to read the cited theorem's letter apart from what the citation gives it",
+                                ));
+                            };
+                            t!(*own)
+                        } else {
+                            term.clone()
+                        };
+                        me.names.insert(name.clone(), class.clone());
+                        given.push(Given { name, class, term });
                     }
                     // A library item says its existential in its own names,
                     // and the step's lines say what those stand for. The
@@ -2392,8 +2435,15 @@ impl<'a> Elaborator<'a> {
                             me.in_its_names(item, |me| me.read_one(&said))?
                         }
                     };
-                    me.term(&node)
-                })?;
+                    Ok(Reading {
+                        wanted: Vec::new(),
+                        whole: me.term(&node)?,
+                        given,
+                    })
+                    })
+                };
+                let first = read(self, &BTreeSet::new())?;
+                let (_, claimed) = self.apart_from_values(first, read)?;
                 // An item states its existential in its own names, and a
                 // binder takes the variable its name is spelled with, so the
                 // one obtained is renamed to a variable nothing else holds.
@@ -3234,9 +3284,13 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// An existential rewritten to bind variables nothing else holds.
+    /// An existential rewritten to bind variables nothing else holds, the
+    /// existential included: a letter its body already binds, as a cited
+    /// theorem's letter moved apart from a value is, is passed over.
     pub fn renamed(&mut self, ex: &Rpn, depth: usize) -> Checked<Rpn> {
         let whole = self.to_term(ex);
+        let spelt: BTreeSet<String> =
+            ex.tokens().iter().map(|t| t.to_string()).collect();
         let mut term = whole.clone();
         let mut binding = Binding::new();
         for _ in 0..depth {
@@ -3246,7 +3300,10 @@ impl<'a> Elaborator<'a> {
             let Some(var) = term.children()[1].variable().map(Symbol::of) else {
                 break;
             };
-            let fresh = self.spare_var()?;
+            let mut fresh = self.spare_var()?;
+            while spelt.contains(&fresh) {
+                fresh = self.spare_var()?;
+            }
             binding.insert(var, self.var_of(&fresh));
             term = term.children()[0].clone();
         }
