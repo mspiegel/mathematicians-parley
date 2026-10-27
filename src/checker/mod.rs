@@ -206,10 +206,13 @@ fn check_taken(
 
 /// Every theorem as the checker reads it, by its qualified name: its shape,
 /// its sorts and what the checker reports in it. The build is handed these
-/// and builds only a theorem with no problem, so that it refuses exactly
-/// what the checker refuses and says it as the checker does. What the
-/// checker reports of the corpus as a whole, outside every theorem, is
-/// `run`'s to say.
+/// and builds only a theorem with no problem, so that it refuses what the
+/// checker refuses and says it as the checker does. What the checker
+/// reports of the corpus as a whole, outside every theorem, is `run`'s to
+/// say, and so is a pair naming a letter for itself that the theorem holds
+/// without (`check_pairs_needed`): the pair is how the page is written, and
+/// a theorem the tools write for themselves, a restatement citing an item
+/// (`tools::restated`), gives every letter its value on purpose.
 pub fn checked(source: &dyn Source) -> Result<CheckedCorpus, Outcome> {
     checked_where(source, |_| true)
 }
@@ -247,7 +250,7 @@ pub fn checked_where(
                 continue;
             }
             let mut own = Report::default();
-            check_nth(&mut own, c, i);
+            check_theorem(&mut own, c, thm, &c.known[i], &c.clashes[i]);
             let mut record = CheckedTheorem::of(thm);
             record.sorts = c.known[i].sorts.clone();
             record.problems = own.problems;

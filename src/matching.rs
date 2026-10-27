@@ -1061,10 +1061,16 @@ fn fit_each(
             let fits = property(pattern, ground, binding, sites, ctx);
             return then_kept(fits, before, binding, then);
         }
-        if let Some(filled) = rule_at_open_argument(pattern, binding, variables, ctx) {
+        // A rule or a map filled in is matched in the pattern's place, but
+        // not one that names the page's letter of the pattern's
+        // (`names_its_letter`).
+        let own = names_its_letter(pattern, binding, ctx);
+        if let Some(filled) =
+            rule_at_open_argument(pattern, binding, variables, ctx).filter(|_| !own)
+        {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
-        if let Some(filled) = map_at_argument(pattern, binding, ctx) {
+        if let Some(filled) = map_at_argument(pattern, binding, ctx).filter(|_| !own) {
             return fit_each(&filled, ground, binding, variables, sites, ctx, then);
         }
         if let Some(fits) = family(pattern, ground, binding, variables, sites, ctx) {
@@ -1865,6 +1871,20 @@ fn read_at(arg: &Node, binding: &Binding, ctx: &Context) -> Node {
     substitute_apart(arg, &terms, ctx)
 }
 
+/// Whether the rule or map bound to the pattern's function letter names a
+/// letter of the page with that letter's name: t bound to the page's
+/// y ↦ t(g(y)), where a citation gives t no value. Filled in at t(z), it
+/// gives t(g(z)), whose t is the page's; matched again, that t is read as
+/// the item's letter and filled in again, t(g(g(z))), without end, and E
+/// bound to s ↦ E(s) gives back E(s) itself each time. What such a rule
+/// gives is the page's own term, which is compared as written.
+fn names_its_letter(pattern: &Node, binding: &Binding, ctx: &Context) -> bool {
+    let letter = &pattern.children[0].text;
+    binding
+        .get(letter)
+        .is_some_and(|rule| free_names(rule, &ctx.binders).contains(letter.as_str()))
+}
+
 /// t applied to something, where t is a function the pattern names.
 ///
 /// Under a binder that applies it to what it binds, t is whatever is summed
@@ -1895,8 +1915,13 @@ fn family(
             let filled = substitute_apart(&stands.children[0], &at, ctx);
             // At a letter still to be bound, a "there is"'s own in u =
             // E(s), the rule there is matched, which binds it: E(s) with E
-            // the map n ↦ 2n meets 2m at s := m.
-            if is_variable(&arg, variables) && !binding.contains_key(&arg.text) {
+            // the map n ↦ 2n meets 2m at s := m. A rule naming the page's
+            // letter of the pattern's is compared as written
+            // (`names_its_letter`).
+            if !names_its_letter(pattern, binding, ctx)
+                && is_variable(&arg, variables)
+                && !binding.contains_key(&arg.text)
+            {
                 return Some(fit(&filled, ground, binding, variables, sites, ctx));
             }
             return Some(alike_top(&filled, ground, ctx));

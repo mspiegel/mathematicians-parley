@@ -283,6 +283,41 @@ fn a_line_saying_a_divisor_is_not_zero_does_work() {
     assert!(out.contains("\n0 problem(s)\n"), "{out}");
 }
 
+/// An item's function letter that the page names alike is found by
+/// matching where the citation gives it no value. The map a match may bind
+/// it to names the page's letter of the same name, E ↦ (s ↦ E(s)) or
+/// t ↦ (y ↦ t(g(y))); what it gives is the page's own term, compared as
+/// written, and not filled in again without end.
+#[test]
+fn a_function_letter_named_alike_is_found_without_a_pair() {
+    let clean = clean();
+    let cases = [
+        case(
+            "cite set-image with no values, the page's letters named as the item's",
+            vec![edit(
+                "proofs/wiedijk/image-back.proof",
+                None,
+                "import mundane definition stdlib/functions/set-image\n\ntheorem image-back\n  let Y be a set                                                      (H1)\n  let Z be a set                                                      (H2)\n  let E : Y → Z                                                       (H3)\n  let u be an element                                                 (H4)\n  assume there is s ∈ Y with u = E(s)                                 (H5)\n  then u ∈ {E(s) : s ∈ Y}\n\n1.  s ∈ Y. u = E(s).\n    obtain s from H5\n\n2.  u ∈ {E(s) : s ∈ Y}\n    mun:set-image, from 1\n".to_string(),
+            )],
+            "",
+        ),
+        case(
+            "cite product-reindex with no values, the page's letters named as the item's",
+            vec![edit(
+                "proofs/wiedijk/reindex-plain.proof",
+                None,
+                "import mundane theorem stdlib/sums/product-reindex\n\ntheorem reindex-plain\n  let Y be a set                                                      (H1)\n  assume Y is finite                                                  (H2)\n  let Z be a set                                                      (H5)\n  let g : Y → Z be one-to-one and onto                                (H3)\n  let t : Z → ℝ                                                       (H4)\n  then ∏(z ∈ Z) t(z) = ∏(y ∈ Y) t(g(y))\n\n1.  ∏(z ∈ Z) t(z) = ∏(y ∈ Y) t(g(y))\n    mun:product-reindex, from H2, H3\n".to_string(),
+            )],
+            "",
+        ),
+    ];
+    for case in &cases {
+        let tree = plant(case, &clean).unwrap();
+        let out = checked_planted(case, &tree);
+        assert!(out.contains("\n0 problem(s)\n"), "{}: {out}", case.name);
+    }
+}
+
 /// A substitute justification that matches no production has no reading,
 /// so it is told that alone: what a substitution makes is not asked of the
 /// parts the reader cut from it (`Justification::unproduced`).

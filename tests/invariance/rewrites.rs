@@ -1832,6 +1832,15 @@ pub fn statements_renamed(
             if map.is_empty() {
                 continue;
             }
+            if makes_pairs_for_themselves(thm, &map) {
+                declined.push(Declined {
+                    theorem: thm.qualified(),
+                    why:
+                        "the renaming gives a cited letter itself, `P := A` as `P := P`"
+                            .to_string(),
+                });
+                continue;
+            }
             let mut attempt = lines.clone();
             match rename(ctx, &mut attempt, &lay, &map) {
                 Ok(_) => {
@@ -1844,10 +1853,43 @@ pub fn statements_renamed(
             }
         }
     }
+    let item = re(r"\bthm:([A-Za-z0-9′-]+)");
+    // A renaming that would give a cited letter itself, `A := P` as
+    // `P := P`, is not made: no proof writes that pair where matching finds
+    // the letter (`SYNTAX.md`, no pair says what goes without saying).
+    for (path, lines) in &texts {
+        for (thm, end) in theorems_of(ctx, path, lines.len()) {
+            for citation in citations_of(thm, lines, end) {
+                let Some(m) = item.captures(&lines[citation.lines[0]]) else {
+                    continue;
+                };
+                let full = thm.names.full(&m[1]);
+                let Some(map) = renamings.get(&full) else {
+                    continue;
+                };
+                // The citer's letters are renamed too where it is cited
+                // itself: `n := p` is `b := b` with n and p both renamed b.
+                let own = renamings.get(&thm.qualified());
+                let itself = citation.values.pairs().any(|(name, value)| {
+                    let value = value.text().trim();
+                    let value =
+                        own.and_then(|o| o.get(value)).map_or(value, String::as_str);
+                    map.get(name).is_some_and(|new| new == value)
+                });
+                if itself {
+                    renamings.remove(&full);
+                    declined.push(Declined {
+                        theorem: full,
+                        why: "a citation's pair would name a letter for itself"
+                            .to_string(),
+                    });
+                }
+            }
+        }
+    }
     let mut changed: BTreeMap<String, BTreeSet<usize>> = BTreeMap::new();
     let mut theorems: BTreeMap<String, Vec<String>> = BTreeMap::new();
     // Each citation of a renamed theorem, said again under its new names.
-    let item = re(r"\bthm:([A-Za-z0-9′-]+)");
     for (path, lines) in texts.iter_mut() {
         for (thm, end) in theorems_of(ctx, path, lines.len()) {
             for citation in citations_of(thm, lines, end) {
@@ -1879,15 +1921,17 @@ pub fn statements_renamed(
                 // A letter the citation leaves to the matcher is given what
                 // the matcher makes it there, under its new name; one the
                 // matcher does not fix meant the citer's letter of its name.
+                // Where that is the citer's letter of the new name, the
+                // names agree again and the citation still leaves it.
                 let bound = citation
                     .step
                     .and_then(|l| ctx.bound.get(&(path.clone(), l)));
                 let left: Vec<String> = map
                     .iter()
                     .filter(|(old, _)| !named.contains(*old))
-                    .map(|(old, new)| {
+                    .filter_map(|(old, new)| {
                         let value = bound.and_then(|b| b.get(old)).unwrap_or(old);
-                        format!("{new} := {value}")
+                        (value != new).then(|| format!("{new} := {value}"))
                     })
                     .collect();
                 if left.is_empty() {
