@@ -3392,10 +3392,59 @@ theorem parallel-heights
 23. |QH| = |RK|
     thm:parallel-equidistant A := Q, B := R, from H9, 14, 18, 19, 22
 
+theorem same-base-area
+  note        Euclid I.37: triangles on one base XY with their apexes Q and R
+              on a line parallel to it have one height (parallel-heights), so
+              one area.
+  let Q be a point                                                    (H1)
+  let R be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  assume Q ≠ R                                                        (H5)
+  assume Q, X, Y form a triangle                                      (H6)
+  assume R, X, Y form a triangle                                      (H7)
+  assume line XY ∥ line QR                                            (H8)
+  then the area of △QXY = the area of △RXY
+
+1.  H ∈ 𝔼². S ∈ 𝔼². H is on line XY. S is on line XY. S ≠ H. Q ≠ H.
+    ∠QHS = 90°.
+    obtain H, S: mun:foot P := Q, Q := X, R := Y, from H6
+
+2.  K ∈ 𝔼². T ∈ 𝔼². K is on line XY. T is on line XY. T ≠ K. R ≠ K.
+    ∠RKT = 90°.
+    obtain K, T: mun:foot P := R, Q := X, R := Y, from H7
+
+3.  the area of △QXY = (1/2)·|XY|·|QH|
+    mun:height-area P := Q, Q := X, R := Y, from H6, 1
+
+4.  the area of △RXY = (1/2)·|XY|·|RK|
+    mun:height-area P := R, Q := X, R := Y, H := K, S := T, from H7, 2
+
+5.  Q ≠ X. X ≠ Y. Q ≠ Y.
+    mun:triangle P := Q, Q := X, R := Y, from H6
+
+6.  line QR ∥ line XY
+    mun:parallel-turned A := X, B := Y, C := Q, D := R, from H8, 5
+
+7.  not (Q is on line XY)
+    mun:triangle-not-on-line P := Q, Q := X, R := Y, from H6
+
+8.  |QH| = |RK|
+    thm:parallel-heights, from H5, 1, 2, 5, 6, 7
+
+9.  (1/2)·|XY|·|QH| = (1/2)·|XY|·|RK|
+    substitute |QH| = |RK| (line 8)
+
+10. the area of △QXY = the area of △RXY
+    calculation
+      the area of △QXY = (1/2)·|XY|·|QH|         3
+                       = (1/2)·|XY|·|RK|         9
+                       = the area of △RXY        4
+
 theorem proportional-segments
   note        Euclid VI.2. The triangles QXY and RXY have the base XY and
-              Q and R on a parallel to it, so one height and one area
-              (parallel-heights). Adding PXY to each, YPQ and XPR have one
+              Q and R on a parallel to it, so one area (same-base-area,
+              Euclid I.37). Adding PXY to each, YPQ and XPR have one
               area too. Measured from the heights of Y over line PQ and of X
               over line PR, the areas give |PQ| : |PX| = |PR| : |PY|.
   let P be a point                                                    (H1)
@@ -3517,134 +3566,106 @@ theorem proportional-segments
 36. the area of △XYP = the area of △XPY
     mun:area-turned P := X, Q := Y, R := P, from 28
 
-37. H ∈ 𝔼². S ∈ 𝔼². H is on line XY. S is on line XY. S ≠ H. Q ≠ H.
-    ∠QHS = 90°.
-    obtain H, S: mun:foot P := Q, Q := X, R := Y, from 20
+37. the area of △QXY = the area of △RXY
+    thm:same-base-area, from H9, 1, 20, 25
 
-38. K ∈ 𝔼². T ∈ 𝔼². K is on line XY. T is on line XY. T ≠ K. R ≠ K.
-    ∠RKT = 90°.
-    obtain K, T: mun:foot P := R, Q := X, R := Y, from 25
-
-39. the area of △QXY = (1/2)·|XY|·|QH|
-    mun:height-area P := Q, Q := X, R := Y, from 20, 37
-
-40. the area of △RXY = (1/2)·|XY|·|RK|
-    mun:height-area P := R, Q := X, R := Y, H := K, S := T, from 25, 38
-
-41. Q ≠ X. X ≠ Y. Q ≠ Y.
-    mun:triangle P := Q, Q := X, R := Y, from 20
-
-42. line QR ∥ line XY
-    mun:parallel-turned A := X, B := Y, C := Q, D := R, from H9, 41
-
-43. not (Q is on line XY)
-    mun:triangle-not-on-line P := Q, Q := X, R := Y, from 20
-
-44. |QH| = |RK|
-    thm:parallel-heights, from 1, 37, 38, 41, 42, 43
-
-45. (1/2)·|XY|·|QH| = (1/2)·|XY|·|RK|
-    substitute |QH| = |RK| (line 44)
-
-46. the area of △YXQ = the area of △XYR
+38. the area of △YXQ = the area of △XYR
     calculation
       the area of △YXQ = the area of △XQY        29
                        = the area of △QYX        30
                        = the area of △QXY        31
-                       = (1/2)·|XY|·|QH|         39
-                       = (1/2)·|XY|·|RK|         45
-                       = the area of △RXY        40
+                       = the area of △RXY        37
                        = the area of △YRX        33
                        = the area of △XYR        32
 
-47. the area of △YPX = the area of △XPY
+39. the area of △YPX = the area of △XPY
     calculation
       the area of △YPX = the area of △PXY        34
                        = the area of △XYP        35
                        = the area of △XPY        36
 
-48. the area of △YPQ = the area of △XPY + the area of △YXQ
-    substitute the area of △YPX = the area of △XPY (line 47) into line 13
+40. the area of △YPQ = the area of △XPY + the area of △YXQ
+    substitute the area of △YPX = the area of △XPY (line 39) into line 13
 
-49. the area of △YPQ = the area of △XPY + the area of △XYR
-    substitute the area of △YXQ = the area of △XYR (line 46) into line 48
+41. the area of △YPQ = the area of △XPY + the area of △XYR
+    substitute the area of △YXQ = the area of △XYR (line 38) into line 40
 
-50. the area of △YPQ = the area of △XPR
+42. the area of △YPQ = the area of △XPR
     calculation
-      the area of △YPQ = the area of △XPY + the area of △XYR      49
+      the area of △YPQ = the area of △XPY + the area of △XYR      41
                        = the area of △XPR                         14
 
-51. M ∈ 𝔼². U ∈ 𝔼². M is on line PQ. U is on line PQ. U ≠ M. Y ≠ M.
+43. M ∈ 𝔼². U ∈ 𝔼². M is on line PQ. U is on line PQ. U ≠ M. Y ≠ M.
     ∠YMU = 90°.
     obtain M, U: mun:foot P := Y, Q := P, R := Q, from 7
 
-52. N ∈ 𝔼². V ∈ 𝔼². N is on line PR. V is on line PR. V ≠ N. X ≠ N.
+44. N ∈ 𝔼². V ∈ 𝔼². N is on line PR. V is on line PR. V ≠ N. X ≠ N.
     ∠XNV = 90°.
     obtain N, V: mun:foot P := X, Q := P, from 12
 
-53. the area of △YPQ = (1/2)·|PQ|·|YM|
-    mun:height-area P := Y, Q := P, R := Q, H := M, S := U, from 7, 51
+45. the area of △YPQ = (1/2)·|PQ|·|YM|
+    mun:height-area P := Y, Q := P, R := Q, H := M, S := U, from 7, 43
 
-54. Q, X, P are collinear.
+46. Q, X, P are collinear.
     mun:between-collinear R := X, S := P, T := Q, from H7
 
-55. X is on line PQ
-    mun:on-line P := X, A := P, B := Q, from 54
+47. X is on line PQ
+    mun:on-line P := X, A := P, B := Q, from 46
 
-56. P ≠ X. Q ≠ X.
+48. P ≠ X. Q ≠ X.
     mun:between-apart R := X, S := P, T := Q, from H7
 
-57. the area of △YPX = (1/2)·|PX|·|YM|
+49. the area of △YPX = (1/2)·|PX|·|YM|
     thm:same-height P := Y, Q := P, R := Q, S := X, H := M, T := U,
-      from 7, 51, 55, 56
+      from 7, 43, 47, 48
 
-58. the area of △XPR = (1/2)·|PR|·|XN|
-    mun:height-area P := X, Q := P, H := N, S := V, from 12, 52
+50. the area of △XPR = (1/2)·|PR|·|XN|
+    mun:height-area P := X, Q := P, H := N, S := V, from 12, 44
 
-59. R, Y, P are collinear.
+51. R, Y, P are collinear.
     mun:between-collinear R := Y, S := P, T := R, from H8
 
-60. Y is on line PR
-    mun:on-line P := Y, A := P, B := R, from 59
+52. Y is on line PR
+    mun:on-line P := Y, A := P, B := R, from 51
 
-61. P ≠ Y. R ≠ Y.
+53. P ≠ Y. R ≠ Y.
     mun:between-apart R := Y, S := P, T := R, from H8
 
-62. the area of △XPY = (1/2)·|PY|·|XN|
+54. the area of △XPY = (1/2)·|PY|·|XN|
     thm:same-height P := X, Q := P, S := Y, H := N, T := V,
-      from 12, 52, 60, 61
+      from 12, 44, 52, 53
 
-63. (1/2)·|PQ|·|YM| = (1/2)·|PR|·|XN|
+55. (1/2)·|PQ|·|YM| = (1/2)·|PR|·|XN|
     calculation
-      (1/2)·|PQ|·|YM| = the area of △YPQ      53
-                      = the area of △XPR      50
-                      = (1/2)·|PR|·|XN|       58
+      (1/2)·|PQ|·|YM| = the area of △YPQ      45
+                      = the area of △XPR      42
+                      = (1/2)·|PR|·|XN|       50
 
-64. (1/2)·|PX|·|YM| = (1/2)·|PY|·|XN|
+56. (1/2)·|PX|·|YM| = (1/2)·|PY|·|XN|
     calculation
-      (1/2)·|PX|·|YM| = the area of △YPX      57
-                      = the area of △XPY      47
-                      = (1/2)·|PY|·|XN|       62
+      (1/2)·|PX|·|YM| = the area of △YPX      49
+                      = the area of △XPY      39
+                      = (1/2)·|PY|·|XN|       54
 
-65. (1/2)·|PQ|·|YM|·|PX| = (1/2)·|PR|·|XN|·|PX|
-    algebra, from 63
+57. (1/2)·|PQ|·|YM|·|PX| = (1/2)·|PR|·|XN|·|PX|
+    algebra, from 55
 
-66. (1/2)·|PX|·|YM|·|PQ| = (1/2)·|PY|·|XN|·|PQ|
-    algebra, from 64
+58. (1/2)·|PX|·|YM|·|PQ| = (1/2)·|PY|·|XN|·|PQ|
+    algebra, from 56
 
-67. (1/2)·|PX|·|PR|·|XN| = (1/2)·|PY|·|PQ|·|XN|
-    algebra, from 65, 66
+59. (1/2)·|PX|·|PR|·|XN| = (1/2)·|PY|·|PQ|·|XN|
+    algebra, from 57, 58
 
-68. |XN| > 0
-    mun:distance-positive P := X, Q := N, from 52
+60. |XN| > 0
+    mun:distance-positive P := X, Q := N, from 44
 
-69. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
+61. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
     mun:multiply-cancel a := (1/2)·|PX|·|PR|, b := (1/2)·|PY|·|PQ|,
-      c := |XN|, from 67
-    requires |XN| ≠ 0: weakening, from 68
+      c := |XN|, from 59
+    requires |XN| ≠ 0: weakening, from 60
 
-70. |PX|·|PR| = |PY|·|PQ|
-    algebra, from 69
+62. |PX|·|PR| = |PY|·|PQ|
+    algebra, from 61
 
 theorem corresponding-angles-converse
   note        Euclid I.28. Produce YX past X to W: ∠WXQ is ∠PXY (vertical
