@@ -2103,6 +2103,18 @@ impl<'a> Elaborator<'a> {
         }
         let lemma = rules::congruence(&head, &slots)
             .unwrap_or_else(|| panic!("no congruence for {head} at {slots:?}"));
+        // A function changing in its type, `feq1d` and `f1oeq1d`: their
+        // letters are bound by name, since set.mm declares the domain and
+        // codomain before the function, which the order below would not.
+        if matches!(head.as_str(), "wf" | "wf1o") && slots == [2] {
+            let carried = self.b.ap(
+                lemma,
+                &binds! {"ph" => scope, "A" => &was[0], "B" => &was[1],
+                "F" => &was[2], "G" => &now[2]},
+                &[&deeper[0]],
+            );
+            return Built((spelt_now, carried));
+        }
         let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
         for &slot in &slots {
             all.push(crate::elab::part(&was[slot]));
@@ -6885,6 +6897,11 @@ impl<'a> Elaborator<'a> {
         // reading's conditional rules take it to m = r.
         let named = self.names_read(term, None);
         let mut written: IndexMap<Rpn, Term> = IndexMap::new();
+        // A value `term` writes as it stands is left as it is: x in
+        // x ≠ 0 ↔ |x| > 0 is x, though |x| reads as x by `nn0absid`.
+        let mut as_written: BTreeSet<Rpn> = BTreeSet::new();
+        self.written_unpeeled(term, &mut as_written);
+        self.written_unpeeled(&named, &mut as_written);
         for sub in subterms(term).into_iter().chain(subterms(&named)) {
             let read = self.read_through(&sub, true, None);
             written.entry(self.rpn(&read)).or_insert(sub);
@@ -6892,6 +6909,9 @@ impl<'a> Elaborator<'a> {
         let mut out = binding.clone();
         for (name, value) in &binding {
             let said = self.rpn(value);
+            if as_written.contains(&said) {
+                continue;
+            }
             if let Some(w) = written.get(&said) {
                 if self.rpn(w) != said {
                     out.insert(*name, w.clone());
@@ -6899,6 +6919,25 @@ impl<'a> Elaborator<'a> {
             }
         }
         out
+    }
+
+    /// Each part of `term` as it is written, into `out`, leaving out a part
+    /// that is written only inside a whole the reading takes to it: A − B in
+    /// |A − B|, which `nn0absid` reads as A − B, is not written as it stands.
+    fn written_unpeeled(&mut self, term: &Term, out: &mut BTreeSet<Rpn>) {
+        out.insert(self.rpn(term));
+        if term.variable().is_some() {
+            return;
+        }
+        let read = self.read_through(term, true, None);
+        let read = self.rpn(&read);
+        let whole = self.rpn(term);
+        for child in term.children() {
+            if read != whole && self.rpn(child) == read {
+                continue;
+            }
+            self.written_unpeeled(child, out);
+        }
     }
 
     /// A term with every one-way rule of the standard form applied, parts
