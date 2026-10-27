@@ -3,7 +3,7 @@ import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-collinear
 import theorem            stdlib/geometry/law-of-cosines
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-real
 import mundane definition stdlib/trigonometry/cos
@@ -46,7 +46,7 @@ theorem altitude-mean-proportional
     thm:law-of-cosines P := A, Q := D, R := C, from 1, 3
 
 6.  ∠ADC + ∠CDB = 180°
-    thm:supplementary-angles B := D, C := B, D := C, from H7, 3
+    axi:supplementary-angles B := D, C := B, D := C, from H7, 3
 
 7.  ∠CDB = 90°
     algebra, from H8, 6

@@ -3,7 +3,7 @@ import mundane theorem    stdlib/geometry/angle-order-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos

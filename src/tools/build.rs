@@ -28,7 +28,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use indexmap::IndexMap;
 
 use crate::checker::{CheckedCorpus, CheckedTheorem, LibraryReading};
-use crate::corpus::{cited_items, in_stdlib, index, Corpus, Item};
+use crate::corpus::{cited_items, index, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
 use crate::elab::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
@@ -117,11 +117,7 @@ pub fn artifacts(found: &Corpus) -> Vec<Artifact> {
         // them.
         let mut needs = reads.clone();
         for (full, _line) in cited_items(thm) {
-            if ours.contains(&full)
-                && full != name
-                && !in_stdlib(&full)
-                && !needs.contains(&full)
-            {
+            if ours.contains(&full) && full != name && !needs.contains(&full) {
                 needs.push(full);
             }
         }
@@ -393,8 +389,7 @@ impl<'a> Maker<'a> {
         // nothing about this page or the build is wrong.
         for (full, line) in cited_items(thm) {
             let proof = self.found.theorems.iter().any(|t| t.qualified() == full);
-            if proof && full != name && !in_stdlib(&full) && statements(&full).is_none()
-            {
+            if proof && full != name && statements(&full).is_none() {
                 return Err(Problem::new(
                     &thm.path,
                     line,

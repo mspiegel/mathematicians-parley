@@ -1,5 +1,5 @@
 import theorem            stdlib/geometry/area-by-sine
-import mundane theorem    stdlib/geometry/area-positive
+import mundane axiom      stdlib/geometry/area-positive
 import mundane theorem    stdlib/geometry/area-real
 import theorem            stdlib/geometry/law-of-cosines
 import mundane definition stdlib/geometry/triangle

@@ -867,6 +867,1359 @@ $d x Y $.  $d y Y $.
 $}
 
 ${
+$( The postulates of plane geometry, each proved over the complex plane,
+   and the line through two points as a set of points. $)
+
+$( A line is the set of points u the two points make collinear, so u is
+   held apart from the points it is built from. $)
+$d u A $.  $d u B $.  $d u P $.
+
+$( The ruler's variables: f the ruler, w the point it is applied to, t a
+   real number, x and y two points of the line. $)
+$d f t u w x y $.
+$d u X $.  $d u Y $.
+$d w A $.  $d w B $.  $d w L $.  $d w P $.  $d w X $.  $d w Y $.
+$d t A $.  $d t B $.  $d t L $.
+$d x A $.  $d x B $.  $d x L $.  $d x F $.
+$d y A $.  $d y B $.  $d y L $.  $d y F $.
+$d f A $.  $d f B $.  $d f L $.  $d f F $.
+
+$( Line uniqueness: u the point the two lines are compared at. $)
+$d u C $.  $d u D $.  $d u ph $.
+
+$( Three points: x, y and z the three. $)
+$d x y z $.
+
+$( Plane separation: x the point where segment PQ crosses line AB. $)
+$d x P $.  $d x Q $.  $d x ph $.
+
+$( Rays and the angle construction: u the point of the ray. $)
+$d u E $.
+
+$( Angle construction: x the constructed point. $)
+$d x C $.  $d x K $.  $d x T $.  $d x Y $.
+
+$( Parallel lines: x the point the two lines would share. $)
+$d x D $.
+
+  glinel $p |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( wceq cv cmin co cdiv cr wcel wo cc oveq1 oveq1d eleq1d orbi2d elrab3 )
+    BCEZAFZBGHZCBGHZIHZJKZLSDBGHZUBIHZJKZLADMTDEZUDUGSUHUCUFJUHUAUEUBITDBGNOPQR $.
+
+  glineturn $p |- ( ( A e. CC /\ B e. CC ) -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( B = A \/ ( ( u - B ) / ( A - B ) ) e. RR ) } ) $=
+    ( cc wcel wa wceq cv cmin co cdiv cr wo w3a wi simpll simplr simpr 3jca
+    gcolrotate syl gcolswap syld impbid rabbidva )
+    BDEZCDEZFZBCGZAHZBIJZCBIJZKJZLEZMZCBGZUJCIJZBCIJZKJZLEZMZADUHUJDEZFZUOVAVCUOCUJGZURUQKJZLEZMZVAVCUFUGVBNUOVGOVCUFUGVBUFUGVBPZUFUGVBQZUHVBRZSBCUJTUAVCUGVBUFNVGVAOVCUGVBUFVIVJVHSCUJBUBUAUCVCVABUJGZULUKKJZLEZMZUOVCUGUFVBNVAVNOVCUGUFVBVIVHVJSCBUJTUAVCUFVBUGNVNUOOVCUFVBUGVHVJVISBUJCUBUAUCUDUE $.
+
+  ${
+    grulerq.1 $e |- L = { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } $.
+  grulerq $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) /\ P e. L ) -> ( ( P - A ) / ( B - A ) ) e. RR ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo cv crab simpr eleq2i sylib wb
+    ssrab2 eqsstri sseli syl glinel mpbid wn wi simplr neneq orel1 mpd )
+    BGHZCGHZIZBCJZIZDEHZIZBCKZDBLMZCBLMZNMZOHZPZVFVADVBAQZBLMZVDNMZOHZPZAGRZHZVGVAUTVNUSUTSZEVMDFTUAVADGHZVNVGUBVAUTVPVOEGDEVMGFVLAGUCUDUEUFABCDUGUFUHVAVBUIZVGVFUJVAURVQUQURUTUKBCULUFVBVFUMUFUN $.
+  $}
+
+  ${
+    grulerfv.1 $e |- F = ( w e. L |-> ( ( ( w - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $.
+  grulerfv $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) /\ P e. L ) -> ( F ` P ) = ( ( ( P - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $=
+    ( cc wcel wa wne cv cmin co cdiv cabs cfv cmul cvv cmpt wceq a1i oveq1
+    oveq1d adantl simpr ovex fvmptd )
+    BHIZCHIZJZBCKZJZDFIZJZADALZBMNZCBMNZONZURPQZRNZDBMNZURONZUTRNZFESEAFVATUAUOGUBUPDUAZVAVDUAUOVEUSVCUTRVEUQVBUROUPDBMUCUDUDUEUMUNUFVDSIUOVCUTRUGUBUH $.
+  $}
+
+  ${
+    grulerdist.1 $e |- L = { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } $.
+    grulerdist.2 $e |- F = ( w e. L |-> ( ( ( w - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $.
+  grulerdist $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) /\ ( X e. L /\ Y e. L ) ) -> ( abs ` ( X - Y ) ) = ( abs ` ( ( F ` X ) - ( F ` Y ) ) ) ) $=
+    ( cc wcel wa wne cmin co cabs cfv cdiv cmul cr simpl simprl jca grulerq
+    syl recnd simprr simpllr simplll subcld subdird wceq cv wo crab ssrab2
+    eqsstri sseli simplr necomd subne0d divcan1d oveq12d nnncan2d 3eqtrd
+    fveq2d absmuld eqtr3d grulerfv abscld eqtr4d absrpcld rpge0d absidd
+    oveq2d )
+    CKLZDKLZMZCDNZMZGFLZHFLZMZMZGHOPZQRZGCOPZDCOPZSPZHCOPZWISPZOPZQRZWIQRZTPZGERZHERZOPZQRZWEWMWITPZQRWGWPWEXAWFQWEXAWJWITPZWLWITPZOPWHWKOPWFWEWJWLWIWEWJWEWAWBMZWJUALZWEWAWBWAWDUBZWAWBWCUCZUDZBCDGFIUEZUFZUGZWEWLWEWAWCMZWLUALZWEWAWCXFWAWBWCUHZUDZBCDHFIUEZUFZUGZWEDCVQVRVTWDUIZVQVRVTWDUJZUKZULWEXBWHXCWKOWEWHWIWEGCWEWBGKLZXGFKGFCDUMZBUNZCOPZWISPZUALZUOZBKUPZKIYHBKUQZURZUSZUFZXTUKYAWEDCXSXTWECDVSVTWDUTZVAZVBZVCWEWKWIWEHCWEWCHKLZXNFKHYKUSZUFZXTUKYAYPVCVDWEGHCYMYSXTVEVFVGWEWMWIWEWJWLXKXRUKZYAVHVIWEWTWMWOTPZQRWNWOQRZTPWPWEWSUUAQWEWSWJWOTPZWLWOTPZOPUUAWEWQUUCWRUUDOWEXDWQUUCUMXHACDGEFJVJUFWEXLWRUUDUMXOACDHEFJVJUFVDWEWJWLWOXKXRWEWOWEWIYAVKZUGZULVLVGWEWMWOYTUUFVHWEUUBWOWNTWEWOUUEWEWOWEWIYAYPVMVNVOVPVFVL $.
+  $}
+
+  ${
+    grulerf1o.1 $e |- L = { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } $.
+    grulerf1o.2 $e |- F = ( w e. L |-> ( ( ( w - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $.
+  grulerf1o $p |- ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) -> F : L -1-1-onto-> RR ) $=
+    ( cc wcel wa wne vt cr cv cmin co cdiv cabs cfv cmul caddc grulerq
+    simpllr simplll subcld abscld remulcld wceq wo crab oveq1 oveq1d eleq1d
+    orbi2d simpr simplr necomd subne0d absrpcld rpne0d redivcld recnd mulcld
+    addcld pncan2d divcan4d eqtrd eqeltrd olcd elrabd eleq2i sylibr wb eqcom
+    a1i simprl ssrab2 eqsstri sseli syl simprr divcld subaddd bitr4d divmul3d
+    simpl jca bitrid bitrd f1o2d )
+    CIJZDIJZKZCDLZKZAMFNAOZCPQZDCPQZRQZWSSTZUAQZCMOZXARQZWSUAQZUBQZEHWPWQFJZKZWTXABCDWQFGUCZXHWSXHDCWLWMWOXGUDWLWMWOXGUEUFUGUHWPXCNJZKZXFCDUIZBOZCPQZWSRQZNJZUJZBIUKZJXFFJXKXQXLXFCPQZWSRQZNJZUJBXFIXMXFUIZXPYAXLYBXOXTNYBXNXSWSRXMXFCPULUMUNUOXKCXEWLWMWOXJUEZXKXDWSXKXDXKXCXAWPXJUPZXKWSXKDCWLWMWOXJUDZYCUFZUGZXKXAXKWSYFXKDCYEYCXKCDWNWOXJUQZURZUSZUTZVAZVBZVCZYFVDZVEXKYAXLXKXTXDNXKXTXEWSRQXDXKXSXEWSRXKCXEYCYOVFUMXKXDWSYNYFYJVGVHYMVIVJVKFXRXFGVLVMWPXGXJKZKZWQXFUIZWTXDUIZXCXBUIZYQYRWRXEUIZYSYQYRXFWQUIZUUAYRUUBVNYQWQXFVOVPYQWQCXEYQXGWQIJZWPXGXJVQZFIWQFXRIGXQBIVRZVSZVTZWAZWLWMWOYPUEZYQXDWSYQXCXAYQXCWPXGXJWBZVCZYQXAYQWSYQDCWLWMWOYPUDZUUIUFZUGZVCZYQXAYQWSUUMYQDCUULUUIYQCDWNWOYPUQZURZUSZUTZVAZWCZUUMVDWDWEYQWRXDWSYQWQCUUHUUIUFUVAUUMUURWFWEYSXDWTUIYQYTWTXDVOYQXCWTXAUUKYQWTYQXHWTNJYQWPXGWPYPWGUUDWHXIWAVCUUOUUTWFWIWJWK $.
+  $}
+
+  ${
+    grulerplh.1 $e |- L = { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } $.
+    grulerplh.2 $e |- F = ( w e. L |-> ( ( ( w - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $.
+  grulerplh $p |- ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) -> E. f e. ( RR ^m L ) ( ( ( f : L -1-1-onto-> RR /\ ( f ` A ) = 0 ) /\ 0 < ( f ` B ) ) /\ A. x e. L A. y e. L ( abs ` ( x - y ) ) = ( abs ` ( ( f ` x ) - ( f ` y ) ) ) ) ) $=
+    ( cc wcel wa wne cr cmap co wf1o cfv cc0 wceq clt wbr cv cmin cabs wral
+    wrex wf grulerf1o f1of syl cvv wb reex cdiv wo crab cnex rabex eqeltri
+    elmapg mp2an sylibr cmul oveq1 oveq1d eleq1d orbi2d simpll subidd simplr
+    subcld simpr necomd subne0d div0d eqtrd 0re a1i eqeltrd olcd elrabd
+    eleq2i grulerfv mpdan abscld recnd mul02d 3eqtrd jca absrpcld rpgt0d c1
+    dividd 1re mullidd breqtrrd grulerdist ralrimivva f1oeq1 fveq1 eqeq1d
+    anbi12d breq2d oveq12d fveq2d eqeq2d 2ralbidv rspcev )
+    ELMZFLMZNZEFOZNZHPIQRZMZIPHSZEHTZUAUBZNZUAFHTZUCUDZNZAUEZBUEZUFRZUGTZYFHTZYGHTZUFRZUGTZUBZBIUHZAIUHZNZNIPGUEZSZEYRTZUAUBZNZUAFYRTZUCUDZNZYIYFYRTZYGYRTZUFRZUGTZUBZBIUHZAIUHZNZGXQUIXPXRYQXPIPHUJZXRXPXSUUNCDEFHIJKUKZIPHULUMPUNMIUNMXRUUNUOUPIEFUBZDUEZEUFRZFEUFRZUQRZPMZURZDLUSZUNJUVBDLUTVAVBPIHUNUNVCVDVEXPYEYPXPYBYDXPXSYAUUOXPXTEEUFRZUUSUQRZUUSUGTZVFRZUAUVFVFRUAXPEIMZXTUVGUBXPEUVCMUVHXPUVBUUPUVEPMZURDELUUQEUBZUVAUVIUUPUVJUUTUVEPUVJUURUVDUUSUQUUQEEUFVGVHVIVJXLXMXOVKZXPUVIUUPXPUVEUAPXPUVEUAUUSUQRZUAXPUVDUAUUSUQXPEUVKVLZVHZXPUUSXPFEXLXMXOVMZUVKVNZXPFEUVOUVKXPEFXNXOVOZVPZVQZVRZVSZUAPMXPVTWAWBWCWDIUVCEJWEVECEFEHIKWFWGXPUVEUAUVFVFUWAVHXPUVFXPUVFXPUUSUVPWHZWIZWJWKWLXPUAUVFYCUCXPUVFXPUUSUVPUVSWMWNXPYCUUSUUSUQRZUVFVFRZWOUVFVFRUVFXPFIMZYCUWEUBXPFUVCMUWFXPUVBUUPUWDPMZURDFLUUQFUBZUVAUWGUUPUWHUUTUWDPUWHUURUUSUUSUQUUQFEUFVGVHVIVJUVOXPUWGUUPXPUWDWOPXPUUSUVPUVSWPZWOPMXPWQWAWBWCWDIUVCFJWEVECEFFHIKWFWGXPUWDWOUVFVFUWIVHXPUVFUWCWRWKWSWLXPYNABIICDEFHIYFYGJKWTXAWLWLUUMYQGHXQYRHUBZUUEYEUULYPUWJUUBYBUUDYDUWJYSXSUUAYAIPYRHXBUWJYTXTUAEYRHXCXDXEUWJUUCYCUAUCFYRHXCXFXEUWJUUJYNABIIUWJUUIYMYIUWJUUHYLUGUWJUUFYJUUGYKUFYFYRHXCYGYRHXCXGXHXIXJXEXKUM $.
+  $}
+
+  ${
+    grulerh.1 $e |- L = { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } $.
+    grulerh.2 $e |- F = ( w e. L |-> ( ( ( w - A ) / ( B - A ) ) x. ( abs ` ( B - A ) ) ) ) $.
+  grulerh $p |- ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) -> E. f e. ( RR ^m L ) ( f : L -1-1-onto-> RR /\ A. x e. L A. y e. L ( abs ` ( x - y ) ) = ( abs ` ( ( f ` x ) - ( f ` y ) ) ) ) ) $=
+    ( cc wcel wa wne cr cv wf1o cfv cc0 wceq clt wbr cmin co cabs wral cmap
+    wrex grulerplh simplll simpr jca reximi syl )
+    ELMFLMNEFONIPGQZRZEUPSZTUAZNZTFUPSZUBUCZNZAQZBQZUDUEZUFSZVDUPSZVEUPSZUDUEZUFSZUAZBIUGZAIUGZNZGPIUHUEZUIUQVNNZGVPUIABCDEFGHIJKUJVOVQGVPVOUQVNUQUSVBVNUKVCVNULUMUNUO $.
+  $}
+
+  grulerplace $p |- ( A e. CC -> ( B e. CC -> ( A =/= B -> E. f e. ( RR ^m { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) ( ( ( f : { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } -1-1-onto-> RR /\ ( f ` A ) = 0 ) /\ 0 < ( f ` B ) ) /\ A. x e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } A. y e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ( abs ` ( x - y ) ) = ( abs ` ( ( f ` x ) - ( f ` y ) ) ) ) ) ) ) $=
+    ( cc wcel wne wceq cv cmin co cdiv cr wo crab wf1o cfv cc0 wa clt wbr
+    cabs wral cmap wrex vw cmul cmpt eqid grulerplh exp31 )
+    DGHEGHDEIDEJZCKZDLMZEDLMZNMZOHZPZCGQZOFKZRDVBSTJUATEVBSUBUCUAAKZBKZLMUDSVCVBSVDVBSLMUDSJBVAUEAVAUEUAFOVAUFMUGABUHCDEFUHVAUHKZDLMZUQNMZUQUDSZUIMZUJZVAVAUKVJUKULUM $.
+
+  gruler $p |- ( A e. CC -> ( B e. CC -> ( A =/= B -> E. f e. ( RR ^m { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) ( f : { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } -1-1-onto-> RR /\ A. x e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } A. y e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ( abs ` ( x - y ) ) = ( abs ` ( ( f ` x ) - ( f ` y ) ) ) ) ) ) ) $=
+    ( cc wcel wne wceq cv cmin co cdiv cr wo crab wf1o cabs cfv wral wa cmap
+    wrex vw cmul cmpt eqid grulerh exp31 )
+    DGHEGHDEIDEJZCKZDLMZEDLMZNMZOHZPZCGQZOFKZRAKZBKZLMSTUTUSTVAUSTLMSTJBURUAAURUAUBFOURUCMUDABUECDEFUEURUEKZDLMZUNNMZUNSTZUFMZUGZURURUHVGUHUIUJ $.
+
+  ${
+    grealaff.1 $e |- ( ph -> Z e. CC ) $.
+    grealaff.2 $e |- ( ph -> S e. RR ) $.
+    grealaff.3 $e |- ( ph -> T e. RR ) $.
+    grealaff.4 $e |- ( ph -> S =/= T ) $.
+  grealaff $p |- ( ph -> ( ( ( Z - S ) / ( T - S ) ) e. RR <-> Z e. RR ) ) $=
+    ( cmin co cdiv cr wcel wa cmul caddc wceq recnd subcld necomd subne0d
+    divcan1d oveq1d npcand eqtrd adantr simpr resubcld remulcld readdcld
+    eqeltrrd ex cc0 wne redivcld impbid )
+    ADBIJZCBIJZKJZLMZDLMZAUTVAAUTNZUSUROJZBPJZDLAVDDQUTAVDUQBPJDAVCUQBPAUQURADBEABFRZSACBACGRZVESACBVFVEABCHTZUAZUBUCADBEVEUDUEUFVBVCBVBUSURAUTUGAURLMZUTACBGFUHZUFUIABLMZUTFUFUJUKULAVAUTAVANZUQURVLDBAVAUGAVKVAFUFUHAVIVAVJUFAURUMUNVAVHUFUOULUP $.
+  $}
+
+  ${
+    glinequot.1 $e |- ( ph -> U e. CC ) $.
+    glinequot.2 $e |- ( ph -> A e. CC ) $.
+    glinequot.3 $e |- ( ph -> B e. CC ) $.
+    glinequot.4 $e |- ( ph -> C e. CC ) $.
+    glinequot.5 $e |- ( ph -> D e. CC ) $.
+    glinequot.6 $e |- ( ph -> A =/= B ) $.
+    glinequot.7 $e |- ( ph -> C =/= D ) $.
+  glinequot $p |- ( ph -> ( ( ( ( U - C ) / ( D - C ) ) - ( ( A - C ) / ( D - C ) ) ) / ( ( ( B - C ) / ( D - C ) ) - ( ( A - C ) / ( D - C ) ) ) ) = ( ( U - A ) / ( B - A ) ) ) $=
+    ( cmin co cdiv subcld necomd subne0d divsubdird nnncan2d oveq1d eqtr3d
+    oveq12d divcan7d eqtrd )
+    AFDNOZEDNOZPOZBDNOZUHPOZNOZCDNOZUHPOZUKNOZPOFBNOZUHPOZCBNOZUHPOZPOUPURPOAULUQUOUSPAUGUJNOZUHPOULUQAUGUJUHAFDGJQABDHJQZAEDKJQZAEDKJADEMRZSZTAUTUPUHPAFBDGHJUAUBUCAUMUJNOZUHPOUOUSAUMUJUHACDIJQVAVBVDTAVEURUHPACBDIHJUAUBUCUDAUPURUHAFBGHQACBIHQVBACBIHABCLRSVDUEUF $.
+  $}
+
+  ${
+    glineud.1 $e |- ( ph -> A e. CC ) $.
+    glineud.2 $e |- ( ph -> B e. CC ) $.
+    glineud.3 $e |- ( ph -> C e. CC ) $.
+    glineud.4 $e |- ( ph -> D e. CC ) $.
+    glineud.5 $e |- ( ph -> A =/= B ) $.
+    glineud.6 $e |- ( ph -> C =/= D ) $.
+    glineud.7 $e |- ( ph -> ( C = D \/ ( ( A - C ) / ( D - C ) ) e. RR ) ) $.
+    glineud.8 $e |- ( ph -> ( C = D \/ ( ( B - C ) / ( D - C ) ) e. RR ) ) $.
+  glineud $p |- ( ph -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( C = D \/ ( ( u - C ) / ( D - C ) ) e. RR ) } ) $=
+    ( wceq cv cmin co cdiv cr wcel wo cc wa simpr adantr wne glinequot eleq1d
+    subcld cc0 necomd subne0d divcld wn neneq syl orel1 sylc recnd divsubdird
+    nnncan2d oveq1d eqtr3d divne0d eqnetrd subne0ad grealaff bitr3d wb biorf
+    3bitr3d rabbidva )
+    ACDOZBPZCQRZDCQRZSRZTUAZUBZEFOZVOEQRZFEQRZSRZTUAZUBZBUCAVOUCUAZUDZVSWEVTWFWHWDCEQRZWCSRZQRZDEQRZWCSRZWJQRZSRZTUAVSWEWHWOVRTWHCDEFVOAWGUEZACUCUAWGGUFADUCUAWGHUFAEUCUAZWGIUFZAFUCUAWGJUFACDUGZWGKUFZAEFUGZWGLUFUHUIWHWJWMWDWHWBWCWHVOEWPWRUJAWCUCUAWGAFEJIUJZUFAWCUKUGWGAFEJIAEFLULZUMZUFUNAWJTUAZWGAWAUOZWAXEUBZXEAXAXFLEFUPZUQZMWAXEURZUSZUFAWMTUAZWGAXFWAXLUBZXLXINWAXLURZUSZUFAWJWMUGWGAWJWMAWJXKUTAWMXOUTAWJWMQRZCDQRZWCSRZUKAWIWLQRZWCSRXPXRAWIWLWCACEGIUJADEHIUJXBXDVAAXSXQWCSACDEGHIVBVCVDAXQWCACDGHUJXBACDGHKUMXDVEVFVGUFVHVIWHVNUOZVSVTVJWHWSXTWTCDUPUQVNVSVKUQWHXFWEWFVJAXFWGXIUFWAWEVKUQVLVM $.
+  $}
+
+  glineuniq $p |- ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ A =/= B ) /\ C =/= D ) /\ ( C = D \/ ( ( A - C ) / ( D - C ) ) e. RR ) ) /\ ( C = D \/ ( ( B - C ) / ( D - C ) ) e. RR ) ) -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( C = D \/ ( ( u - C ) / ( D - C ) ) e. RR ) } ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo simp-7l simp-7r simp-6r simp-5r
+    simp-4r simpllr simplr simpr glineud )
+    BFGZCFGZHZDFGZHZEFGZHZBCIZHZDEIZHZDEJZBDKLZEDKLZMLZNGZOZHZUPCDKLZURMLZNGZOZHABCDEUEUFUHUJULUNVAVFPUEUFUHUJULUNVAVFQUGUHUJULUNVAVFRUIUJULUNVAVFSUKULUNVAVFTUMUNVAVFUAUOVAVFUBVBVFUCUD $.
+
+  gthreepts $p |- E. x e. CC E. y e. CC E. z e. CC ( ( ( -. x = y /\ -. y = z ) /\ -. x = z ) /\ -. ( ( z - x ) / ( y - x ) ) e. RR ) $=
+    ( cc0 cc wcel c1 ci w3a wceq wn wa cmin co cdiv cr cv wrex 0cn ax-1cn
+    ax-icn 3pm3.2i ax-1ne0 necomi neii 1nei pm3.2i ine0 inelr subid1i oveq12i
+    div1i eqtri eleq1i mtbir eqeq1 notbid biidd anbi12d oveq2 oveq12d eleq1d
+    eqeq2 oveq1 oveq2d oveq1d rspc3ev ax-mp )
+    DEFZGEFZHEFZIZDGJZKZGHJZKZLZDHJZKZLZHDMNZGDMNZONZPFZKZLZLAQZBQZJZKZWHCQZJZKZLZWGWKJZKZLZWKWGMNZWHWGMNZONZPFZKZLZCERBERAERVLWFVIVJVKSTUAUBVTWEVQVSVNVPDGGDUCUDUEGHUFUEUGDHHDUHUDUEUGWDHPFUIWCHPWCHGONHWAHWBGOHUAUJGTUJUKHUAULUMUNUOUGUGXCWFDWHJZKZWMLZDWKJZKZLZWKDMNZWHDMNZONZPFZKZLVNGWKJZKZLZXHLZXJWBONZPFZKZLABCDGHEEEWGDJZWQXIXBXNYBWNXFWPXHYBWJXEWMWMYBWIXDWGDWHUPUQYBWMURUSYBWOXGWGDWKUPUQUSYBXAXMYBWTXLPYBWRXJWSXKOWGDWKMUTWGDWHMUTVAVBUQUSWHGJZXIXRXNYAYCXFXQXHXHYCXEVNWMXPYCXDVMWHGDVCUQYCWLXOWHGWKUPUQUSYCXHURUSYCXMXTYCXLXSPYCXKWBXJOWHGDMVDVEVBUQUSWKHJZXRVTYAWEYDXQVQXHVSYDVNVNXPVPYDVNURYDXOVOWKHGVCUQUSYDXGVRWKHDVCUQUSYDXTWDYDXSWCPYDXJWAWBOWKHDMVDVFVBUQUSVGVH $.
+
+  ${
+    gparuniqd.1 $e |- ( ph -> A e. CC ) $.
+    gparuniqd.2 $e |- ( ph -> B e. CC ) $.
+    gparuniqd.3 $e |- ( ph -> P e. CC ) $.
+    gparuniqd.4 $e |- ( ph -> C e. CC ) $.
+    gparuniqd.5 $e |- ( ph -> D e. CC ) $.
+    gparuniqd.6 $e |- ( ph -> A =/= B ) $.
+    gparuniqd.7 $e |- ( ph -> P =/= C ) $.
+    gparuniqd.8 $e |- ( ph -> P =/= D ) $.
+    gparuniqd.9 $e |- ( ph -> ( ( C - P ) / ( B - A ) ) e. RR ) $.
+    gparuniqd.10 $e |- ( ph -> ( ( D - P ) / ( B - A ) ) e. RR ) $.
+  gparuniqd $p |- ( ph -> { u e. CC | ( P = C \/ ( ( u - P ) / ( C - P ) ) e. RR ) } = { u e. CC | ( P = D \/ ( ( u - P ) / ( D - P ) ) e. RR ) } ) $=
+    ( wceq cv cmin co cdiv cr wcel wo cc crab cc0 subidd oveq1d subcld necomd
+    subne0d div0d eqtrd 0re a1i eqeltrd olcd divcan7d divne0d redivcld
+    eqeltrrd glineud eqcomd )
+    AGFRBSZGTUAZFGTUAZUBUAUCUDUEBUFUGGERZVGEGTUAZUBUAUCUDUEBUFUGABGFGEJLJKONAGGTUAZVJUBUAZUCUDVIAVLUHUCAVLUHVJUBUAUHAVKUHVJUBAGJUIUJAVJAEGKJUKZAEGKJAGENULZUMZUNUOUHUCUDAUPUQURUSAVHVJUBUAZUCUDVIAVHDCTUAZUBUAZVJVQUBUAZUBUAVPUCAVHVJVQAFGLJUKVMADCIHUKZVOADCIHACDMULZUMZUTAVRVSQPAVJVQVMVTVOWBVAVBVCUSVDVE $.
+  $}
+
+  gparuniq $p |- ( ( ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ C e. CC ) /\ D e. CC ) /\ A =/= B ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ P =/= C ) /\ P =/= D ) /\ ( ( C - P ) / ( B - A ) ) e. RR ) /\ ( ( D - P ) / ( B - A ) ) e. RR ) -> { u e. CC | ( P = C \/ ( ( u - P ) / ( C - P ) ) e. RR ) } = { u e. CC | ( P = D \/ ( ( u - P ) / ( D - P ) ) e. RR ) } ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn simp-10l simp-10r simp-9r
+    simp-8r simp-7r simp-6r simp-4r simpllr simplr simpr gparuniqd )
+    BGHZCGHZIZFGHZIZDGHZIZEGHZIZBCJZIZBCKZFBLMZCBLMZNMZOHZPZQZIZFDJZIZFEJZIZDFLMZVBNMZOHZIZEFLMZVBNMZOHZIABCDEFUIUJULUNUPURVFVHVJVNVRRUIUJULUNUPURVFVHVJVNVRSUKULUNUPURVFVHVJVNVRTUMUNUPURVFVHVJVNVRUAUOUPURVFVHVJVNVRUBUQURVFVHVJVNVRUCVGVHVJVNVRUDVIVJVNVRUEVKVNVRUFVOVRUGUH $.
+
+  gangmeas $p |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) -> ( ( ( 0 x. _pi ) / ; ; 1 8 0 ) < ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) /\ ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) < ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr cc0 cpi cmul c1 c8 cdc cang cabs cfv
+    clt wbr picn mul02i oveq1i 1nn0 8nn decnncl decnncl2 nncni nnne0i div0i
+    eqtri cle wne cicc w3a simplll simpllr simplr 3jca simpr simplld simpld
+    simprd eqcom notbii sylib jca gangicc3 sylc wb 0re pire elicc2 mp2an
+    simp2d csin wi gsinpos syl mpd gt0ne0d fveq2 sin0 eqtrdi necon3ai neqned
+    a1i simp1d ltlend mpbird eqbrtrid simp3d sinpi necomd g180 breqtrrdi )
+    ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZFZMNOJZPQRZMRZKJZABIJZCBIJZSJZTUAZUBUCYGYBNOJZYBKJZUBUCXSYCMYGUBYCMYBKJMXTMYBKNUDUEUFYBYBYAPQUGUHUIZUJZUKYBYKULUMUNXSMYGUBUCMYGUOUCZYGMUPZFXSYLYMXSYGLEZYLYGNUOUCZXSYGMNUQJZEZYNYLYOURZXSWTXAXCURZXFCBGZHZFZYQXSWTXAXCWTXAXCXRUSZWTXAXCXRUTZXBXCXRVAZVBZXSXFUUAXSXFXHXSXIXKXQXDXRVCZVDZVEZXSXHUUAXSXFXHUUHVFZXGYTBCVGZVHZVIZVJZABCVKZVLZMLEZNLEZYQYRVMZVNVOMNYGVPZVQZVIZVRXSYGMXSYGVSUAZMUPZYGMGZHXSUVCXSXRMUVCUBUCZUUGXSXCXRUVFVTZUUEXSXAXCUVGVTZUUDXSWTXAUVHVTZUUCABCWAZWBZWCZWCZWCZWDZUVEUVCMUVEUVCMVSUAMYGMVSWEWFWGWHWBWIVJXSMYGUUQXSVNWJXSYNYLYOUVBWKZWLWMWNXSYGNYIUBXSYGNUBUCYONYGUPZFXSYOUVQXSYNYLYOUVBWOXSYGNXSYGNXSUVDYGNGZHUVOUVRUVCMUVRUVCNVSUAMYGNVSWEWPWGWHWBWIWQVJXSYGNUVPUURXSVOWJWLWMWRWSVJ $.
+
+  gplanesep $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ A =/= B ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) -> ( 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) \/ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn cc0 cim cfv cmul clt wbr
+    simp-5r simp-6l subcld simp-6r simpllr necomd subne0d divcld imcld recnd
+    simp-4r simplr pm2.46 syl wb reim0b mtbid neqned simpr mulne0d 0red
+    remulcld lttri2d mpbid )
+    AEFZBEFZGZCEFZGZDEFZGZABHZGZABIZCAJKZBAJKZLKZMFZNZOZGZVODAJKZVQLKZMFZNZOZGZPVRQRZWDQRZSKZHPWKTUAWKPTUANWHWKPWHWIWJWHWIWHVRWHVPVQWHCAVHVIVKVMWAWGUBZVFVGVIVKVMWAWGUCZUDZWHBAVFVGVIVKVMWAWGUEZWMUDZWHBAWOWMWHABVLVMWAWGUFZUGZUHZUIZUJZUKWHWJWHWDWHWCVQWHDAVJVKVMWAWGULZWMUDZWPWSUIZUJZUKWHWIPWHVSWIPIZWHWAVSOVNWAWGUMVOVSUNUOWHVREFVSXFUPWTVRUQUOURUSWHWJPWHWEWJPIZWHWGWEOWBWGUTVOWEUNUOWHWDEFWEXGUPXDWDUQUOURUSVAUGWHPWKWHVBWHWIWJXAXEVCVDVE $.
+
+  ${
+    gplsdiff.1 $e |- ( ph -> U e. CC ) $.
+    gplsdiff.2 $e |- ( ph -> V e. CC ) $.
+    gplsdiff.3 $e |- ( ph -> A e. CC ) $.
+    gplsdiff.4 $e |- ( ph -> B e. CC ) $.
+    gplsdiff.5 $e |- ( ph -> A =/= B ) $.
+  gplsdiff $p |- ( ph -> ( ( ( U - A ) / ( B - A ) ) - ( ( V - A ) / ( B - A ) ) ) = ( ( U - V ) / ( B - A ) ) ) $=
+    ( cmin co cdiv subcld necomd subne0d divsubdird nnncan2d oveq1d eqtr3d )
+    ADBKLZEBKLZKLZCBKLZMLUAUDMLUBUDMLKLDEKLZUDMLAUAUBUDADBFHNAEBGHNACBIHNACBIHABCJOPQAUCUEUDMADEBFGHRST $.
+  $}
+
+  ${
+    gplsreal.1 $e |- ( ph -> P e. RR ) $.
+    gplsreal.2 $e |- ( ph -> Q e. RR ) $.
+    gplsreal.3 $e |- ( ph -> X e. RR ) $.
+    gplsreal.4 $e |- ( ph -> K e. RR ) $.
+    gplsreal.5 $e |- ( ph -> ( Q - X ) = ( K x. ( P - X ) ) ) $.
+    gplsreal.6 $e |- ( ph -> K < 0 ) $.
+    gplsreal.7 $e |- ( ph -> 0 < ( P x. Q ) ) $.
+  gplsreal $p |- ( ph -> 0 < ( X x. P ) ) $=
+    ( c1 cmin co cr wcel cmul wa cc0 cle wbr clt 1red resubcld remulcld jca
+    0red 0lt1 a1i lttrd posdifd mpbid ltled cneg caddc renegcld recnd mulcomd
+    breqtrd lt0neg1d msqge0d mulge0d addgtge0d 1cnd subcld mulassd subdird
+    mullidd oveq1d eqtrd mulcld sub4d subdid subeq0bd subeq0d eqtr4d eqtr3d
+    oveq2d 3eqtrd mulneg1d negsubd breqtrrd prodgt0 syl )
+    AMDNOZPQZEBROZPQZSZTWFUAUBZTWFWHROZUCUBZSZSTWHUCUBAWJWNAWGWIAMDAUDZIUEZAEBHFUFUGAWKWMATWFAUHZWPADMUCUBTWFUCUBADTMIWQWOKTMUCUBAUIUJUKADMIWOULUMUNATCBROZDUOZBBROZROZUPOZWLUCAWRXAACBGFUFZAWSWTADIUQZABBFFUFZUFATBCROWRUCLABCABFURZACGURZUSUTAWSWTXDXEATWSWQXDADTUCUBTWSUCUBKADIVAUMUNABFVBVCVDAWLWRDWTROZNOZXBAWLCDBROZNOZBROZWRXJBROZNOXIAWFEROZBROWLXLAWFEBAMDAVEZADIURZVFAEHURZXFVGAXNXKBRAXNEDEROZNOZXKAXNMEROZXRNOXSAMDEXOXPXQVHAXTEXRNAEXQVIVJVKAXKXSACXJXGADBXPXFVLZVFAEXRXQADEXPXQVLZVFAXKXSNOCENOZXJXRNOZNOTACXJEXRXGYAXQYBVMAYCYDACEXGXQVFAYCDBENOROYDJADBEXPXFXQVNVKVOVKVPVQVJVRACXJBXGYAXFVHAXMXHWRNADBBXPXFXFVGVSVTAXBWRXHUOZUPOXIAXAYEWRUPADWTXPAWTXEURZWAVSAWRXHAWRXCURADWTXPYFVLWBVKVQWCUGUGWFWHWDWE $.
+  $}
+
+  ${
+    gplscvx.1 $e |- ( ph -> A e. CC ) $.
+    gplscvx.2 $e |- ( ph -> B e. CC ) $.
+    gplscvx.3 $e |- ( ph -> P e. CC ) $.
+    gplscvx.4 $e |- ( ph -> Q e. CC ) $.
+    gplscvx.5 $e |- ( ph -> X e. CC ) $.
+    gplscvx.6 $e |- ( ph -> A =/= B ) $.
+    gplscvx.7 $e |- ( ph -> P =/= X ) $.
+    gplscvx.8 $e |- ( ph -> ( ( Q - X ) / ( P - X ) ) e. RR ) $.
+    gplscvx.9 $e |- ( ph -> ( ( Q - X ) / ( P - X ) ) < 0 ) $.
+    gplscvx.10 $e |- ( ph -> 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) $.
+  gplscvx $p |- ( ph -> 0 < ( ( Im ` ( ( X - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) ) $=
+    ( cmin co cdiv cim cfv subcld necomd subne0d divcld imcld cmul gplsdiff
+    divcan1d oveq1d recnd divassd oveq2d eqtr4d eqtr3d eqtrd fveq2d imsubd
+    immul2d 3eqtr3d gplsreal )
+    ADBQRZCBQRZSRZTUAZEBQRZVCSRZTUAZEFQRZDFQRZSRZFBQRZVCSRZTUAZAVDAVBVCADBIGUBZACBHGUBZACBHGABCLUCZUDZUEZUFAVGAVFVCAEBJGUBZVPVRUEZUFAVMAVLVCAFBKGUBZVPVRUEZUFNAVGVMQRZTUAVKVDVMQRZUGRZTUAZVHVNQRVKVEVNQRZUGRZAWDWFTAWDVIVCSRZWFABCEFJKGHLUHAVKVJUGRZVCSRZWJWFAWKVIVCSAVIVJAEFJKUBADFIKUBZADFIKMUDUIUJAWLVKVJVCSRZUGRWFAVKVJVCAVKNUKWMVPVRULAWEWNVKUGABCDFIKGHLUHUMUNUOUPUQAVGVMWAWCURAWGVKWETUAZUGRWIAVKWENAVDVMVSWCUBUSAWOWHVKUGAVDVMVSWCURUMUPUTOPVA $.
+  $}
+
+  gplanesepcvx $p |- ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ X e. CC ) /\ A =/= B ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) /\ ( P =/= X /\ ( ( Q - X ) / ( P - X ) ) e. RR /\ ( ( Q - X ) / ( P - X ) ) < 0 ) ) -> 0 < ( ( Im ` ( ( X - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa wne cc0 cmin co cdiv cim cfv cmul clt wbr cr w3a simp-7l
+    simp-7r simp-6r simp-5r simp-4r simpllr simpr simp1d simp2d simp3d simplr
+    gplscvx )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZABIZHZJCAKLZBAKLZMLZNOZDAKLZVEMLZNOZPLZQRZHZCEIZDEKLZCEKLZMLZSGZVQJQRZTZHZABCDEUMUNUPURUTVBVLVTUAUMUNUPURUTVBVLVTUBUOUPURUTVBVLVTUCUQURUTVBVLVTUDUSUTVBVLVTUEVAVBVLVTUFWAVNVRVSVMVTUGZUHWAVNVRVSWBUIWAVNVRVSWBUJVCVLVTUKUL $.
+
+  ${
+    gplscross.1 $e |- ( ph -> A e. CC ) $.
+    gplscross.2 $e |- ( ph -> B e. CC ) $.
+    gplscross.3 $e |- ( ph -> P e. CC ) $.
+    gplscross.4 $e |- ( ph -> Q e. CC ) $.
+    gplscross.5 $e |- ( ph -> A =/= B ) $.
+    gplscross.6 $e |- ( ph -> ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) $.
+  gplscross $p |- ( ph -> E. x e. CC ( ( A = B \/ ( ( x - A ) / ( B - A ) ) e. RR ) /\ ( P =/= x /\ ( ( Q - x ) / ( P - x ) ) e. RR /\ ( ( Q - x ) / ( P - x ) ) < 0 ) ) ) $=
+    ( wceq cv cmin co cdiv cr wcel wo wne cc0 clt wbr w3a wa cim cfv cmul cc
+    subcld necomd subne0d divcld imcld resubcld recnd remulcld 0red msqge0d
+    ltletrd ltned wi oveq2 a1i necon3d mpd redivcld mulcld simpr oveq1d
+    eleq1d orbi2d neeq2d oveq2d oveq12d breq1d 3anbi123d anbi12d sub32d
+    divsubdird divassd 3eqtrd fveq2d imsubd immul2d gplsdiff eqtr3d divcan1d
+    subidd eqtrd reim0bd olcd nncand mulne0bad divne0d eqnetrd fveq2 im0
+    eqtrdi divne0bd mpbird mulne0d subne0ad c1 caddc subsubd 1cnd adddird
+    mullidd eqtr4d addcld divcan5rd divdird dividd npcand divcan7d eqeltrd
+    msqgt0d elrpd mulcomd eqbrtrrd divlt0gt0d eqbrtrd 3jca jca rspcedvd )
+    ACDMZBNZCOPZDCOPZQPZRSZTZEYIUAZFYIOPZEYIOPZQPZRSZYRUBUCUDZUEZUFYHEECOPZYKQPZUGUHZFCOPZYKQPZUGUHZUUDOPZQPZFEOPZUIPZOPZCOPZYKQPZRSZTZEUULUAZFUULOPZEUULOPZQPZRSZUUTUBUCUDZUEZUFBUULUJAEUUKIAUUIUUJAUUIAUUDUUHAUUCAUUBYKAECIGUKZADCHGUKZADCHGACDKULZUMZUNZUOZAUUGUUDAUUFAUUEYKAFCJGUKZUVEUVGUNZUOZUVIUPZAUUGUUDAUUGUVLUQZAUUDUVIUQZAUUDUUGUIPZUUDUUDUIPZUAZUUGUUDUAZAUVPUVQAUUDUUGUVIUVLURZAUVPUBUVQUVTAUSZAUUDUUDUVIUVIURZLAUUDUVIUTZVAZVBZAUUGUUDUVPUVQUUGUUDMZUVPUVQMZVCZAUUGUUDUUDUIVDZVEZVFZVGZUMZVHZUQZAFEJIUKZVIZUKZAYIUULMZUFZYNUUPUUAUVCUWTYMUUOYHUWTYLUUNRUWTYJUUMYKQUWTYIUULCOAUWSVJZVKVKVLVMUWTYOUUQYSUVAYTUVBUWTYIUULEUXAVNUWTYRUUTRUWTYPUURYQUUSQUWTYIUULFOUXAVOZUWTYIUULEOUXAVOZVPZVLUWTYRUUTUBUCUXDVQVRVSAUUPUVCAUUOYHAUUNAUUMYKAUULCUWRGUKUVEUVGUNAUUNUGUHZUUDUUDOPZUBAUXEUUCUUIUUJYKQPZUIPZOPZUGUHUUDUXHUGUHZOPUXFAUUNUXIUGAUUNUUBUUKOPZYKQPUUCUUKYKQPZOPUXIAUUMUXKYKQAEUUKCIUWQGVTVKAUUBUUKYKUVDUWQUVEUVGWAAUXLUXHUUCOAUUIUUJYKUWOUWPUVEUVGWBVOWCWDAUUCUXHUVHAUUIUXGUWOAUUJYKUWPUVEUVGUNZVIWEAUXJUUDUUDOAUXJUUIUXGUGUHZUIPUUIUUHUIPUUDAUUIUXGUWNUXMWFAUXNUUHUUIUIAUUFUUCOPZUGUHZUXNUUHAUXOUXGUGACDFEJIGHKWGZWDZAUUFUUCUVKUVHWEZWHZVOAUUDUUHUVOAUUHUVMUQZUWMWIWCVOWCAUUDUVOWJWKWLWMAUUQUVAUVBAEUULIUWRAUUSUUKUBAEUUKIUWQWNZAUUIUUJUWOUWPAUUDUUHUVOUYAAUUDUUGUVOUVNAUVPUBUVTLVBZWOZUWMWPZAUUJUBUAZUXGUBUAZAUXNUBUAZUYGAUXNUUHUBUXTUWMWQZAUXGUBUXNUBUXGUBMZUXNUBMZVCZAUYJUXNUBUGUHZUBUXGUBUGWRZWSWTZVEZVFZVGZAUUJYKUWPUVEUVGXAZXBZXCWQXDAUUTUUGUUDQPZRAUUTXEUUIXFPZUUIQPZUUGUUHQPZUUIQPZVUAAUUTVUBUUJUIPZUUKQPZVUCAUURVUFUUSUUKQAUURUUJUUKXFPZVUFAFEUUKJIUWQXGZAVUFXEUUJUIPZUUKXFPZVUHAXEUUIUUJAXHZUWOUWPXIZAVUJUUJUUKXFAUUJUWPXJZVKZWKZXKZUYBVPZAVUBUUIUUJAXEUUIVULUWOXLZUWOUWPUYEUYTXMZWKZAVUBVUDUUIQAUUHUUDXFPZUUHQPZVUBVUDAVVCUUHUUHQPZUUIXFPZVUBAUUHUUDUUHUYAUVOUYAUWMXNZAVVDXEUUIXFAUUHUYAUWMXOZVKZWKZAVVBUUGUUHQAUUGUUDUVNUVOXPZVKZWHZVKZAUUGUUDUUHUVNUVOUYAUYDUWMXQZWCZAUUGUUDUVLUVIUYDVHXRAUUTVUAUBUCVVOAUUGUUDUIPZUVQQPVUAUBUCAUUGUUDUUDUVNUVOUVOUYDUYDXMAVVPUVQAUUGUUDUVLUVIURAUVQUWBAUUDUVIUYDXSXTAUVPVVPUBUCAUUDUUGUVOUVNYALYBYCYBYDYEYFYG $.
+  $}
+
+  gplanesepcross $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ A =/= B ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> E. x e. CC ( ( A = B \/ ( ( x - A ) / ( B - A ) ) e. RR ) /\ ( P =/= x /\ ( ( Q - x ) / ( P - x ) ) e. RR /\ ( ( Q - x ) / ( P - x ) ) < 0 ) ) ) $=
+    ( cc wcel wa wne cmin co cdiv cim cfv cmul cc0 clt wbr simp-5l simp-5r
+    simp-4r simpllr simplr simpr gplscross )
+    BFGZCFGZHZDFGZHZEFGZHZBCIZHZDBJKZCBJKZLKZMNZEBJKZUPLKZMNZOKZPQRZHABCDEUFUGUIUKUMVCSUFUGUIUKUMVCTUHUIUKUMVCUAUJUKUMVCUBULUMVCUCUNVCUDUE $.
+
+  ${
+    grayfwd.1 $e |- ( ph -> P e. CC ) $.
+    grayfwd.2 $e |- ( ph -> A e. CC ) $.
+    grayfwd.3 $e |- ( ph -> B e. CC ) $.
+    grayfwd.4 $e |- ( ph -> A =/= B ) $.
+    grayfwd.5 $e |- ( ph -> ( ( P - A ) / ( B - A ) ) e. RR ) $.
+    grayfwd.6 $e |- ( ph -> 0 <_ ( ( P - A ) / ( B - A ) ) ) $.
+  grayfwd $p |- ( ph -> ( ( ( P = A \/ P = B ) \/ ( A =/= P /\ ( ( B - P ) / ( A - P ) ) e. RR /\ ( ( B - P ) / ( A - P ) ) < 0 ) ) \/ ( A =/= B /\ ( ( P - B ) / ( A - B ) ) e. RR /\ ( ( P - B ) / ( A - B ) ) < 0 ) ) ) $=
+    ( wceq wne cmin co cdiv cr wcel cc0 clt wbr w3a wo wn wa simpr simp3d
+    0red simp2d c1 adantr cle cc subcld simp1d subne0d necomd divne0d jca
+    ltlend mpbird recgt0d recdivd breqtrd ltnsymd pm2.65da gonlinelem orel2
+    sylc or32 orbi1i sylib )
+    ADBKZBDLZCDMNZBDMNZONZPQZVPRSTZUAZUBZDCKZUBZBCLZDCMNZBCMNZONZPQZWFRSTZUAZUBZVLWAUBZVSUBZWIUBADBLZCBMNZDBMNZONZPQZWPRSTZUAZUCWJWSUBWJAWSWRAWSUDZWMWQWRAWSUEZUFWTRWPWTUGZWTWMWQWRXAUHWTRUIWOWNONZONWPSWTXCAXCPQZWSIUJZWTRXCSTRXCUKTZXCRLZUDWTXFXGAXFWSJUJWTWOWNWTDBADULQZWSEUJZABULQZWSFUJZUMZWTCBACULQZWSGUJZXKUMZWTDBXIXKWTWMWQWRXAUNZUOZWTCBXNXKWTBCAWCWSHUJZUPZUOZUQURWTRXCXBXEUSUTVAWTWOWNXLXOXQXTVBVCVDVEADBCEFGHIVFWSWJVGVHWBWLWIVLVSWAVIVJVK $.
+  $}
+
+  ${
+    grayback.1 $e |- ( ph -> P e. CC ) $.
+    grayback.2 $e |- ( ph -> A e. CC ) $.
+    grayback.3 $e |- ( ph -> B e. CC ) $.
+    grayback.4 $e |- ( ph -> A =/= B ) $.
+  grayback $p |- ( ph -> ( ( ( ( P = A \/ P = B ) \/ ( A =/= P /\ ( ( B - P ) / ( A - P ) ) e. RR /\ ( ( B - P ) / ( A - P ) ) < 0 ) ) \/ ( A =/= B /\ ( ( P - B ) / ( A - B ) ) e. RR /\ ( ( P - B ) / ( A - B ) ) < 0 ) ) -> ( ( ( P - A ) / ( B - A ) ) e. RR /\ 0 <_ ( ( P - A ) / ( B - A ) ) ) ) ) $=
+    ( wceq wo wne cmin co cdiv cr wcel cc0 clt wbr w3a cle wa simpr cc adantr
+    subeq0ad mpbird oveq1d subcld necomd subne0d div0d eqtrd 0red eqeltrd
+    0le0 a1i breqtrrd jca ex c1 dividd 1red 0le1 jaod wn neneqd 3jca simp2d
+    olcd gcolrotate sylc orel1 simp3d cneg resubcld renegcld 0lt1 lttrd
+    posdifd mpbid lt0neg1d divgt0d cmul 1cnd divcld subdird mullidd divcan1d
+    oveq12d nnncan2d 3eqtrd mulneg1d negeqd negsubdi2d ad2antrr recnd gt0ne0d
+    divcan5rd eqtr3d ltnsymd pm2.65da lenltd gcolswap mulm1d neg1cn neg1ne0
+    ax-1ne0 divneg2d div1d )
+    ADBIZDCIZJZBDKZCDLMZBDLMZNMZOPZXQQRSZTZJDBLMZCBLMZNMZOPZQYCUASZUBZBCKZDCLMZBCLMZNMZOPZYJQRSZTZAXMYFXTAXKYFXLAXKYFAXKUBZYDYEYNYCQOYNYCQYBNMZQYNYAQYBNYNYAQIZXKAXKUCZYNDBADUDPZXKEUEZABUDPZXKFUEZUFZUGZUHZYNYBAYBUDPZXKACBGFUIZUEZAYBQKZXKACBGFABCHUJZUKZUEZULZUMZYNUNUOYNQQYCUAQQUASYNUPUQUUMURUSUTAXLYFAXLUBZYDYEUUNYCVAOUUNYCYBYBNMZVAUUNYAYBYBNUUNDCBLAXLUCZUHZUHZUUNYBAUUEXLUUFUEZAUUHXLUUJUEZVBZUMZUUNVCUOUUNQVAYCUAQVAUASUUNVDUQUVBURUSUTVEAXTYFAXTUBZYDYEUVCBCIZVFZUVDYDJZYDUVCBCAYGXTHUEZVGZUVCYRYTCUDPZTZXKXRJZUVFUVCYRYTUVIAYRXTEUEZAYTXTFUEZAUVIXTGUEZVHZUVCXRXKUVCXNXRXSAXTUCZVIZVJZDBCVKZVLZUVDYDVMZVLZUVCYEYCQRSZVFZUVCUWCXSUVCXSUWCUVCXNXRXSUVPVNUEUVCUWCUBZQXQUWEUNZUVCXRUWCUVQUEUWEQVAYCLMZYCVOZNMZXQRUWEUWGUWHUWEVAYCUWEVCZUVCYDUWCUWBUEZVPZUWEYCUWKVQZUWEYCVARSZQUWGRSZUWEYCQVAUWKUWFUWJUVCUWCUCZQVARSZUWEVRUQVSUWEYCVAUWKUWJVTWAUWEUWCQUWHRSZUWPUWEYCUWKWBZWAZWCUWEUWGYBWDMZUWHYBWDMZNMZXQUWIAUXCXQIXTUWCAUXAXOUXBXPNAUXAVAYBWDMZYCYBWDMZLMYBYALMXOAVAYCYBAWEZAYAYBADBEFUIZUUFUUJWFZUUFWGAUXDYBUXEYALAYBUUFWHZAYAYBUXGUUFUUJWIZWJACDBGEFWKWLAUXBUXEVOYAVOXPAYCYBUXHUUFWMAUXEYAUXJWNADBEFWOWLWJWPUWEUWGUWHYBUWEUWGUWLWQUWEUWHUWMWQAUUEXTUWCUUFWPUWEUWHUWTWRAUUHXTUWCUUJWPWSWTURXAXBUVCQYCUVCUNUWBXCUGUSUTVEAYMYFAYMUBZYDYEUXKUVEUVFYDUXKBCAYGYMHUEZVGZUXKYTYRUVITZBDIZYBYANMZOPZJZUVFUXKYTYRUVIAYTYMFUEZAYRYMEUEZAUVIYMGUEZVHZUXKUVIYTYRTZCBIZYKJZUXRUXKUVIYTYRUYAUXSUXTVHZUXKYKUYDUXKYGYKYLAYMUCZVIZVJZCBDVKZVLZBDCXDZVLZUWAVLZUXKYEUWDUXKUWCYLUXKYLUWCUXKYGYKYLUYGVNUEUXKUWCUBZQYJUYOUNZUXKYKUWCUYHUEUYOQUWGYJRUYOUWNUWOUYOYCQVAUXKYDUWCUYNUEZUYPUYOVCZUXKUWCUCUWQUYOVRUQVSUYOYCVAUYQUYRVTWAUYOYJYCVALMZVAVOZNMZUWGUYOUYSYBWDMZUYTYBWDMZNMZYJVUAAVUDYJIYMUWCAVUBYHVUCYINAVUBUXEUXDLMYAYBLMYHAYCVAYBUXHUXFUUFWGAUXEYAUXDYBLUXJUXIWJADCBEGFWKWLAVUCYBVOYIAYBUUFXEACBGFWOUMWJWPUYOUYSUYTYBUYOYCVAUYOYCUYQWQZUYOWEZUIZUYTUDPUYOXFUQAUUEYMUWCUUFWPUYTQKUYOXGUQAUUHYMUWCUUJWPWSWTUYOVUAUYSVOZUWGUYOUYSVANMZVOVUAVUHUYOUYSVAVUGVUFVAQKUYOXHUQXIUYOVUIUYSUYOUYSVUGXJWNWTUYOYCVAVUEVUFWOUMUMURXAXBUXKQYCUXKUNUYNXCUGUSUTVE $.
+  $}
+
+  grayel $p |- ( ( ( ( P e. CC /\ A e. CC ) /\ B e. CC ) /\ A =/= B ) -> ( P e. { u e. CC | ( A = B \/ ( ( ( u - A ) / ( B - A ) ) e. RR /\ 0 <_ ( ( u - A ) / ( B - A ) ) ) ) } <-> ( ( ( P = A \/ P = B ) \/ ( A =/= P /\ ( ( B - P ) / ( A - P ) ) e. RR /\ ( ( B - P ) / ( A - P ) ) < 0 ) ) \/ ( A =/= B /\ ( ( P - B ) / ( A - B ) ) e. RR /\ ( ( P - B ) / ( A - B ) ) < 0 ) ) ) ) $=
+    ( cc wcel wa wne wceq cv cmin co cdiv cr cc0 cle wbr wo crab clt w3a wb
+    simplll oveq1 oveq1d eleq1d breq2d anbi12d orbi2d elrab3 syl wn simpr
+    neneqd biorf bitr4d adantr simpllr simplr simpld simprd grayfwd ex
+    grayback impbid bitrd )
+    DEFZBEFZGZCEFZGZBCHZGZDBCIZAJZBKLZCBKLZMLZNFZOVRPQZGZRZAESZFZDBKLZVQMLZNFZOWFPQZGZDBIZDCIZRZBDHZCDKLZBDKLZMLZNFZWPOTQZUAZRZVLDCKLZBCKLZMLZNFZXCOTQZUAZRZVMWDVNWIRZWIVMVGWDXHUBVGVHVJVLUCZWBXHADEVODIZWAWIVNXJVSWGVTWHXJVRWFNXJVPWEVQMVODBKUDZUEZUFXJVRWFOPXLUGUHUIUJUKVMVNULWIXHUBVMBCVKVLUMZUNVNWIUOUKUPVMWIXGVMWIXGVMWIGZBCDVMVGWIXIUQVMVHWIVGVHVJVLURZUQVMVJWIVIVJVLUSZUQVMVLWIXMUQXNWGWHVMWIUMZUTXNWGWHXQVAVBVCVMBCDXIXOXPXMVDVEVF $.
+
+  ${
+    gsgntr.1 $e |- ( ph -> X e. RR ) $.
+    gsgntr.2 $e |- ( ph -> Y e. RR ) $.
+    gsgntr.3 $e |- ( ph -> Z e. RR ) $.
+    gsgntr.4 $e |- ( ph -> 0 < ( X x. Y ) ) $.
+    gsgntr.5 $e |- ( ph -> 0 < ( Y x. Z ) ) $.
+  gsgntr $p |- ( ph -> 0 < ( X x. Z ) ) $=
+    ( cmul co cr wcel wa cc0 cle wbr clt remulcld jca msqge0d recnd mulcomd
+    breqtrd mulgt0d mul4d prodgt02 syl )
+    ABDJKZLMZCCJKZLMZNZOUKPQZOUIUKJKZRQZNZNOUIRQAUMUQAUJULABDEGSACCFFSTAUNUPACFUAAOBCJKZDCJKZJKUORAURUSABCEFSADCGFSHAOCDJKUSRIACDACFUBZADGUBZUCUDUEABCDCABEUBUTVAUTUFUDTTUIUKUGUH $.
+  $}
+
+  ${
+    gargsgn.1 $e |- ( ph -> Z e. CC ) $.
+    gargsgn.2 $e |- ( ph -> ( Im ` Z ) =/= 0 ) $.
+  gargsgn $p |- ( ph -> 0 < ( ( Im ` ( log ` Z ) ) x. ( Im ` Z ) ) ) $=
+    ( cim cfv cc0 clt wbr clog cmul co wa cr wcel cpi cneg cioo cc adantr
+    simpr argimlt0 syl2anc elioore syl eliooord simprd jca imcld mullt0
+    argimgt0 simpld mulgt0d wne wo 0red lttri2d mpbid mpjaodan )
+    ABEFZGHIZGBJFZEFZUTKLZHIZGUTHIZAVAMZVCNOZVCGHIZMZUTNOZVAMZMVEVGVJVLVGVHVIVGVCPQZGRLZOZVHVGBSOZVAVOAVPVACTZAVAUAZBUBZUCZVCVMGUDUEVGVMVCHIZVIVGVOWAVIMVTVCVMGUFUEUGUHVGVKVAAVKVAABCUIZTVRUHUHVCUTUJUEAVFMZVCUTWCVCGPRLZOZVHWCVPVFWEAVPVFCTZAVFUAZBUKZUCZVCGPUDUEAVKVFWBTWCGVCHIZVCPHIZWCWEWJWKMWIVCGPUFUEULWGUMAUTGUNVAVFUODAUTGWBAUPUQURUS $.
+  $}
+
+  ${
+    gabssgn.1 $e |- ( ph -> X e. RR ) $.
+    gabssgn.2 $e |- ( ph -> Y e. RR ) $.
+    gabssgn.3 $e |- ( ph -> 0 < ( X x. Y ) ) $.
+    gabssgn.4 $e |- ( ph -> ( abs ` X ) = ( abs ` Y ) ) $.
+  gabssgn $p |- ( ph -> X = Y ) $=
+    ( recnd cmul co gt0ne0d mulne0bad cabs cfv remulcld cc0 0red ltled absidd
+    absmuld eqtr3d oveq2d eqtr4d msqge0d eqtrd mulcanad eqcomd )
+    ACBACBBACEHZABDHZUIABCUIUHABCIJZFKLAUJBMNZUKIJZBBIJZAUJUKCMNZIJZULAUJMNUJUOAUJABCDEOZAPUJAQUPFRSABCUIUHTUAAUKUNUKIGUBUCAUMMNULUMABBUIUITAUMABBDDOABDUDSUAUEUFUG $.
+  $}
+
+  ${
+    gangculem.1 $e |- ( ph -> A e. CC ) $.
+    gangculem.2 $e |- ( ph -> B e. CC ) $.
+    gangculem.3 $e |- ( ph -> C e. CC ) $.
+    gangculem.4 $e |- ( ph -> D e. CC ) $.
+    gangculem.5 $e |- ( ph -> E e. CC ) $.
+    gangculem.6 $e |- ( ph -> A =/= B ) $.
+    gangculem.7 $e |- ( ph -> 0 < ( ( Im ` ( ( D - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) $.
+    gangculem.8 $e |- ( ph -> 0 < ( ( Im ` ( ( E - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) $.
+    gangculem.9 $e |- ( ph -> ( abs ` ( ( B - A ) ang ( D - A ) ) ) = ( abs ` ( ( B - A ) ang ( E - A ) ) ) ) $.
+  gangculem $p |- ( ph -> E e. { u e. CC | ( A = D \/ ( ( ( u - A ) / ( D - A ) ) e. RR /\ 0 <_ ( ( u - A ) / ( D - A ) ) ) ) } ) $=
+    ( wceq cv cmin co cdiv cr wcel cc0 cle wbr wa wo cc crab crp clog cfv ce
+    subcld necomd subne0d divcld cim wne imcld recnd cmul gt0ne0d mulne0bad
+    fveq2 im0 eqtrdi necon3i syl logcld efsubd jca eflog oveq12d eqtrd imsubd
+    gargsgn gsgntr clt mulcomd breqtrd cabs cang divne0bd mpbird gangval
+    fveq2d eqtr3d gabssgn eqcomd subeq0bd reim0bd rpefcld eqeltrrd divcan7d
+    eleq1d mpbid rpred rpge0d olcd wb oveq1 oveq1d breq2d anbi12d orbi2d
+    elrab3 )
+    AGCFQZBRZCSTZFCSTZUATZUBUCZUDXMUEUFZUGZUHZBUIUJZUCZXIGCSTZXLUATZUBUCZUDYAUEUFZUGZUHZAYDXIAYBYCAYAAXTDCSTZUATZXLYFUATZUATZUKUCZYAUKUCZAYGULUMZYHULUMZSTZUNUMZYIUKAYOYLUNUMZYMUNUMZUATZYIAYLYMAYGAXTYFAGCLHUOZADCIHUOZADCIHACDMUPZUQZURZAYGUSUMZUDUTZYGUDUTZAUUDECSTZYFUATZUSUMZAUUDAYGUUCVAZVBZAUUIAUUHAUUGYFAECJHUOZYTUUBURZVAZVBZAUUDUUIVCTZOVDZVEZYGUDUUDUDYGUDQZUUDUDUSUMZUDYGUDUSVFZVGVHZVIZVJZVKZAYHAXLYFAFCKHUOZYTUUBURZAYHUSUMZUDUTZYHUDUTZAUVHUUIAUVHAYHUVGVAZVBZUUOAUVHUUIVCTZNVDZVEZYHUDUVHUDYHUDQZUVHUUTUDYHUDUSVFZVGVHZVIZVJZVKZVLZAYPYGYQYHUAAYGUIUCZUUFUGZYPYGQZAUWCUUFUUCUVDVMZYGVNZVJZAYHUIUCZUVJUGZYQYHQZAUWIUVJUVGUVTVMZYHVNZVJZVOZVPZAYNAYNAYLYMUVEUWAUOZAYNUSUMZYLUSUMZYMUSUMZSTZUDAYLYMUVEUWAVQZAUWSUWTAUWSAYLUVEVAZVBZAUWTUWSAUWTUWSAYMUWAVAZUXCAUWTUUDUWSUXEUUJUXCAUWTUUIUUDUXEUUNUUJAUWTUVHUUIUXEUVKUUNAYHUVGUVOVRZNVSZAUDUUPUUIUUDVCTZVTOAUUDUUIUUKUUOWAZWBZVSZAUDUWSUUDVCTZUUDUWSVCTZVTAYGUUCUURVRZAUWSUUDUXDUUKWAZWBZVSZAUWTWCUMZYFXTWDTZWCUMZUWSWCUMZAYFXLWDTZWCUMZUXRUXTAUYBUWTWCAYFUIUCZYFUDUTZUGZXLUIUCZXLUDUTZUGZUGZUYBUWTQZAUYFUYIAUYDUYEYTUUBVMZAUYGUYHUVFAUYHUVJUVTAXLYFUVFYTUUBWEZWFZVMZVMZYFXLWGZVJZWHZPWIZAUXSUWSWCAUYFXTUIUCZXTUDUTZUGZUGZUXSUWSQZAUYFVUCUYLAVUAVUBYSAVUBUUFUVDAXTYFYSYTUUBWEZWFZVMZVMZYFXTWGZVJZWHZVPZWJZWKZWLZVPZWMZWNZWOZAYIYAUKAXTXLYFYSUVFYTUYNUUBWPZWQZWRZWSAYAVVCWTVMXAAGUIUCXSYEXBLXQYEBGUIXJGQZXPYDXIVVDXNYBXOYCVVDXMYAUBVVDXKXTXLUAXJGCSXCZXDZWQVVDXMYAUDUEVVFXEXFXGXHVJWF $.
+  $}
+
+  gangconsuniq $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ E e. CC ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( D - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) /\ 0 < ( ( Im ` ( ( E - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) /\ ( abs ` ( ( B - A ) ang ( D - A ) ) ) = ( abs ` ( ( B - A ) ang ( E - A ) ) ) ) -> E e. { u e. CC | ( A = D \/ ( ( ( u - A ) / ( D - A ) ) e. RR /\ 0 <_ ( ( u - A ) / ( D - A ) ) ) ) } ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr cc0 cim cfv cmul clt wbr cang cabs
+    simp-8l simp-8r simp-7r simp-6r simp-5r simp-4r simplld simpld neqned
+    simpllr simplr simpr gangculem )
+    BGHZCGHZIZDGHZIZEGHZIZFGHZIZBCJZKZCDJZKZIZBDJZKZIZDBLMZCBLMZNMZOHZKZIZIZPEBLMZVONMZQRZVPQRZSMZTUAZIZPFBLMZVONMZQRZWDSMZTUAZIZVOWAUBMZUCRZVOWHUBMZUCRZJZIZABCDEFUQURUTVBVDVSWFWLWRUDUQURUTVBVDVSWFWLWRUEUSUTVBVDVSWFWLWRUFVAVBVDVSWFWLWRUGVCVDVSWFWLWRUHWSBCWSVGVIWSVJVLVRVEVSWFWLWRUIUJUKULVTWFWLWRUMWGWLWRUNWMWRUOUP $.
+
+  ${
+    gconsturn.1 $e |- ( ph -> A e. CC ) $.
+    gconsturn.2 $e |- ( ph -> B e. CC ) $.
+    gconsturn.3 $e |- ( ph -> A =/= B ) $.
+    gconsturn.4 $e |- ( ph -> T e. RR ) $.
+    gconsturn.5 $e |- ( ph -> -u _pi < T ) $.
+    gconsturn.6 $e |- ( ph -> T <_ _pi ) $.
+    gconsturn.7 $e |- ( ph -> 0 < ( ( sin ` T ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) $.
+    gconsturn.8 $e |- ( ph -> ( abs ` T ) = Y ) $.
+  gconsturn $p |- ( ph -> E. x e. CC ( 0 < ( ( Im ` ( ( x - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) /\ ( abs ` ( ( B - A ) ang ( x - A ) ) ) = Y ) ) $=
+    ( cc0 cv cmin co cdiv cim cfv cmul clt wbr cang cabs wceq wa ci ce caddc
+    cc subcld wcel ax-icn a1i recnd mulcld efcld addcld simpr oveq1d fveq2d
+    breq2d oveq2d eqeq1d anbi12d csin pncan2d necomd subne0d divcan3d eqtrd
+    cr resinval syl eqtr4d breqtrrd clog wne jca efne0d mulne0d eqnetrd
+    gangval crn cpi cneg cle w3a cre reim rere eqtr3d eqbrtrd 3jca ellogrn
+    sylibr logef rspcedvd )
+    APBQZCRSZDCRSZTSZUAUBZECRSZXDTSZUAUBZUCSZUDUEZXDXCUFSZUGUBZGUHZUIPCXDUJFUCSZUKUBZUCSZULSZCRSZXDTSZUAUBZXIUCSZUDUEZXDXSUFSZUGUBZGUHZUIBXRUMACXQHAXDXPADCIHUNZAXOAUJFUJUMUOZAUPUQZAFKURZUSZUTZUSZVAZAXBXRUHZUIZXKYCXNYFYPXJYBPUDYPXFYAXIUCYPXEXTUAYPXCXSXDTYPXBXRCRAYOVBZVCZVCVDVCVEYPXMYEGYPXLYDUGYPXCXSXDUFYRVFVDVGVHAYCYFAPFVIUBZXIUCSYBUDNAYAYSXIUCAYAXPUAUBZYSAXTXPUAAXTXQXDTSZXPAXSXQXDTACXQHYMVJZVCZAXPXDYLYGADCIHACDJVKZVLZVMZVNZVDAFVOUOZYSYTUHKFVPVQVRVCVSAYEFUGUBGAYDFUGAYDXOUAUBZFAYDXPVTUBZUAUBZUUIAYDXTVTUBZUAUBZUUKAXDUMUOZXDPWAZUIZXSUMUOZXSPWAZUIZUIYDUUMUHAUUPUUSAUUNUUOYGUUEWBAUUQUURAXRCYNHUNAXSXQPUUBAXDXPYGYLUUEAXOYKWCWDWEWBWBXDXSWFVQAUULUUJUAAXTXPVTUUGVDVDVNAUUJXOUAAXOVTWGZUOZUUJXOUHAXOUMUOZWHWIZUUIUDUEZUUIWHWJUEZWKUVAAUVBUVDUVEYKAUVCFUUIUDLAFWLUBZUUIFAFUMUOZUVFUUIUHZYJFWMZVQZAUUHUVFFUHZKFWNZVQZWOZVSAUUIFWHWJUVNMWPWQXOWRWSXOWTVQVDVNUVNVNVDOVNWBXA $.
+  $}
+
+  ${
+    gangconsd.1 $e |- ( ph -> A e. CC ) $.
+    gangconsd.2 $e |- ( ph -> B e. CC ) $.
+    gangconsd.3 $e |- ( ph -> C e. CC ) $.
+    gangconsd.4 $e |- ( ph -> A =/= B ) $.
+    gangconsd.5 $e |- ( ph -> K e. RR ) $.
+    gangconsd.6 $e |- ( ph -> 0 < K ) $.
+    gangconsd.7 $e |- ( ph -> K < ; ; 1 8 0 ) $.
+    gangconsd.8 $e |- ( ph -> -. ( ( C - A ) / ( B - A ) ) e. RR ) $.
+  gangconsd $p |- ( ph -> E. x e. CC ( 0 < ( ( Im ` ( ( x - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) /\ ( abs ` ( ( B - A ) ang ( x - A ) ) ) = ( ( K x. _pi ) / ; ; 1 8 0 ) ) ) $=
+    ( cmin co cdiv cim cfv cc0 clt wbr cv cmul cang cabs cpi c1 c8 cdc wceq
+    wa cc wrex cneg wcel adantr wne cr pire a1i remulcld crp cn 1nn0 8nn
+    decnncl decnncl2 nnrp ax-mp rpred rpne0d redivcld renegcld pirp ltmul1d
+    mpbid ltdiv1d g180 breqtrd ltnegd cle 0re pipos mulgt0d rpgt0d divgt0d
+    lt0neg2d lttrd ltled csin resincld recnd sinneg syl cioo cxr 0xr rexrd
+    eliood sinq12gt0 eqbrtrd jca subcld necomd subne0d divcld imcld simpr
+    mullt0 absnegd absidd eqtrd gconsturn wo wb reim0b mtbid neqned lttri2
+    mpjaodan )
+    AECOPZDCOPZQPZRSZTUAUBZTBUCZCOPZYCQPRSYEUDPUAUBYCYHUEPUFSFUGUDPZUHUIUJZTUJZQPZUKULBUMUNTYEUAUBZAYFULZBCDEYLUOZYLACUMUPZYFGUQADUMUPZYFHUQACDURZYFJUQAYOUSUPYFAYLAYIYKAFUGKUGUSUPZAUTVAZVBZAYKYKVCUPZAYKVDUPZUUBYJUHUIVEVFVGZVHZYKVIZVJZVAZVKZAYKUUHVLZVMZVNZUQAUGUOZYOUAUBZYFAYLUGUAUBUUNAYLYKUGUDPZYKQPZUGUAAYIUUOUAUBZYLUUPUAUBZAFYKUAUBZUUQMAFYKUGKUUIUGVCUPZAVOVAZVPZVQZAYIUUOYKUUAAYKUGUUIYTVBZUUHVRZVQZUUPUGUKZAVSVAZVTZAYLUGUUKYTWAVQUQAYOUGWBUBYFAYOUGUULYTAYOTUGUULTUSUPZAWCVAZYTATYLUAUBYOTUAUBAYIYKUUAUUIAFUGKYTLTUGUAUBZAWDVAZWEZAYKUUHWFZWGZAYLUUKWHVQUVMWIWJUQYNYOWKSZUSUPZUVQTUAUBZULZYEUSUPZYFULZULTUVQYEUDPUAUBYNUVTUWBYNUVRUVSAUVRYFAYOUULWLUQAUVSYFAUVQYLWKSZUOZTUAAYLUMUPUVQUWDUKAYLUUKWMZYLWNWOATUWCUAUBZUWDTUAUBAYLTUGWPPZUPZUWFATUGYLTWQUPZAWRVAZAUGYTWSZUUKUVPUVIWTZYLXAZWOZAUWCAYLUUKWLZWHVQXBUQXCYNUWAYFAUWAYFAYDAYBYCAECIGXDZADCHGXDZADCHGACDJXEZXFZXGZXHZUQAYFXIXCXCUVQYEXJWOAYOUFSZYLUKYFAUXBYLUFSZYLAYLUWEXKAYLUUKATYLUVKUUKUVPWJZXLZXMUQXNAYMULZBCDEYLYLAYPYMGUQAYQYMHUQAYRYMJUQAYLUSUPYMUUKUQAUUMYLUAUBYMAUUMTYLAUGYTVNUVKUUKAUVLUUMTUAUBUVMAUGYTWHVQUVPWIUQAYLUGWBUBYMAYLUGUUKYTUVIWJUQUXFUWCYEAUWCUSUPYMUWOUQAUWAYMUXAUQAUWFYMUWNUQAYMXIWEAUXCYLUKYMUXEUQXNAYETURZYFYMXOZAYETAYDUSUPZYETUKZNAYDUMUPUXIUXJXPUWTYDXQWOXRXSAUWAUVJULUXGUXHXPAUWAUVJUXAUVKXCYETXTWOVQYA $.
+  $}
+
+  gangcons $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ K e. RR ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ 0 < K ) /\ K < ; ; 1 8 0 ) -> E. x e. CC ( 0 < ( ( Im ` ( ( x - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) /\ ( abs ` ( ( B - A ) ang ( x - A ) ) ) = ( ( K x. _pi ) / ; ; 1 8 0 ) ) ) $=
+    ( cc wcel wa cr wceq wn cmin co cdiv cc0 clt wbr c1 c8 cdc simp-6l
+    simp-6r simp-5r simpllr simpld neqned simp-4r simplr simpr simprd
+    gangconsd )
+    BFGZCFGZHZDFGZHZEIGZHZBCJZKZCDJZKZHZBDJZKZHZDBLMZCBLMZNMZIGZKZHZHZOEPQZHZERSTZOTZPQZHZABCDEULUMUOUQVLVNVRUAULUMUOUQVLVNVRUBUNUOUQVLVNVRUCVSBCVSUTVBVSVCVEVSVFVKURVLVNVRUDZUEUEUEUFUPUQVLVNVRUGVMVNVRUHVOVRUIVSVFVKVTUJUK $.
+
+  gangconsm $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ K e. RR ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ ( ( 0 x. _pi ) / ; ; 1 8 0 ) < K ) /\ K < ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) -> E. x e. CC ( 0 < ( ( Im ` ( ( x - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) /\ ( abs ` ( ( B - A ) ang ( x - A ) ) ) = K ) ) $=
+    ( cc wcel wa cr wceq wn cmin co cdiv cc0 cpi cmul c1 c8 cdc clt wbr cv
+    cim cfv cang cabs wrex simp-6l simp-6r jca simp-5r simp-4r crp cn 1nn0
+    8nn decnncl decnncl2 nnrp ax-mp a1i rpred remulcld pirp rpne0d redivcld
+    simpllr rpcnd mul02 syl oveq1d wne div0 eqtrd simplr eqbrtrrd rpgt0d
+    mulgt0d divgt0d simpr g180 breqtrd ltmul1d mpbid ltdiv1d divcan3d
+    gangcons recnd divcan1d divcan4d eqeq2d anbi2d rexbidv )
+    BFGZCFGZHZDFGZHZEIGZHZBCJZKZCDJZKZHZBDJZKZHZDBLMZCBLMZNMZIGZKZHZHZOPQMZRSTZOTZNMZEUAUBZHZEXSPQMZXSNMZUAUBZHZOAUCZBLMZXKNMZUDUEZXLUDUEZQMZUAUBZXKYHUFMZUGUEZEXSQMZPNMZPQMZXSNMZJZHZAFUHZYMYOEJZHZAFUHYFWSYQIGZHZXOHZOYQUAUBZHZYQXSUAUBZHUUBYFUUIUUJYFUUGUUHYFUUFXOYFWSUUEYFWQWRYFWOWPWOWPWRWTXOYAYEUIWOWPWRWTXOYAYEUJUKWQWRWTXOYAYEULUKYFYPPYFEXSWSWTXOYAYEUMZYFXSXSUNGZYFXSUOGZUULXRRSUPUQURZUSZXSUTZVAZVBZVCZVDZYFPPUNGZYFVEVBZVCZYFPUVBVFZVGUKXAXOYAYEVHUKYFYPPUUTUVCYFEXSUUKUUSYFXTOEUAYFXTOXSNMZOYFXQOXSNYFPFGXQOJYFPUVBVIZPVJVKVLYFXSFGZXSOVMZHUVEOJYFUVGUVHYFXSUURVIZYFXSUURVFZUKXSVNVKVOXPYAYEVPVQYFXSUURVRVSYFPUVBVRVTUKYFYQPXSQMZPNMZXSUAYFYPUVKUAUBZYQUVLUAUBYFEPUAUBUVMYFEYDPUAYBYEWAYDPJYFWBVBWCYFEPXSUUKUVCUURWDWEYFYPUVKPUUTYFPXSUVCUUSVDUVBWFWEYFXSPUVIUVFUVDWGWCUKABCDYQWHVKYFUUAUUDAFYFYTUUCYMYFYSEYOYFYSYPXSNMEYFYRYPXSNYFYPPYFYPUUTWIUVFUVDWJVLYFEXSYFEUUKWIUVIUVJWKVOWLWMWNWE $.
+
+  ${
+    gargdiv.1 $e |- ( ph -> U e. CC ) $.
+    gargdiv.2 $e |- ( ph -> U =/= 0 ) $.
+    gargdiv.3 $e |- ( ph -> W e. CC ) $.
+    gargdiv.4 $e |- ( ph -> W =/= 0 ) $.
+    gargdiv.5 $e |- ( ph -> -u _pi < ( ( Im ` ( log ` W ) ) - ( Im ` ( log ` U ) ) ) ) $.
+    gargdiv.6 $e |- ( ph -> ( ( Im ` ( log ` W ) ) - ( Im ` ( log ` U ) ) ) <_ _pi ) $.
+  gargdiv $p |- ( ph -> ( Im ` ( log ` ( W / U ) ) ) = ( ( Im ` ( log ` W ) ) - ( Im ` ( log ` U ) ) ) ) $=
+    ( cdiv co clog cfv cim cmin ce logcld efsubd cc wcel cc0 wne wceq eflog
+    syl2anc oveq12d eqtrd fveq2d crn cpi cneg clt wbr cle w3a subcld imsubd
+    breqtrrd eqbrtrd 3jca ellogrn sylibr logef syl eqtr3d )
+    ACBJKZLMZNMCLMZBLMZOKZNMZVHNMZVINMZOKZAVGVJNAVJPMZLMZVGVJAVOVFLAVOVHPMZVIPMZJKVFAVHVIACFGQZABDEQZRAVQCVRBJACSTCUAUBVQCUCFGCUDUEABSTBUAUBVRBUCDEBUDUEUFUGUHAVJLUIZTZVPVJUCAVJSTZUJUKZVKULUMZVKUJUNUMZUOWBAWCWEWFAVHVIVSVTUPAWDVNVKULHAVHVIVSVTUQZURAVKVNUJUNWGIUSUTVJVAVBVJVCVDVEUHWGUG $.
+  $}
+
+  ${
+    grecim.1 $e |- ( ph -> X e. CC ) $.
+    grecim.2 $e |- ( ph -> Z e. CC ) $.
+    grecim.3 $e |- ( ph -> X =/= 0 ) $.
+    grecim.4 $e |- ( ph -> Z =/= 0 ) $.
+    grecim.5 $e |- ( ph -> ( Im ` ( Z / X ) ) =/= 0 ) $.
+  grecim $p |- ( ph -> ( ( Im ` ( X / Z ) ) x. ( Im ` ( Z / X ) ) ) < 0 ) $=
+    ( c1 cdiv co cim cfv cmul cc0 clt recdivd fveq2d oveq1d wbr divcld imcld
+    msqgt0d cc wcel wne wa wb divne0d jca grecsgn syl mpbird eqbrtrrd )
+    AICBJKZJKZLMZUOLMZNKZBCJKZLMZURNKOPAUQVAURNAUPUTLACBEDGFQRSAUSOPTZOURURNKZPTZAURAUOACBEDFUAZUBHUCAUOUDUEZUOOUFZUGZVFUGVBVDUHAVHVFAVFVGVEACBEDGFUIUJVEUJUOUOUKULUMUN $.
+  $}
+
+  ${
+    gsgnneg.1 $e |- ( ph -> A e. RR ) $.
+    gsgnneg.2 $e |- ( ph -> B e. RR ) $.
+    gsgnneg.3 $e |- ( ph -> 0 < ( A x. B ) ) $.
+    gsgnneg.4 $e |- ( ph -> B < 0 ) $.
+  gsgnneg $p |- ( ph -> A < 0 ) $=
+    ( cc0 cneg clt wbr lt0neg1d mpbid renegcld cmul co recnd mulneg2d
+    remulcld lt0neg2d eqbrtrd mul2lt0rgt0 mpdan )
+    AHCIZJKZBHJKACHJKUEGACELMABUDDACENABUDOPBCOPZIZHJABCABDQACEQRAHUFJKUGHJKFAUFABCDESTMUAUBUC $.
+  $}
+
+  ${
+    gangpos.1 $e |- ( ph -> X e. CC ) $.
+    gangpos.2 $e |- ( ph -> Y e. CC ) $.
+    gangpos.3 $e |- ( ph -> Z e. CC ) $.
+    gangpos.4 $e |- ( ph -> X =/= 0 ) $.
+    gangpos.5 $e |- ( ph -> Y =/= 0 ) $.
+    gangpos.6 $e |- ( ph -> Z =/= 0 ) $.
+    gangpos.7 $e |- ( ph -> 0 < ( Im ` ( Y / X ) ) ) $.
+    gangpos.8 $e |- ( ph -> 0 < ( Im ` ( Z / Y ) ) ) $.
+    gangpos.9 $e |- ( ph -> 0 < ( Im ` ( Z / X ) ) ) $.
+  gangpos $p |- ( ph -> ( ( abs ` ( X ang Y ) ) + ( abs ` ( Y ang Z ) ) ) = ( abs ` ( X ang Z ) ) ) $=
+    ( cang co cabs cfv caddc cdiv clog cim cc wcel cc0 wne wceq gangval
+    syl22anc fveq2d cpi cioo cr clt wbr divcld argimgt0 syl2anc elioore syl
+    0re a1i wa eliooord simpld ltled absidd eqtrd oveq12d cmin divcan7d
+    divne0d cneg df-neg pire simprd lt2subd eqbrtrid resubcld picn subid1
+    ax-mp breqtrdi gargdiv eqtr3d oveq2d recnd pncan3d eqtr4d )
+    ABCNOZPQZCDNOZPQZROZDBSOZTQZUAQZBDNOZPQZAWMCBSOZTQZUAQZDCSOZTQZUAQZROZWPAWJXAWLXDRAWJXAPQXAAWIXAPABUBUCZBUDUEZCUBUCZCUDUEZWIXAUFEHFIBCUGUHUIAXAAXAUDUJUKOZUCZXAULUCZAWSUBUCZUDWSUAQZUMUNZXKACBFEHUOZKWSUPZUQZXAUDUJURZUSZAUDXAUDULUCZAUTVAZXTAUDXAUMUNZXAUJUMUNZAXKYCYDVBZXRXAUDUJVCZUSZVDZVEVFVGAWLXDPQXDAWKXDPAXHXIDUBUCZDUDUEZWKXDUFFIGJCDUGUHUIAXDAXDXJUCZXDULUCZAXBUBUCZUDXBUAQZUMUNZYKADCGFIUOZLXBUPZUQZXDUDUJURZUSZAUDXDYBYTAUDXDUMUNZXDUJUMUNZAYKUUAUUBVBYRXDUDUJVCUSVDVEVFVGVHAXEXAWPXAVIOZROWPAXDUUCXARAWNWSSOZTQZUAQXDUUCAUUEXCUAAUUDXBTADCBGFEIHVJUIUIAWSWNXPACBFEIHVKADBGEHUOZADBGEJHVKAUJVLUDUJVIOUUCUMUJVMAUDXAWPUJYBXTAWPXJUCZWPULUCZAWNUBUCZUDWNUAQZUMUNZUUGUUFMWNUPZUQZWPUDUJURZUSZUJULUCZAVNVAZAUDWPUMUNZWPUJUMUNZAUUGUURUUSVBZUUMWPUDUJVCZUSZVDZAYCYDYGVOVPVQAUUCUJAWPXAUUOXTVRUUQAUUCUJUDVIOZUJUMAWPUDUJXAUUOYBUUQXTAUURUUSUVBVOYHVPUJUBUCUVDUJUFVSUJVTWAWBVEWCWDWEAXAWPAXAXTWFAWPUUOWFWGVGVGAWRWPPQWPAWQWPPAXFXGYIYJWQWPUFEHGJBDUGUHUIAWPUUOAUDWPYBUUOUVCVEVFVGWH $.
+  $}
+
+  ${
+    gangneg.1 $e |- ( ph -> X e. CC ) $.
+    gangneg.2 $e |- ( ph -> Y e. CC ) $.
+    gangneg.3 $e |- ( ph -> Z e. CC ) $.
+    gangneg.4 $e |- ( ph -> X =/= 0 ) $.
+    gangneg.5 $e |- ( ph -> Y =/= 0 ) $.
+    gangneg.6 $e |- ( ph -> Z =/= 0 ) $.
+    gangneg.7 $e |- ( ph -> ( Im ` ( Y / X ) ) < 0 ) $.
+    gangneg.8 $e |- ( ph -> ( Im ` ( Z / Y ) ) < 0 ) $.
+    gangneg.9 $e |- ( ph -> ( Im ` ( Z / X ) ) < 0 ) $.
+  gangneg $p |- ( ph -> ( ( abs ` ( X ang Y ) ) + ( abs ` ( Y ang Z ) ) ) = ( abs ` ( X ang Z ) ) ) $=
+    ( cang co cabs cfv caddc cdiv clog cim cneg cc wcel cc0 wne wceq gangval
+    syl22anc fveq2d cpi cioo cr clt wbr divcld argimlt0 syl2anc elioore syl
+    0re a1i wa eliooord simprd ltled absnidd eqtrd oveq12d recnd negdid
+    eqtr4d cmin divcan7d divne0d picn negcli subid1 ax-mp eqcomi pire
+    renegcld simpld lt2subd eqbrtrid resubcld df-neg negnegi eqtr3i breqtrdi
+    gargdiv eqtr3d oveq2d pncan3d negeqd )
+    ABCNOZPQZCDNOZPQZROZDBSOZTQZUAQZUBZBDNOZPQZAWTCBSOZTQZUAQZDCSOZTQZUAQZROZUBZXDAWTXIUBZXLUBZROXNAWQXOWSXPRAWQXIPQXOAWPXIPABUCUDZBUEUFZCUCUDZCUEUFZWPXIUGEHFIBCUHUIUJAXIAXIUKUBZUEULOZUDZXIUMUDZAXGUCUDZXGUAQZUEUNUOZYCACBFEHUPZKXGUQZURZXIYAUEUSZUTZAXIUEYLUEUMUDZAVAVBZAYAXIUNUOZXIUEUNUOZAYCYOYPVCZYJXIYAUEVDZUTZVEZVFVGVHAWSXLPQXPAWRXLPAXSXTDUCUDZDUEUFZWRXLUGFIGJCDUHUIUJAXLAXLYBUDZXLUMUDZAXJUCUDZXJUAQZUEUNUOZUUCADCGFIUPZLXJUQZURZXLYAUEUSZUTZAXLUEUULYNAYAXLUNUOZXLUEUNUOZAUUCUUMUUNVCUUJXLYAUEVDUTVEVFVGVHVIAXIXLAXIYLVJZAXLUULVJVKVLAXMXCAXMXIXCXIVMOZROXCAXLUUPXIRAXAXGSOZTQZUAQXLUUPAUURXKUAAUUQXJTADCBGFEIHVNUJUJAXGXAYHACBFEIHVOADBGEHUPZADBGEJHVOAYAYAUEVMOZUUPUNUUTYAYAUCUDUUTYAUGUKVPVQYAVRVSVTAYAXIXCUEAUKUKUMUDZAWAVBZWBZYLAXCYBUDZXCUMUDZAXAUCUDZXAUAQZUEUNUOZUVDUUSMXAUQZURZXCYAUEUSZUTZYNAYAXCUNUOZXCUEUNUOZAUVDUVMUVNVCZUVJXCYAUEVDZUTZWCYTWDWEAUUPUKAXCXIUVLYLWFUVBAUUPUEYAVMOZUKUNAXCYAUEXIUVLUVCYNYLAUVMUVNUVQVEZAYOYPYSWCWDYAUBUVRUKYAWGUKVPWHWIWJVFWKWLWMAXIXCUUOAXCUVLVJWNVHWOVHAXFXCPQXDAXEXCPAXQXRUUAUUBXEXCUGEHGJBDUHUIUJAXCUVLAXCUEUVLYNUVSVFVGVHVL $.
+  $}
+
+  ${
+    gangaddinlem.1 $e |- ( ph -> A e. CC ) $.
+    gangaddinlem.2 $e |- ( ph -> B e. CC ) $.
+    gangaddinlem.3 $e |- ( ph -> C e. CC ) $.
+    gangaddinlem.4 $e |- ( ph -> D e. CC ) $.
+    gangaddinlem.5 $e |- ( ph -> -. A = B ) $.
+    gangaddinlem.6 $e |- ( ph -> -. A = C ) $.
+    gangaddinlem.7 $e |- ( ph -> 0 < ( ( Im ` ( ( D - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) $.
+    gangaddinlem.8 $e |- ( ph -> 0 < ( ( Im ` ( ( D - A ) / ( C - A ) ) ) x. ( Im ` ( ( B - A ) / ( C - A ) ) ) ) ) $.
+  gangaddinlem $p |- ( ph -> ( ( abs ` ( ( B - A ) ang ( D - A ) ) ) + ( abs ` ( ( D - A ) ang ( C - A ) ) ) ) = ( abs ` ( ( B - A ) ang ( C - A ) ) ) ) $=
+    ( cmin co cdiv cim cfv cc0 clt wbr cang cabs caddc wceq wa cc wcel subcld
+    adantr wne wn df-ne sylibr necomd subne0d divcld imcld recnd cmul gt0ne0d
+    mulne0bad fveq2 im0 eqtrdi necon3i syl divne0bd mpbird cr simpr gsgnneg
+    cle 0re a1i mulne0bbd grecim mul2lt0rlt0 ltled prodgt02 syl22anc
+    mul2lt0rgt0 syldan gangneg gangpos wo wb lttri2 syl2anc mpbid mpjaodan )
+    ADBNOZCBNOZPOZQRZSTUAZWMEBNOZUBOUCRWQWLUBOUCRUDOWMWLUBOUCRUESWOTUAZAWPUFZWMWQWLAWMUGUHZWPACBGFUIZUJAWQUGUHZWPAEBIFUIZUJAWLUGUHZWPADBHFUIZUJAWMSUKZWPACBGFABCABCUEZULZBCUKZJBCUMZUNZUOZUPZUJAWQSUKZWPAXNWQWMPOZSUKZAXOQRZSUKZXPAXQWOAXQAXOAWQWMXCXAXMUQZURZUSZAWOAWNAWLWMXEXAXMUQZURZUSZAXQWOUTOZLVAZVBZXOSXQSXOSUEZXQSQRZSXOSQVCZVDVEZVFZVGZAWQWMXCXAXMVHZVIZUJAWLSUKZWPADBHFABDABDUEZULZBDUKZKBDUMZUNZUOZUPZUJWSXQWOAXQVJUHZWPXTUJAWOVJUHZWPYCUJASYETUAZWPLUJAWPVKZVLAWPSWQWLPOZQRZTUAZWLWQPOZQRZSTUAWSUUIVJUHZWMWLPOZQRZVJUHZSUUOVMUASUUIUUOUTOZTUAZUUJAUUMWPAUUHAWQWLXCXEUUCUQZURZUJAUUPWPAUUNAWMWLXAXEUUCUQZURZUJZWSSUUOASVJUHZWPUVDAVNVOZUJUVCAUUOWOUVBYCAWMWLXAXEXMUUCAXQWOYAYDYFVPZVQZVRVSAUURWPMUJUUIUUOVTWAAUULUUIAUUKAWLWQXEXCYOUQZURZUUTAWLWQXEXCUUCYOAUUIUUOAUUIUUTUSZAUUOUVBUSZAUUQMVAZVBZVQZWBWCUUGWDAWRUFZWMWQWLAWTWRXAUJAXBWRXCUJAXDWRXEUJAXFWRXMUJAXNWRYOUJAYPWRUUCUJUVOUUDUUESWOVMUAUUFSXQTUAAUUDWRXTUJAUUEWRYCUJZUVOSWOAUVDWRUVEUJUVPAWRVKZVSAUUFWRLUJXQWOVTWAAWRUUISTUASUULTUAUVOUUIUUOAUUMWRUUTUJAUUPWRUVBUJAUURWRMUJAUUOWOUVBYCUVGWBVLAUULUUIUVIUUTUVNVRWCUVQWEAWOSUKZWPWRWFZUVFAUUEUVDUVRUVSWGYCUVEWOSWHWIWJWK $.
+  $}
+
+  gangaddin $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ ( ( ( -. A = B /\ -. B = C ) /\ -. A = C ) /\ -. ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( D - A ) / ( B - A ) ) ) x. ( Im ` ( ( C - A ) / ( B - A ) ) ) ) ) /\ 0 < ( ( Im ` ( ( D - A ) / ( C - A ) ) ) x. ( Im ` ( ( B - A ) / ( C - A ) ) ) ) ) -> ( ( abs ` ( ( B - A ) ang ( D - A ) ) ) + ( abs ` ( ( D - A ) ang ( C - A ) ) ) ) = ( abs ` ( ( B - A ) ang ( C - A ) ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr cc0 cim cfv cmul clt wbr simp-6l
+    simp-6r simp-5r simp-4r simpllr simpld simprd simplr simpr gangaddinlem )
+    AEFZBEFZGZCEFZGZDEFZGZABHZIZBCHZIZGZACHZIZGZCAJKZBAJKZLKZMFZIZGZGZNDAJKZVFLKZOPZVGOPZQKZRSZGZNVLVELKZOPZVFVELKZOPZQKZRSZGZABCDUJUKUMUOVJVQWDTUJUKUMUOVJVQWDUAULUMUOVJVQWDUBUNUOVJVQWDUCWEURUTWEVAVCWEVDVIUPVJVQWDUDZUEZUEUEWEVAVCWGUFVKVQWDUGVRWDUHUI $.
+
+  ${
+    gareaim.1 $e |- ( ph -> X e. CC ) $.
+    gareaim.2 $e |- ( ph -> Y e. CC ) $.
+    gareaim.3 $e |- ( ph -> Z e. CC ) $.
+    gareaim.4 $e |- ( ph -> X =/= Z ) $.
+    gareaim.5 $e |- ( ph -> Y =/= Z ) $.
+  gareaim $p |- ( ph -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Y - Z ) ) x. ( abs ` ( X - Z ) ) ) ) x. ( abs ` ( sin ` ( ( Y - Z ) ang ( X - Z ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( abs ` ( Y - Z ) ) ) x. ( ( abs ` ( Y - Z ) ) x. ( abs ` ( Im ` ( ( X - Z ) / ( Y - Z ) ) ) ) ) ) ) $=
+    ( c1 c2 cdiv co cmin cabs cfv cmul cang csin cim subcld subne0d divcan1d
+    fveq2d divcld absmuld eqtr3d oveq2d clog cc wcel cc0 wne wa wceq jca
+    gangval syl ci ce cr divne0d logcld imcld resinval efiarg eqtrd abscld
+    absne0d imdivd recnd absdivd absidm oveq12d halfcn a1i mulcld mulassd
+    oveq1d mulcomd divcan2d )
+    AJKLMZCDNMZOPZBDNMZOPZQMZQMZWCWERMZSPZOPZQMZWBWDQMZWEWCLMZOPZWDQMZWNTPZOPZWOLMZQMZQMZWMWDWRQMZQMAWLWBWDWPQMZQMZWSQMZXAAWHXDWKWSQAWGXCWBQAWFWPWDQAWNWCQMZOPWFWPAXFWEOAWEWCABDEGUAZACDFGUAZACDFGIUBZUCUDAWNWCAWEWCXGXHXIUEZXHUFUGUHUHAWKWRWOOPZLMZWSAWKWQWOLMZOPXLAWJXMOAWJWNUIPZTPZSPZXMAWIXOSAWCUJUKZWCULUMZUNZWEUJUKZWEULUMZUNZUNWIXOUOAXSYBAXQXRXHXIUPAXTYAXGABDEGHUBZUPUPWCWEUQURUDAXPWNWOLMZTPZXMAXPUSXOQMZUTPZTPZYEAXOVAUKXPYHUOAXNAWNXJAWEWCXGXHYCXIVBZVCVDXOVEURAYGYDTAWNUJUKZWNULUMZUNYGYDUOAYJYKXJYIUPWNVFURUDVGAWOWNAWNXJVHZXJAWNXJYIVIZVJVGVGUDAWQWOAWQAWNXJVDZVKZAWOYLVKZYMVLVGAXKWOWRLAYJXKWOUOXJWNVMURUHVGVNAWMWPQMZWSQMXEXAAYQXDWSQAWBWDWPWBUJUKZAVOVPZAWDAWCXHVHZVKZAWOWDYPUUAVQZVRVSAWMWPWSAWBWDYSUUAVQUUBAWRWOAWRAWQYOVHZVKZYPYMUEZVRUGVGAWTXBWMQAWTWDWOWSQMZQMZXBAWTWDWOQMZWSQMUUGAWPUUHWSQAWOWDYPUUAVTVSAWDWOWSUUAYPUUEVRVGAUUFWRWDQAWRWOUUDYPYMWAUHVGUHVG $.
+  $}
+
+  ${
+    gareacongd.1 $e |- ( ph -> P e. CC ) $.
+    gareacongd.2 $e |- ( ph -> Q e. CC ) $.
+    gareacongd.3 $e |- ( ph -> R e. CC ) $.
+    gareacongd.4 $e |- ( ph -> S e. CC ) $.
+    gareacongd.5 $e |- ( ph -> T e. CC ) $.
+    gareacongd.6 $e |- ( ph -> U e. CC ) $.
+    gareacongd.7 $e |- ( ph -> P =/= R ) $.
+    gareacongd.8 $e |- ( ph -> Q =/= R ) $.
+    gareacongd.9 $e |- ( ph -> S =/= U ) $.
+    gareacongd.10 $e |- ( ph -> T =/= U ) $.
+    gareacongd.11 $e |- ( ph -> ( abs ` ( Q - R ) ) = ( abs ` ( T - U ) ) ) $.
+    gareacongd.12 $e |- ( ph -> ( abs ` ( R - P ) ) = ( abs ` ( U - S ) ) ) $.
+    gareacongd.13 $e |- ( ph -> ( abs ` ( ( Q - R ) ang ( P - R ) ) ) = ( abs ` ( ( T - U ) ang ( S - U ) ) ) ) $.
+  gareacongd $p |- ( ph -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( ( abs ` ( T - U ) ) x. ( abs ` ( S - U ) ) ) ) x. ( abs ` ( sin ` ( ( T - U ) ang ( S - U ) ) ) ) ) ) $=
+    ( c1 c2 cdiv co cmin cabs cfv cmul cang csin cc wcel w3a wne wa wceq 3jca
+    jca garea sylc abssubd eqtrd oveq12d oveq2d fveq2d eqtr4d )
+    AUAUBUCUDZCDUEUDZUFUGZBDUEUDZUFUGZUHUDZUHUDZVHVJUIUDZUJUGZUFUGZUHUDZVGFGUEUDZUFUGZEGUEUDZUFUGZUHUDZUHUDZVRVTUIUDZUFUGZUJUGZUHUDZWCWDUJUGZUFUGZUHUDZAVQVMVNUFUGZUJUGZUHUDZWGABUKULZCUKULZDUKULZUMBDUNZCDUNZUOVQWMUPAWNWOWPHIJUQAWQWRNOURBCDUSUTAVMWCWLWFUHAVLWBVGUHAVIVSVKWAUHRAVKGEUEUDZUFUGZWAAVKDBUEUDUFUGWTABDHJVASVBAGEMKVAVBVCVDAWKWEUJTVEVCVBAEUKULZFUKULZGUKULZUMEGUNZFGUNZUOWJWGUPAXAXBXCKLMUQAXDXEPQUREFGUSUTVF $.
+  $}
+
+  gareacong $p |- ( ( ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ T e. CC ) /\ U e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( ( ( -. S = T /\ -. T = U ) /\ -. S = U ) /\ -. ( ( U - S ) / ( T - S ) ) e. RR ) ) /\ ( ( ( ( ( ( abs ` ( P - Q ) ) = ( abs ` ( S - T ) ) /\ ( abs ` ( Q - R ) ) = ( abs ` ( T - U ) ) ) /\ ( abs ` ( R - P ) ) = ( abs ` ( U - S ) ) ) /\ ( abs ` ( ( P - Q ) ang ( R - Q ) ) ) = ( abs ` ( ( S - T ) ang ( U - T ) ) ) ) /\ ( abs ` ( ( Q - R ) ang ( P - R ) ) ) = ( abs ` ( ( T - U ) ang ( S - U ) ) ) ) /\ ( abs ` ( ( R - P ) ang ( Q - P ) ) ) = ( abs ` ( ( U - S ) ang ( T - S ) ) ) ) ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( ( abs ` ( T - U ) ) x. ( abs ` ( S - U ) ) ) ) x. ( abs ` ( sin ` ( ( T - U ) ang ( S - U ) ) ) ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr cabs cfv cang simp-8l simp-8r
+    simp-7r simp-6r simp-5r simp-4r simpllr simplr syl neqned simpr
+    gareacongd )
+    AGHZBGHZIZCGHZIZDGHZIZEGHZIZFGHZIZABJZKZBCJZKZIZACJZKZIZCALMZBALMZNMZOHZKZIZIZDEJZKZEFJZKZIZDFJZKZIZFDLMZEDLMZNMZOHZKZIZIZABLMZPQZDELMZPQZJZBCLMZPQZEFLMZPQZJZIZVJPQZWEPQZJZIZWLCBLMZRMZPQZWNFELMZRMZPQZJZIZWQACLMZRMZPQZWSDFLMZRMZPQZJZIZVJVKRMZPQZWEWFRMZPQZJZIZIZABCDEFUKULUNUPURUTVOWJYHSUKULUNUPURUTVOWJYHTUMUNUPURUTVOWJYHUAUOUPURUTVOWJYHUBUQURUTVOWJYHUCUSUTVOWJYHUDYIACYIVOVHVAVOWJYHUEZVFVHVNUFUGUHYIBCYIVOVEYJVCVEVHVNUEUGUHYIDFYIWJWCVPWJYHUFZWAWCWIUFUGUHYIEFYIWJVTYKVRVTWCWIUEUGUHYIYHXAWKYHUIZWPXAXEXMYAYGUCUGYIYHXEYLXBXEXMYAYGUDUGYIYHYAYLXNYAYGUFUGUJ $.
+
+  ${
+    gareabhd.1 $e |- ( ph -> P e. CC ) $.
+    gareabhd.2 $e |- ( ph -> Q e. CC ) $.
+    gareabhd.3 $e |- ( ph -> R e. CC ) $.
+    gareabhd.4 $e |- ( ph -> H e. CC ) $.
+    gareabhd.5 $e |- ( ph -> P =/= R ) $.
+    gareabhd.6 $e |- ( ph -> Q =/= R ) $.
+    gareabhd.7 $e |- ( ph -> P =/= H ) $.
+    gareabhd.8 $e |- ( ph -> ( ( H - R ) / ( Q - R ) ) e. RR ) $.
+    gareabhd.9 $e |- ( ph -> ( Re ` ( ( R - Q ) / ( H - P ) ) ) = 0 ) $.
+  gareabhd $p |- ( ph -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( abs ` ( Q - R ) ) ) x. ( abs ` ( P - H ) ) ) ) $=
+    ( c1 c2 cdiv co cmin cabs cfv cmul cang csin cim gareaim subcld subne0d
+    divcan1d fveq2d divcld absmuld eqtr3d ci cc0 caddc cre cc wcel wceq
+    replim syl cexp ccj cneg div2negd negsubdi2d oveq12d necomd recdivd
+    eqtr4d wne wa divne0d jca recval eqtrd absrpcld cz 2z a1i rpexpcld rpred
+    cjcld rpne0d redivd recjd oveq1d rpcnd div0d ax-icn imcld recnd mulcld
+    addlidd absi abscld mullidd nnncan2d divsubdird imsubd reim0d oveq2d
+    subid1d mulcomd )
+    AOPQRZCDSRZTUAZBDSRZTUAUBRUBRXGXIUCRUDUATUAUBRXFXHUBRZXHXIXGQRZUEUAZTUAZUBRZUBRXJBESRZTUAZUBRABCDFGHJKUFAXPXNXJUBAXPXMXHUBRZXNAXPXOXGQRZTUAZXHUBRZXQAXRXGUBRZTUAXPXTAYAXOTAXOXGABEFIUGZACDGHUGZACDGHKUHZUIUJAXRXGAXOXGYBYCYDUKZYCULUMAXSXMXHUBAXSXRUEUAZTUAZXMAXSOYGUBRZYGAXSUNTUAZYGUBRZYHAXSUNYFUBRZTUAYJAXRYKTAXRUOYKUPRZYKAXRXRUQUAZYKUPRZYLAXRURUSXRYNUTYEXRVAVBAYMUOYKUPAYMUODCSRZEBSRZQRZTUAZPVCRZQRZUOAYMYQUQUAZYSQRZYTAYMYQVDUAZUQUAZYSQRZUUBAYMUUCYSQRZUQUAUUEAXRUUFUQAXROYQQRZUUFAXRYPYOQRZUUGAXOVEZXGVEZQRXRUUHAXOXGYBYCYDVFAUUIYPUUJYOQABEFIVGACDGHVGVHUMAYOYPADCHGUGZAEBIFUGZADCHGACDKVIZUHZAEBIFABELVIZUHZVJVKAYQURUSZYQUOVLZVMUUGUUFUTAUUQUURAYOYPUUKUULUUPUKZAYOYPUUKUULUUNUUPVNZVOYQVPVBVQUJAYSUUCAYSAYRPAYQUUSUUTVRZPVSUSZAVTWAZWBZWCAYQUUSWDAYSUVDWEZWFVQAUUDUUAYSQAYQUUSWGWHVQAUUAUOYSQNWHVQAYSAYSUVDWIUVEWJVQWHVQAYKAUNYFUNURUSZAWKWAZAYFAXRYEWLZWMZWNWOVQUJAUNYFUVGUVIULVQAYIOYGUBYIOUTAWPWAWHVQAYGAYGAYFUVIWQWMWRVQAYFXLTAYFXLUOSRZXLAYFXLEDSRZXGQRZUEUAZSRZUVJAYFXKUVLSRZUEUAUVNAXRUVOUEAXIUVKSRZXGQRXRUVOAUVPXOXGQABEDFIHWSWHAXIUVKXGABDFHUGZAEDIHUGYCYDWTUMUJAXKUVLAXIXGUVQYCYDUKZAUVLMWMXAVQAUVMUOXLSAUVLMXBXCVQAXLAXLAXKUVRWLZWMZXDVQUJVQWHVQAXMXHAXMAXLUVTWQWMAXHAXGYCWQWMXEVQXCVK $.
+  $}
+
+  gareabh $p |- ( ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ H e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q = R \/ ( ( H - Q ) / ( R - Q ) ) e. RR ) ) /\ ( P =/= H /\ Q =/= R /\ ( Re ` ( ( R - Q ) / ( H - P ) ) ) = 0 ) ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( 1 / 2 ) x. ( abs ` ( Q - R ) ) ) x. ( abs ` ( P - H ) ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr wo wne cre cfv cc0 w3a simp-6l
+    simp-6r simp-5r simp-4r simpllr simplr syl neqned simpr simp2d simp1d
+    necomd neneqd 3jca gcolrotate sylc gcolswap orel1 simp3d gareabhd )
+    AEFZBEFZGZCEFZGZDEFZGZABHZIZBCHZIZGZACHZIZGZCAJKZBAJKZLKZMFZIZGZGZVIDBJKZCBJKZLKZMFZNZGZADOZBCOZWCDAJKZLKZPQZRHZSZGZABCDUTVAVCVEVTWFWNTUTVAVCVEVTWFWNUAZVBVCVEVTWFWNUBZVDVEVTWFWNUCZWOACWOVTVMVFVTWFWNUDVKVMVSUEUFUGWOWHWIWMWGWNUHZUIZWOWHWIWMWSUJWOCBHZIXADCJKZBCJKZLKZMFZNZXEWOCBWOBCWTUKULWOVCVEVASCDHZXCXBLKZMFZNZXFWOVCVEVAWQWRWPUMWOVAVCVESWFXJWOVAVCVEWPWQWRUMWAWFWNUEBCDUNUOCDBUPUOXAXEUQUOWOWHWIWMWSURUS $.
+
+  ${
+    gareahgt.1 $e |- ( ph -> X e. CC ) $.
+    gareahgt.2 $e |- ( ph -> Y e. CC ) $.
+    gareahgt.3 $e |- ( ph -> Z e. CC ) $.
+    gareahgt.4 $e |- ( ph -> A e. CC ) $.
+    gareahgt.5 $e |- ( ph -> B e. CC ) $.
+    gareahgt.6 $e |- ( ph -> Y =/= Z ) $.
+    gareahgt.7 $e |- ( ph -> A =/= B ) $.
+    gareahgt.8 $e |- ( ph -> ( ( A - Z ) / ( Y - Z ) ) e. RR ) $.
+    gareahgt.9 $e |- ( ph -> ( ( B - Z ) / ( Y - Z ) ) e. RR ) $.
+  gareahgt $p |- ( ph -> ( ( abs ` ( A - B ) ) x. ( abs ` ( Im ` ( ( X - B ) / ( A - B ) ) ) ) ) = ( ( abs ` ( Y - Z ) ) x. ( abs ` ( Im ` ( ( X - Z ) / ( Y - Z ) ) ) ) ) ) $=
+    ( cmin co cabs cfv cdiv cim cmul subcld subne0d divcan1d fveq2d cr
+    nnncan2d oveq1d divsubdird eqtr3d resubcld eqeltrd recnd absmuld divcan7d
+    divcld divne0d imdivd eqtrd cc0 imsubd reim0d oveq2d imcld subid1d
+    absdivd oveq12d abscld mulcomd absne0d mulassd divcan2d )
+    ABCPQZRSZDCPQZVNTQZUASZRSZUBQZEFPQZRSZVNWATQZRSZDFPQZWATQZUASZRSZWDTQZUBQZUBQZWBWHUBQAVTWBWDUBQZWIUBQZWKAVTWDWBUBQZWIUBQWMAVOWNVSWIUBAWCWAUBQZRSVOWNAWOVNRAVNWAABCJKUCZAEFHIUCZAEFHILUDZUEUFAWCWAAWCAWCBFPQZWATQZCFPQZWATQZPQZUGAWSXAPQZWATQZWCXCAXDVNWATABCFJKIUHZUIZAWSXAWAABFJIUCZACFKIUCZWQWRUJZUKZAWTXBNOULZUMZUNZWQUOUKAVSWGWCTQZRSWIAVRXORAVRWFXBPQZUASZWCTQZXOAVRXPWCTQZUASXRAVQXSUAAVPWATQZWCTQVQXSAVPVNWAADCGKUCWPWQABCJKMUDZWRUPAXTXPWCTAWEXAPQZWATQXTXPAYBVPWATADCFGKIUHUIAWEXAWAADFGIUCZXIWQWRUJUKUIUKUFAWCXPXMAWFXBAWEWAYCWQWRUQZAXBOUNZUCAVNWAWPWQYAWRURZUSUTAXQWGWCTAXQWGVAPQZWGAXQWGXBUASZPQYGAWFXBYDYEVBAYHVAWGPAXBOVCVDUTAWGAWGAWFYDVEZUNZVFUTUIUTUFAWGWCYJXNYFVGUTVHAWNWLWIUBAWDWBAWDAWCXNVIZUNZAWBAWAWQVIZUNZVJUIUTAWBWDWIYNYLAWHWDAWHAWGYJVIZUNZYLAWCXNYFVKZUQVLUTAWJWHWBUBAWHWDYPYLYQVMVDUT $.
+  $}
+
+  ${
+    gareaaddd.1 $e |- ( ph -> P e. CC ) $.
+    gareaaddd.2 $e |- ( ph -> Q e. CC ) $.
+    gareaaddd.3 $e |- ( ph -> R e. CC ) $.
+    gareaaddd.4 $e |- ( ph -> D e. CC ) $.
+    gareaaddd.5 $e |- ( ph -> P =/= R ) $.
+    gareaaddd.6 $e |- ( ph -> Q =/= R ) $.
+    gareaaddd.7 $e |- ( ph -> P =/= D ) $.
+    gareaaddd.8 $e |- ( ph -> Q =/= D ) $.
+    gareaaddd.9 $e |- ( ph -> D =/= R ) $.
+    gareaaddd.10 $e |- ( ph -> ( ( D - R ) / ( Q - R ) ) e. RR ) $.
+    gareaaddd.11 $e |- ( ph -> ( ( abs ` ( Q - D ) ) + ( abs ` ( D - R ) ) ) = ( abs ` ( Q - R ) ) ) $.
+  gareaaddd $p |- ( ph -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - D ) ) x. ( abs ` ( P - D ) ) ) ) x. ( abs ` ( sin ` ( ( Q - D ) ang ( P - D ) ) ) ) ) + ( ( ( 1 / 2 ) x. ( ( abs ` ( D - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( D - R ) ang ( P - R ) ) ) ) ) ) ) $=
+    ( c1 c2 cdiv co cmin cabs cfv cmul cang csin cim caddc gareaim cr subcld
+    subne0d dividd wcel 1re a1i eqeltrd gareahgt oveq2d eqtrd cc0 subidd
+    oveq1d div0d 0re oveq12d cc halfcn abscld recnd mulcld divcld imcld
+    adddird adddid eqtr3d eqtr4d )
+    AQRSTZDEUATZUBUCZCEUATZUBUCZUDTUDTVSWAUETUFUCUBUCUDTVRVTUDTZVTWAVSSTZUGUCZUBUCZUDTZUDTZVRDBUATZUBUCZCBUATZUBUCZUDTZUDTZWIWKUETZUFUCZUBUCZUDTZVRBEUATZUBUCZWBUDTZUDTZWSWAUETZUFUCZUBUCZUDTZUHTZACDEFGHJKUIAXGVRWJUDTZWGUDTZVRWTUDTZWGUDTZUHTZWHAWRXIXFXKUHAWRXHWJWKWISTZUGUCZUBUCZUDTZUDTXIACDBFGILMUIAXPWGXHUDADBCDEFGHGIKMAVSVSSTQUJAVSADEGHUKZADEGHKULZUMQUJUNAUOUPUQOURUSUTAXFXJWTWAWSSTZUGUCZUBUCZUDTZUDTXKACBEFIHJNUIAYBWGXJUDABECDEFGHIHKNOAEEUATZVSSTZVAUJAYDVAVSSTVAAYCVAVSSAEHVBVCAVSXQXRVDUTVAUJUNAVEUPUQURUSUTVFAXHXJUHTZWGUDTXLWHAXHXJWGAVRWJVRVGUNZAVHUPZAWJAWIADBGIUKZVIZVJZVKAVRWTYGAWTAWSABEIHUKZVIZVJZVKAVTWFAVTAVSXQVIVJAWFAWEAWEAWDAWAVSACEFHUKXQXRVLVMVJVIVJVKVNAYEWCWGUDAVRWJWTUHTZUDTYEWCAVRWJWTYGYJYMVOAYNVTVRUDPUSVPVCVPUTVQ $.
+  $}
+
+  gareaadd $p |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ D e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( Q =/= D /\ ( ( R - D ) / ( Q - D ) ) e. RR /\ ( ( R - D ) / ( Q - D ) ) < 0 ) ) -> ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( Q - R ) ang ( P - R ) ) ) ) ) = ( ( ( ( 1 / 2 ) x. ( ( abs ` ( Q - D ) ) x. ( abs ` ( P - D ) ) ) ) x. ( abs ` ( sin ` ( ( Q - D ) ang ( P - D ) ) ) ) ) + ( ( ( 1 / 2 ) x. ( ( abs ` ( D - R ) ) x. ( abs ` ( P - R ) ) ) ) x. ( abs ` ( sin ` ( ( D - R ) ang ( P - R ) ) ) ) ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr wne cc0 clt wbr w3a simp-5l simp-5r
+    simp-4r simpllr simplr syl neqned simpr eqcomd oveq2d oveq12d simp2d
+    adantr eqeltrrd pm2.65da simp1d 3jca gbetne0 sylc simprd necomd wo neneqd
+    olcd gcolswap gcolrotate orel1 cabs cfv caddc wi gsegadd mpd gareaaddd )
+    BEFZCEFZGZDEFZGZAEFZGZBCHZIZCDHZIZGZBDHZIZGZDBJKZCBJKZLKZMFZIZGZGZCANZDAJKZCAJKZLKZMFZWROPQZRZGZABCDVMVNVPVRWMXASVMVNVPVRWMXATZVOVPVRWMXAUAZVQVRWMXAUBZXBBDXBWMWFVSWMXAUCZWDWFWLUCUDUEXBCDXBWMWCXFWAWCWFWLUBZUDZUEZXBBAXBBAHZWKXBXJGZWRWJMXKWPWHWQWILXKABDJXKBAXBXJUFZUGZUHXKABCJXMUHUIXBWSXJXBWOWSWTWNXAUFZUJZUKULXBWLXJXBWMWLXFWGWLUFUDUKUMUEXBWOWSWTXNUNXBDAXBWODANZXBVRVNVPRZXAWOXPGXBVRVNVPXEXCXDUOZXNACDUPUQURUSXBDCHZIXSADJKZCDJKZLKZMFZUTZYCXBDCXBCDXIUSVAXBVRVPVNRADHZWQWPLKZMFZUTZYDXBVRVPVNXEXDXCUOXBXQACHZWSUTYHXRXBWSYIXOVBACDVCUQADCVDUQXSYCVEUQXBXAWQVFVGZXTVFVGZVHKZYAVFVGZHZXNXBVRXAYNVIZXEXBVPVRYOVIZXDXBVNVPYPVIXCCDAVJUDVKVKVKVL $.
+
+  ${
+    gmidexd.1 $e |- ( ph -> A e. CC ) $.
+    gmidexd.2 $e |- ( ph -> B e. CC ) $.
+    gmidexd.3 $e |- ( ph -> A =/= B ) $.
+    gmidexd.4 $e |- ( ph -> X = ( ( A + B ) / 2 ) ) $.
+  gmidexd $p |- ( ph -> ( ( A =/= X /\ ( ( B - X ) / ( A - X ) ) e. RR /\ ( ( B - X ) / ( A - X ) ) < 0 ) /\ ( abs ` ( A - X ) ) = ( abs ` ( X - B ) ) ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr w3a cabs cfv wceq caddc c2 cc
+    addcld halfcld eqeltrd oveq1d wa halfaddsub syl2anc simpld eqtrd subcld
+    subaddd mpbird 2cnd subne0d 2ne0 a1i divne0d eqnetrd subne0ad c1 cneg
+    negsubdi2d simprd subsub23d negeqd eqtr3d oveq12d divnegd dividd neg1rr
+    neg1lt0 eqbrtrd 3jca eqtr4d fveq2d jca )
+    ABDIZCDJKZBDJKZLKZMNZWDOPQZRWCSTDCJKZSTUAAWAWEWFABDEADBCUBKZUCLKZUDHAWHABCEFUEZUFZUGZAWCBCJKZUCLKZOAWCWNUAZDWNUBKZBUAZAWPWIWNUBKZBADWIWNUBHUHZAWRBUAZWIWNJKZCUAZABUDNZCUDNZWTXBUIZEFBCUJZUKZULZUMZABDWNEWLAWMABCEFUNZUFZUOZUPZAWMUCXJAUQZABCEFGURZUCOIZAUSUTZVAZVBVCAWDVDVEZMAWDWNVEZWNLKZXSAWBXTWCWNLAWGVEZWBXTADCWLFVFZAWGWNAWGWNUAZDWNJKZCUAZAYEXACADWIWNJHUHZAWTXBXGVGZUMZADCWNWLFXKVHZUPZVIZVJZXMVKZAWNWNLKZVEZYAXSAWNWNXKXKXRVLZAYOVDAWNXKXRVMZVIZVJZUMZXSMNAVNUTUGAWDXSOPUUAXSOPQAVOUTVPVQAWCWGSAWCWNWGXMYKVRVSVT $.
+  $}
+
+  gmidex $p |- ( ( ( A e. CC /\ B e. CC ) /\ A =/= B ) -> E. x e. CC ( ( A =/= x /\ ( ( B - x ) / ( A - x ) ) e. RR /\ ( ( B - x ) / ( A - x ) ) < 0 ) /\ ( abs ` ( A - x ) ) = ( abs ` ( x - B ) ) ) ) $=
+    ( cc wcel wa wne cv cmin co cdiv cr cc0 clt wbr w3a cabs cfv wceq caddc
+    c2 simpll adantr simplr simpr gmidexd addcld halfcld rspcime )
+    BDEZCDEZFZBCGZFZBAHZGCUOIJZBUOIJZKJZLEURMNOPUQQRUOCIJQRSFABCTJZUAKJZDUNUOUTSZFBCUOUNUJVAUJUKUMUBZUCUNUKVAUJUKUMUDZUCUNUMVAULUMUEUCUNVAUEUFUNUSUNBCVBVCUGUHUI $.
+
+  ${
+    gextendd.1 $e |- ( ph -> A e. CC ) $.
+    gextendd.2 $e |- ( ph -> B e. CC ) $.
+    gextendd.3 $e |- ( ph -> K e. RR ) $.
+    gextendd.4 $e |- ( ph -> A =/= B ) $.
+    gextendd.5 $e |- ( ph -> 0 < K ) $.
+    gextendd.6 $e |- ( ph -> X = ( B + ( ( K / ( abs ` ( B - A ) ) ) x. ( B - A ) ) ) ) $.
+  gextendd $p |- ( ph -> ( ( A =/= B /\ ( ( X - B ) / ( A - B ) ) e. RR /\ ( ( X - B ) / ( A - B ) ) < 0 ) /\ ( abs ` ( B - X ) ) = K ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr w3a cabs cfv wceq cneg cmul caddc
+    oveq1d subcld necomd subne0d absrpcld rpred rpne0d redivcld recnd mulcld
+    pncan2d eqtrd negsubdi2d oveq2d mulneg2d mulneg1d eqtr4d eqtr3d negcld
+    divcan4d renegcld eqeltrd rpgt0d divgt0d lt0neg2d mpbid eqbrtrd 3jca cc
+    addcld abssubd fveq2d absmuld 0red ltled absidd rpcnd divcan1d jca )
+    ABCLZECMNZBCMNZONZPQZWJRSTZUACEMNZUBUCZDUDAWGWKWLIAWJDCBMNZUBUCZONZUEZPAWJWRWIUFNZWIONZWRAWHWSWIOAWHWQWOUFNZWSAWHCXAUGNZCMNZXAAEXBCMKUHZACXAGAWQWOAWQADWPHAWPAWOACBGFUIZACBGFABCIUJZUKZULZUMZAWPXHUNZUOZUPZXEUQZURZUSZAWQWIUEZUFNZXAWSAXPWOWQUFABCFGUTZVAZAXQWQWIUFNZUEZWSAWQWIXLABCFGUIZVBZAWQWIXLYBVCZVDZVEZUSZUHZAWRWIAWQXLVFZYBABCFGIUKZVGZUSZAWQXKVHVIAWJWRRSYLARWQSTWRRSTADWPHXIJAWPXHVJZVKZAWQXKVLVMVNVOAWNWQWPUFNZDAWNWQUBUCZWPUFNZYOAWNXAUBUCZYQAWNWHUBUCYRACEGAEXBVPKACXAGXMVQVIVRAWHXAUBXOVSUSAWQWOXLXEVTUSAYPWQWPUFAWQXKARWQAWAXKYNWBWCUHUSADWPADHUPAWPXHWDXJWEUSWF $.
+  $}
+
+  gextend $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ K e. RR ) /\ A =/= B ) /\ 0 < K ) -> E. x e. CC ( ( A =/= B /\ ( ( x - B ) / ( A - B ) ) e. RR /\ ( ( x - B ) / ( A - B ) ) < 0 ) /\ ( abs ` ( B - x ) ) = K ) ) $=
+    ( cc wcel wa cr wne cc0 clt wbr cv cmin co cdiv w3a cabs cfv wceq cmul
+    caddc simp-4l adantr simp-4r simpllr simplr simpr gextendd recnd subcld
+    abscld necomd subne0d absne0d divcld mulcld addcld rspcime )
+    BEFZCEFZGZDHFZGZBCIZGZJDKLZGZVEAMZCNOZBCNOZPOZHFVLJKLQCVINORSDTGACDCBNOZRSZPOZVMUAOZUBOZEVHVIVQTZGBCDVIVHUTVRUTVAVCVEVGUCZUDVHVAVRUTVAVCVEVGUEZUDVHVCVRVBVCVEVGUFZUDVHVEVRVDVEVGUGZUDVHVGVRVFVGUHUDVHVRUHUIVHCVPVTVHVOVMVHDVNVHDWAUJVHVNVHVMVHCBVTVSUKZULUJVHVMWCVHCBVTVSVHBCWBUMUNUOUPWCUQURUS $.
+
+  gtrioff $p |- ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ Q =/= R ) /\ -. ( Q = R \/ ( ( P - Q ) / ( R - Q ) ) e. RR ) ) -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn simpr w3a wi simp-4l simp-4r
+    simpllr 3jca gcolrotate syl mtod ioran sylib simpld simplr neneqd jca c1
+    oveq1d subcld necomd subne0d dividd adantr eqtrd 1red eqeltrd olcd mtand
+    simprd )
+    ADEZBDEZFZCDEZFZBCGZFZBCHZABIJZCBIJZKJZLEZMZNZFZABHZNZVKNZFZACHZNZFCAIJZBAIJZKJZLEZNZVRWBWDVRVTWAVRVTWIVRVSWHMZNZVTWIFZVRWJVPVJVQOZVRVDVEVGPZWJVPQZVRVDVEVGVDVEVGVIVQRZVDVEVGVIVQSZVFVGVIVQTZUAZABCUBZUCZUDZVSWHUEZUFZUGVRBCVHVIVQUHZUIUJVRWCVPWMVRWCFZVOVKXFVNUKLXFVNVMVMKJZUKXFVLVMVMKXFACBIVRWCOULULVRXGUKHWCVRVMVRCBWRWQUMVRCBWRWQVRBCXEUNUOUPUQURXFUSUTVAVBUJVRVTWIXDVCUJ $.
+
+  g0nxr $p |- -. (/) e. RR* $=
+    ( c0 cxr wcel cr cpnf wceq cmnf w3o wn w3a cc 0ncn recn mto cuni cpw
+    0elpw df-pnf eleqtrri n0i ax-mp eqcom mtbir df-mnf 3pm3.2i 3ioran mpbir
+    elxr )
+    ABCADCZAEFZAGFZHZULIUIIZUJIZUKIZJUMUNUOUIAKCLAMNUJEAFZAECUPIAKOZPEUQQRSEATUAAEUBUCUKGAFZAGCURIAEPGEQUDSGATUAAGUBUCUEUIUJUKUFUGAUHUC $.
+
+  ${
+    gimxr.1 $e |- ( ph -> ( ( Im ` X ) x. ( Im ` Y ) ) e. RR* ) $.
+  gimxr $p |- ( ph -> ( ( Im ` X ) e. RR /\ ( Im ` Y ) e. RR ) ) $=
+    ( cim cfv cr wcel cmul co cxr cc wn c0 wceq wa cdm imf fdmi eleq2i notbii
+    ndmfv sylbir 0ncn eleq1 mtbiri syl intnanrd cxp ax-mulf ndmov g0nxr con4i
+    imcld intnand jca )
+    ABEFZGHCEFZGHABAUQURIJZKHZBLHZDVAUTVAMZUSNOZUTMZVBUQLHZURLHZPZMZVCVBVEVFVBUQNOZVEMVBBEQZHZMVIVKVAVJLBLGERSZTUABEUBUCVIVENLHZUDUQNLUEUFUGUHUQURLILLUIZLIUJSZUKZUGVCUTNKHZULUSNKUEZUFZUGUMUGUNACAUTCLHZDVTUTVTMZVCVDWAVHVCWAVFVEWAURNOZVFMWACVJHZMWBWCVTVJLCVLTUACEUBUCWBVFVMUDURNLUEUFUGUOVPUGVSUGUMUGUNUP $.
+  $}
+
+  ${
+    grmid.1 $e |- ( ph -> A e. CC ) $.
+    grmid.2 $e |- ( ph -> B e. CC ) $.
+    grmid.3 $e |- ( ph -> C e. CC ) $.
+  grmid $p |- ( ph -> ( ( A x. B ) x. ( B x. C ) ) = ( ( A x. C ) x. ( B x. B ) ) ) $=
+    ( cmul co mulcomd oveq2d mul4d eqtrd )
+    ABCHIZCDHIZHINDCHIZHIBDHICCHIHIAOPNHACDFGJKABCDCEFGFLM $.
+  $}
+
+  ${
+    grsq.1 $e |- ( ph -> A e. RR ) $.
+    grsq.2 $e |- ( ph -> B e. RR ) $.
+    grsq.3 $e |- ( ph -> ( A x. B ) =/= 0 ) $.
+  grsq $p |- ( ph -> 0 < ( B x. B ) ) $=
+    ( recnd mulne0bbd msqgt0d ) ACEABCABDGACEGFHI $.
+  $}
+
+  ${
+    gimlin.1 $e |- ( ph -> A e. CC ) $.
+    gimlin.2 $e |- ( ph -> B e. CC ) $.
+    gimlin.3 $e |- ( ph -> P e. CC ) $.
+    gimlin.4 $e |- ( ph -> Q e. CC ) $.
+    gimlin.5 $e |- ( ph -> X e. CC ) $.
+    gimlin.6 $e |- ( ph -> A =/= B ) $.
+    gimlin.7 $e |- ( ph -> K e. RR ) $.
+    gimlin.8 $e |- ( ph -> ( Q - X ) = ( K x. ( P - X ) ) ) $.
+  gimlin $p |- ( ph -> ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) - ( Im ` ( ( X - A ) / ( B - A ) ) ) ) = ( K x. ( ( Im ` ( ( P - A ) / ( B - A ) ) ) - ( Im ` ( ( X - A ) / ( B - A ) ) ) ) ) ) $=
+    ( cmin co cdiv cim cfv cmul subcld necomd subne0d divsubdird nnncan2d
+    oveq1d eqtr3d eqtrd recnd divassd oveq2d eqtr4d fveq2d divcld imsubd
+    immul2d 3eqtr3d )
+    AEBPQZCBPQZRQZGBPQZUTRQZPQZSTFDBPQZUTRQZVCPQZUAQZSTZVASTVCSTZPQFVFSTZVJPQZUAQZAVDVHSAVDFDGPQZUTRQZUAQZVHAVDFVNUAQZUTRQZVPAVDEGPQZUTRQZVRAUSVBPQZUTRQVDVTAUSVBUTAEBKHUBZAGBLHUBZACBIHUBZACBIHABCMUCZUDZUEAWAVSUTRAEGBKLHUFUGUHAVSVQUTROUGUIAFVNUTAFNUJADGJLUBWDWFUKUIAVGVOFUAAVEVBPQZUTRQVGVOAVEVBUTADBJHUBZWCWDWFUEAWGVNUTRADGBJLHUFUGUHULUMUNAVAVCAUSUTWBWDWFUOAVBUTWCWDWFUOZUPAVIFVGSTZUAQVMAFVGNAVFVCAVEUTWHWDWFUOZWIUBUQAWJVLFUAAVFVCWKWIUPULUIUR $.
+  $}
+
+  ${
+    gonre.1 $e |- ( ph -> A =/= B ) $.
+    gonre.2 $e |- ( ph -> ( A = B \/ W e. RR ) ) $.
+  gonre $p |- ( ph -> W e. RR ) $=
+    ( wceq wn cr wcel wo neneqd orel1 sylc ) ABCGZHODIJZKPABCELFOPMN $.
+  $}
+
+  ${
+    goffim.1 $e |- ( ph -> W e. CC ) $.
+    goffim.2 $e |- ( ph -> -. ( A = B \/ W e. RR ) ) $.
+  goffim $p |- ( ph -> ( Im ` W ) =/= 0 ) $=
+    ( cim cfv cc0 cr wcel wceq wo olc nsyl cc wb reim0b syl mtbid neqned )
+    ADGHZIADJKZUBILZABCLZUCMUCFUCUENOADPKUCUDQEDRSTUA $.
+  $}
+
+  ${
+    gsegsgn.1 $e |- ( ph -> A e. RR ) $.
+    gsegsgn.2 $e |- ( ph -> B e. RR ) $.
+    gsegsgn.3 $e |- ( ph -> C e. RR ) $.
+    gsegsgn.4 $e |- ( ph -> C < 0 ) $.
+    gsegsgn.5 $e |- ( ph -> B =/= 0 ) $.
+    gsegsgn.6 $e |- ( ph -> ( 0 - A ) = ( C x. ( B - A ) ) ) $.
+  gsegsgn $p |- ( ph -> 0 < ( A x. B ) ) $=
+    ( cc0 cmul co clt wbr c1 cmin recnd 1cnd subdird mullidd oveq2d eqtrd
+    cneg caddc mulcld negsubd wceq df-neg a1i subdid eqcomd negcld subaddd
+    mpbid eqtr3d oveq1d subcld mulassd 3eqtr3d remulcld msqgt0d mulltgt0d
+    eqbrtrd 1red resubcld 0red 0lt1 lttrd sublt0d mpbird mullt0b1d )
+    AKBCLMZNODPQMZVMLMZKNOAVODCCLMZLMZKNAVNBLMZCLMDCLMZCLMVOVQAVRVSCLAVRDBLMZBQMZVSAVRVTPBLMZQMWAADPBADGRZASZABERZTAWBBVTQABWEUAUBUCAVTBUDZUEMZWAVSAVTBADBWCWEUFZWEUGAVSVTQMZWFUHWGVSUHAWFWIAWFKBQMZWIWFWJUHABUIUJAWJDCBQMLMWIJADCBWCACFRZWEUKUCUCULAVSVTWFADCWCWKUFWHABWEUMUNUOUPUCUQAVNBCADPWCWDURWEWKUSADCCWCWKWKUSUTADVPGACCFFVAHACFIVBVCVDAVNVMADPGAVEZVFABCEFVAAVNKNODPNOADKPGAVGWLHKPNOAVHUJVIADPGWLVJVKVLVK $.
+  $}
+
+  ${
+    gsidequot.1 $e |- ( ph -> U e. CC ) $.
+    gsidequot.2 $e |- ( ph -> A e. CC ) $.
+    gsidequot.3 $e |- ( ph -> B e. CC ) $.
+    gsidequot.4 $e |- ( ph -> C e. CC ) $.
+    gsidequot.5 $e |- ( ph -> D e. CC ) $.
+    gsidequot.6 $e |- ( ph -> A =/= B ) $.
+    gsidequot.7 $e |- ( ph -> C =/= D ) $.
+  gsidequot $p |- ( ph -> ( ( ( ( U - C ) / ( D - C ) ) - ( ( A - C ) / ( D - C ) ) ) / ( ( ( B - C ) / ( D - C ) ) - ( ( A - C ) / ( D - C ) ) ) ) = ( ( U - A ) / ( B - A ) ) ) $=
+    ( cmin co cdiv subcld necomd subne0d divsubdird nnncan2d oveq1d eqtr3d
+    oveq12d divcan7d eqtrd )
+    AFDNOZEDNOZPOZBDNOZUHPOZNOZCDNOZUHPOZUKNOZPOFBNOZUHPOZCBNOZUHPOZPOUPURPOAULUQUOUSPAUGUJNOZUHPOULUQAUGUJUHAFDGJQABDHJQZAEDKJQZAEDKJADEMRZSZTAUTUPUHPAFBDGHJUAUBUCAUMUJNOZUHPOUOUSAUMUJUHACDIJQVAVBVDTAVEURUHPACBDIHJUAUBUCUDAUPURUHAFBGHQACBIHQVBACBIHABCLRSVDUEUF $.
+  $}
+
+  ${
+    gsidene.1 $e |- ( ph -> A e. CC ) $.
+    gsidene.2 $e |- ( ph -> B e. CC ) $.
+    gsidene.3 $e |- ( ph -> C e. CC ) $.
+    gsidene.4 $e |- ( ph -> D e. CC ) $.
+    gsidene.5 $e |- ( ph -> A =/= B ) $.
+    gsidene.6 $e |- ( ph -> C =/= D ) $.
+  gsidene $p |- ( ph -> ( ( ( D - A ) / ( B - A ) ) - ( ( C - A ) / ( B - A ) ) ) =/= 0 ) $=
+    ( cmin co cdiv cc0 subcld necomd subne0d divsubdird nnncan2d oveq1d
+    eqtr3d divne0d eqnetrd )
+    AEBLMZCBLMZNMZDBLMZUFNMZLMZEDLMZUFNMZOAUEUHLMZUFNMUJULAUEUHUFAEBIFPADBHFPACBGFPZACBGFABCJQZRZSAUMUKUFNAEDBIHFTUAUBAUKUFAEDIHPUNAEDIHADEKQRUPUCUD $.
+  $}
+
+  ${
+    gsidecore.1 $e |- ( ph -> A e. CC ) $.
+    gsidecore.2 $e |- ( ph -> B e. CC ) $.
+    gsidecore.3 $e |- ( ph -> C e. CC ) $.
+    gsidecore.4 $e |- ( ph -> D e. CC ) $.
+    gsidecore.5 $e |- ( ph -> Z e. CC ) $.
+    gsidecore.6 $e |- ( ph -> A =/= B ) $.
+    gsidecore.7 $e |- ( ph -> C =/= D ) $.
+    gsidecore.8 $e |- ( ph -> ( ( C - A ) / ( B - A ) ) e. RR ) $.
+    gsidecore.9 $e |- ( ph -> ( ( D - A ) / ( B - A ) ) e. RR ) $.
+  gsidecore $p |- ( ph -> ( Im ` ( ( Z - C ) / ( D - C ) ) ) = ( ( Im ` ( ( Z - A ) / ( B - A ) ) ) / ( ( ( D - A ) / ( B - A ) ) - ( ( C - A ) / ( B - A ) ) ) ) ) $=
+    ( cmin co cdiv cim cfv gsidequot fveq2d resubcld subcld necomd subne0d
+    divcld recnd gsidene imdivd cc0 imsubd reim0d oveq2d imcld subid1d 3eqtrd
+    oveq1d eqtrd eqtr3d )
+    AFBPQZCBPQZRQZDBPQZVBRQZPQZEBPQZVBRQZVEPQZRQZSTZFDPQZEDPQZRQZSTVCSTZVIRQZAVJVNSADEBCFKIJGHMLUAUBAVKVFSTZVIRQVPAVIVFAVHVEONUCAVCVEAVAVBAFBKGUDZACBHGUDZACBHGABCLUEZUFZUGZAVENUHZUDABCDEGHIJLMUIUJAVQVOVIRAVQVOVESTZPQVOUKPQVOAVCVEWBWCULAWDUKVOPAVENUMUNAVOAVOAVCWBUOUHUPUQURUSUT $.
+  $}
+
+  gsameturn $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> 0 < ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr simpr cr cxr ltrelxr
+    brel syl simprd gimxr simpld recnd mulcomd breqtrd )
+    AEFZBEFZGZCEFZGZDEFZGZHCAIJZBAIJZKJZLMZDAIJZUQKJZLMZNJZOPZGZHVCVBUSNJOUOVDQZVEUSVBVEUSVEUSRFZVBRFZVEURVAVEHSFZVCSFZVEVDVIVJGZVFHVCSSOTUAZUBZUCZUDZUEUFVEVBVEVGVHVOUCUFUGUH $.
+
+  goppturn $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) < 0 ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr cr cxr simpr ltrelxr
+    brel syl simpld gimxr recnd simprd mulcomd eqbrtrrd )
+    AEFZBEFZGZCEFZGZDEFZGZCAHIZBAHIZJIZKLZDAHIZUQJIZKLZMIZNOPZGZVCVBUSMINOVEUSVBVEUSVEUSQFZVBQFZVEURVAVEVCRFZNRFZVEVDVHVIGZUOVDSZVCNRROTUAZUBZUCZUDZUCUEVEVBVEVFVGVOUFUEUGVKUH $.
+
+  gsametr $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ R e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) /\ 0 < ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) ) -> 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr cr cxr simplr ltrelxr
+    brel syl simprd gimxr simpld remulcld simpr mulgt0d recnd grmid breqtrd
+    gt0ne0d grsq mulgt0b2d mpbird )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZICAJKZBAJKZLKZMNZDAJKZVGLKZMNZOKZPQZHZIVLEAJKZVGLKZMNZOKZPQZHZIVIVROKZPQIWBVLVLOKZOKZPQWAIVMVSOKWDPWAVMVSWAVIVLWAVIRGZVLRGZWAVHVKWAISGZVMSGZWAVNWGWHHZVEVNVTTZIVMSSPUAUBZUCZUDZUEZUFZWAWEWFWNUDZUGWAVLVRWPWAWFVRRGZWAVKVQWAWGVSSGZWAVTWGWRHZVOVTUHZIVSSSPUAUBZUCZUDZUEZUDZUGWJWTUIWAVIVLVRWAVIWOUJWAVLWPUJWAVRXEUJUKULWAWBWCWAVIVRWOXEUGWAVLVLWPWPUGWAVIVLWOWPWAVMWJUMUNUOUP $.
+
+  goppopp $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ R e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) /\ ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) < 0 ) -> 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr cr cxr simplr ltrelxr
+    brel syl simpld gimxr simprd remulcld jca simpr mullt0 syl2anc recnd
+    grmid breqtrd lt0ne0d grsq mulgt0b2d mpbird )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZCAIJZBAIJZKJZLMZDAIJZVIKJZLMZNJZOPQZHZVNEAIJZVIKJZLMZNJZOPQZHZOVKVTNJZPQOWDVNVNNJZNJZPQWCOVOWANJZWFPWCVORGZVPHWARGZWBHOWGPQWCWHVPWCVKVNWCVKRGZVNRGZWCVJVMWCVOSGZOSGZWCVPWLWMHZVGVPWBTZVOOSSPUAUBZUCZUDZUEZUDZWCWJWKWSUFZUGWOUHWCWIWBWCVNVTXAWCWKVTRGZWCVMVSWCWASGZWMWCWBXCWMHZVQWBUIZWAOSSPUAUBZUCZUDZUEZUFZUGXEUHVOWAUJUKWCVKVNVTWCVKWTULWCVNXAULWCVTXJULUMUNWCWDWEWCVKVTWTXJUGWCVNVNXAXAUGWCVKVNWTXAWCVOWOUOUPUQUR $.
+
+  gsameopp $p |- ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ R e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) /\ ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) < 0 ) -> ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( R - A ) / ( B - A ) ) ) ) < 0 ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr cr cxr simplr ltrelxr
+    brel syl simprd gimxr simpld simpr remulcld gt0ne0d grsq recnd grmid
+    mullt0b2d mpbid eqbrtrrd mulgt0con1d )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZICAJKZBAJKZLKZMNZDAJKZVGLKZMNZOKZPQZHZVLEAJKZVGLKZMNZOKZIPQZHZVIVROKZVLVLOKZWAVIVRWAVIRGZVLRGZWAVHVKWAISGZVMSGZWAVNWFWGHZVEVNVTTZIVMSSPUAUBZUCZUDZUEZUFZWAWEVRRGZWAVKVQWAVSSGZWFWAVTWPWFHZVOVTUGZVSISSPUAUBZUCZUFZUEZUDZUHWAVLVLWAWDWEWMUDZXDUHWAVIVLWNXDWAVMWIUIUJWAVMVSOKZWBWCOKIPWAVIVLVRWAVIWNUKWAVLXDUKWAVRXCUKULWAVNXEIPQWIWAVMVSWAVIVLWNXDUHWAVLVRXDXCUHWRUMUNUOUP $.
+
+  gsideline $p |- ( ( ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ A =/= B ) /\ C =/= D ) /\ ( A = B \/ ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ ( A = B \/ ( ( D - A ) / ( B - A ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> 0 < ( ( Im ` ( ( P - C ) / ( D - C ) ) ) x. ( Im ` ( ( Q - C ) / ( D - C ) ) ) ) ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo cc0 cim cfv cmul clt wbr simp-7r
+    simp-10l subcld simp-10r simp-5r necomd subne0d divcld imcld simp-6r
+    remulcld simplr gonre simpllr resubcld simpr simp-9r simp-8r simp-4r
+    gsidene msqgt0d divgt0d gsidecore oveq12d recnd divmuldivd eqtrd breqtrrd
+    )
+    AGHZBGHZIZCGHZIZDGHZIZEGHZIZFGHZIZABJZIZCDJZIZABKZCALMZBALMZNMZOHZPZIZWFDALMZWHNMZOHZPZIZQEALMZWHNMZRSZFALMZWHNMZRSZTMZUAUBZIZQXDWNWILMZXGTMZNMZECLMZDCLMZNMZRSZFCLMZXKNMZRSZTMZUAXFXDXHXFWTXCXFWSXFWRWHXFEAVQVRVTWBWDWKWPXEUCZVKVLVNVPVRVTWBWDWKWPXEUDZUEZXFBAVKVLVNVPVRVTWBWDWKWPXEUFZXSUEZXFBAYAXSXFABWAWBWDWKWPXEUGZUHZUIZUJZUKZXFXBXFXAWHXFFAVSVTWBWDWKWPXEULZXSUEZYBYEUJZUKZUMXFXGXGXFWNWIXFABWNYCWLWPXEUNZUOZXFABWIYCWEWKWPXEUPZUOZUQZYPUMWQXEURXFXGYPXFABCDXSYAVMVNVPVRVTWBWDWKWPXEUSZVOVPVRVTWBWDWKWPXEUTZYCWCWDWKWPXEVAZVBZVCVDXFXQWTXGNMZXCXGNMZTMXIXFXMUUAXPUUBTXFABCDEXSYAYQYRXRYCYSYOYMVEXFABCDFXSYAYQYRYHYCYSYOYMVEVFXFWTXGXCXGXFWTYGVGXFXGYPVGZXFXCYKVGUUCYTYTVHVIVJ $.
+
+  goppline $p |- ( ( ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ A =/= B ) /\ C =/= D ) /\ ( A = B \/ ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ ( A = B \/ ( ( D - A ) / ( B - A ) ) e. RR ) ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> ( ( Im ` ( ( P - C ) / ( D - C ) ) ) x. ( Im ` ( ( Q - C ) / ( D - C ) ) ) ) < 0 ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo cim cfv cmul cc0 clt wbr
+    simp-10l simp-10r simp-9r simp-8r simp-7r simp-5r simp-4r simpllr gonre
+    simplr gsidecore simp-6r oveq12d subcld necomd subne0d divcld imcld recnd
+    resubcld gsidene divmuldivd eqtrd remulcld msqgt0d elrpd simpr divlt0gt0d
+    eqbrtrd )
+    AGHZBGHZIZCGHZIZDGHZIZEGHZIZFGHZIZABJZIZCDJZIZABKZCALMZBALMZNMZOHZPZIZWGDALMZWINMZOHZPZIZEALMZWINMZQRZFALMZWINMZQRZSMZTUAUBZIZECLMZDCLMZNMZQRZFCLMZXINMZQRZSMZXEWOWJLMZXPSMZNMZTUAXGXOXAXPNMZXDXPNMZSMXRXGXKXSXNXTSXGABCDEVLVMVOVQVSWAWCWEWLWQXFUCZVLVMVOVQVSWAWCWEWLWQXFUDZVNVOVQVSWAWCWEWLWQXFUEZVPVQVSWAWCWEWLWQXFUFZVRVSWAWCWEWLWQXFUGZWBWCWEWLWQXFUHZWDWEWLWQXFUIZXGABWJYFWFWLWQXFUJZUKZXGABWOYFWMWQXFULZUKZUMXGABCDFYAYBYCYDVTWAWCWEWLWQXFUNZYFYGYIYKUMUOXGXAXPXDXPXGXAXGWTXGWSWIXGEAYEYAUPZXGBAYBYAUPZXGBAYBYAXGABYFUQZURZUSZUTZVAXGXPXGWOWJYKYIVBZVAZXGXDXGXCXGXBWIXGFAYLYAUPZYNYPUSZUTZVAYTXGABCDYAYBYCYDYFYGVCZUUDVDVEXGXEXQXGXAXDYRUUCVFXGXQXGXPXPYSYSVFXGXPYSUUDVGVHWRXFVIVJVK $.
+
+  gsegside $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ X e. CC ) /\ A =/= B ) /\ ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ ( P =/= X /\ ( ( Q - X ) / ( P - X ) ) e. RR /\ ( ( Q - X ) / ( P - X ) ) < 0 ) ) -> 0 < ( ( Im ` ( ( X - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn cc0 clt wbr w3a cim cfv
+    simp-5r simp-8l subcld simp-8r simp-4r necomd subne0d divcld imcld
+    simp-7r simpr simp2d simp3d simplr goffim cmul simpllr gonre reim0d
+    oveq1d simp-6r simp1d divcan1d eqcomd gimlin eqtr3d gsegsgn )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZABIZHZABJZDAKLZBAKLZMLZNGZOZHZWACAKLZWCMLZNGZOZPZHZCEIZDEKLZCEKLZMLZNGZWQQRSZTZHZEAKLZWCMLZUAUBZWIUAUBZWQXAXCXAXBWCXAEAVPVQVSWFWLWTUCZVJVKVMVOVQVSWFWLWTUDZUEXABAVJVKVMVOVQVSWFWLWTUFZXGUEZXABAXHXGXAABVRVSWFWLWTUGZUHZUIZUJUKXAWIXAWHWCXACAVLVMVOVQVSWFWLWTULZXGUEZXIXLUJZUKXAWNWRWSWMWTUMZUNZXAWNWRWSXPUOXAABWIXOWGWLWTUPUQXAWDUAUBZXDKLQXDKLWQXEXDKLURLXAXRQXDKXAWDXAABWDXJVTWFWLWTUSUTVAVBXAABCDWQEXGXHXMVNVOVQVSWFWLWTVCZXFXJXQXAWQWPURLWOXAWOWPXADEXSXFUEXACEXMXFUEXACEXMXFXAWNWRWSXPVDUIVEVFVGVHVI $.
+
+  gsegcross $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ M e. CC ) /\ A =/= B ) /\ ( A = B \/ ( ( M - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ ( P =/= M /\ ( ( Q - M ) / ( P - M ) ) e. RR /\ ( ( Q - M ) / ( P - M ) ) < 0 ) ) -> ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn cc0 clt wbr w3a cim cfv cmul
+    simp-8l simp-8r simp-7r simp-6r simp-5r simp-4r simpr simp2d subcld
+    simp1d subne0d divcan1d eqcomd gimlin simpllr gonre reim0d oveq2d 3eqtr3d
+    necomd divcld imcld recnd subid1d mul12d eqtrd remulcld simp3d simplr
+    goffim msqgt0d mulltgt0d eqbrtrd )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZABIZHZABJZEAKLZBAKLZMLZNGZOZHZWHCAKLZWJMLZNGZOZPZHZCEIZDEKLZCEKLZMLZNGZXDQRSZTZHZWPUAUBZDAKLZWJMLZUAUBZUCLZXDXIXIUCLZUCLZQRXHXMXIXDXIUCLZUCLXOXHXLXPXIUCXHXLQKLZXDXIQKLZUCLZXLXPXHXLWKUAUBZKLXDXIXTKLZUCLXQXSXHABCDXDEVQVRVTWBWDWFWMWSXGUDZVQVRVTWBWDWFWMWSXGUEZVSVTWBWDWFWMWSXGUFZWAWBWDWFWMWSXGUGZWCWDWFWMWSXGUHZWEWFWMWSXGUIZXHXAXEXFWTXGUJZUKZXHXDXCUCLXBXHXBXCXHDEYEYFULXHCEYDYFULXHCEYDYFXHXAXEXFYHUMUNUOUPUQXHXTQXLKXHWKXHABWKYGWGWMWSXGURZUSZUTZVAXHYAXRXDUCXHXTQXIKYLVAVAVBXHXLXHXLXHXKXHXJWJXHDAYEYBULXHBAYCYBULZXHBAYCYBXHABYGVCZUNZVDVEVFVGXHXRXIXDUCXHXIXHXIXHWPXHWOWJXHCAYDYBULZYMYOVDZVEZVFZVGVAVBVAXHXIXDXIYSXHXDYIVFYSVHVIXHXDXNYIXHXIXIYRYRVJXHXAXEXFYHVKXHXIYRXHABWPYQWNWSXGVLVMVNVOVP $.
+
+  ${
+    gparsame.1 $e |- ( ph -> A e. CC ) $.
+    gparsame.2 $e |- ( ph -> B e. CC ) $.
+    gparsame.3 $e |- ( ph -> C e. CC ) $.
+    gparsame.4 $e |- ( ph -> D e. CC ) $.
+    gparsame.5 $e |- ( ph -> X e. CC ) $.
+    gparsame.6 $e |- ( ph -> A =/= B ) $.
+    gparsame.7 $e |- ( ph -> C =/= D ) $.
+    gparsame.8 $e |- ( ph -> ( ( B - A ) / ( D - C ) ) e. RR ) $.
+    gparsame.9 $e |- ( ph -> ( ( X - A ) / ( B - A ) ) e. RR ) $.
+    gparsame.10 $e |- ( ph -> ( ( X - C ) / ( D - C ) ) e. RR ) $.
+  gparsame $p |- ( ph -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( C = D \/ ( ( u - C ) / ( D - C ) ) e. RR ) } ) $=
+    ( cmin co cdiv cr wcel wceq subcld necomd subne0d divsubdird nnncan1d
+    oveq1d eqtr3d cmul dmdcand remulcld eqeltrrd resubcld olcd caddc divdird
+    npncan3d readdcld glineud )
+    ABCDEFHIJKMNACERSZFERSZTSZUAUBEFUCZAGERSZVCTSZGCRSZVCTSZRSZVDUAAVFVHRSZVCTSZVJVDAVFVHVCAGELJUDZAGCLHUDZAFEKJUDZAFEKJAEFNUEZUFZUGZAVKVBVCTAGECLJHUHZUIZUJZAVGVIQADCRSZVCTSZVHWBTSZUKSZVIUAAVHWBVCVNADCIHUDZVOADCIHACDMUEZUFZVQULZAWCWDOPUMZUNZUOZUNZUPADERSZVCTSZUAUBVEAVDWCUQSZWOUAAVBWBUQSZVCTSWPWOAVBWBVCACEHJUDWFVOVQURAWQWNVCTACEDHJIUSUIUJAVDWCWMOUTUNUPVA $.
+  $}
+
+  ${
+    gparmeet.1 $e |- ( ph -> A e. CC ) $.
+    gparmeet.2 $e |- ( ph -> B e. CC ) $.
+    gparmeet.3 $e |- ( ph -> C e. CC ) $.
+    gparmeet.4 $e |- ( ph -> D e. CC ) $.
+    gparmeet.5 $e |- ( ph -> A =/= B ) $.
+    gparmeet.6 $e |- ( ph -> C =/= D ) $.
+    gparmeet.7 $e |- ( ph -> -. ( ( B - A ) / ( D - C ) ) e. RR ) $.
+  gparmeet $p |- ( ph -> E. x e. CC ( ( A = B \/ ( ( x - A ) / ( B - A ) ) e. RR ) /\ ( C = D \/ ( ( x - C ) / ( D - C ) ) e. RR ) ) ) $=
+    ( wceq cmin co cdiv cim cfv cmul caddc cr wcel wo wa cv cc wrex subcld
+    necomd subne0d divcld imcld cc0 wb reim0b syl mtbid neqned redivcld recnd
+    mulcld pncan2d oveq1d divcan4d eqtrd eqeltrd olcd addsubd addcomd
+    subsub2d eqtr4d divsubdird divassd imsubd immul2d divcan1d subidd reim0bd
+    jca addcld oveq1 eleq1d orbi2d anbi12d adantl rspcedv mpd )
+    ACDNZCECOPZFEOPZQPZRSZDCOPZWKQPZRSZQPZWNTPZUAPZCOPZWNQPZUBUCZUDZEFNZWSEOPZWKQPZUBUCZUDZUEZWIBUFZCOPZWNQPZUBUCZUDZXDXJEOPZWKQPZUBUCZUDZUEZBUGUHAXCXHAXBWIAXAWQUBAXAWRWNQPWQAWTWRWNQACWRGAWQWNAWQAWMWPAWLAWJWKAECIGUIZAFEJIUIZAFEJIAEFLUJZUKZULZUMZAWOAWNWKADCHGUIZYAYCULZUMZAWPUNAWOUBUCZWPUNNZMAWOUGUCZYIYJUOZYGWOUPZUQZURZUSZUTZVAZYFVBZVCVDAWQWNYRYFADCHGACDKUJUKVEVFYQVGVHAXGXDAXFWQWOTPZWLOPZUBAXFWRWKQPZWLOPZUUAAXFWRWJOPZWKQPUUCAXEUUDWKQAXEWRCEOPZUAPZUUDAXEUUEWRUAPUUFACWREGYSIVIAUUEWRACEGIUIYSVJVFAWRECYSIGVKVLVDAWRWJWKYSXTYAYCVMVFAUUBYTWLOAWQWNWKYRYFYAYCVNVDVFAUUAAYTWLAWQWOYRYGVBZYDUIAUUARSZWMWMOPZUNAUUHYTRSZWMOPUUIAYTWLUUGYDVOAUUJWMWMOAUUJWQWPTPWMAWQWOYQYGVPAWMWPAWMYEVAZAWPYHVAYPVQVFVDVFAWMUUKVRVFVSVGVHVTAXSXIBWSUGACWRGYSWAXJWSNZXSXIUOAUULXNXCXRXHUULXMXBWIUULXLXAUBUULXKWTWNQXJWSCOWBVDWCWDUULXQXGXDUULXPXFUBUULXOXEWKQXJWSEOWBVDWCWDWEWFWGWH $.
+  $}
+
+  ${
+    gpareqr.1 $e |- ( ps -> A e. CC ) $.
+    gpareqr.2 $e |- ( ps -> B e. CC ) $.
+    gpareqr.3 $e |- ( ps -> C e. CC ) $.
+    gpareqr.4 $e |- ( ps -> D e. CC ) $.
+    gpareqr.5 $e |- ( ps -> A =/= B ) $.
+    gpareqr.6 $e |- ( ps -> C =/= D ) $.
+    gpareqr.7 $e |- ( ps -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( C = D \/ ( ( u - C ) / ( D - C ) ) e. RR ) } ) $.
+  gpareqr $p |- ( ps -> ( ( B - A ) / ( D - C ) ) e. RR ) $=
+    ( c1 cmin co cdiv cr subcld necomd subne0d recdivd divsubdird nnncan2d
+    oveq1d eqtr3d wceq wn wcel neneqd cv wo cc crab dividd 1re a1i eqeltrd
+    olcd wb glinel syl mpbird eleqtrrd mpbid ord mpd cc0 subidd div0d eqtrd
+    0re resubcld eqeltrrd divne0d rereccld )
+    ANFEOPZDCOPZQPZQPVRVQQPRAVQVRAFEJISZADCHGSZAFEJIAEFLTZUAZADCHGACDKTZUAZUBAVSAFCOPZVRQPZECOPZVRQPZOPZVSRAWFWHOPZVRQPWJVSAWFWHVRAFCJGSAECIGSWAWEUCAWKVQVRQAFECJIGUDUEUFAWGWIACDUGZUHZWGRUIZACDKUJZAWLWNAFWLBUKZCOPZVRQPZRUIZULZBUMUNZUIZWLWNULZAFEFUGZWPEOPZVQQPZRUIZULZBUMUNZXAAFXIUIZXDVQVQQPZRUIZULZAXLXDAXKNRAVQVTWCUONRUIAUPUQURUSAFUMUIZXJXMUTJBEFFVAVBVCMVDAXNXBXCUTJBCDFVAVBVEVFVGAWMWIRUIZWOAWLXOAEXAUIZWLXOULZAEXIXAAEXIUIZXDEEOPZVQQPZRUIZULZAYAXDAXTVHRAXTVHVQQPVHAXSVHVQQAEIVIUEAVQVTWCVJVKVHRUIAVLUQURUSAEUMUIZXRYBUTIBEFEVAVBVCMVDAYCXPXQUTIBCDEVAVBVEVFVGVMVNAVQVRVTWAWCWEVOVPVN $.
+  $}
+
+  gpardef $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ A =/= B ) /\ C =/= D ) -> ( ( ( B - A ) / ( D - C ) ) e. RR <-> ( { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( C = D \/ ( ( u - C ) / ( D - C ) ) e. RR ) } \/ -. E. x e. CC ( ( A = B \/ ( ( x - A ) / ( B - A ) ) e. RR ) /\ ( C = D \/ ( ( x - C ) / ( D - C ) ) e. RR ) ) ) ) ) $=
+    ( cc wcel wa wne cmin co cdiv cr wceq cv wo crab wrex wn simp-5l
+    ad3antrrr simp-5r simp-4r simpllr simplr simpr neneqd simpld ord mpd
+    simprd gparsame ex rexlimdva con3d orrd adantr gpareqr gparmeet con1d
+    jaod impbid )
+    CGHZDGHZIZEGHZIZFGHZIZCDJZIZEFJZIZDCKLZFEKLZMLZNHZCDOZBPZCKLZVOMLZNHZQZBGRZEFOZVTEKLZVPMLZNHZQZBGRZOZVSAPZCKLZVOMLZNHZQZWFWMEKLZVPMLZNHZQZIZAGSZTZQZVNVRXEVNVRIZWLXDXFXCWLXFXBWLAGXFWMGHZIZXBWLXHXBIZBCDEFWMVNVDVRXGXBVDVEVGVIVKVMUAZUBVNVEVRXGXBVDVEVGVIVKVMUCZUBVNVGVRXGXBVFVGVIVKVMUDZUBVNVIVRXGXBVHVIVKVMUEZUBXFXGXBUFVNVKVRXGXBVJVKVMUFZUBZVNVMVRXGXBVLVMUGZUBZVNVRXGXBUEXIVSTWPXICDXOUHXIVSWPXIWQXAXHXBUGZUIUJUKXIWFTWTXIEFXQUHXIWFWTXIWQXAXRULUJUKUMUNUOUPUQUNVNWLVRXDVNWLVRVNWLIBCDEFVNVDWLXJURVNVEWLXKURVNVGWLXLURVNVIWLXMURVNVKWLXNURVNVMWLXPURVNWLUGUSUNVNVRXCVNVRTZXCVNXSIACDEFVNVDXSXJURVNVEXSXKURVNVGXSXLURVNVIXSXMURVNVKXSXNURVNVMXSXPURVNXSUGUTUNVAVBVC $.
+
+  gnelxr $p |- -. (/) e. RR* $=
+    ( c0 cxr wcel cr cpnf wceq cmnf w3o wn w3a cc 0ncn recn mto wne cuni cpw
+    0elpw df-pnf eleqtrri ne0i ax-mp necomi neii df-mnf 3pm3.2i 3ioran mpbir
+    elxr mtbir )
+    ABCADCZAEFZAGFZHZUNIUKIZULIZUMIZJUOUPUQUKAKCLAMNAEEAAECEAOAKPZQEURRSTEAUAUBUCUDAGGAAGCGAOAEQGERUETGAUAUBUCUDUFUKULUMUGUHAUIUJ $.
+
+  gimrcl $p |- ( ( ( Im ` X ) x. ( Im ` Y ) ) e. RR* -> ( X e. CC /\ Y e. CC ) ) $=
+    ( cim cfv cmul co cxr wcel cc wa wn c0 gnelxr wceq wb cdm cxp ax-mulf
+    fdmi ndmovg mpan eleq1 syl mtbiri con4i 0ncn cr imf eleq2i ndmfv sylnbir
+    anim12i )
+    ACDZBCDZEFZGHZUMIHZUNIHZJZAIHZBIHZJUSUPUSKZUPLGHZMVBUOLNZUPVCOEPIIQZNVBVDVEIERSUMUNIIETUAUOLGUBUCUDUEUQUTURVAUTUQUTKZUQLIHZUFVFUMLNZUQVGOUTACPZHVHVIIAIUGCUHSZUIACUJUKUMLIUBUCUDUEVAURVAKZURVGUFVKUNLNZURVGOVABVIHVLVIIBVJUIBCUJUKUNLIUBUCUDUEULUC $.
+
+  gdivrcl $p |- ( ( X / Y ) e. CC -> Y =/= 0 ) $=
+    ( cdiv co cc wcel cc0 wne csn cdif wa wn c0 0ncn wceq wb cdm cxp vx vy cv
+    vz cmul crio df-div riotaex dmmpo ndmovg mpan eleq1 syl mtbiri con4i
+    simprd eldifsn sylib )
+    ABCDZEFZBEFZBGHZURBEGIZJZFZUSUTKURAEFZVCVDVCKZURVELZURMEFZNVFUQMOZURVGPCQEVBROVFVHSTEVBTUAZUBUAZUCDZSUAZOZUBEUDCSTUBUEVMUBEUFUGABEVBCUHUIUQMEUJUKULUMUNBEGUOUPUN $.
+
+  ${
+    gsoffd.1 $e |- ( ph -> A e. CC ) $.
+    gsoffd.2 $e |- ( ph -> B e. CC ) $.
+    gsoffd.3 $e |- ( ph -> P e. CC ) $.
+    gsoffd.4 $e |- ( ph -> Q e. CC ) $.
+    gsoffd.5 $e |- ( ph -> ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) e. RR* ) $.
+    gsoffd.6 $e |- ( ph -> ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) =/= 0 ) $.
+  gsoffd $p |- ( ph -> ( ( A =/= B /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( wne wceq cmin co cdiv cr wcel wo wn wa cc cc0 cim cfv cmul cxr gimrcl
+    syl simpld gdivrcl subne0ad necomd neneqd wi orel1 wb reim0b sylibd oveq1
+    a1i simprd imcld recnd mul02d eqeq2d syld mtod jca oveq2 mul01d )
+    ABCLZBCMZDBNOZCBNOZPOZQRZSZTZUAVMEBNOZVOPOZQRZSZTAVLVSACBACBGFAVPUBRZVOUCLZAWDWAUBRZAVPUDUEZWAUDUEZUFOZUGRZWDWFUAZJVPWAUHZUIZUJZVNVOUKZUIZULZUMZAVRWIUCMZAWIUCKUNZAVRWGUCMZWSAVRVQXAAVMTZVRVQUOABCWRUNZVMVQUPUIAWDVQXAUQWNVPURUIUSAXAWIUCWHUFOZMZWSXAXEUOAWGUCWHUFUTVAAXDUCWIAWHAWHAWAAWDWFWMVBZVCVDVEVFUSVGVHVIAWCWSWTAWCWHUCMZWSAWCWBXGAXBWCWBUOXCVMWBUPUIAWFWBXGUQXFWAURUIUSAXGWIWGUCUFOZMZWSXGXIUOAWHUCWGUFVJVAAXHUCWIAWGAWGAVPWNVCVDVKVFUSVGVHVI $.
+  $}
+
+  gsameoff $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> ( ( A =/= B /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr simp-4l simp-4r
+    simpllr simplr cxr simpr ltrelxr brel syl simprd wne 0xr a1i xrltne
+    syl3anc gsoffd )
+    AEFZBEFZGZCEFZGZDEFZGZHCAIJZBAIJZKJZLMZDAIJZVAKJZLMZNJZOPZGZABCDUMUNUPURVHQUMUNUPURVHRUOUPURVHSUQURVHTVIHUAFZVGUAFZVIVHVJVKGZUSVHUBZHVGUAUAOUCUDZUEZUFZVIVJVKVHVGHUGVJVIUHUIVPVMHVGUJUKUL $.
+
+  goppoff $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> ( ( A =/= B /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr simp-4l simp-4r
+    simpllr simplr cxr simpr ltrelxr brel syl simpld wne 0xr a1i xrltne
+    syl3anc necomd gsoffd )
+    AEFZBEFZGZCEFZGZDEFZGZCAHIZBAHIZJIZKLZDAHIZVBJIZKLZMIZNOPZGZABCDUNUOUQUSVIQUNUOUQUSVIRUPUQUSVISURUSVITVJVHUAFZNUAFZVJVIVKVLGZUTVIUBZVHNUAUAOUCUDZUEZUFZVJNVHVJVKVLVINVHUGVQVLVJUHUIVNVHNUJUKULUM $.
+
+  gonends $p |- ( ( A e. CC /\ B e. CC ) -> ( ( A = B \/ ( ( A - A ) / ( B - A ) ) e. RR ) /\ ( A = B \/ ( ( B - A ) / ( B - A ) ) e. RR ) ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn cc0 simpll subidd oveq1d simplr
+    subcld simpr neqned necomd subne0d div0d eqtrd 0red eqeltrd ex orrd c1
+    dividd 1red jca )
+    ACDZBCDZEZABFZAAGHZBAGHZIHZJDZKUPURURIHZJDZKUOUPUTUOUPLZUTUOVCEZUSMJVDUSMURIHMVDUQMURIVDAUMUNVCNZOPVDURVDBAUMUNVCQZVERZVDBAVFVEVDABVDABUOVCSZTZUAZUBZUCUDVDUEUFUGUHUOUPVBUOVCVBVDVAUIJVDURVGVKUJVDUKUFUGUHUL $.
+
+  ${
+    gtrinotd.1 $e |- ( ph -> P e. CC ) $.
+    gtrinotd.2 $e |- ( ph -> Q e. CC ) $.
+    gtrinotd.3 $e |- ( ph -> R e. CC ) $.
+    gtrinotd.4 $e |- ( ph -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) $.
+  gtrinotd $p |- ( ph -> -. ( Q = R \/ ( ( P - Q ) / ( R - Q ) ) e. RR ) ) $=
+    ( wceq cmin co cdiv cr wcel wo wn wa gtridef sylib simprd cc w3a wi 3jca
+    gcolrotate syl syld mtod )
+    ACDIZBCJKZDCJKZLKZMNZOZBCIZDBJKZCBJKZLKZMNZOZAUOPZUIPZQZBDIZPZQZUTPZAVFUSPQVFVGQHBCDRSTAUNDBIZCDJKZBDJKZLKZMNZOZUTACUANZDUANZBUANZUBUNVMUCAVNVOVPFGEUDCDBUEUFAVOVPVNUBVMUTUCAVOVPVNGEFUDDBCUEUFUGUH $.
+  $}
+
+  gtrinot $p |- ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) -> -. ( Q = R \/ ( ( P - Q ) / ( R - Q ) ) e. RR ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr simplll simpllr simplr simpr
+    gtrinotd )
+    ADEZBDEZFZCDEZFZABGZHZBCGZHZFZACGZHZFZCAIJZBAIJZKJZLEZHZFZFABCRSUAUPMRSUAUPNTUAUPOUBUPPQ $.
+
+  ${
+    gtriextd.1 $e |- ( ph -> P e. CC ) $.
+    gtriextd.2 $e |- ( ph -> Q e. CC ) $.
+    gtriextd.3 $e |- ( ph -> R e. CC ) $.
+    gtriextd.4 $e |- ( ph -> S e. CC ) $.
+    gtriextd.5 $e |- ( ph -> ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) $.
+    gtriextd.6 $e |- ( ph -> ( R =/= Q /\ ( ( S - Q ) / ( R - Q ) ) e. RR /\ ( ( S - Q ) / ( R - Q ) ) < 0 ) ) $.
+  gtriextd $p |- ( ph -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\ -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) $=
+    ( wceq wn wa cmin co cdiv cr wcel simpld cmul cc0 subcld wne clt wbr
+    simp1d subne0d divcan1d simp2d recnd simp3d ltned mulne0d eqnetrrd
+    subne0ad necomd neneqd jca wo gtrinotd pm2.46 syl simpr oveq1d adantr
+    eqeltrd ex mtod wi olc a1i cc w3a 3jca gcolrotate orel1 syld dmdcand
+    remulcld eqeltrrd )
+    ABCLZMZCELZMZNZBELZMZNEBOPZCBOPZQPZRSZMAWFWHAWCWEAWCCDLZMZAWCWNNZBDLZMZAWOWQNDBOPWJQPRSMJTTTACEAECAECIGAECOPZDCOPZQPZWSUAPZWRUBAWRWSAECIGUCZADCHGUCZADCHGADCUDZWTRSZWTUBUEUFZKUGZUHZUIZAWTWSAWTAXDXEXFKUJZUKZXCAWTUBXJAXDXEXFKULZUMZXHUNZUOZUPZUQZURZUSAWGBCOPZWSQPZRSZAWMYAUTZMZYAMZABCDFGHJVAZWMYAVBZVCZAWGYAAWGNZXTWTRYHXSWRWSQYHBECOAWGVDVEVEAXEWGXJVFVGVHVIUSAWLYAYGAWLXSWRQPZRSZYAAWLWBWLUTZYJWLYKVJAWLWBVKVLAYKWDYJUTZYJABVMSZCVMSZEVMSZVNYKYLVJAYMYNYOFGIVOBCEVPVCAWEYLYJVJXRWDYJVQVCVRVRAYJYAAYJNZWTYIUAPZXTRAYQXTLYJAXSWRWSABCFGUCXBXCXOXHVSVFYPWTYIAXEYJXJVFAYJVDVTWAVHVRVIUS $.
+  $}
+
+  gtriext $p |- ( ( ( ( ( ( P e. CC /\ Q e. CC ) /\ R e. CC ) /\ S e. CC ) /\ ( ( ( -. P = Q /\ -. Q = R ) /\ -. P = R ) /\ -. ( ( R - P ) / ( Q - P ) ) e. RR ) ) /\ ( R =/= Q /\ ( ( S - Q ) / ( R - Q ) ) e. RR /\ ( ( S - Q ) / ( R - Q ) ) < 0 ) ) -> ( ( ( -. P = Q /\ -. Q = S ) /\ -. P = S ) /\ -. ( ( S - P ) / ( Q - P ) ) e. RR ) ) $=
+    ( cc wcel wa wceq wn cmin co cdiv cr wne cc0 clt wbr w3a simp-5l simp-5r
+    simp-4r simpllr simplr simpr gtriextd )
+    AEFZBEFZGZCEFZGZDEFZGZABHZIZBCHZIZGZACHZIZGZCAJKZBAJKZLKZMFZIZGZGZCBNZDBJKZCBJKZLKZMFZVKOPQZRZGABCDUFUGUIUKVFVNSUFUGUIUKVFVNTUHUIUKVFVNUAUJUKVFVNUBULVFVNUCVGVNUDUE $.
+
+  ${
+    gbeysgn.1 $e |- ( ph -> U e. RR ) $.
+    gbeysgn.2 $e |- ( ph -> V e. RR ) $.
+    gbeysgn.3 $e |- ( ph -> K e. RR ) $.
+    gbeysgn.4 $e |- ( ph -> K < 0 ) $.
+    gbeysgn.5 $e |- ( ph -> V =/= 0 ) $.
+    gbeysgn.6 $e |- ( ph -> ( 0 - V ) = ( K x. ( U - V ) ) ) $.
+  gbeysgn $p |- ( ph -> 0 < ( U x. V ) ) $=
+    ( cneg cr wcel cmul co wa cc0 cle wbr clt renegcld remulcld jca 0red
+    lt0neg1d mpbid ltled c1 cmin 1red resubcld 0lt1 a1i lttrd posdifd msqgt0d
+    mulgt0d recnd mulneg1d mulcld negsubdi2d caddc negsubd wceq df-neg eqtrd
+    subdid eqcomd negcld subaddd eqtr3d negeqd eqtr4d 1cnd subdird mullidd
+    oveq1d mulassd subcld 3eqtr3d breqtrrd prodgt0 syl )
+    ACKZLMZBDNOZLMZPZQWDRSZQWDWFNOZTSZPZPQWFTSAWHWLAWEWGACGUAZABDEFUBUCAWIWKAQWDAUDZWMACQTSQWDTSHACGUEUFUGAQUHCUIOZDDNOZNOZWJTAWOWPAUHCAUJZGUKADDFFUBACUHTSQWOTSACQUHGWNWRHQUHTSAULUMUNACUHGWRUOUFADFIUPUQAWDBNOZDNOWODNOZDNOWJWQAWSWTDNAWSDCDNOZUIOZWTAWSCBNOZKZXBACBACGURZABEURZUSAXADUIOZKXBXDAXADACDXEADFURZUTZXHVAAXGXCAXADKZVBOZXGXCAXADXIXHVCAXCXAUIOZXJVDXKXCVDAXJXLAXJCBDUIOZNOZXLAXJQDUIOZXNXJXOVDADVEUMJVFACBDXEXFXHVGVFVHAXCXAXJACBXEXFUTXIADXHVIVJUFVKVLVKVMAWTUHDNOZXAUIOXBAUHCDAVNZXEXHVOAXPDXAUIADXHVPVQVFVMVQAWDBDACXEVIXFXHVRAWODDAUHCXQXEVSXHXHVRVTWAUCUCWDWFWBWC $.
+  $}
+
+  ${
+    gsegbeyd.1 $e |- ( ph -> A e. CC ) $.
+    gsegbeyd.2 $e |- ( ph -> B e. CC ) $.
+    gsegbeyd.3 $e |- ( ph -> P e. CC ) $.
+    gsegbeyd.4 $e |- ( ph -> Q e. CC ) $.
+    gsegbeyd.5 $e |- ( ph -> X e. CC ) $.
+    gsegbeyd.6 $e |- ( ph -> A =/= B ) $.
+    gsegbeyd.7 $e |- ( ph -> ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) $.
+    gsegbeyd.8 $e |- ( ph -> -. ( A = B \/ ( ( X - A ) / ( B - A ) ) e. RR ) ) $.
+    gsegbeyd.9 $e |- ( ph -> ( P =/= X /\ ( ( Q - X ) / ( P - X ) ) e. RR /\ ( ( Q - X ) / ( P - X ) ) < 0 ) ) $.
+  gsegbeyd $p |- ( ph -> 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( X - A ) / ( B - A ) ) ) ) ) $=
+    ( cmin co cdiv cim cfv subcld necomd subne0d divcld imcld wne cr wcel cc0
+    clt wbr simp2d simp3d wceq wo wi olc a1i mtod cc wb reim0b syl mtbid
+    neqned cmul wn neneqd orel1 sylc mpbid oveq1d divsubdird nnncan2d eqtr3d
+    simp1d divcan1d recnd divassd oveq2d eqtr4d eqtrd fveq2d imsubd immul2d
+    3eqtr3d gbeysgn )
+    ADBPQZCBPQZRQZSTZEFPQZDFPQZRQZFBPQZWIRQZSTZAWJAWHWIADBIGUAZACBHGUAZACBHGABCLUBZUCZUDZUEAWPAWOWIAFBKGUAZWSXAUDZUEADFUFZWNUGUHZWNUIUJUKZOULZAXEXFXGOUMAWQUIAWPUGUHZWQUIUNZAXIBCUNZXIUOZNXIXLUPAXIXKUQURUSAWPUTUHXIXJVAXDWPVBVCVDVEAEBPQZWIRQZSTZWQPQZUIWQPQWNWKWQPQZVFQZAXOUIWQPAXNUGUHZXOUIUNZAXKVGXKXSUOXSABCLVHMXKXSVIVJAXNUTUHXSXTVAAXMWIAEBJGUAZWSXAUDZXNVBVCVKVLAXNWPPQZSTWNWJWPPQZVFQZSTZXPXRAYCYESAYCWLWIRQZYEAXMWOPQZWIRQYCYGAXMWOWIYAXCWSXAVMAYHWLWIRAEFBJKGVNVLVOAYGWNWMWIRQZVFQZYEAWNWMVFQZWIRQYGYJAYKWLWIRAWLWMAEFJKUAADFIKUAZADFIKAXEXFXGOVPUCVQVLAWNWMWIAWNXHVRYLWSXAVSVOAYDYIWNVFAWHWOPQZWIRQYDYIAWHWOWIWRXCWSXAVMAYMWMWIRADFBIKGVNVLVOVTWAWBWCAXNWPYBXDWDAYFWNYDSTZVFQXRAWNYDXHAWJWPXBXDUAWEAYNXQWNVFAWJWPXBXDWDVTWBWFVOWG $.
+  $}
+
+  gsegbeyond $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ X e. CC ) /\ A =/= B ) /\ ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( X - A ) / ( B - A ) ) e. RR ) ) /\ ( P =/= X /\ ( ( Q - X ) / ( P - X ) ) e. RR /\ ( ( Q - X ) / ( P - X ) ) < 0 ) ) -> 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( X - A ) / ( B - A ) ) ) ) ) $=
+    ( cc wcel wa wne wceq cmin co cdiv cr wo wn cc0 clt wbr w3a simp-8l
+    simp-8r simp-7r simp-6r simp-5r simp-4r simpllr simplr simpr gsegbeyd )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZABIZHZABJZDAKLZBAKLZMLZNGZOZHZVBEAKLZVDMLZNGZOZPZHZCEIZDEKLZCEKLZMLZNGZVRQRSZTZHABCDEUKULUNUPURUTVGVMWAUAUKULUNUPURUTVGVMWAUBUMUNUPURUTVGVMWAUCUOUPURUTVGVMWAUDUQURUTVGVMWAUEUSUTVGVMWAUFVAVGVMWAUGVHVMWAUHVNWAUIUJ $.
+
+  ${
+    gonfst.1 $e |- ( ph -> A e. CC ) $.
+    gonfst.2 $e |- ( ph -> B e. CC ) $.
+    gonfst.3 $e |- ( ph -> P = A ) $.
+  gonfst $p |- ( ph -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( wceq cmin co cdiv cr wcel wn wa cc0 adantr oveq1d cc subidd eqtrd
+    subcld simpr neqned necomd subne0d div0d 0red eqeltrd ex orrd )
+    ABCHZDBIJZCBIJZKJZLMZAULNZUPAUQOZUOPLURUOPUNKJPURUMPUNKURUMBBIJPURDBBIADBHUQGQRURBABSMZUQEQZTUARURUNURCBACSMZUQFQZUTUBURCBVBUTURBCURBCAUQUCUDUEUFUGUAURUHUIUJUK $.
+  $}
+
+  ${
+    gonsnd.1 $e |- ( ph -> A e. CC ) $.
+    gonsnd.2 $e |- ( ph -> B e. CC ) $.
+    gonsnd.3 $e |- ( ph -> P = B ) $.
+  gonsnd $p |- ( ph -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( wceq cmin co cdiv cr wcel wn wa c1 adantr oveq1d cc subcld simpr neqned
+    necomd subne0d dividd eqtrd 1red eqeltrd ex orrd )
+    ABCHZDBIJZCBIJZKJZLMZAUKNZUOAUPOZUNPLUQUNUMUMKJPUQULUMUMKUQDCBIADCHUPGQRRUQUMUQCBACSMZUPFQZABSMZUPEQZTUQCBUSVAUQBCUQBCAUPUAUBUCUDUEUFUQUGUHUIUJ $.
+  $}
+
+  goffapart $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> ( P =/= A /\ P =/= B ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn wne simplll adantr simpllr simpr
+    gonfst pm2.65da neqned gonsnd jca )
+    ADEZBDEZFZCDEZFZABGZCAHIZBAHIZJIZKEZLZMZFZCANCBNUPCAUPCAGZUNUPUQFABCUPUDUQUDUEUGUOOZPUPUEUQUDUEUGUOQZPUPUQRSUPUOUQUHUORZPTUAUPCBUPCBGZUNUPVAFABCUPUDVAURPUPUEVAUSPUPVARUBUPUOVAUTPTUAUC $.
+
+  gonoffapart $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ X e. CC ) /\ Y e. CC ) /\ ( A = B \/ ( ( X - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( Y - A ) / ( B - A ) ) e. RR ) ) -> X =/= Y ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn simplr adantr simpr oveq1d eleq1d
+    orbi2d mpbid pm2.65da neqned )
+    AEFZBEFZGZCEFZGZDEFZGZABHZCAIJZBAIJZKJZLFZMZGZUKDAIJZUMKJZLFZMZNZGZCDVCCDHZVAVCVDGZUPVAVCUPVDUJUPVBOPVEUOUTUKVEUNUSLVEULURUMKVECDAIVCVDQRRSTUAVCVBVDUQVBQPUBUC $.
+
+  gemptynxr $p |- -. (/) e. RR* $=
+    ( c0 cxr wcel cr cpnf wceq cmnf w3o wn w3a cc 0ncn recn mto cuni cpw
+    df-pnf pwne0 eqnetri necomi neii df-mnf 3pm3.2i 3ioran mpbir elxr mtbir )
+    ABCADCZAEFZAGFZHZUKIUHIZUIIZUJIZJULUMUNUHAKCLAMNAEEAEKOZPAQUORSTUAAGGAGEPAUBERSTUAUCUHUIUJUDUEAUFUG $.
+
+  gimdivz $p |- ( ( Im ` ( A / 0 ) ) x. ( Im ` ( B / 0 ) ) ) = (/) $=
+    ( cc0 cdiv co cim cfv cmul c0 cdm cc csn cdif cxp wceq wcel wa wn vx vy
+    cv vz crio df-div riotaex dmmpo neldifsn intnan ndmovg mp2an fveq2i 0ncn
+    cr imf fdmi eleq2i mtbir ndmfv ax-mp eqtri oveq12i ax-mulf ndmov )
+    ACDEZFGZBCDEZFGZHEIIHEZIVEIVGIHVEIFGZIVDIFDJZKKCLZMZNZOZAKPZCVLPZQRVDIOSTKVLTUAZUBUAZHEZSUAZOZUBKUCZDSTUBUDZWAUBKUEZUFZVPVOCKUGZUHACKVLDUIUJUKIFJZPZRZVIIOZWHIKPZULWGKIKUMFUNUOZUPZUQZIFURZUSZUTVGVIIVFIFVNBKPZVPQRVFIOWEVPWQWFUHBCKVLDUIUJUKWPUTVAWKWKQRVHIOWKWKULUHIIKHKKNKHVBUOVCUSUT $.
+
+  ${
+    gimprodne.1 $e |- ( ph -> P e. CC ) $.
+    gimprodne.2 $e |- ( ph -> R e. CC ) $.
+    gimprodne.3 $e |- ( ph -> ( ( Im ` ( A / ( P - R ) ) ) x. ( Im ` ( B / ( P - R ) ) ) ) e. RR* ) $.
+  gimprodne $p |- ( ph -> P =/= R ) $=
+    ( wceq c0 cxr wcel wa cmin co cdiv cim cfv cmul cc0 simpr oveq1d cc
+    adantr subidd eqtrd oveq2d fveq2d oveq12d gimdivz eqtrdi eqeltrrd wn
+    gemptynxr a1i pm2.65da neqned )
+    ADEADEIZJKLZAURMZBDENOZPOZQRZCVAPOZQRZSOZJKUTVFBTPOZQRZCTPOZQRZSOJUTVCVHVEVJSUTVBVGQUTVATBPUTVAEENOZTUTDEENAURUAZUBZUTEAEUCLZURGUDZUEZUFZUGUHUTVDVIQUTVATCPVQUGUHUIBCUJUKAVFKLURHUDULUSUMUTUNUOUPUQ $.
+  $}
+
+  ${
+    gimne.1 $e |- ( ph -> R e. CC ) $.
+    gimne.2 $e |- ( ph -> D e. CC ) $.
+    gimne.3 $e |- ( ph -> D =/= 0 ) $.
+    gimne.4 $e |- ( ph -> ( Im ` ( ( S - R ) / D ) ) =/= 0 ) $.
+  gimne $p |- ( ph -> S =/= R ) $=
+    ( wceq cmin co cdiv cim cfv cc0 wa simpr oveq1d cc wcel adantr subidd
+    eqtrd wne div0d fveq2d im0 eqtrdi neneqd pm2.65da neqned )
+    ADCADCIZDCJKZBLKZMNZOIAULPZUOOMNOUPUNOMUPUNOBLKOUPUMOBLUPUMCCJKOUPDCCJAULQRUPCACSTULEUAUBUCRUPBABSTULFUAABOUDULGUAUEUCUFUGUHUPUOOAUOOUDULHUAUIUJUK $.
+  $}
+
+  ${
+    glinemul.1 $e |- ( ph -> X e. CC ) $.
+    glinemul.2 $e |- ( ph -> R e. CC ) $.
+    glinemul.3 $e |- ( ph -> S e. CC ) $.
+    glinemul.4 $e |- ( ph -> D e. CC ) $.
+    glinemul.5 $e |- ( ph -> D =/= 0 ) $.
+    glinemul.6 $e |- ( ph -> S =/= R ) $.
+  glinemul $p |- ( ph -> ( ( X - R ) / D ) = ( ( ( X - R ) / ( S - R ) ) x. ( ( S - R ) / D ) ) ) $=
+    ( cmin co cdiv cmul subcld subne0d divcan1d oveq1d divcld divassd eqtr3d
+    )
+    AECLMZDCLMZNMZUDOMZBNMUCBNMUEUDBNMOMAUFUCBNAUCUDAECFGPZADCHGPZADCHGKQZRSAUEUDBAUCUDUGUHUITUHIJUAUB $.
+  $}
+
+  ${
+    gofflinethrud.1 $e |- ( ph -> R e. CC ) $.
+    gofflinethrud.2 $e |- ( ph -> P e. CC ) $.
+    gofflinethrud.3 $e |- ( ph -> S e. CC ) $.
+    gofflinethrud.4 $e |- ( ph -> X e. CC ) $.
+    gofflinethrud.5 $e |- ( ph -> -. ( R = P \/ ( ( S - R ) / ( P - R ) ) e. RR ) ) $.
+    gofflinethrud.6 $e |- ( ph -> ( R = S \/ ( ( X - R ) / ( S - R ) ) e. RR ) ) $.
+    gofflinethrud.7 $e |- ( ph -> X =/= R ) $.
+  gofflinethrud $p |- ( ph -> -. ( R = P \/ ( ( X - R ) / ( P - R ) ) e. RR ) ) $=
+    ( wceq cmin co cdiv cr wcel wo wa cmul subcld wn ioran sylib simpld
+    neqned necomd subne0d cc adantr simpr gonfst pm2.65da glinemul oveq1d
+    divcld neneqd orel1 sylc recnd divne0d divcan3d eqtrd cc0 wne redivcld
+    eqeltrrd simprd )
+    ACBMZECNOZBCNOZPOZQRZSZDCNOZVLPOZQRZAVOTZVMVKVPPOZPOZVQQAWAVQMVOAWAVTVQUAOZVTPOVQAVMWBVTPAVLCDEIFHABCGFUBZABCGFACBACBAVJUCZVRUCZAVJVRSZUCZWDWETZJVJVRUDZUEZUFZUGZUHZUIZADCADCMZWFAWOTZCBDACUJRZWOFUKZABUJRZWOGUKZAWOULZUMZAWGWOJUKZUNZUGZUOUPAVQVTAVPVLADCHFUBZWCWNUQAVTACDMZUCZXGVTQRZSZXIACDADCXEUHZURZKXGXIUSZUTZVAAVKVPAECIFUBZXFAECIFLUIZADCHFXEUIZVBZVCVDUKVSVMVTVSWDVOVNAWDVOWKUKAVOULVJVNUSUTAXIVOXNUKAVTVEVFVOXRUKVGVHAWEVOAWDWEWJVIUKUN $.
+  $}
+
+  gofflinethru $p |- ( ( ( ( ( ( ( R e. CC /\ P e. CC ) /\ S e. CC ) /\ X e. CC ) /\ -. ( R = P \/ ( ( S - R ) / ( P - R ) ) e. RR ) ) /\ ( R = S \/ ( ( X - R ) / ( S - R ) ) e. RR ) ) /\ X =/= R ) -> -. ( R = P \/ ( ( X - R ) / ( P - R ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn wne simp-6l simp-6r simp-5r
+    simp-4r simpllr simplr simpr gofflinethrud )
+    BEFZAEFZGZCEFZGZDEFZGZBAHZCBIJZABIJZKJZLFZMZNZGZBCHZDBIJZULKJZLFZMZGZDBOZGABCDUDUEUGUIUQVCVEPUDUEUGUIUQVCVEQUFUGUIUQVCVERUHUIUQVCVESUJUQVCVETURVCVEUAVDVEUBUC $.
+
+  ${
+    glinecrossd.1 $e |- ( ph -> R e. CC ) $.
+    glinecrossd.2 $e |- ( ph -> P e. CC ) $.
+    glinecrossd.3 $e |- ( ph -> S e. CC ) $.
+    glinecrossd.4 $e |- ( ph -> X e. CC ) $.
+    glinecrossd.5 $e |- ( ph -> ( R = S \/ ( ( X - R ) / ( S - R ) ) e. RR ) ) $.
+    glinecrossd.6 $e |- ( ph -> ( ( Im ` ( ( S - R ) / ( P - R ) ) ) x. ( Im ` ( ( X - R ) / ( P - R ) ) ) ) < 0 ) $.
+  glinecrossd $p |- ( ph -> ( S =/= R /\ ( ( X - R ) / ( S - R ) ) e. RR /\ ( ( X - R ) / ( S - R ) ) < 0 ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr subcld cim cfv cmul cxr wa ltrelxr
+    brel syl simpld gimprodne subne0d divcld imcld recnd lt0ne0d mulne0bad
+    gimne wceq wn wo necomd neneqd orel1 sylc glinemul fveq2d immul2d eqtrd
+    oveq2d mul12d breq1d mpbid 0red remulcld msqgt0d elrpd ltmuldivd rpne0d
+    div0d breqtrd 3jca )
+    ADCLECMNZDCMNZONZPQZWERSTABCMNZCDFABCGFUAZABCGFAWDWCBCGFAWDWGONZUBUCZWCWGONZUBUCZUDNZUEQZRUEQZAWMRSTZWNWOUFZKWMRUEUESUGUHZUIZUJZUKZULZAWJWLAWJAWIAWDWGADCHFUAZWHXBUMZUNZUOZAWLAWKAWCWGAECIFUAZWHXBUMZUNZUOZAWMKUPZUQZURZACDUSZUTZXNWFVAZWFACDADCXMVBZVCZJXNWFVDZVEZAWERWJWJUDNZONZRSAWEYAUDNZRSTZWEYBSTAWPYDKAWMYCRSAWMWJWEWJUDNZUDNYCAWLYEWJUDAWLWEWIUDNZUBUCYEAWKYFUBAWGCDEIFHWHXBXMVFVGAWEWIXTXDVHVIVJAWJWEWJXFAWEXTUOXFVKVIVLVMAWERYAXTAVNAYAAWJWJXEXEVOZAWJXEXLVPZVQZVRVMAYAAYAYGUOAYAYIVSVTWAWB $.
+  $}
+
+  glinecrossbet $p |- ( ( ( ( ( ( R e. CC /\ P e. CC ) /\ S e. CC ) /\ X e. CC ) /\ ( R = S \/ ( ( X - R ) / ( S - R ) ) e. RR ) ) /\ ( ( Im ` ( ( S - R ) / ( P - R ) ) ) x. ( Im ` ( ( X - R ) / ( P - R ) ) ) ) < 0 ) -> ( S =/= R /\ ( ( X - R ) / ( S - R ) ) e. RR /\ ( ( X - R ) / ( S - R ) ) < 0 ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo cim cfv cmul cc0 clt wbr simp-5l
+    simp-5r simp-4r simpllr simplr simpr glinecrossd )
+    BEFZAEFZGZCEFZGZDEFZGZBCHZDBIJZCBIJZKJZLFZMZGZUPABIJZKJZNOZUOVAKJZNOZPJZQRSZGABCDUGUHUJULUSVGTUGUHUJULUSVGUAUIUJULUSVGUBUKULUSVGUCUMUSVGUDUTVGUEUF $.
+
+  ${
+    gangsamerayd.1 $e |- ( ph -> R e. CC ) $.
+    gangsamerayd.2 $e |- ( ph -> P e. CC ) $.
+    gangsamerayd.3 $e |- ( ph -> Q e. CC ) $.
+    gangsamerayd.4 $e |- ( ph -> X e. CC ) $.
+    gangsamerayd.5 $e |- ( ph -> ( P = Q \/ ( ( X - P ) / ( Q - P ) ) e. RR ) ) $.
+    gangsamerayd.6 $e |- ( ph -> 0 < ( ( Im ` ( ( X - P ) / ( R - P ) ) ) x. ( Im ` ( ( Q - P ) / ( R - P ) ) ) ) ) $.
+  gangsamerayd $p |- ( ph -> ( abs ` ( ( R - P ) ang ( X - P ) ) ) = ( abs ` ( ( R - P ) ang ( Q - P ) ) ) ) $=
+    ( cmin co cang cabs cfv cc wcel cc0 wne wa wceq subcld cxr cdiv cim cmul
+    clt wbr ltrelxr brel syl simprd gimprodne subne0d jca divcld imcld recnd
+    gt0ne0d mulne0bbd gimne divcan1d wn cr wo necomd neneqd orel1 sylc
+    remulcld msqgt0d elrpd rpne0d div0d glinemul fveq2d immul2d eqtrd oveq1d
+    mulassd breq2d mpbid 0red ltdivmul2d mpbird eqbrtrrd mulne0d eqnetrrd
+    gangsym crp gangrp eqtr3d 3eqtrd )
+    ADBLMZEBLMZNMZOPZWPWONMZOPZCBLMZWONMZOPZWOXANMZOPZAWOQRZWOSTZUAZWPQRZWPSTZUAZUAWRWTUBAXHXKAXFXGADBFGUCZADBFGAWPXADBFGASUDRZWPWOUEMZUFPZXAWOUEMZUFPZUGMZUDRZASXRUHUIZXMXSUAZKSXRUDUDUHUJUKZULZUMZUNZUOZUPZAXIXJAEBIGUCZAWPXAUEMZXAUGMZWPSAWPXAYHACBHGUCZACBHGAWOBCGXLYFAXOXQAXOAXNAWPWOYHXLYFUQZURZUSZAXQAXPAXAWOYKXLYFUQZURZUSZAXRKUTZVAZVBZUOZVCZAYIXAAYIABCUBZVDZUUCYIVERZVFZUUEABCACBYTVGZVHZJUUCUUEVIZVJZUSZYKAYIAYIUUJASXQXQUGMZUEMZSYIUHAUULAUULAXQXQYPYPVKZUSZAUULAUULUUNAXQYPYSVLZVMZVNZVOZAUUMYIUHUIZSYIUULUGMZUHUIZAXTUVBKAXRUVASUHAXRYIXQUGMZXQUGMZUVAAXOUVCXQUGAXOYIXPUGMZUFPZUVCAXNUVEUFAWOBCEIGHXLYFYTVPZVQZAYIXPUUJYOVRZVSZVTZAYIXQXQUUKYQYQWAZVSZWBZWCZASYIUULAWDZUUJUUQWEZWFZWGZVMZVNUUAWHWIUPUPWOWPWJULAWSXBOAYJWONMZWSXBAYJWPWONUUBVTAXAQRZXASTZUAZXHUAZYIWKRZUAUWAXBUBAUWEUWFAUWDXHAUWBUWCYKUUAUPZYGUPZUVTUPYIXAWOWLULWMVQAUWEXCXEUBUWHXAWOWJULWN $.
+  $}
+
+  gangsameray $p |- ( ( ( ( ( ( R e. CC /\ P e. CC ) /\ Q e. CC ) /\ X e. CC ) /\ ( P = Q \/ ( ( X - P ) / ( Q - P ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( X - P ) / ( R - P ) ) ) x. ( Im ` ( ( Q - P ) / ( R - P ) ) ) ) ) -> ( abs ` ( ( R - P ) ang ( X - P ) ) ) = ( abs ` ( ( R - P ) ang ( Q - P ) ) ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo cc0 cim cfv cmul clt wbr simp-5l
+    simp-5r simp-4r simpllr simplr simpr gangsamerayd )
+    CEFZAEFZGZBEFZGZDEFZGZABHZDAIJZBAIJZKJZLFZMZGZNUOCAIJZKJZOPZUPVAKJZOPZQJZRSZGABCDUGUHUJULUSVGTUGUHUJULUSVGUAUIUJULUSVGUBUKULUSVGUCUMUSVGUDUTVGUEUF $.
+
+  ${
+    gsegptd.1 $e |- ( ph -> A e. CC ) $.
+    gsegptd.2 $e |- ( ph -> B e. CC ) $.
+    gsegptd.3 $e |- ( ph -> K e. RR ) $.
+    gsegptd.4 $e |- ( ph -> 0 < K ) $.
+    gsegptd.5 $e |- ( ph -> K < ( abs ` ( A - B ) ) ) $.
+    gsegptd.6 $e |- ( ph -> X = ( A + ( ( K / ( abs ` ( B - A ) ) ) x. ( B - A ) ) ) ) $.
+  gsegptd $p |- ( ph -> ( ( A =/= X /\ ( ( B - X ) / ( A - X ) ) e. RR /\ ( ( B - X ) / ( A - X ) ) < 0 ) /\ ( abs ` ( A - X ) ) = K ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr w3a cabs cfv wceq cmul caddc cc
+    subcld abscld 0red abssubd breqtrd lttrd elrpd rpne0d redivcld recnd
+    mulcld addcld eqeltrd cneg negsubdi2d oveq1d pncan2d eqtrd negeqd
+    mulneg1d eqtr4d eqtr3d negcld divgt0d gt0ne0d negne0d abs00ad necon3bid
+    mpbid mulne0d eqnetrd subne0ad c1 nnncan2d oveq2d 1cnd subdird mullidd
+    oveq12d divcan5rd divneg2d 1red resubcld renegcld crp wb divlt1lt syl2anc
+    mpbird posdifd lt0neg2d eqbrtrd 3jca fveq2d absmuld ltled absidd divcan1d
+    jca )
+    ABELZCEMNZBEMNZONZPQZXJRSTZUAXIUBUCZDUDAXGXKXLABEFAEBDCBMNZUBUCZONZXNUENZUFNZUGKABXQFAXPXNAXPADXOHAXNACBGFUHZUIZAXOAXOXTARDXOAUJZHXTIADBCMNZUBUCZXOSJABCFGUKZULZUMZUNZUOZUPZUQZXSURZUSZUTZAXIXPVAZXNUENZRAEBMNZVAZXIYOAEBYMFVBZAYQXQVAZYOAYPXQAYPXRBMNZXQAEXRBMKVCZABXQFYKVDZVEZVFZAXPXNYJXSVGZVHZVIZAYNXNAXPYJVJZXSAXPYJAXPADXOHXTIYFVKZVLZVMZAXORLZXNRLZYHAXORXNRAXNXSVNZVOZVPZVQVRVSAXJVTXPMNZXPONZVAZPAXJUUQYNONZUUSAXJUUQXNUENZYOONZUUTAXHUVAXIYOOAXHXNXQMNZUVAAXNYPMNZXHUVCACEBGYMFWAZAYPXQXNMUUCWBZVIZAUVAVTXNUENZXQMNZUVCAVTXPXNAWCZYJXSWDZAUVHXNXQMAXNXSWEZVCZVEZVHZUUGWFZAUUQYNXNAVTXPUVJYJUHZUUHXSUUKUUPWGZVEZAUUQXPUVQYJUUJWHZVHZAUURAUUQXPAVTXPAWIZYIWJZYIUUJUPZWKUTAXJUUSRSUWAARUURSTUUSRSTAUUQXPUWCYIAXPVTSTZRUUQSTAUWEDXOSTZYEADPQXOWLQUWEUWFWMHYGDXOWNWOWPAXPVTYIUWBWQVPUUIVKAUURUWDWRVPWSWTAXMXPXOUENZDAXMXPUBUCZXOUENZUWGAXMXQUBUCZUWIAXMYPUBUCUWJABEFYMUKAYPXQUBUUCXAVEAXPXNYJXSXBVEAUWHXPXOUEAXPYIARXPYAYIUUIXCXDVCVEADXOADHUQAXOXTUQYHXEVEXF $.
+  $}
+
+  gsegpt $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ K e. RR ) /\ 0 < K ) /\ K < ( abs ` ( A - B ) ) ) -> E. x e. CC ( ( A =/= x /\ ( ( B - x ) / ( A - x ) ) e. RR /\ ( ( B - x ) / ( A - x ) ) < 0 ) /\ ( abs ` ( A - x ) ) = K ) ) $=
+    ( cc wcel wa cr cc0 clt wbr cmin co cabs cfv cv wne cdiv w3a wceq cmul
+    caddc simp-4l adantr simp-4r simpllr simplr simpr gsegptd recnd subcld
+    abscld 0red abssubd breqtrd lttrd gt0ne0d divcld mulcld addcld rspcime )
+    BEFZCEFZGZDHFZGZIDJKZGZDBCLMZNOZJKZGZBAPZQCVMLMZBVMLMZRMZHFVPIJKSVONODTGABDCBLMZNOZRMZVQUAMZUBMZEVLVMWATZGBCDVMVLVBWBVBVCVEVGVKUCZUDVLVCWBVBVCVEVGVKUEZUDVLVEWBVDVEVGVKUFZUDVLVGWBVFVGVKUGZUDVLVKWBVHVKUHZUDVLWBUHUIVLBVTWCVLVSVQVLDVRVLDWEUJVLVRVLVQVLCBWDWCUKZULZUJVLVRVLIDVRVLUMWEWIWFVLDVJVRJWGVLBCWCWDUNUOUPUQURWHUSUTVA $.
+
+  ${
+    goffswapd.1 $e |- ( ph -> R e. CC ) $.
+    goffswapd.2 $e |- ( ph -> P e. CC ) $.
+    goffswapd.3 $e |- ( ph -> Q e. CC ) $.
+    goffswapd.4 $e |- ( ph -> -. ( R = P \/ ( ( Q - R ) / ( P - R ) ) e. RR ) ) $.
+  goffswapd $p |- ( ph -> -. ( R = Q \/ ( ( P - R ) / ( Q - R ) ) e. RR ) ) $=
+    ( wceq wn cmin co cdiv cr wcel wa wo cc adantr simpr eqcomd gonfst
+    pm2.65da c1 subcld cc0 wne orc nsyl neqned necomd subne0d recdivd divne0d
+    rereccld eqeltrrd olc jca ioran sylibr )
+    ADCIZJZBDKLZCDKLZMLZNOZJZPVAVFQJAVBVGAVADBIZVDVCMLZNOZQZAVAPZDBCADROZVAESZABROZVAFSZVLDCAVATZUAZUBZAVKJZVAHSZUCZAVFVJAVFPZUDVEMLVINWCVCVDAVCROZVFABDFEUEZSZAVDROZVFACDGEUEZSZAVCUFUGZVFABDFEADBADBAVKVHHVHVJUHZUIZUJZUKZULZSZAVDUFUGZVFACDGEADCADCWBUJZUKZULZSZUMWCVEAVFTWCVCVDWFWIWPXAUNUOUPAVJJVFAVKVJHVJVHUQUISUCURVAVFUSUT $.
+  $}
+
+  goffswap $p |- ( ( ( ( R e. CC /\ P e. CC ) /\ Q e. CC ) /\ -. ( R = P \/ ( ( Q - R ) / ( P - R ) ) e. RR ) ) -> -. ( R = Q \/ ( ( P - R ) / ( Q - R ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn simplll simpllr simplr simpr
+    goffswapd )
+    CDEZADEZFZBDEZFZCAGZBCHIZACHIZJIZKEZLZMZFABCSTUBUJNSTUBUJOUAUBUJPUCUJQR $.
+
+  ${
+    graysidetrd.1 $e |- ( ph -> R e. CC ) $.
+    graysidetrd.2 $e |- ( ph -> P e. CC ) $.
+    graysidetrd.3 $e |- ( ph -> S e. CC ) $.
+    graysidetrd.4 $e |- ( ph -> Q e. CC ) $.
+    graysidetrd.5 $e |- ( ph -> X e. CC ) $.
+    graysidetrd.6 $e |- ( ph -> ( R = P \/ ( ( X - R ) / ( P - R ) ) e. RR ) ) $.
+    graysidetrd.7 $e |- ( ph -> 0 < ( ( Im ` ( ( X - R ) / ( S - R ) ) ) x. ( Im ` ( ( P - R ) / ( S - R ) ) ) ) ) $.
+    graysidetrd.8 $e |- ( ph -> -. ( R = Q \/ ( ( P - R ) / ( Q - R ) ) e. RR ) ) $.
+  graysidetrd $p |- ( ph -> 0 < ( ( Im ` ( ( X - R ) / ( Q - R ) ) ) x. ( Im ` ( ( P - R ) / ( Q - R ) ) ) ) ) $=
+    ( cc0 cmin co cdiv cim cfv cmul clt wceq wn cr wcel wo wa cc adantr simpr
+    gonfst pm2.65da neqned necomd neneqd orel1 sylc subcld orc nsyl subne0d
+    divcld imcld remulcld cle wbr cxr ltrelxr brel syl simprd gimprodne jca
+    msqge0d glinemul fveq2d immul2d eqtrd oveq1d recnd mulassd breqtrd
+    mulcomd prodgt0 syl2anc olc wb reim0b mtbid msqgt0d mulgt0d breqtrrd )
+    AOFDPQZBDPQZRQZWOCDPQZRQZSTZWSUAQZUAQZWNWQRQZSTZWSUAQZUBAWPWTADBUCZUDZXEWPUEUFZUGZXGADBABDABDABDUCZDCUCZWRUEUFZUGZAXIUHZDCBADUIUFZXIGUJZACUIUFZXIJUJZAXIUKZULZAXLUDZXINUJZUMZUNZUOZUPZLXEXGUQZURZAWSWSAWRAWOWQABDHGUSZACDJGUSZACDJGADCADCAXLXJNXJXKUTZVAZUNZUOZVBZVCZVDZYPVEAWOEDPQZRQZSTZYSUAQZUEUFZXGUHOYTVFVGZOYTWPUAQZUBVGZUHOWPUBVGAUUAXGAYSYSAYRAWOYQYHAEDIGUSZAEDIGAWNWOEDIGAOVHUFZWNYQRQZSTZYSUAQZVHUFZAOUUIUBVGZUUFUUJUHZMOUUIVHVHUBVIVJZVKZVLZVMZVBZVCZVDZUUSVEZYGVNAUUBUUDAYSUUSVOAOWPYTUAQZUUCUBAOUUIUVAUBMAUUIWPYSUAQZYSUAQUVAAUUHUVBYSUAAUUHWPYRUAQZSTUVBAUUGUVCSAYQDBFKGHUUEUUQYCVPVQAWPYRYGUURVRVSVTAWPYSYSAWPYGWAZAYSUUSWAZUVEWBVSWCAWPYTUVDAYTUUTWAWDWCVNYTWPWEWFAWSYPAWSOAXKWSOUCZAXLXKNXKXJWGVAAWRUIUFXKUVFWHYOWRWIVKWJUNWKWLAXDWPWSUAQZWSUAQXAAXCUVGWSUAAXCWPWRUAQZSTUVGAXBUVHSAWQDBFKGHYIYNYCVPVQAWPWRYGYOVRVSVTAWPWSWSUVDAWSYPWAZUVIWBVSWM $.
+  $}
+
+  graysidetr $p |- ( ( ( ( ( ( ( ( R e. CC /\ P e. CC ) /\ S e. CC ) /\ Q e. CC ) /\ X e. CC ) /\ ( R = P \/ ( ( X - R ) / ( P - R ) ) e. RR ) ) /\ 0 < ( ( Im ` ( ( X - R ) / ( S - R ) ) ) x. ( Im ` ( ( P - R ) / ( S - R ) ) ) ) ) /\ -. ( R = Q \/ ( ( P - R ) / ( Q - R ) ) e. RR ) ) -> 0 < ( ( Im ` ( ( X - R ) / ( Q - R ) ) ) x. ( Im ` ( ( P - R ) / ( Q - R ) ) ) ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo cc0 cim cfv cmul clt wbr wn simp-7l
+    simp-7r simp-6r simp-5r simp-4r simpllr simplr simpr graysidetrd )
+    CFGZAFGZHZDFGZHZBFGZHZEFGZHZCAIZECJKZACJKZLKZMGZNZHZOVADCJKZLKZPQZVBVGLKZPQZRKZSTZHZCBIZVBBCJKZLKZMGZNZUAZHABCDEUKULUNUPURVEVMVTUBUKULUNUPURVEVMVTUCUMUNUPURVEVMVTUDUOUPURVEVMVTUEUQURVEVMVTUFUSVEVMVTUGVFVMVTUHVNVTUIUJ $.
+
+  ${
+    gdivrene0.1 $e |- ( ph -> ( A / B ) e. RR ) $.
+  gdivrene0 $p |- ( ph -> B =/= 0 ) $=
+    ( cc0 wceq c0 cr wcel wa cdiv co simpr oveq2d cdm cc csn cdif cxp wn vx
+    vy cv vz cmul crio df-div riotaex dmmpo neldifsn intnan ndmovg mp2an
+    eqtrdi adantr eqeltrrd 0ncn recn mto a1i pm2.65da neqned )
+    ACEACEFZGHIZAVCJZBCKLZGHVEVFBEKLZGVECEBKAVCMNKOPPEQZRZSFBPIZEVIIZJTVGGFUAUBPVIUBUCZUDUCZUELZUAUCZFZUDPUFKUAUBUDUGVPUDPUHUIVKVJEPUJUKBEPVIKULUMUNAVFHIVCDUOUPVDTVEVDGPIUQGURUSUTVAVB $.
+  $}
+
+  ${
+    gparalongd.1 $e |- ( ph -> A e. CC ) $.
+    gparalongd.2 $e |- ( ph -> B e. CC ) $.
+    gparalongd.3 $e |- ( ph -> C e. CC ) $.
+    gparalongd.4 $e |- ( ph -> D e. CC ) $.
+    gparalongd.5 $e |- ( ph -> E e. CC ) $.
+    gparalongd.6 $e |- ( ph -> ( ( B - A ) / ( D - C ) ) e. RR ) $.
+    gparalongd.7 $e |- ( ph -> A =/= B ) $.
+    gparalongd.8 $e |- ( ph -> ( A = B \/ ( ( E - A ) / ( B - A ) ) e. RR ) ) $.
+  gparalongd $p |- ( ph -> ( ( E - A ) / ( C - D ) ) e. RR ) $=
+    ( cmin co cdiv cneg cr subcld gdivrene0 divneg2d negsubdi2d oveq2d eqtrd
+    cmul necomd glinemul wceq wn wcel wo neneqd orel1 sylc remulcld eqeltrd
+    renegcld eqeltrrd )
+    AFBOPZEDOPZQPZRZUTDEOPZQPZSAVCUTVARZQPVEAUTVAAFBKGTAEDJITZACBOPZVALUAZUBAVFVDUTQAEDJIUCUDUEAVBAVBUTVHQPZVHVAQPZUFPSAVABCFKGHVGVIABCMUGUHAVJVKABCUIZUJVLVJSUKZULVMABCMUMNVLVMUNUOLUPUQURUS $.
+  $}
+
+  gparalong $p |- ( ( ( ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ E e. CC ) /\ ( ( B - A ) / ( D - C ) ) e. RR ) /\ A =/= B ) /\ ( A = B \/ ( ( E - A ) / ( B - A ) ) e. RR ) ) /\ E =/= A ) -> ( ( E - A ) / ( C - D ) ) e. RR ) $=
+    ( cc wcel wa cmin co cdiv cr wne wceq wo simp-8l simp-8r simp-7r simp-6r
+    simp-5r simp-4r simpllr simplr gparalongd )
+    AFGZBFGZHZCFGZHZDFGZHZEFGZHZBAIJZDCIJZKJZLGZHZABMZHZABNZEAIJZUNKJZLGZOZHEAMZHABCDEUEUFUHUJULUQUSVEVFPUEUFUHUJULUQUSVEVFQUGUHUJULUQUSVEVFRUIUJULUQUSVEVFSUKULUQUSVEVFTUMUQUSVEVFUAURUSVEVFUBUTVEVFUCUD $.
+
+  gsameoffab $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> A =/= B ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr wne wceq cr wo wn
+    gsameoff simplld )
+    AEFBEFGCEFGDEFGHCAIJZBAIJZKJZLMDAIJZUEKJZLMNJOPGABQABRZUFSFTUAUIUHSFTUAABCDUBUC $.
+
+  gsameoffp $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr wne wceq cr wo wn
+    gsameoff simplrd )
+    AEFBEFGCEFGDEFGHCAIJZBAIJZKJZLMDAIJZUEKJZLMNJOPGABQABRZUFSFTUAUIUHSFTUAABCDUBUC $.
+
+  gsameoffq $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) ) -> -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa cc0 cmin co cdiv cim cfv cmul clt wbr wne wceq cr wo wn
+    gsameoff simprd )
+    AEFBEFGCEFGDEFGHCAIJZBAIJZKJZLMDAIJZUEKJZLMNJOPGABQABRZUFSFTUAGUIUHSFTUAABCDUBUC $.
+
+  goppoffab $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> A =/= B ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr wne wceq cr wo wn
+    goppoff simplld )
+    AEFBEFGCEFGDEFGCAHIZBAHIZJIZKLDAHIZUEJIZKLMINOPGABQABRZUFSFTUAUIUHSFTUAABCDUBUC $.
+
+  goppoffp $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr wne wceq cr wo wn
+    goppoff simplrd )
+    AEFBEFGCEFGDEFGCAHIZBAHIZJIZKLDAHIZUEJIZKLMINOPGABQABRZUFSFTUAUIUHSFTUAABCDUBUC $.
+
+  goppoffq $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ Q e. CC ) /\ ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 ) -> -. ( A = B \/ ( ( Q - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr wne wceq cr wo wn
+    goppoff simprd )
+    AEFBEFGCEFGDEFGCAHIZBAHIZJIZKLDAHIZUEJIZKLMINOPGABQABRZUFSFTUAGUIUHSFTUAABCDUBUC $.
+
+  gonends1 $p |- ( ( A e. CC /\ B e. CC ) -> ( A = B \/ ( ( A - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo gonends simpld )
+    ACDBCDEABFZAAGHBAGHZIHJDKNOOIHJDKABLM $.
+
+  gonends2 $p |- ( ( A e. CC /\ B e. CC ) -> ( A = B \/ ( ( B - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo gonends simprd )
+    ACDBCDEABFZAAGHBAGHZIHJDKNOOIHJDKABLM $.
+
+  goffapart1 $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P =/= A ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn wne goffapart simpld )
+    ADEBDEFCDEFABGCAHIBAHIJIKELMFCANCBNABCOP $.
+
+  goffapart2 $p |- ( ( ( ( A e. CC /\ B e. CC ) /\ P e. CC ) /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P =/= B ) $=
+    ( cc wcel wa wceq cmin co cdiv cr wo wn wne goffapart simprd )
+    ADEBDEFCDEFABGCAHIBAHIJIKELMFCANCBNABCOP $.
+
+$}
+
+${
 $( Series: the limit of a sequence as the page defines it, and the value
    of a series as the limit of its partial sums. $)
 $d j k n $.

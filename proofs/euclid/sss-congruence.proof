@@ -2,7 +2,7 @@ import theorem            stdlib/geometry/law-of-cosines
 import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/angle-equal-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive

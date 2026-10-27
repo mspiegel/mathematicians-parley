@@ -1898,8 +1898,9 @@ pub fn check_definitions(
 ///
 /// Every name the file cites is distinct within it: its own theorems, and
 /// each import under the name it gives. The imports have no cycle, because
-/// the theorems a file imports are built before its own. A library file
-/// imports nothing and is no part of that order.
+/// the theorems a file imports are built before its own. A library records
+/// file imports nothing and is no part of that order; a library proof file
+/// imports as any proof file does and is part of it.
 pub fn check_imports(
     report: &mut Report,
     theorems: &[Theorem],
@@ -1950,11 +1951,20 @@ pub fn check_imports(
             } else {
                 given.insert(&i.alias, format!("the import at line {no}"));
             }
+            // A library subject's records and proofs are one module, so a
+            // library proof cites its subject's records as it cites its own
+            // theorems.
             if i.module == *module {
+                let what = match items.get(&full_name) {
+                    Some(Item::Record(_)) => {
+                        format!("an item of {module}, this file's subject")
+                    }
+                    _ => "a theorem of this file".to_string(),
+                };
                 report.say(
                     path,
                     no,
-                    format!("{full_name} is a theorem of this file, which is cited with no import"),
+                    format!("{full_name} is {what}, which is cited with no import"),
                 );
                 continue;
             }

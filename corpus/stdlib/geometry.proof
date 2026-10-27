@@ -1,0 +1,989 @@
+import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
+
+theorem vertical-angles
+  note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
+              O is between A and C and between B and D.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume O is between A and C                                         (H6)
+  assume O is between B and D                                         (H7)
+  then ∠AOB = ∠COD
+
+1.  A ≠ O. C ≠ O.
+    mun:between-apart R := O, S := A, T := C, from H6
+
+2.  B ≠ O. D ≠ O.
+    mun:between-apart R := O, S := B, T := D, from H7
+
+3.  ∠AOB + ∠BOC = 180°
+    axi:supplementary-angles B := O, D := B, from H6, 2
+
+4.  ∠BOC + ∠COD = 180°
+    axi:supplementary-angles A := B, B := O, C := D, D := C, from H7, 1
+
+5.  ∠AOB = ∠COD
+    algebra, from 3, 4
+    requires ∠AOB ∈ ℝ: mun:angle-real P := A, Q := O, R := B, from 1, 2
+    requires ∠BOC ∈ ℝ: mun:angle-real P := B, Q := O, R := C, from 1, 2
+    requires ∠COD ∈ ℝ: mun:angle-real P := C, Q := O, R := D, from 1, 2
+
+theorem exterior-angle-greater
+  note        Euclid I.16, which needs no parallels. Let M be the midpoint of
+              AC and produce BM past M to E with ME = BM. The triangles AMB
+              and CME agree in two sides and the angle between them, so
+              ∠BAC = ∠ECA; and E is inside the exterior angle at C, so that
+              angle is ∠ACE and more.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C is between B and D                                         (H6)
+  then ∠ACD > ∠BAC
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H5
+
+2.  M ∈ 𝔼². M is the midpoint of AC.
+    obtain M: mun:midpoint-exists B := C, from 1
+
+3.  M is between A and C. |AM| = |MC|.
+    mun:midpoint, from 2
+
+4.  M is between C and A.
+    mun:between-symmetric R := M, S := A, T := C, from 3
+
+5.  B, A, M form a triangle.
+    mun:triangle-on-side P := B, Q := A, R := C, S := M, from H5, 3
+
+6.  B, C, M form a triangle.
+    mun:triangle-on-side P := B, Q := C, R := A, S := M, from H5, 4
+
+7.  B ≠ M.
+    mun:triangle, from 5
+
+8.  |BM| > 0
+    mun:distance-positive P := B, Q := M, from 7
+
+9.  E ∈ 𝔼². M is between B and E. |ME| = |BM|.
+    obtain E: mun:segment-extension A := B, B := M, r := |BM|, from 7, 8
+
+10. ∠AMB = ∠CME
+    thm:vertical-angles O := M, D := E, from 3, 9
+
+11. C, M, E form a triangle.
+    mun:triangle-extension P := C, Q := M, R := B, S := E, from 6, 9
+
+12. |MB| = |ME|
+    algebra, from 9
+
+13. triangle AMB ≅ triangle CME
+    axi:side-angle-side P := A, Q := M, R := B, P′ := C, Q′ := M, R′ := E,
+      from 3, 5, 10, 11, 12
+
+14. ∠BAM = ∠ECM
+    def:congruent, from 13
+
+15. C ≠ E.
+    mun:triangle, from 11
+
+16. ∠MAB = ∠CAB
+    mun:angle-along-segment P := A, Q := C, S := M, R := B, from 1, 3
+
+17. ∠MCE = ∠ACE
+    mun:angle-along-segment P := C, Q := A, S := M, R := E, from 4, 15
+
+18. M ≠ A. M ≠ C.
+    mun:between-apart R := M, S := A, T := C, from 3
+
+19. ∠BAC = ∠CAB
+    mun:angle-turned P := B, Q := A, R := C, from 1
+
+20. ∠MAB = ∠BAM
+    mun:angle-turned P := M, Q := A, R := B, from 1, 18
+
+21. ∠ECM = ∠MCE
+    mun:angle-turned P := E, Q := C, R := M, from 15, 18
+
+22. ∠ACE = ∠ECA
+    mun:angle-turned P := A, Q := C, R := E, from 1, 15
+
+23. ∠BAC = ∠ECA
+    calculation
+      ∠BAC = ∠CAB       19
+           = ∠MAB       16
+           = ∠BAM       20
+           = ∠ECM       14
+           = ∠MCE       21
+           = ∠ACE       17
+           = ∠ECA       22
+
+24. not (B is on line CA)
+    mun:triangle-not-on-line P := B, Q := C, R := A, from H5
+
+25. C, M, A are collinear.
+    mun:between-collinear R := M, S := A, T := C, from 3
+
+26. M is on line CA.
+    mun:on-line P := M, A := C, B := A, from 25
+
+27. C is on line CA.
+    mun:on-line-ends A := C, B := A
+
+28. B and E are on opposite sides of line CA.
+    mun:segment-across-line A := C, B := A, P := B, Q := E,
+      from 1, 9, 24, 26
+
+29. B and D are on opposite sides of line CA.
+    mun:segment-across-line A := C, B := A, P := B, Q := D, M := C,
+      from H6, 1, 24, 27
+
+30. E and B are on opposite sides of line CA.
+    mun:opposite-sides-turned A := C, B := A, P := B, Q := E, from 28
+
+31. E and D are on the same side of line CA.
+    mun:opposite-opposite-same A := C, B := A, P := E, Q := B, R := D,
+      from 29, 30
+
+32. A, C, D form a triangle.
+    mun:triangle-extension P := A, Q := C, R := B, S := D, from H5, H6
+
+33. not (A is on line CD)
+    mun:triangle-not-on-line P := A, Q := C, R := D, from 32
+
+34. C ≠ D.
+    mun:triangle, from 32
+
+35. C is on line CD.
+    mun:on-line-ends A := C, B := D
+
+36. M and A are on the same side of line CD.
+    mun:segment-off-line A := C, B := D, P := A, Q := C, X := M,
+      from 3, 33, 34, 35
+
+37. not (M is on line CD)
+    mun:same-side-off-line A := C, B := D, P := M, Q := A, from 36
+
+38. D, C, B are collinear.
+    mun:between-collinear R := C, S := B, T := D, from H6
+
+39. B is on line CD.
+    mun:on-line P := B, A := C, B := D, from 38
+
+40. M is between E and B.
+    mun:between-symmetric R := M, S := B, T := E, from 9
+
+41. E and M are on the same side of line CD.
+    mun:segment-beyond-off-line A := C, B := D, P := E, Q := B, X := M,
+      from 34, 37, 39, 40
+
+42. E and A are on the same side of line CD.
+    mun:same-side-same A := C, B := D, P := E, Q := M, R := A, from 36, 41
+
+43. ∠ACE + ∠ECD = ∠ACD
+    axi:angle-addition-inside A := C, B := A, C := D, D := E,
+      from 31, 32, 42
+
+44. not (E is on line CD)
+    mun:same-side-off-line A := C, B := D, P := E, Q := A, from 42
+
+45. E, C, D form a triangle.
+    mun:triangle-off-line P := E, Q := C, R := D, from 34, 44
+
+46. ∠ECD > 0°. ∠ECD < 180°.
+    axi:angle-measure P := E, Q := C, R := D, from 45
+
+47. ∠ACE + ∠ECD > ∠ACE
+    inequalities
+      ∠ECD > 0°                       46
+      ∠ACE + ∠ECD > ∠ACE + 0°         adding ∠ACE
+      ∠ACE + ∠ECD > ∠ACE              algebra
+    requires ∠ACE ∈ ℝ: mun:angle-real P := A, Q := C, R := E, from 1, 15
+    requires ∠ECD ∈ ℝ: mun:angle-real P := E, Q := C, R := D, from 15, 34
+
+48. ∠ACD = ∠ACE + ∠ECD
+    algebra, from 43
+    requires ∠ACE ∈ ℝ: mun:angle-real P := A, Q := C, R := E, from 1, 15
+    requires ∠ECD ∈ ℝ: mun:angle-real P := E, Q := C, R := D, from 15, 34
+
+49. ∠ECA = ∠BAC
+    algebra, from 23
+    requires ∠ECA ∈ ℝ: mun:angle-real P := E, Q := C, R := A, from 1, 15
+
+50. ∠ACD > ∠BAC
+    calculation
+      ∠ACD = ∠ACE + ∠ECD       48
+           > ∠ACE              47
+           = ∠ECA              22
+           = ∠BAC              49
+
+theorem exterior-angle-greater-other
+  note        Euclid I.16, the other remote angle. Produce AC past C to E:
+              the angle BCE is the exterior angle at C read from the other
+              side, and equals ∠ACD (vertical-angles).
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C is between B and D                                         (H6)
+  then ∠ACD > ∠ABC
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H5
+
+2.  |AC| > 0
+    mun:distance-positive P := A, Q := C, from 1
+
+3.  E ∈ 𝔼². C is between A and E. |CE| = |AC|.
+    obtain E: mun:segment-extension B := C, r := |AC|, from 1, 2
+
+4.  ∠BCE > ∠ABC
+    thm:exterior-angle-greater A := B, B := A, D := E, from H5, 3
+
+5.  C is between E and A
+    mun:between-symmetric R := C, S := A, T := E, from 3
+
+6.  ∠BCE = ∠DCA
+    thm:vertical-angles A := B, B := E, C := D, D := A, O := C, from H6, 5
+
+7.  D ≠ C
+    mun:between-apart R := C, S := B, T := D, from H6
+
+8.  ∠DCA = ∠ACD
+    mun:angle-turned P := D, Q := C, R := A, from 1, 7
+
+9.  ∠ACD > ∠ABC
+    calculation
+      ∠ACD = ∠DCA       8
+           = ∠BCE       6
+           > ∠ABC       4
+
+theorem isosceles-angles
+  note        Euclid I.5. Read the triangle as ACB and as BCA. Two sides and
+              the angle between them agree, |CA| = |CB| and the angle at C,
+              so the two are congruent and the angles at A and at B match.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |CA| = |CB|                                                  (H5)
+  then ∠CAB = ∠CBA
+
+1.  ∠ACB = ∠BCA
+    mun:angle-symmetric P := A, Q := C, R := B, from H4
+
+2.  triangle ACB ≅ triangle BCA
+    axi:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
+      from H4, H5, 1
+
+3.  ∠BAC = ∠ABC
+    def:congruent, from 2
+
+4.  ∠CAB = ∠BAC
+    mun:angle-symmetric P := C, Q := A, R := B, from H4
+
+5.  ∠ABC = ∠CBA
+    mun:angle-symmetric P := A, Q := B, R := C, from H4
+
+6.  ∠CAB = ∠CBA
+    calculation
+      ∠CAB = ∠BAC       4
+           = ∠ABC       3
+           = ∠CBA       5
+
+theorem greater-side-greater-angle
+  note        Euclid I.18. Lay off AB along AC to D. The triangle ABD is
+              isosceles, so ∠ABD = ∠ADB; ∠ABC is ∠ABD and more, since D is
+              inside it; and ∠ADB, outside the triangle BCD at D, is greater
+              than the angle at C.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |AC| > |AB|                                                  (H5)
+  then ∠ABC > ∠ACB
+
+1.  A ≠ B. B ≠ C. A ≠ C.
+    mun:triangle, from H4
+
+2.  |AB| > 0
+    mun:distance-positive P := A, Q := B, from 1
+
+3.  D ∈ 𝔼². D is between A and C. |AD| = |AB|.
+    obtain D: mun:segment-point B := C, r := |AB|, from H5, 2
+
+4.  D is between C and A
+    mun:between-symmetric R := D, S := A, T := C, from 3
+
+5.  B, A, D form a triangle.
+    mun:triangle-on-side P := B, Q := A, R := C, S := D, from H4, 3
+
+6.  B, C, D form a triangle.
+    mun:triangle-on-side P := B, Q := C, R := A, S := D, from H4, 4
+
+7.  |AB| = |AD|
+    algebra, from 3
+
+8.  ∠ABD = ∠ADB
+    thm:isosceles-angles A := B, B := D, C := A, from 5, 7
+
+9.  not (C is on line BA)
+    mun:triangle-not-on-line P := C, Q := B, R := A, from H4
+
+10. A is on line BA
+    mun:on-line-ends A := B, B := A
+
+11. D and C are on the same side of line BA
+    mun:segment-off-line A := B, B := A, P := C, Q := A, X := D,
+      from 1, 4, 9, 10
+
+12. not (A is on line BC)
+    mun:triangle-not-on-line P := A, Q := B, R := C, from H4
+
+13. C is on line BC
+    mun:on-line-ends A := B, B := C
+
+14. D and A are on the same side of line BC
+    mun:segment-off-line A := B, B := C, P := A, Q := C, X := D,
+      from 1, 3, 12, 13
+
+15. ∠ABD + ∠DBC = ∠ABC
+    axi:angle-addition-inside A := B, B := A, from H4, 11, 14
+
+16. ∠DBC > 0°. ∠DBC < 180°.
+    axi:angle-measure P := D, Q := B, R := C, from 6
+
+17. B ≠ C. C ≠ D. B ≠ D.
+    mun:triangle, from 6
+
+18. A ≠ D. C ≠ D.
+    mun:between-apart R := D, S := A, T := C, from 3
+
+19. ∠ABD + ∠DBC > ∠ABD
+    inequalities
+      ∠DBC > 0°                       16
+      ∠ABD + ∠DBC > ∠ABD + 0°         adding ∠ABD
+      ∠ABD + ∠DBC > ∠ABD              algebra
+    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 17
+    requires ∠DBC ∈ ℝ: mun:angle-real P := D, Q := B, R := C, from 17
+
+20. ∠BDA > ∠BCD
+    thm:exterior-angle-greater-other A := B, B := C, C := D, D := A,
+      from 4, 6
+
+21. ∠ADB = ∠BDA
+    mun:angle-turned P := A, Q := D, R := B, from 17, 18
+
+22. ∠DCB = ∠ACB
+    mun:angle-along-segment P := C, Q := A, S := D, R := B, from 1, 4
+
+23. ∠BCD = ∠DCB
+    mun:angle-turned P := B, Q := C, R := D, from 17
+
+24. ∠ABC = ∠ABD + ∠DBC
+    algebra, from 15
+    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 17
+    requires ∠DBC ∈ ℝ: mun:angle-real P := D, Q := B, R := C, from 17
+
+25. ∠ABC > ∠ACB
+    calculation
+      ∠ABC = ∠ABD + ∠DBC       24
+           > ∠ABD              19
+           = ∠ADB              8
+           = ∠BDA              21
+           > ∠BCD              20
+           = ∠DCB              23
+           = ∠ACB              22
+
+theorem alternate-angles-converse
+  note        Euclid I.27. Were line RS and line PQ to meet at X, RPX would be
+              a triangle with one of the two equal angles outside it at one
+              vertex and the other inside it at another, and the outside one
+              is the greater (exterior-angle-greater).
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume S and Q are on opposite sides of line RP                     (H6)
+  assume ∠SRP = ∠RPQ                                                  (H7)
+  then line RS ∥ line PQ
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H5
+
+2.  R ≠ P. not (S is on line RP). not (Q is on line RP).
+    mun:opposite-sides-off-line A := R, B := P, P := S, from H6
+
+3.  S ≠ R. S ≠ P.
+    mun:off-line-apart A := R, B := P, P := S, from 2
+
+4.  not (R is on line PQ)
+    mun:triangle-not-on-line P := R, Q := P, R := Q, from H5
+
+5.  not (there is X ∈ 𝔼² with X is on line RS and X is on line PQ)
+    contradiction
+    suppose there is X ∈ 𝔼² with X is on line RS and X is on line PQ  (S1)
+
+    5.1.  there is X ∈ 𝔼² with X is on line RS and X is on line PQ
+          restate S1
+
+    5.2.  X ∈ 𝔼². X is on line RS. X is on line PQ.
+          obtain X from line 5.1
+
+    5.3.  X ≠ R
+          mun:on-off-apart A := P, B := Q, Y := R, from 4, 5.2
+
+    5.4.  not (X is on line RP)
+          mun:off-line-through, from 2, 5.2, 5.3
+
+    5.5.  X ≠ R. X ≠ P.
+          mun:off-line-apart A := R, B := P, P := X, from 5.4
+
+    5.6.  R is on line RP. P is on line RP.
+          mun:on-line-ends A := R, B := P
+
+    5.7.  Q and S are on opposite sides of line RP
+          mun:opposite-sides-turned A := R, B := P, P := S, from H6
+
+    5.8.  X and Q are on the same side of line RP or X and Q are on
+          opposite sides of line RP
+          axi:plane-separation A := R, B := P, P := X, from 2, 5.4
+
+    5.9.  ∠SRP ≠ ∠RPQ
+          cases, from 5.8
+
+          case
+          assume X and Q are on the same side of line RP              (C1)
+
+          5.9.1.  X and S are on opposite sides of line RP
+                  mun:same-opposite-opposite A := R, B := P, P := X, R := S,
+                    from C1, 5.7
+
+          5.9.2.  S and X are on opposite sides of line RP
+                  mun:opposite-sides-turned A := R, B := P, P := X, Q := S,
+                    from 5.9.1
+
+          5.9.3.  R is between S and X
+                  mun:line-crossing-between, from 5.2, 5.9.2
+
+          5.9.4.  R is between X and S
+                  mun:between-symmetric T := X, from 5.9.3
+
+          5.9.5.  X, R, P form a triangle.
+                  mun:triangle-off-line P := X, Q := R, R := P, from 1, 5.4
+
+          5.9.6.  ∠PRS > ∠XPR
+                  thm:exterior-angle-greater A := P, B := X, C := R, D := S,
+                    from 5.9.4, 5.9.5
+
+          5.9.7.  X and Q are on the same side of line PR
+                  mun:same-side-of-line A := R, B := P, C := P, D := R,
+                    P := X, from C1, 1, 5.6
+
+          5.9.8.  ∠RPX = ∠RPQ
+                  mun:angle-same-ray, from 5.2, 5.9.7
+
+          5.9.9.  ∠XPR = ∠RPX
+                  mun:angle-turned P := X, Q := P, from 1, 5.5
+
+          5.9.10. ∠SRP = ∠PRS
+                  mun:angle-turned P := S, Q := R, R := P, from 1, 3
+
+          5.9.11. ∠SRP > ∠RPQ
+                  calculation
+                    ∠SRP = ∠PRS       5.9.10
+                         > ∠XPR       5.9.6
+                         = ∠RPX       5.9.9
+                         = ∠RPQ       5.9.8
+
+          5.9.12. ∠SRP ≠ ∠RPQ
+                  inequalities
+                    ∠SRP > ∠RPQ       5.9.11
+                    ∠SRP ≠ ∠RPQ       weakening
+                  requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P,
+                    from 1, 3
+                  requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q,
+                    from 1
+
+          case
+          assume X and Q are on opposite sides of line RP             (C2)
+
+          5.9.13. X and S are on the same side of line RP
+                  mun:opposite-opposite-same A := R, B := P, P := X, R := S,
+                    from C2, 5.7
+
+          5.9.14. Q and X are on opposite sides of line RP
+                  mun:opposite-sides-turned A := R, B := P, P := X, from C2
+
+          5.9.15. Q and X are on opposite sides of line PR
+                  mun:opposite-sides-of-line A := R, B := P, C := P, D := R,
+                    P := Q, Q := X, from 1, 5.6, 5.9.14
+
+          5.9.16. P is between Q and X
+                  mun:line-crossing-between R := P, P := R, S := Q,
+                    from 5.2, 5.9.15
+
+          5.9.17. P is between X and Q
+                  mun:between-symmetric R := P, S := Q, T := X, from 5.9.16
+
+          5.9.18. R, X, P form a triangle.
+                  mun:triangle-off-line P := X, Q := R, R := P, from 1, 5.4
+
+          5.9.19. ∠RPQ > ∠XRP
+                  thm:exterior-angle-greater A := R, B := X, C := P, D := Q,
+                    from 5.9.17, 5.9.18
+
+          5.9.20. ∠PRX = ∠PRS
+                  mun:angle-same-ray R := P, P := R, Q := S, from 5.2, 5.9.13
+
+          5.9.21. ∠XRP = ∠PRX
+                  mun:angle-turned P := X, Q := R, R := P, from 1, 5.5
+
+          5.9.22. ∠PRS = ∠SRP
+                  mun:angle-turned Q := R, R := S, from 1, 3
+
+          5.9.23. ∠RPQ > ∠SRP
+                  calculation
+                    ∠RPQ > ∠XRP       5.9.19
+                         = ∠PRX       5.9.21
+                         = ∠PRS       5.9.20
+                         = ∠SRP       5.9.22
+
+          5.9.24. ∠SRP ≠ ∠RPQ
+                  inequalities
+                    ∠RPQ > ∠SRP       5.9.23
+                    ∠SRP < ∠RPQ       symmetry
+                    ∠SRP ≠ ∠RPQ       weakening
+                  requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P,
+                    from 1, 3
+                  requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q,
+                    from 1
+
+    5.10. ∠SRP ≠ ∠RPQ
+          inequalities, from 5.9, contradicting H7
+          requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P, from 1, 3
+          requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from 1
+
+6.  line RS = line PQ or not (there is X ∈ 𝔼² with X is on line RS and
+    X is on line PQ)
+    mun:or-right, from 5
+
+7.  line RS ∥ line PQ
+    mun:parallel A := R, B := S, C := P, D := Q, from 1, 3, 6
+
+theorem alternate-angles
+  note        Euclid I.29. The line RP crosses the two parallels RS and PQ,
+              and the angles it makes with them on opposite sides are equal.
+              Copy the angle at P to R on S's side: the line it gives is
+              parallel to PQ (alternate-angles-converse), so by the parallel
+              postulate it is line RS, and S is on its ray.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume line RS ∥ line PQ                                            (H6)
+  assume S and Q are on opposite sides of line RP                     (H7)
+  then ∠SRP = ∠RPQ
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H5
+
+2.  not (S is on line RP)
+    mun:opposite-sides-off-line A := R, B := P, P := S, from H7
+
+3.  S ≠ R. S ≠ P.
+    mun:off-line-apart A := R, B := P, P := S, from 2
+
+4.  S, R, P form a triangle.
+    mun:triangle-off-line P := S, Q := R, R := P, from 1, 2
+
+5.  ∠RPQ > 0°. ∠RPQ < 180°.
+    axi:angle-measure P := R, Q := P, R := Q, from H5
+
+6.  T ∈ 𝔼². T and S are on the same side of line RP. ∠PRT = ∠RPQ.
+    obtain T: axi:angle-construction A := R, B := P, C := S, x := ∠RPQ,
+      from 4, 5
+    requires ∠RPQ ∈ ℝ: mun:triangle-angle-real, from H5
+
+7.  T and Q are on opposite sides of line RP
+    mun:same-opposite-opposite A := R, B := P, P := T, Q := S, R := Q,
+      from H7, 6
+
+8.  not (T is on line RP)
+    mun:opposite-sides-off-line A := R, B := P, P := T, from 7
+
+9.  T ≠ R. T ≠ P.
+    mun:off-line-apart A := R, B := P, P := T, from 8
+
+10. ∠TRP = ∠PRT
+    mun:angle-turned P := T, Q := R, R := P, from 1, 9
+
+11. ∠TRP = ∠RPQ
+    calculation
+      ∠TRP = ∠PRT       10
+           = ∠RPQ       6
+
+12. line RT ∥ line PQ
+    thm:alternate-angles-converse S := T, from H5, 7, 11
+
+13. not (R is on line PQ)
+    mun:triangle-not-on-line P := R, Q := P, R := Q, from H5
+
+14. line RS = line RT
+    axi:parallel-uniqueness A := P, B := Q, P := R, C := S, D := T,
+      from H6, 1, 3, 9, 12, 13
+
+15. T is on line RT
+    mun:on-line-ends A := R, B := T
+
+16. T ∈ line RT
+    mun:line P := T, A := R, B := T, from 15
+
+17. T ∈ line RS
+    substitute line RS = line RT (line 14) into line 16
+
+18. T is on line RS
+    mun:line P := T, A := R, B := S, from 17
+
+19. ∠PRT = ∠PRS
+    mun:angle-same-ray R := P, P := R, Q := S, X := T, from 6, 18
+
+20. ∠SRP = ∠PRS
+    mun:angle-turned P := S, Q := R, R := P, from 1, 3
+
+21. ∠SRP = ∠RPQ
+    calculation
+      ∠SRP = ∠PRS       20
+           = ∠PRT       19
+           = ∠RPQ       6
+
+theorem angles-on-a-line
+  note        The three angles at R between S, P, Q and T, in that order,
+              make up the straight line ST. ∠SRQ and ∠QRT are a linear pair,
+              and P is inside ∠SRQ, so ∠SRQ is ∠SRP and ∠PRQ: H7 puts P and Q
+              on one side of line RS, and the segment SQ crosses line RP on
+              P's side of it, which puts P on S's side of line RQ.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  let T be a point                                                    (H5)
+  assume R is between S and T                                         (H6)
+  assume P and Q are on the same side of line RS                      (H7)
+  assume S and Q are on opposite sides of line RP                     (H8)
+  then ∠SRP + ∠PRQ + ∠TRQ = 180°
+
+1.  S ≠ R. T ≠ R.
+    mun:between-apart, from H6
+
+2.  R ≠ S. not (P is on line RS). not (Q is on line RS).
+    mun:same-side-off-line A := R, B := S, from H7
+
+3.  R ≠ P. not (S is on line RP). not (Q is on line RP).
+    mun:opposite-sides-off-line A := R, B := P, P := S, from H8
+
+4.  Q ≠ R. Q ≠ S.
+    mun:off-line-apart A := R, B := S, P := Q, from 2
+
+5.  ∠SRQ + ∠QRT = 180°
+    axi:supplementary-angles A := S, B := R, C := T, D := Q, from H6, 4
+
+6.  X ∈ 𝔼². X is on line RP. X is between S and Q.
+    obtain X: axi:plane-separation-crossing A := R, B := P, P := S,
+      from H8, 3
+
+7.  S is on line RS
+    mun:on-line-ends A := R, B := S
+
+8.  X is between Q and S
+    mun:between-symmetric R := X, T := Q, from 6
+
+9.  X and Q are on the same side of line RS
+    mun:segment-off-line A := R, B := S, P := Q, Q := S, from 2, 7, 8
+
+10. Q and P are on the same side of line RS
+    mun:same-side-turned A := R, B := S, from H7
+
+11. X and P are on the same side of line RS
+    mun:same-side-same A := R, B := S, P := X, R := P, from 9, 10
+
+12. not (P is on line RQ)
+    mun:off-line-swap, from 3
+
+13. X and P are on the same side of line RQ
+    mun:ray-side-transfer, from 6, 11, 12
+
+14. Q is on line RQ
+    mun:on-line-ends A := R, B := Q
+
+15. not (S is on line RQ)
+    mun:off-line-swap P := S, from 2
+
+16. X and S are on the same side of line RQ
+    mun:segment-off-line A := R, B := Q, P := S, from 4, 6, 14, 15
+
+17. P and X are on the same side of line RQ
+    mun:same-side-turned A := R, B := Q, P := X, Q := P, from 13
+
+18. P and S are on the same side of line RQ
+    mun:same-side-same A := R, B := Q, Q := X, R := S, from 16, 17
+
+19. Q, R, S form a triangle.
+    mun:triangle-off-line P := Q, Q := R, R := S, from 2
+
+20. ∠SRP + ∠PRQ = ∠SRQ
+    axi:angle-addition-inside A := R, B := S, C := Q, D := P, from H7, 18, 19
+
+21. ∠TRQ = ∠QRT
+    mun:angle-turned P := T, Q := R, R := Q, from 1, 4
+
+22. ∠SRP + ∠PRQ + ∠TRQ = 180°
+    algebra, from 5, 20, 21
+    requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P, from 1, 3
+    requires ∠PRQ ∈ ℝ: mun:angle-real Q := R, R := Q, from 3, 4
+    requires ∠QRT ∈ ℝ: mun:angle-real P := Q, Q := R, R := T, from 1, 4
+
+theorem parallel-through
+  note        The line through R parallel to PQ, with a point on it each side
+              of R: D on P's side and E on Q's. Produce QR past R to Q′, and
+              copy the angle at P to R on Q′'s side of line RP: the line it
+              gives is parallel to PQ (alternate-angles-converse). What a
+              figure shows of that line is written out.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, R is between D and E, D and Q are on opposite sides of line RP, E and P are on opposite sides of line RQ, and P and Q are on the same side of line RD
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H4
+
+2.  |QR| > 0
+    mun:distance-positive P := Q, Q := R, from 1
+
+3.  Q′ ∈ 𝔼². R is between Q and Q′. |RQ′| = |QR|.
+    obtain Q′: mun:segment-extension A := Q, B := R, r := |QR|, from 1, 2
+
+4.  not (Q is on line RP)
+    mun:triangle-not-on-line P := Q, Q := R, R := P, from H4
+
+5.  R is on line RP. P is on line RP.
+    mun:on-line-ends A := R, B := P
+
+6.  Q and Q′ are on opposite sides of line RP
+    mun:segment-across-line A := R, B := P, P := Q, Q := Q′, M := R,
+      from 1, 3, 4, 5
+
+7.  not (Q′ is on line RP)
+    mun:opposite-sides-off-line A := R, B := P, P := Q, Q := Q′, from 6
+
+8.  Q′, R, P form a triangle.
+    mun:triangle-off-line P := Q′, Q := R, R := P, from 1, 7
+
+9.  ∠RPQ > 0°. ∠RPQ < 180°.
+    axi:angle-measure P := R, Q := P, R := Q, from H4
+
+10. D ∈ 𝔼². D and Q′ are on the same side of line RP. ∠PRD = ∠RPQ.
+    obtain D: axi:angle-construction A := R, B := P, C := Q′, x := ∠RPQ,
+      from 8, 9
+    requires ∠RPQ ∈ ℝ: mun:triangle-angle-real, from H4
+
+11. Q′ and Q are on opposite sides of line RP
+    mun:opposite-sides-turned A := R, B := P, P := Q, Q := Q′, from 6
+
+12. D and Q are on opposite sides of line RP
+    mun:same-opposite-opposite A := R, B := P, P := D, Q := Q′, R := Q,
+      from 10, 11
+
+13. not (D is on line RP)
+    mun:opposite-sides-off-line A := R, B := P, P := D, from 12
+
+14. D ≠ R. D ≠ P.
+    mun:off-line-apart A := R, B := P, P := D, from 13
+
+15. ∠DRP = ∠PRD
+    mun:angle-turned P := D, Q := R, R := P, from 1, 14
+
+16. ∠DRP = ∠RPQ
+    calculation
+      ∠DRP = ∠PRD       15
+           = ∠RPQ       10
+
+17. line RD ∥ line PQ
+    thm:alternate-angles-converse S := D, from H4, 12, 16
+
+18. |DR| > 0
+    mun:distance-positive P := D, Q := R, from 14
+
+19. E ∈ 𝔼². R is between D and E. |RE| = |DR|.
+    obtain E: mun:segment-extension A := D, B := R, r := |DR|, from 14, 18
+
+20. E, R, D are collinear.
+    mun:between-collinear S := D, T := E, from 19
+
+21. E is on line RD
+    mun:on-line P := E, A := R, B := D, from 20
+
+22. D ≠ R. E ≠ R.
+    mun:between-apart S := D, T := E, from 19
+
+23. line RE ∥ line QP
+    mun:parallel-along A := R, B := D, C := P, D := Q, from 17, 21, 22
+
+24. not (R is on line PQ)
+    mun:triangle-not-on-line P := R, Q := P, R := Q, from H4
+
+25. line RD = line PQ or not (there is X ∈ 𝔼² with X is on line RD and
+    X is on line PQ)
+    mun:parallel A := R, B := D, C := P, D := Q, from 1, 14, 17
+
+26. R is on line RD
+    mun:on-line-ends A := R, B := D
+
+27. not (line RD = line PQ)
+    contradiction
+    suppose line RD = line PQ                                         (S1)
+
+    27.1. R ∈ line RD
+          mun:line P := R, A := R, B := D, from 26
+
+    27.2. R ∈ line PQ
+          substitute line RD = line PQ (S1) into line 27.1
+
+    27.3. R is on line PQ
+          mun:line P := R, A := P, B := Q, from 27.2, contradicting 24
+
+28. not (there is X ∈ 𝔼² with X is on line RD and X is on line PQ)
+    mun:disjunctive-syllogism-left, from 25, 27
+
+29. P is on line PQ. Q is on line PQ.
+    mun:on-line-ends A := P, B := Q
+
+30. not (P is on line RD)
+    contradiction
+    suppose P is on line RD                                           (S2)
+
+    30.1. there is X ∈ 𝔼² with X is on line RD and X is on line PQ
+          exhibit, from S2, 29, contradicting 28
+
+31. not (Q is on line RD)
+    contradiction
+    suppose Q is on line RD                                           (S3)
+
+    31.1. there is X ∈ 𝔼² with X is on line RD and X is on line PQ
+          exhibit, from S3, 29, contradicting 28
+
+32. P and Q are on the same side of line RD or P and Q are on opposite
+    sides of line RD
+    axi:plane-separation A := R, B := D, from 14, 30, 31
+
+33. not (P and Q are on opposite sides of line RD)
+    contradiction
+    suppose P and Q are on opposite sides of line RD                  (S4)
+
+    33.1. X ∈ 𝔼². X is on line RD. X is between P and Q.
+          obtain X: axi:plane-separation-crossing A := R, B := D, from S4, 14
+
+    33.2. Q, X, P are collinear.
+          mun:between-collinear R := X, S := P, T := Q, from 33.1
+
+    33.3. X is on line PQ
+          mun:on-line P := X, A := P, B := Q, from 33.2
+
+    33.4. there is X ∈ 𝔼² with X is on line RD and X is on line PQ
+          exhibit, from 33.1, 33.3, contradicting 28
+
+34. P and Q are on the same side of line RD
+    mun:disjunctive-syllogism, from 32, 33
+
+35. Q and Q′ are on opposite sides of line RD
+    mun:segment-across-line A := R, B := D, P := Q, Q := Q′, M := R,
+      from 3, 14, 26, 31
+
+36. P and Q′ are on opposite sides of line RD
+    mun:same-opposite-opposite A := R, B := D, R := Q′,
+      from 34, 35
+
+37. not (Q′ is on line RD)
+    mun:opposite-sides-off-line A := R, B := D, Q := Q′, from 36
+
+38. not (D is on line RQ′)
+    mun:off-line-swap P := D, Q := Q′, from 37
+
+39. Y ∈ 𝔼². Y is on line RD. Y is between P and Q′.
+    obtain Y: axi:plane-separation-crossing A := R, B := D, Q := Q′,
+      from 14, 36
+
+40. Y is between Q′ and P
+    mun:between-symmetric R := Y, S := P, T := Q′, from 39
+
+41. Y and Q′ are on the same side of line RP
+    mun:segment-off-line A := R, B := P, P := Q′, Q := P, X := Y,
+      from 1, 5, 7, 40
+
+42. Q′ and D are on the same side of line RP
+    mun:same-side-turned A := R, B := P, P := D, Q := Q′, from 10
+
+43. Y and D are on the same side of line RP
+    mun:same-side-same A := R, B := P, P := Y, Q := Q′, R := D, from 41, 42
+
+44. Y and D are on the same side of line RQ′
+    mun:ray-side-transfer P := D, S := P, Q := Q′, X := Y,
+      from 38, 39, 43
+
+45. Q ≠ R. Q′ ≠ R.
+    mun:between-apart S := Q, T := Q′, from 3
+
+46. R is on line RQ′. Q′ is on line RQ′.
+    mun:on-line-ends A := R, B := Q′
+
+47. not (P is on line RQ′)
+    mun:off-line-swap Q := Q′, from 7
+
+48. Y and P are on the same side of line RQ′
+    mun:segment-off-line A := R, B := Q′, Q := Q′, X := Y,
+      from 39, 45, 46, 47
+
+49. D and Y are on the same side of line RQ′
+    mun:same-side-turned A := R, B := Q′, P := Y, Q := D, from 44
+
+50. D and P are on the same side of line RQ′
+    mun:same-side-same A := R, B := Q′, P := D, Q := Y, R := P, from 48, 49
+
+51. D and E are on opposite sides of line RQ′
+    mun:segment-across-line A := R, B := Q′, P := D, Q := E, M := R,
+      from 19, 38, 45, 46
+
+52. P and D are on the same side of line RQ′
+    mun:same-side-turned A := R, B := Q′, P := D, Q := P, from 50
+
+53. P and E are on opposite sides of line RQ′
+    mun:same-opposite-opposite A := R, B := Q′, Q := D, R := E,
+      from 51, 52
+
+54. Q′, R, Q are collinear.
+    mun:between-collinear S := Q, T := Q′, from 3
+
+55. Q is on line RQ′
+    mun:on-line P := Q, A := R, B := Q′, from 54
+
+56. P and E are on opposite sides of line RQ
+    mun:opposite-sides-of-line A := R, B := Q′, C := R, D := Q, Q := E,
+      from 45, 46, 53, 55
+
+57. E and P are on opposite sides of line RQ
+    mun:opposite-sides-turned A := R, B := Q, Q := E, from 56
+
+58. there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, R is
+    between D and E, D and Q are on opposite sides of line RP, E and P are
+    on opposite sides of line RQ, and P and Q are on the same side of
+    line RD
+    exhibit, from 12, 17, 19, 23, 34, 57

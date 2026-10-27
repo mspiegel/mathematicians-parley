@@ -973,6 +973,29 @@ fn prepared_in<T>(
         }
         seen.entry(name).or_insert(thm.line);
     }
+    // A library subject holds records and proofs under one name, so an item
+    // is one or the other: a record and a theorem of one name would be two
+    // statements of it, and a citation would reach only the record.
+    let recorded: IndexMap<String, &Record> = records
+        .iter()
+        .filter(|r| r.kind.is_item())
+        .map(|r| (r.qualified(), r))
+        .collect();
+    for thm in theorems {
+        if let Some(r) = recorded.get(&thm.qualified()) {
+            report.say(
+                &thm.path,
+                thm.line,
+                format!(
+                    "theorem {} is also the {} at {}:{}; an item is a record or a proof, not both",
+                    thm.name,
+                    r.header(),
+                    r.path,
+                    r.line
+                ),
+            );
+        }
+    }
     // The library files a proof may import: those whose items it may cite.
     let library: IndexSet<String> = records
         .iter()

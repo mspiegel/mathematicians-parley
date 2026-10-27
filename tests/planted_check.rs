@@ -3443,6 +3443,20 @@ fn cases() -> Vec<Case> {
             "closes a cycle of citations: odd-square → even-square → odd-square",
         ),
         case(
+            "a mundane theorem outside the standard library",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "mundane theorem even-square\n".to_string()),
+            ],
+            "mundane theorem even-square: only a theorem of the standard library is taken for granted",
+        ),
+        case(
+            "a library proof of an item a record states",
+            vec![
+                edit("corpus/stdlib/sets.proof", None, "theorem powerset-empty\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string()),
+            ],
+            "theorem powerset-empty is also the mundane theorem at corpus/stdlib/sets.records",
+        ),
+        case(
             "two theorems of one name in one file",
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "theorem odd-square\n".to_string()),

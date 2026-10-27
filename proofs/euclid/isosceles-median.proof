@@ -5,11 +5,11 @@ import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-collinear
 import mundane theorem    stdlib/geometry/between-symmetric
 import theorem            stdlib/geometry/law-of-cosines
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane definition stdlib/trigonometry/cos
@@ -62,7 +62,7 @@ theorem isosceles-median
     thm:law-of-cosines P := C, Q := M, R := A, from 2, 4
 
 9.  ∠CMA + ∠AMB = 180°
-    thm:supplementary-angles A := C, B := M, C := B, D := A, from 4, 6
+    axi:supplementary-angles A := C, B := M, C := B, D := A, from 4, 6
 
 10. ∠AMB ∈ ℝ
     mun:angle-real P := A, Q := M, R := B, from 2, 4

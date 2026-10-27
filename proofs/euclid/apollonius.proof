@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/geometry/between-apart
 import theorem            stdlib/geometry/law-of-cosines
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/trigonometry/cos-supplement
@@ -55,7 +55,7 @@ theorem apollonius
           thm:law-of-cosines P := A, Q := M, R := C, from C2, 2.5
 
     2.8.  ∠BMA + ∠AMC = 180°
-          thm:supplementary-angles A := B, B := M, D := A, from C2, H5
+          axi:supplementary-angles A := B, B := M, D := A, from C2, H5
 
     2.9.  ∠BMA ∈ ℝ
           mun:angle-real P := B, Q := M, R := A, from C2, 2.5

@@ -997,6 +997,11 @@ pub fn visible(
 #[derive(Clone, Debug)]
 pub struct Theorem {
     pub name: String,
+    /// Whether its header says `mundane theorem`: a fact a proof takes for
+    /// granted and cites `mun:`, as a mundane record is. Only a theorem of
+    /// the standard library is marked so, since only the library holds
+    /// what proofs reach for as known.
+    pub mundane: bool,
     pub hypotheses: Vec<Hypothesis>,
     pub ranges: Vec<Range>,
     pub conclusion: String,
@@ -1665,6 +1670,28 @@ fn placeholder_justification() -> Justification {
     Justification::of(Slots::new(Head::Define, ""), 0, &Arc::default())
 }
 
+/// A line opening a theorem: `theorem <name>`, or `mundane theorem <name>`
+/// for a fact of the standard library a proof takes for granted.
+struct TheoremHeader<'t> {
+    mundane: bool,
+    /// The rest of the line, the name before it is trimmed and checked.
+    name: &'t str,
+}
+
+/// The header a line opens a theorem with; None for any other line.
+fn theorem_header(t: &str) -> Option<TheoremHeader<'_>> {
+    if let Some(name) = t.strip_prefix("mundane theorem ") {
+        return Some(TheoremHeader {
+            mundane: true,
+            name,
+        });
+    }
+    t.strip_prefix("theorem ").map(|name| TheoremHeader {
+        mundane: false,
+        name,
+    })
+}
+
 /// The theorems of a proof file, and what the file holds outside them.
 /// Structure comes from the step number; indentation is presentation and is
 /// not consulted.
@@ -1932,7 +1959,8 @@ pub fn parse_proof(
             });
             continue;
         }
-        if t.starts_with("theorem ") && line.indent == 0 {
+        let opened = theorem_header(&t).filter(|_| line.indent == 0);
+        if let Some(TheoremHeader { mundane, name }) = opened {
             close_step(path, &thm, &mut step)?;
             held_at_end(
                 path,
@@ -1940,7 +1968,7 @@ pub fn parse_proof(
                 first_opener(&pending_openers),
             )?;
             settle(path, thm.take(), &mut scope, &mut theorems)?;
-            let name = str::trim(&t["theorem ".len()..]).to_string();
+            let name = str::trim(name).to_string();
             if !skeleton::is_name(&name) {
                 return Err(Problem::new(
                     path,
@@ -1948,9 +1976,19 @@ pub fn parse_proof(
                     format!("theorem name {} is malformed", repr(&name)),
                 ));
             }
+            if mundane && !in_stdlib(module_of(path)) {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!(
+                        "mundane theorem {name}: only a theorem of the standard library is taken for granted; a proof elsewhere states `theorem {name}`"
+                    ),
+                ));
+            }
             thm = Some(DraftTheorem {
                 thm: Theorem {
                     name,
+                    mundane,
                     hypotheses: Vec::new(),
                     ranges: Vec::new(),
                     conclusion: String::new(),

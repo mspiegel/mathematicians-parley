@@ -6610,25 +6610,141 @@ impl<'a> Elaborator<'a> {
     /// triangle or a collinearity it says with its three points in another
     /// order (`REORDERS`), which `settle` then carries to the order asked.
     /// None where no line fits.
-    fn fit_whole(
+    /// Every way a line of `known` says `slot` whole, in the order of the
+    /// lines, each line's first.
+    fn fits_whole(
         &mut self,
         slot: &Term,
         known: &[Rpn],
         binding: &Binding,
         variables: &Vars,
         fresh: &Binding,
-    ) -> Option<Binding> {
+    ) -> Vec<Binding> {
+        let mut out = Vec::new();
         for held in known {
             let held = self.to_term(held);
             for said in self.in_every_order(&held) {
                 if let Some(filled) =
                     self.fit_respelt_in_no_order(slot, &said, binding, variables, fresh)
                 {
-                    return Some(filled);
+                    out.push(filled);
+                    break;
                 }
             }
         }
-        None
+        out
+    }
+
+    /// Of the ways a conjunct fits the lines the step has, the first under
+    /// which every antecedent still to be matched that it decides whole is
+    /// one of those lines; the first way where none is. A conjunct with a
+    /// letter open can fit several lines: `X is on line AB` fits each line X
+    /// is on, and only one of them makes `not (Y is on line AB)` a line the
+    /// step has.
+    fn fit_answering_rest(
+        &mut self,
+        fits: Vec<Binding>,
+        pending: &[&Term],
+        before: &Binding,
+        known: &[Rpn],
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Option<Binding> {
+        let first = fits.first().cloned();
+        for filled in fits {
+            if self.answers_decided(pending, before, &filled, known, variables, fresh) {
+                return Some(filled);
+            }
+        }
+        first
+    }
+
+    /// Whether each antecedent of `pending` that `filled` decides whole,
+    /// and `before` did not, is answered conjunct by conjunct by a line of
+    /// `known`.
+    fn answers_decided(
+        &mut self,
+        pending: &[&Term],
+        before: &Binding,
+        filled: &Binding,
+        known: &[Rpn],
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> bool {
+        for slot in pending {
+            if slot.variable().is_some()
+                || decides(slot, before)
+                || !decides(slot, filled)
+            {
+                continue;
+            }
+            for piece in conjuncts_of(slot) {
+                // Answered as the line is written or as the standard form
+                // reads it: a step may say A ≠ B as `-. A = B`.
+                let answered = known.iter().any(|held| {
+                    let held = self.to_term(held);
+                    self.fit_respelt_in_no_order(
+                        &piece, &held, filled, variables, fresh,
+                    )
+                    .is_some()
+                        || self
+                            .fits_as(&piece, &held, variables, Some(filled))
+                            .is_some()
+                });
+                if !answered {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    /// The conjuncts of an antecedent no line says whole, taken apart only
+    /// as far as they must be. A part that is itself a conjunction with a
+    /// letter still open is answered whole where a line says it, which
+    /// fixes its letters together, as `fits_whole` does for the antecedent:
+    /// taken apart, a triangle's `-. B = C` would be fitted in no order
+    /// against `-. A = B` and take C from A.
+    fn open_pieces(
+        &mut self,
+        slot: &Term,
+        pending: &[&Term],
+        known: &[Rpn],
+        binding: &mut Binding,
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Vec<Term> {
+        let mut pieces = Vec::new();
+        let mut parts: Vec<Term> = slot.children().iter().rev().cloned().collect();
+        if !is_conjunction(slot) {
+            parts = vec![slot.clone()];
+        }
+        while let Some(part) = parts.pop() {
+            if !is_conjunction(&part) {
+                pieces.push(part);
+                continue;
+            }
+            let open = part.names().iter().any(|n| !binding.contains_key(&**n));
+            if open {
+                // A line that says the part whole answers it only where what
+                // it decides of the rest is answered too: `( A =/= B /\ C =/=
+                // D )` is said by any two disequalities.
+                let rest: Vec<&Term> =
+                    parts.iter().chain(pending.iter().copied()).collect();
+                let wholes = self.fits_whole(&part, known, binding, variables, fresh);
+                let answering = wholes.into_iter().find(|filled| {
+                    self.answers_decided(
+                        &rest, binding, filled, known, variables, fresh,
+                    )
+                });
+                if let Some(filled) = answering {
+                    *binding = filled;
+                    continue;
+                }
+            }
+            parts.extend(part.children().iter().rev().cloned());
+        }
+        pieces
     }
 
     /// `term`, and where it is a claim about three points in no order
@@ -7433,12 +7549,30 @@ impl<'a> Elaborator<'a> {
                 // conjunct at a time, a triangle's `-. Q = R` takes R from
                 // whichever disequality of Q comes first.
                 Some(s) => {
-                    match self.fit_whole(s, &known_keys, &binding, &variables, &fresh) {
+                    let wholes =
+                        self.fits_whole(s, &known_keys, &binding, &variables, &fresh);
+                    let whole = self.fit_answering_rest(
+                        wholes,
+                        &pending,
+                        &binding,
+                        &known_keys,
+                        &variables,
+                        &fresh,
+                    );
+                    match whole {
                         Some(filled) => {
                             binding = filled;
                             Vec::new()
                         }
-                        None => conjuncts_of(s)
+                        None => self
+                            .open_pieces(
+                                s,
+                                &pending,
+                                &known_keys,
+                                &mut binding,
+                                &variables,
+                                &fresh,
+                            )
                             .into_iter()
                             .filter(|p| !loose.iter().any(|one| one.same_object(p)))
                             .collect(),
@@ -7448,11 +7582,17 @@ impl<'a> Elaborator<'a> {
             // What the lemma concludes need not fix everything it asks, so an
             // antecedent that is still open is matched against something the
             // step already has, one conjunct at a time.
-            for piece in &pieces {
+            for (i, piece) in pieces.iter().enumerate() {
                 if piece.names().iter().all(|n| binding.contains_key(&**n)) {
                     continue;
                 }
-                let mut filled_any = false;
+                // What is still to be matched: the pieces after this one and
+                // the antecedents after this one.
+                let rest: Vec<&Term> = pieces[i + 1..]
+                    .iter()
+                    .chain(pending.iter().copied())
+                    .collect();
+                let mut fits: Vec<Binding> = Vec::new();
                 for held in &known_keys {
                     if let Some(filled) = self.fit_respelt_in_no_order(
                         piece,
@@ -7461,21 +7601,40 @@ impl<'a> Elaborator<'a> {
                         &variables,
                         &fresh,
                     ) {
-                        binding = filled;
-                        filled_any = true;
-                        break;
+                        fits.push(filled);
                     }
+                }
+                let filled_any = !fits.is_empty();
+                if let Some(chosen) = self.fit_answering_rest(
+                    fits,
+                    &rest,
+                    &binding,
+                    &known_keys,
+                    &variables,
+                    &fresh,
+                ) {
+                    binding = chosen;
                 }
                 if !filled_any {
                     // Or as the standard form reads the line.
+                    let mut read: Vec<Binding> = Vec::new();
                     for held in &known_keys {
                         let fact = self.to_term(held);
                         if let Some(filled) =
                             self.fits_as(piece, &fact, &variables, Some(&binding))
                         {
-                            binding = filled;
-                            break;
+                            read.push(filled);
                         }
+                    }
+                    if let Some(chosen) = self.fit_answering_rest(
+                        read,
+                        &rest,
+                        &binding,
+                        &known_keys,
+                        &variables,
+                        &fresh,
+                    ) {
+                        binding = chosen;
                     }
                 }
             }
@@ -8097,6 +8256,16 @@ fn function_fixed(piece: &Term, binding: &Binding) -> bool {
 }
 
 /// The things a lemma's antecedent asks, one conjunct at a time.
+/// Whether `binding` gives every letter of `slot` a value.
+fn decides(slot: &Term, binding: &Binding) -> bool {
+    slot.names().iter().all(|n| binding.contains_key(&**n))
+}
+
+/// Whether a term is a conjunction, of two parts or of three.
+fn is_conjunction(term: &Term) -> bool {
+    matches!(term.label(), Some("wa") | Some("w3a"))
+}
+
 pub fn conjuncts_of(slot: &Term) -> Vec<Term> {
     let mut pieces = Vec::new();
     let mut parts = std::collections::VecDeque::from([slot.clone()]);

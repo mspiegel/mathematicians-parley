@@ -1966,6 +1966,37 @@ notation on-line
   note        P is on line AB says what A, B, P are collinear says, with the
               point first, as a book writes a point on a line.
 
+notation line
+  pattern     line __
+  sort        point, point → set of point
+  reads       the line through
+  metamath    the points P with A = B or (P − A)/(B − A) real, the points
+              of which P is on line AB is said, as mun:stdlib/geometry/line
+              states it
+  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel wo vu cc
+              crab
+  note        The line through A and B as a set of points, for a statement
+              that speaks of a line itself: a function on it, or its points
+              taken together. A ≠ B where it is a line: line AA is the whole
+              plane, and a statement about a line says A ≠ B. The two points
+              are juxtaposed after the word, as in `line __ ∥ line __`, whose
+              longer reading wins where both fit. `u` is the point the target
+              runs over; it is not a hole. line AB and line BA are one set,
+              and a proof says so by mun:stdlib/geometry/line-turned rather
+              than the checker reading the two points in any order.
+
+notation ray
+  pattern     ray __
+  sort        point, point → set of point
+  reads       the ray from, through
+  metamath    the points P with A = B or (P − A)/(B − A) a real number at
+              least 0, as mun:stdlib/geometry/ray states it
+  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel cc0 vu
+              cv _1 cmin co _2 _1 cmin co cdiv co cle wbr wa wo vu cc crab
+  note        The ray from A through B: A, and the points on the side of A
+              that B is on. A ≠ B where it is a ray, as for `line`. `u` is
+              the point the target runs over; it is not a hole.
+
 notation perpendicular
   pattern     line __ ⊥ line __
   sort        point, point, point, point → formula

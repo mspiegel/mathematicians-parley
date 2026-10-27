@@ -1,6 +1,6 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane definition stdlib/geometry/triangle
 import mundane theorem    stdlib/numbers/square-positive
 import mundane theorem    stdlib/numbers/square-less
