@@ -309,6 +309,11 @@ pub fn substitution_unsaid(
 /// finds the places, is `was` only once an identity element is dropped:
 /// what is put there is then what is left of the place.
 fn dropped_at_sites(start: &Node, was: &Node, ctx: &Context) -> bool {
+    // A place written as `was` is written is the place itself, and drops
+    // nothing (`matching::put_places`).
+    if start.same_shape(was) {
+        return false;
+    }
     let inside = |c: &Node| crate::matching::put_places(c, was, was, ctx).is_some();
     if start.children.iter().any(inside) {
         return start.children.iter().any(|c| dropped_at_sites(c, was, ctx));

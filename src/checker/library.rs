@@ -538,6 +538,24 @@ impl<'a> Known<'a> {
                 };
                 self.say_of(&at, i, from, &mut written);
             }
+            // A "for all" that is one "and" part of the sentence is read at
+            // the block's letter as one written as its own sentence is:
+            // `q is a polynomial and (for all x ∈ ℂ, …)` says the "for all"
+            // at the block's x.
+            let parts = conjuncts_in(sentence, self.ctx, self.env.g);
+            if parts.len() > 1 {
+                for (j, part) in parts.iter().enumerate() {
+                    for at in
+                        self.at_block_letters(stated, std::slice::from_ref(part), None)
+                    {
+                        let from = SaidFrom::AtLetter {
+                            sentence: i,
+                            part: Some(j),
+                        };
+                        self.say_of(&at, i, from, &mut written);
+                    }
+                }
+            }
             // A subset's members said as a "for all" are read at a block's
             // letter as a written one is.
             let members: Vec<Node> = written

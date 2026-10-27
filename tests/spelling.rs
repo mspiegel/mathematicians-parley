@@ -23,6 +23,16 @@ use regex::Regex;
 /// the line that finds it, and why spelling is the question there.
 const ALLOWED: &[(&str, &str, &str)] = &[
     (
+        "src/matching.rs",
+        "if start.same_shape(was) {",
+        "a place written as the equation's side is written is that place whole, where a formula comparison would also match a part of it with an identity element dropped",
+    ),
+    (
+        "src/citing/conclude.rs",
+        "if start.same_shape(was) {",
+        "a place written as the equation's side is written drops no identity element, which is a question of how it is written",
+    ),
+    (
         "src/formula/node.rs",
         ".all(|(a, b)| a.same_shape(b)))",
         "`same_shape` itself, comparing children part by part",

@@ -98,6 +98,9 @@ pub struct Targets {
     /// The notations whose holes stand in no order, so that an atom built of
     /// one is the same atom in any order of them: |AB| is |BA|.
     unordered: FxIndexSet<NotationId>,
+    /// What each binder holds and over what, so that a sum or an integral
+    /// is one term whatever letter it binds (`letters_blind`).
+    binders: std::rc::Rc<FxIndexMap<NotationId, crate::formula::notation::Binds>>,
 }
 
 /// How a node holds more children than its pattern's holes: the holes the
@@ -149,6 +152,7 @@ impl Targets {
             builds,
             repeats,
             unordered: crate::matching::unordered_notations(records),
+            binders: g.binders(),
         }
     }
 
@@ -225,7 +229,58 @@ impl Targets {
 /// built out, and every other part, a letter included, one atom named by
 /// how the page writes it.
 pub fn term_of_node(node: &Node, targets: &Targets) -> Term {
-    term_under(node, targets, &[], &|_| false)
+    let node = letters_blind(node, &targets.binders, 0);
+    term_under(&node, targets, &[], &|_| false)
+}
+
+/// `node` with each letter a binder in it holds spelt by how many binders
+/// stand around that one, `·0` outermost: Σ(k = 1 to n) t(k) and
+/// Σ(m = 1 to n) t(m) are one term, as a reader takes them (`METHODS.md`,
+/// two sums that differ only in their letter are one atom). A letter no
+/// binder in `node` holds keeps its spelling.
+fn letters_blind(
+    node: &Node,
+    binders: &FxIndexMap<NotationId, crate::formula::notation::Binds>,
+    depth: usize,
+) -> Node {
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    let Some(binds) = binders.get(&node.notation()) else {
+        let children = node
+            .children
+            .iter()
+            .map(|c| letters_blind(c, binders, depth))
+            .collect();
+        return node.with_children(children);
+    };
+    let mut put = crate::matching::Binding::new();
+    let mut children = node.children.clone();
+    for (n, &at) in binds.held.iter().enumerate() {
+        let Some(letter) = node.children.get(at).filter(|c| c.is_name()) else {
+            continue;
+        };
+        let blind = Node::name(letter.sort.clone(), &format!("·{}", depth + n));
+        put.insert(letter.text, blind.clone());
+        children[at] = blind;
+    }
+    let inner = depth + binds.held.len();
+    let children = children
+        .iter()
+        .enumerate()
+        .map(|(at, c)| {
+            if binds.held.contains(&at) {
+                return c.clone();
+            }
+            let c = if binds.body.contains(&at) && !put.is_empty() {
+                crate::matching::substitute_apart_by(c, &put, binders)
+            } else {
+                c.clone()
+            };
+            letters_blind(&c, binders, inner)
+        })
+        .collect();
+    node.with_children(children)
 }
 
 /// `term_of_node`, with an application of a library function built out of
@@ -238,7 +293,8 @@ pub fn term_of_node_reading(
     targets: &Targets,
     library: &dyn Fn(&str) -> bool,
 ) -> Term {
-    term_under(node, targets, &[], library)
+    let node = letters_blind(node, &targets.binders, 0);
+    term_under(&node, targets, &[], library)
 }
 
 /// `term_of_node` inside the finite sums that bind `indices`: an atom

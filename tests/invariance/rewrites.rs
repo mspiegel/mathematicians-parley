@@ -2626,7 +2626,12 @@ fn requires_raised_in(
                 .1,
         )
         .to_string();
-        if !step.just.head.is_item()
+        // A claim saying "for all x ∈ L, …" binds x for its requires lines
+        // too, f(x) ∈ ℤ under "for all x ∈ L, f(x) ∈ ℝ", and a step of its
+        // own above it would leave x unbound.
+        let quantified = claim.starts_with("For all ") || claim.starts_with("for all ");
+        if quantified
+            || !step.just.head.is_item()
             || step.just.target.is_some()
             || step.just.contradicting.is_some()
             || !step.just.chain.is_empty()
@@ -4502,8 +4507,16 @@ pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten 
             if !step.just.chain.is_empty() {
                 continue;
             }
+            // A line in another block than the citing step's is read there
+            // at the letters of the blocks between (`SYNTAX.md`, a "for all"
+            // at a block's letter), which a restatement written inside the
+            // citing step's block would not be: only a line of its own block
+            // is restated.
+            let block = |n: &str| n.rsplit_once('.').map(|(b, _)| b.to_string());
+            let here = block(&step.number.to_string());
             let restated = step.just.refs.iter().rev().find(|r| {
                 numbers.contains(*r)
+                    && block(r) == here
                     && counted.get(*r) == Some(&1)
                     && in_from_list(&step.just.text, r)
                     && thm
@@ -4627,7 +4640,14 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             .is_some_and(|t| t.iter().any(|t| t.text == "∈" || t.text == "⊆"));
         let carried_from =
             x.number.len() == 1 && says_domain && applies_a_define(ctx, thm);
+        // A part, X ⊆ A, is cited for what it says of its members as well,
+        // "for all x ∈ X, x ∈ A" (`SYNTAX.md`, a subset as its members),
+        // which no hypothesis asks in that form: it stays a line.
+        let a_part = ctx
+            .tokens(x.claim.text())
+            .is_some_and(|t| t.iter().any(|t| t.text == "⊆"));
         !carried_from
+            && !a_part
             && x.just.head.is_item()
             && asks(&x.just)
             && x.just.target.is_none()

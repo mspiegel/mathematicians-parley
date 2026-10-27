@@ -5267,7 +5267,10 @@ pub fn check_surplus(
         let mut spare_refs: Vec<&String> = Vec::new();
         let mut spare_requires: Vec<usize> = Vec::new();
         for r in refs {
-            if defines.contains(r.as_str()) {
+            // A function's type is named beside the function where its value
+            // is cited (`READERS.md`, a function's type is cited for its
+            // values), as a requires line names it.
+            if defines.contains(r.as_str()) || in_a_domain(step, r, known) {
                 continue;
             }
             let stated: Vec<Node> = scope

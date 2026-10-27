@@ -1735,13 +1735,18 @@ pub fn put_everywhere(start: &Node, was: &Node, now: &Node, ctx: &Context) -> No
 /// `put_everywhere`, or None where `was` stands nowhere in `start`. A part
 /// is a place before the whole is: `0 + 1` holds 1 as its second part, and
 /// is 1 itself only with its 0 dropped, which a part standing there needs
-/// no one to say.
+/// no one to say. A whole written as `was` is written is the place itself,
+/// though a part of it is `was` with an identity element dropped:
+/// (1/(m + 1))·1 is put for as a whole, not its 1/(m + 1).
 pub(crate) fn put_places(
     start: &Node,
     was: &Node,
     now: &Node,
     ctx: &Context,
 ) -> Option<Node> {
+    if start.same_shape(was) {
+        return Some(now.clone());
+    }
     let mut any = false;
     let kids: Vec<Node> = start
         .children

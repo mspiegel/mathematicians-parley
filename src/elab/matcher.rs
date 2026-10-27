@@ -5255,6 +5255,15 @@ impl<'a> Elaborator<'a> {
         if said == want {
             return Ok(Some(proof.clone()));
         }
+        // The same equation the other way round, as a block's last line may
+        // claim what the block says turned (`SYNTAX.md`, an equation either
+        // way round is the same claim).
+        if let Some((turned, flip)) = self.turned_claim(said) {
+            if turned == *want {
+                let Sides { left, right } = self.equation_sides(said);
+                return Ok(Some(pf!(self.b; scope, left, right, proof.clone(), flip)));
+            }
+        }
         let alike = self.same(
             &self.to_term(said),
             &self.to_term(want),

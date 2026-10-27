@@ -6102,6 +6102,26 @@ impl<'a> Elaborator<'a> {
                 return Ok(pf!(self.b; scope, whole, term, proof, turned, "mpbid"));
             }
         }
+        // The claim over other bound letters and with a defined name where
+        // the statement has what it names, as J(n + 1) the statement writes
+        // as its integral: renamed onto the claim read through its names,
+        // and that read back to the claim as written.
+        let claim = self.to_term(term);
+        let read = self.read_out(&claim);
+        let read_rpn = self.rpn(&read);
+        if read_rpn != *term && self.rebound(&whole, &read_rpn) {
+            if let Some(across) = self.renaming_apart(&whole, &read_rpn)? {
+                if let Built(alike) = self.same(&read, &claim, scope, facts, None)? {
+                    let turned =
+                        pf!(self.b; t!(whole, read_rpn, "wb"), scope, across, "a1i");
+                    let there =
+                        pf!(self.b; scope, whole, read_rpn, proof, turned, "mpbid");
+                    return Ok(
+                        pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
+                    );
+                }
+            }
+        }
         let taken = Facts::new();
         self.know(&taken, whole.clone(), proof.clone());
         self.unpack_all(&whole, &proof, scope, &taken);
