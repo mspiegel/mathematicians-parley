@@ -565,7 +565,7 @@ theorem alternate-angles-converse
           5.9.24. ∠SRP ≠ ∠RPQ
                   inequalities
                     ∠RPQ > ∠SRP       5.9.23
-                    ∠SRP < ∠RPQ       symmetry
+                    ∠SRP < ∠RPQ       restate
                     ∠SRP ≠ ∠RPQ       weakening
                   requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P,
                     from 1, 3
@@ -1024,7 +1024,7 @@ theorem greater-angle-greater-side
           inequalities
             |AC| − |AB| < 0   C1
             |AC| < |AB|       adding |AB|
-            |AB| > |AC|       symmetry
+            |AB| > |AC|       restate
 
     4.2.  ∠ACB > ∠ABC
           thm:greater-side-greater-angle B := C, C := B, from 2, 4.1
@@ -1032,7 +1032,7 @@ theorem greater-angle-greater-side
     4.3.  ∠ABC ≤ ∠ACB
           inequalities
             ∠ACB > ∠ABC       4.2
-            ∠ABC < ∠ACB       symmetry
+            ∠ABC < ∠ACB       restate
             ∠ABC ≤ ∠ACB       weakening
           requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
           requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
@@ -1069,7 +1069,7 @@ theorem greater-angle-greater-side
           inequalities
             0 < |AC| − |AB|   C3
             |AB| < |AC|       adding |AB|
-            |AC| > |AB|       symmetry
+            |AC| > |AB|       restate
 
 theorem triangle-inequality-strict
   note        Euclid I.20. Produce PQ past Q to D with |QD| = |QR|. The
@@ -1187,7 +1187,7 @@ theorem triangle-inequality-strict
 31. |PR| < |PQ| + |QR|
     inequalities
       |PQ| + |QR| > |PR|       30
-      |PR| < |PQ| + |QR|       symmetry
+      |PR| < |PQ| + |QR|       restate
 
 theorem triangle-equality-between
   note        The equality case of I.20. P and R are apart, since the way
@@ -2780,7 +2780,7 @@ mundane theorem ray-point
     8.16. r − |AB| > 0
           inequalities
             0 < r − |AB|      C3
-            r − |AB| > 0      symmetry
+            r − |AB| > 0      restate
 
     8.17. X ∈ 𝔼². B is between A and X. |BX| = r − |AB|.
           obtain X: mun:segment-extension r := r − |AB|, from 1, 8.16
@@ -3183,7 +3183,7 @@ theorem angle-angle-side
           19.2.21. ∠FGE ≠ ∠FDE
                    inequalities
                      ∠FDE > ∠FGE       19.2.20
-                     ∠FGE < ∠FDE       symmetry
+                     ∠FGE < ∠FDE       restate
                      ∠FGE ≠ ∠FDE       weakening
                    requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
                      from 9
@@ -6164,7 +6164,7 @@ theorem same-arc-angles
            inequalities
              −π < ∡ADB                   13
              π > −∡ADB                   multiplying by −1
-             −∡ADB < π                   symmetry
+             −∡ADB < π                   restate
            requires ∡ADB ∈ ℝ: from 12
 
     19.17. ∡ACB − ∡ADB < π

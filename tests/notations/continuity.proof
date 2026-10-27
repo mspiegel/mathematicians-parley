@@ -100,7 +100,7 @@ theorem a-step-is-not-continuous
           inequalities
             min(δ, 1/2) ≤ δ                    4.5
             −min(δ, 1/2) ≥ −δ                  multiplying by −1
-            −δ ≤ −min(δ, 1/2)                  symmetry
+            −δ ≤ −min(δ, 1/2)                  restate
           requires min(δ, 1/2) ∈ ℝ: mun:min-real x := δ, y := 1/2
 
     4.13. |x₁ − 1/2| < δ

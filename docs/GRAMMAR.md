@@ -1148,12 +1148,12 @@ congruent one inside an exponent, where congruence does not carry.
 <first row> ::= <formula> <ref>
 <row>       ::= <formula> <manipulation>
 <manipulation> ::= `adding` <term> | `multiplying by` <term>
-                 | `symmetry` | `weakening` | `algebra`
+                 | `restate` | `weakening` | `algebra`
 ```
 
 An `inequalities` justification with no `from` may be followed by its rows,
 one to a line, each a formula and then its reason. The reason is read from
-the right: the last word is a reference, `symmetry`, `weakening` or
+the right: the last word is a reference, `restate`, `weakening` or
 `algebra`, or the line ends in `adding` or `multiplying by` and a term, and
 the formula is what is left. Each formula is an order, an equation, a
 disequality or the negation of an order, a sentence the parser reads; the

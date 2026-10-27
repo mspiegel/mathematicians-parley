@@ -117,7 +117,7 @@ theorem greater-side-greater-angle
 25. cos(∠CBA) < cos(∠CAB)
     inequalities
       cos(∠CAB) − cos(∠CBA) > 0         24
-      0 < cos(∠CAB) − cos(∠CBA)         symmetry
+      0 < cos(∠CAB) − cos(∠CBA)         restate
       cos(∠CBA) < cos(∠CAB)             adding cos(∠CBA)
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6

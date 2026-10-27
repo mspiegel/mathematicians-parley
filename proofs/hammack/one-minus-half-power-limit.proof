@@ -81,7 +81,7 @@ theorem one-minus-half-power-limit
                   inequalities
                     1/2^n < ε            2.2.5
                     −1/2^n > −ε          multiplying by −1
-                    −ε < −1/2^n          symmetry
+                    −ε < −1/2^n          restate
                     1 − ε < 1 − 1/2^n    adding 1
 
           2.2.7.  1 − ε < a(n)
@@ -100,7 +100,7 @@ theorem one-minus-half-power-limit
                   inequalities
                     ε > 0                A1
                     1 + ε > 1            adding 1
-                    1 < 1 + ε            symmetry
+                    1 < 1 + ε            restate
 
           2.2.11. a(n) < 1 + ε
                   transitivity, from H2, 2.2.9, 2.2.10

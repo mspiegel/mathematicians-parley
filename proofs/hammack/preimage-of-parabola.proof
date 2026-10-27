@@ -152,14 +152,14 @@ theorem preimage-of-parabola
                   inequalities
                     −u ≤ 4        1.7.8
                     u ≥ −4        multiplying by −1
-                    −4 ≤ u        symmetry
+                    −4 ≤ u        restate
                   requires u ∈ ℝ: from 1.1
 
           1.7.10. u ≤ −3
                   inequalities
                     3 ≤ −u        1.7.8
                     −3 ≥ u        multiplying by −1
-                    u ≤ −3        symmetry
+                    u ≤ −3        restate
                   requires u ∈ ℝ: from 1.1
 
           1.7.11. u ∈ [−4, −3]
@@ -191,13 +191,13 @@ theorem preimage-of-parabola
                   inequalities
                     u ≤ −3        3.2.1
                     −u ≥ 3        multiplying by −1
-                    3 ≤ −u        symmetry
+                    3 ≤ −u        restate
 
           3.2.3.  −u ≤ 4
                   inequalities
                     −4 ≤ u        3.2.1
                     4 ≥ −u        multiplying by −1
-                    −u ≤ 4        symmetry
+                    −u ≤ 4        restate
 
           3.2.4.  12 ≤ (−u)² + 3. (−u)² + 3 ≤ 19.
                   thm:square-window-in t := −u, from 3.2.1, 3.2.2, 3.2.3

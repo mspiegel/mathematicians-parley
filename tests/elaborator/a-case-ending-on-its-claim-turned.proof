@@ -29,4 +29,4 @@ theorem a-case-ending-on-its-claim-turned
           inequalities
             x < y            H3
             x ≠ y            weakening
-            y ≠ x            symmetry
+            y ≠ x            restate

@@ -57,7 +57,7 @@ theorem factorial-gap
     1.4.  (n + 1)! + 0 ≤ (n + 1 + 0)!
           inequalities
             (n + 1 + 0)! = (n + 1)!         1.2
-            (n + 1)! = (n + 1 + 0)!         symmetry
+            (n + 1)! = (n + 1 + 0)!         restate
             (n + 1)! + 0 = (n + 1 + 0)!     algebra
             (n + 1)! + 0 ≤ (n + 1 + 0)!     weakening
           requires (n + 1)! ∈ ℝ: from 1.3
@@ -346,7 +346,7 @@ theorem partial-sums-increase
     2.3.  s(n) ≤ s(n + 0)
           inequalities
             s(n + 0) = s(n)     2.2
-            s(n) = s(n + 0)     symmetry
+            s(n) = s(n + 0)     restate
             s(n) ≤ s(n + 0)     weakening
           requires s(n) ∈ ℝ: from 1
 
@@ -377,7 +377,7 @@ theorem partial-sums-increase
     2.10. s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)
           inequalities
             1/2^((n + j + 1)!) > 0                          2.8
-            0 < 1/2^((n + j + 1)!)                          symmetry
+            0 < 1/2^((n + j + 1)!)                          restate
             s(n + j) < s(n + j) + 1/2^((n + j + 1)!)        adding s(n + j)
             s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)        weakening
           requires s(n + j) ∈ ℝ: from 2.9
@@ -477,7 +477,7 @@ theorem later-at-most
     4.8.  0 ≤ 2/2^((n + 1)! + (i − n))
           inequalities
             2/2^((n + 1)! + (i − n)) > 0     4.6
-            0 < 2/2^((n + 1)! + (i − n))     symmetry
+            0 < 2/2^((n + 1)! + (i − n))     restate
             0 ≤ 2/2^((n + 1)! + (i − n))     weakening
           requires 2^((n + 1)! + (i − n)) ∈ ℝ: mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
           requires 2^((n + 1)! + (i − n)) ≠ 0: weakening, from 4.5
@@ -736,7 +736,7 @@ theorem liouville-number
     14.17. s(r) < s(r) + 1/e
            inequalities
              1/e > 0               14.16
-             0 < 1/e               symmetry
+             0 < 1/e               restate
              s(r) < s(r) + 1/e     adding s(r)
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
@@ -750,7 +750,7 @@ theorem liouville-number
            inequalities
              s(r) < L      14.18
              s(r) ≠ L      weakening
-             L ≠ s(r)      symmetry
+             L ≠ s(r)      restate
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
     14.20. c/d^N < |L − s(r)|

@@ -344,7 +344,7 @@ theorem limit-at-most
           inequalities
             B < L              1.1
             0 < L − B          adding −B
-            L − B > 0          symmetry
+            L − B > 0          restate
 
     1.3.  For all ε > 0, there exists M ∈ ℕ such that |x(n) − L| < ε for all n ≥ M.
           def:tends-to, from H3
@@ -408,7 +408,7 @@ theorem limit-at-least
           inequalities
             L < B              1.1
             0 < B − L          adding −L
-            B − L > 0          symmetry
+            B − L > 0          restate
 
     1.3.  For all ε > 0, there exists M ∈ ℕ such that |x(n) − L| < ε for all n ≥ M.
           def:tends-to, from H3
@@ -646,7 +646,7 @@ let B = max(C, |L| + 1), a real number                                (D1)
                   inequalities
                     N < m      11.3.4
                     N ≤ m      weakening
-                    m ≥ N      symmetry
+                    m ≥ N      restate
 
           11.3.6. |x(m) − L| < 1
                   instantiate n := m in line 3, from 11.3.5
@@ -919,7 +919,7 @@ theorem monotone-limit
           inequalities
             ε > 0          A1
             c + ε > c      adding c
-            c < c + ε      symmetry
+            c < c + ε      restate
 
     10.8. For all n ≥ N, |x(n) − c| < ε.
           proof
@@ -929,7 +929,7 @@ theorem monotone-limit
           10.8.1. N ≤ n
                   inequalities
                     n ≥ N      A2
-                    N ≤ n      symmetry
+                    N ≤ n      restate
 
           10.8.2. x(N) ≤ x(n)
                   instantiate m := N in line 9, from 10.8.1

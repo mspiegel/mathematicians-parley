@@ -851,7 +851,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/point-row.proof",
                 None,
-                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            symmetry\n".to_string(),
+                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            restate\n".to_string(),
             )],
             "proofs/wiedijk/point-row.proof:10  this step treats A as a number, and it is a point",
         ),
@@ -991,10 +991,21 @@ fn cases() -> Vec<Case> {
             "an inequality row that is no single relation",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      x = y                symmetry\n".to_string()),
-                "      x = y and y = x      symmetry\n".to_string(),
+                Some("      x = y                restate\n".to_string()),
+                "      x = y and y = x      restate\n".to_string(),
             )],
             "a row of step 1 is no single relation of =, ≠, <, ≤, > or ≥",
+        ),
+        // `symmetry` is kept back for later: a row turning a relation round
+        // says `restate`.
+        case(
+            "turn an inequality row round with symmetry",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      x = y                restate\n".to_string()),
+                "      x = y                symmetry\n".to_string(),
+            )],
+            "`symmetry` is kept back for later; a row turning a relation round is `restate`",
         ),
         case(
             "inequality rows starting from no cited line",
@@ -1018,7 +1029,7 @@ fn cases() -> Vec<Case> {
             "inequality rows ending other than on the claim",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                restate\n".to_string()),
                 "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
             )],
             "the last row of step 1 is not its claim",
@@ -1125,7 +1136,7 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
         ),
-        // In rows, turning a relation round is a symmetry row of its own: the
+        // In rows, turning a relation round is a restate row of its own: the
         // first row is the cited line as written, each row keeps its sides
         // where its manipulation leaves them, and the last row is the claim
         // as written. A row that turns as well as manipulates is told which.
@@ -1136,25 +1147,25 @@ fn cases() -> Vec<Case> {
                 Some("      A < B                H3\n".to_string()),
                 "      B > A                H3\n".to_string(),
             )],
-            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a symmetry row",
+            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a restate row",
         ),
         case(
             "turn a row round as well as multiplying it",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string()),
+                Some("      −x > 0               multiplying by −1\n      0 < −x               restate\n".to_string()),
                 "      0 < −x               multiplying by −1\n".to_string(),
             )],
-            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a symmetry row of its own",
+            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a restate row of its own",
         ),
         case(
             "end the rows on the claim turned round",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                Some("      0 ≠ x                weakening\n      x ≠ 0                restate\n".to_string()),
                 "      0 ≠ x                weakening\n".to_string(),
             )],
-            "the last row of step 1 is its claim turned round; end with a symmetry row that writes the claim as it is written",
+            "the last row of step 1 is its claim turned round; end with a restate row that writes the claim as it is written",
         ),
         case(
             "turn a requires line round as well as weakening it",

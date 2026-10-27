@@ -9,7 +9,7 @@ theorem a-degree-in-an-order
 1.  60° − x < 60°
     inequalities
       x > 0            H2
-      0 < x            symmetry
+      0 < x            restate
       60° − x < 60°    adding 60° − x
 
 theorem a-degree-in-an-equation

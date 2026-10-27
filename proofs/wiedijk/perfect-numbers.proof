@@ -552,7 +552,7 @@ let c = m/(2^p − 1), a positive integer                               (D2)
            inequalities
              m − c > 0        33.4
              m > c            adding c
-             c < m            symmetry
+             c < m            restate
 
     33.6.  1 < c
            inequalities, from D2, S3

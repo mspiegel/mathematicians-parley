@@ -58,13 +58,13 @@ theorem image-of-parabola
           inequalities
             −3 ≤ s          2.3
             0 ≤ s + 3       adding 3
-            s + 3 ≥ 0       symmetry
+            s + 3 ≥ 0       restate
 
     2.10. 5 − s ≥ 0
           inequalities
             s ≤ 5           2.3
             0 ≤ 5 − s       adding −s
-            5 − s ≥ 0       symmetry
+            5 − s ≥ 0       restate
 
     2.11. (s + 3)·(5 − s) ≥ 0
           mun:product-nonneg x := s + 3, y := 5 − s, from 2.9, 2.10
@@ -108,7 +108,7 @@ theorem image-of-parabola
           inequalities
             3 ≤ y           4.1
             0 ≤ y − 3       adding −3
-            y − 3 ≥ 0       symmetry
+            y − 3 ≥ 0       restate
 
     4.3.  √(y − 3) ∈ ℝ. √(y − 3) ≥ 0. (√(y − 3))² = y − 3.
           mun:sqrt x := y − 3, from 4.2

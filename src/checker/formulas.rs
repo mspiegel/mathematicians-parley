@@ -3021,7 +3021,7 @@ impl Related {
 
     /// Whether this says what `other` says, written the same way round: a
     /// row's relation as it stands (`METHODS.md`, inequalities, Rows), where
-    /// turning an order round is a `symmetry` row of its own.
+    /// turning an order round is a `restate` row of its own.
     fn says_as_written(&self, other: &Related, known: &Known) -> bool {
         self.rel == other.rel
             && known.alike(&self.left, &other.left)
@@ -3724,7 +3724,7 @@ fn row_follows(
         }
         // An equation's sides swapped, or an order turned round: `a > 0` to
         // `0 < a`.
-        (RowReason::Symmetry, _) => row.says_as_written(&above.turned(), known),
+        (RowReason::Restate, _) => row.says_as_written(&above.turned(), known),
         (RowReason::Weakening, _) => {
             let weaker = matches!(
                 (above.rel, row.rel),
@@ -3746,7 +3746,7 @@ fn row_follows(
 
 /// Whether `row` relates by `rel` two sides that are `left` and `right`,
 /// each as one number (`one_number`), written that way round: an
-/// equation's sides swapped, or an order turned round, is a `symmetry` row
+/// equation's sides swapped, or an order turned round, is a `restate` row
 /// of its own.
 fn row_is(
     row: &Related,
@@ -3769,7 +3769,7 @@ fn row_said(reason: &RowReason) -> String {
         RowReason::Multiplying(c) => {
             format!("with both sides multiplied by {c}, a numeral other than 0")
         }
-        RowReason::Symmetry => "with its two sides swapped".to_string(),
+        RowReason::Restate => "with its two sides swapped".to_string(),
         RowReason::Weakening => "with its relation weakened".to_string(),
         RowReason::Algebra => {
             "with a side written as the same number another way".to_string()
@@ -3835,12 +3835,12 @@ pub fn check_inequality_rows(
             line.says_as_written(&read[0], known)
                 || (!line.written && line.says(&read[0], known))
         }) {
-            // The line turned round is a symmetry row after it, not the
+            // The line turned round is a restate row after it, not the
             // first row (`METHODS.md`, inequalities, Rows).
             let turned = cited_lines.iter().any(|line| line.says(&read[0], known));
             let said = if turned {
                 format!(
-                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a symmetry row"
+                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a restate row"
                 )
             } else {
                 format!(
@@ -3878,8 +3878,8 @@ pub fn check_inequality_rows(
                 targets,
             ) {
                 // The manipulation and a turn are two rows, the turn a
-                // symmetry row of its own.
-                let turned = !matches!(row.reason, RowReason::Symmetry)
+                // restate row of its own.
+                let turned = !matches!(row.reason, RowReason::Restate)
                     && row_follows(
                         &read[i - 1],
                         &read[i].turned(),
@@ -3890,7 +3890,7 @@ pub fn check_inequality_rows(
                     );
                 let said = if turned {
                     format!(
-                        "a row of step {number} is the row above {}, turned round; turning it round is a symmetry row of its own",
+                        "a row of step {number} is the row above {}, turned round; turning it round is a restate row of its own",
                         row_said(&row.reason)
                     )
                 } else {
@@ -3934,7 +3934,7 @@ pub fn check_inequality_rows(
         {
             let said = if claimed.is_some_and(|c| c.says(last, known)) {
                 format!(
-                    "the last row of step {number} is its claim turned round; end with a symmetry row that writes the claim as it is written"
+                    "the last row of step {number} is its claim turned round; end with a restate row that writes the claim as it is written"
                 )
             } else {
                 format!("the last row of step {number} is not its claim")
@@ -3998,7 +3998,7 @@ pub fn check_requires_manipulations(
                 // The manipulation and a turn are two, and a requires line
                 // names one (`METHODS.md`, inequalities, Rows).
                 let turned = fact.as_ref().map(Related::turned).filter(|turned| {
-                    !matches!(reason, RowReason::Symmetry)
+                    !matches!(reason, RowReason::Restate)
                         && said.iter().any(|line| {
                             row_follows(
                                 line,

@@ -30,7 +30,7 @@ theorem hypotenuse-longest
 4.  |AC|² < |AC|² + |BC|²
     inequalities
       |BC|² > 0                    3
-      0 < |BC|²                    symmetry
+      0 < |BC|²                    restate
       |AC|² < |AC|² + |BC|²        adding |AC|²
 
 5.  |AC|² < |AB|²

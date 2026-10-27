@@ -90,7 +90,7 @@ theorem limit-at-most
             B < A                 2.1
             0 < A − B             adding −B
             0 < (A − B)/2         multiplying by 1/2
-            (A − B)/2 > 0         symmetry
+            (A − B)/2 > 0         restate
 
     2.3.  A < B + (A − B)/2
           instantiate r := (A − B)/2 in line 1, from 2.2

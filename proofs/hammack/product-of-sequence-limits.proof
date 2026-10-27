@@ -35,7 +35,7 @@ theorem bounded-times-small
     inequalities
       |C| < K              H6
       0 < K − |C|          adding −|C|
-      K − |C| > 0          symmetry
+      K − |C| > 0          restate
     requires |C| ∈ ℝ: mun:abs-real x := C
 
 4.  K − |C| ≥ 0
@@ -61,7 +61,7 @@ theorem bounded-times-small
     inequalities
       K·|u| − |C|·|u| ≥ 0    7
       K·|u| ≥ |C|·|u|        adding |C|·|u|
-      |C|·|u| ≤ K·|u|        symmetry
+      |C|·|u| ≤ K·|u|        restate
     requires |C| ∈ ℝ: mun:abs-real x := C
     requires |u| ∈ ℝ: mun:abs-real x := u
 

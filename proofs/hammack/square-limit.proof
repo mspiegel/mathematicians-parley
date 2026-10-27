@@ -32,7 +32,7 @@ theorem square-limit
           inequalities
             ε > 0            A1
             ε/7 > 0          multiplying by 1/7
-            0 < ε/7          symmetry
+            0 < ε/7          restate
 
     1.2.  0 < min(1, ε/7)
           mun:lt-min z := 0, x := 1, y := ε/7

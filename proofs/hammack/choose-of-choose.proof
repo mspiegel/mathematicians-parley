@@ -42,7 +42,7 @@ theorem choose-of-choose
     inequalities
       0 ≤ c         4
       0 ≥ −c        multiplying by −1
-      −c ≤ 0        symmetry
+      −c ≤ 0        restate
 
 9.  b − c ≤ a
     inequalities, from H5, 8

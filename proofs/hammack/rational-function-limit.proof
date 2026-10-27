@@ -107,7 +107,7 @@ theorem rational-function-limit
                     n ≤ n²                       1.2.19
                     3n ≤ 3n²                     multiplying by 3
                     −3n ≥ −3n²                   multiplying by −1
-                    −3n² ≤ −3n                   symmetry
+                    −3n² ≤ −3n                   restate
                     10n² − 3n² ≤ 10n² − 3n       adding 10n²
                     7n² ≤ 10n² − 3n              algebra
 
@@ -154,7 +154,7 @@ theorem rational-function-limit
                   inequalities
                     1/n < ε          1.2.27
                     −1/n > −ε        multiplying by −1
-                    −ε < −1/n        symmetry
+                    −ε < −1/n        restate
 
           1.2.31. −ε < a(n) − 5/4
                   transitivity, from 1.2.30, 1.2.25, 1.2.8

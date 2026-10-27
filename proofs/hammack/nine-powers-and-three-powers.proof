@@ -264,7 +264,7 @@ theorem powers-of-nine-in-powers-of-three
     3.8.  1/2 ≤ m
           inequalities
             m = 1/2        3.7
-            1/2 = m        symmetry
+            1/2 = m        restate
             1/2 ≤ m        weakening
 
     3.9.  0 < m

@@ -69,7 +69,7 @@ theorem inverse-squares-bounded
           inequalities
             k + 1 > 0                                       2.4
             k·(k + 1) + (k + 1) > k·(k + 1)                 adding k·(k + 1)
-            k·(k + 1) < k·(k + 1) + (k + 1)                 symmetry
+            k·(k + 1) < k·(k + 1) + (k + 1)                 restate
 
     2.12. k·(k + 1) < (k + 1)²
           transitivity, from 2.11, 2.10

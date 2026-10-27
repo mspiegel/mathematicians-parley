@@ -638,7 +638,7 @@ pub enum Head {
 pub enum Manipulation {
     Adding(String),
     Multiplying(String),
-    Symmetry,
+    Restate,
     Weakening,
 }
 
@@ -651,7 +651,7 @@ impl Manipulation {
         // `algebra, from L` is the method, which rewrites an equation's or a
         // disequality's sides itself.
         for (word, made) in [
-            ("symmetry", Manipulation::Symmetry),
+            ("restate", Manipulation::Restate),
             ("weakening", Manipulation::Weakening),
         ] {
             if let Some(rest) = reason.strip_prefix(word) {
@@ -686,7 +686,7 @@ impl Manipulation {
             Manipulation::Multiplying(c) => {
                 RowReason::Multiplying(Written::new(c, path, line))
             }
-            Manipulation::Symmetry => RowReason::Symmetry,
+            Manipulation::Restate => RowReason::Restate,
             Manipulation::Weakening => RowReason::Weakening,
         }
     }
@@ -697,7 +697,7 @@ impl fmt::Display for Manipulation {
         match self {
             Manipulation::Adding(t) => write!(f, "adding {t}"),
             Manipulation::Multiplying(c) => write!(f, "multiplying by {c}"),
-            Manipulation::Symmetry => f.write_str("symmetry"),
+            Manipulation::Restate => f.write_str("restate"),
             Manipulation::Weakening => f.write_str("weakening"),
         }
     }
@@ -1428,8 +1428,9 @@ pub enum RowReason {
     Adding(Written),
     /// Both sides multiplied by a number.
     Multiplying(Written),
-    /// An equation's two sides swapped.
-    Symmetry,
+    /// A relation turned round: an equation's two sides swapped, or an order
+    /// or a `≠` read from its other side.
+    Restate,
     /// A relation weakened.
     Weakening,
     /// A side written as the same number another way.
@@ -1449,8 +1450,9 @@ const ROW_WORDS: [&str; 2] = ["adding", "multiplying by"];
 
 /// The rows an `inequalities` step writes, each cut as `GRAMMAR.md`'s
 /// inequality rows cut it, from the right: a last word that is a reference,
-/// `symmetry`, `weakening` or `algebra`, or `adding` or `multiplying by` and
-/// a term. None for a step with no rows; a row with no reason is a defect.
+/// `restate`, `weakening` or `algebra`, or `adding` or `multiplying by` and
+/// a term. None for a step with no rows; a row with no reason is a defect,
+/// and so is one ending in `symmetry`, a word kept back for later.
 pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
     if just.rows.is_empty() {
         return None;
@@ -1477,8 +1479,15 @@ pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
             });
         let last = whole.rsplit(char::is_whitespace).next().unwrap_or(whole);
         let before_last = str::trim(&whole[..whole.len() - last.len()]);
+        if last == "symmetry" {
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                "`symmetry` is kept back for later; a row turning a relation round is `restate`",
+            )));
+        }
         let word = match last {
-            "symmetry" => Some(RowReason::Symmetry),
+            "restate" => Some(RowReason::Restate),
             "weakening" => Some(RowReason::Weakening),
             "algebra" => Some(RowReason::Algebra),
             _ if skeleton::is_ref(last) => Some(RowReason::Cited(last.to_string())),
@@ -1489,7 +1498,7 @@ pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
             return Some(Err(Problem::new(
                 path,
                 *no,
-                "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `symmetry`, `weakening` or `algebra`",
+                "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `restate`, `weakening` or `algebra`",
             )));
         };
         out.push(Row {

@@ -636,7 +636,7 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
         }
         // A row writes a formula and, after `adding` or `multiplying by`, a
         // term: those hold what the proof writes of its letters. The reason's
-        // words and label are none of them, and a word like `symmetry`
+        // words and label are none of them, and a word like `restate`
         // would be read a letter at a time.
         for (_, no) in &step.just.rows {
             let l = at(*no);
@@ -1710,7 +1710,7 @@ pub fn relations_turned(ctx: &Context, path: &str, text: &str) -> Rewritten {
 /// The lines a step's rows write out as their first row, and the lines a
 /// requires line names a manipulation of, by label or step number. Rows and
 /// manipulations keep each relation the way round it is written, a turn
-/// being a symmetry row of its own (`METHODS.md`, inequalities, Rows), so
+/// being a restate row of its own (`METHODS.md`, inequalities, Rows), so
 /// such a line, and a claim a step's rows end on, are not spelt otherwise
 /// by turning them round alone.
 fn written_out_by_rows(thm: &Theorem) -> BTreeSet<String> {

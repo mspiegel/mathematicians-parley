@@ -171,17 +171,18 @@ reason names, and the last row is the claim:
 |---|---|
 | `adding t` | t added to both sides |
 | `multiplying by c` | both sides multiplied by c, a number other than 0; for c negative the relation turned round |
-| `symmetry` | an equation's two sides swapped, or a `≠` or an order turned round: `a > 0` to `0 < a` |
+| `restate` | an equation's two sides swapped, or a `≠` or an order turned round: `a > 0` to `0 < a` |
 | `weakening` | `<` or `=` weakened to `≤`, `>` or `=` to `≥`, or `<` or `>` to `≠` |
 | `algebra` | a side written as the same number another way |
 
 Each row keeps its sides where its manipulation leaves them: the first row
 is the cited line as it is written, and the last row is the claim as it is
-written. Turning a relation round is a `symmetry` row of its own, never
+written. Turning a relation round is a `restate` row of its own, never
 part of another row; `multiplying by` a negative number turns the relation
 round, its sides staying where they are. Outside rows a relation is read
 either way round without a word (transitivity, an item's hypothesis, a
-requires line citing a line).
+requires line citing a line). `symmetry` is kept back for later use, and a
+row that names it is refused.
 
 A row that adds or multiplies may write what it makes as the same number
 another way: `multiplying by 1/2` takes `2·A < A + B` to `A < (A + B)/2`,
@@ -254,7 +255,7 @@ over the atoms, with two additions:
   turning `≤` together with `≠` into `<`.
 
 An equation is not two inequalities to a step. `x ≤ |x|` from `|x| = x` is
-written as rows, `|x| = x`, then `x = |x|` by `symmetry`, then `x ≤ |x|` by
+written as rows, `|x| = x`, then `x = |x|` by `restate`, then `x ≤ |x|` by
 `weakening`, so that the reader sees the equation read as an order.
 
 ### Refusals

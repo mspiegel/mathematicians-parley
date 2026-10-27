@@ -42,7 +42,7 @@ theorem two-angles-under-straight
 5.  ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA
     inequalities
       ∠BCA > 0                                    4
-      0 < ∠BCA                                    symmetry
+      0 < ∠BCA                                    restate
       ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA            adding ∠BAC + ∠ABC
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H4
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4

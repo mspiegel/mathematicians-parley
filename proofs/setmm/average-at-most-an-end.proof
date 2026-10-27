@@ -24,7 +24,7 @@ theorem average-at-most-an-end
             B − A ≥ 0          C1
             2·B ≥ A + B        adding A + B
             B ≥ (A + B)/2      multiplying by 1/2
-            (A + B)/2 ≤ B      symmetry
+            (A + B)/2 ≤ B      restate
 
     2.2.  (A + B)/2 ≤ A or (A + B)/2 ≤ B
           mun:or-right, from 2.1

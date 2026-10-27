@@ -32,7 +32,7 @@ theorem quadratic-limit
           inequalities
             ε > 0            A1
             ε/12 > 0         multiplying by 1/12
-            0 < ε/12         symmetry
+            0 < ε/12         restate
 
     1.2.  0 < min(1, ε/12)
           mun:lt-min z := 0, x := 1, y := ε/12
@@ -58,7 +58,7 @@ theorem quadratic-limit
                   inequalities
                     1 − 1 < x            1.4.2
                     0 < 4·x              multiplying by 4
-                    4·x > 0              symmetry
+                    4·x > 0              restate
 
           1.4.4.  4·x + 4 > 0
                   inequalities, from 1.4.3

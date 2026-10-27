@@ -73,7 +73,7 @@ theorem log-two-of-three-between
       2 − ln(3)/ln(2) > 0                          7
       2 − ln(3)/ln(2) + ln(3)/ln(2) > ln(3)/ln(2)  adding ln(3)/ln(2)
       2 > ln(3)/ln(2)                              algebra
-      ln(3)/ln(2) < 2                              symmetry
+      ln(3)/ln(2) < 2                              restate
     requires ln(2) ≠ 0: real arithmetic
 
 9.  1 < ln(3)/ln(2) and ln(3)/ln(2) < 2
