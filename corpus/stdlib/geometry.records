@@ -1290,6 +1290,63 @@ mundane theorem same-not-opposite
   note        The two sides of a line do not meet, which SMSG's plane
               separation postulate says in calling them two sets.
 
+mundane theorem parallel-turned
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume line AB ∥ line CD                                            (H6)
+  then        line CD ∥ line AB
+  metamath    gparturn, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gparturn
+  note        Being parallel goes both ways.
+
+mundane theorem perpendicular-turned
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume line AB ⊥ line CD                                            (H5)
+  then        line BA ⊥ line CD
+  metamath    gperpturn, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gperpturn
+  note        Line BA is line AB, so a line perpendicular to the one is
+              perpendicular to the other.
+
+mundane theorem perpendicular-along
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume line AB ⊥ line CD                                            (H7)
+  assume E is on line CD                                              (H8)
+  assume F is on line CD                                              (H9)
+  assume E ≠ F                                                        (H10)
+  then        line AB ⊥ line EF
+  metamath    gperpalong, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gperpalong
+  note        Being perpendicular belongs to the line, not to the two
+              points that name it.
+
+mundane theorem area-rotated
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        the area of △PQR = the area of △QRP
+  metamath    garearot, which this corpus proves in
+              elaboration/stdlib/proved.mm: each is half the size of the
+              imaginary part of (P − R) times the conjugate of (Q − R)
+  target      garearot
+  note        The area of a triangle does not depend on which vertex is
+              named first.
+
 mundane theorem same-side-turned
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)

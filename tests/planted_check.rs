@@ -57,6 +57,118 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
     Edit { file, old, new }
 }
 
+/// Where the cases that plant defects in the law of sines write it.
+const SINES_FILE: &str = "proofs/wiedijk/similar-by-sines.proof";
+
+/// Similar triangles by the angle sum and the law of sines, a proof whose
+/// algebra combines angles and sines under requires lines. The corpus
+/// proves similarity from the postulates instead (`angle-angle-similar`),
+/// so the cases that plant defects in such lines write this one first.
+const SINES: &str = r#"import theorem            proofs/wiedijk/angle-sum/angle-sum
+import theorem            stdlib/geometry/law-of-sines
+import theorem            stdlib/geometry/altitude-foot
+import mundane theorem    stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/angle-along-segment
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/between-symmetric
+import mundane theorem    stdlib/geometry/sine-positive
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+
+theorem similar-triangles
+  note        Two triangles with two angles equal have the third equal too
+              (angle-sum), and the law of sines then gives their sides in
+              proportion.
+  let P be a point                                                   (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume ∠QPR = ∠Q′P′R′                                               (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  then |PQ|·|P′R′| = |P′Q′|·|PR|
+
+1.  ∠QPR + ∠PQR + ∠QRP = 180°
+    thm:angle-sum A := P, B := Q, C := R, from H7
+
+2.  ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′ = 180°
+    thm:angle-sum A := P′, B := Q′, C := R′, from H8
+
+3.  ∠QPR + ∠PQR + ∠QRP = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′
+    calculation
+      ∠QPR + ∠PQR + ∠QRP = 180°                               1
+                         = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′         2
+
+4.  ∠QRP = ∠Q′R′P′
+    algebra, from H9, H10, 3
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires ∠Q′P′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠P′Q′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠Q′R′P′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+
+5.  |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
+    thm:law-of-sines, from H7
+
+6.  |P′Q′|·sin(∠P′Q′R′) = |P′R′|·sin(∠Q′R′P′)
+    thm:law-of-sines P := P′, Q := Q′, R := R′, from H8
+
+7.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠Q′R′P′)
+    substitute ∠PQR = ∠P′Q′R′ (H10) into line 6
+
+8.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠QRP)
+    substitute ∠QRP = ∠Q′R′P′ (line 4) into line 7
+
+9.  |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 5
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
+
+10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 8
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
+
+11. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
+    calculation
+      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9
+                            = |P′Q′|·|PR|·sin(∠PQR)       10
+
+12. sin(∠PQR) > 0
+    mun:sine-positive, from H7
+
+13. sin(∠PQR) ≠ 0
+    inequalities
+      sin(∠PQR) > 0      12
+      sin(∠PQR) ≠ 0      weakening
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+
+14. |PQ|·|P′R′| = |P′Q′|·|PR|
+    mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
+      from 11
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires sin(∠PQR) ≠ 0: from 13
+"#;
+
+/// The edits that write `SINES` and plant `new` in place of `old` there.
+fn in_sines(old: &str, new: &str) -> Vec<Edit> {
+    vec![
+        edit(SINES_FILE, None, SINES.to_string()),
+        edit(SINES_FILE, Some(old.to_string()), new.to_string()),
+    ]
+}
+
 /// The corpus as it stands: the database, the library, and every proof.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -712,11 +824,10 @@ fn cases() -> Vec<Case> {
         // which line 3 holds only inside a sum.
         case(
             "leave out the membership of an angle an algebra step combines",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n".to_string()),
-                String::new(),
-            )],
+            in_sines(
+                "    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n",
+                "",
+            ),
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A line marked impossible is reached by its reasons from the lines
@@ -750,12 +861,11 @@ fn cases() -> Vec<Case> {
         // membership is `membership`'s.
         case(
             "give a requires line's membership a method that does not decide it",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.".to_string()),
-                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.".to_string(),
-            )],
-            "proofs/wiedijk/pythagoras.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
+            in_sines(
+                "    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.",
+                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.",
+            ),
+            "proofs/wiedijk/similar-by-sines.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -5745,11 +5855,10 @@ fn cases() -> Vec<Case> {
         // a calculation, and one `algebra` step citing both is refused.
         case(
             "one algebra step multiplying two cited equations",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10".to_string()),
-                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
-            )],
+            in_sines(
+                "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
+                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
+            ),
             "at most one equation multiplied by a term",
         ),
         // A formula that does not lex is a defect with a position, the line
@@ -5850,11 +5959,10 @@ fn cases() -> Vec<Case> {
         // from: the order is step 12's, and only step 13 cites it.
         case(
             "a requires line its method cannot prove",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires sin(∠PQR) ≠ 0: from 13\n".to_string()),
-                "    requires sin(∠PQR) ≠ 0: inequalities\n".to_string(),
-            )],
+            in_sines(
+                "    requires sin(∠PQR) ≠ 0: from 13\n",
+                "    requires sin(∠PQR) ≠ 0: inequalities\n",
+            ),
             "the requires line sin(∠PQR) ≠ 0 of step 14, read as a step citing what it cites: sin(∠PQR) ≠ 0 does not follow from what step 14 cites",
         ),
         // `membership` builds from what the line cites: f(a) is real because

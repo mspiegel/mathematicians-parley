@@ -2,6 +2,9 @@ import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
 import mundane axiom      stdlib/numbers/trichotomy
+import mundane axiom      stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/numbers/multiply-cancel
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -2336,3 +2339,1915 @@ theorem side-side-side
 50. triangle ABC ≅ triangle DEF
     def:congruent P := A, Q := B, R := C, P′ := D, Q′ := E, R′ := F,
       from H9, H10, H11, 43, 46, 49
+
+mundane theorem right-angle-along
+  note        A right angle at H to one point of a line through H is a right
+              angle to every other: the point is on the same ray, or on the
+              ray opposite, whose angle is the supplement.
+  let P be a point                                                    (H1)
+  let H be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  let T be a point                                                    (H4)
+  assume P ≠ H                                                        (H5)
+  assume S ≠ H                                                        (H6)
+  assume ∠PHS = 90°                                                   (H7)
+  assume T is on line HS                                              (H8)
+  assume T ≠ H                                                        (H9)
+  then ∠PHT = 90°
+
+1.  T = H or T is between H and S or T = S or S is between H and T or
+    H is between T and S
+    mun:on-line-cases P := T, Q := H, R := S, from H6, H8
+
+2.  ∠PHT = ∠THP
+    mun:angle-turned Q := H, R := T, from H5, H9
+
+3.  ∠SHP = ∠PHS
+    mun:angle-turned P := S, Q := H, R := P, from H5, H6
+
+4.  ∠PHT = 90°
+    cases, from 1
+
+    case
+    assume T = H                                                      (C1)
+
+    4.1.  T ≠ H
+          restate H9, contradicting C1
+
+    case
+    assume T is between H and S                                       (C2)
+
+    4.2.  ∠THP = ∠SHP
+          mun:angle-along-segment P := H, Q := S, S := T, R := P, from C2, H5
+
+    4.3.  ∠PHT = 90°
+          calculation
+            ∠PHT = ∠THP       2
+                 = ∠SHP       4.2
+                 = ∠PHS       3
+                 = 90°        H7
+
+    case
+    assume T = S                                                      (C3)
+
+    4.4.  ∠PHT = 90°
+          substitute T = S (C3) into H7
+
+    case
+    assume S is between H and T                                       (C4)
+
+    4.5.  ∠SHP = ∠THP
+          mun:angle-along-segment P := H, Q := T, R := P, from C4, H5
+
+    4.6.  ∠PHT = 90°
+          calculation
+            ∠PHT = ∠THP       2
+                 = ∠SHP       4.5
+                 = ∠PHS       3
+                 = 90°        H7
+
+    case
+    assume H is between T and S                                       (C5)
+
+    4.7.  ∠THP + ∠PHS = 180°
+          axi:supplementary-angles A := T, B := H, C := S, D := P, from C5, H5
+
+    4.8.  ∠PHT = 90°
+          algebra, from H7, 2, 4.7
+          requires ∠THP ∈ ℝ: mun:angle-real P := T, Q := H, R := P, from H5, H9
+
+mundane theorem height-area
+  note        The area postulate with the height read off a right angle at its
+              foot H: the lines PH and HS are perpendicular, and line HS is
+              line QR.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let H be a point                                                    (H4)
+  let S be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume H is on line QR                                              (H7)
+  assume S is on line QR                                              (H8)
+  assume S ≠ H                                                        (H9)
+  assume ∠PHS = 90°                                                   (H10)
+  then the area of △PQR = (1/2)·|QR|·|PH|
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H6
+
+2.  not (P is on line QR)
+    mun:triangle-not-on-line, from H6
+
+3.  H ≠ P
+    mun:on-off-apart A := Q, B := R, X := H, Y := P, from H7, 2
+
+4.  line HP ⊥ line HS
+    mun:perpendicular-by-right-angle Q := H, R := S, from H9, H10, 3
+
+5.  line PH ⊥ line HS
+    mun:perpendicular-turned A := H, B := P, C := H, D := S, from 4
+
+6.  line HS = line QR
+    axi:line-uniqueness A := H, B := S, C := Q, D := R, from H7, H8, H9, 1
+
+7.  Q is on line QR. R is on line QR.
+    mun:on-line-ends A := Q, B := R
+
+8.  Q ∈ line QR
+    mun:line P := Q, A := Q, B := R, from 7
+
+9.  Q ∈ line HS
+    substitute line HS = line QR (line 6) into line 8
+
+10. Q is on line HS
+    mun:line P := Q, A := H, B := S, from 9
+
+11. R ∈ line QR
+    mun:line P := R, A := Q, B := R, from 7
+
+12. R ∈ line HS
+    substitute line HS = line QR (line 6) into line 11
+
+13. R is on line HS
+    mun:line P := R, A := H, B := S, from 12
+
+14. line PH ⊥ line QR
+    mun:perpendicular-along A := P, B := H, C := H, D := S, E := Q, F := R,
+      from 1, 5, 10, 13
+
+15. the area of △PQR = (1/2)·|QR|·|PH|
+    axi:area-base-height, from H6, H7, 14
+
+mundane theorem foot
+  note        The foot H of the perpendicular from P to line QR, with a second
+              point S of the line to read the right angle against: Q, unless
+              H is Q, and then R.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then there are H, S ∈ 𝔼² with H is on line QR, S is on line QR, S ≠ H, P ≠ H, and ∠PHS = 90°
+
+1.  H ∈ 𝔼². H is on line QR. P ≠ H. If H ≠ Q then ∠PHQ = 90°.
+    If H ≠ R then ∠PHR = 90°.
+    obtain H: thm:perpendicular-foot, from H4
+
+2.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H4
+
+3.  Q is on line QR. R is on line QR.
+    mun:on-line-ends A := Q, B := R
+
+4.  H = Q or not (H = Q)
+    mun:excluded-middle P := H = Q
+
+5.  there are H, S ∈ 𝔼² with H is on line QR, S is on line QR, S ≠ H,
+    P ≠ H, and ∠PHS = 90°
+    cases, from 4
+
+    case
+    assume H = Q                                                      (C1)
+
+    5.1.  H ≠ R
+          contradiction
+          suppose H = R                                               (S1)
+
+          5.1.1.  Q = R
+                  calculation, contradicting 2
+                    Q = H       C1
+                      = R       S1
+
+    5.2.  ∠PHR = 90°
+          mun:modus-ponens, from 1, 5.1
+
+    5.3.  there are H, S ∈ 𝔼² with H is on line QR, S is on line QR,
+          S ≠ H, P ≠ H, and ∠PHS = 90°
+          exhibit, from 1, 3, 5.1, 5.2
+
+    case
+    assume not (H = Q)                                                (C2)
+
+    5.4.  ∠PHQ = 90°
+          mun:modus-ponens, from C2, 1
+
+    5.5.  there are H, S ∈ 𝔼² with H is on line QR, S is on line QR,
+          S ≠ H, P ≠ H, and ∠PHS = 90°
+          exhibit, from C2, 1, 3, 5.4
+
+mundane theorem parallel-off
+  note        Two parallel lines that are not one line share no point, so a
+              point of the one is off the other.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume C ≠ D                                                        (H7)
+  assume line AB ∥ line CD                                            (H8)
+  assume not (A is on line CD)                                        (H9)
+  assume X is on line AB                                              (H10)
+  then not (X is on line CD)
+
+1.  line AB = line CD or not (there is Y ∈ 𝔼² with Y is on line AB and
+    Y is on line CD)
+    mun:parallel, from H6, H7, H8
+
+2.  A is on line AB
+    mun:on-line-ends
+
+3.  not (line AB = line CD)
+    contradiction
+    suppose line AB = line CD                                         (S1)
+
+    3.1.  A ∈ line AB
+          mun:line P := A, from 2
+
+    3.2.  A ∈ line CD
+          substitute line AB = line CD (S1) into line 3.1
+
+    3.3.  A is on line CD
+          mun:line P := A, A := C, B := D, from 3.2, contradicting H9
+
+4.  not (there is Y ∈ 𝔼² with Y is on line AB and Y is on line CD)
+    mun:disjunctive-syllogism-left, from 1, 3
+
+5.  not (X is on line CD)
+    contradiction
+    suppose X is on line CD                                           (S2)
+
+    5.1.  there is Y ∈ 𝔼² with Y is on line AB and Y is on line CD
+          exhibit, from H10, S2, contradicting 4
+
+mundane theorem parallel-same-side
+  note        A segment between two points of one of two parallel lines
+              never meets the other, so the two points are on one side of
+              it (plane-separation-crossing).
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume C ≠ D                                                        (H7)
+  assume line AB ∥ line CD                                            (H8)
+  assume not (A is on line CD)                                        (H9)
+  assume X is on line AB                                              (H10)
+  assume X ≠ A                                                        (H11)
+  then X and A are on the same side of line CD
+
+1.  not (X is on line CD)
+    mun:parallel-off, from H6, H7, H8, H9, H10
+
+2.  X and A are on the same side of line CD or X and A are on opposite
+    sides of line CD
+    axi:plane-separation A := C, B := D, P := X, Q := A, from H7, H9, 1
+
+3.  A is on line AB
+    mun:on-line-ends
+
+4.  line AX = line AB
+    axi:line-uniqueness B := X, C := A, D := B, from H6, H10, H11, 3
+
+5.  not (X and A are on opposite sides of line CD)
+    contradiction
+    suppose X and A are on opposite sides of line CD                  (S1)
+
+    5.1.  Y ∈ 𝔼². Y is on line CD. Y is between X and A.
+          obtain Y: axi:plane-separation-crossing A := C, B := D, P := X,
+            Q := A, from H7, S1
+
+    5.2.  A, Y, X are collinear.
+          mun:between-collinear R := Y, S := X, T := A, from 5.1
+
+    5.3.  Y is on line AX
+          mun:on-line P := Y, B := X, from 5.2
+
+    5.4.  Y ∈ line AX
+          mun:line P := Y, B := X, from 5.3
+
+    5.5.  Y ∈ line AB
+          substitute line AX = line AB (line 4) into line 5.4
+
+    5.6.  Y is on line AB
+          mun:line P := Y, from 5.5
+
+    5.7.  not (Y is on line CD)
+          mun:parallel-off X := Y, from H6, H7, H8, H9, 5.6,
+            contradicting 5.1
+
+6.  X and A are on the same side of line CD
+    mun:disjunctive-syllogism, from 2, 5
+
+theorem parallel-equidistant
+  note        A and B on a line parallel to line HK, with right angles at H
+              and K. Let M be the midpoint of AK and produce HM past M to Z
+              with MZ = HM. The triangles HMK and ZMA, and HMA and ZMK, agree
+              in two sides and the vertical angles between them, so |ZK| =
+              |AH|, line AZ is parallel to line HK and so is line AB, and
+              line ZK is parallel to line HA, which makes ∠HKZ a right angle.
+              Then Z is the point of line AB where the perpendicular at K
+              meets it, which is B.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let H be a point                                                    (H3)
+  let K be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume A and B are on the same side of line HK                      (H6)
+  assume line AB ∥ line HK                                            (H7)
+  assume ∠AHK = 90°                                                   (H8)
+  assume ∠BKH = 90°                                                   (H9)
+  then |AH| = |BK|
+
+1.  H ≠ K. not (A is on line HK). not (B is on line HK).
+    mun:same-side-off-line A := H, B := K, P := A, Q := B, from H6
+
+2.  A ≠ H. A ≠ K.
+    mun:off-line-apart A := H, B := K, P := A, from 1
+
+3.  B ≠ H. B ≠ K.
+    mun:off-line-apart A := H, B := K, P := B, from 1
+
+4.  M ∈ 𝔼². M is the midpoint of AK.
+    obtain M: mun:midpoint-exists B := K, from 2
+
+5.  M is between A and K. |AM| = |MK|.
+    mun:midpoint B := K, from 4
+
+6.  H is on line HK. K is on line HK.
+    mun:on-line-ends A := H, B := K
+
+7.  M and A are on the same side of line HK
+    mun:segment-off-line A := H, B := K, P := A, Q := K, X := M,
+      from 1, 5, 6
+
+8.  not (M is on line HK)
+    mun:same-side-off-line A := H, B := K, P := M, Q := A, from 7
+
+9.  H ≠ M
+    mun:on-off-apart A := H, B := K, X := H, Y := M, from 6, 8
+
+10. |HM| > 0
+    mun:distance-positive P := H, Q := M, from 9
+
+11. Z ∈ 𝔼². M is between H and Z. |MZ| = |HM|.
+    obtain Z: mun:segment-extension A := H, B := M, r := |HM|, from 9, 10
+
+12. M is between K and A
+    mun:between-symmetric R := M, S := A, T := K, from 5
+
+13. ∠HMK = ∠ZMA
+    thm:vertical-angles A := H, B := K, C := Z, D := A, O := M, from 11, 12
+
+14. ∠HMA = ∠ZMK
+    thm:vertical-angles A := H, B := A, C := Z, D := K, O := M, from 5, 11
+
+15. M, H, K form a triangle.
+    mun:triangle-off-line P := M, Q := H, R := K, from 1, 8
+
+16. H, K, M form a triangle.
+    mun:triangle-rotated P := M, Q := H, R := K, from 15
+
+17. H, M, K form a triangle.
+    mun:triangle-turned P := H, Q := K, R := M, from 16
+
+18. H, M, A form a triangle.
+    mun:triangle-extension P := H, Q := M, R := K, S := A, from 12, 17
+
+19. K, M, H form a triangle.
+    mun:triangle-rotated P := H, Q := K, R := M, from 16
+
+20. K, M, Z form a triangle.
+    mun:triangle-extension P := K, Q := M, R := H, S := Z, from 11, 19
+
+21. M, A, H form a triangle.
+    mun:triangle-rotated P := H, Q := M, R := A, from 18
+
+22. A, H, M form a triangle.
+    mun:triangle-rotated P := M, Q := A, R := H, from 21
+
+23. A, M, H form a triangle.
+    mun:triangle-turned P := A, Q := H, R := M, from 22
+
+24. A, M, Z form a triangle.
+    mun:triangle-extension P := A, Q := M, R := H, S := Z, from 11, 23
+
+25. M, Z, A form a triangle.
+    mun:triangle-rotated P := A, Q := M, R := Z, from 24
+
+26. Z, A, M form a triangle.
+    mun:triangle-rotated P := M, Q := Z, R := A, from 25
+
+27. Z, M, A form a triangle.
+    mun:triangle-turned P := Z, Q := A, R := M, from 26
+
+28. M, Z, K form a triangle.
+    mun:triangle-rotated P := K, Q := M, R := Z, from 20
+
+29. Z, K, M form a triangle.
+    mun:triangle-rotated P := M, Q := Z, R := K, from 28
+
+30. Z, M, K form a triangle.
+    mun:triangle-turned P := Z, Q := K, R := M, from 29
+
+31. |HM| = |ZM|
+    algebra, from 11
+
+32. |MK| = |MA|
+    algebra, from 5
+
+33. triangle HMK ≅ triangle ZMA
+    axi:side-angle-side P := H, Q := M, R := K, P′ := Z, Q′ := M, R′ := A,
+      from 13, 17, 27, 31, 32
+
+34. |KH| = |AZ|. ∠MKH = ∠MAZ.
+    def:congruent, from 33
+
+35. triangle HMA ≅ triangle ZMK
+    axi:side-angle-side P := H, Q := M, R := A, P′ := Z, Q′ := M, R′ := K,
+      from 14, 18, 30, 31, 32
+
+36. |AH| = |KZ|. ∠MAH = ∠MKZ. ∠AHM = ∠KZM.
+    def:congruent, from 35
+
+37. Z ≠ M. M ≠ A. Z ≠ A.
+    mun:triangle P := Z, Q := M, R := A, from 27
+
+38. Z ≠ M. M ≠ K. Z ≠ K.
+    mun:triangle P := Z, Q := M, R := K, from 30
+
+39. ∠MAZ = ∠KAZ
+    mun:angle-along-segment P := A, Q := K, S := M, R := Z, from 5, 37
+
+40. ∠MKH = ∠AKH
+    mun:angle-along-segment P := K, Q := A, S := M, R := H, from 1, 12
+
+41. ∠KAZ = ∠ZAK
+    mun:angle-turned P := K, Q := A, R := Z, from 2, 37
+
+42. ∠ZAK = ∠AKH
+    calculation
+      ∠ZAK = ∠KAZ       41
+           = ∠MAZ       39
+           = ∠MKH       34
+           = ∠AKH       40
+
+43. A, H, K form a triangle.
+    mun:triangle-off-line P := A, Q := H, R := K, from 1
+
+44. H, K, A form a triangle.
+    mun:triangle-rotated P := A, Q := H, R := K, from 43
+
+45. K, A, H form a triangle.
+    mun:triangle-rotated P := H, Q := K, R := A, from 44
+
+46. K, H, A form a triangle.
+    mun:triangle-turned P := K, Q := A, R := H, from 45
+
+47. H, A, K form a triangle.
+    mun:triangle-turned P := H, Q := K, R := A, from 44
+
+48. not (H is on line AK)
+    mun:triangle-not-on-line P := H, Q := A, R := K, from 47
+
+49. K, M, A are collinear.
+    mun:between-collinear R := M, S := A, T := K, from 5
+
+50. M is on line AK
+    mun:on-line P := M, B := K, from 49
+
+51. H and Z are on opposite sides of line AK
+    mun:segment-across-line B := K, P := H, Q := Z,
+      from 2, 11, 48, 50
+
+52. Z and H are on opposite sides of line AK
+    mun:opposite-sides-turned B := K, P := H, Q := Z, from 51
+
+53. line AZ ∥ line KH
+    thm:alternate-angles-converse P := K, Q := H, R := A, S := Z,
+      from 42, 46, 52
+
+54. B is on line AB
+    mun:on-line-ends
+
+55. line AB ∥ line KH
+    mun:parallel-along C := H, D := K, E := B, from H5, H7, 54
+
+56. A, K, H form a triangle.
+    mun:triangle-turned P := A, Q := H, R := K, from 43
+
+57. not (A is on line KH)
+    mun:triangle-not-on-line P := A, Q := K, R := H, from 56
+
+58. line AZ = line AB
+    axi:parallel-uniqueness A := K, B := H, P := A, C := Z, D := B,
+      from H5, 1, 37, 53, 55, 57
+
+59. A is on line AZ. Z is on line AZ.
+    mun:on-line-ends B := Z
+
+60. Z ∈ line AZ
+    mun:line P := Z, B := Z, from 59
+
+61. Z ∈ line AB
+    substitute line AZ = line AB (line 58) into line 60
+
+62. Z is on line AB
+    mun:line P := Z, from 61
+
+63. Z and A are on the same side of line HK
+    mun:parallel-same-side C := H, D := K, X := Z, from H5, H7, 1, 37, 62
+
+64. Z and B are on the same side of line HK
+    mun:same-side-same A := H, B := K, P := Z, Q := A, R := B, from H6, 63
+
+65. H ≠ Z
+    mun:between-ends-apart R := M, S := H, T := Z, from 11
+
+66. M is between Z and H
+    mun:between-symmetric R := M, S := H, T := Z, from 11
+
+67. H, M, Z are collinear.
+    mun:between-collinear R := M, S := H, T := Z, from 11
+
+68. Z is on line HM
+    mun:on-line P := Z, A := H, B := M, from 67
+
+69. not (A is on line HM)
+    mun:triangle-not-on-line P := A, Q := H, R := M, from 22
+
+70. not (A is on line HZ)
+    mun:off-line-along A := H, B := M, X := Z, P := A, from 9, 65, 68, 69
+
+71. M is on line HZ
+    mun:on-line P := M, A := H, B := Z, from 67
+
+72. A and K are on opposite sides of line HZ
+    mun:segment-across-line A := H, B := Z, P := A, Q := K,
+      from 5, 65, 70, 71
+
+73. Z ≠ M
+    mun:triangle P := Z, Q := M, R := K, from 30
+
+74. not (K is on line ZM)
+    mun:triangle-not-on-line P := K, Q := Z, R := M, from 29
+
+75. H is on line ZM
+    mun:on-line P := H, A := Z, B := M, from 67
+
+76. not (K is on line ZH)
+    mun:off-line-along A := Z, B := M, X := H, P := K, from 65, 73, 74, 75
+
+77. K, Z, H form a triangle.
+    mun:triangle-off-line P := K, Q := Z, R := H, from 65, 76
+
+78. Z, H, K form a triangle.
+    mun:triangle-rotated P := K, Q := Z, R := H, from 77
+
+79. Z, K, H form a triangle.
+    mun:triangle-turned P := Z, Q := H, R := K, from 78
+
+80. ∠MHA = ∠ZHA
+    mun:angle-along-segment P := H, Q := Z, S := M, R := A, from 2, 11
+
+81. ∠MZK = ∠HZK
+    mun:angle-along-segment P := Z, Q := H, S := M, R := K, from 38, 66
+
+82. ∠AHZ = ∠ZHA
+    mun:angle-turned P := A, Q := H, R := Z, from 2, 65
+
+83. ∠AHM = ∠MHA
+    mun:angle-turned P := A, Q := H, R := M, from 2, 9
+
+84. ∠KZM = ∠MZK
+    mun:angle-turned P := K, Q := Z, R := M, from 38
+
+85. ∠AHZ = ∠HZK
+    calculation
+      ∠AHZ = ∠ZHA       82
+           = ∠MHA       80
+           = ∠AHM       83
+           = ∠KZM       36
+           = ∠MZK       84
+           = ∠HZK       81
+
+86. line HA ∥ line ZK
+    thm:alternate-angles-converse P := Z, Q := K, R := H, S := A,
+      from 72, 79, 85
+
+87. H is on line HA. A is on line HA.
+    mun:on-line-ends A := H, B := A
+
+88. line HA ∥ line KZ
+    mun:parallel-along A := H, B := A, C := Z, D := K, E := A, from 2, 86, 87
+
+89. line KZ ∥ line HA
+    mun:parallel-turned A := H, B := A, C := K, D := Z, from 2, 88
+
+90. |ZK| > 0
+    mun:distance-positive P := Z, Q := K, from 38
+
+91. W ∈ 𝔼². K is between Z and W. |KW| = |ZK|.
+    obtain W: mun:segment-extension A := Z, B := K, r := |ZK|, from 38, 90
+
+92. Z ≠ K. W ≠ K.
+    mun:between-apart R := K, S := Z, T := W, from 91
+
+93. W, K, Z are collinear.
+    mun:between-collinear R := K, S := Z, T := W, from 91
+
+94. W is on line KZ
+    mun:on-line P := W, A := K, B := Z, from 93
+
+95. line KW ∥ line AH
+    mun:parallel-along A := K, B := Z, C := H, D := A, E := W,
+      from 89, 92, 94
+
+96. W is on line KW
+    mun:on-line-ends A := K, B := W
+
+97. line KW ∥ line HA
+    mun:parallel-along A := K, B := W, C := A, D := H, E := W,
+      from 92, 95, 96
+
+98. not (Z is on line HK)
+    mun:same-side-off-line A := H, B := K, P := Z, Q := A, from 63
+
+99. Z and W are on opposite sides of line HK
+    mun:segment-across-line A := H, B := K, P := Z, Q := W, M := K,
+      from 1, 6, 91, 98
+
+100. A and Z are on the same side of line HK
+     mun:same-side-turned A := H, B := K, P := Z, Q := A, from 63
+
+101. A and W are on opposite sides of line HK
+     mun:same-opposite-opposite A := H, B := K, P := A, Q := Z, R := W,
+       from 99, 100
+
+102. W and A are on opposite sides of line HK
+     mun:opposite-sides-turned A := H, B := K, P := A, Q := W, from 101
+
+103. W and A are on opposite sides of line KH
+     mun:opposite-sides-of-line A := H, B := K, C := K, D := H, P := W,
+       Q := A, from 1, 6, 102
+
+104. ∠WKH = ∠KHA
+     thm:alternate-angles P := H, Q := A, R := K, S := W, from 47, 97, 103
+
+105. ∠KHA = ∠AHK
+     mun:angle-turned P := K, Q := H, R := A, from 1, 2
+
+106. ∠ZKH + ∠HKW = 180°
+     axi:supplementary-angles A := Z, B := K, C := W, D := H, from 1, 91
+
+107. ∠HKW = ∠WKH
+     mun:angle-turned P := H, Q := K, R := W, from 1, 92
+
+108. ∠HKZ = ∠ZKH
+     mun:angle-turned P := H, Q := K, R := Z, from 1, 92
+
+109. ∠HKZ = 90°
+     algebra, from H8, 104, 105, 106, 107, 108
+     requires ∠ZKH ∈ ℝ: mun:angle-real P := Z, Q := K, R := H, from 1, 92
+
+110. ∠HKB = ∠BKH
+     mun:angle-turned P := H, Q := K, R := B, from 1, 3
+
+111. ∠HKB = ∠HKZ
+     calculation
+       ∠HKB = ∠BKH       110
+            = 90°        H9
+            = ∠HKZ       109
+
+112. B, H, K form a triangle.
+     mun:triangle-off-line P := B, Q := H, R := K, from 1
+
+113. H, K, B form a triangle.
+     mun:triangle-rotated P := B, Q := H, R := K, from 112
+
+114. K, B, H form a triangle.
+     mun:triangle-rotated P := H, Q := K, R := B, from 113
+
+115. K, H, B form a triangle.
+     mun:triangle-turned P := K, Q := B, R := H, from 114
+
+116. Z and B are on the same side of line KH
+     mun:same-side-of-line A := H, B := K, C := K, D := H, P := Z, Q := B,
+       from 1, 6, 64
+
+117. B and Z are on the same side of line KH
+     mun:same-side-turned A := K, B := H, P := Z, Q := B, from 116
+
+118. B and B are on the same side of line KH
+     mun:same-side-same A := K, B := H, P := B, Q := Z, R := B, from 116, 117
+
+119. Z ∈ ray KB
+     axi:angle-construction-unique A := K, B := H, C := B, D := B, E := Z,
+       from 111, 115, 116, 118
+
+120. Z is on line KB
+     mun:ray-on-line P := Z, A := K, from 119
+
+121. Z = B
+     contradiction
+     suppose Z ≠ B                                                    (S1)
+
+     121.1. line ZB = line AB
+            axi:line-uniqueness A := Z, C := A, D := B,
+              from H5, S1, 54, 62
+
+     121.2. K is on line KB. B is on line KB.
+            mun:on-line-ends A := K
+
+     121.3. line ZB = line KB
+            axi:line-uniqueness A := Z, C := K, D := B,
+              from S1, 3, 120, 121.2
+
+     121.4. line AB = line KB
+            calculation
+              line AB = line ZB       121.1
+                      = line KB       121.3
+
+     121.5. K ∈ line KB
+            mun:line P := K, A := K, from 121.2
+
+     121.6. K ∈ line AB
+            substitute line AB = line KB (line 121.4) into line 121.5
+
+     121.7. K is on line AB
+            mun:line P := K, from 121.6
+
+     121.8. not (K is on line HK)
+            mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 121.7,
+              contradicting 6
+
+122. |AH| = |KB|
+     substitute Z = B (line 121) into line 36
+
+123. |AH| = |BK|
+     algebra, from 122
+
+mundane theorem area-turned
+  note        Both are half the base QR times the height from P, at the one
+              foot of the perpendicular.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then the area of △PQR = the area of △PRQ
+
+1.  H ∈ 𝔼². S ∈ 𝔼². H is on line QR. S is on line QR. S ≠ H. P ≠ H.
+    ∠PHS = 90°.
+    obtain H, S: mun:foot, from H4
+
+2.  the area of △PQR = (1/2)·|QR|·|PH|
+    mun:height-area, from H4, 1
+
+3.  Q, R, H are collinear.
+    mun:on-line P := H, A := Q, B := R, from 1
+
+4.  H is on line RQ
+    mun:on-line P := H, A := R, B := Q, from 3
+
+5.  Q, R, S are collinear.
+    mun:on-line P := S, A := Q, B := R, from 1
+
+6.  S is on line RQ
+    mun:on-line P := S, A := R, B := Q, from 5
+
+7.  P, R, Q form a triangle.
+    mun:triangle-turned, from H4
+
+8.  the area of △PRQ = (1/2)·|RQ|·|PH|
+    mun:height-area Q := R, R := Q, from 1, 4, 6, 7
+
+9.  (1/2)·|QR|·|PH| = (1/2)·|RQ|·|PH|
+    algebra
+
+10. the area of △PQR = the area of △PRQ
+    calculation
+      the area of △PQR = (1/2)·|QR|·|PH|       2
+                       = (1/2)·|RQ|·|PH|       9
+                       = the area of △PRQ      8
+
+theorem same-height
+  note        Euclid VI.1, by the height: a triangle with apex P and its base
+              QS on line QR has the height of PQR, at the one foot H.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  let H be a point                                                    (H5)
+  let T be a point                                                    (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume S is on line QR                                              (H8)
+  assume S ≠ Q                                                        (H9)
+  assume H is on line QR                                              (H10)
+  assume T is on line QR                                              (H11)
+  assume T ≠ H                                                        (H12)
+  assume ∠PHT = 90°                                                   (H13)
+  then the area of △PQS = (1/2)·|QS|·|PH|
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H7
+
+2.  Q is on line QR
+    mun:on-line-ends A := Q, B := R
+
+3.  line QS = line QR
+    axi:line-uniqueness A := Q, B := S, C := Q, D := R, from H8, H9, 1, 2
+
+4.  H ∈ line QR
+    mun:line P := H, A := Q, B := R, from H10
+
+5.  H ∈ line QS
+    substitute line QS = line QR (line 3) into line 4
+
+6.  H is on line QS
+    mun:line P := H, A := Q, B := S, from 5
+
+7.  T ∈ line QR
+    mun:line P := T, A := Q, B := R, from H11
+
+8.  T ∈ line QS
+    substitute line QS = line QR (line 3) into line 7
+
+9.  T is on line QS
+    mun:line P := T, A := Q, B := S, from 8
+
+10. not (P is on line QR)
+    mun:triangle-not-on-line, from H7
+
+11. not (P is on line QS)
+    mun:off-line-along A := Q, B := R, X := S, from H8, H9, 1, 10
+
+12. P, Q, S form a triangle.
+    mun:triangle-off-line R := S, from H9, 11
+
+13. the area of △PQS = (1/2)·|QS|·|PH|
+    mun:height-area R := S, S := T, from H12, H13, 6, 9, 12
+
+theorem parallel-heights
+  note        Q and R on a line parallel to line XY have one height above it:
+              the feet H and K of their perpendiculars are two points, since
+              the perpendicular at one point of a line is one line, and then
+              parallel-equidistant.
+  let Q be a point                                                    (H1)
+  let R be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let H be a point                                                    (H5)
+  let S be a point                                                    (H6)
+  let K be a point                                                    (H7)
+  let T be a point                                                    (H8)
+  assume Q ≠ R                                                        (H9)
+  assume X ≠ Y                                                        (H10)
+  assume line QR ∥ line XY                                            (H11)
+  assume not (Q is on line XY)                                        (H12)
+  assume H is on line XY                                              (H13)
+  assume S is on line XY                                              (H14)
+  assume S ≠ H                                                        (H15)
+  assume ∠QHS = 90°                                                   (H16)
+  assume K is on line XY                                              (H17)
+  assume T is on line XY                                              (H18)
+  assume T ≠ K                                                        (H19)
+  assume ∠RKT = 90°                                                   (H20)
+  then |QH| = |RK|
+
+1.  R is on line QR
+    mun:on-line-ends A := Q, B := R
+
+2.  not (R is on line XY)
+    mun:parallel-off A := Q, B := R, C := X, D := Y, X := R,
+      from H9, H10, H11, H12, 1
+
+3.  R and Q are on the same side of line XY
+    mun:parallel-same-side A := Q, B := R, C := X, D := Y, X := R,
+      from H9, H10, H11, H12, 1
+
+4.  Q and R are on the same side of line XY
+    mun:same-side-turned A := X, B := Y, P := R, from 3
+
+5.  H ≠ Q
+    mun:on-off-apart A := X, B := Y, X := H, Y := Q, from H12, H13
+
+6.  K ≠ R
+    mun:on-off-apart A := X, B := Y, X := K, Y := R, from H17, 2
+
+7.  line HS = line XY
+    axi:line-uniqueness A := H, B := S, C := X, D := Y,
+      from H10, H13, H14, H15
+
+8.  line KT = line XY
+    axi:line-uniqueness A := K, B := T, C := X, D := Y,
+      from H10, H17, H18, H19
+
+9.  H ≠ K
+    contradiction
+    suppose H = K                                                     (S1)
+
+    9.1.  ∠QKS = 90°
+          substitute H = K (S1) into H16
+
+    9.2.  S ≠ K
+          substitute H = K (S1) into H15
+
+    9.3.  K ≠ Q
+          substitute H = K (S1) into line 5
+
+    9.4.  S ∈ line XY
+          mun:line P := S, A := X, B := Y, from H14
+
+    9.5.  S ∈ line KT
+          substitute line KT = line XY (line 8) into line 9.4
+
+    9.6.  S is on line KT
+          mun:line P := S, A := K, B := T, from 9.5
+
+    9.7.  ∠RKS = 90°
+          mun:right-angle-along P := R, H := K, S := T, T := S,
+            from H19, H20, 6, 9.2, 9.6
+
+    9.8.  ∠SKQ = ∠QKS
+          mun:angle-turned P := S, Q := K, R := Q, from 9.2, 9.3
+
+    9.9.  ∠SKR = ∠RKS
+          mun:angle-turned P := S, Q := K, from 6, 9.2
+
+    9.10. ∠SKQ = ∠SKR
+          calculation
+            ∠SKQ = ∠QKS       9.8
+                 = 90°        9.1
+                 = ∠RKS       9.7
+                 = ∠SKR       9.9
+
+    9.11. Q and R are on the same side of line KS
+          mun:same-side-of-line A := X, B := Y, C := K, D := S, P := Q,
+            Q := R, from H10, H14, H17, 4, 9.2
+
+    9.12. R and Q are on the same side of line KS
+          mun:same-side-turned A := K, B := S, P := Q, Q := R, from 9.11
+
+    9.13. Q and Q are on the same side of line KS
+          mun:same-side-same A := K, B := S, P := Q, Q := R, R := Q,
+            from 9.11, 9.12
+
+    9.14. not (Q is on line KS)
+          mun:same-side-off-line A := K, B := S, P := Q, Q := R, from 9.11
+
+    9.15. Q, K, S form a triangle.
+          mun:triangle-off-line P := Q, Q := K, R := S, from 9.2, 9.14
+
+    9.16. K, S, Q form a triangle.
+          mun:triangle-rotated P := Q, Q := K, R := S, from 9.15
+
+    9.17. R ∈ ray KQ
+          axi:angle-construction-unique A := K, B := S, C := Q, D := Q,
+            E := R, from 9.10, 9.12, 9.13, 9.16
+
+    9.18. R is on line KQ
+          mun:ray-on-line P := R, A := K, B := Q, from 9.17
+
+    9.19. K is on line KQ. Q is on line KQ.
+          mun:on-line-ends A := K, B := Q
+
+    9.20. line QR = line KQ
+          axi:line-uniqueness A := Q, B := R, C := K, D := Q,
+            from H9, 9.3, 9.18, 9.19
+
+    9.21. K ∈ line KQ
+          mun:line P := K, A := K, B := Q, from 9.19
+
+    9.22. K ∈ line QR
+          substitute line QR = line KQ (line 9.20) into line 9.21
+
+    9.23. K is on line QR
+          mun:line P := K, A := Q, B := R, from 9.22
+
+    9.24. not (K is on line XY)
+          mun:parallel-off A := Q, B := R, C := X, D := Y, X := K,
+            from H9, H10, H11, H12, 9.23, contradicting H17
+
+10. line HK = line XY
+    axi:line-uniqueness A := H, B := K, C := X, D := Y,
+      from H10, H13, H17, 9
+
+11. K ∈ line XY
+    mun:line P := K, A := X, B := Y, from H17
+
+12. K ∈ line HS
+    substitute line HS = line XY (line 7) into line 11
+
+13. K is on line HS
+    mun:line P := K, A := H, B := S, from 12
+
+14. ∠QHK = 90°
+    mun:right-angle-along P := Q, T := K,
+      from H15, H16, 5, 9, 13
+
+15. H ∈ line XY
+    mun:line P := H, A := X, B := Y, from H13
+
+16. H ∈ line KT
+    substitute line KT = line XY (line 8) into line 15
+
+17. H is on line KT
+    mun:line P := H, A := K, B := T, from 16
+
+18. ∠RKH = 90°
+    mun:right-angle-along P := R, H := K, S := T, T := H,
+      from H19, H20, 6, 9, 17
+
+19. Q and R are on the same side of line HK
+    mun:same-side-of-line A := X, B := Y, C := H, D := K, P := Q, Q := R,
+      from H10, H13, H17, 4, 9
+
+20. not (there is Z ∈ 𝔼² with Z is on line QR and Z is on line HK)
+    contradiction
+    suppose there is Z ∈ 𝔼² with Z is on line QR and Z is on line HK  (S2)
+
+    20.1. Z ∈ 𝔼². Z is on line QR. Z is on line HK.
+          obtain Z from S2
+
+    20.2. Z ∈ line HK
+          mun:line P := Z, A := H, B := K, from 20.1
+
+    20.3. Z ∈ line XY
+          substitute line HK = line XY (line 10) into line 20.2
+
+    20.4. Z is on line XY
+          mun:line P := Z, A := X, B := Y, from 20.3
+
+    20.5. not (Z is on line XY)
+          mun:parallel-off A := Q, B := R, C := X, D := Y, X := Z,
+            from H9, H10, H11, H12, 20.1, contradicting 20.4
+
+21. line QR = line HK or not (there is Z ∈ 𝔼² with Z is on line QR and
+    Z is on line HK)
+    mun:or-right, from 20
+
+22. line QR ∥ line HK
+    mun:parallel A := Q, B := R, C := H, D := K, from H9, 9, 21
+
+23. |QH| = |RK|
+    thm:parallel-equidistant A := Q, B := R, from H9, 14, 18, 19, 22
+
+theorem proportional-segments
+  note        Euclid VI.2. The triangles QXY and RXY have the base XY and
+              Q and R on a parallel to it, so one height and one area
+              (parallel-heights). Adding PXY to each, YPQ and XPR have one
+              area too. Measured from the heights of Y over line PQ and of X
+              over line PR, the areas give |PQ| : |PX| = |PR| : |PY|.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  let Y be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume X is between P and Q                                         (H7)
+  assume Y is between P and R                                         (H8)
+  assume line XY ∥ line QR                                            (H9)
+  then |PX|·|PR| = |PY|·|PQ|
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H6
+
+2.  Q, R, P form a triangle.
+    mun:triangle-rotated, from H6
+
+3.  Q, P, R form a triangle.
+    mun:triangle-turned P := Q, Q := R, R := P, from 2
+
+4.  Q, P, Y form a triangle.
+    mun:triangle-on-side P := Q, Q := P, S := Y, from H8, 3
+
+5.  P, Y, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := P, R := Y, from 4
+
+6.  Y, Q, P form a triangle.
+    mun:triangle-rotated Q := Y, R := Q, from 5
+
+7.  Y, P, Q form a triangle.
+    mun:triangle-turned P := Y, R := P, from 6
+
+8.  R, P, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := R, R := P, from 2
+
+9.  R, P, X form a triangle.
+    mun:triangle-on-side P := R, Q := P, R := Q, S := X, from H7, 8
+
+10. P, X, R form a triangle.
+    mun:triangle-rotated P := R, Q := P, R := X, from 9
+
+11. X, R, P form a triangle.
+    mun:triangle-rotated Q := X, from 10
+
+12. X, P, R form a triangle.
+    mun:triangle-turned P := X, Q := R, R := P, from 11
+
+13. the area of △YPQ = the area of △YPX + the area of △YXQ
+    axi:area-addition P := Y, Q := P, R := Q, D := X, from H7, 7
+
+14. the area of △XPR = the area of △XPY + the area of △XYR
+    axi:area-addition P := X, Q := P, D := Y, from H8, 12
+
+15. X is between Q and P
+    mun:between-symmetric R := X, S := P, T := Q, from H7
+
+16. Y, Q, X form a triangle.
+    mun:triangle-on-side P := Y, R := P, S := X, from 6, 15
+
+17. Y, X, Q form a triangle.
+    mun:triangle-turned P := Y, R := X, from 16
+
+18. X, Q, Y form a triangle.
+    mun:triangle-rotated P := Y, Q := X, R := Q, from 17
+
+19. Q, Y, X form a triangle.
+    mun:triangle-rotated P := X, R := Y, from 18
+
+20. Q, X, Y form a triangle.
+    mun:triangle-turned P := Q, Q := Y, R := X, from 19
+
+21. Y is between R and P
+    mun:between-symmetric R := Y, S := P, T := R, from H8
+
+22. X, R, Y form a triangle.
+    mun:triangle-on-side P := X, Q := R, R := P, S := Y, from 11, 21
+
+23. X, Y, R form a triangle.
+    mun:triangle-turned P := X, Q := R, R := Y, from 22
+
+24. Y, R, X form a triangle.
+    mun:triangle-rotated P := X, Q := Y, from 23
+
+25. R, X, Y form a triangle.
+    mun:triangle-rotated P := Y, Q := R, R := X, from 24
+
+26. Y, P, X form a triangle.
+    mun:triangle-on-side P := Y, Q := P, R := Q, S := X, from H7, 7
+
+27. P, X, Y form a triangle.
+    mun:triangle-rotated P := Y, Q := P, R := X, from 26
+
+28. X, Y, P form a triangle.
+    mun:triangle-rotated Q := X, R := Y, from 27
+
+29. the area of △YXQ = the area of △XQY
+    mun:area-rotated P := Y, Q := X, R := Q, from 17
+
+30. the area of △XQY = the area of △QYX
+    mun:area-rotated P := X, R := Y, from 18
+
+31. the area of △QYX = the area of △QXY
+    mun:area-turned Q := Y, R := X, from 19
+
+32. the area of △XYR = the area of △YRX
+    mun:area-rotated P := X, Q := Y, from 23
+
+33. the area of △YRX = the area of △RXY
+    mun:area-rotated P := Y, Q := R, R := X, from 24
+
+34. the area of △YPX = the area of △PXY
+    mun:area-rotated P := Y, Q := P, R := X, from 26
+
+35. the area of △PXY = the area of △XYP
+    mun:area-rotated Q := X, R := Y, from 27
+
+36. the area of △XYP = the area of △XPY
+    mun:area-turned P := X, Q := Y, R := P, from 28
+
+37. H ∈ 𝔼². S ∈ 𝔼². H is on line XY. S is on line XY. S ≠ H. Q ≠ H.
+    ∠QHS = 90°.
+    obtain H, S: mun:foot P := Q, Q := X, R := Y, from 20
+
+38. K ∈ 𝔼². T ∈ 𝔼². K is on line XY. T is on line XY. T ≠ K. R ≠ K.
+    ∠RKT = 90°.
+    obtain K, T: mun:foot P := R, Q := X, R := Y, from 25
+
+39. the area of △QXY = (1/2)·|XY|·|QH|
+    mun:height-area P := Q, Q := X, R := Y, from 20, 37
+
+40. the area of △RXY = (1/2)·|XY|·|RK|
+    mun:height-area P := R, Q := X, R := Y, H := K, S := T, from 25, 38
+
+41. Q ≠ X. X ≠ Y. Q ≠ Y.
+    mun:triangle P := Q, Q := X, R := Y, from 20
+
+42. line QR ∥ line XY
+    mun:parallel-turned A := X, B := Y, C := Q, D := R, from H9, 41
+
+43. not (Q is on line XY)
+    mun:triangle-not-on-line P := Q, Q := X, R := Y, from 20
+
+44. |QH| = |RK|
+    thm:parallel-heights, from 1, 37, 38, 41, 42, 43
+
+45. (1/2)·|XY|·|QH| = (1/2)·|XY|·|RK|
+    substitute |QH| = |RK| (line 44)
+
+46. the area of △YXQ = the area of △XYR
+    calculation
+      the area of △YXQ = the area of △XQY        29
+                       = the area of △QYX        30
+                       = the area of △QXY        31
+                       = (1/2)·|XY|·|QH|         39
+                       = (1/2)·|XY|·|RK|         45
+                       = the area of △RXY        40
+                       = the area of △YRX        33
+                       = the area of △XYR        32
+
+47. the area of △YPX = the area of △XPY
+    calculation
+      the area of △YPX = the area of △PXY        34
+                       = the area of △XYP        35
+                       = the area of △XPY        36
+
+48. the area of △YPQ = the area of △XPY + the area of △YXQ
+    substitute the area of △YPX = the area of △XPY (line 47) into line 13
+
+49. the area of △YPQ = the area of △XPY + the area of △XYR
+    substitute the area of △YXQ = the area of △XYR (line 46) into line 48
+
+50. the area of △YPQ = the area of △XPR
+    calculation
+      the area of △YPQ = the area of △XPY + the area of △XYR      49
+                       = the area of △XPR                         14
+
+51. M ∈ 𝔼². U ∈ 𝔼². M is on line PQ. U is on line PQ. U ≠ M. Y ≠ M.
+    ∠YMU = 90°.
+    obtain M, U: mun:foot P := Y, Q := P, R := Q, from 7
+
+52. N ∈ 𝔼². V ∈ 𝔼². N is on line PR. V is on line PR. V ≠ N. X ≠ N.
+    ∠XNV = 90°.
+    obtain N, V: mun:foot P := X, Q := P, from 12
+
+53. the area of △YPQ = (1/2)·|PQ|·|YM|
+    mun:height-area P := Y, Q := P, R := Q, H := M, S := U, from 7, 51
+
+54. Q, X, P are collinear.
+    mun:between-collinear R := X, S := P, T := Q, from H7
+
+55. X is on line PQ
+    mun:on-line P := X, A := P, B := Q, from 54
+
+56. P ≠ X. Q ≠ X.
+    mun:between-apart R := X, S := P, T := Q, from H7
+
+57. the area of △YPX = (1/2)·|PX|·|YM|
+    thm:same-height P := Y, Q := P, R := Q, S := X, H := M, T := U,
+      from 7, 51, 55, 56
+
+58. the area of △XPR = (1/2)·|PR|·|XN|
+    mun:height-area P := X, Q := P, H := N, S := V, from 12, 52
+
+59. R, Y, P are collinear.
+    mun:between-collinear R := Y, S := P, T := R, from H8
+
+60. Y is on line PR
+    mun:on-line P := Y, A := P, B := R, from 59
+
+61. P ≠ Y. R ≠ Y.
+    mun:between-apart R := Y, S := P, T := R, from H8
+
+62. the area of △XPY = (1/2)·|PY|·|XN|
+    thm:same-height P := X, Q := P, S := Y, H := N, T := V,
+      from 12, 52, 60, 61
+
+63. (1/2)·|PQ|·|YM| = (1/2)·|PR|·|XN|
+    calculation
+      (1/2)·|PQ|·|YM| = the area of △YPQ      53
+                      = the area of △XPR      50
+                      = (1/2)·|PR|·|XN|       58
+
+64. (1/2)·|PX|·|YM| = (1/2)·|PY|·|XN|
+    calculation
+      (1/2)·|PX|·|YM| = the area of △YPX      57
+                      = the area of △XPY      47
+                      = (1/2)·|PY|·|XN|       62
+
+65. (1/2)·|PQ|·|YM|·|PX| = (1/2)·|PR|·|XN|·|PX|
+    algebra, from 63
+
+66. (1/2)·|PX|·|YM|·|PQ| = (1/2)·|PY|·|XN|·|PQ|
+    algebra, from 64
+
+67. (1/2)·|PX|·|PR|·|XN| = (1/2)·|PY|·|PQ|·|XN|
+    algebra, from 65, 66
+
+68. |XN| > 0
+    mun:distance-positive P := X, Q := N, from 52
+
+69. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
+    mun:multiply-cancel a := (1/2)·|PX|·|PR|, b := (1/2)·|PY|·|PQ|,
+      c := |XN|, from 67
+    requires |XN| ≠ 0: weakening, from 68
+
+70. |PX|·|PR| = |PY|·|PQ|
+    algebra, from 69
+
+theorem corresponding-angles-converse
+  note        Euclid I.28. Produce YX past X to W: ∠WXQ is ∠PXY (vertical
+              angles), which is ∠PQR, and W and R are on two sides of line
+              XQ, so line XW is parallel to line QR (alternate-angles-converse).
+  let P be a point                                                    (H1)
+  let X be a point                                                    (H2)
+  let Q be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let R be a point                                                    (H5)
+  assume X is between P and Q                                         (H6)
+  assume Y and R are on the same side of line PQ                      (H7)
+  assume ∠PXY = ∠PQR                                                  (H8)
+  then line XY ∥ line QR
+
+1.  P ≠ X. Q ≠ X.
+    mun:between-apart R := X, S := P, T := Q, from H6
+
+2.  P ≠ Q. not (Y is on line PQ). not (R is on line PQ).
+    mun:same-side-off-line A := P, B := Q, P := Y, Q := R, from H7
+
+3.  Q, X, P are collinear.
+    mun:between-collinear R := X, S := P, T := Q, from H6
+
+4.  X is on line PQ
+    mun:on-line P := X, A := P, B := Q, from 3
+
+5.  P is on line PQ. Q is on line PQ.
+    mun:on-line-ends A := P, B := Q
+
+6.  X is on line XQ. Q is on line XQ.
+    mun:on-line-ends A := X, B := Q
+
+7.  Y and R are on the same side of line XQ
+    mun:same-side-of-line A := P, B := Q, C := X, D := Q, P := Y, Q := R,
+      from H7, 1, 2, 4, 5
+
+8.  not (Y is on line XQ). not (R is on line XQ).
+    mun:same-side-off-line A := X, B := Q, P := Y, Q := R, from 7
+
+9.  X ≠ Y
+    mun:on-off-apart A := X, B := Q, from 6, 8
+
+10. |YX| > 0
+    mun:distance-positive P := Y, Q := X, from 9
+
+11. W ∈ 𝔼². X is between Y and W. |XW| = |YX|.
+    obtain W: mun:segment-extension A := Y, B := X, r := |YX|, from 9, 10
+
+12. ∠YXP = ∠WXQ
+    thm:vertical-angles A := Y, B := P, C := W, D := Q, O := X, from H6, 11
+
+13. X is between Q and P
+    mun:between-symmetric R := X, S := P, T := Q, from H6
+
+14. Q ≠ R
+    mun:on-off-apart A := P, B := Q, X := Q, Y := R, from 2, 5
+
+15. ∠XQR = ∠PQR
+    mun:angle-along-segment P := Q, Q := P, S := X, from 13, 14
+
+16. ∠PXY = ∠YXP
+    mun:angle-turned Q := X, R := Y, from 1, 9
+
+17. ∠WXQ = ∠XQR
+    calculation
+      ∠WXQ = ∠YXP       12
+           = ∠PXY       16
+           = ∠PQR       H8
+           = ∠XQR       15
+
+18. Y and W are on opposite sides of line XQ
+    mun:segment-across-line A := X, B := Q, P := Y, Q := W, M := X,
+      from 1, 6, 8, 11
+
+19. R and Y are on the same side of line XQ
+    mun:same-side-turned A := X, B := Q, P := Y, Q := R, from 7
+
+20. R and W are on opposite sides of line XQ
+    mun:same-opposite-opposite A := X, B := Q, P := R, Q := Y, R := W,
+      from 18, 19
+
+21. W and R are on opposite sides of line XQ
+    mun:opposite-sides-turned A := X, B := Q, P := R, Q := W, from 20
+
+22. R, X, Q form a triangle.
+    mun:triangle-off-line P := R, Q := X, R := Q, from 1, 8
+
+23. X, Q, R form a triangle.
+    mun:triangle-rotated P := R, Q := X, R := Q, from 22
+
+24. Q, R, X form a triangle.
+    mun:triangle-rotated P := X, from 23
+
+25. line XW ∥ line QR
+    thm:alternate-angles-converse P := Q, Q := R, R := X, S := W,
+      from 17, 21, 24
+
+26. W, X, Y are collinear.
+    mun:between-collinear R := X, S := Y, T := W, from 11
+
+27. Y is on line XW
+    mun:on-line P := Y, A := X, B := W, from 26
+
+28. Y ≠ X. W ≠ X.
+    mun:between-apart R := X, S := Y, T := W, from 11
+
+29. line XY ∥ line RQ
+    mun:parallel-along A := X, B := W, C := Q, D := R, E := Y,
+      from 25, 27, 28
+
+30. Y is on line XY
+    mun:on-line-ends A := X, B := Y
+
+31. line XY ∥ line QR
+    mun:parallel-along A := X, B := Y, C := R, D := Q, E := Y,
+      from 28, 29, 30
+
+theorem parallel-between
+  note        The line through a point X of the side PQ parallel to QR meets
+              line PR at a point Y on R's side of line PQ: Y is between P and
+              R, since R beyond Y would put Q and R on two sides of line XY,
+              and the segment QR would meet it.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  let Y be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume X is between P and Q                                         (H7)
+  assume Y is on line PR                                              (H8)
+  assume Y and R are on the same side of line PQ                      (H9)
+  assume line XY ∥ line QR                                            (H10)
+  then Y is between P and R
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H6
+
+2.  not (Y is on line PQ)
+    mun:same-side-off-line A := P, B := Q, P := Y, Q := R, from H9
+
+3.  P is on line PQ. Q is on line PQ.
+    mun:on-line-ends A := P, B := Q
+
+4.  X is between Q and P
+    mun:between-symmetric R := X, S := P, T := Q, from H7
+
+5.  Q, R, P form a triangle.
+    mun:triangle-rotated, from H6
+
+6.  R, P, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := R, R := P, from 5
+
+7.  R, Q, P form a triangle.
+    mun:triangle-turned P := R, Q := P, R := Q, from 6
+
+8.  R, Q, X form a triangle.
+    mun:triangle-on-side P := R, R := P, S := X, from 4, 7
+
+9.  Q, X, R form a triangle.
+    mun:triangle-rotated P := R, R := X, from 8
+
+10. X, R, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := X, from 9
+
+11. X, Q, R form a triangle.
+    mun:triangle-turned P := X, Q := R, R := Q, from 10
+
+12. not (X is on line QR)
+    mun:triangle-not-on-line P := X, from 11
+
+13. Q, X, P are collinear.
+    mun:between-collinear R := X, S := P, T := Q, from H7
+
+14. X is on line PQ
+    mun:on-line P := X, A := P, B := Q, from 13
+
+15. X ≠ Y
+    mun:on-off-apart A := P, B := Q, from 2, 14
+
+16. X is on line XY. Y is on line XY.
+    mun:on-line-ends A := X, B := Y
+
+17. not (Y is on line QR)
+    mun:parallel-off A := X, B := Y, C := Q, D := R, X := Y,
+      from H10, 1, 12, 15, 16
+
+18. P ≠ X. Q ≠ X.
+    mun:between-apart R := X, S := P, T := Q, from H7
+
+19. X ≠ Q
+    mun:triangle P := X, from 11
+
+20. Y and R are on the same side of line XQ
+    mun:same-side-of-line A := P, B := Q, C := X, D := Q, P := Y, Q := R,
+      from H9, 1, 3, 14, 19
+
+21. not (Y is on line XQ)
+    mun:same-side-off-line A := X, B := Q, P := Y, Q := R, from 20
+
+22. P is on line XQ
+    mun:on-line A := X, B := Q, from 13
+
+23. not (Y is on line XP)
+    mun:off-line-along A := X, B := Q, X := P, P := Y, from 18, 21, 22
+
+24. not (P is on line XY)
+    mun:off-line-swap R := X, Q := Y, from 23
+
+25. P and Q are on opposite sides of line XY
+    mun:segment-across-line A := X, B := Y, M := X,
+      from H7, 15, 16, 24
+
+26. Y = P or Y is between P and R or Y = R or R is between P and Y or
+    P is between Y and R
+    mun:on-line-cases P := Y, Q := P, from H8, 1
+
+27. Y is between P and R
+    cases, from 26
+
+    case
+    assume Y = P                                                      (C1)
+
+    27.1. not (P is on line PQ)
+          substitute Y = P (C1) into line 2, contradicting 3
+
+    case
+    assume Y is between P and R                                       (C2)
+
+    27.2. Y is between P and R
+          restate C2
+
+    case
+    assume Y = R                                                      (C3)
+
+    27.3. R is on line QR
+          mun:on-line-ends A := Q, B := R
+
+    27.4. not (R is on line QR)
+          substitute Y = R (C3) into line 17, contradicting 27.3
+
+    case
+    assume R is between P and Y                                       (C4)
+
+    27.5. Y is on line XY
+          restate 16
+
+    27.6. R and P are on the same side of line XY
+          mun:segment-off-line A := X, B := Y, Q := Y, X := R,
+            from C4, 15, 24, 27.5
+
+    27.7. R and Q are on opposite sides of line XY
+          mun:same-opposite-opposite A := X, B := Y, P := R, Q := P, R := Q,
+            from 25, 27.6
+
+    27.8. Z ∈ 𝔼². Z is on line XY. Z is between R and Q.
+          obtain Z: axi:plane-separation-crossing A := X, B := Y, P := R,
+            from 15, 27.7
+
+    27.9. Q, Z, R are collinear.
+          mun:between-collinear R := Z, S := R, T := Q, from 27.8
+
+    27.10. Z is on line QR
+           mun:on-line P := Z, A := Q, B := R, from 27.9
+
+    27.11. not (Z is on line QR)
+           mun:parallel-off A := X, B := Y, C := Q, D := R, X := Z,
+             from H10, 1, 12, 15, 27.8, contradicting 27.10
+
+    case
+    assume P is between Y and R                                       (C5)
+
+    27.12. Y and R are on opposite sides of line PQ
+           mun:segment-across-line A := P, B := Q, P := Y, Q := R, M := P,
+             from C5, 1, 2, 3
+
+    27.13. not (Y and R are on opposite sides of line PQ)
+           mun:same-not-opposite A := P, B := Q, P := Y, Q := R, from H9,
+             contradicting 27.12
+
+theorem angle-angle-similar
+  note        Two triangles with two angles equal have their sides about the
+              first angle in proportion. Lay off |P′Q′| along PQ to X and
+              |P′R′| along PR to Y: PXY and P′Q′R′ agree in two sides and
+              the angle between them, so ∠PXY = ∠PQR, and XY is parallel to
+              QR (corresponding-angles-converse). Then Euclid VI.2, from
+              whichever of X and Q is nearer P; and X at Q puts Y at R.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume ∠QPR = ∠Q′P′R′                                               (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  then |PQ|·|P′R′| = |P′Q′|·|PR|
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H7
+
+2.  P′ ≠ Q′. Q′ ≠ R′. P′ ≠ R′.
+    mun:triangle P := P′, Q := Q′, R := R′, from H8
+
+3.  |P′Q′| > 0
+    mun:distance-positive P := P′, Q := Q′, from 2
+
+4.  |P′R′| > 0
+    mun:distance-positive P := P′, Q := R′, from 2
+
+5.  X ∈ 𝔼². X is on line PQ. X and Q are on the same side of line PR.
+    |PX| = |P′Q′|.
+    obtain X: mun:ray-point A := P, B := Q, C := R, r := |P′Q′|, from H7, 3
+
+6.  P, R, Q form a triangle.
+    mun:triangle-turned, from H7
+
+7.  Y ∈ 𝔼². Y is on line PR. Y and R are on the same side of line PQ.
+    |PY| = |P′R′|.
+    obtain Y: mun:ray-point A := P, B := R, C := Q, r := |P′R′|, from 4, 6
+
+8.  ∠RPX = ∠RPQ
+    mun:angle-same-ray, from 5
+
+9.  not (X is on line PR)
+    mun:same-side-off-line A := P, B := R, P := X, from 5
+
+10. X ≠ P. X ≠ R.
+    mun:off-line-apart A := P, B := R, P := X, from 9
+
+11. P is on line PQ. Q is on line PQ.
+    mun:on-line-ends A := P, B := Q
+
+12. Y and R are on the same side of line PX
+    mun:same-side-of-line A := P, B := Q, C := P, D := X, P := Y, Q := R,
+      from 1, 5, 7, 10, 11
+
+13. ∠XPY = ∠XPR
+    mun:angle-same-ray R := X, Q := R, X := Y, from 7, 12
+
+14. ∠XPR = ∠RPX
+    mun:angle-turned P := X, Q := P, from 1, 10
+
+15. ∠RPQ = ∠QPR
+    mun:angle-turned P := R, Q := P, R := Q, from 1
+
+16. ∠XPY = ∠QPR
+    calculation
+      ∠XPY = ∠XPR       13
+           = ∠RPX       14
+           = ∠RPQ       8
+           = ∠QPR       15
+
+17. not (Y is on line PQ)
+    mun:same-side-off-line A := P, B := Q, P := Y, Q := R, from 7
+
+18. Y ≠ P. Y ≠ Q.
+    mun:off-line-apart A := P, B := Q, P := Y, from 17
+
+19. not (X is on line PY)
+    mun:off-line-along A := P, B := R, X := Y, P := X, from 1, 7, 9, 18
+
+20. X, P, Y form a triangle.
+    mun:triangle-off-line P := X, Q := P, R := Y, from 18, 19
+
+21. X ≠ P. P ≠ Y. X ≠ Y.
+    mun:triangle P := X, Q := P, R := Y, from 20
+
+22. Q′, R′, P′ form a triangle.
+    mun:triangle-rotated P := P′, Q := Q′, R := R′, from H8
+
+23. Q′, P′, R′ form a triangle.
+    mun:triangle-turned P := Q′, Q := R′, R := P′, from 22
+
+24. ∠Q′P′R′ = ∠XPY
+    calculation
+      ∠Q′P′R′ = ∠QPR       H9
+              = ∠XPY       16
+
+25. |PX| = |P′Q′|
+    algebra, from 5
+
+26. |PY| = |P′R′|
+    algebra, from 7
+
+27. |Q′P′| = |XP|
+    algebra, from 25
+
+28. |P′R′| = |PY|
+    algebra, from 26
+
+29. triangle Q′P′R′ ≅ triangle XPY
+    axi:side-angle-side P := Q′, Q := P′, R := R′, P′ := X, Q′ := P, R′ := Y,
+      from 20, 23, 24, 27, 28
+
+30. ∠R′Q′P′ = ∠YXP
+    def:congruent, from 29
+
+31. ∠PXY = ∠YXP
+    mun:angle-turned Q := X, R := Y, from 21
+
+32. ∠R′Q′P′ = ∠P′Q′R′
+    mun:angle-turned P := R′, Q := Q′, R := P′, from 2
+
+33. ∠PXY = ∠PQR
+    calculation
+      ∠PXY = ∠YXP         31
+           = ∠R′Q′P′      30
+           = ∠P′Q′R′      32
+           = ∠PQR         H10
+
+34. X = P or X is between P and Q or X = Q or Q is between P and X or
+    P is between X and Q
+    mun:on-line-cases P := X, Q := P, R := Q, from 1, 5
+
+35. |PQ|·|P′R′| = |P′Q′|·|PR|
+    cases, from 34
+
+    case
+    assume X = P                                                      (C1)
+
+    35.1. X ≠ P
+          restate 21, contradicting C1
+
+    case
+    assume X is between P and Q                                       (C2)
+
+    35.2. line XY ∥ line QR
+          thm:corresponding-angles-converse, from C2, 7, 33
+
+    35.3. Y is between P and R
+          thm:parallel-between, from C2, H7, 7, 35.2
+
+    35.4. |PX|·|PR| = |PY|·|PQ|
+          thm:proportional-segments, from C2, H7, 35.2, 35.3
+
+    35.5. |P′Q′|·|PR| = |PY|·|PQ|
+          substitute |PX| = |P′Q′| (line 25) into line 35.4
+
+    35.6. |P′Q′|·|PR| = |P′R′|·|PQ|
+          substitute |PY| = |P′R′| (line 26) into line 35.5
+
+    35.7. |PQ|·|P′R′| = |P′Q′|·|PR|
+          algebra, from 35.6
+
+    case
+    assume X = Q                                                      (C3)
+
+    35.8. ∠PQY = ∠PQR
+          substitute X = Q (C3) into line 33
+
+    35.9. Q, R, P form a triangle.
+          mun:triangle-rotated, from H7
+
+    35.10. Q, P, R form a triangle.
+           mun:triangle-turned P := Q, Q := R, R := P, from 35.9
+
+    35.11. Y and R are on the same side of line QP
+           mun:same-side-of-line A := P, B := Q, C := Q, D := P, P := Y,
+             Q := R, from 1, 7, 11
+
+    35.12. R and Y are on the same side of line QP
+           mun:same-side-turned A := Q, B := P, P := Y, Q := R, from 35.11
+
+    35.13. R and R are on the same side of line QP
+           mun:same-side-same A := Q, B := P, P := R, Q := Y,
+             from 35.11, 35.12
+
+    35.14. Y ∈ ray QR
+           axi:angle-construction-unique A := Q, B := P, C := R, D := R,
+             E := Y, from 35.8, 35.10, 35.11, 35.13
+
+    35.15. Y is on line QR
+           mun:ray-on-line P := Y, A := Q, B := R, from 35.14
+
+    35.16. Y = R
+           contradiction
+           suppose Y ≠ R                                              (S1)
+
+           35.16.1. R is on line PR
+                    mun:on-line-ends A := P, B := R
+
+           35.16.2. line YR = line PR
+                    axi:line-uniqueness A := Y, B := R, C := P, D := R,
+                      from S1, 1, 7, 35.16.1
+
+           35.16.3. R is on line QR
+                    mun:on-line-ends A := Q, B := R
+
+           35.16.4. line YR = line QR
+                    axi:line-uniqueness A := Y, B := R, C := Q, D := R,
+                      from S1, 1, 35.15, 35.16.3
+
+           35.16.5. line PR = line QR
+                    calculation
+                      line PR = line YR       35.16.2
+                              = line QR       35.16.4
+
+           35.16.6. P is on line PR
+                    mun:on-line-ends A := P, B := R
+
+           35.16.7. P ∈ line PR
+                    mun:line A := P, B := R, from 35.16.6
+
+           35.16.8. P ∈ line QR
+                    substitute line PR = line QR (line 35.16.5) into line 35.16.7
+
+           35.16.9. P is on line QR
+                    mun:line A := Q, B := R, from 35.16.8
+
+           35.16.10. not (P is on line QR)
+                     mun:triangle-not-on-line, from H7,
+                       contradicting 35.16.9
+
+    35.17. |PQ| = |P′Q′|
+           substitute X = Q (C3) into line 25
+
+    35.18. |PR| = |P′R′|
+           substitute Y = R (line 35.16) into line 26
+
+    35.19. |PQ|·|P′R′| = |P′Q′|·|P′R′|
+           algebra, from 35.17
+
+    35.20. |P′Q′|·|PR| = |P′Q′|·|P′R′|
+           algebra, from 35.18
+
+    35.21. |PQ|·|P′R′| = |P′Q′|·|PR|
+           algebra, from 35.19, 35.20
+
+    case
+    assume Q is between P and X                                       (C4)
+
+    35.22. R and Y are on the same side of line PQ
+           mun:same-side-turned A := P, B := Q, P := Y, Q := R, from 7
+
+    35.23. R and Y are on the same side of line PX
+           mun:same-side-of-line A := P, B := Q, C := P, D := X, P := R,
+             Q := Y, from 1, 5, 10, 11, 35.22
+
+    35.24. ∠PQR = ∠PXY
+           calculation
+             ∠PQR = ∠PXY       33
+
+    35.25. line QR ∥ line XY
+           thm:corresponding-angles-converse X := Q, Q := X, Y := R, R := Y,
+             from C4, 35.23, 35.24
+
+    35.26. P, Y, X form a triangle.
+           mun:triangle-rotated P := X, Q := P, R := Y, from 20
+
+    35.27. P, X, Y form a triangle.
+           mun:triangle-turned Q := Y, R := X, from 35.26
+
+    35.28. R is on line PR
+           mun:on-line-ends A := P, B := R
+
+    35.29. P is on line PR
+           mun:on-line-ends A := P, B := R
+
+    35.30. line PY = line PR
+           axi:line-uniqueness A := P, B := Y, C := P, D := R,
+             from 1, 7, 21, 35.29
+
+    35.31. R ∈ line PR
+           mun:line P := R, A := P, B := R, from 35.28
+
+    35.32. R ∈ line PY
+           substitute line PY = line PR (line 35.30) into line 35.31
+
+    35.33. R is on line PY
+           mun:line P := R, A := P, B := Y, from 35.32
+
+    35.34. R and Y are on the same side of line PX
+           restate 35.23
+
+    35.35. R is between P and Y
+           thm:parallel-between Q := X, R := Y, X := Q, Y := R,
+             from C4, 35.25, 35.27, 35.33, 35.34
+
+    35.36. |PQ|·|PY| = |PR|·|PX|
+           thm:proportional-segments Q := X, R := Y, X := Q, Y := R,
+             from C4, 35.25, 35.27, 35.35
+
+    35.37. |PQ|·|P′R′| = |PR|·|PX|
+           substitute |PY| = |P′R′| (line 26) into line 35.36
+
+    35.38. |PQ|·|P′R′| = |PR|·|P′Q′|
+           substitute |PX| = |P′Q′| (line 25) into line 35.37
+
+    35.39. |PQ|·|P′R′| = |P′Q′|·|PR|
+           algebra, from 35.38
+
+    case
+    assume P is between X and Q                                       (C5)
+
+    35.40. P is on line PR
+           mun:on-line-ends A := P, B := R
+
+    35.41. X and Q are on opposite sides of line PR
+           mun:segment-across-line A := P, B := R, P := X, M := P,
+             from C5, 1, 9, 35.40
+
+    35.42. not (X and Q are on opposite sides of line PR)
+           mun:same-not-opposite A := P, B := R, P := X, from 5,
+             contradicting 35.41
