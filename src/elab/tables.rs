@@ -1529,7 +1529,7 @@ impl<'a> Elaborator<'a> {
 
     /// Each thing a membership line also says, with its proof under `scope`
     /// from the line's own `proof`. A lemma that asks a class be a set has
-    /// it proved from the facts (`made_a_set`), and where it cannot be, what
+    /// it settled from the facts (`settle`), and where it cannot be, what
     /// that lemma would give is not said.
     pub fn implied(
         &mut self,
@@ -1546,7 +1546,8 @@ impl<'a> Elaborator<'a> {
                 let after = self.rpn(&link.reached);
                 // ( scope -> ( X e. _V /\ at ) ), for a lemma asking a set.
                 for set in &link.sets {
-                    let Built(made) = self.made_a_set(set, scope, facts)? else {
+                    let Built(made) = self.settle(set, scope, facts, 3, None, None)?
+                    else {
                         continue 'claims;
                     };
                     let both = t!(self.rpn(set), at, "wa");

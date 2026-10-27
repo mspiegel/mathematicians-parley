@@ -551,3 +551,22 @@ mundane theorem product-of-ones
   then        ∏(x ∈ X) 1 = 1
   metamath    prod1
   target      prod1
+
+mundane theorem product-empty
+  let t : ℤ → ℝ                                                       (H1)
+  then        ∏(x ∈ ∅) t(x) = 1
+  metamath    prod0
+  target      prod0
+  note        A product over a set with no members is 1, the base of an
+              induction over the parts of a finite set.
+
+mundane theorem product-add-one
+  let Y be a set                                                      (H1)
+  assume Y is finite                                                  (H2)
+  let a ∉ Y                                                           (H3)
+  let t : Y ∪ {a} → ℝ                                                 (H4)
+  then        ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
+  metamath    fprodsplitsn, which this corpus proves in this form in elaboration/stdlib/proved.mm
+  target      gprodaddone
+  note        A member added to a finite set multiplies the product by its
+              term, the step of an induction over the parts of a finite set.

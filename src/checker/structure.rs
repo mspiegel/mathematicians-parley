@@ -16,12 +16,12 @@ use crate::corpus::{
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
-use crate::formula::page::{numeral, Written};
+use crate::formula::page::{made, made_by_name, numeral, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::notations::{
-    FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET, MEMBERSHIP,
-    NUMBER_SYSTEMS, SUBGROUP, SUBSET,
+    EMPTY_SET, FINITE, FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET,
+    MEMBERSHIP, NUMBER_SYSTEMS, POWERSET, SUBGROUP, SUBSET, WITHOUT,
 };
 use crate::outcome::{Built, Declined};
 use crate::regex;
@@ -562,29 +562,43 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
         }
         // The part opens with its `let k ∈ X` and then its hypothesis, and
         // with nothing else: the induction lemma takes the statement at k
-        // and gives it at k + 1.
-        let fixed = match opens.as_slice() {
-            [first, second] if first.kind == Intro::Let && second.is_hypothesis => {
-                let i = Introduction::read(first.body(&thm.path));
-                matches!(i.form, Form::Member)
-                    .then(|| i.asserted(known.env.g, &known.sorts).ok()?.pop())
-                    .flatten()
+        // and gives it at k + 1. Over the parts of a set it opens with
+        // `let Y ⊆ X`, the hypothesis, and the member it adds, `let a ∈ X ∖
+        // Y`: the lemma takes the statement at Y and gives it at Y ∪ {a}.
+        let whole = parts_of(set);
+        let (head, added) = match (whole, opens.as_slice()) {
+            (None, [first, second]) => (Some((*first, *second)), None),
+            (Some(_), [first, second, third]) => {
+                (Some((*first, *second)), Some(*third))
             }
-            _ => None,
+            _ => (None, None),
         };
+        let fixed = head
+            .filter(|(first, second)| first.kind == Intro::Let && second.is_hypothesis)
+            .and_then(|(first, _)| let_said(first, thm, known));
         let opened = fixed.as_ref().is_some_and(|f| match f.children.as_slice() {
             [k, x] => k.text == letter.text && known.alike(x, set),
             _ => false,
         });
-        if !opened {
+        let adds = match whole {
+            None => true,
+            Some(whole) => added
+                .is_some_and(|third| adds_a_member(third, whole, letter, thm, known)),
+        };
+        if !opened || !adds {
             let (k, x) = (known.print(letter), known.print(set));
-            report.say(
-                &thm.path,
-                *no,
-                format!(
+            let said = match whole {
+                None => format!(
                     "the step part of step {number} does not open with `let {k} ∈ {x}` and `assume step {number} is true for {k}, the induction hypothesis`, those two lines in that order and no other"
                 ),
-            );
+                Some(whole) => {
+                    let w = known.print(whole);
+                    format!(
+                        "the step part of step {number} does not open with `let {k} ⊆ {w}`, `assume step {number} is true for {k}, the induction hypothesis` and `let a ∈ {w} ∖ {k}`, a the member the step adds, those three lines in that order and no other"
+                    )
+                }
+            };
+            report.say(&thm.path, *no, said);
         }
         for o in opens.iter().filter(|o| o.is_hypothesis) {
             let Some(said) = o.hypothesis_for.as_ref().filter(|k| **k != letter.text)
@@ -603,10 +617,110 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
     }
 }
 
+/// The set whose parts an induction runs over: X of a claim "for all Y ⊆ X,
+/// …", which reads as "for all Y ∈ 𝒫X"; None for an induction over numbers.
+pub(super) fn parts_of(set: &Node) -> Option<&Node> {
+    match (set.notation(), set.children.as_slice()) {
+        (POWERSET, [whole]) => Some(whole),
+        _ => None,
+    }
+}
+
+/// What a `let` line opening an induction's step part says, `k ∈ X`, or
+/// `Y ∈ 𝒫X` of `let Y ⊆ X`; None for a line of another form or one that
+/// does not read.
+pub(super) fn let_said(
+    opener: &crate::corpus::Opener,
+    thm: &Theorem,
+    known: &Known,
+) -> Option<Node> {
+    let i = Introduction::read(opener.body(&thm.path));
+    if !matches!(i.form, Form::Member | Form::Part { .. }) {
+        return None;
+    }
+    i.asserted(known.env.g, &known.sorts).ok()?.pop()
+}
+
+/// Whether `opener` is the third line of a step part over the parts of
+/// `whole`, `let a ∈ X ∖ Y`, with `letter` the part's Y.
+fn adds_a_member(
+    opener: &crate::corpus::Opener,
+    whole: &Node,
+    letter: &Node,
+    thm: &Theorem,
+    known: &Known,
+) -> bool {
+    if opener.kind != Intro::Let || opener.is_hypothesis {
+        return false;
+    }
+    let Some(said) = let_said(opener, thm, known) else {
+        return false;
+    };
+    let rest = made(known.env.g, WITHOUT, vec![whole.clone(), letter.clone()]);
+    match said.children.as_slice() {
+        [a, from] => a.is_name() && a.text != letter.text && known.alike(from, &rest),
+        _ => false,
+    }
+}
+
+/// An induction over the parts of a finite set starts at ∅, which it
+/// writes, and says on a requires line that the set is finite, since the
+/// rule holds of a finite set only (`SYNTAX.md`, the `induction` row).
+fn check_parts_induction_runs(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    whole: &Node,
+    known: &Known,
+) {
+    let number = fmt(&step.number);
+    let g = known.env.g;
+    let empty = made_by_name(g, EMPTY_SET, Vec::new());
+    let written = step.just.start.as_deref().map(str::trim);
+    let read = written.map(|w| {
+        Written::new(w, &thm.path, step.just.line)
+            .formula()
+            .and_then(|s| known.parse(&s))
+    });
+    let starts = matches!(&read, Some(Ok(n)) if known.alike(n, &empty));
+    let unread = matches!(&read, Some(Err(_)));
+    if !starts && !unread {
+        let said = match written {
+            Some(w) => format!("the text says {w}"),
+            None => "the text says no start".to_string(),
+        };
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "an induction over the parts of {} starts at ∅, and {said}",
+                known.print(whole)
+            ),
+        );
+    }
+    let finite = made_by_name(g, FINITE, vec![whole.clone()]);
+    let said = step.requires.iter().any(|r| {
+        known
+            .whole_as_written(&r.fact)
+            .is_some_and(|f| known.alike(&f, &finite))
+    });
+    if !said {
+        let w = known.print(whole);
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "step {number} inducts over the parts of {w}, which holds of a finite set only; it carries `requires {w} is finite`"
+            ),
+        );
+    }
+}
+
 /// An induction has a `base` part and a `step` part, runs over ℕ or ℕ₀, and
 /// starts at the set's first element, which it writes (`SYNTAX.md`, the
 /// `induction` row). The sets and where each starts are the induction
-/// lemmas' (`rules::INDUCTION`), which the build closes with.
+/// lemmas' (`rules::INDUCTION`), which the build closes with. An induction
+/// over the parts of a set is `check_parts_induction_runs`'s.
 fn check_induction_runs(
     report: &mut Report,
     thm: &Theorem,
@@ -623,6 +737,10 @@ fn check_induction_runs(
                 format!("step {number} is an induction with no {wanted} part"),
             );
         }
+    }
+    if let Some(whole) = parts_of(set) {
+        check_parts_induction_runs(report, thm, step, whole, known);
+        return;
     }
     let first_of = |label: &str| rules::digit_of(label).map(|d| d.to_string());
     let begins = (set.notation() == crate::notations::NUMBER_SYSTEMS)

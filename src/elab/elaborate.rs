@@ -3369,10 +3369,10 @@ impl<'a> Elaborator<'a> {
     }
 
     /// Where no end of `link` is written as an end of `run` is, the
-    /// equation between one end of each that have one standard form
-    /// (`same`), each turned so that the equation goes from where `run` ends
-    /// to where `link` begins; an order is not turned. None where an end is
-    /// written alike, or no two ends have one standard form.
+    /// equation between one end of each that the checker reads as one term
+    /// (`alike`), each turned so that the equation goes from where `run`
+    /// ends to where `link` begins; an order is not turned. None where an end
+    /// is written alike, or no two ends read as one.
     fn middle_joined(
         &mut self,
         step: &Step,
@@ -3399,7 +3399,7 @@ impl<'a> Elaborator<'a> {
             let to = if turn_link { &link.right } else { &link.left };
             let (from_term, to_term) = (self.to_term(from), self.to_term(to));
             let Built(proof) =
-                self.same(&from_term, &to_term, scope, facts, Some(step))?
+                self.alike(&from_term, &to_term, scope, facts, Some(step))?
             else {
                 continue;
             };

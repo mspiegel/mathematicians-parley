@@ -2525,6 +2525,40 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
+        self.same_by(given, want, scope, facts, step, vec![Row::Standard])
+    }
+
+    /// `same`, where the two may also differ by an identity element left
+    /// out (`Row::Identity`): what the checker reads as one term
+    /// (`Known::alike`), (∏(y ∈ Y) 1)·1 and ∏(y ∈ Y) 1.
+    pub fn alike(
+        &mut self,
+        given: &Term,
+        want: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        self.same_by(
+            given,
+            want,
+            scope,
+            facts,
+            step,
+            vec![Row::Standard, Row::Identity],
+        )
+    }
+
+    /// `same` by the rows given.
+    fn same_by(
+        &mut self,
+        given: &Term,
+        want: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+        rows: Vec<Row>,
+    ) -> Checked<Route<Proof>> {
         // The two are compared with their defined names written out, and
         // what that asks of a part is asked of it written out, so the facts
         // are read the same way.
@@ -2543,14 +2577,7 @@ impl<'a> Elaborator<'a> {
         let mut letters = self.letters_bound(&given_read);
         letters.extend(self.letters_bound(&want_read));
         let kept = std::mem::replace(&mut self.binding, letters);
-        let out = self.congruence(
-            given,
-            want,
-            scope,
-            facts,
-            step,
-            &Leaf::Rows(vec![Row::Standard]),
-        );
+        let out = self.congruence(given, want, scope, facts, step, &Leaf::Rows(rows));
         self.binding = kept;
         out
     }

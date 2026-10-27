@@ -1,0 +1,89 @@
+# Induction, for `proved.mm`.
+#
+# What an induction a proof writes closes with, where set.mm states it
+# another way:
+#
+# - an induction over the parts of a finite set, `induction on Y starting
+#   at ∅` with the claim "for all Y ⊆ X, P(Y)": set.mm's `findcard2d` proves
+#   P(A) of one finite A from its parts, and the page's step adds a member of
+#   X to a part of X. Applied at each part w of A, which is finite (`ssfid`),
+#   with the step of w's parts read as one of A's parts (`sstrd`,
+#   `ssdifd`), it gives P(w) for every w ⊆ A, in the shape the number
+#   inductions' `nn0indd` gives P(k) for every k: under the scope and the
+#   membership, for `ralrimiva`;
+# - a product over a finite set with one member more, the step such an
+#   induction takes for a product: set.mm's `fprodsplitsn` with its
+#   bound-letter conditions met here, for
+#   `mun:stdlib/sums/product-add-one`.
+
+$( Induction: over the parts of a finite set, a member at a time, and a
+   product over a set with one member more. $)
+$d w x y z $.
+$d k ph $.
+$d k A $.
+$d k B $.
+$d k D $.
+$d k V $.
+$d A x y z $.
+$d ph x y z $.
+$d ps y z $.
+$d ch x $.
+$d th x $.
+$d ta x $.
+$d et x $.
+
+# ( ( ph /\ w e. ~P A ) -> et ), from P(∅), P(y) giving P(y ∪ {z}) for a
+# part y of A and z ∈ A ∖ y, and A finite.
+lemma gfinind
+  hypothesis gfinind.1 |- ( x = (/) -> ( ps <-> ch ) )
+  hypothesis gfinind.2 |- ( x = y -> ( ps <-> th ) )
+  hypothesis gfinind.3 |- ( x = ( y u. { z } ) -> ( ps <-> ta ) )
+  hypothesis gfinind.4 |- ( x = w -> ( ps <-> et ) )
+  hypothesis gfinind.5 |- ( ph -> ch )
+  hypothesis gfinind.6 |- ( ( ( ( ph /\ y e. ~P A ) /\ th ) /\ z e. ( A \ y ) ) -> ta )
+  hypothesis gfinind.7 |- ( ph -> A e. Fin )
+  |- ( ( ph /\ w e. ~P A ) -> et )
+  1 adantr gfinind.5 |- ( ( ph /\ w e. ~P A ) -> ch )
+  2 simpll |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ph )
+  3 simprl |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> y C_ w )
+  4 simplr |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> w e. ~P A )
+  5 elpwid 4 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> w C_ A )
+  6 sstrd 3 5 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> y C_ A )
+  7 velpw |- ( y e. ~P A <-> y C_ A )
+  8 sylibr 6 7 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> y e. ~P A )
+  9 jca 2 8 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ( ph /\ y e. ~P A ) )
+  10 simprr |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> z e. ( w \ y ) )
+  11 ssdifd 5 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ( w \ y ) C_ ( A \ y ) )
+  12 sseldd 11 10 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> z e. ( A \ y ) )
+  13 ex gfinind.6 |- ( ( ( ph /\ y e. ~P A ) /\ th ) -> ( z e. ( A \ y ) -> ta ) )
+  14 ex 13 |- ( ( ph /\ y e. ~P A ) -> ( th -> ( z e. ( A \ y ) -> ta ) ) )
+  15 syl 9 14 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ( th -> ( z e. ( A \ y ) -> ta ) ) )
+  16 com23 15 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ( z e. ( A \ y ) -> ( th -> ta ) ) )
+  17 mpd 12 16 |- ( ( ( ph /\ w e. ~P A ) /\ ( y C_ w /\ z e. ( w \ y ) ) ) -> ( th -> ta ) )
+  18 adantr gfinind.7 |- ( ( ph /\ w e. ~P A ) -> A e. Fin )
+  19 simpr |- ( ( ph /\ w e. ~P A ) -> w e. ~P A )
+  20 elpwid 19 |- ( ( ph /\ w e. ~P A ) -> w C_ A )
+  21 ssfid 18 20 |- ( ( ph /\ w e. ~P A ) -> w e. Fin )
+  22 findcard2d gfinind.1 gfinind.2 gfinind.3 gfinind.4 1 17 21 |- ( ( ph /\ w e. ~P A ) -> et )
+
+# ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) ), from A
+# finite, B a set not in A, each term a number, and D the term at B.
+lemma gprodaddone
+  hypothesis gprodaddone.1 |- ( ph -> A e. Fin )
+  hypothesis gprodaddone.2 |- ( ph -> B e. V )
+  hypothesis gprodaddone.3 |- ( ph -> -. B e. A )
+  hypothesis gprodaddone.4 |- ( ( ph /\ k e. ( A u. { B } ) ) -> C e. CC )
+  hypothesis gprodaddone.5 |- ( k = B -> C = D )
+  |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) )
+  1 nfv |- F/ k ph
+  2 nfcv |- F/_ k D
+  3 elun1 |- ( k e. A -> k e. ( A u. { B } ) )
+  4 sylan2 3 gprodaddone.4 |- ( ( ph /\ k e. A ) -> C e. CC )
+  5 snidg |- ( B e. V -> B e. { B } )
+  6 syl gprodaddone.2 5 |- ( ph -> B e. { B } )
+  7 elun2 |- ( B e. { B } -> B e. ( A u. { B } ) )
+  8 syl 6 7 |- ( ph -> B e. ( A u. { B } ) )
+  9 ralrimiva gprodaddone.4 |- ( ph -> A. k e. ( A u. { B } ) C e. CC )
+  10 eleq1d gprodaddone.5 |- ( k = B -> ( C e. CC <-> D e. CC ) )
+  11 rspcdva 10 9 8 |- ( ph -> D e. CC )
+  12 fprodsplitsn 1 2 gprodaddone.1 gprodaddone.2 gprodaddone.3 4 gprodaddone.5 11 |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) )

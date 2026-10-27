@@ -2508,6 +2508,52 @@ $d x y z $.
 $}
 
 ${
+$( Induction: over the parts of a finite set, a member at a time, and a
+   product over a set with one member more. $)
+$d w x y z $.
+$d k ph $.
+$d k A $.
+$d k B $.
+$d k D $.
+$d k V $.
+$d A x y z $.
+$d ph x y z $.
+$d ps y z $.
+$d ch x $.
+$d th x $.
+$d ta x $.
+$d et x $.
+
+  ${
+    gfinind.1 $e |- ( x = (/) -> ( ps <-> ch ) ) $.
+    gfinind.2 $e |- ( x = y -> ( ps <-> th ) ) $.
+    gfinind.3 $e |- ( x = ( y u. { z } ) -> ( ps <-> ta ) ) $.
+    gfinind.4 $e |- ( x = w -> ( ps <-> et ) ) $.
+    gfinind.5 $e |- ( ph -> ch ) $.
+    gfinind.6 $e |- ( ( ( ( ph /\ y e. ~P A ) /\ th ) /\ z e. ( A \ y ) ) -> ta ) $.
+    gfinind.7 $e |- ( ph -> A e. Fin ) $.
+  gfinind $p |- ( ( ph /\ w e. ~P A ) -> et ) $=
+    ( cv cpw wcel wa adantr wss cdif wi simplr elpwid ssdifd simprr sseldd
+    simpll simprl sstrd velpw sylibr jca ex syl com23 mpd cfn simpr ssfid
+    findcard2d )
+    AJSZKTZUAZUBZBCDEFGHIVFLMNOACVHPUCVIHSZVFUDZISZVFVJUEZUAZUBZUBZVLKVJUEZUAZDEUFVPVMVQVLVPVFKVJVPVFKAVHVOUGZUHZUIVIVKVNUJUKVPDVREVPAVJVGUAZUBZDVREUFZUFVPAWAAVHVOULVPVJKUDWAVPVJVFKVIVKVNUMVTUNHKUOUPUQWBDWCWBDUBVREQURURUSUTVAVIKVFAKVBUAVHRUCVIVFKAVHVCUHVDVE $.
+  $}
+
+  ${
+    gprodaddone.1 $e |- ( ph -> A e. Fin ) $.
+    gprodaddone.2 $e |- ( ph -> B e. V ) $.
+    gprodaddone.3 $e |- ( ph -> -. B e. A ) $.
+    gprodaddone.4 $e |- ( ( ph /\ k e. ( A u. { B } ) ) -> C e. CC ) $.
+    gprodaddone.5 $e |- ( k = B -> C = D ) $.
+  gprodaddone $p |- ( ph -> prod_ k e. ( A u. { B } ) C = ( prod_ k e. A C x. D ) ) $=
+    ( nfv nfcv cv wcel csn cun cc elun1 sylan2 wceq eleq1d ralrimiva snidg
+    syl elun2 rspcdva fprodsplitsn )
+    ABCDEFGAFMFENHIJFOZBPAUJBCQZRZPDSPZUJBUKTKUALAUMESPFULCUJCUBDESLUCAUMFULKUDACUKPZCULPACGPUNICGUEUFCUKBUGUFUHUI $.
+  $}
+
+$}
+
+${
 $( Groups: what is in a coset. $)
 $d y z A $.
 $d y z S $.

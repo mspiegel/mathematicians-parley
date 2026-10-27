@@ -717,6 +717,7 @@ impl<'a> Elaborator<'a> {
             over: None,
             base: None,
             variable: None,
+            added: None,
             letters_at: self.block_letters.len(),
             opened: Vec::new(),
             // Taken before the block names anything, so that what it names is
@@ -967,6 +968,9 @@ impl<'a> Elaborator<'a> {
             .filter(|o| o.part == Some(part))
             .cloned()
             .collect();
+        // The first `let` fixes the claim's letter; a second, over the parts
+        // of a set, the member the step adds.
+        let mut lets = 0;
         for o in openers {
             let said = match o.is_hypothesis {
                 true => None,
@@ -976,7 +980,12 @@ impl<'a> Elaborator<'a> {
                 let name = node.leftmost().text.to_string();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
                 self.names.insert(name.clone(), t!(var, "cv"));
-                block.variable = Some(var);
+                if lets == 0 {
+                    block.variable = Some(var);
+                } else {
+                    block.added = Some(var);
+                }
+                lets += 1;
                 let set = self.term(&node.children[1])?;
                 self.sets.insert(name, set);
             }
@@ -1945,18 +1954,35 @@ impl<'a> Elaborator<'a> {
         };
         let claim = self.claim_of(&step.claim)?;
         let over = self.rpn(&self.to_term(&claim).children()[2]);
-        let Some((lemma, begins)) =
-            lookup(rules::INDUCTION, over.alone().unwrap_or_default())
-        else {
-            return Err(self.unreached(
-                step.line,
-                format!("nothing here inducts over {}", self.render(&over)),
-            ));
+        // Over the parts of a set X, `gfinind` closes it from ∅ and Y ∪ {a};
+        // over numbers, the set's lemma from its first element and k + 1.
+        let parent = self.parts_over(&over);
+        let (lemma, start, next_one) = match (&parent, &block.added) {
+            (Some(_), Some(added)) => (
+                "gfinind",
+                t!("c0"),
+                t!(variable, "cv", added, "cv", "csn", "cun"),
+            ),
+            (Some(_), None) => {
+                return Err(self.unreached(
+                    step.line,
+                    "the step part of the induction adds no member",
+                ));
+            }
+            (None, _) => {
+                let Some((lemma, begins)) =
+                    lookup(rules::INDUCTION, over.alone().unwrap_or_default())
+                else {
+                    return Err(self.unreached(
+                        step.line,
+                        format!("nothing here inducts over {}", self.render(&over)),
+                    ));
+                };
+                // The start the page writes is the set's first element, as
+                // the checker holds (`check_induction_runs`).
+                (lemma, t!(begins), t!(variable, "cv", "c1", "caddc", "co"))
+            }
         };
-        // The start the page writes is the set's first element, as the
-        // checker holds (`check_induction_runs`).
-        let start = t!(begins);
-        let next_one = t!(variable, "cv", "c1", "caddc", "co");
         let written = step.claim.clone();
         // The statement after "for all k ∈ X,", with k the general name.
         let pattern = self.names_kept(|me| -> Checked<crate::formula::Node> {
@@ -2031,8 +2057,13 @@ impl<'a> Elaborator<'a> {
         // The step part's scope is the block's with k ∈ X and the induction
         // hypothesis conjoined, in that order, which is the antecedent the
         // lemma asks its step under.
+        // Over the parts of X it ends with the member added, a ∈ X ∖ Y.
         let member = t!(variable, "cv", over, "wcel");
-        let asked = t!(t!(scope, member, "wa"), held, "wa");
+        let mut asked = t!(t!(scope, member, "wa"), held, "wa");
+        if let (Some(parent), Some(added)) = (&parent, &block.added) {
+            let outside = t!(added, "cv", parent, variable, "cv", "cdif", "wcel");
+            asked = t!(asked, outside, "wa");
+        }
         if under != asked {
             return Err(self.unreached(
                 step.line,
@@ -2060,25 +2091,54 @@ impl<'a> Elaborator<'a> {
                 self.defect(step.line, "the base does not reach the first instance")
             );
         };
-        let mut all: Vec<crate::mm::spell::Part> = Vec::new();
-        let pieces = [
-            scope.clone(),
-            body,
-            claimed,
-            held,
-            reached,
-            whole.clone(),
-            t!(block.base.clone().unwrap_or_default()),
-            t!(variable),
-            named,
-        ];
-        all.extend(pieces.iter().map(|p| crate::elab::part(p)));
-        all.extend(ties.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(&base));
-        all.push(crate::elab::part(&stepped));
-        all.push(crate::elab::part(lemma));
         // `( ( scope ∧ k ∈ X ) → P(k) )`, and so P of every k in X.
-        let run = self.b.proof(&all);
+        let run = match (&parent, &block.added) {
+            (Some(parent), Some(added)) => {
+                let finite = t!(parent, "cfn", "wcel");
+                let known = self.supplied(Some(step), scope, &block.outside)?;
+                let Some(finite) = self.held(&known, &finite, scope)? else {
+                    return Err(self.defect(
+                        step.line,
+                        format!(
+                            "nothing the induction's requires lines say gives {}",
+                            self.render(&finite)
+                        ),
+                    ));
+                };
+                let x = t!(block.base.clone().unwrap_or_default());
+                self.b.ap(
+                    lemma,
+                    &binds! {"ph" => scope, "ps" => &body, "ch" => &claimed,
+                    "th" => &held, "ta" => &reached, "et" => &whole, "x" => &x,
+                    "y" => &t!(variable), "z" => &t!(added), "w" => &bound,
+                    "A" => parent},
+                    &[
+                        &ties[0], &ties[1], &ties[2], &ties[3], &base, &stepped,
+                        &finite,
+                    ],
+                )
+            }
+            _ => {
+                let mut all: Vec<crate::mm::spell::Part> = Vec::new();
+                let pieces = [
+                    scope.clone(),
+                    body,
+                    claimed,
+                    held,
+                    reached,
+                    whole.clone(),
+                    t!(block.base.clone().unwrap_or_default()),
+                    t!(variable),
+                    named,
+                ];
+                all.extend(pieces.iter().map(|p| crate::elab::part(p)));
+                all.extend(ties.iter().map(|p| crate::elab::part(p)));
+                all.push(crate::elab::part(&base));
+                all.push(crate::elab::part(&stepped));
+                all.push(crate::elab::part(lemma));
+                self.b.proof(&all)
+            }
+        };
         let every = t!(whole, bound, over, "wral");
         if every != target {
             return Err(self.defect(
@@ -2103,6 +2163,16 @@ impl<'a> Elaborator<'a> {
             &[&proved, &back],
         );
         Ok((claim, carried))
+    }
+
+    /// X, where an induction runs over `over` = 𝒫X, the parts of X; None
+    /// for any other set.
+    fn parts_over(&self, over: &Rpn) -> Option<Rpn> {
+        let set = self.to_term(over);
+        match (set.label(), set.children()) {
+            (Some("cpw"), [whole]) => Some(self.rpn(whole)),
+            _ => None,
+        }
     }
 
     /// The functions from X to Y, where `over` is that set (`X ↑m Y` in

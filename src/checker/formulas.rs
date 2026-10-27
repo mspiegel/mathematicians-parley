@@ -21,7 +21,7 @@ use crate::corpus::{
 };
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
-    conjoined, disjoined, made, numeral, related, Sentence, Written,
+    conjoined, disjoined, made, made_by_name, numeral, related, Sentence, Written,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::{walk, Node, Sort, Sorts};
@@ -38,7 +38,8 @@ use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
     CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
     GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, REAL_POWER, SUM, TIMES,
+    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, REAL_POWER, SINGLETON, SUM, TIMES,
+    UNION,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -1804,12 +1805,20 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
         let written = Written::new(v, &known.thm.path, owner.just.line);
         known.read_as_written(&written.formula().ok()?)
     });
-    let next = made(known.env.g, PLUS, vec![letter.clone(), numeral("1")]);
+    // Over the parts of a set the step owes the statement at Y ∪ {a}, a the
+    // member its third line adds; over numbers, at k + 1.
+    let next = match super::structure::parts_of(&claim.children[1]) {
+        None => Some(made(known.env.g, PLUS, vec![letter.clone(), numeral("1")])),
+        Some(_) => member_added(owner, known).map(|a| {
+            let one = made_by_name(known.env.g, SINGLETON, vec![a]);
+            made(known.env.g, UNION, vec![letter.clone(), one])
+        }),
+    };
     let mut owed = Vec::new();
     for (part, (marker, _)) in owner.parts.iter().enumerate() {
         let (value, which) = match marker.as_str() {
             "base" => (start.clone(), "base"),
-            "step" => (Some(next.clone()), "step"),
+            "step" => (next.clone(), "step"),
             _ => continue,
         };
         if let Some(claim) = value.map(at) {
@@ -1821,6 +1830,26 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
         }
     }
     owed
+}
+
+/// The member an induction over the parts of a set adds in its step part,
+/// the a of its third line `let a ∈ X ∖ Y`; None where the part does not
+/// open so, which `check_step_part` reports.
+fn member_added(owner: &Step, known: &Known) -> Option<Node> {
+    let part = owner
+        .parts
+        .iter()
+        .position(|(marker, _)| marker == "step")?;
+    let lets: Vec<_> = owner
+        .openers
+        .iter()
+        .filter(|o| o.part == Some(part) && o.kind == Intro::Let && !o.is_hypothesis)
+        .collect();
+    let [_, third] = lets.as_slice() else {
+        return None;
+    };
+    let said = super::structure::let_said(third, known.thm, known)?;
+    said.children.first().cloned()
 }
 
 /// What a `proof` block owes: its claim with a "for all" taken off for each

@@ -4217,6 +4217,45 @@ fn cases() -> Vec<Case> {
             )],
             "step 49 says an equation 23 says, which is `restate 23`, not algebra",
         ),
+        // An induction over the parts of a set holds of a finite set only,
+        // starts at ∅, opens its step with the member it adds, and ends it
+        // on the statement at Y ∪ {a}.
+        case(
+            "induct over the parts of a set not said to be finite",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    induction on Y starting at ∅\n    requires X is finite: from H2\n".to_string()),
+                "    induction on Y starting at ∅\n".to_string(),
+            )],
+            "step 1 inducts over the parts of X, which holds of a finite set only; it carries `requires X is finite`",
+        ),
+        case(
+            "induct over the parts of a set from somewhere other than ∅",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    induction on Y starting at ∅\n".to_string()),
+                "    induction on Y starting at X\n".to_string(),
+            )],
+            "an induction over the parts of X starts at ∅, and the text says X",
+        ),
+        case(
+            "add a member to a part of a set from outside the rest",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    let a ∈ X ∖ Y                                                     (K2)\n".to_string()),
+                "    let a ∈ X                                                         (K2)\n".to_string(),
+            )],
+            "the step part of step 1 does not open with `let Y ⊆ X`, `assume step 1 is true for Y, the induction hypothesis` and `let a ∈ X ∖ Y`, a the member the step adds, those three lines in that order and no other",
+        ),
+        case(
+            "end an induction over the parts of a set short of Y ∪ {a}",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("\n    1.5.  ∏(y ∈ Y ∪ {a}) 1 = 1\n          transitivity, from 1.4, IH\n".to_string()),
+                String::new(),
+            )],
+            "step 1.4 ends the step part of step 1, which owes ∏(y ∈ Y ∪ {a}) 1 = 1",
+        ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.
         case(

@@ -1064,6 +1064,20 @@ impl<'a> Elaborator<'a> {
                 };
             }
         }
+        // A part written where a member of the power set is asked, or the
+        // other way round, is the same requires line in the other spelling
+        // (`rules::PARTS`): proved as written, and carried across.
+        for r in &step.requires {
+            let line = self.term(&self.read_one(&r.fact)?)?;
+            if line == *goal || self.as_written(&line) != self.as_written(goal) {
+                continue;
+            }
+            let held = self.required(step, &line, scope, facts)?;
+            let carried = self.implied(&line, &held, scope, facts)?;
+            if let Some(p) = self.held(&carried, goal, scope)? {
+                return Ok(p);
+            }
+        }
         // A `requires` line that is not there is the text's to fix, so this
         // one is a defect.
         match self.settle(&self.to_term(goal), scope, facts, 3, None, None)? {

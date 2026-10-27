@@ -141,6 +141,9 @@ pub struct Block {
     pub base: Option<String>,
     /// The setvar a `proof` block's `let` introduced.
     pub variable: Option<String>,
+    /// The setvar the step part of an induction over the parts of a set
+    /// adds, its `let a ∈ X ∖ Y`.
+    pub added: Option<String>,
     /// How many block letters were in hand before it opened, which closing
     /// it gives back (`Elaborator::block_letters`).
     pub letters_at: usize,
