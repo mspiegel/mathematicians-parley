@@ -1,3 +1,4 @@
+import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
@@ -1181,6 +1182,1497 @@ theorem triangle-inequality-strict
     inequalities
       |PQ| + |QR| > |PR|       30
       |PR| < |PQ| + |QR|       symmetry
+
+theorem triangle-equality-between
+  note        The equality case of I.20. P and R are apart, since the way
+              from P through Q has length; Q is on line PR, since off it
+              PQR is a triangle and I.20 makes the way through Q longer; and
+              of the places on the line, only between P and R keeps the
+              lengths, as beyond either end one of the two sides would be
+              nothing.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then Q is between P and R
+
+1.  |PQ| > 0
+    mun:distance-positive, from H4
+
+2.  |QR| > 0
+    mun:distance-positive P := Q, Q := R, from H5
+
+3.  P ≠ R
+    contradiction
+    suppose P = R                                                     (S)
+
+    3.1.  |PR| = 0
+          mun:distance-zero Q := R, from S
+
+    3.2.  |PQ| + |QR| > 0
+          inequalities, from 1, 2
+
+    3.3.  |PR| > 0
+          substitute |PQ| + |QR| = |PR| (H6) into line 3.2
+
+    3.4.  0 > 0, which is impossible
+          substitute |PR| = 0 (line 3.1) into line 3.3
+
+4.  Q is on line PR
+    contradiction
+    suppose not (Q is on line PR)                                     (S)
+
+    4.1.  Q, P, R form a triangle.
+          mun:triangle-off-line P := Q, Q := P, from S, 3
+
+    4.2.  P, R, Q form a triangle.
+          mun:triangle-rotated P := Q, Q := P, from 4.1
+
+    4.3.  P, Q, R form a triangle.
+          mun:triangle-turned Q := R, R := Q, from 4.2
+
+    4.4.  |PR| < |PQ| + |QR|
+          thm:triangle-inequality-strict, from 4.3
+
+    4.5.  |PR| < |PR|
+          substitute |PQ| + |QR| = |PR| (H6) into line 4.4
+
+    4.6.  0 < 0, which is impossible
+          inequalities
+            |PR| < |PR|         4.5
+            0 < 0               adding −|PR|
+
+5.  Q = P or Q is between P and R or Q = R or R is between P and Q or
+    P is between Q and R
+    mun:on-line-cases P := Q, Q := P, from 3, 4
+
+6.  Q is between P and R
+    cases, from 5
+
+    case
+    assume Q = P                                                      (C1)
+
+    6.1.  P ≠ Q
+          restate H4, contradicting C1
+
+    case
+    assume Q is between P and R, which is the claim                   (C2)
+
+    case
+    assume Q = R                                                      (C3)
+
+    6.2.  Q ≠ R
+          restate H5, contradicting C3
+
+    case
+    assume R is between P and Q                                       (C4)
+
+    6.3.  |PR| + |RQ| = |PQ|
+          mun:segment-addition S := R, from C4
+
+    6.4.  |QR| = 0
+          algebra, from H6, 6.3
+
+    6.5.  0 > 0, which is impossible
+          substitute |QR| = 0 (line 6.4) into line 2
+
+    case
+    assume P is between Q and R                                       (C5)
+
+    6.6.  |QP| + |PR| = |QR|
+          mun:segment-addition P := Q, Q := R, S := P, from C5
+
+    6.7.  |PQ| = 0
+          algebra, from H6, 6.6
+
+    6.8.  0 > 0, which is impossible
+          substitute |PQ| = 0 (line 6.7) into line 1
+
+theorem chord-midpoint-right-angle
+  note        Euclid III.3. The line from the centre O of a circle through
+              the midpoint M of a chord AB meets the chord at a right angle.
+              O is off the chord's line, since on it O would be an end, the
+              midpoint, or beyond an end, and none keeps |AO| = |BO| with
+              O ≠ M. So AMO and BMO are triangles with their sides equal,
+              congruent by SSS, and the two angles at M, equal and
+              supplementary, are right angles. O ≠ M because a chord through
+              the centre has its midpoint there, and no angle at M.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume |AO| = |BO|                                                  (H6)
+  assume O ≠ M                                                        (H7)
+  then ∠OMB = 90°
+
+1.  M is between A and B. |AM| = |MB|.
+    mun:midpoint, from H5
+
+2.  A ≠ B
+    mun:between-ends-apart R := M, S := A, T := B, from 1
+
+3.  A ≠ M. B ≠ M.
+    mun:between-apart R := M, S := A, T := B, from 1
+
+4.  not (O is on line AB)
+    contradiction
+    suppose O is on line AB                                           (S)
+
+    4.1.  O = A or O is between A and B or O = B or B is between A and O
+          or A is between O and B
+          mun:on-line-cases P := O, Q := A, R := B, from S, 2
+
+    4.2.  A = B
+          cases, from 4.1
+
+          case
+          assume O = A                                                (C1)
+
+          4.2.1.  |OA| = 0
+                  mun:distance-zero P := O, Q := A, from C1
+
+          4.2.2.  |BO| = 0
+                  transitivity, from H6, 4.2.1
+
+          4.2.3.  B = O
+                  mun:distance-zero P := B, Q := O, from 4.2.2
+
+          4.2.4.  A = B
+                  transitivity, from C1, 4.2.3
+
+          case
+          assume O is between A and B                                 (C2)
+
+          4.2.5.  O is the midpoint of AB
+                  mun:midpoint M := O, from C2, H6
+
+          4.2.6.  O = M
+                  mun:midpoint-unique M := O, N := M, from H5, 4.2.5
+
+          4.2.7.  O ≠ M
+                  restate H7, contradicting 4.2.6
+
+          case
+          assume O = B                                                (C3)
+
+          4.2.8.  |OB| = 0
+                  mun:distance-zero P := O, Q := B, from C3
+
+          4.2.9.  |AO| = 0
+                  transitivity, from H6, 4.2.8
+
+          4.2.10. A = O
+                  mun:distance-zero P := A, Q := O, from 4.2.9
+
+          4.2.11. A = B
+                  transitivity, from C3, 4.2.10
+
+          case
+          assume B is between A and O                                 (C4)
+
+          4.2.12. |AB| + |BO| = |AO|
+                  mun:segment-addition P := A, Q := O, S := B, from C4
+
+          4.2.13. |AB| = 0
+                  algebra, from H6, 4.2.12
+
+          4.2.14. A = B
+                  mun:distance-zero P := A, Q := B, from 4.2.13
+
+          case
+          assume A is between O and B                                 (C5)
+
+          4.2.15. |OA| + |AB| = |OB|
+                  mun:segment-addition P := O, Q := B, S := A, from C5
+
+          4.2.16. |AB| = 0
+                  algebra, from H6, 4.2.15
+
+          4.2.17. A = B
+                  mun:distance-zero P := A, Q := B, from 4.2.16
+
+    4.3.  A ≠ B
+          restate 2, contradicting 4.2
+
+5.  O, A, B form a triangle.
+    mun:triangle-off-line P := O, Q := A, R := B, from 2, 4
+
+6.  O, A, M form a triangle.
+    mun:triangle-on-side P := O, Q := A, R := B, S := M, from 1, 5
+
+7.  A, M, O form a triangle.
+    mun:triangle-rotated P := O, Q := A, R := M, from 6
+
+8.  O, B, A form a triangle.
+    mun:triangle-turned P := O, Q := A, R := B, from 5
+
+9.  M is between B and A
+    mun:between-symmetric R := M, S := A, T := B, from 1
+
+10. O, B, M form a triangle.
+    mun:triangle-on-side P := O, Q := B, R := A, S := M, from 8, 9
+
+11. B, M, O form a triangle.
+    mun:triangle-rotated P := O, Q := B, R := M, from 10
+
+12. triangle AMO ≅ triangle BMO
+    thm:side-side-side B := M, C := O, D := B, E := M, F := O,
+      from H6, 1, 7, 11
+
+13. |AM| = |BM|, |MO| = |MO|, |OA| = |OB|, ∠AMO = ∠BMO, ∠MOA = ∠MOB,
+    and ∠OAM = ∠OBM.
+    def:congruent P := A, Q := M, R := O, P′ := B, Q′ := M, R′ := O,
+      from 12
+
+14. ∠AMO + ∠OMB = 180°
+    axi:supplementary-angles B := M, C := B, D := O, from H7, 1
+
+15. ∠BMO = ∠OMB
+    mun:angle-turned P := B, Q := M, R := O, from H7, 3
+
+16. ∠OMB = 90°
+    algebra, from 13, 14, 15
+    requires ∠OMB ∈ ℝ: mun:angle-real P := O, Q := M, R := B, from H7, 3
+
+theorem perpendicular-foot
+  note        Euclid I.12, the perpendicular from P to the line QR. Copy the
+              angle RQP to the other side of the line, and lay off |QP| along
+              its arm to P′; the line crosses PP′ at H. Where H is not Q, the
+              triangles PQH and P′QH agree in two sides and the angle between
+              them, so the angles at H are equal, and being supplementary
+              they are right angles; where H is Q, the angles at Q are. The
+              right angle to R follows along the line (right-angle-along).
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then there is H ∈ 𝔼² with H is on line QR, P ≠ H, (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H4
+
+2.  |PQ| > 0
+    mun:distance-positive, from 1
+
+3.  X ∈ 𝔼². Q is between P and X. |QX| = |PQ|.
+    obtain X: mun:segment-extension A := P, B := Q, r := |PQ|, from 1, 2
+
+4.  Q is on line QR. R is on line QR.
+    mun:on-line-ends A := Q, B := R
+
+5.  not (P is on line QR)
+    mun:triangle-not-on-line, from H4
+
+6.  P and X are on opposite sides of line QR
+    mun:segment-across-line A := Q, B := R, Q := X, M := Q, from 1, 3, 4, 5
+
+7.  Q ≠ R. not (P is on line QR). not (X is on line QR).
+    mun:opposite-sides-off-line A := Q, B := R, Q := X, from 6
+
+8.  X, Q, R form a triangle.
+    mun:triangle-off-line P := X, from 7
+
+9.  Q, R, X form a triangle.
+    mun:triangle-rotated P := X, from 8
+
+10. P, R, Q form a triangle.
+    mun:triangle-turned, from H4
+
+11. R, Q, P form a triangle.
+    mun:triangle-rotated Q := R, R := Q, from 10
+
+12. ∠RQP > 0°. ∠RQP < 180°.
+    axi:angle-measure P := R, R := P, from 11
+
+13. D ∈ 𝔼². D and X are on the same side of line QR and ∠RQD = ∠RQP.
+    obtain D: axi:angle-construction A := Q, B := R, C := X, x := ∠RQP,
+      from 9, 12
+    requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from 1
+
+14. Q ≠ R. not (D is on line QR). not (X is on line QR).
+    mun:same-side-off-line A := Q, B := R, P := D, Q := X, from 13
+
+15. D, Q, R form a triangle.
+    mun:triangle-off-line P := D, from 14
+
+16. Q, R, D form a triangle.
+    mun:triangle-rotated P := D, from 15
+
+17. Q, D, R form a triangle.
+    mun:triangle-turned P := Q, Q := R, R := D, from 16
+
+18. P′ ∈ 𝔼². P′ is on line QD, P′ and D are on the same side of line QR,
+    and |QP′| = |PQ|.
+    obtain P′: mun:ray-point A := Q, B := D, C := R, r := |PQ|, from 2, 17
+
+19. ∠RQP′ = ∠RQD
+    mun:angle-same-ray P := Q, Q := D, X := P′, from 18
+
+20. ∠RQP′ = ∠RQP
+    transitivity, from 19, 13
+
+21. P′ and X are on the same side of line QR
+    mun:same-side-same A := Q, B := R, P := P′, Q := D, R := X, from 13, 18
+
+22. X and P are on opposite sides of line QR
+    mun:opposite-sides-turned A := Q, B := R, Q := X, from 6
+
+23. P′ and P are on opposite sides of line QR
+    mun:same-opposite-opposite A := Q, B := R, P := P′, Q := X, R := P,
+      from 21, 22
+
+24. P and P′ are on opposite sides of line QR
+    mun:opposite-sides-turned A := Q, B := R, P := P′, Q := P, from 23
+
+25. H ∈ 𝔼². H is on line QR. H is between P and P′.
+    obtain H: axi:plane-separation-crossing A := Q, B := R, Q := P′,
+      from 1, 24
+
+26. P ≠ H
+    mun:on-off-apart A := Q, B := R, X := H, Y := P, from 5, 25
+
+27. Q ≠ R. not (P is on line QR). not (P′ is on line QR).
+    mun:opposite-sides-off-line A := Q, B := R, Q := P′, from 24
+
+28. ∠PQR = ∠RQP
+    mun:angle-turned, from 1
+
+29. Q ≠ P′
+    mun:on-off-apart A := Q, B := R, X := Q, Y := P′, from 4, 27
+
+30. ∠P′QR = ∠RQP′
+    mun:angle-turned P := P′, from 1, 29
+
+31. H is between P and P′
+    restate 25
+
+32. If H ≠ Q then ∠PHQ = 90°.
+    proof
+    assume H ≠ Q                                                      (K1)
+
+    32.1. H = Q or H is between Q and R or H = R or R is between Q and H
+          or Q is between H and R
+          mun:on-line-cases P := H, from 1, 25
+
+    32.2. ∠HQP = ∠HQP′
+          cases, from 32.1
+
+          case
+          assume H = Q                                                (C1)
+
+          32.2.1. H ≠ Q
+                  restate K1, contradicting C1
+
+          case
+          assume H is between Q and R                                 (C2)
+
+          32.2.2. ∠HQP = ∠RQP
+                  mun:angle-along-segment P := Q, Q := R, S := H, R := P,
+                    from C2, 1
+
+          32.2.3. ∠HQP′ = ∠RQP′
+                  mun:angle-along-segment P := Q, Q := R, S := H, R := P′,
+                    from C2, 29
+
+          32.2.4. ∠HQP = ∠HQP′
+                  calculation
+                    ∠HQP = ∠RQP        32.2.2
+                         = ∠RQP′       20
+                         = ∠HQP′       32.2.3
+
+          case
+          assume H = R                                                (C3)
+
+          32.2.5. ∠HQP′ = ∠HQP
+                  substitute H = R (C3) into line 20
+
+          32.2.6. ∠HQP = ∠HQP′
+                  restate 32.2.5
+
+          case
+          assume R is between Q and H                                 (C4)
+
+          32.2.7. ∠RQP = ∠HQP
+                  mun:angle-along-segment P := Q, Q := H, S := R, R := P,
+                    from C4, 1
+
+          32.2.8. ∠RQP′ = ∠HQP′
+                  mun:angle-along-segment P := Q, Q := H, S := R, R := P′,
+                    from C4, 29
+
+          32.2.9. ∠HQP = ∠HQP′
+                  calculation
+                    ∠HQP = ∠RQP        32.2.7
+                         = ∠RQP′       20
+                         = ∠HQP′       32.2.8
+
+          case
+          assume Q is between H and R                                 (C5)
+
+          32.2.10. ∠HQP + ∠PQR = 180°
+                   axi:supplementary-angles A := H, B := Q, C := R, D := P,
+                     from C5, 1
+
+          32.2.11. ∠HQP′ + ∠P′QR = 180°
+                   axi:supplementary-angles A := H, B := Q, C := R, D := P′,
+                     from C5, 29
+
+          32.2.12. ∠HQP = ∠HQP′
+                   algebra, from 20, 28, 30, 32.2.10, 32.2.11
+                   requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from K1, 1
+                   requires ∠HQP′ ∈ ℝ: mun:angle-real P := H, R := P′, from K1, 29
+                   requires ∠RQP′ ∈ ℝ: mun:angle-real P := R, R := P′, from 1, 29
+
+    32.3. ∠PQH = ∠HQP
+          mun:angle-turned R := H, from K1, 1
+
+    32.4. ∠P′QH = ∠HQP′
+          mun:angle-turned P := P′, R := H, from K1, 29
+
+    32.5. ∠PQH = ∠P′QH
+          calculation
+            ∠PQH = ∠HQP        32.3
+                 = ∠HQP′       32.2
+                 = ∠P′QH       32.4
+
+    32.6. not (P is on line QH)
+          mun:off-line-along A := Q, B := R, X := H, from K1, 1, 5, 25
+
+    32.7. not (P′ is on line QH)
+          mun:off-line-along A := Q, B := R, X := H, P := P′, from K1, 25, 27
+
+    32.8. P, Q, H form a triangle.
+          mun:triangle-off-line R := H, from K1, 32.6
+
+    32.9. P′, Q, H form a triangle.
+          mun:triangle-off-line P := P′, R := H, from K1, 32.7
+
+    32.10. triangle PQH ≅ triangle P′QH
+           axi:side-angle-side R := H, Q′ := Q, R′ := H, from 18, 32.5, 32.8,
+             32.9
+
+    32.11. |PQ| = |P′Q|, |QH| = |QH|, |HP| = |HP′|, ∠PQH = ∠P′QH,
+           ∠QHP = ∠QHP′, and ∠HPQ = ∠HP′Q.
+           def:congruent R := H, Q′ := Q, R′ := H, from 32.10
+
+    32.12. ∠PHQ + ∠QHP′ = 180°
+           axi:supplementary-angles A := P, B := H, C := P′, D := Q, from K1, 31
+
+    32.13. ∠PHQ = ∠QHP
+           mun:angle-turned Q := H, R := Q, from K1, 26
+
+    32.14. ∠PHQ = 90°
+           algebra, from 32.11, 32.12, 32.13
+           requires ∠PHQ ∈ ℝ: mun:angle-real Q := H, R := Q, from K1, 26
+
+33. If H ≠ R then ∠PHR = 90°.
+    proof
+    assume H ≠ R                                                      (K2)
+
+    33.1. H = Q or not (H = Q)
+          mun:excluded-middle P := H = Q
+
+    33.2. ∠PHR = 90°
+          cases, from 33.1
+
+          case
+          assume H = Q                                                (C6)
+
+          33.2.1. Q is between P and P′
+                  substitute H = Q (C6) into line 31
+
+          33.2.2. ∠PQR + ∠RQP′ = 180°
+                  axi:supplementary-angles A := P, B := Q, C := P′, D := R,
+                    from 1, 33.2.1
+
+          33.2.3. ∠PQR = 90°
+                  algebra, from 20, 28, 33.2.2
+                  requires ∠PQR ∈ ℝ: mun:angle-real, from 1
+
+          33.2.4. ∠PHR = 90°
+                  substitute H = Q (C6) into line 33.2.3
+
+          case
+          assume not (H = Q)                                          (C7)
+
+          33.2.5. ∠PHQ = 90°
+                  mun:modus-ponens, from C7, 32
+
+          33.2.6. line HQ = line QR
+                  axi:line-uniqueness A := H, B := Q, C := Q, D := R,
+                    from C7, 1, 4, 25
+
+          33.2.7. R ∈ line QR
+                  mun:line P := R, A := Q, B := R, from 4
+
+          33.2.8. R ∈ line HQ
+                  substitute line HQ = line QR (line 33.2.6) into line 33.2.7
+
+          33.2.9. R is on line HQ
+                  mun:line P := R, A := H, B := Q, from 33.2.8
+
+          33.2.10. ∠PHR = 90°
+                   mun:right-angle-along S := Q, T := R, from C7, K2, 26,
+                     33.2.5, 33.2.9
+
+34. there is H ∈ 𝔼² with H is on line QR, P ≠ H, (if H ≠ Q then ∠PHQ = 90°),
+    and (if H ≠ R then ∠PHR = 90°)
+    exhibit, from 25, 26, 32, 33
+
+theorem altitude-foot
+  note        The perpendicular from the right angle meets the hypotenuse
+              between its ends, and splits the triangle into two right
+              triangles. The other two angles are less than a right angle,
+              each less than the right angle outside R (I.16). So the foot D
+              of the perpendicular from R is neither P nor Q, which would
+              make one of them right, nor beyond either, where the angle
+              there, outside the right-angled triangle at D, would be more
+              than a right angle.
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume ∠PRQ = 90°                                                   (H5)
+  then there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°, ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a triangle
+
+1.  P ≠ Q. Q ≠ R. P ≠ R.
+    mun:triangle, from H4
+
+2.  |QR| > 0
+    mun:distance-positive P := Q, Q := R, from 1
+
+3.  Y ∈ 𝔼². R is between Q and Y. |RY| = |QR|.
+    obtain Y: mun:segment-extension A := Q, B := R, r := |QR|, from 1, 2
+
+4.  Q ≠ R. Y ≠ R.
+    mun:between-apart S := Q, T := Y, from 3
+
+5.  ∠QRP + ∠PRY = 180°
+    axi:supplementary-angles A := Q, B := R, C := Y, D := P, from 1, 3
+
+6.  ∠PRQ = ∠QRP
+    mun:angle-turned Q := R, R := Q, from 1
+
+7.  ∠PRY = 90°
+    algebra, from H5, 5, 6
+    requires ∠PRY ∈ ℝ: mun:angle-real Q := R, R := Y, from 1, 4
+
+8.  ∠PRY > ∠QPR
+    thm:exterior-angle-greater A := P, B := Q, C := R, D := Y, from H4, 3
+
+9.  90° > ∠QPR
+    substitute ∠PRY = 90° (line 7) into line 8
+
+10. ∠QPR = ∠RPQ
+    mun:angle-turned P := Q, Q := P, from 1
+
+11. 90° > ∠RPQ
+    substitute ∠QPR = ∠RPQ (line 10) into line 9
+
+12. |PR| > 0
+    mun:distance-positive Q := R, from 1
+
+13. Z ∈ 𝔼². R is between P and Z. |RZ| = |PR|.
+    obtain Z: mun:segment-extension A := P, B := R, r := |PR|, from 1, 12
+
+14. P ≠ R. Z ≠ R.
+    mun:between-apart S := P, T := Z, from 13
+
+15. ∠PRQ + ∠QRZ = 180°
+    axi:supplementary-angles A := P, B := R, C := Z, D := Q, from 1, 13
+
+16. ∠QRZ = 90°
+    algebra, from H5, 15
+    requires ∠QRZ ∈ ℝ: mun:angle-real P := Q, Q := R, R := Z, from 1, 14
+
+17. Q, R, P form a triangle.
+    mun:triangle-rotated, from H4
+
+18. Q, P, R form a triangle.
+    mun:triangle-turned P := Q, Q := R, R := P, from 17
+
+19. ∠QRZ > ∠PQR
+    thm:exterior-angle-greater A := Q, B := P, C := R, D := Z, from 13, 18
+
+20. 90° > ∠PQR
+    substitute ∠QRZ = 90° (line 16) into line 19
+
+21. ∠PQR = ∠RQP
+    mun:angle-turned, from 1
+
+22. 90° > ∠RQP
+    substitute ∠PQR = ∠RQP (line 21) into line 20
+
+23. R, P, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := R, R := P, from 17
+
+24. D ∈ 𝔼². D is on line PQ. R ≠ D. If D ≠ P then ∠RDP = 90°.
+    If D ≠ Q then ∠RDQ = 90°.
+    obtain D: thm:perpendicular-foot P := R, Q := P, R := Q, from 23
+
+25. D = P or D is between P and Q or D = Q or Q is between P and D or
+    P is between D and Q
+    mun:on-line-cases P := D, Q := P, R := Q, from 1, 24
+
+26. D is between P and Q
+    cases, from 25
+
+    case
+    assume D = P                                                      (C1)
+
+    26.1. D ≠ Q
+          contradiction
+          suppose D = Q                                               (S1)
+
+          26.1.1. P = Q
+                  transitivity, from C1, S1
+
+          26.1.2. P ≠ Q
+                  restate 1, contradicting 26.1.1
+
+    26.2. ∠RDQ = 90°
+          mun:modus-ponens, from 24, 26.1
+
+    26.3. ∠RPQ = 90°
+          substitute D = P (C1) into line 26.2
+
+    26.4. 90° > 90°, which is impossible
+          substitute ∠RPQ = 90° (line 26.3) into line 11
+
+    case
+    assume D is between P and Q, which is the claim                   (C2)
+
+    case
+    assume D = Q                                                      (C3)
+
+    26.5. D ≠ P
+          contradiction
+          suppose D = P                                               (S2)
+
+          26.5.1. P = Q
+                  transitivity, from C3, S2
+
+          26.5.2. P ≠ Q
+                  restate 1, contradicting 26.5.1
+
+    26.6. ∠RDP = 90°
+          mun:modus-ponens, from 24, 26.5
+
+    26.7. ∠RQP = 90°
+          substitute D = Q (C3) into line 26.6
+
+    26.8. 90° > 90°, which is impossible
+          substitute ∠RQP = 90° (line 26.7) into line 22
+
+    case
+    assume Q is between P and D                                       (C4)
+
+    26.9. P ≠ Q. D ≠ Q.
+          mun:between-apart R := Q, S := P, T := D, from C4
+
+    26.10. ∠RDQ = 90°
+           mun:modus-ponens, from 24, 26.9
+
+    26.11. R, D, Q form a triangle.
+           mun:right-angle-triangle P := R, Q := D, R := Q, from 24, 26.9,
+             26.10
+
+    26.12. Q is between D and P
+           mun:between-symmetric R := Q, S := P, T := D, from C4
+
+    26.13. ∠RQP > ∠RDQ
+           thm:exterior-angle-greater-other A := R, B := D, C := Q, D := P,
+             from 26.11, 26.12
+
+    26.14. ∠RQP > 90°
+           substitute ∠RDQ = 90° (line 26.10) into line 26.13
+
+    26.15. ∠RQP > ∠RQP
+           transitivity, from 26.14, 22
+           requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from 1
+
+    26.16. 0 > 0, which is impossible
+           inequalities
+             ∠RQP > ∠RQP     26.15
+             0 > 0           adding −∠RQP
+           requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from 1
+
+    case
+    assume P is between D and Q                                       (C5)
+
+    26.17. D ≠ P. Q ≠ P.
+           mun:between-apart R := P, S := D, T := Q, from C5
+
+    26.18. ∠RDP = 90°
+           mun:modus-ponens, from 24, 26.17
+
+    26.19. R, D, P form a triangle.
+           mun:right-angle-triangle P := R, Q := D, R := P, from 24, 26.17,
+             26.18
+
+    26.20. ∠RPQ > ∠RDP
+           thm:exterior-angle-greater-other A := R, B := D, C := P, D := Q,
+             from C5, 26.19
+
+    26.21. ∠RPQ > 90°
+           substitute ∠RDP = 90° (line 26.18) into line 26.20
+
+    26.22. ∠RPQ > ∠RPQ
+           transitivity, from 26.21, 11
+           requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from 1
+
+    26.23. 0 > 0, which is impossible
+           inequalities
+             ∠RPQ > ∠RPQ     26.22
+             0 > 0           adding −∠RPQ
+           requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from 1
+
+27. P ≠ D. Q ≠ D.
+    mun:between-apart R := D, S := P, T := Q, from 26
+
+28. ∠RDP = 90°
+    mun:modus-ponens, from 24, 27
+
+29. ∠RDQ = 90°
+    mun:modus-ponens, from 24, 27
+
+30. ∠PDR = ∠RDP
+    mun:angle-turned Q := D, from 24, 27
+
+31. ∠PDR = 90°
+    transitivity, from 30, 28
+
+32. ∠QDR = ∠RDQ
+    mun:angle-turned P := Q, Q := D, from 24, 27
+
+33. ∠QDR = 90°
+    transitivity, from 32, 29
+
+34. P, D, R form a triangle.
+    mun:right-angle-triangle Q := D, from 24, 27, 31
+
+35. Q, D, R form a triangle.
+    mun:right-angle-triangle P := Q, Q := D, from 24, 27, 33
+
+36. there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°, ∠QDR = 90°,
+    P, D, R form a triangle, and Q, D, R form a triangle
+    exhibit, from 26, 31, 33, 34, 35
+
+theorem pythagoras
+  note        Euclid I.47, by similar triangles. Drop the altitude from C to
+              its foot D on AB. The two smaller triangles are each similar to
+              ABC, which gives |AD|·|AB| = |AC|² and |DB|·|AB| = |BC|².
+              Adding, with |AD| + |DB| = |AB|, gives |AB|².
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠ACB = 90°                                                   (H5)
+  then |AB|² = |AC|² + |BC|²
+
+1.  D ∈ 𝔼². D is between A and B. ∠ADC = 90°. ∠BDC = 90°.
+    A, D, C form a triangle. B, D, C form a triangle.
+    obtain D: thm:altitude-foot P := A, Q := B, R := C, from H4, H5
+
+2.  ∠DAC = ∠BAC
+    mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
+    requires C ≠ A: mun:triangle, from H4
+
+3.  ∠BAC = ∠CAB
+    mun:angle-symmetric P := B, Q := A, R := C, from H4
+
+4.  ∠DAC = ∠CAB
+    calculation
+      ∠DAC = ∠BAC       2
+           = ∠CAB       3
+
+5.  ∠ADC = ∠ACB
+    calculation
+      ∠ADC = 90°        1
+           = ∠ACB       H5
+
+6.  |AD|·|AB| = |AC|·|AC|
+    thm:angle-angle-similar P := A, Q := D, R := C, P′ := A, Q′ := C,
+      R′ := B, from H4, 1, 4, 5
+
+7.  D is between B and A
+    mun:between-symmetric R := D, S := A, T := B, from 1
+
+8.  ∠DBC = ∠ABC
+    mun:angle-along-segment P := B, Q := A, R := C, S := D, from 7
+    requires C ≠ B: mun:triangle, from H4
+
+9.  ∠ABC = ∠CBA
+    mun:angle-symmetric P := A, Q := B, R := C, from H4
+
+10. ∠DBC = ∠CBA
+    calculation
+      ∠DBC = ∠ABC       8
+           = ∠CBA       9
+
+11. ∠BCA = ∠ACB
+    mun:angle-symmetric P := B, Q := C, R := A, from H4
+
+12. ∠BDC = ∠BCA
+    calculation
+      ∠BDC = 90°        1
+           = ∠ACB       H5
+           = ∠BCA       11
+
+13. |BD|·|BA| = |BC|·|BC|
+    thm:angle-angle-similar P := B, Q := D, R := C, P′ := B, Q′ := C,
+      R′ := A, from H4, 1, 10, 12
+
+14. |AD| + |DB| = |AB|
+    mun:segment-addition P := A, Q := B, S := D, from 1
+
+15. |AB|² = |AC|² + |BC|²
+    algebra, from 6, 13, 14
+
+mundane theorem on-line-other
+  note        Line XY, for two points X and Y of line AB, is line AB
+              (line-uniqueness), so a point of the one is on the other.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let Z be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume X ≠ Y                                                        (H7)
+  assume X is on line AB                                              (H8)
+  assume Y is on line AB                                              (H9)
+  assume Z is on line AB                                              (H10)
+  then Z is on line XY
+
+1.  line XY = line AB
+    axi:line-uniqueness A := X, B := Y, C := A, D := B, from H6, H7, H8, H9
+
+2.  Z ∈ line AB
+    mun:line P := Z, from H10
+
+3.  Z ∈ line XY
+    substitute line XY = line AB (line 1) into line 2
+
+4.  Z is on line XY
+    mun:line P := Z, A := X, B := Y, from 3
+
+mundane theorem off-line-other
+  note        Line XY, for two points X and Y of line AB, is line AB, so a
+              point off the one is off the other.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume X ≠ Y                                                        (H7)
+  assume X is on line AB                                              (H8)
+  assume Y is on line AB                                              (H9)
+  assume not (O is on line AB)                                        (H10)
+  then not (O is on line XY)
+
+1.  A is on line AB. B is on line AB.
+    mun:on-line-ends
+
+2.  not (O is on line XY)
+    contradiction
+    suppose O is on line XY                                           (S)
+
+    2.1.  A is on line XY
+          mun:on-line-other Z := A, from H6, H7, H8, H9, 1
+
+    2.2.  B is on line XY
+          mun:on-line-other Z := B, from H6, H7, H8, H9, 1
+
+    2.3.  O is on line AB
+          mun:on-line-other A := X, B := Y, X := A, Y := B, Z := O,
+            from H6, H7, S, 2.1, 2.2
+
+    2.4.  not (O is on line AB)
+          restate H10, contradicting 2.3
+
+mundane theorem point-off-line
+  note        A line is not the whole plane. Of the three points of a
+              triangle (three-points) one is off any line: were all three on
+              it, the line through two of them would hold the third.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
+  then there is O ∈ 𝔼² with not (O is on line AB)
+
+1.  U ∈ 𝔼². V ∈ 𝔼². W ∈ 𝔼². U, V, W form a triangle.
+    obtain U, V, W: axi:three-points
+
+2.  U ≠ V. V ≠ W. U ≠ W.
+    mun:triangle P := U, Q := V, R := W, from 1
+
+3.  not (U is on line VW)
+    mun:triangle-not-on-line P := U, Q := V, R := W, from 1
+
+4.  U is on line AB or not (U is on line AB)
+    mun:excluded-middle P := U is on line AB
+
+5.  there is O ∈ 𝔼² with not (O is on line AB)
+    cases, from 4
+
+    case
+    assume U is on line AB                                            (C1)
+
+    5.1.  V is on line AB or not (V is on line AB)
+          mun:excluded-middle P := V is on line AB
+
+    5.2.  there is O ∈ 𝔼² with not (O is on line AB)
+          cases, from 5.1
+
+          case
+          assume V is on line AB                                      (C2)
+
+          5.2.1.  W is on line AB or not (W is on line AB)
+                  mun:excluded-middle P := W is on line AB
+
+          5.2.2.  there is O ∈ 𝔼² with not (O is on line AB)
+                  cases, from 5.2.1
+
+                  case
+                  assume W is on line AB                              (C3)
+
+                  5.2.2.1.  U is on line VW
+                            mun:on-line-other X := V, Y := W, Z := U,
+                              from C1, C2, C3, H3, 2
+
+                  5.2.2.2.  not (U is on line VW)
+                            restate 3, contradicting 5.2.2.1
+
+                  case
+                  assume not (W is on line AB)                        (C4)
+
+                  5.2.2.3.  there is O ∈ 𝔼² with not (O is on line AB)
+                            exhibit, from C4
+
+          case
+          assume not (V is on line AB)                                (C5)
+
+          5.2.3.  there is O ∈ 𝔼² with not (O is on line AB)
+                  exhibit, from C5
+
+    case
+    assume not (U is on line AB)                                      (C6)
+
+    5.3.  there is O ∈ 𝔼² with not (O is on line AB)
+          exhibit, from C6
+
+mundane theorem between-split
+  note        Two points between A and B are one, or one of them is between
+              A and the other or between the other and B. Through P, a point
+              O off the line makes a line separating A from B; M is on A's
+              side or on B's, and on that side it is past P from the other
+              end, since any other place on the line would put it on the
+              wrong side.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let P be a point                                                    (H4)
+  assume M is between A and B                                         (H5)
+  assume P is between A and B                                         (H6)
+  then P = M or P is between A and M or P is between M and B
+
+1.  A ≠ B
+    mun:between-ends-apart R := M, S := A, T := B, from H5
+
+2.  A ≠ M. B ≠ M.
+    mun:between-apart R := M, S := A, T := B, from H5
+
+3.  A ≠ P. B ≠ P.
+    mun:between-apart R := P, S := A, T := B, from H6
+
+4.  B, M, A are collinear.
+    mun:between-collinear R := M, S := A, T := B, from H5
+
+5.  M is on line AB
+    mun:on-line P := M, from 4
+
+6.  B, P, A are collinear.
+    mun:between-collinear R := P, S := A, T := B, from H6
+
+7.  P is on line AB
+    mun:on-line, from 6
+
+8.  A is on line AB. B is on line AB.
+    mun:on-line-ends
+
+9.  O ∈ 𝔼². not (O is on line AB).
+    obtain O: mun:point-off-line, from 1
+
+10. P ≠ O
+    mun:on-off-apart X := P, Y := O, from 7, 9
+
+11. P = M or not (P = M)
+    mun:excluded-middle P := P = M
+
+12. P = M or P is between A and M or P is between M and B
+    cases, from 11
+
+    case
+    assume P = M                                                      (C1)
+
+    12.1. P = M or P is between A and M
+          mun:or-left, from C1
+
+    12.2. P = M or P is between A and M or P is between M and B
+          mun:or-left, from 12.1
+
+    case
+    assume not (P = M)                                                (C2)
+
+    12.3. not (O is on line PA)
+          mun:off-line-other X := P, Y := A, from 1, 3, 7, 8, 9
+
+    12.4. not (A is on line PO)
+          mun:off-line-swap R := P, P := A, Q := O, from 12.3
+
+    12.5. not (O is on line PB)
+          mun:off-line-other X := P, Y := B, from 1, 3, 7, 8, 9
+
+    12.6. not (B is on line PO)
+          mun:off-line-swap R := P, P := B, Q := O, from 12.5
+
+    12.7. not (O is on line PM)
+          mun:off-line-other X := P, Y := M, from C2, 1, 5, 7, 9
+
+    12.8. not (M is on line PO)
+          mun:off-line-swap R := P, P := M, Q := O, from 12.7
+
+    12.9. P is on line PO. O is on line PO.
+          mun:on-line-ends A := P, B := O
+
+    12.10. A and B are on opposite sides of line PO
+           mun:segment-across-line A := P, B := O, P := A, Q := B, M := P,
+             from H6, 10, 12.4, 12.9
+
+    12.11. M and A are on the same side of line PO or M and A are on
+           opposite sides of line PO
+           axi:plane-separation A := P, B := O, P := M, Q := A,
+             from 10, 12.4, 12.8
+
+    12.12. M is on line PB
+           mun:on-line-other X := P, Y := B, Z := M, from 1, 3, 5, 7, 8
+
+    12.13. M is on line PA
+           mun:on-line-other X := P, Y := A, Z := M, from 1, 3, 5, 7, 8
+
+    12.14. P = M or P is between A and M or P is between M and B
+           cases, from 12.11
+
+           case
+           assume M and A are on the same side of line PO             (C3)
+
+           12.14.1. M and B are on opposite sides of line PO
+                    mun:same-opposite-opposite A := P, B := O, P := M,
+                      Q := A, R := B, from C3, 12.10
+
+           12.14.2. M = P or M is between P and B or M = B or
+                    B is between P and M or P is between M and B
+                    mun:on-line-cases P := M, Q := P, R := B, from 3, 12.12
+
+           12.14.3. P is between M and B
+                    cases, from 12.14.2
+
+                    case
+                    assume M = P                                      (C4)
+
+                    12.14.3.1. not (P = M)
+                               restate C2, contradicting C4
+
+                    case
+                    assume M is between P and B                       (C5)
+
+                    12.14.3.2. M is between B and P
+                               mun:between-symmetric R := M, S := P, T := B,
+                                 from C5
+
+                    12.14.3.3. M and B are on the same side of line PO
+                               mun:segment-off-line A := P, B := O, P := B,
+                                 Q := P, X := M, from 10, 12.6, 12.9, 12.14.3.2
+
+                    12.14.3.4. not (M and B are on opposite sides of line PO)
+                               mun:same-not-opposite A := P, B := O, P := M,
+                                 Q := B, from 12.14.3.3
+
+                    12.14.3.5. M and B are on opposite sides of line PO
+                               restate 12.14.1, contradicting 12.14.3.4
+
+                    case
+                    assume M = B                                      (C6)
+
+                    12.14.3.6. B ≠ M
+                               restate 2, contradicting C6
+
+                    case
+                    assume B is between P and M                       (C7)
+
+                    12.14.3.7. B is between M and P
+                               mun:between-symmetric R := B, S := P, T := M,
+                                 from C7
+
+                    12.14.3.8. M and B are on the same side of line PO
+                               mun:segment-beyond-off-line A := P, B := O,
+                                 P := M, Q := P, X := B, from 10, 12.6, 12.9,
+                                 12.14.3.7
+
+                    12.14.3.9. not (M and B are on opposite sides of line PO)
+                               mun:same-not-opposite A := P, B := O, P := M,
+                                 Q := B, from 12.14.3.8
+
+                    12.14.3.10. M and B are on opposite sides of line PO
+                                restate 12.14.1, contradicting 12.14.3.9
+
+                    case
+                    assume P is between M and B, which is the claim   (C8)
+
+           12.14.4. P = M or P is between A and M or P is between M and B
+                    mun:or-right, from 12.14.3
+
+           case
+           assume M and A are on opposite sides of line PO            (C9)
+
+           12.14.5. M = P or M is between P and A or M = A or
+                    A is between P and M or P is between M and A
+                    mun:on-line-cases P := M, Q := P, R := A, from 3, 12.13
+
+           12.14.6. P is between M and A
+                    cases, from 12.14.5
+
+                    case
+                    assume M = P                                      (C10)
+
+                    12.14.6.1. not (P = M)
+                               restate C2, contradicting C10
+
+                    case
+                    assume M is between P and A                       (C11)
+
+                    12.14.6.2. M is between A and P
+                               mun:between-symmetric R := M, S := P, T := A,
+                                 from C11
+
+                    12.14.6.3. M and A are on the same side of line PO
+                               mun:segment-off-line A := P, B := O, P := A,
+                                 Q := P, X := M, from 10, 12.4, 12.9, 12.14.6.2
+
+                    12.14.6.4. not (M and A are on opposite sides of line PO)
+                               mun:same-not-opposite A := P, B := O, P := M,
+                                 Q := A, from 12.14.6.3
+
+                    12.14.6.5. M and A are on opposite sides of line PO
+                               restate C9, contradicting 12.14.6.4
+
+                    case
+                    assume M = A                                      (C12)
+
+                    12.14.6.6. A ≠ M
+                               restate 2, contradicting C12
+
+                    case
+                    assume A is between P and M                       (C13)
+
+                    12.14.6.7. A is between M and P
+                               mun:between-symmetric R := A, S := P, T := M,
+                                 from C13
+
+                    12.14.6.8. M and A are on the same side of line PO
+                               mun:segment-beyond-off-line A := P, B := O,
+                                 P := M, Q := P, X := A, from 10, 12.4, 12.9,
+                                 12.14.6.7
+
+                    12.14.6.9. not (M and A are on opposite sides of line PO)
+                               mun:same-not-opposite A := P, B := O, P := M,
+                                 Q := A, from 12.14.6.8
+
+                    12.14.6.10. M and A are on opposite sides of line PO
+                                restate C9, contradicting 12.14.6.9
+
+                    case
+                    assume P is between M and A, which is the claim   (C14)
+
+           12.14.7. P is between A and M
+                    mun:between-symmetric R := P, S := M, T := A, from 12.14.6
+
+           12.14.8. P = M or P is between A and M
+                    mun:or-right, from 12.14.7
+
+           12.14.9. P = M or P is between A and M or P is between M and B
+                    mun:or-left, from 12.14.8
+
+theorem power-of-a-point
+  note        Euclid's way to III.35. For P on a chord AB of a circle with
+              centre O, |AO|² − |PO|² = |PA|·|PB|. With M the midpoint of AB,
+              OM is perpendicular to the chord (III.3), and Pythagoras in the
+              right triangles OMA and OMP makes |AO|² − |PO|² = |AM|² − |PM|²;
+              P is M or on one side of it (between-split), so |PA| and |PB|
+              are |AM| less |PM| and |AM| more, whose product is the same. A
+              chord through O has its midpoint there, and the distances to
+              M are the distances to O.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume P is between A and B                                         (H5)
+  assume |AO| = |BO|                                                  (H6)
+  then |AO|² − |PO|² = |PA|·|PB|
+
+1.  A ≠ B
+    mun:between-ends-apart R := P, S := A, T := B, from H5
+
+2.  M ∈ 𝔼². M is the midpoint of AB.
+    obtain M: mun:midpoint-exists, from 1
+
+3.  M is between A and B. |AM| = |MB|.
+    mun:midpoint, from 2
+
+4.  A ≠ M. B ≠ M.
+    mun:between-apart R := M, S := A, T := B, from 3
+
+5.  |AP| + |PB| = |AB|
+    mun:segment-addition P := A, Q := B, S := P, from H5
+
+6.  |AM| + |MB| = |AB|
+    mun:segment-addition P := A, Q := B, S := M, from 3
+
+7.  O = M or not (O = M)
+    mun:excluded-middle P := O = M
+
+8.  |AO|² − |PO|² = |AM|² − |PM|²
+    cases, from 7
+
+    case
+    assume O = M                                                      (C1)
+
+    8.1.  |AM|² − |PM|² = |AM|² − |PM|²
+          algebra
+
+    8.2.  |AO|² − |PO|² = |AM|² − |PM|²
+          substitute O = M (C1) into line 8.1
+
+    case
+    assume not (O = M)                                                (C2)
+
+    8.3.  ∠OMB = 90°
+          thm:chord-midpoint-right-angle, from C2, H6, 2
+
+    8.4.  ∠AMO + ∠OMB = 180°
+          axi:supplementary-angles B := M, C := B, D := O, from C2, 3
+
+    8.5.  ∠OMA = ∠AMO
+          mun:angle-turned P := O, Q := M, R := A, from C2, 4
+
+    8.6.  ∠OMA = 90°
+          algebra, from 8.3, 8.4, 8.5
+          requires ∠OMA ∈ ℝ: mun:angle-real P := O, Q := M, R := A, from C2, 4
+
+    8.7.  O, M, A form a triangle.
+          mun:right-angle-triangle P := O, Q := M, R := A, from C2, 4, 8.6
+
+    8.8.  O, A, M form a triangle.
+          mun:triangle-turned P := O, Q := M, R := A, from 8.7
+
+    8.9.  |OA|² = |OM|² + |AM|²
+          thm:pythagoras A := O, B := A, C := M, from 8.6, 8.8
+
+    8.10. P = M or not (P = M)
+          mun:excluded-middle P := P = M
+
+    8.11. |PO|² = |OM|² + |PM|²
+          cases, from 8.10
+
+          case
+          assume P = M                                                (C3)
+
+          8.11.1. |PM| = 0
+                  mun:distance-zero Q := M, from C3
+
+          8.11.2. |MO|² = |OM|² + |PM|²
+                  algebra, from 8.11.1
+
+          8.11.3. |PO|² = |OM|² + |PM|²
+                  substitute P = M (C3) into line 8.11.2
+
+          case
+          assume not (P = M)                                          (C4)
+
+          8.11.4. B, M, A are collinear.
+                  mun:between-collinear R := M, S := A, T := B, from 3
+
+          8.11.5. M is on line AB
+                  mun:on-line P := M, from 8.11.4
+
+          8.11.6. B, P, A are collinear.
+                  mun:between-collinear R := P, S := A, T := B, from H5
+
+          8.11.7. P is on line AB
+                  mun:on-line, from 8.11.6
+
+          8.11.8. A is on line AB. B is on line AB.
+                  mun:on-line-ends
+
+          8.11.9. P is on line MB
+                  mun:on-line-other X := M, Y := B, Z := P,
+                    from 1, 4, 8.11.5, 8.11.7, 8.11.8
+
+          8.11.10. ∠OMP = 90°
+                   mun:right-angle-along P := O, H := M, S := B, T := P,
+                     from C2, C4, 4, 8.3, 8.11.9
+
+          8.11.11. O, M, P form a triangle.
+                   mun:right-angle-triangle P := O, Q := M, R := P,
+                     from C2, C4, 8.11.10
+
+          8.11.12. O, P, M form a triangle.
+                   mun:triangle-turned P := O, Q := M, R := P, from 8.11.11
+
+          8.11.13. |OP|² = |OM|² + |PM|²
+                   thm:pythagoras A := O, B := P, C := M, from 8.11.10,
+                     8.11.12
+
+    8.12. |AO|² − |PO|² = |AM|² − |PM|²
+          algebra, from 8.9, 8.11
+
+9.  P = M or P is between A and M or P is between M and B
+    mun:between-split, from H5, 3
+
+10. |PA|·|PB| = |AM|² − |PM|²
+    cases, from 9
+
+    case
+    assume P = M                                                      (C5)
+
+    10.1. |PM| = 0
+          mun:distance-zero Q := M, from C5
+
+    10.2. |MA|·|MB| = |AM|²
+          algebra, from 3
+
+    10.3. |MA|·|MB| = |AM|² − |PM|²
+          algebra, from 10.1, 10.2
+
+    10.4. |PA|·|PB| = |AM|² − |PM|²
+          substitute P = M (C5) into line 10.3
+
+    case
+    assume P is between A and M                                       (C6)
+
+    10.5. |AP| + |PM| = |AM|
+          mun:segment-addition P := A, Q := M, S := P, from C6
+
+    10.6. |PA| = |AM| − |PM|
+          algebra, from 10.5
+
+    10.7. |PB| = |AM| + |PM|
+          algebra, from 3, 5, 6, 10.5
+
+    10.8. |PA|·|PB| = (|AM| − |PM|)·|PB|
+          algebra, from 10.6
+
+    10.9. (|AM| − |PM|)·|PB| = |AM|² − |PM|²
+          algebra, from 10.7
+
+    10.10. |PA|·|PB| = |AM|² − |PM|²
+           transitivity, from 10.8, 10.9
+
+    case
+    assume P is between M and B                                       (C7)
+
+    10.11. |MP| + |PB| = |MB|
+           mun:segment-addition P := M, Q := B, S := P, from C7
+
+    10.12. |PB| = |AM| − |PM|
+           algebra, from 3, 10.11
+
+    10.13. |PA| = |AM| + |PM|
+           algebra, from 5, 6, 10.11
+
+    10.14. |PA|·|PB| = (|AM| + |PM|)·|PB|
+           algebra, from 10.13
+
+    10.15. (|AM| + |PM|)·|PB| = |AM|² − |PM|²
+           algebra, from 10.12
+
+    10.16. |PA|·|PB| = |AM|² − |PM|²
+           transitivity, from 10.14, 10.15
+
+11. |AO|² − |PO|² = |PA|·|PB|
+    transitivity, from 8, 10
+
+theorem intersecting-chords
+  note        Two chords AB and CD of a circle with centre O, crossing at P,
+              cut each other into parts with equal products (Euclid III.35):
+              each product is |AO|² − |PO|² (power-of-a-point). The circle is
+              said by the four distances to O.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let P be a point                                                    (H5)
+  let O be a point                                                    (H6)
+  assume P is between A and B                                         (H7)
+  assume P is between C and D                                         (H8)
+  assume |AO| = |BO|                                                  (H9)
+  assume |AO| = |CO|                                                  (H10)
+  assume |AO| = |DO|                                                  (H11)
+  then |PA|·|PB| = |PC|·|PD|
+
+1.  |AO|² − |PO|² = |PA|·|PB|
+    thm:power-of-a-point, from H7, H9
+
+2.  |CO| = |DO|
+    transitivity, from H10, H11
+
+3.  |CO|² − |PO|² = |PC|·|PD|
+    thm:power-of-a-point A := C, B := D, from H8, 2
+
+4.  |PA|·|PB| = |PC|·|PD|
+    algebra, from H10, 1, 3
+
+theorem angle-sum
+  note        Euclid I.32. Draw through B the line parallel to AC. The angles
+              it makes with BA and BC equal the triangle's angles at A and at
+              C (alternate angles), and with the angle at B they make a
+              straight line.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then ∠BAC + ∠ABC + ∠BCA = 180°
+
+1.  D ∈ 𝔼². E ∈ 𝔼². line BD ∥ line AC. line BE ∥ line CA.
+    B is between D and E.
+    D and C are on opposite sides of line BA.
+    E and A are on opposite sides of line BC.
+    A and C are on the same side of line BD.
+    obtain D, E: thm:parallel-through P := A, Q := C, R := B, from H4
+
+2.  ∠DBA = ∠BAC
+    thm:alternate-angles P := A, Q := C, R := B, S := D, from H4, 1
+
+3.  ∠EBC = ∠BCA
+    thm:alternate-angles P := C, Q := A, R := B, S := E, from H4, 1
+
+4.  ∠DBA + ∠ABC + ∠EBC = 180°
+    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1
+
+5.  ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA
+    substitute ∠DBA = ∠BAC (line 2)
+
+6.  ∠DBA + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠EBC
+    substitute ∠EBC = ∠BCA (line 3)
+
+7.  ∠BAC + ∠ABC + ∠BCA = 180°
+    calculation
+      ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA      5
+                         = ∠DBA + ∠ABC + ∠EBC      6
+                         = 180°                    4
 
 mundane theorem ray-point
   note        A length r laid off from A along the ray toward B: short of B,

@@ -775,15 +775,27 @@ impl<'a> Elaborator<'a> {
                 } else {
                     self.supplied(Some(&step), &scope, &facts)?
                 };
-                block.parts.insert(
-                    part,
-                    PartEnd {
-                        claim: term,
-                        proof,
-                        scope: scope.clone(),
-                        facts: ended,
-                    },
-                );
+                let mut end = PartEnd {
+                    claim: term,
+                    proof,
+                    scope: scope.clone(),
+                    facts: ended,
+                };
+                // A case ending on the claim written another way, |OP|² for
+                // |PO|², is carried to the claim here, while the case's
+                // letters and facts are in hand: at the block's close only
+                // the block's are, and what a carrying lemma asks of its terms
+                // would be proved there, under the narrower scope.
+                if block.owner.just.head.is(Method::Cases) {
+                    let claim = self.claim_of(&block.owner.claim)?;
+                    if end.claim != claim {
+                        if let Some(carried) = self.direction_reached(&end, &claim)? {
+                            end.claim = claim;
+                            end.proof = carried;
+                        }
+                    }
+                }
+                block.parts.insert(part, end);
             }
             // A `proof` block whose assumption cannot hold ends on the step that
             // reaches the opposite of an earlier line, or on a closed claim
@@ -3247,16 +3259,26 @@ impl<'a> Elaborator<'a> {
         let up = self.writing(scope, &known, false, |me| {
             me.folded_up(step, scope, &known, lines, links.clone())
         })?;
+        // The chain goes the way that starts from the claim's low side: an
+        // order claim's ends may be one term, ∠A > ∠A from ∠A > 90° and
+        // 90° > ∠A, which the links folded up from 90° would reach as
+        // 90° < 90°.
         let run = match up {
-            Some(run) => run,
-            None => {
+            Some(run) if self.starts_low(&run, term) => run,
+            up => {
                 links.reverse();
                 let down = self.writing(scope, &known, false, |me| {
                     me.folded_up(step, scope, &known, lines, links)
                 })?;
-                match down {
-                    Some(run) => run,
-                    None => {
+                // Folded up, the chain may start from a term the claim writes
+                // with an identity element left out, n·1 for n, which is
+                // carried to the claim below; folded down it is taken only
+                // where it starts at the claim's low side as written.
+                match (down, up) {
+                    (Some(run), _) if self.starts_low(&run, term) => run,
+                    (_, Some(run)) => run,
+                    (Some(run), None) => run,
+                    (None, None) => {
                         return Err(self.defect(
                             step.line,
                             "the lines the step chains do not meet",
@@ -3311,6 +3333,16 @@ impl<'a> Elaborator<'a> {
             }
         };
         Ok(pf!(self.b; scope, reached, term, run.proof, alike, "mpbid"))
+    }
+
+    /// Whether a folded chain starts where the claim `term` does: an order's
+    /// low side, held first; any equation, which is turned to the claim.
+    fn starts_low(&self, run: &ChainRun, term: &Rpn) -> bool {
+        let claim = self.to_term(term);
+        match (claim.label(), claim.children()) {
+            (Some("wbr"), [low, ..]) => self.rpn(low) == run.left,
+            _ => true,
+        }
     }
 
     /// The links of a chain folded in the order given, each going up from

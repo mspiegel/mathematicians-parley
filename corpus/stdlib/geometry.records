@@ -350,41 +350,6 @@ mundane theorem perpendicular-by-right-angle
   note        Two lines through Q are perpendicular when the angle between
               them at Q is a right angle.
 
-theorem intersecting-chords
-  let A be a point                                                    (H1)
-  let B be a point                                                    (H2)
-  let C be a point                                                    (H3)
-  let D be a point                                                    (H4)
-  let P be a point                                                    (H5)
-  let O be a point                                                    (H6)
-  assume P is between A and B                                         (H7)
-  assume P is between C and D                                         (H8)
-  assume |AO| = |BO|                                                  (H9)
-  assume |AO| = |CO|                                                  (H10)
-  assume |AO| = |DO|                                                  (H11)
-  then        |PA|·|PB| = |PC|·|PD|
-  metamath    gchord, from chordthm
-  target      gchord
-  note        Two chords AB and CD of a circle with centre O, crossing at P,
-              cut each other into parts with equal products (Euclid III.35).
-              The circle is said by the four distances to O.
-
-theorem chord-midpoint-right-angle
-  let A be a point                                                    (H1)
-  let B be a point                                                    (H2)
-  let M be a point                                                    (H3)
-  let O be a point                                                    (H4)
-  assume M is the midpoint of AB                                      (H5)
-  assume |AO| = |BO|                                                  (H6)
-  assume O ≠ M                                                        (H7)
-  then        ∠OMB = 90°
-  metamath    gchordmid, from chordthmlem
-  target      gchordmid
-  note        The line from the centre O of a circle through the midpoint M
-              of a chord AB meets the chord at a right angle (Euclid III.3).
-              O ≠ M because a chord through the centre has its midpoint
-              there, and no angle at M.
-
 mundane definition midpoint
   let M be a point                                                    (H1)
   let A be a point                                                    (H2)
@@ -458,22 +423,6 @@ theorem triangle-inequality-points
   then        |PR| ≤ |PQ| + |QR|
   metamath    abs3dif
   target      abs3dif
-
-theorem triangle-equality-between
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P ≠ Q                                                        (H4)
-  assume Q ≠ R                                                        (H5)
-  assume |PQ| + |QR| = |PR|                                           (H6)
-  then        Q is between P and R
-  metamath    gtrieq, which this corpus proves in elaboration/stdlib/proved.mm:
-              set.mm has no equality case of the triangle inequality
-  target      gtrieq
-  note        Where the way through Q is no longer than the straight way,
-              Q lies on the segment PR. Squared, the equality says the
-              product of the differences from Q with one conjugated has its
-              real part equal to minus its size, so it is a negative real.
 
 mundane theorem angle-addition
   let A be a point                                                    (H1)
@@ -879,38 +828,6 @@ mundane theorem angle-by-cosine
   note        An angle is read from its cosine, as right-angle-by-cosine
               reads a right angle: on [0°, 180°] the cosine takes each value
               once.
-
-theorem altitude-foot
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P, Q, R form a triangle                                      (H4)
-  assume ∠PRQ = 90°                                                   (H5)
-  then        there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°,
-              ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a
-              triangle
-  metamath    galtfoot, which this corpus proves in elaboration/stdlib/proved.mm:
-              D is P + t(Q − P), with t the real part of (R − P)/(Q − P)
-  target      galtfoot
-  note        The perpendicular from the right angle meets the hypotenuse
-              between its ends, and splits the triangle into two right
-              triangles.
-
-theorem perpendicular-foot
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P, Q, R form a triangle                                      (H4)
-  then        there is H ∈ 𝔼² with H is on line QR, P ≠ H,
-              (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
-  metamath    gfoot, which this corpus proves in elaboration/stdlib/proved.mm:
-              H is Q + t(R − Q), with t the real part of (P − Q)/(R − Q)
-  target      gfoot
-  note        The perpendicular from P to the line QR, Euclid I.12. Its foot
-              H is on the line and P is not, and the line PH meets it at a
-              right angle, which is an angle at H wherever H is apart from
-              the point the angle is measured to. Where H falls on the line,
-              between Q and R or beyond one of them, is on-line-cases.
 
 axiom side-angle-side
   let P be a point                                                    (H1)

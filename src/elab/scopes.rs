@@ -1809,7 +1809,7 @@ impl<'a> Elaborator<'a> {
     /// does not assume, or a case's claim. Its own where it says `want` as
     /// written, and otherwise carried there (`reached`); None where it says
     /// something else.
-    fn direction_reached(
+    pub fn direction_reached(
         &mut self,
         end: &PartEnd,
         want: &Rpn,
