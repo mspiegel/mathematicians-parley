@@ -568,6 +568,11 @@ fact about the field rather than an identity.
 - **Order relations.** Those are `inequalities`.
 - **A disequality that is not a multiple of a cited one.**
 - **Two cited equations each multiplied by a term.** That is two steps.
+- **A claim the cited equations chain to.** Where the lines the step cites,
+  each by one equation it says, go in some order from one side of the claim
+  to the other, the step combines nothing: it is `transitivity`, or of one
+  line `restate`, and the checker names which. As with `inequalities`, a
+  step names the narrowest method that proves it.
 - **A power that costs more than 300 000 to multiply out.** The proof
   raises a power one step of the exponent at a time, and each step puts the
   terms it makes in order one by one, every move rewriting the polynomial so

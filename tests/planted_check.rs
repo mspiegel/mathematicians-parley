@@ -1742,7 +1742,7 @@ fn cases() -> Vec<Case> {
             "say a true claim with a root is impossible",
             vec![edit(
                 "tests/elaborator/an-impossible-line-by-algebra.proof",
-                Some("    1.1.  √2 = 1, which is impossible\n".to_string()),
+                Some("    1.1.  √2 − 1 = 0, which is impossible\n".to_string()),
                 "    1.1.  (√2)² = 2, which is impossible\n".to_string(),
             )],
             "step 1.1 says (√2)² = 2 is impossible, and it holds",
@@ -4193,9 +4193,29 @@ fn cases() -> Vec<Case> {
         case(
             "give algebra for a false claim with a square root not marked impossible",
             vec![
-                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 = 1, which is impossible".to_string()), "    1.1.  √2 = 1".to_string()),
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 − 1 = 0, which is impossible".to_string()), "    1.1.  √2 − 1 = 0".to_string()),
             ],
-            "step 1.1 gives algebra for √2 = 1, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+            "step 1.1 gives algebra for √2 − 1 = 0, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
+        // A claim the cited equations chain to combines nothing, and is
+        // `transitivity`'s, or of one line `restate`'s.
+        case(
+            "give algebra for a chain of two equations",
+            vec![edit(
+                "tests/stdlib/geometry.proof",
+                Some("5.  |AO| = |BO|\n    transitivity, from 1, 2".to_string()),
+                "5.  |AO| = |BO|\n    algebra, from 2, 1".to_string(),
+            )],
+            "step 5 chains the equations it cites, which is `transitivity, from 1, 2`, not algebra",
+        ),
+        case(
+            "give algebra for an equation turned round",
+            vec![edit(
+                "corpus/stdlib/geometry.proof",
+                Some("49. ∠ECA = ∠BAC\n    restate 23".to_string()),
+                "49. ∠ECA = ∠BAC\n    algebra, from 23".to_string(),
+            )],
+            "step 49 says an equation 23 says, which is `restate 23`, not algebra",
         ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.

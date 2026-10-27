@@ -84,7 +84,7 @@ theorem exterior-angle-greater
     mun:triangle-extension P := C, Q := M, R := B, S := E, from 6, 9
 
 12. |MB| = |ME|
-    algebra, from 9
+    restate 9
 
 13. triangle AMB ≅ triangle CME
     axi:side-angle-side P := A, Q := M, R := B, P′ := C, Q′ := M, R′ := E,
@@ -211,13 +211,10 @@ theorem exterior-angle-greater
     requires ∠ECD ∈ ℝ: mun:angle-real P := E, Q := C, R := D, from 15, 34
 
 48. ∠ACD = ∠ACE + ∠ECD
-    algebra, from 43
-    requires ∠ACE ∈ ℝ: mun:angle-real P := A, Q := C, R := E, from 1, 15
-    requires ∠ECD ∈ ℝ: mun:angle-real P := E, Q := C, R := D, from 15, 34
+    restate 43
 
 49. ∠ECA = ∠BAC
-    algebra, from 23
-    requires ∠ECA ∈ ℝ: mun:angle-real P := E, Q := C, R := A, from 1, 15
+    restate 23
 
 50. ∠ACD > ∠BAC
     calculation
@@ -332,7 +329,7 @@ theorem greater-side-greater-angle
     mun:triangle-on-side P := B, Q := C, R := A, S := D, from H4, 4
 
 7.  |AB| = |AD|
-    algebra, from 3
+    restate 3
 
 8.  ∠ABD = ∠ADB
     thm:isosceles-angles A := B, B := D, C := A, from 5, 7
@@ -391,9 +388,7 @@ theorem greater-side-greater-angle
     mun:angle-turned P := B, Q := C, R := D, from 17
 
 24. ∠ABC = ∠ABD + ∠DBC
-    algebra, from 15
-    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 17
-    requires ∠DBC ∈ ℝ: mun:angle-real P := D, Q := B, R := C, from 17
+    restate 15
 
 25. ∠ABC > ∠ACB
     calculation
@@ -1091,7 +1086,7 @@ theorem triangle-inequality-strict
     obtain D: mun:segment-extension A := P, B := Q, r := |QR|, from 1, 2
 
 4.  |QR| = |QD|
-    algebra, from 3
+    restate 3
 
 5.  P, R, Q form a triangle.
     mun:triangle-turned, from H4
@@ -1153,9 +1148,7 @@ theorem triangle-inequality-strict
     requires ∠QRD ∈ ℝ: mun:triangle-angle-real, from 8
 
 23. ∠PRD = ∠PRQ + ∠QRD
-    algebra, from 19
-    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real, from 5
-    requires ∠QRD ∈ ℝ: mun:triangle-angle-real, from 8
+    restate 19
 
 24. Q is between D and P
     mun:between-symmetric R := Q, S := P, T := D, from 3
@@ -1391,10 +1384,10 @@ theorem angle-side-angle
            = ∠EDG       6
 
 17. |BA| = |ED|
-    algebra, from H10
+    restate H10
 
 18. |AC| = |DG|
-    algebra, from 5
+    restate 5
 
 19. triangle BAC ≅ triangle EDG
     axi:side-angle-side P := B, Q := A, R := C, P′ := E, Q′ := D, R′ := G,
@@ -1484,10 +1477,10 @@ theorem angle-side-angle
     def:congruent, from 34
 
 36. |BC| = |EF|
-    algebra, from 35
+    restate 35
 
 37. |CA| = |FD|
-    algebra, from 35
+    restate 35
 
 38. ∠BCA = ∠ACB
     mun:angle-turned P := B, Q := C, R := A, from 1
@@ -1557,7 +1550,7 @@ theorem angle-angle-side
     mun:triangle-off-line P := G, Q := E, R := F, from 2, 8
 
 11. |AB| = |GE|
-    algebra, from 6
+    restate 6
 
 12. ∠GEF = ∠FEG
     mun:angle-turned P := G, Q := E, R := F, from 2, 9
@@ -2261,7 +2254,7 @@ theorem side-side-side
            = ∠GEF       27
 
 29. |AB| = |GE|
-    algebra, from 18
+    restate 18
 
 30. triangle ABC ≅ triangle GEF
     axi:side-angle-side P′ := G, Q′ := E, R′ := F, from H7, H10, 26, 28, 29
@@ -2270,10 +2263,10 @@ theorem side-side-side
     def:congruent, from 30
 
 32. |ED| = |EG|
-    algebra, from H9, 18
+    transitivity, from H9, 18
 
 33. |FD| = |FG|
-    algebra, from H11, 31
+    transitivity, from H11, 31
 
 34. ∠EDF = ∠EGF
     thm:kite-angles, from H8, 23, 32, 33
@@ -2291,7 +2284,7 @@ theorem side-side-side
     mun:triangle-turned P := E, Q := F, R := G, from 37
 
 39. |DF| = |GF|
-    algebra, from 33
+    restate 33
 
 40. triangle EDF ≅ triangle EGF
     axi:side-angle-side P := E, Q := D, R := F, P′ := E, Q′ := G, R′ := F,
@@ -2751,10 +2744,10 @@ theorem parallel-equidistant
     mun:triangle-turned P := Z, Q := K, R := M, from 29
 
 31. |HM| = |ZM|
-    algebra, from 11
+    restate 11
 
 32. |MK| = |MA|
-    algebra, from 5
+    restate 5
 
 33. triangle HMK ≅ triangle ZMA
     axi:side-angle-side P := H, Q := M, R := K, P′ := Z, Q′ := M, R′ := A,
@@ -3085,7 +3078,7 @@ theorem parallel-equidistant
      substitute Z = B (line 121) into line 36
 
 123. |AH| = |BK|
-     algebra, from 122
+     restate 122
 
 mundane theorem area-turned
   note        Both are half the base QR times the height from P, at the one
@@ -4047,16 +4040,16 @@ theorem angle-angle-similar
               = ∠XPY       16
 
 25. |PX| = |P′Q′|
-    algebra, from 5
+    restate 5
 
 26. |PY| = |P′R′|
-    algebra, from 7
+    restate 7
 
 27. |Q′P′| = |XP|
-    algebra, from 25
+    restate 25
 
 28. |P′R′| = |PY|
-    algebra, from 26
+    restate 26
 
 29. triangle Q′P′R′ ≅ triangle XPY
     axi:side-angle-side P := Q′, Q := P′, R := R′, P′ := X, Q′ := P, R′ := Y,
@@ -4194,7 +4187,7 @@ theorem angle-angle-similar
            algebra, from 35.18
 
     35.21. |PQ|·|P′R′| = |P′Q′|·|PR|
-           algebra, from 35.19, 35.20
+           transitivity, from 35.19, 35.20
 
     case
     assume Q is between P and X                                       (C4)

@@ -61,7 +61,7 @@ theorem size-zero-one-or-more
           assume 1 = |M|                                              (C4)
 
           3.7.2.  |M| = 1
-                  algebra, from C4
+                  restate C4
 
           3.7.3.  |M| = 0 or |M| = 1
                   mun:or-right P := |M| = 0, Q := |M| = 1, from 3.7.2

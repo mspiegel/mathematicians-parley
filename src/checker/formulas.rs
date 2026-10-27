@@ -2518,6 +2518,21 @@ pub fn check_algebra_holds(
 ) {
     for step in &thm.steps {
         if step.just.head.is(Method::Algebra) {
+            if let Some(order) = cited_chain(thm, step, known) {
+                let said = match order.as_slice() {
+                    [one] => format!(
+                        "step {} says an equation {one} says, which is `restate {one}`, not algebra",
+                        step.number
+                    ),
+                    _ => format!(
+                        "step {} chains the equations it cites, which is `transitivity, from {}`, not algebra",
+                        step.number,
+                        order.join(", ")
+                    ),
+                };
+                report.say(&thm.path, step.just.line, said);
+                continue;
+            }
             let decided =
                 algebra_holds(report, thm, &ClosureClaim::step(step), known, targets);
             if !decided {
@@ -2537,6 +2552,79 @@ pub fn check_algebra_holds(
             }
         }
     }
+}
+
+/// The lines an `algebra` step cites in an order that chains them from one
+/// side of its equation to the other (`METHODS.md`, algebra, Refusals),
+/// each line by one equation it says, a define of a name by the equation it
+/// gives; None where they make no such chain. A step whose claim is such a
+/// chain is a `transitivity` or a calculation, or of one line a `restate`,
+/// and combines nothing.
+fn cited_chain(thm: &Theorem, step: &Step, known: &Known) -> Option<Vec<String>> {
+    let claim = known
+        .whole_as_written(&step.claim)
+        .as_ref()
+        .and_then(Related::of)
+        .filter(|c| c.rel == Rel::Eq)?;
+    if step.just.refs.is_empty() {
+        return None;
+    }
+    let mut links: Vec<Vec<Related>> = Vec::new();
+    for r in &step.just.refs {
+        let mut equations: Vec<Related> = line_relations(step, r, known)
+            .into_iter()
+            .filter(|l| l.rel == Rel::Eq)
+            .collect();
+        equations.extend(
+            define_equation(thm, step, r, known)
+                .as_ref()
+                .and_then(Related::of),
+        );
+        if equations.is_empty() {
+            return None;
+        }
+        links.push(equations);
+    }
+    let mut used: Vec<usize> = Vec::new();
+    if !chain_order(&claim.left, &claim.right, &links, &mut used, known) {
+        return None;
+    }
+    Some(used.iter().map(|&i| step.just.refs[i].clone()).collect())
+}
+
+/// Whether every link not yet `used` can be taken, one equation of each, in
+/// an order going from `at` to `end`, each link's side meeting the term the
+/// one before ends at, written the same way; `used` holds the order found.
+fn chain_order(
+    at: &Node,
+    end: &Node,
+    links: &[Vec<Related>],
+    used: &mut Vec<usize>,
+    known: &Known,
+) -> bool {
+    if used.len() == links.len() {
+        return known.alike(at, end);
+    }
+    for (i, equations) in links.iter().enumerate() {
+        if used.contains(&i) {
+            continue;
+        }
+        for link in equations {
+            let next = if known.alike(at, &link.left) {
+                &link.right
+            } else if known.alike(at, &link.right) {
+                &link.left
+            } else {
+                continue;
+            };
+            used.push(i);
+            if chain_order(next, end, links, used, known) {
+                return true;
+            }
+            used.pop();
+        }
+    }
+    false
 }
 
 /// `check_algebra_holds` of one claim; whether it was decided, the build

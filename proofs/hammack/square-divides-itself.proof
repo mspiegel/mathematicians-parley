@@ -57,7 +57,7 @@ theorem square-divides-itself
                   mun:pos-int-nat m := a, from 3.6.1
 
           3.6.3.  1 = a·k
-                  algebra, from 3.4
+                  restate 3.4
 
           3.6.4.  a divides 1
                   mun:divides d := a, n := 1, from 3.6.3

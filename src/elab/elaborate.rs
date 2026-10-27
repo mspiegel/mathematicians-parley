@@ -3280,6 +3280,17 @@ impl<'a> Elaborator<'a> {
         if let Some(tidy) = self.tidied(&run.proof, &reached, term, scope, facts)? {
             return Ok(tidy);
         }
+        // An equation is the claim either way round, the identity dropped
+        // from the side the claim writes it on.
+        if run.relation.is_none() {
+            let turned = self.turned_equation(scope, &run.left, &run.right, &run.proof);
+            let reached_turned = t!(&run.right, &run.left, "wceq");
+            if let Some(tidy) =
+                self.tidied(&turned, &reached_turned, term, scope, facts)?
+            {
+                return Ok(tidy);
+            }
+        }
         let alike = match self.same(
             &self.to_term(&reached),
             &self.to_term(term),
@@ -3317,6 +3328,19 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         for mut link in links {
+            // A middle term the checker reads as one and the page writes two
+            // ways, |AB| and |BA|, is joined by the equation proving them one,
+            // folded in as a link of its own.
+            if let Some(bridge) =
+                self.middle_joined(step, scope, facts, &mut run, &mut link)?
+            {
+                let Some(joined) =
+                    self.folded_link(step, scope, facts, lines, run, bridge)?
+                else {
+                    return Ok(None);
+                };
+                run = joined;
+            }
             let meets = |t: &Rpn| *t == link.left || *t == link.right;
             if run.relation.is_none() && !meets(&run.right) && meets(&run.left) {
                 run.proof =
@@ -3334,6 +3358,84 @@ impl<'a> Elaborator<'a> {
             if link.left != run.right {
                 return Ok(None);
             }
+            let Some(joined) =
+                self.folded_link(step, scope, facts, lines, run, link)?
+            else {
+                return Ok(None);
+            };
+            run = joined;
+        }
+        Ok(Some(run))
+    }
+
+    /// Where no end of `link` is written as an end of `run` is, the
+    /// equation between one end of each that have one standard form
+    /// (`same`), each turned so that the equation goes from where `run` ends
+    /// to where `link` begins; an order is not turned. None where an end is
+    /// written alike, or no two ends have one standard form.
+    fn middle_joined(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        run: &mut ChainRun,
+        link: &mut ChainRun,
+    ) -> Checked<Option<ChainRun>> {
+        let ends_run = [&run.left, &run.right];
+        if ends_run
+            .iter()
+            .any(|e| **e == link.left || **e == link.right)
+        {
+            return Ok(None);
+        }
+        let run_turns = run.relation.is_none();
+        let link_turns = link.relation.is_none();
+        let pairs = [(false, false), (false, true), (true, false), (true, true)];
+        for (turn_run, turn_link) in pairs {
+            if (turn_run && !run_turns) || (turn_link && !link_turns) {
+                continue;
+            }
+            let from = if turn_run { &run.left } else { &run.right };
+            let to = if turn_link { &link.right } else { &link.left };
+            let (from_term, to_term) = (self.to_term(from), self.to_term(to));
+            let Built(proof) =
+                self.same(&from_term, &to_term, scope, facts, Some(step))?
+            else {
+                continue;
+            };
+            let bridge = ChainRun {
+                left: from.clone(),
+                right: to.clone(),
+                relation: None,
+                proof,
+            };
+            if turn_run {
+                run.proof =
+                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
+                std::mem::swap(&mut run.left, &mut run.right);
+            }
+            if turn_link {
+                link.proof =
+                    self.turned_equation(scope, &link.left, &link.right, &link.proof);
+                std::mem::swap(&mut link.left, &mut link.right);
+            }
+            return Ok(Some(bridge));
+        }
+        Ok(None)
+    }
+
+    /// `run` and then `link`, which begins where `run` ends, folded into one
+    /// by the lemma for their two relations; None where no lemma folds them.
+    fn folded_link(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+        run: ChainRun,
+        link: ChainRun,
+    ) -> Checked<Option<ChainRun>> {
+        {
             let (left, right, nxt) = (&run.left, &run.right, &link.right);
             let (proof, relation) = match (&run.relation, &link.relation) {
                 (None, None) => (
@@ -3392,14 +3494,13 @@ impl<'a> Elaborator<'a> {
                     )
                 }
             };
-            run = ChainRun {
+            Ok(Some(ChainRun {
                 left: run.left,
                 right: link.right,
                 relation,
                 proof,
-            };
+            }))
         }
-        Ok(Some(run))
     }
 
     /// ( scope -> left e. RR* ) and ( scope -> right e. RR* ), from the

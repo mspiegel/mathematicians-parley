@@ -77,7 +77,7 @@ theorem square-not-prime
           assume |A| = A²                                             (C2)
 
           1.12.1. |A|·|A| = 1·|A|
-                  algebra, from C2, 1.7
+                  transitivity, from 1.7, C2
 
           1.12.2. |A| = 1
                   mun:multiply-cancel a := |A|, b := 1, c := |A|, from 1.5, 1.12.1

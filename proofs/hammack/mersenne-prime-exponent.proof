@@ -305,7 +305,7 @@ theorem prime-exponent
                                         substitute e = 1 (S3) into line 4.2.3.2
 
                             4.2.3.5.2.  d = n
-                                        algebra, from 4.2.3.5.1, contradicting C4
+                                        restate 4.2.3.5.1, contradicting C4
 
                   4.2.3.6.  1 + 1 ≤ e
                             mun:integer-step m := 1, n := e

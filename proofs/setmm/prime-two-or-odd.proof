@@ -51,7 +51,7 @@ theorem prime-two-or-odd
           assume 2 = P, which is the claim                            (C4)
 
     2.7.  P = 2
-          algebra, from 2.6
+          restate 2.6
 
     2.8.  P = 2 or P is odd
           mun:or-left P := P = 2, Q := P is odd, from 2.7
