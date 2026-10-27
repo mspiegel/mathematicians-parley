@@ -2053,6 +2053,79 @@ pub fn check_imports(
     }
 }
 
+/// No theorem cites itself, and no theorems cite one another round a
+/// cycle: a proof that rests on its own claim proves nothing. Where the
+/// theorems stand in their file does not matter.
+///
+/// Only citations within one file are followed. A cycle through several
+/// files passes through an import of each, and `check_imports` reports the
+/// cycle of those imports.
+pub fn check_citation_cycles(report: &mut Report, theorems: &[Theorem]) {
+    for thms in by_file(theorems).values() {
+        let ours: IndexMap<String, &Theorem> =
+            thms.iter().map(|t| (t.qualified(), *t)).collect();
+        let mut graph: IndexMap<&str, IndexMap<String, usize>> = IndexMap::new();
+        for (name, thm) in &ours {
+            let mut edges: IndexMap<String, usize> = IndexMap::new();
+            for (cited, line) in cited_items(thm) {
+                if ours.contains_key(&cited) {
+                    edges.entry(cited).or_insert(line);
+                }
+            }
+            graph.insert(name, edges);
+        }
+        let mut done: IndexSet<&str> = IndexSet::new();
+        let mut trail: Vec<&str> = Vec::new();
+        for name in graph.keys().copied() {
+            cycles_from(name, &graph, &ours, &mut done, &mut trail, report);
+        }
+    }
+}
+
+/// Each cycle of citations reachable from the theorem `name`, reported at
+/// the citation that closes it.
+fn cycles_from<'g>(
+    name: &'g str,
+    graph: &'g IndexMap<&str, IndexMap<String, usize>>,
+    ours: &IndexMap<String, &Theorem>,
+    done: &mut IndexSet<&'g str>,
+    trail: &mut Vec<&'g str>,
+    report: &mut Report,
+) {
+    if done.contains(name) {
+        return;
+    }
+    trail.push(name);
+    for (cited, line) in &graph[name] {
+        let thm = ours[name];
+        if cited == name {
+            report.say(
+                &thm.path,
+                *line,
+                format!("theorem {} cites itself", thm.name),
+            );
+        } else if let Some(at) = trail.iter().position(|t| t == cited) {
+            let mut cycle: Vec<&str> =
+                trail[at..].iter().map(|t| ours[*t].name.as_str()).collect();
+            cycle.push(ours[cited.as_str()].name.as_str());
+            report.say(
+                &thm.path,
+                *line,
+                format!(
+                    "theorem {} cites {}, which closes a cycle of citations: {}",
+                    thm.name,
+                    ours[cited.as_str()].name,
+                    cycle.join(" → ")
+                ),
+            );
+        } else {
+            cycles_from(cited, graph, ours, done, trail, report);
+        }
+    }
+    trail.pop();
+    done.insert(name);
+}
+
 /// The names a theorem introduces itself: its `let` lines, a block's, and
 /// what its `obtain` steps obtain. Not every name it gives a sort: `c = 5`
 /// gives c one, and introduces nothing.

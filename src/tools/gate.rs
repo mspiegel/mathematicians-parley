@@ -92,7 +92,15 @@ fn built_as(
         None => every.iter().collect(),
     };
     let mut differ = 0;
-    for wave in waves(&all) {
+    let waves = match waves(&all) {
+        Ok(waves) => waves,
+        Err(problem) => {
+            said.complained = format!("{problem}\n");
+            said.status = 2;
+            return said;
+        }
+    };
+    for wave in waves {
         for artifact in wave {
             let path = artifact.path();
             match maker.make(artifact) {

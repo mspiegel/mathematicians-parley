@@ -777,8 +777,8 @@ define called `avg` could never be written after it, and it is refused at its
 line. The same holds for the name an import of a define gives it, its own or
 the one after `as`.
 
-Theorems appear in dependency order, so every pointer resolves to something
-earlier. A theorem field says what a record's field of the same name says: a
+Theorems may appear in any order. No theorem cites itself, and no theorems
+of a file cite one another round a cycle. A theorem field says what a record's field of the same name says: a
 `metamath` line names set.mm's counterpart of the theorem, which is checked to
 be a label set.mm has, and a `note` is prose for a person. Each is said at most
 once, between the `theorem` line and the statement, and continues on lines

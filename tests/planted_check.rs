@@ -3429,6 +3429,20 @@ fn cases() -> Vec<Case> {
             "closes a cycle",
         ),
         case(
+            "a theorem that cites itself",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:odd-square, from S".to_string()), "          thm:even-square, from S".to_string()),
+            ],
+            "theorem even-square cites itself",
+        ),
+        case(
+            "two theorems of one file that cite each other",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    mun:odd n := n², from 5".to_string()), "    thm:even-square n := n², from 5".to_string()),
+            ],
+            "closes a cycle of citations: odd-square → even-square → odd-square",
+        ),
+        case(
             "two theorems of one name in one file",
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "theorem odd-square\n".to_string()),

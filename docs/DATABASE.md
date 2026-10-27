@@ -286,8 +286,8 @@ already have. Neither proof changes.
 once. `thm:proofs/wiedijk/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
 
-**Theorems are stored in dependency order.** A pointer must resolve to something
-earlier, as `READERS.md` requires. Only the √2 file needed reordering: it now
+**No theorem rests on itself.** A pointer resolves to a theorem that does
+not cite its way back, as `READERS.md` requires. Only the √2 file needed reordering: it now
 runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 

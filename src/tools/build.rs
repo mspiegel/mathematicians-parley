@@ -188,7 +188,11 @@ pub fn verified(found: &Corpus) -> Vec<String> {
 ///
 /// A `needs` naming something not being made is not waited for: asking for
 /// one theorem remakes that theorem and not the library it reads.
-pub fn waves<'a>(wanted: &[&'a Artifact]) -> Vec<Vec<&'a Artifact>> {
+///
+/// Artifacts that wait on one another round a cycle can never be made. The
+/// checker refuses theorems that cite one another so, and every caller
+/// checks first, so a cycle here is a fault of the tool's.
+pub fn waves<'a>(wanted: &[&'a Artifact]) -> Checked<Vec<Vec<&'a Artifact>>> {
     let here: BTreeSet<&str> = wanted.iter().map(|a| a.name.as_str()).collect();
     let mut done: BTreeSet<&str> = BTreeSet::new();
     let mut left: Vec<&Artifact> = wanted.to_vec();
@@ -200,11 +204,22 @@ pub fn waves<'a>(wanted: &[&'a Artifact]) -> Vec<Vec<&'a Artifact>> {
                     .iter()
                     .all(|n| !here.contains(n.as_str()) || done.contains(n.as_str()))
             });
+        if ready.is_empty() {
+            let stuck: Vec<&str> = rest.iter().map(|a| a.name.as_str()).collect();
+            return Err(Problem::internal(
+                rest[0].path(),
+                0,
+                format!(
+                    "these wait on one another and none can be built first: {}",
+                    stuck.join(", ")
+                ),
+            ));
+        }
         done.extend(ready.iter().map(|a| a.name.as_str()));
         out.push(ready);
         left = rest;
     }
-    out
+    Ok(out)
 }
 
 /// set.mm read once, and what it reads as with each `proved.mm` asked for,
@@ -476,7 +491,15 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
     // reached its final value is the artifact that set it.
     let mut peaks: Vec<(String, u64)> = Vec::new();
     let mut failed = false;
-    for wave in waves(&wanted) {
+    let waves = match waves(&wanted) {
+        Ok(waves) => waves,
+        Err(problem) => {
+            said.complained = format!("{problem}\n");
+            said.status = 2;
+            return said;
+        }
+    };
+    for wave in waves {
         for artifact in wave {
             let made = maker.make(artifact);
             peaks.push((artifact.name.clone(), peak()));
@@ -651,4 +674,44 @@ pub fn elaborate_one(
 ) -> Checked<Elaborated> {
     let checked = checked_in(source, |n| n == name)?;
     Loaded::with_checked(source, checked).elaborate(name, library, options)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{waves, Artifact, Recipe};
+
+    fn theorem(name: &str, needs: &[&str]) -> Artifact {
+        Artifact {
+            name: name.to_string(),
+            recipe: Recipe::Theorem,
+            needs: needs.iter().map(|n| n.to_string()).collect(),
+        }
+    }
+
+    #[test]
+    fn artifacts_waiting_on_one_another_are_a_fault_not_a_hang() {
+        let a = theorem("proofs/x/a", &["proofs/x/b"]);
+        let b = theorem("proofs/x/b", &["proofs/x/a"]);
+        let c = theorem("proofs/x/c", &[]);
+        let Err(problem) = waves(&[&a, &b, &c]) else {
+            panic!("a cycle of needs was put in waves");
+        };
+        assert!(problem.internal);
+        assert!(
+            problem.to_string().contains("proofs/x/a, proofs/x/b"),
+            "{problem}"
+        );
+    }
+
+    #[test]
+    fn an_artifact_comes_after_what_it_needs() {
+        let a = theorem("proofs/x/a", &["proofs/x/b"]);
+        let b = theorem("proofs/x/b", &[]);
+        let names: Vec<Vec<&str>> = waves(&[&a, &b])
+            .unwrap()
+            .iter()
+            .map(|w| w.iter().map(|x| x.name.as_str()).collect())
+            .collect();
+        assert_eq!(names, vec![vec!["proofs/x/b"], vec!["proofs/x/a"]]);
+    }
 }

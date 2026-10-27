@@ -10,8 +10,9 @@ The language is Reader A's. Reader B reads the same text. The difference
 between the two readers is only in how they use the viewer.
 
 Nothing is assumed known. Every symbol, term, method and theorem used in a
-step points explicitly to where it was defined or proved earlier in the
-database. This holds for √, ∈, "even" and "prime" exactly as it holds for
+step points explicitly to where it was defined or proved elsewhere in the
+database, never by a chain of citations that leads back to the step's own
+theorem. This holds for √, ∈, "even" and "prime" exactly as it holds for
 limits or the axiom of choice. The pointer is always present; the reader
 decides whether to follow it. A reader who does not know a term follows the
 pointer and reads the definition, which is itself written in the same
@@ -337,7 +338,8 @@ obvious to some, and that line is gatekeeping.
 There is one test, and it does not depend on who is reading. For every step:
 
 1. Every symbol, term, method and theorem the step uses points to a
-   definition or statement earlier in the database.
+   definition or statement elsewhere in the database, never by a chain of
+   citations that leads back to the step's own theorem.
 2. Given those pointed-to items and the earlier lines the step cites, a reader
    with Reader A's background can check with pen and paper, and without
    running any tool, that the step follows.
