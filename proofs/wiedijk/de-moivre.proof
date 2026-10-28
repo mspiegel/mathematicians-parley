@@ -1,11 +1,11 @@
 import theorem            stdlib/trigonometry/cos-add
 import theorem            stdlib/trigonometry/sin-add
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane definition stdlib/numbers/i
+import definition         stdlib/numbers/i
 import mundane theorem    stdlib/numbers/i-complex
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem de-moivre
@@ -18,7 +18,7 @@ theorem de-moivre
   then (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
 
 1.  i·i = −1
-    mun:i
+    def:i
 
 2.  For all k ∈ ℕ₀, (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x).
     induction on k starting at 0

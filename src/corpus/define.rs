@@ -153,8 +153,6 @@ pub struct Recursion {
 pub struct Phrase {
     /// The name it is imported and cited by, `triangular-number`.
     pub name: String,
-    /// Whether it is taken for granted, which only the library's are.
-    pub mundane: bool,
     /// The phrase as written, one piece to a word.
     pub pieces: Vec<Piece>,
     /// The meaning as written, its lines joined.
@@ -722,7 +720,7 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     }
     if said.starts_with("mundane ") {
         return Route::no(
-            "only a define of a phrase is marked mundane: `mundane define <name>: <phrase> means <meaning>`",
+            "a define gives a name its meaning, and a pedantic textbook cites it, so it is never mundane",
         );
     }
     // A define gives its name with `:=` and a let with `=`, as a textbook's
@@ -852,10 +850,9 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
     }))
 }
 
-/// The opening of a define of a phrase: whether it is marked mundane, its
-/// name, and what follows the colon after the name.
+/// The opening of a define of a phrase: its name, and what follows the
+/// colon after the name.
 struct PhraseHead<'t> {
-    mundane: bool,
     name: &'t str,
     rest: &'t str,
 }
@@ -864,16 +861,11 @@ struct PhraseHead<'t> {
 /// define's first word is a name closed by a colon; None for any other
 /// line. A define of a term names a letter, which takes no colon.
 fn phrase_head(said: &str) -> Option<PhraseHead<'_>> {
-    let (mundane, rest) = match said.strip_prefix("mundane ") {
-        Some(rest) => (true, rest.trim_start()),
-        None => (false, said),
-    };
-    let rest = rest.strip_prefix("define")?;
+    let rest = said.strip_prefix("define")?;
     let rest = rest.strip_prefix(char::is_whitespace)?.trim_start();
     let first = rest.split_whitespace().next()?;
     let name = first.strip_suffix(':')?;
     super::skeleton::is_name(name).then_some(PhraseHead {
-        mundane,
         name,
         rest: rest[first.len()..].trim_start(),
     })
@@ -941,7 +933,6 @@ fn phrase_parts(head: PhraseHead<'_>) -> Route<DefineParts> {
     }
     let made = Phrase {
         name: name.to_string(),
-        mundane: head.mundane,
         pieces,
         meaning,
     };

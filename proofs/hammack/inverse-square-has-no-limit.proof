@@ -2,7 +2,7 @@ import definition         stdlib/calculus/limit-at
 import theorem            stdlib/numbers/archimedean-natural
 import mundane theorem    stdlib/sets/difference-subset
 import mundane theorem    stdlib/sets/remove-member
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/numbers/quotient-positive
 import mundane theorem    stdlib/numbers/reciprocal-order
@@ -111,7 +111,7 @@ theorem inverse-square-has-no-limit
                    mun:remove-member u := t, from 1.10.9
 
           1.10.11. |t| = t
-                   mun:abs x := t
+                   def:abs x := t
                    requires t ≥ 0: weakening, from 1.10.8
 
           1.10.12. t < p

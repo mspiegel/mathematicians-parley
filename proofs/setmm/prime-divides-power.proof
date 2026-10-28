@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import theorem            stdlib/divisibility/prime-divides-product
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -18,10 +18,10 @@ theorem prime-divides-power
   then P = Q
 
 1.  P > 1
-    mun:prime p := P, from H2
+    def:prime p := P, from H2
 
 2.  For all d ∈ ℕ, if d divides Q then d = 1 or d = Q.
-    mun:prime p := Q, from H4
+    def:prime p := Q, from H4
 
 3.  For all m ∈ ℕ₀, if P divides Q^m then P = Q.
     induction on m starting at 0

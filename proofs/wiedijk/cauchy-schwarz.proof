@@ -5,7 +5,7 @@ import mundane theorem    stdlib/sums/sum-constant
 import mundane theorem    stdlib/numbers/square-nonneg
 import mundane theorem    stdlib/numbers/square-zero
 import mundane theorem    stdlib/numbers/multiply-le
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 
 theorem cauchy-schwarz
   metamath    csbren
@@ -41,7 +41,7 @@ theorem cauchy-schwarz
     mun:sum-nonneg a := 1, b := n, from 2
 
 4.  Σ(k = 1 to n) a(k)² < 0 or Σ(k = 1 to n) a(k)² = 0 or 0 < Σ(k = 1 to n) a(k)²
-    mun:trichotomy x := Σ(k = 1 to n) a(k)²
+    axi:trichotomy x := Σ(k = 1 to n) a(k)²
 
 5.  (Σ(k = 1 to n) a(k)·b(k))² ≤ (Σ(k = 1 to n) a(k)²)·(Σ(k = 1 to n) b(k)²)
     cases, from 4

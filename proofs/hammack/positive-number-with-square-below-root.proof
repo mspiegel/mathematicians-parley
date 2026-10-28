@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-less
 
 theorem positive-number-with-square-below-root
@@ -8,7 +8,7 @@ theorem positive-number-with-square-below-root
   then there exists x ∈ ℝ such that x > 0 and x² < √x
 
 1.  √(1/4) ∈ ℝ. √(1/4) ≥ 0. (√(1/4))² = 1/4.
-    mun:sqrt x := 1/4
+    def:sqrt x := 1/4
     requires 1/4 ≥ 0: arithmetic
 
 2.  (1/16)² < 1/4

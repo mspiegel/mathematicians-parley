@@ -1,4 +1,4 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-zero
 import mundane theorem    stdlib/numbers/le-cases
@@ -26,13 +26,13 @@ theorem factorial-successor
           mun:pos-int-nat m := n, from C1
 
     3.2.  (n + 1)! = n!·(n + 1)
-          mun:factorial, from 3.1
+          def:factorial, from 3.1
 
     case
     assume 0 = n                                                      (C2)
 
     3.3.  1! = 1
-          mun:factorial
+          def:factorial
 
     3.4.  0 + 1 = 1
           arithmetic

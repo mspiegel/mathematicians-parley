@@ -1,8 +1,8 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/reasoning/modus-ponens
 
@@ -18,7 +18,7 @@ theorem prime-sum-odd
   then 2p + q² is odd
 
 1.  p > 1
-    mun:prime, from H3
+    def:prime, from H3
 
 2.  1 + 1 ≤ p
     mun:integer-step m := 1, n := p, from 1
@@ -27,7 +27,7 @@ theorem prime-sum-odd
     transitivity, from 2, H5
 
 4.  For all d ∈ ℕ, if d divides q then d = 1 or d = q.
-    mun:prime p := q, from H4
+    def:prime p := q, from H4
 
 5.  q is even or q is odd
     mun:even-or-odd n := q
@@ -39,13 +39,13 @@ theorem prime-sum-odd
     assume q is even                                                  (C1)
 
     6.1.  There is k ∈ ℤ with q = 2k.
-          mun:even n := q, from C1
+          def:even n := q, from C1
 
     6.2.  k ∈ ℤ. q = 2k.
           obtain k from line 6.1
 
     6.3.  2 divides q
-          mun:divides d := 2, n := q, from 6.2
+          def:divides d := 2, n := q, from 6.2
 
     6.4.  If 2 divides q then 2 = 1 or 2 = q.
           instantiate d := 2 in line 4
@@ -75,7 +75,7 @@ theorem prime-sum-odd
     assume q is odd, which is the claim                               (C4)
 
 7.  There is k ∈ ℤ with q = 2k + 1.
-    mun:odd n := q, from 6
+    def:odd n := q, from 6
 
 8.  k ∈ ℤ. q = 2k + 1.
     obtain k from line 7
@@ -84,4 +84,4 @@ theorem prime-sum-odd
     algebra, from 8
 
 10. 2p + q² is odd
-    mun:odd n := 2p + q², from 9
+    def:odd n := 2p + q², from 9

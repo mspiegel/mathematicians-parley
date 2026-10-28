@@ -1,5 +1,5 @@
 import definition         stdlib/calculus/tends-to
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-nonneg
 import mundane theorem    stdlib/numbers/abs-real
 
@@ -44,7 +44,7 @@ theorem abs-limit-zero
                   mun:abs-real x := a(n), from 1.4.2
 
           1.4.5.  ||a(n)|| = |a(n)|
-                  mun:abs x := |a(n)|, from 1.4.3, 1.4.4
+                  def:abs x := |a(n)|, from 1.4.3, 1.4.4
 
           1.4.6.  |a(n) − 0| < ε
                   substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1

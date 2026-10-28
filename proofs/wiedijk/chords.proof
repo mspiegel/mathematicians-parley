@@ -2,13 +2,13 @@ import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/between-apart
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/trigonometry/cos-supplement
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 
 theorem power-of-a-point
   note        A point P of a chord AB of a circle with centre O cuts it into
@@ -26,7 +26,7 @@ theorem power-of-a-point
   then |PA|·|PB| = |AO|² − |PO|²
 
 1.  O = P or O ≠ P
-    mun:excluded-middle P := O = P
+    axi:excluded-middle P := O = P
 
 2.  |PA|·|PB| = |AO|² − |PO|²
     cases, from 1
@@ -91,10 +91,10 @@ theorem power-of-a-point
           substitute cos(∠OPB) = −cos(∠APO) (line 2.14) into line 2.15
 
     2.17. |PA| > 0
-          mun:distance-positive Q := A, from 2.5
+          axi:distance-positive Q := A, from 2.5
 
     2.18. |PB| > 0
-          mun:distance-positive Q := B, from 2.5
+          axi:distance-positive Q := B, from 2.5
 
     2.19. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
           algebra, from 2.6

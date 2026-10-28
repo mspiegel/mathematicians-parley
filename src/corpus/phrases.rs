@@ -95,18 +95,11 @@ pub fn notation_record(p: &PhraseDefine<'_>, sort: &str) -> Record {
     if let Some(reads) = &p.reads {
         fields.insert("reads".to_string(), reads.clone());
     }
-    made(
-        RecordKind::Notation,
-        false,
-        notation_name(d, &p.said),
-        fields,
-        d,
-    )
+    made(RecordKind::Notation, notation_name(d, &p.said), fields, d)
 }
 
 /// The definition record a phrase's define stands for: an item of its
-/// file's module, cited `def:` or, where marked mundane, `mun:`, whose
-/// statement is the phrase and its meaning and whose set.mm lemma is
+/// file's module, cited `def:`, whose statement is the phrase and its meaning and whose set.mm lemma is
 /// `biid`. The meaning is bracketed, since it may be any statement and `↔`
 /// is unordered against some.
 pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
@@ -123,13 +116,7 @@ pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
     if let Some(reads) = &p.reads {
         fields.insert("reads".to_string(), reads.clone());
     }
-    let mut record = made(
-        RecordKind::Definition,
-        p.said.mundane,
-        p.said.name.clone(),
-        fields,
-        d,
-    );
+    let mut record = made(RecordKind::Definition, p.said.name.clone(), fields, d);
     record.conclusions = vec![(
         format!("{} ↔ ({})", p.said.written(), p.said.meaning),
         d.line,
@@ -170,10 +157,10 @@ fn patterns_written(field: &str) -> Vec<String> {
         .collect()
 }
 
-/// A record made from the define `d`, at its line.
+/// A record made from the define `d`, at its line. Neither a notation nor a
+/// definition is ever mundane.
 fn made(
     kind: RecordKind,
-    mundane: bool,
     name: String,
     fields: IndexMap<String, String>,
     d: &DefineLine,
@@ -181,7 +168,7 @@ fn made(
     let lines = fields.keys().map(|k| (k.clone(), d.line)).collect();
     Record {
         kind,
-        mundane,
+        mundane: false,
         name,
         fields,
         hypotheses: Vec::new(),

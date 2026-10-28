@@ -200,9 +200,8 @@ impl<'a> Item<'a> {
         format!("{article} {header}")
     }
 
-    /// Whether a step citing it unfolds it: a definition. This is read from
-    /// the record and not from the citation, since a mundane definition is
-    /// cited `mun:`.
+    /// Whether a step citing it unfolds it: a definition, as its record
+    /// says.
     pub fn unfolds(&self) -> bool {
         matches!(self, Item::Record(r) if r.kind.unfolds())
     }

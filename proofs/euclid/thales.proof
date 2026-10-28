@@ -1,14 +1,14 @@
 import theorem            proofs/euclid/apollonius/apollonius
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/segment-addition
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 
 theorem thales
   note        M is half way along AB and as far from C as from A and B. The
@@ -51,7 +51,7 @@ theorem thales
     algebra, from 4, 7
 
 9.  A ≠ C. B ≠ C.
-    mun:triangle P := A, Q := B, R := C, from H5
+    def:triangle P := A, Q := B, R := C, from H5
 
 10. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines P := A, Q := C, R := B, from 9
@@ -65,10 +65,10 @@ theorem thales
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
 13. |CA| > 0
-    mun:distance-positive P := C, Q := A, from 9
+    axi:distance-positive P := C, Q := A, from 9
 
 14. |CB| > 0
-    mun:distance-positive P := C, Q := B, from 9
+    axi:distance-positive P := C, Q := B, from 9
 
 15. |CA|·|CB| > 0
     mun:product-positive x := |CA|, y := |CB|, from 13, 14

@@ -1,10 +1,10 @@
 import theorem            proofs/hammack/cube-congruent-mod-three/residue-mod-three
 import theorem            proofs/hammack/sqrt3-irrational/three-divides-square
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-sum
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-remainder
@@ -13,7 +13,7 @@ import mundane theorem    stdlib/reasoning/or-right
 import axiom              stdlib/numbers/well-ordering
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/rational-coprime
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 
 theorem three-divides-no-small
@@ -67,7 +67,7 @@ theorem square-mod-three
           algebra, from 6.1
 
     6.3.  3 divides n²
-          mun:divides d := 3, n := n², from 6.2
+          def:divides d := 3, n := n², from 6.2
 
     6.4.  3 divides n² or 3 divides n² − 1
           mun:or-left, from 6.3
@@ -82,7 +82,7 @@ theorem square-mod-three
           algebra, from 6.5
 
     6.7.  3 divides n² − 1
-          mun:divides d := 3, n := n² − 1, from 6.6
+          def:divides d := 3, n := n² − 1, from 6.6
 
     6.8.  3 divides n² or 3 divides n² − 1
           mun:or-right, from 6.7
@@ -97,7 +97,7 @@ theorem square-mod-three
           algebra, from 6.9
 
     6.11. 3 divides n² − 1
-          mun:divides d := 3, n := n² − 1, from 6.10
+          def:divides d := 3, n := n² − 1, from 6.10
 
     6.12. 3 divides n² or 3 divides n² − 1
           mun:or-right, from 6.11
@@ -213,7 +213,7 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
           exhibit, from 1.6
 
     1.8.  b·d ∈ T
-          mun:set-builder u := b·d, from D1, 1.7
+          def:set-builder u := b·d, from D1, 1.7
 
     1.9.  T ⊆ ℕ
           mun:set-builder-subset, from D1
@@ -222,13 +222,13 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
           obtain m: axi:well-ordering, from 1.8, 1.9
 
     1.11. m ∈ ℕ. There are j, k ∈ ℤ with j² + k² = 3m².
-          mun:set-builder u := m, from D1, 1.10
+          def:set-builder u := m, from D1, 1.10
 
     1.12. p ∈ ℤ. q ∈ ℤ. p² + q² = 3m².
           obtain p, q from line 1.11
 
     1.13. 3 divides p² + q²
-          mun:divides d := 3, n := p² + q², from 1.11, 1.12
+          def:divides d := 3, n := p² + q², from 1.11, 1.12
 
     1.14. 3 divides p
           thm:three-divides-sum-of-squares, from 1.13
@@ -243,10 +243,10 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
           thm:three-divides-sum-of-squares p := q, q := p, from 1.16
 
     1.18. s ∈ ℤ. p = 3s.
-          obtain s: mun:divides d := 3, n := p, from 1.14
+          obtain s: def:divides d := 3, n := p, from 1.14
 
     1.19. t ∈ ℤ. q = 3t.
-          obtain t: mun:divides d := 3, n := q, from 1.17
+          obtain t: def:divides d := 3, n := q, from 1.17
 
     1.20. (3s)² + q² = 3m²
           substitute p = 3s (line 1.18) into line 1.12
@@ -258,13 +258,13 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
           algebra, from 1.11, 1.21
 
     1.23. 3 divides m²
-          mun:divides d := 3, n := m², from 1.11, 1.22
+          def:divides d := 3, n := m², from 1.11, 1.22
 
     1.24. 3 divides m
           thm:three-divides-square n := m, from 1.11, 1.23
 
     1.25. u ∈ ℤ. m = 3u.
-          obtain u: mun:divides d := 3, n := m, from 1.11, 1.24
+          obtain u: def:divides d := 3, n := m, from 1.11, 1.24
 
     1.26. (3u)² = 3(s² + t²)
           substitute m = 3u (line 1.25) into line 1.22
@@ -290,7 +290,7 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
           exhibit, from 1.27
 
     1.33. u ∈ T
-          mun:set-builder, from D1, 1.31, 1.32
+          def:set-builder, from D1, 1.31, 1.32
 
     1.34. m ≤ u
           instantiate t := u in line 1.10, from 1.33

@@ -1,14 +1,14 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane definition stdlib/numbers/nat0
+import definition         stdlib/numbers/nat0
 import definition         stdlib/counting/C
 import theorem            proofs/setmm/factorial-by-predecessor/factorial-by-predecessor
 import mundane theorem    stdlib/numbers/nat-minus-one
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/counting/binomial-outside
 import mundane theorem    stdlib/sums/range-nat0
 import mundane theorem    stdlib/sums/range-difference
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem factorial-nonzero
   note        N! is a natural number, and a natural number is at least 1.
@@ -31,7 +31,7 @@ theorem choose-all
     inequalities, from H1
 
 2.  N ∈ {0, …, N}
-    mun:range-between k := N, a := 0, b := N, from 1
+    def:range-between k := N, a := 0, b := N, from 1
 
 3.  C(N, N) = N!/((N − N)!·N!)
     def:C n := N, k := N, from 2
@@ -74,7 +74,7 @@ theorem choose-one
   then C(N, 1) = N
 
 1.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 2.  C(N, 1) = N
     cases, from 1
@@ -89,13 +89,13 @@ theorem choose-one
           inequalities, from C1
 
     2.3.  1 ∈ {0, …, N}
-          mun:range-between k := 1, a := 0, b := N, from 2.2
+          def:range-between k := 1, a := 0, b := N, from 2.2
 
     2.4.  C(N, 1) = N!/((N − 1)!·1!)
           def:C n := N, k := 1, from 2.3
 
     2.5.  1! = 1
-          mun:factorial
+          def:factorial
 
     2.6.  N!/((N − 1)!·1!) = N!/((N − 1)!·1)
           substitute 1! = 1 (line 2.5)
@@ -146,7 +146,7 @@ theorem choose-next-row
     inequalities, from H1
 
 2.  N ∈ {0, …, N + 1}
-    mun:range-between k := N, a := 0, b := N + 1, from 1
+    def:range-between k := N, a := 0, b := N + 1, from 1
 
 3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
     def:C n := N + 1, k := N, from 2
@@ -158,7 +158,7 @@ theorem choose-next-row
     substitute (N + 1) − N = 1 (line 4)
 
 6.  1! = 1
-    mun:factorial
+    def:factorial
 
 7.  ((N + 1) − N)! = 1
     calculation
@@ -169,7 +169,7 @@ theorem choose-next-row
     substitute ((N + 1) − N)! = 1 (line 7)
 
 9.  (N + 1)! = N!·(N + 1)
-    mun:factorial n := N
+    def:factorial n := N
 
 10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
     substitute (N + 1)! = N!·(N + 1) (line 9)
@@ -196,7 +196,7 @@ theorem choose-two
   then C(N, 2) = N·(N − 1)/2
 
 1.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 2.  C(N, 2) = N·(N − 1)/2
     cases, from 1
@@ -208,7 +208,7 @@ theorem choose-two
           mun:nat-minus-one n := N, from C1
 
     2.2.  N − 1 ∈ ℕ or N − 1 = 0
-          mun:nat0 n := N − 1, from 2.1
+          def:nat0 n := N − 1, from 2.1
 
     2.3.  C(N, 2) = N·(N − 1)/2
           cases, from 2.2
@@ -223,7 +223,7 @@ theorem choose-two
                   inequalities, from C3
 
           2.3.3.  2 ∈ {0, …, N}
-                  mun:range-between k := 2, a := 0, b := N, from 2.3.2
+                  def:range-between k := 2, a := 0, b := N, from 2.3.2
 
           2.3.4.  C(N, 2) = N!/((N − 2)!·2!)
                   def:C n := N, k := 2, from 2.3.3
@@ -238,10 +238,10 @@ theorem choose-two
                   substitute (N − 2)! = ((N − 1) − 1)! (line 2.3.6)
 
           2.3.8.  1! = 1
-                  mun:factorial
+                  def:factorial
 
           2.3.9.  (1 + 1)! = 1!·(1 + 1)
-                  mun:factorial n := 1
+                  def:factorial n := 1
 
           2.3.10. 2! = 1!·2
                   substitute 1 + 1 = 2 (arithmetic) into line 2.3.9
@@ -336,7 +336,7 @@ theorem choose-complement
   then C(N, K) = C(N, N − K)
 
 1.  K ∈ {0, …, N} or K ∉ {0, …, N}
-    mun:excluded-middle P := K ∈ {0, …, N}
+    axi:excluded-middle P := K ∈ {0, …, N}
 
 2.  C(N, K) = C(N, N − K)
     cases, from 1
@@ -354,7 +354,7 @@ theorem choose-complement
           inequalities, from 2.1, 2.2
 
     2.4.  N − K ∈ {0, …, N}
-          mun:range-between k := N − K, a := 0, b := N, from 2.3
+          def:range-between k := N − K, a := 0, b := N, from 2.3
 
     2.5.  C(N, K) = N!/((N − K)!·K!)
           def:C n := N, k := K, from C1
@@ -401,7 +401,7 @@ theorem choose-complement
           suppose N − K ∈ {0, …, N}                                   (S)
 
           2.16.1. 0 ≤ N − K. N − K ≤ N.
-                  mun:range-between k := N − K, a := 0, b := N, from S
+                  def:range-between k := N − K, a := 0, b := N, from S
 
           2.16.2. K ≥ 0
                   inequalities
@@ -415,7 +415,7 @@ theorem choose-complement
                     K ≤ N           adding K
 
           2.16.4. K ∈ {0, …, N}
-                  mun:range-between k := K, a := 0, b := N, from 2.16.2, 2.16.3
+                  def:range-between k := K, a := 0, b := N, from 2.16.2, 2.16.3
 
           2.16.5. K ∉ {0, …, N}
                   restate C2, contradicting 2.16.4

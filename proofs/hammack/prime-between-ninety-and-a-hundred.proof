@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-quotient
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/nonneg-or-neg
@@ -240,7 +240,7 @@ theorem ninety-seven-is-prime
                             algebra, from 2.4
 
                   2.6.2.12. k divides 97
-                            mun:divides d := k, n := 97, from 2.6.2.11
+                            def:divides d := k, n := 97, from 2.6.2.11
 
                   2.6.2.13. k = 1
                             thm:small-divisor-of-ninety-seven e := k, from 2.6.2.10, 2.6.2.12
@@ -270,7 +270,7 @@ theorem ninety-seven-is-prime
                   mun:or-left Q := d = 97, from 2.6.6
 
 3.  97 is prime
-    mun:prime p := 97, from 1, 2
+    def:prime p := 97, from 1, 2
 
 
 theorem prime-between-ninety-and-a-hundred

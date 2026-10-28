@@ -1,15 +1,15 @@
 import theorem            stdlib/divisibility/divides-gcd
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/not-both
-import mundane definition stdlib/divisibility/odd
-import mundane definition stdlib/numbers/irrational
+import definition         stdlib/divisibility/odd
+import definition         stdlib/numbers/irrational
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/rational-coprime
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 
 theorem odd-square
@@ -21,7 +21,7 @@ theorem odd-square
   then n² is odd
 
 1.  k ∈ ℤ. n = 2k + 1.
-    obtain k: mun:odd, from H2
+    obtain k: def:odd, from H2
 
 2.  n² = (2k + 1)²
     substitute n = 2k + 1 (line 1)
@@ -39,7 +39,7 @@ theorem odd-square
          = 2(2k² + 2k) + 1     4
 
 6.  n² is odd
-    mun:odd n := n², from 5
+    def:odd n := n², from 5
 
 
 theorem even-square
@@ -114,7 +114,7 @@ theorem sqrt2-irrational
   then √2 is irrational
 
 1.  (√2)² = 2
-    mun:sqrt x := 2
+    def:sqrt x := 2
     requires 2 ≥ 0: arithmetic
 
 2.  √2 ∉ ℚ
@@ -133,13 +133,13 @@ theorem sqrt2-irrational
           requires q ≠ 0: weakening, from 2.1
 
     2.4.  p² is even
-          mun:even n := p², from 2.3
+          def:even n := p², from 2.3
 
     2.5.  p is even
           thm:even-square n := p, from 2.4
 
     2.6.  r ∈ ℤ. p = 2r.
-          obtain r: mun:even n := p, from 2.5
+          obtain r: def:even n := p, from 2.5
 
     2.7.  p² = (2r)²
           substitute p = 2r (line 2.6)
@@ -157,23 +157,23 @@ theorem sqrt2-irrational
           algebra, from 2.9
 
     2.11. q² is even
-          mun:even n := q², from 2.10
+          def:even n := q², from 2.10
 
     2.12. q is even
           thm:even-square n := q, from 2.11
 
     2.13. s ∈ ℤ. q = 2s.
-          obtain s: mun:even n := q, from 2.12
+          obtain s: def:even n := q, from 2.12
 
     2.14. 2 divides p
-          mun:divides d := 2, n := p, from 2.6
+          def:divides d := 2, n := p, from 2.6
 
     2.15. 2 divides q
-          mun:divides d := 2, n := q, from 2.13
+          def:divides d := 2, n := q, from 2.13
 
     2.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
           exhibit, from 2.14, 2.15, contradicting 2.1
           requires 2 > 1: arithmetic
 
 3.  √2 is irrational
-    mun:irrational x := √2, from 2
+    def:irrational x := √2, from 2

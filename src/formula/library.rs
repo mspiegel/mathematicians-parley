@@ -10,7 +10,7 @@
 //! `corpus/db/notation.records` declares for every function, as a proof's
 //! `T(k)` is. What the library adds is the name, its sort, and what it
 //! builds. A proof file has the name in scope where it imports it, `import
-//! mundane stdlib/divisibility/gcd`; the library's own records have every
+//! definition stdlib/divisibility/gcd`; the library's own records have every
 //! one.
 
 use indexmap::IndexMap;
@@ -34,7 +34,7 @@ pub struct Function {
     /// What a citation of its record writes.
     pub cited_as: ItemKind,
     /// Its record's header before the name, which an import of it says:
-    /// `mundane definition`.
+    /// `definition`.
     pub header: String,
     pub path: String,
     pub line: usize,
@@ -43,7 +43,7 @@ pub struct Function {
 }
 
 impl Function {
-    /// Its record as prose names it, with its prefix: `mun:stdlib/divisibility/gcd`.
+    /// Its record as prose names it, with its prefix: `def:stdlib/divisibility/gcd`.
     pub fn cited(&self) -> String {
         format!("{}:{}", self.cited_as.prefix(), self.item)
     }

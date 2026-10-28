@@ -8,18 +8,18 @@ import mundane theorem    stdlib/numbers/abs-zero as numbers-abs-zero
 import mundane theorem    stdlib/numbers/int-real as numbers-int-real
 import mundane theorem    stdlib/numbers/integer-step as numbers-integer-step
 import mundane theorem    stdlib/numbers/le-max
-import mundane definition stdlib/numbers/max
+import definition         stdlib/numbers/max
 import mundane theorem    stdlib/numbers/max-le as numbers-max-le
 import mundane theorem    stdlib/numbers/max-real as numbers-max-real
 import mundane theorem    stdlib/numbers/nat-int as numbers-nat-int
 import mundane theorem    stdlib/numbers/nat-real as numbers-nat-real
-import mundane definition stdlib/numbers/nat0 as numbers-nat0
+import definition         stdlib/numbers/nat0 as numbers-nat0
 import mundane theorem    stdlib/numbers/nat0-as-int as numbers-nat0-as-int
 import mundane theorem    stdlib/numbers/nat0-int as numbers-nat0-int
 import mundane theorem    stdlib/numbers/nat0-nonzero as numbers-nat0-nonzero
 import mundane theorem    stdlib/numbers/nat0-real as numbers-nat0-real
 import mundane theorem    stdlib/numbers/quotient-real as numbers-quotient-real
-import mundane definition stdlib/numbers/rational as numbers-rational
+import definition         stdlib/numbers/rational as numbers-rational
 import mundane theorem    stdlib/numbers/square-le as numbers-square-le
 import mundane theorem    stdlib/numbers/product-nonneg as numbers-product-nonneg
 import mundane theorem    stdlib/numbers/product-positive as numbers-product-positive
@@ -145,7 +145,7 @@ theorem rational
   then there are p ∈ ℤ and q ∈ ℕ with x = p/q
 
 1.  There are p ∈ ℤ and q ∈ ℕ with x = p/q.
-    mun:numbers-rational, from H2
+    def:numbers-rational, from H2
 
 theorem nat-int
   let m ∈ ℕ                                                           (H1)
@@ -281,7 +281,7 @@ theorem nat0
   then n ∈ ℕ or n = 0
 
 1.  n ∈ ℕ or n = 0
-    mun:numbers-nat0, from H2
+    def:numbers-nat0, from H2
 
 theorem nat0-as-int
   let n ∈ ℝ                                                           (H1)

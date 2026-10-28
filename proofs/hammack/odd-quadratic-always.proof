@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 
 theorem odd-quadratic-always
   note        An integer is even or odd. If n = 2k, then 5n² + 3n + 7 is
@@ -19,7 +19,7 @@ theorem odd-quadratic-always
     assume n is even                                                  (C1)
 
     2.1.  k ∈ ℤ. n = 2k.
-          obtain k: mun:even, from C1
+          obtain k: def:even, from C1
 
     2.2.  5n² + 3n + 7 = 5(2k)² + 3(2k) + 7
           substitute n = 2k (line 2.1)
@@ -33,13 +33,13 @@ theorem odd-quadratic-always
                          = 2(10k² + 3k + 3) + 1   2.3
 
     2.5.  5n² + 3n + 7 is odd
-          mun:odd n := 5n² + 3n + 7, from 2.4
+          def:odd n := 5n² + 3n + 7, from 2.4
 
     case
     assume n is odd                                                   (C2)
 
     2.6.  k ∈ ℤ. n = 2k + 1.
-          obtain k: mun:odd, from C2
+          obtain k: def:odd, from C2
 
     2.7.  5n² + 3n + 7 = 5(2k + 1)² + 3(2k + 1) + 7
           substitute n = 2k + 1 (line 2.6)
@@ -53,4 +53,4 @@ theorem odd-quadratic-always
                          = 2(10k² + 13k + 7) + 1        2.8
 
     2.10. 5n² + 3n + 7 is odd
-          mun:odd n := 5n² + 3n + 7, from 2.9
+          def:odd n := 5n² + 3n + 7, from 2.9

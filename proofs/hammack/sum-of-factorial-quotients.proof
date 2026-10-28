@@ -1,4 +1,4 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/sums/sum-extended
@@ -127,10 +127,10 @@ theorem sum-of-factorial-quotients
           mun:sum-single a := 1, from 1
 
     2.2.  1! = 1
-          mun:factorial
+          def:factorial
 
     2.3.  (1 + 1)! = 1!·(1 + 1)
-          mun:factorial n := 1
+          def:factorial n := 1
 
     2.4.  1!·(1 + 1) = 1·(1 + 1)
           substitute 1! = 1 (line 2.2)
@@ -166,7 +166,7 @@ theorem sum-of-factorial-quotients
           substitute Σ(j = 1 to k) j/(j + 1)! = 1 − 1/(k + 1)! (IH)
 
     2.11. ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1)
-          mun:factorial n := k + 1
+          def:factorial n := k + 1
 
     2.12. 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)! = 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1))
           substitute ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1) (line 2.11)

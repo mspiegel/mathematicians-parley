@@ -116,7 +116,7 @@ fn two_of(th: impl Part, x: impl Part, p_x: impl Part) -> Rpn {
 
 /// th -> 2 || X, where p_eq proves th -> X = ( 2 x. Y ).
 ///
-/// This is `mun:stdlib/divisibility/even` used to conclude, as step 6 of
+/// This is `def:stdlib/divisibility/even` used to conclude, as step 6 of
 /// odd-square was. The kernel writes the witness equation as
 /// ( k x. 2 ) = X where the corpus writes X = 2k, so the two ends of it have
 /// to be turned round.
@@ -700,7 +700,7 @@ pub fn text() -> String {
     // --- steps 3.14 to 3.16, the exhibit ------------------------------------
     // 3.14 and 3.15 change the word for what the kernel has already: `p is
     // even` and `2 divides p` are one formula once
-    // mun:stdlib/divisibility/even and mun:stdlib/divisibility/divides are
+    // def:stdlib/divisibility/even and def:stdlib/divisibility/divides are
     // unfolded, so the two steps carry no kernel move of their own.
     let s314 = lift(&dvds(TWO, PV), &s35, &th1, &up23);
     let s315 = lift(&dvds(TWO, QV), &s312, &th2, &up3);

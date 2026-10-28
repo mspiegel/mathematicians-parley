@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/set-image
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/set-image
 
 theorem powers-of-two-onto
   note        A member of {2^n : n ∈ ℤ} is 2^n for some n, and 2^n is f(n).
@@ -12,7 +12,7 @@ theorem powers-of-two-onto
     let y ∈ {2^n : n ∈ ℤ}                                             (K1)
 
     1.1.  There is n ∈ ℤ with y = 2^n.
-          mun:set-image u := y, from K1
+          def:set-image u := y, from K1
 
     1.2.  m ∈ ℤ. y = 2^m.
           obtain m from line 1.1
@@ -29,4 +29,4 @@ theorem powers-of-two-onto
           exhibit, from 1.4
 
 2.  f : ℤ → {2^n : n ∈ ℤ} is onto
-    mun:onto, from H1, 1
+    def:onto, from H1, 1

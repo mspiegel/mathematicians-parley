@@ -1,9 +1,9 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/even-square
 import theorem            proofs/wiedijk/sqrt2-irrational/lowest-terms
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/numbers/irrational
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/numbers/irrational
+import definition         stdlib/numbers/sqrt
 
 theorem sqrt6-irrational
   note        Suppose √6 = p/q in lowest terms. Then p² = 6q², so p is even;
@@ -12,7 +12,7 @@ theorem sqrt6-irrational
   then √6 is irrational
 
 1.  (√6)² = 6
-    mun:sqrt x := 6
+    def:sqrt x := 6
     requires 6 ≥ 0: arithmetic
 
 2.  √6 ∉ ℚ
@@ -34,13 +34,13 @@ theorem sqrt6-irrational
           algebra, from 2.3
 
     2.5.  p² is even
-          mun:even n := p², from 2.4
+          def:even n := p², from 2.4
 
     2.6.  p is even
           thm:even-square n := p, from 2.5
 
     2.7.  r ∈ ℤ. p = 2r.
-          obtain r: mun:even n := p, from 2.6
+          obtain r: def:even n := p, from 2.6
 
     2.8.  (2r)² = 6q²
           substitute p = 2r (line 2.7) into line 2.3
@@ -52,23 +52,23 @@ theorem sqrt6-irrational
           algebra, from 2.9
 
     2.11. q² is even
-          mun:even n := q², from 2.10
+          def:even n := q², from 2.10
 
     2.12. q is even
           thm:even-square n := q, from 2.11
 
     2.13. s ∈ ℤ. q = 2s.
-          obtain s: mun:even n := q, from 2.12
+          obtain s: def:even n := q, from 2.12
 
     2.14. 2 divides p
-          mun:divides d := 2, n := p, from 2.7
+          def:divides d := 2, n := p, from 2.7
 
     2.15. 2 divides q
-          mun:divides d := 2, n := q, from 2.13
+          def:divides d := 2, n := q, from 2.13
 
     2.16. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
           exhibit, from 2.14, 2.15, contradicting 2.1
           requires 2 > 1: arithmetic
 
 3.  √6 is irrational
-    mun:irrational x := √6, from 2
+    def:irrational x := √6, from 2

@@ -23,7 +23,7 @@ import mundane theorem    stdlib/numbers/le-cases
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/nat0-nonzero
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/sets/difference-absent
 import mundane theorem    stdlib/sets/difference-by-union
 import mundane theorem    stdlib/sets/difference-of-union
@@ -36,29 +36,29 @@ import mundane theorem    stdlib/sets/intersection-distributes
 import mundane theorem    stdlib/sets/intersection-of-part
 import mundane theorem    stdlib/sets/not-in-subset
 import mundane theorem    stdlib/sets/nothing-left-outside
-import mundane definition stdlib/sets/part-builder
+import definition         stdlib/sets/part-builder
 import mundane theorem    stdlib/sets/remove-and-restore
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-empty
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/set-builder-split
 import mundane theorem    stdlib/sets/set-builder-split-disjoint
 import mundane theorem    stdlib/sets/singleton-outside
 import mundane theorem    stdlib/sets/singleton-subset
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/subset-into-difference
 import mundane theorem    stdlib/sets/subset-of-difference
 import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/union-empty
 import mundane theorem    stdlib/sets/union-subset
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 import mundane theorem    stdlib/sums/range-bounds
 import mundane theorem    stdlib/sums/range-end
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-within
 import mundane theorem    stdlib/sums/range-without-last
-import mundane definition stdlib/sums/range0
+import definition         stdlib/sums/range0
 import definition         stdlib/counting/C
 
 define G(m, n) := {c ∈ {d ⊆ {1, …, m + n} : |d| = m} : for all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|}, for m ∈ ℕ₀, n ∈ ℕ₀   (D1)
@@ -80,10 +80,10 @@ theorem good-finite
     let c ∈ G(m, n)                                                   (K1)
 
     2.1.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}
-          mun:set-builder u := c, from D1, K1
+          def:set-builder u := c, from D1, K1
 
     2.2.  c ⊆ {1, …, m + n}
-          mun:part-builder u := c, from 2.1
+          def:part-builder u := c, from 2.1
 
 3.  G(m, n) is finite
     mun:parts-finite A := {1, …, m + n}, K := G(m, n), from 1, 2
@@ -140,7 +140,7 @@ theorem lead-to-the-end
     let i ∈ {1, …, m + n}                                             (K1)
 
     1.1.  i = m + n or i ≠ m + n
-          mun:excluded-middle P := i = m + n
+          axi:excluded-middle P := i = m + n
 
     1.2.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
           cases, from 1.1
@@ -178,7 +178,7 @@ theorem lead-to-the-end
                   inequalities, from 1.2.6
 
           1.2.8.  i ∈ {1, …, (m + n) − 1}
-                  mun:range-between k := i, a := 1, b := (m + n) − 1, from 1.2.4, 1.2.7
+                  def:range-between k := i, a := 1, b := (m + n) − 1, from 1.2.4, 1.2.7
 
           1.2.9.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
                   instantiate i := i in H6, from 1.2.8
@@ -280,7 +280,7 @@ let O = {d ⊆ {1, …, m + m} : |d| = m}                                 (D2)
     let c ∈ O                                                         (K1)
 
     2.1.  c ⊆ {1, …, m + m}. |c| = m.
-          mun:part-builder u := c, from D2, K1
+          def:part-builder u := c, from D2, K1
 
     2.2.  |{1, …, m + m} ∖ c| = m. |{1, …, m + m} ∩ c| = m.
           thm:last-place n := m, from 2.1
@@ -319,7 +319,7 @@ let O = {d ⊆ {1, …, m} : |d| = m}                                     (D2)
     let c ∈ O                                                         (K1)
 
     1.1.  c ⊆ {1, …, m}. |c| = m.
-          mun:part-builder u := c, from D2, K1
+          def:part-builder u := c, from D2, K1
 
     1.2.  |{1, …, m} ∖ c| = 0
           thm:last-place n := 0, from 1.1
@@ -384,10 +384,10 @@ let O = {d ⊆ {1, …, m} : |d| = m}                                     (D2)
                   substitute c = {1, …, m} (line 1.5) into line 1.6.12
 
     1.7.  c ∈ G(m, 0)
-          mun:set-builder u := c, from D1, D2, K1, 1.6
+          def:set-builder u := c, from D1, D2, K1, 1.6
 
 2.  O ⊆ G(m, 0)
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  G(m, 0) ⊆ O
     mun:set-builder-subset X := O, from D1, D2
@@ -436,18 +436,18 @@ theorem add-last-place
     assume S ∪ {m + n} = T ∪ {m + n}                                  (K3)
 
     2.1.  S ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
-          mun:set-builder u := S, from D1, K1
+          def:set-builder u := S, from D1, K1
           requires m − 1 ∈ ℕ₀: mun:nat-minus-one n := m
 
     2.2.  T ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
-          mun:set-builder u := T, from D1, K2
+          def:set-builder u := T, from D1, K2
           requires m − 1 ∈ ℕ₀: mun:nat-minus-one n := m
 
     2.3.  S ⊆ {1, …, (m − 1) + n}
-          mun:part-builder u := S, from 2.1
+          def:part-builder u := S, from 2.1
 
     2.4.  T ⊆ {1, …, (m − 1) + n}
-          mun:part-builder u := T, from 2.2
+          def:part-builder u := T, from 2.2
 
     2.5.  S ⊆ {1, …, m + n} ∖ {m + n}
           substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 1) into line 2.3
@@ -526,13 +526,13 @@ let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
     let c ∈ F                                                         (K1)
 
     6.1.  c ∈ G(m, n). m + n ∈ c.
-          mun:set-builder u := c, from D2, K1
+          def:set-builder u := c, from D2, K1
 
     6.2.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}. For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
-          mun:set-builder u := c, from D1, 6.1
+          def:set-builder u := c, from D1, 6.1
 
     6.3.  c ⊆ {1, …, m + n}. |c| = m.
-          mun:part-builder u := c, from 6.2
+          def:part-builder u := c, from 6.2
 
     6.4.  c ∖ {m + n} ⊆ {1, …, m + n} ∖ {m + n}
           mun:difference-shrinks, from 6.3
@@ -581,10 +581,10 @@ let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
                   substitute {1, …, i} ∖ c = {1, …, i} ∖ (c ∖ {m + n}) (line 6.9.7) into line 6.9.8
 
     6.10. c ∖ {m + n} ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}
-          mun:part-builder u := c ∖ {m + n}, X := {1, …, (m − 1) + n}, from 6.5, 6.7
+          def:part-builder u := c ∖ {m + n}, X := {1, …, (m − 1) + n}, from 6.5, 6.7
 
     6.11. c ∖ {m + n} ∈ G(m − 1, n)
-          mun:set-builder u := c ∖ {m + n}, from D1, 1, 6.9, 6.10
+          def:set-builder u := c ∖ {m + n}, from D1, 1, 6.9, 6.10
 
     6.12. (c ∖ {m + n}) ∪ {m + n} ∈ {T ∪ {m + n} : T ∈ G(m − 1, n)}
           mun:added-element-in-image Y := G(m − 1, n), a := m + n, s := c ∖ {m + n}, from 6.11
@@ -593,7 +593,7 @@ let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
           substitute (c ∖ {m + n}) ∪ {m + n} = c (line 6.8) into line 6.12
 
 7.  F ⊆ {T ∪ {m + n} : T ∈ G(m − 1, n)}
-    mun:subset, from 6
+    def:subset, from 6
 
 8.  For all T ∈ G(m − 1, n), T ∪ {m + n} ∈ F.
     proof
@@ -601,10 +601,10 @@ let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
     let T ∈ G(m − 1, n)                                               (K3)
 
     8.1.  T ∈ {d ⊆ {1, …, (m − 1) + n} : |d| = m − 1}. For all i ∈ {1, …, (m − 1) + n}, |{1, …, i} ∖ T| < |{1, …, i} ∩ T|.
-          mun:set-builder u := T, from D1, K3, 1
+          def:set-builder u := T, from D1, K3, 1
 
     8.2.  T ⊆ {1, …, (m − 1) + n}. |T| = m − 1.
-          mun:part-builder u := T, from 8.1
+          def:part-builder u := T, from 8.1
 
     8.3.  T ⊆ {1, …, m + n} ∖ {m + n}
           substitute {1, …, (m − 1) + n} = {1, …, m + n} ∖ {m + n} (line 2) into line 8.2
@@ -665,16 +665,16 @@ let F = {c ∈ G(m, n) : m + n ∈ c}                                     (D2)
           thm:lead-to-the-end c := T ∪ {m + n}, from H3, 8.8, 8.12, 8.13
 
     8.15. T ∪ {m + n} ∈ {d ⊆ {1, …, m + n} : |d| = m}
-          mun:part-builder u := T ∪ {m + n}, X := {1, …, m + n}, from 8.8, 8.12
+          def:part-builder u := T ∪ {m + n}, X := {1, …, m + n}, from 8.8, 8.12
 
     8.16. T ∪ {m + n} ∈ G(m, n)
-          mun:set-builder u := T ∪ {m + n}, from D1, 8.14, 8.15
+          def:set-builder u := T ∪ {m + n}, from D1, 8.14, 8.15
 
     8.17. m + n ∈ T ∪ {m + n}
           mun:in-union-singleton
 
     8.18. T ∪ {m + n} ∈ F
-          mun:set-builder u := T ∪ {m + n}, from D2, 8.16, 8.17
+          def:set-builder u := T ∪ {m + n}, from D2, 8.16, 8.17
 
 9.  {T ∪ {m + n} : T ∈ G(m − 1, n)} ⊆ F
     mun:added-elements-stay-inside Y := G(m − 1, n), a := m + n, Z := F, from 8
@@ -718,13 +718,13 @@ let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
     let c ∈ F                                                         (K1)
 
     6.1.  c ∈ G(m, n). m + n ∉ c.
-          mun:set-builder u := c, from D2, K1
+          def:set-builder u := c, from D2, K1
 
     6.2.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}. For all i ∈ {1, …, m + n}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
-          mun:set-builder u := c, from D1, 6.1
+          def:set-builder u := c, from D1, 6.1
 
     6.3.  c ⊆ {1, …, m + n}. |c| = m.
-          mun:part-builder u := c, from 6.2
+          def:part-builder u := c, from 6.2
 
     6.4.  c ⊆ {1, …, m + n} ∖ {m + n}
           mun:subset-into-difference, from 6.1, 6.3
@@ -743,13 +743,13 @@ let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
                   instantiate i := i in line 6.2, from 6.6.1
 
     6.7.  c ∈ {d ⊆ {1, …, m + (n − 1)} : |d| = m}
-          mun:part-builder u := c, X := {1, …, m + (n − 1)}, from 6.3, 6.5
+          def:part-builder u := c, X := {1, …, m + (n − 1)}, from 6.3, 6.5
 
     6.8.  c ∈ G(m, n − 1)
-          mun:set-builder u := c, from D1, 1, 6.6, 6.7
+          def:set-builder u := c, from D1, 1, 6.6, 6.7
 
 7.  F ⊆ G(m, n − 1)
-    mun:subset, from 6
+    def:subset, from 6
 
 8.  For all c ∈ G(m, n − 1), c ∈ F.
     proof
@@ -757,10 +757,10 @@ let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
     let c ∈ G(m, n − 1)                                               (K3)
 
     8.1.  c ∈ {d ⊆ {1, …, m + (n − 1)} : |d| = m}. For all i ∈ {1, …, m + (n − 1)}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
-          mun:set-builder u := c, from D1, K3, 1
+          def:set-builder u := c, from D1, K3, 1
 
     8.2.  c ⊆ {1, …, m + (n − 1)}. |c| = m.
-          mun:part-builder u := c, from 8.1
+          def:part-builder u := c, from 8.1
 
     8.3.  c ⊆ {1, …, m + n}
           mun:subset-transitive, from 4, 8.2
@@ -778,16 +778,16 @@ let F = {c ∈ G(m, n) : m + n ∉ c}                                     (D2)
           thm:lead-to-the-end, from H3, 8.2, 8.3, 8.6
 
     8.8.  c ∈ {d ⊆ {1, …, m + n} : |d| = m}
-          mun:part-builder u := c, X := {1, …, m + n}, from 8.2, 8.3
+          def:part-builder u := c, X := {1, …, m + n}, from 8.2, 8.3
 
     8.9.  c ∈ G(m, n)
-          mun:set-builder u := c, from D1, 8.7, 8.8
+          def:set-builder u := c, from D1, 8.7, 8.8
 
     8.10. c ∈ F
-          mun:set-builder u := c, from D2, 8.5, 8.9
+          def:set-builder u := c, from D2, 8.5, 8.9
 
 9.  G(m, n − 1) ⊆ F
-    mun:subset, from 8
+    def:subset, from 8
 
 10. {c ∈ G(m, n) : m + n ∉ c} = G(m, n − 1)
     mun:subset-antisymmetric, from D2, 7, 9
@@ -883,7 +883,7 @@ let V = {c ∈ G(m, n) : m + n ∉ c}                                     (D3)
     inequalities, from H2
 
 23. m − 1 ∈ {0, …, m + (n − 1)}
-    mun:range0 k := m − 1, n := m + (n − 1), from 1, 2, 22
+    def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 22
 
 24. C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
     thm:absorption n := m + (n − 1), k := m − 1, from 2, 23
@@ -1053,7 +1053,7 @@ theorem ballot-count
                             mun:pos-int-nat, from 1.2.3.1
 
                   1.2.3.3.  n = 0 or n ≠ 0
-                            mun:excluded-middle P := n = 0
+                            axi:excluded-middle P := n = 0
 
                   1.2.3.4.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                             cases, from 1.2.3.3
@@ -1240,7 +1240,7 @@ theorem ballot
 
 7.  C(m + n, m) ∈ ℕ
     mun:binomial-nat n := m + n, k := m
-    requires m ∈ {0, …, m + n}: mun:range0 k := m, n := m + n, from 6
+    requires m ∈ {0, …, m + n}: def:range0 k := m, n := m + n, from 6
 
 8.  |O| ∈ ℕ
     substitute |O| = C(m + n, m) (line 5) into line 7

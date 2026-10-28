@@ -1,4 +1,4 @@
-import mundane definition stdlib/logarithms/exp
+import definition         stdlib/logarithms/exp
 import mundane theorem    stdlib/logarithms/exp-sum
 
 theorem exp-times-exp-negative

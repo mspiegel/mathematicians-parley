@@ -1,5 +1,5 @@
-import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane definition stdlib/counting/factorial
+import axiom              stdlib/reasoning/excluded-middle
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-zero
 import definition         stdlib/counting/C
@@ -9,7 +9,7 @@ import mundane theorem    stdlib/counting/binomial-zero-index
 import mundane theorem    stdlib/numbers/nat0-as-int
 import mundane theorem    stdlib/numbers/nat0-nonzero
 import mundane theorem    stdlib/sums/range-bounds
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem factorial-nat0
   note        0! is 1. For any other N, N is a natural number, and so is N!.
@@ -17,7 +17,7 @@ theorem factorial-nat0
   then N! ∈ ℕ₀
 
 1.  N = 0 or not N = 0
-    mun:excluded-middle P := N = 0
+    axi:excluded-middle P := N = 0
 
 2.  N! ∈ ℕ₀
     cases, from 1
@@ -61,7 +61,7 @@ theorem factorial-successor
   then (n + 1)! = n!·(n + 1)
 
 1.  n = 0 or not n = 0
-    mun:excluded-middle P := n = 0
+    axi:excluded-middle P := n = 0
 
 2.  (n + 1)! = n!·(n + 1)
     cases, from 1
@@ -73,7 +73,7 @@ theorem factorial-successor
           mun:factorial-zero
 
     2.2.  1! = 1
-          mun:factorial
+          def:factorial
 
     2.3.  (n + 1)! = (0 + 1)!
           substitute n = 0 (C1)
@@ -114,7 +114,7 @@ theorem factorial-successor
           mun:nat0-nonzero m := n, from C2
 
     2.12. (n + 1)! = n!·(n + 1)
-          mun:factorial, from 2.11
+          def:factorial, from 2.11
 
 theorem factorial-nonzero
   note        0! is 1. For any other N, N is a natural number, so N! is
@@ -123,7 +123,7 @@ theorem factorial-nonzero
   then N! ≠ 0
 
 1.  N = 0 or not N = 0
-    mun:excluded-middle P := N = 0
+    axi:excluded-middle P := N = 0
 
 2.  N! ≠ 0
     cases, from 1
@@ -176,7 +176,7 @@ theorem choose-all
     def:C n := N, k := N
     requires 0 ≤ N: inequalities, from H1
     requires N ≤ N: inequalities
-    requires N ∈ {0, …, N}: mun:range-between k := N, a := 0, b := N
+    requires N ∈ {0, …, N}: def:range-between k := N, a := 0, b := N
 
 4.  N − N = 0
     algebra
@@ -267,7 +267,7 @@ theorem choose-next-row
     def:C n := N + 1, k := N
     requires 0 ≤ N: inequalities, from H1
     requires N ≤ N + 1: inequalities
-    requires N ∈ {0, …, N + 1}: mun:range-between k := N, a := 0, b := N + 1
+    requires N ∈ {0, …, N + 1}: def:range-between k := N, a := 0, b := N + 1
 
 4.  N + 1 − N = 1
     algebra
@@ -276,7 +276,7 @@ theorem choose-next-row
     substitute N + 1 − N = 1 (line 4) into line 3
 
 6.  1! = 1
-    mun:factorial
+    def:factorial
 
 7.  C(N + 1, N) = (N + 1)!/(1·N!)
     substitute 1! = 1 (line 6) into line 5
@@ -368,7 +368,7 @@ theorem choose-complement
   then C(N, K) = C(N, N − K)
 
 1.  K ∈ {0, …, N} or not K ∈ {0, …, N}
-    mun:excluded-middle P := K ∈ {0, …, N}
+    axi:excluded-middle P := K ∈ {0, …, N}
 
 2.  C(N, K) = C(N, N − K)
     cases, from 1
@@ -383,7 +383,7 @@ theorem choose-complement
           inequalities, from 2.1
 
     2.3.  N − K ∈ {0, …, N}
-          mun:range-between k := N − K, a := 0, b := N, from 2.2
+          def:range-between k := N − K, a := 0, b := N, from 2.2
 
     2.4.  N! ∈ ℕ₀
           thm:factorial-nat0
@@ -440,7 +440,7 @@ theorem choose-complement
                    inequalities, from 2.15.1
 
           2.15.3.  K ∈ {0, …, N}
-                   mun:range-between k := K, a := 0, b := N, from 2.15.2, contradicting C2
+                   def:range-between k := K, a := 0, b := N, from 2.15.2, contradicting C2
 
     2.16. C(N, K) = 0
           mun:binomial-outside n := N, k := K, from C2

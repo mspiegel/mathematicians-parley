@@ -19,7 +19,7 @@
 # Other fields: target, note.
 
 
-mundane axiom excluded-middle
+axiom excluded-middle
   then        P or not P
   metamath    exmid
   target      exmid

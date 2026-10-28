@@ -1,5 +1,5 @@
 import theorem            stdlib/numbers/archimedean
-import mundane definition stdlib/calculus/series-sum
+import definition         stdlib/calculus/series-sum
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/power-real
@@ -152,4 +152,4 @@ theorem halves-series
     def:tends-to L := 1, from 4
 
 6.  Σ(k = 1 to ∞) 1/2^k = 1
-    mun:series-sum L := 1, from 5
+    def:series-sum L := 1, from 5

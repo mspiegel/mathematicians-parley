@@ -1,11 +1,11 @@
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 import theorem            stdlib/trigonometry/cos-add
 import mundane theorem    stdlib/trigonometry/sin-nonneg
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
 import mundane theorem    stdlib/trigonometry/sin-real
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/square-le
 
@@ -30,7 +30,7 @@ theorem a-sine-less-a-cosine-in-the-second-quadrant
       0 ≤ x                 weakening
 
 4.  x ∈ [0, π]
-    mun:interval, from H3, 3
+    def:interval, from H3, 3
 
 5.  0 ≤ sin(x)
     mun:sin-nonneg a := x, from 4
@@ -48,7 +48,7 @@ theorem a-sine-less-a-cosine-in-the-second-quadrant
     inequalities, from H3, 7
 
 9.  x − π/2 ∈ [0, π]
-    mun:interval, from 6, 8
+    def:interval, from 6, 8
 
 10. 0 ≤ sin(x − π/2)
     mun:sin-nonneg a := x − π/2, from 9

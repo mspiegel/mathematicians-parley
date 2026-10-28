@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 
 theorem a-square-root-by-algebra
   note        A claim with a letter and a square root is algebra's: √2 is an
@@ -9,7 +9,7 @@ theorem a-square-root-by-algebra
   then √2·√2·a = 2·a
 
 1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
-    mun:sqrt x := 2
+    def:sqrt x := 2
     requires 2 ≥ 0: arithmetic
 
 2.  √2·√2·a = 2·a
@@ -20,7 +20,7 @@ theorem a-square-of-a-sum-with-a-root
   then (a + √2)² = a² + 2·√2·a + 2
 
 1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
-    mun:sqrt x := 2
+    def:sqrt x := 2
     requires 2 ≥ 0: arithmetic
 
 2.  (a + √2)² = a² + 2·√2·a + 2
@@ -32,7 +32,7 @@ theorem a-root-halved-by-inequalities
   then 0 ≤ √2/2
 
 1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
-    mun:sqrt x := 2
+    def:sqrt x := 2
     requires 2 ≥ 0: arithmetic
 
 2.  0 ≤ √2/2

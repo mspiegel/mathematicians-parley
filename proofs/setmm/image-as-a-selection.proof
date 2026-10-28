@@ -1,8 +1,8 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/function-value
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/subset
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
@@ -21,7 +21,7 @@ theorem image-as-a-selection
     let u ∈ F[X]                                                      (K1)
 
     1.1.  there is s ∈ X with u = F(s)
-          mun:image X := A, Y := X, from H4, K1
+          def:image X := A, Y := X, from H4, K1
 
     1.2.  s ∈ X. u = F(s).
           obtain s from line 1.1
@@ -39,17 +39,17 @@ theorem image-as-a-selection
           exhibit, from 1.2
 
     1.7.  u ∈ {y ∈ B : there is x ∈ X with F(x) = y}
-          mun:set-builder, from 1.5, 1.6
+          def:set-builder, from 1.5, 1.6
 
 2.  F[X] ⊆ {y ∈ B : there is x ∈ X with F(x) = y}
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all u ∈ {y ∈ B : there is x ∈ X with F(x) = y}, u ∈ F[X].
     proof
     let u ∈ {y ∈ B : there is x ∈ X with F(x) = y}                    (K2)
 
     3.1.  there is x ∈ X with F(x) = u
-          mun:set-builder, from K2
+          def:set-builder, from K2
 
     3.2.  x ∈ X. F(x) = u.
           obtain x from line 3.1
@@ -61,7 +61,7 @@ theorem image-as-a-selection
           substitute F(x) = u (line 3.2) into line 3.3
 
 4.  {y ∈ B : there is x ∈ X with F(x) = y} ⊆ F[X]
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  F[X] = {y ∈ B : there is x ∈ X with F(x) = y}
     mun:subset-antisymmetric, from 2, 4

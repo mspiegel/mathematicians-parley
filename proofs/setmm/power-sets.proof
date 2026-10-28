@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/powerset
+import definition         stdlib/sets/powerset
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/powerset-monotone
@@ -13,7 +13,7 @@ theorem set-is-a-part-of-itself
     mun:subset-self
 
 2.  A ∈ 𝒫A
-    mun:powerset S := A, from 1
+    def:powerset S := A, from 1
 
 
 theorem power-sets-keep-order
@@ -42,4 +42,4 @@ theorem power-sets-keep-order
           mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 1.2
 
     1.4.  A ⊆ B
-          mun:powerset S := A, A := B, from 1.3
+          def:powerset S := A, A := B, from 1.3

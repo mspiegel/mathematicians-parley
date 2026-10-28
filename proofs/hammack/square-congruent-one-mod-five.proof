@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-multiple
 
 theorem square-congruent-one-mod-five
@@ -8,7 +8,7 @@ theorem square-congruent-one-mod-five
   then a² ≡ 1 (mod 5)
 
 1.  5 divides a − 1
-    mun:congruent-mod, from H2
+    def:congruent-mod, from H2
 
 2.  5 divides (a − 1)·(a + 1)
     mun:divides-multiple e := 5, a := a − 1, x := a + 1, from 1
@@ -20,4 +20,4 @@ theorem square-congruent-one-mod-five
     substitute (a − 1)·(a + 1) = a² − 1 (line 3) into line 2
 
 5.  a² ≡ 1 (mod 5)
-    mun:congruent-mod, from 4
+    def:congruent-mod, from 4

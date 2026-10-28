@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem scale-divisibility
   note        If N = M·c then K·N = (K·M)·c, so K·M divides K·N.
@@ -9,7 +9,7 @@ theorem scale-divisibility
   then K·M divides K·N
 
 1.  c ∈ ℤ. N = M·c.
-    obtain c: mun:divides, from H4
+    obtain c: def:divides, from H4
 
 2.  K·N = K·(M·c)
     substitute N = M·c (line 1)
@@ -23,4 +23,4 @@ theorem scale-divisibility
           = (K·M)·c       3
 
 5.  K·M divides K·N
-    mun:divides d := K·M, n := K·N, from 4
+    def:divides d := K·M, n := K·N, from 4

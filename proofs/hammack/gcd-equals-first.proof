@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -13,7 +13,7 @@ theorem gcd-equals-first
 
 1.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    mun:gcd
+    def:gcd
 
 2.  a = gcd(a, b) ↔ a divides b
     both directions

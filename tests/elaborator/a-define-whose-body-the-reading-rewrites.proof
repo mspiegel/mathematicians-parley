@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 
 theorem a-define-whose-body-the-reading-rewrites
   note        The set C is named, and its property holds |x|, which the
@@ -14,4 +14,4 @@ theorem a-define-whose-body-the-reading-rewrites
   then a ∈ C
 
 1.  a ∈ C
-    mun:set-builder u := a, from D1, H3
+    def:set-builder u := a, from D1, H3

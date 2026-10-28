@@ -2,13 +2,13 @@ import mundane theorem    stdlib/counting/card-nonempty
 import mundane theorem    stdlib/counting/card-pair-distinct
 import mundane theorem    stdlib/counting/card-remove
 import mundane theorem    stdlib/counting/card-zero
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
-import mundane definition stdlib/sets/pair
+import definition         stdlib/sets/pair
 import mundane theorem    stdlib/sets/pair-subset
 import mundane theorem    stdlib/sets/remove-member
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem two-elements
@@ -59,7 +59,7 @@ theorem two-elements
           let t ∈ V                                                   (K1)
 
           1.9.1.  t = b or t ≠ b
-                  mun:excluded-middle P := t = b
+                  axi:excluded-middle P := t = b
 
           1.9.2.  t ∈ {a, b}
                   cases, from 1.9.1
@@ -71,7 +71,7 @@ theorem two-elements
                             mun:or-right P := t = a, Q := t = b, from C2
 
                   1.9.2.2.  t ∈ {a, b}
-                            mun:pair x := t, u := a, w := b, from 1.9.2.1
+                            def:pair x := t, u := a, w := b, from 1.9.2.1
 
                   case
                   assume t ≠ b                                        (C3)
@@ -80,7 +80,7 @@ theorem two-elements
                             mun:remove-member u := t, Y := V, a := b, from C3, K1
 
                   1.9.2.4.  t = a or t ≠ a
-                            mun:excluded-middle P := t = a
+                            axi:excluded-middle P := t = a
 
                   1.9.2.5.  t ∈ {a, b}
                             cases, from 1.9.2.4
@@ -92,7 +92,7 @@ theorem two-elements
                                         mun:or-left P := t = a, Q := t = b, from C4
 
                             1.9.2.5.2.  t ∈ {a, b}
-                                        mun:pair x := t, u := a, w := b, from 1.9.2.5.1
+                                        def:pair x := t, u := a, w := b, from 1.9.2.5.1
 
                             case
                             assume t ≠ a                              (C5)
@@ -107,7 +107,7 @@ theorem two-elements
                                         inspection, contradicting 1.9.2.5.4
 
     1.10. V ⊆ {a, b}
-          mun:subset X := V, Y := {a, b}, from 1.9
+          def:subset X := V, Y := {a, b}, from 1.9
 
     1.11. {a, b} ⊆ V
           mun:pair-subset X := V, from 1.2, 1.6

@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/numbers/integer-step
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 
 theorem odd-prime-above-two
   note        A prime is above 1, so it is at least 2 as a whole number;
@@ -10,7 +10,7 @@ theorem odd-prime-above-two
   then 2 < P
 
 1.  P > 1
-    mun:prime p := P, from H2
+    def:prime p := P, from H2
 
 2.  1 + 1 ≤ P
     mun:integer-step m := 1, n := P, from 1

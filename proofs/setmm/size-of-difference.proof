@@ -1,13 +1,13 @@
 import mundane theorem    stdlib/counting/card-disjoint-union
 import mundane theorem    stdlib/counting/card-nat0
 import mundane theorem    stdlib/counting/finite-part
-import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane definition stdlib/sets/difference
+import axiom              stdlib/reasoning/excluded-middle
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/difference-subset
 import mundane theorem    stdlib/sets/disjoint-empty
 import mundane theorem    stdlib/sets/in-union-left
 import mundane theorem    stdlib/sets/in-union-right
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/union-subset
 
@@ -30,7 +30,7 @@ theorem part-and-rest
     let u ∈ A                                                         (K)
 
     3.1.  u ∈ B or u ∉ B
-          mun:excluded-middle P := u ∈ B
+          axi:excluded-middle P := u ∈ B
 
     3.2.  u ∈ B ∪ (A ∖ B)
           cases, from 3.1
@@ -45,13 +45,13 @@ theorem part-and-rest
           assume u ∉ B                                                (C2)
 
           3.2.2.  u ∈ A ∖ B
-                  mun:difference Y := A, Z := B, from C2, K
+                  def:difference Y := A, Z := B, from C2, K
 
           3.2.3.  u ∈ B ∪ (A ∖ B)
                   mun:in-union-right Y := B, Z := A ∖ B, from 3.2.2
 
 4.  A ⊆ B ∪ (A ∖ B)
-    mun:subset X := A, Y := B ∪ (A ∖ B), from 3
+    def:subset X := A, Y := B ∪ (A ∖ B), from 3
 
 5.  B ∪ (A ∖ B) = A
     mun:subset-antisymmetric X := B ∪ (A ∖ B), Y := A, from 2, 4
@@ -86,7 +86,7 @@ theorem size-of-difference
     let s ∈ A ∖ B                                                     (K)
 
     6.1.  s ∈ A. s ∉ B.
-          mun:difference Y := A, Z := B, from K
+          def:difference Y := A, Z := B, from K
 
     6.2.  s ∉ B
           restate 6.1

@@ -1,12 +1,12 @@
-import mundane definition stdlib/logarithms/ln
+import definition         stdlib/logarithms/ln
 import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/logarithms/exp-ln
-import mundane definition stdlib/logarithms/exp
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/logarithms/exp
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/odd-not-even
-import mundane definition stdlib/numbers/irrational
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/irrational
+import definition         stdlib/numbers/rational
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/power-integer
@@ -31,14 +31,14 @@ theorem power-of-three-odd
           arithmetic
 
     1.2.  3^0 is odd
-          mun:odd n := 3^0, from 1.1
+          def:odd n := 3^0, from 1.1
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 1 is true for j, the induction hypothesis             (IH)
 
     1.3.  k ∈ ℤ. 3^j = 2k + 1.
-          obtain k: mun:odd n := 3^j, from IH
+          obtain k: def:odd n := 3^j, from IH
 
     1.4.  3^(j + 1) = 3^j·3
           mun:exponent-step a := 3, m := j
@@ -56,7 +56,7 @@ theorem power-of-three-odd
                       = 2(3k + 1) + 1      1.6
 
     1.8.  3^(j + 1) is odd
-          mun:odd n := 3^(j + 1), from 1.7
+          def:odd n := 3^(j + 1), from 1.7
           requires 3^(j + 1) ∈ ℤ: mun:power-integer a := 3, m := j + 1
 
 2.  3^n is odd
@@ -89,7 +89,7 @@ theorem power-of-two-even
     mun:power-integer a := 2, m := n − 1, from 1
 
 7.  2^n is even
-    mun:even n := 2^n, from 5, 6
+    def:even n := 2^n, from 5, 6
 
 
 theorem log-three-over-two-irrational
@@ -108,7 +108,7 @@ theorem log-three-over-two-irrational
     suppose ln(3)/ln(2) ∈ ℚ                                           (S)
 
     2.1.  p ∈ ℤ. q ∈ ℕ. ln(3)/ln(2) = p/q.
-          obtain p, q: mun:rational x := ln(3)/ln(2), from S
+          obtain p, q: def:rational x := ln(3)/ln(2), from S
 
     2.2.  p = (ln(3)/ln(2))·q
           algebra, from 2.1
@@ -182,4 +182,4 @@ theorem log-three-over-two-irrational
     requires ln(2) ≠ 0: real arithmetic
 
 4.  ln(3)/ln(2) is irrational
-    mun:irrational x := ln(3)/ln(2), from 2, 3
+    def:irrational x := ln(3)/ln(2), from 2, 3

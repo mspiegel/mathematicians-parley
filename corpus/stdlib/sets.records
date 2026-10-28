@@ -106,12 +106,12 @@ axiom choice
               letter X the "for all" binds, as set.mm keeps a map's
               codomain apart from its argument.
 
-mundane definition subset
+definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath    df-ss, ssel
   target      dfss3
 
-mundane definition set-builder
+definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
@@ -123,21 +123,21 @@ mundane definition set-builder
               `holds-of` notation for why this is not a function applied to an
               argument.
 
-              The element is u and the braces bind t, as mun:stdlib/functions/set-image writes
+              The element is u and the braces bind t, as def:stdlib/functions/set-image writes
               them. Both were t until the conclusion check went in, and a
               statement that uses one letter for a free name and for the name
               the braces bind cannot be matched against a use of it: the free
               one binds to the element and the bound one then has to be the
               element too.
 
-mundane definition part-builder
+definition part-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
   metamath    elrab over the power set, and elpw2g, which this corpus
               proves together in elaboration/stdlib/proved.mm
   target      gelrabpw
-  note        The parts of X with a property: `mun:stdlib/sets/set-builder`
+  note        The parts of X with a property: `def:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
 
 mundane theorem part-builder-empty
@@ -198,7 +198,7 @@ mundane theorem subset-self
   metamath    ssid
   target      ssid
 
-mundane definition powerset
+definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
   metamath    elpw, elpwg
@@ -209,7 +209,7 @@ mundane theorem powerset-empty
   metamath    pw0
   target      pw0
 
-mundane definition pair
+definition pair
   let x be an element                                                 (H1)
   then        x ∈ {u, w} ↔ x = u or x = w
   metamath    elprg
@@ -250,7 +250,7 @@ mundane theorem pair-in-product
   note        A pair is in X × Y when its first part is in X and its second
               in Y.
 
-mundane definition singleton
+definition singleton
   let x be an element                                                 (H1)
   then        x ∈ {a} ↔ x = a
   metamath    elsng
@@ -258,7 +258,7 @@ mundane definition singleton
   note        What is in a set of one listed thing is that thing, as `pair`
               says of two.
 
-mundane definition triple
+definition triple
   let x be an element                                                 (H1)
   then        x ∈ {u, v, w} ↔ x = u or x = v or x = w
   metamath    eltpg
@@ -450,12 +450,12 @@ mundane theorem powerset-monotone
   metamath    sspw
   target      sspw
 
-mundane definition intersection
+definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
   metamath    elin
   target      elin
 
-mundane definition union
+definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
   metamath    elun
   target      elun
@@ -565,7 +565,7 @@ mundane theorem subset-empty
   metamath    ss0b
   target      ss0b
 
-mundane definition difference
+definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
   metamath    eldif
   target      eldif
@@ -620,7 +620,7 @@ mundane theorem disjoint-difference
   metamath    disjdif
   target      disjdif
 
-mundane definition indexed-union
+definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
   metamath    eliun
   target      eliun

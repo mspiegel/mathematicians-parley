@@ -1,10 +1,10 @@
 import theorem            stdlib/groups/group-cancel
-import mundane axiom      stdlib/groups/group-associative
-import mundane axiom      stdlib/groups/group-closed
-import mundane axiom      stdlib/groups/group-identity
-import mundane axiom      stdlib/groups/group-identity-closed
-import mundane axiom      stdlib/groups/group-inverse
-import mundane axiom      stdlib/groups/group-inverse-closed
+import axiom              stdlib/groups/group-associative
+import axiom              stdlib/groups/group-closed
+import axiom              stdlib/groups/group-identity
+import axiom              stdlib/groups/group-identity-closed
+import axiom              stdlib/groups/group-inverse
+import axiom              stdlib/groups/group-inverse-closed
 import mundane theorem    stdlib/groups/subgroup-closed
 import mundane theorem    stdlib/groups/subgroup-inverse
 
@@ -15,16 +15,16 @@ theorem the-identity-is-its-own-inverse
   then e⁻¹ = e
 
 1.  e ∈ G
-    mun:group-identity-closed
+    axi:group-identity-closed
 
 2.  e⁻¹ ∈ G
-    mun:group-inverse-closed a := e, from 1
+    axi:group-inverse-closed a := e, from 1
 
 3.  e·e⁻¹ = e
-    mun:group-inverse a := e, from 1
+    axi:group-inverse a := e, from 1
 
 4.  e·e = e
-    mun:group-identity a := e, from 1
+    axi:group-identity a := e, from 1
 
 5.  e·e⁻¹ = e·e
     calculation
@@ -44,43 +44,43 @@ theorem the-inverse-of-a-product
   then (a·b)⁻¹ = b⁻¹·a⁻¹
 
 1.  a·b ∈ G
-    mun:group-closed, from H2, H3
+    axi:group-closed, from H2, H3
 
 2.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 3.  b⁻¹ ∈ G
-    mun:group-inverse-closed a := b, from H3
+    axi:group-inverse-closed a := b, from H3
 
 4.  b⁻¹·a⁻¹ ∈ G
-    mun:group-closed a := b⁻¹, b := a⁻¹, from 2, 3
+    axi:group-closed a := b⁻¹, b := a⁻¹, from 2, 3
 
 5.  (a·b)⁻¹ ∈ G
-    mun:group-inverse-closed a := a·b, from 1
+    axi:group-inverse-closed a := a·b, from 1
 
 6.  e ∈ G
-    mun:group-identity-closed
+    axi:group-identity-closed
 
 7.  (a·b)·(b⁻¹·a⁻¹) = a·(b·(b⁻¹·a⁻¹))
-    mun:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
+    axi:group-associative c := b⁻¹·a⁻¹, from H2, H3, 4
 
 8.  b·(b⁻¹·a⁻¹) = (b·b⁻¹)·a⁻¹
-    mun:group-associative a := b, b := b⁻¹, c := a⁻¹, from H3, 2, 3
+    axi:group-associative a := b, b := b⁻¹, c := a⁻¹, from H3, 2, 3
 
 9.  b·b⁻¹ = e
-    mun:group-inverse a := b, from H3
+    axi:group-inverse a := b, from H3
 
 10. a⁻¹·(e·a⁻¹) = (a⁻¹·e)·a⁻¹
-    mun:group-associative a := a⁻¹, b := e, c := a⁻¹, from 2, 6
+    axi:group-associative a := a⁻¹, b := e, c := a⁻¹, from 2, 6
 
 11. a⁻¹·e = a⁻¹
-    mun:group-identity a := a⁻¹, from 2
+    axi:group-identity a := a⁻¹, from 2
 
 12. a⁻¹·(e·a⁻¹) = a⁻¹·a⁻¹
     substitute a⁻¹·e = a⁻¹ (line 11) into line 10
 
 13. e·a⁻¹ ∈ G
-    mun:group-closed a := e, b := a⁻¹, from 2, 6
+    axi:group-closed a := e, b := a⁻¹, from 2, 6
 
 14. e·a⁻¹ = a⁻¹
     thm:group-cancel a := e·a⁻¹, b := a⁻¹, g := a⁻¹, from 2, 12, 13
@@ -95,10 +95,10 @@ theorem the-inverse-of-a-product
     substitute b·(b⁻¹·a⁻¹) = a⁻¹ (line 16) into line 7
 
 18. a·a⁻¹ = e
-    mun:group-inverse, from H2
+    axi:group-inverse, from H2
 
 19. (a·b)·(a·b)⁻¹ = e
-    mun:group-inverse a := a·b, from 1
+    axi:group-inverse a := a·b, from 1
 
 20. (a·b)·(a·b)⁻¹ = (a·b)·(b⁻¹·a⁻¹)
     calculation

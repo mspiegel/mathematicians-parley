@@ -1,7 +1,7 @@
-import mundane definition stdlib/functions/image
-import mundane definition stdlib/functions/preimage
+import definition         stdlib/functions/image
+import definition         stdlib/functions/preimage
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem preimage-of-image-of-preimage
@@ -19,51 +19,51 @@ theorem preimage-of-image-of-preimage
     let u ∈ f⁻¹[Y]                                                    (K1)
 
     1.1.  u ∈ A
-          mun:preimage Z := Y, from K1
+          def:preimage Z := Y, from K1
 
 2.  f⁻¹[Y] ⊆ A
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all u ∈ f⁻¹[f[f⁻¹[Y]]], u ∈ f⁻¹[Y].
     proof
     let u ∈ f⁻¹[f[f⁻¹[Y]]]                                            (K2)
 
     3.1.  u ∈ A. f(u) ∈ f[f⁻¹[Y]].
-          mun:preimage Z := f[f⁻¹[Y]], from K2
+          def:preimage Z := f[f⁻¹[Y]], from K2
 
     3.2.  There is s ∈ f⁻¹[Y] with f(u) = f(s).
-          mun:image u := f(u), Y := f⁻¹[Y], from 2, 3.1
+          def:image u := f(u), Y := f⁻¹[Y], from 2, 3.1
 
     3.3.  s ∈ f⁻¹[Y]. f(u) = f(s).
           obtain s from line 3.2
 
     3.4.  s ∈ A. f(s) ∈ Y.
-          mun:preimage u := s, Z := Y, from 3.3
+          def:preimage u := s, Z := Y, from 3.3
 
     3.5.  f(u) ∈ Y
           substitute f(u) = f(s) (line 3.3) into line 3.4
 
     3.6.  u ∈ f⁻¹[Y]
-          mun:preimage Z := Y, from 3.1, 3.5
+          def:preimage Z := Y, from 3.1, 3.5
 
 4.  f⁻¹[f[f⁻¹[Y]]] ⊆ f⁻¹[Y]
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  For all u ∈ f⁻¹[Y], u ∈ f⁻¹[f[f⁻¹[Y]]].
     proof
     let u ∈ f⁻¹[Y]                                                    (K3)
 
     5.1.  u ∈ A. f(u) ∈ Y.
-          mun:preimage Z := Y, from K3
+          def:preimage Z := Y, from K3
 
     5.2.  f(u) ∈ f[f⁻¹[Y]]
           mun:value-in-image Y := f⁻¹[Y], from K3, 2
 
     5.3.  u ∈ f⁻¹[f[f⁻¹[Y]]]
-          mun:preimage Z := f[f⁻¹[Y]], from 5.1, 5.2
+          def:preimage Z := f[f⁻¹[Y]], from 5.1, 5.2
 
 6.  f⁻¹[Y] ⊆ f⁻¹[f[f⁻¹[Y]]]
-    mun:subset, from 5
+    def:subset, from 5
 
 7.  f⁻¹[f[f⁻¹[Y]]] = f⁻¹[Y]
     mun:subset-antisymmetric, from 4, 6

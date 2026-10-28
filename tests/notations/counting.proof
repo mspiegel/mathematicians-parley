@@ -1,12 +1,12 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import definition         stdlib/counting/C
 import mundane theorem    stdlib/counting/binomial-outside
 import mundane theorem    stdlib/counting/card-empty
 import mundane theorem    stdlib/counting/range-size
-import mundane definition stdlib/sums/range
+import definition         stdlib/sums/range
 import mundane theorem    stdlib/sums/range-empty
 import mundane theorem    stdlib/sums/range-bounds
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem factorial-of-zero
   then 0! = 1
@@ -18,10 +18,10 @@ theorem factorial-of-two
   then 2! = 2
 
 1.  1! = 1
-    mun:factorial
+    def:factorial
 
 2.  (1 + 1)! = 1!·(1 + 1)
-    mun:factorial n := 1
+    def:factorial n := 1
 
 3.  (1 + 1)! = 1·(1 + 1)
     substitute 1! = 1 (line 1) into line 2
@@ -44,7 +44,7 @@ theorem factorial-of-four
     thm:factorial-of-two
 
 2.  (2 + 1)! = 2!·(2 + 1)
-    mun:factorial n := 2
+    def:factorial n := 2
 
 3.  (2 + 1)! = 2·(2 + 1)
     substitute 2! = 2 (line 1) into line 2
@@ -61,7 +61,7 @@ theorem factorial-of-four
        = 6        arithmetic
 
 7.  (3 + 1)! = 3!·(3 + 1)
-    mun:factorial n := 3
+    def:factorial n := 3
 
 8.  (3 + 1)! = 6·(3 + 1)
     substitute 3! = 6 (line 6) into line 7
@@ -90,7 +90,7 @@ theorem choose-four-two
     def:C n := 4, k := 2
     requires 0 ≤ 2: arithmetic
     requires 2 ≤ 4: arithmetic
-    requires 2 ∈ {0, …, 4}: mun:range-between k := 2, a := 0, b := 4
+    requires 2 ∈ {0, …, 4}: def:range-between k := 2, a := 0, b := 4
 
 4.  4 − 2 = 2
     arithmetic
@@ -155,4 +155,4 @@ theorem zero-not-in-one-to-three
     suppose 0 ∈ {1, …, 3}                                             (S)
 
     2.1.  0 ∈ ℕ
-          mun:range n := 3, k := 0, from S, contradicting 1
+          def:range n := 3, k := 0, from S, contradicting 1

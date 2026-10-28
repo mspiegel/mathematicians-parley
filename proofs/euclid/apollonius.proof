@@ -5,8 +5,8 @@ import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/cos
-import mundane axiom      stdlib/reasoning/excluded-middle
+import definition         stdlib/trigonometry/cos
+import axiom              stdlib/reasoning/excluded-middle
 
 theorem apollonius
   note        The law of cosines at M in the triangles ABM and ACM. The
@@ -22,7 +22,7 @@ theorem apollonius
   then |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
 
 1.  A = M or A ≠ M
-    mun:excluded-middle P := A = M
+    axi:excluded-middle P := A = M
 
 2.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
     cases, from 1

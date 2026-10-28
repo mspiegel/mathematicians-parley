@@ -1,14 +1,14 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 
 theorem factorial-two
   note        2! is 1!·2, and 1! is 1.
   then 2! = 2
 
 1.  1! = 1
-    mun:factorial
+    def:factorial
 
 2.  (1 + 1)! = 1!·(1 + 1)
-    mun:factorial n := 1
+    def:factorial n := 1
 
 3.  (1 + 1)! = 1·(1 + 1)
     substitute 1! = 1 (line 1) into line 2
@@ -32,7 +32,7 @@ theorem factorial-three
     thm:factorial-two
 
 2.  (2 + 1)! = 2!·(2 + 1)
-    mun:factorial n := 2
+    def:factorial n := 2
 
 3.  (2 + 1)! = 2·(2 + 1)
     substitute 2! = 2 (line 1) into line 2
@@ -56,7 +56,7 @@ theorem factorial-four
     thm:factorial-three
 
 2.  (3 + 1)! = 3!·(3 + 1)
-    mun:factorial n := 3
+    def:factorial n := 3
 
 3.  (3 + 1)! = 6·(3 + 1)
     substitute 3! = 6 (line 1) into line 2

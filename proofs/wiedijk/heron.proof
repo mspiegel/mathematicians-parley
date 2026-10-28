@@ -1,15 +1,15 @@
 import theorem            stdlib/geometry/area-by-sine
-import mundane axiom      stdlib/geometry/area-positive
+import axiom              stdlib/geometry/area-positive
 import mundane theorem    stdlib/geometry/area-real
 import theorem            stdlib/geometry/law-of-cosines
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/square-nonneg
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
 import mundane theorem    stdlib/trigonometry/sin-real
 
@@ -28,10 +28,10 @@ theorem heron
   then the area of △ABC = √(s·(s − |BC|)·(s − |CA|)·(s − |AB|))
 
 1.  B ≠ C
-    mun:triangle P := A, Q := B, R := C, from H4
+    def:triangle P := A, Q := B, R := C, from H4
 
 2.  A ≠ C
-    mun:triangle P := A, Q := B, R := C, from H4
+    def:triangle P := A, Q := B, R := C, from H4
 
 3.  ∠BCA ∈ ℝ
     mun:triangle-angle-real P := A, Q := B, R := C, from H4
@@ -88,7 +88,7 @@ theorem heron
     mun:area-real P := A, Q := B, R := C, from 1, 2
 
 17. the area of △ABC > 0
-    mun:area-positive P := A, Q := B, R := C, from H4
+    axi:area-positive P := A, Q := B, R := C, from H4
 
 18. (the area of △ABC)² ≥ 0
     mun:square-nonneg x := the area of △ABC, from 16
@@ -99,7 +99,7 @@ theorem heron
 20. √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)) ∈ ℝ.
     √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)) ≥ 0.
     (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))² = s·(s − |BC|)·(s − |CA|)·(s − |AB|).
-    mun:sqrt x := s·(s − |BC|)·(s − |CA|)·(s − |AB|), from 19
+    def:sqrt x := s·(s − |BC|)·(s − |CA|)·(s − |AB|), from 19
     requires s·(s − |BC|)·(s − |CA|)·(s − |AB|) ∈ ℝ: membership, from D1
 
 21. (the area of △ABC)² = (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))²

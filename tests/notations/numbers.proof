@@ -1,7 +1,7 @@
-import mundane definition stdlib/numbers/abs
-import mundane definition stdlib/numbers/sqrt
-import mundane definition stdlib/numbers/rational
-import mundane definition stdlib/numbers/irrational
+import definition         stdlib/numbers/abs
+import definition         stdlib/numbers/sqrt
+import definition         stdlib/numbers/rational
+import definition         stdlib/numbers/irrational
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/divisibility/mod-remainder
 
@@ -65,7 +65,7 @@ theorem abs-minus-three
     arithmetic
 
 2.  |−3| = −(−3)
-    mun:abs x := −3, from 1
+    def:abs x := −3, from 1
 
 3.  |−3| = 3
     calculation
@@ -79,14 +79,14 @@ theorem abs-three
     arithmetic
 
 2.  |3| = 3
-    mun:abs x := 3, from 1
+    def:abs x := 3, from 1
 
 theorem sqrt-four
   note        √ is the root that is not negative: √4 is 2, not −2.
   then √4 = 2
 
 1.  (√4)² = 4. √4 ≥ 0.
-    mun:sqrt x := 4
+    def:sqrt x := 4
     requires 4 ≥ 0: arithmetic
 
 2.  (√4)² = 2²
@@ -111,11 +111,11 @@ theorem sqrt-four-not-irrational
        = 2/1     arithmetic
 
 3.  √4 ∈ ℚ
-    mun:rational x := √4, from 2
+    def:rational x := √4, from 2
 
 4.  not (√4 is irrational)
     contradiction
     suppose √4 is irrational                                          (S)
 
     4.1.  √4 ∉ ℚ
-          mun:irrational x := √4, from S, contradicting 3
+          def:irrational x := √4, from S, contradicting 3

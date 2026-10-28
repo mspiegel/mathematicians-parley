@@ -1,6 +1,6 @@
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/sets/union
-import mundane definition stdlib/sets/intersection
+import definition         stdlib/sets/subset
+import definition         stdlib/sets/union
+import definition         stdlib/sets/intersection
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/in-subset
@@ -15,7 +15,7 @@ import mundane theorem    stdlib/sets/difference-shrinks
 import mundane theorem    stdlib/sets/difference-self
 import mundane theorem    stdlib/sets/subset-empty
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import theorem            proofs/setmm/subset-of-union/subset-of-union
 import theorem            proofs/setmm/subset-of-union-right/subset-of-union-right
 import theorem            proofs/setmm/intersection-subsets/intersection-subset-left
@@ -146,7 +146,7 @@ theorem union-over-intersection
     let u ∈ A ∪ (B ∩ C)                                               (K1)
 
     1.1.  u ∈ A or u ∈ B ∩ C
-          mun:union, from K1
+          def:union, from K1
 
     1.2.  u ∈ (A ∪ B) ∩ (A ∪ C)
           cases, from 1.1
@@ -164,13 +164,13 @@ theorem union-over-intersection
                   join 1.2.1, 1.2.2
 
           1.2.4.  u ∈ (A ∪ B) ∩ (A ∪ C)
-                  mun:intersection, from 1.2.3
+                  def:intersection, from 1.2.3
 
           case
           assume u ∈ B ∩ C                                            (C2)
 
           1.2.5.  u ∈ B and u ∈ C
-                  mun:intersection, from C2
+                  def:intersection, from C2
 
           1.2.6.  u ∈ A ∪ B
                   mun:in-union-right, from 1.2.5
@@ -182,26 +182,26 @@ theorem union-over-intersection
                   join 1.2.6, 1.2.7
 
           1.2.9.  u ∈ (A ∪ B) ∩ (A ∪ C)
-                  mun:intersection, from 1.2.8
+                  def:intersection, from 1.2.8
 
 2.  A ∪ (B ∩ C) ⊆ (A ∪ B) ∩ (A ∪ C)
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all u ∈ (A ∪ B) ∩ (A ∪ C), u ∈ A ∪ (B ∩ C).
     proof
     let u ∈ (A ∪ B) ∩ (A ∪ C)                                         (K2)
 
     3.1.  u ∈ A ∪ B and u ∈ A ∪ C
-          mun:intersection, from K2
+          def:intersection, from K2
 
     3.2.  u ∈ A or u ∈ B
-          mun:union, from 3.1
+          def:union, from 3.1
 
     3.3.  u ∈ A or u ∈ C
-          mun:union, from 3.1
+          def:union, from 3.1
 
     3.4.  u ∈ A or u ∉ A
-          mun:excluded-middle P := u ∈ A
+          axi:excluded-middle P := u ∈ A
 
     3.5.  u ∈ A ∪ (B ∩ C)
           cases, from 3.4
@@ -225,13 +225,13 @@ theorem union-over-intersection
                   join 3.5.2, 3.5.3
 
           3.5.5.  u ∈ B ∩ C
-                  mun:intersection, from 3.5.4
+                  def:intersection, from 3.5.4
 
           3.5.6.  u ∈ A ∪ (B ∩ C)
                   mun:in-union-right, from 3.5.5
 
 4.  (A ∪ B) ∩ (A ∪ C) ⊆ A ∪ (B ∩ C)
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)
     mun:subset-antisymmetric, from 2, 4
@@ -271,7 +271,7 @@ theorem intersection-keeps-order
     let u ∈ A ∩ C                                                     (K1)
 
     1.1.  u ∈ A and u ∈ C
-          mun:intersection, from K1
+          def:intersection, from K1
 
     1.2.  u ∈ B
           mun:in-subset X := A, Y := B, from H4, 1.1
@@ -280,7 +280,7 @@ theorem intersection-keeps-order
           join 1.1, 1.2
 
     1.4.  u ∈ B ∩ C
-          mun:intersection, from 1.3
+          def:intersection, from 1.3
 
 2.  A ∩ C ⊆ B ∩ C
-    mun:subset, from 1
+    def:subset, from 1

@@ -1,8 +1,8 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/lowest-terms
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
-import mundane definition stdlib/numbers/irrational
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
+import definition         stdlib/numbers/irrational
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
 
@@ -40,7 +40,7 @@ theorem cubic-root-is-irrational
           assume p is even                                            (C1)
 
           1.5.1.  r ∈ ℤ. p = 2r.
-                  obtain r: mun:even n := p, from C1
+                  obtain r: def:even n := p, from C1
 
           1.5.2.  q is even or q is odd
                   mun:even-or-odd n := q
@@ -52,13 +52,13 @@ theorem cubic-root-is-irrational
                   assume q is even                                    (C2)
 
                   1.5.3.1.  s ∈ ℤ. q = 2s.
-                            obtain s: mun:even n := q, from C2
+                            obtain s: def:even n := q, from C2
 
                   1.5.3.2.  2 divides p
-                            mun:divides d := 2, n := p, from 1.5.1
+                            def:divides d := 2, n := p, from 1.5.1
 
                   1.5.3.3.  2 divides q
-                            mun:divides d := 2, n := q, from 1.5.3.1
+                            def:divides d := 2, n := q, from 1.5.3.1
 
                   1.5.3.4.  There is d ∈ ℤ with d > 1, d divides p, and d divides q.
                             exhibit, from 1.5.3.2, 1.5.3.3, contradicting 1.1
@@ -68,7 +68,7 @@ theorem cubic-root-is-irrational
                   assume q is odd                                     (C3)
 
                   1.5.3.5.  s ∈ ℤ. q = 2s + 1.
-                            obtain s: mun:odd n := q, from C3
+                            obtain s: def:odd n := q, from C3
 
                   1.5.3.6.  (2r)³ + 2r·q² + 3q³ = 0
                             substitute p = 2r (line 1.5.1) into line 1.3
@@ -80,13 +80,13 @@ theorem cubic-root-is-irrational
                             algebra, from 1.5.3.7
 
                   1.5.3.9.  1 is even
-                            mun:even n := 1, from 1.5.3.8
+                            def:even n := 1, from 1.5.3.8
 
           case
           assume p is odd                                             (C4)
 
           1.5.4.  r ∈ ℤ. p = 2r + 1.
-                  obtain r: mun:odd n := p, from C4
+                  obtain r: def:odd n := p, from C4
 
           1.5.5.  (2r + 1)³ + (2r + 1)·q² + 3q³ = 0
                   substitute p = 2r + 1 (line 1.5.4) into line 1.3
@@ -101,7 +101,7 @@ theorem cubic-root-is-irrational
                   assume q is even                                    (C5)
 
                   1.5.7.1.  s ∈ ℤ. q = 2s.
-                            obtain s: mun:even n := q, from C5
+                            obtain s: def:even n := q, from C5
 
                   1.5.7.2.  (2r + 1)³ + (2r + 1)·(2s)² + 3(2s)³ = 0
                             substitute q = 2s (line 1.5.7.1) into line 1.5.5
@@ -110,13 +110,13 @@ theorem cubic-root-is-irrational
                             algebra, from 1.5.7.2
 
                   1.5.7.4.  1 is even
-                            mun:even n := 1, from 1.5.7.3
+                            def:even n := 1, from 1.5.7.3
 
                   case
                   assume q is odd                                     (C6)
 
                   1.5.7.5.  s ∈ ℤ. q = 2s + 1.
-                            obtain s: mun:odd n := q, from C6
+                            obtain s: def:odd n := q, from C6
 
                   1.5.7.6.  (2r + 1)³ + (2r + 1)·(2s + 1)² + 3(2s + 1)³ = 0
                             substitute q = 2s + 1 (line 1.5.7.5) into line 1.5.5
@@ -125,7 +125,7 @@ theorem cubic-root-is-irrational
                             algebra, from 1.5.7.6
 
                   1.5.7.8.  1 is even
-                            mun:even n := 1, from 1.5.7.7
+                            def:even n := 1, from 1.5.7.7
 
     1.6.  1 is not odd
           mun:not-both n := 1, from 1.5
@@ -134,4 +134,4 @@ theorem cubic-root-is-irrational
           arithmetic, contradicting 1.6
 
 2.  x is irrational
-    mun:irrational, from 1
+    def:irrational, from 1

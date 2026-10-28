@@ -1,9 +1,9 @@
 import theorem            proofs/hammack/cube-congruent-mod-three/residue-mod-three
 import theorem            proofs/setmm/parity/odd-plus-odd
 import theorem            proofs/setmm/parity/even-plus-odd
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-remainder
@@ -22,16 +22,16 @@ theorem odd-plus-even
   then A + B is odd
 
 1.  k ∈ ℤ. A = 2k + 1.
-    obtain k: mun:odd n := A, from H3
+    obtain k: def:odd n := A, from H3
 
 2.  l ∈ ℤ. B = 2l.
-    obtain l: mun:even n := B, from H4
+    obtain l: def:even n := B, from H4
 
 3.  A + B = 2(k + l) + 1
     algebra, from 1, 2
 
 4.  A + B is odd
-    mun:odd n := A + B, from 3
+    def:odd n := A + B, from 3
 
 theorem fibonacci-even-iff-three-divides
   note        The Fibonacci numbers repeat even, odd, odd: F(3k) is even and
@@ -146,7 +146,7 @@ theorem fibonacci-even-iff-three-divides
                    = 2·0     arithmetic
 
     4.8.  F(3·0) is even
-          mun:even n := F(3·0), from 4.7
+          def:even n := F(3·0), from 4.7
           requires F(3·0) ∈ ℤ: membership, from 4.7
 
     4.9.  F(3·0 + 1) = 2·0 + 1
@@ -156,7 +156,7 @@ theorem fibonacci-even-iff-three-divides
                        = 2·0 + 1     arithmetic
 
     4.10. F(3·0 + 1) is odd
-          mun:odd n := F(3·0 + 1), from 4.9
+          def:odd n := F(3·0 + 1), from 4.9
           requires F(3·0 + 1) ∈ ℤ: membership, from 4.9
 
     4.11. F(3·0 + 2) = 2·0 + 1
@@ -166,7 +166,7 @@ theorem fibonacci-even-iff-three-divides
                        = 2·0 + 1     arithmetic
 
     4.12. F(3·0 + 2) is odd
-          mun:odd n := F(3·0 + 2), from 4.11
+          def:odd n := F(3·0 + 2), from 4.11
           requires F(3·0 + 2) ∈ ℤ: membership, from 4.11
 
     4.13. F(3·0) is even and F(3·0 + 1) is odd and F(3·0 + 2) is odd
@@ -326,7 +326,7 @@ theorem fibonacci-even-iff-three-divides
                   algebra, from 5.16.1
 
           5.16.3. 3 divides n
-                  mun:divides d := 3, from 5.16.2
+                  def:divides d := 3, from 5.16.2
 
           case
           assume n mod 3 = 1                                          (C2)
@@ -378,7 +378,7 @@ theorem fibonacci-even-iff-three-divides
     assume 3 divides n                                                (P2)
 
     5.17. k ∈ ℤ. n = 3·k.
-          obtain k: mun:divides d := 3, from P2
+          obtain k: def:divides d := 3, from P2
 
     5.18. n ≥ 1
           inequalities, from H1

@@ -1,6 +1,6 @@
-import mundane definition stdlib/functions/preimage
+import definition         stdlib/functions/preimage
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/in-subset
 
 theorem subset-of-preimage-of-image
@@ -23,7 +23,7 @@ theorem subset-of-preimage-of-image
           mun:value-in-image, from H4, K1
 
     1.3.  x ∈ f⁻¹[f[X]]
-          mun:preimage u := x, from 1.1, 1.2
+          def:preimage u := x, from 1.1, 1.2
 
 2.  X ⊆ f⁻¹[f[X]]
-    mun:subset, from 1
+    def:subset, from 1

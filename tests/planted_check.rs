@@ -72,10 +72,10 @@ import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem similar-triangles
@@ -409,7 +409,7 @@ fn a_function_letter_named_alike_is_found_without_a_pair() {
             vec![edit(
                 "proofs/wiedijk/image-back.proof",
                 None,
-                "import mundane definition stdlib/functions/set-image\n\ntheorem image-back\n  let Y be a set                                                      (H1)\n  let Z be a set                                                      (H2)\n  let E : Y → Z                                                       (H3)\n  let u be an element                                                 (H4)\n  assume there is s ∈ Y with u = E(s)                                 (H5)\n  then u ∈ {E(s) : s ∈ Y}\n\n1.  s ∈ Y. u = E(s).\n    obtain s from H5\n\n2.  u ∈ {E(s) : s ∈ Y}\n    mun:set-image, from 1\n".to_string(),
+                "import definition         stdlib/functions/set-image\n\ntheorem image-back\n  let Y be a set                                                      (H1)\n  let Z be a set                                                      (H2)\n  let E : Y → Z                                                       (H3)\n  let u be an element                                                 (H4)\n  assume there is s ∈ Y with u = E(s)                                 (H5)\n  then u ∈ {E(s) : s ∈ Y}\n\n1.  s ∈ Y. u = E(s).\n    obtain s from H5\n\n2.  u ∈ {E(s) : s ∈ Y}\n    def:set-image, from 1\n".to_string(),
             )],
             "",
         ),
@@ -886,10 +886,10 @@ fn cases() -> Vec<Case> {
             "leave out a definition's subject where the proof has no such letter",
             vec![edit(
                 "proofs/wiedijk/pythagorean-triples.proof",
-                Some("mun:divides d := 4, n := 2, from 2.2.11".to_string()),
-                "mun:divides n := 2, from 2.2.11".to_string(),
+                Some("def:divides d := 4, n := 2, from 2.2.11".to_string()),
+                "def:divides n := 2, from 2.2.11".to_string(),
             )],
-            "mun:divides is about d, and the step gives d no value and the proof has no d; write it, as d := t",
+            "def:divides is about d, and the step gives d no value and the proof has no d; write it, as d := t",
         ),
         // A step citing a theorem of its own file reads the defines that
         // theorem is stated over, those above it, and no other: D2 is
@@ -912,10 +912,10 @@ fn cases() -> Vec<Case> {
             "a hypothesis about a term whose parts no line the step names states",
             vec![edit(
                 "tests/elaborator/floor-in-a-bound.proof",
-                Some("    mun:abs x := ⌊A + 1/2⌋ − A, from H2, 2\n".to_string()),
-                "    mun:abs x := ⌊A + 1/2⌋ − A, from H2\n".to_string(),
+                Some("    def:abs x := ⌊A + 1/2⌋ − A, from H2, 2\n".to_string()),
+                "    def:abs x := ⌊A + 1/2⌋ − A, from H2\n".to_string(),
             )],
-            "step 3 cites mun:abs, which asks for ⌊A + 1 / 2⌋ − A ∈ ℝ, and what it cites does not supply it",
+            "step 3 cites def:abs, which asks for ⌊A + 1 / 2⌋ − A ∈ ℝ, and what it cites does not supply it",
         ),
         // A sum of squares of reals is not shown to be a natural number by
         // the let's reason. The checker does not judge a let's kind against
@@ -1582,7 +1582,7 @@ fn cases() -> Vec<Case> {
                 Some("    2.6.  |x| = −x".to_string()),
                 "    2.6.  |x| = x".to_string(),
             )],
-            "step 2.6 claims something that mun:abs does not conclude",
+            "step 2.6 claims something that def:abs does not conclude",
         ),
         // A base may be written without an identity element its instance
         // has, and nothing else: 1 = (1 − a)/(1 − a) is no instance of
@@ -1638,10 +1638,10 @@ fn cases() -> Vec<Case> {
             "name a line that does not state the side condition",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    requires C ≠ A: mun:triangle, from H4\n".to_string()),
-                "    requires C ≠ A: mun:triangle, from H5\n".to_string(),
+                Some("    requires C ≠ A: def:triangle, from H4\n".to_string()),
+                "    requires C ≠ A: def:triangle, from H5\n".to_string(),
             )],
-            "the requires line of step 2 needs something that mun:triangle does not conclude",
+            "the requires line of step 2 needs something that def:triangle does not conclude",
         ),
         // The same, where the scope already holds the claim for another reason:
         // the hypothesis says A, B, C form a triangle, so `C ≠ B` is held before
@@ -1650,10 +1650,10 @@ fn cases() -> Vec<Case> {
             "name a line that does not state a claim the scope already holds",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    requires C ≠ B: mun:triangle, from H4\n".to_string()),
-                "    requires C ≠ B: mun:triangle, from H5\n".to_string(),
+                Some("    requires C ≠ B: def:triangle, from H4\n".to_string()),
+                "    requires C ≠ B: def:triangle, from H5\n".to_string(),
             )],
-            "the requires line of step 8 needs something that mun:triangle does not conclude",
+            "the requires line of step 8 needs something that def:triangle does not conclude",
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
@@ -1833,7 +1833,7 @@ fn cases() -> Vec<Case> {
                 Some("10. For all s ∈ S, s ≤ c.".to_string()),
                 "10. For all s ∈ S, s < c.".to_string(),
             )],
-            "step 10 claims something that mun:upper-bound does not conclude",
+            "step 10 claims something that def:upper-bound does not conclude",
         ),
         // Continuity unfolds into what its definition says: with δ where ε
         // belongs, or with δ ≥ 0 where the definition says δ > 0, it is not
@@ -1957,8 +1957,8 @@ fn cases() -> Vec<Case> {
             "read a defined function in a cited line at a value nothing puts in its domain",
             vec![edit(
                 "proofs/wiedijk/erdos-szekeres.proof",
-                Some("mun:set-image, from D2, K1, K5\n".to_string()),
-                "mun:set-image, from D2, K5\n".to_string(),
+                Some("def:set-image, from D2, K1, K5\n".to_string()),
+                "def:set-image, from D2, K5\n".to_string(),
             )],
             "step 1.10.1 cites D2 at k, so it needs k ∈ {1, …, N}, and nothing it cites or requires says it",
         ),
@@ -1972,7 +1972,7 @@ fn cases() -> Vec<Case> {
                 Some("u := a, from D1, H6, 1".to_string()),
                 "u := a, from H6, 1".to_string(),
             )],
-            "step 2 claims something that mun:set-builder does not conclude",
+            "step 2 claims something that def:set-builder does not conclude",
         ),
         // Said of every member, a term's divisor must not be zero for each: k ∈ ℤ
         // gives no k ≠ 0.
@@ -2179,10 +2179,10 @@ fn cases() -> Vec<Case> {
             "obtain from a definition citing no line that says its left side",
             vec![edit(
                 "proofs/wiedijk/schroeder-bernstein.proof",
-                Some("obtain x: mun:image u := b, Y := C, from C9, D1".to_string()),
-                "obtain x: mun:image u := b, Y := C, from D1, K7".to_string(),
+                Some("obtain x: def:image u := b, Y := C, from C9, D1".to_string()),
+                "obtain x: def:image u := b, Y := C, from D1, K7".to_string(),
             )],
-            "step 8.2.1 obtains from mun:image, which says there is one only from something the step does not cite",
+            "step 8.2.1 obtains from def:image, which says there is one only from something the step does not cite",
         ),
         // g ∈ gH is shown by the member of H that g is g times, and the line
         // saying g·e = g is what names it.
@@ -2190,10 +2190,10 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             vec![edit(
                 "proofs/wiedijk/lagrange.proof",
-                Some("mun:coset u := g, from H2, K3, 4.1, 4.2".to_string()),
-                "mun:coset u := g, from H2, K3, 4.1".to_string(),
+                Some("def:coset u := g, from H2, K3, 4.1, 4.2".to_string()),
+                "def:coset u := g, from H2, K3, 4.1".to_string(),
             )],
-            "step 4.3 claims something that mun:coset does not conclude",
+            "step 4.3 claims something that def:coset does not conclude",
         ),
         // `inequalities` takes two terms differing only from a line it cites,
         // and not from a requires line above: 0 ≤ r alone gives no 0 < r.
@@ -2439,7 +2439,7 @@ fn cases() -> Vec<Case> {
         case(
             "write gcd where the library declares no such function",
             vec![
-                edit("corpus/stdlib/divisibility.records", Some("mundane definition gcd\n".to_string()), "mundane definition gcdx\n".to_string()),
+                edit("corpus/stdlib/divisibility.records", Some("definition gcd\n".to_string()), "definition gcdx\n".to_string()),
             ],
             "'d divides gcd(a, b)' does not read past 'gcd', a word no notation in scope writes",
         ),
@@ -2448,7 +2448,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/bezout.proof", Some("              gcd(a, b) ≤ d.\n".to_string()), "              gcd(a, b) ≤ d.\n  let gcd : ℕ → ℕ                                                     (H9)\n".to_string()),
             ],
-            "gcd is the library's function, mun:stdlib/divisibility/gcd, which this file imports; name this function something else",
+            "gcd is the library's function, def:stdlib/divisibility/gcd, which this file imports; name this function something else",
         ),
         // A file that imports a library function may not give its name to a
         // function of its own; one that does not import it may.
@@ -2472,25 +2472,25 @@ fn cases() -> Vec<Case> {
         case(
             "apply a library function the file does not import",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), String::new()),
+                edit("proofs/wiedijk/bezout.proof", Some("import definition         stdlib/divisibility/gcd\n".to_string()), String::new()),
             ],
-            "gcd is the library's function mun:stdlib/divisibility/gcd, and this file does not import it: write `import mundane definition stdlib/divisibility/gcd`",
+            "gcd is the library's function def:stdlib/divisibility/gcd, and this file does not import it: write `import definition stdlib/divisibility/gcd`",
         ),
         case(
             "import a library function from a file that does not declare it",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/numbers/gcd\n".to_string()),
+                edit("proofs/wiedijk/bezout.proof", Some("import definition         stdlib/divisibility/gcd\n".to_string()), "import definition         stdlib/numbers/gcd\n".to_string()),
             ],
-            "import mundane definition stdlib/numbers/gcd: stdlib/numbers holds no item gcd",
+            "import definition stdlib/numbers/gcd: stdlib/numbers holds no item gcd",
         ),
-        // A library function is imported as its record's mark or kind says,
-        // as any library item is.
+        // A library function is a definition, and a definition is never
+        // mundane.
         case(
-            "import a mundane library function as a definition",
+            "import a library function as mundane",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import definition stdlib/divisibility/gcd\n".to_string()),
+                edit("proofs/wiedijk/bezout.proof", Some("import definition         stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/divisibility/gcd\n".to_string()),
             ],
-            "import definition stdlib/divisibility/gcd: stdlib/divisibility/gcd is a mundane definition; import it as `import mundane definition stdlib/divisibility/gcd`",
+            "import mundane definition stdlib/divisibility/gcd: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane; import it as `import definition stdlib/divisibility/gcd`",
         ),
         // An item's name may open with a Greek letter, as σ's does, and is
         // imported from the file that holds it like any other.
@@ -2519,28 +2519,28 @@ fn cases() -> Vec<Case> {
         case(
             "import a library function the file never applies",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane definition stdlib/numbers/max\n\ntheorem cantor\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "import definition         stdlib/numbers/max\n\ntheorem cantor\n".to_string()),
             ],
             "imports max and never applies it",
         ),
         case(
             "import a library function with a label",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/divisibility/gcd (D9)\n".to_string()),
+                edit("proofs/wiedijk/bezout.proof", Some("import definition         stdlib/divisibility/gcd\n".to_string()), "import definition         stdlib/divisibility/gcd (D9)\n".to_string()),
             ],
-            "import mundane definition stdlib/divisibility/gcd: only a define of a proof file carries a label",
+            "import definition stdlib/divisibility/gcd: only a define of a proof file carries a label",
         ),
         case(
             "import a library function under another name",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("import mundane definition stdlib/divisibility/gcd\n".to_string()), "import mundane definition stdlib/divisibility/gcd as hcf\n".to_string()),
+                edit("proofs/wiedijk/bezout.proof", Some("import definition         stdlib/divisibility/gcd\n".to_string()), "import definition         stdlib/divisibility/gcd as hcf\n".to_string()),
             ],
             "a library function is imported by its name alone, with no `as`",
         ),
         case(
             "name a library function with a word a notation writes",
             vec![
-                edit("corpus/stdlib/divisibility.records", Some("mundane definition gcd\n".to_string()), "mundane definition divides\n".to_string()),
+                edit("corpus/stdlib/divisibility.records", Some("definition gcd\n".to_string()), "definition divides\n".to_string()),
             ],
             "'divides' is a word a notation writes, so it cannot also name a function",
         ),
@@ -2602,21 +2602,21 @@ fn cases() -> Vec<Case> {
         case(
             "say what kind of number a let's name is with no reason under it",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := s, b := w, from 4, 35\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := s, b := w, from 4, 35\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
             ],
             "the line under it gives no reason",
         ),
         case(
             "give a let a reason that shows another term in the set",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 4, 32".to_string()), "    mun:gcd a := s, b := w, from 4, 35".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 32".to_string()), "    def:gcd a := s, b := w, from 4, 35".to_string()),
             ],
             "the reason under let D2 needs gcd(t, w) ∈ ℕ",
         ),
         case(
             "cite in a let's reason a step below the let",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    mun:gcd a := t, b := w, from 4, 32".to_string()), "    mun:gcd a := t, b := w, from 32, 56".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 32".to_string()), "    def:gcd a := t, b := w, from 32, 56".to_string()),
             ],
             "the reason under let D2 cites 56, which is not above the let",
         ),
@@ -2694,9 +2694,9 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/odd-letter.proof",
                 None,
-                "import mundane definition stdlib/divisibility/odd\n\ntheorem odd-letter\n  let N ∈ ℤ            (H1)\n  let j ∈ ℤ            (H2)\n  assume N = 2j + 1    (H3)\n  then N is odd\n\n1.  N is odd\n    mun:odd, from H3\n".to_string(),
+                "import definition         stdlib/divisibility/odd\n\ntheorem odd-letter\n  let N ∈ ℤ            (H1)\n  let j ∈ ℤ            (H2)\n  assume N = 2j + 1    (H3)\n  then N is odd\n\n1.  N is odd\n    def:odd, from H3\n".to_string(),
             )],
-            "mun:odd is about n, and the step gives n no value and the proof has no n; write it, as n := t",
+            "def:odd is about n, and the step gives n no value and the proof has no n; write it, as n := t",
         ),
         // A mod 1 = A − 1·⌊A/1⌋ with its identity elements dropped is the
         // claim, and dropping 1· asks that ⌊A⌋ be a number, which only the
@@ -3036,7 +3036,7 @@ fn cases() -> Vec<Case> {
         case(
             "instantiate an item instead of a line",
             vec![
-                edit("proofs/wiedijk/intermediate-value.proof", Some("    instantiate u := b in line 9, from 7".to_string()), "    instantiate u := b in mun:least-upper-bound, from 7".to_string()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("    instantiate u := b in line 9, from 7".to_string()), "    instantiate u := b in def:least-upper-bound, from 7".to_string()),
             ],
             "never an item",
         ),
@@ -3095,19 +3095,19 @@ fn cases() -> Vec<Case> {
         case(
             "a set-builder's equation that no witness makes the same on both sides",
             vec![
-                edit("proofs/wiedijk/bezout.proof", Some("    8.1.  a·x + b·y ∈ S\n          mun:set-builder u := a·x + b·y, from D1, K3\n".to_string()), "    8.1.  a·x + b·y + 1 ∈ S\n          mun:set-builder u := a·x + b·y + 1, from D1, K3\n".to_string()),
+                edit("proofs/wiedijk/bezout.proof", Some("    8.1.  a·x + b·y ∈ S\n          def:set-builder u := a·x + b·y, from D1, K3\n".to_string()), "    8.1.  a·x + b·y + 1 ∈ S\n          def:set-builder u := a·x + b·y + 1, from D1, K3\n".to_string()),
             ],
             "step 8.1",
         ),
-        // `requires C ≠ A: mun:triangle` unfolds a line saying A, B, C form a
+        // `requires C ≠ A: def:triangle` unfolds a line saying A, B, C form a
         // triangle; cited, that line is what it rests on, and without it
         // nothing is.
         case(
             "unfold a triangle no line above says",
             vec![
-                edit("proofs/wiedijk/pythagoras.proof", Some("    requires C ≠ A: mun:triangle, from H4\n".to_string()), "    requires C ≠ A: mun:triangle\n".to_string()),
+                edit("proofs/wiedijk/pythagoras.proof", Some("    requires C ≠ A: def:triangle, from H4\n".to_string()), "    requires C ≠ A: def:triangle\n".to_string()),
             ],
-            "the requires line of step 2 needs something that mun:triangle does not conclude",
+            "the requires line of step 2 needs something that def:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
         // `mod-natural` asks b ∈ ℕ, and without 4.5.9, which says b(k) ∈ ℕ,
@@ -3372,9 +3372,9 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/planted.proof",
                 None,
-                "import mundane definition stdlib/divisibility/odd\n\ntheorem planted\n  let b ∈ ℤ    (H1)\n  assume b is odd    (H2)\n  then b = b\n\n1.  j ∈ ℤ. i ∈ ℤ. b = 2j + 1.\n    obtain j, i: mun:odd n := b, from H2\n\n2.  b = b\n    algebra\n".to_string(),
+                "import definition         stdlib/divisibility/odd\n\ntheorem planted\n  let b ∈ ℤ    (H1)\n  assume b is odd    (H2)\n  then b = b\n\n1.  j ∈ ℤ. i ∈ ℤ. b = 2j + 1.\n    obtain j, i: def:odd n := b, from H2\n\n2.  b = b\n    algebra\n".to_string(),
             )],
-            "step 1 obtains j, i from mun:odd, which says no \"there is\" of as many",
+            "step 1 obtains j, i from def:odd, which says no \"there is\" of as many",
         ),
         case(
             "a contradiction whose block does not suppose anything",
@@ -3405,22 +3405,22 @@ fn cases() -> Vec<Case> {
             ],
             "import proof: an import says the header of the item it names",
         ),
-        // An item taken for granted is imported as mundane, whatever its kind,
-        // and an item that is not is imported by its kind.
-        // An import says its record's header: the mark and the kind both.
+        // A theorem taken for granted is imported as mundane, and every other
+        // item by its kind. An import says its record's header: the mark and
+        // the kind both.
         case(
-            "import a mundane item without its kind",
+            "import an item as mundane without its kind",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import mundane stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane stdlib/reasoning/excluded-middle\n".to_string()),
             ],
             "import mundane: an import says the header of the item it names",
         ),
         case(
-            "import a mundane item under another kind",
+            "import an axiom as a mundane theorem",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import mundane theorem    stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane theorem    stdlib/reasoning/excluded-middle\n".to_string()),
             ],
-            "import mundane theorem stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is a mundane axiom; import it as `import mundane axiom stdlib/reasoning/excluded-middle`",
+            "import mundane theorem stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is an axiom; import it as `import axiom stdlib/reasoning/excluded-middle`",
         ),
         case(
             "import a proof's define as mundane",
@@ -3428,51 +3428,57 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/tri.proof", None, TRI.to_string()),
                 edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "import mundane definition proofs/wiedijk/tri/T\n\ntheorem cantor\n".to_string()),
             ],
-            "a proof's define is where the proof gives a name its meaning, so it is never mundane",
+            "import mundane definition proofs/wiedijk/tri/T: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane",
         ),
         case(
-            "import a mundane axiom by its kind",
+            "import an axiom as mundane",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), "import axiom      stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()),
             ],
-            "import axiom stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is a mundane axiom",
+            "import mundane axiom stdlib/reasoning/excluded-middle: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane",
         ),
         case(
-            "import a named axiom as mundane",
+            "cite an axiom as mundane",
             vec![
-                edit("proofs/wiedijk/intermediate-value.proof", Some("import axiom              stdlib/calculus/completeness\n".to_string()), "import mundane axiom      stdlib/calculus/completeness\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("axi:excluded-middle".to_string()), "mun:excluded-middle".to_string()),
             ],
-            "import mundane axiom stdlib/calculus/completeness: stdlib/calculus/completeness is an axiom",
+            "mun:excluded-middle names an axiom",
         ),
         case(
-            "cite a mundane axiom by its kind",
-            vec![
-                edit("proofs/wiedijk/cantor.proof", Some("mun:excluded-middle".to_string()), "axi:excluded-middle".to_string()),
-            ],
-            "axi:excluded-middle names a mundane axiom",
-        ),
-        case(
-            "cite a mundane definition by its kind",
-            vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("obtain k: mun:odd".to_string()), "obtain k: def:odd".to_string()),
-            ],
-            "def:odd names a mundane definition",
-        ),
-        case(
-            "cite a named definition as mundane",
+            "cite a definition as mundane",
             vec![
                 edit("proofs/wiedijk/isosceles.proof", Some("def:congruent".to_string()), "mun:congruent".to_string()),
             ],
             "mun:congruent names a definition",
         ),
-        // `mundane` is a mark before a kind, and only before a kind a proof
-        // may take for granted.
+        // `mundane` is a mark before a kind, and only before a theorem.
         case(
             "mark a record mundane and give it no kind",
             vec![
                 edit("corpus/stdlib/sets.records", Some("mundane theorem powerset-empty\n".to_string()), "mundane powerset-empty\n".to_string()),
             ],
             "mundane powerset-empty has no kind",
+        ),
+        case(
+            "mark a definition mundane",
+            vec![
+                edit("corpus/stdlib/sets.records", Some("\ndefinition subset\n".to_string()), "\nmundane definition subset\n".to_string()),
+            ],
+            "mundane definition: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane",
+        ),
+        case(
+            "mark an axiom mundane",
+            vec![
+                edit("corpus/stdlib/reasoning.records", Some("\naxiom excluded-middle\n".to_string()), "\nmundane axiom excluded-middle\n".to_string()),
+            ],
+            "mundane axiom: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane",
+        ),
+        case(
+            "mark a method mundane",
+            vec![
+                edit("corpus/db/methods.records", Some("\nmethod arithmetic\n".to_string()), "\nmundane method arithmetic\n".to_string()),
+            ],
+            "mundane method: a method is named on the line that uses it, so it is never mundane",
         ),
         case(
             "mark a notation mundane",
@@ -3498,9 +3504,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite a library item without importing it",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
+                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
             ],
-            "mun:excluded-middle is neither imported nor a theorem of this file",
+            "axi:excluded-middle is neither imported nor a theorem of this file",
         ),
         case(
             "import a library item nothing cites",
@@ -3570,7 +3576,7 @@ fn cases() -> Vec<Case> {
         case(
             "two theorems of one file that cite each other",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    mun:odd n := n², from 5".to_string()), "    thm:even-square n := n², from 5".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    def:odd n := n², from 5".to_string()), "    thm:even-square n := n², from 5".to_string()),
             ],
             "closes a cycle of citations: odd-square → even-square → odd-square",
         ),
@@ -3653,7 +3659,7 @@ fn cases() -> Vec<Case> {
         case(
             "obtain a name without stating its sort",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: mun:odd, from H2".to_string()), "1.  n = 2k + 1.\n    obtain k: mun:odd, from H2".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("1.  k ∈ ℤ. n = 2k + 1.\n    obtain k: def:odd, from H2".to_string()), "1.  n = 2k + 1.\n    obtain k: def:odd, from H2".to_string()),
             ],
             "without stating its sort",
         ),
@@ -3743,7 +3749,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/zz/value-unknown.proof",
                 None,
-                "import mundane definition stdlib/divisibility/divides\n\ntheorem value-unknown\n  let a ∈ ℤ                                                           (H1)\n  then a divides a\n\n1.  a = a·1\n    algebra\n\n2.  a divides a\n    mun:divides d := a, n := a, k := y, from 1\n".to_string(),
+                "import definition         stdlib/divisibility/divides\n\ntheorem value-unknown\n  let a ∈ ℤ                                                           (H1)\n  then a divides a\n\n1.  a = a·1\n    algebra\n\n2.  a divides a\n    def:divides d := a, n := a, k := y, from 1\n".to_string(),
             )],
             "step 2: y in k := y is not introduced here",
         ),
@@ -3813,21 +3819,21 @@ fn cases() -> Vec<Case> {
         case(
             "write a contradiction in prose after a claim",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 1, which contradicts p ≤ 1\n    mun:prime, from 3".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    def:prime, from 3".to_string()), "4.  p > 1, which contradicts p ≤ 1\n    def:prime, from 3".to_string()),
             ],
             "does not read past 'which', a word no notation in scope writes; a step reaching the opposite",
         ),
         case(
             "write a claim in a notation nobody declared",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p exceeds 1\n    mun:prime, from 3".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    def:prime, from 3".to_string()), "4.  p exceeds 1\n    def:prime, from 3".to_string()),
             ],
             "'p exceeds 1' does not read past 'exceeds', a word no notation in scope writes",
         ),
         case(
             "close a bracket nothing opened",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 1)\n    mun:prime, from 3".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    def:prime, from 3".to_string()), "4.  p > 1)\n    def:prime, from 3".to_string()),
             ],
             "token(s) left over, starting at ')'",
         ),
@@ -4023,23 +4029,23 @@ fn cases() -> Vec<Case> {
             "point a requires line at an item that does not cover it",
             vec![
                 edit("tests/elaborator/a-root-said-real.proof", Some("theorem a-root-said-real\n".to_string()), "import mundane theorem stdlib/numbers/square-nonneg\n\ntheorem a-root-said-real\n".to_string()),
-                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:square-nonneg x := A".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: def:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:square-nonneg x := A".to_string()),
             ],
             "does not conclude",
         ),
-        // `requires √A ∈ ℝ: mun:sqrt x := A, from H2` rests on A ≥ 0, which
+        // `requires √A ∈ ℝ: def:sqrt x := A, from H2` rests on A ≥ 0, which
         // H2 says.
         case(
             "drop the dull fact a requires line leans on",
             vec![
-                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: mun:sqrt x := A".to_string()),
+                edit("tests/elaborator/a-root-said-real.proof", Some("    requires √A ∈ ℝ: def:sqrt x := A, from H2".to_string()), "    requires √A ∈ ℝ: def:sqrt x := A".to_string()),
             ],
-            "the requires line of step 3 cites mun:sqrt, which asks for 0 ≤ A, and what it cites does not supply it",
+            "the requires line of step 3 cites def:sqrt, which asks for 0 ≤ A, and what it cites does not supply it",
         ),
         case(
             "claim something the cited item does not conclude",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    mun:prime, from 3".to_string()), "4.  p > 2\n    mun:prime, from 3".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("4.  p > 1\n    def:prime, from 3".to_string()), "4.  p > 2\n    def:prime, from 3".to_string()),
             ],
             "does not conclude",
         ),
@@ -4341,7 +4347,7 @@ fn cases() -> Vec<Case> {
         case(
             "say a step is impossible and contradict a line as well",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          mun:divides d := 2, n := 1, from 10.5\n".to_string()), "          mun:divides d := 2, n := 1, from 10.5, contradicting 10.5\n".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          def:divides d := 2, n := 1, from 10.5\n".to_string()), "          def:divides d := 2, n := 1, from 10.5, contradicting 10.5\n".to_string()),
             ],
             "says it is impossible and contradicts a line",
         ),
@@ -4404,42 +4410,42 @@ fn cases() -> Vec<Case> {
         case(
             "introduce a symbol and say nothing it stands for",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational".to_string()), "mundane definition irrational\n  symbol      irr\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  then        x is irrational".to_string()),
             ],
             "says nothing it stands for",
         ),
         case(
             "define a term and name no symbol for it",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational".to_string()), "mundane definition irrational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "names no symbol for it",
         ),
         case(
             "introduce a symbol nothing writes",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational".to_string()), "mundane definition irrational\n  symbol      irr\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "cannot be reached",
         ),
         case(
             "introduce a symbol in more than one token",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational".to_string()), "mundane definition irrational\n  symbol      irr ational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  symbol      irr ational\n  defines     cr cq cdif\n  then        x is irrational".to_string()),
             ],
             "is not one token",
         ),
         case(
             "introduce one symbol from two definitions",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()), "mundane definition irrational\n  symbol      dup\n  defines     cr\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ\n\ndefinition twice\n  symbol      dup\n  defines     cq\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()), "definition irrational\n  symbol      dup\n  defines     cr\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ\n\ndefinition twice\n  symbol      dup\n  defines     cq\n  then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ".to_string()),
             ],
             "is already introduced by",
         ),
         case(
             "state a field twice, which reads as one field joined",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("mundane definition irrational\n  then        x is irrational".to_string()), "mundane definition irrational\n  target      eldif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  target      eldif\n  then        x is irrational".to_string()),
             ],
             "a second time",
         ),
@@ -4555,7 +4561,7 @@ fn cases() -> Vec<Case> {
         case(
             "say an element of a set of numbers exists as a set",
             vec![
-                edit("proofs/wiedijk/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n          requires s exists: from K1\n".to_string()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          def:set-builder, from D1, K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          def:set-builder, from D1, K1\n          requires s exists: from K1\n".to_string()),
             ],
             "the requires line of step 6.1: 's exists': s is a number, and `_ exists` wants a set",
         ),
@@ -4583,9 +4589,9 @@ fn cases() -> Vec<Case> {
         case(
             "obtain from a definition without the line it unfolds",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    obtain k: mun:odd, from H2".to_string()), "    obtain k: mun:odd".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    obtain k: def:odd, from H2".to_string()), "    obtain k: def:odd".to_string()),
             ],
-            "step 1 obtains from mun:odd, which says there is one only from",
+            "step 1 obtains from def:odd, which says there is one only from",
         ),
         // Pascal's rule pairs C(n, k) with C(n, k − 1). The other neighbour is
         // the mistake a reader makes when the index shift goes the wrong way.
@@ -4800,9 +4806,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a coset without saying H is a subgroup",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("          mun:coset u := g, from H2, K3, 4.1, 4.2\n".to_string()), "          mun:coset u := g, from K3, 4.1, 4.2\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("          def:coset u := g, from H2, K3, 4.1, 4.2\n".to_string()), "          def:coset u := g, from K3, 4.1, 4.2\n".to_string()),
             ],
-            "step 4.3 cites mun:coset, which asks for H is a subgroup of G",
+            "step 4.3 cites def:coset, which asks for H is a subgroup of G",
         ),
         // An equation names a witness read either way round, and only so: g
         // is in gH as g = g·h for some h ∈ H, and e·g = g fits that neither
@@ -4812,7 +4818,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/lagrange.proof", Some("    4.2.  g·e = g\n".to_string()), "    4.2.  e·g = g\n".to_string()),
             ],
-            "step 4.3 claims something that mun:coset does not conclude",
+            "step 4.3 claims something that def:coset does not conclude",
         ),
         // A claim may bind another letter than the definition it reads, and says
         // the same thing only where the letter it binds is the one it uses: with
@@ -4823,7 +4829,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is b ∈ G with gH = aH.\n".to_string()),
             ],
-            "step 11.2 claims something that mun:part-builder does not conclude",
+            "step 11.2 claims something that def:part-builder does not conclude",
         ),
         // K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
         // of gH is not caught by K's. So the sentence written with it caught
@@ -4833,16 +4839,16 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is g ∈ G with gH = gH.\n".to_string()),
             ],
-            "step 11.2 claims something that mun:part-builder does not conclude",
+            "step 11.2 claims something that def:part-builder does not conclude",
         ),
         // An obtain from part-builder finds its "there is" in the condition of
         // the set the cited line puts Y in; K20 says only x ∈ Y ∩ Z.
         case(
             "obtain from part-builder citing no line that puts the set in it",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("obtain a: mun:part-builder, from D1, K18".to_string()), "obtain a: mun:part-builder, from D1, K20".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("obtain a: def:part-builder, from D1, K18".to_string()), "obtain a: def:part-builder, from D1, K20".to_string()),
             ],
-            "step 14.1 obtains from mun:part-builder, which says there is one only from something the step does not cite",
+            "step 14.1 obtains from def:part-builder, which says there is one only from something the step does not cite",
         ),
         // A requires line says what the step's other lines do not: m − k ∈ ℕ₀
         // above already says m − k is real.
@@ -5014,11 +5020,11 @@ fn cases() -> Vec<Case> {
             "is not a phrase of the form `<letter> is a …`",
         ),
         case(
-            "mark a phrase mundane outside the library",
+            "mark a phrase define mundane",
             vec![
                 edit("tests/elaborator/a-phrase-with-and.proof", Some("define common-divisor:".to_string()), "mundane define common-divisor:".to_string()),
             ],
-            "only a define of the standard library is taken for granted",
+            "a define gives a name its meaning, and a pedantic textbook cites it, so it is never mundane",
         ),
         case(
             "give a phrase a slot its meaning does not use",
@@ -5694,7 +5700,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/planted.proof",
                 None,
-                "import mundane axiom      stdlib/groups/group-identity\n\ntheorem planted-lemma\n  let G be a group with operation · and identity e    (H1)\n  let x ∈ G    (H2)\n  assume x = e    (H3)\n  then x·x = x\n\n1.  x·e = x\n    mun:group-identity, from H2\n\n2.  x·x = x\n    substitute x = e (H3) into line 1\n\ntheorem planted\n  let G be a group with operation · and identity e    (H1)\n  let a ∈ G    (H2)\n  then a·a = a\n\n1.  a·a = a\n    thm:planted-lemma x := a, from H2\n".to_string(),
+                "import axiom              stdlib/groups/group-identity\n\ntheorem planted-lemma\n  let G be a group with operation · and identity e    (H1)\n  let x ∈ G    (H2)\n  assume x = e    (H3)\n  then x·x = x\n\n1.  x·e = x\n    axi:group-identity, from H2\n\n2.  x·x = x\n    substitute x = e (H3) into line 1\n\ntheorem planted\n  let G be a group with operation · and identity e    (H1)\n  let a ∈ G    (H2)\n  then a·a = a\n\n1.  a·a = a\n    thm:planted-lemma x := a, from H2\n".to_string(),
             )],
             "step 1 cites thm:planted-lemma, which asks for a = e, and what it cites does not supply it",
         ),
@@ -5714,9 +5720,9 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/planted.proof",
                 None,
-                "import mundane definition stdlib/divisibility/divides\n\ntheorem planted\n  let A ∈ ℤ    (H1)\n  let B = 2A + 1    (D1)\n      reads the odd number after 2A\n  assume 2 divides B    (H2)\n  then B = B\n\n1.  k ∈ ℤ. B = 2·k.\n    obtain k: mun:divides d := 2, n := B, from H2\n\n2.  B = B\n    algebra\n".to_string(),
+                "import definition         stdlib/divisibility/divides\n\ntheorem planted\n  let A ∈ ℤ    (H1)\n  let B = 2A + 1    (D1)\n      reads the odd number after 2A\n  assume 2 divides B    (H2)\n  then B = B\n\n1.  k ∈ ℤ. B = 2·k.\n    obtain k: def:divides d := 2, n := B, from H2\n\n2.  B = B\n    algebra\n".to_string(),
             )],
-            "step 1 cites mun:divides, which asks for B ∈ ℤ, and what it cites does not supply it",
+            "step 1 cites def:divides, which asks for B ∈ ℤ, and what it cites does not supply it",
         ),
         // A plain inequalities step adds its lines as they stand; a claim
         // that follows only by another move is told the row it takes.
@@ -5881,7 +5887,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/planted.proof",
                 None,
-                "import mundane definition stdlib/divisibility/even\n\ntheorem planted\n  let P ∈ ℤ    (H1)\n  assume P is even    (H2)\n  then P = P\n\n1.  k ∈ ℤ. P = 3k.\n    obtain k: mun:even n := P, from H2\n\n2.  P = P\n    algebra\n".to_string(),
+                "import definition         stdlib/divisibility/even\n\ntheorem planted\n  let P ∈ ℤ    (H1)\n  assume P is even    (H2)\n  then P = P\n\n1.  k ∈ ℤ. P = 3k.\n    obtain k: def:even n := P, from H2\n\n2.  P = P\n    algebra\n".to_string(),
             )],
             "step 1 claims other than what it obtains, which says P = 2 · k",
         ),
@@ -6371,10 +6377,10 @@ fn cases() -> Vec<Case> {
             "fold divides from an equation whose witness nothing says is an integer",
             vec![edit(
                 "tests/elaborator/a-divides-fold-with-its-witness.proof",
-                Some("    mun:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
-                "    mun:divides d := 3, n := p² + q², from 1\n".to_string(),
+                Some("    def:divides d := 3, n := p² + q², from H2, 1\n".to_string()),
+                "    def:divides d := 3, n := p² + q², from 1\n".to_string(),
             )],
-            "step 2 reads what mun:divides concludes from a \"there is\", and nothing it names says m^2 ∈ ℤ",
+            "step 2 reads what def:divides concludes from a \"there is\", and nothing it names says m^2 ∈ ℤ",
         ),
         // Antisymmetry's cited lines are its two orders, so the membership
         // it owes is taken by a requires line, which the message says.
@@ -6437,7 +6443,7 @@ fn cases() -> Vec<Case> {
             "leave out that a root an order cites through an equation is real",
             vec![edit(
                 "tests/elaborator/a-root-said-real.proof",
-                Some("    requires √A ∈ ℝ: mun:sqrt x := A, from H2\n".to_string()),
+                Some("    requires √A ∈ ℝ: def:sqrt x := A, from H2\n".to_string()),
                 String::new(),
             )],
             "nothing says √A ∈ ℝ, which this step needs",
@@ -6600,8 +6606,8 @@ fn cases() -> Vec<Case> {
             "unfold a define applied in a cited line without its domain",
             vec![edit(
                 "proofs/wiedijk/ballot.proof",
-                Some("mun:set-builder u := T, from D1, K3, 1\n".to_string()),
-                "mun:set-builder u := T, from D1, K3\n".to_string(),
+                Some("def:set-builder u := T, from D1, K3, 1\n".to_string()),
+                "def:set-builder u := T, from D1, K3\n".to_string(),
             )],
             "cites D1 at m − 1, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),

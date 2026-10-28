@@ -1,4 +1,4 @@
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 
 theorem a-cited-codomain
   note        The line the step cites types F into C, and fixes the codomain over F's let, which says {B}.
@@ -13,4 +13,4 @@ theorem a-cited-codomain
     assume F : A → C is one-to-one    (S)
 
     1.1.  For all s, t ∈ A, if F(s) = F(t) then s = t.
-          mun:one-to-one f := F, from S
+          def:one-to-one f := F, from S

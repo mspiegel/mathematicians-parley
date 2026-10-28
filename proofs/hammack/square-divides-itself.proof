@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 import mundane theorem    stdlib/numbers/pos-int-nat
@@ -15,10 +15,10 @@ theorem square-divides-itself
   then a ∈ {−1, 0, 1}
 
 1.  k ∈ ℤ. a = a²·k.
-    obtain k: mun:divides d := a², n := a, from H2
+    obtain k: def:divides d := a², n := a, from H2
 
 2.  a = 0 or not (a = 0)
-    mun:excluded-middle P := a = 0
+    axi:excluded-middle P := a = 0
 
 3.  a ∈ {−1, 0, 1}
     cases, from 2
@@ -60,7 +60,7 @@ theorem square-divides-itself
                   restate 3.4
 
           3.6.4.  a divides 1
-                  mun:divides d := a, n := 1, from 3.6.3
+                  def:divides d := a, n := 1, from 3.6.3
 
           3.6.5.  a = 1
                   mun:divides-one d := a, from 3.6.2, 3.6.4
@@ -86,7 +86,7 @@ theorem square-divides-itself
                   algebra, from 3.4
 
           3.6.11. −a divides 1
-                  mun:divides d := −a, n := 1, from 3.6.10
+                  def:divides d := −a, n := 1, from 3.6.10
 
           3.6.12. −a = 1
                   mun:divides-one d := −a, from 3.6.9, 3.6.11

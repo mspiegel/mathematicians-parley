@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/numbers/square-less
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 
 theorem squares-keep-order
   note        Between nonnegative numbers, a ≤ b is a = b or a < b. Equal
@@ -11,7 +11,7 @@ theorem squares-keep-order
   then a² ≤ b²
 
 1.  b − a < 0 or b − a = 0 or 0 < b − a
-    mun:trichotomy x := b − a
+    axi:trichotomy x := b − a
 
 2.  a² ≤ b²
     cases, from 1

@@ -17,7 +17,7 @@
 # - a walk never stays at a vertex: the edge at a place joins two different
 #   vertices, by `umgrnloopv`, for `mun:stdlib/graphs/walk-distinct`;
 # - the degree of a vertex is the number of edges it is incident with:
-#   `vtxdumgrval`, for `mun:stdlib/graphs/degree`;
+#   `vtxdumgrval`, for `def:stdlib/graphs/degree`;
 # - a multigraph is traversable exactly when there is n and a walk f of n
 #   edges, counted from 0, one-to-one and reaching every edge, with vertices
 #   v: `iseupthf1o` and `upgriswlk`, the word of edges read as a function on

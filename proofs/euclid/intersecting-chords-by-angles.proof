@@ -6,14 +6,14 @@ import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-collinear
 import mundane theorem    stdlib/geometry/between-ends-apart
 import mundane theorem    stdlib/geometry/between-symmetric
-import mundane definition stdlib/geometry/on-line
+import definition         stdlib/geometry/on-line
 import mundane theorem    stdlib/geometry/on-line-ends
 import mundane theorem    stdlib/geometry/same-side-off-line
 import mundane theorem    stdlib/geometry/same-side-same
 import mundane theorem    stdlib/geometry/same-side-turned
 import mundane theorem    stdlib/geometry/segment-beyond-off-line
 import mundane theorem    stdlib/geometry/segment-off-line
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-not-on-line
 import mundane theorem    stdlib/geometry/triangle-off-line
 import mundane theorem    stdlib/geometry/triangle-on-side
@@ -46,7 +46,7 @@ theorem intersecting-chords-by-angles
     mun:triangle-off-line P := C, Q := A, R := B, from H9, 1
 
 3.  C ≠ B
-    mun:triangle P := C, Q := A, R := B, from 2
+    def:triangle P := C, Q := A, R := B, from 2
 
 4.  not (A is on line CB)
     mun:triangle-not-on-line P := A, Q := C, R := B, from 2
@@ -107,10 +107,10 @@ theorem intersecting-chords-by-angles
     mun:between-collinear R := P, S := A, T := B, from H7
 
 22. P is on line AB
-    mun:on-line, from 21
+    def:on-line, from 21
 
 23. A ≠ C
-    mun:triangle P := C, Q := A, R := B, from 2
+    def:triangle P := C, Q := A, R := B, from 2
 
 24. A is on line AC
     mun:on-line-ends B := C
@@ -131,10 +131,10 @@ theorem intersecting-chords-by-angles
     mun:between-collinear R := P, S := C, T := D, from H8
 
 30. P is on line DC
-    mun:on-line A := D, B := C, from 29
+    def:on-line A := D, B := C, from 29
 
 31. D ≠ B
-    mun:triangle P := D, Q := C, R := B, from 18
+    def:triangle P := D, Q := C, R := B, from 18
 
 32. D is on line DB
     mun:on-line-ends A := D

@@ -1,13 +1,13 @@
 import axiom              stdlib/numbers/well-ordering
 import theorem            stdlib/divisibility/division-algorithm
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-le
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 
 theorem least-combination-divides
   note        Divide c by d: c = q·d + r with 0 ≤ r < d. Then r is a·x + b·y as
@@ -59,7 +59,7 @@ theorem least-combination-divides
     algebra, from 4
 
 6.  d divides c
-    mun:divides n := c, from 5
+    def:divides n := c, from 5
 
 
 theorem bezout
@@ -79,7 +79,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     algebra
 
 2.  a ∈ S
-    mun:set-builder u := a, from D1, 1
+    def:set-builder u := a, from D1, 1
 
 3.  S ⊆ ℕ
     mun:set-builder-subset, from D1
@@ -88,13 +88,13 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     obtain d: axi:well-ordering, from 2, 3
 
 5.  For all t ∈ S, t ∈ ℕ
-    mun:subset, from 3
+    def:subset, from 3
 
 6.  d ∈ ℕ
     instantiate t := d in line 5, from 4
 
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
-    obtain x₀, y₀: mun:set-builder u := d, from D1, 4
+    obtain x₀, y₀: def:set-builder u := d, from D1, 4
 
 8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     proof
@@ -103,7 +103,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     assume a·x + b·y ∈ ℕ                                              (K3)
 
     8.1.  a·x + b·y ∈ S
-          mun:set-builder u := a·x + b·y, from D1, K3
+          def:set-builder u := a·x + b·y, from D1, K3
 
     8.2.  d ≤ a·x + b·y
           instantiate s := a·x + b·y in line 4, from 8.1
@@ -122,7 +122,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
 
 13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
     For all e ∈ ℕ, if e divides a and e divides b then e ≤ gcd(a, b).
-    mun:gcd
+    def:gcd
 
 14. d ≤ gcd(a, b)
     instantiate e := d in line 13, from 6, 10, 12

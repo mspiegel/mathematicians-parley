@@ -1,9 +1,9 @@
-import mundane definition stdlib/sets/union
-import mundane definition stdlib/sets/intersection
-import mundane definition stdlib/sets/set-builder
-import mundane definition stdlib/sets/powerset
-import mundane definition stdlib/sets/pair
-import mundane definition stdlib/sets/singleton
+import definition         stdlib/sets/union
+import definition         stdlib/sets/intersection
+import definition         stdlib/sets/set-builder
+import definition         stdlib/sets/powerset
+import definition         stdlib/sets/pair
+import definition         stdlib/sets/singleton
 import mundane theorem    stdlib/sets/singleton-subset
 import mundane theorem    stdlib/sets/listed-repeat
 import mundane theorem    stdlib/sets/powerset-empty
@@ -78,13 +78,13 @@ theorem in-a-union
   then 3 ∈ {1, 2} ∪ {3}
 
 1.  3 ∈ {3}
-    mun:singleton x := 3, a := 3
+    def:singleton x := 3, a := 3
 
 2.  3 ∈ {1, 2} or 3 ∈ {3}
     mun:or-right, from 1
 
 3.  3 ∈ {1, 2} ∪ {3}
-    mun:union, from 2
+    def:union, from 2
 
 theorem not-in-an-intersection
   then 3 ∉ {1, 2} ∩ {3}
@@ -100,7 +100,7 @@ theorem not-in-an-intersection
     suppose 3 ∈ {1, 2}                                                (S)
 
     3.1.  3 = 1 or 3 = 2
-          mun:pair x := 3, u := 1, w := 2, from S
+          def:pair x := 3, u := 1, w := 2, from S
 
     3.2.  3 = 1
           mun:disjunctive-syllogism, from 2, 3.1, contradicting 1
@@ -110,7 +110,7 @@ theorem not-in-an-intersection
     suppose 3 ∈ {1, 2} ∩ {3}                                          (S)
 
     4.1.  3 ∈ {1, 2}
-          mun:intersection, from S, contradicting 3
+          def:intersection, from S, contradicting 3
 
 theorem a-part-of-a-set
   then {1} ∈ 𝒫{1, 2}
@@ -122,13 +122,13 @@ theorem a-part-of-a-set
     mun:or-left, from 1
 
 3.  1 ∈ {1, 2}
-    mun:pair x := 1, u := 1, w := 2, from 2
+    def:pair x := 1, u := 1, w := 2, from 2
 
 4.  {1} ⊆ {1, 2}
     mun:singleton-subset a := 1, X := {1, 2}, from 3
 
 5.  {1} ∈ 𝒫{1, 2}
-    mun:powerset, from 4
+    def:powerset, from 4
 
 theorem power-set-of-empty-has-one-member
   note        The empty set has one part, itself: 𝒫∅ is not empty.
@@ -152,7 +152,7 @@ theorem even-in-the-evens
     arithmetic
 
 2.  4 ∈ E
-    mun:set-builder u := 4, from D1, 1
+    def:set-builder u := 4, from D1, 1
 
 theorem odd-not-in-the-evens
   let E = {x ∈ ℕ : x is even}                                         (D1)
@@ -167,4 +167,4 @@ theorem odd-not-in-the-evens
     suppose 3 ∈ E                                                     (S)
 
     2.1.  3 is even
-          mun:set-builder u := 3, from D1, S, contradicting 1
+          def:set-builder u := 3, from D1, S, contradicting 1

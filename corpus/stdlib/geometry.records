@@ -19,14 +19,14 @@
 # introduces a symbol, symbol and defines.
 
 
-mundane definition point
+definition point
   then        A is a point ↔ A ∈ 𝔼²
   metamath    biid, since "A is a point" and A ∈ 𝔼² are both built as A ∈ ℂ
   target      biid
   note        A point is a member of the plane. The plane is ℂ in the kernel,
               which the page never says (GEOMETRY.md).
 
-mundane definition angle
+definition angle
   symbol      ang
   defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
               vy cv vx cv cdiv co clog cfv cim cfv cmpo
@@ -176,7 +176,7 @@ mundane theorem triangle-angle-real
               rotated triangle first; this says each angle is a number from the
               triangle as written.
 
-mundane definition collinear
+definition collinear
   open        Incidence is a primitive of the geometry, and the readable layer
               cannot state what it is. In the plane it says P = Q or
               (R − P)/(Q − P) is real, which is true in any order of the three
@@ -185,10 +185,10 @@ mundane definition collinear
               the sorts that stop |CA| reading as a product stop this too. The
               notation carries a target, so a claim of collinearity elaborates;
               what has no readable statement is the equivalence.
-  note        Named by the merge because mun:stdlib/geometry/triangle needs a word for what a
+  note        Named by the merge because def:stdlib/geometry/triangle needs a word for what a
               triangle's vertices are not.
 
-mundane definition triangle
+definition triangle
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -203,7 +203,7 @@ mundane definition triangle
   note        set.mm has no single notion. "Form a triangle" and "are
               collinear" are notations whose targets make the two sides one
               formula; what collinearity is in words is
-              mun:stdlib/geometry/collinear, which this statement does not
+              def:stdlib/geometry/collinear, which this statement does not
               need. That the three are points is the three let lines, not a
               clause of the statement; the sorts carry it.
 
@@ -223,7 +223,7 @@ definition congruent
               for the six equations themselves, so the two sides are one
               formula.
 
-mundane definition isosceles
+definition isosceles
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -235,7 +235,7 @@ mundane definition isosceles
   note        Two sides equal, whichever two: a triangle named by its three
               points has no apex until a proof says which equality holds.
 
-mundane definition equilateral
+definition equilateral
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -245,7 +245,7 @@ mundane definition equilateral
               equalities
   target      biid
 
-mundane definition right-angled
+definition right-angled
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -302,7 +302,7 @@ mundane theorem angle-turned
   note        As angle-symmetric, for points that may lie on a line: the
               angle between two arms does not depend on which is named first.
 
-mundane definition parallel
+definition parallel
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -321,13 +321,13 @@ mundane definition parallel
               whose proof draws the parallel to one side through the
               opposite vertex.
 
-mundane definition between
+definition between
   open        In the plane R is between S and T says S ≠ R and
               (T − R)/(S − R) is a negative real: T lies beyond R from S, on
               the same line. The readable layer cannot state it, as for
-              mun:stdlib/geometry/collinear.
+              def:stdlib/geometry/collinear.
 
-mundane definition on-line
+definition on-line
   let P be a point                                                    (H1)
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
@@ -335,7 +335,7 @@ mundane definition on-line
   metamath    biid, since both notations' targets are the one quotient
   target      biid
 
-mundane definition line
+definition line
   let P be a point                                                    (H1)
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
@@ -347,7 +347,7 @@ mundane definition line
   note        The line through A and B as a set, for a statement that
               speaks of the line itself. A ≠ B where it is a line.
 
-mundane definition ray
+definition ray
   let P be a point                                                    (H1)
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
@@ -386,11 +386,11 @@ mundane theorem on-line-cases
               them, or beyond one of them, which a figure shows and a proof
               takes as the cases there are.
 
-mundane definition perpendicular
+definition perpendicular
   open        In the plane line AB ⊥ line CD says A ≠ B, C ≠ D and
               (D − C)/(B − A) has real part 0: the two directions are at a
               right angle. The readable layer cannot state it, as for
-              mun:stdlib/geometry/parallel; where the lines meet,
+              def:stdlib/geometry/parallel; where the lines meet,
               mun:stdlib/geometry/perpendicular-by-right-angle reads it as
               an angle.
 
@@ -406,7 +406,7 @@ mundane theorem perpendicular-by-right-angle
   note        Two lines through Q are perpendicular when the angle between
               them at Q is a right angle.
 
-mundane definition midpoint
+definition midpoint
   let M be a point                                                    (H1)
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
@@ -447,13 +447,13 @@ mundane theorem midpoint-determines-end
   note        The reflection of a point through another is one point: B is
               the point beyond M from A at the distance |AM|.
 
-mundane definition same-side
+definition same-side
   open        Which side of the line through P and Q a point X is on is the
               sign of the imaginary part of (X − P)/(Q − P): positive on one
               side, negative on the other, zero on the line. Two points are on
               the same side when the two signs multiply to a positive number,
               and on opposite sides when to a negative one. The readable
-              layer cannot state it, as for mun:stdlib/geometry/collinear.
+              layer cannot state it, as for def:stdlib/geometry/collinear.
   note        One record for both notations, same-side and opposite-sides,
               since they are one sign read two ways.
 
@@ -507,7 +507,7 @@ mundane theorem distance-nonneg
               from absge0
   target      gdistnn
 
-mundane axiom distance-positive
+axiom distance-positive
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   assume P ≠ Q                                                        (H3)
@@ -712,7 +712,7 @@ theorem law-of-sines
               PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
               |PQ|/sin(∠QRP), written without division.
 
-mundane definition area
+definition area
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -744,7 +744,7 @@ mundane theorem area-real
               elaboration/stdlib/proved.mm from gsangcl
   target      gareacl
 
-mundane axiom area-positive
+axiom area-positive
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)

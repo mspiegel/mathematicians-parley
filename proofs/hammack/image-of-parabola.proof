@@ -1,12 +1,12 @@
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-nonneg
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/square-le
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem image-of-parabola
@@ -25,13 +25,13 @@ theorem image-of-parabola
     let y ∈ f[[−3, 5]]                                                (K1)
 
     2.1.  There is s ∈ [−3, 5] with y = f(s).
-          mun:image u := y, Y := [−3, 5], from K1, 1
+          def:image u := y, Y := [−3, 5], from K1, 1
 
     2.2.  s ∈ [−3, 5]. y = f(s).
           obtain s from line 2.1
 
     2.3.  s ∈ ℝ. −3 ≤ s. s ≤ 5.
-          mun:interval a := −3, b := 5, x := s, from 2.2
+          def:interval a := −3, b := 5, x := s, from 2.2
 
     2.4.  f(s) = s² + 3
           instantiate x := s in H2
@@ -92,17 +92,17 @@ theorem image-of-parabola
           membership, from 2.5
 
     2.16. y ∈ [3, 28]
-          mun:interval a := 3, b := 28, x := y, from 2.8, 2.14, 2.15
+          def:interval a := 3, b := 28, x := y, from 2.8, 2.14, 2.15
 
 3.  f[[−3, 5]] ⊆ [3, 28]
-    mun:subset, from 2
+    def:subset, from 2
 
 4.  For all y ∈ [3, 28], y ∈ f[[−3, 5]].
     proof
     let y ∈ [3, 28]                                                   (K2)
 
     4.1.  y ∈ ℝ. 3 ≤ y. y ≤ 28.
-          mun:interval a := 3, b := 28, x := y, from K2
+          def:interval a := 3, b := 28, x := y, from K2
 
     4.2.  y − 3 ≥ 0
           inequalities
@@ -111,7 +111,7 @@ theorem image-of-parabola
             y − 3 ≥ 0       restate
 
     4.3.  √(y − 3) ∈ ℝ. √(y − 3) ≥ 0. (√(y − 3))² = y − 3.
-          mun:sqrt x := y − 3, from 4.2
+          def:sqrt x := y − 3, from 4.2
 
     4.4.  y − 3 ≤ 25
           inequalities
@@ -132,7 +132,7 @@ theorem image-of-parabola
           inequalities, from 4.3
 
     4.8.  √(y − 3) ∈ [−3, 5]
-          mun:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
+          def:interval a := −3, b := 5, x := √(y − 3), from 4.3, 4.6, 4.7
 
     4.9.  f(√(y − 3)) = (√(y − 3))² + 3
           instantiate x := √(y − 3) in H2, from 4.3
@@ -147,7 +147,7 @@ theorem image-of-parabola
           substitute f(√(y − 3)) = y (line 4.10) into line 4.11
 
 5.  [3, 28] ⊆ f[[−3, 5]]
-    mun:subset, from 4
+    def:subset, from 4
 
 6.  f[[−3, 5]] = [3, 28]
     mun:subset-antisymmetric, from 3, 5

@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/in-subset
 
 theorem a-direction-ending-on-a-proof-block
@@ -26,4 +26,4 @@ theorem a-direction-ending-on-a-proof-block
     assume for all t ∈ A, t ∈ B                                       (D2)
 
     1.2.  A ⊆ B
-          mun:subset, from D2
+          def:subset, from D2

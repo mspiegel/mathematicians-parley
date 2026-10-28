@@ -1,10 +1,10 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/difference-subset
 import mundane theorem    stdlib/sets/remove-member
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import theorem            stdlib/numbers/archimedean-natural
-import mundane definition stdlib/numbers/max
+import definition         stdlib/numbers/max
 import mundane theorem    stdlib/numbers/max-real
 import mundane theorem    stdlib/numbers/le-max
 import mundane theorem    stdlib/numbers/multiply-le
@@ -103,7 +103,7 @@ theorem reciprocal-square-no-limit
           algebra
 
     1.22. |1/N| = 1/N
-          mun:abs x := 1/N
+          def:abs x := 1/N
           requires 1/N ≥ 0: weakening, from 1.15
 
     1.23. |1 + 1/N − 1| = |1/N|

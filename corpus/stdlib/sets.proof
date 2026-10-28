@@ -9,10 +9,10 @@ mundane theorem subset-antisymmetric
   then X = Y
 
 1.  For all t ∈ X, t ∈ Y.
-    mun:subset, from H3
+    def:subset, from H3
 
 2.  For all t ∈ Y, t ∈ X.
-    mun:subset X := Y, Y := X, from H4
+    def:subset X := Y, Y := X, from H4
 
 3.  X = Y
     axi:extensionality, from 1, 2

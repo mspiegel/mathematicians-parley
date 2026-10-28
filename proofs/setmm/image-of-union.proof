@@ -1,7 +1,7 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/sets/union
+import definition         stdlib/sets/subset
+import definition         stdlib/sets/union
 import mundane theorem    stdlib/sets/union-subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/in-union-left
@@ -25,13 +25,13 @@ theorem image-of-union
     let u ∈ F[B ∪ C]                                                  (K1)
 
     2.1.  there is s ∈ B ∪ C with u = F(s)
-          mun:image X := A, Y := B ∪ C, from K1, 1
+          def:image X := A, Y := B ∪ C, from K1, 1
 
     2.2.  s ∈ B ∪ C. u = F(s).
           obtain s from line 2.1
 
     2.3.  s ∈ B or s ∈ C
-          mun:union, from 2.2
+          def:union, from 2.2
 
     2.4.  u ∈ F[B] ∪ F[C]
           cases, from 2.3
@@ -61,14 +61,14 @@ theorem image-of-union
                   mun:in-union-right, from 2.4.5
 
 3.  F[B ∪ C] ⊆ F[B] ∪ F[C]
-    mun:subset, from 2
+    def:subset, from 2
 
 4.  For all u ∈ F[B] ∪ F[C], u ∈ F[B ∪ C].
     proof
     let u ∈ F[B] ∪ F[C]                                               (K2)
 
     4.1.  u ∈ F[B] or u ∈ F[C]
-          mun:union, from K2
+          def:union, from K2
 
     4.2.  u ∈ F[B ∪ C]
           cases, from 4.1
@@ -77,7 +77,7 @@ theorem image-of-union
           assume u ∈ F[B]                                             (C3)
 
           4.2.1.  there is s ∈ B with u = F(s)
-                  mun:image X := A, Y := B, from C3, H4
+                  def:image X := A, Y := B, from C3, H4
 
           4.2.2.  s ∈ B. u = F(s).
                   obtain s from line 4.2.1
@@ -95,7 +95,7 @@ theorem image-of-union
           assume u ∈ F[C]                                             (C4)
 
           4.2.6.  there is s ∈ C with u = F(s)
-                  mun:image X := A, Y := C, from C4, H5
+                  def:image X := A, Y := C, from C4, H5
 
           4.2.7.  s ∈ C. u = F(s).
                   obtain s from line 4.2.6
@@ -110,7 +110,7 @@ theorem image-of-union
                   substitute u = F(s) (line 4.2.7) into line 4.2.9
 
 5.  F[B] ∪ F[C] ⊆ F[B ∪ C]
-    mun:subset, from 4
+    def:subset, from 4
 
 6.  F[B ∪ C] = F[B] ∪ F[C]
     mun:subset-antisymmetric, from 3, 5

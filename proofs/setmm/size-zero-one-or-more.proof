@@ -2,7 +2,7 @@ import mundane theorem    stdlib/counting/card-nat0
 import mundane theorem    stdlib/numbers/le-cases
 import mundane theorem    stdlib/numbers/nat-real
 import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/iff-from-left
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -18,7 +18,7 @@ theorem size-zero-one-or-more
     mun:card-nat0, from H2
 
 2.  |M| = 0 or not (|M| = 0)
-    mun:excluded-middle P := |M| = 0
+    axi:excluded-middle P := |M| = 0
 
 3.  |M| = 0 or |M| = 1 or 1 < |M|
     cases, from 2

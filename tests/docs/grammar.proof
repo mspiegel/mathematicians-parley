@@ -1,14 +1,14 @@
 import axiom              stdlib/calculus/completeness
 import theorem            stdlib/divisibility/prime-factor
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 import mundane theorem    stdlib/numbers/int-closure
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import definition         stdlib/counting/C
 import theorem            proofs/wiedijk/triangle-inequality/abs-bounds as abs-sum
 import definition         tests/docs/tri/T as U (D1)
 import definition         tests/docs/tri/B
-import mundane definition stdlib/calculus/upper-bound
-import mundane definition stdlib/calculus/least-upper-bound
+import definition         stdlib/calculus/upper-bound
+import definition         stdlib/calculus/least-upper-bound
 import mundane theorem    stdlib/sets/in-union-left
 
 theorem a-set-with-a-bound
@@ -22,7 +22,7 @@ theorem a-set-with-a-bound
     exhibit, from H2
 
 2.  1 is an upper bound of S
-    mun:upper-bound u := 1, from H3
+    def:upper-bound u := 1, from H3
 
 3.  There is u ∈ ℝ with u is an upper bound of S.
     exhibit, from 2
@@ -42,7 +42,7 @@ theorem a-real-has-a-sign
   then x < 0 or x = 0 or 0 < x
 
 1.  x < 0 or x = 0 or 0 < x
-    mun:trichotomy
+    axi:trichotomy
 
 theorem a-power-plus-one
   let a ∈ ℤ                                                           (H1)
@@ -56,7 +56,7 @@ theorem a-gcd-divides
   then gcd(4, 6) divides 4
 
 1.  gcd(4, 6) divides 4
-    mun:gcd a := 4, b := 6
+    def:gcd a := 4, b := 6
 
 theorem a-choice-out-of-range
   then C(3, 5) = 0

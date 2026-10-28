@@ -1,6 +1,6 @@
 import definition         stdlib/calculus/tends-to
 import theorem            stdlib/numbers/archimedean
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-nonzero
 import mundane theorem    stdlib/numbers/exponent-step
@@ -44,7 +44,7 @@ theorem factorial-beats-power
           inequalities, from 1.4
 
     1.6.  (k + 1)! = k!·(k + 1)
-          mun:factorial n := k
+          def:factorial n := k
 
     1.7.  2^(k + 1) = 2^k·2
           mun:exponent-step a := 2, m := k

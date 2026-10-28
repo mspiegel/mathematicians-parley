@@ -1,6 +1,6 @@
 import axiom              stdlib/sets/extensionality
 import mundane theorem    stdlib/sets/empty-subset
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 
 theorem empty-set-unique
   note        A set with no members is the empty set: what is in it is in
@@ -25,7 +25,7 @@ theorem empty-set-unique
     mun:empty-subset X := A
 
 3.  For all x ∈ ∅, x ∈ A.
-    mun:subset X := ∅, Y := A, from 2
+    def:subset X := ∅, Y := A, from 2
 
 4.  A = ∅
     axi:extensionality X := A, Y := ∅, from 1, 3

@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 
 theorem a-for-all-line-in-a-requires-line
   note        Block letter, read by a requires line with no method: inside
@@ -108,7 +108,7 @@ theorem a-for-all-line-split-by-cases
           assume y ≥ 0                                                (C1)
 
           1.1.1.  |y| = y
-                  mun:abs x := y, from C1
+                  def:abs x := y, from C1
 
           1.1.2.  |y| ≥ 0
                   calculation
@@ -119,7 +119,7 @@ theorem a-for-all-line-split-by-cases
           assume y < 0                                                (C2)
 
           1.1.3.  |y| = −y
-                  mun:abs x := y, from C2
+                  def:abs x := y, from C2
 
           1.1.4.  −y ≥ 0
                   inequalities
@@ -203,7 +203,7 @@ theorem a-for-all-line-unfolding-a-definition
     let y ∈ ℝ                                                         (K1)
 
     1.1.  |y²| = y²
-          mun:abs x := y², from H1
+          def:abs x := y², from H1
 
 theorem a-for-all-line-in-algebra
   note        Block letter, read by algebra: inside the block letting

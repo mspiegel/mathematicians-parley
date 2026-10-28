@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
 
@@ -21,13 +21,13 @@ theorem odd-product-odd-factors
     assume a is even                                                  (C1)
 
     2.1.  m ∈ ℤ. a = 2m.
-          obtain m: mun:even n := a, from C1
+          obtain m: def:even n := a, from C1
 
     2.2.  a²·(b² − 2b) = 2(2m²·(b² − 2b))
           algebra, from 2.1
 
     2.3.  a²·(b² − 2b) is even
-          mun:even n := a²·(b² − 2b), from 2.2
+          def:even n := a²·(b² − 2b), from 2.2
 
     2.4.  a²·(b² − 2b) is not odd
           mun:not-both n := a²·(b² − 2b), from 2.3, contradicting H3
@@ -45,13 +45,13 @@ theorem odd-product-odd-factors
     assume b is even                                                  (C3)
 
     4.1.  m ∈ ℤ. b = 2m.
-          obtain m: mun:even n := b, from C3
+          obtain m: def:even n := b, from C3
 
     4.2.  a²·(b² − 2b) = 2(a²·(2m² − 2m))
           algebra, from 4.1
 
     4.3.  a²·(b² − 2b) is even
-          mun:even n := a²·(b² − 2b), from 4.2
+          def:even n := a²·(b² − 2b), from 4.2
 
     4.4.  a²·(b² − 2b) is not odd
           mun:not-both n := a²·(b² − 2b), from 4.3, contradicting H3

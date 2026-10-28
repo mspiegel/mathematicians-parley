@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 
 theorem the-second-sentence-unfolded
   note        A line says A ⊆ B and A ⊆ C, and the citation's Y := C names the second to unfold.
@@ -9,4 +9,4 @@ theorem the-second-sentence-unfolded
   then for all t ∈ A, t ∈ C
 
 1.  For all t ∈ A, t ∈ C.
-    mun:subset X := A, Y := C, from H4
+    def:subset X := A, Y := C, from H4

@@ -19,7 +19,7 @@
 # Other fields: target, note.
 
 
-mundane definition divides
+definition divides
   let d ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
@@ -30,7 +30,7 @@ mundane definition divides
               dull fact. This is the principle recorded by the primes pilot: a
               relation is defined once, on the widest set where it makes sense.
 
-mundane definition even
+definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   decided     arithmetic, inspection
@@ -44,7 +44,7 @@ mundane definition even
               same existential this statement writes. Found by checking every
               label the database names against set.mm.
 
-mundane definition odd
+definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
@@ -198,7 +198,7 @@ theorem division-algorithm
               divalg's own variables, because its conclusion is never
               matched against this claim, so `with` says which is which.
 
-mundane definition prime
+definition prime
   let p ∈ ℕ                                                           (H1)
   then        p is prime ↔ p > 1 and for all d ∈ ℕ, if d divides p then
               d = 1 or d = p
@@ -213,7 +213,7 @@ mundane definition prime
               eluz2gt1, declared with the rest of what an elaborator may
               lean on. `target` still names the unfolding and nothing else.
 
-mundane definition gcd
+definition gcd
   sort        number, number → number
   builds      _1 _2 cgcd co
   reads       the greatest common divisor of
@@ -231,7 +231,7 @@ mundane definition gcd
               dvdslegcd is the fourth said of one divisor where this says it
               of every e ∈ ℕ.
 
-mundane definition lcm
+definition lcm
   sort        number, number → number
   builds      _1 _2 clcm co
   reads       the least common multiple of
@@ -323,7 +323,7 @@ mundane theorem below-not-divisible
   target      gnndvdslt with N := n, K := x
   note        A natural number below n is too small for n to divide it.
 
-mundane definition congruent-mod
+definition congruent-mod
   let n ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
@@ -550,7 +550,7 @@ definition perfect
   then        n is perfect ↔ σ(n) = 2n
   metamath    the notation's own target, σ(n) = 2n
   note        The two sides are one formula in the kernel, as for
-              mun:stdlib/divisibility/congruent-mod, so unfolding it says the
+              def:stdlib/divisibility/congruent-mod, so unfolding it says the
               same thing the other way. A proof names it: "so n is perfect,
               by definition".
 

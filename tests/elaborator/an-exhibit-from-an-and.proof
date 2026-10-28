@@ -1,5 +1,5 @@
 import mundane theorem stdlib/sets/remove-member
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 
 theorem two-witnesses-from-an-and
   note        A line written "A and B" supplies each part, as "A. B." does, to an exhibit of two names.

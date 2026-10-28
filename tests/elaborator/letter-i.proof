@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 
 theorem obtained-i
   note        An i a line introduces is that i in its scope, and not the
@@ -8,7 +8,7 @@ theorem obtained-i
   then n² is odd
 
 1.  i ∈ ℤ. n = 2i + 1.
-    obtain i: mun:odd, from H2
+    obtain i: def:odd, from H2
 
 2.  n² = (2i + 1)²
     substitute n = 2i + 1 (line 1)
@@ -22,7 +22,7 @@ theorem obtained-i
          = 2(2i² + 2i) + 1     3
 
 5.  n² is odd
-    mun:odd n := n², from 4
+    def:odd n := n², from 4
 
 theorem fixed-i
   let i ∈ ℕ                                                           (H1)

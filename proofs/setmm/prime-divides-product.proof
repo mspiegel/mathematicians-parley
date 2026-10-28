@@ -1,9 +1,9 @@
 import theorem            stdlib/divisibility/coprime-divides
 import mundane theorem    stdlib/divisibility/divides-multiple
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/divisibility/prime-coprime
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -27,7 +27,7 @@ theorem prime-divides-product
     assume P divides M·N                                              (D1)
 
     2.1.  P divides M or not (P divides M)
-          mun:excluded-middle P := P divides M
+          axi:excluded-middle P := P divides M
 
     2.2.  P divides M or P divides N
           cases, from 2.1

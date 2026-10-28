@@ -1,6 +1,6 @@
-import mundane definition stdlib/functions/one-to-one
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/one-to-one-onto
+import definition         stdlib/functions/one-to-one
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/one-to-one-onto
 
 theorem six-minus-n-bijection
   note        6 − s = 6 − t only where s = t, and y is 6 − (6 − y).
@@ -30,7 +30,7 @@ theorem six-minus-n-bijection
           algebra, from 1.3
 
 2.  f : ℤ → ℤ is one-to-one
-    mun:one-to-one, from H1, 1
+    def:one-to-one, from H1, 1
 
 3.  For all y ∈ ℤ, there is x ∈ ℤ with y = f(x).
     proof
@@ -46,7 +46,7 @@ theorem six-minus-n-bijection
           exhibit, from 3.2
 
 4.  f : ℤ → ℤ is onto
-    mun:onto, from H1, 3
+    def:onto, from H1, 3
 
 5.  f : ℤ → ℤ is one-to-one and onto
-    mun:one-to-one-onto, from 2, 4
+    def:one-to-one-onto, from 2, 4

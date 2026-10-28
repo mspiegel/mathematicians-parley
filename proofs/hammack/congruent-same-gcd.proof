@@ -1,7 +1,7 @@
 import theorem            proofs/hammack/gcd-with-remainder/gcd-with-remainder
-import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/gcd
 
 theorem congruent-same-gcd
   note        If a ≡ b (mod n) then a − b = n·k for some k, so a = k·n + b,
@@ -13,10 +13,10 @@ theorem congruent-same-gcd
   then gcd(a, n) = gcd(b, n)
 
 1.  n divides a − b
-    mun:congruent-mod, from H4
+    def:congruent-mod, from H4
 
 2.  k ∈ ℤ. a − b = n·k.
-    obtain k: mun:divides d := n, n := a − b, from 1
+    obtain k: def:divides d := n, n := a − b, from 1
 
 3.  a = k·n + b
     algebra, from 2

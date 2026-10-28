@@ -3,8 +3,8 @@ import mundane theorem    stdlib/trigonometry/cos-negative
 import mundane theorem    stdlib/trigonometry/sin-negative
 import mundane theorem    stdlib/trigonometry/cos-complex
 import mundane theorem    stdlib/trigonometry/sin-complex
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 
 theorem sine-squared-plus-cosine-squared
   metamath    sincossq

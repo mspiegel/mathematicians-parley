@@ -1,4 +1,4 @@
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -17,7 +17,7 @@ theorem not-both
     assume not (a = 0 and b = 0)                                      (D1)
 
     1.1.  a = 0 or a ≠ 0
-          mun:excluded-middle P := a = 0
+          axi:excluded-middle P := a = 0
 
     1.2.  a ≠ 0 or b ≠ 0
           cases, from 1.1

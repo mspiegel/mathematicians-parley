@@ -1,5 +1,5 @@
-import mundane definition stdlib/sets/difference
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/difference
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/disjoint-member
 import mundane theorem    stdlib/sets/in-subset
 
@@ -28,10 +28,10 @@ theorem disjoint-from-a-difference
                   suppose t ∉ B                                       (S)
 
                   1.1.2.1.  t ∈ A ∖ B
-                            mun:difference u := t, Y := A, Z := B, from S, 1.1.1
+                            def:difference u := t, Y := A, Z := B, from S, 1.1.1
 
                   1.1.2.2.  t ∉ C
                             mun:disjoint-member Y := A ∖ B, Z := C, from H4, 1.1.2.1, contradicting K2
 
     1.2.  C ⊆ B
-          mun:subset, from 1.1
+          def:subset, from 1.1

@@ -263,13 +263,13 @@ mundane theorem range-nat
               well, and a line said of every k ∈ ℕ answers a hypothesis over
               the range (`SYNTAX.md`), both by this lemma.
 
-mundane definition range
+definition range
   let n ∈ ℤ                                                           (H1)
   then        k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
   metamath    fznn
   target      fznn
 
-mundane definition range0
+definition range0
   let n ∈ ℕ₀                                                          (H1)
   then        k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
   metamath    fznn0
@@ -335,7 +335,7 @@ mundane theorem range-inside
   target      gfzss with K := c, M := a, N := b, L := d
   note        A range whose ends lie within another's lies inside it.
 
-mundane definition range-between
+definition range-between
   let k ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)

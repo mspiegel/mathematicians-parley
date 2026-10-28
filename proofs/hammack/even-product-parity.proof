@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -41,10 +41,10 @@ theorem even-product-parity
           assume y is even                                            (C3)
 
           2.3.1.  a ∈ ℤ. x = 2a + 1.
-                  obtain a: mun:odd n := x, from C2
+                  obtain a: def:odd n := x, from C2
 
           2.3.2.  b ∈ ℤ. y = 2b.
-                  obtain b: mun:even n := y, from C3
+                  obtain b: def:even n := y, from C3
 
           2.3.3.  x²·(y + 3) = (2a + 1)²·(y + 3)
                   substitute x = 2a + 1 (line 2.3.1)
@@ -62,7 +62,7 @@ theorem even-product-parity
                                = 2(4a²b + 6a² + 4ab + 6a + b + 1) + 1           2.3.5
 
           2.3.7.  x²·(y + 3) is odd
-                  mun:odd n := x²·(y + 3), from 2.3.6
+                  def:odd n := x²·(y + 3), from 2.3.6
 
           2.3.8.  x²·(y + 3) is not odd
                   mun:not-both n := x²·(y + 3), from H3, contradicting 2.3.7

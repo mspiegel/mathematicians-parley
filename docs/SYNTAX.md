@@ -472,7 +472,7 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   colon. With a variable and its domain, {t ∈ X : P(t)}, membership is
   t ∈ X and P(t). With an expression, {E(s) : s ∈ Y}, membership of u is
   "there is s ∈ Y with u = E(s)". Each is a definition with a pointer,
-  mun:stdlib/sets/set-builder and mun:stdlib/functions/set-image, used in both directions by the ↔
+  def:stdlib/sets/set-builder and def:stdlib/functions/set-image, used in both directions by the ↔
   convention. Both are kept because a school reader has met both.
 - `(a, b)` is the pair of a and b, and `A × B` is the set of pairs whose
   first part is in A and whose second is in B. Where the place it fills
@@ -532,11 +532,11 @@ step of its own.
 
 | form | meaning |
 |---|---|
-| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the name the file imports the definition under, as `def:C` after `import definition stdlib/counting/C`. A definition a proof takes for granted is applied the same way and cited `mun:X`, as `mun:odd` after `import mundane definition stdlib/divisibility/odd` |
-| `thm:X v := t, from L` | the same for a theorem, and `axi:X` for an axiom; `mun:X` for any item a proof takes for granted, whatever its kind. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line after its record's header, `import mundane theorem stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
+| `def:X v := t, from L` | apply definition X with its variable v set to t, using L for its hypotheses. X is the name the file imports the definition under, as `def:C` after `import definition stdlib/counting/C`. Every definition is cited so, `def:odd` among them: a definition is never mundane |
+| `thm:X v := t, from L` | the same for a theorem, and `axi:X` for an axiom; `mun:X` for a theorem a proof takes for granted. A theorem of this proof file is written by its name alone, `thm:odd-square`, with no import; any other item is imported at the head of the file, one to a line after its record's header, `import mundane theorem stdlib/numbers/int-real`, and cited by its name, `mun:int-real`. `GRAMMAR.md` gives the rules under "Names" |
 | `obtain a, b: item, from L` or `obtain a, b from line L` | the cited item, or with no item the named line, concludes an existence claim; of a line saying several things, it is the one "there is" among them, and a line saying none or several gives none; name its objects a and b; the claim is the body. The second form takes one line and carries no colon, because there is no item to separate the names from and no hypothesis list to introduce. **The claim states the membership of each name introduced**, as its own sentence, so that nothing has to read the cited item to learn what the name is. See `GRAMMAR.md` on sorts. **Use the first form where the existence comes from an item**, and the second, after a step stating the existence, where it comes from a line. In the first form the name arrives in a claim written above the justification that introduces it, and the claim says all there is of it, so the one line reads as "p = 2r for some integer r" or "choose N with …" does, whatever letter the item uses: the item's text is elsewhere, and its letters never reach the page. `LINTER.md` keeps the rule |
 | `D, from L` | D is a define's label; the claim equates the name it gives, applied or not, with what it names, and for a define by cases L says which case |
-| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `mun:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
+| `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
@@ -725,7 +725,7 @@ needed:
 
 ```proof
 let m = gcd(s, w), a positive integer                               (D1)
-    mun:gcd a := s, b := w, from 4, 35
+    def:gcd a := s, b := w, from 4, 35
     reads the number whose square is s
 
 55. s = m²
@@ -973,10 +973,10 @@ means by citing it, by its label in its own file, `D1 n := 6, from 2`, and
 in another file as a definition, `def:triangular-number n := 10, from 2`,
 after `import definition proofs/tri/triangular-number`; the phrase and its
 meaning are then one formula. A file writes a phrase only where it defines
-it above the theorem or imports it. Only the standard library marks a phrase
-mundane, `mundane define upper-bound: …`, which a proof imports with `import
-mundane definition stdlib/calculus/upper-bound` and cites `mun:upper-bound`.
-In set.mm a phrase is its meaning written out, so set.mm gets no symbol for
+it above the theorem or imports it. A define of a phrase is never mundane,
+in the standard library or anywhere else: a proof imports the library's
+`upper-bound` with `import definition stdlib/calculus/upper-bound` and cites
+`def:upper-bound`. In set.mm a phrase is its meaning written out, so set.mm gets no symbol for
 it.
 
 The alternative was to make the name opaque and require a `substitute` step at
@@ -1056,7 +1056,7 @@ it; each is worked out as a closed fact is. A change touching a letter,
 
 ```proof
 4.4.  |a + b| = −(a + b)
-      mun:abs x := a + b, from C2
+      def:abs x := a + b, from C2
 
 4.5.  −(a + b) = −a + −b
       algebra

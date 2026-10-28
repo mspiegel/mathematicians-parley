@@ -3,12 +3,12 @@ import theorem            stdlib/calculus/derivative-linear
 import theorem            stdlib/calculus/derivative-square
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/sets/subset-transitive
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/calculus/open-interval-open
-import mundane definition stdlib/calculus/upper-bound
-import mundane definition stdlib/calculus/least-upper-bound
+import definition         stdlib/calculus/upper-bound
+import definition         stdlib/calculus/least-upper-bound
 import definition         stdlib/calculus/tends-to
 import theorem            stdlib/numbers/archimedean
 import mundane theorem    stdlib/numbers/abs-difference-lt
@@ -153,16 +153,16 @@ theorem one-bounds-the-unit-interval
     let s ∈ [0, 1]                                                    (K1)
 
     1.1.  s ≤ 1
-          mun:interval a := 0, b := 1, x := s, from K1
+          def:interval a := 0, b := 1, x := s, from K1
 
 2.  1 is an upper bound of [0, 1]
-    mun:upper-bound u := 1, S := [0, 1], from 1
+    def:upper-bound u := 1, S := [0, 1], from 1
 
 theorem one-is-in-the-unit-interval
   then 1 ∈ [0, 1]
 
 1.  1 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 1
+    def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
@@ -177,7 +177,7 @@ theorem a-half-does-not-bound-the-unit-interval
     suppose 1/2 is an upper bound of [0, 1]                           (S)
 
     2.1.  For all s ∈ [0, 1], s ≤ 1/2.
-          mun:upper-bound u := 1/2, S := [0, 1], from S
+          def:upper-bound u := 1/2, S := [0, 1], from S
 
     2.2.  1 ≤ 1/2, which is impossible
           instantiate s := 1 in line 2.1, from 1
@@ -205,7 +205,7 @@ theorem one-is-the-least-bound-of-the-unit-interval
     assume u is an upper bound of [0, 1]                              (A1)
 
     3.1.  For all s ∈ [0, 1], s ≤ u.
-          mun:upper-bound S := [0, 1], from A1
+          def:upper-bound S := [0, 1], from A1
 
     3.2.  1 ≤ u
           instantiate s := 1 in line 3.1, from 2
@@ -215,7 +215,7 @@ theorem one-is-the-least-bound-of-the-unit-interval
     join 1, 3
 
 5.  1 is a least upper bound of [0, 1]
-    mun:least-upper-bound c := 1, S := [0, 1], from 4
+    def:least-upper-bound c := 1, S := [0, 1], from 4
 
 theorem one-over-n-tends-to-zero
   ε ranges over ℝ

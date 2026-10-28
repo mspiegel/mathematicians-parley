@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-le
 import theorem            stdlib/divisibility/divides-gcd
 
@@ -16,7 +16,7 @@ theorem common-divisor-at-most-gcd
     thm:divides-gcd d := K, a := M, b := N, from H4, H5
 
 2.  gcd(M, N) ∈ ℕ
-    mun:gcd a := M, b := N
+    def:gcd a := M, b := N
 
 3.  K ≤ gcd(M, N)
     mun:divides-le e := K, m := gcd(M, N), from 1, 2

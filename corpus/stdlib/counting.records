@@ -18,7 +18,7 @@
 # Other fields: target, note.
 
 
-mundane definition factorial
+definition factorial
   then        0! = 1. 1! = 1.
   let n ∈ ℕ₀                                                          (H1)
   then        (n + 1)! = n!·(n + 1)

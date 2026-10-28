@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/image-within
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/sets/subset-self
@@ -9,19 +9,19 @@ import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/le-cases
 import mundane theorem    stdlib/numbers/le-max
-import mundane definition stdlib/numbers/max
+import definition         stdlib/numbers/max
 import mundane theorem    stdlib/numbers/max-real
 import theorem            stdlib/numbers/triangle-inequality
-import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane definition stdlib/sums/range
+import axiom              stdlib/reasoning/excluded-middle
+import definition         stdlib/sums/range
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-transitive
 
-mundane define upper-bound: u is an upper bound of S means
+define upper-bound: u is an upper bound of S means
        for all s ∈ S, s ≤ u                                            (D1)
        reads every member of S is at most u
 
-mundane define least-upper-bound: c is a least upper bound of S means
+define least-upper-bound: c is a least upper bound of S means
        c is an upper bound of S, and for all u ∈ ℝ, if u is an upper bound
        of S then c ≤ u                                                 (D2)
        reads c bounds S above, and no smaller number does
@@ -73,12 +73,12 @@ let h(x) = u(x) − v(x), for x ∈ [a, b]                                (D5)
     mun:open-interval-open
 
 5.  a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities, from H2
     requires a ≤ b: weakening, from H4
 
 6.  b ∈ [a, b]
-    mun:interval x := b
+    def:interval x := b
     requires a ≤ b: weakening, from H4
     requires b ≤ b: inequalities, from H3
 
@@ -478,7 +478,7 @@ mundane theorem first-terms-bounded
           let m ∈ {1, …, 1}                                           (K1)
 
           1.2.1.  m ∈ ℕ and m ≤ 1
-                  mun:range n := 1, k := m, from K1
+                  def:range n := 1, k := m, from K1
 
           1.2.2.  m ≤ 1
                   inequalities, from 1.2.1
@@ -527,7 +527,7 @@ mundane theorem first-terms-bounded
           let m ∈ {1, …, K + 1}                                       (K2)
 
           1.8.1.  m ∈ ℕ and m ≤ K + 1
-                  mun:range n := K + 1, k := m, from K2
+                  def:range n := K + 1, k := m, from K2
 
           1.8.2.  m < K + 1 or m = K + 1
                   mun:le-cases x := m, y := K + 1, from 1.8.1
@@ -550,7 +550,7 @@ mundane theorem first-terms-bounded
                               m ≤ K              adding −1
 
                   1.8.4.3.  m ∈ {1, …, K}
-                            mun:range n := K, k := m, from 1.8.4.2
+                            def:range n := K, k := m, from 1.8.4.2
 
                   1.8.4.4.  |x(m)| ≤ C
                             instantiate i := m in line 1.4, from 1.8.4.3
@@ -627,7 +627,7 @@ let B = max(C, |L| + 1), a real number                                (D1)
           mun:abs-real x := x(m), from H1
 
     11.2. m ≤ N or not m ≤ N
-          mun:excluded-middle P := m ≤ N
+          axi:excluded-middle P := m ≤ N
 
     11.3. |x(m)| ≤ B
           cases, from 11.2
@@ -636,7 +636,7 @@ let B = max(C, |L| + 1), a real number                                (D1)
           assume m ≤ N                                                (C1)
 
           11.3.1. m ∈ {1, …, N}
-                  mun:range n := N, k := m, from C1
+                  def:range n := N, k := m, from C1
 
           11.3.2. |x(m)| ≤ C
                   instantiate i := m in line 6, from 11.3.1
@@ -842,7 +842,7 @@ theorem monotone-limit
     let s ∈ x[ℕ]                                                      (K1)
 
     4.1.  There is k ∈ ℕ with s = x(k).
-          mun:image u := s, from H1, K1, 1
+          def:image u := s, from H1, K1, 1
 
     4.2.  k ∈ ℕ. s = x(k).
           obtain k from line 4.1
@@ -855,17 +855,17 @@ theorem monotone-limit
           requires x(k) ∈ ℝ: from H1
 
 5.  B is an upper bound of x[ℕ]
-    mun:upper-bound, from 4
+    def:upper-bound, from 4
 
 6.  c ∈ ℝ. c is a least upper bound of x[ℕ].
     obtain c: axi:completeness, from 2, 3, 5
 
 7.  c is an upper bound of x[ℕ].
     For all u ∈ ℝ, if u is an upper bound of x[ℕ] then c ≤ u.
-    mun:least-upper-bound, from 6
+    def:least-upper-bound, from 6
 
 8.  For all s ∈ x[ℕ], s ≤ c.
-    mun:upper-bound, from 7
+    def:upper-bound, from 7
 
 9.  For all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n).
     mun:increasing-terms, from H2
@@ -903,7 +903,7 @@ theorem monotone-limit
                                         exhibit, from K2, 10.2.1.2.1, contradicting S
 
           10.2.2. c − ε is an upper bound of x[ℕ]
-                  mun:upper-bound, from 10.2.1
+                  def:upper-bound, from 10.2.1
 
           10.2.3. c ≤ c − ε
                   instantiate u := c − ε in line 7, from 10.2.2
@@ -915,7 +915,7 @@ theorem monotone-limit
           obtain s from line 10.2
 
     10.4. There is N ∈ ℕ with s = x(N).
-          mun:image u := s, from H1, 1, 10.3
+          def:image u := s, from H1, 1, 10.3
 
     10.5. N ∈ ℕ. s = x(N).
           obtain N from line 10.4

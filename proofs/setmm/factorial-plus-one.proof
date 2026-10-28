@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/counting/factorial-divisible
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-one
 import mundane theorem    stdlib/numbers/pos-int-nat
@@ -39,7 +39,7 @@ theorem factorial-plus-one
           exhibit, from S, 1.5
 
     1.7.  N divides M! + 1
-          mun:divides d := N, n := M! + 1, from 1.6
+          def:divides d := N, n := M! + 1, from 1.6
           requires M! ∈ ℕ: mun:factorial-nat n := M
 
     1.8.  N divides (M! + 1) − M!

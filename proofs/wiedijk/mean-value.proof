@@ -4,7 +4,7 @@ import theorem            stdlib/calculus/derivative-linear
 import mundane theorem    stdlib/calculus/derivative-real
 import theorem            stdlib/calculus/derivative-sum
 import theorem            stdlib/calculus/rolle
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-interval-open
 import mundane theorem    stdlib/calculus/open-within-closed
@@ -37,12 +37,12 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
       b − a > 0          adding b
 
 2.  a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: weakening, from H3
 
 3.  b ∈ [a, b]
-    mun:interval x := b
+    def:interval x := b
     requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 

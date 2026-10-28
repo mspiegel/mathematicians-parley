@@ -1,5 +1,5 @@
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/cos-zero
 import mundane theorem    stdlib/trigonometry/sin-zero
 import theorem            stdlib/trigonometry/cos-add

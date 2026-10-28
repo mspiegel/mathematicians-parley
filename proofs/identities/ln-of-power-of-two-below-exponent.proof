@@ -1,4 +1,4 @@
-import mundane definition stdlib/logarithms/ln
+import definition         stdlib/logarithms/ln
 import mundane theorem    stdlib/logarithms/ln-power
 import mundane theorem    stdlib/numbers/less-scaled
 

@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
 
 theorem odd-from-square
@@ -19,7 +19,7 @@ theorem odd-from-square
     assume a is even                                                  (C1)
 
     2.1.  There is k ∈ ℤ with a = 2k.
-          mun:even, from C1
+          def:even, from C1
 
     2.2.  k ∈ ℤ. a = 2k.
           obtain k from line 2.1
@@ -28,7 +28,7 @@ theorem odd-from-square
           algebra, from 2.2
 
     2.4.  4 divides a²
-          mun:divides d := 4, n := a², from 2.3, contradicting H2
+          def:divides d := 4, n := a², from 2.3, contradicting H2
 
     case
     assume a is odd, which is the claim                               (C2)

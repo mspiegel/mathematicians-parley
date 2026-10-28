@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/reasoning/or-right
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 
 theorem a-second-sentence-filling-an-item
   note        Rule: sentences, a line of several sentences. Route: from L on
@@ -323,7 +323,7 @@ theorem a-second-sentence-unfolded
   then there is k ∈ ℤ with b = 2k
 
 1.  There is k ∈ ℤ with b = 2k.
-    mun:even n := b, from H3
+    def:even n := b, from H3
 
 theorem an-and-part-unfolded
   note        Rule: sentences, a line P and Q. Route: a definition unfolded
@@ -334,7 +334,7 @@ theorem an-and-part-unfolded
   then there is k ∈ ℤ with b = 2k
 
 1.  There is k ∈ ℤ with b = 2k.
-    mun:even n := b, from H3
+    def:even n := b, from H3
 
 theorem a-second-sentence-by-algebra
   note        Rule: sentences, a line of several sentences. Route: algebra,

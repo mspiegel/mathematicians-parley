@@ -1,7 +1,7 @@
 import theorem            proofs/setmm/divisor-of-prime/divisor-of-prime
 import theorem            proofs/setmm/prime-divides-product/prime-divides-product
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/exponent-zero
 import mundane theorem    stdlib/numbers/power-integer
@@ -22,7 +22,7 @@ theorem prime-divides-power
   then P = Q
 
 1.  P > 1
-    mun:prime p := P, from H2
+    def:prime p := P, from H2
 
 2.  For all k ∈ ℕ₀, if P divides Q^k then P = Q.
     induction on k starting at 0

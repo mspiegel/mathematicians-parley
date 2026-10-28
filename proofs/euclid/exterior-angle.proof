@@ -4,7 +4,7 @@ import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 
 theorem exterior-angle
   note        Euclid I.32. The exterior angle ∠ABD and the interior angle at
@@ -21,7 +21,7 @@ theorem exterior-angle
     mun:between-apart R := B, S := C, T := D, from H6
 
 2.  A ≠ B
-    mun:triangle, from H5
+    def:triangle, from H5
 
 3.  ∠CBA + ∠ABD = 180°
     axi:supplementary-angles A := C, C := D, D := A, from H6, 2

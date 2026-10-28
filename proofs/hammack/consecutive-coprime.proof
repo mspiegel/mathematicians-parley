@@ -1,9 +1,9 @@
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-one
 import mundane theorem    stdlib/divisibility/gcd-one
 import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 
 theorem consecutive-coprime
   note        A common divisor of n and n + 1 divides their difference 1, so
@@ -12,7 +12,7 @@ theorem consecutive-coprime
   then gcd(n, n + 1) = 1
 
 1.  n = 0 or n ≠ 0
-    mun:excluded-middle P := n = 0
+    axi:excluded-middle P := n = 0
 
 2.  gcd(n, n + 1) = 1
     cases, from 1
@@ -38,7 +38,7 @@ theorem consecutive-coprime
           mun:nat0-nonzero m := n, from C2
 
     2.5.  gcd(n, n + 1) ∈ ℕ. gcd(n, n + 1) divides n. gcd(n, n + 1) divides n + 1.
-          mun:gcd a := n, b := n + 1, from 2.4
+          def:gcd a := n, b := n + 1, from 2.4
 
     2.6.  gcd(n, n + 1) divides (n + 1) − n
           mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.5

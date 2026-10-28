@@ -1,7 +1,7 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/numbers/abs-difference-lt
-import mundane definition stdlib/numbers/min
+import definition         stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/min-le
 import mundane theorem    stdlib/numbers/lt-min

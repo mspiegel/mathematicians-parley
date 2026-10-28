@@ -4,8 +4,8 @@ import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/nat-int
 import mundane theorem    stdlib/numbers/nat-real
 import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/prime-nat
 import mundane theorem    stdlib/reasoning/modus-ponens
 
@@ -24,7 +24,7 @@ theorem square-not-prime
           mun:prime-nat p := A², from S
 
     1.2.  A² > 1
-          mun:prime p := A², from S, 1.1
+          def:prime p := A², from S, 1.1
 
     1.3.  |A| ∈ ℕ₀
           mun:abs-integer z := A
@@ -55,11 +55,11 @@ theorem square-not-prime
           requires |A| ∈ ℝ: mun:nat-real m := |A|, from 1.6
 
     1.8.  |A| divides A²
-          mun:divides d := |A|, n := A², from 1.7
+          def:divides d := |A|, n := A², from 1.7
           requires |A| ∈ ℤ: mun:nat-int m := |A|, from 1.6
 
     1.9.  For all d ∈ ℕ, if d divides A² then d = 1 or d = A².
-          mun:prime p := A², from S, 1.1
+          def:prime p := A², from S, 1.1
 
     1.10. If |A| divides A² then |A| = 1 or |A| = A².
           instantiate d := |A| in line 1.9, from 1.6

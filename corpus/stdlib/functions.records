@@ -18,7 +18,7 @@
 # Other fields: target, note.
 
 
-mundane definition set-image
+definition set-image
   let Y be a set                                                      (H1)
   let Z be a set                                                      (H2)
   let E : Y → Z                                                       (H3)
@@ -88,7 +88,7 @@ mundane theorem added-elements-stay-inside
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
 
-mundane definition image
+definition image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   then        u ∈ f[Y] ↔ there is s ∈ Y with u = f(s)
@@ -96,7 +96,7 @@ mundane definition image
               together in elaboration/stdlib/proved.mm
   target      gfvelima
   note        f[Y] is everything f sends Y to, {f(s) : s ∈ Y}. It is the same
-              set as `mun:stdlib/functions/set-image` speaks of for a map
+              set as `def:stdlib/functions/set-image` speaks of for a map
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
 
@@ -137,21 +137,21 @@ mundane theorem value-in-image
               elaboration/stdlib/proved.mm
   target      gfnfvima
 
-mundane definition one-to-one
+definition one-to-one
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one ↔ f : X → Y and for all s, t ∈ X,
               if f(s) = f(t) then s = t
   metamath    dff13
   target      dff13
 
-mundane definition onto
+definition onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is onto ↔ f : X → Y and for all y ∈ Y, there is
               x ∈ X with y = f(x)
   metamath    dffo3
   target      dffo3
 
-mundane definition one-to-one-onto
+definition one-to-one-onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one and onto ↔ f : X → Y is one-to-one
               and f : X → Y is onto
@@ -166,7 +166,7 @@ mundane theorem inverse-value
               elaboration/stdlib/proved.mm
   target      gf1cnvfv1
 
-mundane definition preimage
+definition preimage
   let f : X → W                                                       (H1)
   then        u ∈ f⁻¹[Z] ↔ u ∈ X and f(u) ∈ Z
   metamath    elpreima, with ffn, which this corpus proves together in
@@ -218,7 +218,7 @@ mundane theorem composition-one-to-one
   note        Two different points stay apart under f, and their images
               stay apart under g.
 
-mundane definition bijection
+definition bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one and onto                                (H2)
   then        there is a bijection from X to Y

@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 
 theorem cube-minus-one-even-gives-odd
   note        An integer is even or odd. If x is even, x = 2k and x³ − 1 is
@@ -21,7 +21,7 @@ theorem cube-minus-one-even-gives-odd
     assume x is even                                                  (C1)
 
     2.1.  k ∈ ℤ. x = 2k.
-          obtain k: mun:even, from C1
+          obtain k: def:even, from C1
 
     2.2.  x³ − 1 = (2k)³ − 1
           substitute x = 2k (line 2.1)
@@ -35,7 +35,7 @@ theorem cube-minus-one-even-gives-odd
                    = 2(4k³ − 1) + 1   2.3
 
     2.5.  x³ − 1 is odd
-          mun:odd n := x³ − 1, from 2.4
+          def:odd n := x³ − 1, from 2.4
 
     2.6.  x³ − 1 is not odd
           mun:not-both n := x³ − 1, from H2, contradicting 2.5

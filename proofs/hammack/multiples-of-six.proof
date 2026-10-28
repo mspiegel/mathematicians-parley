@@ -1,6 +1,6 @@
-import mundane definition stdlib/functions/set-image
-import mundane definition stdlib/sets/intersection
-import mundane definition stdlib/sets/subset
+import definition         stdlib/functions/set-image
+import definition         stdlib/sets/intersection
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem multiples-of-six
@@ -13,7 +13,7 @@ theorem multiples-of-six
     let t ∈ {6n : n ∈ ℤ}                                              (K1)
 
     1.1.  There is n ∈ ℤ with t = 6n.
-          mun:set-image u := t, from K1
+          def:set-image u := t, from K1
 
     1.2.  m ∈ ℤ. t = 6m.
           obtain m from line 1.1
@@ -25,7 +25,7 @@ theorem multiples-of-six
           exhibit, from 1.3
 
     1.5.  t ∈ {2n : n ∈ ℤ}
-          mun:set-image u := t, from 1.4
+          def:set-image u := t, from 1.4
 
     1.6.  t = 3·(2m)
           algebra, from 1.2
@@ -34,32 +34,32 @@ theorem multiples-of-six
           exhibit, from 1.6
 
     1.8.  t ∈ {3n : n ∈ ℤ}
-          mun:set-image u := t, from 1.7
+          def:set-image u := t, from 1.7
 
     1.9.  t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
-          mun:intersection u := t, from 1.5, 1.8
+          def:intersection u := t, from 1.5, 1.8
 
 2.  {6n : n ∈ ℤ} ⊆ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}, t ∈ {6n : n ∈ ℤ}.
     proof
     let t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}                               (K2)
 
     3.1.  t ∈ {2n : n ∈ ℤ}
-          mun:intersection u := t, from K2
+          def:intersection u := t, from K2
 
     3.2.  t ∈ {3n : n ∈ ℤ}
-          mun:intersection u := t, from K2
+          def:intersection u := t, from K2
 
     3.3.  There is n ∈ ℤ with t = 2n.
-          mun:set-image u := t, from 3.1
+          def:set-image u := t, from 3.1
 
     3.4.  a ∈ ℤ. t = 2a.
           obtain a from line 3.3
 
     3.5.  There is n ∈ ℤ with t = 3n.
-          mun:set-image u := t, from 3.2
+          def:set-image u := t, from 3.2
 
     3.6.  b ∈ ℤ. t = 3b.
           obtain b from line 3.5
@@ -92,10 +92,10 @@ theorem multiples-of-six
           exhibit, from 3.13
 
     3.15. t ∈ {6n : n ∈ ℤ}
-          mun:set-image u := t, from 3.14
+          def:set-image u := t, from 3.14
 
 4.  {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ} ⊆ {6n : n ∈ ℤ}
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  {6n : n ∈ ℤ} = {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
     mun:subset-antisymmetric, from 2, 4

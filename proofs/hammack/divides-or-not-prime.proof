@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/gcd
-import mundane definition stdlib/divisibility/prime
-import mundane axiom      stdlib/reasoning/excluded-middle
+import definition         stdlib/divisibility/gcd
+import definition         stdlib/divisibility/prime
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -15,7 +15,7 @@ theorem divides-or-not-prime
   then b divides a or not (b is prime)
 
 1.  b divides a or not (b divides a)
-    mun:excluded-middle P := b divides a
+    axi:excluded-middle P := b divides a
 
 2.  b divides a or not (b is prime)
     cases, from 1
@@ -34,10 +34,10 @@ theorem divides-or-not-prime
           suppose b is prime                                          (S)
 
           2.2.1.  b > 1. For all d ∈ ℕ, if d divides b then d = 1 or d = b.
-                  mun:prime p := b, from S
+                  def:prime p := b, from S
 
           2.2.2.  gcd(a, b) ∈ ℕ. gcd(a, b) divides b.
-                  mun:gcd
+                  def:gcd
 
           2.2.3.  If gcd(a, b) divides b then gcd(a, b) = 1 or gcd(a, b) = b.
                   instantiate d := gcd(a, b) in line 2.2.1, from 2.2.2
@@ -46,7 +46,7 @@ theorem divides-or-not-prime
                   mun:modus-ponens P := gcd(a, b) divides b, from 2.2.2, 2.2.3
 
           2.2.5.  gcd(a, b) divides a
-                  mun:gcd
+                  def:gcd
 
           2.2.6.  b divides a
                   cases, from 2.2.4

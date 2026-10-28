@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import theorem            proofs/setmm/rational-closure/rational-quotient
 
 theorem irrational-times-rational
@@ -14,7 +14,7 @@ theorem irrational-times-rational
   then A·B ∈ ℝ ∖ ℚ
 
 1.  A ∈ ℝ. A ∉ ℚ.
-    mun:difference u := A, from H3
+    def:difference u := A, from H3
 
 2.  A·B ∈ ℝ
     membership, from 1
@@ -37,4 +37,4 @@ theorem irrational-times-rational
           restate 1, contradicting 3.3
 
 4.  A·B ∈ ℝ ∖ ℚ
-    mun:difference u := A·B, from 2, 3
+    def:difference u := A·B, from 2, 3

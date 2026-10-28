@@ -1,5 +1,5 @@
 import theorem            stdlib/geometry/law-of-sines
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 
 theorem thirty-sixty-ninety
   note        The law of sines compares the side opposite the right angle,

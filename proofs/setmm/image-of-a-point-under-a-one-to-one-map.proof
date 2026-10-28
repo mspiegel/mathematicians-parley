@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/image
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/image
+import definition         stdlib/functions/one-to-one
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/sets/in-subset
 
@@ -14,7 +14,7 @@ theorem image-of-a-point-under-a-one-to-one-map
   then F(X) ∈ F[Y] ↔ X ∈ Y
 
 1.  F : A → B. For all s, t ∈ A, if F(s) = F(t) then s = t.
-    mun:one-to-one, from H3
+    def:one-to-one, from H3
 
 2.  F(X) ∈ F[Y] ↔ X ∈ Y
     both directions
@@ -23,7 +23,7 @@ theorem image-of-a-point-under-a-one-to-one-map
     assume F(X) ∈ F[Y]                                                (D1)
 
     2.1.  There is s ∈ Y with F(X) = F(s).
-          mun:image u := F(X), from D1, H5
+          def:image u := F(X), from D1, H5
 
     2.2.  s ∈ Y. F(X) = F(s).
           obtain s from line 2.1

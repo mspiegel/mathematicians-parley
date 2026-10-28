@@ -1,8 +1,8 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/functions/image-monotone
-import mundane definition stdlib/sets/union
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/union
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/union-subset
 import mundane theorem    stdlib/sets/in-union-left
@@ -26,13 +26,13 @@ theorem image-of-union
     let y ∈ f[W ∪ X]                                                  (K1)
 
     2.1.  There is s ∈ W ∪ X with y = f(s).
-          mun:image u := y, Y := W ∪ X, from K1, 1
+          def:image u := y, Y := W ∪ X, from K1, 1
 
     2.2.  s ∈ W ∪ X. y = f(s).
           obtain s from line 2.1
 
     2.3.  s ∈ W or s ∈ X.
-          mun:union u := s, Y := W, Z := X, from 2.2
+          def:union u := s, Y := W, Z := X, from 2.2
 
     2.4.  y ∈ f[W] ∪ f[X]
           cases, from 2.3
@@ -62,7 +62,7 @@ theorem image-of-union
                   mun:in-union-right Y := f[W], Z := f[X], from 2.4.5
 
 3.  f[W ∪ X] ⊆ f[W] ∪ f[X]
-    mun:subset, from 2
+    def:subset, from 2
 
 4.  For all t ∈ W, t ∈ W ∪ X.
     proof
@@ -72,7 +72,7 @@ theorem image-of-union
           mun:in-union-left Y := W, Z := X, from K2
 
 5.  W ⊆ W ∪ X
-    mun:subset, from 4
+    def:subset, from 4
 
 6.  f[W] ⊆ f[W ∪ X]
     mun:image-monotone Y := W, Z := W ∪ X, from 5
@@ -85,7 +85,7 @@ theorem image-of-union
           mun:in-union-right Y := W, Z := X, from K3
 
 8.  X ⊆ W ∪ X
-    mun:subset, from 7
+    def:subset, from 7
 
 9.  f[X] ⊆ f[W ∪ X]
     mun:image-monotone Y := X, Z := W ∪ X, from 8

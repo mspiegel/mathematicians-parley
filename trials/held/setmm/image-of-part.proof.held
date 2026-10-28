@@ -1,7 +1,7 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/sets/in-subset
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-self
 
 theorem image-of-part
@@ -17,7 +17,7 @@ theorem image-of-part
     let u ∈ F[X]                                                      (K1)
 
     1.1.  s ∈ X. u = F(s).
-          obtain s: mun:image Y := X, from H4, K1
+          obtain s: def:image Y := X, from H4, K1
 
     1.2.  s ∈ A
           mun:in-subset, from H4, 1.1
@@ -30,4 +30,4 @@ theorem image-of-part
           substitute u = F(s) (line 1.1) into line 1.3
 
 2.  F[X] ⊆ F[A]
-    mun:subset, from 1
+    def:subset, from 1

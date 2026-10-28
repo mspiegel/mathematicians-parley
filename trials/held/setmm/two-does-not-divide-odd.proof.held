@@ -1,5 +1,5 @@
 import mundane theorem stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem two-does-not-divide-odd
   note        If 2 divided 2A + 1, say 2A + 1 = 2k, then 2(k − A) = 1, so 2
@@ -17,13 +17,13 @@ theorem two-does-not-divide-odd
     suppose 2 divides B                                               (S)
 
     2.1.  k ∈ ℤ. B = 2k.
-          obtain k: mun:divides d := 2, n := B, from S, 1
+          obtain k: def:divides d := 2, n := B, from S, 1
 
     2.2.  2(k − A) = 1
           algebra, from D1, 1, 2.1
 
     2.3.  2 divides 1
-          mun:divides d := 2, n := 1, from 2.2
+          def:divides d := 2, n := 1, from 2.2
 
     2.4.  2 = 1
           mun:divides-one d := 2, from 2.3

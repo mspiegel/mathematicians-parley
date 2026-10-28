@@ -299,7 +299,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/numbers.records",
             "  target      absid, absnid\n",
             "  target      absid, absid\n",
-            "the build cannot yet prove this, which the checker accepts: no clause of mun:abs gives what step 2.6 claims",
+            "the build cannot yet prove this, which the checker accepts: no clause of def:abs gives what step 2.6 claims",
         )
         .at("proofs/wiedijk/triangle-inequality.proof", "2.6.  |x| = −x"),
         // Each part of what the claim asks of the witness is one of the
@@ -325,14 +325,14 @@ fn cases() -> Vec<Case> {
         ),
         // A definition read with no pair for its subject is about the proof's
         // letter of the same name (`SYNTAX.md`). odd-square has an n, so
-        // `mun:odd` with no pair is read of n, whose witness no line names;
+        // `def:odd` with no pair is read of n, whose witness no line names;
         // the claim is that n² is odd.
         case(
             "leave out the value a definition is concluded of",
             "proofs/wiedijk/sqrt2-irrational/odd-square",
             "proofs/wiedijk/sqrt2-irrational.proof",
-            "    mun:odd n := n², from 5",
-            "    mun:odd, from 5",
+            "    def:odd n := n², from 5",
+            "    def:odd, from 5",
             "with 2 · j + 1 = n",
         ),
         // A target naming a lemma the library as built does not hold, as

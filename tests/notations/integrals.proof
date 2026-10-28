@@ -2,7 +2,7 @@ import theorem            proofs/wiedijk/fundamental-calculus/fundamental-calcul
 import theorem            stdlib/calculus/continuous-linear
 import theorem            stdlib/calculus/continuous-square
 import theorem            stdlib/calculus/derivative-square
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/calculus/open-interval-open
@@ -56,12 +56,12 @@ theorem an-integral-of-a-line
     requires 0 < 1: arithmetic
 
 7.  1 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 1
+    def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
 8.  0 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 0
+    def:interval a := 0, b := 1, x := 0
     requires 0 ≤ 0: arithmetic
     requires 0 ≤ 1: arithmetic
 

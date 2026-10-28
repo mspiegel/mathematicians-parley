@@ -1,6 +1,6 @@
 import theorem            proofs/euclid/sss-congruence/angle-from-sides
-import mundane definition stdlib/geometry/midpoint
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/midpoint
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-collinear
 import mundane theorem    stdlib/geometry/between-symmetric
@@ -9,10 +9,10 @@ import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
 
@@ -31,7 +31,7 @@ theorem isosceles-median
   then ∠AMB = 90°. ∠BAM = ∠MAC.
 
 1.  M is between B and C. |BM| = |MC|.
-    mun:midpoint A := B, B := C, from H7
+    def:midpoint A := B, B := C, from H7
 
 2.  B ≠ M. C ≠ M.
     mun:between-apart R := M, S := B, T := C, from 1
@@ -47,10 +47,10 @@ theorem isosceles-median
           substitute M = A (S) into line 3
 
     4.2.  not (A, B, C are collinear)
-          mun:triangle P := A, Q := B, R := C, from H5, contradicting 4.1
+          def:triangle P := A, Q := B, R := C, from H5, contradicting 4.1
 
 5.  A ≠ B. A ≠ C.
-    mun:triangle P := A, Q := B, R := C, from H5
+    def:triangle P := A, Q := B, R := C, from H5
 
 6.  M is between C and B
     mun:between-symmetric R := M, S := B, T := C, from 1
@@ -102,10 +102,10 @@ theorem isosceles-median
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
 20. |AM| > 0
-    mun:distance-positive P := A, Q := M, from 4
+    axi:distance-positive P := A, Q := M, from 4
 
 21. |BM| > 0
-    mun:distance-positive P := B, Q := M, from 2
+    axi:distance-positive P := B, Q := M, from 2
 
 22. |AM|·|BM| > 0
     mun:product-positive x := |AM|, y := |BM|, from 20, 21

@@ -1,5 +1,5 @@
 import theorem            stdlib/numbers/triangle-inequality
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-negative
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
@@ -70,7 +70,7 @@ theorem abs-difference-of-abs
     assume |A| − |B| ≥ 0                                              (C1)
 
     9.1.  ||A| − |B|| = |A| − |B|
-          mun:abs x := |A| − |B|, from C1, 7
+          def:abs x := |A| − |B|, from C1, 7
 
     9.2.  ||A| − |B|| ≤ |A − B|
           transitivity, from 9.1, 1
@@ -82,7 +82,7 @@ theorem abs-difference-of-abs
     assume |A| − |B| < 0                                              (C2)
 
     9.3.  ||A| − |B|| = −(|A| − |B|)
-          mun:abs x := |A| − |B|, from C2, 7
+          def:abs x := |A| − |B|, from C2, 7
 
     9.4.  −(|A| − |B|) ≤ |A − B|
           inequalities

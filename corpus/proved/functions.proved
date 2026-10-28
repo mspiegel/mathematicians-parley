@@ -5,7 +5,7 @@
 #
 # - what is in an image: `fvelimab` says it of a function on A, which `ffn`
 #   reads off f : A → B, with its equation turned by `eqcom` to the page's
-#   u = f(s), for `mun:stdlib/functions/image`;
+#   u = f(s), for `def:stdlib/functions/image`;
 # - a value lies in the image of a set holding its point: `fnfvima`, with
 #   `ffn` the same way, for `mun:stdlib/functions/value-in-image`;
 # - a one-to-one function's inverse undoes it: `f1f1orn` makes it a
@@ -13,7 +13,7 @@
 #   `mun:stdlib/functions/inverse-value`;
 # - a function that is one-to-one and reaches every point is a bijection:
 #   `dffo3` reads the reaching as onto, `df-f1o` puts the two together, and
-#   `f1oeng` gives the bijection, for `mun:stdlib/functions/bijection`;
+#   `f1oeng` gives the bijection, for `def:stdlib/functions/bijection`;
 # - a bijection gives a function that reaches every point: `bren` gives
 #   one that is one-to-one and onto, `f1ofo` and `foelrn` say it reaches
 #   each point, and `encv` with `elmapg` puts it among the functions from
@@ -32,7 +32,7 @@
 #   carries a renaming of a bound letter in a codomain, as ⋃(Y ∈ C) Y, up
 #   through f : A → B;
 # - what is in a preimage: `elpreima` says it of a function on A, which
-#   `ffn` reads off f : A → B, for `mun:stdlib/functions/preimage`;
+#   `ffn` reads off f : A → B, for `def:stdlib/functions/preimage`;
 # - a one-to-one function onto B has an inverse from B to A: `f1f1orn`
 #   and `f1ocnv` turn it round onto its range, `fnima` makes the range
 #   f[A], which is B, for `mun:stdlib/functions/inverse-function`.

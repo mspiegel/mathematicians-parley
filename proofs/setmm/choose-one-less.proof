@@ -1,9 +1,9 @@
 import definition         stdlib/counting/C
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/binomial-zero-index
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane definition stdlib/numbers/nat0
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/numbers/nat0
+import definition         stdlib/sums/range-between
 
 theorem choose-one-less
   note        Choosing N from N + 1 leaves one out, so there are N + 1 ways.
@@ -13,7 +13,7 @@ theorem choose-one-less
   then C(N + 1, N) = N + 1
 
 1.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 2.  C(N + 1, N) = N + 1
     cases, from 1
@@ -25,7 +25,7 @@ theorem choose-one-less
           inequalities, from H1
 
     2.2.  N ∈ {0, …, N + 1}
-          mun:range-between k := N, a := 0, b := N + 1, from 2.1
+          def:range-between k := N, a := 0, b := N + 1, from 2.1
 
     2.3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
           def:C n := N + 1, k := N, from 2.2
@@ -37,7 +37,7 @@ theorem choose-one-less
           substitute (N + 1) − N = 1 (line 2.4)
 
     2.6.  1! = 1
-          mun:factorial
+          def:factorial
 
     2.7.  ((N + 1) − N)! = 1
           calculation
@@ -48,7 +48,7 @@ theorem choose-one-less
           substitute ((N + 1) − N)! = 1 (line 2.7)
 
     2.9.  (N + 1)! = N!·(N + 1)
-          mun:factorial n := N
+          def:factorial n := N
 
     2.10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
           substitute (N + 1)! = N!·(N + 1) (line 2.9)

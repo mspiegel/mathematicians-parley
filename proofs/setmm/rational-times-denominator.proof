@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem rational-times-denominator
   note        A rational p/q times its denominator q is the integer p.
@@ -6,7 +6,7 @@ theorem rational-times-denominator
   then there is x ∈ ℕ with A·x ∈ ℤ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  A·q = p
     algebra, from 1

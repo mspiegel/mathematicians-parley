@@ -7,30 +7,30 @@ import mundane theorem    stdlib/counting/finite-part
 import mundane theorem    stdlib/counting/range-size
 import mundane theorem    stdlib/calculus/integer-sup-above
 import mundane theorem    stdlib/calculus/integer-sup-member
-import mundane definition stdlib/calculus/upper-bound
+import definition         stdlib/calculus/upper-bound
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-value
-import mundane definition stdlib/functions/one-to-one
-import mundane definition stdlib/functions/set-image
+import definition         stdlib/functions/one-to-one
+import definition         stdlib/functions/set-image
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/le-cases
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/unequal-cases
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/in-union-singleton
 import mundane theorem    stdlib/sets/pair-in-product
 import mundane theorem    stdlib/sets/pair-parts-equal
-import mundane definition stdlib/sets/part-builder
-import mundane definition stdlib/sets/singleton
+import definition         stdlib/sets/part-builder
+import definition         stdlib/sets/singleton
 import mundane theorem    stdlib/sets/singleton-subset
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-transitive
-import mundane definition stdlib/sets/union
+import definition         stdlib/sets/union
 import mundane theorem    stdlib/sets/union-subset
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 import mundane theorem    stdlib/sums/range-bounds
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-integer
@@ -63,14 +63,14 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           mun:range-bounds a := 1, b := N, from K1
 
     1.2.  k ∈ {1, …, k}
-          mun:range-between a := 1, b := k, from 1.1
+          def:range-between a := 1, b := k, from 1.1
           requires k ≤ k: inequalities
 
     1.3.  {k} ⊆ {1, …, k}
           mun:singleton-subset, from 1.2
 
     1.4.  k ∈ {k}
-          mun:singleton x := k, a := k
+          def:singleton x := k, a := k
 
     1.5.  For all p, q ∈ {k}, if p < q then c(p) < c(q).
           proof
@@ -79,10 +79,10 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           assume p < q                                                (K4)
 
           1.5.1.  p = k
-                  mun:singleton x := p, a := k, from K2
+                  def:singleton x := p, a := k, from K2
 
           1.5.2.  q = k
-                  mun:singleton x := q, a := k, from K3
+                  def:singleton x := q, a := k, from K3
 
           1.5.3.  k < q
                   substitute p = k (line 1.5.1) into K4
@@ -97,13 +97,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           join 1.4, 1.5
 
     1.7.  {k} ∈ U(k)
-          mun:part-builder u := {k}, from D1, K1, 1.3, 1.6
+          def:part-builder u := {k}, from D1, K1, 1.3, 1.6
 
     1.8.  There is S ∈ U(k) with |{k}| = |S|.
           exhibit, from 1.7
 
     1.9.  |{k}| ∈ I(k)
-          mun:set-image u := |{k}|, from D2, K1, 1.8
+          def:set-image u := |{k}|, from D2, K1, 1.8
 
     1.10. For all u ∈ I(k), u ∈ ℤ and u ≤ r − 1.
           proof
@@ -111,13 +111,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           let u ∈ I(k)                                                (K5)
 
           1.10.1. There is S ∈ U(k) with u = |S|.
-                  mun:set-image, from D2, K1, K5
+                  def:set-image, from D2, K1, K5
 
           1.10.2. T ∈ U(k). u = |T|.
                   obtain T from line 1.10.1
 
           1.10.3. T ⊆ {1, …, k}. For all p, q ∈ T, if p < q then c(p) < c(q).
-                  mun:part-builder u := T, from D1, K1, 1.10.2
+                  def:part-builder u := T, from D1, K1, 1.10.2
 
           1.10.4. {1, …, k} is finite
                   mun:range-finite a := 1, b := k
@@ -177,10 +177,10 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
                   restate 1.10
 
     1.13. I(k) ⊆ ℤ
-          mun:subset, from 1.11
+          def:subset, from 1.11
 
     1.14. r − 1 is an upper bound of I(k)
-          mun:upper-bound, from 1.12
+          def:upper-bound, from 1.12
 
     1.15. There is u ∈ ℤ with u is an upper bound of I(k).
           exhibit, from 1.14
@@ -195,7 +195,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           mun:integer-sup-above, from D3, K1, 1.13, 1.15
 
     1.19. L(k) is an upper bound of I(k)
-          mun:upper-bound, from 1.18
+          def:upper-bound, from 1.18
 
     1.20. |{k}| ≤ L(k)
           instantiate x := |{k}| in line 1.18, from 1.9
@@ -210,7 +210,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           instantiate u := L(k) in line 1.10, from 1.17
 
     1.24. L(k) ∈ {1, …, r − 1}
-          mun:range-between k := L(k), a := 1, b := r − 1, from 1.22, 1.23
+          def:range-between k := L(k), a := 1, b := r − 1, from 1.22, 1.23
 
     1.25. L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}
           join 1.17, 1.19, 1.23, 1.24
@@ -229,13 +229,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           instantiate k := j in line 1, from K9
 
     2.3.  There is S ∈ U(i) with L(i) = |S|.
-          mun:set-image u := L(i), from D2, K8, 2.1
+          def:set-image u := L(i), from D2, K8, 2.1
 
     2.4.  T ∈ U(i). L(i) = |T|.
           obtain T from line 2.3
 
     2.5.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
-          mun:part-builder u := T, from D1, K8, 2.4
+          def:part-builder u := T, from D1, K8, 2.4
 
     2.6.  j ∉ T
           contradiction
@@ -280,7 +280,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           mun:range-bounds a := 1, b := N, k := j, from K9
 
     2.16. j ∈ {1, …, j}
-          mun:range-between k := j, a := 1, b := j, from 2.15
+          def:range-between k := j, a := 1, b := j, from 2.15
           requires j ≤ j: inequalities
 
     2.17. {j} ⊆ {1, …, j}
@@ -299,10 +299,10 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           assume p < q                                                (K13)
 
           2.20.1. q ∈ T or q ∈ {j}
-                  mun:union, from K12
+                  def:union, from K12
 
           2.20.2. p ∈ T or p ∈ {j}
-                  mun:union, from K11
+                  def:union, from K11
 
           2.20.3. c(p) < c(q)
                   cases, from 2.20.1
@@ -330,7 +330,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
                              assume p ∈ {j}                           (C3)
 
                              2.20.3.3.2.  p = j
-                                          mun:singleton x := p, a := j, from C3
+                                          def:singleton x := p, a := j, from C3
 
                              2.20.3.3.3.  j < q
                                           substitute p = j (line 2.20.3.3.2) into K13
@@ -347,7 +347,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
                   assume q ∈ {j}                                      (C4)
 
                   2.20.3.4.  q = j
-                             mun:singleton x := q, a := j, from C4
+                             def:singleton x := q, a := j, from C4
 
                   2.20.3.5.  c(p) < c(j)
                              cases, from 2.20.2
@@ -393,7 +393,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
                              assume p ∈ {j}                           (C8)
 
                              2.20.3.5.6.  p = j
-                                          mun:singleton x := p, a := j, from C8
+                                          def:singleton x := p, a := j, from C8
 
                              2.20.3.5.7.  j < q
                                           substitute p = j (line 2.20.3.5.6) into K13
@@ -411,7 +411,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           join 2.19, 2.20
 
     2.22. T ∪ {j} ∈ U(j)
-          mun:part-builder u := T ∪ {j}, from D1, K9, 2.18, 2.21
+          def:part-builder u := T ∪ {j}, from D1, K9, 2.18, 2.21
 
     2.23. |T ∪ {j}| = |T| + 1
           mun:card-add-one, from 2.6, 2.8
@@ -420,10 +420,10 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           exhibit, from 2.22, 2.23
 
     2.25. |T| + 1 ∈ I(j)
-          mun:set-image u := |T| + 1, from D2, K9, 2.24
+          def:set-image u := |T| + 1, from D2, K9, 2.24
 
     2.26. For all s ∈ I(j), s ≤ L(j).
-          mun:upper-bound, from 2.2
+          def:upper-bound, from 2.2
 
     2.27. |T| + 1 ≤ L(j)
           instantiate s := |T| + 1 in line 2.26, from 2.25
@@ -575,7 +575,7 @@ theorem erdos-szekeres
           requires f is a function on {1, …, N}: from D2
 
     1.9.  For all x, y ∈ {1, …, N}, if a(x) = a(y) then x = y.
-          mun:one-to-one, from H4
+          def:one-to-one, from H4
 
     1.10. For all i, j ∈ {1, …, N}, if i < j then f(i) ≠ f(j).
           proof
@@ -679,7 +679,7 @@ theorem erdos-szekeres
           assume f(i) = f(j)                                          (K10)
 
           1.11.1. i = j or not i = j
-                  mun:excluded-middle P := i = j
+                  axi:excluded-middle P := i = j
 
           1.11.2. i = j
                   cases, from 1.11.1
@@ -709,7 +709,7 @@ theorem erdos-szekeres
                                           instantiate i := j, j := i in line 1.10, from C6, K8, K9, contradicting K10
 
     1.12. f : {1, …, N} → {1, …, r − 1} × {1, …, s − 1} is one-to-one
-          mun:one-to-one, from 1.8, 1.11
+          def:one-to-one, from 1.8, 1.11
 
     1.13. |{1, …, N}| ≤ |{1, …, r − 1} × {1, …, s − 1}|
           thm:pigeonhole, from 1.12

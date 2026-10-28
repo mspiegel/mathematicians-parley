@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/numbers/divide-le
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem positive-rational-fraction
   note        A rational is p/q with p an integer and q a natural number.
@@ -12,7 +12,7 @@ theorem positive-rational-fraction
   then there are x, y ∈ ℕ with A = x/y
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A, from H2
+    obtain p, q: def:rational x := A, from H2
 
 2.  0 < p
     contradiction

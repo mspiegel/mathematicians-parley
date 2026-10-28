@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/divides-sum
@@ -20,7 +20,7 @@ theorem divisible-by-twenty-four
           arithmetic
 
     1.2.  24 divides 5^(2·0) − 1
-          mun:divides d := 24, n := 5^(2·0) − 1, from 1.1
+          def:divides d := 24, n := 5^(2·0) − 1, from 1.1
 
     step
     let m ∈ ℕ₀                                                        (K)

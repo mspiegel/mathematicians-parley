@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-self
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -14,7 +14,7 @@ theorem divisor-of-prime
   then M divides P ↔ M = P or M = 1
 
 1.  For all d ∈ ℕ, if d divides P then d = 1 or d = P.
-    mun:prime p := P, from H2
+    def:prime p := P, from H2
 
 2.  If M divides P then M = 1 or M = P.
     instantiate d := M in line 1
@@ -62,7 +62,7 @@ theorem divisor-of-prime
           assume M = 1                                                (C4)
 
           3.3.3.  1 divides P
-                  mun:divides d := 1, n := P
+                  def:divides d := 1, n := P
 
           3.3.4.  M divides P
                   substitute M = 1 (C4) into line 3.3.3

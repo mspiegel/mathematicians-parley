@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem values-by-name
   let a ∈ ℤ                                                           (H1)
@@ -8,7 +8,7 @@ theorem values-by-name
   then a divides c and a + 1 ∈ ℤ
 
 1.  a divides c
-    mun:divides n := c, d := a, from H3
+    def:divides n := c, d := a, from H3
 
 2.  a + 1 ∈ ℤ
     instantiate y := 1, x := a in H4

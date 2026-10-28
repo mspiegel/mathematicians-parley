@@ -1,7 +1,7 @@
 import axiom              stdlib/calculus/completeness
-import mundane definition stdlib/calculus/least-upper-bound
-import mundane definition stdlib/calculus/upper-bound
-import mundane axiom      stdlib/reasoning/excluded-middle
+import definition         stdlib/calculus/least-upper-bound
+import definition         stdlib/calculus/upper-bound
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/numbers/nat-minus-one
@@ -20,12 +20,12 @@ import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-remainder
 import mundane theorem    stdlib/divisibility/mod-multiple
 import mundane theorem    stdlib/divisibility/mod-congruent
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/bijection-onto
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/functions/onto
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 
 define D(r, n) := ⌊10^n·r⌋ mod 10, for r ∈ ℝ, n ∈ ℕ                   (D1)
@@ -71,7 +71,7 @@ theorem digit-step-divides
     mun:mod-congruent x := t + 1, n := 10
 
 3.  10 divides (t + 1) − (t + 1) mod 10
-    mun:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 2
+    def:congruent-mod n := 10, a := t + 1, b := (t + 1) mod 10, from 2
     requires (t + 1) mod 10 ∈ ℤ: membership, from H1
 
 4.  10 divides (t + 1) − s(t)
@@ -402,7 +402,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           instantiate k := k in line 4
 
     6.3.  j ≤ k or not (j ≤ k)
-          mun:excluded-middle P := j ≤ k
+          axi:excluded-middle P := j ≤ k
 
     6.4.  L(j) ≤ U(k)
           cases, from 6.3
@@ -473,7 +473,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           D5
 
     8.2.  L(k) ∈ S
-          mun:set-builder u := L(k), from D4, 8.1
+          def:set-builder u := L(k), from D4, 8.1
           requires L(k) ∈ ℝ: from 4
 
 9.  L(0) ∈ S
@@ -488,7 +488,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           let y ∈ S                                                   (Y)
 
           10.1.1. j ∈ ℕ₀. y = N(j)/10^j.
-                  obtain j: mun:set-builder u := y, from D4, Y
+                  obtain j: def:set-builder u := y, from D4, Y
 
           10.1.2. L(j) ≤ U(k)
                   instantiate j := j, k := k in line 6
@@ -502,7 +502,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
                   substitute y = L(j) (line 10.1.3) into line 10.1.2
 
     10.2. U(k) is an upper bound of S
-          mun:upper-bound, from 10.1
+          def:upper-bound, from 10.1
 
 11. U(0) is an upper bound of S
     instantiate k := 0 in line 10
@@ -513,10 +513,10 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
 
 13. c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
-    mun:least-upper-bound, from 12
+    def:least-upper-bound, from 12
 
 14. For all y ∈ S, y ≤ c.
-    mun:upper-bound, from 13
+    def:upper-bound, from 13
 
 15. For all k ∈ ℕ₀, L(k) ≤ c and c ≤ U(k).
     proof
@@ -624,7 +624,7 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
            membership, from 16.22
 
     16.24. ⌊10^n·c⌋ ≤ N(n) or not (⌊10^n·c⌋ ≤ N(n))
-           mun:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)
+           axi:excluded-middle P := ⌊10^n·c⌋ ≤ N(n)
 
     16.25. D(c, n) = d(n) or D(c, n) = s(d(n))
            cases, from 16.24
@@ -836,7 +836,7 @@ theorem reals-uncountable
           obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
 
     1.2.  For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
-          mun:onto, from 1.1
+          def:onto, from 1.1
 
     1.3.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
           obtain x: thm:sequence-misses-real

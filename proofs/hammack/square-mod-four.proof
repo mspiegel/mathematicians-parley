@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -21,13 +21,13 @@ theorem square-mod-four
     assume n is even                                                  (C1)
 
     2.1.  k ∈ ℤ. n = 2k.
-          obtain k: mun:even, from C1
+          obtain k: def:even, from C1
 
     2.2.  n² = 4·k²
           algebra, from 2.1
 
     2.3.  4 divides n²
-          mun:divides d := 4, n := n², from 2.2
+          def:divides d := 4, n := n², from 2.2
 
     2.4.  4 divides n² or 4 divides n² − 1
           mun:or-left, from 2.3
@@ -36,13 +36,13 @@ theorem square-mod-four
     assume n is odd                                                   (C2)
 
     2.5.  k ∈ ℤ. n = 2k + 1.
-          obtain k: mun:odd, from C2
+          obtain k: def:odd, from C2
 
     2.6.  n² − 1 = 4·(k² + k)
           algebra, from 2.5
 
     2.7.  4 divides n² − 1
-          mun:divides d := 4, n := n² − 1, from 2.6
+          def:divides d := 4, n := n² − 1, from 2.6
 
     2.8.  4 divides n² or 4 divides n² − 1
           mun:or-right, from 2.7

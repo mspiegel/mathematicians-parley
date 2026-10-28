@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/not-both
 
 theorem sum-of-squares-divisible-by-four
@@ -12,17 +12,17 @@ theorem sum-of-squares-divisible-by-four
   then not (a is odd and b is odd)
 
 1.  k ∈ ℤ. a² + b² = 4k.
-    obtain k: mun:divides, from H3
+    obtain k: def:divides, from H3
 
 2.  not (a is odd and b is odd)
     contradiction
     suppose a is odd and b is odd                                     (S)
 
     2.1.  m ∈ ℤ. a = 2m + 1.
-          obtain m: mun:odd n := a, from S
+          obtain m: def:odd n := a, from S
 
     2.2.  n ∈ ℤ. b = 2n + 1.
-          obtain n: mun:odd n := b, from S
+          obtain n: def:odd n := b, from S
 
     2.3.  a² = (2m + 1)²
           substitute a = 2m + 1 (line 2.1)
@@ -37,7 +37,7 @@ theorem sum-of-squares-divisible-by-four
           algebra, from 2.5
 
     2.7.  1 is even
-          mun:even n := 1, from 2.6
+          def:even n := 1, from 2.6
 
     2.8.  1 is not odd
           mun:not-both n := 1, from 2.7

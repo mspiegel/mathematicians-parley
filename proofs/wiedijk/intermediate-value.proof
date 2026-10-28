@@ -1,18 +1,18 @@
 import axiom              stdlib/calculus/completeness
 import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
-import mundane definition stdlib/calculus/least-upper-bound
-import mundane definition stdlib/calculus/upper-bound
+import definition         stdlib/calculus/least-upper-bound
+import definition         stdlib/calculus/upper-bound
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/lt-min
-import mundane definition stdlib/numbers/min
+import definition         stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-le
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/real-closure
-import mundane axiom      stdlib/numbers/trichotomy
-import mundane definition stdlib/sets/set-builder
+import axiom              stdlib/numbers/trichotomy
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/subset-transitive
 import definition         stdlib/calculus/continuous-on
@@ -37,12 +37,12 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
        reads the points of the interval where f is still below zero
 
 1.  a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities
     requires a ≤ b: weakening, from H3
 
 2.  a ∈ S
-    mun:set-builder u := a, from D1, H6, 1
+    def:set-builder u := a, from D1, H6, 1
 
 3.  S ⊆ [a, b]
     mun:set-builder-subset, from D1
@@ -58,23 +58,23 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     let s ∈ S                                                         (K1)
 
     6.1.  s ∈ [a, b]
-          mun:set-builder, from D1, K1
+          def:set-builder, from D1, K1
 
     6.2.  s ≤ b
-          mun:interval, from 6.1
+          def:interval, from 6.1
 
 7.  b is an upper bound of S
-    mun:upper-bound, from 6
+    def:upper-bound, from 6
 
 8.  c ∈ ℝ. c is a least upper bound of S.
     obtain c: axi:completeness, from 2, 5, 7
 
 9.  c is an upper bound of S.
     For all u ∈ ℝ, if u is an upper bound of S then c ≤ u.
-    mun:least-upper-bound, from 8
+    def:least-upper-bound, from 8
 
 10. For all s ∈ S, s ≤ c.
-    mun:upper-bound, from 9
+    def:upper-bound, from 9
 
 11. a ≤ c
     instantiate s := a in line 10, from 2
@@ -83,10 +83,10 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
     instantiate u := b in line 9, from 7
 
 13. c ∈ [a, b]
-    mun:interval x := c, from 11, 12
+    def:interval x := c, from 11, 12
 
 14. f(c) < 0 or f(c) = 0 or 0 < f(c)
-    mun:trichotomy x := f(c), from H4, 13
+    axi:trichotomy x := f(c), from H4, 13
 
 15. For all c′ ∈ [a, b], for all ε > 0, there exists δ > 0 such that
     |f(x) − f(c′)| < ε for all x ∈ [a, b] with |x − c′| < δ.
@@ -108,7 +108,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
                     substitute c = b (S1) into C1
 
            16.1.2.  b ∈ [a, b]
-                    mun:interval x := b
+                    def:interval x := b
                     requires a ≤ b: weakening, from H3
                     requires b ≤ b: inequalities
 
@@ -183,7 +183,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
              a ≤ x₁            weakening
 
     16.15. x₁ ∈ [a, b]
-           mun:interval x := x₁, from 16.9, 16.14
+           def:interval x := x₁, from 16.9, 16.14
 
     16.16. c − δ < c
            inequalities
@@ -223,7 +223,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            requires f(c) ∈ ℝ: from H4, 13
 
     16.24. x₁ ∈ S
-           mun:set-builder u := x₁, from D1, 16.15, 16.23
+           def:set-builder u := x₁, from D1, 16.15, 16.23
 
     16.25. x₁ ≤ c
            instantiate s := x₁ in line 10, from 16.24
@@ -251,10 +251,10 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
            let s ∈ S                                                  (K2)
 
            16.29.1.  s ∈ [a, b]
-                     mun:set-builder, from D1, K2
+                     def:set-builder, from D1, K2
 
            16.29.2.  f(s) < 0
-                     mun:set-builder, from D1, K2
+                     def:set-builder, from D1, K2
 
            16.29.3.  s ≤ c − δ
                      contradiction
@@ -262,16 +262,16 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
 
                      16.29.3.1.  c − δ < s
                                  inequalities, from S2
-                                 requires s ∈ ℝ: mun:interval, from 16.29.1
+                                 requires s ∈ ℝ: def:interval, from 16.29.1
 
                      16.29.3.2.  s < c + δ
                                  inequalities, from 10, 16.28
-                                 requires s ∈ ℝ: mun:interval, from 16.29.1
+                                 requires s ∈ ℝ: def:interval, from 16.29.1
 
                      16.29.3.3.  |s − c| < δ
                                  mun:abs-difference-lt x := s,
                                    from 16.29.3.1, 16.29.3.2
-                                 requires s ∈ ℝ: mun:interval, from 16.29.1
+                                 requires s ∈ ℝ: def:interval, from 16.29.1
 
                      16.29.3.4.  |f(s) − f(c)| < f(c)
                                  instantiate x := s in line 16.28, from 16.29.1, 16.29.3.3
@@ -299,7 +299,7 @@ let S = {x ∈ [a, b] : f(x) < 0}                                       (D1)
                                  requires f(s) ∈ ℝ: from H4, 16.29.1
 
     16.30. c − δ is an upper bound of S
-           mun:upper-bound, from 16.29
+           def:upper-bound, from 16.29
 
     16.31. c ≤ c − δ
            instantiate u := c − δ in line 9, from 16.30

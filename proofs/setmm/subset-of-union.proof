@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/in-union-left
 
 theorem subset-of-union
@@ -15,4 +15,4 @@ theorem subset-of-union
           mun:in-union-left, from K1
 
 2.  A ⊆ A ∪ B
-    mun:subset, from 1
+    def:subset, from 1

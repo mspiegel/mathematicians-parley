@@ -1,9 +1,9 @@
-import mundane definition stdlib/functions/set-image
-import mundane definition stdlib/sets/part-builder
-import mundane definition stdlib/sets/powerset
-import mundane definition stdlib/sets/singleton
+import definition         stdlib/functions/set-image
+import definition         stdlib/sets/part-builder
+import definition         stdlib/sets/powerset
+import definition         stdlib/sets/singleton
 import mundane theorem    stdlib/sets/singleton-subset
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem a-conjunct-of-a-property
   note        A set-builder's condition said of a member is several things
@@ -15,7 +15,7 @@ theorem a-conjunct-of-a-property
   then for all p ∈ T, p ≤ N
 
 1.  T ⊆ {1, …, N}. For all p ∈ T, p ≤ N.
-    mun:part-builder u := T, from H3
+    def:part-builder u := T, from H3
 
 2.  For all p ∈ T, p ≤ N.
     restate 1
@@ -28,7 +28,7 @@ theorem a-member-from-a-property
   then N ∈ T
 
 1.  N ∈ T
-    mun:part-builder u := T, from H3
+    def:part-builder u := T, from H3
 
 theorem parts-a-define-gives
   note        V(N) is the parts of {1, …, N} holding N: the define's argument
@@ -44,10 +44,10 @@ theorem parts-a-define-gives
     mun:singleton-subset, from H2
 
 2.  N ∈ {N}
-    mun:singleton x := N, a := N
+    def:singleton x := N, a := N
 
 3.  {N} ∈ V(N)
-    mun:part-builder u := {N}, from D1, H2, 1, 2
+    def:part-builder u := {N}, from D1, H2, 1, 2
 
 theorem sizes-a-define-gives
   note        I(k) is the sizes of the parts of {1, …, k}. A size is in I(N)
@@ -65,16 +65,16 @@ let I(k) = {|x| : x ∈ 𝒫{1, …, k}}, for k ∈ {1, …, N}                 
     mun:singleton-subset, from H2
 
 2.  {N} ∈ 𝒫{1, …, N}
-    mun:powerset S := {N}, from 1
+    def:powerset S := {N}, from 1
 
 3.  There is x ∈ 𝒫{1, …, N} with |{N}| = |x|.
     exhibit, from 2
 
 4.  |{N}| ∈ I(N)
-    mun:set-image u := |{N}|, from D1, H2, 3
+    def:set-image u := |{N}|, from D1, H2, 3
 
 5.  There is x ∈ 𝒫{1, …, N} with |{N}| = |x|.
-    mun:set-image, from D1, H2, 4
+    def:set-image, from D1, H2, 4
 
 theorem values-of-a-one-to-one-function
   note        A one-to-one function's type is its type, cited for its
@@ -113,7 +113,7 @@ theorem values-of-an-obtained-function
     obtain g from H3
 
 2.  1 ∈ {1, …, n}
-    mun:range-between k := 1, a := 1, b := n, from H1
+    def:range-between k := 1, a := 1, b := n, from H1
     requires 1 ≤ 1: arithmetic
 
 3.  g(1) ≤ g(1)

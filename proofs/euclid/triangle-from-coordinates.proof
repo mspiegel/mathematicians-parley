@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/geometry/points-apart-by-coordinates
 import mundane theorem    stdlib/geometry/collinear-by-coordinates
 import mundane theorem    stdlib/reasoning/iff-not-from-right
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 
 theorem triangle-from-coordinates
   note        The three points are apart, and the cross product of AB and AC,
@@ -51,4 +51,4 @@ theorem triangle-from-coordinates
     mun:iff-not-from-right, from 10, 11
 
 13. A, B, C form a triangle
-    mun:triangle, from 2, 4, 6, 12
+    def:triangle, from 2, 4, 6, 12

@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem divides-sixth-power
   note        Write b = a²·k and c = b³·m. Then c = (a²·k)³·m = a⁶·(k³·m).
@@ -10,10 +10,10 @@ theorem divides-sixth-power
   then a⁶ divides c
 
 1.  k ∈ ℤ. b = a²·k.
-    obtain k: mun:divides, from H4
+    obtain k: def:divides, from H4
 
 2.  m ∈ ℤ. c = b³·m.
-    obtain m: mun:divides, from H5
+    obtain m: def:divides, from H5
 
 3.  b³ = (a²·k)³
     substitute b = a²·k (line 1)
@@ -30,4 +30,4 @@ theorem divides-sixth-power
         = a⁶·(k³·m)       5
 
 7.  a⁶ divides c
-    mun:divides d := a⁶, n := c, from 6
+    def:divides d := a⁶, n := c, from 6

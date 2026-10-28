@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/square-equal
 
@@ -13,16 +13,16 @@ theorem sqrt-of-product
   then √(a·b) = √a·√b
 
 1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
-    mun:sqrt x := a, from H3
+    def:sqrt x := a, from H3
 
 2.  √b ∈ ℝ. √b ≥ 0. (√b)² = b.
-    mun:sqrt x := b, from H4
+    def:sqrt x := b, from H4
 
 3.  a·b ≥ 0
     mun:product-nonneg x := a, y := b, from H3, H4
 
 4.  √(a·b) ∈ ℝ. √(a·b) ≥ 0. (√(a·b))² = a·b.
-    mun:sqrt x := a·b, from 3
+    def:sqrt x := a·b, from 3
 
 5.  √a·√b ≥ 0
     mun:product-nonneg x := √a, y := √b, from 1, 2

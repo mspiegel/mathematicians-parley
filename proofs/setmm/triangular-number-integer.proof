@@ -1,6 +1,6 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 
 theorem triangular-number-integer
   note        Of two consecutive integers one is even. If n = 2k then
@@ -19,7 +19,7 @@ theorem triangular-number-integer
     assume n is even                                                  (C1)
 
     2.1.  k ∈ ℤ. n = 2k.
-          obtain k: mun:even, from C1
+          obtain k: def:even, from C1
 
     2.2.  n(n + 1)/2 = k(2k + 1)
           algebra, from 2.1
@@ -31,7 +31,7 @@ theorem triangular-number-integer
     assume n is odd                                                   (C2)
 
     2.4.  k ∈ ℤ. n = 2k + 1.
-          obtain k: mun:odd, from C2
+          obtain k: def:odd, from C2
 
     2.5.  n(n + 1)/2 = (2k + 1)(k + 1)
           algebra, from 2.4

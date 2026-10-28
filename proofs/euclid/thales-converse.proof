@@ -1,6 +1,6 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import theorem            proofs/wiedijk/pythagoras/pythagoras
-import mundane definition stdlib/geometry/midpoint
+import definition         stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/numbers/square-equal
@@ -20,7 +20,7 @@ theorem thales-converse
   then |MC| = |MA|
 
 1.  M is between A and B. |AM| = |MB|.
-    mun:midpoint, from H7
+    def:midpoint, from H7
 
 2.  |CA|² + |CB|² = 2·|CM|² + 2·|AM|²
     thm:apollonius A := C, B := A, C := B, from 1

@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/square-nonneg
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 
 theorem integer-at-most-square
   note        An integer n is negative, 0, or at least 1. A negative number is
@@ -11,7 +11,7 @@ theorem integer-at-most-square
   then n ≤ n²
 
 1.  n < 0 or n = 0 or 0 < n
-    mun:trichotomy x := n
+    axi:trichotomy x := n
 
 2.  n² ≥ 0
     mun:square-nonneg x := n

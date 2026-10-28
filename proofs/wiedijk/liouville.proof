@@ -3,7 +3,7 @@ import mundane theorem    stdlib/calculus/continuous-on-part
 import mundane theorem    stdlib/calculus/map-continuous-on-part
 import mundane theorem    stdlib/calculus/differentiable-on-part
 import mundane theorem    stdlib/calculus/derivative-local
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/calculus/open-interval-open
@@ -14,7 +14,7 @@ import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/calculus/derivative-real-on
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/multiply-le-nonneg
 import theorem            stdlib/polynomials/integer-polynomial-at-a-fraction
 import mundane theorem    stdlib/polynomials/integer-polynomial-real
@@ -28,14 +28,14 @@ import mundane theorem    stdlib/numbers/abs-nonneg
 import mundane theorem    stdlib/numbers/abs-negative
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/unequal-cases
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import theorem            stdlib/polynomials/roots-isolated
 import theorem            stdlib/polynomials/polynomial-on-the-reals
 import theorem            stdlib/calculus/continuous-bounded
-import mundane definition stdlib/numbers/min
-import mundane definition stdlib/numbers/max
+import definition         stdlib/numbers/min
+import definition         stdlib/numbers/max
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/min-le
 import mundane theorem    stdlib/numbers/lt-min
@@ -109,12 +109,12 @@ let g = (t ∈ [a, b] ↦ f(t))                                           (D1)
     instantiate x := c in line 13, from 14
 
 16. a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities, from H4
     requires a ≤ b: weakening, from H6
 
 17. b ∈ [a, b]
-    mun:interval x := b
+    def:interval x := b
     requires a ≤ b: weakening, from H6
     requires b ≤ b: inequalities, from H5
 
@@ -167,7 +167,7 @@ let g = (t ∈ [a, b] ↦ f(t))                                           (D1)
     mun:abs-product x := f′(c), y := b − a, from 24
 
 30. |b − a| = b − a
-    mun:abs x := b − a, from 28
+    def:abs x := b − a, from 28
 
 31. |f(b) − f(a)| = |f′(c)·(b − a)|
     substitute f(b) − f(a) = f′(c)·(b − a) (line 25)
@@ -230,7 +230,7 @@ theorem value-at-a-fraction
       q^N ≥ 0      weakening
 
 9.  |q^N| = q^N
-    mun:abs x := q^N, from 8
+    def:abs x := q^N, from 8
 
 10. |q^N|·|F(p/q)| = q^N·|F(p/q)|
     substitute |q^N| = q^N (line 9)
@@ -282,7 +282,7 @@ theorem near-a-root
     let t ∈ [x, α]                                                    (K1)
 
     4.1.  t ∈ ℝ and x ≤ t and t ≤ α
-          mun:interval a := x, b := α, x := t, from K1
+          def:interval a := x, b := α, x := t, from K1
 
     4.2.  α − 1 ≤ t
           transitivity, from 2, 4.1
@@ -291,7 +291,7 @@ theorem near-a-root
           inequalities, from 4.1
 
     4.4.  t ∈ [α − 1, α + 1]
-          mun:interval a := α − 1, b := α + 1, x := t
+          def:interval a := α − 1, b := α + 1, x := t
           requires α − 1 ≤ t: from 4.2
           requires t ≤ α + 1: from 4.3
 
@@ -303,7 +303,7 @@ theorem near-a-root
     let t ∈ [α, x]                                                    (K2)
 
     5.1.  t ∈ ℝ and α ≤ t and t ≤ x
-          mun:interval a := α, b := x, x := t, from K2
+          def:interval a := α, b := x, x := t, from K2
 
     5.2.  α − 1 ≤ t
           inequalities, from 5.1
@@ -312,7 +312,7 @@ theorem near-a-root
           transitivity, from 5.1, 3
 
     5.4.  t ∈ [α − 1, α + 1]
-          mun:interval a := α − 1, b := α + 1, x := t
+          def:interval a := α − 1, b := α + 1, x := t
           requires α − 1 ≤ t: from 5.2
           requires t ≤ α + 1: from 5.3
 
@@ -320,7 +320,7 @@ theorem near-a-root
           instantiate t := t in H8, from 5.4
 
 6.  x = α or not x = α
-    mun:excluded-middle
+    axi:excluded-middle
 
 7.  |f(x)| ≤ K·|α − x|
     cases, from 6
@@ -383,7 +383,7 @@ theorem near-a-root
                     α − x ≥ 0      weakening
 
           7.8.6.  |α − x| = α − x
-                  mun:abs x := α − x, from 7.8.5
+                  def:abs x := α − x, from 7.8.5
 
           7.8.7.  K·(α − x) = K·|α − x|
                   substitute |α − x| = α − x (line 7.8.6)
@@ -413,7 +413,7 @@ theorem near-a-root
                     α − x < 0      adding −x
 
           7.8.13. |α − x| = −(α − x)
-                  mun:abs x := α − x, from 7.8.12
+                  def:abs x := α − x, from 7.8.12
 
           7.8.14. x − α = −(α − x)
                   algebra
@@ -560,7 +560,7 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
           let q ∈ ℕ                                                   (K4)
 
           26.1.1. |α − p/q| ≤ min(1, δ) or not |α − p/q| ≤ min(1, δ)
-                  mun:excluded-middle
+                  axi:excluded-middle
 
           26.1.2. q^N > 0
                   mun:power-positive a := q, m := N
@@ -583,7 +583,7 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                             requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                   26.1.3.3. F(p/q) = 0 or not F(p/q) = 0
-                            mun:excluded-middle
+                            axi:excluded-middle
 
                   26.1.3.4. α = p/q or c/q^N < |α − p/q|
                             cases, from 26.1.3.3

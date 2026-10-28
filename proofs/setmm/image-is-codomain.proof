@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/functions/image-within
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/subset-self
 
@@ -30,7 +30,7 @@ theorem image-is-codomain
           substitute y = F(x) (line 2.1) into line 2.2
 
 3.  B ⊆ F[A]
-    mun:subset, from 2
+    def:subset, from 2
 
 4.  F[A] = B
     mun:subset-antisymmetric, from 1, 3

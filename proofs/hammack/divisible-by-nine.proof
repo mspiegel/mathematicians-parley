@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/numbers/exponent-sum
@@ -19,7 +19,7 @@ theorem divisible-by-nine
           arithmetic
 
     1.2.  9 divides 4^(3·0) + 8
-          mun:divides d := 9, n := 4^(3·0) + 8, from 1.1
+          def:divides d := 9, n := 4^(3·0) + 8, from 1.1
 
     step
     let m ∈ ℕ₀                                                        (K)
@@ -48,7 +48,7 @@ theorem divisible-by-nine
           requires 4^(3m) ∈ ℤ: mun:power-integer a := 4, m := 3m
 
     1.9.  9 divides 504
-          mun:divides d := 9, n := 504
+          def:divides d := 9, n := 504
           requires 504 = 9·56: arithmetic
 
     1.10. 9 divides (4^(3m) + 8)·64 − 504

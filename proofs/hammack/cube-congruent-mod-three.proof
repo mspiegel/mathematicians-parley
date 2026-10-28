@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-remainder
@@ -61,7 +61,7 @@ theorem cube-congruent-mod-three
                    = 3·(9·q³ − q)         6.3
 
     6.5.  3 divides a³ − a
-          mun:divides d := 3, n := a³ − a, from 6.4
+          def:divides d := 3, n := a³ − a, from 6.4
 
     case
     assume a mod 3 = 1                                                (C2)
@@ -81,7 +81,7 @@ theorem cube-congruent-mod-three
                    = 3·(9·q³ + 9·q² + 2·q)          6.8
 
     6.10. 3 divides a³ − a
-          mun:divides d := 3, n := a³ − a, from 6.9
+          def:divides d := 3, n := a³ − a, from 6.9
 
     case
     assume a mod 3 = 2                                                (C3)
@@ -101,7 +101,7 @@ theorem cube-congruent-mod-three
                    = 3·(9·q³ + 18·q² + 11·q + 2)    6.13
 
     6.15. 3 divides a³ − a
-          mun:divides d := 3, n := a³ − a, from 6.14
+          def:divides d := 3, n := a³ − a, from 6.14
 
 7.  a³ ≡ a (mod 3)
-    mun:congruent-mod, from 6
+    def:congruent-mod, from 6

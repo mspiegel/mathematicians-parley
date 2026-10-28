@@ -2,8 +2,8 @@ import theorem            proofs/wiedijk/angle-sum/angle-sum
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/sine-positive
-import mundane definition stdlib/geometry/triangle
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/geometry/triangle
+import definition         stdlib/trigonometry/sin
 
 theorem two-angles-under-straight
   note        Euclid I.17. The three angles of a triangle make 180° and the
@@ -19,8 +19,8 @@ theorem two-angles-under-straight
 
 2.  ∠BCA ∈ ℝ. ∠BCA ≥ 0.
     mun:angle-real P := B, Q := C, R := A
-    requires B ≠ C: mun:triangle, from H4
-    requires A ≠ C: mun:triangle, from H4
+    requires B ≠ C: def:triangle, from H4
+    requires A ≠ C: def:triangle, from H4
 
 3.  sin(∠BCA) > 0
     mun:sine-positive P := B, Q := C, R := A, from H4

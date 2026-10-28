@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/mod-multiple
 
 theorem congruent-same-remainder
@@ -12,10 +12,10 @@ theorem congruent-same-remainder
   then a mod n = b mod n
 
 1.  n divides a − b
-    mun:congruent-mod, from H4
+    def:congruent-mod, from H4
 
 2.  k ∈ ℤ. a − b = n·k.
-    obtain k: mun:divides d := n, n := a − b, from 1
+    obtain k: def:divides d := n, n := a − b, from 1
 
 3.  a = k·n + b
     algebra, from 2

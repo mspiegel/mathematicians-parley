@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-one
 
@@ -15,11 +15,11 @@ theorem no-integer-combination
           obtain a, b from S
 
     1.2.  3 divides 21
-          mun:divides d := 3, n := 21
+          def:divides d := 3, n := 21
           requires 21 = 3·7: arithmetic
 
     1.3.  3 divides 30
-          mun:divides d := 3, n := 30
+          def:divides d := 3, n := 30
           requires 30 = 3·10: arithmetic
 
     1.4.  3 divides 21a + 30b

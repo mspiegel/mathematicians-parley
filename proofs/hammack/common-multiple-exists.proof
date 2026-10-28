@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/set-image
-import mundane definition stdlib/sets/intersection
+import definition         stdlib/functions/set-image
+import definition         stdlib/sets/intersection
 
 theorem common-multiple-exists
   note        (p·q)·p is p times p·q and also q times p·p.
@@ -14,7 +14,7 @@ theorem common-multiple-exists
     exhibit, from 1
 
 3.  (p·q)·p ∈ {p·n : n ∈ ℕ}
-    mun:set-image u := (p·q)·p, from 2
+    def:set-image u := (p·q)·p, from 2
 
 4.  (p·q)·p = q·(p·p)
     algebra
@@ -23,10 +23,10 @@ theorem common-multiple-exists
     exhibit, from 4
 
 6.  (p·q)·p ∈ {q·n : n ∈ ℕ}
-    mun:set-image u := (p·q)·p, from 5
+    def:set-image u := (p·q)·p, from 5
 
 7.  (p·q)·p ∈ {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ}
-    mun:intersection u := (p·q)·p, from 3, 6
+    def:intersection u := (p·q)·p, from 3, 6
 
 8.  {p·n : n ∈ ℕ} ∩ {q·n : n ∈ ℕ} ≠ ∅
     contradiction

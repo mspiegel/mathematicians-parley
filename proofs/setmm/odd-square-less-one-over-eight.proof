@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import theorem            proofs/setmm/triangular-number-integer/triangular-number-integer
 
 theorem odd-square-less-one-over-eight
@@ -9,7 +9,7 @@ theorem odd-square-less-one-over-eight
   then (n² − 1)/8 ∈ ℤ
 
 1.  k ∈ ℤ. n = 2k + 1.
-    obtain k: mun:odd, from H2
+    obtain k: def:odd, from H2
 
 2.  (n² − 1)/8 = k(k + 1)/2
     algebra, from 1

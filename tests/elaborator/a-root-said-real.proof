@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 
 theorem a-root-said-real
   note        An order citing an equation whose atom is √A asks that √A be a number, and √A ∈ ℝ, which the root's record gives, says it.
@@ -7,11 +7,11 @@ theorem a-root-said-real
   then (√A)² ≤ A + 1
 
 1.  (√A)² = A
-    mun:sqrt x := A, from H2
+    def:sqrt x := A, from H2
 
 2.  A ≤ A + 1
     inequalities
 
 3.  (√A)² ≤ A + 1
     transitivity, from 1, 2
-    requires √A ∈ ℝ: mun:sqrt x := A, from H2
+    requires √A ∈ ℝ: def:sqrt x := A, from H2

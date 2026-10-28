@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/set-image
-import mundane definition stdlib/sets/subset
+import definition         stdlib/functions/set-image
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem rational-multiples-of-nine
@@ -11,7 +11,7 @@ theorem rational-multiples-of-nine
     let t ∈ {9n : n ∈ ℚ}                                              (K1)
 
     1.1.  There is n ∈ ℚ with t = 9n.
-          mun:set-image u := t, from K1
+          def:set-image u := t, from K1
 
     1.2.  m ∈ ℚ. t = 9m.
           obtain m from line 1.1
@@ -23,17 +23,17 @@ theorem rational-multiples-of-nine
           exhibit, from 1.3
 
     1.5.  t ∈ {3n : n ∈ ℚ}
-          mun:set-image u := t, from 1.4
+          def:set-image u := t, from 1.4
 
 2.  {9n : n ∈ ℚ} ⊆ {3n : n ∈ ℚ}
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all t ∈ {3n : n ∈ ℚ}, t ∈ {9n : n ∈ ℚ}.
     proof
     let t ∈ {3n : n ∈ ℚ}                                              (K2)
 
     3.1.  There is n ∈ ℚ with t = 3n.
-          mun:set-image u := t, from K2
+          def:set-image u := t, from K2
 
     3.2.  m ∈ ℚ. t = 3m.
           obtain m from line 3.1
@@ -45,10 +45,10 @@ theorem rational-multiples-of-nine
           exhibit, from 3.3
 
     3.5.  t ∈ {9n : n ∈ ℚ}
-          mun:set-image u := t, from 3.4
+          def:set-image u := t, from 3.4
 
 4.  {3n : n ∈ ℚ} ⊆ {9n : n ∈ ℚ}
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  {9n : n ∈ ℚ} = {3n : n ∈ ℚ}
     mun:subset-antisymmetric, from 2, 4

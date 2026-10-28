@@ -5,7 +5,7 @@ import mundane theorem    stdlib/polynomials/integer-polynomial-real
 import theorem            stdlib/polynomials/roots-isolated
 import theorem            stdlib/polynomials/polynomial-on-the-reals
 import theorem            stdlib/polynomials/algebraic-root
-import mundane definition stdlib/polynomials/transcendental
+import definition         stdlib/polynomials/transcendental
 
 theorem a-transcendental-number-is-not-algebraic
   let β ∈ ℝ                                                           (H1)
@@ -13,7 +13,7 @@ theorem a-transcendental-number-is-not-algebraic
   then not (β is algebraic)
 
 1.  not (β is algebraic)
-    mun:transcendental α := β, from H2
+    def:transcendental α := β, from H2
 
 theorem a-number-not-algebraic-is-transcendental
   let β ∈ ℂ                                                           (H1)
@@ -21,7 +21,7 @@ theorem a-number-not-algebraic-is-transcendental
   then β is transcendental
 
 1.  β is transcendental
-    mun:transcendental α := β, from H2
+    def:transcendental α := β, from H2
 
 theorem bernoulli-value
   let n ∈ ℕ₀                                                          (H1)

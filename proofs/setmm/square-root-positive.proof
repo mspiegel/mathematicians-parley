@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 
 theorem square-root-positive
   note        √a is not negative, and it is not 0, since then a would be its
@@ -8,7 +8,7 @@ theorem square-root-positive
   then 0 < √a
 
 1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
-    mun:sqrt x := a
+    def:sqrt x := a
     requires 0 ≤ a: weakening, from H2
 
 2.  0 < √a

@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/mod-equal-congruent
 import mundane theorem    stdlib/divisibility/mod-multiple
 import mundane theorem    stdlib/divisibility/mod-remainder
@@ -42,10 +42,10 @@ theorem difference-remainder-zero
           mun:mod-equal-congruent, from C2
 
     1.7.  N divides A − B
-          mun:congruent-mod, from 1.6
+          def:congruent-mod, from 1.6
 
     1.8.  There is k ∈ ℤ with A − B = N·k.
-          mun:divides d := N, n := A − B, from 1.7
+          def:divides d := N, n := A − B, from 1.7
 
     1.9.  k ∈ ℤ. A − B = N·k.
           obtain k from line 1.8

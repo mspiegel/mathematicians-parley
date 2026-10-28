@@ -3,7 +3,7 @@ import theorem            stdlib/calculus/continuous-power
 import theorem            stdlib/calculus/continuous-scaled
 import theorem            stdlib/calculus/derivative-power
 import theorem            stdlib/calculus/derivative-scaled
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-interval-open
 import mundane theorem    stdlib/calculus/open-within-closed
@@ -18,7 +18,7 @@ import theorem            stdlib/calculus/continuous-sum
 import theorem            stdlib/calculus/continuous-quotient
 import theorem            stdlib/trigonometry/continuous-arctan
 import theorem            stdlib/trigonometry/derivative-arctan
-import mundane definition stdlib/trigonometry/arctan
+import definition         stdlib/trigonometry/arctan
 import mundane theorem    stdlib/trigonometry/arctan-real
 import mundane theorem    stdlib/trigonometry/arctan-values
 import mundane theorem    stdlib/numbers/square-nonneg
@@ -28,14 +28,14 @@ import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-last
 import mundane theorem    stdlib/sums/sum-real
 import theorem            stdlib/numbers/archimedean
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-negative
 import mundane theorem    stdlib/numbers/abs-one
 import mundane theorem    stdlib/numbers/abs-power
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/reciprocal-order
 import definition         stdlib/calculus/tends-to
-import mundane definition stdlib/calculus/series-sum-from-zero
+import definition         stdlib/calculus/series-sum-from-zero
 import theorem            stdlib/calculus/integral-difference
 import theorem            stdlib/calculus/integral-nonneg
 import theorem            stdlib/calculus/integral-order
@@ -166,12 +166,12 @@ let F(x) = (1/(m + 1))·q(x), for x ∈ [0, 1]                           (D3)
     thm:fundamental-calculus a := 0, b := 1, f := p, from 9, 11, 12, 14, 17, 19, 20
 
 22. 0 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 0
+    def:interval a := 0, b := 1, x := 0
     requires 0 ≤ 0: arithmetic
     requires 0 ≤ 1: arithmetic
 
 23. 1 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 1
+    def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
@@ -437,12 +437,12 @@ let F(x) = arctan(x), for x ∈ [0, 1]                                  (D2)
     thm:fundamental-calculus a := 0, b := 1, f := g, from 5, 7, 8, 9, 10, 12, 13
 
 15. 0 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 0
+    def:interval a := 0, b := 1, x := 0
     requires 0 ≤ 0: arithmetic
     requires 0 ≤ 1: arithmetic
 
 16. 1 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 1
+    def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
@@ -662,7 +662,7 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
     let x ∈ [0, 1]                                                    (K1)
 
     10.1.  x ≥ 0
-           mun:interval a := 0, b := 1, from K1
+           def:interval a := 0, b := 1, from K1
 
     10.2.  x^(2n) ≥ 0
            mun:power-nonneg a := x, m := 2n, from 10.1
@@ -690,7 +690,7 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
     let x ∈ [0, 1]                                                    (K2)
 
     11.1.  x ≥ 0
-           mun:interval a := 0, b := 1, from K2
+           def:interval a := 0, b := 1, from K2
 
     11.2.  x^(2n) ≥ 0
            mun:power-nonneg a := x, m := 2n, from 11.1
@@ -740,7 +740,7 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
     D0, from D2
 
 18. 1 ∈ [0, 1]
-    mun:interval a := 0, b := 1, x := 1
+    def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
@@ -928,7 +928,7 @@ theorem leibniz
                   thm:integral-bounds n := n + 1
 
           3.2.14. |J(n + 1)| = J(n + 1)
-                  mun:abs x := J(n + 1), from 3.2.13
+                  def:abs x := J(n + 1), from 3.2.13
 
           3.2.15. |(−1)^(n + 1)|·|J(n + 1)| = 1·|J(n + 1)|
                   substitute |(−1)^(n + 1)| = 1 (line 3.2.12)
@@ -967,5 +967,5 @@ theorem leibniz
     requires for all n ∈ ℕ, Σ(k = 0 to n) (−1)^k/(2k + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
 
 5.  Σ(k = 0 to ∞) (−1)^k/(2k + 1) = π/4
-    mun:series-sum-from-zero L := π/4, from 4
+    def:series-sum-from-zero L := π/4, from 4
     requires for all k ∈ ℕ₀, (−1)^k/(2k + 1) ∈ ℝ: from 1

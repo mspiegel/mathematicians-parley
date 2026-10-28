@@ -2,8 +2,8 @@ import theorem            stdlib/calculus/cauchy-mean-value
 import theorem            stdlib/calculus/continuous-extension
 import theorem            stdlib/calculus/rolle-on-part
 import definition         stdlib/calculus/limit-at
-import mundane definition stdlib/calculus/interval
-import mundane definition stdlib/calculus/open-interval
+import definition         stdlib/calculus/interval
+import definition         stdlib/calculus/open-interval
 import mundane theorem    stdlib/calculus/closed-within-open
 import mundane theorem    stdlib/calculus/continuous-on-part
 import mundane theorem    stdlib/calculus/derivative-local
@@ -14,10 +14,10 @@ import mundane theorem    stdlib/calculus/open-interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/calculus/open-without-point
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/unequal-cases
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/sets/difference-subset
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/remove-member
@@ -76,12 +76,12 @@ theorem cauchy-quotient
     instantiate t := ξ in H14, from 5
 
 7.  p ∈ [p, q]
-    mun:interval a := p, b := q, x := p
+    def:interval a := p, b := q, x := p
     requires p ≤ p: inequalities
     requires p ≤ q: weakening, from H5
 
 8.  q ∈ [p, q]
-    mun:interval a := p, b := q, x := q
+    def:interval a := p, b := q, x := q
     requires p ≤ q: weakening, from H5
     requires q ≤ q: inequalities
 
@@ -156,7 +156,7 @@ theorem quotient-two-points
           suppose u ∈ (v, u)                                          (S1)
 
           4.3.1.  u < u
-                  mun:open-interval a := v, b := u, x := u, from S1
+                  def:open-interval a := v, b := u, x := u, from S1
 
           4.3.2.  not u < u
                   inequalities, contradicting 4.3.1
@@ -199,14 +199,14 @@ theorem quotient-two-points
           requires G′(ξ) ≠ 0: instantiate t := ξ in H12, from 4.9
 
     4.11. ξ ∈ ℝ. v < ξ. ξ < u.
-          mun:open-interval a := v, b := u, x := ξ, from 4.8
+          def:open-interval a := v, b := u, x := ξ, from 4.8
 
     4.12. |ξ − u| = −(ξ − u)
-          mun:abs x := ξ − u
+          def:abs x := ξ − u
           requires ξ − u < 0: adding −u, from 4.11
 
     4.13. |v − u| = −(v − u)
-          mun:abs x := v − u
+          def:abs x := v − u
           requires v − u < 0: adding −u, from C1
 
     4.14. −(ξ − u) < −(v − u)
@@ -244,7 +244,7 @@ theorem quotient-two-points
           suppose u ∈ (u, v)                                          (S2)
 
           4.20.1. u < u
-                  mun:open-interval a := u, b := v, x := u, from S2
+                  def:open-interval a := u, b := v, x := u, from S2
 
           4.20.2. not u < u
                   inequalities, contradicting 4.20.1
@@ -268,7 +268,7 @@ theorem quotient-two-points
           mun:in-subset, from 4.21, 4.24
 
     4.26. ξ ∈ ℝ. u < ξ. ξ < v.
-          mun:open-interval a := u, b := v, x := ξ, from 4.24
+          def:open-interval a := u, b := v, x := ξ, from 4.24
 
     4.27. ξ − u > 0
           inequalities
@@ -283,11 +283,11 @@ theorem quotient-two-points
             v − u > 0                restate
 
     4.29. |ξ − u| = ξ − u
-          mun:abs x := ξ − u
+          def:abs x := ξ − u
           requires ξ − u ≥ 0: weakening, from 4.27
 
     4.30. |v − u| = v − u
-          mun:abs x := v − u
+          def:abs x := v − u
           requires v − u ≥ 0: weakening, from 4.28
 
     4.31. ξ − u < v − u
@@ -380,7 +380,7 @@ let G(t) = 0       if t = c
     let t ∈ (a, b)                                                    (K3)
 
     10.1. t = c or not t = c
-          mun:excluded-middle
+          axi:excluded-middle
 
     10.2. F(t) ∈ ℝ
           cases, from 10.1
@@ -415,7 +415,7 @@ let G(t) = 0       if t = c
     let t ∈ (a, b)                                                    (K4)
 
     12.1. t = c or not t = c
-          mun:excluded-middle
+          axi:excluded-middle
 
     12.2. G(t) ∈ ℝ
           cases, from 12.1

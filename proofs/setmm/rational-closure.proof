@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/numbers/irrational
-import mundane definition stdlib/numbers/rational
-import mundane axiom      stdlib/numbers/trichotomy
+import definition         stdlib/numbers/irrational
+import definition         stdlib/numbers/rational
+import axiom              stdlib/numbers/trichotomy
 
 theorem rational-sum
   note        Write A as p/q and B as r/s. Their sum is (p·s + r·q)/(q·s),
@@ -11,10 +11,10 @@ theorem rational-sum
   then A + B ∈ ℚ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  r ∈ ℤ. s ∈ ℕ. B = r/s.
-    obtain r, s: mun:rational x := B
+    obtain r, s: def:rational x := B
 
 3.  A + B = (p·s + r·q)/(q·s)
     algebra, from 1, 2
@@ -23,7 +23,7 @@ theorem rational-sum
     exhibit, from 3
 
 5.  A + B ∈ ℚ
-    mun:rational x := A + B, from 4
+    def:rational x := A + B, from 4
 
 
 theorem rational-negative
@@ -32,7 +32,7 @@ theorem rational-negative
   then −A ∈ ℚ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  −A = (−p)/q
     algebra, from 1
@@ -41,7 +41,7 @@ theorem rational-negative
     exhibit, from 2
 
 4.  −A ∈ ℚ
-    mun:rational x := −A, from 3
+    def:rational x := −A, from 3
 
 
 theorem rational-difference
@@ -67,10 +67,10 @@ theorem rational-product
   then A·B ∈ ℚ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  r ∈ ℤ. s ∈ ℕ. B = r/s.
-    obtain r, s: mun:rational x := B
+    obtain r, s: def:rational x := B
 
 3.  A·B = (p/q)·B
     substitute A = p/q (line 1)
@@ -91,7 +91,7 @@ theorem rational-product
     exhibit, from 6
 
 8.  A·B ∈ ℚ
-    mun:rational x := A·B, from 7
+    def:rational x := A·B, from 7
 
 
 theorem rational-reciprocal
@@ -103,7 +103,7 @@ theorem rational-reciprocal
   then 1/A ∈ ℚ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  p ≠ 0
     contradiction
@@ -124,7 +124,7 @@ theorem rational-reciprocal
           restate H2, contradicting 2.3
 
 3.  p < 0 or p = 0 or 0 < p
-    mun:trichotomy x := p
+    axi:trichotomy x := p
 
 4.  1/A ∈ ℚ
     cases, from 3
@@ -143,7 +143,7 @@ theorem rational-reciprocal
           exhibit, from 4.1, 4.2
 
     4.4.  1/A ∈ ℚ
-          mun:rational x := 1/A, from 4.3
+          def:rational x := 1/A, from 4.3
 
     case
     assume p = 0                                                      (C2)
@@ -164,7 +164,7 @@ theorem rational-reciprocal
           exhibit, from 4.6, 4.7
 
     4.9.  1/A ∈ ℚ
-          mun:rational x := 1/A, from 4.8
+          def:rational x := 1/A, from 4.8
 
 
 theorem rational-quotient
@@ -196,7 +196,7 @@ theorem irrational-sum
   then A + B is irrational
 
 1.  A ∉ ℚ
-    mun:irrational x := A, from H3
+    def:irrational x := A, from H3
 
 2.  A + B ∉ ℚ
     contradiction
@@ -215,7 +215,7 @@ theorem irrational-sum
           restate 1, contradicting 2.3
 
 3.  A + B is irrational
-    mun:irrational x := A + B, from 2
+    def:irrational x := A + B, from 2
 
 
 theorem irrational-product
@@ -227,7 +227,7 @@ theorem irrational-product
   then A·B is irrational
 
 1.  A ∉ ℚ
-    mun:irrational x := A, from H4
+    def:irrational x := A, from H4
 
 2.  A·B ∉ ℚ
     contradiction
@@ -246,4 +246,4 @@ theorem irrational-product
           restate 1, contradicting 2.3
 
 3.  A·B is irrational
-    mun:irrational x := A·B, from 2
+    def:irrational x := A·B, from 2

@@ -1,8 +1,8 @@
 import theorem            stdlib/trigonometry/sin-add
 import mundane theorem    stdlib/trigonometry/cos-complex
 import mundane theorem    stdlib/trigonometry/sin-complex
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 
 theorem sine-of-double
   metamath    sin2t

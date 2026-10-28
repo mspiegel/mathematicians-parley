@@ -3,7 +3,7 @@ import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem equal-angles-equal-sides

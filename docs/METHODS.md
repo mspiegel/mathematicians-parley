@@ -910,8 +910,8 @@ it justifies a requires line, `requires √2 − 1 ≠ 0: real arithmetic`; it i
 the source of a substitution, `substitute √8 = 2·√2 (real arithmetic)`; it
 is the reason on a chain line of closed terms, `= 2·√2    real arithmetic`;
 and it justifies a numbered step only where the proof's shape asks a line
-there. Like `arithmetic` it is marked mundane, and the checker refuses it
-for a fact with a letter in it.
+there. The checker refuses it, as it refuses `arithmetic`, for a fact with a
+letter in it.
 
 It is a method of its own, and not more of `arithmetic`, so that what
 `arithmetic` decides stays small enough to read and its procedure and
@@ -1143,7 +1143,7 @@ disequality and a membership is `arithmetic`'s: a closed one this method
 decides cites it, and the checker refuses `algebra` or `inequalities` for
 it. `√2·√2 = 2` cites `real arithmetic`. An order is not held to that rule:
 `0 ≤ √2/2` may cite `real arithmetic`, or `inequalities`, which takes √2 as
-an atom and cites what it uses of it from a line citing `mun:sqrt x := 2`.
+an atom and cites what it uses of it from a line citing `def:sqrt x := 2`.
 A closed order this method's bounds do not reach, `π² < 10`, asks a bound
 on π tighter than set.mm proves, and is a theorem to cite. `inequalities`
 does not reach it from set.mm's bounds either, since it reads π² as an atom
@@ -1672,7 +1672,7 @@ pilot had already asked for it to be tested on a real reader rather than
 assumed.
 
 That criterion also accounts for the logical item the database already had,
-`mun:stdlib/reasoning/excluded-middle`, which is the sign that it was the rule
+`axi:stdlib/reasoning/excluded-middle`, which is the sign that it was the rule
 operating implicitly all along. Disjunctive syllogism, which left `join`, is
 `mun:stdlib/reasoning/disjunctive-syllogism`. A doubled negation is not
 written at all: a contradiction block proving a negation supposes what the

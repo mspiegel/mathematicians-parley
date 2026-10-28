@@ -1,9 +1,9 @@
 import axiom              stdlib/numbers/well-ordering
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/sets/subset
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/numbers/exponent-sum
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/power-positive
@@ -13,7 +13,7 @@ import mundane theorem    stdlib/sums/product-add-one
 import mundane theorem    stdlib/sums/product-integer
 import mundane theorem    stdlib/sums/product-integer-terms
 import mundane theorem    stdlib/counting/finite-part
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/in-subset
@@ -76,7 +76,7 @@ theorem least-combination-divides
     algebra, from 3, 5
 
 7.  d divides c
-    mun:divides n := c, from 6
+    def:divides n := c, from 6
 
 theorem bezout
   note        Let d be the least positive number of the form a·x + b·y. It
@@ -95,7 +95,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     algebra
 
 2.  b ∈ S
-    mun:set-builder u := b, from D1, 1
+    def:set-builder u := b, from D1, 1
 
 3.  S ⊆ ℕ
     mun:set-builder-subset, from D1
@@ -104,13 +104,13 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     obtain d: axi:well-ordering, from 2, 3
 
 5.  For all t ∈ S, t ∈ ℕ
-    mun:subset, from 3
+    def:subset, from 3
 
 6.  d ∈ ℕ
     instantiate t := d in line 5, from 4
 
 7.  x₀ ∈ ℤ. y₀ ∈ ℤ. d = a·x₀ + b·y₀.
-    obtain x₀, y₀: mun:set-builder u := d, from D1, 4
+    obtain x₀, y₀: def:set-builder u := d, from D1, 4
 
 8.  For all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y.
     proof
@@ -119,7 +119,7 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
     assume a·x + b·y ∈ ℕ                                              (K3)
 
     8.1.  a·x + b·y ∈ S
-          mun:set-builder u := a·x + b·y, from D1, K3
+          def:set-builder u := a·x + b·y, from D1, K3
 
     8.2.  d ≤ a·x + b·y
           instantiate s := a·x + b·y in line 4, from 8.1
@@ -220,7 +220,7 @@ theorem congruent-cancel
   then x ≡ y (mod n)
 
 1.  n divides x·c − y·c
-    mun:congruent-mod a := x·c, b := y·c, from H5
+    def:congruent-mod a := x·c, b := y·c, from H5
 
 2.  x·c − y·c = (x − y)·c
     algebra
@@ -232,7 +232,7 @@ theorem congruent-cancel
     thm:coprime-divides x := x − y, from H6, 3
 
 5.  x ≡ y (mod n)
-    mun:congruent-mod a := x, b := y, from 4
+    def:congruent-mod a := x, b := y, from 4
 
 mundane theorem coprime-square-part
   note        One of two numbers with no factor in common whose product is
@@ -249,7 +249,7 @@ mundane theorem coprime-square-part
 
 1.  gcd(s, w) ∈ ℕ. gcd(s, w) divides s. gcd(s, w) divides w.
     For all e ∈ ℕ, if e divides s and e divides w then e ≤ gcd(s, w).
-    mun:gcd a := s, b := w
+    def:gcd a := s, b := w
 
 2.  s divides s
     mun:divides-self n := s
@@ -410,7 +410,7 @@ mundane theorem prime-power-not-less
   then not (a < a′)
 
 1.  p > 1 and for all d ∈ ℕ, if d divides p then d = 1 or d = p.
-    mun:prime, from H2
+    def:prime, from H2
 
 2.  p > 1
     restate 1
@@ -664,7 +664,7 @@ theorem product-coprime
     let a ∈ X ∖ Y                                                     (K2)
 
     2.6.  a ∈ X and a ∉ Y
-          mun:difference u := a, Y := X, Z := Y, from K2
+          def:difference u := a, Y := X, Z := Y, from K2
 
     2.7.  Y is finite
           mun:finite-part, from H2, K
@@ -729,10 +729,10 @@ theorem product-congruent-termwise
           algebra
 
     3.4.  n divides 1 − 1
-          mun:divides d := n, n := 1 − 1, from 3.3
+          def:divides d := n, n := 1 − 1, from 3.3
 
     3.5.  1 ≡ 1 (mod n)
-          mun:congruent-mod a := 1, b := 1, from 3.4
+          def:congruent-mod a := 1, b := 1, from 3.4
 
     3.6.  ∏(x ∈ ∅) t(x) ≡ 1 (mod n)
           substitute ∏(x ∈ ∅) t(x) = 1 (line 3.1) into line 3.5
@@ -746,7 +746,7 @@ theorem product-congruent-termwise
     let a ∈ X ∖ Y                                                     (K2)
 
     3.8.  a ∈ X and a ∉ Y
-          mun:difference u := a, Y := X, Z := Y, from K2
+          def:difference u := a, Y := X, Z := Y, from K2
 
     3.9.  Y is finite
           mun:finite-part, from H2, K
@@ -770,14 +770,14 @@ theorem product-congruent-termwise
           mun:function-value f := u, D := X, E := ℤ, x := a, from 3.8
 
     3.16. n divides ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x)
-          mun:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x),
+          def:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x),
             from IH, 3.12, 3.13
 
     3.17. t(a) ≡ u(a) (mod n)
           instantiate x := a in H6, from 3.8
 
     3.18. n divides t(a) − u(a)
-          mun:congruent-mod a := t(a), b := u(a), from 3.14, 3.15, 3.17
+          def:congruent-mod a := t(a), b := u(a), from 3.14, 3.15, 3.17
 
     3.19. n divides (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x)
           mun:divides-combination e := n, a := ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x),
@@ -795,7 +795,7 @@ theorem product-congruent-termwise
           substitute (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x) = (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a) (line 3.20) into line 3.19
 
     3.22. (∏(x ∈ Y) t(x))·t(a) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
-          mun:congruent-mod a := (∏(x ∈ Y) t(x))·t(a),
+          def:congruent-mod a := (∏(x ∈ Y) t(x))·t(a),
             b := (∏(x ∈ Y) u(x))·u(a), from 3.12, 3.13, 3.14, 3.15, 3.21
 
     3.23. ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)

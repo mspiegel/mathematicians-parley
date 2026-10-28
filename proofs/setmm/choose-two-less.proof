@@ -1,11 +1,11 @@
 import theorem            proofs/setmm/factorial-by-predecessor/factorial-by-predecessor
 import definition         stdlib/counting/C
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/binomial-zero-index
-import mundane definition stdlib/numbers/nat0
+import definition         stdlib/numbers/nat0
 import mundane theorem    stdlib/numbers/nat-minus-one
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem choose-two-less
   note        C(N + 1, N − 1) is (N + 1)! over 2!·(N − 1)!, and (N + 1)! is
@@ -16,7 +16,7 @@ theorem choose-two-less
   then C(N + 1, N − 1) = (N + 1)·N/2
 
 1.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 2.  C(N + 1, N − 1) = (N + 1)·N/2
     cases, from 1
@@ -28,7 +28,7 @@ theorem choose-two-less
           mun:nat-minus-one n := N, from C1
 
     2.2.  N − 1 ∈ ℕ or N − 1 = 0
-          mun:nat0 n := N − 1, from 2.1
+          def:nat0 n := N − 1, from 2.1
 
     2.3.  C(N + 1, N − 1) = (N + 1)·N/2
           cases, from 2.2
@@ -43,7 +43,7 @@ theorem choose-two-less
                   inequalities, from C1
 
           2.3.3.  N − 1 ∈ {0, …, N + 1}
-                  mun:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
+                  def:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
 
           2.3.4.  C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)
                   def:C n := N + 1, k := N − 1, from 2.3.3
@@ -52,10 +52,10 @@ theorem choose-two-less
                   algebra
 
           2.3.6.  1! = 1
-                  mun:factorial
+                  def:factorial
 
           2.3.7.  (1 + 1)! = 1!·(1 + 1)
-                  mun:factorial n := 1
+                  def:factorial n := 1
 
           2.3.8.  2! = 1!·2
                   substitute 1 + 1 = 2 (arithmetic) into line 2.3.7
@@ -76,7 +76,7 @@ theorem choose-two-less
                   substitute ((N + 1) − (N − 1))! = 2 (line 2.3.11)
 
           2.3.13. (N + 1)! = N!·(N + 1)
-                  mun:factorial n := N
+                  def:factorial n := N
 
           2.3.14. N! = (N − 1)!·N
                   thm:factorial-by-predecessor, from C1

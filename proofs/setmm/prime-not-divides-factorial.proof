@@ -1,12 +1,12 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import theorem            stdlib/divisibility/prime-divides-product
 import mundane theorem    stdlib/numbers/nat-int
 import mundane theorem    stdlib/numbers/nat0-nonzero
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/iff-from-left
 import mundane theorem    stdlib/reasoning/modus-ponens
 
@@ -22,7 +22,7 @@ theorem prime-not-divides-factorial
   then not (P divides N!)
 
 1.  P > 1
-    mun:prime p := P, from H2
+    def:prime p := P, from H2
 
 2.  For all k ∈ ℕ, if k < P then not (P divides k!).
     induction on k starting at 1
@@ -37,7 +37,7 @@ theorem prime-not-divides-factorial
                   suppose P divides 1!                                (S1)
 
                   2.1.1.1.  1! = 1
-                            mun:factorial
+                            def:factorial
 
                   2.1.1.2.  P divides 1
                             substitute 1! = 1 (line 2.1.1.1) into S1
@@ -63,7 +63,7 @@ theorem prime-not-divides-factorial
                   suppose P divides (k + 1)!                          (S2)
 
                   2.2.1.1.  (k + 1)! = k!·(k + 1)
-                            mun:factorial n := k
+                            def:factorial n := k
 
                   2.2.1.2.  P divides k!·(k + 1)
                             substitute (k + 1)! = k!·(k + 1) (line 2.2.1.1) into S2
@@ -103,7 +103,7 @@ theorem prime-not-divides-factorial
                             inequalities, from 2.2.1.8, contradicting A
 
 3.  N = 0 or N ≠ 0
-    mun:excluded-middle P := N = 0
+    axi:excluded-middle P := N = 0
 
 4.  not (P divides N!)
     cases, from 3

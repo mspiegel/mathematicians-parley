@@ -1,12 +1,12 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-collinear
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-real
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 
 theorem altitude-mean-proportional
   note        The altitude CD cuts the right triangle ABC into two right
@@ -37,7 +37,7 @@ theorem altitude-mean-proportional
           substitute D = C (S) into line 2
 
     3.2.  not (A, B, C are collinear)
-          mun:triangle P := A, Q := B, R := C, from H5, contradicting 3.1
+          def:triangle P := A, Q := B, R := C, from H5, contradicting 3.1
 
 4.  |AB|² = |AC|² + |BC|²
     thm:pythagoras, from H5, H6

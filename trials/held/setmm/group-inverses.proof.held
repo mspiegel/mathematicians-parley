@@ -1,10 +1,10 @@
 import theorem            stdlib/groups/group-cancel
-import mundane axiom      stdlib/groups/group-associative
-import mundane axiom      stdlib/groups/group-closed
-import mundane axiom      stdlib/groups/group-identity
-import mundane axiom      stdlib/groups/group-identity-closed
-import mundane axiom      stdlib/groups/group-inverse
-import mundane axiom      stdlib/groups/group-inverse-closed
+import axiom              stdlib/groups/group-associative
+import axiom              stdlib/groups/group-closed
+import axiom              stdlib/groups/group-identity
+import axiom              stdlib/groups/group-identity-closed
+import axiom              stdlib/groups/group-inverse
+import axiom              stdlib/groups/group-inverse-closed
 
 theorem group-left-inverse
   note        Write b for a⁻¹ and c for b⁻¹. Then b·a = (b·a)·e = (b·a)·(b·c)
@@ -14,43 +14,43 @@ theorem group-left-inverse
   then a⁻¹·a = e
 
 1.  e ∈ G
-    mun:group-identity-closed
+    axi:group-identity-closed
 
 2.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 3.  (a⁻¹)⁻¹ ∈ G
-    mun:group-inverse-closed a := a⁻¹, from 2
+    axi:group-inverse-closed a := a⁻¹, from 2
 
 4.  a⁻¹·a ∈ G
-    mun:group-closed a := a⁻¹, b := a, from H2, 2
+    axi:group-closed a := a⁻¹, b := a, from H2, 2
 
 5.  (a⁻¹·a)·e = a⁻¹·a
-    mun:group-identity a := a⁻¹·a, from 4
+    axi:group-identity a := a⁻¹·a, from 4
 
 6.  a⁻¹·(a⁻¹)⁻¹ = e
-    mun:group-inverse a := a⁻¹, from 2
+    axi:group-inverse a := a⁻¹, from 2
 
 7.  a·a⁻¹ = e
-    mun:group-inverse, from H2
+    axi:group-inverse, from H2
 
 8.  a⁻¹·(a⁻¹)⁻¹ ∈ G
-    mun:group-closed a := a⁻¹, b := (a⁻¹)⁻¹, from 2, 3
+    axi:group-closed a := a⁻¹, b := (a⁻¹)⁻¹, from 2, 3
 
 9.  (a⁻¹·a)·(a⁻¹·(a⁻¹)⁻¹) = a⁻¹·(a·(a⁻¹·(a⁻¹)⁻¹))
-    mun:group-associative a := a⁻¹, b := a, c := a⁻¹·(a⁻¹)⁻¹, from H2, 2, 8
+    axi:group-associative a := a⁻¹, b := a, c := a⁻¹·(a⁻¹)⁻¹, from H2, 2, 8
 
 10. a·(a⁻¹·(a⁻¹)⁻¹) = (a·a⁻¹)·(a⁻¹)⁻¹
-    mun:group-associative b := a⁻¹, c := (a⁻¹)⁻¹, from H2, 2, 3
+    axi:group-associative b := a⁻¹, c := (a⁻¹)⁻¹, from H2, 2, 3
 
 11. a·(a⁻¹·(a⁻¹)⁻¹) = e·(a⁻¹)⁻¹
     substitute a·a⁻¹ = e (line 7) into line 10
 
 12. a⁻¹·(e·(a⁻¹)⁻¹) = (a⁻¹·e)·(a⁻¹)⁻¹
-    mun:group-associative a := a⁻¹, b := e, c := (a⁻¹)⁻¹, from 1, 2, 3
+    axi:group-associative a := a⁻¹, b := e, c := (a⁻¹)⁻¹, from 1, 2, 3
 
 13. a⁻¹·e = a⁻¹
-    mun:group-identity a := a⁻¹, from 2
+    axi:group-identity a := a⁻¹, from 2
 
 14. a⁻¹·(e·(a⁻¹)⁻¹) = a⁻¹·(a⁻¹)⁻¹
     substitute a⁻¹·e = a⁻¹ (line 13) into line 12
@@ -75,16 +75,16 @@ theorem group-left-identity
   then e·a = a
 
 1.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 2.  a·a⁻¹ = e
-    mun:group-inverse, from H2
+    axi:group-inverse, from H2
 
 3.  a⁻¹·a = e
     thm:group-left-inverse, from H2
 
 4.  (a·a⁻¹)·a = a·(a⁻¹·a)
-    mun:group-associative b := a⁻¹, c := a, from H2, 1
+    axi:group-associative b := a⁻¹, c := a, from H2, 1
 
 5.  e·a = a·(a⁻¹·a)
     substitute a·a⁻¹ = e (line 2) into line 4
@@ -93,7 +93,7 @@ theorem group-left-identity
     substitute a⁻¹·a = e (line 3) into line 5
 
 7.  a·e = a
-    mun:group-identity, from H2
+    axi:group-identity, from H2
 
 8.  e·a = a
     calculation
@@ -106,16 +106,16 @@ theorem group-inverse-of-identity
   then e⁻¹ = e
 
 1.  e ∈ G
-    mun:group-identity-closed
+    axi:group-identity-closed
 
 2.  e⁻¹ ∈ G
-    mun:group-inverse-closed a := e, from 1
+    axi:group-inverse-closed a := e, from 1
 
 3.  e·e⁻¹ = e⁻¹
     thm:group-left-identity a := e⁻¹, from 2
 
 4.  e·e⁻¹ = e
-    mun:group-inverse a := e, from 1
+    axi:group-inverse a := e, from 1
 
 5.  e⁻¹ = e
     calculation
@@ -130,13 +130,13 @@ theorem group-inverse-of-inverse
   then (a⁻¹)⁻¹ = a
 
 1.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 2.  (a⁻¹)⁻¹ ∈ G
-    mun:group-inverse-closed a := a⁻¹, from 1
+    axi:group-inverse-closed a := a⁻¹, from 1
 
 3.  a⁻¹·(a⁻¹)⁻¹ = e
-    mun:group-inverse a := a⁻¹, from 1
+    axi:group-inverse a := a⁻¹, from 1
 
 4.  a⁻¹·a = e
     thm:group-left-inverse, from H2
@@ -157,7 +157,7 @@ theorem group-idempotent
   then a·a = a ↔ a = e
 
 1.  e ∈ G
-    mun:group-identity-closed
+    axi:group-identity-closed
 
 2.  a·a = a ↔ a = e
     both directions
@@ -166,7 +166,7 @@ theorem group-idempotent
     assume a·a = a                                                    (D1)
 
     2.1.  a·e = a
-          mun:group-identity, from H2
+          axi:group-identity, from H2
 
     2.2.  a·a = a·e
           calculation
@@ -180,7 +180,7 @@ theorem group-idempotent
     assume a = e                                                      (D2)
 
     2.4.  e·e = e
-          mun:group-identity a := e, from 1
+          axi:group-identity a := e, from 1
 
     2.5.  a·a = a
           substitute a = e (D2) into line 2.4
@@ -194,7 +194,7 @@ theorem group-inverse-by-right
   then a⁻¹ = b ↔ a·b = e
 
 1.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 2.  a⁻¹ = b ↔ a·b = e
     both directions
@@ -203,7 +203,7 @@ theorem group-inverse-by-right
     assume a⁻¹ = b                                                    (D1)
 
     2.1.  a·a⁻¹ = e
-          mun:group-inverse, from H2
+          axi:group-inverse, from H2
 
     2.2.  a·b = e
           substitute a⁻¹ = b (D1) into line 2.1
@@ -212,7 +212,7 @@ theorem group-inverse-by-right
     assume a·b = e                                                    (D2)
 
     2.3.  a·a⁻¹ = e
-          mun:group-inverse, from H2
+          axi:group-inverse, from H2
 
     2.4.  a·a⁻¹ = a·b
           calculation
@@ -231,7 +231,7 @@ theorem group-inverse-by-left
   then a⁻¹ = b ↔ b·a = e
 
 1.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 2.  a⁻¹ = b ↔ b·a = e
     both directions
@@ -265,13 +265,13 @@ theorem group-cancel-inverse
   then a·(a⁻¹·b) = b
 
 1.  a⁻¹ ∈ G
-    mun:group-inverse-closed, from H2
+    axi:group-inverse-closed, from H2
 
 2.  (a·a⁻¹)·b = a·(a⁻¹·b)
-    mun:group-associative b := a⁻¹, c := b, from H2, H3, 1
+    axi:group-associative b := a⁻¹, c := b, from H2, H3, 1
 
 3.  a·a⁻¹ = e
-    mun:group-inverse, from H2
+    axi:group-inverse, from H2
 
 4.  e·b = a·(a⁻¹·b)
     substitute a·a⁻¹ = e (line 3) into line 2

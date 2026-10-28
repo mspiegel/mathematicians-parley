@@ -1,10 +1,10 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-difference-lt
-import mundane definition stdlib/numbers/min
+import definition         stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/lt-min
 import mundane theorem    stdlib/numbers/less-scaled
@@ -63,7 +63,7 @@ theorem square-limit
                     x + 3 ≥ 0        weakening
 
           1.4.5.  |x + 3| = x + 3
-                  mun:abs x := x + 3, from 1.4.4
+                  def:abs x := x + 3, from 1.4.4
 
           1.4.6.  x + 3 < 7
                   inequalities, from 1.4.2

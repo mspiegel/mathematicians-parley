@@ -1,5 +1,5 @@
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/sets/intersection
+import definition         stdlib/sets/subset
+import definition         stdlib/sets/intersection
 
 theorem intersection-subset-left
   note        Whatever is in both A and B is in A.
@@ -12,13 +12,13 @@ theorem intersection-subset-left
     let u ∈ A ∩ B                                                     (K1)
 
     1.1.  u ∈ A and u ∈ B
-          mun:intersection, from K1
+          def:intersection, from K1
 
     1.2.  u ∈ A
           restate 1.1
 
 2.  A ∩ B ⊆ A
-    mun:subset, from 1
+    def:subset, from 1
 
 
 theorem intersection-subset-right
@@ -32,10 +32,10 @@ theorem intersection-subset-right
     let u ∈ A ∩ B                                                     (K1)
 
     1.1.  u ∈ A and u ∈ B
-          mun:intersection, from K1
+          def:intersection, from K1
 
     1.2.  u ∈ B
           restate 1.1
 
 2.  A ∩ B ⊆ B
-    mun:subset, from 1
+    def:subset, from 1

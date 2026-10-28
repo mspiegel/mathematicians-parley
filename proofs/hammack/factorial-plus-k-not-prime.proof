@@ -2,7 +2,7 @@ import mundane theorem    stdlib/counting/factorial-divisible
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/divides-sum
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/numbers/nat-closure
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -46,7 +46,7 @@ theorem factorial-plus-k-not-prime
     suppose n! + k is prime                                           (S)
 
     9.1.  n! + k > 1. For all d ∈ ℕ, if d divides n! + k then d = 1 or d = n! + k.
-          mun:prime p := n! + k, from S
+          def:prime p := n! + k, from S
           requires n! + k ∈ ℕ: from 5
 
     9.2.  If k divides n! + k then k = 1 or k = n! + k.

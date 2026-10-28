@@ -1,11 +1,11 @@
 import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
 import definition         stdlib/counting/C
 import mundane theorem    stdlib/counting/binomial-nat0
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/numbers/nat-minus-one
-import mundane axiom      stdlib/reasoning/excluded-middle
-import mundane definition stdlib/sums/range
+import axiom              stdlib/reasoning/excluded-middle
+import definition         stdlib/sums/range
 
 theorem even-times
   note        An even number 2a times B is 2(a·B).
@@ -15,13 +15,13 @@ theorem even-times
   then A·B is even
 
 1.  a ∈ ℤ. A = 2a.
-    obtain a: mun:even, from H3
+    obtain a: def:even, from H3
 
 2.  A·B = 2(a·B)
     algebra, from 1
 
 3.  A·B is even
-    mun:even n := A·B, from 2
+    def:even n := A·B, from 2
 
 theorem odd-factor
   note        If A = 2b + 1 and A·B = 2a, then B is A·B − 2b·B, which is
@@ -33,10 +33,10 @@ theorem odd-factor
   then B is even
 
 1.  b ∈ ℤ. A = 2b + 1.
-    obtain b: mun:odd, from H3
+    obtain b: def:odd, from H3
 
 2.  a ∈ ℤ. A·B = 2a.
-    obtain a: mun:even n := A·B, from H4
+    obtain a: def:even n := A·B, from H4
 
 3.  (2b + 1)·B = 2a
     substitute A = 2b + 1 (line 1) into line 2
@@ -45,7 +45,7 @@ theorem odd-factor
     algebra, from 3
 
 5.  B is even
-    mun:even n := B, from 4
+    def:even n := B, from 4
 
 theorem binomial-even-for-odd-k
   note        k·C(n, k) is n·C(n − 1, k − 1), which is even because n is, and
@@ -58,7 +58,7 @@ theorem binomial-even-for-odd-k
   then C(n, k) is even
 
 1.  k ≤ n or not k ≤ n
-    mun:excluded-middle P := k ≤ n
+    axi:excluded-middle P := k ≤ n
 
 2.  C(n, k) is even
     cases, from 1
@@ -73,7 +73,7 @@ theorem binomial-even-for-odd-k
           inequalities, from C1, H2
 
     2.3.  k ∈ {1, …, (n − 1) + 1}
-          mun:range n := (n − 1) + 1, from 2.2
+          def:range n := (n − 1) + 1, from 2.2
 
     2.4.  k·C((n − 1) + 1, k) = ((n − 1) + 1)·C(n − 1, k − 1)
           thm:weighted-term m := n − 1, from 2.3
@@ -118,5 +118,5 @@ theorem binomial-even-for-odd-k
                     = 2·0    arithmetic
 
     2.15. C(n, k) is even
-          mun:even n := C(n, k), from 2.14
+          def:even n := C(n, k), from 2.14
           requires C(n, k) ∈ ℤ: membership, from 2.13

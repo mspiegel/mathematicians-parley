@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/two-prime
 import mundane theorem    stdlib/numbers/floor-between
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -52,7 +52,7 @@ theorem one-is-not-prime
     suppose 1 is prime                                                (S)
 
     2.1.  1 > 1
-          mun:prime p := 1, from S, contradicting 1
+          def:prime p := 1, from S, contradicting 1
 
 theorem ninety-one-is-not-prime
   note        91 = 7·13.
@@ -72,7 +72,7 @@ theorem ninety-one-is-not-prime
     suppose 91 is prime                                               (S)
 
     4.1.  For all d ∈ ℕ, if d divides 91 then d = 1 or d = 91.
-          mun:prime p := 91, from S
+          def:prime p := 91, from S
 
     4.2.  If 7 divides 91 then 7 = 1 or 7 = 91.
           instantiate d := 7 in line 4.1

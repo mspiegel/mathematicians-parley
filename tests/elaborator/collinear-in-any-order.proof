@@ -1,5 +1,5 @@
-import mundane definition stdlib/geometry/on-line
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/on-line
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-collinear
 
 theorem a-collinearity-held-in-another-order
@@ -12,7 +12,7 @@ theorem a-collinearity-held-in-another-order
   then P is on line AB
 
 1.  P is on line AB
-    mun:on-line, from H4
+    def:on-line, from H4
 
 theorem the-middle-point-in-the-middle
   note        between-collinear concludes T, R, S are collinear, and the
@@ -45,7 +45,7 @@ theorem a-denial-in-another-order
           substitute M = A (S) into H6
 
     1.2.  not (A, B, C are collinear)
-          mun:triangle P := A, Q := B, R := C, from H5, contradicting 1.1
+          def:triangle P := A, Q := B, R := C, from H5, contradicting 1.1
 
 theorem a-denial-first
   note        The same, with the denial written first and the collinearity
@@ -63,7 +63,7 @@ theorem a-denial-first
     suppose A = M                                                     (S)
 
     1.1.  not (A, B, C are collinear)
-          mun:triangle P := A, Q := B, R := C, from H5
+          def:triangle P := A, Q := B, R := C, from H5
 
     1.2.  C, A, B are collinear
           substitute M = A (S) into H6, contradicting 1.1
@@ -78,4 +78,4 @@ theorem a-definition-concluding-in-another-order
   then not (B, C, A are collinear)
 
 1.  not (B, C, A are collinear)
-    mun:triangle P := A, Q := B, R := C, from H4
+    def:triangle P := A, Q := B, R := C, from H4

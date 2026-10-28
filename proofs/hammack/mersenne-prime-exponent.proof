@@ -1,12 +1,12 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/prime-nat
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/power-real
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -212,7 +212,7 @@ theorem prime-exponent
     mun:prime-nat p := 2^n − 1, from H2
 
 2.  2^n − 1 > 1. For all c ∈ ℕ, if c divides 2^n − 1 then c = 1 or c = 2^n − 1.
-    mun:prime p := 2^n − 1, from H2, 1
+    def:prime p := 2^n − 1, from H2, 1
 
 3.  n > 1
     contradiction
@@ -239,7 +239,7 @@ theorem prime-exponent
     assume d divides n                                                (K2)
 
     4.1.  d = 1 or d ≠ 1
-          mun:excluded-middle P := d = 1
+          axi:excluded-middle P := d = 1
 
     4.2.  d = 1 or d = n
           cases, from 4.1
@@ -254,7 +254,7 @@ theorem prime-exponent
           assume d ≠ 1                                                (C2)
 
           4.2.2.  d = n or d ≠ n
-                  mun:excluded-middle P := d = n
+                  axi:excluded-middle P := d = n
 
           4.2.3.  d = 1 or d = n
                   cases, from 4.2.2
@@ -269,7 +269,7 @@ theorem prime-exponent
                   assume d ≠ n                                        (C4)
 
                   4.2.3.2.  e ∈ ℤ. n = d·e.
-                            obtain e: mun:divides, from K2
+                            obtain e: def:divides, from K2
 
                   4.2.3.3.  0 < e
                             contradiction
@@ -327,7 +327,7 @@ theorem prime-exponent
                                       = (2^d − 1)·q         4.2.3.8
 
                   4.2.3.11. 2^d − 1 divides 2^n − 1
-                            mun:divides d := 2^d − 1, n := 2^n − 1, from 4.2.3.10
+                            def:divides d := 2^d − 1, n := 2^n − 1, from 4.2.3.10
 
                   4.2.3.12. 2^d ≥ d + 1
                             thm:two-power-bound
@@ -410,4 +410,4 @@ theorem prime-exponent
                                            2^d − 1 ≠ (2^d − 1)·q          weakening
 
 5.  n is prime
-    mun:prime p := n, from 3, 4
+    def:prime p := n, from 3, 4

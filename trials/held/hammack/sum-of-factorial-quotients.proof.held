@@ -1,4 +1,4 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/counting/factorial-nonzero
 import mundane theorem    stdlib/functions/function-into
@@ -134,10 +134,10 @@ let S(m) = Σ(j = 1 to m) t(j), for m ∈ ℕ                              (D2)
           instantiate j := 1 in line 2
 
     5.3.  1! = 1
-          mun:factorial
+          def:factorial
 
     5.4.  (1 + 1)! = 1!·(1 + 1)
-          mun:factorial n := 1
+          def:factorial n := 1
 
     5.5.  1!·(1 + 1) = 1·(1 + 1)
           substitute 1! = 1 (line 5.3)
@@ -187,7 +187,7 @@ let S(m) = Σ(j = 1 to m) t(j), for m ∈ ℕ                              (D2)
           substitute t(k + 1) = (k + 1)/((k + 1) + 1)! (line 5.12)
 
     5.15. ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1)
-          mun:factorial n := k + 1
+          def:factorial n := k + 1
 
     5.16. 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)! = 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1))
           substitute ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1) (line 5.15)

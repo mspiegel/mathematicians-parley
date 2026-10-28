@@ -1,9 +1,9 @@
 import theorem            stdlib/divisibility/coprime-divides
 import mundane theorem    stdlib/divisibility/gcd-commutes
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/prime-coprime
 import mundane theorem    stdlib/divisibility/prime-nat
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -21,7 +21,7 @@ theorem prime-divides-a-factor
     mun:prime-nat, from H4
 
 2.  p divides a or not (p divides a)
-    mun:excluded-middle P := p divides a
+    axi:excluded-middle P := p divides a
 
 3.  p divides a or p divides b
     cases, from 2

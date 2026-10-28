@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 import theorem            proofs/inverse-lands-in-domain/inverse-lands-in-domain
 import theorem            proofs/value-of-inverse/value-of-inverse
 
@@ -40,4 +40,4 @@ theorem inverse-is-one-to-one
               = t                3.2
 
 4.  F⁻¹ : B → A is one-to-one
-    mun:one-to-one, from 2, 3
+    def:one-to-one, from 2, 3

@@ -1,5 +1,5 @@
-import mundane definition stdlib/logarithms/ln
-import mundane definition stdlib/logarithms/exp
+import definition         stdlib/logarithms/ln
+import definition         stdlib/logarithms/exp
 import mundane theorem    stdlib/logarithms/ln-product as logarithms-ln-product
 import mundane theorem    stdlib/logarithms/ln-quotient as logarithms-ln-quotient
 import mundane theorem    stdlib/logarithms/ln-power as logarithms-ln-power

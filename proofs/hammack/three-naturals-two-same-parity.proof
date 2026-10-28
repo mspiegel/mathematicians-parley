@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -66,19 +66,19 @@ theorem three-naturals-two-same-parity
                   assume b − c is odd                                 (C6)
 
                   2.4.4.2.  p ∈ ℤ. a − b = 2p + 1.
-                            obtain p: mun:odd n := a − b, from C2
+                            obtain p: def:odd n := a − b, from C2
 
                   2.4.4.3.  q ∈ ℤ. a + c = 2q + 1.
-                            obtain q: mun:odd n := a + c, from C4
+                            obtain q: def:odd n := a + c, from C4
 
                   2.4.4.4.  r ∈ ℤ. b − c = 2r + 1.
-                            obtain r: mun:odd n := b − c, from C6
+                            obtain r: def:odd n := b − c, from C6
 
                   2.4.4.5.  1 = 2(a − p − q − r − 1)
                             algebra, from 2.4.4.2, 2.4.4.3, 2.4.4.4
 
                   2.4.4.6.  1 is even
-                            mun:even n := 1, from 2.4.4.5
+                            def:even n := 1, from 2.4.4.5
 
                   2.4.4.7.  1 is not odd
                             mun:not-both n := 1, from 2.4.4.6

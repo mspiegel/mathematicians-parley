@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/sets/intersection
-import mundane definition stdlib/sets/set-builder
-import mundane definition stdlib/sets/subset
+import definition         stdlib/divisibility/divides
+import definition         stdlib/sets/intersection
+import definition         stdlib/sets/set-builder
+import definition         stdlib/sets/subset
 
 theorem multiples-of-a-product
   note        If t = m·n·c then t = m·(n·c) and t = n·(m·c).
@@ -14,31 +14,31 @@ theorem multiples-of-a-product
     let t ∈ {x ∈ ℤ : m·n divides x}                                   (K1)
 
     1.1.  t ∈ ℤ. m·n divides t.
-          mun:set-builder, from K1
+          def:set-builder, from K1
 
     1.2.  c ∈ ℤ. t = (m·n)·c
-          obtain c: mun:divides d := m·n, n := t, from 1.1
+          obtain c: def:divides d := m·n, n := t, from 1.1
 
     1.3.  t = m·(n·c)
           algebra, from 1.2
 
     1.4.  m divides t
-          mun:divides d := m, n := t, from 1.1, 1.3
+          def:divides d := m, n := t, from 1.1, 1.3
 
     1.5.  t ∈ {x ∈ ℤ : m divides x}
-          mun:set-builder, from 1.1, 1.4
+          def:set-builder, from 1.1, 1.4
 
     1.6.  t = n·(m·c)
           algebra, from 1.2
 
     1.7.  n divides t
-          mun:divides d := n, n := t, from 1.1, 1.6
+          def:divides d := n, n := t, from 1.1, 1.6
 
     1.8.  t ∈ {x ∈ ℤ : n divides x}
-          mun:set-builder, from 1.1, 1.7
+          def:set-builder, from 1.1, 1.7
 
     1.9.  t ∈ {x ∈ ℤ : m divides x} ∩ {x ∈ ℤ : n divides x}
-          mun:intersection u := t, from 1.5, 1.8
+          def:intersection u := t, from 1.5, 1.8
 
 2.  {x ∈ ℤ : m·n divides x} ⊆ {x ∈ ℤ : m divides x} ∩ {x ∈ ℤ : n divides x}
-    mun:subset, from 1
+    def:subset, from 1

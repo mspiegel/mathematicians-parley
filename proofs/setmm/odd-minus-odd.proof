@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/odd
 
 theorem odd-minus-odd
   note        Odd numbers are 2a + 1 and 2b + 1, and their difference is
@@ -11,13 +11,13 @@ theorem odd-minus-odd
   then 2 divides A − B
 
 1.  a ∈ ℤ. A = 2a + 1.
-    obtain a: mun:odd n := A, from H3
+    obtain a: def:odd n := A, from H3
 
 2.  b ∈ ℤ. B = 2b + 1.
-    obtain b: mun:odd n := B, from H4
+    obtain b: def:odd n := B, from H4
 
 3.  A − B = 2(a − b)
     algebra, from 1, 2
 
 4.  2 divides A − B
-    mun:divides d := 2, n := A − B, from 3
+    def:divides d := 2, n := A − B, from 3

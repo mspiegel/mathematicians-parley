@@ -144,7 +144,7 @@ mundane theorem join-distinct
               itself, which this corpus proves in elaboration/stdlib/proved.mm
   target      gjoinne
 
-mundane definition degree
+definition degree
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
   then        deg(x) = |{a ∈ E : x is incident with a}|

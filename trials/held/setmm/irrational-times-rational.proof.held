@@ -1,8 +1,8 @@
-import mundane definition stdlib/sets/difference
-import mundane axiom      stdlib/reasoning/excluded-middle
+import definition         stdlib/sets/difference
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/numbers/nat-closure
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem irrational-times-rational
   note        If A·B were a fraction r/s and B the fraction p/q with p not 0,
@@ -17,10 +17,10 @@ theorem irrational-times-rational
   then A·B ∈ ℝ ∖ ℚ
 
 1.  A ∈ ℝ. A ∉ ℚ.
-    mun:difference Y := ℝ, Z := ℚ, from H3
+    def:difference Y := ℝ, Z := ℚ, from H3
 
 2.  p ∈ ℤ. q ∈ ℕ. B = p/q.
-    obtain p, q: mun:rational x := B, from H4
+    obtain p, q: def:rational x := B, from H4
 
 3.  p ≠ 0
     contradiction
@@ -45,13 +45,13 @@ theorem irrational-times-rational
     suppose A·B ∈ ℚ                                                   (S2)
 
     4.1.  r ∈ ℤ. s ∈ ℕ. A·B = r/s.
-          obtain r, s: mun:rational x := A·B, from S2
+          obtain r, s: def:rational x := A·B, from S2
 
     4.2.  A·(p/q) = r/s
           substitute B = p/q (line 2) into line 4.1
 
     4.3.  p > 0 or not p > 0
-          mun:excluded-middle P := p > 0
+          axi:excluded-middle P := p > 0
 
     4.4.  A ∈ ℚ
           cases, from 4.3
@@ -73,7 +73,7 @@ theorem irrational-times-rational
                   exhibit, from 4.4.2, 4.4.3
 
           4.4.5.  A ∈ ℚ
-                  mun:rational x := A, from 4.4.4
+                  def:rational x := A, from 4.4.4
 
           case
           assume not p > 0                                            (C2)
@@ -95,7 +95,7 @@ theorem irrational-times-rational
                   exhibit, from 4.4.8, 4.4.9
 
           4.4.11. A ∈ ℚ
-                  mun:rational x := A, from 4.4.10
+                  def:rational x := A, from 4.4.10
 
     4.5.  A ∈ ℚ
           join 4.4, contradicting 1
@@ -104,4 +104,4 @@ theorem irrational-times-rational
     membership, from 1
 
 6.  A·B ∈ ℝ ∖ ℚ
-    mun:difference Y := ℝ, Z := ℚ, from 4, 5
+    def:difference Y := ℝ, Z := ℚ, from 4, 5

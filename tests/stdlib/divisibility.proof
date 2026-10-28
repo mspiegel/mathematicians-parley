@@ -1,5 +1,5 @@
 import theorem            stdlib/divisibility/gcd-mod as divisibility-gcd-mod
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes as divisibility-gcd-commutes
 import mundane theorem    stdlib/divisibility/gcd-one as divisibility-gcd-one
 import mundane theorem    stdlib/divisibility/gcd-zero as divisibility-gcd-zero
@@ -12,7 +12,7 @@ import mundane theorem    stdlib/divisibility/mod-below as divisibility-mod-belo
 import mundane theorem    stdlib/divisibility/zero-divides as divisibility-zero-divides
 import definition         stdlib/divisibility/σ
 import mundane theorem    stdlib/divisibility/mod-real as divisibility-mod-real
-import mundane definition stdlib/divisibility/lcm
+import definition         stdlib/divisibility/lcm
 import mundane theorem    stdlib/divisibility/lcm-times-gcd as divisibility-lcm-times-gcd
 import mundane theorem    stdlib/divisibility/odd-plus-odd as divisibility-odd-plus-odd
 import mundane theorem    stdlib/divisibility/odd-minus-odd as divisibility-odd-minus-odd
@@ -105,7 +105,7 @@ theorem lcm-a-multiple
   then a divides lcm(a, b)
 
 1.  a divides lcm(a, b)
-    mun:lcm
+    def:lcm
 
 theorem lcm-least
   let a ∈ ℤ                                                           (H1)
@@ -113,7 +113,7 @@ theorem lcm-least
   then for all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k
 
 1.  For all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k.
-    mun:lcm
+    def:lcm
 
 theorem lcm-times-gcd
   let a ∈ ℤ                                                           (H1)

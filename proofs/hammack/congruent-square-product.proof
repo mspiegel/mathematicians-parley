@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/divides-multiple
 
 theorem congruent-square-product
@@ -10,7 +10,7 @@ theorem congruent-square-product
   then a² ≡ a·b (mod n)
 
 1.  n divides a − b
-    mun:congruent-mod, from H4
+    def:congruent-mod, from H4
 
 2.  n divides (a − b)·a
     mun:divides-multiple e := n, a := a − b, x := a, from 1
@@ -22,4 +22,4 @@ theorem congruent-square-product
     substitute (a − b)·a = a² − a·b (line 3) into line 2
 
 5.  a² ≡ a·b (mod n)
-    mun:congruent-mod, from 4
+    def:congruent-mod, from 4

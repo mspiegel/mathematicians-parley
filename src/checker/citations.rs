@@ -1193,7 +1193,7 @@ fn recursion_differs(
 /// A definition folded from what its "there is" says of a witness is about
 /// one letter, its subject, and with no pair for it the subject is the
 /// proof's letter of the same name (`SYNTAX.md`, "No pair says what goes
-/// without saying"): `mun:odd, from H3`, where odd is about n and the proof
+/// without saying"): `def:odd, from H3`, where odd is about n and the proof
 /// has an N and no n, writes `n := N`. A definition is folded so where its
 /// right side is a "there is", the claim is not one, and no line the step
 /// names is one, as the elaborator reads it too (`Elaborator::reading`,
@@ -2207,7 +2207,7 @@ pub fn check_obtained_claims(
                 };
                 // A definition unfolded is its right side at the step's own
                 // values: from `n is even ↔ there is k ∈ ℤ with n = 2k`,
-                // `mun:even n := P` obtains a k with P = 2k.
+                // `def:even n := P` obtains a k with P = 2k.
                 if library.item(&name).is_some_and(|i| i.unfolds()) {
                     let Some(read) = searched(step, Search::Obtains, known, library)
                     else {

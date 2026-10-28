@@ -1,5 +1,5 @@
 import theorem            proofs/euclid/apollonius/apollonius
-import mundane definition stdlib/geometry/midpoint
+import definition         stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
 
 theorem parallelogram-law
@@ -16,10 +16,10 @@ theorem parallelogram-law
   then |AC|² + |BD|² = 2·|AB|² + 2·|BC|²
 
 1.  M is between A and C. |AM| = |MC|.
-    mun:midpoint B := C, from H6
+    def:midpoint B := C, from H6
 
 2.  M is between B and D. |BM| = |MD|.
-    mun:midpoint A := B, B := D, from H7
+    def:midpoint A := B, B := D, from H7
 
 3.  |BA|² + |BC|² = 2·|BM|² + 2·|AM|²
     thm:apollonius A := B, B := A, from 1

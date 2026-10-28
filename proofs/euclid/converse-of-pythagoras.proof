@@ -1,9 +1,9 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import mundane definition stdlib/geometry/triangle
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/geometry/triangle
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
@@ -21,7 +21,7 @@ theorem converse-of-pythagoras
   then ∠ACB = 90°
 
 1.  A ≠ C. B ≠ C.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines P := A, Q := C, R := B, from 1
@@ -35,10 +35,10 @@ theorem converse-of-pythagoras
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
 5.  |AC| > 0
-    mun:distance-positive P := A, Q := C, from 1
+    axi:distance-positive P := A, Q := C, from 1
 
 6.  |BC| > 0
-    mun:distance-positive P := B, Q := C, from 1
+    axi:distance-positive P := B, Q := C, from 1
 
 7.  |AC|·|BC| > 0
     mun:product-positive x := |AC|, y := |BC|, from 5, 6

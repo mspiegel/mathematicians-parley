@@ -1,7 +1,7 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/lowest-terms
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
@@ -14,7 +14,7 @@ theorem odd-cube
   then n³ is odd
 
 1.  k ∈ ℤ. n = 2k + 1.
-    obtain k: mun:odd, from H2
+    obtain k: def:odd, from H2
 
 2.  n³ = (2k + 1)³
     substitute n = 2k + 1 (line 1)
@@ -26,7 +26,7 @@ theorem odd-cube
     transitivity, from 2, 3
 
 5.  n³ is odd
-    mun:odd n := n³, from 4
+    def:odd n := n³, from 4
 
 
 theorem even-cube
@@ -78,13 +78,13 @@ theorem rational-cube-root-of-two
           requires q ≠ 0: weakening, from 1.2
 
     1.5.  p³ is even
-          mun:even n := p³, from 1.4
+          def:even n := p³, from 1.4
 
     1.6.  p is even
           thm:even-cube n := p, from 1.5
 
     1.7.  r ∈ ℤ. p = 2r.
-          obtain r: mun:even n := p, from 1.6
+          obtain r: def:even n := p, from 1.6
 
     1.8.  (2r)³ = 2q³
           substitute p = 2r (line 1.7) into line 1.4
@@ -93,19 +93,19 @@ theorem rational-cube-root-of-two
           algebra, from 1.8
 
     1.10. q³ is even
-          mun:even n := q³, from 1.9
+          def:even n := q³, from 1.9
 
     1.11. q is even
           thm:even-cube n := q, from 1.10
 
     1.12. s ∈ ℤ. q = 2s.
-          obtain s: mun:even n := q, from 1.11
+          obtain s: def:even n := q, from 1.11
 
     1.13. 2 divides p
-          mun:divides d := 2, n := p, from 1.7
+          def:divides d := 2, n := p, from 1.7
 
     1.14. 2 divides q
-          mun:divides d := 2, n := q, from 1.12
+          def:divides d := 2, n := q, from 1.12
 
     1.15. There is d ∈ ℤ with d > 1, d divides p, and d divides q.
           exhibit, from 1.13, 1.14, contradicting 1.2

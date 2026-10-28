@@ -1,4 +1,4 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/numbers/multiply-le-nonneg
 import mundane theorem    stdlib/numbers/nat-plus-nat0
@@ -28,8 +28,8 @@ import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
 import theorem            stdlib/calculus/monotone-limit
 import theorem            stdlib/calculus/limit-at-most
 import theorem            stdlib/calculus/limit-at-least
-import mundane definition stdlib/calculus/series-sum
-import mundane definition stdlib/polynomials/transcendental
+import definition         stdlib/calculus/series-sum
+import definition         stdlib/polynomials/transcendental
 import theorem            stdlib/polynomials/algebraic-root
 import theorem            proofs/wiedijk/liouville/liouville
 
@@ -74,7 +74,7 @@ theorem factorial-gap
           substitute n + 1 + j + 1 = n + 1 + (j + 1) (line 1.5)
 
     1.7.  (n + 1 + j + 1)! = (n + 1 + j)!·(n + 1 + j + 1)
-          mun:factorial n := n + 1 + j
+          def:factorial n := n + 1 + j
 
     1.8.  (n + 1 + j)! ∈ ℕ
           mun:factorial-nat n := n + 1 + j
@@ -521,7 +521,7 @@ theorem scaled-sum-integer
           thm:partial-sum-step
 
     1.6.  (n + 1)! = n!·(n + 1)
-          mun:factorial
+          def:factorial
 
     1.7.  n! ∈ ℕ
           mun:factorial-nat
@@ -658,7 +658,7 @@ theorem liouville-number
     requires (n ∈ ℕ ↦ s(n)) : ℕ → ℝ: mun:function-into, from 1
 
 13. Σ(k = 1 to ∞) 1/2^(k!) = L
-    mun:series-sum, from D0, 12
+    def:series-sum, from D0, 12
     requires for all k ∈ ℕ, 1/2^(k!) ∈ ℝ: from 3
 
 14. not (L is algebraic)
@@ -819,7 +819,7 @@ theorem liouville-number
            algebra, from D3, D5, 14.32
 
     14.34. (r + 1)! = r!·(r + 1)
-           mun:factorial n := r
+           def:factorial n := r
 
     14.35. r!·(r + 1) = r!·N + r!·(m + 1)
            algebra, from D2
@@ -932,7 +932,7 @@ theorem liouville-number
            inequalities, from 14.47, contradicting 14.60
 
 15. L is transcendental
-    mun:transcendental, from 14
+    def:transcendental, from 14
 
 16. Σ(k = 1 to ∞) 1/2^(k!) is transcendental
     substitute L = Σ(k = 1 to ∞) 1/2^(k!) (line 13) into line 15

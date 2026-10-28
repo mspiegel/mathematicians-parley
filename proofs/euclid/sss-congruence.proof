@@ -1,11 +1,11 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/angle-equal-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import theorem            stdlib/geometry/side-side-side
 
 theorem angle-from-sides
@@ -57,10 +57,10 @@ theorem angle-from-sides
     requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
 
 9.  |PQ| > 0
-    mun:distance-positive, from H7
+    axi:distance-positive, from H7
 
 10. |QR| > 0
-    mun:distance-positive P := Q, Q := R, from H8
+    axi:distance-positive P := Q, Q := R, from H8
 
 11. |PQ|·|QR| > 0
     mun:product-positive x := |PQ|, y := |QR|, from 9, 10

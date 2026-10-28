@@ -1,5 +1,5 @@
-import mundane definition stdlib/logarithms/ln
-import mundane definition stdlib/logarithms/exp
+import definition         stdlib/logarithms/ln
+import definition         stdlib/logarithms/exp
 import mundane theorem    stdlib/logarithms/exp-sum
 import mundane theorem    stdlib/logarithms/exp-ln
 import mundane theorem    stdlib/logarithms/ln-real

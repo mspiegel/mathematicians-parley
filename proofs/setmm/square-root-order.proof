@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-less
 
 theorem square-root-order
@@ -13,10 +13,10 @@ theorem square-root-order
   then A ≤ B ↔ √A ≤ √B
 
 1.  √A ∈ ℝ. √A ≥ 0. (√A)² = A.
-    mun:sqrt x := A, from H3
+    def:sqrt x := A, from H3
 
 2.  √B ∈ ℝ. √B ≥ 0. (√B)² = B.
-    mun:sqrt x := B, from H4
+    def:sqrt x := B, from H4
 
 3.  A ≤ B ↔ √A ≤ √B
     both directions

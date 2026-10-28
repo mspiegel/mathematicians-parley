@@ -18,7 +18,7 @@
 # Other fields: target, note, and for a function, sort, builds and reads.
 
 
-mundane definition cos
+definition cos
   sort        number → number
   builds      _1 ccos cfv
   reads       the cosine of
@@ -29,7 +29,7 @@ mundane definition cos
               this definition states nothing but what cos(x) builds; what a
               proof needs of it is in items of its own, as for min and max.
 
-mundane definition sin
+definition sin
   sort        number → number
   builds      _1 csin cfv
   reads       the sine of
@@ -194,7 +194,7 @@ mundane theorem sin-supplement
   note        Supplementary angles have one sine, as the two angles at a
               point of a line do.
 
-mundane definition arctan
+definition arctan
   sort        number → number
   builds      _1 catan cfv
   reads       the arctangent of

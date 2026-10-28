@@ -1,8 +1,8 @@
 import definition         stdlib/divisibility/φ
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import theorem            stdlib/divisibility/congruent-cancel
 import theorem            stdlib/divisibility/coprime-divides
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/congruent-mod
 import theorem            stdlib/divisibility/product-coprime
 import theorem            stdlib/divisibility/product-congruent
 import theorem            stdlib/sums/product-reorder
@@ -17,13 +17,13 @@ import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
 import mundane theorem    stdlib/divisibility/phi-natural
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 import mundane theorem    stdlib/counting/finite-part
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-from-bounds
 import mundane theorem    stdlib/sums/range-in-integers
 import mundane theorem    stdlib/sums/range-integer
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/subset-transitive
 
@@ -66,7 +66,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     let r ∈ S                                                         (K1)
 
     6.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
-          mun:set-builder u := r, from D1, K1
+          def:set-builder u := r, from D1, K1
 
     6.2.  gcd(r·a, n) = 1
           mun:coprime-product, from H3, 6.1
@@ -91,7 +91,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
           requires (r·a) mod n ∈ ℕ₀: mun:mod-natural, from H1
 
     6.7.  (r·a) mod n ∈ S
-          mun:set-builder u := (r·a) mod n, from D1, 6.4, 6.6
+          def:set-builder u := (r·a) mod n, from D1, 6.4, 6.6
 
     6.8.  f(r) = (r·a) mod n
           D2, from K1
@@ -107,10 +107,10 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     assume f(s) = f(t)                                                (K4)
 
     7.1.  s ∈ {0, …, n − 1}. gcd(s, n) = 1.
-          mun:set-builder u := s, from D1, K2
+          def:set-builder u := s, from D1, K2
 
     7.2.  t ∈ {0, …, n − 1}. gcd(t, n) = 1.
-          mun:set-builder u := t, from D1, K3
+          def:set-builder u := t, from D1, K3
 
     7.3.  f(s) = (s·a) mod n
           D2, from K2
@@ -142,7 +142,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     requires f is a function on S: from D2
 
 9.  f : S → S is one-to-one
-    mun:one-to-one, from 7, 8
+    def:one-to-one, from 7, 8
 
 10. ∏(r ∈ S) f(r) = ∏(r ∈ S) r
     thm:product-reorder, from 4, 5, 9
@@ -152,7 +152,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     let r ∈ S                                                         (K5)
 
     11.1. r ∈ {0, …, n − 1}. gcd(r, n) = 1.
-          mun:set-builder u := r, from D1, K5
+          def:set-builder u := r, from D1, K5
 
     11.2. r·a ≡ (r·a) mod n (mod n)
           mun:mod-congruent
@@ -184,7 +184,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     substitute φ(n) = |S| (line 14) into line 16
 
 18. For all r ∈ S, gcd(r, n) = 1.
-    mun:set-builder u := r, from D1
+    def:set-builder u := r, from D1
 
 19. gcd(∏(r ∈ S) r, n) = 1
     thm:product-coprime, from 4, 5, 18
@@ -196,7 +196,7 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
 
 21. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
-    mun:congruent-mod, from 17
+    def:congruent-mod, from 17
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
@@ -211,6 +211,6 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     requires a^φ(n) − 1 ∈ ℤ: membership, from H2
 
 24. a^φ(n) ≡ 1 (mod n)
-    mun:congruent-mod, from 23
+    def:congruent-mod, from 23
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2

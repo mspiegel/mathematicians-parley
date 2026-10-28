@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/numbers/reciprocal-positive
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 
 theorem a-define-read-in-an-item-hypothesis
   note        Rule: define, a step citing a define reads its name as what
@@ -230,7 +230,7 @@ let e = a + 1, a real number                                          (D1)
     substitute e = a + 1 (D1) into H3
 
 2.  a + 1 is even
-    mun:even n := a + 1, from D1, 1
+    def:even n := a + 1, from D1, 1
 
 theorem a-define-read-in-an-algebra-step
   note        Rule: define, a step citing a define reads its name as what

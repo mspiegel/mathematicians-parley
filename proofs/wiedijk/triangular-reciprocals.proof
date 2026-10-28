@@ -1,6 +1,6 @@
 import theorem            stdlib/numbers/archimedean
 import theorem            stdlib/sums/sum-telescopes
-import mundane definition stdlib/calculus/series-sum
+import definition         stdlib/calculus/series-sum
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/numbers/reciprocal-order
 import mundane theorem    stdlib/numbers/reciprocal-positive
@@ -131,5 +131,5 @@ theorem triangular-reciprocals
     requires for all n ∈ ℕ, Σ(k = 1 to n) 1/T(k) ∈ ℝ: mun:sum-real a := 1, b := n, from 2
 
 8.  Σ(k = 1 to ∞) 1/T(k) = 2
-    mun:series-sum L := 2, from 7
+    def:series-sum L := 2, from 7
     requires for all k ∈ ℕ, 1/T(k) ∈ ℝ: from 2

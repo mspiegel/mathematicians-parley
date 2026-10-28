@@ -1,7 +1,7 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane axiom      stdlib/geometry/distance-positive
-import mundane definition stdlib/geometry/triangle
+import axiom              stdlib/geometry/distance-positive
+import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/numbers/square-positive
 import mundane theorem    stdlib/numbers/square-less
 
@@ -20,8 +20,8 @@ theorem hypotenuse-longest
     thm:pythagoras, from H4, H5
 
 2.  |BC| > 0
-    mun:distance-positive P := B, Q := C
-    requires B ≠ C: mun:triangle, from H4
+    axi:distance-positive P := B, Q := C
+    requires B ≠ C: def:triangle, from H4
 
 3.  |BC|² > 0
     mun:square-positive x := |BC|

@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem divides-product
   note        With b = a·k and d = c·m, b·d is (a·c)·(k·m).
@@ -11,10 +11,10 @@ theorem divides-product
   then a·c divides b·d
 
 1.  k ∈ ℤ. b = a·k.
-    obtain k: mun:divides, from H5
+    obtain k: def:divides, from H5
 
 2.  m ∈ ℤ. d = c·m.
-    obtain m: mun:divides d := c, n := d, from H6
+    obtain m: def:divides d := c, n := d, from H6
 
 3.  b·d = (a·k)·d
     substitute b = a·k (line 1)
@@ -32,4 +32,4 @@ theorem divides-product
           = (a·c)·(k·m)       5
 
 7.  a·c divides b·d
-    mun:divides d := a·c, n := b·d, from 6
+    def:divides d := a·c, n := b·d, from 6

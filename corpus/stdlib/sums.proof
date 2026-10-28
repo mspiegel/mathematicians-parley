@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/counting/finite-part
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/functions/function-value
 import mundane theorem    stdlib/counting/card-empty
@@ -12,15 +12,15 @@ import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/power-integer
 import mundane theorem    stdlib/sets/nothing-left-outside
 import mundane theorem    stdlib/sets/in-subset
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/image-within
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-on-domain
-import mundane definition stdlib/functions/one-to-one
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/one-to-one-onto
-import mundane definition stdlib/functions/bijection
+import definition         stdlib/functions/one-to-one
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/one-to-one-onto
+import definition         stdlib/functions/bijection
 
 mundane theorem product-integer-terms
   note        A product of finitely many whole numbers is a whole number,
@@ -48,7 +48,7 @@ mundane theorem product-integer-terms
     let a ∈ X ∖ Y                                                     (K2)
 
     1.3.  a ∈ X and a ∉ Y
-          mun:difference u := a, Y := X, Z := Y, from K2
+          def:difference u := a, Y := X, Z := Y, from K2
 
     1.4.  Y is finite
           mun:finite-part, from H2, K
@@ -97,7 +97,7 @@ mundane theorem product-constant
     let a ∈ X ∖ Y                                                     (K2)
 
     1.6.  a ∈ X and a ∉ Y
-          mun:difference u := a, Y := X, Z := Y, from K2
+          def:difference u := a, Y := X, Z := Y, from K2
 
     1.7.  Y is finite
           mun:finite-part, from H2, K
@@ -178,7 +178,7 @@ theorem product-reorder
   then ∏(x ∈ X) f(x) = ∏(x ∈ X) x
 
 1.  f : X → X and for all s, t ∈ X, if f(s) = f(t) then s = t.
-    mun:one-to-one Y := X, from H3
+    def:one-to-one Y := X, from H3
 
 2.  X ⊆ X
     mun:subset-self
@@ -199,19 +199,19 @@ theorem product-reorder
     let y ∈ f[X]                                                      (K2)
 
     5.1.  there is x ∈ X with y = f(x)
-          mun:image u := y, W := X, Y := X, from K2, 2
+          def:image u := y, W := X, Y := X, from K2, 2
 
 6.  f : X → f[X] is onto
-    mun:onto Y := f[X], from 4, 5
+    def:onto Y := f[X], from 4, 5
 
 7.  f : X → f[X] is one-to-one
-    mun:one-to-one Y := f[X], from 1, 4
+    def:one-to-one Y := f[X], from 1, 4
 
 8.  f : X → f[X] is one-to-one and onto
-    mun:one-to-one-onto Y := f[X], from 6, 7
+    def:one-to-one-onto Y := f[X], from 6, 7
 
 9.  there is a bijection from X to f[X]
-    mun:bijection Y := f[X], from 8
+    def:bijection Y := f[X], from 8
 
 10. |X| = |f[X]|
     mun:card-equal Y := f[X], from H2, 9
@@ -240,13 +240,13 @@ theorem product-reorder
           mun:in-subset, from K3, 15
 
     16.2. there is x ∈ X with y = f(x)
-          mun:image u := y, W := X, Y := X, from 2, 16.1
+          def:image u := y, W := X, Y := X, from 2, 16.1
 
 17. f : X → X is onto
-    mun:onto Y := X, from 1, 16
+    def:onto Y := X, from 1, 16
 
 18. f : X → X is one-to-one and onto
-    mun:one-to-one-onto Y := X, from H3, 17
+    def:one-to-one-onto Y := X, from H3, 17
 
 19. For all z ∈ X, z ∈ ℝ.
     proof

@@ -1,5 +1,5 @@
-import mundane definition stdlib/divisibility/odd
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/divisibility/odd
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/exponent-sum
 import mundane theorem    stdlib/numbers/nat0-as-int
@@ -18,7 +18,7 @@ theorem sqrt-of-odd-power-of-three
   then √(3^k) is irrational
 
 1.  m ∈ ℤ. k = 2m + 1.
-    obtain m: mun:odd n := k, from H2
+    obtain m: def:odd n := k, from H2
 
 2.  1 ≤ k
     inequalities, from H1
@@ -64,11 +64,11 @@ theorem sqrt-of-odd-power-of-three
           = 3^m·3^m·3          12
 
 14. √3 ∈ ℝ. √3 ≥ 0. (√3)² = 3.
-    mun:sqrt x := 3
+    def:sqrt x := 3
     requires 3 ≥ 0: arithmetic
 
 15. √(3^k) ∈ ℝ. √(3^k) ≥ 0. (√(3^k))² = 3^k.
-    mun:sqrt x := 3^k
+    def:sqrt x := 3^k
     requires 0 ≤ 3^k: inequalities, from 7
 
 16. √3·3^m ≥ 0

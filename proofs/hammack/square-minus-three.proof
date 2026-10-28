@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
@@ -74,7 +74,7 @@ theorem square-minus-three
     suppose 4 divides n² − 3                                          (S)
 
     1.1.  m ∈ ℤ. n² − 3 = 4m.
-          obtain m: mun:divides d := 4, n := n² − 3, from S
+          obtain m: def:divides d := 4, n := n² − 3, from S
 
     1.2.  n is even or n is odd
           mun:even-or-odd
@@ -86,7 +86,7 @@ theorem square-minus-three
           assume n is even                                            (C1)
 
           1.3.1.  k ∈ ℤ. n = 2k.
-                  obtain k: mun:even, from C1
+                  obtain k: def:even, from C1
 
           1.3.2.  (2k)² − 3 = 4m
                   substitute n = 2k (line 1.3.1) into line 1.1
@@ -103,7 +103,7 @@ theorem square-minus-three
           assume n is odd                                             (C2)
 
           1.3.5.  k ∈ ℤ. n = 2k + 1.
-                  obtain k: mun:odd, from C2
+                  obtain k: def:odd, from C2
 
           1.3.6.  (2k + 1)² − 3 = 4m
                   substitute n = 2k + 1 (line 1.3.5) into line 1.1

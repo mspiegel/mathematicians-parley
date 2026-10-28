@@ -7,7 +7,7 @@
 # membership joined:
 #
 # - odd unfolds to 2k + 1: `odd2np1`, with the membership put in by `ibar`,
-#   for `mun:stdlib/divisibility/odd`;
+#   for `def:stdlib/divisibility/odd`;
 # - an integer is even or odd: `zeo3`, its second case joined to the
 #   membership, for `mun:stdlib/divisibility/even-or-odd`;
 # - an even number is not odd: the denial of the second conjunct, for
@@ -15,7 +15,7 @@
 # - odd plus or minus even is odd: `opeo` and `omeo`, with the result's
 #   membership by `zaddcl` and `zsubcl`;
 # - a complex number is transcendental exactly when it is not algebraic:
-#   `ibar`, for `mun:stdlib/polynomials/transcendental`.
+#   `ibar`, for `def:stdlib/polynomials/transcendental`.
 
 $( Parity and transcendence: odd as an integer not divisible by 2, and
    transcendental as a complex number not algebraic. $)

@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 
 theorem a-contradiction-ending-in-cases
   note        The block's last step is the cases step, which names the line
@@ -75,7 +75,7 @@ theorem an-obtain-through-the-second-sentence
   then there is j ∈ ℤ with b = 2j + 1
 
 1.  j ∈ ℤ. b = 2j + 1.
-    obtain j: mun:odd n := b, from H3
+    obtain j: def:odd n := b, from H3
 
 2.  There is j ∈ ℤ with b = 2j + 1.
     exhibit, from 1
@@ -102,7 +102,7 @@ theorem a-root-in-a-bound
   then a < 2·√a
 
 1.  √a ∈ ℝ. √a ≥ 0. (√a)² = a.
-    mun:sqrt x := a, from H2
+    def:sqrt x := a, from H2
 
 2.  a < 2·√a
     inequalities, from H3, 1

@@ -112,10 +112,10 @@ fn methods() -> Vec<Method> {
             // The words `arithmetic` decides, imported as a proof saying
             // them would.
             imports: "\
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
+import definition         stdlib/divisibility/congruent-mod
 ",
             false_said: "which is false",
         },
@@ -192,10 +192,10 @@ import mundane definition stdlib/divisibility/congruent-mod
             // The functions a claim holding a logarithm applies, imported as
             // a proof applying them would.
             imports: "\
-import mundane definition stdlib/logarithms/ln
-import mundane definition stdlib/logarithms/exp
-import mundane definition stdlib/trigonometry/sin
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/logarithms/ln
+import definition         stdlib/logarithms/exp
+import definition         stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
 ",
             false_said: "which is false",
         },

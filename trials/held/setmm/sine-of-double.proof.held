@@ -1,6 +1,6 @@
 import theorem            stdlib/trigonometry/sin-add
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 
 theorem sine-of-double
   metamath    sin2t

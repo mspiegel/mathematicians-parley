@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/congruent-mod
 import mundane theorem    stdlib/divisibility/congruent-in-range
 
 theorem a-congruence-the-other-way-filling-an-item
@@ -105,4 +105,4 @@ theorem a-congruence-the-other-way-unfolded
   then n divides a − b
 
 1.  n divides a − b
-    mun:congruent-mod, from H4
+    def:congruent-mod, from H4

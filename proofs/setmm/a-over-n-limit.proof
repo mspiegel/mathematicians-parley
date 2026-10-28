@@ -1,7 +1,7 @@
 import definition         stdlib/calculus/tends-to
 import theorem            stdlib/numbers/archimedean
 import theorem            proofs/setmm/limit-lemmas/scaled-small
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-nonneg
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/quotient-positive
@@ -81,7 +81,7 @@ theorem a-over-n-tends-to-zero
                     1/n ≥ 0          weakening
 
           6.4.5.  |1/n| = 1/n
-                  mun:abs x := 1/n, from 6.4.4
+                  def:abs x := 1/n, from 6.4.4
 
           6.4.6.  |1/n| < ε/(2·(|A| + 1))
                   substitute |1/n| = 1/n (line 6.4.5) into line 6.4.2

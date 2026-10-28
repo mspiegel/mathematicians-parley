@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-value
-import mundane definition stdlib/sets/union
+import definition         stdlib/sets/union
 import mundane theorem    stdlib/sets/in-union-left
 import mundane theorem    stdlib/sets/in-union-right
 import mundane theorem    stdlib/sets/intersection-commutes
@@ -27,7 +27,7 @@ theorem joined-functions
     let x ∈ A ∪ B                                                     (K1)
 
     1.1.  x ∈ A or x ∈ B
-          mun:union, from K1
+          def:union, from K1
 
     1.2.  H(x) ∈ C ∪ D
           cases, from 1.1

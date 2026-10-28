@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/in-union-right
 
 theorem in-a-union-on-the-right
@@ -15,7 +15,7 @@ theorem in-a-union-on-the-right
           mun:in-union-right, from K1
 
 2.  A ⊆ B ∪ A
-    mun:subset, from 1
+    def:subset, from 1
 
 theorem cited-with-its-letters-swapped
   note        The theorem's A and B are found by matching: B for its A, A for its B.

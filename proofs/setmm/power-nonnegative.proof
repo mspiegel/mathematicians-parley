@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/multiply-le
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 
 theorem power-nonnegative
   note        A power of a nonnegative number is nonnegative: a^0 is 1, and
@@ -31,7 +31,7 @@ theorem power-nonnegative
           mun:exponent-step
 
     1.5.  a < 0 or a = 0 or 0 < a
-          mun:trichotomy x := a
+          axi:trichotomy x := a
 
     1.6.  0 ≤ a^(m + 1)
           cases, from 1.5

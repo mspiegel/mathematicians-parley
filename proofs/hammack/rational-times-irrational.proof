@@ -1,5 +1,5 @@
-import mundane definition stdlib/numbers/rational
-import mundane definition stdlib/numbers/irrational
+import definition         stdlib/numbers/rational
+import definition         stdlib/numbers/irrational
 
 theorem rational-times-irrational
   note        If b were rational, so would be a·b: with a = p/q and b = r/s
@@ -15,10 +15,10 @@ theorem rational-times-irrational
     suppose b ∈ ℚ                                                     (S)
 
     1.1.  p ∈ ℤ. q ∈ ℕ. a = p/q.
-          obtain p, q: mun:rational x := a, from H3
+          obtain p, q: def:rational x := a, from H3
 
     1.2.  r ∈ ℤ. s ∈ ℕ. b = r/s.
-          obtain r, s: mun:rational x := b, from S
+          obtain r, s: def:rational x := b, from S
 
     1.3.  a·b = (p/q)·b
           substitute a = p/q (line 1.1)
@@ -36,13 +36,13 @@ theorem rational-times-irrational
                 = (p·r)/(q·s)         1.5
 
     1.7.  a·b ∈ ℚ
-          mun:rational x := a·b, from 1.6
+          def:rational x := a·b, from 1.6
 
     1.8.  a·b ∈ ℝ. a·b ∉ ℚ.
-          mun:irrational x := a·b, from H4
+          def:irrational x := a·b, from H4
 
     1.9.  a·b ∉ ℚ
           restate 1.8, contradicting 1.7
 
 2.  b is irrational
-    mun:irrational x := b, from 1
+    def:irrational x := b, from 1

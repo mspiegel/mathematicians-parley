@@ -1,4 +1,4 @@
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 
 theorem cosine-is-not-injective
   then there are x, y ∈ ℝ with x ≠ y and cos(x) = cos(y)

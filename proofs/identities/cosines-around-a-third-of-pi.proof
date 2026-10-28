@@ -1,8 +1,8 @@
 import theorem            stdlib/trigonometry/cos-add
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-negative
 import mundane theorem    stdlib/trigonometry/cos-real
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-negative
 import mundane theorem    stdlib/trigonometry/sin-real
 

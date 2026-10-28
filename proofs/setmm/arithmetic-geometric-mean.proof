@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/square-le
 import mundane theorem    stdlib/numbers/square-nonneg
@@ -18,10 +18,10 @@ theorem arithmetic-geometric-mean
     mun:product-nonneg x := A, y := B, from H3, H4
 
 2.  (√(A·B))² = A·B
-    mun:sqrt x := A·B, from 1
+    def:sqrt x := A·B, from 1
 
 3.  √(A·B) ≥ 0
-    mun:sqrt x := A·B, from 1
+    def:sqrt x := A·B, from 1
 
 4.  A + B ≥ 0
     inequalities, from H3, H4
@@ -45,8 +45,8 @@ theorem arithmetic-geometric-mean
 
 9.  (√(A·B))² ≤ ((A + B)/2)²
     transitivity, from 2, 8, 6
-    requires √(A·B) ∈ ℝ: mun:sqrt x := A·B, from 1
+    requires √(A·B) ∈ ℝ: def:sqrt x := A·B, from 1
 
 10. √(A·B) ≤ (A + B)/2
     mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
-    requires √(A·B) ∈ ℝ: mun:sqrt x := A·B, from 1
+    requires √(A·B) ∈ ℝ: def:sqrt x := A·B, from 1

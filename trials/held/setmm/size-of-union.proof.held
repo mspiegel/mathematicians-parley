@@ -2,16 +2,16 @@ import mundane theorem    stdlib/counting/card-disjoint-union
 import mundane theorem    stdlib/counting/card-nat0
 import mundane theorem    stdlib/counting/card-subset
 import mundane theorem    stdlib/counting/finite-part
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/numbers/nat0-real
 import mundane theorem    stdlib/sets/difference-subset
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/disjoint-difference
 import mundane theorem    stdlib/sets/in-union-left
 import mundane theorem    stdlib/sets/in-union-right
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
-import mundane definition stdlib/sets/union
+import definition         stdlib/sets/union
 
 theorem union-split
   note        Everything in A ∪ B is in A, or is in B and not in A, so
@@ -25,7 +25,7 @@ theorem union-split
     let t ∈ A ∪ (B ∖ A)                                               (K1)
 
     1.1.  t ∈ A or t ∈ B ∖ A
-          mun:union u := t, Y := A, Z := B ∖ A, from K1
+          def:union u := t, Y := A, Z := B ∖ A, from K1
 
     1.2.  t ∈ A ∪ B
           cases, from 1.1
@@ -40,20 +40,20 @@ theorem union-split
           assume t ∈ B ∖ A                                            (C2)
 
           1.2.2.  t ∈ B and t ∉ A
-                  mun:difference u := t, Y := B, Z := A, from C2
+                  def:difference u := t, Y := B, Z := A, from C2
 
           1.2.3.  t ∈ A ∪ B
                   mun:in-union-right u := t, Y := A, Z := B, from 1.2.2
 
 2.  A ∪ (B ∖ A) ⊆ A ∪ B
-    mun:subset X := A ∪ (B ∖ A), Y := A ∪ B, from 1
+    def:subset X := A ∪ (B ∖ A), Y := A ∪ B, from 1
 
 3.  For all t ∈ A ∪ B, t ∈ A ∪ (B ∖ A).
     proof
     let t ∈ A ∪ B                                                     (K2)
 
     3.1.  t ∈ A or t ∈ B
-          mun:union u := t, Y := A, Z := B, from K2
+          def:union u := t, Y := A, Z := B, from K2
 
     3.2.  t ∈ A ∪ (B ∖ A)
           cases, from 3.1
@@ -68,7 +68,7 @@ theorem union-split
           assume t ∈ B                                                (C4)
 
           3.2.2.  t ∈ A or not (t ∈ A)
-                  mun:excluded-middle P := t ∈ A
+                  axi:excluded-middle P := t ∈ A
 
           3.2.3.  t ∈ A ∪ (B ∖ A)
                   cases, from 3.2.2
@@ -83,13 +83,13 @@ theorem union-split
                   assume not (t ∈ A)                                  (C6)
 
                   3.2.3.2.  t ∈ B ∖ A
-                            mun:difference u := t, Y := B, Z := A, from C4, C6
+                            def:difference u := t, Y := B, Z := A, from C4, C6
 
                   3.2.3.3.  t ∈ A ∪ (B ∖ A)
                             mun:in-union-right u := t, Y := A, Z := B ∖ A, from 3.2.3.2
 
 4.  A ∪ B ⊆ A ∪ (B ∖ A)
-    mun:subset X := A ∪ B, Y := A ∪ (B ∖ A), from 3
+    def:subset X := A ∪ B, Y := A ∪ (B ∖ A), from 3
 
 5.  A ∪ (B ∖ A) = A ∪ B
     mun:subset-antisymmetric X := A ∪ (B ∖ A), Y := A ∪ B, from 2, 4

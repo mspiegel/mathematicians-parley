@@ -1,13 +1,13 @@
 import theorem            proofs/wiedijk/schroeder-bernstein/schroeder-bernstein
 import theorem            stdlib/divisibility/prime-powers-unique
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-integer
-import mundane definition stdlib/numbers/denom
+import definition         stdlib/numbers/denom
 import mundane theorem    stdlib/numbers/lowest-terms-parts
-import mundane definition stdlib/numbers/numer
-import mundane axiom      stdlib/reasoning/excluded-middle
+import definition         stdlib/numbers/numer
+import axiom              stdlib/reasoning/excluded-middle
 
 theorem rationals-countable
   metamath    qnnen, which says it of ℚ and ℕ the other way round
@@ -51,7 +51,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
               = n           2.2
 
 3.  f : ℕ → ℚ is one-to-one
-    mun:one-to-one, from 1, 2
+    def:one-to-one, from 1, 2
 
 4.  For all x ∈ ℚ, s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|.
     proof
@@ -62,7 +62,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
           membership, from D2
 
     4.2.  numer(x) ≥ 0 or not numer(x) ≥ 0
-          mun:excluded-middle P := numer(x) ≥ 0
+          axi:excluded-middle P := numer(x) ≥ 0
 
     4.3.  numer(x) = (1 − 2·s(x))·|numer(x)|
           cases, from 4.2
@@ -74,7 +74,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
                   D2, from C1
 
           4.3.2.  |numer(x)| = numer(x)
-                  mun:abs x := numer(x), from C1
+                  def:abs x := numer(x), from C1
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.3.  (1 − 2·s(x))·|numer(x)| = (1 − 2·0)·|numer(x)|
@@ -104,7 +104,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.9.  |numer(x)| = −numer(x)
-                  mun:abs x := numer(x), from 4.3.8
+                  def:abs x := numer(x), from 4.3.8
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           4.3.10. (1 − 2·s(x))·|numer(x)| = (1 − 2)·|numer(x)|
@@ -204,7 +204,7 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
               = y                               7.2
 
 8.  g : ℚ → ℕ is one-to-one
-    mun:one-to-one, from 6, 7
+    def:one-to-one, from 6, 7
 
 9.  There is a bijection from ℕ to ℚ.
     thm:schroeder-bernstein A := ℕ, B := ℚ, from 3, 8

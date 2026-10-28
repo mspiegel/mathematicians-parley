@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/pair
+import definition         stdlib/sets/pair
 import mundane theorem stdlib/counting/card-two
 import mundane theorem stdlib/sets/pair-subset
 import mundane theorem stdlib/sets/triple-subset
@@ -28,7 +28,7 @@ theorem a-pair-paired-by-the-rest-of-the-claim
   then x ∈ {v, w} ↔ x = w or x = v
 
 1.  x ∈ {v, w} ↔ x = w or x = v
-    mun:pair
+    def:pair
 
 theorem a-pair-inside-a-subset
   note        pair-subset concludes {a, b} ⊆ X of the two in the order

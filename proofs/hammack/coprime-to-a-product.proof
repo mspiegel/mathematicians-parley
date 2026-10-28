@@ -1,5 +1,5 @@
 import theorem            proofs/wiedijk/bezout/bezout
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-one
 
@@ -39,7 +39,7 @@ theorem coprime-to-a-product
                                              = 1                           4
 
 8.  gcd(a·b, c) ∈ ℕ. gcd(a·b, c) divides a·b. gcd(a·b, c) divides c.
-    mun:gcd a := a·b, b := c
+    def:gcd a := a·b, b := c
 
 9.  gcd(a·b, c) divides a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
     mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 8

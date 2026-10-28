@@ -1,5 +1,5 @@
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 
 theorem a-sine-of-a-sixth-of-pi
   then sin(π/6) = 1/2

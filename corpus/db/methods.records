@@ -24,7 +24,7 @@ method citation
               literal instance of one sentence of X's conclusion.
   metamath    the cited item's own label, with substitution
   note        The method name is not written. The pointer is the justification.
-              The prefix is mun: for an item marked mundane, and otherwise
+              The prefix is mun: for a theorem marked mundane, and otherwise
               the prefix of the kind of the item it names.
 
 method obtain
@@ -91,7 +91,7 @@ method algebra
               is an atom. Anything about what an atom means is a cited theorem
               in a step of its own.
 
-mundane method arithmetic
+method arithmetic
   form        arithmetic
   block       none
   checks      a fact about closed numerals: value, order, disequality, or
@@ -105,12 +105,10 @@ mundane method arithmetic
               families for longer numerals
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
-              It is the one method marked mundane: a proof never says it is
-              using it, and it justifies a numbered step only where the
-              proof's shape asks a line, as an induction's base case does.
-              The mark is for the reader and changes nothing a tool does.
+              It justifies a numbered step only where the proof's shape asks
+              a line, as an induction's base case does.
 
-mundane method real-arithmetic
+method real-arithmetic
   form        real arithmetic
   block       none
   checks      a fact about closed terms with square roots of rationals:
@@ -125,7 +123,7 @@ mundane method real-arithmetic
               mulcanad, mulne0bad, subne0ad, divmuld, expp1d, expnegd
   note        Kept apart from arithmetic so that what arithmetic decides stays
               small enough to read. A claim with no square root cites
-              arithmetic. Marked mundane, as arithmetic is.
+              arithmetic.
 
 method membership
   form        membership, from L

@@ -120,43 +120,32 @@ that ℚ is countable).
 The viewer may collapse dull facts by default, since it can tell them apart
 mechanically. That is a viewer setting and changes nothing in the text.
 
-**Dull facts and mundane items are two tests of one idea: what a human proof
-leaves unsaid.** The dull-fact test decides where a line is written. It
+**Dull facts and mundane theorems are two tests of one idea: what a human
+proof leaves unsaid.** The dull-fact test decides where a line is written. It
 classifies a step by its role in the proof at hand, mechanically, and a step it
 picks out goes in a `requires` line. The mundane mark (`DATABASE.md`, "Record
-kinds") decides whether a reader needs to see a line. It marks a library item
-of any kind, axiom, theorem or definition, once for every proof that cites
-it, by whether a human proof takes the item for granted without naming it;
-that is a judgment made when the item is reviewed, not something the
-elaborator works out. A numbered step whose justification is a mundane item is
+kinds") decides whether a reader needs to see a line. It marks a library
+theorem, once for every proof that cites it, when the theorem is there for the
+theorem prover and no textbook would cite it; that is a judgment made when the
+theorem is reviewed, not something the elaborator works out. An axiom or a
+definition is never marked: it gives something its meaning, and a pedantic
+textbook cites it. A numbered step whose justification is a mundane theorem is
 a mundane step, and what a proof leaves unsaid is its dull facts and its
 mundane steps. The viewer may collapse mundane steps as it collapses dull
-facts, since a step citing a mundane item writes `mun:` on the line, whatever
-the item's kind.
+facts, since a step citing a mundane theorem writes `mun:` on the line.
 
 The two tests mostly agree, and they differ in two places. A dull fact may rest
-on no item at all: a requires line justified by `arithmetic`, or by a line that
-already says the fact, is dull by its role alone, and most requires lines are
-of this kind. A mundane step may be one the argument uses, which makes it no
-dull fact, so it stays a numbered step and is still taken for granted. In the
-pilots every requires line that cites a library item cites a mundane one, 335
-lines over 53 items, and 1,397 of the 1,533 numbered steps that cite a
-library item cite a mundane one. The 136 others are 116 steps citing named
-theorems, twelve citing named axioms (completeness, well-ordering,
-side-angle-side and the supplement postulate) and eight citing named
-definitions (continuity, limits, congruent triangles, C, perfect numbers,
-Euler paths and traversable graphs). No requires line rests
-on a named item; one that did
-would still be written as a requires line, and would be one the reader needs
-to see.
+on no item at all, or on a definition: a requires line justified by
+`arithmetic`, or by a line that already says the fact, is dull by its role
+alone, and most requires lines are of this kind; and 26 of the 659 requires
+lines in `proofs/` that cite a library item cite a definition, such as that P,
+Q and R form a triangle, while the other 633 cite a mundane theorem. A mundane
+step may be one the argument uses, which makes it no dull fact, so it stays a
+numbered step and is still taken for granted. Of the 4,208 numbered steps in
+`proofs/` that cite a library item, 2,465 cite a mundane theorem, 219 a named
+theorem, 203 an axiom and 1,321 a definition.
 
-Trichotomy, excluded middle and the group axioms are mundane axioms, and the
-unfolding of set difference is a mundane definition. A mundane definition is
-still written out and is still an unfolding: what "every unfolding of a
-definition, marked as such" asks is met by the record the citation points to,
-which says `definition`, and not by the line, which says `mun:`. Of the
-methods, only `arithmetic` is marked mundane; it never justifies a numbered
-step, and the mark is for the reader alone.
+Every unfolding of a definition is marked as such on its line, by `def:`.
 
 **Membership in a number system is said once, where a letter is
 introduced.** That p is a real number is a dull fact wherever a cited item or

@@ -1,5 +1,5 @@
-import mundane definition stdlib/logarithms/ln
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/logarithms/ln
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/factor-positive
 import mundane theorem    stdlib/logarithms/ln-product
@@ -19,7 +19,7 @@ theorem ln-of-geometric-mean
     mun:product-positive, from H3, H4
 
 2.  √(x·y) ∈ ℝ. √(x·y) ≥ 0. (√(x·y))² = x·y.
-    mun:sqrt x := x·y
+    def:sqrt x := x·y
     requires x·y ≥ 0: weakening, from 1
 
 3.  √(x·y)·√(x·y) = x·y

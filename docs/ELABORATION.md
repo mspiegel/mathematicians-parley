@@ -246,7 +246,7 @@ were a fact already in hand and 22.0% came from structure (a conjunction
 split, a membership carried between number systems or through an operation, a
 digit, sethood). The search through declared lemmas answered 4.2%, with 45
 pairings of what was wanted and which lemma gave it, from 36 lemmas. Of the
-items whose target names several lemmas, only `mun:stdlib/sets/set-builder`
+items whose target names several lemmas, only `def:stdlib/sets/set-builder`
 names two, and `elrab` fitted all ten times.
 
 **What comparing through one standard form changed.** Four of the thirty
@@ -423,7 +423,7 @@ Which letter a statement binds is no part of what it says, and a lemma's
 disjointness conditions are about letters, so the letters a lemma keeps apart
 from its scope are chosen by one rule rather than searched for. A hypothesis
 saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
-and `sersumlim`, which `mun:stdlib/calculus/series-sum` targets, keeps both
+and `sersumlim`, which `def:stdlib/calculus/series-sum` targets, keeps both
 apart from any scope it is used under; `gpartsfin`, which
 `mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
@@ -720,7 +720,7 @@ cases, each case is taken by `iftrue` where `settle` finds its condition among
 what the step names, or by `iffalse` where it finds the negation. `same`
 carries what is left to the other side, and `eqtrd` joins them.
 
-**A definition is a theorem, not a replacement.** `mun:stdlib/divisibility/odd` targets `2 ∥ n`
+**A definition is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.
 
@@ -736,7 +736,7 @@ the two is decided once, by whether a cited line states the existence
 (`reading`). A definition's target may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
-theorem per clause, as `mun:stdlib/numbers/abs` names `absid, absnid`.
+theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
 
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
@@ -1154,7 +1154,7 @@ either a method stated at the head of the file as unexpanded, or an error
 naming the line:
 
 ```
-proofs/wiedijk/isosceles.proof:47  mun:triangle does not reach -. C = A,
+proofs/wiedijk/isosceles.proof:47  def:triangle does not reach -. C = A,
                           which this line claims it supplies
 ```
 
@@ -1214,7 +1214,7 @@ for that hypothesis binds.
 **Every `requires` line is proved from its reason, once, when its step
 starts.** `step` proves them all before the step's method runs and offers them
 to the whole of the step as `written`, so a membership wanted while turning
-`mun:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
+`def:stdlib/divisibility/divides`' equation round is the step's as much as one its lemma asks for.
 Where the step opens a narrower scope inside itself, a line is carried in by
 `lifted_to` — one `simpl` and `syl` per assumption, the way `widen` carries
 every fact. `supplied` runs more than once for a step and passes on what each
@@ -1577,7 +1577,7 @@ notations make its two sides one formula, is read off a line the step cites
 that already says the claim, by one rule: the line, or one of its conjuncts,
 is the claim or is one with it as `same` reads two claims. That takes in a
 conjunct, which `def:stdlib/geometry/congruent` and
-`mun:stdlib/geometry/triangle` rely on; another letter bound, since the
+`def:stdlib/geometry/triangle` rely on; another letter bound, since the
 notation reads "b is an upper bound of S" as every s in S being at most b and
 the block that proved that fixed a variable of its own; and a defined name
 read as what it names where the step cites the define: `3 divides b`, with b
@@ -1651,7 +1651,7 @@ line writes it, one of its sentences or what the line unfolds to where its
 reason is a definition the notation folds away (`unfolded_at`). Such a
 definition may also be unfolded at a requires line written above, which
 the line rests on as it rests on a cited one (R2): `requires C ≠ A:
-mun:triangle` under `requires B, C, A form a triangle: …`. A reason that is
+def:triangle` under `requires B, C, A form a triangle: …`. A reason that is
 only `from` is read from the lines it names. The checker counts a line
 above as asked for when a `membership` line below builds on it, as
 `requires |PQ| ∈ ℝ` is under `requires |PQ|·|P′R′| ∈ ℝ: membership`
@@ -2052,7 +2052,7 @@ proved (`discharged_by`).
     out, is the value read at the name it binds. An `obtain` citing an item is read the
     same way, except that what it claims is the body of the item's "there
     is", so in place of the conclusion the checker asks that the item give
-    one from what the step names: `mun:stdlib/divisibility/odd` gives one only from a line saying
+    one from what the step names: `def:stdlib/divisibility/odd` gives one only from a line saying
     n is odd.
   - the checker, on a step that exhibits, instantiates or unfolds a define:
     what the step puts somewhere is shown to belong there, by a line it
@@ -2091,7 +2091,7 @@ proved (`discharged_by`).
     with no reading is said in set.mm's spelling whole. "nothing says ∠QPR
     ∈ ℝ, which this step needs" was said of
     `( abs ` ( ( B - A ) ang ( C - A ) ) )`. A citation no clause of an item
-    reaches says why each clause stopped: "no clause of mun:series-sum gives
+    reaches says why each clause stopped: "no clause of def:series-sum gives
     what step 5 claims: cannot settle 1 / T(k) ∈ ℝ". `tests/said_back.rs`
     elaborates every theorem with each sentence its steps claim said back
     and read again.
@@ -2244,7 +2244,7 @@ are proved there too, in `postulates.proved`, with the order facts the page
 proofs take for granted.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
-`ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to
+`ang180` wants three points pairwise distinct, so `def:stdlib/geometry/triangle` elaborates to
 a conjunction taken apart at nearly every step. Synthetic geometry says "A, B,
 C form a triangle" once and is done.
 

@@ -1,12 +1,12 @@
 import definition         stdlib/calculus/continuous-on
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-nonneg
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/less-scaled
 import mundane theorem    stdlib/numbers/product-nonneg
-import mundane definition stdlib/numbers/sqrt
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/numbers/sqrt
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/functions/function-into
 
@@ -30,7 +30,7 @@ theorem a-definition-folded-without-its-pair
     let x ∈ D                                                         (K1)
 
     2.1.  x ∈ ℝ. x > 0.
-          mun:set-builder, from D1, K1
+          def:set-builder, from D1, K1
 
     2.2.  x ≥ 0
           inequalities
@@ -38,7 +38,7 @@ theorem a-definition-folded-without-its-pair
             x ≥ 0            weakening
 
     2.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
-          mun:sqrt, from 2.1, 2.2
+          def:sqrt, from 2.1, 2.2
 
     2.4.  g(x) = √x
           D2, from K1
@@ -58,7 +58,7 @@ theorem a-definition-folded-without-its-pair
     assume ε > 0                                                      (A1)
 
     4.1.  c ∈ ℝ. c > 0.
-          mun:set-builder, from D1, K2
+          def:set-builder, from D1, K2
 
     4.2.  c ≥ 0
           inequalities
@@ -66,7 +66,7 @@ theorem a-definition-folded-without-its-pair
             c ≥ 0            weakening
 
     4.3.  √c ∈ ℝ. √c ≥ 0. (√c)² = c.
-          mun:sqrt x := c, from 4.1, 4.2
+          def:sqrt x := c, from 4.1, 4.2
 
     4.4.  √c > 0
           contradiction
@@ -118,7 +118,7 @@ theorem a-definition-folded-without-its-pair
           assume |x − c| < ε·√c                                       (A2)
 
           4.8.1.  x ∈ ℝ. x > 0.
-                  mun:set-builder, from D1, K4
+                  def:set-builder, from D1, K4
 
           4.8.2.  x ≥ 0
                   inequalities
@@ -126,7 +126,7 @@ theorem a-definition-folded-without-its-pair
                     x ≥ 0            weakening
 
           4.8.3.  √x ∈ ℝ. √x ≥ 0. (√x)² = x.
-                  mun:sqrt, from 4.8.1, 4.8.2
+                  def:sqrt, from 4.8.1, 4.8.2
 
           4.8.4.  x − c ∈ ℝ
                   membership, from 4.1, 4.8.1
@@ -156,7 +156,7 @@ theorem a-definition-folded-without-its-pair
                   mun:abs-nonneg x := √x − √c, from 4.8.6
 
           4.8.13. |√x + √c| = √x + √c
-                  mun:abs x := √x + √c, from 4.8.11
+                  def:abs x := √x + √c, from 4.8.11
                   requires √x + √c ∈ ℝ: membership, from 4.3, 4.8.3
 
           4.8.14. |x − c| = |(√x − √c)·(√x + √c)|

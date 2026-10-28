@@ -1,4 +1,4 @@
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 import mundane theorem    stdlib/numbers/square-nonneg
 import mundane theorem    stdlib/numbers/square-positive
 import mundane theorem    stdlib/numbers/zero-product
@@ -107,4 +107,4 @@ theorem cubed-mobius-one-to-one
           algebra, from 1.1, 1.2, 1.3, 1.4, 1.8
 
 2.  f : ℝ ∖ {1} → ℝ ∖ {1} is one-to-one
-    mun:one-to-one, from H1, 1
+    def:one-to-one, from H1, 1

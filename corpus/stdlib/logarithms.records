@@ -20,7 +20,7 @@
 # decided.
 
 
-mundane definition ln
+definition ln
   sort        number → number
   builds      _1 clog cfv
   reads       the natural logarithm of
@@ -32,7 +32,7 @@ mundane definition ln
               is the logarithm a reader knows. As for cos, this definition
               states nothing but what ln(x) builds.
 
-mundane definition exp
+definition exp
   sort        number → number
   builds      _1 ce cfv
   reads       the exponential of

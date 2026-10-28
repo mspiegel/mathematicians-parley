@@ -1,5 +1,5 @@
 import mundane theorem    stdlib/sums/range-within
-import mundane definition stdlib/sums/range
+import definition         stdlib/sums/range
 import mundane theorem    stdlib/sums/sum-extended
 import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-nonneg
@@ -112,7 +112,7 @@ theorem am-gm-power
                   thm:first-terms m := j + 1, from C2, H3
 
           1.2.5.  j + 1 ∈ {1, …, n}
-                  mun:range k := j + 1, from C2
+                  def:range k := j + 1, from C2
 
           1.2.6.  a(j + 1) ≥ 0
                   instantiate k := j + 1 in H3, from 1.2.5

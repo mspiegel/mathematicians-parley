@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/mod-multiple
 import theorem            stdlib/divisibility/gcd-mod
 

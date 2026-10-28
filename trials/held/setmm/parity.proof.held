@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/even-or-odd
 
 theorem odd-plus-odd
@@ -14,16 +14,16 @@ theorem odd-plus-odd
   then A + B is even
 
 1.  k ∈ ℤ. A = 2k + 1.
-    obtain k: mun:odd n := A, from H3
+    obtain k: def:odd n := A, from H3
 
 2.  l ∈ ℤ. B = 2l + 1.
-    obtain l: mun:odd n := B, from H4
+    obtain l: def:odd n := B, from H4
 
 3.  A + B = 2(k + l + 1)
     algebra, from 1, 2
 
 4.  A + B is even
-    mun:even n := A + B, from 3
+    def:even n := A + B, from 3
 
 theorem odd-minus-odd
   note        Two odd numbers 2k + 1 and 2l + 1 differ by 2k − 2l, which is
@@ -35,16 +35,16 @@ theorem odd-minus-odd
   then A − B is even
 
 1.  k ∈ ℤ. A = 2k + 1.
-    obtain k: mun:odd n := A, from H3
+    obtain k: def:odd n := A, from H3
 
 2.  l ∈ ℤ. B = 2l + 1.
-    obtain l: mun:odd n := B, from H4
+    obtain l: def:odd n := B, from H4
 
 3.  A − B = 2(k − l)
     algebra, from 1, 2
 
 4.  A − B is even
-    mun:even n := A − B, from 3
+    def:even n := A − B, from 3
 
 theorem even-plus-odd
   note        An even 2k and an odd 2l + 1 add to 2k + 2l + 1, which is twice
@@ -56,16 +56,16 @@ theorem even-plus-odd
   then A + B is odd
 
 1.  k ∈ ℤ. A = 2k.
-    obtain k: mun:even n := A, from H3
+    obtain k: def:even n := A, from H3
 
 2.  l ∈ ℤ. B = 2l + 1.
-    obtain l: mun:odd n := B, from H4
+    obtain l: def:odd n := B, from H4
 
 3.  A + B = 2(k + l) + 1
     algebra, from 1, 2
 
 4.  A + B is odd
-    mun:odd n := A + B, from 3
+    def:odd n := A + B, from 3
 
 theorem even-minus-odd
   note        An even 2k and an odd 2l + 1 differ by 2k − 2l − 1, which is
@@ -77,16 +77,16 @@ theorem even-minus-odd
   then A − B is odd
 
 1.  k ∈ ℤ. A = 2k.
-    obtain k: mun:even n := A, from H3
+    obtain k: def:even n := A, from H3
 
 2.  l ∈ ℤ. B = 2l + 1.
-    obtain l: mun:odd n := B, from H4
+    obtain l: def:odd n := B, from H4
 
 3.  A − B = 2(k − l − 1) + 1
     algebra, from 1, 2
 
 4.  A − B is odd
-    mun:odd n := A − B, from 3
+    def:odd n := A − B, from 3
 
 theorem odd-half
   note        If N = 2k + 1 then (N − 1)/2 is k. Conversely if (N − 1)/2 is
@@ -101,7 +101,7 @@ theorem odd-half
     assume N is odd                                                   (D1)
 
     1.1.  k ∈ ℤ. N = 2k + 1.
-          obtain k: mun:odd n := N, from D1
+          obtain k: def:odd n := N, from D1
 
     1.2.  (N − 1)/2 = k
           algebra, from 1.1
@@ -116,7 +116,7 @@ theorem odd-half
           algebra
 
     1.5.  N is odd
-          mun:odd n := N, from D2, 1.4
+          def:odd n := N, from D2, 1.4
 
 theorem half-or-next-half
   note        An even N is twice N/2. An odd N is 2k + 1, and then
@@ -134,7 +134,7 @@ theorem half-or-next-half
     assume N is even                                                  (C1)
 
     2.1.  k ∈ ℤ. N = 2k.
-          obtain k: mun:even n := N, from C1
+          obtain k: def:even n := N, from C1
 
     2.2.  N/2 = k
           algebra, from 2.1
@@ -149,7 +149,7 @@ theorem half-or-next-half
     assume N is odd                                                   (C2)
 
     2.5.  k ∈ ℤ. N = 2k + 1.
-          obtain k: mun:odd n := N, from C2
+          obtain k: def:odd n := N, from C2
 
     2.6.  (N + 1)/2 = k + 1
           algebra, from 2.5

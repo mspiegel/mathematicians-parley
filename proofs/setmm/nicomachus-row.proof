@@ -1,4 +1,4 @@
-import mundane definition   stdlib/numbers/nat0
+import definition           stdlib/numbers/nat0
 import mundane theorem      stdlib/sums/sum-add
 import mundane theorem      stdlib/sums/sum-constant
 import mundane theorem      stdlib/sums/sum-first
@@ -13,7 +13,7 @@ theorem nicomachus-row
   then Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
 
 1.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 2.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
     cases, from 1

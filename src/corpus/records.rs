@@ -66,11 +66,13 @@ impl RecordKind {
         self == RecordKind::Definition
     }
 
-    /// Whether a record of this kind may be marked `mundane`: an item, or a
-    /// method, which a proof may take for granted. A notation and the
-    /// precedence table are never cited, so nothing takes them for granted.
+    /// Whether a record of this kind may be marked `mundane`: only a theorem,
+    /// one that is there for the prover and that no textbook would cite. An
+    /// axiom and a definition give meaning, and a pedantic textbook cites
+    /// them; a method is named on the line that uses it; a notation and the
+    /// precedence table are never cited at all.
     pub fn may_be_mundane(self) -> bool {
-        self.is_item() || self == RecordKind::Method
+        self == RecordKind::Theorem
     }
 }
 
@@ -133,8 +135,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
 #[derive(Clone, Debug)]
 pub struct Record {
     pub kind: RecordKind,
-    /// Whether its header opens with `mundane`: a human proof takes it for
-    /// granted, using it without naming it.
+    /// Whether its header opens with `mundane`: a theorem a human proof takes
+    /// for granted, using it without naming it.
     pub mundane: bool,
     pub name: String,
     pub fields: IndexMap<String, String>,
@@ -238,8 +240,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                     if mundane && name.is_empty() {
                         format!(
                             "mundane {word} has no kind: a record's header says \
-                             `mundane axiom`, `mundane theorem`, `mundane definition` \
-                             or `mundane method` before its name"
+                             `mundane theorem` before its name"
                         )
                     } else {
                         format!("unknown record kind {}", repr(word))
@@ -250,10 +251,21 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                 return Err(Problem::new(
                     path,
                     line.no,
-                    format!(
-                        "mundane {kind}: a {kind} is never cited, so nothing takes it \
-                         for granted"
-                    ),
+                    match kind {
+                        RecordKind::Axiom | RecordKind::Definition => format!(
+                            "mundane {kind}: an axiom or a definition gives meaning, and a \
+                             pedantic textbook cites it, so it is never mundane; only a \
+                             theorem is"
+                        ),
+                        RecordKind::Method => format!(
+                            "mundane {kind}: a method is named on the line that uses it, \
+                             so it is never mundane; only a theorem is"
+                        ),
+                        _ => format!(
+                            "mundane {kind}: a {kind} is never cited, so nothing takes it \
+                             for granted"
+                        ),
+                    },
                 ));
             }
             if !is_name(name) {

@@ -1,5 +1,5 @@
 import theorem            proofs/setmm/image-of-a-point-under-a-one-to-one-map/image-of-a-point-under-a-one-to-one-map
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/functions/image-monotone
 import mundane theorem    stdlib/functions/value-in-image
 import mundane theorem    stdlib/sets/in-subset
@@ -43,7 +43,7 @@ theorem images-of-parts-under-a-one-to-one-map
                   mun:iff-from-left P := F(t) ∈ F[D], Q := t ∈ D, from 1.1.3, 1.1.4
 
     1.2.  C ⊆ D
-          mun:subset, from 1.1
+          def:subset, from 1.1
 
     direction
     assume C ⊆ D                                                      (D2)

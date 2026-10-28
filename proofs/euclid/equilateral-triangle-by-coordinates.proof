@@ -4,7 +4,7 @@ import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/angle-by-cosine
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 
 theorem equilateral-triangle-by-coordinates

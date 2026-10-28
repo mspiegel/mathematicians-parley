@@ -8,21 +8,21 @@ import mundane theorem    stdlib/counting/count-step-holds
 import mundane theorem    stdlib/counting/count-step-fails
 import mundane theorem    stdlib/numbers/nat0-successor
 import mundane theorem    stdlib/functions/function-value
-import mundane definition stdlib/sums/range
-import mundane definition stdlib/sums/range0
-import mundane definition stdlib/divisibility/even
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/sums/range
+import definition         stdlib/sums/range0
+import definition         stdlib/divisibility/even
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/reasoning/iff-both-true
 import mundane theorem    stdlib/reasoning/iff-both-false
 import mundane theorem    stdlib/reasoning/iff-from-right
 import mundane theorem    stdlib/reasoning/iff-not-from-right
-import mundane definition stdlib/sets/difference
-import mundane definition stdlib/sets/singleton
+import definition         stdlib/sets/difference
+import definition         stdlib/sets/singleton
 
 theorem walk-parity-by-induction
   note        The parity of a walk's edges at a vertex, one edge at a time.
@@ -52,7 +52,7 @@ theorem walk-parity-by-induction
           let y ∈ V ∖ {v(0)}                                          (K1)
 
           1.1.1.  y ∈ V. y ∉ {v(0)}.
-                  mun:difference, from K1
+                  def:difference, from K1
 
           1.1.2.  c(0, y) = |{i ∈ {1, …, 0} : y is incident with e(i)}|
                   D1
@@ -71,7 +71,7 @@ theorem walk-parity-by-induction
                             = 2·0                                       1.1.4
 
           1.1.6.  c(0, y) is even
-                  mun:even n := c(0, y), from 1.1.5
+                  def:even n := c(0, y), from 1.1.5
                   requires c(0, y) ∈ ℕ₀: mun:count-nat0 k := 0, from D1, 1.1.1
 
           1.1.7.  c(0, y) is not odd
@@ -83,7 +83,7 @@ theorem walk-parity-by-induction
                   suppose y = v(0)                                    (S1)
 
                   1.1.8.1.  y ∈ {v(0)}
-                            mun:singleton, from S1, contradicting 1.1.1
+                            def:singleton, from S1, contradicting 1.1.1
 
           1.1.9.  c(0, y) is odd ↔ y = v(0)
                   mun:iff-both-false, from 1.1.7, 1.1.8
@@ -99,20 +99,20 @@ theorem walk-parity-by-induction
           let y ∈ V ∖ {v(0)}                                          (K3)
 
           1.2.1.  y ∈ V. y ∉ {v(0)}.
-                  mun:difference, from K3
+                  def:difference, from K3
 
           1.2.2.  j + 1 ∈ {1, …, n}
-                  mun:range k := j + 1, from C2
+                  def:range k := j + 1, from C2
                   requires j + 1 ∈ ℕ: mun:nat0-successor
 
           1.2.3.  j ≤ n
                   inequalities, from C2
 
           1.2.4.  j ∈ {0, …, n}
-                  mun:range0 k := j, from 1.2.3
+                  def:range0 k := j, from 1.2.3
 
           1.2.5.  j + 1 ∈ {0, …, n}
-                  mun:range0 k := j + 1, from C2
+                  def:range0 k := j + 1, from C2
 
           1.2.6.  e(j + 1) joins v(j + 1 − 1) and v(j + 1)
                   mun:walk-step i := j + 1, from H5, 1.2.2
@@ -130,7 +130,7 @@ theorem walk-parity-by-induction
                   instantiate y := y in line 1.2.9, from K3
 
           1.2.11. y = v(j + 1) or y ≠ v(j + 1)
-                  mun:excluded-middle
+                  axi:excluded-middle
 
           1.2.12. c(j + 1, y) is odd ↔ y = v(j + 1)
                   cases, from 1.2.11
@@ -173,14 +173,14 @@ theorem walk-parity-by-induction
                              requires y ∈ V: from 1.2.1
 
                   1.2.12.9.  m ∈ ℤ. c(j, y) = 2m.
-                             obtain m: mun:even n := c(j, y), from 1.2.12.5
+                             obtain m: def:even n := c(j, y), from 1.2.12.5
                              requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                   1.2.12.10. c(j + 1, y) = 2m + 1
                              substitute c(j, y) = 2m (line 1.2.12.9) into line 1.2.12.8
 
                   1.2.12.11. c(j + 1, y) is odd
-                             mun:odd n := c(j + 1, y), from 1.2.12.10
+                             def:odd n := c(j + 1, y), from 1.2.12.10
                              requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
 
                   1.2.12.12. c(j + 1, y) is odd ↔ y = v(j + 1)
@@ -190,7 +190,7 @@ theorem walk-parity-by-induction
                   assume y ≠ v(j + 1)                                 (C4)
 
                   1.2.12.13. y = v(j) or y ≠ v(j)
-                             mun:excluded-middle
+                             axi:excluded-middle
 
                   1.2.12.14. c(j + 1, y) is even
                              cases, from 1.2.12.13
@@ -216,7 +216,7 @@ theorem walk-parity-by-induction
                                            mun:iff-from-right, from C5, 1.2.10
 
                              1.2.12.14.5.  m ∈ ℤ. c(j, y) = 2m + 1.
-                                           obtain m: mun:odd n := c(j, y), from 1.2.12.14.4
+                                           obtain m: def:odd n := c(j, y), from 1.2.12.14.4
                                            requires c(j, y) ∈ ℕ₀: mun:count-nat0 k := j, from D1, 1.2.1
 
                              1.2.12.14.6.  c(j + 1, y) = (2m + 1) + 1
@@ -231,7 +231,7 @@ theorem walk-parity-by-induction
                                                          = 2(m + 1)          1.2.12.14.7
 
                              1.2.12.14.9.  c(j + 1, y) is even
-                                           mun:even n := c(j + 1, y), from 1.2.12.14.8
+                                           def:even n := c(j + 1, y), from 1.2.12.14.8
                                            requires c(j + 1, y) ∈ ℕ₀: mun:count-nat0 k := j + 1, from D1, 1.2.1
 
                              case
@@ -270,7 +270,7 @@ theorem walk-parity-by-induction
                              mun:iff-both-false, from C4, 1.2.12.15
 
 2.  k ∈ ℕ₀. k ≤ n.
-    mun:range0, from H6
+    def:range0, from H6
 
 3.  For all y ∈ V ∖ {v(0)}, c(k, y) is odd ↔ y = v(k).
     instantiate j := k in line 1, from 2

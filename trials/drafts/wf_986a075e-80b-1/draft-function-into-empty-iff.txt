@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/functions/function-into
 import mundane theorem    stdlib/functions/function-value
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-empty
 
 theorem empty-domain
@@ -21,7 +21,7 @@ theorem empty-domain
           inspection, contradicting 1.1
 
 2.  A ⊆ ∅
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  A = ∅
     mun:subset-empty, from 2

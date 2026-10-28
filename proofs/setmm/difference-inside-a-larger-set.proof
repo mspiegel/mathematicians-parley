@@ -1,6 +1,6 @@
-import mundane definition stdlib/sets/difference
-import mundane definition stdlib/sets/intersection
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/difference
+import definition         stdlib/sets/intersection
+import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
@@ -19,35 +19,35 @@ theorem difference-inside-a-larger-set
     let t ∈ A ∖ B                                                     (K1)
 
     1.1.  t ∈ A. t ∉ B.
-          mun:difference u := t, Y := A, Z := B, from K1
+          def:difference u := t, Y := A, Z := B, from K1
 
     1.2.  t ∈ C
           mun:in-subset X := A, Y := C, u := t, from H4, 1.1
 
     1.3.  t ∈ C ∖ B
-          mun:difference u := t, Y := C, Z := B, from 1.1, 1.2
+          def:difference u := t, Y := C, Z := B, from 1.1, 1.2
 
     1.4.  t ∈ (C ∖ B) ∩ A
-          mun:intersection u := t, Y := C ∖ B, Z := A, from 1.1, 1.3
+          def:intersection u := t, Y := C ∖ B, Z := A, from 1.1, 1.3
 
 2.  A ∖ B ⊆ (C ∖ B) ∩ A
-    mun:subset, from 1
+    def:subset, from 1
 
 3.  For all t ∈ (C ∖ B) ∩ A, t ∈ A ∖ B.
     proof
     let t ∈ (C ∖ B) ∩ A                                               (K2)
 
     3.1.  t ∈ C ∖ B. t ∈ A.
-          mun:intersection u := t, Y := C ∖ B, Z := A, from K2
+          def:intersection u := t, Y := C ∖ B, Z := A, from K2
 
     3.2.  t ∈ C. t ∉ B.
-          mun:difference u := t, Y := C, Z := B, from 3.1
+          def:difference u := t, Y := C, Z := B, from 3.1
 
     3.3.  t ∈ A ∖ B
-          mun:difference u := t, Y := A, Z := B, from 3.1, 3.2
+          def:difference u := t, Y := A, Z := B, from 3.1, 3.2
 
 4.  (C ∖ B) ∩ A ⊆ A ∖ B
-    mun:subset, from 3
+    def:subset, from 3
 
 5.  A ∖ B = (C ∖ B) ∩ A
     mun:subset-antisymmetric, from 2, 4

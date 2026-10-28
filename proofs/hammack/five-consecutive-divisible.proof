@@ -2,13 +2,13 @@ import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
 import definition         stdlib/counting/C
 import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-zero-index
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem scaled-binomial-step
   note        j·C(m + j, j) = (m + j)·C(m + i, i) when j − 1 = i: this is
@@ -32,7 +32,7 @@ theorem scaled-binomial-step
     transitivity, from 1, 2
 
 4.  j ∈ {1, …, (m + i) + 1}
-    mun:range-between k := j, a := 1, b := (m + i) + 1, from 3
+    def:range-between k := j, a := 1, b := (m + i) + 1, from 3
     requires 1 ≤ j: inequalities, from H3
 
 5.  j·C((m + i) + 1, j) = ((m + i) + 1)·C(m + i, j − 1)
@@ -113,7 +113,7 @@ theorem five-consecutive-natural
     requires C(m + 5, 5) ∈ ℝ: from 5
 
 16. 120 divides (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5)
-    mun:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 15
+    def:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 15
     requires C(m + 5, 5) ∈ ℤ: from 5
 
 
@@ -173,7 +173,7 @@ theorem five-consecutive-divisible
                   inequalities, from 2.8.2
 
           2.8.4.  n + 4 ∈ {0, …, 4}
-                  mun:range-between k := n + 4, a := 0, b := 4, from C3, 2.8.3
+                  def:range-between k := n + 4, a := 0, b := 4, from C3, 2.8.3
 
           2.8.5.  n + 4 = 0 or n + 4 = 1 or n + 4 = 2 or n + 4 = 3 or n + 4 = 4
                   inspection, from 2.8.4
@@ -188,7 +188,7 @@ theorem five-consecutive-divisible
                             algebra, from C4
 
                   2.8.6.2.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.1
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.1
 
                   case
                   assume n + 4 = 1                                    (C5)
@@ -197,7 +197,7 @@ theorem five-consecutive-divisible
                             algebra, from C5
 
                   2.8.6.4.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.3
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.3
 
                   case
                   assume n + 4 = 2                                    (C6)
@@ -206,7 +206,7 @@ theorem five-consecutive-divisible
                             algebra, from C6
 
                   2.8.6.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.5
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.5
 
                   case
                   assume n + 4 = 3                                    (C7)
@@ -215,7 +215,7 @@ theorem five-consecutive-divisible
                             algebra, from C7
 
                   2.8.6.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.7
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.7
 
                   case
                   assume n + 4 = 4                                    (C8)
@@ -224,7 +224,7 @@ theorem five-consecutive-divisible
                             algebra, from C8
 
                   2.8.6.10. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            mun:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.9
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.9
 
           case
           assume n + 4 < 0                                            (C9)

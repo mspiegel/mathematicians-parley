@@ -1,7 +1,7 @@
-import mundane definition stdlib/numbers/i
+import definition         stdlib/numbers/i
 import mundane theorem    stdlib/numbers/i-complex
 import mundane theorem    stdlib/numbers/zero-product
-import mundane definition stdlib/sets/triple
+import definition         stdlib/sets/triple
 import mundane theorem    stdlib/sets/triple-members
 
 theorem cubic
@@ -31,7 +31,7 @@ theorem cubic
     mun:i-complex
 
 2.  i·i = −1
-    mun:i
+    def:i
 
 3.  (√3)² = 3
     real arithmetic
@@ -164,7 +164,7 @@ let y = 3·a·x + b, a complex number                                  (D3)
           obtain r from A2
 
     14.6. r = 1 or r = (−1 + i·√3)/2 or r = (−1 − i·√3)/2
-          mun:triple x := r, from 14.5
+          def:triple x := r, from 14.5
 
     14.7. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
           cases, from 14.6

@@ -2,7 +2,7 @@ import mundane theorem    stdlib/numbers/real-power-positive
 import mundane theorem    stdlib/numbers/real-power-real
 import mundane theorem    stdlib/numbers/root-power
 import mundane theorem    stdlib/numbers/half-power
-import mundane definition stdlib/logarithms/exp
+import definition         stdlib/logarithms/exp
 import mundane theorem    stdlib/logarithms/e-power
 import mundane theorem    stdlib/numbers/cube-root-real
 import mundane theorem    stdlib/numbers/cube-root-cubed

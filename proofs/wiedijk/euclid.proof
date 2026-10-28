@@ -1,5 +1,5 @@
 import theorem            stdlib/divisibility/gcd-mod
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/divisibility/gcd-zero
 import mundane theorem    stdlib/divisibility/mod-less
@@ -9,7 +9,7 @@ import mundane theorem    stdlib/numbers/nat0-int
 import mundane theorem    stdlib/numbers/nat0-nonzero
 import mundane theorem    stdlib/numbers/nat0-real
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
@@ -54,7 +54,7 @@ theorem euclid
     assume step 3 is true for k, the induction hypothesis             (IH1)
 
     3.4.  b(k) = 0 or b(k) ≠ 0
-          mun:excluded-middle P := b(k) = 0
+          axi:excluded-middle P := b(k) = 0
 
     3.5.  a(k + 1) ∈ ℕ₀ and b(k + 1) ∈ ℕ₀
           cases, from 3.4
@@ -123,7 +123,7 @@ theorem euclid
     assume step 4 is true for k, the induction hypothesis             (IH2)
 
     4.4.  b(k) = 0 or b(k) ≠ 0
-          mun:excluded-middle P := b(k) = 0
+          axi:excluded-middle P := b(k) = 0
 
     4.5.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
           cases, from 4.4
@@ -209,7 +209,7 @@ theorem euclid
     assume step 5 is true for k, the induction hypothesis             (IH3)
 
     5.3.  b(k) = 0 or b(k) ≠ 0
-          mun:excluded-middle P := b(k) = 0
+          axi:excluded-middle P := b(k) = 0
 
     5.4.  b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
           cases, from 5.3
@@ -280,7 +280,7 @@ theorem euclid
     instantiate k := N in line 5
 
 9.  b(N) = 0 or b(N) ≠ 0
-    mun:excluded-middle P := b(N) = 0
+    axi:excluded-middle P := b(N) = 0
 
 10. b(N) = 0
     cases, from 9

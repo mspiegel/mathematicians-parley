@@ -1,5 +1,5 @@
 import theorem            proofs/hammack/gcd-integer-natural/gcd-integer-natural
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/numbers/pos-int-nat
@@ -7,7 +7,7 @@ import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/le-cases
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
-import mundane definition stdlib/sets/pair
+import definition         stdlib/sets/pair
 
 theorem gcd-with-successor-two-from-minus-one
   note        The exercise for n ≥ −1, where n + 2 is a natural number. A common divisor of n and n + 2 divides their difference 2, so
@@ -67,4 +67,4 @@ theorem gcd-with-successor-two-from-minus-one
           mun:or-right, from C2
 
 9.  gcd(n, n + 2) ∈ {1, 2}
-    mun:pair x := gcd(n, n + 2), u := 1, w := 2, from 8
+    def:pair x := gcd(n, n + 2), u := 1, w := 2, from 8

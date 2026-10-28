@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
@@ -19,7 +19,7 @@ theorem abs-bounds
     assume x ≥ 0                                                      (C1)
 
     2.1.  |x| = x
-          mun:abs, from C1
+          def:abs, from C1
 
     2.2.  x ≤ |x|
           inequalities
@@ -42,7 +42,7 @@ theorem abs-bounds
     assume x < 0                                                      (C2)
 
     2.6.  |x| = −x
-          mun:abs, from C2
+          def:abs, from C2
 
     2.7.  −x ≤ |x|
           inequalities
@@ -94,7 +94,7 @@ theorem triangle-inequality
     assume a + b ≥ 0                                                  (C1)
 
     4.1.  |a + b| = a + b
-          mun:abs x := a + b, from C1
+          def:abs x := a + b, from C1
 
     4.2.  a + b ≤ |a| + |b|
           inequalities, from 2, 3
@@ -110,7 +110,7 @@ theorem triangle-inequality
     assume a + b < 0                                                  (C2)
 
     4.4.  |a + b| = −(a + b)
-          mun:abs x := a + b, from C2
+          def:abs x := a + b, from C2
 
     4.5.  −(a + b) = −a + −b
           algebra

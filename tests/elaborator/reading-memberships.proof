@@ -3,7 +3,7 @@ import mundane theorem    stdlib/numbers/multiply-le-nonneg
 import mundane theorem    stdlib/numbers/nat0-successor
 import mundane theorem    stdlib/numbers/product-nonzero
 import mundane theorem    stdlib/numbers/square-positive
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem a-range-bound-filling-an-item
   note        Rule: range-bounds. Route: from L on a cited item. H2 puts k
@@ -123,7 +123,7 @@ theorem a-range-bound-folding-a-definition
   then k ∈ {1, …, m}
 
 1.  k ∈ {1, …, m}
-    mun:range-between a := 1, b := m, from H3, H4
+    def:range-between a := 1, b := m, from H3, H4
 
 theorem a-membership-bound-filling-an-item
   note        Rule: membership. Route: from L on a cited item. H1 says
@@ -238,7 +238,7 @@ theorem a-membership-bound-folding-a-definition
   then j ∈ {1, …, m}
 
 1.  j ∈ {1, …, m}
-    mun:range-between k := j, a := 1, b := m, from H2, H3
+    def:range-between k := j, a := 1, b := m, from H2, H3
 
 theorem a-membership-bound-read-by-the-membership-method
   note        Rule: membership. Route: the method membership. H2 puts x in

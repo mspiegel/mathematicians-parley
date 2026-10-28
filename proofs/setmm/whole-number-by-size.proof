@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem stdlib/numbers/abs-integer
 import mundane theorem stdlib/numbers/nat0-int
 import mundane theorem stdlib/numbers/nonneg-or-neg
@@ -35,7 +35,7 @@ theorem whole-number-by-size
           assume A ≥ 0                                                (C1)
 
           1.4.1.  |A| = A
-                  mun:abs x := A, from C1
+                  def:abs x := A, from C1
 
           1.4.2.  A ∈ ℤ
                   substitute |A| = A (line 1.4.1) into D2
@@ -44,7 +44,7 @@ theorem whole-number-by-size
           assume A < 0                                                (C2)
 
           1.4.3.  |A| = −A
-                  mun:abs x := A, from C2
+                  def:abs x := A, from C2
 
           1.4.4.  −A ∈ ℤ
                   substitute |A| = −A (line 1.4.3) into D2

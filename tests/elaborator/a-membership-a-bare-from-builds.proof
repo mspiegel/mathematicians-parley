@@ -1,7 +1,7 @@
-import mundane definition stdlib/counting/factorial
+import definition         stdlib/counting/factorial
 import mundane theorem stdlib/counting/factorial-nat
 import theorem            stdlib/divisibility/divides-gcd
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 
 theorem a-membership-from-lines-together
   note        A bare `from` gives a membership the lines it names give
@@ -17,7 +17,7 @@ theorem a-membership-from-lines-together
     mun:factorial-nat n := k
 
 2.  (k + 1)! = k!·(k + 1)
-    mun:factorial n := k
+    def:factorial n := k
 
 3.  y ≤ 3
     transitivity, from H3, H4
@@ -35,7 +35,7 @@ theorem a-product-membership-from-a-line
   then c·gcd(a, b) divides gcd(x, y)
 
 1.  gcd(a, b) ∈ ℕ
-    mun:gcd
+    def:gcd
 
 2.  c·gcd(a, b) divides gcd(x, y)
     thm:divides-gcd d := c·gcd(a, b), a := x, b := y, from H6, H7

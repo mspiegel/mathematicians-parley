@@ -17,7 +17,7 @@ import mundane theorem    stdlib/counting/card-two
 import mundane theorem    stdlib/counting/finite-part
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/nat-minus-one
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -32,7 +32,7 @@ import mundane theorem    stdlib/sets/not-in-difference
 import mundane theorem    stdlib/sets/pair-subset
 import mundane theorem    stdlib/sets/remove-and-restore
 import mundane theorem    stdlib/sets/remove-member
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-split
 import mundane theorem    stdlib/sets/set-builder-split-disjoint
 import mundane theorem    stdlib/sets/set-builder-subset
@@ -42,7 +42,7 @@ import mundane theorem    stdlib/sets/subset-of-difference
 import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/union-subset
-import mundane definition stdlib/sums/range0
+import definition         stdlib/sums/range0
 
 theorem one-point-part
   note        One point of X is a part of one element, and a part of one
@@ -123,7 +123,7 @@ theorem two-point-parts
     substitute (W ∪ {v}) ∖ {v} = W (line 3) into line 4
 
 6.  v ∈ Y or v ∉ Y
-    mun:excluded-middle P := v ∈ Y
+    axi:excluded-middle P := v ∈ Y
 
 7.  Y ⊆ W or there is w ∈ W with Y = {v, w}
     cases, from 6
@@ -315,7 +315,7 @@ theorem ramsey-step
     inequalities, from H2
 
 3.  k ∈ {0, …, k + j}
-    mun:range0 n := k + j, from 2
+    def:range0 n := k + j, from 2
 
 4.  C(k + j, k) ∈ ℕ
     mun:binomial-nat, from 3
@@ -419,7 +419,7 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
                                             = |R| + |B| + 1          25
 
 33. C(k + j − 1, k − 1) ≤ |R| or not C(k + j − 1, k − 1) ≤ |R|
-    mun:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
+    axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
 
 34. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
     cases, from 33
@@ -486,7 +486,7 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
           obtain W from line 36.2
 
     36.4. For all w ∈ R, {v, w} ∈ E.
-          mun:set-builder, from D1
+          def:set-builder, from D1
 
     36.5. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
           thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 36.3, 36.4
@@ -512,7 +512,7 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
            let w ∈ B                                                  (K1)
 
            36.10.1. w ∈ X ∖ {v}. {v, w} ∉ E.
-                    mun:set-builder u := w, from D2, K1
+                    def:set-builder u := w, from D2, K1
 
            36.10.2. w ∈ X. w ≠ v.
                     mun:remove-member u := w, Y := X, a := v, from 36.10.1

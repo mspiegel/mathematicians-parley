@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem divides-cubic
   note        With b = a·k, 3b³ − b² + 5b is a·(3a²k³ − ak² + 5k).
@@ -8,7 +8,7 @@ theorem divides-cubic
   then a divides 3b³ − b² + 5b
 
 1.  k ∈ ℤ. b = a·k.
-    obtain k: mun:divides, from H3
+    obtain k: def:divides, from H3
 
 2.  3b³ − b² + 5b = 3(a·k)³ − (a·k)² + 5(a·k)
     substitute b = a·k (line 1)
@@ -22,4 +22,4 @@ theorem divides-cubic
                     = a·(3a²k³ − a·k² + 5k)         3
 
 5.  a divides 3b³ − b² + 5b
-    mun:divides d := a, n := 3b³ − b² + 5b, from 4
+    def:divides d := a, n := 3b³ − b² + 5b, from 4

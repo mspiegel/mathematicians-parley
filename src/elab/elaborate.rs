@@ -1117,8 +1117,7 @@ impl<'a> Elaborator<'a> {
             Head::Manipulation(_) => Some(How::Named(Method::Inequalities)),
             _ => None,
         };
-        // Whether a step unfolds what it cites is read from the record: a
-        // mundane definition is cited `mun:` and is unfolded all the same.
+        // Whether a step unfolds what it cites is read from the record.
         let cited = match crate::corpus::item_kind(&head) {
             Some(_) => Some(self.item_cited(&head)?),
             None => None,

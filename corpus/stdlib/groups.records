@@ -20,7 +20,7 @@
 # Other fields: target, note.
 
 
-mundane axiom group-closed
+axiom group-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -28,7 +28,7 @@ mundane axiom group-closed
   metamath    grpcl
   target      grpcl
 
-mundane axiom group-associative
+axiom group-associative
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
@@ -37,27 +37,27 @@ mundane axiom group-associative
   metamath    grpass
   target      grpass
 
-mundane axiom group-identity
+axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
   metamath    grprid
   target      grprid
 
-mundane axiom group-identity-closed
+axiom group-identity-closed
   let G be a group with operation · and identity e                    (H1)
   then        e ∈ G
   metamath    grpidcl
   target      grpidcl
 
-mundane axiom group-inverse
+axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
   metamath    grprinv
   target      grprinv
 
-mundane axiom group-inverse-closed
+axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
@@ -105,7 +105,7 @@ mundane theorem subgroup-inverse
   metamath    subginvcl
   target      subginvcl
 
-mundane definition coset
+definition coset
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let g ∈ G                                                           (H3)

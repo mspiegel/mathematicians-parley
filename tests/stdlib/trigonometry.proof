@@ -1,5 +1,5 @@
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/cos-complex as trigonometry-cos-complex
 import mundane theorem    stdlib/trigonometry/sin-complex as trigonometry-sin-complex
 import mundane theorem    stdlib/trigonometry/cos-negative as trigonometry-cos-negative
@@ -15,7 +15,7 @@ import mundane theorem    stdlib/trigonometry/cos-decreasing as trigonometry-cos
 import mundane theorem    stdlib/trigonometry/special-angles as trigonometry-special-angles
 import mundane theorem    stdlib/trigonometry/cos-supplement as trigonometry-cos-supplement
 import mundane theorem    stdlib/trigonometry/sin-supplement as trigonometry-sin-supplement
-import mundane definition stdlib/trigonometry/arctan
+import definition         stdlib/trigonometry/arctan
 import mundane theorem    stdlib/trigonometry/arctan-values as trigonometry-arctan-values
 import mundane theorem    stdlib/trigonometry/arctan-real as trigonometry-arctan-real
 import theorem            stdlib/trigonometry/continuous-arctan as trigonometry-continuous-arctan

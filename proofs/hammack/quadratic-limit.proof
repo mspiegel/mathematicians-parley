@@ -1,10 +1,10 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-difference-lt
-import mundane definition stdlib/numbers/min
+import definition         stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-real
 import mundane theorem    stdlib/numbers/lt-min
 import mundane theorem    stdlib/numbers/less-scaled
@@ -64,7 +64,7 @@ theorem quadratic-limit
                   inequalities, from 1.4.3
 
           1.4.5.  |4·x + 4| = 4·x + 4
-                  mun:abs x := 4·x + 4
+                  def:abs x := 4·x + 4
                   requires 4·x + 4 ≥ 0: weakening, from 1.4.4
 
           1.4.6.  4·x + 4 < 12

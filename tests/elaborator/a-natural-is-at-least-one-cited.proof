@@ -1,4 +1,4 @@
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem at-least-one-right
   let x ∈ ℤ    (H1)
@@ -17,7 +17,7 @@ theorem a-natural-in-a-range-from-one
   then j ∈ {1, …, m + 1}
 
 1.  j ∈ {1, …, m + 1}
-    mun:range-between k := j, a := 1, b := m + 1, from H2, H3
+    def:range-between k := j, a := 1, b := m + 1, from H2, H3
 
 theorem a-natural-answers-at-least-one
   note        The same of a theorem of the file asking x ≥ 1.

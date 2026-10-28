@@ -1,6 +1,6 @@
 import mundane theorem    stdlib/divisibility/divides-le
 import mundane theorem    stdlib/divisibility/divides-self
-import mundane definition stdlib/divisibility/lcm
+import definition         stdlib/divisibility/lcm
 import mundane theorem    stdlib/divisibility/zero-divides
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -15,16 +15,16 @@ theorem lcm-equals-first
   then a = lcm(a, b) ↔ b divides a
 
 1.  b divides lcm(a, b)
-    mun:lcm
+    def:lcm
 
 2.  a divides lcm(a, b)
-    mun:lcm
+    def:lcm
 
 3.  lcm(a, b) ∈ ℕ₀
-    mun:lcm
+    def:lcm
 
 4.  For all k ∈ ℤ, if a divides k and b divides k then lcm(a, b) divides k.
-    mun:lcm
+    def:lcm
 
 5.  a = lcm(a, b) ↔ b divides a
     both directions

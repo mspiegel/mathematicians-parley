@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 
 theorem divides-times-common-factor
   note        If N = M·j then N·K = (M·K)·j, so M·K divides N·K.
@@ -9,7 +9,7 @@ theorem divides-times-common-factor
   then M·K divides N·K
 
 1.  j ∈ ℤ. N = M·j.
-    obtain j: mun:divides d := M, n := N, from H4
+    obtain j: def:divides d := M, n := N, from H4
 
 2.  N·K = M·j·K
     substitute N = M·j (line 1)
@@ -23,4 +23,4 @@ theorem divides-times-common-factor
           = (M·K)·j     3
 
 5.  M·K divides N·K
-    mun:divides d := M·K, n := N·K, from 4
+    def:divides d := M·K, n := N·K, from 4

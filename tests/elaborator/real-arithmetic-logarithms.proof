@@ -1,5 +1,5 @@
-import mundane definition stdlib/logarithms/ln
-import mundane definition stdlib/logarithms/exp
+import definition         stdlib/logarithms/ln
+import definition         stdlib/logarithms/exp
 
 theorem a-logarithm-of-a-power
   then ln(8) = 3·ln(2)

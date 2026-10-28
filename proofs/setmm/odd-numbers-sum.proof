@@ -1,4 +1,4 @@
-import mundane definition   stdlib/numbers/nat0
+import definition           stdlib/numbers/nat0
 import mundane theorem      stdlib/sums/sum-extended
 import mundane theorem      stdlib/sums/sum-first
 import mundane theorem      stdlib/sums/sum-single
@@ -53,7 +53,7 @@ let S(m) = Σ(j = 1 to m) (2j − 1), for m ∈ ℕ                          (D1
                      = (k + 1)²                  1.6
 
 2.  N ∈ ℕ or N = 0
-    mun:nat0 n := N
+    def:nat0 n := N
 
 3.  Σ(k = 1 to N) (2k − 1) = N²
     cases, from 2

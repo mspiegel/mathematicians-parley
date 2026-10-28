@@ -2,8 +2,8 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
-import mundane axiom      stdlib/numbers/trichotomy
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/numbers/trichotomy
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/nonneg-or-neg
@@ -11,7 +11,7 @@ import mundane theorem    stdlib/numbers/factor-positive
 import mundane theorem    stdlib/numbers/integer-step
 import mundane theorem    stdlib/numbers/less-scaled
 import mundane theorem    stdlib/trigonometry/pi-positive
-import mundane definition stdlib/sets/pair
+import definition         stdlib/sets/pair
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -58,13 +58,13 @@ theorem exterior-angle-greater
   then ∠ACD > ∠BAC
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  M ∈ 𝔼². M is the midpoint of AC.
     obtain M: mun:midpoint-exists B := C, from 1
 
 3.  M is between A and C. |AM| = |MC|.
-    mun:midpoint, from 2
+    def:midpoint, from 2
 
 4.  M is between C and A.
     mun:between-symmetric R := M, S := A, T := C, from 3
@@ -76,10 +76,10 @@ theorem exterior-angle-greater
     mun:triangle-on-side P := B, Q := C, R := A, S := M, from H5, 4
 
 7.  B ≠ M.
-    mun:triangle, from 5
+    def:triangle, from 5
 
 8.  |BM| > 0
-    mun:distance-positive P := B, Q := M, from 7
+    axi:distance-positive P := B, Q := M, from 7
 
 9.  E ∈ 𝔼². M is between B and E. |ME| = |BM|.
     obtain E: mun:segment-extension A := B, B := M, r := |BM|, from 7, 8
@@ -101,7 +101,7 @@ theorem exterior-angle-greater
     def:congruent, from 13
 
 15. C ≠ E.
-    mun:triangle, from 11
+    def:triangle, from 11
 
 16. ∠MAB = ∠CAB
     mun:angle-along-segment P := A, Q := C, S := M, R := B, from 1, 3
@@ -141,7 +141,7 @@ theorem exterior-angle-greater
     mun:between-collinear R := M, S := A, T := C, from 3
 
 26. M is on line CA.
-    mun:on-line P := M, A := C, B := A, from 25
+    def:on-line P := M, A := C, B := A, from 25
 
 27. C is on line CA.
     mun:on-line-ends A := C, B := A
@@ -168,7 +168,7 @@ theorem exterior-angle-greater
     mun:triangle-not-on-line P := A, Q := C, R := D, from 32
 
 34. C ≠ D.
-    mun:triangle, from 32
+    def:triangle, from 32
 
 35. C is on line CD.
     mun:on-line-ends A := C, B := D
@@ -184,7 +184,7 @@ theorem exterior-angle-greater
     mun:between-collinear R := C, S := B, T := D, from H6
 
 39. B is on line CD.
-    mun:on-line P := B, A := C, B := D, from 38
+    def:on-line P := B, A := C, B := D, from 38
 
 40. M is between E and B.
     mun:between-symmetric R := M, S := B, T := E, from 9
@@ -243,10 +243,10 @@ theorem exterior-angle-greater-other
   then ∠ACD > ∠ABC
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  |AC| > 0
-    mun:distance-positive P := A, Q := C, from 1
+    axi:distance-positive P := A, Q := C, from 1
 
 3.  E ∈ 𝔼². C is between A and E. |CE| = |AC|.
     obtain E: mun:segment-extension B := C, r := |AC|, from 1, 2
@@ -318,10 +318,10 @@ theorem greater-side-greater-angle
   then ∠ABC > ∠ACB
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |AB| > 0
-    mun:distance-positive P := A, Q := B, from 1
+    axi:distance-positive P := A, Q := B, from 1
 
 3.  D ∈ 𝔼². D is between A and C. |AD| = |AB|.
     obtain D: mun:segment-point B := C, r := |AB|, from H5, 2
@@ -368,7 +368,7 @@ theorem greater-side-greater-angle
     axi:angle-measure P := D, Q := B, R := C, from 6
 
 17. B ≠ C. C ≠ D. B ≠ D.
-    mun:triangle, from 6
+    def:triangle, from 6
 
 18. A ≠ D. C ≠ D.
     mun:between-apart R := D, S := A, T := C, from 3
@@ -422,7 +422,7 @@ theorem alternate-angles-converse
   then line RS ∥ line PQ
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  R ≠ P. not (S is on line RP). not (Q is on line RP).
     mun:opposite-sides-off-line A := R, B := P, P := S, from H6
@@ -582,7 +582,7 @@ theorem alternate-angles-converse
     mun:or-right, from 5
 
 7.  line RS ∥ line PQ
-    mun:parallel A := R, B := S, C := P, D := Q, from 1, 3, 6
+    def:parallel A := R, B := S, C := P, D := Q, from 1, 3, 6
 
 theorem alternate-angles
   note        Euclid I.29. The line RP crosses the two parallels RS and PQ,
@@ -600,7 +600,7 @@ theorem alternate-angles
   then ∠SRP = ∠RPQ
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  not (S is on line RP)
     mun:opposite-sides-off-line A := R, B := P, P := S, from H7
@@ -651,13 +651,13 @@ theorem alternate-angles
     mun:on-line-ends A := R, B := T
 
 16. T ∈ line RT
-    mun:line P := T, A := R, B := T, from 15
+    def:line P := T, A := R, B := T, from 15
 
 17. T ∈ line RS
     substitute line RS = line RT (line 14) into line 16
 
 18. T is on line RS
-    mun:line P := T, A := R, B := S, from 17
+    def:line P := T, A := R, B := S, from 17
 
 19. ∠PRT = ∠PRS
     mun:angle-same-ray R := P, P := R, Q := S, X := T, from 6, 18
@@ -770,10 +770,10 @@ theorem parallel-through
   then there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, (R is between D and E), D and Q are on opposite sides of line RP, E and P are on opposite sides of line RQ, and P and Q are on the same side of line RD
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |QR| > 0
-    mun:distance-positive P := Q, Q := R, from 1
+    axi:distance-positive P := Q, Q := R, from 1
 
 3.  Q′ ∈ 𝔼². R is between Q and Q′. |RQ′| = |QR|.
     obtain Q′: mun:segment-extension A := Q, B := R, r := |QR|, from 1, 2
@@ -827,7 +827,7 @@ theorem parallel-through
     thm:alternate-angles-converse S := D, from H4, 12, 16
 
 18. |DR| > 0
-    mun:distance-positive P := D, Q := R, from 14
+    axi:distance-positive P := D, Q := R, from 14
 
 19. E ∈ 𝔼². R is between D and E. |RE| = |DR|.
     obtain E: mun:segment-extension A := D, B := R, r := |DR|, from 14, 18
@@ -836,7 +836,7 @@ theorem parallel-through
     mun:between-collinear S := D, T := E, from 19
 
 21. E is on line RD
-    mun:on-line P := E, A := R, B := D, from 20
+    def:on-line P := E, A := R, B := D, from 20
 
 22. D ≠ R. E ≠ R.
     mun:between-apart S := D, T := E, from 19
@@ -849,7 +849,7 @@ theorem parallel-through
 
 25. line RD = line PQ or not (there is X ∈ 𝔼² with X is on line RD and
     X is on line PQ)
-    mun:parallel A := R, B := D, C := P, D := Q, from 1, 14, 17
+    def:parallel A := R, B := D, C := P, D := Q, from 1, 14, 17
 
 26. R is on line RD
     mun:on-line-ends A := R, B := D
@@ -859,13 +859,13 @@ theorem parallel-through
     suppose line RD = line PQ                                         (S1)
 
     27.1. R ∈ line RD
-          mun:line P := R, A := R, B := D, from 26
+          def:line P := R, A := R, B := D, from 26
 
     27.2. R ∈ line PQ
           substitute line RD = line PQ (S1) into line 27.1
 
     27.3. R is on line PQ
-          mun:line P := R, A := P, B := Q, from 27.2, contradicting 24
+          def:line P := R, A := P, B := Q, from 27.2, contradicting 24
 
 28. not (there is X ∈ 𝔼² with X is on line RD and X is on line PQ)
     mun:disjunctive-syllogism-left, from 25, 27
@@ -902,7 +902,7 @@ theorem parallel-through
           mun:between-collinear R := X, S := P, T := Q, from 33.1
 
     33.3. X is on line PQ
-          mun:on-line P := X, A := P, B := Q, from 33.2
+          def:on-line P := X, A := P, B := Q, from 33.2
 
     33.4. there is X ∈ 𝔼² with X is on line RD and X is on line PQ
           exhibit, from 33.1, 33.3, contradicting 28
@@ -979,7 +979,7 @@ theorem parallel-through
     mun:between-collinear S := Q, T := Q′, from 3
 
 55. Q is on line RQ′
-    mun:on-line P := Q, A := R, B := Q′, from 54
+    def:on-line P := Q, A := R, B := Q′, from 54
 
 56. P and E are on opposite sides of line RQ
     mun:opposite-sides-of-line A := R, B := Q′, C := R, D := Q, Q := E,
@@ -1006,7 +1006,7 @@ theorem greater-angle-greater-side
   then |AC| > |AB|
 
 1.  |AC| − |AB| < 0 or |AC| − |AB| = 0 or 0 < |AC| − |AB|
-    mun:trichotomy x := |AC| − |AB|
+    axi:trichotomy x := |AC| − |AB|
 
 2.  A, C, B form a triangle.
     mun:triangle-turned P := A, Q := B, R := C, from H4
@@ -1084,10 +1084,10 @@ theorem triangle-inequality-strict
   then |PR| < |PQ| + |QR|
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |QR| > 0
-    mun:distance-positive P := Q, Q := R, from 1
+    axi:distance-positive P := Q, Q := R, from 1
 
 3.  D ∈ 𝔼². Q is between P and D. |QD| = |QR|.
     obtain D: mun:segment-extension A := P, B := Q, r := |QR|, from 1, 2
@@ -1120,7 +1120,7 @@ theorem triangle-inequality-strict
     mun:between-collinear R := Q, S := P, T := D, from 3
 
 13. D is on line PQ
-    mun:on-line P := D, A := P, B := Q, from 12
+    def:on-line P := D, A := P, B := Q, from 12
 
 14. P ≠ D
     mun:between-ends-apart R := Q, S := P, T := D, from 3
@@ -1144,7 +1144,7 @@ theorem triangle-inequality-strict
     axi:angle-measure Q := R, R := Q, from 5
 
 21. R ≠ D. D ≠ Q. R ≠ Q.
-    mun:triangle P := R, Q := D, R := Q, from 8
+    def:triangle P := R, Q := D, R := Q, from 8
 
 22. ∠PRQ + ∠QRD > ∠QRD
     inequalities
@@ -1205,10 +1205,10 @@ theorem triangle-equality-between
   then Q is between P and R
 
 1.  |PQ| > 0
-    mun:distance-positive, from H4
+    axi:distance-positive, from H4
 
 2.  |QR| > 0
-    mun:distance-positive P := Q, Q := R, from H5
+    axi:distance-positive P := Q, Q := R, from H5
 
 3.  P ≠ R
     contradiction
@@ -1315,7 +1315,7 @@ theorem chord-midpoint-right-angle
   then ∠OMB = 90°
 
 1.  M is between A and B. |AM| = |MB|.
-    mun:midpoint, from H5
+    def:midpoint, from H5
 
 2.  A ≠ B
     mun:between-ends-apart R := M, S := A, T := B, from 1
@@ -1353,7 +1353,7 @@ theorem chord-midpoint-right-angle
           assume O is between A and B                                 (C2)
 
           4.2.5.  O is the midpoint of AB
-                  mun:midpoint M := O, from C2, H6
+                  def:midpoint M := O, from C2, H6
 
           4.2.6.  O = M
                   mun:midpoint-unique M := O, N := M, from H5, 4.2.5
@@ -1458,10 +1458,10 @@ theorem perpendicular-foot
   then there is H ∈ 𝔼² with H is on line QR, P ≠ H, (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |PQ| > 0
-    mun:distance-positive, from 1
+    axi:distance-positive, from 1
 
 3.  X ∈ 𝔼². Q is between P and X. |QX| = |PQ|.
     obtain X: mun:segment-extension A := P, B := Q, r := |PQ|, from 1, 2
@@ -1679,7 +1679,7 @@ theorem perpendicular-foot
     assume H ≠ R                                                      (K2)
 
     33.1. H = Q or not (H = Q)
-          mun:excluded-middle P := H = Q
+          axi:excluded-middle P := H = Q
 
     33.2. ∠PHR = 90°
           cases, from 33.1
@@ -1712,13 +1712,13 @@ theorem perpendicular-foot
                     from C7, 1, 4, 25
 
           33.2.7. R ∈ line QR
-                  mun:line P := R, A := Q, B := R, from 4
+                  def:line P := R, A := Q, B := R, from 4
 
           33.2.8. R ∈ line HQ
                   substitute line HQ = line QR (line 33.2.6) into line 33.2.7
 
           33.2.9. R is on line HQ
-                  mun:line P := R, A := H, B := Q, from 33.2.8
+                  def:line P := R, A := H, B := Q, from 33.2.8
 
           33.2.10. ∠PHR = 90°
                    mun:right-angle-along S := Q, T := R, from C7, K2, 26,
@@ -1745,10 +1745,10 @@ theorem altitude-foot
   then there is D ∈ 𝔼² with (D is between P and Q), ∠PDR = 90°, ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a triangle
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 2.  |QR| > 0
-    mun:distance-positive P := Q, Q := R, from 1
+    axi:distance-positive P := Q, Q := R, from 1
 
 3.  Y ∈ 𝔼². R is between Q and Y. |RY| = |QR|.
     obtain Y: mun:segment-extension A := Q, B := R, r := |QR|, from 1, 2
@@ -1779,7 +1779,7 @@ theorem altitude-foot
     substitute ∠QPR = ∠RPQ (line 10) into line 9
 
 12. |PR| > 0
-    mun:distance-positive Q := R, from 1
+    axi:distance-positive Q := R, from 1
 
 13. Z ∈ 𝔼². R is between P and Z. |RZ| = |PR|.
     obtain Z: mun:segment-extension A := P, B := R, r := |PR|, from 1, 12
@@ -1985,7 +1985,7 @@ theorem pythagoras
 
 2.  ∠DAC = ∠BAC
     mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
-    requires C ≠ A: mun:triangle, from H4
+    requires C ≠ A: def:triangle, from H4
 
 3.  ∠BAC = ∠CAB
     mun:angle-symmetric P := B, Q := A, R := C, from H4
@@ -2009,7 +2009,7 @@ theorem pythagoras
 
 8.  ∠DBC = ∠ABC
     mun:angle-along-segment P := B, Q := A, R := C, S := D, from 7
-    requires C ≠ B: mun:triangle, from H4
+    requires C ≠ B: def:triangle, from H4
 
 9.  ∠ABC = ∠CBA
     mun:angle-symmetric P := A, Q := B, R := C, from H4
@@ -2057,13 +2057,13 @@ mundane theorem on-line-other
     axi:line-uniqueness A := X, B := Y, C := A, D := B, from H6, H7, H8, H9
 
 2.  Z ∈ line AB
-    mun:line P := Z, from H10
+    def:line P := Z, from H10
 
 3.  Z ∈ line XY
     substitute line XY = line AB (line 1) into line 2
 
 4.  Z is on line XY
-    mun:line P := Z, A := X, B := Y, from 3
+    def:line P := Z, A := X, B := Y, from 3
 
 mundane theorem off-line-other
   note        Line XY, for two points X and Y of line AB, is line AB, so a
@@ -2113,13 +2113,13 @@ mundane theorem point-off-line
     obtain U, V, W: axi:three-points
 
 2.  U ≠ V. V ≠ W. U ≠ W.
-    mun:triangle P := U, Q := V, R := W, from 1
+    def:triangle P := U, Q := V, R := W, from 1
 
 3.  not (U is on line VW)
     mun:triangle-not-on-line P := U, Q := V, R := W, from 1
 
 4.  U is on line AB or not (U is on line AB)
-    mun:excluded-middle P := U is on line AB
+    axi:excluded-middle P := U is on line AB
 
 5.  there is O ∈ 𝔼² with not (O is on line AB)
     cases, from 4
@@ -2128,7 +2128,7 @@ mundane theorem point-off-line
     assume U is on line AB                                            (C1)
 
     5.1.  V is on line AB or not (V is on line AB)
-          mun:excluded-middle P := V is on line AB
+          axi:excluded-middle P := V is on line AB
 
     5.2.  there is O ∈ 𝔼² with not (O is on line AB)
           cases, from 5.1
@@ -2137,7 +2137,7 @@ mundane theorem point-off-line
           assume V is on line AB                                      (C2)
 
           5.2.1.  W is on line AB or not (W is on line AB)
-                  mun:excluded-middle P := W is on line AB
+                  axi:excluded-middle P := W is on line AB
 
           5.2.2.  there is O ∈ 𝔼² with not (O is on line AB)
                   cases, from 5.2.1
@@ -2198,13 +2198,13 @@ mundane theorem between-split
     mun:between-collinear R := M, S := A, T := B, from H5
 
 5.  M is on line AB
-    mun:on-line P := M, from 4
+    def:on-line P := M, from 4
 
 6.  B, P, A are collinear.
     mun:between-collinear R := P, S := A, T := B, from H6
 
 7.  P is on line AB
-    mun:on-line, from 6
+    def:on-line, from 6
 
 8.  A is on line AB. B is on line AB.
     mun:on-line-ends
@@ -2216,7 +2216,7 @@ mundane theorem between-split
     mun:on-off-apart X := P, Y := O, from 7, 9
 
 11. P = M or not (P = M)
-    mun:excluded-middle P := P = M
+    axi:excluded-middle P := P = M
 
 12. P = M or (P is between A and M) or (P is between M and B)
     cases, from 11
@@ -2436,7 +2436,7 @@ theorem power-of-a-point
     obtain M: mun:midpoint-exists, from 1
 
 3.  M is between A and B. |AM| = |MB|.
-    mun:midpoint, from 2
+    def:midpoint, from 2
 
 4.  A ≠ M. B ≠ M.
     mun:between-apart R := M, S := A, T := B, from 3
@@ -2448,7 +2448,7 @@ theorem power-of-a-point
     mun:segment-addition P := A, Q := B, S := M, from 3
 
 7.  O = M or not (O = M)
-    mun:excluded-middle P := O = M
+    axi:excluded-middle P := O = M
 
 8.  |AO|² − |PO|² = |AM|² − |PM|²
     cases, from 7
@@ -2488,7 +2488,7 @@ theorem power-of-a-point
           thm:pythagoras A := O, B := A, C := M, from 8.6, 8.8
 
     8.10. P = M or not (P = M)
-          mun:excluded-middle P := P = M
+          axi:excluded-middle P := P = M
 
     8.11. |PO|² = |OM|² + |PM|²
           cases, from 8.10
@@ -2512,13 +2512,13 @@ theorem power-of-a-point
                   mun:between-collinear R := M, S := A, T := B, from 3
 
           8.11.5. M is on line AB
-                  mun:on-line P := M, from 8.11.4
+                  def:on-line P := M, from 8.11.4
 
           8.11.6. B, P, A are collinear.
                   mun:between-collinear R := P, S := A, T := B, from H5
 
           8.11.7. P is on line AB
-                  mun:on-line, from 8.11.6
+                  def:on-line, from 8.11.6
 
           8.11.8. A is on line AB. B is on line AB.
                   mun:on-line-ends
@@ -2694,7 +2694,7 @@ mundane theorem ray-point
   then there is X ∈ 𝔼² with X is on line AB, X and B are on the same side of line AC, and |AX| = r
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  B, C, A form a triangle.
     mun:triangle-rotated, from H5
@@ -2712,7 +2712,7 @@ mundane theorem ray-point
     mun:on-line-ends
 
 7.  r − |AB| < 0 or r − |AB| = 0 or 0 < r − |AB|
-    mun:trichotomy x := r − |AB|
+    axi:trichotomy x := r − |AB|
 
 8.  there is X ∈ 𝔼² with X is on line AB, X and B are on the same side of
     line AC, and |AX| = r
@@ -2739,7 +2739,7 @@ mundane theorem ray-point
           mun:between-collinear R := X, S := A, T := B, from 8.2
 
     8.6.  X is on line AB
-          mun:on-line P := X, from 8.5
+          def:on-line P := X, from 8.5
 
     8.7.  there is X ∈ 𝔼² with X is on line AB, X and B are on the same
           side of line AC, and |AX| = r
@@ -2755,7 +2755,7 @@ mundane theorem ray-point
           obtain M: mun:midpoint-exists, from 1
 
     8.10. M is between A and B. |AM| = |MB|.
-          mun:midpoint, from 8.9
+          def:midpoint, from 8.9
 
     8.11. M is between B and A
           mun:between-symmetric R := M, S := A, T := B, from 8.10
@@ -2795,7 +2795,7 @@ mundane theorem ray-point
           mun:between-collinear R := B, S := A, T := X, from 8.17
 
     8.21. X is on line AB
-          mun:on-line P := X, from 8.20
+          def:on-line P := X, from 8.20
 
     8.22. B is between X and A
           mun:between-symmetric R := B, S := A, T := X, from 8.17
@@ -2829,13 +2829,13 @@ theorem angle-side-angle
   then triangle ABC ≅ triangle DEF
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H8
+    def:triangle P := D, Q := E, R := F, from H8
 
 3.  |AC| > 0
-    mun:distance-positive P := A, Q := C, from 1
+    axi:distance-positive P := A, Q := C, from 1
 
 4.  D, F, E form a triangle.
     mun:triangle-turned P := D, Q := E, R := F, from H8
@@ -2960,13 +2960,13 @@ theorem angle-side-angle
                     = line EF       33.2
 
     33.6. D ∈ line DF
-          mun:line P := D, A := D, B := F, from 33.3
+          def:line P := D, A := D, B := F, from 33.3
 
     33.7. D ∈ line EF
           substitute line DF = line EF (line 33.5) into line 33.6
 
     33.8. D is on line EF
-          mun:line P := D, A := E, B := F, from 33.7, contradicting 32
+          def:line P := D, A := E, B := F, from 33.7, contradicting 32
 
 34. triangle BAC ≅ triangle EDF
     substitute G = F (line 33) into line 19
@@ -3017,13 +3017,13 @@ theorem angle-angle-side
   then triangle ABC ≅ triangle DEF
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H8
+    def:triangle P := D, Q := E, R := F, from H8
 
 3.  |BA| > 0
-    mun:distance-positive P := B, Q := A, from 1
+    axi:distance-positive P := B, Q := A, from 1
 
 4.  E, F, D form a triangle.
     mun:triangle-rotated P := D, Q := E, R := F, from H8
@@ -3231,13 +3231,13 @@ mundane theorem off-line-along
     suppose P is on line AX                                           (S1)
 
     3.1.  P ∈ line AX
-          mun:line B := X, from S1
+          def:line B := X, from S1
 
     3.2.  P ∈ line AB
           substitute line AX = line AB (line 2) into line 3.1
 
     3.3.  P is on line AB
-          mun:line, from 3.2, contradicting H8
+          def:line, from 3.2, contradicting H8
 
 mundane theorem crossing-triangle
   note        X is where the segment DG crosses line EF, and E is another
@@ -3255,7 +3255,7 @@ mundane theorem crossing-triangle
   then D, G, E form a triangle
 
 1.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H6
+    def:triangle P := D, Q := E, R := F, from H6
 
 2.  not (D is on line EF)
     mun:triangle-not-on-line P := D, Q := E, R := F, from H6
@@ -3313,7 +3313,7 @@ theorem isosceles-base-point
   then ∠EDX = ∠EGX
 
 1.  D ≠ G. G ≠ E. D ≠ E.
-    mun:triangle P := D, Q := G, R := E, from H5
+    def:triangle P := D, Q := G, R := E, from H5
 
 2.  ∠EDG = ∠EGD
     thm:isosceles-angles A := D, B := G, C := E, from H5, H6
@@ -3370,7 +3370,7 @@ theorem kite-angles
   then ∠EDF = ∠EGF
 
 1.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H5
+    def:triangle P := D, Q := E, R := F, from H5
 
 2.  X ∈ 𝔼². X is on line EF. X is between D and G.
     obtain X: axi:plane-separation-crossing A := E, B := F, P := D, Q := G,
@@ -3457,7 +3457,7 @@ theorem kite-angles
            mun:between-collinear R := X, S := E, T := F, from C2
 
     15.11. X is on line FE
-           mun:on-line P := X, A := F, B := E, from 15.10
+           def:on-line P := X, A := F, B := E, from 15.10
 
     15.12. D, G, F form a triangle.
            mun:crossing-triangle E := F, F := E, from 2, 7, 15.8, 15.11
@@ -3516,7 +3516,7 @@ theorem kite-angles
            mun:between-collinear R := F, S := E, T := X, from C4
 
     15.28. X is on line FE
-           mun:on-line P := X, A := F, B := E, from 15.27
+           def:on-line P := X, A := F, B := E, from 15.27
 
     15.29. D, G, F form a triangle.
            mun:crossing-triangle E := F, F := E, from 2, 7, 15.25, 15.28
@@ -3573,7 +3573,7 @@ theorem kite-angles
            mun:between-collinear R := E, S := X, T := F, from C5
 
     15.45. X is on line FE
-           mun:on-line P := X, A := F, B := E, from 15.44
+           def:on-line P := X, A := F, B := E, from 15.44
 
     15.46. D, G, F form a triangle.
            mun:crossing-triangle E := F, F := E, from 2, 7, 15.42, 15.45
@@ -3660,13 +3660,13 @@ theorem side-side-side
   then triangle ABC ≅ triangle DEF
 
 1.  A ≠ B. B ≠ C. A ≠ C.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  D ≠ E. E ≠ F. D ≠ F.
-    mun:triangle P := D, Q := E, R := F, from H8
+    def:triangle P := D, Q := E, R := F, from H8
 
 3.  |DE| > 0
-    mun:distance-positive P := D, Q := E, from 2
+    axi:distance-positive P := D, Q := E, from 2
 
 4.  H ∈ 𝔼². E is between D and H. |EH| = |DE|.
     obtain H: mun:segment-extension A := D, B := E, r := |DE|, from 2, 3
@@ -3711,7 +3711,7 @@ theorem side-side-side
     mun:triangle-turned P := E, Q := F, R := G′, from 15
 
 17. |BA| > 0
-    mun:distance-positive P := B, Q := A, from 1
+    axi:distance-positive P := B, Q := A, from 1
 
 18. G ∈ 𝔼². G is on line EG′. G and G′ are on the same side of line EF.
     |EG| = |BA|.
@@ -3924,7 +3924,7 @@ mundane theorem height-area
   then the area of △PQR = (1/2)·|QR|·|PH|
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H6
+    def:triangle, from H6
 
 2.  not (P is on line QR)
     mun:triangle-not-on-line, from H6
@@ -3945,22 +3945,22 @@ mundane theorem height-area
     mun:on-line-ends A := Q, B := R
 
 8.  Q ∈ line QR
-    mun:line P := Q, A := Q, B := R, from 7
+    def:line P := Q, A := Q, B := R, from 7
 
 9.  Q ∈ line HS
     substitute line HS = line QR (line 6) into line 8
 
 10. Q is on line HS
-    mun:line P := Q, A := H, B := S, from 9
+    def:line P := Q, A := H, B := S, from 9
 
 11. R ∈ line QR
-    mun:line P := R, A := Q, B := R, from 7
+    def:line P := R, A := Q, B := R, from 7
 
 12. R ∈ line HS
     substitute line HS = line QR (line 6) into line 11
 
 13. R is on line HS
-    mun:line P := R, A := H, B := S, from 12
+    def:line P := R, A := H, B := S, from 12
 
 14. line PH ⊥ line QR
     mun:perpendicular-along A := P, B := H, C := H, D := S, E := Q, F := R,
@@ -3984,13 +3984,13 @@ mundane theorem foot
     obtain H: thm:perpendicular-foot, from H4
 
 2.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H4
+    def:triangle, from H4
 
 3.  Q is on line QR. R is on line QR.
     mun:on-line-ends A := Q, B := R
 
 4.  H = Q or not (H = Q)
-    mun:excluded-middle P := H = Q
+    axi:excluded-middle P := H = Q
 
 5.  there are H, S ∈ 𝔼² with H is on line QR, S is on line QR, S ≠ H,
     P ≠ H, and ∠PHS = 90°
@@ -4042,7 +4042,7 @@ mundane theorem parallel-off
 
 1.  line AB = line CD or not (there is Y ∈ 𝔼² with Y is on line AB and
     Y is on line CD)
-    mun:parallel, from H6, H7, H8
+    def:parallel, from H6, H7, H8
 
 2.  A is on line AB
     mun:on-line-ends
@@ -4052,13 +4052,13 @@ mundane theorem parallel-off
     suppose line AB = line CD                                         (S1)
 
     3.1.  A ∈ line AB
-          mun:line P := A, from 2
+          def:line P := A, from 2
 
     3.2.  A ∈ line CD
           substitute line AB = line CD (S1) into line 3.1
 
     3.3.  A is on line CD
-          mun:line P := A, A := C, B := D, from 3.2, contradicting H9
+          def:line P := A, A := C, B := D, from 3.2, contradicting H9
 
 4.  not (there is Y ∈ 𝔼² with Y is on line AB and Y is on line CD)
     mun:disjunctive-syllogism-left, from 1, 3
@@ -4112,16 +4112,16 @@ mundane theorem parallel-same-side
           mun:between-collinear R := Y, S := X, T := A, from 5.1
 
     5.3.  Y is on line AX
-          mun:on-line P := Y, B := X, from 5.2
+          def:on-line P := Y, B := X, from 5.2
 
     5.4.  Y ∈ line AX
-          mun:line P := Y, B := X, from 5.3
+          def:line P := Y, B := X, from 5.3
 
     5.5.  Y ∈ line AB
           substitute line AX = line AB (line 4) into line 5.4
 
     5.6.  Y is on line AB
-          mun:line P := Y, from 5.5
+          def:line P := Y, from 5.5
 
     5.7.  not (Y is on line CD)
           mun:parallel-off X := Y, from H6, H7, H8, H9, 5.6,
@@ -4163,7 +4163,7 @@ theorem parallel-equidistant
     obtain M: mun:midpoint-exists B := K, from 2
 
 5.  M is between A and K. |AM| = |MK|.
-    mun:midpoint B := K, from 4
+    def:midpoint B := K, from 4
 
 6.  H is on line HK. K is on line HK.
     mun:on-line-ends A := H, B := K
@@ -4179,7 +4179,7 @@ theorem parallel-equidistant
     mun:on-off-apart A := H, B := K, X := H, Y := M, from 6, 8
 
 10. |HM| > 0
-    mun:distance-positive P := H, Q := M, from 9
+    axi:distance-positive P := H, Q := M, from 9
 
 11. Z ∈ 𝔼². M is between H and Z. |MZ| = |HM|.
     obtain Z: mun:segment-extension A := H, B := M, r := |HM|, from 9, 10
@@ -4262,10 +4262,10 @@ theorem parallel-equidistant
     def:congruent, from 35
 
 37. Z ≠ M. M ≠ A. Z ≠ A.
-    mun:triangle P := Z, Q := M, R := A, from 27
+    def:triangle P := Z, Q := M, R := A, from 27
 
 38. Z ≠ M. M ≠ K. Z ≠ K.
-    mun:triangle P := Z, Q := M, R := K, from 30
+    def:triangle P := Z, Q := M, R := K, from 30
 
 39. ∠MAZ = ∠KAZ
     mun:angle-along-segment P := A, Q := K, S := M, R := Z, from 5, 37
@@ -4305,7 +4305,7 @@ theorem parallel-equidistant
     mun:between-collinear R := M, S := A, T := K, from 5
 
 50. M is on line AK
-    mun:on-line P := M, B := K, from 49
+    def:on-line P := M, B := K, from 49
 
 51. H and Z are on opposite sides of line AK
     mun:segment-across-line B := K, P := H, Q := Z,
@@ -4338,13 +4338,13 @@ theorem parallel-equidistant
     mun:on-line-ends B := Z
 
 60. Z ∈ line AZ
-    mun:line P := Z, B := Z, from 59
+    def:line P := Z, B := Z, from 59
 
 61. Z ∈ line AB
     substitute line AZ = line AB (line 58) into line 60
 
 62. Z is on line AB
-    mun:line P := Z, from 61
+    def:line P := Z, from 61
 
 63. Z and A are on the same side of line HK
     mun:parallel-same-side C := H, D := K, X := Z, from H5, H7, 1, 37, 62
@@ -4362,7 +4362,7 @@ theorem parallel-equidistant
     mun:between-collinear R := M, S := H, T := Z, from 11
 
 68. Z is on line HM
-    mun:on-line P := Z, A := H, B := M, from 67
+    def:on-line P := Z, A := H, B := M, from 67
 
 69. not (A is on line HM)
     mun:triangle-not-on-line P := A, Q := H, R := M, from 22
@@ -4371,20 +4371,20 @@ theorem parallel-equidistant
     mun:off-line-along A := H, B := M, X := Z, P := A, from 9, 65, 68, 69
 
 71. M is on line HZ
-    mun:on-line P := M, A := H, B := Z, from 67
+    def:on-line P := M, A := H, B := Z, from 67
 
 72. A and K are on opposite sides of line HZ
     mun:segment-across-line A := H, B := Z, P := A, Q := K,
       from 5, 65, 70, 71
 
 73. Z ≠ M
-    mun:triangle P := Z, Q := M, R := K, from 30
+    def:triangle P := Z, Q := M, R := K, from 30
 
 74. not (K is on line ZM)
     mun:triangle-not-on-line P := K, Q := Z, R := M, from 29
 
 75. H is on line ZM
-    mun:on-line P := H, A := Z, B := M, from 67
+    def:on-line P := H, A := Z, B := M, from 67
 
 76. not (K is on line ZH)
     mun:off-line-along A := Z, B := M, X := H, P := K, from 65, 73, 74, 75
@@ -4436,7 +4436,7 @@ theorem parallel-equidistant
     mun:parallel-turned A := H, B := A, C := K, D := Z, from 2, 88
 
 90. |ZK| > 0
-    mun:distance-positive P := Z, Q := K, from 38
+    axi:distance-positive P := Z, Q := K, from 38
 
 91. W ∈ 𝔼². K is between Z and W. |KW| = |ZK|.
     obtain W: mun:segment-extension A := Z, B := K, r := |ZK|, from 38, 90
@@ -4448,7 +4448,7 @@ theorem parallel-equidistant
     mun:between-collinear R := K, S := Z, T := W, from 91
 
 94. W is on line KZ
-    mun:on-line P := W, A := K, B := Z, from 93
+    def:on-line P := W, A := K, B := Z, from 93
 
 95. line KW ∥ line AH
     mun:parallel-along A := K, B := Z, C := H, D := A, E := W,
@@ -4560,13 +4560,13 @@ theorem parallel-equidistant
                       = line KB       121.3
 
      121.5. K ∈ line KB
-            mun:line P := K, A := K, from 121.2
+            def:line P := K, A := K, from 121.2
 
      121.6. K ∈ line AB
             substitute line AB = line KB (line 121.4) into line 121.5
 
      121.7. K is on line AB
-            mun:line P := K, from 121.6
+            def:line P := K, from 121.6
 
      121.8. not (K is on line HK)
             mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 121.7,
@@ -4595,16 +4595,16 @@ mundane theorem area-turned
     mun:height-area, from H4, 1
 
 3.  Q, R, H are collinear.
-    mun:on-line P := H, A := Q, B := R, from 1
+    def:on-line P := H, A := Q, B := R, from 1
 
 4.  H is on line RQ
-    mun:on-line P := H, A := R, B := Q, from 3
+    def:on-line P := H, A := R, B := Q, from 3
 
 5.  Q, R, S are collinear.
-    mun:on-line P := S, A := Q, B := R, from 1
+    def:on-line P := S, A := Q, B := R, from 1
 
 6.  S is on line RQ
-    mun:on-line P := S, A := R, B := Q, from 5
+    def:on-line P := S, A := R, B := Q, from 5
 
 7.  P, R, Q form a triangle.
     mun:triangle-turned, from H4
@@ -4640,7 +4640,7 @@ theorem same-height
   then the area of △PQS = (1/2)·|QS|·|PH|
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  Q is on line QR
     mun:on-line-ends A := Q, B := R
@@ -4649,22 +4649,22 @@ theorem same-height
     axi:line-uniqueness A := Q, B := S, C := Q, D := R, from H8, H9, 1, 2
 
 4.  H ∈ line QR
-    mun:line P := H, A := Q, B := R, from H10
+    def:line P := H, A := Q, B := R, from H10
 
 5.  H ∈ line QS
     substitute line QS = line QR (line 3) into line 4
 
 6.  H is on line QS
-    mun:line P := H, A := Q, B := S, from 5
+    def:line P := H, A := Q, B := S, from 5
 
 7.  T ∈ line QR
-    mun:line P := T, A := Q, B := R, from H11
+    def:line P := T, A := Q, B := R, from H11
 
 8.  T ∈ line QS
     substitute line QS = line QR (line 3) into line 7
 
 9.  T is on line QS
-    mun:line P := T, A := Q, B := S, from 8
+    def:line P := T, A := Q, B := S, from 8
 
 10. not (P is on line QR)
     mun:triangle-not-on-line, from H7
@@ -4747,13 +4747,13 @@ theorem parallel-heights
           substitute H = K (S1) into line 5
 
     9.4.  S ∈ line XY
-          mun:line P := S, A := X, B := Y, from H14
+          def:line P := S, A := X, B := Y, from H14
 
     9.5.  S ∈ line KT
           substitute line KT = line XY (line 8) into line 9.4
 
     9.6.  S is on line KT
-          mun:line P := S, A := K, B := T, from 9.5
+          def:line P := S, A := K, B := T, from 9.5
 
     9.7.  ∠RKS = 90°
           mun:right-angle-along P := R, H := K, S := T, T := S,
@@ -4807,13 +4807,13 @@ theorem parallel-heights
             from H9, 9.3, 9.18, 9.19
 
     9.21. K ∈ line KQ
-          mun:line P := K, A := K, B := Q, from 9.19
+          def:line P := K, A := K, B := Q, from 9.19
 
     9.22. K ∈ line QR
           substitute line QR = line KQ (line 9.20) into line 9.21
 
     9.23. K is on line QR
-          mun:line P := K, A := Q, B := R, from 9.22
+          def:line P := K, A := Q, B := R, from 9.22
 
     9.24. not (K is on line XY)
           mun:parallel-off A := Q, B := R, C := X, D := Y, X := K,
@@ -4824,26 +4824,26 @@ theorem parallel-heights
       from H10, H13, H17, 9
 
 11. K ∈ line XY
-    mun:line P := K, A := X, B := Y, from H17
+    def:line P := K, A := X, B := Y, from H17
 
 12. K ∈ line HS
     substitute line HS = line XY (line 7) into line 11
 
 13. K is on line HS
-    mun:line P := K, A := H, B := S, from 12
+    def:line P := K, A := H, B := S, from 12
 
 14. ∠QHK = 90°
     mun:right-angle-along P := Q, T := K,
       from H15, H16, 5, 9, 13
 
 15. H ∈ line XY
-    mun:line P := H, A := X, B := Y, from H13
+    def:line P := H, A := X, B := Y, from H13
 
 16. H ∈ line KT
     substitute line KT = line XY (line 8) into line 15
 
 17. H is on line KT
-    mun:line P := H, A := K, B := T, from 16
+    def:line P := H, A := K, B := T, from 16
 
 18. ∠RKH = 90°
     mun:right-angle-along P := R, H := K, S := T, T := H,
@@ -4861,13 +4861,13 @@ theorem parallel-heights
           obtain Z from S2
 
     20.2. Z ∈ line HK
-          mun:line P := Z, A := H, B := K, from 20.1
+          def:line P := Z, A := H, B := K, from 20.1
 
     20.3. Z ∈ line XY
           substitute line HK = line XY (line 10) into line 20.2
 
     20.4. Z is on line XY
-          mun:line P := Z, A := X, B := Y, from 20.3
+          def:line P := Z, A := X, B := Y, from 20.3
 
     20.5. not (Z is on line XY)
           mun:parallel-off A := Q, B := R, C := X, D := Y, X := Z,
@@ -4878,7 +4878,7 @@ theorem parallel-heights
     mun:or-right, from 20
 
 22. line QR ∥ line HK
-    mun:parallel A := Q, B := R, C := H, D := K, from H9, 9, 21
+    def:parallel A := Q, B := R, C := H, D := K, from H9, 9, 21
 
 23. |QH| = |RK|
     thm:parallel-equidistant A := Q, B := R, from H9, 14, 18, 19, 22
@@ -4912,7 +4912,7 @@ theorem same-base-area
     mun:height-area P := R, Q := X, R := Y, H := K, S := T, from H7, 2
 
 5.  Q ≠ X. X ≠ Y. Q ≠ Y.
-    mun:triangle P := Q, Q := X, R := Y, from H6
+    def:triangle P := Q, Q := X, R := Y, from H6
 
 6.  line QR ∥ line XY
     mun:parallel-turned A := X, B := Y, C := Q, D := R, from H8, 5
@@ -4950,7 +4950,7 @@ theorem proportional-segments
   then |PX|·|PR| = |PY|·|PQ|
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H6
+    def:triangle, from H6
 
 2.  Q, R, P form a triangle.
     mun:triangle-rotated, from H6
@@ -5101,7 +5101,7 @@ theorem proportional-segments
     mun:between-collinear R := X, S := P, T := Q, from H7
 
 47. X is on line PQ
-    mun:on-line P := X, A := P, B := Q, from 46
+    def:on-line P := X, A := P, B := Q, from 46
 
 48. P ≠ X. Q ≠ X.
     mun:between-apart R := X, S := P, T := Q, from H7
@@ -5117,7 +5117,7 @@ theorem proportional-segments
     mun:between-collinear R := Y, S := P, T := R, from H8
 
 52. Y is on line PR
-    mun:on-line P := Y, A := P, B := R, from 51
+    def:on-line P := Y, A := P, B := R, from 51
 
 53. P ≠ Y. R ≠ Y.
     mun:between-apart R := Y, S := P, T := R, from H8
@@ -5148,7 +5148,7 @@ theorem proportional-segments
     algebra, from 57, 58
 
 60. |XN| > 0
-    mun:distance-positive P := X, Q := N, from 44
+    axi:distance-positive P := X, Q := N, from 44
 
 61. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
     mun:multiply-cancel a := (1/2)·|PX|·|PR|, b := (1/2)·|PY|·|PQ|,
@@ -5182,7 +5182,7 @@ theorem corresponding-angles-converse
     mun:between-collinear R := X, S := P, T := Q, from H6
 
 4.  X is on line PQ
-    mun:on-line P := X, A := P, B := Q, from 3
+    def:on-line P := X, A := P, B := Q, from 3
 
 5.  P is on line PQ. Q is on line PQ.
     mun:on-line-ends A := P, B := Q
@@ -5201,7 +5201,7 @@ theorem corresponding-angles-converse
     mun:on-off-apart A := X, B := Q, from 6, 8
 
 10. |YX| > 0
-    mun:distance-positive P := Y, Q := X, from 9
+    axi:distance-positive P := Y, Q := X, from 9
 
 11. W ∈ 𝔼². X is between Y and W. |XW| = |YX|.
     obtain W: mun:segment-extension A := Y, B := X, r := |YX|, from 9, 10
@@ -5259,7 +5259,7 @@ theorem corresponding-angles-converse
     mun:between-collinear R := X, S := Y, T := W, from 11
 
 27. Y is on line XW
-    mun:on-line P := Y, A := X, B := W, from 26
+    def:on-line P := Y, A := X, B := W, from 26
 
 28. Y ≠ X. W ≠ X.
     mun:between-apart R := X, S := Y, T := W, from 11
@@ -5293,7 +5293,7 @@ theorem parallel-between
   then Y is between P and R
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H6
+    def:triangle, from H6
 
 2.  not (Y is on line PQ)
     mun:same-side-off-line A := P, B := Q, P := Y, Q := R, from H9
@@ -5332,7 +5332,7 @@ theorem parallel-between
     mun:between-collinear R := X, S := P, T := Q, from H7
 
 14. X is on line PQ
-    mun:on-line P := X, A := P, B := Q, from 13
+    def:on-line P := X, A := P, B := Q, from 13
 
 15. X ≠ Y
     mun:on-off-apart A := P, B := Q, from 2, 14
@@ -5348,7 +5348,7 @@ theorem parallel-between
     mun:between-apart R := X, S := P, T := Q, from H7
 
 19. X ≠ Q
-    mun:triangle P := X, from 11
+    def:triangle P := X, from 11
 
 20. Y and R are on the same side of line XQ
     mun:same-side-of-line A := P, B := Q, C := X, D := Q, P := Y, Q := R,
@@ -5358,7 +5358,7 @@ theorem parallel-between
     mun:same-side-off-line A := X, B := Q, P := Y, Q := R, from 20
 
 22. P is on line XQ
-    mun:on-line A := X, B := Q, from 13
+    def:on-line A := X, B := Q, from 13
 
 23. not (Y is on line XP)
     mun:off-line-along A := X, B := Q, X := P, P := Y, from 18, 21, 22
@@ -5420,7 +5420,7 @@ theorem parallel-between
           mun:between-collinear R := Z, S := R, T := Q, from 27.8
 
     27.10. Z is on line QR
-           mun:on-line P := Z, A := Q, B := R, from 27.9
+           def:on-line P := Z, A := Q, B := R, from 27.9
 
     27.11. not (Z is on line QR)
            mun:parallel-off A := X, B := Y, C := Q, D := R, X := Z,
@@ -5457,16 +5457,16 @@ theorem angle-angle-similar
   then |PQ|·|P′R′| = |P′Q′|·|PR|
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  P′ ≠ Q′. Q′ ≠ R′. P′ ≠ R′.
-    mun:triangle P := P′, Q := Q′, R := R′, from H8
+    def:triangle P := P′, Q := Q′, R := R′, from H8
 
 3.  |P′Q′| > 0
-    mun:distance-positive P := P′, Q := Q′, from 2
+    axi:distance-positive P := P′, Q := Q′, from 2
 
 4.  |P′R′| > 0
-    mun:distance-positive P := P′, Q := R′, from 2
+    axi:distance-positive P := P′, Q := R′, from 2
 
 5.  X ∈ 𝔼². X is on line PQ. X and Q are on the same side of line PR.
     |PX| = |P′Q′|.
@@ -5524,7 +5524,7 @@ theorem angle-angle-similar
     mun:triangle-off-line P := X, Q := P, R := Y, from 18, 19
 
 21. X ≠ P. P ≠ Y. X ≠ Y.
-    mun:triangle P := X, Q := P, R := Y, from 20
+    def:triangle P := X, Q := P, R := Y, from 20
 
 22. Q′, R′, P′ form a triangle.
     mun:triangle-rotated P := P′, Q := Q′, R := R′, from H8
@@ -5660,13 +5660,13 @@ theorem angle-angle-similar
                     mun:on-line-ends A := P, B := R
 
            35.16.7. P ∈ line PR
-                    mun:line A := P, B := R, from 35.16.6
+                    def:line A := P, B := R, from 35.16.6
 
            35.16.8. P ∈ line QR
                     substitute line PR = line QR (line 35.16.5) into line 35.16.7
 
            35.16.9. P is on line QR
-                    mun:line A := Q, B := R, from 35.16.8
+                    def:line A := Q, B := R, from 35.16.8
 
            35.16.10. not (P is on line QR)
                      mun:triangle-not-on-line, from H7,
@@ -5722,13 +5722,13 @@ theorem angle-angle-similar
              from 1, 7, 21, 35.29
 
     35.31. R ∈ line PR
-           mun:line P := R, A := P, B := R, from 35.28
+           def:line P := R, A := P, B := R, from 35.28
 
     35.32. R ∈ line PY
            substitute line PY = line PR (line 35.30) into line 35.31
 
     35.33. R is on line PY
-           mun:line P := R, A := P, B := Y, from 35.32
+           def:line P := R, A := P, B := Y, from 35.32
 
     35.34. R and Y are on the same side of line PX
            restate 35.23
@@ -5802,7 +5802,7 @@ mundane theorem half-turn
   then there is j ∈ ℤ with x = (2·j + 1)·π
 
 1.  x = −π or x = π
-    mun:pair u := −π, w := π, from H2
+    def:pair u := −π, w := π, from H2
 
 2.  There is j ∈ ℤ with x = (2·j + 1)·π.
     cases, from 1

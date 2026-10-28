@@ -10,7 +10,7 @@ import mundane theorem    stdlib/calculus/reals-open
 import mundane theorem    stdlib/sets/subset-self
 import definition         stdlib/calculus/limit-at
 import theorem            stdlib/calculus/convergent-abs-bounded
-import mundane definition stdlib/calculus/open-interval
+import definition         stdlib/calculus/open-interval
 import mundane theorem    stdlib/calculus/open-interval-real
 import mundane theorem    stdlib/calculus/closed-within-open
 import mundane theorem    stdlib/calculus/open-interval-open
@@ -22,7 +22,7 @@ import mundane theorem    stdlib/calculus/derivative-real-on
 import mundane theorem    stdlib/calculus/differentiable-on-part
 import mundane theorem    stdlib/calculus/derivative-local
 import theorem            stdlib/calculus/continuous-extension
-import mundane definition stdlib/calculus/series-sum-from-zero
+import definition         stdlib/calculus/series-sum-from-zero
 import theorem            stdlib/calculus/continuous-constant
 import theorem            stdlib/calculus/continuous-power
 import theorem            stdlib/calculus/continuous-scaled
@@ -218,7 +218,7 @@ theorem inside-an-open-interval
   then x ∈ ℝ and a < x and x < b
 
 1.  x ∈ ℝ and a < x and x < b
-    mun:open-interval, from H3
+    def:open-interval, from H3
 
 theorem an-open-interval-is-real
   let a ∈ ℝ                                                           (H1)
@@ -362,7 +362,7 @@ theorem a-series-from-its-zeroth-term
   then Σ(j = 0 to ∞) s(j) = 3
 
 1.  Σ(j = 0 to ∞) s(j) = 3
-    mun:series-sum-from-zero t := s, L := 3, from H2
+    def:series-sum-from-zero t := s, L := 3, from H2
 
 theorem a-constant-is-continuous
   let E ⊆ ℝ                                                           (H1)

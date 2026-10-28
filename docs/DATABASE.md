@@ -10,7 +10,7 @@ the merge of the ten pilots' item tables decided.
 corpus/db/notation.records   symbols a claim may use
 corpus/db/methods.records    the justification vocabulary
 corpus/stdlib/*.records      the standard library: axioms, theorems and
-                             definitions, some marked mundane
+                             definitions, some theorems marked mundane
 corpus/stdlib/*.proof        Parley proofs of library items, beside the
                              records of their subject
 corpus/elaboration/          what parley build writes from all of it
@@ -37,12 +37,12 @@ extension, so the full name says where to look. A proof file imports each item
 it cites from another file by that full name, one to a line, after the words
 its record's header says before its name, `import mundane theorem
 stdlib/numbers/int-real`; a step then cites it by its name and the prefix
-those words give, `mun:` for an item taken for granted and the kind's
+those words give, `mun:` for a theorem taken for granted and the kind's
 otherwise, `mun:int-real`. A theorem of the citing file is
 cited the same way, `thm:odd-square`, and has no import. `GRAMMAR.md` gives
 the rules under "Names". Prose outside a proof, as in this document and the
 records' notes, names an item by its prefix and full name,
-`mun:stdlib/divisibility/odd`, since it has no imports to say where to look.
+`def:stdlib/divisibility/odd`, since it has no imports to say where to look.
 
 The standard library is every item a set.mm label supplies, that a proof in
 `corpus/stdlib/<subject>.proof` proves on the page, or that is still open:
@@ -115,8 +115,8 @@ plainly.
 
 ## Record format
 
-A record begins at column 0 with its kind and name, and `mundane` before the
-kind where a proof takes the item for granted. Its fields are indented two
+A record begins at column 0 with its kind and name, and `mundane` before
+`theorem` where a proof takes the theorem for granted. Its fields are indented two
 spaces, one field per line, the field name then its value, continuation lines
 indented further. A line beginning with `#` is a comment.
 
@@ -129,7 +129,7 @@ A function a proof may apply is a definition with a `sort` line: its name is
 the function's, its `sort` line gives one place before the arrow for each
 argument, its `builds` line gives the set.mm term an application stands for,
 and its `reads` line says it in words. A proof file that applies it imports
-it as it imports any item, `import mundane definition stdlib/divisibility/gcd`, and the
+it as it imports any item, `import definition stdlib/divisibility/gcd`, and the
 name is then read
 wherever the file applies it, as a proof's own `T(k)` is; nothing about it is
 notation (`GRAMMAR.md`, "Database records").
@@ -158,9 +158,9 @@ counterpart.
 
 A definition may also carry a `target`, which says which set.mm theorem
 unfolds it, or, for one stated as an equation, one theorem per clause:
-`mun:stdlib/numbers/abs` names `absid, absnid`, and which clause a step uses is decided by
+`def:stdlib/numbers/abs` names `absid, absnid`, and which clause a step uses is decided by
 which one's conclusion is what the step claims. That is not what `metamath` says: `metamath` says what the
-definition means, and `mun:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
+definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
@@ -176,7 +176,7 @@ the supremum, which each of the three lemmas says one thing about.
 
 **A word a method decides says so in its record.** A definition may carry a
 `decided` field naming the methods that decide its word where every term it
-is said of is a closed numeral expression: `mun:stdlib/divisibility/odd` carries
+is said of is a closed numeral expression: `def:stdlib/divisibility/odd` carries
 `decided arithmetic, inspection`, so `requires 5 is odd: arithmetic` and an
 `inspection` that works deg(A) out to 5 both settle "is odd" without a line
 saying 5 = 2·2 + 1. A method decides such a word only where its record names
@@ -294,7 +294,7 @@ addition, the intermediate value pilot gave addition and subtraction. Merged to
 both sentences, which is the shape `mun:stdlib/numbers/int-closure` and `mun:stdlib/numbers/nat-closure`
 already have. Neither proof changes.
 
-**Five statements were cross-references.** `mun:stdlib/sets/set-builder` and
+**Five statements were cross-references.** `def:stdlib/sets/set-builder` and
 `mun:stdlib/sets/set-builder-subset` read "as in the Bezout pilot" and are now written out
 once. `thm:proofs/wiedijk/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
@@ -305,8 +305,8 @@ runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 
 **Six items had no row anywhere.** `thm:proofs/wiedijk/sqrt2-irrational/sqrt2-irrational` was the only pilot's
-main theorem missing from its own table. `mun:stdlib/functions/set-image` is named in `SYNTAX.md`
-and was in no table. `mun:stdlib/geometry/angle` appears only in the isosceles findings, though
+main theorem missing from its own table. `def:stdlib/functions/set-image` is named in `SYNTAX.md`
+and was in no table. `def:stdlib/geometry/angle` appears only in the isosceles findings, though
 the ∠ notation needs it. Notation for ℕ₀, for the general power `^` and for
 binary − was used by five pilots and declared by none.
 
@@ -328,7 +328,7 @@ repaired.
   `|A|` is cardinality and `|PQ|` is distance. Settled since: each is its own
   notation record and they are told apart by the sort of the hole, which
   `GRAMMAR.md` describes. It is the only overloaded pattern of the 63 declared.
-- **Recursive definitions do not fit the theorem form.** `mun:stdlib/counting/factorial` has a
+- **Recursive definitions do not fit the theorem form.** `def:stdlib/counting/factorial` has a
   base sentence with no hypothesis and a step sentence with one, and the form
   puts all hypotheses before all conclusions. It is written with two `then`
   groups, which no other record uses. The sum of the first m numbers and the
@@ -410,18 +410,18 @@ repaired.
 
 ## Four open items
 
-`mun:stdlib/geometry/collinear`, `mun:stdlib/geometry/parallel`,
-`mun:stdlib/geometry/between`, `mun:stdlib/geometry/same-side`.
+`def:stdlib/geometry/collinear`, `def:stdlib/geometry/parallel`,
+`def:stdlib/geometry/between`, `def:stdlib/geometry/same-side`.
 
 All four are geometry, which is what the isosceles pilot predicted: the proof
 is trivial and the database is not. None is cited, and a claim of any of
 them elaborates by its notation's target; what is open is the readable
 statement of the equivalence.
 
-`def:stdlib/geometry/congruent` and `mun:stdlib/geometry/point` are `biid`:
+`def:stdlib/geometry/congruent` and `def:stdlib/geometry/point` are `biid`:
 each notation's target is the formula its definition's other side builds,
 the six equations for a congruence and A ∈ ℂ for "A is a point", so the
-definition says one formula twice. `mun:stdlib/geometry/triangle` says three
+definition says one formula twice. `def:stdlib/geometry/triangle` says three
 inequalities and the collinearity denied, and its target denies only the
 quotient being real, since the points are already distinct; `gtridef`
 carries one to the other. A step takes a
@@ -435,7 +435,7 @@ proof defines x₁ := min(b, c + δ/2) as a textbook does, and the lemma is gone
 `corpus/elaboration/stdlib/proved.mm`, which is a third way to supply an item: neither a
 set.mm label nor a proof file in the readable layer, but a Metamath proof
 below it, for what set.mm does not state and the readable layer cannot.
-`mun:stdlib/geometry/angle` closed differently — it carries a `symbol` and a `defines` now,
+`def:stdlib/geometry/angle` closed differently — it carries a `symbol` and a `defines` now,
 and is the one definition in this corpus that introduces a constant.
 
 **That third way is a last resort, and a new one needs a reason of the same
@@ -456,7 +456,7 @@ theorem is proved there, so the page can rest on it and the kernel assumes
 nothing.
 
 The four are open for a reason rather than for want of work. Incidence is a
-primitive, and `mun:stdlib/geometry/collinear` says so: in
+primitive, and `def:stdlib/geometry/collinear` says so: in
 the plane collinearity is P = Q, or (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
 product stop this too. The notation carries a target, so a claim of
@@ -492,37 +492,35 @@ and record grammar that go with this section.
 
 **A record answers two questions, and its header says both.** What the item
 is: an `axiom`, given and not proved; a `theorem`, proved; or a `definition`,
-where a word or a symbol gets its meaning. And whether a human proof takes it
-for granted, using it without naming it: if it does, the header opens with
-`mundane`.
+where a word or a symbol gets its meaning. And, for a theorem, whether it is
+there for the theorem prover, one no textbook would cite: if it is, the header
+opens with `mundane`.
 
 ```
 theorem pascal
 mundane theorem int-closure
 axiom completeness
-mundane axiom trichotomy
 definition C
-mundane definition difference
 ```
 
 | header | items |
 |---|---|
-| `axiom` | 28 |
-| `mundane axiom` | 10 |
+| `axiom` | 38 |
 | `theorem` | 111 |
 | `mundane theorem` | 519 |
-| `definition` | 12 |
-| `mundane definition` | 69 |
+| `definition` | 81 |
 
-The two questions are independent, so no rule is needed to say which wins:
-trichotomy is an axiom and is taken for granted, and its header says both.
-`mundane` is not a kind. A bare `mundane int-closure` is a defect, and so is
-`mundane` before `notation` or `precedence`, which nothing cites. The mark
-decides the prefix a citation writes, `mun:`, and an import repeats the
-header, `import mundane theorem stdlib/numbers/int-closure`; it changes
-nothing else: a mundane definition is still written out where it is used
-and is still unfolded, because the elaborator reads the kind from the record
-and not from the line.
+The definitions count the two defines of a phrase in
+`corpus/stdlib/calculus.proof`.
+
+**Only a theorem is mundane.** An axiom or a definition gives something its
+meaning, and a pedantic textbook cites it: "by trichotomy", "by the definition
+of an even number". A method is named on the line that uses it. `mundane` is
+not a kind. A bare `mundane int-closure` is a defect, and so is `mundane`
+before `axiom`, `definition`, `method`, `notation` or `precedence`, or before
+a `define`. The mark decides the prefix a citation writes, `mun:`, and an
+import repeats the header, `import mundane theorem
+stdlib/numbers/int-closure`; it changes nothing else.
 
 Every item is supplied by a set.mm label or is `open`, and the thirty-eight axioms are
 supplied the way every other item is: by a lemma set.mm proves,
@@ -594,28 +592,22 @@ item.**
   proved from it are theorems.
 - A **theorem** is a result proved from the axioms and definitions.
 - A **definition** is where a word or a symbol gets its meaning, as above.
-- **Mundane** marks an item of any kind that a human proof takes for granted
-  without naming it. That covers membership and closure, symmetry, the
+- **Mundane** marks a theorem that is there for the theorem prover, one a
+  textbook would not cite. That covers membership and closure, symmetry, the
   bookkeeping of sets and of logic, rearranging a sum, counting by a bijection
-  or by disjoint parts, and most definitions: a textbook writes "so p = 2r for
-  some integer r" and "since p is prime, p > 1" without naming the definition,
-  and the word is the reason. What such a proof states is the fact the item is
-  applied to, the bijection or the disjointness, and not the item.
+  or by disjoint parts. What a human proof states is the fact such a theorem
+  is applied to, the bijection or the disjointness, and not the theorem. An
+  axiom or a definition is never mundane: a pedantic textbook cites it, "since
+  p is prime, p > 1, by the definition of a prime".
 
-**Mundane is the dull-fact idea of `READERS.md` applied to an item.** Both pick
-out what a human proof leaves unsaid. The dull-fact test does it by a step's
-role in one proof, and decides whether the step is written as a `requires`
-line. The mark does it by the item, once for every proof that cites it, and
-says whether a reader needs to see the step. `READERS.md`, after its
-paragraphs on dull facts, says how the two relate and where they differ: every
-requires line in the corpus that cites a library item cites a mundane one, and
-a numbered step that cites a mundane item may be one the argument uses, which
-no dull fact is.
-
-**A method may carry the mark too.** `arithmetic` is the only one marked,
-`mundane method arithmetic`: a proof never says it is using it, and it never
-justifies a numbered step (`SYNTAX.md`). The mark on a method is for the
-reader, and no tool reads it.
+**Mundane is the dull-fact idea of `READERS.md` applied to a theorem.** Both
+pick out what a human proof leaves unsaid. The dull-fact test does it by a
+step's role in one proof, and decides whether the step is written as a
+`requires` line. The mark does it by the theorem, once for every proof that
+cites it, and says whether a reader needs to see the step. `READERS.md`, after
+its paragraphs on dull facts, says how the two relate and where they differ: a
+requires line may cite a definition, and a numbered step that cites a mundane
+theorem may be one the argument uses, which no dull fact is.
 
 **Every symbol a proof writes is primitive or has one definition.** The
 primitive symbols are the logical words (not, and, or, if … then, ↔, for all,
@@ -628,18 +620,13 @@ A notation record says how a symbol is written and what set.mm term it
 builds; its meaning is in the definition. The symbols that have none yet are
 the first follow-up below.
 
-**The named items, checked against the proofs.** Each was read at every step
-that cites it, asking whether a textbook names it there. Every item not in
-this table is mundane.
+**The named theorems, checked against the proofs.** Each was read at every
+step that cites it, asking whether a textbook names it there. Every theorem
+not in this table is mundane; every axiom and definition is named.
 
 | item | header | where it is named |
 |---|---|---|
-| completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
-| well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
-| side-angle-side | `axiom` | "by SAS", isosceles step 5 |
-| extensionality, empty-set, pairing, unions, power-sets, separation, replacement, infinity, choice | `axiom` | "by the axiom of separation", the proofs of `proofs/halmos/` |
 | parallel-through | `theorem` | "draw the line through R parallel to PQ", angle-sum step 1; proved on the page from the parallel postulate |
-| the SMSG postulates, line-uniqueness to area-base-height | `axiom` | named as postulates, `GEOMETRY.md` |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |
@@ -678,27 +665,11 @@ this table is mundane.
 | angle-sum | `theorem` | "the angles of a triangle make 180°": not cited by a proof; the library's copy of `proofs/wiedijk/angle-sum.proof` |
 | angle-at-centre, same-arc-angles | `theorem` | "the angle at the centre is twice the angle at the circle" (Euclid III.20), "angles on the same arc are equal" (III.21), same-arc-angles steps 7 and 8, intersecting-chords-by-angles step 16 |
 | prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |
-| continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
-| tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
-| congruent | `definition` | "corresponding angles of congruent triangles are equal", isosceles step 6 |
-| C | `definition` | "by convention C(m, m + 1) = 0", binomial steps 6 and 25 |
-| σ | `definition` | a word Reader A has not met, the sum of the divisors |
-| φ | `definition` | Euler's φ, how many remainders are coprime to n, euler step 14 |
-| perfect | `definition` | "so it is perfect, by definition", perfect-numbers step 21 |
-| limit-at | `definition` | "by the definition of a limit", the ε–δ definition, four-x-plus-six-limit step 2 |
-| traversable, euler-path, walk | `definition` | "traversable", "an Euler path", odd-vertices steps 1 and 2; "a walk", not cited by a proof |
-| B | `definition` | the n-th Bernoulli polynomial, a word Reader A has not met, applied in sum-of-powers |
 
-Some mundane items are worth a word, since a reader might expect otherwise:
+Some mundane theorems are worth a word, since a reader might expect otherwise:
 
 | item | header | why |
 |---|---|---|
-| trichotomy, excluded-middle, the five group axioms | `mundane axiom` | a split into three cases, "x ∈ B or x ∉ B", the chain a·h·h⁻¹ = a: never named |
-| difference, intersection, union, range, range0, nat0, rational | `mundane definition` | the meaning of ∖, ∩, ∪, {1, …, n}, {0, …, n}, ℕ₀ and ℚ, each the membership statement the library held as a theorem |
-| bijection, series-sum | `mundane definition` | "so it is a bijection", lagrange 8.6; the sum of a series as the limit of its partial sums, triangular-reciprocals step 5 |
-| gcd, min, max | `mundane definition` | functions, applied and seldom unfolded: "g = gcd(a, b) divides a and b", bezout step 13 |
-| cos, sin, i | `mundane definition` | known from school: cos and sin state only what they build, as min and max do, and i is i·i = −1 |
-| numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 | derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 29 |
 | three-rays, isosceles-signed-angles, same-side-turns-alike, signed-angle-zero, pi-positive | `mundane theorem` | what the circle theorems see in the figure: turning from one ray to a second and on to a third turns from the first to the third, up to whole turns; the base angles of an isosceles triangle turn alike; two points on one side of a line see a segment of it turned alike. Each is a lemma of `corpus/proved/circles.proved`, about arguments of complex numbers, angle-at-centre and same-arc-angles |
@@ -709,9 +680,10 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 3,857 of the 4,188 numbered steps in `proofs/` whose
-reason cites a library item cite a mundane one. `def:` is rare: 93 steps
-cite a named definition, 73 of them `tends-to` or `C`.
+Counted this way, of the 4,208 numbered steps in `proofs/` whose reason cites
+a library item, 2,465 cite a mundane theorem, 219 a named theorem, 203 an
+axiom and 1,321 a definition. Of the 659 requires lines that cite a library
+item, 633 cite a mundane theorem and 26 a definition.
 
 ### Follow-ups
 
@@ -724,10 +696,7 @@ cite a named definition, 73 of them `tends-to` or `C`.
    {1, …, n}. set.mm's ℕ (`dfnn3`) is the intersection of every set of reals
    that holds 1 and is closed under adding 1, which needs a notation for the
    intersection of a set of sets, and ℤ (`elz`) is defined from ℕ.
-2. **"Every unfolding of a definition, marked as such"** (`READERS.md`) is
-   met by the pointer and not by the line for a mundane definition: the line
-   writes `mun:difference`, and it is the record that says `definition`.
-3. **`bijection` and `series-sum` state one direction of their meaning.**
+2. **`bijection` and `series-sum` state one direction of their meaning.**
    `bijection` says a map that is one-to-one and onto gives a bijection, and
    `notation bijection` reads "there is a bijection from X to Y" as set.mm's
    equinumerosity. The way back is the theorem `bijection-onto`, which says

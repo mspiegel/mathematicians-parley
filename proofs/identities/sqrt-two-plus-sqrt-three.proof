@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/irrational
+import definition         stdlib/numbers/irrational
 import theorem            proofs/hammack/sqrt6-irrational/sqrt6-irrational
 import theorem            proofs/setmm/rational-closure/irrational-product
 import theorem            proofs/setmm/rational-closure/irrational-sum
@@ -40,10 +40,10 @@ theorem sqrt-two-plus-sqrt-three
           substitute (√2 + √3)² = √6·2 + 5 (line 4) into line 5.3
 
     5.5.  √6·2 + 5 ∈ ℝ. √6·2 + 5 ∉ ℚ.
-          mun:irrational x := √6·2 + 5, from 3
+          def:irrational x := √6·2 + 5, from 3
 
     5.6.  √6·2 + 5 ∉ ℚ
           restate 5.5, contradicting 5.4
 
 6.  √2 + √3 is irrational
-    mun:irrational x := √2 + √3, from 5
+    def:irrational x := √2 + √3, from 5

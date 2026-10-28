@@ -2,9 +2,9 @@ import mundane theorem    stdlib/sums/product-reindex
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/functions/one-to-one
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/one-to-one-onto
+import definition         stdlib/functions/one-to-one
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/one-to-one-onto
 
 theorem a-product-reindexed-through-a-define
   note        g is f on L, so a step citing g's define reads g standing
@@ -28,13 +28,13 @@ let g(x) = f(x), for x ∈ L                                            (D1)
     requires g is a function on L: from D1
 
 2.  g : L → U is one-to-one
-    mun:one-to-one, from D1, H7, 1
+    def:one-to-one, from D1, H7, 1
 
 3.  g : L → U is onto
-    mun:onto, from D1, H8, 1
+    def:onto, from D1, H8, 1
 
 4.  g : L → U is one-to-one and onto
-    mun:one-to-one-onto, from 2, 3
+    def:one-to-one-onto, from 2, 3
 
 5.  U ⊆ ℤ
     mun:subset-transitive, from H1, H5

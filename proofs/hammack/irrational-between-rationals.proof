@@ -1,7 +1,7 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/sqrt2-irrational
-import mundane definition stdlib/numbers/rational
-import mundane definition stdlib/numbers/irrational
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/rational
+import definition         stdlib/numbers/irrational
+import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-less
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/less-scaled
@@ -18,7 +18,7 @@ theorem irrational-between-rationals
   then there exists u ∈ ℝ such that u is irrational and r < u and u < s
 
 1.  √2 ∈ ℝ. √2 ≥ 0. (√2)² = 2.
-    mun:sqrt x := 2
+    def:sqrt x := 2
     requires 2 ≥ 0: arithmetic
 
 2.  √2 is irrational
@@ -95,13 +95,13 @@ let u = r + (s − r)·((1/2)·√2), a real number                             
     suppose u ∈ ℚ                                                     (S)
 
     18.1.  a ∈ ℤ. b ∈ ℕ. u = a/b.
-           obtain a, b: mun:rational x := u, from S
+           obtain a, b: def:rational x := u, from S
 
     18.2.  p ∈ ℤ. q ∈ ℕ. r = p/q.
-           obtain p, q: mun:rational x := r
+           obtain p, q: def:rational x := r
 
     18.3.  c ∈ ℤ. d ∈ ℕ. s = c/d.
-           obtain c, d: mun:rational x := s
+           obtain c, d: def:rational x := s
 
     18.4.  s − r = c/d − r
            substitute s = c/d (line 18.3)
@@ -153,13 +153,13 @@ let u = r + (s − r)·((1/2)·√2), a real number                             
            algebra, from 18.17
 
     18.19. √2 ∈ ℚ
-           mun:rational x := √2, from 18.18
+           def:rational x := √2, from 18.18
 
     18.20. √2 ∉ ℚ
-           mun:irrational x := √2, from 2, contradicting 18.19
+           def:irrational x := √2, from 2, contradicting 18.19
 
 19. u is irrational
-    mun:irrational x := u, from 18
+    def:irrational x := u, from 18
 
 20. there exists u ∈ ℝ such that u is irrational and r < u and u < s
     exhibit, from 13, 17, 19

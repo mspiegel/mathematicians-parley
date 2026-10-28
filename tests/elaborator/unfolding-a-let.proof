@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem a-rational-letter-unfolded
   note        The membership a let says is never cited, and a definition unfolds it all the same.
@@ -6,4 +6,4 @@ theorem a-rational-letter-unfolded
   then there are p ∈ ℤ and q ∈ ℕ with A = p/q
 
 1.  There are p ∈ ℤ and q ∈ ℕ with A = p/q.
-    mun:rational x := A
+    def:rational x := A

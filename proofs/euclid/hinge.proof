@@ -3,10 +3,10 @@ import mundane theorem    stdlib/geometry/angle-order-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane axiom      stdlib/geometry/distance-positive
+import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import mundane definition stdlib/geometry/triangle
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/geometry/triangle
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/square-less
@@ -31,10 +31,10 @@ theorem hinge
   then |BC| > |EF|
 
 1.  A ≠ B. A ≠ C.
-    mun:triangle, from H7
+    def:triangle, from H7
 
 2.  D ≠ E. D ≠ F.
-    mun:triangle, from H8
+    def:triangle, from H8
 
 3.  ∠CAB ∈ ℝ. ∠CAB ≥ 0.
     mun:angle-real P := C, Q := A, R := B, from 1
@@ -69,10 +69,10 @@ theorem hinge
     substitute |DE| = |AB| (H9) into line 11
 
 13. |CA| > 0
-    mun:distance-positive P := C, Q := A, from 1
+    axi:distance-positive P := C, Q := A, from 1
 
 14. |AB| > 0
-    mun:distance-positive P := A, Q := B, from 1
+    axi:distance-positive P := A, Q := B, from 1
 
 15. |CA|·|AB| > 0
     mun:product-positive x := |CA|, y := |AB|, from 13, 14

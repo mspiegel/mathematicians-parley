@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/disjoint-empty
 
 theorem set-meets-what-it-lacks-in-nothing
@@ -12,7 +12,7 @@ theorem set-meets-what-it-lacks-in-nothing
     let s ∈ B ∖ A                                                     (K1)
 
     1.1.  s ∉ A
-          mun:difference u := s, Y := B, Z := A, from K1
+          def:difference u := s, Y := B, Z := A, from K1
 
 2.  A ∩ (B ∖ A) = ∅
     mun:disjoint-empty Y := A, Z := B ∖ A, from 1

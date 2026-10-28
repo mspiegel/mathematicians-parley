@@ -7,10 +7,10 @@ import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/divisibility/prime-coprime
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/pos-int-nat
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 
 theorem prime-divides-binomial
   note        k·C(p, k) is p·C(p − 1, k − 1), so p divides k·C(p, k). Since
@@ -39,7 +39,7 @@ theorem prime-divides-binomial
       k ≤ (p − 1) + 1        algebra
 
 5.  k ∈ {1, …, (p − 1) + 1}
-    mun:range-between a := 1, b := (p − 1) + 1, from 3, 4
+    def:range-between a := 1, b := (p − 1) + 1, from 3, 4
 
 6.  k·C((p − 1) + 1, k) = ((p − 1) + 1)·C(p − 1, k − 1)
     thm:weighted-term m := p − 1, from 2, 5

@@ -1,8 +1,8 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/even-square
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -36,10 +36,10 @@ theorem even-leg-integers
           suppose b is odd                                            (S)
 
           2.2.1.  p ∈ ℤ. a = 2p + 1.
-                  obtain p: mun:odd n := a, from C2
+                  obtain p: def:odd n := a, from C2
 
           2.2.2.  q ∈ ℤ. b = 2q + 1.
-                  obtain q: mun:odd n := b, from S
+                  obtain q: def:odd n := b, from S
 
           2.2.3.  (2p + 1)² + b² = c²
                   substitute a = 2p + 1 (line 2.2.1) into H4
@@ -51,13 +51,13 @@ theorem even-leg-integers
                   algebra, from 2.2.4
 
           2.2.6.  c² is even
-                  mun:even n := c², from 2.2.5
+                  def:even n := c², from 2.2.5
 
           2.2.7.  c is even
                   thm:even-square n := c, from 2.2.6
 
           2.2.8.  r ∈ ℤ. c = 2r.
-                  obtain r: mun:even n := c, from 2.2.7
+                  obtain r: def:even n := c, from 2.2.7
 
           2.2.9.  (2p + 1)² + (2q + 1)² = (2r)²
                   substitute c = 2r (line 2.2.8) into line 2.2.4
@@ -66,7 +66,7 @@ theorem even-leg-integers
                   algebra, from 2.2.9
 
           2.2.11. 4 divides 2, which is impossible
-                  mun:divides d := 4, n := 2, from 2.2.10
+                  def:divides d := 4, n := 2, from 2.2.10
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b

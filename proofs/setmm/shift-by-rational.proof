@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem shift-by-rational
   note        With B = r/s, a number A is rational exactly when A + B is:
@@ -9,7 +9,7 @@ theorem shift-by-rational
   then (A ∈ ℂ and A + B ∈ ℚ) ↔ A ∈ ℚ
 
 1.  r ∈ ℤ. s ∈ ℕ. B = r/s.
-    obtain r, s: mun:rational x := B
+    obtain r, s: def:rational x := B
 
 2.  (A ∈ ℂ and A + B ∈ ℚ) ↔ A ∈ ℚ
     both directions
@@ -18,7 +18,7 @@ theorem shift-by-rational
     assume A ∈ ℂ and A + B ∈ ℚ                                        (D1)
 
     2.1.  p ∈ ℤ. q ∈ ℕ. A + B = p/q.
-          obtain p, q: mun:rational x := A + B, from D1
+          obtain p, q: def:rational x := A + B, from D1
 
     2.2.  A = p/q − B
           algebra, from D1, 2.1
@@ -36,13 +36,13 @@ theorem shift-by-rational
               = (p·s − r·q)/(q·s)      2.4
 
     2.6.  A ∈ ℚ
-          mun:rational x := A, from 2.5
+          def:rational x := A, from 2.5
 
     direction
     assume A ∈ ℚ                                                      (D2)
 
     2.7.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-          obtain p, q: mun:rational x := A, from D2
+          obtain p, q: def:rational x := A, from D2
 
     2.8.  A ∈ ℂ
           membership, from D2
@@ -63,7 +63,7 @@ theorem shift-by-rational
                   = (p·s + r·q)/(q·s)  2.11
 
     2.13. A + B ∈ ℚ
-          mun:rational x := A + B, from 2.12
+          def:rational x := A + B, from 2.12
 
     2.14. A ∈ ℂ and A + B ∈ ℚ
           join 2.8, 2.13

@@ -1,9 +1,9 @@
-import mundane definition stdlib/functions/image
-import mundane definition stdlib/functions/preimage
-import mundane definition stdlib/functions/onto
+import definition         stdlib/functions/image
+import definition         stdlib/functions/preimage
+import definition         stdlib/functions/onto
 import mundane theorem    stdlib/functions/value-in-image
-import mundane definition stdlib/sets/subset
-import mundane definition stdlib/sets/singleton
+import definition         stdlib/sets/subset
+import definition         stdlib/sets/singleton
 import mundane theorem    stdlib/sets/singleton-subset
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
@@ -23,7 +23,7 @@ theorem onto-image-of-preimage
     assume f : A → B is onto                                          (D1)
 
     1.1.  For all y ∈ B, there is x ∈ A with y = f(x).
-          mun:onto, from D1
+          def:onto, from D1
 
     1.2.  For all Y ⊆ B, f[f⁻¹[Y]] = Y.
           proof
@@ -34,29 +34,29 @@ theorem onto-image-of-preimage
                   let u ∈ f⁻¹[Y]                                      (K2)
 
                   1.2.1.1.  u ∈ A
-                            mun:preimage Z := Y, from K2
+                            def:preimage Z := Y, from K2
 
           1.2.2.  f⁻¹[Y] ⊆ A
-                  mun:subset, from 1.2.1
+                  def:subset, from 1.2.1
 
           1.2.3.  For all y ∈ f[f⁻¹[Y]], y ∈ Y.
                   proof
                   let y ∈ f[f⁻¹[Y]]                                   (K3)
 
                   1.2.3.1.  There is s ∈ f⁻¹[Y] with y = f(s).
-                            mun:image u := y, Y := f⁻¹[Y], from K3, 1.2.2
+                            def:image u := y, Y := f⁻¹[Y], from K3, 1.2.2
 
                   1.2.3.2.  s ∈ f⁻¹[Y]. y = f(s).
                             obtain s from line 1.2.3.1
 
                   1.2.3.3.  s ∈ A. f(s) ∈ Y.
-                            mun:preimage u := s, Z := Y, from 1.2.3.2
+                            def:preimage u := s, Z := Y, from 1.2.3.2
 
                   1.2.3.4.  y ∈ Y
                             substitute y = f(s) (line 1.2.3.2) into line 1.2.3.3
 
           1.2.4.  f[f⁻¹[Y]] ⊆ Y
-                  mun:subset, from 1.2.3
+                  def:subset, from 1.2.3
 
           1.2.5.  For all y ∈ Y, y ∈ f[f⁻¹[Y]].
                   proof
@@ -75,7 +75,7 @@ theorem onto-image-of-preimage
                             substitute y = f(x) (line 1.2.5.3) into K4
 
                   1.2.5.5.  x ∈ f⁻¹[Y]
-                            mun:preimage u := x, Z := Y, from 1.2.5.3, 1.2.5.4
+                            def:preimage u := x, Z := Y, from 1.2.5.3, 1.2.5.4
 
                   1.2.5.6.  f(x) ∈ f[f⁻¹[Y]]
                             mun:value-in-image Y := f⁻¹[Y], s := x, from 1.2.2, 1.2.5.5
@@ -84,7 +84,7 @@ theorem onto-image-of-preimage
                             substitute y = f(x) (line 1.2.5.3) into line 1.2.5.6
 
           1.2.6.  Y ⊆ f[f⁻¹[Y]]
-                  mun:subset, from 1.2.5
+                  def:subset, from 1.2.5
 
           1.2.7.  f[f⁻¹[Y]] = Y
                   mun:subset-antisymmetric, from 1.2.4, 1.2.6
@@ -103,7 +103,7 @@ theorem onto-image-of-preimage
                   instantiate Y := {y} in D2, from 1.3.1
 
           1.3.3.  y ∈ {y}
-                  mun:singleton x := y, a := y
+                  def:singleton x := y, a := y
 
           1.3.4.  y ∈ f[f⁻¹[{y}]]
                   substitute f[f⁻¹[{y}]] = {y} (line 1.3.2) into line 1.3.3
@@ -113,22 +113,22 @@ theorem onto-image-of-preimage
                   let u ∈ f⁻¹[{y}]                                    (K6)
 
                   1.3.5.1.  u ∈ A
-                            mun:preimage Z := {y}, from K6
+                            def:preimage Z := {y}, from K6
 
           1.3.6.  f⁻¹[{y}] ⊆ A
-                  mun:subset, from 1.3.5
+                  def:subset, from 1.3.5
 
           1.3.7.  There is s ∈ f⁻¹[{y}] with y = f(s).
-                  mun:image u := y, Y := f⁻¹[{y}], from 1.3.4, 1.3.6
+                  def:image u := y, Y := f⁻¹[{y}], from 1.3.4, 1.3.6
 
           1.3.8.  s ∈ f⁻¹[{y}]. y = f(s).
                   obtain s from line 1.3.7
 
           1.3.9.  s ∈ A
-                  mun:preimage u := s, Z := {y}, from 1.3.8
+                  def:preimage u := s, Z := {y}, from 1.3.8
 
           1.3.10. There is x ∈ A with y = f(x).
                   exhibit, from 1.3.8, 1.3.9
 
     1.4.  f : A → B is onto
-          mun:onto, from H3, 1.3
+          def:onto, from H3, 1.3

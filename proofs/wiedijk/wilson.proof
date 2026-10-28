@@ -5,9 +5,9 @@ import theorem            stdlib/divisibility/phi-prime
 import theorem            stdlib/divisibility/product-congruent-termwise
 import theorem            stdlib/divisibility/congruent-cancel
 import theorem            stdlib/divisibility/prime-divides-product
-import mundane definition stdlib/divisibility/gcd
-import mundane definition stdlib/divisibility/congruent-mod
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/gcd
+import definition         stdlib/divisibility/congruent-mod
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/divisibility/below-not-divisible
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/minus-one-congruent
@@ -35,13 +35,13 @@ import mundane theorem    stdlib/sums/product-of-ones
 import mundane theorem    stdlib/sums/product-integer
 import mundane theorem    stdlib/sums/product-extended
 import mundane theorem    stdlib/sums/product-first
-import mundane definition stdlib/sums/range-between
+import definition         stdlib/sums/range-between
 import mundane theorem    stdlib/sums/range-inside
 import mundane theorem    stdlib/sums/range-from-bounds
 import mundane theorem    stdlib/sums/range-integer
 import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-in-integers
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/set-builder-split
 import mundane theorem    stdlib/sets/set-builder-split-disjoint
@@ -49,9 +49,9 @@ import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/numbers/int-real
 import mundane theorem    stdlib/functions/function-into
-import mundane definition stdlib/functions/one-to-one
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/one-to-one-onto
+import definition         stdlib/functions/one-to-one
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/one-to-one-onto
 
 theorem paired-product
   note        The members of X pair off, each x with f(x). Of each pair one
@@ -103,7 +103,7 @@ let U = {x ∈ X : not x < f(x)}                                        (D2)
     let x ∈ L                                                         (K1)
 
     9.1.  x ∈ X. x < f(x).
-          mun:set-builder u := x, from D1, K1
+          def:set-builder u := x, from D1, K1
 
     9.2.  f(f(x)) = x
           instantiate x := x in H5, from 9.1
@@ -133,7 +133,7 @@ let U = {x ∈ X : not x < f(x)}                                        (D2)
           inequalities, from 9.4, 9.5, 9.7
 
     9.9.  f(x) ∈ U
-          mun:set-builder u := f(x), from D2, H4, 9.1, 9.8
+          def:set-builder u := f(x), from D2, H4, 9.1, 9.8
 
 let g(x) = f(x), for x ∈ L                                            (D3)
        reads f on the members below their partners
@@ -183,7 +183,7 @@ let g(x) = f(x), for x ∈ L                                            (D3)
               = t             11.8
 
 12. g : L → U is one-to-one
-    mun:one-to-one, from 10, 11
+    def:one-to-one, from 10, 11
 
 13. For all u ∈ U, there is x ∈ L with u = g(x).
     proof
@@ -191,7 +191,7 @@ let g(x) = f(x), for x ∈ L                                            (D3)
     let u ∈ U                                                         (K5)
 
     13.1. u ∈ X. not u < f(u).
-          mun:set-builder, from D2, K5
+          def:set-builder, from D2, K5
 
     13.2. f(f(u)) = u
           instantiate x := u in H5, from 13.1
@@ -210,7 +210,7 @@ let g(x) = f(x), for x ∈ L                                            (D3)
                  = f(f(u))    13.2
 
     13.6. f(u) ∈ L
-          mun:set-builder u := f(u), from D1, H4, 13.1, 13.5
+          def:set-builder u := f(u), from D1, H4, 13.1, 13.5
 
     13.7. g(f(u)) = f(f(u))
           D3, from 13.6
@@ -224,10 +224,10 @@ let g(x) = f(x), for x ∈ L                                            (D3)
           exhibit, from 13.6, 13.8
 
 14. g : L → U is onto
-    mun:onto, from 10, 13
+    def:onto, from 10, 13
 
 15. g : L → U is one-to-one and onto
-    mun:one-to-one-onto, from 12, 14
+    def:one-to-one-onto, from 12, 14
 
 16. ∏(x ∈ U) x = ∏(x ∈ L) f(x)
     mun:product-reindex, from D3, 5, 7, 15
@@ -323,7 +323,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
        reads the inverse of a modulo p
 
 1.  p > 1
-    mun:prime, from H2
+    def:prime, from H2
 
 2.  1 + 1 ≤ p
     mun:integer-step m := 1, n := p, from 1
@@ -530,7 +530,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                             substitute f(a) = p − 1 (S3) into line 5.8
 
                   5.14.4.2. p divides a·(p − 1) − 1
-                            mun:congruent-mod, from 5.14.4.1
+                            def:congruent-mod, from 5.14.4.1
 
                   5.14.4.3. p divides p·a
                             mun:divides-multiple e := p, a := p, x := a
@@ -577,7 +577,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                   requires f(a) ∈ ℤ: from 5.7
 
           5.14.13. f(a) ∈ {2, …, p − 2}
-                  mun:range-between k := f(a), a := 2, b := p − 2, from 5.7, 5.14.9, 5.14.12
+                  def:range-between k := f(a), a := 2, b := p − 2, from 5.7, 5.14.9, 5.14.12
 
     5.15. For all a ∈ {2, …, p − 2}, f(a) ≠ a.
           proof
@@ -592,7 +592,7 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
                             substitute f(a) = a (S4) into line 5.8
 
                   5.15.1.2. p divides a·a − 1
-                            mun:congruent-mod, from 5.15.1.1
+                            def:congruent-mod, from 5.15.1.1
 
                   5.15.1.3. a·a − 1 = (a − 1)·(a + 1)
                             algebra

@@ -1,4 +1,4 @@
-import mundane definition stdlib/functions/one-to-one
+import definition         stdlib/functions/one-to-one
 
 theorem equal-values
   note        A function that never sends two points to one place has equal values only at equal points; and equal points have equal values.
@@ -10,7 +10,7 @@ theorem equal-values
   then F(C) = F(D) ↔ C = D
 
 1.  For all s, t ∈ A, if F(s) = F(t) then s = t.
-    mun:one-to-one, from H3
+    def:one-to-one, from H3
 
 2.  F(C) = F(D) ↔ C = D
     both directions

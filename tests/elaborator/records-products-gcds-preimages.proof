@@ -6,7 +6,7 @@ import mundane theorem    stdlib/sums/product-extended
 import mundane theorem    stdlib/numbers/power-positive
 import mundane theorem    stdlib/numbers/quotients-compared
 import mundane theorem    stdlib/numbers/zero-product
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-natural
 import mundane theorem    stdlib/divisibility/gcd-scaled
 import mundane theorem    stdlib/divisibility/gcd-scaled-integer

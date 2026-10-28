@@ -6,7 +6,7 @@
 #   `biimpar`, closed so that a side condition's search may use it;
 # - what is in the parts of X with a property: `elrab` over the power set,
 #   and `elpw2g` reading a member of the power set as a part, for
-#   `mun:stdlib/sets/part-builder`;
+#   `def:stdlib/sets/part-builder`;
 # - a finite set split into parts of one size m has (number of parts) · m
 #   elements, for `mun:stdlib/counting/partition-count`;
 # - a set of parts of a finite set is finite, for
@@ -16,7 +16,7 @@
 # - a one-to-one function into a set has a domain no larger than the set,
 #   for `thm:stdlib/counting/pigeonhole`;
 # - what is in a set of three listed things, its three cases joined by
-#   "or" two at a time, for `mun:stdlib/sets/triple`;
+#   "or" two at a time, for `def:stdlib/sets/triple`;
 # - a listing of four elements with its third and fourth exchanged, one of
 #   the exchanges the elaborator puts a listing's elements in order by.
 

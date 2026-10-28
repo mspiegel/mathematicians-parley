@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/onto
-import mundane definition stdlib/functions/one-to-one-onto
+import definition         stdlib/functions/onto
+import definition         stdlib/functions/one-to-one-onto
 import mundane theorem    stdlib/functions/inverse-value
 import mundane theorem    stdlib/sets/remove-member
 
@@ -11,13 +11,13 @@ theorem mobius-inverse
   then for all y ∈ ℝ ∖ {5}, f⁻¹(y) = (2y + 1)/(y − 5)
 
 1.  f : ℝ ∖ {2} → ℝ ∖ {5} is one-to-one
-    mun:one-to-one-onto, from H1
+    def:one-to-one-onto, from H1
 
 2.  f : ℝ ∖ {2} → ℝ ∖ {5} is onto
-    mun:one-to-one-onto, from H1
+    def:one-to-one-onto, from H1
 
 3.  For all y ∈ ℝ ∖ {5}, there is x ∈ ℝ ∖ {2} with y = f(x).
-    mun:onto, from 2
+    def:onto, from 2
 
 4.  For all y ∈ ℝ ∖ {5}, f⁻¹(y) = (2y + 1)/(y − 5).
     proof

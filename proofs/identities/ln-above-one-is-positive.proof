@@ -1,4 +1,4 @@
-import mundane definition stdlib/logarithms/ln
+import definition         stdlib/logarithms/ln
 import mundane theorem    stdlib/logarithms/ln-order
 
 theorem ln-above-one-is-positive

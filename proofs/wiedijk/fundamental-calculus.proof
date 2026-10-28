@@ -4,7 +4,7 @@ import theorem            stdlib/calculus/continuous-difference
 import theorem            stdlib/calculus/derivative-difference
 import mundane theorem    stdlib/calculus/integral-point
 import mundane theorem    stdlib/calculus/integral-real
-import mundane definition stdlib/calculus/interval
+import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/calculus/interval-real
 import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/functions/function-into
@@ -24,12 +24,12 @@ theorem zero-derivative-ends
   then H(b) = H(a)
 
 1.  a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: weakening, from H3
 
 2.  b ∈ [a, b]
-    mun:interval x := b
+    def:interval x := b
     requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 
@@ -80,12 +80,12 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
        reads the area function less F
 
 1.  a ∈ [a, b]
-    mun:interval x := a
+    def:interval x := a
     requires a ≤ a: inequalities, from H1
     requires a ≤ b: weakening, from H3
 
 2.  b ∈ [a, b]
-    mun:interval x := b
+    def:interval x := b
     requires a ≤ b: weakening, from H3
     requires b ≤ b: inequalities, from H2
 

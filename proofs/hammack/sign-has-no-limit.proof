@@ -1,7 +1,7 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/difference-subset
 import mundane theorem    stdlib/sets/remove-member
-import mundane definition stdlib/numbers/abs
+import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-negative
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/functions/function-value
@@ -47,7 +47,7 @@ theorem sign-has-no-limit
           mun:remove-member u := p/2, from 1.6
 
     1.8.  |p/2| = p/2
-          mun:abs x := p/2
+          def:abs x := p/2
           requires p/2 ≥ 0: weakening, from 1.5
 
     1.9.  p/2 < p

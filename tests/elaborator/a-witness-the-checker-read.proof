@@ -1,4 +1,4 @@
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 
 theorem a-set-member-beside-an-equation
   note        c is in S at x := a, y := b, which H4 says. Its equation also
@@ -13,4 +13,4 @@ theorem a-set-member-beside-an-equation
   then c ∈ S
 
 1.  c ∈ S
-    mun:set-builder u := c, from D1, H4
+    def:set-builder u := c, from D1, H4

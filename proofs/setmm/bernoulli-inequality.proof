@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/square-nonneg
-import mundane axiom      stdlib/numbers/trichotomy
+import axiom              stdlib/numbers/trichotomy
 
 theorem nonnegative-product
   note        A product of two numbers that are not below 0 is not below 0:
@@ -14,7 +14,7 @@ theorem nonnegative-product
   then 0 ≤ x·y
 
 1.  x < 0 or x = 0 or 0 < x
-    mun:trichotomy
+    axi:trichotomy
 
 2.  0 ≤ x·y
     cases, from 1

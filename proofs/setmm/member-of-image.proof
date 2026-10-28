@@ -1,4 +1,4 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/functions/value-in-image
 
 theorem member-of-image
@@ -17,7 +17,7 @@ theorem member-of-image
     assume y ∈ F[X]                                                   (D1)
 
     1.1.  x ∈ X. y = F(x).
-          obtain x: mun:image u := y, from D1, H4
+          obtain x: def:image u := y, from D1, H4
 
     1.2.  there is x ∈ X with F(x) = y
           exhibit, from 1.1

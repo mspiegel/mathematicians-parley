@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/numbers/rational
 
 theorem negative-of-rational
   note        If A is p/q then −A is (−p)/q, and −p is an integer.
@@ -6,7 +6,7 @@ theorem negative-of-rational
   then −A ∈ ℚ
 
 1.  p ∈ ℤ. q ∈ ℕ. A = p/q.
-    obtain p, q: mun:rational x := A
+    obtain p, q: def:rational x := A
 
 2.  −A = −p/q
     substitute A = p/q (line 1)
@@ -20,4 +20,4 @@ theorem negative-of-rational
          = (−p)/q     3
 
 5.  −A ∈ ℚ
-    mun:rational x := −A, from 4
+    def:rational x := −A, from 4

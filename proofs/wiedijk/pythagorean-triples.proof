@@ -1,11 +1,11 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/even-square
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import theorem            stdlib/divisibility/divides-gcd
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-one
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/divides-transitive
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/gcd-commutes
 import mundane theorem    stdlib/divisibility/coprime-product
 import theorem            stdlib/divisibility/coprime-square
@@ -21,9 +21,9 @@ import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/square-less
 import mundane theorem    stdlib/numbers/square-positive
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -58,10 +58,10 @@ theorem even-leg
           suppose b is odd                                            (S)
 
           2.2.1.  p ∈ ℤ. a = 2p + 1.
-                  obtain p: mun:odd n := a, from C2
+                  obtain p: def:odd n := a, from C2
 
           2.2.2.  q ∈ ℤ. b = 2q + 1.
-                  obtain q: mun:odd n := b, from S
+                  obtain q: def:odd n := b, from S
 
           2.2.3.  (2p + 1)² + b² = c²
                   substitute a = 2p + 1 (line 2.2.1) into H4
@@ -78,13 +78,13 @@ theorem even-leg
                        = 2(2p² + 2p + 2q² + 2q + 1)    2.2.5
 
           2.2.7.  c² is even
-                  mun:even n := c², from 2.2.6
+                  def:even n := c², from 2.2.6
 
           2.2.8.  c is even
                   thm:even-square n := c, from 2.2.7
 
           2.2.9.  r ∈ ℤ. c = 2r.
-                  obtain r: mun:even n := c, from 2.2.8
+                  obtain r: def:even n := c, from 2.2.8
 
           2.2.10. (2p + 1)² + (2q + 1)² = (2r)²
                   substitute c = 2r (line 2.2.9) into line 2.2.4
@@ -93,7 +93,7 @@ theorem even-leg
                   algebra, from 2.2.10
 
           2.2.12. 4 divides 2, which is impossible
-                  mun:divides d := 4, n := 2, from 2.2.11
+                  def:divides d := 4, n := 2, from 2.2.11
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b
@@ -116,7 +116,7 @@ theorem leg-hypotenuse-coprime
   then gcd(b, c) = 1
 
 1.  gcd(b, c) ∈ ℕ. gcd(b, c) divides b. gcd(b, c) divides c.
-    mun:gcd a := b, b := c
+    def:gcd a := b, b := c
 
 2.  gcd(b, c) divides c·c + b·(−b)
     mun:divides-combination e := gcd(b, c), a := c, x := c, y := −b, from 1
@@ -129,7 +129,7 @@ theorem leg-hypotenuse-coprime
 
 5.  gcd(gcd(b, c), a) ∈ ℕ. gcd(gcd(b, c), a) divides gcd(b, c).
     gcd(gcd(b, c), a) divides a.
-    mun:gcd a := gcd(b, c), b := a, from 1
+    def:gcd a := gcd(b, c), b := a, from 1
 
 6.  gcd(gcd(b, c), a) divides b
     mun:divides-transitive d := gcd(gcd(b, c), a), e := gcd(b, c), n := b, from 1, 5
@@ -184,7 +184,7 @@ theorem primitive-triple
        a = 2mn, b = m² − n², and c = m² + n²
 
 1.  w ∈ ℤ. a = 2w.
-    obtain w: mun:even n := a, from H6
+    obtain w: def:even n := a, from H6
 
 2.  0 < a
     inequalities, from H1
@@ -197,7 +197,7 @@ theorem primitive-triple
     requires 0 < w: multiplying by 1/2, from 3
 
 5.  2 divides a
-    mun:divides d := 2, n := a, from 1
+    def:divides d := 2, n := a, from 1
 
 6.  b is odd
     contradiction
@@ -210,10 +210,10 @@ theorem primitive-triple
           mun:disjunctive-syllogism P := b is even, Q := b is odd, from S1, 6.1
 
     6.3.  v ∈ ℤ. b = 2v.
-          obtain v: mun:even n := b, from 6.2
+          obtain v: def:even n := b, from 6.2
 
     6.4.  2 divides b
-          mun:divides d := 2, n := b, from 6.3
+          def:divides d := 2, n := b, from 6.3
 
     6.5.  2 divides gcd(a, b)
           thm:divides-gcd d := 2, from 5, 6.4
@@ -222,7 +222,7 @@ theorem primitive-triple
           substitute gcd(a, b) = 1 (H5) into line 6.5
 
 7.  q ∈ ℤ. b = 2q + 1.
-    obtain q: mun:odd n := b, from 6
+    obtain q: def:odd n := b, from 6
 
 8.  (2w)² + b² = c²
     substitute a = 2w (line 1) into H4
@@ -241,7 +241,7 @@ theorem primitive-triple
           mun:disjunctive-syllogism P := c is even, Q := c is odd, from S2, 10.1
 
     10.3. r ∈ ℤ. c = 2r.
-          obtain r: mun:even n := c, from 10.2
+          obtain r: def:even n := c, from 10.2
 
     10.4. (2w)² + (2q + 1)² = (2r)²
           substitute c = 2r (line 10.3) into line 9
@@ -250,28 +250,28 @@ theorem primitive-triple
           algebra, from 10.4
 
     10.6. 2 divides 1, which is impossible
-          mun:divides d := 2, n := 1, from 10.5
+          def:divides d := 2, n := 1, from 10.5
 
 11. r ∈ ℤ. c = 2r + 1.
-    obtain r: mun:odd n := c, from 10
+    obtain r: def:odd n := c, from 10
 
 12. c + b = 2(r + q + 1)
     algebra, from 7, 11
 
 13. c + b is even
-    mun:even n := c + b, from 12
+    def:even n := c + b, from 12
 
 14. s ∈ ℤ. c + b = 2s.
-    obtain s: mun:even n := c + b, from 13
+    obtain s: def:even n := c + b, from 13
 
 15. c − b = 2(r − q)
     algebra, from 7, 11
 
 16. c − b is even
-    mun:even n := c − b, from 15
+    def:even n := c − b, from 15
 
 17. t ∈ ℤ. c − b = 2t.
-    obtain t: mun:even n := c − b, from 16
+    obtain t: def:even n := c − b, from 16
 
 18. c·2 = (s + t)·2
     algebra, from 14, 17
@@ -377,7 +377,7 @@ theorem primitive-triple
     thm:leg-hypotenuse-coprime, from H4, H5
 
 46. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
-    mun:gcd a := s, b := t, from 32, 35
+    def:gcd a := s, b := t, from 32, 35
 
 47. gcd(s, t) divides s + t
     mun:divides-sum d := gcd(s, t), a := s, b := t, from 46
@@ -405,7 +405,7 @@ theorem primitive-triple
     thm:coprime-square, from 4, 32, 35, 44, 53
 
 let m = gcd(s, w), a positive integer                               (D1)
-    mun:gcd a := s, b := w, from 4, 35
+    def:gcd a := s, b := w, from 4, 35
     reads the number whose square is s
 
 55. s = m²
@@ -414,7 +414,7 @@ let m = gcd(s, w), a positive integer                               (D1)
         = m²            D1
 
 let n = gcd(t, w), a positive integer                               (D2)
-    mun:gcd a := t, b := w, from 4, 32
+    def:gcd a := t, b := w, from 4, 32
     reads the number whose square is t
 
 56. t = n²
@@ -471,7 +471,7 @@ let n = gcd(t, w), a positive integer                               (D2)
     requires m ≥ 0: inequalities, from D1
 
 71. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
-    mun:gcd a := m, b := n
+    def:gcd a := m, b := n
 
 72. gcd(m, n) divides m·m
     mun:divides-multiple e := gcd(m, n), a := m, x := m, from 71
@@ -512,7 +512,7 @@ let n = gcd(t, w), a positive integer                               (D2)
           mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from S3, 81.1
 
     81.3. u ∈ ℤ. m + n = 2u.
-          obtain u: mun:even n := m + n, from 81.2
+          obtain u: def:even n := m + n, from 81.2
 
     81.4. m² − n² = (m + n)·(m − n)
           algebra
@@ -530,7 +530,7 @@ let n = gcd(t, w), a positive integer                               (D2)
               = 2(u·(m − n))       81.6
 
     81.8. b is even
-          mun:even n := b, from 81.7
+          def:even n := b, from 81.7
 
     81.9. b is not odd
           mun:not-both n := b, from 81.8, contradicting 6
@@ -552,11 +552,11 @@ theorem triple-scaled
        and (a/k)² + (b/k)² = (c/k)²
 
 let k = gcd(a, b), a positive integer                               (D1)
-    mun:gcd
+    def:gcd
     reads the largest number dividing both legs
 
 1.  k divides a. k divides b.
-    mun:gcd, from D1
+    def:gcd, from D1
 
 2.  a/k ∈ ℕ
     mun:divides-quotient n := a, d := k, from 1

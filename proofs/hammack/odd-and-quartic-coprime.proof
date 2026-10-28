@@ -1,5 +1,5 @@
 import theorem            proofs/hammack/gcd-integer-natural/gcd-integer-natural
-import mundane definition stdlib/divisibility/gcd
+import definition         stdlib/divisibility/gcd
 import mundane theorem    stdlib/divisibility/divides-combination
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-multiple

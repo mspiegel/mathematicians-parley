@@ -13,11 +13,11 @@ import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/right-angle-triangle
 import mundane theorem    stdlib/geometry/cosine-right-triangle
-import mundane definition stdlib/geometry/triangle
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/geometry/triangle
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/trigonometry/cos-supplement
-import mundane axiom      stdlib/reasoning/excluded-middle
+import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
 
 theorem pythagoras-at-foot
@@ -32,7 +32,7 @@ theorem pythagoras-at-foot
   then |PQ|² = |PH|² + |HQ|²
 
 1.  H = Q or H ≠ Q
-    mun:excluded-middle P := H = Q
+    axi:excluded-middle P := H = Q
 
 2.  |PQ|² = |PH|² + |HQ|²
     cases, from 1
@@ -127,7 +127,7 @@ theorem distance-from-foot
   then |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
 
 1.  P ≠ Q. Q ≠ R.
-    mun:triangle, from H5
+    def:triangle, from H5
 
 2.  ∠PQR ∈ ℝ
     mun:triangle-angle-real, from H5

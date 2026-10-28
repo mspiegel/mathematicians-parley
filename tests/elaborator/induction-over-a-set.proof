@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/sums/product-empty
 import mundane theorem    stdlib/sums/product-add-one
 import mundane theorem    stdlib/counting/finite-part
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/subset-self
 
 theorem a-product-of-ones-by-induction
@@ -28,7 +28,7 @@ theorem a-product-of-ones-by-induction
           mun:finite-part, from H2, K
 
     1.3.  a ∈ X and a ∉ Y
-          mun:difference u := a, Y := X, Z := Y, from K2
+          def:difference u := a, Y := X, Z := Y, from K2
 
     1.4.  ∏(y ∈ Y ∪ {a}) 1 = (∏(y ∈ Y) 1)·1
           mun:product-add-one, from K, 1.2, 1.3

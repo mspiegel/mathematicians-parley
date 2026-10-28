@@ -1,5 +1,5 @@
-import mundane definition stdlib/sets/difference
-import mundane definition stdlib/numbers/rational
+import definition         stdlib/sets/difference
+import definition         stdlib/numbers/rational
 import mundane theorem    stdlib/numbers/real-closure
 
 theorem irrational-plus-rational
@@ -13,17 +13,17 @@ theorem irrational-plus-rational
   then A + B ∈ ℝ ∖ ℚ
 
 1.  A ∈ ℝ. A ∉ ℚ.
-    mun:difference Y := ℝ, Z := ℚ, from H3
+    def:difference Y := ℝ, Z := ℚ, from H3
 
 2.  p ∈ ℤ. q ∈ ℕ. B = p/q.
-    obtain p, q: mun:rational x := B, from H4
+    obtain p, q: def:rational x := B, from H4
 
 3.  A + B ∉ ℚ
     contradiction
     suppose A + B ∈ ℚ                                                 (S)
 
     3.1.  r ∈ ℤ. s ∈ ℕ. A + B = r/s.
-          obtain r, s: mun:rational x := A + B, from S
+          obtain r, s: def:rational x := A + B, from S
 
     3.2.  A = r/s − B
           algebra, from 1, 3.1
@@ -43,10 +43,10 @@ theorem irrational-plus-rational
           exhibit, from 3.5
 
     3.7.  A ∈ ℚ
-          mun:rational x := A, from 3.6, contradicting 1
+          def:rational x := A, from 3.6, contradicting 1
 
 4.  A + B ∈ ℝ
     mun:real-closure x := A, y := B, from 1
 
 5.  A + B ∈ ℝ ∖ ℚ
-    mun:difference Y := ℝ, Z := ℚ, from 3, 4
+    def:difference Y := ℝ, Z := ℚ, from 3, 4

@@ -1,10 +1,10 @@
-import mundane definition stdlib/graphs/degree
+import definition         stdlib/graphs/degree
 import mundane theorem    stdlib/graphs/walk-distinct
 import mundane theorem    stdlib/graphs/walk-step
 import mundane theorem    stdlib/graphs/joined-incident
 import mundane theorem    stdlib/functions/function-value
-import mundane definition stdlib/sums/range
-import mundane definition stdlib/sums/range0
+import definition         stdlib/sums/range
+import definition         stdlib/sums/range0
 
 theorem a-triangle-has-even-degrees
   note        Each corner of a triangle meets two of its three edges, so no
@@ -14,7 +14,7 @@ theorem a-triangle-has-even-degrees
   then deg(A) = 2. |{x ∈ V : deg(x) is odd}| = 0.
 
 1.  For all x ∈ V, deg(x) = |{s ∈ E : x is incident with s}|.
-    mun:degree
+    def:degree
 
 2.  deg(A) = 2
     inspection, from H1, 1
@@ -39,7 +39,7 @@ theorem a-path-has-two-odd-ends
   then deg(A) = 1. deg(B) = 2. |{x ∈ V : deg(x) is odd}| = 2.
 
 1.  For all x ∈ V, deg(x) = |{s ∈ E : x is incident with s}|.
-    mun:degree
+    def:degree
 
 2.  deg(A) = 1
     inspection, from H1, 1
@@ -66,7 +66,7 @@ theorem a-walk-of-one-edge
   then e(1) joins v(0) and v(1). v(0) is incident with e(1). v(0) ≠ v(1).
 
 1.  1 ∈ {1, …, 1}
-    mun:range n := 1, k := 1
+    def:range n := 1, k := 1
     requires 1 ≤ 1: arithmetic
 
 2.  e(1) joins v(1 − 1) and v(1)
@@ -88,11 +88,11 @@ theorem a-walk-of-one-edge
     mun:function-value f := e, x := 1, from 1
 
 8.  0 ∈ {0, …, 1}
-    mun:range0 n := 1, k := 0
+    def:range0 n := 1, k := 0
     requires 0 ≤ 1: arithmetic
 
 9.  1 ∈ {0, …, 1}
-    mun:range0 n := 1, k := 1
+    def:range0 n := 1, k := 1
     requires 1 ≤ 1: arithmetic
 
 10. v(0) ∈ V

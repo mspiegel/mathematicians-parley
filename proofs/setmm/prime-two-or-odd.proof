@@ -1,7 +1,7 @@
-import mundane definition stdlib/divisibility/divides
-import mundane definition stdlib/divisibility/even
+import definition         stdlib/divisibility/divides
+import definition         stdlib/divisibility/even
 import mundane theorem    stdlib/divisibility/even-or-odd
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/reasoning/modus-ponens
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
@@ -24,13 +24,13 @@ theorem prime-two-or-odd
     assume P is even                                                  (C1)
 
     2.1.  k ∈ ℤ. P = 2k.
-          obtain k: mun:even n := P, from C1
+          obtain k: def:even n := P, from C1
 
     2.2.  2 divides P
-          mun:divides d := 2, n := P, from 2.1
+          def:divides d := 2, n := P, from 2.1
 
     2.3.  For all d ∈ ℕ, if d divides P then d = 1 or d = P.
-          mun:prime p := P, from H2
+          def:prime p := P, from H2
 
     2.4.  If 2 divides P then 2 = 1 or 2 = P.
           instantiate d := 2 in line 2.3

@@ -2,11 +2,11 @@ import mundane theorem    stdlib/geometry/points-apart-by-coordinates
 import mundane theorem    stdlib/geometry/collinear-by-coordinates
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import mundane theorem    stdlib/reasoning/iff-not-from-right
-import mundane definition stdlib/geometry/triangle
+import definition         stdlib/geometry/triangle
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane definition stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
 
 theorem right-triangle-three-four-five
@@ -59,7 +59,7 @@ theorem right-triangle-three-four-five
     mun:iff-not-from-right, from 10, 11
 
 13. A, B, C form a triangle
-    mun:triangle, from 2, 4, 6, 12
+    def:triangle, from 2, 4, 6, 12
 
 14. |BA| = √((3 − 0)² + (0 − 0)²)
     mun:distance-of-points-by-coordinates, from H4, H5

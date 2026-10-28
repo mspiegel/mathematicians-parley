@@ -588,7 +588,7 @@ notation imaginary-unit
   shadowed    by a name the text introduces
   metamath    ci
   target      ci
-  note        The square root of −1, mun:stdlib/numbers/i. A line that
+  note        The square root of −1, def:stdlib/numbers/i. A line that
               introduces an i of its own, `obtain i`, `let i ∈ ℤ` or a sum's
               index, makes i that name in its scope, as a reader takes it;
               elsewhere i is this. Geometry keeps ℂ off the page
@@ -627,7 +627,7 @@ notation degrees
   metamath    multiplied by π and divided by 180
   target      _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
   note        An angle is a number of radians, from 0 to π, as
-              mun:stdlib/geometry/angle has it, and x° is that number written
+              def:stdlib/geometry/angle has it, and x° is that number written
               in degrees, so 180° is π. The page writes degrees because a
               school reader measures angles in them; nothing else changes.
 
@@ -719,7 +719,7 @@ notation set-builder
   metamath    crab
   target      _3 _1 _2 crab
   note        Told apart from set-image by what precedes the colon: a variable
-              and its domain here, an expression there. See mun:stdlib/sets/set-builder.
+              and its domain here, an expression there. See def:stdlib/sets/set-builder.
 
 notation set-builder-part
   pattern     {_ ⊆ _ : _}
@@ -741,7 +741,7 @@ notation set-image
   metamath    the range of a cmpt, which is what elrnmpt speaks of
   target      _2 _3 _1 cmpt crn
   note        The binding hole is not the first one, which is why `binds` names
-              the holes rather than assuming an order. See mun:stdlib/functions/set-image.
+              the holes rather than assuming an order. See def:stdlib/functions/set-image.
 
 notation indexed-union
   pattern     ⋃(_ ∈ _) _
@@ -981,7 +981,7 @@ notation image
   metamath    cima
   target      _1 _2 cima
   note        f[X] is everything f sends X to, {f(x) : x ∈ X}, which
-              mun:stdlib/functions/image says. Square brackets and not f(X):
+              def:stdlib/functions/image says. Square brackets and not f(X):
               f(X) is f applied to one thing, and M(C) beside f[C] in
               Schröder–Bernstein would be the two meanings side by side.
 
@@ -1119,7 +1119,7 @@ notation juxtaposition
   target      folded
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
-              it the √2 proof could not cite mun:stdlib/divisibility/divides, whose statement says
+              it the √2 proof could not cite def:stdlib/divisibility/divides, whose statement says
               n = d·k while the proof offers p = 2r.
 
               The one shape with no token, covering 2k and k(k + 1). It never
@@ -1138,7 +1138,7 @@ notation angle
   target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
   note        Three juxtaposed holes after a token. set.mm's angle function is
               signed and it never names it, so `ang` is the one constant this
-              corpus introduces; see mun:stdlib/geometry/angle. The absolute value is what
+              corpus introduces; see def:stdlib/geometry/angle. The absolute value is what
               makes ∠PQR = ∠RQP true, which the signed function does not.
 
 notation signed-angle
@@ -1163,7 +1163,7 @@ notation area
               cmul co _2 _3 cmin co _1 _3 cmin co cang co csin cfv cabs cfv cmul co
   note        The area of △PQR is (1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is 0
               where the three are on one line. The words leave room for the
-              area of a set of points. See mun:stdlib/geometry/area.
+              area of a set of points. See def:stdlib/geometry/area.
 
 notation congruent
   pattern     triangle ___ ≅ triangle ___
@@ -1552,7 +1552,7 @@ notation there-are
   metamath    wrex nested twice, one for each variable
   target      _5 _3 _4 wrex _1 _2 wrex
   note        The two-variable form, for two names over two sets, as
-              mun:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
+              def:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
               two nested `there is` phrases reads far worse, but it says the
               same, and builds exactly that: `nests` makes one `there-is`
               node for each name, the first outermost, so either spelling
@@ -1633,7 +1633,7 @@ notation divides
   reads       divides
   metamath    wbr with cdvds
   target      _1 _2 cdvds wbr
-  note        Seventeen uses, the commonest word predicate. See mun:stdlib/divisibility/divides.
+  note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
 
 notation congruent-mod
   pattern     _ ≡ _ (mod _)
@@ -1684,7 +1684,7 @@ notation series
   metamath    csu over ( ZZ>= ` M )
   target      _2 cuz cfv _3 _1 csu
   note        The sum of the third hole for every whole number from the second
-              on: the value of the series, which mun:stdlib/calculus/series-sum
+              on: the value of the series, which def:stdlib/calculus/series-sum
               says is the limit of its partial sums. set.mm sums over the
               upper integers from M, and ℕ is those from 1.
 
@@ -1896,11 +1896,11 @@ notation collinear
   metamath    the first two are one point, or the ratio of the two
               differences is real
   target      _1 _2 wceq _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wo
-  note        Three points on one line, which mun:stdlib/geometry/triangle needs to say that a
-              triangle's are not. Its definition is open, as mun:stdlib/geometry/angle is while
+  note        Three points on one line, which def:stdlib/geometry/triangle needs to say that a
+              triangle's are not. Its definition is open, as def:stdlib/geometry/angle is while
               the ∠ notation stands declared: incidence is a primitive of the
               geometry, and what it means in set.mm's plane is the same
-              question mun:stdlib/geometry/point leaves open.
+              question def:stdlib/geometry/point leaves open.
 
 notation forms-a-triangle
   pattern     _, _, _ form a triangle
@@ -1936,7 +1936,7 @@ notation parallel
               pattern opening on two juxtaposed holes has no token to start
               from, and PQ ∥ RS does not parse. It asks nothing of R and S
               being apart: a step needing that has it from a line that says
-              so. See mun:stdlib/geometry/parallel.
+              so. See def:stdlib/geometry/parallel.
 
 notation between
   pattern     _ is between _ and _
@@ -1949,7 +1949,7 @@ notation between
               _3 _1 cmin co _2 _1 cmin co cdiv co cc0 clt wbr w3a
   note        Strictly between: R is between S and T says R lies on the
               segment from S to T and is neither end. See
-              mun:stdlib/geometry/between.
+              def:stdlib/geometry/between.
 
 notation on-line
   pattern     _ is on line __
@@ -1966,7 +1966,7 @@ notation line
   sort        point, point → set of point
   reads       the line through
   metamath    the points P with A = B or (P − A)/(B − A) real, the points
-              of which P is on line AB is said, as mun:stdlib/geometry/line
+              of which P is on line AB is said, as def:stdlib/geometry/line
               states it
   target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel wo vu cc
               crab
@@ -1985,7 +1985,7 @@ notation ray
   sort        point, point → set of point
   reads       the ray from, through
   metamath    the points P with A = B or (P − A)/(B − A) a real number at
-              least 0, as mun:stdlib/geometry/ray states it
+              least 0, as def:stdlib/geometry/ray states it
   target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel cc0 vu
               cv _1 cmin co _2 _1 cmin co cdiv co cle wbr wa wo vu cc crab
   note        The ray from A through B: A, and the points on the side of A
@@ -2003,7 +2003,7 @@ notation perpendicular
   note        line AB ⊥ line CD says A ≠ B, C ≠ D, and the line through C
               and D runs at a right angle to the one through A and B: the
               quotient of their directions has real part 0. Written as
-              `parallel` writes its lines. See mun:stdlib/geometry/perpendicular.
+              `parallel` writes its lines. See def:stdlib/geometry/perpendicular.
 
 notation midpoint
   pattern     _ is the midpoint of __
@@ -2028,7 +2028,7 @@ notation same-side
   target      cc0 _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
               _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co clt wbr
   note        Neither point is on the line, and the line does not pass
-              between them. See mun:stdlib/geometry/same-side.
+              between them. See def:stdlib/geometry/same-side.
 
 notation opposite-sides
   pattern     _ and _ are on opposite sides of line __
@@ -2040,7 +2040,7 @@ notation opposite-sides
   target      _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
               _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co cc0 clt wbr
   note        Neither point is on the line, and the line passes between them.
-              See mun:stdlib/geometry/same-side.
+              See def:stdlib/geometry/same-side.
 
 notation bijection
   pattern     there is a bijection from _ to _
@@ -2108,7 +2108,7 @@ notation algebraic
   note        α is algebraic when some polynomial with integer coefficients,
               other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
               transcendental when it is a complex number and not algebraic,
-              so what is no number is neither. mun:stdlib/polynomials/transcendental
+              so what is no number is neither. def:stdlib/polynomials/transcendental
               says so for a proof.
 
 notation there-is-a-polynomial

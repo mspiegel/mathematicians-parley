@@ -1,5 +1,5 @@
-import mundane definition stdlib/functions/set-image as functions-set-image
-import mundane definition stdlib/functions/preimage as functions-preimage
+import definition         stdlib/functions/set-image as functions-set-image
+import definition         stdlib/functions/preimage as functions-preimage
 import mundane theorem    stdlib/functions/inverse-function as functions-inverse-function
 import mundane theorem    stdlib/functions/composition-function as functions-composition-function
 import mundane theorem    stdlib/functions/composition-value as functions-composition-value
@@ -49,7 +49,7 @@ theorem preimage
   then x ∈ f⁻¹[C]
 
 1.  x ∈ f⁻¹[C]
-    mun:functions-preimage u := x, from H5, H6
+    def:functions-preimage u := x, from H5, H6
 
 theorem inverse-function
   let A be a set                                                      (H1)
@@ -70,4 +70,4 @@ theorem set-image
   then there is s ∈ Y with u = E(s)
 
 1.  There is s ∈ Y with u = E(s).
-    mun:functions-set-image, from H5
+    def:functions-set-image, from H5

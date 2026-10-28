@@ -1,9 +1,9 @@
-import mundane definition stdlib/sets/difference
+import definition         stdlib/sets/difference
 import mundane theorem    stdlib/sets/disjoint-empty
 import mundane theorem    stdlib/sets/disjoint-member
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/intersection-commutes
-import mundane definition stdlib/sets/subset
+import definition         stdlib/sets/subset
 
 theorem disjoint-within-difference
   note        Inside C, a set misses B exactly when every one of its members
@@ -31,16 +31,16 @@ theorem disjoint-within-difference
                   mun:disjoint-member Y := A, Z := B, u := t, from D1, K
 
           1.1.3.  t ∈ C ∖ B
-                  mun:difference u := t, Y := C, Z := B, from 1.1.1, 1.1.2
+                  def:difference u := t, Y := C, Z := B, from 1.1.1, 1.1.2
 
     1.2.  A ⊆ C ∖ B
-          mun:subset X := A, Y := C ∖ B, from 1.1
+          def:subset X := A, Y := C ∖ B, from 1.1
 
     direction
     assume A ⊆ C ∖ B                                                  (D2)
 
     1.3.  For all t ∈ A, t ∈ C ∖ B.
-          mun:subset X := A, Y := C ∖ B, from D2
+          def:subset X := A, Y := C ∖ B, from D2
 
     1.4.  For all s ∈ A, s ∉ B.
           proof
@@ -50,7 +50,7 @@ theorem disjoint-within-difference
                   instantiate t := s in line 1.3, from K
 
           1.4.2.  s ∈ C and s ∉ B
-                  mun:difference u := s, Y := C, Z := B, from 1.4.1
+                  def:difference u := s, Y := C, Z := B, from 1.4.1
 
           1.4.3.  s ∉ B
                   restate 1.4.2

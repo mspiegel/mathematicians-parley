@@ -78,7 +78,7 @@ theorem algebraic-root
   note        What being algebraic is: a root of a polynomial with integer
               coefficients, other than 0, so of degree at least 1.
 
-mundane definition transcendental
+definition transcendental
   let α ∈ ℂ                                                           (H1)
   then        α is transcendental ↔ not (α is algebraic)
   metamath    ibar, of α ∈ ℂ and not α ∈ 𝔸, which this corpus proves in

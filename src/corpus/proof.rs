@@ -290,7 +290,7 @@ pub struct Import {
 }
 
 /// An import of a library function the file applies, by its name, from the
-/// library file that declares it: `import mundane definition
+/// library file that declares it: `import definition
 /// stdlib/divisibility/gcd`. Its words are read as any item's are, and it
 /// is a function because the
 /// definition it names has `sort` and `builds` lines (`link_functions`). It
@@ -472,11 +472,11 @@ pub fn fmt(number: &StepNo) -> String {
 }
 
 /// What a citation's prefix or an import's keyword says of the item it names:
-/// that a proof takes it for granted, `mun:`, or otherwise its kind.
+/// that a proof takes it for granted, `mun:`, or otherwise its kind. Only a
+/// theorem is ever taken for granted, so `mun:` names a theorem.
 ///
-/// It is what a reader needs from the line, and not what the item is: a
-/// mundane definition is cited `mun:` and is still unfolded, because the
-/// elaborator reads the kind from the record (`DATABASE.md`, "Record kinds").
+/// The elaborator reads whether a step unfolds what it cites from the
+/// record, not from this (`DATABASE.md`, "Record kinds").
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ItemKind {
     Axiom,
@@ -1160,8 +1160,7 @@ fn parse_justification(
 }
 
 /// The label of each define of a phrase the file has written so far, with
-/// the item a line citing it cites: `def:` and its name, or `mun:` where it
-/// is marked mundane.
+/// the item a line citing it cites: `def:` and its name.
 fn phrase_labels(scope: &FileScope) -> Vec<skeleton::PhraseLabel> {
     scope
         .phrases
@@ -1169,11 +1168,7 @@ fn phrase_labels(scope: &FileScope) -> Vec<skeleton::PhraseLabel> {
         .filter_map(|d| match define_parts(&d.text) {
             Built(DefineParts::Phrase(p)) => Some(skeleton::PhraseLabel {
                 label: d.label.clone(),
-                kind: if p.mundane {
-                    ItemKind::Mundane
-                } else {
-                    ItemKind::Definition
-                },
+                kind: ItemKind::Definition,
                 name: p.name,
             }),
             _ => None,
@@ -1214,29 +1209,9 @@ enum Imported {
     Define(Import),
 }
 
-/// A phrase marked mundane is the standard library's, as a mundane theorem
-/// is: a defect anywhere else.
-fn phrase_mundane_in_stdlib(
-    p: &super::define::Phrase,
-    path: &str,
-    no: usize,
-) -> Checked<()> {
-    if p.mundane && !in_stdlib(module_of(path)) {
-        return Err(Problem::new(
-            path,
-            no,
-            format!(
-                "mundane define {}: only a define of the standard library is taken for granted; a proof elsewhere states `define {}: …`",
-                p.name, p.name
-            ),
-        ));
-    }
-    Ok(())
-}
-
 /// One `import` line: one item, with the words its record's header says
-/// before its name, `mundane` for an item a proof takes for granted and then
-/// its kind.
+/// before its name, `mundane` for a theorem a proof takes for granted and
+/// then its kind.
 ///
 /// `import theorem stdlib/divisibility/prime-factor` brings in an item a step
 /// cites, `thm:prime-factor`, or by the name after `as`, and
@@ -1262,10 +1237,20 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             path,
             no,
             format!(
-                "import {word}: an import says the header of the item it names, its kind, axiom, theorem or definition, with mundane before it for an item taken for granted, as `import mundane theorem stdlib/numbers/int-closure`"
+                "import {word}: an import says the header of the item it names, its kind, axiom, theorem or definition, with mundane before a theorem taken for granted, as `import mundane theorem stdlib/numbers/int-closure`"
             ),
         ));
     };
+    if mundane && record_kind != RecordKind::Theorem {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "import mundane {word} {}: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane; import it as `import {word} {}`",
+                m.full, m.full
+            ),
+        ));
+    }
     let kind = if mundane {
         ItemKind::Mundane
     } else {
@@ -1300,15 +1285,6 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     // link writing S(k + 1) out cites the equation. A file that never writes
     // it out gives it no label. A define of a phrase is named by a word, as
     // an item is, and is imported and cited as one, `def:<name>`.
-    if !from_library && record_kind == RecordKind::Definition && mundane {
-        return Err(Problem::new(
-            path,
-            no,
-            format!(
-                "import {keyword} {whole}: a proof's define is where the proof gives a name its meaning, so it is never mundane; import it as `import definition {whole}`"
-            ),
-        ));
-    }
     if !from_library
         && record_kind == RecordKind::Definition
         && super::define::is_one_name(name)
@@ -1963,10 +1939,7 @@ pub fn parse_proof(
                 scope.readings.insert(d.label.clone(), reading);
             }
             match define_parts(&d.text) {
-                Built(DefineParts::Phrase(p)) => {
-                    phrase_mundane_in_stdlib(&p, path, d.line)?;
-                    scope.phrases.push(d);
-                }
+                Built(DefineParts::Phrase(_)) => scope.phrases.push(d),
                 _ => scope.defines.push(d),
             }
         }
@@ -2128,10 +2101,7 @@ pub fn parse_proof(
                             "a define by recursion is written in the theorem that uses it, in its statement or its proof",
                         ));
                     }
-                    Built(DefineParts::Phrase(p)) => {
-                        phrase_mundane_in_stdlib(&p, path, line.no)?;
-                        scope.phrases.push(d.clone());
-                    }
+                    Built(DefineParts::Phrase(_)) => scope.phrases.push(d.clone()),
                     Built(DefineParts::One(_)) => scope.defines.push(d.clone()),
                 }
                 just_defined = Some(d);

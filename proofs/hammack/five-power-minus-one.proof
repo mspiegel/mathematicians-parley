@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/divides
+import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/numbers/exponent-sum
@@ -19,7 +19,7 @@ theorem five-power-minus-one
           arithmetic
 
     1.2.  3 divides 5^(2·0) − 1
-          mun:divides d := 3, n := 5^(2·0) − 1, from 1.1
+          def:divides d := 3, n := 5^(2·0) − 1, from 1.1
 
     step
     let m ∈ ℕ₀                                                        (K)
@@ -48,7 +48,7 @@ theorem five-power-minus-one
           requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
     1.9.  3 divides 24
-          mun:divides d := 3, n := 24
+          def:divides d := 3, n := 24
           requires 24 = 3·8: arithmetic
 
     1.10. 3 divides (5^(2m) − 1)·25 + 24

@@ -3,7 +3,7 @@ import mundane theorem    stdlib/counting/factorial-divisible
 import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-one
-import mundane definition stdlib/divisibility/prime
+import definition         stdlib/divisibility/prime
 import mundane theorem    stdlib/numbers/nat-closure
 
 theorem prime-above
@@ -24,7 +24,7 @@ theorem prime-above
     requires n! + 1 ∈ ℕ: mun:nat-closure a := n!, b := 1, from 1
 
 4.  p > 1
-    mun:prime, from 3
+    def:prime, from 3
 
 5.  p > n
     contradiction

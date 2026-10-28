@@ -1,8 +1,8 @@
 import mundane theorem    stdlib/geometry/angle-real as geometry-angle-real
-import mundane definition stdlib/geometry/point as geometry-point
-import mundane definition stdlib/geometry/isosceles as geometry-isosceles
-import mundane definition stdlib/geometry/equilateral as geometry-equilateral
-import mundane definition stdlib/geometry/right-angled as geometry-right-angled
+import definition         stdlib/geometry/point as geometry-point
+import definition         stdlib/geometry/isosceles as geometry-isosceles
+import definition         stdlib/geometry/equilateral as geometry-equilateral
+import definition         stdlib/geometry/right-angled as geometry-right-angled
 import mundane theorem    stdlib/geometry/right-angled-at-vertex as geometry-right-angled-at-vertex
 import definition         stdlib/geometry/congruent as geometry-congruent
 import mundane theorem    stdlib/reasoning/or-left
@@ -10,13 +10,13 @@ import theorem            stdlib/geometry/law-of-cosines as geometry-law-of-cosi
 import mundane theorem    stdlib/geometry/angle-equal-by-cosine as geometry-angle-equal-by-cosine
 import mundane theorem    stdlib/geometry/angle-order-by-cosine as geometry-angle-order-by-cosine
 import mundane theorem    stdlib/geometry/right-angle-by-cosine as geometry-right-angle-by-cosine
-import mundane definition stdlib/trigonometry/cos
-import mundane definition stdlib/trigonometry/sin
-import mundane definition stdlib/geometry/midpoint as geometry-midpoint
+import definition         stdlib/trigonometry/cos
+import definition         stdlib/trigonometry/sin
+import definition         stdlib/geometry/midpoint as geometry-midpoint
 import mundane theorem    stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-symmetric as geometry-distance-symmetric
-import mundane axiom      stdlib/geometry/distance-positive as geometry-distance-positive
+import axiom              stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane theorem    stdlib/geometry/distance-zero as geometry-distance-zero
 import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-distance-by-coordinates
 import mundane theorem    stdlib/geometry/collinear-by-coordinates as geometry-collinear-by-coordinates
@@ -36,7 +36,7 @@ import mundane theorem    stdlib/geometry/triangle-on-side as geometry-triangle-
 import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
 import mundane theorem    stdlib/geometry/midpoint-determines-end as geometry-midpoint-determines-end
 import mundane theorem    stdlib/geometry/angle-turned as geometry-angle-turned
-import mundane definition stdlib/geometry/on-line as geometry-on-line
+import definition         stdlib/geometry/on-line as geometry-on-line
 import mundane theorem    stdlib/geometry/perpendicular-by-right-angle as geometry-perpendicular-by-right-angle
 import theorem            stdlib/geometry/intersecting-chords as geometry-intersecting-chords
 import theorem            stdlib/geometry/chord-midpoint-right-angle as geometry-chord-midpoint-right-angle
@@ -44,22 +44,22 @@ import mundane theorem    stdlib/geometry/signed-angle-size as geometry-signed-a
 import mundane theorem    stdlib/geometry/signed-angle-real as geometry-signed-angle-real
 import mundane theorem    stdlib/geometry/signed-angle-reverse as geometry-signed-angle-reverse
 import theorem            stdlib/geometry/signed-angle-sum as geometry-signed-angle-sum
-import mundane definition stdlib/geometry/area as geometry-area
+import definition         stdlib/geometry/area as geometry-area
 import theorem            stdlib/geometry/area-by-sine as geometry-area-by-sine
-import mundane axiom      stdlib/geometry/area-positive as geometry-area-positive
+import axiom              stdlib/geometry/area-positive as geometry-area-positive
 import theorem            stdlib/geometry/heron as geometry-heron
 import theorem            stdlib/geometry/perpendicular-foot as geometry-perpendicular-foot
 import mundane theorem    stdlib/geometry/on-line-cases as geometry-on-line-cases
 import mundane theorem    stdlib/geometry/between-ends-apart as geometry-between-ends-apart
 import mundane theorem    stdlib/geometry/right-angle-triangle as geometry-right-angle-triangle
 import mundane theorem    stdlib/geometry/cosine-right-triangle as geometry-cosine-right-triangle
-import mundane definition stdlib/geometry/line as geometry-line
+import definition         stdlib/geometry/line as geometry-line
 import mundane theorem    stdlib/geometry/line-turned as geometry-line-turned
 import axiom              stdlib/geometry/line-uniqueness as geometry-line-uniqueness
 import axiom              stdlib/geometry/three-points as geometry-three-points
 import axiom              stdlib/geometry/parallel-uniqueness as geometry-parallel-uniqueness
 import axiom              stdlib/geometry/angle-measure as geometry-angle-measure
-import mundane definition stdlib/geometry/ray as geometry-ray
+import definition         stdlib/geometry/ray as geometry-ray
 import axiom              stdlib/geometry/plane-separation as geometry-plane-separation
 import axiom              stdlib/geometry/plane-separation-convex as geometry-plane-separation-convex
 import axiom              stdlib/geometry/plane-separation-crossing as geometry-plane-separation-crossing
@@ -69,7 +69,7 @@ import axiom              stdlib/geometry/angle-addition-inside as geometry-angl
 import axiom              stdlib/geometry/area-congruent as geometry-area-congruent
 import axiom              stdlib/geometry/area-base-height as geometry-area-base-height
 import axiom              stdlib/geometry/area-addition as geometry-area-addition
-import mundane definition stdlib/geometry/parallel as geometry-parallel
+import definition         stdlib/geometry/parallel as geometry-parallel
 import mundane theorem    stdlib/geometry/midpoint-exists as geometry-midpoint-exists
 import mundane theorem    stdlib/geometry/segment-extension as geometry-segment-extension
 import mundane theorem    stdlib/geometry/triangle-off-line as geometry-triangle-off-line
@@ -99,14 +99,14 @@ import mundane theorem    stdlib/geometry/parallel-along as geometry-parallel-al
 import mundane theorem    stdlib/geometry/segment-point as geometry-segment-point
 import axiom              stdlib/geometry/ruler as geometry-ruler
 import axiom              stdlib/geometry/ruler-placement as geometry-ruler-placement
-import mundane definition stdlib/sets/set-builder
+import definition         stdlib/sets/set-builder
 
 theorem point
   let A ∈ 𝔼²                                                          (H1)
   then A is a point
 
 1.  A is a point
-    mun:geometry-point
+    def:geometry-point
 
 theorem angle-real
   let P be a point                                                    (H1)
@@ -134,7 +134,7 @@ theorem isosceles
     mun:or-left, from 1
 
 3.  △PQR is isosceles
-    mun:geometry-isosceles, from H4, 2
+    def:geometry-isosceles, from H4, 2
 
 theorem equilateral
   let P be a point                                                    (H1)
@@ -146,7 +146,7 @@ theorem equilateral
   then △PQR is equilateral
 
 1.  △PQR is equilateral
-    mun:geometry-equilateral, from H4, H5, H6
+    def:geometry-equilateral, from H4, H5, H6
 
 theorem right-angled
   let P be a point                                                    (H1)
@@ -156,7 +156,7 @@ theorem right-angled
   then P, Q, R form a triangle
 
 1.  P, Q, R form a triangle
-    mun:geometry-right-angled, from H4
+    def:geometry-right-angled, from H4
 
 theorem right-angled-at-vertex
   let P be a point                                                    (H1)
@@ -248,7 +248,7 @@ theorem midpoint-halves
   then |AM| = |AB|/2
 
 1.  M is between A and B. |AM| = |MB|.
-    mun:geometry-midpoint, from H4
+    def:geometry-midpoint, from H4
 
 2.  |AM| + |MB| = |AB|
     mun:geometry-segment-addition, from 1
@@ -264,7 +264,7 @@ theorem on-line
   then A, B, P are collinear
 
 1.  A, B, P are collinear
-    mun:geometry-on-line, from H4
+    def:geometry-on-line, from H4
 
 theorem perpendicular-by-right-angle
   let P be a point                                                    (H1)
@@ -299,16 +299,16 @@ theorem intersecting-chords
   then |PA|·|PB| = |PC|·|PD|
 
 1.  |AO| = r
-    mun:set-builder u := A, from D1, H8
+    def:set-builder u := A, from D1, H8
 
 2.  |BO| = r
-    mun:set-builder u := B, from D1, H9
+    def:set-builder u := B, from D1, H9
 
 3.  |CO| = r
-    mun:set-builder u := C, from D1, H10
+    def:set-builder u := C, from D1, H10
 
 4.  |DO| = r
-    mun:set-builder u := D, from D1, H11
+    def:set-builder u := D, from D1, H11
 
 5.  |AO| = |BO|
     transitivity, from 1, 2
@@ -386,7 +386,7 @@ theorem area
   then the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
 
 1.  the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
-    mun:geometry-area
+    def:geometry-area
 
 theorem area-by-sine
   let P be a point                                                    (H1)
@@ -407,7 +407,7 @@ theorem area-positive
   then the area of △PQR > 0
 
 1.  the area of △PQR > 0
-    mun:geometry-area-positive, from H4
+    axi:geometry-area-positive, from H4
 
 theorem heron
   let P be a point                                                    (H1)
@@ -445,7 +445,7 @@ theorem distance-positive
   then |PQ| > 0
 
 1.  |PQ| > 0
-    mun:geometry-distance-positive, from H3
+    axi:geometry-distance-positive, from H3
 
 theorem distance-zero
   let P be a point                                                    (H1)
@@ -730,7 +730,7 @@ theorem line
   then P ∈ line AB
 
 1.  P ∈ line AB
-    mun:geometry-line, from H4
+    def:geometry-line, from H4
 
 theorem line-turned
   let A be a point                                                    (H1)
@@ -779,7 +779,7 @@ theorem ray
   then P ∈ ray AB
 
 1.  P ∈ ray AB
-    mun:geometry-ray, from H4, H5
+    def:geometry-ray, from H4, H5
 
 theorem plane-separation
   let A be a point                                                    (H1)
@@ -915,7 +915,7 @@ theorem parallel
 
 1.  line AB = line CD or not (there is X ∈ 𝔼² with X is on line AB and
     X is on line CD)
-    mun:geometry-parallel, from H5, H6, H7
+    def:geometry-parallel, from H5, H6, H7
 
 theorem midpoint-exists
   let A be a point                                                    (H1)

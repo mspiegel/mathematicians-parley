@@ -1,4 +1,4 @@
-import mundane definition stdlib/functions/image
+import definition         stdlib/functions/image
 import mundane theorem    stdlib/sets/subset-self
 
 theorem value-of-onto
@@ -14,7 +14,7 @@ theorem value-of-onto
     substitute F[A] = B (H4) into H5
 
 2.  x ∈ A. y = F(x).
-    obtain x: mun:image u := y, Y := A, from 1
+    obtain x: def:image u := y, Y := A, from 1
     requires A ⊆ A: mun:subset-self
 
 3.  there is x ∈ A with y = F(x)

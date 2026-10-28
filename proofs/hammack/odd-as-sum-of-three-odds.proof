@@ -1,4 +1,4 @@
-import mundane definition stdlib/divisibility/odd
+import definition         stdlib/divisibility/odd
 
 theorem odd-as-sum-of-three-odds
   note        Take n, 1 and −1: each is odd, as 1 = 2·0 + 1 and
@@ -11,13 +11,13 @@ theorem odd-as-sum-of-three-odds
     arithmetic
 
 2.  1 is odd
-    mun:odd n := 1, from 1
+    def:odd n := 1, from 1
 
 3.  −1 = 2·(−1) + 1
     arithmetic
 
 4.  −1 is odd
-    mun:odd n := −1, from 3
+    def:odd n := −1, from 3
 
 5.  n = n + 1 + −1
     algebra

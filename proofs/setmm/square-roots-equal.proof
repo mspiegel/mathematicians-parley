@@ -1,4 +1,4 @@
-import mundane definition stdlib/numbers/sqrt
+import definition         stdlib/numbers/sqrt
 
 theorem square-roots-equal
   note        If √a = √b then squaring gives a = (√a)² = (√b)² = b. If a = b
@@ -10,11 +10,11 @@ theorem square-roots-equal
   then √a = √b ↔ a = b
 
 1.  (√a)² = a
-    mun:sqrt x := a
+    def:sqrt x := a
     requires a ≥ 0: from H3
 
 2.  (√b)² = b
-    mun:sqrt x := b
+    def:sqrt x := b
     requires b ≥ 0: from H4
 
 3.  √a = √b ↔ a = b
