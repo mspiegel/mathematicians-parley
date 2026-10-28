@@ -2190,7 +2190,7 @@ of sorts reports a page that claims an element of a set of numbers is a set. See
 file states rather than proves* for the proof this let back into `proofs/`.
 
 **Library items no proof restates.** The last stage restates each library
-item with a target as a theorem of its own, and thirty it cannot, because a
+item with a target as a theorem of its own, and thirty-one it cannot, because a
 letter in each stands for something a proof cannot introduce. Each is cited
 by a proof or tested, at a formula of that proof's own, so what it says is
 used and verified there; only the restatement is missing.
@@ -2208,7 +2208,8 @@ used and verified there; only the restatement is missing.
 - A property: `stdlib/sets/set-builder`, `stdlib/sets/part-builder`,
   `stdlib/sets/part-builder-empty`, `stdlib/sets/set-builder-subset`,
   `stdlib/sets/set-builder-split`, `stdlib/sets/set-builder-split-disjoint`,
-  `stdlib/sets/set-builder-empty`, `stdlib/counting/count-nat0`,
+  `stdlib/sets/set-builder-empty`, `stdlib/sets/separation`,
+  `stdlib/counting/count-nat0`,
   `stdlib/counting/count-empty-range`, `stdlib/counting/count-step-holds`,
   `stdlib/counting/count-step-fails`, `stdlib/counting/count-same`,
   `stdlib/counting/count-either`, `stdlib/counting/count-shift`,

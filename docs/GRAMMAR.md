@@ -195,8 +195,8 @@ what W is`.
 
 **The parser checks every hole against its category**, not only where two
 notations compete. The sorts are declared, and an unchecked declaration rots;
-with checking, `S ⊆ 2` is a defect a parser reports, and `s is a set` with s a
-number is reported as `s is a number, and `_ is a set` wants a set`. The price
+with checking, `S ⊆ 2` is a defect a parser reports, and `s exists` with s a
+number is reported as `s is a number, and `_ exists` wants a set`. The price
 is the set-theory restriction below. A value of no known sort is the exception
 and fits anywhere, for the reasons given at the end of this section.
 

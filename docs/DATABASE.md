@@ -17,6 +17,8 @@ corpus/elaboration/          what parley build writes from all of it
 proofs/wiedijk/*.proof       the pilots, theorems of Wiedijk's list of 100
 proofs/setmm/*.proof         theorems set.mm proves, written in proof trials
 proofs/hammack/*.proof       exercises of Hammack's Book of Proof, likewise
+proofs/halmos/*.proof        proofs from the axioms of set theory, after
+                             Halmos's Naive Set Theory
 tests/stdlib/*.proof         a test for each library item no proof cites
 docs/*.md                    the design documents, this one among them
 docs/pilot/*.md              the design commentary for each pilot
@@ -505,12 +507,12 @@ mundane definition difference
 
 | header | items |
 |---|---|
-| `axiom` | 4 |
-| `mundane axiom` | 8 |
-| `theorem` | 84 |
-| `mundane theorem` | 454 |
+| `axiom` | 28 |
+| `mundane axiom` | 10 |
+| `theorem` | 111 |
+| `mundane theorem` | 519 |
 | `definition` | 12 |
-| `mundane definition` | 66 |
+| `mundane definition` | 69 |
 
 The two questions are independent, so no rule is needed to say which wins:
 trichotomy is an axiom and is taken for granted, and its header says both.
@@ -522,11 +524,23 @@ nothing else: a mundane definition is still written out where it is used
 and is still unfolded, because the elaborator reads the kind from the record
 and not from the line.
 
-Every item is supplied by a set.mm label or is `open`, and the twelve axioms are
+Every item is supplied by a set.mm label or is `open`, and the thirty-eight axioms are
 supplied the way every other item is: by a lemma set.mm proves,
-or for `side-angle-side` by one `corpus/elaboration/stdlib/proved.mm` proves.
+or by one `corpus/elaboration/stdlib/proved.mm` proves.
 So an axiom's kind is the reader's view of it and not the kernel's. Notation
 and methods keep their own records in `corpus/db/`.
+
+The axioms of set theory are in `stdlib/sets`, as a reader of Halmos meets
+them. Each that makes a collection says it exists, `𝒫X exists`, and assumes
+the collection it is made from exists, so a proof citing them chains them,
+as `proofs/halmos/union-exists` goes from pairing to unions. "Exists" is set
+theory's word for a collection it allows, as against one too big to be a
+set, such as the collection of all sets; the page's "set" is any collection
+(`let X be a set`), so the one word is not asked to mean both. Foundation is
+not stated: it speaks of a set's members as sets of the set's own sort,
+which the sorts forbid, as they forbid x ∈ x, so the paradoxes it rules out
+cannot be written. A proof that cites none of them never writes that a
+collection it builds exists; the build shows it (`READERS.md`).
 
 **A definition is where a word or symbol gets its meaning,** which is what
 Reader A means by "by definition". It is not a statement whose two sides may
@@ -623,6 +637,7 @@ this table is mundane.
 | completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
 | side-angle-side | `axiom` | "by SAS", isosceles step 5 |
+| extensionality, empty-set, pairing, unions, power-sets, separation, replacement, infinity, choice | `axiom` | "by the axiom of separation", the proofs of `proofs/halmos/` |
 | parallel-through | `theorem` | "draw the line through R parallel to PQ", angle-sum step 1; proved on the page from the parallel postulate |
 | the SMSG postulates, line-uniqueness to area-base-height | `axiom` | named as postulates, `GEOMETRY.md` |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
