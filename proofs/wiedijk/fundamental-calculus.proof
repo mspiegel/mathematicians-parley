@@ -48,7 +48,7 @@ theorem zero-derivative-ends
     inequalities
       a < b                  H3
       0 < b − a              adding −a
-      b − a > 0              symmetry
+      b − a > 0              restate
 
 7.  H(b) = H(a)
     algebra, from 5

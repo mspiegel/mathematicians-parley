@@ -90,8 +90,9 @@ up. Backward: (k(m² − n²))² + (2kmn)² = (k(m² + n²))². ∎
 4. **"If and only if" is proved a direction at a time,** by a new block,
    `both directions`, with a `direction` part for each.
 5. **The coprime-square item says gcd(s, t) = 1,** as a textbook does;
-   set.mm's form asks that s, t and the root share no factor all three, and
-   `proved.mm` bridges the two.
+   set.mm's form asks that s, t and the root share no factor all three. The
+   library proves the item on the page, in `corpus/stdlib/divisibility.proof`,
+   from the gcd of s and the root.
 6. **A contradiction ends on "2 ≤ 1, which is impossible",** not on a further
    step `not 2 ≤ 1` written only to be contradicted.
 7. **i is a letter where a line introduces it,** and the imaginary unit
@@ -124,7 +125,8 @@ up. Backward: (k(m² − n²))² + (2kmn)² = (k(m² + n²))². ∎
    nested "there is" now, which the three-name spelling builds.
 8. **Library items:** coprime-square, divides-transitive, divides-square,
    divides-quotient, gcd-quotients-coprime, square-equal, square-less and
-   square-positive, each set.mm's, coprime-square through `proved.mm`.
+   square-positive, each set.mm's but coprime-square, which is proved on the
+   page.
 9. **A letter that is a constant.** The first draft wrote `obtain i`, and the
    elaborator read i as the imaginary unit while the checker read it as the
    letter; the elaborator now reads it as the checker does.

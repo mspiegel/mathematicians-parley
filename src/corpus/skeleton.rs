@@ -511,8 +511,10 @@ pub fn names_an_item(text: &str) -> bool {
 /// Whether a line is a justification: it opens with a head, or it is a
 /// define's label in scope, alone or with `from` (`GRAMMAR.md`, Steps). A
 /// claim runs until the first such line.
-pub fn is_justification(text: &str, defines: &[String]) -> bool {
-    starts_with_head(text) || cites_define(text, defines)
+pub fn is_justification(text: &str, labels: &Labels) -> bool {
+    starts_with_head(text)
+        || cites_define(text, &labels.defines)
+        || cited_phrase(text, labels).is_some()
 }
 
 /// Whether a line is headed by a define's label: the label of a define in
@@ -544,10 +546,35 @@ fn offset(text: &str, piece: &str) -> usize {
     piece.as_ptr() as usize - text.as_ptr() as usize
 }
 
+/// The labels a justification may open with: those of the defines in scope,
+/// each cited alone or with `from`, and those of the file's defines of
+/// phrases, each cited as the item its define stands for.
+#[derive(Clone, Debug, Default)]
+pub struct Labels {
+    pub defines: Vec<String>,
+    pub phrases: Vec<PhraseLabel>,
+}
+
+/// A define of a phrase's label, and the item a line opening with it cites:
+/// `D1` cites `def:triangular-number`.
+#[derive(Clone, Debug)]
+pub struct PhraseLabel {
+    pub label: String,
+    pub kind: ItemKind,
+    pub name: String,
+}
+
+/// The phrase label a justification opens with, followed by a space, a
+/// comma or nothing; None where it opens otherwise.
+fn cited_phrase<'l>(text: &str, labels: &'l Labels) -> Option<&'l PhraseLabel> {
+    let first = text.split([' ', ',']).next()?;
+    labels.phrases.iter().find(|p| p.label == first)
+}
+
 /// Cut a justification, on `line` of `path`, into its head and slots.
-/// `defines` are the labels of the defines in scope, which a line headed
+/// `labels` are the labels of the defines in scope, which a line headed
 /// by one cites. A line opening with no head is a defect of the file.
-pub fn cut(text: &str, path: &str, line: usize, defines: &[String]) -> Checked<Slots> {
+pub fn cut(text: &str, path: &str, line: usize, labels: &Labels) -> Checked<Slots> {
     let text = str::trim(text);
     // A step reaching the opposite of an earlier line says so after its
     // reasons, `inequalities, from 3.1, contradicting 3.6`; the rest is
@@ -566,7 +593,7 @@ pub fn cut(text: &str, path: &str, line: usize, defines: &[String]) -> Checked<S
         }
         _ => (text, None),
     };
-    let mut slots = head_and_slots(said, path, line, defines)?;
+    let mut slots = head_and_slots(said, path, line, labels)?;
     slots.contradicting = contradicting;
     Ok(slots)
 }
@@ -593,14 +620,14 @@ pub fn cut_reason(text: &str, path: &str, line: usize) -> Checked<Slots> {
         from_slot(&pieces, &mut slots);
         return Ok(slots);
     }
-    cut(text, path, line, &[])
+    cut(text, path, line, &Labels::default())
 }
 
 fn head_and_slots(
     text: &str,
     path: &str,
     line: usize,
-    defines: &[String],
+    labels: &Labels,
 ) -> Checked<Slots> {
     let no_head = || {
         Problem::new(
@@ -627,10 +654,19 @@ fn head_and_slots(
         method_slots(method, text, &pieces, path, line, &mut slots);
         return Ok(slots);
     }
-    if cites_define(text, defines) {
+    if cites_define(text, &labels.defines) {
         let mut slots = Slots::new(Head::Define, text);
         slots.defined = Some(first.to_string());
         from_slot(&pieces[1..], &mut slots);
+        return Ok(slots);
+    }
+    // A phrase's label cites the item its define stands for, with values
+    // and lines as a citation of the item writes them.
+    if let Some(p) = cited_phrase(text, labels) {
+        let mut slots = Slots::new(Head::Define, text);
+        let head =
+            item_given(text, word, p.kind, p.name.clone(), path, line, &mut slots);
+        slots.head = head;
         return Ok(slots);
     }
     Err(no_head())
@@ -660,6 +696,22 @@ fn item(text: &str, path: &str, line: usize, slots: &mut Slots) -> Option<Head> 
     if cited.len() != name.len() {
         slots.unproduced(None);
     }
+    Some(item_given(text, word, kind, cited, path, line, slots))
+}
+
+/// The slots of a citation of an item whose head, `word`, the caller has
+/// read as citing `cited` of `kind`: the values after it and the lines
+/// after `from`.
+fn item_given(
+    text: &str,
+    word: &str,
+    kind: ItemKind,
+    cited: String,
+    path: &str,
+    line: usize,
+    slots: &mut Slots,
+) -> Head {
+    let pieces: Vec<&str> = split_commas(text).into_iter().map(str::trim).collect();
     let from_at = pieces
         .iter()
         .position(|p| after_word(p, "from").is_some())
@@ -672,7 +724,7 @@ fn item(text: &str, path: &str, line: usize, slots: &mut Slots) -> Option<Head> 
     let values = text[values_start..values_end].trim().trim_end_matches(',');
     namings(values, path, line, slots);
     from_slot(&pieces[from_at..], slots);
-    Some(Head::Item { kind, cited })
+    Head::Item { kind, cited }
 }
 
 /// Where `part`, a slice of `base`, starts in it.

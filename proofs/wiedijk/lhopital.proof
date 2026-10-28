@@ -176,7 +176,7 @@ theorem quotient-two-points
     4.7.  G(u) ≠ G(v)
           inequalities
             G(v) ≠ G(u)          4.6
-            G(u) ≠ G(v)          symmetry
+            G(u) ≠ G(v)          restate
           requires G(u) ∈ ℝ: from H3, H7
           requires G(v) ∈ ℝ: from H4, H7
 
@@ -214,7 +214,7 @@ theorem quotient-two-points
             v < ξ                    4.11
             v − u < ξ − u            adding −u
             −(v − u) > −(ξ − u)      multiplying by −1
-            −(ξ − u) < −(v − u)      symmetry
+            −(ξ − u) < −(v − u)      restate
 
     4.15. |ξ − u| < |v − u|
           calculation
@@ -274,13 +274,13 @@ theorem quotient-two-points
           inequalities
             u < ξ                    4.26
             0 < ξ − u                adding −u
-            ξ − u > 0                symmetry
+            ξ − u > 0                restate
 
     4.28. v − u > 0
           inequalities
             u < v                    C2
             0 < v − u                adding −u
-            v − u > 0                symmetry
+            v − u > 0                restate
 
     4.29. |ξ − u| = ξ − u
           mun:abs x := ξ − u
@@ -498,7 +498,7 @@ let G(t) = 0       if t = c
 26. G(x) ≠ 0
     inequalities
       0 ≠ G(x)          25
-      G(x) ≠ 0          symmetry
+      G(x) ≠ 0          restate
     requires G(x) ∈ ℝ: from 13, 22
 
 27. ξ ∈ (a, b) ∖ {c}. |ξ − c| < |x − c| and (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ).

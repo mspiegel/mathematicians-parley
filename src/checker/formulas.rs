@@ -21,7 +21,7 @@ use crate::corpus::{
 };
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
-    conjoined, disjoined, made, numeral, related, Sentence, Written,
+    conjoined, disjoined, made, made_by_name, numeral, related, Sentence, Written,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::{walk, Node, Sort, Sorts};
@@ -38,7 +38,8 @@ use crate::notations::{
     APPLICATION, APPLICATION_TO_TWO, AT_LEAST, AT_MOST, BICONDITIONAL, BY_CASES,
     CONDITIONAL, CONJUNCTION, EQUALITY, EQUALS, EQUAL_CHAIN, FOR_ALL, FOR_ALL_SETS,
     GREATER, IMPLICATION, INTEGER_RANGE, LESS, LOGICAL_NOT, MEMBERSHIP, NUMBER_SYSTEMS,
-    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, REAL_POWER, SUM, TIMES,
+    NUMERAL, ORDER, PLUS, PRODUCT, PRODUCT_OVER, REAL_POWER, SINGLETON, SUM, TIMES,
+    UNION,
 };
 use crate::outcome::{Built, Checked, Declined, Problem};
 use crate::rules::System;
@@ -594,8 +595,8 @@ fn operations_by(
 /// denies. `inspection` is asked of each word its claim says, where no line
 /// the step cites says that word, since a word a cited line says of each
 /// element is read off the line and not decided. The elaborator sees
-/// "divides", "is even" and "is odd" as one relation, so the word is told
-/// apart here.
+/// "divides" and "is even" as one relation, and "is odd" as a membership of
+/// ℤ joined to the denial of it, so the word is told apart here.
 pub fn check_decided_words(
     report: &mut Report,
     thm: &Theorem,
@@ -1804,12 +1805,20 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
         let written = Written::new(v, &known.thm.path, owner.just.line);
         known.read_as_written(&written.formula().ok()?)
     });
-    let next = made(known.env.g, PLUS, vec![letter.clone(), numeral("1")]);
+    // Over the parts of a set the step owes the statement at Y ∪ {a}, a the
+    // member its third line adds; over numbers, at k + 1.
+    let next = match super::structure::parts_of(&claim.children[1]) {
+        None => Some(made(known.env.g, PLUS, vec![letter.clone(), numeral("1")])),
+        Some(_) => member_added(owner, known).map(|a| {
+            let one = made_by_name(known.env.g, SINGLETON, vec![a]);
+            made(known.env.g, UNION, vec![letter.clone(), one])
+        }),
+    };
     let mut owed = Vec::new();
     for (part, (marker, _)) in owner.parts.iter().enumerate() {
         let (value, which) = match marker.as_str() {
             "base" => (start.clone(), "base"),
-            "step" => (Some(next.clone()), "step"),
+            "step" => (next.clone(), "step"),
             _ => continue,
         };
         if let Some(claim) = value.map(at) {
@@ -1821,6 +1830,26 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
         }
     }
     owed
+}
+
+/// The member an induction over the parts of a set adds in its step part,
+/// the a of its third line `let a ∈ X ∖ Y`; None where the part does not
+/// open so, which `check_step_part` reports.
+fn member_added(owner: &Step, known: &Known) -> Option<Node> {
+    let part = owner
+        .parts
+        .iter()
+        .position(|(marker, _)| marker == "step")?;
+    let lets: Vec<_> = owner
+        .openers
+        .iter()
+        .filter(|o| o.part == Some(part) && o.kind == Intro::Let && !o.is_hypothesis)
+        .collect();
+    let [_, third] = lets.as_slice() else {
+        return None;
+    };
+    let said = super::structure::let_said(third, known.thm, known)?;
+    said.children.first().cloned()
 }
 
 /// What a `proof` block owes: its claim with a "for all" taken off for each
@@ -2518,6 +2547,21 @@ pub fn check_algebra_holds(
 ) {
     for step in &thm.steps {
         if step.just.head.is(Method::Algebra) {
+            if let Some(order) = cited_chain(thm, step, known) {
+                let said = match order.as_slice() {
+                    [one] => format!(
+                        "step {} says an equation {one} says, which is `restate {one}`, not algebra",
+                        step.number
+                    ),
+                    _ => format!(
+                        "step {} chains the equations it cites, which is `transitivity, from {}`, not algebra",
+                        step.number,
+                        order.join(", ")
+                    ),
+                };
+                report.say(&thm.path, step.just.line, said);
+                continue;
+            }
             let decided =
                 algebra_holds(report, thm, &ClosureClaim::step(step), known, targets);
             if !decided {
@@ -2537,6 +2581,79 @@ pub fn check_algebra_holds(
             }
         }
     }
+}
+
+/// The lines an `algebra` step cites in an order that chains them from one
+/// side of its equation to the other (`METHODS.md`, algebra, Refusals),
+/// each line by one equation it says, a define of a name by the equation it
+/// gives; None where they make no such chain. A step whose claim is such a
+/// chain is a `transitivity` or a calculation, or of one line a `restate`,
+/// and combines nothing.
+fn cited_chain(thm: &Theorem, step: &Step, known: &Known) -> Option<Vec<String>> {
+    let claim = known
+        .whole_as_written(&step.claim)
+        .as_ref()
+        .and_then(Related::of)
+        .filter(|c| c.rel == Rel::Eq)?;
+    if step.just.refs.is_empty() {
+        return None;
+    }
+    let mut links: Vec<Vec<Related>> = Vec::new();
+    for r in &step.just.refs {
+        let mut equations: Vec<Related> = line_relations(step, r, known)
+            .into_iter()
+            .filter(|l| l.rel == Rel::Eq)
+            .collect();
+        equations.extend(
+            define_equation(thm, step, r, known)
+                .as_ref()
+                .and_then(Related::of),
+        );
+        if equations.is_empty() {
+            return None;
+        }
+        links.push(equations);
+    }
+    let mut used: Vec<usize> = Vec::new();
+    if !chain_order(&claim.left, &claim.right, &links, &mut used, known) {
+        return None;
+    }
+    Some(used.iter().map(|&i| step.just.refs[i].clone()).collect())
+}
+
+/// Whether every link not yet `used` can be taken, one equation of each, in
+/// an order going from `at` to `end`, each link's side meeting the term the
+/// one before ends at, written the same way; `used` holds the order found.
+fn chain_order(
+    at: &Node,
+    end: &Node,
+    links: &[Vec<Related>],
+    used: &mut Vec<usize>,
+    known: &Known,
+) -> bool {
+    if used.len() == links.len() {
+        return known.alike(at, end);
+    }
+    for (i, equations) in links.iter().enumerate() {
+        if used.contains(&i) {
+            continue;
+        }
+        for link in equations {
+            let next = if known.alike(at, &link.left) {
+                &link.right
+            } else if known.alike(at, &link.right) {
+                &link.left
+            } else {
+                continue;
+            };
+            used.push(i);
+            if chain_order(next, end, links, used, known) {
+                return true;
+            }
+            used.pop();
+        }
+    }
+    false
 }
 
 /// `check_algebra_holds` of one claim; whether it was decided, the build
@@ -2904,7 +3021,7 @@ impl Related {
 
     /// Whether this says what `other` says, written the same way round: a
     /// row's relation as it stands (`METHODS.md`, inequalities, Rows), where
-    /// turning an order round is a `symmetry` row of its own.
+    /// turning an order round is a `restate` row of its own.
     fn says_as_written(&self, other: &Related, known: &Known) -> bool {
         self.rel == other.rel
             && known.alike(&self.left, &other.left)
@@ -3607,7 +3724,7 @@ fn row_follows(
         }
         // An equation's sides swapped, or an order turned round: `a > 0` to
         // `0 < a`.
-        (RowReason::Symmetry, _) => row.says_as_written(&above.turned(), known),
+        (RowReason::Restate, _) => row.says_as_written(&above.turned(), known),
         (RowReason::Weakening, _) => {
             let weaker = matches!(
                 (above.rel, row.rel),
@@ -3629,7 +3746,7 @@ fn row_follows(
 
 /// Whether `row` relates by `rel` two sides that are `left` and `right`,
 /// each as one number (`one_number`), written that way round: an
-/// equation's sides swapped, or an order turned round, is a `symmetry` row
+/// equation's sides swapped, or an order turned round, is a `restate` row
 /// of its own.
 fn row_is(
     row: &Related,
@@ -3652,7 +3769,7 @@ fn row_said(reason: &RowReason) -> String {
         RowReason::Multiplying(c) => {
             format!("with both sides multiplied by {c}, a numeral other than 0")
         }
-        RowReason::Symmetry => "with its two sides swapped".to_string(),
+        RowReason::Restate => "with its two sides swapped".to_string(),
         RowReason::Weakening => "with its relation weakened".to_string(),
         RowReason::Algebra => {
             "with a side written as the same number another way".to_string()
@@ -3718,12 +3835,12 @@ pub fn check_inequality_rows(
             line.says_as_written(&read[0], known)
                 || (!line.written && line.says(&read[0], known))
         }) {
-            // The line turned round is a symmetry row after it, not the
+            // The line turned round is a restate row after it, not the
             // first row (`METHODS.md`, inequalities, Rows).
             let turned = cited_lines.iter().any(|line| line.says(&read[0], known));
             let said = if turned {
                 format!(
-                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a symmetry row"
+                    "the first row of step {number} is the line it cites turned round; write the line as it is written, and turn it with a restate row"
                 )
             } else {
                 format!(
@@ -3761,8 +3878,8 @@ pub fn check_inequality_rows(
                 targets,
             ) {
                 // The manipulation and a turn are two rows, the turn a
-                // symmetry row of its own.
-                let turned = !matches!(row.reason, RowReason::Symmetry)
+                // restate row of its own.
+                let turned = !matches!(row.reason, RowReason::Restate)
                     && row_follows(
                         &read[i - 1],
                         &read[i].turned(),
@@ -3773,7 +3890,7 @@ pub fn check_inequality_rows(
                     );
                 let said = if turned {
                     format!(
-                        "a row of step {number} is the row above {}, turned round; turning it round is a symmetry row of its own",
+                        "a row of step {number} is the row above {}, turned round; turning it round is a restate row of its own",
                         row_said(&row.reason)
                     )
                 } else {
@@ -3817,7 +3934,7 @@ pub fn check_inequality_rows(
         {
             let said = if claimed.is_some_and(|c| c.says(last, known)) {
                 format!(
-                    "the last row of step {number} is its claim turned round; end with a symmetry row that writes the claim as it is written"
+                    "the last row of step {number} is its claim turned round; end with a restate row that writes the claim as it is written"
                 )
             } else {
                 format!("the last row of step {number} is not its claim")
@@ -3881,7 +3998,7 @@ pub fn check_requires_manipulations(
                 // The manipulation and a turn are two, and a requires line
                 // names one (`METHODS.md`, inequalities, Rows).
                 let turned = fact.as_ref().map(Related::turned).filter(|turned| {
-                    !matches!(reason, RowReason::Symmetry)
+                    !matches!(reason, RowReason::Restate)
                         && said.iter().any(|line| {
                             row_follows(
                                 line,

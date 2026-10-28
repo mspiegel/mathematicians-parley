@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use super::grammar::{fits, parse, wanted_reading, Grammar, Sorts};
 use super::node::{Node, Sort};
-use super::notation_id::Spelling;
+use super::notation_id::{NotationId, Spelling};
 use super::symbol::Symbol;
 use super::token::Token;
 use crate::notations::{AND, EQUALS, EQUAL_CHAIN, OR};
@@ -335,6 +335,23 @@ pub fn made(g: &Grammar, spelling: Spelling, children: Vec<Node>) -> Node {
             "the database declares no notation {} written {} of {} holes",
             spelling.notation.name(),
             spelling.text(),
+            children.len()
+        );
+    };
+    Node::of(n.spelling(), Sort::of(&n.yields), children)
+}
+
+/// `made`, for a notation the database declares with one pattern of that
+/// many holes, `∅` or `{_}`, named by the notation alone, its literal being
+/// the pattern's own.
+pub fn made_by_name(g: &Grammar, notation: NotationId, children: Vec<Node>) -> Node {
+    let mut found = g.notations.iter().filter(|n| {
+        n.spelling().notation == notation && n.holes.len() == children.len()
+    });
+    let (Some(n), None) = (found.next(), found.next()) else {
+        panic!(
+            "the database declares no one notation {} of {} holes",
+            notation.name(),
             children.len()
         );
     };

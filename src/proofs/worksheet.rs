@@ -6,10 +6,14 @@
 //! anywhere, and is not copied. Each lemma is written as a proof worksheet:
 //!
 //! ```text
-//! lemma gcoprimesq
-//!   |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> …
-//!   1 simpr |- ( ( ( A e. NN0 /\ B e. ZZ /\ C e. NN0 ) /\ ( A gcd B ) = 1 ) -> …
-//!   2 oveq1d 1 |- ( … -> ( ( A gcd B ) gcd C ) = ( 1 gcd C ) )
+//! lemma gsangid
+//!   hypothesis gsangid.1 |- ( ph -> P e. CC )
+//!   hypothesis gsangid.2 |- ( ph -> Q e. CC )
+//!   hypothesis gsangid.3 |- ( ph -> P =/= Q )
+//!   |- ( ph -> ( ( P - Q ) ang ( P - Q ) ) = 0 )
+//!   1 subcld gsangid.1 gsangid.2 |- ( ph -> ( P - Q ) e. CC )
+//!   2 subne0d gsangid.1 gsangid.2 gsangid.3 |- ( ph -> ( P - Q ) =/= 0 )
+//!   …
 //! ```
 //!
 //! The first line under `lemma` is what it proves, after any `hypothesis`

@@ -8,14 +8,14 @@ import mundane theorem    stdlib/trigonometry/sin-negative
 import mundane theorem    stdlib/trigonometry/sin-real
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import theorem            stdlib/geometry/intersecting-chords
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-symmetric
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/multiply-cancel
@@ -155,16 +155,16 @@ theorem cyclic-ptolemy
     thm:intersecting-chords B := C, C := B, from H7, H8, H9, H10, H11
 
 4.  ∠APB + ∠BPC = 180°
-    thm:supplementary-angles B := P, D := B, from H10, 2
+    axi:supplementary-angles B := P, D := B, from H10, 2
 
 5.  ∠BPC + ∠CPD = 180°
-    thm:supplementary-angles A := B, B := P, C := D, D := C, from H11, 1
+    axi:supplementary-angles A := B, B := P, C := D, D := C, from H11, 1
 
 6.  P is between C and A
     mun:between-symmetric R := P, S := A, T := C, from H10
 
 7.  ∠CPD + ∠DPA = 180°
-    thm:supplementary-angles A := C, B := P, C := A, from 2, 6
+    axi:supplementary-angles A := C, B := P, C := A, from 2, 6
 
 8.  ∠BPC = 180° − ∠APB
     algebra, from 4

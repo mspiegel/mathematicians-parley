@@ -1,7 +1,7 @@
 import theorem            stdlib/geometry/law-of-sines
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-symmetric
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-on-side
@@ -58,15 +58,15 @@ theorem cevian-ratio
     thm:law-of-sines P := C, Q := O, R := D, from 6
 
 11. ∠BDO + ∠ODC = 180°
-    thm:supplementary-angles A := B, B := D, D := O, from H7
+    axi:supplementary-angles A := B, B := D, D := O, from H7
     requires O ≠ D: mun:triangle, from 5
 
 12. ∠DOB + ∠BOA = 180°
-    thm:supplementary-angles A := D, B := O, C := A, D := B, from 4
+    axi:supplementary-angles A := D, B := O, C := A, D := B, from 4
     requires B ≠ O: mun:triangle, from 5
 
 13. ∠AOC + ∠COD = 180°
-    thm:supplementary-angles B := O, C := D, D := C, from H8
+    axi:supplementary-angles B := O, C := D, D := C, from H8
     requires C ≠ O: mun:triangle, from 6
 
 14. ∠ODC = 180° − ∠BDO

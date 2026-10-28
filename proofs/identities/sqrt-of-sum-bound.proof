@@ -36,7 +36,7 @@ theorem sqrt-of-sum-bound
 8.  a + b ≤ a + b + 2·(√a·√b)
     inequalities
       √a·√b ≥ 0                          6
-      0 ≤ √a·√b                          symmetry
+      0 ≤ √a·√b                          restate
       0 ≤ 2·(√a·√b)                      multiplying by 2
       a + b ≤ a + b + 2·(√a·√b)          adding a + b
     requires √a ∈ ℝ: from 1

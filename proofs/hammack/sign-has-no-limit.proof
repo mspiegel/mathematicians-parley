@@ -55,7 +55,7 @@ theorem sign-has-no-limit
             p/2 > 0                1.5
             p/2 + p/2 > p/2        adding p/2
             p > p/2                algebra
-            p/2 < p                symmetry
+            p/2 < p                restate
 
     1.10. |p/2 − 0| < p
           transitivity, from 1.8, 1.9

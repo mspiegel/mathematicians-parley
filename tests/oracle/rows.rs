@@ -172,7 +172,7 @@ fn manipulated(
                 high: above.low.clone(),
                 rel: Rel::Eq,
             },
-            reason: "symmetry".to_string(),
+            reason: "restate".to_string(),
         }),
         _ => {
             let rel = match (above.rel, wrong) {

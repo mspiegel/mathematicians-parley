@@ -127,7 +127,7 @@ theorem a-for-all-line-split-by-cases
                     y + (−y) < 0 + (−y)      adding −y
                     0 < −y                   algebra
                     0 ≤ −y                   weakening
-                    −y ≥ 0                   symmetry
+                    −y ≥ 0                   restate
 
           1.1.5.  |y| ≥ 0
                   calculation

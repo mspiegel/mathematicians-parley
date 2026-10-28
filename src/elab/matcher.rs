@@ -1025,8 +1025,8 @@ impl<'a> Elaborator<'a> {
         self.rpn(&faced(self, &term))
     }
 
-    /// ( scope -> F : A ⟶ C ), F the name a define gives the map ( x ∈ A ↦
-    /// B ), where B is in C at every point of A (`fmpt`, `feq1d`): a
+    /// ( scope -> F : A ⟶ C ), F the map ( x ∈ A ↦ B ) or the name a define
+    /// gives it, where B is in C at every point of A (`fmpt`, `feq1d`): a
     /// defined function's type, which the page says once where its rule is
     /// a number there by what it says once (`SYNTAX.md`, "A define with a
     /// parameter also states what its function is on").
@@ -1043,6 +1043,11 @@ impl<'a> Elaborator<'a> {
         let [domain, codomain, named] = wanted.children() else {
             return Ok(None);
         };
+        // A map written as a map, as a rule a citation gives a function
+        // letter is read (`rule_as_map`), is typed by its rule alone.
+        if named.label() == Some("cmpt") {
+            return self.map_type(named, domain, codomain, scope, facts, depth);
+        }
         // A define's name is equal to its map by the define's own line,
         // which every step may rest on.
         let var = match (named.label(), named.children()) {
@@ -1917,6 +1922,10 @@ impl<'a> Elaborator<'a> {
         if self.term(node)? == *old {
             return Ok(Built((new.clone(), eqproof.clone())));
         }
+        // A phrase is its meaning in set.mm, so it is rewritten there.
+        if let Some(meaning) = self.phrase_written_out(node) {
+            return self.rewrite(&meaning, old, new, scope, eqproof);
+        }
         // A library function's application fills what its definition builds
         // with its arguments; its name fills no slot.
         let library = self.library_application(node);
@@ -2103,6 +2112,18 @@ impl<'a> Elaborator<'a> {
         }
         let lemma = rules::congruence(&head, &slots)
             .unwrap_or_else(|| panic!("no congruence for {head} at {slots:?}"));
+        // A function changing in its type, `feq1d` and `f1oeq1d`: their
+        // letters are bound by name, since set.mm declares the domain and
+        // codomain before the function, which the order below would not.
+        if matches!(head.as_str(), "wf" | "wf1o") && slots == [2] {
+            let carried = self.b.ap(
+                lemma,
+                &binds! {"ph" => scope, "A" => &was[0], "B" => &was[1],
+                "F" => &was[2], "G" => &now[2]},
+                &[&deeper[0]],
+            );
+            return Built((spelt_now, carried));
+        }
         let mut all: Vec<crate::mm::spell::Part> = vec![crate::elab::part(scope)];
         for &slot in &slots {
             all.push(crate::elab::part(&was[slot]));
@@ -2513,6 +2534,40 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
+        self.same_by(given, want, scope, facts, step, vec![Row::Standard])
+    }
+
+    /// `same`, where the two may also differ by an identity element left
+    /// out (`Row::Identity`): what the checker reads as one term
+    /// (`Known::alike`), (∏(y ∈ Y) 1)·1 and ∏(y ∈ Y) 1.
+    pub fn alike(
+        &mut self,
+        given: &Term,
+        want: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+    ) -> Checked<Route<Proof>> {
+        self.same_by(
+            given,
+            want,
+            scope,
+            facts,
+            step,
+            vec![Row::Standard, Row::Identity],
+        )
+    }
+
+    /// `same` by the rows given.
+    fn same_by(
+        &mut self,
+        given: &Term,
+        want: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+        step: Option<&Step>,
+        rows: Vec<Row>,
+    ) -> Checked<Route<Proof>> {
         // The two are compared with their defined names written out, and
         // what that asks of a part is asked of it written out, so the facts
         // are read the same way.
@@ -2531,14 +2586,7 @@ impl<'a> Elaborator<'a> {
         let mut letters = self.letters_bound(&given_read);
         letters.extend(self.letters_bound(&want_read));
         let kept = std::mem::replace(&mut self.binding, letters);
-        let out = self.congruence(
-            given,
-            want,
-            scope,
-            facts,
-            step,
-            &Leaf::Rows(vec![Row::Standard]),
-        );
+        let out = self.congruence(given, want, scope, facts, step, &Leaf::Rows(rows));
         self.binding = kept;
         out
     }
@@ -5456,9 +5504,10 @@ impl<'a> Elaborator<'a> {
                 }
                 // Kept apart from a class the claim leaves open, which the
                 // scope may spell; or from another letter the claim has
-                // fixed, which a cited line may bind as well: `gfprodrp`
-                // keeps its x from the product's k, and a line saying "for
-                // all r ∈ S" would hand x the r the product fixed as k.
+                // fixed, which a cited line may bind as well: a lemma about a
+                // product may keep its x from the product's k, and a line
+                // saying "for all r ∈ S" would hand x the r the product fixed
+                // as k.
                 let from_class = !binding.contains_key(other)
                     && !matches!(kinds.get(other.as_str()), None | Some(&"setvar"));
                 let from_fixed = kinds.get(other.as_str()) == Some(&"setvar")
@@ -6610,25 +6659,141 @@ impl<'a> Elaborator<'a> {
     /// triangle or a collinearity it says with its three points in another
     /// order (`REORDERS`), which `settle` then carries to the order asked.
     /// None where no line fits.
-    fn fit_whole(
+    /// Every way a line of `known` says `slot` whole, in the order of the
+    /// lines, each line's first.
+    fn fits_whole(
         &mut self,
         slot: &Term,
         known: &[Rpn],
         binding: &Binding,
         variables: &Vars,
         fresh: &Binding,
-    ) -> Option<Binding> {
+    ) -> Vec<Binding> {
+        let mut out = Vec::new();
         for held in known {
             let held = self.to_term(held);
             for said in self.in_every_order(&held) {
                 if let Some(filled) =
                     self.fit_respelt_in_no_order(slot, &said, binding, variables, fresh)
                 {
-                    return Some(filled);
+                    out.push(filled);
+                    break;
                 }
             }
         }
-        None
+        out
+    }
+
+    /// Of the ways a conjunct fits the lines the step has, the first under
+    /// which every antecedent still to be matched that it decides whole is
+    /// one of those lines; the first way where none is. A conjunct with a
+    /// letter open can fit several lines: `X is on line AB` fits each line X
+    /// is on, and only one of them makes `not (Y is on line AB)` a line the
+    /// step has.
+    fn fit_answering_rest(
+        &mut self,
+        fits: Vec<Binding>,
+        pending: &[&Term],
+        before: &Binding,
+        known: &[Rpn],
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Option<Binding> {
+        let first = fits.first().cloned();
+        for filled in fits {
+            if self.answers_decided(pending, before, &filled, known, variables, fresh) {
+                return Some(filled);
+            }
+        }
+        first
+    }
+
+    /// Whether each antecedent of `pending` that `filled` decides whole,
+    /// and `before` did not, is answered conjunct by conjunct by a line of
+    /// `known`.
+    fn answers_decided(
+        &mut self,
+        pending: &[&Term],
+        before: &Binding,
+        filled: &Binding,
+        known: &[Rpn],
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> bool {
+        for slot in pending {
+            if slot.variable().is_some()
+                || decides(slot, before)
+                || !decides(slot, filled)
+            {
+                continue;
+            }
+            for piece in conjuncts_of(slot) {
+                // Answered as the line is written or as the standard form
+                // reads it: a step may say A ≠ B as `-. A = B`.
+                let answered = known.iter().any(|held| {
+                    let held = self.to_term(held);
+                    self.fit_respelt_in_no_order(
+                        &piece, &held, filled, variables, fresh,
+                    )
+                    .is_some()
+                        || self
+                            .fits_as(&piece, &held, variables, Some(filled))
+                            .is_some()
+                });
+                if !answered {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    /// The conjuncts of an antecedent no line says whole, taken apart only
+    /// as far as they must be. A part that is itself a conjunction with a
+    /// letter still open is answered whole where a line says it, which
+    /// fixes its letters together, as `fits_whole` does for the antecedent:
+    /// taken apart, a triangle's `-. B = C` would be fitted in no order
+    /// against `-. A = B` and take C from A.
+    fn open_pieces(
+        &mut self,
+        slot: &Term,
+        pending: &[&Term],
+        known: &[Rpn],
+        binding: &mut Binding,
+        variables: &Vars,
+        fresh: &Binding,
+    ) -> Vec<Term> {
+        let mut pieces = Vec::new();
+        let mut parts: Vec<Term> = slot.children().iter().rev().cloned().collect();
+        if !is_conjunction(slot) {
+            parts = vec![slot.clone()];
+        }
+        while let Some(part) = parts.pop() {
+            if !is_conjunction(&part) {
+                pieces.push(part);
+                continue;
+            }
+            let open = part.names().iter().any(|n| !binding.contains_key(&**n));
+            if open {
+                // A line that says the part whole answers it only where what
+                // it decides of the rest is answered too: `( A =/= B /\ C =/=
+                // D )` is said by any two disequalities.
+                let rest: Vec<&Term> =
+                    parts.iter().chain(pending.iter().copied()).collect();
+                let wholes = self.fits_whole(&part, known, binding, variables, fresh);
+                let answering = wholes.into_iter().find(|filled| {
+                    self.answers_decided(
+                        &rest, binding, filled, known, variables, fresh,
+                    )
+                });
+                if let Some(filled) = answering {
+                    *binding = filled;
+                    continue;
+                }
+            }
+            parts.extend(part.children().iter().rev().cloned());
+        }
+        pieces
     }
 
     /// `term`, and where it is a claim about three points in no order
@@ -6758,32 +6923,22 @@ impl<'a> Elaborator<'a> {
         term.with_children(kids)
     }
 
-    /// `binding` with a value the reading wrote out put back as `term`
-    /// writes it, where written out it spells a letter another value binds.
+    /// `binding` with each value the reading wrote out put back as `term`
+    /// writes it. The reading is for finding what the lemma's letters stand
+    /// for, and its conditional rules hold only where their conditions do:
+    /// |A − B| for two points read as A − B by `nn0absid` is a value no
+    /// instance of the lemma can be carried back from to the claim.
     fn refolded(&mut self, binding: Binding, term: &Term) -> Binding {
-        // What each value binds, and a lemma's own letter as the letter it
-        // stands for.
-        let mut binds: IndexMap<String, BTreeSet<String>> = IndexMap::new();
-        for (name, value) in &binding {
-            let mut out: BTreeSet<String> = self
-                .letters_bound(value)
-                .iter()
-                .map(|v| self.float_of(v))
-                .filter(|l| self.is_setvar(l))
-                .collect();
-            if let Some(v) = value.variable() {
-                let l = self.float_of(v);
-                if self.is_setvar(&l) {
-                    out.insert(l);
-                }
-            }
-            binds.insert(name.to_string(), out);
-        }
         // A part behind a defined name is written as the define writes it:
         // a ∈ C, C the set {m ∈ ℝ : |m| = r}, has |m| = r as a part, and the
         // reading's conditional rules take it to m = r.
         let named = self.names_read(term, None);
         let mut written: IndexMap<Rpn, Term> = IndexMap::new();
+        // A value `term` writes as it stands is left as it is: x in
+        // x ≠ 0 ↔ |x| > 0 is x, though |x| reads as x by `nn0absid`.
+        let mut as_written: BTreeSet<Rpn> = BTreeSet::new();
+        self.written_unpeeled(term, &mut as_written);
+        self.written_unpeeled(&named, &mut as_written);
         for sub in subterms(term).into_iter().chain(subterms(&named)) {
             let read = self.read_through(&sub, true, None);
             written.entry(self.rpn(&read)).or_insert(sub);
@@ -6791,23 +6946,35 @@ impl<'a> Elaborator<'a> {
         let mut out = binding.clone();
         for (name, value) in &binding {
             let said = self.rpn(value);
-            let others: BTreeSet<&String> = binds
-                .iter()
-                .filter(|(n, _)| *n != name)
-                .flat_map(|(_, b)| b.iter())
-                .collect();
+            if as_written.contains(&said) {
+                continue;
+            }
             if let Some(w) = written.get(&said) {
-                if said
-                    .tokens()
-                    .iter()
-                    .any(|t| others.iter().any(|o| *t == o.as_str()))
-                    && self.rpn(w) != said
-                {
+                if self.rpn(w) != said {
                     out.insert(*name, w.clone());
                 }
             }
         }
         out
+    }
+
+    /// Each part of `term` as it is written, into `out`, leaving out a part
+    /// that is written only inside a whole the reading takes to it: A − B in
+    /// |A − B|, which `nn0absid` reads as A − B, is not written as it stands.
+    fn written_unpeeled(&mut self, term: &Term, out: &mut BTreeSet<Rpn>) {
+        out.insert(self.rpn(term));
+        if term.variable().is_some() {
+            return;
+        }
+        let read = self.read_through(term, true, None);
+        let read = self.rpn(&read);
+        let whole = self.rpn(term);
+        for child in term.children() {
+            if read != whole && self.rpn(child) == read {
+                continue;
+            }
+            self.written_unpeeled(child, out);
+        }
     }
 
     /// A term with every one-way rule of the standard form applied, parts
@@ -7433,12 +7600,30 @@ impl<'a> Elaborator<'a> {
                 // conjunct at a time, a triangle's `-. Q = R` takes R from
                 // whichever disequality of Q comes first.
                 Some(s) => {
-                    match self.fit_whole(s, &known_keys, &binding, &variables, &fresh) {
+                    let wholes =
+                        self.fits_whole(s, &known_keys, &binding, &variables, &fresh);
+                    let whole = self.fit_answering_rest(
+                        wholes,
+                        &pending,
+                        &binding,
+                        &known_keys,
+                        &variables,
+                        &fresh,
+                    );
+                    match whole {
                         Some(filled) => {
                             binding = filled;
                             Vec::new()
                         }
-                        None => conjuncts_of(s)
+                        None => self
+                            .open_pieces(
+                                s,
+                                &pending,
+                                &known_keys,
+                                &mut binding,
+                                &variables,
+                                &fresh,
+                            )
                             .into_iter()
                             .filter(|p| !loose.iter().any(|one| one.same_object(p)))
                             .collect(),
@@ -7448,11 +7633,17 @@ impl<'a> Elaborator<'a> {
             // What the lemma concludes need not fix everything it asks, so an
             // antecedent that is still open is matched against something the
             // step already has, one conjunct at a time.
-            for piece in &pieces {
+            for (i, piece) in pieces.iter().enumerate() {
                 if piece.names().iter().all(|n| binding.contains_key(&**n)) {
                     continue;
                 }
-                let mut filled_any = false;
+                // What is still to be matched: the pieces after this one and
+                // the antecedents after this one.
+                let rest: Vec<&Term> = pieces[i + 1..]
+                    .iter()
+                    .chain(pending.iter().copied())
+                    .collect();
+                let mut fits: Vec<Binding> = Vec::new();
                 for held in &known_keys {
                     if let Some(filled) = self.fit_respelt_in_no_order(
                         piece,
@@ -7461,21 +7652,40 @@ impl<'a> Elaborator<'a> {
                         &variables,
                         &fresh,
                     ) {
-                        binding = filled;
-                        filled_any = true;
-                        break;
+                        fits.push(filled);
                     }
+                }
+                let filled_any = !fits.is_empty();
+                if let Some(chosen) = self.fit_answering_rest(
+                    fits,
+                    &rest,
+                    &binding,
+                    &known_keys,
+                    &variables,
+                    &fresh,
+                ) {
+                    binding = chosen;
                 }
                 if !filled_any {
                     // Or as the standard form reads the line.
+                    let mut read: Vec<Binding> = Vec::new();
                     for held in &known_keys {
                         let fact = self.to_term(held);
                         if let Some(filled) =
                             self.fits_as(piece, &fact, &variables, Some(&binding))
                         {
-                            binding = filled;
-                            break;
+                            read.push(filled);
                         }
+                    }
+                    if let Some(chosen) = self.fit_answering_rest(
+                        read,
+                        &rest,
+                        &binding,
+                        &known_keys,
+                        &variables,
+                        &fresh,
+                    ) {
+                        binding = chosen;
                     }
                 }
             }
@@ -8097,6 +8307,16 @@ fn function_fixed(piece: &Term, binding: &Binding) -> bool {
 }
 
 /// The things a lemma's antecedent asks, one conjunct at a time.
+/// Whether `binding` gives every letter of `slot` a value.
+fn decides(slot: &Term, binding: &Binding) -> bool {
+    slot.names().iter().all(|n| binding.contains_key(&**n))
+}
+
+/// Whether a term is a conjunction, of two parts or of three.
+fn is_conjunction(term: &Term) -> bool {
+    matches!(term.label(), Some("wa") | Some("w3a"))
+}
+
 pub fn conjuncts_of(slot: &Term) -> Vec<Term> {
     let mut pieces = Vec::new();
     let mut parts = std::collections::VecDeque::from([slot.clone()]);

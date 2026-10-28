@@ -1,0 +1,24 @@
+
+import definition         tests/elaborator/a-phrase-defined/triangular-number
+
+theorem ten-is-triangular
+  note        A phrase another file defines is imported by its define's name
+              and cited as a definition.
+  then 10 is a triangular number
+
+1.  10 = 4(4 + 1)/2
+    arithmetic
+
+2.  There is k ∈ ℕ with 10 = k(k + 1)/2.
+    exhibit, from 1
+
+3.  10 is a triangular number
+    def:triangular-number n := 10, from 2
+
+theorem not-triangular-said-two-ways
+  note        "Is not a" is the phrase wrapped in `not`, one formula.
+  assume 4 is not a triangular number                                 (H1)
+  then not (4 is a triangular number)
+
+1.  not (4 is a triangular number)
+    restate H1

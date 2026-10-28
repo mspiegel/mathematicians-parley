@@ -308,7 +308,7 @@ theorem primitive-triple
     inequalities
       a² > 0              26
       a² + b² > b²        adding b²
-      b² < a² + b²        symmetry
+      b² < a² + b²        restate
 
 28. b² < c²
     transitivity, from 27, H4

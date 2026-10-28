@@ -1,0 +1,28 @@
+define triangular-number: n is a triangular number means
+       n ∈ ℕ and there is k ∈ ℕ with n = k(k + 1)/2                    (D1)
+       reads n is k(k + 1)/2 for some natural number k
+
+theorem six-is-triangular
+  note        A phrase is cited for its meaning by the label of its define.
+  then 6 is a triangular number
+
+1.  6 = 3(3 + 1)/2
+    arithmetic
+
+2.  There is k ∈ ℕ with 6 = k(k + 1)/2.
+    exhibit, from 1
+
+3.  6 is a triangular number
+    D1 n := 6, from 2
+
+theorem a-triangular-number-is-natural
+  note        Being a triangular number includes being a natural number.
+  let x ∈ ℝ                                                           (H1)
+  assume x is a triangular number                                     (H2)
+  then x ∈ ℕ
+
+1.  x ∈ ℕ and there is k ∈ ℕ with x = k(k + 1)/2.
+    D1 n := x, from H2
+
+2.  x ∈ ℕ
+    restate 1

@@ -1,4 +1,4 @@
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/angle-real
 
@@ -22,10 +22,10 @@ theorem vertical-angles
     mun:between-apart R := O, S := B, T := D, from H7
 
 3.  ∠AOB + ∠BOC = 180°
-    thm:supplementary-angles B := O, D := B, from H6, 2
+    axi:supplementary-angles B := O, D := B, from H6, 2
 
 4.  ∠BOC + ∠COD = 180°
-    thm:supplementary-angles A := B, B := O, C := D, D := C, from H7, 1
+    axi:supplementary-angles A := B, B := O, C := D, D := C, from H7, 1
 
 5.  ∠AOB = ∠COD
     algebra, from 3, 4

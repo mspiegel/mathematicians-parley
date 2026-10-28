@@ -6,6 +6,6 @@ $( tests/elaborator/polynomials-with-integer-coefficients/a-transcendental-numbe
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.polynomials-with-integer-coefficients.a-transcendental-number $p |- ( ( A e. RR /\ -. A e. AA ) -> -. A e. AA ) $=
-    ( cr wcel caa wn simpr ) ABCADCEF $.
+  tests.elaborator.polynomials-with-integer-coefficients.a-transcendental-number $p |- ( ( A e. RR /\ ( A e. CC /\ -. A e. AA ) ) -> ( A e. CC /\ -. A e. AA ) ) $=
+    ( cr wcel cc caa wn wa simpr ) ABCADCAECFGH $.
 $}

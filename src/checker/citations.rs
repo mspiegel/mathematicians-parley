@@ -8,17 +8,19 @@ use indexmap::{IndexMap, IndexSet};
 
 use super::formulas::chain_links;
 use super::library::{
-    introduced, listed_seed, typed_in_scope, typed_seed, Known, SaidFrom, Search,
+    introduced, listed_seed, parts_in_scope, typed_in_scope, typed_seed, Known,
+    SaidFrom, Search,
 };
 use super::record::{Cited, FirstAt};
 use super::structure::letters_in_scope;
 use super::Report;
 use crate::citing::{
-    asked, bound_in, claimed_member, concludes, conjuncts, derives, filled, finished,
-    function_values, identities_unsaid, index_system, obtained, obtains, range_system,
-    readings, said_once, search, stood_for, substitution_unsaid, supply, taken,
-    taken_ways, type_said_otherwise, with_parts, witnesses_unsaid, Bound, Concluded,
-    Group, Introduced, Library, Parts, Sites, Taken, Ways,
+    asked, bound_in, claimed_member, codomain_reason, concludes, conjuncts, derives,
+    filled, finished, function_values, identities_unsaid, index_system, obtained,
+    obtains, range_system, readings, said_once, search, stood_for, substitution_unsaid,
+    supply, taken, taken_ways, type_said_otherwise, with_parts, witnesses_unsaid,
+    Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts, Sites, Taken,
+    Ways,
 };
 use crate::corpus::proof::{reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -1426,7 +1428,8 @@ pub fn check_function_types(
             continue;
         }
         let asks = family_asks(step, known, library);
-        codomains_unmet(report, thm, step, &item, &asks, known);
+        let cited = known.parts(step, library).facts.clone();
+        codomains_unmet(report, thm, step, &item, &asks, &cited, known);
         let what = format!("step {}", step.number);
         let at = AskedAt {
             step,
@@ -1534,33 +1537,50 @@ fn types_unstated(
     }
 }
 
-/// An item's function type naming a number system for its codomain, asked
-/// of a function a `let` declares into a system not inside it: product-real
-/// asks `t : {a, …, b} → ℝ`, and `let t : {1, …, n} → ℂ` does not give
-/// that, where `let t : {1, …, n} → ℕ` does (`GRAMMAR.md`, the function's
-/// type is a declaration).
+/// An item's function type asked of a function a `let` declares into a set
+/// whose values need not be in the codomain asked (`citing::codomain_reason`,
+/// `GRAMMAR.md`, the function's type is a declaration): product-real asks
+/// `t : {a, …, b} → ℝ`, and `let t : {1, …, n} → ℂ` does not give that,
+/// where `let t : {1, …, n} → ℕ` does, and so does `let f : X → X` with
+/// `let X ⊆ ℤ` give f : X → ℤ. A codomain the item leaves open takes the
+/// declared one, and a type a line the step cites states, `cited`, is
+/// given by that line and asks nothing of the declaration.
 fn codomains_unmet(
     report: &mut Report,
     thm: &Theorem,
     step: &Step,
     item: &str,
     asks: &FamilyAsks,
+    cited: &[Node],
     known: &Known,
 ) {
     let declared = typed_in_scope(known, step);
+    let ask = PageCodomains {
+        known,
+        parts: parts_in_scope(known, step),
+    };
     for t in &asks.declared_types {
         let [function, _, asked] = t.asked.children.as_slice() else {
             continue;
         };
-        let Some(wanted) = system_named(asked) else {
+        let open = asked.is_name() && t.open.contains(asked.text.as_str());
+        // "F : A → C is one-to-one" states the type F : A → C as well.
+        let stated = cited.iter().any(|f| {
+            types_a_function(f)
+                && f.children
+                    .iter()
+                    .zip(&t.asked.children)
+                    .all(|(a, b)| known.alike(a, b))
+        });
+        if open || stated {
             continue;
-        };
+        }
         let typed = declared
             .iter()
             .filter(|d| d.children[0].text == function.text)
-            .filter_map(|d| d.children.get(2).and_then(system_named).map(|s| (d, s)));
+            .filter_map(|d| d.children.get(2).map(|given| (d, given)));
         for (line, given) in typed {
-            if given.within(wanted) {
+            if codomain_reason(&ask, given, asked).is_some() {
                 continue;
             }
             report.say(
@@ -1576,6 +1596,31 @@ fn codomains_unmet(
                 ),
             );
         }
+    }
+}
+
+/// The page's codomains as `citing::codomain_reason` asks of them: sets as
+/// the page writes them, and the parts the `let` lines in scope state.
+struct PageCodomains<'k, 'a> {
+    known: &'k Known<'a>,
+    parts: Vec<(Node, Node)>,
+}
+
+impl CodomainAsk for PageCodomains<'_, '_> {
+    type T = Node;
+
+    fn alike(&self, a: &Node, b: &Node) -> bool {
+        self.known.alike(a, b)
+    }
+
+    fn system(&self, set: &Node) -> Option<System> {
+        system_named(set)
+    }
+
+    fn part(&self, small: &Node, big: &Node) -> bool {
+        self.parts
+            .iter()
+            .any(|(s, b)| self.known.alike(s, small) && self.known.alike(b, big))
     }
 }
 

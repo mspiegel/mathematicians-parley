@@ -301,7 +301,13 @@ method induction
               after the comma, and nothing is put in for anything. A claim
               "for all k ∈ X with C, S" is the formula "for all k ∈ X, if C
               then S", so P(k) is "if C then S" and the hypothesis says so.
-  metamath    nnind, nn0ind, uzind
+              Over the parts of a finite set, the claim is "for all Y ⊆ X,
+              P(Y)" and the start ∅, and a requires line says X is finite.
+              The step part opens with `let Y ⊆ X`, the induction hypothesis
+              and `let a ∈ X ∖ Y`, those three lines in that order, and its
+              last step claims P(Y ∪ {a}).
+  metamath    nnind, nn0ind, uzind, and gfinind over findcard2d for the parts
+              of a finite set
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need
               no new form.

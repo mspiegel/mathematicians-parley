@@ -24,7 +24,7 @@ theorem abs-bounds
     2.2.  x ≤ |x|
           inequalities
             |x| = x          2.1
-            x = |x|          symmetry
+            x = |x|          restate
             x ≤ |x|          weakening
 
     2.3.  −x ≤ 0
@@ -47,14 +47,14 @@ theorem abs-bounds
     2.7.  −x ≤ |x|
           inequalities
             |x| = −x         2.6
-            −x = |x|         symmetry
+            −x = |x|         restate
             −x ≤ |x|         weakening
 
     2.8.  0 < −x
           inequalities
             x < 0            C2
             −x > 0           multiplying by −1
-            0 < −x           symmetry
+            0 < −x           restate
 
     2.9.  x < |x|
           transitivity, from C2, 2.8, 2.6

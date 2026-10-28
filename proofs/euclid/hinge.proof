@@ -3,7 +3,7 @@ import mundane theorem    stdlib/geometry/angle-order-by-cosine
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/distance-nonneg
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos
@@ -97,7 +97,7 @@ theorem hinge
 19. |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²
     inequalities
       |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0              17
-      0 < |CA|·|AB|·(cos(∠FDE) − cos(∠CAB))              symmetry
+      0 < |CA|·|AB|·(cos(∠FDE) − cos(∠CAB))              restate
       0 < 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))          multiplying by 2
       |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²   adding |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3

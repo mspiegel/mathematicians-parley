@@ -477,29 +477,6 @@ mundane theorem range-from-bounds
               corpus proves in elaboration/stdlib/proved.mm
   target      gelfz0m1
 
-theorem product-reorder
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let f : X → X be one-to-one                                         (H3)
-  then        ∏(x ∈ X) f(x) = ∏(x ∈ X) x
-  metamath    f1finf1o and fprodf1o, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodf1
-  note        A one-to-one function from a finite set to itself takes each
-              member to a member once, so the values are the members in
-              another order, and their product is the same.
-
-theorem product-factor
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let c ∈ ℤ                                                           (H3)
-  then        ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
-  metamath    fprodmul and fprodconst, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodmulc
-  note        A factor common to every term comes out of the product once
-              for each term.
-
 mundane theorem product-integer
   let X ⊆ ℤ                                                           (H1)
   assume X is finite                                                  (H2)
@@ -551,3 +528,25 @@ mundane theorem product-of-ones
   then        ∏(x ∈ X) 1 = 1
   metamath    prod1
   target      prod1
+
+mundane theorem product-empty
+  let X be a set                                                      (H1)
+  let t : X → ℝ                                                       (H2)
+  then        ∏(x ∈ ∅) t(x) = 1
+  metamath    prod0
+  target      prod0
+  note        A product over a set with no members is 1, the base of an
+              induction over the parts of a finite set.
+
+mundane theorem product-add-one
+  let X be a set                                                      (H1)
+  let Y ⊆ X                                                           (H2)
+  assume Y is finite                                                  (H3)
+  let a ∈ X                                                           (H4)
+  assume a ∉ Y                                                        (H5)
+  let t : X → ℝ                                                       (H6)
+  then        ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
+  metamath    fprodsplitsn, which this corpus proves in this form in elaboration/stdlib/proved.mm
+  target      gprodaddone
+  note        A member added to a finite set multiplies the product by its
+              term, the step of an induction over the parts of a finite set.

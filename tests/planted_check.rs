@@ -57,6 +57,118 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
     Edit { file, old, new }
 }
 
+/// Where the cases that plant defects in the law of sines write it.
+const SINES_FILE: &str = "proofs/wiedijk/similar-by-sines.proof";
+
+/// Similar triangles by the angle sum and the law of sines, a proof whose
+/// algebra combines angles and sines under requires lines. The corpus
+/// proves similarity from the postulates instead (`angle-angle-similar`),
+/// so the cases that plant defects in such lines write this one first.
+const SINES: &str = r#"import theorem            proofs/wiedijk/angle-sum/angle-sum
+import theorem            stdlib/geometry/law-of-sines
+import theorem            stdlib/geometry/altitude-foot
+import mundane theorem    stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/angle-along-segment
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/between-symmetric
+import mundane theorem    stdlib/geometry/sine-positive
+import mundane definition stdlib/geometry/triangle
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/numbers/multiply-cancel
+import mundane definition stdlib/trigonometry/sin
+import mundane theorem    stdlib/trigonometry/sin-real
+
+theorem similar-triangles
+  note        Two triangles with two angles equal have the third equal too
+              (angle-sum), and the law of sines then gives their sides in
+              proportion.
+  let P be a point                                                   (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume ∠QPR = ∠Q′P′R′                                               (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  then |PQ|·|P′R′| = |P′Q′|·|PR|
+
+1.  ∠QPR + ∠PQR + ∠QRP = 180°
+    thm:angle-sum A := P, B := Q, C := R, from H7
+
+2.  ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′ = 180°
+    thm:angle-sum A := P′, B := Q′, C := R′, from H8
+
+3.  ∠QPR + ∠PQR + ∠QRP = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′
+    calculation
+      ∠QPR + ∠PQR + ∠QRP = 180°                               1
+                         = ∠Q′P′R′ + ∠P′Q′R′ + ∠Q′R′P′         2
+
+4.  ∠QRP = ∠Q′R′P′
+    algebra, from H9, H10, 3
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires ∠Q′P′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠P′Q′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+    requires ∠Q′R′P′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
+
+5.  |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
+    thm:law-of-sines, from H7
+
+6.  |P′Q′|·sin(∠P′Q′R′) = |P′R′|·sin(∠Q′R′P′)
+    thm:law-of-sines P := P′, Q := Q′, R := R′, from H8
+
+7.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠Q′R′P′)
+    substitute ∠PQR = ∠P′Q′R′ (H10) into line 6
+
+8.  |P′Q′|·sin(∠PQR) = |P′R′|·sin(∠QRP)
+    substitute ∠QRP = ∠Q′R′P′ (line 4) into line 7
+
+9.  |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 5
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
+
+10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
+    algebra, from 8
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
+
+11. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
+    calculation
+      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9
+                            = |P′Q′|·|PR|·sin(∠PQR)       10
+
+12. sin(∠PQR) > 0
+    mun:sine-positive, from H7
+
+13. sin(∠PQR) ≠ 0
+    inequalities
+      sin(∠PQR) > 0      12
+      sin(∠PQR) ≠ 0      weakening
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+
+14. |PQ|·|P′R′| = |P′Q′|·|PR|
+    mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
+      from 11
+    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
+    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
+    requires sin(∠PQR) ≠ 0: from 13
+"#;
+
+/// The edits that write `SINES` and plant `new` in place of `old` there.
+fn in_sines(old: &str, new: &str) -> Vec<Edit> {
+    vec![
+        edit(SINES_FILE, None, SINES.to_string()),
+        edit(SINES_FILE, Some(old.to_string()), new.to_string()),
+    ]
+}
+
 /// The corpus as it stands: the database, the library, and every proof.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -712,11 +824,10 @@ fn cases() -> Vec<Case> {
         // which line 3 holds only inside a sum.
         case(
             "leave out the membership of an angle an algebra step combines",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n".to_string()),
-                String::new(),
-            )],
+            in_sines(
+                "    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n",
+                "",
+            ),
             "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A line marked impossible is reached by its reasons from the lines
@@ -740,7 +851,7 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/point-row.proof",
                 None,
-                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            symmetry\n".to_string(),
+                "theorem point-row\n  let A be a point                                                    (H1)\n  let C be a point                                                    (H2)\n  assume C ≠ A                                                        (H3)\n  then A ≠ C\n\n1.  A ≠ C\n    inequalities\n      C ≠ A            H3\n      A ≠ C            restate\n".to_string(),
             )],
             "proofs/wiedijk/point-row.proof:10  this step treats A as a number, and it is a point",
         ),
@@ -750,12 +861,11 @@ fn cases() -> Vec<Case> {
         // membership is `membership`'s.
         case(
             "give a requires line's membership a method that does not decide it",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.".to_string()),
-                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.".to_string(),
-            )],
-            "proofs/wiedijk/pythagoras.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
+            in_sines(
+                "    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.",
+                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.",
+            ),
+            "proofs/wiedijk/similar-by-sines.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -830,6 +940,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line 3 divides 10 − 2 of step 1.3 is arithmetic, which is false",
         ),
+        // An odd number is an integer, so arithmetic finds a half not odd
+        // though it does not say whether 2 divides it.
+        case(
+            "say a half is odd",
+            vec![edit(
+                "tests/elaborator/a-half-odd.proof",
+                None,
+                "theorem a-half-odd\n  then 1/2 is odd\n\n1.  1/2 is odd\n    arithmetic\n".to_string(),
+            )],
+            "step 1 claims 1/2 is odd, which is false",
+        ),
         // A method decides a word only where the word's record names it
         // (`DATABASE.md`, `decided`). With `arithmetic` struck from
         // `divides`, every divisibility of numerals it settles is refused.
@@ -881,10 +1002,21 @@ fn cases() -> Vec<Case> {
             "an inequality row that is no single relation",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      x = y                symmetry\n".to_string()),
-                "      x = y and y = x      symmetry\n".to_string(),
+                Some("      x = y                restate\n".to_string()),
+                "      x = y and y = x      restate\n".to_string(),
             )],
             "a row of step 1 is no single relation of =, ≠, <, ≤, > or ≥",
+        ),
+        // `symmetry` is kept back for later: a row turning a relation round
+        // says `restate`.
+        case(
+            "turn an inequality row round with symmetry",
+            vec![edit(
+                "tests/elaborator/inequality-rows.proof",
+                Some("      x = y                restate\n".to_string()),
+                "      x = y                symmetry\n".to_string(),
+            )],
+            "`symmetry` is kept back for later; a row turning a relation round is `restate`",
         ),
         case(
             "inequality rows starting from no cited line",
@@ -908,7 +1040,7 @@ fn cases() -> Vec<Case> {
             "inequality rows ending other than on the claim",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                Some("      0 < x                H2\n      0 ≠ x                weakening\n      x ≠ 0                restate\n".to_string()),
                 "      0 < x                H2\n      0 ≤ x                weakening\n".to_string(),
             )],
             "the last row of step 1 is not its claim",
@@ -1015,7 +1147,7 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line q ≠ 1 of step 1 is not H3 with its relation weakened",
         ),
-        // In rows, turning a relation round is a symmetry row of its own: the
+        // In rows, turning a relation round is a restate row of its own: the
         // first row is the cited line as written, each row keeps its sides
         // where its manipulation leaves them, and the last row is the claim
         // as written. A row that turns as well as manipulates is told which.
@@ -1026,25 +1158,25 @@ fn cases() -> Vec<Case> {
                 Some("      A < B                H3\n".to_string()),
                 "      B > A                H3\n".to_string(),
             )],
-            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a symmetry row",
+            "the first row of step 1 is the line it cites turned round; write the line as it is written, and turn it with a restate row",
         ),
         case(
             "turn a row round as well as multiplying it",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      −x > 0               multiplying by −1\n      0 < −x               symmetry\n".to_string()),
+                Some("      −x > 0               multiplying by −1\n      0 < −x               restate\n".to_string()),
                 "      0 < −x               multiplying by −1\n".to_string(),
             )],
-            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a symmetry row of its own",
+            "a row of step 1 is the row above with both sides multiplied by −1, a numeral other than 0, turned round; turning it round is a restate row of its own",
         ),
         case(
             "end the rows on the claim turned round",
             vec![edit(
                 "tests/elaborator/inequality-rows.proof",
-                Some("      0 ≠ x                weakening\n      x ≠ 0                symmetry\n".to_string()),
+                Some("      0 ≠ x                weakening\n      x ≠ 0                restate\n".to_string()),
                 "      0 ≠ x                weakening\n".to_string(),
             )],
-            "the last row of step 1 is its claim turned round; end with a symmetry row that writes the claim as it is written",
+            "the last row of step 1 is its claim turned round; end with a restate row that writes the claim as it is written",
         ),
         case(
             "turn a requires line round as well as weakening it",
@@ -1632,7 +1764,7 @@ fn cases() -> Vec<Case> {
             "say a true claim with a root is impossible",
             vec![edit(
                 "tests/elaborator/an-impossible-line-by-algebra.proof",
-                Some("    1.1.  √2 = 1, which is impossible\n".to_string()),
+                Some("    1.1.  √2 − 1 = 0, which is impossible\n".to_string()),
                 "    1.1.  (√2)² = 2, which is impossible\n".to_string(),
             )],
             "step 1.1 says (√2)² = 2 is impossible, and it holds",
@@ -3429,6 +3561,34 @@ fn cases() -> Vec<Case> {
             "closes a cycle",
         ),
         case(
+            "a theorem that cites itself",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          thm:odd-square, from S".to_string()), "          thm:even-square, from S".to_string()),
+            ],
+            "theorem even-square cites itself",
+        ),
+        case(
+            "two theorems of one file that cite each other",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    mun:odd n := n², from 5".to_string()), "    thm:even-square n := n², from 5".to_string()),
+            ],
+            "closes a cycle of citations: odd-square → even-square → odd-square",
+        ),
+        case(
+            "a mundane theorem outside the standard library",
+            vec![
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "mundane theorem even-square\n".to_string()),
+            ],
+            "mundane theorem even-square: only a theorem of the standard library is taken for granted",
+        ),
+        case(
+            "a library proof of an item a record states",
+            vec![
+                edit("corpus/stdlib/sets.proof", None, "theorem powerset-empty\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string()),
+            ],
+            "theorem powerset-empty is also the mundane theorem at corpus/stdlib/sets.records",
+        ),
+        case(
             "two theorems of one name in one file",
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("theorem even-square\n".to_string()), "theorem odd-square\n".to_string()),
@@ -4055,9 +4215,79 @@ fn cases() -> Vec<Case> {
         case(
             "give algebra for a false claim with a square root not marked impossible",
             vec![
-                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 = 1, which is impossible".to_string()), "    1.1.  √2 = 1".to_string()),
+                edit("tests/elaborator/an-impossible-line-by-algebra.proof", Some("    1.1.  √2 − 1 = 0, which is impossible".to_string()), "    1.1.  √2 − 1 = 0".to_string()),
             ],
-            "step 1.1 gives algebra for √2 = 1, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+            "step 1.1 gives algebra for √2 − 1 = 0, which real arithmetic finds false; a false claim with no letter is stated only by the last line of a contradiction, marked impossible",
+        ),
+        // A claim the cited equations chain to combines nothing, and is
+        // `transitivity`'s, or of one line `restate`'s.
+        case(
+            "give algebra for a chain of two equations",
+            vec![edit(
+                "tests/stdlib/geometry.proof",
+                Some("5.  |AO| = |BO|\n    transitivity, from 1, 2".to_string()),
+                "5.  |AO| = |BO|\n    algebra, from 2, 1".to_string(),
+            )],
+            "step 5 chains the equations it cites, which is `transitivity, from 1, 2`, not algebra",
+        ),
+        case(
+            "give algebra for an equation turned round",
+            vec![edit(
+                "corpus/stdlib/geometry.proof",
+                Some("49. ∠ECA = ∠BAC\n    restate 23".to_string()),
+                "49. ∠ECA = ∠BAC\n    algebra, from 23".to_string(),
+            )],
+            "step 49 says an equation 23 says, which is `restate 23`, not algebra",
+        ),
+        // An induction over the parts of a set holds of a finite set only,
+        // starts at ∅, opens its step with the member it adds, and ends it
+        // on the statement at Y ∪ {a}.
+        case(
+            "induct over the parts of a set not said to be finite",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    induction on Y starting at ∅\n    requires X is finite: from H2\n".to_string()),
+                "    induction on Y starting at ∅\n".to_string(),
+            )],
+            "step 1 inducts over the parts of X, which holds of a finite set only; it carries `requires X is finite`",
+        ),
+        case(
+            "induct over the parts of a set from somewhere other than ∅",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    induction on Y starting at ∅\n".to_string()),
+                "    induction on Y starting at X\n".to_string(),
+            )],
+            "an induction over the parts of X starts at ∅, and the text says X",
+        ),
+        case(
+            "add a member to a part of a set from outside the rest",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("    let a ∈ X ∖ Y                                                     (K2)\n".to_string()),
+                "    let a ∈ X                                                         (K2)\n".to_string(),
+            )],
+            "the step part of step 1 does not open with `let Y ⊆ X`, `assume step 1 is true for Y, the induction hypothesis` and `let a ∈ X ∖ Y`, a the member the step adds, those three lines in that order and no other",
+        ),
+        case(
+            "end an induction over the parts of a set short of Y ∪ {a}",
+            vec![edit(
+                "tests/elaborator/induction-over-a-set.proof",
+                Some("\n    1.5.  ∏(y ∈ Y ∪ {a}) 1 = 1\n          transitivity, from 1.4, IH\n".to_string()),
+                String::new(),
+            )],
+            "step 1.4 ends the step part of step 1, which owes ∏(y ∈ Y ∪ {a}) 1 = 1",
+        ),
+        // A function a `let` declares has a type an item asks where its
+        // declared codomain lies inside the one asked (`citing::codomain_reason`).
+        case(
+            "cite a function declared into a set not inside the codomain asked",
+            vec![edit(
+                "corpus/stdlib/divisibility.proof",
+                Some("  let f : X → X                                                       (H5)".to_string()),
+                "  let f : X → ℚ                                                       (H5)".to_string(),
+            )],
+            "step 2 cites thm:product-congruent-termwise, which asks f : X → ℤ, and f is declared f : X → ℚ, whose values need not be in ℤ",
         ),
         // A divisor of numerals alone is said once to be other than zero
         // only where its value is.
@@ -4155,7 +4385,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("corpus/stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),
             ],
-            "P is a point, and `_, _` wants a statement",
+            "`not` and `,` are not ordered against each other",
         ),
         case(
             "state an item in a notation nobody declared",
@@ -4749,6 +4979,116 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/cantor.proof", Some("          2.1.1.  x ∈ B or x ∉ B".to_string()), "          2.1.1.  x ∈ B or x ∉ B and x ∈ A".to_string()),
             ],
             "`or` and `and` are not ordered against each other",
+        ),
+        // "P is between A and B" writes an "and" of its own, so where it
+        // stands in a sentence joined by "and" or "or" it is bracketed.
+        case(
+            "write a betweenness after an or without brackets",
+            vec![
+                edit("proofs/wiedijk/law-of-cosines.proof", Some("3.  H = Q or (H is between Q and R) or".to_string()), "3.  H = Q or H is between Q and R or".to_string()),
+            ],
+            "`or` and `is between` are not ordered against each other",
+        ),
+        case(
+            "write a betweenness before an and without brackets",
+            vec![
+                edit("tests/stdlib/geometry.proof", Some("1.  there is X ∈ 𝔼² with (X is between A and B) and |AX| = r".to_string()), "1.  there is X ∈ 𝔼² with X is between A and B and |AX| = r".to_string()),
+            ],
+            "`is between` and `and` are not ordered against each other",
+        ),
+        // A define of a phrase: `define <name>: <phrase> means <meaning>`,
+        // the phrase's letters the meaning's free letters, each slot's sort
+        // settled by the meaning, written only where defined or imported.
+        case(
+            "write a phrase define without means",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a common divisor of a and b says".to_string()),
+            ],
+            "says no `means`",
+        ),
+        case(
+            "open a phrase with no letter it is said of",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "common divisors of a and b means".to_string()),
+            ],
+            "is not a phrase of the form `<letter> is a …`",
+        ),
+        case(
+            "mark a phrase mundane outside the library",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("define common-divisor:".to_string()), "mundane define common-divisor:".to_string()),
+            ],
+            "only a define of the standard library is taken for granted",
+        ),
+        case(
+            "give a phrase a slot its meaning does not use",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d ∈ ℤ and d divides a".to_string()),
+            ],
+            "b stands in its phrase, and its meaning does not use it",
+        ),
+        case(
+            "give a phrase a meaning with a letter no slot holds",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d ∈ ℤ and d divides a and d divides b and d divides c".to_string()),
+            ],
+            "its meaning writes c, which is no letter of its phrase",
+        ),
+        case(
+            "give a phrase a meaning that says no slot's sort",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d = a and d = b".to_string()),
+            ],
+            "its meaning does not say what d is",
+        ),
+        case(
+            "give a phrase define no reads line",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       reads d divides both a and b\n".to_string()), String::new()),
+            ],
+            "carries no `reads` line",
+        ),
+        case(
+            "give a phrase four slots",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a common divisor of a and b in c means".to_string()),
+            ],
+            "has 4 slots, and a phrase has one, two or three",
+        ),
+        case(
+            "write a phrase another notation already writes",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a point means".to_string()),
+            ],
+            "its phrase is written `_ is a point` as notation is-a-point is",
+        ),
+        case(
+            "write a phrase whose words say and beside an and without brackets",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("  assume (d is a common divisor of a and b) and d > 0".to_string()), "  assume d is a common divisor of a and b and d > 0  ".to_string()),
+            ],
+            "`is a common divisor of` and `and` are not ordered against each other",
+        ),
+        case(
+            "write a phrase the file does not import",
+            vec![
+                edit("tests/elaborator/a-phrase-imported.proof", Some("import definition         tests/elaborator/a-phrase-defined/triangular-number\n".to_string()), String::new()),
+            ],
+            "is the phrase tests/elaborator/a-phrase-defined/triangular-number defines, which this file does not import",
+        ),
+        case(
+            "import a phrase and neither cite it nor write it",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("define common-divisor:".to_string()), "import definition         tests/elaborator/a-phrase-defined/triangular-number\n\ndefine common-divisor:".to_string()),
+            ],
+            "imports triangular-number and neither cites it nor writes its phrase",
+        ),
+        case(
+            "fill an attached slot with more than a letter",
+            vec![
+                edit("tests/elaborator/a-phrase-of-three-slots.proof", Some("  then 2 is an 3-th root of 8".to_string()), "  then 2 is an (1 + 2)-th root of 8".to_string()),
+            ],
+            "wants a letter or a numeral before its hyphen",
         ),
         // A quantifier may write a bound where its set stands, "for all ε >
         // 0", only where the statement says what the letter ranges over.
@@ -5717,11 +6057,10 @@ fn cases() -> Vec<Case> {
         // a calculation, and one `algebra` step citing both is refused.
         case(
             "one algebra step multiplying two cited equations",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10".to_string()),
-                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP".to_string(),
-            )],
+            in_sines(
+                "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
+                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
+            ),
             "at most one equation multiplied by a term",
         ),
         // A formula that does not lex is a defect with a position, the line
@@ -5822,11 +6161,10 @@ fn cases() -> Vec<Case> {
         // from: the order is step 12's, and only step 13 cites it.
         case(
             "a requires line its method cannot prove",
-            vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires sin(∠PQR) ≠ 0: from 13\n".to_string()),
-                "    requires sin(∠PQR) ≠ 0: inequalities\n".to_string(),
-            )],
+            in_sines(
+                "    requires sin(∠PQR) ≠ 0: from 13\n",
+                "    requires sin(∠PQR) ≠ 0: inequalities\n",
+            ),
             "the requires line sin(∠PQR) ≠ 0 of step 14, read as a step citing what it cites: sin(∠PQR) ≠ 0 does not follow from what step 14 cites",
         ),
         // `membership` builds from what the line cites: f(a) is real because

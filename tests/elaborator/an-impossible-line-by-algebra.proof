@@ -25,5 +25,5 @@ theorem a-number-equal-to-a-root-is-not-one
     contradiction
     suppose x = 1    (S)
 
-    1.1.  √2 = 1, which is impossible
+    1.1.  √2 − 1 = 0, which is impossible
           algebra, from H2, S

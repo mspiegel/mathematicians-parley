@@ -57,7 +57,10 @@ use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
-use crate::notations::{CONJUNCTION, FUNCTION_TYPE, IS_A_POINT, IS_A_SET, MEMBERSHIP};
+use crate::notations::{
+    COMMA_CONJUNCTION, CONJUNCTION, EQUAL_CHAIN, FUNCTION_TYPE, IS_A_POINT, IS_A_SET,
+    MEMBERSHIP,
+};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
@@ -67,6 +70,10 @@ use crate::{pf, t, take};
 
 /// Why a side of a step citing a define is not what the define names.
 const NAMES_NO_DEFINE: &str = "this side names no define";
+
+/// The letters a map read from a rule a citation binds may bind, the first
+/// one free taken (`rule_as_map`).
+const MAP_LETTERS: [&str; 6] = ["u", "v", "w", "s", "r", "q"];
 
 /// The two sides of an equation, as written (`Elaborator::equation_sides`).
 pub(crate) struct Sides {
@@ -459,6 +466,7 @@ impl<'a> Elaborator<'a> {
     /// The theorem elaborated: its conclusion, its hypotheses, and the proof
     /// of the one from the other.
     pub fn run(&mut self) -> Checked<(Rpn, Vec<Rpn>, Proof)> {
+        self.phrase_targets()?;
         // The statement is read with the definitions the theorem sees from
         // outside it, and those of its header, written out, which is what
         // set.mm states.
@@ -775,15 +783,27 @@ impl<'a> Elaborator<'a> {
                 } else {
                     self.supplied(Some(&step), &scope, &facts)?
                 };
-                block.parts.insert(
-                    part,
-                    PartEnd {
-                        claim: term,
-                        proof,
-                        scope: scope.clone(),
-                        facts: ended,
-                    },
-                );
+                let mut end = PartEnd {
+                    claim: term,
+                    proof,
+                    scope: scope.clone(),
+                    facts: ended,
+                };
+                // A case ending on the claim written another way, |OP|² for
+                // |PO|², is carried to the claim here, while the case's
+                // letters and facts are in hand: at the block's close only
+                // the block's are, and what a carrying lemma asks of its terms
+                // would be proved there, under the narrower scope.
+                if block.owner.just.head.is(Method::Cases) {
+                    let claim = self.claim_of(&block.owner.claim)?;
+                    if end.claim != claim {
+                        if let Some(carried) = self.direction_reached(&end, &claim)? {
+                            end.claim = claim;
+                            end.proof = carried;
+                        }
+                    }
+                }
+                block.parts.insert(part, end);
             }
             // A `proof` block whose assumption cannot hold ends on the step that
             // reaches the opposite of an earlier line, or on a closed claim
@@ -1642,9 +1662,13 @@ impl<'a> Elaborator<'a> {
         };
         let binding: NodeBinding = taken.binding.into_iter().collect();
         let mut out = Vec::new();
+        // The instance holds the proof's values, so it is a term in the
+        // proof's names, as a `with` fill is (`filling`): read in the item's,
+        // a value's letters lose the sorts the proof gives them, and |PQ| of
+        // two points is no longer a distance.
         for node in &groups[taken.group].gives {
             let instance = filled(node, &binding, &library.ctx);
-            out.push(self.in_its_names(Item::Record(item), |me| me.term(&instance))?);
+            out.push(self.term(&instance)?);
         }
         Ok(out)
     }
@@ -2611,6 +2635,11 @@ impl<'a> Elaborator<'a> {
         // rest (`know_in_scope_at_letters`).
         let sentences = self.line_sentences(&at.line, lines);
         let own = sentences.len();
+        let sentence = match at.sentence {
+            Some(i) => sentences.get(i),
+            None if own == 1 => sentences.first(),
+            None => None,
+        };
         let said = match at.sentence {
             Some(i) if i < own => Some(self.term(&sentences[i])?),
             Some(i) => self
@@ -2634,7 +2663,10 @@ impl<'a> Elaborator<'a> {
         let Some(j) = at.part else {
             return Ok(held);
         };
-        let parts = conjunction_parts(&self.to_term(&said));
+        let parts = match sentence {
+            Some(node) => parts_along(node, &self.to_term(&said)),
+            None => conjunction_parts(&self.to_term(&said)),
+        };
         let Some(part) = parts.get(j).map(|p| self.rpn(p)) else {
             return Ok(Facts::new());
         };
@@ -3243,16 +3275,26 @@ impl<'a> Elaborator<'a> {
         let up = self.writing(scope, &known, false, |me| {
             me.folded_up(step, scope, &known, lines, links.clone())
         })?;
+        // The chain goes the way that starts from the claim's low side: an
+        // order claim's ends may be one term, ∠A > ∠A from ∠A > 90° and
+        // 90° > ∠A, which the links folded up from 90° would reach as
+        // 90° < 90°.
         let run = match up {
-            Some(run) => run,
-            None => {
+            Some(run) if self.starts_low(&run, term) => run,
+            up => {
                 links.reverse();
                 let down = self.writing(scope, &known, false, |me| {
                     me.folded_up(step, scope, &known, lines, links)
                 })?;
-                match down {
-                    Some(run) => run,
-                    None => {
+                // Folded up, the chain may start from a term the claim writes
+                // with an identity element left out, n·1 for n, which is
+                // carried to the claim below; folded down it is taken only
+                // where it starts at the claim's low side as written.
+                match (down, up) {
+                    (Some(run), _) if self.starts_low(&run, term) => run,
+                    (_, Some(run)) => run,
+                    (Some(run), None) => run,
+                    (None, None) => {
                         return Err(self.defect(
                             step.line,
                             "the lines the step chains do not meet",
@@ -3276,6 +3318,17 @@ impl<'a> Elaborator<'a> {
         if let Some(tidy) = self.tidied(&run.proof, &reached, term, scope, facts)? {
             return Ok(tidy);
         }
+        // An equation is the claim either way round, the identity dropped
+        // from the side the claim writes it on.
+        if run.relation.is_none() {
+            let turned = self.turned_equation(scope, &run.left, &run.right, &run.proof);
+            let reached_turned = t!(&run.right, &run.left, "wceq");
+            if let Some(tidy) =
+                self.tidied(&turned, &reached_turned, term, scope, facts)?
+            {
+                return Ok(tidy);
+            }
+        }
         let alike = match self.same(
             &self.to_term(&reached),
             &self.to_term(term),
@@ -3298,6 +3351,16 @@ impl<'a> Elaborator<'a> {
         Ok(pf!(self.b; scope, reached, term, run.proof, alike, "mpbid"))
     }
 
+    /// Whether a folded chain starts where the claim `term` does: an order's
+    /// low side, held first; any equation, which is turned to the claim.
+    fn starts_low(&self, run: &ChainRun, term: &Rpn) -> bool {
+        let claim = self.to_term(term);
+        match (claim.label(), claim.children()) {
+            (Some("wbr"), [low, ..]) => self.rpn(low) == run.left,
+            _ => true,
+        }
+    }
+
     /// The links of a chain folded in the order given, each going up from
     /// where the one before ends; None where one does not begin there.
     fn folded_up(
@@ -3313,6 +3376,19 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         for mut link in links {
+            // A middle term the checker reads as one and the page writes two
+            // ways, |AB| and |BA|, is joined by the equation proving them one,
+            // folded in as a link of its own.
+            if let Some(bridge) =
+                self.middle_joined(step, scope, facts, &mut run, &mut link)?
+            {
+                let Some(joined) =
+                    self.folded_link(step, scope, facts, lines, run, bridge)?
+                else {
+                    return Ok(None);
+                };
+                run = joined;
+            }
             let meets = |t: &Rpn| *t == link.left || *t == link.right;
             if run.relation.is_none() && !meets(&run.right) && meets(&run.left) {
                 run.proof =
@@ -3330,6 +3406,84 @@ impl<'a> Elaborator<'a> {
             if link.left != run.right {
                 return Ok(None);
             }
+            let Some(joined) =
+                self.folded_link(step, scope, facts, lines, run, link)?
+            else {
+                return Ok(None);
+            };
+            run = joined;
+        }
+        Ok(Some(run))
+    }
+
+    /// Where no end of `link` is written as an end of `run` is, the
+    /// equation between one end of each that the checker reads as one term
+    /// (`alike`), each turned so that the equation goes from where `run`
+    /// ends to where `link` begins; an order is not turned. None where an end
+    /// is written alike, or no two ends read as one.
+    fn middle_joined(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        run: &mut ChainRun,
+        link: &mut ChainRun,
+    ) -> Checked<Option<ChainRun>> {
+        let ends_run = [&run.left, &run.right];
+        if ends_run
+            .iter()
+            .any(|e| **e == link.left || **e == link.right)
+        {
+            return Ok(None);
+        }
+        let run_turns = run.relation.is_none();
+        let link_turns = link.relation.is_none();
+        let pairs = [(false, false), (false, true), (true, false), (true, true)];
+        for (turn_run, turn_link) in pairs {
+            if (turn_run && !run_turns) || (turn_link && !link_turns) {
+                continue;
+            }
+            let from = if turn_run { &run.left } else { &run.right };
+            let to = if turn_link { &link.right } else { &link.left };
+            let (from_term, to_term) = (self.to_term(from), self.to_term(to));
+            let Built(proof) =
+                self.alike(&from_term, &to_term, scope, facts, Some(step))?
+            else {
+                continue;
+            };
+            let bridge = ChainRun {
+                left: from.clone(),
+                right: to.clone(),
+                relation: None,
+                proof,
+            };
+            if turn_run {
+                run.proof =
+                    self.turned_equation(scope, &run.left, &run.right, &run.proof);
+                std::mem::swap(&mut run.left, &mut run.right);
+            }
+            if turn_link {
+                link.proof =
+                    self.turned_equation(scope, &link.left, &link.right, &link.proof);
+                std::mem::swap(&mut link.left, &mut link.right);
+            }
+            return Ok(Some(bridge));
+        }
+        Ok(None)
+    }
+
+    /// `run` and then `link`, which begins where `run` ends, folded into one
+    /// by the lemma for their two relations; None where no lemma folds them.
+    fn folded_link(
+        &mut self,
+        step: &Step,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+        run: ChainRun,
+        link: ChainRun,
+    ) -> Checked<Option<ChainRun>> {
+        {
             let (left, right, nxt) = (&run.left, &run.right, &link.right);
             let (proof, relation) = match (&run.relation, &link.relation) {
                 (None, None) => (
@@ -3388,14 +3542,13 @@ impl<'a> Elaborator<'a> {
                     )
                 }
             };
-            run = ChainRun {
+            Ok(Some(ChainRun {
                 left: run.left,
                 right: link.right,
                 relation,
                 proof,
-            };
+            }))
         }
-        Ok(Some(run))
     }
 
     /// ( scope -> left e. RR* ) and ( scope -> right e. RR* ), from the
@@ -5479,8 +5632,8 @@ impl<'a> Elaborator<'a> {
         }
         let library = self.item_library();
         // A class a fill puts in may bind a letter of its own that the lemma
-        // keeps apart from the variable it fills: glimge keeps n apart from
-        // F, and F may be the map sending n ∈ ℕ to s(n). Such a letter is
+        // keeps apart from the variable it fills: a lemma about a sequence
+        // may keep n apart from F, and F be the map sending n ∈ ℕ to s(n). Such a letter is
         // spelt with one the lemma uses nowhere.
         let theirs: BTreeSet<String> =
             match label.as_deref().and_then(|l| self.b.sigs.get(l)) {
@@ -5601,17 +5754,16 @@ impl<'a> Elaborator<'a> {
 
     /// What each letter of a cited corpus theorem stands for where the
     /// citation's match fixes it, as a term in the step's own names: the
-    /// binding the checker reads the citation with (`cited_here`). Empty for
-    /// an obtain, which claims no conclusion.
-    fn corpus_matched(
+    /// binding the checker reads the citation with (`cited_here`). An
+    /// obtain's is read off the lines it cites, as `obtain B:
+    /// thm:convergent-bounded, from 1.1` finds x in 1.1.
+    pub(super) fn corpus_matched(
         &mut self,
         step: &Step,
-        other: &Theorem,
+        other: &'a Theorem,
     ) -> Checked<IndexMap<String, Rpn>> {
         let mut out = IndexMap::new();
-        if step.just.head.is(crate::corpus::Method::Obtain) {
-            return Ok(out);
-        }
+        let obtain = step.just.head.is(crate::corpus::Method::Obtain);
         let taken = self.cited_here(step, &other.qualified())?;
         // A name the citation writes a value for takes that value, and a
         // name the match gives itself, as a library function's C in C(m, k)
@@ -5626,9 +5778,93 @@ impl<'a> Elaborator<'a> {
             {
                 continue;
             }
+            // An obtain reads a letter the proof names by the same word as
+            // that name, as it reads the item's sentence; only a letter the
+            // proof has no name for is taken from the lines.
+            if obtain && self.names.contains_key(name.as_str()) {
+                continue;
+            }
+            // A function letter the match makes a rule, t := x ↦ x·c, stands
+            // for the map the rule is over the letter's domain, as a
+            // function a define gives by a rule is read where it is written
+            // alone.
+            if node.notation() == crate::notations::PROPERTY_OF {
+                if let Some(map) =
+                    self.rule_as_map(other, name, node, &taken.binding)?
+                {
+                    out.insert(name.to_string(), self.term(&map)?);
+                    continue;
+                }
+            }
             out.insert(name.to_string(), self.term(node)?);
         }
         Ok(out)
+    }
+
+    /// The map a rule bound to a cited theorem's function letter is, over
+    /// the domain the theorem's `let` gives the letter, put in the step's
+    /// names: t := x ↦ x·c, of `let t : X → ℤ`, is the map sending x ∈ X to
+    /// x·c. None where no `let` of the theorem types the letter.
+    fn rule_as_map(
+        &mut self,
+        other: &'a Theorem,
+        name: &str,
+        rule: &Node,
+        binding: &NodeBinding,
+    ) -> Checked<Option<Node>> {
+        // A rule holds its letter as its text and its body as its one part.
+        let [body] = rule.children.as_slice() else {
+            return Ok(None);
+        };
+        for h in other.hypotheses.iter().filter(|h| h.kind == Intro::Let) {
+            let typed = self.in_its_names(Item::Theorem(other), |me| {
+                me.hypothesis_node(Intro::Let, &h.body(&other.path))
+            })?;
+            let (crate::notations::FUNCTION_TYPE, [f, domain, _]) =
+                (typed.notation(), typed.children.as_slice())
+            else {
+                continue;
+            };
+            if !(f.is_name() && f.text == name) {
+                continue;
+            }
+            let domain = crate::matching::substitute_apart_by(
+                domain,
+                binding,
+                &self.g.binders(),
+            );
+            // The map binds a letter of its own, apart from every letter the
+            // step holds, the domain and the body write: where the map is
+            // applied at the bound letter of a sum or product over the
+            // domain, the two are kept apart (`fvmptd3`).
+            let used: BTreeSet<String> = body
+                .names()
+                .into_iter()
+                .chain(domain.names())
+                .chain(self.names.keys().cloned())
+                .collect();
+            let Some(fresh) = MAP_LETTERS.iter().find(|l| !used.contains(**l)) else {
+                return Ok(None);
+            };
+            let sort = body
+                .walk()
+                .into_iter()
+                .find(|n| n.is_name() && n.text == rule.text)
+                .map(|n| n.sort.clone())
+                .or_else(|| domain.sort.held())
+                .unwrap_or_else(crate::formula::Sort::unknown);
+            let letter = Node::name(sort, fresh);
+            let mut put = NodeBinding::new();
+            put.insert(rule.text, letter.clone());
+            let body =
+                crate::matching::substitute_apart_by(body, &put, &self.g.binders());
+            return Ok(crate::formula::page::made_as(
+                self.g,
+                "the map sending _ ∈ _ to _",
+                vec![letter, domain, body],
+            ));
+        }
+        Ok(None)
     }
 
     /// Apply a theorem this corpus proves, as this elaborator states it: its
@@ -5686,6 +5922,23 @@ impl<'a> Elaborator<'a> {
                 // what goes without saying"): `A ⊆ B ∪ A` cited for
                 // `B ⊆ A ∪ B` puts B for A and A for B.
                 let matched = me.corpus_matched(step, other)?;
+                // A letter read apart stands for a class no value and no name
+                // of the step writes, since the value is put back in for that
+                // class over the whole reading: the citing proof's own first
+                // `let` is cA, as the theorem's is.
+                let held: BTreeSet<&str> = saved
+                    .values()
+                    .chain(values.values())
+                    .chain(matched.values())
+                    .flat_map(|t| t.tokens().iter().map(|s| s.as_str()))
+                    .collect();
+                let mut unheld = CLASS_NAMES
+                    .iter()
+                    .rev()
+                    .copied()
+                    .filter(|c| !held.contains(c))
+                    .collect::<Vec<_>>()
+                    .into_iter();
                 for h in &other.hypotheses {
                     // A graph's line introduces one class, the graph, whose
                     // parts its vertices, edges and the notations' `@ends`
@@ -5776,14 +6029,22 @@ impl<'a> Elaborator<'a> {
                             .or_else(|| matched.get(&name))
                             .or_else(|| saved.get(&name))
                         {
-                            if apart.contains(&name) {
-                                me.names.insert(name.clone(), t!(theirs));
+                            let class = if apart.contains(&name) {
+                                let Some(own) = unheld.next() else {
+                                    return Err(me.defect(
+                                        step.line,
+                                        "no class is left to read the cited theorem's letter apart from what the citation gives it",
+                                    ));
+                                };
+                                me.names.insert(name.clone(), t!(own));
+                                t!(own)
                             } else {
                                 me.names.insert(name.clone(), term.clone());
-                            }
+                                t!(theirs)
+                            };
                             given.push(Given {
                                 name: name.clone(),
-                                class: t!(theirs),
+                                class,
                                 term: term.clone(),
                             });
                         } else {
@@ -6005,9 +6266,10 @@ impl<'a> Elaborator<'a> {
     /// the build gives its bound ones, so the theorem's k is moved to one
     /// nothing holds, and the value put in after: the theorem is read again
     /// with those letters as classes of their own (`again`), and the classes
-    /// and letters substituted together. A reading where no value holds a
-    /// letter the theorem binds is kept as it is.
-    fn apart_from_values(
+    /// and letters substituted together. A value that binds the letter
+    /// itself, as a map does, is moved apart from the same way. A reading
+    /// where no value writes a letter the theorem binds is kept as it is.
+    pub(super) fn apart_from_values(
         &mut self,
         first: Reading,
         again: impl FnOnce(&mut Self, &BTreeSet<String>) -> Checked<Reading>,
@@ -6021,21 +6283,22 @@ impl<'a> Elaborator<'a> {
                 .map(|v| v.to_string())
                 .collect()
         };
-        // The letters a value holds and does not bind itself.
-        let free_in = |me: &Self, term: &Rpn| -> BTreeSet<String> {
-            let bound = me.letters_bound(&me.to_term(term));
+        // The letters a value writes, free or bound: a map the value binds
+        // n in, put where the theorem binds n around it, gives the kernel a
+        // renaming onto n of a body that already binds n, which `cbvralvw`
+        // and the theorem's own disjointness refuse.
+        let spelt_in = |me: &Self, term: &Rpn| -> BTreeSet<String> {
             term.tokens()
                 .iter()
                 .filter(|t| me.is_setvar(t))
                 .filter_map(|t| me.var_of(t).variable().map(String::from))
-                .filter(|v| !bound.contains(v.as_str()))
                 .collect()
         };
         let bound = bound_in(self, &first);
         let apart: BTreeSet<String> = first
             .given
             .iter()
-            .filter(|g| !free_in(self, &g.term).is_disjoint(&bound))
+            .filter(|g| !spelt_in(self, &g.term).is_disjoint(&bound))
             .map(|g| g.name.clone())
             .collect();
         if apart.is_empty() {
@@ -6046,7 +6309,7 @@ impl<'a> Elaborator<'a> {
             .given
             .iter()
             .filter(|g| apart.contains(&g.name))
-            .flat_map(|g| free_in(self, &g.term))
+            .flat_map(|g| spelt_in(self, &g.term))
             .collect();
         let moving: Vec<Symbol> = bound_in(self, &second)
             .intersection(&held)
@@ -6219,6 +6482,27 @@ enum How {
 fn conjunction_parts(term: &Term) -> Vec<Term> {
     if matches!(term.label(), Some("wa") | Some("w3a")) {
         return term.children().iter().flat_map(conjunction_parts).collect();
+    }
+    vec![term.clone()]
+}
+
+/// The parts of a sentence's set.mm form, taken apart where the sentence
+/// itself joins claims by "and" or chains equations, as the checker counts
+/// a `FirstAt`'s part (`citing::conjuncts`). A claim whose own set.mm form
+/// is a conjunction, as "n is odd" is n ∈ ℤ ∧ ¬ 2 ∥ n, stays one part.
+fn parts_along(node: &Node, term: &Term) -> Vec<Term> {
+    if node.notation() == EQUAL_CHAIN {
+        return conjunction_parts(term);
+    }
+    let joins = node.notation() == CONJUNCTION || node.notation() == COMMA_CONJUNCTION;
+    if joins
+        && node.children.len() == 2
+        && term.label() == Some("wa")
+        && term.children().len() == 2
+    {
+        let mut out = parts_along(&node.children[0], &term.children()[0]);
+        out.extend(parts_along(&node.children[1], &term.children()[1]));
+        return out;
     }
     vec![term.clone()]
 }
@@ -6684,23 +6968,23 @@ struct Equated {
 }
 
 /// A cited theorem read under what a citation gives its letters
-/// (`cite_corpus`).
-struct Reading {
+/// (`cite_corpus`, and an obtain from a theorem).
+pub(super) struct Reading {
     /// Its hypotheses, in order.
-    wanted: Vec<Rpn>,
+    pub(super) wanted: Vec<Rpn>,
     /// Its statement.
-    whole: Rpn,
+    pub(super) whole: Rpn,
     /// Each letter the citation or the match gave a value.
-    given: Vec<Given>,
+    pub(super) given: Vec<Given>,
 }
 
 /// One letter of a cited theorem and what the citation puts for it.
-struct Given {
-    name: String,
+pub(super) struct Given {
+    pub(super) name: String,
     /// The class of its own the letter is read as where it is kept apart.
-    class: Rpn,
+    pub(super) class: Rpn,
     /// What it stands for, in the citing proof's kernel spelling.
-    term: Rpn,
+    pub(super) term: Rpn,
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

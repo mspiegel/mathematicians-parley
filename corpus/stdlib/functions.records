@@ -120,6 +120,14 @@ mundane theorem function-into
   metamath    ffnfv
   target      ffnfv
 
+mundane theorem function-on-domain
+  let f : X → Y                                                       (H1)
+  then        f is a function on X
+  metamath    ffn
+  target      ffn
+  note        A function from X into Y is a function on X, which its values
+              may then be said to lie in another set.
+
 mundane theorem value-in-image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)

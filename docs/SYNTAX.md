@@ -245,6 +245,39 @@ order and form; the parts named on the method line, as `base 1.1, step
 set.mm. Markers on their own lines were chosen because they read like a
 textbook.
 
+**An induction over the parts of a finite set runs the same way, a member
+at a time.** The claim is "for all Y ⊆ X, P(Y)", with X finite. It starts
+at ∅, which it writes, `induction on Y starting at ∅`, and it says on a
+requires line that X is finite, since the rule holds of a finite set only.
+The `base` part ends on P(∅). The `step` part opens with `let Y ⊆ X`,
+`assume step N is true for Y, the induction hypothesis` and `let a ∈ X ∖
+Y`, and ends on P(Y ∪ {a}):
+
+```proof
+1.  For all Y ⊆ X, ∏(y ∈ Y) 1 = 1.
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    1.1.  ∏(y ∈ ∅) 1 = 1
+          mun:product-empty
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 1 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+    ...
+    1.5.  ∏(y ∈ Y ∪ {a}) 1 = 1
+          transitivity, from 1.4, IH
+```
+
+A number induction's step names nothing new, since k + 1 is written from k.
+This one names the member it adds, which the statement at Y ∪ {a} is about.
+Alternatives considered: a claim about X alone, which leaves the hypothesis
+nothing smaller to be about; and an induction on the number of members,
+"for all k ∈ ℕ₀, for all Y ⊆ X with |Y| = k, …", which says the same thing
+in a number's words.
+
 A part may carry an assumption. An induction's `step` part opens with its
 `let` and its induction hypothesis, as above. A `case` part of a `cases` block opens
 with an `assume` line, labelled like a hypothesis, stating the disjunct
@@ -364,6 +397,11 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   of a relation written as words takes brackets, as `not (n is odd)` does,
   because `not n is odd` reads as easily as "(not n) is odd". In front of a
   relation written as a symbol it takes none: `not p = 1`.
+- "P is between A and B" writes an "and" of its own, so in a sentence joined
+  by "and" or "or" it takes brackets: `P = A or (P is between A and B)`, and
+  `there is X ∈ 𝔼² with (X is between A and B) and |AX| = r`. Alone, or as
+  the whole of what follows "with" or "if", it takes none. A phrase a define
+  gives whose own words write "and" or "or" is bracketed the same way.
 - Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
   "there is no … with …". Each record says which of its patterns is the
   negation of which, so the folded spelling and the "not" spelling are one
@@ -506,14 +544,14 @@ step of its own.
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
 | `real arithmetic` | a fact about closed terms with square roots of rationals, π, e, logarithms and exponentials of rationals, and sines and cosines of multiples of π/4 and π/6: value, disequality and order where `METHODS.md` says they are decided, membership in ℝ, and membership in ℕ ℤ ℚ where the value is rational |
 | `inequalities, from L` | the lines L added side by side, as they stand, with the bounds a membership gives, closed numeral facts, a disequality taken both ways and a negation turned round taken without being written (`METHODS.md`, inequalities); with nothing in L to add, those alone |
-| `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `symmetry`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
+| `inequalities`, then rows | the manipulations of one line written out, a row to each. The first row is a line the step cites, written out, with its label as reason; each row after it is the row above with the manipulation its reason names, `adding t`, `multiplying by c`, `restate`, `weakening` or `algebra` (`METHODS.md`); the last row is the claim |
 | `transitivity, from L` | the lines L, in the order cited, make a chain: where one line ends the next begins, the term they share written the same way in both, each line read from whichever side meets the one before; the claim relates the chain's first term to its last, by the relation a calculation's chain would have |
 | `antisymmetry, from L` | L is two lines, `a ≤ b` and `b ≤ a`; the claim is `a = b` |
 | `join L1, L2, …` | the claim is the sentences of two or more cited lines put together; a chain of equations is the equations between its neighbouring terms. It infers nothing, and takes what the lines write and nothing else a line says (What a cited line says), but for an equation or a congruence either way round, which is the same claim, a "for all" line cited inside a block, read at the block's letter, and a name read as what it names where the step cites its define, which is the same formula. A propositional law that does infer something, such as eliminating a double negation, is a cited theorem instead |
 | `restate L` | as `join`, for one cited line: the claim is that line, or what `join` would take from it, such as one of its parts. A define the step cites to read a name is not a line: `restate D1, 1`. A `join` of one line, or a `restate` of several, is refused, and told the word to use |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a closed fact that `arithmetic`, or `real arithmetic` where it holds a square root, π, e or a logarithm, finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does. The claim is one sentence: the block proves one statement, and each other sentence is a step of its own |
-| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence |
+| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence. Over the parts of a finite set, the claim is "for all Y ⊆ X, P(Y)" and the start ∅, and a requires line says X is finite. The `step` part opens with `let Y ⊆ X (K)`, the induction hypothesis and `let a ∈ X ∖ Y`, those three lines in that order, and its last step claims P(Y ∪ {a}) |
 | `cases, from L`, with one `case` part per disjunct, two or more: one case is no case split, and is a plain step | L claims "P or Q": the line as a whole is the "or", as written or, for a "for all" line cited inside a block, read at the block's letter (What a cited line says); a line saying the "or" and something besides is not it; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `both directions`, with two `direction` parts | the claim is "A ↔ B"; the first part opens with `assume A`, labelled, and its last step claims B; the second opens with `assume B` and its last step claims A. It is how a textbook proves "if and only if", a direction at a time |
 | `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤, <, ≥ or >, or `≡ t (mod n)`, and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out, or where the line is a congruence of numerals alone; the chain goes one way, its orders all ≤ and < or all ≥ and >; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, < if any line is <, ≥ and > the same way going down, and ≡ (mod n) if any line is ≡, every ≡ line saying the same n, none mixed with an order, and every line after the first ≡ a ≡ too (`GRAMMAR.md`). A calculation opens no block: its chain is all of it. A chain that says ≡ relates integers: each term is one, said once, by a line a link cites, or beside one in an equation such a line says |
@@ -897,6 +935,49 @@ cites. Every define is imported as a `definition`, whether or not it takes an
 argument. What the statement says in set.mm writes the rule out, so a
 theorem citing `tri-one` needs nothing of T imported and its own T, if it has
 one, is a different thing.
+
+**A define may name a phrase**, a new way to say "A is a B", and give its
+meaning:
+
+```proof
+define triangular-number: n is a triangular number means
+       n ∈ ℕ and there is k ∈ ℕ with n = k(k + 1)/2                    (D1)
+       reads n is k(k + 1)/2 for some natural number k
+```
+
+After `define` come the name the phrase is imported and cited by, a colon,
+the phrase, `means`, and the meaning, which is a statement. The phrase opens
+with a letter, `is`, and `a` or `an`. A letter in it is a slot, where a term
+goes; a word of two letters or more is a word; and a letter joined to the
+word after it by a hyphen is an attached slot, the p of `H is a Sylow
+p-subgroup of G`, which takes one letter or one numeral and nothing longer.
+A phrase has one, two or three slots, never two side by side. Its slots are
+the letters its meaning leaves free: a letter of the phrase the meaning does
+not use, or one the meaning uses and the phrase does not write, is a defect.
+What a slot takes is what the meaning says it is, and a meaning that leaves
+a slot's sort open is a defect.
+
+Being a B includes being what a B is: the meaning says `n ∈ ℕ` itself, so a
+line saying n is a triangular number gives n ∈ ℕ to a step citing the
+define. A phrase with nothing to belong to says nothing of it, as `u is an
+upper bound of S means for all s ∈ S, s ≤ u` does.
+
+Every phrase also gives its negation: `4 is not a triangular number` is
+`not (4 is a triangular number)`, one formula written two ways, so the not
+is the whole meaning's, and π is not a triangular number because π ∉ ℕ. A
+phrase whose own words write "and" or "or", `d is a common divisor of a and
+b`, is bracketed beside "and" and "or" as betweenness is (Formulas).
+
+A define of a phrase is an item of its file. A step uses what the phrase
+means by citing it, by its label in its own file, `D1 n := 6, from 2`, and
+in another file as a definition, `def:triangular-number n := 10, from 2`,
+after `import definition proofs/tri/triangular-number`; the phrase and its
+meaning are then one formula. A file writes a phrase only where it defines
+it above the theorem or imports it. Only the standard library marks a phrase
+mundane, `mundane define upper-bound: …`, which a proof imports with `import
+mundane definition stdlib/calculus/upper-bound` and cites `mun:upper-bound`.
+In set.mm a phrase is its meaning written out, so set.mm gets no symbol for
+it.
 
 The alternative was to make the name opaque and require a `substitute` step at
 every crossing, which is what this document's rule about unfolding a definition

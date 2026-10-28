@@ -87,7 +87,7 @@ theorem one-point-part
 7.  1 ≤ |{v}|
     inequalities
       |{v}| = 1          5
-      1 = |{v}|          symmetry
+      1 = |{v}|          restate
       1 ≤ |{v}|          weakening
 
 8.  1 ≤ |{v}| and for all Y ⊆ {v}, if |Y| = 2 then Y ∈ G

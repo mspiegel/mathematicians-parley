@@ -398,16 +398,28 @@ fn check_nth(report: &mut Report, c: &mut Checking<'_>, i: usize) {
 pub struct Clean {
     files: FileReads,
     readings: Readings,
+    /// The records the proof files' defines of phrases stand for, as
+    /// written out: a proof file changes the records where it changes these.
+    phrases: String,
+}
+
+/// The records `records` holds that a define of a phrase stands for, written
+/// out, so that two readings of the corpus are compared by them.
+fn phrase_records_said(records: &[Record]) -> String {
+    let made: Vec<&Record> = records.iter().filter(|r| r.phrase.is_some()).collect();
+    format!("{made:?}")
 }
 
 impl Clean {
     pub fn read(source: &dyn Source) -> Result<Clean, Outcome> {
         let read = read_corpus(source, &FileReads::new())?;
+        let phrases = phrase_records_said(&read.corpus.records);
         let (_, _, readings) =
             prepared_in(&read.corpus, read.report, None, |_, c| Readings::of(c))?;
         Ok(Clean {
             files: read.files,
             readings,
+            phrases,
         })
     }
 
@@ -419,7 +431,10 @@ impl Clean {
             Err(out) => return out,
         };
         let changed = self.changed(&read.files);
-        let records_alike = changed.iter().all(|path| path.ends_with(".proof"));
+        // A proof file's define of a phrase stands for records, so an edit
+        // to one changes the records although no records file changed.
+        let records_alike = changed.iter().all(|path| path.ends_with(".proof"))
+            && phrase_records_said(&read.corpus.records) == self.phrases;
         let reuse = records_alike.then(|| Reuse {
             readings: &self.readings,
             moved: reached_from(&read.corpus.scopes, &changed),
@@ -860,6 +875,8 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
             }
         }
     }
+    // Whether every file was read up to here, the records files among them.
+    let records_whole = whole;
 
     let mut allowed: IndexSet<char> = IndexSet::new();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
@@ -900,6 +917,14 @@ fn read_corpus(source: &dyn Source, kept: &FileReads) -> Result<Read, Outcome> {
             }
         }
         read.proof = Some(ProofRead { at, parsed });
+    }
+    // A define of a phrase stands for a notation and a definition record,
+    // made here so that everything read after reads it as it reads theirs.
+    // They are made on the database, and not where a records file did not
+    // read: the phrase would then read where nothing around it does.
+    if records_whole {
+        crate::corpus::phrases::add_phrase_records(&mut records, &scopes);
+        crate::sorts::settle_phrases(&mut records, &scopes);
     }
     for (path, no, message) in link_functions(&records, &mut scopes)
         .into_iter()
@@ -973,6 +998,29 @@ fn prepared_in<T>(
         }
         seen.entry(name).or_insert(thm.line);
     }
+    // A library subject holds records and proofs under one name, so an item
+    // is one or the other: a record and a theorem of one name would be two
+    // statements of it, and a citation would reach only the record.
+    let recorded: IndexMap<String, &Record> = records
+        .iter()
+        .filter(|r| r.kind.is_item())
+        .map(|r| (r.qualified(), r))
+        .collect();
+    for thm in theorems {
+        if let Some(r) = recorded.get(&thm.qualified()) {
+            report.say(
+                &thm.path,
+                thm.line,
+                format!(
+                    "theorem {} is also the {} at {}:{}; an item is a record or a proof, not both",
+                    thm.name,
+                    r.header(),
+                    r.path,
+                    r.line
+                ),
+            );
+        }
+    }
     // The library files a proof may import: those whose items it may cite.
     let library: IndexSet<String> = records
         .iter()
@@ -980,6 +1028,7 @@ fn prepared_in<T>(
         .map(|r| r.module().to_string())
         .collect();
     structure::check_imports(&mut report, theorems, scopes, &items, &library);
+    structure::check_citation_cycles(&mut report, theorems);
 
     let counts = counts_of(corpus);
 
@@ -1001,7 +1050,15 @@ fn prepared_in<T>(
     // grammar lexes.
     let files_tokens = structure::files_tokens(theorems, scopes, &grammar);
     structure::check_definitions(&mut report, theorems, scopes, &files_tokens);
+    structure::check_phrase_imports(
+        &mut report,
+        theorems,
+        scopes,
+        records,
+        &files_tokens,
+    );
     structure::check_file_defines(&mut report, env);
+    structure::check_phrases(&mut report, records, env);
     structure::check_function_imports(&mut report, scopes, &files_tokens);
     database::check_functions(&mut report, &grammar);
     // A library function's name of several letters reads as one, as a word

@@ -11,11 +11,13 @@
 //! and what was known there. A step whose lemma forbids an inner assumption
 //! is proved at an outer frame and carried back in.
 
+use std::collections::BTreeSet;
 use std::rc::Rc;
 
 use indexmap::IndexMap;
 
-use super::elaborate::Sides;
+use super::elaborate::{Given, Reading, Sides};
+use super::reading::CLASS_NAMES;
 use super::state::{
     number_of, Binding, Block, BlockLetter, Closer, Contradicted, DefineCloser,
     Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
@@ -717,6 +719,7 @@ impl<'a> Elaborator<'a> {
             over: None,
             base: None,
             variable: None,
+            added: None,
             letters_at: self.block_letters.len(),
             opened: Vec::new(),
             // Taken before the block names anything, so that what it names is
@@ -967,6 +970,9 @@ impl<'a> Elaborator<'a> {
             .filter(|o| o.part == Some(part))
             .cloned()
             .collect();
+        // The first `let` fixes the claim's letter; a second, over the parts
+        // of a set, the member the step adds.
+        let mut lets = 0;
         for o in openers {
             let said = match o.is_hypothesis {
                 true => None,
@@ -976,7 +982,12 @@ impl<'a> Elaborator<'a> {
                 let name = node.leftmost().text.to_string();
                 let var = self.fixed_var(&name, &block.scope.clone())?;
                 self.names.insert(name.clone(), t!(var, "cv"));
-                block.variable = Some(var);
+                if lets == 0 {
+                    block.variable = Some(var);
+                } else {
+                    block.added = Some(var);
+                }
+                lets += 1;
                 let set = self.term(&node.children[1])?;
                 self.sets.insert(name, set);
             }
@@ -1800,7 +1811,7 @@ impl<'a> Elaborator<'a> {
     /// does not assume, or a case's claim. Its own where it says `want` as
     /// written, and otherwise carried there (`reached`); None where it says
     /// something else.
-    fn direction_reached(
+    pub fn direction_reached(
         &mut self,
         end: &PartEnd,
         want: &Rpn,
@@ -1945,18 +1956,35 @@ impl<'a> Elaborator<'a> {
         };
         let claim = self.claim_of(&step.claim)?;
         let over = self.rpn(&self.to_term(&claim).children()[2]);
-        let Some((lemma, begins)) =
-            lookup(rules::INDUCTION, over.alone().unwrap_or_default())
-        else {
-            return Err(self.unreached(
-                step.line,
-                format!("nothing here inducts over {}", self.render(&over)),
-            ));
+        // Over the parts of a set X, `gfinind` closes it from ∅ and Y ∪ {a};
+        // over numbers, the set's lemma from its first element and k + 1.
+        let parent = self.parts_over(&over);
+        let (lemma, start, next_one) = match (&parent, &block.added) {
+            (Some(_), Some(added)) => (
+                "gfinind",
+                t!("c0"),
+                t!(variable, "cv", added, "cv", "csn", "cun"),
+            ),
+            (Some(_), None) => {
+                return Err(self.unreached(
+                    step.line,
+                    "the step part of the induction adds no member",
+                ));
+            }
+            (None, _) => {
+                let Some((lemma, begins)) =
+                    lookup(rules::INDUCTION, over.alone().unwrap_or_default())
+                else {
+                    return Err(self.unreached(
+                        step.line,
+                        format!("nothing here inducts over {}", self.render(&over)),
+                    ));
+                };
+                // The start the page writes is the set's first element, as
+                // the checker holds (`check_induction_runs`).
+                (lemma, t!(begins), t!(variable, "cv", "c1", "caddc", "co"))
+            }
         };
-        // The start the page writes is the set's first element, as the
-        // checker holds (`check_induction_runs`).
-        let start = t!(begins);
-        let next_one = t!(variable, "cv", "c1", "caddc", "co");
         let written = step.claim.clone();
         // The statement after "for all k ∈ X,", with k the general name.
         let pattern = self.names_kept(|me| -> Checked<crate::formula::Node> {
@@ -2031,8 +2059,13 @@ impl<'a> Elaborator<'a> {
         // The step part's scope is the block's with k ∈ X and the induction
         // hypothesis conjoined, in that order, which is the antecedent the
         // lemma asks its step under.
+        // Over the parts of X it ends with the member added, a ∈ X ∖ Y.
         let member = t!(variable, "cv", over, "wcel");
-        let asked = t!(t!(scope, member, "wa"), held, "wa");
+        let mut asked = t!(t!(scope, member, "wa"), held, "wa");
+        if let (Some(parent), Some(added)) = (&parent, &block.added) {
+            let outside = t!(added, "cv", parent, variable, "cv", "cdif", "wcel");
+            asked = t!(asked, outside, "wa");
+        }
         if under != asked {
             return Err(self.unreached(
                 step.line,
@@ -2060,25 +2093,54 @@ impl<'a> Elaborator<'a> {
                 self.defect(step.line, "the base does not reach the first instance")
             );
         };
-        let mut all: Vec<crate::mm::spell::Part> = Vec::new();
-        let pieces = [
-            scope.clone(),
-            body,
-            claimed,
-            held,
-            reached,
-            whole.clone(),
-            t!(block.base.clone().unwrap_or_default()),
-            t!(variable),
-            named,
-        ];
-        all.extend(pieces.iter().map(|p| crate::elab::part(p)));
-        all.extend(ties.iter().map(|p| crate::elab::part(p)));
-        all.push(crate::elab::part(&base));
-        all.push(crate::elab::part(&stepped));
-        all.push(crate::elab::part(lemma));
         // `( ( scope ∧ k ∈ X ) → P(k) )`, and so P of every k in X.
-        let run = self.b.proof(&all);
+        let run = match (&parent, &block.added) {
+            (Some(parent), Some(added)) => {
+                let finite = t!(parent, "cfn", "wcel");
+                let known = self.supplied(Some(step), scope, &block.outside)?;
+                let Some(finite) = self.held(&known, &finite, scope)? else {
+                    return Err(self.defect(
+                        step.line,
+                        format!(
+                            "nothing the induction's requires lines say gives {}",
+                            self.render(&finite)
+                        ),
+                    ));
+                };
+                let x = t!(block.base.clone().unwrap_or_default());
+                self.b.ap(
+                    lemma,
+                    &binds! {"ph" => scope, "ps" => &body, "ch" => &claimed,
+                    "th" => &held, "ta" => &reached, "et" => &whole, "x" => &x,
+                    "y" => &t!(variable), "z" => &t!(added), "w" => &bound,
+                    "A" => parent},
+                    &[
+                        &ties[0], &ties[1], &ties[2], &ties[3], &base, &stepped,
+                        &finite,
+                    ],
+                )
+            }
+            _ => {
+                let mut all: Vec<crate::mm::spell::Part> = Vec::new();
+                let pieces = [
+                    scope.clone(),
+                    body,
+                    claimed,
+                    held,
+                    reached,
+                    whole.clone(),
+                    t!(block.base.clone().unwrap_or_default()),
+                    t!(variable),
+                    named,
+                ];
+                all.extend(pieces.iter().map(|p| crate::elab::part(p)));
+                all.extend(ties.iter().map(|p| crate::elab::part(p)));
+                all.push(crate::elab::part(&base));
+                all.push(crate::elab::part(&stepped));
+                all.push(crate::elab::part(lemma));
+                self.b.proof(&all)
+            }
+        };
         let every = t!(whole, bound, over, "wral");
         if every != target {
             return Err(self.defect(
@@ -2103,6 +2165,16 @@ impl<'a> Elaborator<'a> {
             &[&proved, &back],
         );
         Ok((claim, carried))
+    }
+
+    /// X, where an induction runs over `over` = 𝒫X, the parts of X; None
+    /// for any other set.
+    fn parts_over(&self, over: &Rpn) -> Option<Rpn> {
+        let set = self.to_term(over);
+        match (set.label(), set.children()) {
+            (Some("cpw"), [whole]) => Some(self.rpn(whole)),
+            _ => None,
+        }
     }
 
     /// The functions from X to Y, where `over` is that set (`X ↑m Y` in
@@ -2283,14 +2355,32 @@ impl<'a> Elaborator<'a> {
             }
             Some(item_name) => {
                 let item = self.item_cited(item_name)?;
-                let claimed = self.names_kept(|me| -> Checked<Rpn> {
+                // Read under what the citation gives the item's letters. A
+                // letter named in `apart` is read as a class nothing else
+                // holds, and its value put in once the item's bound letters
+                // are moved off it, as `cite_corpus` reads a theorem
+                // (`apart_from_values`).
+                let read = |me: &mut Self,
+                            apart: &BTreeSet<String>|
+                 -> Checked<Reading> {
+                    me.names_kept(|me| -> Checked<Reading> {
                     // A record's sentence comes back with each of its letters
                     // already what it stands for (`item_sentence_here`), in
                     // the proof's names. A theorem's is read in its own
                     // letters, which the values name, read in the proof's
                     // names as they stand, before anything is obtained.
+                    // A letter the citation does not write is what the
+                    // checker's reading of it fixes (`corpus_matched`).
                     let values = match item {
-                        Item::Theorem(_) => me.instantiated(&step.just)?,
+                        Item::Theorem(theorem) => {
+                            let mut values = me.instantiated(&step.just)?;
+                            for (name, term) in me.corpus_matched(step, theorem)? {
+                                if !values.iter().any(|(n, _)| *n == name) {
+                                    values.push((name, term));
+                                }
+                            }
+                            values
+                        }
                         Item::Record(_) => Vec::new(),
                     };
                     // A name is a variable of the kernel whatever it is
@@ -2300,12 +2390,35 @@ impl<'a> Elaborator<'a> {
                         let var = me.binder_var(name)?;
                         me.names.insert(name.clone(), t!(var, "cv"));
                     }
+                    let held: BTreeSet<String> = me
+                        .names
+                        .values()
+                        .chain(values.iter().map(|(_, t)| t))
+                        .flat_map(|t| t.tokens().iter().map(|s| s.to_string()))
+                        .collect();
+                    let mut unheld = CLASS_NAMES
+                        .iter()
+                        .rev()
+                        .filter(|c| !held.contains(**c));
                     // The item's letters are what the citation gives them,
                     // even where an obtained name is spelt as one of them:
                     // `obtain x, n: thm:lowest-terms x := √2` gives the
                     // item's x the value √2, and obtains another x.
+                    let mut given: Vec<Given> = Vec::new();
                     for (name, term) in values {
-                        me.names.insert(name, term);
+                        let class = if apart.contains(&name) {
+                            let Some(own) = unheld.next() else {
+                                return Err(me.defect(
+                                    step.line,
+                                    "no class is left to read the cited theorem's letter apart from what the citation gives it",
+                                ));
+                            };
+                            t!(*own)
+                        } else {
+                            term.clone()
+                        };
+                        me.names.insert(name.clone(), class.clone());
+                        given.push(Given { name, class, term });
                     }
                     // A library item says its existential in its own names,
                     // and the step's lines say what those stand for. The
@@ -2322,8 +2435,15 @@ impl<'a> Elaborator<'a> {
                             me.in_its_names(item, |me| me.read_one(&said))?
                         }
                     };
-                    me.term(&node)
-                })?;
+                    Ok(Reading {
+                        wanted: Vec::new(),
+                        whole: me.term(&node)?,
+                        given,
+                    })
+                    })
+                };
+                let first = read(self, &BTreeSet::new())?;
+                let (_, claimed) = self.apart_from_values(first, read)?;
                 // An item states its existential in its own names, and a
                 // binder takes the variable its name is spelled with, so the
                 // one obtained is renamed to a variable nothing else holds.
@@ -2879,6 +2999,9 @@ impl<'a> Elaborator<'a> {
                         self.kind_shown(&kinded, &made, &scope, &facts)?;
                     }
                 }
+                // A phrase gives no name for a proof to hold: it is its
+                // meaning wherever it is written (`Elaborator::term`).
+                DefineParts::Phrase(_) => {}
             }
         }
         Ok((scope, facts, closers))
@@ -3164,9 +3287,13 @@ impl<'a> Elaborator<'a> {
         })
     }
 
-    /// An existential rewritten to bind variables nothing else holds.
+    /// An existential rewritten to bind variables nothing else holds, the
+    /// existential included: a letter its body already binds, as a cited
+    /// theorem's letter moved apart from a value is, is passed over.
     pub fn renamed(&mut self, ex: &Rpn, depth: usize) -> Checked<Rpn> {
         let whole = self.to_term(ex);
+        let spelt: BTreeSet<String> =
+            ex.tokens().iter().map(|t| t.to_string()).collect();
         let mut term = whole.clone();
         let mut binding = Binding::new();
         for _ in 0..depth {
@@ -3176,7 +3303,10 @@ impl<'a> Elaborator<'a> {
             let Some(var) = term.children()[1].variable().map(Symbol::of) else {
                 break;
             };
-            let fresh = self.spare_var()?;
+            let mut fresh = self.spare_var()?;
+            while spelt.contains(&fresh) {
+                fresh = self.spare_var()?;
+            }
             binding.insert(var, self.var_of(&fresh));
             term = term.children()[0].clone();
         }

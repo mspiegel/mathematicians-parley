@@ -1,4 +1,4 @@
-import axiom              stdlib/geometry/parallel-through
+import theorem            stdlib/geometry/parallel-through
 import theorem            stdlib/geometry/alternate-angles
 import theorem            stdlib/geometry/angles-on-a-line
 
@@ -18,7 +18,7 @@ theorem angle-sum
     D and C are on opposite sides of line BA.
     E and A are on opposite sides of line BC.
     A and C are on the same side of line BD.
-    obtain D, E: axi:parallel-through P := A, Q := C, R := B, from H4
+    obtain D, E: thm:parallel-through P := A, Q := C, R := B, from H4
 
 2.  ∠DBA = ∠BAC
     thm:alternate-angles P := A, Q := C, R := B, S := D, from H4, 1

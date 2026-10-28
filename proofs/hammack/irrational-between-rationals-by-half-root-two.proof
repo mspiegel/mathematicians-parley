@@ -18,7 +18,7 @@ theorem irrational-between-rationals
       r < s              H3
       0 < s − r          adding −r
       0 < (s − r)/2      multiplying by 1/2
-      (s − r)/2 > 0      symmetry
+      (s − r)/2 > 0      restate
 
 2.  √2 is irrational
     thm:sqrt2-irrational
@@ -45,7 +45,7 @@ theorem irrational-between-rationals
 9.  r < √2·((s − r)/2) + r
     inequalities
       √2·((s − r)/2) > 0                7
-      0 < √2·((s − r)/2)                symmetry
+      0 < √2·((s − r)/2)                restate
       r < √2·((s − r)/2) + r            adding r
 
 10. √2·((s − r)/2) + r < s

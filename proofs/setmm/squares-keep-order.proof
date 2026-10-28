@@ -34,7 +34,7 @@ theorem squares-keep-order
           inequalities
             b − a = 0        C2
             b = a            adding a
-            a = b            symmetry
+            a = b            restate
 
     2.4.  a² = b²
           substitute a = b (line 2.3)

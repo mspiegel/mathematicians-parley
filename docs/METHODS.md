@@ -171,17 +171,18 @@ reason names, and the last row is the claim:
 |---|---|
 | `adding t` | t added to both sides |
 | `multiplying by c` | both sides multiplied by c, a number other than 0; for c negative the relation turned round |
-| `symmetry` | an equation's two sides swapped, or a `≠` or an order turned round: `a > 0` to `0 < a` |
+| `restate` | an equation's two sides swapped, or a `≠` or an order turned round: `a > 0` to `0 < a` |
 | `weakening` | `<` or `=` weakened to `≤`, `>` or `=` to `≥`, or `<` or `>` to `≠` |
 | `algebra` | a side written as the same number another way |
 
 Each row keeps its sides where its manipulation leaves them: the first row
 is the cited line as it is written, and the last row is the claim as it is
-written. Turning a relation round is a `symmetry` row of its own, never
+written. Turning a relation round is a `restate` row of its own, never
 part of another row; `multiplying by` a negative number turns the relation
 round, its sides staying where they are. Outside rows a relation is read
 either way round without a word (transitivity, an item's hypothesis, a
-requires line citing a line).
+requires line citing a line). `symmetry` is kept back for later use, and a
+row that names it is refused.
 
 A row that adds or multiplies may write what it makes as the same number
 another way: `multiplying by 1/2` takes `2·A < A + B` to `A < (A + B)/2`,
@@ -254,7 +255,7 @@ over the atoms, with two additions:
   turning `≤` together with `≠` into `<`.
 
 An equation is not two inequalities to a step. `x ≤ |x|` from `|x| = x` is
-written as rows, `|x| = x`, then `x = |x|` by `symmetry`, then `x ≤ |x|` by
+written as rows, `|x| = x`, then `x = |x|` by `restate`, then `x ≤ |x|` by
 `weakening`, so that the reader sees the equation read as an order.
 
 ### Refusals
@@ -568,6 +569,11 @@ fact about the field rather than an identity.
 - **Order relations.** Those are `inequalities`.
 - **A disequality that is not a multiple of a cited one.**
 - **Two cited equations each multiplied by a term.** That is two steps.
+- **A claim the cited equations chain to.** Where the lines the step cites,
+  each by one equation it says, go in some order from one side of the claim
+  to the other, the step combines nothing: it is `transitivity`, or of one
+  line `restate`, and the checker names which. As with `inequalities`, a
+  step names the narrowest method that proves it.
 - **A power that costs more than 300 000 to multiply out.** The proof
   raises a power one step of the exponent at a time, and each step puts the
   terms it makes in order one by one, every move rewriting the polynomial so
@@ -725,11 +731,12 @@ membership, evaluate and test the value: a rational is in ℤ when its
 denominator is 1, in ℕ when it is also positive, in ℕ₀ when it is also
 non-negative, and in ℚ and ℝ always.
 
-The four words are one relation to set.mm: "n is even" is 2 ∥ n, "n is
-odd" is its denial, and a ≡ b (mod n) is n ∥ (a − b), as their notation
-records' targets say. So d divides n is
+Three of the four words are one relation to set.mm: "n is even" is 2 ∥ n,
+and a ≡ b (mod n) is n ∥ (a − b), as their notation records' targets say.
+"n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n. So d divides n is
 decided by evaluating both, each an integer and d not 0, and dividing: it
-holds when the remainder is 0, and fails otherwise. −6 is even, and −3
+holds when the remainder is 0, and fails otherwise. n is odd when its value
+is an integer 2 does not divide, so 1/2 is not odd. −6 is even, and −3
 divides 9.
 
 ### Refusals

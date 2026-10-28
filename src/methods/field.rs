@@ -1224,9 +1224,10 @@ pub fn integer_division(
 /// `METHODS.md`'s procedure for `arithmetic`: evaluate each side to a
 /// rational and decide the relation, or for a membership test the value.
 /// `=`, `≠`, `<` and `≤` — a reader's `>` and `≥` arrive as these with the
-/// sides turned — divisibility of integers, which is what "is even" and
-/// "is odd" are too, denials of any of them, and membership of ℕ, ℕ₀, ℤ, ℚ,
-/// ℝ and ℂ. A decline where the claim is none of these or holds a letter.
+/// sides turned — divisibility of integers, which is what "is even" is too,
+/// membership of ℕ, ℕ₀, ℤ, ℚ, ℝ and ℂ, a conjunction of these, which is
+/// what "is odd" is (n ∈ ℤ and not 2 ∥ n), and denials of any of them. A
+/// decline where the claim is none of these or holds a letter.
 pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     if let Some(pairs) = super::pairs::relation(claim) {
         return pairs_decided(&pairs);
@@ -1234,6 +1235,12 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
     let negated = claim.label() == Some("wn") && claim.children().len() == 1;
     let claim = if negated { &claim.children()[0] } else { claim };
     let kids = claim.children();
+    if claim.label() == Some("wa") && kids.len() == 2 {
+        return match conjunction_decided(&kids[0], &kids[1]) {
+            Built(Verdict::Holds(h)) => Built(Verdict::Holds(h != negated)),
+            other => other,
+        };
+    }
     if claim.label() == Some("wbr")
         && kids.len() == 3
         && kids[2].label() == Some("cdvds")
@@ -1274,6 +1281,25 @@ pub fn decide_closed(claim: &Term) -> Route<Verdict> {
         Test::One(system) => system.admits(&values[0]),
     };
     Built(Verdict::Holds(holds != negated))
+}
+
+/// Whether both parts hold. A part decided false settles it even where the
+/// other is not worked out, so "1/2 is odd" is false by 1/2 ∉ ℤ though
+/// arithmetic does not decide whether 2 divides 1/2.
+fn conjunction_decided(left: &Term, right: &Term) -> Route<Verdict> {
+    let mut unworked = None;
+    for part in [left, right] {
+        match decide_closed(part) {
+            Declined(d) => return Declined(d),
+            Built(Verdict::Holds(false)) => return Built(Verdict::Holds(false)),
+            Built(Verdict::Holds(true)) => {}
+            Built(Verdict::Unworked(why)) => unworked = unworked.or(Some(why)),
+        }
+    }
+    match unworked {
+        Some(why) => Built(Verdict::Unworked(why)),
+        None => Built(Verdict::Holds(true)),
+    }
 }
 
 /// A relation between two pairs, decided of the equations of their

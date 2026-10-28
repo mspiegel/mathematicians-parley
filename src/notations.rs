@@ -94,4 +94,7 @@ notations! {
     SET_BUILDER = 62, "set-builder";
     MAP = 63, "map";
     MAP_OF_TWO = 64, "map-of-two";
+    EMPTY_SET = 65, "empty-set";
+    SINGLETON = 66, "singleton";
+    FINITE = 67, "finite";
 }

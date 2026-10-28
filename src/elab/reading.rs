@@ -11,18 +11,25 @@
 
 use indexmap::IndexMap;
 
-use super::state::Elaborator;
+use std::collections::BTreeSet;
+use std::rc::Rc;
+
+use super::state::{Elaborator, PhraseMeaning};
 use crate::checker::record::Cited;
 use crate::corpus::proof::visible;
+use crate::corpus::RecordKind;
 use crate::corpus::{DefineLine, Intro, Item, Recursion, ScopeId, Step, Theorem};
+use crate::formula::notation_id::NotationId;
 use crate::formula::page::{
     conjoined, filled, made, made_as, template, Sentence, Written,
 };
 use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node};
-use crate::matching::{substitute_apart_by, Binding};
+use crate::matching::FxIndexMap;
+use crate::matching::{bound_apart, substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::mm::Rpn;
+use crate::notations::BICONDITIONAL;
 use crate::notations::{APPLICATION, APPLICATION_TO_TWO};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
@@ -246,6 +253,100 @@ impl<'a> Elaborator<'a> {
         Ok(substitute_apart_by(&made, &put, &self.g.binders()))
     }
 
+    /// A phrase a define gives, written out as its meaning at what fills its
+    /// slots. set.mm has no word for the phrase, so what it says there is
+    /// its meaning, as a notation record's `target` is the formula its
+    /// phrase stands for. The meaning's bound letters are its own: one the
+    /// proof also names, as `s` where the file defines s(a), is spelt with a
+    /// letter nothing here has (`bound_apart`), since what fills a slot may
+    /// be written out in terms of the proof's names; and none catches what
+    /// is put in (`substitute_apart_by`). None for any other node.
+    pub fn phrase_written_out(&self, node: &Node) -> Option<Node> {
+        let table = self.phrases.get_or_init(|| Rc::new(self.phrase_meanings()));
+        let said = table.get(&node.notation())?;
+        if said.slots.len() != node.children.len() {
+            return None;
+        }
+        let mut held: BTreeSet<String> = self
+            .names
+            .keys()
+            .chain(self.from_outside.keys())
+            .cloned()
+            .collect();
+        for c in &node.children {
+            held.extend(c.names());
+        }
+        let binders = self.g.binders();
+        let meaning = bound_apart(&said.meaning, &held, &held, &binders);
+        let put: Binding = said
+            .slots
+            .iter()
+            .copied()
+            .zip(node.children.iter().cloned())
+            .collect();
+        Some(substitute_apart_by(&meaning, &put, &binders))
+    }
+
+    /// Each phrase's meaning as a notation record's `target` writes it, in
+    /// set.mm's words with each slot the hole `_1`, `_2`, … in the order the
+    /// phrase writes them, and its negation folded: so a term the meaning
+    /// makes is said back as the phrase (`reading_table`), as a database
+    /// notation's is. The build itself writes a phrase out where it stands
+    /// (`phrase_written_out`), which keeps its bound letters apart.
+    pub fn phrase_targets(&mut self) -> Checked<()> {
+        let table =
+            Rc::clone(self.phrases.get_or_init(|| Rc::new(self.phrase_meanings())));
+        for (id, said) in table.iter() {
+            let made = self.aside(|me| {
+                for (at, slot) in said.slots.iter().enumerate() {
+                    me.names
+                        .insert(slot.to_string(), Rpn::read(&format!("_{}", at + 1)));
+                }
+                me.term(&said.meaning)
+            })?;
+            self.terms.insert(*id, vec![Some(made.to_string()), None]);
+        }
+        Ok(())
+    }
+
+    /// What each phrase a define gives means, read off the definition record
+    /// the define stands for, whose statement is the phrase, `↔` and the
+    /// meaning: the phrase's notation, the letters in its slots, and the
+    /// meaning (`corpus::phrases`).
+    fn phrase_meanings(&self) -> FxIndexMap<NotationId, PhraseMeaning> {
+        let mut out = FxIndexMap::default();
+        let made = self
+            .records
+            .iter()
+            .filter(|r| r.phrase.is_some() && r.kind == RecordKind::Definition);
+        for r in made {
+            for written in r.stated() {
+                let Ok(sentence) = written.formula() else {
+                    continue;
+                };
+                let Some(Ok(read)) = self.checked.items.get(&sentence) else {
+                    continue;
+                };
+                let [phrase, meaning] = read.children.as_slice() else {
+                    continue;
+                };
+                if read.notation() != BICONDITIONAL
+                    || !phrase.children.iter().all(Node::is_name)
+                {
+                    continue;
+                }
+                out.insert(
+                    phrase.notation(),
+                    PhraseMeaning {
+                        slots: phrase.children.iter().map(|c| c.text).collect(),
+                        meaning: meaning.clone(),
+                    },
+                );
+            }
+        }
+        out
+    }
+
     /// A part of a line that is one formula, a requires line's fact or a
     /// value, read (`read`); a defect where it is several sentences.
     pub fn read_one(&self, written: &Written) -> Checked<Node> {
@@ -279,6 +380,9 @@ impl<'a> Elaborator<'a> {
     pub fn term(&mut self, node: &Node) -> Checked<Rpn> {
         if let Some(rpn) = &node.rpn {
             return Ok(rpn.clone());
+        }
+        if let Some(meaning) = self.phrase_written_out(node) {
+            return self.term(&meaning);
         }
         let applies_name = matches!(node.notation(), APPLICATION | APPLICATION_TO_TWO)
             && node.children.len() >= 2

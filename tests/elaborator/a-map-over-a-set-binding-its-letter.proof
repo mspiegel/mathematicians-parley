@@ -189,7 +189,7 @@ theorem a-map-over-a-set-binding-its-letter
                   inequalities
                     |√x − √c|·√x ≥ 0                                  4.8.18
                     |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|        adding √c·|√x − √c|
-                    √c·|√x − √c| ≤ |√x − √c|·√x + √c·|√x − √c|        symmetry
+                    √c·|√x − √c| ≤ |√x − √c|·√x + √c·|√x − √c|        restate
                   requires |√x − √c| ∈ ℝ: from 4.8.7
                   requires √x ∈ ℝ: from 4.8.3
                   requires √c ∈ ℝ: from 4.3

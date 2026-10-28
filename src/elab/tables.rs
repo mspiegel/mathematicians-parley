@@ -22,7 +22,9 @@ use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
-use crate::citing::{part_said_otherwise, OnceReason, Shape};
+use crate::citing::{
+    part_said_otherwise, CodomainAsk, CodomainReason, OnceReason, Shape,
+};
 use crate::corpus::Step;
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
@@ -80,6 +82,29 @@ pub enum Leaf {
     /// A piece of numerals alone that changed, proved where it stands as a
     /// closed fact: a link of a calculation naming `arithmetic`.
     Arithmetic { what: String, step: Box<Step> },
+}
+
+/// The build's codomains as `citing::codomain_reason` asks of them: kernel
+/// terms, and the parts the facts in scope state, `X ⊆ Y` or `X ∈ 𝒫Y`, as
+/// pairs (small, big).
+struct KernelCodomains<'p> {
+    parts: &'p [(Rpn, Rpn)],
+}
+
+impl CodomainAsk for KernelCodomains<'_> {
+    type T = Rpn;
+
+    fn alike(&self, a: &Rpn, b: &Rpn) -> bool {
+        a == b
+    }
+
+    fn system(&self, set: &Rpn) -> Option<rules::System> {
+        set.alone().and_then(rules::System::of_label)
+    }
+
+    fn part(&self, small: &Rpn, big: &Rpn) -> bool {
+        self.parts.iter().any(|(s, b)| s == small && b == big)
+    }
 }
 
 /// A chain of lemmas carrying a membership to what it also says: each
@@ -1529,7 +1554,7 @@ impl<'a> Elaborator<'a> {
 
     /// Each thing a membership line also says, with its proof under `scope`
     /// from the line's own `proof`. A lemma that asks a class be a set has
-    /// it proved from the facts (`made_a_set`), and where it cannot be, what
+    /// it settled from the facts (`settle`), and where it cannot be, what
     /// that lemma would give is not said.
     pub fn implied(
         &mut self,
@@ -1546,7 +1571,8 @@ impl<'a> Elaborator<'a> {
                 let after = self.rpn(&link.reached);
                 // ( scope -> ( X e. _V /\ at ) ), for a lemma asking a set.
                 for set in &link.sets {
-                    let Built(made) = self.made_a_set(set, scope, facts)? else {
+                    let Built(made) = self.settle(set, scope, facts, 3, None, None)?
+                    else {
                         continue 'claims;
                     };
                     let both = t!(self.rpn(set), at, "wa");
@@ -1687,7 +1713,9 @@ impl<'a> Elaborator<'a> {
                     proof = self.lifted_to(&claim, &w.proof, &w.at, scope);
                 }
             }
-            // What a requires line wrote, or what a line being cited says.
+            // What a requires line wrote, or what a line being cited says,
+            // and nothing the step does not name besides: a fact resting on
+            // a requires line and on a line above the step is not the step's.
             let Some(proof) = proof else {
                 continue;
             };
@@ -1696,6 +1724,11 @@ impl<'a> Elaborator<'a> {
                 !origin.is_empty() && origin.iter().all(|o| self.citing.contains(o));
             if !(from_requires(&proof) || cited) {
                 continue;
+            }
+            if let Some(resting) = &self.resting {
+                if !origin.iter().all(|o| may_rest_on(resting, o)) {
+                    continue;
+                }
             }
             let push = self.sig(&label).push()[0].to_string();
             let law = self.b.ap(&label, &binds! {push => said}, &[]);
@@ -2177,10 +2210,112 @@ impl<'a> Elaborator<'a> {
             );
             return self.introduced_membership(&said, &system, scope, facts);
         }
+        if wanted.label() == Some("wf") && wanted.children().len() == 3 {
+            return self.declared_type(wanted, scope, facts);
+        }
         let joined = self.conjoined(wanted, scope, &mut |me, one| {
             me.said_once_proof(one, scope, facts)
         })?;
         Ok(joined.unwrap_or_else(|| Route::no("not a membership")))
+    }
+
+    /// `F : A --> C` for a function a `let` declares F : A --> B, by the
+    /// reason `citing::codomain_reason` gives the checker too: B is C, a
+    /// number system inside C (`rules::INSIDE`), or a set a `let` puts
+    /// inside C, the type widened by `fssd`. The declaration says the type
+    /// once, so the step need not name its line.
+    fn declared_type(
+        &mut self,
+        wanted: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let [domain, codomain, f] = wanted.children() else {
+            return Ok(Route::no("not a function's type"));
+        };
+        let (domain, codomain, f) = (self.rpn(domain), self.rpn(codomain), self.rpn(f));
+        let Some(letter) = self
+            .names
+            .iter()
+            .find(|(_, kernel)| **kernel == f)
+            .map(|(name, _)| name.clone())
+        else {
+            return Ok(Route::no("not a declared function"));
+        };
+        let mut declared: Vec<Rpn> = Vec::new();
+        let mut parts: Vec<(Rpn, Rpn)> = Vec::new();
+        for (claim, _) in facts.entries() {
+            let said = self.to_term(&claim);
+            match (said.label(), said.children()) {
+                (Some("wf"), [a, b, g])
+                    if self.rpn(a) == domain && self.rpn(g) == f =>
+                {
+                    declared.push(self.rpn(b));
+                }
+                (Some("wss"), [small, big]) => {
+                    parts.push((self.rpn(small), self.rpn(big)))
+                }
+                (Some("wcel"), [small, power]) if power.label() == Some("cpw") => {
+                    if let [big] = power.children() {
+                        parts.push((self.rpn(small), self.rpn(big)));
+                    }
+                }
+                _ => {}
+            }
+        }
+        for given in declared {
+            let ask = KernelCodomains { parts: &parts };
+            let Some(reason) = crate::citing::codomain_reason(&ask, &given, &codomain)
+            else {
+                continue;
+            };
+            let Some(typed) =
+                self.held(facts, &t!(&domain, &given, &f, "wf"), scope)?
+            else {
+                continue;
+            };
+            let within = match reason {
+                CodomainReason::Same => {
+                    return Ok(Built(
+                        self.seal(typed, &format!("{MEMBERSHIP}{letter}")),
+                    ));
+                }
+                CodomainReason::Systems { small, big } => {
+                    let Some(inside) = rules::INSIDE
+                        .iter()
+                        .find(|i| i.small == small.label() && i.big == big.label())
+                    else {
+                        continue;
+                    };
+                    let closed = self.b.ap(inside.lemma, &binds! {}, &[]);
+                    pf!(self.b; t!(&given, &codomain, "wss"), scope, closed, "a1i")
+                }
+                CodomainReason::Part => {
+                    let subset = t!(&given, &codomain, "wss");
+                    match self.held(facts, &subset, scope)? {
+                        Some(p) => p,
+                        None => {
+                            let member = t!(&given, t!(&codomain, "cpw"), "wcel");
+                            let Some(p) = self.held(facts, &member, scope)? else {
+                                continue;
+                            };
+                            self.b.ap(
+                                "elpwid",
+                                &binds! {"ph" => scope, "A" => &given, "B" => &codomain},
+                                &[&p],
+                            )
+                        }
+                    }
+                }
+            };
+            let wider = self.b.ap(
+                rules::WIDER_TYPE,
+                &binds! {"ph" => scope, "A" => &domain, "B" => &given, "C" => &codomain, "F" => &f},
+                &[&typed, &within],
+            );
+            return Ok(Built(self.seal(wider, &format!("{MEMBERSHIP}{letter}"))));
+        }
+        Ok(Route::no("no declared type whose codomain lies inside"))
     }
 
     /// `said ∈ system` from a line the step names saying `said` is in a

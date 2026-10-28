@@ -118,8 +118,9 @@ In `corpus/stdlib/counting.records`, mundane: `factorial-product`
 (`fprodfac`).
 
 In `corpus/stdlib/divisibility.records`:
-- named: `phi-prime` (`phiprm`), and `product-congruent-termwise`
-  (`fprodmodd` and `moddvds`, through `gfprodcongt` in `proved.mm`).
+- named: `phi-prime` (`phiprm`), and `product-congruent-termwise`, which
+  `corpus/stdlib/divisibility.proof` proves on the page by induction over
+  the finite set.
 - mundane: `below-not-divisible` (`fzm1ndvds` read over x ∈ ℕ below n,
   through `gnndvdslt`), and `minus-one-congruent` (`iddvds`, through
   `gm1cong`).
@@ -128,7 +129,7 @@ The proof also cites `set-builder-split` and `set-builder-split-disjoint`,
 which the Ramsey pilot added.
 
 The lemmas behind these are in `corpus/proved/`. `totient.proved` has
-`gfprodcongt` and `gfprodf1o`. `divisors.proved` has `gnndvdslt` and
+`gfprodf1o`. `divisors.proved` has `gnndvdslt` and
 `gm1cong`, and also `gcongcomd`, which puts a congruence's two sides in
 order (point 6 below). `ranges.proved` has `gfzss`. In
 `corpus/db/notation.records`, `congruent-mod` says `commutes any order of

@@ -48,49 +48,45 @@ mundane definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
-  metamath    not 2 ∥ n
-  target      odd2np1, equation reversed
+  metamath    odd2np1, of n ∈ ℤ and not 2 ∥ n
+  target      godd2np1, equation reversed
+  note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
+              godd2np1 is odd2np1 with the membership joined, and is proved
+              in elaboration/stdlib/proved.mm.
 
 mundane theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
-  metamath    exmid
-  target      exmid
-  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
-              statement is excluded middle, ( ph or not ph ), and the
-              expansion never uses H1. zeo says the same thing for an encoding
-              where "odd" means n - 1 is even, which is not the one mun:stdlib/divisibility/odd
-              chose.
+  metamath    zeo3
+  target      gevenodd
+  note        zeo3 says 2 ∥ n or not 2 ∥ n of an integer; gevenodd joins H1
+              to its second case, which is what "n is odd" says.
 
 mundane theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
-  metamath    notnot
-  target      notnot
-  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
-              double negation introduction, ( ph -> not not ph ), and the
-              expansion never uses H1.
+  metamath    gnotboth
+  target      gnotboth
+  note        "n is odd" says not 2 ∥ n, which H2 denies.
 
 mundane theorem odd-not-even
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (n is even)
-  metamath    id
-  target      id
-  note        not-both the other way: mun:stdlib/divisibility/odd makes "n
-              is odd" the denial of "n is even", so this statement is
-              ( ph -> ph ), and the expansion never uses H1.
+  metamath    simpr
+  target      simpr
+  note        not-both the other way: "n is not even" is the second part of
+              what "n is odd" says.
 
 mundane theorem odd-not-divisible
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (2 divides n)
-  metamath    id
-  target      id
-  note        "n is odd" is the denial of "2 divides n", as it is of "n is
-              even", so this statement is ( ph -> ph ), and the expansion
-              never uses H1.
+  metamath    simpr
+  target      simpr
+  note        "not (2 divides n)" is the second part of what "n is odd"
+              says, as for "n is not even".
 
 mundane theorem odd-plus-odd
   let a ∈ ℤ                                                           (H1)
@@ -121,7 +117,9 @@ mundane theorem odd-plus-even
   assume b is even                                                    (H4)
   then        a + b is odd
   metamath    opeo
-  target      opeo
+  target      gopeo
+  note        opeo concludes not 2 ∥ (a + b); gopeo joins a + b ∈ ℤ, which
+              "is odd" says too.
 
 mundane theorem odd-minus-even
   let a ∈ ℤ                                                           (H1)
@@ -130,7 +128,9 @@ mundane theorem odd-minus-even
   assume b is even                                                    (H4)
   then        a − b is odd
   metamath    omeo
-  target      omeo
+  target      gomeo
+  note        omeo concludes not 2 ∥ (a − b); gomeo joins a − b ∈ ℤ, which
+              "is odd" says too.
 
 mundane theorem even-product
   let a ∈ ℤ                                                           (H1)
@@ -615,23 +615,6 @@ mundane theorem coprime-power
   note        A number sharing no factor with b shares none with b in any
               of its powers.
 
-theorem prime-powers-unique
-  let a ∈ ℕ₀                                                          (H1)
-  let b ∈ ℕ₀                                                          (H2)
-  let c ∈ ℕ₀                                                          (H3)
-  let a′ ∈ ℕ₀                                                         (H4)
-  let b′ ∈ ℕ₀                                                         (H5)
-  let c′ ∈ ℕ₀                                                         (H6)
-  assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
-  then        a = a′. b = b′. c = c′.
-  metamath    g235a, g235b, g235c, which this corpus proves in
-              elaboration/stdlib/proved.mm from pcmul, pcidlem and pcexp
-  target      g235a, g235b, g235c with A := a, B := b, C := c, D := a′, E := b′, F := c′
-  note        A number has one factorisation into primes, so the powers of
-              2, 3 and 5 in it are what they are. set.mm counts how many
-              times a prime divides a number, pCnt, and the count of 2 in
-              2^a·3^b·5^c is a. One target to a sentence.
-
 definition φ
   sort        number → number
   builds      _1 cphi cfv
@@ -667,34 +650,6 @@ mundane theorem coprime-product
   metamath    rpmul, which puts n first in each gcd, and gcdcom, which this
               corpus proves together in elaboration/stdlib/proved.mm
   target      grpmul
-
-theorem congruent-cancel
-  let x ∈ ℤ                                                           (H1)
-  let y ∈ ℤ                                                           (H2)
-  let c ∈ ℤ                                                           (H3)
-  let n ∈ ℕ                                                           (H4)
-  assume x·c ≡ y·c (mod n)                                            (H5)
-  assume gcd(c, n) = 1                                                (H6)
-  then        x ≡ y (mod n)
-  metamath    subdir and coprmdvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gcongrcan
-  note        A factor with no factor in common with n cancels from both
-              sides of a congruence modulo n.
-
-theorem coprime-divides
-  let x ∈ ℤ                                                           (H1)
-  let c ∈ ℤ                                                           (H2)
-  let n ∈ ℕ                                                           (H3)
-  assume n divides x·c                                                (H4)
-  assume gcd(c, n) = 1                                                (H5)
-  then        n divides x
-  metamath    coprmdvds, with the coprime factor first, which this corpus
-              proves in elaboration/stdlib/proved.mm
-  target      gcoprmdvds
-  note        A number dividing a product and sharing no factor with one
-              of its factors divides the other: Euclid's lemma, said of any
-              number and not only of a prime.
 
 mundane theorem congruent-in-range
   let n ∈ ℕ                                                           (H1)
@@ -732,63 +687,6 @@ mundane theorem mod-equal-congruent
               elaboration/stdlib/proved.mm
   target      gmodeqdvds
 
-theorem product-coprime
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let n ∈ ℕ                                                           (H3)
-  assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
-  then        gcd(∏(x ∈ X) x, n) = 1
-  metamath    gfprodrp, which this corpus proves in
-              elaboration/stdlib/proved.mm by induction on the finite set
-              (findcard2d), a factor at a time (fprodsplitsn, rpmul)
-  target      gfprodrp
-  note        A product of numbers with no factor in common with n has none
-              in common with n either. set.mm's coprmprod says so only of
-              factors that are coprime to each other as well.
-
-theorem product-congruent
-  let X ⊆ ℤ                                                           (H1)
-  assume X is finite                                                  (H2)
-  let c ∈ ℤ                                                           (H3)
-  let n ∈ ℕ                                                           (H4)
-  let f : X → X                                                       (H5)
-  assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
-  then        ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
-  metamath    fprodmodd and moddvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodcong
-  note        Congruences multiply: the products of two lists of terms,
-              congruent term by term, are congruent.
-
-theorem product-congruent-termwise
-  let X be a set                                                      (H1)
-  assume X is finite                                                  (H2)
-  let n ∈ ℕ                                                           (H3)
-  let t : X → ℤ                                                       (H4)
-  let u : X → ℤ                                                       (H5)
-  assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
-  then        ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
-  metamath    fprodmodd and moddvds, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gfprodcongt
-  note        product-congruent for any two lists of integer terms over a
-              finite set, congruent index by index.
-
-theorem coprime-square
-  let s ∈ ℕ                                                           (H1)
-  let t ∈ ℕ                                                           (H2)
-  let w ∈ ℕ                                                           (H3)
-  assume gcd(s, t) = 1                                                (H4)
-  assume w² = s·t                                                     (H5)
-  then        s = gcd(s, w)². t = gcd(t, w)².
-  metamath    coprimeprodsq and coprimeprodsq2, which ask only that s, t
-              and w share no factor all three, and gcd(1, w) = 1 (1gcd);
-              this corpus proves them together in
-              elaboration/stdlib/proved.mm
-  target      gcoprimesq, gcoprimesq2
-  note        Two numbers with no factor in common whose product is a
-              square are squares themselves, of their common factors with
-              the square root.
 
 mundane theorem divides-square
   let d ∈ ℤ                                                           (H1)

@@ -432,9 +432,9 @@ that may itself say "for all Y ∈ K", binding the same letter. So:
   another of its letters the claim has fixed, and the claim does not fix, is
   given one nothing in the proof holds, whether or not a frame spells the
   lemma's own, and never the one a cited line happens to bind
-  (`letters_unheld`). `gfprodrp` keeps its hypothesis's x apart from the
-  product's k; Euler's step 19 fixes k as r, and line 18, "for all r ∈ S",
-  would otherwise hand x the same r. What the lemma's other variables stand for is
+  (`letters_unheld`). A lemma about a product may keep its hypothesis's x
+  apart from the product's k; a step that fixes k as r, citing a line "for
+  all r ∈ S", would otherwise hand x the same r. What the lemma's other variables stand for is
   still read off the lines, fitted with the fresh letters left open
   (`fit_respelt`). The rule applies where it is redundant too: a lemma whose
   own letter nothing spells still takes a fresh one, so no step depends on
@@ -692,6 +692,16 @@ A define names a thing: a number, a set or a map. One whose body is a
 statement is a defect where it is written, since there is nothing for the
 name to be equal to. A function's define does too: each of its values is a
 thing, so Q(x) = x < 1 is the same defect.
+
+A define of a phrase is the one whose meaning is a statement, and it names
+no thing: wherever its phrase stands the build reads the meaning, each slot
+put in its place, and the meaning's own bound letters kept apart from what
+is put there and from every name the proof holds, as the s of upper bound
+is where the file defines s(a) (`Elaborator::phrase_written_out`). So set.mm
+never sees the phrase. A message saying a term back says the phrase where
+the term is its meaning (`phrase_targets`). Its definition item's lemma is
+`biid`, as the database's definitions whose notation is the formula they
+define are.
 
 A define is not a sort: a step that uses what it says cites it (`SYNTAX.md`),
 and R1 refuses one that rests on a define it does not cite. The standard form
@@ -1572,7 +1582,7 @@ notation reads "b is an upper bound of S" as every s in S being at most b and
 the block that proved that fixed a variable of its own; and a defined name
 read as what it names where the step cites the define: `3 divides b`, with b
 defined as Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k), is the congruence of
-the two sums mod 3. Otherwise the step stops: "mun:upper-bound has no target,
+the two sums mod 3. Otherwise the step stops: "def:perfect has no target,
 and nothing step 10 cites says …".
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
@@ -2228,7 +2238,9 @@ angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `definitions.mm` — and the items set.mm does not state are proved in
 `corpus/elaboration/stdlib/proved.mm`: the four `isosceles` cites, the three of
 the angle sum, and those of Pythagoras, each group in a block of its own. All
-three proofs elaborate and assume nothing.
+three proofs elaborate and assume nothing. The SMSG postulates the page reads
+are proved there too, in `postulates.proved`, with the order facts the page
+proofs take for granted.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and
 `ang180` wants three points pairwise distinct, so `mun:stdlib/geometry/triangle` elaborates to

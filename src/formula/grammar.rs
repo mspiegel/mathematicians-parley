@@ -15,7 +15,7 @@ use super::notation::{
 };
 use super::notation_id::NotationId;
 use super::token::{lowered, tokenise, Token, TokenKind};
-use crate::corpus::Record;
+use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, signature, NotationSorts};
 use crate::sorts::powers::ROOT_SIGN;
@@ -42,6 +42,11 @@ pub struct Sorts {
     /// The library functions in scope: those the file imports, or every one
     /// in the library's own records.
     pub imported: IndexSet<String>,
+    /// The phrases defines give that are in scope, by their notations' names:
+    /// those the file defines above the theorem and those it imports. None
+    /// where every one is, as in the library's records, which see the
+    /// library whole.
+    pub phrases: Option<IndexSet<String>>,
     /// Names the lines put among numbers that need not be whole: a number
     /// in ℚ, ℝ or ℂ, or in a set within one of them; such a set; and a
     /// function whose values are such numbers. A power whose exponent holds
@@ -59,6 +64,11 @@ impl Sorts {
 impl Sorts {
     pub fn new() -> Sorts {
         Sorts::default()
+    }
+
+    /// Whether the phrase whose notation is `name` may be written here.
+    pub fn phrase_in_scope(&self, name: &str) -> bool {
+        self.phrases.as_ref().is_none_or(|p| p.contains(name))
     }
 }
 
@@ -82,6 +92,7 @@ impl FromIterator<(String, Sort)> for Sorts {
             ranges: IndexMap::new(),
             unsettled: IndexSet::new(),
             imported: IndexSet::new(),
+            phrases: None,
             reals: IndexSet::new(),
         }
     }
@@ -102,6 +113,7 @@ type ReadingKey = (
     String,
     Vec<Option<Sort>>,
     Vec<Option<String>>,
+    Vec<bool>,
     Vec<bool>,
     Vec<bool>,
     Vec<bool>,
@@ -131,6 +143,9 @@ pub struct Grammar {
     /// How a reader says one member of a set, by the words, and the set's
     /// symbol: `a natural number` is a member of ℕ (the `member` field).
     pub members: IndexMap<String, String>,
+    /// The notations defines of phrases stand for, by name, each written
+    /// only where it is in scope (`Sorts::phrases`).
+    pub phrases: IndexSet<String>,
     /// The tighter levels, the functions' sorts and the two caches are
     /// hashed with Fx rather than the default SipHash: every sentence read
     /// is looked up in the caches and every node in the tables, and with
@@ -185,6 +200,11 @@ impl Grammar {
             .filter_map(|(name, f)| Some((name.clone(), function_sort(&f.sort)?)))
             .collect();
         let members = members(records, &notations)?;
+        let phrases = records
+            .iter()
+            .filter(|r| r.kind == RecordKind::Notation && r.phrase.is_some())
+            .map(|r| r.name.clone())
+            .collect();
         Ok(Grammar {
             notations,
             words,
@@ -193,6 +213,7 @@ impl Grammar {
             long_names,
             function_sorts,
             members,
+            phrases,
             tighter: compile_precedence(records).into_iter().collect(),
             tokens: RefCell::new(IndexMap::default()),
             readings: RefCell::new(IndexMap::default()),
@@ -290,8 +311,14 @@ fn members(
 }
 
 /// What a reading of these tokens depends on besides the grammar: the text,
-/// and the sort each name in it has, or that it has none.
-fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
+/// the sort each name in it has, or that it has none, and which of the
+/// grammar's `phrases` are in scope.
+fn reading(
+    text: &str,
+    tokens: &[Token],
+    sorts: &Sorts,
+    phrases: &IndexSet<String>,
+) -> ReadingKey {
     let mut seen: IndexSet<&str> = IndexSet::new();
     for t in tokens {
         if t.kind == TokenKind::Name {
@@ -315,7 +342,16 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         .iter()
         .map(|name| sorts.reals.contains(*name))
         .collect();
-    (text.to_string(), said, ranges, unsettled, imported, reals)
+    let in_scope = phrases.iter().map(|p| sorts.phrase_in_scope(p)).collect();
+    (
+        text.to_string(),
+        said,
+        ranges,
+        unsettled,
+        imported,
+        reals,
+        in_scope,
+    )
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -422,7 +458,7 @@ pub(super) fn parse(
     line: usize,
 ) -> Checked<Route<Node>> {
     let tokens = g.tokens(text, path, line)?;
-    let key = reading(text, &tokens, sorts);
+    let key = reading(text, &tokens, sorts, &g.phrases);
     if let Some(found) = g.readings.borrow().get(&key) {
         return Ok(Built(found.clone()));
     }
@@ -481,12 +517,18 @@ fn read(
         stopped_ran_out: false,
         refused: None,
         refused_order: false,
+        unimported: None,
     };
     let read = p.expression(None, &[])?;
     // A hyphen standing apart is the minus sign mistyped, which is what a
     // sentence that does not read is told before any reason a notation
     // tried along the way gave.
     if read.is_none() || p.i != tokens.len() {
+        if let Some(why) = &p.unimported {
+            return Err(
+                Problem::new(path, line, format!("{}: {why}", repr(text))).into()
+            );
+        }
         if let Some(hyphen) = stray_hyphen(tokens) {
             return Err(Problem::new(
                 path,
@@ -548,6 +590,23 @@ fn read(
     Ok(crate::sorts::powers::settled(&node, g, &local, path, line)?)
 }
 
+/// The literals that follow an extending pattern's first hole: `is between`
+/// of `_ is between _ and _`, which the text writes where the pattern starts.
+fn following_run(n: &Notation) -> Vec<&str> {
+    n.parts[1..].iter().map_while(Part::literal).collect()
+}
+
+/// The words a pattern is first written with, after any hole it opens on:
+/// what a message names it by, since a pattern shares them with its variants.
+fn first_words(n: &Notation) -> String {
+    n.parts
+        .iter()
+        .skip_while(|p| p.is_hole())
+        .map_while(Part::literal)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 /// The word of three letters or more that the character at `at` of `text`
 /// is in, read as the letters touching it on either side; None where it is
 /// in no such word.
@@ -582,7 +641,14 @@ fn stray_hyphen(tokens: &[Token]) -> Option<&Token> {
         let worded = |n: &Token| matches!(n.kind, TokenKind::Word | TokenKind::Name);
         let inside = before.is_some_and(|b| worded(b) && touches(b, t))
             && after.is_some_and(|a| worded(a) && touches(t, a));
-        (!inside).then_some(t)
+        // A numeral joined to a word, the 2 of `2-subgroup`, fills an
+        // attached slot; a bracket closed against the hyphen is a term put in
+        // one, which the attached slot's pattern says it does not take.
+        let attached = before.is_some_and(|b| {
+            matches!(b.kind, TokenKind::Numeral | TokenKind::Close) && touches(b, t)
+        }) && after
+            .is_some_and(|a| a.kind == TokenKind::Word && touches(t, a));
+        (!inside && !attached).then_some(t)
     })
 }
 
@@ -878,6 +944,7 @@ fn set_read(
         stopped_ran_out: false,
         refused: None,
         refused_order: false,
+        unimported: None,
     };
     let read = match p.expression(None, &[]) {
         Ok(read) => read,
@@ -1080,6 +1147,10 @@ struct Parser<'a> {
     refused: Option<(usize, String)>,
     /// Whether what `refused` says is about the precedence order.
     refused_order: bool,
+    /// Why a phrase the text writes was turned away: its file does not
+    /// import it. Said over every other reason where the sentence does not
+    /// read, since it is a defect of the text whatever else was tried.
+    unimported: Option<String>,
 }
 
 /// A reading, no reading, or why there is none to give.
@@ -1113,6 +1184,15 @@ impl<'a> Parser<'a> {
     /// makes it a root's index.
     fn indexes_a_root(&self) -> bool {
         self.t.get(self.i + 1).is_some_and(|t| t.text == ROOT_SIGN)
+    }
+
+    /// Whether the tokens from here on are `run`, a pattern's literals.
+    fn writes_run(&self, run: &[&str]) -> bool {
+        !run.is_empty()
+            && run
+                .iter()
+                .enumerate()
+                .all(|(j, lit)| self.t.get(self.i + j).is_some_and(|t| t.text == *lit))
     }
 
     fn here(&self) -> Option<&'a Token> {
@@ -1197,7 +1277,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Parse a primary, then extend it with any notation whose first hole it
-    /// can fill, so long as that notation binds tighter than `outer`.
+    /// can fill, so long as that notation binds tighter than `outer`, the
+    /// notation whose right-edge hole this expression fills.
     ///
     /// `stop` is the run of literals that closes an interior hole. Without it
     /// the hole runs past its own delimiter: the set in `for all s ∈ S, d ≤ s`
@@ -1205,7 +1286,7 @@ impl<'a> Parser<'a> {
     /// It is the whole run and not its first literal, since the first may
     /// stand inside the hole as well: the bracket of `(mod n)` is also the
     /// bracket of f(x) in `a ≡ f(x) (mod n)`.
-    fn expression(&mut self, outer: Option<&str>, stop: &[&str]) -> Reading {
+    fn expression(&mut self, outer: Option<&Notation>, stop: &[&str]) -> Reading {
         let Some(mut left) = self.primary()? else {
             return Ok(None);
         };
@@ -1424,7 +1505,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Notations whose pattern opens with a hole, which `left` fills.
-    fn extend(&mut self, left: &Node, outer: Option<&str>) -> Reading {
+    fn extend(&mut self, left: &Node, outer: Option<&Notation>) -> Reading {
         let Some(tok) = self.peek().cloned() else {
             return Ok(None);
         };
@@ -1435,6 +1516,19 @@ impl<'a> Parser<'a> {
         let mut cands: Vec<&Notation> = Vec::new();
         for n in &g.notations {
             if n.parts.len() < 2 || !n.parts[0].is_hole() {
+                continue;
+            }
+            // A phrase a define gives is written only where its file defines
+            // it or imports it; where the text writes it anyway, say which.
+            if g.phrases.contains(&n.name) && !self.sorts.phrase_in_scope(&n.name) {
+                let run = following_run(n);
+                if self.unimported.is_none() && self.writes_run(&run) {
+                    self.unimported = Some(format!(
+                        "`{}` is the phrase {} defines, which this file does not import",
+                        run.join(" "),
+                        n.name
+                    ));
+                }
                 continue;
             }
             // A pattern whose second part is also a hole has no token to
@@ -1538,11 +1632,29 @@ impl<'a> Parser<'a> {
             if let Some(outer) = outer {
                 let competes =
                     n.parts[n.parts.len() - 1].is_hole() || !n.level.is_empty();
-                let nests = n.level == outer && n.assoc.as_deref() == Some("right");
-                if competes
-                    && !nests
-                    && binds_tighter(&g.tighter, &n.level, outer) != Tighter::Yes
-                {
+                let nests =
+                    n.level == outer.level && n.assoc.as_deref() == Some("right");
+                let order = binds_tighter(&g.tighter, &n.level, &outer.level);
+                if competes && !nests && order != Tighter::Yes {
+                    // Two levels the order leaves unrelated, and the text
+                    // writes this pattern's tokens here: only the order
+                    // turns it away, as `P = M or P is between A and M`.
+                    // Each is named by the words the text wrote for it, as
+                    // where the looser notation stands to the left.
+                    let run = following_run(n);
+                    if order == Tighter::Incomparable
+                        && n.level != outer.level
+                        && !n.level.is_empty()
+                        && !outer.level.is_empty()
+                        && self.writes_run(&run)
+                    {
+                        let why = format!(
+                            "`{}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
+                            first_words(outer),
+                            run.join(" ")
+                        );
+                        self.refuse_order(self.i + run.len(), why);
+                    }
                     continue;
                 }
             }
@@ -1559,13 +1671,8 @@ impl<'a> Parser<'a> {
                     {
                         // The pattern's own tokens follow, so the text writes
                         // it and only the order turns it away: say so.
-                        let run: Vec<&str> =
-                            n.parts[1..].iter().map_while(|p| p.literal()).collect();
-                        let written = !run.is_empty()
-                            && run.iter().enumerate().all(|(j, lit)| {
-                                self.t.get(self.i + j).is_some_and(|t| t.text == *lit)
-                            });
-                        if written {
+                        let run = following_run(n);
+                        if self.writes_run(&run) {
                             // Each is named by the words the text wrote for
                             // it, which a pattern shares with its variants.
                             let before = self
@@ -1573,14 +1680,7 @@ impl<'a> Parser<'a> {
                                 .notations
                                 .iter()
                                 .find(|m| m.record_id == left.notation())
-                                .map(|m| {
-                                    m.parts
-                                        .iter()
-                                        .skip_while(|p| p.is_hole())
-                                        .map_while(|p| p.literal())
-                                        .collect::<Vec<_>>()
-                                        .join(" ")
-                                })
+                                .map(first_words)
                                 .unwrap_or_else(|| left.notation_name().to_string());
                             let why = format!(
                                 "`{before}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
@@ -1739,15 +1839,40 @@ impl<'a> Parser<'a> {
                             kids.push(left.clone());
                         }
                         took.push(None);
+                    } else if n.parts.get(k + 1).and_then(Part::literal) == Some("-") {
+                        // A hole joined to the word after it by a hyphen, the
+                        // p of `p-subgroup`, takes one letter or one numeral
+                        // and nothing longer (`SYNTAX.md`, attached slots).
+                        let from = self.i;
+                        let one = self.peek().is_some_and(|t| {
+                            matches!(t.kind, TokenKind::Name | TokenKind::Numeral)
+                        });
+                        // The text writes the pattern up to here, and only
+                        // what stands in the slot turns it away: said as a
+                        // refusal, which a sentence reading part way gives.
+                        let why = format!(
+                            "`{}` wants a letter or a numeral before its hyphen",
+                            n.pattern
+                        );
+                        if !one {
+                            self.refuse(from + 1, why);
+                            return Ok(None);
+                        }
+                        let Some(kid) = self.primary()? else {
+                            return Ok(None);
+                        };
+                        if self.i != from + 1 {
+                            self.i = from;
+                            self.refuse(from + 1, why);
+                            return Ok(None);
+                        }
+                        kids.push(kid);
+                        took.push(Some((from, self.i)));
                     } else {
                         let at_edge = k == n.parts.len() - 1;
                         let mut after: Vec<&str> =
                             n.parts[k + 1..].iter().map_while(Part::literal).collect();
-                        let barrier = if at_edge {
-                            Some(n.level.as_str())
-                        } else {
-                            None
-                        };
+                        let barrier = if at_edge { Some(n) } else { None };
                         // A hole that repeats ends at its separator, and is
                         // read again after each one: {a, b, c, d, e}. What
                         // follows the hole in the pattern closes the last
@@ -1906,8 +2031,13 @@ impl<'a> Parser<'a> {
                 stopped_ran_out: false,
                 refused: None,
                 refused_order: false,
+                unimported: None,
             };
-            let condition = match sub.expression(None, &[])? {
+            let read = sub.expression(None, &[])?;
+            if self.unimported.is_none() {
+                self.unimported = sub.unimported.take();
+            }
+            let condition = match read {
                 Some(c) if sub.i == to => c,
                 _ => {
                     let what = repr(&self.written(from, to));
@@ -2115,7 +2245,12 @@ impl<'a> Parser<'a> {
     /// A `variable` hole takes a bare name; any other takes an expression,
     /// bounded by `barrier` when the hole sits at the pattern's right edge
     /// and by `stop`, the literals that follow it, when it does not.
-    fn hole(&mut self, want: &str, barrier: Option<&str>, stop: &[&str]) -> Reading {
+    fn hole(
+        &mut self,
+        want: &str,
+        barrier: Option<&Notation>,
+        stop: &[&str],
+    ) -> Reading {
         if want == "variable" {
             let Some(tok) = self.peek().cloned() else {
                 return self.no(|| "a binder wants a name".into());

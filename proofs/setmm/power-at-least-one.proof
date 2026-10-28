@@ -23,7 +23,7 @@ theorem power-at-least-one
     2.2.  1 ≤ a^0
           inequalities
             a^0 = 1            2.1
-            1 = a^0            symmetry
+            1 = a^0            restate
             1 ≤ a^0            weakening
 
     step

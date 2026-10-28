@@ -1,6 +1,6 @@
 theorem a-row-multiplied-by-a-negative-number-read-from-its-other-side
   note        Multiplying 4·x − 5 ≤ 0 by −2 turns the relation round, to
-              −8·x + 10 ≥ 0, and a symmetry row reads that order from its
+              −8·x + 10 ≥ 0, and a restate row reads that order from its
               other side, 0 ≤ −8·x + 10.
   let x ∈ ℝ                                                           (H1)
   assume 4·x − 5 ≤ 0                                                  (H2)
@@ -10,4 +10,4 @@ theorem a-row-multiplied-by-a-negative-number-read-from-its-other-side
     inequalities
       4·x − 5 ≤ 0        H2
       −8·x + 10 ≥ 0      multiplying by −2
-      0 ≤ −8·x + 10      symmetry
+      0 ≤ −8·x + 10      restate

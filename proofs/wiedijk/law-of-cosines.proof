@@ -1,6 +1,6 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
 import theorem            stdlib/geometry/perpendicular-foot
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/on-line-cases
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-ends-apart
@@ -132,8 +132,8 @@ theorem distance-from-foot
 2.  ∠PQR ∈ ℝ
     mun:triangle-angle-real, from H5
 
-3.  H = Q or H is between Q and R or H = R or R is between Q and H or
-    Q is between H and R
+3.  H = Q or (H is between Q and R) or H = R or (R is between Q and H) or
+    (Q is between H and R)
     mun:on-line-cases P := H, from H6, 1
 
 4.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
@@ -255,7 +255,7 @@ theorem distance-from-foot
           mun:cosine-right-triangle R := H, from H7, 4.29, 4.30
 
     4.32. ∠HQP + ∠PQR = 180°
-          thm:supplementary-angles A := H, B := Q, C := R, D := P, from C5
+          axi:supplementary-angles A := H, B := Q, C := R, D := P, from C5
           requires P ≠ Q: from 1
 
     4.33. ∠HQP = 180° − ∠PQR

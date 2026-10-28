@@ -16,7 +16,7 @@ import mundane definition stdlib/geometry/midpoint as geometry-midpoint
 import mundane theorem    stdlib/geometry/segment-addition as geometry-segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg as geometry-distance-nonneg
 import mundane theorem    stdlib/geometry/distance-symmetric as geometry-distance-symmetric
-import mundane theorem    stdlib/geometry/distance-positive as geometry-distance-positive
+import mundane axiom      stdlib/geometry/distance-positive as geometry-distance-positive
 import mundane theorem    stdlib/geometry/distance-zero as geometry-distance-zero
 import mundane theorem    stdlib/geometry/distance-by-coordinates as geometry-distance-by-coordinates
 import mundane theorem    stdlib/geometry/collinear-by-coordinates as geometry-collinear-by-coordinates
@@ -25,7 +25,7 @@ import mundane theorem    stdlib/geometry/points-apart-by-coordinates as geometr
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates as geometry-distance-of-points-by-coordinates
 import mundane theorem    stdlib/geometry/angle-at-most-straight as geometry-angle-at-most-straight
 import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-cosine
-import theorem            stdlib/geometry/supplementary-angles as geometry-supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles as geometry-supplementary-angles
 import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
 import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
@@ -46,13 +46,59 @@ import mundane theorem    stdlib/geometry/signed-angle-reverse as geometry-signe
 import theorem            stdlib/geometry/signed-angle-sum as geometry-signed-angle-sum
 import mundane definition stdlib/geometry/area as geometry-area
 import theorem            stdlib/geometry/area-by-sine as geometry-area-by-sine
-import mundane theorem    stdlib/geometry/area-positive as geometry-area-positive
+import mundane axiom      stdlib/geometry/area-positive as geometry-area-positive
 import theorem            stdlib/geometry/heron as geometry-heron
 import theorem            stdlib/geometry/perpendicular-foot as geometry-perpendicular-foot
 import mundane theorem    stdlib/geometry/on-line-cases as geometry-on-line-cases
 import mundane theorem    stdlib/geometry/between-ends-apart as geometry-between-ends-apart
 import mundane theorem    stdlib/geometry/right-angle-triangle as geometry-right-angle-triangle
 import mundane theorem    stdlib/geometry/cosine-right-triangle as geometry-cosine-right-triangle
+import mundane definition stdlib/geometry/line as geometry-line
+import mundane theorem    stdlib/geometry/line-turned as geometry-line-turned
+import axiom              stdlib/geometry/line-uniqueness as geometry-line-uniqueness
+import axiom              stdlib/geometry/three-points as geometry-three-points
+import axiom              stdlib/geometry/parallel-uniqueness as geometry-parallel-uniqueness
+import axiom              stdlib/geometry/angle-measure as geometry-angle-measure
+import mundane definition stdlib/geometry/ray as geometry-ray
+import axiom              stdlib/geometry/plane-separation as geometry-plane-separation
+import axiom              stdlib/geometry/plane-separation-convex as geometry-plane-separation-convex
+import axiom              stdlib/geometry/plane-separation-crossing as geometry-plane-separation-crossing
+import axiom              stdlib/geometry/angle-construction as geometry-angle-construction
+import axiom              stdlib/geometry/angle-construction-unique as geometry-angle-construction-unique
+import axiom              stdlib/geometry/angle-addition-inside as geometry-angle-addition-inside
+import axiom              stdlib/geometry/area-congruent as geometry-area-congruent
+import axiom              stdlib/geometry/area-base-height as geometry-area-base-height
+import axiom              stdlib/geometry/area-addition as geometry-area-addition
+import mundane definition stdlib/geometry/parallel as geometry-parallel
+import mundane theorem    stdlib/geometry/midpoint-exists as geometry-midpoint-exists
+import mundane theorem    stdlib/geometry/segment-extension as geometry-segment-extension
+import mundane theorem    stdlib/geometry/triangle-off-line as geometry-triangle-off-line
+import mundane theorem    stdlib/geometry/same-side-turned as geometry-same-side-turned
+import mundane theorem    stdlib/geometry/opposite-sides-turned as geometry-opposite-sides-turned
+import mundane theorem    stdlib/geometry/same-side-same as geometry-same-side-same
+import mundane theorem    stdlib/geometry/opposite-opposite-same as geometry-opposite-opposite-same
+import mundane theorem    stdlib/geometry/same-opposite-opposite as geometry-same-opposite-opposite
+import mundane theorem    stdlib/geometry/same-side-of-line as geometry-same-side-of-line
+import mundane theorem    stdlib/geometry/opposite-sides-of-line as geometry-opposite-sides-of-line
+import mundane theorem    stdlib/geometry/segment-off-line as geometry-segment-off-line
+import mundane theorem    stdlib/geometry/segment-across-line as geometry-segment-across-line
+import mundane theorem    stdlib/geometry/segment-beyond-off-line as geometry-segment-beyond-off-line
+import mundane theorem    stdlib/geometry/same-side-off-line as geometry-same-side-off-line
+import mundane theorem    stdlib/geometry/opposite-sides-off-line as geometry-opposite-sides-off-line
+import mundane theorem    stdlib/geometry/on-line-ends as geometry-on-line-ends
+import mundane theorem    stdlib/geometry/triangle-not-on-line as geometry-triangle-not-on-line
+import mundane theorem    stdlib/geometry/triangle-extension as geometry-triangle-extension
+import mundane theorem    stdlib/geometry/off-line-apart as geometry-off-line-apart
+import mundane theorem    stdlib/geometry/on-off-apart as geometry-on-off-apart
+import mundane theorem    stdlib/geometry/off-line-through as geometry-off-line-through
+import mundane theorem    stdlib/geometry/line-crossing-between as geometry-line-crossing-between
+import mundane theorem    stdlib/geometry/angle-same-ray as geometry-angle-same-ray
+import mundane theorem    stdlib/geometry/ray-side-transfer as geometry-ray-side-transfer
+import mundane theorem    stdlib/geometry/off-line-swap as geometry-off-line-swap
+import mundane theorem    stdlib/geometry/parallel-along as geometry-parallel-along
+import mundane theorem    stdlib/geometry/segment-point as geometry-segment-point
+import axiom              stdlib/geometry/ruler as geometry-ruler
+import axiom              stdlib/geometry/ruler-placement as geometry-ruler-placement
 import mundane definition stdlib/sets/set-builder
 
 theorem point
@@ -265,13 +311,13 @@ theorem intersecting-chords
     mun:set-builder u := D, from D1, H11
 
 5.  |AO| = |BO|
-    algebra, from 1, 2
+    transitivity, from 1, 2
 
 6.  |AO| = |CO|
-    algebra, from 1, 3
+    transitivity, from 1, 3
 
 7.  |AO| = |DO|
-    algebra, from 1, 4
+    transitivity, from 1, 4
 
 8.  |PA|·|PB| = |PC|·|PD|
     thm:geometry-intersecting-chords, from H12, H13, 5, 6, 7
@@ -506,7 +552,7 @@ theorem supplementary-angles
   then ∠ABD + ∠DBC = 180°
 
 1.  ∠ABD + ∠DBC = 180°
-    thm:geometry-supplementary-angles, from H5, H6
+    axi:geometry-supplementary-angles, from H5, H6
 
 theorem triangle-inequality-points
   let P be a point                                                    (H1)
@@ -636,10 +682,10 @@ theorem on-line-cases
   let R be a point                                                    (H3)
   assume Q ≠ R                                                        (H4)
   assume P is on line QR                                              (H5)
-  then P = Q or P is between Q and R or P = R or R is between Q and P or Q is between P and R
+  then P = Q or (P is between Q and R) or P = R or (R is between Q and P) or (Q is between P and R)
 
-1.  P = Q or P is between Q and R or P = R or R is between Q and P or
-    Q is between P and R
+1.  P = Q or (P is between Q and R) or P = R or (R is between Q and P) or
+    (Q is between P and R)
     mun:geometry-on-line-cases, from H4, H5
 
 theorem between-ends-apart
@@ -675,3 +721,567 @@ theorem cosine-right-triangle
 
 1.  |QR| = |QP|·cos(∠RQP)
     mun:geometry-cosine-right-triangle, from H4, H5, H6
+
+theorem line
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  assume P is on line AB                                              (H4)
+  then P ∈ line AB
+
+1.  P ∈ line AB
+    mun:geometry-line, from H4
+
+theorem line-turned
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  then line AB = line BA
+
+1.  line AB = line BA
+    mun:geometry-line-turned
+
+theorem line-uniqueness
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume C ≠ D                                                        (H6)
+  assume A is on line CD                                              (H7)
+  assume B is on line CD                                              (H8)
+  then line AB = line CD
+
+1.  line AB = line CD
+    axi:geometry-line-uniqueness, from H5, H6, H7, H8
+
+theorem three-points
+  then there are P, Q, R ∈ 𝔼² with P, Q, R form a triangle
+
+1.  there are P, Q, R ∈ 𝔼² with P, Q, R form a triangle
+    axi:geometry-three-points
+
+theorem angle-measure
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then ∠PQR > 0°. ∠PQR < 180°.
+
+1.  ∠PQR > 0°. ∠PQR < 180°.
+    axi:geometry-angle-measure, from H4
+
+theorem ray
+  let P be a point                                                    (H1)
+  let A be a point                                                    (H2)
+  let B be a point                                                    (H3)
+  assume A ≠ B                                                        (H4)
+  assume P = A or P = B or (P is between A and B) or (B is between A and P)    (H5)
+  then P ∈ ray AB
+
+1.  P ∈ ray AB
+    mun:geometry-ray, from H4, H5
+
+theorem plane-separation
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume not (P is on line AB)                                        (H6)
+  assume not (Q is on line AB)                                        (H7)
+  then P and Q are on the same side of line AB or P and Q are on opposite sides of line AB
+
+1.  P and Q are on the same side of line AB or P and Q are on opposite
+    sides of line AB
+    axi:geometry-plane-separation, from H5, H6, H7
+
+theorem plane-separation-convex
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume P and Q are on the same side of line AB                      (H7)
+  assume X is between P and Q                                         (H8)
+  then X and P are on the same side of line AB
+
+1.  X and P are on the same side of line AB
+    axi:geometry-plane-separation-convex, from H6, H7, H8
+
+theorem plane-separation-crossing
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume P and Q are on opposite sides of line AB                     (H6)
+  then there is X ∈ 𝔼² with X is on line AB and (X is between P and Q)
+
+1.  there is X ∈ 𝔼² with X is on line AB and (X is between P and Q)
+    axi:geometry-plane-separation-crossing, from H5, H6
+
+theorem angle-construction
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let x ∈ ℝ                                                           (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume x > 0°                                                       (H6)
+  assume x < 180°                                                     (H7)
+  then there is D ∈ 𝔼² with D and C are on the same side of line AB and ∠BAD = x
+
+1.  there is D ∈ 𝔼² with D and C are on the same side of line AB and
+    ∠BAD = x
+    axi:geometry-angle-construction, from H5, H6, H7
+
+theorem angle-construction-unique
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  assume A, B, C form a triangle                                      (H6)
+  assume D and C are on the same side of line AB                      (H7)
+  assume E and C are on the same side of line AB                      (H8)
+  assume ∠BAD = ∠BAE                                                  (H9)
+  then E ∈ ray AD
+
+1.  E ∈ ray AD
+    axi:geometry-angle-construction-unique, from H6, H7, H8, H9
+
+theorem angle-addition-inside
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume D and C are on the same side of line AB                      (H6)
+  assume D and B are on the same side of line AC                      (H7)
+  then ∠BAD + ∠DAC = ∠BAC
+
+1.  ∠BAD + ∠DAC = ∠BAC
+    axi:geometry-angle-addition-inside, from H5, H6, H7
+
+theorem area-congruent
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume triangle PQR ≅ triangle P′Q′R′                               (H9)
+  then the area of △PQR = the area of △P′Q′R′
+
+1.  the area of △PQR = the area of △P′Q′R′
+    axi:geometry-area-congruent, from H7, H8, H9
+
+theorem area-base-height
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let H be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume H is on line QR                                              (H6)
+  assume line PH ⊥ line QR                                            (H7)
+  then the area of △PQR = (1/2)·|QR|·|PH|
+
+1.  the area of △PQR = (1/2)·|QR|·|PH|
+    axi:geometry-area-base-height, from H5, H6, H7
+
+theorem area-addition
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume D is between Q and R                                         (H6)
+  then the area of △PQR = the area of △PQD + the area of △PDR
+
+1.  the area of △PQR = the area of △PQD + the area of △PDR
+    axi:geometry-area-addition, from H5, H6
+
+theorem parallel
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume C ≠ D                                                        (H6)
+  assume line AB ∥ line CD                                            (H7)
+  then line AB = line CD or not (there is X ∈ 𝔼² with X is on line AB and X is on line CD)
+
+1.  line AB = line CD or not (there is X ∈ 𝔼² with X is on line AB and
+    X is on line CD)
+    mun:geometry-parallel, from H5, H6, H7
+
+theorem midpoint-exists
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
+  then there is M ∈ 𝔼² with M is the midpoint of AB
+
+1.  there is M ∈ 𝔼² with M is the midpoint of AB
+    mun:geometry-midpoint-exists, from H3
+
+theorem segment-extension
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let r ∈ ℝ                                                           (H3)
+  assume A ≠ B                                                        (H4)
+  assume r > 0                                                        (H5)
+  then there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
+
+1.  there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
+    mun:geometry-segment-extension, from H4, H5
+
+theorem triangle-off-line
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume Q ≠ R                                                        (H4)
+  assume not (P is on line QR)                                        (H5)
+  then P, Q, R form a triangle
+
+1.  P, Q, R form a triangle
+    mun:geometry-triangle-off-line, from H4, H5
+
+theorem same-side-turned
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume P and Q are on the same side of line AB                      (H5)
+  then Q and P are on the same side of line AB
+
+1.  Q and P are on the same side of line AB
+    mun:geometry-same-side-turned, from H5
+
+theorem opposite-sides-turned
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume P and Q are on opposite sides of line AB                     (H5)
+  then Q and P are on opposite sides of line AB
+
+1.  Q and P are on opposite sides of line AB
+    mun:geometry-opposite-sides-turned, from H5
+
+theorem same-side-same
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let R be a point                                                    (H5)
+  assume P and Q are on the same side of line AB                      (H6)
+  assume Q and R are on the same side of line AB                      (H7)
+  then P and R are on the same side of line AB
+
+1.  P and R are on the same side of line AB
+    mun:geometry-same-side-same, from H6, H7
+
+theorem opposite-opposite-same
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let R be a point                                                    (H5)
+  assume P and Q are on opposite sides of line AB                     (H6)
+  assume Q and R are on opposite sides of line AB                     (H7)
+  then P and R are on the same side of line AB
+
+1.  P and R are on the same side of line AB
+    mun:geometry-opposite-opposite-same, from H6, H7
+
+theorem same-opposite-opposite
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let R be a point                                                    (H5)
+  assume P and Q are on the same side of line AB                      (H6)
+  assume Q and R are on opposite sides of line AB                     (H7)
+  then P and R are on opposite sides of line AB
+
+1.  P and R are on opposite sides of line AB
+    mun:geometry-same-opposite-opposite, from H6, H7
+
+theorem same-side-of-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let P be a point                                                    (H5)
+  let Q be a point                                                    (H6)
+  assume A ≠ B                                                        (H7)
+  assume C ≠ D                                                        (H8)
+  assume C is on line AB                                              (H9)
+  assume D is on line AB                                              (H10)
+  assume P and Q are on the same side of line AB                      (H11)
+  then P and Q are on the same side of line CD
+
+1.  P and Q are on the same side of line CD
+    mun:geometry-same-side-of-line, from H7, H8, H9, H10, H11
+
+theorem opposite-sides-of-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let P be a point                                                    (H5)
+  let Q be a point                                                    (H6)
+  assume A ≠ B                                                        (H7)
+  assume C ≠ D                                                        (H8)
+  assume C is on line AB                                              (H9)
+  assume D is on line AB                                              (H10)
+  assume P and Q are on opposite sides of line AB                     (H11)
+  then P and Q are on opposite sides of line CD
+
+1.  P and Q are on opposite sides of line CD
+    mun:geometry-opposite-sides-of-line, from H7, H8, H9, H10, H11
+
+theorem segment-off-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume Q is on line AB                                              (H7)
+  assume not (P is on line AB)                                        (H8)
+  assume X is between P and Q                                         (H9)
+  then X and P are on the same side of line AB
+
+1.  X and P are on the same side of line AB
+    mun:geometry-segment-off-line, from H6, H7, H8, H9
+
+theorem segment-across-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let M be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume M is on line AB                                              (H7)
+  assume not (P is on line AB)                                        (H8)
+  assume M is between P and Q                                         (H9)
+  then P and Q are on opposite sides of line AB
+
+1.  P and Q are on opposite sides of line AB
+    mun:geometry-segment-across-line, from H6, H7, H8, H9
+
+theorem segment-beyond-off-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume Q is on line AB                                              (H7)
+  assume not (X is on line AB)                                        (H8)
+  assume X is between P and Q                                         (H9)
+  then P and X are on the same side of line AB
+
+1.  P and X are on the same side of line AB
+    mun:geometry-segment-beyond-off-line, from H6, H7, H8, H9
+
+theorem same-side-off-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume P and Q are on the same side of line AB                      (H5)
+  then A ≠ B. not (P is on line AB). not (Q is on line AB).
+
+1.  A ≠ B. not (P is on line AB). not (Q is on line AB).
+    mun:geometry-same-side-off-line, from H5
+
+theorem opposite-sides-off-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  assume P and Q are on opposite sides of line AB                     (H5)
+  then A ≠ B. not (P is on line AB). not (Q is on line AB).
+
+1.  A ≠ B. not (P is on line AB). not (Q is on line AB).
+    mun:geometry-opposite-sides-off-line, from H5
+
+theorem on-line-ends
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  then A is on line AB. B is on line AB.
+
+1.  A is on line AB. B is on line AB.
+    mun:geometry-on-line-ends
+
+theorem triangle-not-on-line
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then not (P is on line QR)
+
+1.  not (P is on line QR)
+    mun:geometry-triangle-not-on-line, from H4
+
+theorem triangle-extension
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume Q is between R and S                                         (H6)
+  then P, Q, S form a triangle
+
+1.  P, Q, S form a triangle
+    mun:geometry-triangle-extension, from H5, H6
+
+theorem off-line-apart
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  assume not (P is on line AB)                                        (H4)
+  then P ≠ A. P ≠ B.
+
+1.  P ≠ A. P ≠ B.
+    mun:geometry-off-line-apart, from H4
+
+theorem on-off-apart
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  assume X is on line AB                                              (H5)
+  assume not (Y is on line AB)                                        (H6)
+  then X ≠ Y
+
+1.  X ≠ Y
+    mun:geometry-on-off-apart, from H5, H6
+
+theorem off-line-through
+  let R be a point                                                    (H1)
+  let P be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  assume not (S is on line RP)                                        (H5)
+  assume X is on line RS                                              (H6)
+  assume X ≠ R                                                        (H7)
+  then not (X is on line RP)
+
+1.  not (X is on line RP)
+    mun:geometry-off-line-through, from H5, H6, H7
+
+theorem line-crossing-between
+  let R be a point                                                    (H1)
+  let P be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  assume X is on line RS                                              (H5)
+  assume S and X are on opposite sides of line RP                     (H6)
+  then R is between S and X
+
+1.  R is between S and X
+    mun:geometry-line-crossing-between, from H5, H6
+
+theorem angle-same-ray
+  let R be a point                                                    (H1)
+  let P be a point                                                    (H2)
+  let Q be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  assume X is on line PQ                                              (H5)
+  assume X and Q are on the same side of line PR                      (H6)
+  then ∠RPX = ∠RPQ
+
+1.  ∠RPX = ∠RPQ
+    mun:geometry-angle-same-ray, from H5, H6
+
+theorem ray-side-transfer
+  let R be a point                                                    (H1)
+  let P be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  let Q be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume X is on line RP                                              (H6)
+  assume X and P are on the same side of line RS                      (H7)
+  assume not (P is on line RQ)                                        (H8)
+  then X and P are on the same side of line RQ
+
+1.  X and P are on the same side of line RQ
+    mun:geometry-ray-side-transfer, from H6, H7, H8
+
+theorem off-line-swap
+  let R be a point                                                    (H1)
+  let P be a point                                                    (H2)
+  let Q be a point                                                    (H3)
+  assume not (Q is on line RP)                                        (H4)
+  then not (P is on line RQ)
+
+1.  not (P is on line RQ)
+    mun:geometry-off-line-swap, from H4
+
+theorem parallel-along
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  assume line AB ∥ line CD                                            (H6)
+  assume A ≠ B                                                        (H7)
+  assume E is on line AB                                              (H8)
+  assume E ≠ A                                                        (H9)
+  then line AE ∥ line DC
+
+1.  line AE ∥ line DC
+    mun:geometry-parallel-along, from H6, H7, H8, H9
+
+theorem segment-point
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let r ∈ ℝ                                                           (H3)
+  assume r > 0                                                        (H4)
+  assume r < |AB|                                                     (H5)
+  then there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
+
+1.  there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
+    mun:geometry-segment-point, from H4, H5
+
+theorem parallel-uniqueness
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let C be a point                                                    (H4)
+  let D be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume not (P is on line AB)                                        (H7)
+  assume P ≠ C                                                        (H8)
+  assume P ≠ D                                                        (H9)
+  assume line PC ∥ line AB                                            (H10)
+  assume line PD ∥ line AB                                            (H11)
+  then line PC = line PD
+
+1.  line PC = line PD
+    axi:geometry-parallel-uniqueness, from H6, H7, H8, H9, H10, H11
+
+theorem ruler
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
+  then there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and onto and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
+
+1.  there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and onto
+    and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
+    axi:geometry-ruler, from H3
+
+theorem ruler-placement
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
+  then there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and onto and f(A) = 0 and f(B) > 0 and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
+
+1.  there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and onto
+    and f(A) = 0 and f(B) > 0 and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
+    axi:geometry-ruler-placement, from H3

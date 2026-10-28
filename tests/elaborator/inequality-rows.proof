@@ -14,7 +14,7 @@ theorem halfway-above
       A < (A + B)/2        multiplying by 1/2
 
 theorem a-negative-turned
-  note        Multiplying by −1 turns the relation round, and a symmetry row
+  note        Multiplying by −1 turns the relation round, and a restate row
               turns the order round to the claim as written.
   let x ∈ ℝ    (H1)
   assume x < 0    (H2)
@@ -24,7 +24,7 @@ theorem a-negative-turned
     inequalities
       x < 0                H2
       −x > 0               multiplying by −1
-      0 < −x               symmetry
+      0 < −x               restate
 
 theorem an-equation-read-as-an-order
   note        An equation's sides swapped, then the equation weakened to ≤.
@@ -36,7 +36,7 @@ theorem an-equation-read-as-an-order
 1.  x ≤ y
     inequalities
       y = x                H3
-      x = y                symmetry
+      x = y                restate
       x ≤ y                weakening
 
 theorem a-divisor-not-zero-by-weakening
@@ -73,7 +73,7 @@ theorem rows-from-one-sentence-of-a-line
 
 theorem positive-so-not-zero
   note        A strict order weakened to ≠, then turned round to the claim
-              by symmetry.
+              by a restate row.
   let x ∈ ℝ    (H1)
   assume 0 < x    (H2)
   then x ≠ 0
@@ -82,4 +82,4 @@ theorem positive-so-not-zero
     inequalities
       0 < x                H2
       0 ≠ x                weakening
-      x ≠ 0                symmetry
+      x ≠ 0                restate

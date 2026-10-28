@@ -973,7 +973,7 @@ theorem ballot-count
           assume m + n = 0 and n ≤ m                                  (C1)
 
           1.1.1.  m + n = 0
-                  algebra, from C1
+                  restate C1
 
           1.1.2.  m ≤ m + n
                   inequalities, from K2

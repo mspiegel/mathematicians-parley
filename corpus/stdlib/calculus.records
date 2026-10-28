@@ -165,79 +165,6 @@ mundane definition series-sum-from-zero
   note        series-sum, for a series whose first term is the 0th, as
               1 − 1/3 + 1/5 − … is written.
 
-theorem convergent-bounded
-  let x : ℕ → ℝ                                                       (H1)
-  let L ∈ ℝ                                                           (H2)
-  assume x(n) → L as n → ∞                                            (H3)
-  then        there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
-  metamath    climbdd and leabs, which this corpus proves together in
-              elaboration/stdlib/proved.mm
-  target      gclimbdd with A := L
-  note        A sequence with a limit is bounded: from some point on its
-              terms are near the limit, and before that there are finitely
-              many of them.
-
-theorem convergent-abs-bounded
-  let x : ℕ → ℝ                                                       (H1)
-  let L ∈ ℝ                                                           (H2)
-  assume x(n) → L as n → ∞                                            (H3)
-  then        there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
-  metamath    climbdd, which this corpus takes in
-              elaboration/stdlib/proved.mm
-  target      gclimbddabs with A := L
-  note        convergent-bounded on both sides: no term is further than B
-              from 0.
-
-theorem monotone-limit
-  let x : ℕ → ℝ                                                       (H1)
-  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
-  let B ∈ ℝ                                                           (H3)
-  assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
-  then        there is L ∈ ℝ with x(n) → L as n → ∞
-  metamath    climsup, which this corpus proves in this form in
-              elaboration/stdlib/proved.mm
-  target      gmonolim with C := B, F := x
-  note        An increasing sequence bounded above has a limit, its least
-              upper bound: the completeness of the real line, said of
-              sequences.
-
-theorem limit-at-most
-  let x : ℕ → ℝ                                                       (H1)
-  let L ∈ ℝ                                                           (H2)
-  n ranges over ℕ
-  assume x(n) → L as n → ∞                                            (H3)
-  let B ∈ ℝ                                                           (H4)
-  let N ∈ ℕ                                                           (H5)
-  assume x(n) ≤ B for all n ≥ N                                       (H6)
-  then        L ≤ B
-  metamath    climle, from some point on, which this corpus proves in
-              this form in elaboration/stdlib/proved.mm
-  target      glimle with F := x, N := N
-  note        A bound the terms keep from some point on, the limit keeps.
-
-theorem limit-at-least
-  let x : ℕ → ℝ                                                       (H1)
-  let L ∈ ℝ                                                           (H2)
-  n ranges over ℕ
-  assume x(n) → L as n → ∞                                            (H3)
-  let B ∈ ℝ                                                           (H4)
-  let N ∈ ℕ                                                           (H5)
-  assume B ≤ x(n) for all n ≥ N                                       (H6)
-  then        B ≤ L
-  metamath    climlec2, from some point on, which this corpus proves in
-              this form in elaboration/stdlib/proved.mm
-  target      glimge with F := x, N := N
-  note        As limit-at-most, from below.
-
-mundane definition upper-bound
-  then        u is an upper bound of S ↔ for all s ∈ S, s ≤ u
-  metamath    ub as in df-sup
-
-mundane definition least-upper-bound
-  then        c is a least upper bound of S ↔ c is an upper bound of S, and for
-              all u ∈ ℝ, if u is an upper bound of S then c ≤ u
-  metamath    df-sup, suprub, suprleub
-
 axiom completeness
   assume S ⊆ ℝ                                                        (H1)
   assume there is s ∈ S                                               (H2)
@@ -304,28 +231,6 @@ theorem rolle-on-part
   note        Rolle's theorem for a function on a larger set D: f restricted
               to [a, b] has f′ for its derivative on (a, b), the interior of
               [a, b] (dvres, iccntr), and f's values at the ends.
-
-theorem cauchy-mean-value
-  let D ⊆ ℝ                                                           (H1)
-  let a ∈ ℝ                                                           (H2)
-  let b ∈ ℝ                                                           (H3)
-  assume a < b                                                        (H4)
-  assume [a, b] ⊆ D                                                   (H5)
-  let f : D → ℝ                                                       (H6)
-  let g : D → ℝ                                                       (H7)
-  assume f is continuous on [a, b]                                    (H8)
-  assume g is continuous on [a, b]                                    (H9)
-  assume f is differentiable on (a, b)                                (H10)
-  assume g is differentiable on (a, b)                                (H11)
-  then        there is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
-  metamath    cmvth, of f and g restricted to [a, b], which this corpus
-              proves in elaboration/stdlib/proved.mm
-  target      gcmvthres with D := D
-  note        Cauchy's mean value theorem: the chord of the curve (g, f) from
-              a to b is parallel to its tangent somewhere between. Written
-              without a quotient, as set.mm writes it, so that it asks
-              nothing to be nonzero. Said of functions on a set D holding
-              [a, b], restricted to it as rolle-on-part is.
 
 mundane theorem derivative-real
   let a ∈ ℝ                                                           (H1)

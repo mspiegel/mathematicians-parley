@@ -99,7 +99,9 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             }
         }
         if r.kind.is_item() {
-            if !in_stdlib(&r.qualified()) {
+            // A record a proof file's define of a phrase stands for lives in
+            // that file's module, wherever the file is.
+            if !in_stdlib(&r.qualified()) && r.phrase.is_none() {
                 report.say(
                     &r.path,
                     r.line,

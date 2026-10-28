@@ -12,5 +12,5 @@ theorem a-power-said-not-zero
       1/x^n < ε              H5
       −1/x^n > −ε            multiplying by −1
       1 − 1/x^n > 1 − ε      adding 1
-      1 − ε < 1 − 1/x^n      symmetry
+      1 − ε < 1 − 1/x^n      restate
     requires x^n ≠ 0: weakening, from H4

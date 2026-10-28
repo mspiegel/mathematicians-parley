@@ -51,10 +51,13 @@ L. ∎
 ## Database items
 
 In `corpus/stdlib/calculus.records`, each with its lemma in `proved.mm`:
-`rolle-on-part`, `cauchy-mean-value` and `continuous-extension`, which a
-proof names; and `open-interval`, `open-interval-real`,
+`rolle-on-part` and `continuous-extension`, which a proof names; and
+`open-interval`, `open-interval-real`,
 `closed-within-open`, `open-without-point`, `derivative-real-on`,
 `differentiable-on-part` and `derivative-local`, which are mundane.
+`cauchy-mean-value`, which a proof names, is proved on the page in
+`corpus/stdlib/calculus.proof`, by Rolle's theorem on the restrictions of f
+and g to [a, b].
 
 ---
 

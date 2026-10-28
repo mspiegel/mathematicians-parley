@@ -60,7 +60,9 @@ Since |AD| + |DB| = |AB|, adding gives |AC|² + |BC|² = |AB|². ∎
    divides the distance between them and lies on the ray from either through
    the other, that between reads either way, that the sine of an angle of a
    triangle is positive, that a distance is a real number, and cancelling a
-   factor that is not 0. Each is proved in `proved.mm` or by set.mm.
+   factor that is not 0. Each is proved in `proved.mm` or by set.mm, but the
+   foot of the altitude, which `corpus/stdlib/geometry.proof` proves on the
+   page.
 
 ---
 

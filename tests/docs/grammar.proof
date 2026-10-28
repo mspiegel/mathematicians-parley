@@ -8,6 +8,7 @@ import theorem            proofs/wiedijk/triangle-inequality/abs-bounds as abs-s
 import definition         tests/docs/tri/T as U (D1)
 import definition         tests/docs/tri/B
 import mundane definition stdlib/calculus/upper-bound
+import mundane definition stdlib/calculus/least-upper-bound
 import mundane theorem    stdlib/sets/in-union-left
 
 theorem a-set-with-a-bound

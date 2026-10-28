@@ -3,7 +3,7 @@ import theorem            stdlib/geometry/triangle-inequality-strict
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-order-by-cosine
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-real
@@ -117,7 +117,7 @@ theorem greater-side-greater-angle
 25. cos(∠CBA) < cos(∠CAB)
     inequalities
       cos(∠CAB) − cos(∠CBA) > 0         24
-      0 < cos(∠CAB) − cos(∠CBA)         symmetry
+      0 < cos(∠CAB) − cos(∠CBA)         restate
       cos(∠CBA) < cos(∠CAB)             adding cos(∠CBA)
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6

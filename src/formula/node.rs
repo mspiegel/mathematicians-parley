@@ -140,6 +140,27 @@ impl Whole {
         })
     }
 
+    /// The sort as a record's `sort` line writes it, the text `read` reads
+    /// back: `set of number`. None where any part is left open, which a
+    /// `sort` line writes as a sort variable and not as one sort.
+    pub fn written(&self) -> Option<String> {
+        Some(match self {
+            Whole::Number => "number".into(),
+            Whole::Point => "point".into(),
+            Whole::Formula => "formula".into(),
+            Whole::GroupElement => "group-element".into(),
+            Whole::Set(k) => format!("set of {}", k.written()?),
+            Whole::Property(k) => format!("property of {}", k.written()?),
+            Whole::Function(a, b) => {
+                format!("function from {} to {}", a.written()?, b.written()?)
+            }
+            Whole::Pair(a, b) => {
+                format!("pair of {} and {}", a.written()?, b.written()?)
+            }
+            Whole::Open => return None,
+        })
+    }
+
     /// The sort as a reader would say it: `a set of numbers`.
     pub fn describe(&self) -> String {
         match self {

@@ -262,7 +262,11 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
     let mut schemas: Vec<String> = Vec::new();
     let shapes = Shapes::new(records, g);
     for r in records {
-        if !r.kind.is_item() || !r.fields.contains_key("target") {
+        // A define of a phrase is made into a record whose statement is the
+        // phrase and its meaning, with `biid` as target, so it says what its
+        // target asks by construction; and its file may be any proof file,
+        // where this stage reads the library alone.
+        if !r.kind.is_item() || !r.fields.contains_key("target") || r.phrase.is_some() {
             continue;
         }
         if says_of_statements(r, g) {
@@ -280,6 +284,16 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
         let key = format!("{RESTATED}/{file}.proof");
         let head = heads.entry(key.clone()).or_default();
         head.1.extend(applied_functions(r, g));
+        for phrase in written_phrases(r, g)? {
+            let header = records
+                .iter()
+                .find(|d| d.phrase.is_some() && d.qualified() == phrase)
+                .map_or("definition".to_string(), Record::header);
+            let line = format!("import {header} {phrase}");
+            if !head.0.contains(&line) {
+                head.0.push(line);
+            }
+        }
         let kind = ItemKind::of_record(r);
         let cited = if r.is_function() {
             head.1.insert(r.name.clone());
@@ -483,18 +497,7 @@ fn applied_functions(r: &Record, g: &Grammar) -> Vec<String> {
 /// introduces and no binder in them binds, in the order they first appear.
 fn free_names(r: &Record, g: &Grammar) -> Checked<Vec<String>> {
     let introduced: BTreeSet<String> = let_names(r).into_iter().collect();
-    let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
-    let mut trees: Vec<Node> = Vec::new();
-    for h in &r.hypotheses {
-        let body = h.body(&r.path);
-        match h.kind {
-            Intro::Let => trees.extend(Introduction::read(body).asserted(g, &sorts)?),
-            _ => trees.extend(read_all(&body, g, &sorts)?),
-        }
-    }
-    for said in r.stated() {
-        trees.extend(read_all(&said, g, &sorts)?);
-    }
+    let trees = record_trees(r, g)?;
     let mut out: Vec<String> = Vec::new();
     for tree in trees {
         {
@@ -515,6 +518,40 @@ fn free_names(r: &Record, g: &Grammar) -> Checked<Vec<String>> {
                 {
                     out.push(n.text.to_string());
                 }
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// What a record's lines say, read: what each `let` line asserts, each
+/// other hypothesis, and each conclusion.
+fn record_trees(r: &Record, g: &Grammar) -> Checked<Vec<Node>> {
+    let sorts = crate::sorts::sorts_of_record(r, crate::sorts::Env { g, scopes: &[] });
+    let mut trees: Vec<Node> = Vec::new();
+    for h in &r.hypotheses {
+        let body = h.body(&r.path);
+        match h.kind {
+            Intro::Let => trees.extend(Introduction::read(body).asserted(g, &sorts)?),
+            _ => trees.extend(read_all(&body, g, &sorts)?),
+        }
+    }
+    for said in r.stated() {
+        trees.extend(read_all(&said, g, &sorts)?);
+    }
+    Ok(trees)
+}
+
+/// The phrases a record's lines write, by the define that gives each: a
+/// restatement writes them too, and a file writes a phrase only where it
+/// imports it.
+fn written_phrases(r: &Record, g: &Grammar) -> Checked<Vec<String>> {
+    let mut out: Vec<String> = Vec::new();
+    for tree in record_trees(r, g)? {
+        for n in tree.walk() {
+            let name = n.notation_name().to_string();
+            if g.phrases.contains(&name) && !out.contains(&name) {
+                out.push(name);
             }
         }
     }

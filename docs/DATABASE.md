@@ -11,6 +11,8 @@ corpus/db/notation.records   symbols a claim may use
 corpus/db/methods.records    the justification vocabulary
 corpus/stdlib/*.records      the standard library: axioms, theorems and
                              definitions, some marked mundane
+corpus/stdlib/*.proof        Parley proofs of library items, beside the
+                             records of their subject
 corpus/elaboration/          what parley build writes from all of it
 proofs/wiedijk/*.proof       the pilots, theorems of Wiedijk's list of 100
 proofs/setmm/*.proof         theorems set.mm proves, written in proof trials
@@ -40,8 +42,17 @@ the rules under "Names". Prose outside a proof, as in this document and the
 records' notes, names an item by its prefix and full name,
 `mun:stdlib/divisibility/odd`, since it has no imports to say where to look.
 
-The standard library is every item a set.mm label supplies or that is still
-open: what a proof cites, or may, and this corpus does not prove.
+The standard library is every item a set.mm label supplies, that a proof in
+`corpus/stdlib/<subject>.proof` proves on the page, or that is still open:
+what a proof cites, or may. A record whose lemma the corpus proves in
+`corpus/proved/` is one the page cannot state the reason for, as a fact about
+the argument of a complex number is; a theorem with a textbook proof from
+what the library already has is proved on the page, and has no record.
+A definition a phrase states, "u is an upper bound of S", may be written on
+the page too, as a define of the phrase in the subject's proof file
+(`SYNTAX.md`, "A define may name a phrase"): `upper-bound` and
+`least-upper-bound` are defined in `corpus/stdlib/calculus.proof`, and have
+no record and no notation of their own.
 
 An item's statement is written by hand beside the lemma it names, and only a
 citation that elaborates asks whether the two agree: the elaborator applies
@@ -286,8 +297,8 @@ already have. Neither proof changes.
 once. `thm:proofs/wiedijk/triangle-inequality/abs-bounds` read "from the triangle inequality pilot" and is now
 proved in that file.
 
-**Theorems are stored in dependency order.** A pointer must resolve to something
-earlier, as `READERS.md` requires. Only the √2 file needed reordering: it now
+**No theorem rests on itself.** A pointer resolves to a theorem that does
+not cite its way back, as `READERS.md` requires. Only the √2 file needed reordering: it now
 runs odd-square, even-square, sqrt2-irrational, where the pilot put the main
 theorem first. Nothing else moved.
 
@@ -437,6 +448,10 @@ does not earn it, however awkward the elaborator finds it. Where the obstacle
 is that the readable layer cannot yet *say* something, the thing to weigh is
 teaching it to say that, or teaching the elaborator to work it out, and a
 hand proof is what is left when neither is worth its price.
+
+The geometry postulates take it by design: a reader's axiom that ℂ makes a
+theorem is proved there, so the page can rest on it and the kernel assumes
+nothing.
 
 The four are open for a reason rather than for want of work. Incidence is a
 primitive, and `mun:stdlib/geometry/collinear` says so: in
@@ -608,7 +623,8 @@ this table is mundane.
 | completeness | `axiom` | "by the completeness of ℝ", intermediate-value step 8 |
 | well-ordering | `axiom` | "by the well-ordering principle", bezout step 4 |
 | side-angle-side | `axiom` | "by SAS", isosceles step 5 |
-| parallel-through | `axiom` | "draw the line through R parallel to PQ", angle-sum step 1 |
+| parallel-through | `theorem` | "draw the line through R parallel to PQ", angle-sum step 1; proved on the page from the parallel postulate |
+| the SMSG postulates, line-uniqueness to area-base-height | `axiom` | named as postulates, `GEOMETRY.md` |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
 | sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
 | cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |
@@ -642,7 +658,10 @@ this table is mundane.
 | continuous-bounded, integer-polynomial-at-a-fraction, roots-isolated, polynomial-on-the-reals | `theorem` | "a continuous function on [a, b] is bounded", "q^N·F(p/q) is an integer", "the roots of a polynomial are isolated", "a polynomial is continuous and differentiable", liouville steps 4, 7 and 14, value-at-a-fraction step 1 |
 | monotone-limit, limit-at-most, limit-at-least, algebraic-root | `theorem` | "an increasing sequence bounded above converges", "a bound the terms keep, the limit keeps", "an algebraic number is a root of a polynomial with integer coefficients", liouville-number steps 12, 14.1, 14.12 and 14.23 |
 | continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
-| signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form: not cited by a proof |
+| signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form, angle-at-centre steps 7 and 8 |
+| pythagoras, bezout, least-combination-divides, power-of-a-point | `theorem` | "by Pythagoras", "by Bézout's lemma", "the least positive combination divides both", "the power of P", power-of-a-point steps 8.9 and 8.11.13, coprime-divides step 1, bezout step 10, intersecting-chords step 1; pythagoras and bezout are the library's copies of the Wiedijk proofs of those names, which keep their own |
+| angle-sum | `theorem` | "the angles of a triangle make 180°": not cited by a proof; the library's copy of `proofs/wiedijk/angle-sum.proof` |
+| angle-at-centre, same-arc-angles | `theorem` | "the angle at the centre is twice the angle at the circle" (Euclid III.20), "angles on the same arc are equal" (III.21), same-arc-angles steps 7 and 8, intersecting-chords-by-angles step 16 |
 | prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |
 | continuous-on | `definition` | "by the continuity of f at c", intermediate-value step 15 |
 | tends-to | `definition` | the partial sums shown to tend to 2 from the ε–N definition, triangular-reciprocals step 4 |
@@ -667,6 +686,7 @@ Some mundane items are worth a word, since a reader might expect otherwise:
 | numer, denom | `mundane definition` | the numerator and denominator in lowest terms, under set.mm's names; what a proof needs of them is in `lowest-terms-parts` |
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 | derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 29 |
+| three-rays, isosceles-signed-angles, same-side-turns-alike, signed-angle-zero, pi-positive | `mundane theorem` | what the circle theorems see in the figure: turning from one ray to a second and on to a third turns from the first to the third, up to whole turns; the base angles of an isosceles triangle turn alike; two points on one side of a line see a segment of it turned alike. Each is a lemma of `corpus/proved/circles.proved`, about arguments of complex numbers, angle-at-centre and same-arc-angles |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or
@@ -674,9 +694,9 @@ Euclid's algorithm to show. `well-ordering` and `side-angle-side` are proved in
 some presentations, and are axioms here because Reader A meets them as the
 Well-Ordering Principle and the SAS postulate.
 
-Counted this way, 2,047 of the 2,194 numbered steps whose reason cites a
-library item cite a mundane one. `def:` is rare: 55 steps cite a named
-definition, 42 of them `tends-to` or `C`.
+Counted this way, 3,857 of the 4,188 numbered steps in `proofs/` whose
+reason cites a library item cite a mundane one. `def:` is rare: 93 steps
+cite a named definition, 73 of them `tends-to` or `C`.
 
 ### Follow-ups
 

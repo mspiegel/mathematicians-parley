@@ -1,0 +1,64 @@
+mundane theorem abs-bounds
+  note        |x| is x or −x, whichever is not negative, so it is at least
+              both.
+  let x ∈ ℝ                                                           (H1)
+  then x ≤ |x|. −x ≤ |x|.
+
+1.  x ≥ 0 or x < 0
+    mun:nonneg-or-neg
+
+2.  x ≤ |x|. −x ≤ |x|.
+    cases, from 1
+
+    case
+    assume x ≥ 0                                                      (C1)
+
+    2.1.  |x| = x
+          mun:abs, from C1
+
+    2.2.  x ≤ |x|
+          inequalities
+            |x| = x          2.1
+            x = |x|          restate
+            x ≤ |x|          weakening
+
+    2.3.  −x ≤ 0
+          inequalities
+            x ≥ 0            C1
+            −x ≤ 0           multiplying by −1
+
+    2.4.  −x ≤ |x|
+          transitivity, from 2.3, C1, 2.1
+
+    2.5.  x ≤ |x|. −x ≤ |x|.
+          join 2.2, 2.4
+
+    case
+    assume x < 0                                                      (C2)
+
+    2.6.  |x| = −x
+          mun:abs, from C2
+
+    2.7.  −x ≤ |x|
+          inequalities
+            |x| = −x         2.6
+            −x = |x|         restate
+            −x ≤ |x|         weakening
+
+    2.8.  0 < −x
+          inequalities
+            x < 0            C2
+            −x > 0           multiplying by −1
+            0 < −x           restate
+
+    2.9.  x < |x|
+          transitivity, from C2, 2.8, 2.6
+
+    2.10. x ≤ |x|
+          inequalities
+            x < |x|          2.9
+            x ≤ |x|          weakening
+          requires |x| ∈ ℝ: mun:abs-real
+
+    2.11. x ≤ |x|. −x ≤ |x|.
+          join 2.7, 2.10

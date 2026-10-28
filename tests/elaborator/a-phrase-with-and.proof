@@ -1,0 +1,21 @@
+define common-divisor: d is a common divisor of a and b means
+       d ∈ ℤ and d divides a and d divides b                           (D1)
+       reads d divides both a and b
+
+theorem a-common-divisor-divides-the-first
+  note        A phrase whose words write "and" is bracketed beside "and", as
+              betweenness is.
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℤ                                                           (H2)
+  let d ∈ ℤ                                                           (H3)
+  assume (d is a common divisor of a and b) and d > 0                 (H4)
+  then d divides a
+
+1.  d is a common divisor of a and b
+    restate H4
+
+2.  d ∈ ℤ and d divides a and d divides b
+    D1, from 1
+
+3.  d divides a
+    restate 2

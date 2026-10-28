@@ -638,7 +638,7 @@ pub enum Head {
 pub enum Manipulation {
     Adding(String),
     Multiplying(String),
-    Symmetry,
+    Restate,
     Weakening,
 }
 
@@ -651,7 +651,7 @@ impl Manipulation {
         // `algebra, from L` is the method, which rewrites an equation's or a
         // disequality's sides itself.
         for (word, made) in [
-            ("symmetry", Manipulation::Symmetry),
+            ("restate", Manipulation::Restate),
             ("weakening", Manipulation::Weakening),
         ] {
             if let Some(rest) = reason.strip_prefix(word) {
@@ -686,7 +686,7 @@ impl Manipulation {
             Manipulation::Multiplying(c) => {
                 RowReason::Multiplying(Written::new(c, path, line))
             }
-            Manipulation::Symmetry => RowReason::Symmetry,
+            Manipulation::Restate => RowReason::Restate,
             Manipulation::Weakening => RowReason::Weakening,
         }
     }
@@ -697,7 +697,7 @@ impl fmt::Display for Manipulation {
         match self {
             Manipulation::Adding(t) => write!(f, "adding {t}"),
             Manipulation::Multiplying(c) => write!(f, "multiplying by {c}"),
-            Manipulation::Symmetry => f.write_str("symmetry"),
+            Manipulation::Restate => f.write_str("restate"),
             Manipulation::Weakening => f.write_str("weakening"),
         }
     }
@@ -890,6 +890,10 @@ pub type ScopeId = usize;
 pub struct FileScope {
     pub path: String,
     pub defines: Vec<DefineLine>,
+    /// Its defines of phrases (`define <name>: <phrase> means <meaning>`),
+    /// which give no name a formula writes and are kept apart from those
+    /// that do.
+    pub phrases: Vec<DefineLine>,
     /// A define's label, and what its `reads` line says.
     pub readings: IndexMap<String, (String, usize)>,
     /// The defines it imports from proof files.
@@ -912,6 +916,7 @@ impl FileScope {
         FileScope {
             path: path.to_string(),
             defines: Vec::new(),
+            phrases: Vec::new(),
             readings: IndexMap::new(),
             imports: Vec::new(),
             items: Vec::new(),
@@ -997,6 +1002,11 @@ pub fn visible(
 #[derive(Clone, Debug)]
 pub struct Theorem {
     pub name: String,
+    /// Whether its header says `mundane theorem`: a fact a proof takes for
+    /// granted and cites `mun:`, as a mundane record is. Only a theorem of
+    /// the standard library is marked so, since only the library holds
+    /// what proofs reach for as known.
+    pub mundane: bool,
     pub hypotheses: Vec<Hypothesis>,
     pub ranges: Vec<Range>,
     pub conclusion: String,
@@ -1139,14 +1149,36 @@ pub fn outermost(words: &[&str], relation: &str) -> Option<usize> {
 fn parse_justification(
     path: &str,
     line: &Line,
-    defines: &[String],
+    labels: &skeleton::Labels,
     names: &Arc<Names>,
 ) -> Checked<Justification> {
     // A malformed justification is reported by the checker, not raised here
     // (`Justification::unproduced`): one bad line must not cost the reader
     // every later line in the file.
-    let slots = skeleton::cut(&line.text, path, line.no, defines)?;
+    let slots = skeleton::cut(&line.text, path, line.no, labels)?;
     Ok(Justification::of(slots, line.no, names))
+}
+
+/// The label of each define of a phrase the file has written so far, with
+/// the item a line citing it cites: `def:` and its name, or `mun:` where it
+/// is marked mundane.
+fn phrase_labels(scope: &FileScope) -> Vec<skeleton::PhraseLabel> {
+    scope
+        .phrases
+        .iter()
+        .filter_map(|d| match define_parts(&d.text) {
+            Built(DefineParts::Phrase(p)) => Some(skeleton::PhraseLabel {
+                label: d.label.clone(),
+                kind: if p.mundane {
+                    ItemKind::Mundane
+                } else {
+                    ItemKind::Definition
+                },
+                name: p.name,
+            }),
+            _ => None,
+        })
+        .collect()
 }
 
 /// Every item a theorem's steps cite, by full name, with its line.
@@ -1180,6 +1212,26 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
 enum Imported {
     Item(ItemImport),
     Define(Import),
+}
+
+/// A phrase marked mundane is the standard library's, as a mundane theorem
+/// is: a defect anywhere else.
+fn phrase_mundane_in_stdlib(
+    p: &super::define::Phrase,
+    path: &str,
+    no: usize,
+) -> Checked<()> {
+    if p.mundane && !in_stdlib(module_of(path)) {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "mundane define {}: only a define of the standard library is taken for granted; a proof elsewhere states `define {}: …`",
+                p.name, p.name
+            ),
+        ));
+    }
+    Ok(())
 }
 
 /// One `import` line: one item, with the words its record's header says
@@ -1246,17 +1298,21 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     // A define of a proof file is written in formulas, and cited by the
     // label its import gives it, as one the file defines is: a calculation
     // link writing S(k + 1) out cites the equation. A file that never writes
-    // it out gives it no label.
-    if !from_library && record_kind == RecordKind::Definition {
-        if mundane {
-            return Err(Problem::new(
-                path,
-                no,
-                format!(
-                    "import {keyword} {whole}: a proof's define is where the proof gives a name its meaning, so it is never mundane; import it as `import definition {whole}`"
-                ),
-            ));
-        }
+    // it out gives it no label. A define of a phrase is named by a word, as
+    // an item is, and is imported and cited as one, `def:<name>`.
+    if !from_library && record_kind == RecordKind::Definition && mundane {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "import {keyword} {whole}: a proof's define is where the proof gives a name its meaning, so it is never mundane; import it as `import definition {whole}`"
+            ),
+        ));
+    }
+    if !from_library
+        && record_kind == RecordKind::Definition
+        && super::define::is_one_name(name)
+    {
         if !super::define::is_one_name(alias) {
             return Err(Problem::new(
                 path,
@@ -1423,8 +1479,9 @@ pub enum RowReason {
     Adding(Written),
     /// Both sides multiplied by a number.
     Multiplying(Written),
-    /// An equation's two sides swapped.
-    Symmetry,
+    /// A relation turned round: an equation's two sides swapped, or an order
+    /// or a `≠` read from its other side.
+    Restate,
     /// A relation weakened.
     Weakening,
     /// A side written as the same number another way.
@@ -1444,8 +1501,9 @@ const ROW_WORDS: [&str; 2] = ["adding", "multiplying by"];
 
 /// The rows an `inequalities` step writes, each cut as `GRAMMAR.md`'s
 /// inequality rows cut it, from the right: a last word that is a reference,
-/// `symmetry`, `weakening` or `algebra`, or `adding` or `multiplying by` and
-/// a term. None for a step with no rows; a row with no reason is a defect.
+/// `restate`, `weakening` or `algebra`, or `adding` or `multiplying by` and
+/// a term. None for a step with no rows; a row with no reason is a defect,
+/// and so is one ending in `symmetry`, a word kept back for later.
 pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
     if just.rows.is_empty() {
         return None;
@@ -1472,8 +1530,15 @@ pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
             });
         let last = whole.rsplit(char::is_whitespace).next().unwrap_or(whole);
         let before_last = str::trim(&whole[..whole.len() - last.len()]);
+        if last == "symmetry" {
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                "`symmetry` is kept back for later; a row turning a relation round is `restate`",
+            )));
+        }
         let word = match last {
-            "symmetry" => Some(RowReason::Symmetry),
+            "restate" => Some(RowReason::Restate),
             "weakening" => Some(RowReason::Weakening),
             "algebra" => Some(RowReason::Algebra),
             _ if skeleton::is_ref(last) => Some(RowReason::Cited(last.to_string())),
@@ -1484,7 +1549,7 @@ pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
             return Some(Err(Problem::new(
                 path,
                 *no,
-                "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `symmetry`, `weakening` or `algebra`",
+                "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `restate`, `weakening` or `algebra`",
             )));
         };
         out.push(Row {
@@ -1663,6 +1728,28 @@ fn misnumbered(text: &str) -> Option<String> {
 /// What a step holds until its justification line is read.
 fn placeholder_justification() -> Justification {
     Justification::of(Slots::new(Head::Define, ""), 0, &Arc::default())
+}
+
+/// A line opening a theorem: `theorem <name>`, or `mundane theorem <name>`
+/// for a fact of the standard library a proof takes for granted.
+struct TheoremHeader<'t> {
+    mundane: bool,
+    /// The rest of the line, the name before it is trimmed and checked.
+    name: &'t str,
+}
+
+/// The header a line opens a theorem with; None for any other line.
+fn theorem_header(t: &str) -> Option<TheoremHeader<'_>> {
+    if let Some(name) = t.strip_prefix("mundane theorem ") {
+        return Some(TheoremHeader {
+            mundane: true,
+            name,
+        });
+    }
+    t.strip_prefix("theorem ").map(|name| TheoremHeader {
+        mundane: false,
+        name,
+    })
 }
 
 /// The theorems of a proof file, and what the file holds outside them.
@@ -1875,7 +1962,13 @@ pub fn parse_proof(
             if let Some(reading) = draft.thm.readings.shift_remove(&d.label) {
                 scope.readings.insert(d.label.clone(), reading);
             }
-            scope.defines.push(d);
+            match define_parts(&d.text) {
+                Built(DefineParts::Phrase(p)) => {
+                    phrase_mundane_in_stdlib(&p, path, d.line)?;
+                    scope.phrases.push(d);
+                }
+                _ => scope.defines.push(d),
+            }
         }
         draft.thm.steps = draft
             .steps
@@ -1932,7 +2025,8 @@ pub fn parse_proof(
             });
             continue;
         }
-        if t.starts_with("theorem ") && line.indent == 0 {
+        let opened = theorem_header(&t).filter(|_| line.indent == 0);
+        if let Some(TheoremHeader { mundane, name }) = opened {
             close_step(path, &thm, &mut step)?;
             held_at_end(
                 path,
@@ -1940,7 +2034,7 @@ pub fn parse_proof(
                 first_opener(&pending_openers),
             )?;
             settle(path, thm.take(), &mut scope, &mut theorems)?;
-            let name = str::trim(&t["theorem ".len()..]).to_string();
+            let name = str::trim(name).to_string();
             if !skeleton::is_name(&name) {
                 return Err(Problem::new(
                     path,
@@ -1948,9 +2042,19 @@ pub fn parse_proof(
                     format!("theorem name {} is malformed", repr(&name)),
                 ));
             }
+            if mundane && !in_stdlib(module_of(path)) {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!(
+                        "mundane theorem {name}: only a theorem of the standard library is taken for granted; a proof elsewhere states `theorem {name}`"
+                    ),
+                ));
+            }
             thm = Some(DraftTheorem {
                 thm: Theorem {
                     name,
+                    mundane,
                     hypotheses: Vec::new(),
                     ranges: Vec::new(),
                     conclusion: String::new(),
@@ -1976,7 +2080,7 @@ pub fn parse_proof(
         }
         let Some(draft) = thm.as_mut() else {
             if t.starts_with("import ") {
-                if !scope.defines.is_empty() {
+                if !scope.defines.is_empty() || !scope.phrases.is_empty() {
                     return Err(Problem::new(
                         path,
                         line.no,
@@ -1998,13 +2102,20 @@ pub fn parse_proof(
                     "a let names a thing within a theorem; a name the whole file gives, and another may import, is a define",
                 ));
             }
-            if t.starts_with("define ") {
+            if naming(&t) == Some(Naming::Define) {
                 let Some(label) = label_at_end(&t) else {
                     return Err(Problem::new(
                         path,
                         line.no,
                         "define line carries no label",
                     ));
+                };
+                let d = DefineLine {
+                    text: t.clone(),
+                    label,
+                    path: path.to_string(),
+                    line: line.no,
+                    reason: None,
                 };
                 match define_parts(&t) {
                     crate::outcome::Declined(d) => {
@@ -2017,16 +2128,12 @@ pub fn parse_proof(
                             "a define by recursion is written in the theorem that uses it, in its statement or its proof",
                         ));
                     }
-                    Built(DefineParts::One(_)) => {}
+                    Built(DefineParts::Phrase(p)) => {
+                        phrase_mundane_in_stdlib(&p, path, line.no)?;
+                        scope.phrases.push(d.clone());
+                    }
+                    Built(DefineParts::One(_)) => scope.defines.push(d.clone()),
                 }
-                let d = DefineLine {
-                    text: t.clone(),
-                    label,
-                    path: path.to_string(),
-                    line: line.no,
-                    reason: None,
-                };
-                scope.defines.push(d.clone());
                 just_defined = Some(d);
                 continue;
             }
@@ -2368,9 +2475,13 @@ pub fn parse_proof(
                         defines.push(label.clone());
                     }
                 }
-                if is_justification(&t, &defines) {
+                let labels = skeleton::Labels {
+                    defines,
+                    phrases: phrase_labels(&scope),
+                };
+                if is_justification(&t, &labels) {
                     draft.steps[at].step.just =
-                        parse_justification(path, &line, &defines, &draft.thm.names)?;
+                        parse_justification(path, &line, &labels, &draft.thm.names)?;
                     draft.steps[at].has_just = true;
                 } else {
                     draft.steps[at].step.claim.continued(&t);

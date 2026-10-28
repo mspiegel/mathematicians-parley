@@ -1,6 +1,6 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane theorem    stdlib/geometry/distance-positive
+import mundane axiom      stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane definition stdlib/geometry/triangle
 import mundane definition stdlib/trigonometry/cos

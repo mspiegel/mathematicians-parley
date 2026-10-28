@@ -1582,6 +1582,9 @@ impl Elaborator<'_> {
         } else {
             at.clone()
         };
+        if core.variable().is_none() && core.label() == Some("wa") {
+            return self.conjunction_at_value(&core, negated, scope, known);
+        }
         if core.variable().is_some()
             || core.label() != Some("wbr")
             || core.children().len() != 3
@@ -1649,6 +1652,116 @@ impl Elaborator<'_> {
                 &[&proved],
             )),
         }))
+    }
+
+    /// `decided_at_value` of a word whose set.mm form is a membership of ℤ
+    /// joined to a divisibility, as "deg(A) is odd" is deg(A) ∈ ℤ ∧ ¬ 2 ∥
+    /// deg(A): the membership shown at the value, the divisibility settled
+    /// as it is alone, and the two joined (`jca`), or the conjunction denied
+    /// by the part that fails (`intnand`). None where the word's record does
+    /// not name inspection, or the value is no integer.
+    fn conjunction_at_value(
+        &mut self,
+        core: &Term,
+        negated: bool,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Option<Settled>> {
+        let at = if negated {
+            Term::apply("wn", vec![core.clone()])
+        } else {
+            core.clone()
+        };
+        let [member, divides] = core.children() else {
+            return Ok(None);
+        };
+        if member.label() != Some("wcel")
+            || member.children().len() != 2
+            || member.children()[1].label() != Some("cz")
+            || !self.decided_by("inspection", &at)?
+        {
+            return Ok(None);
+        }
+        let Some(within) =
+            self.integer_at_value(&member.children()[0], scope, known)?
+        else {
+            return Ok(None);
+        };
+        let Some(settled) = self.decided_at_value(divides, scope, known)? else {
+            return Ok(None);
+        };
+        let (m, d) = (self.rpn(member), self.rpn(divides));
+        let whole = t!(m, d, "wa");
+        Ok(Some(match settled {
+            Settled::Holds(shown) => {
+                let both = self.b.ap(
+                    "jca",
+                    &binds! {"ph" => scope, "ps" => &m, "ch" => &d},
+                    &[&within, &shown],
+                );
+                if negated {
+                    Settled::Fails(self.b.ap(
+                        "notnotd",
+                        &binds! {"ph" => scope, "ps" => &whole},
+                        &[&both],
+                    ))
+                } else {
+                    Settled::Holds(both)
+                }
+            }
+            Settled::Fails(denied) => {
+                let neither = self.b.ap(
+                    "intnand",
+                    &binds! {"ph" => scope, "ps" => &d, "ch" => &m},
+                    &[&denied],
+                );
+                if negated {
+                    Settled::Holds(neither)
+                } else {
+                    Settled::Fails(neither)
+                }
+            }
+        }))
+    }
+
+    /// ( scope -> t ∈ ℤ ), for a term spelt in numerals or that a cited
+    /// line gives such a value, shown at the value and carried back to the
+    /// term (`eleq1d`). None where the term has no such value, or the value
+    /// is no integer.
+    fn integer_at_value(
+        &mut self,
+        term: &Term,
+        scope: &Rpn,
+        known: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let written = self.rpn(term);
+        let numeric = written.tokens().iter().all(|t| rules::numeric(t.as_str()));
+        let (value, is) = if numeric {
+            (written.clone(), None)
+        } else {
+            match self.cited_value(&written, scope, known)? {
+                Some((value, is)) => (value, Some(is)),
+                None => return Ok(None),
+            }
+        };
+        let goal = self.to_term(&t!(value, "cz", "wcel"));
+        let Built(shown) = self.numeral_within(&goal, scope, known)? else {
+            return Ok(None);
+        };
+        let Some(is) = is else {
+            return Ok(Some(shown));
+        };
+        let same = self.b.ap(
+            "eleq1d",
+            &binds! {"ph" => scope, "A" => &written, "B" => &value, "C" => "cz"},
+            &[&is],
+        );
+        Ok(Some(self.b.ap(
+            "mpbird",
+            &binds! {"ph" => scope, "ps" => t!(&written, "cz", "wcel"),
+            "ch" => t!(&value, "cz", "wcel")},
+            &[&shown, &same],
+        )))
     }
 
     /// ( scope -> t is prime ), or its denial where `negated`, for a term

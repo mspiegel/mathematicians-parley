@@ -642,7 +642,7 @@ theorem erdos-szekeres
                              inequalities
                                a(j) < a(i)       C2
                                −a(j) > −a(i)     multiplying by −1
-                               −a(i) < −a(j)     symmetry
+                               −a(i) < −a(j)     restate
                              requires a(i) ∈ ℝ: from H4, K5
                              requires a(j) ∈ ℝ: from H4, K6
 

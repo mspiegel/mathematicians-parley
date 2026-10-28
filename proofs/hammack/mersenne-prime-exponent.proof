@@ -190,7 +190,7 @@ theorem power-multiple-quotient
           inequalities
             j ≤ 2^d·q            1.20
             j + 1 ≤ 2^d·q + 1    adding 1
-            2^d·q + 1 ≥ (j + 1)  symmetry
+            2^d·q + 1 ≥ (j + 1)  restate
 
     1.22. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
           exhibit, from 1.12, 1.21
@@ -305,7 +305,7 @@ theorem prime-exponent
                                         substitute e = 1 (S3) into line 4.2.3.2
 
                             4.2.3.5.2.  d = n
-                                        algebra, from 4.2.3.5.1, contradicting C4
+                                        restate 4.2.3.5.1, contradicting C4
 
                   4.2.3.6.  1 + 1 ≤ e
                             mun:integer-step m := 1, n := e
@@ -344,7 +344,7 @@ theorem prime-exponent
                             inequalities
                               1 + 1 ≤ 2^d − 1        4.2.3.14
                               2 ≤ 2^d − 1            algebra
-                              2^d − 1 ≥ 2            symmetry
+                              2^d − 1 ≥ 2            restate
 
                   4.2.3.16. 2^d − 1 ∈ ℕ
                             mun:pos-int-nat m := 2^d − 1

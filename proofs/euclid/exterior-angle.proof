@@ -1,5 +1,5 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
-import theorem            stdlib/geometry/supplementary-angles
+import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-symmetric
@@ -24,7 +24,7 @@ theorem exterior-angle
     mun:triangle, from H5
 
 3.  ∠CBA + ∠ABD = 180°
-    thm:supplementary-angles A := C, C := D, D := A, from H6, 2
+    axi:supplementary-angles A := C, C := D, D := A, from H6, 2
 
 4.  ∠BAC + ∠ABC + ∠BCA = 180°
     thm:angle-sum, from H5

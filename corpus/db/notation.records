@@ -200,8 +200,9 @@ precedence order
   summation       tighter than additive
   unary-minus     tighter than additive
   additive        tighter than relational
-  relational      tighter than negation, predicate
+  relational      tighter than negation, predicate, betweenness
   predicate       tighter than conjunction, disjunction, trailing
+  betweenness     tighter than implication, biconditional, trailing
   negation        tighter than conjunction, disjunction, trailing
   conjunction     tighter than implication, biconditional
   disjunction     tighter than implication, biconditional
@@ -214,6 +215,11 @@ precedence order
               `not (n is odd)` is written instead. A relation written as a
               symbol stays at `relational`, where `not p = 1` needs no bracket
               because nobody reads it as negating the p.
+
+              `betweenness` is `predicate` but for the connectives: "P is
+              between A and B" writes an "and" of its own, so where it stands
+              beside "and" or "or" it is bracketed, as in `P = A or (P is
+              between A and B)`.
 
               conjunction and disjunction are deliberately unrelated, and so
               are implication and biconditional. Nobody agrees how "and" and
@@ -1756,12 +1762,16 @@ notation parity
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
-  metamath    2 ∥ n and its negation
-  target      c2 _1 cdvds wbr, c2 _1 cdvds wbr wn, folded
-  note        "is not odd" keeps the word inside the phrase, which is how the
-              corpus reads best, and the `negates` line is what makes it the
-              same formula as "not (n is odd)". Without it the √2 proof could
-              not cite mun:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
+  metamath    2 ∥ n; n ∈ ℤ and not 2 ∥ n, set.mm's odd integer; its negation
+  target      c2 _1 cdvds wbr, _1 cz wcel c2 _1 cdvds wbr wn wa, folded
+  note        An odd number is an integer, as set.mm's `df-odd` and its odd
+              theorems (`opoe`, `m1expo`) say, so "n is odd" carries n ∈ ℤ
+              and π is not odd; "n is even" needs no such part, since 2 ∥ n
+              already holds only of integers. "is not odd" keeps the word
+              inside the phrase, which is how the corpus reads best, and the
+              `negates` line is what makes it the same formula as "not (n is
+              odd)". Without it the √2 proof could not cite
+              mun:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
 
 notation prime
   pattern     _ is prime
@@ -1815,24 +1825,6 @@ notation is-a-set
               (`READERS.md`). It is the formula-position counterpart of the
               `let X be a set` introduction, as for-all-sets is of the same
               line in a binder.
-
-notation bound
-  pattern     _ is an upper bound of _        _ is a least upper bound of _
-  sort        number, set of number → formula
-  level       predicate
-  reads       is an upper bound of, is a least upper bound of
-  metamath    see mun:stdlib/calculus/upper-bound and mun:stdlib/calculus/least-upper-bound
-  target      vs cv _1 cle wbr vs _2 wral,
-              vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
-              _1 vt cv cle wbr wi vt cr wral wa
-  note        set.mm has no upper bound of its own: `df-sup` builds the idea
-              inside a class abstraction and nothing names it. So each entry
-              is the quantified formula `mun:stdlib/calculus/upper-bound` and
-              `mun:stdlib/calculus/least-upper-bound` state, which is what those two say the
-              notation means. `s` ranges over the set and `t` over the reals
-              the second pattern compares against; neither is a hole, and
-              reserving them is what stops a proof that fixes an `s` of its
-              own from being handed the same variable.
 
 notation continuous
   pattern     _ is continuous on _
@@ -1946,7 +1938,7 @@ notation parallel
 notation between
   pattern     _ is between _ and _
   sort        point, point, point → formula
-  level       predicate
+  level       betweenness
   reads       is between, and
   metamath    the second apart from the first, and the third minus the first
               a negative multiple of the second minus the first
@@ -1965,6 +1957,37 @@ notation on-line
   target      _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo
   note        P is on line AB says what A, B, P are collinear says, with the
               point first, as a book writes a point on a line.
+
+notation line
+  pattern     line __
+  sort        point, point → set of point
+  reads       the line through
+  metamath    the points P with A = B or (P − A)/(B − A) real, the points
+              of which P is on line AB is said, as mun:stdlib/geometry/line
+              states it
+  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel wo vu cc
+              crab
+  note        The line through A and B as a set of points, for a statement
+              that speaks of a line itself: a function on it, or its points
+              taken together. A ≠ B where it is a line: line AA is the whole
+              plane, and a statement about a line says A ≠ B. The two points
+              are juxtaposed after the word, as in `line __ ∥ line __`, whose
+              longer reading wins where both fit. `u` is the point the target
+              runs over; it is not a hole. line AB and line BA are one set,
+              and a proof says so by mun:stdlib/geometry/line-turned rather
+              than the checker reading the two points in any order.
+
+notation ray
+  pattern     ray __
+  sort        point, point → set of point
+  reads       the ray from, through
+  metamath    the points P with A = B or (P − A)/(B − A) a real number at
+              least 0, as mun:stdlib/geometry/ray states it
+  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel cc0 vu
+              cv _1 cmin co _2 _1 cmin co cdiv co cle wbr wa wo vu cc crab
+  note        The ray from A through B: A, and the points on the side of A
+              that B is on. A ≠ B where it is a ray, as for `line`. `u` is
+              the point the target runs over; it is not a hole.
 
 notation perpendicular
   pattern     line __ ⊥ line __
@@ -2076,13 +2099,14 @@ notation algebraic
   pattern     _ is algebraic        _ is transcendental
   sort        number → formula
   level       predicate
-  negates     pattern 2 is logical-not of pattern 1
   reads       is algebraic, is transcendental
-  metamath    wcel with set.mm's AA
-  target      _1 caa wcel, folded
+  metamath    wcel with set.mm's AA; a complex number not in AA
+  target      _1 caa wcel, _1 cc wcel _1 caa wcel wn wa
   note        α is algebraic when some polynomial with integer coefficients,
               other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
-              transcendental when it is not algebraic.
+              transcendental when it is a complex number and not algebraic,
+              so what is no number is neither. mun:stdlib/polynomials/transcendental
+              says so for a proof.
 
 notation there-is-a-polynomial
   pattern     there is a polynomial _ with _

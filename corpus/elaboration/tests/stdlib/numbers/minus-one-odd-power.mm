@@ -6,6 +6,6 @@ $( tests/stdlib/numbers/minus-one-odd-power, elaborated from tests/stdlib/number
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.numbers.minus-one-odd-power $p |- ( ( A e. ZZ /\ -. 2 || A ) -> ( -u 1 ^ A ) = -u 1 ) $=
-    ( cz wcel c2 cdvds wbr wn wa c1 cneg cexp co wceq simpl id syl simpr jca m1expo ) ABCZDAEFZGZHZUCIJZAKLUDMUCTUBUCTTTUBNTOPTUBQRASP $.
+  tests.stdlib.numbers.minus-one-odd-power $p |- ( ( A e. ZZ /\ ( A e. ZZ /\ -. 2 || A ) ) -> ( -u 1 ^ A ) = -u 1 ) $=
+    ( cz wcel c2 cdvds wbr wn wa c1 cneg cexp co wceq simpr m1expo syl ) ABCZQDAEFZGZHZHTIJZAKLUAMQTNAOP $.
 $}

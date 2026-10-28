@@ -1,0 +1,41 @@
+import mundane theorem    stdlib/sums/product-empty
+import mundane theorem    stdlib/sums/product-add-one
+import mundane theorem    stdlib/counting/finite-part
+import mundane definition stdlib/sets/difference
+import mundane theorem    stdlib/sets/subset-self
+
+theorem a-product-of-ones-by-induction
+  note        An induction over the parts of a finite set: the empty part,
+              then a part with one member more.
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  then ∏(x ∈ X) 1 = 1
+
+1.  For all Y ⊆ X, ∏(y ∈ Y) 1 = 1.
+    induction on Y starting at ∅
+    requires X is finite: from H2
+
+    base
+    1.1.  ∏(y ∈ ∅) 1 = 1
+          mun:product-empty
+
+    step
+    let Y ⊆ X                                                         (K)
+    assume step 1 is true for Y, the induction hypothesis             (IH)
+    let a ∈ X ∖ Y                                                     (K2)
+
+    1.2.  Y is finite
+          mun:finite-part, from H2, K
+
+    1.3.  a ∈ X and a ∉ Y
+          mun:difference u := a, Y := X, Z := Y, from K2
+
+    1.4.  ∏(y ∈ Y ∪ {a}) 1 = (∏(y ∈ Y) 1)·1
+          mun:product-add-one, from K, 1.2, 1.3
+
+    1.5.  ∏(y ∈ Y ∪ {a}) 1 = 1
+          transitivity, from 1.4, IH
+
+2.  ∏(x ∈ X) 1 = 1
+    instantiate Y := X in line 1
+    requires X ⊆ X: mun:subset-self

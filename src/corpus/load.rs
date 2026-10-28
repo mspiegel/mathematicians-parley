@@ -54,6 +54,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
     }
     // What does not resolve is the checker's to report; here a definition
     // import that names nothing is simply one that brings nothing in.
+    super::phrases::add_phrase_records(&mut out.records, &out.scopes);
     let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
     Ok(out)
@@ -168,11 +169,12 @@ pub enum Item<'a> {
 
 impl<'a> Item<'a> {
     /// What a citation of it writes, as its prefix is checked against: `mun:`
-    /// for a record marked mundane, and its kind's prefix otherwise. A proved
-    /// theorem is a theorem.
+    /// for a record or a library theorem marked mundane, and its kind's
+    /// prefix otherwise. A proved theorem is a theorem.
     pub fn cited_as(&self) -> ItemKind {
         match self {
             Item::Record(r) => ItemKind::of_record(r),
+            Item::Theorem(t) if t.mundane => ItemKind::Mundane,
             Item::Theorem(_) => ItemKind::Theorem,
         }
     }
@@ -182,6 +184,7 @@ impl<'a> Item<'a> {
     pub fn header(&self) -> String {
         match self {
             Item::Record(r) => r.header(),
+            Item::Theorem(t) if t.mundane => format!("mundane {}", RecordKind::Theorem),
             Item::Theorem(_) => RecordKind::Theorem.to_string(),
         }
     }

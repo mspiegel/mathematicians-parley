@@ -731,6 +731,9 @@ pub struct Reader {
     /// The library functions in scope: those the file imports, or every one
     /// in a library record.
     pub imported: IndexSet<String>,
+    /// The phrases in scope (`Sorts::phrases`): None in a library record,
+    /// which sees every one.
+    pub phrases: Option<IndexSet<String>>,
     /// What the `let` and `assume` lines put among numbers that need not
     /// be whole (`Sorts::reals`).
     pub reals: IndexSet<String>,
@@ -742,6 +745,30 @@ fn imported_in(thm: &Theorem, env: Env) -> IndexSet<String> {
         .get(thm.scope)
         .map(|s| s.function_names())
         .unwrap_or_default()
+}
+
+/// The phrases in scope in a theorem, by their notations' names: those its
+/// file defines above it, and those whose defines its file imports.
+fn phrases_in(thm: &Theorem, env: Env) -> IndexSet<String> {
+    let Some(scope) = env.scopes.get(thm.scope) else {
+        return IndexSet::new();
+    };
+    let own = scope
+        .phrases
+        .iter()
+        .filter(|d| d.line < thm.line)
+        .filter_map(|d| match crate::corpus::define_parts(&d.text) {
+            Built(crate::corpus::DefineParts::Phrase(p)) => {
+                Some(crate::corpus::phrases::notation_name(d, &p))
+            }
+            _ => None,
+        });
+    let imported = scope
+        .items
+        .iter()
+        .map(|i| i.full())
+        .filter(|full| env.g.phrases.contains(full));
+    own.chain(imported).collect()
 }
 
 /// The library functions in scope in a library record: every one, since the
@@ -839,6 +866,7 @@ impl Reader {
             notations: env.g.notation_sorts(),
             ranges: IndexMap::new(),
             imported: IndexSet::new(),
+            phrases: None,
             reals: IndexSet::new(),
         }
     }
@@ -1173,6 +1201,7 @@ pub fn read_statement(thm: &Theorem, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env, &thm.path);
     reader.ranges = ranges_of(&thm.ranges);
     reader.imported = imported_in(thm, env);
+    reader.phrases = Some(phrases_in(thm, env));
     // A define by recursion among the hypotheses names sequences the
     // statement speaks of, read where it stands: its rules may name a
     // letter a `let` above it gives.
@@ -1278,6 +1307,7 @@ pub fn read_theorem(
     let mut reader = Reader::new(env, &thm.path);
     reader.ranges = ranges_of(&thm.ranges);
     reader.imported = imported_in(thm, env);
+    reader.phrases = Some(phrases_in(thm, env));
     // What the theorem sees from outside it has its sort before its first
     // line, read from the rule written out where it was defined.
     for (name, made) in file_definitions(thm, env) {
@@ -1370,6 +1400,9 @@ pub fn read_theorem(
                         recursion_sorts(&mut reader, &r, no, env, store);
                         continue;
                     }
+                    // A phrase is the file's and gives no name a theorem
+                    // holds.
+                    DefineParts::Phrase(_) => continue,
                     DefineParts::One(d) => d,
                 };
                 let sorts = reader.sorts(store);

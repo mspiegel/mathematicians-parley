@@ -136,7 +136,7 @@ theorem cauchy-schwarz
           inequalities
             C − B²/A ≥ 0         5.15
             C ≥ B²/A             adding B²/A
-            B²/A ≤ C             symmetry
+            B²/A ≤ C             restate
           requires A ≠ 0: weakening, from 5.12
 
     5.17. A·(B²/A) ≤ A·C

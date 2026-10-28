@@ -355,15 +355,16 @@ sines; these are what it and the proof cite:
 | --- | --- |
 | `glawsin` | `law-of-sines`: `heron` at two vertices of one triangle, the same area |
 | `gsinpos` | `sine-positive`: an angle of a triangle is strictly between 0 and π |
-| `galtfoot` | `altitude-foot`: the foot of the altitude from a right angle, between the other two vertices |
 | `gangseg` | `angle-along-segment`: a point between P and Q is on the ray from P through Q |
 | `gsegadd` | `segment-addition`: the parts of a segment add to it |
 | `gbetsym` | `between-symmetric` |
 | `gsinabs` | the sine of an angle's size is the size of its sine, between −π and π |
 | `g90` | 90° is π/2 |
 
-`galtfoot` puts each point at a coordinate along PQ, P at 0 and Q at 1, so
-that every quotient of differences it names is a quotient of coordinates.
+The foot of the altitude from the right angle, `altitude-foot`, is proved on
+the page: the perpendicular from the right angle meets the hypotenuse, and
+it meets it between its ends, since outside them the exterior angle would
+exceed the right angle.
 
 Ceva and the law of cosines by the foot of the perpendicular add these. The
 page's law of cosines cites Pythagoras, never the library's law of cosines,
@@ -373,7 +374,6 @@ which the library's own lemmas may use:
 | --- | --- |
 | `gtriside` | `triangle-on-side`: a vertex, one end of the opposite side and a point between its ends form a triangle |
 | `gsinsupp` | `sin-supplement`: sin(180° − x) = sin x, from `sinpim` |
-| `gfoot` | `perpendicular-foot`: H = Q + t(R − Q), t the real part of (P − Q)/(R − Q) |
 | `gonline` | `on-line-cases`: the five places of Q + t(R − Q), by t |
 | `gbetends` | `between-ends-apart` |
 | `grttri` | `right-angle-triangle`: a right angle's arms are not on one line |
@@ -418,12 +418,87 @@ notation, x° being x·π/180; the angle is still the number from 0 to π that
 The three items and the lemmas under them are listed above, under "What it
 took".
 
+## The postulates the page reads
+
+The plane is still ℂ underneath, and nothing is assumed. On the page, plane
+geometry stands on the School Mathematics Study Group's plane postulates,
+with the area postulates said of triangles: "SMSG with area for triangles".
+Each postulate is a stdlib `axiom` record whose target is a lemma of
+`corpus/proved/postulates.proved`, so a reader takes it as given and the
+kernel proves it.
+
+| postulate | record |
+|---|---|
+| 1, a line through two points | `line-uniqueness` |
+| 2, distance | `distance-positive` |
+| 3 and 4, the ruler | `ruler`, `ruler-placement` |
+| 5a, three points | `three-points` |
+| 9, plane separation | `plane-separation`, `plane-separation-convex`, `plane-separation-crossing` |
+| 11, angle measure | `angle-measure` |
+| 12, angle construction | `angle-construction`, `angle-construction-unique` |
+| 13, angle addition | `angle-addition-inside` |
+| 14, supplements | `supplementary-angles` |
+| 15, SAS | `side-angle-side` |
+| 16, parallels | `parallel-uniqueness` |
+| 17 to 20, area | `area-positive`, `area-congruent`, `area-addition`, `area-base-height` |
+
+Lines are not a sort, so a postulate that speaks of lines is stated with two
+points of each line, and `line AB` and `ray AB` are sets of points.
+
+Proved from them on the page, in `corpus/stdlib/geometry.proof`: Euclid I.5,
+I.12, I.15 to I.20, I.27, I.29, I.32, I.37 and I.47, the parallel through a
+point, ASA, AAS and SSS, parallel lines equidistant, VI.1 and VI.2 by area,
+AA similarity, and of the circle III.3, III.20, III.21 and III.35, the last
+Euclid's way, by the power of a point. Trigonometry, the law of cosines and
+the coordinate proofs stay library theorems over ℂ. Small facts of order,
+which side of a line a point is on or a triangle named in another order, are
+mundane library theorems over ℂ, and so are the four facts of the signed
+angle the circle theorems turn on (below).
+
+## The circle theorems, which turn angles
+
+Euclid III.20, the angle at the centre is twice the angle at the circle, is
+proved by the cases of where the centre lies: inside the angle at the circle
+the two angles at the centre add, outside it they subtract. Said of
+unsigned angles, the page would need the side of each ray at both vertices
+and would have to match the cases at the circle with those at the centre,
+which no inequality on the sizes alone does. Said of the signed angle ∡ the
+cases go: turning angles add, whichever way they lie, up to whole turns.
+So `angle-at-centre` concludes that ∡AOB is 2·∡ACB up to a whole number of
+turns, and holds wherever O and C are, A, B and C apart on the circle.
+
+It stands on four mundane facts of the signed angle, each a lemma of
+`corpus/proved/circles.proved`:
+
+| item | lemma | carries |
+| --- | --- | --- |
+| `signed-angle-zero` | `gsangid` | ∡PQP = 0 |
+| `three-rays` | `gsang3` | ∡AQX + ∡XQB is ∡AQB up to whole turns: the quotients multiply, so their logarithms add up to a multiple of 2πi (`eflogeq`) |
+| `isosceles-signed-angles` | `gisosctr` | the base angles of an isosceles triangle, turned the same way round it: set.mm's `isosctr` |
+| `same-side-turns-alike` | `gsamesang`, `gsideang` | two points on one side of line AB see AB turned the same way: the sign of ∡ACB is the side C is on |
+
+In each of the triangles OAC and OBC the base angles are equal, so the
+signed angle sum gives the angle at O as a half turn less twice the angle at
+the circle; reversing the angles at O, and adding at O and at C by
+`three-rays`, gives the claim. `same-arc-angles`, III.21, takes it twice:
+twice ∡ACB and twice ∡ADB are both ∡AOB up to whole turns, so the two differ
+by a whole number of half turns, and on one side of AB both turn the same
+way and lie between −π and π, so they differ by less than a half turn, and
+so by none. The unsigned angles are then equal, being their sizes.
+
+`proofs/euclid/intersecting-chords-by-angles.proof` proves III.35 as a
+school text does, from vertical angles, III.21 and similar triangles, beside
+the library's proof by the power of a point.
+
 ## What would change the answer
 
 **A proof that adds angles everywhere.** The angle sum adds once, and its
 side conditions are three sentences of one step. A proof that adds and
 reverses angles at every step would write sides at every step, and would be
-the case for weighing a signed angle again.
+the case for weighing a signed angle again. The circle theorems are such a
+proof, and they write ∡ beside ∠ rather than in its place: the unsigned
+angle stays what a triangle's angles are, and the signed one is read off
+it where turning is the argument.
 
 **Wanting solid geometry.** ℂ cannot. That is the one requirement it cannot
 be stretched to meet, and it would force `EE^n` and the chapter of work that
@@ -435,7 +510,5 @@ not an axiom system but the area method, whose proofs are short and readable
 by design and which has a literature on measuring exactly that. That is a
 different project and it does not bear on this one proof.
 
-**Someone formalising SMSG.** It is the only system whose angle is the school
-reader's by axiom, and nobody has built it. If it existed, criterion 3 would
-favour it and criterion 1 would still not, since it would be twenty-two
-postulates the corpus asserts.
+**Someone formalising SMSG.** This corpus now reads its geometry from SMSG's
+postulates and asserts none of them: each is a theorem over ℂ.

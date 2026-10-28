@@ -32,7 +32,7 @@ theorem ln-of-geometric-mean
     mun:factor-positive a := √(x·y), b := √(x·y), from 2, 4
 
 6.  (√(x·y))^2 = x·y
-    algebra, from 2
+    restate 2
 
 7.  ln((√(x·y))^2) = 2·ln(√(x·y))
     mun:ln-power x := √(x·y), n := 2, from 2, 5

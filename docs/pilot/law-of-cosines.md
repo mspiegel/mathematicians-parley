@@ -54,7 +54,7 @@ In `corpus/stdlib/geometry.records`:
 
 - `perpendicular-foot`, a theorem: for a triangle PQR there is a point H on
   line QR, not P, with ∠PHQ = 90° if H is not Q and ∠PHR = 90° if H is not
-  R. Proved in `proved.mm` as `gfoot`.
+  R. Proved on the page, Euclid I.12, in `corpus/stdlib/geometry.proof`.
 - `on-line-cases`, mundane: a point of line QR is Q, between Q and R, R,
   beyond R or beyond Q (`gonline`).
 - `cosine-right-triangle`, mundane: in a triangle right-angled at R,

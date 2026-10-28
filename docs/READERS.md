@@ -10,8 +10,9 @@ The language is Reader A's. Reader B reads the same text. The difference
 between the two readers is only in how they use the viewer.
 
 Nothing is assumed known. Every symbol, term, method and theorem used in a
-step points explicitly to where it was defined or proved earlier in the
-database. This holds for √, ∈, "even" and "prime" exactly as it holds for
+step points explicitly to where it was defined or proved elsewhere in the
+database, never by a chain of citations that leads back to the step's own
+theorem. This holds for √, ∈, "even" and "prime" exactly as it holds for
 limits or the axiom of choice. The pointer is always present; the reader
 decides whether to follow it. A reader who does not know a term follows the
 pointer and reads the definition, which is itself written in the same
@@ -138,13 +139,13 @@ on no item at all: a requires line justified by `arithmetic`, or by a line that
 already says the fact, is dull by its role alone, and most requires lines are
 of this kind. A mundane step may be one the argument uses, which makes it no
 dull fact, so it stays a numbered step and is still taken for granted. In the
-corpus every requires line that cites a library item cites a mundane one, 254
-lines over 53 items, and 346 of the 395 numbered steps that cite a library
-item cite a mundane one. The forty-nine others are thirty-eight steps citing
-named theorems, four citing named axioms (completeness, well-ordering,
-side-angle-side and the parallel through a point) and seven citing named
-definitions (continuity, limits, congruent triangles, C's two zero cases,
-perfect, and Euler's φ). No requires line rests
+pilots every requires line that cites a library item cites a mundane one, 335
+lines over 53 items, and 1,397 of the 1,533 numbered steps that cite a
+library item cite a mundane one. The 136 others are 116 steps citing named
+theorems, twelve citing named axioms (completeness, well-ordering,
+side-angle-side and the supplement postulate) and eight citing named
+definitions (continuity, limits, congruent triangles, C, perfect numbers,
+Euler paths and traversable graphs). No requires line rests
 on a named item; one that did
 would still be written as a requires line, and would be one the reader needs
 to see.
@@ -337,7 +338,8 @@ obvious to some, and that line is gatekeeping.
 There is one test, and it does not depend on who is reading. For every step:
 
 1. Every symbol, term, method and theorem the step uses points to a
-   definition or statement earlier in the database.
+   definition or statement elsewhere in the database, never by a chain of
+   citations that leads back to the step's own theorem.
 2. Given those pointed-to items and the earlier lines the step cites, a reader
    with Reader A's background can check with pen and paper, and without
    running any tool, that the step follows.
