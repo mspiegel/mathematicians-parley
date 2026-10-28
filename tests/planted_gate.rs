@@ -161,9 +161,9 @@ fn cases() -> Vec<Case> {
             name: "a library proof step that does not follow",
             stage: as_built_case,
             file: "corpus/proved/divisors.proved",
-            old: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 1 )\n",
-            new: "  8 1gcd |- ( C e. ZZ -> ( 1 gcd C ) = 2 )\n",
-            expect: "1gcd does not prove what the step says",
+            old: "  7 nncn |- ( k e. NN -> k e. CC )\n",
+            new: "  7 nncn |- ( k e. NN -> k e. RR )\n",
+            expect: "nncn does not prove what the step says",
         },
         // metamath-rs panics on a character outside ASCII, so one in a
         // comment bound for proved.mm is refused where it is written.
