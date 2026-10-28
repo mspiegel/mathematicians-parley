@@ -20,6 +20,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use indexmap::{IndexMap, IndexSet};
 
 use crate::citing::{Library, Proved};
+use crate::corpus::proof::reason_as_step;
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
     proof_files, record_files, Corpus, FileScope, Intro, Item, Method, Record,
@@ -1393,6 +1394,84 @@ fn found_alone(
     seen.problems.iter().map(|p| p.to_string()).collect()
 }
 
+/// A chain line giving a reason of its own is checked as the step it would
+/// be (`ChainLine::reason`): the link its claim, the reason its
+/// justification, under the calculation's number and resting on the
+/// calculation's requires lines. What the checks find at the chain line is
+/// said there; what they find of the requires lines is the calculation's,
+/// whose own checks say it.
+fn check_link_reasons(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+) {
+    for step in &thm.steps {
+        for link in formulas::chain_links(&step.just, &thm.path) {
+            let Some(req) = &link.line.reason else {
+                continue;
+            };
+            // A reason that does not cut is `check_chain`'s to report.
+            let Ok(by) = &req.by else {
+                continue;
+            };
+            let mut as_step = reason_as_step(step, req, by);
+            as_step.requires = step.requires.clone();
+            let alone = Theorem {
+                steps: vec![as_step],
+                ..thm.clone()
+            };
+            let mut seen = Report::default();
+            link_passes(&mut seen, c, &alone, k);
+            report.problems.extend(
+                seen.problems
+                    .into_iter()
+                    .filter(|p| p.path == thm.path && p.line.line == req.line),
+            );
+        }
+    }
+}
+
+/// The checks a step's justification answers to, which a chain line's own
+/// reason answers to as well (`check_link_reasons`). The checks of a
+/// theorem's shape, its numbering, blocks and what each step is for, are
+/// the calculation's, and are not among them.
+fn link_passes(report: &mut Report, c: &Checking<'_>, thm: &Theorem, k: &Known<'_>) {
+    let (library, scopes, targets) = (c.library, c.scopes, &c.library.targets);
+    formulas::check_decided_words(report, thm, k, c.defined, c.operations, targets);
+    formulas::check_real_decided_words(
+        report,
+        thm,
+        k,
+        c.defined,
+        c.real_operations,
+        c.real_functions,
+        targets,
+    );
+    formulas::check_algebra_holds(report, thm, k, targets);
+    citations::check_hypotheses(report, thm, library, k);
+    citations::check_conclusion(report, thm, library, k);
+    citations::check_recursions_cited(report, thm, library, k);
+    citations::check_subjects(report, thm, library, k);
+    citations::check_substitutes(report, thm, library, k);
+    citations::check_function_types(report, thm, library, k, scopes);
+    formulas::check_define_citation(report, thm, library, k, scopes);
+    formulas::check_define_names(report, thm, k, scopes);
+    citations::check_kinds(report, thm, library, k);
+    formulas::check_kind_methods(report, thm, k, targets);
+    citations::check_surplus(report, thm, library, k, scopes);
+    citations::check_defined_types(report, thm, library, k, scopes);
+    citations::check_from_lines(report, thm, library, k, scopes);
+    citations::check_instantiated(report, thm, library, k);
+    citations::check_instance_claimed(report, thm, library, k);
+    citations::check_define_domains(report, thm, library, k, scopes);
+    citations::check_stated_domains(report, thm, library, k, scopes);
+    formulas::check_method_cites_used(report, thm, library, k, scopes);
+    for step in &thm.steps {
+        structure::check_justification_form(report, &thm.path, &step.just);
+    }
+}
+
 /// The checks of one theorem, each asked once.
 fn check_passes(
     report: &mut Report,
@@ -1477,6 +1556,7 @@ fn check_passes(
     citations::check_stated_domains(report, thm, library, k, scopes);
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
+    check_link_reasons(report, c, thm, k);
     formulas::check_calculation_claims(report, thm, k);
     structure::check_last_step(report, thm, k);
     structure::check_steps_used(report, thm);

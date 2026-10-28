@@ -2042,6 +2042,106 @@ impl<'a> Elaborator<'a> {
 
     /// One equation put into one claim, at the place the tree names: the
     /// step's own claim, or a line `into` names.
+    /// An equation as a substitution offers it: either side may be put for
+    /// the other, `substitute K = a/2 (D3) into H6` putting K where H6
+    /// writes a/2, so it is held both ways round and nothing else is.
+    fn equation_facts(
+        &mut self,
+        old: &Rpn,
+        new: &Rpn,
+        facing: Proof,
+        scope: &Rpn,
+    ) -> Facts {
+        let equation = Facts::new();
+        let back = pf!(self.b; scope, old, new, facing, "eqcomd");
+        self.know(&equation, t!(old, new, "wceq"), facing);
+        self.know(&equation, t!(new, old, "wceq"), back);
+        equation
+    }
+
+    /// A substitution with no line to put its equation into claims `t = t′`,
+    /// t′ being t with one side of the equation put for the other at some
+    /// of the places it stands, every place or fewer: where the two differ,
+    /// the equation says they are equal, and nothing else is asked
+    /// (`congruence` over the equation alone). None where the equation does
+    /// not make the claim.
+    #[allow(clippy::too_many_arguments)]
+    fn claim_rewritten(
+        &mut self,
+        step: &Step,
+        node: &Node,
+        old: &Rpn,
+        new: &Rpn,
+        equation: &Facts,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let (start, other) =
+            (self.term(&node.children[0])?, self.term(&node.children[1])?);
+        let alike = self.congruence(
+            &self.to_term(&start),
+            &self.to_term(&other),
+            scope,
+            equation,
+            Some(step),
+            &substitution_leaf(),
+        )?;
+        if let Built(p) = alike {
+            if start != other {
+                return Ok(Some(p));
+            }
+        }
+        if let Some(p) = self
+            .replaced_tidied(&start, &other, old, new, scope, equation, facts, step)?
+        {
+            return Ok(Some(p));
+        }
+        // The claim is t = t′ either way round: t′ = t, its right side the
+        // one the equation is put into.
+        Ok(self
+            .replaced_tidied(&other, &start, old, new, scope, equation, facts, step)?
+            .map(|p| pf!(self.b; scope, other, start, p, "eqcomd")))
+    }
+
+    /// `substitute line L`, which writes no equation: the claim, `t = t′`
+    /// as a chain's line claims it, is one side of an equation L says put
+    /// for the other in t (`skeleton::substitute`). The checker has held the
+    /// claim to one of them; each is offered in the order L says it.
+    fn substitute_line(
+        &mut self,
+        step: &Step,
+        node: &Node,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let Some(source) = step.just.source.as_ref().map(|s| s.named().to_string())
+        else {
+            return Err(self.unreached(step.line, "a substitute that names no source"));
+        };
+        let said = self.line_says(&source, scope, facts, lines)?;
+        for (said_as, held) in said.entries() {
+            let equation = self.to_term(&said_as);
+            if equation.label() != Some("wceq") {
+                continue;
+            }
+            let (old, new) = (
+                self.rpn(&equation.children()[0]),
+                self.rpn(&equation.children()[1]),
+            );
+            let offered = self.equation_facts(&old, &new, held, scope);
+            if let Some(p) =
+                self.claim_rewritten(step, node, &old, &new, &offered, scope, facts)?
+            {
+                return Ok(Built(p));
+            }
+        }
+        Err(self.defect(
+            step.line,
+            format!("no equation {source} says makes the claim"),
+        ))
+    }
+
     fn substitute(
         &mut self,
         step: &Step,
@@ -2051,11 +2151,11 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let (Some(written), Some(source)) = (&step.just.equation, &step.just.source)
-        else {
-            return Err(
-                self.unreached(step.line, "a substitute that names no equation")
-            );
+        let Some(source) = &step.just.source else {
+            return Err(self.unreached(step.line, "a substitute that names no source"));
+        };
+        let Some(written) = &step.just.equation else {
+            return self.substitute_line(step, node, scope, facts, lines);
         };
         let equation = self.read_one(written)?;
         let (left, right) =
@@ -2100,50 +2200,14 @@ impl<'a> Elaborator<'a> {
                 pf!(self.b; scope, new, old, held, "eqcomd")
             }
         };
-        // The claim is what it rewrites with one side of the equation put
-        // for the other at some of the places it stands, every place or
-        // fewer: where the two differ, the equation says they are equal, and
-        // nothing else is asked (`congruence` over the equation alone).
-        // Either side may be put for the other: `substitute K = a/2 (D3)
-        // into H6` puts K where H6 writes a/2.
-        let equation = Facts::new();
-        let back = pf!(self.b; scope, old, new, facing, "eqcomd");
-        self.know(&equation, t!(old, new, "wceq"), facing);
-        self.know(&equation, t!(new, old, "wceq"), back);
-        // Where the line and the claim differ: by the equation, or by the
-        // order of a distance's points, which is no difference on the page.
-        let leaf = Leaf::Rows(vec![
-            super::tables::Row::Held,
-            super::tables::Row::InNoOrder,
-        ]);
+        let equation = self.equation_facts(&old, &new, facing, scope);
+        let leaf = substitution_leaf();
         let into = step.just.into.as_ref().map(|p| p.named().to_string());
         let Some(where_) = into else {
-            let (start, other) =
-                (self.term(&node.children[0])?, self.term(&node.children[1])?);
-            let alike = self.congruence(
-                &self.to_term(&start),
-                &self.to_term(&other),
-                scope,
-                &equation,
-                Some(step),
-                &leaf,
-            )?;
-            if let Built(p) = alike {
-                if start != other {
-                    return Ok(Built(p));
-                }
-            }
-            if let Some(p) = self.replaced_tidied(
-                &start, &other, &old, &new, scope, &equation, facts, step,
-            )? {
-                return Ok(Built(p));
-            }
-            // The claim is t = t′ either way round: t′ = t, its right side
-            // the one the equation is put into.
-            return match self.replaced_tidied(
-                &other, &start, &old, &new, scope, &equation, facts, step,
-            )? {
-                Some(p) => Ok(Built(pf!(self.b; scope, other, start, p, "eqcomd"))),
+            return match self
+                .claim_rewritten(step, node, &old, &new, &equation, scope, facts)?
+            {
+                Some(p) => Ok(Built(p)),
                 None => {
                     Err(self.defect(step.line, "the substitution misses the claim"))
                 }
@@ -3645,7 +3709,7 @@ impl<'a> Elaborator<'a> {
         };
         let mut proof = self.link_held(
             step,
-            &chain.lines[0].cite,
+            &chain.lines[0],
             &whole,
             &chain.lines[0].quoted(&chain.start),
             scope,
@@ -3654,7 +3718,6 @@ impl<'a> Elaborator<'a> {
             &defines,
         )?;
         for (before, line) in chain.lines.iter().zip(&chain.lines[1..]) {
-            let cite = &line.cite;
             let (node, added) = link(self, &rest, line)?;
             let written = line.quoted(&before.term);
             let joined_term = self.term(&node)?;
@@ -3705,7 +3768,7 @@ impl<'a> Elaborator<'a> {
                     }
                 }
                 let held = self.link_held(
-                    step, cite, &joined, &written, scope, facts, lines, &defines,
+                    step, line, &joined, &written, scope, facts, lines, &defines,
                 )?;
                 let m = modulus.clone().or(n.clone()).expect("a congruence");
                 if modulus.is_none() && said == "wceq" {
@@ -3752,7 +3815,7 @@ impl<'a> Elaborator<'a> {
                 }
                 let nxt = self.rpn(&joined.children()[1]);
                 let held = self.link_held(
-                    step, cite, &joined, &written, scope, facts, lines, &defines,
+                    step, line, &joined, &written, scope, facts, lines, &defines,
                 )?;
                 // A calculation only joins (`SYNTAX.md`), so it asks no
                 // membership: the links fold in ℝ*, where each order puts
@@ -3796,7 +3859,7 @@ impl<'a> Elaborator<'a> {
                 relation = self.rpn(&joined.children()[2]).to_string();
             }
             let held = self.link_held(
-                step, cite, &joined, &written, scope, facts, lines, &defines,
+                step, line, &joined, &written, scope, facts, lines, &defines,
             )?;
             proof = pf!(self.b; scope, left, right, nxt, relation, proof, held, fold);
             right = nxt;
@@ -3961,7 +4024,7 @@ impl<'a> Elaborator<'a> {
     fn link_held(
         &mut self,
         step: &Step,
-        cite: &str,
+        line: &ChainLine,
         claim: &Term,
         written: &str,
         scope: &Rpn,
@@ -3969,11 +4032,50 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
         defines: &BTreeSet<String>,
     ) -> Checked<Proof> {
+        let cite = line.cite.as_str();
+        let what = format!("a link of step {} claims {written}", fmt(&step.number));
+        // A line giving a reason of its own proves its link as the step it
+        // would be, resting on the calculation's requires lines, as a
+        // requires line is proved (`as_a_step`).
+        if let Some(req) = &line.reason {
+            let held = match self.as_a_step(step, req, &what, scope, facts)? {
+                Built(p) => p,
+                Declined(d) => {
+                    return Err(self.defect(
+                        line.line,
+                        format!(
+                            "{written} does not follow by {cite}: {}",
+                            self.say(&d)
+                        ),
+                    ));
+                }
+            };
+            let node = self.read_one(&req.fact)?;
+            let proved = self.term(&node)?;
+            let wanted = self.rpn(claim);
+            if proved == wanted {
+                return Ok(held);
+            }
+            // A chain going down is built going up (`Chain::upward`), so
+            // the reason proves an equation of it the other way round from
+            // the link built.
+            let said = self.to_term(&proved);
+            if said.label() == Some("wceq") {
+                let (was, now) =
+                    (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+                if t!(now, was, "wceq") == wanted {
+                    return Ok(pf!(self.b; scope, was, now, held, "eqcomd"));
+                }
+            }
+            return Err(self.unreached(
+                line.line,
+                format!("the reason of {written} proves a formula other than the link"),
+            ));
+        }
         // A link of numerals alone may name `arithmetic` rather than a line,
         // and is worked out whole where arithmetic works out everything in
         // it. One holding an operation it does not work out, 2! = (1 + 1)!,
         // is read as a link with letters is, a piece at a time.
-        let what = format!("a link of step {} claims {written}", fmt(&step.number));
         let pieces =
             claim.label() == Some("wceq") && field::decide_closed(claim).is_declined();
         if cite == "arithmetic" && claim.names().is_empty() && !pieces {
@@ -6984,6 +7086,16 @@ pub(super) struct Given {
     pub(super) class: Rpn,
     /// What it stands for, in the citing proof's kernel spelling.
     pub(super) term: Rpn,
+}
+
+/// Where what a substitution rewrites and what it makes differ: by the
+/// equation, or by the order of a distance's points, which is no
+/// difference on the page.
+fn substitution_leaf() -> Leaf {
+    Leaf::Rows(vec![
+        super::tables::Row::Held,
+        super::tables::Row::InNoOrder,
+    ])
 }
 
 /// The statement a written file proves, read off its `$p` line: what a

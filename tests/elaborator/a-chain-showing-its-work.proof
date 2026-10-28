@@ -1,0 +1,82 @@
+import definition         stdlib/counting/factorial
+import mundane theorem    stdlib/counting/factorial-nat
+import definition         stdlib/divisibility/odd
+import mundane theorem    stdlib/numbers/multiply-cancel
+
+theorem a-chain-showing-its-work
+  note        An odd number is 2k + 1, and its square works out, a move to
+              each line of the calculation, to twice 2k² + 2k, plus 1.
+  let n ∈ ℤ                                                           (H1)
+  assume n is odd                                                     (H2)
+  then n² is odd
+
+1.  k ∈ ℤ. n = 2k + 1.
+    obtain k: def:odd, from H2
+
+2.  n² = 2(2k² + 2k) + 1
+    calculation
+      n² = (2k + 1)²           substitute line 1
+         = 4k² + 4k + 1        algebra
+         = 2(2k² + 2k) + 1     algebra
+
+3.  n² is odd
+    def:odd n := n², from 2
+
+
+theorem a-chain-line-citing-an-item
+  note        A line may cite a definition as a step does, and the requires
+              lines under the calculation serve each of its lines.
+  let n ∈ ℕ₀                                                          (H1)
+  then (n + 1)! = (n + 1)·n!
+
+1.  (n + 1)! = (n + 1)·n!
+    calculation
+      (n + 1)! = n!·(n + 1)      def:factorial
+               = (n + 1)·n!      algebra
+    requires n! ∈ ℕ: mun:factorial-nat
+
+
+theorem a-chain-line-instantiating
+  note        A line may instantiate a line saying something of every member.
+  let f : ℝ → ℝ                                                       (H1)
+  assume for all x ∈ ℝ, f(x) = x + 1                                  (H2)
+  then f(2) = 3
+
+1.  f(2) = 3
+    calculation
+      f(2) = 2 + 1      instantiate x := 2 in H2
+           = 3          arithmetic
+
+
+theorem a-chain-line-citing-a-theorem
+  note        A line may cite a theorem with hypotheses, from the lines that
+              give them, and a requires line under the calculation gives
+              the one no line does.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a·2 = b·2                                                    (H3)
+  then a = b + 0
+
+1.  a = b + 0
+    calculation
+      a = b         mun:multiply-cancel c := 2, from H3
+        = b + 0     algebra
+    requires 2 ≠ 0: arithmetic
+
+
+theorem a-chain-going-down-by-its-reasons
+  note        A chain going down gives its lines' reasons as one going up
+              does, each proving its line as written.
+  let a ∈ ℝ                                                           (H1)
+  assume a ≥ 3                                                        (H2)
+  then a + a ≥ 6
+
+1.  2·a ≥ 6
+    inequalities
+      a ≥ 3          H2
+      2·a ≥ 6        multiplying by 2
+
+2.  a + a ≥ 6
+    calculation
+      a + a = 2·a    algebra
+            ≥ 6      1

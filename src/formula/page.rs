@@ -50,6 +50,15 @@ enum Made {
     /// a set is wanted, as the right of ∈ is: `(a, b)` is the open interval
     /// there and not the pair of its ends (`wanted_reading`).
     Set { of: Written },
+    /// A link of a calculation: the term the line before reaches, the
+    /// line's relation and the term it reaches, and the modulus a `≡` line
+    /// says (`related`).
+    Related {
+        from: Written,
+        relation: String,
+        to: Written,
+        modulus: Option<Written>,
+    },
 }
 
 /// One line of a define by cases: its value, and the condition it is
@@ -123,6 +132,34 @@ impl Written {
             path: Arc::from(path),
             line,
             made: Some(Box::new(Made::Parts { of })),
+        }
+    }
+
+    /// A link of a calculation, `from relation to`, with the place of the
+    /// chain line that writes `to`: the relation between the two terms'
+    /// trees (`related`). Its text is for a message and is never read.
+    pub fn related(
+        from: Written,
+        relation: &str,
+        to: Written,
+        modulus: Option<Written>,
+        path: &str,
+        line: usize,
+    ) -> Written {
+        let text = match &modulus {
+            Some(n) => format!("{from} {relation} {to} (mod {n})"),
+            None => format!("{from} {relation} {to}"),
+        };
+        Written {
+            text,
+            path: Arc::from(path),
+            line,
+            made: Some(Box::new(Made::Related {
+                from,
+                relation: relation.to_string(),
+                to,
+                modulus,
+            })),
         }
     }
 
@@ -257,7 +294,7 @@ impl Sentence {
                 waits => return Ok(waits),
             }
         }
-        made_of(made, read, g, sorts).map(Built)
+        made_of(made, read, g, sorts, (&self.path, self.line)).map(Built)
     }
 }
 
@@ -272,18 +309,27 @@ fn parts_of(made: &Made) -> Vec<&Written> {
             .chain([otherwise])
             .collect(),
         Made::Parts { of } | Made::Set { of } => vec![of],
+        Made::Related {
+            from, to, modulus, ..
+        } => [from, to].into_iter().chain(modulus.as_ref()).collect(),
     }
 }
 
 /// The tree of a formula said in parts, from the parts' trees in the order
-/// `parts_of` gives them.
+/// `parts_of` gives them; `at` is where it is said, for a message.
 fn made_of(
     made: &Made,
     mut read: Vec<Node>,
     g: &Grammar,
     sorts: &Sorts,
+    at: (&str, usize),
 ) -> Checked<Node> {
     match made {
+        Made::Related { relation, .. } => {
+            let modulus = (read.len() == 3).then(|| read.pop()).flatten();
+            let [from, to] = <[Node; 2]>::try_from(read).expect("two terms");
+            related(g, sorts, relation, &from, &to, modulus.as_ref(), at)
+        }
         Made::Member { .. } => {
             let [term, set] = <[Node; 2]>::try_from(read).expect("a term and a set");
             filled("x ∈ S", g, sorts, &[("x", &term), ("S", &set)])

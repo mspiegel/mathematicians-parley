@@ -470,20 +470,36 @@ pub fn without_label(text: &str) -> &str {
     body[..body.len() - last.len()].trim_end()
 }
 
-/// What a calculation's line cites, its last word (`GRAMMAR.md`,
-/// calculation chains): a line or a label, or `arithmetic` for a link of
-/// numerals alone; or its last two where they are `real arithmetic`, which
-/// is the method and not `arithmetic` after a term ending in "real". None
-/// where the line ends in none of these.
-pub fn chain_cite(text: &str) -> Option<&str> {
+/// The words that open a reason a calculation's line gives other than a
+/// line or a label (`GRAMMAR.md`, calculation chains). None of them is
+/// ever a word of a term, so the first of them a line writes after its
+/// term is where its reason starts.
+const CHAIN_REASONS: [&str; 4] = ["algebra", "arithmetic", "substitute", "instantiate"];
+
+/// A calculation line's reason, as written after its term (`GRAMMAR.md`,
+/// calculation chains). It starts at the line's first word, after the
+/// first, that opens a reason a chain line gives: `algebra`, `arithmetic`,
+/// `real arithmetic`, `substitute`, `instantiate`, or an item's citation,
+/// `mun:x`. A line writing none of these gives a line or a label, its last
+/// word. None where it gives neither.
+pub fn chain_reason(text: &str) -> Option<&str> {
     let body = text.trim_end();
-    if let Some(before) = body.strip_suffix("real arithmetic") {
-        if before.ends_with(char::is_whitespace) {
-            return Some(&body[before.len()..]);
+    let words: Vec<(usize, &str)> = body
+        .split_whitespace()
+        .map(|w| (offset(body, w), w))
+        .collect();
+    for (i, &(at, word)) in words.iter().enumerate().skip(1) {
+        let word = word.trim_end_matches(',');
+        let next = words.get(i + 1).map(|(_, w)| w.trim_end_matches(','));
+        let opens = CHAIN_REASONS.contains(&word)
+            || (word == "real" && next == Some("arithmetic"))
+            || item_kind(word).is_some();
+        if opens {
+            return Some(&body[at..]);
         }
     }
-    let last = text.split_whitespace().last()?;
-    (is_ref(last) || last == "arithmetic").then_some(last)
+    let &(at, last) = words.last()?;
+    is_ref(last).then_some(&body[at..])
 }
 
 /// A chain line's term and the modulus a `≡` line says after it, `1·10
@@ -500,12 +516,6 @@ pub fn chain_modulus(rest: &str) -> (&str, Option<&str>) {
         Some(modulus) if !modulus.is_empty() => (inner[..at].trim_end(), Some(modulus)),
         _ => (rest, None),
     }
-}
-
-/// Whether some word of a line opens with an item's prefix, `thm:x`: a
-/// citation of an item, which a calculation's line never carries.
-pub fn names_an_item(text: &str) -> bool {
-    text.split_whitespace().any(|w| item_kind(w).is_some())
 }
 
 /// Whether a line is a justification: it opens with a head, or it is a
@@ -1006,6 +1016,17 @@ fn names_into(names: &str, slots: &mut Slots) {
 /// `into` and its destination follow; a bracket of the equation's own,
 /// `f(y)`, is followed by more of it.
 fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
+    // `substitute line 3` and `substitute H3` write no equation: it is the
+    // one the line says, and the move it makes is seen between the two
+    // terms it is written between, a chain's or a row's.
+    let short = match after_word(rest, "line") {
+        Some(number) if is_number(number) => Some(Place::Line(number.to_string())),
+        _ => is_label(rest).then(|| Place::Label(rest.to_string())),
+    };
+    if let Some(place) = short {
+        slots.source = Some(Source::At(place));
+        return;
+    }
     let mut found = None;
     for (open, c) in rest.char_indices() {
         if c != '(' {

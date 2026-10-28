@@ -22,7 +22,7 @@ use crate::citing::{
     Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts, Sites, Taken,
     Ways,
 };
-use crate::corpus::proof::{reason_as_step, Requires};
+use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Item, Method, Step, Theorem,
@@ -323,7 +323,10 @@ pub fn requires_cited(
 ) -> IndexMap<usize, Cited> {
     let mut out = IndexMap::new();
     for step in &thm.steps {
-        for req in &step.requires {
+        // A chain line's own reason is read as a requires line's is
+        // (`ChainLine::reason`), resting on every requires line of its step.
+        let reasons = chain_reasons(&step.just, &thm.path);
+        for req in step.requires.iter().chain(&reasons) {
             if let Some(read) = cited_requires(step, req, library, known) {
                 out.insert(req.line, read);
             }
@@ -1917,6 +1920,10 @@ pub fn check_substitutes(
         if !step.just.head.is(Method::Substitute) || step.just.unproduced.is_some() {
             continue;
         }
+        if step.just.equation.is_none() {
+            check_substitute_line(report, thm, step, library, known);
+            continue;
+        }
         let equation = step
             .just
             .equation
@@ -2028,15 +2035,7 @@ pub fn check_substitutes(
                     .collect();
                 vec![(starts, claim.clone())]
             }
-            None => match claim.children.as_slice() {
-                [t, rewritten] if known.ctx.equations.contains(&claim.notation()) => {
-                    vec![
-                        (vec![t.clone()], rewritten.clone()),
-                        (vec![rewritten.clone()], t.clone()),
-                    ]
-                }
-                _ => Vec::new(),
-            },
+            None => claim_sides(&claim, known),
         };
         let found = ways.iter().find(|(starts, aim)| {
             starts
@@ -2074,6 +2073,109 @@ pub fn check_substitutes(
                 ),
             );
         }
+    }
+}
+
+/// A substitution with no line to put its equation into claims `t = t′`,
+/// where t′ is t rewritten: it starts from either side and makes the other.
+fn claim_sides(claim: &Node, known: &Known) -> Vec<(Vec<Node>, Node)> {
+    match claim.children.as_slice() {
+        [t, rewritten] if known.ctx.equations.contains(&claim.notation()) => vec![
+            (vec![t.clone()], rewritten.clone()),
+            (vec![rewritten.clone()], t.clone()),
+        ],
+        _ => Vec::new(),
+    }
+}
+
+/// `substitute line L` writes no equation (`skeleton::substitute`): the
+/// equation is one the line says, and the claim, `t = t′` as a chain's line
+/// claims it, is one side of that equation put for the other in t. A line
+/// saying no equation gives nothing to put.
+fn check_substitute_line(
+    report: &mut Report,
+    thm: &Theorem,
+    step: &Step,
+    library: &Library,
+    known: &Known,
+) {
+    let Some(source) = step.just.source.as_ref().map(|s| s.named().to_string()) else {
+        return;
+    };
+    let Some(claim) = known.whole_as_written(&step.claim) else {
+        return;
+    };
+    // A reference to nothing is `check_references`'s to report.
+    let said: Vec<Node> = if thm.defines.iter().any(|d| d.label == source) {
+        super::formulas::define_equation(thm, step, &source, known)
+            .into_iter()
+            .collect()
+    } else {
+        let scope = known.scope(step);
+        let Some(stated) = scope.get(&source).filter(|s| known.reads(s)) else {
+            return;
+        };
+        known
+            .says(stated, &known.citing_step(step))
+            .into_iter()
+            .map(|s| s.written)
+            .collect()
+    };
+    let equations: Vec<&Node> = said
+        .iter()
+        .filter(|e| {
+            known.ctx.equations.contains(&e.notation()) && e.children.len() == 2
+        })
+        .collect();
+    if equations.is_empty() {
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "step {} substitutes {source}, which says no equation to put",
+                step.number
+            ),
+        );
+        return;
+    }
+    let ways = claim_sides(&claim, known);
+    let made = equations.iter().find_map(|equation| {
+        let [left, right] = equation.children.as_slice() else {
+            return None;
+        };
+        let (starts, aim) = ways.iter().find(|(starts, aim)| {
+            starts
+                .iter()
+                .any(|start| known.substituted(start, aim, left, right))
+        })?;
+        Some((starts, aim, left, right))
+    });
+    let Some((starts, aim, left, right)) = made else {
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "{} is not one side of an equation {source} says put for the other",
+                known.print(&claim)
+            ),
+        );
+        return;
+    };
+    // An identity element the putting makes and the claim leaves out is
+    // dropped from a number, which a line says where the page does not say
+    // it once.
+    let facts = known.parts(step, library).facts.clone();
+    let unsaid = substitution_unsaid(starts, aim, left, right, &facts, library);
+    if let Some(left) = unsaid.first() {
+        report.say(
+            &thm.path,
+            step.just.line,
+            format!(
+                "step {} drops an identity element from what the substitution makes, and nothing says {} is a number; a requires line says it",
+                step.number,
+                known.print(left)
+            ),
+        );
     }
 }
 

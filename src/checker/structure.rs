@@ -10,9 +10,9 @@ use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_items, define_parts, fmt, is_label, item_kind, names_an_item, DefineParts,
-    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Requires, Step, StepNo, Theorem,
+    cited_items, define_parts, fmt, is_label, item_kind, DefineParts, FileScope, Head,
+    Intro, Item, Justification, Method, Range, Record, RecordKind, Requires, Step,
+    StepNo, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
@@ -801,9 +801,11 @@ fn sign_of(label: &str) -> &str {
         .map_or(label, |(sign, _)| sign)
 }
 
-/// A calculation only joins. Every line cites a numbered step or a label and
-/// carries no reasoning of its own, so a line that names an item or
-/// instantiates one is carrying a justification that belongs in a step.
+/// A calculation shows its working, a move to each line, and each line
+/// gives its reason: a numbered step or a label it cites, or a reason of
+/// its own (`ChainLine::reason`). A reason of its own cuts as a step's
+/// does, and its `algebra` cites no line: a move that uses a line's
+/// equation is `substitute line L`, a move of its own.
 pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
     if !step.just.head.is(Method::Calculation) {
         return;
@@ -820,21 +822,27 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
     if let Some(Err(problem)) = &cut {
         report.say(&problem.path, problem.line, problem.message.clone());
     }
-    for (text, no) in &step.just.chain {
-        if names_an_item(text) || text.contains(":=") {
-            report.say(
-                &thm.path,
-                *no,
-                "a chain line carries a justification; a calculation only joins, so each line cites a numbered step or a label and the reasoning lives in that step",
-            );
-        }
-    }
     // Each line joins by the relation the cut finds where a relation
     // stands: first in the line, after the first line's start.
     if let Some(Ok(chain)) = &cut {
         for line in &chain.lines {
             if !RELATIONS.contains(&line.relation.as_str()) {
                 report.say(&thm.path, line.line, "chain line carries no relation");
+            }
+            // A reason that does not cut is `check_citations`'s to report,
+            // as a requires line's is.
+            let Some(Ok(by)) = line.reason.as_ref().map(|r| &r.by) else {
+                continue;
+            };
+            if by.head.is(Method::Algebra) && !by.from.is_empty() {
+                report.say(
+                    &thm.path,
+                    line.line,
+                    format!(
+                        "a chain line's algebra cites no line, and this one cites {}; a move that uses a line's equation is `substitute line L`, a line of its own",
+                        by.from.join(", ")
+                    ),
+                );
             }
         }
     }
@@ -1033,6 +1041,12 @@ pub fn check_citations(
         };
         for req in &step.requires {
             at.check_reason(report, req, "requires line");
+        }
+        // A chain line's own reason cites as a requires line's does.
+        if let Some(Ok(chain)) = crate::corpus::proof::chain(just, &thm.path) {
+            for req in chain.lines.iter().filter_map(|l| l.reason.as_ref()) {
+                at.check_reason(report, req, "chain line");
+            }
         }
     }
     // A let's reason is written as a requires line's is, and is read under

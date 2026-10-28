@@ -5492,11 +5492,46 @@ fn cases() -> Vec<Case> {
             "step 3 is a calculation with no chain",
         ),
         case(
-            "a chain line that cites an item",
+            "a chain line whose algebra cites a line",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 = 1                     mun:sum-single a := 1".to_string()),
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("         = 4k² + 4k + 1        algebra".to_string()), "         = 4k² + 4k + 1        algebra, from 1".to_string()),
             ],
-            "a chain line carries a justification",
+            "a chain line's algebra cites no line, and this one cites 1",
+        ),
+        case(
+            "a chain line substituting a line that says no equation",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("      f(2) = 2 + 1      instantiate x := 2 in H2".to_string()), "      f(2) = 2 + 1      substitute H1".to_string()),
+            ],
+            "substitutes H1, which says no equation to put",
+        ),
+        case(
+            "a chain line substituting an equation that does not make its link",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("      n² = (2k + 1)²           substitute line 1".to_string()), "      n² = (2k + 2)²           substitute line 1".to_string()),
+            ],
+            "is not one side of an equation 1 says put for the other",
+        ),
+        case(
+            "a chain line whose algebra does not hold",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("         = 4k² + 4k + 1        algebra".to_string()), "         = 4k² + 4k + 2        algebra".to_string()),
+            ],
+            "(2k + 1)² = 4k² + 4k + 2 is not an identity",
+        ),
+        case(
+            "a chain line citing an item with no import",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("import mundane theorem    stdlib/numbers/multiply-cancel\n".to_string()), String::new()),
+            ],
+            "mun:multiply-cancel is neither imported nor a theorem of this file",
+        ),
+        case(
+            "a chain line resting on a requires line taken away",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("    requires n! ∈ ℕ: mun:factorial-nat\n".to_string()), String::new()),
+            ],
+            "nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         case(
             "a chain line with no relation",

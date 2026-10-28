@@ -1189,7 +1189,7 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
                 out.push((just.item(target), just.line));
             }
         }
-        for req in &step.requires {
+        for req in step.requires.iter().chain(&chain_reasons(just, &thm.path)) {
             if let Some((cited, _)) = req.cited_item() {
                 out.push((just.item(&cited), req.line));
             }
@@ -1340,28 +1340,42 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
     }))
 }
 
-/// A chain line's citation, read from the right end of the line rather than
-/// from the whitespace that happens to separate it (`skeleton::chain_cite`).
+/// What a chain line cites, read from its reason (`skeleton::chain_reason`)
+/// rather than from the whitespace that happens to separate it: the line or
+/// label it gives, or every line its reason names, `from 3` and `line 1`
+/// among them.
 ///
 /// A link relating numerals alone may name `arithmetic` in place of a line,
 /// and then it cites nothing: the fact is worked out where it stands.
 fn chain_citation(path: &str, line: &Line) -> Checked<Vec<String>> {
-    if skeleton::chain_cite(&line.text).is_none() {
+    let Some(reason) = skeleton::chain_reason(&line.text) else {
         return Err(Problem::new(
             path,
             line.no,
-            "chain line names no line or label; a chain only joins, so every line must cite a numbered step, a label, `arithmetic` for a link of numerals alone, or `real arithmetic` for a closed link with a square root",
+            "chain line gives no reason; each line ends on a numbered step or a label it cites, or on its own reason: `algebra`, `arithmetic`, `real arithmetic`, `substitute line L`, `instantiate`, or a theorem or definition cited as a step cites it",
         ));
+    };
+    if skeleton::is_ref(reason) {
+        return Ok(vec![reason.to_string()]);
     }
-    Ok(chain_cited(&line.text).into_iter().collect())
+    if is_worked_out(reason) {
+        return Ok(Vec::new());
+    }
+    Ok(cut_reason(reason, path, line.no)?.refs())
 }
 
-/// The line or label a chain line cites, read from its right end; None for
-/// a link that names `arithmetic` or `real arithmetic`, or a line that
-/// names nothing.
+/// Whether a chain line's reason is `arithmetic` or `real arithmetic`,
+/// which work a link out where it stands and cite nothing.
+fn is_worked_out(reason: &str) -> bool {
+    matches!(reason, "arithmetic" | "real arithmetic")
+}
+
+/// The line or label a chain line or a row gives as its reason; None for
+/// one giving a reason of its own, `arithmetic` or `algebra` among them, or
+/// none.
 pub fn chain_cited(text: &str) -> Option<String> {
-    skeleton::chain_cite(text)
-        .filter(|cite| !matches!(*cite, "arithmetic" | "real arithmetic"))
+    skeleton::chain_reason(text)
+        .filter(|reason| skeleton::is_ref(reason))
         .map(String::from)
 }
 
@@ -1374,21 +1388,26 @@ const DOWNWARD: [(&str, &str); 2] = [("≥", "≤"), (">", "<")];
 
 /// One line of a calculation, cut as `GRAMMAR.md`'s chain productions cut
 /// it: the relation it joins by, the term it reaches, the modulus a `≡`
-/// line says, and what it cites.
+/// line says, and its reason.
 #[derive(Clone, Debug)]
 pub struct ChainLine {
     pub relation: String,
     pub term: Written,
     pub modulus: Option<Written>,
-    /// The line, label, `arithmetic` or `real arithmetic` it cites, the
-    /// line's last word or, for `real arithmetic`, its last two.
+    /// The reason as written (`skeleton::chain_reason`): the line or label
+    /// it cites, `arithmetic`, `real arithmetic`, or a reason of its own.
     pub cite: String,
+    /// A reason of its own, `algebra` or `mun:x, from 3`, read as a
+    /// requires line is: the link as its fact, proved as the step it would
+    /// be (`reason_as_step`). None where the line cites a line or a label,
+    /// or names `arithmetic` or `real arithmetic`.
+    pub reason: Option<Requires>,
     pub line: usize,
 }
 
 impl ChainLine {
     /// The line or label the link cites; None where it names `arithmetic`
-    /// and cites nothing.
+    /// and cites nothing, or gives a reason of its own.
     pub fn cited(&self) -> Option<&str> {
         skeleton::is_ref(&self.cite).then_some(self.cite.as_str())
     }
@@ -1434,6 +1453,7 @@ impl Chain {
                     term: terms[i].clone(),
                     modulus: None,
                     cite: l.cite.clone(),
+                    reason: l.reason.clone(),
                     line: l.line,
                 }
             })
@@ -1549,9 +1569,9 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
     let mut lines = Vec::new();
     for (i, (text, no)) in just.chain.iter().enumerate() {
         let whole = str::trim(text);
-        // The citation is read off the right end, so that `real arithmetic`
-        // is cut whole and the term does not end in "real".
-        let (body, cite) = match skeleton::chain_cite(whole) {
+        // The reason is where `chain_reason` finds it, so that `real
+        // arithmetic` is cut whole and the term does not end in "real".
+        let (body, cite) = match skeleton::chain_reason(whole) {
             Some(cite) => (str::trim(&whole[..whole.len() - cite.len()]), cite),
             None => match whole.rfind(char::is_whitespace) {
                 Some(at) => (str::trim(&whole[..at]), str::trim(&whole[at..])),
@@ -1611,8 +1631,35 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
             term: Written::new(term, path, *no),
             modulus,
             cite: cite.to_string(),
+            reason: None,
             line: *no,
         });
+    }
+    // A reason of its own proves the link as written, from the term the
+    // line before reaches: a formula made from the two terms, never read
+    // from text.
+    let start = start.expect("a first line");
+    let mut from = start.clone();
+    for line in &mut lines {
+        if !skeleton::is_ref(&line.cite) && !is_worked_out(&line.cite) {
+            let by = cut_reason(&line.cite, path, line.line)
+                .map(|slots| Justification::of(slots, line.line, &just.names));
+            let fact = Written::related(
+                from.clone(),
+                &line.relation,
+                line.term.clone(),
+                line.modulus.clone(),
+                path,
+                line.line,
+            );
+            line.reason = Some(Requires {
+                fact,
+                how: line.cite.clone(),
+                line: line.line,
+                by,
+            });
+        }
+        from = line.term.clone();
     }
     // A chain goes one way: a ≤ b ≥ c says nothing of a against c.
     let up = lines
@@ -1633,10 +1680,17 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
             ),
         )));
     }
-    Some(Ok(Chain {
-        start: start.expect("a first line"),
-        lines,
-    }))
+    Some(Ok(Chain { start, lines }))
+}
+
+/// The reasons of their own a calculation's lines give (`ChainLine::reason`),
+/// in the chain's order; none for a step that is no calculation, or whose
+/// chain does not cut, which the checker reports (`check_chain`).
+pub fn chain_reasons(just: &Justification, path: &str) -> Vec<Requires> {
+    match chain(just, path) {
+        Some(Ok(chain)) => chain.lines.into_iter().filter_map(|l| l.reason).collect(),
+        _ => Vec::new(),
+    }
 }
 
 /// A step being read, whose justification may not have arrived yet.

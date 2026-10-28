@@ -427,6 +427,26 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
                 if let Some(m) = &l.modulus {
                     add(l.line, what(), m);
                 }
+                // A line's own reason is read as a requires line's is: the
+                // link it proves, and each value and equation it gives.
+                let Some(req) = &l.reason else {
+                    continue;
+                };
+                add(l.line, what(), &req.fact);
+                for v in req.values().written() {
+                    add(
+                        l.line,
+                        format!("a value a line of step {} gives", s.number),
+                        v,
+                    );
+                }
+                if let Ok(Some(e)) = req.by().map(|by| by.equation.as_ref()) {
+                    add(
+                        l.line,
+                        format!("the equation a line of step {} gives", s.number),
+                        e,
+                    );
+                }
             }
         }
         if let Some(Ok(rows)) = rows(&s.just, &thm.path) {
