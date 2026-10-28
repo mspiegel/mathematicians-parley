@@ -1812,19 +1812,22 @@ notation is-a-point
               encoding and the reader does not meet it: the page says a point
               and never says ℂ. GEOMETRY.md takes that decision.
 
-notation is-a-set
-  pattern     _ is a set
+notation exists
+  pattern     _ exists
   sort        set of α → formula
   level       predicate
-  reads       is a set
+  reads       exists
   metamath    wcel with _V, as difexg states it
   target      _1 cvv wcel
-  note        Sethood, which ZF distinguishes from being a proper class and
-              set.mm writes as membership of _V. One use, mun:stdlib/sets/difference-set;
-              a proof does not write that a set built from sets is a set
-              (`READERS.md`). It is the formula-position counterpart of the
-              `let X be a set` introduction, as for-all-sets is of the same
-              line in a binder.
+  note        That a collection exists: it is one set theory allows, and
+              not too big to be a set, as the collection of all sets is.
+              ZF calls such a collection a set and set.mm writes it as
+              membership of _V; the page says "exists", as Halmos says the
+              union of a set's members exists, because "set" on the page is
+              the word for any collection (`let X be a set`). The axioms of
+              stdlib/sets say which collections exist; a proof that does not
+              cite them does not write that a set built from sets exists
+              (`READERS.md`).
 
 notation continuous
   pattern     _ is continuous on _

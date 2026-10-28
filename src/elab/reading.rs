@@ -79,7 +79,7 @@ impl<'a> Elaborator<'a> {
     /// page, and the kernel still wants the thing to be a set, not a proper
     /// class; that sethood is apparatus (`READERS.md`, hidden entirely), so it
     /// is added here and never written. A name the text uses as a number, a
-    /// point or a group element is not something `_ is a set` takes, and
+    /// point or a group element is not something `_ exists` takes, and
     /// `let x be an element` then says nothing of it: `x = x`, which
     /// introduces x as a hypothesis line does and claims nothing. A function
     /// with a property has both its type and the property: an image under f
@@ -102,12 +102,12 @@ impl<'a> Elaborator<'a> {
                 if sorts.get(name).is_some_and(|s| !fits("set", s)) {
                     is_a("x = x", &x)
                 } else {
-                    is_a("x is a set", &x)
+                    is_a("x exists", &x)
                 }
             }
             Form::NotIn(name) => {
                 let x = named(name)?;
-                Ok(both(is_a("x is a set", &x)?, self.read_one(body)?))
+                Ok(both(is_a("x exists", &x)?, self.read_one(body)?))
             }
             Form::FunctionBeing { typed, .. } => {
                 let typed = named(typed)?;
@@ -117,7 +117,7 @@ impl<'a> Elaborator<'a> {
             Form::Part { .. } | Form::FunctionOn { .. } | Form::Polynomial(_) => {
                 Ok(asserted()?.remove(0))
             }
-            Form::Set(name) => is_a("x is a set", &named(name)?),
+            Form::Set(name) => is_a("x exists", &named(name)?),
             Form::Point(name) => is_a("x is a point", &named(name)?),
             _ => self.read_one(body),
         }

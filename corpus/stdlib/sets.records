@@ -32,72 +32,79 @@ axiom extensionality
               page writes them.
 
 axiom empty-set
-  then        ∅ is a set
+  then        ∅ exists
   metamath    0ex
   target      0ex
-  note        There is a set with no members; ∅ names it.
+  note        A collection with no members exists; ∅ names it.
 
 axiom pairing
   let a be an element                                                 (H1)
   let b be an element                                                 (H2)
-  then        {a, b} is a set
+  then        {a, b} exists
   metamath    prex
   target      prex
 
 axiom unions
   let C be a set                                                      (H1)
-  then        ⋃(X ∈ C) X is a set
+  assume C exists                                                     (H2)
+  then        ⋃(X ∈ C) X exists
   metamath    uniexg, with the union written over its members by uniiun,
               which this corpus proves in elaboration/stdlib/proved.mm
   target      giunex
-  note        What is in some member of C makes a set.
+  note        What is in some member of a collection that exists makes a
+              collection that exists.
 
 axiom power-sets
   let X be a set                                                      (H1)
-  then        𝒫X is a set
+  assume X exists                                                     (H2)
+  then        𝒫X exists
   metamath    pwexg
   target      pwexg
-  note        The parts of a set make a set.
+  note        The parts of a collection that exists make one that exists.
 
 axiom separation
   let X be a set                                                      (H1)
-  let P be a property of the elements of X                            (H2)
-  then        {t ∈ X : P(t)} is a set
+  assume X exists                                                     (H2)
+  let P be a property of the elements of X                            (H3)
+  then        {t ∈ X : P(t)} exists
   metamath    rabexg
   target      rabexg
-  note        The members of a set with a property make a set. A property
-              is not a thing, so this is one axiom for every property.
+  note        The members of a collection that exists with a property make
+              one that exists. A property is not a thing, so this is one
+              axiom for every property.
 
 axiom replacement
   let Y be a set                                                      (H1)
-  let Z be a set                                                      (H2)
-  let E : Y → Z                                                       (H3)
-  then        {E(s) : s ∈ Y} is a set
+  assume Y exists                                                     (H2)
+  let Z be a set                                                      (H3)
+  let E : Y → Z                                                       (H4)
+  then        {E(s) : s ∈ Y} exists
   metamath    mptexg and rnexg, which this corpus proves together in
               elaboration/stdlib/proved.mm
   target      grnmptex
-  note        The values a function takes on a set make a set.
+  note        The values a function takes on a collection that exists make
+              one that exists.
 
 axiom infinity
-  then        ℕ is a set
+  then        ℕ exists
   metamath    nnex
   target      nnex
-  note        An infinite set exists. Textbooks build it as the least set
-              holding ∅ and x ∪ {x} with each x; the page says it of ℕ,
-              which set.mm builds from it.
+  note        An infinite collection exists. Textbooks build it as the
+              least one holding ∅ and x ∪ {x} with each x; the page says it
+              of ℕ, which set.mm builds from it.
 
 axiom choice
   let C be a set                                                      (H1)
-  assume for all X ∈ C, X ≠ ∅                                         (H2)
+  assume C exists                                                     (H2)
+  assume for all X ∈ C, X ≠ ∅                                         (H3)
   then        there is f : C → ⋃(Y ∈ C) Y with for all X ∈ C, f(X) ∈ X
-  metamath    ac6c5, its function restricted to C and read as a map into
-              the union, which this corpus proves in
-              elaboration/stdlib/proved.mm
+  metamath    ac6sg, its function read as a map into the union, which
+              this corpus proves in elaboration/stdlib/proved.mm
   target      gchoice
-  note        A set of non-empty sets has a function choosing a member of
-              each. The union's letter Y is not the letter X the "for all"
-              binds, as set.mm keeps a map's codomain apart from its
-              argument.
+  note        A collection that exists, of non-empty sets, has a function
+              choosing a member of each. The union's letter Y is not the
+              letter X the "for all" binds, as set.mm keeps a map's
+              codomain apart from its argument.
 
 mundane definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
@@ -278,7 +285,7 @@ mundane theorem pair-finite
 mundane theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
-  then        X ∖ {a} is a set
+  then        X ∖ {a} exists
   metamath    difexg
   target      difexg
 

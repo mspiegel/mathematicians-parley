@@ -1,0 +1,31 @@
+import axiom              stdlib/sets/extensionality
+import mundane theorem    stdlib/sets/empty-subset
+import mundane definition stdlib/sets/subset
+
+theorem empty-set-unique
+  note        A set with no members is the empty set: what is in it is in
+              ∅, there being nothing in it, and what is in ∅ is in it, so by
+              extensionality the two are one set. Halmos, Naive Set Theory,
+              section 3.
+  let A be a set                                                      (H1)
+  assume there is no a ∈ A                                            (H2)
+  then A = ∅
+
+1.  For all x ∈ A, x ∈ ∅.
+    proof
+    let x ∈ A                                                         (K)
+
+    1.1.  there is a ∈ A
+          exhibit, from K
+
+    1.2.  there is no a ∈ A
+          restate H2, contradicting 1.1
+
+2.  ∅ ⊆ A
+    mun:empty-subset X := A
+
+3.  For all x ∈ ∅, x ∈ A.
+    mun:subset X := ∅, Y := A, from 2
+
+4.  A = ∅
+    axi:extensionality X := A, Y := ∅, from 1, 3

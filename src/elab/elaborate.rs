@@ -58,7 +58,7 @@ use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
 use crate::notations::{
-    COMMA_CONJUNCTION, CONJUNCTION, EQUAL_CHAIN, FUNCTION_TYPE, IS_A_POINT, IS_A_SET,
+    COMMA_CONJUNCTION, CONJUNCTION, EQUAL_CHAIN, EXISTS, FUNCTION_TYPE, IS_A_POINT,
     MEMBERSHIP,
 };
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
@@ -6007,7 +6007,7 @@ impl<'a> Elaborator<'a> {
                         && matches!(
                             node.notation(),
                             MEMBERSHIP
-                                | IS_A_SET
+                                | EXISTS
                                 | IS_A_POINT
                                 | CONJUNCTION
                                 | FUNCTION_TYPE

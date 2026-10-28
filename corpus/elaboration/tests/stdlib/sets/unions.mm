@@ -7,6 +7,6 @@ $[ stdlib/proved.mm $]
 
 ${
   $d A m $.
-  tests.stdlib.sets.unions $p |- ( A e. _V -> U_ m e. A m e. _V ) $=
-    ( cvv giunex ) BACD $.
+  tests.stdlib.sets.unions $p |- ( ( A e. _V /\ A e. _V ) -> U_ m e. A m e. _V ) $=
+    ( cvv wcel wa cv ciun simpr giunex syl ) ACDZKEKBABFGCDKKHBACIJ $.
 $}

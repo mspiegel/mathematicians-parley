@@ -20,7 +20,7 @@ use crate::formula::page::{made, made_by_name, numeral, Written};
 use crate::formula::token::{Token, TokenKind};
 use crate::formula::{holds, Node, Sorts};
 use crate::notations::{
-    EMPTY_SET, FINITE, FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL, IS_A_SET,
+    EMPTY_SET, EXISTS, FINITE, FOR_ALL, FUNCTION_TYPE, IS_A_POINT, IS_A_POLYNOMIAL,
     MEMBERSHIP, NUMBER_SYSTEMS, POWERSET, SUBGROUP, SUBSET, WITHOUT,
 };
 use crate::outcome::{Built, Declined};
@@ -1430,7 +1430,7 @@ pub fn check_sorts(report: &mut Report, thm: &Theorem, known: &Known) {
     const SAYING: [NotationId; 6] = [
         MEMBERSHIP,
         SUBSET,
-        IS_A_SET,
+        EXISTS,
         IS_A_POINT,
         IS_A_POLYNOMIAL,
         FUNCTION_TYPE,

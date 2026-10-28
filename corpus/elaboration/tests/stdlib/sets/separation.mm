@@ -8,6 +8,6 @@ $[ stdlib/definitions.mm $]
 ${
   $d A x $.
   $d B x $.
-  tests.stdlib.sets.separation $p |- ( ( A e. _V /\ B e. _V ) -> { x e. A | -. x e. B } e. _V ) $=
-    ( cvv wcel wa cv wn crab simpl id syl rabexg ) BDEZCDEZFZNAGZCEZHZABIDEPNNNOJNKLSABDML $.
+  tests.stdlib.sets.separation $p |- ( ( ( A e. _V /\ A e. _V ) /\ B e. _V ) -> { x e. A | -. x e. B } e. _V ) $=
+    ( cvv wcel wa cv wn crab simpl simpr syl rabexg ) BDEZNFZCDEZFZNAGZCEZHZABIDEQONOPJNNKLTABDML $.
 $}

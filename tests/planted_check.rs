@@ -4553,11 +4553,11 @@ fn cases() -> Vec<Case> {
             "𝒫: a set of sets of numbers where a set of numbers is wanted",
         ),
         case(
-            "say an element of a set of numbers is a set",
+            "say an element of a set of numbers exists as a set",
             vec![
-                edit("proofs/wiedijk/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n          requires s is a set: from K1\n".to_string()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n".to_string()), "    6.1.  s ∈ [a, b]\n          mun:set-builder, from D1, K1\n          requires s exists: from K1\n".to_string()),
             ],
-            "the requires line of step 6.1: 's is a set': s is a number, and `_ is a set` wants a set",
+            "the requires line of step 6.1: 's exists': s is a number, and `_ exists` wants a set",
         ),
         // A set declared of any sort stays of any sort. `let a be a set` makes
         // add-element-bijection's X a set of sets, and subsets-count, whose X

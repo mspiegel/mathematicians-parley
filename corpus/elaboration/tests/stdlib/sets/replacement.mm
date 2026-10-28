@@ -9,6 +9,6 @@ ${
   $d A x $.
   $d B x $.
   $d C x $.
-  tests.stdlib.sets.replacement $p |- ( ( ( A e. _V /\ B e. _V ) /\ C : A --> B ) -> ran ( x e. A |-> ( C ` x ) ) e. _V ) $=
-    ( cvv wcel wa wf cv cfv cmpt crn simpl id syl grnmptex ) BEFZCEFZGZBCDHZGZQABAIZDJZKLEFUASQSTMSQQQRMQNOOABUCEPO $.
+  tests.stdlib.sets.replacement $p |- ( ( ( ( A e. _V /\ A e. _V ) /\ B e. _V ) /\ C : A --> B ) -> ran ( x e. A |-> ( C ` x ) ) e. _V ) $=
+    ( cvv wcel wa wf cv cfv cmpt crn simpl simpr syl grnmptex ) BEFZQGZCEFZGZBCDHZGZQABAIZDJZKLEFUBTQTUAMTRQRSMQQNOOABUDEPO $.
 $}

@@ -6,6 +6,6 @@ $( tests/stdlib/sets/power-sets, elaborated from tests/stdlib/sets.proof by parl
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.sets.power-sets $p |- ( A e. _V -> ~P A e. _V ) $=
-    ( cvv pwexg ) ABC $.
+  tests.stdlib.sets.power-sets $p |- ( ( A e. _V /\ A e. _V ) -> ~P A e. _V ) $=
+    ( cvv wcel wa cpw simpr pwexg syl ) ABCZIDIAEBCIIFABGH $.
 $}

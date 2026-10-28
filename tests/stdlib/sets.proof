@@ -28,11 +28,12 @@ import axiom              stdlib/sets/choice as sets-choice
 
 theorem choice
   let F be a set                                                      (H1)
-  assume for all A ∈ F, A ≠ ∅                                         (H2)
+  assume F exists                                                     (H2)
+  assume for all A ∈ F, A ≠ ∅                                         (H3)
   then there is g : F → ⋃(B ∈ F) B with for all A ∈ F, g(A) ∈ A
 
 1.  g : F → ⋃(B ∈ F) B. For all A ∈ F, g(A) ∈ A.
-    obtain g: axi:sets-choice C := F, from H2
+    obtain g: axi:sets-choice C := F, from H2, H3
 
 2.  There is g : F → ⋃(B ∈ F) B with for all A ∈ F, g(A) ∈ A.
     exhibit, from 1
@@ -48,54 +49,58 @@ theorem extensionality
     axi:sets-extensionality X := A, Y := B, from H3, H4
 
 theorem empty-set
-  then ∅ is a set
+  then ∅ exists
 
-1.  ∅ is a set
+1.  ∅ exists
     axi:sets-empty-set
 
 theorem pairing
   let x be an element                                                 (H1)
   let y be an element                                                 (H2)
-  then {x, y} is a set
+  then {x, y} exists
 
-1.  {x, y} is a set
+1.  {x, y} exists
     axi:sets-pairing a := x, b := y
 
 theorem unions
   let F be a set                                                      (H1)
-  then ⋃(A ∈ F) A is a set
+  assume F exists                                                     (H2)
+  then ⋃(A ∈ F) A exists
 
-1.  ⋃(A ∈ F) A is a set
-    axi:sets-unions C := F
+1.  ⋃(A ∈ F) A exists
+    axi:sets-unions C := F, from H2
 
 theorem power-sets
   let A be a set                                                      (H1)
-  then 𝒫A is a set
+  assume A exists                                                     (H2)
+  then 𝒫A exists
 
-1.  𝒫A is a set
-    axi:sets-power-sets X := A
+1.  𝒫A exists
+    axi:sets-power-sets X := A, from H2
 
 theorem separation
   let A be a set                                                      (H1)
-  let B be a set                                                      (H2)
-  then {x ∈ A : x ∉ B} is a set
+  assume A exists                                                     (H2)
+  let B be a set                                                      (H3)
+  then {x ∈ A : x ∉ B} exists
 
-1.  {x ∈ A : x ∉ B} is a set
-    axi:sets-separation
+1.  {x ∈ A : x ∉ B} exists
+    axi:sets-separation, from H2
 
 theorem replacement
   let A be a set                                                      (H1)
-  let B be a set                                                      (H2)
-  let g : A → B                                                       (H3)
-  then {g(x) : x ∈ A} is a set
+  assume A exists                                                     (H2)
+  let B be a set                                                      (H3)
+  let g : A → B                                                       (H4)
+  then {g(x) : x ∈ A} exists
 
-1.  {g(x) : x ∈ A} is a set
-    axi:sets-replacement Y := A, Z := B, E := g
+1.  {g(x) : x ∈ A} exists
+    axi:sets-replacement Y := A, Z := B, E := g, from H2
 
 theorem infinity
-  then ℕ is a set
+  then ℕ exists
 
-1.  ℕ is a set
+1.  ℕ exists
     axi:sets-infinity
 
 theorem union-difference
@@ -117,9 +122,9 @@ theorem nonempty-member
 theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
-  then X ∖ {a} is a set
+  then X ∖ {a} exists
 
-1.  X ∖ {a} is a set
+1.  X ∖ {a} exists
     mun:sets-difference-set
 
 theorem intersection
