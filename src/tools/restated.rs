@@ -262,7 +262,11 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
     let mut schemas: Vec<String> = Vec::new();
     let shapes = Shapes::new(records, g);
     for r in records {
-        if !r.kind.is_item() || !r.fields.contains_key("target") {
+        // A define of a phrase is made into a record whose statement is the
+        // phrase and its meaning, with `biid` as target, so it says what its
+        // target asks by construction; and its file may be any proof file,
+        // where this stage reads the library alone.
+        if !r.kind.is_item() || !r.fields.contains_key("target") || r.phrase.is_some() {
             continue;
         }
         if says_of_statements(r, g) {

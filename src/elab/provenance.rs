@@ -449,8 +449,13 @@ impl<'a> Elaborator<'a> {
             }
             let not_above = not_above(step, r);
             let unbelow = |v: &Proof| !v.origin.iter().any(|o| not_above.contains(o));
-            let given = given.filtered(|_, v| unbelow(v));
             let resting = self.reason_allows(step, r);
+            // Only what the line may rest on is offered (R2): a claim the
+            // scope holds otherwise, as H9's "not (C is on line AB)" is "not
+            // (A is on line CB)" with its points reordered, would be found
+            // before the reason and then refused for resting on H9.
+            let named = |v: &Proof| v.origin.iter().all(|o| may_rest_on(&resting, o));
+            let given = given.filtered(|_, v| unbelow(v) && named(v));
             self.named_first(r.refs(), &resting, &given);
             let written = self.written.clone();
             self.written = self.written.filtered(unbelow);
@@ -1047,8 +1052,9 @@ impl<'a> Elaborator<'a> {
                 }
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
-                let named = facts.copy();
                 let resting = self.reason_allows(step, r);
+                let named = facts
+                    .filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)));
                 self.named_first(r.refs(), &resting, &named);
                 return match self.side(&node, r, scope, &named, Some(step))? {
                     Built(made) => self.discharged_by(made, step, r),
