@@ -400,7 +400,8 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
 - "P is between A and B" writes an "and" of its own, so in a sentence joined
   by "and" or "or" it takes brackets: `P = A or (P is between A and B)`, and
   `there is X ∈ 𝔼² with (X is between A and B) and |AX| = r`. Alone, or as
-  the whole of what follows "with" or "if", it takes none.
+  the whole of what follows "with" or "if", it takes none. A phrase a define
+  gives whose own words write "and" or "or" is bracketed the same way.
 - Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
   "there is no … with …". Each record says which of its patterns is the
   negation of which, so the folded spelling and the "not" spelling are one
@@ -934,6 +935,49 @@ cites. Every define is imported as a `definition`, whether or not it takes an
 argument. What the statement says in set.mm writes the rule out, so a
 theorem citing `tri-one` needs nothing of T imported and its own T, if it has
 one, is a different thing.
+
+**A define may name a phrase**, a new way to say "A is a B", and give its
+meaning:
+
+```proof
+define triangular-number: n is a triangular number means
+       n ∈ ℕ and there is k ∈ ℕ with n = k(k + 1)/2                    (D1)
+       reads n is k(k + 1)/2 for some natural number k
+```
+
+After `define` come the name the phrase is imported and cited by, a colon,
+the phrase, `means`, and the meaning, which is a statement. The phrase opens
+with a letter, `is`, and `a` or `an`. A letter in it is a slot, where a term
+goes; a word of two letters or more is a word; and a letter joined to the
+word after it by a hyphen is an attached slot, the p of `H is a Sylow
+p-subgroup of G`, which takes one letter or one numeral and nothing longer.
+A phrase has one, two or three slots, never two side by side. Its slots are
+the letters its meaning leaves free: a letter of the phrase the meaning does
+not use, or one the meaning uses and the phrase does not write, is a defect.
+What a slot takes is what the meaning says it is, and a meaning that leaves
+a slot's sort open is a defect.
+
+Being a B includes being what a B is: the meaning says `n ∈ ℕ` itself, so a
+line saying n is a triangular number gives n ∈ ℕ to a step citing the
+define. A phrase with nothing to belong to says nothing of it, as `u is an
+upper bound of S means for all s ∈ S, s ≤ u` does.
+
+Every phrase also gives its negation: `4 is not a triangular number` is
+`not (4 is a triangular number)`, one formula written two ways, so the not
+is the whole meaning's, and π is not a triangular number because π ∉ ℕ. A
+phrase whose own words write "and" or "or", `d is a common divisor of a and
+b`, is bracketed beside "and" and "or" as betweenness is (Formulas).
+
+A define of a phrase is an item of its file. A step uses what the phrase
+means by citing it, by its label in its own file, `D1 n := 6, from 2`, and
+in another file as a definition, `def:triangular-number n := 10, from 2`,
+after `import definition proofs/tri/triangular-number`; the phrase and its
+meaning are then one formula. A file writes a phrase only where it defines
+it above the theorem or imports it. Only the standard library marks a phrase
+mundane, `mundane define upper-bound: …`, which a proof imports with `import
+mundane definition stdlib/calculus/upper-bound` and cites `mun:upper-bound`.
+In set.mm a phrase is its meaning written out, so set.mm gets no symbol for
+it.
 
 The alternative was to make the name opaque and require a `substitute` step at
 every crossing, which is what this document's rule about unfolding a definition

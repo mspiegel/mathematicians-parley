@@ -693,6 +693,16 @@ statement is a defect where it is written, since there is nothing for the
 name to be equal to. A function's define does too: each of its values is a
 thing, so Q(x) = x < 1 is the same defect.
 
+A define of a phrase is the one whose meaning is a statement, and it names
+no thing: wherever its phrase stands the build reads the meaning, each slot
+put in its place, and the meaning's own bound letters kept apart from what
+is put there and from every name the proof holds, as the s of upper bound
+is where the file defines s(a) (`Elaborator::phrase_written_out`). So set.mm
+never sees the phrase. A message saying a term back says the phrase where
+the term is its meaning (`phrase_targets`). Its definition item's lemma is
+`biid`, as the database's definitions whose notation is the formula they
+define are.
+
 A define is not a sort: a step that uses what it says cites it (`SYNTAX.md`),
 and R1 refuses one that rests on a define it does not cite. The standard form
 reads a name as its body only where the proof being built may rest on the
@@ -1572,7 +1582,7 @@ notation reads "b is an upper bound of S" as every s in S being at most b and
 the block that proved that fixed a variable of its own; and a defined name
 read as what it names where the step cites the define: `3 divides b`, with b
 defined as Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k), is the congruence of
-the two sums mod 3. Otherwise the step stops: "mun:upper-bound has no target,
+the two sums mod 3. Otherwise the step stops: "def:perfect has no target,
 and nothing step 10 cites says …".
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,

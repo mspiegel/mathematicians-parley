@@ -534,7 +534,9 @@ Betweenness stands apart from the connectives the same way. "P is between A
 and B" writes an "and" of its own, so in `P = A or P is between A and B or B
 is between A and P` a reader has to work out which "and" joins what. It is
 written `P = A or (P is between A and B) or (B is between A and P)`. Against
-everything else it binds as a word predicate does.
+everything else it binds as a word predicate does. A phrase a define gives
+whose own words write "and" or "or" stands at betweenness's level, and is
+bracketed the same way.
 
 A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
 `summation`, sits between multiplication and addition: multiplication binds
@@ -710,6 +712,14 @@ substitution in the corpus comes close.
 <define>      ::= `define` <name> [ `(` <name> `)` ] `:=` <rule>
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
+                | [ `mundane` ] `define` <name> `:` <phrase> `means` <formula>
+                  `(` <label> `)` `reads` <words>
+<phrase>      ::= <slot> `is` <article> <first> { <piece> }
+<first>       ::= <word> | <attached slot>
+<piece>       ::= <word> | <slot> | <attached slot>
+<attached slot> ::= <name> `-` <word>
+<slot>        ::= <name>
+<article>     ::= `a` | `an`
 <naming>      ::= `let` <name> [ `(` <name> `)` ] `=` <rule>
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
@@ -781,6 +791,20 @@ every name in a formula is: the tokeniser reads `avg(x)` as three names, so a
 define called `avg` could never be written after it, and it is refused at its
 line. The same holds for the name an import of a define gives it, its own or
 the one after `as`.
+
+A define of a phrase names no letter: its name is an item's, `<name>` as a
+theorem's is, and what it gives is a pattern. The phrase is read word by
+word: after `is` the article is a word whatever its length, a `<name>` is a
+slot, a `<name>` joined by a hyphen to the word after it an attached slot,
+and anything longer a word. Two slots never stand side by side, and a phrase
+has one, two or three; a function's two arguments and a phrase's three are
+each a form of their own, as `f(x)` and `f(x, y)` are, and no rule speaks of
+a phrase of any number. The phrase and its negation, with `not` after `is`,
+are added to the grammar of the file that writes the define and of each file
+that imports it, and to no other; a phrase another notation already writes
+is a defect where it is declared, and is added to no grammar. Each slot takes
+the sort its meaning gives the letter. The phrase stands at the level
+`predicate`, or at `betweenness` where its words write "and" or "or".
 
 Theorems may appear in any order. No theorem cites itself, and no theorems
 of a file cite one another round a cycle. A theorem field says what a record's field of the same name says: a
@@ -868,7 +892,11 @@ marked mundane (`DATABASE.md`, "Record kinds"). For a proof file they are
 whether or not the define takes an argument, since a reader calls both "the
 definition of T" and "the definition of B". A proof's define is never
 mundane: it is where the proof gives a name its meaning, and a reader meets it
-there. So the head of a file says what the file rests on, what each item is,
+there. The library's proof files are the one exception, for a define of a
+phrase, `mundane define upper-bound: …`, as a mundane theorem is theirs
+alone. A define of a phrase is imported by the name before its colon and
+cited as a definition, `def:<name>` or, mundane, `mun:<name>`, with no label
+on the import line. So the head of a file says what the file rests on, what each item is,
 and which of it is taken for granted, without the reader opening another
 file. There is no import of a whole file, and a bare `import` is a defect, as
 is `import mundane` with no kind. The path is the full one from the root, so

@@ -48,6 +48,11 @@ what a proof cites, or may. A record whose lemma the corpus proves in
 `corpus/proved/` is one the page cannot state the reason for, as a fact about
 the argument of a complex number is; a theorem with a textbook proof from
 what the library already has is proved on the page, and has no record.
+A definition a phrase states, "u is an upper bound of S", may be written on
+the page too, as a define of the phrase in the subject's proof file
+(`SYNTAX.md`, "A define may name a phrase"): `upper-bound` and
+`least-upper-bound` are defined in `corpus/stdlib/calculus.proof`, and have
+no record and no notation of their own.
 
 An item's statement is written by hand beside the lemma it names, and only a
 citation that elaborates asks whether the two agree: the elaborator applies
