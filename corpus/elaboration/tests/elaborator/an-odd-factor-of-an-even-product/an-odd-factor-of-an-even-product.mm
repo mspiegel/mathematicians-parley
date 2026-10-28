@@ -6,6 +6,6 @@ $( tests/elaborator/an-odd-factor-of-an-even-product/an-odd-factor-of-an-even-pr
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.an-odd-factor-of-an-even-product.an-odd-factor-of-an-even-product $p |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ -. 2 || A ) /\ 2 || ( A x. B ) ) -> 2 || B ) $=
-    ( cz wcel wa c2 cdvds wbr wn cmul co wo simpr cprime w3a wb 2prm a1i simpl id syl 3jca euclemma mpbid wi orel1 mpd ) ACDZBCDZEZFAGHZIZEZFABJKZGHZEZUKFBGHZLZUQUPUOURUMUOMUPFNDZUHUIOUOURPUPUSUHUIUSUPQRUPUMUHUMUOSZUMUJUHUJULSZUJUHUHUHUISUHTUAUAUAUPUMUIUTUMUJUIVAUHUIMUAUAUBFABUCUAUDUPULURUQUEUPULULUPUMULUTUJULMUAULTUAUKUQUFUAUG $.
+  tests.elaborator.an-odd-factor-of-an-even-product.an-odd-factor-of-an-even-product $p |- ( ( ( ( A e. ZZ /\ B e. ZZ ) /\ ( A e. ZZ /\ -. 2 || A ) ) /\ 2 || ( A x. B ) ) -> 2 || B ) $=
+    ( cz wcel wa c2 cdvds wbr wn cmul co wo simpr cprime w3a wb 2prm a1i simpl id syl 3jca euclemma mpbid wi orel1 mpd ) ACDZBCDZEZUHFAGHZIZEZEZFABJKZGHZEZUKFBGHZLZURUQUPUSUNUPMUQFNDZUHUIOUPUSPUQUTUHUIUTUQQRUQUNUHUNUPSZUNUJUHUJUMSZUJUHUHUHUISUHTUAUAUAUQUNUIVAUNUJUIVBUHUIMUAUAUBFABUCUAUDUQULUSURUEUQUMULUQUNUMVAUJUMMUAUHULMUAUKURUFUAUG $.
 $}

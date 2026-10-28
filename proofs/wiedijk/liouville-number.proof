@@ -29,6 +29,7 @@ import theorem            stdlib/calculus/monotone-limit
 import theorem            stdlib/calculus/limit-at-most
 import theorem            stdlib/calculus/limit-at-least
 import mundane definition stdlib/calculus/series-sum
+import mundane definition stdlib/polynomials/transcendental
 import theorem            stdlib/polynomials/algebraic-root
 import theorem            proofs/wiedijk/liouville/liouville
 
@@ -660,7 +661,7 @@ theorem liouville-number
     mun:series-sum, from D0, 12
     requires for all k ∈ ℕ, 1/2^(k!) ∈ ℝ: from 3
 
-14. L is transcendental
+14. not (L is algebraic)
     contradiction
     suppose L is algebraic                                            (S)
 
@@ -930,5 +931,8 @@ theorem liouville-number
     14.61. not 2 < c·R
            inequalities, from 14.47, contradicting 14.60
 
-15. Σ(k = 1 to ∞) 1/2^(k!) is transcendental
-    substitute L = Σ(k = 1 to ∞) 1/2^(k!) (line 13) into line 14
+15. L is transcendental
+    mun:transcendental, from 14
+
+16. Σ(k = 1 to ∞) 1/2^(k!) is transcendental
+    substitute L = Σ(k = 1 to ∞) 1/2^(k!) (line 13) into line 15

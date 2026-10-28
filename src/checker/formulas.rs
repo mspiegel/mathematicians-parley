@@ -595,8 +595,8 @@ fn operations_by(
 /// denies. `inspection` is asked of each word its claim says, where no line
 /// the step cites says that word, since a word a cited line says of each
 /// element is read off the line and not decided. The elaborator sees
-/// "divides", "is even" and "is odd" as one relation, so the word is told
-/// apart here.
+/// "divides" and "is even" as one relation, and "is odd" as a membership of
+/// ℤ joined to the denial of it, so the word is told apart here.
 pub fn check_decided_words(
     report: &mut Report,
     thm: &Theorem,

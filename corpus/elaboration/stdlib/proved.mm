@@ -2655,6 +2655,35 @@ $d k ph $.
 $}
 
 ${
+$( Parity and transcendence: odd as an integer not divisible by 2, and
+   transcendental as a complex number not algebraic. $)
+$d n N $.
+
+  godd2np1 $p |- ( N e. ZZ -> ( ( N e. ZZ /\ -. 2 || N ) <-> E. n e. ZZ ( ( 2 x. n ) + 1 ) = N ) ) $=
+    ( cz wcel c2 cdvds wbr wn wa cv cmul co c1 caddc wceq wrex ibar odd2np1
+    bitr3d ) BCDZEBFGZHZTUBIEAJKLMNLBOACPTUBQABRS $.
+
+  gevenodd $p |- ( N e. ZZ -> ( 2 || N \/ ( N e. ZZ /\ -. 2 || N ) ) ) $=
+    ( cz wcel c2 cdvds wbr wn wo wa zeo3 pm3.2 orim2d mpd )
+    ABCZDAEFZOGZHONPIZHAJNPQONPKLM $.
+
+  gnotboth $p |- ( 2 || N -> -. ( N e. ZZ /\ -. 2 || N ) ) $=
+    ( cz wcel c2 cdvds wbr wn wa simpr con2i ) ABCZDAEFZGZHLKMIJ $.
+
+  gopeo $p |- ( ( ( A e. ZZ /\ -. 2 || A ) /\ ( B e. ZZ /\ 2 || B ) ) -> ( ( A + B ) e. ZZ /\ -. 2 || ( A + B ) ) ) $=
+    ( cz wcel c2 cdvds wbr wn wa caddc co simpll simprl zaddcl syl2anc opeo
+    jca ) ACDZEAFGZHZIZBCDZEBFGZIZIZABJKZCDZEUFFGHUERUBUGRTUDLUAUBUCMABNOABPQ $.
+
+  gomeo $p |- ( ( ( A e. ZZ /\ -. 2 || A ) /\ ( B e. ZZ /\ 2 || B ) ) -> ( ( A - B ) e. ZZ /\ -. 2 || ( A - B ) ) ) $=
+    ( cz wcel c2 cdvds wbr wn wa cmin co simpll simprl zsubcl syl2anc omeo
+    jca ) ACDZEAFGZHZIZBCDZEBFGZIZIZABJKZCDZEUFFGHUERUBUGRTUDLUAUBUCMABNOABPQ $.
+
+  gtransc $p |- ( A e. CC -> ( ( A e. CC /\ -. A e. AA ) <-> -. A e. AA ) ) $=
+    ( cc wcel caa wn wa ibar bicomd ) ABCZADCZEZIKFIKGH $.
+
+$}
+
+${
 $( Powers: a power grows with its exponent. $)
 
   ${

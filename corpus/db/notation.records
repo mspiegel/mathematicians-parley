@@ -1762,12 +1762,16 @@ notation parity
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
-  metamath    2 ∥ n and its negation
-  target      c2 _1 cdvds wbr, c2 _1 cdvds wbr wn, folded
-  note        "is not odd" keeps the word inside the phrase, which is how the
-              corpus reads best, and the `negates` line is what makes it the
-              same formula as "not (n is odd)". Without it the √2 proof could
-              not cite mun:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
+  metamath    2 ∥ n; n ∈ ℤ and not 2 ∥ n, set.mm's odd integer; its negation
+  target      c2 _1 cdvds wbr, _1 cz wcel c2 _1 cdvds wbr wn wa, folded
+  note        An odd number is an integer, as set.mm's `df-odd` and its odd
+              theorems (`opoe`, `m1expo`) say, so "n is odd" carries n ∈ ℤ
+              and π is not odd; "n is even" needs no such part, since 2 ∥ n
+              already holds only of integers. "is not odd" keeps the word
+              inside the phrase, which is how the corpus reads best, and the
+              `negates` line is what makes it the same formula as "not (n is
+              odd)". Without it the √2 proof could not cite
+              mun:stdlib/reasoning/disjunctive-syllogism, which assumes "not Q".
 
 notation prime
   pattern     _ is prime
@@ -2095,13 +2099,14 @@ notation algebraic
   pattern     _ is algebraic        _ is transcendental
   sort        number → formula
   level       predicate
-  negates     pattern 2 is logical-not of pattern 1
   reads       is algebraic, is transcendental
-  metamath    wcel with set.mm's AA
-  target      _1 caa wcel, folded
+  metamath    wcel with set.mm's AA; a complex number not in AA
+  target      _1 caa wcel, _1 cc wcel _1 caa wcel wn wa
   note        α is algebraic when some polynomial with integer coefficients,
               other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
-              transcendental when it is not algebraic.
+              transcendental when it is a complex number and not algebraic,
+              so what is no number is neither. mun:stdlib/polynomials/transcendental
+              says so for a proof.
 
 notation there-is-a-polynomial
   pattern     there is a polynomial _ with _

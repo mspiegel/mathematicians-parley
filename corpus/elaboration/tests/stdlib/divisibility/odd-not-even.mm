@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/odd-not-even, elaborated from tests/stdlib/divisibi
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.divisibility.odd-not-even $p |- ( ( A e. ZZ /\ -. 2 || A ) -> -. 2 || A ) $=
-    ( cz wcel c2 cdvds wbr wn wa simpr id syl ) ABCZDAEFZGZHNNLNINJK $.
+  tests.stdlib.divisibility.odd-not-even $p |- ( ( A e. ZZ /\ ( A e. ZZ /\ -. 2 || A ) ) -> -. 2 || A ) $=
+    ( cz wcel c2 cdvds wbr wn wa simpr syl ) ABCZKDAEFZGZHZHNMKNIKMIJ $.
 $}

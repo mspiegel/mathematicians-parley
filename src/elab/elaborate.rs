@@ -57,7 +57,10 @@ use crate::mm::library::thousands;
 use crate::mm::spell::Proof;
 use crate::mm::Rpn;
 use crate::mm::{Kind, Layered, Lookup, Signature, Signatures};
-use crate::notations::{CONJUNCTION, FUNCTION_TYPE, IS_A_POINT, IS_A_SET, MEMBERSHIP};
+use crate::notations::{
+    COMMA_CONJUNCTION, CONJUNCTION, EQUAL_CHAIN, FUNCTION_TYPE, IS_A_POINT, IS_A_SET,
+    MEMBERSHIP,
+};
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules::{self, lookup};
 use crate::sorts::introduction::{Form, Introduction};
@@ -2632,6 +2635,11 @@ impl<'a> Elaborator<'a> {
         // rest (`know_in_scope_at_letters`).
         let sentences = self.line_sentences(&at.line, lines);
         let own = sentences.len();
+        let sentence = match at.sentence {
+            Some(i) => sentences.get(i),
+            None if own == 1 => sentences.first(),
+            None => None,
+        };
         let said = match at.sentence {
             Some(i) if i < own => Some(self.term(&sentences[i])?),
             Some(i) => self
@@ -2655,7 +2663,10 @@ impl<'a> Elaborator<'a> {
         let Some(j) = at.part else {
             return Ok(held);
         };
-        let parts = conjunction_parts(&self.to_term(&said));
+        let parts = match sentence {
+            Some(node) => parts_along(node, &self.to_term(&said)),
+            None => conjunction_parts(&self.to_term(&said)),
+        };
         let Some(part) = parts.get(j).map(|p| self.rpn(p)) else {
             return Ok(Facts::new());
         };
@@ -6471,6 +6482,27 @@ enum How {
 fn conjunction_parts(term: &Term) -> Vec<Term> {
     if matches!(term.label(), Some("wa") | Some("w3a")) {
         return term.children().iter().flat_map(conjunction_parts).collect();
+    }
+    vec![term.clone()]
+}
+
+/// The parts of a sentence's set.mm form, taken apart where the sentence
+/// itself joins claims by "and" or chains equations, as the checker counts
+/// a `FirstAt`'s part (`citing::conjuncts`). A claim whose own set.mm form
+/// is a conjunction, as "n is odd" is n ∈ ℤ ∧ ¬ 2 ∥ n, stays one part.
+fn parts_along(node: &Node, term: &Term) -> Vec<Term> {
+    if node.notation() == EQUAL_CHAIN {
+        return conjunction_parts(term);
+    }
+    let joins = node.notation() == CONJUNCTION || node.notation() == COMMA_CONJUNCTION;
+    if joins
+        && node.children.len() == 2
+        && term.label() == Some("wa")
+        && term.children().len() == 2
+    {
+        let mut out = parts_along(&node.children[0], &term.children()[0]);
+        out.extend(parts_along(&node.children[1], &term.children()[1]));
+        return out;
     }
     vec![term.clone()]
 }

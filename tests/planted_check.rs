@@ -940,6 +940,17 @@ fn cases() -> Vec<Case> {
             )],
             "the requires line 3 divides 10 − 2 of step 1.3 is arithmetic, which is false",
         ),
+        // An odd number is an integer, so arithmetic finds a half not odd
+        // though it does not say whether 2 divides it.
+        case(
+            "say a half is odd",
+            vec![edit(
+                "tests/elaborator/a-half-odd.proof",
+                None,
+                "theorem a-half-odd\n  then 1/2 is odd\n\n1.  1/2 is odd\n    arithmetic\n".to_string(),
+            )],
+            "step 1 claims 1/2 is odd, which is false",
+        ),
         // A method decides a word only where the word's record names it
         // (`DATABASE.md`, `decided`). With `arithmetic` struck from
         // `divides`, every divisibility of numerals it settles is refused.

@@ -9,7 +9,7 @@ theorem a-polynomial-of-degree-three
     restate H3
 
 theorem a-transcendental-number
-  note        α is transcendental is the negation of α is algebraic, α ∉ 𝔸.
+  note        α is transcendental is a complex number not algebraic, α ∈ ℂ and α ∉ 𝔸.
   let α ∈ ℝ    (H1)
   assume α is transcendental    (H2)
   then α is transcendental

@@ -731,11 +731,12 @@ membership, evaluate and test the value: a rational is in ℤ when its
 denominator is 1, in ℕ when it is also positive, in ℕ₀ when it is also
 non-negative, and in ℚ and ℝ always.
 
-The four words are one relation to set.mm: "n is even" is 2 ∥ n, "n is
-odd" is its denial, and a ≡ b (mod n) is n ∥ (a − b), as their notation
-records' targets say. So d divides n is
+Three of the four words are one relation to set.mm: "n is even" is 2 ∥ n,
+and a ≡ b (mod n) is n ∥ (a − b), as their notation records' targets say.
+"n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n. So d divides n is
 decided by evaluating both, each an integer and d not 0, and dividing: it
-holds when the remainder is 0, and fails otherwise. −6 is even, and −3
+holds when the remainder is 0, and fails otherwise. n is odd when its value
+is an integer 2 does not divide, so 1/2 is not odd. −6 is even, and −3
 divides 9.
 
 ### Refusals

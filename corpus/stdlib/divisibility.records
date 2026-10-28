@@ -48,49 +48,45 @@ mundane definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
-  metamath    not 2 ∥ n
-  target      odd2np1, equation reversed
+  metamath    odd2np1, of n ∈ ℤ and not 2 ∥ n
+  target      godd2np1, equation reversed
+  note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
+              godd2np1 is odd2np1 with the membership joined, and is proved
+              in elaboration/stdlib/proved.mm.
 
 mundane theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
-  metamath    exmid
-  target      exmid
-  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of "n is even", so this
-              statement is excluded middle, ( ph or not ph ), and the
-              expansion never uses H1. zeo says the same thing for an encoding
-              where "odd" means n - 1 is even, which is not the one mun:stdlib/divisibility/odd
-              chose.
+  metamath    zeo3
+  target      gevenodd
+  note        zeo3 says 2 ∥ n or not 2 ∥ n of an integer; gevenodd joins H1
+              to its second case, which is what "n is odd" says.
 
 mundane theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
-  metamath    notnot
-  target      notnot
-  note        mun:stdlib/divisibility/odd makes "n is odd" the negation of H2, so this statement is
-              double negation introduction, ( ph -> not not ph ), and the
-              expansion never uses H1.
+  metamath    gnotboth
+  target      gnotboth
+  note        "n is odd" says not 2 ∥ n, which H2 denies.
 
 mundane theorem odd-not-even
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (n is even)
-  metamath    id
-  target      id
-  note        not-both the other way: mun:stdlib/divisibility/odd makes "n
-              is odd" the denial of "n is even", so this statement is
-              ( ph -> ph ), and the expansion never uses H1.
+  metamath    simpr
+  target      simpr
+  note        not-both the other way: "n is not even" is the second part of
+              what "n is odd" says.
 
 mundane theorem odd-not-divisible
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (2 divides n)
-  metamath    id
-  target      id
-  note        "n is odd" is the denial of "2 divides n", as it is of "n is
-              even", so this statement is ( ph -> ph ), and the expansion
-              never uses H1.
+  metamath    simpr
+  target      simpr
+  note        "not (2 divides n)" is the second part of what "n is odd"
+              says, as for "n is not even".
 
 mundane theorem odd-plus-odd
   let a ∈ ℤ                                                           (H1)
@@ -121,7 +117,9 @@ mundane theorem odd-plus-even
   assume b is even                                                    (H4)
   then        a + b is odd
   metamath    opeo
-  target      opeo
+  target      gopeo
+  note        opeo concludes not 2 ∥ (a + b); gopeo joins a + b ∈ ℤ, which
+              "is odd" says too.
 
 mundane theorem odd-minus-even
   let a ∈ ℤ                                                           (H1)
@@ -130,7 +128,9 @@ mundane theorem odd-minus-even
   assume b is even                                                    (H4)
   then        a − b is odd
   metamath    omeo
-  target      omeo
+  target      gomeo
+  note        omeo concludes not 2 ∥ (a − b); gomeo joins a − b ∈ ℤ, which
+              "is odd" says too.
 
 mundane theorem even-product
   let a ∈ ℤ                                                           (H1)

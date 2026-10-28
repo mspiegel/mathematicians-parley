@@ -6,6 +6,6 @@ $( tests/stdlib/divisibility/odd-minus-odd, elaborated from tests/stdlib/divisib
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.divisibility.odd-minus-odd $p |- ( ( ( ( A e. ZZ /\ -. 2 || A ) /\ B e. ZZ ) /\ -. 2 || B ) -> 2 || ( A - B ) ) $=
-    ( cz wcel c2 cdvds wbr wn wa cmin co simpl id syl simpr jca omoe ) ACDZEAFGZHZIZBCDZIZEBFGZHZIZUAUBUEIZIEABJKFGUFUAUGUFRTUFUCRUCUELZUCUARUAUBLZUARRRTLRMNNNUFUCTUHUCUATUIRTONNPUFUBUEUFUCUBUHUAUBONUCUEOPPABQN $.
+  tests.stdlib.divisibility.odd-minus-odd $p |- ( ( ( ( A e. ZZ /\ ( A e. ZZ /\ -. 2 || A ) ) /\ B e. ZZ ) /\ ( B e. ZZ /\ -. 2 || B ) ) -> 2 || ( A - B ) ) $=
+    ( cz wcel c2 cdvds wbr wn wa cmin co simpl simpr syl jca omoe ) ACDZQEAFGZHZIZIZBCDZIZUBEBFGZHZIZIZTUFIEABJKFGUGTUFUGUCTUCUFLUCUATUAUBLQTMNNUCUFMOABPN $.
 $}

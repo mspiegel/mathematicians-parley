@@ -78,6 +78,16 @@ theorem algebraic-root
   note        What being algebraic is: a root of a polynomial with integer
               coefficients, other than 0, so of degree at least 1.
 
+mundane definition transcendental
+  let α ∈ ℂ                                                           (H1)
+  then        α is transcendental ↔ not (α is algebraic)
+  metamath    ibar, of α ∈ ℂ and not α ∈ 𝔸, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gtransc
+  note        A transcendental number is a complex number that is not
+              algebraic; of one known complex, that it is not algebraic is
+              all there is to say.
+
 theorem integer-polynomial-at-a-fraction
   let F : ℂ → ℂ                                                       (H1)
   assume F is a polynomial with integer coefficients                  (H2)

@@ -131,10 +131,16 @@ pub fn arithmetic(c: &Claim) -> Verdict {
                 is == *inside
             }
             Claim::Divides(d, n, said) => divides(&value(d)?, &value(n)?)? == *said,
-            // "n is even" is 2 divides n, and "n is odd" its denial.
+            // "n is even" is 2 divides n, and "n is odd" an integer 2 does
+            // not divide, so what is no integer is not odd.
             Claim::Parity(n, even) => {
                 let two = BigRational::from_integer(BigInt::from(2));
-                divides(&two, &value(n)?)? == *even
+                let v = value(n)?;
+                if !*even && !v.is_integer() {
+                    false
+                } else {
+                    divides(&two, &v)? == *even
+                }
             }
             // a ≡ b (mod n) is n divides a − b.
             Claim::Congruent(a, b, n) => divides(&value(n)?, &(value(a)? - value(b)?))?,
