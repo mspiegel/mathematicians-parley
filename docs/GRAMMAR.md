@@ -530,6 +530,11 @@ after what it says, `trailing`, against the connectives: in "P and Q for all
 x ∈ A" a reader cannot tell whether the "for all" covers P, so the text
 brackets what it covers. A relation, a word predicate and a negation bind
 tighter than it, so "f(x) ≠ B for all x ∈ A" needs none.
+Betweenness stands apart from the connectives the same way. "P is between A
+and B" writes an "and" of its own, so in `P = A or P is between A and B or B
+is between A and P` a reader has to work out which "and" joins what. It is
+written `P = A or (P is between A and B) or (B is between A and P)`. Against
+everything else it binds as a word predicate does.
 
 A sum, `Σ(k = 0 to n) t`, holds its summand at its right edge, and its level,
 `summation`, sits between multiplication and addition: multiplication binds

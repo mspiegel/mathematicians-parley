@@ -200,8 +200,9 @@ precedence order
   summation       tighter than additive
   unary-minus     tighter than additive
   additive        tighter than relational
-  relational      tighter than negation, predicate
+  relational      tighter than negation, predicate, betweenness
   predicate       tighter than conjunction, disjunction, trailing
+  betweenness     tighter than implication, biconditional, trailing
   negation        tighter than conjunction, disjunction, trailing
   conjunction     tighter than implication, biconditional
   disjunction     tighter than implication, biconditional
@@ -214,6 +215,11 @@ precedence order
               `not (n is odd)` is written instead. A relation written as a
               symbol stays at `relational`, where `not p = 1` needs no bracket
               because nobody reads it as negating the p.
+
+              `betweenness` is `predicate` but for the connectives: "P is
+              between A and B" writes an "and" of its own, so where it stands
+              beside "and" or "or" it is bracketed, as in `P = A or (P is
+              between A and B)`.
 
               conjunction and disjunction are deliberately unrelated, and so
               are implication and biconditional. Nobody agrees how "and" and
@@ -1946,7 +1952,7 @@ notation parallel
 notation between
   pattern     _ is between _ and _
   sort        point, point, point → formula
-  level       predicate
+  level       betweenness
   reads       is between, and
   metamath    the second apart from the first, and the third minus the first
               a negative multiple of the second minus the first

@@ -4374,7 +4374,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("corpus/stdlib/geometry.records", Some("              not (P, Q, R are collinear)".to_string()), "              not P, Q, R are collinear".to_string()),
             ],
-            "P is a point, and `_, _` wants a statement",
+            "`not` and `,` are not ordered against each other",
         ),
         case(
             "state an item in a notation nobody declared",
@@ -4968,6 +4968,22 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/cantor.proof", Some("          2.1.1.  x ∈ B or x ∉ B".to_string()), "          2.1.1.  x ∈ B or x ∉ B and x ∈ A".to_string()),
             ],
             "`or` and `and` are not ordered against each other",
+        ),
+        // "P is between A and B" writes an "and" of its own, so where it
+        // stands in a sentence joined by "and" or "or" it is bracketed.
+        case(
+            "write a betweenness after an or without brackets",
+            vec![
+                edit("proofs/wiedijk/law-of-cosines.proof", Some("3.  H = Q or (H is between Q and R) or".to_string()), "3.  H = Q or H is between Q and R or".to_string()),
+            ],
+            "`or` and `is between` are not ordered against each other",
+        ),
+        case(
+            "write a betweenness before an and without brackets",
+            vec![
+                edit("tests/stdlib/geometry.proof", Some("1.  there is X ∈ 𝔼² with (X is between A and B) and |AX| = r".to_string()), "1.  there is X ∈ 𝔼² with X is between A and B and |AX| = r".to_string()),
+            ],
+            "`is between` and `and` are not ordered against each other",
         ),
         // A quantifier may write a bound where its set stands, "for all ε >
         // 0", only where the statement says what the letter ranges over.

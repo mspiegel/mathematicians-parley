@@ -767,7 +767,7 @@ theorem parallel-through
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
-  then there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, R is between D and E, D and Q are on opposite sides of line RP, E and P are on opposite sides of line RQ, and P and Q are on the same side of line RD
+  then there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, (R is between D and E), D and Q are on opposite sides of line RP, E and P are on opposite sides of line RQ, and P and Q are on the same side of line RD
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
     mun:triangle, from H4
@@ -988,8 +988,8 @@ theorem parallel-through
 57. E and P are on opposite sides of line RQ
     mun:opposite-sides-turned A := R, B := Q, Q := E, from 56
 
-58. there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, R is
-    between D and E, D and Q are on opposite sides of line RP, E and P are
+58. there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP,
+    (R is between D and E), D and Q are on opposite sides of line RP, E and P are
     on opposite sides of line RQ, and P and Q are on the same side of
     line RD
     exhibit, from 12, 17, 19, 23, 34, 57
@@ -1250,8 +1250,8 @@ theorem triangle-equality-between
             |PR| < |PR|         4.5
             0 < 0               adding −|PR|
 
-5.  Q = P or Q is between P and R or Q = R or R is between P and Q or
-    P is between Q and R
+5.  Q = P or (Q is between P and R) or Q = R or (R is between P and Q) or
+    (P is between Q and R)
     mun:on-line-cases P := Q, Q := P, from 3, 4
 
 6.  Q is between P and R
@@ -1327,8 +1327,8 @@ theorem chord-midpoint-right-angle
     contradiction
     suppose O is on line AB                                           (S)
 
-    4.1.  O = A or O is between A and B or O = B or B is between A and O
-          or A is between O and B
+    4.1.  O = A or (O is between A and B) or O = B or
+          (B is between A and O) or (A is between O and B)
           mun:on-line-cases P := O, Q := A, R := B, from S, 2
 
     4.2.  A = B
@@ -1559,8 +1559,8 @@ theorem perpendicular-foot
     proof
     assume H ≠ Q                                                      (K1)
 
-    32.1. H = Q or H is between Q and R or H = R or R is between Q and H
-          or Q is between H and R
+    32.1. H = Q or (H is between Q and R) or H = R or
+          (R is between Q and H) or (Q is between H and R)
           mun:on-line-cases P := H, from 1, 25
 
     32.2. ∠HQP = ∠HQP′
@@ -1742,7 +1742,7 @@ theorem altitude-foot
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   assume ∠PRQ = 90°                                                   (H5)
-  then there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°, ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a triangle
+  then there is D ∈ 𝔼² with (D is between P and Q), ∠PDR = 90°, ∠QDR = 90°, P, D, R form a triangle, and Q, D, R form a triangle
 
 1.  P ≠ Q. Q ≠ R. P ≠ R.
     mun:triangle, from H4
@@ -1819,8 +1819,8 @@ theorem altitude-foot
     If D ≠ Q then ∠RDQ = 90°.
     obtain D: thm:perpendicular-foot P := R, Q := P, R := Q, from 23
 
-25. D = P or D is between P and Q or D = Q or Q is between P and D or
-    P is between D and Q
+25. D = P or (D is between P and Q) or D = Q or (Q is between P and D) or
+    (P is between D and Q)
     mun:on-line-cases P := D, Q := P, R := Q, from 1, 24
 
 26. D is between P and Q
@@ -1963,7 +1963,7 @@ theorem altitude-foot
 35. Q, D, R form a triangle.
     mun:right-angle-triangle P := Q, Q := D, from 24, 27, 33
 
-36. there is D ∈ 𝔼² with D is between P and Q, ∠PDR = 90°, ∠QDR = 90°,
+36. there is D ∈ 𝔼² with (D is between P and Q), ∠PDR = 90°, ∠QDR = 90°,
     P, D, R form a triangle, and Q, D, R form a triangle
     exhibit, from 26, 31, 33, 34, 35
 
@@ -2183,7 +2183,7 @@ mundane theorem between-split
   let P be a point                                                    (H4)
   assume M is between A and B                                         (H5)
   assume P is between A and B                                         (H6)
-  then P = M or P is between A and M or P is between M and B
+  then P = M or (P is between A and M) or (P is between M and B)
 
 1.  A ≠ B
     mun:between-ends-apart R := M, S := A, T := B, from H5
@@ -2218,16 +2218,16 @@ mundane theorem between-split
 11. P = M or not (P = M)
     mun:excluded-middle P := P = M
 
-12. P = M or P is between A and M or P is between M and B
+12. P = M or (P is between A and M) or (P is between M and B)
     cases, from 11
 
     case
     assume P = M                                                      (C1)
 
-    12.1. P = M or P is between A and M
+    12.1. P = M or (P is between A and M)
           mun:or-left, from C1
 
-    12.2. P = M or P is between A and M or P is between M and B
+    12.2. P = M or (P is between A and M) or (P is between M and B)
           mun:or-left, from 12.1
 
     case
@@ -2269,7 +2269,7 @@ mundane theorem between-split
     12.13. M is on line PA
            mun:on-line-other X := P, Y := A, Z := M, from 1, 3, 5, 7, 8
 
-    12.14. P = M or P is between A and M or P is between M and B
+    12.14. P = M or (P is between A and M) or (P is between M and B)
            cases, from 12.11
 
            case
@@ -2279,8 +2279,8 @@ mundane theorem between-split
                     mun:same-opposite-opposite A := P, B := O, P := M,
                       Q := A, R := B, from C3, 12.10
 
-           12.14.2. M = P or M is between P and B or M = B or
-                    B is between P and M or P is between M and B
+           12.14.2. M = P or (M is between P and B) or M = B or
+                    (B is between P and M) or (P is between M and B)
                     mun:on-line-cases P := M, Q := P, R := B, from 3, 12.12
 
            12.14.3. P is between M and B
@@ -2338,14 +2338,14 @@ mundane theorem between-split
                     case
                     assume P is between M and B, which is the claim   (C8)
 
-           12.14.4. P = M or P is between A and M or P is between M and B
+           12.14.4. P = M or (P is between A and M) or (P is between M and B)
                     mun:or-right, from 12.14.3
 
            case
            assume M and A are on opposite sides of line PO            (C9)
 
-           12.14.5. M = P or M is between P and A or M = A or
-                    A is between P and M or P is between M and A
+           12.14.5. M = P or (M is between P and A) or M = A or
+                    (A is between P and M) or (P is between M and A)
                     mun:on-line-cases P := M, Q := P, R := A, from 3, 12.13
 
            12.14.6. P is between M and A
@@ -2406,10 +2406,10 @@ mundane theorem between-split
            12.14.7. P is between A and M
                     mun:between-symmetric R := P, S := M, T := A, from 12.14.6
 
-           12.14.8. P = M or P is between A and M
+           12.14.8. P = M or (P is between A and M)
                     mun:or-right, from 12.14.7
 
-           12.14.9. P = M or P is between A and M or P is between M and B
+           12.14.9. P = M or (P is between A and M) or (P is between M and B)
                     mun:or-left, from 12.14.8
 
 theorem power-of-a-point
@@ -2545,7 +2545,7 @@ theorem power-of-a-point
     8.12. |AO|² − |PO|² = |AM|² − |PM|²
           algebra, from 8.9, 8.11
 
-9.  P = M or P is between A and M or P is between M and B
+9.  P = M or (P is between A and M) or (P is between M and B)
     mun:between-split, from H5, 3
 
 10. |PA|·|PB| = |AM|² − |PM|²
@@ -3081,8 +3081,8 @@ theorem angle-angle-side
     contradiction
     suppose G ≠ D                                                     (S1)
 
-    19.1. G = E or G is between E and D or G = D or D is between E and G
-          or E is between G and D
+    19.1. G = E or (G is between E and D) or G = D or
+          (D is between E and G) or (E is between G and D)
           mun:on-line-cases P := G, Q := E, R := D, from 2, 6
 
     19.2. ∠FGE ≠ ∠FDE
@@ -3409,8 +3409,8 @@ theorem kite-angles
 13. not (G is on line FE)
     mun:triangle-not-on-line P := G, Q := F, R := E, from 12
 
-14. X = E or X is between E and F or X = F or F is between E and X or
-    E is between X and F
+14. X = E or (X is between E and F) or X = F or (F is between E and X) or
+    (E is between X and F)
     mun:on-line-cases P := X, Q := E, R := F, from 1, 2
 
 15. ∠EDF = ∠EGF
@@ -3846,8 +3846,8 @@ mundane theorem right-angle-along
   assume T ≠ H                                                        (H9)
   then ∠PHT = 90°
 
-1.  T = H or T is between H and S or T = S or S is between H and T or
-    H is between T and S
+1.  T = H or (T is between H and S) or T = S or (S is between H and T) or
+    (H is between T and S)
     mun:on-line-cases P := T, Q := H, R := S, from H6, H8
 
 2.  ∠PHT = ∠THP
@@ -5370,8 +5370,8 @@ theorem parallel-between
     mun:segment-across-line A := X, B := Y, M := X,
       from H7, 15, 16, 24
 
-26. Y = P or Y is between P and R or Y = R or R is between P and Y or
-    P is between Y and R
+26. Y = P or (Y is between P and R) or Y = R or (R is between P and Y) or
+    (P is between Y and R)
     mun:on-line-cases P := Y, Q := P, from H8, 1
 
 27. Y is between P and R
@@ -5569,8 +5569,8 @@ theorem angle-angle-similar
            = ∠P′Q′R′      32
            = ∠PQR         H10
 
-34. X = P or X is between P and Q or X = Q or Q is between P and X or
-    P is between X and Q
+34. X = P or (X is between P and Q) or X = Q or (Q is between P and X) or
+    (P is between X and Q)
     mun:on-line-cases P := X, Q := P, R := Q, from 1, 5
 
 35. |PQ|·|P′R′| = |P′Q′|·|PR|

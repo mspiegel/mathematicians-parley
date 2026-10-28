@@ -397,6 +397,10 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   of a relation written as words takes brackets, as `not (n is odd)` does,
   because `not n is odd` reads as easily as "(not n) is odd". In front of a
   relation written as a symbol it takes none: `not p = 1`.
+- "P is between A and B" writes an "and" of its own, so in a sentence joined
+  by "and" or "or" it takes brackets: `P = A or (P is between A and B)`, and
+  `there is X ∈ 𝔼² with (X is between A and B) and |AX| = r`. Alone, or as
+  the whole of what follows "with" or "if", it takes none.
 - Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
   "there is no … with …". Each record says which of its patterns is the
   negation of which, so the folded spelling and the "not" spelling are one

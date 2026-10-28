@@ -132,8 +132,8 @@ theorem distance-from-foot
 2.  ∠PQR ∈ ℝ
     mun:triangle-angle-real, from H5
 
-3.  H = Q or H is between Q and R or H = R or R is between Q and H or
-    Q is between H and R
+3.  H = Q or (H is between Q and R) or H = R or (R is between Q and H) or
+    (Q is between H and R)
     mun:on-line-cases P := H, from H6, 1
 
 4.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))

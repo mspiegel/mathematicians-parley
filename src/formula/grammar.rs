@@ -548,6 +548,23 @@ fn read(
     Ok(crate::sorts::powers::settled(&node, g, &local, path, line)?)
 }
 
+/// The literals that follow an extending pattern's first hole: `is between`
+/// of `_ is between _ and _`, which the text writes where the pattern starts.
+fn following_run(n: &Notation) -> Vec<&str> {
+    n.parts[1..].iter().map_while(Part::literal).collect()
+}
+
+/// The words a pattern is first written with, after any hole it opens on:
+/// what a message names it by, since a pattern shares them with its variants.
+fn first_words(n: &Notation) -> String {
+    n.parts
+        .iter()
+        .skip_while(|p| p.is_hole())
+        .map_while(Part::literal)
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 /// The word of three letters or more that the character at `at` of `text`
 /// is in, read as the letters touching it on either side; None where it is
 /// in no such word.
@@ -1115,6 +1132,15 @@ impl<'a> Parser<'a> {
         self.t.get(self.i + 1).is_some_and(|t| t.text == ROOT_SIGN)
     }
 
+    /// Whether the tokens from here on are `run`, a pattern's literals.
+    fn writes_run(&self, run: &[&str]) -> bool {
+        !run.is_empty()
+            && run
+                .iter()
+                .enumerate()
+                .all(|(j, lit)| self.t.get(self.i + j).is_some_and(|t| t.text == *lit))
+    }
+
     fn here(&self) -> Option<&'a Token> {
         self.t.get(self.i)
     }
@@ -1197,7 +1223,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Parse a primary, then extend it with any notation whose first hole it
-    /// can fill, so long as that notation binds tighter than `outer`.
+    /// can fill, so long as that notation binds tighter than `outer`, the
+    /// notation whose right-edge hole this expression fills.
     ///
     /// `stop` is the run of literals that closes an interior hole. Without it
     /// the hole runs past its own delimiter: the set in `for all s ∈ S, d ≤ s`
@@ -1205,7 +1232,7 @@ impl<'a> Parser<'a> {
     /// It is the whole run and not its first literal, since the first may
     /// stand inside the hole as well: the bracket of `(mod n)` is also the
     /// bracket of f(x) in `a ≡ f(x) (mod n)`.
-    fn expression(&mut self, outer: Option<&str>, stop: &[&str]) -> Reading {
+    fn expression(&mut self, outer: Option<&Notation>, stop: &[&str]) -> Reading {
         let Some(mut left) = self.primary()? else {
             return Ok(None);
         };
@@ -1424,7 +1451,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Notations whose pattern opens with a hole, which `left` fills.
-    fn extend(&mut self, left: &Node, outer: Option<&str>) -> Reading {
+    fn extend(&mut self, left: &Node, outer: Option<&Notation>) -> Reading {
         let Some(tok) = self.peek().cloned() else {
             return Ok(None);
         };
@@ -1538,11 +1565,29 @@ impl<'a> Parser<'a> {
             if let Some(outer) = outer {
                 let competes =
                     n.parts[n.parts.len() - 1].is_hole() || !n.level.is_empty();
-                let nests = n.level == outer && n.assoc.as_deref() == Some("right");
-                if competes
-                    && !nests
-                    && binds_tighter(&g.tighter, &n.level, outer) != Tighter::Yes
-                {
+                let nests =
+                    n.level == outer.level && n.assoc.as_deref() == Some("right");
+                let order = binds_tighter(&g.tighter, &n.level, &outer.level);
+                if competes && !nests && order != Tighter::Yes {
+                    // Two levels the order leaves unrelated, and the text
+                    // writes this pattern's tokens here: only the order
+                    // turns it away, as `P = M or P is between A and M`.
+                    // Each is named by the words the text wrote for it, as
+                    // where the looser notation stands to the left.
+                    let run = following_run(n);
+                    if order == Tighter::Incomparable
+                        && n.level != outer.level
+                        && !n.level.is_empty()
+                        && !outer.level.is_empty()
+                        && self.writes_run(&run)
+                    {
+                        let why = format!(
+                            "`{}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
+                            first_words(outer),
+                            run.join(" ")
+                        );
+                        self.refuse_order(self.i + run.len(), why);
+                    }
                     continue;
                 }
             }
@@ -1559,13 +1604,8 @@ impl<'a> Parser<'a> {
                     {
                         // The pattern's own tokens follow, so the text writes
                         // it and only the order turns it away: say so.
-                        let run: Vec<&str> =
-                            n.parts[1..].iter().map_while(|p| p.literal()).collect();
-                        let written = !run.is_empty()
-                            && run.iter().enumerate().all(|(j, lit)| {
-                                self.t.get(self.i + j).is_some_and(|t| t.text == *lit)
-                            });
-                        if written {
+                        let run = following_run(n);
+                        if self.writes_run(&run) {
                             // Each is named by the words the text wrote for
                             // it, which a pattern shares with its variants.
                             let before = self
@@ -1573,14 +1613,7 @@ impl<'a> Parser<'a> {
                                 .notations
                                 .iter()
                                 .find(|m| m.record_id == left.notation())
-                                .map(|m| {
-                                    m.parts
-                                        .iter()
-                                        .skip_while(|p| p.is_hole())
-                                        .map_while(|p| p.literal())
-                                        .collect::<Vec<_>>()
-                                        .join(" ")
-                                })
+                                .map(first_words)
                                 .unwrap_or_else(|| left.notation_name().to_string());
                             let why = format!(
                                 "`{before}` and `{}` are not ordered against each other, so which is inside the other is written with brackets",
@@ -1743,11 +1776,7 @@ impl<'a> Parser<'a> {
                         let at_edge = k == n.parts.len() - 1;
                         let mut after: Vec<&str> =
                             n.parts[k + 1..].iter().map_while(Part::literal).collect();
-                        let barrier = if at_edge {
-                            Some(n.level.as_str())
-                        } else {
-                            None
-                        };
+                        let barrier = if at_edge { Some(n) } else { None };
                         // A hole that repeats ends at its separator, and is
                         // read again after each one: {a, b, c, d, e}. What
                         // follows the hole in the pattern closes the last
@@ -2115,7 +2144,12 @@ impl<'a> Parser<'a> {
     /// A `variable` hole takes a bare name; any other takes an expression,
     /// bounded by `barrier` when the hole sits at the pattern's right edge
     /// and by `stop`, the literals that follow it, when it does not.
-    fn hole(&mut self, want: &str, barrier: Option<&str>, stop: &[&str]) -> Reading {
+    fn hole(
+        &mut self,
+        want: &str,
+        barrier: Option<&Notation>,
+        stop: &[&str],
+    ) -> Reading {
         if want == "variable" {
             let Some(tok) = self.peek().cloned() else {
                 return self.no(|| "a binder wants a name".into());

@@ -682,10 +682,10 @@ theorem on-line-cases
   let R be a point                                                    (H3)
   assume Q ≠ R                                                        (H4)
   assume P is on line QR                                              (H5)
-  then P = Q or P is between Q and R or P = R or R is between Q and P or Q is between P and R
+  then P = Q or (P is between Q and R) or P = R or (R is between Q and P) or (Q is between P and R)
 
-1.  P = Q or P is between Q and R or P = R or R is between Q and P or
-    Q is between P and R
+1.  P = Q or (P is between Q and R) or P = R or (R is between Q and P) or
+    (Q is between P and R)
     mun:geometry-on-line-cases, from H4, H5
 
 theorem between-ends-apart
@@ -775,7 +775,7 @@ theorem ray
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   assume A ≠ B                                                        (H4)
-  assume P = A or P = B or P is between A and B or B is between A and P (H5)
+  assume P = A or P = B or (P is between A and B) or (B is between A and P)    (H5)
   then P ∈ ray AB
 
 1.  P ∈ ray AB
@@ -816,9 +816,9 @@ theorem plane-separation-crossing
   let Q be a point                                                    (H4)
   assume A ≠ B                                                        (H5)
   assume P and Q are on opposite sides of line AB                     (H6)
-  then there is X ∈ 𝔼² with X is on line AB and X is between P and Q
+  then there is X ∈ 𝔼² with X is on line AB and (X is between P and Q)
 
-1.  there is X ∈ 𝔼² with X is on line AB and X is between P and Q
+1.  there is X ∈ 𝔼² with X is on line AB and (X is between P and Q)
     axi:geometry-plane-separation-crossing, from H5, H6
 
 theorem angle-construction
@@ -932,9 +932,9 @@ theorem segment-extension
   let r ∈ ℝ                                                           (H3)
   assume A ≠ B                                                        (H4)
   assume r > 0                                                        (H5)
-  then there is X ∈ 𝔼² with B is between A and X and |BX| = r
+  then there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
 
-1.  there is X ∈ 𝔼² with B is between A and X and |BX| = r
+1.  there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
     mun:geometry-segment-extension, from H4, H5
 
 theorem triangle-off-line
@@ -1244,9 +1244,9 @@ theorem segment-point
   let r ∈ ℝ                                                           (H3)
   assume r > 0                                                        (H4)
   assume r < |AB|                                                     (H5)
-  then there is X ∈ 𝔼² with X is between A and B and |AX| = r
+  then there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
 
-1.  there is X ∈ 𝔼² with X is between A and B and |AX| = r
+1.  there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
     mun:geometry-segment-point, from H4, H5
 
 theorem parallel-uniqueness
