@@ -54,6 +54,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
     }
     // What does not resolve is the checker's to report; here a definition
     // import that names nothing is simply one that brings nothing in.
+    super::phrases::add_phrase_records(&mut out.records, &out.scopes);
     let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
     Ok(out)

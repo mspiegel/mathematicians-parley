@@ -68,7 +68,8 @@ fn formulas(thm: &Theorem, g: &Grammar, sorts: &Sorts) -> Vec<Node> {
             Built(DefineParts::Recursion(r)) => {
                 r.start.into_values().chain(r.step.into_values()).collect()
             }
-            Declined(_) => Vec::new(),
+            // A define of a phrase is its file's, never a theorem's.
+            Built(DefineParts::Phrase(_)) | Declined(_) => Vec::new(),
         };
         for rule in rules {
             out.extend(read(d.rule(&rule)));

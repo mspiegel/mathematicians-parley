@@ -439,6 +439,17 @@ pub struct Elaborator<'a> {
     /// Every reading the grammar has, in the order a term is read back to
     /// the page by (`reading_table`), made the first time one is.
     pub(super) readings: OnceCell<Vec<super::spoken::Ranked>>,
+    /// What each phrase a define gives means, by its notation, made the first
+    /// time a phrase is read (`Elaborator::phrase_written_out`).
+    pub(super) phrases: OnceCell<Rc<FxIndexMap<NotationId, PhraseMeaning>>>,
+}
+
+/// What a phrase a define gives says: its slots' letters, in the order the
+/// phrase writes them, and its meaning, written in them.
+#[derive(Clone, Debug)]
+pub struct PhraseMeaning {
+    pub slots: Vec<Symbol>,
+    pub meaning: Node,
 }
 
 impl<'a> Elaborator<'a> {
@@ -574,6 +585,7 @@ impl<'a> Elaborator<'a> {
             item_library: OnceCell::new(),
             library_read,
             readings: OnceCell::new(),
+            phrases: OnceCell::new(),
         }
     }
 

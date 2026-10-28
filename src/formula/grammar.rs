@@ -15,7 +15,7 @@ use super::notation::{
 };
 use super::notation_id::NotationId;
 use super::token::{lowered, tokenise, Token, TokenKind};
-use crate::corpus::Record;
+use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Built, Checked, Decline, Declined, Problem, Route};
 use crate::sorts::infer::{function_sort, signature, NotationSorts};
 use crate::sorts::powers::ROOT_SIGN;
@@ -42,6 +42,11 @@ pub struct Sorts {
     /// The library functions in scope: those the file imports, or every one
     /// in the library's own records.
     pub imported: IndexSet<String>,
+    /// The phrases defines give that are in scope, by their notations' names:
+    /// those the file defines above the theorem and those it imports. None
+    /// where every one is, as in the library's records, which see the
+    /// library whole.
+    pub phrases: Option<IndexSet<String>>,
     /// Names the lines put among numbers that need not be whole: a number
     /// in ℚ, ℝ or ℂ, or in a set within one of them; such a set; and a
     /// function whose values are such numbers. A power whose exponent holds
@@ -59,6 +64,11 @@ impl Sorts {
 impl Sorts {
     pub fn new() -> Sorts {
         Sorts::default()
+    }
+
+    /// Whether the phrase whose notation is `name` may be written here.
+    pub fn phrase_in_scope(&self, name: &str) -> bool {
+        self.phrases.as_ref().is_none_or(|p| p.contains(name))
     }
 }
 
@@ -82,6 +92,7 @@ impl FromIterator<(String, Sort)> for Sorts {
             ranges: IndexMap::new(),
             unsettled: IndexSet::new(),
             imported: IndexSet::new(),
+            phrases: None,
             reals: IndexSet::new(),
         }
     }
@@ -102,6 +113,7 @@ type ReadingKey = (
     String,
     Vec<Option<Sort>>,
     Vec<Option<String>>,
+    Vec<bool>,
     Vec<bool>,
     Vec<bool>,
     Vec<bool>,
@@ -131,6 +143,9 @@ pub struct Grammar {
     /// How a reader says one member of a set, by the words, and the set's
     /// symbol: `a natural number` is a member of ℕ (the `member` field).
     pub members: IndexMap<String, String>,
+    /// The notations defines of phrases stand for, by name, each written
+    /// only where it is in scope (`Sorts::phrases`).
+    pub phrases: IndexSet<String>,
     /// The tighter levels, the functions' sorts and the two caches are
     /// hashed with Fx rather than the default SipHash: every sentence read
     /// is looked up in the caches and every node in the tables, and with
@@ -185,6 +200,11 @@ impl Grammar {
             .filter_map(|(name, f)| Some((name.clone(), function_sort(&f.sort)?)))
             .collect();
         let members = members(records, &notations)?;
+        let phrases = records
+            .iter()
+            .filter(|r| r.kind == RecordKind::Notation && r.phrase.is_some())
+            .map(|r| r.name.clone())
+            .collect();
         Ok(Grammar {
             notations,
             words,
@@ -193,6 +213,7 @@ impl Grammar {
             long_names,
             function_sorts,
             members,
+            phrases,
             tighter: compile_precedence(records).into_iter().collect(),
             tokens: RefCell::new(IndexMap::default()),
             readings: RefCell::new(IndexMap::default()),
@@ -290,8 +311,14 @@ fn members(
 }
 
 /// What a reading of these tokens depends on besides the grammar: the text,
-/// and the sort each name in it has, or that it has none.
-fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
+/// the sort each name in it has, or that it has none, and which of the
+/// grammar's `phrases` are in scope.
+fn reading(
+    text: &str,
+    tokens: &[Token],
+    sorts: &Sorts,
+    phrases: &IndexSet<String>,
+) -> ReadingKey {
     let mut seen: IndexSet<&str> = IndexSet::new();
     for t in tokens {
         if t.kind == TokenKind::Name {
@@ -315,7 +342,16 @@ fn reading(text: &str, tokens: &[Token], sorts: &Sorts) -> ReadingKey {
         .iter()
         .map(|name| sorts.reals.contains(*name))
         .collect();
-    (text.to_string(), said, ranges, unsettled, imported, reals)
+    let in_scope = phrases.iter().map(|p| sorts.phrase_in_scope(p)).collect();
+    (
+        text.to_string(),
+        said,
+        ranges,
+        unsettled,
+        imported,
+        reals,
+        in_scope,
+    )
 }
 
 /// The sorts a term may have to fill any hole: every sort of a term.
@@ -422,7 +458,7 @@ pub(super) fn parse(
     line: usize,
 ) -> Checked<Route<Node>> {
     let tokens = g.tokens(text, path, line)?;
-    let key = reading(text, &tokens, sorts);
+    let key = reading(text, &tokens, sorts, &g.phrases);
     if let Some(found) = g.readings.borrow().get(&key) {
         return Ok(Built(found.clone()));
     }
@@ -481,12 +517,18 @@ fn read(
         stopped_ran_out: false,
         refused: None,
         refused_order: false,
+        unimported: None,
     };
     let read = p.expression(None, &[])?;
     // A hyphen standing apart is the minus sign mistyped, which is what a
     // sentence that does not read is told before any reason a notation
     // tried along the way gave.
     if read.is_none() || p.i != tokens.len() {
+        if let Some(why) = &p.unimported {
+            return Err(
+                Problem::new(path, line, format!("{}: {why}", repr(text))).into()
+            );
+        }
         if let Some(hyphen) = stray_hyphen(tokens) {
             return Err(Problem::new(
                 path,
@@ -599,7 +641,14 @@ fn stray_hyphen(tokens: &[Token]) -> Option<&Token> {
         let worded = |n: &Token| matches!(n.kind, TokenKind::Word | TokenKind::Name);
         let inside = before.is_some_and(|b| worded(b) && touches(b, t))
             && after.is_some_and(|a| worded(a) && touches(t, a));
-        (!inside).then_some(t)
+        // A numeral joined to a word, the 2 of `2-subgroup`, fills an
+        // attached slot; a bracket closed against the hyphen is a term put in
+        // one, which the attached slot's pattern says it does not take.
+        let attached = before.is_some_and(|b| {
+            matches!(b.kind, TokenKind::Numeral | TokenKind::Close) && touches(b, t)
+        }) && after
+            .is_some_and(|a| a.kind == TokenKind::Word && touches(t, a));
+        (!inside && !attached).then_some(t)
     })
 }
 
@@ -895,6 +944,7 @@ fn set_read(
         stopped_ran_out: false,
         refused: None,
         refused_order: false,
+        unimported: None,
     };
     let read = match p.expression(None, &[]) {
         Ok(read) => read,
@@ -1097,6 +1147,10 @@ struct Parser<'a> {
     refused: Option<(usize, String)>,
     /// Whether what `refused` says is about the precedence order.
     refused_order: bool,
+    /// Why a phrase the text writes was turned away: its file does not
+    /// import it. Said over every other reason where the sentence does not
+    /// read, since it is a defect of the text whatever else was tried.
+    unimported: Option<String>,
 }
 
 /// A reading, no reading, or why there is none to give.
@@ -1464,6 +1518,19 @@ impl<'a> Parser<'a> {
             if n.parts.len() < 2 || !n.parts[0].is_hole() {
                 continue;
             }
+            // A phrase a define gives is written only where its file defines
+            // it or imports it; where the text writes it anyway, say which.
+            if g.phrases.contains(&n.name) && !self.sorts.phrase_in_scope(&n.name) {
+                let run = following_run(n);
+                if self.unimported.is_none() && self.writes_run(&run) {
+                    self.unimported = Some(format!(
+                        "`{}` is the phrase {} defines, which this file does not import",
+                        run.join(" "),
+                        n.name
+                    ));
+                }
+                continue;
+            }
             // A pattern whose second part is also a hole has no token to
             // recognise it by: juxtaposition. It is a candidate whenever what
             // follows could begin a term.
@@ -1772,6 +1839,35 @@ impl<'a> Parser<'a> {
                             kids.push(left.clone());
                         }
                         took.push(None);
+                    } else if n.parts.get(k + 1).and_then(Part::literal) == Some("-") {
+                        // A hole joined to the word after it by a hyphen, the
+                        // p of `p-subgroup`, takes one letter or one numeral
+                        // and nothing longer (`SYNTAX.md`, attached slots).
+                        let from = self.i;
+                        let one = self.peek().is_some_and(|t| {
+                            matches!(t.kind, TokenKind::Name | TokenKind::Numeral)
+                        });
+                        // The text writes the pattern up to here, and only
+                        // what stands in the slot turns it away: said as a
+                        // refusal, which a sentence reading part way gives.
+                        let why = format!(
+                            "`{}` wants a letter or a numeral before its hyphen",
+                            n.pattern
+                        );
+                        if !one {
+                            self.refuse(from + 1, why);
+                            return Ok(None);
+                        }
+                        let Some(kid) = self.primary()? else {
+                            return Ok(None);
+                        };
+                        if self.i != from + 1 {
+                            self.i = from;
+                            self.refuse(from + 1, why);
+                            return Ok(None);
+                        }
+                        kids.push(kid);
+                        took.push(Some((from, self.i)));
                     } else {
                         let at_edge = k == n.parts.len() - 1;
                         let mut after: Vec<&str> =
@@ -1935,8 +2031,13 @@ impl<'a> Parser<'a> {
                 stopped_ran_out: false,
                 refused: None,
                 refused_order: false,
+                unimported: None,
             };
-            let condition = match sub.expression(None, &[])? {
+            let read = sub.expression(None, &[])?;
+            if self.unimported.is_none() {
+                self.unimported = sub.unimported.take();
+            }
+            let condition = match read {
                 Some(c) if sub.i == to => c,
                 _ => {
                     let what = repr(&self.written(from, to));

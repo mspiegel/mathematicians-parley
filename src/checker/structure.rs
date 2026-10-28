@@ -10,9 +10,9 @@ use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_items, define_parts, fmt, is_label, item_kind, names_an_item, FileScope,
-    Head, Intro, Item, Justification, Method, Range, Record, RecordKind, Requires,
-    Step, StepNo, Theorem,
+    cited_items, define_parts, fmt, is_label, item_kind, names_an_item, DefineParts,
+    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
+    Requires, Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
@@ -1848,6 +1848,171 @@ pub fn check_file_defines(report: &mut Report, env: crate::sorts::Env) {
     }
 }
 
+/// Every import of a phrase's define is used: a step cites it, or a formula
+/// of the file writes the phrase, its words standing in the tokens in order
+/// (`files_tokens`, by scope).
+pub fn check_phrase_imports(
+    report: &mut Report,
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    records: &[Record],
+    files_tokens: &[Vec<Vec<Token>>],
+) {
+    let phrases: IndexMap<String, &Record> = records
+        .iter()
+        .filter(|r| r.kind == RecordKind::Notation && r.phrase.is_some())
+        .map(|r| (r.name.clone(), r))
+        .collect();
+    for (at, scope) in scopes.iter().enumerate() {
+        let cited: IndexSet<String> = theorems
+            .iter()
+            .filter(|t| t.scope == at)
+            .flat_map(|thm| cited_items(thm).into_iter().map(|(name, _)| name))
+            .collect();
+        for i in &scope.items {
+            let full = i.full();
+            let Some(notation) = phrases.get(&full) else {
+                continue;
+            };
+            if cited.contains(&full) {
+                continue;
+            }
+            let pattern = notation.field("pattern").unwrap_or_default();
+            // The words after its first slot, up to the next: `is a Sylow`
+            // of `_ is a Sylow _-subgroup of _`.
+            let words: Vec<&str> = crate::formula::notation::patterns_of(pattern)
+                .first()
+                .map(|p| {
+                    p.split_whitespace()
+                        .skip(1)
+                        .take_while(|w| !w.starts_with('_'))
+                        .collect()
+                })
+                .unwrap_or_default();
+            let tokens = files_tokens.get(at).map(Vec::as_slice).unwrap_or_default();
+            if !tokens.iter().any(|t| writes_words(t, &words)) {
+                report.say(
+                    &scope.path,
+                    i.line,
+                    format!(
+                        "imports {} and neither cites it nor writes its phrase",
+                        i.alias
+                    ),
+                );
+            }
+        }
+    }
+}
+
+/// Whether `words` stand in `tokens` one after another.
+fn writes_words(tokens: &[Token], words: &[&str]) -> bool {
+    !words.is_empty()
+        && tokens
+            .windows(words.len())
+            .any(|w| w.iter().zip(words).all(|(t, word)| t.text == *word))
+}
+
+/// Every define of a phrase says what its phrase means in so many words
+/// (`SYNTAX.md`, "A define may name a phrase"): it has a `reads` line and a
+/// label of its own; its meaning reads; the letters of its phrase are the
+/// letters its meaning leaves free, each a slot, and the meaning settles
+/// what each slot takes; and its phrase is no pattern another notation
+/// already writes. `records` hold the two records each define stands for
+/// (`corpus::phrases`).
+pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts::Env) {
+    let binders = env.g.binders();
+    for scope in env.scopes {
+        let mut labels: Vec<&str> = scope
+            .defines
+            .iter()
+            .map(|d| d.label.as_str())
+            .chain(scope.imports.iter().filter_map(|i| i.label.as_deref()))
+            .collect();
+        for d in &scope.phrases {
+            let Built(DefineParts::Phrase(p)) = define_parts(&d.text) else {
+                continue;
+            };
+            let say = |report: &mut Report, what: String| {
+                report.say(&scope.path, d.line, format!("define {}: {what}", d.label));
+            };
+            if labels.contains(&d.label.as_str()) {
+                say(report, "its label is another define's too".to_string());
+            }
+            labels.push(&d.label);
+            if !scope.readings.contains_key(&d.label) {
+                say(report, "carries no `reads` line".to_string());
+            }
+            let name = crate::corpus::phrases::notation_name(d, &p);
+            let taken = env.g.notations.iter().find(|n| {
+                n.name != name
+                    && (n.pattern == p.pattern() || n.pattern == p.negated_pattern())
+            });
+            if let Some(n) = taken {
+                say(
+                    report,
+                    format!(
+                        "its phrase is written `{}` as notation {} is",
+                        n.pattern, n.name
+                    ),
+                );
+                continue;
+            }
+            let made = records.iter().find(|r| {
+                r.kind == RecordKind::Definition
+                    && r.path == d.path
+                    && r.phrase.as_deref() == Some(d.label.as_str())
+            });
+            let Some(made) = made else {
+                continue;
+            };
+            let sorts = crate::sorts::sorts_of_record(made, env);
+            let mut read = None;
+            for written in made.stated() {
+                match written.formula().and_then(|s| s.read(env.g, &sorts)) {
+                    Ok(node) => read = Some(node),
+                    Err(problem) => say(report, problem.message),
+                }
+            }
+            let Some([_, meaning]) = read.as_ref().map(|r| r.children.as_slice())
+            else {
+                continue;
+            };
+            let free = crate::matching::free_names(meaning, &binders);
+            let slots = p.slots();
+            for s in &slots {
+                if !free.contains(*s) {
+                    say(
+                        report,
+                        format!(
+                            "{s} stands in its phrase, and its meaning does not use it"
+                        ),
+                    );
+                }
+            }
+            for f in free.iter().filter(|f| !slots.contains(&f.as_str())) {
+                say(
+                    report,
+                    format!("its meaning writes {f}, which is no letter of its phrase and nothing in it binds"),
+                );
+            }
+            let sort = records
+                .iter()
+                .find(|r| r.kind == RecordKind::Notation && r.name == name)
+                .and_then(|r| r.field("sort"))
+                .unwrap_or_default();
+            let holes = sort.split('→').next().unwrap_or_default().split(',');
+            for (slot, hole) in slots.iter().zip(holes) {
+                if crate::formula::Whole::read(hole).is_none() {
+                    say(
+                        report,
+                        format!("its meaning does not say what {slot} is: a number, a set, a point"),
+                    );
+                }
+            }
+        }
+    }
+}
+
 pub fn check_definitions(
     report: &mut Report,
     theorems: &[Theorem],
@@ -2123,7 +2288,11 @@ pub fn check_imports(
             .flat_map(|thm| cited_items(thm).into_iter().map(|(name, _)| name))
             .collect();
         for i in &scope.items {
-            if !cited.contains(&i.full()) {
+            // A phrase's define is imported to write the phrase as much as to
+            // cite it, which `check_phrase_imports` asks once the file is
+            // lexed.
+            let phrase = matches!(items.get(&i.full()), Some(Item::Record(r)) if r.phrase.is_some());
+            if !cited.contains(&i.full()) && !phrase {
                 report.say(
                     path,
                     i.line,

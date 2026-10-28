@@ -1,0 +1,26 @@
+define nth-root: z is an n-th root of w means n ∈ ℕ and z^n = w     (D1)
+       reads z to the power n is w, for a natural number n
+
+theorem two-is-a-cube-root-of-eight
+  note        A phrase of three slots, one of them joined to its word by a
+              hyphen and filled by a numeral.
+  then 2 is an 3-th root of 8
+
+1.  2^3 = 8
+    arithmetic
+
+2.  2 is an 3-th root of 8
+    D1 z := 2, n := 3, w := 8, from 1
+
+theorem a-root-has-a-natural-power
+  note        An attached slot filled by a letter.
+  let x ∈ ℝ                                                           (H1)
+  let m ∈ ℤ                                                           (H2)
+  assume x is an m-th root of 1                                       (H3)
+  then m ∈ ℕ
+
+1.  m ∈ ℕ and x^m = 1
+    D1 z := x, n := m, w := 1, from H3
+
+2.  m ∈ ℕ
+    restate 1

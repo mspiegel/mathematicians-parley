@@ -2999,6 +2999,9 @@ impl<'a> Elaborator<'a> {
                         self.kind_shown(&kinded, &made, &scope, &facts)?;
                     }
                 }
+                // A phrase gives no name for a proof to hold: it is its
+                // meaning wherever it is written (`Elaborator::term`).
+                DefineParts::Phrase(_) => {}
             }
         }
         Ok((scope, facts, closers))

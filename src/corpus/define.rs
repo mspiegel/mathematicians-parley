@@ -145,19 +145,113 @@ pub struct Recursion {
     pub step: IndexMap<String, RuleText>,
 }
 
-/// A define read into its parts: one name, or sequences by recursion.
+/// What a define of a phrase says: `define triangular-number: n is a
+/// triangular number means n ∈ ℕ and there is k ∈ ℕ with n = k(k + 1)/2`.
+/// The phrase is a new way to say something, and the meaning is what it
+/// says (`SYNTAX.md`, "A define may name a phrase").
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Phrase {
+    /// The name it is imported and cited by, `triangular-number`.
+    pub name: String,
+    /// Whether it is taken for granted, which only the library's are.
+    pub mundane: bool,
+    /// The phrase as written, one piece to a word.
+    pub pieces: Vec<Piece>,
+    /// The meaning as written, its lines joined.
+    pub meaning: String,
+}
+
+/// One piece of a phrase: a slot, a slot joined to the word after it by a
+/// hyphen, or a word.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Piece {
+    /// A letter standing where a term stands: n in "n is a triangular
+    /// number".
+    Slot(String),
+    /// A letter joined to the word after it, which takes only a letter or a
+    /// numeral: p in "p-subgroup".
+    Attached {
+        slot: String,
+        word: String,
+    },
+    Word(String),
+}
+
+impl Phrase {
+    /// The slots in the order the phrase writes them.
+    pub fn slots(&self) -> Vec<&str> {
+        self.pieces
+            .iter()
+            .filter_map(|p| match p {
+                Piece::Slot(s) | Piece::Attached { slot: s, .. } => Some(s.as_str()),
+                Piece::Word(_) => None,
+            })
+            .collect()
+    }
+
+    /// The pattern a notation record writes for it, `_ is a triangular
+    /// number`, each slot a hole.
+    pub fn pattern(&self) -> String {
+        self.pieces
+            .iter()
+            .map(|p| match p {
+                Piece::Slot(_) => "_".to_string(),
+                Piece::Attached { word, .. } => format!("_-{word}"),
+                Piece::Word(w) => w.clone(),
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// The pattern of its negation, `_ is not a triangular number`: "not"
+    /// after the "is" every phrase opens with.
+    pub fn negated_pattern(&self) -> String {
+        self.pattern().replacen(" is ", " is not ", 1)
+    }
+
+    /// The phrase as written, with its own letters in its slots.
+    pub fn written(&self) -> String {
+        self.pieces
+            .iter()
+            .map(|p| match p {
+                Piece::Slot(s) => s.clone(),
+                Piece::Attached { slot, word } => format!("{slot}-{word}"),
+                Piece::Word(w) => w.clone(),
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// The words between its slots, for a message and for the reads line
+    /// of its notation: `is a triangular number`.
+    pub fn words(&self) -> Vec<&str> {
+        self.pieces
+            .iter()
+            .filter_map(|p| match p {
+                Piece::Word(w) | Piece::Attached { word: w, .. } => Some(w.as_str()),
+                Piece::Slot(_) => None,
+            })
+            .collect()
+    }
+}
+
+/// A define read into its parts: one name, sequences by recursion, or a
+/// phrase.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DefineParts {
     One(Define),
     Recursion(Recursion),
+    Phrase(Phrase),
 }
 
 impl DefineParts {
-    /// The names the define gives.
+    /// The names the define gives: a phrase gives none, since what it gives
+    /// is a way of saying something.
     pub fn names(&self) -> Vec<String> {
         match self {
             DefineParts::One(d) => vec![d.name.clone()],
             DefineParts::Recursion(r) => r.names.clone(),
+            DefineParts::Phrase(_) => Vec::new(),
         }
     }
 
@@ -165,14 +259,21 @@ impl DefineParts {
     pub fn one(&self) -> Option<&Define> {
         match self {
             DefineParts::One(d) => Some(d),
-            DefineParts::Recursion(_) => None,
+            DefineParts::Recursion(_) | DefineParts::Phrase(_) => None,
         }
     }
 
     pub fn recursion(&self) -> Option<&Recursion> {
         match self {
             DefineParts::Recursion(r) => Some(r),
-            DefineParts::One(_) => None,
+            DefineParts::One(_) | DefineParts::Phrase(_) => None,
+        }
+    }
+
+    pub fn phrase(&self) -> Option<&Phrase> {
+        match self {
+            DefineParts::Phrase(p) => Some(p),
+            DefineParts::One(_) | DefineParts::Recursion(_) => None,
         }
     }
 
@@ -457,7 +558,7 @@ impl Naming {
 /// The word a naming line opens with, or None for a line that names
 /// nothing: `let x ∈ ℝ` takes any member and is no naming line.
 pub fn naming(text: &str) -> Option<Naming> {
-    if text.starts_with("define ") {
+    if text.starts_with("define ") || text.starts_with("mundane define ") {
         return Some(Naming::Define);
     }
     let_names_a_term(text).then_some(Naming::Let)
@@ -616,6 +717,14 @@ pub fn is_one_name(name: &str) -> bool {
 /// a recursion; any other is one name.
 pub fn define_parts(text: &str) -> Route<DefineParts> {
     let said = str::trim(super::skeleton::without_label(text));
+    if let Some(head) = phrase_head(said) {
+        return phrase_parts(head);
+    }
+    if said.starts_with("mundane ") {
+        return Route::no(
+            "only a define of a phrase is marked mundane: `mundane define <name>: <phrase> means <meaning>`",
+        );
+    }
     // A define gives its name with `:=` and a let with `=`, as a textbook's
     // "let x₁ = …" does.
     match naming(said) {
@@ -741,6 +850,147 @@ pub fn define_parts(text: &str) -> Route<DefineParts> {
         params,
         kind,
     }))
+}
+
+/// The opening of a define of a phrase: whether it is marked mundane, its
+/// name, and what follows the colon after the name.
+struct PhraseHead<'t> {
+    mundane: bool,
+    name: &'t str,
+    rest: &'t str,
+}
+
+/// The line read as a define of a phrase, `define <name>: …`, where the
+/// define's first word is a name closed by a colon; None for any other
+/// line. A define of a term names a letter, which takes no colon.
+fn phrase_head(said: &str) -> Option<PhraseHead<'_>> {
+    let (mundane, rest) = match said.strip_prefix("mundane ") {
+        Some(rest) => (true, rest.trim_start()),
+        None => (false, said),
+    };
+    let rest = rest.strip_prefix("define")?;
+    let rest = rest.strip_prefix(char::is_whitespace)?.trim_start();
+    let first = rest.split_whitespace().next()?;
+    let name = first.strip_suffix(':')?;
+    super::skeleton::is_name(name).then_some(PhraseHead {
+        mundane,
+        name,
+        rest: rest[first.len()..].trim_start(),
+    })
+}
+
+/// A define of a phrase read into its parts; or a decline saying what is
+/// wrong with it. The phrase opens with a slot, `is` and `a` or `an`, then a
+/// word or an attached slot; a word of two letters or more is a word, a
+/// letter a slot, and a letter joined to the word after it by a hyphen an
+/// attached slot. Slots are never side by side, and there are one, two or
+/// three of them. Which letters the meaning uses is the checker's to compare, since
+/// only a reading of the meaning says so.
+fn phrase_parts(head: PhraseHead<'_>) -> Route<DefineParts> {
+    let name = head.name;
+    let words: Vec<&str> = head.rest.split_whitespace().collect();
+    let Some(at) = words.iter().position(|w| *w == "means") else {
+        return Route::no(format!(
+            "define {name} says no `means`: a phrase define is `define {name}: <phrase> means <meaning>`"
+        ));
+    };
+    let meaning = words[at + 1..].join(" ");
+    if meaning.is_empty() {
+        return Route::no(format!("define {name} says nothing after `means`"));
+    }
+    let said = &words[..at];
+    let phrase = said.join(" ");
+    let opens = said.len() >= 4
+        && is_one_name(said[0])
+        && said[1] == "is"
+        && (said[2] == "a" || said[2] == "an");
+    if !opens {
+        return Route::no(format!(
+            "define {name}: {} is not a phrase of the form `<letter> is a …` or `<letter> is an …`",
+            repr(&phrase)
+        ));
+    }
+    let mut pieces = vec![
+        Piece::Slot(said[0].to_string()),
+        Piece::Word("is".to_string()),
+        Piece::Word(said[2].to_string()),
+    ];
+    for &w in &said[3..] {
+        let Some(piece) = phrase_piece(w) else {
+            return Route::no(format!(
+                "define {name}: {} in its phrase is neither a word, a letter, nor a letter joined to a word by a hyphen",
+                repr(w)
+            ));
+        };
+        pieces.push(piece);
+    }
+    if matches!(pieces[3], Piece::Slot(_)) {
+        return Route::no(format!(
+            "define {name}: a word follows `{}` before any slot, as in `n is a triangular number`, or a slot joined to one, as in `z is an n-th root of w`",
+            said[2]
+        ));
+    }
+    let adjacent = pieces
+        .windows(2)
+        .any(|w| matches!(w[0], Piece::Slot(_)) && !matches!(w[1], Piece::Word(_)));
+    if adjacent {
+        return Route::no(format!(
+            "define {name}: two slots stand side by side in {}, and a word goes between them",
+            repr(&phrase)
+        ));
+    }
+    let made = Phrase {
+        name: name.to_string(),
+        mundane: head.mundane,
+        pieces,
+        meaning,
+    };
+    let slots = made.slots();
+    if slots.len() > 3 {
+        return Route::no(format!(
+            "define {name}: {} has {} slots, and a phrase has one, two or three",
+            repr(&phrase),
+            slots.len()
+        ));
+    }
+    if let Some(twice) = slots
+        .iter()
+        .enumerate()
+        .find(|(i, s)| slots[..*i].contains(s))
+    {
+        return Route::no(format!(
+            "define {name}: the letter {} stands in two slots of its phrase",
+            twice.1
+        ));
+    }
+    Built(DefineParts::Phrase(made))
+}
+
+/// One word of a phrase after its article as the piece it is: a letter is a
+/// slot, a letter joined to a word by a hyphen an attached slot, and a run
+/// of letters a word (hyphens inside it, as in one-to-one, allowed); None
+/// for anything else.
+fn phrase_piece(w: &str) -> Option<Piece> {
+    if is_one_name(w) {
+        return Some(Piece::Slot(w.to_string()));
+    }
+    if let Some((slot, word)) = w.split_once('-') {
+        if is_one_name(slot) && is_phrase_word(word) {
+            return Some(Piece::Attached {
+                slot: slot.to_string(),
+                word: word.to_string(),
+            });
+        }
+    }
+    is_phrase_word(w).then(|| Piece::Word(w.to_string()))
+}
+
+/// Whether `w` is a word a phrase may write: letters, two or more, with
+/// hyphens only between letters.
+fn is_phrase_word(w: &str) -> bool {
+    w.chars().count() >= 2
+        && w.split('-')
+            .all(|part| !part.is_empty() && part.chars().all(char::is_alphabetic))
 }
 
 /// The term a let gives and the kind of number it says its name is, where

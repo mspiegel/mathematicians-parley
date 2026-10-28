@@ -4985,6 +4985,100 @@ fn cases() -> Vec<Case> {
             ],
             "`is between` and `and` are not ordered against each other",
         ),
+        // A define of a phrase: `define <name>: <phrase> means <meaning>`,
+        // the phrase's letters the meaning's free letters, each slot's sort
+        // settled by the meaning, written only where defined or imported.
+        case(
+            "write a phrase define without means",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a common divisor of a and b says".to_string()),
+            ],
+            "says no `means`",
+        ),
+        case(
+            "open a phrase with no letter it is said of",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "common divisors of a and b means".to_string()),
+            ],
+            "is not a phrase of the form `<letter> is a …`",
+        ),
+        case(
+            "mark a phrase mundane outside the library",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("define common-divisor:".to_string()), "mundane define common-divisor:".to_string()),
+            ],
+            "only a define of the standard library is taken for granted",
+        ),
+        case(
+            "give a phrase a slot its meaning does not use",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d ∈ ℤ and d divides a".to_string()),
+            ],
+            "b stands in its phrase, and its meaning does not use it",
+        ),
+        case(
+            "give a phrase a meaning with a letter no slot holds",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d ∈ ℤ and d divides a and d divides b and d divides c".to_string()),
+            ],
+            "its meaning writes c, which is no letter of its phrase",
+        ),
+        case(
+            "give a phrase a meaning that says no slot's sort",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       d ∈ ℤ and d divides a and d divides b".to_string()), "       d = a and d = b".to_string()),
+            ],
+            "its meaning does not say what d is",
+        ),
+        case(
+            "give a phrase define no reads line",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("       reads d divides both a and b\n".to_string()), String::new()),
+            ],
+            "carries no `reads` line",
+        ),
+        case(
+            "give a phrase four slots",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a common divisor of a and b in c means".to_string()),
+            ],
+            "has 4 slots, and a phrase has one, two or three",
+        ),
+        case(
+            "write a phrase another notation already writes",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("d is a common divisor of a and b means".to_string()), "d is a point means".to_string()),
+            ],
+            "its phrase is written `_ is a point` as notation is-a-point is",
+        ),
+        case(
+            "write a phrase whose words say and beside an and without brackets",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("  assume (d is a common divisor of a and b) and d > 0".to_string()), "  assume d is a common divisor of a and b and d > 0  ".to_string()),
+            ],
+            "`is a common divisor of` and `and` are not ordered against each other",
+        ),
+        case(
+            "write a phrase the file does not import",
+            vec![
+                edit("tests/elaborator/a-phrase-imported.proof", Some("import definition         tests/elaborator/a-phrase-defined/triangular-number\n".to_string()), String::new()),
+            ],
+            "is the phrase tests/elaborator/a-phrase-defined/triangular-number defines, which this file does not import",
+        ),
+        case(
+            "import a phrase and neither cite it nor write it",
+            vec![
+                edit("tests/elaborator/a-phrase-with-and.proof", Some("define common-divisor:".to_string()), "import definition         tests/elaborator/a-phrase-defined/triangular-number\n\ndefine common-divisor:".to_string()),
+            ],
+            "imports triangular-number and neither cites it nor writes its phrase",
+        ),
+        case(
+            "fill an attached slot with more than a letter",
+            vec![
+                edit("tests/elaborator/a-phrase-of-three-slots.proof", Some("  then 2 is an 3-th root of 8".to_string()), "  then 2 is an (1 + 2)-th root of 8".to_string()),
+            ],
+            "wants a letter or a numeral before its hyphen",
+        ),
         // A quantifier may write a bound where its set stands, "for all ε >
         // 0", only where the statement says what the letter ranges over.
         case(

@@ -17,6 +17,15 @@ import mundane definition stdlib/sums/range
 import mundane theorem    stdlib/sets/in-subset
 import mundane theorem    stdlib/sets/subset-transitive
 
+mundane define upper-bound: u is an upper bound of S means
+       for all s ∈ S, s ≤ u                                            (D1)
+       reads every member of S is at most u
+
+mundane define least-upper-bound: c is a least upper bound of S means
+       c is an upper bound of S, and for all u ∈ ℝ, if u is an upper bound
+       of S then c ≤ u                                                 (D2)
+       reads c bounds S above, and no smaller number does
+
 theorem cauchy-mean-value
   note        Cauchy's mean value theorem: the chord of the curve (g, f) from
               a to b is parallel to its tangent somewhere between. On [a, b],

@@ -1822,24 +1822,6 @@ notation is-a-set
               `let X be a set` introduction, as for-all-sets is of the same
               line in a binder.
 
-notation bound
-  pattern     _ is an upper bound of _        _ is a least upper bound of _
-  sort        number, set of number → formula
-  level       predicate
-  reads       is an upper bound of, is a least upper bound of
-  metamath    see mun:stdlib/calculus/upper-bound and mun:stdlib/calculus/least-upper-bound
-  target      vs cv _1 cle wbr vs _2 wral,
-              vs cv _1 cle wbr vs _2 wral vs cv vt cv cle wbr vs _2 wral
-              _1 vt cv cle wbr wi vt cr wral wa
-  note        set.mm has no upper bound of its own: `df-sup` builds the idea
-              inside a class abstraction and nothing names it. So each entry
-              is the quantified formula `mun:stdlib/calculus/upper-bound` and
-              `mun:stdlib/calculus/least-upper-bound` state, which is what those two say the
-              notation means. `s` ranges over the set and `t` over the reals
-              the second pattern compares against; neither is a hole, and
-              reserving them is what stops a proof that fixes an `s` of its
-              own from being handed the same variable.
-
 notation continuous
   pattern     _ is continuous on _
   sort        function from number to number, set of number → formula

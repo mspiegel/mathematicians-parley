@@ -1922,6 +1922,10 @@ impl<'a> Elaborator<'a> {
         if self.term(node)? == *old {
             return Ok(Built((new.clone(), eqproof.clone())));
         }
+        // A phrase is its meaning in set.mm, so it is rewritten there.
+        if let Some(meaning) = self.phrase_written_out(node) {
+            return self.rewrite(&meaning, old, new, scope, eqproof);
+        }
         // A library function's application fills what its definition builds
         // with its arguments; its name fills no slot.
         let library = self.library_application(node);

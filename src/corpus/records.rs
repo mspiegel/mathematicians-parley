@@ -150,6 +150,9 @@ pub struct Record {
     pub lines: IndexMap<String, usize>,
     pub line: usize,
     pub path: String,
+    /// The label of the define of a phrase the record is made from, where a
+    /// proof file wrote it and no database file did (`corpus::phrases`).
+    pub phrase: Option<String>,
 }
 
 impl Record {
@@ -272,6 +275,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                 lines: IndexMap::new(),
                 line: line.no,
                 path: path.to_string(),
+                phrase: None,
             });
             field_indent = None;
             last = None;

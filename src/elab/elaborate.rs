@@ -463,6 +463,7 @@ impl<'a> Elaborator<'a> {
     /// The theorem elaborated: its conclusion, its hypotheses, and the proof
     /// of the one from the other.
     pub fn run(&mut self) -> Checked<(Rpn, Vec<Rpn>, Proof)> {
+        self.phrase_targets()?;
         // The statement is read with the definitions the theorem sees from
         // outside it, and those of its header, written out, which is what
         // set.mm states.

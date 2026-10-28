@@ -18,8 +18,8 @@ use std::rc::Rc;
 
 use crate::corpus::proof::{chain, visible};
 use crate::corpus::{
-    define_parts, Define, DefineLine, DefineParts, FileScope, Intro, Record, ScopeId,
-    Theorem,
+    define_parts, Define, DefineLine, DefineParts, FileScope, Intro, Record,
+    RecordKind, ScopeId, Theorem,
 };
 pub(crate) mod infer;
 pub mod introduction;
@@ -188,6 +188,7 @@ pub fn define_formulas(d: &DefineLine) -> Vec<Written> {
         Built(DefineParts::Recursion(r)) => std::iter::once(d.formula(&r.domain))
             .chain(r.start.values().chain(r.step.values()).map(|v| d.rule(v)))
             .collect(),
+        Built(DefineParts::Phrase(p)) => vec![d.formula(&p.meaning)],
         Declined(_) => Vec::new(),
     }
 }
@@ -591,6 +592,72 @@ pub fn define_sorts(
     Ok(out)
 }
 
+/// Write into each phrase's notation record what its slots take, as its
+/// meaning settles it (`corpus::phrases`). Each slot's sort is read off the
+/// phrase's definition record, the phrase and its meaning; a meaning may
+/// use another phrase, whose slots must be settled first, so the reading is
+/// done again until nothing changes, which is at most once more than there
+/// are phrases. A slot the meaning leaves open keeps its sort variable,
+/// which `structure::check_phrases` reports. A grammar that does not build
+/// is the checker's to report, and leaves the sorts as they are.
+pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
+    let defines = crate::corpus::phrases::phrase_defines(scopes);
+    for _ in 0..=defines.len() {
+        let Ok(g) = Grammar::load(records) else {
+            return;
+        };
+        let env = Env { g: &g, scopes };
+        let mut settled_now: Vec<(String, String)> = Vec::new();
+        for p in &defines {
+            let made = records.iter().find(|r| {
+                r.kind == RecordKind::Definition
+                    && r.path == p.line.path
+                    && r.phrase.as_deref() == Some(p.line.label.as_str())
+            });
+            let Some(made) = made else {
+                continue;
+            };
+            let sorts = sorts_of_record(made, env);
+            let name = crate::corpus::phrases::notation_name(p.line, &p.said);
+            settled_now.push((name, slot_sorts(&p.said, &sorts)));
+        }
+        let mut changed = false;
+        for (name, sort) in settled_now {
+            let notation = records
+                .iter_mut()
+                .find(|r| r.kind == RecordKind::Notation && r.name == name);
+            if let Some(n) = notation {
+                if n.field("sort") != Some(sort.as_str()) {
+                    n.fields.insert("sort".to_string(), sort);
+                    changed = true;
+                }
+            }
+        }
+        if !changed {
+            return;
+        }
+    }
+}
+
+/// A phrase's `sort` line as `sorts` settles its slots: each slot's sort in
+/// full, or a sort variable of its own where it is not settled.
+fn slot_sorts(said: &crate::corpus::define::Phrase, sorts: &Sorts) -> String {
+    let vars = ['α', 'β', 'γ'];
+    let holes: Vec<String> = said
+        .slots()
+        .iter()
+        .zip(vars)
+        .map(|(slot, var)| {
+            sorts
+                .get(*slot)
+                .and_then(Sort::full)
+                .and_then(Whole::written)
+                .unwrap_or_else(|| var.to_string())
+        })
+        .collect();
+    format!("{} → formula", holes.join(", "))
+}
+
 /// The sort of every name an item's own lines settle.
 ///
 /// A record keeps the keyword of a hypothesis in the field name where a
@@ -659,6 +726,7 @@ pub fn cited_statement(thm: &Theorem, env: Env) -> CitedStatement {
     }
     sorts.ranges = own.ranges;
     sorts.imported = own.imported;
+    sorts.phrases = own.phrases;
     sorts.reals = own.reals;
     CitedStatement { definitions, sorts }
 }
@@ -687,6 +755,7 @@ pub fn settled(reader: &infer::Reader, store: &infer::Store) -> Sorts {
     let mut out = Sorts::new();
     out.ranges = reader.ranges.clone();
     out.imported = reader.imported.clone();
+    out.phrases = reader.phrases.clone();
     out.reals = reader.reals.clone();
     for (name, term) in &reader.env {
         match infer::sort(store, term) {

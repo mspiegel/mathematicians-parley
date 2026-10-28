@@ -7,6 +7,7 @@
 pub mod define;
 pub(crate) mod lines;
 pub(crate) mod load;
+pub mod phrases;
 pub mod proof;
 pub(crate) mod records;
 pub mod skeleton;
