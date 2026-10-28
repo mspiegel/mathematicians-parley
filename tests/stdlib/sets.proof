@@ -16,6 +16,75 @@ import mundane theorem    stdlib/sets/union-difference as sets-union-difference
 import mundane theorem    stdlib/sets/nonempty-member as sets-nonempty-member
 import mundane theorem    stdlib/sets/pair-parts-equal as sets-pair-parts-equal
 import mundane theorem    stdlib/sets/pair-in-product as sets-pair-in-product
+import axiom              stdlib/sets/extensionality as sets-extensionality
+import axiom              stdlib/sets/empty-set as sets-empty-set
+import axiom              stdlib/sets/pairing as sets-pairing
+import axiom              stdlib/sets/unions as sets-unions
+import axiom              stdlib/sets/power-sets as sets-power-sets
+import axiom              stdlib/sets/separation as sets-separation
+import axiom              stdlib/sets/replacement as sets-replacement
+import axiom              stdlib/sets/infinity as sets-infinity
+
+theorem extensionality
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  assume for all x ∈ A, x ∈ B                                         (H3)
+  assume for all x ∈ B, x ∈ A                                         (H4)
+  then A = B
+
+1.  A = B
+    axi:sets-extensionality X := A, Y := B, from H3, H4
+
+theorem empty-set
+  then ∅ is a set
+
+1.  ∅ is a set
+    axi:sets-empty-set
+
+theorem pairing
+  let x be an element                                                 (H1)
+  let y be an element                                                 (H2)
+  then {x, y} is a set
+
+1.  {x, y} is a set
+    axi:sets-pairing a := x, b := y
+
+theorem unions
+  let F be a set                                                      (H1)
+  then ⋃(A ∈ F) A is a set
+
+1.  ⋃(A ∈ F) A is a set
+    axi:sets-unions C := F
+
+theorem power-sets
+  let A be a set                                                      (H1)
+  then 𝒫A is a set
+
+1.  𝒫A is a set
+    axi:sets-power-sets X := A
+
+theorem separation
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  then {x ∈ A : x ∉ B} is a set
+
+1.  {x ∈ A : x ∉ B} is a set
+    axi:sets-separation
+
+theorem replacement
+  let A be a set                                                      (H1)
+  let B be a set                                                      (H2)
+  let g : A → B                                                       (H3)
+  then {g(x) : x ∈ A} is a set
+
+1.  {g(x) : x ∈ A} is a set
+    axi:sets-replacement Y := A, Z := B, E := g
+
+theorem infinity
+  then ℕ is a set
+
+1.  ℕ is a set
+    axi:sets-infinity
 
 theorem union-difference
   let Y be a set                                                      (H1)

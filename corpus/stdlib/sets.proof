@@ -1,0 +1,18 @@
+mundane theorem subset-antisymmetric
+  note        Two sets each a part of the other are one set: each inclusion
+              says every member of one is in the other, which is what the
+              axiom of extensionality asks.
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume X ⊆ Y                                                        (H3)
+  assume Y ⊆ X                                                        (H4)
+  then X = Y
+
+1.  For all t ∈ X, t ∈ Y.
+    mun:subset, from H3
+
+2.  For all t ∈ Y, t ∈ X.
+    mun:subset X := Y, Y := X, from H4
+
+3.  X = Y
+    axi:extensionality, from 1, 2

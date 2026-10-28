@@ -18,6 +18,74 @@
 # Other fields: target, note.
 
 
+axiom extensionality
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume for all t ∈ X, t ∈ Y                                         (H3)
+  assume for all t ∈ Y, t ∈ X                                         (H4)
+  then        X = Y
+  metamath    eqss and dfss3, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      gext
+  note        A set is its members: two sets each of whose members is in
+              the other are one set. set.mm's ax-ext, said of sets as the
+              page writes them.
+
+axiom empty-set
+  then        ∅ is a set
+  metamath    0ex
+  target      0ex
+  note        There is a set with no members; ∅ names it.
+
+axiom pairing
+  let a be an element                                                 (H1)
+  let b be an element                                                 (H2)
+  then        {a, b} is a set
+  metamath    prex
+  target      prex
+
+axiom unions
+  let C be a set                                                      (H1)
+  then        ⋃(X ∈ C) X is a set
+  metamath    uniexg, with the union written over its members by uniiun,
+              which this corpus proves in elaboration/stdlib/proved.mm
+  target      giunex
+  note        What is in some member of C makes a set.
+
+axiom power-sets
+  let X be a set                                                      (H1)
+  then        𝒫X is a set
+  metamath    pwexg
+  target      pwexg
+  note        The parts of a set make a set.
+
+axiom separation
+  let X be a set                                                      (H1)
+  let P be a property of the elements of X                            (H2)
+  then        {t ∈ X : P(t)} is a set
+  metamath    rabexg
+  target      rabexg
+  note        The members of a set with a property make a set. A property
+              is not a thing, so this is one axiom for every property.
+
+axiom replacement
+  let Y be a set                                                      (H1)
+  let Z be a set                                                      (H2)
+  let E : Y → Z                                                       (H3)
+  then        {E(s) : s ∈ Y} is a set
+  metamath    mptexg and rnexg, which this corpus proves together in
+              elaboration/stdlib/proved.mm
+  target      grnmptex
+  note        The values a function takes on a set make a set.
+
+axiom infinity
+  then        ℕ is a set
+  metamath    nnex
+  target      nnex
+  note        An infinite set exists. Textbooks build it as the least set
+              holding ∅ and x ∪ {x} with each x; the page says it of ℕ,
+              which set.mm builds from it.
+
 mundane definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath    df-ss, ssel
@@ -288,13 +356,6 @@ mundane theorem not-in-difference
   note        Added because thm:proofs/wiedijk/subsets/add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
-
-mundane theorem subset-antisymmetric
-  assume X ⊆ Y                                                        (H1)
-  assume Y ⊆ X                                                        (H2)
-  then        X = Y
-  metamath    eqss
-  target      eqss
 
 mundane theorem union-subset
   assume X ⊆ Z                                                        (H1)

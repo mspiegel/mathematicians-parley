@@ -1,0 +1,46 @@
+# The axioms of set theory, for `proved.mm`.
+#
+# The library states the axioms of ZFC as a reader meets them, and set.mm
+# proves each from its own: most are a set.mm theorem as it stands, and
+# these say one in the page's words.
+#
+# - extensionality: two sets each of whose members is in the other are one
+#   set, `eqss` with each inclusion read by `dfss3`, for
+#   `axi:stdlib/sets/extensionality`;
+# - union: the union of the members of a set is a set, `uniexg` with the
+#   union written over its members by `uniiun`, for
+#   `axi:stdlib/sets/union`;
+# - replacement: the values a function takes on a set make a set, the
+#   range of a map from a set, `mptexg` and `rnexg`, for
+#   `axi:stdlib/sets/replacement`.
+
+$( The axioms of set theory, said as the page says them: extensionality,
+   the union of a set's members, and the values a function takes on a
+   set. $)
+$d x A $.
+$d x B $.
+
+# ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B )
+lemma gext
+  |- ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B )
+  1 dfss3 |- ( A C_ B <-> A. x e. A x e. B )
+  2 dfss3 |- ( B C_ A <-> A. x e. B x e. A )
+  3 anbi12i 1 2 |- ( ( A C_ B /\ B C_ A ) <-> ( A. x e. A x e. B /\ A. x e. B x e. A ) )
+  4 eqss |- ( A = B <-> ( A C_ B /\ B C_ A ) )
+  5 bitri 4 3 |- ( A = B <-> ( A. x e. A x e. B /\ A. x e. B x e. A ) )
+  6 biimpri 5 |- ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B )
+
+# ( A e. V -> U_ x e. A x e. _V )
+lemma giunex
+  |- ( A e. V -> U_ x e. A x e. _V )
+  1 uniiun |- U. A = U_ x e. A x
+  2 eqcomi 1 |- U_ x e. A x = U. A
+  3 uniexg |- ( A e. V -> U. A e. _V )
+  4 eqeltrid 2 3 |- ( A e. V -> U_ x e. A x e. _V )
+
+# ( A e. V -> ran ( x e. A |-> C ) e. _V ), the value C free to hold x
+lemma grnmptex
+  |- ( A e. V -> ran ( x e. A |-> C ) e. _V )
+  1 mptexg |- ( A e. V -> ( x e. A |-> C ) e. _V )
+  2 rnexg |- ( ( x e. A |-> C ) e. _V -> ran ( x e. A |-> C ) e. _V )
+  3 syl 1 2 |- ( A e. V -> ran ( x e. A |-> C ) e. _V )

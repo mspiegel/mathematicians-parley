@@ -2492,6 +2492,26 @@ $d x y z $.
 $}
 
 ${
+$( The axioms of set theory, said as the page says them: extensionality,
+   the union of a set's members, and the values a function takes on a
+   set. $)
+$d x A $.
+$d x B $.
+
+  gext $p |- ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B ) $=
+    ( wceq cv wcel wral wa wss eqss dfss3 anbi12i bitri biimpri )
+    BCDZAEZCFZABGZPBFZACGZHZOBCIZCBIZHUABCJUBRUCTABCKACBKLMN $.
+
+  giunex $p |- ( A e. V -> U_ x e. A x e. _V ) $=
+    ( wcel cv ciun cuni cvv uniiun eqcomi uniexg eqeltrid )
+    BCDABAEZFZBGZHONABIJBCKL $.
+
+  grnmptex $p |- ( A e. V -> ran ( x e. A |-> C ) e. _V ) $=
+    ( wcel cmpt cvv crn mptexg rnexg syl ) BDEABCFZGELHGEABCDILGJK $.
+
+$}
+
+${
 $( Induction: over the parts of a finite set, a member at a time, and a
    product over a set with one member more. $)
 $d w x y z $.
