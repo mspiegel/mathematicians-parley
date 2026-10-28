@@ -1501,7 +1501,7 @@ const ROW_WORDS: [&str; 2] = ["adding", "multiplying by"];
 /// a term. None for a step with no rows; a row with no reason is a defect,
 /// and so is one ending in `symmetry`, a word kept back for later.
 pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
-    if just.rows.is_empty() {
+    if just.rows.is_empty() || !just.head.is(Method::Inequalities) {
         return None;
     }
     let mut out = Vec::new();
@@ -1683,14 +1683,104 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
     Some(Ok(Chain { start, lines }))
 }
 
-/// The reasons of their own a calculation's lines give (`ChainLine::reason`),
-/// in the chain's order; none for a step that is no calculation, or whose
-/// chain does not cut, which the checker reports (`check_chain`).
+/// The reasons of their own that a calculation's lines give
+/// (`ChainLine::reason`), and those a `substitute` step's rows give
+/// (`SubstituteRow::reason`), in the order written; none for a step that has
+/// neither, or whose lines do not cut, which the checker reports.
 pub fn chain_reasons(just: &Justification, path: &str) -> Vec<Requires> {
-    match chain(just, path) {
-        Some(Ok(chain)) => chain.lines.into_iter().filter_map(|l| l.reason).collect(),
-        _ => Vec::new(),
+    if let Some(Ok(chain)) = chain(just, path) {
+        return chain.lines.into_iter().filter_map(|l| l.reason).collect();
     }
+    if let Some(Ok(rows)) = substitute_rows(just, path) {
+        return rows.into_iter().filter_map(|r| r.reason).collect();
+    }
+    Vec::new()
+}
+
+/// One row of a `substitute` step (`GRAMMAR.md`, substitute rows): the
+/// statement it writes, and its reason. The first row is a line the step
+/// cites, written out; each row after it is the row above with one term
+/// put for another, and its reason proves the two terms equal.
+#[derive(Clone, Debug)]
+pub struct SubstituteRow {
+    pub formula: Written,
+    /// The reason as written (`skeleton::chain_reason`).
+    pub cite: String,
+    /// For a row after the first, its reason read as a requires line is:
+    /// the change the row makes, a formula made from the two rows' trees
+    /// (`Written::changed`), as its fact.
+    pub reason: Option<Requires>,
+    pub line: usize,
+}
+
+/// The rows a `substitute` step writes, cut as a chain's lines are, its
+/// reason where `skeleton::chain_reason` finds it; None for a step with
+/// none. The first row cites the line it writes out, and each row after it
+/// gives a reason of its own.
+pub fn substitute_rows(
+    just: &Justification,
+    path: &str,
+) -> Option<Checked<Vec<SubstituteRow>>> {
+    if just.rows.is_empty() || !just.head.is(Method::Substitute) {
+        return None;
+    }
+    let mut out: Vec<SubstituteRow> = Vec::new();
+    for (text, no) in &just.rows {
+        let whole = str::trim(text);
+        let Some(cite) = skeleton::chain_reason(whole) else {
+            return Some(Err(Problem::new(
+                path,
+                *no,
+                "a row gives no reason; the first ends on the line it writes out, and each after it on its own reason",
+            )));
+        };
+        let formula =
+            Written::new(str::trim(&whole[..whole.len() - cite.len()]), path, *no);
+        let reason = match out.last() {
+            None if skeleton::is_ref(cite) => None,
+            None => {
+                return Some(Err(Problem::new(
+                    path,
+                    *no,
+                    "the first row writes out the line the step starts from, and cites it",
+                )));
+            }
+            Some(_) if skeleton::is_ref(cite) => {
+                let written = if skeleton::is_label(cite) {
+                    format!("substitute {cite}")
+                } else {
+                    format!("substitute line {cite}")
+                };
+                return Some(Err(Problem::new(
+                    path,
+                    *no,
+                    format!("a row after the first gives its own reason; one that uses {cite}'s equation is `{written}`"),
+                )));
+            }
+            Some(above) => {
+                let by = cut_reason(cite, path, *no)
+                    .map(|slots| Justification::of(slots, *no, &just.names));
+                Some(Requires {
+                    fact: Written::changed(
+                        above.formula.clone(),
+                        formula.clone(),
+                        path,
+                        *no,
+                    ),
+                    how: cite.to_string(),
+                    line: *no,
+                    by,
+                })
+            }
+        };
+        out.push(SubstituteRow {
+            formula,
+            cite: cite.to_string(),
+            reason,
+            line: *no,
+        });
+    }
+    Some(Ok(out))
 }
 
 /// A step being read, whose justification may not have arrived yet.
@@ -2532,6 +2622,20 @@ pub fn parse_proof(
                 let just = &mut draft.steps[at].step.just;
                 just.refs.extend(cited);
                 just.chain.push((line.text.clone(), line.no));
+                continue;
+            }
+            // A `substitute` with no equation writes its rows, each giving
+            // its reason as a chain's line does (`GRAMMAR.md`, substitute
+            // rows).
+            let just = &draft.steps[at].step.just;
+            if just.head.is(Method::Substitute)
+                && just.equation.is_none()
+                && just.source.is_none()
+            {
+                let cited = chain_citation(path, &line)?;
+                let just = &mut draft.steps[at].step.just;
+                just.refs.extend(cited);
+                just.rows.push((line.text.clone(), line.no));
                 continue;
             }
             if let Some(said) = misnumbered(&t) {

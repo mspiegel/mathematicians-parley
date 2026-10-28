@@ -23,6 +23,16 @@ use regex::Regex;
 /// the line that finds it, and why spelling is the question there.
 const ALLOWED: &[(&str, &str, &str)] = &[
     (
+        "src/formula/page.rs",
+        "if above.same_shape(below) {",
+        "a substitute row's change is where it and the row above part as written: its reason proves that very equation, and the row above is rebuilt by it alone, so a piece spelt otherwise is part of the change",
+    ),
+    (
+        "src/formula/page.rs",
+        ".all(|(a, b)| a.same_shape(&was) && b.same_shape(&now));",
+        "a row's pieces are one change only where each puts that very term for that very term, as the one equation its reason proves puts it",
+    ),
+    (
         "src/matching.rs",
         "if start.same_shape(was) {",
         "a place written as the equation's side is written is that place whole, where a formula comparison would also match a part of it with an identity element dropped",

@@ -20,7 +20,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use indexmap::{IndexMap, IndexSet};
 
 use crate::citing::{Library, Proved};
-use crate::corpus::proof::reason_as_step;
+use crate::corpus::proof::{chain_reasons, reason_as_step};
 use crate::corpus::{
     index, link_definitions, link_functions, module_of, parse_database, parse_proof,
     proof_files, record_files, Corpus, FileScope, Intro, Item, Method, Record,
@@ -1394,12 +1394,12 @@ fn found_alone(
     seen.problems.iter().map(|p| p.to_string()).collect()
 }
 
-/// A chain line giving a reason of its own is checked as the step it would
-/// be (`ChainLine::reason`): the link its claim, the reason its
-/// justification, under the calculation's number and resting on the
-/// calculation's requires lines. What the checks find at the chain line is
-/// said there; what they find of the requires lines is the calculation's,
-/// whose own checks say it.
+/// A chain line or a row giving a reason of its own is checked as the step
+/// it would be (`chain_reasons`): the link or the change its claim, the
+/// reason its justification, under its step's number and resting on its
+/// step's requires lines. What the checks find at the line is said there;
+/// what they find of the requires lines is the step's, whose own checks say
+/// it.
 fn check_link_reasons(
     report: &mut Report,
     c: &Checking<'_>,
@@ -1407,11 +1407,8 @@ fn check_link_reasons(
     k: &Known<'_>,
 ) {
     for step in &thm.steps {
-        for link in formulas::chain_links(&step.just, &thm.path) {
-            let Some(req) = &link.line.reason else {
-                continue;
-            };
-            // A reason that does not cut is `check_chain`'s to report.
+        for req in &chain_reasons(&step.just, &thm.path) {
+            // A reason that does not cut is `check_citations`'s to report.
             let Ok(by) = &req.by else {
                 continue;
             };
@@ -1558,6 +1555,7 @@ fn check_passes(
     formulas::check_chain_links(report, thm, library, k, scopes);
     check_link_reasons(report, c, thm, k);
     formulas::check_calculation_claims(report, thm, k);
+    formulas::check_substitute_rows(report, thm, k);
     structure::check_last_step(report, thm, k);
     structure::check_steps_used(report, thm);
     structure::check_readings(report, thm);

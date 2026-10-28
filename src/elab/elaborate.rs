@@ -39,7 +39,7 @@ use crate::binds;
 use crate::checker::record::{CheckedTheorem, Cited, FirstAt, LibraryReading};
 use crate::citing::{self, filled};
 use crate::corpus::proof::{
-    chain, requires_as_step, ChainLine, Head, Justification, Requires,
+    chain, requires_as_step, substitute_rows, ChainLine, Head, Justification, Requires,
 };
 use crate::corpus::Method;
 use crate::corpus::{
@@ -2103,6 +2103,124 @@ impl<'a> Elaborator<'a> {
             .map(|p| pf!(self.b; scope, other, start, p, "eqcomd")))
     }
 
+    /// A `substitute` step's rows (`substitute_rows`): the first is what the
+    /// line it cites says, and each after it is the row above with one term
+    /// put for another, by the equation its reason proves, as a requires
+    /// line is proved (`as_a_step`), and nothing else (`congruence` over
+    /// that equation alone). The last row is the claim.
+    fn substitute_by_rows(
+        &mut self,
+        step: &Step,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let Some(Ok(rows)) = substitute_rows(&step.just, &self.thm.path) else {
+            return Err(self.unreached(step.line, "rows that do not cut"));
+        };
+        let Some(first) = rows.first() else {
+            return Err(self.unreached(step.line, "a substitute with no rows"));
+        };
+        let mut reached = self.term(&self.read_one(&first.formula)?)?;
+        let Some(mut proof) =
+            self.said_by(&first.cite, &reached, scope, facts, lines)?
+        else {
+            return Err(self.defect(
+                first.line,
+                format!("{} does not say {}", first.cite, first.formula),
+            ));
+        };
+        for row in &rows[1..] {
+            let Some(req) = &row.reason else {
+                return Err(
+                    self.unreached(row.line, "a row after the first with no reason")
+                );
+            };
+            let what =
+                format!("a row of step {} writes {}", fmt(&step.number), row.formula);
+            let change = match self.as_a_step(step, req, &what, scope, facts)? {
+                Built(p) => p,
+                Declined(d) => {
+                    return Err(self.defect(
+                        row.line,
+                        format!(
+                            "{what}, which {} does not give: {}",
+                            req.how,
+                            self.say(&d)
+                        ),
+                    ));
+                }
+            };
+            let changed = self.read_one(&req.fact)?;
+            let changed = self.term(&changed)?;
+            let said = self.to_term(&changed);
+            let (was, now) =
+                (self.rpn(&said.children()[0]), self.rpn(&said.children()[1]));
+            let equation = self.equation_facts(&was, &now, change, scope);
+            let below = self.term(&self.read_one(&row.formula)?)?;
+            let alike = match self.congruence(
+                &self.to_term(&reached),
+                &self.to_term(&below),
+                scope,
+                &equation,
+                Some(step),
+                &substitution_leaf(),
+            )? {
+                Built(p) => p,
+                Declined(d) => {
+                    return Err(self.defect(
+                        row.line,
+                        format!(
+                            "{what}, which its change does not make: {}",
+                            self.say(&d)
+                        ),
+                    ));
+                }
+            };
+            proof = pf!(self.b; scope, reached, below, proof, alike, "mpbid");
+            reached = below;
+        }
+        if reached == *term {
+            return Ok(Built(proof));
+        }
+        let alike = take!(self.same(
+            &self.to_term(&reached),
+            &self.to_term(term),
+            scope,
+            facts,
+            Some(step)
+        )?);
+        Ok(Built(
+            pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
+        ))
+    }
+
+    /// What the line `cite` says that is `wanted`, as a cited line gives it:
+    /// the line's claim, or one of the things it says (`line_says`). None
+    /// where it says no such thing.
+    fn said_by(
+        &mut self,
+        cite: &str,
+        wanted: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Option<Proof>> {
+        let Some(line) = self.line_written(cite, lines) else {
+            return Err(self.unreached(self.thm.line, format!("no line {cite} cited")));
+        };
+        if line.claim == *wanted {
+            return Ok(Some(self.carried(cite, facts, lines)));
+        }
+        let known = self.line_says(cite, scope, facts, lines)?;
+        Ok(known
+            .entries()
+            .into_iter()
+            .find(|(said, _)| said == wanted)
+            .map(|(_, held)| held))
+    }
+
     /// `substitute line L`, which writes no equation: the claim, `t = t′`
     /// as a chain's line claims it, is one side of an equation L says put
     /// for the other in t (`skeleton::substitute`). The checker has held the
@@ -2151,6 +2269,9 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
+        if !step.just.rows.is_empty() {
+            return self.substitute_by_rows(step, term, scope, facts, lines);
+        }
         let Some(source) = &step.just.source else {
             return Err(self.unreached(step.line, "a substitute that names no source"));
         };

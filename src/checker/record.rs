@@ -315,8 +315,8 @@ impl CheckedTheorem {
     }
 
     /// The index of `step` among `thm`'s steps. A requires line read as a
-    /// step (`requires_as_step`) stands where its step does, and so does a
-    /// chain line's own reason (`ChainLine::reason`).
+    /// step (`requires_as_step`) stands where its step does, and so does the
+    /// reason of a chain's line or a row (`chain_reasons`).
     pub fn index_of(thm: &Theorem, step: &Step) -> Option<usize> {
         thm.steps
             .iter()
@@ -325,6 +325,7 @@ impl CheckedTheorem {
                 thm.steps.iter().position(|s| {
                     s.requires.iter().any(|r| r.line == step.line)
                         || s.just.chain.iter().any(|(_, no)| *no == step.line)
+                        || s.just.rows.iter().any(|(_, no)| *no == step.line)
                 })
             })
     }

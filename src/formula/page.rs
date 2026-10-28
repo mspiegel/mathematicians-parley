@@ -59,6 +59,10 @@ enum Made {
         to: Written,
         modulus: Option<Written>,
     },
+    /// The change a row of a `substitute` step makes to the row above it:
+    /// the one term where the two part, equal to what stands there in its
+    /// place, `was = now` (`changed`).
+    Changed { above: Written, below: Written },
 }
 
 /// One line of a define by cases: its value, and the condition it is
@@ -160,6 +164,19 @@ impl Written {
                 to,
                 modulus,
             })),
+        }
+    }
+
+    /// The change a row of a `substitute` step makes to the row above it,
+    /// with the place of the row: `was = now`, where was is the one term
+    /// where the two rows part and now what the row writes in its place
+    /// (`changed`). Its text is for a message and is never read.
+    pub fn changed(above: Written, below: Written, path: &str, line: usize) -> Written {
+        Written {
+            text: format!("the change from {above} to {below}"),
+            path: Arc::from(path),
+            line,
+            made: Some(Box::new(Made::Changed { above, below })),
         }
     }
 
@@ -312,7 +329,68 @@ fn parts_of(made: &Made) -> Vec<&Written> {
         Made::Related {
             from, to, modulus, ..
         } => [from, to].into_iter().chain(modulus.as_ref()).collect(),
+        Made::Changed { above, below } => vec![above, below],
     }
+}
+
+/// The pieces where two trees part, each the largest piece that differs:
+/// where the two are one notation written alike with as many children, the
+/// pieces their children part at, and otherwise the two whole.
+fn parted(above: &Node, below: &Node, out: &mut Vec<(Node, Node)>) {
+    if above.same_shape(below) {
+        return;
+    }
+    let alike = above.spelling() == below.spelling()
+        && above.text == below.text
+        && !above.children.is_empty()
+        && above.children.len() == below.children.len();
+    if !alike {
+        out.push((above.clone(), below.clone()));
+        return;
+    }
+    for (a, b) in above.children.iter().zip(&below.children) {
+        parted(a, b, out);
+    }
+}
+
+/// `was = now`, the one change between the trees of two rows: where they
+/// part, every piece is the same term put for the same term, at one place
+/// or several. Two rows alike change nothing, and two that part in two
+/// ways, or in a statement rather than a term, make no one change.
+fn changed(
+    above: &Node,
+    below: &Node,
+    g: &Grammar,
+    sorts: &Sorts,
+    at: (&str, usize),
+) -> Checked<Node> {
+    let mut pieces = Vec::new();
+    parted(above, below, &mut pieces);
+    let Some((was, now)) = pieces.first().cloned() else {
+        return Err(Problem::new(
+            at.0,
+            at.1,
+            "the row is the row above it, and changes nothing",
+        ));
+    };
+    let one = pieces
+        .iter()
+        .all(|(a, b)| a.same_shape(&was) && b.same_shape(&now));
+    if !one {
+        return Err(Problem::new(
+            at.0,
+            at.1,
+            "the row makes more than one change to the row above it; each row puts one term for another",
+        ));
+    }
+    if was.sort.name() == Some("formula") {
+        return Err(Problem::new(
+            at.0,
+            at.1,
+            "the row changes a statement of the row above it; a row puts one term for another",
+        ));
+    }
+    filled("a = b", g, sorts, &[("a", &was), ("b", &now)])
 }
 
 /// The tree of a formula said in parts, from the parts' trees in the order
@@ -329,6 +407,10 @@ fn made_of(
             let modulus = (read.len() == 3).then(|| read.pop()).flatten();
             let [from, to] = <[Node; 2]>::try_from(read).expect("two terms");
             related(g, sorts, relation, &from, &to, modulus.as_ref(), at)
+        }
+        Made::Changed { .. } => {
+            let [above, below] = <[Node; 2]>::try_from(read).expect("two rows");
+            changed(&above, &below, g, sorts, at)
         }
         Made::Member { .. } => {
             let [term, set] = <[Node; 2]>::try_from(read).expect("a term and a set");

@@ -13,7 +13,9 @@ use super::Report;
 use crate::citing::{
     claimed_member, implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
 };
-use crate::corpus::proof::{chain, rows, visible, ChainLine, RowReason};
+use crate::corpus::proof::{
+    chain, rows, substitute_rows, visible, ChainLine, RowReason,
+};
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
     Record, RecordKind, Recursion, Requires, RuleText, Source, Step, Theorem, Value,
@@ -455,6 +457,32 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
                 add(row.line, what.clone(), &row.formula);
                 if let RowReason::Adding(t) | RowReason::Multiplying(t) = &row.reason {
                     add(row.line, what, t);
+                }
+            }
+        }
+        // A substitute's rows, and each one's own reason as a chain line's
+        // is read: the change it makes, and each value and equation it gives.
+        if let Some(Ok(rows)) = substitute_rows(&s.just, &thm.path) {
+            for row in &rows {
+                let what = || format!("a row of step {}", s.number);
+                add(row.line, what(), &row.formula);
+                let Some(req) = &row.reason else {
+                    continue;
+                };
+                add(row.line, what(), &req.fact);
+                for v in req.values().written() {
+                    add(
+                        row.line,
+                        format!("a value a row of step {} gives", s.number),
+                        v,
+                    );
+                }
+                if let Ok(Some(e)) = req.by().map(|by| by.equation.as_ref()) {
+                    add(
+                        row.line,
+                        format!("the equation a row of step {} gives", s.number),
+                        e,
+                    );
                 }
             }
         }
@@ -3556,6 +3584,73 @@ pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Know
                     step.number,
                     step.claim_text(),
                     known.print(&chained)
+                ),
+            );
+        }
+    }
+}
+
+/// A `substitute` step's rows start from what the line the first row cites
+/// says, written out, and end on the claim (`GRAMMAR.md`, substitute rows);
+/// what each row after the first changes is its reason's to prove, which
+/// `check_link_reasons` asks. A `substitute` writing no equation and no rows
+/// says nothing.
+pub fn check_substitute_rows(report: &mut Report, thm: &Theorem, known: &Known) {
+    for step in &thm.steps {
+        let just = &step.just;
+        if !just.head.is(Method::Substitute) || just.equation.is_some() {
+            continue;
+        }
+        if just.source.is_none() && just.rows.is_empty() {
+            report.say(
+                &thm.path,
+                just.line,
+                format!(
+                    "step {} substitutes nothing: it writes its equation, `substitute e (line L)`, or its rows below it",
+                    step.number
+                ),
+            );
+            continue;
+        }
+        let rows = match substitute_rows(just, &thm.path) {
+            None => continue,
+            Some(Err(p)) => {
+                report.say(&p.path, p.line, p.message);
+                continue;
+            }
+            Some(Ok(rows)) => rows,
+        };
+        let read = |w: &Written| known.read_as_written(&w.formula().ok()?);
+        let (Some(first), Some(last)) = (rows.first(), rows.last()) else {
+            continue;
+        };
+        if let Some(written) = read(&first.formula) {
+            let said = known.lines_say(step, &[first.cite.as_str()]);
+            if !said.iter().any(|s| known.alike(s, &written)) {
+                report.say(
+                    &thm.path,
+                    first.line,
+                    format!(
+                        "the first row of step {} writes {}, which {} does not say",
+                        step.number, first.formula, first.cite
+                    ),
+                );
+            }
+        }
+        let (Some(ends), Some(claim)) =
+            (read(&last.formula), known.whole_as_written(&step.claim))
+        else {
+            continue; // `check_formulas` says it does not read
+        };
+        if !known.alike(&ends, &claim) {
+            report.say(
+                &thm.path,
+                last.line,
+                format!(
+                    "the last row of step {} writes {}, and the step claims {}",
+                    step.number,
+                    last.formula,
+                    step.claim_text()
                 ),
             );
         }

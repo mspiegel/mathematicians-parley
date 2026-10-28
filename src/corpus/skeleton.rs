@@ -1027,6 +1027,11 @@ fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
         slots.source = Some(Source::At(place));
         return;
     }
+    // `substitute` alone writes its rows below it (`GRAMMAR.md`, substitute
+    // rows): each row's reason says what it puts for what.
+    if rest.trim().is_empty() {
+        return;
+    }
     let mut found = None;
     for (open, c) in rest.char_indices() {
         if c != '(' {

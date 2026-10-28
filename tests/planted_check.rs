@@ -5527,6 +5527,55 @@ fn cases() -> Vec<Case> {
             "mun:multiply-cancel is neither imported nor a theorem of this file",
         ),
         case(
+            "a substitute's first row that its line does not say",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("      d divides (n + 1) − n      1".to_string()), "      d divides (n + 2) − n      1".to_string()),
+            ],
+            "the first row of step 2 writes d divides (n + 2) − n, which 1 does not say",
+        ),
+        case(
+            "a substitute's last row that is not its claim",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("1.  12 < y\n    substitute".to_string()), "1.  12 ≤ y\n    substitute".to_string()),
+            ],
+            "the last row of step 1 writes 12 < y, and the step claims 12 ≤ y",
+        ),
+        case(
+            "a substitute that writes neither an equation nor rows",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("    substitute\n      x·x + x < y      H4\n      3·3 + 3 < y      substitute H3\n      12 < y           arithmetic\n".to_string()), "    substitute\n".to_string()),
+            ],
+            "step 1 substitutes nothing",
+        ),
+        case(
+            "a substitute's row that changes nothing",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("      3·3 + 3 < y      substitute H3".to_string()), "      x·x + x < y      substitute H3".to_string()),
+            ],
+            "the row is the row above it, and changes nothing",
+        ),
+        case(
+            "a substitute's row that makes two changes",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("      3·3 + 3 < y      substitute H3".to_string()), "      3·3 + 3 < 2·y    substitute H3".to_string()),
+            ],
+            "the row makes more than one change to the row above it",
+        ),
+        case(
+            "a substitute's row whose reason does not give its change",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("      d divides 1                algebra".to_string()), "      d divides 2                algebra".to_string()),
+            ],
+            "is not an identity",
+        ),
+        case(
+            "a substitute's later row citing a line",
+            vec![
+                edit("tests/elaborator/substitute-rows.proof", Some("      3·3 + 3 < y      substitute H3".to_string()), "      3·3 + 3 < y      H3".to_string()),
+            ],
+            "one that uses H3's equation is `substitute H3`",
+        ),
+        case(
             "a chain line resting on a requires line taken away",
             vec![
                 edit("tests/elaborator/a-chain-showing-its-work.proof", Some("    requires n! ∈ ℕ: mun:factorial-nat\n".to_string()), String::new()),

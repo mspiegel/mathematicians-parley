@@ -1,0 +1,34 @@
+import mundane theorem    stdlib/divisibility/divides-difference
+
+theorem substitute-rows
+  note        A divisor of two numbers divides their difference, and the
+              difference of n + 1 and n is 1: the row puts 1 in its place.
+  let n ∈ ℤ                                                           (H1)
+  let d ∈ ℤ                                                           (H2)
+  assume d divides n + 1                                              (H3)
+  assume d divides n                                                  (H4)
+  then d divides 1
+
+1.  d divides (n + 1) − n
+    mun:divides-difference a := n + 1, b := n, from H3, H4
+
+2.  d divides 1
+    substitute
+      d divides (n + 1) − n      1
+      d divides 1                algebra
+
+
+theorem substitute-rows-from-a-line
+  note        A row may put for a term what a line says it equals, in every
+              place the term stands.
+  let x ∈ ℝ                                                           (H1)
+  let y ∈ ℝ                                                           (H2)
+  assume x = 3                                                        (H3)
+  assume x·x + x < y                                                  (H4)
+  then 12 < y
+
+1.  12 < y
+    substitute
+      x·x + x < y      H4
+      3·3 + 3 < y      substitute H3
+      12 < y           arithmetic

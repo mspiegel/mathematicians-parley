@@ -1042,11 +1042,15 @@ pub fn check_citations(
         for req in &step.requires {
             at.check_reason(report, req, "requires line");
         }
-        // A chain line's own reason cites as a requires line's does.
-        if let Some(Ok(chain)) = crate::corpus::proof::chain(just, &thm.path) {
-            for req in chain.lines.iter().filter_map(|l| l.reason.as_ref()) {
-                at.check_reason(report, req, "chain line");
-            }
+        // A chain line's or a row's own reason cites as a requires line's
+        // does.
+        for req in &crate::corpus::proof::chain_reasons(just, &thm.path) {
+            let what = if just.head.is(Method::Calculation) {
+                "chain line"
+            } else {
+                "row"
+            };
+            at.check_reason(report, req, what);
         }
     }
     // A let's reason is written as a requires line's is, and is read under
