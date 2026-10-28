@@ -2394,6 +2394,12 @@ $d x S $.
     ( wceq wfo wb foeq1 ax-mp ) CDFABCGABDGHEABCDIJ $.
   $}
 
+  ${
+    gfeq3i.1 $e |- A = B $.
+  gfeq3i $p |- ( F : C --> A <-> F : C --> B ) $=
+    ( wceq wf wb feq3 ax-mp ) ABFCADGCBDGHEABCDIJ $.
+  $}
+
   gf1cnvfv1 $p |- ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C ) $=
     ( wf1 crn wf1o wcel cfv ccnv wceq f1f1orn f1ocnvfv1 sylan )
     ABDEADFZDGCAHCDIDJICKABDLAOCDMN $.
@@ -2493,10 +2499,13 @@ $}
 
 ${
 $( The axioms of set theory, said as the page says them: extensionality,
-   the union of a set's members, and the values a function takes on a
-   set. $)
+   the union of a set's members, the values a function takes on a set, and
+   a choice function. $)
 $d x A $.
 $d x B $.
+$d f g y z A $.
+$d f g x y z $.
+$d g V $.
 
   gext $p |- ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B ) $=
     ( wceq cv wcel wral wa wss eqss dfss3 anbi12i bitri biimpri )
@@ -2508,6 +2517,13 @@ $d x B $.
 
   grnmptex $p |- ( A e. V -> ran ( x e. A |-> C ) e. _V ) $=
     ( wcel cmpt cvv crn mptexg rnexg syl ) BDEABCFZGELHGEABCDILGJK $.
+
+  gchoice $p |- ( ( A e. V /\ A. x e. A x =/= (/) ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x ) $=
+    ( wcel cv c0 wne wral wa ciun vg wf cfv wex cmap co wrex simpl vy n0
+    biimpi eleq2 rspcev eliun sylibr simpr jca ex eximdv imp df-rex sylan2
+    ralimia eleq1 ac6sg cvv wb giunex id elmapg syl2anc biimpar adantrr
+    simprr wceq fveq1 eleq1d ralbidv exlimdv )
+    CEFZAGZHIZACJZKVLCBCBGZLZMGZNZVMVROZVMFZACJZKZMPZVMDGZOZVMFZACJZDVQCQRZSZVLVOTVOVLUAGZVMFZUAVQSZACJZWDVNWMACVMCFZVNWMVNWOWLUAPZWMVNWPUAVMUBUCWOWPKWKVQFZWLKZUAPZWMWOWPWSWOWLWRUAWOWLWRWOWLKZWQWLWTWKVPFZBCSWQXAWLBVMCVPVMWKUDUEBWKCVPUFUGWOWLUHUIUJUKULWLUAVQUMUGUNUJUOVLWNWDWLWAAUACVQMEWKVTVMUPUQULUNVLWDWJVLWCWJMVLWCWJVLWCKVRWIFZWBWJVLVSXBWBVLXBVSVLVQURFVLXBVSUSBCEUTVLVAVQCVRUREVBVCVDVEVLVSWBVFWHWBDVRWIWEVRVGZWGWAACXCWFVTVMVMWEVRVHVIVJUEVCUJVKULVC $.
 
 $}
 

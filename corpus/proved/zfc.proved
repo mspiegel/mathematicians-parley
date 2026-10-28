@@ -12,13 +12,24 @@
 #   `axi:stdlib/sets/union`;
 # - replacement: the values a function takes on a set make a set, the
 #   range of a map from a set, `mptexg` and `rnexg`, for
-#   `axi:stdlib/sets/replacement`.
+#   `axi:stdlib/sets/replacement`;
+# - choice: a set of non-empty sets has a function into the union of its
+#   members taking each to a member of it. Each member has a member (`n0`),
+#   which is in the union (`eliun`), so `ac6sg` gives a function from the
+#   set into the union choosing one; it is one of the set of maps
+#   (`elmapg`), for `axi:stdlib/sets/choice`. The union's letter z is kept
+#   apart from the "for all" letter x, as `ac6sg` keeps the codomain apart
+#   from it, and the function `ac6sg` gives is named g and renamed f where
+#   the "there is" binds it.
 
 $( The axioms of set theory, said as the page says them: extensionality,
-   the union of a set's members, and the values a function takes on a
-   set. $)
+   the union of a set's members, the values a function takes on a set, and
+   a choice function. $)
 $d x A $.
 $d x B $.
+$d f g y z A $.
+$d f g x y z $.
+$d g V $.
 
 # ( ( A. x e. A x e. B /\ A. x e. B x e. A ) -> A = B )
 lemma gext
@@ -44,3 +55,45 @@ lemma grnmptex
   1 mptexg |- ( A e. V -> ( x e. A |-> C ) e. _V )
   2 rnexg |- ( ( x e. A |-> C ) e. _V -> ran ( x e. A |-> C ) e. _V )
   3 syl 1 2 |- ( A e. V -> ran ( x e. A |-> C ) e. _V )
+
+# ( ( A e. V /\ A. x e. A x =/= (/) ) ->
+#   E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )
+lemma gchoice
+  |- ( ( A e. V /\ A. x e. A x =/= (/) ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )
+  1 eleq2 |- ( z = x -> ( y e. z <-> y e. x ) )
+  2 rspcev 1 |- ( ( x e. A /\ y e. x ) -> E. z e. A y e. z )
+  3 eliun |- ( y e. U_ z e. A z <-> E. z e. A y e. z )
+  4 sylibr 2 3 |- ( ( x e. A /\ y e. x ) -> y e. U_ z e. A z )
+  5 simpr |- ( ( x e. A /\ y e. x ) -> y e. x )
+  6 jca 4 5 |- ( ( x e. A /\ y e. x ) -> ( y e. U_ z e. A z /\ y e. x ) )
+  7 ex 6 |- ( x e. A -> ( y e. x -> ( y e. U_ z e. A z /\ y e. x ) ) )
+  8 eximdv 7 |- ( x e. A -> ( E. y y e. x -> E. y ( y e. U_ z e. A z /\ y e. x ) ) )
+  9 imp 8 |- ( ( x e. A /\ E. y y e. x ) -> E. y ( y e. U_ z e. A z /\ y e. x ) )
+  10 df-rex |- ( E. y e. U_ z e. A z y e. x <-> E. y ( y e. U_ z e. A z /\ y e. x ) )
+  11 sylibr 9 10 |- ( ( x e. A /\ E. y y e. x ) -> E. y e. U_ z e. A z y e. x )
+  12 n0 |- ( x =/= (/) <-> E. y y e. x )
+  13 biimpi 12 |- ( x =/= (/) -> E. y y e. x )
+  14 sylan2 13 11 |- ( ( x e. A /\ x =/= (/) ) -> E. y e. U_ z e. A z y e. x )
+  15 ex 14 |- ( x e. A -> ( x =/= (/) -> E. y e. U_ z e. A z y e. x ) )
+  16 ralimia 15 |- ( A. x e. A x =/= (/) -> A. x e. A E. y e. U_ z e. A z y e. x )
+  17 eleq1 |- ( y = ( g ` x ) -> ( y e. x <-> ( g ` x ) e. x ) )
+  18 ac6sg 17 |- ( A e. V -> ( A. x e. A E. y e. U_ z e. A z y e. x -> E. g ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) ) )
+  19 imp 18 |- ( ( A e. V /\ A. x e. A E. y e. U_ z e. A z y e. x ) -> E. g ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) )
+  20 sylan2 16 19 |- ( ( A e. V /\ A. x e. A x =/= (/) ) -> E. g ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) )
+  21 giunex |- ( A e. V -> U_ z e. A z e. _V )
+  22 id |- ( A e. V -> A e. V )
+  23 elmapg |- ( ( U_ z e. A z e. _V /\ A e. V ) -> ( g e. ( U_ z e. A z ^m A ) <-> g : A --> U_ z e. A z ) )
+  24 syl2anc 21 22 23 |- ( A e. V -> ( g e. ( U_ z e. A z ^m A ) <-> g : A --> U_ z e. A z ) )
+  25 biimpar 24 |- ( ( A e. V /\ g : A --> U_ z e. A z ) -> g e. ( U_ z e. A z ^m A ) )
+  26 adantrr 25 |- ( ( A e. V /\ ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) ) -> g e. ( U_ z e. A z ^m A ) )
+  27 simprr |- ( ( A e. V /\ ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) ) -> A. x e. A ( g ` x ) e. x )
+  28 fveq1 |- ( f = g -> ( f ` x ) = ( g ` x ) )
+  29 eleq1d 28 |- ( f = g -> ( ( f ` x ) e. x <-> ( g ` x ) e. x ) )
+  30 ralbidv 29 |- ( f = g -> ( A. x e. A ( f ` x ) e. x <-> A. x e. A ( g ` x ) e. x ) )
+  31 rspcev 30 |- ( ( g e. ( U_ z e. A z ^m A ) /\ A. x e. A ( g ` x ) e. x ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )
+  32 syl2anc 26 27 31 |- ( ( A e. V /\ ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )
+  33 ex 32 |- ( A e. V -> ( ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x ) )
+  34 exlimdv 33 |- ( A e. V -> ( E. g ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x ) )
+  35 imp 34 |- ( ( A e. V /\ E. g ( g : A --> U_ z e. A z /\ A. x e. A ( g ` x ) e. x ) ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )
+  36 simpl |- ( ( A e. V /\ A. x e. A x =/= (/) ) -> A e. V )
+  37 syl2anc 36 20 35 |- ( ( A e. V /\ A. x e. A x =/= (/) ) -> E. f e. ( U_ z e. A z ^m A ) A. x e. A ( f ` x ) e. x )

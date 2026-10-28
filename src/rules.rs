@@ -276,6 +276,8 @@ pub const PREDICATE_LIFT: &[(&str, usize, &str)] = &[
     ("wbr", 0, "breq1i"),
     ("wbr", 1, "breq2i"),
     ("wfn", 0, "fneq1i"),
+    ("wf", 0, "feq2i"),
+    ("wf", 1, "gfeq3i"),
     ("wf", 2, "feq1i"),
     ("wf1", 2, "gf1eq1i"),
     ("wfo", 2, "gfoeq1i"),

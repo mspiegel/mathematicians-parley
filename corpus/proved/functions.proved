@@ -27,6 +27,10 @@
 #   has `feq1i` and `fneq1i` for the other two function predicates. It is
 #   what carries a renaming of a map's bound letter up through
 #   "is one-to-one";
+# - a function into one class is a function into an equal one: `feq3`
+#   with its antecedent given, which set.mm has only as an implication. It
+#   carries a renaming of a bound letter in a codomain, as ⋃(Y ∈ C) Y, up
+#   through f : A → B;
 # - what is in a preimage: `elpreima` says it of a function on A, which
 #   `ffn` reads off f : A → B, for `mun:stdlib/functions/preimage`;
 # - a one-to-one function onto B has an inverse from B to A: `f1f1orn`
@@ -64,6 +68,13 @@ lemma gfoeq1i
   |- ( F : A -onto-> B <-> G : A -onto-> B )
   1 foeq1 |- ( F = G -> ( F : A -onto-> B <-> G : A -onto-> B ) )
   2 ax-mp gfoeq1i.1 1 |- ( F : A -onto-> B <-> G : A -onto-> B )
+
+# ( F : C --> A <-> F : C --> B ), from A = B
+lemma gfeq3i
+  hypothesis gfeq3i.1 |- A = B
+  |- ( F : C --> A <-> F : C --> B )
+  1 feq3 |- ( A = B -> ( F : C --> A <-> F : C --> B ) )
+  2 ax-mp gfeq3i.1 1 |- ( F : C --> A <-> F : C --> B )
 
 # ( ( F : A -1-1-> B /\ C e. A ) -> ( `' F ` ( F ` C ) ) = C )
 lemma gf1cnvfv1

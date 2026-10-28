@@ -86,6 +86,19 @@ axiom infinity
               holding ∅ and x ∪ {x} with each x; the page says it of ℕ,
               which set.mm builds from it.
 
+axiom choice
+  let C be a set                                                      (H1)
+  assume for all X ∈ C, X ≠ ∅                                         (H2)
+  then        there is f : C → ⋃(Y ∈ C) Y with for all X ∈ C, f(X) ∈ X
+  metamath    ac6c5, its function restricted to C and read as a map into
+              the union, which this corpus proves in
+              elaboration/stdlib/proved.mm
+  target      gchoice
+  note        A set of non-empty sets has a function choosing a member of
+              each. The union's letter Y is not the letter X the "for all"
+              binds, as set.mm keeps a map's codomain apart from its
+              argument.
+
 mundane definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath    df-ss, ssel

@@ -24,6 +24,18 @@ import axiom              stdlib/sets/power-sets as sets-power-sets
 import axiom              stdlib/sets/separation as sets-separation
 import axiom              stdlib/sets/replacement as sets-replacement
 import axiom              stdlib/sets/infinity as sets-infinity
+import axiom              stdlib/sets/choice as sets-choice
+
+theorem choice
+  let F be a set                                                      (H1)
+  assume for all A ∈ F, A ≠ ∅                                         (H2)
+  then there is g : F → ⋃(B ∈ F) B with for all A ∈ F, g(A) ∈ A
+
+1.  g : F → ⋃(B ∈ F) B. For all A ∈ F, g(A) ∈ A.
+    obtain g: axi:sets-choice C := F, from H2
+
+2.  There is g : F → ⋃(B ∈ F) B with for all A ∈ F, g(A) ∈ A.
+    exhibit, from 1
 
 theorem extensionality
   let A be a set                                                      (H1)

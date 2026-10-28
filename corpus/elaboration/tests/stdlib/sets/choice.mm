@@ -1,0 +1,13 @@
+$( tests/stdlib/sets/choice, elaborated from tests/stdlib/sets.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/proved.mm $]
+
+${
+  $d g i j k m p q $.
+  $d A g i j k m p q $.
+  tests.stdlib.sets.choice $p |- ( ( A e. _V /\ A. m e. A -. m = (/) ) -> E. g e. ( U_ k e. A k ^m A ) A. m e. A ( g ` m ) e. m ) $=
+    ( cvv wcel cv c0 wceq wn wral wa vi vp cfv vj ciun cmap co wrex wne simpl id syl simpr wb vq eqeq1d notbid cbvralvw bitri a1i df-ne ralbidva bicomd bitrd mpbid jca gchoice cbviunv oveq1i eleq2i fveq2d eleq12d sylib fveq1d eleq1d ralbidv rspcev ex rexlimdva mpd ) AEFZDGZHIZJZDAKZLZMGZNGZOZVSFZMAKZNPAPGZQZARSZTZVNBGZOZVNFZDAKZBCACGZQZARSZTZVRVMVSHUAZMAKZLWGVRVMWQVRVMVMVMVQUBVMUCUDVRVQWQVMVQUEVRVQVSHIZJZMAKZWQVQWTUFVRVQUGGZHIZJZUGAKWTVPXCDUGAVNXAIZVOXBXDVNXAHXDUCUHUIUJXCWSUGMAXAVSIZXBWRXEXAVSHXEUCUHUIUJUKULVRWQWTVRWPWSMAWPWSUFVRVSAFLVSHUMULUNUOUPUQURMPANEUSUDVRWCWONWFVRVTWFFZLZWCWOXGWCLZVTWNFZVNVTOZVNFZDAKZLWOXHXIXLXHXFXIXHXGXFXGWCUBVRXFUEUDXFXIUFXHXFVTUGAXAQZARSZFXIWFXNVTWEXMARPUGAWDXAWDXAIUCUTVAVBXNWNVTXMWMARUGCAXAWLXAWLIUCUTVAVBUKULUQXHWCXLXGWCUEWBXKMDAVSVNIZWAXJVSVNXOVSVNVTXOUCZVCXPVDUJVEURWKXLBVTWNWHVTIZWJXKDAXQWIXJVNXQVNWHVTXQUCVFVGVHVIUDVJVKVL $.
+$}

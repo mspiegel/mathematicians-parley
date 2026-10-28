@@ -2618,6 +2618,20 @@ impl<'a> Elaborator<'a> {
             if said == member {
                 continue;
             }
+            // The item binds its own letters inside the set, `⋃(Y ∈ C) Y`,
+            // and the page may bind another, `⋃(B ∈ F) B`: the two are one
+            // claim (`renaming_apart`), and the line is known as written.
+            if let Some(renamed) = self.renaming_apart(&member, &said)? {
+                if let Some(held) = self.held(&lifted, &member, &inner)? {
+                    let proof = self.b.ap(
+                        "sylib",
+                        &binds! {"ph" => &inner, "ps" => &member, "ch" => &said},
+                        &[&held, &renamed],
+                    );
+                    self.know(&lifted, said, proof);
+                    continue;
+                }
+            }
             let alike = self.same(
                 &self.to_term(&member),
                 &self.to_term(&said),
