@@ -455,27 +455,103 @@ fn an_unread_substitute_is_told_only_that_it_does_not_read() {
 /// item: the method as `Method::as_str` spells it, the file, and the line
 /// as written.
 const READ_REASONS: &[(&str, &str, &str)] = &[
-    ("obtain", "proofs/setmm/halves-series.proof", "          obtain N: thm:archimedean x := ε, from A1"),
-    ("exhibit", "proofs/setmm/limit-constant-multiple.proof", "          exhibit, from 5.6"),
-    ("substitute", "proofs/setmm/halves-series.proof", "          substitute Σ(k = 1 to m) 1/2^k = 1 − 1/2^m (IH) into line 2.2"),
-    ("instantiate", "proofs/setmm/limit-constant-multiple.proof", "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2"),
+    (
+        "obtain",
+        "proofs/setmm/halves-series.proof",
+        "          obtain N: thm:archimedean x := ε, from A1",
+    ),
+    (
+        "exhibit",
+        "proofs/setmm/limit-constant-multiple.proof",
+        "          exhibit, from 5.6",
+    ),
+    (
+        "substitute",
+        "proofs/setmm/halves-series.proof",
+        "          substitute Σ(k = 1 to m) 1/2^k = 1 − 1/2^m (IH) into line 2.2",
+    ),
+    (
+        "instantiate",
+        "proofs/setmm/limit-constant-multiple.proof",
+        "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2",
+    ),
     ("algebra", "proofs/setmm/minus-one-mod.proof", "    algebra"),
-    ("arithmetic", "proofs/setmm/halves-series.proof", "          arithmetic"),
-    ("real arithmetic", "proofs/identities/ln-above-one-is-positive.proof", "    real arithmetic"),
-    ("inequalities", "proofs/setmm/floor-below-non-integer.proof", "    inequalities, from 1, 3"),
-    ("transitivity", "proofs/setmm/halves-series.proof", "                  transitivity, from A2, 3.2.2"),
-    ("antisymmetry", "proofs/setmm/limit-unique.proof", "    antisymmetry, from 1, 2"),
-    ("membership", "proofs/setmm/limit-constant-multiple.proof", "          membership"),
-    ("inspection", "proofs/setmm/image-empty.proof", "                  inspection, contradicting 1.1.2"),
-    ("join", "proofs/setmm/halves-series.proof", "                  join 3.2.7, 3.2.10"),
-    ("restate", "proofs/setmm/divisor-of-power.proof", "          restate H4"),
-    ("contradiction", "proofs/setmm/floor-below-non-integer.proof", "    contradiction"),
+    (
+        "arithmetic",
+        "proofs/setmm/halves-series.proof",
+        "          arithmetic",
+    ),
+    (
+        "real arithmetic",
+        "proofs/identities/ln-above-one-is-positive.proof",
+        "    real arithmetic",
+    ),
+    (
+        "inequalities",
+        "proofs/setmm/floor-below-non-integer.proof",
+        "    inequalities, from 1, 3",
+    ),
+    (
+        "transitivity",
+        "proofs/setmm/halves-series.proof",
+        "                  transitivity, from A2, 3.2.2",
+    ),
+    (
+        "antisymmetry",
+        "proofs/setmm/limit-unique.proof",
+        "    antisymmetry, from 1, 2",
+    ),
+    (
+        "membership",
+        "proofs/setmm/limit-constant-multiple.proof",
+        "          membership",
+    ),
+    (
+        "inspection",
+        "proofs/setmm/image-empty.proof",
+        "                  inspection, contradicting 1.1.2",
+    ),
+    (
+        "join",
+        "proofs/setmm/halves-series.proof",
+        "                  join 3.2.7, 3.2.10",
+    ),
+    (
+        "restate",
+        "proofs/setmm/divisor-of-power.proof",
+        "          restate H4",
+    ),
+    (
+        "contradiction",
+        "proofs/setmm/floor-below-non-integer.proof",
+        "    contradiction",
+    ),
     ("proof", "proofs/setmm/halves-series.proof", "    proof"),
-    ("induction", "proofs/setmm/halves-series.proof", "    induction on k starting at 1"),
-    ("cases", "proofs/setmm/joined-functions.proof", "          cases, from 1.1"),
-    ("both directions", "proofs/setmm/multiplying-bounds.proof", "    both directions"),
-    ("calculation", "proofs/setmm/halves-series.proof", "          calculation"),
-    ("an item", "proofs/wiedijk/pythagoras.proof", "    mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1"),
+    (
+        "induction",
+        "proofs/setmm/halves-series.proof",
+        "    induction on k starting at 1",
+    ),
+    (
+        "cases",
+        "proofs/setmm/joined-functions.proof",
+        "          cases, from 1.1",
+    ),
+    (
+        "both directions",
+        "proofs/setmm/multiplying-bounds.proof",
+        "    both directions",
+    ),
+    (
+        "calculation",
+        "proofs/setmm/halves-series.proof",
+        "          calculation",
+    ),
+    (
+        "an item",
+        "proofs/wiedijk/pythagoras.proof",
+        "    mun:between-symmetric R := D, S := A, T := B, from 1",
+    ),
 ];
 
 /// A reason that matches no production has no reading, and is told that
@@ -813,10 +889,10 @@ fn cases() -> Vec<Case> {
             "lean on a line the step does not name",
             vec![edit(
                 "proofs/wiedijk/infinitely-many-primes.proof",
-                Some("    5.4.  (n! + 1) − n! = 1\n          algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
-                "    5.4.  (n! + 1) − n! = 1\n          algebra\n".to_string(),
+                Some("            p divides 1                  algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
+                "            p divides 1                  algebra\n".to_string(),
             )],
-            "proofs/wiedijk/infinitely-many-primes.proof:44  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+            "proofs/wiedijk/infinitely-many-primes.proof:46  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // An angle is no letter, numeral or term built from them, so the
         // `algebra` step combining it writes its membership, unless a cited
@@ -886,8 +962,8 @@ fn cases() -> Vec<Case> {
             "leave out a definition's subject where the proof has no such letter",
             vec![edit(
                 "proofs/wiedijk/pythagorean-triples.proof",
-                Some("def:divides d := 4, n := 2, from 2.2.11".to_string()),
-                "def:divides n := 2, from 2.2.11".to_string(),
+                Some("def:divides d := 4, n := 2, from 2.2.10".to_string()),
+                "def:divides n := 2, from 2.2.10".to_string(),
             )],
             "def:divides is about d, and the step gives d no value and the proof has no d; write it, as d := t",
         ),
@@ -927,7 +1003,7 @@ fn cases() -> Vec<Case> {
                 Some("    let A = Σ(k = 1 to n) a(k)², a real number                        (D1)".to_string()),
                 "    let A = Σ(k = 1 to n) a(k)², a natural number                     (D1)".to_string(),
             )],
-            "the requires line of step 5.13 says A > 0, which the step's other lines already say",
+            "the requires line of step 5.10 says A > 0, which the step's other lines already say",
         ),
         // A false divisibility of numerals, on a requires line: the checker
         // works it out as `arithmetic` does (`check_arithmetic_holds`).
@@ -1324,13 +1400,13 @@ fn cases() -> Vec<Case> {
             "step 2 opens a proof block with an assume line, and its claim supposes nothing there",
         ),
         // A requires line of a closure step says a membership of a term the
-        // step combines: step 19 combines no power of 3.
+        // step combines: step 17 combines no power of 3.
         case(
             "a requires line of an inequalities step about a term it never combines",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n\n20.".to_string()),
-                "    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n    requires 3^j ∈ ℝ: membership\n\n20.".to_string(),
+                Some("    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n\n18.".to_string()),
+                "    requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)\n    requires 3^j ∈ ℝ: membership\n\n18.".to_string(),
             )],
             "says 3^j ∈ ℝ, and the step neither uses nor asks for it",
         ),
@@ -1387,8 +1463,8 @@ fn cases() -> Vec<Case> {
             "a from line that leaves out the type its value needs",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 25\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from H4, 3\n".to_string()),
-                "    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 25\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from 3\n".to_string(),
+                Some("    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 22\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from H4, 3\n".to_string()),
+                "    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 22\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from 3\n".to_string(),
             )],
             "from 3 does not reach f(b) ∈ ℝ, which this line claims it supplies",
         ),
@@ -1400,8 +1476,8 @@ fn cases() -> Vec<Case> {
             "a function's type from its define and its values, in place of the step proving it",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("    mun:sum-termwise a := 0, b := m + 1, t := p, from 23\n    requires p : {0, …, m + 1} → ℝ: from 4\n".to_string()),
-                "    mun:sum-termwise a := 0, b := m + 1, t := p, from 23\n    requires p : {0, …, m + 1} → ℝ: from D2, 3\n".to_string(),
+                Some("mun:sum-termwise a := 0, b := m + 1, t := p, from 17\n    requires p : {0, …, m + 1} → ℝ: from 4\n".to_string()),
+                "mun:sum-termwise a := 0, b := m + 1, t := p, from 17\n    requires p : {0, …, m + 1} → ℝ: from D2, 3\n".to_string(),
             )],
             "from D2, 3 does not reach p : {0, …, m + 1} → ℝ, which this line claims it supplies",
         ),
@@ -1424,7 +1500,7 @@ fn cases() -> Vec<Case> {
                 Some("= 1(1 + 1)/2            arithmetic".to_string()),
                 "= 1(1 + 1)/3            arithmetic".to_string(),
             )],
-            "a link of step 1.2 names arithmetic for 1 = 1(1 + 1)/3, which is false",
+            "a link of step 1.1 names arithmetic for 1 = 1(1 + 1)/3, which is false",
         ),
         // Two pairs are compared coordinate by coordinate (`METHODS.md`,
         // Pairs): equal pairs said to differ are false by arithmetic, a
@@ -1568,11 +1644,11 @@ fn cases() -> Vec<Case> {
         case(
             "substitute a name the proof never introduced",
             vec![edit(
-                "proofs/wiedijk/geometric-series.proof",
-                Some("          substitute a^((k + 1) + 1) = a^(k + 1)·a (line 1.9)".to_string()),
-                "          substitute a^((k + 1) + 1) = z (line 1.9)".to_string(),
+                "proofs/wiedijk/pythagorean-triples.proof",
+                Some("                  substitute a = 2p + 1 (line 2.2.1) into H4".to_string()),
+                "                  substitute a = z (line 2.2.1) into H4".to_string(),
             )],
-            "step 1.11 takes a^(k + 1 + 1) = z from 1.9, which does not say it",
+            "step 2.2.3 takes a = z from 2.2.1, which does not say it",
         ),
         // A step claims of a definition something it does not say.
         case(
@@ -1585,16 +1661,16 @@ fn cases() -> Vec<Case> {
             "step 2.6 claims something that def:abs does not conclude",
         ),
         // A base may be written without an identity element its instance
-        // has, and nothing else: 1 = (1 − a)/(1 − a) is no instance of
+        // has, and nothing else: G(a, 0) = 1 is no instance of
         // G(a, 0) = (1 − a^(0 + 1))/(1 − a) however its elements are read.
         case(
             "end an induction's base on what is not its instance",
             vec![edit(
                 "proofs/wiedijk/geometric-series.proof",
-                Some("    1.5.  G(a, 0) = (1 − a)/(1 − a)\n          calculation\n            G(a, 0) = 1                    1.3\n                    = (1 − a)/(1 − a)      1.4\n\n".to_string()),
+                Some("    1.2.  G(a, 0) = (1 − a)/(1 − a)\n          calculation\n            G(a, 0) = 1                    1.1\n                    = (1 − a)/(1 − a)      algebra\n          requires 1 − a ≠ 0: algebra, from H2\n\n".to_string()),
                 "".to_string(),
             )],
-            "step 1.4 ends the base part of step 1, which owes G(a, 0) = (1 − a^(0 + 1)) / (1 − a)",
+            "step 1.1 ends the base part of step 1, which owes G(a, 0) = (1 − a^(0 + 1)) / (1 − a)",
         ),
         // A conclusion is matched with an identity element dropped where the
         // instance has one, and with nothing else changed: the shifted sum
@@ -1603,10 +1679,10 @@ fn cases() -> Vec<Case> {
             "claim a lemma's conclusion with more than an identity element dropped",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()),
-                "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 2 to m + 1)".to_string(),
+                Some("= Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string()),
+                "= Σ(k = 2 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string(),
             )],
-            "step 29 claims something that mun:sum-shift does not conclude",
+            "step 26 claims something that mun:sum-shift does not conclude",
         ),
         // A substitution's line may leave out the + 0 it makes, and nothing
         // else: the product written the other way round is a reordering, which
@@ -1629,7 +1705,7 @@ fn cases() -> Vec<Case> {
                 Some("= C(m, 0 − 1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()),
                 "= C(m, −1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string(),
             )],
-            "step 38 claims something that mun:sum-first does not conclude",
+            "step 23 claims something that mun:sum-first does not conclude",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
         // proves it. Here H5 does not say `C ≠ A`, and no line above this one
@@ -1653,7 +1729,7 @@ fn cases() -> Vec<Case> {
                 Some("    requires C ≠ B: def:triangle, from H4\n".to_string()),
                 "    requires C ≠ B: def:triangle, from H5\n".to_string(),
             )],
-            "the requires line of step 8 needs something that def:triangle does not conclude",
+            "the requires line of step 6 needs something that def:triangle does not conclude",
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
@@ -1664,10 +1740,10 @@ fn cases() -> Vec<Case> {
             "a requires line above an item's line that the item does not ask for",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires Σ(k = 1 to m + 1)".to_string()),
-                "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 37) into line 38\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)".to_string(),
+                Some("    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires Σ(k = 1 to m + 1)".to_string()),
+                "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)".to_string(),
             )],
-            "the requires line of step 39 cites H1, and mun:power-real asks for nothing it says",
+            "the requires line of step 24 cites H1, and mun:power-real asks for nothing it says",
         ),
         // A requires line rests only on its reason. Line 2 does not say n! is
         // an integer, and `mun:int-real` asks it; the scope has it from line
@@ -1696,10 +1772,10 @@ fn cases() -> Vec<Case> {
             "write a requires line nothing asks for",
             vec![edit(
                 "proofs/wiedijk/sum-formula.proof",
-                Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
-                "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
+                Some("= (k + 1)((k + 1) + 1)/2       algebra\n".to_string()),
+                "= (k + 1)((k + 1) + 1)/2       algebra\n          requires 2 ∈ ℝ: arithmetic\n".to_string(),
             )],
-            "the requires line of step 1.6 says 2 ∈ ℝ, which the page says once",
+            "the requires line of step 1.3 says 2 ∈ ℝ, which the page says once",
         ),
         // A distance between two points is real, said once where the points
         // are introduced (`READERS.md`), so a line writing it does nothing.
@@ -1707,10 +1783,10 @@ fn cases() -> Vec<Case> {
             "write a distance's membership",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    algebra, from 6, 13, 14\n".to_string()),
-                "    algebra, from 6, 13, 14\n    requires |AC| ∈ ℝ: membership\n".to_string(),
+                Some("    algebra, from 4, 8, 9\n".to_string()),
+                "    algebra, from 4, 8, 9\n    requires |AC| ∈ ℝ: membership\n".to_string(),
             )],
-            "the requires line of step 15 says |AC| ∈ ℝ, which the page says once",
+            "the requires line of step 10 says |AC| ∈ ℝ, which the page says once",
         ),
         // A chain of equations is a whole sentence (`SYNTAX.md`), never a
         // part of another formula.
@@ -1753,10 +1829,10 @@ fn cases() -> Vec<Case> {
             "say a true claim is impossible",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
-                "    2.3.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
+                Some("    2.2.  10 divides 1, which is impossible\n          substitute\n            10 divides (t + 1) − t      2.1\n            10 divides 1                algebra\n".to_string()),
+                "    2.2.  10 divides 1\n          substitute\n            10 divides (t + 1) − t      2.1\n            10 divides 1                algebra\n\n    2.3.  1 ≤ 10, which is impossible\n          inequalities\n".to_string(),
             )],
-            "step 2.4 says 1 ≤ 10 is impossible, and it holds",
+            "step 2.3 says 1 ≤ 10 is impossible, and it holds",
         ),
         // A claim holding a square root said to be impossible is worked out
         // by `real arithmetic`, which finds this one true.
@@ -1776,10 +1852,10 @@ fn cases() -> Vec<Case> {
             "claim an algebra step the cited lines do not give",
             vec![edit(
                 "proofs/wiedijk/geometric-series.proof",
-                Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
-                "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1".to_string(),
+                Some("= (1 − a^(k + 1)·a)/(1 − a)                  algebra".to_string()),
+                "= (1 − a^(k + 1)·a)/(1 − a) + 1              algebra".to_string(),
             )],
-            "(1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1 is not an identity, nor does it follow from what step 1.10 cites",
+            "(1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + 1 is not an identity, nor does it follow from what step 1.5 cites",
         ),
         // A bound the cited lines do not give: q ≥ j says j ≤ q, never
         // j < q (`check_inequalities_holds`).
@@ -1796,8 +1872,8 @@ fn cases() -> Vec<Case> {
             "ask algebra to multiply out a power past its cost",
             vec![edit(
                 "proofs/wiedijk/geometric-series.proof",
-                Some("    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)".to_string()),
-                "    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a) + (a + 1)^30 − (a + 1)^30".to_string(),
+                Some("= (1 − a^(k + 1)·a)/(1 − a)                  algebra".to_string()),
+                "= (1 − a^(k + 1)·a)/(1 − a) + (a + 1)^30 − (a + 1)^30    algebra".to_string(),
             )],
             "(a + 1)^30 is a power algebra does not multiply out",
         ),
@@ -1926,16 +2002,16 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 claims 2³ = 9, which is false",
         ),
-        // A substitution by a false fact of numerals, 0 − 1 = 1, which the
+        // A substitution by a false fact of numerals, 23 − 1 = 21, which the
         // checker works out as `arithmetic` does.
         case(
             "substitute by a false fact of numerals",
             vec![edit(
-                "proofs/wiedijk/binomial.proof",
-                Some("substitute 0 − 1 = −1 (arithmetic)".to_string()),
-                "substitute 0 − 1 = 1 (arithmetic)".to_string(),
+                "proofs/wiedijk/birthday.proof",
+                Some("substitute 23 − 1 = 22 (arithmetic)".to_string()),
+                "substitute 23 − 1 = 21 (arithmetic)".to_string(),
             )],
-            "step 33 takes 0 − 1 = 1 from arithmetic, which is false",
+            "step 12 takes 23 − 1 = 21 from arithmetic, which is false",
         ),
         // g(a) is the rule at a only where a is in g's domain [a, b]. That
         // is no number system, so no introducing line says it once, and
@@ -2000,7 +2076,7 @@ fn cases() -> Vec<Case> {
                 Some("    let k ∈ ℕ                                                         (K1)".to_string()),
                 "    let k ∈ ℤ                                                         (K1)".to_string(),
             )],
-            "step 1.2 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
+            "step 1.1 cites D1 at k, so it needs k ∈ ℕ, and nothing it cites or requires says it",
         ),
         // A define a file writes outside its theorems is read whether or not
         // a theorem uses it.
@@ -2028,8 +2104,8 @@ fn cases() -> Vec<Case> {
             "a membership read into a smaller number system",
             vec![edit(
                 "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("    let n ∈ ℕ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n\n    5.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n, from 3\n          requires n + 1 ≥ 1: inequalities, from K5\n".to_string()),
-                "    let n ∈ ℝ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n\n    5.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)\n          thm:sum-telescopes a := 1, b := n, from 3\n".to_string(),
+                Some("    let n ∈ ℕ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4\n                                 = 2 − 2/(n + 1)                      thm:sum-telescopes a := 1, b := n, from 3\n          requires n + 1 ≥ 1: inequalities, from K5\n".to_string()),
+                "    let n ∈ ℝ                                                         (K5)\n\n    5.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4\n                                 = 2 − 2/(n + 1)                      thm:sum-telescopes a := 1, b := n, from 3\n".to_string(),
             )],
             "the statement says n ranges over ℕ, and this line puts it in ℝ",
         ),
@@ -2040,8 +2116,8 @@ fn cases() -> Vec<Case> {
             "a chain link whose closed piece is false",
             vec![edit(
                 "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("    5.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2 − 2/(n + 1)                      5.2\n".to_string()),
-                "    5.3.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1\n                                 = 2/1 − 2/(n + 1)                    5.2\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
+                Some("    5.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4\n                                 = 2 − 2/(n + 1)                      thm:sum-telescopes a := 1, b := n, from 3\n".to_string()),
+                "    5.1.  Σ(k = 1 to n) 1/T(k) = 3 − 2/(n + 1)\n          calculation\n            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4\n                                 = 2/1 − 2/(n + 1)                    thm:sum-telescopes a := 1, b := n, from 3\n                                 = 3 − 2/(n + 1)                      arithmetic\n".to_string(),
             )],
             "names arithmetic for 2/1 − 2/(n + 1) = 3 − 2/(n + 1), which is false",
         ),
@@ -2061,11 +2137,11 @@ fn cases() -> Vec<Case> {
         case(
             "cite a line for a link it does not say",
             vec![edit(
-                "proofs/wiedijk/sum-formula.proof",
-                Some("= k(k + 1)/2 + (k + 1)         1.5".to_string()),
-                "= k(k + 1)/2 + (k + 1)         1.4".to_string(),
+                "proofs/wiedijk/pythagoras.proof",
+                Some("      ∠ADC = 90°        1\n".to_string()),
+                "      ∠ADC = 90°        2\n".to_string(),
             )],
-            "a link of step 1.7 cites 1.4, which does not say S(k) + (k + 1) = k(k + 1)/2 + (k + 1); a link cites the line that states it, and a substitution is a step of its own",
+            "a link of step 3 cites 2, which does not say ∠ADC = 90°; a link cites the line that states it, and a substitution is a step of its own",
         ),
         // What says f is continuous is H5. Without it cited, the step unfolds
         // a continuity nothing it names says.
@@ -2110,34 +2186,35 @@ fn cases() -> Vec<Case> {
             "expand a sum linearly with a wrong coefficient",
             vec![edit(
                 "proofs/wiedijk/cauchy-schwarz.proof",
-                Some("    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 2t·".to_string()),
-                "    1.3.  Σ(k = 1 to n) (a(k)·t + b(k))² = t²·(Σ(k = 1 to n) a(k)²) + 3t·".to_string(),
+                Some("            t²·(Σ(k = 1 to n) a(k)²) + 2t·".to_string()),
+                "            t²·(Σ(k = 1 to n) a(k)²) + 3t·".to_string(),
             )],
             "is not an identity, nor does it follow from what step 1.3 cites",
         ),
         // A closed exponent that comes to −1, which is not in ℕ₀. The checker
-        // does not work the exponent out; it reports the link below that
-        // cites the changed line for what it no longer says.
+        // does not work the exponent out: the link by mun:sum-single between
+        // the two changed terms passes, and the link above them, which puts
+        // C(0, 0) = 1 for one side, is reported for what it no longer makes.
         case(
             "a closed exponent that is not a whole number",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("    1.1.  Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k = C(0, 0)·x^0·y^0\n".to_string()),
-                "    1.1.  Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k = C(0, 0)·x^((0 − 1) − 0)·y^0\n".to_string(),
+                Some("                      = C(0, 0)·x^0·y^0                          substitute line 1.1\n                      = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k      mun:sum-single a := 0\n".to_string()),
+                "                      = C(0, 0)·x^((0 − 1) − 0)·y^0              substitute line 1.1\n                      = Σ(k = 0 to 0) C(0, k)·x^((0 − 1) − k)·y^k      mun:sum-single a := 0\n".to_string(),
             )],
-            "a link of step 1.6 cites 1.1, which does not say C(0, 0)·x^0·y^0 = Σ(k = 0 to 0) C(0, k)·x^(0 − k)·y^k; a link cites the line that states it, and a substitution is a step of its own",
+            "x^0 · y^0 = C(0, 0) · x^(0 − 1 − 0) · y^0 is not one side of an equation 1.1 says put for the other",
         ),
         // A link reads its cited equation from either side, and nothing on the
-        // page says which: line 2 says |CB| = |BC|, which is neither way round
-        // the link's |CA| = |CB|.
+        // page says which: line 3 says ∠ADC = ∠ACB, which is neither way round
+        // the link's 90° = ∠ACB.
         case(
             "cite an equation that says the link neither way round",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("           = ∠CAB       3\n".to_string()),
-                "           = ∠CAB       2\n".to_string(),
+                Some("      ∠BDC = 90°        1\n           = ∠ACB       H5\n".to_string()),
+                "      ∠BDC = 90°        1\n           = ∠ACB       3\n".to_string(),
             )],
-            "a link of step 4 cites 2, which does not say ∠BAC = ∠CAB; a link cites the line that states it, and a substitution is a step of its own",
+            "a link of step 7 cites 3, which does not say 90° = ∠ACB; a link cites the line that states it, and a substitution is a step of its own",
         ),
         // A claim of u = a where the item says u ≠ a is not what it says.
         case(
@@ -2602,23 +2679,23 @@ fn cases() -> Vec<Case> {
         case(
             "say what kind of number a let's name is with no reason under it",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := s, b := w, from 4, 35\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := s, b := w, from 4, 34\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
             ],
             "the line under it gives no reason",
         ),
         case(
             "give a let a reason that shows another term in the set",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 32".to_string()), "    def:gcd a := s, b := w, from 4, 35".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 31".to_string()), "    def:gcd a := s, b := w, from 4, 34".to_string()),
             ],
             "the reason under let D2 needs gcd(t, w) ∈ ℕ",
         ),
         case(
             "cite in a let's reason a step below the let",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 32".to_string()), "    def:gcd a := t, b := w, from 32, 56".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 31".to_string()), "    def:gcd a := t, b := w, from 31, 55".to_string()),
             ],
-            "the reason under let D2 cites 56, which is not above the let",
+            "the reason under let D2 cites 55, which is not above the let",
         ),
         case(
             "say what kind of number a let in a theorem's statement names",
@@ -2925,11 +3002,11 @@ fn cases() -> Vec<Case> {
         case(
             "substitute with no line, claiming more than the equation puts in",
             vec![edit(
-                "proofs/wiedijk/binomial.proof",
-                Some("    1.3.  C(0, 0)·x^0·y^0 = x^0·y^0\n".to_string()),
-                "    1.3.  C(0, 0)·x^0·y^0 = x^0·y^1\n".to_string(),
+                "proofs/wiedijk/leibniz.proof",
+                Some("    1.2.  x^(2(n + 1)) = x^(2n + 2)\n".to_string()),
+                "    1.2.  x^(2(n + 1)) = x^(2n + 3)\n".to_string(),
             )],
-            "step 1.3 claims C(0, 0) · x^0 · y^0 = x^0 · y^1, which putting one side of C(0, 0) = 1 for the other does not make",
+            "step 1.2 claims x^(2 · (n + 1)) = x^(2 · n + 3), which putting one side of 2 · (n + 1) = 2 · n + 2 for the other does not make",
         ),
         case(
             "cite a line that comes after the step",
@@ -2955,7 +3032,7 @@ fn cases() -> Vec<Case> {
         case(
             "a justification that matches no production",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("3.  (2k + 1)² = 4k² + 4k + 1\n    algebra".to_string()), "3.  (2k + 1)² = 4k² + 4k + 1\n    algebra from 1 and 2".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("         = 4k² + 4k + 1        algebra\n".to_string()), "         = 4k² + 4k + 1        algebra from 1 and 2\n".to_string()),
             ],
             "matches no production",
         ),
@@ -2964,7 +3041,7 @@ fn cases() -> Vec<Case> {
         case(
             "two substitutions in one step",
             vec![
-                edit("proofs/wiedijk/angle-sum.proof", Some("    substitute ∠DBA = ∠BAC (line 2)\n".to_string()), "    substitute ∠DBA = ∠BAC (line 2), ∠EBC = ∠BCA (line 3)\n".to_string()),
+                edit("proofs/wiedijk/angle-sum.proof", Some("      substitute line 2\n".to_string()), "      substitute ∠DBA = ∠BAC (line 2), ∠EBC = ∠BCA (line 3)\n".to_string()),
             ],
             "matches no production",
         ),
@@ -3066,7 +3143,7 @@ fn cases() -> Vec<Case> {
         case(
             "a block whose method takes none",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()), "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n\n          1.6.1.  k = k\n                  algebra\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("11. (m + 1) − (m + 1) = 0\n    algebra\n".to_string()), "11. (m + 1) − (m + 1) = 0\n    algebra\n\n    11.1.  m = m\n           algebra\n".to_string()),
             ],
             "takes no block",
         ),
@@ -3076,9 +3153,9 @@ fn cases() -> Vec<Case> {
         case(
             "claim a lemma's conclusion with more than an identity element dropped",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()), "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 2 to m + 1)".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("= Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string()), "= Σ(k = 2 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string()),
             ],
-            "step 29 claims something that mun:sum-shift does not conclude",
+            "step 26 claims something that mun:sum-shift does not conclude",
         ),
         // 0 is an identity on the right of a difference and not on its left:
         // C(m, 0 − 1) is not C(m, −1) by any identity law.
@@ -3087,7 +3164,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/binomial.proof", Some("= C(m, 0 − 1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()), "= C(m, −1)·x^(m + 1)·y^0 + Σ(k = 1 to m + 1)".to_string()),
             ],
-            "step 38 claims something that mun:sum-first does not conclude",
+            "step 23 claims something that mun:sum-first does not conclude",
         ),
         // A set-builder's equation needs no line where it is the same on both
         // sides once its witnesses are read off, and one where it is not:
@@ -3312,16 +3389,16 @@ fn cases() -> Vec<Case> {
         case(
             "an induction's base that stops short of the claim's first instance",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    1.2.  S(1) = 1(1 + 1)/2\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     1.1\n                 = 1(1 + 1)/2            arithmetic".to_string()), "    1.2.  S(1) = 1\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     1.1".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("    1.1.  S(1) = 1(1 + 1)/2\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     mun:sum-single a := 1\n                 = 1(1 + 1)/2            arithmetic".to_string()), "    1.1.  S(1) = 1\n          calculation\n            S(1) = Σ(j = 1 to 1) j       D1\n                 = 1                     mun:sum-single a := 1".to_string()),
             ],
-            "step 1.2 ends the base part of step 1, which owes",
+            "step 1.1 ends the base part of step 1, which owes",
         ),
         case(
             "an induction's step that stops short of the next instance",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.4\n                     = k(k + 1)/2 + (k + 1)         1.5\n                     = (k + 1)((k + 1) + 1)/2       1.6".to_string()), "    1.7.  S(k + 1) = k(k + 1)/2 + (k + 1)\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.4\n                     = k(k + 1)/2 + (k + 1)         1.5".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("    1.3.  S(k + 1) = (k + 1)((k + 1) + 1)/2\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.2\n                     = k(k + 1)/2 + (k + 1)         substitute IH\n                     = (k + 1)((k + 1) + 1)/2       algebra".to_string()), "    1.3.  S(k + 1) = k(k + 1)/2 + (k + 1)\n          calculation\n            S(k + 1) = S(k) + (k + 1)               1.2\n                     = k(k + 1)/2 + (k + 1)         substitute IH".to_string()),
             ],
-            "step 1.7 ends the step part of step 1, which owes",
+            "step 1.3 ends the step part of step 1, which owes",
         ),
         case(
             "a case that stops short of the block's claim",
@@ -3576,7 +3653,7 @@ fn cases() -> Vec<Case> {
         case(
             "two theorems of one file that cite each other",
             vec![
-                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    def:odd n := n², from 5".to_string()), "    thm:even-square n := n², from 5".to_string()),
+                edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    def:odd n := n², from 2".to_string()), "    thm:even-square n := n², from 2".to_string()),
             ],
             "closes a cycle of citations: odd-square → even-square → odd-square",
         ),
@@ -3635,7 +3712,7 @@ fn cases() -> Vec<Case> {
         case(
             "two names run together into a declared word",
             vec![
-                edit("proofs/wiedijk/pythagoras.proof", Some("14. |AD| + |DB| = |AB|".to_string()), "14. |an| + |DB| = |AB|".to_string()),
+                edit("proofs/wiedijk/pythagoras.proof", Some("9.  |AD| + |DB| = |AB|".to_string()), "9.  |an| + |DB| = |AB|".to_string()),
             ],
             "run together",
         ),
@@ -4083,7 +4160,7 @@ fn cases() -> Vec<Case> {
         case(
             "apply a defined function outside its domain's sort",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("2.  S(n) = n(n + 1)/2".to_string()), "2.  S({n}) = n(n + 1)/2".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("    1.1.  S(1) = 1(1 + 1)/2".to_string()), "    1.1.  S({1}) = 1(1 + 1)/2".to_string()),
             ],
             "a set of numbers where a number is wanted",
         ),
@@ -4120,7 +4197,7 @@ fn cases() -> Vec<Case> {
         case(
             "read an item's summand two ways",
             vec![
-                edit("proofs/wiedijk/divisibility-by-three.proof", Some("= Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)\n    mun:sum-difference".to_string()), "= Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)\n    mun:sum-difference".to_string()),
+                edit("proofs/wiedijk/divisibility-by-three.proof", Some("      3 divides Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k)      mun:sum-difference".to_string()), "      3 divides Σ(k = 0 to n) d(k) − Σ(k = 0 to n) d(k)      mun:sum-difference".to_string()),
             ],
             "step 3 claims something that mun:sum-difference does not conclude",
         ),
@@ -4174,16 +4251,16 @@ fn cases() -> Vec<Case> {
         case(
             "end a contradiction block without saying what it contradicts",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.6\n".to_string()), "inequalities\n".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.5\n".to_string()), "inequalities\n".to_string()),
             ],
             "does not say which line it contradicts",
         ),
         case(
             "contradict a line that is not the claim's opposite",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.6\n".to_string()), "inequalities, contradicting 5.5\n".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("inequalities, contradicting 5.5\n".to_string()), "inequalities, contradicting 5.4\n".to_string()),
             ],
-            "says it contradicts 5.5, and neither is the other negated",
+            "says it contradicts 5.4, and neither is the other negated",
         ),
         case(
             "give a method that combines letters for a fact of numerals alone",
@@ -4240,10 +4317,10 @@ fn cases() -> Vec<Case> {
             "give algebra for an equation turned round",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("49. ∠ECA = ∠BAC\n    restate 23".to_string()),
-                "49. ∠ECA = ∠BAC\n    algebra, from 23".to_string(),
+                Some("43. ∠ECA = ∠BAC\n    restate 17".to_string()),
+                "43. ∠ECA = ∠BAC\n    algebra, from 17".to_string(),
             )],
-            "step 49 says an equation 23 says, which is `restate 23`, not algebra",
+            "step 43 says an equation 17 says, which is `restate 17`, not algebra",
         ),
         // An induction over the parts of a set holds of a finite set only,
         // starts at ∅, opens its step with the member it adds, and ends it
@@ -4354,14 +4431,14 @@ fn cases() -> Vec<Case> {
         case(
             "say a claim with a letter in it is impossible",
             vec![
-                edit("proofs/wiedijk/reals-uncountable.proof", Some("    2.3.  10 divides 1, which is impossible\n".to_string()), "    2.3.  10 divides t, which is impossible\n".to_string()),
+                edit("proofs/wiedijk/reals-uncountable.proof", Some("    2.2.  10 divides 1, which is impossible\n".to_string()), "    2.2.  10 divides t, which is impossible\n".to_string()),
             ],
             "says it is impossible and names t",
         ),
         case(
             "contradict a line before the end of the block",
             vec![
-                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 5.5".to_string()), "mun:divides-one d := p, from 5.5, contradicting 5.5".to_string()),
+                edit("proofs/wiedijk/infinitely-many-primes.proof", Some("mun:divides-one d := p, from 5.4".to_string()), "mun:divides-one d := p, from 5.4, contradicting 5.4".to_string()),
             ],
             "only the last step of a contradiction block, a case or a proof block may do",
         ),
@@ -4470,15 +4547,15 @@ fn cases() -> Vec<Case> {
             "step 1 cites H1, and mun:nonneg-or-neg asks for nothing it says",
         ),
         // A "there is" given by an instance is given only where the instance is
-        // in the domain. The mean value theorem's step 31 exhibits c, and
-        // without line 25, which says c ∈ (a, b), the witness could be
+        // in the domain. The mean value theorem's step 26 exhibits c, and
+        // without line 22, which says c ∈ (a, b), the witness could be
         // anywhere.
         case(
             "exhibit a witness without saying it is in the domain",
             vec![
-                edit("proofs/wiedijk/mean-value.proof", Some("    exhibit, from 25, 30\n".to_string()), "    exhibit, from 30\n".to_string()),
+                edit("proofs/wiedijk/mean-value.proof", Some("    exhibit, from 22, 25\n".to_string()), "    exhibit, from 25\n".to_string()),
             ],
-            "step 31 exhibits c := c, so it needs c ∈ (a, b)",
+            "step 26 exhibits c := c, so it needs c ∈ (a, b)",
         ),
         // A requires line rests on the lines above it, read top to bottom
         // (`SYNTAX.md`). Written first, |numer(x)| ∈ ℕ₀ asks for numer(x) ∈ ℤ,
@@ -4598,34 +4675,34 @@ fn cases() -> Vec<Case> {
         case(
             "Pascal with the shift going the wrong way",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    44.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    44.3.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    27.3.  C(m, k) + C(m, k − 1) = C(m + 1, k)\n".to_string()), "    27.3.  C(m, k) + C(m, k + 1) = C(m + 1, k)\n".to_string()),
             ],
-            "step 44.3 claims something that thm:pascal does not conclude",
+            "step 27.3 claims something that thm:pascal does not conclude",
         ),
         // Shifting the index moves the range with it.
         case(
             "a shifted sum left over the range it came from",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 1 to m + 1)".to_string()), "29. Σ(k = 0 to m) C(m, k)·x^(m − k)·y^(k + 1) = Σ(k = 0 to m)".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("= Σ(k = 1 to m + 1) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string()), "= Σ(k = 0 to m) C(m, k − 1)·x^(m − (k − 1))·y^((k − 1) + 1)        mun:sum-shift".to_string()),
             ],
-            "step 29 claims something that mun:sum-shift does not conclude",
+            "step 26 claims something that mun:sum-shift does not conclude",
         ),
         // A line saying something of every index from 0 to m says nothing of
         // the index m + 1, which the sum to m + 1 takes.
         case(
             "a term-by-term line over too short a range",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    mun:sum-termwise a := 0, b := m + 1, from 44\n".to_string()), "    mun:sum-termwise a := 0, b := m + 1, from 10\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("mun:sum-termwise a := 0, b := m + 1, from 27\n".to_string()), "mun:sum-termwise a := 0, b := m + 1, from 8\n".to_string()),
             ],
-            "step 45 cites mun:sum-termwise, which asks for",
+            "step 30 cites mun:sum-termwise, which asks for",
         ),
         // C(n, k) is zero above n, and C(m + 1, m + 1) is not above it.
         case(
             "a coefficient called zero where k is not above n",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    def:C n := m, k := m + 1, from 12".to_string()), "    def:C n := m + 1, k := m + 1, from 12".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    def:C n := m, k := m + 1, from 9".to_string()), "    def:C n := m + 1, k := m + 1, from 9".to_string()),
             ],
-            "step 13 claims something that def:C does not conclude",
+            "step 10 claims something that def:C does not conclude",
         ),
         // Every block of binomial-step fixes k under the label J, and J means
         // what the block around the citing step says: here k runs from 1. Read
@@ -4633,9 +4710,9 @@ fn cases() -> Vec<Case> {
         case(
             "a label read as a sibling block's",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    30.1.  m − (k − 1) = (m + 1) − k\n           algebra\n".to_string()), "    30.1.  m − (k − 1) = (m + 1) − k\n           algebra\n           requires (m + 1) − k ∈ ℕ₀: mun:range-difference a := 0, n := m + 1, from J\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    20.1.  m − (k − 1) = (m + 1) − k\n           algebra\n".to_string()), "    20.1.  m − (k − 1) = (m + 1) − k\n           algebra\n           requires (m + 1) − k ∈ ℕ₀: mun:range-difference a := 0, n := m + 1, from J\n".to_string()),
             ],
-            "the requires line of step 30.1 cites mun:range-difference",
+            "the requires line of step 20.1 cites mun:range-difference",
         ),
         // `arithmetic` may stand where a closed-numeral fact is used, and only
         // there: an equation with a letter in it gives a reader something to
@@ -4643,14 +4720,14 @@ fn cases() -> Vec<Case> {
         case(
             "take an equation with a letter in it from arithmetic",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("substitute m − (k − 1) = (m + 1) − k (line 30.1)".to_string()), "substitute m − (k − 1) = (m + 1) − k (arithmetic)".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("substitute C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0 (line 12)".to_string()), "substitute C(m, m + 1)·x^((m + 1) − (m + 1))·y^(m + 1) = 0 (arithmetic)".to_string()),
             ],
-            "takes m − (k − 1) = (m + 1) − k from arithmetic, and it has a letter in it",
+            "from arithmetic, and it has a letter in it",
         ),
         case(
             "a chain link with a letter in it naming arithmetic",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       1.6".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       algebra".to_string()), "= (k + 1)((k + 1) + 1)/2       arithmetic".to_string()),
             ],
             "names arithmetic for",
         ),
@@ -4667,7 +4744,7 @@ fn cases() -> Vec<Case> {
         case(
             "membership named for a claim that is no membership",
             vec![
-                edit("proofs/wiedijk/triangular-reciprocals.proof", Some("    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n".to_string()), "    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          membership, from 1\n".to_string()),
+                edit("proofs/wiedijk/triangular-reciprocals.proof", Some("    def:series-sum L := 2, from 7\n".to_string()), "    membership, from 7\n".to_string()),
             ],
             "names membership for",
         ),
@@ -4677,7 +4754,7 @@ fn cases() -> Vec<Case> {
         case(
             "a for-every line over a set that does not hold the range",
             vec![
-                edit("proofs/wiedijk/triangular-reciprocals.proof", Some("    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 1, b := n, from 1, 2, 4\n".to_string()), "    5.1.  Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))\n          mun:sum-termwise a := 0, b := n, from 1, 2, 4\n".to_string()),
+                edit("proofs/wiedijk/triangular-reciprocals.proof", Some("            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4\n".to_string()), "            Σ(k = 0 to n) 1/T(k) = Σ(k = 0 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 0, b := n, from 1, 2, 4\n".to_string()),
             ],
             "step 5.1 cites mun:sum-termwise, which asks",
         ),
@@ -4686,9 +4763,9 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line the summand does not ask for",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    mun:sum-scaled a := 0, b := m, c := x\n".to_string()), "    mun:sum-scaled a := 0, b := m, c := x\n    requires 1 > 0: arithmetic\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    mun:sum-real a := 0, b := m\n    requires t : {0, …, m} → ℝ: from 2\n".to_string()), "    mun:sum-real a := 0, b := m\n    requires t : {0, …, m} → ℝ: from 2\n    requires 1 > 0: arithmetic\n".to_string()),
             ],
-            "says 1 > 0, and neither mun:sum-scaled nor",
+            "says 1 > 0, and neither mun:sum-real nor",
         ),
         // A hypothesis asking a = b is answered by a line saying b = a, and by
         // nothing else: line 2 says |CB| = |BC|, which is neither way round the
@@ -4857,7 +4934,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()),
             ],
-            "the requires line of step 10.6 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
+            "the requires line of step 8.4 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 12 divides
@@ -5186,7 +5263,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/wilson.proof", Some("mun:product-split, from H1, H2, 1, 2".to_string()), "mun:product-split, from H2, 1, 2".to_string()),
             ],
-            "step 8 cites mun:product-split, which asks that every term x is in ℝ, and it is no number by what the page says once",
+            "step 21 cites mun:product-split, which asks that every term x is in ℝ, and it is no number by what the page says once",
         ),
         // A function declared on X says nothing of its values on a part of
         // X written as no range or number system: they are said by a line.
@@ -5232,7 +5309,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("          requires 2 > 1: arithmetic\n".to_string()), String::new()),
             ],
-            "step 2.16 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
+            "step 2.14 exhibits d := 2, so it needs 2 > 1, and nothing it cites or requires says it",
         ),
         // An instantiation's value is in what its letter ranges over, as a
         // line the step names says: −f(c) > 0 says nothing of ℝ, and without
@@ -5288,7 +5365,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sum-formula.proof", Some("          requires k ≥ 1: from K\n".to_string()), String::new()),
             ],
-            "step 1.3 cites mun:sum-extended, which asks for",
+            "step 1.2 cites mun:sum-extended, which asks for",
         ),
         // A letter's membership is said where it is introduced, and a line
         // cited only for it does no work: H2 says c ∈ ℝ, and abs-real asks
@@ -5375,16 +5452,16 @@ fn cases() -> Vec<Case> {
             "arithmetic working out an operation its record does not give it",
             vec![
                 edit("corpus/db/notation.records", Some("  reads       the remainder on dividing by\n  decided     arithmetic\n".to_string()), "  reads       the remainder on dividing by\n".to_string()),
-                edit("proofs/wiedijk/sum-formula.proof", Some("          algebra\n".to_string()), "          algebra\n          requires 7 mod 3 = 1: arithmetic\n".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("= (k + 1)((k + 1) + 1)/2       algebra\n".to_string()), "= (k + 1)((k + 1) + 1)/2       algebra\n          requires 7 mod 3 = 1: arithmetic\n".to_string()),
             ],
             "7 mod 3 = 1 works out",
         ),
         case(
             "a step that is impossible and not the last of its block",
             vec![
-                edit("proofs/wiedijk/reals-uncountable.proof", Some("    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()), "    2.3.  10 divides 1, which is impossible\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n\n    2.4.  10 divides 1\n          substitute (t + 1) − t = 1 (line 2.2) into line 2.1\n".to_string()),
+                edit("proofs/wiedijk/reals-uncountable.proof", Some("            10 divides 1                algebra\n".to_string()), "            10 divides 1                algebra\n\n    2.3.  10 divides 1\n          substitute\n            10 divides (t + 1) − t      2.1\n            10 divides 1                algebra\n".to_string()),
             ],
-            "step 2.3 says it is impossible, which only the last step",
+            "step 2.2 says it is impossible, which only the last step",
         ),
         case(
             "contradicting a line that is not in scope",
@@ -5410,40 +5487,40 @@ fn cases() -> Vec<Case> {
         case(
             "algebra giving a claim of numerals alone",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra".to_string()), "    1.6.  2 + 2 = 4\n          algebra".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("11. (m + 1) − (m + 1) = 0\n    algebra".to_string()), "11. 2 + 2 = 4\n    algebra".to_string()),
             ],
-            "step 1.6 gives algebra for 2 + 2 = 4, which arithmetic can work out",
+            "step 11 gives algebra for 2 + 2 = 4, which arithmetic can work out",
         ),
         // A step citing a define is the define at its values: one equation,
         // or that its name is a function on a set.
         case(
             "a step citing a define for another function on a set",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    10.1. t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    10.1. p is a function on {0, …, m}\n          D1, from J".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    8.1.  t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    8.1.  p is a function on {0, …, m}\n          D1, from J".to_string()),
             ],
             "and claims that something other than t is a function on a set",
         ),
         case(
             "a step citing a define for no equation",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("    10.1. t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    10.1. t(k) ≠ C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("    8.1.  t(k) = C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()), "    8.1.  t(k) ≠ C(m, k)·x^(m − k)·y^k\n          D1, from J".to_string()),
             ],
-            "step 10.1 cites D1 and claims no one equation",
+            "step 8.1 cites D1 and claims no one equation",
         ),
         // The steps are numbered as a reader counts them.
         case(
             "a step number written twice",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    1.4.  S(k + 1) = S(k) + (k + 1)".to_string()), "    1.3.  S(k + 1) = S(k) + (k + 1)".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("    1.3.  S(k + 1) = (k + 1)((k + 1) + 1)/2".to_string()), "    1.2.  S(k + 1) = (k + 1)((k + 1) + 1)/2".to_string()),
             ],
-            "step 1.3 is numbered twice",
+            "step 1.2 is numbered twice",
         ),
         // A method that opens a block has one, with the parts its record
         // declares, each opening as the record says.
         case(
             "a method that needs a block with none",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("2.  S(n) = n(n + 1)/2\n    instantiate k := n in line 1".to_string()), "2.  S(n) = n(n + 1)/2\n    contradiction".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("2.  Σ(k = 1 to n) k = n(n + 1)/2\n    calculation\n      Σ(k = 1 to n) k = S(n)              D1\n                      = n(n + 1)/2        instantiate k := n in line 1".to_string()), "2.  Σ(k = 1 to n) k = n(n + 1)/2\n    contradiction".to_string()),
             ],
             "step 2 is justified by contradiction, which needs a block, and has no sub-steps",
         ),
@@ -5487,9 +5564,9 @@ fn cases() -> Vec<Case> {
         case(
             "a calculation with no chain",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("    calculation\n      Σ(k = 1 to n) k = S(n)              D1\n                      = n(n + 1)/2        2".to_string()), "    calculation".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("    calculation\n      Σ(k = 1 to n) k = S(n)              D1\n                      = n(n + 1)/2        instantiate k := n in line 1".to_string()), "    calculation".to_string()),
             ],
-            "step 3 is a calculation with no chain",
+            "step 2 is a calculation with no chain",
         ),
         case(
             "a chain line whose algebra cites a line",
@@ -5585,16 +5662,16 @@ fn cases() -> Vec<Case> {
         case(
             "a chain line with no relation",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 1                       1.1".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("                 = 1                     mun:sum-single a := 1".to_string()), "                 1                       mun:sum-single a := 1".to_string()),
             ],
             "chain line carries no relation",
         ),
         case(
             "a chain line citing two lines",
             vec![
-                edit("proofs/wiedijk/sum-formula.proof", Some("                 = 1                     1.1".to_string()), "                 = 1                     D1, 1.1".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("            S(k + 1) = S(k) + (k + 1)               1.2".to_string()), "            S(k + 1) = S(k) + (k + 1)               D1, 1.2".to_string()),
             ],
-            "a calculation line cites one line or label, and this one cites D1, 1.1",
+            "a calculation line cites one line or label, and this one cites D1, 1.2",
         ),
         case(
             "a line number after into without the word line",
@@ -6001,10 +6078,10 @@ fn cases() -> Vec<Case> {
             "a pair naming a letter for itself in a requires line",
             vec![edit(
                 "proofs/wiedijk/wilson.proof",
-                Some("          requires u ∈ ℤ: mun:in-subset, from H1, 13.1".to_string()),
-                "          requires u ∈ ℤ: mun:in-subset u := u, from H1, 13.1".to_string(),
+                Some("          requires u ∈ ℤ: mun:in-subset, from H1, 12.1".to_string()),
+                "          requires u ∈ ℤ: mun:in-subset u := u, from H1, 12.1".to_string(),
             )],
-            "the requires line of step 13.4 cites with the pair u := u, and the theorem is checked without it",
+            "the requires line of step 12.4 cites with the pair u := u, and the theorem is checked without it",
         ),
         // A method step uses each line it cites: the certificate combines
         // lines 2 and 3, and line 1 says a + b is at least 0 or below it,
@@ -6013,22 +6090,22 @@ fn cases() -> Vec<Case> {
             "cite a line a method step does not combine",
             vec![edit(
                 "proofs/wiedijk/triangle-inequality.proof",
-                Some("    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n".to_string()),
-                "    4.2.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n".to_string(),
+                Some("    4.1.  a + b ≤ |a| + |b|\n          inequalities, from 2, 3\n".to_string()),
+                "    4.1.  a + b ≤ |a| + |b|\n          inequalities, from 1, 2, 3\n".to_string(),
             )],
-            "step 4.2 cites 1 and uses nothing it says",
+            "step 4.1 cites 1 and uses nothing it says",
         ),
-        // k's membership is said once, by K, and every step has it without
-        // naming K. A method step citing K for it cites a line it uses
+        // k's membership is said once, by J, and every step has it without
+        // naming J. A method step citing J for it cites a line it uses
         // nothing of.
         case(
             "cite a let line only for the membership it says once, in a method step",
             vec![edit(
-                "proofs/wiedijk/sum-formula.proof",
-                Some("    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra\n".to_string()),
-                "    1.6.  k(k + 1)/2 + (k + 1) = (k + 1)((k + 1) + 1)/2\n          algebra, from K\n".to_string(),
+                "proofs/wiedijk/binomial.proof",
+                Some("    20.2.  (k − 1) + 1 = k\n           algebra\n".to_string()),
+                "    20.2.  (k − 1) + 1 = k\n           algebra, from J\n".to_string(),
             )],
-            "step 1.6 cites K and uses nothing it says",
+            "step 20.2 cites J and uses nothing it says",
         ),
         // Inspection reads the facts of what it cites, and C's degree is
         // read off H1 and the degree's definition, not off A's.
@@ -6081,8 +6158,8 @@ fn cases() -> Vec<Case> {
             "a requires line from a function's type naming the let of its point",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          algebra\n          requires d(k) ∈ ℝ: from H2\n".to_string()),
-                "          algebra\n          requires d(k) ∈ ℝ: from H2, K\n".to_string(),
+                Some("      algebra\n          requires d(k) ∈ ℝ: from H2\n".to_string()),
+                "      algebra\n          requires d(k) ∈ ℝ: from H2, K\n".to_string(),
             )],
             "the requires line of step 1.4 cites K, and d(k) ∈ ℝ needs nothing it says",
         ),
@@ -6163,7 +6240,7 @@ fn cases() -> Vec<Case> {
                 Some("          requires 1 − a ≠ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string()),
                 "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string(),
             )],
-            "the requires line of step 1.10: no token at '¿ 0' in '1 − a ¿ 0'",
+            "the requires line of step 1.5: no token at '¿ 0' in '1 − a ¿ 0'",
         ),
         // Dropping the + 0 asks that what is left be a number, and q(x) ∈ ℂ is
         // a function's value, which the step says in a requires line: without
@@ -6241,8 +6318,8 @@ fn cases() -> Vec<Case> {
             "divide by a term no line says is not zero",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    algebra, from 29\n    requires b − a ≠ 0: weakening, from 1\n".to_string()),
-                "    algebra, from 29\n".to_string(),
+                Some("    algebra, from 24\n    requires b − a ≠ 0: weakening, from 1\n".to_string()),
+                "    algebra, from 24\n".to_string(),
             )],
             "nothing says b − a ≠ 0, which this step needs to divide by it",
         ),
@@ -6306,17 +6383,17 @@ fn cases() -> Vec<Case> {
             "the requires line of step 6.2.10 cites 2, and mun:sum-real asks for nothing it says",
         ),
         // A requires line citing a sum's item is read as a step citing it,
-        // on a step citing no item itself: step 18 is a transitivity, and
+        // on a step citing no item itself: step 16 is a transitivity, and
         // its line saying the harmonic block's sum is real asks the terms
         // 1/k, k in a range from 2^j + 1, at every point.
         case(
             "a requires line on a method step citing a sum's item whose terms nothing says",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("    transitivity, from 17, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
-                "    transitivity, from 17, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n".to_string(),
+                Some("    transitivity, from 15, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
+                "    transitivity, from 15, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n".to_string(),
             )],
-            "the requires line Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ of step 18 cites mun:sum-real, which asks that every term 1 / k is in ℝ",
+            "the requires line Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ of step 16 cites mun:sum-real, which asks that every term 1 / k is in ℝ",
         ),
         // A function the proof defines has its type said by a line the step
         // names, as any function's is: t is defined by D1, and its type is
@@ -6325,10 +6402,10 @@ fn cases() -> Vec<Case> {
             "cite a sum's item of a defined function no line types",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("    mun:sum-termwise a := 0, b := m, from 48\n    requires t : {0, …, m} → ℝ: from 2\n".to_string()),
-                "    mun:sum-termwise a := 0, b := m, from 48\n".to_string(),
+                Some("    mun:sum-termwise a := 0, b := m, from 28\n    requires t : {0, …, m} → ℝ: from 2\n".to_string()),
+                "    mun:sum-termwise a := 0, b := m, from 28\n".to_string(),
             )],
-            "step 49 cites mun:sum-termwise, which asks for t : {0, …, m} → ℝ, and nothing it cites or requires says it",
+            "step 29 cites mun:sum-termwise, which asks for t : {0, …, m} → ℝ, and nothing it cites or requires says it",
         ),
         // The same of a requires line citing the item, which sees only what
         // it cites.
@@ -6336,10 +6413,10 @@ fn cases() -> Vec<Case> {
             "a requires line citing a sum's item of a defined function it does not type",
             vec![edit(
                 "proofs/wiedijk/binomial.proof",
-                Some("    algebra\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: from 7\n\n9.".to_string()),
-                "    algebra\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: mun:sum-real a := 0, b := m\n\n9.".to_string(),
+                Some("(line 15) into line 14\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: from 7\n".to_string()),
+                "(line 15) into line 14\n    requires Σ(k = 0 to m) t(k) ∈ ℝ: mun:sum-real a := 0, b := m\n".to_string(),
             )],
-            "the requires line of step 8 cites mun:sum-real, which asks for t : {0, …, m} → ℝ, and nothing it cites says it",
+            "the requires line of step 16 cites mun:sum-real, which asks for t : {0, …, m} → ℝ, and nothing it cites says it",
         ),
         // An identity element inside the place a substitution matches is
         // dropped there: 1.4.1 says ||a(n)| − 0| < ε, the equation's left
@@ -6389,15 +6466,15 @@ fn cases() -> Vec<Case> {
             "step 2 is cited by nothing, and is not the last step of its part",
         ),
         // A divisor the page says once is a positive integer needs no line
-        // saying it is not zero: k ∈ ℕ, so k + 1 is one.
+        // saying it is not zero: D1 lets k be a positive integer.
         case(
             "say a divisor the page says once is a positive integer is not zero",
             vec![edit(
-                "proofs/wiedijk/triangular-reciprocals.proof",
-                Some("    1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)\n          algebra\n".to_string()),
-                "    1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)\n          algebra\n          requires k + 1 ≠ 0: inequalities, from K1\n".to_string(),
+                "proofs/wiedijk/pythagorean-triples.proof",
+                Some("11. (a/k)² + (b/k)² = (a² + b²)/k²\n    algebra\n".to_string()),
+                "11. (a/k)² + (b/k)² = (a² + b²)/k²\n    algebra\n    requires k ≠ 0: inequalities, from D1\n".to_string(),
             )],
-            "the requires line of step 1.1 says k + 1 ≠ 0, and the step neither uses nor asks for it",
+            "the requires line of step 11 says k ≠ 0, and the step neither uses nor asks for it",
         ),
         // A function's type gives a value only at a point of its domain, and a
         // requires line rests only on what it names, so a line citing the
