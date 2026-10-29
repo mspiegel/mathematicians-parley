@@ -32,6 +32,8 @@ use crate::source::Disk;
 struct Folds {
     links: usize,
     rows: usize,
+    /// Substitutes merged into the substitute just above them.
+    merged: usize,
 }
 
 /// Where a step's one use is.
@@ -138,8 +140,9 @@ pub fn run(root: &Path, dir: &str) -> Said {
     }
     let links: usize = folded.values().map(|f| f.links).sum();
     let rows: usize = folded.values().map(|f| f.rows).sum();
+    let merged: usize = folded.values().map(|f| f.merged).sum();
     printed.push_str(&format!(
-        "{links} step(s) moved onto chain lines, {rows} into substitute rows, in {} theorem(s)\n",
+        "{links} step(s) moved onto chain lines, {rows} into substitute rows, {merged} substitute(s) merged into the one above, in {} theorem(s)\n",
         folded.len()
     ));
     if !put_back.is_empty() {
@@ -244,6 +247,11 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
                 if refused.contains(&key) {
                     continue;
                 }
+                if merged_run(thm, &mut lines, end, i) {
+                    done.entry(thm.name.clone()).or_default().merged += 1;
+                    any = true;
+                    break 'theorems;
+                }
                 let Some(used) = one_use(thm, i) else {
                     continue;
                 };
@@ -276,6 +284,205 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
         text = joined(lines, &text);
     }
     (text, done)
+}
+
+/// How many times the theorem cites step `i`; None where a line citing
+/// lines does not read.
+fn citations(thm: &Theorem, i: usize) -> Option<usize> {
+    let no = thm.steps[i].number.to_string();
+    let mut count = 0;
+    let mut tally = |refs: &[String], contradicting: Option<&String>| {
+        count += refs.iter().filter(|r| **r == no).count();
+        count += usize::from(contradicting == Some(&no));
+    };
+    for s in &thm.steps {
+        tally(&s.just.refs, s.just.contradicting.as_ref());
+        for r in &s.requires {
+            let by = r.by.as_ref().ok()?;
+            tally(&by.refs, by.contradicting.as_ref());
+        }
+        if s.openers
+            .iter()
+            .any(|o| o.text.contains(&format!("step {no} ")))
+        {
+            return None;
+        }
+    }
+    for d in &thm.defines {
+        if let Some(reason) = &d.reason {
+            let by = reason.by.as_ref().ok()?;
+            tally(&by.refs, by.contradicting.as_ref());
+        }
+    }
+    Some(count)
+}
+
+/// The reason a row writes for a substitute's source: the line or label it
+/// takes its equation from, or the method that works the equation out.
+fn source_reason(source: &Option<Source>) -> Option<String> {
+    match source {
+        Some(Source::At(Place::Line(n))) => Some(format!("substitute line {n}")),
+        Some(Source::At(Place::Label(l))) => Some(format!("substitute {l}")),
+        Some(Source::Arithmetic) => Some("arithmetic".to_string()),
+        Some(Source::RealArithmetic) => Some("real arithmetic".to_string()),
+        _ => None,
+    }
+}
+
+/// What the line or label `into` says, written out as a first row: a
+/// step's claim of one sentence, or a hypothesis's formula.
+fn written_out(thm: &Theorem, into: &Place) -> Option<String> {
+    let text = match into {
+        Place::Line(n) => {
+            let s = thm.steps.iter().find(|s| s.number.to_string() == *n)?;
+            if s.claim.sentences().len() != 1 || s.just.line != s.line + 1 {
+                return None;
+            }
+            s.claim_text()
+        }
+        Place::Label(l) => {
+            let h = thm
+                .hypotheses
+                .iter()
+                .find(|h| h.label.as_deref() == Some(l))?;
+            let body = h.body(&thm.path);
+            if body.sentences().len() != 1 {
+                return None;
+            }
+            body.text().to_string()
+        }
+        Place::Slip(_) => return None,
+    };
+    Some(text.trim().trim_end_matches('.').to_string())
+}
+
+/// Rows written under a bare `substitute`, each formula padded so the
+/// reasons stand in one column.
+fn rows_written(indent: &str, rows: &[(String, String)]) -> Vec<String> {
+    let width = rows
+        .iter()
+        .map(|(f, _)| f.chars().count())
+        .max()
+        .unwrap_or(0)
+        + 6;
+    let mut out = vec![format!("{indent}substitute")];
+    for (formula, reason) in rows {
+        let pad = " ".repeat(width - formula.chars().count());
+        out.push(format!("{indent}  {formula}{pad}{reason}"));
+    }
+    out
+}
+
+/// Step `i`, a substitute into the step just above it, merged into that
+/// step as one more row, where that step is a substitute nothing else
+/// cites: a run of substitutions becomes one substitute with a row to each.
+fn merged_run(thm: &Theorem, lines: &mut Vec<String>, end: usize, i: usize) -> bool {
+    let g = &thm.steps[i];
+    let j = &g.just;
+    let Some(Place::Line(above)) = &j.into else {
+        return false;
+    };
+    if j.head != Head::Method(Method::Substitute)
+        || j.equation.is_none()
+        || j.line != g.line + 1
+        || lines[j.line - 1].trim_end().ends_with(',')
+        || g.claim.sentences().len() != 1
+        || g.requires
+            .iter()
+            .any(|r| lines[r.line - 1].trim_end().ends_with(','))
+    {
+        return false;
+    }
+    let Some(reason) = source_reason(&j.source) else {
+        return false;
+    };
+    // The step it puts its equation into is the one just before it.
+    let Some(k) = thm
+        .steps
+        .iter()
+        .position(|s| s.number.to_string() == *above)
+    else {
+        return false;
+    };
+    let l = &thm.steps[k];
+    let mut before = g.number.0.clone();
+    let Some(last) = before.last_mut() else {
+        return false;
+    };
+    if *last < 2 {
+        return false;
+    }
+    *last -= 1;
+    if l.number.0 != before || l.part != g.part || citations(thm, k) != Some(1) {
+        return false;
+    }
+    let lj = &l.just;
+    if lj.head != Head::Method(Method::Substitute)
+        || lj.line != l.line + 1
+        || lines[lj.line - 1].trim_end().ends_with(',')
+        || l.claim.sentences().len() != 1
+        || l.requires
+            .iter()
+            .any(|r| lines[r.line - 1].trim_end().ends_with(','))
+        || l.note.is_some()
+    {
+        return false;
+    }
+    // The rows the step above writes, or makes of its one substitution.
+    let mut rows: Vec<(String, String)> = Vec::new();
+    if lj.equation.is_none() && lj.source.is_none() && !lj.rows.is_empty() {
+        for (_, at) in &lj.rows {
+            let text = lines[at - 1].trim_end();
+            let Some(cite) = chain_reason(text) else {
+                return false;
+            };
+            let formula = text[..text.len() - cite.len()].trim().to_string();
+            rows.push((formula, cite.to_string()));
+        }
+    } else if lj.equation.is_some() && lj.rows.is_empty() {
+        let (Some(into), Some(first_reason)) = (&lj.into, source_reason(&lj.source))
+        else {
+            return false;
+        };
+        let Some(first) = written_out(thm, into) else {
+            return false;
+        };
+        rows.push((first, into.named().to_string()));
+        rows.push((
+            l.claim_text().trim().trim_end_matches('.').to_string(),
+            first_reason,
+        ));
+    } else {
+        return false;
+    }
+    let claim = g.claim_text().trim().trim_end_matches('.').to_string();
+    rows.push((claim.clone(), reason));
+    // The step's requires lines and the merged one's, each once.
+    let mut requires: Vec<String> = Vec::new();
+    for r in l.requires.iter().chain(&g.requires) {
+        let text = lines[r.line - 1].trim().to_string();
+        if !requires.contains(&text) {
+            requires.push(text);
+        }
+    }
+    let indent = indent_of(&lines[lj.line - 1]);
+    let heading = &lines[l.line - 1];
+    let claim_at =
+        heading.len() - heading.trim_start().len() + format!("{}.", l.number).len();
+    let gap = heading[claim_at..].len() - heading[claim_at..].trim_start().len();
+    let mut block = vec![format!("{}{claim}", &heading[..claim_at + gap])];
+    block.extend(rows_written(&indent, &rows));
+    block.extend(requires.iter().map(|r| format!("{indent}{r}")));
+    // Citations of the merged step are of the step it joined, and the steps
+    // after it are numbered one less.
+    let mut map = shifted(thm, i);
+    map.insert(g.number.to_string(), l.number.to_string());
+    let own = own_lines(thm, lines, end, i);
+    let span = l.line - 1..last_line(l, lines, end) + 1;
+    renumbered(thm, lines, end, &map, Some(i));
+    lines.drain(own);
+    lines.splice(span, block);
+    true
 }
 
 /// How often the theorem cites step `i`, and where, when that is once: by a
@@ -367,9 +574,7 @@ fn carried_reason(
     }
     let written = lines[j.line - 1].trim().to_string();
     match &j.head {
-        Head::Method(Method::Algebra) if j.from.is_empty() => {
-            Some("algebra".to_string())
-        }
+        Head::Method(Method::Algebra) => Some(written),
         Head::Method(Method::Arithmetic) => Some("arithmetic".to_string()),
         Head::Method(Method::RealArithmetic) => Some("real arithmetic".to_string()),
         Head::Method(Method::Substitute)
