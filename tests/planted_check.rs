@@ -2020,10 +2020,10 @@ fn cases() -> Vec<Case> {
             "read a defined function at a value nothing puts in its domain",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    D1, from 2\n".to_string()),
-                "    D1\n".to_string(),
+                Some("    D2, from 2\n".to_string()),
+                "    D2\n".to_string(),
             )],
-            "step 18 cites D1 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
+            "step 18 cites D2 at a, so it needs a ∈ [a, b], and nothing it cites or requires says it",
         ),
         // A cited line read through a define is the define's rule at the
         // argument the line writes, and holds only where that argument is in
@@ -2311,13 +2311,13 @@ fn cases() -> Vec<Case> {
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
                 Some(
-                    "7.  For all x ∈ [a, b], g(x) ∈ ℝ.\n    membership, from D1\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3\n"
+                    "    requires b − a ≠ 0: weakening, from 1\n    requires f(a) ∈ ℝ: from H4, 2\n    requires f(b) ∈ ℝ: from H4, 3\n\n22."
                         .to_string(),
                 ),
-                "7.  For all x ∈ [a, b], g(x) ∈ ℝ.\n    membership, from D1\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H1, H4, 2, 3\n"
+                "    requires b − a ≠ 0: weakening, from 1\n    requires f(a) ∈ ℝ: from H4, H4, 2\n    requires f(b) ∈ ℝ: from H4, 3\n\n22."
                     .to_string(),
             )],
-            "cites H1 more than once",
+            "cites H4 more than once",
         ),
         // Labels come first and then lines, each in order.
         case(
@@ -6325,8 +6325,8 @@ fn cases() -> Vec<Case> {
             "divide by a term no line says is not zero",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    algebra, from 24\n    requires b − a ≠ 0: weakening, from 1\n".to_string()),
-                "    algebra, from 24\n".to_string(),
+                Some("    algebra, from D1, 24\n    requires b − a ≠ 0: weakening, from 1\n".to_string()),
+                "    algebra, from D1, 24\n".to_string(),
             )],
             "nothing says b − a ≠ 0, which this step needs to divide by it",
         ),
@@ -6348,10 +6348,10 @@ fn cases() -> Vec<Case> {
             "membership from a line that says nothing of the atom",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3\n".to_string()),
-                "    membership, from D1, D2\n    requires f(x) ∈ ℝ: from H4\n    requires b − a ≠ 0: weakening, from 1\n    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H3, H4, 3\n".to_string(),
+                Some("    membership, from H1, H2, H4, 1, 2, 3\n".to_string()),
+                "    membership, from H1, H2, H3, H4, 1, 3\n".to_string(),
             )],
-            "the requires line (f(a) − f(b))/(b − a) ∈ ℝ of step 9, read as a step citing what it cites: (f(a) − f(b))/(b − a) ∈ ℝ is not built",
+            "the reason under let D1 does not show (f(a) − f(b))/(b − a) ∈ ℝ",
         ),
         // g(x) is real because of what g is, and a step that uses what a
         // define says cites it (`SYNTAX.md`). Without the define g stays a
@@ -6360,7 +6360,7 @@ fn cases() -> Vec<Case> {
             "membership of a defined function's value without citing its define",
             vec![edit(
                 "proofs/wiedijk/mean-value.proof",
-                Some("    membership, from D1\n".to_string()),
+                Some("    membership, from D2\n".to_string()),
                 "    membership\n".to_string(),
             )],
             "is not built from what step 7 cites",

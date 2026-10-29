@@ -172,34 +172,34 @@ theorem cyclic-ptolemy
     mun:cos-real a := ∠APB
     requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
 
+let c = cos(∠APB), a real number                                     (D1)
+    membership, from 17
+    reads the cosine of the angle the diagonals make at P
+
 18. (|PA|·|PC|)² = (|PB|·|PD|)²
     algebra, from 3
 
-19. |PA|·|PD|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PD|·cos(∠APB)·(|PB|·|PD|)
+19. |PA|·|PD|·c·(|PA|·|PC|) = |PA|·|PD|·c·(|PB|·|PD|)
     algebra, from 3
-    requires cos(∠APB) ∈ ℝ: from 17
 
-20. |PA|·|PB|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PB|·cos(∠APB)·(|PB|·|PD|)
+20. |PA|·|PB|·c·(|PA|·|PC|) = |PA|·|PB|·c·(|PB|·|PD|)
     algebra, from 3
-    requires cos(∠APB) ∈ ℝ: from 17
 
 21. |DC|²·|PA|² = |PD|²·|BA|²
     calculation
-      |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB)))·|PA|²                                algebra, from 14
-                  = (|PA|·|PC|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PA|·|PC|))               algebra
-                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PB|·|PD|))               algebra, from 18, 19
-                  = |PD|²·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB)))                                algebra
-                  = |PD|²·|BA|²                                                                    algebra, from 10
-    requires cos(∠APB) ∈ ℝ: from 17
+      |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·c))·|PA|²                     algebra, from D1, 14
+                  = (|PA|·|PC|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·c·(|PA|·|PC|))    algebra
+                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·c·(|PB|·|PD|))    algebra, from 18, 19
+                  = |PD|²·(|AP|² + |PB|² − 2·(|AP|·|PB|·c))                     algebra
+                  = |PD|²·|BA|²                                                 algebra, from D1, 10
 
 22. |CB|²·|PA|² = |PB|²·|AD|²
     calculation
-      |CB|²·|PA|² = (|BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB))))·|PA|²                              algebra, from 12
-                  = |PA|²·|PB|² + (|PA|·|PC|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PA|·|PC|))               algebra
-                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PB|·|PD|))               algebra, from 18, 20
-                  = |PB|²·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))                             algebra
-                  = |PB|²·|AD|²                                                                    algebra, from 16
-    requires cos(∠APB) ∈ ℝ: from 17
+      |CB|²·|PA|² = (|BP|² + |PC|² + 2·(|BP|·|PC|·c))·|PA|²                     algebra, from D1, 12
+                  = |PA|²·|PB|² + (|PA|·|PC|)² + 2·(|PA|·|PB|·c·(|PA|·|PC|))    algebra
+                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·c·(|PB|·|PD|))    algebra, from 18, 20
+                  = |PB|²·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))                     algebra
+                  = |PB|²·|AD|²                                                 algebra, from D1, 16
 
 23. |DC| ≥ 0
     mun:distance-nonneg P := D, Q := C
@@ -252,13 +252,11 @@ theorem cyclic-ptolemy
 39. |AD|·(|CB|·|PA|) = |AD|·(|PB|·|AD|)
     algebra, from 37
 
-40. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB)))
-    algebra, from 10
-    requires cos(∠APB) ∈ ℝ: from 17
+40. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c))
+    algebra, from D1, 10
 
-41. |PB|·|AD|² = |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))
-    algebra, from 16
-    requires cos(∠APB) ∈ ℝ: from 17
+41. |PB|·|AD|² = |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))
+    algebra, from D1, 16
 
 42. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|
     algebra, from 3
@@ -275,11 +273,10 @@ theorem cyclic-ptolemy
 
 45. (|AB|·|CD| + |AD|·|BC|)·|PA| = (|AC|·|BD|)·|PA|
     calculation
-      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                        algebra, from 38, 39
-                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))) + |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))   algebra, from 40, 41
-                                  = (|PB| + |PD|)·(|PA|² + |PB|·|PD|)                                                algebra
-                                  = (|AC|·|BD|)·|PA|                                                                 44
-    requires cos(∠APB) ∈ ℝ: from 17
+      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                algebra, from 38, 39
+                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c)) + |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))    algebra, from 40, 41
+                                  = (|PB| + |PD|)·(|PA|² + |PB|·|PD|)                                        algebra
+                                  = (|AC|·|BD|)·|PA|                                                         44
 
 46. |PA| > 0
     axi:distance-positive Q := A, from 1

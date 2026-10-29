@@ -214,10 +214,14 @@ let d = |{i ∈ {1, …, n} : x = v(i − 1)}|                              (D1)
 let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
        reads how many of the walk's edges arrive at x
 
-5.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
-    mun:count-either, from D1, D2, 4
+let c = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|, a nonnegative integer   (D3)
+    mun:count-nat0 k := n
+    reads how many of the walk's edges have x at an end
 
-let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
+5.  c = d + r
+    mun:count-either, from D1, D2, D3, 4
+
+let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D4)
     mun:count-nat0 k := n − 1
     reads how many times the walk passes through x
 
@@ -225,25 +229,25 @@ let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
     calculation
       d = |{i ∈ {0, …, n − 1} : x = v(i)}|    mun:count-shift, from D1
         = |{i ∈ {1, …, n − 1} : x = v(i)}|    mun:count-first-fails, from H7
-        = m                                   D3
+        = m                                   D4
 
 7.  r = m
     calculation
       r = |{i ∈ {1, …, n − 1} : x = v(i)}|    mun:count-last-fails, from D2, H8
-        = m                                   D3
+        = m                                   D4
 
-8.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
+8.  c = m + m
     substitute
-      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r      5
-      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r      substitute line 6
-      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m      substitute line 7
+      c = d + r      5
+      c = m + r      substitute line 6
+      c = m + m      substitute line 7
 
 9.  deg(x) = 2m
     calculation
-      deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|                 2
-             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           mun:count-same, from 3
-             = m + m                                                  8
-             = 2m                                                     algebra
+      deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|    2
+             = c                                              mun:count-same, from D3, 3
+             = m + m                                          8
+             = 2m                                             algebra
 
 10. deg(x) is even
     def:even n := deg(x), from 9

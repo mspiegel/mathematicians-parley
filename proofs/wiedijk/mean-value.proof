@@ -24,12 +24,6 @@ theorem mean-value
   assume f is differentiable on (a, b)                                (H6)
   then there is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a)
 
-let g(x) = ((f(a) − f(b))/(b − a))·x, for x ∈ [a, b]                  (D1)
-       reads the line through 0 whose slope is the chord's, negated
-
-let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
-       reads f with the line g added, so that it takes one value at a and b
-
 1.  b − a > 0
     inequalities
       a < b              H3
@@ -49,35 +43,39 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 4.  [a, b] ⊆ ℝ
     mun:interval-real
 
-5.  For all x ∈ [a, b], g(x) = ((f(a) − f(b))/(b − a))·x.
-    D1
+let m = (f(a) − f(b))/(b − a), a real number                          (D1)
+    membership, from H1, H2, H4, 1, 2, 3
+    reads the chord's slope, negated
 
-6.  For all x ∈ [a, b], F(x) = f(x) + g(x).
+let g(x) = m·x, for x ∈ [a, b]                                        (D2)
+       reads the line through 0 whose slope is the chord's, negated
+
+let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D3)
+       reads f with the line g added, so that it takes one value at a and b
+
+5.  For all x ∈ [a, b], g(x) = m·x.
     D2
 
+6.  For all x ∈ [a, b], F(x) = f(x) + g(x).
+    D3
+
 7.  For all x ∈ [a, b], g(x) ∈ ℝ.
-    membership, from D1
-    requires b − a ≠ 0: weakening, from 1
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
+    membership, from D2
 
 8.  g : [a, b] → ℝ
     mun:function-into, from 7
-    requires g is a function on [a, b]: from D1
+    requires g is a function on [a, b]: from D2
 
 9.  For all x ∈ [a, b], F(x) ∈ ℝ.
-    membership, from D1, D2
+    membership, from D2, D3
     requires f(x) ∈ ℝ: from H4
-    requires b − a ≠ 0: weakening, from 1
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
 
 10. F : [a, b] → ℝ
     mun:function-into, from 9
-    requires F is a function on [a, b]: from D2
+    requires F is a function on [a, b]: from D3
 
 11. g is continuous on [a, b]
-    thm:continuous-linear D := [a, b], m := (f(a) − f(b))/(b − a), from 4, 5
-    requires b − a ≠ 0: weakening, from 1
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
+    thm:continuous-linear D := [a, b], from 4, 5
     requires g : [a, b] → ℝ: from 8
 
 12. F is continuous on [a, b]
@@ -86,17 +84,13 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     requires g : [a, b] → ℝ: from 8
 
 13. g is differentiable on (a, b)
-    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 4, 5
-    requires b − a ≠ 0: weakening, from 1
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
+    thm:derivative-linear D := [a, b], U := (a, b), from 4, 5
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires (a, b) is open: mun:open-interval-open
     requires g : [a, b] → ℝ: from 8
 
-14. For all x ∈ (a, b), g′(x) = (f(a) − f(b))/(b − a).
-    thm:derivative-linear D := [a, b], U := (a, b), m := (f(a) − f(b))/(b − a), from 4, 5
-    requires b − a ≠ 0: weakening, from 1
-    requires (f(a) − f(b))/(b − a) ∈ ℝ: membership, from H1, H2, H4, 2, 3
+14. For all x ∈ (a, b), g′(x) = m.
+    thm:derivative-linear D := [a, b], U := (a, b), from 4, 5
     requires (a, b) ⊆ [a, b]: mun:open-within-closed
     requires (a, b) is open: mun:open-interval-open
     requires g : [a, b] → ℝ: from 8
@@ -114,22 +108,22 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     requires g : [a, b] → ℝ: from 8
 
 17. F(a) = f(a) + g(a)
+    D3, from 2
+
+18. g(a) = m·a
     D2, from 2
 
-18. g(a) = ((f(a) − f(b))/(b − a))·a
-    D1, from 2
-
 19. F(b) = f(b) + g(b)
-    D2, from 3
+    D3, from 3
 
-20. g(b) = ((f(a) − f(b))/(b − a))·b
-    D1, from 3
+20. g(b) = m·b
+    D2, from 3
 
 21. F(a) = F(b)
     calculation
       F(a) = f(a) + g(a)                                       17
-           = f(a) + ((f(a) − f(b))/(b − a))·a                  substitute line 18
-           = f(b) + ((f(a) − f(b))/(b − a))·b                  algebra
+           = f(a) + m·a                                        substitute line 18
+           = f(b) + m·b                                        algebra, from D1
            = f(b) + g(b)                                       substitute line 20
            = F(b)                                              19
     requires b − a ≠ 0: weakening, from 1
@@ -140,17 +134,17 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
     obtain c: thm:rolle f := F, from H3, 12, 15, 21
     requires F : [a, b] → ℝ: from 10
 
-23. g′(c) = (f(a) − f(b))/(b − a)
+23. g′(c) = m
     instantiate x := c in line 14, from 22
 
-24. f′(c) + (f(a) − f(b))/(b − a) = 0
+24. f′(c) + m = 0
     calculation
-      f′(c) + (f(a) − f(b))/(b − a) = f′(c) + g′(c)            substitute line 23
-                                    = F′(c)                    instantiate x := c in line 16, from 22
-                                    = 0                        22
+      f′(c) + m = f′(c) + g′(c)            substitute line 23
+                = F′(c)                    instantiate x := c in line 16, from 22
+                = 0                        22
 
 25. f′(c) = (f(b) − f(a))/(b − a)
-    algebra, from 24
+    algebra, from D1, 24
     requires b − a ≠ 0: weakening, from 1
     requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 22
     requires f(a) ∈ ℝ: from H4, 2

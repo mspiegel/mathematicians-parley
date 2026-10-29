@@ -417,50 +417,52 @@ theorem later-at-most
     4.1.  i − n ∈ ℕ₀
           mun:difference-nat0 m := n, n := i, from A
 
-    4.2.  s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))
-          instantiate j := i − n in line 1, from 4.1
+    4.2.  2^((n + 1)! + (i − n)) ∈ ℝ
+          mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
 
-    4.3.  s(i) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))
-          substitute
-            s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))      4.2
-            s(i) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))                algebra
-
-    4.4.  2^((n + 1)! + (i − n)) > 0
+    4.3.  2^((n + 1)! + (i − n)) > 0
           mun:power-positive a := 2, m := (n + 1)! + (i − n), from 2
           requires 2 > 0: arithmetic
 
-    4.5.  2/2^((n + 1)! + (i − n)) > 0
-          mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from 4.4
+    let g = 2/2^((n + 1)! + (i − n)), a real number                   (D1)
+        membership, from 4.2, 4.3
+        reads what the bound of line 1 falls short by at j = i − n
+
+    4.4.  s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))
+          instantiate j := i − n in line 1, from 4.1
+
+    4.5.  s(i) − s(n) ≤ 2/2^((n + 1)!) − g
+          substitute
+            s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))      4.4
+            s(i) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))                algebra
+            s(i) − s(n) ≤ 2/2^((n + 1)!) − g                                       substitute D1
+
+    4.6.  g > 0
+          mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from D1, 4.3
           requires 2 > 0: arithmetic
-          requires 2^((n + 1)! + (i − n)) ∈ ℝ: mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
+          requires 2^((n + 1)! + (i − n)) ∈ ℝ: from 4.2
 
-    4.6.  s(i) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n)) + s(n)
+    4.7.  s(i) ≤ 2/2^((n + 1)!) − g + s(n)
           inequalities
-            s(i) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))            4.3
-            s(i) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n)) + s(n)            adding s(n)
+            s(i) − s(n) ≤ 2/2^((n + 1)!) − g            4.5
+            s(i) ≤ 2/2^((n + 1)!) − g + s(n)            adding s(n)
           requires s(i) ∈ ℝ: thm:partial-sum-real m := i
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
           requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 2
           requires 2^((n + 1)!) ≠ 0: weakening, from 3
-          requires 2^((n + 1)! + (i − n)) ∈ ℝ: mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
-          requires 2^((n + 1)! + (i − n)) ≠ 0: weakening, from 4.4
 
-    4.7.  0 ≤ 2/2^((n + 1)! + (i − n))
+    4.8.  0 ≤ g
           inequalities
-            2/2^((n + 1)! + (i − n)) > 0     4.5
-            0 < 2/2^((n + 1)! + (i − n))     restate
-            0 ≤ 2/2^((n + 1)! + (i − n))     weakening
-          requires 2^((n + 1)! + (i − n)) ∈ ℝ: mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
-          requires 2^((n + 1)! + (i − n)) ≠ 0: weakening, from 4.4
+            g > 0     4.6
+            0 < g     restate
+            0 ≤ g     weakening
 
-    4.8.  s(i) ≤ s(n) + 2/2^((n + 1)!)
-          inequalities, from 4.6, 4.7
+    4.9.  s(i) ≤ s(n) + 2/2^((n + 1)!)
+          inequalities, from 4.7, 4.8
           requires s(i) ∈ ℝ: thm:partial-sum-real m := i
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
           requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 2
           requires 2^((n + 1)!) ≠ 0: weakening, from 3
-          requires 2^((n + 1)! + (i − n)) ∈ ℝ: mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
-          requires 2^((n + 1)! + (i − n)) ≠ 0: weakening, from 4.4
 
 theorem scaled-sum-integer
   note        2^((n + 1)!) is (2^(n!))^n·2^(n!), so it carries 2^(n!)·s(n),

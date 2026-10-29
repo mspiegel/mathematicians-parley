@@ -82,8 +82,12 @@ theorem bernoulli-inequality
             (A − 1)·k + 1 ≤ A^k              IH
             0 ≤ A^k − ((A − 1)·k + 1)        adding −((A − 1)·k + 1)
 
-    1.5.  0 ≤ A·(A^k − ((A − 1)·k + 1))
-          thm:nonnegative-product x := A, y := A^k − ((A − 1)·k + 1), from H2, 1.4
+    let X = A^k − ((A − 1)·k + 1), a real number                      (D1)
+        membership
+        reads the gap between A^k and its bound
+
+    1.5.  0 ≤ A·X
+          thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
 
     1.6.  0 ≤ (A − 1)²
           mun:square-nonneg x := A − 1
@@ -91,10 +95,10 @@ theorem bernoulli-inequality
     1.7.  0 ≤ (A − 1)²·k
           thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
 
-    1.8.  A^k·A − ((A − 1)·(k + 1) + 1) = A·(A^k − ((A − 1)·k + 1)) + (A − 1)²·k
-          algebra
+    1.8.  A^k·A − ((A − 1)·(k + 1) + 1) = A·X + (A − 1)²·k
+          algebra, from D1
 
-    1.9.  0 ≤ A·(A^k − ((A − 1)·k + 1)) + (A − 1)²·k
+    1.9.  0 ≤ A·X + (A − 1)²·k
           inequalities, from 1.5, 1.7
 
     1.10. 0 ≤ A^k·A − ((A − 1)·(k + 1) + 1)

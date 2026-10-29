@@ -68,21 +68,29 @@ let y = x + a/4, a complex number                                    (D1)
     membership
     reads the root moved so that the quartic has no cube term
 
-7.  (y + S − I)·(y + S + I) = y² + 2·S·y + 2·S² + P/2 − (Q/4)/S
-    algebra, from H27, 1
+let u = (y + S − I)·(y + S + I), a complex number                    (D2)
+    membership
+    reads the quadratic factor with the roots −S + I and −S − I
 
-8.  (y − S − J)·(y − S + J) = y² − 2·S·y + 2·S² + P/2 + (Q/4)/S
-    algebra, from H29, 1
+let v = (y − S − J)·(y − S + J), a complex number                    (D3)
+    membership
+    reads the quadratic factor with the roots S + J and S − J
 
-9.  x⁴ + a·x³ + b·x² + c·x + d = ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J))
+7.  u = y² + 2·S·y + 2·S² + P/2 − (Q/4)/S
+    algebra, from D2, H27, 1
+
+8.  v = y² − 2·S·y + 2·S² + P/2 + (Q/4)/S
+    algebra, from D3, H29, 1
+
+9.  x⁴ + a·x³ + b·x² + c·x + d = u·v
     calculation
       x⁴ + a·x³ + b·x² + c·x + d = y⁴ + (b − (3/8)·a²)·y² + (c − (a·b)/2 + a³/8)·y + (d − (c·a)/4 + ((a²·b)/16 − (3/256)·a⁴))    algebra, from D1
           = y⁴ + P·y² + (c − (a·b)/2 + a³/8)·y + (d − (c·a)/4 + ((a²·b)/16 − (3/256)·a⁴))                substitute H7
           = y⁴ + P·y² + Q·y + (d − (c·a)/4 + ((a²·b)/16 − (3/256)·a⁴))                                    substitute H9
           = y⁴ + P·y² + Q·y + R                                                                           substitute H11
           = (y² + 2·S·y + 2·S² + P/2 − (Q/4)/S)·(y² − 2·S·y + 2·S² + P/2 + (Q/4)/S)                       algebra, from H25, 1, 6
-          = (y² + 2·S·y + 2·S² + P/2 − (Q/4)/S)·((y − S − J)·(y − S + J))                                 substitute line 8
-          = ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J))                                           substitute line 7
+          = (y² + 2·S·y + 2·S² + P/2 − (Q/4)/S)·v                                                         substitute line 8
+          = u·v                                                                                           substitute line 7
 
 10. x⁴ + a·x³ + b·x² + c·x + d = 0 ↔ (x = −a/4 − S + I or x = −a/4 − S − I) or (x = −a/4 + S + J or x = −a/4 + S − J)
     both directions
@@ -90,22 +98,22 @@ let y = x + a/4, a complex number                                    (D1)
     direction
     assume x⁴ + a·x³ + b·x² + c·x + d = 0                             (A1)
 
-    10.1. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
+    10.1. u·v = 0
           calculation
-            ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = x⁴ + a·x³ + b·x² + c·x + d    9
-                = 0                                                                             A1
+            u·v = x⁴ + a·x³ + b·x² + c·x + d    9
+                = 0                             A1
 
-    10.2. (y + S − I)·(y + S + I) = 0 or (y − S − J)·(y − S + J) = 0
-          mun:zero-product x := (y + S − I)·(y + S + I), y := (y − S − J)·(y − S + J), from 10.1
+    10.2. u = 0 or v = 0
+          mun:zero-product x := u, y := v, from 10.1
 
     10.3. (x = −a/4 − S + I or x = −a/4 − S − I) or (x = −a/4 + S + J or x = −a/4 + S − J)
           cases, from 10.2
 
           case
-          assume (y + S − I)·(y + S + I) = 0                          (C1)
+          assume u = 0                                                (C1)
 
           10.3.1. y + S − I = 0 or y + S + I = 0
-                  mun:zero-product x := y + S − I, y := y + S + I, from C1
+                  mun:zero-product x := y + S − I, y := y + S + I, from C1, D2
 
           10.3.2. x = −a/4 − S + I or x = −a/4 − S − I
                   cases, from 10.3.1
@@ -132,10 +140,10 @@ let y = x + a/4, a complex number                                    (D1)
                   mun:or-left, from 10.3.2
 
           case
-          assume (y − S − J)·(y − S + J) = 0                          (C4)
+          assume v = 0                                                (C4)
 
           10.3.4. y − S − J = 0 or y − S + J = 0
-                  mun:zero-product x := y − S − J, y := y − S + J, from C4
+                  mun:zero-product x := y − S − J, y := y − S + J, from C4, D3
 
           10.3.5. x = −a/4 + S + J or x = −a/4 + S − J
                   cases, from 10.3.4
@@ -164,13 +172,13 @@ let y = x + a/4, a complex number                                    (D1)
     direction
     assume (x = −a/4 − S + I or x = −a/4 − S − I) or (x = −a/4 + S + J or x = −a/4 + S − J)    (A2)
 
-    10.4. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
+    10.4. u·v = 0
           cases, from A2
 
           case
           assume x = −a/4 − S + I or x = −a/4 − S − I                 (C7)
 
-          10.4.1. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
+          10.4.1. u·v = 0
                   cases, from C7
 
                   case
@@ -179,8 +187,8 @@ let y = x + a/4, a complex number                                    (D1)
                   10.4.1.1. y + S − I = 0
                             algebra, from C8, D1
 
-                  10.4.1.2. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
-                            algebra, from 10.4.1.1
+                  10.4.1.2. u·v = 0
+                            algebra, from D2, 10.4.1.1
 
                   case
                   assume x = −a/4 − S − I                             (C9)
@@ -188,13 +196,13 @@ let y = x + a/4, a complex number                                    (D1)
                   10.4.1.3. y + S + I = 0
                             algebra, from C9, D1
 
-                  10.4.1.4. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
-                            algebra, from 10.4.1.3
+                  10.4.1.4. u·v = 0
+                            algebra, from D2, 10.4.1.3
 
           case
           assume x = −a/4 + S + J or x = −a/4 + S − J                 (C10)
 
-          10.4.2. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
+          10.4.2. u·v = 0
                   cases, from C10
 
                   case
@@ -203,8 +211,8 @@ let y = x + a/4, a complex number                                    (D1)
                   10.4.2.1. y − S − J = 0
                             algebra, from C11, D1
 
-                  10.4.2.2. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
-                            algebra, from 10.4.2.1
+                  10.4.2.2. u·v = 0
+                            algebra, from D3, 10.4.2.1
 
                   case
                   assume x = −a/4 + S − J                             (C12)
@@ -212,10 +220,10 @@ let y = x + a/4, a complex number                                    (D1)
                   10.4.2.3. y − S + J = 0
                             algebra, from C12, D1
 
-                  10.4.2.4. ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J)) = 0
-                            algebra, from 10.4.2.3
+                  10.4.2.4. u·v = 0
+                            algebra, from D3, 10.4.2.3
 
     10.5. x⁴ + a·x³ + b·x² + c·x + d = 0
           calculation
-            x⁴ + a·x³ + b·x² + c·x + d = ((y + S − I)·(y + S + I))·((y − S − J)·(y − S + J))    9
-                                       = 0                                                    10.4
+            x⁴ + a·x³ + b·x² + c·x + d = u·v    9
+                                       = 0      10.4
