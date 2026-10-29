@@ -1712,24 +1712,38 @@ fn cases() -> Vec<Case> {
         // does.
         case(
             "name a line that does not state the side condition",
-            vec![edit(
-                "proofs/euclid/thales.proof",
-                Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
-                "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
-            )],
-            "the requires line of step 10 needs something that def:triangle does not conclude",
+            vec![
+                edit(
+                    "proofs/euclid/thales.proof",
+                    Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()),
+                    "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string(),
+                ),
+                edit(
+                    "proofs/euclid/thales.proof",
+                    Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
+                    "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
+                ),
+            ],
+            "the requires line of step 9 needs something that def:triangle does not conclude",
         ),
         // The same, where the scope already holds the claim for another reason:
         // the hypothesis says A, B, C form a triangle, so `B ≠ C` is held before
         // the line is read, and H6 does not say it.
         case(
             "name a line that does not state a claim the scope already holds",
-            vec![edit(
-                "proofs/euclid/thales.proof",
-                Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
-                "    thm:law-of-cosines P := A, Q := C, R := B\n    requires B ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
-            )],
-            "the requires line of step 10 needs something that def:triangle does not conclude",
+            vec![
+                edit(
+                    "proofs/euclid/thales.proof",
+                    Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()),
+                    "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string(),
+                ),
+                edit(
+                    "proofs/euclid/thales.proof",
+                    Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
+                    "    thm:law-of-cosines P := A, Q := C, R := B\n    requires B ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
+                ),
+            ],
+            "the requires line of step 9 needs something that def:triangle does not conclude",
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
@@ -3182,9 +3196,10 @@ fn cases() -> Vec<Case> {
         case(
             "unfold a triangle no line above says",
             vec![
+                edit("proofs/euclid/thales.proof", Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()), "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string()),
                 edit("proofs/euclid/thales.proof", Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()), "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C\n".to_string()),
             ],
-            "the requires line of step 10 needs something that def:triangle does not conclude",
+            "the requires line of step 9 needs something that def:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
         // `mod-natural` asks b ∈ ℕ, and without 4.3.6, which says b(k) ∈ ℕ,
@@ -4317,10 +4332,10 @@ fn cases() -> Vec<Case> {
             "give algebra for an equation turned round",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("45. ∠ECA = ∠BAC\n    restate 19".to_string()),
-                "45. ∠ECA = ∠BAC\n    algebra, from 19".to_string(),
+                Some("40. ∠ECA = ∠BAC\n    restate 15".to_string()),
+                "40. ∠ECA = ∠BAC\n    algebra, from 15".to_string(),
             )],
-            "step 45 says an equation 19 says, which is `restate 19`, not algebra",
+            "step 40 says an equation 15 says, which is `restate 15`, not algebra",
         ),
         // An induction over the parts of a set holds of a finite set only,
         // starts at ∅, opens its step with the member it adds, and ends it
@@ -4575,7 +4590,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/heron.proof", Some("    mun:sin-cos-squares a := ∠BCA\n".to_string()), "    mun:sin-cos-squares a := ∠BCA, from H1\n".to_string()),
             ],
-            "step 7 cites H1, and mun:sin-cos-squares asks for nothing it says",
+            "step 5 cites H1, and mun:sin-cos-squares asks for nothing it says",
         ),
         // A count step's claim fixes the property it is applied to, and so
         // supplies its hypotheses with no search for them; a line named
@@ -5068,7 +5083,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a betweenness after an or without brackets",
             vec![
-                edit("proofs/wiedijk/law-of-cosines.proof", Some("3.  H = Q or (H is between Q and R) or".to_string()), "3.  H = Q or H is between Q and R or".to_string()),
+                edit("proofs/wiedijk/law-of-cosines.proof", Some("2.  H = Q or (H is between Q and R) or".to_string()), "2.  H = Q or H is between Q and R or".to_string()),
             ],
             "`or` and `is between` are not ordered against each other",
         ),

@@ -51,78 +51,75 @@ theorem isosceles-median
     4.2.  not (A, B, C are collinear)
           def:triangle P := A, Q := B, R := C, from H5, contradicting 4.1
 
-5.  A ≠ B. A ≠ C.
-    def:triangle P := A, Q := B, R := C, from H5
-
-6.  M is between C and B
+5.  M is between C and B
     mun:between-symmetric R := M, S := B, T := C, from 1
 
-7.  |BA|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
-    thm:law-of-cosines P := A, Q := M, R := B, from 2, 4, 5
+6.  |BA|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
+    thm:law-of-cosines P := A, Q := M, R := B, from H5, 2, 4
 
-8.  |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))
-    thm:law-of-cosines P := C, Q := M, R := A, from 2, 4, 5
+7.  |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))
+    thm:law-of-cosines P := C, Q := M, R := A, from H5, 2, 4
 
-9.  ∠CMA + ∠AMB = 180°
-    axi:supplementary-angles A := C, B := M, C := B, D := A, from 4, 5, 6
+8.  ∠CMA + ∠AMB = 180°
+    axi:supplementary-angles A := C, B := M, C := B, D := A, from H5, 4, 5
 
-10. ∠AMB ∈ ℝ
-    mun:angle-real P := A, Q := M, R := B, from 2, 4, 5
+9.  ∠AMB ∈ ℝ
+    mun:angle-real P := A, Q := M, R := B, from H5, 2, 4
 
-11. ∠CMA ∈ ℝ
-    mun:angle-real P := C, Q := M, R := A, from 2, 4, 5
+10. ∠CMA ∈ ℝ
+    mun:angle-real P := C, Q := M, R := A, from H5, 2, 4
 
-12. ∠CMA = 180° − ∠AMB
-    algebra, from 9
-    requires ∠AMB ∈ ℝ: from 10
-    requires ∠CMA ∈ ℝ: from 11
+11. ∠CMA = 180° − ∠AMB
+    algebra, from 8
+    requires ∠AMB ∈ ℝ: from 9
+    requires ∠CMA ∈ ℝ: from 10
 
-13. cos(∠CMA) = −cos(∠AMB)
+12. cos(∠CMA) = −cos(∠AMB)
     calculation
-      cos(∠CMA) = cos(180° − ∠AMB)      substitute line 12
+      cos(∠CMA) = cos(180° − ∠AMB)      substitute line 11
                 = −cos(∠AMB)            mun:cos-supplement x := ∠AMB
-    requires ∠AMB ∈ ℝ: from 10
+    requires ∠AMB ∈ ℝ: from 9
 
-14. |AC|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
-    substitute |AB| = |AC| (H6) into line 7
+13. |AC|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
+    substitute |AB| = |AC| (H6) into line 6
 
-15. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
+14. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
     substitute
-      |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))       8
+      |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))       7
       |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠CMA))       substitute line 1
-      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))      substitute line 13
+      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))      substitute line 12
 
-16. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
-    algebra, from 14, 15
-    requires ∠AMB ∈ ℝ: from 10
+15. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
+    algebra, from 13, 14
+    requires ∠AMB ∈ ℝ: from 9
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
-17. |AM| > 0
+16. |AM| > 0
     axi:distance-positive P := A, Q := M, from 4
 
-18. |BM| > 0
+17. |BM| > 0
     axi:distance-positive P := B, Q := M, from 2
 
-19. |AM|·|BM| > 0
-    mun:product-positive x := |AM|, y := |BM|, from 17, 18
+18. |AM|·|BM| > 0
+    mun:product-positive x := |AM|, y := |BM|, from 16, 17
 
-20. cos(∠AMB) = 0
-    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 16
-    requires |AM|·|BM| ≠ 0: weakening, from 19
-    requires ∠AMB ∈ ℝ: from 10
+19. cos(∠AMB) = 0
+    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 15
+    requires |AM|·|BM| ≠ 0: weakening, from 18
+    requires ∠AMB ∈ ℝ: from 9
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
-21. ∠AMB = 90°
-    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 5, 20
+20. ∠AMB = 90°
+    mun:right-angle-by-cosine P := A, Q := M, R := B, from H5, 2, 4, 19
 
-22. ∠BAM = ∠CAM
+21. ∠BAM = ∠CAM
     thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
-      from H6, 1, 2, 4, 5
+      from H5, H6, 1, 2, 4
 
-23. ∠BAM = ∠MAC
+22. ∠BAM = ∠MAC
     calculation
-      ∠BAM = ∠CAM      22
-           = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from 2, 4, 5
+      ∠BAM = ∠CAM      21
+           = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from H5, 2, 4
 
-24. ∠AMB = 90°. ∠BAM = ∠MAC.
-    join 21, 23
+23. ∠AMB = 90°. ∠BAM = ∠MAC.
+    join 20, 22

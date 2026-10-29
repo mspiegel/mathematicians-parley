@@ -17,7 +17,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
-use crate::corpus::proof::StepNo;
+use crate::corpus::proof::{rows, RowReason, StepNo};
 use crate::corpus::skeleton::{chain_reason, is_number};
 use crate::corpus::{corpus, Theorem};
 use crate::said::Said;
@@ -211,11 +211,21 @@ fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
 /// each moved step's number where its claim opens, and every citation.
 fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<String, String>) {
     let mut edits: BTreeMap<usize, Vec<(usize, usize, String)>> = BTreeMap::new();
-    // A chain line's or a row's reason may be a bare number.
+    // A chain line's or a substitute row's reason may be a bare number; of
+    // an inequalities step's rows, only one the reader reads as citing a
+    // line, since `multiplying by 2` ends in a number that is no line.
     let mut reasoned: BTreeSet<usize> = BTreeSet::new();
     for s in &thm.steps {
         reasoned.extend(s.just.chain.iter().map(|(_, l)| l - 1));
-        reasoned.extend(s.just.rows.iter().map(|(_, l)| l - 1));
+        match rows(&s.just, &thm.path) {
+            Some(Ok(read)) => reasoned.extend(
+                read.iter()
+                    .filter(|r| matches!(r.reason, RowReason::Cited(_)))
+                    .map(|r| r.line - 1),
+            ),
+            Some(Err(_)) => {}
+            None => reasoned.extend(s.just.rows.iter().map(|(_, l)| l - 1)),
+        }
     }
     for &l in &reasoned {
         let line = &lines[l];

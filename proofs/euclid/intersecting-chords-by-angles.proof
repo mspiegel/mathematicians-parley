@@ -13,7 +13,6 @@ import mundane theorem    stdlib/geometry/same-side-same
 import mundane theorem    stdlib/geometry/same-side-turned
 import mundane theorem    stdlib/geometry/segment-beyond-off-line
 import mundane theorem    stdlib/geometry/segment-off-line
-import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/triangle-not-on-line
 import mundane theorem    stdlib/geometry/triangle-off-line
 import mundane theorem    stdlib/geometry/triangle-on-side
@@ -45,116 +44,107 @@ theorem intersecting-chords-by-angles
 2.  C, A, B form a triangle
     mun:triangle-off-line P := C, Q := A, R := B, from H9, 1
 
-3.  C ≠ B
-    def:triangle P := C, Q := A, R := B, from 2
-
-4.  not (A is on line CB)
+3.  not (A is on line CB)
     mun:triangle-not-on-line P := A, Q := C, R := B, from 2
 
-5.  B is on line CB
+4.  B is on line CB
     mun:on-line-ends A := C
 
-6.  C is on line CB
+5.  C is on line CB
     mun:on-line-ends A := C
 
-7.  P and A are on the same side of line CB
-    mun:segment-off-line A := C, P := A, Q := B, X := P, from H7, 3, 4, 5
+6.  P and A are on the same side of line CB
+    mun:segment-off-line A := C, P := A, Q := B, X := P, from H7, 2, 3, 4
 
-8.  not (P is on line CB)
-    mun:same-side-off-line A := C, Q := A, from 7
+7.  not (P is on line CB)
+    mun:same-side-off-line A := C, Q := A, from 6
 
-9.  P is between D and C
+8.  P is between D and C
     mun:between-symmetric R := P, S := C, T := D, from H8
 
-10. D and P are on the same side of line CB
-    mun:segment-beyond-off-line A := C, P := D, Q := C, X := P, from 3, 6, 8, 9
+9.  D and P are on the same side of line CB
+    mun:segment-beyond-off-line A := C, P := D, Q := C, X := P, from 2, 5, 7, 8
 
-11. A and P are on the same side of line CB
-    mun:same-side-turned A := C, Q := A, from 7
+10. A and P are on the same side of line CB
+    mun:same-side-turned A := C, Q := A, from 6
 
-12. P and D are on the same side of line CB
-    mun:same-side-turned A := C, P := D, Q := P, from 10
+11. P and D are on the same side of line CB
+    mun:same-side-turned A := C, P := D, Q := P, from 9
 
-13. A and D are on the same side of line CB
-    mun:same-side-same A := C, P := A, Q := P, R := D, from 11, 12
+12. A and D are on the same side of line CB
+    mun:same-side-same A := C, P := A, Q := P, R := D, from 10, 11
 
-14. |CO| = |BO|
+13. |CO| = |BO|
     calculation
       |CO| = |AO|    H11
            = |BO|    H10
 
-15. |CO| = |DO|
+14. |CO| = |DO|
     calculation
       |CO| = |AO|    H11
            = |DO|    H12
 
-16. not (D is on line CB)
-    mun:same-side-off-line A := C, P := D, Q := P, from 10
+15. not (D is on line CB)
+    mun:same-side-off-line A := C, P := D, Q := P, from 9
 
-17. D, C, B form a triangle
-    mun:triangle-off-line P := D, Q := C, R := B, from 3, 16
+16. D, C, B form a triangle
+    mun:triangle-off-line P := D, Q := C, R := B, from 2, 15
 
-18. C, A, P form a triangle
+17. C, A, P form a triangle
     mun:triangle-on-side P := C, Q := A, R := B, S := P, from H7, 2
 
-19. B, D, P form a triangle
-    mun:triangle-on-side P := B, Q := D, R := C, S := P, from 9, 17
+18. B, D, P form a triangle
+    mun:triangle-on-side P := B, Q := D, R := C, S := P, from 8, 16
 
-20. B, P, A are collinear
+19. B, P, A are collinear
     mun:between-collinear R := P, S := A, T := B, from H7
 
-21. P is on line AB
-    def:on-line, from 20
+20. P is on line AB
+    def:on-line, from 19
 
-22. A ≠ C
-    def:triangle P := C, Q := A, R := B, from 2
-
-23. A is on line AC
+21. A is on line AC
     mun:on-line-ends B := C
 
-24. not (B is on line AC)
+22. not (B is on line AC)
     mun:triangle-not-on-line P := B, Q := A, R := C, from 2
 
-25. P is between B and A
+23. P is between B and A
     mun:between-symmetric R := P, S := A, T := B, from H7
 
-26. P and B are on the same side of line AC
-    mun:segment-off-line B := C, P := B, Q := A, X := P, from 22, 23, 24, 25
+24. P and B are on the same side of line AC
+    mun:segment-off-line B := C, P := B, Q := A, X := P, from 2, 21, 22, 23
 
-27. C, P, D are collinear
+25. C, P, D are collinear
     mun:between-collinear R := P, S := C, T := D, from H8
 
-28. P is on line DC
-    def:on-line A := D, B := C, from 27
+26. P is on line DC
+    def:on-line A := D, B := C, from 25
 
-29. D ≠ B
-    def:triangle P := D, Q := C, R := B, from 17
-
-30. D is on line DB
+27. D is on line DB
     mun:on-line-ends A := D
 
-31. not (C is on line DB)
-    mun:triangle-not-on-line P := C, Q := D, R := B, from 17
+28. not (C is on line DB)
+    mun:triangle-not-on-line P := C, Q := D, R := B, from 16
 
-32. P and C are on the same side of line DB
-    mun:segment-off-line A := D, P := C, Q := D, X := P, from H8, 29, 30, 31
+29. P and C are on the same side of line DB
+    mun:segment-off-line A := D, P := C, Q := D, X := P, from H8, 16, 27, 28
 
-33. ∠PAC = ∠PDB
+30. ∠PAC = ∠PDB
     calculation
-      ∠PAC = ∠CAP    mun:angle-symmetric Q := A, R := C, from 18
-           = ∠CAB    mun:angle-same-ray R := C, P := A, Q := B, X := P, from 21, 26
-           = ∠CDB    thm:same-arc-angles A := C, C := A, from H11, 13, 14, 15
-           = ∠BDC    mun:angle-symmetric P := C, Q := D, R := B, from 17
-           = ∠BDP    mun:angle-same-ray R := B, P := D, Q := C, X := P, from 28, 32
-           = ∠PDB    mun:angle-symmetric P := B, Q := D, R := P, from 19
+      ∠PAC = ∠CAP    mun:angle-symmetric Q := A, R := C, from 17
+           = ∠CAB    mun:angle-same-ray R := C, P := A, Q := B, X := P, from 20, 24
+           = ∠CDB    thm:same-arc-angles A := C, C := A, from H11, 12, 13, 14
+           = ∠BDC    mun:angle-symmetric P := C, Q := D, R := B, from 16
+           = ∠BDP    mun:angle-same-ray R := B, P := D, Q := C, X := P, from 26, 29
+           = ∠PDB    mun:angle-symmetric P := B, Q := D, R := P, from 18
 
-34. ∠APC = ∠DPB
+31. ∠APC = ∠DPB
     calculation
-      ∠APC = ∠BPD    thm:vertical-angles B := C, C := B, O := P, from H7, H8, 18, 19
-           = ∠DPB    mun:angle-symmetric P := B, Q := P, R := D, from 19
+      ∠APC = ∠BPD    thm:vertical-angles B := C, C := B, O := P, from H7, H8, 17, 18
+           = ∠DPB    mun:angle-symmetric P := B, Q := P, R := D, from 18
 
-35. |PA|·|PB| = |PD|·|PC|
-    thm:angle-angle-similar Q := A, R := C, P′ := P, Q′ := D, R′ := B, from 18, 19, 33, 34
+32. |PA|·|PB| = |PD|·|PC|
+    thm:angle-angle-similar Q := A, R := C, P′ := P, Q′ := D, R′ := B, from 17, 18, 30, 31
 
-36. |PA|·|PB| = |PC|·|PD|
-    algebra, from 35
+33. |PA|·|PB| = |PC|·|PD|
+    algebra, from 32

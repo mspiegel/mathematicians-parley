@@ -1,5 +1,4 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
-import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-apart
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
@@ -26,36 +25,33 @@ theorem altitude-mean-proportional
 1.  A ≠ D. B ≠ D.
     mun:between-apart R := D, S := A, T := B, from H7
 
-2.  A ≠ C. B ≠ C.
-    def:triangle P := A, Q := B, R := C, from H5
-
-3.  |AB|² = |AC|² + |BC|²
+2.  |AB|² = |AC|² + |BC|²
     thm:pythagoras, from H5, H6
 
-4.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))
-    thm:law-of-cosines P := A, Q := D, R := C, from H8, 1, 2
+3.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))
+    thm:law-of-cosines P := A, Q := D, R := C, from H5, H8, 1
 
-5.  ∠ADC + ∠CDB = 180°
-    axi:supplementary-angles B := D, C := B, D := C, from H7, H8, 2
+4.  ∠ADC + ∠CDB = 180°
+    axi:supplementary-angles B := D, C := B, D := C, from H5, H7, H8
 
-6.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
-    thm:law-of-cosines P := C, Q := D, R := B, from H8, 1, 2
+5.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
+    thm:law-of-cosines P := C, Q := D, R := B, from H5, H8, 1
 
-7.  |AD| + |DB| = |AB|
+6.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from H7
 
-8.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
+7.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
     substitute
-      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))      4
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))      3
       |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))       substitute H9
       |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)              real arithmetic
 
-9.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
+8.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
     substitute
-      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      6
-      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H9, 5
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      5
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H9, 4
       |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)              real arithmetic
-    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from H8, 1, 2
+    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from H5, H8, 1
 
-10. |CD|² = |AD|·|DB|
-    algebra, from 3, 7, 8, 9
+9.  |CD|² = |AD|·|DB|
+    algebra, from 2, 6, 7, 8
