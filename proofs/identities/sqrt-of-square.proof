@@ -23,13 +23,10 @@ theorem sqrt-of-square
 4.  |x| ≥ 0
     mun:abs-nonneg
 
-5.  |x|² = x²
-    mun:abs-square
-
-6.  (√(x²))² = |x|²
+5.  (√(x²))² = |x|²
     calculation
       (√(x²))² = x²      2
-               = |x|²    5
+               = |x|²    mun:abs-square
 
-7.  √(x²) = |x|
-    mun:square-equal x := √(x²), y := |x|, from 2, 3, 4, 6
+6.  √(x²) = |x|
+    mun:square-equal x := √(x²), y := |x|, from 2, 3, 4, 5

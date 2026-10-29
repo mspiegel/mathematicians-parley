@@ -8,14 +8,11 @@ theorem log-two-of-eight
 1.  ln(8)/ln(2) = 3·ln(2)/ln(2)
     substitute ln(8) = 3·ln(2) (real arithmetic)
 
-2.  3·ln(2)/ln(2) = 3
-    algebra
-    requires ln(2) ≠ 0: real arithmetic
-
-3.  ln(8)/ln(2) = 3
+2.  ln(8)/ln(2) = 3
     calculation
       ln(8)/ln(2) = 3·ln(2)/ln(2)    1
-                  = 3                2
+                  = 3                algebra
+    requires ln(2) ≠ 0: real arithmetic
 
 
 theorem log-ten-of-thousand
@@ -25,14 +22,11 @@ theorem log-ten-of-thousand
 1.  ln(1000)/ln(10) = 3·ln(10)/ln(10)
     substitute ln(1000) = 3·ln(10) (real arithmetic)
 
-2.  3·ln(10)/ln(10) = 3
-    algebra
-    requires ln(10) ≠ 0: real arithmetic
-
-3.  ln(1000)/ln(10) = 3
+2.  ln(1000)/ln(10) = 3
     calculation
       ln(1000)/ln(10) = 3·ln(10)/ln(10)    1
-                      = 3                  2
+                      = 3                  algebra
+    requires ln(10) ≠ 0: real arithmetic
 
 
 theorem log-two-of-three-between
@@ -45,36 +39,34 @@ theorem log-two-of-three-between
     requires ln(3) − ln(2) > 0: real arithmetic
     requires ln(2) > 0: real arithmetic
 
-2.  (ln(3) − ln(2))/ln(2) = ln(3)/ln(2) − 1
-    algebra
+2.  ln(3)/ln(2) − 1 > 0
+    substitute
+      (ln(3) − ln(2))/ln(2) > 0      1
+      ln(3)/ln(2) − 1 > 0            algebra
     requires ln(2) ≠ 0: real arithmetic
 
-3.  ln(3)/ln(2) − 1 > 0
-    substitute (ln(3) − ln(2))/ln(2) = ln(3)/ln(2) − 1 (line 2) into line 1
-
-4.  1 < ln(3)/ln(2)
-    inequalities, from 3
+3.  1 < ln(3)/ln(2)
+    inequalities, from 2
     requires ln(2) ≠ 0: real arithmetic
 
-5.  (2·ln(2) − ln(3))/ln(2) > 0
+4.  (2·ln(2) − ln(3))/ln(2) > 0
     mun:quotient-positive x := 2·ln(2) − ln(3), y := ln(2)
     requires 2·ln(2) − ln(3) > 0: real arithmetic
     requires ln(2) > 0: real arithmetic
 
-6.  (2·ln(2) − ln(3))/ln(2) = 2 − ln(3)/ln(2)
-    algebra
+5.  2 − ln(3)/ln(2) > 0
+    substitute
+      (2·ln(2) − ln(3))/ln(2) > 0      4
+      2 − ln(3)/ln(2) > 0              algebra
     requires ln(2) ≠ 0: real arithmetic
 
-7.  2 − ln(3)/ln(2) > 0
-    substitute (2·ln(2) − ln(3))/ln(2) = 2 − ln(3)/ln(2) (line 6) into line 5
-
-8.  ln(3)/ln(2) < 2
+6.  ln(3)/ln(2) < 2
     inequalities
-      2 − ln(3)/ln(2) > 0                          7
+      2 − ln(3)/ln(2) > 0                          5
       2 − ln(3)/ln(2) + ln(3)/ln(2) > ln(3)/ln(2)  adding ln(3)/ln(2)
       2 > ln(3)/ln(2)                              algebra
       ln(3)/ln(2) < 2                              restate
     requires ln(2) ≠ 0: real arithmetic
 
-9.  1 < ln(3)/ln(2) and ln(3)/ln(2) < 2
-    join 4, 8
+7.  1 < ln(3)/ln(2) and ln(3)/ln(2) < 2
+    join 3, 6

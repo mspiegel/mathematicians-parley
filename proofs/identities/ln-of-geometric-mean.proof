@@ -34,23 +34,14 @@ theorem ln-of-geometric-mean
 6.  (√(x·y))^2 = x·y
     restate 2
 
-7.  ln((√(x·y))^2) = 2·ln(√(x·y))
-    mun:ln-power x := √(x·y), n := 2, from 2, 5
-
-8.  ln((√(x·y))^2) = ln(x·y)
-    substitute (√(x·y))^2 = x·y (line 6)
-
-9.  ln(x·y) = ln(x) + ln(y)
-    mun:ln-product, from H3, H4
-
-10. 2·ln(√(x·y)) = ln(x) + ln(y)
+7.  2·ln(√(x·y)) = ln(x) + ln(y)
     calculation
-      2·ln(√(x·y)) = ln((√(x·y))^2)    7
-                   = ln(x·y)           8
-                   = ln(x) + ln(y)     9
+      2·ln(√(x·y)) = ln((√(x·y))^2)    mun:ln-power x := √(x·y), n := 2, from 2, 5
+                   = ln(x·y)           substitute line 6
+                   = ln(x) + ln(y)     mun:ln-product, from H3, H4
 
-11. ln(√(x·y)) = (ln(x) + ln(y))/2
-    algebra, from 10
+8.  ln(√(x·y)) = (ln(x) + ln(y))/2
+    algebra, from 7
     requires ln(√(x·y)) ∈ ℝ: mun:ln-real x := √(x·y), from 2, 5
     requires ln(x) ∈ ℝ: mun:ln-real, from H3
     requires ln(y) ∈ ℝ: mun:ln-real x := y, from H4

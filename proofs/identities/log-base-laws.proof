@@ -14,17 +14,11 @@ theorem log-two-of-a-power-of-two
     mun:ln-power x := 2
     requires 2 > 0: arithmetic
 
-2.  ln(2^n)/ln(2) = n·ln(2)/ln(2)
-    substitute ln(2^n) = n·ln(2) (line 1)
-
-3.  n·ln(2)/ln(2) = n
-    algebra
-    requires ln(2) ≠ 0: real arithmetic
-
-4.  ln(2^n)/ln(2) = n
+2.  ln(2^n)/ln(2) = n
     calculation
-      ln(2^n)/ln(2) = n·ln(2)/ln(2)    2
-                    = n                3
+      ln(2^n)/ln(2) = n·ln(2)/ln(2)    substitute line 1
+                    = n                algebra
+    requires ln(2) ≠ 0: real arithmetic
 
 
 theorem log-of-a-product
@@ -45,19 +39,16 @@ theorem log-of-a-product
 2.  ln(b) ≠ 0
     mun:ln-nonzero x := b, from H6, H7
 
-3.  ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)
-    substitute ln(x·y) = ln(x) + ln(y) (line 1)
-
-4.  (ln(x) + ln(y))/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+3.  (ln(x) + ln(y))/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
     algebra, from 2
     requires ln(x) ∈ ℝ: mun:ln-real, from H4
     requires ln(y) ∈ ℝ: mun:ln-real x := y, from H5
     requires ln(b) ∈ ℝ: mun:ln-real x := b, from H6
 
-5.  ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+4.  ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
     calculation
-      ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)        3
-                    = ln(x)/ln(b) + ln(y)/ln(b)    4
+      ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)        substitute line 1
+                    = ln(x)/ln(b) + ln(y)/ln(b)    3
 
 
 theorem log-of-a-reciprocal
@@ -80,18 +71,15 @@ theorem log-of-a-reciprocal
 3.  ln(b) ≠ 0
     mun:ln-nonzero x := b, from H4, H5
 
-4.  ln(1/x)/ln(b) = (0 − ln(x))/ln(b)
-    substitute ln(1/x) = 0 − ln(x) (line 2)
-
-5.  (0 − ln(x))/ln(b) = −(ln(x)/ln(b))
+4.  (0 − ln(x))/ln(b) = −(ln(x)/ln(b))
     algebra, from 3
     requires ln(x) ∈ ℝ: mun:ln-real, from H3
     requires ln(b) ∈ ℝ: mun:ln-real x := b, from H4
 
-6.  ln(1/x)/ln(b) = −(ln(x)/ln(b))
+5.  ln(1/x)/ln(b) = −(ln(x)/ln(b))
     calculation
-      ln(1/x)/ln(b) = (0 − ln(x))/ln(b)    4
-                    = −(ln(x)/ln(b))       5
+      ln(1/x)/ln(b) = (0 − ln(x))/ln(b)    substitute line 2
+                    = −(ln(x)/ln(b))       4
 
 
 theorem change-of-base

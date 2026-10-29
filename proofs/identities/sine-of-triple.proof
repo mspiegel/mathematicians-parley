@@ -10,58 +10,34 @@ theorem sine-of-triple
   let x ∈ ℝ                                                           (H1)
   then sin(3·x) = 3·sin(x) − 4·sin(x)^3
 
-1.  sin(x + x) = sin(x)·cos(x) + cos(x)·sin(x)
-    thm:sin-add a := x, b := x
-
-2.  2·x = x + x
+1.  2·x = x + x
     algebra
 
-3.  sin(2·x) = sin(x + x)
-    substitute 2·x = x + x (line 2)
-
-4.  sin(2·x) = sin(x)·cos(x) + cos(x)·sin(x)
+2.  sin(2·x) = sin(x)·cos(x) + cos(x)·sin(x)
     calculation
-      sin(2·x) = sin(x + x)                          3
-               = sin(x)·cos(x) + cos(x)·sin(x)       1
+      sin(2·x) = sin(x + x)                          substitute line 1
+               = sin(x)·cos(x) + cos(x)·sin(x)       thm:sin-add a := x, b := x
 
-5.  cos(x + x) = cos(x)·cos(x) − sin(x)·sin(x)
-    thm:cos-add a := x, b := x
-
-6.  cos(2·x) = cos(x + x)
-    substitute 2·x = x + x (line 2)
-
-7.  cos(2·x) = cos(x)·cos(x) − sin(x)·sin(x)
+3.  cos(2·x) = cos(x)·cos(x) − sin(x)·sin(x)
     calculation
-      cos(2·x) = cos(x + x)                          6
-               = cos(x)·cos(x) − sin(x)·sin(x)       5
+      cos(2·x) = cos(x + x)                          substitute line 1
+               = cos(x)·cos(x) − sin(x)·sin(x)       thm:cos-add a := x, b := x
 
-8.  sin(2·x + x) = sin(2·x)·cos(x) + cos(2·x)·sin(x)
-    thm:sin-add a := 2·x, b := x
-
-9.  3·x = 2·x + x
+4.  3·x = 2·x + x
     algebra
 
-10. sin(3·x) = sin(2·x + x)
-    substitute 3·x = 2·x + x (line 9)
-
-11. sin(2·x)·cos(x) + cos(2·x)·sin(x) = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x)
-    substitute sin(2·x) = sin(x)·cos(x) + cos(x)·sin(x) (line 4)
-
-12. (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x) = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x)
-    substitute cos(2·x) = cos(x)·cos(x) − sin(x)·sin(x) (line 7)
-
-13. sin(x)² + cos(x)² = 1
+5.  sin(x)² + cos(x)² = 1
     mun:sin-cos-squares a := x
 
-14. (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x) = 3·sin(x) − 4·sin(x)^3
-    algebra, from 13
+6.  (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x) = 3·sin(x) − 4·sin(x)^3
+    algebra, from 5
     requires cos(x) ∈ ℝ: mun:cos-real a := x
     requires sin(x) ∈ ℝ: mun:sin-real a := x
 
-15. sin(3·x) = 3·sin(x) − 4·sin(x)^3
+7.  sin(3·x) = 3·sin(x) − 4·sin(x)^3
     calculation
-      sin(3·x) = sin(2·x + x)                                                                                                       10
-               = sin(2·x)·cos(x) + cos(2·x)·sin(x)                                                                                  8
-               = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x)                                                           11
-               = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x)                                    12
-               = 3·sin(x) − 4·sin(x)^3                                                                                              14
+      sin(3·x) = sin(2·x + x)                                                                                                       substitute line 4
+               = sin(2·x)·cos(x) + cos(2·x)·sin(x)                                                                                  thm:sin-add a := 2·x, b := x
+               = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x)                                                           substitute line 2
+               = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x)                                    substitute line 3
+               = 3·sin(x) − 4·sin(x)^3                                                                                              6

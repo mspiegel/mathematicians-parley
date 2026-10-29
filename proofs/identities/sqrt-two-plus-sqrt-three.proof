@@ -20,30 +20,28 @@ theorem sqrt-two-plus-sqrt-three
 3.  √6·2 + 5 is irrational
     thm:irrational-sum A := √6·2, B := 5, from 2
 
-4.  (√2 + √3)² = √6·2 + 5
-    real arithmetic
-
-5.  √2 + √3 ∉ ℚ
+4.  √2 + √3 ∉ ℚ
     contradiction
     suppose √2 + √3 ∈ ℚ                                               (S)
 
-    5.1.  (√2 + √3)·(√2 + √3) ∈ ℚ
+    4.1.  (√2 + √3)·(√2 + √3) ∈ ℚ
           thm:rational-product A := √2 + √3, B := √2 + √3, from S
 
-    5.2.  (√2 + √3)² = (√2 + √3)·(√2 + √3)
-          real arithmetic
+    4.2.  (√2 + √3)² ∈ ℚ
+          substitute
+            (√2 + √3)·(√2 + √3) ∈ ℚ      4.1
+            (√2 + √3)² ∈ ℚ               real arithmetic
 
-    5.3.  (√2 + √3)² ∈ ℚ
-          substitute (√2 + √3)² = (√2 + √3)·(√2 + √3) (line 5.2) into line 5.1
+    4.3.  √6·2 + 5 ∈ ℚ
+          substitute
+            (√2 + √3)² ∈ ℚ      4.2
+            √6·2 + 5 ∈ ℚ        real arithmetic
 
-    5.4.  √6·2 + 5 ∈ ℚ
-          substitute (√2 + √3)² = √6·2 + 5 (line 4) into line 5.3
-
-    5.5.  √6·2 + 5 ∈ ℝ. √6·2 + 5 ∉ ℚ.
+    4.4.  √6·2 + 5 ∈ ℝ. √6·2 + 5 ∉ ℚ.
           def:irrational x := √6·2 + 5, from 3
 
-    5.6.  √6·2 + 5 ∉ ℚ
-          restate 5.5, contradicting 5.4
+    4.5.  √6·2 + 5 ∉ ℚ
+          restate 4.4, contradicting 4.3
 
-6.  √2 + √3 is irrational
-    def:irrational x := √2 + √3, from 5
+5.  √2 + √3 is irrational
+    def:irrational x := √2 + √3, from 4

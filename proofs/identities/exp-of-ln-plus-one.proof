@@ -14,17 +14,15 @@ theorem exp-of-ln-plus-one
     mun:exp-sum a := ln(x), b := 1
     requires ln(x) ∈ ℝ: mun:ln-real, from H2
 
-2.  exp(ln(x)) = x
-    mun:exp-ln, from H2
+2.  exp(ln(x) + 1) = x·exp(1)
+    substitute
+      exp(ln(x) + 1) = exp(ln(x))·exp(1)      1
+      exp(ln(x) + 1) = x·exp(1)               mun:exp-ln, from H2
 
-3.  exp(ln(x) + 1) = x·exp(1)
-    substitute exp(ln(x)) = x (line 2) into line 1
+3.  exp(ln(x) + 1) = x·e
+    substitute
+      exp(ln(x) + 1) = x·exp(1)      2
+      exp(ln(x) + 1) = x·e           real arithmetic
 
-4.  exp(1) = e
-    real arithmetic
-
-5.  exp(ln(x) + 1) = x·e
-    substitute exp(1) = e (line 4) into line 3
-
-6.  exp(ln(x) + 1) = e·x
-    algebra, from 5
+4.  exp(ln(x) + 1) = e·x
+    algebra, from 3
