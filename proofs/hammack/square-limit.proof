@@ -95,30 +95,16 @@ theorem square-limit
           1.4.14. |f(x) − 7| = |x + 3|·|x − 3|
                   substitute f(x) − 7 = (x + 3)·(x − 3) (line 1.4.12) into line 1.4.13
 
-          1.4.15. |x + 3|·|x − 3| < |x + 3|·(ε/7)
-                  mun:less-scaled x := |x − 3|, y := ε/7, c := |x + 3|, from 1.4.1, 1.4.9
-                  requires |x − 3| ∈ ℝ: mun:abs-real x := x − 3
-                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
-
-          1.4.16. ε/7·|x + 3| ≤ ε/7·7
-                  mun:multiply-le x := |x + 3|, y := 7, c := ε/7, from 1.4.10
-                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
-                  requires ε/7 > 0: multiplying by 1/7, from A1
-
-          1.4.17. |x + 3|·(ε/7) = ε/7·|x + 3|
-                  algebra
-                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
-
-          1.4.18. ε/7·7 = ε
-                  algebra
-
-          1.4.19. |f(x) − 7| < ε
+          1.4.15. |f(x) − 7| < ε
                   calculation
                     |f(x) − 7| = |x + 3|·|x − 3|      1.4.14
-                               < |x + 3|·(ε/7)        1.4.15
-                               = ε/7·|x + 3|          1.4.17
-                               ≤ ε/7·7                1.4.16
-                               = ε                    1.4.18
+                               < |x + 3|·(ε/7)        mun:less-scaled x := |x − 3|, y := ε/7, c := |x + 3|, from 1.4.1, 1.4.9
+                               = ε/7·|x + 3|          algebra
+                               ≤ ε/7·7                mun:multiply-le x := |x + 3|, y := 7, c := ε/7, from 1.4.10
+                               = ε                    algebra
+                  requires |x − 3| ∈ ℝ: mun:abs-real x := x − 3
+                  requires |x + 3| ∈ ℝ: mun:abs-real x := x + 3
+                  requires ε/7 > 0: multiplying by 1/7, from A1
 
     1.5.  There exists δ > 0 such that |f(x) − 7| < ε for all x ∈ ℝ with (x ≠ 3 and |x − 3| < δ).
           exhibit, from 1.3, 1.4

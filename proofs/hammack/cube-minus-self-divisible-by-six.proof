@@ -22,39 +22,27 @@ theorem six-divides-three-consecutive
     2.1.  m ∈ ℤ. k = 2m.
           obtain m: def:even n := k, from C1
 
-    2.2.  3·k·(k + 1) = 3·(2m)·((2m) + 1)
-          substitute k = 2m (line 2.1)
-
-    2.3.  3·(2m)·((2m) + 1) = 6·(m·(2m + 1))
-          algebra
-
-    2.4.  3·k·(k + 1) = 6·(m·(2m + 1))
+    2.2.  3·k·(k + 1) = 6·(m·(2m + 1))
           calculation
-            3·k·(k + 1) = 3·(2m)·((2m) + 1)      2.2
-                        = 6·(m·(2m + 1))         2.3
+            3·k·(k + 1) = 3·(2m)·((2m) + 1)      substitute line 2.1
+                        = 6·(m·(2m + 1))         algebra
 
-    2.5.  6 divides 3·k·(k + 1)
-          def:divides d := 6, n := 3·k·(k + 1), from 2.4
+    2.3.  6 divides 3·k·(k + 1)
+          def:divides d := 6, n := 3·k·(k + 1), from 2.2
 
     case
     assume k is odd                                                   (C2)
 
-    2.6.  m ∈ ℤ. k = 2m + 1.
+    2.4.  m ∈ ℤ. k = 2m + 1.
           obtain m: def:odd n := k, from C2
 
-    2.7.  3·k·(k + 1) = 3·(2m + 1)·((2m + 1) + 1)
-          substitute k = 2m + 1 (line 2.6)
-
-    2.8.  3·(2m + 1)·((2m + 1) + 1) = 6·((2m + 1)·(m + 1))
-          algebra
-
-    2.9.  3·k·(k + 1) = 6·((2m + 1)·(m + 1))
+    2.5.  3·k·(k + 1) = 6·((2m + 1)·(m + 1))
           calculation
-            3·k·(k + 1) = 3·(2m + 1)·((2m + 1) + 1)     2.7
-                        = 6·((2m + 1)·(m + 1))          2.8
+            3·k·(k + 1) = 3·(2m + 1)·((2m + 1) + 1)     substitute line 2.4
+                        = 6·((2m + 1)·(m + 1))          algebra
 
-    2.10. 6 divides 3·k·(k + 1)
-          def:divides d := 6, n := 3·k·(k + 1), from 2.9
+    2.6.  6 divides 3·k·(k + 1)
+          def:divides d := 6, n := 3·k·(k + 1), from 2.5
 
 theorem cube-minus-self-divisible-by-six
   note        By induction on n: (n + 1)³ − (n + 1) is n³ − n plus
@@ -79,11 +67,10 @@ theorem cube-minus-self-divisible-by-six
     1.3.  6 divides (k³ − k) + 3·k·(k + 1)
           mun:divides-sum d := 6, a := k³ − k, b := 3·k·(k + 1), from IH, 1.2
 
-    1.4.  (k³ − k) + 3·k·(k + 1) = (k + 1)³ − (k + 1)
-          algebra
-
-    1.5.  6 divides (k + 1)³ − (k + 1)
-          substitute (k³ − k) + 3·k·(k + 1) = (k + 1)³ − (k + 1) (line 1.4) into line 1.3
+    1.4.  6 divides (k + 1)³ − (k + 1)
+          substitute
+            6 divides (k³ − k) + 3·k·(k + 1)      1.3
+            6 divides (k + 1)³ − (k + 1)          algebra
 
 2.  6 divides n³ − n
     instantiate k := n in line 1

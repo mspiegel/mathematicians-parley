@@ -23,22 +23,16 @@ theorem cube-minus-one-even-gives-odd
     2.1.  k ∈ ℤ. x = 2k.
           obtain k: def:even, from C1
 
-    2.2.  x³ − 1 = (2k)³ − 1
-          substitute x = 2k (line 2.1)
-
-    2.3.  (2k)³ − 1 = 2(4k³ − 1) + 1
-          algebra
-
-    2.4.  x³ − 1 = 2(4k³ − 1) + 1
+    2.2.  x³ − 1 = 2(4k³ − 1) + 1
           calculation
-            x³ − 1 = (2k)³ − 1        2.2
-                   = 2(4k³ − 1) + 1   2.3
+            x³ − 1 = (2k)³ − 1        substitute line 2.1
+                   = 2(4k³ − 1) + 1   algebra
 
-    2.5.  x³ − 1 is odd
-          def:odd n := x³ − 1, from 2.4
+    2.3.  x³ − 1 is odd
+          def:odd n := x³ − 1, from 2.2
 
-    2.6.  x³ − 1 is not odd
-          mun:not-both n := x³ − 1, from H2, contradicting 2.5
+    2.4.  x³ − 1 is not odd
+          mun:not-both n := x³ − 1, from H2, contradicting 2.3
 
     case
     assume x is odd, which is the claim                               (C2)

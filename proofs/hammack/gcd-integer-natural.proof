@@ -46,62 +46,53 @@ theorem gcd-integer-natural
     case
     assume a mod b = 0                                                (C1)
 
-    6.1.  gcd(a mod b, b) = gcd(0, b)
-          substitute a mod b = 0 (C1)
-
-    6.2.  gcd(0, b) = gcd(b, 0)
-          mun:gcd-commutes a := 0
-
-    6.3.  gcd(b, 0) = b
-          mun:gcd-zero n := b
-
-    6.4.  gcd(a, b) = b
+    6.1.  gcd(a, b) = b
           calculation
             gcd(a, b) = gcd(a mod b, b)     1
-                      = gcd(0, b)           6.1
-                      = gcd(b, 0)           6.2
-                      = b                   6.3
+                      = gcd(0, b)           substitute C1
+                      = gcd(b, 0)           mun:gcd-commutes a := 0
+                      = b                   mun:gcd-zero n := b
 
-    6.5.  b divides b
+    6.2.  b divides b
           mun:divides-self n := b
 
-    6.6.  a = b·q
+    6.3.  a = b·q
           algebra, from C1, 4
 
-    6.7.  b divides a
-          def:divides d := b, n := a, from 6.6
+    6.4.  b divides a
+          def:divides d := b, n := a, from 6.3
 
-    6.8.  b ∈ ℕ. b divides a. b divides b.
-          join H2, 6.5, 6.7
+    6.5.  b ∈ ℕ. b divides a. b divides b.
+          join H2, 6.2, 6.4
 
-    6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-          substitute gcd(a, b) = b (line 6.4) into line 6.8
+    6.6.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          substitute gcd(a, b) = b (line 6.1) into line 6.5
 
     case
     assume not a mod b = 0                                            (C2)
 
-    6.10. a mod b ∈ ℕ
+    6.7.  a mod b ∈ ℕ
           mun:nat0-nonzero m := a mod b, from C2, 2
 
-    6.11. gcd(a mod b, b) ∈ ℕ. gcd(a mod b, b) divides a mod b. gcd(a mod b, b) divides b.
-          def:gcd a := a mod b, from 6.10
+    6.8.  gcd(a mod b, b) ∈ ℕ. gcd(a mod b, b) divides a mod b. gcd(a mod b, b) divides b.
+          def:gcd a := a mod b, from 6.7
 
-    6.12. gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
-          substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.11
+    6.9.  gcd(a, b) ∈ ℕ. gcd(a, b) divides a mod b. gcd(a, b) divides b.
+          substitute gcd(a mod b, b) = gcd(a, b) (line 1) into line 6.8
 
-    6.13. gcd(a, b) divides b·q
-          mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.12
+    6.10. gcd(a, b) divides b·q
+          mun:divides-multiple e := gcd(a, b), a := b, x := q, from 6.9
 
-    6.14. gcd(a, b) divides b·q + a mod b
-          mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.12, 6.13
+    6.11. gcd(a, b) divides b·q + a mod b
+          mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.9, 6.10
           requires a mod b ∈ ℤ: mun:nat0-int m := a mod b, from 2
 
-    6.15. a = b·q + a mod b
+    6.12. a = b·q + a mod b
           algebra, from 4
           requires a mod b ∈ ℝ: mun:nat0-real m := a mod b, from 2
 
-    6.16. gcd(a, b) divides a
-          substitute a = b·q + a mod b (line 6.15) into line 6.14
+    6.13. gcd(a, b) divides a
+          substitute a = b·q + a mod b (line 6.12) into line 6.11
 
-    6.17. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-          join 6.12, 6.16
+    6.14. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          join 6.9, 6.13

@@ -22,11 +22,10 @@ theorem congruent-products
 3.  n divides (a − b)·c + (c − d)·b
     mun:divides-combination e := n, a := a − b, b := c − d, x := c, y := b, from 1, 2
 
-4.  (a − b)·c + (c − d)·b = a·c − b·d
-    algebra
+4.  n divides a·c − b·d
+    substitute
+      n divides (a − b)·c + (c − d)·b      3
+      n divides a·c − b·d                  algebra
 
-5.  n divides a·c − b·d
-    substitute (a − b)·c + (c − d)·b = a·c − b·d (line 4) into line 3
-
-6.  a·c ≡ b·d (mod n)
-    def:congruent-mod, from 5
+5.  a·c ≡ b·d (mod n)
+    def:congruent-mod, from 4

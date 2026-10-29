@@ -26,45 +26,44 @@ theorem gcd-with-successor-two-from-minus-one
 3.  gcd(n, n + 2) divides n + 2 − n
     mun:divides-difference d := gcd(n, n + 2), a := n + 2, b := n, from 2
 
-4.  n + 2 − n = 2
-    algebra
+4.  gcd(n, n + 2) divides 2
+    substitute
+      gcd(n, n + 2) divides n + 2 − n      3
+      gcd(n, n + 2) divides 2              algebra
 
-5.  gcd(n, n + 2) divides 2
-    substitute n + 2 − n = 2 (line 4) into line 3
+5.  gcd(n, n + 2) ≤ 2
+    mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 4
 
-6.  gcd(n, n + 2) ≤ 2
-    mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 5
+6.  gcd(n, n + 2) < 2 or gcd(n, n + 2) = 2
+    mun:le-cases x := gcd(n, n + 2), y := 2, from 2, 5
 
-7.  gcd(n, n + 2) < 2 or gcd(n, n + 2) = 2
-    mun:le-cases x := gcd(n, n + 2), y := 2, from 2, 6
-
-8.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
-    cases, from 7
+7.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+    cases, from 6
 
     case
     assume gcd(n, n + 2) < 2                                          (C1)
 
-    8.1.  gcd(n, n + 2) + 1 ≤ 2
+    7.1.  gcd(n, n + 2) + 1 ≤ 2
           mun:integer-step m := gcd(n, n + 2), n := 2, from C1, 2
 
-    8.2.  gcd(n, n + 2) ≤ 1
-          inequalities, from 2, 8.1
+    7.2.  gcd(n, n + 2) ≤ 1
+          inequalities, from 2, 7.1
 
-    8.3.  1 ≤ gcd(n, n + 2)
+    7.3.  1 ≤ gcd(n, n + 2)
           inequalities, from 2
 
-    8.4.  gcd(n, n + 2) = 1
-          antisymmetry, from 8.2, 8.3
+    7.4.  gcd(n, n + 2) = 1
+          antisymmetry, from 7.2, 7.3
           requires gcd(n, n + 2) ∈ ℝ: from 2
 
-    8.5.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
-          mun:or-left, from 8.4
+    7.5.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+          mun:or-left, from 7.4
 
     case
     assume gcd(n, n + 2) = 2                                          (C2)
 
-    8.6.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
+    7.6.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
           mun:or-right, from C2
 
-9.  gcd(n, n + 2) ∈ {1, 2}
-    def:pair x := gcd(n, n + 2), u := 1, w := 2, from 8
+8.  gcd(n, n + 2) ∈ {1, 2}
+    def:pair x := gcd(n, n + 2), u := 1, w := 2, from 7

@@ -26,26 +26,20 @@ theorem coprime-to-a-product
 4.  b·u + c·v = 1
     substitute gcd(b, c) = 1 (H5) into line 3
 
-5.  (a·x + c·y)·(b·u + c·v) = 1·(b·u + c·v)
-    substitute a·x + c·y = 1 (line 2)
-
-6.  (a·x + c·y)·(b·u + c·v) = a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
-    algebra
-
-7.  a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1
+5.  a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1
     calculation
-      a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = (a·x + c·y)·(b·u + c·v)     6
-                                             = 1·(b·u + c·v)               5
+      a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = (a·x + c·y)·(b·u + c·v)     algebra
+                                             = 1·(b·u + c·v)               substitute line 2
                                              = 1                           4
 
-8.  gcd(a·b, c) ∈ ℕ. gcd(a·b, c) divides a·b. gcd(a·b, c) divides c.
+6.  gcd(a·b, c) ∈ ℕ. gcd(a·b, c) divides a·b. gcd(a·b, c) divides c.
     def:gcd a := a·b, b := c
 
-9.  gcd(a·b, c) divides a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
-    mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 8
+7.  gcd(a·b, c) divides a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v)
+    mun:divides-combination e := gcd(a·b, c), a := a·b, b := c, x := x·u, y := a·x·v + y·b·u + c·y·v, from 6
 
-10. gcd(a·b, c) divides 1
-    substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 7) into line 9
+8.  gcd(a·b, c) divides 1
+    substitute a·b·(x·u) + c·(a·x·v + y·b·u + c·y·v) = 1 (line 5) into line 7
 
-11. gcd(a·b, c) = 1
-    mun:divides-one d := gcd(a·b, c), from 8, 10
+9.  gcd(a·b, c) = 1
+    mun:divides-one d := gcd(a·b, c), from 6, 8

@@ -13,28 +13,13 @@ theorem gcd-with-remainder
   assume a = q·b + r                                                  (H5)
   then gcd(a, b) = gcd(r, b)
 
-1.  gcd(a mod b, b) = gcd(a, b)
-    thm:gcd-mod
-
-2.  gcd(r mod b, b) = gcd(r, b)
-    thm:gcd-mod a := r
-
-3.  (q·b + r) mod b = r mod b
-    mun:mod-multiple
-
-4.  a mod b = (q·b + r) mod b
-    substitute a = q·b + r (H5)
-
-5.  a mod b = r mod b
+1.  a mod b = r mod b
     calculation
-      a mod b = (q·b + r) mod b      4
-              = r mod b              3
+      a mod b = (q·b + r) mod b      substitute H5
+              = r mod b              mun:mod-multiple
 
-6.  gcd(a mod b, b) = gcd(r mod b, b)
-    substitute a mod b = r mod b (line 5)
-
-7.  gcd(a, b) = gcd(r, b)
+2.  gcd(a, b) = gcd(r, b)
     calculation
-      gcd(a, b) = gcd(a mod b, b)       1
-                = gcd(r mod b, b)       6
-                = gcd(r, b)             2
+      gcd(a, b) = gcd(a mod b, b)       thm:gcd-mod
+                = gcd(r mod b, b)       substitute line 1
+                = gcd(r, b)             thm:gcd-mod a := r

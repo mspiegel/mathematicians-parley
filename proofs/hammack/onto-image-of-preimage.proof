@@ -99,36 +99,35 @@ theorem onto-image-of-preimage
           1.3.1.  {y} ⊆ B
                   mun:singleton-subset a := y, X := B, from K5
 
-          1.3.2.  f[f⁻¹[{y}]] = {y}
-                  instantiate Y := {y} in D2, from 1.3.1
-
-          1.3.3.  y ∈ {y}
+          1.3.2.  y ∈ {y}
                   def:singleton x := y, a := y
 
-          1.3.4.  y ∈ f[f⁻¹[{y}]]
-                  substitute f[f⁻¹[{y}]] = {y} (line 1.3.2) into line 1.3.3
+          1.3.3.  y ∈ f[f⁻¹[{y}]]
+                  substitute
+                    y ∈ {y}              1.3.2
+                    y ∈ f[f⁻¹[{y}]]      instantiate Y := {y} in D2, from 1.3.1
 
-          1.3.5.  For all u ∈ f⁻¹[{y}], u ∈ A.
+          1.3.4.  For all u ∈ f⁻¹[{y}], u ∈ A.
                   proof
                   let u ∈ f⁻¹[{y}]                                    (K6)
 
-                  1.3.5.1.  u ∈ A
+                  1.3.4.1.  u ∈ A
                             def:preimage Z := {y}, from K6
 
-          1.3.6.  f⁻¹[{y}] ⊆ A
-                  def:subset, from 1.3.5
+          1.3.5.  f⁻¹[{y}] ⊆ A
+                  def:subset, from 1.3.4
 
-          1.3.7.  There is s ∈ f⁻¹[{y}] with y = f(s).
-                  def:image u := y, Y := f⁻¹[{y}], from 1.3.4, 1.3.6
+          1.3.6.  There is s ∈ f⁻¹[{y}] with y = f(s).
+                  def:image u := y, Y := f⁻¹[{y}], from 1.3.3, 1.3.5
 
-          1.3.8.  s ∈ f⁻¹[{y}]. y = f(s).
-                  obtain s from line 1.3.7
+          1.3.7.  s ∈ f⁻¹[{y}]. y = f(s).
+                  obtain s from line 1.3.6
 
-          1.3.9.  s ∈ A
-                  def:preimage u := s, Z := {y}, from 1.3.8
+          1.3.8.  s ∈ A
+                  def:preimage u := s, Z := {y}, from 1.3.7
 
-          1.3.10. There is x ∈ A with y = f(x).
-                  exhibit, from 1.3.8, 1.3.9
+          1.3.9.  There is x ∈ A with y = f(x).
+                  exhibit, from 1.3.7, 1.3.8
 
     1.4.  f : A → B is onto
           def:onto, from H3, 1.3

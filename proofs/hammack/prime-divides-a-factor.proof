@@ -38,20 +38,18 @@ theorem prime-divides-a-factor
     3.2.  gcd(p, a) = 1
           mun:prime-coprime, from C2, H4, 1
 
-    3.3.  gcd(p, a) = gcd(a, p)
-          mun:gcd-commutes a := p, b := a
+    3.3.  gcd(a, p) = 1
+          substitute
+            gcd(p, a) = 1      3.2
+            gcd(a, p) = 1      mun:gcd-commutes a := p, b := a
 
-    3.4.  gcd(a, p) = 1
-          substitute gcd(p, a) = gcd(a, p) (line 3.3) into line 3.2
+    3.4.  p divides b·a
+          substitute
+            p divides a·b      H5
+            p divides b·a      algebra
 
-    3.5.  a·b = b·a
-          algebra
+    3.5.  p divides b
+          thm:coprime-divides x := b, c := a, n := p, from 1, 3.3, 3.4
 
-    3.6.  p divides b·a
-          substitute a·b = b·a (line 3.5) into H5
-
-    3.7.  p divides b
-          thm:coprime-divides x := b, c := a, n := p, from 1, 3.4, 3.6
-
-    3.8.  p divides a or p divides b
-          mun:or-right P := p divides a, from 3.7
+    3.6.  p divides a or p divides b
+          mun:or-right P := p divides a, from 3.5

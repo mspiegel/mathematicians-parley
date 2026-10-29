@@ -15,11 +15,10 @@ theorem five-divides-half
 2.  5 divides (2·b)·(−2) + 5·b
     mun:divides-combination e := 5, a := 2·b, b := 5, x := −2, y := b, from H2, 1
 
-3.  (2·b)·(−2) + 5·b = b
-    algebra
-
-4.  5 divides b
-    substitute (2·b)·(−2) + 5·b = b (line 3) into line 2
+3.  5 divides b
+    substitute
+      5 divides (2·b)·(−2) + 5·b      2
+      5 divides b                     algebra
 
 theorem five-divides-power-of-two-multiple
   note        By induction on n from 0: 2^(k + 1)·c is 2^k·(2c), so by the

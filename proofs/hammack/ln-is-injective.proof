@@ -12,17 +12,8 @@ theorem ln-is-injective
   assume ln(x) = ln(y)                                                (H5)
   then x = y
 
-1.  exp(ln(x)) = x
-    mun:exp-ln, from H3
-
-2.  exp(ln(y)) = y
-    mun:exp-ln x := y, from H4
-
-3.  exp(ln(x)) = exp(ln(y))
-    substitute ln(x) = ln(y) (H5)
-
-4.  x = y
+1.  x = y
     calculation
-      x = exp(ln(x))    1
-        = exp(ln(y))    3
-        = y             2
+      x = exp(ln(x))    mun:exp-ln, from H3
+        = exp(ln(y))    substitute H5
+        = y             mun:exp-ln x := y, from H4

@@ -80,19 +80,16 @@ theorem multiples-of-six
     3.11. t = 6·a − 6·b
           substitute 6·b = 2·t (line 3.8) into line 3.10
 
-    3.12. 6·a − 6·b = 6·(a − b)
-          algebra
-
-    3.13. t = 6·(a − b)
+    3.12. t = 6·(a − b)
           calculation
             t = 6·a − 6·b       3.11
-              = 6·(a − b)       3.12
+              = 6·(a − b)       algebra
 
-    3.14. There is n ∈ ℤ with t = 6n.
-          exhibit, from 3.13
+    3.13. There is n ∈ ℤ with t = 6n.
+          exhibit, from 3.12
 
-    3.15. t ∈ {6n : n ∈ ℤ}
-          def:set-image u := t, from 3.14
+    3.14. t ∈ {6n : n ∈ ℤ}
+          def:set-image u := t, from 3.13
 
 4.  {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ} ⊆ {6n : n ∈ ℤ}
     def:subset, from 3

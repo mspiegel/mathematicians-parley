@@ -92,87 +92,76 @@ theorem reciprocal-square-no-limit
     1.18. 1/N < 1/(1/p)
           mun:reciprocal-order-strict x := 1/p, y := N, from 1.6, 1.7, 1.12, 1.14
 
-    1.19. 1/(1/p) = p
-          algebra
+    1.19. 1/N < p
+          substitute
+            1/N < 1/(1/p)      1.18
+            1/N < p            algebra
           requires p ≠ 0: from 1.5
 
-    1.20. 1/N < p
-          substitute 1/(1/p) = p (line 1.19) into line 1.18
-
-    1.21. 1 + 1/N − 1 = 1/N
+    1.20. 1 + 1/N − 1 = 1/N
           algebra
 
-    1.22. |1/N| = 1/N
-          def:abs x := 1/N
+    1.21. |1 + 1/N − 1| < p
+          calculation
+            |1 + 1/N − 1| = |1/N|      substitute line 1.20
+                          = 1/N        def:abs x := 1/N
+                          < p          1.19
           requires 1/N ≥ 0: weakening, from 1.15
 
-    1.23. |1 + 1/N − 1| = |1/N|
-          substitute 1 + 1/N − 1 = 1/N (line 1.21)
+    1.22. 1 + 1/N ≠ 1 and |1 + 1/N − 1| < p
+          join 1.16, 1.21
 
-    1.24. |1 + 1/N − 1| < p
-          calculation
-            |1 + 1/N − 1| = |1/N|      1.23
-                          = 1/N        1.22
-                          < p          1.20
+    1.23. |f(1 + 1/N) − L| < 1
+          instantiate x := 1 + 1/N in line 1.4, from 1.17, 1.22
 
-    1.25. 1 + 1/N ≠ 1 and |1 + 1/N − 1| < p
-          join 1.16, 1.24
-
-    1.26. |f(1 + 1/N) − L| < 1
-          instantiate x := 1 + 1/N in line 1.4, from 1.17, 1.25
-
-    1.27. f(1 + 1/N) = 1/((1 + 1/N)² − 2(1 + 1/N) + 1)
-          instantiate x := 1 + 1/N in H2, from 1.17
-
-    1.28. (1 + 1/N)² − 2(1 + 1/N) + 1 = (1/N)²
-          algebra
-
-    1.29. 1/N ≠ 0
+    1.24. 1/N ≠ 0
           inequalities
             1/N > 0        1.15
             1/N ≠ 0        weakening
 
-    1.30. (1/N)² > 0
-          mun:square-positive x := 1/N, from 1.29
+    1.25. (1/N)² > 0
+          mun:square-positive x := 1/N, from 1.24
 
-    1.31. (1 + 1/N)² − 2(1 + 1/N) + 1 > 0
-          substitute (1 + 1/N)² − 2(1 + 1/N) + 1 = (1/N)² (line 1.28) into line 1.30
+    1.26. (1 + 1/N)² − 2(1 + 1/N) + 1 > 0
+          substitute
+            (1/N)² > 0                           1.25
+            (1 + 1/N)² − 2(1 + 1/N) + 1 > 0      algebra
 
-    1.32. (1 + 1/N)² − 2(1 + 1/N) + 1 ≠ 0
+    1.27. (1 + 1/N)² − 2(1 + 1/N) + 1 ≠ 0
           inequalities
-            (1 + 1/N)² − 2(1 + 1/N) + 1 > 0        1.31
+            (1 + 1/N)² − 2(1 + 1/N) + 1 > 0        1.26
             (1 + 1/N)² − 2(1 + 1/N) + 1 ≠ 0        weakening
 
-    1.33. 1/((1 + 1/N)² − 2(1 + 1/N) + 1) = N²
-          algebra, from 1.32
+    1.28. 1/((1 + 1/N)² − 2(1 + 1/N) + 1) = N²
+          algebra, from 1.27
 
-    1.34. f(1 + 1/N) = N²
+    1.29. f(1 + 1/N) = N²
           calculation
-            f(1 + 1/N) = 1/((1 + 1/N)² − 2(1 + 1/N) + 1)    1.27
-                       = N²                                  1.33
+            f(1 + 1/N) = 1/((1 + 1/N)² − 2(1 + 1/N) + 1)    instantiate x := 1 + 1/N in H2, from 1.17
+                       = N²                                  1.28
 
-    1.35. L − 1 < f(1 + 1/N) and f(1 + 1/N) < L + 1
-          mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 1.26
+    1.30. L − 1 < f(1 + 1/N) and f(1 + 1/N) < L + 1
+          mun:abs-difference-lt x := f(1 + 1/N), c := L, δ := 1, from 1.23
           requires f(1 + 1/N) ∈ ℝ: mun:function-value, from H1, 1.17
 
-    1.36. N² < L + 1
-          substitute f(1 + 1/N) = N² (line 1.34) into line 1.35
+    1.31. N² < L + 1
+          substitute f(1 + 1/N) = N² (line 1.29) into line 1.30
 
-    1.37. N·1 ≤ N·N
+    1.32. N·1 ≤ N·N
           mun:multiply-le x := 1, y := N, c := N, from 1.9
 
-    1.38. N ≤ N²
+    1.33. N ≤ N²
           inequalities
-            N·1 ≤ N·N      1.37
+            N·1 ≤ N·N      1.32
             N ≤ N²         algebra
 
-    1.39. L + 1 < N²
-          transitivity, from 1.13, 1.38
+    1.34. L + 1 < N²
+          transitivity, from 1.13, 1.33
 
-    1.40. L + 1 ≤ N²
+    1.35. L + 1 ≤ N²
           inequalities
-            L + 1 < N²     1.39
+            L + 1 < N²     1.34
             L + 1 ≤ N²     weakening
 
-    1.41. not N² < L + 1
-          inequalities, from 1.40, contradicting 1.36
+    1.36. not N² < L + 1
+          inequalities, from 1.35, contradicting 1.31

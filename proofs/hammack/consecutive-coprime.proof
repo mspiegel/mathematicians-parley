@@ -20,34 +20,27 @@ theorem consecutive-coprime
     case
     assume n = 0                                                      (C1)
 
-    2.1.  gcd(0, 1) = 1
-          mun:gcd-one a := 0
-
-    2.2.  gcd(n, n + 1) = gcd(0, 1)
-          substitute n = 0 (C1)
-
-    2.3.  gcd(n, n + 1) = 1
+    2.1.  gcd(n, n + 1) = 1
           calculation
-            gcd(n, n + 1) = gcd(0, 1)       2.2
-                          = 1               2.1
+            gcd(n, n + 1) = gcd(0, 1)       substitute C1
+                          = 1               mun:gcd-one a := 0
 
     case
     assume n ≠ 0                                                      (C2)
 
-    2.4.  n ∈ ℕ
+    2.2.  n ∈ ℕ
           mun:nat0-nonzero m := n, from C2
 
-    2.5.  gcd(n, n + 1) ∈ ℕ. gcd(n, n + 1) divides n. gcd(n, n + 1) divides n + 1.
-          def:gcd a := n, b := n + 1, from 2.4
+    2.3.  gcd(n, n + 1) ∈ ℕ. gcd(n, n + 1) divides n. gcd(n, n + 1) divides n + 1.
+          def:gcd a := n, b := n + 1, from 2.2
 
-    2.6.  gcd(n, n + 1) divides (n + 1) − n
-          mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.5
+    2.4.  gcd(n, n + 1) divides (n + 1) − n
+          mun:divides-difference d := gcd(n, n + 1), a := n + 1, b := n, from 2.3
 
-    2.7.  (n + 1) − n = 1
-          algebra
+    2.5.  gcd(n, n + 1) divides 1
+          substitute
+            gcd(n, n + 1) divides (n + 1) − n      2.4
+            gcd(n, n + 1) divides 1                algebra
 
-    2.8.  gcd(n, n + 1) divides 1
-          substitute (n + 1) − n = 1 (line 2.7) into line 2.6
-
-    2.9.  gcd(n, n + 1) = 1
-          mun:divides-one d := gcd(n, n + 1), from 2.5, 2.8
+    2.6.  gcd(n, n + 1) = 1
+          mun:divides-one d := gcd(n, n + 1), from 2.3, 2.5

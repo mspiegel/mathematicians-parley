@@ -23,80 +23,77 @@ theorem inverse-squares-bounded
     induction on k starting at 1
 
     base
-    2.1.  Σ(j = 1 to 1) 1/j² = 1/1²
-          mun:sum-single a := 1, from 1
-
-    2.2.  Σ(j = 1 to 1) 1/j² ≤ 2 − 1/1
+    2.1.  Σ(j = 1 to 1) 1/j² ≤ 2 − 1/1
           calculation
-            Σ(j = 1 to 1) 1/j² = 1/1²        2.1
+            Σ(j = 1 to 1) 1/j² = 1/1²        mun:sum-single a := 1, from 1
                                ≤ 2 − 1/1     arithmetic
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 2 is true for k, the induction hypothesis             (IH)
 
-    2.3.  Σ(j = 1 to k + 1) 1/j² = Σ(j = 1 to k) 1/j² + 1/(k + 1)²
+    2.2.  Σ(j = 1 to k + 1) 1/j² = Σ(j = 1 to k) 1/j² + 1/(k + 1)²
           mun:sum-extended a := 1, n := k, from 1
           requires k ≥ 1: from K
 
-    2.4.  k + 1 > 0
+    2.3.  k + 1 > 0
           inequalities, from K
 
-    2.5.  1/k − 1/(k + 1) = 1/(k·(k + 1))
+    2.4.  1/k − 1/(k + 1) = 1/(k·(k + 1))
           algebra
 
-    2.6.  (k + 1)² > 0
+    2.5.  (k + 1)² > 0
           mun:square-positive x := k + 1
-          requires k + 1 ≠ 0: weakening, from 2.4
+          requires k + 1 ≠ 0: weakening, from 2.3
 
-    2.7.  k·(k + 1) ≥ 0
+    2.6.  k·(k + 1) ≥ 0
           mun:product-nonneg x := k, y := k + 1
           requires k ≥ 0: inequalities, from K
-          requires k + 1 ≥ 0: weakening, from 2.4
+          requires k + 1 ≥ 0: weakening, from 2.3
 
-    2.8.  k·(k + 1) ≠ 0
+    2.7.  k·(k + 1) ≠ 0
           mun:product-nonzero x := k, y := k + 1
           requires k ≠ 0: from K
-          requires k + 1 ≠ 0: weakening, from 2.4
+          requires k + 1 ≠ 0: weakening, from 2.3
 
-    2.9.  k·(k + 1) > 0
-          inequalities, from 2.7, 2.8
+    2.8.  k·(k + 1) > 0
+          inequalities, from 2.6, 2.7
 
-    2.10. (k + 1)² = k·(k + 1) + (k + 1)
+    2.9.  (k + 1)² = k·(k + 1) + (k + 1)
           algebra
 
-    2.11. k·(k + 1) < k·(k + 1) + (k + 1)
+    2.10. k·(k + 1) < k·(k + 1) + (k + 1)
           inequalities
-            k + 1 > 0                                       2.4
+            k + 1 > 0                                       2.3
             k·(k + 1) + (k + 1) > k·(k + 1)                 adding k·(k + 1)
             k·(k + 1) < k·(k + 1) + (k + 1)                 restate
 
-    2.12. k·(k + 1) < (k + 1)²
-          transitivity, from 2.11, 2.10
+    2.11. k·(k + 1) < (k + 1)²
+          transitivity, from 2.10, 2.9
 
-    2.13. k·(k + 1) ≤ (k + 1)²
+    2.12. k·(k + 1) ≤ (k + 1)²
           inequalities
-            k·(k + 1) < (k + 1)²                            2.12
+            k·(k + 1) < (k + 1)²                            2.11
             k·(k + 1) ≤ (k + 1)²                            weakening
 
-    2.14. 1/(k + 1)² ≤ 1/(k·(k + 1))
-          mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.6, 2.9, 2.13
+    2.13. 1/(k + 1)² ≤ 1/(k·(k + 1))
+          mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.5, 2.8, 2.12
 
-    2.15. 1/(k + 1)² ≤ 1/k − 1/(k + 1)
-          transitivity, from 2.14, 2.5
+    2.14. 1/(k + 1)² ≤ 1/k − 1/(k + 1)
+          transitivity, from 2.13, 2.4
 
-    2.16. Σ(j = 1 to k) 1/j² + 1/(k + 1)² ≤ 2 − 1/k + 1/(k + 1)²
+    2.15. Σ(j = 1 to k) 1/j² + 1/(k + 1)² ≤ 2 − 1/k + 1/(k + 1)²
           inequalities
             Σ(j = 1 to k) 1/j² ≤ 2 − 1/k                                  IH
             Σ(j = 1 to k) 1/j² + 1/(k + 1)² ≤ 2 − 1/k + 1/(k + 1)²        adding 1/(k + 1)²
 
-    2.17. 2 − 1/k + 1/(k + 1)² ≤ 2 − 1/(k + 1)
+    2.16. 2 − 1/k + 1/(k + 1)² ≤ 2 − 1/(k + 1)
           inequalities
-            1/(k + 1)² ≤ 1/k − 1/(k + 1)                                  2.15
+            1/(k + 1)² ≤ 1/k − 1/(k + 1)                                  2.14
             2 − 1/k + 1/(k + 1)² ≤ 2 − 1/(k + 1)                          adding 2 − 1/k
 
-    2.18. Σ(j = 1 to k + 1) 1/j² ≤ 2 − 1/(k + 1)
-          transitivity, from 2.3, 2.16, 2.17
+    2.17. Σ(j = 1 to k + 1) 1/j² ≤ 2 − 1/(k + 1)
+          transitivity, from 2.2, 2.15, 2.16
 
 3.  Σ(k = 1 to n) 1/k² ≤ 2 − 1/n
     instantiate k := n in line 2

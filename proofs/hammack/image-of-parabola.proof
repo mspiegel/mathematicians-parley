@@ -33,66 +33,63 @@ theorem image-of-parabola
     2.3.  s ∈ ℝ. −3 ≤ s. s ≤ 5.
           def:interval a := −3, b := 5, x := s, from 2.2
 
-    2.4.  f(s) = s² + 3
-          instantiate x := s in H2
-
-    2.5.  y = s² + 3
+    2.4.  y = s² + 3
           calculation
             y = f(s)       2.2
-              = s² + 3     2.4
+              = s² + 3     instantiate x := s in H2
 
-    2.6.  s² ≥ 0
+    2.5.  s² ≥ 0
           mun:square-nonneg x := s
 
-    2.7.  s² + 3 ≥ 3
+    2.6.  s² + 3 ≥ 3
           inequalities
-            s² ≥ 0          2.6
+            s² ≥ 0          2.5
             s² + 3 ≥ 3      adding 3
 
-    2.8.  y ≥ 3
+    2.7.  y ≥ 3
           calculation
-            y = s² + 3      2.5
-              ≥ 3           2.7
+            y = s² + 3      2.4
+              ≥ 3           2.6
 
-    2.9.  s + 3 ≥ 0
+    2.8.  s + 3 ≥ 0
           inequalities
             −3 ≤ s          2.3
             0 ≤ s + 3       adding 3
             s + 3 ≥ 0       restate
 
-    2.10. 5 − s ≥ 0
+    2.9.  5 − s ≥ 0
           inequalities
             s ≤ 5           2.3
             0 ≤ 5 − s       adding −s
             5 − s ≥ 0       restate
 
-    2.11. (s + 3)·(5 − s) ≥ 0
-          mun:product-nonneg x := s + 3, y := 5 − s, from 2.9, 2.10
+    2.10. (s + 3)·(5 − s) ≥ 0
+          mun:product-nonneg x := s + 3, y := 5 − s, from 2.8, 2.9
 
-    2.12. s² + 3 ≤ 2·s + 18
+    2.11. s² + 3 ≤ 2·s + 18
           inequalities
-            (s + 3)·(5 − s) ≥ 0                  2.11
+            (s + 3)·(5 − s) ≥ 0                  2.10
             −((s + 3)·(5 − s)) ≤ 0               multiplying by −1
             s² − 2·s − 15 ≤ 0                    algebra
             s² + 3 ≤ 2·s + 18                    adding 2·s + 18
 
-    2.13. 2·s + 18 ≤ 28
+    2.12. 2·s + 18 ≤ 28
           inequalities
             s ≤ 5                                2.3
             2·s ≤ 10                             multiplying by 2
             2·s + 18 ≤ 28                        adding 18
 
-    2.14. y ≤ 28
+    2.13. y ≤ 28
           calculation
-            y = s² + 3      2.5
-              ≤ 2·s + 18    2.12
-              ≤ 28          2.13
+            y = s² + 3      2.4
+              ≤ 2·s + 18    2.11
+              ≤ 28          2.12
 
-    2.15. y ∈ ℝ
-          membership, from 2.5
+    2.14. y ∈ ℝ
+          membership, from 2.4
 
-    2.16. y ∈ [3, 28]
-          def:interval a := 3, b := 28, x := y, from 2.8, 2.14, 2.15
+    2.15. y ∈ [3, 28]
+          def:interval a := 3, b := 28, x := y, from 2.7, 2.13, 2.14
 
 3.  f[[−3, 5]] ⊆ [3, 28]
     def:subset, from 2

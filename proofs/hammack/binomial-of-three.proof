@@ -20,29 +20,26 @@ theorem binomial-of-three
     1.2.  C(0, 3) = 0
           def:C n := 0, k := 3, from 1.1
 
-    1.3.  6·C(0, 3) = 6·0
-          substitute C(0, 3) = 0 (line 1.2)
-
-    1.4.  6·C(0, 3) = 0·(0 − 1)·(0 − 2)
+    1.3.  6·C(0, 3) = 0·(0 − 1)·(0 − 2)
           calculation
-            6·C(0, 3) = 6·0                 1.3
+            6·C(0, 3) = 6·0                 substitute line 1.2
                       = 0·(0 − 1)·(0 − 2)   arithmetic
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 1 is true for j, the induction hypothesis             (IH)
 
-    1.5.  C(j, 3) + C(j, 3 − 1) = C(j + 1, 3)
+    1.4.  C(j, 3) + C(j, 3 − 1) = C(j + 1, 3)
           thm:pascal n := j, k := 3
 
-    1.6.  C(j, 3) + C(j, 2) = C(j + 1, 3)
-          substitute 3 − 1 = 2 (arithmetic) into line 1.5
+    1.5.  C(j, 3) + C(j, 2) = C(j + 1, 3)
+          substitute 3 − 1 = 2 (arithmetic) into line 1.4
 
-    1.7.  2·C(j, 2) = j·(j − 1)
+    1.6.  2·C(j, 2) = j·(j − 1)
           thm:binomial-of-two m := j
 
-    1.8.  6·C(j + 1, 3) = (j + 1)·((j + 1) − 1)·((j + 1) − 2)
-          algebra, from IH, 1.6, 1.7
+    1.7.  6·C(j + 1, 3) = (j + 1)·((j + 1) − 1)·((j + 1) − 2)
+          algebra, from IH, 1.5, 1.6
           requires C(j, 3) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 3
           requires C(j, 2) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 2
 

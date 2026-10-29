@@ -36,15 +36,14 @@ theorem fibonacci-binomial-step
     2.2.  ((m + 1) − k) + 1 ∈ ℕ
           mun:nat0-successor k := (m + 1) − k, from 2.1
 
-    2.3.  ((m + 1) − k) + 1 = ((m + 1) + 1) − k
-          algebra
+    2.3.  ((m + 1) + 1) − k ∈ ℕ
+          substitute
+            ((m + 1) − k) + 1 ∈ ℕ      2.2
+            ((m + 1) + 1) − k ∈ ℕ      algebra
 
-    2.4.  ((m + 1) + 1) − k ∈ ℕ
-          substitute ((m + 1) − k) + 1 = ((m + 1) + 1) − k (line 2.3) into line 2.2
-
-    2.5.  C(((m + 1) + 1) − k, k) ∈ ℝ
+    2.4.  C(((m + 1) + 1) − k, k) ∈ ℝ
           membership
-          requires ((m + 1) + 1) − k ∈ ℕ₀: from 2.4
+          requires ((m + 1) + 1) − k ∈ ℕ₀: from 2.3
 
 3.  Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k) + C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1)
     mun:sum-last n := m + 1, from 1
@@ -52,169 +51,135 @@ theorem fibonacci-binomial-step
 4.  ((m + 1) + 1) − ((m + 1) + 1) = 0
     algebra
 
-5.  C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = C(0, (m + 1) + 1)
-    substitute ((m + 1) + 1) − ((m + 1) + 1) = 0 (line 4)
-
-6.  0 < (m + 1) + 1
+5.  0 < (m + 1) + 1
     inequalities, from H1
 
-7.  C(0, (m + 1) + 1) = 0
-    def:C n := 0, k := (m + 1) + 1, from 6
-
-8.  C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0
+6.  C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0
     calculation
-      C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = C(0, (m + 1) + 1)     5
-                                                    = 0                     7
+      C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = C(0, (m + 1) + 1)     substitute line 4
+                                                    = 0                     def:C n := 0, k := (m + 1) + 1, from 5
 
-9.  Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k)
-    substitute C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0 (line 8) into line 3
+7.  Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k)
+    substitute C(((m + 1) + 1) − ((m + 1) + 1), (m + 1) + 1) = 0 (line 6) into line 3
     requires Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k) ∈ ℝ: mun:sum-real a := 0, b := m + 1, from 2
 
-10. For all k ∈ {0, …, m + 1}, C(((m + 1) + 1) − k, k) = C((m + 1) − k, k) + C((m + 1) − k, k − 1).
+8.  For all k ∈ {0, …, m + 1}, C(((m + 1) + 1) − k, k) = C((m + 1) − k, k) + C((m + 1) − k, k − 1).
+    proof
+    let k ∈ {0, …, m + 1}                                             (J)
+
+    8.1.  (m + 1) − k ∈ ℕ₀
+          mun:range-difference a := 0, n := m + 1, from J
+
+    8.2.  ((m + 1) − k) + 1 = ((m + 1) + 1) − k
+          algebra
+
+    8.3.  C(((m + 1) + 1) − k, k) = C((m + 1) − k, k) + C((m + 1) − k, k − 1)
+          calculation
+            C(((m + 1) + 1) − k, k) = C(((m + 1) − k) + 1, k)                           substitute line 8.2
+                                    = C((m + 1) − k, k) + C((m + 1) − k, k − 1)         thm:pascal n := (m + 1) − k, from 8.1
+
+9.  For all k ∈ {0, …, m + 1}, C((m + 1) − k, k) ∈ ℝ.
+    proof
+    let k ∈ {0, …, m + 1}                                             (J)
+
+    9.1.  (m + 1) − k ∈ ℕ₀
+          mun:range-difference a := 0, n := m + 1, from J
+
+    9.2.  C((m + 1) − k, k) ∈ ℝ
+          membership
+          requires (m + 1) − k ∈ ℕ₀: from 9.1
+
+10. For all k ∈ {0, …, m + 1}, C((m + 1) − k, k − 1) ∈ ℝ.
     proof
     let k ∈ {0, …, m + 1}                                             (J)
 
     10.1. (m + 1) − k ∈ ℕ₀
           mun:range-difference a := 0, n := m + 1, from J
 
-    10.2. C((m + 1) − k, k) + C((m + 1) − k, k − 1) = C(((m + 1) − k) + 1, k)
-          thm:pascal n := (m + 1) − k, from 10.1
+    10.2. C((m + 1) − k, k − 1) ∈ ℝ
+          membership
+          requires (m + 1) − k ∈ ℕ₀: from 10.1
 
-    10.3. ((m + 1) − k) + 1 = ((m + 1) + 1) − k
-          algebra
-
-    10.4. C(((m + 1) − k) + 1, k) = C(((m + 1) + 1) − k, k)
-          substitute ((m + 1) − k) + 1 = ((m + 1) + 1) − k (line 10.3)
-
-    10.5. C(((m + 1) + 1) − k, k) = C((m + 1) − k, k) + C((m + 1) − k, k − 1)
-          calculation
-            C(((m + 1) + 1) − k, k) = C(((m + 1) − k) + 1, k)                           10.4
-                                    = C((m + 1) − k, k) + C((m + 1) − k, k − 1)         10.2
-
-11. For all k ∈ {0, …, m + 1}, C((m + 1) − k, k) ∈ ℝ.
+11. For all k ∈ {0, …, m + 1}, C((m + 1) − k, k) + C((m + 1) − k, k − 1) ∈ ℝ.
     proof
     let k ∈ {0, …, m + 1}                                             (J)
 
     11.1. (m + 1) − k ∈ ℕ₀
           mun:range-difference a := 0, n := m + 1, from J
 
-    11.2. C((m + 1) − k, k) ∈ ℝ
+    11.2. C((m + 1) − k, k) + C((m + 1) − k, k − 1) ∈ ℝ
           membership
           requires (m + 1) − k ∈ ℕ₀: from 11.1
 
-12. For all k ∈ {0, …, m + 1}, C((m + 1) − k, k − 1) ∈ ℝ.
-    proof
-    let k ∈ {0, …, m + 1}                                             (J)
+12. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = C(m + 1, 0 − 1) + Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)
+    mun:sum-first n := m + 1, from 10
 
-    12.1. (m + 1) − k ∈ ℕ₀
-          mun:range-difference a := 0, n := m + 1, from J
-
-    12.2. C((m + 1) − k, k − 1) ∈ ℝ
-          membership
-          requires (m + 1) − k ∈ ℕ₀: from 12.1
-
-13. For all k ∈ {0, …, m + 1}, C((m + 1) − k, k) + C((m + 1) − k, k − 1) ∈ ℝ.
-    proof
-    let k ∈ {0, …, m + 1}                                             (J)
-
-    13.1. (m + 1) − k ∈ ℕ₀
-          mun:range-difference a := 0, n := m + 1, from J
-
-    13.2. C((m + 1) − k, k) + C((m + 1) − k, k − 1) ∈ ℝ
-          membership
-          requires (m + 1) − k ∈ ℕ₀: from 13.1
-
-14. Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) (C((m + 1) − k, k) + C((m + 1) − k, k − 1))
-    mun:sum-termwise a := 0, b := m + 1, from 2, 10, 13
-
-15. Σ(k = 0 to m + 1) (C((m + 1) − k, k) + C((m + 1) − k, k − 1)) = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m + 1) C((m + 1) − k, k − 1)
-    mun:sum-add a := 0, b := m + 1, from 11, 12
-
-16. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = C(m + 1, 0 − 1) + Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)
-    mun:sum-first n := m + 1, from 12
-
-17. C(m + 1, −1) = 0
-    def:C n := m + 1
-
-18. C(m + 1, 0 − 1) = C(m + 1, −1)
-    substitute 0 − 1 = −1 (arithmetic)
-
-19. C(m + 1, 0 − 1) = 0
+13. C(m + 1, 0 − 1) = 0
     calculation
-      C(m + 1, 0 − 1) = C(m + 1, −1)    18
-                      = 0               17
+      C(m + 1, 0 − 1) = C(m + 1, −1)    arithmetic
+                      = 0               def:C n := m + 1
 
-20. For all k ∈ {1, …, m + 1}, C((m + 1) − k, k − 1) ∈ ℝ.
+14. For all k ∈ {1, …, m + 1}, C((m + 1) − k, k − 1) ∈ ℝ.
     proof
     let k ∈ {1, …, m + 1}                                             (J)
 
-    20.1. (m + 1) − k ∈ ℕ₀
+    14.1. (m + 1) − k ∈ ℕ₀
           mun:range-difference a := 1, n := m + 1, from J
 
-    20.2. C((m + 1) − k, k − 1) ∈ ℝ
+    14.2. C((m + 1) − k, k − 1) ∈ ℝ
           membership
-          requires (m + 1) − k ∈ ℕ₀: from 20.1
+          requires (m + 1) − k ∈ ℕ₀: from 14.1
 
-21. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)
-    substitute C(m + 1, 0 − 1) = 0 (line 19) into line 16
-    requires Σ(k = 1 to m + 1) C((m + 1) − k, k − 1) ∈ ℝ: mun:sum-real a := 1, b := m + 1, from 20
+15. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)
+    substitute C(m + 1, 0 − 1) = 0 (line 13) into line 12
+    requires Σ(k = 1 to m + 1) C((m + 1) − k, k − 1) ∈ ℝ: mun:sum-real a := 1, b := m + 1, from 14
 
-22. For all k ∈ {0, …, m}, C(m − k, k) ∈ ℝ.
+16. For all k ∈ {0, …, m}, C(m − k, k) ∈ ℝ.
     proof
     let k ∈ {0, …, m}                                                 (J)
 
-    22.1. m − k ∈ ℕ₀
+    16.1. m − k ∈ ℕ₀
           mun:range-difference a := 0, n := m, from J
 
-    22.2. C(m − k, k) ∈ ℝ
+    16.2. C(m − k, k) ∈ ℝ
           membership
-          requires m − k ∈ ℕ₀: from 22.1
+          requires m − k ∈ ℕ₀: from 16.1
 
-23. Σ(k = 0 to m) C(m − k, k) = Σ(k = 1 to m + 1) C(m − (k − 1), k − 1)
-    mun:sum-shift a := 0, b := m, c := 1, from 22
-
-24. For all k ∈ {1, …, m + 1}, C((m + 1) − k, k − 1) = C(m − (k − 1), k − 1).
+17. For all k ∈ {1, …, m + 1}, C((m + 1) − k, k − 1) = C(m − (k − 1), k − 1).
     proof
     let k ∈ {1, …, m + 1}                                             (J)
 
-    24.1. (m + 1) − k = m − (k − 1)
+    17.1. (m + 1) − k = m − (k − 1)
           algebra
 
-    24.2. C((m + 1) − k, k − 1) = C(m − (k − 1), k − 1)
-          substitute (m + 1) − k = m − (k − 1) (line 24.1)
+    17.2. C((m + 1) − k, k − 1) = C(m − (k − 1), k − 1)
+          substitute (m + 1) − k = m − (k − 1) (line 17.1)
 
-25. For all k ∈ {1, …, m + 1}, C(m − (k − 1), k − 1) ∈ ℝ.
+18. For all k ∈ {1, …, m + 1}, C(m − (k − 1), k − 1) ∈ ℝ.
     proof
     let k ∈ {1, …, m + 1}                                             (J)
 
-    25.1. (m + 1) − k ∈ ℕ₀
+    18.1. (m + 1) − k ∈ ℕ₀
           mun:range-difference a := 1, n := m + 1, from J
 
-    25.2. m − (k − 1) = (m + 1) − k
-          algebra
+    18.2. m − (k − 1) ∈ ℕ₀
+          substitute
+            (m + 1) − k ∈ ℕ₀      18.1
+            m − (k − 1) ∈ ℕ₀      algebra
 
-    25.3. m − (k − 1) ∈ ℕ₀
-          substitute m − (k − 1) = (m + 1) − k (line 25.2) into line 25.1
-
-    25.4. C(m − (k − 1), k − 1) ∈ ℝ
+    18.3. C(m − (k − 1), k − 1) ∈ ℝ
           membership
-          requires m − (k − 1) ∈ ℕ₀: from 25.3
+          requires m − (k − 1) ∈ ℕ₀: from 18.2
 
-26. Σ(k = 1 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 1 to m + 1) C(m − (k − 1), k − 1)
-    mun:sum-termwise a := 1, b := m + 1, from 20, 24, 25
-
-27. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 0 to m) C(m − k, k)
+19. Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 0 to m) C(m − k, k)
     calculation
-      Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)     21
-                                              = Σ(k = 1 to m + 1) C(m − (k − 1), k − 1)     26
-                                              = Σ(k = 0 to m) C(m − k, k)                   23
+      Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 1 to m + 1) C((m + 1) − k, k − 1)     15
+                                              = Σ(k = 1 to m + 1) C(m − (k − 1), k − 1)     mun:sum-termwise a := 1, b := m + 1, from 14, 17, 18
+                                              = Σ(k = 0 to m) C(m − k, k)                   mun:sum-shift a := 0, b := m, c := 1, from 16
 
-28. Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m) C(m − k, k)
-    substitute Σ(k = 0 to m + 1) C((m + 1) − k, k − 1) = Σ(k = 0 to m) C(m − k, k) (line 27)
-
-29. Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m) C(m − k, k)
+20. Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m) C(m − k, k)
     calculation
-      Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k)                                                    9
-                                                      = Σ(k = 0 to m + 1) (C((m + 1) − k, k) + C((m + 1) − k, k − 1))                                 14
-                                                      = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m + 1) C((m + 1) − k, k − 1)                15
-                                                      = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m) C(m − k, k)                              28
+      Σ(k = 0 to (m + 1) + 1) C(((m + 1) + 1) − k, k) = Σ(k = 0 to m + 1) C(((m + 1) + 1) − k, k)                                                    7
+                                                      = Σ(k = 0 to m + 1) (C((m + 1) − k, k) + C((m + 1) − k, k − 1))                                 mun:sum-termwise a := 0, b := m + 1, from 2, 8, 11
+                                                      = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m + 1) C((m + 1) − k, k − 1)                mun:sum-add a := 0, b := m + 1, from 9, 10
+                                                      = Σ(k = 0 to m + 1) C((m + 1) − k, k) + Σ(k = 0 to m) C(m − k, k)                              substitute line 19

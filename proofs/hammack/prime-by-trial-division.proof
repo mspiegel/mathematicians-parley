@@ -32,27 +32,24 @@ theorem divisor-exceeds-root
     2.1.  d·d ≤ p
           inequalities, from S
 
-    2.2.  d² = d·d
-          algebra
-
-    2.3.  d² ≤ (√p)²
+    2.2.  d² ≤ (√p)²
           calculation
-            d² = d·d              2.2
+            d² = d·d              algebra
                ≤ p                2.1
                = (√p)²            1
 
-    2.4.  d ≤ √p
-          mun:square-le x := d, y := √p, from 1, 2.3
+    2.3.  d ≤ √p
+          mun:square-le x := d, y := √p, from 1, 2.2
           requires d ≥ 0: inequalities, from H2
 
-    2.5.  2 ≤ d. d ≤ √p.
-          join H3, 2.4
+    2.4.  2 ≤ d. d ≤ √p.
+          join H3, 2.3
 
-    2.6.  If 2 ≤ d and d ≤ √p then not (d divides p).
+    2.5.  If 2 ≤ d and d ≤ √p then not (d divides p).
           instantiate n := d in H5, from H2
 
-    2.7.  not (d divides p)
-          mun:modus-ponens P := 2 ≤ d and d ≤ √p, from 2.5, 2.6, contradicting H4
+    2.6.  not (d divides p)
+          mun:modus-ponens P := 2 ≤ d and d ≤ √p, from 2.4, 2.5, contradicting H4
 
 
 theorem prime-by-trial-division

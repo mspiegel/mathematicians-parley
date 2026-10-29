@@ -13,11 +13,10 @@ theorem square-congruent-one-mod-five
 2.  5 divides (a − 1)·(a + 1)
     mun:divides-multiple e := 5, a := a − 1, x := a + 1, from 1
 
-3.  (a − 1)·(a + 1) = a² − 1
-    algebra
+3.  5 divides a² − 1
+    substitute
+      5 divides (a − 1)·(a + 1)      2
+      5 divides a² − 1               algebra
 
-4.  5 divides a² − 1
-    substitute (a − 1)·(a + 1) = a² − 1 (line 3) into line 2
-
-5.  a² ≡ 1 (mod 5)
-    def:congruent-mod, from 4
+4.  a² ≡ 1 (mod 5)
+    def:congruent-mod, from 3

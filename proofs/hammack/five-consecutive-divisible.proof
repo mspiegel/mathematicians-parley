@@ -145,116 +145,115 @@ theorem five-consecutive-divisible
     2.4.  120 divides ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5)
           thm:five-consecutive-natural m := n − 1, from 2.3
 
-    2.5.  ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-          algebra
-
-    2.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-          substitute ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.5) into line 2.4
+    2.5.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          substitute
+            120 divides ((n − 1) + 1)·((n − 1) + 2)·((n − 1) + 3)·((n − 1) + 4)·((n − 1) + 5)      2.4
+            120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)                                          algebra
 
     case
     assume n − 1 < 0                                                  (C2)
 
-    2.7.  n + 4 ≥ 0 or n + 4 < 0
+    2.6.  n + 4 ≥ 0 or n + 4 < 0
           mun:nonneg-or-neg x := n + 4
 
-    2.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-          cases, from 2.7
+    2.7.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          cases, from 2.6
 
           case
           assume n + 4 ≥ 0                                            (C3)
 
-          2.8.1.  n < 1
+          2.7.1.  n < 1
                   inequalities, from C2
 
-          2.8.2.  n + 1 ≤ 1
-                  mun:integer-step m := n, n := 1, from 2.8.1
+          2.7.2.  n + 1 ≤ 1
+                  mun:integer-step m := n, n := 1, from 2.7.1
 
-          2.8.3.  n + 4 ≤ 4
-                  inequalities, from 2.8.2
+          2.7.3.  n + 4 ≤ 4
+                  inequalities, from 2.7.2
 
-          2.8.4.  n + 4 ∈ {0, …, 4}
-                  def:range-between k := n + 4, a := 0, b := 4, from C3, 2.8.3
+          2.7.4.  n + 4 ∈ {0, …, 4}
+                  def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
 
-          2.8.5.  n + 4 = 0 or n + 4 = 1 or n + 4 = 2 or n + 4 = 3 or n + 4 = 4
-                  inspection, from 2.8.4
+          2.7.5.  n + 4 = 0 or n + 4 = 1 or n + 4 = 2 or n + 4 = 3 or n + 4 = 4
+                  inspection, from 2.7.4
 
-          2.8.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                  cases, from 2.8.5
+          2.7.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                  cases, from 2.7.5
 
                   case
                   assume n + 4 = 0                                    (C4)
 
-                  2.8.6.1.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                  2.7.6.1.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
                             algebra, from C4
 
-                  2.8.6.2.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.1
+                  2.7.6.2.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.1
 
                   case
                   assume n + 4 = 1                                    (C5)
 
-                  2.8.6.3.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                  2.7.6.3.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
                             algebra, from C5
 
-                  2.8.6.4.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.3
+                  2.7.6.4.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.3
 
                   case
                   assume n + 4 = 2                                    (C6)
 
-                  2.8.6.5.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                  2.7.6.5.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
                             algebra, from C6
 
-                  2.8.6.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.5
+                  2.7.6.6.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.5
 
                   case
                   assume n + 4 = 3                                    (C7)
 
-                  2.8.6.7.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                  2.7.6.7.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
                             algebra, from C7
 
-                  2.8.6.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.7
+                  2.7.6.8.  120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.7
 
                   case
                   assume n + 4 = 4                                    (C8)
 
-                  2.8.6.9.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
+                  2.7.6.9.  n·(n + 1)·(n + 2)·(n + 3)·(n + 4) = 120·0
                             algebra, from C8
 
-                  2.8.6.10. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.8.6.9
+                  2.7.6.10. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                            def:divides d := 120, n := n·(n + 1)·(n + 2)·(n + 3)·(n + 4), from 2.7.6.9
 
           case
           assume n + 4 < 0                                            (C9)
 
-          2.8.7.  (n + 4) + 1 ≤ 0
+          2.7.7.  (n + 4) + 1 ≤ 0
                   mun:integer-step m := n + 4, n := 0, from C9
 
-          2.8.8.  1 ≤ −n − 4
+          2.7.8.  1 ≤ −n − 4
                   inequalities
-                    (n + 4) + 1 ≤ 0      2.8.7
+                    (n + 4) + 1 ≤ 0      2.7.7
                     1 ≤ −n − 4           adding −n − 4
 
-          2.8.9.  0 < −n − 4
-                  inequalities, from 2.8.8
+          2.7.9.  0 < −n − 4
+                  inequalities, from 2.7.8
 
           let k = −n − 4, a positive integer                          (D1)
-              mun:pos-int-nat m := −n − 4, from 2.8.9
+              mun:pos-int-nat m := −n − 4, from 2.7.9
               reads the number of steps from n + 4 up to 0
 
-          2.8.10. k − 1 ∈ ℕ₀
+          2.7.10. k − 1 ∈ ℕ₀
                   mun:nat-minus-one n := k
 
-          2.8.11. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)
-                  thm:five-consecutive-natural m := k − 1, from 2.8.10
+          2.7.11. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)
+                  thm:five-consecutive-natural m := k − 1, from 2.7.10
 
-          2.8.12. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1)
-                  mun:divides-multiple e := 120, a := ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5), x := −1, from 2.8.11
+          2.7.12. 120 divides ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1)
+                  mun:divides-multiple e := 120, a := ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5), x := −1, from 2.7.11
 
-          2.8.13. ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+          2.7.13. ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
                   algebra, from D1
 
-          2.8.14. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
-                  substitute ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.8.13) into line 2.8.12
+          2.7.14. 120 divides n·(n + 1)·(n + 2)·(n + 3)·(n + 4)
+                  substitute ((k − 1) + 1)·((k − 1) + 2)·((k − 1) + 3)·((k − 1) + 4)·((k − 1) + 5)·(−1) = n·(n + 1)·(n + 2)·(n + 3)·(n + 4) (line 2.7.13) into line 2.7.12

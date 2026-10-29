@@ -24,19 +24,13 @@ theorem constant-sequence
           1.1.1.  a(n) − c = 0
                   algebra, from H3
 
-          1.1.2.  |a(n) − c| = |0|
-                  substitute a(n) − c = 0 (line 1.1.1)
-
-          1.1.3.  |0| = 0
-                  mun:abs-zero
-
-          1.1.4.  |a(n) − c| = 0
+          1.1.2.  |a(n) − c| = 0
                   calculation
-                    |a(n) − c| = |0|     1.1.2
-                               = 0       1.1.3
+                    |a(n) − c| = |0|     substitute line 1.1.1
+                               = 0       mun:abs-zero
 
-          1.1.5.  |a(n) − c| < ε
-                  transitivity, from 1.1.4, A1
+          1.1.3.  |a(n) − c| < ε
+                  transitivity, from 1.1.2, A1
 
     1.2.  There exists N ∈ ℕ such that |a(n) − c| < ε for all n ≥ N.
           exhibit, from 1.1

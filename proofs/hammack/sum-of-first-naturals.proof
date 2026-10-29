@@ -14,45 +14,30 @@ let S(m) = Σ(j = 1 to m) j, for m ∈ ℕ                                 (D1)
     induction on k starting at 1
 
     base
-    1.1.  Σ(j = 1 to 1) j = 1
-          mun:sum-single a := 1
-
-    1.2.  S(1) = (1² + 1)/2
+    1.1.  S(1) = (1² + 1)/2
           calculation
             S(1) = Σ(j = 1 to 1) j    D1
-                 = 1                  1.1
+                 = 1                  mun:sum-single a := 1
                  = (1² + 1)/2         arithmetic
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.3.  Σ(j = 1 to k + 1) j = Σ(j = 1 to k) j + (k + 1)
-          mun:sum-extended a := 1, n := k
-          requires k ≥ 1: from K
-
-    1.4.  S(k + 1) = S(k) + (k + 1)
+    1.2.  S(k + 1) = S(k) + (k + 1)
           calculation
             S(k + 1) = Σ(j = 1 to k + 1) j          D1
-                     = Σ(j = 1 to k) j + (k + 1)    1.3
+                     = Σ(j = 1 to k) j + (k + 1)    mun:sum-extended a := 1, n := k
                      = S(k) + (k + 1)               D1
+          requires k ≥ 1: from K
 
-    1.5.  S(k) + (k + 1) = (k² + k)/2 + (k + 1)
-          substitute S(k) = (k² + k)/2 (IH)
-
-    1.6.  (k² + k)/2 + (k + 1) = ((k + 1)² + (k + 1))/2
-          algebra
-
-    1.7.  S(k + 1) = ((k + 1)² + (k + 1))/2
+    1.3.  S(k + 1) = ((k + 1)² + (k + 1))/2
           calculation
-            S(k + 1) = S(k) + (k + 1)                 1.4
-                     = (k² + k)/2 + (k + 1)           1.5
-                     = ((k + 1)² + (k + 1))/2         1.6
+            S(k + 1) = S(k) + (k + 1)                 1.2
+                     = (k² + k)/2 + (k + 1)           substitute IH
+                     = ((k + 1)² + (k + 1))/2         algebra
 
-2.  S(n) = (n² + n)/2
-    instantiate k := n in line 1
-
-3.  Σ(k = 1 to n) k = (n² + n)/2
+2.  Σ(k = 1 to n) k = (n² + n)/2
     calculation
       Σ(k = 1 to n) k = S(n)            D1
-                      = (n² + n)/2      2
+                      = (n² + n)/2      instantiate k := n in line 1

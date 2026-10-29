@@ -95,34 +95,28 @@ theorem harmonic-doubling
     requires 2^j + 1 ≤ 2^(j + 1): from 13
     requires 2^(j + 1) ≠ 0: inequalities, from 3
 
-15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
-    substitute 2^(j + 1) = 2^j·2 (line 1)
-
-16. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
-    algebra
-
-17. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
+15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
     calculation
-      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    15
-                                                 = 1/2                                    16
+      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    substitute line 1
+                                                 = 1/2                                    algebra
 
-18. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    transitivity, from 17, 14, 11
+16. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    transitivity, from 15, 14, 11
     requires 2^(j + 1) ≠ 0: inequalities, from 3
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
-19. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+17. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     inequalities
-      1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          18
+      1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          16
       Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k   adding Σ(k = 1 to 2^j) 1/k
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
-20. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
-    transitivity, from 19, 7
+18. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+    transitivity, from 17, 7
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
@@ -146,40 +140,31 @@ theorem harmonic-lower-bound
     induction on m starting at 1
 
     base
-    2.1.  Σ(j = 1 to 2^1) 1/j = Σ(j = 1 to 1 + 1) 1/j
-          substitute 2^1 = 1 + 1 (arithmetic)
-
-    2.2.  Σ(j = 1 to 1 + 1) 1/j = Σ(j = 1 to 1) 1/j + 1/(1 + 1)
-          mun:sum-extended a := 1, n := 1, from 1
-          requires 1 ≥ 1: arithmetic
-
-    2.3.  Σ(j = 1 to 1) 1/j = 1/1
+    2.1.  Σ(j = 1 to 1) 1/j = 1/1
           mun:sum-single a := 1, from 1
 
-    2.4.  Σ(j = 1 to 1) 1/j + 1/(1 + 1) = 1/1 + 1/(1 + 1)
-          substitute Σ(j = 1 to 1) 1/j = 1/1 (line 2.3)
-
-    2.5.  Σ(j = 1 to 2^1) 1/j ≥ 1 + 1/2
+    2.2.  Σ(j = 1 to 2^1) 1/j ≥ 1 + 1/2
           calculation
-            Σ(j = 1 to 2^1) 1/j = Σ(j = 1 to 1 + 1) 1/j               2.1
-                                = Σ(j = 1 to 1) 1/j + 1/(1 + 1)       2.2
-                                = 1/1 + 1/(1 + 1)                     2.4
+            Σ(j = 1 to 2^1) 1/j = Σ(j = 1 to 1 + 1) 1/j               arithmetic
+                                = Σ(j = 1 to 1) 1/j + 1/(1 + 1)       mun:sum-extended a := 1, n := 1, from 1
+                                = 1/1 + 1/(1 + 1)                     substitute line 2.1
                                 ≥ 1 + 1/2                             arithmetic
+          requires 1 ≥ 1: arithmetic
 
     step
     let m ∈ ℕ                                                         (K)
     assume step 2 is true for m, the induction hypothesis             (IH)
 
-    2.6.  Σ(j = 1 to 2^(m + 1)) 1/j ≥ Σ(j = 1 to 2^m) 1/j + 1/2
+    2.3.  Σ(j = 1 to 2^(m + 1)) 1/j ≥ Σ(j = 1 to 2^m) 1/j + 1/2
           thm:harmonic-doubling j := m
 
-    2.7.  Σ(j = 1 to 2^m) 1/j + 1/2 ≥ 1 + (m + 1)/2
+    2.4.  Σ(j = 1 to 2^m) 1/j + 1/2 ≥ 1 + (m + 1)/2
           inequalities
             Σ(j = 1 to 2^m) 1/j ≥ 1 + m/2                     IH
             Σ(j = 1 to 2^m) 1/j + 1/2 ≥ 1 + (m + 1)/2         adding 1/2
 
-    2.8.  Σ(j = 1 to 2^(m + 1)) 1/j ≥ 1 + (m + 1)/2
-          transitivity, from 2.6, 2.7
+    2.5.  Σ(j = 1 to 2^(m + 1)) 1/j ≥ 1 + (m + 1)/2
+          transitivity, from 2.3, 2.4
 
 3.  Σ(k = 1 to 2^n) 1/k ≥ 1 + n/2
     instantiate m := n in line 2

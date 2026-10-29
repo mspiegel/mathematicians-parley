@@ -37,20 +37,18 @@ theorem odd-and-quartic-coprime
 6.  gcd(2n + 1, 4n² + 1) divides 4n² + 1 − (2n + 1)·(2n − 1)
     mun:divides-difference d := gcd(2n + 1, 4n² + 1), a := 4n² + 1, b := (2n + 1)·(2n − 1), from 4, 5
 
-7.  4n² + 1 − (2n + 1)·(2n − 1) = 2
-    algebra
+7.  gcd(2n + 1, 4n² + 1) divides 2
+    substitute
+      gcd(2n + 1, 4n² + 1) divides 4n² + 1 − (2n + 1)·(2n − 1)      6
+      gcd(2n + 1, 4n² + 1) divides 2                                algebra
 
-8.  gcd(2n + 1, 4n² + 1) divides 2
-    substitute 4n² + 1 − (2n + 1)·(2n − 1) = 2 (line 7) into line 6
+8.  gcd(2n + 1, 4n² + 1) divides (2n + 1)·1 + 2·(−n)
+    mun:divides-combination e := gcd(2n + 1, 4n² + 1), a := 2n + 1, b := 2, x := 1, y := −n, from 4, 7
 
-9.  gcd(2n + 1, 4n² + 1) divides (2n + 1)·1 + 2·(−n)
-    mun:divides-combination e := gcd(2n + 1, 4n² + 1), a := 2n + 1, b := 2, x := 1, y := −n, from 4, 8
+9.  gcd(2n + 1, 4n² + 1) divides 1
+    substitute
+      gcd(2n + 1, 4n² + 1) divides (2n + 1)·1 + 2·(−n)      8
+      gcd(2n + 1, 4n² + 1) divides 1                        algebra
 
-10. (2n + 1)·1 + 2·(−n) = 1
-    algebra
-
-11. gcd(2n + 1, 4n² + 1) divides 1
-    substitute (2n + 1)·1 + 2·(−n) = 1 (line 10) into line 9
-
-12. gcd(2n + 1, 4n² + 1) = 1
-    mun:divides-one d := gcd(2n + 1, 4n² + 1), from 4, 11
+10. gcd(2n + 1, 4n² + 1) = 1
+    mun:divides-one d := gcd(2n + 1, 4n² + 1), from 4, 9

@@ -63,82 +63,75 @@ theorem sign-has-no-limit
     1.11. |f(p/2) − L| < 1
           instantiate x := p/2 in line 1.4, from 1.6, 1.7, 1.10
 
-    1.12. f(p/2) = |p/2|/(p/2)
-          instantiate x := p/2 in H2, from 1.7
-
-    1.13. |p/2|/(p/2) = 1
+    1.12. |p/2|/(p/2) = 1
           algebra, from 1.8
           requires p/2 ≠ 0: from 1.6
 
-    1.14. f(p/2) = 1
+    1.13. f(p/2) = 1
           calculation
-            f(p/2) = |p/2|/(p/2)    1.12
-                   = 1              1.13
+            f(p/2) = |p/2|/(p/2)    instantiate x := p/2 in H2, from 1.7
+                   = 1              1.12
 
-    1.15. f(p/2) < L + 1
+    1.14. f(p/2) < L + 1
           mun:abs-difference-lt x := f(p/2), c := L, δ := 1, from 1.11
           requires f(p/2) ∈ ℝ: mun:function-value, from H1, 1.7
 
-    1.16. 1 < L + 1
-          transitivity, from 1.14, 1.15
+    1.15. 1 < L + 1
+          transitivity, from 1.13, 1.14
 
-    1.17. 0 < L
+    1.16. 0 < L
           inequalities
-            1 < L + 1        1.16
+            1 < L + 1        1.15
             0 < L            adding −1
 
-    1.18. (−p)/2 ≠ 0
+    1.17. (−p)/2 ≠ 0
           inequalities
             p/2 > 0           1.5
             (−p)/2 < 0        multiplying by −1
             (−p)/2 ≠ 0        weakening
 
-    1.19. (−p)/2 ∈ ℝ ∖ {0}
-          mun:remove-member u := (−p)/2, from 1.18
+    1.18. (−p)/2 ∈ ℝ ∖ {0}
+          mun:remove-member u := (−p)/2, from 1.17
 
-    1.20. (−p)/2 = −(p/2)
-          algebra
-
-    1.21. |−(p/2)| = |p/2|
+    1.19. |−(p/2)| = |p/2|
           mun:abs-negative x := p/2
 
-    1.22. |(−p)/2| = |p/2|
-          substitute (−p)/2 = −(p/2) (line 1.20) into line 1.21
+    1.20. |(−p)/2| = |p/2|
+          substitute
+            |−(p/2)| = |p/2|      1.19
+            |(−p)/2| = |p/2|      algebra
 
-    1.23. |(−p)/2 − 0| < p
-          transitivity, from 1.22, 1.8, 1.9
+    1.21. |(−p)/2 − 0| < p
+          transitivity, from 1.20, 1.8, 1.9
 
-    1.24. |f((−p)/2) − L| < 1
-          instantiate x := (−p)/2 in line 1.4, from 1.18, 1.19, 1.23
+    1.22. |f((−p)/2) − L| < 1
+          instantiate x := (−p)/2 in line 1.4, from 1.17, 1.18, 1.21
 
-    1.25. f((−p)/2) = |(−p)/2|/((−p)/2)
-          instantiate x := (−p)/2 in H2, from 1.19
+    1.23. |(−p)/2|/((−p)/2) = −1
+          algebra, from 1.8, 1.20
+          requires (−p)/2 ≠ 0: from 1.17
 
-    1.26. |(−p)/2|/((−p)/2) = −1
-          algebra, from 1.8, 1.22
-          requires (−p)/2 ≠ 0: from 1.18
-
-    1.27. f((−p)/2) = −1
+    1.24. f((−p)/2) = −1
           calculation
-            f((−p)/2) = |(−p)/2|/((−p)/2)    1.25
-                      = −1                   1.26
+            f((−p)/2) = |(−p)/2|/((−p)/2)    instantiate x := (−p)/2 in H2, from 1.18
+                      = −1                   1.23
 
-    1.28. L − 1 < f((−p)/2)
-          mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 1.24
-          requires f((−p)/2) ∈ ℝ: mun:function-value, from H1, 1.19
+    1.25. L − 1 < f((−p)/2)
+          mun:abs-difference-lt x := f((−p)/2), c := L, δ := 1, from 1.22
+          requires f((−p)/2) ∈ ℝ: mun:function-value, from H1, 1.18
 
-    1.29. L − 1 < −1
-          transitivity, from 1.28, 1.27
+    1.26. L − 1 < −1
+          transitivity, from 1.25, 1.24
 
-    1.30. L < 0
+    1.27. L < 0
           inequalities
-            L − 1 < −1       1.29
+            L − 1 < −1       1.26
             L < 0            adding 1
 
-    1.31. L ≤ 0
+    1.28. L ≤ 0
           inequalities
-            L < 0        1.30
+            L < 0        1.27
             L ≤ 0        weakening
 
-    1.32. not 0 < L
-          inequalities, from 1.31, contradicting 1.17
+    1.29. not 0 < L
+          inequalities, from 1.28, contradicting 1.16

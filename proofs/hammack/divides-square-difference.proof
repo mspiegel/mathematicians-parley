@@ -14,17 +14,15 @@ theorem divides-square-difference
 1.  a divides b·b
     mun:divides-multiple e := a, a := b, x := b, from H4
 
-2.  b·b = b²
-    algebra
+2.  a divides b²
+    substitute
+      a divides b·b      1
+      a divides b²       algebra
 
-3.  a divides b²
-    substitute b·b = b² (line 2) into line 1
+3.  a divides b² − (b² − c)
+    mun:divides-difference d := a, a := b², b := b² − c, from H5, 2
 
-4.  a divides b² − (b² − c)
-    mun:divides-difference d := a, a := b², b := b² − c, from H5, 3
-
-5.  b² − (b² − c) = c
-    algebra
-
-6.  a divides c
-    substitute b² − (b² − c) = c (line 5) into line 4
+4.  a divides c
+    substitute
+      a divides b² − (b² − c)      3
+      a divides c                  algebra

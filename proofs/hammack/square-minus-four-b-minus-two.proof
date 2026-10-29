@@ -28,26 +28,20 @@ theorem square-minus-four-b-minus-two
     1.5.  k ∈ ℤ. a = 2k.
           obtain k: def:even n := a, from 1.4
 
-    1.6.  a² = (2k)²
-          substitute a = 2k (line 1.5)
-
-    1.7.  (2k)² = 4k²
-          algebra
-
-    1.8.  4k² = 4b + 2
+    1.6.  4k² = 4b + 2
           calculation
-            4k² = (2k)²     1.7
-                = a²        1.6
+            4k² = (2k)²     algebra
+                = a²        substitute line 1.5
                 = 4b + 2    1.1
 
-    1.9.  1 = 2(k² − b)
-          algebra, from 1.8
+    1.7.  1 = 2(k² − b)
+          algebra, from 1.6
 
-    1.10. 1 is even
-          def:even n := 1, from 1.9
+    1.8.  1 is even
+          def:even n := 1, from 1.7
 
-    1.11. 1 is not odd
-          mun:not-both n := 1, from 1.10
+    1.9.  1 is not odd
+          mun:not-both n := 1, from 1.8
 
-    1.12. 1 is odd
-          arithmetic, contradicting 1.11
+    1.10. 1 is odd
+          arithmetic, contradicting 1.9

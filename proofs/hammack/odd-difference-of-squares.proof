@@ -9,13 +9,10 @@ theorem odd-difference-of-squares
 1.  k ∈ ℤ. n = 2k + 1.
     obtain k: def:odd, from H2
 
-2.  (k + 1)² − k² = 2k + 1
-    algebra
-
-3.  n = (k + 1)² − k²
+2.  n = (k + 1)² − k²
     calculation
       n = 2k + 1               1
-        = (k + 1)² − k²        2
+        = (k + 1)² − k²        algebra
 
-4.  There exist a, b ∈ ℤ such that n = a² − b².
-    exhibit, from 3
+3.  There exist a, b ∈ ℤ such that n = a² − b².
+    exhibit, from 2

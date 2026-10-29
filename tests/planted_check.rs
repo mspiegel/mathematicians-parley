@@ -1411,10 +1411,10 @@ fn cases() -> Vec<Case> {
             "rest a claim on a method that does not decide it",
             vec![edit(
                 "proofs/hammack/mersenne-prime-exponent.proof",
-                Some("    1.19. j ≤ q\n          inequalities, from 1.3\n".to_string()),
-                "    1.19. j ∈ ℤ\n          inequalities, from 1.3\n".to_string(),
+                Some("    1.13. j ≤ q\n          inequalities, from 1.3\n".to_string()),
+                "    1.13. j ∈ ℤ\n          inequalities, from 1.3\n".to_string(),
             )],
-            "step 1.19 names inequalities, which does not decide what it claims",
+            "step 1.13 names inequalities, which does not decide what it claims",
         ),
         // A link of numerals alone naming arithmetic, worked out whole.
         case(
@@ -1787,10 +1787,10 @@ fn cases() -> Vec<Case> {
             "claim an inequalities step the cited lines do not give",
             vec![edit(
                 "proofs/hammack/mersenne-prime-exponent.proof",
-                Some("    1.19. j ≤ q\n          inequalities, from 1.3\n".to_string()),
-                "    1.19. j < q\n          inequalities, from 1.3\n".to_string(),
+                Some("    1.13. j ≤ q\n          inequalities, from 1.3\n".to_string()),
+                "    1.13. j < q\n          inequalities, from 1.3\n".to_string(),
             )],
-            "j < q does not follow from what step 1.19 cites",
+            "j < q does not follow from what step 1.13 cites",
         ),
         case(
             "ask algebra to multiply out a power past its cost",

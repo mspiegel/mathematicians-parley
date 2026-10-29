@@ -27,14 +27,13 @@ theorem divides-neither-factor
     2.1.  x divides z·y
           mun:divides-multiple e := x, a := z, x := y, from S2
 
-    2.2.  z·y = y·z
-          algebra
+    2.2.  x divides y·z
+          substitute
+            x divides z·y      2.1
+            x divides y·z      algebra
 
-    2.3.  x divides y·z
-          substitute z·y = y·z (line 2.2) into line 2.1
-
-    2.4.  not (x divides y·z)
-          restate H5, contradicting 2.3
+    2.3.  not (x divides y·z)
+          restate H5, contradicting 2.2
 
 3.  not (x divides y) and not (x divides z)
     join 1, 2

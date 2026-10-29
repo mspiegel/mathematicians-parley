@@ -27,29 +27,28 @@ theorem central-binomial-even
 5.  n·C((2n − 1) + 1, n) = ((2n − 1) + 1)·C(2n − 1, n − 1)
     thm:weighted-term m := 2n − 1, k := n, from 1, 4
 
-6.  (2n − 1) + 1 = 2n
-    algebra
+6.  n·C(2n, n) = 2n·C(2n − 1, n − 1)
+    substitute
+      n·C((2n − 1) + 1, n) = ((2n − 1) + 1)·C(2n − 1, n − 1)      5
+      n·C(2n, n) = 2n·C(2n − 1, n − 1)                            algebra
 
-7.  n·C(2n, n) = 2n·C(2n − 1, n − 1)
-    substitute (2n − 1) + 1 = 2n (line 6) into line 5
-
-8.  C(2n, n) ∈ ℕ₀
+7.  C(2n, n) ∈ ℕ₀
     mun:binomial-nat0 n := 2n, k := n
 
-9.  C(2n − 1, n − 1) ∈ ℕ₀
+8.  C(2n − 1, n − 1) ∈ ℕ₀
     mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
 
-10. C(2n, n)·n = 2·C(2n − 1, n − 1)·n
-    algebra, from 7
-    requires C(2n, n) ∈ ℝ: from 8
-    requires C(2n − 1, n − 1) ∈ ℝ: from 9
+9.  C(2n, n)·n = 2·C(2n − 1, n − 1)·n
+    algebra, from 6
+    requires C(2n, n) ∈ ℝ: from 7
+    requires C(2n − 1, n − 1) ∈ ℝ: from 8
 
-11. C(2n, n) = 2·C(2n − 1, n − 1)
-    mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 10
-    requires C(2n, n) ∈ ℝ: from 8
-    requires 2·C(2n − 1, n − 1) ∈ ℝ: from 9
+10. C(2n, n) = 2·C(2n − 1, n − 1)
+    mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 9
+    requires C(2n, n) ∈ ℝ: from 7
+    requires 2·C(2n − 1, n − 1) ∈ ℝ: from 8
 
-12. C(2n, n) is even
-    def:even n := C(2n, n), from 11
-    requires C(2n, n) ∈ ℤ: from 8
-    requires C(2n − 1, n − 1) ∈ ℤ: from 9
+11. C(2n, n) is even
+    def:even n := C(2n, n), from 10
+    requires C(2n, n) ∈ ℤ: from 7
+    requires C(2n − 1, n − 1) ∈ ℤ: from 8

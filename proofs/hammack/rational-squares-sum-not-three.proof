@@ -146,33 +146,31 @@ theorem three-divides-sum-of-squares
           1.4.2.  3 divides p² + q² − (p² − 1 + q²)
                   mun:divides-difference d := 3, a := p² + q², b := p² − 1 + q², from H3, 1.4.1
 
-          1.4.3.  p² + q² − (p² − 1 + q²) = 1
-                  algebra
+          1.4.3.  3 divides 1
+                  substitute
+                    3 divides p² + q² − (p² − 1 + q²)      1.4.2
+                    3 divides 1                            algebra
 
-          1.4.4.  3 divides 1
-                  substitute p² + q² − (p² − 1 + q²) = 1 (line 1.4.3) into line 1.4.2
-
-          1.4.5.  not (3 divides 1)
-                  thm:three-divides-no-small r := 1, contradicting 1.4.4
+          1.4.4.  not (3 divides 1)
+                  thm:three-divides-no-small r := 1, contradicting 1.4.3
                   requires 1 < 3: arithmetic
 
           case
           assume 3 divides q² − 1                                     (C4)
 
-          1.4.6.  3 divides p² − 1 + (q² − 1)
+          1.4.5.  3 divides p² − 1 + (q² − 1)
                   mun:divides-sum d := 3, a := p² − 1, b := q² − 1, from C4, 1.2
 
-          1.4.7.  3 divides p² + q² − (p² − 1 + (q² − 1))
-                  mun:divides-difference d := 3, a := p² + q², b := p² − 1 + (q² − 1), from H3, 1.4.6
+          1.4.6.  3 divides p² + q² − (p² − 1 + (q² − 1))
+                  mun:divides-difference d := 3, a := p² + q², b := p² − 1 + (q² − 1), from H3, 1.4.5
 
-          1.4.8.  p² + q² − (p² − 1 + (q² − 1)) = 2
-                  algebra
+          1.4.7.  3 divides 2
+                  substitute
+                    3 divides p² + q² − (p² − 1 + (q² − 1))      1.4.6
+                    3 divides 2                                  algebra
 
-          1.4.9.  3 divides 2
-                  substitute p² + q² − (p² − 1 + (q² − 1)) = 2 (line 1.4.8) into line 1.4.7
-
-          1.4.10. not (3 divides 2)
-                  thm:three-divides-no-small r := 2, contradicting 1.4.9
+          1.4.8.  not (3 divides 2)
+                  thm:three-divides-no-small r := 2, contradicting 1.4.7
                   requires 2 < 3: arithmetic
 
 
@@ -233,77 +231,76 @@ let T = {r ∈ ℕ : there are j, k ∈ ℤ with j² + k² = 3r²}              
     1.14. 3 divides p
           thm:three-divides-sum-of-squares, from 1.13
 
-    1.15. q² + p² = p² + q²
-          algebra
+    1.15. 3 divides q² + p²
+          substitute
+            3 divides p² + q²      1.13
+            3 divides q² + p²      algebra
 
-    1.16. 3 divides q² + p²
-          substitute q² + p² = p² + q² (line 1.15) into line 1.13
+    1.16. 3 divides q
+          thm:three-divides-sum-of-squares p := q, q := p, from 1.15
 
-    1.17. 3 divides q
-          thm:three-divides-sum-of-squares p := q, q := p, from 1.16
-
-    1.18. s ∈ ℤ. p = 3s.
+    1.17. s ∈ ℤ. p = 3s.
           obtain s: def:divides d := 3, n := p, from 1.14
 
-    1.19. t ∈ ℤ. q = 3t.
-          obtain t: def:divides d := 3, n := q, from 1.17
+    1.18. t ∈ ℤ. q = 3t.
+          obtain t: def:divides d := 3, n := q, from 1.16
 
-    1.20. (3s)² + q² = 3m²
-          substitute p = 3s (line 1.18) into line 1.12
+    1.19. (3s)² + q² = 3m²
+          substitute p = 3s (line 1.17) into line 1.12
 
-    1.21. (3s)² + (3t)² = 3m²
-          substitute q = 3t (line 1.19) into line 1.20
+    1.20. (3s)² + (3t)² = 3m²
+          substitute q = 3t (line 1.18) into line 1.19
 
-    1.22. m² = 3(s² + t²)
-          algebra, from 1.11, 1.21
+    1.21. m² = 3(s² + t²)
+          algebra, from 1.11, 1.20
 
-    1.23. 3 divides m²
-          def:divides d := 3, n := m², from 1.11, 1.22
+    1.22. 3 divides m²
+          def:divides d := 3, n := m², from 1.11, 1.21
 
-    1.24. 3 divides m
-          thm:three-divides-square n := m, from 1.11, 1.23
+    1.23. 3 divides m
+          thm:three-divides-square n := m, from 1.11, 1.22
 
-    1.25. u ∈ ℤ. m = 3u.
-          obtain u: def:divides d := 3, n := m, from 1.11, 1.24
+    1.24. u ∈ ℤ. m = 3u.
+          obtain u: def:divides d := 3, n := m, from 1.11, 1.23
 
-    1.26. (3u)² = 3(s² + t²)
-          substitute m = 3u (line 1.25) into line 1.22
+    1.25. (3u)² = 3(s² + t²)
+          substitute m = 3u (line 1.24) into line 1.21
 
-    1.27. s² + t² = 3u²
-          algebra, from 1.26
+    1.26. s² + t² = 3u²
+          algebra, from 1.25
 
-    1.28. m > 0
+    1.27. m > 0
           inequalities, from 1.11
 
-    1.29. 3u > 0
-          substitute m = 3u (line 1.25) into line 1.28
+    1.28. 3u > 0
+          substitute m = 3u (line 1.24) into line 1.27
 
-    1.30. u > 0
+    1.29. u > 0
           inequalities
-            3u > 0         1.29
+            3u > 0         1.28
             u > 0          multiplying by 1/3
 
-    1.31. u ∈ ℕ
-          mun:pos-int-nat m := u, from 1.30
+    1.30. u ∈ ℕ
+          mun:pos-int-nat m := u, from 1.29
 
-    1.32. There are j, k ∈ ℤ with j² + k² = 3u².
-          exhibit, from 1.27
+    1.31. There are j, k ∈ ℤ with j² + k² = 3u².
+          exhibit, from 1.26
 
-    1.33. u ∈ T
-          def:set-builder, from D1, 1.31, 1.32
+    1.32. u ∈ T
+          def:set-builder, from D1, 1.30, 1.31
 
-    1.34. m ≤ u
-          instantiate t := u in line 1.10, from 1.33
+    1.33. m ≤ u
+          instantiate t := u in line 1.10, from 1.32
 
-    1.35. 3u > u
+    1.34. 3u > u
           inequalities
-            u > 0          1.30
+            u > 0          1.29
             2u > 0         multiplying by 2
             2u + u > u     adding u
             3u > u         algebra
 
-    1.36. m > u
-          substitute m = 3u (line 1.25) into line 1.35
+    1.35. m > u
+          substitute m = 3u (line 1.24) into line 1.34
 
-    1.37. not m ≤ u
-          inequalities, from 1.11, 1.36, contradicting 1.34
+    1.36. not m ≤ u
+          inequalities, from 1.11, 1.35, contradicting 1.33

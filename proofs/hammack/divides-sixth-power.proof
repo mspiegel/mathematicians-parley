@@ -21,13 +21,10 @@ theorem divides-sixth-power
 4.  c = (a²·k)³·m
     substitute b³ = (a²·k)³ (line 3) into line 2
 
-5.  (a²·k)³·m = a⁶·(k³·m)
-    algebra
-
-6.  c = a⁶·(k³·m)
+5.  c = a⁶·(k³·m)
     calculation
       c = (a²·k)³·m       4
-        = a⁶·(k³·m)       5
+        = a⁶·(k³·m)       algebra
 
-7.  a⁶ divides c
-    def:divides d := a⁶, n := c, from 6
+6.  a⁶ divides c
+    def:divides d := a⁶, n := c, from 5

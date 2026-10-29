@@ -40,23 +40,14 @@ theorem power-of-three-odd
     1.3.  k ∈ ℤ. 3^j = 2k + 1.
           obtain k: def:odd n := 3^j, from IH
 
-    1.4.  3^(j + 1) = 3^j·3
-          mun:exponent-step a := 3, m := j
-
-    1.5.  3^j·3 = (2k + 1)·3
-          substitute 3^j = 2k + 1 (line 1.3)
-
-    1.6.  (2k + 1)·3 = 2(3k + 1) + 1
-          algebra
-
-    1.7.  3^(j + 1) = 2(3k + 1) + 1
+    1.4.  3^(j + 1) = 2(3k + 1) + 1
           calculation
-            3^(j + 1) = 3^j·3              1.4
-                      = (2k + 1)·3         1.5
-                      = 2(3k + 1) + 1      1.6
+            3^(j + 1) = 3^j·3              mun:exponent-step a := 3, m := j
+                      = (2k + 1)·3         substitute line 1.3
+                      = 2(3k + 1) + 1      algebra
 
-    1.8.  3^(j + 1) is odd
-          def:odd n := 3^(j + 1), from 1.7
+    1.5.  3^(j + 1) is odd
+          def:odd n := 3^(j + 1), from 1.4
           requires 3^(j + 1) ∈ ℤ: mun:power-integer a := 3, m := j + 1
 
 2.  3^n is odd
@@ -75,21 +66,20 @@ theorem power-of-two-even
 2.  2^((n − 1) + 1) = 2^(n − 1)·2
     mun:exponent-step a := 2, m := n − 1, from 1
 
-3.  (n − 1) + 1 = n
-    algebra
+3.  2^n = 2^(n − 1)·2
+    substitute
+      2^((n − 1) + 1) = 2^(n − 1)·2      2
+      2^n = 2^(n − 1)·2                  algebra
 
-4.  2^n = 2^(n − 1)·2
-    substitute (n − 1) + 1 = n (line 3) into line 2
-
-5.  2^n = 2·2^(n − 1)
-    algebra, from 4
+4.  2^n = 2·2^(n − 1)
+    algebra, from 3
     requires 2^(n − 1) ∈ ℝ: mun:power-real a := 2, m := n − 1, from 1
 
-6.  2^(n − 1) ∈ ℤ
+5.  2^(n − 1) ∈ ℤ
     mun:power-integer a := 2, m := n − 1, from 1
 
-7.  2^n is even
-    def:even n := 2^n, from 5, 6
+6.  2^n is even
+    def:even n := 2^n, from 4, 5
 
 
 theorem log-three-over-two-irrational
@@ -128,54 +118,39 @@ theorem log-three-over-two-irrational
           algebra, from 2.1
           requires ln(2) ≠ 0: real arithmetic
 
-    2.7.  ln(3^q) = q·ln(3)
-          mun:ln-power x := 3, n := q
+    2.7.  ln(3^q) = ln(2^p)
+          calculation
+            ln(3^q) = q·ln(3)    mun:ln-power x := 3, n := q
+                    = p·ln(2)    2.6
+                    = ln(2^p)    mun:ln-power x := 2, n := p
           requires 3 > 0: arithmetic
-
-    2.8.  ln(2^p) = p·ln(2)
-          mun:ln-power x := 2, n := p
           requires 2 > 0: arithmetic
 
-    2.9.  ln(3^q) = ln(2^p)
-          calculation
-            ln(3^q) = q·ln(3)    2.7
-                    = p·ln(2)    2.6
-                    = ln(2^p)    2.8
-
-    2.10. 3^q > 0
+    2.8.  3^q > 0
           mun:power-positive a := 3, m := q
           requires 3 > 0: arithmetic
 
-    2.11. 2^p > 0
+    2.9.  2^p > 0
           mun:power-positive a := 2, m := p
           requires 2 > 0: arithmetic
 
-    2.12. exp(ln(3^q)) = 3^q
-          mun:exp-ln x := 3^q, from 2.10
-
-    2.13. exp(ln(2^p)) = 2^p
-          mun:exp-ln x := 2^p, from 2.5, 2.11
-
-    2.14. exp(ln(3^q)) = exp(ln(2^p))
-          substitute ln(3^q) = ln(2^p) (line 2.9)
-
-    2.15. 3^q = 2^p
+    2.10. 3^q = 2^p
           calculation
-            3^q = exp(ln(3^q))    2.12
-                = exp(ln(2^p))    2.14
-                = 2^p             2.13
+            3^q = exp(ln(3^q))    mun:exp-ln x := 3^q, from 2.8
+                = exp(ln(2^p))    substitute line 2.7
+                = 2^p             mun:exp-ln x := 2^p, from 2.5, 2.9
 
-    2.16. 3^q is odd
+    2.11. 3^q is odd
           thm:power-of-three-odd n := q
 
-    2.17. 2^p is even
+    2.12. 2^p is even
           thm:power-of-two-even n := p, from 2.5
 
-    2.18. 3^q is even
-          substitute 2^p = 3^q (line 2.15) into line 2.17
+    2.13. 3^q is even
+          substitute 2^p = 3^q (line 2.10) into line 2.12
 
-    2.19. not (3^q is even)
-          mun:odd-not-even n := 3^q, from 2.16, contradicting 2.18
+    2.14. not (3^q is even)
+          mun:odd-not-even n := 3^q, from 2.11, contradicting 2.13
 
 3.  ln(3)/ln(2) ∈ ℝ
     mun:quotient-real x := ln(3), y := ln(2)

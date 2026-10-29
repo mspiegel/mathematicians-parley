@@ -49,59 +49,41 @@ theorem cube-congruent-mod-three
     6.1.  q·3 = a
           substitute a mod 3 = 0 (C1) into line 5
 
-    6.2.  a³ − a = (q·3)³ − q·3
-          substitute q·3 = a (line 6.1)
-
-    6.3.  (q·3)³ − q·3 = 3·(9·q³ − q)
-          algebra
-
-    6.4.  a³ − a = 3·(9·q³ − q)
+    6.2.  a³ − a = 3·(9·q³ − q)
           calculation
-            a³ − a = (q·3)³ − q·3         6.2
-                   = 3·(9·q³ − q)         6.3
+            a³ − a = (q·3)³ − q·3         substitute line 6.1
+                   = 3·(9·q³ − q)         algebra
 
-    6.5.  3 divides a³ − a
-          def:divides d := 3, n := a³ − a, from 6.4
+    6.3.  3 divides a³ − a
+          def:divides d := 3, n := a³ − a, from 6.2
 
     case
     assume a mod 3 = 1                                                (C2)
 
-    6.6.  q·3 + 1 = a
+    6.4.  q·3 + 1 = a
           substitute a mod 3 = 1 (C2) into line 5
 
-    6.7.  a³ − a = (q·3 + 1)³ − (q·3 + 1)
-          substitute q·3 + 1 = a (line 6.6)
-
-    6.8.  (q·3 + 1)³ − (q·3 + 1) = 3·(9·q³ + 9·q² + 2·q)
-          algebra
-
-    6.9.  a³ − a = 3·(9·q³ + 9·q² + 2·q)
+    6.5.  a³ − a = 3·(9·q³ + 9·q² + 2·q)
           calculation
-            a³ − a = (q·3 + 1)³ − (q·3 + 1)         6.7
-                   = 3·(9·q³ + 9·q² + 2·q)          6.8
+            a³ − a = (q·3 + 1)³ − (q·3 + 1)         substitute line 6.4
+                   = 3·(9·q³ + 9·q² + 2·q)          algebra
 
-    6.10. 3 divides a³ − a
-          def:divides d := 3, n := a³ − a, from 6.9
+    6.6.  3 divides a³ − a
+          def:divides d := 3, n := a³ − a, from 6.5
 
     case
     assume a mod 3 = 2                                                (C3)
 
-    6.11. q·3 + 2 = a
+    6.7.  q·3 + 2 = a
           substitute a mod 3 = 2 (C3) into line 5
 
-    6.12. a³ − a = (q·3 + 2)³ − (q·3 + 2)
-          substitute q·3 + 2 = a (line 6.11)
-
-    6.13. (q·3 + 2)³ − (q·3 + 2) = 3·(9·q³ + 18·q² + 11·q + 2)
-          algebra
-
-    6.14. a³ − a = 3·(9·q³ + 18·q² + 11·q + 2)
+    6.8.  a³ − a = 3·(9·q³ + 18·q² + 11·q + 2)
           calculation
-            a³ − a = (q·3 + 2)³ − (q·3 + 2)         6.12
-                   = 3·(9·q³ + 18·q² + 11·q + 2)    6.13
+            a³ − a = (q·3 + 2)³ − (q·3 + 2)         substitute line 6.7
+                   = 3·(9·q³ + 18·q² + 11·q + 2)    algebra
 
-    6.15. 3 divides a³ − a
-          def:divides d := 3, n := a³ − a, from 6.14
+    6.9.  3 divides a³ − a
+          def:divides d := 3, n := a³ − a, from 6.8
 
 7.  a³ ≡ a (mod 3)
     def:congruent-mod, from 6

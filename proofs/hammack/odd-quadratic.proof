@@ -10,16 +10,10 @@ theorem odd-quadratic
 1.  k ∈ ℤ. a = 2k + 1.
     obtain k: def:odd, from H2
 
-2.  a² + 3a + 5 = (2k + 1)² + 3(2k + 1) + 5
-    substitute a = 2k + 1 (line 1)
-
-3.  (2k + 1)² + 3(2k + 1) + 5 = 2(2k² + 5k + 4) + 1
-    algebra
-
-4.  a² + 3a + 5 = 2(2k² + 5k + 4) + 1
+2.  a² + 3a + 5 = 2(2k² + 5k + 4) + 1
     calculation
-      a² + 3a + 5 = (2k + 1)² + 3(2k + 1) + 5     2
-                  = 2(2k² + 5k + 4) + 1           3
+      a² + 3a + 5 = (2k + 1)² + 3(2k + 1) + 5     substitute line 1
+                  = 2(2k² + 5k + 4) + 1           algebra
 
-5.  a² + 3a + 5 is odd
-    def:odd n := a² + 3a + 5, from 4
+3.  a² + 3a + 5 is odd
+    def:odd n := a² + 3a + 5, from 2

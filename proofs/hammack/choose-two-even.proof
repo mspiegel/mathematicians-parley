@@ -18,32 +18,20 @@ theorem choose-two-formula
     1.1.  0 < 2
           arithmetic
 
-    1.2.  C(0, 2) = 0
-          def:C n := 0, k := 2, from 1.1
-
-    1.3.  C(0, 2) = 0·(0 − 1)/2
+    1.2.  C(0, 2) = 0·(0 − 1)/2
           calculation
-            C(0, 2) = 0               1.2
+            C(0, 2) = 0               def:C n := 0, k := 2, from 1.1
                     = 0·(0 − 1)/2     arithmetic
 
     step
     let k ∈ ℕ₀                                                        (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.4.  k + C(k, 2) = C(k + 1, 2)
-          thm:choose-two-pairs n := k
-
-    1.5.  k + C(k, 2) = k + k·(k − 1)/2
-          substitute C(k, 2) = k·(k − 1)/2 (IH)
-
-    1.6.  k + k·(k − 1)/2 = (k + 1)·((k + 1) − 1)/2
-          algebra
-
-    1.7.  C(k + 1, 2) = (k + 1)·((k + 1) − 1)/2
+    1.3.  C(k + 1, 2) = (k + 1)·((k + 1) − 1)/2
           calculation
-            C(k + 1, 2) = k + C(k, 2)                     1.4
-                        = k + k·(k − 1)/2                 1.5
-                        = (k + 1)·((k + 1) − 1)/2         1.6
+            C(k + 1, 2) = k + C(k, 2)                     thm:choose-two-pairs n := k
+                        = k + k·(k − 1)/2                 substitute IH
+                        = (k + 1)·((k + 1) − 1)/2         algebra
 
 2.  C(n, 2) = n·(n − 1)/2
     instantiate k := n in line 1

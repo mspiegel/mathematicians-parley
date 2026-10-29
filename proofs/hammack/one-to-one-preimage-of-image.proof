@@ -74,26 +74,25 @@ theorem one-to-one-preimage-of-image
           1.3.1.  {t} ⊆ A
                   mun:singleton-subset a := t, X := A, from K4
 
-          1.3.2.  f⁻¹[f[{t}]] = {t}
-                  instantiate X := {t} in D2, from 1.3.1
-
-          1.3.3.  t ∈ {t}
+          1.3.2.  t ∈ {t}
                   def:singleton x := t, a := t
 
-          1.3.4.  f(t) ∈ f[{t}]
-                  mun:value-in-image Y := {t}, s := t, from 1.3.1, 1.3.3
+          1.3.3.  f(t) ∈ f[{t}]
+                  mun:value-in-image Y := {t}, s := t, from 1.3.1, 1.3.2
 
-          1.3.5.  f(s) ∈ f[{t}]
-                  substitute f(s) = f(t) (A1) into line 1.3.4
+          1.3.4.  f(s) ∈ f[{t}]
+                  substitute f(s) = f(t) (A1) into line 1.3.3
 
-          1.3.6.  s ∈ f⁻¹[f[{t}]]
-                  def:preimage Z := f[{t}], from K3, 1.3.5
+          1.3.5.  s ∈ f⁻¹[f[{t}]]
+                  def:preimage Z := f[{t}], from K3, 1.3.4
 
-          1.3.7.  s ∈ {t}
-                  substitute f⁻¹[f[{t}]] = {t} (line 1.3.2) into line 1.3.6
+          1.3.6.  s ∈ {t}
+                  substitute
+                    s ∈ f⁻¹[f[{t}]]      1.3.5
+                    s ∈ {t}              instantiate X := {t} in D2, from 1.3.1
 
-          1.3.8.  s = t
-                  def:singleton x := s, a := t, from 1.3.7
+          1.3.7.  s = t
+                  def:singleton x := s, a := t, from 1.3.6
 
     1.4.  f : A → B is one-to-one
           def:one-to-one, from H3, 1.3

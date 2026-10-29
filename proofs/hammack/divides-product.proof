@@ -16,20 +16,11 @@ theorem divides-product
 2.  m ∈ ℤ. d = c·m.
     obtain m: def:divides d := c, n := d, from H6
 
-3.  b·d = (a·k)·d
-    substitute b = a·k (line 1)
-
-4.  (a·k)·d = (a·k)·(c·m)
-    substitute d = c·m (line 2)
-
-5.  (a·k)·(c·m) = (a·c)·(k·m)
-    algebra
-
-6.  b·d = (a·c)·(k·m)
+3.  b·d = (a·c)·(k·m)
     calculation
-      b·d = (a·k)·d           3
-          = (a·k)·(c·m)       4
-          = (a·c)·(k·m)       5
+      b·d = (a·k)·d           substitute line 1
+          = (a·k)·(c·m)       substitute line 2
+          = (a·c)·(k·m)       algebra
 
-7.  a·c divides b·d
-    def:divides d := a·c, n := b·d, from 6
+4.  a·c divides b·d
+    def:divides d := a·c, n := b·d, from 3

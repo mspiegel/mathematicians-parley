@@ -10,26 +10,16 @@ theorem gcd-minus-second-natural
   let b ∈ ℕ                                                           (H2)
   then gcd(a, b) = gcd(a − b, b)
 
-1.  gcd(a mod b, b) = gcd(a, b)
-    thm:gcd-mod
-
-2.  gcd((a − b) mod b, b) = gcd(a − b, b)
-    thm:gcd-mod a := a − b
-
-3.  ((−1)·b + a) mod b = a mod b
+1.  ((−1)·b + a) mod b = a mod b
     mun:mod-multiple r := a, m := b, q := −1
 
-4.  (−1)·b + a = a − b
-    algebra
+2.  (a − b) mod b = a mod b
+    substitute
+      ((−1)·b + a) mod b = a mod b      1
+      (a − b) mod b = a mod b           algebra
 
-5.  (a − b) mod b = a mod b
-    substitute (−1)·b + a = a − b (line 4) into line 3
-
-6.  gcd((a − b) mod b, b) = gcd(a mod b, b)
-    substitute (a − b) mod b = a mod b (line 5)
-
-7.  gcd(a, b) = gcd(a − b, b)
+3.  gcd(a, b) = gcd(a − b, b)
     calculation
-      gcd(a, b) = gcd(a mod b, b)           1
-                = gcd((a − b) mod b, b)     6
-                = gcd(a − b, b)             2
+      gcd(a, b) = gcd(a mod b, b)           thm:gcd-mod
+                = gcd((a − b) mod b, b)     substitute line 2
+                = gcd(a − b, b)             thm:gcd-mod a := a − b

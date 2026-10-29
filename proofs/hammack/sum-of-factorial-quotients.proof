@@ -83,25 +83,13 @@ theorem factorial-quotient-step
     algebra
     requires F ≠ 0: from H3
 
-4.  1 − 1/F + (1/F)·(1 − 1/(c + 1)) = 1 − (1/F)·(1/(c + 1))
-    algebra
-    requires F ≠ 0: from H3
-
-5.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))
-    substitute c/(F·(c + 1)) = (1/F)·(c/(c + 1)) (line 1)
-
-6.  1 − 1/F + (1/F)·(c/(c + 1)) = 1 − 1/F + (1/F)·(1 − 1/(c + 1))
-    substitute c/(c + 1) = 1 − 1/(c + 1) (line 2)
-
-7.  1 − (1/F)·(1/(c + 1)) = 1 − 1/(F·(c + 1))
-    substitute 1/(F·(c + 1)) = (1/F)·(1/(c + 1)) (line 3)
-
-8.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/(F·(c + 1))
+4.  1 − 1/F + c/(F·(c + 1)) = 1 − 1/(F·(c + 1))
     calculation
-      1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))             5
-                              = 1 − 1/F + (1/F)·(1 − 1/(c + 1))         6
-                              = 1 − (1/F)·(1/(c + 1))                   4
-                              = 1 − 1/(F·(c + 1))                       7
+      1 − 1/F + c/(F·(c + 1)) = 1 − 1/F + (1/F)·(c/(c + 1))             substitute line 1
+                              = 1 − 1/F + (1/F)·(1 − 1/(c + 1))         substitute line 2
+                              = 1 − (1/F)·(1/(c + 1))                   algebra
+                              = 1 − 1/(F·(c + 1))                       substitute line 3
+    requires F ≠ 0: from H3
 
 theorem sum-of-factorial-quotients
   note        By induction on n: adding (k + 1)/(k + 2)! to 1 − 1/(k + 1)!
@@ -123,70 +111,40 @@ theorem sum-of-factorial-quotients
     induction on k starting at 1
 
     base
-    2.1.  Σ(j = 1 to 1) j/(j + 1)! = 1/(1 + 1)!
-          mun:sum-single a := 1, from 1
-
-    2.2.  1! = 1
+    2.1.  1! = 1
           def:factorial
 
-    2.3.  (1 + 1)! = 1!·(1 + 1)
-          def:factorial n := 1
-
-    2.4.  1!·(1 + 1) = 1·(1 + 1)
-          substitute 1! = 1 (line 2.2)
-
-    2.5.  (1 + 1)! = 2
+    2.2.  (1 + 1)! = 2
           calculation
-            (1 + 1)! = 1!·(1 + 1)     2.3
-                     = 1·(1 + 1)      2.4
+            (1 + 1)! = 1!·(1 + 1)     def:factorial n := 1
+                     = 1·(1 + 1)      substitute line 2.1
                      = 2              arithmetic
 
-    2.6.  1/(1 + 1)! = 1/2
-          substitute (1 + 1)! = 2 (line 2.5)
-
-    2.7.  1 − 1/(1 + 1)! = 1 − 1/2
-          substitute (1 + 1)! = 2 (line 2.5)
-
-    2.8.  Σ(j = 1 to 1) j/(j + 1)! = 1 − 1/(1 + 1)!
+    2.3.  Σ(j = 1 to 1) j/(j + 1)! = 1 − 1/(1 + 1)!
           calculation
-            Σ(j = 1 to 1) j/(j + 1)! = 1/(1 + 1)!         2.1
-                                     = 1/2                2.6
+            Σ(j = 1 to 1) j/(j + 1)! = 1/(1 + 1)!         mun:sum-single a := 1, from 1
+                                     = 1/2                substitute line 2.2
                                      = 1 − 1/2            arithmetic
-                                     = 1 − 1/(1 + 1)!     2.7
+                                     = 1 − 1/(1 + 1)!     substitute line 2.2
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 2 is true for k, the induction hypothesis             (IH)
 
-    2.9.  Σ(j = 1 to k + 1) j/(j + 1)! = Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)!
-          mun:sum-extended a := 1, n := k, from 1
-          requires k ≥ 1: from K
-
-    2.10. Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)! = 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)!
-          substitute Σ(j = 1 to k) j/(j + 1)! = 1 − 1/(k + 1)! (IH)
-
-    2.11. ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1)
+    2.4.  ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1)
           def:factorial n := k + 1
 
-    2.12. 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)! = 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1))
-          substitute ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1) (line 2.11)
-
-    2.13. (k + 1)! ∈ ℕ
+    2.5.  (k + 1)! ∈ ℕ
           mun:factorial-nat n := k + 1
 
-    2.14. 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1)) = 1 − 1/((k + 1)!·((k + 1) + 1))
-          thm:factorial-quotient-step c := k + 1, F := (k + 1)!, from 2.13
-
-    2.15. 1 − 1/((k + 1)!·((k + 1) + 1)) = 1 − 1/((k + 1) + 1)!
-          substitute ((k + 1) + 1)! = (k + 1)!·((k + 1) + 1) (line 2.11)
-
-    2.16. Σ(j = 1 to k + 1) j/(j + 1)! = 1 − 1/((k + 1) + 1)!
+    2.6.  Σ(j = 1 to k + 1) j/(j + 1)! = 1 − 1/((k + 1) + 1)!
           calculation
-            Σ(j = 1 to k + 1) j/(j + 1)! = Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)!      2.9
-                                         = 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)!                2.10
-                                         = 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1))      2.12
-                                         = 1 − 1/((k + 1)!·((k + 1) + 1))                         2.14
-                                         = 1 − 1/((k + 1) + 1)!                                   2.15
+            Σ(j = 1 to k + 1) j/(j + 1)! = Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)!      mun:sum-extended a := 1, n := k, from 1
+                                         = 1 − 1/(k + 1)! + (k + 1)/((k + 1) + 1)!                substitute IH
+                                         = 1 − 1/(k + 1)! + (k + 1)/((k + 1)!·((k + 1) + 1))      substitute line 2.4
+                                         = 1 − 1/((k + 1)!·((k + 1) + 1))                         thm:factorial-quotient-step c := k + 1, F := (k + 1)!, from 2.5
+                                         = 1 − 1/((k + 1) + 1)!                                   substitute line 2.4
+          requires k ≥ 1: from K
 
 3.  Σ(k = 1 to n) k/(k + 1)! = 1 − 1/(n + 1)!
     instantiate k := n in line 2

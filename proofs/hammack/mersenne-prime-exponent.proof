@@ -35,31 +35,16 @@ theorem two-power-add
     1.3.  a + (k + 1) = (a + k) + 1
           algebra
 
-    1.4.  2^(a + (k + 1)) = 2^((a + k) + 1)
-          substitute a + (k + 1) = (a + k) + 1 (line 1.3)
-
-    1.5.  2^((a + k) + 1) = 2^(a + k)·2
-          mun:exponent-step a := 2, m := a + k
-
-    1.6.  2^(a + k)·2 = 2^a·2^k·2
-          substitute 2^(a + k) = 2^a·2^k (IH)
-
-    1.7.  2^(k + 1) = 2^k·2
+    1.4.  2^(k + 1) = 2^k·2
           mun:exponent-step a := 2, m := k
 
-    1.8.  2^a·2^(k + 1) = 2^a·(2^k·2)
-          substitute 2^(k + 1) = 2^k·2 (line 1.7)
-
-    1.9.  2^a·(2^k·2) = 2^a·2^k·2
-          algebra
-
-    1.10. 2^(a + (k + 1)) = 2^a·2^(k + 1)
+    1.5.  2^(a + (k + 1)) = 2^a·2^(k + 1)
           calculation
-            2^(a + (k + 1)) = 2^((a + k) + 1)     1.4
-                            = 2^(a + k)·2         1.5
-                            = 2^a·2^k·2           1.6
-                            = 2^a·(2^k·2)         1.9
-                            = 2^a·2^(k + 1)       1.8
+            2^(a + (k + 1)) = 2^((a + k) + 1)     substitute line 1.3
+                            = 2^(a + k)·2         mun:exponent-step a := 2, m := a + k
+                            = 2^a·2^k·2           substitute IH
+                            = 2^a·(2^k·2)         algebra
+                            = 2^a·2^(k + 1)       substitute line 1.4
 
 2.  2^(a + b) = 2^a·2^b
     instantiate k := b in line 1
@@ -128,72 +113,54 @@ theorem power-multiple-quotient
     1.4.  d·(j + 1) = d·j + d
           algebra
 
-    1.5.  2^(d·(j + 1)) = 2^(d·j + d)
-          substitute d·(j + 1) = d·j + d (line 1.4)
-
-    1.6.  2^(d·j + d) = 2^(d·j)·2^d
-          thm:two-power-add a := d·j, b := d
-
-    1.7.  2^(d·(j + 1)) = 2^(d·j)·2^d
+    1.5.  2^(d·(j + 1)) = 2^(d·j)·2^d
           calculation
-            2^(d·(j + 1)) = 2^(d·j + d)       1.5
-                          = 2^(d·j)·2^d       1.6
+            2^(d·(j + 1)) = 2^(d·j + d)       substitute line 1.4
+                          = 2^(d·j)·2^d       thm:two-power-add a := d·j, b := d
 
-    1.8.  2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1
-          substitute 2^(d·(j + 1)) = 2^(d·j)·2^d (line 1.7)
-
-    1.9.  2^(d·j)·2^d − 1 = 2^d·(2^(d·j) − 1) + (2^d − 1)
-          algebra
+    1.6.  2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
+          calculation
+            2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1                        substitute line 1.5
+                              = 2^d·(2^(d·j) − 1) + (2^d − 1)          algebra
+                              = 2^d·((2^d − 1)·q) + (2^d − 1)          substitute line 1.3
+                              = (2^d − 1)·(2^d·q + 1)                  algebra
           requires 2^(d·j) ∈ ℝ: mun:power-real a := 2, m := d·j
 
-    1.10. 2^d·(2^(d·j) − 1) + (2^d − 1) = 2^d·((2^d − 1)·q) + (2^d − 1)
-          substitute 2^(d·j) − 1 = (2^d − 1)·q (line 1.3)
-
-    1.11. 2^d·((2^d − 1)·q) + (2^d − 1) = (2^d − 1)·(2^d·q + 1)
-          algebra
-
-    1.12. 2^(d·(j + 1)) − 1 = (2^d − 1)·(2^d·q + 1)
-          calculation
-            2^(d·(j + 1)) − 1 = 2^(d·j)·2^d − 1                        1.8
-                              = 2^d·(2^(d·j) − 1) + (2^d − 1)          1.9
-                              = 2^d·((2^d − 1)·q) + (2^d − 1)          1.10
-                              = (2^d − 1)·(2^d·q + 1)                  1.11
-
-    1.13. 2^d ≥ d + 1
+    1.7.  2^d ≥ d + 1
           thm:two-power-bound
 
-    1.14. d + 1 ≥ 1
+    1.8.  d + 1 ≥ 1
           inequalities, from H1
 
-    1.15. 2^d ≥ 1
-          transitivity, from 1.13, 1.14
+    1.9.  2^d ≥ 1
+          transitivity, from 1.7, 1.8
 
-    1.16. q·1 ≤ q·2^d
-          mun:multiply-le x := 1, y := 2^d, c := q, from 1.15
+    1.10. q·1 ≤ q·2^d
+          mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
           requires q > 0: inequalities, from K, 1.3
 
-    1.17. q·2^d = 2^d·q
+    1.11. q·2^d = 2^d·q
           algebra
 
-    1.18. q ≤ q·2^d
+    1.12. q ≤ q·2^d
           inequalities
-            q·1 ≤ q·2^d          1.16
+            q·1 ≤ q·2^d          1.10
             q ≤ q·2^d            algebra
 
-    1.19. j ≤ q
+    1.13. j ≤ q
           inequalities, from 1.3
 
-    1.20. j ≤ 2^d·q
-          transitivity, from 1.19, 1.18, 1.17
+    1.14. j ≤ 2^d·q
+          transitivity, from 1.13, 1.12, 1.11
 
-    1.21. 2^d·q + 1 ≥ (j + 1)
+    1.15. 2^d·q + 1 ≥ (j + 1)
           inequalities
-            j ≤ 2^d·q            1.20
+            j ≤ 2^d·q            1.14
             j + 1 ≤ 2^d·q + 1    adding 1
             2^d·q + 1 ≥ (j + 1)  restate
 
-    1.22. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
-          exhibit, from 1.12, 1.21
+    1.16. There is q ∈ ℕ with 2^(d·(j + 1)) − 1 = (2^d − 1)·q and q ≥ j + 1.
+          exhibit, from 1.6, 1.15
 
 2.  There is q ∈ ℕ with 2^(d·m) − 1 = (2^d − 1)·q and q ≥ m.
     instantiate j := m in line 1
@@ -285,14 +252,13 @@ theorem prime-exponent
                             4.2.3.3.3.  n ≤ d·0
                                         substitute n = d·e (line 4.2.3.2) into line 4.2.3.3.2
 
-                            4.2.3.3.4.  d·0 = 0
-                                        algebra
+                            4.2.3.3.4.  n ≤ 0
+                                        substitute
+                                          n ≤ d·0      4.2.3.3.3
+                                          n ≤ 0        algebra
 
-                            4.2.3.3.5.  n ≤ 0
-                                        substitute d·0 = 0 (line 4.2.3.3.4) into line 4.2.3.3.3
-
-                            4.2.3.3.6.  not n ≤ 0
-                                        inequalities, from H1, contradicting 4.2.3.3.5
+                            4.2.3.3.5.  not n ≤ 0
+                                        inequalities, from H1, contradicting 4.2.3.3.4
 
                   4.2.3.4.  e ∈ ℕ
                             mun:pos-int-nat m := e, from 4.2.3.3
@@ -318,95 +284,92 @@ theorem prime-exponent
                   4.2.3.8.  q ∈ ℕ. 2^(d·e) − 1 = (2^d − 1)·q. q ≥ e.
                             obtain q: thm:power-multiple-quotient m := e, from 4.2.3.4
 
-                  4.2.3.9.  2^n − 1 = 2^(d·e) − 1
-                            substitute n = d·e (line 4.2.3.2)
-
-                  4.2.3.10. 2^n − 1 = (2^d − 1)·q
+                  4.2.3.9.  2^n − 1 = (2^d − 1)·q
                             calculation
-                              2^n − 1 = 2^(d·e) − 1         4.2.3.9
+                              2^n − 1 = 2^(d·e) − 1         substitute line 4.2.3.2
                                       = (2^d − 1)·q         4.2.3.8
 
-                  4.2.3.11. 2^d − 1 divides 2^n − 1
-                            def:divides d := 2^d − 1, n := 2^n − 1, from 4.2.3.10
+                  4.2.3.10. 2^d − 1 divides 2^n − 1
+                            def:divides d := 2^d − 1, n := 2^n − 1, from 4.2.3.9
 
-                  4.2.3.12. 2^d ≥ d + 1
+                  4.2.3.11. 2^d ≥ d + 1
                             thm:two-power-bound
 
-                  4.2.3.13. 2^d − 1 ≥ d
+                  4.2.3.12. 2^d − 1 ≥ d
                             inequalities
-                              2^d ≥ d + 1            4.2.3.12
+                              2^d ≥ d + 1            4.2.3.11
                               2^d − 1 ≥ d            adding −1
 
-                  4.2.3.14. 1 + 1 ≤ 2^d − 1
-                            transitivity, from 4.2.3.7, 4.2.3.13
+                  4.2.3.13. 1 + 1 ≤ 2^d − 1
+                            transitivity, from 4.2.3.7, 4.2.3.12
 
-                  4.2.3.15. 2^d − 1 ≥ 2
+                  4.2.3.14. 2^d − 1 ≥ 2
                             inequalities
-                              1 + 1 ≤ 2^d − 1        4.2.3.14
+                              1 + 1 ≤ 2^d − 1        4.2.3.13
                               2 ≤ 2^d − 1            algebra
                               2^d − 1 ≥ 2            restate
 
-                  4.2.3.16. 2^d − 1 ∈ ℕ
+                  4.2.3.15. 2^d − 1 ∈ ℕ
                             mun:pos-int-nat m := 2^d − 1
-                            requires 0 < 2^d − 1: inequalities, from 4.2.3.15
+                            requires 0 < 2^d − 1: inequalities, from 4.2.3.14
 
-                  4.2.3.17. if 2^d − 1 divides 2^n − 1 then 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
-                            instantiate c := 2^d − 1 in line 2, from 4.2.3.16
+                  4.2.3.16. if 2^d − 1 divides 2^n − 1 then 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            instantiate c := 2^d − 1 in line 2, from 4.2.3.15
 
-                  4.2.3.18. 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
-                            mun:modus-ponens, from 4.2.3.11, 4.2.3.17
+                  4.2.3.17. 2^d − 1 = 1 or 2^d − 1 = 2^n − 1
+                            mun:modus-ponens, from 4.2.3.10, 4.2.3.16
 
-                  4.2.3.19. d = 1 or d = n
-                            cases, from 4.2.3.18
+                  4.2.3.18. d = 1 or d = n
+                            cases, from 4.2.3.17
 
                             case
                             assume 2^d − 1 = 1                        (C5)
 
-                            4.2.3.19.1.  2^d − 1 > 1
-                                         inequalities, from 4.2.3.15
+                            4.2.3.18.1.  2^d − 1 > 1
+                                         inequalities, from 4.2.3.14
 
-                            4.2.3.19.2.  not 2^d − 1 = 1
+                            4.2.3.18.2.  not 2^d − 1 = 1
                                          inequalities, contradicting C5
-                                           2^d − 1 > 1        4.2.3.19.1
+                                           2^d − 1 > 1        4.2.3.18.1
                                            2^d − 1 ≠ 1        weakening
 
                             case
                             assume 2^d − 1 = 2^n − 1                  (C6)
 
-                            4.2.3.19.3.  2 ≤ e
+                            4.2.3.18.3.  2 ≤ e
                                          inequalities
                                            1 + 1 ≤ e          4.2.3.6
                                            2 ≤ e              algebra
 
-                            4.2.3.19.4.  e ≤ q
+                            4.2.3.18.4.  e ≤ q
                                          inequalities, from 4.2.3.8
 
-                            4.2.3.19.5.  2 ≤ q
-                                         transitivity, from 4.2.3.19.3, 4.2.3.19.4
+                            4.2.3.18.5.  2 ≤ q
+                                         transitivity, from 4.2.3.18.3, 4.2.3.18.4
 
-                            4.2.3.19.6.  (2^d − 1)·2 ≤ (2^d − 1)·q
-                                         mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.2.3.19.5
-                                         requires 2^d − 1 > 0: inequalities, from 4.2.3.15
+                            4.2.3.18.6.  (2^d − 1)·2 ≤ (2^d − 1)·q
+                                         mun:multiply-le x := 2, y := q, c := 2^d − 1, from 4.2.3.18.5
+                                         requires 2^d − 1 > 0: inequalities, from 4.2.3.14
 
-                            4.2.3.19.7.  2^d − 1 = (2^d − 1)·q
+                            4.2.3.18.7.  2^d − 1 = (2^d − 1)·q
                                          calculation
                                            2^d − 1 = 2^n − 1          C6
-                                                   = (2^d − 1)·q      4.2.3.10
+                                                   = (2^d − 1)·q      4.2.3.9
 
-                            4.2.3.19.8.  0 < 2^d − 1
-                                         inequalities, from 4.2.3.15
+                            4.2.3.18.8.  0 < 2^d − 1
+                                         inequalities, from 4.2.3.14
 
-                            4.2.3.19.9.  2^d − 1 < (2^d − 1)·2
+                            4.2.3.18.9.  2^d − 1 < (2^d − 1)·2
                                          inequalities
-                                           0 < 2^d − 1                    4.2.3.19.8
+                                           0 < 2^d − 1                    4.2.3.18.8
                                            2^d − 1 < (2^d − 1)·2          adding 2^d − 1
 
-                            4.2.3.19.10. 2^d − 1 < (2^d − 1)·q
-                                         transitivity, from 4.2.3.19.9, 4.2.3.19.6
+                            4.2.3.18.10. 2^d − 1 < (2^d − 1)·q
+                                         transitivity, from 4.2.3.18.9, 4.2.3.18.6
 
-                            4.2.3.19.11. not 2^d − 1 = (2^d − 1)·q
-                                         inequalities, contradicting 4.2.3.19.7
-                                           2^d − 1 < (2^d − 1)·q          4.2.3.19.10
+                            4.2.3.18.11. not 2^d − 1 = (2^d − 1)·q
+                                         inequalities, contradicting 4.2.3.18.7
+                                           2^d − 1 < (2^d − 1)·q          4.2.3.18.10
                                            2^d − 1 ≠ (2^d − 1)·q          weakening
 
 5.  n is prime

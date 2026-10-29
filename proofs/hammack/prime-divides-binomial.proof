@@ -44,54 +44,51 @@ theorem prime-divides-binomial
 6.  k·C((p − 1) + 1, k) = ((p − 1) + 1)·C(p − 1, k − 1)
     thm:weighted-term m := p − 1, from 2, 5
 
-7.  (p − 1) + 1 = p
-    algebra
+7.  k·C(p, k) = p·C(p − 1, k − 1)
+    substitute
+      k·C((p − 1) + 1, k) = ((p − 1) + 1)·C(p − 1, k − 1)      6
+      k·C(p, k) = p·C(p − 1, k − 1)                            algebra
 
-8.  k·C(p, k) = p·C(p − 1, k − 1)
-    substitute (p − 1) + 1 = p (line 7) into line 6
-
-9.  C(p − 1, k − 1) ∈ ℕ₀
+8.  C(p − 1, k − 1) ∈ ℕ₀
     mun:binomial-nat0 n := p − 1, k := k − 1, from 2
 
-10. C(p, k) ∈ ℕ₀
+9.  C(p, k) ∈ ℕ₀
     mun:binomial-nat0 n := p
 
-11. p divides p
+10. p divides p
     mun:divides-self n := p
 
-12. p divides p·C(p − 1, k − 1)
-    mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 11
-    requires C(p − 1, k − 1) ∈ ℤ: from 9
+11. p divides p·C(p − 1, k − 1)
+    mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 10
+    requires C(p − 1, k − 1) ∈ ℤ: from 8
 
-13. p divides k·C(p, k)
-    substitute k·C(p, k) = p·C(p − 1, k − 1) (line 8) into line 12
+12. p divides k·C(p, k)
+    substitute k·C(p, k) = p·C(p − 1, k − 1) (line 7) into line 11
 
-14. C(p, k)·k = k·C(p, k)
-    algebra
-    requires C(p, k) ∈ ℝ: from 10
+13. p divides C(p, k)·k
+    substitute
+      p divides k·C(p, k)      12
+      p divides C(p, k)·k      algebra
+    requires C(p, k) ∈ ℝ: from 9
 
-15. p divides C(p, k)·k
-    substitute C(p, k)·k = k·C(p, k) (line 14) into line 13
-
-16. not (p divides k)
+14. not (p divides k)
     contradiction
     suppose p divides k                                               (S)
 
-    16.1. p ≤ k
+    14.1. p ≤ k
           mun:divides-le e := p, m := k, from S, 1
 
-    16.2. not p ≤ k
-          inequalities, from H5, contradicting 16.1
+    14.2. not p ≤ k
+          inequalities, from H5, contradicting 14.1
 
-17. gcd(p, k) = 1
-    mun:prime-coprime a := k, from H3, 16
+15. gcd(p, k) = 1
+    mun:prime-coprime a := k, from H3, 14
 
-18. gcd(p, k) = gcd(k, p)
-    mun:gcd-commutes a := p, b := k
+16. gcd(k, p) = 1
+    substitute
+      gcd(p, k) = 1      15
+      gcd(k, p) = 1      mun:gcd-commutes a := p, b := k
 
-19. gcd(k, p) = 1
-    substitute gcd(p, k) = gcd(k, p) (line 18) into line 17
-
-20. p divides C(p, k)
-    thm:coprime-divides x := C(p, k), c := k, n := p, from 15, 19
-    requires C(p, k) ∈ ℤ: from 10
+17. p divides C(p, k)
+    thm:coprime-divides x := C(p, k), c := k, n := p, from 13, 16
+    requires C(p, k) ∈ ℤ: from 9

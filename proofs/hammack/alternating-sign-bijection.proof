@@ -30,20 +30,11 @@ theorem even-power-of-minus-one
     1.2.  2·(j + 1) = 2·j + 2
           algebra
 
-    1.3.  (−1)^(2·(j + 1)) = (−1)^(2·j + 2)
-          substitute 2·(j + 1) = 2·j + 2 (line 1.2)
-
-    1.4.  (−1)^(2·j + 2) = (−1)^(2·j)·(−1)^2
-          mun:exponent-sum a := −1, m := 2·j, n := 2
-
-    1.5.  (−1)^(2·j)·(−1)^2 = 1·(−1)^2
-          substitute (−1)^(2·j) = 1 (IH)
-
-    1.6.  (−1)^(2·(j + 1)) = 1
+    1.3.  (−1)^(2·(j + 1)) = 1
           calculation
-            (−1)^(2·(j + 1)) = (−1)^(2·j + 2)    1.3
-                             = (−1)^(2·j)·(−1)^2 1.4
-                             = 1·(−1)^2          1.5
+            (−1)^(2·(j + 1)) = (−1)^(2·j + 2)    substitute line 1.2
+                             = (−1)^(2·j)·(−1)^2 mun:exponent-sum a := −1, m := 2·j, n := 2
+                             = 1·(−1)^2          substitute IH
                              = 1                 arithmetic
 
 2.  (−1)^(2·k) = 1
@@ -57,16 +48,10 @@ theorem odd-power-of-minus-one
 1.  (−1)^(2·k) = 1
     thm:even-power-of-minus-one
 
-2.  (−1)^(2·k + 1) = (−1)^(2·k)·(−1)
-    mun:exponent-step a := −1, m := 2·k
-
-3.  (−1)^(2·k)·(−1) = 1·(−1)
-    substitute (−1)^(2·k) = 1 (line 1)
-
-4.  (−1)^(2·k + 1) = −1
+2.  (−1)^(2·k + 1) = −1
     calculation
-      (−1)^(2·k + 1) = (−1)^(2·k)·(−1)    2
-                     = 1·(−1)             3
+      (−1)^(2·k + 1) = (−1)^(2·k)·(−1)    mun:exponent-step a := −1, m := 2·k
+                     = 1·(−1)             substitute line 1
                      = −1                 arithmetic
 
 theorem sign-of-even
@@ -148,20 +133,11 @@ theorem alternating-value-even
 1.  (−1)^m = 1
     thm:sign-of-even n := m, from H4
 
-2.  f(m) = ((−1)^m·(2·m − 1) + 1)/4
-    instantiate n := m in H2
-
-3.  ((−1)^m·(2·m − 1) + 1)/4 = (1·(2·m − 1) + 1)/4
-    substitute (−1)^m = 1 (line 1)
-
-4.  (1·(2·m − 1) + 1)/4 = m/2
-    algebra
-
-5.  f(m) = m/2
+2.  f(m) = m/2
     calculation
-      f(m) = ((−1)^m·(2·m − 1) + 1)/4    2
-           = (1·(2·m − 1) + 1)/4         3
-           = m/2                         4
+      f(m) = ((−1)^m·(2·m − 1) + 1)/4    instantiate n := m in H2
+           = (1·(2·m − 1) + 1)/4         substitute line 1
+           = m/2                         algebra
 
 theorem alternating-value-odd
   note        When m is odd, (−1)^m = −1 and (−(2m − 1) + 1)/4 = (1 − m)/2.
@@ -174,20 +150,11 @@ theorem alternating-value-odd
 1.  (−1)^m = −1
     thm:sign-of-odd n := m, from H4
 
-2.  f(m) = ((−1)^m·(2·m − 1) + 1)/4
-    instantiate n := m in H2
-
-3.  ((−1)^m·(2·m − 1) + 1)/4 = ((−1)·(2·m − 1) + 1)/4
-    substitute (−1)^m = −1 (line 1)
-
-4.  ((−1)·(2·m − 1) + 1)/4 = (1 − m)/2
-    algebra
-
-5.  f(m) = (1 − m)/2
+2.  f(m) = (1 − m)/2
     calculation
-      f(m) = ((−1)^m·(2·m − 1) + 1)/4    2
-           = ((−1)·(2·m − 1) + 1)/4      3
-           = (1 − m)/2                   4
+      f(m) = ((−1)^m·(2·m − 1) + 1)/4    instantiate n := m in H2
+           = ((−1)·(2·m − 1) + 1)/4      substitute line 1
+           = (1 − m)/2                   algebra
 
 theorem alternating-bijection
   note        Even n goes to n/2 and odd n to (1 − n)/2. Two natural numbers
@@ -225,39 +192,33 @@ theorem alternating-bijection
                   case
                   assume t is even                                    (C3)
 
-                  1.3.2.1.  f(t) = t/2
-                            thm:alternating-value-even m := t, from C3, H2
-
-                  1.3.2.2.  s/2 = t/2
+                  1.3.2.1.  s/2 = t/2
                             calculation
                               s/2 = f(s)    1.3.1
                                   = f(t)    A1
-                                  = t/2     1.3.2.1
+                                  = t/2     thm:alternating-value-even m := t, from C3, H2
 
-                  1.3.2.3.  s = t
-                            algebra, from 1.3.2.2
+                  1.3.2.2.  s = t
+                            algebra, from 1.3.2.1
 
                   case
                   assume t is odd                                     (C4)
 
-                  1.3.2.4.  f(t) = (1 − t)/2
-                            thm:alternating-value-odd m := t, from C4, H2
-
-                  1.3.2.5.  s/2 = (1 − t)/2
+                  1.3.2.3.  s/2 = (1 − t)/2
                             calculation
                               s/2 = f(s)          1.3.1
                                   = f(t)          A1
-                                  = (1 − t)/2     1.3.2.4
+                                  = (1 − t)/2     thm:alternating-value-odd m := t, from C4, H2
 
-                  1.3.2.6.  s + t = 1
-                            algebra, from 1.3.2.5
+                  1.3.2.4.  s + t = 1
+                            algebra, from 1.3.2.3
 
-                  1.3.2.7.  s + t > 1
+                  1.3.2.5.  s + t > 1
                             inequalities, from K1, K2
 
-                  1.3.2.8.  s + t ≠ 1
-                            inequalities, contradicting 1.3.2.6
-                              s + t > 1       1.3.2.7
+                  1.3.2.6.  s + t ≠ 1
+                            inequalities, contradicting 1.3.2.4
+                              s + t > 1       1.3.2.5
                               s + t ≠ 1       weakening
 
           case
@@ -272,40 +233,34 @@ theorem alternating-bijection
                   case
                   assume t is even                                    (C5)
 
-                  1.3.4.1.  f(t) = t/2
-                            thm:alternating-value-even m := t, from C5, H2
-
-                  1.3.4.2.  (1 − s)/2 = t/2
+                  1.3.4.1.  (1 − s)/2 = t/2
                             calculation
                               (1 − s)/2 = f(s)    1.3.3
                                         = f(t)    A1
-                                        = t/2     1.3.4.1
+                                        = t/2     thm:alternating-value-even m := t, from C5, H2
 
-                  1.3.4.3.  s + t = 1
-                            algebra, from 1.3.4.2
+                  1.3.4.2.  s + t = 1
+                            algebra, from 1.3.4.1
 
-                  1.3.4.4.  s + t > 1
+                  1.3.4.3.  s + t > 1
                             inequalities, from K1, K2
 
-                  1.3.4.5.  s + t ≠ 1
-                            inequalities, contradicting 1.3.4.3
-                              s + t > 1       1.3.4.4
+                  1.3.4.4.  s + t ≠ 1
+                            inequalities, contradicting 1.3.4.2
+                              s + t > 1       1.3.4.3
                               s + t ≠ 1       weakening
 
                   case
                   assume t is odd                                     (C6)
 
-                  1.3.4.6.  f(t) = (1 − t)/2
-                            thm:alternating-value-odd m := t, from C6, H2
-
-                  1.3.4.7.  (1 − s)/2 = (1 − t)/2
+                  1.3.4.5.  (1 − s)/2 = (1 − t)/2
                             calculation
                               (1 − s)/2 = f(s)          1.3.3
                                         = f(t)          A1
-                                        = (1 − t)/2     1.3.4.6
+                                        = (1 − t)/2     thm:alternating-value-odd m := t, from C6, H2
 
-                  1.3.4.8.  s = t
-                            algebra, from 1.3.4.7
+                  1.3.4.6.  s = t
+                            algebra, from 1.3.4.5
 
 2.  f : ℕ → ℤ is one-to-one
     def:one-to-one, from H1, 1

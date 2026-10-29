@@ -29,23 +29,16 @@ theorem binomial-on-the-diagonal
     1.4.  C(j, j + 1) + C(j, (j + 1) − 1) = C(j + 1, j + 1)
           thm:pascal n := j, k := j + 1
 
-    1.5.  (j + 1) − 1 = j
-          algebra
+    1.5.  C(j, j + 1) + C(j, j) = C(j + 1, j + 1)
+          substitute
+            C(j, j + 1) + C(j, (j + 1) − 1) = C(j + 1, j + 1)      1.4
+            C(j, j + 1) + C(j, j) = C(j + 1, j + 1)                algebra
 
-    1.6.  C(j, j + 1) + C(j, j) = C(j + 1, j + 1)
-          substitute (j + 1) − 1 = j (line 1.5) into line 1.4
-
-    1.7.  C(j, j + 1) + C(j, j) = 0 + C(j, j)
-          substitute C(j, j + 1) = 0 (line 1.3)
-
-    1.8.  0 + C(j, j) = 0 + 1
-          substitute C(j, j) = 1 (IH)
-
-    1.9.  C(j + 1, j + 1) = 1
+    1.6.  C(j + 1, j + 1) = 1
           calculation
-            C(j + 1, j + 1) = C(j, j + 1) + C(j, j)     1.6
-                            = 0 + C(j, j)               1.7
-                            = 0 + 1                     1.8
+            C(j + 1, j + 1) = C(j, j + 1) + C(j, j)     1.5
+                            = 0 + C(j, j)               substitute line 1.3
+                            = 0 + 1                     substitute IH
                             = 1                         arithmetic
 
 2.  C(m, m) = 1

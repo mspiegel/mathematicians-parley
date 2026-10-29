@@ -14,45 +14,30 @@ let S(m) = Σ(j = 1 to m) j³, for m ∈ ℕ                                (D1)
     induction on k starting at 1
 
     base
-    1.1.  Σ(j = 1 to 1) j³ = 1³
-          mun:sum-single a := 1
-
-    1.2.  S(1) = 1²·(1 + 1)²/4
+    1.1.  S(1) = 1²·(1 + 1)²/4
           calculation
             S(1) = Σ(j = 1 to 1) j³     D1
-                 = 1³                   1.1
+                 = 1³                   mun:sum-single a := 1
                  = 1²·(1 + 1)²/4        arithmetic
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.3.  Σ(j = 1 to k + 1) j³ = Σ(j = 1 to k) j³ + (k + 1)³
-          mun:sum-extended a := 1, n := k
-          requires k ≥ 1: from K
-
-    1.4.  S(k + 1) = S(k) + (k + 1)³
+    1.2.  S(k + 1) = S(k) + (k + 1)³
           calculation
             S(k + 1) = Σ(j = 1 to k + 1) j³          D1
-                     = Σ(j = 1 to k) j³ + (k + 1)³   1.3
+                     = Σ(j = 1 to k) j³ + (k + 1)³   mun:sum-extended a := 1, n := k
                      = S(k) + (k + 1)³               D1
+          requires k ≥ 1: from K
 
-    1.5.  S(k) + (k + 1)³ = k²·(k + 1)²/4 + (k + 1)³
-          substitute S(k) = k²·(k + 1)²/4 (IH)
-
-    1.6.  k²·(k + 1)²/4 + (k + 1)³ = (k + 1)²·((k + 1) + 1)²/4
-          algebra
-
-    1.7.  S(k + 1) = (k + 1)²·((k + 1) + 1)²/4
+    1.3.  S(k + 1) = (k + 1)²·((k + 1) + 1)²/4
           calculation
-            S(k + 1) = S(k) + (k + 1)³                  1.4
-                     = k²·(k + 1)²/4 + (k + 1)³         1.5
-                     = (k + 1)²·((k + 1) + 1)²/4        1.6
+            S(k + 1) = S(k) + (k + 1)³                  1.2
+                     = k²·(k + 1)²/4 + (k + 1)³         substitute IH
+                     = (k + 1)²·((k + 1) + 1)²/4        algebra
 
-2.  S(n) = n²·(n + 1)²/4
-    instantiate k := n in line 1
-
-3.  Σ(k = 1 to n) k³ = n²·(n + 1)²/4
+2.  Σ(k = 1 to n) k³ = n²·(n + 1)²/4
     calculation
       Σ(k = 1 to n) k³ = S(n)             D1
-                       = n²·(n + 1)²/4    2
+                       = n²·(n + 1)²/4    instantiate k := n in line 1

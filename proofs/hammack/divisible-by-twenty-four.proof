@@ -29,34 +29,28 @@ theorem divisible-by-twenty-four
     1.3.  2(m + 1) = 2m + 2
           algebra
 
-    1.4.  5^(2(m + 1)) = 5^(2m + 2)
-          substitute 2(m + 1) = 2m + 2 (line 1.3)
-
-    1.5.  5^(2m + 2) = 5^(2m)·5^2
-          mun:exponent-sum a := 5, m := 2m, n := 2
-
-    1.6.  5^(2(m + 1)) = 5^(2m)·5^2
+    1.4.  5^(2(m + 1)) = 5^(2m)·5^2
           calculation
-            5^(2(m + 1)) = 5^(2m + 2)      1.4
-                         = 5^(2m)·5^2      1.5
+            5^(2(m + 1)) = 5^(2m + 2)      substitute line 1.3
+                         = 5^(2m)·5^2      mun:exponent-sum a := 5, m := 2m, n := 2
 
-    1.7.  5^(2(m + 1)) − 1 = (5^(2m) − 1)·25 + 24
-          algebra, from 1.6
+    1.5.  5^(2(m + 1)) − 1 = (5^(2m) − 1)·25 + 24
+          algebra, from 1.4
           requires 5^(2m) ∈ ℝ: mun:power-real a := 5, m := 2m
 
-    1.8.  24 divides (5^(2m) − 1)·25
+    1.6.  24 divides (5^(2m) − 1)·25
           mun:divides-multiple e := 24, a := 5^(2m) − 1, x := 25, from IH
           requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
-    1.9.  24 divides 24
+    1.7.  24 divides 24
           mun:divides-self n := 24
 
-    1.10. 24 divides (5^(2m) − 1)·25 + 24
-          mun:divides-sum d := 24, a := (5^(2m) − 1)·25, b := 24, from 1.8, 1.9
+    1.8.  24 divides (5^(2m) − 1)·25 + 24
+          mun:divides-sum d := 24, a := (5^(2m) − 1)·25, b := 24, from 1.6, 1.7
           requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
-    1.11. 24 divides 5^(2(m + 1)) − 1
-          substitute 5^(2(m + 1)) − 1 = (5^(2m) − 1)·25 + 24 (line 1.7) into line 1.10
+    1.9.  24 divides 5^(2(m + 1)) − 1
+          substitute 5^(2(m + 1)) − 1 = (5^(2m) − 1)·25 + 24 (line 1.5) into line 1.8
 
 2.  24 divides 5^(2n) − 1
     instantiate m := n in line 1
