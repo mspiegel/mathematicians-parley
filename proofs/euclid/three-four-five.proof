@@ -25,13 +25,7 @@ theorem three-four-five
 4.  |AB|² = |AC|² + |BC|²
     algebra, from 1, 2, 3
 
-5.  ∠ACB = 90°
-    thm:converse-of-pythagoras, from H4, 4
-
-6.  ∠ACB = ∠BCA
-    mun:angle-symmetric P := A, Q := C, R := B, from H4
-
-7.  ∠BCA = 90°
+5.  ∠BCA = 90°
     calculation
-      ∠BCA = ∠ACB      6
-           = 90°       5
+      ∠BCA = ∠ACB      mun:angle-symmetric P := A, Q := C, R := B, from H4
+           = 90°       thm:converse-of-pythagoras, from H4, 4

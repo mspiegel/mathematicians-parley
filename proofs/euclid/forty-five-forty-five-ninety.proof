@@ -30,37 +30,34 @@ theorem forty-five-forty-five-ninety
 4.  (√2)²·|CA|² = 2·|CA|²
     substitute (√2)² = 2 (real arithmetic)
 
-5.  (√2)²·|CA|² = (√2·|CA|)²
-    algebra
-
-6.  |AB|² = (√2·|CA|)²
+5.  |AB|² = (√2·|CA|)²
     calculation
       |AB|² = 2·|CA|²               3
             = (√2)²·|CA|²           4
-            = (√2·|CA|)²            5
+            = (√2·|CA|)²            algebra
 
-7.  |AB| ≥ 0
+6.  |AB| ≥ 0
     mun:distance-nonneg P := A, Q := B
 
-8.  |CA| ≥ 0
+7.  |CA| ≥ 0
     mun:distance-nonneg P := C, Q := A
 
-9.  √2·|CA| ≥ 0
-    mun:product-nonneg x := √2, y := |CA|, from 8
+8.  √2·|CA| ≥ 0
+    mun:product-nonneg x := √2, y := |CA|, from 7
     requires √2 ≥ 0: real arithmetic
 
-10. |AB| = √2·|CA|
-    mun:square-equal x := |AB|, y := √2·|CA|, from 6, 7, 9
+9.  |AB| = √2·|CA|
+    mun:square-equal x := |AB|, y := √2·|CA|, from 5, 6, 8
 
-11. ∠CAB = ∠CBA
+10. ∠CAB = ∠CBA
     thm:isosceles, from H4, H6
 
-12. ∠CAB + ∠ACB + ∠CBA = 180°
+11. ∠CAB + ∠ACB + ∠CBA = 180°
     thm:angle-sum B := C, C := B, from H4
 
-13. ∠CAB = 45°
-    algebra, from H5, 11, 12
+12. ∠CAB = 45°
+    algebra, from H5, 10, 11
     requires ∠CBA ∈ ℝ: mun:triangle-angle-real P := C, Q := B, R := A, from H4
 
-14. |AB| = √2·|CA|. ∠CAB = 45°.
-    join 10, 13
+13. |AB| = √2·|CA|. ∠CAB = 45°.
+    join 9, 12

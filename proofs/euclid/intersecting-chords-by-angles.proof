@@ -88,97 +88,73 @@ theorem intersecting-chords-by-angles
       |CO| = |AO|    H11
            = |DO|    H12
 
-16. ∠CAB = ∠CDB
-    thm:same-arc-angles A := C, C := A, from H11, 13, 14, 15
-
-17. not (D is on line CB)
+16. not (D is on line CB)
     mun:same-side-off-line A := C, P := D, Q := P, from 10
 
-18. D, C, B form a triangle
-    mun:triangle-off-line P := D, Q := C, R := B, from 3, 17
+17. D, C, B form a triangle
+    mun:triangle-off-line P := D, Q := C, R := B, from 3, 16
 
-19. C, A, P form a triangle
+18. C, A, P form a triangle
     mun:triangle-on-side P := C, Q := A, R := B, S := P, from H7, 2
 
-20. B, D, P form a triangle
-    mun:triangle-on-side P := B, Q := D, R := C, S := P, from 9, 18
+19. B, D, P form a triangle
+    mun:triangle-on-side P := B, Q := D, R := C, S := P, from 9, 17
 
-21. B, P, A are collinear
+20. B, P, A are collinear
     mun:between-collinear R := P, S := A, T := B, from H7
 
-22. P is on line AB
-    def:on-line, from 21
+21. P is on line AB
+    def:on-line, from 20
 
-23. A ≠ C
+22. A ≠ C
     def:triangle P := C, Q := A, R := B, from 2
 
-24. A is on line AC
+23. A is on line AC
     mun:on-line-ends B := C
 
-25. not (B is on line AC)
+24. not (B is on line AC)
     mun:triangle-not-on-line P := B, Q := A, R := C, from 2
 
-26. P is between B and A
+25. P is between B and A
     mun:between-symmetric R := P, S := A, T := B, from H7
 
-27. P and B are on the same side of line AC
-    mun:segment-off-line B := C, P := B, Q := A, X := P, from 23, 24, 25, 26
+26. P and B are on the same side of line AC
+    mun:segment-off-line B := C, P := B, Q := A, X := P, from 22, 23, 24, 25
 
-28. ∠CAP = ∠CAB
-    mun:angle-same-ray R := C, P := A, Q := B, X := P, from 22, 27
-
-29. C, P, D are collinear
+27. C, P, D are collinear
     mun:between-collinear R := P, S := C, T := D, from H8
 
-30. P is on line DC
-    def:on-line A := D, B := C, from 29
+28. P is on line DC
+    def:on-line A := D, B := C, from 27
 
-31. D ≠ B
-    def:triangle P := D, Q := C, R := B, from 18
+29. D ≠ B
+    def:triangle P := D, Q := C, R := B, from 17
 
-32. D is on line DB
+30. D is on line DB
     mun:on-line-ends A := D
 
-33. not (C is on line DB)
-    mun:triangle-not-on-line P := C, Q := D, R := B, from 18
+31. not (C is on line DB)
+    mun:triangle-not-on-line P := C, Q := D, R := B, from 17
 
-34. P and C are on the same side of line DB
-    mun:segment-off-line A := D, P := C, Q := D, X := P, from H8, 31, 32, 33
+32. P and C are on the same side of line DB
+    mun:segment-off-line A := D, P := C, Q := D, X := P, from H8, 29, 30, 31
 
-35. ∠BDP = ∠BDC
-    mun:angle-same-ray R := B, P := D, Q := C, X := P, from 30, 34
-
-36. ∠PAC = ∠CAP
-    mun:angle-symmetric Q := A, R := C, from 19
-
-37. ∠CDB = ∠BDC
-    mun:angle-symmetric P := C, Q := D, R := B, from 18
-
-38. ∠BDP = ∠PDB
-    mun:angle-symmetric P := B, Q := D, R := P, from 20
-
-39. ∠PAC = ∠PDB
+33. ∠PAC = ∠PDB
     calculation
-      ∠PAC = ∠CAP    36
-           = ∠CAB    28
-           = ∠CDB    16
-           = ∠BDC    37
-           = ∠BDP    35
-           = ∠PDB    38
+      ∠PAC = ∠CAP    mun:angle-symmetric Q := A, R := C, from 18
+           = ∠CAB    mun:angle-same-ray R := C, P := A, Q := B, X := P, from 21, 26
+           = ∠CDB    thm:same-arc-angles A := C, C := A, from H11, 13, 14, 15
+           = ∠BDC    mun:angle-symmetric P := C, Q := D, R := B, from 17
+           = ∠BDP    mun:angle-same-ray R := B, P := D, Q := C, X := P, from 28, 32
+           = ∠PDB    mun:angle-symmetric P := B, Q := D, R := P, from 19
 
-40. ∠APC = ∠BPD
-    thm:vertical-angles B := C, C := B, O := P, from H7, H8
-
-41. ∠BPD = ∠DPB
-    mun:angle-symmetric P := B, Q := P, R := D, from 20
-
-42. ∠APC = ∠DPB
+34. ∠APC = ∠DPB
     calculation
-      ∠APC = ∠BPD    40
-           = ∠DPB    41
+      ∠APC = ∠BPD    thm:vertical-angles B := C, C := B, O := P, from H7, H8
+           = ∠DPB    mun:angle-symmetric P := B, Q := P, R := D, from 19
 
-43. |PA|·|PB| = |PD|·|PC|
-    thm:angle-angle-similar Q := A, R := C, P′ := P, Q′ := D, R′ := B, from 19, 20, 39, 42
+35. |PA|·|PB| = |PD|·|PC|
+    thm:angle-angle-similar Q := A, R := C, P′ := P, Q′ := D, R′ := B, from 18, 19, 33, 34
 
-44. |PA|·|PB| = |PC|·|PD|
-    algebra, from 43
+36. |PA|·|PB| = |PC|·|PD|
+    algebra, from 35

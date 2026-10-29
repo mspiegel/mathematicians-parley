@@ -3,11 +3,8 @@ import mundane theorem stdlib/geometry/distance-by-coordinates
 theorem distance-one-two-four-six
   then |(1, 2)(4, 6)| = 5
 
-1.  |(1, 2)(4, 6)| = √((1 − 4)² + (2 − 6)²)
-    mun:distance-by-coordinates
-
-2.  |(1, 2)(4, 6)| = 5
+1.  |(1, 2)(4, 6)| = 5
     calculation
-      |(1, 2)(4, 6)| = √((1 − 4)² + (2 − 6)²)     1
+      |(1, 2)(4, 6)| = √((1 − 4)² + (2 − 6)²)     mun:distance-by-coordinates
                      = √25                        arithmetic
                      = 5                          real arithmetic

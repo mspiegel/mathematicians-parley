@@ -68,25 +68,19 @@ theorem apollonius
           requires ∠BMA ∈ ℝ: from 2.9
           requires ∠AMC ∈ ℝ: from 2.10
 
-    2.12. cos(∠AMC) = cos(180° − ∠BMA)
-          substitute ∠AMC = 180° − ∠BMA (line 2.11)
-
-    2.13. cos(180° − ∠BMA) = −cos(∠BMA)
-          mun:cos-supplement x := ∠BMA
+    2.12. cos(∠AMC) = −cos(∠BMA)
+          calculation
+            cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.11
+                      = −cos(∠BMA)            mun:cos-supplement x := ∠BMA
           requires ∠BMA ∈ ℝ: from 2.9
 
-    2.14. cos(∠AMC) = −cos(∠BMA)
-          calculation
-            cos(∠AMC) = cos(180° − ∠BMA)      2.12
-                      = −cos(∠BMA)            2.13
-
-    2.15. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
+    2.13. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
           substitute |MC| = |BM| (H6) into line 2.7
 
-    2.16. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
-          substitute cos(∠AMC) = −cos(∠BMA) (line 2.14) into line 2.15
+    2.14. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
+          substitute cos(∠AMC) = −cos(∠BMA) (line 2.12) into line 2.13
 
-    2.17. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-          algebra, from 2.6, 2.16
+    2.15. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          algebra, from 2.6, 2.14
           requires ∠BMA ∈ ℝ: from 2.9
           requires cos(∠BMA) ∈ ℝ: mun:cos-real a := ∠BMA

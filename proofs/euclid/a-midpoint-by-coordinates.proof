@@ -13,36 +13,30 @@ theorem a-midpoint-by-coordinates
   assume M = (3, −3/2)                                                (H6)
   then |AM| = |MB|. M is between A and B.
 
-1.  |AM| = √((−1 − 3)² + (1 − (−3/2))²)
-    mun:distance-of-points-by-coordinates, from H4, H6
-
-2.  |MB| = √((3 − 7)² + (−3/2 − (−4))²)
-    mun:distance-of-points-by-coordinates, from H5, H6
-
-3.  |AM| = |MB|
+1.  |AM| = |MB|
     calculation
-      |AM| = √((−1 − 3)² + (1 − (−3/2))²)      1
+      |AM| = √((−1 − 3)² + (1 − (−3/2))²)      mun:distance-of-points-by-coordinates, from H4, H6
            = √(89/4)                           arithmetic
            = √((3 − 7)² + (−3/2 − (−4))²)      arithmetic
-           = |MB|                              2
+           = |MB|                              mun:distance-of-points-by-coordinates, from H5, H6
 
-4.  (−1 − 3)·(−4 − (−3/2)) = (7 − 3)·(1 − (−3/2))
+2.  (−1 − 3)·(−4 − (−3/2)) = (7 − 3)·(1 − (−3/2))
     arithmetic
 
-5.  (−1 − 3)·(7 − 3) + (1 − (−3/2))·(−4 − (−3/2)) < 0
+3.  (−1 − 3)·(7 − 3) + (1 − (−3/2))·(−4 − (−3/2)) < 0
     arithmetic
 
-6.  (3, −3/2) is between (−1, 1) and (7, −4)
-    mun:between-by-coordinates, from 4, 5
+4.  (3, −3/2) is between (−1, 1) and (7, −4)
+    mun:between-by-coordinates, from 2, 3
 
-7.  (3, −3/2) is between A and (7, −4)
-    substitute A = (−1, 1) (H4) into line 6
+5.  (3, −3/2) is between A and (7, −4)
+    substitute A = (−1, 1) (H4) into line 4
 
-8.  M is between A and (7, −4)
-    substitute M = (3, −3/2) (H6) into line 7
+6.  M is between A and (7, −4)
+    substitute M = (3, −3/2) (H6) into line 5
 
-9.  M is between A and B
-    substitute B = (7, −4) (H5) into line 8
+7.  M is between A and B
+    substitute B = (7, −4) (H5) into line 6
 
-10. |AM| = |MB|. M is between A and B.
-    join 3, 9
+8.  |AM| = |MB|. M is between A and B.
+    join 1, 7

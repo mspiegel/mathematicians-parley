@@ -98,14 +98,11 @@ theorem acute-angle-by-squares
              |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)                      algebra
            requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    11.8.  0 < cos(∠ACB)
-           mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 5, 11.7
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
-
-    11.9.  cos(90°) < cos(∠ACB)
+    11.8.  cos(90°) < cos(∠ACB)
            calculation
              cos(90°) = 0                 real arithmetic
-                      < cos(∠ACB)         11.8
+                      < cos(∠ACB)         mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 5, 11.7
+           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 6
 
-    11.10. ∠ACB < 90°
-           mun:cos-decreasing a := ∠ACB, b := 90°, from 9, 10, 11.9
+    11.9.  ∠ACB < 90°
+           mun:cos-decreasing a := ∠ACB, b := 90°, from 9, 10, 11.8

@@ -24,13 +24,12 @@ theorem midpoint-is-equidistant
 4.  |M(c, d)| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)
     substitute M = ((a + c)/2, (b + d)/2) (H6) into line 3
 
-5.  (a − (a + c)/2)² + (b − (b + d)/2)² = ((a + c)/2 − c)² + ((b + d)/2 − d)²
-    algebra
+5.  |(a, b)M| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)
+    substitute
+      |(a, b)M| = √((a − (a + c)/2)² + (b − (b + d)/2)²)      2
+      |(a, b)M| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)      algebra
 
-6.  |(a, b)M| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)
-    substitute (a − (a + c)/2)² + (b − (b + d)/2)² = ((a + c)/2 − c)² + ((b + d)/2 − d)² (line 5) into line 2
-
-7.  |(a, b)M| = |M(c, d)|
+6.  |(a, b)M| = |M(c, d)|
     calculation
-      |(a, b)M| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)                  6
+      |(a, b)M| = √(((a + c)/2 − c)² + ((b + d)/2 − d)²)                  5
                 = |M(c, d)|                                               4

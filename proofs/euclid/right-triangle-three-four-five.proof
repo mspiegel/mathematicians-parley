@@ -61,52 +61,43 @@ theorem right-triangle-three-four-five
 13. A, B, C form a triangle
     def:triangle, from 2, 4, 6, 12
 
-14. |BA| = √((3 − 0)² + (0 − 0)²)
-    mun:distance-of-points-by-coordinates, from H4, H5
-
-15. |BA| = 3
+14. |BA| = 3
     calculation
-      |BA| = √((3 − 0)² + (0 − 0)²)     14
+      |BA| = √((3 − 0)² + (0 − 0)²)     mun:distance-of-points-by-coordinates, from H4, H5
            = √9                         arithmetic
            = 3                          real arithmetic
 
-16. |AC| = √((0 − 0)² + (0 − 4)²)
-    mun:distance-of-points-by-coordinates, from H4, H6
-
-17. |AC| = 4
+15. |AC| = 4
     calculation
-      |AC| = √((0 − 0)² + (0 − 4)²)     16
+      |AC| = √((0 − 0)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H4, H6
            = √16                        arithmetic
            = 4                          real arithmetic
 
-18. |BC| = √((3 − 0)² + (0 − 4)²)
-    mun:distance-of-points-by-coordinates, from H5, H6
-
-19. |BC| = 5
+16. |BC| = 5
     calculation
-      |BC| = √((3 − 0)² + (0 − 4)²)     18
+      |BC| = √((3 − 0)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H5, H6
            = √25                        arithmetic
            = 5                          real arithmetic
 
-20. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
+17. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
     thm:law-of-cosines, from 2, 4
 
-21. 5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    substitute |BC| = 5 (line 19) into line 20
+18. 5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
+    substitute |BC| = 5 (line 16) into line 17
 
-22. 5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))
-    substitute |BA| = 3 (line 15) into line 21
+19. 5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))
+    substitute |BA| = 3 (line 14) into line 18
 
-23. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
-    substitute |AC| = 4 (line 17) into line 22
+20. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
+    substitute |AC| = 4 (line 15) into line 19
 
-24. cos(∠BAC) = 0
-    algebra, from 23
+21. cos(∠BAC) = 0
+    algebra, from 20
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from 13
     requires cos(∠BAC) ∈ ℝ: mun:cos-real a := ∠BAC
 
-25. ∠BAC = 90°
-    mun:right-angle-by-cosine, from 2, 4, 24
+22. ∠BAC = 90°
+    mun:right-angle-by-cosine, from 2, 4, 21
 
-26. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
-    join 13, 25, 19
+23. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
+    join 13, 22, 16

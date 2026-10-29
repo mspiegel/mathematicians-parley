@@ -31,65 +31,55 @@ theorem equilateral-triangle-by-coordinates
 4.  A ≠ C
     mun:points-apart-by-coordinates, from H4, H6, 3
 
-5.  |AB| = √((0 − 2)² + (0 − 0)²)
-    mun:distance-of-points-by-coordinates, from H4, H5
-
-6.  |AB| = 2
+5.  |AB| = 2
     calculation
-      |AB| = √((0 − 2)² + (0 − 0)²)     5
+      |AB| = √((0 − 2)² + (0 − 0)²)     mun:distance-of-points-by-coordinates, from H4, H5
            = √4                         arithmetic
            = 2                          real arithmetic
 
-7.  |BC| = √((2 − 1)² + (0 − √3)²)
-    mun:distance-of-points-by-coordinates, from H5, H6
-
-8.  |BC| = 2
+6.  |BC| = 2
     calculation
-      |BC| = √((2 − 1)² + (0 − √3)²)    7
+      |BC| = √((2 − 1)² + (0 − √3)²)    mun:distance-of-points-by-coordinates, from H5, H6
            = √4                         real arithmetic
            = 2                          real arithmetic
 
-9.  |CA| = √((1 − 0)² + (√3 − 0)²)
-    mun:distance-of-points-by-coordinates, from H4, H6
-
-10. |CA| = 2
+7.  |CA| = 2
     calculation
-      |CA| = √((1 − 0)² + (√3 − 0)²)    9
+      |CA| = √((1 − 0)² + (√3 − 0)²)    mun:distance-of-points-by-coordinates, from H4, H6
            = √4                         real arithmetic
            = 2                          real arithmetic
 
-11. |BC|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
+8.  |BC|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
     thm:law-of-cosines, from 2, 4
 
-12. 2² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
-    substitute |BC| = 2 (line 8) into line 11
+9.  2² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
+    substitute |BC| = 2 (line 6) into line 8
 
-13. 2² = 2² + |AB|² − 2·(2·|AB|·cos(∠CAB))
-    substitute |CA| = 2 (line 10) into line 12
+10. 2² = 2² + |AB|² − 2·(2·|AB|·cos(∠CAB))
+    substitute |CA| = 2 (line 7) into line 9
 
-14. 2² = 2² + 2² − 2·(2·2·cos(∠CAB))
-    substitute |AB| = 2 (line 6) into line 13
+11. 2² = 2² + 2² − 2·(2·2·cos(∠CAB))
+    substitute |AB| = 2 (line 5) into line 10
 
-15. cos(∠CAB) = 1/2
-    algebra, from 14
+12. cos(∠CAB) = 1/2
+    algebra, from 11
     requires ∠CAB ∈ ℝ: mun:angle-real, from 2, 4
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB
 
-16. ∠BAC = ∠CAB
-    mun:angle-turned, from 2, 4
+13. cos(∠BAC) = 1/2
+    substitute
+      cos(∠CAB) = 1/2      12
+      cos(∠BAC) = 1/2      mun:angle-turned, from 2, 4
 
-17. cos(∠BAC) = 1/2
-    substitute ∠CAB = ∠BAC (line 16) into line 15
-
-18. cos(∠BAC) = cos(60°)
+14. cos(∠BAC) = cos(60°)
     calculation
-      cos(∠BAC) = 1/2         17
+      cos(∠BAC) = 1/2         13
                 = cos(60°)    real arithmetic
 
-19. ∠BAC = 60°
-    mun:angle-by-cosine x := 60°, from 2, 4, 18
+15. ∠BAC = 60°
+    mun:angle-by-cosine x := 60°, from 2, 4, 14
     requires 0 ≤ 60°: real arithmetic
     requires 60° ≤ 180°: real arithmetic
 
-20. |AB| = 2. |BC| = 2. |CA| = 2. ∠BAC = 60°.
-    join 6, 8, 10, 19
+16. |AB| = 2. |BC| = 2. |CA| = 2. ∠BAC = 60°.
+    join 5, 6, 7, 15

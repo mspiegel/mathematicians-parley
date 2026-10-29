@@ -14,41 +14,38 @@ theorem two-angles-under-straight
   assume A, B, C form a triangle                                      (H4)
   then ∠BAC + ∠ABC < 180°
 
-1.  ∠BAC + ∠ABC + ∠BCA = 180°
-    thm:angle-sum, from H4
-
-2.  ∠BCA ∈ ℝ. ∠BCA ≥ 0.
+1.  ∠BCA ∈ ℝ. ∠BCA ≥ 0.
     mun:angle-real P := B, Q := C, R := A
     requires B ≠ C: def:triangle, from H4
     requires A ≠ C: def:triangle, from H4
 
-3.  sin(∠BCA) > 0
+2.  sin(∠BCA) > 0
     mun:sine-positive P := B, Q := C, R := A, from H4
 
-4.  ∠BCA > 0
+3.  ∠BCA > 0
     contradiction
     suppose not (∠BCA > 0)                                            (S)
 
-    4.1.  ∠BCA ≤ 0
+    3.1.  ∠BCA ≤ 0
           inequalities, from S
-          requires ∠BCA ∈ ℝ: from 2
+          requires ∠BCA ∈ ℝ: from 1
 
-    4.2.  ∠BCA = 0
-          antisymmetry, from 2, 4.1
+    3.2.  ∠BCA = 0
+          antisymmetry, from 1, 3.1
 
-    4.3.  sin(0) > 0, which is impossible
-          substitute ∠BCA = 0 (line 4.2) into line 3
+    3.3.  sin(0) > 0, which is impossible
+          substitute ∠BCA = 0 (line 3.2) into line 2
 
-5.  ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA
+4.  ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA
     inequalities
-      ∠BCA > 0                                    4
+      ∠BCA > 0                                    3
       0 < ∠BCA                                    restate
       ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA            adding ∠BAC + ∠ABC
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H4
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
-    requires ∠BCA ∈ ℝ: from 2
+    requires ∠BCA ∈ ℝ: from 1
 
-6.  ∠BAC + ∠ABC < 180°
+5.  ∠BAC + ∠ABC < 180°
     calculation
-      ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA      5
-                  = 180°                    1
+      ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA      4
+                  = 180°                    thm:angle-sum, from H4

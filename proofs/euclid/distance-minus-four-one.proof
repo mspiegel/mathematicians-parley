@@ -3,10 +3,7 @@ import mundane theorem stdlib/geometry/distance-by-coordinates
 theorem distance-minus-four-one
   then |(−4, 1)(3, −4)| = √74
 
-1.  |(−4, 1)(3, −4)| = √((−4 − 3)² + (1 − (−4))²)
-    mun:distance-by-coordinates
-
-2.  |(−4, 1)(3, −4)| = √74
+1.  |(−4, 1)(3, −4)| = √74
     calculation
-      |(−4, 1)(3, −4)| = √((−4 − 3)² + (1 − (−4))²)     1
+      |(−4, 1)(3, −4)| = √((−4 − 3)² + (1 − (−4))²)     mun:distance-by-coordinates
                        = √74                            arithmetic

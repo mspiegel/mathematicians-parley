@@ -11,42 +11,33 @@ theorem right-isosceles-triangle
   assume C = (5, −2)                                                  (H6)
   then |AB| = 5. |BC| = 5. |AC|² = |AB|² + |BC|².
 
-1.  |AB| = √((−2 − 2)² + (−1 − 2)²)
-    mun:distance-of-points-by-coordinates, from H4, H5
-
-2.  |AB| = 5
+1.  |AB| = 5
     calculation
-      |AB| = √((−2 − 2)² + (−1 − 2)²)     1
+      |AB| = √((−2 − 2)² + (−1 − 2)²)     mun:distance-of-points-by-coordinates, from H4, H5
            = √25                          arithmetic
            = 5                            real arithmetic
 
-3.  |BC| = √((2 − 5)² + (2 − (−2))²)
-    mun:distance-of-points-by-coordinates, from H5, H6
-
-4.  |BC| = 5
+2.  |BC| = 5
     calculation
-      |BC| = √((2 − 5)² + (2 − (−2))²)    3
+      |BC| = √((2 − 5)² + (2 − (−2))²)    mun:distance-of-points-by-coordinates, from H5, H6
            = √25                          arithmetic
            = 5                            real arithmetic
 
-5.  |AC| = √((−2 − 5)² + (−1 − (−2))²)
+3.  |AC| = √((−2 − 5)² + (−1 − (−2))²)
     mun:distance-of-points-by-coordinates, from H4, H6
 
-6.  |AC|² = (√((−2 − 5)² + (−1 − (−2))²))²
-    substitute |AC| = √((−2 − 5)² + (−1 − (−2))²) (line 5)
+4.  |AB|² + |BC|² = 5² + |BC|²
+    substitute |AB| = 5 (line 1)
 
-7.  |AB|² + |BC|² = 5² + |BC|²
-    substitute |AB| = 5 (line 2)
+5.  |AB|² + |BC|² = 5² + 5²
+    substitute |BC| = 5 (line 2) into line 4
 
-8.  |AB|² + |BC|² = 5² + 5²
-    substitute |BC| = 5 (line 4) into line 7
-
-9.  |AC|² = |AB|² + |BC|²
+6.  |AC|² = |AB|² + |BC|²
     calculation
-      |AC|² = (√((−2 − 5)² + (−1 − (−2))²))²     6
+      |AC|² = (√((−2 − 5)² + (−1 − (−2))²))²     substitute line 3
             = 50                                 real arithmetic
             = 5² + 5²                            arithmetic
-            = |AB|² + |BC|²                      8
+            = |AB|² + |BC|²                      5
 
-10. |AB| = 5. |BC| = 5. |AC|² = |AB|² + |BC|².
-    join 2, 4, 9
+7.  |AB| = 5. |BC| = 5. |AC|² = |AB|² + |BC|².
+    join 1, 2, 6

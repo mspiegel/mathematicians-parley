@@ -32,68 +32,56 @@ theorem angle-in-a-semicircle-by-coordinates
 4.  B ≠ C
     mun:points-apart-by-coordinates, from H6, H7, 3
 
-5.  |OC| = √((0 − 3)² + (0 − 4)²)
-    mun:distance-of-points-by-coordinates, from H7, H8
-
-6.  |OC| = 5
+5.  |OC| = 5
     calculation
-      |OC| = √((0 − 3)² + (0 − 4)²)     5
+      |OC| = √((0 − 3)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H7, H8
            = √25                        arithmetic
            = 5                          real arithmetic
 
-7.  |AC| = √((−5 − 3)² + (0 − 4)²)
-    mun:distance-of-points-by-coordinates, from H5, H7
-
-8.  |AC| = √80
+6.  |AC| = √80
     calculation
-      |AC| = √((−5 − 3)² + (0 − 4)²)     7
+      |AC| = √((−5 − 3)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H5, H7
            = √80                         arithmetic
 
-9.  |CB| = √((3 − 5)² + (4 − 0)²)
-    mun:distance-of-points-by-coordinates, from H6, H7
-
-10. |CB| = √20
+7.  |CB| = √20
     calculation
-      |CB| = √((3 − 5)² + (4 − 0)²)      9
+      |CB| = √((3 − 5)² + (4 − 0)²)      mun:distance-of-points-by-coordinates, from H6, H7
            = √20                         arithmetic
 
-11. |BA| = √((5 − (−5))² + (0 − 0)²)
-    mun:distance-of-points-by-coordinates, from H5, H6
-
-12. |BA| = 10
+8.  |BA| = 10
     calculation
-      |BA| = √((5 − (−5))² + (0 − 0)²)   11
+      |BA| = √((5 − (−5))² + (0 − 0)²)   mun:distance-of-points-by-coordinates, from H5, H6
            = √100                        arithmetic
            = 10                          real arithmetic
 
-13. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
+9.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines, from 2, 4
 
-14. 10² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    substitute |BA| = 10 (line 12) into line 13
+10. 10² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
+    substitute |BA| = 10 (line 8) into line 9
 
-15. 10² = (√80)² + |CB|² − 2·(√80·|CB|·cos(∠ACB))
-    substitute |AC| = √80 (line 8) into line 14
+11. 10² = (√80)² + |CB|² − 2·(√80·|CB|·cos(∠ACB))
+    substitute |AC| = √80 (line 6) into line 10
 
-16. 10² = (√80)² + (√20)² − 2·(√80·√20·cos(∠ACB))
-    substitute |CB| = √20 (line 10) into line 15
+12. 10² = (√80)² + (√20)² − 2·(√80·√20·cos(∠ACB))
+    substitute |CB| = √20 (line 7) into line 11
 
-17. 10² = 80 + (√20)² − 2·(√80·√20·cos(∠ACB))
-    substitute (√80)² = 80 (real arithmetic) into line 16
+13. 10² = 80 + (√20)² − 2·(√80·√20·cos(∠ACB))
+    substitute (√80)² = 80 (real arithmetic) into line 12
 
-18. 10² = 80 + 20 − 2·(√80·√20·cos(∠ACB))
-    substitute (√20)² = 20 (real arithmetic) into line 17
+14. 10² = 80 + 20 − 2·(√80·√20·cos(∠ACB))
+    substitute (√20)² = 20 (real arithmetic) into line 13
 
-19. 10² = 80 + 20 − 2·(40·cos(∠ACB))
-    substitute √80·√20 = 40 (real arithmetic) into line 18
+15. 10² = 80 + 20 − 2·(40·cos(∠ACB))
+    substitute √80·√20 = 40 (real arithmetic) into line 14
 
-20. cos(∠ACB) = 0
-    algebra, from 19
+16. cos(∠ACB) = 0
+    algebra, from 15
     requires ∠ACB ∈ ℝ: mun:angle-real, from 2, 4
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
-21. ∠ACB = 90°
-    mun:right-angle-by-cosine, from 2, 4, 20
+17. ∠ACB = 90°
+    mun:right-angle-by-cosine, from 2, 4, 16
 
-22. |OC| = 5. ∠ACB = 90°.
-    join 6, 21
+18. |OC| = 5. ∠ACB = 90°.
+    join 5, 17

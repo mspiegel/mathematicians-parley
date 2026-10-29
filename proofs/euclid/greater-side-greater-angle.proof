@@ -49,78 +49,77 @@ theorem greater-side-greater-angle
 8.  |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))
     thm:law-of-cosines P := A, Q := B, R := C, from 1
 
-9.  ∠ABC = ∠CBA
-    mun:angle-symmetric P := A, Q := B, R := C, from H4
+9.  |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠CBA))
+    substitute
+      |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))      8
+      |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠CBA))      mun:angle-symmetric P := A, Q := B, R := C, from H4
 
-10. |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠CBA))
-    substitute ∠ABC = ∠CBA (line 9) into line 8
-
-11. 2·|BC|·|CA|·|AB|·cos(∠CAB) = |BC|·(|CA|² + |AB|² − |BC|²)
+10. 2·|BC|·|CA|·|AB|·cos(∠CAB) = |BC|·(|CA|² + |AB|² − |BC|²)
     algebra, from 7
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
 
-12. 2·|BC|·|CA|·|AB|·cos(∠CBA) = |CA|·(|AB|² + |BC|² − |CA|²)
-    algebra, from 10
+11. 2·|BC|·|CA|·|AB|·cos(∠CBA) = |CA|·(|AB|² + |BC|² − |CA|²)
+    algebra, from 9
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6
 
-13. |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) = (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2
-    algebra, from 11, 12
+12. |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) = (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2
+    algebra, from 10, 11
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6
 
-14. |CA| − |BC| > 0
+13. |CA| − |BC| > 0
     inequalities
       |CA| > |BC|              H5
       |CA| − |BC| > 0          adding −|BC|
 
-15. |AB| < |AC| + |CB|
+14. |AB| < |AC| + |CB|
     thm:triangle-inequality-strict P := A, Q := C, R := B, from H4
 
-16. |CA| + |BC| > 0
+15. |CA| + |BC| > 0
     inequalities, from 3, 4
 
-17. |AB|² < (|CA| + |BC|)²
-    mun:square-less x := |AB|, y := |CA| + |BC|, from 15
+16. |AB|² < (|CA| + |BC|)²
+    mun:square-less x := |AB|, y := |CA| + |BC|, from 14
     requires |AB| ≥ 0: weakening, from 2
-    requires |CA| + |BC| ≥ 0: weakening, from 16
+    requires |CA| + |BC| ≥ 0: weakening, from 15
 
-18. 0 < (|CA| + |BC|)² − |AB|²
+17. 0 < (|CA| + |BC|)² − |AB|²
     inequalities
-      |AB|² < (|CA| + |BC|)²              17
+      |AB|² < (|CA| + |BC|)²              16
       0 < (|CA| + |BC|)² − |AB|²          adding −|AB|²
 
-19. (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²) > 0
-    mun:product-positive x := |CA| − |BC|, y := (|CA| + |BC|)² − |AB|², from 14, 18
+18. (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²) > 0
+    mun:product-positive x := |CA| − |BC|, y := (|CA| + |BC|)² − |AB|², from 13, 17
 
-20. (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2 > 0
+19. (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2 > 0
     inequalities
-      (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²) > 0          19
+      (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²) > 0          18
       (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2 > 0        multiplying by 1/2
 
-21. |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) > 0
+20. |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) > 0
     calculation
-      |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) = (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2     13
-                                             > 0                                           20
+      |BC|·|CA|·|AB|·(cos(∠CAB) − cos(∠CBA)) = (|CA| − |BC|)·((|CA| + |BC|)² − |AB|²)/2     12
+                                             > 0                                           19
 
-22. |BC|·|CA| > 0
+21. |BC|·|CA| > 0
     mun:product-positive x := |BC|, y := |CA|, from 3, 4
 
-23. |BC|·|CA|·|AB| > 0
-    mun:product-positive x := |BC|·|CA|, y := |AB|, from 2, 22
+22. |BC|·|CA|·|AB| > 0
+    mun:product-positive x := |BC|·|CA|, y := |AB|, from 2, 21
 
-24. cos(∠CAB) − cos(∠CBA) > 0
-    mun:factor-positive a := |BC|·|CA|·|AB|, b := cos(∠CAB) − cos(∠CBA), from 21
-    requires |BC|·|CA|·|AB| ≥ 0: weakening, from 23
+23. cos(∠CAB) − cos(∠CBA) > 0
+    mun:factor-positive a := |BC|·|CA|·|AB|, b := cos(∠CAB) − cos(∠CBA), from 20
+    requires |BC|·|CA|·|AB| ≥ 0: weakening, from 22
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6
 
-25. cos(∠CBA) < cos(∠CAB)
+24. cos(∠CBA) < cos(∠CAB)
     inequalities
-      cos(∠CAB) − cos(∠CBA) > 0         24
+      cos(∠CAB) − cos(∠CBA) > 0         23
       0 < cos(∠CAB) − cos(∠CBA)         restate
       cos(∠CBA) < cos(∠CAB)             adding cos(∠CBA)
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 5
     requires cos(∠CBA) ∈ ℝ: mun:cos-real a := ∠CBA, from 6
 
-26. ∠CBA > ∠CAB
-    mun:angle-order-by-cosine P := C, Q := A, R := B, P′ := C, Q′ := B, R′ := A, from 1, 25
+25. ∠CBA > ∠CAB
+    mun:angle-order-by-cosine P := C, Q := A, R := B, P′ := C, Q′ := B, R′ := A, from 1, 24

@@ -16,29 +16,26 @@ theorem hypotenuse-longest
   assume ∠ACB = 90°                                                   (H5)
   then |AC| < |AB|
 
-1.  |AB|² = |AC|² + |BC|²
-    thm:pythagoras, from H4, H5
-
-2.  |BC| > 0
+1.  |BC| > 0
     axi:distance-positive P := B, Q := C
     requires B ≠ C: def:triangle, from H4
 
-3.  |BC|² > 0
+2.  |BC|² > 0
     mun:square-positive x := |BC|
-    requires |BC| ≠ 0: weakening, from 2
+    requires |BC| ≠ 0: weakening, from 1
 
-4.  |AC|² < |AC|² + |BC|²
+3.  |AC|² < |AC|² + |BC|²
     inequalities
-      |BC|² > 0                    3
+      |BC|² > 0                    2
       0 < |BC|²                    restate
       |AC|² < |AC|² + |BC|²        adding |AC|²
 
-5.  |AC|² < |AB|²
+4.  |AC|² < |AB|²
     calculation
-      |AC|² < |AC|² + |BC|²        4
-            = |AB|²                1
+      |AC|² < |AC|² + |BC|²        3
+            = |AB|²                thm:pythagoras, from H4, H5
 
-6.  |AC| < |AB|
-    mun:square-less x := |AC|, y := |AB|, from 5
+5.  |AC| < |AB|
+    mun:square-less x := |AC|, y := |AB|, from 4
     requires |AC| ≥ 0: mun:distance-nonneg P := A, Q := C
     requires |AB| ≥ 0: mun:distance-nonneg P := A, Q := B
