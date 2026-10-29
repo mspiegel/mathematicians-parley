@@ -1011,8 +1011,8 @@ fn cases() -> Vec<Case> {
             "a divisibility of numerals that does not hold",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 3 divides 10 − 2: arithmetic\n".to_string(),
             )],
             "the requires line 3 divides 10 − 2 of step 1.3 is arithmetic, which is false",
         ),
@@ -1046,10 +1046,10 @@ fn cases() -> Vec<Case> {
             "a membership of a typed value citing nothing",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("                    requires d(n) ∈ ℝ: membership, from 16.22\n\n           16.25.4.".to_string()),
-                "                    requires d(n) ∈ ℝ: membership\n\n           16.25.4.".to_string(),
+                Some("                    requires d(n) ∈ ℝ: membership, from 16.21\n\n           16.24.4.".to_string()),
+                "                    requires d(n) ∈ ℝ: membership\n\n           16.24.4.".to_string(),
             )],
-            "d(n) ∈ ℝ is not built from what step 16.25.3 cites: nothing says d(n) ∈ ℝ, which it needs",
+            "d(n) ∈ ℝ is not built from what step 16.24.3 cites: nothing says d(n) ∈ ℝ, which it needs",
         ),
         // Every atom an inequalities step combines is a real number by a
         // line it names: |c| is, by line 1, which line 2 does not say.
@@ -1952,8 +1952,8 @@ fn cases() -> Vec<Case> {
             "claim a false numeral fact with a number past one digit",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 10 − 1 = 3·4: arithmetic\n".to_string(),
             )],
             "the requires line 10 − 1 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
@@ -1961,8 +1961,8 @@ fn cases() -> Vec<Case> {
             "claim a false numeral fact of digits",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 9 = 3·4: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 9 = 3·4: arithmetic\n".to_string(),
             )],
             "the requires line 9 = 3·4 of step 1.3 is arithmetic, which is false",
         ),
@@ -1970,8 +1970,8 @@ fn cases() -> Vec<Case> {
             "divide by zero in a numeral fact",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 3/0 ∈ ℝ: arithmetic\n".to_string(),
             )],
             "the requires line 3/0 ∈ ℝ of step 1.3 is arithmetic, which divides by zero",
         ),
@@ -1979,8 +1979,8 @@ fn cases() -> Vec<Case> {
             "state a numeral too large to work out",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 9^(9^9) ∈ ℕ: arithmetic\n".to_string(),
             )],
             "the requires line 9^(9^9) ∈ ℕ of step 1.3 is arithmetic, which is too large to work out",
         ),
@@ -1988,8 +1988,8 @@ fn cases() -> Vec<Case> {
             "raise a numeral to a power that is not whole",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 4^(1/2) ∈ ℕ: arithmetic\n".to_string(),
             )],
             "4^(1/2) ∈ ℕ: 4^(1/2) has an exponent that is not whole, and arithmetic takes a power only with a whole one",
         ),
@@ -2002,16 +2002,16 @@ fn cases() -> Vec<Case> {
             )],
             "step 1 claims 2³ = 9, which is false",
         ),
-        // A substitution by a false fact of numerals, 23 − 1 = 21, which the
+        // A substitution by a false fact of numerals, 1 + 1 = 3, which the
         // checker works out as `arithmetic` does.
         case(
             "substitute by a false fact of numerals",
             vec![edit(
-                "proofs/wiedijk/birthday.proof",
-                Some("substitute 23 − 1 = 22 (arithmetic)".to_string()),
-                "substitute 23 − 1 = 21 (arithmetic)".to_string(),
+                "proofs/wiedijk/wilson.proof",
+                Some("    substitute 1 + 1 = 2 (arithmetic) into line 2\n".to_string()),
+                "    substitute 1 + 1 = 3 (arithmetic) into line 2\n".to_string(),
             )],
-            "step 12 takes 23 − 1 = 21 from arithmetic, which is false",
+            "step 3 takes 1 + 1 = 3 from arithmetic, which is false",
         ),
         // g(a) is the rule at a only where a is in g's domain [a, b]. That
         // is no number system, so no introducing line says it once, and
@@ -2344,8 +2344,8 @@ fn cases() -> Vec<Case> {
             "a congruence link that says no modulus",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("                       ≡ 1·10 (mod 3)     1.3".to_string()),
-                "                       ≡ 1·10     1.3".to_string(),
+                Some("                       ≡ 1·10 (mod 3)     thm:congruent-times".to_string()),
+                "                       ≡ 1·10     thm:congruent-times".to_string(),
             )],
             "says ≡ and not what modulo",
         ),
@@ -2384,8 +2384,8 @@ fn cases() -> Vec<Case> {
             "ask arithmetic to decide a word its record does not name it for",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires 3 is prime: arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires 3 is prime: arithmetic\n".to_string(),
             )],
             "is a word prime defines, and arithmetic decides a word only where its record says so",
         ),
@@ -2926,10 +2926,10 @@ fn cases() -> Vec<Case> {
             "a requires line from a function's type naming the let of its point",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1\n".to_string()),
-                "          membership, from 16.4, 16.5\n          requires d(n) ∈ ℤ: from H1, K6\n".to_string(),
+                Some("          membership, from 16.3, 16.4\n          requires d(n) ∈ ℤ: from H1\n".to_string()),
+                "          membership, from 16.3, 16.4\n          requires d(n) ∈ ℤ: from H1, K6\n".to_string(),
             )],
-            "the requires line of step 16.6 cites K6, and d(n) ∈ ℤ needs nothing it says",
+            "the requires line of step 16.5 cites K6, and d(n) ∈ ℤ needs nothing it says",
         ),
         case(
             "an instantiation naming the let of the letter it puts in",
@@ -3002,11 +3002,11 @@ fn cases() -> Vec<Case> {
         case(
             "substitute with no line, claiming more than the equation puts in",
             vec![edit(
-                "proofs/wiedijk/leibniz.proof",
-                Some("    1.2.  x^(2(n + 1)) = x^(2n + 2)\n".to_string()),
-                "    1.2.  x^(2(n + 1)) = x^(2n + 3)\n".to_string(),
+                "proofs/wiedijk/liouville.proof",
+                Some("10. |q^N|·|F(p/q)| = q^N·|F(p/q)|\n".to_string()),
+                "10. |q^N|·|F(p/q)| = q^(N + 1)·|F(p/q)|\n".to_string(),
             )],
-            "step 1.2 claims x^(2 · (n + 1)) = x^(2 · n + 3), which putting one side of 2 · (n + 1) = 2 · n + 2 for the other does not make",
+            "step 10 claims |q^N| · |F(p / q)| = q^(N + 1) · |F(p / q)|, which putting one side of |q^N| = q^N for the other does not make",
         ),
         case(
             "cite a line that comes after the step",
@@ -3187,15 +3187,15 @@ fn cases() -> Vec<Case> {
             "the requires line of step 2 needs something that def:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
-        // `mod-natural` asks b ∈ ℕ, and without 4.5.9, which says b(k) ∈ ℕ,
+        // `mod-natural` asks b ∈ ℕ, and without 4.3.6, which says b(k) ∈ ℕ,
         // the line says what is missing rather than that the item concludes
         // something else.
         case(
             "a requires line whose item's hypothesis nothing supplies",
             vec![
-                edit("proofs/wiedijk/euclid.proof", Some("requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.9, 4.5.10\n".to_string()), "requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.10\n".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.3.6, 4.3.7\n".to_string()), "requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.3.7\n".to_string()),
             ],
-            "the requires line of step 4.5.12 cites mun:mod-natural, which asks for",
+            "the requires line of step 4.3.8 cites mun:mod-natural, which asks for",
         ),
         // A define of two arguments gives each one's domain in the order
         // the brackets name them (`SYNTAX.md`).
@@ -3410,9 +3410,9 @@ fn cases() -> Vec<Case> {
         case(
             "a proof block that stops short of its claim",
             vec![
-                edit("proofs/wiedijk/reals-uncountable.proof", Some("    4.7.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.2, 4.3, 4.6".to_string()), "    4.7.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.2, 4.3".to_string()),
+                edit("proofs/wiedijk/reals-uncountable.proof", Some("    4.6.  L(k) ∈ ℝ. U(k) ∈ ℝ. L(k) ≤ U(k).\n          join 4.2, 4.3, 4.5".to_string()), "    4.6.  L(k) ∈ ℝ. U(k) ∈ ℝ.\n          join 4.2, 4.3".to_string()),
             ],
-            "step 4.7 ends the proof block of step 4, which owes",
+            "step 4.6 ends the proof block of step 4, which owes",
         ),
         // What an obtain claims is the "there is" it obtains from, the line
         // it names or what the item gives (`SYNTAX.md`), and no more.
@@ -4416,8 +4416,8 @@ fn cases() -> Vec<Case> {
             "ask real arithmetic to decide a word",
             vec![edit(
                 "proofs/wiedijk/divisibility-by-three.proof",
-                Some("          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n".to_string()),
-                "          thm:congruent-times a := 10^m, b := 1, c := 10, n := 3, from IH\n          requires √9 is prime: real arithmetic\n".to_string(),
+                Some("                       ≡ 1 (mod 3)        arithmetic\n".to_string()),
+                "                       ≡ 1 (mod 3)        arithmetic\n          requires √9 is prime: real arithmetic\n".to_string(),
             )],
             "is a word prime defines, and real arithmetic decides no word",
         ),
@@ -4447,7 +4447,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/euclid.proof", Some("assume b(N) = 0, which is the claim".to_string()), "assume b(N) = 1, which is the claim".to_string()),
             ],
-            "case C7 says it is the claim of step 10, and it is not",
+            "case C7 says it is the claim of step 9, and it is not",
         ),
         case(
             "say a case with steps is the claim",
@@ -5027,7 +5027,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite an equation for a link that substitutes it inside a term",
             vec![
-                edit("proofs/wiedijk/euclid.proof", Some("            gcd(a(0), b(0)) = gcd(M, b(0))     4.1".to_string()), "            gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("            gcd(a(0), b(0)) = gcd(M, b(0))     substitute line 1".to_string()), "            gcd(a(0), b(0)) = gcd(M, b(0))     1".to_string()),
             ],
             "cites 1, which does not say gcd(a(0), b(0)) = gcd(M, b(0))",
         ),
