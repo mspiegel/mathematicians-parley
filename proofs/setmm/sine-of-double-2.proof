@@ -10,22 +10,13 @@ theorem sine-of-double
   let A ∈ ℂ                                                           (H1)
   then sin(2·A) = 2·sin(A)·cos(A)
 
-1.  sin(A + A) = sin(A)·cos(A) + cos(A)·sin(A)
-    thm:sin-add a := A, b := A
-
-2.  2·A = A + A
+1.  2·A = A + A
     algebra
 
-3.  sin(2·A) = sin(A + A)
-    substitute 2·A = A + A (line 2)
-
-4.  sin(A)·cos(A) + cos(A)·sin(A) = 2·sin(A)·cos(A)
-    algebra
+2.  sin(2·A) = 2·sin(A)·cos(A)
+    calculation
+      sin(2·A) = sin(A + A)                            substitute line 1
+               = sin(A)·cos(A) + cos(A)·sin(A)         thm:sin-add a := A, b := A
+               = 2·sin(A)·cos(A)                       algebra
     requires sin(A) ∈ ℂ: mun:sin-complex a := A
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
-
-5.  sin(2·A) = 2·sin(A)·cos(A)
-    calculation
-      sin(2·A) = sin(A + A)                            3
-               = sin(A)·cos(A) + cos(A)·sin(A)         1
-               = 2·sin(A)·cos(A)                       4

@@ -68,12 +68,11 @@ theorem limit-constant-multiple
           5.6.3.  |C·(x(n) − L)| < ε
                   thm:scaled-small u := x(n) − L, from A1, 5.6.1, 5.6.2
 
-          5.6.4.  C·x(n) − C·L = C·(x(n) − L)
-                  algebra
+          5.6.4.  |C·x(n) − C·L| < ε
+                  substitute
+                    |C·(x(n) − L)| < ε      5.6.3
+                    |C·x(n) − C·L| < ε      algebra
                   requires x(n) ∈ ℝ: from H1
-
-          5.6.5.  |C·x(n) − C·L| < ε
-                  substitute C·x(n) − C·L = C·(x(n) − L) (line 5.6.4) into line 5.6.3
 
     5.7.  There exists N ∈ ℕ such that |C·x(n) − C·L| < ε for all n ≥ N.
           exhibit, from 5.6

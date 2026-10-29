@@ -33,12 +33,11 @@ theorem limit-add-constant
           1.4.1.  |x(n) − L| < ε
                   instantiate n := n in line 1.3, from A2
 
-          1.4.2.  x(n) − L = x(n) + C − (L + C)
-                  algebra
+          1.4.2.  |x(n) + C − (L + C)| < ε
+                  substitute
+                    |x(n) − L| < ε                1.4.1
+                    |x(n) + C − (L + C)| < ε      algebra
                   requires x(n) ∈ ℝ: from H1
-
-          1.4.3.  |x(n) + C − (L + C)| < ε
-                  substitute x(n) − L = x(n) + C − (L + C) (line 1.4.2) into line 1.4.1
 
     1.5.  There exists N ∈ ℕ such that |x(n) + C − (L + C)| < ε for all n ≥ N.
           exhibit, from 1.4

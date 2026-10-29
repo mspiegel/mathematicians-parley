@@ -21,16 +21,15 @@ theorem prime-divides-predecessor
     2.1.  P divides A − (A − 1)
           mun:divides-difference d := P, a := A, b := A − 1, from H4, S
 
-    2.2.  A − (A − 1) = 1
-          algebra
+    2.2.  P divides 1
+          substitute
+            P divides A − (A − 1)      2.1
+            P divides 1                algebra
 
-    2.3.  P divides 1
-          substitute A − (A − 1) = 1 (line 2.2) into line 2.1
+    2.3.  P = 1
+          mun:divides-one d := P, from 2.2
 
-    2.4.  P = 1
-          mun:divides-one d := P, from 2.3
-
-    2.5.  P ≠ 1
-          inequalities, contradicting 2.4
+    2.4.  P ≠ 1
+          inequalities, contradicting 2.3
             P > 1            1
             P ≠ 1            weakening

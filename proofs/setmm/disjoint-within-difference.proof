@@ -55,13 +55,7 @@ theorem disjoint-within-difference
           1.4.3.  s ∉ B
                   restate 1.4.2
 
-    1.5.  B ∩ A = ∅
-          mun:disjoint-empty Y := B, Z := A, from 1.4
-
-    1.6.  A ∩ B = B ∩ A
-          mun:intersection-commutes Y := A, Z := B
-
-    1.7.  A ∩ B = ∅
+    1.5.  A ∩ B = ∅
           calculation
-            A ∩ B = B ∩ A      1.6
-                  = ∅          1.5
+            A ∩ B = B ∩ A      mun:intersection-commutes Y := A, Z := B
+                  = ∅          mun:disjoint-empty Y := B, Z := A, from 1.4

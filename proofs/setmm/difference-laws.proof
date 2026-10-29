@@ -119,20 +119,11 @@ theorem difference-then-union
   let B be a set                                                      (H2)
   then (A ∖ B) ∪ B = A ∪ B
 
-1.  (A ∖ B) ∪ B = B ∪ (A ∖ B)
-    mun:union-commutes Y := A ∖ B, Z := B
-
-2.  B ∪ (A ∖ B) = B ∪ A
-    mun:union-difference Y := B, Z := A
-
-3.  B ∪ A = A ∪ B
-    mun:union-commutes Y := B, Z := A
-
-4.  (A ∖ B) ∪ B = A ∪ B
+1.  (A ∖ B) ∪ B = A ∪ B
     calculation
-      (A ∖ B) ∪ B = B ∪ (A ∖ B)    1
-                  = B ∪ A          2
-                  = A ∪ B          3
+      (A ∖ B) ∪ B = B ∪ (A ∖ B)    mun:union-commutes Y := A ∖ B, Z := B
+                  = B ∪ A          mun:union-difference Y := B, Z := A
+                  = A ∪ B          mun:union-commutes Y := B, Z := A
 
 
 theorem split-by-membership

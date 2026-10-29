@@ -11,16 +11,10 @@ theorem divides-times-common-factor
 1.  j ∈ ℤ. N = M·j.
     obtain j: def:divides d := M, n := N, from H4
 
-2.  N·K = M·j·K
-    substitute N = M·j (line 1)
-
-3.  M·j·K = (M·K)·j
-    algebra
-
-4.  N·K = (M·K)·j
+2.  N·K = (M·K)·j
     calculation
-      N·K = M·j·K       2
-          = (M·K)·j     3
+      N·K = M·j·K       substitute line 1
+          = (M·K)·j     algebra
 
-5.  M·K divides N·K
-    def:divides d := M·K, n := N·K, from 4
+3.  M·K divides N·K
+    def:divides d := M·K, n := N·K, from 2

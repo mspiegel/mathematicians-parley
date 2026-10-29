@@ -14,30 +14,20 @@ theorem gcd-add-multiple
 1.  gcd((N + K·M) mod M, M) = gcd(N + K·M, M)
     thm:gcd-mod a := N + K·M, b := M
 
-2.  N + K·M = K·M + N
-    algebra
-
-3.  (K·M + N) mod M = N mod M
+2.  (K·M + N) mod M = N mod M
     mun:mod-multiple r := N, m := M, q := K
 
-4.  (N + K·M) mod M = N mod M
-    substitute K·M + N = N + K·M (line 2) into line 3
+3.  (N + K·M) mod M = N mod M
+    substitute
+      (K·M + N) mod M = N mod M      2
+      (N + K·M) mod M = N mod M      algebra
 
-5.  gcd(N mod M, M) = gcd(N + K·M, M)
-    substitute (N + K·M) mod M = N mod M (line 4) into line 1
+4.  gcd(N mod M, M) = gcd(N + K·M, M)
+    substitute (N + K·M) mod M = N mod M (line 3) into line 1
 
-6.  gcd(N mod M, M) = gcd(N, M)
-    thm:gcd-mod a := N, b := M
-
-7.  gcd(N, M) = gcd(M, N)
-    mun:gcd-commutes a := N, b := M
-
-8.  gcd(N + K·M, M) = gcd(M, N + K·M)
-    mun:gcd-commutes a := N + K·M, b := M
-
-9.  gcd(M, N) = gcd(M, N + K·M)
+5.  gcd(M, N) = gcd(M, N + K·M)
     calculation
-      gcd(M, N) = gcd(N, M)                7
-                = gcd(N mod M, M)          6
-                = gcd(N + K·M, M)          5
-                = gcd(M, N + K·M)          8
+      gcd(M, N) = gcd(N, M)                mun:gcd-commutes a := N, b := M
+                = gcd(N mod M, M)          thm:gcd-mod a := N, b := M
+                = gcd(N + K·M, M)          4
+                = gcd(M, N + K·M)          mun:gcd-commutes a := N + K·M, b := M

@@ -80,20 +80,18 @@ theorem a-over-n-tends-to-zero
                     1/n > 0          6.4.3
                     1/n ≥ 0          weakening
 
-          6.4.5.  |1/n| = 1/n
-                  def:abs x := 1/n, from 6.4.4
+          6.4.5.  |1/n| < ε/(2·(|A| + 1))
+                  substitute
+                    1/n < ε/(2·(|A| + 1))        6.4.2
+                    |1/n| < ε/(2·(|A| + 1))      def:abs x := 1/n, from 6.4.4
 
-          6.4.6.  |1/n| < ε/(2·(|A| + 1))
-                  substitute |1/n| = 1/n (line 6.4.5) into line 6.4.2
+          6.4.6.  |A·(1/n)| < ε
+                  thm:scaled-small C := A, u := 1/n, from A1, 6.4.5
 
-          6.4.7.  |A·(1/n)| < ε
-                  thm:scaled-small C := A, u := 1/n, from A1, 6.4.6
-
-          6.4.8.  A/n − 0 = A·(1/n)
-                  algebra
-
-          6.4.9.  |A/n − 0| < ε
-                  substitute A/n − 0 = A·(1/n) (line 6.4.8) into line 6.4.7
+          6.4.7.  |A/n − 0| < ε
+                  substitute
+                    |A·(1/n)| < ε      6.4.6
+                    |A/n − 0| < ε      algebra
 
     6.5.  There exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
           exhibit, from 6.4

@@ -11,16 +11,10 @@ theorem scale-divisibility
 1.  c ∈ ℤ. N = M·c.
     obtain c: def:divides, from H4
 
-2.  K·N = K·(M·c)
-    substitute N = M·c (line 1)
-
-3.  K·(M·c) = (K·M)·c
-    algebra
-
-4.  K·N = (K·M)·c
+2.  K·N = (K·M)·c
     calculation
-      K·N = K·(M·c)       2
-          = (K·M)·c       3
+      K·N = K·(M·c)       substitute line 1
+          = (K·M)·c       algebra
 
-5.  K·M divides K·N
-    def:divides d := K·M, n := K·N, from 4
+3.  K·M divides K·N
+    def:divides d := K·M, n := K·N, from 2

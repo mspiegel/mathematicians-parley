@@ -43,27 +43,18 @@ theorem floor-integer-add
   let A ∈ ℝ                                                           (H2)
   then ⌊N + A⌋ = N + ⌊A⌋
 
-1.  ⌊A + N⌋ = ⌊A⌋ + N
-    thm:floor-add-integer
-
-2.  ⌊A⌋ ∈ ℤ
+1.  ⌊A⌋ ∈ ℤ
     mun:floor-integer x := A
 
-3.  N + A = A + N
+2.  N + A = A + N
     algebra
 
-4.  ⌊N + A⌋ = ⌊A + N⌋
-    substitute N + A = A + N (line 3)
-
-5.  ⌊A⌋ + N = N + ⌊A⌋
-    algebra
-    requires ⌊A⌋ ∈ ℝ: from 2
-
-6.  ⌊N + A⌋ = N + ⌊A⌋
+3.  ⌊N + A⌋ = N + ⌊A⌋
     calculation
-      ⌊N + A⌋ = ⌊A + N⌋       4
-              = ⌊A⌋ + N       1
-              = N + ⌊A⌋       5
+      ⌊N + A⌋ = ⌊A + N⌋       substitute line 2
+              = ⌊A⌋ + N       thm:floor-add-integer
+              = N + ⌊A⌋       algebra
+    requires ⌊A⌋ ∈ ℝ: from 1
 
 
 theorem floor-of-integer

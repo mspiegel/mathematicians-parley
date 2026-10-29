@@ -10,24 +10,15 @@ theorem multiple-has-no-remainder
   assume M > 0                                                        (H3)
   then (A·M) mod M = 0
 
-1.  (0 + M·A) mod M = 0 mod M
-    thm:remainder-shifts X := 0, K := A, from H3
-
-2.  0 mod M = 0
-    thm:remainder-of-small A := 0, B := M, from H3
-    requires 0 ≤ 0: arithmetic
-
-3.  A·M = M·A
+1.  A·M = M·A
     algebra
 
-4.  (A·M) mod M = (M·A) mod M
-    substitute A·M = M·A (line 3)
-
-5.  (A·M) mod M = 0
+2.  (A·M) mod M = 0
     calculation
-      (A·M) mod M = (M·A) mod M       4
-                  = 0 mod M           1
-                  = 0                 2
+      (A·M) mod M = (M·A) mod M       substitute line 1
+                  = 0 mod M           thm:remainder-shifts X := 0, K := A, from H3
+                  = 0                 thm:remainder-of-small A := 0, B := M, from H3
+    requires 0 ≤ 0: arithmetic
 
 
 theorem remainder-of-sum
@@ -53,16 +44,10 @@ let q = ⌊A/M⌋, an integer                                             (D1)
 3.  (A mod M) + B = A + B + M·(−q)
     algebra, from 2
 
-4.  (A + B + M·(−q)) mod M = (A + B) mod M
-    thm:remainder-shifts X := A + B, K := −q, from H4
-
-5.  ((A mod M) + B) mod M = (A + B + M·(−q)) mod M
-    substitute (A mod M) + B = A + B + M·(−q) (line 3)
-
-6.  ((A mod M) + B) mod M = (A + B) mod M
+4.  ((A mod M) + B) mod M = (A + B) mod M
     calculation
-      ((A mod M) + B) mod M = (A + B + M·(−q)) mod M      5
-                            = (A + B) mod M               4
+      ((A mod M) + B) mod M = (A + B + M·(−q)) mod M      substitute line 3
+                            = (A + B) mod M               thm:remainder-shifts X := A + B, K := −q, from H4
 
 
 theorem remainder-of-product
@@ -88,13 +73,7 @@ let q = ⌊A/M⌋, an integer                                             (D1)
 3.  (A mod M)·B = A·B + M·(−(q·B))
     algebra, from 2
 
-4.  (A·B + M·(−(q·B))) mod M = (A·B) mod M
-    thm:remainder-shifts X := A·B, K := −(q·B), from H4
-
-5.  ((A mod M)·B) mod M = (A·B + M·(−(q·B))) mod M
-    substitute (A mod M)·B = A·B + M·(−(q·B)) (line 3)
-
-6.  ((A mod M)·B) mod M = (A·B) mod M
+4.  ((A mod M)·B) mod M = (A·B) mod M
     calculation
-      ((A mod M)·B) mod M = (A·B + M·(−(q·B))) mod M      5
-                          = (A·B) mod M                   4
+      ((A mod M)·B) mod M = (A·B + M·(−(q·B))) mod M      substitute line 3
+                          = (A·B) mod M                   thm:remainder-shifts X := A·B, K := −(q·B), from H4

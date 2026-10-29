@@ -24,43 +24,38 @@ theorem nicomachus-row
     2.1.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = Σ(k = 1 to N) (N² − N) + Σ(k = 1 to N) (2k − 1)
           mun:sum-add a := 1, b := N
 
-    2.2.  Σ(k = 1 to N) (N² − N) = (N − 1 + 1)·(N² − N)
-          mun:sum-constant a := 1, b := N, c := N² − N
+    2.2.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + Σ(k = 1 to N) (2k − 1)
+          substitute
+            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = Σ(k = 1 to N) (N² − N) + Σ(k = 1 to N) (2k − 1)      2.1
+            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + Σ(k = 1 to N) (2k − 1)        mun:sum-constant a := 1, b := N, c := N² − N
           requires 1 ≤ N: from C1
 
-    2.3.  Σ(k = 1 to N) (2k − 1) = N²
-          thm:odd-numbers-sum
+    2.3.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + N²
+          substitute
+            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + Σ(k = 1 to N) (2k − 1)      2.2
+            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + N²                          thm:odd-numbers-sum
 
-    2.4.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + Σ(k = 1 to N) (2k − 1)
-          substitute Σ(k = 1 to N) (N² − N) = (N − 1 + 1)·(N² − N) (line 2.2) into line 2.1
-
-    2.5.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + N²
-          substitute Σ(k = 1 to N) (2k − 1) = N² (line 2.3) into line 2.4
-
-    2.6.  (N − 1 + 1)·(N² − N) + N² = N^3
-          algebra
-
-    2.7.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
+    2.4.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
           calculation
-            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + N²    2.5
-                                                = N^3                          2.6
+            Σ(k = 1 to N) ((N² − N) + (2k − 1)) = (N − 1 + 1)·(N² − N) + N²    2.3
+                                                = N^3                          algebra
 
     case
     assume N = 0                                                      (C2)
 
-    2.8.  Σ(k = 0 to 0) ((0² − 0) + (2k − 1)) = (0² − 0) + (2·0 − 1)
+    2.5.  Σ(k = 0 to 0) ((0² − 0) + (2k − 1)) = (0² − 0) + (2·0 − 1)
           mun:sum-single a := 0
 
-    2.9.  Σ(k = 0 to 0) ((0² − 0) + (2k − 1)) = ((0² − 0) + (2·0 − 1)) + Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1))
+    2.6.  Σ(k = 0 to 0) ((0² − 0) + (2k − 1)) = ((0² − 0) + (2·0 − 1)) + Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1))
           mun:sum-first n := 0
 
-    2.10. Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1)) = 0
-          algebra, from 2.8, 2.9
+    2.7.  Σ(k = 0 + 1 to 0) ((0² − 0) + (2k − 1)) = 0
+          algebra, from 2.5, 2.6
 
-    2.11. Σ(k = 1 to 0) ((0² − 0) + (2k − 1)) = 0^3
+    2.8.  Σ(k = 1 to 0) ((0² − 0) + (2k − 1)) = 0^3
           calculation
-            Σ(k = 1 to 0) ((0² − 0) + (2k − 1)) = 0       2.10
+            Σ(k = 1 to 0) ((0² − 0) + (2k − 1)) = 0       2.7
                                                 = 0^3     arithmetic
 
-    2.12. Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
-          substitute N = 0 (C2) into line 2.11
+    2.9.  Σ(k = 1 to N) ((N² − N) + (2k − 1)) = N^3
+          substitute N = 0 (C2) into line 2.8

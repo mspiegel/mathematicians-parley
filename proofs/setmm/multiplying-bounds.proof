@@ -34,13 +34,10 @@ theorem multiplying-bounds
 4.  B > 0
     transitivity, from H5, H6
 
-5.  B·C < B·D
-    mun:less-scaled x := C, y := D, c := B, from H8, 4
-
-6.  A·C < B·D
+5.  A·C < B·D
     calculation
       A·C ≤ B·C        3
-          < B·D        5
+          < B·D        mun:less-scaled x := C, y := D, c := B, from H8, 4
 
 
 theorem square-order

@@ -168,13 +168,7 @@ theorem odd-square-over-eight
          reads the odd number with half-index N
   then (M² − 1)/8 = N·(N + 1)/2
 
-1.  (M² − 1)/8 = ((2N + 1)² − 1)/8
-    substitute M = 2N + 1 (D1)
-
-2.  ((2N + 1)² − 1)/8 = N·(N + 1)/2
-    algebra
-
-3.  (M² − 1)/8 = N·(N + 1)/2
+1.  (M² − 1)/8 = N·(N + 1)/2
     calculation
-      (M² − 1)/8 = ((2N + 1)² − 1)/8     1
-                 = N·(N + 1)/2           2
+      (M² − 1)/8 = ((2N + 1)² − 1)/8     substitute D1
+                 = N·(N + 1)/2           algebra

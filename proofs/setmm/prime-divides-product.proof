@@ -41,25 +41,19 @@ theorem prime-divides-product
           case
           assume not (P divides M)                                    (C2)
 
-          2.2.2.  gcd(P, M) = 1
-                  mun:prime-coprime p := P, a := M, from C2, H2
-
-          2.2.3.  gcd(M, P) = gcd(P, M)
-                  mun:gcd-commutes a := M, b := P
-
-          2.2.4.  gcd(M, P) = 1
+          2.2.2.  gcd(M, P) = 1
                   calculation
-                    gcd(M, P) = gcd(P, M)     2.2.3
-                              = 1             2.2.2
+                    gcd(M, P) = gcd(P, M)     mun:gcd-commutes a := M, b := P
+                              = 1             mun:prime-coprime p := P, a := M, from C2, H2
 
-          2.2.5.  P divides N·M
+          2.2.3.  P divides N·M
                   substitute M·N = N·M (line 1) into D1
 
-          2.2.6.  P divides N
-                  thm:coprime-divides x := N, c := M, n := P, from 2.2.4, 2.2.5
+          2.2.4.  P divides N
+                  thm:coprime-divides x := N, c := M, n := P, from 2.2.2, 2.2.3
 
-          2.2.7.  P divides M or P divides N
-                  mun:or-right P := P divides M, Q := P divides N, from 2.2.6
+          2.2.5.  P divides M or P divides N
+                  mun:or-right P := P divides M, Q := P divides N, from 2.2.4
 
     direction
     assume P divides M or P divides N                                 (D2)

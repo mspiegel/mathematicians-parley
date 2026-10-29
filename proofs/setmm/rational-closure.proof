@@ -53,11 +53,10 @@ theorem rational-difference
 1.  A + −B ∈ ℚ
     thm:rational-sum B := −B
 
-2.  A − B = A + −B
-    algebra
-
-3.  A − B ∈ ℚ
-    substitute A − B = A + −B (line 2) into line 1
+2.  A − B ∈ ℚ
+    substitute
+      A + −B ∈ ℚ      1
+      A − B ∈ ℚ       algebra
 
 
 theorem rational-product
@@ -72,26 +71,17 @@ theorem rational-product
 2.  r ∈ ℤ. s ∈ ℕ. B = r/s.
     obtain r, s: def:rational x := B
 
-3.  A·B = (p/q)·B
-    substitute A = p/q (line 1)
-
-4.  (p/q)·B = (p/q)·(r/s)
-    substitute B = r/s (line 2)
-
-5.  (p/q)·(r/s) = (p·r)/(q·s)
-    algebra
-
-6.  A·B = (p·r)/(q·s)
+3.  A·B = (p·r)/(q·s)
     calculation
-      A·B = (p/q)·B            3
-          = (p/q)·(r/s)        4
-          = (p·r)/(q·s)        5
+      A·B = (p/q)·B            substitute line 1
+          = (p/q)·(r/s)        substitute line 2
+          = (p·r)/(q·s)        algebra
 
-7.  There are a ∈ ℤ and b ∈ ℕ with A·B = a/b.
-    exhibit, from 6
+4.  There are a ∈ ℤ and b ∈ ℕ with A·B = a/b.
+    exhibit, from 3
 
-8.  A·B ∈ ℚ
-    def:rational x := A·B, from 7
+5.  A·B ∈ ℚ
+    def:rational x := A·B, from 4
 
 
 theorem rational-reciprocal
@@ -112,16 +102,13 @@ theorem rational-reciprocal
     2.1.  A = 0/q
           substitute p = 0 (S) into line 1
 
-    2.2.  0/q = 0
-          algebra
-
-    2.3.  A = 0
+    2.2.  A = 0
           calculation
             A = 0/q          2.1
-              = 0            2.2
+              = 0            algebra
 
-    2.4.  A ≠ 0
-          restate H2, contradicting 2.3
+    2.3.  A ≠ 0
+          restate H2, contradicting 2.2
 
 3.  p < 0 or p = 0 or 0 < p
     axi:trichotomy x := p
@@ -205,14 +192,13 @@ theorem irrational-sum
     2.1.  (A + B) − B ∈ ℚ
           thm:rational-difference A := A + B, from S
 
-    2.2.  (A + B) − B = A
-          algebra
+    2.2.  A ∈ ℚ
+          substitute
+            (A + B) − B ∈ ℚ      2.1
+            A ∈ ℚ                algebra
 
-    2.3.  A ∈ ℚ
-          substitute (A + B) − B = A (line 2.2) into line 2.1
-
-    2.4.  A ∉ ℚ
-          restate 1, contradicting 2.3
+    2.3.  A ∉ ℚ
+          restate 1, contradicting 2.2
 
 3.  A + B is irrational
     def:irrational x := A + B, from 2

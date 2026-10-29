@@ -11,11 +11,10 @@ theorem distance-triangle
   let C ∈ ℝ                                                           (H3)
   then |A − B| ≤ |A − C| + |C − B|
 
-1.  (A − C) + (C − B) = A − B
-    algebra
-
-2.  |(A − C) + (C − B)| ≤ |A − C| + |C − B|
+1.  |(A − C) + (C − B)| ≤ |A − C| + |C − B|
     thm:triangle-inequality a := A − C, b := C − B
 
-3.  |A − B| ≤ |A − C| + |C − B|
-    substitute (A − C) + (C − B) = A − B (line 1) into line 2
+2.  |A − B| ≤ |A − C| + |C − B|
+    substitute
+      |(A − C) + (C − B)| ≤ |A − C| + |C − B|      1
+      |A − B| ≤ |A − C| + |C − B|                  algebra

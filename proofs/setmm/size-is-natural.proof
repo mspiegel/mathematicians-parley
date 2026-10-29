@@ -21,22 +21,16 @@ theorem size-is-natural
           contradiction
           suppose A = ∅                                               (S1)
 
-          1.1.1.  |A| = |∅|
-                  substitute A = ∅ (S1)
-
-          1.1.2.  |∅| = 0
-                  mun:card-empty
-
-          1.1.3.  |A| = 0
+          1.1.1.  |A| = 0
                   calculation
-                    |A| = |∅|     1.1.1
-                        = 0       1.1.2
+                    |A| = |∅|     substitute S1
+                        = 0       mun:card-empty
 
-          1.1.4.  0 ∉ ℕ
+          1.1.2.  0 ∉ ℕ
                   arithmetic
 
-          1.1.5.  |A| ∉ ℕ
-                  substitute |A| = 0 (line 1.1.3) into line 1.1.4, contradicting C1
+          1.1.3.  |A| ∉ ℕ
+                  substitute |A| = 0 (line 1.1.1) into line 1.1.2, contradicting C1
 
     direction
     assume A ≠ ∅                                                      (C2)

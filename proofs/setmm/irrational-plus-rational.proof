@@ -31,19 +31,16 @@ theorem irrational-plus-rational
     3.3.  A = r/s − p/q
           substitute B = p/q (line 2) into line 3.2
 
-    3.4.  r/s − p/q = (r·q − p·s)/(s·q)
-          algebra
-
-    3.5.  A = (r·q − p·s)/(s·q)
+    3.4.  A = (r·q − p·s)/(s·q)
           calculation
             A = r/s − p/q                 3.3
-              = (r·q − p·s)/(s·q)         3.4
+              = (r·q − p·s)/(s·q)         algebra
 
-    3.6.  There are a ∈ ℤ and b ∈ ℕ with A = a/b.
-          exhibit, from 3.5
+    3.5.  There are a ∈ ℤ and b ∈ ℕ with A = a/b.
+          exhibit, from 3.4
 
-    3.7.  A ∈ ℚ
-          def:rational x := A, from 3.6, contradicting 1
+    3.6.  A ∈ ℚ
+          def:rational x := A, from 3.5, contradicting 1
 
 4.  A + B ∈ ℝ
     mun:real-closure x := A, y := B, from 1

@@ -19,10 +19,7 @@ theorem value-of-inverse
 3.  F⁻¹(C) = x
     substitute C = F(x) (line 1) into line 2
 
-4.  F(F⁻¹(C)) = F(x)
-    substitute F⁻¹(C) = x (line 3)
-
-5.  F(F⁻¹(C)) = C
+4.  F(F⁻¹(C)) = C
     calculation
-      F(F⁻¹(C)) = F(x)    4
+      F(F⁻¹(C)) = F(x)    substitute line 3
                 = C       1

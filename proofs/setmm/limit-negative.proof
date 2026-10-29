@@ -36,23 +36,17 @@ theorem limit-negative
           1.4.2.  x(n) − L ∈ ℝ
                   membership, from H1
 
-          1.4.3.  |−(x(n) − L)| = |x(n) − L|
-                  mun:abs-negative x := x(n) − L, from 1.4.2
-
-          1.4.4.  −x(n) − −L = −(x(n) − L)
+          1.4.3.  −x(n) − −L = −(x(n) − L)
                   algebra
                   requires x(n) ∈ ℝ: from H1
 
-          1.4.5.  |−x(n) − −L| = |−(x(n) − L)|
-                  substitute −x(n) − −L = −(x(n) − L) (line 1.4.4)
-
-          1.4.6.  |−x(n) − −L| = |x(n) − L|
+          1.4.4.  |−x(n) − −L| = |x(n) − L|
                   calculation
-                    |−x(n) − −L| = |−(x(n) − L)|     1.4.5
-                                 = |x(n) − L|        1.4.3
+                    |−x(n) − −L| = |−(x(n) − L)|     substitute line 1.4.3
+                                 = |x(n) − L|        mun:abs-negative x := x(n) − L, from 1.4.2
 
-          1.4.7.  |−x(n) − −L| < ε
-                  substitute |−x(n) − −L| = |x(n) − L| (line 1.4.6) into line 1.4.1
+          1.4.5.  |−x(n) − −L| < ε
+                  substitute |−x(n) − −L| = |x(n) − L| (line 1.4.4) into line 1.4.1
 
     1.5.  There exists N ∈ ℕ such that |−x(n) − −L| < ε for all n ≥ N.
           exhibit, from 1.4

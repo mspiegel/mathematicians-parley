@@ -14,15 +14,14 @@ theorem abs-difference-below
 1.  |(A − B) + B| ≤ |A − B| + |B|
     thm:triangle-inequality a := A − B, b := B
 
-2.  (A − B) + B = A
-    algebra
+2.  |A| ≤ |A − B| + |B|
+    substitute
+      |(A − B) + B| ≤ |A − B| + |B|      1
+      |A| ≤ |A − B| + |B|                algebra
 
-3.  |A| ≤ |A − B| + |B|
-    substitute (A − B) + B = A (line 2) into line 1
-
-4.  |A| − |B| ≤ |A − B|
+3.  |A| − |B| ≤ |A − B|
     inequalities
-      |A| ≤ |A − B| + |B|      3
+      |A| ≤ |A − B| + |B|      2
       |A| − |B| ≤ |A − B|      adding −|B|
     requires |A| ∈ ℝ: mun:abs-real x := A
     requires |B| ∈ ℝ: mun:abs-real x := B
@@ -46,34 +45,33 @@ theorem abs-difference-of-abs
 3.  |−(A − B)| = |A − B|
     mun:abs-negative x := A − B
 
-4.  −(A − B) = B − A
-    algebra
+4.  |B − A| = |A − B|
+    substitute
+      |−(A − B)| = |A − B|      3
+      |B − A| = |A − B|         algebra
 
-5.  |B − A| = |A − B|
-    substitute −(A − B) = B − A (line 4) into line 3
+5.  |B| − |A| ≤ |A − B|
+    substitute |B − A| = |A − B| (line 4) into line 2
 
-6.  |B| − |A| ≤ |A − B|
-    substitute |B − A| = |A − B| (line 5) into line 2
-
-7.  |A| − |B| ∈ ℝ
+6.  |A| − |B| ∈ ℝ
     membership
     requires |A| ∈ ℝ: mun:abs-real x := A
     requires |B| ∈ ℝ: mun:abs-real x := B
 
-8.  |A| − |B| ≥ 0 or |A| − |B| < 0
-    mun:nonneg-or-neg x := |A| − |B|, from 7
+7.  |A| − |B| ≥ 0 or |A| − |B| < 0
+    mun:nonneg-or-neg x := |A| − |B|, from 6
 
-9.  ||A| − |B|| ≤ |A − B|
-    cases, from 8
+8.  ||A| − |B|| ≤ |A − B|
+    cases, from 7
 
     case
     assume |A| − |B| ≥ 0                                              (C1)
 
-    9.1.  ||A| − |B|| = |A| − |B|
-          def:abs x := |A| − |B|, from C1, 7
+    8.1.  ||A| − |B|| = |A| − |B|
+          def:abs x := |A| − |B|, from C1, 6
 
-    9.2.  ||A| − |B|| ≤ |A − B|
-          transitivity, from 9.1, 1
+    8.2.  ||A| − |B|| ≤ |A − B|
+          transitivity, from 8.1, 1
           requires |A| ∈ ℝ: mun:abs-real x := A
           requires |B| ∈ ℝ: mun:abs-real x := B
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
@@ -81,19 +79,19 @@ theorem abs-difference-of-abs
     case
     assume |A| − |B| < 0                                              (C2)
 
-    9.3.  ||A| − |B|| = −(|A| − |B|)
-          def:abs x := |A| − |B|, from C2, 7
+    8.3.  ||A| − |B|| = −(|A| − |B|)
+          def:abs x := |A| − |B|, from C2, 6
 
-    9.4.  −(|A| − |B|) ≤ |A − B|
+    8.4.  −(|A| − |B|) ≤ |A − B|
           inequalities
-            |B| − |A| ≤ |A − B|        6
+            |B| − |A| ≤ |A − B|        5
             −(|A| − |B|) ≤ |A − B|     algebra
           requires |A| ∈ ℝ: mun:abs-real x := A
           requires |B| ∈ ℝ: mun:abs-real x := B
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B
 
-    9.5.  ||A| − |B|| ≤ |A − B|
-          transitivity, from 9.3, 9.4
+    8.5.  ||A| − |B|| ≤ |A − B|
+          transitivity, from 8.3, 8.4
           requires |A| ∈ ℝ: mun:abs-real x := A
           requires |B| ∈ ℝ: mun:abs-real x := B
           requires |A − B| ∈ ℝ: mun:abs-real x := A − B

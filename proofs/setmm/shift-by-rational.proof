@@ -23,47 +23,32 @@ theorem shift-by-rational
     2.2.  A = p/q − B
           algebra, from D1, 2.1
 
-    2.3.  p/q − B = p/q − r/s
-          substitute B = r/s (line 1)
-
-    2.4.  p/q − r/s = (p·s − r·q)/(q·s)
-          algebra
-
-    2.5.  A = (p·s − r·q)/(q·s)
+    2.3.  A = (p·s − r·q)/(q·s)
           calculation
             A = p/q − B                2.2
-              = p/q − r/s              2.3
-              = (p·s − r·q)/(q·s)      2.4
+              = p/q − r/s              substitute line 1
+              = (p·s − r·q)/(q·s)      algebra
 
-    2.6.  A ∈ ℚ
-          def:rational x := A, from 2.5
+    2.4.  A ∈ ℚ
+          def:rational x := A, from 2.3
 
     direction
     assume A ∈ ℚ                                                      (D2)
 
-    2.7.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+    2.5.  p ∈ ℤ. q ∈ ℕ. A = p/q.
           obtain p, q: def:rational x := A, from D2
 
-    2.8.  A ∈ ℂ
+    2.6.  A ∈ ℂ
           membership, from D2
 
-    2.9.  A + B = p/q + B
-          substitute A = p/q (line 2.7)
-
-    2.10. p/q + B = p/q + r/s
-          substitute B = r/s (line 1)
-
-    2.11. p/q + r/s = (p·s + r·q)/(q·s)
-          algebra
-
-    2.12. A + B = (p·s + r·q)/(q·s)
+    2.7.  A + B = (p·s + r·q)/(q·s)
           calculation
-            A + B = p/q + B            2.9
-                  = p/q + r/s          2.10
-                  = (p·s + r·q)/(q·s)  2.11
+            A + B = p/q + B            substitute line 2.5
+                  = p/q + r/s          substitute line 1
+                  = (p·s + r·q)/(q·s)  algebra
 
-    2.13. A + B ∈ ℚ
-          def:rational x := A + B, from 2.12
+    2.8.  A + B ∈ ℚ
+          def:rational x := A + B, from 2.7
 
-    2.14. A ∈ ℂ and A + B ∈ ℚ
-          join 2.8, 2.13
+    2.9.  A ∈ ℂ and A + B ∈ ℚ
+          join 2.6, 2.8

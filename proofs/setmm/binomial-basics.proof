@@ -33,37 +33,25 @@ theorem choose-all
 2.  N ∈ {0, …, N}
     def:range-between k := N, a := 0, b := N, from 1
 
-3.  C(N, N) = N!/((N − N)!·N!)
-    def:C n := N, k := N, from 2
-
-4.  N − N = 0
+3.  N − N = 0
     algebra
 
-5.  (N − N)! = 0!
-    substitute N − N = 0 (line 4)
-
-6.  0! = 1
-    arithmetic
-
-7.  (N − N)! = 1
+4.  (N − N)! = 1
     calculation
-      (N − N)! = 0!    5
-               = 1     6
+      (N − N)! = 0!    substitute line 3
+               = 1     arithmetic
 
-8.  N!/((N − N)!·N!) = N!/(1·N!)
-    substitute (N − N)! = 1 (line 7)
-
-9.  N! ∈ ℕ
+5.  N! ∈ ℕ
     mun:factorial-nat n := N
 
-10. N!/(1·N!) = 1
-    algebra, from 9
+6.  N!/(1·N!) = 1
+    algebra, from 5
 
-11. C(N, N) = 1
+7.  C(N, N) = 1
     calculation
-      C(N, N) = N!/((N − N)!·N!)     3
-              = N!/(1·N!)            8
-              = 1                    10
+      C(N, N) = N!/((N − N)!·N!)     def:C n := N, k := N, from 2
+              = N!/(1·N!)            substitute line 4
+              = 1                    6
 
 theorem choose-one
   note        For N = 0 the lower index 1 is past the end of the row, so
@@ -91,49 +79,37 @@ theorem choose-one
     2.3.  1 ∈ {0, …, N}
           def:range-between k := 1, a := 0, b := N, from 2.2
 
-    2.4.  C(N, 1) = N!/((N − 1)!·1!)
-          def:C n := N, k := 1, from 2.3
-
-    2.5.  1! = 1
+    2.4.  1! = 1
           def:factorial
 
-    2.6.  N!/((N − 1)!·1!) = N!/((N − 1)!·1)
-          substitute 1! = 1 (line 2.5)
-
-    2.7.  N! = (N − 1)!·N
+    2.5.  N! = (N − 1)!·N
           thm:factorial-by-predecessor, from C1
 
-    2.8.  N!/((N − 1)!·1) = (N − 1)!·N/((N − 1)!·1)
-          substitute N! = (N − 1)!·N (line 2.7)
-
-    2.9.  (N − 1)! ∈ ℕ
+    2.6.  (N − 1)! ∈ ℕ
           mun:factorial-nat n := N − 1, from 2.1
 
-    2.10. (N − 1)!·N/((N − 1)!·1) = N
-          algebra, from 2.9
+    2.7.  (N − 1)!·N/((N − 1)!·1) = N
+          algebra, from 2.6
 
-    2.11. C(N, 1) = N
+    2.8.  C(N, 1) = N
           calculation
-            C(N, 1) = N!/((N − 1)!·1!)                 2.4
-                    = N!/((N − 1)!·1)                  2.6
-                    = (N − 1)!·N/((N − 1)!·1)          2.8
-                    = N                                2.10
+            C(N, 1) = N!/((N − 1)!·1!)                 def:C n := N, k := 1, from 2.3
+                    = N!/((N − 1)!·1)                  substitute line 2.4
+                    = (N − 1)!·N/((N − 1)!·1)          substitute line 2.5
+                    = N                                2.7
 
     case
     assume N = 0                                                      (C2)
 
-    2.12. 0 < 1
+    2.9.  0 < 1
           arithmetic
 
-    2.13. N < 1
-          substitute N = 0 (C2) into line 2.12
+    2.10. N < 1
+          substitute N = 0 (C2) into line 2.9
 
-    2.14. C(N, 1) = 0
-          def:C n := N, k := 1, from 2.13
-
-    2.15. C(N, 1) = N
+    2.11. C(N, 1) = N
           calculation
-            C(N, 1) = 0     2.14
+            C(N, 1) = 0     def:C n := N, k := 1, from 2.10
                     = N     C2
 
 theorem choose-next-row
@@ -148,44 +124,29 @@ theorem choose-next-row
 2.  N ∈ {0, …, N + 1}
     def:range-between k := N, a := 0, b := N + 1, from 1
 
-3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
-    def:C n := N + 1, k := N, from 2
-
-4.  (N + 1) − N = 1
+3.  (N + 1) − N = 1
     algebra
 
-5.  ((N + 1) − N)! = 1!
-    substitute (N + 1) − N = 1 (line 4)
-
-6.  1! = 1
-    def:factorial
-
-7.  ((N + 1) − N)! = 1
+4.  ((N + 1) − N)! = 1
     calculation
-      ((N + 1) − N)! = 1!    5
-                     = 1     6
+      ((N + 1) − N)! = 1!    substitute line 3
+                     = 1     def:factorial
 
-8.  (N + 1)!/(((N + 1) − N)!·N!) = (N + 1)!/(1·N!)
-    substitute ((N + 1) − N)! = 1 (line 7)
-
-9.  (N + 1)! = N!·(N + 1)
+5.  (N + 1)! = N!·(N + 1)
     def:factorial n := N
 
-10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
-    substitute (N + 1)! = N!·(N + 1) (line 9)
-
-11. N! ∈ ℕ
+6.  N! ∈ ℕ
     mun:factorial-nat n := N
 
-12. N!·(N + 1)/(1·N!) = N + 1
-    algebra, from 11
+7.  N!·(N + 1)/(1·N!) = N + 1
+    algebra, from 6
 
-13. C(N + 1, N) = N + 1
+8.  C(N + 1, N) = N + 1
     calculation
-      C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     3
-                  = (N + 1)!/(1·N!)                  8
-                  = N!·(N + 1)/(1·N!)                10
-                  = N + 1                            12
+      C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     def:C n := N + 1, k := N, from 2
+                  = (N + 1)!/(1·N!)                  substitute line 4
+                  = N!·(N + 1)/(1·N!)                substitute line 5
+                  = N + 1                            7
 
 theorem choose-two
   note        Row N has no entry at 2 when N is 0 or 1, and N·(N − 1)/2 is 0
@@ -225,86 +186,69 @@ theorem choose-two
           2.3.3.  2 ∈ {0, …, N}
                   def:range-between k := 2, a := 0, b := N, from 2.3.2
 
-          2.3.4.  C(N, 2) = N!/((N − 2)!·2!)
-                  def:C n := N, k := 2, from 2.3.3
-
-          2.3.5.  N − 2 = (N − 1) − 1
+          2.3.4.  N − 2 = (N − 1) − 1
                   algebra
 
-          2.3.6.  (N − 2)! = ((N − 1) − 1)!
-                  substitute N − 2 = (N − 1) − 1 (line 2.3.5)
+          2.3.5.  (N − 2)! = ((N − 1) − 1)!
+                  substitute N − 2 = (N − 1) − 1 (line 2.3.4)
 
-          2.3.7.  N!/((N − 2)!·2!) = N!/(((N − 1) − 1)!·2!)
-                  substitute (N − 2)! = ((N − 1) − 1)! (line 2.3.6)
-
-          2.3.8.  1! = 1
-                  def:factorial
-
-          2.3.9.  (1 + 1)! = 1!·(1 + 1)
+          2.3.6.  (1 + 1)! = 1!·(1 + 1)
                   def:factorial n := 1
 
-          2.3.10. 2! = 1!·2
-                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.9
+          2.3.7.  2! = 1!·2
+                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.6
 
-          2.3.11. 2! = 1·2
-                  substitute 1! = 1 (line 2.3.8) into line 2.3.10
+          2.3.8.  2! = 1·2
+                  substitute
+                    2! = 1!·2      2.3.7
+                    2! = 1·2       def:factorial
 
-          2.3.12. 2! = 2
+          2.3.9.  2! = 2
                   calculation
-                    2! = 1·2    2.3.11
+                    2! = 1·2    2.3.8
                        = 2      arithmetic
 
-          2.3.13. N!/(((N − 1) − 1)!·2!) = N!/(((N − 1) − 1)!·2)
-                  substitute 2! = 2 (line 2.3.12)
-
-          2.3.14. N! = (N − 1)!·N
+          2.3.10. N! = (N − 1)!·N
                   thm:factorial-by-predecessor, from C1
 
-          2.3.15. (N − 1)! = ((N − 1) − 1)!·(N − 1)
-                  thm:factorial-by-predecessor N := N − 1, from C3
+          2.3.11. N! = ((N − 1) − 1)!·(N − 1)·N
+                  substitute
+                    N! = (N − 1)!·N                    2.3.10
+                    N! = ((N − 1) − 1)!·(N − 1)·N      thm:factorial-by-predecessor N := N − 1, from C3
 
-          2.3.16. N! = ((N − 1) − 1)!·(N − 1)·N
-                  substitute (N − 1)! = ((N − 1) − 1)!·(N − 1) (line 2.3.15) into line 2.3.14
-
-          2.3.17. N!/(((N − 1) − 1)!·2) = ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2)
-                  substitute N! = ((N − 1) − 1)!·(N − 1)·N (line 2.3.16)
-
-          2.3.18. ((N − 1) − 1)! ∈ ℕ
+          2.3.12. ((N − 1) − 1)! ∈ ℕ
                   mun:factorial-nat n := (N − 1) − 1, from 2.3.1
 
-          2.3.19. ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2) = N·(N − 1)/2
-                  algebra, from 2.3.18
+          2.3.13. ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2) = N·(N − 1)/2
+                  algebra, from 2.3.12
 
-          2.3.20. C(N, 2) = N·(N − 1)/2
+          2.3.14. C(N, 2) = N·(N − 1)/2
                   calculation
-                    C(N, 2) = N!/((N − 2)!·2!)                                        2.3.4
-                            = N!/(((N − 1) − 1)!·2!)                                  2.3.7
-                            = N!/(((N − 1) − 1)!·2)                                   2.3.13
-                            = ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2)             2.3.17
-                            = N·(N − 1)/2                                             2.3.19
+                    C(N, 2) = N!/((N − 2)!·2!)                                        def:C n := N, k := 2, from 2.3.3
+                            = N!/(((N − 1) − 1)!·2!)                                  substitute line 2.3.5
+                            = N!/(((N − 1) − 1)!·2)                                   substitute line 2.3.9
+                            = ((N − 1) − 1)!·(N − 1)·N/(((N − 1) − 1)!·2)             substitute line 2.3.11
+                            = N·(N − 1)/2                                             2.3.13
 
           case
           assume N − 1 = 0                                            (C4)
 
-          2.3.21. N = 1
+          2.3.15. N = 1
                   algebra, from C4
 
-          2.3.22. 1 < 2
+          2.3.16. 1 < 2
                   arithmetic
 
-          2.3.23. N < 2
-                  substitute N = 1 (line 2.3.21) into line 2.3.22
+          2.3.17. N < 2
+                  substitute N = 1 (line 2.3.15) into line 2.3.16
 
-          2.3.24. C(N, 2) = 0
-                  def:C n := N, k := 2, from 2.3.23
-
-          2.3.25. N·(N − 1)/2 = 0
+          2.3.18. N·(N − 1)/2 = 0
                   algebra, from C4
 
-          2.3.26. C(N, 2) = N·(N − 1)/2
+          2.3.19. C(N, 2) = N·(N − 1)/2
                   calculation
-                    C(N, 2) = 0              2.3.24
-                            = N·(N − 1)/2    2.3.25
+                    C(N, 2) = 0              def:C n := N, k := 2, from 2.3.17
+                            = N·(N − 1)/2    2.3.18
 
     case
     assume N = 0                                                      (C2)
@@ -315,16 +259,13 @@ theorem choose-two
     2.5.  N < 2
           substitute N = 0 (C2) into line 2.4
 
-    2.6.  C(N, 2) = 0
-          def:C n := N, k := 2, from 2.5
-
-    2.7.  N·(N − 1)/2 = 0
+    2.6.  N·(N − 1)/2 = 0
           algebra, from C2
 
-    2.8.  C(N, 2) = N·(N − 1)/2
+    2.7.  C(N, 2) = N·(N − 1)/2
           calculation
-            C(N, 2) = 0              2.6
-                    = N·(N − 1)/2    2.7
+            C(N, 2) = 0              def:C n := N, k := 2, from 2.5
+                    = N·(N − 1)/2    2.6
 
 theorem choose-complement
   note        Choosing K of N is choosing the N − K left out. Inside 0 … N
@@ -356,74 +297,59 @@ theorem choose-complement
     2.4.  N − K ∈ {0, …, N}
           def:range-between k := N − K, a := 0, b := N, from 2.3
 
-    2.5.  C(N, K) = N!/((N − K)!·K!)
-          def:C n := N, k := K, from C1
-
-    2.6.  C(N, N − K) = N!/((N − (N − K))!·(N − K)!)
-          def:C n := N, k := N − K, from 2.4
-
-    2.7.  N − (N − K) = K
+    2.5.  N − (N − K) = K
           algebra
 
-    2.8.  (N − (N − K))! = K!
-          substitute N − (N − K) = K (line 2.7)
+    2.6.  (N − (N − K))! = K!
+          substitute N − (N − K) = K (line 2.5)
 
-    2.9.  N!/((N − (N − K))!·(N − K)!) = N!/(K!·(N − K)!)
-          substitute (N − (N − K))! = K! (line 2.8)
-
-    2.10. (N − K)! ∈ ℕ
+    2.7.  (N − K)! ∈ ℕ
           mun:factorial-nat n := N − K, from 2.2
 
-    2.11. K! ∈ ℕ
+    2.8.  K! ∈ ℕ
           mun:factorial-nat n := K, from 2.1
 
-    2.12. N! ∈ ℕ
+    2.9.  N! ∈ ℕ
           mun:factorial-nat n := N
 
-    2.13. N!/((N − K)!·K!) = N!/(K!·(N − K)!)
-          algebra, from 2.10, 2.11, 2.12
+    2.10. N!/((N − K)!·K!) = N!/(K!·(N − K)!)
+          algebra, from 2.7, 2.8, 2.9
 
-    2.14. C(N, K) = C(N, N − K)
+    2.11. C(N, K) = C(N, N − K)
           calculation
-            C(N, K) = N!/((N − K)!·K!)                  2.5
-                    = N!/(K!·(N − K)!)                  2.13
-                    = N!/((N − (N − K))!·(N − K)!)      2.9
-                    = C(N, N − K)                       2.6
+            C(N, K) = N!/((N − K)!·K!)                  def:C n := N, k := K, from C1
+                    = N!/(K!·(N − K)!)                  2.10
+                    = N!/((N − (N − K))!·(N − K)!)      substitute line 2.6
+                    = C(N, N − K)                       def:C n := N, k := N − K, from 2.4
 
     case
     assume K ∉ {0, …, N}                                              (C2)
 
-    2.15. C(N, K) = 0
-          mun:binomial-outside n := N, k := K, from C2
-
-    2.16. N − K ∉ {0, …, N}
+    2.12. N − K ∉ {0, …, N}
           contradiction
           suppose N − K ∈ {0, …, N}                                   (S)
 
-          2.16.1. 0 ≤ N − K. N − K ≤ N.
+          2.12.1. 0 ≤ N − K. N − K ≤ N.
                   def:range-between k := N − K, a := 0, b := N, from S
 
-          2.16.2. K ≥ 0
+          2.12.2. K ≥ 0
                   inequalities
-                    N − K ≤ N       2.16.1
+                    N − K ≤ N       2.12.1
                     −K ≤ 0          adding −N
                     K ≥ 0           multiplying by −1
 
-          2.16.3. K ≤ N
+          2.12.3. K ≤ N
                   inequalities
-                    0 ≤ N − K       2.16.1
+                    0 ≤ N − K       2.12.1
                     K ≤ N           adding K
 
-          2.16.4. K ∈ {0, …, N}
-                  def:range-between k := K, a := 0, b := N, from 2.16.2, 2.16.3
+          2.12.4. K ∈ {0, …, N}
+                  def:range-between k := K, a := 0, b := N, from 2.12.2, 2.12.3
 
-          2.16.5. K ∉ {0, …, N}
-                  restate C2, contradicting 2.16.4
+          2.12.5. K ∉ {0, …, N}
+                  restate C2, contradicting 2.12.4
 
-    2.17. C(N, N − K) = 0
-          mun:binomial-outside n := N, k := N − K, from 2.16
-
-    2.18. C(N, K) = C(N, N − K)
+    2.13. C(N, K) = C(N, N − K)
           calculation
-            C(N, K) = 0            2.15
-                    = C(N, N − K)  2.17
+            C(N, K) = 0            mun:binomial-outside n := N, k := K, from C2
+                    = C(N, N − K)  mun:binomial-outside n := N, k := N − K, from 2.12

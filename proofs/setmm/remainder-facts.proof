@@ -13,40 +13,27 @@ theorem remainder-shifts
   let K ∈ ℤ                                                           (H4)
   then (X + M·K) mod M = X mod M
 
-1.  (X + M·K)/M = X/M + K
-    algebra
-    requires M ≠ 0: weakening, from H3
-
-2.  ⌊X/M⌋ ∈ ℤ
+1.  ⌊X/M⌋ ∈ ℤ
     mun:floor-integer x := X/M
     requires M ≠ 0: weakening, from H3
 
-3.  ⌊X/M + K⌋ = ⌊X/M⌋ + K
+2.  ⌊X/M + K⌋ = ⌊X/M⌋ + K
     thm:floor-add-integer A := X/M, N := K
     requires M ≠ 0: weakening, from H3
 
-4.  ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K
-    substitute (X + M·K)/M = X/M + K (line 1) into line 3
+3.  ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K
+    substitute
+      ⌊X/M + K⌋ = ⌊X/M⌋ + K          2
+      ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K      algebra
+    requires M ≠ 0: weakening, from H3
 
-5.  (X + M·K) mod M = X + M·K − M·⌊(X + M·K)/M⌋
-    mun:mod-value a := X + M·K, b := M, from H3
-
-6.  X mod M = X − M·⌊X/M⌋
-    mun:mod-value a := X, b := M, from H3
-
-7.  X + M·K − M·⌊(X + M·K)/M⌋ = X + M·K − M·(⌊X/M⌋ + K)
-    substitute ⌊(X + M·K)/M⌋ = ⌊X/M⌋ + K (line 4)
-
-8.  X + M·K − M·(⌊X/M⌋ + K) = X − M·⌊X/M⌋
-    algebra
-    requires ⌊X/M⌋ ∈ ℝ: from 2
-
-9.  (X + M·K) mod M = X mod M
+4.  (X + M·K) mod M = X mod M
     calculation
-      (X + M·K) mod M = X + M·K − M·⌊(X + M·K)/M⌋       5
-                      = X + M·K − M·(⌊X/M⌋ + K)         7
-                      = X − M·⌊X/M⌋                     8
-                      = X mod M                         6
+      (X + M·K) mod M = X + M·K − M·⌊(X + M·K)/M⌋       mun:mod-value a := X + M·K, b := M, from H3
+                      = X + M·K − M·(⌊X/M⌋ + K)         substitute line 3
+                      = X − M·⌊X/M⌋                     algebra
+                      = X mod M                         mun:mod-value a := X, b := M, from H3
+    requires ⌊X/M⌋ ∈ ℝ: from 1
 
 
 theorem remainder-of-small
@@ -58,35 +45,26 @@ theorem remainder-of-small
   assume A < B                                                        (H5)
   then A mod B = A
 
-1.  A mod B = A − B·⌊A/B⌋
-    mun:mod-value a := A, b := B, from H3
-
-2.  0 ≤ A/B
+1.  0 ≤ A/B
     mun:quotient-nonneg x := A, y := B, from H3, H4
 
-3.  B·(A/B) = A
+2.  B·(A/B) = A
     algebra
     requires B ≠ 0: weakening, from H3
 
-4.  B·(A/B) < B
-    transitivity, from 3, H5
+3.  B·(A/B) < B
+    transitivity, from 2, H5
     requires B ≠ 0: weakening, from H3
 
-5.  A/B < 1
-    mun:less-scaled x := A/B, y := 1, c := B, from H3, 4
+4.  A/B < 1
+    mun:less-scaled x := A/B, y := 1, c := B, from H3, 3
 
-6.  ⌊A/B⌋ = 0
-    mun:floor-between x := A/B, k := 0, from 2, 5
+5.  ⌊A/B⌋ = 0
+    mun:floor-between x := A/B, k := 0, from 1, 4
     requires B ≠ 0: weakening, from H3
 
-7.  A − B·⌊A/B⌋ = A − B·0
-    substitute ⌊A/B⌋ = 0 (line 6)
-
-8.  A − B·0 = A
-    algebra
-
-9.  A mod B = A
+6.  A mod B = A
     calculation
-      A mod B = A − B·⌊A/B⌋     1
-              = A − B·0         7
-              = A               8
+      A mod B = A − B·⌊A/B⌋     mun:mod-value a := A, b := B, from H3
+              = A − B·0         substitute line 5
+              = A               algebra

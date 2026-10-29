@@ -50,28 +50,25 @@ theorem joined-functions
           case
           assume x ∈ B                                                (C2)
 
-          1.2.5.  B ∩ A = A ∩ B
-                  mun:intersection-commutes
-
-          1.2.6.  B ∩ A = ∅
+          1.2.5.  B ∩ A = ∅
                   calculation
-                    B ∩ A = A ∩ B     1.2.5
+                    B ∩ A = A ∩ B     mun:intersection-commutes
                           = ∅         H7
 
-          1.2.7.  x ∉ A
-                  mun:disjoint-member, from C2, 1.2.6
+          1.2.6.  x ∉ A
+                  mun:disjoint-member, from C2, 1.2.5
 
-          1.2.8.  H(x) = G(x)
-                  D1, from K1, 1.2.7
+          1.2.7.  H(x) = G(x)
+                  D1, from K1, 1.2.6
 
-          1.2.9.  G(x) ∈ D
+          1.2.8.  G(x) ∈ D
                   mun:function-value f := G, from C2
 
-          1.2.10. H(x) ∈ D
-                  substitute H(x) = G(x) (line 1.2.8) into line 1.2.9
+          1.2.9.  H(x) ∈ D
+                  substitute H(x) = G(x) (line 1.2.7) into line 1.2.8
 
-          1.2.11. H(x) ∈ C ∪ D
-                  mun:in-union-right, from 1.2.10
+          1.2.10. H(x) ∈ C ∪ D
+                  mun:in-union-right, from 1.2.9
 
 2.  H : A ∪ B → C ∪ D
     mun:function-into, from 1

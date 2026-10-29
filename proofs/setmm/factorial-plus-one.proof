@@ -46,18 +46,17 @@ theorem factorial-plus-one
           mun:divides-difference d := N, a := M! + 1, b := M!, from 1.4, 1.7
           requires M! ∈ ℕ: mun:factorial-nat n := M
 
-    1.9.  (M! + 1) − M! = 1
-          algebra
+    1.9.  N divides 1
+          substitute
+            N divides (M! + 1) − M!      1.8
+            N divides 1                  algebra
           requires M! ∈ ℕ: mun:factorial-nat n := M
 
-    1.10. N divides 1
-          substitute (M! + 1) − M! = 1 (line 1.9) into line 1.8
+    1.10. N = 1
+          mun:divides-one d := N, from 1.9
 
-    1.11. N = 1
-          mun:divides-one d := N, from 1.10
-
-    1.12. N ≠ 1
-          inequalities, contradicting 1.11
+    1.11. N ≠ 1
+          inequalities, contradicting 1.10
             1 < N            H3
             1 ≠ N            weakening
             N ≠ 1            restate

@@ -52,8 +52,7 @@ theorem whole-number-by-size
           1.4.5.  0 − (−A) ∈ ℤ
                   membership, from 1.4.4
 
-          1.4.6.  0 − (−A) = A
-                  algebra
-
-          1.4.7.  A ∈ ℤ
-                  substitute 0 − (−A) = A (line 1.4.6) into line 1.4.5
+          1.4.6.  A ∈ ℤ
+                  substitute
+                    0 − (−A) ∈ ℤ      1.4.5
+                    A ∈ ℤ             algebra

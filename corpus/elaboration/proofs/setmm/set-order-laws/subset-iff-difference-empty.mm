@@ -7,5 +7,5 @@ $[ proofs/setmm/subset-of-union-right/subset-of-union-right.mm $]
 
 ${
   proofs.setmm.set-order-laws.subset-iff-difference-empty $p |- ( ( A e. _V /\ B e. _V ) -> ( A C_ B <-> ( A \ B ) = (/) ) ) $=
-    ( cvv wcel wa wss cdif c0 wceq simpr ssdif syl difid a1i sseq2d mpbid ss0b sylib cun simpl id jca proofs.setmm.subset-of-union-right.subset-of-union-right un0 eqcomd undif2 uneq2d eqeq1d eqtrd impbida ) ACDZBCDZEZABFZABGZHIZUMUNEZUOHFZUPUQUOBBGZFZURUQUNUTUMUNJABBKLUQUSHUOUSHIUQBMNOPUOQRUMUPEZABASZFZUNVAUMVCVAUKULVAUMUKUMUPTZUMUKUKUKULTUKUALLVAUMULVDUKULJLUBABUCLVAVBBAVABVBVABBHSZVBVAVEBVEBIVABUDNUEVABUOSZVBIZVEVBIVGVABAUFNVAVFVEVBVAUOHBUMUPJUGUHPUIUEOPUJ $.
+    ( cvv wcel wa wss cdif c0 wceq simpr ssdif syl difid a1i sseq2d mpbid ss0b sylib cun simpl id jca proofs.setmm.subset-of-union-right.subset-of-union-right un0 wb eqcom undif2 uneq2d eqeq1d eqtrd eqcomd impbida ) ACDZBCDZEZABFZABGZHIZUOUPEZUQHFZURUSUQBBGZFZUTUSUPVBUOUPJABBKLUSVAHUQVAHIUSBMNOPUQQRUOUREZABASZFZUPVCUOVEVCUMUNVCUOUMUOURTZUOUMUMUMUNTUMUALLVCUOUNVFUMUNJLUBABUCLVCVDBAVCBVDVCBBHSZVDVCVGBIZBVGIZVHVCBUDNVHVIUEVCVGBUFNPVCBUQSZVDIZVGVDIVKVCBAUGNVCVJVGVDVCUQHBUOURJUHUIPUJUKOPUL $.
 $}

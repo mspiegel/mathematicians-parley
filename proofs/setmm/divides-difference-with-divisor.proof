@@ -29,8 +29,7 @@ theorem divides-difference-with-divisor
     1.4.  M divides M − (M − N)
           mun:divides-difference d := M, a := M, b := M − N, from D2, 1.3
 
-    1.5.  M − (M − N) = N
-          algebra
-
-    1.6.  M divides N
-          substitute M − (M − N) = N (line 1.5) into line 1.4
+    1.5.  M divides N
+          substitute
+            M divides M − (M − N)      1.4
+            M divides N                algebra

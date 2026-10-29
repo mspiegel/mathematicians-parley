@@ -17,40 +17,28 @@ let S(m) = Σ(j = 1 to m) (2j − 1), for m ∈ ℕ                          (D1
     induction on k starting at 1
 
     base
-    1.1.  Σ(j = 1 to 1) (2j − 1) = 2·1 − 1
-          mun:sum-single a := 1
-
-    1.2.  S(1) = 1²
+    1.1.  S(1) = 1²
           calculation
             S(1) = Σ(j = 1 to 1) (2j − 1)     D1
-                 = 2·1 − 1                    1.1
+                 = 2·1 − 1                    mun:sum-single a := 1
                  = 1²                         arithmetic
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.3.  Σ(j = 1 to k + 1) (2j − 1) = Σ(j = 1 to k) (2j − 1) + (2(k + 1) − 1)
-          mun:sum-extended a := 1, n := k
-          requires k ≥ 1: from K
-
-    1.4.  S(k + 1) = S(k) + (2(k + 1) − 1)
+    1.2.  S(k + 1) = S(k) + (2(k + 1) − 1)
           calculation
             S(k + 1) = Σ(j = 1 to k + 1) (2j − 1)                      D1
-                     = Σ(j = 1 to k) (2j − 1) + (2(k + 1) − 1)         1.3
+                     = Σ(j = 1 to k) (2j − 1) + (2(k + 1) − 1)         mun:sum-extended a := 1, n := k
                      = S(k) + (2(k + 1) − 1)                           D1
+          requires k ≥ 1: from K
 
-    1.5.  S(k) + (2(k + 1) − 1) = k² + (2(k + 1) − 1)
-          substitute S(k) = k² (IH)
-
-    1.6.  k² + (2(k + 1) − 1) = (k + 1)²
-          algebra
-
-    1.7.  S(k + 1) = (k + 1)²
+    1.3.  S(k + 1) = (k + 1)²
           calculation
-            S(k + 1) = S(k) + (2(k + 1) − 1)     1.4
-                     = k² + (2(k + 1) − 1)       1.5
-                     = (k + 1)²                  1.6
+            S(k + 1) = S(k) + (2(k + 1) − 1)     1.2
+                     = k² + (2(k + 1) − 1)       substitute IH
+                     = (k + 1)²                  algebra
 
 2.  N ∈ ℕ or N = 0
     def:nat0 n := N
@@ -61,33 +49,30 @@ let S(m) = Σ(j = 1 to m) (2j − 1), for m ∈ ℕ                          (D1
     case
     assume N ∈ ℕ                                                      (C1)
 
-    3.1.  S(N) = N²
-          instantiate k := N in line 1, from C1
-
-    3.2.  Σ(k = 1 to N) (2k − 1) = S(N)
+    3.1.  Σ(k = 1 to N) (2k − 1) = S(N)
           D1, from C1
 
-    3.3.  Σ(k = 1 to N) (2k − 1) = N²
+    3.2.  Σ(k = 1 to N) (2k − 1) = N²
           calculation
-            Σ(k = 1 to N) (2k − 1) = S(N)     3.2
-                                   = N²       3.1
+            Σ(k = 1 to N) (2k − 1) = S(N)     3.1
+                                   = N²       instantiate k := N in line 1, from C1
 
     case
     assume N = 0                                                      (C2)
 
-    3.4.  Σ(k = 0 to 0) (2k − 1) = 2·0 − 1
+    3.3.  Σ(k = 0 to 0) (2k − 1) = 2·0 − 1
           mun:sum-single a := 0
 
-    3.5.  Σ(k = 0 to 0) (2k − 1) = (2·0 − 1) + Σ(k = 0 + 1 to 0) (2k − 1)
+    3.4.  Σ(k = 0 to 0) (2k − 1) = (2·0 − 1) + Σ(k = 0 + 1 to 0) (2k − 1)
           mun:sum-first n := 0
 
-    3.6.  Σ(k = 0 + 1 to 0) (2k − 1) = 0
-          algebra, from 3.4, 3.5
+    3.5.  Σ(k = 0 + 1 to 0) (2k − 1) = 0
+          algebra, from 3.3, 3.4
 
-    3.7.  Σ(k = 1 to 0) (2k − 1) = 0²
+    3.6.  Σ(k = 1 to 0) (2k − 1) = 0²
           calculation
-            Σ(k = 1 to 0) (2k − 1) = 0     3.6
+            Σ(k = 1 to 0) (2k − 1) = 0     3.5
                                    = 0²    arithmetic
 
-    3.8.  Σ(k = 1 to N) (2k − 1) = N²
-          substitute N = 0 (C2) into line 3.7
+    3.7.  Σ(k = 1 to N) (2k − 1) = N²
+          substitute N = 0 (C2) into line 3.6

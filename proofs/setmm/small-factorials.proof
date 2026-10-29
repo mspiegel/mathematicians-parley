@@ -4,70 +4,64 @@ theorem factorial-two
   note        2! is 1!·2, and 1! is 1.
   then 2! = 2
 
-1.  1! = 1
-    def:factorial
-
-2.  (1 + 1)! = 1!·(1 + 1)
+1.  (1 + 1)! = 1!·(1 + 1)
     def:factorial n := 1
 
-3.  (1 + 1)! = 1·(1 + 1)
-    substitute 1! = 1 (line 1) into line 2
+2.  (1 + 1)! = 1·(1 + 1)
+    substitute
+      (1 + 1)! = 1!·(1 + 1)      1
+      (1 + 1)! = 1·(1 + 1)       def:factorial
 
-4.  1 + 1 = 2
-    arithmetic
+3.  2! = 1·2
+    substitute
+      (1 + 1)! = 1·(1 + 1)      2
+      2! = 1·2                  arithmetic
 
-5.  2! = 1·2
-    substitute 1 + 1 = 2 (line 4) into line 3
-
-6.  2! = 2
+4.  2! = 2
     calculation
-    2! = 1·2      5
+    2! = 1·2      3
        = 2        arithmetic
 
 theorem factorial-three
   note        3! is 2!·3.
   then 3! = 6
 
-1.  2! = 2
-    thm:factorial-two
-
-2.  (2 + 1)! = 2!·(2 + 1)
+1.  (2 + 1)! = 2!·(2 + 1)
     def:factorial n := 2
 
-3.  (2 + 1)! = 2·(2 + 1)
-    substitute 2! = 2 (line 1) into line 2
+2.  (2 + 1)! = 2·(2 + 1)
+    substitute
+      (2 + 1)! = 2!·(2 + 1)      1
+      (2 + 1)! = 2·(2 + 1)       thm:factorial-two
 
-4.  2 + 1 = 3
-    arithmetic
+3.  3! = 2·3
+    substitute
+      (2 + 1)! = 2·(2 + 1)      2
+      3! = 2·3                  arithmetic
 
-5.  3! = 2·3
-    substitute 2 + 1 = 3 (line 4) into line 3
-
-6.  3! = 6
+4.  3! = 6
     calculation
-    3! = 2·3      5
+    3! = 2·3      3
        = 6        arithmetic
 
 theorem factorial-four
   note        4! is 3!·4.
   then 4! = 24
 
-1.  3! = 6
-    thm:factorial-three
-
-2.  (3 + 1)! = 3!·(3 + 1)
+1.  (3 + 1)! = 3!·(3 + 1)
     def:factorial n := 3
 
-3.  (3 + 1)! = 6·(3 + 1)
-    substitute 3! = 6 (line 1) into line 2
+2.  (3 + 1)! = 6·(3 + 1)
+    substitute
+      (3 + 1)! = 3!·(3 + 1)      1
+      (3 + 1)! = 6·(3 + 1)       thm:factorial-three
 
-4.  3 + 1 = 4
-    arithmetic
+3.  4! = 6·4
+    substitute
+      (3 + 1)! = 6·(3 + 1)      2
+      4! = 6·4                  arithmetic
 
-5.  4! = 6·4
-    substitute 3 + 1 = 4 (line 4) into line 3
-
-6.  4! = 24
+4.  4! = 24
     calculation
-    4! = 6·4      5
+    4! = 6·4      3
        = 24       arithmetic

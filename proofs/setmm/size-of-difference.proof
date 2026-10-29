@@ -97,11 +97,10 @@ theorem size-of-difference
 8.  |B ∪ (A ∖ B)| = |B| + |A ∖ B|
     mun:card-disjoint-union X := B, Y := A ∖ B, m := |B|, n := |A ∖ B|, from 4, 5, 7
 
-9.  B ∪ (A ∖ B) = A
-    thm:part-and-rest, from H4
+9.  |A| = |B| + |A ∖ B|
+    substitute
+      |B ∪ (A ∖ B)| = |B| + |A ∖ B|      8
+      |A| = |B| + |A ∖ B|                thm:part-and-rest, from H4
 
-10. |A| = |B| + |A ∖ B|
-    substitute B ∪ (A ∖ B) = A (line 9) into line 8
-
-11. |A ∖ B| = |A| − |B|
-    algebra, from 4, 5, 10
+10. |A ∖ B| = |A| − |B|
+    algebra, from 4, 5, 9

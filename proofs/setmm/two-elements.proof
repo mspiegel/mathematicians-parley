@@ -34,103 +34,93 @@ theorem two-elements
     1.2.  b ∈ V
           obtain b: mun:card-nonempty X := V, k := 1, from 1.1
 
-    1.3.  |V ∖ {b}| = 1
-          mun:card-remove X := V, a := b, k := 1, from 1.1, 1.2
-
-    1.4.  |V ∖ {b}| = 0 + 1
+    1.3.  |V ∖ {b}| = 0 + 1
           calculation
-            |V ∖ {b}| = 1       1.3
+            |V ∖ {b}| = 1       mun:card-remove X := V, a := b, k := 1, from 1.1, 1.2
                       = 0 + 1   arithmetic
 
-    1.5.  a ∈ V ∖ {b}
-          obtain a: mun:card-nonempty X := V ∖ {b}, k := 0, from 1.4
+    1.4.  a ∈ V ∖ {b}
+          obtain a: mun:card-nonempty X := V ∖ {b}, k := 0, from 1.3
 
-    1.6.  a ∈ V. a ≠ b
-          mun:remove-member u := a, Y := V, a := b, from 1.5
+    1.5.  a ∈ V. a ≠ b
+          mun:remove-member u := a, Y := V, a := b, from 1.4
 
-    1.7.  |(V ∖ {b}) ∖ {a}| = 0
-          mun:card-remove X := V ∖ {b}, k := 0, from 1.4, 1.5
+    1.6.  |(V ∖ {b}) ∖ {a}| = 0
+          mun:card-remove X := V ∖ {b}, k := 0, from 1.3, 1.4
 
-    1.8.  (V ∖ {b}) ∖ {a} = ∅
-          mun:card-zero X := (V ∖ {b}) ∖ {a}, from 1.7
-
-    1.9.  For all t ∈ V, t ∈ {a, b}.
+    1.7.  For all t ∈ V, t ∈ {a, b}.
           proof
           let t ∈ V                                                   (K1)
 
-          1.9.1.  t = b or t ≠ b
+          1.7.1.  t = b or t ≠ b
                   axi:excluded-middle P := t = b
 
-          1.9.2.  t ∈ {a, b}
-                  cases, from 1.9.1
+          1.7.2.  t ∈ {a, b}
+                  cases, from 1.7.1
 
                   case
                   assume t = b                                        (C2)
 
-                  1.9.2.1.  t = a or t = b
+                  1.7.2.1.  t = a or t = b
                             mun:or-right P := t = a, Q := t = b, from C2
 
-                  1.9.2.2.  t ∈ {a, b}
-                            def:pair x := t, u := a, w := b, from 1.9.2.1
+                  1.7.2.2.  t ∈ {a, b}
+                            def:pair x := t, u := a, w := b, from 1.7.2.1
 
                   case
                   assume t ≠ b                                        (C3)
 
-                  1.9.2.3.  t ∈ V ∖ {b}
+                  1.7.2.3.  t ∈ V ∖ {b}
                             mun:remove-member u := t, Y := V, a := b, from C3, K1
 
-                  1.9.2.4.  t = a or t ≠ a
+                  1.7.2.4.  t = a or t ≠ a
                             axi:excluded-middle P := t = a
 
-                  1.9.2.5.  t ∈ {a, b}
-                            cases, from 1.9.2.4
+                  1.7.2.5.  t ∈ {a, b}
+                            cases, from 1.7.2.4
 
                             case
                             assume t = a                              (C4)
 
-                            1.9.2.5.1.  t = a or t = b
+                            1.7.2.5.1.  t = a or t = b
                                         mun:or-left P := t = a, Q := t = b, from C4
 
-                            1.9.2.5.2.  t ∈ {a, b}
-                                        def:pair x := t, u := a, w := b, from 1.9.2.5.1
+                            1.7.2.5.2.  t ∈ {a, b}
+                                        def:pair x := t, u := a, w := b, from 1.7.2.5.1
 
                             case
                             assume t ≠ a                              (C5)
 
-                            1.9.2.5.3.  t ∈ (V ∖ {b}) ∖ {a}
-                                        mun:remove-member u := t, Y := V ∖ {b}, from C5, 1.9.2.3
+                            1.7.2.5.3.  t ∈ (V ∖ {b}) ∖ {a}
+                                        mun:remove-member u := t, Y := V ∖ {b}, from C5, 1.7.2.3
 
-                            1.9.2.5.4.  t ∈ ∅
-                                        substitute (V ∖ {b}) ∖ {a} = ∅ (line 1.8) into line 1.9.2.5.3
+                            1.7.2.5.4.  t ∈ ∅
+                                        substitute
+                                          t ∈ (V ∖ {b}) ∖ {a}      1.7.2.5.3
+                                          t ∈ ∅                    mun:card-zero X := (V ∖ {b}) ∖ {a}, from 1.6
 
-                            1.9.2.5.5.  t ∉ ∅
-                                        inspection, contradicting 1.9.2.5.4
+                            1.7.2.5.5.  t ∉ ∅
+                                        inspection, contradicting 1.7.2.5.4
 
-    1.10. V ⊆ {a, b}
-          def:subset X := V, Y := {a, b}, from 1.9
+    1.8.  V ⊆ {a, b}
+          def:subset X := V, Y := {a, b}, from 1.7
 
-    1.11. {a, b} ⊆ V
-          mun:pair-subset X := V, from 1.2, 1.6
+    1.9.  {a, b} ⊆ V
+          mun:pair-subset X := V, from 1.2, 1.5
 
-    1.12. V = {a, b}
-          mun:subset-antisymmetric X := V, Y := {a, b}, from 1.10, 1.11
+    1.10. V = {a, b}
+          mun:subset-antisymmetric X := V, Y := {a, b}, from 1.8, 1.9
 
-    1.13. there are a, b ∈ V with a ≠ b and V = {a, b}
-          exhibit, from 1.2, 1.6, 1.12
+    1.11. there are a, b ∈ V with a ≠ b and V = {a, b}
+          exhibit, from 1.2, 1.5, 1.10
 
     direction
     assume there are a, b ∈ V with a ≠ b and V = {a, b}               (C6)
 
-    1.14. c ∈ V. d ∈ V. c ≠ d. V = {c, d}
+    1.12. c ∈ V. d ∈ V. c ≠ d. V = {c, d}
           obtain c, d from C6
 
-    1.15. |{c, d}| = 2
-          mun:card-pair-distinct u := c, w := d, from 1.14
-
-    1.16. |V| = |{c, d}|
-          substitute V = {c, d} (line 1.14)
-
-    1.17. |V| = 2
+    1.13. |V| = 2
           calculation
-            |V| = |{c, d}|     1.16
-                = 2            1.15
+            |V| = |{c, d}|     substitute line 1.12
+                = 2            mun:card-pair-distinct u := c, w := d, from 1.12

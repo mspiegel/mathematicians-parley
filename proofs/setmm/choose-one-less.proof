@@ -27,63 +27,39 @@ theorem choose-one-less
     2.2.  N ∈ {0, …, N + 1}
           def:range-between k := N, a := 0, b := N + 1, from 2.1
 
-    2.3.  C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)
-          def:C n := N + 1, k := N, from 2.2
-
-    2.4.  (N + 1) − N = 1
+    2.3.  (N + 1) − N = 1
           algebra
 
-    2.5.  ((N + 1) − N)! = 1!
-          substitute (N + 1) − N = 1 (line 2.4)
-
-    2.6.  1! = 1
-          def:factorial
-
-    2.7.  ((N + 1) − N)! = 1
+    2.4.  ((N + 1) − N)! = 1
           calculation
-            ((N + 1) − N)! = 1!      2.5
-                           = 1       2.6
+            ((N + 1) − N)! = 1!      substitute line 2.3
+                           = 1       def:factorial
 
-    2.8.  (N + 1)!/(((N + 1) − N)!·N!) = (N + 1)!/(1·N!)
-          substitute ((N + 1) − N)! = 1 (line 2.7)
-
-    2.9.  (N + 1)! = N!·(N + 1)
+    2.5.  (N + 1)! = N!·(N + 1)
           def:factorial n := N
 
-    2.10. (N + 1)!/(1·N!) = N!·(N + 1)/(1·N!)
-          substitute (N + 1)! = N!·(N + 1) (line 2.9)
-
-    2.11. N! ∈ ℕ
+    2.6.  N! ∈ ℕ
           mun:factorial-nat n := N
 
-    2.12. N!·(N + 1)/(1·N!) = N + 1
-          algebra, from 2.11
+    2.7.  N!·(N + 1)/(1·N!) = N + 1
+          algebra, from 2.6
 
-    2.13. C(N + 1, N) = N + 1
+    2.8.  C(N + 1, N) = N + 1
           calculation
-            C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     2.3
-                        = (N + 1)!/(1·N!)                  2.8
-                        = N!·(N + 1)/(1·N!)                2.10
-                        = N + 1                            2.12
+            C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     def:C n := N + 1, k := N, from 2.2
+                        = (N + 1)!/(1·N!)                  substitute line 2.4
+                        = N!·(N + 1)/(1·N!)                substitute line 2.5
+                        = N + 1                            2.7
 
     case
     assume N = 0                                                      (C2)
 
-    2.14. C(1, 0) = 1
-          mun:binomial-zero-index n := 1
-
-    2.15. N + 1 = 1
+    2.9.  N + 1 = 1
           algebra, from C2
 
-    2.16. C(N + 1, N) = C(1, N)
-          substitute N + 1 = 1 (line 2.15)
-
-    2.17. C(1, N) = C(1, 0)
-          substitute N = 0 (C2)
-
-    2.18. C(N + 1, N) = N + 1
+    2.10. C(N + 1, N) = N + 1
           calculation
-            C(N + 1, N) = C(1, N)     2.16
-                        = C(1, 0)     2.17
-                        = 1           2.14
-                        = N + 1       2.15
+            C(N + 1, N) = C(1, N)     substitute line 2.9
+                        = C(1, 0)     substitute C2
+                        = 1           mun:binomial-zero-index n := 1
+                        = N + 1       2.9

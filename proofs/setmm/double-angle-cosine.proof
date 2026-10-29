@@ -14,40 +14,25 @@ theorem sine-squared-plus-cosine-squared
   let A ∈ ℂ                                                           (H1)
   then sin(A)² + cos(A)² = 1
 
-1.  cos(A + (−A)) = cos(A)·cos(−A) − sin(A)·sin(−A)
-    thm:cos-add a := A, b := −A
-
-2.  cos(−A) = cos(A)
+1.  cos(−A) = cos(A)
     mun:cos-negative a := A
 
-3.  sin(−A) = −sin(A)
+2.  sin(−A) = −sin(A)
     mun:sin-negative a := A
 
-4.  A + (−A) = 0
+3.  A + (−A) = 0
     algebra
 
-5.  cos(A + (−A)) = cos(0)
-    substitute A + (−A) = 0 (line 4)
-
-6.  cos(A)·cos(−A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·sin(−A)
-    substitute cos(−A) = cos(A) (line 2)
-
-7.  cos(A)·cos(A) − sin(A)·sin(−A) = cos(A)·cos(A) − sin(A)·(−sin(A))
-    substitute sin(−A) = −sin(A) (line 3)
-
-8.  cos(A)·cos(A) − sin(A)·(−sin(A)) = sin(A)² + cos(A)²
-    algebra
+4.  sin(A)² + cos(A)² = 1
+    calculation
+      sin(A)² + cos(A)² = cos(A)·cos(A) − sin(A)·(−sin(A))      algebra
+                        = cos(A)·cos(A) − sin(A)·sin(−A)        substitute line 2
+                        = cos(A)·cos(−A) − sin(A)·sin(−A)       substitute line 1
+                        = cos(A + (−A))                         thm:cos-add a := A, b := −A
+                        = cos(0)                                substitute line 3
+                        = 1                                     real arithmetic
     requires sin(A) ∈ ℂ: mun:sin-complex a := A
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
-
-9.  sin(A)² + cos(A)² = 1
-    calculation
-      sin(A)² + cos(A)² = cos(A)·cos(A) − sin(A)·(−sin(A))      8
-                        = cos(A)·cos(A) − sin(A)·sin(−A)        7
-                        = cos(A)·cos(−A) − sin(A)·sin(−A)       6
-                        = cos(A + (−A))                         1
-                        = cos(0)                                5
-                        = 1                                     real arithmetic
 
 theorem cosine-of-double
   metamath    cos2t
@@ -56,28 +41,22 @@ theorem cosine-of-double
   let A ∈ ℂ                                                           (H1)
   then cos(2·A) = 2·cos(A)² − 1
 
-1.  cos(A + A) = cos(A)·cos(A) − sin(A)·sin(A)
-    thm:cos-add a := A, b := A
-
-2.  sin(A)² + cos(A)² = 1
+1.  sin(A)² + cos(A)² = 1
     thm:sine-squared-plus-cosine-squared
 
-3.  2·A = A + A
+2.  2·A = A + A
     algebra
 
-4.  cos(2·A) = cos(A + A)
-    substitute 2·A = A + A (line 3)
-
-5.  cos(A)·cos(A) − sin(A)·sin(A) = 2·cos(A)² − 1
-    algebra, from 2
+3.  cos(A)·cos(A) − sin(A)·sin(A) = 2·cos(A)² − 1
+    algebra, from 1
     requires sin(A) ∈ ℂ: mun:sin-complex a := A
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
-6.  cos(2·A) = 2·cos(A)² − 1
+4.  cos(2·A) = 2·cos(A)² − 1
     calculation
-      cos(2·A) = cos(A + A)                          4
-               = cos(A)·cos(A) − sin(A)·sin(A)       1
-               = 2·cos(A)² − 1                       5
+      cos(2·A) = cos(A + A)                          substitute line 2
+               = cos(A)·cos(A) − sin(A)·sin(A)       thm:cos-add a := A, b := A
+               = 2·cos(A)² − 1                       3
 
 theorem cosine-of-double-by-sine
   metamath    cos2tsin
@@ -86,25 +65,19 @@ theorem cosine-of-double-by-sine
   let A ∈ ℂ                                                           (H1)
   then cos(2·A) = 1 − 2·sin(A)²
 
-1.  cos(A + A) = cos(A)·cos(A) − sin(A)·sin(A)
-    thm:cos-add a := A, b := A
-
-2.  sin(A)² + cos(A)² = 1
+1.  sin(A)² + cos(A)² = 1
     thm:sine-squared-plus-cosine-squared
 
-3.  2·A = A + A
+2.  2·A = A + A
     algebra
 
-4.  cos(2·A) = cos(A + A)
-    substitute 2·A = A + A (line 3)
-
-5.  cos(A)·cos(A) − sin(A)·sin(A) = 1 − 2·sin(A)²
-    algebra, from 2
+3.  cos(A)·cos(A) − sin(A)·sin(A) = 1 − 2·sin(A)²
+    algebra, from 1
     requires sin(A) ∈ ℂ: mun:sin-complex a := A
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
-6.  cos(2·A) = 1 − 2·sin(A)²
+4.  cos(2·A) = 1 − 2·sin(A)²
     calculation
-      cos(2·A) = cos(A + A)                          4
-               = cos(A)·cos(A) − sin(A)·sin(A)       1
-               = 1 − 2·sin(A)²                       5
+      cos(2·A) = cos(A + A)                          substitute line 2
+               = cos(A)·cos(A) − sin(A)·sin(A)       thm:cos-add a := A, b := A
+               = 1 − 2·sin(A)²                       3

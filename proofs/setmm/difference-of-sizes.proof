@@ -12,15 +12,14 @@ theorem difference-of-sizes
 1.  |(A − B) + B| ≤ |A − B| + |B|
     thm:triangle-inequality a := A − B, b := B
 
-2.  (A − B) + B = A
-    algebra
+2.  |A| ≤ |A − B| + |B|
+    substitute
+      |(A − B) + B| ≤ |A − B| + |B|      1
+      |A| ≤ |A − B| + |B|                algebra
 
-3.  |A| ≤ |A − B| + |B|
-    substitute (A − B) + B = A (line 2) into line 1
-
-4.  |A| − |B| ≤ |A − B|
+3.  |A| − |B| ≤ |A − B|
     inequalities
-      |A| ≤ |A − B| + |B|      3
+      |A| ≤ |A − B| + |B|      2
       |A| − |B| ≤ |A − B|      adding −|B|
     requires |A| ∈ ℝ: mun:abs-real x := A
     requires |B| ∈ ℝ: mun:abs-real x := B

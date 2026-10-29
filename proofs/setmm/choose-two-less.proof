@@ -45,80 +45,55 @@ theorem choose-two-less
           2.3.3.  N − 1 ∈ {0, …, N + 1}
                   def:range-between k := N − 1, a := 0, b := N + 1, from 2.3.2
 
-          2.3.4.  C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)
-                  def:C n := N + 1, k := N − 1, from 2.3.3
-
-          2.3.5.  (N + 1) − (N − 1) = 2
+          2.3.4.  (N + 1) − (N − 1) = 2
                   algebra
 
-          2.3.6.  1! = 1
-                  def:factorial
-
-          2.3.7.  (1 + 1)! = 1!·(1 + 1)
+          2.3.5.  (1 + 1)! = 1!·(1 + 1)
                   def:factorial n := 1
 
-          2.3.8.  2! = 1!·2
-                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.7
+          2.3.6.  2! = 1!·2
+                  substitute 1 + 1 = 2 (arithmetic) into line 2.3.5
 
-          2.3.9.  2! = 1·2
-                  substitute 1! = 1 (line 2.3.6) into line 2.3.8
+          2.3.7.  2! = 1·2
+                  substitute
+                    2! = 1!·2      2.3.6
+                    2! = 1·2       def:factorial
 
-          2.3.10. ((N + 1) − (N − 1))! = 2!
-                  substitute (N + 1) − (N − 1) = 2 (line 2.3.5)
-
-          2.3.11. ((N + 1) − (N − 1))! = 2
+          2.3.8.  ((N + 1) − (N − 1))! = 2
                   calculation
-                    ((N + 1) − (N − 1))! = 2!      2.3.10
-                                         = 1·2     2.3.9
+                    ((N + 1) − (N − 1))! = 2!      substitute line 2.3.4
+                                         = 1·2     2.3.7
                                          = 2       arithmetic
 
-          2.3.12. (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!) = (N + 1)!/(2·(N − 1)!)
-                  substitute ((N + 1) − (N − 1))! = 2 (line 2.3.11)
-
-          2.3.13. (N + 1)! = N!·(N + 1)
-                  def:factorial n := N
-
-          2.3.14. N! = (N − 1)!·N
+          2.3.9.  N! = (N − 1)!·N
                   thm:factorial-by-predecessor, from C1
 
-          2.3.15. N!·(N + 1) = (N − 1)!·N·(N + 1)
-                  substitute N! = (N − 1)!·N (line 2.3.14)
-
-          2.3.16. (N + 1)! = (N − 1)!·N·(N + 1)
+          2.3.10. (N + 1)! = (N − 1)!·N·(N + 1)
                   calculation
-                    (N + 1)! = N!·(N + 1)                2.3.13
-                             = (N − 1)!·N·(N + 1)        2.3.15
+                    (N + 1)! = N!·(N + 1)                def:factorial n := N
+                             = (N − 1)!·N·(N + 1)        substitute line 2.3.9
 
-          2.3.17. (N + 1)!/(2·(N − 1)!) = (N − 1)!·N·(N + 1)/(2·(N − 1)!)
-                  substitute (N + 1)! = (N − 1)!·N·(N + 1) (line 2.3.16)
-
-          2.3.18. (N − 1)!·N·(N + 1)/(2·(N − 1)!) = (N + 1)·N/2
+          2.3.11. (N − 1)!·N·(N + 1)/(2·(N − 1)!) = (N + 1)·N/2
                   algebra, from 2.3.1
 
-          2.3.19. C(N + 1, N − 1) = (N + 1)·N/2
+          2.3.12. C(N + 1, N − 1) = (N + 1)·N/2
                   calculation
-                    C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)   2.3.4
-                                    = (N + 1)!/(2·(N − 1)!)                      2.3.12
-                                    = (N − 1)!·N·(N + 1)/(2·(N − 1)!)            2.3.17
-                                    = (N + 1)·N/2                                2.3.18
+                    C(N + 1, N − 1) = (N + 1)!/(((N + 1) − (N − 1))!·(N − 1)!)   def:C n := N + 1, k := N − 1, from 2.3.3
+                                    = (N + 1)!/(2·(N − 1)!)                      substitute line 2.3.8
+                                    = (N − 1)!·N·(N + 1)/(2·(N − 1)!)            substitute line 2.3.10
+                                    = (N + 1)·N/2                                2.3.11
 
           case
           assume N − 1 = 0                                            (C4)
 
-          2.3.20. C(N + 1, N − 1) = C(N + 1, 0)
-                  substitute N − 1 = 0 (C4)
-
-          2.3.21. C(N + 1, 0) = 1
-                  mun:binomial-zero-index n := N + 1
-
-          2.3.22. (N + 1)·N/2 = 1
+          2.3.13. (N + 1)·N/2 = 1
                   algebra, from C4
 
-          2.3.23. C(N + 1, N − 1) = (N + 1)·N/2
+          2.3.14. C(N + 1, N − 1) = (N + 1)·N/2
                   calculation
-                    C(N + 1, N − 1) = C(N + 1, 0)    2.3.20
-                                    = 1              2.3.21
-                                    = (N + 1)·N/2    2.3.22
+                    C(N + 1, N − 1) = C(N + 1, 0)    substitute C4
+                                    = 1              mun:binomial-zero-index n := N + 1
+                                    = (N + 1)·N/2    2.3.13
 
     case
     assume N = 0                                                      (C2)
@@ -129,21 +104,12 @@ theorem choose-two-less
     2.5.  N − 1 = −1
           algebra, from C2
 
-    2.6.  C(N + 1, N − 1) = C(1, N − 1)
-          substitute N + 1 = 1 (line 2.4)
-
-    2.7.  C(1, N − 1) = C(1, −1)
-          substitute N − 1 = −1 (line 2.5)
-
-    2.8.  C(1, −1) = 0
-          def:C n := 1
-
-    2.9.  (N + 1)·N/2 = 0
+    2.6.  (N + 1)·N/2 = 0
           algebra, from C2
 
-    2.10. C(N + 1, N − 1) = (N + 1)·N/2
+    2.7.  C(N + 1, N − 1) = (N + 1)·N/2
           calculation
-            C(N + 1, N − 1) = C(1, N − 1)    2.6
-                            = C(1, −1)       2.7
-                            = 0              2.8
-                            = (N + 1)·N/2    2.9
+            C(N + 1, N − 1) = C(1, N − 1)    substitute line 2.4
+                            = C(1, −1)       substitute line 2.5
+                            = 0              def:C n := 1
+                            = (N + 1)·N/2    2.6

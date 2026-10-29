@@ -21,26 +21,20 @@ theorem constant-map-is-not-one-to-one
 2.  F(Y) ∈ {B}
     mun:function-value f := F, x := Y, from H6
 
-3.  F(X) = B
-    def:singleton x := F(X), a := B, from 1
-
-4.  F(Y) = B
-    def:singleton x := F(Y), a := B, from 2
-
-5.  F(X) = F(Y)
+3.  F(X) = F(Y)
     calculation
-      F(X) = B       3
-           = F(Y)    4
+      F(X) = B       def:singleton x := F(X), a := B, from 1
+           = F(Y)    def:singleton x := F(Y), a := B, from 2
 
-6.  not (F : A → C is one-to-one)
+4.  not (F : A → C is one-to-one)
     contradiction
     suppose F : A → C is one-to-one                                   (S)
 
-    6.1.  F : A → C. For all s, t ∈ A, if F(s) = F(t) then s = t.
+    4.1.  F : A → C. For all s, t ∈ A, if F(s) = F(t) then s = t.
           def:one-to-one f := F, X := A, Y := C, from S
 
-    6.2.  X = Y
-          instantiate s := X, t := Y in line 6.1, from H5, H6, 5
+    4.2.  X = Y
+          instantiate s := X, t := Y in line 4.1, from H5, H6, 3
 
-    6.3.  X ≠ Y
-          restate H7, contradicting 6.2
+    4.3.  X ≠ Y
+          restate H7, contradicting 4.2
