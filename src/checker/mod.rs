@@ -148,16 +148,6 @@ pub fn run_named(source: &dyn Source, name: Option<&str>) -> Outcome {
     }
 }
 
-/// The problems the checker finds in each theorem `wanted` holds, with what
-/// reading the corpus finds, for `tools::fold` to put back each theorem it
-/// rewrote that no longer checks.
-pub fn problems(
-    source: &dyn Source,
-    wanted: &(dyn Fn(&Theorem) -> bool + Sync),
-) -> Result<Vec<Problem>, Outcome> {
-    checked_shared(source, wanted).map(|(report, _, _)| report.problems)
-}
-
 /// Each theorem `wanted` holds checked, the work shared among `threads()`
 /// workers. Each worker reads the corpus for itself, since what it reads is
 /// not shared between threads, and takes the next theorem not yet taken, so
