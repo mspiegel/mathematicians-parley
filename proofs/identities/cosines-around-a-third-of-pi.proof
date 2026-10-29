@@ -25,10 +25,7 @@ theorem cosines-around-a-third-of-pi
 5.  sin(−x) = −sin(x)
     mun:sin-negative a := x
 
-6.  2·cos(π/3)·cos(x) = 2·(1/2)·cos(x)
-    substitute cos(π/3) = 1/2 (real arithmetic)
-
-7.  cos(π/3 + x) + cos(π/3 − x) = cos(x)
+6.  cos(π/3 + x) + cos(π/3 − x) = cos(x)
     calculation
       cos(π/3 + x) + cos(π/3 − x) = cos(π/3 + x) + cos(π/3 + (−x))                                                                                                      substitute line 3
         = (cos(π/3)·cos(x) − sin(π/3)·sin(x)) + cos(π/3 + (−x))                                                                                                         substitute line 1
@@ -36,7 +33,7 @@ theorem cosines-around-a-third-of-pi
         = (cos(π/3)·cos(x) − sin(π/3)·sin(x)) + (cos(π/3)·cos(x) − sin(π/3)·sin(−x))                                                                                    substitute line 4
         = (cos(π/3)·cos(x) − sin(π/3)·sin(x)) + (cos(π/3)·cos(x) − sin(π/3)·(−sin(x)))                                                                                  substitute line 5
         = 2·cos(π/3)·cos(x)                                                                                                                                             algebra
-        = 2·(1/2)·cos(x)                                                                                                                                                6
+        = 2·(1/2)·cos(x)                                                                                                                                                real arithmetic
         = cos(x)                                                                                                                                                        algebra
     requires cos(x) ∈ ℝ: mun:cos-real a := x
     requires sin(x) ∈ ℝ: mun:sin-real a := x

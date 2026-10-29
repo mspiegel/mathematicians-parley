@@ -37,53 +37,47 @@ theorem ptolemy
 1.  d = π + (−(a + b + c))
     algebra, from H5
 
-2.  sin(π)·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c)) = 0·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c))
-    substitute sin(π) = 0 (real arithmetic)
-
-3.  0·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c)) = 0·cos(−(a + b + c)) + (−1)·sin(−(a + b + c))
-    substitute cos(π) = −1 (real arithmetic)
-
-4.  sin(−(a + b + c)) = −sin(a + b + c)
+2.  sin(−(a + b + c)) = −sin(a + b + c)
     mun:sin-negative a := a + b + c
 
-5.  sin(d) = sin(a + b + c)
+3.  sin(d) = sin(a + b + c)
     calculation
       sin(d) = sin(π + (−(a + b + c)))                                    substitute line 1
              = sin(π)·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c))         thm:sin-add a := π, b := −(a + b + c)
-             = 0·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c))              2
-             = 0·cos(−(a + b + c)) + (−1)·sin(−(a + b + c))                3
-             = 0·cos(−(a + b + c)) + (−1)·(−sin(a + b + c))                substitute line 4
+             = 0·cos(−(a + b + c)) + cos(π)·sin(−(a + b + c))              real arithmetic
+             = 0·cos(−(a + b + c)) + (−1)·sin(−(a + b + c))                real arithmetic
+             = 0·cos(−(a + b + c)) + (−1)·(−sin(a + b + c))                substitute line 2
              = sin(a + b + c)                                              algebra
     requires cos(−(a + b + c)) ∈ ℝ: mun:cos-real a := −(a + b + c)
     requires sin(a + b + c) ∈ ℝ: mun:sin-real a := a + b + c
 
-6.  sin(a + b + c) = sin(a + b)·cos(c) + cos(a + b)·sin(c)
+4.  sin(a + b + c) = sin(a + b)·cos(c) + cos(a + b)·sin(c)
     thm:sin-add a := a + b, b := c
 
-7.  sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
+5.  sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
     thm:sin-add
 
-8.  cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
+6.  cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
     thm:cos-add
 
-9.  sin(b + c) = sin(b)·cos(c) + cos(b)·sin(c)
+7.  sin(b + c) = sin(b)·cos(c) + cos(b)·sin(c)
     thm:sin-add a := b, b := c
 
-10. sin(a + c) = sin(a)·cos(c) + cos(a)·sin(c)
+8.  sin(a + c) = sin(a)·cos(c) + cos(a)·sin(c)
     thm:sin-add b := c
 
-11. sin(c)² + cos(c)² = 1
+9.  sin(c)² + cos(c)² = 1
     mun:sin-cos-squares a := c
 
-12. sin(a)·sin(b) + sin(c)·sin(d) = sin(b + c)·sin(a + c)
+10. sin(a)·sin(b) + sin(c)·sin(d) = sin(b + c)·sin(a + c)
     calculation
-      sin(a)·sin(b) + sin(c)·sin(d) = sin(a)·sin(b) + sin(c)·sin(a + b + c)                                                substitute line 5
-          = sin(a)·sin(b) + sin(c)·(sin(a + b)·cos(c) + cos(a + b)·sin(c))                                                 substitute line 6
-          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + cos(a + b)·sin(c))                            substitute line 7
-          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c))       substitute line 8
-          = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))                                                algebra, from 11
-          = sin(b + c)·(sin(a)·cos(c) + cos(a)·sin(c))                                                                     substitute line 9
-          = sin(b + c)·sin(a + c)                                                                                          substitute line 10
+      sin(a)·sin(b) + sin(c)·sin(d) = sin(a)·sin(b) + sin(c)·sin(a + b + c)                                                substitute line 3
+          = sin(a)·sin(b) + sin(c)·(sin(a + b)·cos(c) + cos(a + b)·sin(c))                                                 substitute line 4
+          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + cos(a + b)·sin(c))                            substitute line 5
+          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c))       substitute line 6
+          = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))                                                algebra, from 9
+          = sin(b + c)·(sin(a)·cos(c) + cos(a)·sin(c))                                                                     substitute line 7
+          = sin(b + c)·sin(a + c)                                                                                          substitute line 8
     requires sin(a) ∈ ℝ: mun:sin-real
     requires cos(a) ∈ ℝ: mun:cos-real
     requires sin(b) ∈ ℝ: mun:sin-real a := b
