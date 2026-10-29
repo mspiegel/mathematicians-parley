@@ -79,183 +79,170 @@ theorem prime-factorisation
           1.2.8.  (p − 1)·r > 0
                   mun:product-positive x := p − 1, y := r, from D1, 1.2.7
 
-          1.2.9.  (p − 1)·r = m − r
-                  algebra, from 1.2.6
+          1.2.9.  m − r > 0
+                  substitute
+                    (p − 1)·r > 0      1.2.8
+                    m − r > 0          algebra, from 1.2.6
 
-          1.2.10. m − r > 0
-                  substitute (p − 1)·r = m − r (line 1.2.9) into line 1.2.8
-
-          1.2.11. r < m
+          1.2.10. r < m
                   inequalities
-                    m − r > 0        1.2.10
+                    m − r > 0        1.2.9
                     m > r            adding r
                     r < m            restate
 
-          1.2.12. r < N + 1
-                  transitivity, from 1.2.11, 1.2.1
+          1.2.11. r < N + 1
+                  transitivity, from 1.2.10, 1.2.1
 
-          1.2.13. r + 1 ≤ N + 1
-                  mun:integer-step m := r, n := N + 1, from 1.2.12
+          1.2.12. r + 1 ≤ N + 1
+                  mun:integer-step m := r, n := N + 1, from 1.2.11
 
-          1.2.14. r ≤ N
+          1.2.13. r ≤ N
                   inequalities
-                    r + 1 ≤ N + 1        1.2.13
+                    r + 1 ≤ N + 1        1.2.12
                     r ≤ N                adding −1
 
-          1.2.15. 1 < r or 1 = r
+          1.2.14. 1 < r or 1 = r
                   mun:le-cases x := 1, y := r, from D1
 
-          1.2.16. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                  cases, from 1.2.15
+          1.2.15. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                  cases, from 1.2.14
 
                   case
                   note r is a product of primes, and p is one more
                   assume 1 < r                                        (C1)
 
-                  1.2.16.1.  1 + 1 ≤ r
+                  1.2.15.1.  1 + 1 ≤ r
                              mun:integer-step m := 1, n := r, from C1
 
-                  1.2.16.2.  r ∈ {2, …, N}
-                             def:range-between k := r, a := 2, b := N, from 1.2.14
-                             requires 2 ≤ r: inequalities, from 1.2.16.1
+                  1.2.15.2.  r ∈ {2, …, N}
+                             def:range-between k := r, a := 2, b := N, from 1.2.13
+                             requires 2 ≤ r: inequalities, from 1.2.15.1
 
-                  1.2.16.3.  There is k ∈ ℕ with there is f : {1, …, k} → ℕ with r = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                             instantiate m := r in IH, from 1.2.16.2
+                  1.2.15.3.  There is k ∈ ℕ with there is f : {1, …, k} → ℕ with r = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                             instantiate m := r in IH, from 1.2.15.2
 
-                  1.2.16.4.  j ∈ ℕ. g : {1, …, j} → ℕ. r = ∏(i ∈ {1, …, j}) g(i). For all i ∈ {1, …, j}, g(i) is prime.
-                             obtain j, g from line 1.2.16.3
+                  1.2.15.4.  j ∈ ℕ. g : {1, …, j} → ℕ. r = ∏(i ∈ {1, …, j}) g(i). For all i ∈ {1, …, j}, g(i) is prime.
+                             obtain j, g from line 1.2.15.3
 
                   let h(i) = g(i)    if i ≤ j
                              p       otherwise,  for i ∈ {1, …, j + 1}    (D2)
                       reads the primes of r, and p after them
 
-                  1.2.16.5.  For all i ∈ {1, …, j}, h(i) = g(i).
+                  1.2.15.5.  For all i ∈ {1, …, j}, h(i) = g(i).
                              proof
                              let i ∈ {1, …, j}                        (K4)
 
-                             1.2.16.5.1.  i ≤ j
+                             1.2.15.5.1.  i ≤ j
                                           mun:range-bounds a := 1, b := j, k := i, from K4
 
-                             1.2.16.5.2.  h(i) = g(i)
-                                          D2, from 1.2.16.5.1
+                             1.2.15.5.2.  h(i) = g(i)
+                                          D2, from 1.2.15.5.1
                                           requires i ∈ {1, …, j + 1}: mun:range-extended k := i, a := 1, b := j, from K4
 
-                  1.2.16.6.  For all i ∈ {1, …, j + 1}, h(i) is prime.
+                  1.2.15.6.  For all i ∈ {1, …, j + 1}, h(i) is prime.
                              proof
                              let i ∈ {1, …, j + 1}                    (K5)
 
-                             1.2.16.6.1.  i ≤ j or not i ≤ j
+                             1.2.15.6.1.  i ≤ j or not i ≤ j
                                           axi:excluded-middle P := i ≤ j
 
-                             1.2.16.6.2.  h(i) is prime
-                                          cases, from 1.2.16.6.1
+                             1.2.15.6.2.  h(i) is prime
+                                          cases, from 1.2.15.6.1
 
                                           case
                                           assume i ≤ j                (C3)
 
-                                          1.2.16.6.2.1.  h(i) = g(i)
+                                          1.2.15.6.2.1.  h(i) = g(i)
                                                          D2, from C3, K5
 
-                                          1.2.16.6.2.2.  i ∈ {1, …, j}
+                                          1.2.15.6.2.2.  i ∈ {1, …, j}
                                                          def:range-between k := i, a := 1, b := j, from C3
                                                          requires 1 ≤ i: mun:range-bounds a := 1, b := j + 1, k := i, from K5
 
-                                          1.2.16.6.2.3.  g(i) is prime
-                                                         instantiate i := i in line 1.2.16.4, from 1.2.16.6.2.2
+                                          1.2.15.6.2.3.  g(i) is prime
+                                                         instantiate i := i in line 1.2.15.4, from 1.2.15.6.2.2
 
-                                          1.2.16.6.2.4.  h(i) is prime
-                                                         substitute h(i) = g(i) (line 1.2.16.6.2.1) into line 1.2.16.6.2.3
+                                          1.2.15.6.2.4.  h(i) is prime
+                                                         substitute h(i) = g(i) (line 1.2.15.6.2.1) into line 1.2.15.6.2.3
 
                                           case
                                           assume not i ≤ j            (C4)
 
-                                          1.2.16.6.2.5.  h(i) = p
+                                          1.2.15.6.2.5.  h(i) = p
                                                          D2, from C4, K5
 
-                                          1.2.16.6.2.6.  h(i) is prime
-                                                         substitute h(i) = p (line 1.2.16.6.2.5) into line 1.2.4
+                                          1.2.15.6.2.6.  h(i) is prime
+                                                         substitute h(i) = p (line 1.2.15.6.2.5) into line 1.2.4
 
-                  1.2.16.7.  For all i ∈ {1, …, j + 1}, h(i) ∈ ℕ.
+                  1.2.15.7.  For all i ∈ {1, …, j + 1}, h(i) ∈ ℕ.
                              proof
                              let i ∈ {1, …, j + 1}                    (K6)
 
-                             1.2.16.7.1.  i ≤ j or not i ≤ j
+                             1.2.15.7.1.  i ≤ j or not i ≤ j
                                           axi:excluded-middle P := i ≤ j
 
-                             1.2.16.7.2.  h(i) ∈ ℕ
-                                          cases, from 1.2.16.7.1
+                             1.2.15.7.2.  h(i) ∈ ℕ
+                                          cases, from 1.2.15.7.1
 
                                           case
                                           assume i ≤ j                (C5)
 
-                                          1.2.16.7.2.1.  h(i) = g(i)
+                                          1.2.15.7.2.1.  h(i) = g(i)
                                                          D2, from C5, K6
 
-                                          1.2.16.7.2.2.  i ∈ {1, …, j}
+                                          1.2.15.7.2.2.  i ∈ {1, …, j}
                                                          def:range-between k := i, a := 1, b := j, from C5
                                                          requires 1 ≤ i: mun:range-bounds a := 1, b := j + 1, k := i, from K6
 
-                                          1.2.16.7.2.3.  g(i) ∈ ℕ
-                                                         mun:function-value f := g, from 1.2.16.7.2.2
+                                          1.2.15.7.2.3.  g(i) ∈ ℕ
+                                                         mun:function-value f := g, from 1.2.15.7.2.2
 
-                                          1.2.16.7.2.4.  h(i) ∈ ℕ
-                                                         substitute h(i) = g(i) (line 1.2.16.7.2.1) into line 1.2.16.7.2.3
+                                          1.2.15.7.2.4.  h(i) ∈ ℕ
+                                                         substitute h(i) = g(i) (line 1.2.15.7.2.1) into line 1.2.15.7.2.3
 
                                           case
                                           assume not i ≤ j            (C6)
 
-                                          1.2.16.7.2.5.  h(i) = p
+                                          1.2.15.7.2.5.  h(i) = p
                                                          D2, from C6, K6
 
-                                          1.2.16.7.2.6.  h(i) ∈ ℕ
-                                                         substitute h(i) = p (line 1.2.16.7.2.5) into line 1.2.4
+                                          1.2.15.7.2.6.  h(i) ∈ ℕ
+                                                         substitute h(i) = p (line 1.2.15.7.2.5) into line 1.2.4
 
-                  1.2.16.8.  h : {1, …, j + 1} → ℕ
-                             mun:function-into, from 1.2.16.7
+                  1.2.15.8.  h : {1, …, j + 1} → ℕ
+                             mun:function-into, from 1.2.15.7
                              requires h is a function on {1, …, j + 1}: from D2
 
-                  1.2.16.9.  ∏(i ∈ {1, …, j + 1}) h(i) = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)
-                             mun:product-extended a := 1, n := j, t := h
-                             requires j ≥ 1: from 1.2.16.4
-                             requires h : {1, …, j + 1} → ℝ: from 1.2.16.8
+                  1.2.15.9.  ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i)
+                             mun:product-termwise a := 1, b := j, t := h, u := g, from 1.2.15.5
+                             requires h : {1, …, j + 1} → ℕ: from 1.2.15.8
 
-                  1.2.16.10. ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i)
-                             mun:product-termwise a := 1, b := j, t := h, u := g, from 1.2.16.5
-                             requires h : {1, …, j + 1} → ℕ: from 1.2.16.8
-
-                  1.2.16.11. not j + 1 ≤ j
+                  1.2.15.10. not j + 1 ≤ j
                              inequalities
 
-                  1.2.16.12. j + 1 ∈ {1, …, j + 1}
+                  1.2.15.11. j + 1 ∈ {1, …, j + 1}
                              def:range-between k := j + 1, a := 1, b := j + 1
-                             requires 1 ≤ j + 1: inequalities, from 1.2.16.4
+                             requires 1 ≤ j + 1: inequalities, from 1.2.15.4
                              requires j + 1 ≤ j + 1: inequalities
 
-                  1.2.16.13. h(j + 1) = p
-                             D2, from 1.2.16.11, 1.2.16.12
+                  1.2.15.12. h(j + 1) = p
+                             D2, from 1.2.15.10, 1.2.15.11
 
-                  1.2.16.14. (∏(i ∈ {1, …, j}) h(i))·h(j + 1) = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)
-                             substitute ∏(i ∈ {1, …, j}) h(i) = ∏(i ∈ {1, …, j}) g(i) (line 1.2.16.10)
+                  1.2.15.13. (∏(i ∈ {1, …, j}) g(i))·h(j + 1) = r·h(j + 1)
+                             substitute r = ∏(i ∈ {1, …, j}) g(i) (line 1.2.15.4)
 
-                  1.2.16.15. (∏(i ∈ {1, …, j}) g(i))·h(j + 1) = r·h(j + 1)
-                             substitute r = ∏(i ∈ {1, …, j}) g(i) (line 1.2.16.4)
-
-                  1.2.16.16. r·h(j + 1) = r·p
-                             substitute h(j + 1) = p (line 1.2.16.13)
-
-                  1.2.16.17. r·p = m
-                             algebra, from 1.2.6
-
-                  1.2.16.18. m = ∏(i ∈ {1, …, j + 1}) h(i)
+                  1.2.15.14. m = ∏(i ∈ {1, …, j + 1}) h(i)
                              calculation
-                               m = r·p                                                 1.2.16.17
-                                 = r·h(j + 1)                                          1.2.16.16
-                                 = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)                    1.2.16.15
-                                 = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)                    1.2.16.14
-                                 = ∏(i ∈ {1, …, j + 1}) h(i)                           1.2.16.9
+                               m = r·p                                                 algebra, from 1.2.6
+                                 = r·h(j + 1)                                          substitute line 1.2.15.12
+                                 = (∏(i ∈ {1, …, j}) g(i))·h(j + 1)                    1.2.15.13
+                                 = (∏(i ∈ {1, …, j}) h(i))·h(j + 1)                    substitute line 1.2.15.9
+                                 = ∏(i ∈ {1, …, j + 1}) h(i)                           mun:product-extended a := 1, n := j, t := h
+                             requires j ≥ 1: from 1.2.15.4
+                             requires h : {1, …, j + 1} → ℝ: from 1.2.15.8
 
-                  1.2.16.19. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                             exhibit, from 1.2.16.6, 1.2.16.8, 1.2.16.18
+                  1.2.15.15. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                             exhibit, from 1.2.15.6, 1.2.15.8, 1.2.15.14
 
                   case
                   note m is the prime p, a product of one prime
@@ -264,41 +251,38 @@ theorem prime-factorisation
                   let e(i) = p, for i ∈ {1, …, 1}                     (D3)
                       reads the list holding p alone
 
-                  1.2.16.20. For all i ∈ {1, …, 1}, e(i) is prime.
+                  1.2.15.16. For all i ∈ {1, …, 1}, e(i) is prime.
                              proof
                              let i ∈ {1, …, 1}                        (K7)
 
-                             1.2.16.20.1. e(i) = p
+                             1.2.15.16.1. e(i) = p
                                           D3, from K7
 
-                             1.2.16.20.2. e(i) is prime
-                                          substitute e(i) = p (line 1.2.16.20.1) into line 1.2.4
+                             1.2.15.16.2. e(i) is prime
+                                          substitute e(i) = p (line 1.2.15.16.1) into line 1.2.4
 
-                  1.2.16.21. For all i ∈ {1, …, 1}, e(i) ∈ ℕ.
+                  1.2.15.17. For all i ∈ {1, …, 1}, e(i) ∈ ℕ.
                              membership, from D3
 
-                  1.2.16.22. e : {1, …, 1} → ℕ
-                             mun:function-into, from 1.2.16.21
+                  1.2.15.18. e : {1, …, 1} → ℕ
+                             mun:function-into, from 1.2.15.17
                              requires e is a function on {1, …, 1}: from D3
 
-                  1.2.16.23. ∏(i ∈ {1, …, 1}) e(i) = e(1)
-                             mun:product-single a := 1, t := e
-
-                  1.2.16.24. e(1) = p
+                  1.2.15.19. e(1) = p
                              D3
                              requires 1 ∈ {1, …, 1}: inspection
 
-                  1.2.16.25. m = p
+                  1.2.15.20. m = p
                              substitute r = 1 (C2) into line 1.2.6
 
-                  1.2.16.26. m = ∏(i ∈ {1, …, 1}) e(i)
+                  1.2.15.21. m = ∏(i ∈ {1, …, 1}) e(i)
                              calculation
-                               m = p                               1.2.16.25
-                                 = e(1)                            1.2.16.24
-                                 = ∏(i ∈ {1, …, 1}) e(i)           1.2.16.23
+                               m = p                               1.2.15.20
+                                 = e(1)                            1.2.15.19
+                                 = ∏(i ∈ {1, …, 1}) e(i)           mun:product-single a := 1, t := e
 
-                  1.2.16.27. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
-                             exhibit, from 1.2.16.20, 1.2.16.22, 1.2.16.26
+                  1.2.15.22. There is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
+                             exhibit, from 1.2.15.16, 1.2.15.18, 1.2.15.21
 
 2.  For all m ∈ {2, …, n}, there is k ∈ ℕ with there is f : {1, …, k} → ℕ with m = ∏(i ∈ {1, …, k}) f(i) and for all i ∈ {1, …, k}, f(i) is prime.
     instantiate N := n in line 1

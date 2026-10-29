@@ -39,41 +39,38 @@ theorem weighted-binomial-column-sum
           mun:sum-extended a := 0, n := j
           requires j ≥ 0: from K
 
-    1.6.  m + (j + 1) = m + j + 1
-          algebra
+    1.6.  Σ(k = 0 to j + 1) k·C(m + k, m) = Σ(k = 0 to j) k·C(m + k, m) + (j + 1)·C(m + j + 1, m)
+          substitute
+            Σ(k = 0 to j + 1) k·C(m + k, m) = Σ(k = 0 to j) k·C(m + k, m) + (j + 1)·C(m + (j + 1), m)      1.5
+            Σ(k = 0 to j + 1) k·C(m + k, m) = Σ(k = 0 to j) k·C(m + k, m) + (j + 1)·C(m + j + 1, m)        algebra
 
-    1.7.  Σ(k = 0 to j + 1) k·C(m + k, m) = Σ(k = 0 to j) k·C(m + k, m) + (j + 1)·C(m + j + 1, m)
-          substitute m + (j + 1) = m + j + 1 (line 1.6) into line 1.5
-
-    1.8.  C(m + j + 1, m + 1) + C(m + j + 1, (m + 1) − 1) = C((m + j + 1) + 1, m + 1)
+    1.7.  C(m + j + 1, m + 1) + C(m + j + 1, (m + 1) − 1) = C((m + j + 1) + 1, m + 1)
           thm:pascal n := m + j + 1, k := m + 1
 
-    1.9.  (m + 1) − 1 = m
-          algebra
+    1.8.  C(m + j + 1, m + 1) + C(m + j + 1, m) = C((m + j + 1) + 1, m + 1)
+          substitute
+            C(m + j + 1, m + 1) + C(m + j + 1, (m + 1) − 1) = C((m + j + 1) + 1, m + 1)      1.7
+            C(m + j + 1, m + 1) + C(m + j + 1, m) = C((m + j + 1) + 1, m + 1)                algebra
 
-    1.10. C(m + j + 1, m + 1) + C(m + j + 1, m) = C((m + j + 1) + 1, m + 1)
-          substitute (m + 1) − 1 = m (line 1.9) into line 1.8
-
-    1.11. C(m + j + 1, m + 2) + C(m + j + 1, (m + 2) − 1) = C((m + j + 1) + 1, m + 2)
+    1.9.  C(m + j + 1, m + 2) + C(m + j + 1, (m + 2) − 1) = C((m + j + 1) + 1, m + 2)
           thm:pascal n := m + j + 1, k := m + 2
 
-    1.12. (m + 2) − 1 = m + 1
-          algebra
+    1.10. C(m + j + 1, m + 2) + C(m + j + 1, m + 1) = C((m + j + 1) + 1, m + 2)
+          substitute
+            C(m + j + 1, m + 2) + C(m + j + 1, (m + 2) − 1) = C((m + j + 1) + 1, m + 2)      1.9
+            C(m + j + 1, m + 2) + C(m + j + 1, m + 1) = C((m + j + 1) + 1, m + 2)            algebra
 
-    1.13. C(m + j + 1, m + 2) + C(m + j + 1, m + 1) = C((m + j + 1) + 1, m + 2)
-          substitute (m + 2) − 1 = m + 1 (line 1.12) into line 1.11
-
-    1.14. Σ(k = 0 to j + 1) k·C(m + k, m) = (j + 1)·C((m + j + 1) + 1, m + 1) − C((m + j + 1) + 1, m + 2)
-          algebra, from IH, 1.7, 1.10, 1.13
+    1.11. Σ(k = 0 to j + 1) k·C(m + k, m) = (j + 1)·C((m + j + 1) + 1, m + 1) − C((m + j + 1) + 1, m + 2)
+          algebra, from IH, 1.6, 1.8, 1.10
           requires C(m + j + 1, m) ∈ ℕ₀: mun:binomial-nat0
           requires C(m + j + 1, m + 1) ∈ ℕ₀: mun:binomial-nat0
           requires C(m + j + 1, m + 2) ∈ ℕ₀: mun:binomial-nat0
 
-    1.15. (m + j + 1) + 1 = m + (j + 1) + 1
+    1.12. (m + j + 1) + 1 = m + (j + 1) + 1
           algebra
 
-    1.16. Σ(k = 0 to j + 1) k·C(m + k, m) = (j + 1)·C(m + (j + 1) + 1, m + 1) − C(m + (j + 1) + 1, m + 2)
-          substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.15) into line 1.14
+    1.13. Σ(k = 0 to j + 1) k·C(m + k, m) = (j + 1)·C(m + (j + 1) + 1, m + 1) − C(m + (j + 1) + 1, m + 2)
+          substitute (m + j + 1) + 1 = m + (j + 1) + 1 (line 1.12) into line 1.11
 
 2.  Σ(k = 0 to n) k·C(m + k, m) = n·C(m + n + 1, m + 1) − C(m + n + 1, m + 2)
     instantiate j := n in line 1

@@ -74,26 +74,25 @@ let q(k) = F(2k − 1), for k ∈ ℕ                                       (D2)
     proof
     let k ∈ ℕ₀                                                        (K3)
 
-    4.1.  k + 2 = (k + 1) + 1
-          algebra
-
-    4.2.  F((k + 1) + 1) = G(k + 1)
+    4.1.  F((k + 1) + 1) = G(k + 1)
           D1
 
-    4.3.  G(k + 1) = F(k) + G(k)
+    4.2.  G(k + 1) = F(k) + G(k)
           D1
 
-    4.4.  F(k + 1) = G(k)
+    4.3.  F(k + 1) = G(k)
           D1
 
-    4.5.  F((k + 1) + 1) = F(k) + G(k)
-          transitivity, from 4.2, 4.3
+    4.4.  F((k + 1) + 1) = F(k) + G(k)
+          transitivity, from 4.1, 4.2
 
-    4.6.  F((k + 1) + 1) = F(k) + F(k + 1)
-          substitute F(k + 1) = G(k) (line 4.4) into line 4.5
+    4.5.  F((k + 1) + 1) = F(k) + F(k + 1)
+          substitute F(k + 1) = G(k) (line 4.3) into line 4.4
 
-    4.7.  F(k + 2) = F(k) + F(k + 1)
-          substitute k + 2 = (k + 1) + 1 (line 4.1) into line 4.6
+    4.6.  F(k + 2) = F(k) + F(k + 1)
+          substitute
+            F((k + 1) + 1) = F(k) + F(k + 1)      4.5
+            F(k + 2) = F(k) + F(k + 1)            algebra
 
 5.  For all m ∈ ℕ, Σ(j = 1 to m) q(j) = F(2m).
     induction on m starting at 1
@@ -112,104 +111,84 @@ let q(k) = F(2k − 1), for k ∈ ℕ                                       (D2)
           5.1.3.  q(i) ∈ ℝ
                   membership, from D2, 5.1.2
 
-    5.2.  Σ(j = 1 to 1) q(j) = q(1)
-          mun:sum-single a := 1
-          requires for all i ∈ {1, …, 1}, q(i) ∈ ℝ: from 5.1
-
-    5.3.  F(0 + 1) = G(0)
+    5.2.  F(0 + 1) = G(0)
           D1
 
-    5.4.  G(0) = 1
+    5.3.  G(0) = 1
           D1
 
-    5.5.  F(0) = 0
+    5.4.  F(0) = 0
           D1
 
-    5.6.  F(0 + 1) = 1
+    5.5.  F(0 + 1) = 1
           calculation
-            F(0 + 1) = G(0)    5.3
-                     = 1       5.4
+            F(0 + 1) = G(0)    5.2
+                     = 1       5.3
 
-    5.7.  F(1) = 1
+    5.6.  F(1) = 1
           calculation
             F(1) = F(0 + 1)    arithmetic
-                 = 1           5.6
+                 = 1           5.5
 
-    5.8.  F(0 + 2) = F(0) + F(0 + 1)
+    5.7.  F(0 + 2) = F(0) + F(0 + 1)
           instantiate k := 0 in line 4
 
-    5.9.  F(0 + 2) = 1
-          algebra, from 5.5, 5.6, 5.8
-
-    5.10. F(1 + 1) = 1
+    5.8.  F(1 + 1) = 1
           calculation
             F(1 + 1) = F(0 + 2)    arithmetic
-                     = 1           5.9
+                     = 1           algebra, from 5.4, 5.5, 5.7
 
-    5.11. q(1) = F(2·1 − 1)
-          D2
-
-    5.12. Σ(j = 1 to 1) q(j) = F(2·1)
+    5.9.  Σ(j = 1 to 1) q(j) = F(2·1)
           calculation
-            Σ(j = 1 to 1) q(j) = q(1)           5.2
-                               = F(2·1 − 1)     5.11
+            Σ(j = 1 to 1) q(j) = q(1)           mun:sum-single a := 1
+                               = F(2·1 − 1)     D2
                                = F(1)           arithmetic
-                               = 1              5.7
-                               = F(1 + 1)       5.10
+                               = 1              5.6
+                               = F(1 + 1)       5.8
                                = F(2·1)         arithmetic
+          requires for all i ∈ {1, …, 1}, q(i) ∈ ℝ: from 5.1
 
     step
     let m ∈ ℕ                                                         (K4)
     assume step 5 is true for m, the induction hypothesis             (IH2)
 
-    5.13. For all i ∈ {1, …, m + 1}, q(i) ∈ ℝ.
+    5.10. For all i ∈ {1, …, m + 1}, q(i) ∈ ℝ.
           proof
           let i ∈ {1, …, m + 1}                                       (J2)
 
-          5.13.1. 2i − 1 ∈ ℕ
+          5.10.1. 2i − 1 ∈ ℕ
                   instantiate k := i in line 3
 
-          5.13.2. F(2i − 1) ∈ ℝ
-                  instantiate k := 2i − 1 in line 2, from 5.13.1
+          5.10.2. F(2i − 1) ∈ ℝ
+                  instantiate k := 2i − 1 in line 2, from 5.10.1
 
-          5.13.3. q(i) ∈ ℝ
-                  membership, from D2, 5.13.2
+          5.10.3. q(i) ∈ ℝ
+                  membership, from D2, 5.10.2
 
-    5.14. Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)
-          mun:sum-extended a := 1, n := m
-          requires m ≥ 1: from K4
-          requires for all i ∈ {1, …, m + 1}, q(i) ∈ ℝ: from 5.13
-
-    5.15. q(m + 1) = F(2(m + 1) − 1)
+    5.11. q(m + 1) = F(2(m + 1) − 1)
           D2
 
-    5.16. 2(m + 1) − 1 = 2m + 1
-          algebra
+    5.12. q(m + 1) = F(2m + 1)
+          substitute
+            q(m + 1) = F(2(m + 1) − 1)      5.11
+            q(m + 1) = F(2m + 1)            algebra
 
-    5.17. q(m + 1) = F(2m + 1)
-          substitute 2(m + 1) − 1 = 2m + 1 (line 5.16) into line 5.15
-
-    5.18. F(2m + 2) = F(2m) + F(2m + 1)
+    5.13. F(2m + 2) = F(2m) + F(2m + 1)
           instantiate k := 2m in line 4
 
-    5.19. 2(m + 1) = 2m + 2
-          algebra
+    5.14. F(2(m + 1)) = F(2m) + F(2m + 1)
+          substitute
+            F(2m + 2) = F(2m) + F(2m + 1)        5.13
+            F(2(m + 1)) = F(2m) + F(2m + 1)      algebra
 
-    5.20. F(2(m + 1)) = F(2m) + F(2m + 1)
-          substitute 2(m + 1) = 2m + 2 (line 5.19) into line 5.18
-
-    5.21. Σ(j = 1 to m) q(j) + q(m + 1) = F(2m) + q(m + 1)
-          substitute Σ(j = 1 to m) q(j) = F(2m) (IH2)
-
-    5.22. F(2m) + q(m + 1) = F(2m) + F(2m + 1)
-          substitute q(m + 1) = F(2m + 1) (line 5.17)
-
-    5.23. Σ(j = 1 to m + 1) q(j) = F(2(m + 1))
+    5.15. Σ(j = 1 to m + 1) q(j) = F(2(m + 1))
           calculation
-            Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)    5.14
-                                   = F(2m) + q(m + 1)                 5.21
-                                   = F(2m) + F(2m + 1)                5.22
-                                   = F(2(m + 1))                      5.20
+            Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)    mun:sum-extended a := 1, n := m
+                                   = F(2m) + q(m + 1)                 substitute IH2
+                                   = F(2m) + F(2m + 1)                substitute line 5.12
+                                   = F(2(m + 1))                      5.14
+          requires m ≥ 1: from K4
+          requires for all i ∈ {1, …, m + 1}, q(i) ∈ ℝ: from 5.10
 
 6.  Σ(k = 1 to n) F(2k − 1) = F(2n)
     instantiate m := n in line 5, from D2

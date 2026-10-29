@@ -495,49 +495,49 @@ let G(t) = 0       if t = c
 28. (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ)
     restate 27
 
-29. F(x)/(G(x) − G(c)) = F′(ξ)/G′(ξ)
-    substitute F(c) = 0 (line 6) into line 28
+29. F(x)/G(x) = F′(ξ)/G′(ξ)
+    substitute
+      (F(x) − F(c))/(G(x) − G(c)) = F′(ξ)/G′(ξ)      28
+      F(x)/(G(x) − G(c)) = F′(ξ)/G′(ξ)               substitute line 6
+      F(x)/G(x) = F′(ξ)/G′(ξ)                        substitute line 7
     requires F(x) ∈ ℝ: from 11, 22
-
-30. F(x)/G(x) = F′(ξ)/G′(ξ)
-    substitute G(c) = 0 (line 7) into line 29
     requires G(x) ∈ ℝ: from 13, 22
 
-31. F(x) = f(x)
+30. F(x) = f(x)
     instantiate t := x in line 8, from H11
 
-32. G(x) = g(x)
+31. G(x) = g(x)
     instantiate t := x in line 9, from H11
 
-33. F′(ξ) = f′(ξ)
+32. F′(ξ) = f′(ξ)
     instantiate t := ξ in line 18, from 27
 
-34. G′(ξ) = g′(ξ)
+33. G′(ξ) = g′(ξ)
     instantiate t := ξ in line 20, from 27
 
-35. f(x)/G(x) = F′(ξ)/G′(ξ)
-    substitute F(x) = f(x) (line 31) into line 30
+34. f(x)/G(x) = F′(ξ)/G′(ξ)
+    substitute F(x) = f(x) (line 30) into line 29
 
-36. f(x)/g(x) = F′(ξ)/G′(ξ)
-    substitute G(x) = g(x) (line 32) into line 35
+35. f(x)/g(x) = F′(ξ)/G′(ξ)
+    substitute G(x) = g(x) (line 31) into line 34
 
-37. f(x)/g(x) = f′(ξ)/G′(ξ)
-    substitute F′(ξ) = f′(ξ) (line 33) into line 36
+36. f(x)/g(x) = f′(ξ)/G′(ξ)
+    substitute F′(ξ) = f′(ξ) (line 32) into line 35
 
-38. f(x)/g(x) = f′(ξ)/g′(ξ)
-    substitute G′(ξ) = g′(ξ) (line 34) into line 37
+37. f(x)/g(x) = f′(ξ)/g′(ξ)
+    substitute G′(ξ) = g′(ξ) (line 33) into line 36
 
-39. |ξ − c| < |x − c|
+38. |ξ − c| < |x − c|
     restate 27
 
-40. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
-    exhibit, from 27, 38, 39
+39. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+    exhibit, from 27, 37, 38
 
-41. g(x) ≠ 0
-    substitute G(x) = g(x) (line 32) into line 26
+40. g(x) ≠ 0
+    substitute G(x) = g(x) (line 31) into line 26
 
-42. g(x) ≠ 0. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
-    join 40, 41
+41. g(x) ≠ 0. There is ξ ∈ (a, b) ∖ {c} with |ξ − c| < |x − c| and f(x)/g(x) = f′(ξ)/g′(ξ).
+    join 39, 40
 
 theorem lhopital
   metamath    lhop, which asks g be nonzero off c as well and says it on any

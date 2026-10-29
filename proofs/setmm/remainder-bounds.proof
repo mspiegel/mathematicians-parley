@@ -27,24 +27,18 @@ let q = ⌊A/B⌋, an integer                                             (D1)
 3.  q ≤ A/B
     mun:floor-below x := A/B, from D1, 1
 
-4.  B·q ≤ B·(A/B)
-    mun:multiply-le x := q, y := A/B, c := B, from H3, 3
-
-5.  B·(A/B) = A
-    algebra, from 1
-
-6.  B·q ≤ A
+4.  B·q ≤ A
     calculation
-      B·q ≤ B·(A/B)     4
-          = A           5
+      B·q ≤ B·(A/B)     mun:multiply-le x := q, y := A/B, c := B, from H3, 3
+          = A           algebra, from 1
 
-7.  0 ≤ A − B·q
+5.  0 ≤ A − B·q
     inequalities
-      B·q ≤ A          6
+      B·q ≤ A          4
       0 ≤ A − B·q      adding −B·q
 
-8.  0 ≤ A mod B
-    substitute A mod B = A − B·q (line 2) into line 7
+6.  0 ≤ A mod B
+    substitute A mod B = A − B·q (line 2) into line 5
 
 
 theorem remainder-below-divisor
@@ -69,25 +63,16 @@ let q = ⌊A/B⌋, an integer                                             (D1)
 3.  A/B < q + 1
     mun:floor-above x := A/B, from D1, 1
 
-4.  B·(A/B) < B·(q + 1)
-    mun:less-scaled x := A/B, y := q + 1, c := B, from H3, 3
-
-5.  B·(A/B) = A
-    algebra, from 1
-
-6.  B·(q + 1) = B·q + B
-    algebra
-
-7.  A < B·q + B
+4.  A < B·q + B
     calculation
-      A = B·(A/B)       5
-        < B·(q + 1)     4
-        = B·q + B       6
+      A = B·(A/B)       algebra, from 1
+        < B·(q + 1)     mun:less-scaled x := A/B, y := q + 1, c := B, from H3, 3
+        = B·q + B       algebra
 
-8.  A − B·q < B
+5.  A − B·q < B
     inequalities
-      A < B·q + B      7
+      A < B·q + B      4
       A − B·q < B      adding −B·q
 
-9.  A mod B < B
-    substitute A mod B = A − B·q (line 2) into line 8
+6.  A mod B < B
+    substitute A mod B = A − B·q (line 2) into line 5

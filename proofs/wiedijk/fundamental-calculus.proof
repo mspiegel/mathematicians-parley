@@ -164,46 +164,37 @@ let H(x) = G(x) − F(x), for x ∈ [a, b]                                (D2)
           algebra, from 17.2
           requires f(x) ∈ ℝ: from H4, 17.3
 
-18. H(b) = H(a)
-    thm:zero-derivative-ends, from H3, 14, 15, 17
-    requires H : [a, b] → ℝ: from 10
-
-19. H(a) = G(a) − F(a)
+18. H(a) = G(a) − F(a)
     D2, from 1
 
-20. H(b) = G(b) − F(b)
+19. H(b) = G(b) − F(b)
     D2, from 2
 
-21. G(a) = ∫(a to a) f(t) dt
+20. G(a) = ∫(a to a) f(t) dt
     D1, from 1
 
-22. ∫(a to a) f(t) dt = 0
-    mun:integral-point
-
-23. G(b) = ∫(a to b) f(t) dt
+21. G(b) = ∫(a to b) f(t) dt
     D1, from 2
 
-24. G(b) − F(b) = G(a) − F(a)
+22. G(b) − F(b) = G(a) − F(a)
     calculation
-      G(b) − F(b) = H(b)                                       20
-                  = H(a)                                       18
-                  = G(a) − F(a)                                19
+      G(b) − F(b) = H(b)                                       19
+                  = H(a)                                       thm:zero-derivative-ends, from H3, 14, 15, 17
+                  = G(a) − F(a)                                18
+    requires H : [a, b] → ℝ: from 10
 
-25. G(a) = 0
+23. G(a) = 0
     calculation
-      G(a) = ∫(a to a) f(t) dt                                 21
-           = 0                                                 22
+      G(a) = ∫(a to a) f(t) dt                                 20
+           = 0                                                 mun:integral-point
 
-26. G(b) − F(b) = 0 − F(a)
-    substitute G(a) = 0 (line 25) into line 24
+24. G(b) − F(b) = 0 − F(a)
+    substitute G(a) = 0 (line 23) into line 22
 
-27. G(b) = F(b) − F(a)
-    algebra, from 26
+25. ∫(a to b) f(t) dt = F(b) − F(a)
+    calculation
+      ∫(a to b) f(t) dt = G(b)                                 21
+                        = F(b) − F(a)                          algebra, from 24
     requires G(b) ∈ ℝ: from 2, 8
     requires F(b) ∈ ℝ: from H6, 2
     requires F(a) ∈ ℝ: from H6, 1
-
-28. ∫(a to b) f(t) dt = F(b) − F(a)
-    calculation
-      ∫(a to b) f(t) dt = G(b)                                 23
-                        = F(b) − F(a)                          27

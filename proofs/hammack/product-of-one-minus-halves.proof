@@ -62,67 +62,52 @@ theorem product-of-one-minus-halves
     induction on m starting at 1
 
     base
-    2.1.  ∏(k ∈ {1, …, 1}) (1 − 1/2^k) = 1 − 1/2^1
-          mun:product-single a := 1, from 1
-
-    2.2.  1 − 1/2^1 ≥ 1/4 + 1/2^(1 + 1)
-          arithmetic
-
-    2.3.  ∏(k ∈ {1, …, 1}) (1 − 1/2^k) ≥ 1/4 + 1/2^(1 + 1)
+    2.1.  ∏(k ∈ {1, …, 1}) (1 − 1/2^k) ≥ 1/4 + 1/2^(1 + 1)
           calculation
-            ∏(k ∈ {1, …, 1}) (1 − 1/2^k) = 1 − 1/2^1              2.1
-                                         ≥ 1/4 + 1/2^(1 + 1)      2.2
+            ∏(k ∈ {1, …, 1}) (1 − 1/2^k) = 1 − 1/2^1              mun:product-single a := 1, from 1
+                                         ≥ 1/4 + 1/2^(1 + 1)      arithmetic
 
     step
     let m ∈ ℕ                                                         (K2)
     assume step 2 is true for m, the induction hypothesis             (IH)
 
-    2.4.  ∏(k ∈ {1, …, m + 1}) (1 − 1/2^k) = (∏(k ∈ {1, …, m}) (1 − 1/2^k))·(1 − 1/2^(m + 1))
-          mun:product-extended a := 1, n := m, from 1
-          requires m ≥ 1: inequalities, from K2
-
-    2.5.  2^(m + 1) ≥ 4
+    2.2.  2^(m + 1) ≥ 4
           thm:power-of-two-at-least-four
 
-    2.6.  2^(m + 1) ∈ ℕ
+    2.3.  2^(m + 1) ∈ ℕ
           mun:power-nat a := 2, m := m + 1
 
-    2.7.  2^(m + 1) > 0
-          inequalities, from 2.6
+    2.4.  2^(m + 1) > 0
+          inequalities, from 2.3
 
-    2.8.  1/2^(m + 1) > 0
-          mun:reciprocal-positive x := 2^(m + 1), from 2.7
-          requires 2^(m + 1) ∈ ℝ: from 2.6
+    2.5.  1/2^(m + 1) > 0
+          mun:reciprocal-positive x := 2^(m + 1), from 2.4
+          requires 2^(m + 1) ∈ ℝ: from 2.3
 
-    2.9.  1/2^(m + 1) ≤ 1/4
-          mun:reciprocal-order x := 4, y := 2^(m + 1), from 2.5, 2.7
+    2.6.  1/2^(m + 1) ≤ 1/4
+          mun:reciprocal-order x := 4, y := 2^(m + 1), from 2.2, 2.4
           requires 4 > 0: arithmetic
-          requires 2^(m + 1) ∈ ℝ: from 2.6
+          requires 2^(m + 1) ∈ ℝ: from 2.3
 
-    2.10. ∏(k ∈ {1, …, m}) (1 − 1/2^k) ∈ ℝ
+    2.7.  ∏(k ∈ {1, …, m}) (1 − 1/2^k) ∈ ℝ
           mun:product-real a := 1, b := m, from 1
 
-    2.11. (∏(k ∈ {1, …, m}) (1 − 1/2^k))·(1 − 1/2^(m + 1)) ≥ 1/4 + 1/2^(m + 1)/2
-          thm:product-step-bound t := 1/2^(m + 1), p := ∏(k ∈ {1, …, m}) (1 − 1/2^k), from IH, 2.8, 2.9, 2.10
-          requires 1/2^(m + 1) ∈ ℝ: from 2.6
-
-    2.12. 2^(m + 1 + 1) = 2^(m + 1)·2
+    2.8.  2^(m + 1 + 1) = 2^(m + 1)·2
           mun:exponent-step a := 2, m := m + 1
 
-    2.13. 1/4 + 1/2^(m + 1 + 1) = 1/4 + 1/(2^(m + 1)·2)
-          substitute 2^(m + 1 + 1) = 2^(m + 1)·2 (line 2.12)
-
-    2.14. 1/4 + 1/2^(m + 1)/2 = 1/4 + 1/(2^(m + 1)·2)
+    2.9.  1/4 + 1/2^(m + 1)/2 = 1/4 + 1/(2^(m + 1)·2)
           algebra
-          requires 2^(m + 1) ∈ ℝ: from 2.6
-          requires 2^(m + 1) ≠ 0: weakening, from 2.7
+          requires 2^(m + 1) ∈ ℝ: from 2.3
+          requires 2^(m + 1) ≠ 0: weakening, from 2.4
 
-    2.15. ∏(k ∈ {1, …, m + 1}) (1 − 1/2^k) ≥ 1/4 + 1/2^(m + 1 + 1)
+    2.10. ∏(k ∈ {1, …, m + 1}) (1 − 1/2^k) ≥ 1/4 + 1/2^(m + 1 + 1)
           calculation
-            ∏(k ∈ {1, …, m + 1}) (1 − 1/2^k) = (∏(k ∈ {1, …, m}) (1 − 1/2^k))·(1 − 1/2^(m + 1))    2.4
-                                             ≥ 1/4 + 1/2^(m + 1)/2                                 2.11
-                                             = 1/4 + 1/(2^(m + 1)·2)                               2.14
-                                             = 1/4 + 1/2^(m + 1 + 1)                               2.13
+            ∏(k ∈ {1, …, m + 1}) (1 − 1/2^k) = (∏(k ∈ {1, …, m}) (1 − 1/2^k))·(1 − 1/2^(m + 1))    mun:product-extended a := 1, n := m, from 1
+                                             ≥ 1/4 + 1/2^(m + 1)/2                                 thm:product-step-bound t := 1/2^(m + 1), p := ∏(k ∈ {1, …, m}) (1 − 1/2^k), from IH, 2.5, 2.6, 2.7
+                                             = 1/4 + 1/(2^(m + 1)·2)                               2.9
+                                             = 1/4 + 1/2^(m + 1 + 1)                               substitute line 2.8
+          requires m ≥ 1: inequalities, from K2
+          requires 1/2^(m + 1) ∈ ℝ: from 2.3
 
 3.  ∏(k ∈ {1, …, n}) (1 − 1/2^k) ≥ 1/4 + 1/2^(n + 1)
     instantiate m := n in line 2

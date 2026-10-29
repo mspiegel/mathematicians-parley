@@ -30,41 +30,33 @@ theorem birthday
 5.  |S| = |{1, …, 365}|^|{1, …, 23}|
     thm:count-functions X := {1, …, 23}, Y := {1, …, 365}, from D1, 1, 2
 
-6.  |S| = 365^|{1, …, 23}|
-    substitute |{1, …, 365}| = 365 (line 4) into line 5
+6.  |S| = 365^23
+    substitute
+      |S| = |{1, …, 365}|^|{1, …, 23}|      5
+      |S| = 365^|{1, …, 23}|                substitute line 4
+      |S| = 365^23                          substitute line 3
 
-7.  |S| = 365^23
-    substitute |{1, …, 23}| = 23 (line 3) into line 6
-
-8.  23 ≤ 365
+7.  23 ≤ 365
     arithmetic
 
-9.  |{1, …, 23}| ≤ |{1, …, 365}|
-    transitivity, from 3, 8, 4
+8.  |{1, …, 23}| ≤ |{1, …, 365}|
+    transitivity, from 3, 7, 4
 
-10. |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)
-    thm:count-one-to-one X := {1, …, 23}, Y := {1, …, 365}, from D1, D2, 1, 2, 9
+9.  |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)
+    thm:count-one-to-one X := {1, …, 23}, Y := {1, …, 365}, from D1, D2, 1, 2, 8
 
-11. |T| = ∏(k ∈ {0, …, 23 − 1}) (|{1, …, 365}| − k)
-    substitute |{1, …, 23}| = 23 (line 3) into line 10
+10. |T| = ∏(k ∈ {0, …, 22}) (365 − k)
+    substitute
+      |T| = ∏(k ∈ {0, …, |{1, …, 23}| − 1}) (|{1, …, 365}| − k)      9
+      |T| = ∏(k ∈ {0, …, 23 − 1}) (|{1, …, 365}| − k)                substitute line 3
+      |T| = ∏(k ∈ {0, …, 22}) (|{1, …, 365}| − k)                    arithmetic
+      |T| = ∏(k ∈ {0, …, 22}) (365 − k)                              substitute line 4
 
-12. |T| = ∏(k ∈ {0, …, 22}) (|{1, …, 365}| − k)
-    substitute 23 − 1 = 22 (arithmetic) into line 11
-
-13. |T| = ∏(k ∈ {0, …, 22}) (365 − k)
-    substitute |{1, …, 365}| = 365 (line 4) into line 12
-
-14. |T|/|S| = |T|/365^23
-    substitute |S| = 365^23 (line 7)
-
-15. |T|/365^23 = (∏(k ∈ {0, …, 22}) (365 − k))/365^23
-    substitute |T| = ∏(k ∈ {0, …, 22}) (365 − k) (line 13)
-
-16. (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
+11. (∏(k ∈ {0, …, 22}) (365 − k))/365^23 < 1/2
     arithmetic
 
-17. |T|/|S| < 1/2
+12. |T|/|S| < 1/2
     calculation
-      |T|/|S| = |T|/365^23                                     14
-              = (∏(k ∈ {0, …, 22}) (365 − k))/365^23           15
-              < 1/2                                            16
+      |T|/|S| = |T|/365^23                                     substitute line 6
+              = (∏(k ∈ {0, …, 22}) (365 − k))/365^23           substitute line 10
+              < 1/2                                            11

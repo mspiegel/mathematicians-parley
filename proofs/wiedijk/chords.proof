@@ -90,33 +90,26 @@ theorem power-of-a-point
     2.16. |PB| > 0
           axi:distance-positive Q := B, from 2.5
 
-    2.17. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
-          algebra, from 2.6
-          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
-          requires |PA| ≠ 0: weakening, from 2.15
-
-    2.18. 2·(|PO|·cos(∠APO)) = (|AO|² − |PO|² − |PB|²)/|PB|
-          algebra, from 2.14
-          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
-          requires |PB| ≠ 0: weakening, from 2.16
-
-    2.19. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
+    2.17. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
           calculation
-            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              2.17
-                                         = (|AO|² − |PO|² − |PB|²)/|PB|    2.18
-
-    2.20. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
-          algebra, from 2.19
+            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              algebra, from 2.6
+                                         = (|AO|² − |PO|² − |PB|²)/|PB|    algebra, from 2.14
+          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
           requires |PA| ≠ 0: weakening, from 2.15
           requires |PB| ≠ 0: weakening, from 2.16
 
-    2.21. |PA| + |PB| > 0
+    2.18. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
+          algebra, from 2.17
+          requires |PA| ≠ 0: weakening, from 2.15
+          requires |PB| ≠ 0: weakening, from 2.16
+
+    2.19. |PA| + |PB| > 0
           inequalities, from 2.15, 2.16
 
-    2.22. |PA|·|PB| = |AO|² − |PO|²
+    2.20. |PA|·|PB| = |AO|² − |PO|²
           mun:multiply-cancel a := |PA|·|PB|, b := |AO|² − |PO|², c := |PA| + |PB|,
-            from 2.20
-          requires |PA| + |PB| ≠ 0: weakening, from 2.21
+            from 2.18
+          requires |PA| + |PB| ≠ 0: weakening, from 2.19
 
 theorem intersecting-chords
   metamath    chordthm

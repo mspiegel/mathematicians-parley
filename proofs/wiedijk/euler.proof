@@ -68,36 +68,29 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     6.1.  r ∈ {0, …, n − 1}. gcd(r, n) = 1.
           def:set-builder u := r, from D1, K1
 
-    6.2.  gcd(r·a, n) = 1
-          mun:coprime-product, from H3, 6.1
-          requires r ∈ ℤ: mun:range-integer, from 6.1
-
-    6.3.  gcd((r·a) mod n, n) = gcd(r·a, n)
-          thm:gcd-mod
-          requires r ∈ ℤ: mun:range-integer, from 6.1
-
-    6.4.  gcd((r·a) mod n, n) = 1
+    6.2.  gcd((r·a) mod n, n) = 1
           calculation
-            gcd((r·a) mod n, n) = gcd(r·a, n)        6.3
-                                = 1                  6.2
+            gcd((r·a) mod n, n) = gcd(r·a, n)        thm:gcd-mod
+                                = 1                  mun:coprime-product, from H3, 6.1
+          requires r ∈ ℤ: mun:range-integer, from 6.1
 
-    6.5.  (r·a) mod n < n
+    6.3.  (r·a) mod n < n
           mun:mod-less
           requires r ∈ ℤ: mun:range-integer, from 6.1
 
-    6.6.  (r·a) mod n ∈ {0, …, n − 1}
-          mun:range-from-bounds, from 6.5
+    6.4.  (r·a) mod n ∈ {0, …, n − 1}
+          mun:range-from-bounds, from 6.3
           requires r ∈ ℤ: mun:range-integer, from 6.1
           requires (r·a) mod n ∈ ℕ₀: mun:mod-natural, from H1
 
-    6.7.  (r·a) mod n ∈ S
-          def:set-builder u := (r·a) mod n, from D1, 6.4, 6.6
+    6.5.  (r·a) mod n ∈ S
+          def:set-builder u := (r·a) mod n, from D1, 6.2, 6.4
 
-    6.8.  f(r) = (r·a) mod n
+    6.6.  f(r) = (r·a) mod n
           D2, from K1
 
-    6.9.  f(r) ∈ S
-          substitute f(r) = (r·a) mod n (line 6.8) into line 6.7
+    6.7.  f(r) ∈ S
+          substitute f(r) = (r·a) mod n (line 6.6) into line 6.5
 
 7.  For all s, t ∈ S, if f(s) = f(t) then s = t.
     proof
@@ -168,49 +161,47 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
     thm:product-congruent X := S, from 4, 5, 11
     requires f : S → S: from 8
 
-13. ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r
-    thm:product-factor, from 4, 5
-
-14. φ(n) = |S|
+13. φ(n) = |S|
     def:φ, from D1
 
-15. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)
-    substitute ∏(r ∈ S) r·a = a^|S|·∏(r ∈ S) r (line 13) into line 12
+14. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)
+    substitute
+      ∏(r ∈ S) r·a ≡ ∏(r ∈ S) f(r) (mod n)          12
+      a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) f(r) (mod n)      thm:product-factor, from 4, 5
 
-16. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
-    substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 15
+15. a^|S|·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
+    substitute ∏(r ∈ S) f(r) = ∏(r ∈ S) r (line 10) into line 14
 
-17. a^φ(n)·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
-    substitute φ(n) = |S| (line 14) into line 16
+16. a^φ(n)·∏(r ∈ S) r ≡ ∏(r ∈ S) r (mod n)
+    substitute φ(n) = |S| (line 13) into line 15
 
-18. For all r ∈ S, gcd(r, n) = 1.
+17. For all r ∈ S, gcd(r, n) = 1.
     def:set-builder u := r, from D1
 
-19. gcd(∏(r ∈ S) r, n) = 1
-    thm:product-coprime, from 4, 5, 18
+18. gcd(∏(r ∈ S) r, n) = 1
+    thm:product-coprime, from 4, 5, 17
 
-20. a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r
-    algebra
-    requires φ(n) ∈ ℕ: mun:phi-natural
-    requires a^φ(n) ∈ ℝ: membership, from H2
-    requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
-
-21. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
-    def:congruent-mod, from 17
+19. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
+    def:congruent-mod, from 16
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
 
-22. n divides (a^φ(n) − 1)·∏(r ∈ S) r
-    substitute a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r = (a^φ(n) − 1)·∏(r ∈ S) r (line 20) into line 21
+20. n divides (a^φ(n) − 1)·∏(r ∈ S) r
+    substitute
+      n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r      19
+      n divides (a^φ(n) − 1)·∏(r ∈ S) r             algebra
+    requires φ(n) ∈ ℕ: mun:phi-natural
+    requires a^φ(n) ∈ ℝ: membership, from H2
+    requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
 
-23. n divides a^φ(n) − 1
-    thm:coprime-divides c := ∏(r ∈ S) r, from 19, 22
+21. n divides a^φ(n) − 1
+    thm:coprime-divides c := ∏(r ∈ S) r, from 18, 20
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) − 1 ∈ ℤ: membership, from H2
 
-24. a^φ(n) ≡ 1 (mod n)
-    def:congruent-mod, from 23
+22. a^φ(n) ≡ 1 (mod n)
+    def:congruent-mod, from 21
     requires φ(n) ∈ ℕ: mun:phi-natural
     requires a^φ(n) ∈ ℤ: membership, from H2

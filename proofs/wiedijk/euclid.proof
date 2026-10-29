@@ -107,87 +107,63 @@ theorem euclid
     note each step keeps the gcd: gcd(b, a mod b) is gcd(a, b)
 
     base
-    4.1.  gcd(a(0), b(0)) = gcd(M, b(0))
-          substitute a(0) = M (line 1)
-
-    4.2.  gcd(M, b(0)) = gcd(M, N)
-          substitute b(0) = N (line 2)
-
-    4.3.  gcd(a(0), b(0)) = gcd(M, N)
+    4.1.  gcd(a(0), b(0)) = gcd(M, N)
           calculation
-            gcd(a(0), b(0)) = gcd(M, b(0))     4.1
-                            = gcd(M, N)        4.2
+            gcd(a(0), b(0)) = gcd(M, b(0))     substitute line 1
+                            = gcd(M, N)        substitute line 2
 
     step
     let k ∈ ℕ₀                                                        (K2)
     assume step 4 is true for k, the induction hypothesis             (IH2)
 
-    4.4.  b(k) = 0 or b(k) ≠ 0
+    4.2.  b(k) = 0 or b(k) ≠ 0
           axi:excluded-middle P := b(k) = 0
 
-    4.5.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
-          cases, from 4.4
+    4.3.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          cases, from 4.2
 
           case
           assume b(k) = 0                                             (C3)
 
-          4.5.1.  a(k + 1) = a(k)
+          4.3.1.  a(k + 1) = a(k)
                   D1, from C3
 
-          4.5.2.  b(k + 1) = 0
+          4.3.2.  b(k + 1) = 0
                   D1, from C3
 
-          4.5.3.  gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))
-                  substitute a(k + 1) = a(k) (line 4.5.1)
-
-          4.5.4.  gcd(a(k), b(k + 1)) = gcd(a(k), 0)
-                  substitute b(k + 1) = 0 (line 4.5.2)
-
-          4.5.5.  gcd(a(k), 0) = gcd(a(k), b(k))
-                  substitute b(k) = 0 (C3)
-
-          4.5.6.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          4.3.3.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                   calculation
-                    gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    4.5.3
-                                            = gcd(a(k), 0)           4.5.4
-                                            = gcd(a(k), b(k))        4.5.5
+                    gcd(a(k + 1), b(k + 1)) = gcd(a(k), b(k + 1))    substitute line 4.3.1
+                                            = gcd(a(k), 0)           substitute line 4.3.2
+                                            = gcd(a(k), b(k))        substitute C3
                                             = gcd(M, N)              IH2
 
           case
           assume b(k) ≠ 0                                             (C4)
 
-          4.5.7.  a(k + 1) = b(k)
+          4.3.4.  a(k + 1) = b(k)
                   D1, from C4
 
-          4.5.8.  b(k + 1) = a(k) mod b(k)
+          4.3.5.  b(k + 1) = a(k) mod b(k)
                   D1, from C4
 
-          4.5.9.  b(k) ∈ ℕ
+          4.3.6.  b(k) ∈ ℕ
                   mun:nat0-nonzero, from C4, 3
 
-          4.5.10. a(k) ∈ ℤ
+          4.3.7.  a(k) ∈ ℤ
                   mun:nat0-int, from 3
 
-          4.5.11. gcd(a(k) mod b(k), b(k)) = gcd(a(k), b(k))
-                  thm:gcd-mod, from 4.5.9, 4.5.10
-
-          4.5.12. gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
+          4.3.8.  gcd(b(k), a(k) mod b(k)) = gcd(a(k) mod b(k), b(k))
                   mun:gcd-commutes
                   requires b(k) ∈ ℤ: mun:nat0-int, from 3
-                  requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.5.9, 4.5.10
+                  requires a(k) mod b(k) ∈ ℕ₀: mun:mod-natural, from 4.3.6, 4.3.7
 
-          4.5.13. gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))
-                  substitute a(k + 1) = b(k) (line 4.5.7)
-
-          4.5.14. gcd(b(k), b(k + 1)) = gcd(b(k), a(k) mod b(k))
-                  substitute b(k + 1) = a(k) mod b(k) (line 4.5.8)
-
-          4.5.15. gcd(a(k + 1), b(k + 1)) = gcd(M, N)
+          4.3.9.  gcd(a(k + 1), b(k + 1)) = gcd(M, N)
                   calculation
-                    gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         4.5.13
-                                            = gcd(b(k), a(k) mod b(k))    4.5.14
-                                            = gcd(a(k) mod b(k), b(k))    4.5.12
-                                            = gcd(a(k), b(k))             4.5.11
+                    gcd(a(k + 1), b(k + 1)) = gcd(b(k), b(k + 1))         substitute line 4.3.4
+                                            = gcd(b(k), a(k) mod b(k))    substitute line 4.3.5
+                                            = gcd(a(k) mod b(k), b(k))    4.3.8
+                                            = gcd(a(k), b(k))             thm:gcd-mod, from 4.3.6, 4.3.7
                                             = gcd(M, N)                   IH2
 
 5.  For all k ∈ ℕ₀, b(k) + k ≤ N or b(k) = 0.
@@ -273,17 +249,14 @@ theorem euclid
 6.  a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀
     instantiate k := N in line 3
 
-7.  gcd(a(N), b(N)) = gcd(M, N)
-    instantiate k := N in line 4
-
-8.  b(N) + N ≤ N or b(N) = 0
+7.  b(N) + N ≤ N or b(N) = 0
     instantiate k := N in line 5
 
-9.  b(N) = 0 or b(N) ≠ 0
+8.  b(N) = 0 or b(N) ≠ 0
     axi:excluded-middle P := b(N) = 0
 
-10. b(N) = 0
-    cases, from 9
+9.  b(N) = 0
+    cases, from 8
 
     case
     assume b(N) = 0, which is the claim                               (C7)
@@ -291,23 +264,17 @@ theorem euclid
     case
     assume b(N) ≠ 0                                                   (C8)
 
-    10.1. b(N) + N ≤ N
-          mun:disjunctive-syllogism, from C8, 8
+    9.1.  b(N) + N ≤ N
+          mun:disjunctive-syllogism, from C8, 7
 
-    10.2. b(N) ∈ ℕ
+    9.2.  b(N) ∈ ℕ
           mun:nat0-nonzero, from C8, 6
 
-    10.3. not b(N) + N ≤ N
-          inequalities, from 10.2, contradicting 10.1
+    9.3.  not b(N) + N ≤ N
+          inequalities, from 9.2, contradicting 9.1
 
-11. gcd(a(N), 0) = a(N)
-    mun:gcd-zero, from 6
-
-12. gcd(a(N), 0) = gcd(a(N), b(N))
-    substitute b(N) = 0 (line 10)
-
-13. a(N) = gcd(M, N)
+10. a(N) = gcd(M, N)
     calculation
-      a(N) = gcd(a(N), 0)          11
-           = gcd(a(N), b(N))       12
-           = gcd(M, N)             7
+      a(N) = gcd(a(N), 0)          mun:gcd-zero, from 6
+           = gcd(a(N), b(N))       substitute line 9
+           = gcd(M, N)             instantiate k := N in line 4

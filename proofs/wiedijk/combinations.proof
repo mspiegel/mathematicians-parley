@@ -494,13 +494,10 @@ theorem combinations
           1.2.11. |{S ⊆ X : |S| = j}| = C(m, j) + C(m, j − 1)
                   substitute {S ⊆ X : |S| = j} = U ∪ W (line 1.2.9) into line 1.2.10
 
-          1.2.12. C(m, j) + C(m, j − 1) = C(m + 1, j)
-                  thm:pascal n := m, k := j
-
-          1.2.13. |{S ⊆ X : |S| = j}| = C(m + 1, j)
+          1.2.12. |{S ⊆ X : |S| = j}| = C(m + 1, j)
                   calculation
                     |{S ⊆ X : |S| = j}| = C(m, j) + C(m, j − 1)    1.2.11
-                                        = C(m + 1, j)              1.2.12
+                                        = C(m + 1, j)              thm:pascal n := m, k := j
 
 2.  |{S ⊆ A : |S| = k}| = C(n, k)
     instantiate m := n, X := A, j := k in line 1, from H3, H4

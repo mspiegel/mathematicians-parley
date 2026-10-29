@@ -249,83 +249,80 @@ let h(x) = u(x) − v(x), for x ∈ [a, b]                                (D5)
 52. v(a) = (g(b) − g(a))·f(a)
     substitute p(a) = f(a) (line 45) into line 43
 
-53. h(a) = (f(b) − f(a))·g(a) − v(a)
-    substitute u(a) = (f(b) − f(a))·g(a) (line 51) into line 41
+53. h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)
+    substitute
+      h(a) = u(a) − v(a)                                  41
+      h(a) = (f(b) − f(a))·g(a) − v(a)                    substitute line 51
+      h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)      substitute line 52
 
-54. h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)
-    substitute v(a) = (g(b) − g(a))·f(a) (line 52) into line 53
-
-55. u(b) = (f(b) − f(a))·g(b)
+54. u(b) = (f(b) − f(a))·g(b)
     substitute q(b) = g(b) (line 49) into line 47
 
-56. v(b) = (g(b) − g(a))·f(b)
+55. v(b) = (g(b) − g(a))·f(b)
     substitute p(b) = f(b) (line 50) into line 48
 
-57. h(b) = (f(b) − f(a))·g(b) − v(b)
-    substitute u(b) = (f(b) − f(a))·g(b) (line 55) into line 46
+56. h(b) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)
+    substitute
+      h(b) = u(b) − v(b)                                  46
+      h(b) = (f(b) − f(a))·g(b) − v(b)                    substitute line 54
+      h(b) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)      substitute line 55
 
-58. h(b) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)
-    substitute v(b) = (g(b) − g(a))·f(b) (line 56) into line 57
-
-59. (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a) = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)
-    algebra
+57. h(a) = h(b)
+    calculation
+      h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)               53
+           = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)               algebra
+           = h(b)                                                  56
     requires f(a) ∈ ℝ: from H6, 7
     requires f(b) ∈ ℝ: from H6, 8
     requires g(a) ∈ ℝ: from H7, 7
     requires g(b) ∈ ℝ: from H7, 8
 
-60. h(a) = h(b)
+58. c ∈ (a, b). h′(c) = 0.
+    obtain c: thm:rolle f := h, from H4, 31, 34, 39, 57
+
+59. h′(c) = u′(c) − v′(c)
+    instantiate x := c in line 40, from 58
+
+60. u′(c) = (f(b) − f(a))·q′(c)
+    instantiate x := c in line 36, from 58
+
+61. v′(c) = (g(b) − g(a))·p′(c)
+    instantiate x := c in line 38, from 58
+
+62. q′(c) = g′(c)
+    instantiate x := c in line 20, from 58
+
+63. p′(c) = f′(c)
+    instantiate x := c in line 18, from 58
+
+64. u′(c) = (f(b) − f(a))·g′(c)
+    substitute q′(c) = g′(c) (line 62) into line 60
+
+65. v′(c) = (g(b) − g(a))·f′(c)
+    substitute p′(c) = f′(c) (line 63) into line 61
+
+66. h′(c) = (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c)
+    substitute
+      h′(c) = u′(c) − v′(c)                                  59
+      h′(c) = (f(b) − f(a))·g′(c) − v′(c)                    substitute line 64
+      h′(c) = (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c)      substitute line 65
+
+67. (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = 0
     calculation
-      h(a) = (f(b) − f(a))·g(a) − (g(b) − g(a))·f(a)               54
-           = (f(b) − f(a))·g(b) − (g(b) − g(a))·f(b)               59
-           = h(b)                                                  58
+      (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = h′(c)            66
+                                                = 0                58
 
-61. c ∈ (a, b). h′(c) = 0.
-    obtain c: thm:rolle f := h, from H4, 31, 34, 39, 60
-
-62. h′(c) = u′(c) − v′(c)
-    instantiate x := c in line 40, from 61
-
-63. u′(c) = (f(b) − f(a))·q′(c)
-    instantiate x := c in line 36, from 61
-
-64. v′(c) = (g(b) − g(a))·p′(c)
-    instantiate x := c in line 38, from 61
-
-65. q′(c) = g′(c)
-    instantiate x := c in line 20, from 61
-
-66. p′(c) = f′(c)
-    instantiate x := c in line 18, from 61
-
-67. u′(c) = (f(b) − f(a))·g′(c)
-    substitute q′(c) = g′(c) (line 65) into line 63
-
-68. v′(c) = (g(b) − g(a))·f′(c)
-    substitute p′(c) = f′(c) (line 66) into line 64
-
-69. h′(c) = (f(b) − f(a))·g′(c) − v′(c)
-    substitute u′(c) = (f(b) − f(a))·g′(c) (line 67) into line 62
-
-70. h′(c) = (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c)
-    substitute v′(c) = (g(b) − g(a))·f′(c) (line 68) into line 69
-
-71. (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = 0
-    calculation
-      (f(b) − f(a))·g′(c) − (g(b) − g(a))·f′(c) = h′(c)            70
-                                                = 0                61
-
-72. (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
-    algebra, from 71
-    requires f′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), x := c, from H1, H6, H10, 3, 61
-    requires g′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), f := g, x := c, from H1, H7, H11, 3, 61
+68. (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
+    algebra, from 67
+    requires f′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), x := c, from H1, H6, H10, 3, 58
+    requires g′(c) ∈ ℝ: mun:derivative-real-on U := (a, b), f := g, x := c, from H1, H7, H11, 3, 58
     requires f(a) ∈ ℝ: from H6, 7
     requires f(b) ∈ ℝ: from H6, 8
     requires g(a) ∈ ℝ: from H7, 7
     requires g(b) ∈ ℝ: from H7, 8
 
-73. There is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c).
-    exhibit, from 61, 72
+69. There is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c).
+    exhibit, from 58, 68
 
 theorem limit-at-most
   note        A bound the terms keep from some point on, the limit keeps.

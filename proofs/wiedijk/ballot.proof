@@ -781,116 +781,102 @@ let V = {c ∈ G(m, n) : m + n ∉ c}                                     (D3)
 9.  G(m, n − 1) is finite
     thm:good-finite n := n − 1, from 2
 
-10. |G(m − 1, n)| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|
-    mun:card-equal X := G(m − 1, n), Y := {T ∪ {m + n} : T ∈ G(m − 1, n)}, from 7, 8
-
-11. |U| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|
-    substitute U = {T ∪ {m + n} : T ∈ G(m − 1, n)} (line 5)
-
-12. |U| = |G(m − 1, n)|
+10. |U| = |G(m − 1, n)|
     calculation
-      |U| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|    11
-          = |G(m − 1, n)|                        10
+      |U| = |{T ∪ {m + n} : T ∈ G(m − 1, n)}|    substitute line 5
+          = |G(m − 1, n)|                        mun:card-equal X := G(m − 1, n), Y := {T ∪ {m + n} : T ∈ G(m − 1, n)}, from 7, 8
 
-13. |V| = |G(m, n − 1)|
+11. |V| = |G(m, n − 1)|
     substitute V = G(m, n − 1) (line 6)
 
-14. |G(m − 1, n)| ∈ ℕ₀
+12. |G(m − 1, n)| ∈ ℕ₀
     mun:card-nat0 X := G(m − 1, n), from 8
 
-15. |G(m, n − 1)| ∈ ℕ₀
+13. |G(m, n − 1)| ∈ ℕ₀
     mun:card-nat0 X := G(m, n − 1), from 9
 
-16. |U ∪ V| = |G(m − 1, n)| + |G(m, n − 1)|
+14. |U ∪ V| = |G(m − 1, n)| + |G(m, n − 1)|
     mun:card-disjoint-union X := U, Y := V, m := |G(m − 1, n)|, n := |G(m, n − 1)|,
-      from 4, 12, 13, 14, 15
+      from 4, 10, 11, 12, 13
 
-17. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
-    substitute G(m, n) = U ∪ V (line 3) into line 16
+15. |G(m, n)| = |G(m − 1, n)| + |G(m, n − 1)|
+    substitute G(m, n) = U ∪ V (line 3) into line 14
 
-18. G(m, n) is finite
+16. G(m, n) is finite
     thm:good-finite
 
-19. |G(m, n)| ∈ ℕ₀
-    mun:card-nat0 X := G(m, n), from 18
+17. |G(m, n)| ∈ ℕ₀
+    mun:card-nat0 X := G(m, n), from 16
 
-20. (m − 1) + n = m + (n − 1)
+18. (m − 1) + n = m + (n − 1)
     algebra
 
-21. |G(m − 1, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1)
-    substitute (m − 1) + n = m + (n − 1) (line 20) into H4
+19. |G(m − 1, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1)
+    substitute (m − 1) + n = m + (n − 1) (line 18) into H4
     requires m − 1 ∈ ℕ₀: from 1
 
-22. m − 1 ≤ m + (n − 1)
+20. m − 1 ≤ m + (n − 1)
     inequalities, from H2
 
-23. m − 1 ∈ {0, …, m + (n − 1)}
-    def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 22
+21. m − 1 ∈ {0, …, m + (n − 1)}
+    def:range0 k := m − 1, n := m + (n − 1), from 1, 2, 20
 
-24. C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
-    thm:absorption n := m + (n − 1), k := m − 1, from 2, 23
+22. C((m + (n − 1)) + 1, (m − 1) + 1) = C(m + (n − 1), m − 1)·(((m + (n − 1)) + 1)/((m − 1) + 1))
+    thm:absorption n := m + (n − 1), k := m − 1, from 2, 21
 
-25. (m + (n − 1)) + 1 = m + n
+23. (m + (n − 1)) + 1 = m + n
     algebra
 
-26. (m − 1) + 1 = m
-    algebra
+24. C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))
+    substitute (m + (n − 1)) + 1 = m + n (line 23) into line 22
 
-27. C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))
-    substitute (m + (n − 1)) + 1 = m + n (line 25) into line 24
+25. C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)
+    substitute
+      C(m + n, (m − 1) + 1) = C(m + (n − 1), m − 1)·((m + n)/((m − 1) + 1))      24
+      C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)                            algebra
 
-28. C(m + n, m) = C(m + (n − 1), m − 1)·((m + n)/m)
-    substitute (m − 1) + 1 = m (line 26) into line 27
-
-29. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C((m + (n − 1)) + 1, m)
+26. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C((m + (n − 1)) + 1, m)
     thm:pascal n := m + (n − 1), k := m, from 2
 
-30. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C(m + n, m)
-    substitute (m + (n − 1)) + 1 = m + n (line 25) into line 29
+27. C(m + (n − 1), m) + C(m + (n − 1), m − 1) = C(m + n, m)
+    substitute (m + (n − 1)) + 1 = m + n (line 23) into line 26
 
-31. C(m + n, m) ∈ ℕ₀
+28. C(m + n, m) ∈ ℕ₀
     mun:binomial-nat0 n := m + n, k := m
 
-32. C(m + (n − 1), m − 1) ∈ ℕ₀
+29. C(m + (n − 1), m − 1) ∈ ℕ₀
     mun:binomial-nat0 n := m + (n − 1), k := m − 1, from 2
 
-33. C(m + (n − 1), m) ∈ ℕ₀
+30. C(m + (n − 1), m) ∈ ℕ₀
     mun:binomial-nat0 n := m + (n − 1), k := m, from 2
 
-34. C(m + (n − 1), m − 1)·(m + n) = m·C(m + n, m)
-    algebra, from 28, 32
+31. C(m + (n − 1), m − 1)·(m + n) = m·C(m + n, m)
+    algebra, from 25, 29
 
-35. C(m + (n − 1), m)·(m + n) = n·C(m + n, m)
-    algebra, from 30, 32, 33, 34
+32. C(m + (n − 1), m)·(m + n) = n·C(m + n, m)
+    algebra, from 27, 29, 30, 31
 
-36. |G(m, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1) + (m − (n − 1))·C(m + (n − 1), m)
-    algebra, from H5, 14, 15, 17, 21, 32, 33
+33. |G(m, n)|·(m + (n − 1)) = ((m − 1) − n)·C(m + (n − 1), m − 1) + (m − (n − 1))·C(m + (n − 1), m)
+    algebra, from H5, 12, 13, 15, 19, 29, 30
     requires n − 1 ∈ ℕ₀: from 2
 
-37. ((m − 1) − n)·C(m + (n − 1), m − 1)·(m + n) = ((m − 1) − n)·m·C(m + n, m)
-    algebra, from 31, 32, 34
+34. ((m − 1) − n)·C(m + (n − 1), m − 1)·(m + n) = ((m − 1) − n)·m·C(m + n, m)
+    algebra, from 28, 29, 31
 
-38. (m − (n − 1))·C(m + (n − 1), m)·(m + n) = (m − (n − 1))·n·C(m + n, m)
-    algebra, from 31, 33, 35
+35. (m − (n − 1))·C(m + (n − 1), m)·(m + n) = (m − (n − 1))·n·C(m + n, m)
+    algebra, from 28, 30, 32
 
-39. |G(m, n)|·(m + (n − 1))·(m + n) = ((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m)
-    algebra, from 19, 31, 32, 33, 36, 37, 38
+36. |G(m, n)|·(m + (n − 1))·(m + n) = ((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m)
+    algebra, from 17, 28, 29, 30, 33, 34, 35
 
-40. 0 < m + (n − 1)
+37. 0 < m + (n − 1)
     inequalities, from H1, H2
 
-41. |G(m, n)|·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))
-    algebra, from 19, 31, 39
-    requires 0 ≠ m + (n − 1): weakening, from 40
-
-42. (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1)) = (m − n)·C(m + n, m)
-    algebra, from 31
-    requires 0 ≠ m + (n − 1): weakening, from 40
-
-43. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+38. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
     calculation
-      |G(m, n)|·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))    41
-                        = (m − n)·C(m + n, m)                                                              42
+      |G(m, n)|·(m + n) = (((m − 1) − n)·m·C(m + n, m) + (m − (n − 1))·n·C(m + n, m))/(m + (n − 1))    algebra, from 17, 28, 36
+                        = (m − n)·C(m + n, m)                                                              algebra, from 28
+    requires 0 ≠ m + (n − 1): weakening, from 37
 
 
 theorem ballot-count

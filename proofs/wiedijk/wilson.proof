@@ -326,366 +326,354 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
           mun:pos-int-nat m := p − 2
           requires 0 < p − 2: inequalities, from 5.2
 
-    5.4.  φ(p) = p − 1
-          thm:phi-prime, from H2
-
-    5.5.  For all a ∈ {2, …, p − 2}, gcd(a, p) = 1.
+    5.4.  For all a ∈ {2, …, p − 2}, gcd(a, p) = 1.
           proof
           let a ∈ {2, …, p − 2}                                       (K1)
 
-          5.5.1.  a ∈ ℕ
+          5.4.1.  a ∈ ℕ
                   mun:pos-int-nat m := a
                   requires 0 < a: inequalities, from K1
 
-          5.5.2.  gcd(a, p) = 1
-                  thm:coprime-below-prime, from H2, 5.5.1
+          5.4.2.  gcd(a, p) = 1
+                  thm:coprime-below-prime, from H2, 5.4.1
                   requires a < p: inequalities, from K1
 
-    5.6.  For all a ∈ {2, …, p − 2}, f(a) ∈ {0, …, p − 1}.
+    5.5.  For all a ∈ {2, …, p − 2}, f(a) ∈ {0, …, p − 1}.
           proof
           let a ∈ {2, …, p − 2}                                       (K2)
 
-          5.6.1.  a^(p − 2) ∈ ℤ
+          5.5.1.  a^(p − 2) ∈ ℤ
                   mun:power-integer m := p − 2, from 5.3
 
-          5.6.2.  (a^(p − 2)) mod p < p
-                  mun:mod-less, from 5.6.1
+          5.5.2.  (a^(p − 2)) mod p < p
+                  mun:mod-less, from 5.5.1
 
-          5.6.3.  (a^(p − 2)) mod p ∈ {0, …, p − 1}
-                  mun:range-from-bounds, from 5.6.2
-                  requires (a^(p − 2)) mod p ∈ ℕ₀: mun:mod-natural, from 5.6.1
+          5.5.3.  (a^(p − 2)) mod p ∈ {0, …, p − 1}
+                  mun:range-from-bounds, from 5.5.2
+                  requires (a^(p − 2)) mod p ∈ ℕ₀: mun:mod-natural, from 5.5.1
 
-          5.6.4.  f(a) = (a^(p − 2)) mod p
+          5.5.4.  f(a) = (a^(p − 2)) mod p
                   D1, from K2
 
-          5.6.5.  f(a) ∈ {0, …, p − 1}
-                  substitute f(a) = (a^(p − 2)) mod p (line 5.6.4) into line 5.6.3
+          5.5.5.  f(a) ∈ {0, …, p − 1}
+                  substitute f(a) = (a^(p − 2)) mod p (line 5.5.4) into line 5.5.3
 
-    5.7.  For all a ∈ {2, …, p − 2}, f(a) ∈ ℤ.
+    5.6.  For all a ∈ {2, …, p − 2}, f(a) ∈ ℤ.
           proof
           let a ∈ {2, …, p − 2}                                       (K3)
 
-          5.7.1.  f(a) ∈ ℤ
-                  mun:range-integer, from 5.6
+          5.6.1.  f(a) ∈ ℤ
+                  mun:range-integer, from 5.5
 
-    5.8.  For all a ∈ {2, …, p − 2}, a·f(a) ≡ 1 (mod p).
+    5.7.  For all a ∈ {2, …, p − 2}, a·f(a) ≡ 1 (mod p).
           proof
           note a^(p − 1) ≡ 1, and a^(p − 1) is a·a^(p − 2)
           let a ∈ {2, …, p − 2}                                       (K4)
 
-          5.8.1.  a^φ(p) ≡ 1 (mod p)
-                  thm:euler n := p, from 5.5
+          5.7.1.  a^φ(p) ≡ 1 (mod p)
+                  thm:euler n := p, from 5.4
 
-          5.8.2.  a^(p − 1) ≡ 1 (mod p)
-                  substitute φ(p) = p − 1 (line 5.4) into line 5.8.1
+          5.7.2.  a^(p − 1) ≡ 1 (mod p)
+                  substitute
+                    a^φ(p) ≡ 1 (mod p)         5.7.1
+                    a^(p − 1) ≡ 1 (mod p)      thm:phi-prime, from H2
 
-          5.8.3.  a^(p − 2 + 1) = a^(p − 2)·a
+          5.7.3.  a^(p − 2 + 1) = a^(p − 2)·a
                   mun:exponent-step m := p − 2, from 5.3
 
-          5.8.4.  p − 2 + 1 = p − 1
-                  algebra
+          5.7.4.  a^(p − 1) = a^(p − 2)·a
+                  substitute
+                    a^(p − 2 + 1) = a^(p − 2)·a      5.7.3
+                    a^(p − 1) = a^(p − 2)·a          algebra
 
-          5.8.5.  a^(p − 1) = a^(p − 2)·a
-                  substitute p − 2 + 1 = p − 1 (line 5.8.4) into line 5.8.3
-
-          5.8.6.  a^(p − 2) ∈ ℤ
+          5.7.5.  a^(p − 2) ∈ ℤ
                   mun:power-integer m := p − 2, from 5.3
 
-          5.8.7.  a^(p − 2) ≡ (a^(p − 2)) mod p (mod p)
-                  mun:mod-congruent x := a^(p − 2), n := p, from 5.8.6
+          5.7.6.  a^(p − 2) ≡ (a^(p − 2)) mod p (mod p)
+                  mun:mod-congruent x := a^(p − 2), n := p, from 5.7.5
 
-          5.8.8.  f(a) = (a^(p − 2)) mod p
+          5.7.7.  f(a) = (a^(p − 2)) mod p
                   D1, from K4
 
-          5.8.9.  a^(p − 2) ≡ f(a) (mod p)
-                  substitute f(a) = (a^(p − 2)) mod p (line 5.8.8) into line 5.8.7
+          5.7.8.  a^(p − 2) ≡ f(a) (mod p)
+                  substitute f(a) = (a^(p − 2)) mod p (line 5.7.7) into line 5.7.6
 
-          5.8.10. f(a)·a ≡ a^(p − 2)·a (mod p)
-                  thm:congruent-times c := a, from 5.7, 5.8.6, 5.8.9
+          5.7.9.  f(a)·a ≡ a^(p − 2)·a (mod p)
+                  thm:congruent-times c := a, from 5.6, 5.7.5, 5.7.8
 
-          5.8.11. f(a)·a ≡ a^(p − 1) (mod p)
-                  substitute a^(p − 1) = a^(p − 2)·a (line 5.8.5) into line 5.8.10
+          5.7.10. f(a)·a ≡ a^(p − 1) (mod p)
+                  substitute a^(p − 1) = a^(p − 2)·a (line 5.7.4) into line 5.7.9
 
-          5.8.12. a·f(a) = f(a)·a
-                  algebra, from 5.7
+          5.7.11. a·f(a) = f(a)·a
+                  algebra, from 5.6
 
-          5.8.13. a^(p − 1) ∈ ℤ
-                  membership, from 5.8.5, 5.8.6
+          5.7.12. a^(p − 1) ∈ ℤ
+                  membership, from 5.7.4, 5.7.5
 
-          5.8.14. a·f(a) ≡ 1 (mod p)
+          5.7.13. a·f(a) ≡ 1 (mod p)
                   calculation
-                    a·f(a) = f(a)·a            5.8.12
-                           ≡ a^(p − 1) (mod p)  5.8.11
-                           ≡ 1 (mod p)          5.8.2
-                  requires f(a)·a ∈ ℤ: membership, from 5.7
-                  requires a^(p − 1) ∈ ℤ: from 5.8.13
+                    a·f(a) = f(a)·a            5.7.11
+                           ≡ a^(p − 1) (mod p)  5.7.10
+                           ≡ 1 (mod p)          5.7.2
+                  requires f(a)·a ∈ ℤ: membership, from 5.6
+                  requires a^(p − 1) ∈ ℤ: from 5.7.12
 
-    5.9.  For all a ∈ {2, …, p − 2}, not (p divides a − 1).
+    5.8.  For all a ∈ {2, …, p − 2}, not (p divides a − 1).
           proof
           let a ∈ {2, …, p − 2}                                       (K5)
 
-          5.9.1.  a − 1 ∈ ℕ
+          5.8.1.  a − 1 ∈ ℕ
                   mun:pos-int-nat m := a − 1
                   requires 0 < a − 1: inequalities, from K5
 
-          5.9.2.  not (p divides a − 1)
-                  mun:below-not-divisible n := p, x := a − 1, from 5.9.1
+          5.8.2.  not (p divides a − 1)
+                  mun:below-not-divisible n := p, x := a − 1, from 5.8.1
                   requires a − 1 < p: inequalities, from K5
 
-    5.10. For all a ∈ {2, …, p − 2}, not (p divides a + 1).
+    5.9.  For all a ∈ {2, …, p − 2}, not (p divides a + 1).
           proof
           let a ∈ {2, …, p − 2}                                       (K6)
 
-          5.10.1. a + 1 ∈ ℕ
+          5.9.1.  a + 1 ∈ ℕ
                   mun:pos-int-nat m := a + 1
                   requires 0 < a + 1: inequalities, from K6
 
-          5.10.2. not (p divides a + 1)
-                  mun:below-not-divisible n := p, x := a + 1, from 5.10.1
+          5.9.2.  not (p divides a + 1)
+                  mun:below-not-divisible n := p, x := a + 1, from 5.9.1
                   requires a + 1 < p: inequalities, from K6
 
-    5.11. 0 ∈ {0, …, p − 1}
+    5.10. 0 ∈ {0, …, p − 1}
           mun:range-from-bounds m := p, x := 0, from H1
 
-    5.12. 1 ∈ {0, …, p − 1}
+    5.11. 1 ∈ {0, …, p − 1}
           mun:range-from-bounds m := p, x := 1, from 1
 
-    5.13. {2, …, p − 2} ⊆ {0, …, p − 1}
+    5.12. {2, …, p − 2} ⊆ {0, …, p − 1}
           mun:range-inside
           requires 0 ≤ 2: arithmetic
           requires p − 2 ≤ p − 1: inequalities
 
-    5.14. For all a ∈ {2, …, p − 2}, f(a) ∈ {2, …, p − 2}.
+    5.13. For all a ∈ {2, …, p − 2}, f(a) ∈ {2, …, p − 2}.
           proof
           note the inverse is not 0, 1 or p − 1
           let a ∈ {2, …, p − 2}                                       (K7)
 
-          5.14.1. a ∈ {0, …, p − 1}
-                  mun:in-subset, from K7, 5.13
+          5.13.1. a ∈ {0, …, p − 1}
+                  mun:in-subset, from K7, 5.12
 
-          5.14.2. f(a) ≠ 0
+          5.13.2. f(a) ≠ 0
                   contradiction
                   suppose f(a) = 0                                    (S1)
 
-                  5.14.2.1. a·0 ≡ 1 (mod p)
-                            substitute f(a) = 0 (S1) into line 5.8
+                  5.13.2.1. a·0 ≡ 1 (mod p)
+                            substitute f(a) = 0 (S1) into line 5.7
 
-                  5.14.2.2. a·0 = 0
-                            algebra
+                  5.13.2.2. 0 ≡ 1 (mod p)
+                            substitute
+                              a·0 ≡ 1 (mod p)      5.13.2.1
+                              0 ≡ 1 (mod p)        algebra
 
-                  5.14.2.3. 0 ≡ 1 (mod p)
-                            substitute a·0 = 0 (line 5.14.2.2) into line 5.14.2.1
+                  5.13.2.3. 0 = 1, which is impossible
+                            mun:congruent-in-range, from 5.10, 5.11, 5.13.2.2
 
-                  5.14.2.4. 0 = 1, which is impossible
-                            mun:congruent-in-range, from 5.11, 5.12, 5.14.2.3
-
-          5.14.3. f(a) ≠ 1
+          5.13.3. f(a) ≠ 1
                   contradiction
                   suppose f(a) = 1                                    (S2)
 
-                  5.14.3.1. a ≡ 1 (mod p)
-                            substitute f(a) = 1 (S2) into line 5.8
+                  5.13.3.1. a ≡ 1 (mod p)
+                            substitute f(a) = 1 (S2) into line 5.7
 
-                  5.14.3.2. a = 1
-                            mun:congruent-in-range, from 5.12, 5.14.1, 5.14.3.1
+                  5.13.3.2. a = 1
+                            mun:congruent-in-range, from 5.11, 5.13.1, 5.13.3.1
 
-                  5.14.3.3. a ≤ 1
+                  5.13.3.3. a ≤ 1
                             inequalities
-                              a = 1        5.14.3.2
+                              a = 1        5.13.3.2
                               a ≤ 1        weakening
 
-                  5.14.3.4. not a ≤ 1
-                            inequalities, from K7, contradicting 5.14.3.3
+                  5.13.3.4. not a ≤ 1
+                            inequalities, from K7, contradicting 5.13.3.3
 
-          5.14.4. f(a) ≠ p − 1
+          5.13.4. f(a) ≠ p − 1
                   contradiction
                   suppose f(a) = p − 1                                (S3)
 
-                  5.14.4.1. a·(p − 1) ≡ 1 (mod p)
-                            substitute f(a) = p − 1 (S3) into line 5.8
+                  5.13.4.1. a·(p − 1) ≡ 1 (mod p)
+                            substitute f(a) = p − 1 (S3) into line 5.7
 
-                  5.14.4.2. p divides a·(p − 1) − 1
-                            def:congruent-mod, from 5.14.4.1
+                  5.13.4.2. p divides a·(p − 1) − 1
+                            def:congruent-mod, from 5.13.4.1
 
-                  5.14.4.3. p divides p·a
+                  5.13.4.3. p divides p·a
                             mun:divides-multiple e := p, a := p, x := a
                             requires p divides p: mun:divides-self n := p
 
-                  5.14.4.4. p divides p·a − (a·(p − 1) − 1)
-                            mun:divides-difference, from 5.14.4.2, 5.14.4.3
+                  5.13.4.4. p divides p·a − (a·(p − 1) − 1)
+                            mun:divides-difference, from 5.13.4.2, 5.13.4.3
 
-                  5.14.4.5. p·a − (a·(p − 1) − 1) = a + 1
-                            algebra
+                  5.13.4.5. p divides a + 1
+                            substitute
+                              p divides p·a − (a·(p − 1) − 1)      5.13.4.4
+                              p divides a + 1                      algebra
 
-                  5.14.4.6. p divides a + 1
-                            substitute p·a − (a·(p − 1) − 1) = a + 1 (line 5.14.4.5) into line 5.14.4.4
+                  5.13.4.6. not (p divides a + 1)
+                            restate 5.9, contradicting 5.13.4.5
 
-                  5.14.4.7. not (p divides a + 1)
-                            restate 5.10, contradicting 5.14.4.6
+          5.13.5. 0 < f(a)
+                  inequalities, from 5.5, 5.6, 5.13.2
 
-          5.14.5. 0 < f(a)
-                  inequalities, from 5.6, 5.7, 5.14.2
+          5.13.6. f(a) ∈ ℕ
+                  mun:pos-int-nat m := f(a), from 5.6, 5.13.5
 
-          5.14.6. f(a) ∈ ℕ
-                  mun:pos-int-nat m := f(a), from 5.7, 5.14.5
+          5.13.7. 1 < f(a)
+                  inequalities, from 5.13.3, 5.13.6
 
-          5.14.7. 1 < f(a)
-                  inequalities, from 5.14.3, 5.14.6
+          5.13.8. 1 + 1 ≤ f(a)
+                  mun:integer-step m := 1, n := f(a), from 5.6, 5.13.7
 
-          5.14.8. 1 + 1 ≤ f(a)
-                  mun:integer-step m := 1, n := f(a), from 5.7, 5.14.7
+          5.13.9. 2 ≤ f(a)
+                  substitute 1 + 1 = 2 (arithmetic) into line 5.13.8
 
-          5.14.9. 2 ≤ f(a)
-                  substitute 1 + 1 = 2 (arithmetic) into line 5.14.8
+          5.13.10. f(a) < p − 1
+                  inequalities, from 5.5, 5.13.4
+                  requires f(a) ∈ ℤ: from 5.6
 
-          5.14.10. f(a) < p − 1
-                  inequalities, from 5.6, 5.14.4
-                  requires f(a) ∈ ℤ: from 5.7
+          5.13.11. f(a) + 1 ≤ p − 1
+                  mun:integer-step m := f(a), n := p − 1, from 5.6, 5.13.10
 
-          5.14.11. f(a) + 1 ≤ p − 1
-                  mun:integer-step m := f(a), n := p − 1, from 5.7, 5.14.10
-
-          5.14.12. f(a) ≤ p − 2
+          5.13.12. f(a) ≤ p − 2
                   inequalities
-                    f(a) + 1 ≤ p − 1      5.14.11
+                    f(a) + 1 ≤ p − 1      5.13.11
                     f(a) ≤ p − 2          adding −1
-                  requires f(a) ∈ ℤ: from 5.7
+                  requires f(a) ∈ ℤ: from 5.6
 
-          5.14.13. f(a) ∈ {2, …, p − 2}
-                  def:range-between k := f(a), a := 2, b := p − 2, from 5.7, 5.14.9, 5.14.12
+          5.13.13. f(a) ∈ {2, …, p − 2}
+                  def:range-between k := f(a), a := 2, b := p − 2, from 5.6, 5.13.9, 5.13.12
 
-    5.15. For all a ∈ {2, …, p − 2}, f(a) ≠ a.
+    5.14. For all a ∈ {2, …, p − 2}, f(a) ≠ a.
           proof
           note a² ≡ 1 would make p divide (a − 1)(a + 1)
           let a ∈ {2, …, p − 2}                                       (K8)
 
-          5.15.1. f(a) ≠ a
+          5.14.1. f(a) ≠ a
                   contradiction
                   suppose f(a) = a                                    (S4)
 
-                  5.15.1.1. a·a ≡ 1 (mod p)
-                            substitute f(a) = a (S4) into line 5.8
+                  5.14.1.1. a·a ≡ 1 (mod p)
+                            substitute f(a) = a (S4) into line 5.7
 
-                  5.15.1.2. p divides a·a − 1
-                            def:congruent-mod, from 5.15.1.1
+                  5.14.1.2. p divides a·a − 1
+                            def:congruent-mod, from 5.14.1.1
 
-                  5.15.1.3. a·a − 1 = (a − 1)·(a + 1)
-                            algebra
+                  5.14.1.3. p divides (a − 1)·(a + 1)
+                            substitute
+                              p divides a·a − 1              5.14.1.2
+                              p divides (a − 1)·(a + 1)      algebra
 
-                  5.15.1.4. p divides (a − 1)·(a + 1)
-                            substitute a·a − 1 = (a − 1)·(a + 1) (line 5.15.1.3) into line 5.15.1.2
+                  5.14.1.4. p divides a − 1 or p divides a + 1
+                            thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.14.1.3
 
-                  5.15.1.5. p divides a − 1 or p divides a + 1
-                            thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.15.1.4
+                  5.14.1.5. p divides a + 1
+                            mun:disjunctive-syllogism-left, from 5.8, 5.14.1.4
 
-                  5.15.1.6. p divides a + 1
-                            mun:disjunctive-syllogism-left, from 5.9, 5.15.1.5
+                  5.14.1.6. not (p divides a + 1)
+                            restate 5.9, contradicting 5.14.1.5
 
-                  5.15.1.7. not (p divides a + 1)
-                            restate 5.10, contradicting 5.15.1.6
-
-    5.16. For all a ∈ {2, …, p − 2}, f(f(a)) = a.
+    5.15. For all a ∈ {2, …, p − 2}, f(f(a)) = a.
           proof
           note f(a) has inverse a, and an inverse is one remainder only
           let a ∈ {2, …, p − 2}                                       (K9)
 
-          5.16.1. f(a)·f(f(a)) ≡ 1 (mod p)
-                  instantiate a := f(a) in line 5.8, from 5.14
+          5.15.1. f(f(a)) ∈ {0, …, p − 1}
+                  instantiate a := f(a) in line 5.5, from 5.13
 
-          5.16.2. f(f(a)) ∈ {0, …, p − 1}
-                  instantiate a := f(a) in line 5.6, from 5.14
+          5.15.2. f(f(a)) ∈ ℤ
+                  mun:range-integer, from 5.15.1
 
-          5.16.3. f(f(a)) ∈ ℤ
-                  mun:range-integer, from 5.16.2
+          5.15.3. f(f(a))·f(a) = f(a)·f(f(a))
+                  algebra, from 5.6, 5.15.2
 
-          5.16.4. f(f(a))·f(a) = f(a)·f(f(a))
-                  algebra, from 5.7, 5.16.3
-
-          5.16.5. f(f(a))·f(a) ≡ a·f(a) (mod p)
+          5.15.4. f(f(a))·f(a) ≡ a·f(a) (mod p)
                   calculation
-                    f(f(a))·f(a) = f(a)·f(f(a))     5.16.4
-                                 ≡ 1 (mod p)          5.16.1
-                                 ≡ a·f(a) (mod p)     5.8
-                  requires f(a)·f(f(a)) ∈ ℤ: membership, from 5.7, 5.16.3
-                  requires a·f(a) ∈ ℤ: membership, from 5.7
+                    f(f(a))·f(a) = f(a)·f(f(a))     5.15.3
+                                 ≡ 1 (mod p)          instantiate a := f(a) in line 5.7, from 5.13
+                                 ≡ a·f(a) (mod p)     5.7
+                  requires f(a)·f(f(a)) ∈ ℤ: membership, from 5.6, 5.15.2
+                  requires a·f(a) ∈ ℤ: membership, from 5.6
 
-          5.16.6. gcd(f(a), p) = 1
-                  instantiate a := f(a) in line 5.5, from 5.14
+          5.15.5. gcd(f(a), p) = 1
+                  instantiate a := f(a) in line 5.4, from 5.13
 
-          5.16.7. f(f(a)) ≡ a (mod p)
-                  thm:congruent-cancel c := f(a), from 5.7, 5.16.3, 5.16.5, 5.16.6
+          5.15.6. f(f(a)) ≡ a (mod p)
+                  thm:congruent-cancel c := f(a), from 5.6, 5.15.2, 5.15.4, 5.15.5
 
-          5.16.8. a ∈ {0, …, p − 1}
-                  mun:in-subset, from K9, 5.13
+          5.15.7. a ∈ {0, …, p − 1}
+                  mun:in-subset, from K9, 5.12
 
-          5.16.9. f(f(a)) = a
-                  mun:congruent-in-range, from 5.16.2, 5.16.7, 5.16.8
+          5.15.8. f(f(a)) = a
+                  mun:congruent-in-range, from 5.15.1, 5.15.6, 5.15.7
 
-    5.17. f : {2, …, p − 2} → {2, …, p − 2}
-          mun:function-into, from D1, 5.14
+    5.16. f : {2, …, p − 2} → {2, …, p − 2}
+          mun:function-into, from D1, 5.13
           requires f is a function on {2, …, p − 2}: from D1
 
-    5.18. {2, …, p − 2} is finite
+    5.17. {2, …, p − 2} is finite
           mun:range-finite
 
-    5.19. {2, …, p − 2} ⊆ ℤ
+    5.18. {2, …, p − 2} ⊆ ℤ
           mun:range-in-integers
 
-    5.20. ∏(a ∈ {2, …, p − 2}) a ≡ 1 (mod p)
-          thm:paired-product, from 5.8, 5.15, 5.16, 5.18, 5.19
-          requires f : {2, …, p − 2} → {2, …, p − 2}: from 5.17
+    5.19. ∏(a ∈ {2, …, p − 2}) a ≡ 1 (mod p)
+          thm:paired-product, from 5.7, 5.14, 5.15, 5.17, 5.18
+          requires f : {2, …, p − 2} → {2, …, p − 2}: from 5.16
 
-    5.21. p − 1 ∈ ℕ₀
+    5.20. p − 1 ∈ ℕ₀
           mun:nat-minus-one n := p
 
-    5.22. (p − 1)! = ∏(k = 1 to p − 1) k
-          mun:factorial-product n := p − 1, from 5.21
+    5.21. (p − 1)! = ∏(k = 1 to p − 1) k
+          mun:factorial-product n := p − 1, from 5.20
 
-    5.23. ∏(k = 1 to p − 2 + 1) k = (∏(k = 1 to p − 2) k)·(p − 2 + 1)
+    5.22. ∏(k = 1 to p − 2 + 1) k = (∏(k = 1 to p − 2) k)·(p − 2 + 1)
           mun:product-extended a := 1, n := p − 2
           requires p − 2 ≥ 1: inequalities, from 5.2
 
-    5.24. p − 2 + 1 = p − 1
-          algebra
+    5.23. ∏(k = 1 to p − 1) k = (∏(k = 1 to p − 2) k)·(p − 1)
+          substitute
+            ∏(k = 1 to p − 2 + 1) k = (∏(k = 1 to p − 2) k)·(p − 2 + 1)      5.22
+            ∏(k = 1 to p − 1) k = (∏(k = 1 to p − 2) k)·(p − 1)              algebra
 
-    5.25. ∏(k = 1 to p − 1) k = (∏(k = 1 to p − 2) k)·(p − 1)
-          substitute p − 2 + 1 = p − 1 (line 5.24) into line 5.23
-
-    5.26. ∏(k = 1 to p − 2) k = 1·∏(k = 1 + 1 to p − 2) k
+    5.24. ∏(k = 1 to p − 2) k = 1·∏(k = 1 + 1 to p − 2) k
           mun:product-first a := 1, b := p − 2
           requires 1 ≤ p − 2: inequalities, from 5.2
 
-    5.27. ∏(k = 2 to p − 2) k ∈ ℤ
-          mun:product-integer, from 5.18, 5.19
+    5.25. ∏(k = 2 to p − 2) k ∈ ℤ
+          mun:product-integer, from 5.17, 5.18
 
-    5.28. ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k
-          substitute 1 + 1 = 2 (arithmetic) into line 5.26
-          requires ∏(k = 2 to p − 2) k ∈ ℤ: from 5.27
+    5.26. ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k
+          substitute 1 + 1 = 2 (arithmetic) into line 5.24
+          requires ∏(k = 2 to p − 2) k ∈ ℤ: from 5.25
 
-    5.29. (∏(k = 1 to p − 2) k)·(p − 1) = (∏(k = 2 to p − 2) k)·(p − 1)
-          substitute ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k (line 5.28)
+    5.27. (∏(k = 1 to p − 2) k)·(p − 1) = (∏(k = 2 to p − 2) k)·(p − 1)
+          substitute ∏(k = 1 to p − 2) k = ∏(k = 2 to p − 2) k (line 5.26)
 
-    5.30. (∏(k = 2 to p − 2) k)·(p − 1) ≡ p − 1 (mod p)
-          thm:congruent-times b := 1, c := p − 1, from 5.20, 5.27
+    5.28. (∏(k = 2 to p − 2) k)·(p − 1) ≡ p − 1 (mod p)
+          thm:congruent-times b := 1, c := p − 1, from 5.19, 5.25
 
-    5.31. p − 1 ≡ −1 (mod p)
-          mun:minus-one-congruent n := p
-
-    5.32. (p − 1)! ≡ −1 (mod p)
+    5.29. (p − 1)! ≡ −1 (mod p)
           calculation
-            (p − 1)! = ∏(k = 1 to p − 1) k                    5.22
-                     = (∏(k = 1 to p − 2) k)·(p − 1)          5.25
-                     = (∏(k = 2 to p − 2) k)·(p − 1)          5.29
-                     ≡ p − 1 (mod p)                          5.30
-                     ≡ −1 (mod p)                             5.31
-          requires (∏(k = 2 to p − 2) k)·(p − 1) ∈ ℤ: membership, from 5.27
+            (p − 1)! = ∏(k = 1 to p − 1) k                    5.21
+                     = (∏(k = 1 to p − 2) k)·(p − 1)          5.23
+                     = (∏(k = 2 to p − 2) k)·(p − 1)          5.27
+                     ≡ p − 1 (mod p)                          5.28
+                     ≡ −1 (mod p)                             mun:minus-one-congruent n := p
+          requires (∏(k = 2 to p − 2) k)·(p − 1) ∈ ℤ: membership, from 5.25
 
     case
     note for p = 2 the claim is worked out
     assume 2 = p                                                      (C2)
 
-    5.33. (2 − 1)! ≡ −1 (mod 2)
+    5.30. (2 − 1)! ≡ −1 (mod 2)
           arithmetic
 
-    5.34. (p − 1)! ≡ −1 (mod p)
-          substitute 2 = p (C2) into line 5.33
+    5.31. (p − 1)! ≡ −1 (mod p)
+          substitute 2 = p (C2) into line 5.30

@@ -70,38 +70,29 @@ theorem factorial-gap
     1.5.  n + 1 + j + 1 = n + 1 + (j + 1)
           algebra
 
-    1.6.  (n + 1 + (j + 1))! = (n + 1 + j + 1)!
-          substitute n + 1 + j + 1 = n + 1 + (j + 1) (line 1.5)
-
-    1.7.  (n + 1 + j + 1)! = (n + 1 + j)!·(n + 1 + j + 1)
-          def:factorial n := n + 1 + j
-
-    1.8.  (n + 1 + j)! ∈ ℕ
+    1.6.  (n + 1 + j)! ∈ ℕ
           mun:factorial-nat n := n + 1 + j
 
-    1.9.  2·(n + 1 + j)! ≤ (n + 1 + j + 1)·(n + 1 + j)!
-          mun:multiply-le-nonneg x := 2, y := n + 1 + j + 1, c := (n + 1 + j)!, from 1.8
-          requires 2 ≤ n + 1 + j + 1: inequalities, from H1, K
-          requires (n + 1 + j)! ≥ 0: inequalities, from 1.8
-
-    1.10. (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
+    1.7.  (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
           algebra
-          requires (n + 1 + j)! ∈ ℝ: from 1.8
+          requires (n + 1 + j)! ∈ ℝ: from 1.6
 
-    1.11. (n + 1)! ∈ ℕ
+    1.8.  (n + 1)! ∈ ℕ
           mun:factorial-nat n := n + 1
 
-    1.12. (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
-          inequalities, from IH, 1.8
-          requires (n + 1)! ∈ ℝ: from 1.11
+    1.9.  (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
+          inequalities, from IH, 1.6
+          requires (n + 1)! ∈ ℝ: from 1.8
 
-    1.13. (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
+    1.10. (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
           calculation
-            (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         1.12
-                               ≤ (n + 1 + j + 1)·(n + 1 + j)!           1.9
-                               = (n + 1 + j)!·(n + 1 + j + 1)           1.10
-                               = (n + 1 + j + 1)!                       1.7
-                               = (n + 1 + (j + 1))!                     1.6
+            (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         1.9
+                               ≤ (n + 1 + j + 1)·(n + 1 + j)!           mun:multiply-le-nonneg x := 2, y := n + 1 + j + 1, c := (n + 1 + j)!, from 1.6
+                               = (n + 1 + j)!·(n + 1 + j + 1)           1.7
+                               = (n + 1 + j + 1)!                       def:factorial n := n + 1 + j
+                               = (n + 1 + (j + 1))!                     substitute line 1.5
+          requires 2 ≤ n + 1 + j + 1: inequalities, from H1, K
+          requires (n + 1 + j)! ≥ 0: inequalities, from 1.6
 
 theorem terms-real
   let m ∈ ℕ                                                           (H1)
@@ -771,90 +762,87 @@ theorem liouville-number
            algebra, from D2
            requires r! ∈ ℝ: from 11.4
 
-    11.32. 2^(r!·N)·2^(r!·(m + 1)) = Q·R
-           algebra, from D5, D6
-
-    11.33. e = Q·R
+    11.32. e = Q·R
            calculation
              e = 2^((r + 1)!)                      D4
                = 2^(r!·(r + 1))                    substitute line 11.30
                = 2^(r!·N + r!·(m + 1))             substitute line 11.31
                = 2^(r!·N)·2^(r!·(m + 1))           mun:exponent-sum a := 2, m := r!·N, n := r!·(m + 1), from 11.26, 11.27
-               = Q·R                               11.32
+               = Q·R                               algebra, from D5, D6
 
-    11.34. c/Q < 2/e
-           substitute d^N = Q (line 11.29) into line 11.25
+    11.33. c/Q < 2/(Q·R)
+           substitute
+             c/d^N < 2/e        11.25
+             c/Q < 2/e          substitute line 11.29
+             c/Q < 2/(Q·R)      substitute line 11.32
 
-    11.35. c/Q < 2/(Q·R)
-           substitute e = Q·R (line 11.33) into line 11.34
-
-    11.36. Q·R > 0
+    11.34. Q·R > 0
            mun:product-positive x := Q, y := R
            requires Q > 0: inequalities, from D5
            requires R > 0: inequalities, from D6
 
-    11.37. c·(Q·R) < 2·Q
-           mun:cross-multiplied-order a := c, b := Q·R, c := 2, d := Q, from 11.35, 11.36
+    11.35. c·(Q·R) < 2·Q
+           mun:cross-multiplied-order a := c, b := Q·R, c := 2, d := Q, from 11.33, 11.34
            requires Q > 0: inequalities, from D5
 
-    11.38. Q·(c·R) < Q·2
+    11.36. Q·(c·R) < Q·2
            inequalities
-             c·(Q·R) < 2·Q      11.37
+             c·(Q·R) < 2·Q      11.35
              Q·(c·R) < Q·2      algebra
 
-    11.39. c·R < 2
-           mun:less-scaled x := c·R, y := 2, c := Q, from 11.38
+    11.37. c·R < 2
+           mun:less-scaled x := c·R, y := 2, c := Q, from 11.36
            requires Q > 0: inequalities, from D5
 
-    11.40. c·R ≤ 2
+    11.38. c·R ≤ 2
            inequalities
-             c·R < 2      11.39
+             c·R < 2      11.37
              c·R ≤ 2      weakening
 
-    11.41. 1 ≤ r!
+    11.39. 1 ≤ r!
            inequalities, from 11.4
 
-    11.42. 1·(m + 1) ≤ r!·(m + 1)
-           mun:multiply-le-nonneg x := 1, y := r!, c := m + 1, from 11.41
+    11.40. 1·(m + 1) ≤ r!·(m + 1)
+           mun:multiply-le-nonneg x := 1, y := r!, c := m + 1, from 11.39
            requires r! ∈ ℝ: from 11.4
            requires m + 1 ≥ 0: inequalities, from 11.3
 
-    11.43. m + 1 ≤ r!·(m + 1)
+    11.41. m + 1 ≤ r!·(m + 1)
            inequalities
-             1·(m + 1) ≤ r!·(m + 1)     11.42
+             1·(m + 1) ≤ r!·(m + 1)     11.40
              m + 1 ≤ r!·(m + 1)         algebra
            requires r! ∈ ℝ: from 11.4
 
-    11.44. 2^(m + 1) ≤ 2^(r!·(m + 1))
-           mun:power-exponent-le a := 2, m := m + 1, n := r!·(m + 1), from 11.27, 11.43
+    11.42. 2^(m + 1) ≤ 2^(r!·(m + 1))
+           mun:power-exponent-le a := 2, m := m + 1, n := r!·(m + 1), from 11.27, 11.41
            requires 1 ≤ 2: arithmetic
 
-    11.45. 2^(m + 1) ≤ R
-           substitute 2^(r!·(m + 1)) = R (D6) into line 11.44
+    11.43. 2^(m + 1) ≤ R
+           substitute 2^(r!·(m + 1)) = R (D6) into line 11.42
 
-    11.46. m < 1 + 1·(m + 1)
+    11.44. m < 1 + 1·(m + 1)
            inequalities
 
-    11.47. m < R
+    11.45. m < R
            calculation
-             m < 1 + 1·(m + 1)                11.46
+             m < 1 + 1·(m + 1)                11.44
                ≤ (1 + 1)^(m + 1)              thm:bernoulli-inequality x := 1, n := m + 1
                = 2^(m + 1)                    arithmetic
-               ≤ R                            11.45
+               ≤ R                            11.43
            requires 1 ≥ −1: arithmetic
 
-    11.48. 2/c < R
-           transitivity, from 11.3, 11.47
+    11.46. 2/c < R
+           transitivity, from 11.3, 11.45
            requires c ≠ 0: weakening, from 11.2
 
-    11.49. 2 < c·R
+    11.47. 2 < c·R
            calculation
              2 = c·(2/c)          algebra
-               < c·R              mun:less-scaled x := 2/c, y := R, from 11.2, 11.48
+               < c·R              mun:less-scaled x := 2/c, y := R, from 11.2, 11.46
            requires c ≠ 0: weakening, from 11.2
 
-    11.50. not 2 < c·R
-           inequalities, from 11.40, contradicting 11.49
+    11.48. not 2 < c·R
+           inequalities, from 11.38, contradicting 11.47
 
 12. L is transcendental
     def:transcendental, from 11

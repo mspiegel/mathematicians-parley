@@ -372,165 +372,156 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
     mun:card-add-one, from 13
     requires v ∉ X ∖ {v}: mun:not-in-difference
 
-23. (X ∖ {v}) ∪ {v} = X
-    mun:remove-and-restore, from 9
+23. |X| = |R| + |B| + 1
+    substitute
+      |(X ∖ {v}) ∪ {v}| = |X ∖ {v}| + 1      22
+      |X| = |X ∖ {v}| + 1                    mun:remove-and-restore, from 9
+      |X| = |R| + |B| + 1                    substitute line 21
 
-24. |X| = |X ∖ {v}| + 1
-    substitute (X ∖ {v}) ∪ {v} = X (line 23) into line 22
-
-25. |X| = |R| + |B| + 1
-    substitute |X ∖ {v}| = |R| + |B| (line 21) into line 24
-
-26. k + j − 1 ∈ ℕ₀
+24. k + j − 1 ∈ ℕ₀
     mun:nat-minus-one n := k + j
 
-27. C(k + j − 1, k − 1) ∈ ℕ₀
-    mun:binomial-nat0, from 26
+25. C(k + j − 1, k − 1) ∈ ℕ₀
+    mun:binomial-nat0, from 24
 
-28. C(k + j − 1, k) ∈ ℕ₀
-    mun:binomial-nat0, from 26
+26. C(k + j − 1, k) ∈ ℕ₀
+    mun:binomial-nat0, from 24
 
-29. C(k + j − 1, k) + C(k + j − 1, k − 1) = C(k + j − 1 + 1, k)
-    thm:pascal n := k + j − 1, from 26
-
-30. k + j − 1 + 1 = k + j
+27. k + j − 1 + 1 = k + j
     algebra
 
-31. C(k + j − 1 + 1, k) = C(k + j, k)
-    substitute k + j − 1 + 1 = k + j (line 30)
-
-32. C(k + j − 1, k) + C(k + j − 1, k − 1) ≤ |R| + |B| + 1
+28. C(k + j − 1, k) + C(k + j − 1, k − 1) ≤ |R| + |B| + 1
     calculation
-      C(k + j − 1, k) + C(k + j − 1, k − 1) = C(k + j − 1 + 1, k)    29
-                                            = C(k + j, k)            31
+      C(k + j − 1, k) + C(k + j − 1, k − 1) = C(k + j − 1 + 1, k)    thm:pascal n := k + j − 1, from 24
+                                            = C(k + j, k)            substitute line 27
                                             ≤ |X|                    H9
-                                            = |R| + |B| + 1          25
+                                            = |R| + |B| + 1          23
 
-33. C(k + j − 1, k − 1) ≤ |R| or not C(k + j − 1, k − 1) ≤ |R|
+29. C(k + j − 1, k − 1) ≤ |R| or not C(k + j − 1, k − 1) ≤ |R|
     axi:excluded-middle P := C(k + j − 1, k − 1) ≤ |R|
 
-34. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
-    cases, from 33
+30. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+    cases, from 29
 
     case
     assume C(k + j − 1, k − 1) ≤ |R|                                  (C1)
 
-    34.1. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+    30.1. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
           mun:or-left, from C1
 
     case
     note R falls short of its bound, so B reaches its own
     assume not C(k + j − 1, k − 1) ≤ |R|                              (C2)
 
-    34.2. |R| < C(k + j − 1, k − 1)
-          inequalities, from C2, 18, 27
+    30.2. |R| < C(k + j − 1, k − 1)
+          inequalities, from C2, 18, 25
 
-    34.3. |R| + 1 ≤ C(k + j − 1, k − 1)
-          mun:integer-step, from 18, 27, 34.2
+    30.3. |R| + 1 ≤ C(k + j − 1, k − 1)
+          mun:integer-step, from 18, 25, 30.2
 
-    34.4. C(k + j − 1, k) + (|R| + 1) ≤ C(k + j − 1, k) + C(k + j − 1, k − 1)
+    30.4. C(k + j − 1, k) + (|R| + 1) ≤ C(k + j − 1, k) + C(k + j − 1, k − 1)
           inequalities
-            |R| + 1 ≤ C(k + j − 1, k − 1)                                          34.3
+            |R| + 1 ≤ C(k + j − 1, k − 1)                                          30.3
             C(k + j − 1, k) + (|R| + 1) ≤ C(k + j − 1, k) + C(k + j − 1, k − 1)    adding C(k + j − 1, k)
           requires |R| ∈ ℕ₀: from 18
-          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 27
-          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 25
+          requires C(k + j − 1, k) ∈ ℕ₀: from 26
 
-    34.5. C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1
-          transitivity, from 34.4, 32
+    30.5. C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1
+          transitivity, from 30.4, 28
           requires |R| ∈ ℕ₀: from 18
           requires |B| ∈ ℕ₀: from 19
-          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 27
-          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+          requires C(k + j − 1, k − 1) ∈ ℕ₀: from 25
+          requires C(k + j − 1, k) ∈ ℕ₀: from 26
 
-    34.6. C(k + j − 1, k) ≤ |B|
+    30.6. C(k + j − 1, k) ≤ |B|
           inequalities
-            C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1    34.5
+            C(k + j − 1, k) + (|R| + 1) ≤ |R| + |B| + 1    30.5
             C(k + j − 1, k) ≤ |B|                          adding −(|R| + 1)
           requires |R| ∈ ℕ₀: from 18
           requires |B| ∈ ℕ₀: from 19
-          requires C(k + j − 1, k) ∈ ℕ₀: from 28
+          requires C(k + j − 1, k) ∈ ℕ₀: from 26
 
-    34.7. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
-          mun:or-right, from 34.6
+    30.7. C(k + j − 1, k − 1) ≤ |R| or C(k + j − 1, k) ≤ |B|
+          mun:or-right, from 30.6
 
-35. X ∖ {v} ⊆ V
+31. X ∖ {v} ⊆ V
     mun:subset-transitive, from H8, 12
 
-36. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-    cases, from 34
+32. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    cases, from 30
 
     case
     note R is large enough: a part of R found for k and j + 1 grows by v
     assume C(k + j − 1, k − 1) ≤ |R|                                  (C3)
 
-    36.1. R ⊆ V
-          mun:subset-transitive, from 14, 35
+    32.1. R ⊆ V
+          mun:subset-transitive, from 14, 31
 
-    36.2. There is W ⊆ R with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-          instantiate Z := R in H10, from C3, 36.1
+    32.2. There is W ⊆ R with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          instantiate Z := R in H10, from C3, 32.1
 
-    36.3. W ⊆ R. (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-          obtain W from line 36.2
+    32.3. W ⊆ R. (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          obtain W from line 32.2
 
-    36.4. For all w ∈ R, {v, w} ∈ E.
+    32.4. For all w ∈ R, {v, w} ∈ E.
           def:set-builder, from D1
 
-    36.5. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-          thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 36.3, 36.4
+    32.5. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
 
     case
     note B is large enough: a part of B found for k + 1 and j grows by v
     assume C(k + j − 1, k) ≤ |B|                                      (C4)
 
-    36.6. B ⊆ V
-          mun:subset-transitive, from 15, 35
+    32.6. B ⊆ V
+          mun:subset-transitive, from 15, 31
 
-    36.7. There is W ⊆ B with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-          instantiate Z := B in H11, from C4, 36.6
+    32.7. There is W ⊆ B with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          instantiate Z := B in H11, from C4, 32.6
 
-    36.8. W ⊆ B. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-          obtain W from line 36.7
+    32.8. W ⊆ B. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          obtain W from line 32.7
 
-    36.9. (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E)
-          mun:or-swap, from 36.8
+    32.9. (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E)
+          mun:or-swap, from 32.8
 
-    36.10. For all w ∈ B, {v, w} ∈ F.
+    32.10. For all w ∈ B, {v, w} ∈ F.
            proof
            let w ∈ B                                                  (K1)
 
-           36.10.1. w ∈ X ∖ {v}. {v, w} ∉ E.
+           32.10.1. w ∈ X ∖ {v}. {v, w} ∉ E.
                     def:set-builder u := w, from D2, K1
 
-           36.10.2. w ∈ X. w ≠ v.
-                    mun:remove-member u := w, Y := X, a := v, from 36.10.1
+           32.10.2. w ∈ X. w ≠ v.
+                    mun:remove-member u := w, Y := X, a := v, from 32.10.1
 
-           36.10.3. {v, w} ⊆ X
-                    mun:pair-subset a := v, b := w, from 9, 36.10.2
+           32.10.3. {v, w} ⊆ X
+                    mun:pair-subset a := v, b := w, from 9, 32.10.2
 
-           36.10.4. {v, w} ⊆ V
-                    mun:subset-transitive, from H8, 36.10.3
+           32.10.4. {v, w} ⊆ V
+                    mun:subset-transitive, from H8, 32.10.3
 
-           36.10.5. |{v, w}| = 2
-                    mun:card-pair-distinct u := v, from 36.10.2
+           32.10.5. |{v, w}| = 2
+                    mun:card-pair-distinct u := v, from 32.10.2
 
-           36.10.6. {v, w} ∈ E or {v, w} ∈ F
-                    instantiate Y := {v, w} in H7, from 36.10.4, 36.10.5
+           32.10.6. {v, w} ∈ E or {v, w} ∈ F
+                    instantiate Y := {v, w} in H7, from 32.10.4, 32.10.5
 
-           36.10.7. {v, w} ∈ F
-                    mun:disjunctive-syllogism-left, from 36.10.1, 36.10.6
+           32.10.7. {v, w} ∈ F
+                    mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
 
-    36.11. There is U ⊆ X with (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
-           thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 36.8, 36.9, 36.10
+    32.11. There is U ⊆ X with (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+           thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
 
-    36.12. U ⊆ X. (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
-           obtain U from line 36.11
+    32.12. U ⊆ X. (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+           obtain U from line 32.11
 
-    36.13. (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
-           mun:or-swap, from 36.12
+    32.13. (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
+           mun:or-swap, from 32.12
 
-    36.14. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
-           exhibit, from 36.12, 36.13
+    32.14. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+           exhibit, from 32.12, 32.13
 
 theorem ramsey
   note        Ramsey's theorem for two colours. Colour every pair of points

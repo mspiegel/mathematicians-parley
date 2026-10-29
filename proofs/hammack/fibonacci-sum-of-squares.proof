@@ -64,26 +64,25 @@ let q(j) = F(j)², for j ∈ ℕ₀                                          (D2
     proof
     let k ∈ ℕ₀                                                        (K2)
 
-    3.1.  k + 2 = (k + 1) + 1
-          algebra
-
-    3.2.  F((k + 1) + 1) = G(k + 1)
+    3.1.  F((k + 1) + 1) = G(k + 1)
           D1
 
-    3.3.  G(k + 1) = F(k) + G(k)
+    3.2.  G(k + 1) = F(k) + G(k)
           D1
 
-    3.4.  F(k + 1) = G(k)
+    3.3.  F(k + 1) = G(k)
           D1
 
-    3.5.  F((k + 1) + 1) = F(k) + G(k)
-          transitivity, from 3.2, 3.3
+    3.4.  F((k + 1) + 1) = F(k) + G(k)
+          transitivity, from 3.1, 3.2
 
-    3.6.  F((k + 1) + 1) = F(k) + F(k + 1)
-          substitute F(k + 1) = G(k) (line 3.4) into line 3.5
+    3.5.  F((k + 1) + 1) = F(k) + F(k + 1)
+          substitute F(k + 1) = G(k) (line 3.3) into line 3.4
 
-    3.7.  F(k + 2) = F(k) + F(k + 1)
-          substitute k + 2 = (k + 1) + 1 (line 3.1) into line 3.6
+    3.6.  F(k + 2) = F(k) + F(k + 1)
+          substitute
+            F((k + 1) + 1) = F(k) + F(k + 1)      3.5
+            F(k + 2) = F(k) + F(k + 1)            algebra
 
 4.  For all m ∈ ℕ, Σ(j = 1 to m) q(j) = F(m)·F(m + 1).
     induction on m starting at 1
@@ -125,55 +124,51 @@ let q(j) = F(j)², for j ∈ ℕ₀                                          (D2
     4.8.  F(0 + 2) = F(0) + F(0 + 1)
           instantiate k := 0 in line 3
 
-    4.9.  F(0 + 2) = 1
-          algebra, from 4.5, 4.6, 4.8
-
-    4.10. F(1 + 1) = 1
+    4.9.  F(1 + 1) = 1
           calculation
             F(1 + 1) = F(0 + 2)    arithmetic
-                     = 1           4.9
+                     = 1           algebra, from 4.5, 4.6, 4.8
 
-    4.11. Σ(j = 1 to 1) q(j) = F(1)·F(1 + 1)
-          algebra, from D2, 4.2, 4.7, 4.10
+    4.10. Σ(j = 1 to 1) q(j) = F(1)·F(1 + 1)
+          algebra, from D2, 4.2, 4.7, 4.9
 
     step
     let m ∈ ℕ                                                         (K3)
     assume step 4 is true for m, the induction hypothesis             (IH2)
 
-    4.12. For all i ∈ {1, …, m + 1}, q(i) ∈ ℝ.
+    4.11. For all i ∈ {1, …, m + 1}, q(i) ∈ ℝ.
           proof
           let i ∈ {1, …, m + 1}                                       (J2)
 
-          4.12.1. F(i) ∈ ℝ
+          4.11.1. F(i) ∈ ℝ
                   instantiate k := i in line 2
 
-          4.12.2. q(i) ∈ ℝ
-                  membership, from D2, 4.12.1
+          4.11.2. q(i) ∈ ℝ
+                  membership, from D2, 4.11.1
 
-    4.13. Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)
+    4.12. Σ(j = 1 to m + 1) q(j) = Σ(j = 1 to m) q(j) + q(m + 1)
           mun:sum-extended a := 1, n := m
           requires m ≥ 1: from K3
-          requires for all i ∈ {1, …, m + 1}, q(i) ∈ ℝ: from 4.12
+          requires for all i ∈ {1, …, m + 1}, q(i) ∈ ℝ: from 4.11
 
-    4.14. F(m + 2) = F(m) + F(m + 1)
+    4.13. F(m + 2) = F(m) + F(m + 1)
           instantiate k := m in line 3
 
-    4.15. F(m) ∈ ℝ
+    4.14. F(m) ∈ ℝ
           instantiate k := m in line 2
 
-    4.16. F(m + 1) ∈ ℝ
+    4.15. F(m + 1) ∈ ℝ
           instantiate k := m + 1 in line 2
 
-    4.17. Σ(j = 1 to m + 1) q(j) = F(m + 1)·F(m + 2)
-          algebra, from D2, IH2, 4.13, 4.14
-          requires F(m) ∈ ℝ: from 4.15
-          requires F(m + 1) ∈ ℝ: from 4.16
+    4.16. Σ(j = 1 to m + 1) q(j) = F(m + 1)·F(m + 2)
+          algebra, from D2, IH2, 4.12, 4.13
+          requires F(m) ∈ ℝ: from 4.14
+          requires F(m + 1) ∈ ℝ: from 4.15
 
-    4.18. (m + 1) + 1 = m + 2
-          algebra
-
-    4.19. Σ(j = 1 to m + 1) q(j) = F(m + 1)·F((m + 1) + 1)
-          substitute (m + 1) + 1 = m + 2 (line 4.18) into line 4.17
+    4.17. Σ(j = 1 to m + 1) q(j) = F(m + 1)·F((m + 1) + 1)
+          substitute
+            Σ(j = 1 to m + 1) q(j) = F(m + 1)·F(m + 2)            4.16
+            Σ(j = 1 to m + 1) q(j) = F(m + 1)·F((m + 1) + 1)      algebra
 
 5.  Σ(k = 1 to n) F(k)² = F(n)·F(n + 1)
     instantiate m := n in line 4, from D2

@@ -448,41 +448,27 @@ let h(x) = x^(2(n + 1))/(1 + x²), for x ∈ [0, 1]                      (D3)
     1.1.  2(n + 1) = 2n + 2
           algebra
 
-    1.2.  x^(2(n + 1)) = x^(2n + 2)
-          substitute 2(n + 1) = 2n + 2 (line 1.1)
-
-    1.3.  x^(2n + 2) = x^(2n)·x^2
-          mun:exponent-sum a := x, m := 2n, n := 2
-
-    1.4.  x^(2(n + 1)) = x^(2n)·x^2
+    1.2.  x^(2(n + 1)) = x^(2n)·x^2
           calculation
-            x^(2(n + 1)) = x^(2n + 2)       1.2
-                         = x^(2n)·x^2       1.3
+            x^(2(n + 1)) = x^(2n + 2)       substitute line 1.1
+                         = x^(2n)·x^2       mun:exponent-sum a := x, m := 2n, n := 2
 
-    1.5.  x² ≥ 0
+    1.3.  x² ≥ 0
           mun:square-nonneg
 
-    1.6.  1 + x² > 0
-          inequalities, from 1.5
+    1.4.  1 + x² > 0
+          inequalities, from 1.3
 
-    1.7.  x^(2(n + 1))/(1 + x²) = x^(2n) − x^(2n)/(1 + x²)
-          algebra, from 1.4
-          requires x^(2n) ∈ ℝ: membership
-          requires 1 + x² ≠ 0: weakening, from 1.6
-
-    1.8.  h(x) = x^(2(n + 1))/(1 + x²)
+    1.5.  h(x) = x^(2(n + 1))/(1 + x²)
           D3, from K1
 
-    1.9.  x^(2n) − x^(2n)/(1 + x²) = f(x) − g(x)
-          algebra, from D1, D2, K1
-          requires x^(2n) ∈ ℝ: membership
-          requires 1 + x² ≠ 0: weakening, from 1.6
-
-    1.10. h(x) = f(x) − g(x)
+    1.6.  h(x) = f(x) − g(x)
           calculation
-            h(x) = x^(2(n + 1))/(1 + x²)         1.8
-                 = x^(2n) − x^(2n)/(1 + x²)      1.7
-                 = f(x) − g(x)                   1.9
+            h(x) = x^(2(n + 1))/(1 + x²)         1.5
+                 = x^(2n) − x^(2n)/(1 + x²)      algebra, from 1.2
+                 = f(x) − g(x)                   algebra, from D1, D2, K1
+          requires x^(2n) ∈ ℝ: membership
+          requires 1 + x² ≠ 0: weakening, from 1.4
 
 2.  For all x ∈ [0, 1], f(x) = x^(2n).
     D1
@@ -527,38 +513,26 @@ let h(x) = x^(2(n + 1))/(1 + x²), for x ∈ [0, 1]                      (D3)
 13. 0 < 1
     arithmetic
 
-14. ∫(0 to 1) h(t) dt = ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt
-    thm:integral-difference a := 0, b := 1, from 1, 8, 9, 10, 11, 12, 13
-
-15. ∫(0 to 1) t^(2n) dt = 1/(2n + 1)
-    thm:power-integral m := 2n
-
-16. ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt
+14. ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt
     D1
 
-17. ∫(0 to 1) f(t) dt = 1/(2n + 1)
+15. ∫(0 to 1) f(t) dt = 1/(2n + 1)
     calculation
-      ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt     16
-                        = 1/(2n + 1)              15
+      ∫(0 to 1) f(t) dt = ∫(0 to 1) t^(2n) dt     14
+                        = 1/(2n + 1)              thm:power-integral m := 2n
 
-18. J(n + 1) = ∫(0 to 1) h(t) dt
+16. J(n + 1) = ∫(0 to 1) h(t) dt
     D0, from D3
 
-19. J(n) = ∫(0 to 1) g(t) dt
+17. J(n) = ∫(0 to 1) g(t) dt
     D0, from D2
 
-20. ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt = 1/(2n + 1) − ∫(0 to 1) g(t) dt
-    substitute ∫(0 to 1) f(t) dt = 1/(2n + 1) (line 17)
-
-21. 1/(2n + 1) − ∫(0 to 1) g(t) dt = 1/(2n + 1) − J(n)
-    substitute J(n) = ∫(0 to 1) g(t) dt (line 19)
-
-22. J(n + 1) = 1/(2n + 1) − J(n)
+18. J(n + 1) = 1/(2n + 1) − J(n)
     calculation
-      J(n + 1) = ∫(0 to 1) h(t) dt                              18
-               = ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt          14
-               = 1/(2n + 1) − ∫(0 to 1) g(t) dt                 20
-               = 1/(2n + 1) − J(n)                              21
+      J(n + 1) = ∫(0 to 1) h(t) dt                              16
+               = ∫(0 to 1) f(t) dt − ∫(0 to 1) g(t) dt          thm:integral-difference a := 0, b := 1, from 1, 8, 9, 10, 11, 12, 13
+               = 1/(2n + 1) − ∫(0 to 1) g(t) dt                 substitute line 15
+               = 1/(2n + 1) − J(n)                              substitute line 17
 
 theorem integral-bounds
   note        On [0, 1], t^(2n)/(1 + t²) lies between 0 and t^(2n), so its

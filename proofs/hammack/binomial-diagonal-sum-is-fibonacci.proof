@@ -74,174 +74,128 @@ let S(m) = Σ(k = 0 to m) C(m − k, k), for m ∈ ℕ₀                      (
                   membership
                   requires 0 − k ∈ ℕ₀: from 2.1.1
 
-    2.2.  Σ(k = 0 to 0) C(0 − k, k) = C(0, 0)
-          mun:sum-single a := 0, from 2.1
-
-    2.3.  C(0, 0) = 1
-          mun:binomial-zero-index n := 0
-
-    2.4.  G(0) = 1
+    2.2.  G(0) = 1
           D1
 
-    2.5.  S(0) = G(0)
+    2.3.  S(0) = G(0)
           calculation
             S(0) = Σ(k = 0 to 0) C(0 − k, k)     D2
-                 = C(0, 0)                       2.2
-                 = 1                             2.3
-                 = G(0)                          2.4
+                 = C(0, 0)                       mun:sum-single a := 0, from 2.1
+                 = 1                             mun:binomial-zero-index n := 0
+                 = G(0)                          2.2
 
-    2.6.  For all k ∈ {0, …, 0 + 1}, C((0 + 1) − k, k) ∈ ℝ.
+    2.4.  For all k ∈ {0, …, 0 + 1}, C((0 + 1) − k, k) ∈ ℝ.
           proof
           let k ∈ {0, …, 0 + 1}                                       (L)
 
-          2.6.1.  (0 + 1) − k ∈ ℕ₀
+          2.4.1.  (0 + 1) − k ∈ ℕ₀
                   mun:range-difference a := 0, n := 0 + 1, from L
 
-          2.6.2.  C((0 + 1) − k, k) ∈ ℝ
+          2.4.2.  C((0 + 1) − k, k) ∈ ℝ
                   membership
-                  requires (0 + 1) − k ∈ ℕ₀: from 2.6.1
+                  requires (0 + 1) − k ∈ ℕ₀: from 2.4.1
 
-    2.7.  Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)
-          mun:sum-last n := 0, from 2.6
-
-    2.8.  For all k ∈ {0, …, 0}, C((0 + 1) − k, k) ∈ ℝ.
+    2.5.  For all k ∈ {0, …, 0}, C((0 + 1) − k, k) ∈ ℝ.
           proof
           let k ∈ {0, …, 0}                                           (L)
 
-          2.8.1.  0 − k ∈ ℕ₀
+          2.5.1.  0 − k ∈ ℕ₀
                   mun:range-difference a := 0, n := 0, from L
 
-          2.8.2.  (0 − k) + 1 ∈ ℕ
-                  mun:nat0-successor k := 0 − k, from 2.8.1
+          2.5.2.  (0 − k) + 1 ∈ ℕ
+                  mun:nat0-successor k := 0 − k, from 2.5.1
 
-          2.8.3.  (0 − k) + 1 = (0 + 1) − k
-                  algebra
+          2.5.3.  (0 + 1) − k ∈ ℕ
+                  substitute
+                    (0 − k) + 1 ∈ ℕ      2.5.2
+                    (0 + 1) − k ∈ ℕ      algebra
 
-          2.8.4.  (0 + 1) − k ∈ ℕ
-                  substitute (0 − k) + 1 = (0 + 1) − k (line 2.8.3) into line 2.8.2
-
-          2.8.5.  C((0 + 1) − k, k) ∈ ℝ
+          2.5.4.  C((0 + 1) − k, k) ∈ ℝ
                   membership
-                  requires (0 + 1) − k ∈ ℕ₀: from 2.8.4
+                  requires (0 + 1) − k ∈ ℕ₀: from 2.5.3
 
-    2.9.  Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0)
-          mun:sum-single a := 0, from 2.8
+    2.6.  Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0)
+          mun:sum-single a := 0, from 2.5
 
-    2.10. C(0 + 1, 0) = 1
+    2.7.  C(0 + 1, 0) = 1
           mun:binomial-zero-index n := 0 + 1
 
-    2.11. (0 + 1) − (0 + 1) = 0
+    2.8.  (0 + 1) − (0 + 1) = 0
           arithmetic
 
-    2.12. C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)
-          substitute (0 + 1) − (0 + 1) = 0 (line 2.11)
-
-    2.13. 0 < 0 + 1
+    2.9.  0 < 0 + 1
           arithmetic
 
-    2.14. C(0, 0 + 1) = 0
-          def:C n := 0, k := 0 + 1, from 2.13
-
-    2.15. C((0 + 1) − (0 + 1), 0 + 1) = 0
+    2.10. C((0 + 1) − (0 + 1), 0 + 1) = 0
           calculation
-            C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)     2.12
-                                        = 0               2.14
+            C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)     substitute line 2.8
+                                        = 0               def:C n := 0, k := 0 + 1, from 2.9
 
-    2.16. Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1) = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)
-          substitute Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0) (line 2.9)
-
-    2.17. C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1) = 1 + C((0 + 1) − (0 + 1), 0 + 1)
-          substitute C(0 + 1, 0) = 1 (line 2.10)
-
-    2.18. 1 + C((0 + 1) − (0 + 1), 0 + 1) = 1
-          substitute C((0 + 1) − (0 + 1), 0 + 1) = 0 (line 2.15)
-
-    2.19. Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = 1
+    2.11. Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = 1
           calculation
-            Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)     2.7
-                                                = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)                         2.16
-                                                = 1 + C((0 + 1) − (0 + 1), 0 + 1)                                   2.17
-                                                = 1                                                                 2.18
+            Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)     mun:sum-last n := 0, from 2.4
+                                                = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)                         substitute line 2.6
+                                                = 1 + C((0 + 1) − (0 + 1), 0 + 1)                                   substitute line 2.7
+                                                = 1                                                                 substitute line 2.10
 
-    2.20. G(0 + 1) = F(0) + G(0)
+    2.12. G(0 + 1) = F(0) + G(0)
           D1
 
-    2.21. F(0) = 0
+    2.13. F(0) = 0
           D1
 
-    2.22. F(0) + G(0) = 0 + G(0)
-          substitute F(0) = 0 (line 2.21)
-
-    2.23. 0 + G(0) = 0 + 1
-          substitute G(0) = 1 (line 2.4)
-
-    2.24. S(0 + 1) = G(0 + 1)
+    2.14. S(0 + 1) = G(0 + 1)
           calculation
             S(0 + 1) = Σ(k = 0 to 0 + 1) C((0 + 1) − k, k)     D2
-                     = 1                                       2.19
+                     = 1                                       2.11
                      = 0 + 1                                   arithmetic
-                     = 0 + G(0)                                2.23
-                     = F(0) + G(0)                             2.22
-                     = G(0 + 1)                                2.20
+                     = 0 + G(0)                                substitute line 2.2
+                     = F(0) + G(0)                             substitute line 2.13
+                     = G(0 + 1)                                2.12
 
-    2.25. S(0) = G(0). S(0 + 1) = G(0 + 1).
-          join 2.5, 2.24
+    2.15. S(0) = G(0). S(0 + 1) = G(0 + 1).
+          join 2.3, 2.14
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 2 is true for j, the induction hypothesis             (IH)
 
-    2.26. S(j + 1) = G(j + 1)
+    2.16. S(j + 1) = G(j + 1)
           calculation
             S(j + 1) = G(j + 1)     IH
 
-    2.27. Σ(k = 0 to (j + 1) + 1) C(((j + 1) + 1) − k, k) = Σ(k = 0 to j + 1) C((j + 1) − k, k) + Σ(k = 0 to j) C(j − k, k)
-          thm:fibonacci-binomial-step m := j
-
-    2.28. S((j + 1) + 1) = S(j + 1) + S(j)
+    2.17. S((j + 1) + 1) = S(j + 1) + S(j)
           calculation
             S((j + 1) + 1) = Σ(k = 0 to (j + 1) + 1) C(((j + 1) + 1) − k, k)                                      D2
-                           = Σ(k = 0 to j + 1) C((j + 1) − k, k) + Σ(k = 0 to j) C(j − k, k)                       2.27
+                           = Σ(k = 0 to j + 1) C((j + 1) − k, k) + Σ(k = 0 to j) C(j − k, k)                       thm:fibonacci-binomial-step m := j
                            = S(j + 1) + Σ(k = 0 to j) C(j − k, k)                                                  D2
                            = S(j + 1) + S(j)                                                                       D2
 
-    2.29. S(j + 1) + S(j) = G(j + 1) + S(j)
-          substitute S(j + 1) = G(j + 1) (IH)
-
-    2.30. G(j + 1) + S(j) = G(j + 1) + G(j)
-          substitute S(j) = G(j) (IH)
-
-    2.31. F(j + 1) ∈ ℕ₀ and G(j + 1) ∈ ℕ₀
+    2.18. F(j + 1) ∈ ℕ₀ and G(j + 1) ∈ ℕ₀
           instantiate i := j + 1 in line 1
 
-    2.32. F(j) ∈ ℕ₀ and G(j) ∈ ℕ₀
+    2.19. F(j) ∈ ℕ₀ and G(j) ∈ ℕ₀
           instantiate i := j in line 1
 
-    2.33. G((j + 1) + 1) = F(j + 1) + G(j + 1)
+    2.20. G((j + 1) + 1) = F(j + 1) + G(j + 1)
           D1
 
-    2.34. F(j + 1) = G(j)
+    2.21. F(j + 1) = G(j)
           D1
 
-    2.35. F(j + 1) + G(j + 1) = G(j) + G(j + 1)
-          substitute F(j + 1) = G(j) (line 2.34)
-
-    2.36. G(j + 1) + G(j) = G(j) + G(j + 1)
-          algebra
-          requires G(j + 1) ∈ ℕ₀: from 2.31
-          requires G(j) ∈ ℕ₀: from 2.32
-
-    2.37. S((j + 1) + 1) = G((j + 1) + 1)
+    2.22. S((j + 1) + 1) = G((j + 1) + 1)
           calculation
-            S((j + 1) + 1) = S(j + 1) + S(j)               2.28
-                           = G(j + 1) + S(j)               2.29
-                           = G(j + 1) + G(j)               2.30
-                           = G(j) + G(j + 1)               2.36
-                           = F(j + 1) + G(j + 1)           2.35
-                           = G((j + 1) + 1)                2.33
+            S((j + 1) + 1) = S(j + 1) + S(j)               2.17
+                           = G(j + 1) + S(j)               substitute IH
+                           = G(j + 1) + G(j)               substitute IH
+                           = G(j) + G(j + 1)               algebra
+                           = F(j + 1) + G(j + 1)           substitute line 2.21
+                           = G((j + 1) + 1)                2.20
+          requires G(j + 1) ∈ ℕ₀: from 2.18
+          requires G(j) ∈ ℕ₀: from 2.19
 
-    2.38. S(j + 1) = G(j + 1). S((j + 1) + 1) = G((j + 1) + 1).
-          join 2.26, 2.37
+    2.23. S(j + 1) = G(j + 1). S((j + 1) + 1) = G((j + 1) + 1).
+          join 2.16, 2.22
 
 3.  S(n) = G(n) and S(n + 1) = G(n + 1)
     instantiate j := n in line 2

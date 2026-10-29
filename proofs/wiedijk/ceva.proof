@@ -118,8 +118,10 @@ theorem cevian-ratio
 24. sin(∠BOA) > 0
     mun:sine-positive P := B, Q := O, R := A, from 7
 
-25. |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA)) = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))
-    algebra, from 22
+25. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+    calculation
+      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     algebra, from 20
+           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     algebra, from 22
     requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
     requires sin(∠AOC) ∈ ℝ: mun:sin-real a := ∠AOC
     requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
@@ -128,20 +130,6 @@ theorem cevian-ratio
     requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
     requires |OB| ≠ 0: weakening, from 23
     requires sin(∠BOA) ≠ 0: weakening, from 24
-
-26. |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA)) = |DC|
-    algebra, from 20
-    requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
-    requires sin(∠BDO) ∈ ℝ: mun:sin-real a := ∠BDO
-    requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
-    requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
-    requires |OB| ≠ 0: weakening, from 23
-    requires sin(∠BOA) ≠ 0: weakening, from 24
-
-27. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
-    calculation
-      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     26
-           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     25
 
 theorem ceva
   metamath    cevath, which states it of the differences rather than their
