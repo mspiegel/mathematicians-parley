@@ -829,21 +829,6 @@ pub fn check_chain(report: &mut Report, thm: &Theorem, step: &Step) {
             if !RELATIONS.contains(&line.relation.as_str()) {
                 report.say(&thm.path, line.line, "chain line carries no relation");
             }
-            // A reason that does not cut is `check_citations`'s to report,
-            // as a requires line's is.
-            let Some(Ok(by)) = line.reason.as_ref().map(|r| &r.by) else {
-                continue;
-            };
-            if by.head.is(Method::Algebra) && !by.from.is_empty() {
-                report.say(
-                    &thm.path,
-                    line.line,
-                    format!(
-                        "a chain line's algebra cites no line, and this one cites {}; a move that uses a line's equation is `substitute line L`, a line of its own",
-                        by.from.join(", ")
-                    ),
-                );
-            }
         }
     }
 }

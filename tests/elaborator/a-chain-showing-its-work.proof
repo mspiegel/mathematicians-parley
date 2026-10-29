@@ -80,3 +80,17 @@ theorem a-chain-going-down-by-its-reasons
     calculation
       a + a = 2·a    algebra
             ≥ 6      1
+
+
+theorem a-chain-line-using-a-line
+  note        A line's algebra may use the equations a line says, three
+              times the one H3 says here.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a = 2·b                                                      (H3)
+  then 3·a + 1 = 1 + 6·b
+
+1.  3·a + 1 = 1 + 6·b
+    calculation
+      3·a + 1 = 6·b + 1      algebra, from H3
+              = 1 + 6·b      algebra
