@@ -287,6 +287,26 @@ impl<'a> Elaborator<'a> {
         Some(substitute_apart_by(&meaning, &put, &binders))
     }
 
+    /// Whether the phrase `notation` gives is written out here with its
+    /// meaning's own bound letters: where the proof names none of them.
+    /// Where it names one, `phrase_written_out` spells that binder with
+    /// another letter, so a term binding the meaning's own letter is not the
+    /// phrase written out, and is said back as the meaning. True for a
+    /// notation no phrase gives.
+    pub fn phrase_keeps_its_letters(&self, notation: NotationId) -> bool {
+        let table = self.phrases.get_or_init(|| Rc::new(self.phrase_meanings()));
+        let Some(said) = table.get(&notation) else {
+            return true;
+        };
+        let held: BTreeSet<String> = self
+            .names
+            .keys()
+            .chain(self.from_outside.keys())
+            .cloned()
+            .collect();
+        bound_apart(&said.meaning, &held, &held, &self.g.binders()).same(&said.meaning)
+    }
+
     /// Each phrase's meaning as a notation record's `target` writes it, in
     /// set.mm's words with each slot the hole `_1`, `_2`, … in the order the
     /// phrase writes them, and its negation folded: so a term the meaning

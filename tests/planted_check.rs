@@ -3440,9 +3440,9 @@ fn cases() -> Vec<Case> {
         case(
             "an obtain from a line that says no there is",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          obtain k, m, n from D2".to_string()), "          obtain k, m, n from H1".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          obtain k, m, n from line 1.2".to_string()), "          obtain k, m, n from H1".to_string()),
             ],
-            "step 1.2 obtains k, m, n from a line, which says no \"there is\" of as many",
+            "step 1.3 obtains k, m, n from a line, which says no \"there is\" of as many",
         ),
         case(
             "an obtain of more names than the item's there is binds",

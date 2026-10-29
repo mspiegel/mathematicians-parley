@@ -29,6 +29,10 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 import mundane theorem    stdlib/sets/pair-equal
 
+define euclid-hypotenuse: c is a Euclid hypotenuse of a and b means
+       there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}   (D0)
+       reads c and the legs a and b, in either order, come from Euclid's formula
+
 theorem even-leg
   note        If both legs were odd, c² would be twice an odd number: then c is
               even, c² is a multiple of 4, and 4 would divide 2.
@@ -616,7 +620,7 @@ theorem triple-parameters
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
   assume a² + b² = c²                                                 (H4)
-  then there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}
+  then c is a Euclid hypotenuse of a and b
 
 1.  k ∈ ℕ. a/k ∈ ℕ. b/k ∈ ℕ. c/k ∈ ℕ. gcd(a/k, b/k) = 1.
     (a/k)² + (b/k)² = (c/k)².
@@ -689,6 +693,9 @@ theorem triple-parameters
     3.15. There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
           exhibit, from 3.13, 3.14
 
+4.  c is a Euclid hypotenuse of a and b
+    D0, from 3
+
 theorem pythagorean-triples
   metamath    pythagtrip, which says the two legs' places with an "or"
   note        Both directions: every triple has the form (triple-parameters),
@@ -698,22 +705,25 @@ theorem pythagorean-triples
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   let c ∈ ℕ                                                           (H3)
-  then a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}
+  then a² + b² = c² ↔ c is a Euclid hypotenuse of a and b
 
-1.  a² + b² = c² ↔ there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
+1.  a² + b² = c² ↔ c is a Euclid hypotenuse of a and b.
     both directions
 
     direction
     assume a² + b² = c²                                               (D1)
 
-    1.1.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
+    1.1.  c is a Euclid hypotenuse of a and b
           thm:triple-parameters, from D1
 
     direction
-    assume there are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn} (D2)
+    assume c is a Euclid hypotenuse of a and b                        (D2)
 
-    1.2.  k ∈ ℕ. m ∈ ℕ. n ∈ ℕ. c = k(m² + n²). {a, b} = {k(m² − n²), 2kmn}.
-          obtain k, m, n from D2
+    1.2.  There are k, m, n ∈ ℕ with c = k(m² + n²) and {a, b} = {k(m² − n²), 2kmn}.
+          D0, from D2
 
-    1.3.  a² + b² = c²
-          thm:triple-from-parameters, from 1.2
+    1.3.  k ∈ ℕ. m ∈ ℕ. n ∈ ℕ. c = k(m² + n²). {a, b} = {k(m² − n²), 2kmn}.
+          obtain k, m, n from line 1.2
+
+    1.4.  a² + b² = c²
+          thm:triple-from-parameters, from 1.3
