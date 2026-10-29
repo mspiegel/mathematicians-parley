@@ -933,8 +933,7 @@ U(3) = 3(3 + 1)/2        D1
      = 6                 arithmetic
 ```
 
-A chain line cites only a step number, a label or `arithmetic`, and a name of
-one capital letter would read as a label there, so the define is cited by a
+A chain line may cite a bare label, and a name of one capital letter would read as a label there, so the define is cited by a
 label of the file's own and not by its name. A file that only writes `B` in
 its formulas, and never writes B out, has nothing to cite and gives no label.
 A label given and never cited is a defect, as is a citation of an imported
@@ -1048,6 +1047,8 @@ The eighteen heads and the slots each admits:
   | `obtain` <name> { `,` <name> } `from` ( `line` <number> | <label> )
   | `exhibit` `,` <from>
   | `substitute` <formula> <source> [ <destination> ]
+  | `substitute` ( `line` <number> | <label> )    -- the equation that line says
+  | `substitute`                                  -- rows follow
   | `instantiate` <instantiation> <target> [ `,` <from> ]
   | `algebra` [ `,` <from> ]
   | `arithmetic`
@@ -1135,7 +1136,11 @@ member the step adds.
 <chain line> ::= <rel> <term> [ <modulus> ] <citation>
 <rel>        ::= `=` | `≤` | `<` | `≥` | `>` | `≡`
 <modulus>    ::= `(mod` <term> `)`
-<citation>   ::= <ref> | `arithmetic` | `real arithmetic`
+<citation>   ::= <ref> | `arithmetic` | `real arithmetic` | <line reason>
+<line reason> ::= `algebra`
+               | `substitute` ( `line` <number> | <label> )
+               | `instantiate` <instantiation> <target> [ `,` <from> ]
+               | <prefix> <cited> [ <instantiation> ] [ `,` <from> ]
 ```
 
 A line whose relation is `≡` says its modulus, `≡ 1·10 (mod 3)`, and no other
@@ -1147,11 +1152,17 @@ congruence does not go back to `=`, so that no `=` after one reads as though
 the chain had become an equation again.
 
 The citation is separated from the term by two or more spaces in every chain
-line. A parser should not rely on that. Read the citation from the right end
-of the line instead, since it is the last word, or the last two where they
-are `real arithmetic`, and treat the whitespace as layout: a line ending
-`real arithmetic` cites that method, and its term does not end in "real". A
-cited equation may face either way; the line says nothing about
+line. A parser should not rely on that. Read it by its words instead:
+
+- The citation starts at the first word after the relation that opens a
+  reason: `algebra`, `arithmetic`, `real arithmetic`, `substitute`,
+  `instantiate`, or a cited item such as `def:odd`.
+- Where no word opens a reason, the citation is the last word, a step
+  number or a label.
+- So a line ending `real arithmetic` cites that method, and its term does
+  not end in "real".
+
+A cited equation may face either way; the line says nothing about
 which. `arithmetic` stands in
 for a reference only on a line whose relation is between numerals alone, and
 cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
@@ -1190,6 +1201,24 @@ disequality or the negation of an order, a sentence the parser reads; the
 term after `adding` or `multiplying by` is read the same way. The first
 row's reference is a line the step cites, and its only citation. What each
 row may be, and that the last is the claim, is `METHODS.md`'s.
+
+## Substitute rows
+
+```grammar
+<substitute rows> ::= <first row> <change row> { <change row> }
+<change row>      ::= <formula> <line reason>
+```
+
+A bare `substitute` is followed by its rows, one to a line, each a formula
+and then its reason.
+
+- A row's reason is read the way a chain line's is.
+- The first row's reason is a line the step cites, and that is the step's
+  only citation.
+- A later row's reason is never a bare line number or label. A row that
+  puts in what a line says is `substitute line L`, or `substitute H3` for a
+  label.
+- What each row may be, and that the last is the claim, is in `METHODS.md`.
 
 ## Scope of a citation
 

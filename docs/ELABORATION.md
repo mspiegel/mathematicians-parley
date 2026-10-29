@@ -557,6 +557,11 @@ replaces a subterm of a cited line rather than of the step's own claim, and
 the claim is the default rather than the only choice; with no target, the
 claim's two sides are the two walked.
 
+**`substitute line L`**, with no equation written, takes the equation from
+line L. Where the line says several equations, the one used is the one that
+makes the claim when put in (`substitute_line`). It is then walked as
+above.
+
 A claim may hold its variable in several places at once, so the congruence
 machinery changes more than one operand at a time: `eqeq12d` and `oveq12d`
 where `eqeq1d` and `oveq1d` change one. A quantifier's domain and body may
@@ -570,6 +575,23 @@ deduction form each is the `d`-suffixed variant. Two order links in a row
 fold by `letrd`, `lttrd`, `ltletrd` or `lelttrd` (`rules::ORDER_FOLDING`),
 which ask that the three terms be real, settled as any membership a step
 needs.
+
+**A chain line with its own reason** is proved as the step it stands for.
+The elaborator builds the one-line step "the term above relates to this
+term", with that reason and the calculation's requires lines (`as_a_step`),
+and its proof is the link (`link_held`). On a chain going down, an equation
+the step proves the other way round is turned by `eqcomd`.
+
+**`substitute` with rows** proves its first row from the line it cites
+(`said_by`). Each row after it is reached in three moves
+(`substitute_by_rows`):
+
+- the row's reason proves "was = now" as a one-line step;
+- `congruence` walks the row above and this row together, as a one-line
+  `substitute` does, putting the equation in at each place they differ;
+- `mpbid` carries the row above to this one.
+
+The last row is the claim, and `same` carries it to the claim as written.
 
 **`join`** is `jca`, and it pairs its cited lines by what they claim rather
 than by the order the line lists them, because the readable order is the order

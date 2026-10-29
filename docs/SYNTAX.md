@@ -24,11 +24,7 @@ without a viewer.
 
 A viewer may show a **rendered view** of the skeleton: the fields read back
 as sentences, the statement of each cited item pulled in from the database
-at its pointer, and links on every pointer. A
-viewer may fold a calculation with the steps its lines cite, showing each
-step's justification on its chain line and hiding the step, which gives
-the textbook form of a calculation; like collapsing a block, this changes
-nothing in the text and can be undone. The rendered view is a
+at its pointer, and links on every pointer. The rendered view is a
 convenience. It adds no information, it is never authored by hand, and
 nothing may depend on it. Where the skeleton is hard to follow, the skeleton
 is at fault, not the viewer.
@@ -539,6 +535,7 @@ step of its own.
 | `exhibit, from L` | the claim is a bare "there is" sentence; the lines L state its body with some value in place of the bound variable, and the reader finds the value by comparing. The value is never written, since by the literal-instance rule the cited lines determine it. Where the "there is" is a sentence of a cited definition, no keyword is used: `def:even n := p², from 2.3` proves "p² is even" from a line stating p² = 2k for some k, by the ↔ convention |
 | `substitute e (line L1) into line L2` | replace by the equation e, which is part of line L1, inside line L2 |
 | `substitute e (line L1)` | the claim is t = t′, where t′ is t with one side of e, which is part of line L1, replaced by the other |
+| `substitute`, then rows | one substitution after another, a row to each. The first row is a line the step cites, written out, with its number or label as its reason. Each row after it is the row above with one term put for another, in as many places as the row shows. Its reason says why the two terms are equal: `algebra`, `arithmetic`, `substitute line L`, or a theorem or definition. The last row is the claim |
 | `instantiate v := t in line L, from L2` | line L claims "for all v ∈ X, B"; the claim is B with t in place of v, and L2 supplies t ∈ X, or says what t is built from as a cited item's lines do: L2 saying q ∈ ℕ₀ supplies 3q + 1 ∈ ℕ₀, though a `let` put q in ℤ (below, "A term that a line the step names"). Several variables may be given at once. L may also be a hypothesis or supposition label. L is never an item: a definition whose sentence is a "for all" is first claimed by a numbered step citing it, and that number is instantiated. This is the rule that keeps an item out of `from` applied to the other slot that says where a fact comes from, and for the same reason, that a reader can look at everything a step names |
 | `algebra, from L` | ring and field identities, starting from the equations in L |
 | `arithmetic` | a fact about closed numerals: value, order, or membership in ℕ ℤ ℚ ℝ |
@@ -554,7 +551,7 @@ step of its own.
 | `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)`, those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence. Over the parts of a finite set, the claim is "for all Y ⊆ X, P(Y)" and the start ∅, and a requires line says X is finite. The `step` part opens with `let Y ⊆ X (K)`, the induction hypothesis and `let a ∈ X ∖ Y`, those three lines in that order, and its last step claims P(Y ∪ {a}) |
 | `cases, from L`, with one `case` part per disjunct, two or more: one case is no case split, and is a plain step | L claims "P or Q": the line as a whole is the "or", as written or, for a "for all" line cited inside a block, read at the block's letter (What a cited line says); a line saying the "or" and something besides is not it; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `both directions`, with two `direction` parts | the claim is "A ↔ B"; the first part opens with `assume A`, labelled, and its last step claims B; the second opens with `assume B` and its last step claims A. It is how a textbook proves "if and only if", a direction at a time |
-| `calculation`, then a chain | each line of the chain is `rel t  L`, where rel is =, ≤, <, ≥ or >, or `≡ t (mod n)`, and L is one cited line whose claim is exactly the previous term rel t, or `arithmetic` where the previous term and t differ only in pieces with no letter in them, each piece worked out, or where the line is a congruence of numerals alone; the chain goes one way, its orders all ≤ and < or all ≥ and >; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, < if any line is <, ≥ and > the same way going down, and ≡ (mod n) if any line is ≡, every ≡ line saying the same n, none mixed with an order, and every line after the first ≡ a ≡ too (`GRAMMAR.md`). A calculation opens no block: its chain is all of it. A chain that says ≡ relates integers: each term is one, said once, by a line a link cites, or beside one in an equation such a line says |
+| `calculation`, then a chain | each line of the chain is `rel t  reason`, where rel is =, ≤, <, ≥ or >, or `≡ t (mod n)`, and the reason is one of these: a line number or label whose claim is exactly the previous term rel t; `arithmetic` or `real arithmetic`, where the previous term and t differ only in pieces with no letter in them, each piece worked out, or where the line is a congruence of numerals alone; or any other reason a step claiming "previous term rel t" could give: `algebra`, `substitute line L`, `instantiate v := t in line L`, or a theorem or definition cited as a step cites it. Their requires lines go under the calculation step. The chain goes one way, its orders all ≤ and < or all ≥ and >; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, < if any line is <, ≥ and > the same way going down, and ≡ (mod n) if any line is ≡, every ≡ line saying the same n, none mixed with an order, and every line after the first ≡ a ≡ too (`GRAMMAR.md`). A calculation opens no block: its chain is all of it. A chain that says ≡ relates integers: each term is one, said once, by a line a link cites, or beside one in an equation such a line says |
 
 `L` is a list of line numbers, hypothesis labels and supposition labels,
 and nothing else: an item's sentence that a step needs as a fact is first
@@ -1009,17 +1006,44 @@ Prose anywhere a step can go is deliberately not allowed: the pressure to name
 things well and to split blocks legibly is what makes the formal text the
 readable one, and a free comment takes that pressure off.
 
-A calculation only joins. Every line of a chain cites a numbered step or
-label that states that line's relation, and all reasoning is in those
-steps. A chain therefore never carries a method on a line. The
-alternative, letting a line carry `algebra` or `substitute` inline as a
-textbook calculation does, was considered and rejected so that every
-fact in a proof is a numbered step with its own justification, and the
-chain is only the reader's view of how they join.
+**A calculation shows its working.** Each line of the chain gives its own
+reason, as a textbook calculation does:
 
-**Every fact with a letter in it is a numbered step.** An identity
-`algebra` proves, an exponent law, a function value: each is a step of its
-own, which a reader checks where it is written and later lines cite.
+```proof
+2.  n² = 2(2k² + 2k) + 1
+    calculation
+      n² = (2k + 1)²           substitute line 1
+         = 4k² + 4k + 1        algebra
+         = 2(2k² + 2k) + 1     algebra
+```
+
+- A chain line's reason is checked as if the line were a step of its own,
+  claiming "the term above relates to this term".
+- On a chain line, `algebra` cites no line. A move that uses another
+  line's equation is `substitute line L`, on a line of its own.
+- The requires lines of every chain line go under the calculation step,
+  each written once.
+- A chain line has no number, so nothing can cite it. A fact another step
+  needs stays a numbered step, and a chain line may cite it by number.
+- A reason that opens a block or names something new, such as `obtain` or
+  `cases`, is never a chain line's reason.
+- A statement that is not a chain shows its working the same way, with
+  `substitute` and rows:
+
+```proof
+2.  d divides 1
+    substitute
+      d divides (n + 1) − n      1
+      d divides 1                algebra
+```
+
+- Whether a step that only one chain line uses should move onto that line
+  is the linter's question (`LINTER.md`). The checker accepts both.
+
+**Every fact with a letter in it is written where a reader checks it**: as
+a numbered step, or as a chain line or a substitute row with its reason
+beside it. An identity `algebra` proves, an exponent law, a function value:
+each is written out, never left for the reader to supply.
 
 **A fact about closed numerals is not.** `0 + 1 = 1` has no letter in it and
 gives a reader nothing to check but working it out, so it names

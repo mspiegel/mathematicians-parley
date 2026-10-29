@@ -151,6 +151,8 @@ read, the existence is written with "with".
 | `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a "for all" step of one line, justified as its body would be | a `proof` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
+| a chain line giving its own reason | a step that only one chain line uses, cited by that line | about 1,430 such steps |
+| `substitute` with rows | a step that only one `substitute … into` uses, then that substitute | about 330 such steps |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
@@ -179,6 +181,20 @@ A block stays where its one step is itself a block — a `contradiction`, as in
 Cantor's step 2 and Schröder–Bernstein's 4 — since that step cannot be
 written on one line. An induction is never such a step: it proves its "for
 all k" claim itself (`SYNTAX.md`).
+
+A step that only one chain line uses says its working twice: once as the
+step, and again as the line that cites it. Putting its reason on the chain
+line says it once, where it is used (`SYNTAX.md`, "A calculation shows its
+working"). This is a suggestion, never a refusal:
+
+- A chain line may still cite a numbered step by its number, and the
+  checker accepts it.
+- A step that other lines cite as well stays a step. A chain line has no
+  number, so nothing else could cite it.
+- A step whose reason a chain line cannot give, such as `inequalities` or
+  `obtain`, stays a step.
+- A step that only one `substitute … into` uses moves the same way, into
+  the rows of a bare `substitute`.
 
 The last two are judgement and may stay that way. "A claim that is a
 conjunction is written as separate sentences" is in `SYNTAX.md`, but whether a

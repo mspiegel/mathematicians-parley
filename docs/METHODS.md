@@ -21,7 +21,9 @@ Everything else is fixed here.
 
 Eight methods are specified below: the five closure methods (`inequalities`,
 `algebra`, `arithmetic`, `real arithmetic`, `membership`), `inspection`,
-`join`, and `contradiction`. The rest
+`join`, and `contradiction`. So are the reasons a chain line or a
+substitute row gives (below, "A reason on a chain line, and substitute
+rows"). The rest
 are not yet: the citation form, the block methods `proof`, `cases`,
 `both directions` and `induction`, and `substitute`, `instantiate`, `obtain`
 and `exhibit`. None is
@@ -1774,6 +1776,45 @@ step; `LINTER.md` prefers that form. Both shapes stay in the method because
 each is the only way to prove its kind of claim.
 
 ---
+
+## A reason on a chain line, and substitute rows
+
+A chain line or a row may give its own reason, and it is checked as a step
+of its own would be:
+
+```proof
+1.  12 < y
+    substitute
+      x·x + x < y      H4
+      3·3 + 3 < y      substitute H3
+      12 < y           arithmetic
+```
+
+- **A chain line** claims "the term above relates to this term". Its
+  reason proves that claim just as a step with that claim and that reason
+  would.
+- **A row** after the first puts one term for another. The checker
+  compares it with the row above and finds the one change: here x became 3,
+  in all three places.
+- The row's reason must prove "was = now", here x = 3, read as a step with
+  that claim.
+- The first row is the cited line, written as it is written; the last row
+  is the claim.
+
+**Refusals.**
+
+- A row that is the row above, unchanged.
+- A row that changes two different terms. Each change is a row of its own.
+- A row that changes a statement rather than a term, such as `<` into `≤`.
+- A first row that its cited line does not say, and a last row that is not
+  the claim.
+- A later row whose reason is a bare line number or label. It is written
+  `substitute line L`, or `substitute H3`.
+- On a chain line, `algebra` that cites a line.
+
+**Expansion.** Each reason is built as its step would be. Each row is
+reached from the row above by putting in its "was = now" (`congruence`,
+then `mpbid`). `ELABORATION.md` has the detail.
 
 ## What specifying both larger methods cost the corpus
 
