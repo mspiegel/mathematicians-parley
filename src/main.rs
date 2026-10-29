@@ -8,6 +8,9 @@ use parley::source::Disk;
 const USAGE: &str = "usage: parley check [name]
        parley build [name] [set.mm]
        parley gate
+       parley renumber <theorem> <steps> <shift> [--dry-run]
+         <steps> is 4.2..4.9, 4.2.. (to the end of its block) or 4.2;
+         <shift> is +n or -n
 
 Run from the working tree: the directory holding corpus/ and the proofs.";
 
@@ -26,11 +29,33 @@ fn refuse(why: &str) -> ExitCode {
     ExitCode::from(2)
 }
 
+/// `parley renumber <theorem> <steps> <shift> [--dry-run]`.
+fn renumber(rest: &[String]) -> ExitCode {
+    let dry = rest.iter().any(|a| a == "--dry-run");
+    if let Some(option) = rest.iter().find(|a| a.starts_with("--") && *a != "--dry-run") {
+        return refuse(&format!("unknown option {option}"));
+    }
+    let given: Vec<&String> = rest.iter().filter(|a| !a.starts_with("--")).collect();
+    let [name, steps, by] = given.as_slice() else {
+        return refuse("renumber takes a theorem, the steps to move and a shift");
+    };
+    let Some(run) = parley::tools::renumber::Run::parse(steps) else {
+        return refuse(&format!("{steps} is not a run of steps: 4.2..4.9, 4.2.. or 4.2"));
+    };
+    let Some(by) = parley::tools::renumber::shift(by) else {
+        return refuse(&format!("{by} is not a shift: +n or -n"));
+    };
+    say(parley::tools::renumber::run(Path::new("."), name, &run, by, dry))
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let Some((sub, rest)) = args.split_first() else {
         return refuse("no command given");
     };
+    if sub == "renumber" {
+        return renumber(rest);
+    }
     // At most this many arguments, for each command.
     let most = match sub.as_str() {
         "gate" => 0,

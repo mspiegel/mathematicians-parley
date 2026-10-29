@@ -54,7 +54,7 @@ theorem thales
     def:triangle P := A, Q := B, R := C, from H5
 
 10. |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    thm:law-of-cosines P := A, Q := C, R := B, from 9
+    thm:law-of-cosines P := A, Q := C, R := B, from H5
 
 11. ∠ACB ∈ ℝ
     mun:angle-real P := A, Q := C, R := B, from 9

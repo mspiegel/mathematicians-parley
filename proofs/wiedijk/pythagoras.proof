@@ -4,7 +4,6 @@ import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
-import definition         stdlib/geometry/triangle
 
 theorem similar-triangles
   note        Two triangles with two angles equal have their sides about the
@@ -46,9 +45,6 @@ theorem pythagoras
     calculation
       ∠DAC = ∠BAC       mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
            = ∠CAB       mun:angle-symmetric P := B, Q := A, R := C, from H4
-    requires C ≠ A: def:triangle, from H4
-    requires C ≠ B: def:triangle P := A, Q := B, R := C, from H4
-    requires C ≠ D: def:triangle P := A, Q := D, R := C, from 1
 
 3.  ∠ADC = ∠ACB
     calculation
@@ -64,11 +60,8 @@ theorem pythagoras
 
 6.  ∠DBC = ∠CBA
     calculation
-      ∠DBC = ∠ABC       mun:angle-along-segment P := B, Q := A, R := C, S := D, from 5
+      ∠DBC = ∠ABC       mun:angle-along-segment P := B, Q := A, R := C, S := D, from 1, 5
            = ∠CBA       mun:angle-symmetric P := A, Q := B, R := C, from H4
-    requires C ≠ B: def:triangle, from H4
-    requires C ≠ A: def:triangle P := A, Q := B, R := C, from H4
-    requires C ≠ D: def:triangle P := B, Q := D, R := C, from 1
 
 7.  ∠BDC = ∠BCA
     calculation

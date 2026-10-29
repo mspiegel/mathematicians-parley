@@ -1,5 +1,4 @@
 import theorem            stdlib/geometry/heron
-import definition         stdlib/geometry/triangle
 
 theorem heron-formula
   let A be a point                                                    (H1)
@@ -11,9 +10,7 @@ theorem heron-formula
   then the area of △ABC = √(s·(s − |BC|)·(s − |CA|)·(s − |AB|))
 
 1.  the area of △ABC = √(s·(s − |BC|)·((s − |AC|)·(s − |AB|)))
-    thm:heron P := A, Q := B, R := C, from D1
-    requires A ≠ C: def:triangle, from H4
-    requires B ≠ C: def:triangle, from H4
+    thm:heron P := A, Q := B, R := C, from D1, H4
 
 2.  s·(s − |BC|)·(s − |CA|)·(s − |AB|) = s·(s − |BC|)·((s − |AC|)·(s − |AB|))
     algebra, from D1

@@ -6,7 +6,6 @@ import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-on-side
-import definition         stdlib/geometry/triangle
 import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-real
 import mundane theorem    stdlib/trigonometry/sin-supplement
@@ -61,20 +60,13 @@ theorem cevian-ratio
     thm:law-of-sines P := C, Q := O, R := D, from 6
 
 11. ∠BDO + ∠ODC = 180°
-    axi:supplementary-angles A := B, B := D, D := O, from H7, H9, H10
-    requires O ≠ D: def:triangle, from 5
+    axi:supplementary-angles A := B, B := D, D := O, from H7, H10, 5
 
 12. ∠DOB + ∠BOA = 180°
-    axi:supplementary-angles A := D, B := O, C := A, D := B, from 4
-    requires B ≠ O: def:triangle, from 5
-    requires B ≠ D: def:triangle, from 5
-    requires B ≠ A: def:triangle, from 1
+    axi:supplementary-angles A := D, B := O, C := A, D := B, from 1, 4, 5
 
 13. ∠AOC + ∠COD = 180°
-    axi:supplementary-angles B := O, C := D, D := C, from H8
-    requires C ≠ O: def:triangle, from 6
-    requires C ≠ A: def:triangle, from 3
-    requires C ≠ D: def:triangle, from 3
+    axi:supplementary-angles B := O, C := D, D := C, from H8, 3, 6
 
 14. ∠ODC = 180° − ∠BDO
     algebra, from 11
@@ -119,8 +111,7 @@ theorem cevian-ratio
     substitute sin(∠ODC) = sin(∠BDO) (line 15) into line 21
 
 23. |OB| > 0
-    axi:distance-positive P := O, Q := B
-    requires O ≠ B: def:triangle, from 5
+    axi:distance-positive P := O, Q := B, from 5
 
 24. sin(∠BOA) > 0
     mun:sine-positive P := B, Q := O, R := A, from 7
@@ -213,16 +204,13 @@ let z = |OB|·sin(∠COB)/(|OA|·sin(∠AOC))                               (D3)
     mun:sine-positive P := A, Q := O, R := C, from 9
 
 13. |OA| > 0
-    axi:distance-positive P := O, Q := A
-    requires O ≠ A: def:triangle, from 5
+    axi:distance-positive P := O, Q := A, from 5
 
 14. |OB| > 0
-    axi:distance-positive P := O, Q := B
-    requires O ≠ B: def:triangle, from 5
+    axi:distance-positive P := O, Q := B, from 5
 
 15. |OC| > 0
-    axi:distance-positive P := O, Q := C
-    requires O ≠ C: def:triangle, from 7
+    axi:distance-positive P := O, Q := C, from 7
 
 16. ∠AOC ∈ ℝ
     mun:triangle-angle-real P := A, Q := O, R := C, from 9

@@ -2,6 +2,7 @@
 
 use crate::corpus::{Head, Step};
 use crate::formula::grammar::Grammar;
+use crate::formula::notation_id::NotationId;
 use crate::formula::page;
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sort, Sorts, Whole};
@@ -257,6 +258,27 @@ fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
     })
 }
 
+/// What "P, Q, R form a triangle" says of its points: P ≠ Q, Q ≠ R and
+/// P ≠ R, the differences its definition opens with, so that a line citing
+/// a triangle has them as it has a membership's wider sets. None for any
+/// other fact.
+fn triangle_apart(fact: &Node, env: Env, sorts: &Sorts) -> Option<Vec<Node>> {
+    if fact.notation() != NotationId::of("forms-a-triangle") || fact.children.len() != 3 {
+        return None;
+    }
+    let mut local = sorts.clone();
+    for letter in ["P", "Q"] {
+        local.insert(letter.into(), Sort::of("point"));
+    }
+    let binders = env.g.binders();
+    let c = &fact.children;
+    let apart = |one: &Node, other: &Node| {
+        let put = Binding::from([(Symbol::of("P"), one.clone()), (Symbol::of("Q"), other.clone())]);
+        substitute_apart_by(&template("P ≠ Q", env, &local), &put, &binders)
+    };
+    Some(vec![apart(&c[0], &c[1]), apart(&c[1], &c[2]), apart(&c[0], &c[2])])
+}
+
 /// What a subset says of its members (`SYNTAX.md`, What a cited line says):
 /// `A ⊆ B`, or `A ∈ 𝒫B` as a `let A ⊆ B` is read (`rules::PARTS`), says
 /// "for all x ∈ A, x ∈ B", its letter kept apart from the names A and B
@@ -453,6 +475,9 @@ fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
     if let Some(other) = part_said_otherwise(fact, env, sorts) {
         return vec![other];
+    }
+    if let Some(apart) = triangle_apart(fact, env, sorts) {
+        return apart;
     }
     if let Some(wider) = wider_types(fact, env) {
         return wider;

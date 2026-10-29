@@ -1,8 +1,6 @@
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-extension
-import definition         stdlib/geometry/triangle
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -18,27 +16,17 @@ theorem vertical-angles
   assume C, O, D form a triangle                                      (H9)
   then ∠AOB = ∠COD
 
-1.  A ≠ O. C ≠ O.
-    mun:between-apart R := O, S := A, T := C, from H6
-
-2.  B ≠ O. D ≠ O.
-    mun:between-apart R := O, S := B, T := D, from H7
-
-3.  B, O, C form a triangle.
+1.  B, O, C form a triangle.
     mun:triangle-extension P := B, Q := O, R := A, S := C, from H6, H8
 
-4.  ∠AOB + ∠BOC = 180°
-    axi:supplementary-angles B := O, D := B, from H6, 2
-    requires B ≠ A: def:triangle P := A, Q := O, R := B, from H8
-    requires B ≠ C: def:triangle P := B, Q := O, R := C, from 3
+2.  ∠AOB + ∠BOC = 180°
+    axi:supplementary-angles B := O, D := B, from H6, H8, 1
 
-5.  ∠BOC + ∠COD = 180°
-    axi:supplementary-angles A := B, B := O, C := D, D := C, from H7, 1
-    requires C ≠ B: def:triangle P := B, Q := O, R := C, from 3
-    requires C ≠ D: def:triangle P := C, Q := O, R := D, from H9
+3.  ∠BOC + ∠COD = 180°
+    axi:supplementary-angles A := B, B := O, C := D, D := C, from H7, H9, 1
 
-6.  ∠AOB = ∠COD
-    algebra, from 4, 5
+4.  ∠AOB = ∠COD
+    algebra, from 2, 3
     requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
-    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C, from 3
+    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C, from 1
     requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from H9

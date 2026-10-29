@@ -2,7 +2,6 @@ import theorem            proofs/wiedijk/angle-sum/angle-sum
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/triangle-angle-real
-import definition         stdlib/geometry/triangle
 
 theorem exterior-angle
   note        Euclid I.32. The exterior angle ∠ABD and the interior angle at
@@ -16,23 +15,17 @@ theorem exterior-angle
   assume A, B, D form a triangle                                      (H7)
   then ∠ABD = ∠BAC + ∠BCA
 
-1.  A ≠ B. A ≠ C.
-    def:triangle, from H5
+1.  ∠CBA + ∠ABD = 180°
+    axi:supplementary-angles A := C, C := D, D := A, from H5, H6, H7
 
-2.  A ≠ D
-    def:triangle P := A, Q := B, R := D, from H7
-
-3.  ∠CBA + ∠ABD = 180°
-    axi:supplementary-angles A := C, C := D, D := A, from H6, 1, 2
-
-4.  ∠BAC + ∠ABC + ∠BCA = 180°
+2.  ∠BAC + ∠ABC + ∠BCA = 180°
     thm:angle-sum, from H5
 
-5.  ∠CBA = ∠ABC
+3.  ∠CBA = ∠ABC
     mun:angle-symmetric P := C, Q := B, R := A, from H5
 
-6.  ∠ABD = ∠BAC + ∠BCA
-    algebra, from 3, 4, 5
+4.  ∠ABD = ∠BAC + ∠BCA
+    algebra, from 1, 2, 3
     requires ∠ABD ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := D, from H7
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H5
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H5

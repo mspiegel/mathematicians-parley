@@ -522,6 +522,8 @@ Besides what it writes, a cited line says:
   k ≥ 1, k > 0 and k ≠ 0; `k ∈ ℕ₀` says k ≥ 0 (below, "A line saying a
   term is in a number system").
 - **the bounds of a range**: `k ∈ {a, …, b}` says a ≤ k and k ≤ b.
+- **the differences of a triangle**: `P, Q, R form a triangle` says P ≠ Q,
+  Q ≠ R and P ≠ R.
 - **every wider function type**: `h : X → ℕ` says `h : X → ℝ`.
 - **a "for all" of every smaller set**: "for all k ∈ ℕ, P(k)" says it for
   all k ∈ {1, …, n}.

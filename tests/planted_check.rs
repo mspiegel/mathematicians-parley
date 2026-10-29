@@ -1708,28 +1708,28 @@ fn cases() -> Vec<Case> {
             "step 23 claims something that mun:sum-first does not conclude",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
-        // proves it. Here H5 does not say `C ≠ A`, and no line above this one
+        // proves it. Here H6 does not say `A ≠ C`, and no line above this one
         // does.
         case(
             "name a line that does not state the side condition",
             vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires C ≠ A: def:triangle, from H4\n".to_string()),
-                "    requires C ≠ A: def:triangle, from H5\n".to_string(),
+                "proofs/euclid/thales.proof",
+                Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
+                "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
             )],
-            "the requires line of step 2 needs something that def:triangle does not conclude",
+            "the requires line of step 10 needs something that def:triangle does not conclude",
         ),
         // The same, where the scope already holds the claim for another reason:
-        // the hypothesis says A, B, C form a triangle, so `C ≠ B` is held before
-        // the line is read, and H5 does not say it.
+        // the hypothesis says A, B, C form a triangle, so `B ≠ C` is held before
+        // the line is read, and H6 does not say it.
         case(
             "name a line that does not state a claim the scope already holds",
             vec![edit(
-                "proofs/wiedijk/pythagoras.proof",
-                Some("    requires C ≠ B: def:triangle, from H4\n".to_string()),
-                "    requires C ≠ B: def:triangle, from H5\n".to_string(),
+                "proofs/euclid/thales.proof",
+                Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
+                "    thm:law-of-cosines P := A, Q := C, R := B\n    requires B ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
             )],
-            "the requires line of step 6 needs something that def:triangle does not conclude",
+            "the requires line of step 10 needs something that def:triangle does not conclude",
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
@@ -3176,15 +3176,15 @@ fn cases() -> Vec<Case> {
             ],
             "step 8.1",
         ),
-        // `requires C ≠ A: def:triangle` unfolds a line saying A, B, C form a
+        // `requires A ≠ C: def:triangle` unfolds a line saying A, B, C form a
         // triangle; cited, that line is what it rests on, and without it
         // nothing is.
         case(
             "unfold a triangle no line above says",
             vec![
-                edit("proofs/wiedijk/pythagoras.proof", Some("    requires C ≠ A: def:triangle, from H4\n".to_string()), "    requires C ≠ A: def:triangle\n".to_string()),
+                edit("proofs/euclid/thales.proof", Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()), "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C\n".to_string()),
             ],
-            "the requires line of step 2 needs something that def:triangle does not conclude",
+            "the requires line of step 10 needs something that def:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
         // `mod-natural` asks b ∈ ℕ, and without 4.3.6, which says b(k) ∈ ℕ,

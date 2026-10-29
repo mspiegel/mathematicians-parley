@@ -171,6 +171,34 @@ impl<'a> Elaborator<'a> {
         wanted: &Rpn,
         scope: &Rpn,
     ) -> Checked<Option<Proof>> {
+        // Where the proof being built may rest only on what its line names
+        // (`resting_on`), and the claim is held both by such a line and by
+        // one it does not name, the named one is taken: a step's requires
+        // line saying three points form a triangle says each two differ, as
+        // an assumption of the block above it may also say.
+        if let Some(resting) = self.resting.clone() {
+            let key = self.fact_key(wanted);
+            let may = |p: &Proof| p.origin.iter().all(|o| may_rest_on(&resting, o));
+            let claims = facts.under(&key);
+            let named = claims
+                .iter()
+                .filter(|c| facts.proof(c).is_some_and(|p| may(&p)))
+                .count();
+            if named > 0 && named < claims.len() {
+                let narrowed = facts.filtered(|_, p| may(p));
+                return self.held_among(&narrowed, wanted, scope);
+            }
+        }
+        self.held_among(facts, wanted, scope)
+    }
+
+    /// `held`, among all of `facts`.
+    fn held_among(
+        &mut self,
+        facts: &Facts,
+        wanted: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Option<Proof>> {
         let key = self.fact_key(wanted);
         let claims = facts.under(&key);
         // A claim held as it is wanted is taken as it stands, before one of
