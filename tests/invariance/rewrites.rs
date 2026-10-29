@@ -17,6 +17,7 @@ use parley::checker::{statements_in_scope, BoundThere, CheckedTheorem, ObtainedT
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, rows, Head, Intro, Method, RowReason, Theorem,
 };
+use parley::corpus::skeleton::{chain_reason, is_ref};
 use parley::corpus::{define_parts, naming_pieces, Corpus, DefineParts, Values};
 use parley::formula::grammar::{Grammar, Sorts};
 use parley::formula::node::Node;
@@ -615,30 +616,42 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             }
             checked.insert(l);
         }
-        for (_, no) in &step.just.chain {
+        // A chain line, and a row of a bare `substitute`, writes a formula
+        // and then its reason, which is read as a justification is: its
+        // values hold the proof's letters, `def:abs x := a + b, from C2`.
+        let substituted = if step.just.head == Head::Method(Method::Substitute) {
+            &step.just.rows[..]
+        } else {
+            &[][..]
+        };
+        for (_, no) in step.just.chain.iter().chain(substituted) {
             let l = at(*no);
             let c = chars(&lines[l]);
             let from = first_text(&c);
             let end = trimmed_end(&c);
-            let to = (from..end)
-                .rev()
-                .find(|&i| i + 1 < end && c[i] == ' ' && c[i + 1] == ' ')
-                .map(|i| {
-                    let mut t = i;
-                    while t > from && c[t - 1] == ' ' {
-                        t -= 1;
-                    }
-                    t
-                })
-                .unwrap_or(end);
+            let text: String = c[..end].iter().collect();
+            let reason_at = chain_reason(&text)
+                .map_or(end, |r| end - r.chars().count());
+            let mut to = reason_at;
+            while to > from && c[to - 1] == ' ' {
+                to -= 1;
+            }
             push(&mut regions, l, Some((from, to)));
+            for span in justification(&c, reason_at) {
+                push(&mut regions, l, Some(span));
+            }
             checked.insert(l);
         }
-        // A row writes a formula and, after `adding` or `multiplying by`, a
-        // term: those hold what the proof writes of its letters. The reason's
-        // words and label are none of them, and a word like `restate`
-        // would be read a letter at a time.
-        for (_, no) in &step.just.rows {
+        // A row of an inequalities step writes a formula and, after `adding`
+        // or `multiplying by`, a term: those hold what the proof writes of
+        // its letters. The reason's words and label are none of them, and a
+        // word like `restate` would be read a letter at a time.
+        let inequality_rows = if substituted.is_empty() {
+            &step.just.rows[..]
+        } else {
+            &[][..]
+        };
+        for (_, no) in inequality_rows {
             let l = at(*no);
             let c = chars(&lines[l]);
             let (from, end) = (first_text(&c), trimmed_end(&c));
@@ -2538,15 +2551,34 @@ fn renumbered_hypothesis(
     changed
 }
 
-/// A chain line with the line it cites at its right end (`chain_cited`)
-/// said as `map` says it.
+/// A line ending on a reason, a chain line or a row, with what the reason
+/// cites said as `map` says it: the line or label it gives, or the
+/// citations of a reason of its own, `algebra, from 3, 5` or `substitute
+/// line 4` (`skeleton::chain_reason`).
 fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> String {
     let end = line.trim_end().len();
-    let start = line[..end].rfind(char::is_whitespace).map_or(0, |i| i + 1);
-    match map.get(&line[start..end]) {
-        Some(new) => format!("{}{new}{}", &line[..start], &line[end..]),
-        None => line.to_string(),
-    }
+    let Some(reason) = chain_reason(&line[..end]) else {
+        return line.to_string();
+    };
+    let start = end - reason.len();
+    let new = if is_ref(reason) {
+        map.get(reason).cloned().unwrap_or_else(|| reason.to_string())
+    } else {
+        renumbered_refs(reason, map)
+    };
+    format!("{}{new}{}", &line[..start], &line[end..])
+}
+
+/// The lines (1-based) of a step that end on a reason citing lines: each
+/// chain line, each row of a bare `substitute`, and the first row of an
+/// inequalities step, whose later rows name manipulations, `adding 1`.
+fn reasoned_lines(step: &parley::corpus::Step) -> Vec<usize> {
+    let rows = if step.just.head == Head::Method(Method::Substitute) {
+        &step.just.rows[..]
+    } else {
+        &step.just.rows[..step.just.rows.len().min(1)]
+    };
+    step.just.chain.iter().chain(rows).map(|(_, at)| *at).collect()
 }
 
 /// Whether `fact` says the term `claim` says is in a number system, of a
@@ -2820,10 +2852,7 @@ fn renumbered(
                 changed += 1;
             }
         }
-        // A chain line cites a line at its right end, and so does the first
-        // row of an inequalities step; a later row names a manipulation,
-        // whose `adding 1` is no line.
-        for (_, at) in other.just.chain.iter().chain(other.just.rows.first()) {
+        for at in reasoned_lines(other) {
             let new = renumbered_link(&lines[at - 1], map);
             if new != lines[at - 1] {
                 lines[at - 1] = new;
@@ -3157,9 +3186,7 @@ fn dull_step_moved(
                     changed += 1;
                 }
             }
-            // As `renumbered` does: a chain line's cited line, and the first
-            // row's.
-            for (_, at) in other.just.chain.iter().chain(other.just.rows.first()) {
+            for at in reasoned_lines(other) {
                 let new = renumbered_link(&lines[at - 1], &map);
                 if new != lines[at - 1] {
                     lines[at - 1] = new;
@@ -3802,9 +3829,7 @@ fn lemma_of(
         for o in &s.openers {
             reasons.insert(o.line - 1);
         }
-        // A chain line and the first row of an inequalities step each cite a
-        // line at their right end.
-        for (_, at) in s.just.chain.iter().chain(s.just.rows.first()) {
+        for at in reasoned_lines(s) {
             links.insert(at - 1);
         }
     }
@@ -3942,11 +3967,16 @@ fn relabelled_link(
     map: &BTreeMap<String, Vec<String>>,
 ) -> Result<String, String> {
     let end = line.trim_end().len();
-    let start = line[..end].rfind(char::is_whitespace).map_or(0, |i| i + 1);
-    Ok(match one_label(map, &line[start..end])? {
-        Some(new) => format!("{}{new}{}", &line[..start], &line[end..]),
-        None => line.to_string(),
-    })
+    let Some(reason) = chain_reason(&line[..end]) else {
+        return Ok(line.to_string());
+    };
+    let start = end - reason.len();
+    let new = if is_ref(reason) {
+        one_label(map, reason)?.unwrap_or_else(|| reason.to_string())
+    } else {
+        relabelled_refs(reason, map)?
+    };
+    Ok(format!("{}{new}{}", &line[..start], &line[end..]))
 }
 
 /// Each step obtaining from an item written as two: a step claiming the
