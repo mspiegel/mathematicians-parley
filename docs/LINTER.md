@@ -151,11 +151,17 @@ read, the existence is written with "with".
 | `obtain a, b: item, from L` where the existence comes from an item | an existence step, then `obtain a, b from line L` | all 27 obtains follow it: 24 from an item, 3 from a line |
 | an existence step, then `obtain a, b from line L` where the existence comes from a line | `obtain a, b: item, from L` | (the same count) |
 | a "for all" step of one line, justified as its body would be | a `proof` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
-| a chain line giving its own reason | a step that only one chain line uses, cited by that line | about 1,430 such steps |
-| `substitute` with rows | a step that only one `substitute … into` uses, then that substitute | about 330 such steps |
+| a chain line giving its own reason | a step that only one chain line uses, cited by that line | all but the 82 below follow it |
+| `substitute` with rows | a step that only one `substitute … into` uses, then that substitute | (the same count) |
+| one `substitute` with a row to each change | a run of `substitute … into` steps, each into the one above | (the same count) |
 | `substitute line L` on a chain line that only puts one side of L's equation for the other | `algebra, from L` | judgement |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
+
+The rewrite that moved the corpus to these forms left 82 steps where they
+were: each is one the move would not check alone, such as a substitute
+whose claim also turns its relation round, or a first row its line says
+only through a define.
 
 The obtain rule is the one with a reason beyond taste. In the one-line form
 the name appears in the claim, which is written above the justification that
