@@ -44,6 +44,105 @@ enum Use {
     Row { by: usize },
 }
 
+/// Which moves a fold makes: in one theorem only, the first so many of
+/// them, and none of those named.
+#[derive(Clone, Copy)]
+struct Limits<'a> {
+    only: Option<&'a str>,
+    limit: Option<usize>,
+    excluded: &'a BTreeSet<String>,
+}
+
+/// A theorem, by its file and name.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+struct Named {
+    path: String,
+    name: String,
+}
+
+impl Named {
+    fn of(path: &str, name: &str) -> Named {
+        Named {
+            path: path.to_string(),
+            name: name.to_string(),
+        }
+    }
+}
+
+/// What a fold of one file made: the text, what each theorem had folded,
+/// and each theorem's moves in the order made.
+struct FileFold {
+    text: String,
+    done: BTreeMap<String, Folds>,
+    moves: BTreeMap<String, Vec<String>>,
+}
+
+/// Where each theorem of `named` stands while its failing moves are found:
+/// the moves its last fold made, those left out, and the bounds of the
+/// search for the first move that fails.
+struct Search {
+    moves: Vec<String>,
+    excluded: BTreeSet<String>,
+    passes: usize,
+    fails: usize,
+    why: String,
+}
+
+/// The problems the checker finds in `wanted`, by the theorem each is in,
+/// the first of each said with its line.
+fn failing(
+    root: &Path,
+    wanted: &BTreeSet<Named>,
+) -> Result<BTreeMap<Named, String>, Said> {
+    let ask = |t: &Theorem| wanted.contains(&Named::of(&t.path, &t.name));
+    let problems = crate::checker::problems(&Disk::new(root.to_path_buf()), &ask)?;
+    let mut out: BTreeMap<Named, String> = BTreeMap::new();
+    for p in problems {
+        let Ok(text) = std::fs::read_to_string(root.join(&p.path)) else {
+            continue;
+        };
+        let Ok((_, thms)) = parse_proof(&p.path, &text, 0) else {
+            continue;
+        };
+        let owner = thms
+            .iter()
+            .filter(|t| t.line <= p.line.line)
+            .max_by_key(|t| t.line);
+        if let Some(t) = owner {
+            out.entry(Named::of(&p.path, &t.name))
+                .or_insert_with(|| format!("{}  {}", p.line.line, p.message));
+        }
+    }
+    Ok(out)
+}
+
+/// Theorem `name` of `path` written as `original` has it, then folded
+/// within `limits`; its moves and what it folded.
+fn refold(
+    root: &Path,
+    path: &str,
+    original: &str,
+    name: &str,
+    limit: Option<usize>,
+    excluded: &BTreeSet<String>,
+) -> (Vec<String>, Folds) {
+    let now = std::fs::read_to_string(root.join(path)).unwrap_or_default();
+    let names = BTreeSet::from([name.to_string()]);
+    let start = restored(path, &now, original, &names);
+    let limits = Limits {
+        only: Some(name),
+        limit,
+        excluded,
+    };
+    let mut fold = folded_file(path, &start, limits);
+    // Failing to write leaves the theorem as it stood, which the next check
+    // reads.
+    let _ = std::fs::write(root.join(path), &fold.text);
+    let moves = fold.moves.remove(name).unwrap_or_default();
+    let done = fold.done.remove(name).unwrap_or_default();
+    (moves, done)
+}
+
 pub fn run(root: &Path, dir: &str) -> Said {
     let mut files = Vec::new();
     proof_files(&root.join(dir), &mut files);
@@ -51,98 +150,139 @@ pub fn run(root: &Path, dir: &str) -> Said {
     let mut printed = String::new();
     let mut complained = String::new();
     let mut originals: BTreeMap<String, String> = BTreeMap::new();
-    let mut folded: BTreeMap<(String, String), Folds> = BTreeMap::new();
+    let mut folded: BTreeMap<Named, Folds> = BTreeMap::new();
+    let mut moves: BTreeMap<Named, Vec<String>> = BTreeMap::new();
+    let none = BTreeSet::new();
+    let everything = Limits {
+        only: None,
+        limit: None,
+        excluded: &none,
+    };
     for file in &files {
         let path = relative(root, file);
         let Ok(text) = std::fs::read_to_string(file) else {
             complained.push_str(&format!("{path}: does not read\n"));
             continue;
         };
-        let (new, done) = folded_file(&path, &text);
-        if new != text {
-            if std::fs::write(file, &new).is_err() {
+        let fold = folded_file(&path, &text, everything);
+        if fold.text != text {
+            if std::fs::write(file, &fold.text).is_err() {
                 complained.push_str(&format!("{path}: could not be written\n"));
                 continue;
             }
             originals.insert(path.clone(), text);
-            for (thm, f) in done {
-                folded.insert((path.clone(), thm), f);
+            for (thm, f) in fold.done {
+                folded.insert(Named::of(&path, &thm), f);
+            }
+            for (thm, m) in fold.moves {
+                moves.insert(Named::of(&path, &thm), m);
             }
         }
     }
-    // Each theorem rewritten that no longer checks is put back, until what
-    // is left checks clean.
-    let mut put_back: Vec<(String, String, String)> = Vec::new();
-    for _ in 0..3 {
-        let changed: BTreeSet<(String, String)> = folded.keys().cloned().collect();
-        let wanted = |t: &Theorem| changed.contains(&(t.path.clone(), t.name.clone()));
-        let problems =
-            match crate::checker::problems(&Disk::new(root.to_path_buf()), &wanted) {
-                Ok(p) => p,
-                Err(out) => {
-                    complained.push_str(&out.printed);
-                    complained.push_str(&out.complained);
-                    return Said {
-                        printed,
-                        complained,
-                        status: 1,
-                    };
-                }
-            };
-        let mut failing: BTreeMap<(String, String), String> = BTreeMap::new();
-        for p in problems {
-            let Some(text) = std::fs::read_to_string(root.join(&p.path)).ok() else {
-                continue;
-            };
-            let Ok((_, thms)) = parse_proof(&p.path, &text, 0) else {
-                continue;
-            };
-            let owner = thms
-                .iter()
-                .filter(|t| t.line <= p.line.line)
-                .max_by_key(|t| t.line);
-            if let Some(t) = owner {
-                failing
-                    .entry((p.path.clone(), t.name.clone()))
-                    .or_insert_with(|| format!("{}  {}", p.line.line, p.message));
-            }
-        }
-        if failing.is_empty() {
+    let said = |printed: String, complained: String, out: Said| Said {
+        printed,
+        complained: complained + &out.printed + &out.complained,
+        status: 1,
+    };
+    let changed: BTreeSet<Named> = folded.keys().cloned().collect();
+    let first = match failing(root, &changed) {
+        Ok(f) => f,
+        Err(out) => return said(printed, complained, out),
+    };
+    // Each theorem that no longer checks has its first failing move found,
+    // by folding fewer of its moves, and is folded again without it; one
+    // still failing after several is put back as it was.
+    let mut searching: BTreeMap<Named, Search> = first
+        .into_iter()
+        .map(|(t, why)| {
+            let m = moves.get(&t).cloned().unwrap_or_default();
+            let fails = m.len();
+            (
+                t,
+                Search {
+                    moves: m,
+                    excluded: BTreeSet::new(),
+                    passes: 0,
+                    fails,
+                    why,
+                },
+            )
+        })
+        .collect();
+    let mut left_out = 0;
+    for _ in 0..6 {
+        if searching.is_empty() {
             break;
         }
-        let by_file: BTreeSet<String> =
-            failing.keys().map(|(p, _)| p.clone()).collect();
-        for path in by_file {
-            let names: BTreeSet<String> = failing
-                .keys()
-                .filter(|(p, _)| *p == path)
-                .map(|(_, n)| n.clone())
-                .collect();
-            let Some(original) = originals.get(&path) else {
-                complained
-                    .push_str(&format!("{path}: a problem in a file not rewritten\n"));
-                continue;
-            };
-            let now = std::fs::read_to_string(root.join(&path)).unwrap_or_default();
-            let restored = restored(&path, &now, original, &names);
-            if std::fs::write(root.join(&path), restored).is_err() {
-                complained.push_str(&format!("{path}: could not be written\n"));
+        // The first failing move: folding the first `passes` moves checks,
+        // and folding the first `fails` does not.
+        while searching.values().any(|s| s.fails - s.passes > 1) {
+            let mut asked: BTreeMap<Named, usize> = BTreeMap::new();
+            for (t, s) in &searching {
+                if s.fails - s.passes > 1 {
+                    let mid = (s.passes + s.fails) / 2;
+                    let original = &originals[&t.path];
+                    refold(root, &t.path, original, &t.name, Some(mid), &s.excluded);
+                    asked.insert(t.clone(), mid);
+                }
             }
-            for name in names {
-                let why = failing
-                    .get(&(path.clone(), name.clone()))
-                    .cloned()
-                    .unwrap_or_default();
-                folded.remove(&(path.clone(), name.clone()));
-                put_back.push((path.clone(), name, why));
+            let wanted: BTreeSet<Named> = asked.keys().cloned().collect();
+            let found = match failing(root, &wanted) {
+                Ok(f) => f,
+                Err(out) => return said(printed, complained, out),
+            };
+            for (t, mid) in asked {
+                let s = searching.get_mut(&t).expect("a theorem searched");
+                if found.contains_key(&t) {
+                    s.fails = mid;
+                } else {
+                    s.passes = mid;
+                }
             }
         }
+        // Each folded again without its failing move.
+        for (t, s) in searching.iter_mut() {
+            if let Some(bad) = s.moves.get(s.fails.saturating_sub(1)) {
+                s.excluded.insert(bad.clone());
+                left_out += 1;
+            }
+            let original = &originals[&t.path];
+            let (m, done) = refold(root, &t.path, original, &t.name, None, &s.excluded);
+            s.moves = m;
+            s.passes = 0;
+            s.fails = s.moves.len();
+            folded.insert(t.clone(), done);
+        }
+        let wanted: BTreeSet<Named> = searching.keys().cloned().collect();
+        let found = match failing(root, &wanted) {
+            Ok(f) => f,
+            Err(out) => return said(printed, complained, out),
+        };
+        searching.retain(|t, s| match found.get(t) {
+            Some(why) => {
+                s.why.clone_from(why);
+                true
+            }
+            None => false,
+        });
     }
+    let mut put_back: Vec<String> = Vec::new();
+    for (t, s) in &searching {
+        let now = std::fs::read_to_string(root.join(&t.path)).unwrap_or_default();
+        let names = BTreeSet::from([t.name.clone()]);
+        let back = restored(&t.path, &now, &originals[&t.path], &names);
+        if std::fs::write(root.join(&t.path), back).is_err() {
+            complained.push_str(&format!("{}: could not be written\n", t.path));
+        }
+        folded.remove(t);
+        put_back.push(format!("  {}  {}: {}\n", t.path, t.name, s.why));
+    }
+    folded.retain(|_, f| f.links + f.rows + f.merged > 0);
     let links: usize = folded.values().map(|f| f.links).sum();
     let rows: usize = folded.values().map(|f| f.rows).sum();
     let merged: usize = folded.values().map(|f| f.merged).sum();
     printed.push_str(&format!(
-        "{links} step(s) moved onto chain lines, {rows} into substitute rows, {merged} substitute(s) merged into the one above, in {} theorem(s)\n",
+        "{links} step(s) moved onto chain lines, {rows} into substitute rows, {merged} substitute(s) merged into the one above, in {} theorem(s); {left_out} move(s) left out that did not check\n",
         folded.len()
     ));
     if !put_back.is_empty() {
@@ -150,8 +290,8 @@ pub fn run(root: &Path, dir: &str) -> Said {
             "{} theorem(s) put back as they were:\n",
             put_back.len()
         ));
-        for (path, name, why) in &put_back {
-            printed.push_str(&format!("  {path}  {name}: {why}\n"));
+        for line in &put_back {
+            printed.push_str(line);
         }
     }
     Said {
@@ -228,11 +368,13 @@ fn joined(lines: Vec<String>, text: &str) -> String {
     out
 }
 
-/// The file with every step that can fold folded, one at a time, read
-/// again after each; with what each theorem had folded.
-fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
+/// The file with every step that can fold within `limits` folded, one at a
+/// time, read again after each; with what each theorem had folded and its
+/// moves in order, each named by what it does and the claim it moves.
+fn folded_file(path: &str, text: &str, limits: Limits<'_>) -> FileFold {
     let mut text = text.to_string();
     let mut done: BTreeMap<String, Folds> = BTreeMap::new();
+    let mut moves: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut refused: BTreeSet<(String, String)> = BTreeSet::new();
     loop {
         let Ok((_, thms)) = parse_proof(path, &text, 0) else {
@@ -241,14 +383,26 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
         let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
         let mut any = false;
         'theorems: for thm in &thms {
+            if limits.only.is_some_and(|only| only != thm.name) {
+                continue;
+            }
+            let made_so_far = moves.get(&thm.name).map_or(0, Vec::len);
+            if limits.limit.is_some_and(|limit| made_so_far >= limit) {
+                continue;
+            }
             let (_, end) = region(&thms, thm.line, lines.len());
             for (i, step) in thm.steps.iter().enumerate() {
                 let key = (thm.name.clone(), step.number.to_string());
                 if refused.contains(&key) {
                     continue;
                 }
-                if merged_run(thm, &mut lines, end, i) {
+                let claim = step.claim_text();
+                let merge = format!("merge|{claim}");
+                if !limits.excluded.contains(&merge)
+                    && merged_run(thm, &mut lines, end, i)
+                {
                     done.entry(thm.name.clone()).or_default().merged += 1;
+                    moves.entry(thm.name.clone()).or_default().push(merge);
                     any = true;
                     break 'theorems;
                 }
@@ -256,6 +410,14 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
                     continue;
                 };
                 let row = matches!(used, Use::Row { .. });
+                let name = if row {
+                    format!("row|{claim}")
+                } else {
+                    format!("link|{claim}")
+                };
+                if limits.excluded.contains(&name) {
+                    continue;
+                }
                 let Some(reason) = carried_reason(thm, step, &lines, row) else {
                     continue;
                 };
@@ -272,6 +434,7 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
                     } else {
                         f.links += 1;
                     }
+                    moves.entry(thm.name.clone()).or_default().push(name);
                     any = true;
                     break 'theorems;
                 }
@@ -283,7 +446,7 @@ fn folded_file(path: &str, text: &str) -> (String, BTreeMap<String, Folds>) {
         }
         text = joined(lines, &text);
     }
-    (text, done)
+    FileFold { text, done, moves }
 }
 
 /// How many times the theorem cites step `i`; None where a line citing
