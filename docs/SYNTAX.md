@@ -1079,6 +1079,10 @@ compared where they differ, and every differing piece must have no letter in
 it; each is worked out as a closed fact is. A change touching a letter,
 `k(k + 1)/2 + (k + 1)` to `(k + 1)((k + 1) + 1)/2`, is still `algebra`'s.
 
+`real arithmetic` is named the same way, where each piece that changes is
+closed and real arithmetic works it out: `cos(x)·cos(π)` to `cos(x)·(−1)`
+uses the fact `cos(π) = −1` and nothing else.
+
 ```proof
 4.4.  |a + b| = −(a + b)
       def:abs x := a + b, from C2

@@ -5569,6 +5569,13 @@ fn cases() -> Vec<Case> {
             "step 2 is a calculation with no chain",
         ),
         case(
+            "a chain line naming real arithmetic for a change with a letter in it",
+            vec![
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("      x·√4 = x·2     real arithmetic".to_string()), "      x·√4 = 2·x     real arithmetic".to_string()),
+            ],
+            "which changes something with a letter in it; a link may name real arithmetic where only closed pieces change",
+        ),
+        case(
             "a chain line of numerals alone naming algebra",
             vec![
                 edit("proofs/wiedijk/sum-formula.proof", Some("= 1(1 + 1)/2            arithmetic".to_string()), "= 1(1 + 1)/2            algebra".to_string()),

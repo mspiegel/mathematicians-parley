@@ -210,6 +210,7 @@ pub fn run(root: &Path, dir: &str) -> Said {
         })
         .collect();
     let mut left_out = 0;
+    let mut left_out_why: Vec<String> = Vec::new();
     for _ in 0..6 {
         if searching.is_empty() {
             break;
@@ -233,8 +234,9 @@ pub fn run(root: &Path, dir: &str) -> Said {
             };
             for (t, mid) in asked {
                 let s = searching.get_mut(&t).expect("a theorem searched");
-                if found.contains_key(&t) {
+                if let Some(why) = found.get(&t) {
                     s.fails = mid;
+                    s.why.clone_from(why);
                 } else {
                     s.passes = mid;
                 }
@@ -245,6 +247,8 @@ pub fn run(root: &Path, dir: &str) -> Said {
             if let Some(bad) = s.moves.get(s.fails.saturating_sub(1)) {
                 s.excluded.insert(bad.clone());
                 left_out += 1;
+                left_out_why
+                    .push(format!("  {}  {}: {bad}: {}\n", t.path, t.name, s.why));
             }
             let original = &originals[&t.path];
             let (m, done) = refold(root, &t.path, original, &t.name, None, &s.excluded);
@@ -285,6 +289,9 @@ pub fn run(root: &Path, dir: &str) -> Said {
         "{links} step(s) moved onto chain lines, {rows} into substitute rows, {merged} substitute(s) merged into the one above, in {} theorem(s); {left_out} move(s) left out that did not check\n",
         folded.len()
     ));
+    for line in &left_out_why {
+        printed.push_str(line);
+    }
     if !put_back.is_empty() {
         printed.push_str(&format!(
             "{} theorem(s) put back as they were:\n",
@@ -748,10 +755,8 @@ fn carried_reason(
                     Some(format!("substitute line {n}"))
                 }
                 Some(Source::At(Place::Label(l))) => Some(format!("substitute {l}")),
-                // A chain line names `real arithmetic` only where its terms
-                // are closed (`GRAMMAR.md`, calculation chains), so a
-                // closed equation put among letters stays a step.
                 Some(Source::Arithmetic) => Some("arithmetic".to_string()),
+                Some(Source::RealArithmetic) => Some("real arithmetic".to_string()),
                 _ => None,
             }
         }

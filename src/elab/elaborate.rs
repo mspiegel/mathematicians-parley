@@ -4206,10 +4206,37 @@ impl<'a> Elaborator<'a> {
         if cite == "arithmetic" && claim.names().is_empty() && !pieces {
             return self.closed_fact(&self.rpn(claim), scope, facts, &what, Some(step));
         }
-        // A link naming `real arithmetic` is closed, which the checker holds
-        // it to, and is worked out whole.
+        // A closed link naming `real arithmetic` is worked out whole; one
+        // whose terms have letters changes closed pieces alone, which the
+        // checker holds it to, each worked out where it stands.
         if cite == "real arithmetic" {
-            return self.real_fact(&self.rpn(claim), scope, facts, &what);
+            if claim.names().is_empty() {
+                return self.real_fact(&self.rpn(claim), scope, facts, &what);
+            }
+            if claim.label() != Some("wceq") {
+                return Err(self.unreached(
+                    step.line,
+                    format!("{written} relates terms with letters in them, which real arithmetic does not"),
+                ));
+            }
+            let leaf = Leaf::RealArithmetic { what };
+            return match self.congruence(
+                &claim.children()[0],
+                &claim.children()[1],
+                scope,
+                facts,
+                Some(step),
+                &leaf,
+            )? {
+                Built(p) => Ok(p),
+                Declined(d) => Err(self.defect(
+                    step.line,
+                    format!(
+                        "{written} changes more than closed pieces: {}",
+                        self.say(&d)
+                    ),
+                )),
+            };
         }
         // One whose terms have letters in them may too, where only pieces of
         // numerals alone change.

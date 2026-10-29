@@ -2246,6 +2246,14 @@ impl<'a> Elaborator<'a> {
                 self.closed_fact(&claim, where_, held, what, Some(step))
                     .map(|p| Some(Built(p)))
             }
+            Leaf::RealArithmetic { what } => {
+                if !one.names().is_empty() || !other.names().is_empty() {
+                    return Ok(None);
+                }
+                let claim = t!(self.rpn(one), self.rpn(other), "wceq");
+                self.real_fact(&claim, where_, held, what)
+                    .map(|p| Some(Built(p)))
+            }
         }
     }
 

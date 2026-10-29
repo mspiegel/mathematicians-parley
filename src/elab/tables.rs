@@ -82,6 +82,9 @@ pub enum Leaf {
     /// A piece of numerals alone that changed, proved where it stands as a
     /// closed fact: a link of a calculation naming `arithmetic`.
     Arithmetic { what: String, step: Box<Step> },
+    /// A closed piece that changed, worked out by real arithmetic where it
+    /// stands: a link of a calculation naming `real arithmetic`.
+    RealArithmetic { what: String },
 }
 
 /// The build's codomains as `citing::codomain_reason` asks of them: kernel

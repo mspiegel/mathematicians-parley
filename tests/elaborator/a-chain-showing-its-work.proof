@@ -94,3 +94,15 @@ theorem a-chain-line-using-a-line
     calculation
       3·a + 1 = 6·b + 1      algebra, from H3
               = 1 + 6·b      algebra
+
+
+theorem a-chain-line-working-out-a-closed-piece
+  note        A line whose terms have letters may name real arithmetic
+              where only a closed piece changes, √4 here, worked out alone.
+  let x ∈ ℝ                                                           (H1)
+  then x·√4 = 2·x
+
+1.  x·√4 = 2·x
+    calculation
+      x·√4 = x·2     real arithmetic
+           = 2·x     algebra

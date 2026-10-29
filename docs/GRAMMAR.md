@@ -1166,8 +1166,8 @@ A cited equation may face either way; the line says nothing about
 which. `arithmetic` stands in
 for a reference only on a line whose relation is between numerals alone, and
 cites nothing: the fact is worked out where it stands (`SYNTAX.md`).
-`real arithmetic` stands in the same way on a line whose terms are closed
-and take a square root.
+`real arithmetic` stands in the same way, on a line whose terms are closed,
+or whose only changed pieces are, each worked out by real arithmetic.
 
 A chain goes one way. Its orders are all `≤` and `<`, going up, or all `≥`
 and `>`, going down, with `=` anywhere among either: a ≤ b ≥ c says nothing

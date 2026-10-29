@@ -1,0 +1,11 @@
+$( tests/elaborator/a-chain-showing-its-work/a-chain-line-working-out-a-closed-piece, elaborated from tests/elaborator/a-chain-showing-its-work.proof by parley build.
+   Nothing here is assumed.
+   Checked against a set.mm of 51,256 assertions, sha256
+   0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
+
+$[ stdlib/definitions.mm $]
+
+${
+  tests.elaborator.a-chain-showing-its-work.a-chain-line-working-out-a-closed-piece $p |- ( A e. RR -> ( A x. ( sqrt ` 4 ) ) = ( 2 x. A ) ) $=
+    ( cr wcel c4 csqrt cfv cmul co c2 cexp eqidd wceq eqid oveq12i c1 2nn0 1nn0 1p1e2 numexp1 oveq1i 2t2e4 eqtri numexpp1 eqtr4i a1i eqtrd fveq2d 2re cc0 clt wbr cle 2pos wi 0re ltle syl2anc mpd sqrtsqd eqtr4d oveq2d cc id recn syl exp1 eqcomd cn0 expcld mullid 2cn mulridi oveq12d wa ax-1cn jca mul4 mullidi mulrid ) ABCZADEFZGHAIGHZIAGHZVTWAIAGVTWAIIVTWAIIVTWAIIJHZEFIVTDWDEVTDDWDVTDKDWDLVTDDWDDMWDWDDIIIIJIMZWENIDOIPQRIOJHZIGHIIGHDWFIIGIPSTUAUBUCUBUDUEUFUGVTIIBCZVTUHUEZVTUIIUJUKZUIIULUKZWIVTUMUEVTUIBCZWGWIWJUNWKVTUOUEWHUIIUPUQURUSUFVTIKZUFWLUTVAVTWBIAOJHZGHZWCVTWBOWMGHZIOGHZGHZWNVTAWOIWPGVTAWMWOVTWMAVTAVBCZWMALZVTVTWRVTVCZAVDZVEZAVFZVEZVGZVTWOWMVTWMVBCZWOWMLZVTAOXBOVHCZVTQUEZVIZWMVJZVEZVGZUFZVTWPIWPILZVTIVKVLZUEZVGZVMVTWQOIGHZWMOGHZGHZWNVTOVBCZXFVNZIVBCZYBVNZVNWQYALVTYCYEVTYBXFYBVTVOUEZXJVPZVTYDYBYDVTVKUEZYFVPZVPOWMIOVQVEVTXSIXTWMGXSILVTIVKVRUEVTXFXTWMLXJWMVSVEVMUFUFVTWCWPWOGHZWNVTIWPAWOGXRXNVMVTYJYJWNVTYEYCVNYJYJLVTYEYCYIYGVPIOOWMVQVEVTWPIWOWMGXQXLVMUFUFUTUF $.
+$}

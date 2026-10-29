@@ -820,8 +820,28 @@ pub fn check_real_decided_words(
             if link.line.cite != "real arithmetic" {
                 continue;
             }
-            if let Some(claim) = link.claim(known) {
-                read.push((link.line.line, link.line.quoted(&link.from), claim));
+            let Some(claim) = link.claim(known) else {
+                continue;
+            };
+            let quoted = link.line.quoted(&link.from);
+            // A link whose terms have letters works out the closed pieces it
+            // changes, and nothing it leaves as it was (`real_pieces`).
+            let closed = claim.names().iter().all(|name| library_named(name, known));
+            let mut pieces = Vec::new();
+            let split = !closed
+                && match (claim.notation(), claim.children.as_slice()) {
+                    (EQUALITY, [one, other]) => {
+                        real_pieces(one, other, known, &mut pieces)
+                    }
+                    _ => false,
+                };
+            if split {
+                for Piece { was, now } in pieces {
+                    let piece = made(known.env.g, EQUALS, vec![was, now]);
+                    read.push((link.line.line, quoted.clone(), piece));
+                }
+            } else {
+                read.push((link.line.line, quoted, claim));
             }
         }
         for (line, text, mut node) in read {
@@ -5225,6 +5245,32 @@ fn library_named(name: &str, known: &Known) -> bool {
     known.sorts.imported.contains(name) && !introduced(known.thm, known).contains(name)
 }
 
+/// The pieces two terms of a link differ in, into `out`, each closed as
+/// `real arithmetic` reads one: no name in it but a library function's, ln
+/// in ln(2). False where a piece they differ in has a letter of the proof's
+/// in it, as `cos(x)` against `cos(y)`.
+fn real_pieces(one: &Node, other: &Node, known: &Known, out: &mut Vec<Piece>) -> bool {
+    if known.alike(one, other) {
+        return true;
+    }
+    let closed = |n: &Node| n.names().iter().all(|name| library_named(name, known));
+    if closed(one) && closed(other) {
+        out.push(Piece {
+            was: one.clone(),
+            now: other.clone(),
+        });
+        return true;
+    }
+    one.notation() == other.notation()
+        && one.text == other.text
+        && one.children.len() == other.children.len()
+        && one
+            .children
+            .iter()
+            .zip(&other.children)
+            .all(|(a, b)| real_pieces(a, b, known, out))
+}
+
 /// Each sentence of a fact as `real arithmetic` reads it (`real_term`),
 /// taken apart at its "and"s as `arithmetic_worked` does; None where one
 /// does not read.
@@ -5342,10 +5388,26 @@ pub fn check_real_arithmetic_holds(
             let why = if closed {
                 real_unshown(real_worked_of(&[claim], known, targets))
             } else {
-                Some(
-                    "has a letter in it; a link may name real arithmetic only where its terms are closed, and any other cites the numbered step that states it"
-                        .to_string(),
-                )
+                // A link whose terms have letters changes closed pieces
+                // alone, each worked out, as one naming arithmetic does.
+                let mut pieces = Vec::new();
+                let split = match (claim.notation(), claim.children.as_slice()) {
+                    (EQUALITY, [one, other]) => {
+                        real_pieces(one, other, known, &mut pieces)
+                    }
+                    _ => false,
+                };
+                if split {
+                    pieces.into_iter().find_map(|Piece { was, now }| {
+                        let piece = made(known.env.g, EQUALS, vec![was, now]);
+                        real_unshown(real_worked_of(&[piece], known, targets))
+                    })
+                } else {
+                    Some(
+                        "changes something with a letter in it; a link may name real arithmetic where only closed pieces change, and any other cites the numbered step that states it"
+                            .to_string(),
+                    )
+                }
             };
             if let Some(why) = why {
                 report.say(
