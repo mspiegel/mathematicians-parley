@@ -32,3 +32,17 @@ theorem substitute-rows-from-a-line
       x·x + x < y      H4
       3·3 + 3 < y      substitute H3
       12 < y           arithmetic
+
+
+theorem substitute-rows-changing-a-sum
+  note        A row may change both terms of a sum: the change is the whole
+              sum, the one term holding both.
+  let a ∈ ℝ                                                           (H1)
+  let b ∈ ℝ                                                           (H2)
+  assume a·2 + b·2 < 1                                                (H3)
+  then 2·a + 2·b < 1
+
+1.  2·a + 2·b < 1
+    substitute
+      a·2 + b·2 < 1      H3
+      2·a + 2·b < 1      algebra

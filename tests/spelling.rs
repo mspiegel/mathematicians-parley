@@ -29,8 +29,8 @@ const ALLOWED: &[(&str, &str, &str)] = &[
     ),
     (
         "src/formula/page.rs",
-        ".all(|(a, b)| a.same_shape(&was) && b.same_shape(&now));",
-        "a row's pieces are one change only where each puts that very term for that very term, as the one equation its reason proves puts it",
+        ".all(|p| p.was.same_shape(&first.was) && p.now.same_shape(&first.now));",
+        "a row's pieces are one term put in several places only where each puts that very term for that very term, as the one equation its reason proves puts it",
     ),
     (
         "src/matching.rs",

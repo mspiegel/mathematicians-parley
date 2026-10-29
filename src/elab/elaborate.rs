@@ -2123,6 +2123,9 @@ impl<'a> Elaborator<'a> {
             return Err(self.unreached(step.line, "a substitute with no rows"));
         };
         let mut reached = self.term(&self.read_one(&first.formula)?)?;
+        // Each row's reason rests on the step's requires lines, as a step
+        // giving that reason would (`supplied`).
+        let supplied = self.supplied(Some(step), scope, facts)?;
         let Some(mut proof) =
             self.said_by(&first.cite, &reached, scope, facts, lines)?
         else {
@@ -2139,7 +2142,7 @@ impl<'a> Elaborator<'a> {
             };
             let what =
                 format!("a row of step {} writes {}", fmt(&step.number), row.formula);
-            let change = match self.as_a_step(step, req, &what, scope, facts)? {
+            let change = match self.as_a_step(step, req, &what, scope, &supplied)? {
                 Built(p) => p,
                 Declined(d) => {
                     return Err(self.defect(
@@ -4159,7 +4162,8 @@ impl<'a> Elaborator<'a> {
         // would be, resting on the calculation's requires lines, as a
         // requires line is proved (`as_a_step`).
         if let Some(req) = &line.reason {
-            let held = match self.as_a_step(step, req, &what, scope, facts)? {
+            let supplied = self.supplied(Some(step), scope, facts)?;
+            let held = match self.as_a_step(step, req, &what, scope, &supplied)? {
                 Built(p) => p,
                 Declined(d) => {
                     return Err(self.defect(

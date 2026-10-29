@@ -461,7 +461,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     ("instantiate", "proofs/setmm/limit-constant-multiple.proof", "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2"),
     ("algebra", "proofs/setmm/limit-constant-multiple.proof", "                  algebra"),
     ("arithmetic", "proofs/setmm/halves-series.proof", "          arithmetic"),
-    ("real arithmetic", "proofs/identities/sqrt-two-plus-sqrt-three.proof", "    real arithmetic"),
+    ("real arithmetic", "proofs/identities/ln-above-one-is-positive.proof", "    real arithmetic"),
     ("inequalities", "proofs/setmm/floor-below-non-integer.proof", "    inequalities, from 1, 3"),
     ("transitivity", "proofs/setmm/halves-series.proof", "                  transitivity, from A2, 3.2.2"),
     ("antisymmetry", "proofs/setmm/limit-unique.proof", "    antisymmetry, from 1, 2"),

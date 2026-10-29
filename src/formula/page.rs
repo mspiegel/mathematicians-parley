@@ -336,7 +336,7 @@ fn parts_of(made: &Made) -> Vec<&Written> {
 /// The pieces where two trees part, each the largest piece that differs:
 /// where the two are one notation written alike with as many children, the
 /// pieces their children part at, and otherwise the two whole.
-fn parted(above: &Node, below: &Node, out: &mut Vec<(Node, Node)>) {
+fn parted(above: &Node, below: &Node, path: &mut Vec<usize>, out: &mut Vec<Parting>) {
     if above.same_shape(below) {
         return;
     }
@@ -345,18 +345,39 @@ fn parted(above: &Node, below: &Node, out: &mut Vec<(Node, Node)>) {
         && !above.children.is_empty()
         && above.children.len() == below.children.len();
     if !alike {
-        out.push((above.clone(), below.clone()));
+        out.push(Parting {
+            was: above.clone(),
+            now: below.clone(),
+            path: path.clone(),
+        });
         return;
     }
-    for (a, b) in above.children.iter().zip(&below.children) {
-        parted(a, b, out);
+    for (i, (a, b)) in above.children.iter().zip(&below.children).enumerate() {
+        path.push(i);
+        parted(a, b, path, out);
+        path.pop();
     }
 }
 
-/// `was = now`, the one change between the trees of two rows: where they
-/// part, every piece is the same term put for the same term, at one place
-/// or several. Two rows alike change nothing, and two that part in two
-/// ways, or in a statement rather than a term, make no one change.
+/// One place two rows part: what the row above has there, what the row
+/// below has, and the way down to it, a child's index at each level.
+struct Parting {
+    was: Node,
+    now: Node,
+    path: Vec<usize>,
+}
+
+/// The term at `path` in `node`.
+fn at_path<'n>(node: &'n Node, path: &[usize]) -> &'n Node {
+    path.iter().fold(node, |n, &i| &n.children[i])
+}
+
+/// `was = now`, the one change between the trees of two rows. Where every
+/// piece they part in is the same term put for the same term, at one place
+/// or several, that is the change; otherwise it is the smallest term that
+/// holds every piece, as a row putting the sum (a − b)² + (c − d)² for
+/// another changes both its terms. Two rows alike change nothing, and two
+/// whose smallest such piece is a statement make no one change.
 fn changed(
     above: &Node,
     below: &Node,
@@ -365,8 +386,8 @@ fn changed(
     at: (&str, usize),
 ) -> Checked<Node> {
     let mut pieces = Vec::new();
-    parted(above, below, &mut pieces);
-    let Some((was, now)) = pieces.first().cloned() else {
+    parted(above, below, &mut Vec::new(), &mut pieces);
+    let Some(first) = pieces.first() else {
         return Err(Problem::new(
             at.0,
             at.1,
@@ -375,14 +396,29 @@ fn changed(
     };
     let one = pieces
         .iter()
-        .all(|(a, b)| a.same_shape(&was) && b.same_shape(&now));
-    if !one {
-        return Err(Problem::new(
-            at.0,
-            at.1,
-            "the row makes more than one change to the row above it; each row puts one term for another",
-        ));
-    }
+        .all(|p| p.was.same_shape(&first.was) && p.now.same_shape(&first.now));
+    let (was, now) = if one {
+        (first.was.clone(), first.now.clone())
+    } else {
+        let shared = pieces.iter().fold(first.path.clone(), |mut common, p| {
+            let same = common
+                .iter()
+                .zip(&p.path)
+                .take_while(|(a, b)| a == b)
+                .count();
+            common.truncate(same);
+            common
+        });
+        let was = at_path(above, &shared).clone();
+        if was.sort.name() == Some("formula") {
+            return Err(Problem::new(
+                at.0,
+                at.1,
+                "the row makes more than one change to the row above it; each row puts one term for another",
+            ));
+        }
+        (was, at_path(below, &shared).clone())
+    };
     if was.sort.name() == Some("formula") {
         return Err(Problem::new(
             at.0,
