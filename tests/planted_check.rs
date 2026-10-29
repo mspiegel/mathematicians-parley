@@ -6833,10 +6833,10 @@ fn cases() -> Vec<Case> {
             "unfold a define applied in a cited line without its domain",
             vec![edit(
                 "proofs/wiedijk/ballot.proof",
-                Some("def:set-builder u := T, from D1, K3, 1\n".to_string()),
-                "def:set-builder u := T, from D1, K3\n".to_string(),
+                Some("def:set-builder u := T, from D2, K3, 1\n".to_string()),
+                "def:set-builder u := T, from D2, K3\n".to_string(),
             )],
-            "cites D1 at m − 1, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+            "cites D2 at m − 1, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),
         // A hypothesis applying a define is written out in the statement,
         // and a step reading it reads the name as its rule, which holds only
@@ -6860,7 +6860,7 @@ fn cases() -> Vec<Case> {
                 Some("3.  m − 1 ∈ ℕ₀\n    mun:nat-minus-one n := m\n\n4.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.\n    mun:image-of-injection, from 2, 3\n".to_string()),
                 "3.  There is a bijection from G(m − 1, n) to {T ∪ {m + n} : T ∈ G(m − 1, n)}.\n    mun:image-of-injection, from 2\n".to_string(),
             )],
-            "the conclusion of add-last-place applies the define D1 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and neither a hypothesis nor a line of its proof outside a block says it",
+            "the conclusion of add-last-place applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and neither a hypothesis nor a line of its proof outside a block says it",
         ),
     ]
 }
