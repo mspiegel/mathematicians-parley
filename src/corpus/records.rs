@@ -155,6 +155,10 @@ pub struct Record {
     /// The label of the define of a phrase the record is made from, where a
     /// proof file wrote it and no database file did (`corpus::phrases`).
     pub phrase: Option<String>,
+    /// What the define of a phrase the record is made from says its slots
+    /// are, in its `where` part: kinds, which its meaning is read with, and
+    /// no hypotheses.
+    pub slot_kinds: Vec<super::define::SlotKind>,
 }
 
 impl Record {
@@ -288,6 +292,7 @@ pub fn parse_database(path: &str, text: &str) -> Checked<Vec<Record>> {
                 line: line.no,
                 path: path.to_string(),
                 phrase: None,
+                slot_kinds: Vec::new(),
             });
             field_indent = None;
             last = None;

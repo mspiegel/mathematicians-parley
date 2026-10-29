@@ -36,6 +36,16 @@ import mundane theorem    stdlib/sums/range-finite
 import mundane theorem    stdlib/sums/range-integer
 import mundane theorem    stdlib/sums/range-within
 
+define rising-run: S is a rising run of a of size at least n means
+       n ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j),
+       where S is a set, a is a function from numbers to numbers      (D1)
+       reads S has at least n places, and a rises along them
+
+define falling-run: S is a falling run of a of size at least n means
+       n ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j),
+       where S is a set, a is a function from numbers to numbers      (D2)
+       reads S has at least n places, and a falls along them
+
 theorem longest-runs
   note        Label each place k with the length L(k) of the longest run
               that rises to k. A run rising to i grows by j wherever i < j
@@ -44,14 +54,14 @@ theorem longest-runs
   let N ∈ ℕ                                                           (H1)
   let r ∈ ℕ                                                           (H2)
   let c : {1, …, N} → ℝ                                               (H3)
-  assume there is no S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j)   (H4)
+  assume there is no S ⊆ {1, …, N} with S is a rising run of c of size at least r   (H4)
   then there is L : {1, …, N} → {1, …, r − 1} with for all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j)
 
-let U(k) = {S ⊆ {1, …, k} : k ∈ S and for all p, q ∈ S, if p < q then c(p) < c(q)}, for k ∈ {1, …, N}   (D1)
+let U(k) = {S ⊆ {1, …, k} : k ∈ S and for all p, q ∈ S, if p < q then c(p) < c(q)}, for k ∈ {1, …, N}   (D3)
     reads the runs among the first k places that rise and end at k
-let I(k) = {|S| : S ∈ U(k)}, for k ∈ {1, …, N}                       (D2)
+let I(k) = {|S| : S ∈ U(k)}, for k ∈ {1, …, N}                       (D4)
     reads the lengths of those runs
-let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
+let L(k) = sup I(k), for k ∈ {1, …, N}                                (D5)
     reads the length of the longest run that rises to k
 
 1.  For all k ∈ {1, …, N}, L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}.
@@ -96,13 +106,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           join 1.4, 1.5
 
     1.7.  {k} ∈ U(k)
-          def:part-builder u := {k}, from D1, K1, 1.3, 1.6
+          def:part-builder u := {k}, from D3, K1, 1.3, 1.6
 
     1.8.  There is S ∈ U(k) with |{k}| = |S|.
           exhibit, from 1.7
 
     1.9.  |{k}| ∈ I(k)
-          def:set-image u := |{k}|, from D2, K1, 1.8
+          def:set-image u := |{k}|, from D4, K1, 1.8
 
     1.10. For all u ∈ I(k), u ∈ ℤ and u ≤ r − 1.
           proof
@@ -110,13 +120,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           let u ∈ I(k)                                                (K5)
 
           1.10.1. There is S ∈ U(k) with u = |S|.
-                  def:set-image, from D2, K1, K5
+                  def:set-image, from D4, K1, K5
 
           1.10.2. T ∈ U(k). u = |T|.
                   obtain T from line 1.10.1
 
           1.10.3. T ⊆ {1, …, k}. For all p, q ∈ T, if p < q then c(p) < c(q).
-                  def:part-builder u := T, from D1, K1, 1.10.2
+                  def:part-builder u := T, from D3, K1, 1.10.2
 
           1.10.4. {1, …, k} is finite
                   mun:range-finite a := 1, b := k
@@ -137,8 +147,11 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
                   contradiction
                   suppose r ≤ |T|                                     (S1)
 
-                  1.10.9.1.  There is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then c(i) < c(j).
-                             exhibit, from S1, 1.10.3, 1.10.8, contradicting H4
+                  1.10.9.1.  T is a rising run of c of size at least r
+                             D1, from S1, 1.10.3
+
+                  1.10.9.2.  There is S ⊆ {1, …, N} with S is a rising run of c of size at least r.
+                             exhibit, from 1.10.8, 1.10.9.1, contradicting H4
 
           1.10.10. |T| < r
                    inequalities, from 1.10.6, 1.10.9
@@ -188,10 +201,10 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           exhibit, from 1.9
 
     1.17. L(k) ∈ I(k)
-          mun:integer-sup-member, from D3, K1, 1.13, 1.15, 1.16
+          mun:integer-sup-member, from D5, K1, 1.13, 1.15, 1.16
 
     1.18. For all x ∈ I(k), x ≤ L(k).
-          mun:integer-sup-above, from D3, K1, 1.13, 1.15
+          mun:integer-sup-above, from D5, K1, 1.13, 1.15
 
     1.19. L(k) is an upper bound of I(k)
           def:upper-bound, from 1.18
@@ -227,13 +240,13 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           instantiate k := j in line 1, from K9
 
     2.3.  There is S ∈ U(i) with L(i) = |S|.
-          def:set-image u := L(i), from D2, K8, 2.1
+          def:set-image u := L(i), from D4, K8, 2.1
 
     2.4.  T ∈ U(i). L(i) = |T|.
           obtain T from line 2.3
 
     2.5.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
-          def:part-builder u := T, from D1, K8, 2.4
+          def:part-builder u := T, from D3, K8, 2.4
 
     2.6.  j ∉ T
           contradiction
@@ -409,7 +422,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           join 2.19, 2.20
 
     2.22. T ∪ {j} ∈ U(j)
-          def:part-builder u := T ∪ {j}, from D1, K9, 2.18, 2.21
+          def:part-builder u := T ∪ {j}, from D3, K9, 2.18, 2.21
 
     2.23. |T ∪ {j}| = |T| + 1
           mun:card-add-one, from 2.6, 2.8
@@ -418,7 +431,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           exhibit, from 2.22, 2.23
 
     2.25. |T| + 1 ∈ I(j)
-          def:set-image u := |T| + 1, from D2, K9, 2.24
+          def:set-image u := |T| + 1, from D4, K9, 2.24
 
     2.26. For all s ∈ I(j), s ≤ L(j).
           def:upper-bound, from 2.2
@@ -441,7 +454,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
 
 4.  L : {1, …, N} → {1, …, r − 1}
     mun:function-into, from 3
-    requires L is a function on {1, …, N}: from D3
+    requires L is a function on {1, …, N}: from D5
 
 5.  There is L : {1, …, N} → {1, …, r − 1} with for all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j).
     exhibit, from 2, 4
@@ -460,82 +473,85 @@ theorem erdos-szekeres
   let N ∈ ℕ                                                           (H3)
   let a : {1, …, N} → ℝ be one-to-one                                 (H4)
   assume (r − 1)·(s − 1) < N                                          (H5)
-  then there is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j))
+  then there is S ⊆ {1, …, N} with S is a rising run of a of size at least r or S is a falling run of a of size at least s
 
-1.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
+1.  There is S ⊆ {1, …, N} with S is a rising run of a of size at least r or S is a falling run of a of size at least s.
     contradiction
-    suppose there is no S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j))   (S1)
+    suppose there is no S ⊆ {1, …, N} with S is a rising run of a of size at least r or S is a falling run of a of size at least s   (S1)
 
-    1.1.  there is no S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)
+    1.1.  there is no S ⊆ {1, …, N} with S is a rising run of a of size at least r
           contradiction
-          suppose there is S ⊆ {1, …, N} with r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)   (S2)
+          suppose there is S ⊆ {1, …, N} with S is a rising run of a of size at least r   (S2)
 
-          1.1.1.  T ⊆ {1, …, N}. r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j).
+          1.1.1.  T ⊆ {1, …, N}. T is a rising run of a of size at least r.
                   obtain T from S2
 
-          1.1.2.  (r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j)) or (s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j))
+          1.1.2.  T is a rising run of a of size at least r or T is a falling run of a of size at least s
                   mun:or-left, from 1.1.1
 
-          1.1.3.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
+          1.1.3.  There is S ⊆ {1, …, N} with S is a rising run of a of size at least r or S is a falling run of a of size at least s.
                   exhibit, from 1.1.1, 1.1.2, contradicting S1
 
-    let b(i) = −a(i), for i ∈ {1, …, N}                               (D1)
+    let b(i) = −a(i), for i ∈ {1, …, N}                               (D3)
         reads a with each value's sign changed, so that a fall in a is a rise in b
 
     1.2.  For all i ∈ {1, …, N}, b(i) ∈ ℝ.
-          membership, from D1
+          membership, from D3
           requires a(i) ∈ ℝ: from H4
 
     1.3.  b : {1, …, N} → ℝ
           mun:function-into, from 1.2
-          requires b is a function on {1, …, N}: from D1
+          requires b is a function on {1, …, N}: from D3
 
-    1.4.  there is no S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j)
+    1.4.  there is no S ⊆ {1, …, N} with S is a rising run of b of size at least s
           contradiction
-          suppose there is S ⊆ {1, …, N} with s ≤ |S| and for all i, j ∈ S, if i < j then b(i) < b(j)   (S3)
+          suppose there is S ⊆ {1, …, N} with S is a rising run of b of size at least s   (S3)
 
-          1.4.1.  T ⊆ {1, …, N}. s ≤ |T| and for all i, j ∈ T, if i < j then b(i) < b(j).
+          1.4.1.  T ⊆ {1, …, N}. T is a rising run of b of size at least s.
                   obtain T from S3
 
-          1.4.2.  For all i, j ∈ T, if i < j then a(i) > a(j).
+          1.4.2.  s ≤ |T| and for all i, j ∈ T, if i < j then b(i) < b(j)
+                  D1, from 1.4.1
+
+          1.4.3.  For all i, j ∈ T, if i < j then a(i) > a(j).
                   proof
                   let i ∈ T                                           (K1)
                   let j ∈ T                                           (K2)
                   assume i < j                                        (K3)
 
-                  1.4.2.1.  i ∈ {1, …, N}
+                  1.4.3.1.  i ∈ {1, …, N}
                             mun:in-subset, from K1, 1.4.1
 
-                  1.4.2.2.  j ∈ {1, …, N}
+                  1.4.3.2.  j ∈ {1, …, N}
                             mun:in-subset, from K2, 1.4.1
 
-                  1.4.2.3.  b(i) = −a(i)
-                            D1, from 1.4.2.1
+                  1.4.3.3.  b(i) = −a(i)
+                            D3, from 1.4.3.1
 
-                  1.4.2.4.  b(j) = −a(j)
-                            D1, from 1.4.2.2
+                  1.4.3.4.  b(j) = −a(j)
+                            D3, from 1.4.3.2
 
-                  1.4.2.5.  −a(i) < −a(j)
+                  1.4.3.5.  −a(i) < −a(j)
                             calculation
-                              −a(i) = b(i)      1.4.2.3
-                                    < b(j)      instantiate i := i, j := j in line 1.4.1, from K1, K2, K3
-                                    = −a(j)     1.4.2.4
+                              −a(i) = b(i)      1.4.3.3
+                                    < b(j)      instantiate i := i, j := j in line 1.4.2, from K1, K2, K3
+                                    = −a(j)     1.4.3.4
 
-                  1.4.2.6.  a(i) > a(j)
+                  1.4.3.6.  a(i) > a(j)
                             inequalities
-                              −a(i) < −a(j)     1.4.2.5
+                              −a(i) < −a(j)     1.4.3.5
                               a(i) > a(j)       multiplying by −1
-                            requires a(i) ∈ ℝ: from H4, 1.4.2.1
-                            requires a(j) ∈ ℝ: from H4, 1.4.2.2
+                            requires a(i) ∈ ℝ: from H4, 1.4.3.1
+                            requires a(j) ∈ ℝ: from H4, 1.4.3.2
 
-          1.4.3.  s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j)
-                  join 1.4.1, 1.4.2
+          1.4.4.  T is a falling run of a of size at least s
+                  D2, from 1.4.2, 1.4.3
 
-          1.4.4.  (r ≤ |T| and for all i, j ∈ T, if i < j then a(i) < a(j)) or (s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j))
-                  mun:or-right, from 1.4.3
+          1.4.5.  T is a rising run of a of size at least r or T is a falling run of a of size at least s
+                  mun:or-right, from 1.4.4
 
-          1.4.5.  There is S ⊆ {1, …, N} with (r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)) or (s ≤ |S| and for all i, j ∈ S, if i < j then a(i) > a(j)).
-                  exhibit, from 1.4.1, 1.4.4, contradicting S1
+          1.4.6.  There is S ⊆ {1, …, N} with S is a rising run of a of size at least r or S is a falling run of a of size at least s.
+                  exhibit, from 1.4.1, 1.4.5, contradicting S1
 
     1.5.  L : {1, …, N} → {1, …, r − 1}. For all i, j ∈ {1, …, N}, if i < j and a(i) < a(j) then L(i) < L(j).
           obtain L: thm:longest-runs c := a, from 1.1
@@ -543,7 +559,7 @@ theorem erdos-szekeres
     1.6.  M : {1, …, N} → {1, …, s − 1}. For all i, j ∈ {1, …, N}, if i < j and b(i) < b(j) then M(i) < M(j).
           obtain M: thm:longest-runs c := b, r := s, from 1.3, 1.4
 
-    let f(i) = (L(i), M(i)), for i ∈ {1, …, N}                       (D2)
+    let f(i) = (L(i), M(i)), for i ∈ {1, …, N}                       (D4)
         reads the lengths of the longest rising and falling runs ending at i
 
     1.7.  For all i ∈ {1, …, N}, f(i) ∈ {1, …, r − 1} × {1, …, s − 1}.
@@ -560,14 +576,14 @@ theorem erdos-szekeres
                   mun:pair-in-product, from 1.7.1, 1.7.2
 
           1.7.4.  f(i) = (L(i), M(i))
-                  D2, from K4
+                  D4, from K4
 
           1.7.5.  f(i) ∈ {1, …, r − 1} × {1, …, s − 1}
                   substitute f(i) = (L(i), M(i)) (line 1.7.4) into line 1.7.3
 
     1.8.  f : {1, …, N} → {1, …, r − 1} × {1, …, s − 1}
           mun:function-into, from 1.7
-          requires f is a function on {1, …, N}: from D2
+          requires f is a function on {1, …, N}: from D4
 
     1.9.  For all x, y ∈ {1, …, N}, if a(x) = a(y) then x = y.
           def:one-to-one, from H4
@@ -618,7 +634,7 @@ theorem erdos-szekeres
                              suppose f(i) = f(j)                      (S5)
 
                              1.10.4.3.1.  L(i) = L(j) and M(i) = M(j)
-                                          mun:pair-parts-equal, from D2, K5, K6, S5
+                                          mun:pair-parts-equal, from D4, K5, K6, S5
 
                              1.10.4.3.2.  L(i) = L(j)
                                           restate 1.10.4.3.1, contradicting 1.10.4.2
@@ -628,10 +644,10 @@ theorem erdos-szekeres
                   assume a(j) < a(i)                                  (C2)
 
                   1.10.4.4.  b(i) = −a(i)
-                             D1, from K5
+                             D3, from K5
 
                   1.10.4.5.  b(j) = −a(j)
-                             D1, from K6
+                             D3, from K6
 
                   1.10.4.6.  −a(i) < −a(j)
                              inequalities
@@ -662,7 +678,7 @@ theorem erdos-szekeres
                              suppose f(i) = f(j)                      (S6)
 
                              1.10.4.10.1. L(i) = L(j) and M(i) = M(j)
-                                          mun:pair-parts-equal, from D2, K5, K6, S6
+                                          mun:pair-parts-equal, from D4, K5, K6, S6
 
                              1.10.4.10.2. M(i) = M(j)
                                           restate 1.10.4.10.1, contradicting 1.10.4.9

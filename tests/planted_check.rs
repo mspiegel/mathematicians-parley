@@ -2033,10 +2033,10 @@ fn cases() -> Vec<Case> {
             "read a defined function in a cited line at a value nothing puts in its domain",
             vec![edit(
                 "proofs/wiedijk/erdos-szekeres.proof",
-                Some("def:set-image, from D2, K1, K5\n".to_string()),
-                "def:set-image, from D2, K5\n".to_string(),
+                Some("def:set-image, from D4, K1, K5\n".to_string()),
+                "def:set-image, from D4, K5\n".to_string(),
             )],
-            "step 1.10.1 cites D2 at k, so it needs k ∈ {1, …, N}, and nothing it cites or requires says it",
+            "step 1.10.1 cites D4 at k, so it needs k ∈ {1, …, N}, and nothing it cites or requires says it",
         ),
         // a ∈ S because S is the points of [a, b] where f is below zero; the
         // item speaks of a set written by its condition, and without the
@@ -5158,6 +5158,43 @@ fn cases() -> Vec<Case> {
                 edit("tests/elaborator/a-phrase-imported.proof", Some("import definition         tests/elaborator/a-phrase-defined/triangular-number\n".to_string()), String::new()),
             ],
             "is the phrase tests/elaborator/a-phrase-defined/triangular-number defines, which this file does not import",
+        ),
+        // A phrase's `where` part says a slot is a set or a function, a kind
+        // and no fact, for a slot its meaning leaves open.
+        case(
+            "leave out a where part the meaning needs",
+            vec![
+                edit("tests/elaborator/a-phrase-with-a-where-part.proof", Some(", where W is a set   (D1)".to_string()), "   (D1)".to_string()),
+            ],
+            "reads as absolute-value or as cardinality, and nothing says what W is",
+        ),
+        case(
+            "name a letter in a where part that is no slot",
+            vec![
+                edit("tests/elaborator/a-phrase-with-a-where-part.proof", Some("where W is a set   (D1)".to_string()), "where X is a set   (D1)".to_string()),
+            ],
+            "its `where` part names X, which is no slot of its phrase",
+        ),
+        case(
+            "say a kind a where part does not know",
+            vec![
+                edit("tests/elaborator/a-phrase-with-a-where-part.proof", Some("a is a function from numbers to numbers".to_string()), "a is a function from sets to numbers".to_string()),
+            ],
+            "'a is a function from sets to numbers' after `where` is neither",
+        ),
+        case(
+            "name one slot twice in a where part",
+            vec![
+                edit("tests/elaborator/a-phrase-with-a-where-part.proof", Some("where W is a set   (D1)".to_string()), "where W is a set, W is a set   (D1)".to_string()),
+            ],
+            "its `where` part names W twice",
+        ),
+        case(
+            "say in a where part what the meaning already says",
+            vec![
+                edit("tests/elaborator/a-phrase-with-a-where-part.proof", Some("       n ≤ |W| and for all Y ⊆ W".to_string()), "       W ⊆ ℕ and n ≤ |W| and for all Y ⊆ W".to_string()),
+            ],
+            "its `where` part says what W is, which its meaning already says",
         ),
         case(
             "import a phrase and neither cite it nor write it",

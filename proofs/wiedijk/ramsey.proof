@@ -44,6 +44,10 @@ import mundane theorem    stdlib/sets/subset-transitive
 import mundane theorem    stdlib/sets/union-subset
 import definition         stdlib/sums/range0
 
+define clique: W is a clique in E of size at least n means
+       n ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E, where W is a set   (D1)
+       reads W has at least n points, and every pair of them is in E
+
 theorem one-point-part
   note        One point of X is a part of one element, and a part of one
               element has no part of two, so whatever is said of every part
@@ -52,7 +56,7 @@ theorem one-point-part
   assume X is finite                                                  (H2)
   assume 1 ≤ |X|                                                      (H3)
   let G be a set                                                      (H4)
-  then there is W ⊆ X with 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ G
+  then there is W ⊆ X with W is a clique in G of size at least 1
 
 1.  0 < |X|
     inequalities, from H3
@@ -90,10 +94,10 @@ theorem one-point-part
       1 = |{v}|          restate
       1 ≤ |{v}|          weakening
 
-8.  1 ≤ |{v}| and for all Y ⊆ {v}, if |Y| = 2 then Y ∈ G
-    join 6, 7
+8.  {v} is a clique in G of size at least 1
+    D1, from 6, 7
 
-9.  There is W ⊆ X with 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ G.
+9.  There is W ⊆ X with W is a clique in G of size at least 1.
     exhibit, from 4, 8
 
 theorem two-point-parts
@@ -182,8 +186,8 @@ theorem grow-by-one
   let N ⊆ X ∖ {v}                                                     (H8)
   assume for all w ∈ N, {v, w} ∈ E                                    (H9)
   let W ⊆ N                                                           (H10)
-  assume (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H11)
-  then there is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
+  assume W is a clique in E of size at least k or W is a clique in F of size at least j  (H11)
+  then there is U ⊆ X with U is a clique in E of size at least k + 1 or U is a clique in F of size at least j
 
 1.  X ∖ {v} ⊆ X
     mun:difference-subset
@@ -194,86 +198,89 @@ theorem grow-by-one
 3.  W ⊆ X
     mun:subset-transitive, from 1, 2
 
-4.  There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
+4.  There is U ⊆ X with U is a clique in E of size at least k + 1 or U is a clique in F of size at least j.
     cases, from H11
 
     case
     note v joins W, which grows by one
-    assume k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E           (C1)
+    assume W is a clique in E of size at least k                      (C1)
 
-    4.1.  v ∉ W
+    4.1.  k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E
+          D1, from C1
+
+    4.2.  v ∉ W
           mun:subset-of-difference, from 2
 
-    4.2.  W is finite
+    4.3.  W is finite
           mun:finite-part, from H2, 3
 
-    4.3.  k + 1 ≤ |W| + 1
+    4.4.  k + 1 ≤ |W| + 1
           inequalities
-            k ≤ |W|            C1
+            k ≤ |W|            4.1
             k + 1 ≤ |W| + 1    adding 1
-          requires |W| ∈ ℕ₀: mun:card-nat0, from 4.2
+          requires |W| ∈ ℕ₀: mun:card-nat0, from 4.3
 
-    4.4.  k + 1 ≤ |W ∪ {v}|
+    4.5.  k + 1 ≤ |W ∪ {v}|
           calculation
-            k + 1 ≤ |W| + 1      4.3
-                  = |W ∪ {v}|    mun:card-add-one, from 4.1, 4.2
+            k + 1 ≤ |W| + 1      4.4
+                  = |W ∪ {v}|    mun:card-add-one, from 4.2, 4.3
 
-    4.5.  For all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E.
+    4.6.  For all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E.
           proof
           let Y ⊆ W ∪ {v}                                             (K1)
           assume |Y| = 2                                              (K2)
 
-          4.5.1.  Y ⊆ W or there is w ∈ W with Y = {v, w}
-                  thm:two-point-parts, from K1, K2, 4.1
+          4.6.1.  Y ⊆ W or there is w ∈ W with Y = {v, w}
+                  thm:two-point-parts, from K1, K2, 4.2
 
-          4.5.2.  Y ∈ E
-                  cases, from 4.5.1
+          4.6.2.  Y ∈ E
+                  cases, from 4.6.1
 
                   case
                   assume Y ⊆ W                                        (C2)
 
-                  4.5.2.1.  Y ∈ E
-                            instantiate Y := Y in C1, from C2, K2
+                  4.6.2.1.  Y ∈ E
+                            instantiate Y := Y in line 4.1, from C2, K2
 
                   case
                   assume there is w ∈ W with Y = {v, w}               (C3)
 
-                  4.5.2.2.  w ∈ W. Y = {v, w}.
+                  4.6.2.2.  w ∈ W. Y = {v, w}.
                             obtain w from C3
 
-                  4.5.2.3.  w ∈ N
-                            mun:in-subset, from H10, 4.5.2.2
+                  4.6.2.3.  w ∈ N
+                            mun:in-subset, from H10, 4.6.2.2
 
-                  4.5.2.4.  {v, w} ∈ E
-                            instantiate w := w in H9, from 4.5.2.3
+                  4.6.2.4.  {v, w} ∈ E
+                            instantiate w := w in H9, from 4.6.2.3
 
-                  4.5.2.5.  Y ∈ E
-                            substitute Y = {v, w} (line 4.5.2.2) into line 4.5.2.4
+                  4.6.2.5.  Y ∈ E
+                            substitute Y = {v, w} (line 4.6.2.2) into line 4.6.2.4
 
-    4.6.  {v} ⊆ X
+    4.7.  {v} ⊆ X
           mun:singleton-subset, from H7
 
-    4.7.  W ∪ {v} ⊆ X
-          mun:union-subset, from 3, 4.6
+    4.8.  W ∪ {v} ⊆ X
+          mun:union-subset, from 3, 4.7
 
-    4.8.  k + 1 ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E
-          join 4.4, 4.5
+    4.9.  W ∪ {v} is a clique in E of size at least k + 1
+          D1, from 4.5, 4.6
 
-    4.9.  (k + 1 ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ E) or (j ≤ |W ∪ {v}| and for all Y ⊆ W ∪ {v}, if |Y| = 2 then Y ∈ F)
-          mun:or-left, from 4.8
+    4.10. W ∪ {v} is a clique in E of size at least k + 1 or W ∪ {v} is a clique in F of size at least j
+          mun:or-left, from 4.9
 
-    4.10. There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
-          exhibit, from 4.7, 4.9
+    4.11. There is U ⊆ X with U is a clique in E of size at least k + 1 or U is a clique in F of size at least j.
+          exhibit, from 4.8, 4.10
 
     case
     note W is a part of X as it is
-    assume j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F           (C4)
+    assume W is a clique in F of size at least j                      (C4)
 
-    4.11. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+    4.12. W is a clique in E of size at least k + 1 or W is a clique in F of size at least j
           mun:or-right, from C4
 
-    4.12. There is U ⊆ X with (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F).
-          exhibit, from 3, 4.11
+    4.13. There is U ⊆ X with U is a clique in E of size at least k + 1 or U is a clique in F of size at least j.
+          exhibit, from 3, 4.12
 
 theorem ramsey-step
   note        Pick a point v of X. Every other point w is joined to v by a
@@ -292,9 +299,9 @@ theorem ramsey-step
   assume for all Y ⊆ V, if |Y| = 2 then Y ∈ E or Y ∈ F               (H7)
   let X ⊆ V                                                           (H8)
   assume C(k + j, k) ≤ |X|                                            (H9)
-  assume for all Z ⊆ V, if C(k + j − 1, k − 1) ≤ |Z| then there is W ⊆ Z with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H10)
-  assume for all Z ⊆ V, if C(k + j − 1, k) ≤ |Z| then there is W ⊆ Z with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)  (H11)
-  then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+  assume for all Z ⊆ V, if C(k + j − 1, k − 1) ≤ |Z| then there is W ⊆ Z with W is a clique in E of size at least k or W is a clique in F of size at least j + 1  (H10)
+  assume for all Z ⊆ V, if C(k + j − 1, k) ≤ |Z| then there is W ⊆ Z with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j  (H11)
+  then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1
 
 1.  X is finite
     mun:finite-part, from H4, H8
@@ -326,17 +333,17 @@ theorem ramsey-step
 9.  v ∈ X
     obtain v: mun:nonempty-member, from 8
 
-let R = {w ∈ X ∖ {v} : {v, w} ∈ E}                                    (D1)
+let R = {w ∈ X ∖ {v} : {v, w} ∈ E}                                    (D2)
     reads the other points, joined to v by a pair in E
 
-let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
+let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D3)
     reads the other points, joined to v by a pair outside E
 
 10. X ∖ {v} = R ∪ B
-    mun:set-builder-split, from D1, D2
+    mun:set-builder-split, from D2, D3
 
 11. R ∩ B = ∅
-    mun:set-builder-split-disjoint, from D1, D2
+    mun:set-builder-split-disjoint, from D2, D3
 
 12. X ∖ {v} ⊆ X
     mun:difference-subset
@@ -345,10 +352,10 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
     mun:finite-part, from 1, 12
 
 14. R ⊆ X ∖ {v}
-    mun:set-builder-subset, from D1
+    mun:set-builder-subset, from D2
 
 15. B ⊆ X ∖ {v}
-    mun:set-builder-subset, from D2
+    mun:set-builder-subset, from D3
 
 16. R is finite
     mun:finite-part, from 13, 14
@@ -448,7 +455,7 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
 31. X ∖ {v} ⊆ V
     mun:subset-transitive, from H8, 12
 
-32. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+32. There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
     cases, from 30
 
     case
@@ -458,16 +465,16 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
     32.1. R ⊆ V
           mun:subset-transitive, from 14, 31
 
-    32.2. There is W ⊆ R with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.2. There is W ⊆ R with W is a clique in E of size at least k or W is a clique in F of size at least j + 1.
           instantiate Z := R in H10, from C3, 32.1
 
-    32.3. W ⊆ R. (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.3. W ⊆ R. W is a clique in E of size at least k or W is a clique in F of size at least j + 1.
           obtain W from line 32.2
 
     32.4. For all w ∈ R, {v, w} ∈ E.
-          def:set-builder, from D1
+          def:set-builder, from D2
 
-    32.5. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.5. There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
           thm:grow-by-one N := R, j := j + 1, from 1, 9, 14, 32.3, 32.4
 
     case
@@ -477,13 +484,13 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
     32.6. B ⊆ V
           mun:subset-transitive, from 15, 31
 
-    32.7. There is W ⊆ B with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.7. There is W ⊆ B with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j.
           instantiate Z := B in H11, from C4, 32.6
 
-    32.8. W ⊆ B. (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.8. W ⊆ B. W is a clique in E of size at least k + 1 or W is a clique in F of size at least j.
           obtain W from line 32.7
 
-    32.9. (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E)
+    32.9. W is a clique in F of size at least j or W is a clique in E of size at least k + 1
           mun:or-swap, from 32.8
 
     32.10. For all w ∈ B, {v, w} ∈ F.
@@ -491,7 +498,7 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
            let w ∈ B                                                  (K1)
 
            32.10.1. w ∈ X ∖ {v}. {v, w} ∉ E.
-                    def:set-builder u := w, from D2, K1
+                    def:set-builder u := w, from D3, K1
 
            32.10.2. w ∈ X. w ≠ v.
                     mun:remove-member u := w, Y := X, a := v, from 32.10.1
@@ -511,16 +518,16 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D2)
            32.10.7. {v, w} ∈ F
                     mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
 
-    32.11. There is U ⊆ X with (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+    32.11. There is U ⊆ X with U is a clique in F of size at least j + 1 or U is a clique in E of size at least k + 1.
            thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
 
-    32.12. U ⊆ X. (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F) or (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E).
+    32.12. U ⊆ X. U is a clique in F of size at least j + 1 or U is a clique in E of size at least k + 1.
            obtain U from line 32.11
 
-    32.13. (k + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |U| and for all Y ⊆ U, if |Y| = 2 then Y ∈ F)
+    32.13. U is a clique in E of size at least k + 1 or U is a clique in F of size at least j + 1
            mun:or-swap, from 32.12
 
-    32.14. There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    32.14. There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
            exhibit, from 32.12, 32.13
 
 theorem ramsey
@@ -537,13 +544,13 @@ theorem ramsey
   let F be a set                                                      (H6)
   assume for all Y ⊆ V, if |Y| = 2 then Y ∈ E or Y ∈ F               (H7)
   assume C(r + s − 2, r − 1) ≤ |V|                                    (H8)
-  then there is W ⊆ V with (r ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (s ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+  then there is W ⊆ V with W is a clique in E of size at least r or W is a clique in F of size at least s
 
-1.  For all k ∈ ℕ, for all j ∈ ℕ, for all X ⊆ V, if C(k + j − 2, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+1.  For all k ∈ ℕ, for all j ∈ ℕ, for all X ⊆ V, if C(k + j − 2, k − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k or W is a clique in F of size at least j.
     induction on k starting at 1
 
     base
-    1.1.  For all j ∈ ℕ, for all X ⊆ V, if C(1 + j − 2, 1 − 1) ≤ |X| then there is W ⊆ X with (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    1.1.  For all j ∈ ℕ, for all X ⊆ V, if C(1 + j − 2, 1 − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least 1 or W is a clique in F of size at least j.
           proof
           note one point is enough: it has all its pairs red
           let j ∈ ℕ                                                   (K1)
@@ -564,13 +571,13 @@ theorem ramsey
                       ≤ |X|                     C1
                   requires j − 1 ∈ ℕ₀: mun:nat-minus-one n := j
 
-          1.1.4.  W ⊆ X. 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E.
+          1.1.4.  W ⊆ X. W is a clique in E of size at least 1.
                   obtain W: thm:one-point-part G := E, from 1.1.2, 1.1.3
 
-          1.1.5.  (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+          1.1.5.  W is a clique in E of size at least 1 or W is a clique in F of size at least j
                   mun:or-left, from 1.1.4
 
-          1.1.6.  There is W ⊆ X with (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.1.6.  There is W ⊆ X with W is a clique in E of size at least 1 or W is a clique in F of size at least j.
                   exhibit, from 1.1.4, 1.1.5
 
     step
@@ -580,11 +587,11 @@ theorem ramsey
     1.2.  k + 1 − 1 = k
           algebra
 
-    1.3.  For all j ∈ ℕ, for all X ⊆ V, if C(k + 1 + j − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+    1.3.  For all j ∈ ℕ, for all X ⊆ V, if C(k + 1 + j − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j.
           induction on j starting at 1
 
           base
-          1.3.1.  For all X ⊆ V, if C(k + 1 + 1 − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.1.  For all X ⊆ V, if C(k + 1 + 1 − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least 1.
                   proof
                   note one point is enough: it has all its pairs blue
                   let X ⊆ V                                           (K4)
@@ -603,40 +610,40 @@ theorem ramsey
                                 = C(k + 1 + 1 − 2, k + 1 − 1)        substitute line 1.3.1.1
                                 ≤ |X|                                C2
 
-                  1.3.1.4.  W ⊆ X. 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F.
+                  1.3.1.4.  W ⊆ X. W is a clique in F of size at least 1.
                             obtain W: thm:one-point-part G := F, from 1.3.1.2, 1.3.1.3
 
-                  1.3.1.5.  (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)
+                  1.3.1.5.  W is a clique in E of size at least k + 1 or W is a clique in F of size at least 1
                             mun:or-right, from 1.3.1.4
 
-                  1.3.1.6.  There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  1.3.1.6.  There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least 1.
                             exhibit, from 1.3.1.4, 1.3.1.5
 
           step
           let j ∈ ℕ                                                   (K5)
           assume step 1.3 is true for j, the induction hypothesis     (IH2)
 
-          1.3.2.  For all X ⊆ V, if C(k + (j + 1) − 2, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.2.  For all X ⊆ V, if C(k + (j + 1) − 2, k − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k or W is a clique in F of size at least j + 1.
                   instantiate j := j + 1 in IH1
 
-          1.3.3.  For all X ⊆ V, if C(k + j − 1, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.3.  For all X ⊆ V, if C(k + j − 1, k − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k or W is a clique in F of size at least j + 1.
                   substitute
-                    For all X ⊆ V, if C(k + (j + 1) − 2, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)      1.3.2
-                    For all X ⊆ V, if C(k + j − 1, k − 1) ≤ |X| then there is W ⊆ X with (k ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F)            algebra
+                    For all X ⊆ V, if C(k + (j + 1) − 2, k − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k or W is a clique in F of size at least j + 1      1.3.2
+                    For all X ⊆ V, if C(k + j − 1, k − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k or W is a clique in F of size at least j + 1            algebra
 
           1.3.4.  k + 1 + j − 2 = k + j − 1
                   algebra
 
-          1.3.5.  For all X ⊆ V, if C(k + j − 1, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.5.  For all X ⊆ V, if C(k + j − 1, k + 1 − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j.
                   substitute k + 1 + j − 2 = k + j − 1 (line 1.3.4) into IH2
 
-          1.3.6.  For all X ⊆ V, if C(k + j − 1, k) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.6.  For all X ⊆ V, if C(k + j − 1, k) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j.
                   substitute k + 1 − 1 = k (line 1.2) into line 1.3.5
 
           1.3.7.  k + 1 + (j + 1) − 2 = k + j
                   algebra
 
-          1.3.8.  For all X ⊆ V, if C(k + 1 + (j + 1) − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+          1.3.8.  For all X ⊆ V, if C(k + 1 + (j + 1) − 2, k + 1 − 1) ≤ |X| then there is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
                   proof
                   let X ⊆ V                                           (K6)
                   assume C(k + 1 + (j + 1) − 2, k + 1 − 1) ≤ |X|      (C3)
@@ -647,11 +654,11 @@ theorem ramsey
                                           = C(k + 1 + (j + 1) − 2, k + 1 − 1)    substitute line 1.3.7
                                           ≤ |X|                                  C3
 
-                  1.3.8.2.  There is W ⊆ X with (k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (j + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+                  1.3.8.2.  There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
                             thm:ramsey-step, from H4, H7, K6, 1.3.3, 1.3.6, 1.3.8.1
 
 2.  V ⊆ V
     mun:subset-self
 
-3.  There is W ⊆ V with (r ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E) or (s ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ F).
+3.  There is W ⊆ V with W is a clique in E of size at least r or W is a clique in F of size at least s.
     instantiate k := r, j := s, X := V in line 1, from H8, 2

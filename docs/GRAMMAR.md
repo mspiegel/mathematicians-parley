@@ -214,7 +214,10 @@ are a name's for the whole theorem, and a bound name is not one, since the same
 letter may be bound over a set of numbers in one sentence and a set of sets in
 another; so a letter written `x ∈ S` takes, for that sentence, the sort of what
 S holds where S's sort says, and is otherwise of no known sort, and this rule is
-what lets it through.
+what lets it through. A set whose members' sort is still open fits a hole that
+wants a set of sets: `let G be a set` says nothing of what G holds, and a
+phrase whose slot holds sets, as E does in `W is a clique in E of size at
+least n`, settles it.
 
 Refusing such values would be the sort system rejecting proofs for failing a
 test it was never introduced to run: where one sits where two notations
@@ -713,7 +716,11 @@ substitution in the corpus comes close.
                   [ `,` `for` <name> ( `∈` | `⊆` ) <term> ] `(` <label> `)`
                   `reads` <words>
                 | `define` <name> `:` <phrase> `means` <formula>
+                  [ `,` `where` <slot kind> { `,` <slot kind> } ]
                   `(` <label> `)` `reads` <words>
+<slot kind>   ::= <slot> `is a set`
+                | <slot> `is a function from` <things> `to` <things>
+<things>      ::= `numbers` | `points`
 <phrase>      ::= <slot> `is` <article> <first> { <piece> }
 <first>       ::= <word> | <attached slot>
 <piece>       ::= <word> | <slot> | <attached slot>
@@ -807,7 +814,10 @@ a phrase of any number. The phrase and its negation, with `not` after `is`,
 are added to the grammar of the file that writes the define and of each file
 that imports it, and to no other; a phrase another notation already writes
 is a defect where it is declared, and is added to no grammar. Each slot takes
-the sort its meaning gives the letter. The phrase stands at the level
+the sort its meaning gives the letter. A `where` part gives a slot its sort
+before the meaning is read, a set of things of a sort left open or a function
+between the sorts it names, and adds nothing to what the phrase says. The
+phrase stands at the level
 `predicate`, or at `betweenness` where its words write "and" or "or".
 
 Theorems may appear in any order. No theorem cites itself, and no theorems

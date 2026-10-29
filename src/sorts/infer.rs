@@ -28,6 +28,7 @@ use indexmap::{IndexMap, IndexSet};
 use crate::corpus::{
     define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
 };
+use crate::corpus::define::{KindSaid, SlotKind, Thing};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{Node, Sort, Sorts, Whole};
@@ -1176,6 +1177,9 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
     let mut reader = Reader::new(env, &record.path);
     reader.ranges = ranges_of(&record.ranges);
     reader.imported = every_function(env);
+    for said in &record.slot_kinds {
+        slot_kind(&mut reader, said, store);
+    }
     for h in &record.hypotheses {
         if h.kind == Intro::Let {
             introduce(&mut reader, &h.text, h.line.into(), env, store);
@@ -1188,6 +1192,86 @@ pub fn read_record(record: &Record, env: Env, store: &mut Store) -> Reader {
         claim_text(&mut reader, text, (*no).into(), env, store);
     }
     reader
+}
+
+/// Each of `names`' sorts as a `sort` line writes it, as the reading of
+/// `record` leaves them, in order. A part the reading leaves open is a sort
+/// variable, and parts the reading relates share one: in a meaning saying
+/// `Y ⊆ W` and `Y ∈ E`, W is `set of α` and E `set of set of α`. A name the
+/// reading does not reach is a variable of its own.
+pub fn sort_lines_of_record(record: &Record, env: Env, names: &[&str]) -> Vec<String> {
+    let mut store = Store::default();
+    let reader = read_record(record, env, &mut store);
+    let mut named: IndexMap<VarId, String> = IndexMap::new();
+    names
+        .iter()
+        .map(|name| match reader.env.get(*name) {
+            Some(k) => written_with_variables(&store, k, &mut named),
+            None => {
+                let fresh = store.var();
+                written_with_variables(&store, &fresh, &mut named)
+            }
+        })
+        .collect()
+}
+
+/// A sort as a `sort` line writes it, each variable left open by the name
+/// `named` gives it, a new one the first time it is met.
+fn written_with_variables(
+    store: &Store,
+    k: &SortTerm,
+    named: &mut IndexMap<VarId, String>,
+) -> String {
+    match store.find(k) {
+        SortTerm::Var(v) => {
+            const LETTERS: [&str; 6] = ["α", "β", "γ", "δ", "ζ", "η"];
+            let next = named.len();
+            named
+                .entry(v)
+                .or_insert_with(|| match LETTERS.get(next) {
+                    Some(letter) => letter.to_string(),
+                    None => format!("α{next}"),
+                })
+                .clone()
+        }
+        SortTerm::Atom(Atom::Number) => "number".to_string(),
+        SortTerm::Atom(Atom::Point) => "point".to_string(),
+        SortTerm::Atom(Atom::Formula) => "formula".to_string(),
+        SortTerm::Atom(Atom::GroupElement) => "group-element".to_string(),
+        SortTerm::Set(c) => format!("set of {}", written_with_variables(store, &c, named)),
+        SortTerm::Property(c) => {
+            format!("property of {}", written_with_variables(store, &c, named))
+        }
+        SortTerm::Function(a, b) => {
+            let a = written_with_variables(store, &a, named);
+            format!("function from {a} to {}", written_with_variables(store, &b, named))
+        }
+        SortTerm::Pair(a, b) => {
+            let a = written_with_variables(store, &a, named);
+            format!("pair of {a} and {}", written_with_variables(store, &b, named))
+        }
+    }
+}
+
+/// What a phrase's `where` part says one of its slots is, into the reader's
+/// sorts: a set holds things of a sort the meaning may still settle, as
+/// `let W be a set` does; a function takes and gives the sorts it names.
+fn slot_kind(reader: &mut Reader, said: &SlotKind, store: &mut Store) {
+    let sort = match &said.kind {
+        KindSaid::Set => SortTerm::set(store.var_said(false, &said.slot)),
+        KindSaid::Function { from, to } => {
+            SortTerm::Function(Box::new(thing_sort(*from)), Box::new(thing_sort(*to)))
+        }
+    };
+    reader.env.insert(said.slot.clone(), sort);
+}
+
+/// The sort of the things a `where` part names.
+fn thing_sort(thing: Thing) -> SortTerm {
+    match thing {
+        Thing::Numbers => NUMBER,
+        Thing::Points => POINT,
+    }
 }
 
 /// What a proved theorem's statement says its names are: its hypotheses and

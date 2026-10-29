@@ -117,6 +117,7 @@ pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
         fields.insert("reads".to_string(), reads.clone());
     }
     let mut record = made(RecordKind::Definition, p.said.name.clone(), fields, d);
+    record.slot_kinds = p.said.kinds.clone();
     record.conclusions = vec![(
         format!("{} ↔ ({})", p.said.written(), p.said.meaning),
         d.line,
@@ -179,5 +180,6 @@ fn made(
         line: d.line,
         path: d.path.clone(),
         phrase: Some(d.label.clone()),
+        slot_kinds: Vec::new(),
     }
 }

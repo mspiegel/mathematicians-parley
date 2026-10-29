@@ -1932,6 +1932,15 @@ fn writes_words(tokens: &[Token], words: &[&str]) -> bool {
             .any(|w| w.iter().zip(words).all(|(t, word)| t.text == *word))
 }
 
+/// Whether a phrase's slot has a sort the reading of its definition record
+/// settles, if only as a set of things of any sort.
+fn settles(sorts: &crate::formula::Sorts, slot: &str) -> bool {
+    sorts
+        .get(slot)
+        .and_then(crate::formula::Sort::full)
+        .is_some_and(|w| *w != crate::formula::Whole::Open)
+}
+
 /// Every define of a phrase says what its phrase means in so many words
 /// (`SYNTAX.md`, "A define may name a phrase"): it has a `reads` line and a
 /// label of its own; its meaning reads; the letters of its phrase are the
@@ -2015,18 +2024,28 @@ pub fn check_phrases(report: &mut Report, records: &[Record], env: crate::sorts:
                     format!("its meaning writes {f}, which is no letter of its phrase and nothing in it binds"),
                 );
             }
-            let sort = records
-                .iter()
-                .find(|r| r.kind == RecordKind::Notation && r.name == name)
-                .and_then(|r| r.field("sort"))
-                .unwrap_or_default();
-            let holes = sort.split('→').next().unwrap_or_default().split(',');
-            for (slot, hole) in slots.iter().zip(holes) {
-                if crate::formula::Whole::read(hole).is_none() {
+            for slot in &slots {
+                if !settles(&sorts, slot) {
                     say(
                         report,
-                        format!("its meaning does not say what {slot} is: a number, a set, a point"),
+                        format!("its meaning does not say what {slot} is: a number, a set, a point; a `where` part may say it is a set or a function"),
                     );
+                }
+            }
+            if !made.slot_kinds.is_empty() {
+                let mut alone = made.clone();
+                alone.slot_kinds.clear();
+                let unaided = crate::sorts::sorts_of_record(&alone, env);
+                for said in &made.slot_kinds {
+                    if settles(&unaided, &said.slot) {
+                        say(
+                            report,
+                            format!(
+                                "its `where` part says what {} is, which its meaning already says",
+                                said.slot
+                            ),
+                        );
+                    }
                 }
             }
         }

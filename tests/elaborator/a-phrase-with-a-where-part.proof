@@ -1,0 +1,41 @@
+define clique: W is a clique of at least n points in E means
+       n ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E, where W is a set   (D1)
+       reads W has at least n points, and every pair of them is in E
+
+define rising-run: S is a rising run of at least r places of a means
+       r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j),
+       where S is a set, a is a function from numbers to numbers       (D2)
+       reads S has at least r places, and a rises along them
+
+theorem a-clique-is-large
+  note        A `where` part says a slot is a set, which `|W|` alone does
+              not: it could be a number's absolute value.
+  let X be a set                                                      (H1)
+  let E be a set                                                      (H2)
+  assume for all Y ∈ E, Y ⊆ X                                         (H3)
+  let k ∈ ℕ                                                           (H4)
+  let W ⊆ X                                                           (H5)
+  assume W is a clique of at least k + 1 points in E                  (H6)
+  then k + 1 ≤ |W|
+
+1.  k + 1 ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E
+    D1 n := k + 1, from H6
+
+2.  k + 1 ≤ |W|
+    restate 1
+
+theorem a-rising-run-is-long
+  note        A `where` part says a slot is a function, which `a(i)` alone
+              does not: it could be a property of i, or a times i.
+  let N ∈ ℕ                                                           (H1)
+  let r ∈ ℕ                                                           (H2)
+  let a : {1, …, N} → ℝ be one-to-one                                 (H3)
+  let S ⊆ {1, …, N}                                                   (H4)
+  assume S is a rising run of at least r places of a                  (H5)
+  then r ≤ |S|
+
+1.  r ≤ |S| and for all i, j ∈ S, if i < j then a(i) < a(j)
+    D2, from H5
+
+2.  r ≤ |S|
+    restate 1

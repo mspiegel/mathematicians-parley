@@ -148,7 +148,7 @@ read, the existence is written with "with".
 
 | write | not | today |
 |---|---|---|
-| a naming `let`, or a phrase define, for a term of 40 characters or more that one theorem writes five times or more | the term written out each time | all but 2 follow it: `ramsey` and `erdos-szekeres` repeat a condition, which neither a naming `let` nor a phrase define can name yet |
+| a naming `let`, or a phrase define, for a term of 40 characters or more that one theorem writes five times or more | the term written out each time | all follow it |
 | the letter a note names, given by a naming `let` | a note naming a letter the proof never writes | the 2 found follow it |
 
 A reader meeting the same long term a fifth time has to check, symbol by

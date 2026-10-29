@@ -155,8 +155,48 @@ pub struct Phrase {
     pub name: String,
     /// The phrase as written, one piece to a word.
     pub pieces: Vec<Piece>,
-    /// The meaning as written, its lines joined.
+    /// The meaning as written, its lines joined, without the `where` part.
     pub meaning: String,
+    /// What the `where` part after the meaning says each slot it names is:
+    /// `where W is a set`. It says a kind and no fact, for a slot nothing in
+    /// the meaning settles, as `|W|` alone does not say whether W is a set
+    /// or a number.
+    pub kinds: Vec<SlotKind>,
+}
+
+/// What a `where` part says one slot of a phrase is.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SlotKind {
+    pub slot: String,
+    pub kind: KindSaid,
+}
+
+/// The kinds a `where` part may say.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum KindSaid {
+    /// `W is a set`: a set of things of any sort.
+    Set,
+    /// `a is a function from numbers to numbers`: the sorts of what it
+    /// takes and gives, and no domain, which is a fact the meaning says
+    /// where it needs one.
+    Function { from: Thing, to: Thing },
+}
+
+/// What a function a `where` part names takes or gives.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Thing {
+    Numbers,
+    Points,
+}
+
+impl Thing {
+    fn read(word: &str) -> Option<Thing> {
+        match word {
+            "numbers" => Some(Thing::Numbers),
+            "points" => Some(Thing::Points),
+            _ => None,
+        }
+    }
 }
 
 /// One piece of a phrase: a slot, a slot joined to the word after it by a
@@ -886,7 +926,16 @@ fn phrase_parts(head: PhraseHead<'_>) -> Route<DefineParts> {
             "define {name} says no `means`: a phrase define is `define {name}: <phrase> means <meaning>`"
         ));
     };
-    let meaning = words[at + 1..].join(" ");
+    let after = &words[at + 1..];
+    // The comma before `where` closes the meaning and is no part of it.
+    let (meaning, kinds_said) = match where_at(after) {
+        Some(cut) => {
+            let meaning = after[..cut].join(" ");
+            let meaning = meaning.strip_suffix(',').unwrap_or(&meaning).to_string();
+            (meaning, Some(&after[cut + 1..]))
+        }
+        None => (after.join(" "), None),
+    };
     if meaning.is_empty() {
         return Route::no(format!("define {name} says nothing after `means`"));
     }
@@ -931,10 +980,11 @@ fn phrase_parts(head: PhraseHead<'_>) -> Route<DefineParts> {
             repr(&phrase)
         ));
     }
-    let made = Phrase {
+    let mut made = Phrase {
         name: name.to_string(),
         pieces,
         meaning,
+        kinds: Vec::new(),
     };
     let slots = made.slots();
     if slots.len() > 3 {
@@ -954,7 +1004,83 @@ fn phrase_parts(head: PhraseHead<'_>) -> Route<DefineParts> {
             twice.1
         ));
     }
+    if let Some(said) = kinds_said {
+        let kinds = match slot_kinds(name, said, &slots) {
+            Built(kinds) => kinds,
+            Declined(d) => return Declined(d),
+        };
+        made.kinds = kinds;
+    }
     Built(DefineParts::Phrase(made))
+}
+
+/// Where a phrase's meaning ends and its `where` part begins: the word
+/// `where` after a word closed by a comma, outside every bracket. None where
+/// the define has no `where` part.
+fn where_at(words: &[&str]) -> Option<usize> {
+    let mut depth = 0i32;
+    for (at, w) in words.iter().enumerate() {
+        let opened = depth;
+        for c in w.chars() {
+            match c {
+                '(' | '[' | '{' => depth += 1,
+                ')' | ']' | '}' => depth -= 1,
+                _ => {}
+            }
+        }
+        let closed_by_comma = at > 0 && words[at - 1].ends_with(',');
+        if *w == "where" && opened == 0 && closed_by_comma {
+            return Some(at);
+        }
+    }
+    None
+}
+
+/// The `where` part of a phrase's define, the words after `where`, read
+/// into what it says each slot is; or a decline saying what is wrong. Each
+/// piece, between commas, is `<slot> is a set` or `<slot> is a function
+/// from <things> to <things>`, things being numbers or points, and names a
+/// slot of the phrase that no other piece names.
+fn slot_kinds(name: &str, said: &[&str], slots: &[&str]) -> Route<Vec<SlotKind>> {
+    let text = said.join(" ");
+    if text.is_empty() {
+        return Route::no(format!("define {name} says nothing after `where`"));
+    }
+    let mut out: Vec<SlotKind> = Vec::new();
+    for piece in text.split(',').map(str::trim) {
+        let words: Vec<&str> = piece.split_whitespace().collect();
+        let kind = match words.as_slice() {
+            [_, "is", "a", "set"] => Some(KindSaid::Set),
+            [_, "is", "a", "function", "from", from, "to", to] => {
+                match (Thing::read(from), Thing::read(to)) {
+                    (Some(from), Some(to)) => Some(KindSaid::Function { from, to }),
+                    _ => None,
+                }
+            }
+            _ => None,
+        };
+        let (Some(kind), Some(slot)) = (kind, words.first()) else {
+            return Route::no(format!(
+                "define {name}: {} after `where` is neither `<slot> is a set` nor `<slot> is a function from <numbers or points> to <numbers or points>`",
+                repr(piece)
+            ));
+        };
+        if !slots.contains(slot) {
+            return Route::no(format!(
+                "define {name}: its `where` part names {slot}, which is no slot of its phrase"
+            ));
+        }
+        if out.iter().any(|k| k.slot == *slot) {
+            return Route::no(format!(
+                "define {name}: its `where` part names {slot} twice"
+            ));
+        }
+        out.push(SlotKind {
+            slot: slot.to_string(),
+            kind,
+        });
+    }
+    Built(out)
 }
 
 /// One word of a phrase after its article as the piece it is: a letter is a

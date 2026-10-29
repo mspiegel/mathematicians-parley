@@ -603,8 +603,10 @@ pub fn define_sorts(
 /// phrase's definition record, the phrase and its meaning; a meaning may
 /// use another phrase, whose slots must be settled first, so the reading is
 /// done again until nothing changes, which is at most once more than there
-/// are phrases. A slot the meaning leaves open keeps its sort variable,
-/// which `structure::check_phrases` reports. A grammar that does not build
+/// are phrases. A part of a slot's sort the meaning leaves open is a sort
+/// variable, shared by the slots the meaning relates
+/// (`infer::sort_lines_of_record`); a slot left open as a whole is
+/// `structure::check_phrases`'s to report. A grammar that does not build
 /// is the checker's to report, and leaves the sorts as they are.
 pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
     let defines = crate::corpus::phrases::phrase_defines(scopes);
@@ -623,9 +625,9 @@ pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
             let Some(made) = made else {
                 continue;
             };
-            let sorts = sorts_of_record(made, env);
+            let slots = infer::sort_lines_of_record(made, env, &p.said.slots());
             let name = crate::corpus::phrases::notation_name(p.line, &p.said);
-            settled_now.push((name, slot_sorts(&p.said, &sorts)));
+            settled_now.push((name, format!("{} → formula", slots.join(", "))));
         }
         let mut changed = false;
         for (name, sort) in settled_now {
@@ -643,25 +645,6 @@ pub fn settle_phrases(records: &mut [Record], scopes: &[FileScope]) {
             return;
         }
     }
-}
-
-/// A phrase's `sort` line as `sorts` settles its slots: each slot's sort in
-/// full, or a sort variable of its own where it is not settled.
-fn slot_sorts(said: &crate::corpus::define::Phrase, sorts: &Sorts) -> String {
-    let vars = ['α', 'β', 'γ'];
-    let holes: Vec<String> = said
-        .slots()
-        .iter()
-        .zip(vars)
-        .map(|(slot, var)| {
-            sorts
-                .get(*slot)
-                .and_then(Sort::full)
-                .and_then(Whole::written)
-                .unwrap_or_else(|| var.to_string())
-        })
-        .collect();
-    format!("{} → formula", holes.join(", "))
 }
 
 /// The sort of every name an item's own lines settle.

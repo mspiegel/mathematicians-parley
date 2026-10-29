@@ -972,6 +972,27 @@ line saying n is a triangular number gives n ∈ ℕ to a step citing the
 define. A phrase with nothing to belong to says nothing of it, as `u is an
 upper bound of S means for all s ∈ S, s ≤ u` does.
 
+**A `where` part says what a slot is** where the meaning alone does not.
+`|W|` could be the size of a set or the absolute value of a number, and
+`a(i)` a function's value, a property holding of i, or a times i, so a
+meaning that writes only those leaves W and a open. The define says them
+after its meaning:
+
+```proof
+define clique: W is a clique in E of size at least n means
+       n ≤ |W| and for all Y ⊆ W, if |Y| = 2 then Y ∈ E, where W is a set   (D1)
+       reads W has at least n points, and every pair of them is in E
+```
+
+Each piece after `where`, between commas, is `<slot> is a set` or `<slot> is
+a function from <things> to <things>`, things being numbers or points. It
+says a kind and no fact. The meaning is what follows `means`, up to the
+comma before `where`, and a fact the phrase should bring, such as `W is
+finite`, is written in the meaning. A `where` part names only slots, each
+once, and only a slot the meaning does not settle by itself; naming one it
+settles already is a defect. Slots the meaning relates share what it leaves
+open: here W holds things of any sort, and E holds sets of those things.
+
 Every phrase also gives its negation: `4 is not a triangular number` is
 `not (4 is a triangular number)`, one formula written two ways, so the not
 is the whole meaning's, and π is not a triangular number because π ∉ ℕ. A
