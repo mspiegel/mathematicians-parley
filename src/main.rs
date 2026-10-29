@@ -36,6 +36,7 @@ fn main() -> ExitCode {
         "gate" => 0,
         "check" => 1,
         "build" => 2,
+        "fold" => 1,
         other => return refuse(&format!("unknown command {other}")),
     };
     if let Some(option) = rest.iter().find(|a| a.starts_with("--")) {
@@ -56,6 +57,10 @@ fn main() -> ExitCode {
             rest.first().map(String::as_str),
             rest.get(1).map(String::as_str),
         )),
+        "fold" => match rest.first() {
+            Some(dir) => say(parley::tools::fold::run(root, dir)),
+            None => refuse("fold takes the directory to rewrite"),
+        },
         _ => say(parley::tools::gate::run(root)),
     }
 }

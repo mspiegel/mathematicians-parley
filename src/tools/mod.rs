@@ -4,6 +4,7 @@
 
 pub mod assumed;
 pub mod build;
+pub mod fold;
 pub mod gate;
 pub mod labels;
 pub mod restated;
