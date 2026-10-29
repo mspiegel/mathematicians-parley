@@ -23,17 +23,15 @@ theorem three-points-on-a-line
 3.  (2, 3) is between (1, 1) and (4, 7)
     mun:between-by-coordinates, from 1, 2
 
-4.  B is between (1, 1) and (4, 7)
-    substitute B = (2, 3) (H5) into line 3
+4.  B is between A and C
+    substitute
+      (2, 3) is between (1, 1) and (4, 7)      3
+      B is between (1, 1) and (4, 7)           substitute H5
+      B is between A and (4, 7)                substitute H4
+      B is between A and C                     substitute H6
 
-5.  B is between A and (4, 7)
-    substitute A = (1, 1) (H4) into line 4
+5.  A, B, C are collinear
+    mun:between-collinear, from 4
 
-6.  B is between A and C
-    substitute C = (4, 7) (H6) into line 5
-
-7.  A, B, C are collinear
-    mun:between-collinear, from 6
-
-8.  A, B, C are collinear. B is between A and C.
-    join 7, 6
+6.  A, B, C are collinear. B is between A and C.
+    join 5, 4

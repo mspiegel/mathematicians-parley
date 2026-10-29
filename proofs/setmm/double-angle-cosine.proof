@@ -47,16 +47,13 @@ theorem cosine-of-double
 2.  2·A = A + A
     algebra
 
-3.  cos(A)·cos(A) − sin(A)·sin(A) = 2·cos(A)² − 1
-    algebra, from 1
-    requires sin(A) ∈ ℂ: mun:sin-complex a := A
-    requires cos(A) ∈ ℂ: mun:cos-complex a := A
-
-4.  cos(2·A) = 2·cos(A)² − 1
+3.  cos(2·A) = 2·cos(A)² − 1
     calculation
       cos(2·A) = cos(A + A)                          substitute line 2
                = cos(A)·cos(A) − sin(A)·sin(A)       thm:cos-add a := A, b := A
-               = 2·cos(A)² − 1                       3
+               = 2·cos(A)² − 1                       algebra, from 1
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
 theorem cosine-of-double-by-sine
   metamath    cos2tsin
@@ -71,13 +68,10 @@ theorem cosine-of-double-by-sine
 2.  2·A = A + A
     algebra
 
-3.  cos(A)·cos(A) − sin(A)·sin(A) = 1 − 2·sin(A)²
-    algebra, from 1
-    requires sin(A) ∈ ℂ: mun:sin-complex a := A
-    requires cos(A) ∈ ℂ: mun:cos-complex a := A
-
-4.  cos(2·A) = 1 − 2·sin(A)²
+3.  cos(2·A) = 1 − 2·sin(A)²
     calculation
       cos(2·A) = cos(A + A)                          substitute line 2
                = cos(A)·cos(A) − sin(A)·sin(A)       thm:cos-add a := A, b := A
-               = 1 − 2·sin(A)²                       3
+               = 1 − 2·sin(A)²                       algebra, from 1
+    requires sin(A) ∈ ℂ: mun:sin-complex a := A
+    requires cos(A) ∈ ℂ: mun:cos-complex a := A

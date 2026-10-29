@@ -134,14 +134,13 @@ theorem image-of-parabola
     4.9.  f(√(y − 3)) = (√(y − 3))² + 3
           instantiate x := √(y − 3) in H2, from 4.3
 
-    4.10. f(√(y − 3)) = y
-          algebra, from 4.3, 4.9
-
-    4.11. f(√(y − 3)) ∈ f[[−3, 5]]
+    4.10. f(√(y − 3)) ∈ f[[−3, 5]]
           mun:value-in-image Y := [−3, 5], s := √(y − 3), from 1, 4.8
 
-    4.12. y ∈ f[[−3, 5]]
-          substitute f(√(y − 3)) = y (line 4.10) into line 4.11
+    4.11. y ∈ f[[−3, 5]]
+          substitute
+            f(√(y − 3)) ∈ f[[−3, 5]]      4.10
+            y ∈ f[[−3, 5]]                algebra, from 4.3, 4.9
 
 5.  [3, 28] ⊆ f[[−3, 5]]
     def:subset, from 4

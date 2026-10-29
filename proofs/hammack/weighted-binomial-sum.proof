@@ -69,21 +69,18 @@ theorem weighted-term
     mun:factorial-nat n := k − 1
     requires k − 1 ∈ ℕ₀: mun:nat-minus-one n := k
 
-16. k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k))) = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))
-    algebra, from 12, 14, 15
-
-17. C(m, k − 1) = m!/(((m + 1) − k)!·(k − 1)!)
+16. C(m, k − 1) = m!/(((m + 1) − k)!·(k − 1)!)
     calculation
       C(m, k − 1) = m!/((m − (k − 1))!·(k − 1)!)     def:C n := m, k := k − 1, from 6
                   = m!/(((m + 1) − k)!·(k − 1)!)     substitute line 8
 
-18. k·C(m + 1, k) = (m + 1)·C(m, k − 1)
+17. k·C(m + 1, k) = (m + 1)·C(m, k − 1)
     calculation
       k·C(m + 1, k) = k·((m + 1)!/(((m + 1) − k)!·k!))                                     substitute line 4
                     = k·((m!·(m + 1))/(((m + 1) − k)!·k!))                                 substitute line 9
                     = k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k)))                       substitute line 11
-                    = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))                               16
-                    = (m + 1)·C(m, k − 1)                                                  substitute line 17
+                    = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))                               algebra, from 12, 14, 15
+                    = (m + 1)·C(m, k − 1)                                                  substitute line 16
 
 theorem binomial-row-sum
   note        The binomial theorem at x = y = 1: every power of 1 is 1, so the

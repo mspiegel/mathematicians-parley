@@ -66,22 +66,19 @@ theorem sqrt-of-odd-power-of-three
     mun:product-nonneg x := √3, y := 3^m, from 6, 11
     requires 0 ≤ 3^m: inequalities, from 6
 
-14. (√3·3^m)² = 3^m·3^m·3
-    algebra, from 6, 11
-
-15. (√(3^k))² = (√3·3^m)²
+14. (√(3^k))² = (√3·3^m)²
     calculation
       (√(3^k))² = 3^k             12
                 = 3^m·3^m·3       10
-                = (√3·3^m)²       14
+                = (√3·3^m)²       algebra, from 6, 11
 
-16. √3 is irrational
+15. √3 is irrational
     thm:sqrt3-irrational
 
-17. √3·3^m is irrational
-    thm:irrational-product A := √3, B := 3^m, from 6, 16
+16. √3·3^m is irrational
+    thm:irrational-product A := √3, B := 3^m, from 6, 15
 
-18. √(3^k) is irrational
+17. √(3^k) is irrational
     substitute
-      √3·3^m is irrational      17
-      √(3^k) is irrational      mun:square-equal x := √(3^k), y := √3·3^m, from 6, 12, 13, 15
+      √3·3^m is irrational      16
+      √(3^k) is irrational      mun:square-equal x := √(3^k), y := √3·3^m, from 6, 12, 13, 14

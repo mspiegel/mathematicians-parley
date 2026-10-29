@@ -1089,17 +1089,14 @@ theorem triangle-inequality-strict
 25. |PQ| + |QD| = |PD|
     mun:segment-addition Q := D, S := Q, from 3
 
-26. |PQ| + |QR| = |PD|
-    algebra, from 4, 25
-
-27. |PQ| + |QR| > |PR|
+26. |PQ| + |QR| > |PR|
     calculation
-      |PQ| + |QR| = |PD|       26
+      |PQ| + |QR| = |PD|       algebra, from 4, 25
                   > |PR|       thm:greater-angle-greater-side A := P, B := R, C := D, from 16, 24
 
-28. |PR| < |PQ| + |QR|
+27. |PR| < |PQ| + |QR|
     inequalities
-      |PQ| + |QR| > |PR|       27
+      |PQ| + |QR| > |PR|       26
       |PR| < |PQ| + |QR|       restate
 
 theorem triangle-equality-between
@@ -1190,23 +1187,21 @@ theorem triangle-equality-between
     6.3.  |PR| + |RQ| = |PQ|
           mun:segment-addition S := R, from C4
 
-    6.4.  |QR| = 0
-          algebra, from H6, 6.3
-
-    6.5.  0 > 0, which is impossible
-          substitute |QR| = 0 (line 6.4) into line 2
+    6.4.  0 > 0, which is impossible
+          substitute
+            |QR| > 0      2
+            0 > 0         algebra, from H6, 6.3
 
     case
     assume P is between Q and R                                       (C5)
 
-    6.6.  |QP| + |PR| = |QR|
+    6.5.  |QP| + |PR| = |QR|
           mun:segment-addition P := Q, Q := R, S := P, from C5
 
-    6.7.  |PQ| = 0
-          algebra, from H6, 6.6
-
-    6.8.  0 > 0, which is impossible
-          substitute |PQ| = 0 (line 6.7) into line 1
+    6.6.  0 > 0, which is impossible
+          substitute
+            |PQ| > 0      1
+            0 > 0         algebra, from H6, 6.5
 
 theorem chord-midpoint-right-angle
   note        Euclid III.3. The line from the centre O of a circle through
@@ -1668,89 +1663,87 @@ theorem altitude-foot
 6.  ∠PRQ = ∠QRP
     mun:angle-turned Q := R, R := Q, from 1
 
-7.  ∠PRY = 90°
-    algebra, from H5, 5, 6
-    requires ∠PRY ∈ ℝ: mun:angle-real Q := R, R := Y, from 1, 4
-
-8.  ∠PRY > ∠QPR
+7.  ∠PRY > ∠QPR
     thm:exterior-angle-greater A := P, B := Q, C := R, D := Y, from H4, 3
 
-9.  90° > ∠QPR
-    substitute ∠PRY = 90° (line 7) into line 8
-
-10. 90° > ∠RPQ
+8.  90° > ∠QPR
     substitute
-      90° > ∠QPR      9
+      ∠PRY > ∠QPR      7
+      90° > ∠QPR       algebra, from H5, 5, 6
+    requires ∠PRY ∈ ℝ: mun:angle-real Q := R, R := Y, from 1, 4
+
+9.  90° > ∠RPQ
+    substitute
+      90° > ∠QPR      8
       90° > ∠RPQ      mun:angle-turned P := Q, Q := P, from 1
 
-11. |PR| > 0
+10. |PR| > 0
     axi:distance-positive Q := R, from 1
 
-12. Z ∈ 𝔼². R is between P and Z. |RZ| = |PR|.
-    obtain Z: mun:segment-extension A := P, B := R, r := |PR|, from 1, 11
+11. Z ∈ 𝔼². R is between P and Z. |RZ| = |PR|.
+    obtain Z: mun:segment-extension A := P, B := R, r := |PR|, from 1, 10
 
-13. P ≠ R. Z ≠ R.
-    mun:between-apart S := P, T := Z, from 12
+12. P ≠ R. Z ≠ R.
+    mun:between-apart S := P, T := Z, from 11
 
-14. ∠PRQ + ∠QRZ = 180°
-    axi:supplementary-angles A := P, B := R, C := Z, D := Q, from 1, 12
+13. ∠PRQ + ∠QRZ = 180°
+    axi:supplementary-angles A := P, B := R, C := Z, D := Q, from 1, 11
 
-15. ∠QRZ = 90°
-    algebra, from H5, 14
-    requires ∠QRZ ∈ ℝ: mun:angle-real P := Q, Q := R, R := Z, from 1, 13
-
-16. Q, R, P form a triangle.
+14. Q, R, P form a triangle.
     mun:triangle-rotated, from H4
 
-17. Q, P, R form a triangle.
-    mun:triangle-turned P := Q, Q := R, R := P, from 16
+15. Q, P, R form a triangle.
+    mun:triangle-turned P := Q, Q := R, R := P, from 14
 
-18. ∠QRZ > ∠PQR
-    thm:exterior-angle-greater A := Q, B := P, C := R, D := Z, from 12, 17
+16. ∠QRZ > ∠PQR
+    thm:exterior-angle-greater A := Q, B := P, C := R, D := Z, from 11, 15
 
-19. 90° > ∠PQR
-    substitute ∠QRZ = 90° (line 15) into line 18
-
-20. 90° > ∠RQP
+17. 90° > ∠PQR
     substitute
-      90° > ∠PQR      19
+      ∠QRZ > ∠PQR      16
+      90° > ∠PQR       algebra, from H5, 13
+    requires ∠QRZ ∈ ℝ: mun:angle-real P := Q, Q := R, R := Z, from 1, 12
+
+18. 90° > ∠RQP
+    substitute
+      90° > ∠PQR      17
       90° > ∠RQP      mun:angle-turned, from 1
 
-21. R, P, Q form a triangle.
-    mun:triangle-rotated P := Q, Q := R, R := P, from 16
+19. R, P, Q form a triangle.
+    mun:triangle-rotated P := Q, Q := R, R := P, from 14
 
-22. D ∈ 𝔼². D is on line PQ. R ≠ D. If D ≠ P then ∠RDP = 90°.
+20. D ∈ 𝔼². D is on line PQ. R ≠ D. If D ≠ P then ∠RDP = 90°.
     If D ≠ Q then ∠RDQ = 90°.
-    obtain D: thm:perpendicular-foot P := R, Q := P, R := Q, from 21
+    obtain D: thm:perpendicular-foot P := R, Q := P, R := Q, from 19
 
-23. D = P or (D is between P and Q) or D = Q or (Q is between P and D) or
+21. D = P or (D is between P and Q) or D = Q or (Q is between P and D) or
     (P is between D and Q)
-    mun:on-line-cases P := D, Q := P, R := Q, from 1, 22
+    mun:on-line-cases P := D, Q := P, R := Q, from 1, 20
 
-24. D is between P and Q
-    cases, from 23
+22. D is between P and Q
+    cases, from 21
 
     case
     assume D = P                                                      (C1)
 
-    24.1. D ≠ Q
+    22.1. D ≠ Q
           contradiction
           suppose D = Q                                               (S1)
 
-          24.1.1. P = Q
+          22.1.1. P = Q
                   transitivity, from C1, S1
 
-          24.1.2. P ≠ Q
-                  restate 1, contradicting 24.1.1
+          22.1.2. P ≠ Q
+                  restate 1, contradicting 22.1.1
 
-    24.2. ∠RDQ = 90°
-          mun:modus-ponens, from 22, 24.1
+    22.2. ∠RDQ = 90°
+          mun:modus-ponens, from 20, 22.1
 
-    24.3. ∠RPQ = 90°
-          substitute D = P (C1) into line 24.2
+    22.3. ∠RPQ = 90°
+          substitute D = P (C1) into line 22.2
 
-    24.4. 90° > 90°, which is impossible
-          substitute ∠RPQ = 90° (line 24.3) into line 10
+    22.4. 90° > 90°, which is impossible
+          substitute ∠RPQ = 90° (line 22.3) into line 9
 
     case
     assume D is between P and Q, which is the claim                   (C2)
@@ -1758,118 +1751,118 @@ theorem altitude-foot
     case
     assume D = Q                                                      (C3)
 
-    24.5. D ≠ P
+    22.5. D ≠ P
           contradiction
           suppose D = P                                               (S2)
 
-          24.5.1. P = Q
+          22.5.1. P = Q
                   transitivity, from C3, S2
 
-          24.5.2. P ≠ Q
-                  restate 1, contradicting 24.5.1
+          22.5.2. P ≠ Q
+                  restate 1, contradicting 22.5.1
 
-    24.6. ∠RDP = 90°
-          mun:modus-ponens, from 22, 24.5
+    22.6. ∠RDP = 90°
+          mun:modus-ponens, from 20, 22.5
 
-    24.7. ∠RQP = 90°
-          substitute D = Q (C3) into line 24.6
+    22.7. ∠RQP = 90°
+          substitute D = Q (C3) into line 22.6
 
-    24.8. 90° > 90°, which is impossible
-          substitute ∠RQP = 90° (line 24.7) into line 20
+    22.8. 90° > 90°, which is impossible
+          substitute ∠RQP = 90° (line 22.7) into line 18
 
     case
     assume Q is between P and D                                       (C4)
 
-    24.9. P ≠ Q. D ≠ Q.
+    22.9. P ≠ Q. D ≠ Q.
           mun:between-apart R := Q, S := P, T := D, from C4
 
-    24.10. ∠RDQ = 90°
-           mun:modus-ponens, from 22, 24.9
+    22.10. ∠RDQ = 90°
+           mun:modus-ponens, from 20, 22.9
 
-    24.11. R, D, Q form a triangle.
-           mun:right-angle-triangle P := R, Q := D, R := Q, from 22, 24.9,
-             24.10
+    22.11. R, D, Q form a triangle.
+           mun:right-angle-triangle P := R, Q := D, R := Q, from 20, 22.9,
+             22.10
 
-    24.12. Q is between D and P
+    22.12. Q is between D and P
            mun:between-symmetric R := Q, S := P, T := D, from C4
 
-    24.13. ∠RQP > ∠RDQ
+    22.13. ∠RQP > ∠RDQ
            thm:exterior-angle-greater-other A := R, B := D, C := Q, D := P,
-             from 24.11, 24.12
+             from 22.11, 22.12
 
-    24.14. ∠RQP > 90°
-           substitute ∠RDQ = 90° (line 24.10) into line 24.13
+    22.14. ∠RQP > 90°
+           substitute ∠RDQ = 90° (line 22.10) into line 22.13
 
-    24.15. ∠RQP > ∠RQP
-           transitivity, from 24.14, 20
+    22.15. ∠RQP > ∠RQP
+           transitivity, from 22.14, 18
            requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from 1
 
-    24.16. 0 > 0, which is impossible
+    22.16. 0 > 0, which is impossible
            inequalities
-             ∠RQP > ∠RQP     24.15
+             ∠RQP > ∠RQP     22.15
              0 > 0           adding −∠RQP
            requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from 1
 
     case
     assume P is between D and Q                                       (C5)
 
-    24.17. D ≠ P. Q ≠ P.
+    22.17. D ≠ P. Q ≠ P.
            mun:between-apart R := P, S := D, T := Q, from C5
 
-    24.18. ∠RDP = 90°
-           mun:modus-ponens, from 22, 24.17
+    22.18. ∠RDP = 90°
+           mun:modus-ponens, from 20, 22.17
 
-    24.19. R, D, P form a triangle.
-           mun:right-angle-triangle P := R, Q := D, R := P, from 22, 24.17,
-             24.18
+    22.19. R, D, P form a triangle.
+           mun:right-angle-triangle P := R, Q := D, R := P, from 20, 22.17,
+             22.18
 
-    24.20. ∠RPQ > ∠RDP
+    22.20. ∠RPQ > ∠RDP
            thm:exterior-angle-greater-other A := R, B := D, C := P, D := Q,
-             from C5, 24.19
+             from C5, 22.19
 
-    24.21. ∠RPQ > 90°
-           substitute ∠RDP = 90° (line 24.18) into line 24.20
+    22.21. ∠RPQ > 90°
+           substitute ∠RDP = 90° (line 22.18) into line 22.20
 
-    24.22. ∠RPQ > ∠RPQ
-           transitivity, from 24.21, 10
+    22.22. ∠RPQ > ∠RPQ
+           transitivity, from 22.21, 9
            requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from 1
 
-    24.23. 0 > 0, which is impossible
+    22.23. 0 > 0, which is impossible
            inequalities
-             ∠RPQ > ∠RPQ     24.22
+             ∠RPQ > ∠RPQ     22.22
              0 > 0           adding −∠RPQ
            requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from 1
 
-25. P ≠ D. Q ≠ D.
-    mun:between-apart R := D, S := P, T := Q, from 24
+23. P ≠ D. Q ≠ D.
+    mun:between-apart R := D, S := P, T := Q, from 22
 
-26. ∠RDP = 90°
-    mun:modus-ponens, from 22, 25
+24. ∠RDP = 90°
+    mun:modus-ponens, from 20, 23
 
-27. ∠RDQ = 90°
-    mun:modus-ponens, from 22, 25
+25. ∠RDQ = 90°
+    mun:modus-ponens, from 20, 23
 
-28. ∠PDR = ∠RDP
-    mun:angle-turned Q := D, from 22, 25
+26. ∠PDR = ∠RDP
+    mun:angle-turned Q := D, from 20, 23
 
-29. ∠PDR = 90°
-    transitivity, from 28, 26
+27. ∠PDR = 90°
+    transitivity, from 26, 24
 
-30. ∠QDR = ∠RDQ
-    mun:angle-turned P := Q, Q := D, from 22, 25
+28. ∠QDR = ∠RDQ
+    mun:angle-turned P := Q, Q := D, from 20, 23
 
-31. ∠QDR = 90°
-    transitivity, from 30, 27
+29. ∠QDR = 90°
+    transitivity, from 28, 25
 
-32. P, D, R form a triangle.
-    mun:right-angle-triangle Q := D, from 22, 25, 29
+30. P, D, R form a triangle.
+    mun:right-angle-triangle Q := D, from 20, 23, 27
 
-33. Q, D, R form a triangle.
-    mun:right-angle-triangle P := Q, Q := D, from 22, 25, 31
+31. Q, D, R form a triangle.
+    mun:right-angle-triangle P := Q, Q := D, from 20, 23, 29
 
-34. there is D ∈ 𝔼² with (D is between P and Q), ∠PDR = 90°, ∠QDR = 90°,
+32. there is D ∈ 𝔼² with (D is between P and Q), ∠PDR = 90°, ∠QDR = 90°,
     P, D, R form a triangle, and Q, D, R form a triangle
-    exhibit, from 24, 29, 31, 32, 33
+    exhibit, from 22, 27, 29, 30, 31
 
 theorem pythagoras
   note        Euclid I.47, by similar triangles. Drop the altitude from C to
@@ -4250,83 +4243,80 @@ theorem parallel-equidistant
 100. ∠HKZ = ∠ZKH
      mun:angle-turned P := H, Q := K, R := Z, from 1, 84
 
-101. ∠HKZ = 90°
-     algebra, from H8, 96, 97, 98, 99, 100
-     requires ∠ZKH ∈ ℝ: mun:angle-real P := Z, Q := K, R := H, from 1, 84
-
-102. ∠HKB = ∠HKZ
+101. ∠HKB = ∠HKZ
      calculation
        ∠HKB = ∠BKH       mun:angle-turned P := H, Q := K, R := B, from 1, 3
             = 90°        H9
-            = ∠HKZ       101
+            = ∠HKZ       algebra, from H8, 96, 97, 98, 99, 100
+     requires ∠ZKH ∈ ℝ: mun:angle-real P := Z, Q := K, R := H, from 1, 84
 
-103. B, H, K form a triangle.
+102. B, H, K form a triangle.
      mun:triangle-off-line P := B, Q := H, R := K, from 1
 
-104. H, K, B form a triangle.
-     mun:triangle-rotated P := B, Q := H, R := K, from 103
+103. H, K, B form a triangle.
+     mun:triangle-rotated P := B, Q := H, R := K, from 102
 
-105. K, B, H form a triangle.
-     mun:triangle-rotated P := H, Q := K, R := B, from 104
+104. K, B, H form a triangle.
+     mun:triangle-rotated P := H, Q := K, R := B, from 103
 
-106. K, H, B form a triangle.
-     mun:triangle-turned P := K, Q := B, R := H, from 105
+105. K, H, B form a triangle.
+     mun:triangle-turned P := K, Q := B, R := H, from 104
 
-107. Z and B are on the same side of line KH
+106. Z and B are on the same side of line KH
      mun:same-side-of-line A := H, B := K, C := K, D := H, P := Z, Q := B,
        from 1, 6, 61
 
-108. B and Z are on the same side of line KH
-     mun:same-side-turned A := K, B := H, P := Z, Q := B, from 107
+107. B and Z are on the same side of line KH
+     mun:same-side-turned A := K, B := H, P := Z, Q := B, from 106
 
-109. B and B are on the same side of line KH
-     mun:same-side-same A := K, B := H, P := B, Q := Z, R := B, from 107, 108
+108. B and B are on the same side of line KH
+     mun:same-side-same A := K, B := H, P := B, Q := Z, R := B, from 106, 107
 
-110. Z ∈ ray KB
+109. Z ∈ ray KB
      axi:angle-construction-unique A := K, B := H, C := B, D := B, E := Z,
-       from 102, 106, 107, 109
+       from 101, 105, 106, 108
 
-111. Z is on line KB
-     mun:ray-on-line P := Z, A := K, from 110
+110. Z is on line KB
+     mun:ray-on-line P := Z, A := K, from 109
 
-112. Z = B
+111. Z = B
      contradiction
      suppose Z ≠ B                                                    (S1)
 
-     112.1. line ZB = line AB
+     111.1. line ZB = line AB
             axi:line-uniqueness A := Z, C := A, D := B,
               from H5, S1, 51, 59
 
-     112.2. K is on line KB. B is on line KB.
+     111.2. K is on line KB. B is on line KB.
             mun:on-line-ends A := K
 
-     112.3. line ZB = line KB
+     111.3. line ZB = line KB
             axi:line-uniqueness A := Z, C := K, D := B,
-              from S1, 3, 111, 112.2
+              from S1, 3, 110, 111.2
 
-     112.4. line AB = line KB
+     111.4. line AB = line KB
             calculation
-              line AB = line ZB       112.1
-                      = line KB       112.3
+              line AB = line ZB       111.1
+                      = line KB       111.3
 
-     112.5. K ∈ line KB
-            def:line P := K, A := K, from 112.2
+     111.5. K ∈ line KB
+            def:line P := K, A := K, from 111.2
 
-     112.6. K ∈ line AB
-            substitute line AB = line KB (line 112.4) into line 112.5
+     111.6. K ∈ line AB
+            substitute line AB = line KB (line 111.4) into line 111.5
 
-     112.7. K is on line AB
-            def:line P := K, from 112.6
+     111.7. K is on line AB
+            def:line P := K, from 111.6
 
-     112.8. not (K is on line HK)
-            mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 112.7,
+     111.8. not (K is on line HK)
+            mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 111.7,
               contradicting 6
 
-113. |AH| = |KB|
-     substitute Z = B (line 112) into line 36
+112. |AH| = |KB|
+     substitute Z = B (line 111) into line 36
 
-114. |AH| = |BK|
-     restate 113
+113. |AH| = |BK|
+     restate 112
 
 mundane theorem area-turned
   note        Both are half the base QR times the height from P, at the one
@@ -4771,82 +4761,82 @@ theorem proportional-segments
                        = the area of △XYP        mun:area-rotated Q := X, R := Y, from 26
                        = the area of △XPY        mun:area-turned P := X, Q := Y, R := P, from 27
 
-30. the area of △YPQ = the area of △XPY + the area of △YXQ
-    substitute the area of △YPX = the area of △XPY (line 29) into line 13
+30. the area of △YPQ = the area of △XPY + the area of △XYR
+    substitute
+      the area of △YPQ = the area of △YPX + the area of △YXQ      13
+      the area of △YPQ = the area of △XPY + the area of △YXQ      substitute line 29
+      the area of △YPQ = the area of △XPY + the area of △XYR      substitute line 28
 
-31. the area of △YPQ = the area of △XPY + the area of △XYR
-    substitute the area of △YXQ = the area of △XYR (line 28) into line 30
-
-32. the area of △YPQ = the area of △XPR
+31. the area of △YPQ = the area of △XPR
     calculation
-      the area of △YPQ = the area of △XPY + the area of △XYR      31
+      the area of △YPQ = the area of △XPY + the area of △XYR      30
                        = the area of △XPR                         axi:area-addition P := X, Q := P, D := Y, from H8, 12
 
-33. M ∈ 𝔼². U ∈ 𝔼². M is on line PQ. U is on line PQ. U ≠ M. Y ≠ M.
+32. M ∈ 𝔼². U ∈ 𝔼². M is on line PQ. U is on line PQ. U ≠ M. Y ≠ M.
     ∠YMU = 90°.
     obtain M, U: mun:foot P := Y, Q := P, R := Q, from 7
 
-34. N ∈ 𝔼². V ∈ 𝔼². N is on line PR. V is on line PR. V ≠ N. X ≠ N.
+33. N ∈ 𝔼². V ∈ 𝔼². N is on line PR. V is on line PR. V ≠ N. X ≠ N.
     ∠XNV = 90°.
     obtain N, V: mun:foot P := X, Q := P, from 12
 
-35. Q, X, P are collinear.
+34. Q, X, P are collinear.
     mun:between-collinear R := X, S := P, T := Q, from H7
 
-36. X is on line PQ
-    def:on-line P := X, A := P, B := Q, from 35
+35. X is on line PQ
+    def:on-line P := X, A := P, B := Q, from 34
 
-37. P ≠ X. Q ≠ X.
+36. P ≠ X. Q ≠ X.
     mun:between-apart R := X, S := P, T := Q, from H7
 
-38. the area of △YPX = (1/2)·|PX|·|YM|
+37. the area of △YPX = (1/2)·|PX|·|YM|
     thm:same-height P := Y, Q := P, R := Q, S := X, H := M, T := U,
-      from 7, 33, 36, 37
+      from 7, 32, 35, 36
 
-39. R, Y, P are collinear.
+38. R, Y, P are collinear.
     mun:between-collinear R := Y, S := P, T := R, from H8
 
-40. Y is on line PR
-    def:on-line P := Y, A := P, B := R, from 39
+39. Y is on line PR
+    def:on-line P := Y, A := P, B := R, from 38
 
-41. P ≠ Y. R ≠ Y.
+40. P ≠ Y. R ≠ Y.
     mun:between-apart R := Y, S := P, T := R, from H8
 
-42. the area of △XPY = (1/2)·|PY|·|XN|
+41. the area of △XPY = (1/2)·|PY|·|XN|
     thm:same-height P := X, Q := P, S := Y, H := N, T := V,
-      from 12, 34, 40, 41
+      from 12, 33, 39, 40
 
-43. (1/2)·|PQ|·|YM| = (1/2)·|PR|·|XN|
+42. (1/2)·|PQ|·|YM| = (1/2)·|PR|·|XN|
     calculation
-      (1/2)·|PQ|·|YM| = the area of △YPQ      mun:height-area P := Y, Q := P, R := Q, H := M, S := U, from 7, 33
-                      = the area of △XPR      32
-                      = (1/2)·|PR|·|XN|       mun:height-area P := X, Q := P, H := N, S := V, from 12, 34
+      (1/2)·|PQ|·|YM| = the area of △YPQ      mun:height-area P := Y, Q := P, R := Q, H := M, S := U, from 7, 32
+                      = the area of △XPR      31
+                      = (1/2)·|PR|·|XN|       mun:height-area P := X, Q := P, H := N, S := V, from 12, 33
 
-44. (1/2)·|PX|·|YM| = (1/2)·|PY|·|XN|
+43. (1/2)·|PX|·|YM| = (1/2)·|PY|·|XN|
     calculation
-      (1/2)·|PX|·|YM| = the area of △YPX      38
+      (1/2)·|PX|·|YM| = the area of △YPX      37
                       = the area of △XPY      29
-                      = (1/2)·|PY|·|XN|       42
+                      = (1/2)·|PY|·|XN|       41
 
-45. (1/2)·|PQ|·|YM|·|PX| = (1/2)·|PR|·|XN|·|PX|
+44. (1/2)·|PQ|·|YM|·|PX| = (1/2)·|PR|·|XN|·|PX|
+    algebra, from 42
+
+45. (1/2)·|PX|·|YM|·|PQ| = (1/2)·|PY|·|XN|·|PQ|
     algebra, from 43
 
-46. (1/2)·|PX|·|YM|·|PQ| = (1/2)·|PY|·|XN|·|PQ|
-    algebra, from 44
+46. (1/2)·|PX|·|PR|·|XN| = (1/2)·|PY|·|PQ|·|XN|
+    algebra, from 44, 45
 
-47. (1/2)·|PX|·|PR|·|XN| = (1/2)·|PY|·|PQ|·|XN|
-    algebra, from 45, 46
+47. |XN| > 0
+    axi:distance-positive P := X, Q := N, from 33
 
-48. |XN| > 0
-    axi:distance-positive P := X, Q := N, from 34
-
-49. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
+48. (1/2)·|PX|·|PR| = (1/2)·|PY|·|PQ|
     mun:multiply-cancel a := (1/2)·|PX|·|PR|, b := (1/2)·|PY|·|PQ|,
-      c := |XN|, from 47
-    requires |XN| ≠ 0: weakening, from 48
+      c := |XN|, from 46
+    requires |XN| ≠ 0: weakening, from 47
 
-50. |PX|·|PR| = |PY|·|PQ|
-    algebra, from 49
+49. |PX|·|PR| = |PY|·|PQ|
+    algebra, from 48
 
 theorem corresponding-angles-converse
   note        Euclid I.28. Produce YX past X to W: ∠WXQ is ∠PXY (vertical
@@ -5254,175 +5244,175 @@ theorem angle-angle-similar
     28.4. |PX|·|PR| = |PY|·|PQ|
           thm:proportional-segments, from C2, H7, 28.2, 28.3
 
-    28.5. |P′Q′|·|PR| = |PY|·|PQ|
-          substitute |PX| = |P′Q′| (line 21) into line 28.4
+    28.5. |P′Q′|·|PR| = |P′R′|·|PQ|
+          substitute
+            |PX|·|PR| = |PY|·|PQ|          28.4
+            |P′Q′|·|PR| = |PY|·|PQ|        substitute line 21
+            |P′Q′|·|PR| = |P′R′|·|PQ|      substitute line 22
 
-    28.6. |P′Q′|·|PR| = |P′R′|·|PQ|
-          substitute |PY| = |P′R′| (line 22) into line 28.5
-
-    28.7. |PQ|·|P′R′| = |P′Q′|·|PR|
-          algebra, from 28.6
+    28.6. |PQ|·|P′R′| = |P′Q′|·|PR|
+          algebra, from 28.5
 
     case
     assume X = Q                                                      (C3)
 
-    28.8. ∠PQY = ∠PQR
+    28.7. ∠PQY = ∠PQR
           substitute X = Q (C3) into line 26
 
-    28.9. Q, R, P form a triangle.
+    28.8. Q, R, P form a triangle.
           mun:triangle-rotated, from H7
 
-    28.10. Q, P, R form a triangle.
-           mun:triangle-turned P := Q, Q := R, R := P, from 28.9
+    28.9.  Q, P, R form a triangle.
+           mun:triangle-turned P := Q, Q := R, R := P, from 28.8
 
-    28.11. Y and R are on the same side of line QP
+    28.10. Y and R are on the same side of line QP
            mun:same-side-of-line A := P, B := Q, C := Q, D := P, P := Y,
              Q := R, from 1, 7, 10
 
-    28.12. R and Y are on the same side of line QP
-           mun:same-side-turned A := Q, B := P, P := Y, Q := R, from 28.11
+    28.11. R and Y are on the same side of line QP
+           mun:same-side-turned A := Q, B := P, P := Y, Q := R, from 28.10
 
-    28.13. R and R are on the same side of line QP
+    28.12. R and R are on the same side of line QP
            mun:same-side-same A := Q, B := P, P := R, Q := Y,
-             from 28.11, 28.12
+             from 28.10, 28.11
 
-    28.14. Y ∈ ray QR
+    28.13. Y ∈ ray QR
            axi:angle-construction-unique A := Q, B := P, C := R, D := R,
-             E := Y, from 28.8, 28.10, 28.11, 28.13
+             E := Y, from 28.7, 28.9, 28.10, 28.12
 
-    28.15. Y is on line QR
-           mun:ray-on-line P := Y, A := Q, B := R, from 28.14
+    28.14. Y is on line QR
+           mun:ray-on-line P := Y, A := Q, B := R, from 28.13
 
-    28.16. Y = R
+    28.15. Y = R
            contradiction
            suppose Y ≠ R                                              (S1)
 
-           28.16.1. R is on line PR
+           28.15.1. R is on line PR
                     mun:on-line-ends A := P, B := R
 
-           28.16.2. line YR = line PR
+           28.15.2. line YR = line PR
                     axi:line-uniqueness A := Y, B := R, C := P, D := R,
-                      from S1, 1, 7, 28.16.1
+                      from S1, 1, 7, 28.15.1
 
-           28.16.3. R is on line QR
+           28.15.3. R is on line QR
                     mun:on-line-ends A := Q, B := R
 
-           28.16.4. line YR = line QR
+           28.15.4. line YR = line QR
                     axi:line-uniqueness A := Y, B := R, C := Q, D := R,
-                      from S1, 1, 28.15, 28.16.3
+                      from S1, 1, 28.14, 28.15.3
 
-           28.16.5. line PR = line QR
+           28.15.5. line PR = line QR
                     calculation
-                      line PR = line YR       28.16.2
-                              = line QR       28.16.4
+                      line PR = line YR       28.15.2
+                              = line QR       28.15.4
 
-           28.16.6. P is on line PR
+           28.15.6. P is on line PR
                     mun:on-line-ends A := P, B := R
 
-           28.16.7. P ∈ line PR
-                    def:line A := P, B := R, from 28.16.6
+           28.15.7. P ∈ line PR
+                    def:line A := P, B := R, from 28.15.6
 
-           28.16.8. P ∈ line QR
-                    substitute line PR = line QR (line 28.16.5) into line 28.16.7
+           28.15.8. P ∈ line QR
+                    substitute line PR = line QR (line 28.15.5) into line 28.15.7
 
-           28.16.9. P is on line QR
-                    def:line A := Q, B := R, from 28.16.8
+           28.15.9. P is on line QR
+                    def:line A := Q, B := R, from 28.15.8
 
-           28.16.10. not (P is on line QR)
+           28.15.10. not (P is on line QR)
                      mun:triangle-not-on-line, from H7,
-                       contradicting 28.16.9
+                       contradicting 28.15.9
 
-    28.17. |PQ| = |P′Q′|
+    28.16. |PQ| = |P′Q′|
            substitute X = Q (C3) into line 21
 
-    28.18. |PR| = |P′R′|
-           substitute Y = R (line 28.16) into line 22
+    28.17. |PR| = |P′R′|
+           substitute Y = R (line 28.15) into line 22
 
-    28.19. |PQ|·|P′R′| = |P′Q′|·|P′R′|
+    28.18. |PQ|·|P′R′| = |P′Q′|·|P′R′|
+           algebra, from 28.16
+
+    28.19. |P′Q′|·|PR| = |P′Q′|·|P′R′|
            algebra, from 28.17
 
-    28.20. |P′Q′|·|PR| = |P′Q′|·|P′R′|
-           algebra, from 28.18
-
-    28.21. |PQ|·|P′R′| = |P′Q′|·|PR|
-           transitivity, from 28.19, 28.20
+    28.20. |PQ|·|P′R′| = |P′Q′|·|PR|
+           transitivity, from 28.18, 28.19
 
     case
     assume Q is between P and X                                       (C4)
 
-    28.22. R and Y are on the same side of line PQ
+    28.21. R and Y are on the same side of line PQ
            mun:same-side-turned A := P, B := Q, P := Y, Q := R, from 7
 
-    28.23. R and Y are on the same side of line PX
+    28.22. R and Y are on the same side of line PX
            mun:same-side-of-line A := P, B := Q, C := P, D := X, P := R,
-             Q := Y, from 1, 5, 9, 10, 28.22
+             Q := Y, from 1, 5, 9, 10, 28.21
 
-    28.24. ∠PQR = ∠PXY
+    28.23. ∠PQR = ∠PXY
            calculation
              ∠PQR = ∠PXY       26
 
-    28.25. line QR ∥ line XY
+    28.24. line QR ∥ line XY
            thm:corresponding-angles-converse X := Q, Q := X, Y := R, R := Y,
-             from C4, 28.23, 28.24
+             from C4, 28.22, 28.23
 
-    28.26. P, Y, X form a triangle.
+    28.25. P, Y, X form a triangle.
            mun:triangle-rotated P := X, Q := P, R := Y, from 16
 
-    28.27. P, X, Y form a triangle.
-           mun:triangle-turned Q := Y, R := X, from 28.26
+    28.26. P, X, Y form a triangle.
+           mun:triangle-turned Q := Y, R := X, from 28.25
 
-    28.28. R is on line PR
+    28.27. R is on line PR
            mun:on-line-ends A := P, B := R
 
-    28.29. P is on line PR
+    28.28. P is on line PR
            mun:on-line-ends A := P, B := R
 
-    28.30. line PY = line PR
+    28.29. line PY = line PR
            axi:line-uniqueness A := P, B := Y, C := P, D := R,
-             from 1, 7, 17, 28.29
+             from 1, 7, 17, 28.28
 
-    28.31. R ∈ line PR
-           def:line P := R, A := P, B := R, from 28.28
+    28.30. R ∈ line PR
+           def:line P := R, A := P, B := R, from 28.27
 
-    28.32. R ∈ line PY
-           substitute line PY = line PR (line 28.30) into line 28.31
+    28.31. R ∈ line PY
+           substitute line PY = line PR (line 28.29) into line 28.30
 
-    28.33. R is on line PY
-           def:line P := R, A := P, B := Y, from 28.32
+    28.32. R is on line PY
+           def:line P := R, A := P, B := Y, from 28.31
 
-    28.34. R and Y are on the same side of line PX
-           restate 28.23
+    28.33. R and Y are on the same side of line PX
+           restate 28.22
 
-    28.35. R is between P and Y
+    28.34. R is between P and Y
            thm:parallel-between Q := X, R := Y, X := Q, Y := R,
-             from C4, 28.25, 28.27, 28.33, 28.34
+             from C4, 28.24, 28.26, 28.32, 28.33
 
-    28.36. |PQ|·|PY| = |PR|·|PX|
+    28.35. |PQ|·|PY| = |PR|·|PX|
            thm:proportional-segments Q := X, R := Y, X := Q, Y := R,
-             from C4, 28.25, 28.27, 28.35
+             from C4, 28.24, 28.26, 28.34
 
-    28.37. |PQ|·|P′R′| = |PR|·|PX|
-           substitute |PY| = |P′R′| (line 22) into line 28.36
+    28.36. |PQ|·|P′R′| = |PR|·|P′Q′|
+           substitute
+             |PQ|·|PY| = |PR|·|PX|          28.35
+             |PQ|·|P′R′| = |PR|·|PX|        substitute line 22
+             |PQ|·|P′R′| = |PR|·|P′Q′|      substitute line 21
 
-    28.38. |PQ|·|P′R′| = |PR|·|P′Q′|
-           substitute |PX| = |P′Q′| (line 21) into line 28.37
-
-    28.39. |PQ|·|P′R′| = |P′Q′|·|PR|
-           algebra, from 28.38
+    28.37. |PQ|·|P′R′| = |P′Q′|·|PR|
+           algebra, from 28.36
 
     case
     assume P is between X and Q                                       (C5)
 
-    28.40. P is on line PR
+    28.38. P is on line PR
            mun:on-line-ends A := P, B := R
 
-    28.41. X and Q are on opposite sides of line PR
+    28.39. X and Q are on opposite sides of line PR
            mun:segment-across-line A := P, B := R, P := X, M := P,
-             from C5, 1, 8, 28.40
+             from C5, 1, 8, 28.38
 
-    28.42. not (X and Q are on opposite sides of line PR)
+    28.40. not (X and Q are on opposite sides of line PR)
            mun:same-not-opposite A := P, B := R, P := X, from 5,
-             contradicting 28.41
+             contradicting 28.39
 
 mundane theorem circle-centre-apart
   note        Two different points at one distance from O are not O: were X
@@ -5587,64 +5577,60 @@ theorem angle-at-centre
 28. ∡BOC + ∡OCB + ∡OCB = (2·r + 1)·π
     substitute ∡CBO = ∡OCB (line 6) into line 26
 
-29. ∡COA = (2·q + 1)·π − 2·∡ACO
-    algebra, from 27
-    requires ∡COA ∈ ℝ: from 19
-    requires ∡ACO ∈ ℝ: from 20
-
-30. ∡BOC = (2·r + 1)·π − 2·∡OCB
-    algebra, from 28
-    requires ∡BOC ∈ ℝ: from 22
-    requires ∡OCB ∈ ℝ: from 24
-
-31. ∡AOC + ∡COA = 0 + 2·m·π
+29. ∡AOC + ∡COA = 0 + 2·m·π
     substitute ∡AOA = 0 (line 13) into line 11
 
-32. ∡AOC = 2·m·π − ∡COA
-    algebra, from 31
-    requires ∡AOC ∈ ℝ: from 17
-    requires ∡COA ∈ ℝ: from 19
-
-33. ∡COB + ∡BOC = 0 + 2·p·π
+30. ∡COB + ∡BOC = 0 + 2·p·π
     substitute ∡COC = 0 (line 14) into line 12
 
-34. ∡COB = 2·p·π − ∡BOC
-    algebra, from 33
-    requires ∡COB ∈ ℝ: from 18
-    requires ∡BOC ∈ ℝ: from 22
-
-35. ∡AOB = ∡AOC + ∡COB − 2·i·π
+31. ∡AOB = ∡AOC + ∡COB − 2·i·π
     algebra, from 9
     requires ∡AOB ∈ ℝ: from 15
     requires ∡AOC ∈ ℝ: from 17
     requires ∡COB ∈ ℝ: from 18
 
-36. ∡AOB = 2·m·π − ∡COA + ∡COB − 2·i·π
-    substitute ∡AOC = 2·m·π − ∡COA (line 32) into line 35
+32. ∡AOB = 2·m·π − ∡COA + ∡COB − 2·i·π
+    substitute
+      ∡AOB = ∡AOC + ∡COB − 2·i·π              31
+      ∡AOB = 2·m·π − ∡COA + ∡COB − 2·i·π      algebra, from 29
+    requires ∡AOC ∈ ℝ: from 17
+    requires ∡COA ∈ ℝ: from 19
 
-37. ∡AOB = 2·m·π − ∡COA + (2·p·π − ∡BOC) − 2·i·π
-    substitute ∡COB = 2·p·π − ∡BOC (line 34) into line 36
+33. ∡AOB = 2·m·π − ∡COA + (2·p·π − ∡BOC) − 2·i·π
+    substitute
+      ∡AOB = 2·m·π − ∡COA + ∡COB − 2·i·π                32
+      ∡AOB = 2·m·π − ∡COA + (2·p·π − ∡BOC) − 2·i·π      algebra, from 30
+    requires ∡COB ∈ ℝ: from 18
+    requires ∡BOC ∈ ℝ: from 22
 
-38. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ∡BOC) − 2·i·π
-    substitute ∡COA = (2·q + 1)·π − 2·∡ACO (line 29) into line 37
+34. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ∡BOC) − 2·i·π
+    substitute
+      ∡AOB = 2·m·π − ∡COA + (2·p·π − ∡BOC) − 2·i·π                        33
+      ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ∡BOC) − 2·i·π      algebra, from 27
+    requires ∡COA ∈ ℝ: from 19
+    requires ∡ACO ∈ ℝ: from 20
 
-39. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ((2·r + 1)·π − 2·∡OCB)) − 2·i·π
-    substitute ∡BOC = (2·r + 1)·π − 2·∡OCB (line 30) into line 38
+35. ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ((2·r + 1)·π − 2·∡OCB)) − 2·i·π
+    substitute
+      ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ∡BOC) − 2·i·π                        34
+      ∡AOB = 2·m·π − ((2·q + 1)·π − 2·∡ACO) + (2·p·π − ((2·r + 1)·π − 2·∡OCB)) − 2·i·π      algebra, from 28
+    requires ∡BOC ∈ ℝ: from 22
+    requires ∡OCB ∈ ℝ: from 24
 
-40. ∡AOB = 2·(∡ACO + ∡OCB) + 2·(m + p − i − q − r − 1)·π
-    algebra, from 39
+36. ∡AOB = 2·(∡ACO + ∡OCB) + 2·(m + p − i − q − r − 1)·π
+    algebra, from 35
     requires ∡ACO ∈ ℝ: from 20
     requires ∡OCB ∈ ℝ: from 24
 
-41. ∡AOB = 2·(∡ACB + 2·j·π) + 2·(m + p − i − q − r − 1)·π
-    substitute ∡ACO + ∡OCB = ∡ACB + 2·j·π (line 10) into line 40
+37. ∡AOB = 2·(∡ACB + 2·j·π) + 2·(m + p − i − q − r − 1)·π
+    substitute ∡ACO + ∡OCB = ∡ACB + 2·j·π (line 10) into line 36
 
-42. ∡AOB = 2·∡ACB + 2·(2·j + m + p − i − q − r − 1)·π
-    algebra, from 41
+38. ∡AOB = 2·∡ACB + 2·(2·j + m + p − i − q − r − 1)·π
+    algebra, from 37
     requires ∡ACB ∈ ℝ: from 16
 
-43. There is k ∈ ℤ with ∡AOB = 2·∡ACB + 2·k·π.
-    exhibit, from 42
+39. There is k ∈ ℤ with ∡AOB = 2·∡ACB + 2·k·π.
+    exhibit, from 38
 
 theorem same-arc-angles
   note        Euclid III.21: angles at the circle on one arc are equal. By

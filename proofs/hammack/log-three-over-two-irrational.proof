@@ -100,57 +100,53 @@ theorem log-three-over-two-irrational
     2.1.  p ∈ ℤ. q ∈ ℕ. ln(3)/ln(2) = p/q.
           obtain p, q: def:rational x := ln(3)/ln(2), from S
 
-    2.2.  p = (ln(3)/ln(2))·q
-          algebra, from 2.1
-          requires ln(2) ≠ 0: real arithmetic
-
-    2.3.  (ln(3)/ln(2))·q > 0
+    2.2.  (ln(3)/ln(2))·q > 0
           mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
           requires ln(2) ≠ 0: real arithmetic
 
-    2.4.  p > 0
-          substitute (ln(3)/ln(2))·q = p (line 2.2) into line 2.3
-
-    2.5.  p ∈ ℕ
-          mun:pos-int-nat m := p, from 2.4
-
-    2.6.  q·ln(3) = p·ln(2)
-          algebra, from 2.1
+    2.3.  p > 0
+          substitute
+            (ln(3)/ln(2))·q > 0      2.2
+            p > 0                    algebra, from 2.1
           requires ln(2) ≠ 0: real arithmetic
 
-    2.7.  ln(3^q) = ln(2^p)
+    2.4.  p ∈ ℕ
+          mun:pos-int-nat m := p, from 2.3
+
+    2.5.  ln(3^q) = ln(2^p)
           calculation
             ln(3^q) = q·ln(3)    mun:ln-power x := 3, n := q
-                    = p·ln(2)    2.6
+                    = p·ln(2)    algebra, from 2.1
                     = ln(2^p)    mun:ln-power x := 2, n := p
           requires 3 > 0: arithmetic
           requires 2 > 0: arithmetic
+          requires ln(2) ≠ 0: real arithmetic
 
-    2.8.  3^q > 0
+    2.6.  3^q > 0
           mun:power-positive a := 3, m := q
           requires 3 > 0: arithmetic
 
-    2.9.  2^p > 0
+    2.7.  2^p > 0
           mun:power-positive a := 2, m := p
           requires 2 > 0: arithmetic
 
-    2.10. 3^q = 2^p
+    2.8.  3^q = 2^p
           calculation
-            3^q = exp(ln(3^q))    mun:exp-ln x := 3^q, from 2.8
-                = exp(ln(2^p))    substitute line 2.7
-                = 2^p             mun:exp-ln x := 2^p, from 2.5, 2.9
+            3^q = exp(ln(3^q))    mun:exp-ln x := 3^q, from 2.6
+                = exp(ln(2^p))    substitute line 2.5
+                = 2^p             mun:exp-ln x := 2^p, from 2.4, 2.7
 
-    2.11. 3^q is odd
+    2.9.  3^q is odd
           thm:power-of-three-odd n := q
 
-    2.12. 2^p is even
-          thm:power-of-two-even n := p, from 2.5
+    2.10. 2^p is even
+          thm:power-of-two-even n := p, from 2.4
 
-    2.13. 3^q is even
-          substitute 2^p = 3^q (line 2.10) into line 2.12
+    2.11. 3^q is even
+          substitute 2^p = 3^q (line 2.8) into line 2.10
 
-    2.14. not (3^q is even)
-          mun:odd-not-even n := 3^q, from 2.11, contradicting 2.13
+    2.12. not (3^q is even)
+          mun:odd-not-even n := 3^q, from 2.9, contradicting 2.11
 
 3.  ln(3)/ln(2) ∈ ℝ
     mun:quotient-real x := ln(3), y := ln(2)

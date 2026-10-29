@@ -20,35 +20,32 @@ theorem shift-by-rational
     2.1.  p ∈ ℤ. q ∈ ℕ. A + B = p/q.
           obtain p, q: def:rational x := A + B, from D1
 
-    2.2.  A = p/q − B
-          algebra, from D1, 2.1
-
-    2.3.  A = (p·s − r·q)/(q·s)
+    2.2.  A = (p·s − r·q)/(q·s)
           calculation
-            A = p/q − B                2.2
+            A = p/q − B                algebra, from D1, 2.1
               = p/q − r/s              substitute line 1
               = (p·s − r·q)/(q·s)      algebra
 
-    2.4.  A ∈ ℚ
-          def:rational x := A, from 2.3
+    2.3.  A ∈ ℚ
+          def:rational x := A, from 2.2
 
     direction
     assume A ∈ ℚ                                                      (D2)
 
-    2.5.  p ∈ ℤ. q ∈ ℕ. A = p/q.
+    2.4.  p ∈ ℤ. q ∈ ℕ. A = p/q.
           obtain p, q: def:rational x := A, from D2
 
-    2.6.  A ∈ ℂ
+    2.5.  A ∈ ℂ
           membership, from D2
 
-    2.7.  A + B = (p·s + r·q)/(q·s)
+    2.6.  A + B = (p·s + r·q)/(q·s)
           calculation
-            A + B = p/q + B            substitute line 2.5
+            A + B = p/q + B            substitute line 2.4
                   = p/q + r/s          substitute line 1
                   = (p·s + r·q)/(q·s)  algebra
 
-    2.8.  A + B ∈ ℚ
-          def:rational x := A + B, from 2.7
+    2.7.  A + B ∈ ℚ
+          def:rational x := A + B, from 2.6
 
-    2.9.  A ∈ ℂ and A + B ∈ ℚ
-          join 2.6, 2.8
+    2.8.  A ∈ ℂ and A + B ∈ ℚ
+          join 2.5, 2.7

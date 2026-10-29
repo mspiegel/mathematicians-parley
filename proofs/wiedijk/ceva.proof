@@ -292,15 +292,12 @@ let z = |OB|·sin(∠COB)/(|OA|·sin(∠AOC))                               (D3)
     requires sin(∠COB) ≠ 0: weakening, from 11
     requires sin(∠AOC) ≠ 0: weakening, from 12
 
-29. |AF|·z·(|BD|·x)·(|CE|·y) = |AF|·|BD|·|CE|
-    algebra, from 28
-    requires x ∈ ℝ: from 22
-    requires y ∈ ℝ: from 23
-    requires z ∈ ℝ: from 24
-
-30. |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
+29. |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
     calculation
-      |AF|·|BD|·|CE| = |AF|·z·(|BD|·x)·(|CE|·y)      29
+      |AF|·|BD|·|CE| = |AF|·z·(|BD|·x)·(|CE|·y)      algebra, from 28
                      = |AF|·z·(|BD|·x)·|EA|          substitute line 26
                      = |AF|·z·|DC|·|EA|              substitute line 25
                      = |FB|·|DC|·|EA|                substitute line 27
+    requires x ∈ ℝ: from 22
+    requires y ∈ ℝ: from 23
+    requires z ∈ ℝ: from 24

@@ -26,15 +26,14 @@ theorem irrational-times-rational
     3.1.  (A·B)/B ∈ ℚ
           thm:rational-quotient A := A·B, from H4, H5, S
 
-    3.2.  (A·B)/B = A
-          algebra, from H5
+    3.2.  A ∈ ℚ
+          substitute
+            (A·B)/B ∈ ℚ      3.1
+            A ∈ ℚ            algebra, from H5
           requires A ∈ ℝ: from 1
 
-    3.3.  A ∈ ℚ
-          substitute (A·B)/B = A (line 3.2) into line 3.1
-
-    3.4.  A ∉ ℚ
-          restate 1, contradicting 3.3
+    3.3.  A ∉ ℚ
+          restate 1, contradicting 3.2
 
 4.  A·B ∈ ℝ ∖ ℚ
     def:difference u := A·B, from 2, 3

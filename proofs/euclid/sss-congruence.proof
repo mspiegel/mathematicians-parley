@@ -34,47 +34,45 @@ theorem angle-from-sides
 2.  |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
     thm:law-of-cosines P := P′, Q := Q′, R := R′, from H9, H10
 
-3.  |RP|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
-    substitute |R′P′| = |RP| (H13) into line 2
+3.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))
+    substitute
+      |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))      2
+      |RP|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))        substitute H13
+      |RP|² = |PQ|² + |Q′R′|² − 2·(|PQ|·|Q′R′|·cos(∠P′Q′R′))            substitute H11
+      |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))                substitute H12
 
-4.  |RP|² = |PQ|² + |Q′R′|² − 2·(|PQ|·|Q′R′|·cos(∠P′Q′R′))
-    substitute |P′Q′| = |PQ| (H11) into line 3
-
-5.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))
-    substitute |Q′R′| = |QR| (H12) into line 4
-
-6.  ∠PQR ∈ ℝ
+4.  ∠PQR ∈ ℝ
     mun:angle-real, from H7, H8
 
-7.  ∠P′Q′R′ ∈ ℝ
+5.  ∠P′Q′R′ ∈ ℝ
     mun:angle-real P := P′, Q := Q′, R := R′, from H9, H10
 
-8.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
-    algebra, from 1, 5
-    requires ∠PQR ∈ ℝ: from 6
+6.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
+    algebra, from 1, 3
+    requires ∠PQR ∈ ℝ: from 4
     requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
-    requires ∠P′Q′R′ ∈ ℝ: from 7
+    requires ∠P′Q′R′ ∈ ℝ: from 5
     requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
 
-9.  |PQ| > 0
+7.  |PQ| > 0
     axi:distance-positive, from H7
 
-10. |QR| > 0
+8.  |QR| > 0
     axi:distance-positive P := Q, Q := R, from H8
 
-11. |PQ|·|QR| > 0
-    mun:product-positive x := |PQ|, y := |QR|, from 9, 10
+9.  |PQ|·|QR| > 0
+    mun:product-positive x := |PQ|, y := |QR|, from 7, 8
 
-12. cos(∠PQR) = cos(∠P′Q′R′)
-    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 8
-    requires |PQ|·|QR| ≠ 0: weakening, from 11
-    requires ∠PQR ∈ ℝ: from 6
+10. cos(∠PQR) = cos(∠P′Q′R′)
+    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 6
+    requires |PQ|·|QR| ≠ 0: weakening, from 9
+    requires ∠PQR ∈ ℝ: from 4
     requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
-    requires ∠P′Q′R′ ∈ ℝ: from 7
+    requires ∠P′Q′R′ ∈ ℝ: from 5
     requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
 
-13. ∠PQR = ∠P′Q′R′
-    mun:angle-equal-by-cosine, from H7, H8, H9, H10, 12
+11. ∠PQR = ∠P′Q′R′
+    mun:angle-equal-by-cosine, from H7, H8, H9, H10, 10
 
 theorem sss
   note        Euclid I.8, as the library proves it from the postulates

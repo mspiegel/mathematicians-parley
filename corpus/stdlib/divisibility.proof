@@ -201,11 +201,10 @@ theorem coprime-divides
     mun:divides-combination e := n, a := x·c, b := n, x := u, y := x·v,
       from H4, 3
 
-5.  x = (x·c)·u + n·(x·v)
-    algebra, from 2
-
-6.  n divides x
-    substitute x = (x·c)·u + n·(x·v) (line 5) into line 4
+5.  n divides x
+    substitute
+      n divides (x·c)·u + n·(x·v)      4
+      n divides x                      algebra, from 2
 
 theorem congruent-cancel
   note        A factor with no factor in common with n cancels from both
@@ -276,83 +275,80 @@ mundane theorem coprime-square-part
 8.  s divides s·t
     mun:divides-multiple e := s, a := s, x := t, from 2
 
-9.  w·w = s·t
-    algebra, from H5
+9.  s divides w·w
+    substitute
+      s divides s·t      8
+      s divides w·w      algebra, from H5
 
-10. s divides w·w
-    substitute w·w = s·t (line 9) into line 8
-
-11. s divides w·s
+10. s divides w·s
     substitute
       s divides s·w      4
       s divides w·s      algebra
 
-12. s divides gcd(w·s, w·w)
-    thm:divides-gcd d := s, a := w·s, b := w·w, from 10, 11
+11. s divides gcd(w·s, w·w)
+    thm:divides-gcd d := s, a := w·s, b := w·w, from 9, 10
 
-13. s divides w·gcd(s, w)
+12. s divides w·gcd(s, w)
     substitute
-      s divides gcd(w·s, w·w)      12
+      s divides gcd(w·s, w·w)      11
       s divides w·gcd(s, w)        mun:gcd-scaled c := w, a := s, b := w
 
-14. s divides gcd(s, w)·w
+13. s divides gcd(s, w)·w
     substitute
-      s divides w·gcd(s, w)      13
+      s divides w·gcd(s, w)      12
       s divides gcd(s, w)·w      algebra
     requires gcd(s, w) ∈ ℝ: from 1
 
-15. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
-    thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 7, 14
+14. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
+    thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 7, 13
     requires gcd(s, w)·s ∈ ℤ: from 1
     requires gcd(s, w)·w ∈ ℤ: from 1
 
-16. s divides gcd(s, w)·gcd(s, w)
+15. s divides gcd(s, w)·gcd(s, w)
     substitute
-      s divides gcd(gcd(s, w)·s, gcd(s, w)·w)      15
+      s divides gcd(gcd(s, w)·s, gcd(s, w)·w)      14
       s divides gcd(s, w)·gcd(s, w)                mun:gcd-scaled c := gcd(s, w), a := s, b := w, from 1
 
-17. s divides gcd(s, w)²
+16. s divides gcd(s, w)²
     substitute
-      s divides gcd(s, w)·gcd(s, w)      16
+      s divides gcd(s, w)·gcd(s, w)      15
       s divides gcd(s, w)²               algebra
     requires gcd(s, w) ∈ ℝ: from 1
 
-18. gcd(s, w)² divides s²
+17. gcd(s, w)² divides s²
     mun:divides-square d := gcd(s, w), n := s, from 1
 
-19. gcd(s, w)² divides w²
+18. gcd(s, w)² divides w²
     mun:divides-square d := gcd(s, w), n := w, from 1
 
-20. gcd(s, w)² divides s·t
-    substitute w² = s·t (H5) into line 19
+19. gcd(s, w)² divides s·t
+    substitute w² = s·t (H5) into line 18
 
-21. gcd(s, w)² divides s·s
+20. gcd(s, w)² divides s·s
     substitute
-      gcd(s, w)² divides s²       18
+      gcd(s, w)² divides s²       17
       gcd(s, w)² divides s·s      algebra
 
-22. gcd(s, w)² divides gcd(s·s, s·t)
-    thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 20, 21
+21. gcd(s, w)² divides gcd(s·s, s·t)
+    thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 19, 20
     requires gcd(s, w)² ∈ ℤ: from 1
 
-23. gcd(s, w)² divides s·gcd(s, t)
+22. gcd(s, w)² divides s
     substitute
-      gcd(s, w)² divides gcd(s·s, s·t)      22
+      gcd(s, w)² divides gcd(s·s, s·t)      21
       gcd(s, w)² divides s·gcd(s, t)        mun:gcd-scaled c := s, a := s, b := t
+      gcd(s, w)² divides s                  substitute H4
 
-24. gcd(s, w)² divides s
-    substitute gcd(s, t) = 1 (H4) into line 23
-
-25. s ≤ gcd(s, w)²
-    mun:divides-le e := s, m := gcd(s, w)², from 17
+23. s ≤ gcd(s, w)²
+    mun:divides-le e := s, m := gcd(s, w)², from 16
     requires gcd(s, w)² ∈ ℕ: from 1
 
-26. gcd(s, w)² ≤ s
-    mun:divides-le e := gcd(s, w)², m := s, from 24
+24. gcd(s, w)² ≤ s
+    mun:divides-le e := gcd(s, w)², m := s, from 22
     requires gcd(s, w)² ∈ ℕ: from 1
 
-27. s = gcd(s, w)²
-    antisymmetry, from 25, 26
+25. s = gcd(s, w)²
+    antisymmetry, from 23, 24
     requires gcd(s, w) ∈ ℝ: from 1
 
 theorem coprime-square

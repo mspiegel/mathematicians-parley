@@ -70,17 +70,17 @@ theorem cubic-root-is-irrational
                   1.5.3.5.  s ∈ ℤ. q = 2s + 1.
                             obtain s: def:odd n := q, from C3
 
-                  1.5.3.6.  (2r)³ + 2r·q² + 3q³ = 0
-                            substitute p = 2r (line 1.5.1) into line 1.3
+                  1.5.3.6.  (2r)³ + 2r·(2s + 1)² + 3(2s + 1)³ = 0
+                            substitute
+                              p³ + p·q² + 3q³ = 0                        1.3
+                              (2r)³ + 2r·q² + 3q³ = 0                    substitute line 1.5.1
+                              (2r)³ + 2r·(2s + 1)² + 3(2s + 1)³ = 0      substitute line 1.5.3.5
 
-                  1.5.3.7.  (2r)³ + 2r·(2s + 1)² + 3(2s + 1)³ = 0
-                            substitute q = 2s + 1 (line 1.5.3.5) into line 1.5.3.6
+                  1.5.3.7.  1 = 2(−(4r³ + 4r·s² + 4r·s + r + 12s³ + 18s² + 9s + 1))
+                            algebra, from 1.5.3.6
 
-                  1.5.3.8.  1 = 2(−(4r³ + 4r·s² + 4r·s + r + 12s³ + 18s² + 9s + 1))
-                            algebra, from 1.5.3.7
-
-                  1.5.3.9.  1 is even
-                            def:even n := 1, from 1.5.3.8
+                  1.5.3.8.  1 is even
+                            def:even n := 1, from 1.5.3.7
 
           case
           assume p is odd                                             (C4)

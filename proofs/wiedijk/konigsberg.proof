@@ -232,21 +232,21 @@ let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
       r = |{i ∈ {1, …, n − 1} : x = v(i)}|    mun:count-last-fails, from D2, H8
         = m                                   D3
 
-8.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
-    substitute d = m (line 6) into line 5
+8.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
+    substitute
+      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r      5
+      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r      substitute line 6
+      |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m      substitute line 7
 
-9.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
-    substitute r = m (line 7) into line 8
-
-10. deg(x) = 2m
+9.  deg(x) = 2m
     calculation
       deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|                 2
              = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           mun:count-same, from 3
-             = m + m                                                  9
+             = m + m                                                  8
              = 2m                                                     algebra
 
-11. deg(x) is even
-    def:even n := deg(x), from 10
+10. deg(x) is even
+    def:even n := deg(x), from 9
     requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
     requires deg(x) ∈ ℕ₀: membership, from 2
 

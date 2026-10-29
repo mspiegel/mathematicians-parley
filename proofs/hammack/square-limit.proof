@@ -86,18 +86,17 @@ theorem square-limit
           1.4.11. f(x) = x² − 2
                   instantiate x := x in H2
 
-          1.4.12. f(x) − 7 = (x + 3)·(x − 3)
-                  algebra, from 1.4.11
-
-          1.4.13. |(x + 3)·(x − 3)| = |x + 3|·|x − 3|
+          1.4.12. |(x + 3)·(x − 3)| = |x + 3|·|x − 3|
                   mun:abs-product x := x + 3, y := x − 3
 
-          1.4.14. |f(x) − 7| = |x + 3|·|x − 3|
-                  substitute f(x) − 7 = (x + 3)·(x − 3) (line 1.4.12) into line 1.4.13
+          1.4.13. |f(x) − 7| = |x + 3|·|x − 3|
+                  substitute
+                    |(x + 3)·(x − 3)| = |x + 3|·|x − 3|      1.4.12
+                    |f(x) − 7| = |x + 3|·|x − 3|             algebra, from 1.4.11
 
-          1.4.15. |f(x) − 7| < ε
+          1.4.14. |f(x) − 7| < ε
                   calculation
-                    |f(x) − 7| = |x + 3|·|x − 3|      1.4.14
+                    |f(x) − 7| = |x + 3|·|x − 3|      1.4.13
                                < |x + 3|·(ε/7)        mun:less-scaled x := |x − 3|, y := ε/7, c := |x + 3|, from 1.4.1, 1.4.9
                                = ε/7·|x + 3|          algebra
                                ≤ ε/7·7                mun:multiply-le x := |x + 3|, y := 7, c := ε/7, from 1.4.10

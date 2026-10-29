@@ -48,27 +48,24 @@ theorem altitude-mean-proportional
 6.  ∠ADC + ∠CDB = 180°
     axi:supplementary-angles B := D, C := B, D := C, from H7, 3
 
-7.  ∠CDB = 90°
-    algebra, from H8, 6
-    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from 1, 3
-
-8.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
+7.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
     thm:law-of-cosines P := C, Q := D, R := B, from 1, 3
 
-9.  |AD| + |DB| = |AB|
+8.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from H7
 
-10. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))
-    substitute ∠ADC = 90° (H8) into line 5
+9.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
+    substitute
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))      5
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))       substitute H8
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)              real arithmetic
 
-11. |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
-    substitute cos(90°) = 0 (real arithmetic) into line 10
+10. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
+    substitute
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      7
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H8, 6
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)              real arithmetic
+    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from 1, 3
 
-12. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))
-    substitute ∠CDB = 90° (line 7) into line 8
-
-13. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
-    substitute cos(90°) = 0 (real arithmetic) into line 12
-
-14. |CD|² = |AD|·|DB|
-    algebra, from 4, 9, 11, 13
+11. |CD|² = |AD|·|DB|
+    algebra, from 4, 8, 9, 10

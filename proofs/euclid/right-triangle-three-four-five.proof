@@ -43,61 +43,57 @@ theorem right-triangle-three-four-five
 7.  (0, 0), (3, 0), (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)
     mun:collinear-by-coordinates
 
-8.  A, (3, 0), (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)
-    substitute A = (0, 0) (H4) into line 7
+8.  A, B, C are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)
+    substitute
+      (0, 0), (3, 0), (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)      7
+      A, (3, 0), (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)           substitute H4
+      A, B, (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)                substitute H5
+      A, B, C are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)                     substitute H6
 
-9.  A, B, (0, 4) are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)
-    substitute B = (3, 0) (H5) into line 8
-
-10. A, B, C are collinear ↔ (3 − 0)·(4 − 0) = (0 − 0)·(0 − 0)
-    substitute C = (0, 4) (H6) into line 9
-
-11. (3 − 0)·(4 − 0) ≠ (0 − 0)·(0 − 0)
+9.  (3 − 0)·(4 − 0) ≠ (0 − 0)·(0 − 0)
     arithmetic
 
-12. not (A, B, C are collinear)
-    mun:iff-not-from-right, from 10, 11
+10. not (A, B, C are collinear)
+    mun:iff-not-from-right, from 8, 9
 
-13. A, B, C form a triangle
-    def:triangle, from 2, 4, 6, 12
+11. A, B, C form a triangle
+    def:triangle, from 2, 4, 6, 10
 
-14. |BA| = 3
+12. |BA| = 3
     calculation
       |BA| = √((3 − 0)² + (0 − 0)²)     mun:distance-of-points-by-coordinates, from H4, H5
            = √9                         arithmetic
            = 3                          real arithmetic
 
-15. |AC| = 4
+13. |AC| = 4
     calculation
       |AC| = √((0 − 0)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H4, H6
            = √16                        arithmetic
            = 4                          real arithmetic
 
-16. |BC| = 5
+14. |BC| = 5
     calculation
       |BC| = √((3 − 0)² + (0 − 4)²)     mun:distance-of-points-by-coordinates, from H5, H6
            = √25                        arithmetic
            = 5                          real arithmetic
 
-17. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
+15. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
     thm:law-of-cosines, from 2, 4
 
-18. 5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    substitute |BC| = 5 (line 16) into line 17
+16. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
+    substitute
+      |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))      15
+      5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))         substitute line 14
+      5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))               substitute line 12
+      5² = 3² + 4² − 2·(3·4·cos(∠BAC))                     substitute line 13
 
-19. 5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))
-    substitute |BA| = 3 (line 14) into line 18
-
-20. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
-    substitute |AC| = 4 (line 15) into line 19
-
-21. cos(∠BAC) = 0
-    algebra, from 20
-    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from 13
+17. cos(∠BAC) = 0
+    algebra, from 16
+    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from 11
     requires cos(∠BAC) ∈ ℝ: mun:cos-real a := ∠BAC
 
-22. ∠BAC = 90°
-    mun:right-angle-by-cosine, from 2, 4, 21
+18. ∠BAC = 90°
+    mun:right-angle-by-cosine, from 2, 4, 17
 
-23. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
-    join 13, 22, 16
+19. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
+    join 11, 18, 14

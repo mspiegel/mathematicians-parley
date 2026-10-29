@@ -26,34 +26,34 @@ theorem equilateral-angle-sixty
 2.  |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))
     thm:law-of-cosines P := A, Q := B, R := C, from 1
 
-3.  |AB|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))
-    substitute |CA| = |AB| (H5) into line 2
+3.  |AB|² = |AB|² + |AB|² − 2·(|AB|·|AB|·cos(∠ABC))
+    substitute
+      |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))      2
+      |AB|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))      substitute H5
+      |AB|² = |AB|² + |AB|² − 2·(|AB|·|AB|·cos(∠ABC))      substitute H5
 
-4.  |AB|² = |AB|² + |AB|² − 2·(|AB|·|AB|·cos(∠ABC))
-    substitute |BC| = |AB| (H5) into line 3
-
-5.  cos(∠ABC)·|AB|² = (1/2)·|AB|²
-    algebra, from 4
+4.  cos(∠ABC)·|AB|² = (1/2)·|AB|²
+    algebra, from 3
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := C, from H4
     requires cos(∠ABC) ∈ ℝ: mun:cos-real a := ∠ABC
 
-6.  |AB| > 0
+5.  |AB| > 0
     axi:distance-positive P := A, Q := B, from 1
 
-7.  |AB|² > 0
+6.  |AB|² > 0
     mun:square-positive x := |AB|
-    requires |AB| ≠ 0: weakening, from 6
+    requires |AB| ≠ 0: weakening, from 5
 
-8.  cos(∠ABC) = 1/2
-    mun:multiply-cancel a := cos(∠ABC), b := 1/2, c := |AB|², from 5
+7.  cos(∠ABC) = 1/2
+    mun:multiply-cancel a := cos(∠ABC), b := 1/2, c := |AB|², from 4
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := C, from H4
     requires cos(∠ABC) ∈ ℝ: mun:cos-real a := ∠ABC
-    requires |AB|² ≠ 0: weakening, from 7
+    requires |AB|² ≠ 0: weakening, from 6
 
-9.  cos(∠ABC) = cos(60°)
-    substitute 1/2 = cos(60°) (real arithmetic) into line 8
+8.  cos(∠ABC) = cos(60°)
+    substitute 1/2 = cos(60°) (real arithmetic) into line 7
 
-10. ∠ABC = 60°
-    mun:angle-by-cosine P := A, Q := B, R := C, x := 60°, from 1, 9
+9.  ∠ABC = 60°
+    mun:angle-by-cosine P := A, Q := B, R := C, x := 60°, from 1, 8
     requires 0 ≤ 60°: real arithmetic
     requires 60° ≤ 180°: real arithmetic

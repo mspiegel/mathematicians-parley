@@ -193,17 +193,14 @@ theorem am-gm-power
                   1.2.14.8.  (A·r − A)·(j + 1) = x − A
                              algebra, from 1.2.8, 1.2.14.7
 
-                  1.2.14.9.  (A^j·A)·(1 + (r − 1)·(j + 1)) = A^j·x
-                             algebra, from 1.2.14.8
-
-                  1.2.14.10. A^(j + 1) = A^j·A
+                  1.2.14.9.  A^(j + 1) = A^j·A
                              mun:exponent-step
 
-                  1.2.14.11. A^j·x ≤ B^(j + 1)
+                  1.2.14.10. A^j·x ≤ B^(j + 1)
                              calculation
-                               A^j·x = (A^j·A)·(1 + (r − 1)·(j + 1))     1.2.14.9
+                               A^j·x = (A^j·A)·(1 + (r − 1)·(j + 1))     algebra, from 1.2.14.8
                                      ≤ (A^j·A)·r^(j + 1)                 mun:multiply-le, from 1.2.14.4, 1.2.14.6
-                                     = A^(j + 1)·r^(j + 1)               substitute line 1.2.14.10
+                                     = A^(j + 1)·r^(j + 1)               substitute line 1.2.14.9
                                      = (A·r)^(j + 1)                     mun:power-of-product
                                      = B^(j + 1)                         substitute line 1.2.14.7
                              requires r^(j + 1) ∈ ℝ: mun:power-real
@@ -212,20 +209,20 @@ theorem am-gm-power
                   note A^j is 0, and B^(j + 1) is not negative
                   assume 0 = A                                        (C4)
 
-                  1.2.14.12. A^j·x = 0^j·x
+                  1.2.14.11. A^j·x = 0^j·x
                              substitute 0 = A (C4)
 
-                  1.2.14.13. 0^j = 0
+                  1.2.14.12. 0^j = 0
                              mun:zero-power n := j
 
-                  1.2.14.14. A^j·x = 0
-                             algebra, from 1.2.14.12, 1.2.14.13
+                  1.2.14.13. A^j·x = 0
+                             algebra, from 1.2.14.11, 1.2.14.12
 
-                  1.2.14.15. B^(j + 1) ≥ 0
+                  1.2.14.14. B^(j + 1) ≥ 0
                              mun:power-nonneg, from 1.2.12
 
-                  1.2.14.16. A^j·x ≤ B^(j + 1)
-                             transitivity, from 1.2.14.14, 1.2.14.15
+                  1.2.14.15. A^j·x ≤ B^(j + 1)
+                             transitivity, from 1.2.14.13, 1.2.14.14
                              requires B^(j + 1) ∈ ℝ: mun:power-real
 
           1.2.15. ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)

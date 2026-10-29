@@ -962,8 +962,8 @@ fn cases() -> Vec<Case> {
             "leave out a definition's subject where the proof has no such letter",
             vec![edit(
                 "proofs/wiedijk/pythagorean-triples.proof",
-                Some("def:divides d := 4, n := 2, from 2.2.10".to_string()),
-                "def:divides n := 2, from 2.2.10".to_string(),
+                Some("def:divides d := 4, n := 2, from 2.2.9".to_string()),
+                "def:divides n := 2, from 2.2.9".to_string(),
             )],
             "def:divides is about d, and the step gives d no value and the proof has no d; write it, as d := t",
         ),
@@ -1645,10 +1645,10 @@ fn cases() -> Vec<Case> {
             "substitute a name the proof never introduced",
             vec![edit(
                 "proofs/wiedijk/pythagorean-triples.proof",
-                Some("                  substitute a = 2p + 1 (line 2.2.1) into H4".to_string()),
-                "                  substitute a = z (line 2.2.1) into H4".to_string(),
+                Some("                  substitute c = 2r (line 2.2.7) into line 2.2.3".to_string()),
+                "                  substitute c = z (line 2.2.7) into line 2.2.3".to_string(),
             )],
-            "step 2.2.3 takes a = z from 2.2.1, which does not say it",
+            "step 2.2.8 takes c = z from 2.2.7, which does not say it",
         ),
         // A step claims of a definition something it does not say.
         case(
@@ -2679,21 +2679,21 @@ fn cases() -> Vec<Case> {
         case(
             "say what kind of number a let's name is with no reason under it",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := s, b := w, from 4, 34\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := s, b := w, from 4, 32\n    reads the number whose square is s".to_string()), "    reads the number whose square is s".to_string()),
             ],
             "the line under it gives no reason",
         ),
         case(
             "give a let a reason that shows another term in the set",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 31".to_string()), "    def:gcd a := s, b := w, from 4, 34".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 29".to_string()), "    def:gcd a := s, b := w, from 4, 32".to_string()),
             ],
             "the reason under let D2 needs gcd(t, w) ∈ ℕ",
         ),
         case(
             "cite in a let's reason a step below the let",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 31".to_string()), "    def:gcd a := t, b := w, from 31, 55".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    def:gcd a := t, b := w, from 4, 29".to_string()), "    def:gcd a := t, b := w, from 29, 55".to_string()),
             ],
             "the reason under let D2 cites 55, which is not above the let",
         ),
@@ -4424,7 +4424,7 @@ fn cases() -> Vec<Case> {
         case(
             "say a step is impossible and contradict a line as well",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          def:divides d := 2, n := 1, from 10.5\n".to_string()), "          def:divides d := 2, n := 1, from 10.5, contradicting 10.5\n".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          def:divides d := 2, n := 1, from 9.5\n".to_string()), "          def:divides d := 2, n := 1, from 9.5, contradicting 9.5\n".to_string()),
             ],
             "says it is impossible and contradicts a line",
         ),
@@ -5569,11 +5569,11 @@ fn cases() -> Vec<Case> {
             "step 2 is a calculation with no chain",
         ),
         case(
-            "a chain line whose algebra cites a line",
+            "a chain line of numerals alone naming algebra",
             vec![
-                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("         = 4k² + 4k + 1        algebra".to_string()), "         = 4k² + 4k + 1        algebra, from 1".to_string()),
+                edit("proofs/wiedijk/sum-formula.proof", Some("= 1(1 + 1)/2            arithmetic".to_string()), "= 1(1 + 1)/2            algebra".to_string()),
             ],
-            "a chain line's algebra cites no line, and this one cites 1",
+            "which arithmetic can work out",
         ),
         case(
             "a chain line substituting a line that says no equation",

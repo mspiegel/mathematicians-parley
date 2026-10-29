@@ -82,23 +82,16 @@ theorem factorial-beats-power
           requires k! ∈ ℝ: from 1.4
           requires (k + 1)! ∈ ℝ: membership, from 1.4, 1.6
 
-    1.15. (k + 1)·2^(k + 1) = (k + 1)·(2^k·2)
-          algebra, from 1.7
-
-    1.16. (k + 1)·(2·k!·2) = 4·(k + 1)!
-          algebra, from 1.6
-          requires k! ∈ ℝ: from 1.4
-
-    1.17. (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
+    1.15. (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
           calculation
-            (k + 1)·2^(k + 1) = (k + 1)·(2^k·2)          1.15
+            (k + 1)·2^(k + 1) = (k + 1)·(2^k·2)          algebra, from 1.7
                               ≤ (k + 1)·(2·k!·2)         mun:multiply-le x := 2^k·2, y := 2·k!·2, c := k + 1, from 1.8
-                              = 4·(k + 1)!               1.16
+                              = 4·(k + 1)!               algebra, from 1.6
           requires k + 1 > 0: inequalities, from K
           requires k! ∈ ℝ: from 1.4
 
-    1.18. 2^(k + 1) ≤ 2·(k + 1)! and (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
-          join 1.14, 1.17
+    1.16. 2^(k + 1) ≤ 2·(k + 1)! and (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
+          join 1.14, 1.15
 
 2.  2^n ≤ 2·n! and n·2^n ≤ 4·n!
     instantiate k := n in line 1

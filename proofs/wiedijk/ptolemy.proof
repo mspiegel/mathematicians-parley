@@ -75,24 +75,21 @@ theorem ptolemy
 11. sin(c)² + cos(c)² = 1
     mun:sin-cos-squares a := c
 
-12. sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c)) = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))
-    algebra, from 11
+12. sin(a)·sin(b) + sin(c)·sin(d) = sin(b + c)·sin(a + c)
+    calculation
+      sin(a)·sin(b) + sin(c)·sin(d) = sin(a)·sin(b) + sin(c)·sin(a + b + c)                                                substitute line 5
+          = sin(a)·sin(b) + sin(c)·(sin(a + b)·cos(c) + cos(a + b)·sin(c))                                                 substitute line 6
+          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + cos(a + b)·sin(c))                            substitute line 7
+          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c))       substitute line 8
+          = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))                                                algebra, from 11
+          = sin(b + c)·(sin(a)·cos(c) + cos(a)·sin(c))                                                                     substitute line 9
+          = sin(b + c)·sin(a + c)                                                                                          substitute line 10
     requires sin(a) ∈ ℝ: mun:sin-real
     requires cos(a) ∈ ℝ: mun:cos-real
     requires sin(b) ∈ ℝ: mun:sin-real a := b
     requires cos(b) ∈ ℝ: mun:cos-real a := b
     requires sin(c) ∈ ℝ: mun:sin-real a := c
     requires cos(c) ∈ ℝ: mun:cos-real a := c
-
-13. sin(a)·sin(b) + sin(c)·sin(d) = sin(b + c)·sin(a + c)
-    calculation
-      sin(a)·sin(b) + sin(c)·sin(d) = sin(a)·sin(b) + sin(c)·sin(a + b + c)                                                substitute line 5
-          = sin(a)·sin(b) + sin(c)·(sin(a + b)·cos(c) + cos(a + b)·sin(c))                                                 substitute line 6
-          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + cos(a + b)·sin(c))                            substitute line 7
-          = sin(a)·sin(b) + sin(c)·((sin(a)·cos(b) + cos(a)·sin(b))·cos(c) + (cos(a)·cos(b) − sin(a)·sin(b))·sin(c))       substitute line 8
-          = (sin(b)·cos(c) + cos(b)·sin(c))·(sin(a)·cos(c) + cos(a)·sin(c))                                                12
-          = sin(b + c)·(sin(a)·cos(c) + cos(a)·sin(c))                                                                     substitute line 9
-          = sin(b + c)·sin(a + c)                                                                                          substitute line 10
 
 theorem cyclic-ptolemy
   note        Ptolemy's theorem of four points in order on a circle, said by
@@ -136,200 +133,163 @@ theorem cyclic-ptolemy
 7.  ∠CPD + ∠DPA = 180°
     axi:supplementary-angles A := C, B := P, C := A, from 2, 6
 
-8.  ∠BPC = 180° − ∠APB
-    algebra, from 4
-    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
-    requires ∠BPC ∈ ℝ: mun:angle-real P := B, Q := P, R := C, from 1, 2
-
-9.  ∠CPD = ∠APB
+8.  ∠CPD = ∠APB
     algebra, from 4, 5
     requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
     requires ∠BPC ∈ ℝ: mun:angle-real P := B, Q := P, R := C, from 1, 2
     requires ∠CPD ∈ ℝ: mun:angle-real P := C, Q := P, R := D, from 1, 2
 
-10. ∠DPA = 180° − ∠APB
-    algebra, from 7, 9
-    requires ∠CPD ∈ ℝ: mun:angle-real P := C, Q := P, R := D, from 1, 2
-    requires ∠DPA ∈ ℝ: mun:angle-real P := D, Q := P, R := A, from 1, 2
-
-11. cos(180° − ∠APB) = −cos(∠APB)
+9.  cos(180° − ∠APB) = −cos(∠APB)
     mun:cos-supplement x := ∠APB
     requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
 
-12. |BA|² = |AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))
+10. |BA|² = |AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))
     thm:law-of-cosines P := A, Q := P, R := B, from 1, 2
 
-13. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(∠BPC))
+11. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(∠BPC))
     thm:law-of-cosines P := B, Q := P, R := C, from 1, 2
 
-14. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(180° − ∠APB))
-    substitute ∠BPC = 180° − ∠APB (line 8) into line 13
+12. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB)))
+    substitute
+      |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(∠BPC))             11
+      |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(180° − ∠APB))      algebra, from 4
+      |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB)))          substitute line 9
+    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
+    requires ∠BPC ∈ ℝ: mun:angle-real P := B, Q := P, R := C, from 1, 2
 
-15. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB)))
-    substitute cos(180° − ∠APB) = −cos(∠APB) (line 11) into line 14
-
-16. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠CPD))
+13. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠CPD))
     thm:law-of-cosines P := C, Q := P, R := D, from 1, 2
 
-17. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB))
-    substitute ∠CPD = ∠APB (line 9) into line 16
+14. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB))
+    substitute ∠CPD = ∠APB (line 8) into line 13
 
-18. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(∠DPA))
+15. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(∠DPA))
     thm:law-of-cosines P := D, Q := P, R := A, from 1, 2
 
-19. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(180° − ∠APB))
-    substitute ∠DPA = 180° − ∠APB (line 10) into line 18
+16. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB)))
+    substitute
+      |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(∠DPA))             15
+      |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(180° − ∠APB))      algebra, from 7, 8
+      |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB)))          substitute line 9
+    requires ∠CPD ∈ ℝ: mun:angle-real P := C, Q := P, R := D, from 1, 2
+    requires ∠DPA ∈ ℝ: mun:angle-real P := D, Q := P, R := A, from 1, 2
 
-20. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB)))
-    substitute cos(180° − ∠APB) = −cos(∠APB) (line 11) into line 19
-
-21. cos(∠APB) ∈ ℝ
+17. cos(∠APB) ∈ ℝ
     mun:cos-real a := ∠APB
     requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
 
-22. (|PA|·|PC|)² = (|PB|·|PD|)²
+18. (|PA|·|PC|)² = (|PB|·|PD|)²
     algebra, from 3
 
-23. |PA|·|PD|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PD|·cos(∠APB)·(|PB|·|PD|)
+19. |PA|·|PD|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PD|·cos(∠APB)·(|PB|·|PD|)
     algebra, from 3
-    requires cos(∠APB) ∈ ℝ: from 21
+    requires cos(∠APB) ∈ ℝ: from 17
 
-24. |PA|·|PB|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PB|·cos(∠APB)·(|PB|·|PD|)
+20. |PA|·|PB|·cos(∠APB)·(|PA|·|PC|) = |PA|·|PB|·cos(∠APB)·(|PB|·|PD|)
     algebra, from 3
-    requires cos(∠APB) ∈ ℝ: from 21
+    requires cos(∠APB) ∈ ℝ: from 17
 
-25. |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB)))·|PA|²
-    algebra, from 17
-    requires cos(∠APB) ∈ ℝ: from 21
-
-26. (|PA|·|PC|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PA|·|PC|)) = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PB|·|PD|))
-    algebra, from 22, 23
-    requires cos(∠APB) ∈ ℝ: from 21
-
-27. |PD|²·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))) = |PD|²·|BA|²
-    algebra, from 12
-    requires cos(∠APB) ∈ ℝ: from 21
-
-28. |DC|²·|PA|² = |PD|²·|BA|²
+21. |DC|²·|PA|² = |PD|²·|BA|²
     calculation
-      |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB)))·|PA|²                                25
+      |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB)))·|PA|²                                algebra, from 14
                   = (|PA|·|PC|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PA|·|PC|))               algebra
-                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PB|·|PD|))               26
+                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·cos(∠APB)·(|PB|·|PD|))               algebra, from 18, 19
                   = |PD|²·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB)))                                algebra
-                  = |PD|²·|BA|²                                                                    27
-    requires cos(∠APB) ∈ ℝ: from 21
+                  = |PD|²·|BA|²                                                                    algebra, from 10
+    requires cos(∠APB) ∈ ℝ: from 17
 
-29. |CB|²·|PA|² = (|BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB))))·|PA|²
-    algebra, from 15
-    requires cos(∠APB) ∈ ℝ: from 21
-
-30. |PA|²·|PB|² + (|PA|·|PC|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PA|·|PC|)) = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PB|·|PD|))
-    algebra, from 22, 24
-    requires cos(∠APB) ∈ ℝ: from 21
-
-31. |PB|²·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB)))) = |PB|²·|AD|²
-    algebra, from 20
-    requires cos(∠APB) ∈ ℝ: from 21
-
-32. |CB|²·|PA|² = |PB|²·|AD|²
+22. |CB|²·|PA|² = |PB|²·|AD|²
     calculation
-      |CB|²·|PA|² = (|BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB))))·|PA|²                              29
+      |CB|²·|PA|² = (|BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB))))·|PA|²                              algebra, from 12
                   = |PA|²·|PB|² + (|PA|·|PC|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PA|·|PC|))               algebra
-                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PB|·|PD|))               30
+                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·cos(∠APB)·(|PB|·|PD|))               algebra, from 18, 20
                   = |PB|²·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))                             algebra
-                  = |PB|²·|AD|²                                                                    31
-    requires cos(∠APB) ∈ ℝ: from 21
+                  = |PB|²·|AD|²                                                                    algebra, from 16
+    requires cos(∠APB) ∈ ℝ: from 17
 
-33. |DC| ≥ 0
+23. |DC| ≥ 0
     mun:distance-nonneg P := D, Q := C
 
-34. |PA| ≥ 0
+24. |PA| ≥ 0
     mun:distance-nonneg Q := A
 
-35. |PD| ≥ 0
+25. |PD| ≥ 0
     mun:distance-nonneg Q := D
 
-36. |BA| ≥ 0
+26. |BA| ≥ 0
     mun:distance-nonneg P := B, Q := A
 
-37. |CB| ≥ 0
+27. |CB| ≥ 0
     mun:distance-nonneg P := C, Q := B
 
-38. |PB| ≥ 0
+28. |PB| ≥ 0
     mun:distance-nonneg Q := B
 
-39. |AD| ≥ 0
+29. |AD| ≥ 0
     mun:distance-nonneg P := A, Q := D
 
-40. |DC|·|PA| ≥ 0
-    mun:product-nonneg x := |DC|, y := |PA|, from 33, 34
+30. |DC|·|PA| ≥ 0
+    mun:product-nonneg x := |DC|, y := |PA|, from 23, 24
 
-41. |PD|·|BA| ≥ 0
-    mun:product-nonneg x := |PD|, y := |BA|, from 35, 36
+31. |PD|·|BA| ≥ 0
+    mun:product-nonneg x := |PD|, y := |BA|, from 25, 26
 
-42. |CB|·|PA| ≥ 0
-    mun:product-nonneg x := |CB|, y := |PA|, from 34, 37
+32. |CB|·|PA| ≥ 0
+    mun:product-nonneg x := |CB|, y := |PA|, from 24, 27
 
-43. |PB|·|AD| ≥ 0
-    mun:product-nonneg x := |PB|, y := |AD|, from 38, 39
+33. |PB|·|AD| ≥ 0
+    mun:product-nonneg x := |PB|, y := |AD|, from 28, 29
 
-44. (|DC|·|PA|)² = (|PD|·|BA|)²
-    algebra, from 28
+34. (|DC|·|PA|)² = (|PD|·|BA|)²
+    algebra, from 21
 
-45. |DC|·|PA| = |PD|·|BA|
-    mun:square-equal x := |DC|·|PA|, y := |PD|·|BA|, from 40, 41, 44
+35. |DC|·|PA| = |PD|·|BA|
+    mun:square-equal x := |DC|·|PA|, y := |PD|·|BA|, from 30, 31, 34
 
-46. (|CB|·|PA|)² = (|PB|·|AD|)²
-    algebra, from 32
+36. (|CB|·|PA|)² = (|PB|·|AD|)²
+    algebra, from 22
 
-47. |CB|·|PA| = |PB|·|AD|
-    mun:square-equal x := |CB|·|PA|, y := |PB|·|AD|, from 42, 43, 46
+37. |CB|·|PA| = |PB|·|AD|
+    mun:square-equal x := |CB|·|PA|, y := |PB|·|AD|, from 32, 33, 36
 
-48. |AB|·(|DC|·|PA|) = |AB|·(|PD|·|BA|)
-    algebra, from 45
+38. |AB|·(|DC|·|PA|) = |AB|·(|PD|·|BA|)
+    algebra, from 35
 
-49. |AD|·(|CB|·|PA|) = |AD|·(|PB|·|AD|)
-    algebra, from 47
+39. |AD|·(|CB|·|PA|) = |AD|·(|PB|·|AD|)
+    algebra, from 37
 
-50. (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²
-    algebra, from 48, 49
+40. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB)))
+    algebra, from 10
+    requires cos(∠APB) ∈ ℝ: from 17
 
-51. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB)))
-    algebra, from 12
-    requires cos(∠APB) ∈ ℝ: from 21
+41. |PB|·|AD|² = |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))
+    algebra, from 16
+    requires cos(∠APB) ∈ ℝ: from 17
 
-52. |PB|·|AD|² = |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))
-    algebra, from 20
-    requires cos(∠APB) ∈ ℝ: from 21
-
-53. |PD|·|BA|² + |PB|·|AD|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))) + |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))
-    algebra, from 51, 52
-    requires cos(∠APB) ∈ ℝ: from 21
-
-54. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|
+42. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|
     algebra, from 3
 
-55. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|
+43. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|
     substitute
-      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|      54
+      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|      42
       (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|               mun:segment-addition P := A, Q := C, S := P, from H10
 
-56. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|
+44. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|
     substitute
-      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|      55
+      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|      43
       (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|               mun:segment-addition P := B, Q := D, S := P, from H11
 
-57. (|AB|·|CD| + |AD|·|BC|)·|PA| = (|AC|·|BD|)·|PA|
+45. (|AB|·|CD| + |AD|·|BC|)·|PA| = (|AC|·|BD|)·|PA|
     calculation
-      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                        50
-                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))) + |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))   53
+      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                        algebra, from 38, 39
+                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))) + |PB|·(|DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB))))   algebra, from 40, 41
                                   = (|PB| + |PD|)·(|PA|² + |PB|·|PD|)                                                algebra
-                                  = (|AC|·|BD|)·|PA|                                                                 56
-    requires cos(∠APB) ∈ ℝ: from 21
+                                  = (|AC|·|BD|)·|PA|                                                                 44
+    requires cos(∠APB) ∈ ℝ: from 17
 
-58. |PA| > 0
+46. |PA| > 0
     axi:distance-positive Q := A, from 1
 
-59. |AC|·|BD| = |AB|·|CD| + |AD|·|BC|
-    mun:multiply-cancel a := |AC|·|BD|, b := |AB|·|CD| + |AD|·|BC|, c := |PA|, from 57
-    requires |PA| ≠ 0: weakening, from 58
+47. |AC|·|BD| = |AB|·|CD| + |AD|·|BC|
+    mun:multiply-cancel a := |AC|·|BD|, b := |AB|·|CD| + |AD|·|BC|, c := |PA|, from 45
+    requires |PA| ≠ 0: weakening, from 46

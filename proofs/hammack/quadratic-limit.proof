@@ -91,18 +91,17 @@ theorem quadratic-limit
           1.4.11. f(x) = 4·x² + 1
                   instantiate x := x in H2
 
-          1.4.12. f(x) − 5 = (4·x + 4)·(x − 1)
-                  algebra, from 1.4.11
-
-          1.4.13. |(4·x + 4)·(x − 1)| = |4·x + 4|·|x − 1|
+          1.4.12. |(4·x + 4)·(x − 1)| = |4·x + 4|·|x − 1|
                   mun:abs-product x := 4·x + 4, y := x − 1
 
-          1.4.14. |f(x) − 5| = |4·x + 4|·|x − 1|
-                  substitute f(x) − 5 = (4·x + 4)·(x − 1) (line 1.4.12) into line 1.4.13
+          1.4.13. |f(x) − 5| = |4·x + 4|·|x − 1|
+                  substitute
+                    |(4·x + 4)·(x − 1)| = |4·x + 4|·|x − 1|      1.4.12
+                    |f(x) − 5| = |4·x + 4|·|x − 1|               algebra, from 1.4.11
 
-          1.4.15. |f(x) − 5| < ε
+          1.4.14. |f(x) − 5| < ε
                   calculation
-                    |f(x) − 5| = |4·x + 4|·|x − 1|     1.4.14
+                    |f(x) − 5| = |4·x + 4|·|x − 1|     1.4.13
                                < |4·x + 4|·(ε/12)      mun:less-scaled x := |x − 1|, y := ε/12, c := |4·x + 4|, from 1.4.1, 1.4.9
                                = ε/12·|4·x + 4|        algebra
                                ≤ ε/12·12               mun:multiply-le x := |4·x + 4|, y := 12, c := ε/12, from 1.4.10

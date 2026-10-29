@@ -35,20 +35,18 @@ theorem triangle-from-coordinates
 7.  (4, 1), (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
     mun:collinear-by-coordinates
 
-8.  A, (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
-    substitute A = (4, 1) (H4) into line 7
+8.  A, B, C are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
+    substitute
+      (4, 1), (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)      7
+      A, (−2, −3), (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)           substitute H4
+      A, B, (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)                  substitute H5
+      A, B, C are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)                       substitute H6
 
-9.  A, B, (5, 0) are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
-    substitute B = (−2, −3) (H5) into line 8
-
-10. A, B, C are collinear ↔ (−2 − 4)·(0 − 1) = (5 − 4)·(−3 − 1)
-    substitute C = (5, 0) (H6) into line 9
-
-11. (−2 − 4)·(0 − 1) ≠ (5 − 4)·(−3 − 1)
+9.  (−2 − 4)·(0 − 1) ≠ (5 − 4)·(−3 − 1)
     arithmetic
 
-12. not (A, B, C are collinear)
-    mun:iff-not-from-right, from 10, 11
+10. not (A, B, C are collinear)
+    mun:iff-not-from-right, from 8, 9
 
-13. A, B, C form a triangle
-    def:triangle, from 2, 4, 6, 12
+11. A, B, C form a triangle
+    def:triangle, from 2, 4, 6, 10

@@ -950,19 +950,13 @@ theorem ballot-count
           1.1.12. |G(m, n)| ∈ ℕ₀
                   mun:card-nat0 X := G(m, n), from 1.1.11
 
-          1.1.13. |G(m, n)|·(m + n) = 0
-                  algebra, from 1.1.1, 1.1.12
-
-          1.1.14. C(m + n, m) ∈ ℕ₀
+          1.1.13. C(m + n, m) ∈ ℕ₀
                   mun:binomial-nat0 n := m + n, k := m
 
-          1.1.15. (m − n)·C(m + n, m) = 0
-                  algebra, from 1.1.10, 1.1.14
-
-          1.1.16. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+          1.1.14. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                   calculation
-                    |G(m, n)|·(m + n) = 0                      1.1.13
-                                      = (m − n)·C(m + n, m)    1.1.15
+                    |G(m, n)|·(m + n) = 0                      algebra, from 1.1.1, 1.1.12
+                                      = (m − n)·C(m + n, m)    algebra, from 1.1.10, 1.1.13
 
     step
     let k ∈ ℕ₀                                                        (K3)
@@ -1015,65 +1009,59 @@ theorem ballot-count
                                           C(m + n, m) = C(m, m)    substitute C4
                                                       = 1          mun:binomial-all n := m
 
-                            1.2.3.4.4.  (m − n)·C(m + n, m) = m − n
-                                        algebra, from 1.2.3.4.3
-
-                            1.2.3.4.5.  m + n = m − n
-                                        algebra, from C4
-
-                            1.2.3.4.6.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                            1.2.3.4.4.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                                         calculation
                                           |G(m, n)|·(m + n) = m + n                  substitute line 1.2.3.4.2
-                                                            = m − n                  1.2.3.4.5
-                                                            = (m − n)·C(m + n, m)    1.2.3.4.4
+                                                            = m − n                  algebra, from C4
+                                                            = (m − n)·C(m + n, m)    algebra, from 1.2.3.4.3
 
                             case
                             note the last vote is for A or for B
                             assume n ≠ 0                              (C5)
 
-                            1.2.3.4.7.  n ∈ ℕ
+                            1.2.3.4.5.  n ∈ ℕ
                                         mun:nat0-nonzero m := n, from C5
 
-                            1.2.3.4.8.  m − 1 ∈ ℕ₀
+                            1.2.3.4.6.  m − 1 ∈ ℕ₀
                                         mun:nat-minus-one n := m, from 1.2.3.2
 
-                            1.2.3.4.9.  n − 1 ∈ ℕ₀
-                                        mun:nat-minus-one, from 1.2.3.4.7
+                            1.2.3.4.7.  n − 1 ∈ ℕ₀
+                                        mun:nat-minus-one, from 1.2.3.4.5
 
-                            1.2.3.4.10. (m − 1) + n = k
+                            1.2.3.4.8.  (m − 1) + n = k
                                         algebra, from C2
 
-                            1.2.3.4.11. n + 1 ≤ m
+                            1.2.3.4.9.  n + 1 ≤ m
                                         mun:integer-step m := n, n := m, from C3
 
-                            1.2.3.4.12. n ≤ m − 1
+                            1.2.3.4.10. n ≤ m − 1
                                         inequalities
-                                          n + 1 ≤ m      1.2.3.4.11
+                                          n + 1 ≤ m      1.2.3.4.9
                                           n ≤ m − 1      adding −1
 
-                            1.2.3.4.13. |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)
-                                        instantiate m := m − 1, n := n in IH, from 1.2.3.4.8, 1.2.3.4.10, 1.2.3.4.12
+                            1.2.3.4.11. |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)
+                                        instantiate m := m − 1, n := n in IH, from 1.2.3.4.6, 1.2.3.4.8, 1.2.3.4.10
 
-                            1.2.3.4.14. m + (n − 1) = k
+                            1.2.3.4.12. m + (n − 1) = k
                                         algebra, from C2
 
-                            1.2.3.4.15. n − 1 ≤ n
+                            1.2.3.4.13. n − 1 ≤ n
                                         inequalities
 
-                            1.2.3.4.16. n ≤ m
+                            1.2.3.4.14. n ≤ m
                                         inequalities
                                           n < m          C3
                                           n ≤ m          weakening
 
-                            1.2.3.4.17. n − 1 ≤ m
-                                        transitivity, from 1.2.3.4.15, 1.2.3.4.16
+                            1.2.3.4.15. n − 1 ≤ m
+                                        transitivity, from 1.2.3.4.13, 1.2.3.4.14
 
-                            1.2.3.4.18. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
-                                        instantiate m := m, n := n − 1 in IH, from 1.2.3.4.9, 1.2.3.4.14, 1.2.3.4.17
+                            1.2.3.4.16. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
+                                        instantiate m := m, n := n − 1 in IH, from 1.2.3.4.7, 1.2.3.4.12, 1.2.3.4.15
 
-                            1.2.3.4.19. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
-                                        thm:ballot-recurrence, from C3, 1.2.3.2, 1.2.3.4.7, 1.2.3.4.8, 1.2.3.4.9,
-                                          1.2.3.4.13, 1.2.3.4.18
+                            1.2.3.4.17. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                                        thm:ballot-recurrence, from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.6, 1.2.3.4.7,
+                                          1.2.3.4.11, 1.2.3.4.16
 
                   case
                   note A and B end level, so no counting keeps A ahead
@@ -1113,19 +1101,13 @@ theorem ballot-count
                               |G(m, n)| = |∅|    substitute line 1.2.3.13
                                         = 0      mun:card-empty
 
-                  1.2.3.15. |G(m, n)|·(m + n) = 0
-                            algebra, from 1.2.3.14
-
-                  1.2.3.16. C(m + n, m) ∈ ℕ₀
+                  1.2.3.15. C(m + n, m) ∈ ℕ₀
                             mun:binomial-nat0 n := m + n, k := m
 
-                  1.2.3.17. (m − n)·C(m + n, m) = 0
-                            algebra, from C6, 1.2.3.16
-
-                  1.2.3.18. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                  1.2.3.16. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                             calculation
-                              |G(m, n)|·(m + n) = 0                      1.2.3.15
-                                                = (m − n)·C(m + n, m)    1.2.3.17
+                              |G(m, n)|·(m + n) = 0                      algebra, from 1.2.3.14
+                                                = (m − n)·C(m + n, m)    algebra, from C6, 1.2.3.15
 
 2.  |G(a, b)|·(a + b) = (a − b)·C(a + b, a)
     instantiate k := a + b, m := a, n := b in line 1, from H3

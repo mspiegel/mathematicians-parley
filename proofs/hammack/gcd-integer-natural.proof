@@ -87,12 +87,11 @@ theorem gcd-integer-natural
           mun:divides-sum d := gcd(a, b), a := b·q, b := a mod b, from 6.9, 6.10
           requires a mod b ∈ ℤ: mun:nat0-int m := a mod b, from 2
 
-    6.12. a = b·q + a mod b
-          algebra, from 4
+    6.12. gcd(a, b) divides a
+          substitute
+            gcd(a, b) divides b·q + a mod b      6.11
+            gcd(a, b) divides a                  algebra, from 4
           requires a mod b ∈ ℝ: mun:nat0-real m := a mod b, from 2
 
-    6.13. gcd(a, b) divides a
-          substitute a = b·q + a mod b (line 6.12) into line 6.11
-
-    6.14. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
-          join 6.9, 6.13
+    6.13. gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
+          join 6.9, 6.12

@@ -29,15 +29,12 @@ theorem sine-of-triple
 5.  sin(x)² + cos(x)² = 1
     mun:sin-cos-squares a := x
 
-6.  (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x) = 3·sin(x) − 4·sin(x)^3
-    algebra, from 5
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-
-7.  sin(3·x) = 3·sin(x) − 4·sin(x)^3
+6.  sin(3·x) = 3·sin(x) − 4·sin(x)^3
     calculation
       sin(3·x) = sin(2·x + x)                                                                                                       substitute line 4
                = sin(2·x)·cos(x) + cos(2·x)·sin(x)                                                                                  thm:sin-add a := 2·x, b := x
                = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x)                                                           substitute line 2
                = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x)                                    substitute line 3
-               = 3·sin(x) − 4·sin(x)^3                                                                                              6
+               = 3·sin(x) − 4·sin(x)^3                                                                                              algebra, from 5
+    requires cos(x) ∈ ℝ: mun:cos-real a := x
+    requires sin(x) ∈ ℝ: mun:sin-real a := x

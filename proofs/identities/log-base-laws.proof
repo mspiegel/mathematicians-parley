@@ -39,16 +39,13 @@ theorem log-of-a-product
 2.  ln(b) ≠ 0
     mun:ln-nonzero x := b, from H6, H7
 
-3.  (ln(x) + ln(y))/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
-    algebra, from 2
+3.  ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
+    calculation
+      ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)        substitute line 1
+                    = ln(x)/ln(b) + ln(y)/ln(b)    algebra, from 2
     requires ln(x) ∈ ℝ: mun:ln-real, from H4
     requires ln(y) ∈ ℝ: mun:ln-real x := y, from H5
     requires ln(b) ∈ ℝ: mun:ln-real x := b, from H6
-
-4.  ln(x·y)/ln(b) = ln(x)/ln(b) + ln(y)/ln(b)
-    calculation
-      ln(x·y)/ln(b) = (ln(x) + ln(y))/ln(b)        substitute line 1
-                    = ln(x)/ln(b) + ln(y)/ln(b)    3
 
 
 theorem log-of-a-reciprocal
@@ -71,15 +68,12 @@ theorem log-of-a-reciprocal
 3.  ln(b) ≠ 0
     mun:ln-nonzero x := b, from H4, H5
 
-4.  (0 − ln(x))/ln(b) = −(ln(x)/ln(b))
-    algebra, from 3
-    requires ln(x) ∈ ℝ: mun:ln-real, from H3
-    requires ln(b) ∈ ℝ: mun:ln-real x := b, from H4
-
-5.  ln(1/x)/ln(b) = −(ln(x)/ln(b))
+4.  ln(1/x)/ln(b) = −(ln(x)/ln(b))
     calculation
       ln(1/x)/ln(b) = (0 − ln(x))/ln(b)    substitute line 2
-                    = −(ln(x)/ln(b))       4
+                    = −(ln(x)/ln(b))       algebra, from 3
+    requires ln(x) ∈ ℝ: mun:ln-real, from H3
+    requires ln(b) ∈ ℝ: mun:ln-real x := b, from H4
 
 
 theorem change-of-base

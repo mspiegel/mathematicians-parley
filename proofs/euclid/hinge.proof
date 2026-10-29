@@ -62,53 +62,50 @@ theorem hinge
 10. |EF|² = |FD|² + |DE|² − 2·(|FD|·|DE|·cos(∠FDE))
     thm:law-of-cosines P := F, Q := D, R := E, from 2
 
-11. |EF|² = |CA|² + |DE|² − 2·(|CA|·|DE|·cos(∠FDE))
-    substitute |DF| = |AC| (H10) into line 10
+11. |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))
+    substitute
+      |EF|² = |FD|² + |DE|² − 2·(|FD|·|DE|·cos(∠FDE))      10
+      |EF|² = |CA|² + |DE|² − 2·(|CA|·|DE|·cos(∠FDE))      substitute H10
+      |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))      substitute H9
 
-12. |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))
-    substitute |DE| = |AB| (H9) into line 11
-
-13. |CA| > 0
+12. |CA| > 0
     axi:distance-positive P := C, Q := A, from 1
 
-14. |AB| > 0
+13. |AB| > 0
     axi:distance-positive P := A, Q := B, from 1
 
-15. |CA|·|AB| > 0
-    mun:product-positive x := |CA|, y := |AB|, from 13, 14
+14. |CA|·|AB| > 0
+    mun:product-positive x := |CA|, y := |AB|, from 12, 13
 
-16. 0 < cos(∠FDE) − cos(∠CAB)
+15. 0 < cos(∠FDE) − cos(∠CAB)
     inequalities
       cos(∠CAB) < cos(∠FDE)                  8
       0 < cos(∠FDE) − cos(∠CAB)              adding −cos(∠CAB)
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
     requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
 
-17. |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0
-    mun:product-positive x := |CA|·|AB|, y := cos(∠FDE) − cos(∠CAB), from 15, 16
+16. |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0
+    mun:product-positive x := |CA|·|AB|, y := cos(∠FDE) − cos(∠CAB), from 14, 15
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
     requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
 
-18. |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
-    algebra, from 9, 12
-    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
-    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
-
-19. |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²
+17. |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²
     inequalities
-      |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0              17
+      |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0              16
       0 < |CA|·|AB|·(cos(∠FDE) − cos(∠CAB))              restate
       0 < 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))          multiplying by 2
       |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²   adding |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
     requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
 
-20. |EF|² < |BC|²
+18. |EF|² < |BC|²
     calculation
-      |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))     18
-            < |BC|²                                              19
+      |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))     algebra, from 9, 11
+            < |BC|²                                              17
+    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB, from 3
+    requires cos(∠FDE) ∈ ℝ: mun:cos-real a := ∠FDE, from 4
 
-21. |BC| > |EF|
-    mun:square-less x := |EF|, y := |BC|, from 20
+19. |BC| > |EF|
+    mun:square-less x := |EF|, y := |BC|, from 18
     requires |EF| ≥ 0: mun:distance-nonneg P := E, Q := F
     requires |BC| ≥ 0: mun:distance-nonneg P := B, Q := C

@@ -131,29 +131,27 @@ let u = r + (s − r)·((1/2)·√2), a real number                             
     17.12. u − r = (s − r)·((1/2)·√2)
            algebra, from D1
 
-    17.13. a/b − r = (s − r)·((1/2)·√2)
-           substitute u = a/b (line 17.1) into line 17.12
+    17.13. a/b − p/q = (c/d − p/q)·((1/2)·√2)
+           substitute
+             u − r = (s − r)·((1/2)·√2)              17.12
+             a/b − r = (s − r)·((1/2)·√2)            substitute line 17.1
+             a/b − p/q = (s − p/q)·((1/2)·√2)        substitute line 17.2
+             a/b − p/q = (c/d − p/q)·((1/2)·√2)      substitute line 17.3
 
-    17.14. a/b − p/q = (s − p/q)·((1/2)·√2)
-           substitute r = p/q (line 17.2) into line 17.13
+    17.14. (b·(c·q − p·d))·√2 = 2·d·(a·q − p·b)
+           algebra, from 17.13
 
-    17.15. a/b − p/q = (c/d − p/q)·((1/2)·√2)
-           substitute s = c/d (line 17.3) into line 17.14
+    17.15. (b·m)·√2 = 2·d·(a·q − p·b)
+           substitute c·q − p·d = m (D2) into line 17.14
 
-    17.16. (b·(c·q − p·d))·√2 = 2·d·(a·q − p·b)
+    17.16. √2 = (2·d·(a·q − p·b))/(b·m)
            algebra, from 17.15
 
-    17.17. (b·m)·√2 = 2·d·(a·q − p·b)
-           substitute c·q − p·d = m (D2) into line 17.16
+    17.17. √2 ∈ ℚ
+           def:rational x := √2, from 17.16
 
-    17.18. √2 = (2·d·(a·q − p·b))/(b·m)
-           algebra, from 17.17
-
-    17.19. √2 ∈ ℚ
-           def:rational x := √2, from 17.18
-
-    17.20. √2 ∉ ℚ
-           def:irrational x := √2, from 2, contradicting 17.19
+    17.18. √2 ∉ ℚ
+           def:irrational x := √2, from 2, contradicting 17.17
 
 18. u is irrational
     def:irrational x := u, from 17

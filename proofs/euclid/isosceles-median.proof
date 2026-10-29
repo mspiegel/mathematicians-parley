@@ -84,43 +84,43 @@ theorem isosceles-median
 14. |AC|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
     substitute |AB| = |AC| (H6) into line 7
 
-15. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠CMA))
-    substitute |CM| = |BM| (line 1) into line 8
+15. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
+    substitute
+      |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))       8
+      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠CMA))       substitute line 1
+      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))      substitute line 13
 
-16. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
-    substitute cos(∠CMA) = −cos(∠AMB) (line 13) into line 15
-
-17. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
-    algebra, from 14, 16
+16. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
+    algebra, from 14, 15
     requires ∠AMB ∈ ℝ: from 10
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
-18. |AM| > 0
+17. |AM| > 0
     axi:distance-positive P := A, Q := M, from 4
 
-19. |BM| > 0
+18. |BM| > 0
     axi:distance-positive P := B, Q := M, from 2
 
-20. |AM|·|BM| > 0
-    mun:product-positive x := |AM|, y := |BM|, from 18, 19
+19. |AM|·|BM| > 0
+    mun:product-positive x := |AM|, y := |BM|, from 17, 18
 
-21. cos(∠AMB) = 0
-    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 17
-    requires |AM|·|BM| ≠ 0: weakening, from 20
+20. cos(∠AMB) = 0
+    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 16
+    requires |AM|·|BM| ≠ 0: weakening, from 19
     requires ∠AMB ∈ ℝ: from 10
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
-22. ∠AMB = 90°
-    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 21
+21. ∠AMB = 90°
+    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 20
 
-23. ∠BAM = ∠CAM
+22. ∠BAM = ∠CAM
     thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
       from H6, 1, 4, 5
 
-24. ∠BAM = ∠MAC
+23. ∠BAM = ∠MAC
     calculation
-      ∠BAM = ∠CAM      23
+      ∠BAM = ∠CAM      22
            = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from 4, 5
 
-25. ∠AMB = 90°. ∠BAM = ∠MAC.
-    join 22, 24
+24. ∠AMB = 90°. ∠BAM = ∠MAC.
+    join 21, 23

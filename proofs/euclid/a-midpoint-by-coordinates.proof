@@ -29,14 +29,12 @@ theorem a-midpoint-by-coordinates
 4.  (3, −3/2) is between (−1, 1) and (7, −4)
     mun:between-by-coordinates, from 2, 3
 
-5.  (3, −3/2) is between A and (7, −4)
-    substitute A = (−1, 1) (H4) into line 4
+5.  M is between A and B
+    substitute
+      (3, −3/2) is between (−1, 1) and (7, −4)      4
+      (3, −3/2) is between A and (7, −4)            substitute H4
+      M is between A and (7, −4)                    substitute H6
+      M is between A and B                          substitute H5
 
-6.  M is between A and (7, −4)
-    substitute M = (3, −3/2) (H6) into line 5
-
-7.  M is between A and B
-    substitute B = (7, −4) (H5) into line 6
-
-8.  |AM| = |MB|. M is between A and B.
-    join 1, 7
+6.  |AM| = |MB|. M is between A and B.
+    join 1, 5

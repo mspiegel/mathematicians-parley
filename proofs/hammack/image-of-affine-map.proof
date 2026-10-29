@@ -52,14 +52,13 @@ theorem image-of-affine-map
     4.3.  f(m − 1) = 4·(m − 1) + 5
           instantiate x := m − 1 in H2
 
-    4.4.  y = f(m − 1)
-          algebra, from 4.2, 4.3
-
-    4.5.  f(m − 1) ∈ f[ℤ]
+    4.4.  f(m − 1) ∈ f[ℤ]
           mun:value-in-image Y := ℤ, s := m − 1, from 1
 
-    4.6.  y ∈ f[ℤ]
-          substitute y = f(m − 1) (line 4.4) into line 4.5
+    4.5.  y ∈ f[ℤ]
+          substitute
+            f(m − 1) ∈ f[ℤ]      4.4
+            y ∈ f[ℤ]             algebra, from 4.2, 4.3
 
 5.  {4k + 1 : k ∈ ℤ} ⊆ f[ℤ]
     def:subset, from 4

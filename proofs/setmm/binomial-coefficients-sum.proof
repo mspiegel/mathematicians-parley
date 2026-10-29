@@ -21,18 +21,11 @@ theorem binomial-coefficients-sum
     1.2.  1^k = 1
           mun:one-power m := k
 
-    1.3.  C(N, k)·1^(N − k)·1^k = C(N, k)·1^k
-          algebra, from 1.1
-          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
-
-    1.4.  C(N, k)·1^k = C(N, k)
-          algebra, from 1.2
-          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
-
-    1.5.  C(N, k)·1^(N − k)·1^k = C(N, k)
+    1.3.  C(N, k)·1^(N − k)·1^k = C(N, k)
           calculation
-            C(N, k)·1^(N − k)·1^k = C(N, k)·1^k     1.3
-                                  = C(N, k)         1.4
+            C(N, k)·1^(N − k)·1^k = C(N, k)·1^k     algebra, from 1.1
+                                  = C(N, k)         algebra, from 1.2
+          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
 
 2.  1 + 1 = 2
     arithmetic

@@ -41,32 +41,32 @@ theorem even-leg-integers
           2.2.2.  q ∈ ℤ. b = 2q + 1.
                   obtain q: def:odd n := b, from S
 
-          2.2.3.  (2p + 1)² + b² = c²
-                  substitute a = 2p + 1 (line 2.2.1) into H4
+          2.2.3.  (2p + 1)² + (2q + 1)² = c²
+                  substitute
+                    a² + b² = c²                    H4
+                    (2p + 1)² + b² = c²             substitute line 2.2.1
+                    (2p + 1)² + (2q + 1)² = c²      substitute line 2.2.2
 
-          2.2.4.  (2p + 1)² + (2q + 1)² = c²
-                  substitute b = 2q + 1 (line 2.2.2) into line 2.2.3
+          2.2.4.  c² = 2(2p² + 2p + 2q² + 2q + 1)
+                  algebra, from 2.2.3
 
-          2.2.5.  c² = 2(2p² + 2p + 2q² + 2q + 1)
-                  algebra, from 2.2.4
+          2.2.5.  c² is even
+                  def:even n := c², from 2.2.4
 
-          2.2.6.  c² is even
-                  def:even n := c², from 2.2.5
+          2.2.6.  c is even
+                  thm:even-square n := c, from 2.2.5
 
-          2.2.7.  c is even
-                  thm:even-square n := c, from 2.2.6
+          2.2.7.  r ∈ ℤ. c = 2r.
+                  obtain r: def:even n := c, from 2.2.6
 
-          2.2.8.  r ∈ ℤ. c = 2r.
-                  obtain r: def:even n := c, from 2.2.7
+          2.2.8.  (2p + 1)² + (2q + 1)² = (2r)²
+                  substitute c = 2r (line 2.2.7) into line 2.2.3
 
-          2.2.9.  (2p + 1)² + (2q + 1)² = (2r)²
-                  substitute c = 2r (line 2.2.8) into line 2.2.4
+          2.2.9.  2 = 4(r² − p² − p − q² − q)
+                  algebra, from 2.2.8
 
-          2.2.10. 2 = 4(r² − p² − p − q² − q)
-                  algebra, from 2.2.9
-
-          2.2.11. 4 divides 2, which is impossible
-                  def:divides d := 4, n := 2, from 2.2.10
+          2.2.10. 4 divides 2, which is impossible
+                  def:divides d := 4, n := 2, from 2.2.9
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b

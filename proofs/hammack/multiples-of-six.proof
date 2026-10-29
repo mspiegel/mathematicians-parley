@@ -64,32 +64,30 @@ theorem multiples-of-six
     3.6.  b ∈ ℤ. t = 3b.
           obtain b from line 3.5
 
-    3.7.  6·a = 3·t
-          algebra, from 3.4
-
-    3.8.  6·b = 2·t
-          algebra, from 3.6
-
-    3.9.  t = 3·t − 2·t
+    3.7.  t = 3·t − 2·t
           algebra
           requires t ∈ ℝ: membership, from 3.4
 
-    3.10. t = 6·a − 2·t
-          substitute 6·a = 3·t (line 3.7) into line 3.9
+    3.8.  t = 6·a − 2·t
+          substitute
+            t = 3·t − 2·t      3.7
+            t = 6·a − 2·t      algebra, from 3.4
 
-    3.11. t = 6·a − 6·b
-          substitute 6·b = 2·t (line 3.8) into line 3.10
+    3.9.  t = 6·a − 6·b
+          substitute
+            t = 6·a − 2·t      3.8
+            t = 6·a − 6·b      algebra, from 3.6
 
-    3.12. t = 6·(a − b)
+    3.10. t = 6·(a − b)
           calculation
-            t = 6·a − 6·b       3.11
+            t = 6·a − 6·b       3.9
               = 6·(a − b)       algebra
 
-    3.13. There is n ∈ ℤ with t = 6n.
-          exhibit, from 3.12
+    3.11. There is n ∈ ℤ with t = 6n.
+          exhibit, from 3.10
 
-    3.14. t ∈ {6n : n ∈ ℤ}
-          def:set-image u := t, from 3.13
+    3.12. t ∈ {6n : n ∈ ℤ}
+          def:set-image u := t, from 3.11
 
 4.  {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ} ⊆ {6n : n ∈ ℤ}
     def:subset, from 3

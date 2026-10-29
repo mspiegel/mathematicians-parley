@@ -27,19 +27,16 @@ theorem sqrt-of-product
 5.  √a·√b ≥ 0
     mun:product-nonneg x := √a, y := √b, from 1, 2
 
-6.  (√a·√b)² = (√a)²·(√b)²
-    algebra, from 1, 2
-
-7.  (√a·√b)² = a·b
+6.  (√a·√b)² = a·b
     calculation
-      (√a·√b)² = (√a)²·(√b)²    6
+      (√a·√b)² = (√a)²·(√b)²    algebra, from 1, 2
                = a·(√b)²        substitute line 1
                = a·b            substitute line 2
 
-8.  (√(a·b))² = (√a·√b)²
+7.  (√(a·b))² = (√a·√b)²
     calculation
       (√(a·b))² = a·b           4
-                = (√a·√b)²     7
+                = (√a·√b)²     6
 
-9.  √(a·b) = √a·√b
-    mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 8
+8.  √(a·b) = √a·√b
+    mun:square-equal x := √(a·b), y := √a·√b, from 1, 2, 4, 5, 7

@@ -16,17 +16,13 @@ theorem thirty-sixty-ninety
 1.  |BA|·sin(∠BAC) = |BC|·sin(∠ACB)
     thm:law-of-sines P := B, Q := A, R := C, from H4
 
-2.  |BA|·sin(30°) = |BC|·sin(∠ACB)
-    substitute ∠BAC = 30° (H6) into line 1
+2.  |BA|·(1/2) = |BC|·1
+    substitute
+      |BA|·sin(∠BAC) = |BC|·sin(∠ACB)      1
+      |BA|·sin(30°) = |BC|·sin(∠ACB)       substitute H6
+      |BA|·sin(30°) = |BC|·sin(90°)        substitute H5
+      |BA|·(1/2) = |BC|·sin(90°)           real arithmetic
+      |BA|·(1/2) = |BC|·1                  real arithmetic
 
-3.  |BA|·sin(30°) = |BC|·sin(90°)
-    substitute ∠ACB = 90° (H5) into line 2
-
-4.  |BA|·(1/2) = |BC|·sin(90°)
-    substitute sin(30°) = 1/2 (real arithmetic) into line 3
-
-5.  |BA|·(1/2) = |BC|·1
-    substitute sin(90°) = 1 (real arithmetic) into line 4
-
-6.  |BC| = |AB|/2
-    algebra, from 5
+3.  |BC| = |AB|/2
+    algebra, from 2

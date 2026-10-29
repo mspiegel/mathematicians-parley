@@ -53,25 +53,24 @@ theorem arithmetic-geometric-mean
           mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
           requires 2·√(a·b) ∈ ℝ: membership, from 4
 
-    5.6.  (2·√(a·b))² = 4·(a·b)
-          algebra, from 4
+    5.6.  (a + b)² < 4·(a·b)
+          substitute
+            (a + b)² < (2·√(a·b))²      5.5
+            (a + b)² < 4·(a·b)          algebra, from 4
 
-    5.7.  (a + b)² < 4·(a·b)
-          substitute (2·√(a·b))² = 4·(a·b) (line 5.6) into line 5.5
-
-    5.8.  (a − b)² = (a + b)² − 4·(a·b)
+    5.7.  (a − b)² = (a + b)² − 4·(a·b)
           algebra
 
-    5.9.  (a − b)² ≥ 0
+    5.8.  (a − b)² ≥ 0
           mun:square-nonneg x := a − b
 
-    5.10. (a + b)² − 4·(a·b) < 0
+    5.9.  (a + b)² − 4·(a·b) < 0
           inequalities
-            (a + b)² < 4·(a·b)               5.7
+            (a + b)² < 4·(a·b)               5.6
             (a + b)² − 4·(a·b) < 0           adding −4·(a·b)
 
-    5.11. (a − b)² < 0
-          transitivity, from 5.8, 5.10
+    5.10. (a − b)² < 0
+          transitivity, from 5.7, 5.9
 
-    5.12. not ((a − b)² ≥ 0)
-          inequalities, from 5.11, contradicting 5.9
+    5.11. not ((a − b)² ≥ 0)
+          inequalities, from 5.10, contradicting 5.8
