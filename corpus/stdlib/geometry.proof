@@ -5144,234 +5144,228 @@ theorem angle-angle-similar
 14. X, P, Y form a triangle.
     mun:triangle-off-line P := X, Q := P, R := Y, from 12, 13
 
-15. Q′, R′, P′ form a triangle.
-    mun:triangle-rotated P := P′, Q := Q′, R := R′, from H8
-
-16. Q′, P′, R′ form a triangle.
-    mun:triangle-turned P := Q′, Q := R′, R := P′, from 15
-
-17. ∠Q′P′R′ = ∠XPY
+15. ∠Q′P′R′ = ∠XPY
     calculation
       ∠Q′P′R′ = ∠QPR       H9
               = ∠XPY       10
 
-18. |PX| = |P′Q′|
+16. |PX| = |P′Q′|
     restate 3
 
-19. |PY| = |P′R′|
+17. |PY| = |P′R′|
     restate 5
 
-20. |Q′P′| = |XP|
-    restate 18
+18. |Q′P′| = |XP|
+    restate 16
 
-21. |P′R′| = |PY|
-    restate 19
+19. |P′R′| = |PY|
+    restate 17
 
-22. triangle Q′P′R′ ≅ triangle XPY
+20. triangle Q′P′R′ ≅ triangle XPY
     axi:side-angle-side P := Q′, Q := P′, R := R′, P′ := X, Q′ := P, R′ := Y,
-      from 14, 16, 17, 20, 21
+      from H8, 14, 15, 18, 19
 
-23. ∠PXY = ∠PQR
+21. ∠PXY = ∠PQR
     calculation
       ∠PXY = ∠YXP         mun:angle-turned Q := X, R := Y, from 14
-           = ∠R′Q′P′      def:congruent, from 14, 16, 22
+           = ∠R′Q′P′      def:congruent, from H8, 14, 20
            = ∠P′Q′R′      mun:angle-turned P := R′, Q := Q′, R := P′, from H8
            = ∠PQR         H10
 
-24. X = P or (X is between P and Q) or X = Q or (Q is between P and X) or
+22. X = P or (X is between P and Q) or X = Q or (Q is between P and X) or
     (P is between X and Q)
     mun:on-line-cases P := X, Q := P, R := Q, from H7, 3
 
-25. |PQ|·|P′R′| = |P′Q′|·|PR|
-    cases, from 24
+23. |PQ|·|P′R′| = |P′Q′|·|PR|
+    cases, from 22
 
     case
     assume X = P                                                      (C1)
 
-    25.1. X ≠ P
+    23.1. X ≠ P
           def:triangle P := X, Q := P, R := Y, from 14, contradicting C1
 
     case
     assume X is between P and Q                                       (C2)
 
-    25.2. line XY ∥ line QR
-          thm:corresponding-angles-converse, from C2, 5, 14, 23
+    23.2. line XY ∥ line QR
+          thm:corresponding-angles-converse, from C2, 5, 14, 21
 
-    25.3. Y is between P and R
-          thm:parallel-between, from C2, H7, 5, 25.2
+    23.3. Y is between P and R
+          thm:parallel-between, from C2, H7, 5, 23.2
 
-    25.4. |PX|·|PR| = |PY|·|PQ|
-          thm:proportional-segments, from C2, H7, 25.2, 25.3
+    23.4. |PX|·|PR| = |PY|·|PQ|
+          thm:proportional-segments, from C2, H7, 23.2, 23.3
 
-    25.5. |P′Q′|·|PR| = |P′R′|·|PQ|
+    23.5. |P′Q′|·|PR| = |P′R′|·|PQ|
           substitute
-            |PX|·|PR| = |PY|·|PQ|          25.4
-            |P′Q′|·|PR| = |PY|·|PQ|        substitute line 18
-            |P′Q′|·|PR| = |P′R′|·|PQ|      substitute line 19
+            |PX|·|PR| = |PY|·|PQ|          23.4
+            |P′Q′|·|PR| = |PY|·|PQ|        substitute line 16
+            |P′Q′|·|PR| = |P′R′|·|PQ|      substitute line 17
 
-    25.6. |PQ|·|P′R′| = |P′Q′|·|PR|
-          algebra, from 25.5
+    23.6. |PQ|·|P′R′| = |P′Q′|·|PR|
+          algebra, from 23.5
 
     case
     assume X = Q                                                      (C3)
 
-    25.7. ∠PQY = ∠PQR
-          substitute X = Q (C3) into line 23
+    23.7. ∠PQY = ∠PQR
+          substitute X = Q (C3) into line 21
 
-    25.8. Q, R, P form a triangle.
+    23.8. Q, R, P form a triangle.
           mun:triangle-rotated, from H7
 
-    25.9.  Q, P, R form a triangle.
-           mun:triangle-turned P := Q, Q := R, R := P, from 25.8
+    23.9.  Q, P, R form a triangle.
+           mun:triangle-turned P := Q, Q := R, R := P, from 23.8
 
-    25.10. Y and R are on the same side of line QP
+    23.10. Y and R are on the same side of line QP
            mun:same-side-of-line A := P, B := Q, C := Q, D := P, P := Y,
              Q := R, from H7, 5, 8
 
-    25.11. R and Y are on the same side of line QP
-           mun:same-side-turned A := Q, B := P, P := Y, Q := R, from 25.10
+    23.11. R and Y are on the same side of line QP
+           mun:same-side-turned A := Q, B := P, P := Y, Q := R, from 23.10
 
-    25.12. R and R are on the same side of line QP
+    23.12. R and R are on the same side of line QP
            mun:same-side-same A := Q, B := P, P := R, Q := Y,
-             from 25.10, 25.11
+             from 23.10, 23.11
 
-    25.13. Y ∈ ray QR
+    23.13. Y ∈ ray QR
            axi:angle-construction-unique A := Q, B := P, C := R, D := R,
-             E := Y, from 25.7, 25.9, 25.10, 25.12
+             E := Y, from 23.7, 23.9, 23.10, 23.12
 
-    25.14. Y is on line QR
-           mun:ray-on-line P := Y, A := Q, B := R, from 25.13
+    23.14. Y is on line QR
+           mun:ray-on-line P := Y, A := Q, B := R, from 23.13
 
-    25.15. Y = R
+    23.15. Y = R
            contradiction
            suppose Y ≠ R                                              (S1)
 
-           25.15.1. R is on line PR
+           23.15.1. R is on line PR
                     mun:on-line-ends A := P, B := R
 
-           25.15.2. line YR = line PR
+           23.15.2. line YR = line PR
                     axi:line-uniqueness A := Y, B := R, C := P, D := R,
-                      from H7, S1, 5, 25.15.1
+                      from H7, S1, 5, 23.15.1
 
-           25.15.3. R is on line QR
+           23.15.3. R is on line QR
                     mun:on-line-ends A := Q, B := R
 
-           25.15.4. line YR = line QR
+           23.15.4. line YR = line QR
                     axi:line-uniqueness A := Y, B := R, C := Q, D := R,
-                      from H7, S1, 25.14, 25.15.3
+                      from H7, S1, 23.14, 23.15.3
 
-           25.15.5. line PR = line QR
+           23.15.5. line PR = line QR
                     calculation
-                      line PR = line YR       25.15.2
-                              = line QR       25.15.4
+                      line PR = line YR       23.15.2
+                              = line QR       23.15.4
 
-           25.15.6. P is on line PR
+           23.15.6. P is on line PR
                     mun:on-line-ends A := P, B := R
 
-           25.15.7. P ∈ line PR
-                    def:line A := P, B := R, from 25.15.6
+           23.15.7. P ∈ line PR
+                    def:line A := P, B := R, from 23.15.6
 
-           25.15.8. P ∈ line QR
-                    substitute line PR = line QR (line 25.15.5) into line 25.15.7
+           23.15.8. P ∈ line QR
+                    substitute line PR = line QR (line 23.15.5) into line 23.15.7
 
-           25.15.9. P is on line QR
-                    def:line A := Q, B := R, from 25.15.8
+           23.15.9. P is on line QR
+                    def:line A := Q, B := R, from 23.15.8
 
-           25.15.10. not (P is on line QR)
+           23.15.10. not (P is on line QR)
                      mun:triangle-not-on-line, from H7,
-                       contradicting 25.15.9
+                       contradicting 23.15.9
 
-    25.16. |PQ| = |P′Q′|
-           substitute X = Q (C3) into line 18
+    23.16. |PQ| = |P′Q′|
+           substitute X = Q (C3) into line 16
 
-    25.17. |PR| = |P′R′|
-           substitute Y = R (line 25.15) into line 19
+    23.17. |PR| = |P′R′|
+           substitute Y = R (line 23.15) into line 17
 
-    25.18. |PQ|·|P′R′| = |P′Q′|·|P′R′|
-           algebra, from 25.16
+    23.18. |PQ|·|P′R′| = |P′Q′|·|P′R′|
+           algebra, from 23.16
 
-    25.19. |P′Q′|·|PR| = |P′Q′|·|P′R′|
-           algebra, from 25.17
+    23.19. |P′Q′|·|PR| = |P′Q′|·|P′R′|
+           algebra, from 23.17
 
-    25.20. |PQ|·|P′R′| = |P′Q′|·|PR|
-           transitivity, from 25.18, 25.19
+    23.20. |PQ|·|P′R′| = |P′Q′|·|PR|
+           transitivity, from 23.18, 23.19
 
     case
     assume Q is between P and X                                       (C4)
 
-    25.21. R and Y are on the same side of line PQ
+    23.21. R and Y are on the same side of line PQ
            mun:same-side-turned A := P, B := Q, P := Y, Q := R, from 5
 
-    25.22. R and Y are on the same side of line PX
+    23.22. R and Y are on the same side of line PX
            mun:same-side-of-line A := P, B := Q, C := P, D := X, P := R,
-             Q := Y, from H7, 3, 7, 8, 25.21
+             Q := Y, from H7, 3, 7, 8, 23.21
 
-    25.23. ∠PQR = ∠PXY
+    23.23. ∠PQR = ∠PXY
            calculation
-             ∠PQR = ∠PXY       23
+             ∠PQR = ∠PXY       21
 
-    25.24. line QR ∥ line XY
+    23.24. line QR ∥ line XY
            thm:corresponding-angles-converse X := Q, Q := X, Y := R, R := Y,
-             from C4, H7, 25.22, 25.23
+             from C4, H7, 23.22, 23.23
 
-    25.25. P, Y, X form a triangle.
+    23.25. P, Y, X form a triangle.
            mun:triangle-rotated P := X, Q := P, R := Y, from 14
 
-    25.26. P, X, Y form a triangle.
-           mun:triangle-turned Q := Y, R := X, from 25.25
+    23.26. P, X, Y form a triangle.
+           mun:triangle-turned Q := Y, R := X, from 23.25
 
-    25.27. R is on line PR
+    23.27. R is on line PR
            mun:on-line-ends A := P, B := R
 
-    25.28. P is on line PR
+    23.28. P is on line PR
            mun:on-line-ends A := P, B := R
 
-    25.29. line PY = line PR
+    23.29. line PY = line PR
            axi:line-uniqueness A := P, B := Y, C := P, D := R,
-             from H7, 5, 14, 25.28
+             from H7, 5, 14, 23.28
 
-    25.30. R ∈ line PR
-           def:line P := R, A := P, B := R, from 25.27
+    23.30. R ∈ line PR
+           def:line P := R, A := P, B := R, from 23.27
 
-    25.31. R ∈ line PY
-           substitute line PY = line PR (line 25.29) into line 25.30
+    23.31. R ∈ line PY
+           substitute line PY = line PR (line 23.29) into line 23.30
 
-    25.32. R is on line PY
-           def:line P := R, A := P, B := Y, from 25.31
+    23.32. R is on line PY
+           def:line P := R, A := P, B := Y, from 23.31
 
-    25.33. R and Y are on the same side of line PX
-           restate 25.22
+    23.33. R and Y are on the same side of line PX
+           restate 23.22
 
-    25.34. R is between P and Y
+    23.34. R is between P and Y
            thm:parallel-between Q := X, R := Y, X := Q, Y := R,
-             from C4, 25.24, 25.26, 25.32, 25.33
+             from C4, 23.24, 23.26, 23.32, 23.33
 
-    25.35. |PQ|·|PY| = |PR|·|PX|
+    23.35. |PQ|·|PY| = |PR|·|PX|
            thm:proportional-segments Q := X, R := Y, X := Q, Y := R,
-             from C4, 25.24, 25.26, 25.34
+             from C4, 23.24, 23.26, 23.34
 
-    25.36. |PQ|·|P′R′| = |PR|·|P′Q′|
+    23.36. |PQ|·|P′R′| = |PR|·|P′Q′|
            substitute
-             |PQ|·|PY| = |PR|·|PX|          25.35
-             |PQ|·|P′R′| = |PR|·|PX|        substitute line 19
-             |PQ|·|P′R′| = |PR|·|P′Q′|      substitute line 18
+             |PQ|·|PY| = |PR|·|PX|          23.35
+             |PQ|·|P′R′| = |PR|·|PX|        substitute line 17
+             |PQ|·|P′R′| = |PR|·|P′Q′|      substitute line 16
 
-    25.37. |PQ|·|P′R′| = |P′Q′|·|PR|
-           algebra, from 25.36
+    23.37. |PQ|·|P′R′| = |P′Q′|·|PR|
+           algebra, from 23.36
 
     case
     assume P is between X and Q                                       (C5)
 
-    25.38. P is on line PR
+    23.38. P is on line PR
            mun:on-line-ends A := P, B := R
 
-    25.39. X and Q are on opposite sides of line PR
+    23.39. X and Q are on opposite sides of line PR
            mun:segment-across-line A := P, B := R, P := X, M := P,
-             from C5, H7, 6, 25.38
+             from C5, H7, 6, 23.38
 
-    25.40. not (X and Q are on opposite sides of line PR)
+    23.40. not (X and Q are on opposite sides of line PR)
            mun:same-not-opposite A := P, B := R, P := X, from 3,
-             contradicting 25.39
+             contradicting 23.39
 
 mundane theorem circle-centre-apart
   note        Two different points at one distance from O are not O: were X
