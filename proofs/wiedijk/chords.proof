@@ -2,6 +2,8 @@ import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/between-apart
+import mundane theorem    stdlib/geometry/between-ends-apart
+import mundane theorem    stdlib/geometry/circle-centre-apart
 import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/numbers/multiply-cancel
@@ -63,9 +65,13 @@ theorem power-of-a-point
 
     2.9.  ∠APO ∈ ℝ
           mun:angle-real P := A, Q := P, R := O, from C2, 2.5
+          requires A ≠ B: mun:between-ends-apart R := P, S := A, T := B, from H5
+          requires A ≠ O: mun:circle-centre-apart X := A, Y := B, from H6
 
     2.10. ∠OPB ∈ ℝ
           mun:angle-real P := O, Q := P, R := B, from C2, 2.5
+          requires B ≠ A: mun:between-ends-apart R := P, S := A, T := B, from H5
+          requires B ≠ O: mun:circle-centre-apart X := B, Y := A, from H6
 
     2.11. ∠OPB = 180° − ∠APO
           algebra, from 2.8

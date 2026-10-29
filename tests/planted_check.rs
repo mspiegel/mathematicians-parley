@@ -6778,8 +6778,8 @@ fn cases() -> Vec<Case> {
             "a requires line under a let's reason that the reason does not use",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("from H4, H5\n    reads".to_string()),
-                "from H4, H5\n    requires ∠CBA ∈ ℝ: mun:angle-real P := C, Q := B, R := A, from H4, H5\n    reads".to_string(),
+                Some("from H4, H5, H6\n    reads".to_string()),
+                "from H4, H5, H6\n    requires ∠CBA ∈ ℝ: mun:angle-real P := C, Q := B, R := A, from H4, H5, H6\n    reads".to_string(),
             )],
             "the requires line of let D1 says ∠CBA ∈ ℝ, and neither mun:cos-real nor the let's other lines ask for it",
         ),
@@ -6787,10 +6787,21 @@ fn cases() -> Vec<Case> {
             "a let's reason without the requires line its item asks for",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5\n".to_string()),
+                Some("    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5, H6\n".to_string()),
                 String::new(),
             )],
             "the reason under let D1 cites mun:cos-real, which asks for ∠ABC ∈ ℝ, and what it cites does not supply it",
+        ),
+        // A let's requires line answers to the item it cites as a step's
+        // does: angle-real asks that the three points differ.
+        case(
+            "a requires line under a let citing an item without a fact it asks for",
+            vec![edit(
+                "tests/elaborator/a-naming-let-with-a-requires-line.proof",
+                Some("R := C, from H4, H5, H6\n".to_string()),
+                "R := C, from H4, H5\n".to_string(),
+            )],
+            "the requires line of let D1 cites mun:angle-real, which asks for A ≠ C, and what it cites does not supply it",
         ),
         // The let's requires lines are its own, and rest on nothing below
         // it, the let included.

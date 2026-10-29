@@ -50,6 +50,7 @@ mundane theorem angle-real
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
   metamath    gangbnd3, which this corpus proves in
               elaboration/stdlib/proved.mm

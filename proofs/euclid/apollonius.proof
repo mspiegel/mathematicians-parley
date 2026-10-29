@@ -3,6 +3,7 @@ import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-zero
+import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/cos
@@ -12,7 +13,8 @@ theorem apollonius
   note        The law of cosines at M in the triangles ABM and ACM. The
               angles at M are supplementary, so their cosines are opposite,
               and the terms in the cosines cancel when the two are added.
-              Where A is M there are no angles at M, and |AM| = 0.
+              Where A is M there are no angles at M, and |AM| = 0; where A
+              is B or C there is one fewer, and |AB| or |AC| is 0.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -48,39 +50,107 @@ theorem apollonius
     2.5.  B ≠ M. C ≠ M.
           mun:between-apart R := M, S := B, T := C, from H5
 
-    2.6.  |AB|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠BMA))
-          thm:law-of-cosines P := B, Q := M, R := A, from C2, 2.5
-
-    2.7.  |CA|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
-          thm:law-of-cosines P := A, Q := M, R := C, from C2, 2.5
-
-    2.8.  ∠BMA + ∠AMC = 180°
-          axi:supplementary-angles A := B, B := M, D := A, from C2, H5
-
-    2.9.  ∠BMA ∈ ℝ
-          mun:angle-real P := B, Q := M, R := A, from C2, 2.5
-
-    2.10. ∠AMC ∈ ℝ
-          mun:angle-real P := A, Q := M, R := C, from C2, 2.5
-
-    2.11. ∠AMC = 180° − ∠BMA
-          algebra, from 2.8
-          requires ∠BMA ∈ ℝ: from 2.9
-          requires ∠AMC ∈ ℝ: from 2.10
-
-    2.12. cos(∠AMC) = −cos(∠BMA)
+    2.6.  |BC| = 2·|BM|
           calculation
-            cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.11
-                      = −cos(∠BMA)            mun:cos-supplement x := ∠BMA
-          requires ∠BMA ∈ ℝ: from 2.9
+            |BC| = |BM| + |MC|     mun:segment-addition P := B, Q := C, S := M, from H5
+                 = |BM| + |BM|     substitute H6
+                 = 2·|BM|          algebra
 
-    2.13. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
-          substitute |MC| = |BM| (H6) into line 2.7
+    2.7.  A = B or A ≠ B
+          axi:excluded-middle P := A = B
 
-    2.14. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
-          substitute cos(∠AMC) = −cos(∠BMA) (line 2.12) into line 2.13
+    2.8.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          cases, from 2.7
 
-    2.15. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-          algebra, from 2.6, 2.14
-          requires ∠BMA ∈ ℝ: from 2.9
-          requires cos(∠BMA) ∈ ℝ: mun:cos-real a := ∠BMA
+          case
+          note A is B: there is no angle at M with B, and |AB| = 0
+          assume A = B                                                (C3)
+
+          2.8.1.  |AB| = 0
+                  mun:distance-zero P := A, Q := B, from C3
+
+          2.8.2.  |AC| = |BC|
+                  substitute A = B (C3)
+
+          2.8.3.  |AM| = |BM|
+                  substitute A = B (C3)
+
+          2.8.4.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+                  calculation
+                    |AB|² + |AC|² = 0² + |AC|²             substitute line 2.8.1
+                                  = 0² + |BC|²             substitute line 2.8.2
+                                  = 0² + (2·|BM|)²         substitute line 2.6
+                                  = 2·|BM|² + 2·|BM|²      algebra
+                                  = 2·|AM|² + 2·|BM|²      substitute line 2.8.3
+
+          case
+          assume A ≠ B                                                (C4)
+
+          2.8.5.  A = C or A ≠ C
+                  axi:excluded-middle P := A = C
+
+          2.8.6.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+                  cases, from 2.8.5
+
+                  case
+                  note A is C: there is no angle at M with C, and |AC| = 0
+                  assume A = C                                        (C5)
+
+                  2.8.6.1.  |AC| = 0
+                            mun:distance-zero P := A, Q := C, from C5
+
+                  2.8.6.2.  |AB| = |CB|
+                            substitute A = C (C5)
+
+                  2.8.6.3.  |AM| = |CM|
+                            substitute A = C (C5)
+
+                  2.8.6.4.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+                            calculation
+                              |AB|² + |AC|² = |AB|² + 0²             substitute line 2.8.6.1
+                                            = |CB|² + 0²             substitute line 2.8.6.2
+                                            = (2·|BM|)² + 0²         substitute line 2.6
+                                            = 2·|BM|² + 2·|BM|²      algebra
+                                            = 2·|MC|² + 2·|BM|²      substitute H6
+                                            = 2·|AM|² + 2·|BM|²      substitute line 2.8.6.3
+
+                  case
+                  note the angles at M with B and with C are supplementary
+                  assume A ≠ C                                        (C6)
+
+                  2.8.6.5.  |AB|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠BMA))
+                            thm:law-of-cosines P := B, Q := M, R := A, from C2, 2.5
+
+                  2.8.6.6.  |CA|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
+                            thm:law-of-cosines P := A, Q := M, R := C, from C2, 2.5
+
+                  2.8.6.7.  ∠BMA + ∠AMC = 180°
+                            axi:supplementary-angles A := B, B := M, D := A, from C2, H5
+
+                  2.8.6.8.  ∠BMA ∈ ℝ
+                            mun:angle-real P := B, Q := M, R := A, from C2, C4, 2.5
+
+                  2.8.6.9.  ∠AMC ∈ ℝ
+                            mun:angle-real P := A, Q := M, R := C, from C2, C6, 2.5
+
+                  2.8.6.10. ∠AMC = 180° − ∠BMA
+                            algebra, from 2.8.6.7
+                            requires ∠BMA ∈ ℝ: from 2.8.6.8
+                            requires ∠AMC ∈ ℝ: from 2.8.6.9
+
+                  2.8.6.11. cos(∠AMC) = −cos(∠BMA)
+                            calculation
+                              cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.8.6.10
+                                        = −cos(∠BMA)            mun:cos-supplement x := ∠BMA
+                            requires ∠BMA ∈ ℝ: from 2.8.6.8
+
+                  2.8.6.12. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
+                            substitute |MC| = |BM| (H6) into line 2.8.6.6
+
+                  2.8.6.13. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
+                            substitute cos(∠AMC) = −cos(∠BMA) (line 2.8.6.11) into line 2.8.6.12
+
+                  2.8.6.14. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+                            algebra, from 2.8.6.5, 2.8.6.13
+                            requires ∠BMA ∈ ℝ: from 2.8.6.8
+                            requires cos(∠BMA) ∈ ℝ: mun:cos-real a := ∠BMA

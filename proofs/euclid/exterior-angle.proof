@@ -1,7 +1,6 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/between-apart
-import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/triangle-extension
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import definition         stdlib/geometry/triangle
@@ -17,8 +16,8 @@ theorem exterior-angle
   assume B is between C and D                                         (H6)
   then ∠ABD = ∠BAC + ∠BCA
 
-1.  D ≠ B
-    mun:between-apart R := B, S := C, T := D, from H6
+1.  A, B, D form a triangle.
+    mun:triangle-extension P := A, Q := B, R := C, S := D, from H5, H6
 
 2.  A ≠ B
     def:triangle, from H5
@@ -34,7 +33,7 @@ theorem exterior-angle
 
 6.  ∠ABD = ∠BAC + ∠BCA
     algebra, from 3, 4, 5
-    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 2
+    requires ∠ABD ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := D, from 1
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H5
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H5
     requires ∠BCA ∈ ℝ: mun:triangle-angle-real, from H5

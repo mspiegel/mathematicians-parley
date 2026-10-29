@@ -5,6 +5,7 @@ $( stdlib/geometry/power-of-a-point, elaborated from corpus/stdlib/geometry.proo
 
 $[ stdlib/proved.mm $]
 $[ stdlib/geometry/chord-midpoint-right-angle.mm $]
+$[ stdlib/geometry/circle-centre-apart.mm $]
 $[ stdlib/geometry/right-angle-along.mm $]
 $[ stdlib/geometry/pythagoras.mm $]
 $[ stdlib/geometry/on-line-other.mm $]

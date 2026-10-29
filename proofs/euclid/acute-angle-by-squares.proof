@@ -38,6 +38,7 @@ theorem acute-angle-by-squares
 
 6.  ∠ACB ∈ ℝ. ∠ACB ≥ 0.
     mun:angle-real P := A, Q := C, R := B, from 1
+    requires A ≠ B: def:triangle, from H4
 
 7.  ∠ACB ≤ 180°
     mun:angle-at-most-straight P := A, Q := C, R := B, from 1

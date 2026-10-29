@@ -65,10 +65,10 @@ theorem isosceles-median
     axi:supplementary-angles A := C, B := M, C := B, D := A, from 4, 6
 
 10. ∠AMB ∈ ℝ
-    mun:angle-real P := A, Q := M, R := B, from 2, 4
+    mun:angle-real P := A, Q := M, R := B, from 2, 4, 5
 
 11. ∠CMA ∈ ℝ
-    mun:angle-real P := C, Q := M, R := A, from 2, 4
+    mun:angle-real P := C, Q := M, R := A, from 2, 4, 5
 
 12. ∠CMA = 180° − ∠AMB
     algebra, from 9
@@ -115,7 +115,7 @@ theorem isosceles-median
 
 22. ∠BAM = ∠CAM
     thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
-      from H6, 1, 4, 5
+      from H6, 1, 2, 4, 5
 
 23. ∠BAM = ∠MAC
     calculation

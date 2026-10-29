@@ -61,6 +61,8 @@ theorem equilateral-triangle-by-coordinates
 
 10. cos(∠CAB) = 1/2
     algebra, from 9
+    requires (1, √3) ≠ (2, 0): real arithmetic
+    requires C ≠ B: mun:points-apart-by-coordinates A := C, from H5, H6
     requires ∠CAB ∈ ℝ: mun:angle-real, from 2, 4
     requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB
 

@@ -38,9 +38,11 @@ theorem hinge
 
 3.  ∠CAB ∈ ℝ. ∠CAB ≥ 0.
     mun:angle-real P := C, Q := A, R := B, from 1
+    requires C ≠ B: def:triangle, from H7
 
 4.  ∠FDE ∈ ℝ. ∠FDE ≥ 0.
     mun:angle-real P := F, Q := D, R := E, from 2
+    requires F ≠ E: def:triangle, from H8
 
 5.  ∠CAB = ∠BAC
     mun:angle-turned P := C, Q := A, R := B, from 1

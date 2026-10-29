@@ -244,7 +244,7 @@ theorem distance-from-foot
           substitute
             |QH| = |QP|·cos(∠HQP)             4.28
             |QH| = |QP|·cos(180° − ∠PQR)      algebra, from 4.29
-          requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from 1, 4.26
+          requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from H7, 1, 4.26
           requires ∠PQR ∈ ℝ: from 2
 
     4.31. |QH| = |QP|·−cos(∠PQR)

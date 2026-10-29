@@ -752,7 +752,7 @@ under the reason gives it, as one under a step does:
 ```proof
 let c = cos(∠APB), a real number                                     (D1)
     mun:cos-real a := ∠APB
-    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
+    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from H12, 1, 2
     reads the cosine of the angle the diagonals make at P
 ```
 

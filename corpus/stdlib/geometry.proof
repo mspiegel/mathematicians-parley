@@ -23,6 +23,7 @@ theorem vertical-angles
   let O be a point                                                    (H5)
   assume O is between A and C                                         (H6)
   assume O is between B and D                                         (H7)
+  assume A, O, B form a triangle                                      (H8)
   then ∠AOB = ∠COD
 
 1.  A ≠ O. C ≠ O.
@@ -39,9 +40,11 @@ theorem vertical-angles
 
 5.  ∠AOB = ∠COD
     algebra, from 3, 4
-    requires ∠AOB ∈ ℝ: mun:angle-real P := A, Q := O, R := B, from 1, 2
-    requires ∠BOC ∈ ℝ: mun:angle-real P := B, Q := O, R := C, from 1, 2
-    requires ∠COD ∈ ℝ: mun:angle-real P := C, Q := O, R := D, from 1, 2
+    requires B, O, C form a triangle: mun:triangle-extension P := B, Q := O, R := A, S := C, from H6, H8
+    requires C, O, D form a triangle: mun:triangle-extension P := C, Q := O, R := B, S := D, from H7
+    requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
+    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C
+    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D
 
 theorem exterior-angle-greater
   note        Euclid I.16, which needs no parallels. Let M be the midpoint of
@@ -85,7 +88,7 @@ theorem exterior-angle-greater
     obtain E: mun:segment-extension A := B, B := M, r := |BM|, from 7, 8
 
 10. ∠AMB = ∠CME
-    thm:vertical-angles O := M, D := E, from 3, 9
+    thm:vertical-angles O := M, D := E, from 3, 5, 9
 
 11. C, M, E form a triangle.
     mun:triangle-extension P := C, Q := M, R := B, S := E, from 6, 9
@@ -196,8 +199,10 @@ theorem exterior-angle-greater
       ∠ECD > 0°                       40
       ∠ACE + ∠ECD > ∠ACE + 0°         adding ∠ACE
       ∠ACE + ∠ECD > ∠ACE              algebra
+    requires not (E is on line CA): mun:opposite-sides-off-line A := C, B := A, P := E, Q := B, from 24
+    requires E ≠ A: mun:off-line-apart A := C, B := A, P := E
     requires ∠ACE ∈ ℝ: mun:angle-real P := A, Q := C, R := E, from 1, 14
-    requires ∠ECD ∈ ℝ: mun:angle-real P := E, Q := C, R := D, from 14, 28
+    requires ∠ECD ∈ ℝ: mun:triangle-angle-real P := E, Q := C, R := D, from 39
 
 42. ∠ACD = ∠ACE + ∠ECD
     restate 37
@@ -244,6 +249,7 @@ theorem exterior-angle-greater-other
       ∠ACD = ∠DCA       mun:angle-turned P := D, Q := C, R := A, from 1, 5
            = ∠BCE       thm:vertical-angles A := B, B := E, C := D, D := A, O := C, from H6, 4
            > ∠ABC       thm:exterior-angle-greater A := B, B := A, D := E, from H5, 3
+    requires B, C, E form a triangle: mun:triangle-extension P := B, Q := C, R := A, S := E, from H5, 3
 
 theorem isosceles-angles
   note        Euclid I.5. Read the triangle as ACB and as BCA. Two sides and
@@ -339,7 +345,7 @@ theorem greater-side-greater-angle
       ∠DBC > 0°                       15
       ∠ABD + ∠DBC > ∠ABD + 0°         adding ∠ABD
       ∠ABD + ∠DBC > ∠ABD              algebra
-    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 16
+    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from 1, 16, 17
     requires ∠DBC ∈ ℝ: mun:angle-real P := D, Q := B, R := C, from 16
 
 19. ∠BDA > ∠BCD
@@ -678,9 +684,12 @@ theorem angles-on-a-line
 
 22. ∠SRP + ∠PRQ + ∠TRQ = 180°
     algebra, from 5, 20, 21
-    requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P, from 1, 3
-    requires ∠PRQ ∈ ℝ: mun:angle-real Q := R, R := Q, from 3, 4
-    requires ∠QRT ∈ ℝ: mun:angle-real P := Q, Q := R, R := T, from 1, 4
+    requires S, R, P form a triangle: mun:triangle-off-line P := S, Q := R, R := P, from 3
+    requires P, R, Q form a triangle: mun:triangle-off-line Q := R, R := Q, from 4, 12
+    requires Q, R, T form a triangle: mun:triangle-extension P := Q, Q := R, R := S, S := T, from H6, 19
+    requires ∠SRP ∈ ℝ: mun:triangle-angle-real P := S, Q := R, R := P
+    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real Q := R, R := Q
+    requires ∠QRT ∈ ℝ: mun:triangle-angle-real P := Q, Q := R, R := T
 
 theorem parallel-through
   note        The line through R parallel to PQ, with a point on it each side
@@ -1348,7 +1357,7 @@ theorem chord-midpoint-right-angle
 
 16. ∠OMB = 90°
     algebra, from 13, 14, 15
-    requires ∠OMB ∈ ℝ: mun:angle-real P := O, Q := M, R := B, from H7, 3
+    requires ∠OMB ∈ ℝ: mun:triangle-angle-real P := O, Q := M, R := B, from 10
 
 theorem perpendicular-foot
   note        Euclid I.12, the perpendicular from P to the line QR. Copy the
@@ -1535,7 +1544,9 @@ theorem perpendicular-foot
 
           32.2.12. ∠HQP = ∠HQP′
                    algebra, from 20, 28, 30, 32.2.10, 32.2.11
-                   requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from K1, 1
+                   requires H ≠ P′: mun:on-off-apart A := Q, B := R, X := H, Y := P′, from 25, 27
+                   requires R ≠ P′: mun:on-off-apart A := Q, B := R, X := R, Y := P′, from 4, 27
+                   requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from K1, 1, 26
                    requires ∠HQP′ ∈ ℝ: mun:angle-real P := H, R := P′, from K1, 29
                    requires ∠RQP′ ∈ ℝ: mun:angle-real P := R, R := P′, from 1, 29
 
@@ -1573,7 +1584,7 @@ theorem perpendicular-foot
 
     32.12. ∠PHQ = 90°
            algebra, from 32.9, 32.10, 32.11
-           requires ∠PHQ ∈ ℝ: mun:angle-real Q := H, R := Q, from K1, 26
+           requires ∠PHQ ∈ ℝ: mun:angle-real Q := H, R := Q, from K1, 1, 26
 
 33. If H ≠ R then ∠PHR = 90°.
     proof
@@ -1654,8 +1665,8 @@ theorem altitude-foot
 3.  Y ∈ 𝔼². R is between Q and Y. |RY| = |QR|.
     obtain Y: mun:segment-extension A := Q, B := R, r := |QR|, from 1, 2
 
-4.  Q ≠ R. Y ≠ R.
-    mun:between-apart S := Q, T := Y, from 3
+4.  P, R, Y form a triangle.
+    mun:triangle-extension Q := R, R := Q, S := Y, from H4, 3
 
 5.  ∠QRP + ∠PRY = 180°
     axi:supplementary-angles A := Q, B := R, C := Y, D := P, from 1, 3
@@ -1670,7 +1681,7 @@ theorem altitude-foot
     substitute
       ∠PRY > ∠QPR      7
       90° > ∠QPR       algebra, from H5, 5, 6
-    requires ∠PRY ∈ ℝ: mun:angle-real Q := R, R := Y, from 1, 4
+    requires ∠PRY ∈ ℝ: mun:triangle-angle-real Q := R, R := Y, from 4
 
 9.  90° > ∠RPQ
     substitute
@@ -1683,8 +1694,8 @@ theorem altitude-foot
 11. Z ∈ 𝔼². R is between P and Z. |RZ| = |PR|.
     obtain Z: mun:segment-extension A := P, B := R, r := |PR|, from 1, 10
 
-12. P ≠ R. Z ≠ R.
-    mun:between-apart S := P, T := Z, from 11
+12. Q, R, Z form a triangle.
+    mun:triangle-extension P := Q, Q := R, R := P, S := Z, from H4, 11
 
 13. ∠PRQ + ∠QRZ = 180°
     axi:supplementary-angles A := P, B := R, C := Z, D := Q, from 1, 11
@@ -1702,7 +1713,7 @@ theorem altitude-foot
     substitute
       ∠QRZ > ∠PQR      16
       90° > ∠PQR       algebra, from H5, 13
-    requires ∠QRZ ∈ ℝ: mun:angle-real P := Q, Q := R, R := Z, from 1, 12
+    requires ∠QRZ ∈ ℝ: mun:triangle-angle-real P := Q, Q := R, R := Z, from 12
 
 18. 90° > ∠RQP
     substitute
@@ -2357,6 +2368,7 @@ theorem power-of-a-point
 
     8.6.  ∠OMA = 90°
           algebra, from 8.3, 8.4, 8.5
+          requires A ≠ O: mun:circle-centre-apart X := A, Y := B, from H6, 1
           requires ∠OMA ∈ ℝ: mun:angle-real P := O, Q := M, R := A, from C2, 4
 
     8.7.  O, M, A form a triangle.
@@ -2963,7 +2975,7 @@ theorem angle-angle-side
                      ∠FGE > ∠FDE       15.2.7
                      ∠FGE ≠ ∠FDE       weakening
                    requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
-                     from 8
+                     from 2, 8
                    requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
                      from 2
 
@@ -3010,7 +3022,7 @@ theorem angle-angle-side
                      ∠FGE < ∠FDE       restate
                      ∠FGE ≠ ∠FDE       weakening
                    requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
-                     from 8
+                     from 2, 8
                    requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
                      from 2
 
@@ -3276,8 +3288,8 @@ theorem kite-angles
 
     15.16. ∠EDF = ∠EGF
            algebra, from 15.10, 15.11, 15.12, 15.13, 15.14, 15.15
-           requires ∠EGX ∈ ℝ: mun:angle-real P := E, Q := G, R := X, from 4, 5
-           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5
+           requires ∠EGX ∈ ℝ: mun:angle-real P := E, Q := G, R := X, from 4, 5, 15.5
+           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5, 15.5
 
     case
     assume X = F                                                      (C3)
@@ -3347,9 +3359,9 @@ theorem kite-angles
 
     15.37. ∠EDF = ∠EGF
            algebra, from 15.27, 15.28, 15.35, 15.36
-           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5
+           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 4, 5, 15.22
            requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from 1
-           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 4
+           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 1, 4
 
     case
     assume E is between X and F                                       (C5)
@@ -3429,9 +3441,9 @@ theorem kite-angles
     15.62. ∠EDF = ∠EGF
            algebra, from 15.44, 15.45, 15.56, 15.57, 15.58, 15.59, 15.60,
              15.61
-           requires ∠XGE ∈ ℝ: mun:angle-real P := X, Q := G, R := E, from 4, 5
+           requires ∠XGE ∈ ℝ: mun:angle-real P := X, Q := G, R := E, from 4, 5, 15.38
            requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from 1
-           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 4
+           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from 1, 4
 
 theorem side-side-side
   note        Euclid I.8, by SMSG's way. Copy the angle at B to E on the other
@@ -3675,6 +3687,9 @@ mundane theorem right-angle-along
 
     4.6.  ∠PHT = 90°
           algebra, from H7, 2, 4.5
+          requires P, H, S form a triangle: mun:right-angle-triangle Q := H, R := S, from H5, H6, H7
+          requires not (P is on line HS): mun:triangle-not-on-line Q := H, R := S
+          requires T ≠ P: mun:on-off-apart A := H, B := S, X := T, Y := P, from H8
           requires ∠THP ∈ ℝ: mun:angle-real P := T, Q := H, R := P, from H5, H9
 
 mundane theorem height-area
@@ -3957,32 +3972,32 @@ theorem parallel-equidistant
 12. M is between K and A
     mun:between-symmetric R := M, S := A, T := K, from 5
 
-13. ∠HMK = ∠ZMA
-    thm:vertical-angles A := H, B := K, C := Z, D := A, O := M, from 11, 12
-
-14. ∠HMA = ∠ZMK
-    thm:vertical-angles A := H, B := A, C := Z, D := K, O := M, from 5, 11
-
-15. M, H, K form a triangle.
+13. M, H, K form a triangle.
     mun:triangle-off-line P := M, Q := H, R := K, from 1, 8
 
-16. H, K, M form a triangle.
-    mun:triangle-rotated P := M, Q := H, R := K, from 15
+14. H, K, M form a triangle.
+    mun:triangle-rotated P := M, Q := H, R := K, from 13
 
-17. H, M, K form a triangle.
-    mun:triangle-turned P := H, Q := K, R := M, from 16
+15. H, M, K form a triangle.
+    mun:triangle-turned P := H, Q := K, R := M, from 14
 
-18. H, M, A form a triangle.
-    mun:triangle-extension P := H, Q := M, R := K, S := A, from 12, 17
+16. H, M, A form a triangle.
+    mun:triangle-extension P := H, Q := M, R := K, S := A, from 12, 15
+
+17. ∠HMK = ∠ZMA
+    thm:vertical-angles A := H, B := K, C := Z, D := A, O := M, from 11, 12, 15
+
+18. ∠HMA = ∠ZMK
+    thm:vertical-angles A := H, B := A, C := Z, D := K, O := M, from 5, 11, 16
 
 19. K, M, H form a triangle.
-    mun:triangle-rotated P := H, Q := K, R := M, from 16
+    mun:triangle-rotated P := H, Q := K, R := M, from 14
 
 20. K, M, Z form a triangle.
     mun:triangle-extension P := K, Q := M, R := H, S := Z, from 11, 19
 
 21. M, A, H form a triangle.
-    mun:triangle-rotated P := H, Q := M, R := A, from 18
+    mun:triangle-rotated P := H, Q := M, R := A, from 16
 
 22. A, H, M form a triangle.
     mun:triangle-rotated P := M, Q := A, R := H, from 21
@@ -4019,14 +4034,14 @@ theorem parallel-equidistant
 
 33. triangle HMK ≅ triangle ZMA
     axi:side-angle-side P := H, Q := M, R := K, P′ := Z, Q′ := M, R′ := A,
-      from 13, 17, 27, 31, 32
+      from 15, 17, 27, 31, 32
 
 34. |KH| = |AZ|. ∠MKH = ∠MAZ.
     def:congruent, from 33
 
 35. triangle HMA ≅ triangle ZMK
     axi:side-angle-side P := H, Q := M, R := A, P′ := Z, Q′ := M, R′ := K,
-      from 14, 18, 30, 31, 32
+      from 16, 18, 30, 31, 32
 
 36. |AH| = |KZ|. ∠MAH = ∠MKZ. ∠AHM = ∠KZM.
     def:congruent, from 35
@@ -4248,6 +4263,7 @@ theorem parallel-equidistant
        ∠HKB = ∠BKH       mun:angle-turned P := H, Q := K, R := B, from 1, 3
             = 90°        H9
             = ∠HKZ       algebra, from H8, 96, 97, 98, 99, 100
+     requires Z ≠ H: mun:between-ends-apart R := M, S := H, T := Z, from 11
      requires ∠ZKH ∈ ℝ: mun:angle-real P := Z, Q := K, R := H, from 1, 84
 
 102. B, H, K form a triangle.
@@ -4898,6 +4914,8 @@ theorem corresponding-angles-converse
            = ∠PXY       mun:angle-turned Q := X, R := Y, from 1, 9
            = ∠PQR       H8
            = ∠XQR       mun:angle-along-segment P := Q, Q := P, S := X, from 12, 13
+    requires Y, P, Q form a triangle: mun:triangle-off-line P := Y, Q := P, R := Q, from 2
+    requires Y, P, X form a triangle: mun:triangle-on-side P := Y, Q := P, R := Q, S := X, from H6
 
 15. Y and W are on opposite sides of line XQ
     mun:segment-across-line A := X, B := Q, P := Y, Q := W, M := X,

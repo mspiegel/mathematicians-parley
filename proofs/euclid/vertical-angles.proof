@@ -1,6 +1,7 @@
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-apart
-import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/geometry/triangle-angle-real
+import mundane theorem    stdlib/geometry/triangle-extension
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -29,6 +30,8 @@ theorem vertical-angles
 
 5.  ∠AOB = ∠COD
     algebra, from 3, 4
-    requires ∠AOB ∈ ℝ: mun:angle-real P := A, Q := O, R := B, from 1, 2
-    requires ∠BOC ∈ ℝ: mun:angle-real P := B, Q := O, R := C, from 1, 2
-    requires ∠COD ∈ ℝ: mun:angle-real P := C, Q := O, R := D, from 1, 2
+    requires B, O, C form a triangle: mun:triangle-extension P := B, Q := O, R := A, S := C, from H6, H8
+    requires C, O, D form a triangle: mun:triangle-extension P := C, Q := O, R := B, S := D, from H7
+    requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
+    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C
+    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D

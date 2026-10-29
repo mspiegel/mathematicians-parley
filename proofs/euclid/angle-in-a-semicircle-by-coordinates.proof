@@ -69,6 +69,8 @@ theorem angle-in-a-semicircle-by-coordinates
 
 11. cos(∠ACB) = 0
     algebra, from 10
+    requires (−5, 0) ≠ (5, 0): arithmetic
+    requires A ≠ B: mun:points-apart-by-coordinates, from H5, H6
     requires ∠ACB ∈ ℝ: mun:angle-real, from 2, 4
     requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 

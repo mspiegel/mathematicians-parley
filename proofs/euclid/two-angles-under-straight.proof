@@ -18,6 +18,7 @@ theorem two-angles-under-straight
     mun:angle-real P := B, Q := C, R := A
     requires B ≠ C: def:triangle, from H4
     requires A ≠ C: def:triangle, from H4
+    requires B ≠ A: def:triangle, from H4
 
 2.  sin(∠BCA) > 0
     mun:sine-positive P := B, Q := C, R := A, from H4

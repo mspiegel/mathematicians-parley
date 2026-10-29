@@ -150,7 +150,7 @@ theorem intersecting-chords-by-angles
 
 34. ∠APC = ∠DPB
     calculation
-      ∠APC = ∠BPD    thm:vertical-angles B := C, C := B, O := P, from H7, H8
+      ∠APC = ∠BPD    thm:vertical-angles B := C, C := B, O := P, from H7, H8, 18
            = ∠DPB    mun:angle-symmetric P := B, Q := P, R := D, from 19
 
 35. |PA|·|PB| = |PD|·|PC|

@@ -12,11 +12,12 @@ theorem a-naming-let-with-a-requires-line
   let C be a point                                                    (H3)
   assume A ≠ B                                                        (H4)
   assume C ≠ B                                                        (H5)
+  assume A ≠ C                                                        (H6)
   then cos(∠ABC)² ≥ 0
 
 let c = cos(∠ABC), a real number                                      (D1)
     mun:cos-real a := ∠ABC
-    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5
+    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5, H6
     reads the cosine of the angle at B
 
 1.  c² ≥ 0

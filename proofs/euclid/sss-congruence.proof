@@ -11,8 +11,8 @@ import theorem            stdlib/geometry/side-side-side
 theorem angle-from-sides
   note        The law of cosines at Q gives the cosine of the angle from
               the three sides, so equal sides give equal cosines, and the
-              cosine is one-to-one on the angles. Only that the corners
-              differ from the ends is used: the points may lie on a line.
+              cosine is one-to-one on the angles. Only that the three points
+              of each angle differ is used: they may lie on a line.
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
@@ -26,6 +26,8 @@ theorem angle-from-sides
   assume |PQ| = |P′Q′|                                                (H11)
   assume |QR| = |Q′R′|                                                (H12)
   assume |RP| = |R′P′|                                                (H13)
+  assume P ≠ R                                                        (H14)
+  assume P′ ≠ R′                                                      (H15)
   then ∠PQR = ∠P′Q′R′
 
 1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
@@ -42,10 +44,10 @@ theorem angle-from-sides
       |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))                substitute H12
 
 4.  ∠PQR ∈ ℝ
-    mun:angle-real, from H7, H8
+    mun:angle-real, from H7, H8, H14
 
 5.  ∠P′Q′R′ ∈ ℝ
-    mun:angle-real P := P′, Q := Q′, R := R′, from H9, H10
+    mun:angle-real P := P′, Q := Q′, R := R′, from H9, H10, H15
 
 6.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
     algebra, from 1, 3

@@ -1262,9 +1262,12 @@ fn check_let_requires(
             ..thm.clone()
         };
         // The checks a justification answers to, as a chain line's reason
-        // is checked (`check_link_reasons`), and whether each line does work.
+        // is checked (`check_link_reasons`); those a step's requires lines
+        // answer to, each a reason of its own; and whether each line does
+        // work.
         let mut seen = Report::default();
         link_passes(&mut seen, c, &alone, k);
+        requires_passes(&mut seen, c, &alone, k);
         check_requires_work(&mut seen, c, &alone, k, clashes);
         let at: BTreeSet<usize> = reason.requires.iter().map(|r| r.line).collect();
         report.problems.extend(
@@ -1273,6 +1276,20 @@ fn check_let_requires(
                 .filter(|p| p.path == thm.path && at.contains(&p.line.line)),
         );
     }
+}
+
+/// The checks a requires line's reason answers to that `link_passes` does
+/// not run: what a cited item asks for (`citations::check_requires`), and
+/// each method a requires line may name.
+fn requires_passes(report: &mut Report, c: &Checking<'_>, thm: &Theorem, k: &Known<'_>) {
+    let targets = &c.library.targets;
+    citations::check_requires(report, thm, c.library, k);
+    formulas::check_arithmetic_holds(report, thm, k, targets);
+    formulas::check_real_arithmetic_holds(report, thm, k, targets);
+    formulas::check_inequalities_holds(report, thm, k, targets);
+    formulas::check_requires_manipulations(report, thm, k, targets);
+    formulas::check_membership_holds(report, thm, k, targets);
+    formulas::check_inspection_holds(report, thm, k, targets);
 }
 
 /// Whether the theorem holds as written: every check but whether each line
