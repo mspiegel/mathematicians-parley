@@ -23,13 +23,10 @@ theorem triangular-reciprocals
     proof
     let k ∈ ℕ                                                         (K1)
 
-    1.1.  1/(k(k + 1)/2) = 2/k − 2/(k + 1)
-          algebra
-
-    1.2.  1/T(k) = 2/k − 2/(k + 1)
+    1.1.  1/T(k) = 2/k − 2/(k + 1)
           calculation
             1/T(k) = 1/(k(k + 1)/2)       D1
-                   = 2/k − 2/(k + 1)      1.1
+                   = 2/k − 2/(k + 1)      algebra
 
 2.  For all k ∈ ℕ, 1/T(k) ∈ ℝ.
     proof
@@ -56,17 +53,11 @@ theorem triangular-reciprocals
     proof
     let n ∈ ℕ                                                         (K5)
 
-    5.1.  Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))
-          mun:sum-termwise a := 1, b := n, from 1, 2, 4
-
-    5.2.  Σ(k = 1 to n) (2/k − 2/(k + 1)) = 2 − 2/(n + 1)
-          thm:sum-telescopes a := 1, b := n, from 3
-          requires n + 1 ≥ 1: inequalities, from K5
-
-    5.3.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
+    5.1.  Σ(k = 1 to n) 1/T(k) = 2 − 2/(n + 1)
           calculation
-            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    5.1
-                                 = 2 − 2/(n + 1)                      5.2
+            Σ(k = 1 to n) 1/T(k) = Σ(k = 1 to n) (2/k − 2/(k + 1))    mun:sum-termwise a := 1, b := n, from 1, 2, 4
+                                 = 2 − 2/(n + 1)                      thm:sum-telescopes a := 1, b := n, from 3
+          requires n + 1 ≥ 1: inequalities, from K5
 
 6.  For all ε > 0, there exists N ∈ ℕ such that
     |Σ(k = 1 to n) 1/T(k) − 2| < ε for all n ≥ N.

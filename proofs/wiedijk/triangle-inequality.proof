@@ -93,35 +93,26 @@ theorem triangle-inequality
     case
     assume a + b ≥ 0                                                  (C1)
 
-    4.1.  |a + b| = a + b
-          def:abs x := a + b, from C1
-
-    4.2.  a + b ≤ |a| + |b|
+    4.1.  a + b ≤ |a| + |b|
           inequalities, from 2, 3
           requires |a| ∈ ℝ: mun:abs-real x := a
           requires |b| ∈ ℝ: mun:abs-real x := b
 
-    4.3.  |a + b| ≤ |a| + |b|
+    4.2.  |a + b| ≤ |a| + |b|
           calculation
-            |a + b| = a + b                 4.1
-                    ≤ |a| + |b|             4.2
+            |a + b| = a + b                 def:abs x := a + b, from C1
+                    ≤ |a| + |b|             4.1
 
     case
     assume a + b < 0                                                  (C2)
 
-    4.4.  |a + b| = −(a + b)
-          def:abs x := a + b, from C2
-
-    4.5.  −(a + b) = −a + −b
-          algebra
-
-    4.6.  −a + −b ≤ |a| + |b|
+    4.3.  −a + −b ≤ |a| + |b|
           inequalities, from 2, 3
           requires |a| ∈ ℝ: mun:abs-real x := a
           requires |b| ∈ ℝ: mun:abs-real x := b
 
-    4.7.  |a + b| ≤ |a| + |b|
+    4.4.  |a + b| ≤ |a| + |b|
           calculation
-            |a + b| = −(a + b)              4.4
-                    = −a + −b               4.5
-                    ≤ |a| + |b|             4.6
+            |a + b| = −(a + b)              def:abs x := a + b, from C2
+                    = −a + −b               algebra
+                    ≤ |a| + |b|             4.3

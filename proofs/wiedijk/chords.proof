@@ -72,57 +72,51 @@ theorem power-of-a-point
           requires ∠APO ∈ ℝ: from 2.9
           requires ∠OPB ∈ ℝ: from 2.10
 
-    2.12. cos(∠OPB) = cos(180° − ∠APO)
-          substitute ∠OPB = 180° − ∠APO (line 2.11)
-
-    2.13. cos(180° − ∠APO) = −cos(∠APO)
-          mun:cos-supplement x := ∠APO
+    2.12. cos(∠OPB) = −cos(∠APO)
+          calculation
+            cos(∠OPB) = cos(180° − ∠APO)      substitute line 2.11
+                      = −cos(∠APO)            mun:cos-supplement x := ∠APO
           requires ∠APO ∈ ℝ: from 2.9
 
-    2.14. cos(∠OPB) = −cos(∠APO)
-          calculation
-            cos(∠OPB) = cos(180° − ∠APO)      2.12
-                      = −cos(∠APO)            2.13
-
-    2.15. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
+    2.13. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
           substitute |BO| = |AO| (H6) into line 2.7
 
-    2.16. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
-          substitute cos(∠OPB) = −cos(∠APO) (line 2.14) into line 2.15
+    2.14. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
+          substitute cos(∠OPB) = −cos(∠APO) (line 2.12) into line 2.13
 
-    2.17. |PA| > 0
+    2.15. |PA| > 0
           axi:distance-positive Q := A, from 2.5
 
-    2.18. |PB| > 0
+    2.16. |PB| > 0
           axi:distance-positive Q := B, from 2.5
 
-    2.19. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
+    2.17. 2·(|PO|·cos(∠APO)) = (|PA|² + |PO|² − |AO|²)/|PA|
           algebra, from 2.6
           requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
-          requires |PA| ≠ 0: weakening, from 2.17
+          requires |PA| ≠ 0: weakening, from 2.15
 
-    2.20. 2·(|PO|·cos(∠APO)) = (|AO|² − |PO|² − |PB|²)/|PB|
-          algebra, from 2.16
+    2.18. 2·(|PO|·cos(∠APO)) = (|AO|² − |PO|² − |PB|²)/|PB|
+          algebra, from 2.14
           requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.9
-          requires |PB| ≠ 0: weakening, from 2.18
+          requires |PB| ≠ 0: weakening, from 2.16
 
-    2.21. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
+    2.19. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
           calculation
-            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              2.19
-                                         = (|AO|² − |PO|² − |PB|²)/|PB|    2.20
+            (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              2.17
+                                         = (|AO|² − |PO|² − |PB|²)/|PB|    2.18
 
-    2.22. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
-          algebra, from 2.21
-          requires |PA| ≠ 0: weakening, from 2.17
-          requires |PB| ≠ 0: weakening, from 2.18
+    2.20. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
+          algebra, from 2.19
+          requires |PA| ≠ 0: weakening, from 2.15
+          requires |PB| ≠ 0: weakening, from 2.16
 
-    2.23. |PA| + |PB| > 0
-          inequalities, from 2.17, 2.18
+    2.21. |PA| + |PB| > 0
+          inequalities, from 2.15, 2.16
 
-    2.24. |PA|·|PB| = |AO|² − |PO|²
+    2.22. |PA|·|PB| = |AO|² − |PO|²
           mun:multiply-cancel a := |PA|·|PB|, b := |AO|² − |PO|², c := |PA| + |PB|,
-            from 2.22
-          requires |PA| + |PB| ≠ 0: weakening, from 2.23
+            from 2.20
+          requires |PA| + |PB| ≠ 0: weakening, from 2.21
 
 theorem intersecting-chords
   metamath    chordthm
@@ -143,21 +137,18 @@ theorem intersecting-chords
   assume |AO| = |DO|                                                  (H11)
   then |PA|·|PB| = |PC|·|PD|
 
-1.  |PA|·|PB| = |AO|² − |PO|²
-    thm:power-of-a-point, from H7, H9
-
-2.  |CO| = |DO|
+1.  |CO| = |DO|
     calculation
       |CO| = |AO|       H10
            = |DO|       H11
 
-3.  |PC|·|PD| = |CO|² − |PO|²
-    thm:power-of-a-point A := C, B := D, from H8, 2
+2.  |PC|·|PD| = |CO|² − |PO|²
+    thm:power-of-a-point A := C, B := D, from H8, 1
 
-4.  |PC|·|PD| = |AO|² − |PO|²
-    substitute |CO| = |AO| (H10) into line 3
+3.  |PC|·|PD| = |AO|² − |PO|²
+    substitute |CO| = |AO| (H10) into line 2
 
-5.  |PA|·|PB| = |PC|·|PD|
+4.  |PA|·|PB| = |PC|·|PD|
     calculation
-      |PA|·|PB| = |AO|² − |PO|²     1
-                = |PC|·|PD|         4
+      |PA|·|PB| = |AO|² − |PO|²     thm:power-of-a-point, from H7, H9
+                = |PC|·|PD|         3

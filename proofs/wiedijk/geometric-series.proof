@@ -19,60 +19,39 @@ theorem geometric-sum
     induction on k starting at 0
 
     base
-    1.1.  Σ(j = 0 to 0) a^j = a^0
-          mun:sum-single a := 0
-
-    1.2.  a^0 = 1
-          algebra
-
-    1.3.  G(a, 0) = 1
+    1.1.  G(a, 0) = 1
           calculation
             G(a, 0) = Σ(j = 0 to 0) a^j     D1
-                    = a^0                   1.1
-                    = 1                     1.2
+                    = a^0                   mun:sum-single a := 0
+                    = 1                     algebra
 
-    1.4.  1 = (1 − a)/(1 − a)
-          algebra
-          requires 1 − a ≠ 0: algebra, from H2
-
-    1.5.  G(a, 0) = (1 − a)/(1 − a)
+    1.2.  G(a, 0) = (1 − a)/(1 − a)
           calculation
-            G(a, 0) = 1                    1.3
-                    = (1 − a)/(1 − a)      1.4
+            G(a, 0) = 1                    1.1
+                    = (1 − a)/(1 − a)      algebra
+          requires 1 − a ≠ 0: algebra, from H2
 
     step
     let k ∈ ℕ₀                                                        (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.6.  Σ(j = 0 to k + 1) a^j = Σ(j = 0 to k) a^j + a^(k + 1)
-          mun:sum-last n := k
-
-    1.7.  G(a, k + 1) = G(a, k) + a^(k + 1)
+    1.3.  G(a, k + 1) = G(a, k) + a^(k + 1)
           calculation
             G(a, k + 1) = Σ(j = 0 to k + 1) a^j              D1
-                        = Σ(j = 0 to k) a^j + a^(k + 1)      1.6
+                        = Σ(j = 0 to k) a^j + a^(k + 1)      mun:sum-last n := k
                         = G(a, k) + a^(k + 1)                D1
 
-    1.8.  G(a, k) + a^(k + 1) = (1 − a^(k + 1))/(1 − a) + a^(k + 1)
-          substitute G(a, k) = (1 − a^(k + 1))/(1 − a) (IH)
-
-    1.9.  a^((k + 1) + 1) = a^(k + 1)·a
+    1.4.  a^((k + 1) + 1) = a^(k + 1)·a
           mun:exponent-step m := k + 1
 
-    1.10. (1 − a^(k + 1))/(1 − a) + a^(k + 1) = (1 − a^(k + 1)·a)/(1 − a)
-          algebra
+    1.5.  G(a, k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
+          calculation
+            G(a, k + 1) = G(a, k) + a^(k + 1)                         1.3
+                        = (1 − a^(k + 1))/(1 − a) + a^(k + 1)         substitute IH
+                        = (1 − a^(k + 1)·a)/(1 − a)                  algebra
+                        = (1 − a^((k + 1) + 1))/(1 − a)              substitute line 1.4
           requires 1 − a ≠ 0: algebra, from H2
           requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1
-
-    1.11. (1 − a^(k + 1)·a)/(1 − a) = (1 − a^((k + 1) + 1))/(1 − a)
-          substitute a^((k + 1) + 1) = a^(k + 1)·a (line 1.9)
-
-    1.12. G(a, k + 1) = (1 − a^((k + 1) + 1))/(1 − a)
-          calculation
-            G(a, k + 1) = G(a, k) + a^(k + 1)                         1.7
-                        = (1 − a^(k + 1))/(1 − a) + a^(k + 1)         1.8
-                        = (1 − a^(k + 1)·a)/(1 − a)                  1.10
-                        = (1 − a^((k + 1) + 1))/(1 − a)              1.11
 
 2.  G(a, n) = (1 − a^(n + 1))/(1 − a)
     instantiate k := n in line 1

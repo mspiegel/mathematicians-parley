@@ -38,17 +38,11 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
     let n ∈ ℕ                                                         (K3)
     assume f(m) = f(n)                                                (A1)
 
-    2.1.  f(m) = m
-          D1
-
-    2.2.  f(n) = n
-          D1
-
-    2.3.  m = n
+    2.1.  m = n
           calculation
-            m = f(m)        2.1
+            m = f(m)        D1
               = f(n)        A1
-              = n           2.2
+              = n           D1
 
 3.  f : ℕ → ℚ is one-to-one
     def:one-to-one, from 1, 2
@@ -77,51 +71,33 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
                   def:abs x := numer(x), from C1
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
-          4.3.3.  (1 − 2·s(x))·|numer(x)| = (1 − 2·0)·|numer(x)|
-                  substitute s(x) = 0 (line 4.3.1)
-
-          4.3.4.  (1 − 2·0)·|numer(x)| = (1 − 2·0)·numer(x)
-                  substitute |numer(x)| = numer(x) (line 4.3.2)
-
-          4.3.5.  (1 − 2·0)·numer(x) = numer(x)
-                  algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
-
-          4.3.6.  numer(x) = (1 − 2·s(x))·|numer(x)|
+          4.3.3.  numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
-                    numer(x) = (1 − 2·0)·numer(x)          4.3.5
-                             = (1 − 2·0)·|numer(x)|        4.3.4
-                             = (1 − 2·s(x))·|numer(x)|     4.3.3
+                    numer(x) = (1 − 2·0)·numer(x)          algebra
+                             = (1 − 2·0)·|numer(x)|        substitute line 4.3.2
+                             = (1 − 2·s(x))·|numer(x)|     substitute line 4.3.1
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
           case
           assume not numer(x) ≥ 0                                 (C2)
 
-          4.3.7.  s(x) = 1
+          4.3.4.  s(x) = 1
                   D2, from C2
 
-          4.3.8.  numer(x) < 0
+          4.3.5.  numer(x) < 0
                   inequalities, from C2
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
-          4.3.9.  |numer(x)| = −numer(x)
-                  def:abs x := numer(x), from 4.3.8
+          4.3.6.  |numer(x)| = −numer(x)
+                  def:abs x := numer(x), from 4.3.5
                   requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
-          4.3.10. (1 − 2·s(x))·|numer(x)| = (1 − 2)·|numer(x)|
-                  substitute s(x) = 1 (line 4.3.7)
-
-          4.3.11. (1 − 2)·|numer(x)| = (1 − 2)·(−numer(x))
-                  substitute |numer(x)| = −numer(x) (line 4.3.9)
-
-          4.3.12. (1 − 2)·(−numer(x)) = numer(x)
-                  algebra
-                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
-
-          4.3.13. numer(x) = (1 − 2·s(x))·|numer(x)|
+          4.3.7.  numer(x) = (1 − 2·s(x))·|numer(x)|
                   calculation
-                    numer(x) = (1 − 2)·(−numer(x))         4.3.12
-                             = (1 − 2)·|numer(x)|          4.3.11
-                             = (1 − 2·s(x))·|numer(x)|     4.3.10
+                    numer(x) = (1 − 2)·(−numer(x))         algebra
+                             = (1 − 2)·|numer(x)|          substitute line 4.3.6
+                             = (1 − 2·s(x))·|numer(x)|     substitute line 4.3.4
+                  requires numer(x) ∈ ℤ: mun:lowest-terms-parts
 
     4.4.  s(x) ∈ ℕ₀ and numer(x) = (1 − 2·s(x))·|numer(x)|
           join 4.1, 4.3
@@ -157,50 +133,32 @@ let g(x) = 2^|numer(x)|·3^denom(x)·5^s(x), for x ∈ ℚ        (D3)
     7.4.  s(y) ∈ ℕ₀ and numer(y) = (1 − 2·s(y))·|numer(y)|
           instantiate x := y in line 4
 
-    7.5.  g(x) = 2^|numer(x)|·3^denom(x)·5^s(x)
-          D3
-
-    7.6.  g(y) = 2^|numer(y)|·3^denom(y)·5^s(y)
-          D3
-
-    7.7.  2^|numer(x)|·3^denom(x)·5^s(x) = 2^|numer(y)|·3^denom(y)·5^s(y)
+    7.5.  2^|numer(x)|·3^denom(x)·5^s(x) = 2^|numer(y)|·3^denom(y)·5^s(y)
           calculation
-            2^|numer(x)|·3^denom(x)·5^s(x) = g(x)          7.5
+            2^|numer(x)|·3^denom(x)·5^s(x) = g(x)          D3
                                                     = g(y)          A2
-                                                    = 2^|numer(y)|·3^denom(y)·5^s(y)    7.6
+                                                    = 2^|numer(y)|·3^denom(y)·5^s(y)    D3
 
-    7.8.  |numer(x)| = |numer(y)|. denom(x) = denom(y).
+    7.6.  |numer(x)| = |numer(y)|. denom(x) = denom(y).
           s(x) = s(y).
-          thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 7.3, 7.4, 7.7
+          thm:prime-powers-unique a := |numer(x)|, b := denom(x), c := s(x), a′ := |numer(y)|, b′ := denom(y), c′ := s(y), from 7.3, 7.4, 7.5
           requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x), from 7.1
           requires |numer(y)| ∈ ℕ₀: mun:abs-integer z := numer(y), from 7.2
           requires denom(x) ∈ ℕ₀: membership, from 7.1
           requires denom(y) ∈ ℕ₀: membership, from 7.2
 
-    7.9.  (1 − 2·s(x))·|numer(x)| = (1 − 2·s(y))·|numer(x)|
-          substitute s(x) = s(y) (line 7.8)
-
-    7.10. (1 − 2·s(y))·|numer(x)| = (1 − 2·s(y))·|numer(y)|
-          substitute |numer(x)| = |numer(y)| (line 7.8)
-
-    7.11. numer(x) = numer(y)
+    7.7.  numer(x) = numer(y)
           calculation
             numer(x) = (1 − 2·s(x))·|numer(x)|     7.3
-                         = (1 − 2·s(y))·|numer(x)|     7.9
-                         = (1 − 2·s(y))·|numer(y)|     7.10
+                         = (1 − 2·s(y))·|numer(x)|     substitute line 7.6
+                         = (1 − 2·s(y))·|numer(y)|     substitute line 7.6
                          = numer(y)                    7.4
 
-    7.12. numer(x)/denom(x) = numer(y)/denom(x)
-          substitute numer(x) = numer(y) (line 7.11)
-
-    7.13. numer(y)/denom(x) = numer(y)/denom(y)
-          substitute denom(x) = denom(y) (line 7.8)
-
-    7.14. x = y
+    7.8.  x = y
           calculation
             x = numer(x)/denom(x)     7.1
-              = numer(y)/denom(x)     7.12
-              = numer(y)/denom(y)     7.13
+              = numer(y)/denom(x)     substitute line 7.7
+              = numer(y)/denom(y)     substitute line 7.6
               = y                               7.2
 
 8.  g : ℚ → ℕ is one-to-one

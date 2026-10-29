@@ -36,23 +36,20 @@ theorem zero-derivative-ends
 3.  c ∈ (a, b). H′(c) = (H(b) − H(a))/(b − a).
     obtain c: thm:mean-value f := H, from H3, H5, H6
 
-4.  H′(c) = 0
-    instantiate x := c in H7, from 3
-
-5.  (H(b) − H(a))/(b − a) = 0
+4.  (H(b) − H(a))/(b − a) = 0
     calculation
       (H(b) − H(a))/(b − a) = H′(c)                            3
-                            = 0                                4
+                            = 0                                instantiate x := c in H7, from 3
 
-6.  b − a > 0
+5.  b − a > 0
     inequalities
       a < b                  H3
       0 < b − a              adding −a
       b − a > 0              restate
 
-7.  H(b) = H(a)
-    algebra, from 5
-    requires b − a ≠ 0: weakening, from 6
+6.  H(b) = H(a)
+    algebra, from 4
+    requires b − a ≠ 0: weakening, from 5
     requires H(a) ∈ ℝ: from H4, 1
     requires H(b) ∈ ℝ: from H4, 2
 

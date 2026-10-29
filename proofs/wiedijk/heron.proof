@@ -55,59 +55,44 @@ theorem heron
     requires sin(∠BCA) ∈ ℝ: mun:sin-real a := ∠BCA, from 3
     requires cos(∠BCA) ∈ ℝ: mun:cos-real a := ∠BCA, from 3
 
-9.  (the area of △ABC)² = ((1/2)·(|BC|·|AC|)·sin(∠BCA))²
-    substitute the area of △ABC = (1/2)·(|BC|·|AC|)·sin(∠BCA) (line 4)
-
-10. ((1/2)·(|BC|·|AC|)·sin(∠BCA))² = (|BC|·|AC|)²·sin(∠BCA)²/4
-    algebra
-    requires sin(∠BCA) ∈ ℝ: mun:sin-real a := ∠BCA, from 3
-
-11. (|BC|·|AC|)²·sin(∠BCA)²/4 = (|BC|·|AC|)²·(1 − cos(∠BCA)²)/4
-    substitute sin(∠BCA)² = 1 − cos(∠BCA)² (line 8)
-
-12. (|BC|·|AC|)²·(1 − cos(∠BCA)²)/4 = (4·(|BC|·|AC|)² − (2·(|BC|·|AC|·cos(∠BCA)))²)/16
-    algebra
-    requires cos(∠BCA) ∈ ℝ: mun:cos-real a := ∠BCA, from 3
-
-13. (4·(|BC|·|AC|)² − (2·(|BC|·|AC|·cos(∠BCA)))²)/16 = (4·(|BC|·|AC|)² − (|BC|² + |AC|² − |AB|²)²)/16
-    substitute 2·(|BC|·|AC|·cos(∠BCA)) = |BC|² + |AC|² − |AB|² (line 6)
-
-14. s·(s − |BC|)·(s − |CA|)·(s − |AB|) = (4·(|BC|·|AC|)² − (|BC|² + |AC|² − |AB|²)²)/16
+9.  s·(s − |BC|)·(s − |CA|)·(s − |AB|) = (4·(|BC|·|AC|)² − (|BC|² + |AC|² − |AB|²)²)/16
     algebra, from D1
 
-15. (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|)
+10. (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|)
     calculation
-      (the area of △ABC)² = ((1/2)·(|BC|·|AC|)·sin(∠BCA))²                                  9
-                          = (|BC|·|AC|)²·sin(∠BCA)²/4                                       10
-                          = (|BC|·|AC|)²·(1 − cos(∠BCA)²)/4                                 11
-                          = (4·(|BC|·|AC|)² − (2·(|BC|·|AC|·cos(∠BCA)))²)/16                12
-                          = (4·(|BC|·|AC|)² − (|BC|² + |AC|² − |AB|²)²)/16                  13
-                          = s·(s − |BC|)·(s − |CA|)·(s − |AB|)                              14
+      (the area of △ABC)² = ((1/2)·(|BC|·|AC|)·sin(∠BCA))²                                  substitute line 4
+                          = (|BC|·|AC|)²·sin(∠BCA)²/4                                       algebra
+                          = (|BC|·|AC|)²·(1 − cos(∠BCA)²)/4                                 substitute line 8
+                          = (4·(|BC|·|AC|)² − (2·(|BC|·|AC|·cos(∠BCA)))²)/16                algebra
+                          = (4·(|BC|·|AC|)² − (|BC|² + |AC|² − |AB|²)²)/16                  substitute line 6
+                          = s·(s − |BC|)·(s − |CA|)·(s − |AB|)                              9
+    requires sin(∠BCA) ∈ ℝ: mun:sin-real a := ∠BCA, from 3
+    requires cos(∠BCA) ∈ ℝ: mun:cos-real a := ∠BCA, from 3
 
-16. the area of △ABC ∈ ℝ
+11. the area of △ABC ∈ ℝ
     mun:area-real P := A, Q := B, R := C, from 1, 2
 
-17. the area of △ABC > 0
+12. the area of △ABC > 0
     axi:area-positive P := A, Q := B, R := C, from H4
 
-18. (the area of △ABC)² ≥ 0
-    mun:square-nonneg x := the area of △ABC, from 16
+13. (the area of △ABC)² ≥ 0
+    mun:square-nonneg x := the area of △ABC, from 11
 
-19. s·(s − |BC|)·(s − |CA|)·(s − |AB|) ≥ 0
-    substitute (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|) (line 15) into line 18
+14. s·(s − |BC|)·(s − |CA|)·(s − |AB|) ≥ 0
+    substitute (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|) (line 10) into line 13
 
-20. √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)) ∈ ℝ.
+15. √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)) ∈ ℝ.
     √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)) ≥ 0.
     (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))² = s·(s − |BC|)·(s − |CA|)·(s − |AB|).
-    def:sqrt x := s·(s − |BC|)·(s − |CA|)·(s − |AB|), from 19
+    def:sqrt x := s·(s − |BC|)·(s − |CA|)·(s − |AB|), from 14
     requires s·(s − |BC|)·(s − |CA|)·(s − |AB|) ∈ ℝ: membership, from D1
 
-21. (the area of △ABC)² = (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))²
+16. (the area of △ABC)² = (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))²
     calculation
-      (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|)                              15
-                          = (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))²                         20
+      (the area of △ABC)² = s·(s − |BC|)·(s − |CA|)·(s − |AB|)                              10
+                          = (√(s·(s − |BC|)·(s − |CA|)·(s − |AB|)))²                         15
 
-22. the area of △ABC = √(s·(s − |BC|)·(s − |CA|)·(s − |AB|))
-    mun:square-equal x := the area of △ABC, y := √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)), from 20, 21
-    requires the area of △ABC ∈ ℝ: from 16
-    requires the area of △ABC ≥ 0: weakening, from 17
+17. the area of △ABC = √(s·(s − |BC|)·(s − |CA|)·(s − |AB|))
+    mun:square-equal x := the area of △ABC, y := √(s·(s − |BC|)·(s − |CA|)·(s − |AB|)), from 15, 16
+    requires the area of △ABC ∈ ℝ: from 11
+    requires the area of △ABC ≥ 0: weakening, from 12

@@ -81,17 +81,16 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
           1.5.1.  p = k
                   def:singleton x := p, a := k, from K2
 
-          1.5.2.  q = k
-                  def:singleton x := q, a := k, from K3
-
-          1.5.3.  k < q
+          1.5.2.  k < q
                   substitute p = k (line 1.5.1) into K4
 
-          1.5.4.  k < k
-                  substitute q = k (line 1.5.2) into line 1.5.3
+          1.5.3.  k < k
+                  substitute
+                    k < q      1.5.2
+                    k < k      def:singleton x := q, a := k, from K3
 
-          1.5.5.  not k < k
-                  inequalities, contradicting 1.5.4
+          1.5.4.  not k < k
+                  inequalities, contradicting 1.5.3
 
     1.6.  k ∈ {k} and for all p, q ∈ {k}, if p < q then c(p) < c(q)
           join 1.4, 1.5
@@ -200,20 +199,19 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D3)
     1.20. |{k}| ≤ L(k)
           instantiate x := |{k}| in line 1.18, from 1.9
 
-    1.21. |{k}| = 1
-          mun:card-singleton x := k
+    1.21. 1 ≤ L(k)
+          substitute
+            |{k}| ≤ L(k)      1.20
+            1 ≤ L(k)          mun:card-singleton x := k
 
-    1.22. 1 ≤ L(k)
-          substitute |{k}| = 1 (line 1.21) into line 1.20
-
-    1.23. L(k) ∈ ℤ. L(k) ≤ r − 1.
+    1.22. L(k) ∈ ℤ. L(k) ≤ r − 1.
           instantiate u := L(k) in line 1.10, from 1.17
 
-    1.24. L(k) ∈ {1, …, r − 1}
-          def:range-between k := L(k), a := 1, b := r − 1, from 1.22, 1.23
+    1.23. L(k) ∈ {1, …, r − 1}
+          def:range-between k := L(k), a := 1, b := r − 1, from 1.21, 1.22
 
-    1.25. L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}
-          join 1.17, 1.19, 1.23, 1.24
+    1.24. L(k) ∈ I(k) and L(k) is an upper bound of I(k) and L(k) ∈ ℤ and L(k) ∈ {1, …, r − 1}
+          join 1.17, 1.19, 1.22, 1.23
 
 2.  For all i, j ∈ {1, …, N}, if i < j and c(i) < c(j) then L(i) < L(j).
     proof
@@ -505,33 +503,30 @@ theorem erdos-szekeres
                   let j ∈ T                                           (K2)
                   assume i < j                                        (K3)
 
-                  1.4.2.1.  b(i) < b(j)
-                            instantiate i := i, j := j in line 1.4.1, from K1, K2, K3
-
-                  1.4.2.2.  i ∈ {1, …, N}
+                  1.4.2.1.  i ∈ {1, …, N}
                             mun:in-subset, from K1, 1.4.1
 
-                  1.4.2.3.  j ∈ {1, …, N}
+                  1.4.2.2.  j ∈ {1, …, N}
                             mun:in-subset, from K2, 1.4.1
 
-                  1.4.2.4.  b(i) = −a(i)
+                  1.4.2.3.  b(i) = −a(i)
+                            D1, from 1.4.2.1
+
+                  1.4.2.4.  b(j) = −a(j)
                             D1, from 1.4.2.2
 
-                  1.4.2.5.  b(j) = −a(j)
-                            D1, from 1.4.2.3
-
-                  1.4.2.6.  −a(i) < −a(j)
+                  1.4.2.5.  −a(i) < −a(j)
                             calculation
-                              −a(i) = b(i)      1.4.2.4
-                                    < b(j)      1.4.2.1
-                                    = −a(j)     1.4.2.5
+                              −a(i) = b(i)      1.4.2.3
+                                    < b(j)      instantiate i := i, j := j in line 1.4.1, from K1, K2, K3
+                                    = −a(j)     1.4.2.4
 
-                  1.4.2.7.  a(i) > a(j)
+                  1.4.2.6.  a(i) > a(j)
                             inequalities
-                              −a(i) < −a(j)     1.4.2.6
+                              −a(i) < −a(j)     1.4.2.5
                               a(i) > a(j)       multiplying by −1
-                            requires a(i) ∈ ℝ: from H4, 1.4.2.2
-                            requires a(j) ∈ ℝ: from H4, 1.4.2.3
+                            requires a(i) ∈ ℝ: from H4, 1.4.2.1
+                            requires a(j) ∈ ℝ: from H4, 1.4.2.2
 
           1.4.3.  s ≤ |T| and for all i, j ∈ T, if i < j then a(i) > a(j)
                   join 1.4.1, 1.4.2
@@ -711,42 +706,27 @@ theorem erdos-szekeres
     1.12. f : {1, …, N} → {1, …, r − 1} × {1, …, s − 1} is one-to-one
           def:one-to-one, from 1.8, 1.11
 
-    1.13. |{1, …, N}| ≤ |{1, …, r − 1} × {1, …, s − 1}|
-          thm:pigeonhole, from 1.12
-
-    1.14. {1, …, r − 1} is finite
+    1.13. {1, …, r − 1} is finite
           mun:range-finite a := 1, b := r − 1
 
-    1.15. {1, …, s − 1} is finite
+    1.14. {1, …, s − 1} is finite
           mun:range-finite a := 1, b := s − 1
 
-    1.16. |{1, …, r − 1} × {1, …, s − 1}| = |{1, …, r − 1}|·|{1, …, s − 1}|
-          mun:card-product, from 1.14, 1.15
-
-    1.17. |{1, …, N}| = N
-          mun:range-size n := N
-
-    1.18. |{1, …, r − 1}| = r − 1
+    1.15. |{1, …, r − 1}| = r − 1
           mun:range-size n := r − 1
           requires r − 1 ∈ ℕ₀: mun:nat-minus-one n := r
 
-    1.19. |{1, …, s − 1}| = s − 1
+    1.16. |{1, …, s − 1}| = s − 1
           mun:range-size n := s − 1
           requires s − 1 ∈ ℕ₀: mun:nat-minus-one n := s
 
-    1.20. |{1, …, r − 1}|·|{1, …, s − 1}| = (r − 1)·|{1, …, s − 1}|
-          substitute |{1, …, r − 1}| = r − 1 (line 1.18)
-
-    1.21. (r − 1)·|{1, …, s − 1}| = (r − 1)·(s − 1)
-          substitute |{1, …, s − 1}| = s − 1 (line 1.19)
-
-    1.22. N ≤ (r − 1)·(s − 1)
+    1.17. N ≤ (r − 1)·(s − 1)
           calculation
-            N = |{1, …, N}|                                   1.17
-              ≤ |{1, …, r − 1} × {1, …, s − 1}|               1.13
-              = |{1, …, r − 1}|·|{1, …, s − 1}|               1.16
-              = (r − 1)·|{1, …, s − 1}|                       1.20
-              = (r − 1)·(s − 1)                               1.21
+            N = |{1, …, N}|                                   mun:range-size n := N
+              ≤ |{1, …, r − 1} × {1, …, s − 1}|               thm:pigeonhole, from 1.12
+              = |{1, …, r − 1}|·|{1, …, s − 1}|               mun:card-product, from 1.13, 1.14
+              = (r − 1)·|{1, …, s − 1}|                       substitute line 1.15
+              = (r − 1)·(s − 1)                               substitute line 1.16
 
-    1.23. not (r − 1)·(s − 1) < N
-          inequalities, from 1.22, contradicting H5
+    1.18. not (r − 1)·(s − 1) < N
+          inequalities, from 1.17, contradicting H5

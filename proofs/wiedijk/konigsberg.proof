@@ -145,20 +145,14 @@ let g(i) = e(i), for i ∈ S                                            (D3)
     requires g : S → T is onto: def:onto, from 2, 6
     requires g : S → T is one-to-one and onto: def:one-to-one-onto, from 5
 
-8.  |S| = |T|
-    mun:card-equal, from 7
+8.  deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
+    calculation
+      deg(x) = |T|                                     def:degree, from D2, H6
+             = |S|                                     mun:card-equal, from 7
+             = |{i ∈ {1, …, n} : x is incident with e(i)}|  D1
     requires S ⊆ {1, …, n}: mun:set-builder-subset, from D1
     requires {1, …, n} is finite: mun:range-finite
     requires S is finite: mun:finite-part
-
-9.  deg(x) = |T|
-    def:degree, from D2, H6
-
-10. deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|
-    calculation
-      deg(x) = |T|                                     9
-             = |S|                                     8
-             = |{i ∈ {1, …, n} : x is incident with e(i)}|  D1
 
 theorem walk-parity
   note        Euler's argument. The walk starts at v(0), crosses e(1) to
@@ -214,60 +208,45 @@ theorem walk-parity
           4.2.2.  v(i − 1) = v(i)
                   restate 4.2.1, contradicting 4.1
 
-5.  |{i ∈ {1, …, n} : x is incident with e(i)}| = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|
-    mun:count-same, from 3
-
 let d = |{i ∈ {1, …, n} : x = v(i − 1)}|                              (D1)
        reads how many of the walk's edges leave x
 
 let r = |{i ∈ {1, …, n} : x = v(i)}|                                  (D2)
        reads how many of the walk's edges arrive at x
 
-6.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
+5.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = d + r
     mun:count-either, from D1, D2, 4
-
-7.  d = |{i ∈ {0, …, n − 1} : x = v(i)}|
-    mun:count-shift, from D1
-
-8.  |{i ∈ {0, …, n − 1} : x = v(i)}| = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-first-fails, from H7
-
-9.  r = |{i ∈ {1, …, n − 1} : x = v(i)}|
-    mun:count-last-fails, from D2, H8
 
 let m = |{i ∈ {1, …, n − 1} : x = v(i)}|, a nonnegative integer       (D3)
     mun:count-nat0 k := n − 1
     reads how many times the walk passes through x
 
-10. d = m
+6.  d = m
     calculation
-      d = |{i ∈ {0, …, n − 1} : x = v(i)}|    7
-        = |{i ∈ {1, …, n − 1} : x = v(i)}|    8
+      d = |{i ∈ {0, …, n − 1} : x = v(i)}|    mun:count-shift, from D1
+        = |{i ∈ {1, …, n − 1} : x = v(i)}|    mun:count-first-fails, from H7
         = m                                   D3
 
-11. r = m
+7.  r = m
     calculation
-      r = |{i ∈ {1, …, n − 1} : x = v(i)}|    9
+      r = |{i ∈ {1, …, n − 1} : x = v(i)}|    mun:count-last-fails, from D2, H8
         = m                                   D3
 
-12. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
-    substitute d = m (line 10) into line 6
+8.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + r
+    substitute d = m (line 6) into line 5
 
-13. |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
-    substitute r = m (line 11) into line 12
+9.  |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}| = m + m
+    substitute r = m (line 7) into line 8
 
-14. m + m = 2m
-    algebra
-
-15. deg(x) = 2m
+10. deg(x) = 2m
     calculation
       deg(x) = |{i ∈ {1, …, n} : x is incident with e(i)}|                 2
-             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           5
-             = m + m                                                  13
-             = 2m                                                     14
+             = |{i ∈ {1, …, n} : x = v(i − 1) or x = v(i)}|           mun:count-same, from 3
+             = m + m                                                  9
+             = 2m                                                     algebra
 
-16. deg(x) is even
-    def:even n := deg(x), from 15
+11. deg(x) is even
+    def:even n := deg(x), from 10
     requires |{i ∈ {1, …, n} : x is incident with e(i)}| ∈ ℕ₀: mun:count-nat0 k := n
     requires deg(x) ∈ ℕ₀: membership, from 2
 

@@ -42,57 +42,42 @@ theorem pythagoras
     A, D, C form a triangle. B, D, C form a triangle.
     obtain D: thm:altitude-foot P := A, Q := B, R := C, from H4, H5
 
-2.  ∠DAC = ∠BAC
-    mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
+2.  ∠DAC = ∠CAB
+    calculation
+      ∠DAC = ∠BAC       mun:angle-along-segment P := A, Q := B, R := C, S := D, from 1
+           = ∠CAB       mun:angle-symmetric P := B, Q := A, R := C, from H4
     requires C ≠ A: def:triangle, from H4
 
-3.  ∠BAC = ∠CAB
-    mun:angle-symmetric P := B, Q := A, R := C, from H4
-
-4.  ∠DAC = ∠CAB
-    calculation
-      ∠DAC = ∠BAC       2
-           = ∠CAB       3
-
-5.  ∠ADC = ∠ACB
+3.  ∠ADC = ∠ACB
     calculation
       ∠ADC = 90°        1
            = ∠ACB       H5
 
-6.  |AD|·|AB| = |AC|·|AC|
+4.  |AD|·|AB| = |AC|·|AC|
     thm:similar-triangles P := A, Q := D, R := C, P′ := A, Q′ := C, R′ := B,
-      from H4, 1, 4, 5
+      from H4, 1, 2, 3
 
-7.  D is between B and A
+5.  D is between B and A
     mun:between-symmetric R := D, S := A, T := B, from 1
 
-8.  ∠DBC = ∠ABC
-    mun:angle-along-segment P := B, Q := A, R := C, S := D, from 7
+6.  ∠DBC = ∠CBA
+    calculation
+      ∠DBC = ∠ABC       mun:angle-along-segment P := B, Q := A, R := C, S := D, from 5
+           = ∠CBA       mun:angle-symmetric P := A, Q := B, R := C, from H4
     requires C ≠ B: def:triangle, from H4
 
-9.  ∠ABC = ∠CBA
-    mun:angle-symmetric P := A, Q := B, R := C, from H4
-
-10. ∠DBC = ∠CBA
-    calculation
-      ∠DBC = ∠ABC       8
-           = ∠CBA       9
-
-11. ∠BCA = ∠ACB
-    mun:angle-symmetric P := B, Q := C, R := A, from H4
-
-12. ∠BDC = ∠BCA
+7.  ∠BDC = ∠BCA
     calculation
       ∠BDC = 90°        1
            = ∠ACB       H5
-           = ∠BCA       11
+           = ∠BCA       mun:angle-symmetric P := B, Q := C, R := A, from H4
 
-13. |BD|·|BA| = |BC|·|BC|
+8.  |BD|·|BA| = |BC|·|BC|
     thm:similar-triangles P := B, Q := D, R := C, P′ := B, Q′ := C, R′ := A,
-      from H4, 1, 10, 12
+      from H4, 1, 6, 7
 
-14. |AD| + |DB| = |AB|
+9.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from 1
 
-15. |AB|² = |AC|² + |BC|²
-    algebra, from 6, 13, 14
+10. |AB|² = |AC|² + |BC|²
+    algebra, from 4, 8, 9

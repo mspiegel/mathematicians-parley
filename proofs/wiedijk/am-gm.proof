@@ -137,34 +137,26 @@ theorem am-gm-power
                   algebra, from D1, D2, D3, 1.2.7
                   requires Σ(k = 1 to j) a(k) ∈ ℝ: mun:sum-real a := 1, b := j, from 1.2.3
 
-          1.2.9.  ∏(k = 1 to j + 1) a(k) = (∏(k = 1 to j) a(k))·a(j + 1)
-                  mun:product-extended a := 1, n := j, from 1.2.4
-                  requires j ≥ 1: from K1
-
-          1.2.10. (∏(k = 1 to j) a(k))·x ≤ A^j·x
-                  mun:multiply-le-nonneg, from D1, D2, 1.2.2, 1.2.6
-                  requires ∏(k = 1 to j) a(k) ∈ ℝ: mun:product-real a := 1, b := j, from 1.2.3
-
-          1.2.11. Σ(k = 1 to j) a(k) ≥ 0
+          1.2.9.  Σ(k = 1 to j) a(k) ≥ 0
                   mun:sum-nonneg a := 1, b := j, from 1.2.3
 
-          1.2.12. A ≥ 0
-                  mun:quotient-nonneg, from D2, K1, 1.2.11
+          1.2.10. A ≥ 0
+                  mun:quotient-nonneg, from D2, K1, 1.2.9
                   requires Σ(k = 1 to j) a(k) ∈ ℝ: mun:sum-real a := 1, b := j, from 1.2.3
 
-          1.2.13. Σ(k = 1 to j + 1) a(k) ≥ 0
+          1.2.11. Σ(k = 1 to j + 1) a(k) ≥ 0
                   mun:sum-nonneg a := 1, b := j + 1, from 1.2.4
 
-          1.2.14. B ≥ 0
-                  mun:quotient-nonneg, from D3, 1.2.13
+          1.2.12. B ≥ 0
+                  mun:quotient-nonneg, from D3, 1.2.11
                   requires Σ(k = 1 to j + 1) a(k) ∈ ℝ: mun:sum-real a := 1, b := j + 1, from 1.2.4
                   requires 0 < j + 1: inequalities, from K1
 
-          1.2.15. 0 < A or 0 = A
-                  mun:le-cases, from 1.2.12
+          1.2.13. 0 < A or 0 = A
+                  mun:le-cases, from 1.2.10
 
-          1.2.16. A^j·x ≤ B^(j + 1)
-                  cases, from 1.2.15
+          1.2.14. A^j·x ≤ B^(j + 1)
+                  cases, from 1.2.13
 
                   case
                   note Bernoulli's inequality at B/A − 1
@@ -174,88 +166,77 @@ theorem am-gm-power
                       membership, from C3
                       reads how many times A the new mean is
 
-                  1.2.16.1.  r ≥ 0
-                             mun:quotient-nonneg, from C3, D4, 1.2.14
+                  1.2.14.1.  r ≥ 0
+                             mun:quotient-nonneg, from C3, D4, 1.2.12
 
-                  1.2.16.2.  r − 1 ≥ −1
-                             inequalities, from 1.2.16.1
+                  1.2.14.2.  r − 1 ≥ −1
+                             inequalities, from 1.2.14.1
 
-                  1.2.16.3.  1 + (r − 1)·(j + 1) ≤ (1 + (r − 1))^(j + 1)
-                             thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.2.16.2
+                  1.2.14.3.  1 + (r − 1)·(j + 1) ≤ (1 + (r − 1))^(j + 1)
+                             thm:bernoulli-inequality x := r − 1, n := j + 1, from 1.2.14.2
 
-                  1.2.16.4.  1 + (r − 1) = r
-                             algebra
+                  1.2.14.4.  1 + (r − 1)·(j + 1) ≤ r^(j + 1)
+                             substitute
+                               1 + (r − 1)·(j + 1) ≤ (1 + (r − 1))^(j + 1)      1.2.14.3
+                               1 + (r − 1)·(j + 1) ≤ r^(j + 1)                  algebra
 
-                  1.2.16.5.  1 + (r − 1)·(j + 1) ≤ r^(j + 1)
-                             substitute 1 + (r − 1) = r (line 1.2.16.4) into line 1.2.16.3
-
-                  1.2.16.6.  A^j > 0
+                  1.2.14.5.  A^j > 0
                              mun:power-positive, from C3
 
-                  1.2.16.7.  A^j·A > 0
-                             mun:product-positive, from C3, 1.2.16.6
+                  1.2.14.6.  A^j·A > 0
+                             mun:product-positive, from C3, 1.2.14.5
 
-                  1.2.16.8.  (A^j·A)·(1 + (r − 1)·(j + 1)) ≤ (A^j·A)·r^(j + 1)
-                             mun:multiply-le, from 1.2.16.5, 1.2.16.7
-                             requires r^(j + 1) ∈ ℝ: mun:power-real
-
-                  1.2.16.9.  A·r = B
+                  1.2.14.7.  A·r = B
                              algebra, from D4
                              requires 0 ≠ A: weakening, from C3
 
-                  1.2.16.10. (A·r − A)·(j + 1) = x − A
-                             algebra, from 1.2.8, 1.2.16.9
+                  1.2.14.8.  (A·r − A)·(j + 1) = x − A
+                             algebra, from 1.2.8, 1.2.14.7
 
-                  1.2.16.11. (A^j·A)·(1 + (r − 1)·(j + 1)) = A^j·x
-                             algebra, from 1.2.16.10
+                  1.2.14.9.  (A^j·A)·(1 + (r − 1)·(j + 1)) = A^j·x
+                             algebra, from 1.2.14.8
 
-                  1.2.16.12. A^(j + 1) = A^j·A
+                  1.2.14.10. A^(j + 1) = A^j·A
                              mun:exponent-step
 
-                  1.2.16.13. (A^j·A)·r^(j + 1) = A^(j + 1)·r^(j + 1)
-                             substitute A^(j + 1) = A^j·A (line 1.2.16.12)
-
-                  1.2.16.14. (A·r)^(j + 1) = A^(j + 1)·r^(j + 1)
-                             mun:power-of-product
-
-                  1.2.16.15. (A·r)^(j + 1) = B^(j + 1)
-                             substitute A·r = B (line 1.2.16.9)
-
-                  1.2.16.16. A^j·x ≤ B^(j + 1)
+                  1.2.14.11. A^j·x ≤ B^(j + 1)
                              calculation
-                               A^j·x = (A^j·A)·(1 + (r − 1)·(j + 1))     1.2.16.11
-                                     ≤ (A^j·A)·r^(j + 1)                 1.2.16.8
-                                     = A^(j + 1)·r^(j + 1)               1.2.16.13
-                                     = (A·r)^(j + 1)                     1.2.16.14
-                                     = B^(j + 1)                         1.2.16.15
+                               A^j·x = (A^j·A)·(1 + (r − 1)·(j + 1))     1.2.14.9
+                                     ≤ (A^j·A)·r^(j + 1)                 mun:multiply-le, from 1.2.14.4, 1.2.14.6
+                                     = A^(j + 1)·r^(j + 1)               substitute line 1.2.14.10
+                                     = (A·r)^(j + 1)                     mun:power-of-product
+                                     = B^(j + 1)                         substitute line 1.2.14.7
+                             requires r^(j + 1) ∈ ℝ: mun:power-real
 
                   case
                   note A^j is 0, and B^(j + 1) is not negative
                   assume 0 = A                                        (C4)
 
-                  1.2.16.17. A^j·x = 0^j·x
+                  1.2.14.12. A^j·x = 0^j·x
                              substitute 0 = A (C4)
 
-                  1.2.16.18. 0^j = 0
+                  1.2.14.13. 0^j = 0
                              mun:zero-power n := j
 
-                  1.2.16.19. A^j·x = 0
-                             algebra, from 1.2.16.17, 1.2.16.18
+                  1.2.14.14. A^j·x = 0
+                             algebra, from 1.2.14.12, 1.2.14.13
 
-                  1.2.16.20. B^(j + 1) ≥ 0
-                             mun:power-nonneg, from 1.2.14
+                  1.2.14.15. B^(j + 1) ≥ 0
+                             mun:power-nonneg, from 1.2.12
 
-                  1.2.16.21. A^j·x ≤ B^(j + 1)
-                             transitivity, from 1.2.16.19, 1.2.16.20
+                  1.2.14.16. A^j·x ≤ B^(j + 1)
+                             transitivity, from 1.2.14.14, 1.2.14.15
                              requires B^(j + 1) ∈ ℝ: mun:power-real
 
-          1.2.17. ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)
+          1.2.15. ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)
                   calculation
-                    ∏(k = 1 to j + 1) a(k) = (∏(k = 1 to j) a(k))·a(j + 1)     1.2.9
+                    ∏(k = 1 to j + 1) a(k) = (∏(k = 1 to j) a(k))·a(j + 1)     mun:product-extended a := 1, n := j, from 1.2.4
                                            = (∏(k = 1 to j) a(k))·x            D1
-                                           ≤ A^j·x                               1.2.10
-                                           ≤ B^(j + 1)                           1.2.16
+                                           ≤ A^j·x                               mun:multiply-le-nonneg, from D1, D2, 1.2.2, 1.2.6
+                                           ≤ B^(j + 1)                           1.2.14
                                            = ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)    D3
+                  requires j ≥ 1: from K1
+                  requires ∏(k = 1 to j) a(k) ∈ ℝ: mun:product-real a := 1, b := j, from 1.2.3
 
 2.  If n ≤ n then ∏(k = 1 to n) a(k) ≤ ((Σ(k = 1 to n) a(k))/n)^n.
     instantiate j := n in line 1

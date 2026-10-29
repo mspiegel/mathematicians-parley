@@ -24,96 +24,54 @@ theorem de-moivre
     induction on k starting at 0
 
     base
-    2.1.  (cos(x) + i·sin(x))^0 = 1
+    2.1.  0·x = 0
           algebra
+
+    2.2.  cos(0) + i·sin(0) = 1 + i·sin(0)
+          substitute cos(0) = 1 (real arithmetic)
+
+    2.3.  1 + i·sin(0) = 1 + i·0
+          substitute sin(0) = 0 (real arithmetic)
+
+    2.4.  (cos(x) + i·sin(x))^0 = cos(0·x) + i·sin(0·x)
+          calculation
+            (cos(x) + i·sin(x))^0 = 1                         algebra
+                                  = 1 + i·0                   algebra
+                                  = 1 + i·sin(0)              2.3
+                                  = cos(0) + i·sin(0)         2.2
+                                  = cos(0·x) + i·sin(0·x)     substitute line 2.1
           requires cos(x) ∈ ℝ: mun:cos-real a := x
           requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
-
-    2.2.  0·x = 0
-          algebra
-
-    2.3.  cos(0·x) + i·sin(0·x) = cos(0) + i·sin(0)
-          substitute 0·x = 0 (line 2.2)
-
-    2.4.  cos(0) + i·sin(0) = 1 + i·sin(0)
-          substitute cos(0) = 1 (real arithmetic)
-
-    2.5.  1 + i·sin(0) = 1 + i·0
-          substitute sin(0) = 0 (real arithmetic)
-
-    2.6.  1 + i·0 = 1
-          algebra
-          requires i ∈ ℂ: mun:i-complex
-
-    2.7.  (cos(x) + i·sin(x))^0 = cos(0·x) + i·sin(0·x)
-          calculation
-            (cos(x) + i·sin(x))^0 = 1                         2.1
-                                  = 1 + i·0                   2.6
-                                  = 1 + i·sin(0)              2.5
-                                  = cos(0) + i·sin(0)         2.4
-                                  = cos(0·x) + i·sin(0·x)     2.3
 
     step
     let k ∈ ℕ₀                                                        (K)
     assume step 2 is true for k, the induction hypothesis             (IH)
 
-    2.8.  (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))
-          mun:exponent-step a := cos(x) + i·sin(x), m := k
-          requires cos(x) ∈ ℝ: mun:cos-real a := x
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
-          requires i ∈ ℂ: mun:i-complex
-
-    2.9.  (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x)) = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))
-          substitute (cos(x) + i·sin(x))^k = cos(k·x) + i·sin(k·x) (IH)
-
-    2.10. (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))
-          algebra
-          requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
-          requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
-          requires cos(x) ∈ ℝ: mun:cos-real a := x
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
-          requires i ∈ ℂ: mun:i-complex
-
-    2.11. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x)) = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))
-          substitute i·i = −1 (line 1)
-
-    2.12. cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x)) = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
-          algebra
-          requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
-          requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
-          requires cos(x) ∈ ℝ: mun:cos-real a := x
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
-          requires i ∈ ℂ: mun:i-complex
-
-    2.13. cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x)
+    2.5.  cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x)
           thm:cos-add a := k·x, b := x
 
-    2.14. sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x)
+    2.6.  sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x)
           thm:sin-add a := k·x, b := x
 
-    2.15. k·x + x = (k + 1)·x
+    2.7.  k·x + x = (k + 1)·x
           algebra
 
-    2.16. (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))
-          substitute cos(k·x + x) = cos(k·x)·cos(x) − sin(k·x)·sin(x) (line 2.13)
-
-    2.17. cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) = cos(k·x + x) + i·sin(k·x + x)
-          substitute sin(k·x + x) = sin(k·x)·cos(x) + cos(k·x)·sin(x) (line 2.14)
-
-    2.18. cos(k·x + x) + i·sin(k·x + x) = cos((k + 1)·x) + i·sin((k + 1)·x)
-          substitute k·x + x = (k + 1)·x (line 2.15)
-
-    2.19. (cos(x) + i·sin(x))^(k + 1) = cos((k + 1)·x) + i·sin((k + 1)·x)
+    2.8.  (cos(x) + i·sin(x))^(k + 1) = cos((k + 1)·x) + i·sin((k + 1)·x)
           calculation
-            (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))                  2.8
-                = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))                                        2.9
-                = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))  2.10
-                = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))   2.11
-                = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))      2.12
-                = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))                              2.16
-                = cos(k·x + x) + i·sin(k·x + x)                                                      2.17
-                = cos((k + 1)·x) + i·sin((k + 1)·x)                                                  2.18
+            (cos(x) + i·sin(x))^(k + 1) = (cos(x) + i·sin(x))^k·(cos(x) + i·sin(x))                  mun:exponent-step a := cos(x) + i·sin(x), m := k
+                = (cos(k·x) + i·sin(k·x))·(cos(x) + i·sin(x))                                        substitute IH
+                = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (i·i)·(sin(k·x)·sin(x))  algebra
+                = cos(k·x)·cos(x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x)) + (−1)·(sin(k·x)·sin(x))   substitute line 1
+                = (cos(k·x)·cos(x) − sin(k·x)·sin(x)) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))      algebra
+                = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))                              substitute line 2.5
+                = cos(k·x + x) + i·sin(k·x + x)                                                      substitute line 2.6
+                = cos((k + 1)·x) + i·sin((k + 1)·x)                                                  substitute line 2.7
+          requires cos(x) ∈ ℝ: mun:cos-real a := x
+          requires sin(x) ∈ ℝ: mun:sin-real a := x
+          requires i ∈ ℂ: mun:i-complex
+          requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
+          requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
 
 3.  (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
     instantiate k := n in line 2

@@ -136,104 +136,71 @@ let F(x) = (1/(m + 1))·q(x), for x ∈ [0, 1]                           (D3)
            mun:in-subset, from K1
            requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
 
-    19.2.  F′(x) = (1/(m + 1))·q′(x)
-           instantiate x := x in line 18, from K1
-
-    19.3.  q′(x) = (m + 1)·x^m
+    19.2.  q′(x) = (m + 1)·x^m
            instantiate x := x in line 16, from K1
 
-    19.4.  (1/(m + 1))·q′(x) = (1/(m + 1))·((m + 1)·x^m)
-           substitute q′(x) = (m + 1)·x^m (line 19.3)
-
-    19.5.  (1/(m + 1))·((m + 1)·x^m) = x^m
-           algebra
-           requires m + 1 ≠ 0: inequalities, from 1
-
-    19.6.  p(x) = x^m
+    19.3.  p(x) = x^m
            D1, from 19.1
 
-    19.7.  F′(x) = p(x)
+    19.4.  F′(x) = p(x)
            calculation
-             F′(x) = (1/(m + 1))·q′(x)              19.2
-                   = (1/(m + 1))·((m + 1)·x^m)      19.4
-                   = x^m                            19.5
-                   = p(x)                           19.6
+             F′(x) = (1/(m + 1))·q′(x)              instantiate x := x in line 18, from K1
+                   = (1/(m + 1))·((m + 1)·x^m)      substitute line 19.2
+                   = x^m                            algebra
+                   = p(x)                           19.3
+           requires m + 1 ≠ 0: inequalities, from 1
 
 20. 0 < 1
     arithmetic
 
-21. ∫(0 to 1) p(t) dt = F(1) − F(0)
-    thm:fundamental-calculus a := 0, b := 1, f := p, from 9, 11, 12, 14, 17, 19, 20
-
-22. 0 ∈ [0, 1]
+21. 0 ∈ [0, 1]
     def:interval a := 0, b := 1, x := 0
     requires 0 ≤ 0: arithmetic
     requires 0 ≤ 1: arithmetic
 
-23. 1 ∈ [0, 1]
+22. 1 ∈ [0, 1]
     def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
-24. q(1) = 1^(m + 1)
-    D2, from 23
-
-25. 1^(m + 1) = 1
-    mun:one-power m := m + 1
-
-26. q(0) = 0^(m + 1)
+23. q(1) = 1^(m + 1)
     D2, from 22
 
-27. 0^(m + 1) = 0
+24. 1^(m + 1) = 1
+    mun:one-power m := m + 1
+
+25. q(0) = 0^(m + 1)
+    D2, from 21
+
+26. 0^(m + 1) = 0
     mun:zero-power n := m + 1, from 1
 
-28. F(1) = (1/(m + 1))·q(1)
-    D3, from 23
-
-29. F(0) = (1/(m + 1))·q(0)
+27. F(1) = (1/(m + 1))·q(1)
     D3, from 22
 
-30. (1/(m + 1))·q(1) = (1/(m + 1))·1^(m + 1)
-    substitute q(1) = 1^(m + 1) (line 24)
+28. F(0) = (1/(m + 1))·q(0)
+    D3, from 21
 
-31. (1/(m + 1))·1^(m + 1) = (1/(m + 1))·1
-    substitute 1^(m + 1) = 1 (line 25)
-
-32. (1/(m + 1))·q(0) = (1/(m + 1))·0^(m + 1)
-    substitute q(0) = 0^(m + 1) (line 26)
-
-33. (1/(m + 1))·0^(m + 1) = (1/(m + 1))·0
-    substitute 0^(m + 1) = 0 (line 27)
-
-34. F(1) = (1/(m + 1))·1
+29. F(1) = (1/(m + 1))·1
     calculation
-      F(1) = (1/(m + 1))·q(1)          28
-           = (1/(m + 1))·1^(m + 1)     30
-           = (1/(m + 1))·1             31
+      F(1) = (1/(m + 1))·q(1)          27
+           = (1/(m + 1))·1^(m + 1)     substitute line 23
+           = (1/(m + 1))·1             substitute line 24
 
-35. F(0) = (1/(m + 1))·0
+30. F(0) = (1/(m + 1))·0
     calculation
-      F(0) = (1/(m + 1))·q(0)          29
-           = (1/(m + 1))·0^(m + 1)     32
-           = (1/(m + 1))·0             33
+      F(0) = (1/(m + 1))·q(0)          28
+           = (1/(m + 1))·0^(m + 1)     substitute line 25
+           = (1/(m + 1))·0             substitute line 26
 
-36. F(1) − F(0) = (1/(m + 1))·1 − F(0)
-    substitute F(1) = (1/(m + 1))·1 (line 34)
-
-37. (1/(m + 1))·1 − F(0) = (1/(m + 1))·1 − (1/(m + 1))·0
-    substitute F(0) = (1/(m + 1))·0 (line 35)
-
-38. (1/(m + 1))·1 − (1/(m + 1))·0 = 1/(m + 1)
-    algebra
-    requires m + 1 ≠ 0: inequalities, from 1
-
-39. ∫(0 to 1) t^m dt = 1/(m + 1)
+31. ∫(0 to 1) t^m dt = 1/(m + 1)
     calculation
       ∫(0 to 1) t^m dt = ∫(0 to 1) p(t) dt                     D1
-                       = F(1) − F(0)                           21
-                       = (1/(m + 1))·1 − F(0)                  36
-                       = (1/(m + 1))·1 − (1/(m + 1))·0         37
-                       = 1/(m + 1)                             38
+                       = F(1) − F(0)                           thm:fundamental-calculus a := 0, b := 1, f := p, from 9, 11, 12, 14, 17, 19, 20
+                       = (1/(m + 1))·1 − F(0)                  substitute line 29
+                       = (1/(m + 1))·1 − (1/(m + 1))·0         substitute line 30
+                       = 1/(m + 1)                             algebra
+    requires m + 1 ≠ 0: inequalities, from 1
 
 theorem integrand-continuous
   note        x^(2n) and 1 + x² are continuous, and 1 + x² is never 0, so
@@ -404,82 +371,61 @@ let F(x) = arctan(x), for x ∈ [0, 1]                                  (D2)
            mun:in-subset, from K2
            requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
 
-    12.2.  F′(x) = 1/(1 + x²)
-           instantiate x := x in line 11, from K2
-
-    12.3.  x^(2·0) = x^0
-           substitute 2·0 = 0 (arithmetic)
-
-    12.4.  x^0 = 1
-           algebra
-
-    12.5.  x^(2·0) = 1
+    12.2.  x^(2·0) = 1
            calculation
-             x^(2·0) = x^0     12.3
-                     = 1       12.4
+             x^(2·0) = x^0     arithmetic
+                     = 1       algebra
 
-    12.6.  x^(2·0)/(1 + x²) = 1/(1 + x²)
-           substitute x^(2·0) = 1 (line 12.5)
-
-    12.7.  g(x) = x^(2·0)/(1 + x²)
+    12.3.  g(x) = x^(2·0)/(1 + x²)
            D1, from 12.1
 
-    12.8.  F′(x) = g(x)
+    12.4.  F′(x) = g(x)
            calculation
-             F′(x) = 1/(1 + x²)              12.2
-                   = x^(2·0)/(1 + x²)        12.6
-                   = g(x)                    12.7
+             F′(x) = 1/(1 + x²)              instantiate x := x in line 11, from K2
+                   = x^(2·0)/(1 + x²)        substitute line 12.2
+                   = g(x)                    12.3
 
 13. 0 < 1
     arithmetic
 
-14. ∫(0 to 1) g(t) dt = F(1) − F(0)
-    thm:fundamental-calculus a := 0, b := 1, f := g, from 5, 7, 8, 9, 10, 12, 13
-
-15. 0 ∈ [0, 1]
+14. 0 ∈ [0, 1]
     def:interval a := 0, b := 1, x := 0
     requires 0 ≤ 0: arithmetic
     requires 0 ≤ 1: arithmetic
 
-16. 1 ∈ [0, 1]
+15. 1 ∈ [0, 1]
     def:interval a := 0, b := 1, x := 1
     requires 0 ≤ 1: arithmetic
     requires 1 ≤ 1: arithmetic
 
-17. arctan(0) = 0. arctan(1) = π/4.
+16. arctan(0) = 0. arctan(1) = π/4.
     mun:arctan-values
 
-18. F(1) = arctan(1)
-    D2, from 16
-
-19. F(0) = arctan(0)
+17. F(1) = arctan(1)
     D2, from 15
 
-20. F(1) = π/4
-    calculation
-      F(1) = arctan(1)      18
-           = π/4            17
+18. F(0) = arctan(0)
+    D2, from 14
 
-21. F(0) = 0
+19. F(1) = π/4
     calculation
-      F(0) = arctan(0)      19
-           = 0              17
+      F(1) = arctan(1)      17
+           = π/4            16
 
-22. J(0) = ∫(0 to 1) g(t) dt
+20. F(0) = 0
+    calculation
+      F(0) = arctan(0)      18
+           = 0              16
+
+21. J(0) = ∫(0 to 1) g(t) dt
     D0, from D1
 
-23. F(1) − F(0) = π/4 − F(0)
-    substitute F(1) = π/4 (line 20)
-
-24. π/4 − F(0) = π/4 − 0
-    substitute F(0) = 0 (line 21)
-
-25. J(0) = π/4
+22. J(0) = π/4
     calculation
-      J(0) = ∫(0 to 1) g(t) dt     22
-           = F(1) − F(0)           14
-           = π/4 − F(0)            23
-           = π/4 − 0               24
+      J(0) = ∫(0 to 1) g(t) dt     21
+           = F(1) − F(0)           thm:fundamental-calculus a := 0, b := 1, f := g, from 5, 7, 8, 9, 10, 12, 13
+           = π/4 − F(0)            substitute line 19
+           = π/4 − 0               substitute line 20
            = π/4                   real arithmetic
 
 theorem integral-recurrence
@@ -776,76 +722,60 @@ theorem series-remainder
     induction on n starting at 0
 
     base
-    2.1.  Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^0/(2·0 + 1)
-          mun:sum-single a := 0, from 1
-
-    2.2.  Σ(j = 0 to 0) (−1)^j/(2j + 1) = 1
+    2.1.  Σ(j = 0 to 0) (−1)^j/(2j + 1) = 1
           calculation
-            Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^0/(2·0 + 1)     2.1
+            Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^0/(2·0 + 1)     mun:sum-single a := 0, from 1
                                           = 1                    arithmetic
 
-    2.3.  π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = π/4 − 1
-          substitute Σ(j = 0 to 0) (−1)^j/(2j + 1) = 1 (line 2.2)
-
-    2.4.  J(0 + 1) = 1/(2·0 + 1) − J(0)
+    2.2.  J(0 + 1) = 1/(2·0 + 1) − J(0)
           thm:integral-recurrence n := 0
 
-    2.5.  J(0) = π/4
-          thm:integral-of-arctan-derivative
+    2.3.  J(0 + 1) = 1/(2·0 + 1) − π/4
+          substitute
+            J(0 + 1) = 1/(2·0 + 1) − J(0)      2.2
+            J(0 + 1) = 1/(2·0 + 1) − π/4       thm:integral-of-arctan-derivative
 
-    2.6.  J(0 + 1) = 1/(2·0 + 1) − π/4
-          substitute J(0) = π/4 (line 2.5) into line 2.4
+    2.4.  (−1)·J(0 + 1) = π/4 − 1
+          algebra, from 2.3
 
-    2.7.  (−1)^(0 + 1)·J(0 + 1) = (−1)·J(0 + 1)
-          substitute (−1)^(0 + 1) = −1 (arithmetic)
-
-    2.8.  (−1)·J(0 + 1) = π/4 − 1
-          algebra, from 2.6
-
-    2.9.  π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^(0 + 1)·J(0 + 1)
+    2.5.  π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = (−1)^(0 + 1)·J(0 + 1)
           calculation
-            π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = π/4 − 1                    2.3
-                                                = (−1)·J(0 + 1)              2.8
-                                                = (−1)^(0 + 1)·J(0 + 1)      2.7
+            π/4 − Σ(j = 0 to 0) (−1)^j/(2j + 1) = π/4 − 1                    substitute line 2.1
+                                                = (−1)·J(0 + 1)              2.4
+                                                = (−1)^(0 + 1)·J(0 + 1)      arithmetic
 
     step
     let n ∈ ℕ₀                                                        (K)
     assume step 2 is true for n, the induction hypothesis             (IH)
 
-    2.10. Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)
+    2.6.  Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)
           mun:sum-last, from 1
 
-    2.11. π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1))
-          substitute Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1) (line 2.10)
-
-    2.12. π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
+    2.7.  π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1)) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
           algebra, from IH
           requires Σ(j = 0 to n) (−1)^j/(2j + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
           requires (−1)^(n + 1) ∈ ℝ: membership
           requires 2(n + 1) + 1 ∈ ℕ: mun:nat0-successor k := 2(n + 1)
           requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
-    2.13. J((n + 1) + 1) = 1/(2(n + 1) + 1) − J(n + 1)
+    2.8.  J((n + 1) + 1) = 1/(2(n + 1) + 1) − J(n + 1)
           thm:integral-recurrence n := n + 1
 
-    2.14. (−1)^((n + 1) + 1) = (−1)^(n + 1)·(−1)
+    2.9.  (−1)^((n + 1) + 1) = (−1)^(n + 1)·(−1)
           mun:exponent-step a := −1, m := n + 1
 
-    2.15. (−1)^((n + 1) + 1)·J((n + 1) + 1) = (−1)^(n + 1)·(−1)·J((n + 1) + 1)
-          substitute (−1)^((n + 1) + 1) = (−1)^(n + 1)·(−1) (line 2.14)
-
-    2.16. (−1)^(n + 1)·(−1)·J((n + 1) + 1) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
-          algebra, from 2.13
+    2.10. (−1)^(n + 1)·(−1)·J((n + 1) + 1) = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)
+          algebra, from 2.8
           requires (−1)^(n + 1) ∈ ℝ: membership
           requires 2(n + 1) + 1 ∈ ℕ: mun:nat0-successor k := 2(n + 1)
           requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
-    2.17. π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = (−1)^((n + 1) + 1)·J((n + 1) + 1)
+    2.11. π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = (−1)^((n + 1) + 1)·J((n + 1) + 1)
           calculation
-            π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1))    2.11
-                                                    = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)                    2.12
-                                                    = (−1)^(n + 1)·(−1)·J((n + 1) + 1)                                       2.16
-                                                    = (−1)^((n + 1) + 1)·J((n + 1) + 1)                                      2.15
+            π/4 − Σ(j = 0 to n + 1) (−1)^j/(2j + 1) = π/4 − (Σ(j = 0 to n) (−1)^j/(2j + 1) + (−1)^(n + 1)/(2(n + 1) + 1))    substitute line 2.6
+                                                    = (−1)^(n + 1)·J(n + 1) − (−1)^(n + 1)/(2(n + 1) + 1)                    2.7
+                                                    = (−1)^(n + 1)·(−1)·J((n + 1) + 1)                                       2.10
+                                                    = (−1)^((n + 1) + 1)·J((n + 1) + 1)                                      substitute line 2.9
 
 theorem leibniz
   metamath    leibpisum
@@ -885,79 +815,47 @@ theorem leibniz
                   requires (−1)^(n + 1) ∈ ℝ: membership
                   requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
-          3.2.3.  |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = |−((−1)^(n + 1)·J(n + 1))|
-                  substitute Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4 = −((−1)^(n + 1)·J(n + 1)) (line 3.2.2)
-
-          3.2.4.  |−((−1)^(n + 1)·J(n + 1))| = |(−1)^(n + 1)·J(n + 1)|
-                  mun:abs-negative x := (−1)^(n + 1)·J(n + 1)
-                  requires (−1)^(n + 1) ∈ ℝ: membership
-                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
-
-          3.2.5.  |(−1)^(n + 1)·J(n + 1)| = |(−1)^(n + 1)|·|J(n + 1)|
-                  mun:abs-product x := (−1)^(n + 1), y := J(n + 1)
-                  requires (−1)^(n + 1) ∈ ℝ: membership
-                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
-
-          3.2.6.  |(−1)^(n + 1)| = |−1|^(n + 1)
-                  mun:abs-power x := −1, n := n + 1
-
-          3.2.7.  |−1| = |1|
-                  mun:abs-negative x := 1
-
-          3.2.8.  |1| = 1
-                  mun:abs-one
-
-          3.2.9.  |−1| = 1
+          3.2.3.  |−1| = 1
                   calculation
-                    |−1| = |1|     3.2.7
-                         = 1       3.2.8
+                    |−1| = |1|     mun:abs-negative x := 1
+                         = 1       mun:abs-one
 
-          3.2.10. |−1|^(n + 1) = 1^(n + 1)
-                  substitute |−1| = 1 (line 3.2.9)
-
-          3.2.11. 1^(n + 1) = 1
-                  mun:one-power m := n + 1
-
-          3.2.12. |(−1)^(n + 1)| = 1
+          3.2.4.  |(−1)^(n + 1)| = 1
                   calculation
-                    |(−1)^(n + 1)| = |−1|^(n + 1)     3.2.6
-                                   = 1^(n + 1)        3.2.10
-                                   = 1                3.2.11
+                    |(−1)^(n + 1)| = |−1|^(n + 1)     mun:abs-power x := −1, n := n + 1
+                                   = 1^(n + 1)        substitute line 3.2.3
+                                   = 1                mun:one-power m := n + 1
 
-          3.2.13. J(n + 1) ∈ ℝ. J(n + 1) ≥ 0. J(n + 1) ≤ 1/(2(n + 1) + 1).
+          3.2.5.  J(n + 1) ∈ ℝ. J(n + 1) ≥ 0. J(n + 1) ≤ 1/(2(n + 1) + 1).
                   thm:integral-bounds n := n + 1
 
-          3.2.14. |J(n + 1)| = J(n + 1)
-                  def:abs x := J(n + 1), from 3.2.13
+          3.2.6.  |J(n + 1)| = J(n + 1)
+                  def:abs x := J(n + 1), from 3.2.5
 
-          3.2.15. |(−1)^(n + 1)|·|J(n + 1)| = 1·|J(n + 1)|
-                  substitute |(−1)^(n + 1)| = 1 (line 3.2.12)
+          3.2.7.  1·J(n + 1) = J(n + 1)
+                  algebra, from 3.2.5
 
-          3.2.16. 1·|J(n + 1)| = 1·J(n + 1)
-                  substitute |J(n + 1)| = J(n + 1) (line 3.2.14)
-
-          3.2.17. 1·J(n + 1) = J(n + 1)
-                  algebra, from 3.2.13
-
-          3.2.18. |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = J(n + 1)
+          3.2.8.  |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = J(n + 1)
                   calculation
-                    |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = |−((−1)^(n + 1)·J(n + 1))|      3.2.3
-                                                          = |(−1)^(n + 1)·J(n + 1)|         3.2.4
-                                                          = |(−1)^(n + 1)|·|J(n + 1)|       3.2.5
-                                                          = 1·|J(n + 1)|                    3.2.15
-                                                          = 1·J(n + 1)                      3.2.16
-                                                          = J(n + 1)                        3.2.17
+                    |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| = |−((−1)^(n + 1)·J(n + 1))|      substitute line 3.2.2
+                                                          = |(−1)^(n + 1)·J(n + 1)|         mun:abs-negative x := (−1)^(n + 1)·J(n + 1)
+                                                          = |(−1)^(n + 1)|·|J(n + 1)|       mun:abs-product x := (−1)^(n + 1), y := J(n + 1)
+                                                          = 1·|J(n + 1)|                    substitute line 3.2.4
+                                                          = 1·J(n + 1)                      substitute line 3.2.6
+                                                          = J(n + 1)                        3.2.7
+                  requires (−1)^(n + 1) ∈ ℝ: membership
+                  requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
-          3.2.19. N ≤ 2(n + 1) + 1
+          3.2.9.  N ≤ 2(n + 1) + 1
                   inequalities, from A2, K2
 
-          3.2.20. 1/(2(n + 1) + 1) ≤ 1/N
-                  mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.19
+          3.2.10. 1/(2(n + 1) + 1) ≤ 1/N
+                  mun:reciprocal-order x := N, y := 2(n + 1) + 1, from 3.2.9
                   requires N > 0: inequalities, from 3.1
                   requires 2(n + 1) + 1 > 0: inequalities, from K2
 
-          3.2.21. |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε
-                  transitivity, from 3.2.18, 3.2.13, 3.2.20, 3.1
+          3.2.11. |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε
+                  transitivity, from 3.2.8, 3.2.5, 3.2.10, 3.1
 
     3.3.  There exists N ∈ ℕ such that |Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4| < ε for all n ≥ N.
           exhibit, from 3.2

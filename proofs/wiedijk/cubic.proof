@@ -80,150 +80,144 @@ let y = 3·a·x + b, a complex number                                  (D3)
 11. (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²) = y³ − 3·M·y + N
     algebra, from H15, 8
 
-12. (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²) = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))
-    substitute (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = y² − (T + M/T)·y + T² − M + M²/T² (line 10)
-
-13. y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))
+12. y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))
     calculation
       y³ − 3·M·y + N = (y + T + M/T)·(y² − (T + M/T)·y + T² − M + M²/T²)              11
-                     = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    12
+                     = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    substitute line 10
 
-14. a·x³ + b·x² + c·x + d = 0 ↔ there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+13. a·x³ + b·x² + c·x + d = 0 ↔ there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
     both directions
 
     direction
     assume a·x³ + b·x² + c·x + d = 0                                  (A1)
 
-    14.1. y³ − 3·M·y + N = 0
+    13.1. y³ − 3·M·y + N = 0
           algebra, from A1, H6, 9
 
-    14.2. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+    13.2. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
           calculation
-            (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = y³ − 3·M·y + N    13
-                = 0                                                                         14.1
+            (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = y³ − 3·M·y + N    12
+                = 0                                                                         13.1
 
-    14.3. y + T + M/T = 0 or (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = 0
-          mun:zero-product x := y + T + M/T, y := (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)), from 14.2
+    13.3. y + T + M/T = 0 or (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = 0
+          mun:zero-product x := y + T + M/T, y := (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)), from 13.2
           requires y + T + M/T ∈ ℂ: membership, from H15
           requires (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) ∈ ℂ: membership, from H15, 6, 7
 
-    14.4. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
-          cases, from 14.3
+    13.4. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+          cases, from 13.3
 
           case
           assume y + T + M/T = 0                                      (C1)
 
-          14.4.1. x = −(b + T + M/T)/(3·a)
+          13.4.1. x = −(b + T + M/T)/(3·a)
                   algebra, from C1, D3, H6, H15
 
-          14.4.2. 1 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+          13.4.2. 1 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
                   mun:triple-members
 
-          14.4.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
-                  exhibit, from 14.4.1, 14.4.2
+          13.4.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                  exhibit, from 13.4.1, 13.4.2
 
           case
           assume (y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)) = 0      (C2)
 
-          14.4.4. y + ω₁·T + M/(ω₁·T) = 0 or y + ω₂·T + M/(ω₂·T) = 0
+          13.4.4. y + ω₁·T + M/(ω₁·T) = 0 or y + ω₂·T + M/(ω₂·T) = 0
                   mun:zero-product x := y + ω₁·T + M/(ω₁·T), y := y + ω₂·T + M/(ω₂·T), from C2
                   requires y + ω₁·T + M/(ω₁·T) ∈ ℂ: membership, from H15, 6
                   requires y + ω₂·T + M/(ω₂·T) ∈ ℂ: membership, from H15, 7
 
-          14.4.5. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
-                  cases, from 14.4.4
+          13.4.5. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                  cases, from 13.4.4
 
                   case
                   assume y + ω₁·T + M/(ω₁·T) = 0                      (C3)
 
-                  14.4.5.1. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
+                  13.4.5.1. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
                             algebra, from C3, D1, D3, H6, H15, 1, 6
 
-                  14.4.5.2. (−1 + i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+                  13.4.5.2. (−1 + i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
                             mun:triple-members
 
-                  14.4.5.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
-                            exhibit, from 14.4.5.1, 14.4.5.2
+                  13.4.5.3. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                            exhibit, from 13.4.5.1, 13.4.5.2
 
                   case
                   assume y + ω₂·T + M/(ω₂·T) = 0                      (C4)
 
-                  14.4.5.4. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
+                  13.4.5.4. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
                             algebra, from C4, D2, D3, H6, H15, 1, 7
 
-                  14.4.5.5. (−1 − i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
+                  13.4.5.5. (−1 − i·√3)/2 ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}
                             mun:triple-members
 
-                  14.4.5.6. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
-                            exhibit, from 14.4.5.4, 14.4.5.5
+                  13.4.5.6. there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)
+                            exhibit, from 13.4.5.4, 13.4.5.5
 
     direction
     assume there is r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2} with x = −(b + r·T + M/(r·T))/(3·a)    (A2)
 
-    14.5. r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}. x = −(b + r·T + M/(r·T))/(3·a).
+    13.5. r ∈ {1, (−1 + i·√3)/2, (−1 − i·√3)/2}. x = −(b + r·T + M/(r·T))/(3·a).
           obtain r from A2
 
-    14.6. r = 1 or r = (−1 + i·√3)/2 or r = (−1 − i·√3)/2
-          def:triple x := r, from 14.5
+    13.6. r = 1 or r = (−1 + i·√3)/2 or r = (−1 − i·√3)/2
+          def:triple x := r, from 13.5
 
-    14.7. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
-          cases, from 14.6
+    13.7. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+          cases, from 13.6
 
           case
           assume r = 1 or r = (−1 + i·√3)/2                           (C5)
 
-          14.7.1. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+          13.7.1. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
                   cases, from C5
 
                   case
                   assume r = 1                                        (C6)
 
-                  14.7.1.1. x = −(b + 1·T + M/(1·T))/(3·a)
-                            substitute r = 1 (C6) into line 14.5
+                  13.7.1.1. x = −(b + 1·T + M/(1·T))/(3·a)
+                            substitute r = 1 (C6) into line 13.5
 
-                  14.7.1.2. y + T + M/T = 0
-                            algebra, from D3, H6, H15, 14.7.1.1
+                  13.7.1.2. y + T + M/T = 0
+                            algebra, from D3, H6, H15, 13.7.1.1
 
-                  14.7.1.3. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
-                            algebra, from H15, 6, 7, 14.7.1.2
+                  13.7.1.3. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                            algebra, from H15, 6, 7, 13.7.1.2
 
                   case
                   assume r = (−1 + i·√3)/2                            (C7)
 
-                  14.7.1.4. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
-                            substitute r = (−1 + i·√3)/2 (C7) into line 14.5
+                  13.7.1.4. x = −(b + ((−1 + i·√3)/2)·T + M/(((−1 + i·√3)/2)·T))/(3·a)
+                            substitute r = (−1 + i·√3)/2 (C7) into line 13.5
 
-                  14.7.1.5. y + ω₁·T + M/(ω₁·T) = 0
-                            algebra, from D1, D3, H6, H15, 1, 6, 14.7.1.4
+                  13.7.1.5. y + ω₁·T + M/(ω₁·T) = 0
+                            algebra, from D1, D3, H6, H15, 1, 6, 13.7.1.4
 
-                  14.7.1.6. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
-                            algebra, from H15, 6, 7, 14.7.1.5
+                  13.7.1.6. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                            algebra, from H15, 6, 7, 13.7.1.5
 
           case
           assume r = (−1 − i·√3)/2                                    (C8)
 
-          14.7.2. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
-                  substitute r = (−1 − i·√3)/2 (C8) into line 14.5
+          13.7.2. x = −(b + ((−1 − i·√3)/2)·T + M/(((−1 − i·√3)/2)·T))/(3·a)
+                  substitute r = (−1 − i·√3)/2 (C8) into line 13.5
 
-          14.7.3. y + ω₂·T + M/(ω₂·T) = 0
-                  algebra, from D2, D3, H6, H15, 1, 7, 14.7.2
+          13.7.3. y + ω₂·T + M/(ω₂·T) = 0
+                  algebra, from D2, D3, H6, H15, 1, 7, 13.7.2
 
-          14.7.4. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
-                  algebra, from H15, 6, 7, 14.7.3
+          13.7.4. (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T))) = 0
+                  algebra, from H15, 6, 7, 13.7.3
 
-    14.8. y³ − 3·M·y + N = 0
+    13.8. y³ − 3·M·y + N = 0
           calculation
-            y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    13
-                           = 0                                                                14.7
+            y³ − 3·M·y + N = (y + T + M/T)·((y + ω₁·T + M/(ω₁·T))·(y + ω₂·T + M/(ω₂·T)))    12
+                           = 0                                                                13.7
 
-    14.9. (y³ − 3·M·y + N)/(27·a²) = 0/(27·a²)
-          substitute y³ − 3·M·y + N = 0 (line 14.8)
-
-    14.10. 0/(27·a²) = 0
+    13.9.  0/(27·a²) = 0
            algebra, from H6
 
-    14.11. a·x³ + b·x² + c·x + d = 0
+    13.10. a·x³ + b·x² + c·x + d = 0
            calculation
              a·x³ + b·x² + c·x + d = (y³ − 3·M·y + N)/(27·a²)    9
-                                   = 0/(27·a²)                   14.9
-                                   = 0                           14.10
+                                   = 0/(27·a²)                   substitute line 13.8
+                                   = 0                           13.9

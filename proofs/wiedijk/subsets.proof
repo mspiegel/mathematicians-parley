@@ -62,24 +62,15 @@ theorem add-element-bijection
     1.5.  (S ∪ {a}) ∖ {a} = S ∖ {a}
           mun:difference-of-union
 
-    1.6.  (T ∪ {a}) ∖ {a} = T ∖ {a}
-          mun:difference-of-union
-
-    1.7.  S ∖ {a} = S
-          mun:difference-absent, from 1.3
-
-    1.8.  T ∖ {a} = T
-          mun:difference-absent, from 1.4
-
-    1.9.  (T ∪ {a}) ∖ {a} = S ∖ {a}
+    1.6.  (T ∪ {a}) ∖ {a} = S ∖ {a}
           substitute S ∪ {a} = T ∪ {a} (K3) into line 1.5
 
-    1.10. S = T
+    1.7.  S = T
           calculation
-            S = S ∖ {a}            1.7
-              = (T ∪ {a}) ∖ {a}    1.9
-              = T ∖ {a}            1.6
-              = T                  1.8
+            S = S ∖ {a}            mun:difference-absent, from 1.3
+              = (T ∪ {a}) ∖ {a}    1.6
+              = T ∖ {a}            mun:difference-of-union
+              = T                  mun:difference-absent, from 1.4
 
 2.  There is a bijection from 𝒫X to {S ∪ {a} : S ∈ 𝒫X}.
     mun:image-of-injection Y := 𝒫X, from 1
@@ -151,27 +142,26 @@ theorem powerset-split
                   mun:added-element-in-image Y := 𝒫(X ∖ {a}), s := V ∖ {a},
                     from 1.3.2
 
-          1.3.4.  (V ∖ {a}) ∪ {a} = V
-                  mun:remove-and-restore, from C1
+          1.3.4.  V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  substitute
+                    (V ∖ {a}) ∪ {a} ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}      1.3.3
+                    V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}                    mun:remove-and-restore, from C1
 
-          1.3.5.  V ∈ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  substitute (V ∖ {a}) ∪ {a} = V (line 1.3.4) into line 1.3.3
-
-          1.3.6.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  mun:in-union-right, from 1.3.5
+          1.3.5.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  mun:in-union-right, from 1.3.4
 
           case
           note V leaves a out, so it is a subset of X ∖ {a}
           assume a ∉ V                                                (C2)
 
-          1.3.7.  V ⊆ X ∖ {a}
+          1.3.6.  V ⊆ X ∖ {a}
                   mun:subset-into-difference, from C2, 1.1
 
-          1.3.8.  V ∈ 𝒫(X ∖ {a})
-                  def:powerset S := V, from 1.3.7
+          1.3.7.  V ∈ 𝒫(X ∖ {a})
+                  def:powerset S := V, from 1.3.6
 
-          1.3.9.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
-                  mun:in-union-left, from 1.3.8
+          1.3.8.  V ∈ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
+                  mun:in-union-left, from 1.3.7
 
 2.  𝒫X ⊆ 𝒫(X ∖ {a}) ∪ {S ∪ {a} : S ∈ 𝒫(X ∖ {a})}
     def:subset, from 1

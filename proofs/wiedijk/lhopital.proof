@@ -201,111 +201,99 @@ theorem quotient-two-points
     4.11. ξ ∈ ℝ. v < ξ. ξ < u.
           def:open-interval a := v, b := u, x := ξ, from 4.8
 
-    4.12. |ξ − u| = −(ξ − u)
-          def:abs x := ξ − u
-          requires ξ − u < 0: adding −u, from 4.11
-
-    4.13. |v − u| = −(v − u)
-          def:abs x := v − u
-          requires v − u < 0: adding −u, from C1
-
-    4.14. −(ξ − u) < −(v − u)
+    4.12. −(ξ − u) < −(v − u)
           inequalities
             v < ξ                    4.11
             v − u < ξ − u            adding −u
             −(v − u) > −(ξ − u)      multiplying by −1
             −(ξ − u) < −(v − u)      restate
 
-    4.15. |ξ − u| < |v − u|
+    4.13. |ξ − u| < |v − u|
           calculation
-            |ξ − u| = −(ξ − u)       4.12
-                    < −(v − u)       4.14
-                    = |v − u|        4.13
+            |ξ − u| = −(ξ − u)       def:abs x := ξ − u
+                    < −(v − u)       4.12
+                    = |v − u|        def:abs x := v − u
+          requires ξ − u < 0: adding −u, from 4.11
+          requires v − u < 0: adding −u, from C1
 
-    4.16. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
-          exhibit, from 4.9, 4.10, 4.15
+    4.14. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          exhibit, from 4.9, 4.10, 4.13
 
-    4.17. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
-          join 4.7, 4.16
+    4.15. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          join 4.7, 4.14
 
     case
     note on [u, v] Cauchy's quotient is the one claimed
     assume u < v                                                      (C2)
 
-    4.18. [u, v] ⊆ (a, b)
+    4.16. [u, v] ⊆ (a, b)
           mun:closed-within-open p := u, q := v, from H3, H4
 
-    4.19. (u, v) ⊆ (a, b)
-          mun:subset-transitive X := (u, v), Y := [u, v], Z := (a, b), from 4.18
+    4.17. (u, v) ⊆ (a, b)
+          mun:subset-transitive X := (u, v), Y := [u, v], Z := (a, b), from 4.16
           requires (u, v) ⊆ [u, v]: mun:open-within-closed a := u, b := v
 
-    4.20. u ∉ (u, v)
+    4.18. u ∉ (u, v)
           contradiction
           suppose u ∈ (u, v)                                          (S2)
 
-          4.20.1. u < u
+          4.18.1. u < u
                   def:open-interval a := u, b := v, x := u, from S2
 
-          4.20.2. not u < u
-                  inequalities, contradicting 4.20.1
+          4.18.2. not u < u
+                  inequalities, contradicting 4.18.1
 
-    4.21. (u, v) ⊆ (a, b) ∖ {u}
-          mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.19, 4.20
+    4.19. (u, v) ⊆ (a, b) ∖ {u}
+          mun:subset-into-difference a := u, X := (a, b), Y := (u, v), from 4.17, 4.18
 
-    4.22. G(u) ≠ G(v). There is ξ ∈ (u, v) with (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+    4.20. G(u) ≠ G(v). There is ξ ∈ (u, v) with (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
           thm:cauchy-quotient E := (a, b), U := (a, b) ∖ {u}, p := u, q := v,
-            from C2, H10, H11, H12, 1, 2, 4.18, 4.21
-          requires F is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H8, 1, 4.18
-          requires G is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H9, 1, 4.18
+            from C2, H10, H11, H12, 1, 2, 4.16, 4.19
+          requires F is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H8, 1, 4.16
+          requires G is continuous on [u, v]: mun:continuous-on-part D := (a, b), S := [u, v], from H9, 1, 4.16
 
-    4.23. G(u) ≠ G(v)
-          restate 4.22
+    4.21. G(u) ≠ G(v)
+          restate 4.20
 
-    4.24. ξ ∈ (u, v). (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
-          obtain ξ from line 4.22
+    4.22. ξ ∈ (u, v). (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          obtain ξ from line 4.20
 
-    4.25. ξ ∈ (a, b) ∖ {u}
-          mun:in-subset, from 4.21, 4.24
+    4.23. ξ ∈ (a, b) ∖ {u}
+          mun:in-subset, from 4.19, 4.22
 
-    4.26. ξ ∈ ℝ. u < ξ. ξ < v.
-          def:open-interval a := u, b := v, x := ξ, from 4.24
+    4.24. ξ ∈ ℝ. u < ξ. ξ < v.
+          def:open-interval a := u, b := v, x := ξ, from 4.22
 
-    4.27. ξ − u > 0
+    4.25. ξ − u > 0
           inequalities
-            u < ξ                    4.26
+            u < ξ                    4.24
             0 < ξ − u                adding −u
             ξ − u > 0                restate
 
-    4.28. v − u > 0
+    4.26. v − u > 0
           inequalities
             u < v                    C2
             0 < v − u                adding −u
             v − u > 0                restate
 
-    4.29. |ξ − u| = ξ − u
-          def:abs x := ξ − u
-          requires ξ − u ≥ 0: weakening, from 4.27
-
-    4.30. |v − u| = v − u
-          def:abs x := v − u
-          requires v − u ≥ 0: weakening, from 4.28
-
-    4.31. ξ − u < v − u
+    4.27. ξ − u < v − u
           inequalities
-            ξ < v                    4.26
+            ξ < v                    4.24
             ξ − u < v − u            adding −u
 
-    4.32. |ξ − u| < |v − u|
+    4.28. |ξ − u| < |v − u|
           calculation
-            |ξ − u| = ξ − u          4.29
-                    < v − u          4.31
-                    = |v − u|        4.30
+            |ξ − u| = ξ − u          def:abs x := ξ − u
+                    < v − u          4.27
+                    = |v − u|        def:abs x := v − u
+          requires ξ − u ≥ 0: weakening, from 4.25
+          requires v − u ≥ 0: weakening, from 4.26
 
-    4.33. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
-          exhibit, from 4.24, 4.25, 4.32
+    4.29. There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          exhibit, from 4.22, 4.23, 4.28
 
-    4.34. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
-          join 4.23, 4.33
+    4.30. G(u) ≠ G(v). There is ξ ∈ (a, b) ∖ {u} with |ξ − u| < |v − u| and (F(v) − F(u))/(G(v) − G(u)) = F′(ξ)/G′(ξ).
+          join 4.21, 4.29
 
 theorem quotient-between
   metamath    lhop1lem, which bounds the quotient near the limit instead

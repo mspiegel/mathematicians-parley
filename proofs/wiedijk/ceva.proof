@@ -74,92 +74,74 @@ theorem cevian-ratio
     requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
     requires ∠ODC ∈ ℝ: mun:triangle-angle-real P := O, Q := D, R := C, from 6
 
-15. sin(∠ODC) = sin(180° − ∠BDO)
-    substitute ∠ODC = 180° − ∠BDO (line 14)
-
-16. sin(180° − ∠BDO) = sin(∠BDO)
-    mun:sin-supplement x := ∠BDO
+15. sin(∠ODC) = sin(∠BDO)
+    calculation
+      sin(∠ODC) = sin(180° − ∠BDO)      substitute line 14
+                = sin(∠BDO)            mun:sin-supplement x := ∠BDO
     requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
 
-17. sin(∠ODC) = sin(∠BDO)
-    calculation
-      sin(∠ODC) = sin(180° − ∠BDO)      15
-                = sin(∠BDO)            16
-
-18. ∠DOB = 180° − ∠BOA
+16. ∠DOB = 180° − ∠BOA
     algebra, from 12
     requires ∠DOB ∈ ℝ: mun:triangle-angle-real P := D, Q := O, R := B, from 5
     requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
 
-19. sin(∠DOB) = sin(180° − ∠BOA)
-    substitute ∠DOB = 180° − ∠BOA (line 18)
-
-20. sin(180° − ∠BOA) = sin(∠BOA)
-    mun:sin-supplement x := ∠BOA
+17. sin(∠DOB) = sin(∠BOA)
+    calculation
+      sin(∠DOB) = sin(180° − ∠BOA)      substitute line 16
+                = sin(∠BOA)            mun:sin-supplement x := ∠BOA
     requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
 
-21. sin(∠DOB) = sin(∠BOA)
-    calculation
-      sin(∠DOB) = sin(180° − ∠BOA)      19
-                = sin(∠BOA)            20
-
-22. ∠COD = 180° − ∠AOC
+18. ∠COD = 180° − ∠AOC
     algebra, from 13
     requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
     requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from 6
 
-23. sin(∠COD) = sin(180° − ∠AOC)
-    substitute ∠COD = 180° − ∠AOC (line 22)
-
-24. sin(180° − ∠AOC) = sin(∠AOC)
-    mun:sin-supplement x := ∠AOC
+19. sin(∠COD) = sin(∠AOC)
+    calculation
+      sin(∠COD) = sin(180° − ∠AOC)      substitute line 18
+                = sin(∠AOC)            mun:sin-supplement x := ∠AOC
     requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
 
-25. sin(∠COD) = sin(∠AOC)
-    calculation
-      sin(∠COD) = sin(180° − ∠AOC)      23
-                = sin(∠AOC)            24
+20. |BD|·sin(∠BDO) = |BO|·sin(∠BOA)
+    substitute sin(∠DOB) = sin(∠BOA) (line 17) into line 9
 
-26. |BD|·sin(∠BDO) = |BO|·sin(∠BOA)
-    substitute sin(∠DOB) = sin(∠BOA) (line 21) into line 9
+21. |CO|·sin(∠AOC) = |CD|·sin(∠ODC)
+    substitute sin(∠COD) = sin(∠AOC) (line 19) into line 10
 
-27. |CO|·sin(∠AOC) = |CD|·sin(∠ODC)
-    substitute sin(∠COD) = sin(∠AOC) (line 25) into line 10
+22. |CO|·sin(∠AOC) = |CD|·sin(∠BDO)
+    substitute sin(∠ODC) = sin(∠BDO) (line 15) into line 21
 
-28. |CO|·sin(∠AOC) = |CD|·sin(∠BDO)
-    substitute sin(∠ODC) = sin(∠BDO) (line 17) into line 27
-
-29. |OB| > 0
+23. |OB| > 0
     axi:distance-positive P := O, Q := B
     requires O ≠ B: def:triangle, from 5
 
-30. sin(∠BOA) > 0
+24. sin(∠BOA) > 0
     mun:sine-positive P := B, Q := O, R := A, from 7
 
-31. |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA)) = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))
-    algebra, from 28
+25. |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA)) = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))
+    algebra, from 22
     requires ∠AOC ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := C, from 8
     requires sin(∠AOC) ∈ ℝ: mun:sin-real a := ∠AOC
     requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
     requires sin(∠BDO) ∈ ℝ: mun:sin-real a := ∠BDO
     requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
     requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
-    requires |OB| ≠ 0: weakening, from 29
-    requires sin(∠BOA) ≠ 0: weakening, from 30
+    requires |OB| ≠ 0: weakening, from 23
+    requires sin(∠BOA) ≠ 0: weakening, from 24
 
-32. |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA)) = |DC|
-    algebra, from 26
+26. |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA)) = |DC|
+    algebra, from 20
     requires ∠BDO ∈ ℝ: mun:triangle-angle-real P := B, Q := D, R := O, from 5
     requires sin(∠BDO) ∈ ℝ: mun:sin-real a := ∠BDO
     requires ∠BOA ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := A, from 7
     requires sin(∠BOA) ∈ ℝ: mun:sin-real a := ∠BOA
-    requires |OB| ≠ 0: weakening, from 29
-    requires sin(∠BOA) ≠ 0: weakening, from 30
+    requires |OB| ≠ 0: weakening, from 23
+    requires sin(∠BOA) ≠ 0: weakening, from 24
 
-33. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+27. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
     calculation
-      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     32
-           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     31
+      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     26
+           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     25
 
 theorem ceva
   metamath    cevath, which states it of the differences rather than their
@@ -310,24 +292,15 @@ let z = |OB|·sin(∠COB)/(|OA|·sin(∠AOC))                               (D3)
     requires sin(∠COB) ≠ 0: weakening, from 11
     requires sin(∠AOC) ≠ 0: weakening, from 12
 
-29. |FB|·|DC|·|EA| = |AF|·z·|DC|·|EA|
-    substitute |FB| = |AF|·z (line 27)
-
-30. |AF|·z·|DC|·|EA| = |AF|·z·(|BD|·x)·|EA|
-    substitute |DC| = |BD|·x (line 25)
-
-31. |AF|·z·(|BD|·x)·|EA| = |AF|·z·(|BD|·x)·(|CE|·y)
-    substitute |EA| = |CE|·y (line 26)
-
-32. |AF|·z·(|BD|·x)·(|CE|·y) = |AF|·|BD|·|CE|
+29. |AF|·z·(|BD|·x)·(|CE|·y) = |AF|·|BD|·|CE|
     algebra, from 28
     requires x ∈ ℝ: from 22
     requires y ∈ ℝ: from 23
     requires z ∈ ℝ: from 24
 
-33. |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
+30. |AF|·|BD|·|CE| = |FB|·|DC|·|EA|
     calculation
-      |AF|·|BD|·|CE| = |AF|·z·(|BD|·x)·(|CE|·y)      32
-                     = |AF|·z·(|BD|·x)·|EA|          31
-                     = |AF|·z·|DC|·|EA|              30
-                     = |FB|·|DC|·|EA|                29
+      |AF|·|BD|·|CE| = |AF|·z·(|BD|·x)·(|CE|·y)      29
+                     = |AF|·z·(|BD|·x)·|EA|          substitute line 26
+                     = |AF|·z·|DC|·|EA|              substitute line 25
+                     = |FB|·|DC|·|EA|                substitute line 27

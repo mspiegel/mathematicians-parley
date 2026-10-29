@@ -21,17 +21,8 @@ theorem isosceles
     axi:side-angle-side P := A, Q := C, R := B, P′ := B, Q′ := C, R′ := A,
       from H4, H5, 1
 
-3.  ∠BAC = ∠ABC
-    def:congruent, from 2
-
-4.  ∠CAB = ∠BAC
-    mun:angle-symmetric P := C, Q := A, R := B, from H4
-
-5.  ∠ABC = ∠CBA
-    mun:angle-symmetric P := A, Q := B, R := C, from H4
-
-6.  ∠CAB = ∠CBA
+3.  ∠CAB = ∠CBA
     calculation
-      ∠CAB = ∠BAC       4
-           = ∠ABC       3
-           = ∠CBA       5
+      ∠CAB = ∠BAC       mun:angle-symmetric P := C, Q := A, R := B, from H4
+           = ∠ABC       def:congruent, from 2
+           = ∠CBA       mun:angle-symmetric P := A, Q := B, R := C, from H4

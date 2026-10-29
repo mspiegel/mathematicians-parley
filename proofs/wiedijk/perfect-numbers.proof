@@ -84,102 +84,65 @@ theorem euclid-perfect
     4.4.  2^p − 1 divides 2^p − (2^p − 1)
           mun:divides-difference d := 2^p − 1, a := 2^p, b := 2^p − 1, from 4.2, 4.3
 
-    4.5.  2^p − (2^p − 1) = 1
-          algebra
+    4.5.  2^p − 1 divides 1
+          substitute
+            2^p − 1 divides 2^p − (2^p − 1)      4.4
+            2^p − 1 divides 1                    algebra
 
-    4.6.  2^p − 1 divides 1
-          substitute 2^p − (2^p − 1) = 1 (line 4.5) into line 4.4
-
-    4.7.  2^p − 1 = 1
-          mun:divides-one d := 2^p − 1, from 4.6
+    4.6.  2^p − 1 = 1
+          mun:divides-one d := 2^p − 1, from 4.5
           requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
-    4.8.  2^p − 1 > 1
+    4.7.  2^p − 1 > 1
           def:prime p := 2^p − 1, from H2
           requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
-    4.9.  2^p − 1 ≠ 1
-          inequalities, contradicting 4.7
-            2^p − 1 > 1      4.8
+    4.8.  2^p − 1 ≠ 1
+          inequalities, contradicting 4.6
+            2^p − 1 > 1      4.7
             2^p − 1 ≠ 1      weakening
 
-5.  gcd(2^p − 1, 2^(p − 1)) = 1
-    mun:prime-coprime p := 2^p − 1, a := 2^(p − 1), from H2, 4
-    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
-    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
-    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-
-6.  gcd(2^(p − 1), 2^p − 1) = gcd(2^p − 1, 2^(p − 1))
-    mun:gcd-commutes a := 2^(p − 1), b := 2^p − 1
-    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
-    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-
-7.  gcd(2^(p − 1), 2^p − 1) = 1
+5.  gcd(2^(p − 1), 2^p − 1) = 1
     calculation
-      gcd(2^(p − 1), 2^p − 1) = gcd(2^p − 1, 2^(p − 1))     6
-                             = 1                            5
-
-8.  σ(2^(p − 1)·(2^p − 1)) = σ(2^(p − 1))·σ(2^p − 1)
-    thm:sigma-multiplicative m := 2^(p − 1), n := 2^p − 1, from 7
+      gcd(2^(p − 1), 2^p − 1) = gcd(2^p − 1, 2^(p − 1))     mun:gcd-commutes a := 2^(p − 1), b := 2^p − 1
+                             = 1                            mun:prime-coprime p := 2^p − 1, a := 2^(p − 1), from H2, 4
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
-    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
-9.  σ(2^p − 1) = (2^p − 1) + 1
-    thm:sigma-prime p := 2^p − 1, from H2
-    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
-
-10. (2^p − 1) + 1 = 2^p
-    algebra
-
-11. σ(2^p − 1) = 2^p
+6.  σ(2^p − 1) = 2^p
     calculation
-      σ(2^p − 1) = (2^p − 1) + 1      9
-                 = 2^p                10
+      σ(2^p − 1) = (2^p − 1) + 1      thm:sigma-prime p := 2^p − 1, from H2
+                 = 2^p                algebra
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
-12. σ(2^(p − 1)) = Σ(j = 0 to p − 1) 2^j
-    thm:sigma-prime-power p := 2, k := p − 1
+7.  σ(2^(p − 1)) = 2^p − 1
+    calculation
+      σ(2^(p − 1)) = Σ(j = 0 to p − 1) 2^j            thm:sigma-prime-power p := 2, k := p − 1
+                   = (1 − 2^((p − 1) + 1))/(1 − 2)    thm:geometric-sum a := 2, n := p − 1
+                   = (1 − 2^p)/(1 − 2)                substitute line 1
+                   = 2^p − 1                          algebra
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2 is prime: mun:two-prime
-
-13. Σ(j = 0 to p − 1) 2^j = (1 − 2^((p − 1) + 1))/(1 − 2)
-    thm:geometric-sum a := 2, n := p − 1
-    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2 ≠ 1: arithmetic
 
-14. (1 − 2^((p − 1) + 1))/(1 − 2) = (1 − 2^p)/(1 − 2)
-    substitute (p − 1) + 1 = p (line 1)
-
-15. (1 − 2^p)/(1 − 2) = 2^p − 1
-    algebra
-
-16. σ(2^(p − 1)) = 2^p − 1
-    calculation
-      σ(2^(p − 1)) = Σ(j = 0 to p − 1) 2^j            12
-                   = (1 − 2^((p − 1) + 1))/(1 − 2)    13
-                   = (1 − 2^p)/(1 − 2)                14
-                   = 2^p − 1                          15
-
-17. σ(2^(p − 1))·σ(2^p − 1) = (2^p − 1)·σ(2^p − 1)
-    substitute σ(2^(p − 1)) = 2^p − 1 (line 16)
-
-18. (2^p − 1)·σ(2^p − 1) = (2^p − 1)·2^p
-    substitute σ(2^p − 1) = 2^p (line 11)
-
-19. (2^p − 1)·2^p = 2·(2^(p − 1)·(2^p − 1))
+8.  (2^p − 1)·2^p = 2·(2^(p − 1)·(2^p − 1))
     algebra, from 3
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℝ: membership
 
-20. σ(2^(p − 1)·(2^p − 1)) = 2·(2^(p − 1)·(2^p − 1))
+9.  σ(2^(p − 1)·(2^p − 1)) = 2·(2^(p − 1)·(2^p − 1))
     calculation
-      σ(2^(p − 1)·(2^p − 1)) = σ(2^(p − 1))·σ(2^p − 1)      8
-                             = (2^p − 1)·σ(2^p − 1)          17
-                             = (2^p − 1)·2^p                 18
-                             = 2·(2^(p − 1)·(2^p − 1))       19
+      σ(2^(p − 1)·(2^p − 1)) = σ(2^(p − 1))·σ(2^p − 1)      thm:sigma-multiplicative m := 2^(p − 1), n := 2^p − 1, from 5
+                             = (2^p − 1)·σ(2^p − 1)          substitute line 7
+                             = (2^p − 1)·2^p                 substitute line 6
+                             = 2·(2^(p − 1)·(2^p − 1))       8
+    requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
+    requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
+    requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
 
-21. 2^(p − 1)·(2^p − 1) is perfect
-    def:perfect n := 2^(p − 1)·(2^p − 1), from 20
+10. 2^(p − 1)·(2^p − 1) is perfect
+    def:perfect n := 2^(p − 1)·(2^p − 1), from 9
     requires p − 1 ∈ ℕ₀: mun:nat-minus-one n := p
     requires 2^(p − 1) ∈ ℕ: mun:power-nat a := 2, m := p − 1
     requires 2^p − 1 ∈ ℕ: mun:prime-nat p := 2^p − 1, from H2
@@ -332,22 +295,16 @@ theorem three-divisors
 6.  {1, e, m} ⊆ {d ∈ ℕ : d divides m}
     mun:triple-subset, from 3, 4, 5
 
-7.  Σ(d ∈ {1, e, m}) d ≤ σ(m)
-    mun:sigma-part n := m, Y := {1, e, m}, from 6
-
-8.  1 < m
+7.  1 < m
     transitivity, from H4, H5
 
-9.  Σ(d ∈ {1, e, m}) d = 1 + e + m
-    mun:sum-of-three a := 1, b := e, c := m
-    requires 1 ≠ e: weakening, from H4
-    requires 1 ≠ m: weakening, from 8
-    requires e ≠ m: weakening, from H5
-
-10. σ(m) ≥ 1 + e + m
+8.  σ(m) ≥ 1 + e + m
     calculation
-      σ(m) ≥ Σ(d ∈ {1, e, m}) d            7
-           = 1 + e + m                      9
+      σ(m) ≥ Σ(d ∈ {1, e, m}) d            mun:sigma-part n := m, Y := {1, e, m}, from 6
+           = 1 + e + m                      mun:sum-of-three a := 1, b := e, c := m
+    requires 1 ≠ e: weakening, from H4
+    requires 1 ≠ m: weakening, from 7
+    requires e ≠ m: weakening, from H5
 
 theorem euler-perfect
   metamath    perfect
@@ -371,19 +328,16 @@ theorem euler-perfect
     2.1.  n = 2^0·m
           substitute k = 0 (S1) into line 1
 
-    2.2.  2^0·m = m
-          algebra
-
-    2.3.  n = m
+    2.2.  n = m
           calculation
             n = 2^0·m       2.1
-              = m           2.2
+              = m           algebra
 
-    2.4.  n is odd
-          substitute n = m (line 2.3) into line 1
+    2.3.  n is odd
+          substitute n = m (line 2.2) into line 1
 
-    2.5.  n is not odd
-          mun:not-both, from H2, contradicting 2.4
+    2.4.  n is not odd
+          mun:not-both, from H2, contradicting 2.3
 
 3.  k ∈ ℕ
     mun:nat0-nonzero m := k, from 2
@@ -428,14 +382,13 @@ let p = k + 1, a positive integer                                     (D1)
     9.5.  2 divides 2^p − (2^p − 1)
           mun:divides-difference d := 2, a := 2^p, b := 2^p − 1, from S2, 9.4
 
-    9.6.  2^p − (2^p − 1) = 1
-          algebra
+    9.6.  2 divides 1
+          substitute
+            2 divides 2^p − (2^p − 1)      9.5
+            2 divides 1                    algebra
 
-    9.7.  2 divides 1
-          substitute 2^p − (2^p − 1) = 1 (line 9.6) into line 9.5
-
-    9.8.  2 = 1, which is impossible
-          mun:divides-one d := 2, from 9.7
+    9.7.  2 = 1, which is impossible
+          mun:divides-one d := 2, from 9.6
 
 10. gcd(2, 2^p − 1) = 1
     mun:prime-coprime p := 2, a := 2^p − 1, from 9
@@ -452,217 +405,190 @@ let p = k + 1, a positive integer                                     (D1)
 13. gcd(2^k, m) = 1
     mun:coprime-power a := 2, b := m, from 12
 
-14. σ(2^k·m) = σ(2^k)·σ(m)
-    thm:sigma-multiplicative m := 2^k, n := m, from 13
-
-15. σ(2^k) = Σ(j = 0 to k) 2^j
-    thm:sigma-prime-power p := 2
-    requires 2 is prime: mun:two-prime
-
-16. Σ(j = 0 to k) 2^j = (1 − 2^(k + 1))/(1 − 2)
-    thm:geometric-sum a := 2, n := k
-    requires 2 ≠ 1: arithmetic
-
-17. (1 − 2^(k + 1))/(1 − 2) = 2^p − 1
+14. (1 − 2^(k + 1))/(1 − 2) = 2^p − 1
     algebra, from D1
     requires 2^(k + 1) ∈ ℕ: mun:power-nat a := 2, m := k + 1
 
-18. σ(2^k) = 2^p − 1
+15. σ(2^k) = 2^p − 1
     calculation
-      σ(2^k) = Σ(j = 0 to k) 2^j               15
-             = (1 − 2^(k + 1))/(1 − 2)         16
-             = 2^p − 1                         17
+      σ(2^k) = Σ(j = 0 to k) 2^j               thm:sigma-prime-power p := 2
+             = (1 − 2^(k + 1))/(1 − 2)         thm:geometric-sum a := 2, n := k
+             = 2^p − 1                         14
+    requires 2 is prime: mun:two-prime
+    requires 2 ≠ 1: arithmetic
 
-19. σ(n) = 2n
-    def:perfect, from H3
-
-20. σ(n) = σ(2^k·m)
-    substitute n = 2^k·m (line 1)
-
-21. σ(2^k)·σ(m) = (2^p − 1)·σ(m)
-    substitute σ(2^k) = 2^p − 1 (line 18)
-
-22. 2n = 2^p·m
+16. 2n = 2^p·m
     algebra, from 1, 8
 
-23. (2^p − 1)·σ(m) = 2^p·m
+17. (2^p − 1)·σ(m) = 2^p·m
     calculation
-      (2^p − 1)·σ(m) = σ(2^k)·σ(m)       21
-                     = σ(2^k·m)           14
-                     = σ(n)               20
-                     = 2n                 19
-                     = 2^p·m              22
+      (2^p − 1)·σ(m) = σ(2^k)·σ(m)       substitute line 15
+                     = σ(2^k·m)           thm:sigma-multiplicative m := 2^k, n := m, from 13
+                     = σ(n)               substitute line 1
+                     = 2n                 def:perfect, from H3
+                     = 2^p·m              16
 
-24. σ(m) ∈ ℕ
+18. σ(m) ∈ ℕ
     mun:sigma-nat n := m
 
-25. m·2^p = (2^p − 1)·σ(m)
-    algebra, from 23
-    requires σ(m) ∈ ℝ: from 24
+19. m·2^p = (2^p − 1)·σ(m)
+    algebra, from 17
+    requires σ(m) ∈ ℝ: from 18
 
-26. 2^p − 1 divides m·2^p
-    def:divides d := 2^p − 1, n := m·2^p, from 24, 25
+20. 2^p − 1 divides m·2^p
+    def:divides d := 2^p − 1, n := m·2^p, from 18, 19
 
-27. 2^p − 1 divides m
-    thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 26
+21. 2^p − 1 divides m
+    thm:coprime-divides x := m, c := 2^p, n := 2^p − 1, from 7, 11, 20
 
 let c = m/(2^p − 1), a positive integer                               (D2)
-    mun:divides-quotient n := m, d := 2^p − 1, from 7, 27
+    mun:divides-quotient n := m, d := 2^p − 1, from 7, 21
     reads m with the factor 2^p − 1 taken out
 
-28. m = (2^p − 1)·c
+22. m = (2^p − 1)·c
     algebra, from D2
     requires 2^p − 1 ≠ 0: from 7
 
-29. σ(m)·(2^p − 1) = (2^p·c)·(2^p − 1)
-    algebra, from 23, 28
-    requires σ(m) ∈ ℝ: from 24
+23. σ(m)·(2^p − 1) = (2^p·c)·(2^p − 1)
+    algebra, from 17, 22
+    requires σ(m) ∈ ℝ: from 18
 
-30. σ(m) = 2^p·c
-    mun:multiply-cancel a := σ(m), b := 2^p·c, c := 2^p − 1, from 29
-    requires σ(m) ∈ ℝ: from 24
+24. 2^p·c = m + c
+    algebra, from 22
+
+25. σ(m) = m + c
+    calculation
+      σ(m) = 2^p·c       mun:multiply-cancel a := σ(m), b := 2^p·c, c := 2^p − 1, from 23
+           = m + c       24
+    requires σ(m) ∈ ℝ: from 18
     requires 2^p − 1 ≠ 0: from 7
 
-31. 2^p·c = m + c
-    algebra, from 28
-
-32. σ(m) = m + c
-    calculation
-      σ(m) = 2^p·c       30
-           = m + c       31
-
-33. c = 1
+26. c = 1
     contradiction
     note were c more than 1, m would have the three divisors 1, c and m
     suppose c ≠ 1                                                     (S3)
 
-    33.1.  2^p − 1 − 1 > 0
+    26.1.  2^p − 1 − 1 > 0
            inequalities, from 6
 
-    33.2.  (2^p − 1 − 1)·c > 0
-           mun:product-positive x := 2^p − 1 − 1, y := c, from D2, 33.1
+    26.2.  (2^p − 1 − 1)·c > 0
+           mun:product-positive x := 2^p − 1 − 1, y := c, from D2, 26.1
 
-    33.3.  (2^p − 1 − 1)·c = m − c
-           algebra, from 28
+    26.3.  (2^p − 1 − 1)·c = m − c
+           algebra, from 22
 
-    33.4.  m − c > 0
-           substitute (2^p − 1 − 1)·c = m − c (line 33.3) into line 33.2
+    26.4.  m − c > 0
+           substitute (2^p − 1 − 1)·c = m − c (line 26.3) into line 26.2
 
-    33.5.  c < m
+    26.5.  c < m
            inequalities
-             m − c > 0        33.4
+             m − c > 0        26.4
              m > c            adding c
              c < m            restate
 
-    33.6.  1 < c
+    26.6.  1 < c
            inequalities, from D2, S3
            requires 2^p − 1 ≠ 0: from 7
 
-    33.7.  m = c·(2^p − 1)
-           algebra, from 28
+    26.7.  m = c·(2^p − 1)
+           algebra, from 22
 
-    33.8.  c divides m
-           def:divides d := c, n := m, from 33.7
+    26.8.  c divides m
+           def:divides d := c, n := m, from 26.7
 
-    33.9.  σ(m) ≥ 1 + c + m
-           thm:three-divisors e := c, from 33.5, 33.6, 33.8
+    26.9.  σ(m) ≥ 1 + c + m
+           thm:three-divisors e := c, from 26.5, 26.6, 26.8
 
-    33.10. 1 + c + m ≤ m + c
-           transitivity, from 33.9, 32
+    26.10. 1 + c + m ≤ m + c
+           transitivity, from 26.9, 25
 
-    33.11. 1 ≤ 0, which is impossible
+    26.11. 1 ≤ 0, which is impossible
            inequalities
-             1 + c + m ≤ m + c        33.10
+             1 + c + m ≤ m + c        26.10
              1 ≤ 0                    adding −c − m
 
-34. m = 2^p − 1
-    substitute c = 1 (line 33) into line 28
+27. m = 2^p − 1
+    substitute c = 1 (line 26) into line 22
 
-35. σ(m) = m + 1
-    substitute c = 1 (line 33) into line 32
+28. σ(m) = m + 1
+    substitute c = 1 (line 26) into line 25
 
-36. For all d ∈ ℕ, if d divides m then d = 1 or d = m.
+29. For all d ∈ ℕ, if d divides m then d = 1 or d = m.
     proof
     note a divisor other than 1 and m would make σ(m) more than m + 1
     let d ∈ ℕ                                                         (K1)
     assume d divides m                                                (A1)
 
-    36.1.  d = 1 or d ≠ 1
+    29.1.  d = 1 or d ≠ 1
            axi:excluded-middle P := d = 1
 
-    36.2.  d = 1 or d = m
-           cases, from 36.1
+    29.2.  d = 1 or d = m
+           cases, from 29.1
 
            case
            assume d = 1                                               (C1)
 
-           36.2.1.  d = 1 or d = m
+           29.2.1.  d = 1 or d = m
                     mun:or-left, from C1
 
            case
            assume d ≠ 1                                               (C2)
 
-           36.2.2.  d = m or d ≠ m
+           29.2.2.  d = m or d ≠ m
                     axi:excluded-middle P := d = m
 
-           36.2.3.  d = 1 or d = m
-                    cases, from 36.2.2
+           29.2.3.  d = 1 or d = m
+                    cases, from 29.2.2
 
                     case
                     assume d = m                                      (C3)
 
-                    36.2.3.1.  d = 1 or d = m
+                    29.2.3.1.  d = 1 or d = m
                                mun:or-right, from C3
 
                     case
                     assume d ≠ m                                      (C4)
 
-                    36.2.3.2.  d ≤ m
+                    29.2.3.2.  d ≤ m
                                mun:divides-le e := d, from A1
 
-                    36.2.3.3.  1 < d
+                    29.2.3.3.  1 < d
                                inequalities, from C2, K1
 
-                    36.2.3.4.  d < m
-                               inequalities, from C4, 36.2.3.2
+                    29.2.3.4.  d < m
+                               inequalities, from C4, 29.2.3.2
 
-                    36.2.3.5.  σ(m) ≥ 1 + d + m
-                               thm:three-divisors e := d, from A1, 36.2.3.3, 36.2.3.4
+                    29.2.3.5.  σ(m) ≥ 1 + d + m
+                               thm:three-divisors e := d, from A1, 29.2.3.3, 29.2.3.4
 
-                    36.2.3.6.  1 + d + m ≤ m + 1
-                               transitivity, from 36.2.3.5, 35
+                    29.2.3.6.  1 + d + m ≤ m + 1
+                               transitivity, from 29.2.3.5, 28
 
-                    36.2.3.7.  d ≤ 0
+                    29.2.3.7.  d ≤ 0
                                inequalities
-                                 1 + d + m ≤ m + 1        36.2.3.6
+                                 1 + d + m ≤ m + 1        29.2.3.6
                                  d ≤ 0                    adding −1 − m
 
-                    36.2.3.8.  not 1 < d
-                               inequalities, from 36.2.3.7, contradicting 36.2.3.3
+                    29.2.3.8.  not 1 < d
+                               inequalities, from 29.2.3.7, contradicting 29.2.3.3
 
-37. m > 1
-    substitute m = 2^p − 1 (line 34) into line 6
+30. m > 1
+    substitute m = 2^p − 1 (line 27) into line 6
 
-38. m is prime
-    def:prime p := m, from 36, 37
+31. m is prime
+    def:prime p := m, from 29, 30
 
-39. 2^p − 1 is prime
-    substitute m = 2^p − 1 (line 34) into line 38
+32. 2^p − 1 is prime
+    substitute m = 2^p − 1 (line 27) into line 31
 
-40. p − 1 = k
+33. p − 1 = k
     algebra, from D1
 
-41. 2^k·m = 2^(p − 1)·m
-    substitute p − 1 = k (line 40)
-
-42. 2^(p − 1)·m = 2^(p − 1)·(2^p − 1)
-    substitute m = 2^p − 1 (line 34)
-
-43. n = 2^(p − 1)·(2^p − 1)
+34. n = 2^(p − 1)·(2^p − 1)
     calculation
       n = 2^k·m                       1
-        = 2^(p − 1)·m                 41
-        = 2^(p − 1)·(2^p − 1)         42
+        = 2^(p − 1)·m                 substitute line 33
+        = 2^(p − 1)·(2^p − 1)         substitute line 27
 
-44. There is p ∈ ℕ with 2^p − 1 is prime and n = 2^(p − 1)·(2^p − 1).
-    exhibit, from 39, 43
+35. There is p ∈ ℕ with 2^p − 1 is prime and n = 2^(p − 1)·(2^p − 1).
+    exhibit, from 32, 34

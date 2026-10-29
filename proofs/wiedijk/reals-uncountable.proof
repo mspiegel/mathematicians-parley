@@ -93,11 +93,10 @@ theorem digit-step
     2.1.  10 divides (t + 1) − t
           substitute s(t) = t (S1) into line 1
 
-    2.2.  (t + 1) − t = 1
-          algebra
-
-    2.3.  10 divides 1, which is impossible
-          substitute (t + 1) − t = 1 (line 2.2) into line 2.1
+    2.2.  10 divides 1, which is impossible
+          substitute
+            10 divides (t + 1) − t      2.1
+            10 divides 1                algebra
 
 theorem digit-step-twice
   note        Changing it twice does not bring it back either: if s(s(t))
@@ -128,12 +127,11 @@ theorem digit-step-twice
           requires (t + 1) − s(t) ∈ ℤ: membership, from H1, 1
           requires (s(t) + 1) − t ∈ ℤ: membership, from H1, 1
 
-    4.3.  ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2
-          algebra
+    4.3.  10 divides 2, which is impossible
+          substitute
+            10 divides ((t + 1) − s(t)) + ((s(t) + 1) − t)      4.2
+            10 divides 2                                        algebra
           requires s(t) ∈ ℝ: membership, from 1
-
-    4.4.  10 divides 2, which is impossible
-          substitute ((t + 1) − s(t)) + ((s(t) + 1) − t) = 2 (line 4.3) into line 4.2
 
 theorem decimal-number
   note        The digits name a real number x: the least upper bound of the

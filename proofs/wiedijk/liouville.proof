@@ -105,89 +105,71 @@ let g = (t ∈ [a, b] ↦ f(t))                                           (D1)
 14. c ∈ (a, b). g′(c) = (g(b) − g(a))/(b − a).
     obtain c: thm:mean-value f := g, from H6, 4, 6, 12
 
-15. g′(c) = f′(c)
-    instantiate x := c in line 13, from 14
-
-16. a ∈ [a, b]
+15. a ∈ [a, b]
     def:interval x := a
     requires a ≤ a: inequalities, from H4
     requires a ≤ b: weakening, from H6
 
-17. b ∈ [a, b]
+16. b ∈ [a, b]
     def:interval x := b
     requires a ≤ b: weakening, from H6
     requires b ≤ b: inequalities, from H5
 
-18. g(a) = f(a)
+17. g(a) = f(a)
+    D1, from 15
+
+18. g(b) = f(b)
     D1, from 16
 
-19. g(b) = f(b)
-    D1, from 17
-
-20. (g(b) − g(a))/(b − a) = (f(b) − g(a))/(b − a)
-    substitute g(b) = f(b) (line 19)
-
-21. (f(b) − g(a))/(b − a) = (f(b) − f(a))/(b − a)
-    substitute g(a) = f(a) (line 18)
-
-22. f′(c) = (f(b) − f(a))/(b − a)
+19. f′(c) = (f(b) − f(a))/(b − a)
     calculation
-      f′(c) = g′(c)                        15
+      f′(c) = g′(c)                        instantiate x := c in line 13, from 14
             = (g(b) − g(a))/(b − a)        14
-            = (f(b) − g(a))/(b − a)        20
-            = (f(b) − f(a))/(b − a)        21
+            = (f(b) − g(a))/(b − a)        substitute line 18
+            = (f(b) − f(a))/(b − a)        substitute line 17
 
-23. b − a > 0
+20. b − a > 0
     inequalities
       a < b          H6
       0 < b − a      adding −a
       b − a > 0      restate
 
-24. f′(c) ∈ ℝ
+21. f′(c) ∈ ℝ
     mun:derivative-real-on D := ℝ, U := ℝ, x := c, from H3, 2
 
-25. f(b) − f(a) = f′(c)·(b − a)
-    algebra, from 22
+22. f(b) − f(a) = f′(c)·(b − a)
+    algebra, from 19
     requires f(a) ∈ ℝ: from H1
     requires f(b) ∈ ℝ: from H1
-    requires b − a ≠ 0: weakening, from 23
+    requires b − a ≠ 0: weakening, from 20
 
-26. c ∈ [a, b]
+23. c ∈ [a, b]
     mun:in-subset, from 7, 14
 
-27. |f′(c)| ≤ M
-    instantiate t := c in H8, from 26
+24. |f′(c)| ≤ M
+    instantiate t := c in H8, from 23
 
-28. b − a ≥ 0
+25. b − a ≥ 0
     inequalities
-      b − a > 0      23
+      b − a > 0      20
       b − a ≥ 0      weakening
 
-29. |f′(c)·(b − a)| = |f′(c)|·|b − a|
-    mun:abs-product x := f′(c), y := b − a, from 24
+26. |b − a| = b − a
+    def:abs x := b − a, from 25
 
-30. |b − a| = b − a
-    def:abs x := b − a, from 28
-
-31. |f(b) − f(a)| = |f′(c)·(b − a)|
-    substitute f(b) − f(a) = f′(c)·(b − a) (line 25)
-
-32. |f′(c)|·|b − a| = |f′(c)|·(b − a)
-    substitute |b − a| = b − a (line 30)
-
-33. |f(b) − f(a)| = |f′(c)|·(b − a)
+27. |f(b) − f(a)| = |f′(c)|·(b − a)
     calculation
-      |f(b) − f(a)| = |f′(c)·(b − a)|        31
-                    = |f′(c)|·|b − a|        29
-                    = |f′(c)|·(b − a)        32
+      |f(b) − f(a)| = |f′(c)·(b − a)|        substitute line 22
+                    = |f′(c)|·|b − a|        mun:abs-product x := f′(c), y := b − a, from 21
+                    = |f′(c)|·(b − a)        substitute line 26
 
-34. |f′(c)|·(b − a) ≤ M·(b − a)
-    mun:multiply-le-nonneg x := |f′(c)|, y := M, c := b − a, from 27, 28
-    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 24
+28. |f′(c)|·(b − a) ≤ M·(b − a)
+    mun:multiply-le-nonneg x := |f′(c)|, y := M, c := b − a, from 24, 25
+    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 21
 
-35. |f(b) − f(a)| ≤ M·(b − a)
-    transitivity, from 33, 34
-    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 24
+29. |f(b) − f(a)| ≤ M·(b − a)
+    transitivity, from 27, 28
+    requires |f′(c)| ∈ ℝ: mun:abs-real x := f′(c), from 21
 
 theorem value-at-a-fraction
   note        q^N·F(p/q) is an integer, and not 0 where F(p/q) is not, so it

@@ -96,34 +96,28 @@ theorem harmonic-block
     requires 2^j + 1 ≤ 2^(j + 1): from 13
     requires 2^(j + 1) ≠ 0: inequalities, from 3
 
-15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))
-    substitute 2^(j + 1) = 2^j·2 (line 1)
-
-16. (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2)) = 1/2
-    algebra
-
-17. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
+15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
     calculation
-      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    15
-                                                 = 1/2                                    16
+      (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = (2^j·2 − (2^j + 1) + 1)·(1/(2^j·2))    substitute line 1
+                                                 = 1/2                                    algebra
 
-18. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
-    transitivity, from 17, 14, 11
+16. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+    transitivity, from 15, 14, 11
     requires 2^(j + 1) ≠ 0: inequalities, from 3
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
-19. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
+17. Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     inequalities
-      1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          18
+      1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          16
       Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k   adding Σ(k = 1 to 2^j) 1/k
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
-20. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
-    transitivity, from 19, 7
+18. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
+    transitivity, from 17, 7
     requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
@@ -150,37 +144,31 @@ theorem harmonic-unbounded
     2.1.  2^0 = 1
           arithmetic
 
-    2.2.  Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k
-          substitute 2^0 = 1 (line 2.1)
-
-    2.3.  Σ(k = 1 to 1) 1/k = 1
-          mun:sum-single a := 1, from 1
-
-    2.4.  Σ(k = 1 to 2^0) 1/k = 1
+    2.2.  Σ(k = 1 to 2^0) 1/k = 1
           calculation
-            Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     2.2
-                                = 1                     2.3
+            Σ(k = 1 to 2^0) 1/k = Σ(k = 1 to 1) 1/k     substitute line 2.1
+                                = 1                     mun:sum-single a := 1, from 1
 
-    2.5.  1 ≥ 0/2
+    2.3.  1 ≥ 0/2
           arithmetic
 
-    2.6.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
-          transitivity, from 2.4, 2.5
+    2.4.  Σ(k = 1 to 2^0) 1/k ≥ 0/2
+          transitivity, from 2.2, 2.3
 
     step
     let m ∈ ℕ₀                                                        (K)
     assume step 2 is true for m, the induction hypothesis             (IH)
 
-    2.7.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2
+    2.5.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ Σ(k = 1 to 2^m) 1/k + 1/2
           thm:harmonic-block j := m
 
-    2.8.  Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2
+    2.6.  Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2
           inequalities
             Σ(k = 1 to 2^m) 1/k ≥ m/2                  IH
             Σ(k = 1 to 2^m) 1/k + 1/2 ≥ (m + 1)/2      adding 1/2
 
-    2.9.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2
-          transitivity, from 2.7, 2.8
+    2.7.  Σ(k = 1 to 2^(m + 1)) 1/k ≥ (m + 1)/2
+          transitivity, from 2.5, 2.6
 
 3.  N ∈ ℕ. N > 2M.
     obtain N: thm:archimedean-natural x := 2M

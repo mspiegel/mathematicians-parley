@@ -116,37 +116,35 @@ theorem inclusion-exclusion-three
 8.  |(A ∩ C) ∪ (B ∩ C)| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|
     thm:inclusion-exclusion-two A := A ∩ C, B := B ∩ C, from 5, 7
 
-9.  (A ∪ B) ∩ C = (A ∩ C) ∪ (B ∩ C)
-    mun:intersection-distributes-right X := A, Y := B, Z := C
+9.  |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|
+    substitute
+      |(A ∩ C) ∪ (B ∩ C)| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|      8
+      |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|            mun:intersection-distributes-right X := A, Y := B, Z := C
 
-10. A ∩ B ∩ C = (A ∩ C) ∩ (B ∩ C)
-    mun:intersection-distributes-over-intersection X := A, Y := B, Z := C
+10. |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |A ∩ B ∩ C|
+    substitute
+      |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|      9
+      |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |A ∩ B ∩ C|              mun:intersection-distributes-over-intersection X := A, Y := B, Z := C
 
-11. |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |(A ∩ C) ∩ (B ∩ C)|
-    substitute (A ∪ B) ∩ C = (A ∩ C) ∪ (B ∩ C) (line 9) into line 8
-
-12. |(A ∪ B) ∩ C| = |A ∩ C| + |B ∩ C| − |A ∩ B ∩ C|
-    substitute A ∩ B ∩ C = (A ∩ C) ∩ (B ∩ C) (line 10) into line 11
-
-13. A ∩ B ⊆ A
+11. A ∩ B ⊆ A
     mun:intersection-subset Y := A, Z := B
 
-14. A ∩ B is finite
-    mun:finite-part X := A, Y := A ∩ B, from H4, 13
+12. A ∩ B is finite
+    mun:finite-part X := A, Y := A ∩ B, from H4, 11
 
-15. A ∩ B ∩ C ⊆ A ∩ B
+13. A ∩ B ∩ C ⊆ A ∩ B
     mun:intersection-subset Y := A ∩ B, Z := C
 
-16. A ∩ B ∩ C is finite
-    mun:finite-part X := A ∩ B, Y := A ∩ B ∩ C, from 14, 15
+14. A ∩ B ∩ C is finite
+    mun:finite-part X := A ∩ B, Y := A ∩ B ∩ C, from 12, 13
 
-17. |A ∪ B ∪ C| = |A| + |B| + |C| − |A ∩ B| − |A ∩ C| − |B ∩ C|
+15. |A ∪ B ∪ C| = |A| + |B| + |C| − |A ∩ B| − |A ∩ C| − |B ∩ C|
                   + |A ∩ B ∩ C|
-    algebra, from 2, 3, 12
+    algebra, from 2, 3, 10
     requires |A| ∈ ℕ₀: mun:card-nat0, from H4
     requires |B| ∈ ℕ₀: mun:card-nat0, from H5
     requires |C| ∈ ℕ₀: mun:card-nat0, from H6
-    requires |A ∩ B| ∈ ℕ₀: mun:card-nat0, from 14
+    requires |A ∩ B| ∈ ℕ₀: mun:card-nat0, from 12
     requires |A ∩ C| ∈ ℕ₀: mun:card-nat0, from 5
     requires |B ∩ C| ∈ ℕ₀: mun:card-nat0, from 7
-    requires |A ∩ B ∩ C| ∈ ℕ₀: mun:card-nat0, from 16
+    requires |A ∩ B ∩ C| ∈ ℕ₀: mun:card-nat0, from 14

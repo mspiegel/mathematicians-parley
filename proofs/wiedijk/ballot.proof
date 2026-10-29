@@ -112,16 +112,13 @@ theorem last-place
 5.  {1, …, m + n} ∩ c = c
     mun:intersection-of-part X := {1, …, m + n}, Y := c, from H3
 
-6.  |{1, …, m + n} ∩ c| = |c|
-    substitute {1, …, m + n} ∩ c = c (line 5)
-
-7.  |{1, …, m + n} ∩ c| = m
+6.  |{1, …, m + n} ∩ c| = m
     calculation
-      |{1, …, m + n} ∩ c| = |c|    6
+      |{1, …, m + n} ∩ c| = |c|    substitute line 5
                           = m      H4
 
-8.  |{1, …, m + n} ∖ c| = n. |{1, …, m + n} ∩ c| = m.
-    join 4, 7
+7.  |{1, …, m + n} ∖ c| = n. |{1, …, m + n} ∩ c| = m.
+    join 4, 6
 
 
 theorem lead-to-the-end
@@ -206,40 +203,25 @@ theorem prefix-unchanged
 2.  {1, …, i} ∩ {p} = ∅
     mun:singleton-outside a := p, Y := {1, …, i}, from 1
 
-3.  {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})
-    mun:intersection-distributes X := {1, …, i}, Y := T, Z := {p}
-
-4.  ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p}) = ({1, …, i} ∩ T) ∪ ∅
-    substitute {1, …, i} ∩ {p} = ∅ (line 2)
-
-5.  ({1, …, i} ∩ T) ∪ ∅ = {1, …, i} ∩ T
-    mun:union-empty Y := {1, …, i} ∩ T
-
-6.  {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T
+3.  {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T
     calculation
-      {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})    3
-                            = ({1, …, i} ∩ T) ∪ ∅                    4
-                            = {1, …, i} ∩ T                          5
+      {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})    mun:intersection-distributes X := {1, …, i}, Y := T, Z := {p}
+                            = ({1, …, i} ∩ T) ∪ ∅                    substitute line 2
+                            = {1, …, i} ∩ T                          mun:union-empty Y := {1, …, i} ∩ T
 
-7.  {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}
-    mun:difference-by-union X := {1, …, i}, Y := T, Z := {p}
-
-8.  {1, …, i} ∖ T ⊆ {1, …, i}
+4.  {1, …, i} ∖ T ⊆ {1, …, i}
     mun:difference-subset X := {1, …, i}, Y := T
 
-9.  p ∉ {1, …, i} ∖ T
-    mun:not-in-subset a := p, Y := {1, …, i} ∖ T, Z := {1, …, i}, from 1, 8
+5.  p ∉ {1, …, i} ∖ T
+    mun:not-in-subset a := p, Y := {1, …, i} ∖ T, Z := {1, …, i}, from 1, 4
 
-10. ({1, …, i} ∖ T) ∖ {p} = {1, …, i} ∖ T
-    mun:difference-absent a := p, Y := {1, …, i} ∖ T, from 9
-
-11. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T
+6.  {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T
     calculation
-      {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}    7
-                            = {1, …, i} ∖ T            10
+      {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}    mun:difference-by-union X := {1, …, i}, Y := T, Z := {p}
+                            = {1, …, i} ∖ T            mun:difference-absent a := p, Y := {1, …, i} ∖ T, from 5
 
-12. {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T.
-    join 6, 11
+7.  {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T. {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T.
+    join 3, 6
 
 
 theorem places-before-last
@@ -289,17 +271,14 @@ let O = {d ⊆ {1, …, m + m} : |d| = m}                                 (D2)
           contradiction
           suppose for all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|   (S1)
 
-          2.3.1.  |{1, …, m + m} ∖ c| < |{1, …, m + m} ∩ c|
-                  instantiate i := m + m in S1, from 1
-
-          2.3.2.  m < m
+          2.3.1.  m < m
                   calculation
                     m = |{1, …, m + m} ∖ c|      2.2
-                      < |{1, …, m + m} ∩ c|      2.3.1
+                      < |{1, …, m + m} ∩ c|      instantiate i := m + m in S1, from 1
                       = m                        2.2
 
-          2.3.3.  not m < m
-                  inequalities, contradicting 2.3.2
+          2.3.2.  not m < m
+                  inequalities, contradicting 2.3.1
 
 3.  G(m, m) = ∅
     mun:set-builder-empty X := O, from D1, D2, 2
@@ -330,61 +309,42 @@ let O = {d ⊆ {1, …, m} : |d| = m}                                     (D2)
     1.4.  {1, …, m} ⊆ c
           mun:nothing-left-outside Y := {1, …, m}, X := c, from 1.3
 
-    1.5.  c = {1, …, m}
-          mun:subset-antisymmetric X := c, Y := {1, …, m}, from 1.1, 1.4
-
-    1.6.  For all i ∈ {1, …, m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+    1.5.  For all i ∈ {1, …, m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
           proof
           let i ∈ {1, …, m}                                           (K2)
 
-          1.6.1.  1 ≤ i. i ≤ m.
+          1.5.1.  1 ≤ i. i ≤ m.
                   mun:range-bounds a := 1, b := m, k := i, from K2
 
-          1.6.2.  {1, …, i} ⊆ {1, …, m}
-                  mun:range-within a := 1, k := i, n := m, from 1.6.1
+          1.5.2.  {1, …, i} ⊆ {1, …, m}
+                  mun:range-within a := 1, k := i, n := m, from 1.5.1
 
-          1.6.3.  {1, …, i} ∖ {1, …, m} = ∅
-                  mun:nothing-left-outside Y := {1, …, i}, X := {1, …, m}, from 1.6.2
+          1.5.3.  {1, …, i} ∖ {1, …, m} = ∅
+                  mun:nothing-left-outside Y := {1, …, i}, X := {1, …, m}, from 1.5.2
 
-          1.6.4.  {1, …, m} ∩ {1, …, i} = {1, …, i}
-                  mun:intersection-of-part X := {1, …, m}, Y := {1, …, i}, from 1.6.2
-
-          1.6.5.  {1, …, i} ∩ {1, …, m} = {1, …, m} ∩ {1, …, i}
-                  mun:intersection-commutes Y := {1, …, i}, Z := {1, …, m}
-
-          1.6.6.  {1, …, i} ∩ {1, …, m} = {1, …, i}
+          1.5.4.  {1, …, i} ∩ {1, …, m} = {1, …, i}
                   calculation
-                    {1, …, i} ∩ {1, …, m} = {1, …, m} ∩ {1, …, i}    1.6.5
-                                          = {1, …, i}                1.6.4
+                    {1, …, i} ∩ {1, …, m} = {1, …, m} ∩ {1, …, i}    mun:intersection-commutes Y := {1, …, i}, Z := {1, …, m}
+                                          = {1, …, i}                mun:intersection-of-part X := {1, …, m}, Y := {1, …, i}, from 1.5.2
 
-          1.6.7.  |{1, …, i} ∖ {1, …, m}| = |∅|
-                  substitute {1, …, i} ∖ {1, …, m} = ∅ (line 1.6.3)
+          1.5.5.  0 < i
+                  inequalities, from 1.5.1
 
-          1.6.8.  |∅| = 0
-                  mun:card-empty
-
-          1.6.9.  |{1, …, i} ∩ {1, …, m}| = |{1, …, i}|
-                  substitute {1, …, i} ∩ {1, …, m} = {1, …, i} (line 1.6.6)
-
-          1.6.10. |{1, …, i}| = i
-                  mun:range-size n := i
-
-          1.6.11. 0 < i
-                  inequalities, from 1.6.1
-
-          1.6.12. |{1, …, i} ∖ {1, …, m}| < |{1, …, i} ∩ {1, …, m}|
+          1.5.6.  |{1, …, i} ∖ {1, …, m}| < |{1, …, i} ∩ {1, …, m}|
                   calculation
-                    |{1, …, i} ∖ {1, …, m}| = |∅|                      1.6.7
-                                            = 0                        1.6.8
-                                            < i                        1.6.11
-                                            = |{1, …, i}|              1.6.10
-                                            = |{1, …, i} ∩ {1, …, m}|  1.6.9
+                    |{1, …, i} ∖ {1, …, m}| = |∅|                      substitute line 1.5.3
+                                            = 0                        mun:card-empty
+                                            < i                        1.5.5
+                                            = |{1, …, i}|              mun:range-size n := i
+                                            = |{1, …, i} ∩ {1, …, m}|  substitute line 1.5.4
 
-          1.6.13. |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
-                  substitute c = {1, …, m} (line 1.5) into line 1.6.12
+          1.5.7.  |{1, …, i} ∖ c| < |{1, …, i} ∩ c|
+                  substitute
+                    |{1, …, i} ∖ {1, …, m}| < |{1, …, i} ∩ {1, …, m}|      1.5.6
+                    |{1, …, i} ∖ c| < |{1, …, i} ∩ c|                      mun:subset-antisymmetric X := c, Y := {1, …, m}, from 1.1, 1.4
 
-    1.7.  c ∈ G(m, 0)
-          def:set-builder u := c, from D1, D2, K1, 1.6
+    1.6.  c ∈ G(m, 0)
+          def:set-builder u := c, from D1, D2, K1, 1.5
 
 2.  O ⊆ G(m, 0)
     def:subset, from 1
@@ -398,20 +358,11 @@ let O = {d ⊆ {1, …, m} : |d| = m}                                     (D2)
 5.  |{1, …, m}| = m
     mun:range-size n := m
 
-6.  |O| = C(m, m)
-    thm:combinations n := m, k := m, A := {1, …, m}, from D2, 5
-
-7.  C(m, m) = 1
-    mun:binomial-all n := m
-
-8.  |G(m, 0)| = |O|
-    substitute G(m, 0) = O (line 4)
-
-9.  |G(m, 0)| = 1
+6.  |G(m, 0)| = 1
     calculation
-      |G(m, 0)| = |O|          8
-                = C(m, m)      6
-                = 1            7
+      |G(m, 0)| = |O|          substitute line 4
+                = C(m, m)      thm:combinations n := m, k := m, A := {1, …, m}, from D2, 5
+                = 1            mun:binomial-all n := m
 
 
 theorem add-last-place
@@ -464,24 +415,15 @@ theorem add-last-place
     2.9.  (S ∪ {m + n}) ∖ {m + n} = S ∖ {m + n}
           mun:difference-of-union
 
-    2.10. (T ∪ {m + n}) ∖ {m + n} = T ∖ {m + n}
-          mun:difference-of-union
-
-    2.11. S ∖ {m + n} = S
-          mun:difference-absent, from 2.7
-
-    2.12. T ∖ {m + n} = T
-          mun:difference-absent, from 2.8
-
-    2.13. (T ∪ {m + n}) ∖ {m + n} = S ∖ {m + n}
+    2.10. (T ∪ {m + n}) ∖ {m + n} = S ∖ {m + n}
           substitute S ∪ {m + n} = T ∪ {m + n} (K3) into line 2.9
 
-    2.14. S = T
+    2.11. S = T
           calculation
-            S = S ∖ {m + n}                  2.11
-              = (T ∪ {m + n}) ∖ {m + n}      2.13
-              = T ∖ {m + n}                  2.10
-              = T                            2.12
+            S = S ∖ {m + n}                  mun:difference-absent, from 2.7
+              = (T ∪ {m + n}) ∖ {m + n}      2.10
+              = T ∖ {m + n}                  mun:difference-of-union
+              = T                            mun:difference-absent, from 2.8
 
 3.  m − 1 ∈ ℕ₀
     mun:nat-minus-one n := m
@@ -1068,79 +1010,70 @@ theorem ballot-count
                             1.2.3.4.2.  |G(m, n)| = 1
                                         substitute n = 0 (C4) into line 1.2.3.4.1
 
-                            1.2.3.4.3.  C(m, m) = 1
-                                        mun:binomial-all n := m
-
-                            1.2.3.4.4.  C(m + n, m) = C(m, m)
-                                        substitute n = 0 (C4)
-
-                            1.2.3.4.5.  C(m + n, m) = 1
+                            1.2.3.4.3.  C(m + n, m) = 1
                                         calculation
-                                          C(m + n, m) = C(m, m)    1.2.3.4.4
-                                                      = 1          1.2.3.4.3
+                                          C(m + n, m) = C(m, m)    substitute C4
+                                                      = 1          mun:binomial-all n := m
 
-                            1.2.3.4.6.  (m − n)·C(m + n, m) = m − n
-                                        algebra, from 1.2.3.4.5
+                            1.2.3.4.4.  (m − n)·C(m + n, m) = m − n
+                                        algebra, from 1.2.3.4.3
 
-                            1.2.3.4.7.  m + n = m − n
+                            1.2.3.4.5.  m + n = m − n
                                         algebra, from C4
 
-                            1.2.3.4.8.  |G(m, n)|·(m + n) = m + n
-                                        substitute |G(m, n)| = 1 (line 1.2.3.4.2)
-
-                            1.2.3.4.9.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                            1.2.3.4.6.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                                         calculation
-                                          |G(m, n)|·(m + n) = m + n                  1.2.3.4.8
-                                                            = m − n                  1.2.3.4.7
-                                                            = (m − n)·C(m + n, m)    1.2.3.4.6
+                                          |G(m, n)|·(m + n) = m + n                  substitute line 1.2.3.4.2
+                                                            = m − n                  1.2.3.4.5
+                                                            = (m − n)·C(m + n, m)    1.2.3.4.4
 
                             case
                             note the last vote is for A or for B
                             assume n ≠ 0                              (C5)
 
-                            1.2.3.4.10. n ∈ ℕ
+                            1.2.3.4.7.  n ∈ ℕ
                                         mun:nat0-nonzero m := n, from C5
 
-                            1.2.3.4.11. m − 1 ∈ ℕ₀
+                            1.2.3.4.8.  m − 1 ∈ ℕ₀
                                         mun:nat-minus-one n := m, from 1.2.3.2
 
-                            1.2.3.4.12. n − 1 ∈ ℕ₀
-                                        mun:nat-minus-one, from 1.2.3.4.10
+                            1.2.3.4.9.  n − 1 ∈ ℕ₀
+                                        mun:nat-minus-one, from 1.2.3.4.7
 
-                            1.2.3.4.13. (m − 1) + n = k
+                            1.2.3.4.10. (m − 1) + n = k
                                         algebra, from C2
 
-                            1.2.3.4.14. n + 1 ≤ m
+                            1.2.3.4.11. n + 1 ≤ m
                                         mun:integer-step m := n, n := m, from C3
 
-                            1.2.3.4.15. n ≤ m − 1
+                            1.2.3.4.12. n ≤ m − 1
                                         inequalities
-                                          n + 1 ≤ m      1.2.3.4.14
+                                          n + 1 ≤ m      1.2.3.4.11
                                           n ≤ m − 1      adding −1
 
-                            1.2.3.4.16. |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)
-                                        instantiate m := m − 1, n := n in IH, from 1.2.3.4.11, 1.2.3.4.13, 1.2.3.4.15
+                            1.2.3.4.13. |G(m − 1, n)|·((m − 1) + n) = ((m − 1) − n)·C((m − 1) + n, m − 1)
+                                        instantiate m := m − 1, n := n in IH, from 1.2.3.4.8, 1.2.3.4.10, 1.2.3.4.12
 
-                            1.2.3.4.17. m + (n − 1) = k
+                            1.2.3.4.14. m + (n − 1) = k
                                         algebra, from C2
 
-                            1.2.3.4.18. n − 1 ≤ n
+                            1.2.3.4.15. n − 1 ≤ n
                                         inequalities
 
-                            1.2.3.4.19. n ≤ m
+                            1.2.3.4.16. n ≤ m
                                         inequalities
                                           n < m          C3
                                           n ≤ m          weakening
 
-                            1.2.3.4.20. n − 1 ≤ m
-                                        transitivity, from 1.2.3.4.18, 1.2.3.4.19
+                            1.2.3.4.17. n − 1 ≤ m
+                                        transitivity, from 1.2.3.4.15, 1.2.3.4.16
 
-                            1.2.3.4.21. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
-                                        instantiate m := m, n := n − 1 in IH, from 1.2.3.4.12, 1.2.3.4.17, 1.2.3.4.20
+                            1.2.3.4.18. |G(m, n − 1)|·(m + (n − 1)) = (m − (n − 1))·C(m + (n − 1), m)
+                                        instantiate m := m, n := n − 1 in IH, from 1.2.3.4.9, 1.2.3.4.14, 1.2.3.4.17
 
-                            1.2.3.4.22. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
-                                        thm:ballot-recurrence, from C3, 1.2.3.2, 1.2.3.4.10, 1.2.3.4.11, 1.2.3.4.12,
-                                          1.2.3.4.16, 1.2.3.4.21
+                            1.2.3.4.19. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                                        thm:ballot-recurrence, from C3, 1.2.3.2, 1.2.3.4.7, 1.2.3.4.8, 1.2.3.4.9,
+                                          1.2.3.4.13, 1.2.3.4.18
 
                   case
                   note A and B end level, so no counting keeps A ahead
@@ -1175,30 +1108,24 @@ theorem ballot-count
                   1.2.3.13. G(m, n) = ∅
                             substitute n = m (C6) into line 1.2.3.12
 
-                  1.2.3.14. |G(m, n)| = |∅|
-                            substitute G(m, n) = ∅ (line 1.2.3.13)
-
-                  1.2.3.15. |∅| = 0
-                            mun:card-empty
-
-                  1.2.3.16. |G(m, n)| = 0
+                  1.2.3.14. |G(m, n)| = 0
                             calculation
-                              |G(m, n)| = |∅|    1.2.3.14
-                                        = 0      1.2.3.15
+                              |G(m, n)| = |∅|    substitute line 1.2.3.13
+                                        = 0      mun:card-empty
 
-                  1.2.3.17. |G(m, n)|·(m + n) = 0
-                            algebra, from 1.2.3.16
+                  1.2.3.15. |G(m, n)|·(m + n) = 0
+                            algebra, from 1.2.3.14
 
-                  1.2.3.18. C(m + n, m) ∈ ℕ₀
+                  1.2.3.16. C(m + n, m) ∈ ℕ₀
                             mun:binomial-nat0 n := m + n, k := m
 
-                  1.2.3.19. (m − n)·C(m + n, m) = 0
-                            algebra, from C6, 1.2.3.18
+                  1.2.3.17. (m − n)·C(m + n, m) = 0
+                            algebra, from C6, 1.2.3.16
 
-                  1.2.3.20. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                  1.2.3.18. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
                             calculation
-                              |G(m, n)|·(m + n) = 0                      1.2.3.17
-                                                = (m − n)·C(m + n, m)    1.2.3.19
+                              |G(m, n)|·(m + n) = 0                      1.2.3.15
+                                                = (m − n)·C(m + n, m)    1.2.3.17
 
 2.  |G(a, b)|·(a + b) = (a − b)·C(a + b, a)
     instantiate k := a + b, m := a, n := b in line 1, from H3

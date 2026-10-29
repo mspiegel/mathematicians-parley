@@ -26,17 +26,8 @@ theorem angle-sum
 3.  ∠EBC = ∠BCA
     thm:alternate-angles P := C, Q := A, R := B, S := E, from H4, 1
 
-4.  ∠DBA + ∠ABC + ∠EBC = 180°
-    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1
-
-5.  ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA
-    substitute ∠DBA = ∠BAC (line 2)
-
-6.  ∠DBA + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠EBC
-    substitute ∠EBC = ∠BCA (line 3)
-
-7.  ∠BAC + ∠ABC + ∠BCA = 180°
+4.  ∠BAC + ∠ABC + ∠BCA = 180°
     calculation
-      ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA      5
-                         = ∠DBA + ∠ABC + ∠EBC      6
-                         = 180°                    4
+      ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA      substitute line 2
+                         = ∠DBA + ∠ABC + ∠EBC      substitute line 3
+                         = 180°                    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1

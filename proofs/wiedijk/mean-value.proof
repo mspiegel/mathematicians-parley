@@ -125,51 +125,36 @@ let F(x) = f(x) + g(x), for x ∈ [a, b]                                (D2)
 20. g(b) = ((f(a) − f(b))/(b − a))·b
     D1, from 3
 
-21. f(a) + g(a) = f(a) + ((f(a) − f(b))/(b − a))·a
-    substitute g(a) = ((f(a) − f(b))/(b − a))·a (line 18)
-
-22. f(b) + g(b) = f(b) + ((f(a) − f(b))/(b − a))·b
-    substitute g(b) = ((f(a) − f(b))/(b − a))·b (line 20)
-
-23. f(a) + ((f(a) − f(b))/(b − a))·a = f(b) + ((f(a) − f(b))/(b − a))·b
-    algebra
-    requires b − a ≠ 0: weakening, from 1
-    requires f(a) ∈ ℝ: from H4, 2
-    requires f(b) ∈ ℝ: from H4, 3
-
-24. F(a) = F(b)
+21. F(a) = F(b)
     calculation
       F(a) = f(a) + g(a)                                       17
-           = f(a) + ((f(a) − f(b))/(b − a))·a                  21
-           = f(b) + ((f(a) − f(b))/(b − a))·b                  23
-           = f(b) + g(b)                                       22
+           = f(a) + ((f(a) − f(b))/(b − a))·a                  substitute line 18
+           = f(b) + ((f(a) − f(b))/(b − a))·b                  algebra
+           = f(b) + g(b)                                       substitute line 20
            = F(b)                                              19
-
-25. c ∈ (a, b). F′(c) = 0.
-    obtain c: thm:rolle f := F, from H3, 12, 15, 24
-    requires F : [a, b] → ℝ: from 10
-
-26. F′(c) = f′(c) + g′(c)
-    instantiate x := c in line 16, from 25
-
-27. g′(c) = (f(a) − f(b))/(b − a)
-    instantiate x := c in line 14, from 25
-
-28. f′(c) + g′(c) = f′(c) + (f(a) − f(b))/(b − a)
-    substitute g′(c) = (f(a) − f(b))/(b − a) (line 27)
-
-29. f′(c) + (f(a) − f(b))/(b − a) = 0
-    calculation
-      f′(c) + (f(a) − f(b))/(b − a) = f′(c) + g′(c)            28
-                                    = F′(c)                    26
-                                    = 0                        25
-
-30. f′(c) = (f(b) − f(a))/(b − a)
-    algebra, from 29
     requires b − a ≠ 0: weakening, from 1
-    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 25
     requires f(a) ∈ ℝ: from H4, 2
     requires f(b) ∈ ℝ: from H4, 3
 
-31. There is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a).
-    exhibit, from 25, 30
+22. c ∈ (a, b). F′(c) = 0.
+    obtain c: thm:rolle f := F, from H3, 12, 15, 21
+    requires F : [a, b] → ℝ: from 10
+
+23. g′(c) = (f(a) − f(b))/(b − a)
+    instantiate x := c in line 14, from 22
+
+24. f′(c) + (f(a) − f(b))/(b − a) = 0
+    calculation
+      f′(c) + (f(a) − f(b))/(b − a) = f′(c) + g′(c)            substitute line 23
+                                    = F′(c)                    instantiate x := c in line 16, from 22
+                                    = 0                        22
+
+25. f′(c) = (f(b) − f(a))/(b − a)
+    algebra, from 24
+    requires b − a ≠ 0: weakening, from 1
+    requires f′(c) ∈ ℝ: mun:derivative-real x := c, from H6, 22
+    requires f(a) ∈ ℝ: from H4, 2
+    requires f(b) ∈ ℝ: from H4, 3
+
+26. There is c ∈ (a, b) with f′(c) = (f(b) − f(a))/(b − a).
+    exhibit, from 22, 25

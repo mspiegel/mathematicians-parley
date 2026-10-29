@@ -69,31 +69,28 @@ theorem even-leg
           2.2.4.  (2p + 1)² + (2q + 1)² = c²
                   substitute b = 2q + 1 (line 2.2.2) into line 2.2.3
 
-          2.2.5.  (2p + 1)² + (2q + 1)² = 2(2p² + 2p + 2q² + 2q + 1)
-                  algebra
-
-          2.2.6.  c² = 2(2p² + 2p + 2q² + 2q + 1)
+          2.2.5.  c² = 2(2p² + 2p + 2q² + 2q + 1)
                   calculation
                     c² = (2p + 1)² + (2q + 1)²         2.2.4
-                       = 2(2p² + 2p + 2q² + 2q + 1)    2.2.5
+                       = 2(2p² + 2p + 2q² + 2q + 1)    algebra
 
-          2.2.7.  c² is even
-                  def:even n := c², from 2.2.6
+          2.2.6.  c² is even
+                  def:even n := c², from 2.2.5
 
-          2.2.8.  c is even
-                  thm:even-square n := c, from 2.2.7
+          2.2.7.  c is even
+                  thm:even-square n := c, from 2.2.6
 
-          2.2.9.  r ∈ ℤ. c = 2r.
-                  obtain r: def:even n := c, from 2.2.8
+          2.2.8.  r ∈ ℤ. c = 2r.
+                  obtain r: def:even n := c, from 2.2.7
 
-          2.2.10. (2p + 1)² + (2q + 1)² = (2r)²
-                  substitute c = 2r (line 2.2.9) into line 2.2.4
+          2.2.9.  (2p + 1)² + (2q + 1)² = (2r)²
+                  substitute c = 2r (line 2.2.8) into line 2.2.4
 
-          2.2.11. 2 = 4(r² − p² − p − q² − q)
-                  algebra, from 2.2.10
+          2.2.10. 2 = 4(r² − p² − p − q² − q)
+                  algebra, from 2.2.9
 
-          2.2.12. 4 divides 2, which is impossible
-                  def:divides d := 4, n := 2, from 2.2.11
+          2.2.11. 4 divides 2, which is impossible
+                  def:divides d := 4, n := 2, from 2.2.10
 
     2.3.  b is even or b is odd
           mun:even-or-odd n := b
@@ -140,34 +137,27 @@ theorem leg-hypotenuse-coprime
 8.  gcd(gcd(b, c), a) divides 1
     substitute gcd(a, b) = 1 (H5) into line 7
 
-9.  gcd(gcd(b, c), a) = 1
-    mun:divides-one d := gcd(gcd(b, c), a), from 5, 8
-
-10. gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)
-    mun:gcd-commutes b := gcd(b, c)
+9.  gcd(a, gcd(b, c)) = 1
+    calculation
+      gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)    mun:gcd-commutes b := gcd(b, c)
+                        = 1                    mun:divides-one d := gcd(gcd(b, c), a), from 5, 8
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
-11. gcd(a, gcd(b, c)) = 1
-    calculation
-      gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)    10
-                        = 1                    9
-
-12. gcd(a·a, gcd(b, c)) = 1
-    mun:coprime-product x := a, y := a, n := gcd(b, c), from 1, 11
-
-13. gcd(b, c) divides gcd(b, c)
+10. gcd(b, c) divides gcd(b, c)
     mun:divides-self n := gcd(b, c)
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
-14. gcd(b, c) divides gcd(a·a, gcd(b, c))
-    thm:divides-gcd d := gcd(b, c), a := a·a, b := gcd(b, c), from 4, 13
+11. gcd(b, c) divides gcd(a·a, gcd(b, c))
+    thm:divides-gcd d := gcd(b, c), a := a·a, b := gcd(b, c), from 4, 10
     requires gcd(b, c) ∈ ℤ: membership, from 1
 
-15. gcd(b, c) divides 1
-    substitute gcd(a·a, gcd(b, c)) = 1 (line 12) into line 14
+12. gcd(b, c) divides 1
+    substitute
+      gcd(b, c) divides gcd(a·a, gcd(b, c))      11
+      gcd(b, c) divides 1                        mun:coprime-product x := a, y := a, n := gcd(b, c), from 1, 9
 
-16. gcd(b, c) = 1
-    mun:divides-one d := gcd(b, c), from 1, 15
+13. gcd(b, c) = 1
+    mun:divides-one d := gcd(b, c), from 1, 12
 
 theorem primitive-triple
   note        With a even, b and c are odd, so c + b = 2s and c − b = 2t.
@@ -289,256 +279,240 @@ theorem primitive-triple
 22. (s − t)·2 = (c + b) − (c − b)
     substitute c − b = 2t (line 17) into line 21
 
-23. (c + b) − (c − b) = b·2
-    algebra
-
-24. b·2 = (s − t)·2
+23. b·2 = (s − t)·2
     calculation
-      b·2 = (c + b) − (c − b)    23
+      b·2 = (c + b) − (c − b)    algebra
           = (s − t)·2            22
 
-25. b = s − t
-    mun:multiply-cancel a := b, b := s − t, c := 2, from 24
+24. b = s − t
+    mun:multiply-cancel a := b, b := s − t, c := 2, from 23
     requires 2 ≠ 0: arithmetic
 
-26. a² > 0
+25. a² > 0
     mun:square-positive x := a, from H1
 
-27. b² < a² + b²
+26. b² < a² + b²
     inequalities
-      a² > 0              26
+      a² > 0              25
       a² + b² > b²        adding b²
       b² < a² + b²        restate
 
-28. b² < c²
-    transitivity, from 27, H4
+27. b² < c²
+    transitivity, from 26, H4
 
-29. b < c
-    mun:square-less x := b, y := c, from 28
+28. b < c
+    mun:square-less x := b, y := c, from 27
     requires b ≥ 0: inequalities, from H2
     requires c ≥ 0: inequalities, from H3
 
-30. 0 < c − b
+29. 0 < c − b
     inequalities
-      b < c               29
+      b < c               28
       0 < c − b           adding −b
 
-31. 0 < 2t
-    substitute c − b = 2t (line 17) into line 30
+30. 0 < 2t
+    substitute c − b = 2t (line 17) into line 29
 
-32. t ∈ ℕ
+31. t ∈ ℕ
     mun:pos-int-nat m := t
-    requires 0 < t: multiplying by 1/2, from 31
+    requires 0 < t: multiplying by 1/2, from 30
 
-33. 0 < c + b
+32. 0 < c + b
     inequalities, from H2, H3
 
-34. 0 < 2s
-    substitute c + b = 2s (line 14) into line 33
+33. 0 < 2s
+    substitute c + b = 2s (line 14) into line 32
 
-35. s ∈ ℕ
+34. s ∈ ℕ
     mun:pos-int-nat m := s
-    requires 0 < s: multiplying by 1/2, from 34
+    requires 0 < s: multiplying by 1/2, from 33
 
-36. a² = (2w)²
-    substitute a = 2w (line 1)
-
-37. c² − b² = a²
+35. c² − b² = a²
     algebra, from H4
 
-38. (c + b)·(c − b) = c² − b²
+36. (c + b)·(c − b) = c² − b²
     algebra
 
-39. (2s)·(c − b) = c² − b²
-    substitute c + b = 2s (line 14) into line 38
+37. (2s)·(c − b) = c² − b²
+    substitute c + b = 2s (line 14) into line 36
 
-40. (2s)·(2t) = c² − b²
-    substitute c − b = 2t (line 17) into line 39
+38. (2s)·(2t) = c² − b²
+    substitute c − b = 2t (line 17) into line 37
 
-41. w²·4 = (2w)²
-    algebra
-
-42. (2s)·(2t) = (s·t)·4
-    algebra
-
-43. w²·4 = (s·t)·4
+39. w²·4 = (s·t)·4
     calculation
-      w²·4 = (2w)²          41
-           = a²             36
-           = c² − b²        37
-           = (2s)·(2t)      40
-           = (s·t)·4        42
+      w²·4 = (2w)²          algebra
+           = a²             substitute line 1
+           = c² − b²        35
+           = (2s)·(2t)      38
+           = (s·t)·4        algebra
 
-44. w² = s·t
-    mun:multiply-cancel a := w², b := s·t, c := 4, from 43
+40. w² = s·t
+    mun:multiply-cancel a := w², b := s·t, c := 4, from 39
     requires 4 ≠ 0: arithmetic
 
-45. gcd(b, c) = 1
-    thm:leg-hypotenuse-coprime, from H4, H5
+41. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
+    def:gcd a := s, b := t, from 31, 34
 
-46. gcd(s, t) ∈ ℕ. gcd(s, t) divides s. gcd(s, t) divides t.
-    def:gcd a := s, b := t, from 32, 35
+42. gcd(s, t) divides s + t
+    mun:divides-sum d := gcd(s, t), a := s, b := t, from 41
 
-47. gcd(s, t) divides s + t
-    mun:divides-sum d := gcd(s, t), a := s, b := t, from 46
+43. gcd(s, t) divides c
+    substitute c = s + t (line 19) into line 42
 
-48. gcd(s, t) divides c
-    substitute c = s + t (line 19) into line 47
+44. gcd(s, t) divides s − t
+    mun:divides-difference d := gcd(s, t), a := s, b := t, from 41
 
-49. gcd(s, t) divides s − t
-    mun:divides-difference d := gcd(s, t), a := s, b := t, from 46
+45. gcd(s, t) divides b
+    substitute b = s − t (line 24) into line 44
 
-50. gcd(s, t) divides b
-    substitute b = s − t (line 25) into line 49
+46. gcd(s, t) divides gcd(b, c)
+    thm:divides-gcd d := gcd(s, t), a := b, b := c, from 43, 45
+    requires gcd(s, t) ∈ ℤ: membership, from 41
 
-51. gcd(s, t) divides gcd(b, c)
-    thm:divides-gcd d := gcd(s, t), a := b, b := c, from 48, 50
-    requires gcd(s, t) ∈ ℤ: membership, from 46
+47. gcd(s, t) divides 1
+    substitute
+      gcd(s, t) divides gcd(b, c)      46
+      gcd(s, t) divides 1              thm:leg-hypotenuse-coprime, from H4, H5
 
-52. gcd(s, t) divides 1
-    substitute gcd(b, c) = 1 (line 45) into line 51
+48. gcd(s, t) = 1
+    mun:divides-one d := gcd(s, t), from 41, 47
 
-53. gcd(s, t) = 1
-    mun:divides-one d := gcd(s, t), from 46, 52
-
-54. s = gcd(s, w)². t = gcd(t, w)².
-    thm:coprime-square, from 4, 32, 35, 44, 53
+49. s = gcd(s, w)². t = gcd(t, w)².
+    thm:coprime-square, from 4, 31, 34, 40, 48
 
 let m = gcd(s, w), a positive integer                               (D1)
-    def:gcd a := s, b := w, from 4, 35
+    def:gcd a := s, b := w, from 4, 34
     reads the number whose square is s
 
-55. s = m²
+50. s = m²
     calculation
-      s = gcd(s, w)²    54
+      s = gcd(s, w)²    49
         = m²            D1
 
 let n = gcd(t, w), a positive integer                               (D2)
-    def:gcd a := t, b := w, from 4, 32
+    def:gcd a := t, b := w, from 4, 31
     reads the number whose square is t
 
-56. t = n²
+51. t = n²
     calculation
-      t = gcd(t, w)²    54
+      t = gcd(t, w)²    49
         = n²            D2
 
-57. w² = m²·t
-    substitute s = m² (line 55) into line 44
+52. w² = m²·t
+    substitute s = m² (line 50) into line 40
 
-58. w² = m²·n²
-    substitute t = n² (line 56) into line 57
+53. w² = m²·n²
+    substitute t = n² (line 51) into line 52
 
-59. m·n ∈ ℕ
+54. m·n ∈ ℕ
     membership
 
-60. w² = (m·n)²
-    algebra, from 58
+55. w² = (m·n)²
+    algebra, from 53
 
-61. w = m·n
-    mun:square-equal x := w, y := m·n, from 60
+56. w = m·n
+    mun:square-equal x := w, y := m·n, from 55
     requires w ≥ 0: inequalities, from 4
-    requires m·n ≥ 0: inequalities, from 59
+    requires m·n ≥ 0: inequalities, from 54
 
-62. a = 2(m·n)
-    substitute w = m·n (line 61) into line 1
+57. a = 2(m·n)
+    substitute w = m·n (line 56) into line 1
 
-63. b = m² − t
-    substitute s = m² (line 55) into line 25
+58. b = m² − t
+    substitute s = m² (line 50) into line 24
 
-64. b = m² − n²
-    substitute t = n² (line 56) into line 63
+59. b = m² − n²
+    substitute t = n² (line 51) into line 58
 
-65. c = m² + t
-    substitute s = m² (line 55) into line 19
+60. c = m² + t
+    substitute s = m² (line 50) into line 19
 
-66. c = m² + n²
-    substitute t = n² (line 56) into line 65
+61. c = m² + n²
+    substitute t = n² (line 51) into line 60
 
-67. 0 < b
+62. 0 < b
     inequalities, from H2
 
-68. 0 < m² − n²
-    transitivity, from 67, 64
+63. 0 < m² − n²
+    transitivity, from 62, 59
 
-69. n² < m²
+64. n² < m²
     inequalities
-      0 < m² − n²         68
+      0 < m² − n²         63
       n² < m²             adding n²
 
-70. n < m
-    mun:square-less x := n, y := m, from 69
+65. n < m
+    mun:square-less x := n, y := m, from 64
     requires n ≥ 0: inequalities, from D2
     requires m ≥ 0: inequalities, from D1
 
-71. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
+66. gcd(m, n) ∈ ℕ. gcd(m, n) divides m. gcd(m, n) divides n.
     def:gcd a := m, b := n
 
-72. gcd(m, n) divides m·m
-    mun:divides-multiple e := gcd(m, n), a := m, x := m, from 71
+67. gcd(m, n) divides m·m
+    mun:divides-multiple e := gcd(m, n), a := m, x := m, from 66
 
-73. m·m = s
-    algebra, from 55
+68. m·m = s
+    algebra, from 50
 
-74. gcd(m, n) divides s
-    substitute m·m = s (line 73) into line 72
+69. gcd(m, n) divides s
+    substitute m·m = s (line 68) into line 67
 
-75. gcd(m, n) divides n·n
-    mun:divides-multiple e := gcd(m, n), a := n, x := n, from 71
+70. gcd(m, n) divides n·n
+    mun:divides-multiple e := gcd(m, n), a := n, x := n, from 66
 
-76. n·n = t
-    algebra, from 56
+71. n·n = t
+    algebra, from 51
 
-77. gcd(m, n) divides t
-    substitute n·n = t (line 76) into line 75
+72. gcd(m, n) divides t
+    substitute n·n = t (line 71) into line 70
 
-78. gcd(m, n) divides gcd(s, t)
-    thm:divides-gcd d := gcd(m, n), a := s, b := t, from 74, 77
-    requires gcd(m, n) ∈ ℤ: membership, from 71
+73. gcd(m, n) divides gcd(s, t)
+    thm:divides-gcd d := gcd(m, n), a := s, b := t, from 69, 72
+    requires gcd(m, n) ∈ ℤ: membership, from 66
 
-79. gcd(m, n) divides 1
-    substitute gcd(s, t) = 1 (line 53) into line 78
+74. gcd(m, n) divides 1
+    substitute gcd(s, t) = 1 (line 48) into line 73
 
-80. gcd(m, n) = 1
-    mun:divides-one d := gcd(m, n), from 71, 79
+75. gcd(m, n) = 1
+    mun:divides-one d := gcd(m, n), from 66, 74
 
-81. m + n is odd
+76. m + n is odd
     contradiction
     suppose m + n is not odd                                          (S3)
 
-    81.1. m + n is even or m + n is odd
+    76.1. m + n is even or m + n is odd
           mun:even-or-odd n := m + n
 
-    81.2. m + n is even
-          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from S3, 81.1
+    76.2. m + n is even
+          mun:disjunctive-syllogism P := m + n is even, Q := m + n is odd, from S3, 76.1
 
-    81.3. u ∈ ℤ. m + n = 2u.
-          obtain u: def:even n := m + n, from 81.2
+    76.3. u ∈ ℤ. m + n = 2u.
+          obtain u: def:even n := m + n, from 76.2
 
-    81.4. m² − n² = (m + n)·(m − n)
+    76.4. m² − n² = (m + n)·(m − n)
           algebra
 
-    81.5. m² − n² = (2u)·(m − n)
-          substitute m + n = 2u (line 81.3) into line 81.4
+    76.5. m² − n² = (2u)·(m − n)
+          substitute m + n = 2u (line 76.3) into line 76.4
 
-    81.6. (2u)·(m − n) = 2(u·(m − n))
-          algebra
-
-    81.7. b = 2(u·(m − n))
+    76.6. b = 2(u·(m − n))
           calculation
-            b = m² − n²            64
-              = (2u)·(m − n)       81.5
-              = 2(u·(m − n))       81.6
+            b = m² − n²            59
+              = (2u)·(m − n)       76.5
+              = 2(u·(m − n))       algebra
 
-    81.8. b is even
-          def:even n := b, from 81.7
+    76.7. b is even
+          def:even n := b, from 76.6
 
-    81.9. b is not odd
-          mun:not-both n := b, from 81.8, contradicting 6
+    76.8. b is not odd
+          mun:not-both n := b, from 76.7, contradicting 6
 
-82. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
+77. There are m, n ∈ ℕ with n < m, gcd(m, n) = 1, m + n is odd,
     a = 2mn, b = m² − n², and c = m² + n².
-    exhibit, from 64, 66, 70, 80, 81
-    requires a = 2mn: algebra, from H1, 62
+    exhibit, from 59, 61, 65, 75, 76
+    requires a = 2mn: algebra, from H1, 57
 
 theorem triple-scaled
   note        Divide the triple by k = gcd(a, b). k divides c too, since k²
@@ -592,17 +566,14 @@ let k = gcd(a, b), a positive integer                               (D1)
 12. (a/k)² + (b/k)² = c²/k²
     substitute a² + b² = c² (H4) into line 11
 
-13. c²/k² = (c/k)²
-    algebra
-
-14. (a/k)² + (b/k)² = (c/k)²
+13. (a/k)² + (b/k)² = (c/k)²
     calculation
       (a/k)² + (b/k)² = c²/k²        12
-                      = (c/k)²       13
+                      = (c/k)²       algebra
 
-15. There is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
+14. There is k ∈ ℕ with a/k ∈ ℕ, b/k ∈ ℕ, c/k ∈ ℕ, gcd(a/k, b/k) = 1,
     and (a/k)² + (b/k)² = (c/k)².
-    exhibit, from 2, 3, 9, 10, 14
+    exhibit, from 2, 3, 9, 10, 13
 
 theorem triple-from-parameters
   note        The formulas give a triple by algebra: (m² − n²)² + (2mn)² is
@@ -617,55 +588,31 @@ theorem triple-from-parameters
   assume {a, b} = {k(m² − n²), 2kmn}                                   (H8)
   then a² + b² = c²
 
-1.  (k(m² − n²))² + (2kmn)² = (k(m² + n²))²
-    algebra
-
-2.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
+1.  (a = k(m² − n²) and b = 2kmn) or (a = 2kmn and b = k(m² − n²))
     mun:pair-equal c := k(m² − n²), d := 2kmn, from H8
 
-3.  a² + b² = c²
-    cases, from 2
+2.  a² + b² = c²
+    cases, from 1
 
     case
     assume a = k(m² − n²) and b = 2kmn                                (C1)
 
-    3.1.  a² + b² = (k(m² − n²))² + b²
-          substitute a = k(m² − n²) (C1)
-
-    3.2.  (k(m² − n²))² + b² = (k(m² − n²))² + (2kmn)²
-          substitute b = 2kmn (C1)
-
-    3.3.  (k(m² + n²))² = c²
-          substitute c = k(m² + n²) (H7)
-
-    3.4.  a² + b² = c²
+    2.1.  a² + b² = c²
           calculation
-            a² + b² = (k(m² − n²))² + b²            3.1
-                    = (k(m² − n²))² + (2kmn)²       3.2
-                    = (k(m² + n²))²                 1
-                    = c²                            3.3
+            a² + b² = (k(m² − n²))² + b²            substitute C1
+                    = (k(m² − n²))² + (2kmn)²       substitute C1
+                    = (k(m² + n²))²                 algebra
+                    = c²                            substitute H7
 
     case
     assume a = 2kmn and b = k(m² − n²)                                (C2)
 
-    3.5.  a² + b² = (2kmn)² + b²
-          substitute a = 2kmn (C2)
-
-    3.6.  (2kmn)² + b² = (2kmn)² + (k(m² − n²))²
-          substitute b = k(m² − n²) (C2)
-
-    3.7.  (2kmn)² + (k(m² − n²))² = (k(m² + n²))²
-          algebra
-
-    3.8.  (k(m² + n²))² = c²
-          substitute c = k(m² + n²) (H7)
-
-    3.9.  a² + b² = c²
+    2.2.  a² + b² = c²
           calculation
-            a² + b² = (2kmn)² + b²                  3.5
-                    = (2kmn)² + (k(m² − n²))²       3.6
-                    = (k(m² + n²))²                 3.7
-                    = c²                            3.8
+            a² + b² = (2kmn)² + b²                  substitute C2
+                    = (2kmn)² + (k(m² − n²))²       substitute C2
+                    = (k(m² + n²))²                 algebra
+                    = c²                            substitute H7
 
 theorem triple-parameters
   note        Every triple is k times one whose legs share no factor
