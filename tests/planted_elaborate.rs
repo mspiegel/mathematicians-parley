@@ -331,8 +331,8 @@ fn cases() -> Vec<Case> {
             "leave out the value a definition is concluded of",
             "proofs/wiedijk/sqrt2-irrational/odd-square",
             "proofs/wiedijk/sqrt2-irrational.proof",
-            "    def:odd n := n², from 5",
-            "    def:odd, from 5",
+            "    def:odd n := n², from 2",
+            "    def:odd, from 2",
             "with 2 · j + 1 = n",
         ),
         // A target naming a lemma the library as built does not hold, as

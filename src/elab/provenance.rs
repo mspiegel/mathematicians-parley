@@ -121,6 +121,13 @@ impl<'a> Elaborator<'a> {
         out.extend(self.sorts.iter().cloned());
         out.extend(step.requires.iter().map(|r| requirement(r.line)));
         out.extend(self.read_with(&step.just));
+        // A chain line's or a row's own reason is read as the step's is,
+        // with the defines what it cites is stated over.
+        for reason in crate::corpus::proof::chain_reasons(&step.just, &self.thm.path) {
+            if let Ok(by) = &reason.by {
+                out.extend(self.read_with(by));
+            }
+        }
         if block {
             let prefix = format!("{number}.");
             out.extend(
