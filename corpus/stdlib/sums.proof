@@ -79,49 +79,47 @@ mundane theorem product-constant
     1.1.  ∏(x ∈ ∅) c = 1
           mun:product-empty
 
-    1.2.  |∅| = 0
-          mun:card-empty
-
-    1.3.  c^0 = 1
+    1.2.  c^0 = 1
           algebra
 
-    1.4.  c^|∅| = 1
-          substitute |∅| = 0 (line 1.2) into line 1.3
+    1.3.  c^|∅| = 1
+          substitute
+            c^0 = 1        1.2
+            c^|∅| = 1      mun:card-empty
 
-    1.5.  ∏(x ∈ ∅) c = c^|∅|
-          transitivity, from 1.1, 1.4
+    1.4.  ∏(x ∈ ∅) c = c^|∅|
+          transitivity, from 1.1, 1.3
 
     step
     let Y ⊆ X                                                         (K)
     assume step 1 is true for Y, the induction hypothesis             (IH)
     let a ∈ X ∖ Y                                                     (K2)
 
-    1.6.  a ∈ X and a ∉ Y
+    1.5.  a ∈ X and a ∉ Y
           def:difference u := a, Y := X, Z := Y, from K2
 
-    1.7.  Y is finite
+    1.6.  Y is finite
           mun:finite-part, from H2, K
 
-    1.8.  ∏(x ∈ Y ∪ {a}) c = (∏(x ∈ Y) c)·c
-          mun:product-add-one, from K, 1.6, 1.7
+    1.7.  ∏(x ∈ Y ∪ {a}) c = (∏(x ∈ Y) c)·c
+          mun:product-add-one, from K, 1.5, 1.6
 
-    1.9.  |Y ∪ {a}| = |Y| + 1
-          mun:card-add-one X := Y, from 1.6, 1.7
+    1.8.  |Y| ∈ ℕ₀
+          mun:card-nat0 X := Y, from 1.6
 
-    1.10. |Y| ∈ ℕ₀
-          mun:card-nat0 X := Y, from 1.7
+    1.9.  c^(|Y| + 1) = c^|Y|·c
+          mun:exponent-step a := c, m := |Y|, from 1.8
 
-    1.11. c^(|Y| + 1) = c^|Y|·c
-          mun:exponent-step a := c, m := |Y|, from 1.10
+    1.10. ∏(x ∈ Y ∪ {a}) c = c^|Y|·c
+          substitute ∏(x ∈ Y) c = c^|Y| (IH) into line 1.7
 
-    1.12. ∏(x ∈ Y ∪ {a}) c = c^|Y|·c
-          substitute ∏(x ∈ Y) c = c^|Y| (IH) into line 1.8
+    1.11. ∏(x ∈ Y ∪ {a}) c = c^(|Y| + 1)
+          transitivity, from 1.10, 1.9
 
-    1.13. ∏(x ∈ Y ∪ {a}) c = c^(|Y| + 1)
-          transitivity, from 1.12, 1.11
-
-    1.14. ∏(x ∈ Y ∪ {a}) c = c^|Y ∪ {a}|
-          substitute |Y ∪ {a}| = |Y| + 1 (line 1.9) into line 1.13
+    1.12. ∏(x ∈ Y ∪ {a}) c = c^|Y ∪ {a}|
+          substitute
+            ∏(x ∈ Y ∪ {a}) c = c^(|Y| + 1)      1.11
+            ∏(x ∈ Y ∪ {a}) c = c^|Y ∪ {a}|      mun:card-add-one X := Y, from 1.5, 1.6
 
 2.  ∏(x ∈ X) c = c^|X|
     instantiate Y := X in line 1
@@ -149,22 +147,21 @@ theorem product-factor
 2.  ∏(x ∈ X) x·c = (∏(x ∈ X) x)·∏(x ∈ X) c
     mun:product-of-products, from H2, 1
 
-3.  ∏(x ∈ X) c = c^|X|
-    mun:product-constant, from H2
+3.  ∏(x ∈ X) x·c = (∏(x ∈ X) x)·c^|X|
+    substitute
+      ∏(x ∈ X) x·c = (∏(x ∈ X) x)·∏(x ∈ X) c      2
+      ∏(x ∈ X) x·c = (∏(x ∈ X) x)·c^|X|           mun:product-constant, from H2
 
-4.  ∏(x ∈ X) x·c = (∏(x ∈ X) x)·c^|X|
-    substitute ∏(x ∈ X) c = c^|X| (line 3) into line 2
-
-5.  ∏(x ∈ X) x ∈ ℤ
+4.  ∏(x ∈ X) x ∈ ℤ
     mun:product-integer, from H1, H2
 
-6.  |X| ∈ ℕ₀
+5.  |X| ∈ ℕ₀
     mun:card-nat0, from H2
 
-7.  ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
-    algebra, from 4
-    requires ∏(x ∈ X) x ∈ ℝ: from 5
-    requires c^|X| ∈ ℤ: mun:power-integer a := c, m := |X|, from 6
+6.  ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
+    algebra, from 3
+    requires ∏(x ∈ X) x ∈ ℝ: from 4
+    requires c^|X| ∈ ℤ: mun:power-integer a := c, m := |X|, from 5
 
 theorem product-reorder
   note        A one-to-one function from a finite set to itself takes each

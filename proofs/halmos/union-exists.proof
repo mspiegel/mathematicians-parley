@@ -91,8 +91,7 @@ theorem union-exists
           4.2.6.  x ∈ ⋃(X ∈ {A, B}) X
                   def:indexed-union u := x, D := {A, B}, from 4.2.5
 
-5.  ⋃(X ∈ {A, B}) X = A ∪ B
-    axi:extensionality X := ⋃(X ∈ {A, B}) X, Y := A ∪ B, from 3, 4
-
-6.  A ∪ B exists
-    substitute ⋃(X ∈ {A, B}) X = A ∪ B (line 5) into line 2
+5.  A ∪ B exists
+    substitute
+      ⋃(X ∈ {A, B}) X exists      2
+      A ∪ B exists                axi:extensionality X := ⋃(X ∈ {A, B}) X, Y := A ∪ B, from 3, 4

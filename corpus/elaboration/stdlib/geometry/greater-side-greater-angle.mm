@@ -4,8 +4,8 @@ $( stdlib/geometry/greater-side-greater-angle, elaborated from corpus/stdlib/geo
    0d7fb3e59afff60f4cec2287cbb616bf651bbfbf2356a611a43a5c98b5e0462d. $)
 
 $[ stdlib/proved.mm $]
-$[ stdlib/geometry/isosceles-angles.mm $]
 $[ stdlib/geometry/exterior-angle-greater-other.mm $]
+$[ stdlib/geometry/isosceles-angles.mm $]
 
 ${
   $d A j $.

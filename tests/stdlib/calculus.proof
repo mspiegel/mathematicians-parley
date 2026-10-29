@@ -81,11 +81,10 @@ theorem derivative-on-the-line
     6.1.  F′(x) = f′(x) + g′(x)
           instantiate x := x in line 5
 
-    6.2.  g′(x) = 3
-          instantiate x := x in line 4
-
-    6.3.  F′(x) = f′(x) + 3
-          substitute g′(x) = 3 (line 6.2) into line 6.1
+    6.2.  F′(x) = f′(x) + 3
+          substitute
+            F′(x) = f′(x) + g′(x)      6.1
+            F′(x) = f′(x) + 3          instantiate x := x in line 4
 
 theorem derivative-of-a-difference
   let f : ℝ → ℝ                                                       (H1)
@@ -118,11 +117,10 @@ theorem derivative-of-a-difference
     6.1.  F′(x) = f′(x) − g′(x)
           instantiate x := x in line 5
 
-    6.2.  g′(x) = 3
-          instantiate x := x in line 4
-
-    6.3.  F′(x) = f′(x) − 3
-          substitute g′(x) = 3 (line 6.2) into line 6.1
+    6.2.  F′(x) = f′(x) − 3
+          substitute
+            F′(x) = f′(x) − g′(x)      6.1
+            F′(x) = f′(x) − 3          instantiate x := x in line 4
 
 theorem area-under-other-letters
   note        Part one of the fundamental theorem cited where the page names

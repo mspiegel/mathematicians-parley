@@ -5,8 +5,8 @@ $( stdlib/geometry/same-base-area, elaborated from corpus/stdlib/geometry.proof 
 
 $[ stdlib/proved.mm $]
 $[ stdlib/geometry/foot.mm $]
-$[ stdlib/geometry/height-area.mm $]
 $[ stdlib/geometry/parallel-heights.mm $]
+$[ stdlib/geometry/height-area.mm $]
 
 ${
   $d i j k m o p q r s t $.

@@ -385,14 +385,13 @@ theorem limit-at-most
     1.12. L − (L − B) < x(M + N)
           inequalities, from 1.10, 1.11
 
-    1.13. L − (L − B) = B
-          algebra
+    1.13. B < x(M + N)
+          substitute
+            L − (L − B) < x(M + N)      1.12
+            B < x(M + N)                algebra
 
-    1.14. B < x(M + N)
-          substitute L − (L − B) = B (line 1.13) into line 1.12
-
-    1.15. not x(M + N) ≤ B
-          inequalities, from 1.10, 1.14, contradicting 1.9
+    1.14. not x(M + N) ≤ B
+          inequalities, from 1.10, 1.13, contradicting 1.9
 
 theorem limit-at-least
   note        As limit-at-most, from below.
@@ -449,14 +448,13 @@ theorem limit-at-least
     1.12. x(M + N) < L + (B − L)
           inequalities, from 1.10, 1.11
 
-    1.13. L + (B − L) = B
-          algebra
+    1.13. x(M + N) < B
+          substitute
+            x(M + N) < L + (B − L)      1.12
+            x(M + N) < B                algebra
 
-    1.14. x(M + N) < B
-          substitute L + (B − L) = B (line 1.13) into line 1.12
-
-    1.15. not B ≤ x(M + N)
-          inequalities, from 1.10, 1.14, contradicting 1.9
+    1.14. not B ≤ x(M + N)
+          inequalities, from 1.10, 1.13, contradicting 1.9
 
 mundane theorem first-terms-bounded
   note        Finitely many terms have a bound: the first term bounds
@@ -664,14 +662,13 @@ let B = max(C, |L| + 1), a real number                                (D1)
                   thm:triangle-inequality a := x(m) − L, b := L
                   requires x(m) ∈ ℝ: from H1
 
-          11.3.8. (x(m) − L) + L = x(m)
-                  algebra
+          11.3.8. |x(m)| ≤ |x(m) − L| + |L|
+                  substitute
+                    |(x(m) − L) + L| ≤ |x(m) − L| + |L|      11.3.7
+                    |x(m)| ≤ |x(m) − L| + |L|                algebra
                   requires x(m) ∈ ℝ: from H1
 
-          11.3.9. |x(m)| ≤ |x(m) − L| + |L|
-                  substitute (x(m) − L) + L = x(m) (line 11.3.8) into line 11.3.7
-
-          11.3.10. |x(m) − L| + |L| < |L| + 1
+          11.3.9.  |x(m) − L| + |L| < |L| + 1
                    inequalities
                      |x(m) − L| < 1                  11.3.6
                      |x(m) − L| + |L| < 1 + |L|      adding |L|
@@ -679,20 +676,20 @@ let B = max(C, |L| + 1), a real number                                (D1)
                    requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
                    requires |L| ∈ ℝ: from 7
 
-          11.3.11. |x(m)| < |L| + 1
-                   transitivity, from 11.3.9, 11.3.10
+          11.3.10. |x(m)| < |L| + 1
+                   transitivity, from 11.3.8, 11.3.9
                    requires |x(m)| ∈ ℝ: from 11.1
                    requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
                    requires |L| ∈ ℝ: from 7
 
-          11.3.12. |x(m)| < B
-                   transitivity, from 11.3.11, 10
+          11.3.11. |x(m)| < B
+                   transitivity, from 11.3.10, 10
                    requires |x(m)| ∈ ℝ: from 11.1
                    requires |L| ∈ ℝ: from 7
 
-          11.3.13. |x(m)| ≤ B
+          11.3.12. |x(m)| ≤ B
                    inequalities
-                     |x(m)| < B      11.3.12
+                     |x(m)| < B      11.3.11
                      |x(m)| ≤ B      weakening
                    requires |x(m)| ∈ ℝ: from 11.1
 

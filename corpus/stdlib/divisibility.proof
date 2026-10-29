@@ -222,17 +222,16 @@ theorem congruent-cancel
 1.  n divides x·c − y·c
     def:congruent-mod a := x·c, b := y·c, from H5
 
-2.  x·c − y·c = (x − y)·c
-    algebra
+2.  n divides (x − y)·c
+    substitute
+      n divides x·c − y·c      1
+      n divides (x − y)·c      algebra
 
-3.  n divides (x − y)·c
-    substitute x·c − y·c = (x − y)·c (line 2) into line 1
+3.  n divides x − y
+    thm:coprime-divides x := x − y, from H6, 2
 
-4.  n divides x − y
-    thm:coprime-divides x := x − y, from H6, 3
-
-5.  x ≡ y (mod n)
-    def:congruent-mod a := x, b := y, from 4
+4.  x ≡ y (mod n)
+    def:congruent-mod a := x, b := y, from 3
 
 mundane theorem coprime-square-part
   note        One of two numbers with no factor in common whose product is
@@ -263,106 +262,97 @@ mundane theorem coprime-square-part
 5.  s divides gcd(s·s, s·w)
     thm:divides-gcd d := s, a := s·s, b := s·w, from 3, 4
 
-6.  gcd(s·s, s·w) = s·gcd(s, w)
-    mun:gcd-scaled c := s, a := s, b := w
+6.  s divides s·gcd(s, w)
+    substitute
+      s divides gcd(s·s, s·w)      5
+      s divides s·gcd(s, w)        mun:gcd-scaled c := s, a := s, b := w
 
-7.  s divides s·gcd(s, w)
-    substitute gcd(s·s, s·w) = s·gcd(s, w) (line 6) into line 5
-
-8.  s·gcd(s, w) = gcd(s, w)·s
-    algebra
+7.  s divides gcd(s, w)·s
+    substitute
+      s divides s·gcd(s, w)      6
+      s divides gcd(s, w)·s      algebra
     requires gcd(s, w) ∈ ℝ: from 1
 
-9.  s divides gcd(s, w)·s
-    substitute s·gcd(s, w) = gcd(s, w)·s (line 8) into line 7
-
-10. s divides s·t
+8.  s divides s·t
     mun:divides-multiple e := s, a := s, x := t, from 2
 
-11. w·w = s·t
+9.  w·w = s·t
     algebra, from H5
 
-12. s divides w·w
-    substitute w·w = s·t (line 11) into line 10
+10. s divides w·w
+    substitute w·w = s·t (line 9) into line 8
 
-13. s·w = w·s
-    algebra
+11. s divides w·s
+    substitute
+      s divides s·w      4
+      s divides w·s      algebra
 
-14. s divides w·s
-    substitute s·w = w·s (line 13) into line 4
+12. s divides gcd(w·s, w·w)
+    thm:divides-gcd d := s, a := w·s, b := w·w, from 10, 11
 
-15. s divides gcd(w·s, w·w)
-    thm:divides-gcd d := s, a := w·s, b := w·w, from 12, 14
+13. s divides w·gcd(s, w)
+    substitute
+      s divides gcd(w·s, w·w)      12
+      s divides w·gcd(s, w)        mun:gcd-scaled c := w, a := s, b := w
 
-16. gcd(w·s, w·w) = w·gcd(s, w)
-    mun:gcd-scaled c := w, a := s, b := w
-
-17. s divides w·gcd(s, w)
-    substitute gcd(w·s, w·w) = w·gcd(s, w) (line 16) into line 15
-
-18. w·gcd(s, w) = gcd(s, w)·w
-    algebra
+14. s divides gcd(s, w)·w
+    substitute
+      s divides w·gcd(s, w)      13
+      s divides gcd(s, w)·w      algebra
     requires gcd(s, w) ∈ ℝ: from 1
 
-19. s divides gcd(s, w)·w
-    substitute w·gcd(s, w) = gcd(s, w)·w (line 18) into line 17
-
-20. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
-    thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 9, 19
+15. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
+    thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 7, 14
     requires gcd(s, w)·s ∈ ℤ: from 1
     requires gcd(s, w)·w ∈ ℤ: from 1
 
-21. gcd(gcd(s, w)·s, gcd(s, w)·w) = gcd(s, w)·gcd(s, w)
-    mun:gcd-scaled c := gcd(s, w), a := s, b := w, from 1
+16. s divides gcd(s, w)·gcd(s, w)
+    substitute
+      s divides gcd(gcd(s, w)·s, gcd(s, w)·w)      15
+      s divides gcd(s, w)·gcd(s, w)                mun:gcd-scaled c := gcd(s, w), a := s, b := w, from 1
 
-22. s divides gcd(s, w)·gcd(s, w)
-    substitute gcd(gcd(s, w)·s, gcd(s, w)·w) = gcd(s, w)·gcd(s, w) (line 21) into line 20
-
-23. gcd(s, w)·gcd(s, w) = gcd(s, w)²
-    algebra
+17. s divides gcd(s, w)²
+    substitute
+      s divides gcd(s, w)·gcd(s, w)      16
+      s divides gcd(s, w)²               algebra
     requires gcd(s, w) ∈ ℝ: from 1
 
-24. s divides gcd(s, w)²
-    substitute gcd(s, w)·gcd(s, w) = gcd(s, w)² (line 23) into line 22
-
-25. gcd(s, w)² divides s²
+18. gcd(s, w)² divides s²
     mun:divides-square d := gcd(s, w), n := s, from 1
 
-26. gcd(s, w)² divides w²
+19. gcd(s, w)² divides w²
     mun:divides-square d := gcd(s, w), n := w, from 1
 
-27. gcd(s, w)² divides s·t
-    substitute w² = s·t (H5) into line 26
+20. gcd(s, w)² divides s·t
+    substitute w² = s·t (H5) into line 19
 
-28. s² = s·s
-    algebra
+21. gcd(s, w)² divides s·s
+    substitute
+      gcd(s, w)² divides s²       18
+      gcd(s, w)² divides s·s      algebra
 
-29. gcd(s, w)² divides s·s
-    substitute s² = s·s (line 28) into line 25
-
-30. gcd(s, w)² divides gcd(s·s, s·t)
-    thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 27, 29
+22. gcd(s, w)² divides gcd(s·s, s·t)
+    thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 20, 21
     requires gcd(s, w)² ∈ ℤ: from 1
 
-31. gcd(s·s, s·t) = s·gcd(s, t)
-    mun:gcd-scaled c := s, a := s, b := t
+23. gcd(s, w)² divides s·gcd(s, t)
+    substitute
+      gcd(s, w)² divides gcd(s·s, s·t)      22
+      gcd(s, w)² divides s·gcd(s, t)        mun:gcd-scaled c := s, a := s, b := t
 
-32. gcd(s, w)² divides s·gcd(s, t)
-    substitute gcd(s·s, s·t) = s·gcd(s, t) (line 31) into line 30
+24. gcd(s, w)² divides s
+    substitute gcd(s, t) = 1 (H4) into line 23
 
-33. gcd(s, w)² divides s
-    substitute gcd(s, t) = 1 (H4) into line 32
-
-34. s ≤ gcd(s, w)²
-    mun:divides-le e := s, m := gcd(s, w)², from 24
+25. s ≤ gcd(s, w)²
+    mun:divides-le e := s, m := gcd(s, w)², from 17
     requires gcd(s, w)² ∈ ℕ: from 1
 
-35. gcd(s, w)² ≤ s
-    mun:divides-le e := gcd(s, w)², m := s, from 33
+26. gcd(s, w)² ≤ s
+    mun:divides-le e := gcd(s, w)², m := s, from 24
     requires gcd(s, w)² ∈ ℕ: from 1
 
-36. s = gcd(s, w)²
-    antisymmetry, from 34, 35
+27. s = gcd(s, w)²
+    antisymmetry, from 25, 26
     requires gcd(s, w) ∈ ℝ: from 1
 
 theorem coprime-square
@@ -433,54 +423,52 @@ mundane theorem prime-power-not-less
     3.4.  p^(a + (a′ − a)) = p^a·p^(a′ − a)
           mun:exponent-sum a := p, m := a, n := a′ − a, from 3.2
 
-    3.5.  a + (a′ − a) = a′
-          algebra
+    3.5.  p^a′ = p^a·p^(a′ − a)
+          substitute
+            p^(a + (a′ − a)) = p^a·p^(a′ − a)      3.4
+            p^a′ = p^a·p^(a′ − a)                  algebra
 
-    3.6.  p^a′ = p^a·p^(a′ − a)
-          substitute a + (a′ − a) = a′ (line 3.5) into line 3.4
-
-    3.7.  m·p^a = (p^(a′ − a)·m′)·p^a
-          algebra, from H8, 3.6
+    3.6.  m·p^a = (p^(a′ − a)·m′)·p^a
+          algebra, from H8, 3.5
           requires p^(a′ − a) ∈ ℝ: from 3.3
 
-    3.8.  p^a > 0
+    3.7.  p^a > 0
           mun:power-positive a := p, m := a
           requires 0 < p: from H1
 
-    3.9.  p^a ≠ 0
+    3.8.  p^a ≠ 0
           inequalities
-            p^a > 0             3.8
+            p^a > 0             3.7
             p^a ≠ 0             weakening
 
-    3.10. m = p^(a′ − a)·m′
+    3.9.  m = p^(a′ − a)·m′
           mun:multiply-cancel a := m, b := p^(a′ − a)·m′, c := p^a,
-            from 3.7, 3.9
+            from 3.6, 3.8
           requires p^(a′ − a)·m′ ∈ ℝ: from 3.3
 
-    3.11. p divides p
+    3.10. p divides p
           mun:divides-self n := p
 
-    3.12. p divides p^(a′ − a)
-          thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.11
+    3.11. p divides p^(a′ − a)
+          thm:prime-divides-power a := p, n := a′ − a, from H2, 3.2, 3.10
 
-    3.13. p divides p^(a′ − a)·m′
-          mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.12
+    3.12. p divides p^(a′ − a)·m′
+          mun:divides-multiple e := p, a := p^(a′ − a), x := m′, from 3.11
           requires p^(a′ − a) ∈ ℤ: from 3.3
 
-    3.14. p divides m
-          substitute m = p^(a′ − a)·m′ (line 3.10) into line 3.13
+    3.13. p divides m
+          substitute m = p^(a′ − a)·m′ (line 3.9) into line 3.12
 
-    3.15. p divides gcd(m, p)
-          thm:divides-gcd d := p, a := m, b := p, from 3.11, 3.14
+    3.14. p divides gcd(m, p)
+          thm:divides-gcd d := p, a := m, b := p, from 3.10, 3.13
 
-    3.16. p divides 1
-          substitute gcd(m, p) = 1 (H7) into line 3.15
+    3.15. p divides 1
+          substitute gcd(m, p) = 1 (H7) into line 3.14
 
-    3.17. p = 1
-          mun:divides-one d := p, from 3.16
-
-    3.18. 1 > 1, which is impossible
-          substitute p = 1 (line 3.17) into line 2
+    3.16. 1 > 1, which is impossible
+          substitute
+            p > 1      2
+            1 > 1      mun:divides-one d := p, from 3.15
 
 mundane theorem prime-power-unique
   note        Where p^a·m = p^a′·m′ with m and m′ sharing no factor with the
@@ -643,53 +631,51 @@ theorem product-coprime
     requires X is finite: from H2
 
     base
-    2.1.  ∏(x ∈ ∅) x = 1
-          mun:product-empty, from 1
-
-    2.2.  gcd(n, 1) = 1
+    2.1.  gcd(n, 1) = 1
           mun:gcd-one a := n
 
-    2.3.  gcd(1, n) = gcd(n, 1)
+    2.2.  gcd(1, n) = gcd(n, 1)
           mun:gcd-commutes a := 1, b := n
 
-    2.4.  gcd(1, n) = 1
-          transitivity, from 2.3, 2.2
+    2.3.  gcd(1, n) = 1
+          transitivity, from 2.2, 2.1
 
-    2.5.  gcd(∏(x ∈ ∅) x, n) = 1
-          substitute ∏(x ∈ ∅) x = 1 (line 2.1) into line 2.4
+    2.4.  gcd(∏(x ∈ ∅) x, n) = 1
+          substitute
+            gcd(1, n) = 1               2.3
+            gcd(∏(x ∈ ∅) x, n) = 1      mun:product-empty, from 1
 
     step
     let Y ⊆ X                                                         (K)
     assume step 2 is true for Y, the induction hypothesis             (IH)
     let a ∈ X ∖ Y                                                     (K2)
 
-    2.6.  a ∈ X and a ∉ Y
+    2.5.  a ∈ X and a ∉ Y
           def:difference u := a, Y := X, Z := Y, from K2
 
-    2.7.  Y is finite
+    2.6.  Y is finite
           mun:finite-part, from H2, K
 
-    2.8.  ∏(x ∈ Y ∪ {a}) x = (∏(x ∈ Y) x)·a
-          mun:product-add-one, from K, 1, 2.6, 2.7
+    2.7.  gcd(a, n) = 1
+          instantiate y := a in H4, from 2.5
 
-    2.9.  gcd(a, n) = 1
-          instantiate y := a in H4, from 2.6
-
-    2.10. Y ⊆ ℤ
+    2.8.  Y ⊆ ℤ
           mun:subset-transitive X := Y, Y := X, Z := ℤ, from H1, K
 
-    2.11. ∏(x ∈ Y) x ∈ ℤ
-          mun:product-integer X := Y, from 2.7, 2.10
+    2.9.  ∏(x ∈ Y) x ∈ ℤ
+          mun:product-integer X := Y, from 2.6, 2.8
 
-    2.12. a ∈ ℤ
-          mun:in-subset, from H1, 2.6
+    2.10. a ∈ ℤ
+          mun:in-subset, from H1, 2.5
 
-    2.13. gcd((∏(x ∈ Y) x)·a, n) = 1
-          mun:coprime-product x := ∏(x ∈ Y) x, y := a, from IH, 2.9, 2.11,
-            2.12
+    2.11. gcd((∏(x ∈ Y) x)·a, n) = 1
+          mun:coprime-product x := ∏(x ∈ Y) x, y := a, from IH, 2.7, 2.9,
+            2.10
 
-    2.14. gcd(∏(x ∈ Y ∪ {a}) x, n) = 1
-          substitute ∏(x ∈ Y ∪ {a}) x = (∏(x ∈ Y) x)·a (line 2.8) into line 2.13
+    2.12. gcd(∏(x ∈ Y ∪ {a}) x, n) = 1
+          substitute
+            gcd((∏(x ∈ Y) x)·a, n) = 1        2.11
+            gcd(∏(x ∈ Y ∪ {a}) x, n) = 1      mun:product-add-one, from K, 1, 2.5, 2.6
 
 3.  gcd(∏(x ∈ X) x, n) = 1
     instantiate Y := X in line 2
@@ -719,90 +705,85 @@ theorem product-congruent-termwise
     requires X is finite: from H2
 
     base
-    3.1.  ∏(x ∈ ∅) t(x) = 1
-          mun:product-empty
-
-    3.2.  ∏(x ∈ ∅) u(x) = 1
-          mun:product-empty t := u
-
-    3.3.  1 − 1 = n·0
+    3.1.  1 − 1 = n·0
           algebra
 
-    3.4.  n divides 1 − 1
-          def:divides d := n, n := 1 − 1, from 3.3
+    3.2.  n divides 1 − 1
+          def:divides d := n, n := 1 − 1, from 3.1
 
-    3.5.  1 ≡ 1 (mod n)
-          def:congruent-mod a := 1, b := 1, from 3.4
+    3.3.  1 ≡ 1 (mod n)
+          def:congruent-mod a := 1, b := 1, from 3.2
 
-    3.6.  ∏(x ∈ ∅) t(x) ≡ 1 (mod n)
-          substitute ∏(x ∈ ∅) t(x) = 1 (line 3.1) into line 3.5
+    3.4.  ∏(x ∈ ∅) t(x) ≡ 1 (mod n)
+          substitute
+            1 ≡ 1 (mod n)                  3.3
+            ∏(x ∈ ∅) t(x) ≡ 1 (mod n)      mun:product-empty
 
-    3.7.  ∏(x ∈ ∅) t(x) ≡ ∏(x ∈ ∅) u(x) (mod n)
-          substitute ∏(x ∈ ∅) u(x) = 1 (line 3.2) into line 3.6
+    3.5.  ∏(x ∈ ∅) t(x) ≡ ∏(x ∈ ∅) u(x) (mod n)
+          substitute
+            ∏(x ∈ ∅) t(x) ≡ 1 (mod n)                  3.4
+            ∏(x ∈ ∅) t(x) ≡ ∏(x ∈ ∅) u(x) (mod n)      mun:product-empty t := u
 
     step
     let Y ⊆ X                                                         (K)
     assume step 3 is true for Y, the induction hypothesis             (IH)
     let a ∈ X ∖ Y                                                     (K2)
 
-    3.8.  a ∈ X and a ∉ Y
+    3.6.  a ∈ X and a ∉ Y
           def:difference u := a, Y := X, Z := Y, from K2
 
-    3.9.  Y is finite
+    3.7.  Y is finite
           mun:finite-part, from H2, K
 
-    3.10. ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
-          mun:product-add-one, from K, 3.8, 3.9
-
-    3.11. ∏(x ∈ Y ∪ {a}) u(x) = (∏(x ∈ Y) u(x))·u(a)
-          mun:product-add-one t := u, from K, 3.8, 3.9
-
-    3.12. ∏(x ∈ Y) t(x) ∈ ℤ
+    3.8.  ∏(x ∈ Y) t(x) ∈ ℤ
           instantiate Z := Y in line 1, from K
 
-    3.13. ∏(x ∈ Y) u(x) ∈ ℤ
+    3.9.  ∏(x ∈ Y) u(x) ∈ ℤ
           instantiate Z := Y in line 2, from K
 
-    3.14. t(a) ∈ ℤ
-          mun:function-value f := t, D := X, E := ℤ, x := a, from 3.8
+    3.10. t(a) ∈ ℤ
+          mun:function-value f := t, D := X, E := ℤ, x := a, from 3.6
 
-    3.15. u(a) ∈ ℤ
-          mun:function-value f := u, D := X, E := ℤ, x := a, from 3.8
+    3.11. u(a) ∈ ℤ
+          mun:function-value f := u, D := X, E := ℤ, x := a, from 3.6
 
-    3.16. n divides ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x)
+    3.12. n divides ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x)
           def:congruent-mod a := ∏(x ∈ Y) t(x), b := ∏(x ∈ Y) u(x),
-            from IH, 3.12, 3.13
+            from IH, 3.8, 3.9
 
-    3.17. t(a) ≡ u(a) (mod n)
-          instantiate x := a in H6, from 3.8
+    3.13. t(a) ≡ u(a) (mod n)
+          instantiate x := a in H6, from 3.6
 
-    3.18. n divides t(a) − u(a)
-          def:congruent-mod a := t(a), b := u(a), from 3.14, 3.15, 3.17
+    3.14. n divides t(a) − u(a)
+          def:congruent-mod a := t(a), b := u(a), from 3.10, 3.11, 3.13
 
-    3.19. n divides (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x)
+    3.15. n divides (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x)
           mun:divides-combination e := n, a := ∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x),
             b := t(a) − u(a), x := t(a), y := ∏(x ∈ Y) u(x),
-            from 3.12, 3.13, 3.14, 3.15, 3.16, 3.18
+            from 3.8, 3.9, 3.10, 3.11, 3.12, 3.14
 
-    3.20. (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x) = (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)
-          algebra
-          requires ∏(x ∈ Y) t(x) ∈ ℝ: from 3.12
-          requires ∏(x ∈ Y) u(x) ∈ ℝ: from 3.13
-          requires t(a) ∈ ℝ: from 3.14
-          requires u(a) ∈ ℝ: from 3.15
+    3.16. n divides (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)
+          substitute
+            n divides (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x)      3.15
+            n divides (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)                             algebra
+          requires ∏(x ∈ Y) t(x) ∈ ℝ: from 3.8
+          requires ∏(x ∈ Y) u(x) ∈ ℝ: from 3.9
+          requires t(a) ∈ ℝ: from 3.10
+          requires u(a) ∈ ℝ: from 3.11
 
-    3.21. n divides (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a)
-          substitute (∏(x ∈ Y) t(x) − ∏(x ∈ Y) u(x))·t(a) + (t(a) − u(a))·∏(x ∈ Y) u(x) = (∏(x ∈ Y) t(x))·t(a) − (∏(x ∈ Y) u(x))·u(a) (line 3.20) into line 3.19
-
-    3.22. (∏(x ∈ Y) t(x))·t(a) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
+    3.17. (∏(x ∈ Y) t(x))·t(a) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
           def:congruent-mod a := (∏(x ∈ Y) t(x))·t(a),
-            b := (∏(x ∈ Y) u(x))·u(a), from 3.12, 3.13, 3.14, 3.15, 3.21
+            b := (∏(x ∈ Y) u(x))·u(a), from 3.8, 3.9, 3.10, 3.11, 3.16
 
-    3.23. ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
-          substitute ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a) (line 3.10) into line 3.22
+    3.18. ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)
+          substitute
+            (∏(x ∈ Y) t(x))·t(a) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)      3.17
+            ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)       mun:product-add-one, from K, 3.6, 3.7
 
-    3.24. ∏(x ∈ Y ∪ {a}) t(x) ≡ ∏(x ∈ Y ∪ {a}) u(x) (mod n)
-          substitute ∏(x ∈ Y ∪ {a}) u(x) = (∏(x ∈ Y) u(x))·u(a) (line 3.11) into line 3.23
+    3.19. ∏(x ∈ Y ∪ {a}) t(x) ≡ ∏(x ∈ Y ∪ {a}) u(x) (mod n)
+          substitute
+            ∏(x ∈ Y ∪ {a}) t(x) ≡ (∏(x ∈ Y) u(x))·u(a) (mod n)      3.18
+            ∏(x ∈ Y ∪ {a}) t(x) ≡ ∏(x ∈ Y ∪ {a}) u(x) (mod n)       mun:product-add-one t := u, from K, 3.6, 3.7
 
 4.  ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
     instantiate Y := X in line 3
