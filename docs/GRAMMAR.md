@@ -1137,7 +1137,7 @@ member the step adds.
 <rel>        ::= `=` | `≤` | `<` | `≥` | `>` | `≡`
 <modulus>    ::= `(mod` <term> `)`
 <citation>   ::= <ref> | `arithmetic` | `real arithmetic` | <line reason>
-<line reason> ::= `algebra`
+<line reason> ::= `algebra` [ `,` <from> ]
                | `substitute` ( `line` <number> | <label> )
                | `instantiate` <instantiation> <target> [ `,` <from> ]
                | <prefix> <cited> [ <instantiation> ] [ `,` <from> ]

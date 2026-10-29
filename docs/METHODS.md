@@ -1810,7 +1810,6 @@ of its own would be:
   the claim.
 - A later row whose reason is a bare line number or label. It is written
   `substitute line L`, or `substitute H3`.
-- On a chain line, `algebra` that cites a line.
 
 **Expansion.** Each reason is built as its step would be. Each row is
 reached from the row above by putting in its "was = now" (`congruence`,

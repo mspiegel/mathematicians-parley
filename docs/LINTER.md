@@ -153,6 +153,7 @@ read, the existence is written with "with".
 | a "for all" step of one line, justified as its body would be | a `proof` block whose one step is justified by an item, a define, `membership`, `algebra` or `inequalities` | all 11 follow it |
 | a chain line giving its own reason | a step that only one chain line uses, cited by that line | about 1,430 such steps |
 | `substitute` with rows | a step that only one `substitute … into` uses, then that substitute | about 330 such steps |
+| `substitute line L` on a chain line that only puts one side of L's equation for the other | `algebra, from L` | judgement |
 | a claim of several sentences | one claim joined by `and` | judgement |
 | commas and a final `and` inside a "there is" | repeated `and` | judgement |
 
