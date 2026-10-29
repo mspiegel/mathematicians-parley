@@ -281,14 +281,14 @@ pub fn check_formulas(report: &mut Report, thm: &Theorem, env: Env, known: &Know
 }
 
 /// A part of a line that is formula text, and what a message calls it.
-struct FormulaPart {
-    line: usize,
-    what: String,
-    written: Written,
+pub(super) struct FormulaPart {
+    pub(super) line: usize,
+    pub(super) what: String,
+    pub(super) written: Written,
 }
 
 impl FormulaPart {
-    fn new(line: usize, what: String, written: &Written) -> FormulaPart {
+    pub(super) fn new(line: usize, what: String, written: &Written) -> FormulaPart {
         FormulaPart {
             line,
             what,
@@ -346,7 +346,7 @@ fn say_unread(
 /// Every part of a theorem that is a claim, of one sentence or several:
 /// each step's claim, each `assume` and `suppose` line, and the statement. An induction hypothesis writes no formula: it assumes
 /// what its induction's claim says.
-fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
+pub(super) fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
     let mut out = Vec::new();
     for s in &thm.steps {
         let what = format!("step {}", s.number);
@@ -375,7 +375,7 @@ fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
 /// terms they add or multiply by, and a define's parameter domains. A `let` line of none of the forms is
 /// `check_introductions`'s to report, and a chain or rows that do not cut
 /// `check_structure`'s.
-fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
+pub(super) fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
     let mut out = Vec::new();
     let mut add =
         |line, what, written: &Written| out.push(FormulaPart::new(line, what, written));
@@ -410,6 +410,10 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
             for v in r.values().written() {
                 let what = format!("a value the requires line of {} gives", s.called());
                 add(r.line, what, v);
+            }
+            if let Ok(Some(e)) = r.by().map(|by| by.equation.as_ref()) {
+                let what = format!("the equation the requires line of {} gives", s.called());
+                add(r.line, what, e);
             }
         }
         if let Some(e) = &s.just.equation {

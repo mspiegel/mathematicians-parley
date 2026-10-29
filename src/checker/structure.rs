@@ -1516,11 +1516,13 @@ pub fn check_readings(report: &mut Report, thm: &Theorem) {
 }
 
 /// A numbered step is there to be used (`SYNTAX.md`, Steps): another step,
-/// a requires line, a row or a let's reason cites it, or it is the last
-/// step of its part of a block, or of the proof, which says what that part
-/// owes. Any other step says something nothing goes on to use.
-pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
-    let mut cited: BTreeSet<String> = BTreeSet::new();
+/// a requires line, a row or a let's reason cites it, an angle written
+/// below rests on the difference it says (`relied`, from
+/// `angles::steps_relied_on`), or it is the last step of its part of a
+/// block, or of the proof, which says what that part owes. Any other step
+/// says something nothing goes on to use.
+pub fn check_steps_used(report: &mut Report, thm: &Theorem, relied: &BTreeSet<String>) {
+    let mut cited: BTreeSet<String> = relied.clone();
     for step in &thm.steps {
         cites(&step.just, &mut cited);
         for r in &step.requires {

@@ -178,10 +178,12 @@ theorem congruent-by-symbol
   let Q′ be a point                                                   (H5)
   let R′ be a point                                                   (H6)
   assume △PQR ≅ △P′Q′R′                                               (H7)
+  assume P, Q, R form a triangle                                      (H8)
+  assume P′, Q′, R′ form a triangle                                   (H9)
   then |PQ| = |P′Q′|
 
 1.  |PQ| = |P′Q′|
-    def:geometry-congruent, from H7
+    def:geometry-congruent, from H7, H8, H9
 
 theorem law-of-cosines
   let P be a point                                                    (H1)
@@ -189,10 +191,11 @@ theorem law-of-cosines
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
 
 1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-    thm:geometry-law-of-cosines, from H4, H5
+    thm:geometry-law-of-cosines, from H4, H5, H6
 
 theorem angle-equal-by-cosine
   let P be a point                                                    (H1)
@@ -205,11 +208,13 @@ theorem angle-equal-by-cosine
   assume R ≠ Q                                                        (H8)
   assume P′ ≠ Q′                                                      (H9)
   assume R′ ≠ Q′                                                      (H10)
-  assume cos(∠PQR) = cos(∠P′Q′R′)                                     (H11)
+  assume P ≠ R                                                        (H11)
+  assume P′ ≠ R′                                                      (H12)
+  assume cos(∠PQR) = cos(∠P′Q′R′)                                     (H13)
   then ∠PQR = ∠P′Q′R′
 
 1.  ∠PQR = ∠P′Q′R′
-    mun:geometry-angle-equal-by-cosine, from H7, H8, H9, H10, H11
+    mun:geometry-angle-equal-by-cosine, from H7, H8, H9, H10, H11, H12, H13
 
 theorem angle-order-by-cosine
   let P be a point                                                    (H1)
@@ -222,10 +227,12 @@ theorem angle-order-by-cosine
   assume R ≠ Q                                                        (H8)
   assume P′ ≠ Q′                                                      (H9)
   assume R′ ≠ Q′                                                      (H10)
+  assume P ≠ R                                                        (H11)
+  assume P′ ≠ R′                                                      (H12)
   then ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
 
 1.  ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
-    mun:geometry-angle-order-by-cosine, from H7, H8, H9, H10
+    mun:geometry-angle-order-by-cosine, from H7, H8, H9, H10, H11, H12
 
 theorem right-angle-by-cosine
   let P be a point                                                    (H1)
@@ -233,10 +240,11 @@ theorem right-angle-by-cosine
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then ∠PQR = 90° ↔ cos(∠PQR) = 0
 
 1.  ∠PQR = 90° ↔ cos(∠PQR) = 0
-    mun:geometry-right-angle-by-cosine, from H4, H5
+    mun:geometry-right-angle-by-cosine, from H4, H5, H6
 
 theorem midpoint-halves
   note        The midpoint is half way along: its definition gives the
@@ -273,11 +281,12 @@ theorem perpendicular-by-right-angle
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
-  assume ∠PQR = 90°                                                   (H6)
+  assume P ≠ R                                                        (H6)
+  assume ∠PQR = 90°                                                   (H7)
   then line QP ⊥ line QR
 
 1.  line QP ⊥ line QR
-    mun:geometry-perpendicular-by-right-angle, from H4, H5, H6
+    mun:geometry-perpendicular-by-right-angle, from H4, H5, H6, H7
 
 theorem intersecting-chords
   note        The circle is named once, as the points at distance r from O,
@@ -331,19 +340,24 @@ theorem chord-midpoint-right-angle
   assume M is the midpoint of AB                                      (H5)
   assume |AO| = |BO|                                                  (H6)
   assume O ≠ M                                                        (H7)
+  assume M ≠ B                                                        (H8)
+  assume O ≠ B                                                        (H9)
   then ∠OMB = 90°
 
 1.  ∠OMB = 90°
-    thm:geometry-chord-midpoint-right-angle, from H5, H6, H7
+    thm:geometry-chord-midpoint-right-angle, from H5, H6, H7, H8, H9
 
 theorem signed-angle-size
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then |∡PQR| = ∠PQR
 
 1.  |∡PQR| = ∠PQR
-    mun:geometry-signed-angle-size
+    mun:geometry-signed-angle-size, from H4, H5, H6
 
 theorem signed-angle-real
   let P be a point                                                    (H1)
@@ -395,10 +409,11 @@ theorem area-by-sine
   let R be a point                                                    (H3)
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
+  assume Q ≠ P                                                        (H6)
   then the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
 
 1.  the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
-    thm:geometry-area-by-sine, from H4, H5
+    thm:geometry-area-by-sine, from H4, H5, H6
 
 theorem area-positive
   let P be a point                                                    (H1)
@@ -524,10 +539,11 @@ theorem angle-at-most-straight
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then ∠PQR ≤ 180°
 
 1.  ∠PQR ≤ 180°
-    mun:geometry-angle-at-most-straight, from H4, H5
+    mun:geometry-angle-at-most-straight, from H4, H5, H6
 
 theorem angle-by-cosine
   let P be a point                                                    (H1)
@@ -538,10 +554,11 @@ theorem angle-by-cosine
   assume R ≠ Q                                                        (H6)
   assume 0 ≤ x                                                        (H7)
   assume x ≤ 180°                                                     (H8)
+  assume P ≠ R                                                        (H9)
   then ∠PQR = x ↔ cos(∠PQR) = cos(x)
 
 1.  ∠PQR = x ↔ cos(∠PQR) = cos(x)
-    mun:geometry-angle-by-cosine, from H5, H6, H7, H8
+    mun:geometry-angle-by-cosine, from H5, H6, H7, H8, H9
 
 theorem supplementary-angles
   let A be a point                                                    (H1)
@@ -550,10 +567,12 @@ theorem supplementary-angles
   let D be a point                                                    (H4)
   assume B is between A and C                                         (H5)
   assume D ≠ B                                                        (H6)
+  assume D ≠ A                                                        (H7)
+  assume D ≠ C                                                        (H8)
   then ∠ABD + ∠DBC = 180°
 
 1.  ∠ABD + ∠DBC = 180°
-    axi:geometry-supplementary-angles, from H5, H6
+    axi:geometry-supplementary-angles, from H5, H6, H7, H8
 
 theorem triangle-inequality-points
   let P be a point                                                    (H1)
@@ -593,10 +612,11 @@ theorem angle-addition
   let M be a point                                                    (H4)
   assume A, B, C form a triangle                                      (H5)
   assume M is between A and B                                         (H6)
+  assume C ≠ M                                                        (H7)
   then ∠ACM + ∠MCB = ∠ACB
 
 1.  ∠ACM + ∠MCB = ∠ACB
-    mun:geometry-angle-addition, from H5, H6
+    mun:geometry-angle-addition, from H5, H6, H7
 
 theorem between-apart
   let R be a point                                                    (H1)
@@ -660,10 +680,11 @@ theorem angle-turned
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then ∠PQR = ∠RQP
 
 1.  ∠PQR = ∠RQP
-    mun:geometry-angle-turned, from H4, H5
+    mun:geometry-angle-turned, from H4, H5, H6
 
 theorem perpendicular-foot
   let P be a point                                                    (H1)
@@ -705,11 +726,12 @@ theorem right-angle-triangle
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
-  assume ∠PQR = 90°                                                   (H6)
+  assume P ≠ R                                                        (H6)
+  assume ∠PQR = 90°                                                   (H7)
   then P, Q, R form a triangle
 
 1.  P, Q, R form a triangle
-    mun:geometry-right-angle-triangle, from H4, H5, H6
+    mun:geometry-right-angle-triangle, from H4, H5, H6, H7
 
 theorem cosine-right-triangle
   let P be a point                                                    (H1)
@@ -717,11 +739,12 @@ theorem cosine-right-triangle
   let R be a point                                                    (H3)
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
-  assume ∠PRQ = 90°                                                   (H6)
+  assume P ≠ Q                                                        (H6)
+  assume ∠PRQ = 90°                                                   (H7)
   then |QR| = |QP|·cos(∠RQP)
 
 1.  |QR| = |QP|·cos(∠RQP)
-    mun:geometry-cosine-right-triangle, from H4, H5, H6
+    mun:geometry-cosine-right-triangle, from H4, H5, H6, H7
 
 theorem line
   let P be a point                                                    (H1)

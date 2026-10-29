@@ -1,5 +1,6 @@
 import theorem            stdlib/geometry/law-of-sines
 import axiom              stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-symmetric
 import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/sine-positive
@@ -25,6 +26,8 @@ theorem cevian-ratio
   assume A, B, C form a triangle                                      (H6)
   assume D is between B and C                                         (H7)
   assume O is between A and D                                         (H8)
+  assume O ≠ B                                                        (H9)
+  assume O ≠ C                                                        (H10)
   then |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
 
 1.  A, B, D form a triangle
@@ -58,16 +61,20 @@ theorem cevian-ratio
     thm:law-of-sines P := C, Q := O, R := D, from 6
 
 11. ∠BDO + ∠ODC = 180°
-    axi:supplementary-angles A := B, B := D, D := O, from H7
+    axi:supplementary-angles A := B, B := D, D := O, from H7, H9, H10
     requires O ≠ D: def:triangle, from 5
 
 12. ∠DOB + ∠BOA = 180°
     axi:supplementary-angles A := D, B := O, C := A, D := B, from 4
     requires B ≠ O: def:triangle, from 5
+    requires B ≠ D: def:triangle, from 5
+    requires B ≠ A: def:triangle, from 1
 
 13. ∠AOC + ∠COD = 180°
     axi:supplementary-angles B := O, C := D, D := C, from H8
     requires C ≠ O: def:triangle, from 6
+    requires C ≠ A: def:triangle, from 3
+    requires C ≠ D: def:triangle, from 3
 
 14. ∠ODC = 180° − ∠BDO
     algebra, from 11
@@ -165,12 +172,18 @@ let z = |OB|·sin(∠COB)/(|OA|·sin(∠AOC))                               (D3)
 
 1.  |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
     thm:cevian-ratio, from H8, H9, H12
+    requires B ≠ O: mun:between-apart R := O, S := B, T := E, from H13
+    requires C ≠ O: mun:between-apart R := O, S := C, T := F, from H14
 
 2.  |EA| = |CE|·|OA|·sin(∠BOA)/(|OC|·sin(∠COB))
     thm:cevian-ratio A := B, B := C, C := A, D := E, from H8, H10, H13
+    requires C ≠ O: mun:between-apart R := O, S := C, T := F, from H14
+    requires A ≠ O: mun:between-apart R := O, S := A, T := D, from H12
 
 3.  |FB| = |AF|·|OB|·sin(∠COB)/(|OA|·sin(∠AOC))
     thm:cevian-ratio A := C, B := A, C := B, D := F, from H8, H11, H14
+    requires A ≠ O: mun:between-apart R := O, S := A, T := D, from H12
+    requires B ≠ O: mun:between-apart R := O, S := B, T := E, from H13
 
 4.  A, B, D form a triangle
     mun:triangle-on-side P := A, Q := B, R := C, S := D, from H8, H9

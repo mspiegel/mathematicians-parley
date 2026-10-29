@@ -399,6 +399,18 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   `there is X ∈ 𝔼² with (X is between A and B) and |AX| = r`. Alone, or as
   the whole of what follows "with" or "if", it takes none. A phrase a define
   gives whose own words write "and" or "or" is bracketed the same way.
+- An angle `∠PQR` is written only where its three points are said to
+  differ. A line that writes it needs that said by a line in scope above
+  it, by a requires line of its own step, or earlier in its own sentence,
+  as the condition of an "if" or a "with", or a conjunct before it. The
+  ways to say it are `P, Q, R form a triangle`; `Q is between P and R`;
+  `X and Y are on the same side of line AB` or `on opposite sides of line
+  AB`, which says A ≠ B and that X and Y each differ from A and from B; or
+  `P ≠ Q`, `Q ≠ R` and `P ≠ R`, each in either order. The points may lie
+  on a line, so an angle may be 0° or 180°, but no two are the same point:
+  `∠PQP` is never written. The rule holds wherever an angle is written: a
+  theorem's statement says it among its hypotheses, and so does a library
+  item's.
 - Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
   "there is no … with …". Each record says which of its patterns is the
   negation of which, so the folded spelling and the "not" spelling are one

@@ -28,7 +28,8 @@ theorem pythagoras-at-foot
   let Q be a point                                                    (H2)
   let H be a point                                                    (H3)
   assume P ≠ H                                                        (H4)
-  assume if H ≠ Q then ∠PHQ = 90°                                     (H5)
+  assume P ≠ Q                                                        (H5)
+  assume if H ≠ Q then ∠PHQ = 90°                                     (H6)
   then |PQ|² = |PH|² + |HQ|²
 
 1.  H = Q or H ≠ Q
@@ -52,10 +53,10 @@ theorem pythagoras-at-foot
     assume H ≠ Q                                                      (C2)
 
     2.3.  ∠PHQ = 90°
-          mun:modus-ponens, from C2, H5
+          mun:modus-ponens, from C2, H6
 
     2.4.  P, H, Q form a triangle
-          mun:right-angle-triangle Q := H, R := Q, from C2, H4, 2.3
+          mun:right-angle-triangle Q := H, R := Q, from C2, H4, H5, 2.3
 
     2.5.  |PQ|² = |PH|² + |HQ|²
           thm:pythagoras A := P, B := Q, C := H, from 2.3, 2.4
@@ -79,6 +80,7 @@ theorem foot-on-ray
 
 1.  |QH| = |QP|·cos(∠HQP)
     mun:cosine-right-triangle R := H, from H6, H7, H8
+    requires P ≠ Q: def:triangle, from H5
 
 2.  ∠HQP = ∠PQR
     calculation
@@ -145,6 +147,7 @@ theorem distance-from-foot
 
     4.4.  cos(∠PQR) = 0
           mun:right-angle-by-cosine, from 1, 4.3
+          requires P ≠ R: def:triangle, from H5
 
     4.5.  |HQ| = 0
           mun:distance-zero P := H, from C1
@@ -167,6 +170,8 @@ theorem distance-from-foot
     4.9.  ∠HQP = ∠RQP
           mun:angle-along-segment P := Q, Q := R, R := P, S := H, from C2
           requires P ≠ Q: from 1
+          requires P ≠ H: from H7
+          requires P ≠ R: def:triangle, from H5
 
     4.10. |QH| + |HR| = |QR|
           mun:segment-addition P := Q, Q := R, S := H, from C2
@@ -213,6 +218,8 @@ theorem distance-from-foot
     4.22. ∠RQP = ∠HQP
           mun:angle-along-segment P := Q, Q := H, R := P, S := R, from C4
           requires P ≠ Q: from 1
+          requires P ≠ R: def:triangle, from H5
+          requires P ≠ H: from H7
 
     4.23. |QR| + |RH| = |QH|
           mun:segment-addition P := Q, Q := H, S := R, from C4
@@ -234,11 +241,13 @@ theorem distance-from-foot
           mun:modus-ponens, from H8, 4.26
 
     4.28. |QH| = |QP|·cos(∠HQP)
-          mun:cosine-right-triangle R := H, from H7, 4.26, 4.27
+          mun:cosine-right-triangle R := H, from H7, 1, 4.26, 4.27
 
     4.29. ∠HQP + ∠PQR = 180°
           axi:supplementary-angles A := H, B := Q, C := R, D := P, from C5
           requires P ≠ Q: from 1
+          requires P ≠ H: from H7
+          requires P ≠ R: def:triangle, from H5
 
     4.30. |QH| = |QP|·cos(180° − ∠PQR)
           substitute
@@ -287,6 +296,7 @@ theorem law-of-cosines
 
 2.  |PQ|² = |PH|² + |HQ|²
     thm:pythagoras-at-foot, from 1
+    requires P ≠ Q: def:triangle, from H4
 
 3.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
     thm:distance-from-foot, from H4, 1
@@ -296,5 +306,6 @@ theorem law-of-cosines
       |RP|² = |PH|² + |HR|²                              thm:pythagoras-at-foot Q := R, from 1
             = |PQ|² − |HQ|² + |HR|²                      algebra, from 2
             = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))    algebra, from 3
+    requires P ≠ R: def:triangle, from H4
     requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H4
     requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR

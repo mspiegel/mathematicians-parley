@@ -78,7 +78,7 @@ theorem right-triangle-three-four-five
            = 5                          real arithmetic
 
 15. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    thm:law-of-cosines, from 2, 4
+    thm:law-of-cosines, from 2, 4, 6
 
 16. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
     substitute
@@ -93,7 +93,7 @@ theorem right-triangle-three-four-five
     requires cos(∠BAC) ∈ ℝ: mun:cos-real a := ∠BAC
 
 18. ∠BAC = 90°
-    mun:right-angle-by-cosine, from 2, 4, 17
+    mun:right-angle-by-cosine, from 2, 4, 6, 17
 
 19. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
     join 11, 18, 14

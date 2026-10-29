@@ -1,6 +1,5 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/triangle-extension
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import definition         stdlib/geometry/triangle
@@ -14,16 +13,17 @@ theorem exterior-angle
   let D be a point                                                    (H4)
   assume A, B, C form a triangle                                      (H5)
   assume B is between C and D                                         (H6)
+  assume A, B, D form a triangle                                      (H7)
   then ∠ABD = ∠BAC + ∠BCA
 
-1.  A, B, D form a triangle.
-    mun:triangle-extension P := A, Q := B, R := C, S := D, from H5, H6
-
-2.  A ≠ B
+1.  A ≠ B. A ≠ C.
     def:triangle, from H5
 
+2.  A ≠ D
+    def:triangle P := A, Q := B, R := D, from H7
+
 3.  ∠CBA + ∠ABD = 180°
-    axi:supplementary-angles A := C, C := D, D := A, from H6, 2
+    axi:supplementary-angles A := C, C := D, D := A, from H6, 1, 2
 
 4.  ∠BAC + ∠ABC + ∠BCA = 180°
     thm:angle-sum, from H5
@@ -33,7 +33,7 @@ theorem exterior-angle
 
 6.  ∠ABD = ∠BAC + ∠BCA
     algebra, from 3, 4, 5
-    requires ∠ABD ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := D, from 1
+    requires ∠ABD ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := D, from H7
     requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H5
     requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H5
     requires ∠BCA ∈ ℝ: mun:triangle-angle-real, from H5

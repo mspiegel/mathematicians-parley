@@ -30,19 +30,17 @@ theorem hinge
   assume ∠BAC > ∠EDF                                                  (H11)
   then |BC| > |EF|
 
-1.  A ≠ B. A ≠ C.
+1.  A ≠ B. A ≠ C. B ≠ C.
     def:triangle, from H7
 
-2.  D ≠ E. D ≠ F.
+2.  D ≠ E. D ≠ F. E ≠ F.
     def:triangle, from H8
 
 3.  ∠CAB ∈ ℝ. ∠CAB ≥ 0.
     mun:angle-real P := C, Q := A, R := B, from 1
-    requires C ≠ B: def:triangle, from H7
 
 4.  ∠FDE ∈ ℝ. ∠FDE ≥ 0.
     mun:angle-real P := F, Q := D, R := E, from 2
-    requires F ≠ E: def:triangle, from H8
 
 5.  ∠CAB = ∠BAC
     mun:angle-turned P := C, Q := A, R := B, from 1

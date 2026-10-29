@@ -119,13 +119,13 @@ theorem apollonius
                   assume A ≠ C                                        (C6)
 
                   2.8.6.5.  |AB|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠BMA))
-                            thm:law-of-cosines P := B, Q := M, R := A, from C2, 2.5
+                            thm:law-of-cosines P := B, Q := M, R := A, from C2, C4, 2.5
 
                   2.8.6.6.  |CA|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
-                            thm:law-of-cosines P := A, Q := M, R := C, from C2, 2.5
+                            thm:law-of-cosines P := A, Q := M, R := C, from C2, C6, 2.5
 
                   2.8.6.7.  ∠BMA + ∠AMC = 180°
-                            axi:supplementary-angles A := B, B := M, D := A, from C2, H5
+                            axi:supplementary-angles A := B, B := M, D := A, from C2, C4, C6, H5
 
                   2.8.6.8.  ∠BMA ∈ ℝ
                             mun:angle-real P := B, Q := M, R := A, from C2, C4, 2.5

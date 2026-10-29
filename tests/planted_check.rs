@@ -4317,10 +4317,10 @@ fn cases() -> Vec<Case> {
             "give algebra for an equation turned round",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("43. ∠ECA = ∠BAC\n    restate 17".to_string()),
-                "43. ∠ECA = ∠BAC\n    algebra, from 17".to_string(),
+                Some("45. ∠ECA = ∠BAC\n    restate 19".to_string()),
+                "45. ∠ECA = ∠BAC\n    algebra, from 19".to_string(),
             )],
-            "step 43 says an equation 17 says, which is `restate 17`, not algebra",
+            "step 45 says an equation 19 says, which is `restate 19`, not algebra",
         ),
         // An induction over the parts of a set holds of a finite set only,
         // starts at ∅, opens its step with the member it adds, and ends it
@@ -6802,6 +6802,26 @@ fn cases() -> Vec<Case> {
                 "R := C, from H4, H5\n".to_string(),
             )],
             "the requires line of let D1 cites mun:angle-real, which asks for A ≠ C, and what it cites does not supply it",
+        ),
+        // An angle is written only where its three points are said to
+        // differ (`SYNTAX.md`, Formulas): in a statement, by its hypotheses.
+        case(
+            "write an angle in a statement whose hypotheses leave two of its points unsaid apart",
+            vec![edit(
+                "tests/elaborator/a-naming-let-with-a-requires-line.proof",
+                Some("  assume A ≠ C                                                        (H6)\n".to_string()),
+                String::new(),
+            )],
+            "the statement of a-naming-let-with-a-requires-line writes ∠ABC, and nothing where it is written says A ≠ C",
+        ),
+        case(
+            "write an angle in a library item whose hypotheses leave two of its points unsaid apart",
+            vec![edit(
+                "corpus/stdlib/geometry.records",
+                Some("  assume P ≠ R                                                        (H6)\n  then        ∠PQR = ∠RQP".to_string()),
+                "  then        ∠PQR = ∠RQP".to_string(),
+            )],
+            "mundane theorem angle-turned writes ∠PQR, and its hypotheses do not say P ≠ R",
         ),
         // The let's requires lines are its own, and rest on nothing below
         // it, the let included.

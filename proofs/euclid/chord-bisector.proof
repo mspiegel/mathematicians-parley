@@ -13,6 +13,8 @@ theorem chord-bisector
   assume |OA| = |OB|                                                  (H5)
   assume M is the midpoint of AB                                      (H6)
   assume O ≠ M                                                        (H7)
+  assume M ≠ A                                                        (H8)
+  assume O ≠ A                                                        (H9)
   then ∠OMA = 90°
 
 1.  M is between A and B. |AM| = |MB|.
@@ -25,4 +27,4 @@ theorem chord-bisector
     def:midpoint A := B, B := A, from 1, 2
 
 4.  ∠OMA = 90°
-    thm:chord-midpoint-right-angle A := B, B := A, from H5, H7, 3
+    thm:chord-midpoint-right-angle A := B, B := A, from H5, H7, H8, H9, 3

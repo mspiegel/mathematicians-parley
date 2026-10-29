@@ -1,7 +1,6 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
 import definition         stdlib/geometry/triangle
 import mundane theorem    stdlib/geometry/between-apart
-import mundane theorem    stdlib/geometry/between-collinear
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/segment-addition
@@ -20,53 +19,43 @@ theorem altitude-mean-proportional
   assume A, B, C form a triangle                                      (H5)
   assume ∠ACB = 90°                                                   (H6)
   assume D is between A and B                                         (H7)
-  assume ∠ADC = 90°                                                   (H8)
+  assume C ≠ D                                                        (H8)
+  assume ∠ADC = 90°                                                   (H9)
   then |CD|² = |AD|·|DB|
 
 1.  A ≠ D. B ≠ D.
     mun:between-apart R := D, S := A, T := B, from H7
 
-2.  B, D, A are collinear
-    mun:between-collinear R := D, S := A, T := B, from H7
+2.  A ≠ C. B ≠ C.
+    def:triangle P := A, Q := B, R := C, from H5
 
-3.  C ≠ D
-    contradiction
-    suppose C = D                                                     (S)
-
-    3.1.  B, C, A are collinear
-          substitute D = C (S) into line 2
-
-    3.2.  not (A, B, C are collinear)
-          def:triangle P := A, Q := B, R := C, from H5, contradicting 3.1
-
-4.  |AB|² = |AC|² + |BC|²
+3.  |AB|² = |AC|² + |BC|²
     thm:pythagoras, from H5, H6
 
-5.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))
-    thm:law-of-cosines P := A, Q := D, R := C, from 1, 3
+4.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))
+    thm:law-of-cosines P := A, Q := D, R := C, from H8, 1, 2
 
-6.  ∠ADC + ∠CDB = 180°
-    axi:supplementary-angles B := D, C := B, D := C, from H7, 3
+5.  ∠ADC + ∠CDB = 180°
+    axi:supplementary-angles B := D, C := B, D := C, from H7, H8, 2
 
-7.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
-    thm:law-of-cosines P := C, Q := D, R := B, from 1, 3
+6.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))
+    thm:law-of-cosines P := C, Q := D, R := B, from H8, 1, 2
 
-8.  |AD| + |DB| = |AB|
+7.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from H7
 
-9.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
+8.  |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)
     substitute
-      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))      5
-      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))       substitute H8
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(∠ADC))      4
+      |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·cos(90°))       substitute H9
       |CA|² = |AD|² + |DC|² − 2·(|AD|·|DC|·0)              real arithmetic
 
-10. |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
+9.  |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)
     substitute
-      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      7
-      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H8, 6
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      6
+      |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H9, 5
       |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)              real arithmetic
-    requires C ≠ B: def:triangle P := A, Q := B, R := C, from H5
-    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from 1, 3
+    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from H8, 1, 2
 
-11. |CD|² = |AD|·|DB|
-    algebra, from 4, 8, 9, 10
+10. |CD|² = |AD|·|DB|
+    algebra, from 3, 7, 8, 9

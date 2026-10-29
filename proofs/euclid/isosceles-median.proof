@@ -28,6 +28,8 @@ theorem isosceles-median
   assume A, B, C form a triangle                                      (H5)
   assume |AB| = |AC|                                                  (H6)
   assume M is the midpoint of BC                                      (H7)
+  assume A, M, B form a triangle                                      (H8)
+  assume M, A, C form a triangle                                      (H9)
   then ∠AMB = 90°. ∠BAM = ∠MAC.
 
 1.  M is between B and C. |BM| = |MC|.
@@ -56,13 +58,13 @@ theorem isosceles-median
     mun:between-symmetric R := M, S := B, T := C, from 1
 
 7.  |BA|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
-    thm:law-of-cosines P := A, Q := M, R := B, from 2, 4
+    thm:law-of-cosines P := A, Q := M, R := B, from 2, 4, 5
 
 8.  |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))
-    thm:law-of-cosines P := C, Q := M, R := A, from 2, 4
+    thm:law-of-cosines P := C, Q := M, R := A, from 2, 4, 5
 
 9.  ∠CMA + ∠AMB = 180°
-    axi:supplementary-angles A := C, B := M, C := B, D := A, from 4, 6
+    axi:supplementary-angles A := C, B := M, C := B, D := A, from 4, 5, 6
 
 10. ∠AMB ∈ ℝ
     mun:angle-real P := A, Q := M, R := B, from 2, 4, 5
@@ -111,7 +113,7 @@ theorem isosceles-median
     requires cos(∠AMB) ∈ ℝ: mun:cos-real a := ∠AMB
 
 21. ∠AMB = 90°
-    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 20
+    mun:right-angle-by-cosine P := A, Q := M, R := B, from 2, 4, 5, 20
 
 22. ∠BAM = ∠CAM
     thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
@@ -120,7 +122,7 @@ theorem isosceles-median
 23. ∠BAM = ∠MAC
     calculation
       ∠BAM = ∠CAM      22
-           = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from 4, 5
+           = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from 2, 4, 5
 
 24. ∠AMB = 90°. ∠BAM = ∠MAC.
     join 21, 23

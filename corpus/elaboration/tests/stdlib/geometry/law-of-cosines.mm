@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/law-of-cosines, elaborated from tests/stdlib/geometry.p
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.law-of-cosines $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) -> ( ( abs ` ( C - A ) ) ^ 2 ) = ( ( ( ( abs ` ( A - B ) ) ^ 2 ) + ( ( abs ` ( B - C ) ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` ( A - B ) ) x. ( abs ` ( B - C ) ) ) x. ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) ) ) $=
-    ( cc wcel wa wceq wn w3a cmin co cabs cfv c2 cexp caddc cmul cang ccos simpl id syl simpr 3jca jca glawcos ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZUGUHUJIZUMUPFZFCAJKLMNOKABJKZLMZNOKBCJKZLMZNOKPKNVAVCQKUTCBJKRKLMSMQKQKJKGUQURUSUQUGUHUJUQUNUGUNUPTZUNUKUGUKUMTZUKUIUGUIUJTZUIUGUGUGUHTUGUAUBUBUBUBUQUNUHVDUNUKUHVEUKUIUHVFUGUHUCUBUBUBUQUNUJVDUNUKUJVEUIUJUCUBUBUDUQUMUPUQUNUMVDUKUMUCUBUNUPUCUEUEABCUFUB $.
+  tests.stdlib.geometry.law-of-cosines $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) /\ -. A = C ) -> ( ( abs ` ( C - A ) ) ^ 2 ) = ( ( ( ( abs ` ( A - B ) ) ^ 2 ) + ( ( abs ` ( B - C ) ) ^ 2 ) ) - ( 2 x. ( ( ( abs ` ( A - B ) ) x. ( abs ` ( B - C ) ) ) x. ( cos ` ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) ) ) ) ) $=
+    ( cc wcel wa wceq wn w3a cmin co cabs cfv c2 cexp caddc cmul cang ccos simpl id syl simpr 3jca jca glawcos ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZACGZHZFZUGUHUJIZUMUPFZFCAJKLMNOKABJKZLMZNOKBCJKZLMZNOKPKNVDVFQKVCCBJKRKLMSMQKQKJKGUTVAVBUTUGUHUJUTUQUGUQUSTZUQUNUGUNUPTZUNUKUGUKUMTZUKUIUGUIUJTZUIUGUGUGUHTUGUAUBUBUBUBUBUTUQUHVGUQUNUHVHUNUKUHVIUKUIUHVJUGUHUCUBUBUBUBUTUQUJVGUQUNUJVHUNUKUJVIUIUJUCUBUBUBUDUTUMUPUTUQUMVGUQUNUMVHUKUMUCUBUBUTUQUPVGUNUPUCUBUEUEABCUFUB $.
 $}

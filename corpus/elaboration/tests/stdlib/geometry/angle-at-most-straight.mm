@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/angle-at-most-straight, elaborated from tests/stdlib/ge
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.angle-at-most-straight $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) $=
-    ( cc wcel wa wceq wn cmin co cang cabs cfv c1 c8 cdc cc0 cpi cmul cdiv cle wbr simpl simpr syl jca w3a wi id 3jca gangle180 mpd ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZUSVBFZABIJZCBIJZKJZLMZNOPZQPZRSJZVJTJZUAUBZVCUSVBVCUTUSUTVBUCZUQUSUDUEUTVBUDUFVCUMUNUPUGVDVMUHVCUMUNUPVCUTUMVNUTUQUMUQUSUCZUQUOUMUOUPUCZUOUMUMUMUNUCUMUIUEUEUEUEVCUTUNVNUTUQUNVOUQUOUNVPUMUNUDUEUEUEVCUTUPVNUTUQUPVOUOUPUDUEUEUJABCUKUEUL $.
+  tests.stdlib.geometry.angle-at-most-straight $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) /\ -. A = C ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) <_ ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) ) $=
+    ( cc wcel wa wceq wn cmin co cang cabs cfv c1 c8 cdc cc0 cpi cmul cdiv cle wbr simpl simpr syl jca w3a wi id 3jca gangle180 mpd ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZACGZHZFZUSVBFZABIJZCBIJZKJZLMZNOPZQPZRSJZVMTJZUAUBZVFUSVBVFVCUSVCVEUCZVCUTUSUTVBUCZUQUSUDUEUEVFVCVBVQUTVBUDUEUFVFUMUNUPUGVGVPUHVFUMUNUPVFVCUMVQVCUTUMVRUTUQUMUQUSUCZUQUOUMUOUPUCZUOUMUMUMUNUCUMUIUEUEUEUEUEVFVCUNVQVCUTUNVRUTUQUNVSUQUOUNVTUMUNUDUEUEUEUEVFVCUPVQVCUTUPVRUTUQUPVSUOUPUDUEUEUEUJABCUKUEUL $.
 $}

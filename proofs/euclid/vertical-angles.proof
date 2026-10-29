@@ -2,6 +2,7 @@ import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-extension
+import definition         stdlib/geometry/triangle
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since
@@ -14,6 +15,7 @@ theorem vertical-angles
   assume O is between A and C                                         (H6)
   assume O is between B and D                                         (H7)
   assume A, B, O form a triangle                                      (H8)
+  assume C, O, D form a triangle                                      (H9)
   then ∠AOB = ∠COD
 
 1.  A ≠ O. C ≠ O.
@@ -22,16 +24,21 @@ theorem vertical-angles
 2.  B ≠ O. D ≠ O.
     mun:between-apart R := O, S := B, T := D, from H7
 
-3.  ∠AOB + ∠BOC = 180°
+3.  B, O, C form a triangle.
+    mun:triangle-extension P := B, Q := O, R := A, S := C, from H6, H8
+
+4.  ∠AOB + ∠BOC = 180°
     axi:supplementary-angles B := O, D := B, from H6, 2
+    requires B ≠ A: def:triangle P := A, Q := O, R := B, from H8
+    requires B ≠ C: def:triangle P := B, Q := O, R := C, from 3
 
-4.  ∠BOC + ∠COD = 180°
+5.  ∠BOC + ∠COD = 180°
     axi:supplementary-angles A := B, B := O, C := D, D := C, from H7, 1
+    requires C ≠ B: def:triangle P := B, Q := O, R := C, from 3
+    requires C ≠ D: def:triangle P := C, Q := O, R := D, from H9
 
-5.  ∠AOB = ∠COD
-    algebra, from 3, 4
-    requires B, O, C form a triangle: mun:triangle-extension P := B, Q := O, R := A, S := C, from H6, H8
-    requires C, O, D form a triangle: mun:triangle-extension P := C, Q := O, R := B, S := D, from H7
+6.  ∠AOB = ∠COD
+    algebra, from 4, 5
     requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
-    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C
-    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D
+    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C, from 3
+    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from H9

@@ -246,8 +246,10 @@ in either order, and the elaborator carries one order to the other by
 `abssub`. No proof writes |AB| = |BA|. `mun:stdlib/geometry/distance-symmetric`
 stays in the library, stating the fact for a reader who looks it up, and no
 step needs to cite it.
-Distinctness of an angle's points is exactly what the `requires` machinery is
-for, and it is not a membership the page says once.
+Distinctness of an angle's points is said where the angle is first allowed:
+an angle is written only where its three points are said to differ
+(`SYNTAX.md`, Formulas), so the line that says it is the only place it is
+written.
 
 Two things do need doing, both one-off. The geometry items do not state the
 hypotheses they need: `mun:stdlib/geometry/angle-symmetric` reads `let P be a point` three

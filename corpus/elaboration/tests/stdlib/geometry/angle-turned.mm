@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/angle-turned, elaborated from tests/stdlib/geometry.pro
 $[ stdlib/proved.mm $]
 
 ${
-  tests.stdlib.geometry.angle-turned $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( abs ` ( ( C - B ) ang ( A - B ) ) ) ) $=
-    ( cc wcel wa wceq wn cmin co cang cabs cfv simpl simpr syl jca w3a wi id 3jca gangsym3 mpd ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZUJUMFZABIJZCBIJZKJZLMZUQUPKJZLMZGZUNUJUMUNUKUJUKUMNZUHUJOPUKUMOQUNUDUEUGRUOVBSUNUDUEUGUNUKUDVCUKUHUDUHUJNZUHUFUDUFUGNZUFUDUDUDUENUDTPPPPUNUKUEVCUKUHUEVDUHUFUEVEUDUEOPPPUNUKUGVCUKUHUGVDUFUGOPPUAABCUBPUC $.
+  tests.stdlib.geometry.angle-turned $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) /\ -. A = C ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( abs ` ( ( C - B ) ang ( A - B ) ) ) ) $=
+    ( cc wcel wa wceq wn cmin co cang cabs cfv simpl simpr syl jca w3a wi id 3jca gangsym3 mpd ) ADEZBDEZFZCDEZFZABGZHZFZCBGZHZFZACGZHZFZUJUMFZABIJZCBIJZKJZLMZUTUSKJZLMZGZUQUJUMUQUNUJUNUPNZUNUKUJUKUMNZUHUJOPPUQUNUMVFUKUMOPQUQUDUEUGRURVESUQUDUEUGUQUNUDVFUNUKUDVGUKUHUDUHUJNZUHUFUDUFUGNZUFUDUDUDUENUDTPPPPPUQUNUEVFUNUKUEVGUKUHUEVHUHUFUEVIUDUEOPPPPUQUNUGVFUNUKUGVGUKUHUGVHUFUGOPPPUAABCUBPUC $.
 $}

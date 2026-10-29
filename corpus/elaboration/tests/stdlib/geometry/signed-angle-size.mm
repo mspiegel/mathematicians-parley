@@ -6,6 +6,6 @@ $( tests/stdlib/geometry/signed-angle-size, elaborated from tests/stdlib/geometr
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.stdlib.geometry.signed-angle-size $p |- ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) $=
-    ( cmin co cang cabs cfv wceq cc wcel wa eqid a1i ) ABDEZCBDEZFEZGHZRIAJKBJKLCJKLRMN $.
+  tests.stdlib.geometry.signed-angle-size $p |- ( ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ -. A = B ) /\ -. C = B ) /\ -. A = C ) -> ( abs ` ( ( A - B ) ang ( C - B ) ) ) = ( abs ` ( ( A - B ) ang ( C - B ) ) ) ) $=
+    ( cmin co cang cabs cfv wceq cc wcel wa wn eqid a1i ) ABDEZCBDEZFEZGHZSIAJKBJKLCJKLABIMLCBIMLACIMLSNO $.
 $}

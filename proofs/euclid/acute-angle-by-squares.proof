@@ -21,7 +21,7 @@ theorem acute-angle-by-squares
   assume A, B, C form a triangle                                      (H4)
   then ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
 
-1.  A ≠ C. B ≠ C.
+1.  A ≠ C. B ≠ C. A ≠ B.
     def:triangle, from H4
 
 2.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
@@ -38,7 +38,6 @@ theorem acute-angle-by-squares
 
 6.  ∠ACB ∈ ℝ. ∠ACB ≥ 0.
     mun:angle-real P := A, Q := C, R := B, from 1
-    requires A ≠ B: def:triangle, from H4
 
 7.  ∠ACB ≤ 180°
     mun:angle-at-most-straight P := A, Q := C, R := B, from 1

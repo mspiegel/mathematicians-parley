@@ -1,6 +1,8 @@
 import theorem            stdlib/geometry/parallel-through
 import theorem            stdlib/geometry/alternate-angles
 import theorem            stdlib/geometry/angles-on-a-line
+import mundane theorem    stdlib/geometry/opposite-sides-off-line
+import mundane theorem    stdlib/geometry/triangle-off-line
 
 theorem angle-sum
   metamath    ang180
@@ -31,3 +33,6 @@ theorem angle-sum
       ∠BAC + ∠ABC + ∠BCA = ∠DBA + ∠ABC + ∠BCA      substitute line 2
                          = ∠DBA + ∠ABC + ∠EBC      substitute line 3
                          = 180°                    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1
+    requires B ≠ C: mun:opposite-sides-off-line A := B, B := C, P := E, Q := A, from 1
+    requires not (E is on line BC): mun:opposite-sides-off-line A := B, B := C, P := E, Q := A, from 1
+    requires C, B, E form a triangle: mun:triangle-off-line P := E, Q := B, R := C

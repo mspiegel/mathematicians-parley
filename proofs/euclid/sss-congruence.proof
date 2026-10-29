@@ -31,10 +31,10 @@ theorem angle-from-sides
   then ∠PQR = ∠P′Q′R′
 
 1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-    thm:law-of-cosines, from H7, H8
+    thm:law-of-cosines, from H7, H8, H14
 
 2.  |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
-    thm:law-of-cosines P := P′, Q := Q′, R := R′, from H9, H10
+    thm:law-of-cosines P := P′, Q := Q′, R := R′, from H9, H10, H15
 
 3.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))
     substitute
@@ -74,7 +74,7 @@ theorem angle-from-sides
     requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
 
 11. ∠PQR = ∠P′Q′R′
-    mun:angle-equal-by-cosine, from H7, H8, H9, H10, 10
+    mun:angle-equal-by-cosine, from H7, H8, H9, H10, H14, H15, 10
 
 theorem sss
   note        Euclid I.8, as the library proves it from the postulates

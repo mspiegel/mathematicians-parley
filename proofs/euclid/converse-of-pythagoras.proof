@@ -20,7 +20,7 @@ theorem converse-of-pythagoras
   assume |AB|² = |AC|² + |BC|²                                        (H5)
   then ∠ACB = 90°
 
-1.  A ≠ C. B ≠ C.
+1.  A ≠ C. B ≠ C. A ≠ B.
     def:triangle, from H4
 
 2.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))

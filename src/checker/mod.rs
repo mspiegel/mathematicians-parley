@@ -6,6 +6,7 @@
 //! it cites, and that its claim is what that item concludes. It does not
 //! build the kernel proof; that needs the elaborator.
 
+mod angles;
 mod citations;
 mod database;
 mod formulas;
@@ -1135,6 +1136,7 @@ fn prepared_in<T>(
         statements.insert(thm.qualified(), reader);
     }
     let ctx = Context::new(&env.g.notations, records);
+    angles::check_record_angles(&mut report, records, env, &record_sorts, &ctx);
     let mut known: Vec<Known> = Vec::new();
     let mut clashes: Vec<Vec<infer::Clash>> = Vec::new();
     let mut nth_in_file: IndexMap<&str, usize> = IndexMap::new();
@@ -1605,6 +1607,7 @@ fn check_passes(
     formulas::check_membership_holds(report, thm, k, targets);
     formulas::check_inspection_holds(report, thm, k, targets);
     formulas::check_membership_claims(report, thm, k);
+    angles::check_angle_points(report, thm, k);
     citations::check_hypotheses(report, thm, library, k);
     citations::check_conclusion(report, thm, library, k);
     citations::check_recursions_cited(report, thm, library, k);
@@ -1637,7 +1640,7 @@ fn check_passes(
     formulas::check_calculation_claims(report, thm, k);
     formulas::check_substitute_rows(report, thm, k);
     structure::check_last_step(report, thm, k);
-    structure::check_steps_used(report, thm);
+    structure::check_steps_used(report, thm, &angles::steps_relied_on(thm, k));
     structure::check_readings(report, thm);
     database::check_introductions(report, thm, env, k);
     formulas::check_recursions(report, thm, k);

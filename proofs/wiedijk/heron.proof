@@ -27,7 +27,7 @@ theorem heron
       reads half the perimeter of the triangle
   then the area of △ABC = √(s·(s − |BC|)·(s − |CA|)·(s − |AB|))
 
-1.  B ≠ C
+1.  B ≠ C. A ≠ B.
     def:triangle P := A, Q := B, R := C, from H4
 
 2.  A ≠ C

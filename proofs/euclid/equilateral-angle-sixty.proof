@@ -20,7 +20,7 @@ theorem equilateral-angle-sixty
   assume |AB| = |BC| = |CA|                                           (H5)
   then ∠ABC = 60°
 
-1.  A ≠ B. B ≠ C.
+1.  A ≠ B. B ≠ C. A ≠ C.
     def:triangle, from H4
 
 2.  |CA|² = |AB|² + |BC|² − 2·(|AB|·|BC|·cos(∠ABC))

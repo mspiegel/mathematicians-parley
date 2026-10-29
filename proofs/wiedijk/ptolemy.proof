@@ -120,16 +120,16 @@ theorem cyclic-ptolemy
     thm:intersecting-chords B := C, C := B, from H7, H8, H9, H10, H11
 
 4.  ∠APB + ∠BPC = 180°
-    axi:supplementary-angles B := P, D := B, from H10, 2
+    axi:supplementary-angles B := P, D := B, from H10, H12, H13, 2
 
 5.  ∠BPC + ∠CPD = 180°
-    axi:supplementary-angles A := B, B := P, C := D, D := C, from H11, 1
+    axi:supplementary-angles A := B, B := P, C := D, D := C, from H11, H13, H14, 1
 
 6.  P is between C and A
     mun:between-symmetric R := P, S := A, T := C, from H10
 
 7.  ∠CPD + ∠DPA = 180°
-    axi:supplementary-angles A := C, B := P, C := A, from 2, 6
+    axi:supplementary-angles A := C, B := P, C := A, from H14, H15, 2, 6
 
 8.  ∠CPD = ∠APB
     algebra, from 4, 5
@@ -147,10 +147,10 @@ let c = cos(∠APB), a real number                                     (D1)
     reads the cosine of the angle the diagonals make at P
 
 10. |BA|² = |AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))
-    thm:law-of-cosines P := A, Q := P, R := B, from 1, 2
+    thm:law-of-cosines P := A, Q := P, R := B, from H12, 1, 2
 
 11. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·cos(∠BPC))
-    thm:law-of-cosines P := B, Q := P, R := C, from 1, 2
+    thm:law-of-cosines P := B, Q := P, R := C, from H13, 1, 2
 
 12. |CB|² = |BP|² + |PC|² − 2·(|BP|·|PC|·(−cos(∠APB)))
     substitute
@@ -161,13 +161,13 @@ let c = cos(∠APB), a real number                                     (D1)
     requires ∠BPC ∈ ℝ: mun:angle-real P := B, Q := P, R := C, from H13, 1, 2
 
 13. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠CPD))
-    thm:law-of-cosines P := C, Q := P, R := D, from 1, 2
+    thm:law-of-cosines P := C, Q := P, R := D, from H14, 1, 2
 
 14. |DC|² = |CP|² + |PD|² − 2·(|CP|·|PD|·cos(∠APB))
     substitute ∠CPD = ∠APB (line 8) into line 13
 
 15. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·cos(∠DPA))
-    thm:law-of-cosines P := D, Q := P, R := A, from 1, 2
+    thm:law-of-cosines P := D, Q := P, R := A, from H15, 1, 2
 
 16. |AD|² = |DP|² + |PA|² − 2·(|DP|·|PA|·(−cos(∠APB)))
     substitute

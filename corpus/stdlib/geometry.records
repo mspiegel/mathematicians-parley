@@ -63,6 +63,9 @@ mundane theorem signed-angle-size
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        |∡PQR| = ∠PQR
   metamath    eqid, since ∠PQR is built as the absolute value of ∡PQR
   target      eqid
@@ -215,6 +218,8 @@ definition congruent
   let P′ be a point                                                   (H4)
   let Q′ be a point                                                   (H5)
   let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
   then        triangle PQR ≅ triangle P′Q′R′ ↔ |PQ| = |P′Q′|, |QR| = |Q′R′|,
               |RP| = |R′P′|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, and
               ∠RPQ = ∠R′P′Q′
@@ -297,6 +302,7 @@ mundane theorem angle-turned
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        ∠PQR = ∠RQP
   metamath    gangsym3, which this corpus proves in elaboration/stdlib/proved.mm
   target      gangsym3
@@ -401,6 +407,7 @@ mundane theorem perpendicular-by-right-angle
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        line QP ⊥ line QR ↔ ∠PQR = 90°
   metamath    gperp90, from angrteqvd
   target      gperp90
@@ -465,6 +472,8 @@ axiom supplementary-angles
   let D be a point                                                    (H4)
   assume B is between A and C                                         (H5)
   assume D ≠ B                                                        (H6)
+  assume D ≠ A                                                        (H7)
+  assume D ≠ C                                                        (H8)
   then        ∠ABD + ∠DBC = 180°
   metamath    gsupp, which this corpus proves in elaboration/stdlib/proved.mm
               from cosangneg2d, cospim and cos11
@@ -489,6 +498,7 @@ mundane theorem angle-addition
   let M be a point                                                    (H4)
   assume A, B, C form a triangle                                      (H5)
   assume M is between A and B                                         (H6)
+  assume C ≠ M                                                        (H7)
   then        ∠ACM + ∠MCB = ∠ACB
   metamath    gangadd, which this corpus proves in
               elaboration/stdlib/proved.mm: set.mm adds no two angles
@@ -673,6 +683,8 @@ mundane theorem angle-along-segment
   let S be a point                                                    (H4)
   assume S is between P and Q                                         (H5)
   assume R ≠ P                                                        (H6)
+  assume R ≠ S                                                        (H7)
+  assume R ≠ Q                                                        (H8)
   then        ∠SPR = ∠QPR
   metamath    gangseg, which this corpus proves in elaboration/stdlib/proved.mm
   target      gangseg
@@ -730,6 +742,7 @@ theorem area-by-sine
   let R be a point                                                    (H3)
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
+  assume Q ≠ P                                                        (H6)
   then        the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
   metamath    garea, from gsinabs
   target      garea
@@ -776,6 +789,7 @@ theorem law-of-cosines
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
   metamath    glawcos, which this corpus proves in elaboration/stdlib/proved.mm
               from lawcos
@@ -796,6 +810,8 @@ mundane theorem angle-equal-by-cosine
   assume P′ ≠ Q′                                                      (H9)
   assume R′ ≠ Q′                                                      (H10)
   assume cos(∠PQR) = cos(∠P′Q′R′)                                     (H11)
+  assume P ≠ R                                                        (H12)
+  assume P′ ≠ R′                                                      (H13)
   then        ∠PQR = ∠P′Q′R′
   metamath    gangeq3, from cos11
   target      gangeq3
@@ -812,6 +828,8 @@ mundane theorem angle-order-by-cosine
   assume R ≠ Q                                                        (H8)
   assume P′ ≠ Q′                                                      (H9)
   assume R′ ≠ Q′                                                      (H10)
+  assume P ≠ R                                                        (H11)
+  assume P′ ≠ R′                                                      (H12)
   then        ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
   metamath    gangord3, from cosord
   target      gangord3
@@ -824,6 +842,7 @@ mundane theorem right-angle-by-cosine
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        ∠PQR = 90° ↔ cos(∠PQR) = 0
   metamath    gright3, from coseq00topi
   target      gright3
@@ -835,6 +854,7 @@ mundane theorem right-angle-triangle
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
   assume ∠PQR = 90°                                                   (H6)
+  assume P ≠ R                                                        (H7)
   then        P, Q, R form a triangle
   metamath    grttri, which this corpus proves in
               elaboration/stdlib/proved.mm from gperp90: the quotient of the
@@ -849,6 +869,7 @@ mundane theorem cosine-right-triangle
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
   assume ∠PRQ = 90°                                                   (H6)
+  assume P ≠ Q                                                        (H7)
   then        |QR| = |QP|·cos(∠RQP)
   metamath    gcosrt, which this corpus proves in
               elaboration/stdlib/proved.mm from glawcos, at Q and at the
@@ -865,6 +886,7 @@ mundane theorem angle-at-most-straight
   let R be a point                                                    (H3)
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
+  assume P ≠ R                                                        (H6)
   then        ∠PQR ≤ 180°
   metamath    gangle180, which this corpus proves in
               elaboration/stdlib/proved.mm from gangicc3
@@ -879,6 +901,7 @@ mundane theorem angle-by-cosine
   assume R ≠ Q                                                        (H6)
   assume 0 ≤ x                                                        (H7)
   assume x ≤ 180°                                                     (H8)
+  assume P ≠ R                                                        (H9)
   then        ∠PQR = x ↔ cos(∠PQR) = cos(x)
   metamath    gangcos, which this corpus proves in elaboration/stdlib/proved.mm
               from gangicc3 and cos11
