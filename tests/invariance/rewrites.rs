@@ -630,8 +630,8 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             let from = first_text(&c);
             let end = trimmed_end(&c);
             let text: String = c[..end].iter().collect();
-            let reason_at = chain_reason(&text)
-                .map_or(end, |r| end - r.chars().count());
+            let reason_at =
+                chain_reason(&text).map_or(end, |r| end - r.chars().count());
             let mut to = reason_at;
             while to > from && c[to - 1] == ' ' {
                 to -= 1;
@@ -2562,7 +2562,9 @@ fn renumbered_link(line: &str, map: &BTreeMap<String, String>) -> String {
     };
     let start = end - reason.len();
     let new = if is_ref(reason) {
-        map.get(reason).cloned().unwrap_or_else(|| reason.to_string())
+        map.get(reason)
+            .cloned()
+            .unwrap_or_else(|| reason.to_string())
     } else {
         renumbered_refs(reason, map)
     };
@@ -2578,7 +2580,12 @@ fn reasoned_lines(step: &parley::corpus::Step) -> Vec<usize> {
     } else {
         &step.just.rows[..step.just.rows.len().min(1)]
     };
-    step.just.chain.iter().chain(rows).map(|(_, at)| *at).collect()
+    step.just
+        .chain
+        .iter()
+        .chain(rows)
+        .map(|(_, at)| *at)
+        .collect()
 }
 
 /// Whether `fact` says the term `claim` says is in a number system, of a
