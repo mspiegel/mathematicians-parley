@@ -980,9 +980,9 @@ impl<'a> Elaborator<'a> {
         // line and a step have one way of being proved.
         if let (Some(step), Some(req)) = (step, req) {
             let what = format!(
-                "the requires line {} of step {}",
+                "the requires line {} of {}",
                 str::trim(req.fact.text()),
-                step.number
+                step.called()
             );
             if let Built(p) = self.as_a_step(step, req, &what, scope, facts)? {
                 return Ok(Built(p));

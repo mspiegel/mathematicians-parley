@@ -725,6 +725,7 @@ substitution in the corpus comes close.
                   `reads` <words>
                 | `let` <name> `=` <term> `,` <kind> `(` <label> `)`
                   <newline> <reason>
+                  { <newline> <requires> }
                   `reads` <words>
                 | `let` <recursion> `,` `for` <name> `∈` `ℕ₀`
                   `(` <label> `)` `reads` <words>
@@ -757,8 +758,11 @@ follows the name tells a naming `let` from a `<hypothesis>`'s: `=`, and not
 A naming `let` that ends with a `<kind>` says its name is that kind of
 number, and the `<reason>` on the next line shows the term is: it is read as
 a requires line saying `<term> ∈ S` of the first step below the let, and it
-cites nothing below the let. Citing the let's label then gives the membership
-beside the equation. A naming `let` in a theorem's statement, before `then`,
+cites nothing below the let. Its requires lines give what the reason's item
+asks for: they are read as requires lines of the same step, above the
+reason's, so the reason rests on them as a requires line rests on those above
+it. They cite nothing below the let either. Citing the let's label then gives
+the membership beside the equation. A naming `let` in a theorem's statement, before `then`,
 says no kind.
 
 A define whose first rule is said at 0 defines sequences by recursion. Each

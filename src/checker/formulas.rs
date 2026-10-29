@@ -405,11 +405,10 @@ fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
             add(s.just.line, format!("a value step {} gives", s.number), v);
         }
         for r in &s.requires {
-            let what = format!("the requires line of step {}", s.number);
+            let what = format!("the requires line of {}", s.called());
             add(r.line, what, &r.fact);
             for v in r.values().written() {
-                let what =
-                    format!("a value the requires line of step {} gives", s.number);
+                let what = format!("a value the requires line of {} gives", s.called());
                 add(r.line, what, v);
             }
         }
@@ -922,7 +921,7 @@ pub fn check_letters_introduced(
         for r in &s.requires {
             texts.push((
                 r.line,
-                format!("the requires line of step {}", s.number),
+                format!("the requires line of {}", s.called()),
                 &r.fact,
                 true,
             ));
@@ -2423,9 +2422,9 @@ fn check_shown_by(
                 &thm.path,
                 req.line,
                 format!(
-                    "the requires line {} of step {} is {}, which {why}",
+                    "the requires line {} of {} is {}, which {why}",
                     req.fact,
-                    step.number,
+                    step.called(),
                     method.as_str()
                 ),
             );
@@ -2489,8 +2488,8 @@ fn check_closed_by(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} gives {} for {}, {}",
-                        step.number,
+                        "the requires line of {} gives {} for {}, {}",
+                        step.called(),
                         given.as_str(),
                         req.fact,
                         why(holds, "fact")
@@ -4147,9 +4146,9 @@ pub fn check_requires_manipulations(
                 });
                 let message = if let Some(t) = turned {
                     format!(
-                        "the requires line {} of step {} is {cited} {}, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: {} {} {}",
+                        "the requires line {} of {} is {cited} {}, turned round; a requires line names one manipulation, so write it as the manipulation leaves it: {} {} {}",
                         str::trim(req.fact.text()),
-                        step.number,
+                        step.called(),
                         row_said(&reason),
                         known.print(&t.left),
                         sign(t.rel),
@@ -4157,9 +4156,9 @@ pub fn check_requires_manipulations(
                     )
                 } else {
                     format!(
-                        "the requires line {} of step {} is not {cited} {}",
+                        "the requires line {} of {} is not {cited} {}",
                         str::trim(req.fact.text()),
-                        step.number,
+                        step.called(),
                         row_said(&reason)
                     )
                 };
@@ -4390,9 +4389,10 @@ pub fn check_requires_combined(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
-                        step.number,
-                        str::trim(req.fact.text())
+                        "the requires line of {} says {}, and the {} neither uses nor asks for it",
+                        step.called(),
+                        str::trim(req.fact.text()),
+                        step.kind_word()
                     ),
                 );
             }
@@ -4420,7 +4420,9 @@ pub fn check_kind_methods(
         step: under,
     } in reasons_under_lets(thm, known)
     {
-        let shown = &under.requires[0];
+        let Some(shown) = under.requires.last() else {
+            continue;
+        };
         if shown.is(Method::Arithmetic) {
             if let Some(why) = arithmetic_unshown(&shown.fact, known, targets) {
                 report.say(
@@ -4465,8 +4467,9 @@ pub fn check_kind_methods(
 }
 
 /// A let saying what kind of number its name is, and the step below it
-/// with the let's reason as its one requires line, which is how the reason
-/// is read (`SYNTAX.md`, a let with a kind).
+/// with the let's requires lines and then its reason as its requires lines,
+/// which is how the reason is read (`SYNTAX.md`, a let with a kind). The
+/// reason is the last.
 pub struct UnderLet<'t> {
     pub define: &'t crate::corpus::DefineLine,
     pub step: Step,
@@ -4483,12 +4486,10 @@ pub fn reasons_under_lets<'t>(thm: &'t Theorem, known: &Known) -> Vec<UnderLet<'
                 return None;
             };
             let after = thm.step_after(d.line)?;
+            let reason = d.reason.as_ref()?;
             Some(UnderLet {
                 define: d,
-                step: Step {
-                    requires: vec![kinded.shown.clone()],
-                    ..after.clone()
-                },
+                step: reason.under(&d.label, after, kinded.shown.fact.clone()),
             })
         })
         .collect()
@@ -4618,9 +4619,10 @@ pub fn check_method_cites_used(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
-                        step.number,
-                        str::trim(req.fact.text())
+                        "the requires line of {} says {}, and the {} neither uses nor asks for it",
+                        step.called(),
+                        str::trim(req.fact.text()),
+                        step.kind_word()
                     ),
                 );
             }
@@ -5128,8 +5130,9 @@ impl<'s> ClosureClaim<'s> {
     fn said(&self, refusal: String) -> String {
         match self.requires {
             Some(req) => format!(
-                "the requires line {} of step {}, read as a step citing what it cites: {refusal}",
-                req.fact, self.step.number
+                "the requires line {} of {}, read as a step citing what it cites: {refusal}",
+                req.fact,
+                self.step.called()
             ),
             None => refusal,
         }

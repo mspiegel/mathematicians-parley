@@ -532,6 +532,15 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             if rest.is_empty() || start <= indent || rest.starts_with("reads ") {
                 break;
             }
+            // A requires line under a let's reason is laid out with every
+            // requires line, below.
+            let under = d
+                .reason
+                .as_ref()
+                .is_some_and(|r| r.requires.iter().any(|q| at(q.line) == next));
+            if under {
+                continue;
+            }
             // A let's reason is written as a requires line's is.
             if d.reason.as_ref().is_some_and(|r| at(r.line) == next) {
                 for span in justification(&n, start) {
@@ -673,27 +682,33 @@ fn layout(thm: &Theorem, lines: &[String], end: usize) -> Layout {
             }
             checked.insert(l);
         }
-        for r in &step.requires {
-            let l = at(r.line);
-            let c = chars(&lines[l]);
-            let start = first_text(&c);
-            if let Some(colon) = char_rfind(&c, ": ") {
-                let from = start + "requires ".len();
-                if colon > from {
-                    push(&mut regions, l, Some((from, colon)));
-                }
-                for span in justification(&c, colon + 2) {
-                    push(&mut regions, l, Some(span));
-                }
+    }
+    // A step's requires lines, and those under a let's reason.
+    for r in thm
+        .steps
+        .iter()
+        .flat_map(|s| &s.requires)
+        .chain(thm.let_requires())
+    {
+        let l = at(r.line);
+        let c = chars(&lines[l]);
+        let start = first_text(&c);
+        if let Some(colon) = char_rfind(&c, ": ") {
+            let from = start + "requires ".len();
+            if colon > from {
+                push(&mut regions, l, Some((from, colon)));
             }
-            checked.insert(l);
-            for next in continued(lines, l, end) {
-                let c = chars(&lines[next]);
-                for span in justification(&c, first_text(&c)) {
-                    push(&mut regions, next, Some(span));
-                }
-                checked.insert(next);
+            for span in justification(&c, colon + 2) {
+                push(&mut regions, l, Some(span));
             }
+        }
+        checked.insert(l);
+        for next in continued(lines, l, end) {
+            let c = chars(&lines[next]);
+            for span in justification(&c, first_text(&c)) {
+                push(&mut regions, next, Some(span));
+            }
+            checked.insert(next);
         }
     }
     // A line ending in a comma goes on: what follows is more of its formula.
@@ -1272,6 +1287,9 @@ fn bound(ctx: &Context, thm: &Theorem) -> Vec<String> {
         trees.extend(said(h.kind, h.body(&thm.path)));
     }
     trees.extend(said(Intro::Assume, thm.stated()));
+    for r in thm.let_requires() {
+        trees.extend(said(Intro::Assume, r.fact.clone()));
+    }
     for step in &thm.steps {
         trees.extend(said(Intro::Assume, step.claim.clone()));
         for r in &step.requires {
@@ -1767,16 +1785,21 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
             values: step.just.values.clone(),
             step: Some(step.line),
         });
-        for r in &step.requires {
-            let l = r.line - 1;
-            let mut at = vec![l];
-            at.extend(continued(lines, l, end));
-            out.push(Citation {
-                lines: at,
-                values: r.values().clone(),
-                step: None,
-            });
-        }
+    }
+    for r in thm
+        .steps
+        .iter()
+        .flat_map(|s| &s.requires)
+        .chain(thm.let_requires())
+    {
+        let l = r.line - 1;
+        let mut at = vec![l];
+        at.extend(continued(lines, l, end));
+        out.push(Citation {
+            lines: at,
+            values: r.values().clone(),
+            step: None,
+        });
     }
     out
 }

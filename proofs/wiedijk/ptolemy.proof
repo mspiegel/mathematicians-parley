@@ -137,6 +137,11 @@ theorem cyclic-ptolemy
     mun:cos-supplement x := ∠APB
     requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
 
+let c = cos(∠APB), a real number                                     (D1)
+    mun:cos-real a := ∠APB
+    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
+    reads the cosine of the angle the diagonals make at P
+
 10. |BA|² = |AP|² + |PB|² − 2·(|AP|·|PB|·cos(∠APB))
     thm:law-of-cosines P := A, Q := P, R := B, from 1, 2
 
@@ -168,119 +173,111 @@ theorem cyclic-ptolemy
     requires ∠CPD ∈ ℝ: mun:angle-real P := C, Q := P, R := D, from 1, 2
     requires ∠DPA ∈ ℝ: mun:angle-real P := D, Q := P, R := A, from 1, 2
 
-17. cos(∠APB) ∈ ℝ
-    mun:cos-real a := ∠APB
-    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
-
-let c = cos(∠APB), a real number                                     (D1)
-    membership, from 17
-    reads the cosine of the angle the diagonals make at P
-
-18. (|PA|·|PC|)² = (|PB|·|PD|)²
+17. (|PA|·|PC|)² = (|PB|·|PD|)²
     algebra, from 3
 
-19. |PA|·|PD|·c·(|PA|·|PC|) = |PA|·|PD|·c·(|PB|·|PD|)
+18. |PA|·|PD|·c·(|PA|·|PC|) = |PA|·|PD|·c·(|PB|·|PD|)
     algebra, from 3
 
-20. |PA|·|PB|·c·(|PA|·|PC|) = |PA|·|PB|·c·(|PB|·|PD|)
+19. |PA|·|PB|·c·(|PA|·|PC|) = |PA|·|PB|·c·(|PB|·|PD|)
     algebra, from 3
 
-21. |DC|²·|PA|² = |PD|²·|BA|²
+20. |DC|²·|PA|² = |PD|²·|BA|²
     calculation
       |DC|²·|PA|² = (|CP|² + |PD|² − 2·(|CP|·|PD|·c))·|PA|²                     algebra, from D1, 14
                   = (|PA|·|PC|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·c·(|PA|·|PC|))    algebra
-                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·c·(|PB|·|PD|))    algebra, from 18, 19
+                  = (|PB|·|PD|)² + |PA|²·|PD|² − 2·(|PA|·|PD|·c·(|PB|·|PD|))    algebra, from 17, 18
                   = |PD|²·(|AP|² + |PB|² − 2·(|AP|·|PB|·c))                     algebra
                   = |PD|²·|BA|²                                                 algebra, from D1, 10
 
-22. |CB|²·|PA|² = |PB|²·|AD|²
+21. |CB|²·|PA|² = |PB|²·|AD|²
     calculation
       |CB|²·|PA|² = (|BP|² + |PC|² + 2·(|BP|·|PC|·c))·|PA|²                     algebra, from D1, 12
                   = |PA|²·|PB|² + (|PA|·|PC|)² + 2·(|PA|·|PB|·c·(|PA|·|PC|))    algebra
-                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·c·(|PB|·|PD|))    algebra, from 18, 20
+                  = |PA|²·|PB|² + (|PB|·|PD|)² + 2·(|PA|·|PB|·c·(|PB|·|PD|))    algebra, from 17, 19
                   = |PB|²·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))                     algebra
                   = |PB|²·|AD|²                                                 algebra, from D1, 16
 
-23. |DC| ≥ 0
+22. |DC| ≥ 0
     mun:distance-nonneg P := D, Q := C
 
-24. |PA| ≥ 0
+23. |PA| ≥ 0
     mun:distance-nonneg Q := A
 
-25. |PD| ≥ 0
+24. |PD| ≥ 0
     mun:distance-nonneg Q := D
 
-26. |BA| ≥ 0
+25. |BA| ≥ 0
     mun:distance-nonneg P := B, Q := A
 
-27. |CB| ≥ 0
+26. |CB| ≥ 0
     mun:distance-nonneg P := C, Q := B
 
-28. |PB| ≥ 0
+27. |PB| ≥ 0
     mun:distance-nonneg Q := B
 
-29. |AD| ≥ 0
+28. |AD| ≥ 0
     mun:distance-nonneg P := A, Q := D
 
-30. |DC|·|PA| ≥ 0
-    mun:product-nonneg x := |DC|, y := |PA|, from 23, 24
+29. |DC|·|PA| ≥ 0
+    mun:product-nonneg x := |DC|, y := |PA|, from 22, 23
 
-31. |PD|·|BA| ≥ 0
-    mun:product-nonneg x := |PD|, y := |BA|, from 25, 26
+30. |PD|·|BA| ≥ 0
+    mun:product-nonneg x := |PD|, y := |BA|, from 24, 25
 
-32. |CB|·|PA| ≥ 0
-    mun:product-nonneg x := |CB|, y := |PA|, from 24, 27
+31. |CB|·|PA| ≥ 0
+    mun:product-nonneg x := |CB|, y := |PA|, from 23, 26
 
-33. |PB|·|AD| ≥ 0
-    mun:product-nonneg x := |PB|, y := |AD|, from 28, 29
+32. |PB|·|AD| ≥ 0
+    mun:product-nonneg x := |PB|, y := |AD|, from 27, 28
 
-34. (|DC|·|PA|)² = (|PD|·|BA|)²
+33. (|DC|·|PA|)² = (|PD|·|BA|)²
+    algebra, from 20
+
+34. |DC|·|PA| = |PD|·|BA|
+    mun:square-equal x := |DC|·|PA|, y := |PD|·|BA|, from 29, 30, 33
+
+35. (|CB|·|PA|)² = (|PB|·|AD|)²
     algebra, from 21
 
-35. |DC|·|PA| = |PD|·|BA|
-    mun:square-equal x := |DC|·|PA|, y := |PD|·|BA|, from 30, 31, 34
+36. |CB|·|PA| = |PB|·|AD|
+    mun:square-equal x := |CB|·|PA|, y := |PB|·|AD|, from 31, 32, 35
 
-36. (|CB|·|PA|)² = (|PB|·|AD|)²
-    algebra, from 22
+37. |AB|·(|DC|·|PA|) = |AB|·(|PD|·|BA|)
+    algebra, from 34
 
-37. |CB|·|PA| = |PB|·|AD|
-    mun:square-equal x := |CB|·|PA|, y := |PB|·|AD|, from 32, 33, 36
+38. |AD|·(|CB|·|PA|) = |AD|·(|PB|·|AD|)
+    algebra, from 36
 
-38. |AB|·(|DC|·|PA|) = |AB|·(|PD|·|BA|)
-    algebra, from 35
-
-39. |AD|·(|CB|·|PA|) = |AD|·(|PB|·|AD|)
-    algebra, from 37
-
-40. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c))
+39. |PD|·|BA|² = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c))
     algebra, from D1, 10
 
-41. |PB|·|AD|² = |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))
+40. |PB|·|AD|² = |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))
     algebra, from D1, 16
 
-42. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|
+41. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|
     algebra, from 3
 
-43. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|
+42. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|
     substitute
-      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|      42
+      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = ((|AP| + |PC|)·(|BP| + |PD|))·|PA|      41
       (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|               mun:segment-addition P := A, Q := C, S := P, from H10
 
-44. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|
+43. (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|
     substitute
-      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|      43
+      (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·(|BP| + |PD|))·|PA|      42
       (|PB| + |PD|)·(|PA|² + |PB|·|PD|) = (|AC|·|BD|)·|PA|               mun:segment-addition P := B, Q := D, S := P, from H11
 
-45. (|AB|·|CD| + |AD|·|BC|)·|PA| = (|AC|·|BD|)·|PA|
+44. (|AB|·|CD| + |AD|·|BC|)·|PA| = (|AC|·|BD|)·|PA|
     calculation
-      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                algebra, from 38, 39
-                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c)) + |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))    algebra, from 40, 41
+      (|AB|·|CD| + |AD|·|BC|)·|PA| = |PD|·|BA|² + |PB|·|AD|²                                                algebra, from 37, 38
+                                  = |PD|·(|AP|² + |PB|² − 2·(|AP|·|PB|·c)) + |PB|·(|DP|² + |PA|² + 2·(|DP|·|PA|·c))    algebra, from 39, 40
                                   = (|PB| + |PD|)·(|PA|² + |PB|·|PD|)                                        algebra
-                                  = (|AC|·|BD|)·|PA|                                                         44
+                                  = (|AC|·|BD|)·|PA|                                                         43
 
-46. |PA| > 0
+45. |PA| > 0
     axi:distance-positive Q := A, from 1
 
-47. |AC|·|BD| = |AB|·|CD| + |AD|·|BC|
-    mun:multiply-cancel a := |AC|·|BD|, b := |AB|·|CD| + |AD|·|BC|, c := |PA|, from 45
-    requires |PA| ≠ 0: weakening, from 46
+46. |AC|·|BD| = |AB|·|CD| + |AD|·|BC|
+    mun:multiply-cancel a := |AC|·|BD|, b := |AB|·|CD| + |AD|·|BC|, c := |PA|, from 44
+    requires |PA| ≠ 0: weakening, from 45

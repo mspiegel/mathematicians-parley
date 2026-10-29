@@ -1,0 +1,28 @@
+import mundane theorem    stdlib/geometry/angle-real
+import mundane theorem    stdlib/numbers/square-nonneg
+import definition         stdlib/trigonometry/cos
+import mundane theorem    stdlib/trigonometry/cos-real
+
+theorem a-naming-let-with-a-requires-line
+  note        A naming let's reason may cite an item asking for a fact
+              nothing above the let says, and a requires line under the
+              reason gives it, as one under a step does.
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A ≠ B                                                        (H4)
+  assume C ≠ B                                                        (H5)
+  then cos(∠ABC)² ≥ 0
+
+let c = cos(∠ABC), a real number                                      (D1)
+    mun:cos-real a := ∠ABC
+    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5
+    reads the cosine of the angle at B
+
+1.  c² ≥ 0
+    mun:square-nonneg
+
+2.  cos(∠ABC)² ≥ 0
+    calculation
+      cos(∠ABC)² = c²     D1
+                 ≥ 0      1

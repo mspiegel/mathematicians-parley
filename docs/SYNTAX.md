@@ -203,20 +203,21 @@ fixed by the method's definition. Induction has `base` and `step`:
     induction on k starting at 1
 
     base
-    1.1.  ...
-    1.2.  S(1) = 1(1 + 1)/2
+    1.1.  S(1) = 1(1 + 1)/2
           ...
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 1 is true for k, the induction hypothesis             (IH)
 
-    1.3.  ...
-    1.7.  S(k + 1) = (k + 1)((k + 1) + 1)/2
+    1.2.  ...
+    1.3.  S(k + 1) = (k + 1)((k + 1) + 1)/2
           ...
 
-2.  S(n) = n(n + 1)/2
-    instantiate k := n in line 1
+2.  Σ(k = 1 to n) k = n(n + 1)/2
+    calculation
+      Σ(k = 1 to n) k = S(n)              D1
+                      = n(n + 1)/2        instantiate k := n in line 1
 ```
 
 **An induction proves a statement of every k, and its step part opens as a
@@ -296,11 +297,11 @@ that the part handles:
 The disjunction being split is a cited line, here line 1, and the reader
 checks that the case assumptions are its disjuncts in order. A case that
 cannot occur ends on the step that reaches the opposite of an earlier line,
-and says so after its reasons, as a textbook says "contradicting 10.1":
+and says so after its reasons, as a textbook says "contradicting 9.1":
 
 ```proof
-    10.3. not b(N) + N ≤ N
-          inequalities, from 10.2, contradicting 10.1
+    9.3.  not b(N) + N ≤ N
+          inequalities, from 9.2, contradicting 9.1
 ```
 
 The step's claim is the line negated, or the line, or one sentence of it,
@@ -341,7 +342,7 @@ nothing to prove":
     case
     assume b(N) ≠ 0                                                   (C8)
 
-    10.1. b(N) + N ≤ N
+    9.1.  b(N) + N ≤ N
           ...
 ```
 
@@ -722,12 +723,12 @@ needed:
 
 ```proof
 let m = gcd(s, w), a positive integer                               (D1)
-    def:gcd a := s, b := w, from 4, 35
+    def:gcd a := s, b := w, from 4, 32
     reads the number whose square is s
 
-55. s = m²
+46. s = m²
     calculation
-      s = gcd(s, w)²    54
+      s = gcd(s, w)²    45
         = m²            D1
 ```
 
@@ -743,7 +744,19 @@ kind beyond those, since that a number is positive is a fact that can fail,
 and a step that needs it cites the line saying it. So the let above says
 gcd(s, w) ∈ ℕ, and the line under it gives the reason, written as a
 requires line's reason is: a method or an item, and what it cites, all of it
-above the let. The equation is what the name means
+above the let.
+
+Where the item asks for a fact nothing above the let says, a requires line
+under the reason gives it, as one under a step does:
+
+```proof
+let c = cos(∠APB), a real number                                     (D1)
+    mun:cos-real a := ∠APB
+    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from 1, 2
+    reads the cosine of the angle the diagonals make at P
+```
+
+The equation is what the name means
 and needs no reason. The membership m ∈ ℕ is then said there once, as an
 `obtain`'s membership sentence is: no later step writes it, and a step that
 cites the let has it as a line the let says, as `inequalities, from D1`
@@ -1084,22 +1097,16 @@ closed and real arithmetic works it out: `cos(x)·cos(π)` to `cos(x)·(−1)`
 uses the fact `cos(π) = −1` and nothing else.
 
 ```proof
-4.4.  |a + b| = −(a + b)
-      def:abs x := a + b, from C2
-
-4.5.  −(a + b) = −a + −b
-      algebra
-
-4.6.  −a + −b ≤ |a| + |b|
+4.3.  −a + −b ≤ |a| + |b|
       inequalities, from 2, 3
       requires |a| ∈ ℝ: mun:abs-real x := a
       requires |b| ∈ ℝ: mun:abs-real x := b
 
-4.7.  |a + b| ≤ |a| + |b|
+4.4.  |a + b| ≤ |a| + |b|
       calculation
-        |a + b| = −(a + b)              4.4
-                = −a + −b               4.5
-                ≤ |a| + |b|             4.6
+        |a + b| = −(a + b)              def:abs x := a + b, from C2
+                = −a + −b               algebra
+                ≤ |a| + |b|             4.3
 ```
 
 **A substitution names its variable, and its place in the list says

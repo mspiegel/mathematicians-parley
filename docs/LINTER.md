@@ -144,6 +144,23 @@ one say "such that" twice in a row: "the t in ℕ such that there exist m and n
 such that …". Inside a set-builder, or anywhere a "such that" is already being
 read, the existence is written with "with".
 
+## A long term written many times
+
+| write | not | today |
+|---|---|---|
+| a naming `let`, or a phrase define, for a term of 40 characters or more that one theorem writes five times or more | the term written out each time | all but 2 follow it: `ramsey` and `erdos-szekeres` repeat a condition, which neither a naming `let` nor a phrase define can name yet |
+| the letter a note names, given by a naming `let` | a note naming a letter the proof never writes | the 2 found follow it |
+
+A reader meeting the same long term a fifth time has to check, symbol by
+symbol, that it is the same term, and a name is checked once, where it is
+made. A naming `let` that says the kind of number also says the membership
+once (`SYNTAX.md`), so the requires lines that repeated it go too.
+
+The line at 40 characters and five uses is judgement. Below it a name costs
+a label and a `reads` line for little, and a term a calculation is turning
+into something else stays written out, since watching it change is the
+point of the calculation.
+
 ## The shape of a step
 
 | write | not | today |

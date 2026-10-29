@@ -96,9 +96,9 @@ impl Report {
             path,
             req.line,
             format!(
-                "the requires line {} of step {} names {}, which does not decide what it says",
+                "the requires line {} of {} names {}, which does not decide what it says",
                 req.fact,
-                crate::corpus::fmt(&step.number),
+                step.called(),
                 method.as_str()
             ),
         );
@@ -1213,6 +1213,66 @@ fn check_theorem(
 ) {
     check_holds(report, c, thm, k, clashes);
     check_requires_work(report, c, thm, k, clashes);
+    check_let_requires(report, c, thm, k, clashes);
+}
+
+/// A let's requires lines are checked as a step's are (`GRAMMAR.md`, a
+/// naming let with a kind): its reason is read as the step it would be,
+/// with them under it, and the checks a step's justification and its
+/// requires lines answer to run on that one step.
+/// What the checks find at a requires line is said there; what they find of
+/// the reason is `citations::check_kinds`'s and
+/// `formulas::check_kind_methods`'s to say.
+fn check_let_requires(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+    clashes: &[infer::Clash],
+) {
+    for d in &thm.defines {
+        let Some(reason) = d.reason.as_ref().filter(|r| !r.requires.is_empty()) else {
+            continue;
+        };
+        let (Ok(Some(kinded)), Some(after), Ok(by)) = (
+            d.kinded(&thm.path, &k.env.g.members),
+            thm.step_after(d.line),
+            &reason.by,
+        ) else {
+            continue;
+        };
+        let mut as_step = reason_as_step(after, &kinded.shown, by);
+        as_step.requires = reason.requires.clone();
+        as_step.reason_of = Some(d.label.clone());
+        // The requires lines are the step's here, and no let carries any.
+        let defines = thm
+            .defines
+            .iter()
+            .map(|other| {
+                let mut other = other.clone();
+                if let Some(r) = other.reason.as_mut() {
+                    r.requires.clear();
+                }
+                other
+            })
+            .collect();
+        let alone = Theorem {
+            steps: vec![as_step],
+            defines,
+            ..thm.clone()
+        };
+        // The checks a justification answers to, as a chain line's reason
+        // is checked (`check_link_reasons`), and whether each line does work.
+        let mut seen = Report::default();
+        link_passes(&mut seen, c, &alone, k);
+        check_requires_work(&mut seen, c, &alone, k, clashes);
+        let at: BTreeSet<usize> = reason.requires.iter().map(|r| r.line).collect();
+        report.problems.extend(
+            seen.problems
+                .into_iter()
+                .filter(|p| p.path == thm.path && at.contains(&p.line.line)),
+        );
+    }
 }
 
 /// Whether the theorem holds as written: every check but whether each line
@@ -1282,9 +1342,10 @@ fn check_requires_work(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} says {}, and the step neither uses nor asks for it",
-                        step.number,
-                        str::trim(req.fact.text())
+                        "the requires line of {} says {}, and the {} neither uses nor asks for it",
+                        step.called(),
+                        str::trim(req.fact.text()),
+                        step.kind_word()
                     ),
                 );
             }
@@ -1347,8 +1408,8 @@ fn check_pairs_needed(
                         &thm.path,
                         req.line,
                         format!(
-                            "the requires line of step {} cites with the pair {name} := {name}, and the theorem is checked without it",
-                            step.number
+                            "the requires line of {} cites with the pair {name} := {name}, and the theorem is checked without it",
+                            step.called()
                         ),
                     );
                     kept = lighter;

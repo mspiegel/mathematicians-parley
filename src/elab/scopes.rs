@@ -3037,9 +3037,19 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<()> {
         let line = kinded.shown.line;
         // The step's own requires lines are below the let and nothing the
-        // reason rests on.
+        // reason rests on; the let's own are what it rests on, read as the
+        // step's (`Reason::under`).
+        let requires = self
+            .thm
+            .defines
+            .iter()
+            .find(|d| d.label == kinded.label)
+            .and_then(|d| d.reason.as_ref())
+            .map(|r| r.requires.clone())
+            .unwrap_or_default();
         let Some(after) = self.thm.step_after(line).map(|s| Step {
-            requires: Vec::new(),
+            requires,
+            reason_of: Some(kinded.label.clone()),
             ..s.clone()
         }) else {
             return Err(self.unreached(
@@ -3050,6 +3060,13 @@ impl<'a> Elaborator<'a> {
                 ),
             ));
         };
+        // Only a let with requires lines has anything to add to the facts.
+        let supplied = if after.requires.is_empty() {
+            facts.clone()
+        } else {
+            self.supplied(Some(&after), scope, facts)?
+        };
+        let facts = &supplied;
         let node = self.read_one(&kinded.shown.fact)?;
         let shown = self.term(&node)?;
         let set = self.rpn(&self.to_term(&shown).children()[1]);

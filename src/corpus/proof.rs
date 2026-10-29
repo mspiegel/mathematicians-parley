@@ -161,6 +161,11 @@ pub struct Reason {
     /// The reason as the skeleton reader cut it, as a requires line's is
     /// (`Requires::by`).
     pub by: Checked<Justification>,
+    /// The requires lines under the reason, giving what its item asks for.
+    /// The reason is read as a requires line of the step below the let with
+    /// these above it (`Reason::under`; `GRAMMAR.md`, a naming let with a
+    /// kind).
+    pub requires: Vec<Requires>,
 }
 
 impl Reason {
@@ -202,6 +207,46 @@ impl Reason {
             by: self.by.clone(),
         }
     }
+
+    /// The step the reason of the let `label` is read under: `after`, the
+    /// step below the let, with the let's requires lines and then the
+    /// reason, showing `fact`, as its requires lines.
+    pub fn under(&self, label: &str, after: &Step, fact: Written) -> Step {
+        let mut requires = self.requires.clone();
+        requires.push(self.shown(fact));
+        Step {
+            requires,
+            reason_of: Some(label.to_string()),
+            ..after.clone()
+        }
+    }
+}
+
+/// A requires line, `requires <fact>: <reason>`, cut into its fact and its
+/// reason. The fact ends at the first colon written against the word before
+/// it; a colon inside a fact stands apart, as in `g : [a, b] → ℝ` and
+/// `{x ∈ ℕ : x > 1}`.
+fn requires_line(
+    t: &str,
+    path: &str,
+    no: usize,
+    names: &Arc<Names>,
+) -> Checked<Requires> {
+    let body = str::trim(&t["requires".len()..]);
+    let chars: Vec<(usize, char)> = body.char_indices().collect();
+    let split = chars.iter().enumerate().find_map(|(i, &(at, c))| {
+        (c == ':' && i > 0 && !chars[i - 1].1.is_whitespace())
+            .then(|| (&body[..at], &body[at + 1..]))
+    });
+    let Some((fact, how)) = split else {
+        return Err(Problem::new(path, no, "requires line has no justification"));
+    };
+    Ok(Requires {
+        fact: Written::new(str::trim(fact), path, no),
+        how: str::trim(how).to_string(),
+        line: no,
+        by: cut_reason(how, path, no).map(|slots| Justification::of(slots, no, names)),
+    })
 }
 
 /// A let that says what kind of number its name is, read with the sets the
@@ -860,11 +905,33 @@ pub struct Step {
     /// The claim says `, which is impossible`: a closed fact `arithmetic`
     /// shows false, which ends a contradiction block on this step.
     pub impossible: bool,
+    /// The label of the let whose reason this is, read as the step it would
+    /// be (`Reason::under`), so that a message names the let; None for a step
+    /// the proof writes.
+    pub reason_of: Option<String>,
 }
 
 impl Step {
     pub fn claim_text(&self) -> String {
         self.claim.text().to_string()
+    }
+
+    /// The step as a message names it: `step 4`, or `let D1` for a let's
+    /// reason read as a step.
+    pub fn called(&self) -> String {
+        match &self.reason_of {
+            Some(label) => format!("let {label}"),
+            None => format!("step {}", self.number),
+        }
+    }
+
+    /// What the step is, in a message: `step`, or `let`.
+    pub fn kind_word(&self) -> &'static str {
+        if self.reason_of.is_some() {
+            "let"
+        } else {
+            "step"
+        }
     }
 
     /// The requires lines written above the one on `line`, which it rests on
@@ -1103,6 +1170,14 @@ impl Theorem {
     pub fn step_after(&self, line: usize) -> Option<&Step> {
         self.steps.iter().find(|s| s.line > line)
     }
+
+    /// The requires lines written under the lets' reasons (`Reason::requires`).
+    pub fn let_requires(&self) -> impl Iterator<Item = &Requires> {
+        self.defines
+            .iter()
+            .filter_map(|d| d.reason.as_ref())
+            .flat_map(|r| &r.requires)
+    }
 }
 
 /// Everything a theorem's lines say, as one run of text: the statement, its
@@ -1117,6 +1192,7 @@ pub fn written_text(thm: &Theorem) -> String {
             .iter()
             .filter_map(|d| d.reason.as_ref().map(|r| r.how.as_str())),
     );
+    parts.extend(thm.let_requires().map(|r| r.fact.text()));
     for step in &thm.steps {
         parts.push(step.claim.text());
         parts.extend(step.openers.iter().map(|o| o.text.as_str()));
@@ -1199,6 +1275,11 @@ pub fn cited_items(thm: &Theorem) -> Vec<(String, usize)> {
     for reason in thm.defines.iter().filter_map(|d| d.reason.as_ref()) {
         if let Some((cited, _)) = reason.cited_item() {
             out.push((thm.names.full(&cited), reason.line));
+        }
+    }
+    for req in thm.let_requires() {
+        if let Some((cited, _)) = req.cited_item() {
+            out.push((thm.names.full(&cited), req.line));
         }
     }
     out
@@ -2129,6 +2210,7 @@ pub fn parse_proof(
                 line: line.no,
                 by: cut_reason(&t, path, line.no)
                     .map(|slots| Justification::of(slots, line.no, &names)),
+                requires: Vec::new(),
             };
             if let Some(draft) = thm.as_mut() {
                 for written in draft.thm.defines.iter_mut().filter(|x| x.line == d.line)
@@ -2350,6 +2432,7 @@ pub fn parse_proof(
                     note: None,
                     part_notes: IndexMap::new(),
                     impossible: false,
+                    reason_of: None,
                 },
                 has_just: false,
             });
@@ -2527,21 +2610,46 @@ pub fn parse_proof(
             // A let written between the step and this line stands between
             // them: the line would be read as the step's, which it is not
             // written under. Before any step, it is the let's or nothing's.
+            let requires = requires_line(&t, path, line.no, &draft.thm.names)?;
             let since = step.map_or(0, |at| draft.steps[at].step.line);
-            if let Some(d) = draft
+            let between = draft
                 .thm
                 .defines
                 .iter()
                 .rfind(|d| d.line > since && d.line < line.no)
-            {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    format!(
-                        "requires line under let {}, which carries none: the reason under a let is one line, and what it needs is a step above the let that the reason cites",
-                        d.label
-                    ),
-                ));
+                .map(|d| d.label.clone());
+            if let Some(label) = between {
+                // Right under a let's reason, or under a requires line there,
+                // it is the let's.
+                let Some(mut under) = previous.filter(|p| p.label == label) else {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        format!(
+                            "requires line under let {label}, which carries none here: a let's requires lines stand right under its reason, and only a let saying a kind of number has a reason"
+                        ),
+                    ));
+                };
+                let Some(reason) = under.reason.as_mut() else {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        format!(
+                            "requires line under let {label}, which says no kind of number and so has no reason for it to serve"
+                        ),
+                    ));
+                };
+                reason.requires.push(requires);
+                for written in draft
+                    .thm
+                    .defines
+                    .iter_mut()
+                    .filter(|x| x.line == under.line)
+                {
+                    written.reason = under.reason.clone();
+                }
+                just_defined = Some(under);
+                continue;
             }
             let Some(at) = step else {
                 return Err(Problem::new(
@@ -2550,30 +2658,7 @@ pub fn parse_proof(
                     "requires line outside a step",
                 ));
             };
-            let body = str::trim(&t["requires".len()..]);
-            // The fact ends at the first colon written against the word
-            // before it. A colon inside a fact stands apart, as in `g : [a,
-            // b] → ℝ` and `{x ∈ ℕ : x > 1}`.
-            let chars: Vec<(usize, char)> = body.char_indices().collect();
-            let split = chars.iter().enumerate().find_map(|(i, &(at, c))| {
-                (c == ':' && i > 0 && !chars[i - 1].1.is_whitespace())
-                    .then(|| (&body[..at], &body[at + 1..]))
-            });
-            let Some((fact, how)) = split else {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    "requires line has no justification",
-                ));
-            };
-            let by = cut_reason(how, path, line.no)
-                .map(|slots| Justification::of(slots, line.no, &draft.thm.names));
-            draft.steps[at].step.requires.push(Requires {
-                fact: Written::new(str::trim(fact), path, line.no),
-                how: str::trim(how).to_string(),
-                line: line.no,
-                by,
-            });
+            draft.steps[at].step.requires.push(requires);
             continue;
         }
         if let Some(at) = step {

@@ -338,15 +338,17 @@ pub fn requires_cited(
         let Ok(Some(kinded)) = d.kinded(&thm.path, &known.env.g.members) else {
             continue;
         };
-        let Some(after) = thm.step_after(d.line) else {
+        let (Some(after), Some(reason)) = (thm.step_after(d.line), d.reason.as_ref())
+        else {
             continue;
         };
-        let under = Step {
-            requires: vec![kinded.shown.clone()],
-            ..after.clone()
-        };
-        if let Some(read) = cited_requires(&under, &kinded.shown, library, known) {
-            out.insert(kinded.shown.line, read);
+        // The let's requires lines are read under it as well, each resting
+        // on those above it.
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        for req in &under.requires {
+            if let Some(read) = cited_requires(&under, req, library, known) {
+                out.insert(req.line, read);
+            }
         }
     }
     out
@@ -1451,8 +1453,7 @@ pub fn check_function_types(
             if !named.is_some_and(|n| library.groups(&n).is_some()) {
                 continue;
             }
-            let what =
-                format!("the requires line {} of step {}", req.fact, step.number);
+            let what = format!("the requires line {} of {}", req.fact, step.called());
             let asks = family_asks(&as_step, known, library);
             let at = AskedAt {
                 step: &as_step,
@@ -2477,15 +2478,16 @@ pub fn check_requires(
         for found in unconcluded(step, known, library) {
             let said = match &found.missing {
                 Some(missing) => format!(
-                    "the requires line of step {} cites {}, which asks for {}, and what it cites does not supply {}",
-                    step.number,
+                    "the requires line of {} cites {}, which asks for {}, and what it cites does not supply {}",
+                    step.called(),
                     found.item,
                     missing.join("; "),
                     if missing.len() == 1 { "it" } else { "them" }
                 ),
                 None => format!(
-                    "the requires line of step {} needs something that {} does not conclude",
-                    step.number, found.item
+                    "the requires line of {} needs something that {} does not conclude",
+                    step.called(),
+                    found.item
                 ),
             };
             report.say(&thm.path, found.line, said);
@@ -2524,11 +2526,16 @@ pub fn check_kinds(
             );
             continue;
         };
-        let under = Step {
-            requires: vec![kinded.shown.clone()],
-            ..after.clone()
+        let Some(reason) = d.reason.as_ref() else {
+            continue;
         };
-        for found in unconcluded(&under, known, library) {
+        // The let's requires lines are checked as a step's are
+        // (`check_let_requires`); here they are what the reason rests on.
+        let under = reason.under(&d.label, after, kinded.shown.fact.clone());
+        let unshown = unconcluded(&under, known, library)
+            .into_iter()
+            .filter(|found| found.line == reason.line);
+        for found in unshown {
             let said = match &found.missing {
                 Some(missing) => format!(
                     "the reason under let {} cites {}, which asks for {}, and what it cites does not supply {}",
@@ -3195,8 +3202,8 @@ pub fn check_defined_types(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} cites {item}, which asks for {}, and nothing it cites says it",
-                        step.number,
+                        "the requires line of {} cites {item}, which asks for {}, and nothing it cites says it",
+                        step.called(),
                         known.print(&said)
                     ),
                 );
@@ -3696,9 +3703,9 @@ pub fn check_define_domains(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line {} of step {} cites {} at {}, so it needs {}, and nothing it cites or the requires lines above it say it",
+                        "the requires line {} of {} cites {} at {}, so it needs {}, and nothing it cites or the requires lines above it say it",
                         str::trim(req.fact.text()),
-                        step.number,
+                        step.called(),
                         asked.label,
                         known.print(&asked.arg),
                         needs(&asked)
@@ -4871,8 +4878,8 @@ pub fn check_repeated(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} says {}, {why}",
-                        step.number,
+                        "the requires line of {} says {}, {why}",
+                        step.called(),
                         str::trim(req.fact.text())
                     ),
                 );
@@ -4915,9 +4922,20 @@ pub fn check_from_lines(
         .map(|d| d.label.as_str())
         .collect();
     // A let's reason is read as a requires line of the step below it.
+    // Its requires lines are the step's own, and are read there.
     let under = super::formulas::reasons_under_lets(thm, known);
-    for step in thm.steps.iter().chain(under.iter().map(|u| &u.step)) {
-        for req in &step.requires {
+    let lines = thm
+        .steps
+        .iter()
+        .map(|s| (s, &s.requires[..]))
+        .chain(under.iter().map(|u| {
+            (
+                &u.step,
+                u.step.requires.last().map_or(&[][..], std::slice::from_ref),
+            )
+        }));
+    for (step, reqs) in lines {
+        for req in reqs {
             if !str::trim(&req.how).starts_with("from ") {
                 continue;
             }
@@ -5022,8 +5040,8 @@ pub fn check_from_lines(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line of step {} cites {r}, and {} needs nothing it says",
-                        step.number,
+                        "the requires line of {} cites {r}, and {} needs nothing it says",
+                        step.called(),
                         str::trim(req.fact.text())
                     ),
                 );
@@ -5382,8 +5400,8 @@ pub fn check_surplus(
                         &thm.path,
                         req.line,
                         format!(
-                            "the requires line of step {} cites {r}, and {named} asks for nothing it says",
-                            step.number
+                            "the requires line of {} cites {r}, and {named} asks for nothing it says",
+                            step.called()
                         ),
                     );
                 }
@@ -5507,8 +5525,10 @@ pub fn check_surplus(
                 &thm.path,
                 req.line,
                 format!(
-                    "the requires line of step {} says {}, and neither {item} nor the step's other lines ask for it",
-                    step.number, req.fact
+                    "the requires line of {} says {}, and neither {item} nor the {}'s other lines ask for it",
+                    step.called(),
+                    req.fact,
+                    step.kind_word()
                 ),
             );
         }

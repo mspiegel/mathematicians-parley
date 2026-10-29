@@ -113,6 +113,11 @@ pub fn theorem_tokens(thm: &Theorem, g: &Grammar) -> Vec<Vec<Token>> {
             out.extend(by.values.tokens(g));
         }
     }
+    for r in thm.let_requires() {
+        if let Ok(by) = &r.by {
+            out.extend(by.values.tokens(g));
+        }
+    }
     for step in &thm.steps {
         for r in &step.requires {
             if let Ok(by) = &r.by {
@@ -143,6 +148,7 @@ pub fn written_formulas(thm: &Theorem) -> Vec<Written> {
     for d in &thm.defines {
         out.extend(define_formulas(d));
     }
+    out.extend(thm.let_requires().map(|r| r.fact.clone()));
     for step in &thm.steps {
         out.push(step.claim.clone());
         for o in step.openers.iter().filter(|o| !o.is_hypothesis) {

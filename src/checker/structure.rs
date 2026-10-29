@@ -291,9 +291,9 @@ pub fn check_blocks(
                     &thm.path,
                     req.line,
                     format!(
-                        "the requires line {} of step {} names {}, which opens a block, and a requires line holds none; prove it as a step and cite it",
+                        "the requires line {} of {} names {}, which opens a block, and a requires line holds none; prove it as a step and cite it",
                         str::trim(req.fact.text()),
-                        step.number,
+                        step.called(),
                         by.head
                     ),
                 );
@@ -1056,19 +1056,31 @@ pub fn check_citations(
         };
         let req = reason.shown(Written::new("", &thm.path, reason.line));
         at.check_reason(report, &req, &format!("the reason under let {}", d.label));
-        // It is the let's, and rests on nothing written below the let.
-        for r in req.lines() {
+        // It is the let's, and rests on nothing written below the let; nor
+        // do the requires lines under it, which are read as the step's.
+        let lines = req.lines().iter().map(|r| (r, &req)).chain(
+            reason
+                .requires
+                .iter()
+                .flat_map(|q| q.lines().iter().map(move |r| (r, q))),
+        );
+        for (r, by) in lines {
             let below = thm
                 .steps
                 .iter()
                 .find(|s| fmt(&s.number) == *r)
                 .is_some_and(|s| s.line > d.line);
             if below || *r == d.label {
+                let what = if by.line == reason.line {
+                    "the reason"
+                } else {
+                    "the requires line"
+                };
                 report.say(
                     &thm.path,
-                    reason.line,
+                    by.line,
                     format!(
-                        "the reason under let {} cites {r}, which is not above the let",
+                        "{what} under let {} cites {r}, which is not above the let",
                         d.label
                     ),
                 );
@@ -1519,6 +1531,11 @@ pub fn check_steps_used(report: &mut Report, thm: &Theorem) {
     }
     for d in &thm.defines {
         if let Some(Ok(by)) = d.reason.as_ref().map(|r| &r.by) {
+            cites(by, &mut cited);
+        }
+    }
+    for r in thm.let_requires() {
+        if let Ok(by) = &r.by {
             cites(by, &mut cited);
         }
     }
@@ -2109,6 +2126,11 @@ pub fn check_definitions(
                 thms.iter()
                     .flat_map(|t| &t.defines)
                     .filter_map(|d| d.reason.as_ref())
+                    .flat_map(|r| r.lines().to_vec()),
+            )
+            .chain(
+                thms.iter()
+                    .flat_map(|t| t.let_requires())
                     .flat_map(|r| r.lines().to_vec()),
             )
             .collect();
