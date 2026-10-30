@@ -2519,6 +2519,7 @@ impl<'a> Elaborator<'a> {
         if let Some(allowed) = &mut self.resting {
             allowed.extend(over);
         }
+        let offered = self.in_hand(&offered);
         let alike = self.same(
             &self.to_term(&as_held.claim),
             &self.to_term(&named),
@@ -6441,10 +6442,9 @@ impl<'a> Elaborator<'a> {
                 self.know(&known, one.clone(), p);
                 continue;
             }
-            // Held where the step may rest on it: a line in scope the step
-            // does not name may say the same, and the step would then rest
-            // on it (`restable`). `settle` reads the facts the same way.
-            if self.holds(&self.restable(&known), one) {
+            // Held where the step may rest on it, as everything in `known`
+            // is (`in_hand`).
+            if self.holds(&known, one) {
                 continue;
             }
             // A hypothesis that is an identity once its identity elements
@@ -6544,7 +6544,7 @@ impl<'a> Elaborator<'a> {
         // What the step writes and cites is what reading the statement over
         // the step's own terms may ask: e(n) ∈ ℤ, to read s at e(n).
         let read = self.with_cited(Some(step), scope, &known, None)?;
-        let offered = facts.with(&read);
+        let offered = self.in_hand(&facts.with(&read));
         let concluded = self.concluded(step, term, &whole, proof, scope, &offered);
         self.resting = kept;
         concluded

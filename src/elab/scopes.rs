@@ -1819,7 +1819,8 @@ impl<'a> Elaborator<'a> {
         if end.claim == *want {
             return Ok(Some(end.proof.clone()));
         }
-        self.reached(&end.proof, &end.claim, want, &end.scope, &end.facts)
+        let facts = self.in_hand(&end.facts);
+        self.reached(&end.proof, &end.claim, want, &end.scope, &facts)
     }
 
     fn close_cases(&mut self, block: &Block) -> Checked<(Rpn, Proof)> {
@@ -2078,9 +2079,11 @@ impl<'a> Elaborator<'a> {
         // induction's own lines name and nothing else in scope.
         let allowed = Some(self.named(step, &number_of(step), true));
         let base = self.resting_on(allowed.clone(), |me| {
+            let outside = me.in_hand(&outside);
             me.reached(&base, &base_claim, &claimed, &beneath, &outside)
         })?;
         let stepped = self.resting_on(allowed, |me| {
+            let inside = me.in_hand(&inside);
             me.reached(&stepped, &step_claim, &reached, &under, &inside)
         })?;
         let Some(stepped) = stepped else {
@@ -2213,9 +2216,12 @@ impl<'a> Elaborator<'a> {
         step: &Step,
         number: &str,
         scope: &Rpn,
-        facts: &Facts,
+        whole: &Facts,
         closers: Vec<Closer>,
     ) -> Checked<(Rpn, Facts, Vec<Closer>)> {
+        // The existence is found with what the step may rest on, and what it
+        // obtains is added to the whole scope.
+        let facts = &self.in_hand(whole);
         let got: Vec<String> = step.just.obtained.clone();
         let named = step.just.obtained_from.clone();
         let cited = match named.as_deref() {
@@ -2573,7 +2579,7 @@ impl<'a> Elaborator<'a> {
         } else {
             number.to_string()
         };
-        let (outer, held) = self.widen(scope, facts, &member, Some(&members));
+        let (outer, held) = self.widen(scope, whole, &member, Some(&members));
         let (inner, lifted) = self.widen_to(&outer, &held, &body, Some(number), deep);
         self.note_introduced(&inner, &lifted)?;
         // A function obtained among the functions from X to Y has the type
@@ -3398,12 +3404,14 @@ impl<'a> Elaborator<'a> {
         (Route::no("no scope satisfies the lemma"), None)
     }
 
-    /// What is known at one frame, which is what was known when it opened.
+    /// What the proof being built may use at one frame: `facts` at the
+    /// innermost, and at an outer one what was known when the next frame
+    /// opened, narrowed as `facts` is (`in_hand`).
     pub fn frames_facts(&self, frame: usize, facts: &Facts) -> Facts {
         if frame == self.frames.len() - 1 {
             facts.clone()
         } else {
-            self.frames[frame].facts.clone()
+            self.in_hand(&self.frames[frame].facts)
         }
     }
 

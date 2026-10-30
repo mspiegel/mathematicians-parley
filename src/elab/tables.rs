@@ -18,7 +18,7 @@ use super::calculators::Revalued;
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
+use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1742,9 +1742,9 @@ impl<'a> Elaborator<'a> {
         known: &Facts,
     ) -> Checked<()> {
         let implied = self.implied_by_named(step, scope, known)?;
-        let restable = self.restable(known);
+        let before = known.copy();
         for (k, v) in implied.entries() {
-            if !self.holds(&restable, &k) {
+            if !self.holds(&before, &k) {
                 self.know(known, k, v);
             }
         }
@@ -1772,17 +1772,13 @@ impl<'a> Elaborator<'a> {
                     proof = self.lifted_to(&claim, &w.proof, &w.at, scope);
                 }
             }
-            // What a requires line wrote, or what a line being cited says,
-            // and nothing the step does not name besides: a fact resting on
-            // a requires line and on a line above the step is not the step's.
+            // What a requires line wrote, or what a line the step may rest on
+            // says (`in_hand`); not what a route worked out on its way, which
+            // rests on no line.
             let Some(proof) = proof else {
                 continue;
             };
-            let cited = !proof.origin.is_empty() && self.may_rest(&proof);
-            if !(from_requires(&proof) || cited) {
-                continue;
-            }
-            if !self.may_rest(&proof) {
+            if proof.origin.is_empty() {
                 continue;
             }
             let push = self.sig(&label).push()[0].to_string();
@@ -2256,7 +2252,7 @@ impl<'a> Elaborator<'a> {
             OnceReason::Sum => self.summed(&term, system, scope, facts, None),
             // A divisor's `≠ 0` is the page's, from what the step names.
             OnceReason::Built(_) => {
-                let named = self.restable(facts);
+                let named = facts.clone();
                 self.built(
                     said,
                     system,
@@ -2445,9 +2441,8 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Option<Proof>> {
-        let named = self.restable(facts);
         for (_, set) in rules::SYSTEM_OF {
-            let Some(held) = self.held(&named, &t!(said, set, "wcel"), scope)? else {
+            let Some(held) = self.held(facts, &t!(said, set, "wcel"), scope)? else {
                 continue;
             };
             if let Built(proof) = self.carried_within(said, set, system, held, scope)? {
@@ -2852,14 +2847,9 @@ impl<'a> Elaborator<'a> {
         if self.equating.contains(said) {
             return Ok(None);
         }
+        // An equation the step may rest on (`in_hand`): a line it cites or
+        // one of its own requires lines.
         for (fact, proof) in facts.entries() {
-            // An equation the step names: a line it cites or one of its own
-            // requires lines (`resting_on`). The scope holds every line
-            // above, and an equation taken from one the step does not name
-            // is a reason the page does not give.
-            if !self.may_rest(&proof) && !from_requires(&proof) {
-                continue;
-            }
             let node = self.to_term(&fact);
             if node.variable().is_some()
                 || node.label() != Some("wceq")
@@ -2966,26 +2956,6 @@ impl<'a> Elaborator<'a> {
                     None => continue,
                 },
             };
-            // A type the step names, by a line it cites or one of its own
-            // requires lines; one only in scope is a reason the page does
-            // not give, whether a `let` or a numbered step says it. A
-            // define's type the page says once is named as a letter's
-            // membership is, by the line that says it once (`map_into`).
-            // A function an obtain names has its type sealed as the obtain's
-            // sort, `5∈` for step 5, and the step names it by citing 5.
-            let named = |o: &String| {
-                self.resting.as_ref().is_none_or(|resting| {
-                    may_rest_on(resting, o)
-                        || o.strip_suffix('∈').is_some_and(|n| resting.contains(n))
-                })
-            };
-            let unnamed = !held.origin.is_empty()
-                && !held.origin.iter().all(named)
-                && !held.origin.iter().all(|o| o.starts_with(MEMBERSHIP))
-                && !from_requires(&held);
-            if unnamed && self.in_family == 0 {
-                continue;
-            }
             let inside = t!(&point, &domain, "wcel");
             let Built(at) =
                 self.settle(&self.to_term(&inside), scope, facts, 2, None, None)?

@@ -190,7 +190,6 @@ impl Oracle for Ask<'_, '_> {
 
     fn named(&mut self, said: &Rpn) -> Checked<Option<Proof>> {
         let facts = self.spec.written.clone().unwrap_or_default();
-        let facts = self.el.restable(&facts);
         let implied = &self.spec.implied.named;
         self.el
             .written_nonzero(&self.spec.scope, &facts, implied, said)
@@ -1030,35 +1029,31 @@ impl<'a> Elaborator<'a> {
         reach: &Reach,
     ) -> Checked<Route<Proof>> {
         let apart = t!(divisor, "cc0", "wne");
-        // What the step may rest on, and nothing else in scope, until
-        // `reach` lets a line it does not name be read (`GOALS.md` decision
-        // 9).
-        let named = self.restable(facts);
+        // `facts` are what the step may rest on (`in_hand`), and nothing else
+        // in scope is read until `reach` lets a line it does not name be read
+        // (`GOALS.md` decision 9).
         let numeral = numerals::value(&self.to_term(divisor)).filter(|v| !v.is_zero());
         if let Some(value) = numeral {
             let closed = numerals::ne0(&self.b, value);
             return Ok(Built(pf!(self.b; apart, scope, closed, "a1i")));
         }
-        if let Some(found) = self.closed_nonzero(divisor, scope, &named)? {
+        if let Some(found) = self.closed_nonzero(divisor, scope, facts)? {
             return Ok(Built(found));
         }
-        if let Some(positive) = self.positive_divisor(divisor, scope, &named)? {
+        if let Some(positive) = self.positive_divisor(divisor, scope, facts)? {
             return Ok(Built(positive));
         }
-        if let Some(found) = self.written_nonzero(scope, &named, implied, divisor)? {
+        if let Some(found) = self.written_nonzero(scope, facts, implied, divisor)? {
             return Ok(Built(found));
         }
         if let Some(lines) = &reach.in_scope {
-            let restable = self.restable(lines.lines);
             if let Some(found) =
-                self.written_nonzero(scope, &restable, lines.named, divisor)?
+                self.written_nonzero(scope, lines.lines, lines.named, divisor)?
             {
                 return Ok(Built(found));
             }
         }
-        if let Built(found) =
-            self.parts_apart(divisor, scope, &named, implied, reach)?
-        {
+        if let Built(found) = self.parts_apart(divisor, scope, facts, implied, reach)? {
             return Ok(Built(found));
         }
         if let Some(lines) = &reach.in_scope {
@@ -1072,8 +1067,7 @@ impl<'a> Elaborator<'a> {
             // Any other divisor's `≠ 0` is the page's to say, so no
             // membership said once leads to it (`READERS.md`).
             self.beyond_once += 1;
-            let found =
-                self.settle(&self.to_term(&apart), scope, &named, 3, None, None);
+            let found = self.settle(&self.to_term(&apart), scope, facts, 3, None, None);
             self.beyond_once -= 1;
             if let Built(p) = found? {
                 return Ok(Built(p));
@@ -3673,7 +3667,7 @@ impl<'a> Elaborator<'a> {
         // cited lines give is proved from them and not taken from a line in
         // scope that says the same, which the step does not name.
         let cited = self.with_cited(Some(step), scope, &out.facts, None)?;
-        let facts_out = &self.restable(&cited);
+        let facts_out = &cited;
         // A plain step adds its facts as they stand, the combination the
         // checker decided it by; a step with rows, a chain and an order
         // with its converse are proved from their lines in one, by any.
@@ -4781,8 +4775,6 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        // Only what the proof may rest on, as `settle` offers it.
-        let facts = &self.restable(facts);
         let wanted = self.rpn(claim);
         if let Some(p) = self.instance_of_universal(&wanted, scope, facts)? {
             return Ok(Built(p));

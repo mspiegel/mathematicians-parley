@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::{from_requires, may_rest_on, rests_within, MEMBERSHIP};
+use super::provenance::{from_requires, may_rest_on, MEMBERSHIP};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -166,34 +166,6 @@ impl<'a> Elaborator<'a> {
     /// it is the one taken over a line of the scope saying it earlier.
     /// Every route that asks whether a fact is held asks here.
     pub fn held(
-        &mut self,
-        facts: &Facts,
-        wanted: &Rpn,
-        scope: &Rpn,
-    ) -> Checked<Option<Proof>> {
-        // Where the proof being built may rest only on what its line names
-        // (`resting_on`), and the claim is held both by such a line and by
-        // one it does not name, the named one is taken: a step's requires
-        // line saying three points form a triangle says each two differ, as
-        // an assumption of the block above it may also say.
-        if let Some(resting) = self.resting.clone() {
-            let key = self.fact_key(wanted);
-            let may = |p: &Proof| rests_within(&resting, p);
-            let claims = facts.under(&key);
-            let named = claims
-                .iter()
-                .filter(|c| facts.proof(c).is_some_and(|p| may(&p)))
-                .count();
-            if named > 0 && named < claims.len() {
-                let narrowed = facts.filtered(|_, p| may(p));
-                return self.held_among(&narrowed, wanted, scope);
-            }
-        }
-        self.held_among(facts, wanted, scope)
-    }
-
-    /// `held`, among all of `facts`.
-    fn held_among(
         &mut self,
         facts: &Facts,
         wanted: &Rpn,
@@ -714,12 +686,9 @@ impl<'a> Elaborator<'a> {
         step: Option<&Step>,
         lines: Option<&Lines>,
     ) -> Checked<Route<Proof>> {
-        let unfiltered = facts;
-        let facts = self.restable(facts);
-        // A membership the page says once. It comes before what is held,
-        // since the scope holds a copy of the line introducing a letter that
-        // the step does not name. A numeral's is worked out below, and
-        // `numeral_within` comes back here for it.
+        // A membership the page says once. It comes before what is held, and
+        // is read behind what the step may rest on (`in_hand`). A numeral's
+        // is worked out below, and `numeral_within` comes back here for it.
         let numeral = wanted.label() == Some("wcel")
             && wanted.children().len() == 2
             && self
@@ -728,12 +697,12 @@ impl<'a> Elaborator<'a> {
                 .iter()
                 .all(|t| rules::numeric(t.as_str()));
         if !numeral {
-            if let Built(p) = self.said_once_proof(wanted, scope, unfiltered)? {
+            if let Built(p) = self.said_once_proof(wanted, scope, facts)? {
                 return Ok(Built(p));
             }
         }
         let rpn = self.rpn(wanted);
-        if let Some(p) = self.held(&facts, &rpn, scope)? {
+        if let Some(p) = self.held(facts, &rpn, scope)? {
             return Ok(Built(p));
         }
         // No label where the wanted claim is a letter, which no route below
@@ -759,7 +728,7 @@ impl<'a> Elaborator<'a> {
                 let sets = take!(self.settle(
                     &self.to_term(&every),
                     scope,
-                    unfiltered,
+                    facts,
                     depth,
                     step,
                     lines
@@ -805,9 +774,9 @@ impl<'a> Elaborator<'a> {
             // Inside the search that works out one number, the numbers it is
             // built from are looked up and not searched for again.
             let number = if !self.numbering.is_empty() {
-                self.digit_within(wanted, scope, &facts)?
+                self.digit_within(wanted, scope, facts)?
             } else {
-                self.numeral_within(wanted, scope, &facts)?
+                self.numeral_within(wanted, scope, facts)?
             };
             if !number.is_declined() {
                 return Ok(number);
@@ -825,7 +794,7 @@ impl<'a> Elaborator<'a> {
                 .iter()
                 .all(|t| rules::numeric(t.as_str()))
         {
-            let decided = self.prime_decided(&kids[0], false, scope, &facts)?;
+            let decided = self.prime_decided(&kids[0], false, scope, facts)?;
             if !decided.is_declined() {
                 return Ok(decided);
             }
@@ -836,7 +805,7 @@ impl<'a> Elaborator<'a> {
             && kids.len() == 2
             && self.rpn(&kids[1]).alone() == Some("cvv")
         {
-            let made = self.made_a_set(wanted, scope, &facts)?;
+            let made = self.made_a_set(wanted, scope, facts)?;
             if !made.is_declined() {
                 return Ok(made);
             }
@@ -845,26 +814,26 @@ impl<'a> Elaborator<'a> {
         // one to carry, before the lemmas below are tried in their order.
         if label == Some("wcel") && kids.len() == 2 {
             let (s, sys) = (self.rpn(&kids[0]), self.rpn(&kids[1]));
-            if let Some(found) = self.bridged(&s, &sys, scope, &facts)? {
+            if let Some(found) = self.bridged(&s, &sys, scope, facts)? {
                 return Ok(Built(found));
             }
             // A function's value at a point of its domain, from the
             // function's type, spending none of the depth.
             if lookup(rules::SYSTEMS, sys.alone().unwrap_or_default()).is_some() {
-                if let Some(found) = self.function_value(&s, &sys, scope, &facts)? {
+                if let Some(found) = self.function_value(&s, &sys, scope, facts)? {
                     return Ok(Built(found));
                 }
                 // A finite sum is a number because its terms are, spending
                 // none of the depth (`summed`).
                 if kids[0].variable().is_none() && kids[0].label() == Some("csu") {
                     if let Built(found) =
-                        self.summed(&kids[0], &sys, scope, &facts, None)?
+                        self.summed(&kids[0], &sys, scope, facts, None)?
                     {
                         return Ok(Built(found));
                     }
                 }
             } else if let Some(found) =
-                self.function_value_by_map(&s, &sys, scope, &facts)?
+                self.function_value_by_map(&s, &sys, scope, facts)?
             {
                 return Ok(Built(found));
             }
@@ -877,7 +846,7 @@ impl<'a> Elaborator<'a> {
                 .label()
                 .is_some_and(|l| lookup(rules::SYSTEMS, l).is_some())
         {
-            let made = self.closed_under(wanted, scope, &facts, depth)?;
+            let made = self.closed_under(wanted, scope, facts, depth)?;
             if !made.is_declined() {
                 return Ok(made);
             }
@@ -891,12 +860,12 @@ impl<'a> Elaborator<'a> {
                 }
             }
         }
-        if let Some(p) = self.held_rebound(&facts, &rpn, scope)? {
+        if let Some(p) = self.held_rebound(facts, &rpn, scope)? {
             return Ok(Built(p));
         }
         if depth > 0 {
             let joined = self.conjoined(wanted, scope, &mut |me, one| {
-                me.settle(one, scope, &facts, depth, step, lines)
+                me.settle(one, scope, facts, depth, step, lines)
             })?;
             if let Some(joined) = joined {
                 return Ok(joined);
@@ -904,7 +873,7 @@ impl<'a> Elaborator<'a> {
             if label == Some("wrex") {
                 if let Some(step) = step {
                     let lines = lines.cloned().unwrap_or_default();
-                    return self.witnessed(step, wanted, scope, &facts, &lines);
+                    return self.witnessed(step, wanted, scope, facts, &lines);
                 }
             }
             if label == Some("wral") {
@@ -916,7 +885,7 @@ impl<'a> Elaborator<'a> {
                 self.in_family += 1;
                 let made = self.for_every(
                     scope,
-                    &facts,
+                    facts,
                     &body,
                     &variable,
                     &over,
@@ -931,36 +900,34 @@ impl<'a> Elaborator<'a> {
                     return Ok(made);
                 }
                 // A line may say it whole over another letter.
-                let respelt = self.fact_respelt(wanted, scope, &facts)?;
+                let respelt = self.fact_respelt(wanted, scope, facts)?;
                 return Ok(match respelt {
                     Some(p) => Built(p),
                     None => made,
                 });
             }
             if label == Some("wf") && !self.map_types_off {
-                if let Some(found) = self.map_into(wanted, scope, unfiltered, depth)? {
+                if let Some(found) = self.map_into(wanted, scope, facts, depth)? {
                     return Ok(Built(found));
                 }
             }
-            if let Some(found) = self.searched(wanted, scope, &facts, depth)? {
+            if let Some(found) = self.searched(wanted, scope, facts, depth)? {
                 return Ok(Built(found));
             }
-            let found = self.rewritten(wanted, scope, &facts, depth)?;
+            let found = self.rewritten(wanted, scope, facts, depth)?;
             if !found.is_declined() {
                 return Ok(found);
             }
         }
-        if let Some(found) = self.instance_of_universal(&rpn, scope, &facts)? {
+        if let Some(found) = self.instance_of_universal(&rpn, scope, facts)? {
             return Ok(Built(found));
         }
         if depth > 0 {
-            if let Some(found) =
-                self.instance_at_a_term(wanted, scope, &facts, depth)?
-            {
+            if let Some(found) = self.instance_at_a_term(wanted, scope, facts, depth)? {
                 return Ok(Built(found));
             }
         }
-        if let Some(found) = self.held_turned_inside(&rpn, scope, &facts)? {
+        if let Some(found) = self.held_turned_inside(&rpn, scope, facts)? {
             return Ok(Built(found));
         }
         // A map applied to a value is its rule at the value (`applied_body`):
@@ -970,10 +937,10 @@ impl<'a> Elaborator<'a> {
             let read = self.maps_read(wanted);
             if self.rpn(&read) != rpn {
                 if let Built(said) =
-                    self.settle(&read, scope, &facts, depth - 1, None, None)?
+                    self.settle(&read, scope, facts, depth - 1, None, None)?
                 {
                     if let Built(alike) =
-                        self.same(&read, wanted, scope, &facts, None)?
+                        self.same(&read, wanted, scope, facts, None)?
                     {
                         let was = self.rpn(&read);
                         return Ok(Built(
@@ -5250,10 +5217,9 @@ impl<'a> Elaborator<'a> {
             });
         }
         // Each line the part may rest on is read in its parts as well, as a
-        // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
-        // not rest on is left out first, so that a copy of a part proved
-        // elsewhere does not stand in the way of this one.
-        let known = self.restable(facts);
+        // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀, in a table
+        // of the part's own.
+        let known = facts.copy();
         for (line, held) in known.entries() {
             self.unpack_all(&line, &held, scope, &known);
         }
@@ -7596,9 +7562,9 @@ impl<'a> Elaborator<'a> {
             })
             .collect();
         // What fills an antecedent is only what the proof being built may
-        // rest on, as for `settle`: a line the step does not name cannot
+        // rest on (`frames_facts`): a line the step does not name cannot
         // decide a class the lemma leaves open.
-        let known_keys = self.restable(&known).keys();
+        let known_keys = known.keys();
         // Each antecedent is matched in turn, the one whose letters are most
         // fixed already first: with ph fixed by the claim, `orel2`'s
         // ( ph \/ ps ) is answered by one line where ( -. ps ) is answered
@@ -8022,8 +7988,6 @@ impl<'a> Elaborator<'a> {
         }
         let index = member.children()[0].clone();
         let want = self.rpn(right);
-        // Only what the step names, as `settle` is offered only that.
-        let facts = self.restable(facts);
         for (said, proof) in facts.entries() {
             let line = self.to_term(&said);
             if line.label() != Some("wral") || line.children()[1].variable().is_none() {
@@ -8044,7 +8008,7 @@ impl<'a> Elaborator<'a> {
             }
             let inside = t!(self.rpn(&index), self.rpn(&over), "wcel");
             let Built(there) =
-                self.settle(&self.to_term(&inside), under, &facts, 3, None, None)?
+                self.settle(&self.to_term(&inside), under, facts, 3, None, None)?
             else {
                 continue;
             };
@@ -8067,7 +8031,7 @@ impl<'a> Elaborator<'a> {
                     &[&rsp],
                 )
             } else {
-                let Built(tied) = self.prove_essential(&reads, under, &facts)? else {
+                let Built(tied) = self.prove_essential(&reads, under, facts)? else {
                     continue;
                 };
                 self.b.ap(

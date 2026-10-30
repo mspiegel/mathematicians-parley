@@ -509,21 +509,6 @@ impl<'a> Elaborator<'a> {
         Ok(known)
     }
 
-    /// The facts the proof being built may rest on (`resting_on`), as
-    /// `in_hand` makes them: those whose every origin is a line it names, a
-    /// requires line, or a membership said once, with the whole scope
-    /// behind them. All of them where nothing restricts it.
-    pub fn restable(&self, facts: &Facts) -> Facts {
-        self.in_hand(facts)
-    }
-
-    /// Whether the proof being built may rest on `proof` (`restable`).
-    pub fn may_rest(&self, proof: &Proof) -> bool {
-        self.resting
-            .as_ref()
-            .is_none_or(|resting| rests_within(resting, proof))
-    }
-
     /// Whether a `requires` line's reason is the lines it cites: `from H1`
     /// is, and so is a definition the database gives no target for, which the
     /// notation folds into the line it is unfolded at.
