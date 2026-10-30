@@ -9,5 +9,5 @@ ${
   $d k m $.
   $d A k m $.
   tests.elaborator.an-item-at-a-member.an-item-at-a-member-as-a-step $p |- ( A : ZZ --> RR -> A. m e. NN sum_ k e. ( 1 ... m ) ( A ` k ) e. RR ) $=
-    ( cz cr wf c1 cv cfz co cfv csu wcel cn wa cfn fzfi a1i simpl id syl simpr elfznn nnz jca ffvelcdm fsumrecl ralrimiva ) DEAFZGCHZIJZBHZAKZBLEMCNUIUJNMZOZUKUMBUKPMUOGUJQRUOULUKMZOZUIULDMZOUMEMUQUIURUQUOUIUOUPSUOUIUIUIUNSUITUAUAUQULNMZURUQUPUSUOUPUBULUJUCUAULUDUAUEDEULAUFUAUGUH $.
+    ( cz cr wf c1 cv cfz co cfv csu wcel cn wa cfn fzfi a1i simpl id syl simpr elfznn nnz ffvelcdm syl2anc fsumrecl ralrimiva ) DEAFZGCHZIJZBHZAKZBLEMCNUIUJNMZOZUKUMBUKPMUOGUJQRUOULUKMZOZUIULDMZUMEMUQUOUIUOUPSUOUIUIUIUNSUITUAUAUQULNMZURUQUPUSUOUPUBULUJUCUAULUDUADEULAUEUFUGUH $.
 $}

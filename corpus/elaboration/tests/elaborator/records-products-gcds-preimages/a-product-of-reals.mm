@@ -9,5 +9,5 @@ ${
   $d A k $.
   $d B k $.
   tests.elaborator.records-products-gcds-preimages.a-product-of-reals $p |- ( ( ( A e. ZZ /\ 1 <_ A ) /\ B : ( 1 ... ( A + 1 ) ) --> RR ) -> prod_ k e. ( 1 ... ( A + 1 ) ) ( B ` k ) = ( prod_ k e. ( 1 ... A ) ( B ` k ) x. ( B ` ( A + 1 ) ) ) ) $=
-    ( cz wcel c1 cle wbr wa caddc co cfz cr wf cv cfv w3a cuz 1z a1i simpl id syl simpr 3jca eluz2 sylibr cc jca ffvelcdm recn wceq fveq2d fprodp1 ) ADEZFAGHZIZFAFJKZLKZMBNZIZCOZBPZURBPCFAVAFDEZUOUPQAFRPEVAVDUOUPVDVASTVAUQUOUQUTUAZUQUOUOUOUPUAUOUBUCUCVAUQUPVEUOUPUDUCUEFAUFUGVAVBUSEZIZVCMEZVCUHEVGUTVFIVHVGUTVFVGVAUTVAVFUAUQUTUDUCVAVFUDUIUSMVBBUJUCVCUKUCVBURULZVBURBVIUBUMUN $.
+    ( cz wcel c1 cle wbr wa caddc co cfz cr wf cv cfv w3a cuz 1z a1i simpl id syl simpr 3jca eluz2 sylibr cc ffvelcdm syl2anc recn wceq fveq2d fprodp1 ) ADEZFAGHZIZFAFJKZLKZMBNZIZCOZBPZURBPCFAVAFDEZUOUPQAFRPEVAVDUOUPVDVASTVAUQUOUQUTUAZUQUOUOUOUPUAUOUBUCUCVAUQUPVEUOUPUDUCUEFAUFUGVAVBUSEZIZVCMEZVCUHEVGUTVFVHVGVAUTVAVFUAUQUTUDUCVAVFUDUSMVBBUIUJVCUKUCVBURULZVBURBVIUBUMUN $.
 $}

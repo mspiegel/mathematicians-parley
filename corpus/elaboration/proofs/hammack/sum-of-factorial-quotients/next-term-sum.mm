@@ -9,5 +9,5 @@ ${
   $d A j $.
   $d B j $.
   proofs.hammack.sum-of-factorial-quotients.next-term-sum $p |- ( ( A e. NN /\ B : NN --> RR ) -> sum_ j e. ( 1 ... ( A + 1 ) ) ( B ` j ) = ( sum_ j e. ( 1 ... A ) ( B ` j ) + ( B ` ( A + 1 ) ) ) ) $=
-    ( cn wcel cr wf wa cv cfv c1 caddc co cuz simpl id syl elnnuz sylib cfz cc simpr elfznn jca ffvelcdm recn wceq fveq2d fsump1 ) ADEZDFBGZHZCIZBJZAKLMZBJCKAULUJAKNJEULUJUJUJUKOUJPQARSULUMKUOTMZEZHZUNFEZUNUAEURUKUMDEZHUSURUKUTURULUKULUQOUJUKUBQURUQUTULUQUBUMUOUCQUDDFUMBUEQUNUFQUMUOUGZUMUOBVAPUHUI $.
+    ( cn wcel cr wf wa cv cfv c1 caddc co cuz simpl id syl elnnuz sylib cfz cc simpr elfznn ffvelcdm syl2anc recn wceq fveq2d fsump1 ) ADEZDFBGZHZCIZBJZAKLMZBJCKAULUJAKNJEULUJUJUJUKOUJPQARSULUMKUOTMZEZHZUNFEZUNUAEURUKUMDEZUSURULUKULUQOUJUKUBQURUQUTULUQUBUMUOUCQDFUMBUDUEUNUFQUMUOUGZUMUOBVAPUHUI $.
 $}

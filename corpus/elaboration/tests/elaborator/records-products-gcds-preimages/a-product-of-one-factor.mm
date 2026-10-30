@@ -8,5 +8,5 @@ $[ stdlib/definitions.mm $]
 ${
   $d A k $.
   tests.elaborator.records-products-gcds-preimages.a-product-of-one-factor $p |- ( A : ( 1 ... 1 ) --> RR -> prod_ k e. ( 1 ... 1 ) ( A ` k ) = ( A ` 1 ) ) $=
-    ( c1 cfz co cr wf cz wcel cfv cc wa cv cprod wceq 1z a1i id elfz3 syl jca ffvelcdm recn fveq2d fprod1 ) CCDEZFAGZCHIZCAJZKIZLUFBMZAJZBNUIOUGUHUJUHUGPQZUGUIFIZUJUGUGCUFIZLUNUGUGUOUGRUGUHUOUMCSTUAUFFCAUBTUIUCTUAULUIBCUKCOZUKCAUPRUDUET $.
+    ( c1 cfz co cr wf cz wcel cfv cc wa cv cprod wceq 1z a1i id elfz3 syl ffvelcdm syl2anc recn jca fveq2d fprod1 ) CCDEZFAGZCHIZCAJZKIZLUGBMZAJZBNUJOUHUIUKUIUHPQZUHUJFIZUKUHUHCUGIZUOUHRUHUIUPUNCSTUGFCAUAUBUJUCTUDUMUJBCULCOZULCAUQRUEUFT $.
 $}

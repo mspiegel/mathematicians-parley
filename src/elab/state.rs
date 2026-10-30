@@ -364,8 +364,6 @@ pub struct Elaborator<'a> {
     pub statements_read: RefCell<FxIndexMap<String, Term>>,
     /// Letters `same` reads as blanks.
     pub binding: Vars,
-    /// The lines what is being proved cites, in the order it writes them.
-    pub citing: IndexSet<String>,
     /// How many families' values are being read: a sum's terms, or what an
     /// item asks of every member. There a function's type gives its values
     /// as the sort it is (`function_value`).
@@ -556,7 +554,6 @@ impl<'a> Elaborator<'a> {
             rewrite_rules: None,
             statements_read: RefCell::new(FxIndexMap::default()),
             binding: Vars::new(),
-            citing: IndexSet::new(),
             in_family: 0,
             said_sums: BTreeSet::new(),
             adding_only: false,

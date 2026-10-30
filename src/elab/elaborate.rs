@@ -1015,15 +1015,9 @@ impl<'a> Elaborator<'a> {
                 self.unreached(step.line, format!("no expansion for {}", repr(&head)))
             );
         };
-        let citing = std::mem::replace(
-            &mut self.citing,
-            step.just.refs.iter().cloned().collect(),
-        );
         let lines = self.lines.clone();
         let made =
-            self.by_method_written(&how, step, &node, &term, scope, facts, &lines);
-        self.citing = citing;
-        let made = made?;
+            self.by_method_written(&how, step, &node, &term, scope, facts, &lines)?;
         // Every route the method had declined, so nothing here owns the
         // step: this elaborator's limit rather than a defect in the text.
         let proof = match made {
@@ -1095,11 +1089,12 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no(format!("no expansion for {}", repr(&req.how))));
         };
         let kept = std::mem::replace(&mut self.lines, lines.clone());
-        let citing =
-            std::mem::replace(&mut self.citing, at.just.refs.iter().cloned().collect());
-        let made =
-            self.by_method_written(&how, &at, &node, &term, scope, facts, &lines);
-        self.citing = citing;
+        // The line rests on what it names and nothing else the step names
+        // (R2), as a requires line does.
+        let allowed = self.reason_allows(step, req);
+        let made = self.resting_on(Some(allowed), |me| {
+            me.by_method_written(&how, &at, &node, &term, scope, facts, &lines)
+        });
         self.lines = kept;
         // What the step route says of the line it was given is said of the
         // requires line, whose step it is not.

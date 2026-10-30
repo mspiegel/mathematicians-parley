@@ -9,5 +9,5 @@ ${
   $d A k $.
   $d B k $.
   tests.elaborator.a-function-type-widened.a-function-type-widened $p |- ( ( A e. NN /\ B : ( 1 ... A ) --> NN ) -> prod_ k e. ( 1 ... A ) ( B ` k ) e. RR ) $=
-    ( cn wcel c1 cfz co wf wa cv cfv cfn fzfi a1i cr simpl simpr syl jca ffvelcdm nnre fprodrecl ) ADEZFAGHZDBIZJZUECKZBLZCUEMEUGFANOUGUHUEEZJZUIDEZUIPEUKUFUJJULUKUFUJUKUGUFUGUJQUDUFRSUGUJRTUEDUHBUASUIUBSUC $.
+    ( cn wcel c1 cfz co wf wa cv cfv cfn fzfi a1i cr simpl simpr syl ffvelcdm syl2anc nnre fprodrecl ) ADEZFAGHZDBIZJZUECKZBLZCUEMEUGFANOUGUHUEEZJZUIDEZUIPEUKUFUJULUKUGUFUGUJQUDUFRSUGUJRUEDUHBTUAUIUBSUC $.
 $}

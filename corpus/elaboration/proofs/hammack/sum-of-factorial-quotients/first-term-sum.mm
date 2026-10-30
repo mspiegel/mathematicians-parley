@@ -8,5 +8,5 @@ $[ stdlib/definitions.mm $]
 ${
   $d A j $.
   proofs.hammack.sum-of-factorial-quotients.first-term-sum $p |- ( A : NN --> RR -> sum_ j e. ( 1 ... 1 ) ( A ` j ) = ( A ` 1 ) ) $=
-    ( cn cr wf c1 cz wcel cfv cc wa cfz co cv csu wceq 1z a1i id 1nn jca ffvelcdm syl recn fveq2d fsum1 ) CDAEZFGHZFAIZJHZKFFLMBNZAIZBOUIPUGUHUJUHUGQRUGUIDHZUJUGUGFCHZKUMUGUGUNUGSUNUGTRUACDFAUBUCUIUDUCUAULUIBFUKFPZUKFAUOSUEUFUC $.
+    ( cn cr wf c1 cz wcel cfv cc wa cfz co cv csu wceq 1z a1i id 1nn ffvelcdm syl2anc recn syl jca fveq2d fsum1 ) CDAEZFGHZFAIZJHZKFFLMBNZAIZBOUJPUHUIUKUIUHQRUHUJDHZUKUHUHFCHZUNUHSUOUHTRCDFAUAUBUJUCUDUEUMUJBFULFPZULFAUPSUFUGUD $.
 $}

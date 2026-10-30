@@ -858,14 +858,10 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         step: Option<&Step>,
     ) -> Checked<Route<Proof>> {
-        let citing =
-            std::mem::replace(&mut self.citing, req.refs().iter().cloned().collect());
         let allowed = step.map(|s| self.reason_allows(s, req));
-        let out = self.resting_on(allowed, |me| {
+        self.resting_on(allowed, |me| {
             me.by_its_reason(want, Some(req), scope, facts, step)
-        });
-        self.citing = citing;
-        out
+        })
     }
 
     /// `F : A --> C` where the facts give F a number system inside C for its

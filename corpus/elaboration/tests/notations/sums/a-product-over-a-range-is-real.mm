@@ -9,5 +9,5 @@ ${
   $d A k $.
   $d B k $.
   tests.notations.sums.a-product-over-a-range-is-real $p |- ( ( A e. NN /\ B : ( 1 ... A ) --> RR ) -> prod_ k e. ( 1 ... A ) ( B ` k ) e. RR ) $=
-    ( cn wcel c1 cfz co cr wf wa cv cfv cfn fzfi a1i simpl simpr syl jca ffvelcdm fprodrecl ) ADEZFAGHZIBJZKZUDCLZBMZCUDNEUFFAOPUFUGUDEZKZUEUIKUHIEUJUEUIUJUFUEUFUIQUCUERSUFUIRTUDIUGBUASUB $.
+    ( cn wcel c1 cfz co cr wf wa cv cfv cfn fzfi a1i simpl simpr syl ffvelcdm syl2anc fprodrecl ) ADEZFAGHZIBJZKZUDCLZBMZCUDNEUFFAOPUFUGUDEZKZUEUIUHIEUJUFUEUFUIQUCUERSUFUIRUDIUGBTUAUB $.
 $}

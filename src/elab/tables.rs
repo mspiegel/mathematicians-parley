@@ -18,7 +18,7 @@ use super::calculators::Revalued;
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
+use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1778,9 +1778,7 @@ impl<'a> Elaborator<'a> {
             let Some(proof) = proof else {
                 continue;
             };
-            let origin = &proof.origin;
-            let cited =
-                !origin.is_empty() && origin.iter().all(|o| self.citing.contains(o));
+            let cited = !proof.origin.is_empty() && self.may_rest(&proof);
             if !(from_requires(&proof) || cited) {
                 continue;
             }
@@ -2853,11 +2851,10 @@ impl<'a> Elaborator<'a> {
         }
         for (fact, proof) in facts.entries() {
             // An equation the step names: a line it cites or one of its own
-            // requires lines. The scope holds every line above, and an
-            // equation taken from one the step does not name is a reason
-            // the page does not give.
-            let named = proof.origin.iter().all(|o| self.citing.contains(o));
-            if !named && !from_requires(&proof) {
+            // requires lines (`resting_on`). The scope holds every line
+            // above, and an equation taken from one the step does not name
+            // is a reason the page does not give.
+            if !self.may_rest(&proof) && !from_requires(&proof) {
                 continue;
             }
             let node = self.to_term(&fact);
@@ -2974,8 +2971,10 @@ impl<'a> Elaborator<'a> {
             // A function an obtain names has its type sealed as the obtain's
             // sort, `5∈` for step 5, and the step names it by citing 5.
             let named = |o: &String| {
-                self.citing.contains(o)
-                    || o.strip_suffix('∈').is_some_and(|n| self.citing.contains(n))
+                self.resting.as_ref().is_none_or(|resting| {
+                    may_rest_on(resting, o)
+                        || o.strip_suffix('∈').is_some_and(|n| resting.contains(n))
+                })
             };
             let unnamed = !held.origin.is_empty()
                 && !held.origin.iter().all(named)
