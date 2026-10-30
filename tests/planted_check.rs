@@ -3009,10 +3009,10 @@ fn cases() -> Vec<Case> {
             "a requires line putting an equation of lines into a point on a line",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("    requires not (Q is on line HK): mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 11\n".to_string()),
-                "    requires not (Q is on line HK): substitute line HK = line XY (line 8) into H12\n".to_string(),
+                Some("    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 11\n".to_string()),
+                "    requires Q is not on line HK: substitute line HK = line XY (line 8) into H12\n".to_string(),
             )],
-            "step 12 claims not (Q is on line HK), which putting one side of line HK = (line XY) for the other does not make",
+            "step 12 claims Q is not on line HK, which putting one side of line HK = (line XY) for the other does not make",
         ),
         case(
             "cite a line that comes after the step",

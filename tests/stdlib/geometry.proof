@@ -811,8 +811,8 @@ theorem plane-separation
   let P be a point                                                    (H3)
   let Q be a point                                                    (H4)
   assume A ≠ B                                                        (H5)
-  assume not (P is on line AB)                                        (H6)
-  assume not (Q is on line AB)                                        (H7)
+  assume P is not on line AB                                        (H6)
+  assume Q is not on line AB                                        (H7)
   then P and Q are on the same side of line AB or P and Q are on opposite sides of line AB
 
 1.  P and Q are on the same side of line AB or P and Q are on opposite
@@ -966,7 +966,7 @@ theorem triangle-off-line
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   assume Q ≠ R                                                        (H4)
-  assume not (P is on line QR)                                        (H5)
+  assume P is not on line QR                                        (H5)
   then P, Q, R form a triangle
 
 1.  P, Q, R form a triangle
@@ -1075,7 +1075,7 @@ theorem segment-off-line
   let X be a point                                                    (H5)
   assume A ≠ B                                                        (H6)
   assume Q is on line AB                                              (H7)
-  assume not (P is on line AB)                                        (H8)
+  assume P is not on line AB                                        (H8)
   assume X is between P and Q                                         (H9)
   then X and P are on the same side of line AB
 
@@ -1090,7 +1090,7 @@ theorem segment-across-line
   let M be a point                                                    (H5)
   assume A ≠ B                                                        (H6)
   assume M is on line AB                                              (H7)
-  assume not (P is on line AB)                                        (H8)
+  assume P is not on line AB                                        (H8)
   assume M is between P and Q                                         (H9)
   then P and Q are on opposite sides of line AB
 
@@ -1105,7 +1105,7 @@ theorem segment-beyond-off-line
   let X be a point                                                    (H5)
   assume A ≠ B                                                        (H6)
   assume Q is on line AB                                              (H7)
-  assume not (X is on line AB)                                        (H8)
+  assume X is not on line AB                                        (H8)
   assume X is between P and Q                                         (H9)
   then P and X are on the same side of line AB
 
@@ -1118,9 +1118,9 @@ theorem same-side-off-line
   let P be a point                                                    (H3)
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
-  then A ≠ B. not (P is on line AB). not (Q is on line AB).
+  then A ≠ B. P is not on line AB. Q is not on line AB.
 
-1.  A ≠ B. not (P is on line AB). not (Q is on line AB).
+1.  A ≠ B. P is not on line AB. Q is not on line AB.
     mun:geometry-same-side-off-line, from H5
 
 theorem opposite-sides-off-line
@@ -1129,9 +1129,9 @@ theorem opposite-sides-off-line
   let P be a point                                                    (H3)
   let Q be a point                                                    (H4)
   assume P and Q are on opposite sides of line AB                     (H5)
-  then A ≠ B. not (P is on line AB). not (Q is on line AB).
+  then A ≠ B. P is not on line AB. Q is not on line AB.
 
-1.  A ≠ B. not (P is on line AB). not (Q is on line AB).
+1.  A ≠ B. P is not on line AB. Q is not on line AB.
     mun:geometry-opposite-sides-off-line, from H5
 
 theorem on-line-ends
@@ -1147,9 +1147,9 @@ theorem triangle-not-on-line
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
-  then not (P is on line QR)
+  then P is not on line QR
 
-1.  not (P is on line QR)
+1.  P is not on line QR
     mun:geometry-triangle-not-on-line, from H4
 
 theorem triangle-extension
@@ -1168,7 +1168,7 @@ theorem off-line-apart
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let P be a point                                                    (H3)
-  assume not (P is on line AB)                                        (H4)
+  assume P is not on line AB                                        (H4)
   then P ≠ A. P ≠ B.
 
 1.  P ≠ A. P ≠ B.
@@ -1180,7 +1180,7 @@ theorem on-off-apart
   let X be a point                                                    (H3)
   let Y be a point                                                    (H4)
   assume X is on line AB                                              (H5)
-  assume not (Y is on line AB)                                        (H6)
+  assume Y is not on line AB                                        (H6)
   then X ≠ Y
 
 1.  X ≠ Y
@@ -1191,12 +1191,12 @@ theorem off-line-through
   let P be a point                                                    (H2)
   let S be a point                                                    (H3)
   let X be a point                                                    (H4)
-  assume not (S is on line RP)                                        (H5)
+  assume S is not on line RP                                        (H5)
   assume X is on line RS                                              (H6)
   assume X ≠ R                                                        (H7)
-  then not (X is on line RP)
+  then X is not on line RP
 
-1.  not (X is on line RP)
+1.  X is not on line RP
     mun:geometry-off-line-through, from H5, H6, H7
 
 theorem line-crossing-between
@@ -1231,7 +1231,7 @@ theorem ray-side-transfer
   let X be a point                                                    (H5)
   assume X is on line RP                                              (H6)
   assume X and P are on the same side of line RS                      (H7)
-  assume not (P is on line RQ)                                        (H8)
+  assume P is not on line RQ                                        (H8)
   then X and P are on the same side of line RQ
 
 1.  X and P are on the same side of line RQ
@@ -1241,10 +1241,10 @@ theorem off-line-swap
   let R be a point                                                    (H1)
   let P be a point                                                    (H2)
   let Q be a point                                                    (H3)
-  assume not (Q is on line RP)                                        (H4)
-  then not (P is on line RQ)
+  assume Q is not on line RP                                        (H4)
+  then P is not on line RQ
 
-1.  not (P is on line RQ)
+1.  P is not on line RQ
     mun:geometry-off-line-swap, from H4
 
 theorem parallel-along
@@ -1280,7 +1280,7 @@ theorem parallel-uniqueness
   let C be a point                                                    (H4)
   let D be a point                                                    (H5)
   assume A ≠ B                                                        (H6)
-  assume not (P is on line AB)                                        (H7)
+  assume P is not on line AB                                        (H7)
   assume P ≠ C                                                        (H8)
   assume P ≠ D                                                        (H9)
   assume line PC ∥ line AB                                            (H10)

@@ -34,5 +34,5 @@ theorem angle-sum
                          = ∠DBA + ∠ABC + ∠EBC      substitute line 3
                          = 180°                    thm:angles-on-a-line P := A, Q := C, R := B, S := D, T := E, from 1
     requires B ≠ C: mun:opposite-sides-off-line A := B, B := C, P := E, Q := A, from 1
-    requires not (E is on line BC): mun:opposite-sides-off-line A := B, B := C, P := E, Q := A, from 1
+    requires E is not on line BC: mun:opposite-sides-off-line A := B, B := C, P := E, Q := A, from 1
     requires C, B, E form a triangle: mun:triangle-off-line P := E, Q := B, R := C

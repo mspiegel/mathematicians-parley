@@ -70,7 +70,7 @@
 #               written "pattern 2 is logical-not of pattern 1". The two are
 #               one formula: a parser builds the same tree for both, so the
 #               page may write whichever reads better and anything comparing
-#               two formulas sees no difference. Four records fold a negation
+#               two formulas sees no difference. Five records fold a negation
 #               this way, and without the line each would be a second spelling
 #               nothing could match against a `not`. A "there is" or "there
 #               exists" folds its negation by the rule `GRAMMAR.md` gives,
@@ -1952,12 +1952,14 @@ notation between
               def:stdlib/geometry/between.
 
 notation on-line
-  pattern     _ is on line __
+  pattern     _ is on line __        _ is not on line __
   sort        point, point, point → formula
   level       predicate
-  reads       is on the line through
-  metamath    the three are collinear, as def:stdlib/geometry/on-line states it
-  target      _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo
+  negates     pattern 2 is logical-not of pattern 1
+  reads       is on the line through, is not on the line through
+  metamath    the three are collinear, as def:stdlib/geometry/on-line states
+              it, and its negation
+  target      _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo, folded
   note        P is on line AB says what A, B, P are collinear says, with the
               point first, as a book writes a point on a line.
 
