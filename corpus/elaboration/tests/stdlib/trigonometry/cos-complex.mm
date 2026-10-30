@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.cos-complex $p |- ( A e. CC -> ( cos ` A ) e. CC ) $=
-    ( cc wcel ccos cfv id coscl syl ) ABCZIADEBCIFAGH $.
+    ( coscl ) AB $.
 $}

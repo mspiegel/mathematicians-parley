@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.lcm-a-multiple $p |- ( ( A e. ZZ /\ B e. ZZ ) -> A || ( A lcm B ) ) $=
-    ( cz wcel wa clcm co cdvds wbr simpl id syl simpr jca dvdslcm simpld ) ACDZBCDZEZAABFGZHIZBTHIZSSUAUBESQRSQQQRJQKLQRMNABOLP $.
+    ( cz wcel wa clcm co cdvds wbr dvdslcm simpld ) ACDBCDEAABFGZHIBLHIABJK $.
 $}

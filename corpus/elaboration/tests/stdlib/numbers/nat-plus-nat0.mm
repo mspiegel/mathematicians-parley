@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.nat-plus-nat0 $p |- ( ( A e. NN /\ B e. NN0 ) -> ( A + B ) e. NN ) $=
-    ( cn wcel cn0 wa caddc co simpl id syl simpr jca nnnn0addcl ) ACDZBEDZFZQABGHCDQOPQOOOPIOJKOPLMABNK $.
+    ( nnnn0addcl ) ABC $.
 $}

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.counting.factorial-nonzero $p |- ( A e. NN0 -> -. ( ! ` A ) = 0 ) $=
-    ( cn0 wcel cfa cfv cc0 wne wceq wn id facne0 syl wb df-ne a1i mpbid ) ABCZADEZFGZRFHZIZQQSQJAKLSUAMQRFNOP $.
+    ( cn0 wcel cfa cfv cc0 wne wceq wn facne0 wb df-ne a1i mpbid ) ABCZADEZFGZPFHZIZAJQSKOPFLMN $.
 $}

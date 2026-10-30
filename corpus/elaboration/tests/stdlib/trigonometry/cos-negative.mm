@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.cos-negative $p |- ( A e. CC -> ( cos ` -u A ) = ( cos ` A ) ) $=
-    ( cc wcel cneg ccos cfv wceq id cosneg syl ) ABCZKADEFAEFGKHAIJ $.
+    ( cosneg ) AB $.
 $}

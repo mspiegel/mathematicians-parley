@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.an-iff-of-this-corpus.zero-divides-restated $p |- ( A e. ZZ -> ( 0 || A <-> A = 0 ) ) $=
-    ( cz wcel cc0 cdvds wbr wceq wb id 0dvds syl ) ABCZLDAEFADGHLIAJK $.
+    ( 0dvds ) AB $.
 $}

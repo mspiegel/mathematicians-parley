@@ -2356,6 +2356,9 @@ impl<'a> Elaborator<'a> {
         else {
             return Ok(Route::no("not a declared function"));
         };
+        // The type and the parts are what `let` lines say, and nothing else
+        // in scope (`said_by_lets`), as the checker reads them.
+        let facts = &self.said_by_lets(facts);
         let mut declared: Vec<Rpn> = Vec::new();
         let mut parts: Vec<(Rpn, Rpn)> = Vec::new();
         for (claim, _) in facts.entries() {

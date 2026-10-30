@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-negative $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( -u A gcd B ) = ( A gcd B ) ) $=
-    ( cz wcel wa cneg cgcd co wceq simpl id syl simpr jca neggcd ) ACDZBCDZEZRAFBGHABGHIRPQRPPPQJPKLPQMNABOL $.
+    ( neggcd ) ABC $.
 $}

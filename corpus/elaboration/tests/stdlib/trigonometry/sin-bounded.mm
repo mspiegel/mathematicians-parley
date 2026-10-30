@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.sin-bounded $p |- ( A e. RR -> ( -u 1 <_ ( sin ` A ) /\ ( sin ` A ) <_ 1 ) ) $=
-    ( cr wcel c1 cneg csin cfv cle wbr wa id sinbnd syl ) ABCZNDEAFGZHIODHIJNKALM $.
+    ( sinbnd ) AB $.
 $}

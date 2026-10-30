@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.le-cases $p |- ( ( A e. RR /\ B e. RR ) -> ( A <_ B <-> ( A < B \/ A = B ) ) ) $=
-    ( cr wcel wa cle wbr clt wceq wo wb simpl id syl simpr jca leloe ) ACDZBCDZEZTABFGABHGABIJKTRSTRRRSLRMNRSOPABQN $.
+    ( leloe ) ABC $.
 $}

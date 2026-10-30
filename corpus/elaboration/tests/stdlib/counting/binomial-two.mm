@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.counting.binomial-two $p |- ( A e. NN0 -> ( A _C 2 ) = ( ( A x. ( A - 1 ) ) / 2 ) ) $=
-    ( cn0 wcel c2 cbc co c1 cmin cmul cdiv wceq id bcn2 syl ) ABCZOADEFAAGHFIFDJFKOLAMN $.
+    ( bcn2 ) AB $.
 $}

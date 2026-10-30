@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.trigonometry.sin-supplement $p |- ( A e. RR -> ( sin ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - A ) ) = ( sin ` A ) ) $=
-    ( cr wcel c1 c8 cdc cc0 cpi cmul co cdiv cmin csin cfv wceq id gsinsupp syl ) ABCZSDEFZGFZHIJUAKJALJMNAMNOSPAQR $.
+    ( gsinsupp ) AB $.
 $}

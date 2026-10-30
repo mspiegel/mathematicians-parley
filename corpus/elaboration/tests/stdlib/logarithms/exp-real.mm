@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.exp-real $p |- ( A e. RR -> ( exp ` A ) e. RR ) $=
-    ( cr wcel ce cfv id reefcl syl ) ABCZIADEBCIFAGH $.
+    ( reefcl ) AB $.
 $}

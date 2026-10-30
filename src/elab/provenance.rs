@@ -509,15 +509,12 @@ impl<'a> Elaborator<'a> {
         Ok(known)
     }
 
-    /// The facts the proof being built may rest on (`resting_on`): those
-    /// whose every origin is a line it names, a requires line, or a
-    /// membership said once. All of them where nothing restricts it. Either
-    /// way the table is its own, so what a caller learns in it stays there.
+    /// The facts the proof being built may rest on (`resting_on`), as
+    /// `in_hand` makes them: those whose every origin is a line it names, a
+    /// requires line, or a membership said once, with the whole scope
+    /// behind them. All of them where nothing restricts it.
     pub fn restable(&self, facts: &Facts) -> Facts {
-        match &self.resting {
-            Some(resting) => within(facts, resting),
-            None => facts.copy(),
-        }
+        self.in_hand(facts)
     }
 
     /// Whether the proof being built may rest on `proof` (`restable`).
@@ -860,7 +857,8 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         let allowed = step.map(|s| self.reason_allows(s, req));
         self.resting_on(allowed, |me| {
-            me.by_its_reason(want, Some(req), scope, facts, step)
+            let named = me.in_hand(facts);
+            me.by_its_reason(want, Some(req), scope, &named, step)
         })
     }
 

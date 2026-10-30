@@ -26,6 +26,7 @@ pub(crate) mod definitions;
 pub mod elaborate;
 pub(crate) use crate::methods::field;
 mod cited;
+pub(crate) mod in_hand;
 mod inspection;
 pub(crate) use crate::methods::linear;
 pub(crate) mod matcher;
@@ -172,6 +173,9 @@ pub struct Facts {
     /// lines may say one thing, and a step naming one rests on that one,
     /// where `proofs` holds the claim as it was proved last.
     by_line: Table<LineClaim, Proof>,
+    /// The whole scope this table was narrowed from (`in_hand`), which only
+    /// `in_hand` reads; None for a table that is no narrowing of another.
+    scope: Option<in_hand::Scope>,
 }
 
 /// A claim a line gave (`Facts::by_line`).
@@ -204,12 +208,23 @@ impl Facts {
         Facts::default()
     }
 
+    /// An empty table standing where this one does: behind it is the whole
+    /// scope this one was narrowed from (`in_hand`), for a table built from
+    /// this one's facts and handed on in its place.
+    pub fn empty_like(&self) -> Self {
+        Facts {
+            scope: self.scope.clone(),
+            ..Facts::default()
+        }
+    }
+
     /// A table of its own with the same entries.
     pub fn copy(&self) -> Self {
         Facts {
             proofs: self.proofs.copy(),
             standard: self.standard.copy(),
             by_line: self.by_line.copy(),
+            scope: self.scope.clone(),
         }
     }
 
@@ -247,6 +262,7 @@ impl Facts {
             proofs: self.proofs.with(&over.proofs),
             standard,
             by_line: self.by_line.with(&over.by_line),
+            scope: self.scope.clone(),
         }
     }
 
@@ -265,6 +281,7 @@ impl Facts {
             proofs,
             standard,
             by_line,
+            scope: self.scope.clone(),
         }
     }
 
@@ -295,10 +312,14 @@ impl Facts {
             let made = carry(&key.claim, proof);
             by_line.set(key, made);
         }
+        // The whole scope behind a narrowed table is carried with it, so
+        // that it stands at the scope the table does.
+        let scope = self.scope.as_ref().map(|s| s.rebased(&mut carry));
         Facts {
             proofs,
             standard: self.standard.copy(),
             by_line,
+            scope,
         }
     }
 

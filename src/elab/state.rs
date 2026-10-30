@@ -385,6 +385,9 @@ pub struct Elaborator<'a> {
     pub beyond_once: u32,
     /// Labels of sort lines and `define` lines.
     pub sorts: BTreeSet<String>,
+    /// Labels of every `let` line, the statement's and each block's: what
+    /// says a function's type and a set's parts once (`said_by_lets`).
+    pub let_lines: BTreeSet<String>,
     /// Side conditions the step being proved wrote, with the scope each was
     /// proved under.
     pub written: Written,
@@ -426,12 +429,6 @@ pub struct Elaborator<'a> {
     pub statements: &'a dyn Fn(&str) -> Option<String>,
     /// Whether the search is offered every fact in scope (`Options`).
     pub whole_scope: bool,
-    /// Every fact in scope at the step being proved, named by it or not:
-    /// what an angle said once rests on unnamed, the lines saying its
-    /// points differ (`angle_within`).
-    pub step_facts: Facts,
-    /// The scope the facts of `step_facts` are proved under.
-    pub step_scope: Rpn,
     /// Whether the route proving a defined function's type is off
     /// (`Options::map_types_off`).
     pub map_types_off: bool,
@@ -561,6 +558,7 @@ impl<'a> Elaborator<'a> {
             resting: None,
             beyond_once: 0,
             sorts: BTreeSet::new(),
+            let_lines: BTreeSet::new(),
             written: Written::new(),
             saying: IndexSet::new(),
             rewriting: IndexSet::new(),
@@ -584,8 +582,6 @@ impl<'a> Elaborator<'a> {
             terms,
             statements,
             whole_scope: false,
-            step_facts: Facts::new(),
-            step_scope: Rpn::read(""),
             map_types_off: false,
             item_library: OnceCell::new(),
             library_read,

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.sin-cos-squares $p |- ( A e. CC -> ( ( ( sin ` A ) ^ 2 ) + ( ( cos ` A ) ^ 2 ) ) = 1 ) $=
-    ( cc wcel csin cfv c2 cexp co ccos caddc c1 wceq id sincossq syl ) ABCZPADEFGHAIEFGHJHKLPMANO $.
+    ( sincossq ) AB $.
 $}

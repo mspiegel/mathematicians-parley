@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.sin-complex $p |- ( A e. CC -> ( sin ` A ) e. CC ) $=
-    ( cc wcel csin cfv id sincl syl ) ABCZIADEBCIFAGH $.
+    ( sincl ) AB $.
 $}

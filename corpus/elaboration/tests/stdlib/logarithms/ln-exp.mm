@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.ln-exp $p |- ( A e. RR -> ( log ` ( exp ` A ) ) = A ) $=
-    ( cr wcel ce cfv clog wceq id relogef syl ) ABCZKADEFEAGKHAIJ $.
+    ( relogef ) AB $.
 $}

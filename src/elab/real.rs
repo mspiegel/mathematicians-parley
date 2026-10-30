@@ -45,7 +45,7 @@ use crate::rules;
 use crate::{t, take};
 
 /// The lemmas that read a difference of two points out of a line that says
-/// it inside something more (`apart_in_scope`): a betweenness says its
+/// it inside something more (`apart_held`): a betweenness says its
 /// three points differ, a side of a line says the line's two points differ
 /// and each point on that side is off the line, and a point off a line is
 /// neither of its two points.
@@ -339,7 +339,7 @@ impl<'a> Elaborator<'a> {
     /// its membership said once (`READERS.md`). An angle is written only
     /// where its points are said to differ (`SYNTAX.md`, Formulas), so
     /// P ≠ Q and R ≠ Q are lines in scope or follow from one
-    /// (`apart_in_scope`), and `gangbnd3` puts the angle in ℝ; a real one is
+    /// (`points_apart`), and `gangbnd3` puts the angle in ℝ; a real one is
     /// complex. The proof rests on those lines unnamed, as one resting on a
     /// letter's introduction does, and is sealed as a membership said once.
     pub(super) fn angle_within(
@@ -358,12 +358,12 @@ impl<'a> Elaborator<'a> {
             self.rpn(&from.children()[1]),
             self.rpn(&to.children()[0]),
         );
-        let Some(first) = self.apart_in_scope(&p, &q, scope, facts)? else {
+        let Some(first) = self.points_apart(&p, &q, scope, facts)? else {
             return Ok(Route::no(
                 "no line in scope says the angle's first point is not its vertex",
             ));
         };
-        let Some(last) = self.apart_in_scope(&r, &q, scope, facts)? else {
+        let Some(last) = self.points_apart(&r, &q, scope, facts)? else {
             return Ok(Route::no(
                 "no line in scope says the angle's last point is not its vertex",
             ));
@@ -442,23 +442,13 @@ impl<'a> Elaborator<'a> {
         }
     }
 
-    /// ( scope -> -. a = b ) from what the scope says, whether or not the
-    /// step names it: a line saying a ≠ b either way round, a part of a
-    /// line that is a conjunction, as a triangle's three differences are, or
-    /// what a betweenness or a side of a line says through the lemma that
-    /// reads it (`APART_LEMMAS`), a point off a line once more. None where
-    /// nothing in scope says it.
-    fn apart_in_scope(
-        &mut self,
-        a: &Rpn,
-        b: &Rpn,
-        scope: &Rpn,
-        facts: &Facts,
-    ) -> Checked<Option<Proof>> {
-        self.resting_on(None, |me| me.apart_held(a, b, scope, facts))
-    }
-
-    fn apart_held(
+    /// ( scope -> -. a = b ) from what `facts` says: a line saying a ≠ b
+    /// either way round, a part of a line that is a conjunction, as a
+    /// triangle's three differences are, or what a betweenness or a side of
+    /// a line says through the lemma that reads it (`APART_LEMMAS`), a point
+    /// off a line once more. None where nothing says it. The angle route
+    /// asks it of the whole scope (`points_apart`).
+    pub(super) fn apart_held(
         &mut self,
         a: &Rpn,
         b: &Rpn,
@@ -481,16 +471,8 @@ impl<'a> Elaborator<'a> {
         let mentions = |claim: &Rpn, x: &Rpn| {
             claim.tokens().windows(x.len()).any(|w| w == x.tokens())
         };
-        // The step's facts may be narrowed to what it names; every fact in
-        // scope at the step is kept whole, carried to `scope`.
-        let mut seeds = facts.entries();
-        let (whole, at) = (self.step_facts.clone(), self.step_scope.clone());
-        for (claim, proof) in whole.entries() {
-            if let Some(lifted) = self.lifted_to(&claim, &proof, &at, scope) {
-                seeds.push((claim, lifted));
-            }
-        }
-        let mut todo: Vec<(Rpn, Proof, usize)> = seeds
+        let mut todo: Vec<(Rpn, Proof, usize)> = facts
+            .entries()
             .into_iter()
             .filter(|(claim, _)| mentions(claim, a) && mentions(claim, b))
             .map(|(claim, proof)| (claim, proof, 0))

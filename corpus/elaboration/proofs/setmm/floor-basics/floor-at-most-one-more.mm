@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   proofs.setmm.floor-basics.floor-at-most-one-more $p |- ( A e. RR -> A <_ ( ( |_ ` A ) + 1 ) ) $=
-    ( cr wcel cfl cfv c1 caddc co id cz flcl syl zre 1re a1i readdcld clt wbr flltp1 ltled ) ABCZAADEZFGHZUAIZUAUBFUAUBJCZUBBCUAUAUEUDAKLUBMLFBCUANOPUAUAAUCQRUDASLT $.
+    ( cr wcel cfl cfv c1 caddc co id cz flcl zre syl 1re a1i readdcld flltp1 ltled ) ABCZAADEZFGHSISTFSTJCTBCAKTLMFBCSNOPAQR $.
 $}

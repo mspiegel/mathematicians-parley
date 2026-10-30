@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.minus-one-even-power $p |- ( A e. ZZ -> ( -u 1 ^ ( 2 x. A ) ) = 1 ) $=
-    ( cz wcel c1 cneg c2 cmul co cexp wceq id m1expeven syl ) ABCZNDEFAGHIHDJNKALM $.
+    ( m1expeven ) AB $.
 $}

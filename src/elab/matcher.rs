@@ -1059,8 +1059,8 @@ impl<'a> Elaborator<'a> {
     /// a number there by what it says once (`SYNTAX.md`, "A define with a
     /// parameter also states what its function is on").
     ///
-    /// `facts` are the scope's whole, which holds its copy of the define's
-    /// line; `settle` keeps of them what the step may rest on.
+    /// The define's line is read behind what the step may rest on
+    /// (`define_equation`), since a step rests on it without naming it.
     pub(super) fn map_into(
         &mut self,
         wanted: &Term,
@@ -1097,7 +1097,8 @@ impl<'a> Elaborator<'a> {
             return Ok(None);
         };
         let (a, c, name) = (self.rpn(domain), self.rpn(codomain), self.rpn(named));
-        let Some(equal) = self.held(facts, &t!(name, body, "wceq"), scope)? else {
+        let Some(equal) = self.define_equation(&name, &body, &label, scope, facts)?
+        else {
             return Ok(None);
         };
         let turned = self.b.ap(

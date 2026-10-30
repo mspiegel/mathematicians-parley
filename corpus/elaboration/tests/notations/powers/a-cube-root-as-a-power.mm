@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.notations.powers.a-cube-root-as-a-power $p |- ( ( A e. RR /\ 0 <_ A ) -> if ( 0 <_ A , ( A ^c ( 1 / 3 ) ) , -u ( -u A ^c ( 1 / 3 ) ) ) = ( A ^c ( 1 / 3 ) ) ) $=
-    ( cr wcel cc0 cle wbr wa c1 c3 cdiv co ccxp cneg cif wceq simpl id syl simpr jca gcbrtpw ) ABCZDAEFZGZUDUCAHIJKZLKZAMUELKMNUFOUDUBUCUDUBUBUBUCPUBQRUBUCSTAUAR $.
+    ( gcbrtpw ) AB $.
 $}

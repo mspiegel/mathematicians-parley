@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.exp-sum $p |- ( ( A e. CC /\ B e. CC ) -> ( exp ` ( A + B ) ) = ( ( exp ` A ) x. ( exp ` B ) ) ) $=
-    ( cc wcel wa caddc co ce cfv cmul wceq simpl id syl simpr jca efadd ) ACDZBCDZEZTABFGHIAHIBHIJGKTRSTRRRSLRMNRSOPABQN $.
+    ( efadd ) ABC $.
 $}

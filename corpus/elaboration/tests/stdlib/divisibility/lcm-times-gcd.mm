@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.lcm-times-gcd $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( ( A lcm B ) x. ( A gcd B ) ) = ( abs ` ( A x. B ) ) ) $=
-    ( cz wcel wa clcm co cgcd cmul cabs cfv wceq simpl id syl simpr jca lcmgcd ) ACDZBCDZEZUAABFGABHGIGABIGJKLUASTUASSSTMSNOSTPQABRO $.
+    ( lcmgcd ) ABC $.
 $}

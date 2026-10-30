@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.trigonometry.cos-supplement $p |- ( A e. RR -> ( cos ` ( ( ( ; ; 1 8 0 x. _pi ) / ; ; 1 8 0 ) - A ) ) = -u ( cos ` A ) ) $=
-    ( cr wcel c1 c8 cdc cc0 cpi cmul co cdiv cmin ccos cfv cneg wceq id gcossupp syl ) ABCZTDEFZGFZHIJUBKJALJMNAMNOPTQARS $.
+    ( gcossupp ) AB $.
 $}

@@ -9,5 +9,5 @@ ${
   $d A k $.
   $d B k $.
   tests.stdlib.polynomials.bernoulli-value $p |- ( ( A e. NN0 /\ B e. CC ) -> ( A BernPoly B ) = ( ( B ^ A ) - sum_ k e. ( 0 ... ( A - 1 ) ) ( ( A _C k ) x. ( ( k BernPoly B ) / ( ( A - k ) + 1 ) ) ) ) ) $=
-    ( cn0 wcel cc wa cbp co cexp cc0 c1 cmin cfz cv cbc caddc cdiv cmul csu wceq simpl id syl simpr jca bpolyval ) ADEZBFEZGZUJABHIBAJIKALMINIACOZPIUKBHIAUKMILQIRISICTMIUAUJUHUIUJUHUHUHUIUBUHUCUDUHUIUEUFCABUGUD $.
+    ( bpolyval ) CABD $.
 $}

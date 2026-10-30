@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.arctan-real $p |- ( A e. RR -> ( arctan ` A ) e. RR ) $=
-    ( cr wcel catan cfv id atanrecl syl ) ABCZIADEBCIFAGH $.
+    ( atanrecl ) AB $.
 $}

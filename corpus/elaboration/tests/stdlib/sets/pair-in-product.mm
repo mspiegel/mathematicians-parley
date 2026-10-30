@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.sets.pair-in-product $p |- ( ( A e. RR /\ B e. RR ) -> <. A , B >. e. ( RR X. RR ) ) $=
-    ( cr wcel wa cop cxp simpl id syl simpr jca opelxp sylibr ) ACDZBCDZEZQABFCCGDQOPQOOOPHOIJOPKLABCCMN $.
+    ( cr wcel wa cop cxp id opelxp sylibr ) ACDZBCDZEZMABFCCGDMHABCCIJ $.
 $}

@@ -247,7 +247,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Facts> {
         let outer = !self.frames.is_empty()
             && *scope != self.frames[self.frames.len() - 1].scope;
-        let cited = Facts::new();
+        let cited = known.empty_like();
         let refs: Vec<String> = match refs {
             Some(r) => r.to_vec(),
             None => step.map(|s| s.just.refs.clone()).unwrap_or_default(),

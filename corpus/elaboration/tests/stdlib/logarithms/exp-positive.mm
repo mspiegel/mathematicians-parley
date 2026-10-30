@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.logarithms.exp-positive $p |- ( A e. RR -> 0 < ( exp ` A ) ) $=
-    ( cr wcel cc0 ce cfv clt wbr id efgt0 syl ) ABCZLDAEFGHLIAJK $.
+    ( efgt0 ) AB $.
 $}

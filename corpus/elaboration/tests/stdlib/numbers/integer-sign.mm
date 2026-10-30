@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.numbers.integer-sign $p |- ( A e. ZZ -> ( A e. NN0 \/ -u A e. NN0 ) ) $=
-    ( cz wcel cn0 cneg wo id gznn0neg syl ) ABCZJADCAEDCFJGAHI $.
+    ( gznn0neg ) AB $.
 $}

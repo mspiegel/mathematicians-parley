@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.int-real $p |- ( A e. ZZ -> A e. RR ) $=
-    ( cz wcel cr id zre syl ) ABCZHADCHEAFG $.
+    ( zre ) AB $.
 $}

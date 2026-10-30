@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.counting.binomial-all $p |- ( A e. NN0 -> ( A _C A ) = 1 ) $=
-    ( cn0 wcel cbc co c1 wceq id bcnn syl ) ABCZKAADEFGKHAIJ $.
+    ( bcnn ) AB $.
 $}

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.sin-negative $p |- ( A e. CC -> ( sin ` -u A ) = -u ( sin ` A ) ) $=
-    ( cc wcel cneg csin cfv wceq id sinneg syl ) ABCZKADEFAEFDGKHAIJ $.
+    ( sinneg ) AB $.
 $}

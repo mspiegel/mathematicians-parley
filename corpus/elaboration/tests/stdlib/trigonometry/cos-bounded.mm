@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.trigonometry.cos-bounded $p |- ( A e. RR -> ( -u 1 <_ ( cos ` A ) /\ ( cos ` A ) <_ 1 ) ) $=
-    ( cr wcel c1 cneg ccos cfv cle wbr wa id cosbnd syl ) ABCZNDEAFGZHIODHIJNKALM $.
+    ( cosbnd ) AB $.
 $}

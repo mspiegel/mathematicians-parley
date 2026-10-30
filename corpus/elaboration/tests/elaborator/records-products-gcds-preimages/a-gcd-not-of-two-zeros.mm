@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.records-products-gcds-preimages.a-gcd-not-of-two-zeros $p |- ( ( ( A e. ZZ /\ B e. ZZ ) /\ -. ( A = 0 /\ B = 0 ) ) -> ( A gcd B ) e. NN ) $=
-    ( cz wcel wa cc0 wceq wn cgcd co cn simpl id syl simpr jca gcdn0cl ) ACDZBCDZEZAFGZBFGZEZHZEZUEABIJKDUETUDUERSUETRTUDLZTRRRSLRMNNUETSUFRSONPTUDOPABQN $.
+    ( gcdn0cl ) ABC $.
 $}

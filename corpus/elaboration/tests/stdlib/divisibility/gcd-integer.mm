@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.divisibility.gcd-integer $p |- ( ( A e. ZZ /\ B e. ZZ ) -> ( A gcd B ) || B ) $=
-    ( cz wcel wa cgcd co cdvds wbr simpl id syl simpr jca gcddvds simprd ) ACDZBCDZEZABFGZAHIZTBHIZSSUAUBESQRSQQQRJQKLQRMNABOLP $.
+    ( cz wcel wa cgcd co cdvds wbr gcddvds simprd ) ACDBCDEABFGZAHILBHIABJK $.
 $}

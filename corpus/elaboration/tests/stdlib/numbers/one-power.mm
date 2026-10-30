@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.stdlib.numbers.one-power $p |- ( A e. ZZ -> ( 1 ^ A ) = 1 ) $=
-    ( cz wcel c1 cexp co wceq id 1exp syl ) ABCZKDAEFDGKHAIJ $.
+    ( 1exp ) AB $.
 $}

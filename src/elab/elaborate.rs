@@ -516,6 +516,11 @@ impl<'a> Elaborator<'a> {
             }
         }
         self.sorts = sorts;
+        self.let_lines = lets
+            .iter()
+            .filter(|(kind, _, label)| *kind == Intro::Let && !label.is_empty())
+            .map(|(_, _, label)| label.clone())
+            .collect();
         // A define by recursion in the statement is stated written out, as a
         // definition from outside is, in the hypotheses below it as in the
         // conclusion. Its rules may name a letter a `let` gives, which
@@ -991,8 +996,6 @@ impl<'a> Elaborator<'a> {
         self.last = Some(number.to_string());
         self.at = step.line;
         self.step_now = CheckedTheorem::index_of(self.thm, step);
-        self.step_facts = facts.clone();
-        self.step_scope = scope.clone();
         self.note_said_sums()?;
         let resting = self.named(step, number, false);
         self.named_first(&step.just.refs, &resting, facts);
@@ -1016,8 +1019,10 @@ impl<'a> Elaborator<'a> {
             );
         };
         let lines = self.lines.clone();
+        // The method is handed what the step may rest on, and nothing else.
+        let named = self.in_hand(facts);
         let made =
-            self.by_method_written(&how, step, &node, &term, scope, facts, &lines)?;
+            self.by_method_written(&how, step, &node, &term, scope, &named, &lines)?;
         // Every route the method had declined, so nothing here owns the
         // step: this elaborator's limit rather than a defect in the text.
         let proof = match made {
@@ -1093,7 +1098,8 @@ impl<'a> Elaborator<'a> {
         // (R2), as a requires line does.
         let allowed = self.reason_allows(step, req);
         let made = self.resting_on(Some(allowed), |me| {
-            me.by_method_written(&how, &at, &node, &term, scope, facts, &lines)
+            let named = me.in_hand(facts);
+            me.by_method_written(&how, &at, &node, &term, scope, &named, &lines)
         });
         self.lines = kept;
         // What the step route says of the line it was given is said of the
@@ -1303,7 +1309,7 @@ impl<'a> Elaborator<'a> {
         lines: &Lines,
     ) -> Checked<Route<Option<Proof>>> {
         let known = if step.requires.is_empty() {
-            Facts::new()
+            facts.empty_like()
         } else {
             self.supplied(Some(step), scope, facts)?
         };
