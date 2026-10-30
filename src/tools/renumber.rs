@@ -138,6 +138,8 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
     }
     let quoted = quoted_lines(
         root,
+        &thm.path,
+        &old[thm.line.saturating_sub(1)..end],
         &changed.iter().map(|&i| old[i].trim()).collect::<Vec<_>>(),
     );
     for (line, place) in &quoted {
@@ -341,30 +343,101 @@ fn words(line: &str) -> Vec<(usize, &str)> {
 }
 
 /// Each changed line that a planted test or a design document quotes, with
-/// where: those quotes no longer match.
-fn quoted_lines(root: &Path, old: &[&str]) -> Vec<(String, String)> {
-    let mut places: Vec<(String, String)> = Vec::new();
-    let planted = root.join("tests/planted_check.rs");
-    if let Ok(text) = std::fs::read_to_string(&planted) {
-        places.push(("tests/planted_check.rs".to_string(), text));
+/// where: those quotes no longer match. A quote is of whole lines, so
+/// `restate 1` is not found in `restate 12`, and of this theorem: in the
+/// planted tests, the text of an edit naming the theorem's `file`; in a
+/// document, a `proof` block every line of which the theorem writes, as
+/// `tests/doc_examples.rs` finds an example in the proof it quotes.
+fn quoted_lines(
+    root: &Path,
+    file: &str,
+    theorem: &[String],
+    old: &[&str],
+) -> Vec<(String, String)> {
+    let mut places: Vec<(String, Vec<String>)> = Vec::new();
+    let planted = "tests/planted_check.rs";
+    if let Ok(text) = std::fs::read_to_string(root.join(planted)) {
+        places.push((planted.to_string(), planted_quotes(&text, file)));
     }
+    let written: BTreeSet<&str> = theorem.iter().map(|l| l.trim()).collect();
     if let Ok(dir) = std::fs::read_dir(root.join("docs")) {
         for entry in dir.flatten() {
             let path = entry.path();
             if path.extension().is_some_and(|e| e == "md") {
                 if let Ok(text) = std::fs::read_to_string(&path) {
                     let shown = format!("docs/{}", entry.file_name().to_string_lossy());
-                    places.push((shown, text));
+                    places.push((shown, document_quotes(&text, &written)));
                 }
             }
         }
     }
     let mut out = Vec::new();
-    for line in old.iter().filter(|l| l.len() > 8) {
-        for (place, text) in &places {
-            if text.contains(line) {
-                out.push((line.to_string(), place.clone()));
+    for line in old {
+        for (place, quotes) in &places {
+            let found = (line.to_string(), place.clone());
+            if quotes.iter().any(|q| q == line) && !out.contains(&found) {
+                out.push(found);
             }
+        }
+    }
+    out
+}
+
+/// The lines the planted tests' edits of `file` write, each trimmed: every
+/// line after an `edit(` whose first argument is `file`, up to the next
+/// `edit(`, cut at each `\n` its string literals write, with what comes
+/// before the last quotation mark of a piece left off.
+fn planted_quotes(text: &str, file: &str) -> Vec<String> {
+    let names_file = |rest: &str| {
+        rest.trim_start()
+            .strip_prefix('"')
+            .and_then(|r| r.split_once('"'))
+            .is_some_and(|(named, _)| named == file)
+    };
+    let calls: Vec<(usize, bool)> = text
+        .match_indices("edit(")
+        .map(|(at, call)| (at, names_file(&text[at + call.len()..])))
+        .collect();
+    let mut out = Vec::new();
+    let mut offset = 0;
+    for line in text.split_inclusive('\n') {
+        let end = offset + line.len();
+        offset = end;
+        let governed = calls.iter().rev().find(|(at, _)| *at < end);
+        if !governed.is_some_and(|(_, ours)| *ours) {
+            continue;
+        }
+        for piece in line.split("\\n") {
+            let piece = piece.rsplit_once('"').map_or(piece, |(_, after)| after);
+            out.push(piece.trim().to_string());
+        }
+    }
+    out
+}
+
+/// The lines of a document's `proof` blocks that quote the theorem whose
+/// lines, trimmed, are `written`: a block every line of which it writes,
+/// leaving out a line ending `...`, which stands for lines left out.
+fn document_quotes(text: &str, written: &BTreeSet<&str>) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut block: Option<Vec<&str>> = None;
+    for line in text.lines() {
+        let fence = line.trim();
+        match block.as_mut() {
+            None if fence == "```proof" => block = Some(Vec::new()),
+            None => {}
+            Some(lines) if fence.starts_with("```") => {
+                let quoted: Vec<&str> = lines
+                    .iter()
+                    .copied()
+                    .filter(|l| !l.is_empty() && !l.ends_with("..."))
+                    .collect();
+                if !quoted.is_empty() && quoted.iter().all(|l| written.contains(l)) {
+                    out.extend(quoted.iter().map(|l| l.to_string()));
+                }
+                block = None;
+            }
+            Some(lines) => lines.push(fence),
         }
     }
     out
@@ -405,5 +478,46 @@ mod tests {
         assert_eq!(shift("+2"), Some(2));
         assert_eq!(shift("-1"), Some(-1));
         assert_eq!(shift("2"), None);
+    }
+
+    #[test]
+    fn a_planted_quote_is_a_whole_line_of_an_edit_of_the_file() {
+        let text = concat!(
+            "case(\n",
+            "    vec![edit(\n",
+            "        \"a.proof\",\n",
+            "        Some(\"3.  x = 1\\n    restate 12\\n\".to_string()),\n",
+            "    )],\n",
+            "),\n",
+            "case(vec![edit(\"b.proof\", Some(\"    restate 1\\n\".to_string()))]),\n",
+        );
+        let quotes = planted_quotes(text, "a.proof");
+        assert!(quotes.iter().any(|q| q == "3.  x = 1"));
+        assert!(quotes.iter().any(|q| q == "restate 12"));
+        assert!(!quotes.iter().any(|q| q == "restate 1"));
+        assert!(planted_quotes(text, "b.proof")
+            .iter()
+            .any(|q| q == "restate 1"));
+    }
+
+    #[test]
+    fn a_document_quotes_a_theorem_only_in_a_block_it_writes_whole() {
+        let written: BTreeSet<&str> = ["1.  n = 2k", "algebra, from H1", "restate 1"]
+            .into_iter()
+            .collect();
+        let text = concat!(
+            "```proof\n",
+            "1.  n = 2k\n",
+            "    algebra, from H1\n",
+            "...\n",
+            "```\n",
+            "\n",
+            "```proof\n",
+            "2.  n = 3\n",
+            "    restate 1\n",
+            "```\n",
+        );
+        let quotes = document_quotes(text, &written);
+        assert_eq!(quotes, vec!["1.  n = 2k", "algebra, from H1"]);
     }
 }
