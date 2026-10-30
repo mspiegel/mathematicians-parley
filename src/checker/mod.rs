@@ -671,6 +671,90 @@ pub fn bound_there(source: &dyn Source) -> Result<Vec<BoundThere>, Outcome> {
     .map(|(_, _, said)| said)
 }
 
+/// A step whose claim is a membership the page says once at a step that
+/// cites it (`citations::membership_said_once`): written as a requires line
+/// of that step, it would say what the step already has.
+pub struct SaidOnceThere {
+    pub path: String,
+    /// The line of the step making the claim.
+    pub line: usize,
+    /// The line of the step citing it.
+    pub at: usize,
+}
+
+/// Each step, in every theorem, whose claim is a membership the page says
+/// once at a step citing it.
+pub fn said_once_there(source: &dyn Source) -> Result<Vec<SaidOnceThere>, Outcome> {
+    prepared(source, |_, c| {
+        let mut out = Vec::new();
+        for (thm, k) in c.theorems.iter().zip(c.known) {
+            for citer in &thm.steps {
+                for cited in &thm.steps {
+                    if !citer.just.refs.contains(&cited.number.to_string()) {
+                        continue;
+                    }
+                    let Some(claim) = k.whole(citer, &cited.claim) else {
+                        continue;
+                    };
+                    if citations::membership_said_once(&claim, citer, k).is_some() {
+                        out.push(SaidOnceThere {
+                            path: thm.path.clone(),
+                            line: cited.line,
+                            at: citer.line,
+                        });
+                    }
+                }
+            }
+        }
+        out
+    })
+    .map(|(_, _, said)| said)
+}
+
+/// A step a later step cites and needs: with the citation taken away, the
+/// checks find something wrong with the citing step that they do not find
+/// with it there, as a requires line does work (`check_requires_work`).
+pub struct NeededThere {
+    pub path: String,
+    /// The line of the cited step.
+    pub line: usize,
+    /// The line of the step citing it.
+    pub at: usize,
+}
+
+/// Each step, in every theorem, that a step citing it needs.
+pub fn needed_there(source: &dyn Source) -> Result<Vec<NeededThere>, Outcome> {
+    prepared(source, |_, c| {
+        let mut out = Vec::new();
+        for (i, thm) in c.theorems.iter().enumerate() {
+            let (k, clashes) = (&c.known[i], &c.clashes[i]);
+            for citer in &thm.steps {
+                let mut found = None;
+                for cited in &thm.steps {
+                    let number = cited.number.to_string();
+                    if !citer.just.refs.contains(&number) {
+                        continue;
+                    }
+                    let found = found
+                        .get_or_insert_with(|| found_alone(c, thm, citer, k, clashes));
+                    let mut lighter = citer.clone();
+                    lighter.just.refs.retain(|r| *r != number);
+                    lighter.just.from.retain(|r| *r != number);
+                    if !found_alone(c, thm, &lighter, k, clashes).is_subset(found) {
+                        out.push(NeededThere {
+                            path: thm.path.clone(),
+                            line: cited.line,
+                            at: citer.line,
+                        });
+                    }
+                }
+            }
+        }
+        out
+    })
+    .map(|(_, _, needed)| needed)
+}
+
 /// Every sentence a step claims or requires, printed from its tree and read
 /// again, where the two trees differ: `Grammar::print` is right exactly when
 /// this is empty. Each entry is the sentence, what it printed as, and where;

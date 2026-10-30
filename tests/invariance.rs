@@ -435,6 +435,8 @@ fn a_line_spelt_otherwise_leaves_the_record_as_it_was() {
         corpus(&clean).expect("the corpus reads"),
         parley::checker::obtained_there(&clean).expect("the corpus reads"),
         parley::checker::bound_there(&clean).expect("the corpus reads"),
+        parley::checker::said_once_there(&clean).expect("the corpus reads"),
+        parley::checker::needed_there(&clean).expect("the corpus reads"),
     );
     let mut compared = 0;
     let mut differ = Vec::new();
@@ -516,6 +518,8 @@ fn a_proof_means_what_it_says_however_it_spells_it() {
         corpus(&clean).expect("the corpus reads"),
         parley::checker::obtained_there(&clean).expect("the corpus reads"),
         parley::checker::bound_there(&clean).expect("the corpus reads"),
+        parley::checker::said_once_there(&clean).expect("the corpus reads"),
+        parley::checker::needed_there(&clean).expect("the corpus reads"),
     );
     let trees: Vec<Changed> = changes
         .iter()

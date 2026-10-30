@@ -467,6 +467,8 @@ fn a_proof_means_what_it_says_in_any_mix_of_spellings() {
         corpus(&clean).expect("the corpus reads"),
         parley::checker::obtained_there(&clean).expect("the corpus reads"),
         parley::checker::bound_there(&clean).expect("the corpus reads"),
+        parley::checker::said_once_there(&clean).expect("the corpus reads"),
+        parley::checker::needed_there(&clean).expect("the corpus reads"),
     );
     // The files in an order shuffled by the seed, and a sequence drawn for
     // each until enough files have one: a file no change fits is passed by.
