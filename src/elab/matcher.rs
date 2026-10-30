@@ -5232,8 +5232,26 @@ impl<'a> Elaborator<'a> {
         let Some(bare) = self.tidied(proof, said, &said_bare, scope, facts)? else {
             return Ok(None);
         };
-        let Some(renamed) = self.respelt(&bare, &said_bare, &want_bare, scope)? else {
-            return Ok(None);
+        // The bare instance is the bare claim respelt, or, where the claim
+        // names a part of it by a define the step cites, the bare claim with
+        // the name read as what it names: `f = t(0) + …` for the instance
+        // Σ(k = 0 to n) t(k) = t(0) + … with (m + 1) − 0 written m + 1.
+        let renamed = match self.respelt(&bare, &said_bare, &want_bare, scope)? {
+            Some(renamed) => renamed,
+            None if self.one_with_names_read(&said_bare, &want_bare) => {
+                let Built(alike) = self.same(
+                    &self.to_term(&said_bare),
+                    &self.to_term(&want_bare),
+                    scope,
+                    facts,
+                    None,
+                )?
+                else {
+                    return Ok(None);
+                };
+                pf!(self.b; scope, &said_bare, &want_bare, &bare, alike, "mpbid")
+            }
+            None => return Ok(None),
         };
         self.tidied(&renamed, &want_bare, want, scope, facts)
     }

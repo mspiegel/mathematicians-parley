@@ -5581,6 +5581,7 @@ impl<'a> Elaborator<'a> {
                     && !self.rebound(&bare_instance, &goal)
                     && !self.reorders(&instance, term)
                     && !self.one_with_names_read(&instance, term)
+                    && !self.one_with_names_read(&bare_instance, &goal)
                     && !self.one_read_through(&instance, term))
             {
                 continue;
