@@ -11,10 +11,10 @@
 
 use indexmap::IndexMap;
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
-use super::state::{Elaborator, PhraseMeaning};
+use super::state::{Elaborator, PhraseMeaning, SPARE_VARS};
 use crate::checker::record::Cited;
 use crate::corpus::proof::visible;
 use crate::corpus::RecordKind;
@@ -26,7 +26,7 @@ use crate::formula::page::{
 use crate::formula::symbol::Symbol;
 use crate::formula::{fits, Node};
 use crate::matching::FxIndexMap;
-use crate::matching::{bound_apart, substitute_apart_by, Binding};
+use crate::matching::{substitute_apart_by, Binding};
 use crate::matching::{Defined, Definitions};
 use crate::mm::Rpn;
 use crate::notations::BICONDITIONAL;
@@ -53,6 +53,35 @@ pub fn is_subgroup(said: &Node) -> bool {
 /// A term already in kernel form, standing in a tree.
 pub fn literal(rpn: &Rpn) -> Node {
     Node::literal(rpn)
+}
+
+/// `node` with each letter of `own` the kernel variable it gives it: at a
+/// binder's hole the setvar itself, elsewhere the set it stands for.
+fn with_own_letters(
+    node: &Node,
+    own: &BTreeMap<Symbol, String>,
+    binders: &FxIndexMap<NotationId, Vec<usize>>,
+) -> Node {
+    let mine = |c: &Node| c.is_name().then(|| own.get(&c.text)).flatten();
+    if let Some(label) = mine(node) {
+        return literal(&t!(label.as_str(), "cv"));
+    }
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    let holes = binders.get(&node.notation());
+    let kids = node
+        .children
+        .iter()
+        .enumerate()
+        .map(|(i, c)| match mine(c) {
+            Some(label) if holes.is_some_and(|h| h.contains(&i)) => {
+                literal(&t!(label.as_str()))
+            }
+            _ => with_own_letters(c, own, binders),
+        })
+        .collect();
+    node.with_children(kids)
 }
 
 impl<'a> Elaborator<'a> {
@@ -256,55 +285,61 @@ impl<'a> Elaborator<'a> {
     /// A phrase a define gives, written out as its meaning at what fills its
     /// slots. set.mm has no word for the phrase, so what it says there is
     /// its meaning, as a notation record's `target` is the formula its
-    /// phrase stands for. The meaning's bound letters are its own: one the
-    /// proof also names, as `s` where the file defines s(a), is spelt with a
-    /// letter nothing here has (`bound_apart`), since what fills a slot may
-    /// be written out in terms of the proof's names; and none catches what
-    /// is put in (`substitute_apart_by`). None for any other node.
+    /// phrase stands for. The letters the meaning binds are kernel variables
+    /// already, the same in every theorem (`phrase_meanings`), so the phrase
+    /// is one formula wherever it is written or cited; no page letter takes
+    /// one of them (`phrase_bound`), so nothing put in is caught. None for
+    /// any other node.
     pub fn phrase_written_out(&self, node: &Node) -> Option<Node> {
         let table = self.phrases.get_or_init(|| Rc::new(self.phrase_meanings()));
         let said = table.get(&node.notation())?;
         if said.slots.len() != node.children.len() {
             return None;
         }
-        let mut held: BTreeSet<String> = self
-            .names
-            .keys()
-            .chain(self.from_outside.keys())
-            .cloned()
-            .collect();
-        for c in &node.children {
-            held.extend(c.names());
-        }
-        let binders = self.g.binders();
-        let meaning = bound_apart(&said.meaning, &held, &held, &binders);
         let put: Binding = said
             .slots
             .iter()
             .copied()
             .zip(node.children.iter().cloned())
             .collect();
-        Some(substitute_apart_by(&meaning, &put, &binders))
+        Some(substitute_apart_by(&said.meaning, &put, &self.g.binders()))
     }
 
-    /// Whether the phrase `notation` gives is written out here with its
-    /// meaning's own bound letters: where the proof names none of them.
-    /// Where it names one, `phrase_written_out` spells that binder with
-    /// another letter, so a term binding the meaning's own letter is not the
-    /// phrase written out, and is said back as the meaning. True for a
-    /// notation no phrase gives.
-    pub fn phrase_keeps_its_letters(&self, notation: NotationId) -> bool {
-        let table = self.phrases.get_or_init(|| Rc::new(self.phrase_meanings()));
-        let Some(said) = table.get(&notation) else {
-            return true;
-        };
-        let held: BTreeSet<String> = self
-            .names
-            .keys()
-            .chain(self.from_outside.keys())
-            .cloned()
-            .collect();
-        bound_apart(&said.meaning, &held, &held, &self.g.binders()).same(&said.meaning)
+    /// The kernel variables the meanings of the phrases the theorem meets
+    /// bind: those its page writes, and those the definitions it reads from
+    /// outside write, as "c is a counting ahead through n" in the set G(m,
+    /// n) a define of its file names. A page letter whose own variable is
+    /// one of them takes a spare instead (`binder_var`, `fixed_var`,
+    /// `spare_var`): in the kernel the two would be one variable, and a
+    /// lemma that keeps the meaning's letter apart from another refuses
+    /// both being it.
+    pub(super) fn phrase_bound(&self) -> &BTreeSet<String> {
+        self.phrase_bound.get_or_init(|| {
+            let table = self.phrases.get_or_init(|| Rc::new(self.phrase_meanings()));
+            let defined = self
+                .checked
+                .outside
+                .values()
+                .chain(self.checked.statement_definitions.values())
+                .map(|d| match d {
+                    Defined::Term(node) => node,
+                    Defined::Rule(rule) => &rule.body,
+                });
+            let written: BTreeSet<NotationId> = self
+                .checked
+                .page
+                .entries()
+                .map(|(_, node)| node)
+                .chain(defined)
+                .flat_map(|node| node.walk())
+                .map(|n| n.notation())
+                .collect();
+            table
+                .iter()
+                .filter(|(id, _)| written.contains(id))
+                .flat_map(|(_, p)| p.own.iter().cloned())
+                .collect()
+        })
     }
 
     /// Each phrase's meaning as a notation record's `target` writes it, in
@@ -312,7 +347,7 @@ impl<'a> Elaborator<'a> {
     /// phrase writes them, and its negation folded: so a term the meaning
     /// makes is said back as the phrase (`reading_table`), as a database
     /// notation's is. The build itself writes a phrase out where it stands
-    /// (`phrase_written_out`), which keeps its bound letters apart.
+    /// (`phrase_written_out`), with the same bound letters.
     pub fn phrase_targets(&mut self) -> Checked<()> {
         let table =
             Rc::clone(self.phrases.get_or_init(|| Rc::new(self.phrase_meanings())));
@@ -355,16 +390,63 @@ impl<'a> Elaborator<'a> {
                 {
                     continue;
                 }
+                let slots: Vec<Symbol> =
+                    phrase.children.iter().map(|c| c.text).collect();
+                let own = self.phrase_own_letters(meaning, &slots);
                 out.insert(
                     phrase.notation(),
                     PhraseMeaning {
-                        slots: phrase.children.iter().map(|c| c.text).collect(),
-                        meaning: meaning.clone(),
+                        meaning: with_own_letters(meaning, &own, &self.binders),
+                        own: own.into_values().collect(),
+                        slots,
                     },
                 );
             }
         }
         out
+    }
+
+    /// The kernel variable each letter a phrase's meaning binds is, by the
+    /// letter: its own setvar, as `vi` for i, and for a letter with none, or
+    /// whose own another letter of the meaning has, the first spare the
+    /// meaning has not given. It depends on the meaning alone, so a phrase
+    /// is one formula in every theorem.
+    fn phrase_own_letters(
+        &self,
+        meaning: &Node,
+        slots: &[Symbol],
+    ) -> BTreeMap<Symbol, String> {
+        let mut own = BTreeMap::new();
+        let mut given: BTreeSet<String> = BTreeSet::new();
+        let bound: BTreeSet<String> = meaning
+            .walk()
+            .iter()
+            .flat_map(|n| {
+                let holes =
+                    self.binders.get(&n.notation()).cloned().unwrap_or_default();
+                holes
+                    .into_iter()
+                    .filter_map(|i| n.children.get(i))
+                    .filter(|c| c.is_name() && !slots.contains(&c.text))
+                    .map(|c| c.text.to_string())
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        for letter in bound {
+            let label = match self.b.flabel.get(&letter) {
+                Some(l) if self.is_setvar(&l) && !given.contains(l.as_str()) => {
+                    l.to_string()
+                }
+                _ => SPARE_VARS
+                    .iter()
+                    .find(|v| !given.contains(**v))
+                    .map(|v| v.to_string())
+                    .expect("a phrase binds fewer letters than there are spares"),
+            };
+            given.insert(label.clone());
+            own.insert(Symbol::of(&letter), label);
+        }
+        own
     }
 
     /// A part of a line that is one formula, a requires line's fact or a
@@ -499,7 +581,9 @@ impl<'a> Elaborator<'a> {
             return Ok(said);
         }
         // A binder's first hole is the variable it introduces, which stands
-        // for itself rather than for whatever a name is bound to.
+        // for itself rather than for whatever a name is bound to. A hole
+        // that holds its variable already, as a phrase's meaning's does
+        // (`with_own_letters`), is that variable.
         let bound = self
             .binders
             .get(&node.notation())
@@ -507,13 +591,15 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_default();
         let holes = self.names_kept(|me| -> Checked<Vec<Rpn>> {
             for &i in &bound {
-                let said = node.children[i].text.to_string();
-                let var = me.binder_var(&said)?;
-                me.names.insert(said, t!(var, "cv"));
+                let c = &node.children[i];
+                if c.rpn.is_none() {
+                    let var = me.binder_var(&c.text)?;
+                    me.names.insert(c.text.to_string(), t!(var, "cv"));
+                }
             }
             let mut holes = Vec::new();
             for (i, c) in node.children.iter().enumerate() {
-                holes.push(if bound.contains(&i) {
+                holes.push(if bound.contains(&i) && c.rpn.is_none() {
                     t!(me.binder_var(&c.text)?)
                 } else {
                     me.term(c)?
@@ -1145,14 +1231,19 @@ impl<'a> Elaborator<'a> {
     }
 
     /// The setvar a binder's name stands for: the letter's own label where
-    /// it names a setvar, and a spare otherwise — the same one every time,
+    /// it names a setvar no phrase the theorem meets binds (`phrase_bound`),
+    /// and a spare otherwise — the same one every time,
     /// since the name is one name wherever the proof writes it.
     pub fn binder_var(&mut self, name: &str) -> Checked<String> {
         if let Some(v) = self.bound_as.get(name) {
             return Ok(v.clone());
         }
         let label = match self.b.flabel.get(name) {
-            Some(l) if self.is_setvar(&l) => l.to_string(),
+            Some(l)
+                if self.is_setvar(&l) && !self.phrase_bound().contains(l.as_str()) =>
+            {
+                l.to_string()
+            }
             _ => self.spare_var()?,
         };
         self.bound_as.insert(name.to_string(), label.clone());
@@ -1162,9 +1253,11 @@ impl<'a> Elaborator<'a> {
 
     /// The variable a fixed name takes: its own letter where nothing else is
     /// holding it, because the claim the block states binds that letter and
-    /// the two have to agree; a spare otherwise.
+    /// the two have to agree, and where no phrase the theorem meets binds
+    /// it (`phrase_bound`); a spare otherwise.
     pub fn fixed_var(&mut self, name: &str, scope: &Rpn) -> Checked<String> {
         let mut held = self.names_held();
+        held.extend(self.phrase_bound().iter().cloned());
         for t in scope.tokens() {
             if self
                 .b
@@ -1199,6 +1292,7 @@ impl<'a> Elaborator<'a> {
         let mut held = self.names_held();
         held.extend(self.reserved.iter().cloned());
         held.extend(self.bound_as.values().cloned());
+        held.extend(self.phrase_bound().iter().cloned());
         while !self.spare.is_empty() && held.contains(&self.spare[0]) {
             self.spare.remove(0);
         }

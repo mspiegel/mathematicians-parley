@@ -6,10 +6,11 @@ $( tests/elaborator/a-phrase-with-a-where-part/a-clique-is-large, elaborated fro
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A m $.
-  $d B m $.
-  $d C m $.
-  $d D m $.
-  tests.elaborator.a-phrase-with-a-where-part.a-clique-is-large $p |- ( ( ( ( ( ( A e. _V /\ B e. _V ) /\ A. m e. B m C_ A ) /\ C e. NN ) /\ D e. ~P A ) /\ ( ( C + 1 ) <_ ( # ` D ) /\ A. m e. ~P D ( ( # ` m ) = 2 -> m e. B ) ) ) -> ( C + 1 ) <_ ( # ` D ) ) $=
-    ( cvv wcel wa cv wss wral cn cpw c1 caddc co chash cfv cle wbr c2 wceq wi simpr wb biid a1i mpbid simpld ) AFGZBFGZHZEIZAJZEBKZHZCLGZHZDAMZGZHZCNOPZDQRZSTZUMQRZUAUBZUMBGZUCZEDMZKZHZHZVDVJVLVKVKVAVKUDVKVKUEVLVKUFUGUHUI $.
+  $d i j m $.
+  $d A i j m $.
+  $d B i j m $.
+  $d C i j m $.
+  $d D i j m $.
+  tests.elaborator.a-phrase-with-a-where-part.a-clique-is-large $p |- ( ( ( ( ( ( A e. _V /\ B e. _V ) /\ A. j e. B j C_ A ) /\ C e. NN ) /\ D e. ~P A ) /\ ( ( C + 1 ) <_ ( # ` D ) /\ A. m e. ~P D ( ( # ` m ) = 2 -> m e. B ) ) ) -> ( C + 1 ) <_ ( # ` D ) ) $=
+    ( cvv wcel wa cv wss wral cn cpw c1 caddc co chash cfv cle wbr c2 wceq wi simpr wb biid a1i mpbid vi id fveq2d eqeq1d eleq1d imbi12d cbvralvw anbi2i bitri simpld ) AGHZBGHZIZEJZAKZEBLZIZCMHZIZDANZHZIZCOPQZDRSZTUAZFJZRSZUBUCZVOBHZUDZFDNZLZIZIZVNVCRSZUBUCZVCBHZUDZEVTLZWCWBVNWHIZWCWBWBVKWBUEWBWBUFWCWBUGUHUIWBWIUFWCWBVNUJJZRSZUBUCZWJBHZUDZUJVTLZIWIWAWOVNVSWNFUJVTVOWJUCZVQWLVRWMWPVPWKUBWPVOWJRWPUKZULUMWPVOWJBWQUNUOUPUQWOWHVNWNWGUJEVTWJVCUCZWLWEWMWFWRWKWDUBWRWJVCRWRUKZULUMWRWJVCBWSUNUOUPUQURUHUIUS $.
 $}

@@ -515,9 +515,6 @@ impl Elaborator<'_> {
             if wanted.is_some() && wanted != want {
                 continue;
             }
-            if !self.phrase_keeps_its_letters(r.node_spelling().notation) {
-                continue;
-            }
             let Some(holes) = self.matched(&r.target, term) else {
                 continue;
             };

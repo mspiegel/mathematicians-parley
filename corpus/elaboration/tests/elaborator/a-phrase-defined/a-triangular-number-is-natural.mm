@@ -6,7 +6,8 @@ $( tests/elaborator/a-phrase-defined/a-triangular-number-is-natural, elaborated 
 $[ stdlib/definitions.mm $]
 
 ${
-  $d A k $.
+  $d j k m $.
+  $d A j k m $.
   tests.elaborator.a-phrase-defined.a-triangular-number-is-natural $p |- ( ( A e. RR /\ ( A e. NN /\ E. k e. NN A = ( ( k x. ( k + 1 ) ) / 2 ) ) ) -> A e. NN ) $=
-    ( cr wcel cn cv c1 caddc co cmul c2 cdiv wceq wrex wa simpr wb biid a1i mpbid simpld ) ACDZAEDZABFZUDGHIZJIZKLIZMZBENZOZOZUCUIUKUJUJUBUJPUJUJQUKUJRSTUA $.
+    ( cr wcel cn cv c1 caddc co cmul c2 cdiv wceq wrex wa vm simpr wb biid a1i mpbid vj id oveq1d oveq12d eqeq2d cbvrexvw anbi2i bitri simpld ) ACDZAEDZABFZUMGHIZJIZKLIZMZBENZOZOZULAPFZVAGHIZJIZKLIZMZPENZUTUSULVFOZUTUSUSUKUSQUSUSRUTUSSTUAUSVGRUTUSULAUBFZVHGHIZJIZKLIZMZUBENZOVGURVMULUQVLBUBEUMVHMZUPVKAVNUOVJKLVNUMVHUNVIJVNUCZVNUMVHGHVOUDUEUDUFUGUHVMVFULVLVEUBPEVHVAMZVKVDAVPVJVCKLVPVHVAVIVBJVPUCZVPVHVAGHVQUDUEUDUFUGUHUITUAUJ $.
 $}

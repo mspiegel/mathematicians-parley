@@ -1930,7 +1930,8 @@ impl<'a> Elaborator<'a> {
             None => &node.children,
         };
         // A binder's variable fills its slot as itself, and nothing rewrites
-        // it; the body speaks of what the binder introduces.
+        // it; the body speaks of what the binder introduces. A hole that
+        // holds its variable already is that variable (`Elaborator::term`).
         let bound = self
             .binders
             .get(&node.notation())
@@ -1938,13 +1939,15 @@ impl<'a> Elaborator<'a> {
             .unwrap_or_default();
         let walked = self.names_kept(|me| -> Checked<Route<Walked>> {
             for &i in &bound {
-                let said = node.children[i].text.to_string();
-                let var = me.binder_var(&said)?;
-                me.names.insert(said, t!(var, "cv"));
+                let c = &node.children[i];
+                if c.rpn.is_none() {
+                    let var = me.binder_var(&c.text)?;
+                    me.names.insert(c.text.to_string(), t!(var, "cv"));
+                }
             }
             let mut holes = Vec::new();
             for (i, c) in children.iter().enumerate() {
-                holes.push(if bound.contains(&i) {
+                holes.push(if bound.contains(&i) && c.rpn.is_none() {
                     t!(me.binder_var(&c.text)?)
                 } else {
                     me.term(c)?

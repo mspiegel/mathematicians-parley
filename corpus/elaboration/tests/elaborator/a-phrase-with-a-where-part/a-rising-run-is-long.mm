@@ -6,11 +6,11 @@ $( tests/elaborator/a-phrase-with-a-where-part/a-rising-run-is-long, elaborated 
 $[ stdlib/definitions.mm $]
 
 ${
-  $d i j $.
-  $d A i j $.
-  $d B i j $.
-  $d C i j $.
-  $d D i j $.
+  $d i j k m p q $.
+  $d A i j k m p q $.
+  $d B i j k m p q $.
+  $d C i j k m p q $.
+  $d D i j k m p q $.
   tests.elaborator.a-phrase-with-a-where-part.a-rising-run-is-long $p |- ( ( ( ( ( A e. NN /\ B e. NN ) /\ ( C : ( 1 ... A ) --> RR /\ C : ( 1 ... A ) -1-1-> RR ) ) /\ D e. ~P ( 1 ... A ) ) /\ ( B <_ ( # ` D ) /\ A. i e. D A. j e. D ( i < j -> ( C ` i ) < ( C ` j ) ) ) ) -> B <_ ( # ` D ) ) $=
-    ( cn wcel wa c1 cfz co cr wf wf1 cpw chash cfv cle wbr cv clt wi wral simpr wb biid a1i mpbid simpld ) AGHZBGHZIZJAKLZMCNZUNMCOZIZIZDUNPZHZIZBDQRZSTZEUAZFUAZUBTZVDCRZVECRZUBTZUCZFDUDZEDUDZIZIZVCVLVNVMVMVAVMUEVMVMUFVNVMUGUHUIUJ $.
+    ( cn wcel wa c1 cfz co cr wf wf1 cpw chash cfv cle wbr cv clt wi wral vm vk simpr wb biid a1i mpbid vp vq wceq id breq2d fveq2d imbi12d cbvralvw ralbii simpl syl breq1d ralbidva bitri anbi2i simpld ) AGHZBGHZIZJAKLZMCNZVKMCOZIZIZDVKPZHZIZBDQRZSTZEUAZFUAZUBTZWACRZWBCRZUBTZUCZFDUDZEDUDZIZIZVTUEUAZUFUAZUBTZWLCRZWMCRZUBTZUCZUFDUDZUEDUDZWKWJVTWTIZWKWJWJVRWJUGWJWJUHWKWJUIUJUKWJXAUHWKWJVTULUAZUMUAZUBTZXBCRZXCCRZUBTZUCZUMDUDZULDUDZIXAWIXJVTWIWAXCUBTZWDXFUBTZUCZUMDUDZEDUDXJWHXNEDWGXMFUMDWBXCUNZWCXKWFXLXOWBXCWAUBXOUOZUPXOWEXFWDUBXOWBXCCXPUQUPURUSUTXNXIEULDWAXBUNZXMXHUMDXQXCDHZIZXKXDXLXGXSWAXBXCUBXSXQXQXQXRVAZXQUOZVBZVCXSWDXEXFUBXSWAXBCYBUQVCURVDUSVEVFXJWTVTXJXBWMUBTZXEWPUBTZUCZUFDUDZULDUDWTXIYFULDXHYEUMUFDXCWMUNZXDYCXGYDYGXCWMXBUBYGUOZUPYGXFWPXEUBYGXCWMCYHUQUPURUSUTYFWSULUEDXBWLUNZYEWRUFDYIWMDHZIZYCWNYDWQYKXBWLWMUBYKYIYIYIYJVAZYIUOZVBZVCYKXEWOWPUBYKXBWLCYNUQVCURVDUSVEVFVEUJUKVG $.
 $}

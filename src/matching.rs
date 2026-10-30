@@ -2142,6 +2142,11 @@ pub fn substitute_apart_by(
             .cloned()
             .unwrap_or_else(|| node.clone());
     }
+    // A leaf that is no name holds nothing to put in, and a literal keeps the
+    // term it stands for, which a rebuilt node would not.
+    if node.children.is_empty() {
+        return node.clone();
+    }
     let (held, body) = match binders.get(&node.notation()) {
         Some(b) => (b.held.clone(), b.body.clone()),
         None => (Vec::new(), Vec::new()),

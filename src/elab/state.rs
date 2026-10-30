@@ -443,6 +443,10 @@ pub struct Elaborator<'a> {
     /// What each phrase a define gives means, by its notation, made the first
     /// time a phrase is read (`Elaborator::phrase_written_out`).
     pub(super) phrases: OnceCell<Rc<FxIndexMap<NotationId, PhraseMeaning>>>,
+    /// The kernel variables the meanings of the phrases the theorem meets
+    /// bind, made the first time a page letter is given a setvar
+    /// (`Elaborator::phrase_bound`).
+    pub(super) phrase_bound: OnceCell<BTreeSet<String>>,
 }
 
 /// What a phrase a define gives says: its slots' letters, in the order the
@@ -450,7 +454,11 @@ pub struct Elaborator<'a> {
 #[derive(Clone, Debug)]
 pub struct PhraseMeaning {
     pub slots: Vec<Symbol>,
+    /// The meaning, each letter it binds already the kernel variable it is
+    /// in every theorem (`Elaborator::phrase_meanings`).
     pub meaning: Node,
+    /// Those variables.
+    pub own: BTreeSet<String>,
 }
 
 impl<'a> Elaborator<'a> {
@@ -587,6 +595,7 @@ impl<'a> Elaborator<'a> {
             library_read,
             readings: OnceCell::new(),
             phrases: OnceCell::new(),
+            phrase_bound: OnceCell::new(),
         }
     }
 

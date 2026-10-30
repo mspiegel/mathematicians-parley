@@ -6,7 +6,7 @@ $( tests/notations/calculus/one-bounds-the-unit-interval, elaborated from tests/
 $[ stdlib/definitions.mm $]
 
 ${
-  $d k m s $.
+  $d j m s $.
   tests.notations.calculus.one-bounds-the-unit-interval $p |- A. s e. ( 0 [,] 1 ) s <_ 1 $=
-    ( cv c1 cle wbr cc0 cicc co wral wtru vm wcel wa cr w3a simpr wb 0re a1i 1re jca elicc2 syl mpbid simp3 ralrimiva vk wceq id breq1d cbvralvw bitri biid mpbird mptru ) ABZCDEZAFCGHZIZJUSUSJKBZCDEZKURIZUSJVAKURJUTURLZMZUTNLZFUTDEZVAOZVAVDVCVGJVCPVDFNLZCNLZMVCVGQVDVHVIVHVDRSVIVDTSUAFCUTUBUCUDVEVFVAUEUCUFVBUSQJVBUGBZCDEZUGURIUSVAVKKUGURUTVJUHZUTVJCDVLUIUJUKVKUQUGAURVJUPUHZVJUPCDVMUIUJUKULSUDUSUSQJUSUMSUNUO $.
+    ( cv c1 cle wbr cc0 cicc co wral wtru vm wcel wa cr w3a simpr wb 0re a1i 1re jca elicc2 syl mpbid simp3 ralrimiva vj wceq id breq1d cbvralvw bitri biid mpbird mptru ) ABZCDEZAFCGHZIZJUSUSJKBZCDEZKURIZUSJVAKURJUTURLZMZUTNLZFUTDEZVAOZVAVDVCVGJVCPVDFNLZCNLZMVCVGQVDVHVIVHVDRSVIVDTSUAFCUTUBUCUDVEVFVAUEUCUFVBUSQJVBUGBZCDEZUGURIUSVAVKKUGURUTVJUHZUTVJCDVLUIUJUKVKUQUGAURVJUPUHZVJUPCDVMUIUJUKULSUDUSUSQJUSUMSUNUO $.
 $}
