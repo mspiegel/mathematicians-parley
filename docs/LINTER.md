@@ -35,7 +35,7 @@ corpus are on each side today. Nothing enforces any of them yet.
 
 ## A folded negation, or the word
 
-Four notations fold a negation into themselves, and each has a `negates` line
+Five notations fold a negation into themselves, and each has a `negates` line
 saying it means the same as `not` in front. Which way to write it is therefore
 free, and free is what a linter is for.
 
@@ -44,11 +44,12 @@ free, and free is what a linter is for.
 | `x ∉ B` | `not x ∈ B` | 39 lines with the sign, none with the word |
 | `x ≠ y` | `not x = y` | 39 lines with the sign, none with the word |
 | `n is not odd` | `not (n is odd)` | 3 lines with the word, none with `not` |
+| `P is not on line AB` | `not (P is on line AB)` | 149 lines with the word, none with `not` |
 | `there is no d ∈ ℤ with …` | `not there is d ∈ ℤ with …` | 2 lines with the word, none with `not` |
 
 The sign wins for membership and equality because it is the notation a school
 reader meets first and the alternative is three words. The word wins for the
-other two because the alternatives need brackets, or read as "not there is",
+other three because the alternatives need brackets, or read as "not there is",
 which is not English. Each rule was settled by picking the form the corpus
 mostly already used and making the rest agree.
 

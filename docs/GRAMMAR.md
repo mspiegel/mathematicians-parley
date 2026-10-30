@@ -588,8 +588,8 @@ one.
 
 ### A folded negation
 
-Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
-"is not incident with". Each record says so in a `negates` line, which names
+Five notations write a negation inside themselves: `≠`, `∉`, "is not odd",
+"is not incident with" and "is not on line". Each record says so in a `negates` line, which names
 which of its patterns is the negation of which. A parser builds the same tree
 for the folded spelling as for the `not`. So `n is not odd` and `not (n is odd)`
 are one formula, and the page writes whichever reads better.

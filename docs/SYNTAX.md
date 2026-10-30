@@ -411,8 +411,8 @@ Formulas use the notation of `READERS.md`, with these rules for reading:
   `∠PQP` is never written. The rule holds wherever an angle is written: a
   theorem's statement says it among its hypotheses, and so does a library
   item's.
-- Four notations write a negation inside themselves: `≠`, `∉`, "is not odd" and
-  "there is no … with …". Each record says which of its patterns is the
+- Five notations write a negation inside themselves: `≠`, `∉`, "is not odd",
+  "is not on line" and "there is no … with …". Each record says which of its patterns is the
   negation of which, so the folded spelling and the "not" spelling are one
   formula and the page writes whichever reads better.
 - "there is x ∈ S with ..." is written for ∃, and "there is no x ∈ S with
