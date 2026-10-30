@@ -650,7 +650,6 @@ not in this table is mundane; every axiom and definition is named.
 | phi-prime, product-congruent-termwise, prime-divides-product | `theorem` | "φ(p) = p − 1 for a prime p", "multiply the congruences factor by factor", "by Euclid's lemma", wilson step 5.4, paired-product step 21, wilson step 5.15.1.5 |
 | heron | `theorem` | "by Heron's formula", heron-formula step 3; `proofs/wiedijk/heron.proof` proves it as its own theorem |
 | chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 10, chords-through-circle step 8; `proofs/wiedijk/chords.proof` proves intersecting-chords as its own theorem |
-| supplementary-angles | `theorem` | "angles on a line add up to 180°", altitude-mean-proportional step 6 |
 | perpendicular-foot | `theorem` | "drop the perpendicular from P to line QR", law-of-cosines step 1 |
 | triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 18, triangle-equality-case step 1 |
 | rolle-on-part, cauchy-mean-value, continuous-extension | `theorem` | "by Rolle's theorem", "by Cauchy's mean value theorem", "extended by its limit, f is continuous at c", cauchy-quotient steps 3.1 and 4, quotient-between step 14 |
