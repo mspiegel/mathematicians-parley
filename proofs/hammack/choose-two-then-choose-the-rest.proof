@@ -82,8 +82,6 @@ theorem choose-two-then-choose-the-rest
                               = (n!/((n − k)!·k!))·(k!/((k − 2)!·2!))                                     algebra
                               = (n!/((n − k)!·k!))·C(k, 2)                                                substitute line 17
                               = C(n, k)·C(k, 2)                                                           substitute line 16
-    requires n! ∈ ℕ: mun:factorial-nat
     requires (n − 2)! ∈ ℕ: mun:factorial-nat n := n − 2, from 11
     requires (n − k)! ∈ ℕ: mun:factorial-nat n := n − k, from 13
     requires (k − 2)! ∈ ℕ: mun:factorial-nat n := k − 2, from 12
-    requires k! ∈ ℕ: mun:factorial-nat n := k

@@ -6,8 +6,9 @@ $( tests/elaborator/a-for-all-over-a-range/a-for-all-over-a-wider-set, elaborate
 $[ stdlib/definitions.mm $]
 
 ${
-  $d i j m $.
-  $d A i j m $.
-  tests.elaborator.a-for-all-over-a-range.a-for-all-over-a-wider-set $p |- ( ( A e. NN /\ A. i e. NN ( i / ( ! ` ( i + 1 ) ) ) e. RR ) -> sum_ j e. ( 1 ... ( A + 1 ) ) ( j / ( ! ` ( j + 1 ) ) ) = ( sum_ j e. ( 1 ... A ) ( j / ( ! ` ( j + 1 ) ) ) + ( ( A + 1 ) / ( ! ` ( ( A + 1 ) + 1 ) ) ) ) ) $=
-    ( cn wcel cv c1 caddc co cfa cfv cdiv cr wral wa cuz simpl id syl elnnuz sylib cfz cc vm simpr wi elfznn wceq oveq1d fveq2d oveq12d eleq1d rspcv mpd ralrimiva cbvralvw recn fsump1 ) ADEZBFZUTGHIZJKZLIZMEZBDNZOZCFZVGGHIZJKZLIZAGHIZVKGHIZJKZLICGAVFUSAGPKEVFUSUSUSVEQUSRSATUAVFVGGVKUBIZEZOZVJMEZVJUCEVPVDBVNNZVQVPVFVRVFVOQVFUDFZVSGHIZJKZLIZMEZUDVNNVRVFWCUDVNVFVSVNEZOZVEWCWEVFVEVFWDQUSVEUESWEVSDEZVEWCUFWEWDWFVFWDUEVSVKUGSVDWCBVSDUTVSUHZVCWBMWGUTVSVBWALWGRZWGVAVTJWGUTVSGHWHUIUJUKULUMSUNUOWCVDUDBVNVSUTUHZWBVCMWIVSUTWAVBLWIRZWIVTVAJWIVSUTGHWJUIUJUKULUPUASVPVOVRVQUFVFVOUEVDVQBVGVNUTVGUHZVCVJMWKUTVGVBVILWKRZWKVAVHJWKUTVGGHWLUIUJUKULUMSUNVJUQSVGVKUHZVGVKVIVMLWMRZWMVHVLJWMVGVKGHWNUIUJUKUR $.
+  $d i j $.
+  $d A i j $.
+  $d B i j $.
+  tests.elaborator.a-for-all-over-a-range.a-for-all-over-a-wider-set $p |- ( ( ( A e. NN /\ B e. RR ) /\ A. i e. NN ( i / B ) e. RR ) -> sum_ j e. ( 1 ... ( A + 1 ) ) ( j / B ) = ( sum_ j e. ( 1 ... A ) ( j / B ) + ( ( A + 1 ) / B ) ) ) $=
+    ( cn wcel cr wa cv cdiv co wral c1 caddc cuz cfv simpl id syl elnnuz sylib cfz cc simpr wi elfznn wceq oveq1d eleq1d rspcv mpd recn fsump1 ) AEFZBGFZHZCIZBJKZGFZCELZHZDIZBJKZAMNKZBJKDMAVAUNAMOPFVAUPUNUPUTQUPUNUNUNUOQUNRSSATUAVAVBMVDUBKZFZHZVCGFZVCUCFVGUTVHVGVAUTVAVFQUPUTUDSVGVBEFZUTVHUEVGVFVIVAVFUDVBVDUFSUSVHCVBEUQVBUGZURVCGVJUQVBBJVJRUHUIUJSUKVCULSVBVDUGZVBVDBJVKRUHUM $.
 $}

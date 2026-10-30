@@ -58,7 +58,6 @@ mundane theorem abs-bounds
           inequalities
             x < |x|          2.9
             x ≤ |x|          weakening
-          requires |x| ∈ ℝ: mun:abs-real
 
     2.11. x ≤ |x|. −x ≤ |x|.
           join 2.7, 2.10

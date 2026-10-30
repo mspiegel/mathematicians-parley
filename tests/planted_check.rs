@@ -445,7 +445,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     (
         "exhibit",
         "proofs/setmm/limit-constant-multiple.proof",
-        "          exhibit, from 5.6",
+        "          exhibit, from 4.6",
     ),
     (
         "substitute",
@@ -455,7 +455,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     (
         "instantiate",
         "proofs/setmm/limit-constant-multiple.proof",
-        "          instantiate ε := ε/(2·(|C| + 1)) in line 5.3, from 5.1, 5.2",
+        "          instantiate ε := ε/(2·(|C| + 1)) in line 4.3, from 4.1, 4.2",
     ),
     ("algebra", "proofs/setmm/minus-one-mod.proof", "    algebra"),
     (
@@ -864,17 +864,18 @@ const UNPLANTED: &[(&str, &str)] = &[
 fn cases() -> Vec<Case> {
     vec![
         // A step's proof rests only on what it names (`GOALS.md` decision 9).
-        // Without its requires line, `algebra` combines n!, and the scope
-        // holds n! ∈ ℕ from line 1, which step 5.4 does not cite. A factorial
-        // is not a membership said once, so only a line can give it.
+        // Without its requires line, the calculation combines s(n), and the
+        // scope holds s(n) ∈ ℝ from line 2, which step 3.23 does not cite. A
+        // value of a defined sequence is not a membership said once, so only
+        // a line can give it.
         case(
             "lean on a line the step does not name",
             vec![edit(
-                "proofs/wiedijk/infinitely-many-primes.proof",
-                Some("            p divides 1                  algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
-                "            p divides 1                  algebra\n".to_string(),
+                "proofs/wiedijk/liouville-number.proof",
+                Some("                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n          requires s(n) ∈ ℝ: from 2\n".to_string()),
+                "                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n".to_string(),
             )],
-            "proofs/wiedijk/infinitely-many-primes.proof:46  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+            "proofs/wiedijk/liouville-number.proof:221  nothing says s(n) ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A line marked impossible is reached by its reasons from the lines
         // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
@@ -1023,15 +1024,16 @@ fn cases() -> Vec<Case> {
             "d(n) ∈ ℝ is not built from what step 16.24.3 cites: nothing says d(n) ∈ ℝ, which it needs",
         ),
         // Every atom an inequalities step combines is a real number by a
-        // line it names: |c| is, by line 1, which line 2 does not say.
+        // line it names: L(p) is, by line 5.2.3, which lines 5.2.1 and
+        // 5.2.4 do not say.
         case(
             "an inequalities step combining an atom it names nothing real of",
             vec![edit(
-                "proofs/hammack/constant-multiple-limit.proof",
-                Some("4.  |c| + 1 > 0\n    inequalities, from 1, 2\n".to_string()),
-                "4.  |c| + 1 > 0\n    inequalities, from 2\n".to_string(),
+                "proofs/wiedijk/reals-uncountable.proof",
+                Some("          5.2.6.  L(p) ≤ L(p + g)\n                  inequalities, from 5.2.1, 5.2.3, 5.2.4\n".to_string()),
+                "          5.2.6.  L(p) ≤ L(p + g)\n                  inequalities, from 5.2.1, 5.2.4\n".to_string(),
             )],
-            "nothing says |c| ∈ ℝ, which this step needs",
+            "nothing says L(p) ∈ ℝ, which this step needs",
         ),
         // An inequalities step's rows: the cited line written out, then the
         // row above with the manipulation each reason names, the last the
@@ -1723,32 +1725,39 @@ fn cases() -> Vec<Case> {
         // is not one the step is spared; it is one nothing needs.
         case(
             "a requires line above an item's line that the item does not ask for",
-            vec![edit(
-                "proofs/wiedijk/binomial.proof",
-                Some("    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires Σ(k = 1 to m + 1)".to_string()),
-                "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)".to_string(),
-            )],
+            vec![
+                edit(
+                    "proofs/wiedijk/binomial.proof",
+                    Some("import mundane theorem    stdlib/numbers/exponent-step\n".to_string()),
+                    "import mundane theorem    stdlib/numbers/exponent-step\nimport mundane theorem    stdlib/numbers/power-real\n".to_string(),
+                ),
+                edit(
+                    "proofs/wiedijk/binomial.proof",
+                    Some("    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires Σ(k = 1 to m + 1)".to_string()),
+                    "    substitute C(m, 0 − 1)·x^(m + 1)·y^0 = 0 (line 22) into line 23\n    requires x^m ∈ ℝ: mun:power-real a := x, m := m, from H1\n    requires Σ(k = 1 to m + 1)".to_string(),
+                ),
+            ],
             "the requires line of step 24 cites H1, and mun:power-real asks for nothing it says",
         ),
-        // A requires line rests only on its reason. Line 2 does not say n! is
-        // an integer, and `mun:int-real` asks it; the scope has it from line
-        // 1, which the line does not cite, so the item it names reaches
+        // A requires line rests only on its reason. Line 2 does not say ⌊A⌋
+        // is an integer, and `mun:int-real` asks it; the scope has it from
+        // line 1, which the line does not cite, so the item it names reaches
         // nothing.
         case(
             "give a requires line a reason that is not where its proof comes from",
             vec![
                 edit(
-                    "proofs/wiedijk/infinitely-many-primes.proof",
-                    Some("import theorem            stdlib/divisibility/prime-factor\n".to_string()),
-                    "import theorem            stdlib/divisibility/prime-factor\nimport mundane theorem stdlib/numbers/int-real\n".to_string(),
+                    "proofs/setmm/floor-add-integer.proof",
+                    Some("import mundane theorem    stdlib/numbers/floor-integer\n".to_string()),
+                    "import mundane theorem    stdlib/numbers/floor-integer\nimport mundane theorem    stdlib/numbers/int-real\n".to_string(),
                 ),
                 edit(
-                    "proofs/wiedijk/infinitely-many-primes.proof",
-                    Some("          algebra\n          requires n! ∈ ℝ: from 1\n".to_string()),
-                    "          algebra\n          requires n! ∈ ℝ: mun:int-real, from 2\n".to_string(),
+                    "proofs/setmm/floor-add-integer.proof",
+                    Some("      ⌊A⌋ + N ≤ A + N          adding N\n    requires ⌊A⌋ ∈ ℝ: from 1\n".to_string()),
+                    "      ⌊A⌋ + N ≤ A + N          adding N\n    requires ⌊A⌋ ∈ ℝ: mun:int-real, from 2\n".to_string(),
                 ),
             ],
-            "the requires line of step 5.4 cites mun:int-real, which asks for n! ∈ ℤ, and what it cites does not supply it",
+            "the requires line of step 4 cites mun:int-real, which asks for ⌊A⌋ ∈ ℤ, and what it cites does not supply it",
         ),
         // Everything a step names does work. A numeral's membership is said
         // once (`SYNTAX.md`), so the line is true, well formed, and does
@@ -2796,21 +2805,21 @@ fn cases() -> Vec<Case> {
             "a requires line writing a range member's integrality",
             vec![edit(
                 "tests/elaborator/a-range-member-is-cited.proof",
-                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
-                "    requires k ∈ ℤ: membership\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string(),
+                Some("    algebra\n".to_string()),
+                "    algebra\n    requires k ∈ ℤ: membership\n".to_string(),
             )],
             "the requires line of step 1 says k ∈ ℤ, which the page says once, where k is introduced",
         ),
         // No function is typed over {0, …, N}, so H2 is cited for k ∈ ℤ, which
-        // the range says once, and binomial-nat0 asks nothing more of it.
+        // the range says once, and C(N, k) being a number asks nothing more.
         case(
-            "an item's requires line naming a range let only for its integrality",
+            "a step naming a range let only for its integrality",
             vec![edit(
                 "tests/elaborator/a-range-member-is-cited.proof",
-                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
-                "    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0, from H2\n".to_string(),
+                Some("    algebra\n".to_string()),
+                "    algebra, from H2\n".to_string(),
             )],
-            "the requires line of step 1 cites H2, and mun:binomial-nat0 asks for nothing it says",
+            "step 1 cites H2 and uses nothing it says",
         ),
         // A letter introduced in an interval is a real number said once, open
         // or closed, and a line writing or citing it does no work.
@@ -2929,19 +2938,19 @@ fn cases() -> Vec<Case> {
             "drop an identity element a substitution makes from what no line says is a number",
             vec![edit(
                 "tests/elaborator/an-identity-a-substitution-makes.proof",
-                Some("    substitute 1^k = 1 (H3)\n    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                Some("    substitute 1^k = 1 (H3)\n    requires b(0) ∈ ℝ: from H1\n".to_string()),
                 "    substitute 1^k = 1 (H3)\n".to_string(),
             )],
-            "step 1 drops an identity element from what the substitution makes, and nothing says C(N, k) is a number; a requires line says it",
+            "step 1 drops an identity element from what the substitution makes, and nothing says b(0) is a number; a requires line says it",
         ),
         case(
             "a link dropping an identity element from what no line says is a number",
             vec![edit(
                 "tests/elaborator/an-identity-a-link-drops.proof",
-                Some("    requires C(N, k) ∈ ℕ₀: mun:binomial-nat0\n".to_string()),
+                Some("    requires b(k) ∈ ℝ: from H1\n".to_string()),
                 String::new(),
             )],
-            "a link of step 1 drops an identity element from C(N, k), which nothing the step names says is a number; a requires line of the step says it",
+            "a link of step 1 drops an identity element from b(k), which nothing the step names says is a number; a requires line of the step says it",
         ),
         case(
             "cite an item for a function whose let gives it no type, naming no line that does",
@@ -4549,7 +4558,7 @@ fn cases() -> Vec<Case> {
         case(
             "a requires line resting on one written below it",
             vec![
-                edit("proofs/wiedijk/rationals-countable.proof", Some("    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n".to_string()), "    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n    requires denom(x) ∈ ℕ: mun:lowest-terms-parts\n".to_string()),
+                edit("proofs/wiedijk/rationals-countable.proof", Some("    membership, from D3\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n".to_string()), "    membership, from D3\n    requires |numer(x)| ∈ ℕ₀: mun:abs-integer z := numer(x)\n    requires numer(x) ∈ ℤ: mun:lowest-terms-parts\n".to_string()),
             ],
             "the requires line of step 5 cites mun:abs-integer, which asks for numer(x) ∈ ℤ, and what it cites does not supply it",
         ),
@@ -4918,9 +4927,9 @@ fn cases() -> Vec<Case> {
         case(
             "repeat a fact a line above already says",
             vec![
-                edit("proofs/wiedijk/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n          requires x^(m − k) ∈ ℝ: mun:power-real, from H1\n".to_string()),
+                edit("proofs/wiedijk/binomial.proof", Some("          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n\n    8.4.".to_string()), "          requires m − k ∈ ℕ₀: mun:range-difference a := 0, n := m, from J\n          requires m − k ∈ ℝ: membership\n\n    8.4.".to_string()),
             ],
-            "the requires line of step 8.4 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
+            "the requires line of step 8.3 says m − k ∈ ℝ, which the page says once, where k and m are introduced",
         ),
         // A line saying a term is not zero is asked for by a line below that
         // divides by it, and only by such a line: nothing in step 12 divides
@@ -5391,14 +5400,14 @@ fn cases() -> Vec<Case> {
             "step 1.2 cites mun:sum-extended, which asks for",
         ),
         // A letter's membership is said where it is introduced, and a line
-        // cited only for it does no work: H2 says c ∈ ℝ, and abs-real asks
+        // cited only for it does no work: H2 says c ∈ ℝ, and abs-nonneg asks
         // nothing else of it.
         case(
             "cite a let line only for the membership it introduces",
             vec![
-                edit("proofs/hammack/constant-multiple-limit.proof", Some("1.  |c| ∈ ℝ\n    mun:abs-real x := c\n".to_string()), "1.  |c| ∈ ℝ\n    mun:abs-real x := c, from H2\n".to_string()),
+                edit("proofs/hammack/constant-multiple-limit.proof", Some("1.  |c| ≥ 0\n    mun:abs-nonneg x := c\n".to_string()), "1.  |c| ≥ 0\n    mun:abs-nonneg x := c, from H2\n".to_string()),
             ],
-            "step 1 cites H2, and mun:abs-real asks for nothing it says",
+            "step 1 cites H2, and mun:abs-nonneg asks for nothing it says",
         ),
         // The same of an obtain's sentence `p ∈ ℤ`: even-square asks
         // p ∈ ℤ at n := p, which 2.1 says once, where it obtains p.
@@ -5685,9 +5694,9 @@ fn cases() -> Vec<Case> {
         case(
             "a chain line resting on a requires line taken away",
             vec![
-                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("    requires n! ∈ ℕ: mun:factorial-nat\n".to_string()), String::new()),
+                edit("tests/elaborator/a-chain-showing-its-work.proof", Some("    requires b(n) ∈ ℝ: from H2\n".to_string()), String::new()),
             ],
-            "nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
+            "nothing says b(n) ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         case(
             "a chain line with no relation",
@@ -5720,16 +5729,16 @@ fn cases() -> Vec<Case> {
         case(
             "an identity element dropped from the middle with nothing saying what is left is a number",
             vec![
-                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("    requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m\n".to_string()), String::new()),
+                edit("tests/elaborator/textbook-exercise-shapes.proof", Some("    requires b(k) ∈ ℝ: from H1\n".to_string()), String::new()),
             ],
-            "step 2 drops an identity element from what the substitution makes, and nothing says C(m, k) is a number",
+            "step 2 drops an identity element from what the substitution makes, and nothing says b(k) is a number",
         ),
         case(
             "two memberships claimed by one membership step",
             vec![
-                edit("proofs/hammack/constant-multiple-limit.proof", Some("3.  |c| + 1 ∈ ℝ\n    membership, from 1\n".to_string()), "3.  |c| + 1 ∈ ℝ. |c| ∈ ℝ.\n    membership, from 1\n".to_string()),
+                edit("proofs/hammack/constant-multiple-limit.proof", Some("    4.2.  ε/(|c| + 1) ∈ ℝ\n          membership".to_string()), "    4.2.  ε/(|c| + 1) ∈ ℝ. |c| + 1 ∈ ℝ.\n          membership".to_string()),
             ],
-            "step 3 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
+            "step 4.2 claims 2 sentences by membership, which says one term is in a number system; each is a step of its own",
         ),
         case(
             "a substitute's source label written with the word line",
@@ -5846,7 +5855,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/geometric-series.proof", Some("       reads the geometric series: the powers of a, from a^0 up to a^n\n".to_string()), "       reads the geometric series: the powers of a, from a^0 up to a^n\n\ndefine H(n) := n + 1, for n ∈ ℕ                                    (D1)\n       reads one more than n\n".to_string()),
             ],
-            "label D1 is already used at line 6",
+            "label D1 is already used at line 5",
         ),
         case(
             "a define with no reads line",
@@ -6267,8 +6276,8 @@ fn cases() -> Vec<Case> {
             "a requires line that does not lex",
             vec![edit(
                 "proofs/wiedijk/geometric-series.proof",
-                Some("          requires 1 − a ≠ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string()),
-                "          requires 1 − a ¿ 0: algebra, from H2\n          requires a^(k + 1) ∈ ℝ".to_string(),
+                Some("substitute line 1.4\n          requires 1 − a ≠ 0: algebra, from H2\n".to_string()),
+                "substitute line 1.4\n          requires 1 − a ¿ 0: algebra, from H2\n".to_string(),
             )],
             "the requires line of step 1.5: no token at '¿ 0' in '1 − a ¿ 0'",
         ),
@@ -6325,23 +6334,23 @@ fn cases() -> Vec<Case> {
             "drop a 0 into a claim whose order is turned round",
             vec![edit(
                 "proofs/hammack/abs-limit-zero.proof",
-                Some("          1.4.6.  |a(n) − 0| < ε\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n                  requires |a(n)| ∈ ℝ: from 1.4.4\n".to_string()),
+                Some("          1.4.6.  |a(n) − 0| < ε\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n".to_string()),
                 "          1.4.6.  ε > |a(n) − 0|\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n".to_string(),
             )],
             "drops an identity element from what the substitution makes",
         ),
         // Each atom a method combines is real, and the step says so where
         // the atom is not a letter, a numeral or built from them by the
-        // operations a membership said once covers: A^(k + 1) is a power
-        // whose exponent is no letter.
+        // operations a membership said once covers: L(p) is a value of a
+        // function the proof defines.
         case(
             "leave out the membership of an atom the method combines",
             vec![edit(
-                "proofs/setmm/reverse-triangle-inequality.proof",
-                Some("          transitivity, from 8.1, 1\n          requires |A| ∈ ℝ: mun:abs-real x := A\n".to_string()),
-                "          transitivity, from 8.1, 1\n".to_string(),
+                "proofs/wiedijk/reals-uncountable.proof",
+                Some("                  transitivity, from 5.2.6, 5.2.7\n                  requires L(p) ∈ ℝ: from 5.2.3\n".to_string()),
+                "                  transitivity, from 5.2.6, 5.2.7\n".to_string(),
             )],
-            "nothing says ||A| − |B|| ∈ ℝ, which this step needs",
+            "nothing says L(p) ∈ ℝ, which this step needs; transitivity takes a membership from a requires line",
         ),
         // A divisor nothing says is not zero is named as the page writes it.
         case(
@@ -6420,8 +6429,8 @@ fn cases() -> Vec<Case> {
             "a requires line on a method step citing a sum's item whose terms nothing says",
             vec![edit(
                 "proofs/wiedijk/harmonic.proof",
-                Some("    transitivity, from 15, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
-                "    transitivity, from 15, 14, 11\n    requires 2^(j + 1) ≠ 0: inequalities, from 3\n    requires 2^(j + 1) ∈ ℤ: membership, from H1\n".to_string(),
+                Some("    transitivity, from 15, 14, 11\n    requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10\n".to_string()),
+                "    transitivity, from 15, 14, 11\n".to_string(),
             )],
             "the requires line Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ of step 16 cites mun:sum-real, which asks that every term 1 / k is in ℝ",
         ),
@@ -6451,15 +6460,16 @@ fn cases() -> Vec<Case> {
         // An identity element inside the place a substitution matches is
         // dropped there: 1.4.1 says ||a(n)| − 0| < ε, the equation's left
         // side ||a(n)|| stands at |a(n)| − 0 only once the − 0 goes, and
-        // what is left, |a(n)|, is to be said a number.
+        // what is left, |a(n)|, is to be said a number, which it is once a
+        // line says a(n) is.
         case(
             "drop an identity element inside the place a substitution matches",
             vec![edit(
                 "proofs/hammack/abs-limit-zero.proof",
-                Some("                  requires |a(n)| ∈ ℝ: from 1.4.4\n".to_string()),
-                String::new(),
+                Some("                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n".to_string()),
+                "                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n".to_string(),
             )],
-            "step 1.4.6 drops an identity element from what the substitution makes, and nothing says |a(n)| is a number",
+            "step 1.4.6 drops an identity element from what the substitution makes, and nothing says a(n) is a number",
         ),
         // A base that ends on its instance with an identity element dropped,
         // b(0) ≤ N for b(0) + 0 ≤ N, asks that b(0) be a number, which

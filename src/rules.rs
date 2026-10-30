@@ -554,7 +554,8 @@ pub struct Whole {
     pub right: (&'static str, &'static str),
 }
 
-// A binomial coefficient of a whole number and an integer, and an integer
+// A binomial coefficient of a whole number and an integer, the greatest
+// common divisor and least common multiple of two integers, and an integer
 // modulo a natural number.
 pub const WHOLE: &[Whole] = &[
     Whole {
@@ -562,6 +563,18 @@ pub const WHOLE: &[Whole] = &[
         lemma: "bccl",
         left: ("N", "cn0"),
         right: ("K", "cz"),
+    },
+    Whole {
+        op: "cgcd",
+        lemma: "gcdcl",
+        left: ("M", "cz"),
+        right: ("N", "cz"),
+    },
+    Whole {
+        op: "clcm",
+        lemma: "lcmcl",
+        left: ("M", "cz"),
+        right: ("N", "cz"),
     },
     Whole {
         op: "cmo",

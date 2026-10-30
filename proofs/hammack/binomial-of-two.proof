@@ -1,7 +1,6 @@
 import definition         stdlib/counting/C
 import theorem            stdlib/counting/pascal
 import theorem            proofs/hammack/binomial-of-one/binomial-of-one
-import mundane theorem    stdlib/counting/binomial-nat0
 
 theorem binomial-of-two
   note        By induction on j: C(0, 2) is 0, and Pascal's rule gives
@@ -40,7 +39,6 @@ theorem binomial-of-two
 
     1.7.  2·C(j + 1, 2) = (j + 1)·((j + 1) − 1)
           algebra, from IH, 1.5, 1.6
-          requires C(j, 2) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 2
 
 2.  2·C(m, 2) = m·(m − 1)
     instantiate j := m in line 1

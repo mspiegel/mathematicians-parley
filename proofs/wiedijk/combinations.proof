@@ -1,5 +1,4 @@
 import theorem            stdlib/counting/pascal
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-outside
 import mundane theorem    stdlib/counting/binomial-zero-index
 import mundane theorem    stdlib/counting/card-add-one
@@ -476,7 +475,6 @@ theorem combinations
           1.2.7.  |W| = C(m, j − 1)
                   mun:card-bijection X := V, Y := W, m := C(m, j − 1),
                     from 1.2.5, 1.2.6
-                  requires C(m, j − 1) ∈ ℕ₀: mun:binomial-nat0
 
           1.2.8.  U ∩ W = ∅
                   thm:add-element-disjoint Y := X ∖ {a}, from D1, D2, D3
@@ -488,8 +486,6 @@ theorem combinations
           1.2.10. |U ∪ W| = C(m, j) + C(m, j − 1)
                   mun:card-disjoint-union X := U, Y := W, m := C(m, j),
                     n := C(m, j − 1), from 1.2.4, 1.2.7, 1.2.8
-                  requires C(m, j) ∈ ℕ₀: mun:binomial-nat0
-                  requires C(m, j − 1) ∈ ℕ₀: mun:binomial-nat0
 
           1.2.11. |{S ⊆ X : |S| = j}| = C(m, j) + C(m, j − 1)
                   substitute {S ⊆ X : |S| = j} = U ∪ W (line 1.2.9) into line 1.2.10

@@ -1,7 +1,6 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
 import definition         stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-product
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import definition         stdlib/numbers/min
@@ -49,7 +48,6 @@ theorem quadratic-limit
 
           1.4.1.  |x − 1| < 1 and |x − 1| < ε/12
                   mun:lt-min z := |x − 1|, x := 1, y := ε/12, from A2, D1
-                  requires |x − 1| ∈ ℝ: mun:abs-real x := x − 1
 
           1.4.2.  1 − 1 < x and x < 1 + 1
                   mun:abs-difference-lt c := 1, δ := 1, from 1.4.1
@@ -86,7 +84,6 @@ theorem quadratic-limit
                   inequalities
                     |4·x + 4| < 12   1.4.8
                     |4·x + 4| ≤ 12   weakening
-                  requires |4·x + 4| ∈ ℝ: mun:abs-real x := 4·x + 4
 
           1.4.11. f(x) = 4·x² + 1
                   instantiate x := x in H2
@@ -106,8 +103,6 @@ theorem quadratic-limit
                                = ε/12·|4·x + 4|        algebra
                                ≤ ε/12·12               mun:multiply-le x := |4·x + 4|, y := 12, c := ε/12, from 1.4.10
                                = ε                     algebra
-                  requires |x − 1| ∈ ℝ: mun:abs-real x := x − 1
-                  requires |4·x + 4| ∈ ℝ: mun:abs-real x := 4·x + 4
                   requires ε/12 > 0: from 1.1
 
     1.5.  There exists δ > 0 such that |f(x) − 5| < ε for all x ∈ ℝ with (x ≠ 1 and |x − 1| < δ).

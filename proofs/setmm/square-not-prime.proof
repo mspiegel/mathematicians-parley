@@ -1,8 +1,5 @@
-import mundane theorem    stdlib/numbers/abs-integer
 import mundane theorem    stdlib/numbers/abs-square
 import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane theorem    stdlib/numbers/nat-int
-import mundane theorem    stdlib/numbers/nat-real
 import mundane theorem    stdlib/numbers/nat0-nonzero
 import definition         stdlib/divisibility/divides
 import definition         stdlib/divisibility/prime
@@ -26,49 +23,44 @@ theorem square-not-prime
     1.2.  A² > 1
           def:prime p := A², from S, 1.1
 
-    1.3.  |A| ∈ ℕ₀
-          mun:abs-integer z := A
-
-    1.4.  |A|² = A²
+    1.3.  |A|² = A²
           mun:abs-square x := A
 
-    1.5.  |A| ≠ 0
+    1.4.  |A| ≠ 0
           contradiction
           suppose |A| = 0                                             (S2)
 
-          1.5.1.  0² = A²
-                  substitute |A| = 0 (S2) into line 1.4
+          1.4.1.  0² = A²
+                  substitute |A| = 0 (S2) into line 1.3
 
-          1.5.2.  0² ≥ A²
+          1.4.2.  0² ≥ A²
                   inequalities
-                    0² = A²          1.5.1
+                    0² = A²          1.4.1
                     0² ≥ A²          weakening
 
-          1.5.3.  not (A² > 1)
-                  inequalities, from 1.5.2, contradicting 1.2
+          1.4.3.  not (A² > 1)
+                  inequalities, from 1.4.2, contradicting 1.2
 
-    1.6.  |A| ∈ ℕ
-          mun:nat0-nonzero m := |A|, from 1.3, 1.5
+    1.5.  |A| ∈ ℕ
+          mun:nat0-nonzero m := |A|, from 1.4
 
-    1.7.  A² = |A|·|A|
-          algebra, from 1.4
-          requires |A| ∈ ℝ: mun:nat-real m := |A|, from 1.6
+    1.6.  A² = |A|·|A|
+          algebra, from 1.3
 
-    1.8.  |A| divides A²
-          def:divides d := |A|, n := A², from 1.7
-          requires |A| ∈ ℤ: mun:nat-int m := |A|, from 1.6
+    1.7.  |A| divides A²
+          def:divides d := |A|, n := A², from 1.6
 
-    1.9.  For all d ∈ ℕ, if d divides A² then d = 1 or d = A².
+    1.8.  For all d ∈ ℕ, if d divides A² then d = 1 or d = A².
           def:prime p := A², from S, 1.1
 
-    1.10. If |A| divides A² then |A| = 1 or |A| = A².
-          instantiate d := |A| in line 1.9, from 1.6
+    1.9.  If |A| divides A² then |A| = 1 or |A| = A².
+          instantiate d := |A| in line 1.8, from 1.5
 
-    1.11. |A| = 1 or |A| = A²
-          mun:modus-ponens, from 1.8, 1.10
+    1.10. |A| = 1 or |A| = A²
+          mun:modus-ponens, from 1.7, 1.9
 
-    1.12. |A| = 1
-          cases, from 1.11
+    1.11. |A| = 1
+          cases, from 1.10
 
           case
           assume |A| = 1, which is the claim                          (C1)
@@ -76,20 +68,19 @@ theorem square-not-prime
           case
           assume |A| = A²                                             (C2)
 
-          1.12.1. |A|·|A| = 1·|A|
-                  transitivity, from 1.7, C2
+          1.11.1. |A|·|A| = 1·|A|
+                  transitivity, from 1.6, C2
 
-          1.12.2. |A| = 1
-                  mun:multiply-cancel a := |A|, b := 1, c := |A|, from 1.5, 1.12.1
-                  requires |A| ∈ ℝ: mun:nat-real m := |A|, from 1.6
+          1.11.2. |A| = 1
+                  mun:multiply-cancel a := |A|, b := 1, c := |A|, from 1.4, 1.11.1
 
-    1.13. 1² = A²
-          substitute |A| = 1 (line 1.12) into line 1.4
+    1.12. 1² = A²
+          substitute |A| = 1 (line 1.11) into line 1.3
 
-    1.14. 1² ≥ A²
+    1.13. 1² ≥ A²
           inequalities
-            1² = A²          1.13
+            1² = A²          1.12
             1² ≥ A²          weakening
 
-    1.15. not (A² > 1)
-          inequalities, from 1.14, contradicting 1.2
+    1.14. not (A² > 1)
+          inequalities, from 1.13, contradicting 1.2

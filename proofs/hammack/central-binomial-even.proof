@@ -32,23 +32,17 @@ theorem central-binomial-even
       n·C((2n − 1) + 1, n) = ((2n − 1) + 1)·C(2n − 1, n − 1)      5
       n·C(2n, n) = 2n·C(2n − 1, n − 1)                            algebra
 
-7.  C(2n, n) ∈ ℕ₀
-    mun:binomial-nat0 n := 2n, k := n
-
-8.  C(2n − 1, n − 1) ∈ ℕ₀
+7.  C(2n − 1, n − 1) ∈ ℕ₀
     mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
 
-9.  C(2n, n)·n = 2·C(2n − 1, n − 1)·n
+8.  C(2n, n)·n = 2·C(2n − 1, n − 1)·n
     algebra, from 6
-    requires C(2n, n) ∈ ℝ: from 7
-    requires C(2n − 1, n − 1) ∈ ℝ: from 8
+    requires C(2n − 1, n − 1) ∈ ℝ: from 7
 
-10. C(2n, n) = 2·C(2n − 1, n − 1)
-    mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 9
-    requires C(2n, n) ∈ ℝ: from 7
-    requires 2·C(2n − 1, n − 1) ∈ ℝ: from 8
+9.  C(2n, n) = 2·C(2n − 1, n − 1)
+    mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
+    requires 2·C(2n − 1, n − 1) ∈ ℝ: from 7
 
-11. C(2n, n) is even
-    def:even n := C(2n, n), from 10
-    requires C(2n, n) ∈ ℤ: from 7
-    requires C(2n − 1, n − 1) ∈ ℤ: from 8
+10. C(2n, n) is even
+    def:even n := C(2n, n), from 9
+    requires C(2n − 1, n − 1) ∈ ℤ: from 7

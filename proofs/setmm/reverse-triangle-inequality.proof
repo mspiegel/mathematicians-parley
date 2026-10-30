@@ -1,7 +1,6 @@
 import theorem            stdlib/numbers/triangle-inequality
 import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-negative
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem abs-difference-below
@@ -23,9 +22,6 @@ theorem abs-difference-below
     inequalities
       |A| ≤ |A − B| + |B|      2
       |A| − |B| ≤ |A − B|      adding −|B|
-    requires |A| ∈ ℝ: mun:abs-real x := A
-    requires |B| ∈ ℝ: mun:abs-real x := B
-    requires |A − B| ∈ ℝ: mun:abs-real x := A − B
 
 
 theorem abs-difference-of-abs
@@ -53,45 +49,31 @@ theorem abs-difference-of-abs
 5.  |B| − |A| ≤ |A − B|
     substitute |B − A| = |A − B| (line 4) into line 2
 
-6.  |A| − |B| ∈ ℝ
-    membership
-    requires |A| ∈ ℝ: mun:abs-real x := A
-    requires |B| ∈ ℝ: mun:abs-real x := B
+6.  |A| − |B| ≥ 0 or |A| − |B| < 0
+    mun:nonneg-or-neg x := |A| − |B|
 
-7.  |A| − |B| ≥ 0 or |A| − |B| < 0
-    mun:nonneg-or-neg x := |A| − |B|, from 6
-
-8.  ||A| − |B|| ≤ |A − B|
-    cases, from 7
+7.  ||A| − |B|| ≤ |A − B|
+    cases, from 6
 
     case
     assume |A| − |B| ≥ 0                                              (C1)
 
-    8.1.  ||A| − |B|| = |A| − |B|
-          def:abs x := |A| − |B|, from C1, 6
+    7.1.  ||A| − |B|| = |A| − |B|
+          def:abs x := |A| − |B|, from C1
 
-    8.2.  ||A| − |B|| ≤ |A − B|
-          transitivity, from 8.1, 1
-          requires |A| ∈ ℝ: mun:abs-real x := A
-          requires |B| ∈ ℝ: mun:abs-real x := B
-          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
+    7.2.  ||A| − |B|| ≤ |A − B|
+          transitivity, from 7.1, 1
 
     case
     assume |A| − |B| < 0                                              (C2)
 
-    8.3.  ||A| − |B|| = −(|A| − |B|)
-          def:abs x := |A| − |B|, from C2, 6
+    7.3.  ||A| − |B|| = −(|A| − |B|)
+          def:abs x := |A| − |B|, from C2
 
-    8.4.  −(|A| − |B|) ≤ |A − B|
+    7.4.  −(|A| − |B|) ≤ |A − B|
           inequalities
             |B| − |A| ≤ |A − B|        5
             −(|A| − |B|) ≤ |A − B|     algebra
-          requires |A| ∈ ℝ: mun:abs-real x := A
-          requires |B| ∈ ℝ: mun:abs-real x := B
-          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
 
-    8.5.  ||A| − |B|| ≤ |A − B|
-          transitivity, from 8.3, 8.4
-          requires |A| ∈ ℝ: mun:abs-real x := A
-          requires |B| ∈ ℝ: mun:abs-real x := B
-          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
+    7.5.  ||A| − |B|| ≤ |A − B|
+          transitivity, from 7.3, 7.4

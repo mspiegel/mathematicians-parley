@@ -1,5 +1,4 @@
 import definition         stdlib/counting/factorial
-import mundane theorem    stdlib/counting/factorial-nat
 import definition         stdlib/divisibility/odd
 import mundane theorem    stdlib/numbers/multiply-cancel
 
@@ -27,13 +26,14 @@ theorem a-chain-line-citing-an-item
   note        A line may cite a definition as a step does, and the requires
               lines under the calculation serve each of its lines.
   let n ∈ ℕ₀                                                          (H1)
-  then (n + 1)! = (n + 1)·n!
+  let b : ℕ₀ → ℝ                                                      (H2)
+  then (n + 1)! = (n + 1)·n! + b(n) − b(n)
 
-1.  (n + 1)! = (n + 1)·n!
+1.  (n + 1)! = (n + 1)·n! + b(n) − b(n)
     calculation
-      (n + 1)! = n!·(n + 1)      def:factorial
-               = (n + 1)·n!      algebra
-    requires n! ∈ ℕ: mun:factorial-nat
+      (n + 1)! = n!·(n + 1)                 def:factorial
+               = (n + 1)·n! + b(n) − b(n)   algebra
+    requires b(n) ∈ ℝ: from H2
 
 
 theorem a-chain-line-instantiating

@@ -95,27 +95,22 @@ theorem binomial-even-for-odd-k
     2.8.  k·C(n, k) is even
           substitute k·C(n, k) = n·C(n − 1, k − 1) (line 2.5) into line 2.7
 
-    2.9.  C(n, k) ∈ ℕ₀
-          mun:binomial-nat0
-
-    2.10. C(n, k) is even
+    2.9.  C(n, k) is even
           thm:odd-factor A := k, B := C(n, k), from H4, 2.8
-          requires C(n, k) ∈ ℤ: from 2.9
 
     case
     assume not k ≤ n                                                  (C2)
 
-    2.11. n < k
+    2.10. n < k
           inequalities, from C2
 
-    2.12. C(n, k) = 0
-          def:C, from 2.11
+    2.11. C(n, k) = 0
+          def:C, from 2.10
 
-    2.13. C(n, k) = 2·0
+    2.12. C(n, k) = 2·0
           calculation
-            C(n, k) = 0      2.12
+            C(n, k) = 0      2.11
                     = 2·0    arithmetic
 
-    2.14. C(n, k) is even
-          def:even n := C(n, k), from 2.13
-          requires C(n, k) ∈ ℤ: membership, from 2.12
+    2.13. C(n, k) is even
+          def:even n := C(n, k), from 2.12

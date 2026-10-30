@@ -1,35 +1,36 @@
-import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/sums/sum-single
 import mundane theorem    stdlib/sums/sum-extended
 
 theorem a-for-all-read-at-a-numeral
   note        A requires line said of every member of {1, …, 1} is read at 1.
-  then Σ(j = 1 to 1) j/(j + 1)! = 1/(1 + 1)!
+  let x ∈ ℝ                                                           (H1)
+  assume x > 0                                                        (H2)
+  let t(j) = j/x, for j ∈ ℕ                                           (D1)
+         reads the j-th term
+  then Σ(j = 1 to 1) t(j) = t(1)
 
-1.  For all i ∈ {1, …, 1}, i/(i + 1)! ∈ ℝ.
+1.  For all i ∈ {1, …, 1}, t(i) ∈ ℝ.
     proof
     let i ∈ {1, …, 1}                                                 (K1)
 
-    1.1.  (i + 1)! ∈ ℕ
-          mun:factorial-nat n := i + 1
+    1.1.  t(i) ∈ ℝ
+          membership, from D1
+          requires x ≠ 0: weakening, from H2
 
-    1.2.  i/(i + 1)! ∈ ℝ
-          membership, from 1.1
-
-2.  Σ(j = 1 to 1) j/(j + 1)! = 1/(1 + 1)!
+2.  Σ(j = 1 to 1) t(j) = t(1)
     mun:sum-single a := 1
-    requires for all i ∈ {1, …, 1}, i/(i + 1)! ∈ ℝ: from 1
+    requires for all i ∈ {1, …, 1}, t(i) ∈ ℝ: from 1
 
 theorem a-for-all-over-a-wider-set
   note        A line said of every member of ℕ says it of every member of {1, …, k + 1}.
   let k ∈ ℕ                                                           (H1)
-  assume for all i ∈ ℕ, i/(i + 1)! ∈ ℝ                                (H2)
-  then Σ(j = 1 to k + 1) j/(j + 1)! = Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)!
+  let x ∈ ℝ                                                           (H2)
+  assume for all i ∈ ℕ, i/x ∈ ℝ                                       (H3)
+  then Σ(j = 1 to k + 1) j/x = Σ(j = 1 to k) j/x + (k + 1)/x
 
-1.  Σ(j = 1 to k + 1) j/(j + 1)! = Σ(j = 1 to k) j/(j + 1)! + (k + 1)/((k + 1) + 1)!
-    mun:sum-extended a := 1, n := k
+1.  Σ(j = 1 to k + 1) j/x = Σ(j = 1 to k) j/x + (k + 1)/x
+    mun:sum-extended a := 1, n := k, from H3
     requires k ≥ 1: inequalities, from H1
-    requires for all i ∈ {1, …, k + 1}, i/(i + 1)! ∈ ℝ: from H2
 
 theorem a-sum-of-a-defined-function
   note        A defined function's values asked over a range are said of every point, not as a type. Its rule divides by x, which the page does not say once is a positive integer, so its type is not said once.

@@ -1,6 +1,5 @@
 import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/abs-nonneg
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-square
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/square-nonneg
@@ -17,16 +16,13 @@ theorem sqrt-of-square
 2.  √(x²) ∈ ℝ. √(x²) ≥ 0. (√(x²))² = x².
     def:sqrt x := x², from 1
 
-3.  |x| ∈ ℝ
-    mun:abs-real
-
-4.  |x| ≥ 0
+3.  |x| ≥ 0
     mun:abs-nonneg
 
-5.  (√(x²))² = |x|²
+4.  (√(x²))² = |x|²
     calculation
       (√(x²))² = x²      2
                = |x|²    mun:abs-square
 
-6.  √(x²) = |x|
-    mun:square-equal x := √(x²), y := |x|, from 2, 3, 4, 5
+5.  √(x²) = |x|
+    mun:square-equal x := √(x²), y := |x|, from 2, 3, 4

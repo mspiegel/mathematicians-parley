@@ -52,47 +52,38 @@ theorem factorial-gap
     1.2.  (n + 1 + 0)! = (n + 1)!
           substitute n + 1 + 0 = n + 1 (line 1.1)
 
-    1.3.  (n + 1)! ∈ ℕ
-          mun:factorial-nat n := n + 1
-
-    1.4.  (n + 1)! + 0 ≤ (n + 1 + 0)!
+    1.3.  (n + 1)! + 0 ≤ (n + 1 + 0)!
           inequalities
             (n + 1 + 0)! = (n + 1)!         1.2
             (n + 1)! = (n + 1 + 0)!         restate
             (n + 1)! + 0 = (n + 1 + 0)!     algebra
             (n + 1)! + 0 ≤ (n + 1 + 0)!     weakening
-          requires (n + 1)! ∈ ℝ: from 1.3
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 1 is true for j, the induction hypothesis             (IH)
 
-    1.5.  n + 1 + j + 1 = n + 1 + (j + 1)
+    1.4.  n + 1 + j + 1 = n + 1 + (j + 1)
           algebra
 
-    1.6.  (n + 1 + j)! ∈ ℕ
+    1.5.  (n + 1 + j)! ∈ ℕ
           mun:factorial-nat n := n + 1 + j
 
-    1.7.  (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
+    1.6.  (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
           algebra
-          requires (n + 1 + j)! ∈ ℝ: from 1.6
 
-    1.8.  (n + 1)! ∈ ℕ
-          mun:factorial-nat n := n + 1
+    1.7.  (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
+          inequalities, from IH, 1.5
 
-    1.9.  (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
-          inequalities, from IH, 1.6
-          requires (n + 1)! ∈ ℝ: from 1.8
-
-    1.10. (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
+    1.8.  (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
           calculation
-            (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         1.9
-                               ≤ (n + 1 + j + 1)·(n + 1 + j)!           mun:multiply-le-nonneg x := 2, y := n + 1 + j + 1, c := (n + 1 + j)!, from 1.6
-                               = (n + 1 + j)!·(n + 1 + j + 1)           1.7
+            (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         1.7
+                               ≤ (n + 1 + j + 1)·(n + 1 + j)!           mun:multiply-le-nonneg x := 2, y := n + 1 + j + 1, c := (n + 1 + j)!
+                               = (n + 1 + j)!·(n + 1 + j + 1)           1.6
                                = (n + 1 + j + 1)!                       def:factorial n := n + 1 + j
-                               = (n + 1 + (j + 1))!                     substitute line 1.5
+                               = (n + 1 + (j + 1))!                     substitute line 1.4
           requires 2 ≤ n + 1 + j + 1: inequalities, from H1, K
-          requires (n + 1 + j)! ≥ 0: inequalities, from 1.6
+          requires (n + 1 + j)! ≥ 0: inequalities, from 1.5
 
 theorem terms-real
   let m ∈ ℕ                                                           (H1)
@@ -102,17 +93,8 @@ theorem terms-real
     proof
     let k ∈ {1, …, m}                                                 (K)
 
-    1.1.  k! ∈ ℕ
-          mun:factorial-nat n := k
-
-    1.2.  2^(k!) > 0
-          mun:power-positive a := 2, m := k!, from 1.1
-          requires 2 > 0: arithmetic
-
-    1.3.  1/2^(k!) ∈ ℝ
+    1.1.  1/2^(k!) ∈ ℝ
           membership
-          requires 2^(k!) ∈ ℝ: mun:power-real a := 2, m := k!, from 1.1
-          requires 2^(k!) ≠ 0: weakening, from 1.2
 
 theorem partial-sum-real
   let m ∈ ℕ                                                           (H1)
@@ -157,123 +139,90 @@ let A = (n + 1)!, a natural number                                    (D1)
     3.2.  s(n + 0) = s(n)
           substitute n + 0 = n (line 3.1)
 
-    3.3.  2^(A + 0) > 0
-          mun:power-positive a := 2, m := A + 0
-          requires 2 > 0: arithmetic
-
-    3.4.  s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)
+    3.3.  s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)
           algebra, from 2, 3.2
-          requires 2^(A + 0) ≠ 0: weakening, from 3.3
 
-    3.5.  s(n + 0) − s(n) ≤ 2/2^A − 2/2^(A + 0)
+    3.4.  s(n + 0) − s(n) ≤ 2/2^A − 2/2^(A + 0)
           inequalities
-            s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)     3.4
+            s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)     3.3
             s(n + 0) − s(n) ≤ 2/2^A − 2/2^(A + 0)     weakening
           requires s(n + 0) ∈ ℝ: from 2
-          requires 2^(A + 0) ≠ 0: weakening, from 3.3
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 3 is true for j, the induction hypothesis             (IH)
 
-    3.6.  n + j ∈ ℕ
+    3.5.  n + j ∈ ℕ
           mun:nat-plus-nat0 a := n, b := j
 
-    3.7.  n + j + 1 ∈ ℕ
-          mun:nat-plus-nat0 a := n + j, b := 1, from 3.6
+    3.6.  n + j + 1 ∈ ℕ
+          mun:nat-plus-nat0 a := n + j, b := 1, from 3.5
 
-    3.8.  (n + j + 1)! ∈ ℕ
-          mun:factorial-nat n := n + j + 1
-
-    3.9.  2^((n + j + 1)!) > 0
-          mun:power-positive a := 2, m := (n + j + 1)!, from 3.8
+    3.7.  2^((n + j + 1)!) > 0
+          mun:power-positive a := 2, m := (n + j + 1)!
           requires 2 > 0: arithmetic
 
-    3.10. n + j + 1 = n + (j + 1)
+    3.8.  n + j + 1 = n + (j + 1)
           algebra
 
-    3.11. s(n + (j + 1)) = s(n + j + 1)
-          substitute n + j + 1 = n + (j + 1) (line 3.10)
+    3.9.  s(n + (j + 1)) = s(n + j + 1)
+          substitute n + j + 1 = n + (j + 1) (line 3.8)
 
-    3.12. For all k ∈ {1, …, n + j + 1}, 1/2^(k!) ∈ ℝ.
-          thm:terms-real m := n + j + 1, from 3.7
+    3.10. For all k ∈ {1, …, n + j + 1}, 1/2^(k!) ∈ ℝ.
+          thm:terms-real m := n + j + 1, from 3.6
 
-    3.13. For all k ∈ {1, …, n + j}, 1/2^(k!) ∈ ℝ.
-          thm:terms-real m := n + j, from 3.6
+    3.11. Σ(k = 1 to n + j + 1) 1/2^(k!) = Σ(k = 1 to n + j) 1/2^(k!) + 1/2^((n + j + 1)!)
+          mun:sum-extended a := 1, n := n + j, from 3.10
+          requires n + j ≥ 1: inequalities, from 3.5
 
-    3.14. Σ(k = 1 to n + j + 1) 1/2^(k!) = Σ(k = 1 to n + j) 1/2^(k!) + 1/2^((n + j + 1)!)
-          mun:sum-extended a := 1, n := n + j, from 3.12
-          requires n + j ≥ 1: inequalities, from 3.6
+    3.12. s(n + j + 1) = s(n + j) + 1/2^((n + j + 1)!)
+          algebra, from D0, 3.11
 
-    3.15. s(n + j + 1) = s(n + j) + 1/2^((n + j + 1)!)
-          algebra, from D0, 3.14
-          requires Σ(k = 1 to n + j) 1/2^(k!) ∈ ℝ: mun:sum-real a := 1, b := n + j, from 3.13
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 3.8
-          requires 2^((n + j + 1)!) ≠ 0: weakening, from 3.9
-
-    3.16. A + j ≤ (n + 1 + j)!
+    3.13. A + j ≤ (n + 1 + j)!
           instantiate j := j in line 1, from D1
 
-    3.17. A + j ≤ (n + j + 1)!
+    3.14. A + j ≤ (n + j + 1)!
           substitute
-            A + j ≤ (n + 1 + j)!      3.16
+            A + j ≤ (n + 1 + j)!      3.13
             A + j ≤ (n + j + 1)!      algebra
 
-    3.18. 2^(A + j) ≤ 2^((n + j + 1)!)
-          mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.8, 3.17
+    3.15. 2^(A + j) ≤ 2^((n + j + 1)!)
+          mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.14
           requires 1 ≤ 2: arithmetic
 
-    3.19. 2^(A + j) > 0
+    3.16. 2^(A + j) > 0
           mun:power-positive a := 2, m := A + j
           requires 2 > 0: arithmetic
 
-    3.20. 1/2^((n + j + 1)!) ≤ 1/2^(A + j)
-          mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.9, 3.18, 3.19
-          requires 2^(A + j) ∈ ℝ: mun:power-real a := 2, m := A + j
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 3.8
+    3.17. 1/2^((n + j + 1)!) ≤ 1/2^(A + j)
+          mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.7, 3.15, 3.16
 
-    3.21. A + j + 1 = A + (j + 1)
+    3.18. A + j + 1 = A + (j + 1)
           algebra
 
-    3.22. 2^(A + j)·2 = 2^(A + (j + 1))
+    3.19. 2^(A + j)·2 = 2^(A + (j + 1))
           calculation
             2^(A + j)·2 = 2^(A + j + 1)      mun:exponent-step a := 2, m := A + j
-                        = 2^(A + (j + 1))    substitute line 3.21
+                        = 2^(A + (j + 1))    substitute line 3.18
 
-    3.23. 2/(2^(A + j)·2) = 1/2^(A + j)
+    3.20. 2/(2^(A + j)·2) = 1/2^(A + j)
           algebra
-          requires 2^(A + j) ∈ ℝ: mun:power-real a := 2, m := A + j
-          requires 2^(A + j) ≠ 0: weakening, from 3.19
 
-    3.24. 2/2^(A + (j + 1)) = 1/2^(A + j)
-          substitute 2^(A + j)·2 = 2^(A + (j + 1)) (line 3.22) into line 3.23
+    3.21. 2/2^(A + (j + 1)) = 1/2^(A + j)
+          substitute 2^(A + j)·2 = 2^(A + (j + 1)) (line 3.19) into line 3.20
 
-    3.25. s(n + j) − s(n) + 1/2^((n + j + 1)!) ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)
-          inequalities, from IH, 3.20
-          requires 2^(A + j) ∈ ℝ: mun:power-real a := 2, m := A + j
-          requires 2^(A + j) ≠ 0: weakening, from 3.19
+    3.22. s(n + j) − s(n) + 1/2^((n + j + 1)!) ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)
+          inequalities, from IH, 3.17
           requires s(n) ∈ ℝ: from 2
-          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.6
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 3.8
-          requires 2^((n + j + 1)!) ≠ 0: weakening, from 3.9
+          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.5
 
-    3.26. 2^(A + (j + 1)) > 0
-          mun:power-positive a := 2, m := A + (j + 1)
-          requires 2 > 0: arithmetic
-
-    3.27. s(n + (j + 1)) − s(n) ≤ 2/2^A − 2/2^(A + (j + 1))
+    3.23. s(n + (j + 1)) − s(n) ≤ 2/2^A − 2/2^(A + (j + 1))
           calculation
-            s(n + (j + 1)) − s(n) = s(n + j) − s(n) + 1/2^((n + j + 1)!)    algebra, from 3.11, 3.15
-                                  ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)       3.25
-                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.24
-          requires 2^(A + j) ∈ ℝ: mun:power-real a := 2, m := A + j
-          requires 2^(A + (j + 1)) ∈ ℝ: mun:power-real a := 2, m := A + (j + 1)
-          requires 2^(A + j) ≠ 0: weakening, from 3.19
-          requires 2^(A + (j + 1)) ≠ 0: weakening, from 3.26
+            s(n + (j + 1)) − s(n) = s(n + j) − s(n) + 1/2^((n + j + 1)!)    algebra, from 3.9, 3.12
+                                  ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)       3.22
+                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21
           requires s(n) ∈ ℝ: from 2
-          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.6
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 3.8
-          requires 2^((n + j + 1)!) ≠ 0: weakening, from 3.9
+          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.5
 
 4.  For all j ∈ ℕ₀, s(n + j) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + j).
     substitute A = (n + 1)! (D1) into line 3
@@ -285,25 +234,12 @@ theorem partial-sum-step
 1.  For all k ∈ {1, …, n + 1}, 1/2^(k!) ∈ ℝ.
     thm:terms-real m := n + 1
 
-2.  For all k ∈ {1, …, n}, 1/2^(k!) ∈ ℝ.
-    thm:terms-real m := n
-
-3.  Σ(k = 1 to n + 1) 1/2^(k!) = Σ(k = 1 to n) 1/2^(k!) + 1/2^((n + 1)!)
+2.  Σ(k = 1 to n + 1) 1/2^(k!) = Σ(k = 1 to n) 1/2^(k!) + 1/2^((n + 1)!)
     mun:sum-extended a := 1, from 1
     requires n ≥ 1: inequalities, from H1
 
-4.  (n + 1)! ∈ ℕ
-    mun:factorial-nat n := n + 1
-
-5.  2^((n + 1)!) > 0
-    mun:power-positive a := 2, m := (n + 1)!, from 4
-    requires 2 > 0: arithmetic
-
-6.  s(n + 1) = s(n) + 1/2^((n + 1)!)
-    algebra, from D0, 3
-    requires Σ(k = 1 to n) 1/2^(k!) ∈ ℝ: mun:sum-real a := 1, b := n, from 2
-    requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 4
-    requires 2^((n + 1)!) ≠ 0: weakening, from 5
+3.  s(n + 1) = s(n) + 1/2^((n + 1)!)
+    algebra, from D0, 2
 
 theorem partial-sums-increase
   let n ∈ ℕ                                                           (H1)
@@ -336,39 +272,33 @@ theorem partial-sums-increase
     2.4.  n + j ∈ ℕ
           mun:nat-plus-nat0 a := n, b := j
 
-    2.5.  (n + j + 1)! ∈ ℕ
-          mun:factorial-nat n := n + j + 1
-
-    2.6.  2^((n + j + 1)!) > 0
-          mun:power-positive a := 2, m := (n + j + 1)!, from 2.5
+    2.5.  2^((n + j + 1)!) > 0
+          mun:power-positive a := 2, m := (n + j + 1)!
           requires 2 > 0: arithmetic
 
-    2.7.  1/2^((n + j + 1)!) > 0
-          mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.6
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 2.5
+    2.6.  1/2^((n + j + 1)!) > 0
+          mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.5
 
-    2.8.  s(n + j) ∈ ℝ
+    2.7.  s(n + j) ∈ ℝ
           thm:partial-sum-real m := n + j, from 2.4
 
-    2.9.  s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)
+    2.8.  s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)
           inequalities
-            1/2^((n + j + 1)!) > 0                          2.7
+            1/2^((n + j + 1)!) > 0                          2.6
             0 < 1/2^((n + j + 1)!)                          restate
             s(n + j) < s(n + j) + 1/2^((n + j + 1)!)        adding s(n + j)
             s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)        weakening
-          requires s(n + j) ∈ ℝ: from 2.8
-          requires 2^((n + j + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + j + 1)!, from 2.5
-          requires 2^((n + j + 1)!) ≠ 0: weakening, from 2.6
+          requires s(n + j) ∈ ℝ: from 2.7
 
-    2.10. n + j + 1 = n + (j + 1)
+    2.9.  n + j + 1 = n + (j + 1)
           algebra
 
-    2.11. s(n) ≤ s(n + (j + 1))
+    2.10. s(n) ≤ s(n + (j + 1))
           calculation
             s(n) ≤ s(n + j)                                 IH
-                 ≤ s(n + j) + 1/2^((n + j + 1)!)            2.9
+                 ≤ s(n + j) + 1/2^((n + j + 1)!)            2.8
                  = s(n + j + 1)                             thm:partial-sum-step n := n + j, from 2.4
-                 = s(n + (j + 1))                           substitute line 2.10
+                 = s(n + (j + 1))                           substitute line 2.9
 
 theorem later-at-least
   let n ∈ ℕ                                                           (H1)
@@ -402,67 +332,56 @@ theorem later-at-most
 1.  For all j ∈ ℕ₀, s(n + j) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + j).
     thm:tail-bound
 
-2.  (n + 1)! ∈ ℕ
-    mun:factorial-nat n := n + 1
-
-3.  2^((n + 1)!) > 0
-    mun:power-positive a := 2, m := (n + 1)!, from 2
-    requires 2 > 0: arithmetic
-
-4.  For all i ≥ n, s(i) ≤ s(n) + 2/2^((n + 1)!).
+2.  For all i ≥ n, s(i) ≤ s(n) + 2/2^((n + 1)!).
     proof
     let i ∈ ℕ                                                         (K)
     assume i ≥ n                                                      (A)
 
-    4.1.  i − n ∈ ℕ₀
+    2.1.  i − n ∈ ℕ₀
           mun:difference-nat0 m := n, n := i, from A
 
-    4.2.  2^((n + 1)! + (i − n)) ∈ ℝ
-          mun:power-real a := 2, m := (n + 1)! + (i − n), from 2, 4.1
+    2.2.  2^((n + 1)! + (i − n)) ∈ ℝ
+          mun:power-real a := 2, m := (n + 1)! + (i − n), from 2.1
 
-    4.3.  2^((n + 1)! + (i − n)) > 0
-          mun:power-positive a := 2, m := (n + 1)! + (i − n), from 2
+    2.3.  2^((n + 1)! + (i − n)) > 0
+          mun:power-positive a := 2, m := (n + 1)! + (i − n)
           requires 2 > 0: arithmetic
 
     let g = 2/2^((n + 1)! + (i − n)), a real number                   (D1)
-        membership, from 4.2, 4.3
+        membership, from 2.2, 2.3
         reads what the bound of line 1 falls short by at j = i − n
 
-    4.4.  s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))
-          instantiate j := i − n in line 1, from 4.1
+    2.4.  s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))
+          instantiate j := i − n in line 1, from 2.1
 
-    4.5.  s(i) − s(n) ≤ 2/2^((n + 1)!) − g
+    2.5.  s(i) − s(n) ≤ 2/2^((n + 1)!) − g
           substitute
-            s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))      4.4
+            s(n + (i − n)) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))      2.4
             s(i) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + (i − n))                algebra
             s(i) − s(n) ≤ 2/2^((n + 1)!) − g                                       substitute D1
 
-    4.6.  g > 0
-          mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from D1, 4.3
+    2.6.  g > 0
+          mun:quotient-positive x := 2, y := 2^((n + 1)! + (i − n)), from D1, 2.3
           requires 2 > 0: arithmetic
-          requires 2^((n + 1)! + (i − n)) ∈ ℝ: from 4.2
+          requires 2^((n + 1)! + (i − n)) ∈ ℝ: from 2.2
 
-    4.7.  s(i) ≤ 2/2^((n + 1)!) − g + s(n)
+    2.7.  s(i) ≤ 2/2^((n + 1)!) − g + s(n)
           inequalities
-            s(i) − s(n) ≤ 2/2^((n + 1)!) − g            4.5
+            s(i) − s(n) ≤ 2/2^((n + 1)!) − g            2.5
             s(i) ≤ 2/2^((n + 1)!) − g + s(n)            adding s(n)
           requires s(i) ∈ ℝ: thm:partial-sum-real m := i
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
-          requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 2
-          requires 2^((n + 1)!) ≠ 0: weakening, from 3
 
-    4.8.  0 ≤ g
+    2.8.  0 ≤ g
           inequalities
-            g > 0     4.6
+            g > 0     2.6
             0 < g     restate
             0 ≤ g     weakening
 
-    4.9.  s(i) ≤ s(n) + 2/2^((n + 1)!)
-          inequalities, from 4.7, 4.8
+    2.9.  s(i) ≤ s(n) + 2/2^((n + 1)!)
+          inequalities, from 2.7, 2.8
           requires s(i) ∈ ℝ: thm:partial-sum-real m := i
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
-          requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 2
-          requires 2^((n + 1)!) ≠ 0: weakening, from 3
 
 theorem scaled-sum-integer
   note        2^((n + 1)!) is (2^(n!))^n·2^(n!), so it carries 2^(n!)·s(n),
@@ -495,46 +414,27 @@ theorem scaled-sum-integer
     1.6.  (n + 1)! = n!·(n + 1)
           def:factorial
 
-    1.7.  n! ∈ ℕ
-          mun:factorial-nat
-
-    1.8.  2^(n!) ∈ ℕ
-          mun:power-nat a := 2, m := n!, from 1.7
-
-    1.9.  (2^(n!))^n ∈ ℕ
-          mun:power-nat a := 2^(n!), m := n, from 1.8
-
-    1.10. 2^((n + 1)!) = (2^(n!))^n·2^(n!)
+    1.7.  2^((n + 1)!) = (2^(n!))^n·2^(n!)
           calculation
             2^((n + 1)!) = 2^(n!·(n + 1))          substitute line 1.6
-                         = (2^(n!))^(n + 1)        mun:power-of-power a := 2, m := n!, n := n + 1, from 1.7
-                         = (2^(n!))^n·2^(n!)       mun:exponent-step a := 2^(n!), m := n, from 1.8
+                         = (2^(n!))^(n + 1)        mun:power-of-power a := 2, m := n!, n := n + 1
+                         = (2^(n!))^n·2^(n!)       mun:exponent-step a := 2^(n!), m := n
 
-    1.11. (n + 1)! ∈ ℕ
-          mun:factorial-nat n := n + 1
-
-    1.12. 2^((n + 1)!) > 0
-          mun:power-positive a := 2, m := (n + 1)!, from 1.11
-          requires 2 > 0: arithmetic
-
-    1.13. 2^((n + 1)!)·s(n + 1) = 2^((n + 1)!)·s(n) + 1
+    1.8.  2^((n + 1)!)·s(n + 1) = 2^((n + 1)!)·s(n) + 1
           algebra, from 1.5
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
-          requires 2^((n + 1)!) ∈ ℝ: mun:power-real a := 2, m := (n + 1)!, from 1.11
-          requires 2^((n + 1)!) ≠ 0: weakening, from 1.12
 
-    1.14. 2^((n + 1)!)·s(n + 1) = (2^(n!))^n·(2^(n!)·s(n)) + 1
+    1.9.  2^((n + 1)!)·s(n + 1) = (2^(n!))^n·(2^(n!)·s(n)) + 1
           substitute
-            2^((n + 1)!)·s(n + 1) = 2^((n + 1)!)·s(n) + 1             1.13
-            2^((n + 1)!)·s(n + 1) = (2^(n!))^n·(2^(n!)·s(n)) + 1      algebra, from 1.10
+            2^((n + 1)!)·s(n + 1) = 2^((n + 1)!)·s(n) + 1             1.8
+            2^((n + 1)!)·s(n + 1) = (2^(n!))^n·(2^(n!)·s(n)) + 1      algebra, from 1.7
           requires s(n) ∈ ℝ: thm:partial-sum-real m := n
-          requires 2^(n!) ∈ ℝ: mun:power-real a := 2, m := n!, from 1.7
 
-    1.15. (2^(n!))^n·(2^(n!)·s(n)) + 1 ∈ ℤ
-          membership, from IH, 1.9
+    1.10. (2^(n!))^n·(2^(n!)·s(n)) + 1 ∈ ℤ
+          membership, from IH
 
-    1.16. 2^((n + 1)!)·s(n + 1) ∈ ℤ
-          substitute (2^(n!))^n·(2^(n!)·s(n)) + 1 = 2^((n + 1)!)·s(n + 1) (line 1.14) into line 1.15
+    1.11. 2^((n + 1)!)·s(n + 1) ∈ ℤ
+          substitute (2^(n!))^n·(2^(n!)·s(n)) + 1 = 2^((n + 1)!)·s(n + 1) (line 1.9) into line 1.10
 
 theorem liouville-number
   note        The partial sums s(r) rise to a limit L, and 2^(r!)·s(r) is an
@@ -563,294 +463,274 @@ theorem liouville-number
     2.2.  s(n) ≤ s(n + 1)
           instantiate j := 1 in line 2.1
 
-3.  For all k ∈ ℕ, 1/2^(k!) ∈ ℝ.
-    proof
-    let k ∈ ℕ                                                         (K3)
-
-    3.1.  k! ∈ ℕ
-          mun:factorial-nat n := k
-
-    3.2.  2^(k!) > 0
-          mun:power-positive a := 2, m := k!, from 3.1
-          requires 2 > 0: arithmetic
-
-    3.3.  1/2^(k!) ∈ ℝ
-          membership
-          requires 2^(k!) ∈ ℝ: mun:power-real a := 2, m := k!, from 3.1
-          requires 2^(k!) ≠ 0: weakening, from 3.2
-
-4.  For all k ∈ {1, …, 1}, 1/2^(k!) ∈ ℝ.
+3.  For all k ∈ {1, …, 1}, 1/2^(k!) ∈ ℝ.
     thm:terms-real m := 1
 
-5.  s(1) = 1/2
+4.  s(1) = 1/2
     calculation
       s(1) = Σ(k = 1 to 1) 1/2^(k!)     D0
-           = 1/2^(1!)                   mun:sum-single a := 1, from 4
+           = 1/2^(1!)                   mun:sum-single a := 1, from 3
            = 1/2                        arithmetic
 
-6.  2/2^((1 + 1)!) = 1/2
+5.  2/2^((1 + 1)!) = 1/2
     arithmetic
 
-7.  s(1) + 2/2^((1 + 1)!) = 1
-    inequalities, from 5, 6
+6.  s(1) + 2/2^((1 + 1)!) = 1
+    inequalities, from 4, 5
 
-8.  For all i ≥ 1, s(i) ≤ s(1) + 2/2^((1 + 1)!).
+7.  For all i ≥ 1, s(i) ≤ s(1) + 2/2^((1 + 1)!).
     thm:later-at-most n := 1
 
-9.  For all n ∈ ℕ, s(n) ≤ 1.
+8.  For all n ∈ ℕ, s(n) ≤ 1.
     proof
     let n ∈ ℕ                                                         (K4)
 
-    9.1.  s(n) ≤ 1
+    8.1.  s(n) ≤ 1
           calculation
-            s(n) ≤ s(1) + 2/2^((1 + 1)!)     instantiate i := n in line 8, from K4
-                 = 1                         7
+            s(n) ≤ s(1) + 2/2^((1 + 1)!)     instantiate i := n in line 7, from K4
+                 = 1                         6
 
-10. L ∈ ℝ. s(n) → L as n → ∞.
-    obtain L: thm:monotone-limit x := (n ∈ ℕ ↦ s(n)), B := 1, from 2, 9
+9.  L ∈ ℝ. s(n) → L as n → ∞.
+    obtain L: thm:monotone-limit x := (n ∈ ℕ ↦ s(n)), B := 1, from 2, 8
     requires (n ∈ ℕ ↦ s(n)) : ℕ → ℝ: mun:function-into, from 1
 
-11. not (L is algebraic)
+10. not (L is algebraic)
     contradiction
     suppose L is algebraic                                            (S)
 
-    11.1. F : ℂ → ℂ. F is a polynomial with integer coefficients and deg(F) ∈ ℕ and F(L) = 0.
+    10.1. F : ℂ → ℂ. F is a polynomial with integer coefficients and deg(F) ∈ ℕ and F(L) = 0.
           obtain F: thm:algebraic-root α := L, from S
 
     let N = deg(F), a natural number                                  (D1)
-        from 11.1
+        from 10.1
         reads the degree of F
 
-    11.2. c ∈ ℝ. c > 0. For all p ∈ ℤ, for all q ∈ ℕ, L = p/q or c/q^N < |L − p/q|.
-          obtain c: thm:liouville F := F, α := L, from D1, 11.1
+    10.2. c ∈ ℝ. c > 0. For all p ∈ ℤ, for all q ∈ ℕ, L = p/q or c/q^N < |L − p/q|.
+          obtain c: thm:liouville F := F, α := L, from D1, 10.1
 
-    11.3. m ∈ ℕ. m > 2/c.
+    10.3. m ∈ ℕ. m > 2/c.
           obtain m: thm:archimedean-natural x := 2/c
-          requires c ≠ 0: weakening, from 11.2
+          requires c ≠ 0: weakening, from 10.2
 
     let r = m + N, a natural number                                   (D2)
-        mun:nat-closure a := m, b := N, from D1, 11.3
+        mun:nat-closure a := m, b := N, from D1, 10.3
         reads an index past both m and the degree
 
-    11.4. r! ∈ ℕ
+    10.4. r! ∈ ℕ
           mun:factorial-nat n := r
 
     let d = 2^(r!), a natural number                                  (D3)
-        mun:power-nat a := 2, m := r!, from 11.4
+        mun:power-nat a := 2, m := r!, from 10.4
         reads the denominator of s(r)
 
-    11.5. For all n ∈ ℕ, 2^(n!)·s(n) ∈ ℤ.
+    10.5. For all n ∈ ℕ, 2^(n!)·s(n) ∈ ℤ.
           thm:scaled-sum-integer
 
-    11.6. 2^(r!)·s(r) ∈ ℤ
-          instantiate n := r in line 11.5, from D2
+    10.6. 2^(r!)·s(r) ∈ ℤ
+          instantiate n := r in line 10.5, from D2
 
-    11.7. d·s(r) ∈ ℤ
-          substitute 2^(r!) = d (D3) into line 11.6
+    10.7. d·s(r) ∈ ℤ
+          substitute 2^(r!) = d (D3) into line 10.6
 
-    11.8. L = (d·s(r))/d or c/d^N < |L − (d·s(r))/d|
-          instantiate p := d·s(r), q := d in line 11.2, from D3, 11.7
+    10.8. L = (d·s(r))/d or c/d^N < |L − (d·s(r))/d|
+          instantiate p := d·s(r), q := d in line 10.2, from D3, 10.7
 
-    11.9.  L = s(r) or c/d^N < |L − s(r)|
+    10.9.  L = s(r) or c/d^N < |L − s(r)|
            substitute
-             L = (d·s(r))/d or c/d^N < |L − (d·s(r))/d|      11.8
+             L = (d·s(r))/d or c/d^N < |L − (d·s(r))/d|      10.8
              L = s(r) or c/d^N < |L − s(r)|                  algebra
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.10. For all i ≥ r + 1, s(r + 1) ≤ s(i).
+    10.10. For all i ≥ r + 1, s(r + 1) ≤ s(i).
            thm:later-at-least n := r, from D2
 
-    11.11. s(r + 1) = s(r) + 1/2^((r + 1)!)
+    10.11. s(r + 1) = s(r) + 1/2^((r + 1)!)
            thm:partial-sum-step n := r, from D2
 
-    11.12. (r + 1)! ∈ ℕ
+    10.12. (r + 1)! ∈ ℕ
            mun:factorial-nat n := r + 1
 
     let e = 2^((r + 1)!), a natural number                            (D4)
-        mun:power-nat a := 2, m := (r + 1)!, from 11.12
+        mun:power-nat a := 2, m := (r + 1)!, from 10.12
         reads the denominator of the term after s(r)
 
-    11.13. s(r + 1) = s(r) + 1/e
-           substitute 2^((r + 1)!) = e (D4) into line 11.11
+    10.13. s(r + 1) = s(r) + 1/e
+           substitute 2^((r + 1)!) = e (D4) into line 10.11
 
-    11.14. 1/e > 0
+    10.14. 1/e > 0
            mun:reciprocal-positive x := e
            requires e > 0: inequalities, from D4
 
-    11.15. s(r) < s(r) + 1/e
+    10.15. s(r) < s(r) + 1/e
            inequalities
-             1/e > 0               11.14
+             1/e > 0               10.14
              0 < 1/e               restate
              s(r) < s(r) + 1/e     adding s(r)
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.16. s(r) < L
+    10.16. s(r) < L
            calculation
-             s(r) < s(r) + 1/e     11.15
-                  = s(r + 1)       11.13
-                  ≤ L              thm:limit-at-least x := (n ∈ ℕ ↦ s(n)), B := s(r + 1), N := r + 1, from 10, 11.10
+             s(r) < s(r) + 1/e     10.15
+                  = s(r + 1)       10.13
+                  ≤ L              thm:limit-at-least x := (n ∈ ℕ ↦ s(n)), B := s(r + 1), N := r + 1, from 9, 10.10
            requires s(r + 1) ∈ ℝ: thm:partial-sum-real m := r + 1
            requires (n ∈ ℕ ↦ s(n)) : ℕ → ℝ: mun:function-into, from 1
 
-    11.17. L ≠ s(r)
+    10.17. L ≠ s(r)
            inequalities
-             s(r) < L      11.16
+             s(r) < L      10.16
              s(r) ≠ L      weakening
              L ≠ s(r)      restate
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.18. For all i ≥ r, s(i) ≤ s(r) + 2/2^((r + 1)!).
+    10.18. For all i ≥ r, s(i) ≤ s(r) + 2/2^((r + 1)!).
            thm:later-at-most n := r, from D2
 
-    11.19. For all i ≥ r, s(i) ≤ s(r) + 2/e.
-           substitute 2^((r + 1)!) = e (D4) into line 11.18
+    10.19. For all i ≥ r, s(i) ≤ s(r) + 2/e.
+           substitute 2^((r + 1)!) = e (D4) into line 10.18
 
-    11.20. L ≤ s(r) + 2/e
-           thm:limit-at-most x := (n ∈ ℕ ↦ s(n)), B := s(r) + 2/e, N := r, from 10, 11.19
+    10.20. L ≤ s(r) + 2/e
+           thm:limit-at-most x := (n ∈ ℕ ↦ s(n)), B := s(r) + 2/e, N := r, from 9, 10.19
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
            requires (n ∈ ℕ ↦ s(n)) : ℕ → ℝ: mun:function-into, from 1
 
-    11.21. 2/e > 0
+    10.21. 2/e > 0
            mun:quotient-positive x := 2, y := e
            requires 2 > 0: arithmetic
            requires e > 0: inequalities, from D4
 
-    11.22. −2/e ≤ 0
+    10.22. −2/e ≤ 0
            inequalities
-             2/e > 0        11.21
+             2/e > 0        10.21
              −2/e < 0       multiplying by −1
              −2/e ≤ 0       weakening
 
-    11.23. s(r) ≤ L
+    10.23. s(r) ≤ L
            inequalities
-             s(r) < L       11.16
+             s(r) < L       10.16
              s(r) ≤ L       weakening
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.24. s(r) − 2/e ≤ L
-           inequalities, from 11.22, 11.23
+    10.24. s(r) − 2/e ≤ L
+           inequalities, from 10.22, 10.23
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.25. c/d^N < 2/e
+    10.25. c/d^N < 2/e
            calculation
-             c/d^N < |L − s(r)|      mun:disjunctive-syllogism-left P := L = s(r), Q := c/d^N < |L − s(r)|, from 11.9, 11.17
-                   ≤ 2/e             mun:abs-difference-le x := L, c := s(r), δ := 2/e, from 11.20, 11.24
+             c/d^N < |L − s(r)|      mun:disjunctive-syllogism-left P := L = s(r), Q := c/d^N < |L − s(r)|, from 10.9, 10.17
+                   ≤ 2/e             mun:abs-difference-le x := L, c := s(r), δ := 2/e, from 10.20, 10.24
            requires s(r) ∈ ℝ: thm:partial-sum-real m := r, from D2
 
-    11.26. r!·N ∈ ℕ
-           mun:nat-closure a := r!, b := N, from D1, 11.4
+    10.26. r!·N ∈ ℕ
+           mun:nat-closure a := r!, b := N, from D1
 
-    11.27. r!·(m + 1) ∈ ℕ
-           mun:nat-closure a := r!, b := m + 1, from 11.4
+    10.27. r!·(m + 1) ∈ ℕ
+           mun:nat-closure a := r!, b := m + 1
 
     let Q = 2^(r!·N), a natural number                                (D5)
-        mun:power-nat a := 2, m := r!·N, from 11.26
+        mun:power-nat a := 2, m := r!·N, from 10.26
         reads d^N
 
     let R = 2^(r!·(m + 1)), a natural number                          (D6)
-        mun:power-nat a := 2, m := r!·(m + 1), from 11.27
+        mun:power-nat a := 2, m := r!·(m + 1), from 10.27
         reads e over d^N
 
-    11.28. 2^(r!·N) = (2^(r!))^N
-           mun:power-of-power a := 2, m := r!, n := N, from 11.4
+    10.28. 2^(r!·N) = (2^(r!))^N
+           mun:power-of-power a := 2, m := r!, n := N
 
-    11.29. d^N = Q
-           algebra, from D3, D5, 11.28
+    10.29. d^N = Q
+           algebra, from D3, D5, 10.28
 
-    11.30. (r + 1)! = r!·(r + 1)
+    10.30. (r + 1)! = r!·(r + 1)
            def:factorial n := r
 
-    11.31. r!·(r + 1) = r!·N + r!·(m + 1)
+    10.31. r!·(r + 1) = r!·N + r!·(m + 1)
            algebra, from D2
-           requires r! ∈ ℝ: from 11.4
 
-    11.32. e = Q·R
+    10.32. e = Q·R
            calculation
              e = 2^((r + 1)!)                      D4
-               = 2^(r!·(r + 1))                    substitute line 11.30
-               = 2^(r!·N + r!·(m + 1))             substitute line 11.31
-               = 2^(r!·N)·2^(r!·(m + 1))           mun:exponent-sum a := 2, m := r!·N, n := r!·(m + 1), from 11.26, 11.27
+               = 2^(r!·(r + 1))                    substitute line 10.30
+               = 2^(r!·N + r!·(m + 1))             substitute line 10.31
+               = 2^(r!·N)·2^(r!·(m + 1))           mun:exponent-sum a := 2, m := r!·N, n := r!·(m + 1)
                = Q·R                               algebra, from D5, D6
 
-    11.33. c/Q < 2/(Q·R)
+    10.33. c/Q < 2/(Q·R)
            substitute
-             c/d^N < 2/e        11.25
-             c/Q < 2/e          substitute line 11.29
-             c/Q < 2/(Q·R)      substitute line 11.32
+             c/d^N < 2/e        10.25
+             c/Q < 2/e          substitute line 10.29
+             c/Q < 2/(Q·R)      substitute line 10.32
 
-    11.34. Q·R > 0
+    10.34. Q·R > 0
            mun:product-positive x := Q, y := R
            requires Q > 0: inequalities, from D5
            requires R > 0: inequalities, from D6
 
-    11.35. c·(Q·R) < 2·Q
-           mun:cross-multiplied-order a := c, b := Q·R, c := 2, d := Q, from 11.33, 11.34
+    10.35. c·(Q·R) < 2·Q
+           mun:cross-multiplied-order a := c, b := Q·R, c := 2, d := Q, from 10.33, 10.34
            requires Q > 0: inequalities, from D5
 
-    11.36. Q·(c·R) < Q·2
+    10.36. Q·(c·R) < Q·2
            inequalities
-             c·(Q·R) < 2·Q      11.35
+             c·(Q·R) < 2·Q      10.35
              Q·(c·R) < Q·2      algebra
 
-    11.37. c·R < 2
-           mun:less-scaled x := c·R, y := 2, c := Q, from 11.36
+    10.37. c·R < 2
+           mun:less-scaled x := c·R, y := 2, c := Q, from 10.36
            requires Q > 0: inequalities, from D5
 
-    11.38. c·R ≤ 2
+    10.38. c·R ≤ 2
            inequalities
-             c·R < 2      11.37
+             c·R < 2      10.37
              c·R ≤ 2      weakening
 
-    11.39. 1 ≤ r!
-           inequalities, from 11.4
+    10.39. 1 ≤ r!
+           inequalities, from 10.4
 
-    11.40. 1·(m + 1) ≤ r!·(m + 1)
-           mun:multiply-le-nonneg x := 1, y := r!, c := m + 1, from 11.39
-           requires r! ∈ ℝ: from 11.4
-           requires m + 1 ≥ 0: inequalities, from 11.3
+    10.40. 1·(m + 1) ≤ r!·(m + 1)
+           mun:multiply-le-nonneg x := 1, y := r!, c := m + 1, from 10.39
+           requires m + 1 ≥ 0: inequalities, from 10.3
 
-    11.41. m + 1 ≤ r!·(m + 1)
+    10.41. m + 1 ≤ r!·(m + 1)
            inequalities
-             1·(m + 1) ≤ r!·(m + 1)     11.40
+             1·(m + 1) ≤ r!·(m + 1)     10.40
              m + 1 ≤ r!·(m + 1)         algebra
-           requires r! ∈ ℝ: from 11.4
 
-    11.42. 2^(m + 1) ≤ 2^(r!·(m + 1))
-           mun:power-exponent-le a := 2, m := m + 1, n := r!·(m + 1), from 11.27, 11.41
+    10.42. 2^(m + 1) ≤ 2^(r!·(m + 1))
+           mun:power-exponent-le a := 2, m := m + 1, n := r!·(m + 1), from 10.41
            requires 1 ≤ 2: arithmetic
 
-    11.43. 2^(m + 1) ≤ R
-           substitute 2^(r!·(m + 1)) = R (D6) into line 11.42
+    10.43. 2^(m + 1) ≤ R
+           substitute 2^(r!·(m + 1)) = R (D6) into line 10.42
 
-    11.44. m < 1 + 1·(m + 1)
+    10.44. m < 1 + 1·(m + 1)
            inequalities
 
-    11.45. m < R
+    10.45. m < R
            calculation
-             m < 1 + 1·(m + 1)                11.44
+             m < 1 + 1·(m + 1)                10.44
                ≤ (1 + 1)^(m + 1)              thm:bernoulli-inequality x := 1, n := m + 1
                = 2^(m + 1)                    arithmetic
-               ≤ R                            11.43
+               ≤ R                            10.43
            requires 1 ≥ −1: arithmetic
 
-    11.46. 2/c < R
-           transitivity, from 11.3, 11.45
-           requires c ≠ 0: weakening, from 11.2
+    10.46. 2/c < R
+           transitivity, from 10.3, 10.45
+           requires c ≠ 0: weakening, from 10.2
 
-    11.47. 2 < c·R
+    10.47. 2 < c·R
            calculation
              2 = c·(2/c)          algebra
-               < c·R              mun:less-scaled x := 2/c, y := R, from 11.2, 11.46
-           requires c ≠ 0: weakening, from 11.2
+               < c·R              mun:less-scaled x := 2/c, y := R, from 10.2, 10.46
+           requires c ≠ 0: weakening, from 10.2
 
-    11.48. not 2 < c·R
-           inequalities, from 11.38, contradicting 11.47
+    10.48. not 2 < c·R
+           inequalities, from 10.38, contradicting 10.47
 
-12. L is transcendental
-    def:transcendental, from 11
+11. L is transcendental
+    def:transcendental, from 10
 
-13. Σ(k = 1 to ∞) 1/2^(k!) is transcendental
+12. Σ(k = 1 to ∞) 1/2^(k!) is transcendental
     substitute
-      L is transcendental                           12
-      Σ(k = 1 to ∞) 1/2^(k!) is transcendental      def:series-sum, from D0, 10
-    requires for all k ∈ ℕ, 1/2^(k!) ∈ ℝ: from 3
+      L is transcendental                           11
+      Σ(k = 1 to ∞) 1/2^(k!) is transcendental      def:series-sum, from D0, 9

@@ -5,14 +5,14 @@ block of 2: 2.1, 2.2
 step 1 cites stdlib/numbers/nonneg-or-neg group 0; x := a + b; concludes 0 AsWritten; from no line
 step 2.1 cites tests/docs/syntax/sum-nonneg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line
 step 2.2 cites tests/docs/syntax/sum-neg-bounded group 0; a := a, b := b; concludes 0 AsWritten; from no line
-read 81: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
-read 83: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
-read 84: b ∈ ℝ  as  membership:∈(name:b, number-systems:ℝ)  a statement
+read 76: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
+read 78: a ∈ ℝ  as  membership:∈(name:a, number-systems:ℝ)  a statement
+read 79: b ∈ ℝ  as  membership:∈(name:b, number-systems:ℝ)  a statement
+read 80: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
+read 82: a + b ≥ 0 or a + b < 0  as  disjunction:or(order:≥(additive:+(name:a, name:b), numeral:0), order:<(additive:+(name:a, name:b), numeral:0))  a statement
+read 83: a + b  as  additive:+(name:a, name:b)  a number
 read 85: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
-read 87: a + b ≥ 0 or a + b < 0  as  disjunction:or(order:≥(additive:+(name:a, name:b), numeral:0), order:<(additive:+(name:a, name:b), numeral:0))  a statement
-read 88: a + b  as  additive:+(name:a, name:b)  a number
+read 89: a + b ≥ 0  as  order:≥(additive:+(name:a, name:b), numeral:0)  a statement
 read 90: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
-read 94: a + b ≥ 0  as  order:≥(additive:+(name:a, name:b), numeral:0)  a statement
-read 95: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
-read 98: a + b < 0  as  order:<(additive:+(name:a, name:b), numeral:0)  a statement
-read 99: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement
+read 93: a + b < 0  as  order:<(additive:+(name:a, name:b), numeral:0)  a statement
+read 94: |a + b| ≤ |a| + |b|  as  order:≤(absolute-value:||(additive:+(name:a, name:b)), additive:+(absolute-value:||(name:a), absolute-value:||(name:b)))  a statement

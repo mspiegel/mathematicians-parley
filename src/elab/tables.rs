@@ -142,6 +142,20 @@ struct BuildOnce<'m, 'a> {
 }
 
 impl BuildOnce<'_, '_> {
+    /// Whether a term is a letter the page gives the point sort, as
+    /// `let A be a point` does.
+    fn is_point(&self, term: &Term) -> bool {
+        let said = self.me.rpn(term);
+        self.me.names.iter().any(|(name, kernel)| {
+            *kernel == said
+                && self
+                    .me
+                    .sorts_now
+                    .get(name)
+                    .is_some_and(|sort| sort.is("point"))
+        })
+    }
+
     /// What `checked` holds, or None, keeping the first defect.
     fn keep<T>(&mut self, checked: Checked<T>) -> Option<T> {
         match checked {
@@ -180,15 +194,22 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                     "cmul" => Shape::Operation("cmul", &kids[0], &kids[1]),
                     "cdiv" => Shape::Operation("cdiv", &kids[0], &kids[1]),
                     "cexp" => Shape::Power(&kids[0], &kids[1]),
+                    "cbc" => Shape::Whole("cbc", &kids[0], &kids[1]),
+                    "cgcd" => Shape::Whole("cgcd", &kids[0], &kids[1]),
+                    "clcm" => Shape::Whole("clcm", &kids[0], &kids[1]),
                     _ => Shape::Other,
                 }
             }
             (Some("cpi" | "ceu"), 0) => Shape::Real,
             (Some("cfv"), 2) if self.me.rpn(&kids[1]).alone() == Some("cabs") => {
                 match kids[0].children() {
+                    // The distance |PQ| is |P − Q| of two points; of two
+                    // numbers it is an absolute value, |x − c|.
                     [p, q, op]
                         if kids[0].label() == Some("co")
-                            && self.me.rpn(op).alone() == Some("cmin") =>
+                            && self.me.rpn(op).alone() == Some("cmin")
+                            && self.is_point(p)
+                            && self.is_point(q) =>
                     {
                         Shape::Distance(p, q)
                     }
@@ -210,8 +231,11 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                             _ => Shape::Other,
                         }
                     }
-                    _ => Shape::Other,
+                    _ => Shape::Absolute(&kids[0]),
                 }
+            }
+            (Some("cfv"), 2) if self.me.rpn(&kids[1]).alone() == Some("cfa") => {
+                Shape::Factorial(&kids[0])
             }
             _ if crate::methods::surds::is_root(term) => {
                 match crate::methods::field::closed_value(&kids[0]) {
@@ -251,15 +275,7 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
 
     /// A letter the page gives the point sort, as `let A be a point` does.
     fn point(&mut self, term: &Term) -> bool {
-        let said = self.me.rpn(term);
-        self.me.names.iter().any(|(name, kernel)| {
-            *kernel == said
-                && self
-                    .me
-                    .sorts_now
-                    .get(name)
-                    .is_some_and(|sort| sort.is("point"))
-        })
+        self.is_point(term)
     }
 
     fn nonzero(&mut self, divisor: &Term) -> bool {
@@ -2164,6 +2180,50 @@ impl<'a> Elaborator<'a> {
                     facts
                 )?);
                 self.applied_within(&term, &real, system, scope)
+            }
+            // n! of an n in ℕ₀ is in ℕ (`faccld`), carried to `system`.
+            OnceReason::Factorial(_) => {
+                let n = self.rpn(&term.children()[0]);
+                let whole =
+                    take!(self.introduced_membership(&n, &t!("cn0"), scope, facts)?);
+                let made =
+                    self.b
+                        .ap("faccld", &binds! {"ph" => scope, "N" => &n}, &[&whole]);
+                self.carried_within(said, "cn", system, made, scope)
+            }
+            // |x| of an integer is in ℕ₀ (`nn0abscl`), and of a complex
+            // number in ℝ (`abscld`), carried to `system`.
+            OnceReason::Absolute { within, .. } => {
+                let x = self.rpn(&term.children()[0]);
+                if within == System::Z {
+                    let integer = take!(self.introduced_membership(
+                        &x,
+                        &t!("cz"),
+                        scope,
+                        facts
+                    )?);
+                    let law = self.b.ap("nn0abscl", &binds! {"A" => &x}, &[]);
+                    let made = self.b.ap(
+                        "syl",
+                        &binds! {"ph" => scope, "ps" => t!(&x, "cz", "wcel"),
+                        "ch" => t!(said, "cn0", "wcel")},
+                        &[&integer, &law],
+                    );
+                    self.carried_within(said, "cn0", system, made, scope)
+                } else {
+                    let complex = take!(self.introduced_membership(
+                        &x,
+                        &t!("cc"),
+                        scope,
+                        facts
+                    )?);
+                    let made = self.b.ap(
+                        "abscld",
+                        &binds! {"ph" => scope, "A" => &x},
+                        &[&complex],
+                    );
+                    self.carried_within(said, "cr", system, made, scope)
+                }
             }
             // A part that a line the step names puts in a number system is
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a

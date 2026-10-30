@@ -6,23 +6,21 @@ import mundane theorem    stdlib/divisibility/mod-natural
 import mundane theorem    stdlib/divisibility/mod-less
 import definition         stdlib/functions/set-image
 import definition         stdlib/sets/intersection
-import definition         stdlib/counting/C
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/numbers/one-power
 
 theorem a-one-dropped-from-the-middle
-  note        C(m, k)·1·1^k is C(m, k)·1^k where C(m, k) is a number, which the requires line says.
-  let m ∈ ℕ₀                                                          (H1)
+  note        b(k)·1·1^k is b(k)·1^k where b(k) is a number, which the requires line says.
+  let b : ℤ → ℝ                                                       (H1)
   let k ∈ ℤ                                                           (H2)
   let j ∈ ℕ₀                                                          (H3)
-  then C(m, k)·1^j·1^k = C(m, k)·1^k
+  then b(k)·1^j·1^k = b(k)·1^k
 
 1.  1^j = 1
     mun:one-power m := j
 
-2.  C(m, k)·1^j·1^k = C(m, k)·1^k
+2.  b(k)·1^j·1^k = b(k)·1^k
     substitute 1^j = 1 (line 1)
-    requires C(m, k) ∈ ℕ₀: mun:binomial-nat0 n := m
+    requires b(k) ∈ ℝ: from H1
 
 theorem a-definition-unfolding-the-second-sentence
   note        Line 1 says two things; the claim's 3n picks the second.

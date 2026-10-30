@@ -2,7 +2,6 @@ import definition         stdlib/calculus/tends-to
 import theorem            stdlib/numbers/archimedean
 import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/factorial-nat
-import mundane theorem    stdlib/counting/factorial-nonzero
 import mundane theorem    stdlib/numbers/exponent-step
 import mundane theorem    stdlib/numbers/multiply-le
 import mundane theorem    stdlib/numbers/divide-le
@@ -53,7 +52,6 @@ theorem factorial-beats-power
           inequalities
             2^k ≤ 2·k!            IH
             2^k·2 ≤ 2·k!·2        multiplying by 2
-          requires k! ∈ ℝ: from 1.4
 
     1.9.  k ≥ 1
           inequalities, from K
@@ -67,20 +65,15 @@ theorem factorial-beats-power
           inequalities
             k! > 0                1.5
             2·k! > 0              multiplying by 2
-          requires k! ∈ ℝ: from 1.4
 
     1.12. 2·k!·2 ≤ 2·k!·(k + 1)
           mun:multiply-le x := 2, y := k + 1, c := 2·k!, from 1.10, 1.11
-          requires k! ∈ ℝ: from 1.4
 
     1.13. 2·k!·(k + 1) = 2·(k + 1)!
           algebra, from 1.6
-          requires k! ∈ ℝ: from 1.4
 
     1.14. 2^(k + 1) ≤ 2·(k + 1)!
           transitivity, from 1.7, 1.8, 1.12, 1.13
-          requires k! ∈ ℝ: from 1.4
-          requires (k + 1)! ∈ ℝ: membership, from 1.4, 1.6
 
     1.15. (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
           calculation
@@ -88,7 +81,6 @@ theorem factorial-beats-power
                               ≤ (k + 1)·(2·k!·2)         mun:multiply-le x := 2^k·2, y := 2·k!·2, c := k + 1, from 1.8
                               = 4·(k + 1)!               algebra, from 1.6
           requires k + 1 > 0: inequalities, from K
-          requires k! ∈ ℝ: from 1.4
 
     1.16. 2^(k + 1) ≤ 2·(k + 1)! and (k + 1)·2^(k + 1) ≤ 4·(k + 1)!
           join 1.14, 1.15
@@ -130,70 +122,61 @@ theorem two-power-over-factorial
           1.3.1.  n! ∈ ℕ
                   mun:factorial-nat
 
-          1.3.2.  n! ≠ 0
-                  mun:factorial-nonzero
-
-          1.3.3.  n·2^n ≤ 4·n!
+          1.3.2.  n·2^n ≤ 4·n!
                   thm:factorial-beats-power
 
-          1.3.4.  n·n! > 0
+          1.3.3.  n·n! > 0
                   mun:product-positive x := n, y := n!, from 1.3.1
                   requires n > 0: inequalities, from K2
 
-          1.3.5.  2^n/n! ≤ 4/n
+          1.3.4.  2^n/n! ≤ 4/n
                   calculation
                     2^n/n! = n·2^n/(n·n!)        algebra
-                           ≤ 4·n!/(n·n!)         mun:divide-le x := n·2^n, y := 4·n!, c := n·n!, from 1.3.3, 1.3.4
+                           ≤ 4·n!/(n·n!)         mun:divide-le x := n·2^n, y := 4·n!, c := n·n!, from 1.3.2, 1.3.3
                            = 4/n                 algebra
-                  requires n! ∈ ℝ: from 1.3.1
-                  requires n! ≠ 0: from 1.3.2
 
-          1.3.6.  1/n ≤ 1/N
+          1.3.5.  1/n ≤ 1/N
                   mun:reciprocal-order x := N, y := n, from A2
                   requires N > 0: inequalities, from 1.2
                   requires n > 0: inequalities, from K2
 
-          1.3.7.  4/n ≤ 4/N
+          1.3.6.  4/n ≤ 4/N
                   inequalities
-                    1/n ≤ 1/N          1.3.6
+                    1/n ≤ 1/N          1.3.5
                     4/n ≤ 4/N          multiplying by 4
 
-          1.3.8.  4/N < ε
+          1.3.7.  4/N < ε
                   inequalities
                     1/N < ε/4          1.2
                     4/N < ε            multiplying by 4
 
-          1.3.9.  2^n ∈ ℕ
+          1.3.8.  2^n ∈ ℕ
                   mun:power-nat a := 2, m := n
 
-          1.3.10. 2^n/n! > 0
+          1.3.9.  2^n/n! > 0
                   mun:quotient-positive x := 2^n, y := n!, from 1.3.1
-                  requires 2^n > 0: inequalities, from 1.3.9
+                  requires 2^n > 0: inequalities, from 1.3.8
 
-          1.3.11. 0 < a(n)
-                  transitivity, from 1.3.10, H2
-                  requires n! ∈ ℝ: from 1.3.1
-                  requires n! ≠ 0: from 1.3.2
+          1.3.10. 0 < a(n)
+                  transitivity, from 1.3.9, H2
 
-          1.3.12. 0 − ε < 0
+          1.3.11. 0 − ε < 0
                   inequalities
                     ε > 0              A1
                     0 − ε < 0          multiplying by −1
 
-          1.3.13. 0 − ε < a(n)
-                  transitivity, from 1.3.12, 1.3.11
+          1.3.12. 0 − ε < a(n)
+                  transitivity, from 1.3.11, 1.3.10
                   requires a(n) ∈ ℝ: from H1
 
-          1.3.14. a(n) < 0 + ε
-                  transitivity, from H2, 1.3.5, 1.3.7, 1.3.8
-                  requires n! ∈ ℝ: from 1.3.1
-                  requires n! ≠ 0: from 1.3.2
+          1.3.13. a(n) < 0 + ε
+                  transitivity, from H2, 1.3.4, 1.3.6, 1.3.7
 
-          1.3.15. 0 − ε < a(n) and a(n) < 0 + ε
-                  join 1.3.13, 1.3.14
+          1.3.14. 0 − ε < a(n) and a(n) < 0 + ε
+                  join 1.3.12, 1.3.13
 
-          1.3.16. |a(n) − 0| < ε
-                  mun:abs-difference-lt x := a(n), c := 0, δ := ε, from 1.3.15
+          1.3.15. |a(n) − 0| < ε
+                  mun:abs-difference-lt x := a(n), c := 0, δ := ε, from 1.3.14
                   requires a(n) ∈ ℝ: from H1
 
     1.4.  There exists N ∈ ℕ such that |a(n) − 0| < ε for all n ≥ N.

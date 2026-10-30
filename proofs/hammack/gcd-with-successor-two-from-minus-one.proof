@@ -35,7 +35,7 @@ theorem gcd-with-successor-two-from-minus-one
     mun:divides-le e := gcd(n, n + 2), m := 2, from 2, 4
 
 6.  gcd(n, n + 2) < 2 or gcd(n, n + 2) = 2
-    mun:le-cases x := gcd(n, n + 2), y := 2, from 2, 5
+    mun:le-cases x := gcd(n, n + 2), y := 2, from 5
 
 7.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
     cases, from 6
@@ -44,17 +44,16 @@ theorem gcd-with-successor-two-from-minus-one
     assume gcd(n, n + 2) < 2                                          (C1)
 
     7.1.  gcd(n, n + 2) + 1 ≤ 2
-          mun:integer-step m := gcd(n, n + 2), n := 2, from C1, 2
+          mun:integer-step m := gcd(n, n + 2), n := 2, from C1
 
     7.2.  gcd(n, n + 2) ≤ 1
-          inequalities, from 2, 7.1
+          inequalities, from 7.1
 
     7.3.  1 ≤ gcd(n, n + 2)
           inequalities, from 2
 
     7.4.  gcd(n, n + 2) = 1
           antisymmetry, from 7.2, 7.3
-          requires gcd(n, n + 2) ∈ ℝ: from 2
 
     7.5.  gcd(n, n + 2) = 1 or gcd(n, n + 2) = 2
           mun:or-left, from 7.4

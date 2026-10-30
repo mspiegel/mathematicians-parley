@@ -153,7 +153,7 @@ method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
 gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
-and does not cite that line for it. The same holds of eight kinds of term,
+and does not cite that line for it. The same holds of twelve kinds of term,
 and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
@@ -176,8 +176,22 @@ and of nothing else:
 - **a sine, a cosine or an exponential of a real number** said once by these
   rules, in ℝ and ℂ: `cos(∠ABC) ∈ ℝ`, `sin(x) ∈ ℝ` where `let x ∈ ℝ`,
   `exp(2·t) ∈ ℝ` where `let t ∈ ℝ`;
-- **a term built from those** by +, −, ·, a power whose exponent is a
-  numeral or a letter introduced in ℕ or ℕ₀, and /, in the smallest number
+- **a factorial** n! of a term said once in ℕ₀ by these rules, in ℕ and
+  every system containing it: `k! ∈ ℕ` where `let k ∈ ℕ₀`, `(n + 1)! ∈ ℤ`
+  where `let n ∈ ℕ`;
+- **a binomial coefficient** C(n, k) of a term said once in ℕ₀ and one said
+  once in ℤ, in ℕ₀ and every system containing it: `C(m, k) ∈ ℕ₀` where
+  `let m ∈ ℕ₀` and `let k ∈ ℤ`;
+- **an absolute value** |x| of a number said once in ℂ, in ℝ and ℂ, and in
+  ℕ₀ and every system containing it where x is said once in ℤ:
+  `|x − c| ∈ ℝ` where `let x, c ∈ ℝ`, `|a| ∈ ℕ₀` where `let a ∈ ℤ`. The size
+  of a set is not one of these, since the set must be finite;
+- **a greatest common divisor or least common multiple** of two terms said
+  once in ℤ, in ℕ₀ and every system containing it: `gcd(a, b) ∈ ℝ` where
+  `let a, b ∈ ℤ`;
+- **a term built from those** by +, −, ·, a power whose exponent is a term
+  said once in ℕ₀ by these rules, `2^(j + 1)` and `5^(2m)` where
+  `let j, m ∈ ℕ₀`, and /, in the smallest number
   system closed under what builds it: a·x + b·y is an integer when a, b, x
   and y are, and so is 2^j when j ∈ ℕ₀, a product of j copies of 2;
 - **a sum whose term is a number at every index**, in ℝ or ℂ: the index is
@@ -202,8 +216,8 @@ whose value is not zero, as 2 and 1 − 3 are, or a positive integer such as
 k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the kinds above do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
-function's domain, |x|, n!, a power whose exponent is any other term,
-2^(j + 1) or 2^k with k ∈ ℤ, and any other term a library item builds, √x
+function's domain, the size of a set, a power whose exponent is not said
+once in ℕ₀, 2^k with k ∈ ℤ or 2^(p − 1) with p ∈ ℤ, and any other term a library item builds, √x
 and ln x among them, whose argument must be positive. These
 rest on a lemma or a line a reader may want to see, and a requires line
 points to it. Once one is written, what +, −, · and / build from it is not

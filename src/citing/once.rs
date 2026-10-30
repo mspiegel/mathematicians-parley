@@ -26,10 +26,10 @@ use crate::formula::symbol::Symbol;
 use crate::formula::{ByShape, Node, Sort, Sorts};
 use crate::matching::{alike_top, standard, substitute_apart, Binding, FxIndexSet};
 use crate::notations::{
-    APPLICATION, DEGREES, DISTANCE, DIVIDED, EULER, FACTORIAL, IN, INTEGER_RANGE,
-    JUXTAPOSITION, MAP, MEMBERSHIP, MINUS, MOD, MULTIPLICATIVE, NUMBER_SYSTEMS,
-    NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM, SUPERSCRIPT, TIMES, UNARY_MINUS,
-    WITHOUT,
+    ABSOLUTE_VALUE, APPLICATION, APPLICATION_TO_TWO, DEGREES, DISTANCE, DIVIDED, EULER,
+    FACTORIAL, IN, INTEGER_RANGE, JUXTAPOSITION, MAP, MEMBERSHIP, MINUS, MOD,
+    MULTIPLICATIVE, NUMBER_SYSTEMS, NUMERAL, PI, PLUS, POWER, SQUARE_ROOT, SUM,
+    SUPERSCRIPT, TIMES, UNARY_MINUS, WITHOUT,
 };
 use crate::rules::{self, lookup, System};
 use crate::sorts::types_a_function;
@@ -449,6 +449,15 @@ pub enum OnceReason {
     /// A sine, cosine or exponential of an argument in ℝ for the reason
     /// given, which is in ℝ and ℂ.
     Applied(Box<OnceReason>),
+    /// n! of an n in ℕ₀ for the reason given, which is in ℕ and every
+    /// system containing it.
+    Factorial(Box<OnceReason>),
+    /// |x| of an x in `within` for the reason `part` gives: of one in ℤ it
+    /// is in ℕ₀, and of one in ℂ in ℝ.
+    Absolute {
+        within: System,
+        part: Box<OnceReason>,
+    },
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -514,6 +523,14 @@ pub enum Shape<'t, T> {
     /// The library's sine, cosine or exponential of this argument, where
     /// `real arithmetic` does not work it out whole.
     Applied(&'t T),
+    /// n! of this n.
+    Factorial(&'t T),
+    /// The absolute value |x| of a number x.
+    Absolute(&'t T),
+    /// C(n, k), gcd(a, b) or lcm(a, b), by its operation's set.mm label
+    /// (`cbc`, `cgcd`, `clcm`), whose row of `rules::WHOLE` says what its
+    /// parts must be.
+    Whole(&'static str, &'t T, &'t T),
     /// Anything the walk does not take apart.
     Other,
 }
@@ -616,6 +633,39 @@ pub fn reason<A: OnceAsk>(
             }
             Some(OnceReason::Applied(Box::new(reason(ask, a, System::R)?)))
         }
+        Shape::Factorial(n) => {
+            Some(OnceReason::Factorial(Box::new(reason(ask, n, System::N0)?)))
+        }
+        Shape::Absolute(x) => {
+            if System::N0.within(system) {
+                if let Some(part) = reason(ask, x, System::Z) {
+                    return Some(OnceReason::Absolute {
+                        within: System::Z,
+                        part: Box::new(part),
+                    });
+                }
+            }
+            if !matches!(system, System::R | System::C) {
+                return None;
+            }
+            let part = reason(ask, x, System::C)?;
+            Some(OnceReason::Absolute {
+                within: System::C,
+                part: Box::new(part),
+            })
+        }
+        Shape::Whole(op, a, b) => {
+            let whole = rules::WHOLE.iter().find(|w| w.op == op)?;
+            if !System::N0.within(system) {
+                return None;
+            }
+            let (left, right) = (
+                System::of_label(whole.left.1)?,
+                System::of_label(whole.right.1)?,
+            );
+            let first = reason(ask, a, left)?;
+            Some(OnceReason::Built(vec![first, reason(ask, b, right)?]))
+        }
         Shape::Other => None,
     }
 }
@@ -689,18 +739,12 @@ fn pi_parts(term: &Node) -> Option<(BigRational, BigRational)> {
     })
 }
 
-/// Whether a power's exponent makes it a product of copies of its base:
-/// a numeral in ℕ₀, or a letter introduced in ℕ or ℕ₀ (`READERS.md`,
-/// membership said once). 2^j with j ∈ ℕ₀ is then a number wherever 2 is,
-/// and 2^(−1), 0^k with k ∈ ℤ, or 2^(j + 1) are not said once this way.
+/// Whether a power's exponent makes it a product of copies of its base: a
+/// term the page says once is in ℕ₀ (`READERS.md`, membership said once).
+/// 2^j and 2^(j + 1) with j ∈ ℕ₀ are then numbers wherever 2 is, and
+/// 2^(−1), 0^k with k ∈ ℤ, or 2^(p − 1) are not said once this way.
 fn whole_exponent<A: OnceAsk>(ask: &mut A, exponent: &A::T) -> bool {
-    match ask.shape(exponent) {
-        Shape::Value(v) => v.is_integer() && !v.is_negative(),
-        Shape::Letter => ask
-            .letter(exponent)
-            .is_some_and(|set| set.within(System::N0)),
-        _ => false,
-    }
+    reason(ask, exponent, System::N0).is_some()
 }
 
 /// The page's sentences as the said-once walk reads them: letters by the
@@ -762,6 +806,20 @@ impl OnceAsk for PageOnce<'_> {
                 Shape::Applied(a)
             }
             (n, _, [p, q, r]) if n == NotationId::of("angle") => Shape::Angle(p, q, r),
+            (FACTORIAL, _, [n]) => Shape::Factorial(n),
+            (ABSOLUTE_VALUE, _, [x]) => Shape::Absolute(x),
+            // The library's C, gcd and lcm: one the theorem introduces as a
+            // letter of its own is not it.
+            (APPLICATION_TO_TWO, _, [head, a, b])
+                if head.is_name() && !self.letters.contains_key(head.text.as_str()) =>
+            {
+                match head.text.as_str() {
+                    "C" => Shape::Whole("cbc", a, b),
+                    "gcd" => Shape::Whole("cgcd", a, b),
+                    "lcm" => Shape::Whole("clcm", a, b),
+                    _ => Shape::Other,
+                }
+            }
             _ => Shape::Other,
         }
     }

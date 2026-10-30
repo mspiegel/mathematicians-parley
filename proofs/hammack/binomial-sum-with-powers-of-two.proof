@@ -1,6 +1,5 @@
 import definition         stdlib/counting/C
 import theorem            proofs/wiedijk/binomial/binomial
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/numbers/one-power
 import mundane theorem    stdlib/sums/range-difference
 import mundane theorem    stdlib/sums/sum-termwise
@@ -31,7 +30,6 @@ theorem binomial-sum-with-powers-of-two
 
     3.2.  C(n, k)·1^(n − k)·2^k = 2^k·C(n, k)
           algebra, from 3.1
-          requires C(n, k) ∈ ℕ₀: mun:binomial-nat0
 
 4.  1 + 2 = 3
     arithmetic

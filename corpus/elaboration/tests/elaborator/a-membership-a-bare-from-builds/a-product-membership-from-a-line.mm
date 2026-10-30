@@ -6,6 +6,6 @@ $( tests/elaborator/a-membership-a-bare-from-builds/a-product-membership-from-a-
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.a-membership-a-bare-from-builds.a-product-membership-from-a-line $p |- ( ( ( ( ( ( ( A e. NN /\ B e. NN ) /\ C e. ZZ ) /\ D e. ZZ ) /\ E e. ZZ ) /\ ( C x. ( A gcd B ) ) || D ) /\ ( C x. ( A gcd B ) ) || E ) -> ( C x. ( A gcd B ) ) || ( D gcd E ) ) $=
-    ( cn wcel wa cz cgcd co cmul cdvds wbr simpl simpr syl jca w3a wi id gcdnncl nnz zmulcld 3jca dvdsgcd mpd ) AFGZBFGZHZCIGZHZDIGZHZEIGZHZCABJKZLKZDMNZHZUREMNZHZUSVAHZURDEJKZMNZVBUSVAVBUTUSUTVAOZUPUSPQUTVAPRVBURIGZUMUOSVCVETVBVGUMUOVBCUQVBUTUKVFUTUPUKUPUSOZUPUNUKUNUOOZUNULUKULUMOZUJUKPQQQQVBUQFGZUQIGVBUJVKVBUHUIVBUTUHVFUTUPUHVHUPUNUHVIUNULUHVJULUJUHUJUKOZUJUHUHUHUIOUHUAQQQQQQVBUTUIVFUTUPUIVHUPUNUIVIUNULUIVJULUJUIVLUHUIPQQQQQRABUBQUQUCQUDVBUTUMVFUTUPUMVHUPUNUMVIULUMPQQQVBUTUOVFUTUPUOVHUNUOPQQUEURDEUFQUG $.
+  tests.elaborator.a-membership-a-bare-from-builds.a-product-membership-from-a-line $p |- ( ( ( ( ( ( ( A : NN --> NN /\ B e. NN ) /\ C e. ZZ ) /\ D e. ZZ ) /\ E e. ZZ ) /\ ( C x. ( A ` B ) ) || D ) /\ ( C x. ( A ` B ) ) || E ) -> ( C x. ( A ` B ) ) || ( D gcd E ) ) $=
+    ( cn wf wcel wa cz cfv cmul co cdvds wbr cgcd simpl simpr syl jca w3a wi id ffvelcdm syl2anc nnz zmulcld 3jca dvdsgcd mpd ) FFAGZBFHZIZCJHZIZDJHZIZEJHZIZCBAKZLMZDNOZIZVAENOZIZVBVDIZVADEPMZNOZVEVBVDVEVCVBVCVDQZUSVBRSVCVDRTVEVAJHZUPURUAVFVHUBVEVJUPURVECUTVEVCUNVIVCUSUNUSVBQZUSUQUNUQURQZUQUOUNUOUPQZUMUNRSSSSVEUTFHZUTJHVEUKULVNVEVCUKVIVCUSUKVKUSUQUKVLUQUOUKVMUOUMUKUMUNQZUMUKUKUKULQUKUCSSSSSSVEVCULVIVCUSULVKUSUQULVLUQUOULVMUOUMULVOUKULRSSSSSFFBAUDUEUTUFSUGVEVCUPVIVCUSUPVKUSUQUPVLUOUPRSSSVEVCURVIVCUSURVKUQURRSSUHVADEUISUJ $.
 $}

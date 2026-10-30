@@ -48,7 +48,6 @@ theorem power-of-three-odd
 
     1.5.  3^(j + 1) is odd
           def:odd n := 3^(j + 1), from 1.4
-          requires 3^(j + 1) ∈ ℤ: mun:power-integer a := 3, m := j + 1
 
 2.  3^n is odd
     instantiate j := n in line 1

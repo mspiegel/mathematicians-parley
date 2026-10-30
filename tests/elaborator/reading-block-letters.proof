@@ -220,13 +220,13 @@ theorem a-for-all-line-in-algebra
 
 theorem a-for-all-line-in-membership
   note        Block letter, read by membership: inside the block letting
-              y ∈ ℝ, line H1 says |y| ∈ ℝ.
-  assume for all x ∈ ℝ, |x| ∈ ℝ                                       (H1)
-  then for all y ∈ ℝ, |y| + 1 ∈ ℝ
+              y ∈ ℝ, line H1 says √(y² + 1) ∈ ℝ.
+  assume for all x ∈ ℝ, √(x² + 1) ∈ ℝ                                 (H1)
+  then for all y ∈ ℝ, √(y² + 1) + 1 ∈ ℝ
 
-1.  For all y ∈ ℝ, |y| + 1 ∈ ℝ.
+1.  For all y ∈ ℝ, √(y² + 1) + 1 ∈ ℝ.
     proof
     let y ∈ ℝ                                                         (K1)
 
-    1.1.  |y| + 1 ∈ ℝ
+    1.1.  √(y² + 1) + 1 ∈ ℝ
           membership, from H1

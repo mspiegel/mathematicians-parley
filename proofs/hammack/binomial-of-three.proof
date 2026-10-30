@@ -1,7 +1,6 @@
 import definition         stdlib/counting/C
 import theorem            stdlib/counting/pascal
 import theorem            proofs/hammack/binomial-of-two/binomial-of-two
-import mundane theorem    stdlib/counting/binomial-nat0
 
 theorem binomial-of-three
   note        By induction on j: C(0, 3) is 0, and Pascal's rule gives
@@ -40,8 +39,6 @@ theorem binomial-of-three
 
     1.7.  6·C(j + 1, 3) = (j + 1)·((j + 1) − 1)·((j + 1) − 2)
           algebra, from IH, 1.5, 1.6
-          requires C(j, 3) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 3
-          requires C(j, 2) ∈ ℕ₀: mun:binomial-nat0 n := j, k := 2
 
 2.  6·C(m, 3) = m·(m − 1)·(m − 2)
     instantiate j := m in line 1

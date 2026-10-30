@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/sums/sum-extended
 import mundane theorem    stdlib/sums/sum-single
 
@@ -42,7 +41,6 @@ let S(m) = Σ(j = 1 to m) 3^j, for m ∈ ℕ                               (D1)
                      = (3^(k + 1) − 3)/2 + 3^(k + 1)       substitute IH
                      = (3^(k + 1)·3 − 3)/2                 algebra
                      = (3^((k + 1) + 1) − 3)/2             substitute line 1.3
-          requires 3^(k + 1) ∈ ℝ: mun:power-real a := 3, m := k + 1
 
 2.  Σ(k = 1 to n) 3^k = (3^(n + 1) − 3)/2
     calculation

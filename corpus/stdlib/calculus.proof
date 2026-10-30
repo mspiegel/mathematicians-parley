@@ -598,100 +598,94 @@ theorem convergent-abs-bounded
 6.  C ∈ ℝ. For all i ∈ {1, …, N}, |x(i)| ≤ C.
     obtain C from line 5
 
-7.  |L| ∈ ℝ
-    mun:abs-real x := L
-
-8.  |L| + 1 ∈ ℝ
-    membership, from 7
+7.  |L| + 1 ∈ ℝ
+    membership
 
 let B = max(C, |L| + 1), a real number                                (D1)
-    mun:max-real x := C, y := |L| + 1, from 6, 8
+    mun:max-real x := C, y := |L| + 1, from 6, 7
     reads a bound for the first N terms and for the rest
 
-9.  C ≤ B
-    mun:le-max x := C, y := |L| + 1, from D1, 8
+8.  C ≤ B
+    mun:le-max x := C, y := |L| + 1, from D1
 
-10. |L| + 1 ≤ B
-    mun:le-max x := C, y := |L| + 1, from D1, 8
+9.  |L| + 1 ≤ B
+    mun:le-max x := C, y := |L| + 1, from D1
 
-11. For all m ∈ ℕ, |x(m)| ≤ B.
+10. For all m ∈ ℕ, |x(m)| ≤ B.
     proof
     let m ∈ ℕ                                                         (K1)
 
-    11.1. |x(m)| ∈ ℝ
+    10.1. |x(m)| ∈ ℝ
           mun:abs-real x := x(m), from H1
 
-    11.2. m ≤ N or not m ≤ N
+    10.2. m ≤ N or not m ≤ N
           axi:excluded-middle P := m ≤ N
 
-    11.3. |x(m)| ≤ B
-          cases, from 11.2
+    10.3. |x(m)| ≤ B
+          cases, from 10.2
 
           case
           assume m ≤ N                                                (C1)
 
-          11.3.1. m ∈ {1, …, N}
+          10.3.1. m ∈ {1, …, N}
                   def:range n := N, k := m, from C1
 
-          11.3.2. |x(m)| ≤ C
-                  instantiate i := m in line 6, from 11.3.1
+          10.3.2. |x(m)| ≤ C
+                  instantiate i := m in line 6, from 10.3.1
 
-          11.3.3. |x(m)| ≤ B
-                  transitivity, from 11.3.2, 9
-                  requires |x(m)| ∈ ℝ: from 11.1
+          10.3.3. |x(m)| ≤ B
+                  transitivity, from 10.3.2, 8
+                  requires |x(m)| ∈ ℝ: from 10.1
 
           case
           assume not m ≤ N                                            (C2)
 
-          11.3.4. N < m
+          10.3.4. N < m
                   inequalities, from C2
 
-          11.3.5. m ≥ N
+          10.3.5. m ≥ N
                   inequalities
-                    N < m      11.3.4
+                    N < m      10.3.4
                     N ≤ m      weakening
                     m ≥ N      restate
 
-          11.3.6. |x(m) − L| < 1
-                  instantiate n := m in line 3, from 11.3.5
+          10.3.6. |x(m) − L| < 1
+                  instantiate n := m in line 3, from 10.3.5
 
-          11.3.7. |(x(m) − L) + L| ≤ |x(m) − L| + |L|
+          10.3.7. |(x(m) − L) + L| ≤ |x(m) − L| + |L|
                   thm:triangle-inequality a := x(m) − L, b := L
                   requires x(m) ∈ ℝ: from H1
 
-          11.3.8. |x(m)| ≤ |x(m) − L| + |L|
+          10.3.8. |x(m)| ≤ |x(m) − L| + |L|
                   substitute
-                    |(x(m) − L) + L| ≤ |x(m) − L| + |L|      11.3.7
+                    |(x(m) − L) + L| ≤ |x(m) − L| + |L|      10.3.7
                     |x(m)| ≤ |x(m) − L| + |L|                algebra
                   requires x(m) ∈ ℝ: from H1
 
-          11.3.9.  |x(m) − L| + |L| < |L| + 1
+          10.3.9.  |x(m) − L| + |L| < |L| + 1
                    inequalities
-                     |x(m) − L| < 1                  11.3.6
+                     |x(m) − L| < 1                  10.3.6
                      |x(m) − L| + |L| < 1 + |L|      adding |L|
                      |x(m) − L| + |L| < |L| + 1      algebra
                    requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
-                   requires |L| ∈ ℝ: from 7
 
-          11.3.10. |x(m)| < |L| + 1
-                   transitivity, from 11.3.8, 11.3.9
-                   requires |x(m)| ∈ ℝ: from 11.1
+          10.3.10. |x(m)| < |L| + 1
+                   transitivity, from 10.3.8, 10.3.9
+                   requires |x(m)| ∈ ℝ: from 10.1
                    requires |x(m) − L| ∈ ℝ: mun:abs-real x := x(m) − L, from H1
-                   requires |L| ∈ ℝ: from 7
 
-          11.3.11. |x(m)| < B
-                   transitivity, from 11.3.10, 10
-                   requires |x(m)| ∈ ℝ: from 11.1
-                   requires |L| ∈ ℝ: from 7
+          10.3.11. |x(m)| < B
+                   transitivity, from 10.3.10, 9
+                   requires |x(m)| ∈ ℝ: from 10.1
 
-          11.3.12. |x(m)| ≤ B
+          10.3.12. |x(m)| ≤ B
                    inequalities
-                     |x(m)| < B      11.3.11
+                     |x(m)| < B      10.3.11
                      |x(m)| ≤ B      weakening
-                   requires |x(m)| ∈ ℝ: from 11.1
+                   requires |x(m)| ∈ ℝ: from 10.1
 
-12. There exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B.
-    exhibit, from 11
+11. There exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B.
+    exhibit, from 10
 
 theorem convergent-bounded
   note        A sequence with a limit is bounded: from some point on its
@@ -722,7 +716,6 @@ theorem convergent-bounded
     3.3.  x(m) ≤ B
           transitivity, from 3.2, 3.1
           requires x(m) ∈ ℝ: from H1
-          requires |x(m)| ∈ ℝ: mun:abs-real x := x(m), from H1
 
 4.  There exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B.
     exhibit, from 3

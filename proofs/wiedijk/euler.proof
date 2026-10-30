@@ -184,7 +184,6 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
 19. n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r
     def:congruent-mod, from 16
     requires φ(n) ∈ ℕ: mun:phi-natural
-    requires a^φ(n) ∈ ℤ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
 
 20. n divides (a^φ(n) − 1)·∏(r ∈ S) r
@@ -192,16 +191,13 @@ let f(r) = (r·a) mod n, for r ∈ S                                    (D2)
       n divides a^φ(n)·∏(r ∈ S) r − ∏(r ∈ S) r      19
       n divides (a^φ(n) − 1)·∏(r ∈ S) r             algebra
     requires φ(n) ∈ ℕ: mun:phi-natural
-    requires a^φ(n) ∈ ℝ: membership, from H2
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
 
 21. n divides a^φ(n) − 1
     thm:coprime-divides c := ∏(r ∈ S) r, from 18, 20
     requires ∏(r ∈ S) r ∈ ℤ: mun:product-integer, from 4, 5
     requires φ(n) ∈ ℕ: mun:phi-natural
-    requires a^φ(n) − 1 ∈ ℤ: membership, from H2
 
 22. a^φ(n) ≡ 1 (mod n)
     def:congruent-mod, from 21
     requires φ(n) ∈ ℕ: mun:phi-natural
-    requires a^φ(n) ∈ ℤ: membership, from H2

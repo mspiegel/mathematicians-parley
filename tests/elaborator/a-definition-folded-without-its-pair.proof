@@ -179,7 +179,7 @@ theorem a-definition-folded-without-its-pair
                   mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
 
           4.8.19. |√x − √c|·(√x + √c) = |√x − √c|·√x + √c·|√x − √c|
-                  algebra, from 4.3, 4.8.3, 4.8.7
+                  algebra, from 4.3, 4.8.3
 
           4.8.20. |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|
                   inequalities
@@ -187,13 +187,11 @@ theorem a-definition-folded-without-its-pair
                     |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|       adding √c·|√x − √c|
                   requires √x ∈ ℝ: from 4.8.3
                   requires √c ∈ ℝ: from 4.3
-                  requires |√x − √c| ∈ ℝ: from 4.8.7
 
           4.8.21. √c·|√x − √c| ≤ |x − c|
                   transitivity, from 4.8.20, 4.8.19, 4.8.17
                   requires √x ∈ ℝ: from 4.8.3
                   requires √c ∈ ℝ: from 4.3
-                  requires |√x − √c| ∈ ℝ: from 4.8.7
 
           4.8.22. ε·√c = √c·ε
                   algebra, from 4.3

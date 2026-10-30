@@ -1,5 +1,4 @@
 import theorem     proofs/wiedijk/triangle-inequality/abs-bounds
-import mundane theorem stdlib/numbers/abs-real
 
 theorem difference-not-zero
   metamath    abssubne0, over ℝ
@@ -15,11 +14,9 @@ theorem difference-not-zero
 
 2.  A ≤ |A|
     inequalities, from 1
-    requires |A| ∈ ℝ: mun:abs-real x := A
 
 3.  A < B
     transitivity, from 2, H3
-    requires |A| ∈ ℝ: mun:abs-real x := A
 
 4.  B − A ≠ 0
     inequalities

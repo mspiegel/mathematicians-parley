@@ -1,7 +1,6 @@
 import definition         stdlib/counting/C
 import theorem            proofs/hammack/binomial-of-three/binomial-of-three
 import theorem            proofs/hammack/binomial-of-two/binomial-of-two
-import mundane theorem    stdlib/counting/binomial-nat0
 
 theorem choose-three-of-a-triple
   note        Six times C(m, 3) is m·(m − 1)·(m − 2) and twice C(m, 2) is
@@ -21,6 +20,3 @@ theorem choose-three-of-a-triple
 
 4.  C(3n, 3) = 3·C(n, 3) + 6n·C(n, 2) + n³
     algebra, from 1, 2, 3
-    requires C(3n, 3) ∈ ℕ₀: mun:binomial-nat0 n := 3n, k := 3
-    requires C(n, 3) ∈ ℕ₀: mun:binomial-nat0 k := 3
-    requires C(n, 2) ∈ ℕ₀: mun:binomial-nat0 k := 2

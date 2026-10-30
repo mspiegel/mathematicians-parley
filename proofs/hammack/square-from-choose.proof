@@ -1,6 +1,5 @@
 import definition         stdlib/counting/C
 import theorem            stdlib/counting/pascal
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-zero-index
 
 theorem choose-one
@@ -95,7 +94,6 @@ theorem square-from-choose
 
     1.9.  (m + 1)² = 2·C(m + 1, 2) + C(m + 1, 1)
           algebra, from IH, 1.6, 1.7, 1.8
-          requires C(m, 2) ∈ ℕ₀: mun:binomial-nat0
 
 2.  n² = 2·C(n, 2) + C(n, 1)
     instantiate m := n in line 1

@@ -6,6 +6,6 @@ $( tests/elaborator/textbook-exercise-shapes/a-one-dropped-from-the-middle, elab
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.textbook-exercise-shapes.a-one-dropped-from-the-middle $p |- ( ( ( A e. NN0 /\ B e. ZZ ) /\ C e. NN0 ) -> ( ( ( A _C B ) x. ( 1 ^ C ) ) x. ( 1 ^ B ) ) = ( ( A _C B ) x. ( 1 ^ B ) ) ) $=
-    ( cn0 wcel cz wa cbc co c1 cexp cmul wceq simpr nn0z syl 1exp oveq2d oveq1d cc simpl id jca bccl nn0cn mulrid eqtrd ) ADEZBFEZGZCDEZGZABHIZJCKIZLIZJBKIZLIUMJLIZUPLIUMUPLIULUOUQUPLULUNJUMLULCFEZUNJMULUKURUJUKNCOPCQPRSULUQUMUPLULUMTEZUQUMMULUMDEZUSULUJUTULUHUIULUJUHUJUKUAZUJUHUHUHUIUAUHUBPPULUJUIVAUHUINPUCBAUDPUMUEPUMUFPSUG $.
+  tests.elaborator.textbook-exercise-shapes.a-one-dropped-from-the-middle $p |- ( ( ( A : ZZ --> RR /\ B e. ZZ ) /\ C e. NN0 ) -> ( ( ( A ` B ) x. ( 1 ^ C ) ) x. ( 1 ^ B ) ) = ( ( A ` B ) x. ( 1 ^ B ) ) ) $=
+    ( cz cr wf wcel wa cn0 cfv c1 cexp co cmul wceq simpr nn0z syl 1exp oveq2d oveq1d cc simpl id ffvelcdm syl2anc recn mulrid eqtrd ) DEAFZBDGZHZCIGZHZBAJZKCLMZNMZKBLMZNMUOKNMZURNMUOURNMUNUQUSURNUNUPKUONUNCDGZUPKOUNUMUTULUMPCQRCSRTUAUNUSUOURNUNUOUBGZUSUOOUNUOEGZVAUNUJUKVBUNULUJULUMUCZULUJUJUJUKUCUJUDRRUNULUKVCUJUKPRDEBAUEUFUOUGRUOUHRUAUI $.
 $}

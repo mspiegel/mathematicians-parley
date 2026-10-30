@@ -40,7 +40,6 @@ theorem harmonic-doubling
 
 7.  Σ(k = 1 to 2^(j + 1)) 1/k = Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     mun:sum-split a := 1, b := 2^j, c := 2^(j + 1), from 5, 6
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 1 ≤ 2^j + 1: inequalities, from 2
 
 8.  0 < 2^j + 1
@@ -52,14 +51,12 @@ theorem harmonic-doubling
 
     9.1.  2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
-          requires 2^(j + 1) ∈ ℤ: membership, from H1
 
     9.2.  k > 0
           transitivity, from 8, 9.1
 
     9.3.  1/2^(j + 1) ≤ 1/k
           mun:reciprocal-order x := k, y := 2^(j + 1), from 9.1
-          requires 2^(j + 1) ∈ ℤ: membership, from H1
           requires k > 0: from 9.2
           requires 2^(j + 1) > 0: inequalities, from 3
 
@@ -69,7 +66,6 @@ theorem harmonic-doubling
 
     10.1. 2^j + 1 ≤ k. k ≤ 2^(j + 1).
           mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K3
-          requires 2^(j + 1) ∈ ℤ: membership, from H1
 
     10.2. k > 0
           transitivity, from 8, 10.1
@@ -80,7 +76,6 @@ theorem harmonic-doubling
 
 11. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     mun:sum-le a := 2^j + 1, b := 2^(j + 1), from 9
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
 
 12. 2^j + 1 ≤ 2^j·2
@@ -91,9 +86,7 @@ theorem harmonic-doubling
 
 14. Σ(k = 2^j + 1 to 2^(j + 1)) 1/2^(j + 1) = (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1))
     mun:sum-constant a := 2^j + 1, b := 2^(j + 1), c := 1/2^(j + 1)
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires 2^j + 1 ≤ 2^(j + 1): from 13
-    requires 2^(j + 1) ≠ 0: inequalities, from 3
 
 15. (2^(j + 1) − (2^j + 1) + 1)·(1/2^(j + 1)) = 1/2
     calculation
@@ -102,8 +95,6 @@ theorem harmonic-doubling
 
 16. 1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k
     transitivity, from 15, 14, 11
-    requires 2^(j + 1) ≠ 0: inequalities, from 3
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
@@ -111,13 +102,11 @@ theorem harmonic-doubling
     inequalities
       1/2 ≤ Σ(k = 2^j + 1 to 2^(j + 1)) 1/k                                          16
       Σ(k = 1 to 2^j) 1/k + 1/2 ≤ Σ(k = 1 to 2^j) 1/k + Σ(k = 2^j + 1 to 2^(j + 1)) 1/k   adding Σ(k = 1 to 2^j) 1/k
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 
 18. Σ(k = 1 to 2^(j + 1)) 1/k ≥ Σ(k = 1 to 2^j) 1/k + 1/2
     transitivity, from 17, 7
-    requires 2^(j + 1) ∈ ℤ: membership, from H1
     requires for all k ∈ {2^j + 1, …, 2^(j + 1)}, 1/k ∈ ℝ: from 10
     requires Σ(k = 2^j + 1 to 2^(j + 1)) 1/k ∈ ℝ: mun:sum-real a := 2^j + 1, b := 2^(j + 1)
 

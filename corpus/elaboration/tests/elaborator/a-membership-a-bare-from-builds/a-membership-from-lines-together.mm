@@ -6,6 +6,6 @@ $( tests/elaborator/a-membership-a-bare-from-builds/a-membership-from-lines-toge
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.a-membership-a-bare-from-builds.a-membership-from-lines-together $p |- ( ( ( ( A e. NN /\ B e. RR ) /\ B <_ ( ! ` ( A + 1 ) ) ) /\ ( ! ` ( A + 1 ) ) <_ 3 ) -> B <_ 3 ) $=
-    ( cn wcel cr wa c1 caddc co cfa cfv cle wbr c3 simpl simpr syl cmul cn0 wceq id nnnn0 facp1 faccl nnre 1re a1i readdcld remulcld eqeltrd 3re letrd ) ACDZBEDZFZBAGHIZJKZLMZFZUQNLMZFZBUQNVAUSUNUSUTOZUSUOUNUOUROZUMUNPQQVAUQAJKZUPRIZEVAASDZUQVETVAUMVFVAUSUMVBUSUOUMVCUOUMUMUMUNOZUMUAZQZQZQZAUBZQZAUCQVAVDUPVAVDCDZVDEDVAVFVNVMAUDQVDUEQVAAGVAUMAEDVKAUEQGEDVAUFUGUHUIUJNEDVAUKUGVAUSURVBUOURPQUSUTPUL $.
+  tests.elaborator.a-membership-a-bare-from-builds.a-membership-from-lines-together $p |- ( ( ( ( ( A e. ZZ /\ A e. NN0 ) /\ B e. RR ) /\ B <_ ( ! ` ( A + 1 ) ) ) /\ ( ! ` ( A + 1 ) ) <_ 3 ) -> B <_ 3 ) $=
+    ( cz wcel cn0 wa cr c1 caddc co cfa cfv cle wbr c3 simpl simpr syl cmul wceq facp1 cn faccl nnre id zre 1re a1i readdcld remulcld eqeltrd 3re letrd ) ACDZAEDZFZBGDZFZBAHIJZKLZMNZFZUTOMNZFZBUTOVDVBUQVBVCPZVBURUQURVAPZUPUQQRRVDUTAKLZUSSJZGVDUOUTVHTVDVBUOVEVBURUOVFURUPUOUPUQPZUNUOQZRZRZRZAUARVDVGUSVDVGUBDZVGGDVDUOVNVMAUCRVGUDRVDAHVDUNAGDVDVBUNVEVBURUNVFURUPUNVIUPUNUNUNUOPUNUERRRRAUFRHGDVDUGUHUIUJUKOGDVDULUHVDVBVAVEURVAQRVBVCQUM $.
 $}

@@ -58,7 +58,6 @@ theorem divides-or-not-prime
                             inequalities, contradicting C3
                               gcd(a, b) > 1     H3
                               gcd(a, b) ≠ 1     weakening
-                            requires gcd(a, b) ∈ ℝ: from 2.2.2
 
                   case
                   assume gcd(a, b) = b                                (C4)

@@ -320,7 +320,6 @@ theorem ramsey-step
 
 6.  1 ≤ |X|
     transitivity, from 5, H9
-    requires C(k + j, k) ∈ ℕ: from 4
     requires |X| ∈ ℕ₀: mun:card-nat0, from 1
 
 7.  0 < |X|

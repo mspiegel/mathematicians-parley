@@ -220,7 +220,6 @@ theorem value-at-a-fraction
 11. q^N·|F(p/q)| ≥ 1
     transitivity, from 10, 7, 6
     requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q), from 3
-    requires |q^N| ∈ ℝ: mun:abs-real x := q^N
 
 12. 1/q^N ≤ (q^N·|F(p/q)|)/q^N
     mun:divide-le x := 1, y := q^N·|F(p/q)|, c := q^N, from 4, 11
@@ -325,11 +324,9 @@ theorem near-a-root
     7.5.  K·|α − x| ≥ 0
           mun:product-nonneg x := K, y := |α − x|, from 7.4
           requires K ≥ 0: weakening, from H7
-          requires |α − x| ∈ ℝ: mun:abs-real x := α − x
 
     7.6.  |f(x)| ≤ K·|α − x|
           transitivity, from 7.2, 7.3, 7.5
-          requires |α − x| ∈ ℝ: mun:abs-real x := α − x
 
     case
     assume not x = α                                                  (C2)
@@ -373,8 +370,6 @@ theorem near-a-root
           7.8.8.  |f(x)| ≤ K·|α − x|
                   transitivity, from 7.8.4, 7.8.3, 7.8.1, 7.8.7
                   requires f(x) ∈ ℝ: from H1
-                  requires |f(x)| ∈ ℝ: mun:abs-real x := f(x)
-                  requires |α − x| ∈ ℝ: mun:abs-real x := α − x
 
           case
           assume α < x                                                (C4)
@@ -409,8 +404,6 @@ theorem near-a-root
           7.8.17. |f(x)| ≤ K·|α − x|
                   transitivity, from 7.8.11, 7.8.9, 7.8.15, 7.8.16
                   requires f(x) ∈ ℝ: from H1
-                  requires |f(x)| ∈ ℝ: mun:abs-real x := f(x)
-                  requires |α − x| ∈ ℝ: mun:abs-real x := α − x
 
 theorem liouville
   metamath    aaliou
@@ -499,7 +492,6 @@ let K = max(M, 1), a real number                                      (D2)
     17.3. |f′(t)| ≤ K
           transitivity, from 17.1, 17.2
           requires f′(t) ∈ ℝ: from 12
-          requires |f′(t)| ∈ ℝ: mun:abs-real x := f′(t)
 
 18. min(1, δ) ∈ ℝ
     mun:min-real x := 1, y := δ
@@ -557,12 +549,10 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                   26.1.3.1. |α − p/q| ≤ 1
                             transitivity, from C1, 25
                             requires min(1, δ) ∈ ℝ: from 18
-                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                   26.1.3.2. |α − p/q| ≤ δ
                             transitivity, from C1, 25
                             requires min(1, δ) ∈ ℝ: from 18
-                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                   26.1.3.3. F(p/q) = 0 or not F(p/q) = 0
                             axi:excluded-middle
@@ -597,16 +587,12 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                             26.1.3.4.7. 1/q^N ≤ K·|α − p/q|
                                         transitivity, from 26.1.3.4.3, 26.1.3.4.6
                                         requires F(p/q) ∈ ℝ: mun:integer-polynomial-real x := p/q, from H2
-                                        requires |F(p/q)| ∈ ℝ: mun:abs-real x := F(p/q)
-                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                             26.1.3.4.8. (1/q^N)/K ≤ (K·|α − p/q|)/K
                                         mun:divide-le x := 1/q^N, y := K·|α − p/q|, c := K, from 16, 26.1.3.4.7
-                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                             26.1.3.4.9. (K·|α − p/q|)/K = |α − p/q|
                                         algebra
-                                        requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
                                         requires K ≠ 0: weakening, from 16
 
                             26.1.3.4.10. c/q^N ≤ (1/(2K))/q^N
@@ -633,7 +619,6 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                             26.1.3.4.15. c/q^N < |α − p/q|
                                          transitivity, from 26.1.3.4.10, 26.1.3.4.11, 26.1.3.4.14, 26.1.3.4.8, 26.1.3.4.9
                                          requires K ≠ 0: weakening, from 16
-                                         requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                             26.1.3.4.16. α = p/q or c/q^N < |α − p/q|
                                          mun:or-right, from 26.1.3.4.15
@@ -644,7 +629,6 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                   26.1.3.5. min(1, δ) < |α − p/q|
                             inequalities, from C4
                             requires min(1, δ) ∈ ℝ: from 18
-                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                   26.1.3.6. 1 ≤ q^N
                             mun:power-at-least-one a := q, n := N
@@ -662,7 +646,6 @@ let c = min(min(1, δ), 1/(2K)), a real number                         (D3)
                   26.1.3.9. c/q^N < |α − p/q|
                             transitivity, from 26.1.3.7, 26.1.3.8, 24, 26.1.3.5
                             requires min(1, δ) ∈ ℝ: from 18
-                            requires |α − p/q| ∈ ℝ: mun:abs-real x := α − p/q
 
                   26.1.3.10. α = p/q or c/q^N < |α − p/q|
                              mun:or-right, from 26.1.3.9

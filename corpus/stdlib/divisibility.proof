@@ -168,7 +168,6 @@ let S = {t ∈ ℕ : there are m, n ∈ ℤ with t = a·m + b·n}       (D1)
 21. d = gcd(a, b)
     antisymmetry, from 17, 20
     requires d ∈ ℝ: from 6
-    requires gcd(a, b) ∈ ℝ: from 15
 
 22. a·x₀ + b·y₀ = gcd(a, b)
     transitivity, from 7, 21
@@ -270,7 +269,6 @@ mundane theorem coprime-square-part
     substitute
       s divides s·gcd(s, w)      6
       s divides gcd(s, w)·s      algebra
-    requires gcd(s, w) ∈ ℝ: from 1
 
 8.  s divides s·t
     mun:divides-multiple e := s, a := s, x := t, from 2
@@ -297,23 +295,19 @@ mundane theorem coprime-square-part
     substitute
       s divides w·gcd(s, w)      12
       s divides gcd(s, w)·w      algebra
-    requires gcd(s, w) ∈ ℝ: from 1
 
 14. s divides gcd(gcd(s, w)·s, gcd(s, w)·w)
     thm:divides-gcd d := s, a := gcd(s, w)·s, b := gcd(s, w)·w, from 7, 13
-    requires gcd(s, w)·s ∈ ℤ: from 1
-    requires gcd(s, w)·w ∈ ℤ: from 1
 
 15. s divides gcd(s, w)·gcd(s, w)
     substitute
       s divides gcd(gcd(s, w)·s, gcd(s, w)·w)      14
-      s divides gcd(s, w)·gcd(s, w)                mun:gcd-scaled c := gcd(s, w), a := s, b := w, from 1
+      s divides gcd(s, w)·gcd(s, w)                mun:gcd-scaled c := gcd(s, w), a := s, b := w
 
 16. s divides gcd(s, w)²
     substitute
       s divides gcd(s, w)·gcd(s, w)      15
       s divides gcd(s, w)²               algebra
-    requires gcd(s, w) ∈ ℝ: from 1
 
 17. gcd(s, w)² divides s²
     mun:divides-square d := gcd(s, w), n := s, from 1
@@ -331,7 +325,6 @@ mundane theorem coprime-square-part
 
 21. gcd(s, w)² divides gcd(s·s, s·t)
     thm:divides-gcd d := gcd(s, w)², a := s·s, b := s·t, from 19, 20
-    requires gcd(s, w)² ∈ ℤ: from 1
 
 22. gcd(s, w)² divides s
     substitute
@@ -349,7 +342,6 @@ mundane theorem coprime-square-part
 
 25. s = gcd(s, w)²
     antisymmetry, from 23, 24
-    requires gcd(s, w) ∈ ℝ: from 1
 
 theorem coprime-square
   note        Two numbers with no factor in common whose product is a

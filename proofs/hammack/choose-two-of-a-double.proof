@@ -1,6 +1,5 @@
 import definition         stdlib/counting/C
 import theorem            proofs/hammack/binomial-of-two/binomial-of-two
-import mundane theorem    stdlib/counting/binomial-nat0
 
 theorem choose-two-of-a-double
   note        Twice C(m, 2) is m·(m − 1). At m = 2n that is 2n·(2n − 1), and
@@ -17,5 +16,3 @@ theorem choose-two-of-a-double
 
 3.  C(2n, 2) = 2·C(n, 2) + n²
     algebra, from 1, 2
-    requires C(2n, 2) ∈ ℕ₀: mun:binomial-nat0 n := 2n, k := 2
-    requires C(n, 2) ∈ ℕ₀: mun:binomial-nat0 k := 2

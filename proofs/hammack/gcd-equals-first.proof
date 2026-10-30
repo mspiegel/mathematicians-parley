@@ -44,4 +44,3 @@ theorem gcd-equals-first
 
     2.7.  a = gcd(a, b)
           antisymmetry, from 2.5, 2.6
-          requires gcd(a, b) ∈ ℝ: from 1

@@ -1,5 +1,4 @@
 import theorem            stdlib/numbers/triangle-inequality
-import mundane theorem    stdlib/numbers/abs-real
 
 theorem difference-of-sizes
   note        A is (A − B) + B, so |A| is at most |A − B| + |B| by the
@@ -21,6 +20,3 @@ theorem difference-of-sizes
     inequalities
       |A| ≤ |A − B| + |B|      2
       |A| − |B| ≤ |A − B|      adding −|B|
-    requires |A| ∈ ℝ: mun:abs-real x := A
-    requires |B| ∈ ℝ: mun:abs-real x := B
-    requires |A − B| ∈ ℝ: mun:abs-real x := A − B

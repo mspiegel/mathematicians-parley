@@ -255,14 +255,12 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
           mun:divide-le x := 10·N(k), y := N(k + 1), c := 10^(k + 1), from 3.9
           requires 10·N(k) ∈ ℝ: membership, from 2
           requires N(k + 1) ∈ ℝ: membership, from H1, 2, 3.1, 3.2
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.10
           requires 10^(k + 1) > 0: inequalities, from 3.10
 
     3.17. (N(k + 1) + 1)/10^(k + 1) ≤ (10·(N(k) + 1))/10^(k + 1)
           mun:divide-le x := N(k + 1) + 1, y := 10·(N(k) + 1), c := 10^(k + 1), from 3.9
           requires N(k + 1) + 1 ∈ ℝ: membership, from H1, 2, 3.1, 3.2
           requires 10·(N(k) + 1) ∈ ℝ: membership, from 2
-          requires 10^(k + 1) ∈ ℝ: membership, from 3.10
           requires 10^(k + 1) > 0: inequalities, from 3.10
 
     3.18. N(k)/10^k ≤ N(k + 1)/10^(k + 1)

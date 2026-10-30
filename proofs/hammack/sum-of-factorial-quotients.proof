@@ -54,11 +54,8 @@ theorem quotient-terms-sum
     proof
     let k ∈ ℕ                                                         (K)
 
-    1.1.  (k + 1)! ∈ ℕ
-          mun:factorial-nat n := k + 1
-
-    1.2.  k/(k + 1)! ∈ ℝ
-          membership, from 1.1
+    1.1.  k/(k + 1)! ∈ ℝ
+          membership
 
 2.  Σ(k = 1 to n) t(k) = Σ(k = 1 to n) k/(k + 1)!
     mun:sum-termwise a := 1, b := n, from H3, 1
@@ -101,11 +98,8 @@ theorem sum-of-factorial-quotients
     proof
     let j ∈ ℕ                                                         (J)
 
-    1.1.  (j + 1)! ∈ ℕ
-          mun:factorial-nat n := j + 1
-
-    1.2.  j/(j + 1)! ∈ ℝ
-          membership, from 1.1
+    1.1.  j/(j + 1)! ∈ ℝ
+          membership
 
 2.  For all k ∈ ℕ, Σ(j = 1 to k) j/(j + 1)! = 1 − 1/(k + 1)!.
     induction on k starting at 1

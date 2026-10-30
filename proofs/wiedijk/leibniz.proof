@@ -467,7 +467,6 @@ let h(x) = x^(2(n + 1))/(1 + x²), for x ∈ [0, 1]                      (D3)
             h(x) = x^(2(n + 1))/(1 + x²)         1.5
                  = x^(2n) − x^(2n)/(1 + x²)      algebra, from 1.2
                  = f(x) − g(x)                   algebra, from D1, D2, K1
-          requires x^(2n) ∈ ℝ: membership
           requires 1 + x² ≠ 0: weakening, from 1.4
 
 2.  For all x ∈ [0, 1], f(x) = x^(2n).
@@ -595,14 +594,12 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
 
     10.5.  x^(2n)/(1 + x²) ≥ 0
            mun:quotient-nonneg x := x^(2n), y := 1 + x², from 10.2, 10.4
-           requires x^(2n) ∈ ℝ: membership
 
     10.6.  g(x) = x^(2n)/(1 + x²)
            D2, from K1
 
     10.7.  g(x) ≥ 0
            transitivity, from 10.6, 10.5
-           requires x^(2n) ∈ ℝ: membership
            requires 1 + x² ≠ 0: weakening, from 10.4
 
 11. For all x ∈ [0, 1], g(x) ≤ f(x).
@@ -626,7 +623,6 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
 
     11.6.  x^(2n)/(1 + x²) ≤ x^(2n)/1
            mun:quotients-compared x := x^(2n), y := 1 + x², z := x^(2n), w := 1, from 11.2, 11.4
-           requires x^(2n) ∈ ℝ: membership
            requires x^(2n) ≤ x^(2n): inequalities
            requires 0 < 1: arithmetic
 
@@ -635,7 +631,6 @@ let g(x) = x^(2n)/(1 + x²), for x ∈ [0, 1]                            (D2)
 
     11.8.  x^(2n)/1 = f(x)
            algebra, from D1, K2
-           requires x^(2n) ∈ ℝ: membership
 
     11.9.  g(x) ≤ f(x)
            transitivity, from 11.7, 11.6, 11.8
@@ -735,7 +730,6 @@ theorem series-remainder
                                                     = (−1)^(n + 1)·(−1)·J((n + 1) + 1)                                       algebra, from 2.6
                                                     = (−1)^((n + 1) + 1)·J((n + 1) + 1)                                      substitute line 2.7
           requires Σ(j = 0 to n) (−1)^j/(2j + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
-          requires (−1)^(n + 1) ∈ ℝ: membership
           requires 2(n + 1) + 1 ∈ ℕ: mun:nat0-successor k := 2(n + 1)
           requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
@@ -774,7 +768,6 @@ theorem leibniz
           3.2.2.  Σ(k = 0 to n) (−1)^k/(2k + 1) − π/4 = −((−1)^(n + 1)·J(n + 1))
                   algebra, from 3.2.1
                   requires Σ(k = 0 to n) (−1)^k/(2k + 1) ∈ ℝ: mun:sum-real a := 0, b := n, from 1
-                  requires (−1)^(n + 1) ∈ ℝ: membership
                   requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
           3.2.3.  |−1| = 1
@@ -805,7 +798,6 @@ theorem leibniz
                                                           = 1·|J(n + 1)|                    substitute line 3.2.4
                                                           = 1·J(n + 1)                      substitute line 3.2.6
                                                           = J(n + 1)                        3.2.7
-                  requires (−1)^(n + 1) ∈ ℝ: membership
                   requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
           3.2.9.  N ≤ 2(n + 1) + 1

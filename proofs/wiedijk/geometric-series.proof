@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/sums/sum-last
 import mundane theorem    stdlib/sums/sum-single
 
@@ -51,7 +50,6 @@ theorem geometric-sum
                         = (1 − a^(k + 1)·a)/(1 − a)                  algebra
                         = (1 − a^((k + 1) + 1))/(1 − a)              substitute line 1.4
           requires 1 − a ≠ 0: algebra, from H2
-          requires a^(k + 1) ∈ ℝ: mun:power-real m := k + 1
 
 2.  G(a, n) = (1 − a^(n + 1))/(1 − a)
     instantiate k := n in line 1

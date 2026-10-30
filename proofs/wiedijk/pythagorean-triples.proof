@@ -144,15 +144,12 @@ theorem leg-hypotenuse-coprime
     calculation
       gcd(a, gcd(b, c)) = gcd(gcd(b, c), a)    mun:gcd-commutes b := gcd(b, c)
                         = 1                    mun:divides-one d := gcd(gcd(b, c), a), from 4, 7
-    requires gcd(b, c) ∈ ℤ: membership, from 1
 
 9.  gcd(b, c) divides gcd(b, c)
     mun:divides-self n := gcd(b, c)
-    requires gcd(b, c) ∈ ℤ: membership, from 1
 
 10. gcd(b, c) divides gcd(a·a, gcd(b, c))
     thm:divides-gcd d := gcd(b, c), a := a·a, b := gcd(b, c), from 3, 9
-    requires gcd(b, c) ∈ ℤ: membership, from 1
 
 11. gcd(b, c) divides 1
     substitute
@@ -368,7 +365,6 @@ theorem primitive-triple
 
 42. gcd(s, t) divides gcd(b, c)
     thm:divides-gcd d := gcd(s, t), a := b, b := c, from 39, 41
-    requires gcd(s, t) ∈ ℤ: membership, from 37
 
 43. gcd(s, t) divides 1
     substitute
@@ -468,7 +464,6 @@ let n = gcd(t, w), a positive integer                               (D2)
 
 64. gcd(m, n) divides gcd(s, t)
     thm:divides-gcd d := gcd(m, n), a := s, b := t, from 61, 63
-    requires gcd(m, n) ∈ ℤ: membership, from 59
 
 65. gcd(m, n) divides 1
     substitute gcd(s, t) = 1 (line 44) into line 64

@@ -15,7 +15,6 @@ import mundane theorem    stdlib/calculus/open-within-closed
 import mundane theorem    stdlib/calculus/open-without-point
 import mundane theorem    stdlib/functions/function-into
 import definition         stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/unequal-cases
 import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/sets/difference-subset
@@ -625,8 +624,6 @@ theorem lhopital
 
            10.3.2.  |ξ − c| < δ
                     transitivity, from 10.3.1, A2
-                    requires |ξ − c| ∈ ℝ: mun:abs-real x := ξ − c
-                    requires |x − c| ∈ ℝ: mun:abs-real x := x − c
 
            10.3.3.  ξ ∈ (a, b) and ξ ≠ c
                     mun:remove-member, from 10.3.1

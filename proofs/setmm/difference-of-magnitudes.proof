@@ -1,7 +1,6 @@
 import theorem        stdlib/numbers/triangle-inequality
 import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-negative
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem difference-of-magnitudes
@@ -38,52 +37,37 @@ theorem difference-of-magnitudes
       |−(A − B)| = |A − B|      5
       |B − A| = |A − B|         algebra
 
-7.  |A| ∈ ℝ
-    mun:abs-real x := A
-
-8.  |B| ∈ ℝ
-    mun:abs-real x := B
-
-9.  |A| − |B| ≥ 0 or |A| − |B| < 0
+7.  |A| − |B| ≥ 0 or |A| − |B| < 0
     mun:nonneg-or-neg x := |A| − |B|
-    requires |A| − |B| ∈ ℝ: membership, from 7, 8
 
-10. ||A| − |B|| ≤ |A − B|
-    cases, from 9
+8.  ||A| − |B|| ≤ |A − B|
+    cases, from 7
 
     case
     assume |A| − |B| ≥ 0                                              (C1)
 
-    10.1. |A| − |B| ≤ |A − B|
+    8.1.  |A| − |B| ≤ |A − B|
           inequalities
             |A| ≤ |A − B| + |B|      2
             |A| − |B| ≤ |A − B|      adding −|B|
-          requires |A| ∈ ℝ: from 7
-          requires |B| ∈ ℝ: from 8
-          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
 
-    10.2. ||A| − |B|| ≤ |A − B|
+    8.2.  ||A| − |B|| ≤ |A − B|
           calculation
             ||A| − |B|| = |A| − |B|        def:abs x := |A| − |B|, from C1
-                        ≤ |A − B|          10.1
-          requires |A| − |B| ∈ ℝ: membership, from 7, 8
+                        ≤ |A − B|          8.1
 
     case
     assume |A| − |B| < 0                                               (C2)
 
-    10.3. |B| ≤ |A − B| + |A|
+    8.3.  |B| ≤ |A − B| + |A|
           substitute |B − A| = |A − B| (line 6) into line 4
 
-    10.4. −(|A| − |B|) ≤ |A − B|
+    8.4.  −(|A| − |B|) ≤ |A − B|
           inequalities
-            |B| ≤ |A − B| + |A|      10.3
+            |B| ≤ |A − B| + |A|      8.3
             −(|A| − |B|) ≤ |A − B|   adding −|A|
-          requires |A| ∈ ℝ: from 7
-          requires |B| ∈ ℝ: from 8
-          requires |A − B| ∈ ℝ: mun:abs-real x := A − B
 
-    10.5. ||A| − |B|| ≤ |A − B|
+    8.5.  ||A| − |B|| ≤ |A − B|
           calculation
             ||A| − |B|| = −(|A| − |B|)     def:abs x := |A| − |B|, from C2
-                        ≤ |A − B|          10.4
-          requires |A| − |B| ∈ ℝ: membership, from 7, 8
+                        ≤ |A − B|          8.4

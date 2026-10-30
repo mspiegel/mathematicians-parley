@@ -3,7 +3,6 @@ import theorem            stdlib/numbers/archimedean
 import theorem            proofs/setmm/limit-lemmas/scaled-small
 import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/abs-nonneg
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/quotient-positive
 import mundane theorem    stdlib/numbers/reciprocal-order
 import mundane theorem    stdlib/numbers/reciprocal-positive
@@ -17,84 +16,77 @@ theorem a-over-n-tends-to-zero
   let A ∈ ℝ                                                           (H1)
   then A/n → 0 as n → ∞
 
-1.  |A| ∈ ℝ
-    mun:abs-real x := A
-
-2.  |A| ≥ 0
+1.  |A| ≥ 0
     mun:abs-nonneg x := A
 
-3.  |A| + 1 > 0
-    inequalities, from 1, 2
+2.  |A| + 1 > 0
+    inequalities, from 1
 
-4.  2·(|A| + 1) > 0
+3.  2·(|A| + 1) > 0
     inequalities
-      |A| + 1 > 0          3
+      |A| + 1 > 0          2
       2·(|A| + 1) > 0      multiplying by 2
-    requires |A| ∈ ℝ: from 1
 
-5.  For all n ∈ ℕ, A/n ∈ ℝ.
+4.  For all n ∈ ℕ, A/n ∈ ℝ.
     proof
     let n ∈ ℕ                                                         (K1)
 
-    5.1.  A/n ∈ ℝ
+    4.1.  A/n ∈ ℝ
           membership
 
-6.  For all ε > 0, there exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+5.  For all ε > 0, there exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
     proof
     let ε ∈ ℝ                                                         (K2)
     assume ε > 0                                                      (A1)
 
-    6.1.  ε/(2·(|A| + 1)) ∈ ℝ
+    5.1.  ε/(2·(|A| + 1)) ∈ ℝ
           membership
-          requires |A| ∈ ℝ: from 1
-          requires 2·(|A| + 1) ≠ 0: weakening, from 4
+          requires 2·(|A| + 1) ≠ 0: weakening, from 3
 
-    6.2.  ε/(2·(|A| + 1)) > 0
-          mun:quotient-positive x := ε, y := 2·(|A| + 1), from A1, 4
-          requires 2·(|A| + 1) ∈ ℝ: membership, from 1
+    5.2.  ε/(2·(|A| + 1)) > 0
+          mun:quotient-positive x := ε, y := 2·(|A| + 1), from A1, 3
 
-    6.3.  N ∈ ℕ. 1/N < ε/(2·(|A| + 1)).
-          obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 6.1, 6.2
+    5.3.  N ∈ ℕ. 1/N < ε/(2·(|A| + 1)).
+          obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 5.1, 5.2
 
-    6.4.  For all n ≥ N, |A/n − 0| < ε.
+    5.4.  For all n ≥ N, |A/n − 0| < ε.
           proof
           let n ∈ ℕ                                                   (K3)
           assume n ≥ N                                                (A2)
 
-          6.4.1.  1/n ≤ 1/N
+          5.4.1.  1/n ≤ 1/N
                   mun:reciprocal-order x := N, y := n, from A2
-                  requires N > 0: inequalities, from 6.3
+                  requires N > 0: inequalities, from 5.3
                   requires n > 0: inequalities, from K3
 
-          6.4.2.  1/n < ε/(2·(|A| + 1))
-                  transitivity, from 6.4.1, 6.3
-                  requires |A| ∈ ℝ: from 1
-                  requires 2·(|A| + 1) ≠ 0: weakening, from 4
+          5.4.2.  1/n < ε/(2·(|A| + 1))
+                  transitivity, from 5.4.1, 5.3
+                  requires 2·(|A| + 1) ≠ 0: weakening, from 3
 
-          6.4.3.  1/n > 0
+          5.4.3.  1/n > 0
                   mun:reciprocal-positive x := n
                   requires n > 0: inequalities, from K3
 
-          6.4.4.  1/n ≥ 0
+          5.4.4.  1/n ≥ 0
                   inequalities
-                    1/n > 0          6.4.3
+                    1/n > 0          5.4.3
                     1/n ≥ 0          weakening
 
-          6.4.5.  |1/n| < ε/(2·(|A| + 1))
+          5.4.5.  |1/n| < ε/(2·(|A| + 1))
                   substitute
-                    1/n < ε/(2·(|A| + 1))        6.4.2
-                    |1/n| < ε/(2·(|A| + 1))      def:abs x := 1/n, from 6.4.4
+                    1/n < ε/(2·(|A| + 1))        5.4.2
+                    |1/n| < ε/(2·(|A| + 1))      def:abs x := 1/n, from 5.4.4
 
-          6.4.6.  |A·(1/n)| < ε
-                  thm:scaled-small C := A, u := 1/n, from A1, 6.4.5
+          5.4.6.  |A·(1/n)| < ε
+                  thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
 
-          6.4.7.  |A/n − 0| < ε
+          5.4.7.  |A/n − 0| < ε
                   substitute
-                    |A·(1/n)| < ε      6.4.6
+                    |A·(1/n)| < ε      5.4.6
                     |A/n − 0| < ε      algebra
 
-    6.5.  There exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
-          exhibit, from 6.4
+    5.5.  There exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+          exhibit, from 5.4
 
-7.  A/n → 0 as n → ∞
-    def:tends-to L := 0, from 5, 6
+6.  A/n → 0 as n → ∞
+    def:tends-to L := 0, from 4, 5

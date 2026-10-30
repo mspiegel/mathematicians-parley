@@ -3,7 +3,6 @@ import mundane theorem    stdlib/counting/factorial-nat
 import theorem            proofs/wiedijk/binomial/binomial
 import definition         stdlib/counting/C
 import definition         stdlib/sums/range-between
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/numbers/nat-minus-one
 import mundane theorem    stdlib/numbers/one-power
 import mundane theorem    stdlib/sums/range-bounds
@@ -56,31 +55,28 @@ theorem weighted-term
       ((k − 1) + 1)! = (k − 1)!·((k − 1) + 1)      10
       k! = (k − 1)!·k                              algebra
 
-12. m! ∈ ℕ
-    mun:factorial-nat n := m
-
-13. (m + 1) − k ∈ ℕ₀
+12. (m + 1) − k ∈ ℕ₀
     mun:range-difference a := 1, n := m + 1, from H2
 
-14. ((m + 1) − k)! ∈ ℕ
-    mun:factorial-nat n := (m + 1) − k, from 13
+13. ((m + 1) − k)! ∈ ℕ
+    mun:factorial-nat n := (m + 1) − k, from 12
 
-15. (k − 1)! ∈ ℕ
+14. (k − 1)! ∈ ℕ
     mun:factorial-nat n := k − 1
     requires k − 1 ∈ ℕ₀: mun:nat-minus-one n := k
 
-16. C(m, k − 1) = m!/(((m + 1) − k)!·(k − 1)!)
+15. C(m, k − 1) = m!/(((m + 1) − k)!·(k − 1)!)
     calculation
       C(m, k − 1) = m!/((m − (k − 1))!·(k − 1)!)     def:C n := m, k := k − 1, from 6
                   = m!/(((m + 1) − k)!·(k − 1)!)     substitute line 8
 
-17. k·C(m + 1, k) = (m + 1)·C(m, k − 1)
+16. k·C(m + 1, k) = (m + 1)·C(m, k − 1)
     calculation
       k·C(m + 1, k) = k·((m + 1)!/(((m + 1) − k)!·k!))                                     substitute line 4
                     = k·((m!·(m + 1))/(((m + 1) − k)!·k!))                                 substitute line 9
                     = k·((m!·(m + 1))/(((m + 1) − k)!·((k − 1)!·k)))                       substitute line 11
-                    = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))                               algebra, from 12, 14, 15
-                    = (m + 1)·C(m, k − 1)                                                  substitute line 16
+                    = (m + 1)·(m!/(((m + 1) − k)!·(k − 1)!))                               algebra, from 13, 14
+                    = (m + 1)·C(m, k − 1)                                                  substitute line 15
 
 theorem binomial-row-sum
   note        The binomial theorem at x = y = 1: every power of 1 is 1, so the
@@ -109,7 +105,6 @@ theorem binomial-row-sum
           calculation
             C(m, k)·1^(m − k)·1^k = C(m, k)·1^k     substitute line 2.1
                                   = C(m, k)         substitute line 2.2
-          requires C(m, k) ∈ ℕ₀: mun:binomial-nat0
 
 3.  1 + 1 = 2
     arithmetic

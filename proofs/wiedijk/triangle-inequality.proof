@@ -1,5 +1,4 @@
 import definition         stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem abs-bounds
@@ -63,7 +62,6 @@ theorem abs-bounds
           inequalities
             x < |x|          2.9
             x ≤ |x|          weakening
-          requires |x| ∈ ℝ: mun:abs-real
 
     2.11. x ≤ |x|. −x ≤ |x|.
           join 2.7, 2.10
@@ -95,8 +93,6 @@ theorem triangle-inequality
 
     4.1.  a + b ≤ |a| + |b|
           inequalities, from 2, 3
-          requires |a| ∈ ℝ: mun:abs-real x := a
-          requires |b| ∈ ℝ: mun:abs-real x := b
 
     4.2.  |a + b| ≤ |a| + |b|
           calculation
@@ -108,8 +104,6 @@ theorem triangle-inequality
 
     4.3.  −a + −b ≤ |a| + |b|
           inequalities, from 2, 3
-          requires |a| ∈ ℝ: mun:abs-real x := a
-          requires |b| ∈ ℝ: mun:abs-real x := b
 
     4.4.  |a + b| ≤ |a| + |b|
           calculation

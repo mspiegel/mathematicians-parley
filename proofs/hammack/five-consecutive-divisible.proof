@@ -1,6 +1,5 @@
 import theorem            proofs/hammack/weighted-binomial-sum/weighted-term
 import definition         stdlib/counting/C
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-zero-index
 import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-multiple
@@ -58,63 +57,43 @@ theorem five-consecutive-natural
 1.  C(m, 0) = 1
     mun:binomial-zero-index n := m
 
-2.  C(m + 2, 2) ∈ ℕ₀
-    mun:binomial-nat0 n := m + 2, k := 2
-
-3.  C(m + 3, 3) ∈ ℕ₀
-    mun:binomial-nat0 n := m + 3, k := 3
-
-4.  C(m + 4, 4) ∈ ℕ₀
-    mun:binomial-nat0 n := m + 4, k := 4
-
-5.  C(m + 5, 5) ∈ ℕ₀
-    mun:binomial-nat0 n := m + 5, k := 5
-
-6.  1·C(m + 1, 1) = (m + 1)·C(m, 0)
+2.  1·C(m + 1, 1) = (m + 1)·C(m, 0)
     thm:scaled-binomial-step i := 0, j := 1
     requires 1 − 1 = 0: arithmetic
 
-7.  2·C(m + 2, 2) = (m + 2)·C(m + 1, 1)
+3.  2·C(m + 2, 2) = (m + 2)·C(m + 1, 1)
     thm:scaled-binomial-step i := 1, j := 2
     requires 2 − 1 = 1: arithmetic
 
-8.  3·C(m + 3, 3) = (m + 3)·C(m + 2, 2)
+4.  3·C(m + 3, 3) = (m + 3)·C(m + 2, 2)
     thm:scaled-binomial-step i := 2, j := 3
     requires 3 − 1 = 2: arithmetic
 
-9.  4·C(m + 4, 4) = (m + 4)·C(m + 3, 3)
+5.  4·C(m + 4, 4) = (m + 4)·C(m + 3, 3)
     thm:scaled-binomial-step i := 3, j := 4
     requires 4 − 1 = 3: arithmetic
 
-10. 5·C(m + 5, 5) = (m + 5)·C(m + 4, 4)
+6.  5·C(m + 5, 5) = (m + 5)·C(m + 4, 4)
     thm:scaled-binomial-step i := 4, j := 5
     requires 5 − 1 = 4: arithmetic
 
-11. C(m + 1, 1) = m + 1
-    algebra, from 1, 6
+7.  C(m + 1, 1) = m + 1
+    algebra, from 1, 2
 
-12. 2·C(m + 2, 2) = (m + 2)·(m + 1)
-    algebra, from 7, 11
-    requires C(m + 2, 2) ∈ ℝ: from 2
+8.  2·C(m + 2, 2) = (m + 2)·(m + 1)
+    algebra, from 3, 7
 
-13. 6·C(m + 3, 3) = (m + 3)·(m + 2)·(m + 1)
-    algebra, from 8, 12
-    requires C(m + 2, 2) ∈ ℝ: from 2
-    requires C(m + 3, 3) ∈ ℝ: from 3
+9.  6·C(m + 3, 3) = (m + 3)·(m + 2)·(m + 1)
+    algebra, from 4, 8
 
-14. 24·C(m + 4, 4) = (m + 4)·(m + 3)·(m + 2)·(m + 1)
-    algebra, from 9, 13
-    requires C(m + 3, 3) ∈ ℝ: from 3
-    requires C(m + 4, 4) ∈ ℝ: from 4
+10. 24·C(m + 4, 4) = (m + 4)·(m + 3)·(m + 2)·(m + 1)
+    algebra, from 5, 9
 
-15. (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5) = 120·C(m + 5, 5)
-    algebra, from 10, 14
-    requires C(m + 4, 4) ∈ ℝ: from 4
-    requires C(m + 5, 5) ∈ ℝ: from 5
+11. (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5) = 120·C(m + 5, 5)
+    algebra, from 6, 10
 
-16. 120 divides (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5)
-    def:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 15
-    requires C(m + 5, 5) ∈ ℤ: from 5
+12. 120 divides (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5)
+    def:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 11
 
 
 theorem five-consecutive-divisible

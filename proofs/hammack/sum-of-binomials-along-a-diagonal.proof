@@ -1,6 +1,5 @@
 import definition         stdlib/counting/C
 import theorem            stdlib/counting/pascal
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-zero-index
 import mundane theorem    stdlib/sums/sum-extended
 import mundane theorem    stdlib/sums/sum-single
@@ -61,8 +60,6 @@ theorem sum-of-binomials-along-a-diagonal
                      = C(n + m + 1, m + 1) + C(n + m + 1, m)                        algebra
                      = C((n + m + 1) + 1, m + 1)                                    1.5
                      = C(n + (m + 1) + 1, m + 1)                                    substitute line 1.6
-          requires C(n + m + 1, m) ∈ ℕ₀: mun:binomial-nat0
-          requires C(n + m + 1, m + 1) ∈ ℕ₀: mun:binomial-nat0
 
 2.  Σ(j = 0 to k) C(n + j, j) = C(n + k + 1, k)
     calculation

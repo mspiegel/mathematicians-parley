@@ -180,7 +180,7 @@ theorem a-map-over-a-set-binding-its-letter
                   mun:product-nonneg x := |√x − √c|, y := √x, from 4.8.3, 4.8.7, 4.8.12
 
           4.8.19. |√x − √c|·(√x + √c) = |√x − √c|·√x + √c·|√x − √c|
-                  algebra, from 4.3, 4.8.3, 4.8.7
+                  algebra, from 4.3, 4.8.3
 
           4.8.20. |x − c| = |√x − √c|·√x + √c·|√x − √c|
                   transitivity, from 4.8.17, 4.8.19
@@ -190,14 +190,12 @@ theorem a-map-over-a-set-binding-its-letter
                     |√x − √c|·√x ≥ 0                                  4.8.18
                     |√x − √c|·√x + √c·|√x − √c| ≥ √c·|√x − √c|        adding √c·|√x − √c|
                     √c·|√x − √c| ≤ |√x − √c|·√x + √c·|√x − √c|        restate
-                  requires |√x − √c| ∈ ℝ: from 4.8.7
                   requires √x ∈ ℝ: from 4.8.3
                   requires √c ∈ ℝ: from 4.3
 
           4.8.22. √c·|√x − √c| ≤ |x − c|
                   transitivity, from 4.8.21, 4.8.20
                   requires √c ∈ ℝ: from 4.3
-                  requires |√x − √c| ∈ ℝ: from 4.8.7
                   requires √x ∈ ℝ: from 4.8.3
 
           4.8.23. ε·√c = √c·ε

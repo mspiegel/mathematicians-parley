@@ -1,6 +1,5 @@
 import theorem            proofs/setmm/choose-two-pairs/choose-two-pairs
 import definition         stdlib/counting/C
-import mundane theorem    stdlib/counting/binomial-nat0
 import definition         stdlib/divisibility/congruent-mod
 import definition         stdlib/divisibility/divides
 import definition         stdlib/divisibility/even
@@ -63,7 +62,6 @@ theorem choose-two-even
 
     2.4.  C(a, 2) is even
           def:even n := C(a, 2), from 2.3
-          requires C(a, 2) ∈ ℕ₀: mun:binomial-nat0
 
     case
     assume a ≡ 1 (mod 4)                                              (C2)
@@ -79,4 +77,3 @@ theorem choose-two-even
 
     2.8.  C(a, 2) is even
           def:even n := C(a, 2), from 2.7
-          requires C(a, 2) ∈ ℕ₀: mun:binomial-nat0

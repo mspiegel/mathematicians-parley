@@ -4,7 +4,6 @@ import mundane theorem    stdlib/counting/factorial-nat
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-one
 import definition         stdlib/divisibility/prime
-import mundane theorem    stdlib/numbers/nat-closure
 
 theorem prime-above
   metamath    infpn
@@ -21,7 +20,6 @@ theorem prime-above
 
 3.  p ∈ ℕ. p is prime. p divides n! + 1.
     obtain p: thm:prime-factor m := n! + 1, from 2
-    requires n! + 1 ∈ ℕ: mun:nat-closure a := n!, b := 1, from 1
 
 4.  p > 1
     def:prime, from 3
@@ -38,13 +36,11 @@ theorem prime-above
 
     5.3.  p divides (n! + 1) − n!
           mun:divides-difference d := p, a := n! + 1, b := n!, from 3, 5.2
-          requires n! ∈ ℤ: from 1
 
     5.4.  p divides 1
           substitute
             p divides (n! + 1) − n!      5.3
             p divides 1                  algebra
-          requires n! ∈ ℝ: from 1
 
     5.5.  p = 1
           mun:divides-one d := p, from 5.4

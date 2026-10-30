@@ -1,6 +1,5 @@
 import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
 import definition         stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-square
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 import mundane theorem    stdlib/numbers/square-less
@@ -22,13 +21,11 @@ theorem bounded-by-square
 
 3.  0 ≤ 2·|A|
     inequalities, from 1
-    requires |A| ∈ ℝ: mun:abs-real x := A
 
 4.  0 ≤ |A|
     inequalities
       0 ≤ 2·|A|        3
       0 ≤ |A|          multiplying by 1/2
-    requires |A| ∈ ℝ: mun:abs-real x := A
 
 5.  A ≥ 0 or A < 0
     mun:nonneg-or-neg x := A
@@ -72,13 +69,11 @@ theorem bounded-by-square
 
           6.2.3.  B < |A|
                   mun:square-less x := B, y := |A|, from 6.2.2
-                  requires |A| ∈ ℝ: mun:abs-real x := A
                   requires |A| ≥ 0: from 4
                   requires B ≥ 0: from H3
 
           6.2.4.  not |A| ≤ B
                   inequalities, from 6.2.3, contradicting 6.1
-                  requires |A| ∈ ℝ: mun:abs-real x := A
 
     direction
     assume A² ≤ B²                                                    (D2)
@@ -89,11 +84,9 @@ theorem bounded-by-square
 
           6.3.1.  B < |A|
                   inequalities, from S2
-                  requires |A| ∈ ℝ: mun:abs-real x := A
 
           6.3.2.  B² < |A|²
                   mun:square-less x := B, y := |A|, from 6.3.1
-                  requires |A| ∈ ℝ: mun:abs-real x := A
                   requires |A| ≥ 0: from 4
                   requires B ≥ 0: from H3
 
@@ -105,19 +98,15 @@ theorem bounded-by-square
 
     6.4.  A ≤ |A|
           inequalities, from 1
-          requires |A| ∈ ℝ: mun:abs-real x := A
 
     6.5.  A ≤ B
           transitivity, from 6.4, 6.3
-          requires |A| ∈ ℝ: mun:abs-real x := A
 
     6.6.  −A ≤ |A|
           inequalities, from 1
-          requires |A| ∈ ℝ: mun:abs-real x := A
 
     6.7.  −A ≤ B
           transitivity, from 6.6, 6.3
-          requires |A| ∈ ℝ: mun:abs-real x := A
 
     6.8.  A ≤ B and −A ≤ B
           join 6.5, 6.7

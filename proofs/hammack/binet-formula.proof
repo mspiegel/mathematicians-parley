@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/power-real
 
 theorem power-recurrence
   note        If x² = x + 1 then x^(k + 2) = x^k·x² = x^k·(x + 1), which is
@@ -106,8 +105,6 @@ let ψ = (1 − √5)/2, a real number                                    (D3)
                      = (φ^j − ψ^j)/√5 + (φ^(j + 1) − ψ^(j + 1))/√5          substitute IH
                      = (φ^((j + 1) + 1) − ψ^((j + 1) + 1))/√5               algebra, from 4.9, 4.10
           requires √5 ≠ 0: from 1
-          requires φ^(j + 1) ∈ ℝ: mun:power-real a := φ, m := j + 1
-          requires ψ^(j + 1) ∈ ℝ: mun:power-real a := ψ, m := j + 1
 
     4.12. F(j + 1) = (φ^(j + 1) − ψ^(j + 1))/√5. G(j + 1) = (φ^((j + 1) + 1) − ψ^((j + 1) + 1))/√5.
           join 4.8, 4.11

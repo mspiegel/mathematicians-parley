@@ -52,43 +52,38 @@ theorem prime-divides-binomial
 8.  C(p − 1, k − 1) ∈ ℕ₀
     mun:binomial-nat0 n := p − 1, k := k − 1, from 2
 
-9.  C(p, k) ∈ ℕ₀
-    mun:binomial-nat0 n := p
-
-10. p divides p
+9.  p divides p
     mun:divides-self n := p
 
-11. p divides p·C(p − 1, k − 1)
-    mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 10
+10. p divides p·C(p − 1, k − 1)
+    mun:divides-multiple e := p, a := p, x := C(p − 1, k − 1), from 9
     requires C(p − 1, k − 1) ∈ ℤ: from 8
 
-12. p divides k·C(p, k)
-    substitute k·C(p, k) = p·C(p − 1, k − 1) (line 7) into line 11
+11. p divides k·C(p, k)
+    substitute k·C(p, k) = p·C(p − 1, k − 1) (line 7) into line 10
 
-13. p divides C(p, k)·k
+12. p divides C(p, k)·k
     substitute
-      p divides k·C(p, k)      12
+      p divides k·C(p, k)      11
       p divides C(p, k)·k      algebra
-    requires C(p, k) ∈ ℝ: from 9
 
-14. not (p divides k)
+13. not (p divides k)
     contradiction
     suppose p divides k                                               (S)
 
-    14.1. p ≤ k
+    13.1. p ≤ k
           mun:divides-le e := p, m := k, from S, 1
 
-    14.2. not p ≤ k
-          inequalities, from H5, contradicting 14.1
+    13.2. not p ≤ k
+          inequalities, from H5, contradicting 13.1
 
-15. gcd(p, k) = 1
-    mun:prime-coprime a := k, from H3, 14
+14. gcd(p, k) = 1
+    mun:prime-coprime a := k, from H3, 13
 
-16. gcd(k, p) = 1
+15. gcd(k, p) = 1
     substitute
-      gcd(p, k) = 1      15
+      gcd(p, k) = 1      14
       gcd(k, p) = 1      mun:gcd-commutes a := p, b := k
 
-17. p divides C(p, k)
-    thm:coprime-divides x := C(p, k), c := k, n := p, from 13, 16
-    requires C(p, k) ∈ ℤ: from 9
+16. p divides C(p, k)
+    thm:coprime-divides x := C(p, k), c := k, n := p, from 12, 15

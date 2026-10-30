@@ -1,7 +1,6 @@
 import definition         stdlib/counting/C
 import definition         stdlib/counting/factorial
 import mundane theorem    stdlib/counting/binomial-zero-index
-import mundane theorem    stdlib/counting/factorial-nat
 import definition         stdlib/numbers/nat0
 import definition         stdlib/sums/range-between
 
@@ -38,25 +37,22 @@ theorem choose-one-less
     2.5.  (N + 1)! = N!·(N + 1)
           def:factorial n := N
 
-    2.6.  N! ∈ ℕ
-          mun:factorial-nat n := N
-
-    2.7.  C(N + 1, N) = N + 1
+    2.6.  C(N + 1, N) = N + 1
           calculation
             C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     def:C n := N + 1, k := N, from 2.2
                         = (N + 1)!/(1·N!)                  substitute line 2.4
                         = N!·(N + 1)/(1·N!)                substitute line 2.5
-                        = N + 1                            algebra, from 2.6
+                        = N + 1                            algebra
 
     case
     assume N = 0                                                      (C2)
 
-    2.8.  N + 1 = 1
+    2.7.  N + 1 = 1
           algebra, from C2
 
-    2.9.  C(N + 1, N) = N + 1
+    2.8.  C(N + 1, N) = N + 1
           calculation
-            C(N + 1, N) = C(1, N)     substitute line 2.8
+            C(N + 1, N) = C(1, N)     substitute line 2.7
                         = C(1, 0)     substitute C2
                         = 1           mun:binomial-zero-index n := 1
-                        = N + 1       2.8
+                        = N + 1       2.7

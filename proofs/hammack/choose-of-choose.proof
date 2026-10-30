@@ -95,28 +95,19 @@ theorem choose-of-choose
     mun:nat0-as-int
     requires 0 ≤ b − c: from 7
 
-22. a! ∈ ℕ
-    mun:factorial-nat n := a
-
-23. b! ∈ ℕ
-    mun:factorial-nat n := b
-
-24. c! ∈ ℕ
-    mun:factorial-nat n := c
-
-25. (a − b)! ∈ ℕ
+22. (a − b)! ∈ ℕ
     mun:factorial-nat n := a − b, from 20
 
-26. (b − c)! ∈ ℕ
+23. (b − c)! ∈ ℕ
     mun:factorial-nat n := b − c, from 21
 
-27. (a − b + c)! ∈ ℕ
+24. (a − b + c)! ∈ ℕ
     mun:factorial-nat n := a − b + c, from 17
 
-28. C(a, b)·C(b, c) = C(a, b − c)·C(a − b + c, c)
+25. C(a, b)·C(b, c) = C(a, b − c)·C(a − b + c, c)
     calculation
       C(a, b)·C(b, c) = a!/((a − b)!·b!)·C(b, c)                                   substitute line 3
                       = a!/((a − b)!·b!)·(b!/((b − c)!·c!))                        substitute line 6
-                      = a!/((a − b + c)!·(b − c)!)·((a − b + c)!/((a − b)!·c!))    algebra, from 22, 23, 24, 25, 26, 27
+                      = a!/((a − b + c)!·(b − c)!)·((a − b + c)!/((a − b)!·c!))    algebra, from 22, 23, 24
                       = a!/((a − b + c)!·(b − c)!)·C(a − b + c, c)                 substitute line 19
                       = C(a, b − c)·C(a − b + c, c)                                substitute line 12

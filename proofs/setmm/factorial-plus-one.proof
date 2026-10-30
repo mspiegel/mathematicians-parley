@@ -1,5 +1,4 @@
 import mundane theorem    stdlib/counting/factorial-divisible
-import mundane theorem    stdlib/counting/factorial-nat
 import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-one
@@ -33,24 +32,20 @@ theorem factorial-plus-one
 
     1.5.  M! + 1 = N·((M! + 1)/N)
           algebra
-          requires M! ∈ ℕ: mun:factorial-nat n := M
 
     1.6.  There is k ∈ ℤ with M! + 1 = N·k.
           exhibit, from S, 1.5
 
     1.7.  N divides M! + 1
           def:divides d := N, n := M! + 1, from 1.6
-          requires M! ∈ ℕ: mun:factorial-nat n := M
 
     1.8.  N divides (M! + 1) − M!
           mun:divides-difference d := N, a := M! + 1, b := M!, from 1.4, 1.7
-          requires M! ∈ ℕ: mun:factorial-nat n := M
 
     1.9.  N divides 1
           substitute
             N divides (M! + 1) − M!      1.8
             N divides 1                  algebra
-          requires M! ∈ ℕ: mun:factorial-nat n := M
 
     1.10. N = 1
           mun:divides-one d := N, from 1.9

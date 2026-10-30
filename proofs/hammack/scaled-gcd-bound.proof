@@ -7,7 +7,6 @@ import mundane theorem    stdlib/divisibility/gcd-integer
 import mundane theorem    stdlib/divisibility/zero-divides
 import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/iff-from-left
-import mundane theorem    stdlib/numbers/int-closure
 import mundane theorem    stdlib/numbers/nat-closure
 import mundane theorem    stdlib/numbers/nat0-nonzero
 import mundane theorem    stdlib/numbers/nonneg-or-neg
@@ -23,42 +22,39 @@ theorem gcd-positive
   assume not (x = 0 and y = 0)                                        (H3)
   then gcd(x, y) ∈ ℕ
 
-1.  gcd(x, y) ∈ ℕ₀
+1.  gcd(x, y) divides x
     mun:gcd-integer
 
-2.  gcd(x, y) divides x
+2.  gcd(x, y) divides y
     mun:gcd-integer
 
-3.  gcd(x, y) divides y
-    mun:gcd-integer
-
-4.  gcd(x, y) ≠ 0
+3.  gcd(x, y) ≠ 0
     contradiction
     suppose gcd(x, y) = 0                                             (S)
 
-    4.1.  0 divides x
-          substitute gcd(x, y) = 0 (S) into line 2
+    3.1.  0 divides x
+          substitute gcd(x, y) = 0 (S) into line 1
 
-    4.2.  0 divides x ↔ x = 0
+    3.2.  0 divides x ↔ x = 0
           mun:zero-divides n := x
 
-    4.3.  x = 0
-          mun:iff-from-left P := 0 divides x, Q := x = 0, from 4.1, 4.2
+    3.3.  x = 0
+          mun:iff-from-left P := 0 divides x, Q := x = 0, from 3.1, 3.2
 
-    4.4.  0 divides y
-          substitute gcd(x, y) = 0 (S) into line 3
+    3.4.  0 divides y
+          substitute gcd(x, y) = 0 (S) into line 2
 
-    4.5.  0 divides y ↔ y = 0
+    3.5.  0 divides y ↔ y = 0
           mun:zero-divides n := y
 
-    4.6.  y = 0
-          mun:iff-from-left P := 0 divides y, Q := y = 0, from 4.4, 4.5
+    3.6.  y = 0
+          mun:iff-from-left P := 0 divides y, Q := y = 0, from 3.4, 3.5
 
-    4.7.  x = 0 and y = 0
-          join 4.3, 4.6, contradicting H3
+    3.7.  x = 0 and y = 0
+          join 3.3, 3.6, contradicting H3
 
-5.  gcd(x, y) ∈ ℕ
-    mun:nat0-nonzero m := gcd(x, y), from 1, 4
+4.  gcd(x, y) ∈ ℕ
+    mun:nat0-nonzero m := gcd(x, y), from 3
 
 theorem scaled-pair-not-both-zero
   note        If c is not 0 and x is not 0 then c·x is not 0, and likewise
@@ -139,15 +135,12 @@ theorem scaled-gcd-bound
 
 7.  c·gcd(a, b) divides c·a
     thm:divides-product a := c, b := c, c := gcd(a, b), d := a, from 2, 6
-    requires gcd(a, b) ∈ ℤ: from 1
 
 8.  c·gcd(a, b) divides c·b
     thm:divides-product a := c, b := c, c := gcd(a, b), d := b, from 3, 6
-    requires gcd(a, b) ∈ ℤ: from 1
 
 9.  c·gcd(a, b) divides gcd(c·a, c·b)
     thm:divides-gcd d := c·gcd(a, b), a := c·a, b := c·b, from 7, 8
-    requires c·gcd(a, b) ∈ ℤ: mun:int-closure a := c, b := gcd(a, b), from 1
 
 10. c ≥ 0 or c < 0
     mun:nonneg-or-neg x := c
@@ -184,28 +177,22 @@ theorem scaled-gcd-bound
 
     11.7. 0 < (−c)·gcd(a, b)
           mun:product-positive x := −c, y := gcd(a, b), from 11.5, 11.6
-          requires gcd(a, b) ∈ ℝ: from 1
 
     11.8. 0 < −(c·gcd(a, b))
           substitute
             0 < (−c)·gcd(a, b)      11.7
             0 < −(c·gcd(a, b))      algebra
-          requires gcd(a, b) ∈ ℝ: from 1
 
     11.9.  c·gcd(a, b) < 0
            inequalities
              0 < −(c·gcd(a, b))      11.8
              0 > c·gcd(a, b)         multiplying by −1
              c·gcd(a, b) < 0         restate
-           requires gcd(a, b) ∈ ℝ: from 1
 
     11.10. c·gcd(a, b) < gcd(c·a, c·b)
            inequalities, from 5, 11.9
-           requires gcd(a, b) ∈ ℝ: from 1
 
     11.11. c·gcd(a, b) ≤ gcd(c·a, c·b)
            inequalities
              c·gcd(a, b) < gcd(c·a, c·b)      11.10
              c·gcd(a, b) ≤ gcd(c·a, c·b)      weakening
-           requires gcd(a, b) ∈ ℝ: from 1
-           requires gcd(c·a, c·b) ∈ ℝ: from 5

@@ -68,7 +68,6 @@ theorem lcm-equals-first
 
     5.8.  lcm(a, b) ∈ ℕ
           mun:pos-int-nat m := lcm(a, b), from 5.7
-          requires lcm(a, b) ∈ ℤ: from 3
 
     5.9.  lcm(a, b) ≤ a
           mun:divides-le e := lcm(a, b), m := a, from 5.5, 5.8
@@ -78,4 +77,3 @@ theorem lcm-equals-first
 
     5.11. a = lcm(a, b)
           antisymmetry, from 5.9, 5.10
-          requires lcm(a, b) ∈ ℝ: from 3

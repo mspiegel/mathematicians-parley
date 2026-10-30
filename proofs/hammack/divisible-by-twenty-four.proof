@@ -3,8 +3,6 @@ import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-self
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/numbers/exponent-sum
-import mundane theorem    stdlib/numbers/power-integer
-import mundane theorem    stdlib/numbers/power-real
 
 theorem divisible-by-twenty-four
   note        By induction on n: 5^(2(m + 1)) − 1 is 25·(5^(2m) − 1) + 24, and
@@ -36,20 +34,17 @@ theorem divisible-by-twenty-four
 
     1.5.  24 divides (5^(2m) − 1)·25
           mun:divides-multiple e := 24, a := 5^(2m) − 1, x := 25, from IH
-          requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
     1.6.  24 divides 24
           mun:divides-self n := 24
 
     1.7.  24 divides (5^(2m) − 1)·25 + 24
           mun:divides-sum d := 24, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
-          requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
     1.8.  24 divides 5^(2(m + 1)) − 1
           substitute
             24 divides (5^(2m) − 1)·25 + 24      1.7
             24 divides 5^(2(m + 1)) − 1          algebra, from 1.4
-          requires 5^(2m) ∈ ℝ: mun:power-real a := 5, m := 2m
 
 2.  24 divides 5^(2n) − 1
     instantiate m := n in line 1

@@ -1,5 +1,4 @@
 import theorem            stdlib/counting/pascal
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/counting/binomial-zero-index
 import definition         stdlib/counting/C
 
@@ -65,4 +64,3 @@ theorem choose-two-pairs
     calculation
       n + C(n, 2) = C(n, 2) + n       algebra
                   = C(n + 1, 2)       3
-    requires C(n, 2) ∈ ℕ₀: mun:binomial-nat0

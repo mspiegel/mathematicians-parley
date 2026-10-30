@@ -2,8 +2,6 @@ import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-difference
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/numbers/exponent-sum
-import mundane theorem    stdlib/numbers/power-integer
-import mundane theorem    stdlib/numbers/power-real
 
 theorem divisible-by-nine
   note        By induction on n: 4^(3(m + 1)) + 8 is 64·(4^(3m) + 8) − 504,
@@ -35,7 +33,6 @@ theorem divisible-by-nine
 
     1.5.  9 divides (4^(3m) + 8)·64
           mun:divides-multiple e := 9, a := 4^(3m) + 8, x := 64, from IH
-          requires 4^(3m) ∈ ℤ: mun:power-integer a := 4, m := 3m
 
     1.6.  9 divides 504
           def:divides d := 9, n := 504
@@ -43,13 +40,11 @@ theorem divisible-by-nine
 
     1.7.  9 divides (4^(3m) + 8)·64 − 504
           mun:divides-difference d := 9, a := (4^(3m) + 8)·64, b := 504, from 1.5, 1.6
-          requires 4^(3m) ∈ ℤ: mun:power-integer a := 4, m := 3m
 
     1.8.  9 divides 4^(3(m + 1)) + 8
           substitute
             9 divides (4^(3m) + 8)·64 − 504      1.7
             9 divides 4^(3(m + 1)) + 8           algebra, from 1.4
-          requires 4^(3m) ∈ ℝ: mun:power-real a := 4, m := 3m
 
 2.  9 divides 4^(3n) + 8
     instantiate m := n in line 1

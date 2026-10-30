@@ -41,14 +41,11 @@ theorem choose-all
       (N − N)! = 0!    substitute line 3
                = 1     arithmetic
 
-5.  N! ∈ ℕ
-    mun:factorial-nat n := N
-
-6.  C(N, N) = 1
+5.  C(N, N) = 1
     calculation
       C(N, N) = N!/((N − N)!·N!)     def:C n := N, k := N, from 2
               = N!/(1·N!)            substitute line 4
-              = 1                    algebra, from 5
+              = 1                    algebra
 
 theorem choose-one
   note        For N = 0 the lower index 1 is past the end of the row, so
@@ -129,15 +126,12 @@ theorem choose-next-row
 5.  (N + 1)! = N!·(N + 1)
     def:factorial n := N
 
-6.  N! ∈ ℕ
-    mun:factorial-nat n := N
-
-7.  C(N + 1, N) = N + 1
+6.  C(N + 1, N) = N + 1
     calculation
       C(N + 1, N) = (N + 1)!/(((N + 1) − N)!·N!)     def:C n := N + 1, k := N, from 2
                   = (N + 1)!/(1·N!)                  substitute line 4
                   = N!·(N + 1)/(1·N!)                substitute line 5
-                  = N + 1                            algebra, from 6
+                  = N + 1                            algebra
 
 theorem choose-two
   note        Row N has no entry at 2 when N is 0 or 1, and N·(N − 1)/2 is 0
@@ -290,44 +284,41 @@ theorem choose-complement
     2.8.  K! ∈ ℕ
           mun:factorial-nat n := K, from 2.1
 
-    2.9.  N! ∈ ℕ
-          mun:factorial-nat n := N
-
-    2.10. C(N, K) = C(N, N − K)
+    2.9.  C(N, K) = C(N, N − K)
           calculation
             C(N, K) = N!/((N − K)!·K!)                  def:C n := N, k := K, from C1
-                    = N!/(K!·(N − K)!)                  algebra, from 2.7, 2.8, 2.9
+                    = N!/(K!·(N − K)!)                  algebra, from 2.7, 2.8
                     = N!/((N − (N − K))!·(N − K)!)      substitute line 2.6
                     = C(N, N − K)                       def:C n := N, k := N − K, from 2.4
 
     case
     assume K ∉ {0, …, N}                                              (C2)
 
-    2.11. N − K ∉ {0, …, N}
+    2.10. N − K ∉ {0, …, N}
           contradiction
           suppose N − K ∈ {0, …, N}                                   (S)
 
-          2.11.1. 0 ≤ N − K. N − K ≤ N.
+          2.10.1. 0 ≤ N − K. N − K ≤ N.
                   def:range-between k := N − K, a := 0, b := N, from S
 
-          2.11.2. K ≥ 0
+          2.10.2. K ≥ 0
                   inequalities
-                    N − K ≤ N       2.11.1
+                    N − K ≤ N       2.10.1
                     −K ≤ 0          adding −N
                     K ≥ 0           multiplying by −1
 
-          2.11.3. K ≤ N
+          2.10.3. K ≤ N
                   inequalities
-                    0 ≤ N − K       2.11.1
+                    0 ≤ N − K       2.10.1
                     K ≤ N           adding K
 
-          2.11.4. K ∈ {0, …, N}
-                  def:range-between k := K, a := 0, b := N, from 2.11.2, 2.11.3
+          2.10.4. K ∈ {0, …, N}
+                  def:range-between k := K, a := 0, b := N, from 2.10.2, 2.10.3
 
-          2.11.5. K ∉ {0, …, N}
-                  restate C2, contradicting 2.11.4
+          2.10.5. K ∉ {0, …, N}
+                  restate C2, contradicting 2.10.4
 
-    2.12. C(N, K) = C(N, N − K)
+    2.11. C(N, K) = C(N, N − K)
           calculation
             C(N, K) = 0            mun:binomial-outside n := N, k := K, from C2
-                    = C(N, N − K)  mun:binomial-outside n := N, k := N − K, from 2.11
+                    = C(N, N − K)  mun:binomial-outside n := N, k := N − K, from 2.10

@@ -1,7 +1,6 @@
 import theorem            proofs/wiedijk/sqrt2-irrational/odd-square
 import theorem            proofs/wiedijk/triangle-inequality/abs-bounds
 import definition         stdlib/numbers/abs
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 import mundane theorem    stdlib/divisibility/even-or-odd
 import mundane theorem    stdlib/divisibility/not-both
@@ -45,8 +44,6 @@ theorem sum-nonneg-bounded
 
 4.  a + b ≤ |a| + |b|
     inequalities, from 1, 2
-    requires |a| ∈ ℝ: mun:abs-real x := a
-    requires |b| ∈ ℝ: mun:abs-real x := b
 
 5.  |a + b| ≤ |a| + |b|
     calculation
@@ -70,8 +67,6 @@ theorem sum-neg-bounded
 
 4.  −(a + b) ≤ |a| + |b|
     inequalities, from 1, 2
-    requires |a| ∈ ℝ: mun:abs-real x := a
-    requires |b| ∈ ℝ: mun:abs-real x := b
 
 5.  |a + b| ≤ |a| + |b|
     calculation

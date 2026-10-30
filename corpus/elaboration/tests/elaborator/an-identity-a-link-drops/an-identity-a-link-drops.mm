@@ -6,6 +6,6 @@ $( tests/elaborator/an-identity-a-link-drops/an-identity-a-link-drops, elaborate
 $[ stdlib/definitions.mm $]
 
 ${
-  tests.elaborator.an-identity-a-link-drops.an-identity-a-link-drops $p |- ( ( ( A e. NN0 /\ B e. ZZ ) /\ ( ( A _C B ) x. ( 1 ^ B ) ) = ( ( A _C B ) x. 1 ) ) -> ( ( A _C B ) x. ( 1 ^ B ) ) = ( A _C B ) ) $=
-    ( cn0 wcel cz wa cbc co c1 cexp cmul wceq simpr cc simpl id syl jca bccl nn0cn mulrid eqeq2d mpbid ) ACDZBEDZFZABGHZIBJHZKHZUGIKHZLZFZUKUIUGLUFUKMULUJUGUIULUGNDZUJUGLULUGCDZUMULUFUNULUDUEULUFUDUFUKOZUFUDUDUDUEOUDPQQULUFUEUOUDUEMQRBASQUGTQUGUAQUBUC $.
+  tests.elaborator.an-identity-a-link-drops.an-identity-a-link-drops $p |- ( ( ( A : ZZ --> RR /\ B e. ZZ ) /\ ( ( A ` B ) x. ( 1 ^ B ) ) = ( ( A ` B ) x. 1 ) ) -> ( ( A ` B ) x. ( 1 ^ B ) ) = ( A ` B ) ) $=
+    ( cz cr wf wcel wa cfv c1 cexp co cmul wceq simpr cc simpl id syl ffvelcdm syl2anc recn mulrid eqeq2d mpbid ) CDAEZBCFZGZBAHZIBJKZLKZUHILKZMZGZULUJUHMUGULNUMUKUHUJUMUHOFZUKUHMUMUHDFZUNUMUEUFUOUMUGUEUGULPZUGUEUEUEUFPUEQRRUMUGUFUPUEUFNRCDBASTUHUARUHUBRUCUD $.
 $}

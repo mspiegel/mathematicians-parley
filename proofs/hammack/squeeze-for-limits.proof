@@ -1,6 +1,5 @@
 import definition         stdlib/calculus/limit-at
 import mundane theorem    stdlib/sets/subset-self
-import mundane theorem    stdlib/numbers/abs-real
 import mundane theorem    stdlib/numbers/abs-difference-lt
 import definition         stdlib/numbers/min
 import mundane theorem    stdlib/numbers/min-real
@@ -77,11 +76,9 @@ theorem squeeze-for-limits
 
           1.12.1.  |x − c| < m and |x − c| < r
                    mun:lt-min z := |x − c|, x := m, y := r, from A2, D2
-                   requires |x − c| ∈ ℝ: mun:abs-real x := x − c
 
           1.12.2.  |x − c| < p and |x − c| < q
                    mun:lt-min z := |x − c|, x := p, y := q, from D1, 1.12.1
-                   requires |x − c| ∈ ℝ: mun:abs-real x := x − c
 
           1.12.3.  x ≠ c and |x − c| < p
                    join A2, 1.12.2

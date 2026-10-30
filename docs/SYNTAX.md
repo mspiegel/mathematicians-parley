@@ -1135,8 +1135,6 @@ uses the fact `cos(π) = −1` and nothing else.
 ```proof
 4.3.  −a + −b ≤ |a| + |b|
       inequalities, from 2, 3
-      requires |a| ∈ ℝ: mun:abs-real x := a
-      requires |b| ∈ ℝ: mun:abs-real x := b
 
 4.4.  |a + b| ≤ |a| + |b|
       calculation

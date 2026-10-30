@@ -2,8 +2,6 @@ import definition         stdlib/divisibility/divides
 import mundane theorem    stdlib/divisibility/divides-multiple
 import mundane theorem    stdlib/divisibility/divides-sum
 import mundane theorem    stdlib/numbers/exponent-sum
-import mundane theorem    stdlib/numbers/power-integer
-import mundane theorem    stdlib/numbers/power-real
 
 theorem five-power-minus-one
   note        By induction on n: 5^(2n + 2) − 1 is 25·(5^(2n) − 1) + 24, and
@@ -35,7 +33,6 @@ theorem five-power-minus-one
 
     1.5.  3 divides (5^(2m) − 1)·25
           mun:divides-multiple e := 3, a := 5^(2m) − 1, x := 25, from IH
-          requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
     1.6.  3 divides 24
           def:divides d := 3, n := 24
@@ -43,13 +40,11 @@ theorem five-power-minus-one
 
     1.7.  3 divides (5^(2m) − 1)·25 + 24
           mun:divides-sum d := 3, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
-          requires 5^(2m) ∈ ℤ: mun:power-integer a := 5, m := 2m
 
     1.8.  3 divides 5^(2(m + 1)) − 1
           substitute
             3 divides (5^(2m) − 1)·25 + 24      1.7
             3 divides 5^(2(m + 1)) − 1          algebra, from 1.4
-          requires 5^(2m) ∈ ℝ: mun:power-real a := 5, m := 2m
 
 2.  3 divides 5^(2n) − 1
     instantiate m := n in line 1

@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   tests.elaborator.an-identity-a-substitution-makes.an-identity-a-substitution-makes-at-a-coefficient $p |- ( ( ( A e. NN0 /\ B e. ZZ ) /\ ( 1 ^ B ) = 1 ) -> ( ( A _C B ) x. ( 1 ^ B ) ) = ( A _C B ) ) $=
-    ( cn0 wcel cz wa c1 cexp co wceq cbc cmul simpr oveq2d cc simpl id syl jca bccl nn0cn mulrid eqtrd ) ACDZBEDZFZGBHIZGJZFZABKIZUGLIUJGLIZUJUIUGGUJLUFUHMNUIUJODZUKUJJUIUJCDZULUIUFUMUIUDUEUIUFUDUFUHPZUFUDUDUDUEPUDQRRUIUFUEUNUDUEMRSBATRUJUARUJUBRUC $.
+    ( cn0 wcel cz wa c1 cexp co wceq cbc cmul simpr oveq2d cc simpl id syl bccl syl2anc nn0cn mulrid eqtrd ) ACDZBEDZFZGBHIZGJZFZABKIZUGLIUJGLIZUJUIUGGUJLUFUHMNUIUJODZUKUJJUIUJCDZULUIUDUEUMUIUFUDUFUHPZUFUDUDUDUEPUDQRRUIUFUEUNUDUEMRBASTUJUARUJUBRUC $.
 $}

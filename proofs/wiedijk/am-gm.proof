@@ -18,7 +18,6 @@ import mundane theorem    stdlib/numbers/zero-power
 import mundane theorem    stdlib/numbers/power-less
 import mundane theorem    stdlib/numbers/power-of-product
 import mundane theorem    stdlib/numbers/exponent-step
-import mundane theorem    stdlib/numbers/power-real
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/quotient-nonneg
 import mundane theorem    stdlib/numbers/le-cases
@@ -203,7 +202,6 @@ theorem am-gm-power
                                      = A^(j + 1)·r^(j + 1)               substitute line 1.2.14.9
                                      = (A·r)^(j + 1)                     mun:power-of-product
                                      = B^(j + 1)                         substitute line 1.2.14.7
-                             requires r^(j + 1) ∈ ℝ: mun:power-real
 
                   case
                   note A^j is 0, and B^(j + 1) is not negative
@@ -223,7 +221,6 @@ theorem am-gm-power
 
                   1.2.14.15. A^j·x ≤ B^(j + 1)
                              transitivity, from 1.2.14.13, 1.2.14.14
-                             requires B^(j + 1) ∈ ℝ: mun:power-real
 
           1.2.15. ∏(k = 1 to j + 1) a(k) ≤ ((Σ(k = 1 to j + 1) a(k))/(j + 1))^(j + 1)
                   calculation

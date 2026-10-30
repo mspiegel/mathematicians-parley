@@ -1,6 +1,5 @@
 import theorem            proofs/wiedijk/binomial/binomial
 import definition         stdlib/counting/C
-import mundane theorem    stdlib/counting/binomial-nat0
 import mundane theorem    stdlib/numbers/one-power
 import mundane theorem    stdlib/sums/sum-termwise
 
@@ -25,7 +24,6 @@ theorem binomial-coefficients-sum
           calculation
             C(N, k)·1^(N − k)·1^k = C(N, k)·1^k     algebra, from 1.1
                                   = C(N, k)         algebra, from 1.2
-          requires C(N, k) ∈ ℕ₀: mun:binomial-nat0
 
 2.  1 + 1 = 2
     arithmetic
