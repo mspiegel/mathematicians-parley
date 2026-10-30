@@ -541,19 +541,13 @@ theorem alternate-angles
 13. T is on line RT
     mun:on-line-ends A := R, B := T
 
-14. T ∈ line RT
-    def:line P := T, A := R, B := T, from 13
+14. T is on line RS
+    substitute line RS = line RT (line 12) into line 13
 
-15. T ∈ line RS
-    substitute line RS = line RT (line 12) into line 14
-
-16. T is on line RS
-    def:line P := T, A := R, B := S, from 15
-
-17. ∠SRP = ∠RPQ
+15. ∠SRP = ∠RPQ
     calculation
       ∠SRP = ∠PRS       mun:angle-turned P := S, Q := R, R := P, from H5, 2
-           = ∠PRT       mun:angle-same-ray R := P, P := R, Q := S, X := T, from 5, 16
+           = ∠PRT       mun:angle-same-ray R := P, P := R, Q := S, X := T, from 5, 14
            = ∠RPQ       5
 
 theorem angles-on-a-line
@@ -731,14 +725,8 @@ theorem parallel-through
     contradiction
     suppose line RD = line PQ                                         (S1)
 
-    25.1. R ∈ line RD
-          def:line P := R, A := R, B := D, from 24
-
-    25.2. R ∈ line PQ
-          substitute line RD = line PQ (S1) into line 25.1
-
-    25.3. R is on line PQ
-          def:line P := R, A := P, B := Q, from 25.2, contradicting 22
+    25.1. R is on line PQ
+          substitute line RD = line PQ (S1) into line 24, contradicting 22
 
 26. not (there is X ∈ 𝔼² with X is on line RD and X is on line PQ)
     mun:disjunctive-syllogism-left, from 23, 25
@@ -1492,20 +1480,14 @@ theorem perpendicular-foot
                   axi:line-uniqueness A := H, B := Q, C := Q, D := R,
                     from C7, H4, 3, 19
 
-          29.2.7. R ∈ line QR
-                  def:line P := R, A := Q, B := R, from 3
+          29.2.7. R is on line HQ
+                  substitute line HQ = line QR (line 29.2.6) into line 3
 
-          29.2.8. R ∈ line HQ
-                  substitute line HQ = line QR (line 29.2.6) into line 29.2.7
-
-          29.2.9. R is on line HQ
-                  def:line P := R, A := H, B := Q, from 29.2.8
-
-          29.2.10. ∠PHR = 90°
-                   mun:right-angle-along S := Q, T := R, from 29.2.5, 29.2.9
-                   requires P, H, Q form a triangle: mun:right-angle-triangle Q := H, R := Q, from C7, H4, 20, 29.2.5
-                   requires P is not on line HQ: mun:triangle-not-on-line Q := H, R := Q
-                   requires P is not on line HR: mun:off-line-along A := H, B := Q, X := R, from C7, K2, 29.2.9
+          29.2.8. ∠PHR = 90°
+                  mun:right-angle-along S := Q, T := R, from 29.2.5, 29.2.7
+                  requires P, H, Q form a triangle: mun:right-angle-triangle Q := H, R := Q, from C7, H4, 20, 29.2.5
+                  requires P is not on line HQ: mun:triangle-not-on-line Q := H, R := Q
+                  requires P is not on line HR: mun:off-line-along A := H, B := Q, X := R, from C7, K2, 29.2.7
                    requires P, H, R form a triangle: mun:triangle-off-line Q := H, from K2
 
 30. there is H ∈ 𝔼² with H is on line QR, P ≠ H, (if H ≠ Q then ∠PHQ = 90°),
@@ -1800,16 +1782,10 @@ mundane theorem on-line-other
   assume Z is on line AB                                              (H10)
   then Z is on line XY
 
-1.  Z ∈ line AB
-    def:line P := Z, from H10
-
-2.  Z ∈ line XY
+1.  Z is on line XY
     substitute
-      Z ∈ line AB      1
+      Z ∈ line AB      H10
       Z ∈ line XY      axi:line-uniqueness A := X, B := Y, C := A, D := B, from H6, H7, H8, H9
-
-3.  Z is on line XY
-    def:line P := Z, A := X, B := Y, from 2
 
 mundane theorem off-line-other
   note        Line XY, for two points X and Y of line AB, is line AB, so a
@@ -1823,7 +1799,7 @@ mundane theorem off-line-other
   assume X ≠ Y                                                        (H7)
   assume X is on line AB                                              (H8)
   assume Y is on line AB                                              (H9)
-  assume O is not on line AB                                        (H10)
+  assume O is not on line AB                                          (H10)
   then O is not on line XY
 
 1.  A is on line AB. B is on line AB.
@@ -1896,19 +1872,19 @@ mundane theorem point-off-line
                             restate 2, contradicting 4.2.2.1
 
                   case
-                  assume W is not on line AB                        (C4)
+                  assume W is not on line AB                          (C4)
 
                   4.2.2.3.  there is O ∈ 𝔼² with O is not on line AB
                             exhibit, from C4
 
           case
-          assume V is not on line AB                                (C5)
+          assume V is not on line AB                                  (C5)
 
           4.2.3.  there is O ∈ 𝔼² with O is not on line AB
                   exhibit, from C5
 
     case
-    assume U is not on line AB                                      (C6)
+    assume U is not on line AB                                        (C6)
 
     4.3.  there is O ∈ 𝔼² with O is not on line AB
           exhibit, from C6
@@ -2654,14 +2630,8 @@ theorem angle-side-angle
             line DF = line GF       18.4
                     = line EF       18.2
 
-    18.6. D ∈ line DF
-          def:line P := D, A := D, B := F, from 18.3
-
-    18.7. D ∈ line EF
-          substitute line DF = line EF (line 18.5) into line 18.6
-
-    18.8. D is on line EF
-          def:line P := D, A := E, B := F, from 18.7, contradicting 17
+    18.6. D is on line EF
+          substitute line DF = line EF (line 18.5) into line 18.3, contradicting 17
 
 19. triangle BAC ≅ triangle EDF
     substitute G = F (line 18) into line 9
@@ -2854,7 +2824,7 @@ mundane theorem off-line-along
   assume A ≠ B                                                        (H5)
   assume X is on line AB                                              (H6)
   assume X ≠ A                                                        (H7)
-  assume P is not on line AB                                        (H8)
+  assume P is not on line AB                                          (H8)
   then P is not on line AX
 
 1.  A is on line AB
@@ -2864,17 +2834,7 @@ mundane theorem off-line-along
     axi:line-uniqueness B := X, C := A, D := B, from H5, H6, H7, 1
 
 3.  P is not on line AX
-    contradiction
-    suppose P is on line AX                                           (S1)
-
-    3.1.  P ∈ line AX
-          def:line B := X, from S1
-
-    3.2.  P ∈ line AB
-          substitute line AX = line AB (line 2) into line 3.1
-
-    3.3.  P is on line AB
-          def:line, from 3.2, contradicting H8
+    substitute line AX = line AB (line 2) into H8
 
 mundane theorem crossing-triangle
   note        X is where the segment DG crosses line EF, and E is another
@@ -3442,30 +3402,18 @@ mundane theorem height-area
 4.  Q is on line QR. R is on line QR.
     mun:on-line-ends A := Q, B := R
 
-5.  Q ∈ line QR
-    def:line P := Q, A := Q, B := R, from 4
+5.  Q is on line HS
+    substitute line HS = line QR (line 3) into line 4
 
-6.  Q ∈ line HS
-    substitute line HS = line QR (line 3) into line 5
+6.  R is on line HS
+    substitute line HS = line QR (line 3) into line 4
 
-7.  Q is on line HS
-    def:line P := Q, A := H, B := S, from 6
-
-8.  R ∈ line QR
-    def:line P := R, A := Q, B := R, from 4
-
-9.  R ∈ line HS
-    substitute line HS = line QR (line 3) into line 8
-
-10. R is on line HS
-    def:line P := R, A := H, B := S, from 9
-
-11. line PH ⊥ line QR
+7.  line PH ⊥ line QR
     mun:perpendicular-along A := P, B := H, C := H, D := S, E := Q, F := R,
-      from H6, 2, 7, 10
+      from H6, 2, 5, 6
 
-12. the area of △PQR = (1/2)·|QR|·|PH|
-    axi:area-base-height, from H6, H7, 11
+8.  the area of △PQR = (1/2)·|QR|·|PH|
+    axi:area-base-height, from H6, H7, 7
 
 mundane theorem foot
   note        The foot H of the perpendicular from P to line QR, with a second
@@ -3531,7 +3479,7 @@ mundane theorem parallel-off
   assume A ≠ B                                                        (H6)
   assume C ≠ D                                                        (H7)
   assume line AB ∥ line CD                                            (H8)
-  assume A is not on line CD                                        (H9)
+  assume A is not on line CD                                          (H9)
   assume X is on line AB                                              (H10)
   then X is not on line CD
 
@@ -3546,14 +3494,8 @@ mundane theorem parallel-off
     contradiction
     suppose line AB = line CD                                         (S1)
 
-    3.1.  A ∈ line AB
-          def:line P := A, from 2
-
-    3.2.  A ∈ line CD
-          substitute line AB = line CD (S1) into line 3.1
-
-    3.3.  A is on line CD
-          def:line P := A, A := C, B := D, from 3.2, contradicting H9
+    3.1.  A is on line CD
+          substitute line AB = line CD (S1) into line 2, contradicting H9
 
 4.  not (there is Y ∈ 𝔼² with Y is on line AB and Y is on line CD)
     mun:disjunctive-syllogism-left, from 1, 3
@@ -3577,7 +3519,7 @@ mundane theorem parallel-same-side
   assume A ≠ B                                                        (H6)
   assume C ≠ D                                                        (H7)
   assume line AB ∥ line CD                                            (H8)
-  assume A is not on line CD                                        (H9)
+  assume A is not on line CD                                          (H9)
   assume X is on line AB                                              (H10)
   assume X ≠ A                                                        (H11)
   then X and A are on the same side of line CD
@@ -3609,17 +3551,11 @@ mundane theorem parallel-same-side
     5.3.  Y is on line AX
           def:on-line P := Y, B := X, from 5.2
 
-    5.4.  Y ∈ line AX
-          def:line P := Y, B := X, from 5.3
+    5.4.  Y is on line AB
+          substitute line AX = line AB (line 4) into line 5.3
 
-    5.5.  Y ∈ line AB
-          substitute line AX = line AB (line 4) into line 5.4
-
-    5.6.  Y is on line AB
-          def:line P := Y, from 5.5
-
-    5.7.  Y is not on line CD
-          mun:parallel-off X := Y, from H6, H7, H8, H9, 5.6,
+    5.5.  Y is not on line CD
+          mun:parallel-off X := Y, from H6, H7, H8, H9, 5.4,
             contradicting 5.1
 
 6.  X and A are on the same side of line CD
@@ -3766,213 +3702,201 @@ theorem parallel-equidistant
 37. A is on line AZ. Z is on line AZ.
     mun:on-line-ends B := Z
 
-38. Z ∈ line AZ
-    def:line P := Z, B := Z, from 37
+38. Z is on line AB
+    substitute line AZ = line AB (line 36) into line 37
 
-39. Z ∈ line AB
-    substitute line AZ = line AB (line 36) into line 38
+39. Z and A are on the same side of line HK
+    mun:parallel-same-side C := H, D := K, X := Z, from H5, H7, 1, 16, 38
 
-40. Z is on line AB
-    def:line P := Z, from 39
+40. Z and B are on the same side of line HK
+    mun:same-side-same A := H, B := K, P := Z, Q := A, R := B, from H6, 39
 
-41. Z and A are on the same side of line HK
-    mun:parallel-same-side C := H, D := K, X := Z, from H5, H7, 1, 16, 40
-
-42. Z and B are on the same side of line HK
-    mun:same-side-same A := H, B := K, P := Z, Q := A, R := B, from H6, 41
-
-43. H ≠ Z
+41. H ≠ Z
     mun:between-ends-apart R := M, S := H, T := Z, from 11
 
-44. M is between Z and H
+42. M is between Z and H
     mun:between-symmetric R := M, S := H, T := Z, from 11
 
-45. H, M, Z are collinear.
+43. H, M, Z are collinear.
     mun:between-collinear R := M, S := H, T := Z, from 11
 
-46. Z is on line HM
-    def:on-line P := Z, A := H, B := M, from 45
+44. Z is on line HM
+    def:on-line P := Z, A := H, B := M, from 43
 
-47. A is not on line HM
+45. A is not on line HM
     mun:triangle-not-on-line P := A, Q := H, R := M, from 14
 
-48. A is not on line HZ
-    mun:off-line-along A := H, B := M, X := Z, P := A, from 9, 43, 46, 47
+46. A is not on line HZ
+    mun:off-line-along A := H, B := M, X := Z, P := A, from 9, 41, 44, 45
 
-49. M is on line HZ
-    def:on-line P := M, A := H, B := Z, from 45
+47. M is on line HZ
+    def:on-line P := M, A := H, B := Z, from 43
 
-50. A and K are on opposite sides of line HZ
+48. A and K are on opposite sides of line HZ
     mun:segment-across-line A := H, B := Z, P := A, Q := K,
-      from 5, 43, 48, 49
+      from 5, 41, 46, 47
 
-51. K is not on line ZM
+49. K is not on line ZM
     mun:triangle-not-on-line P := K, Q := Z, R := M, from 15
 
-52. H is on line ZM
-    def:on-line P := H, A := Z, B := M, from 45
+50. H is on line ZM
+    def:on-line P := H, A := Z, B := M, from 43
 
-53. K is not on line ZH
-    mun:off-line-along A := Z, B := M, X := H, P := K, from 15, 43, 51, 52
+51. K is not on line ZH
+    mun:off-line-along A := Z, B := M, X := H, P := K, from 15, 41, 49, 50
 
-54. K, Z, H form a triangle.
-    mun:triangle-off-line P := K, Q := Z, R := H, from 43, 53
+52. K, Z, H form a triangle.
+    mun:triangle-off-line P := K, Q := Z, R := H, from 41, 51
 
-55. ∠AHZ = ∠HZK
+53. ∠AHZ = ∠HZK
     calculation
-      ∠AHZ = ∠ZHA       mun:angle-turned P := A, Q := H, R := Z, from 2, 16, 43
+      ∠AHZ = ∠ZHA       mun:angle-turned P := A, Q := H, R := Z, from 2, 16, 41
            = ∠MHA       mun:angle-along-segment P := H, Q := Z, S := M, R := A, from 2, 11, 16
            = ∠AHM       mun:angle-turned P := A, Q := H, R := M, from 2, 9, 16
            = ∠KZM       24
            = ∠MZK       mun:angle-turned P := K, Q := Z, R := M, from 15
-           = ∠HZK       mun:angle-along-segment P := Z, Q := H, S := M, R := K, from 1, 15, 44
+           = ∠HZK       mun:angle-along-segment P := Z, Q := H, S := M, R := K, from 1, 15, 42
 
-56. line HA ∥ line ZK
+54. line HA ∥ line ZK
     thm:alternate-angles-converse P := Z, Q := K, R := H, S := A,
-      from 50, 54, 55
+      from 48, 52, 53
 
-57. H is on line HA. A is on line HA.
+55. H is on line HA. A is on line HA.
     mun:on-line-ends A := H, B := A
 
-58. line HA ∥ line KZ
-    mun:parallel-along A := H, B := A, C := Z, D := K, E := A, from 2, 56, 57
+56. line HA ∥ line KZ
+    mun:parallel-along A := H, B := A, C := Z, D := K, E := A, from 2, 54, 55
 
-59. line KZ ∥ line HA
-    mun:parallel-turned A := H, B := A, C := K, D := Z, from 2, 58
+57. line KZ ∥ line HA
+    mun:parallel-turned A := H, B := A, C := K, D := Z, from 2, 56
 
-60. |ZK| > 0
+58. |ZK| > 0
     axi:distance-positive P := Z, Q := K, from 15
 
-61. W ∈ 𝔼². K is between Z and W. |KW| = |ZK|.
-    obtain W: mun:segment-extension A := Z, B := K, r := |ZK|, from 15, 60
+59. W ∈ 𝔼². K is between Z and W. |KW| = |ZK|.
+    obtain W: mun:segment-extension A := Z, B := K, r := |ZK|, from 15, 58
 
-62. Z ≠ K. W ≠ K.
-    mun:between-apart R := K, S := Z, T := W, from 61
+60. Z ≠ K. W ≠ K.
+    mun:between-apart R := K, S := Z, T := W, from 59
 
-63. W, K, Z are collinear.
-    mun:between-collinear R := K, S := Z, T := W, from 61
+61. W, K, Z are collinear.
+    mun:between-collinear R := K, S := Z, T := W, from 59
 
-64. W is on line KZ
-    def:on-line P := W, A := K, B := Z, from 63
+62. W is on line KZ
+    def:on-line P := W, A := K, B := Z, from 61
 
-65. line KW ∥ line AH
+63. line KW ∥ line AH
     mun:parallel-along A := K, B := Z, C := H, D := A, E := W,
-      from 59, 62, 64
+      from 57, 60, 62
 
-66. W is on line KW
+64. W is on line KW
     mun:on-line-ends A := K, B := W
 
-67. line KW ∥ line HA
+65. line KW ∥ line HA
     mun:parallel-along A := K, B := W, C := A, D := H, E := W,
-      from 62, 65, 66
+      from 60, 63, 64
 
-68. Z is not on line HK
-    mun:same-side-off-line A := H, B := K, P := Z, Q := A, from 41
+66. Z is not on line HK
+    mun:same-side-off-line A := H, B := K, P := Z, Q := A, from 39
 
-69. Z and W are on opposite sides of line HK
+67. Z and W are on opposite sides of line HK
     mun:segment-across-line A := H, B := K, P := Z, Q := W, M := K,
-      from 1, 6, 61, 68
+      from 1, 6, 59, 66
 
-70.  A and Z are on the same side of line HK
-     mun:same-side-turned A := H, B := K, P := Z, Q := A, from 41
+68.  A and Z are on the same side of line HK
+     mun:same-side-turned A := H, B := K, P := Z, Q := A, from 39
 
-71.  A and W are on opposite sides of line HK
+69.  A and W are on opposite sides of line HK
      mun:same-opposite-opposite A := H, B := K, P := A, Q := Z, R := W,
-       from 69, 70
+       from 67, 68
 
-72.  W and A are on opposite sides of line HK
-     mun:opposite-sides-turned A := H, B := K, P := A, Q := W, from 71
+70.  W and A are on opposite sides of line HK
+     mun:opposite-sides-turned A := H, B := K, P := A, Q := W, from 69
 
-73.  W and A are on opposite sides of line KH
+71.  W and A are on opposite sides of line KH
      mun:opposite-sides-of-line A := H, B := K, C := K, D := H, P := W,
-       Q := A, from 1, 6, 72
+       Q := A, from 1, 6, 70
 
-74.  ∠WKH = ∠KHA
-     thm:alternate-angles P := H, Q := A, R := K, S := W, from 26, 67, 73
+72.  ∠WKH = ∠KHA
+     thm:alternate-angles P := H, Q := A, R := K, S := W, from 26, 65, 71
 
-75.  ∠KHA = ∠AHK
+73.  ∠KHA = ∠AHK
      mun:angle-turned P := K, Q := H, R := A, from 1, 2
 
-76.  ∠ZKH + ∠HKW = 180°
-     axi:supplementary-angles A := Z, B := K, C := W, D := H, from 1, 61
-     requires H ≠ Z: mun:off-line-apart A := H, B := K, P := Z, from 68
-     requires W is not on line HK: mun:opposite-sides-off-line A := H, B := K, P := Z, Q := W, from 69
+74.  ∠ZKH + ∠HKW = 180°
+     axi:supplementary-angles A := Z, B := K, C := W, D := H, from 1, 59
+     requires H ≠ Z: mun:off-line-apart A := H, B := K, P := Z, from 66
+     requires W is not on line HK: mun:opposite-sides-off-line A := H, B := K, P := Z, Q := W, from 67
      requires H ≠ W: mun:off-line-apart A := H, B := K, P := W
 
-77.  ∠HKW = ∠WKH
-     mun:angle-turned P := H, Q := K, R := W, from 1, 62
-     requires W is not on line HK: mun:opposite-sides-off-line A := H, B := K, P := Z, Q := W, from 69
+75.  ∠HKW = ∠WKH
+     mun:angle-turned P := H, Q := K, R := W, from 1, 60
+     requires W is not on line HK: mun:opposite-sides-off-line A := H, B := K, P := Z, Q := W, from 67
      requires H ≠ W: mun:off-line-apart A := H, B := K, P := W
 
-78.  ∠HKZ = ∠ZKH
-     mun:angle-turned P := H, Q := K, R := Z, from 1, 62
-     requires H ≠ Z: mun:off-line-apart A := H, B := K, P := Z, from 68
+76.  ∠HKZ = ∠ZKH
+     mun:angle-turned P := H, Q := K, R := Z, from 1, 60
+     requires H ≠ Z: mun:off-line-apart A := H, B := K, P := Z, from 66
 
-79.  ∠HKB = ∠HKZ
+77.  ∠HKB = ∠HKZ
      calculation
        ∠HKB = ∠BKH       mun:angle-turned P := H, Q := K, R := B, from 1, 3
             = 90°        H9
-            = ∠HKZ       algebra, from H8, 74, 75, 76, 77, 78
+            = ∠HKZ       algebra, from H8, 72, 73, 74, 75, 76
      requires Z ≠ H: mun:between-ends-apart R := M, S := H, T := Z, from 11
 
-80.  B, H, K form a triangle.
+78.  B, H, K form a triangle.
      mun:triangle-off-line P := B, Q := H, R := K, from 1
 
-81.  Z and B are on the same side of line KH
+79.  Z and B are on the same side of line KH
      mun:same-side-of-line A := H, B := K, C := K, D := H, P := Z, Q := B,
-       from 1, 6, 42
+       from 1, 6, 40
 
-82.  B and Z are on the same side of line KH
-     mun:same-side-turned A := K, B := H, P := Z, Q := B, from 81
+80.  B and Z are on the same side of line KH
+     mun:same-side-turned A := K, B := H, P := Z, Q := B, from 79
 
-83.  B and B are on the same side of line KH
-     mun:same-side-same A := K, B := H, P := B, Q := Z, R := B, from 81, 82
+81.  B and B are on the same side of line KH
+     mun:same-side-same A := K, B := H, P := B, Q := Z, R := B, from 79, 80
 
-84.  Z ∈ ray KB
+82.  Z ∈ ray KB
      axi:angle-construction-unique A := K, B := H, C := B, D := B, E := Z,
-       from 79, 80, 81, 83
+       from 77, 78, 79, 81
 
-85.  Z is on line KB
-     mun:ray-on-line P := Z, A := K, from 84
+83.  Z is on line KB
+     mun:ray-on-line P := Z, A := K, from 82
 
-86.  Z = B
+84.  Z = B
      contradiction
      suppose Z ≠ B                                                    (S1)
 
-     86.1.  line ZB = line AB
+     84.1.  line ZB = line AB
             axi:line-uniqueness A := Z, C := A, D := B,
-              from H5, S1, 33, 40
+              from H5, S1, 33, 38
 
-     86.2.  K is on line KB. B is on line KB.
+     84.2.  K is on line KB. B is on line KB.
             mun:on-line-ends A := K
 
-     86.3.  line ZB = line KB
+     84.3.  line ZB = line KB
             axi:line-uniqueness A := Z, C := K, D := B,
-              from S1, 3, 85, 86.2
+              from S1, 3, 83, 84.2
 
-     86.4.  line AB = line KB
+     84.4.  line AB = line KB
             calculation
-              line AB = line ZB       86.1
-                      = line KB       86.3
+              line AB = line ZB       84.1
+                      = line KB       84.3
 
-     86.5.  K ∈ line KB
-            def:line P := K, A := K, from 86.2
+     84.5.  K is on line AB
+            substitute line AB = line KB (line 84.4) into line 84.2
 
-     86.6.  K ∈ line AB
-            substitute line AB = line KB (line 86.4) into line 86.5
-
-     86.7.  K is on line AB
-            def:line P := K, from 86.6
-
-     86.8.  K is not on line HK
-            mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 86.7,
+     84.6.  K is not on line HK
+            mun:parallel-off C := H, D := K, X := K, from H5, H7, 1, 84.5,
               contradicting 6
 
-87.  |AH| = |KB|
-     substitute Z = B (line 86) into line 24
+85.  |AH| = |KB|
+     substitute Z = B (line 84) into line 24
 
-88.  |AH| = |BK|
-     restate 87
+86.  |AH| = |BK|
+     restate 85
 
 mundane theorem area-turned
   note        Both are half the base QR times the height from P, at the one
@@ -4031,35 +3955,23 @@ theorem same-height
 2.  line QS = line QR
     axi:line-uniqueness A := Q, B := S, C := Q, D := R, from H7, H8, H9, 1
 
-3.  H ∈ line QR
-    def:line P := H, A := Q, B := R, from H10
+3.  H is on line QS
+    substitute line QS = line QR (line 2) into H10
 
-4.  H ∈ line QS
-    substitute line QS = line QR (line 2) into line 3
+4.  T is on line QS
+    substitute line QS = line QR (line 2) into H11
 
-5.  H is on line QS
-    def:line P := H, A := Q, B := S, from 4
-
-6.  T ∈ line QR
-    def:line P := T, A := Q, B := R, from H11
-
-7.  T ∈ line QS
-    substitute line QS = line QR (line 2) into line 6
-
-8.  T is on line QS
-    def:line P := T, A := Q, B := S, from 7
-
-9.  P is not on line QR
+5.  P is not on line QR
     mun:triangle-not-on-line, from H7
 
-10. P is not on line QS
-    mun:off-line-along A := Q, B := R, X := S, from H7, H8, H9, 9
+6.  P is not on line QS
+    mun:off-line-along A := Q, B := R, X := S, from H7, H8, H9, 5
 
-11. P, Q, S form a triangle.
-    mun:triangle-off-line R := S, from H9, 10
+7.  P, Q, S form a triangle.
+    mun:triangle-off-line R := S, from H9, 6
 
-12. the area of △PQS = (1/2)·|QS|·|PH|
-    mun:height-area R := S, S := T, from H12, H13, H14, H15, 5, 8, 11
+8.  the area of △PQS = (1/2)·|QS|·|PH|
+    mun:height-area R := S, S := T, from H12, H13, H14, H15, 3, 4, 7
 
 theorem parallel-heights
   note        Q and R on a line parallel to line XY have one height above it:
@@ -4077,7 +3989,7 @@ theorem parallel-heights
   assume Q ≠ R                                                        (H9)
   assume X ≠ Y                                                        (H10)
   assume line QR ∥ line XY                                            (H11)
-  assume Q is not on line XY                                        (H12)
+  assume Q is not on line XY                                          (H12)
   assume H is on line XY                                              (H13)
   assume S is on line XY                                              (H14)
   assume S ≠ H                                                        (H15)
@@ -4127,142 +4039,112 @@ theorem parallel-heights
     7.3.  ∠QKS = 90°
           substitute H = K (S1) into H16
 
-    7.4.  S ∈ line XY
-          def:line P := S, A := X, B := Y, from H14
+    7.4.  S is on line KT
+          substitute line KT = line XY (line 6) into H14
 
-    7.5.  S ∈ line KT
-          substitute line KT = line XY (line 6) into line 7.4
-
-    7.6.  S is on line KT
-          def:line P := S, A := K, B := T, from 7.5
-
-    7.7.  Q and R are on the same side of line KS
+    7.5.  Q and R are on the same side of line KS
           mun:same-side-of-line A := X, B := Y, C := K, D := S, P := Q,
             Q := R, from H10, H14, H17, 4, 7.1
 
-    7.8.  ∠RKS = 90°
+    7.6.  ∠RKS = 90°
           mun:right-angle-along P := R, H := K, S := T, T := S,
-            from H19, H20, H24, 7.6
-          requires R is not on line KS: mun:same-side-off-line A := K, B := S, P := Q, Q := R, from 7.7
+            from H19, H20, H24, 7.4
+          requires R is not on line KS: mun:same-side-off-line A := K, B := S, P := Q, Q := R, from 7.5
           requires R, K, S form a triangle: mun:triangle-off-line P := R, Q := K, R := S, from 7.1
 
-    7.9.  ∠SKQ = ∠SKR
+    7.7.  ∠SKQ = ∠SKR
           calculation
             ∠SKQ = ∠QKS       mun:angle-turned P := S, Q := K, R := Q, from H22, 7.1, 7.2
                  = 90°        7.3
-                 = ∠RKS       7.8
+                 = ∠RKS       7.6
                  = ∠SKR       mun:angle-turned P := S, Q := K, from H23, 7.1
           requires S ≠ R: mun:on-off-apart A := X, B := Y, X := S, Y := R, from H14, 2
 
-    7.10. R and Q are on the same side of line KS
-          mun:same-side-turned A := K, B := S, P := Q, Q := R, from 7.7
+    7.8.  R and Q are on the same side of line KS
+          mun:same-side-turned A := K, B := S, P := Q, Q := R, from 7.5
 
-    7.11. Q and Q are on the same side of line KS
+    7.9.  Q and Q are on the same side of line KS
           mun:same-side-same A := K, B := S, P := Q, Q := R, R := Q,
-            from 7.7, 7.10
+            from 7.5, 7.8
 
-    7.12. Q is not on line KS
-          mun:same-side-off-line A := K, B := S, P := Q, Q := R, from 7.7
+    7.10. Q is not on line KS
+          mun:same-side-off-line A := K, B := S, P := Q, Q := R, from 7.5
 
-    7.13. Q, K, S form a triangle.
-          mun:triangle-off-line P := Q, Q := K, R := S, from 7.1, 7.12
+    7.11. Q, K, S form a triangle.
+          mun:triangle-off-line P := Q, Q := K, R := S, from 7.1, 7.10
 
-    7.14. R ∈ ray KQ
+    7.12. R ∈ ray KQ
           axi:angle-construction-unique A := K, B := S, C := Q, D := Q,
-            E := R, from 7.9, 7.10, 7.11, 7.13
+            E := R, from 7.7, 7.8, 7.9, 7.11
 
-    7.15. R is on line KQ
-          mun:ray-on-line P := R, A := K, B := Q, from 7.14
+    7.13. R is on line KQ
+          mun:ray-on-line P := R, A := K, B := Q, from 7.12
 
-    7.16. K is on line KQ. Q is on line KQ.
+    7.14. K is on line KQ. Q is on line KQ.
           mun:on-line-ends A := K, B := Q
 
-    7.17. line QR = line KQ
+    7.15. line QR = line KQ
           axi:line-uniqueness A := Q, B := R, C := K, D := Q,
-            from H9, 7.2, 7.15, 7.16
+            from H9, 7.2, 7.13, 7.14
 
-    7.18. K ∈ line KQ
-          def:line P := K, A := K, B := Q, from 7.16
+    7.16. K is on line QR
+          substitute line QR = line KQ (line 7.15) into line 7.14
 
-    7.19. K ∈ line QR
-          substitute line QR = line KQ (line 7.17) into line 7.18
-
-    7.20. K is on line QR
-          def:line P := K, A := Q, B := R, from 7.19
-
-    7.21. K is not on line XY
+    7.17. K is not on line XY
           mun:parallel-off A := Q, B := R, C := X, D := Y, X := K,
-            from H9, H10, H11, H12, 7.20, contradicting H17
+            from H9, H10, H11, H12, 7.16, contradicting H17
 
 8.  line HK = line XY
     axi:line-uniqueness A := H, B := K, C := X, D := Y,
       from H10, H13, H17, 7
 
-9.  K ∈ line XY
-    def:line P := K, A := X, B := Y, from H17
+9.  K is on line HS
+    substitute line HS = line XY (line 5) into H17
 
-10. K ∈ line HS
-    substitute line HS = line XY (line 5) into line 9
-
-11. K is on line HS
-    def:line P := K, A := H, B := S, from 10
-
-12. ∠QHK = 90°
-    mun:right-angle-along P := Q, T := K, from H16, 11
+10. ∠QHK = 90°
+    mun:right-angle-along P := Q, T := K, from H16, 9
     requires Q, H, S form a triangle: mun:right-angle-triangle P := Q, Q := H, R := S, from H15, H16, H21, H22
     requires Q is not on line HS: mun:triangle-not-on-line P := Q, Q := H, R := S
-    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 11
+    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 9
     requires Q, H, K form a triangle: mun:triangle-off-line P := Q, Q := H, R := K, from 7
 
-13. H ∈ line XY
-    def:line P := H, A := X, B := Y, from H13
+11. H is on line KT
+    substitute line KT = line XY (line 6) into H13
 
-14. H ∈ line KT
-    substitute line KT = line XY (line 6) into line 13
-
-15. H is on line KT
-    def:line P := H, A := K, B := T, from 14
-
-16. ∠RKH = 90°
-    mun:right-angle-along P := R, H := K, S := T, T := H, from H20, 15
+12. ∠RKH = 90°
+    mun:right-angle-along P := R, H := K, S := T, T := H, from H20, 11
     requires R, K, T form a triangle: mun:right-angle-triangle P := R, Q := K, R := T, from H19, H20, H23, H24
     requires R is not on line KT: mun:triangle-not-on-line P := R, Q := K, R := T
-    requires R is not on line KH: mun:off-line-along A := K, B := T, X := H, P := R, from H19, 7, 15
+    requires R is not on line KH: mun:off-line-along A := K, B := T, X := H, P := R, from H19, 7, 11
     requires R, K, H form a triangle: mun:triangle-off-line P := R, Q := K, R := H, from 7
 
-17. Q and R are on the same side of line HK
+13. Q and R are on the same side of line HK
     mun:same-side-of-line A := X, B := Y, C := H, D := K, P := Q, Q := R,
       from H10, H13, H17, 4, 7
 
-18. not (there is Z ∈ 𝔼² with Z is on line QR and Z is on line HK)
+14. not (there is Z ∈ 𝔼² with Z is on line QR and Z is on line HK)
     contradiction
     suppose there is Z ∈ 𝔼² with Z is on line QR and Z is on line HK  (S2)
 
-    18.1. Z ∈ 𝔼². Z is on line QR. Z is on line HK.
+    14.1. Z ∈ 𝔼². Z is on line QR. Z is on line HK.
           obtain Z from S2
 
-    18.2. Z ∈ line HK
-          def:line P := Z, A := H, B := K, from 18.1
+    14.2. Z is on line XY
+          substitute line HK = line XY (line 8) into line 14.1
 
-    18.3. Z ∈ line XY
-          substitute line HK = line XY (line 8) into line 18.2
-
-    18.4. Z is on line XY
-          def:line P := Z, A := X, B := Y, from 18.3
-
-    18.5. Z is not on line XY
+    14.3. Z is not on line XY
           mun:parallel-off A := Q, B := R, C := X, D := Y, X := Z,
-            from H9, H10, H11, H12, 18.1, contradicting 18.4
+            from H9, H10, H11, H12, 14.1, contradicting 14.2
 
-19. line QR = line HK or not (there is Z ∈ 𝔼² with Z is on line QR and
+15. line QR = line HK or not (there is Z ∈ 𝔼² with Z is on line QR and
     Z is on line HK)
-    mun:or-right, from 18
+    mun:or-right, from 14
 
-20. line QR ∥ line HK
-    def:parallel A := Q, B := R, C := H, D := K, from H9, 7, 19
+16. line QR ∥ line HK
+    def:parallel A := Q, B := R, C := H, D := K, from H9, 7, 15
 
-21. |QH| = |RK|
-    thm:parallel-equidistant A := Q, B := R, from H9, 12, 16, 17, 20
+17. |QH| = |RK|
+    thm:parallel-equidistant A := Q, B := R, from H9, 10, 12, 13, 16
 
 theorem same-base-area
   note        Euclid I.37: triangles on one base XY with their apexes Q and R
@@ -4857,18 +4739,12 @@ theorem angle-angle-similar
            22.13.6. P is on line PR
                     mun:on-line-ends A := P, B := R
 
-           22.13.7. P ∈ line PR
-                    def:line A := P, B := R, from 22.13.6
+           22.13.7. P is on line QR
+                    substitute line PR = line QR (line 22.13.5) into line 22.13.6
 
-           22.13.8. P ∈ line QR
-                    substitute line PR = line QR (line 22.13.5) into line 22.13.7
-
-           22.13.9. P is on line QR
-                    def:line A := Q, B := R, from 22.13.8
-
-           22.13.10. P is not on line QR
-                     mun:triangle-not-on-line, from H7,
-                       contradicting 22.13.9
+           22.13.8. P is not on line QR
+                    mun:triangle-not-on-line, from H7,
+                      contradicting 22.13.7
 
     22.14. |PQ| = |P′Q′|
            substitute X = Q (C3) into line 15
@@ -4913,48 +4789,42 @@ theorem angle-angle-similar
            axi:line-uniqueness A := P, B := Y, C := P, D := R,
              from H7, 4, 13, 22.24
 
-    22.26. R ∈ line PR
-           def:line P := R, A := P, B := R, from 22.23
+    22.26. R is on line PY
+           substitute line PY = line PR (line 22.25) into line 22.23
 
-    22.27. R ∈ line PY
-           substitute line PY = line PR (line 22.25) into line 22.26
-
-    22.28. R is on line PY
-           def:line P := R, A := P, B := Y, from 22.27
-
-    22.29. R and Y are on the same side of line PX
+    22.27. R and Y are on the same side of line PX
            restate 22.20
 
-    22.30. R is between P and Y
+    22.28. R is between P and Y
            thm:parallel-between Q := X, R := Y, X := Q, Y := R,
-             from C4, 13, 22.22, 22.28, 22.29
+             from C4, 13, 22.22, 22.26, 22.27
 
-    22.31. |PQ|·|PY| = |PR|·|PX|
+    22.29. |PQ|·|PY| = |PR|·|PX|
            thm:proportional-segments Q := X, R := Y, X := Q, Y := R,
-             from C4, 13, 22.22, 22.30
+             from C4, 13, 22.22, 22.28
 
-    22.32. |PQ|·|P′R′| = |PR|·|P′Q′|
+    22.30. |PQ|·|P′R′| = |PR|·|P′Q′|
            substitute
-             |PQ|·|PY| = |PR|·|PX|          22.31
+             |PQ|·|PY| = |PR|·|PX|          22.29
              |PQ|·|P′R′| = |PR|·|PX|        substitute line 16
              |PQ|·|P′R′| = |PR|·|P′Q′|      substitute line 15
 
-    22.33. |PQ|·|P′R′| = |P′Q′|·|PR|
-           algebra, from 22.32
+    22.31. |PQ|·|P′R′| = |P′Q′|·|PR|
+           algebra, from 22.30
 
     case
     assume P is between X and Q                                       (C5)
 
-    22.34. P is on line PR
+    22.32. P is on line PR
            mun:on-line-ends A := P, B := R
 
-    22.35. X and Q are on opposite sides of line PR
+    22.33. X and Q are on opposite sides of line PR
            mun:segment-across-line A := P, B := R, P := X, M := P,
-             from C5, H7, 5, 22.34
+             from C5, H7, 5, 22.32
 
-    22.36. not (X and Q are on opposite sides of line PR)
+    22.34. not (X and Q are on opposite sides of line PR)
            mun:same-not-opposite A := P, B := R, P := X, from 3,
-             contradicting 22.35
+             contradicting 22.33
 
 mundane theorem circle-centre-apart
   note        Two different points at one distance from O are not O: were X

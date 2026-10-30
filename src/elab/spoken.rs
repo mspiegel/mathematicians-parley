@@ -20,7 +20,7 @@ use crate::formula::page::{read_back, Sentence};
 use crate::formula::{wanted_reading, Grammar, Node, Notation, Sort, Whole};
 use crate::mm::kernel::Term;
 use crate::mm::Rpn;
-use crate::notations::{APPLICATION, APPLICATION_TO_TWO, SUPERSCRIPT};
+use crate::notations::{APPLICATION, APPLICATION_TO_TWO, LOGICAL_NOT, SUPERSCRIPT};
 use crate::outcome::Checked;
 use crate::rules::NUMERALS;
 use crate::sorts::powers::needs_not_be_whole;
@@ -360,6 +360,26 @@ impl Elaborator<'_> {
 
     pub(super) fn page_node(&self, term: &Term) -> Option<Node> {
         self.page_node_under(term, &IndexMap::new(), None)
+    }
+
+    /// Every way the page could have written a term, where two notations
+    /// build it alike: "P is on line AB" and "A, B, P are collinear" are one
+    /// formula in the kernel. A denial is each reading of what it denies,
+    /// denied, as "P is not on line AB" is "not (P is on line AB)".
+    pub(super) fn page_readings(&self, term: &Term) -> Vec<Node> {
+        let read = self.page_nodes_under(term, &IndexMap::new(), None, Asked::Every);
+        let (Some("wn"), [denied], Some(not)) =
+            (term.label(), term.children(), read.first())
+        else {
+            return read;
+        };
+        if not.notation() != LOGICAL_NOT {
+            return read;
+        }
+        self.page_readings(denied)
+            .into_iter()
+            .map(|inner| not.with_children(vec![inner]))
+            .collect()
     }
 
     /// What a set the page writes as a term holds, read back with the sorts

@@ -34,8 +34,8 @@ pub use once::{
 };
 pub use parts::{
     at_a_member, bound_in, claimed_member, finished, function_values, implied_facts,
-    part_said_otherwise, stood_for, subset_members, type_said_otherwise, typed_seed,
-    Bound, Parts,
+    said_otherwise, stood_for, subset_members, type_said_otherwise, typed_seed, Bound,
+    Parts,
 };
 pub use supply::{largest_search, names_of, search, set_within, supply, Sites, Ways};
 pub use typed::{codomain_reason, CodomainAsk, CodomainReason};

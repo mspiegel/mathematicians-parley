@@ -17,10 +17,10 @@ use super::Report;
 use crate::citing::{
     asked, bound_in, claimed_member, codomain_reason, concludes, conjuncts, derives,
     filled, finished, function_values, identities_unsaid, index_system, obtained,
-    obtains, range_system, readings, said_once, search, stood_for, substitution_unsaid,
-    supply, taken, taken_ways, type_said_otherwise, with_parts, witnesses_unsaid,
-    Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts, Sites, Taken,
-    Ways,
+    obtains, range_system, readings, said_once, said_otherwise, search, stood_for,
+    substitution_unsaid, supply, taken, taken_ways, type_said_otherwise, with_parts,
+    witnesses_unsaid, Bound, CodomainAsk, Concluded, Group, Introduced, Library, Parts,
+    Sites, Taken, Ways,
 };
 use crate::corpus::proof::{chain_reasons, reason_as_step, Requires};
 use crate::corpus::skeleton::Source;
@@ -2048,7 +2048,14 @@ pub fn check_substitutes(
                     .into_iter()
                     .map(|s| s.written)
                     .collect();
-                vec![(starts, claim.clone())]
+                // A claim in one of two forms is made by making the other
+                // (`rules::OTHER_FORMS`), as a reader puts line HK = line XY
+                // into Q ∉ line XY to make Q is not on line HK.
+                let other = said_otherwise(&claim, known.env, &known.sorts);
+                std::iter::once(claim.clone())
+                    .chain(other)
+                    .map(|aim| (starts.clone(), aim))
+                    .collect()
             }
             None => claim_sides(&claim, known),
         };

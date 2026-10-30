@@ -2203,6 +2203,14 @@ impl<'a> Elaborator<'a> {
         if reached == *term {
             return Ok(Built(proof));
         }
+        // The last row may write the claim in its other form, carried back
+        // (`rules::OTHER_FORMS`), as the checker reads it.
+        if self.other_form(&reached).is_some() {
+            let carried = self.implied(&reached, &proof, scope, facts)?;
+            if let Some(p) = self.held(&carried, term, scope)? {
+                return Ok(Built(p));
+            }
+        }
         let alike = take!(self.same(
             &self.to_term(&reached),
             &self.to_term(term),
@@ -2404,12 +2412,17 @@ impl<'a> Elaborator<'a> {
             }
         }
         // The claim as written, and an equation's the other way round: what
-        // the substitution makes may face either way (`turned_claim`).
-        let mut aims: Vec<(Rpn, Option<&'static str>)> = vec![(term.clone(), None)];
+        // the substitution makes may face either way (`turned_claim`). A
+        // claim in one of two forms is made by making the other and carrying
+        // it back (`rules::OTHER_FORMS`), as the checker reads it.
+        let mut aims: Vec<(Rpn, Toward)> = vec![(term.clone(), Toward::Claim)];
         if let Some((turned, flip)) = self.turned_claim(term) {
-            aims.push((turned, Some(flip)));
+            aims.push((turned, Toward::Turned(flip)));
         }
-        for (aim, flip) in &aims {
+        if let Some(other) = self.other_form(term) {
+            aims.push((self.rpn(&other.reached), Toward::OtherForm));
+        }
+        for (aim, toward) in &aims {
             for start in &starts {
                 if start == aim {
                     continue;
@@ -2440,11 +2453,19 @@ impl<'a> Elaborator<'a> {
                         made
                     }
                 };
-                let Some(flip) = flip else {
-                    return Ok(Built(made));
-                };
-                let Sides { left, right } = self.equation_sides(aim);
-                return Ok(Built(pf!(self.b; scope, left, right, made, *flip)));
+                match toward {
+                    Toward::Claim => return Ok(Built(made)),
+                    Toward::Turned(flip) => {
+                        let Sides { left, right } = self.equation_sides(aim);
+                        return Ok(Built(pf!(self.b; scope, left, right, made, *flip)));
+                    }
+                    Toward::OtherForm => {
+                        let carried = self.implied(aim, &made, scope, facts)?;
+                        if let Some(p) = self.held(&carried, term, scope)? {
+                            return Ok(Built(p));
+                        }
+                    }
+                }
             }
         }
         Err(self.defect(step.line, "the substitution misses the claim"))
@@ -7254,6 +7275,17 @@ pub(super) struct Given {
     pub(super) class: Rpn,
     /// What it stands for, in the citing proof's kernel spelling.
     pub(super) term: Rpn,
+}
+
+/// What a substitution aims at, and how what it makes there becomes the
+/// claim.
+enum Toward {
+    /// The claim as written.
+    Claim,
+    /// An equation claimed the other way round, turned by the lemma.
+    Turned(&'static str),
+    /// The claim in its other form (`rules::OTHER_FORMS`), carried back.
+    OtherForm,
 }
 
 /// Where what a substitution rewrites and what it makes differ: by the

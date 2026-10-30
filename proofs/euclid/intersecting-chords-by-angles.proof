@@ -32,7 +32,7 @@ theorem intersecting-chords-by-angles
   let O be a point                                                    (H6)
   assume P is between A and B                                         (H7)
   assume P is between C and D                                         (H8)
-  assume C is not on line AB                                        (H9)
+  assume C is not on line AB                                          (H9)
   assume |AO| = |BO|                                                  (H10)
   assume |AO| = |CO|                                                  (H11)
   assume |AO| = |DO|                                                  (H12)

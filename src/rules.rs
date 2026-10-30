@@ -812,13 +812,75 @@ pub fn implied(system: Option<&str>) -> &'static [(&'static str, &'static str)] 
 // (`SYNTAX.md`, a line saying a term is in a range says its bounds).
 pub const RANGE_BOUNDS: &[(&str, &str)] = &[("a ≤ x", "elfzle1"), ("x ≤ b", "elfzle2")];
 
-// A part of a set is a member of its power set and the other way round: what
-// a line of the first form also says, in the page's notation, and the lemma
-// that says it. `gsspw` asks that the set be a set, and the elaborator proves
-// it (`made_a_set`). The checker reads the two forms, the elaborator the
-// lemma.
-pub const PARTS: &[(&str, &str, &str)] =
-    &[("x ⊆ S", "x ∈ 𝒫S", "gsspw"), ("x ∈ 𝒫S", "x ⊆ S", "elpwi")];
+/// One fact the page may write in two forms: a line of the first form also
+/// says the second, and the lemma says it.
+pub struct SaidOtherwise {
+    /// The form a line writes, in the page's notation.
+    pub written: &'static str,
+    /// What that line also says.
+    pub also: &'static str,
+    /// The lemma from the first to the second. Where its antecedent is a
+    /// conjunction whose first part is a membership, as `gsspw`'s set is a
+    /// set and `glineon`'s point is a complex number, the build settles that
+    /// part from the facts (`implied`).
+    pub lemma: &'static str,
+}
+
+/// A family of facts written in two forms, with the sorts of the letters
+/// its forms are written in.
+pub struct OtherForms {
+    pub letters: &'static [(&'static str, &'static str)],
+    pub forms: &'static [SaidOtherwise],
+}
+
+/// A part of a set is a member of its power set, and the other way round.
+pub const PARTS: OtherForms = OtherForms {
+    letters: &[("x", "set"), ("S", "set")],
+    forms: &[
+        SaidOtherwise {
+            written: "x ⊆ S",
+            also: "x ∈ 𝒫S",
+            lemma: "gsspw",
+        },
+        SaidOtherwise {
+            written: "x ∈ 𝒫S",
+            also: "x ⊆ S",
+            lemma: "elpwi",
+        },
+    ],
+};
+
+/// A point on line AB is a member of line AB, the set, and the other way
+/// round, and so is a point not on it (`def:stdlib/geometry/line`).
+pub const ON_LINE: OtherForms = OtherForms {
+    letters: &[("P", "point"), ("A", "point"), ("B", "point")],
+    forms: &[
+        SaidOtherwise {
+            written: "P is on line AB",
+            also: "P ∈ line AB",
+            lemma: "glineel",
+        },
+        SaidOtherwise {
+            written: "P ∈ line AB",
+            also: "P is on line AB",
+            lemma: "glineon",
+        },
+        SaidOtherwise {
+            written: "P is not on line AB",
+            also: "P ∉ line AB",
+            lemma: "glinenel",
+        },
+        SaidOtherwise {
+            written: "P ∉ line AB",
+            also: "P is not on line AB",
+            lemma: "glinenon",
+        },
+    ],
+};
+
+/// Every fact the page may write in two forms, each line of one answering
+/// for the other. The checker reads the forms, the elaborator the lemmas.
+pub const OTHER_FORMS: &[&OtherForms] = &[&PARTS, &ON_LINE];
 
 // A range lies inside ℕ from 1 and ℕ₀ from 0, and inside ℤ from anywhere:
 // the system, the numeral it must start at or None, the lemma. The checker
@@ -1457,8 +1519,10 @@ pub fn every_label() -> Vec<(&'static str, &'static str)> {
         .collect();
     put("NUMERIC", &numeric);
     put("ONE_WAY", &[ONE_WAY.0, ONE_WAY.1]);
-    for (_, _, lemma) in PARTS {
-        put("PARTS", &[lemma]);
+    for family in OTHER_FORMS {
+        for form in family.forms {
+            put("OTHER_FORMS", &[form.lemma]);
+        }
     }
     for (system, first, lemma) in RANGE_WITHIN {
         put("RANGE_WITHIN", &[system]);

@@ -1079,7 +1079,7 @@ impl<'a> Elaborator<'a> {
         }
         // A part written where a member of the power set is asked, or the
         // other way round, is the same requires line in the other spelling
-        // (`rules::PARTS`): proved as written, and carried across.
+        // (`rules::OTHER_FORMS`): proved as written, and carried across.
         for r in &step.requires {
             let line = self.term(&self.read_one(&r.fact)?)?;
             if line == *goal || self.as_written(&line) != self.as_written(goal) {

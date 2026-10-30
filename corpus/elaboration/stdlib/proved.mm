@@ -814,6 +814,26 @@ $d x D $.
     ( wceq cv cmin co cdiv cr wcel wo cc oveq1 oveq1d eleq1d orbi2d elrab3 )
     BCEZAFZBGHZCBGHZIHZJKZLSDBGHZUBIHZJKZLADMTDEZUDUGSUHUCUFJUHUAUEUBITDBGNOPQR $.
 
+  glineon $p |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wceq cv cmin co cdiv cr wo crab wa simpr wb simpl glinel syl
+    mpbid )
+    DEFZDBCGZAHZBIJZCBIJZKJZLFZMZAENZFZOZUKUCDBIJZUFKJZLFZMZUBUKPULUBUKUPQUBUKRABCDSTUA $.
+
+  glineel $p |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) $=
+    ( cc wcel wceq cmin co cdiv cr wo wa cv crab simpr wb simpl glinel syl
+    mpbird )
+    DEFZBCGZDBHIZCBHIZJIZKFZLZMZDUCANZBHIZUEJIZKFZLZAEOZFZUHUBUHPUIUBUPUHQUBUHRABCDSTUA $.
+
+  glinenon $p |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) $=
+    ( cc wcel wceq cv cmin co cdiv cr wo crab wn wa simpr wb simpl glinel syl
+    notbid mpbid )
+    DEFZDBCGZAHZBIJZCBIJZKJZLFZMZAENZFZOZPZUNUEDBIJZUHKJZLFZMZOUDUNQUOUMUSUOUDUMUSRUDUNSABCDTUAUBUC $.
+
+  glinenel $p |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) $=
+    ( cc wcel wceq cmin co cdiv cr wo wn wa cv crab simpr wb simpl glinel syl
+    notbid mpbird )
+    DEFZBCGZDBHIZCBHIZJIZKFZLZMZNZDUEAOZBHIZUGJIZKFZLZAEPZFZMUKUDUKQULUSUJULUDUSUJRUDUKSABCDTUAUBUC $.
+
   glineturn $p |- ( ( A e. CC /\ B e. CC ) -> { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } = { u e. CC | ( B = A \/ ( ( u - B ) / ( A - B ) ) e. RR ) } ) $=
     ( cc wcel wa wceq cv cmin co cdiv cr wo w3a wi simpll simplr simpr 3jca
     gcolrotate syl gcolswap syld impbid rabbidva )

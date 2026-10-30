@@ -3003,16 +3003,29 @@ fn cases() -> Vec<Case> {
             "step 10 claims |q^N| · |F(p / q)| = q^(N + 1) · |F(p / q)|, which putting one side of |q^N| = q^N for the other does not make",
         ),
         // A requires line whose reason is `substitute` is checked as the step
-        // it would be. `Q is on line XY` is said of the points X and Y, and
-        // writes no set line XY for an equation of lines to be put into.
+        // it would be. H16, ∠QHS = 90°, has no line XY for an equation of
+        // lines to be put into.
         case(
-            "a requires line putting an equation of lines into a point on a line",
+            "a requires line putting an equation into a line without its side",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 11\n".to_string()),
-                "    requires Q is not on line HK: substitute line HK = line XY (line 8) into H12\n".to_string(),
+                Some("    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 9\n".to_string()),
+                "    requires Q is not on line HK: substitute line HK = line XY (line 8) into H16\n".to_string(),
             )],
-            "step 12 claims Q is not on line HK, which putting one side of line HK = (line XY) for the other does not make",
+            "step 10 claims Q is not on line HK, which putting one side of line HK = (line XY) for the other does not make",
+        ),
+        // A point on a line is a member of the line, the set
+        // (`rules::OTHER_FORMS`), so an equation of lines is put into "H is
+        // on line QR" to make "H is on line QS". Put into a line about
+        // another point, S, it makes no claim about H.
+        case(
+            "substitute an equation of lines whose side the line does not write",
+            vec![edit(
+                "corpus/stdlib/geometry.proof",
+                Some("    substitute line QS = line QR (line 2) into H10\n".to_string()),
+                "    substitute line QS = line QR (line 2) into H8\n".to_string(),
+            )],
+            "step 3 claims H is on line QS, which putting one side of line QS = (line QR) for the other does not make",
         ),
         case(
             "cite a line that comes after the step",

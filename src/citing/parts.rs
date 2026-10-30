@@ -229,11 +229,15 @@ pub enum Bound {
     Part,
 }
 
-/// Whether `fact` has the form `form` writes, with its letters `x` and `S`
-/// standing for whatever is in their places, and what they stand for put in
-/// `put`.
-fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
-    if form.is_name() && (form.text == "x" || form.text == "S") {
+/// Whether `fact` has the form `form` writes, with its `letters` standing
+/// for whatever is in their places, and what they stand for put in `put`.
+fn fits_form(
+    form: &Node,
+    fact: &Node,
+    letters: &[(&str, &str)],
+    put: &mut Binding,
+) -> bool {
+    if form.is_name() && letters.iter().any(|(letter, _)| form.text == *letter) {
         return match put.get(&form.text) {
             Some(held) => held.same_shape(fact),
             None => {
@@ -249,7 +253,7 @@ fn fits_form(form: &Node, fact: &Node, put: &mut Binding) -> bool {
             .children
             .iter()
             .zip(&fact.children)
-            .all(|(f, g)| fits_form(f, g, put))
+            .all(|(f, g)| fits_form(f, g, letters, put))
 }
 
 fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
@@ -295,7 +299,7 @@ pub fn subset_members(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
     let subset = if fact.spelling() == SUBSET_OF {
         fact.clone()
     } else {
-        part_said_otherwise(fact, env, sorts).filter(|s| s.spelling() == SUBSET_OF)?
+        said_otherwise(fact, env, sorts).filter(|s| s.spelling() == SUBSET_OF)?
     };
     let [part, whole] = subset.children.as_slice() else {
         return None;
@@ -397,24 +401,29 @@ pub fn type_said_otherwise(fact: &Node, library: &Library) -> Option<Node> {
     Some(bound_in(Bound::Member, f, &set, library.env.g))
 }
 
-/// What a fact the page writes as a part of a set, `C ⊆ A`, or as a member
-/// of a power set, `C ∈ 𝒫A`, says in the other form (`rules::PARTS`); None
-/// for a fact written otherwise, though its term be the same, as "g is
-/// differentiable on (a, b)" is (a, b) ⊆ dom g′ in the kernel. The
-/// elaborator asks this of its page reading of a fact, so both tools apply
-/// the rule to the same lines.
-pub fn part_said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
-    let mut sets = sorts.clone();
-    sets.insert("x".into(), Sort::of("set"));
-    sets.insert("S".into(), Sort::of("set"));
-    for (premise, conclusion, _) in rules::PARTS {
-        let mut put = Binding::new();
-        if fits_form(&template(premise, env, &sets), fact, &mut put) {
-            return Some(substitute_apart_by(
-                &template(conclusion, env, &sets),
-                &put,
-                &env.g.binders(),
-            ));
+/// What a fact the page writes in one of two forms says in the other
+/// (`rules::OTHER_FORMS`): a part of a set, `C ⊆ A`, as a member of its
+/// power set, `C ∈ 𝒫A`, and a point on line AB as a member of line AB, the
+/// set, and each the other way round. None for a fact written otherwise,
+/// though its term be the same, as "g is differentiable on (a, b)" is
+/// (a, b) ⊆ dom g′ in the kernel. The elaborator asks this of its page
+/// reading of a fact, so both tools apply the rule to the same lines.
+pub fn said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node> {
+    for family in rules::OTHER_FORMS {
+        let mut letters = sorts.clone();
+        for (letter, sort) in family.letters {
+            letters.insert((*letter).into(), Sort::of(sort));
+        }
+        for form in family.forms {
+            let mut put = Binding::new();
+            let written = template(form.written, env, &letters);
+            if fits_form(&written, fact, family.letters, &mut put) {
+                return Some(substitute_apart_by(
+                    &template(form.also, env, &letters),
+                    &put,
+                    &env.g.binders(),
+                ));
+            }
         }
     }
     None
@@ -426,7 +435,8 @@ pub fn part_said_otherwise(fact: &Node, env: Env, sorts: &Sorts) -> Option<Node>
 /// `k ∈ ℕ` also says k ∈ ℤ, k ∈ ℝ and the rest, and k ≥ 1 and k ≠ 0
 /// (`SYNTAX.md`, what a membership line says). A part of a set is a member
 /// of its power set and the other way round, so `C ⊆ A` also says C ∈ 𝒫A,
-/// which is what `for all X ⊆ A` ranges over (`rules::PARTS`). Anything
+/// which is what `for all X ⊆ A` ranges over, and a point on line AB is a
+/// member of line AB, the set (`rules::OTHER_FORMS`). Anything
 /// else says only itself: a range is no number system, and the letter a
 /// range let introduces is whole as a membership said once (`once`).
 /// What a function's type into a number system says of every wider one:
@@ -481,7 +491,7 @@ fn range_bounds(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
 }
 
 pub fn implied_facts(fact: &Node, env: Env, sorts: &Sorts) -> Vec<Node> {
-    if let Some(other) = part_said_otherwise(fact, env, sorts) {
+    if let Some(other) = said_otherwise(fact, env, sorts) {
         return vec![other];
     }
     if let Some(apart) = triangle_apart(fact, env, sorts) {

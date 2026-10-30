@@ -50,6 +50,45 @@ lemma glinel
   4 orbi2d 3 |- ( u = P -> ( ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
   5 elrab3 4 |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
 
+# A point of line AB is on line AB: the line said as a set, read as the
+# points.
+lemma glineon
+  |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+  1 simpl |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> P e. CC )
+  2 glinel |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  3 syl 1 2 |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  4 simpr |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+  5 mpbid 4 3 |- ( ( P e. CC /\ P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+
+# A point on line AB is a point of line AB, the set.
+lemma glineel
+  |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+  1 simpl |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P e. CC )
+  2 glinel |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  3 syl 1 2 |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  4 simpr |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+  5 mpbird 4 3 |- ( ( P e. CC /\ ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+
+# A point not of line AB is not on line AB.
+lemma glinenon
+  |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+  1 simpl |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> P e. CC )
+  2 glinel |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  3 syl 1 2 |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  4 notbid 3 |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> ( -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  5 simpr |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+  6 mpbid 5 4 |- ( ( P e. CC /\ -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+
+# A point not on line AB is not a point of line AB, the set.
+lemma glinenel
+  |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+  1 simpl |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> P e. CC )
+  2 glinel |- ( P e. CC -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  3 syl 1 2 |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> ( P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  4 notbid 3 |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> ( -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } <-> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) )
+  5 simpr |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) )
+  6 mpbird 5 4 |- ( ( P e. CC /\ -. ( A = B \/ ( ( P - A ) / ( B - A ) ) e. RR ) ) -> -. P e. { u e. CC | ( A = B \/ ( ( u - A ) / ( B - A ) ) e. RR ) } )
+
 # line AB and line BA are one set: each point the one makes collinear the
 # other does, by turning the three points round.
 lemma glineturn

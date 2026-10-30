@@ -22,9 +22,7 @@ use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
-use crate::citing::{
-    part_said_otherwise, CodomainAsk, CodomainReason, OnceReason, Shape,
-};
+use crate::citing::{said_otherwise, CodomainAsk, CodomainReason, OnceReason, Shape};
 use crate::corpus::Step;
 use crate::formula::symbol::Symbol;
 use crate::formula::Node;
@@ -118,7 +116,8 @@ pub struct Link {
     pub binding: Option<Binding>,
     pub reached: Term,
     /// What the lemma asks besides the fact it carries: that a class is a
-    /// set, as `gsspw` asks of the set a part is a part of (`made_a_set`).
+    /// set, as `gsspw` asks of the set a part is a part of (`made_a_set`),
+    /// or that a point is a complex number, as `glineon` asks.
     pub sets: Vec<Term>,
 }
 
@@ -1422,42 +1421,62 @@ impl<'a> Elaborator<'a> {
             .collect()
     }
 
-    /// Whether a claim has the shape of a part of a set, `x ⊆ S`, or of a
-    /// member of a power set, `x ∈ 𝒫S`. The page reads the first only from
-    /// `wss` and the second only from a `wcel` whose set is a `cpw`, their
-    /// notations' targets, so no other term is read back to the page to ask
-    /// whether it says a part (`rules::PARTS`).
-    pub fn part_shaped(&self, said: &Rpn) -> bool {
-        let node = self.to_term(said);
+    /// Whether a claim has the shape of a form `rules::OTHER_FORMS` names,
+    /// as the notations' targets build them: a part of a set (`wss`), a
+    /// member of a power set (a `wcel` whose set is a `cpw`), a member of a
+    /// set built by a rule (a `crab`, as line AB is), and collinearity (a
+    /// `wo` of an equation and a membership of ℝ, as "is on line" is), each
+    /// also denied. No other term is read back to the page to ask whether it
+    /// says one.
+    fn other_form_shaped(node: &Term) -> bool {
         match (node.label(), node.children()) {
+            (Some("wn"), [inner]) => Self::other_form_shaped(inner),
             (Some("wss"), [_, _]) => true,
-            (Some("wcel"), [_, set]) => set.label() == Some("cpw"),
+            (Some("wcel"), [_, set]) => matches!(set.label(), Some("cpw" | "crab")),
+            (Some("wo"), [equal, real]) => {
+                equal.label() == Some("wceq")
+                    && real.label() == Some("wcel")
+                    && real.children().get(1).and_then(Term::label) == Some("cr")
+            }
             _ => false,
         }
+    }
+
+    /// The other form of a fact the page writes in one of two forms
+    /// (`rules::OTHER_FORMS`), with the lemma that carries it there: the
+    /// checker's question, asked of the page's readings, so that "g is
+    /// differentiable on (a, b)", whose term is a part of a set, says only
+    /// itself in both tools. None for any other fact.
+    pub fn other_form(&self, said: &Rpn) -> Option<Link> {
+        let node = self.to_term(said);
+        if !Self::other_form_shaped(&node) {
+            return None;
+        }
+        let env = crate::sorts::Env {
+            g: self.g,
+            scopes: self.scopes,
+        };
+        // The kernel keeps no record of which notation wrote a term, and a
+        // point on line AB is A, B and the point collinear in it, so the
+        // fact is in one of the two forms where any of its readings is.
+        let in_a_form = self
+            .page_readings(&node)
+            .iter()
+            .any(|page| said_otherwise(page, env, &self.sorts_now).is_some());
+        if !in_a_form {
+            return None;
+        }
+        rules::OTHER_FORMS
+            .iter()
+            .flat_map(|family| family.forms)
+            .find_map(|form| self.lemma_step(form.lemma, &node))
     }
 
     /// `implied_terms` with each lemma's binding and what it reaches.
     fn implied_chains(&self, said: &Rpn) -> Vec<(Rpn, Vec<Link>)> {
         let node = self.to_term(said);
-        // A part of a set and a member of its power set say each other
-        // (`rules::PARTS`), where the page writes the fact in one of the two
-        // forms: the checker's question, asked of the page's reading, so
-        // that "g is differentiable on (a, b)", whose term is a part of a
-        // set, says only itself in both tools.
-        let env = crate::sorts::Env {
-            g: self.g,
-            scopes: self.scopes,
-        };
-        let written_as_part = self.part_shaped(said)
-            && self.page_node(&node).is_some_and(|page| {
-                part_said_otherwise(&page, env, &self.sorts_now).is_some()
-            });
-        if written_as_part {
-            for (_, _, lemma) in rules::PARTS {
-                if let Some(made) = self.lemma_step(lemma, &node) {
-                    return vec![(self.rpn(&made.reached), vec![made])];
-                }
-            }
+        if let Some(made) = self.other_form(said) {
+            return vec![(self.rpn(&made.reached), vec![made])];
         }
         if node.variable().is_some()
             || node.label() != Some("wcel")
@@ -1565,21 +1584,28 @@ impl<'a> Elaborator<'a> {
     fn lemma_step(&self, lemma: &str, fact: &Term) -> Option<Link> {
         let whole = self.statement(lemma);
         let premise = &whole.children()[0];
-        let sethood = premise.variable().is_none()
+        // An antecedent `( X e. V /\ fact )` asks that X be a set, and one
+        // `( P e. CC /\ fact )` that P be a complex number, as a point is:
+        // the first part is settled from the facts, and the fact carried.
+        let asked = (premise.variable().is_none()
             && premise.label() == Some("wa")
-            && premise.children()[0].label() == Some("wcel")
-            && premise.children()[0].children()[1].variable().is_some();
-        let carried = if sethood {
-            &premise.children()[1]
-        } else {
-            premise
+            && premise.children()[0].label() == Some("wcel"))
+        .then(|| &premise.children()[0])
+        .filter(|m| {
+            let class = &m.children()[1];
+            class.variable().is_some() || class.label() == Some("cc")
+        });
+        let carried = match asked {
+            Some(_) => &premise.children()[1],
+            None => premise,
         };
         let mut binding = fit(carried, fact, &Binding::new(), &names_of(&whole))?;
         let mut sets = Vec::new();
-        if sethood {
-            let class = premise.children()[0].children()[1].variable_symbol()?;
-            binding.insert(class, Term::apply("cvv", Vec::new()));
-            sets.push(premise.children()[0].substitute(&binding));
+        if let Some(asked) = asked {
+            if let Some(class) = asked.children()[1].variable_symbol() {
+                binding.insert(class, Term::apply("cvv", Vec::new()));
+            }
+            sets.push(asked.substitute(&binding));
         }
         let reached = whole.children()[1].substitute(&binding);
         Some(Link {

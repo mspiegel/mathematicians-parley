@@ -11,7 +11,8 @@ use super::record::CheckedTheorem;
 use super::structure::{defined_below, introduced, letters_in_scope};
 use super::Report;
 use crate::citing::{
-    claimed_member, implied_facts, link_unsaid, not_numbers, said_once, Library, Parts,
+    claimed_member, implied_facts, link_unsaid, not_numbers, said_once, said_otherwise,
+    Library, Parts,
 };
 use crate::corpus::proof::{
     chain, rows, substitute_rows, visible, ChainLine, RowReason,
@@ -3615,7 +3616,8 @@ pub fn check_calculation_claims(report: &mut Report, thm: &Theorem, known: &Know
 }
 
 /// A `substitute` step's rows start from what the line the first row cites
-/// says, written out, and end on the claim (`GRAMMAR.md`, substitute rows);
+/// says, written out, and end on the claim (`GRAMMAR.md`, substitute rows),
+/// or on the claim in its other form (`rules::OTHER_FORMS`);
 /// what each row after the first changes is its reason's to prove, which
 /// `check_link_reasons` asks. A `substitute` writing no equation and no rows
 /// says nothing.
@@ -3666,7 +3668,13 @@ pub fn check_substitute_rows(report: &mut Report, thm: &Theorem, known: &Known) 
         else {
             continue; // `check_formulas` says it does not read
         };
-        if !known.alike(&ends, &claim) {
+        // The last row may write the claim in its other form, which says
+        // the claim (`rules::OTHER_FORMS`).
+        let other = said_otherwise(&ends, known.env, &known.sorts);
+        let ends_on_claim = std::iter::once(&ends)
+            .chain(other.as_ref())
+            .any(|e| known.alike(e, &claim));
+        if !ends_on_claim {
             report.say(
                 &thm.path,
                 last.line,
