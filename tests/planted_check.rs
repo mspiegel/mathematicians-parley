@@ -3002,6 +3002,18 @@ fn cases() -> Vec<Case> {
             )],
             "step 10 claims |q^N| · |F(p / q)| = q^(N + 1) · |F(p / q)|, which putting one side of |q^N| = q^N for the other does not make",
         ),
+        // A requires line whose reason is `substitute` is checked as the step
+        // it would be. `Q is on line XY` is said of the points X and Y, and
+        // writes no set line XY for an equation of lines to be put into.
+        case(
+            "a requires line putting an equation of lines into a point on a line",
+            vec![edit(
+                "corpus/stdlib/geometry.proof",
+                Some("    requires not (Q is on line HK): mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 11\n".to_string()),
+                "    requires not (Q is on line HK): substitute line HK = line XY (line 8) into H12\n".to_string(),
+            )],
+            "step 12 claims not (Q is on line HK), which putting one side of line HK = (line XY) for the other does not make",
+        ),
         case(
             "cite a line that comes after the step",
             vec![

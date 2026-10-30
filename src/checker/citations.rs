@@ -1914,7 +1914,21 @@ pub fn check_substitutes(
     library: &Library,
     known: &Known,
 ) {
-    for step in &thm.steps {
+    // A requires line whose reason is `substitute` is the step it would be
+    // (`requires_read_as_step`), and its substitution makes its fact or is
+    // refused as a step's is.
+    let read: Vec<Step> = thm
+        .steps
+        .iter()
+        .flat_map(|step| {
+            std::iter::once(step.clone()).chain(
+                step.requires
+                    .iter()
+                    .filter_map(|req| requires_read_as_step(step, req)),
+            )
+        })
+        .collect();
+    for step in &read {
         // A justification matching no production has no reading, and
         // `check_justification_form` says so; what the substitution makes
         // is asked only of one that reads.
