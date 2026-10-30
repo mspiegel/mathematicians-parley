@@ -1421,8 +1421,7 @@ carried to another system by a bridge where asked). The page names both
 lines, the type and the point's domain (`READERS.md`, a function's type
 cited for its values). A type is a sort, which a step rests on unnamed, so
 `function_value` reads a value from one only where what is being proved
-cites it; a family's values, a sum's terms or what an item asks of every
-member, are the exception, as a summand's atoms are (`in_family`). R1 and R3
+cites it, which is all it is handed (`in_hand`). R1 and R3
 hold the proof to them: a requires line
 `from H2, K4` is proved by the same `function_value` once no single line it
 names says the fact (`unfolded_at`), and one citing H2 alone rests on K4,
@@ -1454,15 +1453,37 @@ nothing to what it looks at, where handing `prove_order` every fact `supplied`
 proves put `abs-bounds` past ten million `fits` calls in a proof that takes
 five seconds.
 
-What the search is offered is only what the proof being built may rest on:
-inside a step, what R1 allows it; while a requires line is proved, what R2
-allows the line. The scope holds more, and a side condition answered from a
-line the step does not cite is one R1 would refuse afterwards — so offered
-it, which route the lemma list reached first decided whether a correct page
-was reported. Step 1.2.8 of the subsets proof cites that T has 2^k
-elements; a shallower search found T finite through the bijection of line
-1.2.4 instead. Filtered, it cannot: the search finds a route through what
-the step names, or says that nothing the step names reaches the claim.
+What a route is handed is only what the proof being built may rest on:
+inside a step, what R1 allows it; while a requires line, a chain line or a
+row is proved, what R2 allows the line. `in_hand` (`src/elab/in_hand.rs`)
+makes that table once, where the proof starts: a step's method, a requires
+line (`side`), a chain line or row (`as_a_step`), an obtain, a block
+reaching its parts, and an outer frame (`frames_facts`). No route narrows for
+itself. Each line keeps its own proof as carried into the scope, so a line a
+requires line cites is read as it stands there. A requires line or a chain
+line is narrowed from the whole scope with what its step's table adds, since
+its reason may name a line its step does not. The scope holds more, and a
+side condition answered from a line the step does not cite is one R1 would
+refuse afterwards — so offered it, which route the lemma list reached first
+decided whether a correct page was reported. Step 1.2.8 of the subsets proof
+cites that T has 2^k elements; a shallower search found T finite through the
+bijection of line 1.2.4 instead. Filtered, it cannot: the search finds a
+route through what the step names, or says that nothing the step names
+reaches the claim.
+
+The narrowed table keeps a link to the whole scope it was cut from. Only
+`in_hand.rs` reads the link, with one function for each reason the page
+gives for using a line unnamed:
+
+- `points_apart`: an angle's points differ, said anywhere in scope
+  (`angle_within`);
+- `define_equation`: a define's own line, for its function's type
+  (`map_into`);
+- `said_by_lets`: a function's type and a set's parts, from `let` lines only
+  (`declared_type`), as the checker reads them.
+
+A letter's membership said once comes from its own store (`introduced`), and
+sorts and sethood are in every allowed set, so neither needs the link.
 
 That a term is a set, in set.mm's sense, is not searched for: `made_a_set`
 reads it off the constructor at the term's head — `pwexg` for a power set,
@@ -2001,8 +2022,8 @@ Three rules follow, each a defect naming the line. R1 and R2 are checked
 where the proof is sealed, and R3 is the checker's. A step's proof, a
 block's, and an obtain's source all pass through
 one `check_step` in `src/elab/provenance.rs`, which applies R1 and then
-seals; what it allows is `named`, the same set `resting_on` offers the
-search while the step is built. A requires line is checked by R2 where it is
+seals; what it allows is `named`, the same set `in_hand` narrows the step's
+table to while it is built. A requires line is checked by R2 where it is
 proved (`discharged_by`).
 
 - **R1 — a step rests only on what it names**: the lines it cites, its own
