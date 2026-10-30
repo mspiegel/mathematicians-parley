@@ -1,9 +1,9 @@
 import mundane theorem stdlib/geometry/distance-by-coordinates
 
 theorem midpoint-is-equidistant
-  note        Both distances are worked out from the coordinates. Each is the
-              square root of half of a difference squared, added to the same
-              for the second coordinate, and the two sums are equal.
+  note        Both distances are worked out from the coordinates. Each is
+              √(((a − c)/2)² + ((b − d)/2)²): half the difference of the
+              first coordinates, squared, added to the same for the second.
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   let c ∈ ℝ                                                           (H3)

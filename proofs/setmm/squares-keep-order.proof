@@ -2,8 +2,9 @@ import mundane theorem    stdlib/numbers/square-less
 import axiom              stdlib/numbers/trichotomy
 
 theorem squares-keep-order
-  note        Between nonnegative numbers, a ≤ b is a = b or a < b. Equal
-              numbers have equal squares, and a < b gives a² < b².
+  note        b − a is below 0, 0, or above 0. Below 0 contradicts a ≤ b.
+              At 0, a = b, and equal numbers have equal squares. Above 0,
+              a < b, which gives a² < b².
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   assume 0 ≤ a                                                        (H3)

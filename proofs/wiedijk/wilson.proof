@@ -285,11 +285,11 @@ theorem coprime-below-prime
 theorem wilson
   metamath    wilthimp
   note        Each a from 2 to p − 2 has an inverse f(a) modulo p, by
-              Fermat's little theorem: a^(p − 2) taken modulo p. The
-              inverse is again from 2 to p − 2, it is not a itself, and its
-              inverse is a, so the numbers from 2 to p − 2 pair off, and
-              their product is 1 modulo p. What is left of (p − 1)! is 1 and
-              p − 1, which is −1 modulo p.
+              Euler's theorem, as φ(p) = p − 1 for a prime: a^(p − 2)
+              taken modulo p. The inverse is again from 2 to p − 2, it is
+              not a itself, and its inverse is a, so the numbers from 2 to
+              p − 2 pair off, and their product is 1 modulo p. What is left
+              of (p − 1)! is 1 and p − 1, which is −1 modulo p.
   let p ∈ ℕ                                                           (H1)
   assume p is prime                                                   (H2)
   then (p − 1)! ≡ −1 (mod p)

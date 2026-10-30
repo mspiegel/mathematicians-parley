@@ -5,7 +5,7 @@ import mundane theorem      stdlib/sums/sum-single
 
 theorem odd-numbers-sum
   metamath    oddnumth
-  note        By induction on N: adding the next odd number 2(k + 1) − 1
+  note        By induction on k: adding the next odd number 2(k + 1) − 1
               to k² gives (k + 1)².
   let N ∈ ℕ₀                                                          (H1)
   then Σ(k = 1 to N) (2k − 1) = N²

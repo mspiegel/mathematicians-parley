@@ -7,9 +7,9 @@ import mundane theorem    stdlib/numbers/abs-difference-lt
 import mundane theorem    stdlib/functions/function-value
 
 theorem sign-has-no-limit
-  note        Within any δ of 0 the function takes the value 1 at δ/2 and
-              −1 at −δ/2. A limit L would be within 1 of both, so L > 0 and
-              L < 0.
+  note        For ε = 1 the limit gives some p > 0. The function takes the
+              value 1 at p/2 and −1 at −p/2, both within p of 0, so L is
+              within 1 of both: L > 0 and L < 0.
   ε, δ range over ℝ
   let f : ℝ ∖ {0} → ℝ                                                 (H1)
   assume for all x ∈ ℝ ∖ {0}, f(x) = |x|/x                           (H2)
