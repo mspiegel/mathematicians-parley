@@ -852,7 +852,21 @@ impl<'a> Elaborator<'a> {
         // The last line says it with the names, the statement with what they
         // name; the standard form reads the two as one.
         let said = held.claim;
-        if said != goal {
+        // Three points in no order, named in another order than the
+        // statement's, are carried to its order as a cited line is.
+        if said != goal && self.reorders(&said, &goal) {
+            proof = match self.reached(&proof, &said, &goal, &scope, &facts)? {
+                Some(p) => p,
+                None => {
+                    return Err(self.defect(
+                        self.thm.line,
+                        "the last step names the statement's points in an order \
+                         the build cannot reach"
+                            .to_string(),
+                    ));
+                }
+            };
+        } else if said != goal {
             let alike = self.same(
                 &self.to_term(&said),
                 &self.to_term(&goal),

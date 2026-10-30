@@ -1241,30 +1241,6 @@ mundane theorem triangle-off-line
               elaboration/stdlib/proved.mm
   target      gtrioff
 
-mundane theorem triangle-turned
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P, Q, R form a triangle                                      (H4)
-  then        P, R, Q form a triangle
-  metamath    gtriturn, which this corpus proves in
-              elaboration/stdlib/proved.mm from goffswapd
-  target      gtriturn
-  note        The same triangle with its last two vertices named the other
-              way round.
-
-mundane theorem triangle-rotated
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  assume P, Q, R form a triangle                                      (H4)
-  then        Q, R, P form a triangle
-  metamath    gtrirot, which this corpus proves in
-              elaboration/stdlib/proved.mm from gtrinotd
-  target      gtrirot
-  note        The same triangle named from its second vertex. With
-              triangle-turned it names a triangle in any order.
-
 mundane theorem ray-on-line
   let P be a point                                                    (H1)
   let A be a point                                                    (H2)

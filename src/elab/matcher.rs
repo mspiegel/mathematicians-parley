@@ -6696,7 +6696,10 @@ impl<'a> Elaborator<'a> {
     /// order (`REORDERS`), which `settle` then carries to the order asked.
     /// None where no line fits.
     /// Every way a line of `known` says `slot` whole, in the order of the
-    /// lines, each line's first.
+    /// lines, and of one line every order of its points that fits: with
+    /// one letter fixed, a triangle held as Q, K, S fits A, B, C at K both
+    /// as K, Q, S and as K, S, Q, and only the rest of the antecedent says
+    /// which (`fit_answering_rest`).
     fn fits_whole(
         &mut self,
         slot: &Term,
@@ -6713,7 +6716,6 @@ impl<'a> Elaborator<'a> {
                     self.fit_respelt_in_no_order(slot, &said, binding, variables, fresh)
                 {
                     out.push(filled);
-                    break;
                 }
             }
         }
