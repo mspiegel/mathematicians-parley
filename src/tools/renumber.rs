@@ -142,6 +142,12 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
     for (line, place) in &quoted {
         printed += &format!("quoted in {place}: {line}\n");
     }
+    for named in notes_naming(thm, &old[thm.line.saturating_sub(1)..end], &map) {
+        printed += &format!(
+            "note at {}:{} writes {}, a step this moves to {}; the note is not changed\n",
+            thm.path, named.line, named.was, named.now
+        );
+    }
     printed += &format!(
         "{} step(s) moved, {} line(s) changed{}\n",
         map.len(),
@@ -223,6 +229,70 @@ fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
         .map(|t| t.line - 1)
         .min()
         .unwrap_or(lines)
+}
+
+/// A number a note writes that is a step the renumber moves.
+struct NoteNaming {
+    /// The line the note starts on.
+    line: usize,
+    was: StepNo,
+    now: StepNo,
+}
+
+/// Each number a note of the theorem writes that is a step `map` moves.
+/// A note is prose the reader does not read, so its words are looked at as
+/// words: a number in it may name a step, as "line 2 says e ≠ 0" does, or
+/// may not, as "from 1 to n" does, and the renumber changes neither. It
+/// says where each is, for whoever moved the steps to read.
+fn notes_naming(
+    thm: &Theorem,
+    region: &[String],
+    map: &BTreeMap<StepNo, StepNo>,
+) -> Vec<NoteNaming> {
+    let mut notes: Vec<(&str, usize)> = Vec::new();
+    if let Some(note) = thm.fields.get("note") {
+        // The theorem's fields keep no line; its note is the field line of
+        // the theorem's that opens with the word.
+        let line = region
+            .iter()
+            .position(|l| l.split_whitespace().next() == Some("note"))
+            .map_or(thm.line, |at| thm.line + at);
+        notes.push((note, line));
+    }
+    for step in &thm.steps {
+        if let Some((note, line)) = &step.note {
+            notes.push((note, *line));
+        }
+        notes.extend(
+            step.part_notes
+                .values()
+                .map(|(note, line)| (note.as_str(), *line)),
+        );
+    }
+    notes.sort_by_key(|(_, line)| *line);
+    let mut out = Vec::new();
+    for (note, line) in notes {
+        let mut seen: BTreeSet<StepNo> = BTreeSet::new();
+        for word in note.split_whitespace() {
+            let word = word
+                .trim_start_matches(['(', '"', '`'])
+                .trim_end_matches([',', ';', ':', ')', '"', '`', '.']);
+            if !is_number(word) {
+                continue;
+            }
+            let was = StepNo::parse(word);
+            if let Some(now) = map.get(&was) {
+                if seen.insert(was.clone()) {
+                    out.push(NoteNaming {
+                        line,
+                        was,
+                        now: now.clone(),
+                    });
+                }
+            }
+        }
+    }
+    out
 }
 
 /// One number to put in place of another: on a line of the file, from byte
@@ -471,5 +541,39 @@ mod tests {
         );
         let quotes = document_quotes(text, &written);
         assert_eq!(quotes, vec!["1.  n = 2k", "algebra, from H1"]);
+    }
+
+    #[test]
+    fn a_note_writing_a_moved_step_is_said_and_left() {
+        let text = concat!(
+            "theorem t\n",
+            "  note        Line 2 says it again, and 10 is no step.\n",
+            "  let x ∈ ℤ                                                           (H1)\n",
+            "  assume x = 1                                                        (H2)\n",
+            "  then x = 1\n",
+            "\n",
+            "1.  x = 1\n",
+            "    restate H2\n",
+            "\n",
+            "2.  x = 1\n",
+            "    restate 1\n",
+        );
+        let (_, theorems) = crate::corpus::parse_proof("t.proof", text, 0).unwrap();
+        let thm = &theorems[0];
+        let region: Vec<String> = text.lines().map(str::to_string).collect();
+        let map = BTreeMap::from([
+            (StepNo(vec![1]), StepNo(vec![2])),
+            (StepNo(vec![2]), StepNo(vec![3])),
+        ]);
+        let named = notes_naming(thm, &region, &map);
+        assert_eq!(named.len(), 1);
+        assert_eq!(
+            (named[0].line, &named[0].was, &named[0].now),
+            (2, &StepNo(vec![2]), &StepNo(vec![3]))
+        );
+        let mut lines = region.clone();
+        renumber(thm, &mut lines, &map).unwrap();
+        assert_eq!(lines[1], region[1]);
+        assert_eq!(lines[10], "    restate 2");
     }
 }
