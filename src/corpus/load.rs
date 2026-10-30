@@ -53,8 +53,12 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
         out.theorems.extend(theorems);
     }
     // What does not resolve is the checker's to report; here a definition
-    // import that names nothing is simply one that brings nothing in.
+    // import that names nothing is simply one that brings nothing in. A
+    // phrase's notation takes what its slots are as its meaning settles
+    // them, as the checker's reading makes it, so that every reader of the
+    // corpus reads a phrase alike.
     super::phrases::add_phrase_records(&mut out.records, &out.scopes);
+    crate::sorts::settle_phrases(&mut out.records, &out.scopes);
     let _ = link_functions(&out.records, &mut out.scopes);
     let _ = link_definitions(&out.theorems, &mut out.scopes);
     Ok(out)
