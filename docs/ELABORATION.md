@@ -1840,7 +1840,7 @@ The orders follow five rules, and each search below is one of them applied.
    ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ, so the most precise fact is the one a membership rests
    on; `rules::STANDARD` for the standard form (rules
    that ask nothing before rules that ask something), `WITHIN`, `SYSTEM_OF`,
-   `IMPLIED`, `PARTS` and `RANGE_WITHIN` for what a membership says. An item's
+   `IMPLIED`, `OTHER_FORMS` and `RANGE_WITHIN` for what a membership says. An item's
    `target` is tried clause by clause in the order the record writes it
    (`targets::clauses`), which is the database's order to decide.
 
@@ -2121,8 +2121,13 @@ proved (`discharged_by`).
     itself. Both read one set of tables
     in `rules`: what a membership in a number system says (`WITHIN`,
     `IMPLIED`), and that a part of a set and a member of its power set say
-    each other (`PARTS`), the checker reading each row's two forms and the
-    elaborator its lemma, `gsspw` with the set proved a set (`made_a_set`).
+    each other, as a point on a line and a member of the line do
+    (`OTHER_FORMS`), the checker reading each row's two forms and the
+    elaborator its lemma: `gsspw` with the set proved a set (`made_a_set`),
+    `glineon` and the others with the point proved a complex number. The
+    kernel keeps no record of which notation wrote a term, and "P is on line
+    AB" is "A, B, P are collinear" there, so the elaborator asks of every
+    reading of the term.
     A line saying a term is in a range says nothing past itself, since a
     range is no number system (`SYNTAX.md`): `mun:range-integer` is how a
     page says such a term is whole. A letter introduced in a range is the

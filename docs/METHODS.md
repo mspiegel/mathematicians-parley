@@ -1798,16 +1798,17 @@ of its own would be:
   in all three places.
 - The row's reason must prove "was = now", here x = 3, read as a step with
   that claim.
-- The first row is the cited line, written as it is written; the last row
-  is the claim.
+- The first row is what the cited line says, written out; the last row is
+  the claim, or the claim in its other form: a row ending `Z ∈ line XY`
+  ends a step claiming `Z is on line XY`.
 
 **Refusals.**
 
 - A row that is the row above, unchanged.
 - A row that changes two different terms. Each change is a row of its own.
 - A row that changes a statement rather than a term, such as `<` into `≤`.
-- A first row that its cited line does not say, and a last row that is not
-  the claim.
+- A first row that its cited line does not say, and a last row that is
+  neither the claim nor its other form.
 - A later row whose reason is a bare line number or label. It is written
   `substitute line L`, or `substitute H3`.
 
