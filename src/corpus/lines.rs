@@ -13,6 +13,23 @@ pub fn unlabelled(text: &str) -> bool {
     super::skeleton::label_at_end(text).is_none()
 }
 
+/// Where in the file `at` bytes into the logical line starting on `line`
+/// falls, as `read_lines` joins them: each physical line trimmed, and one
+/// character between it and the next. The physical line, counted from 0,
+/// and the byte in it; None past the file's end.
+pub fn physical(raw: &[&str], line: usize, at: usize) -> Option<(usize, usize)> {
+    let mut left = at;
+    for (index, text) in raw.iter().enumerate().skip(line.checked_sub(1)?) {
+        let lead = text.len() - text.trim_start().len();
+        let len = text.trim().len();
+        if left < len {
+            return Some((index, lead + left));
+        }
+        left = left.checked_sub(len + 1)?;
+    }
+    None
+}
+
 /// Physical lines, comments and blanks dropped, joined by the continuation
 /// rule: a line continues onto the next when it ends with a comma.
 ///
@@ -65,4 +82,23 @@ pub fn read_lines(text: &str) -> Vec<Line> {
         out.push(line);
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_place_in_a_logical_line_is_found_in_the_file() {
+        let text = "3.  x = 1\n    mun:x a := 2,\n      from 1, 12\n";
+        let read = read_lines(text);
+        let raw: Vec<&str> = text.split('\n').collect();
+        let reason = &read[1];
+        assert_eq!(reason.text, "mun:x a := 2, from 1, 12");
+        let twelve = reason.text.find("12").unwrap();
+        assert_eq!(physical(&raw, reason.no, twelve), Some((2, 14)));
+        assert_eq!(&raw[2][14..16], "12");
+        let two = reason.text.find('2').unwrap();
+        assert_eq!(physical(&raw, reason.no, two), Some((1, 15)));
+    }
 }

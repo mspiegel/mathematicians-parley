@@ -8,26 +8,21 @@
 //! step fills it. A move landing on a number another step keeps, or below
 //! 1, is refused and nothing is written.
 //!
-//! A citation is found where the proof reader finds one: a number after
-//! `from`, `join` or `restate` and each that continues its list, after
-//! `line`, `in`, `into`, `contradicting` or `step`, and a chain line's or a
-//! row's reason (`skeleton::chain_reason`). A number anywhere else, in a
-//! formula among them, is not touched.
+//! What is renumbered is what the proof reader read as a step number or a
+//! citation, where it read it (`proof::references`): a step's own number,
+//! and every line a justification, a requires line, a chain line, a row or
+//! an induction hypothesis cites. A number anywhere else, in a formula or a
+//! value, is not touched.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
-use crate::corpus::proof::{rows, RowReason, StepNo};
-use crate::corpus::skeleton::{chain_reason, is_number};
+use crate::corpus::lines::physical;
+use crate::corpus::proof::{references, Reference, StepNo};
+use crate::corpus::skeleton::{is_number, Cited};
 use crate::corpus::{corpus, Theorem};
 use crate::said::Said;
 use crate::source::Disk;
-
-/// The words after which the next word is a cited line.
-const BEFORE_ONE: [&str; 5] = ["line", "in", "into", "contradicting", "step"];
-
-/// The words opening a list of cited lines.
-const OPENS_LIST: [&str; 3] = ["from", "join", "restate"];
 
 /// The run of sibling steps a renumber moves: under `parent`, from `first`
 /// to `last`, or to the end of the block where there is no last.
@@ -128,7 +123,9 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
     let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
     let end = region_end(&found.theorems, thm, lines.len());
     let old = lines.clone();
-    renumber(thm, &mut lines, end, &map);
+    if let Err(why) = renumber(thm, &mut lines, &map) {
+        return refused(why);
+    }
     let changed: Vec<usize> =
         (0..lines.len()).filter(|&i| lines[i] != old[i]).collect();
     let mut printed = String::new();
@@ -177,7 +174,7 @@ fn moved(
     thm: &Theorem,
     run: &Run,
     by: i64,
-) -> Result<BTreeMap<String, String>, String> {
+) -> Result<BTreeMap<StepNo, StepNo>, String> {
     let mut map = BTreeMap::new();
     let mut landed: BTreeSet<Vec<u32>> = BTreeSet::new();
     for s in &thm.steps {
@@ -200,7 +197,7 @@ fn moved(
         if to.len() == at + 1 {
             landed.insert(to.clone());
         }
-        map.insert(s.number.to_string(), StepNo(to).to_string());
+        map.insert(s.number.clone(), StepNo(to));
     }
     for s in &thm.steps {
         let n = &s.number.0;
@@ -208,8 +205,8 @@ fn moved(
             return Err(format!(
                 "step {} would land on step {}, which stays where it is",
                 map.iter()
-                    .find(|(_, to)| **to == s.number.to_string())
-                    .map_or_else(String::new, |(from, _)| from.clone()),
+                    .find(|(_, to)| **to == s.number)
+                    .map_or_else(String::new, |(from, _)| from.to_string()),
                 s.number
             ));
         }
@@ -228,85 +225,59 @@ fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
         .unwrap_or(lines)
 }
 
-/// Every line of the theorem with its moved steps numbered as `map` says:
-/// each moved step's number where its claim opens, and every citation.
+/// One number to put in place of another: on a line of the file, from byte
+/// `from` to byte `to`, the number `new`.
+struct Cut {
+    from: usize,
+    to: usize,
+    new: String,
+}
+
+/// Every line of the theorem with its moved steps numbered as `map` says,
+/// at each place the reader read a step number or a citation of one
+/// (`proof::references`). Where the reader places a number that the file
+/// does not write there, the reading and the file disagree: that is said,
+/// and nothing is changed.
 fn renumber(
     thm: &Theorem,
     lines: &mut [String],
-    end: usize,
-    map: &BTreeMap<String, String>,
-) {
-    let mut edits: BTreeMap<usize, Vec<(usize, usize, String)>> = BTreeMap::new();
-    // A chain line's or a substitute row's reason may be a bare number; of
-    // an inequalities step's rows, only one the reader reads as citing a
-    // line, since `multiplying by 2` ends in a number that is no line.
-    let mut reasoned: BTreeSet<usize> = BTreeSet::new();
-    for s in &thm.steps {
-        reasoned.extend(s.just.chain.iter().map(|(_, l)| l - 1));
-        match rows(&s.just, &thm.path) {
-            Some(Ok(read)) => reasoned.extend(
-                read.iter()
-                    .filter(|r| matches!(r.reason, RowReason::Cited(_)))
-                    .map(|r| r.line - 1),
-            ),
-            Some(Err(_)) => {}
-            None => reasoned.extend(s.just.rows.iter().map(|(_, l)| l - 1)),
-        }
-    }
-    for &l in &reasoned {
-        let line = &lines[l];
-        let Some(reason) = chain_reason(line) else {
+    map: &BTreeMap<StepNo, StepNo>,
+) -> Result<(), String> {
+    let raw: Vec<&str> = lines.iter().map(String::as_str).collect();
+    let mut edits: BTreeMap<usize, Vec<Cut>> = BTreeMap::new();
+    for Reference { cite, line } in references(thm) {
+        let Cited::Line(number) = &cite.cited else {
             continue;
         };
-        if let Some(new) = map.get(reason) {
-            let at = reason.as_ptr() as usize - line.as_ptr() as usize;
-            edits
-                .entry(l)
-                .or_default()
-                .push((at, at + reason.len(), new.clone()));
-        }
+        let Some(new) = map.get(number) else {
+            continue;
+        };
+        // What the reader read there is what the file writes there, or the
+        // two disagree and nothing is cut.
+        let written = number.to_string();
+        let placed = physical(&raw, line, cite.at)
+            .filter(|&(l, at)| raw[l].get(at..at + cite.len) == Some(written.as_str()));
+        let Some((l, at)) = placed else {
+            return Err(format!(
+                "{}:{line}: the reader reads step {number} {} bytes into this line, and the file does not write it there",
+                thm.path, cite.at
+            ));
+        };
+        edits.entry(l).or_default().push(Cut {
+            from: at,
+            to: at + cite.len,
+            new: new.to_string(),
+        });
     }
     let claims: BTreeSet<usize> = thm.steps.iter().map(|s| s.line - 1).collect();
-    let (mut one, mut listing) = (false, false);
-    let last = end.min(lines.len());
-    for (l, line) in lines.iter().enumerate().take(last).skip(thm.line - 1) {
-        for (start, word) in words(line) {
-            // A step's own number, where its claim opens.
-            if claims.contains(&l) && start == line.len() - line.trim_start().len() {
-                if let Some(new) = word.strip_suffix('.').and_then(|n| map.get(n)) {
-                    edits.entry(l).or_default().push((
-                        start,
-                        start + word.len() - 1,
-                        new.clone(),
-                    ));
-                }
-                continue;
-            }
-            let core = word.trim_start_matches('(').trim_end_matches([',', ')']);
-            let lead = word.len() - word.trim_start_matches('(').len();
-            if one || listing {
-                if let Some(new) = map.get(core) {
-                    let at = start + lead;
-                    edits.entry(l).or_default().push((
-                        at,
-                        at + core.len(),
-                        new.clone(),
-                    ));
-                }
-            }
-            listing = OPENS_LIST.contains(&core) || (listing && word.ends_with(','));
-            one = BEFORE_ONE.contains(&core);
-        }
-    }
-    // A chain line's or row's reason citing by `from` or `line` is found by
-    // the words above, and one that is a bare number by its line; the two
-    // never find the same word twice, and a word found twice is cut once.
-    for (l, mut cut) in edits {
-        cut.sort_by_key(|c| std::cmp::Reverse(c.0));
-        cut.dedup_by(|a, b| a.0 == b.0);
+    for (l, mut cuts) in edits {
+        // Cut from the right, so each cut leaves the places of those before
+        // it where they were; one place read twice is cut once.
+        cuts.sort_by_key(|c| std::cmp::Reverse(c.from));
+        cuts.dedup_by(|a, b| a.from == b.from);
         let line = &mut lines[l];
         let header = claims.contains(&l);
-        for (from, to, new) in cut {
+        for Cut { from, to, new } in cuts {
             let old_len = to - from;
             line.replace_range(from..to, &new);
             // A claim keeps its column: the spaces after its number take
@@ -320,26 +291,7 @@ fn renumber(
             }
         }
     }
-}
-
-/// Each word of a line, where it starts.
-fn words(line: &str) -> Vec<(usize, &str)> {
-    let mut out = Vec::new();
-    let mut start = None;
-    for (i, c) in line.char_indices() {
-        match (c.is_whitespace(), start) {
-            (true, Some(s)) => {
-                out.push((s, &line[s..i]));
-                start = None;
-            }
-            (false, None) => start = Some(i),
-            _ => {}
-        }
-    }
-    if let Some(s) = start {
-        out.push((s, &line[s..]));
-    }
-    out
+    Ok(())
 }
 
 /// Each changed line that a planted test or a design document quotes, with

@@ -7,7 +7,7 @@
 //! a substitute's destination and never the end of an item's name, as in
 //! `mun:function-into`, and `algebra` is a head where `algebraic` is not.
 
-use super::proof::{Head, ItemKind, Manipulation, Method, METHODS};
+use super::proof::{Head, ItemKind, Manipulation, Method, StepNo, METHODS};
 use super::values::Given;
 use crate::formula::page::Written;
 use crate::matching::split_commas;
@@ -105,12 +105,73 @@ pub struct Slots {
     /// Why the justification matches no production; None where it matches
     /// one.
     pub unproduced: Option<String>,
+    /// Every line and label the justification names, `contradicting`'s
+    /// among them, each with where it is written in the text the reader was
+    /// given (`cut`, `cut_reason`).
+    pub cited: Vec<Cite>,
+    origin: Origin,
+}
+
+/// What a citation names: a step, by its number, or a labelled line, by
+/// its label, `H3`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Cited {
+    Line(StepNo),
+    Label(String),
+}
+
+/// A line or label a reading names, and where it is written: `len` bytes
+/// from `at` in the text the reader was given.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Cite {
+    pub cited: Cited,
+    pub at: usize,
+    pub len: usize,
+}
+
+/// `written`, a citation found `at` bytes into its text: a step where it is
+/// a number, and a labelled line otherwise.
+pub fn cite_at(written: &str, at: usize) -> Cite {
+    let cited = if is_number(written) {
+        Cited::Line(StepNo::parse(written))
+    } else {
+        Cited::Label(written.to_string())
+    };
+    Cite {
+        cited,
+        at,
+        len: written.len(),
+    }
+}
+
+/// Where in memory the text a reading was cut from starts. Every slot is cut
+/// from a slice of that text, so a slot's own address less this one is
+/// where the slot is written. Two readings of one text are one reading
+/// wherever the text is held, so the address takes no part in comparing
+/// them.
+#[derive(Clone, Copy)]
+struct Origin(usize);
+
+impl PartialEq for Origin {
+    fn eq(&self, _: &Origin) -> bool {
+        true
+    }
+}
+
+impl Eq for Origin {}
+
+impl std::fmt::Debug for Origin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Origin")
+    }
 }
 
 impl Slots {
     /// A head with every slot empty, over `text`.
     pub(crate) fn new(head: Head, text: &str) -> Slots {
         Slots {
+            origin: Origin(text.as_ptr() as usize),
+            cited: Vec::new(),
             head,
             text: text.to_string(),
             defined: None,
@@ -129,6 +190,42 @@ impl Slots {
             contradicting: None,
             unproduced: None,
         }
+    }
+
+    /// Note that the reading names `piece`, a slice of the text it was cut
+    /// from, where it is written.
+    fn cite(&mut self, piece: &str) {
+        let at = (piece.as_ptr() as usize)
+            .checked_sub(self.origin.0)
+            .expect("a cited piece is a slice of the text cut");
+        self.cited.push(cite_at(piece, at));
+    }
+
+    /// A `from` entry, noted as cited.
+    fn push_from(&mut self, piece: &str) {
+        self.from.push(piece.to_string());
+        self.cite(piece);
+    }
+
+    /// The citations of a reading cut from a slice of this one's text, each
+    /// placed in this one's.
+    fn absorb(&mut self, inner: &Slots) {
+        let by = inner.origin.0 - self.origin.0;
+        self.cited.extend(inner.cited.iter().map(|c| Cite {
+            at: c.at + by,
+            ..c.clone()
+        }));
+    }
+
+    /// Each citation placed in `given`, the text the reader was handed, of
+    /// which the text cut is a slice.
+    fn placed_in(mut self, given: &str) -> Slots {
+        let by = self.origin.0 - given.as_ptr() as usize;
+        for c in &mut self.cited {
+            c.at += by;
+        }
+        self.origin = Origin(given.as_ptr() as usize);
+        self
     }
 
     /// Every line and label the justification names, in the order it names
@@ -552,7 +649,7 @@ fn after_word<'t>(text: &'t str, word: &str) -> Option<&'t str> {
 }
 
 /// Where `piece`, a slice of `text`, starts in it.
-fn offset(text: &str, piece: &str) -> usize {
+pub(crate) fn offset(text: &str, piece: &str) -> usize {
     piece.as_ptr() as usize - text.as_ptr() as usize
 }
 
@@ -584,8 +681,8 @@ fn cited_phrase<'l>(text: &str, labels: &'l Labels) -> Option<&'l PhraseLabel> {
 /// Cut a justification, on `line` of `path`, into its head and slots.
 /// `labels` are the labels of the defines in scope, which a line headed
 /// by one cites. A line opening with no head is a defect of the file.
-pub fn cut(text: &str, path: &str, line: usize, labels: &Labels) -> Checked<Slots> {
-    let text = str::trim(text);
+pub fn cut(given: &str, path: &str, line: usize, labels: &Labels) -> Checked<Slots> {
+    let text = str::trim(given);
     // A step reaching the opposite of an earlier line says so after its
     // reasons, `inequalities, from 3.1, contradicting 3.6`; the rest is
     // read as any other line.
@@ -596,7 +693,7 @@ pub fn cut(text: &str, path: &str, line: usize, labels: &Labels) -> Checked<Slot
                 Some(r) if is_ref(r) => {
                     let before = text[..offset(text, last)].trim_end();
                     let before = str::trim(before.strip_suffix(',').unwrap_or(before));
-                    (before, Some(r.to_string()))
+                    (before, Some(r))
                 }
                 _ => (text, None),
             }
@@ -604,14 +701,17 @@ pub fn cut(text: &str, path: &str, line: usize, labels: &Labels) -> Checked<Slot
         _ => (text, None),
     };
     let mut slots = head_and_slots(said, path, line, labels)?;
-    slots.contradicting = contradicting;
-    Ok(slots)
+    if let Some(r) = contradicting {
+        slots.contradicting = Some(r.to_string());
+        slots.cite(r);
+    }
+    Ok(slots.placed_in(given))
 }
 
 /// Cut a requires line's reason, or a let's: a justification as a step's,
 /// or the lines it rests on and nothing else, `from 8`.
-pub fn cut_reason(text: &str, path: &str, line: usize) -> Checked<Slots> {
-    let text = str::trim(text);
+pub fn cut_reason(given: &str, path: &str, line: usize) -> Checked<Slots> {
+    let text = str::trim(given);
     // A manipulation of the one line it cites, `weakening, from 2.1`
     // (`GRAMMAR.md`, requires lines).
     if let Some((made, rest)) = Manipulation::opening(text) {
@@ -622,15 +722,15 @@ pub fn cut_reason(text: &str, path: &str, line: usize) -> Checked<Slots> {
         if slots.from.len() != 1 {
             slots.unproduced(None);
         }
-        return Ok(slots);
+        return Ok(slots.placed_in(given));
     }
     if after_word(text, "from").is_some() {
         let pieces: Vec<&str> = split_commas(text).into_iter().map(str::trim).collect();
         let mut slots = Slots::new(Head::Lines, text);
         from_slot(&pieces, &mut slots);
-        return Ok(slots);
+        return Ok(slots.placed_in(given));
     }
-    cut(text, path, line, &Labels::default())
+    cut(given, path, line, &Labels::default())
 }
 
 fn head_and_slots(
@@ -667,6 +767,7 @@ fn head_and_slots(
     if cites_define(text, &labels.defines) {
         let mut slots = Slots::new(Head::Define, text);
         slots.defined = Some(first.to_string());
+        slots.cite(first);
         from_slot(&pieces[1..], &mut slots);
         return Ok(slots);
     }
@@ -801,13 +902,13 @@ fn from_slot(pieces: &[&str], slots: &mut Slots) {
     };
     if let Some(number) = after_word(first, "line") {
         if is_number(number) && rest.is_empty() {
-            slots.from.push(number.to_string());
+            slots.push_from(number);
             return;
         }
     }
     for entry in std::iter::once(first).chain(rest.iter().copied()) {
         if is_ref(entry) {
-            slots.from.push(entry.to_string());
+            slots.push_from(entry);
         } else {
             slots.unproduced(Some(format!(
                 "`from` names {}, which is neither a line nor a label",
@@ -827,22 +928,26 @@ fn from_slot(pieces: &[&str], slots: &mut Slots) {
 fn place(after: &str, word: &str, slots: &mut Slots) -> Option<Place> {
     if let Some(number) = after_word(after, "line") {
         if is_number(number) {
+            slots.cite(number);
             return Some(Place::Line(number.to_string()));
         }
         if is_label(number) {
             slots.unproduced(Some(format!(
                 "a label never carries the word \"line\": `{word} {number}`"
             )));
+            slots.cite(number);
             return Some(Place::Slip(number.to_string()));
         }
     }
     if is_label(after) {
+        slots.cite(after);
         return Some(Place::Label(after.to_string()));
     }
     if is_number(after) {
         slots.unproduced(Some(format!(
             "a line number after `{word}` carries the word \"line\": `{word} line {after}`"
         )));
+        slots.cite(after);
         return Some(Place::Slip(after.to_string()));
     }
     slots.unproduced(None);
@@ -868,6 +973,7 @@ fn method_slots(
             for entry in std::iter::once(listed).chain(pieces[1..].iter().copied()) {
                 if is_ref(entry) {
                     slots.joined.push(entry.to_string());
+                    slots.cite(entry);
                 } else {
                     slots.unproduced(None);
                 }
@@ -963,6 +1069,7 @@ fn obtain(rest: &str, path: &str, line: usize, slots: &mut Slots) {
         match item(cited, path, line, &mut inner) {
             Some(head) => {
                 slots.obtained_from = Some(head.to_string());
+                slots.absorb(&inner);
                 slots.values = inner.values;
                 slots.from = inner.from;
                 if inner.unproduced.is_some() {
@@ -985,10 +1092,10 @@ fn obtain_from_line(rest: &str, slots: &mut Slots) {
     };
     names_into(&words[..at].join(" "), slots);
     match &words[at + 1..] {
-        ["line", number] if is_number(number) => slots.from.push(number.to_string()),
-        [label] if is_label(label) => slots.from.push(label.to_string()),
+        ["line", number] if is_number(number) => slots.push_from(number),
+        [label] if is_label(label) => slots.push_from(label),
         [number] if is_number(number) => {
-            slots.from.push(number.to_string());
+            slots.push_from(number);
             slots.unproduced(Some(format!(
                 "an obtain naming no item takes its line with the word \"line\": `from line {number}`"
             )));
@@ -1020,11 +1127,14 @@ fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
     // one the line says, and the move it makes is seen between the two
     // terms it is written between, a chain's or a row's.
     let short = match after_word(rest, "line") {
-        Some(number) if is_number(number) => Some(Place::Line(number.to_string())),
-        _ => is_label(rest).then(|| Place::Label(rest.to_string())),
+        Some(number) if is_number(number) => {
+            Some((Place::Line(number.to_string()), number))
+        }
+        _ => is_label(rest).then(|| (Place::Label(rest.to_string()), rest)),
     };
-    if let Some(place) = short {
+    if let Some((place, written)) = short {
         slots.source = Some(Source::At(place));
+        slots.cite(written);
         return;
     }
     // `substitute` alone writes its rows below it (`GRAMMAR.md`, substitute
@@ -1068,17 +1178,20 @@ fn substitute(rest: &str, path: &str, line: usize, slots: &mut Slots) {
         Some(Source::RealArithmetic)
     } else if let Some(number) = after_word(group, "line") {
         if is_number(number) {
+            slots.cite(number);
             Some(Source::At(Place::Line(number.to_string())))
         } else if is_label(number) {
             slots.unproduced(Some(format!(
                 "a label never carries the word \"line\": `({number})`"
             )));
+            slots.cite(number);
             Some(Source::At(Place::Slip(number.to_string())))
         } else {
             slots.unproduced(None);
             None
         }
     } else if is_label(group) {
+        slots.cite(group);
         Some(Source::At(Place::Label(group.to_string())))
     } else {
         slots.unproduced(None);

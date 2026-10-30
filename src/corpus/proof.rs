@@ -9,7 +9,7 @@ use super::define::{define_parts, naming, DefineParts, Naming, Param, RuleText};
 use super::lines::{read_lines, Line};
 use super::records::{Record, RecordKind};
 use super::skeleton::{
-    self, cut_reason, is_justification, item_kind, Place, Slots, Source,
+    self, cut_reason, is_justification, item_kind, Cite, Cited, Place, Slots, Source,
 };
 use super::values::Values;
 use super::{cited_name, in_stdlib, module_of};
@@ -245,7 +245,9 @@ fn requires_line(
         fact: Written::new(str::trim(fact), path, no),
         how: str::trim(how).to_string(),
         line: no,
-        by: cut_reason(how, path, no).map(|slots| Justification::of(slots, no, names)),
+        by: cut_reason(how, path, no).map(|slots| {
+            Justification::of(slots, no, names).shifted(skeleton::offset(t, how))
+        }),
     })
 }
 
@@ -829,6 +831,10 @@ pub struct Justification {
     /// where it matches one. Both tools read a justification only once it
     /// matches, so each refuses the same text in the same words.
     pub unproduced: Option<String>,
+    /// Every line and label it names, `contradicting`'s among them, each
+    /// with where it is written in the text the reader was given: the
+    /// step's line, from `line` on, or a requires line's reason.
+    pub cited: Vec<Cite>,
 }
 
 impl Justification {
@@ -837,6 +843,7 @@ impl Justification {
     pub fn of(slots: Slots, line: usize, names: &Arc<Names>) -> Justification {
         Justification {
             refs: slots.refs(),
+            cited: slots.cited,
             values: Values::of(&slots.values),
             head: slots.head,
             text: slots.text,
@@ -857,6 +864,15 @@ impl Justification {
             start: slots.start,
             unproduced: slots.unproduced,
         }
+    }
+
+    /// The justification read from text that starts `by` bytes into its
+    /// line, with what it cites placed in the line.
+    pub fn shifted(mut self, by: usize) -> Justification {
+        for c in &mut self.cited {
+            c.at += by;
+        }
+        self
     }
 
     /// The full name a citation written in this justification's file means.
@@ -1180,6 +1196,106 @@ impl Theorem {
     }
 }
 
+/// A step number or label a theorem's text writes, and where: `cite`'s
+/// place is in the logical line that starts on `line` (`lines::read_lines`).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Reference {
+    pub cite: Cite,
+    pub line: usize,
+}
+
+/// Every step number and label a theorem's text writes as one, each where
+/// the reader read it: a step's own number where its claim opens, every
+/// line and label a justification, a requires line, a let's reason, a
+/// chain line or a row cites, and the step an induction hypothesis names.
+/// A number anywhere else, in a formula or a value, is none of these.
+pub fn references(thm: &Theorem) -> Vec<Reference> {
+    let mut out = Vec::new();
+    for r in thm.let_requires() {
+        cited_by(&mut out, &r.by, r.line);
+    }
+    for d in &thm.defines {
+        if let Some(reason) = &d.reason {
+            cited_by(&mut out, &reason.by, reason.line);
+        }
+    }
+    for step in &thm.steps {
+        out.push(Reference {
+            cite: Cite {
+                cited: Cited::Line(step.number.clone()),
+                at: 0,
+                len: fmt(&step.number).len(),
+            },
+            line: step.line,
+        });
+        out.extend(step.just.cited.iter().map(|c| Reference {
+            cite: c.clone(),
+            line: step.just.line,
+        }));
+        for r in &step.requires {
+            cited_by(&mut out, &r.by, r.line);
+        }
+        for opener in step.openers.iter().filter(|o| o.is_hypothesis) {
+            if let Some(said) = skeleton::induction_hypothesis(&opener.text) {
+                let at = skeleton::offset(&opener.text, said.step);
+                out.push(Reference {
+                    cite: skeleton::cite_at(said.step, at),
+                    line: opener.line,
+                });
+            }
+        }
+        if let Some(Ok(chain)) = chain(&step.just, &thm.path) {
+            for link in &chain.lines {
+                if let Some(cited) = link.cited() {
+                    out.push(Reference {
+                        cite: skeleton::cite_at(cited, link.cite_at),
+                        line: link.line,
+                    });
+                }
+                if let Some(r) = &link.reason {
+                    cited_by(&mut out, &r.by, link.line);
+                }
+            }
+        }
+        if let Some(Ok(rows)) = substitute_rows(&step.just, &thm.path) {
+            for row in &rows {
+                if skeleton::is_ref(&row.cite) {
+                    out.push(Reference {
+                        cite: skeleton::cite_at(&row.cite, row.cite_at),
+                        line: row.line,
+                    });
+                }
+                if let Some(r) = &row.reason {
+                    cited_by(&mut out, &r.by, row.line);
+                }
+            }
+        }
+        if let Some(Ok(rows)) = rows(&step.just, &thm.path) {
+            for row in &rows {
+                if let (RowReason::Cited(cited), Some(at)) = (&row.reason, row.cited_at)
+                {
+                    out.push(Reference {
+                        cite: skeleton::cite_at(cited, at),
+                        line: row.line,
+                    });
+                }
+            }
+        }
+    }
+    out
+}
+
+/// What a reason read on the logical line starting on `line` cites, put in
+/// `out`; nothing for a reason that did not read.
+fn cited_by(out: &mut Vec<Reference>, by: &Checked<Justification>, line: usize) {
+    if let Ok(just) = by {
+        out.extend(just.cited.iter().map(|c| Reference {
+            cite: c.clone(),
+            line,
+        }));
+    }
+}
+
 /// Everything a theorem's lines say, as one run of text: the statement, its
 /// defines, and every step's claim, openers, requires lines and
 /// justification.
@@ -1478,6 +1594,8 @@ pub struct ChainLine {
     /// The reason as written (`skeleton::chain_reason`): the line or label
     /// it cites, `arithmetic`, `real arithmetic`, or a reason of its own.
     pub cite: String,
+    /// Where `cite` starts in the chain line's text.
+    pub cite_at: usize,
     /// A reason of its own, `algebra` or `mun:x, from 3`, read as a
     /// requires line is: the link as its fact, proved as the step it would
     /// be (`reason_as_step`). None where the line cites a line or a label,
@@ -1534,6 +1652,7 @@ impl Chain {
                     term: terms[i].clone(),
                     modulus: None,
                     cite: l.cite.clone(),
+                    cite_at: l.cite_at,
                     reason: l.reason.clone(),
                     line: l.line,
                 }
@@ -1570,6 +1689,9 @@ pub enum RowReason {
 pub struct Row {
     pub formula: Written,
     pub reason: RowReason,
+    /// Where the line a `RowReason::Cited` names is written in the row's
+    /// text; None for any other reason.
+    pub cited_at: Option<usize>,
     pub line: usize,
 }
 
@@ -1629,9 +1751,12 @@ pub fn rows(just: &Justification, path: &str) -> Option<Checked<Vec<Row>>> {
                 "a row gives no reason: it ends in the line it writes out, `adding` or `multiplying by` and a term, `restate`, `weakening` or `algebra`",
             )));
         };
+        let cited_at =
+            matches!(reason, RowReason::Cited(_)).then(|| skeleton::offset(text, last));
         out.push(Row {
             formula: Written::new(formula, path, *no),
             reason,
+            cited_at,
             line: *no,
         });
     }
@@ -1712,6 +1837,7 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
             term: Written::new(term, path, *no),
             modulus,
             cite: cite.to_string(),
+            cite_at: skeleton::offset(text, cite),
             reason: None,
             line: *no,
         });
@@ -1723,8 +1849,9 @@ pub fn chain(just: &Justification, path: &str) -> Option<Checked<Chain>> {
     let mut from = start.clone();
     for line in &mut lines {
         if !skeleton::is_ref(&line.cite) && !is_worked_out(&line.cite) {
-            let by = cut_reason(&line.cite, path, line.line)
-                .map(|slots| Justification::of(slots, line.line, &just.names));
+            let by = cut_reason(&line.cite, path, line.line).map(|slots| {
+                Justification::of(slots, line.line, &just.names).shifted(line.cite_at)
+            });
             let fact = Written::related(
                 from.clone(),
                 &line.relation,
@@ -1787,6 +1914,8 @@ pub struct SubstituteRow {
     pub formula: Written,
     /// The reason as written (`skeleton::chain_reason`).
     pub cite: String,
+    /// Where `cite` starts in the row's text.
+    pub cite_at: usize,
     /// For a row after the first, its reason read as a requires line is:
     /// the change the row makes, a formula made from the two rows' trees
     /// (`Written::changed`), as its fact.
@@ -1839,8 +1968,10 @@ pub fn substitute_rows(
                 )));
             }
             Some(above) => {
-                let by = cut_reason(cite, path, *no)
-                    .map(|slots| Justification::of(slots, *no, &just.names));
+                let by = cut_reason(cite, path, *no).map(|slots| {
+                    Justification::of(slots, *no, &just.names)
+                        .shifted(skeleton::offset(text, cite))
+                });
                 Some(Requires {
                     fact: Written::changed(
                         above.formula.clone(),
@@ -1857,6 +1988,7 @@ pub fn substitute_rows(
         out.push(SubstituteRow {
             formula,
             cite: cite.to_string(),
+            cite_at: skeleton::offset(text, cite),
             reason,
             line: *no,
         });
