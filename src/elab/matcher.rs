@@ -23,7 +23,7 @@ use std::rc::Rc;
 use indexmap::{IndexMap, IndexSet};
 
 use super::elaborate::Sides;
-use super::provenance::{from_requires, may_rest_on, MEMBERSHIP};
+use super::provenance::{from_requires, may_rest_on, rests_within, MEMBERSHIP};
 use super::state::{
     fit, fit_respelt, names_of, Binding, Elaborator, Frame, HeadKey, Role, Shape, Vars,
 };
@@ -178,7 +178,7 @@ impl<'a> Elaborator<'a> {
         // an assumption of the block above it may also say.
         if let Some(resting) = self.resting.clone() {
             let key = self.fact_key(wanted);
-            let may = |p: &Proof| p.origin.iter().all(|o| may_rest_on(&resting, o));
+            let may = |p: &Proof| rests_within(&resting, p);
             let claims = facts.under(&key);
             let named = claims
                 .iter()
@@ -5252,13 +5252,7 @@ impl<'a> Elaborator<'a> {
         // cited line is: "a(0) ∈ ℕ₀ and b(0) ∈ ℕ₀" says b(0) ∈ ℕ₀. What it may
         // not rest on is left out first, so that a copy of a part proved
         // elsewhere does not stand in the way of this one.
-        let known = match &self.resting {
-            Some(resting) => {
-                let resting = resting.clone();
-                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)))
-            }
-            None => facts.copy(),
-        };
+        let known = self.restable(facts);
         for (line, held) in known.entries() {
             self.unpack_all(&line, &held, scope, &known);
         }
@@ -7603,12 +7597,7 @@ impl<'a> Elaborator<'a> {
         // What fills an antecedent is only what the proof being built may
         // rest on, as for `settle`: a line the step does not name cannot
         // decide a class the lemma leaves open.
-        let known_keys = match &self.resting {
-            Some(resting) => known
-                .filtered(|_, v| v.origin.iter().all(|o| may_rest_on(resting, o)))
-                .keys(),
-            None => known.keys(),
-        };
+        let known_keys = self.restable(&known).keys();
         // Each antecedent is matched in turn, the one whose letters are most
         // fixed already first: with ph fixed by the claim, `orel2`'s
         // ( ph \/ ps ) is answered by one line where ( -. ps ) is answered

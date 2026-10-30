@@ -39,6 +39,19 @@ pub fn may_rest_on(resting: &BTreeSet<String>, origin: &str) -> bool {
     resting.contains(origin) || origin.starts_with(MEMBERSHIP)
 }
 
+/// Whether `proof` rests only on what `allowed` lets a proof rest on: the
+/// lines a step or a requires line names (`named`, `reason_allows`), and a
+/// membership said once.
+pub fn rests_within(allowed: &BTreeSet<String>, proof: &Proof) -> bool {
+    proof.origin.iter().all(|o| may_rest_on(allowed, o))
+}
+
+/// The facts whose proofs rest only on what `allowed` lets them, as a table
+/// of their own.
+pub fn within(facts: &Facts, allowed: &BTreeSet<String>) -> Facts {
+    facts.filtered(|_, p| rests_within(allowed, p))
+}
+
 /// What a `requires` line is called as the origin of a proof: it has no
 /// number of its own, so it is named by where it stands.
 pub fn requirement(line: usize) -> String {
@@ -244,9 +257,9 @@ impl<'a> Elaborator<'a> {
     ) {
         for r in refs {
             for (claim, proof) in facts.of_line(r) {
-                let usable = facts.proof(&claim).is_some_and(|held| {
-                    held.origin.iter().all(|o| may_rest_on(resting, o))
-                });
+                let usable = facts
+                    .proof(&claim)
+                    .is_some_and(|held| rests_within(resting, &held));
                 if !usable {
                     self.know(facts, claim, proof);
                 }
@@ -461,8 +474,7 @@ impl<'a> Elaborator<'a> {
             // scope holds otherwise, as H9's "not (C is on line AB)" is "not
             // (A is on line CB)" with its points reordered, would be found
             // before the reason and then refused for resting on H9.
-            let named = |v: &Proof| v.origin.iter().all(|o| may_rest_on(&resting, o));
-            let given = given.filtered(|_, v| unbelow(v) && named(v));
+            let given = given.filtered(|_, v| unbelow(v) && rests_within(&resting, v));
             self.named_first(r.refs(), &resting, &given);
             let written = self.written.clone();
             self.written = self.written.filtered(unbelow);
@@ -499,14 +511,20 @@ impl<'a> Elaborator<'a> {
 
     /// The facts the proof being built may rest on (`resting_on`): those
     /// whose every origin is a line it names, a requires line, or a
-    /// membership said once. All of them where nothing restricts it.
+    /// membership said once. All of them where nothing restricts it. Either
+    /// way the table is its own, so what a caller learns in it stays there.
     pub fn restable(&self, facts: &Facts) -> Facts {
         match &self.resting {
-            Some(resting) => {
-                facts.filtered(|_, v| v.origin.iter().all(|o| may_rest_on(resting, o)))
-            }
-            None => facts.clone(),
+            Some(resting) => within(facts, resting),
+            None => facts.copy(),
         }
+    }
+
+    /// Whether the proof being built may rest on `proof` (`restable`).
+    pub fn may_rest(&self, proof: &Proof) -> bool {
+        self.resting
+            .as_ref()
+            .is_none_or(|resting| rests_within(resting, proof))
     }
 
     /// Whether a `requires` line's reason is the lines it cites: `from H1`
@@ -1060,8 +1078,7 @@ impl<'a> Elaborator<'a> {
                 // `side` is where a line is discharged by what it names, so
                 // it is given `how` as well as the claim.
                 let resting = self.reason_allows(step, r);
-                let named = facts
-                    .filtered(|_, v| v.origin.iter().all(|o| may_rest_on(&resting, o)));
+                let named = within(facts, &resting);
                 self.named_first(r.refs(), &resting, &named);
                 return match self.side(&node, r, scope, &named, Some(step))? {
                     Built(made) => self.discharged_by(made, step, r),

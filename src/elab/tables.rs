@@ -18,7 +18,7 @@ use super::calculators::Revalued;
 use super::field::{self, Value};
 use super::linear;
 use super::matcher::ChainLink;
-use super::provenance::{from_requires, may_rest_on, rests_on_only, MEMBERSHIP};
+use super::provenance::{from_requires, rests_on_only, MEMBERSHIP};
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::{Facts, Lines, Written};
 use crate::binds;
@@ -1742,12 +1742,7 @@ impl<'a> Elaborator<'a> {
         known: &Facts,
     ) -> Checked<()> {
         let implied = self.implied_by_named(step, scope, known)?;
-        let restable = match &self.resting {
-            Some(resting) => {
-                known.filtered(|_, p| p.origin.iter().all(|o| may_rest_on(resting, o)))
-            }
-            None => known.copy(),
-        };
+        let restable = self.restable(known);
         for (k, v) in implied.entries() {
             if !self.holds(&restable, &k) {
                 self.know(known, k, v);
@@ -1789,10 +1784,8 @@ impl<'a> Elaborator<'a> {
             if !(from_requires(&proof) || cited) {
                 continue;
             }
-            if let Some(resting) = &self.resting {
-                if !origin.iter().all(|o| may_rest_on(resting, o)) {
-                    continue;
-                }
+            if !self.may_rest(&proof) {
+                continue;
             }
             let push = self.sig(&label).push()[0].to_string();
             let law = self.b.ap(&label, &binds! {push => said}, &[]);
