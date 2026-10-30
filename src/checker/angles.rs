@@ -19,16 +19,16 @@ use std::collections::BTreeSet;
 use indexmap::IndexMap;
 
 use crate::corpus::{define_parts, DefineParts, Intro, Record, Step, Theorem};
-use crate::formula::Sorts;
-use crate::matching::{alike_top, Context};
-use crate::outcome::Built;
-use crate::sorts::{unlabel, Env};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::Node;
+use crate::formula::Sorts;
+use crate::matching::{alike_top, Context};
 use crate::notations::{
     COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, EQUALITY, IMPLICATION, LOGICAL_NOT,
 };
+use crate::outcome::Built;
+use crate::sorts::{unlabel, Env};
 
 /// Two points a line says differ, and the step whose claim says it, where a
 /// numbered step does.
@@ -44,7 +44,10 @@ pub fn check_angle_points(report: &mut Report, thm: &Theorem, known: &Known) {
     // An angle written twice on a line is reported once.
     let mut told: Vec<(usize, Node)> = Vec::new();
     each_angle(thm, known, &mut |part, angle, said| {
-        if told.iter().any(|(l, t)| *l == part.line && known.alike(t, angle)) {
+        if told
+            .iter()
+            .any(|(l, t)| *l == part.line && known.alike(t, angle))
+        {
             return;
         }
         let same = |a: &Node, b: &Node| known.alike(a, b);
@@ -77,7 +80,8 @@ pub fn steps_relied_on(thm: &Theorem, known: &Known) -> BTreeSet<String> {
     each_angle(thm, known, &mut |_, angle, said| {
         for (a, b) in [(0, 1), (1, 2), (0, 2)] {
             let (p, q) = (&angle.children[a], &angle.children[b]);
-            let saying: Vec<&Apart> = said.iter().filter(|x| x.says(p, q, &same)).collect();
+            let saying: Vec<&Apart> =
+                said.iter().filter(|x| x.says(p, q, &same)).collect();
             if saying.iter().all(|x| x.step.is_some()) {
                 out.extend(saying.iter().filter_map(|x| x.step.clone()));
             }
@@ -183,7 +187,9 @@ pub fn check_record_angles(
                     }
                     let missing: Vec<String> = unsaid(angle, here, &same)
                         .into_iter()
-                        .map(|(p, q)| format!("{} ≠ {}", env.g.print(p), env.g.print(q)))
+                        .map(|(p, q)| {
+                            format!("{} ≠ {}", env.g.print(p), env.g.print(q))
+                        })
                         .collect();
                     if !missing.is_empty() {
                         told.push(angle.clone());
@@ -239,7 +245,8 @@ impl Apart {
     /// Whether this says `p` and `q` differ, in either order, two points
     /// being one where `same` says so.
     fn says(&self, p: &Node, q: &Node, same: &impl Fn(&Node, &Node) -> bool) -> bool {
-        (same(&self.one, p) && same(&self.other, q)) || (same(&self.one, q) && same(&self.other, p))
+        (same(&self.one, p) && same(&self.other, q))
+            || (same(&self.one, q) && same(&self.other, p))
     }
 }
 
@@ -339,7 +346,13 @@ fn governing<'t>(thm: &'t Theorem, part: &FormulaPart) -> Option<&'t Step> {
 
 /// The differences said above `line` in `step`'s scope: the claims of the
 /// steps it sees, the lines its labels name, and its own requires lines.
-fn above(thm: &Theorem, known: &Known, step: &Step, line: usize, ids: &Ids) -> Vec<Apart> {
+fn above(
+    thm: &Theorem,
+    known: &Known,
+    step: &Step,
+    line: usize,
+    ids: &Ids,
+) -> Vec<Apart> {
     let mut out = Vec::new();
     for t in &thm.steps {
         let seen = t.number == step.number || in_scope(&t.number, &step.number);

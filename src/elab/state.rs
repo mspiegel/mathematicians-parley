@@ -428,6 +428,12 @@ pub struct Elaborator<'a> {
     pub statements: &'a dyn Fn(&str) -> Option<String>,
     /// Whether the search is offered every fact in scope (`Options`).
     pub whole_scope: bool,
+    /// Every fact in scope at the step being proved, named by it or not:
+    /// what an angle said once rests on unnamed, the lines saying its
+    /// points differ (`angle_within`).
+    pub step_facts: Facts,
+    /// The scope the facts of `step_facts` are proved under.
+    pub step_scope: Rpn,
     /// Whether the route proving a defined function's type is off
     /// (`Options::map_types_off`).
     pub map_types_off: bool,
@@ -581,6 +587,8 @@ impl<'a> Elaborator<'a> {
             terms,
             statements,
             whole_scope: false,
+            step_facts: Facts::new(),
+            step_scope: Rpn::read(""),
             map_types_off: false,
             item_library: OnceCell::new(),
             library_read,

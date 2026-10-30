@@ -192,6 +192,24 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
                     {
                         Shape::Distance(p, q)
                     }
+                    // ∠PQR is | (P − Q) ang (R − Q) |.
+                    [from, to, op]
+                        if kids[0].label() == Some("co")
+                            && self.me.rpn(op).alone() == Some("cang") =>
+                    {
+                        match (from.children(), to.children()) {
+                            ([p, q, m1], [r, q2, m2])
+                                if from.label() == Some("co")
+                                    && to.label() == Some("co")
+                                    && self.me.rpn(m1).alone() == Some("cmin")
+                                    && self.me.rpn(m2).alone() == Some("cmin")
+                                    && self.me.rpn(q) == self.me.rpn(q2) =>
+                            {
+                                Shape::Angle(p, q, r)
+                            }
+                            _ => Shape::Other,
+                        }
+                    }
                     _ => Shape::Other,
                 }
             }
@@ -208,9 +226,10 @@ impl crate::citing::OnceAsk for BuildOnce<'_, '_> {
             _ if crate::methods::reals::Trig::of(term).is_some() => {
                 match crate::methods::reals::closed_value(term) {
                     Built(crate::methods::reals::Value::Exact(_)) => Shape::Real,
-                    _ => Shape::Other,
+                    _ => Shape::Applied(&kids[0]),
                 }
             }
+            _ if crate::methods::surds::applies(term, "ce") => Shape::Applied(&kids[0]),
             _ if crate::methods::reals::applies(term, "clog") => {
                 match crate::methods::field::closed_value(&kids[0]) {
                     Built(crate::methods::field::Value::Exact(v))
@@ -2080,7 +2099,9 @@ impl<'a> Elaborator<'a> {
     /// the checker reads too: a line the step names stating it; a numeral; a
     /// letter in the number system its introducing line names, carried up
     /// `WITHIN`; a sum said once; a distance between two points, in ℝ or ℂ;
-    /// or a term built from those by +, −, ·,
+    /// an angle at three points, in ℝ or ℂ, from the lines in scope saying
+    /// they differ (`angle_within`); a sine, cosine or exponential of a real
+    /// argument, in ℝ or ℂ; or a term built from those by +, −, ·,
     /// negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
     /// quotient whose divisor's `≠ 0` the step writes. What is built here is
     /// the proof of the reason it gives. A letter's membership is sealed as
@@ -2131,6 +2152,19 @@ impl<'a> Elaborator<'a> {
             }
             OnceReason::Real => self.real_within(&term, system, scope, facts),
             OnceReason::Distance => self.distance_within(&term, system, scope, facts),
+            OnceReason::Angle => self.angle_within(&term, system, scope, facts),
+            // The argument is real by the reason given, and the sine, cosine
+            // or exponential of a real number is real.
+            OnceReason::Applied(_) => {
+                let argument = self.rpn(&term.children()[0]);
+                let real = take!(self.introduced_membership(
+                    &argument,
+                    &t!("cr"),
+                    scope,
+                    facts
+                )?);
+                self.applied_within(&term, &real, system, scope)
+            }
             // A part that a line the step names puts in a number system is
             // a number there, carried up to `system`: N(n) + 1 ∈ ℝ where a
             // line says N(n) ∈ ℝ.

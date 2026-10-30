@@ -1,7 +1,6 @@
 import theorem            proofs/wiedijk/pythagoras/pythagoras
 import theorem            proofs/wiedijk/isosceles/isosceles
 import theorem            proofs/wiedijk/angle-sum/angle-sum
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/product-nonneg
@@ -51,7 +50,6 @@ theorem forty-five-forty-five-ninety
 
 10. ∠CAB = 45°
     algebra, from H5, 8, 9
-    requires ∠CBA ∈ ℝ: mun:triangle-angle-real P := C, Q := B, R := A, from H4
 
 11. |AB| = √2·|CA|. ∠CAB = 45°.
     join 7, 10

@@ -4,10 +4,8 @@ import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import mundane theorem    stdlib/reasoning/iff-not-from-right
 import definition         stdlib/geometry/triangle
 import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 
 theorem right-triangle-three-four-five
   note        The sides are read off the coordinates. The triangle is a
@@ -89,8 +87,6 @@ theorem right-triangle-three-four-five
 
 17. cos(∠BAC) = 0
     algebra, from 16
-    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from 11
-    requires cos(∠BAC) ∈ ℝ: mun:cos-real a := ∠BAC
 
 18. ∠BAC = 90°
     mun:right-angle-by-cosine, from 2, 4, 6, 17

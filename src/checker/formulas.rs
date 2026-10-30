@@ -412,7 +412,8 @@ pub(super) fn one_formula_parts(thm: &Theorem) -> Vec<FormulaPart> {
                 add(r.line, what, v);
             }
             if let Ok(Some(e)) = r.by().map(|by| by.equation.as_ref()) {
-                let what = format!("the equation the requires line of {} gives", s.called());
+                let what =
+                    format!("the equation the requires line of {} gives", s.called());
                 add(r.line, what, e);
             }
         }

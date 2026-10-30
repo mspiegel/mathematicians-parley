@@ -4,9 +4,7 @@ import mundane theorem    stdlib/numbers/exponent-step
 import definition         stdlib/numbers/i
 import mundane theorem    stdlib/numbers/i-complex
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem de-moivre
   metamath    demoivre
@@ -40,8 +38,6 @@ theorem de-moivre
                                   = 1 + i·sin(0)              2.3
                                   = cos(0) + i·sin(0)         2.2
                                   = cos(0·x) + i·sin(0·x)     substitute line 2.1
-          requires cos(x) ∈ ℝ: mun:cos-real a := x
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
 
     step
@@ -67,11 +63,7 @@ theorem de-moivre
                 = cos(k·x + x) + i·(sin(k·x)·cos(x) + cos(k·x)·sin(x))                              substitute line 2.5
                 = cos(k·x + x) + i·sin(k·x + x)                                                      substitute line 2.6
                 = cos((k + 1)·x) + i·sin((k + 1)·x)                                                  substitute line 2.7
-          requires cos(x) ∈ ℝ: mun:cos-real a := x
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires i ∈ ℂ: mun:i-complex
-          requires cos(k·x) ∈ ℝ: mun:cos-real a := k·x
-          requires sin(k·x) ∈ ℝ: mun:sin-real a := k·x
 
 3.  (cos(x) + i·sin(x))^n = cos(n·x) + i·sin(n·x)
     instantiate k := n in line 2

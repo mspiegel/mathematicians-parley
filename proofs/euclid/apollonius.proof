@@ -1,11 +1,9 @@
 import mundane theorem    stdlib/geometry/between-apart
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/trigonometry/cos-supplement
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/cos
 import axiom              stdlib/reasoning/excluded-middle
 
@@ -127,30 +125,19 @@ theorem apollonius
                   2.8.6.7.  ∠BMA + ∠AMC = 180°
                             axi:supplementary-angles A := B, B := M, D := A, from C2, C4, C6, H5
 
-                  2.8.6.8.  ∠BMA ∈ ℝ
-                            mun:angle-real P := B, Q := M, R := A, from C2, C4, 2.5
-
-                  2.8.6.9.  ∠AMC ∈ ℝ
-                            mun:angle-real P := A, Q := M, R := C, from C2, C6, 2.5
-
-                  2.8.6.10. ∠AMC = 180° − ∠BMA
+                  2.8.6.8.  ∠AMC = 180° − ∠BMA
                             algebra, from 2.8.6.7
-                            requires ∠BMA ∈ ℝ: from 2.8.6.8
-                            requires ∠AMC ∈ ℝ: from 2.8.6.9
 
-                  2.8.6.11. cos(∠AMC) = −cos(∠BMA)
+                  2.8.6.9.  cos(∠AMC) = −cos(∠BMA)
                             calculation
-                              cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.8.6.10
+                              cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.8.6.8
                                         = −cos(∠BMA)            mun:cos-supplement x := ∠BMA
-                            requires ∠BMA ∈ ℝ: from 2.8.6.8
 
-                  2.8.6.12. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
+                  2.8.6.10. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
                             substitute |MC| = |BM| (H6) into line 2.8.6.6
 
-                  2.8.6.13. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
-                            substitute cos(∠AMC) = −cos(∠BMA) (line 2.8.6.11) into line 2.8.6.12
+                  2.8.6.11. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
+                            substitute cos(∠AMC) = −cos(∠BMA) (line 2.8.6.9) into line 2.8.6.10
 
-                  2.8.6.14. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-                            algebra, from 2.8.6.5, 2.8.6.13
-                            requires ∠BMA ∈ ℝ: from 2.8.6.8
-                            requires cos(∠BMA) ∈ ℝ: mun:cos-real a := ∠BMA
+                  2.8.6.12. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+                            algebra, from 2.8.6.5, 2.8.6.11

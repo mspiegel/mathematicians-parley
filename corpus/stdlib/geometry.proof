@@ -38,9 +38,6 @@ theorem vertical-angles
 
 4.  ∠AOB = ∠COD
     algebra, from 2, 3
-    requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
-    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C, from 1
-    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from H9
 
 theorem exterior-angle-greater
   note        Euclid I.16, which needs no parallels. Let M be the midpoint of
@@ -187,8 +184,6 @@ theorem exterior-angle-greater
       ∠ECD > 0°                       37
       ∠ACE + ∠ECD > ∠ACE + 0°         adding ∠ACE
       ∠ACE + ∠ECD > ∠ACE              algebra
-    requires ∠ACE ∈ ℝ: mun:angle-real P := A, Q := C, R := E, from H5, 8, 13
-    requires ∠ECD ∈ ℝ: mun:triangle-angle-real P := E, Q := C, R := D, from 35
 
 39. ∠ACD = ∠ACE + ∠ECD
     restate 36
@@ -320,8 +315,6 @@ theorem greater-side-greater-angle
       ∠DBC > 0°                       14
       ∠ABD + ∠DBC > ∠ABD + 0°         adding ∠ABD
       ∠ABD + ∠DBC > ∠ABD              algebra
-    requires ∠ABD ∈ ℝ: mun:angle-real P := A, Q := B, R := D, from H4, 5, 15
-    requires ∠DBC ∈ ℝ: mun:angle-real P := D, Q := B, R := C, from 5
 
 17. ∠BDA > ∠BCD
     thm:exterior-angle-greater-other A := B, B := C, C := D, D := A,
@@ -436,10 +429,6 @@ theorem alternate-angles-converse
                   inequalities
                     ∠SRP > ∠RPQ       4.9.8
                     ∠SRP ≠ ∠RPQ       weakening
-                  requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P,
-                    from H5, 2
-                  requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q,
-                    from H5
 
           case
           assume X and Q are on opposite sides of line RP             (C2)
@@ -482,15 +471,9 @@ theorem alternate-angles-converse
                     ∠RPQ > ∠SRP       4.9.17
                     ∠SRP < ∠RPQ       restate
                     ∠SRP ≠ ∠RPQ       weakening
-                  requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P,
-                    from H5, 2
-                  requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q,
-                    from H5
 
     4.10. ∠SRP ≠ ∠RPQ
           inequalities, from 4.9, contradicting H7
-          requires ∠SRP ∈ ℝ: mun:angle-real P := S, Q := R, R := P, from H5, 2
-          requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from H5
 
 5.  line RS = line PQ or not (there is X ∈ 𝔼² with X is on line RS and
     X is on line PQ)
@@ -529,7 +512,6 @@ theorem alternate-angles
 5.  T ∈ 𝔼². T and S are on the same side of line RP. ∠PRT = ∠RPQ.
     obtain T: axi:angle-construction A := R, B := P, C := S, x := ∠RPQ,
       from 3, 4
-    requires ∠RPQ ∈ ℝ: mun:triangle-angle-real, from H5
 
 6.  T and Q are on opposite sides of line RP
     mun:same-opposite-opposite A := R, B := P, P := T, Q := S, R := Q,
@@ -603,65 +585,57 @@ theorem angles-on-a-line
 4.  Q, R, S form a triangle.
     mun:triangle-off-line P := Q, Q := R, R := S, from 1
 
-5.  Q, R, T form a triangle.
-    mun:triangle-extension P := Q, Q := R, R := S, S := T, from H6, 4
-
-6.  ∠SRQ + ∠QRT = 180°
+5.  ∠SRQ + ∠QRT = 180°
     axi:supplementary-angles A := S, B := R, C := T, D := Q, from H6, H9, 3
 
-7.  X ∈ 𝔼². X is on line RP. X is between S and Q.
+6.  X ∈ 𝔼². X is on line RP. X is between S and Q.
     obtain X: axi:plane-separation-crossing A := R, B := P, P := S,
       from H8, 2
 
-8.  S is on line RS
+7.  S is on line RS
     mun:on-line-ends A := R, B := S
 
-9.  X is between Q and S
-    mun:between-symmetric R := X, T := Q, from 7
+8.  X is between Q and S
+    mun:between-symmetric R := X, T := Q, from 6
 
-10. X and Q are on the same side of line RS
-    mun:segment-off-line A := R, B := S, P := Q, Q := S, from 1, 8, 9
+9.  X and Q are on the same side of line RS
+    mun:segment-off-line A := R, B := S, P := Q, Q := S, from 1, 7, 8
 
-11. Q and P are on the same side of line RS
+10. Q and P are on the same side of line RS
     mun:same-side-turned A := R, B := S, from H7
 
-12. X and P are on the same side of line RS
-    mun:same-side-same A := R, B := S, P := X, R := P, from 10, 11
+11. X and P are on the same side of line RS
+    mun:same-side-same A := R, B := S, P := X, R := P, from 9, 10
 
-13. not (P is on line RQ)
+12. not (P is on line RQ)
     mun:off-line-swap, from 2
 
-14. X and P are on the same side of line RQ
-    mun:ray-side-transfer, from 7, 12, 13
+13. X and P are on the same side of line RQ
+    mun:ray-side-transfer, from 6, 11, 12
 
-15. Q is on line RQ
+14. Q is on line RQ
     mun:on-line-ends A := R, B := Q
 
-16. not (S is on line RQ)
+15. not (S is on line RQ)
     mun:off-line-swap P := S, from 1
 
-17. X and S are on the same side of line RQ
-    mun:segment-off-line A := R, B := Q, P := S, from 3, 7, 15, 16
+16. X and S are on the same side of line RQ
+    mun:segment-off-line A := R, B := Q, P := S, from 3, 6, 14, 15
 
-18. P and X are on the same side of line RQ
-    mun:same-side-turned A := R, B := Q, P := X, Q := P, from 14
+17. P and X are on the same side of line RQ
+    mun:same-side-turned A := R, B := Q, P := X, Q := P, from 13
 
-19. P and S are on the same side of line RQ
-    mun:same-side-same A := R, B := Q, Q := X, R := S, from 17, 18
+18. P and S are on the same side of line RQ
+    mun:same-side-same A := R, B := Q, Q := X, R := S, from 16, 17
 
-20. ∠SRP + ∠PRQ = ∠SRQ
-    axi:angle-addition-inside A := R, B := S, C := Q, D := P, from H7, 4, 19
+19. ∠SRP + ∠PRQ = ∠SRQ
+    axi:angle-addition-inside A := R, B := S, C := Q, D := P, from H7, 4, 18
 
-21. ∠TRQ = ∠QRT
+20. ∠TRQ = ∠QRT
     mun:angle-turned P := T, Q := R, R := Q, from H9
 
-22. ∠SRP + ∠PRQ + ∠TRQ = 180°
-    algebra, from 6, 20, 21
-    requires S, R, P form a triangle: mun:triangle-off-line P := S, Q := R, R := P, from 2
-    requires P, R, Q form a triangle: mun:triangle-off-line Q := R, R := Q, from 3, 13
-    requires ∠SRP ∈ ℝ: mun:triangle-angle-real P := S, Q := R, R := P
-    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real Q := R, R := Q
-    requires ∠QRT ∈ ℝ: mun:triangle-angle-real P := Q, Q := R, R := T, from 5
+21. ∠SRP + ∠PRQ + ∠TRQ = 180°
+    algebra, from 5, 19, 20
 
 theorem parallel-through
   note        The line through R parallel to PQ, with a point on it each side
@@ -703,7 +677,6 @@ theorem parallel-through
 9.  D ∈ 𝔼². D and Q′ are on the same side of line RP. ∠PRD = ∠RPQ.
     obtain D: axi:angle-construction A := R, B := P, C := Q′, x := ∠RPQ,
       from 7, 8
-    requires ∠RPQ ∈ ℝ: mun:triangle-angle-real, from H4
 
 10. Q′ and Q are on opposite sides of line RP
     mun:opposite-sides-turned A := R, B := P, P := Q, Q := Q′, from 5
@@ -928,13 +901,9 @@ theorem greater-angle-greater-side
             ∠ACB > ∠ABC       2.2
             ∠ABC < ∠ACB       restate
             ∠ABC ≤ ∠ACB       weakening
-          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
-          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
 
     2.4.  not (∠ABC > ∠ACB)
           inequalities, from 2.3, contradicting H5
-          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
-          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
 
     case
     assume |AC| − |AB| = 0                                            (C2)
@@ -949,12 +918,9 @@ theorem greater-angle-greater-side
           inequalities
             ∠ABC = ∠ACB       2.6
             ∠ABC ≤ ∠ACB       weakening
-          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
 
     2.8.  not (∠ABC > ∠ACB)
           inequalities, from 2.7, contradicting H5
-          requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
-          requires ∠ACB ∈ ℝ: mun:triangle-angle-real, from H4
 
     case
     assume 0 < |AC| − |AB|                                            (C3)
@@ -1018,8 +984,6 @@ theorem triangle-inequality-strict
       ∠PRQ > 0°                       12
       ∠QRD + ∠PRQ > ∠QRD + 0°         adding ∠QRD
       ∠PRQ + ∠QRD > ∠QRD              algebra
-    requires ∠PRQ ∈ ℝ: mun:triangle-angle-real, from H4
-    requires ∠QRD ∈ ℝ: mun:triangle-angle-real, from 4
 
 14. ∠PRD = ∠PRQ + ∠QRD
     restate 11
@@ -1283,7 +1247,6 @@ theorem chord-midpoint-right-angle
 
 13. ∠OMB = 90°
     algebra, from 10, 11, 12
-    requires ∠OMB ∈ ℝ: mun:triangle-angle-real P := O, Q := M, R := B, from 8
 
 theorem perpendicular-foot
   note        Euclid I.12, the perpendicular from P to the line QR. Copy the
@@ -1326,7 +1289,6 @@ theorem perpendicular-foot
 9.  D ∈ 𝔼². D and X are on the same side of line QR and ∠RQD = ∠RQP.
     obtain D: axi:angle-construction A := Q, B := R, C := X, x := ∠RQP,
       from 7, 8
-    requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from H4
 
 10. Q ≠ R. not (D is on line QR). not (X is on line QR).
     mun:same-side-off-line A := Q, B := R, P := D, Q := X, from 9
@@ -1458,9 +1420,6 @@ theorem perpendicular-foot
 
           28.2.12. ∠HQP = ∠HQP′
                    algebra, from 14, 22, 26, 28.2.10, 28.2.11
-                   requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from H4, K1, 20
-                   requires ∠HQP′ ∈ ℝ: mun:angle-real P := H, R := P′, from K1, 23, 25
-                   requires ∠RQP′ ∈ ℝ: mun:angle-real P := R, R := P′, from H4, 23, 24
 
     28.3. ∠PQH = ∠P′QH
           calculation
@@ -1496,7 +1455,6 @@ theorem perpendicular-foot
 
     28.12. ∠PHQ = 90°
            algebra, from 28.9, 28.10, 28.11
-           requires ∠PHQ ∈ ℝ: mun:angle-real Q := H, R := Q, from H4, K1, 20
 
 29. If H ≠ R then ∠PHR = 90°.
     proof
@@ -1520,7 +1478,6 @@ theorem perpendicular-foot
 
           29.2.3. ∠PQR = 90°
                   algebra, from 14, 22, 29.2.2
-                  requires ∠PQR ∈ ℝ: mun:angle-real, from H4
 
           29.2.4. ∠PHR = 90°
                   substitute H = Q (C6) into line 29.2.3
@@ -1593,7 +1550,6 @@ theorem altitude-foot
     substitute
       ∠PRY > ∠QPR      6
       90° > ∠QPR       algebra, from H5, 4, 5
-    requires ∠PRY ∈ ℝ: mun:triangle-angle-real Q := R, R := Y, from 3
 
 8.  90° > ∠RPQ
     substitute
@@ -1619,7 +1575,6 @@ theorem altitude-foot
     substitute
       ∠QRZ > ∠PQR      13
       90° > ∠PQR       algebra, from H5, 12
-    requires ∠QRZ ∈ ℝ: mun:triangle-angle-real P := Q, Q := R, R := Z, from 11
 
 15. 90° > ∠RQP
     substitute
@@ -1710,13 +1665,11 @@ theorem altitude-foot
 
     18.15. ∠RQP > ∠RQP
            transitivity, from 18.14, 15
-           requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from H4
 
     18.16. 0 > 0, which is impossible
            inequalities
              ∠RQP > ∠RQP     18.15
              0 > 0           adding −∠RQP
-           requires ∠RQP ∈ ℝ: mun:angle-real P := R, R := P, from H4
 
     case
     assume P is between D and Q                                       (C5)
@@ -1741,13 +1694,11 @@ theorem altitude-foot
 
     18.22. ∠RPQ > ∠RPQ
            transitivity, from 18.21, 8
-           requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from H4
 
     18.23. 0 > 0, which is impossible
            inequalities
              ∠RPQ > ∠RPQ     18.22
              0 > 0           adding −∠RPQ
-           requires ∠RPQ ∈ ℝ: mun:angle-real P := R, Q := P, R := Q, from H4
 
 19. P ≠ D. Q ≠ D.
     mun:between-apart R := D, S := P, T := Q, from 18
@@ -2274,7 +2225,6 @@ theorem power-of-a-point
 
     8.8.  ∠OMA = 90°
           algebra, from 8.5, 8.6, 8.7
-          requires ∠OMA ∈ ℝ: mun:angle-real P := O, Q := M, R := A, from C2, 4, 8.3
 
     8.9.  O, M, A form a triangle.
           mun:right-angle-triangle P := O, Q := M, R := A, from C2, 4, 8.3, 8.8
@@ -2839,13 +2789,9 @@ theorem angle-angle-side
                    inequalities
                      ∠FGE > ∠FDE       11.2.6
                      ∠FGE ≠ ∠FDE       weakening
-                   requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
-                     from H8, 4
-                   requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
-                     from H8
 
           case
-          assume G = D                                                (C3)
+          assume G = D                                               (C3)
 
           11.2.8.  G ≠ D
                    restate S1, contradicting C3
@@ -2880,10 +2826,6 @@ theorem angle-angle-side
                      ∠FDE > ∠FGE       11.2.13
                      ∠FGE < ∠FDE       restate
                      ∠FGE ≠ ∠FDE       weakening
-                   requires ∠FGE ∈ ℝ: mun:angle-real P := F, Q := G, R := E,
-                     from H8, 4
-                   requires ∠FDE ∈ ℝ: mun:angle-real P := F, Q := D, R := E,
-                     from H8
 
           case
           assume E is between G and D                                 (C5)
@@ -3121,8 +3063,6 @@ theorem kite-angles
 
     10.16. ∠EDF = ∠EGF
            algebra, from 10.10, 10.11, 10.12, 10.13, 10.14, 10.15
-           requires ∠EGX ∈ ℝ: mun:angle-real P := E, Q := G, R := X, from 3, 4, 10.5
-           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 3, 4, 10.5
 
     case
     assume X = F                                                      (C3)
@@ -3189,9 +3129,6 @@ theorem kite-angles
 
     10.35. ∠EDF = ∠EGF
            algebra, from 10.27, 10.28, 10.33, 10.34
-           requires ∠FGX ∈ ℝ: mun:angle-real P := F, Q := G, R := X, from 3, 4, 10.22
-           requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from H5
-           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from H5, 3
 
     case
     assume E is between X and F                                       (C5)
@@ -3257,9 +3194,6 @@ theorem kite-angles
     10.54. ∠EDF = ∠EGF
            algebra, from 10.42, 10.43, 10.48, 10.49, 10.50, 10.51, 10.52,
              10.53
-           requires ∠XGE ∈ ℝ: mun:angle-real P := X, Q := G, R := E, from 3, 4, 10.36
-           requires ∠EDF ∈ ℝ: mun:angle-real P := E, Q := D, R := F, from H5
-           requires ∠EGF ∈ ℝ: mun:angle-real P := E, Q := G, R := F, from H5, 3
 
 theorem side-side-side
   note        Euclid I.8, by SMSG's way. Copy the angle at B to E on the other
@@ -3309,7 +3243,6 @@ theorem side-side-side
 9.  G′ ∈ 𝔼². G′ and H are on the same side of line EF. ∠FEG′ = ∠ABC.
     obtain G′: axi:angle-construction A := E, B := F, C := H, x := ∠ABC,
       from 7, 8
-    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H7
 
 10. not (G′ is on line EF)
     mun:same-side-off-line A := E, B := F, P := G′, Q := H, from 9
@@ -3478,7 +3411,6 @@ mundane theorem right-angle-along
 
     4.6.  ∠PHT = 90°
           algebra, from H7, 2, 4.5
-          requires ∠THP ∈ ℝ: mun:angle-real P := T, Q := H, R := P, from H11
 
 mundane theorem height-area
   note        The area postulate with the height read off a right angle at its
@@ -3982,7 +3914,6 @@ theorem parallel-equidistant
             = 90°        H9
             = ∠HKZ       algebra, from H8, 74, 75, 76, 77, 78
      requires Z ≠ H: mun:between-ends-apart R := M, S := H, T := Z, from 11
-     requires ∠ZKH ∈ ℝ: mun:angle-real P := Z, Q := K, R := H, from 1, 62
 
 80.  B, H, K form a triangle.
      mun:triangle-off-line P := B, Q := H, R := K, from 1

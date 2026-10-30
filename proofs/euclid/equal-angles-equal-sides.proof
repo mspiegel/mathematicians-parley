@@ -1,10 +1,8 @@
 import theorem            stdlib/geometry/law-of-sines
 import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import definition         stdlib/trigonometry/sin
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem equal-angles-equal-sides
   note        Euclid I.6. The law of sines gives |CA|·sin ∠CAB = |CB|·sin ∠ABC;
@@ -31,6 +29,4 @@ theorem equal-angles-equal-sides
 
 4.  |CA| = |CB|
     mun:multiply-cancel a := |CA|, b := |CB|, c := sin(∠CAB), from 2
-    requires ∠CAB ∈ ℝ: mun:triangle-angle-real P := C, Q := A, R := B, from H4
-    requires sin(∠CAB) ∈ ℝ: mun:sin-real a := ∠CAB
     requires sin(∠CAB) ≠ 0: weakening, from 3

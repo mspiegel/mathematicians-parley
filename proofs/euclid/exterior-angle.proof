@@ -1,7 +1,6 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/triangle-angle-real
 
 theorem exterior-angle
   note        Euclid I.32. The exterior angle ∠ABD and the interior angle at
@@ -26,7 +25,3 @@ theorem exterior-angle
 
 4.  ∠ABD = ∠BAC + ∠BCA
     algebra, from 1, 2, 3
-    requires ∠ABD ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := D, from H7
-    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H5
-    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H5
-    requires ∠BCA ∈ ℝ: mun:triangle-angle-real, from H5

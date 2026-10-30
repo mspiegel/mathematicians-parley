@@ -1,8 +1,6 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/angle-equal-by-cosine
-import mundane theorem    stdlib/geometry/angle-real
 import axiom              stdlib/geometry/distance-positive
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
 import definition         stdlib/trigonometry/cos
@@ -43,38 +41,24 @@ theorem angle-from-sides
       |RP|² = |PQ|² + |Q′R′|² − 2·(|PQ|·|Q′R′|·cos(∠P′Q′R′))            substitute H11
       |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))                substitute H12
 
-4.  ∠PQR ∈ ℝ
-    mun:angle-real, from H7, H8, H14
-
-5.  ∠P′Q′R′ ∈ ℝ
-    mun:angle-real P := P′, Q := Q′, R := R′, from H9, H10, H15
-
-6.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
+4.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
     algebra, from 1, 3
-    requires ∠PQR ∈ ℝ: from 4
-    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
-    requires ∠P′Q′R′ ∈ ℝ: from 5
-    requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
 
-7.  |PQ| > 0
+5.  |PQ| > 0
     axi:distance-positive, from H7
 
-8.  |QR| > 0
+6.  |QR| > 0
     axi:distance-positive P := Q, Q := R, from H8
 
-9.  |PQ|·|QR| > 0
-    mun:product-positive x := |PQ|, y := |QR|, from 7, 8
+7.  |PQ|·|QR| > 0
+    mun:product-positive x := |PQ|, y := |QR|, from 5, 6
 
-10. cos(∠PQR) = cos(∠P′Q′R′)
-    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 6
-    requires |PQ|·|QR| ≠ 0: weakening, from 9
-    requires ∠PQR ∈ ℝ: from 4
-    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR
-    requires ∠P′Q′R′ ∈ ℝ: from 5
-    requires cos(∠P′Q′R′) ∈ ℝ: mun:cos-real a := ∠P′Q′R′
+8.  cos(∠PQR) = cos(∠P′Q′R′)
+    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 4
+    requires |PQ|·|QR| ≠ 0: weakening, from 7
 
-11. ∠PQR = ∠P′Q′R′
-    mun:angle-equal-by-cosine, from H7, H8, H9, H10, H14, H15, 10
+9.  ∠PQR = ∠P′Q′R′
+    mun:angle-equal-by-cosine, from H7, H8, H9, H10, H14, H15, 8
 
 theorem sss
   note        Euclid I.8, as the library proves it from the postulates

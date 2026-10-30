@@ -1283,7 +1283,12 @@ fn check_let_requires(
 /// The checks a requires line's reason answers to that `link_passes` does
 /// not run: what a cited item asks for (`citations::check_requires`), and
 /// each method a requires line may name.
-fn requires_passes(report: &mut Report, c: &Checking<'_>, thm: &Theorem, k: &Known<'_>) {
+fn requires_passes(
+    report: &mut Report,
+    c: &Checking<'_>,
+    thm: &Theorem,
+    k: &Known<'_>,
+) {
     let targets = &c.library.targets;
     citations::check_requires(report, thm, c.library, k);
     formulas::check_arithmetic_holds(report, thm, k, targets);

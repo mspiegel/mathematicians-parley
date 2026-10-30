@@ -1,8 +1,9 @@
 //! A membership in a number system that the page says once, where a letter
 //! is introduced, and no step writes again (`READERS.md`, membership said
 //! once): a numeral, a letter in the set its introducing line names and the
-//! number systems containing that one, a distance between two points in ℝ
-//! and ℂ, and a term built from those by +, −,
+//! number systems containing that one, a distance between two points and an
+//! angle at three in ℝ and ℂ, a sine, cosine or exponential of a real
+//! argument in ℝ and ℂ, and a term built from those by +, −,
 //! ·, negation, a power to a numeral or to a letter in ℕ or ℕ₀, and a
 //! quotient whose divisor a fact says is not zero.
 //!
@@ -441,6 +442,13 @@ pub enum OnceReason {
     /// The distance |PQ| between two points introduced as points, which is
     /// in ℝ and ℂ.
     Distance,
+    /// The angle ∠PQR at three letters introduced as points, which is in ℝ
+    /// and ℂ: an angle is written only where its points are said to differ
+    /// (`SYNTAX.md`, Formulas), and those lines say what makes it a number.
+    Angle,
+    /// A sine, cosine or exponential of an argument in ℝ for the reason
+    /// given, which is in ℝ and ℂ.
+    Applied(Box<OnceReason>),
     /// The term's operation applied to parts each in the system, the
     /// reasons given in the order the term writes its parts; a power's
     /// exponent is no part, being a numeral or a letter in ℕ or ℕ₀, and a
@@ -500,6 +508,12 @@ pub enum Shape<'t, T> {
     Real,
     /// The distance |PQ| from the first point to the second.
     Distance(&'t T, &'t T),
+    /// The angle ∠PQR, its points in the order written: P, the vertex Q,
+    /// and R.
+    Angle(&'t T, &'t T, &'t T),
+    /// The library's sine, cosine or exponential of this argument, where
+    /// `real arithmetic` does not work it out whole.
+    Applied(&'t T),
     /// Anything the walk does not take apart.
     Other,
 }
@@ -525,8 +539,9 @@ pub trait OnceAsk {
 
 /// Why the page says once that `term` is in `system` (`READERS.md`,
 /// membership said once): what a line says of it, a numeral, a letter in
-/// the system its introducing line names or one inside it, a distance
-/// between two letters introduced as points in ℝ or ℂ, or +, −, ·,
+/// the system its introducing line names or one inside it, a distance or
+/// an angle between letters introduced as points in ℝ or ℂ, a sine, cosine
+/// or exponential of a real argument in ℝ or ℂ, or +, −, ·,
 /// negation, a power to a numeral or to a letter in ℕ or ℕ₀, a quotient
 /// whose divisor is not zero, and x° in ℝ or ℂ, of parts that are; None
 /// where it is not.
@@ -589,6 +604,17 @@ pub fn reason<A: OnceAsk>(
         Shape::Distance(p, q) => {
             (matches!(system, System::R | System::C) && ask.point(p) && ask.point(q))
                 .then_some(OnceReason::Distance)
+        }
+        Shape::Angle(p, q, r) => (matches!(system, System::R | System::C)
+            && ask.point(p)
+            && ask.point(q)
+            && ask.point(r))
+        .then_some(OnceReason::Angle),
+        Shape::Applied(a) => {
+            if !matches!(system, System::R | System::C) {
+                return None;
+            }
+            Some(OnceReason::Applied(Box::new(reason(ask, a, System::R)?)))
         }
         Shape::Other => None,
     }
@@ -728,6 +754,14 @@ impl OnceAsk for PageOnce<'_> {
             {
                 Shape::Real
             }
+            (APPLICATION, _, [head, a])
+                if head.is_name()
+                    && matches!(head.text.as_str(), "sin" | "cos" | "exp")
+                    && !self.letters.contains_key(head.text.as_str()) =>
+            {
+                Shape::Applied(a)
+            }
+            (n, _, [p, q, r]) if n == NotationId::of("angle") => Shape::Angle(p, q, r),
             _ => Shape::Other,
         }
     }

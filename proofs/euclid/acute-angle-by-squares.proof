@@ -3,7 +3,6 @@ import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-at-most-straight
 import axiom              stdlib/geometry/distance-positive
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/trigonometry/cos-decreasing
 import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/numbers/product-positive
@@ -63,14 +62,12 @@ theorem acute-angle-by-squares
 
     10.3.  0 < |AC|·|BC|·cos(∠ACB)
            mun:product-positive x := |AC|·|BC|, y := cos(∠ACB), from 4, 10.2
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 5
 
     10.4.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
            inequalities
              0 < |AC|·|BC|·cos(∠ACB)                                 10.3
              0 < 2·(|AC|·|BC|·cos(∠ACB))                             multiplying by 2
              |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   adding |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 5
 
     10.5.  |AB|² < |AC|² + |BC|²
            calculation
@@ -92,13 +89,11 @@ theorem acute-angle-by-squares
              |AC|·|BC|·cos(∠ACB) > 0                                multiplying by −1/2
              0 < |AC|·|BC|·cos(∠ACB)                                restate
              |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)                      algebra
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 5
 
     10.8.  cos(90°) < cos(∠ACB)
            calculation
              cos(90°) = 0                 real arithmetic
                       < cos(∠ACB)         mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 4, 10.7
-           requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB, from 5
 
     10.9.  ∠ACB < 90°
            mun:cos-decreasing a := ∠ACB, b := 90°, from 8, 9, 10.8

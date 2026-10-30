@@ -25,10 +25,10 @@ use std::rc::Rc;
 
 use indexmap::{IndexMap, IndexSet};
 
+use crate::corpus::define::{KindSaid, SlotKind, Thing};
 use crate::corpus::{
     define_parts, DefineParts, Intro, Method, Record, Requires, Step, Theorem,
 };
-use crate::corpus::define::{KindSaid, SlotKind, Thing};
 use crate::formula::notation_id::NotationId;
 use crate::formula::page::Written;
 use crate::formula::{Node, Sort, Sorts, Whole};
@@ -1238,17 +1238,25 @@ fn written_with_variables(
         SortTerm::Atom(Atom::Point) => "point".to_string(),
         SortTerm::Atom(Atom::Formula) => "formula".to_string(),
         SortTerm::Atom(Atom::GroupElement) => "group-element".to_string(),
-        SortTerm::Set(c) => format!("set of {}", written_with_variables(store, &c, named)),
+        SortTerm::Set(c) => {
+            format!("set of {}", written_with_variables(store, &c, named))
+        }
         SortTerm::Property(c) => {
             format!("property of {}", written_with_variables(store, &c, named))
         }
         SortTerm::Function(a, b) => {
             let a = written_with_variables(store, &a, named);
-            format!("function from {a} to {}", written_with_variables(store, &b, named))
+            format!(
+                "function from {a} to {}",
+                written_with_variables(store, &b, named)
+            )
         }
         SortTerm::Pair(a, b) => {
             let a = written_with_variables(store, &a, named);
-            format!("pair of {a} and {}", written_with_variables(store, &b, named))
+            format!(
+                "pair of {a} and {}",
+                written_with_variables(store, &b, named)
+            )
         }
     }
 }

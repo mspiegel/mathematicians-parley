@@ -1,8 +1,6 @@
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
-import mundane theorem    stdlib/trigonometry/sin-real
 import mundane theorem    stdlib/numbers/square-less
 import mundane theorem    stdlib/numbers/square-nonneg
 
@@ -15,25 +13,19 @@ theorem sine-is-bounded
 
 2.  cos(x)² ≥ 0
     mun:square-nonneg x := cos(x)
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 3.  −cos(x)² ≤ 0
     inequalities
       cos(x)² ≥ 0         2
       −cos(x)² ≤ 0        multiplying by −1
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 4.  sin(x)² + cos(x)² ≤ 1
     inequalities
       sin(x)² + cos(x)² = 1       1
       sin(x)² + cos(x)² ≤ 1       weakening
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 5.  sin(x)² ≤ 1
     inequalities, from 3, 4
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 6.  sin(x) ≤ 1
     contradiction
@@ -41,21 +33,17 @@ theorem sine-is-bounded
 
     6.1.  sin(x) > 1
           inequalities, from S1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     6.2.  sin(x) > 0
           inequalities, from 6.1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     6.3.  1² < sin(x)²
           mun:square-less x := 1, y := sin(x), from 6.1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires 1 ≥ 0: arithmetic
           requires sin(x) ≥ 0: weakening, from 6.2
 
     6.4.  not sin(x)² ≤ 1
           inequalities, from 6.3, contradicting 5
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
 7.  −1 ≤ sin(x)
     contradiction
@@ -63,35 +51,28 @@ theorem sine-is-bounded
 
     7.1.  sin(x) < −1
           inequalities, from S2
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     7.2.  −sin(x) > 1
           inequalities
             sin(x) < −1       7.1
             −sin(x) > 1       multiplying by −1
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     7.3.  −sin(x) > 0
           inequalities, from 7.2
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     7.4.  1² < (−sin(x))²
           mun:square-less x := 1, y := −sin(x), from 7.2
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
           requires 1 ≥ 0: arithmetic
           requires −sin(x) ≥ 0: weakening, from 7.3
 
     7.5.  (−sin(x))² = sin(x)²
           algebra
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     7.6.  1² < sin(x)²
           transitivity, from 7.4, 7.5
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
     7.7.  not sin(x)² ≤ 1
           inequalities, from 7.6, contradicting 5
-          requires sin(x) ∈ ℝ: mun:sin-real a := x
 
 8.  −1 ≤ sin(x) and sin(x) ≤ 1
     join 6, 7

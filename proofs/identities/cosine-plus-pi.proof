@@ -1,8 +1,6 @@
 import theorem            stdlib/trigonometry/cos-add
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem cosine-plus-pi
   let x ∈ ℝ                                                           (H1)
@@ -14,5 +12,3 @@ theorem cosine-plus-pi
                  = cos(x)·(−1) − sin(x)·sin(π)        real arithmetic
                  = cos(x)·(−1) − sin(x)·0             real arithmetic
                  = −cos(x)                            algebra
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x

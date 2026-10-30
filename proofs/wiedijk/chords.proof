@@ -1,6 +1,5 @@
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/between-apart
 import mundane theorem    stdlib/geometry/between-ends-apart
 import mundane theorem    stdlib/geometry/circle-centre-apart
@@ -8,7 +7,6 @@ import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/numbers/multiply-cancel
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import axiom              stdlib/reasoning/excluded-middle
 
@@ -71,55 +69,45 @@ theorem power-of-a-point
     2.10. ∠APO + ∠OPB = 180°
           axi:supplementary-angles B := P, C := B, D := O, from C2, H5, 2.6, 2.7
 
-    2.11. ∠APO ∈ ℝ
-          mun:angle-real P := A, Q := P, R := O, from C2, 2.5, 2.6
-
-    2.12. ∠OPB ∈ ℝ
-          mun:angle-real P := O, Q := P, R := B, from C2, 2.5, 2.7
-
-    2.13. ∠OPB = 180° − ∠APO
+    2.11. ∠OPB = 180° − ∠APO
           algebra, from 2.10
-          requires ∠APO ∈ ℝ: from 2.11
-          requires ∠OPB ∈ ℝ: from 2.12
 
-    2.14. cos(∠OPB) = −cos(∠APO)
+    2.12. cos(∠OPB) = −cos(∠APO)
           calculation
-            cos(∠OPB) = cos(180° − ∠APO)      substitute line 2.13
+            cos(∠OPB) = cos(180° − ∠APO)      substitute line 2.11
                       = −cos(∠APO)            mun:cos-supplement x := ∠APO
-          requires ∠APO ∈ ℝ: from 2.11
 
-    2.15. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
+    2.13. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·cos(∠OPB))
           substitute |BO| = |AO| (H6) into line 2.9
 
-    2.16. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
-          substitute cos(∠OPB) = −cos(∠APO) (line 2.14) into line 2.15
+    2.14. |AO|² = |PO|² + |PB|² − 2·(|PO|·|PB|·−cos(∠APO))
+          substitute cos(∠OPB) = −cos(∠APO) (line 2.12) into line 2.13
 
-    2.17. |PA| > 0
+    2.15. |PA| > 0
           axi:distance-positive Q := A, from 2.5
 
-    2.18. |PB| > 0
+    2.16. |PB| > 0
           axi:distance-positive Q := B, from 2.5
 
-    2.19. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
+    2.17. (|PA|² + |PO|² − |AO|²)/|PA| = (|AO|² − |PO|² − |PB|²)/|PB|
           calculation
             (|PA|² + |PO|² − |AO|²)/|PA| = 2·(|PO|·cos(∠APO))              algebra, from 2.8
-                                         = (|AO|² − |PO|² − |PB|²)/|PB|    algebra, from 2.16
-          requires cos(∠APO) ∈ ℝ: mun:cos-real a := ∠APO, from 2.11
-          requires |PA| ≠ 0: weakening, from 2.17
-          requires |PB| ≠ 0: weakening, from 2.18
+                                         = (|AO|² − |PO|² − |PB|²)/|PB|    algebra, from 2.14
+          requires |PA| ≠ 0: weakening, from 2.15
+          requires |PB| ≠ 0: weakening, from 2.16
 
-    2.20. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
-          algebra, from 2.19
-          requires |PA| ≠ 0: weakening, from 2.17
-          requires |PB| ≠ 0: weakening, from 2.18
+    2.18. |PA|·|PB|·(|PA| + |PB|) = (|AO|² − |PO|²)·(|PA| + |PB|)
+          algebra, from 2.17
+          requires |PA| ≠ 0: weakening, from 2.15
+          requires |PB| ≠ 0: weakening, from 2.16
 
-    2.21. |PA| + |PB| > 0
-          inequalities, from 2.17, 2.18
+    2.19. |PA| + |PB| > 0
+          inequalities, from 2.15, 2.16
 
-    2.22. |PA|·|PB| = |AO|² − |PO|²
+    2.20. |PA|·|PB| = |AO|² − |PO|²
           mun:multiply-cancel a := |PA|·|PB|, b := |AO|² − |PO|², c := |PA| + |PB|,
-            from 2.20
-          requires |PA| + |PB| ≠ 0: weakening, from 2.21
+            from 2.18
+          requires |PA| + |PB| ≠ 0: weakening, from 2.19
 
 theorem intersecting-chords
   metamath    chordthm

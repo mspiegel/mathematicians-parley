@@ -400,7 +400,8 @@ pub fn fits(hole: &str, sort: &Sort) -> bool {
     // A set whose members' sort is not yet settled may be a set of sets, as
     // `let G be a set` is until a line says what G holds; the sorts settle
     // it from what the hole wants.
-    let members_open = matches!(sort.full(), Some(Whole::Set(held)) if **held == Whole::Open);
+    let members_open =
+        matches!(sort.full(), Some(Whole::Set(held)) if **held == Whole::Open);
     if hole == "set-of-sets" && members_open {
         return true;
     }

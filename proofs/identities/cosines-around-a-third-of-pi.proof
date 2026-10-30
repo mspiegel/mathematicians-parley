@@ -1,10 +1,8 @@
 import theorem            stdlib/trigonometry/cos-add
 import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-negative
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-negative
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem cosines-around-a-third-of-pi
   let x ∈ ℝ                                                           (H1)
@@ -35,5 +33,3 @@ theorem cosines-around-a-third-of-pi
         = 2·cos(π/3)·cos(x)                                                                                                                                             algebra
         = 2·(1/2)·cos(x)                                                                                                                                                real arithmetic
         = cos(x)                                                                                                                                                        algebra
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x

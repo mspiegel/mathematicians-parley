@@ -30,7 +30,7 @@ use super::calculators::{Ordered, Revalued, Vanishing, Work};
 use super::field::{self, numeral, Monomial, Poly, Q};
 use super::numerals;
 use super::provenance::MEMBERSHIP;
-use super::state::Elaborator;
+use super::state::{fit, names_of, Binding, Elaborator};
 use super::Facts;
 use crate::binds;
 use crate::corpus::{fmt, Step};
@@ -43,6 +43,24 @@ use crate::mm::Rpn;
 use crate::outcome::{Built, Checked, Declined, Problem, Route};
 use crate::rules;
 use crate::{t, take};
+
+/// The lemmas that read a difference of two points out of a line that says
+/// it inside something more (`apart_in_scope`): a betweenness says its
+/// three points differ, a side of a line says the line's two points differ
+/// and each point on that side is off the line, and a point off a line is
+/// neither of its two points.
+const APART_LEMMAS: [&str; 10] = [
+    "gbetne0",
+    "gbetends",
+    "gsameoffab",
+    "gsameoffp",
+    "gsameoffq",
+    "goppoffab",
+    "goppoffp",
+    "goppoffq",
+    "goffapart1",
+    "goffapart2",
+];
 
 /// A term proved equal to the canon of its value: ( scope -> term = canon ).
 struct Valued {
@@ -314,6 +332,365 @@ impl<'a> Elaborator<'a> {
                 &[&real],
             ))),
             _ => Ok(Route::no("said once only in ℝ and ℂ")),
+        }
+    }
+
+    /// ( scope -> ∠PQR e. system ) for an angle at three points, in ℝ or ℂ:
+    /// its membership said once (`READERS.md`). An angle is written only
+    /// where its points are said to differ (`SYNTAX.md`, Formulas), so
+    /// P ≠ Q and R ≠ Q are lines in scope or follow from one
+    /// (`apart_in_scope`), and `gangbnd3` puts the angle in ℝ; a real one is
+    /// complex. The proof rests on those lines unnamed, as one resting on a
+    /// letter's introduction does, and is sealed as a membership said once.
+    pub(super) fn angle_within(
+        &mut self,
+        t: &Term,
+        system: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Route<Proof>> {
+        let said = self.rpn(t);
+        let [from, to, _] = t.children()[0].children() else {
+            return Ok(Route::no("not an angle"));
+        };
+        let (p, q, r) = (
+            self.rpn(&from.children()[0]),
+            self.rpn(&from.children()[1]),
+            self.rpn(&to.children()[0]),
+        );
+        let Some(first) = self.apart_in_scope(&p, &q, scope, facts)? else {
+            return Ok(Route::no(
+                "no line in scope says the angle's first point is not its vertex",
+            ));
+        };
+        let Some(last) = self.apart_in_scope(&r, &q, scope, facts)? else {
+            return Ok(Route::no(
+                "no line in scope says the angle's last point is not its vertex",
+            ));
+        };
+        let in_plane = |x: &Rpn| t!(x, "cc", "wcel");
+        let (pp, pq, pr) = (
+            self.point_membership(&p, scope, facts)?,
+            self.point_membership(&q, scope, facts)?,
+            self.point_membership(&r, scope, facts)?,
+        );
+        let members = t!(in_plane(&p), in_plane(&q), in_plane(&r), "w3a");
+        let points = self.b.ap(
+            "3jca",
+            &binds! {"ph" => scope, "ps" => in_plane(&p), "ch" => in_plane(&q), "th" => in_plane(&r)},
+            &[&pp, &pq, &pr],
+        );
+        let differ = t!(t!(&p, &q, "wceq", "wn"), t!(&r, &q, "wceq", "wn"), "wa");
+        let apart = self.b.ap(
+            "jca",
+            &binds! {"ph" => scope, "ps" => t!(&p, &q, "wceq", "wn"), "ch" => t!(&r, &q, "wceq", "wn")},
+            &[&first, &last],
+        );
+        let is_real = t!(&said, "cr", "wcel");
+        let at_least_0 = t!("cc0", &said, "cle", "wbr");
+        let law = self
+            .b
+            .ap("gangbnd3", &binds! {"A" => &p, "B" => &q, "C" => &r}, &[]);
+        let bounds = self.b.ap(
+            "sylc",
+            &binds! {"ph" => scope, "ps" => &members, "ch" => &differ, "th" => t!(&is_real, &at_least_0, "wa")},
+            &[&points, &apart, &law],
+        );
+        let real = self.b.ap(
+            "simpld",
+            &binds! {"ph" => scope, "ps" => &is_real, "ch" => &at_least_0},
+            &[&bounds],
+        );
+        let proof = match system.alone() {
+            Some("cr") => real,
+            Some("cc") => {
+                self.b
+                    .ap("recnd", &binds! {"ph" => scope, "A" => &said}, &[&real])
+            }
+            _ => return Ok(Route::no("said once only in ℝ and ℂ")),
+        };
+        Ok(Built(self.seal(proof, &format!("{MEMBERSHIP}{said:?}"))))
+    }
+
+    /// ( scope -> f(x) e. system ) for the sine, cosine or exponential of
+    /// x, from `real`, ( scope -> x e. RR ): in ℝ, and so in ℂ.
+    pub(super) fn applied_within(
+        &mut self,
+        t: &Term,
+        real: &Proof,
+        system: &Rpn,
+        scope: &Rpn,
+    ) -> Checked<Route<Proof>> {
+        let said = self.rpn(t);
+        let x = self.rpn(&t.children()[0]);
+        let lemma = match reals::Trig::of(t) {
+            Some(reals::Trig::Sine) => "resincld",
+            Some(reals::Trig::Cosine) => "recoscld",
+            None => "reefcld",
+        };
+        let value = self
+            .b
+            .ap(lemma, &binds! {"ph" => scope, "A" => &x}, &[real]);
+        match system.alone() {
+            Some("cr") => Ok(Built(value)),
+            Some("cc") => Ok(Built(self.b.ap(
+                "recnd",
+                &binds! {"ph" => scope, "A" => &said},
+                &[&value],
+            ))),
+            _ => Ok(Route::no("said once only in ℝ and ℂ")),
+        }
+    }
+
+    /// ( scope -> -. a = b ) from what the scope says, whether or not the
+    /// step names it: a line saying a ≠ b either way round, a part of a
+    /// line that is a conjunction, as a triangle's three differences are, or
+    /// what a betweenness or a side of a line says through the lemma that
+    /// reads it (`APART_LEMMAS`), a point off a line once more. None where
+    /// nothing in scope says it.
+    fn apart_in_scope(
+        &mut self,
+        a: &Rpn,
+        b: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        self.resting_on(None, |me| me.apart_held(a, b, scope, facts))
+    }
+
+    fn apart_held(
+        &mut self,
+        a: &Rpn,
+        b: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        for (x, y) in [(a, b), (b, a)] {
+            if let Some(p) = self.held(facts, &t!(x, y, "wceq", "wn"), scope)? {
+                return Ok(Some(self.denial_as(p, x, y, a, b, scope)));
+            }
+            if let Some(p) = self.held(facts, &t!(x, y, "wne"), scope)? {
+                let denied = self.b.ap(
+                    "neneqd",
+                    &binds! {"ph" => scope, "A" => x, "B" => y},
+                    &[&p],
+                );
+                return Ok(Some(self.denial_as(denied, x, y, a, b, scope)));
+            }
+        }
+        let mentions = |claim: &Rpn, x: &Rpn| {
+            claim.tokens().windows(x.len()).any(|w| w == x.tokens())
+        };
+        // The step's facts may be narrowed to what it names; every fact in
+        // scope at the step is kept whole, carried to `scope`.
+        let mut seeds = facts.entries();
+        let (whole, at) = (self.step_facts.clone(), self.step_scope.clone());
+        for (claim, proof) in whole.entries() {
+            if let Some(lifted) = self.lifted_to(&claim, &proof, &at, scope) {
+                seeds.push((claim, lifted));
+            }
+        }
+        let mut todo: Vec<(Rpn, Proof, usize)> = seeds
+            .into_iter()
+            .filter(|(claim, _)| mentions(claim, a) && mentions(claim, b))
+            .map(|(claim, proof)| (claim, proof, 0))
+            .collect();
+        while let Some((claim, proof, depth)) = todo.pop() {
+            let node = self.to_term(&claim);
+            let parts: Vec<Rpn> = node.children().iter().map(|c| self.rpn(c)).collect();
+            match (node.label(), parts.as_slice()) {
+                (Some("wn"), [_]) if node.children()[0].label() == Some("wceq") => {
+                    let eq = &node.children()[0];
+                    let (x, y) =
+                        (self.rpn(&eq.children()[0]), self.rpn(&eq.children()[1]));
+                    if (&x, &y) == (a, b) || (&x, &y) == (b, a) {
+                        return Ok(Some(self.denial_as(proof, &x, &y, a, b, scope)));
+                    }
+                }
+                (Some("wne"), [x, y]) if (x, y) == (a, b) || (x, y) == (b, a) => {
+                    let denied = self.b.ap(
+                        "neneqd",
+                        &binds! {"ph" => scope, "A" => x, "B" => y},
+                        &[&proof],
+                    );
+                    return Ok(Some(self.denial_as(denied, x, y, a, b, scope)));
+                }
+                (Some("wa"), [l, r]) => {
+                    for (part, lemma) in [(l, "simpld"), (r, "simprd")] {
+                        let taken = self.b.ap(
+                            lemma,
+                            &binds! {"ph" => scope, "ps" => l, "ch" => r},
+                            &[&proof],
+                        );
+                        todo.push((part.clone(), taken, depth));
+                    }
+                }
+                (Some("w3a"), [l, m, r]) => {
+                    for (part, lemma) in [(l, "simp1d"), (m, "simp2d"), (r, "simp3d")] {
+                        let taken = self.b.ap(
+                            lemma,
+                            &binds! {"ph" => scope, "ps" => l, "ch" => m, "th" => r},
+                            &[&proof],
+                        );
+                        todo.push((part.clone(), taken, depth));
+                    }
+                }
+                _ => {}
+            }
+            if depth < 2 {
+                for lemma in APART_LEMMAS {
+                    if let Some((reached, by)) =
+                        self.through(lemma, &claim, &proof, scope, facts)?
+                    {
+                        todo.push((reached, by, depth + 1));
+                    }
+                }
+            }
+        }
+        Ok(None)
+    }
+
+    /// `proof` of ( scope -> -. x = y ) as one of ( scope -> -. a = b ),
+    /// where x, y is a, b or b, a.
+    fn denial_as(
+        &mut self,
+        proof: Proof,
+        x: &Rpn,
+        y: &Rpn,
+        a: &Rpn,
+        b: &Rpn,
+        scope: &Rpn,
+    ) -> Proof {
+        if x == a && y == b {
+            return proof;
+        }
+        let apart = self.b.ap(
+            "neqned",
+            &binds! {"ph" => scope, "A" => x, "B" => y},
+            &[&proof],
+        );
+        let turned = self.b.ap(
+            "necomd",
+            &binds! {"ph" => scope, "A" => x, "B" => y},
+            &[&apart],
+        );
+        self.b.ap(
+            "neneqd",
+            &binds! {"ph" => scope, "A" => a, "B" => b},
+            &[&turned],
+        )
+    }
+
+    /// What the closed `lemma` reaches from `claim`, held by `proof`, the
+    /// one antecedent of it that is no membership in ℂ: each of its points
+    /// is in the plane by its sort. A lemma `( members -> ( claim -> Z ) )`
+    /// or `( ( members /\ claim ) -> Z )`; None where `claim` does not fit
+    /// it or leaves a letter of it open.
+    fn through(
+        &mut self,
+        lemma: &str,
+        claim: &Rpn,
+        proof: &Proof,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<(Rpn, Proof)>> {
+        let says = self.statement(lemma);
+        let [members, rest] = says.children() else {
+            return Ok(None);
+        };
+        if says.label() != Some("wi") {
+            return Ok(None);
+        }
+        let (slot, reached, curried) = if rest.label() == Some("wi") {
+            (rest.children()[0].clone(), rest.children()[1].clone(), true)
+        } else if members.label() == Some("wa") {
+            (members.children()[1].clone(), rest.clone(), false)
+        } else {
+            return Ok(None);
+        };
+        let variables = names_of(&says);
+        let ground = self.to_term(claim);
+        let Some(binding) = fit(&slot, &ground, &Binding::new(), &variables) else {
+            return Ok(None);
+        };
+        if variables.iter().any(|v| !binding.contains_key(v)) {
+            return Ok(None);
+        }
+        let law = self.b.ap(lemma, &self.spelt(&binding), &[]);
+        let reached = self.rpn(&reached.substitute(&binding));
+        let asked = if curried {
+            members.substitute(&binding)
+        } else {
+            members.children()[0].substitute(&binding)
+        };
+        let Some(points) = self.points_in_plane(&asked, scope, facts)? else {
+            return Ok(None);
+        };
+        let asked = self.rpn(&asked);
+        let proved = if curried {
+            self.b.ap(
+                "sylc",
+                &binds! {"ph" => scope, "ps" => &asked, "ch" => claim, "th" => &reached},
+                &[&points, proof, &law],
+            )
+        } else {
+            let both = t!(&asked, claim, "wa");
+            let joined = self.b.ap(
+                "jca",
+                &binds! {"ph" => scope, "ps" => &asked, "ch" => claim},
+                &[&points, proof],
+            );
+            self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => &both, "ch" => &reached},
+                &[&joined, &law],
+            )
+        };
+        Ok(Some((reached, proved)))
+    }
+
+    /// ( scope -> members ) for a conjunction of memberships in ℂ, each of
+    /// a point; None where a part is anything else.
+    fn points_in_plane(
+        &mut self,
+        members: &Term,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Option<Proof>> {
+        let parts: Vec<Rpn> = members.children().iter().map(|c| self.rpn(c)).collect();
+        match (members.label(), members.children()) {
+            (Some("wcel"), [x, set]) if self.rpn(set).alone() == Some("cc") => {
+                let x = self.rpn(x);
+                Ok(Some(self.point_membership(&x, scope, facts)?))
+            }
+            (Some("wa"), [l, r]) => {
+                let (Some(lp), Some(rp)) = (
+                    self.points_in_plane(l, scope, facts)?,
+                    self.points_in_plane(r, scope, facts)?,
+                ) else {
+                    return Ok(None);
+                };
+                Ok(Some(self.b.ap(
+                    "jca",
+                    &binds! {"ph" => scope, "ps" => &parts[0], "ch" => &parts[1]},
+                    &[&lp, &rp],
+                )))
+            }
+            (Some("w3a"), [l, m, r]) => {
+                let (Some(lp), Some(mp), Some(rp)) = (
+                    self.points_in_plane(l, scope, facts)?,
+                    self.points_in_plane(m, scope, facts)?,
+                    self.points_in_plane(r, scope, facts)?,
+                ) else {
+                    return Ok(None);
+                };
+                Ok(Some(self.b.ap(
+                    "3jca",
+                    &binds! {"ph" => scope, "ps" => &parts[0], "ch" => &parts[1], "th" => &parts[2]},
+                    &[&lp, &mp, &rp],
+                )))
+            }
+            _ => Ok(None),
         }
     }
 

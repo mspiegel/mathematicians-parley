@@ -3,7 +3,6 @@ import definition         stdlib/logarithms/exp
 import mundane theorem    stdlib/logarithms/ln-order
 import mundane theorem    stdlib/logarithms/ln-exp
 import mundane theorem    stdlib/logarithms/exp-positive
-import mundane theorem    stdlib/logarithms/exp-real
 
 theorem exp-is-increasing
   note        If exp(a) were compared through ln, ln(exp(a)) = a < b = ln(exp(b)),
@@ -27,5 +26,3 @@ theorem exp-is-increasing
 
 4.  exp(a) < exp(b)
     mun:ln-order x := exp(a), y := exp(b), from 1, 2, 3
-    requires exp(a) ∈ ℝ: mun:exp-real x := a
-    requires exp(b) ∈ ℝ: mun:exp-real x := b

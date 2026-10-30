@@ -764,10 +764,11 @@ Where the item asks for a fact nothing above the let says, a requires line
 under the reason gives it, as one under a step does:
 
 ```proof
-let c = cos(∠APB), a real number                                     (D1)
-    mun:cos-real a := ∠APB
-    requires ∠APB ∈ ℝ: mun:angle-real P := A, Q := P, R := B, from H12, 1, 2
-    reads the cosine of the angle the diagonals make at P
+let r = √(√|AB|), a real number                                       (D1)
+    def:sqrt x := √|AB|
+    requires |AB| ≥ 0: mun:distance-nonneg P := A, Q := B
+    requires √|AB| ∈ ℝ and √|AB| ≥ 0: def:sqrt x := |AB|
+    reads the square root of the square root of the distance from A to B
 ```
 
 The equation is what the name means

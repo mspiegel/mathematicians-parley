@@ -1,10 +1,8 @@
 import mundane theorem    stdlib/geometry/points-apart-by-coordinates
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 
 theorem angle-in-a-semicircle-by-coordinates
   note        C is at distance 5 from the centre O of the circle through A and
@@ -76,8 +74,6 @@ theorem angle-in-a-semicircle-by-coordinates
 
 13. cos(∠ACB) = 0
     algebra, from 12
-    requires ∠ACB ∈ ℝ: mun:angle-real, from 2, 4, 6
-    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
 14. ∠ACB = 90°
     mun:right-angle-by-cosine, from 2, 4, 6, 13

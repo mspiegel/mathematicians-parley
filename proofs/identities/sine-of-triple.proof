@@ -1,10 +1,8 @@
 import theorem            stdlib/trigonometry/cos-add
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
 import theorem            stdlib/trigonometry/sin-add
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem sine-of-triple
   let x ∈ ℝ                                                           (H1)
@@ -36,5 +34,3 @@ theorem sine-of-triple
                = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + cos(2·x)·sin(x)                                                           substitute line 2
                = (sin(x)·cos(x) + cos(x)·sin(x))·cos(x) + (cos(x)·cos(x) − sin(x)·sin(x))·sin(x)                                    substitute line 3
                = 3·sin(x) − 4·sin(x)^3                                                                                              algebra, from 5
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x

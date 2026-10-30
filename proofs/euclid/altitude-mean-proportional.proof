@@ -3,7 +3,6 @@ import mundane theorem    stdlib/geometry/between-apart
 import theorem            stdlib/geometry/law-of-cosines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/segment-addition
-import mundane theorem    stdlib/geometry/angle-real
 import definition         stdlib/trigonometry/cos
 
 theorem altitude-mean-proportional
@@ -51,7 +50,6 @@ theorem altitude-mean-proportional
       |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(∠CDB))      5
       |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·cos(90°))       algebra, from H9, 4
       |BC|² = |CD|² + |DB|² − 2·(|CD|·|DB|·0)              real arithmetic
-    requires ∠CDB ∈ ℝ: mun:angle-real P := C, Q := D, R := B, from H5, H8, 1
 
 9.  |CD|² = |AD|·|DB|
     algebra, from 2, 6, 7, 8

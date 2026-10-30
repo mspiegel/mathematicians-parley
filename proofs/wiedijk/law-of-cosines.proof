@@ -7,14 +7,11 @@ import mundane theorem    stdlib/geometry/between-ends-apart
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/angle-real
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/distance-zero
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import mundane theorem    stdlib/geometry/right-angle-triangle
 import mundane theorem    stdlib/geometry/cosine-right-triangle
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/trigonometry/cos-supplement
 import axiom              stdlib/reasoning/excluded-middle
 import mundane theorem    stdlib/reasoning/modus-ponens
@@ -94,12 +91,8 @@ theorem foot-on-ray
 5.  |HR|² = |HQ|² + |QR|² − 2·(|QR|·(|QP|·cos(∠PQR)))
     substitute |QH| = |QP|·cos(∠PQR) (line 3) into line 4
 
-6.  ∠PQR ∈ ℝ
-    mun:triangle-angle-real, from H5
-
-7.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+6.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
     algebra, from 5
-    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR, from 6
 
 theorem distance-from-foot
   note        Euclid II.12 and II.13, in one statement by the cosine. The
@@ -117,151 +110,144 @@ theorem distance-from-foot
   assume if H ≠ R then ∠PHR = 90°                                     (H9)
   then |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
 
-1.  ∠PQR ∈ ℝ
-    mun:triangle-angle-real, from H5
-
-2.  H = Q or (H is between Q and R) or H = R or (R is between Q and H) or
+1.  H = Q or (H is between Q and R) or H = R or (R is between Q and H) or
     (Q is between H and R)
     mun:on-line-cases P := H, from H5, H6
 
-3.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-    cases, from 2
+2.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+    cases, from 1
 
     case
     note   The angle at Q is right, and H is Q.
     assume H = Q                                                      (C1)
 
-    3.1.  H ≠ R
+    2.1.  H ≠ R
           substitute Q = H (C1) into H5
 
-    3.2.  ∠PHR = 90°
-          mun:modus-ponens, from H9, 3.1
+    2.2.  ∠PHR = 90°
+          mun:modus-ponens, from H9, 2.1
 
-    3.3.  ∠PQR = 90°
-          substitute H = Q (C1) into line 3.2
+    2.3.  ∠PQR = 90°
+          substitute H = Q (C1) into line 2.2
 
-    3.4.  cos(∠PQR) = 0
-          mun:right-angle-by-cosine, from H5, 3.3
+    2.4.  cos(∠PQR) = 0
+          mun:right-angle-by-cosine, from H5, 2.3
 
-    3.5.  |HQ| = 0
+    2.5.  |HQ| = 0
           mun:distance-zero P := H, from C1
 
-    3.6.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+    2.6.  |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
           calculation
             |HR|² = |QR|²                                          substitute C1
-                  = |HQ|² + |QR|²                                  algebra, from 3.5
-                  = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))        algebra, from 3.4
+                  = |HQ|² + |QR|²                                  algebra, from 2.5
+                  = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))        algebra, from 2.4
 
     case
     assume H is between Q and R                                       (C2)
 
-    3.7.  Q ≠ H. R ≠ H.
+    2.7.  Q ≠ H. R ≠ H.
           mun:between-apart R := H, S := Q, T := R, from C2
 
-    3.8.  ∠PHQ = 90°
-          mun:modus-ponens, from H8, 3.7
+    2.8.  ∠PHQ = 90°
+          mun:modus-ponens, from H8, 2.7
 
-    3.9.  ∠HQP = ∠RQP
+    2.9.  ∠HQP = ∠RQP
           mun:angle-along-segment P := Q, Q := R, R := P, S := H, from C2, H5
           requires P ≠ H: from H7
 
-    3.10. |QH| + |HR| = |QR|
+    2.10. |QH| + |HR| = |QR|
           mun:segment-addition P := Q, Q := R, S := H, from C2
 
-    3.11. |HR|² = (|QR| − |QH|)²
-          algebra, from 3.10
+    2.11. |HR|² = (|QR| − |QH|)²
+          algebra, from 2.10
 
-    3.12. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-          thm:foot-on-ray, from H5, H7, 3.7, 3.8, 3.9, 3.11
+    2.12. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+          thm:foot-on-ray, from H5, H7, 2.7, 2.8, 2.9, 2.11
 
     case
     assume H = R                                                      (C3)
 
-    3.13. Q ≠ H
+    2.13. Q ≠ H
           substitute R = H (C3) into H5
 
-    3.14. ∠PHQ = 90°
-          mun:modus-ponens, from H8, 3.13
+    2.14. ∠PHQ = 90°
+          mun:modus-ponens, from H8, 2.13
 
-    3.15. ∠HQP = ∠RQP
+    2.15. ∠HQP = ∠RQP
           substitute H = R (C3)
 
-    3.16. |HR| = 0
+    2.16. |HR| = 0
           mun:distance-zero P := H, Q := R, from C3
 
-    3.17. |HR|² = (|QR| − |QR|)²
-          algebra, from 3.16
+    2.17. |HR|² = (|QR| − |QR|)²
+          algebra, from 2.16
 
-    3.18. |HR|² = (|QR| − |QH|)²
-          substitute R = H (C3) into line 3.17
+    2.18. |HR|² = (|QR| − |QH|)²
+          substitute R = H (C3) into line 2.17
 
-    3.19. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-          thm:foot-on-ray, from H5, H7, 3.13, 3.14, 3.15, 3.18
+    2.19. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+          thm:foot-on-ray, from H5, H7, 2.13, 2.14, 2.15, 2.18
 
     case
     assume R is between Q and H                                       (C4)
 
-    3.20. Q ≠ H
+    2.20. Q ≠ H
           mun:between-ends-apart S := Q, T := H, from C4
 
-    3.21. ∠PHQ = 90°
-          mun:modus-ponens, from H8, 3.20
+    2.21. ∠PHQ = 90°
+          mun:modus-ponens, from H8, 2.20
 
-    3.22. ∠RQP = ∠HQP
+    2.22. ∠RQP = ∠HQP
           mun:angle-along-segment P := Q, Q := H, R := P, S := R, from C4, H5
           requires P ≠ H: from H7
 
-    3.23. |QR| + |RH| = |QH|
+    2.23. |QR| + |RH| = |QH|
           mun:segment-addition P := Q, Q := H, S := R, from C4
 
-    3.24. |HR|² = (|QR| − |QH|)²
-          algebra, from 3.23
+    2.24. |HR|² = (|QR| − |QH|)²
+          algebra, from 2.23
 
-    3.25. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-          thm:foot-on-ray, from H5, H7, 3.20, 3.21, 3.22, 3.24
+    2.25. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+          thm:foot-on-ray, from H5, H7, 2.20, 2.21, 2.22, 2.24
 
     case
     note   Euclid II.12: the angle at Q is obtuse, the supplement of ∠HQP.
     assume Q is between H and R                                       (C5)
 
-    3.26. H ≠ Q. R ≠ Q.
+    2.26. H ≠ Q. R ≠ Q.
           mun:between-apart R := Q, S := H, T := R, from C5
 
-    3.27. ∠PHQ = 90°
-          mun:modus-ponens, from H8, 3.26
+    2.27. ∠PHQ = 90°
+          mun:modus-ponens, from H8, 2.26
 
-    3.28. |QH| = |QP|·cos(∠HQP)
-          mun:cosine-right-triangle R := H, from H5, H7, 3.26, 3.27
+    2.28. |QH| = |QP|·cos(∠HQP)
+          mun:cosine-right-triangle R := H, from H5, H7, 2.26, 2.27
 
-    3.29. ∠HQP + ∠PQR = 180°
+    2.29. ∠HQP + ∠PQR = 180°
           axi:supplementary-angles A := H, B := Q, C := R, D := P, from C5, H5
           requires P ≠ H: from H7
 
-    3.30. |QH| = |QP|·cos(180° − ∠PQR)
+    2.30. |QH| = |QP|·cos(180° − ∠PQR)
           substitute
-            |QH| = |QP|·cos(∠HQP)             3.28
-            |QH| = |QP|·cos(180° − ∠PQR)      algebra, from 3.29
-          requires ∠HQP ∈ ℝ: mun:angle-real P := H, R := P, from H5, H7, 3.26
-          requires ∠PQR ∈ ℝ: from 1
+            |QH| = |QP|·cos(∠HQP)             2.28
+            |QH| = |QP|·cos(180° − ∠PQR)      algebra, from 2.29
 
-    3.31. |QH| = |QP|·−cos(∠PQR)
+    2.31. |QH| = |QP|·−cos(∠PQR)
           substitute
-            |QH| = |QP|·cos(180° − ∠PQR)      3.30
+            |QH| = |QP|·cos(180° − ∠PQR)      2.30
             |QH| = |QP|·−cos(∠PQR)            mun:cos-supplement x := ∠PQR
-          requires ∠PQR ∈ ℝ: from 1
 
-    3.32. |HQ| + |QR| = |HR|
+    2.32. |HQ| + |QR| = |HR|
           mun:segment-addition P := H, Q := R, S := Q, from C5
 
-    3.33. |HR|² = |HQ|² + |QR|² + 2·(|QR|·|QH|)
-          algebra, from 3.32
+    2.33. |HR|² = |HQ|² + |QR|² + 2·(|QR|·|QH|)
+          algebra, from 2.32
 
-    3.34. |HR|² = |HQ|² + |QR|² + 2·(|QR|·(|QP|·−cos(∠PQR)))
-          substitute |QH| = |QP|·−cos(∠PQR) (line 3.31) into line 3.33
+    2.34. |HR|² = |HQ|² + |QR|² + 2·(|QR|·(|QP|·−cos(∠PQR)))
+          substitute |QH| = |QP|·−cos(∠PQR) (line 2.31) into line 2.33
 
-    3.35. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-          algebra, from 3.34
-          requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR, from 1
+    2.35. |HR|² = |HQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
+          algebra, from 2.34
 
 theorem law-of-cosines
   metamath    lawcos, which states it for any three points with the third
@@ -293,5 +279,3 @@ theorem law-of-cosines
       |RP|² = |PH|² + |HR|²                              thm:pythagoras-at-foot Q := R, from H4, 1
             = |PQ|² − |HQ|² + |HR|²                      algebra, from 2
             = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))    algebra, from 3
-    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H4
-    requires cos(∠PQR) ∈ ℝ: mun:cos-real a := ∠PQR

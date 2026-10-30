@@ -1,10 +1,8 @@
 import definition         stdlib/trigonometry/cos
 import mundane theorem    stdlib/trigonometry/cos-negative
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
 import theorem            stdlib/trigonometry/sin-add
 import mundane theorem    stdlib/trigonometry/sin-negative
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem sine-of-half-pi-minus
   let x ∈ ℝ                                                           (H1)
@@ -28,5 +26,3 @@ theorem sine-of-half-pi-minus
                    = 1·cos(x) + 0·sin(−x)                               substitute line 2
                    = 1·cos(x) + 0·(−sin(x))                             substitute line 3
                    = cos(x)                                             algebra
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x

@@ -1,9 +1,7 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/angle-by-cosine
 import axiom              stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/square-positive
 
@@ -30,8 +28,6 @@ theorem equilateral-angle-sixty
 
 3.  cos(∠ABC)·|AB|² = (1/2)·|AB|²
     algebra, from 2
-    requires ∠ABC ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := C, from H4
-    requires cos(∠ABC) ∈ ℝ: mun:cos-real a := ∠ABC
 
 4.  |AB| > 0
     axi:distance-positive P := A, Q := B, from H4
@@ -42,8 +38,6 @@ theorem equilateral-angle-sixty
 
 6.  cos(∠ABC) = 1/2
     mun:multiply-cancel a := cos(∠ABC), b := 1/2, c := |AB|², from 3
-    requires ∠ABC ∈ ℝ: mun:triangle-angle-real P := A, Q := B, R := C, from H4
-    requires cos(∠ABC) ∈ ℝ: mun:cos-real a := ∠ABC
     requires |AB|² ≠ 0: weakening, from 5
 
 7.  cos(∠ABC) = cos(60°)

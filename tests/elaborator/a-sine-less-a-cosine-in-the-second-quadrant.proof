@@ -3,8 +3,6 @@ import definition         stdlib/trigonometry/sin
 import theorem            stdlib/trigonometry/cos-add
 import mundane theorem    stdlib/trigonometry/sin-nonneg
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
-import mundane theorem    stdlib/trigonometry/sin-real
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/numbers/product-nonneg
 import mundane theorem    stdlib/numbers/square-le
@@ -73,34 +71,24 @@ theorem a-sine-less-a-cosine-in-the-second-quadrant
 
 17. cos(x) = −sin(x − π/2)
     algebra, from 11, 13, 15, 16
-    requires cos(x − π/2) ∈ ℝ: mun:cos-real a := x − π/2
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 
 18. sin(x − π/2) = −cos(x)
     algebra, from 17
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 
 19. 0 ≤ −cos(x)
     transitivity, from 10, 18
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 20. 0 ≤ sin(x) − cos(x)
     inequalities, from 5, 19
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 21. sin(x)·sin(x − π/2) ≥ 0
     mun:product-nonneg x := sin(x), y := sin(x − π/2), from 5, 10
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 
 22. sin(x)² + cos(x)² = 1
     mun:sin-cos-squares a := x
 
 23. 1 + 2·sin(x)·sin(x − π/2) = (sin(x) − cos(x))²
     algebra, from 17, 22
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 
 24. 1² ≤ 1 + 2·sin(x)·sin(x − π/2)
     inequalities
@@ -109,17 +97,10 @@ theorem a-sine-less-a-cosine-in-the-second-quadrant
       2·(sin(x)·sin(x − π/2)) + 1 ≥ 2·0 + 1      adding 1
       1 + 2·sin(x)·sin(x − π/2) ≥ 1²             algebra
       1² ≤ 1 + 2·sin(x)·sin(x − π/2)             restate
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
 
 25. 1² ≤ (sin(x) − cos(x))²
     transitivity, from 23, 24
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires sin(x − π/2) ∈ ℝ: mun:sin-real a := x − π/2
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
 
 26. 1 ≤ sin(x) − cos(x)
     mun:square-le x := 1, y := sin(x) − cos(x), from 20, 25
     requires 0 ≤ 1: arithmetic
-    requires sin(x) ∈ ℝ: mun:sin-real a := x
-    requires cos(x) ∈ ℝ: mun:cos-real a := x

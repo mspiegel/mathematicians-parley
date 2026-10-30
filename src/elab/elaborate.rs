@@ -991,6 +991,8 @@ impl<'a> Elaborator<'a> {
         self.last = Some(number.to_string());
         self.at = step.line;
         self.step_now = CheckedTheorem::index_of(self.thm, step);
+        self.step_facts = facts.clone();
+        self.step_scope = scope.clone();
         self.note_said_sums()?;
         let resting = self.named(step, number, false);
         self.named_first(&step.just.refs, &resting, facts);

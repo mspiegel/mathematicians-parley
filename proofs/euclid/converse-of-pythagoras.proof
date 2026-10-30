@@ -1,9 +1,7 @@
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
 import axiom              stdlib/geometry/distance-positive
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import mundane theorem    stdlib/numbers/product-positive
 
@@ -27,8 +25,6 @@ theorem converse-of-pythagoras
 
 3.  cos(∠ACB)·(|AC|·|BC|) = 0·(|AC|·|BC|)
     algebra, from 2
-    requires ∠ACB ∈ ℝ: mun:triangle-angle-real P := A, Q := C, R := B, from H4
-    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
 4.  |AC| > 0
     axi:distance-positive P := A, Q := C, from H4
@@ -41,8 +37,6 @@ theorem converse-of-pythagoras
 
 7.  cos(∠ACB) = 0
     mun:multiply-cancel a := cos(∠ACB), b := 0, c := |AC|·|BC|, from 3
-    requires ∠ACB ∈ ℝ: mun:triangle-angle-real P := A, Q := C, R := B, from H4
-    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
     requires |AC|·|BC| ≠ 0: weakening, from 6
 
 8.  ∠ACB = 90°

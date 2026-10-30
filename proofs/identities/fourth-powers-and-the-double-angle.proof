@@ -1,9 +1,7 @@
 import theorem            stdlib/trigonometry/cos-add
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/sin
 import mundane theorem    stdlib/trigonometry/sin-cos-squares
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem fourth-powers-and-the-double-angle
   let x ∈ ℝ                                                           (H1)
@@ -22,5 +20,3 @@ theorem fourth-powers-and-the-double-angle
                           = cos(x)·cos(x) − sin(x)·sin(x)               algebra
                           = cos(x + x)                                  thm:cos-add a := x, b := x
                           = cos(2·x)                                    substitute line 2
-    requires cos(x) ∈ ℝ: mun:cos-real a := x
-    requires sin(x) ∈ ℝ: mun:sin-real a := x

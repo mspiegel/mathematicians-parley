@@ -263,7 +263,8 @@ fn template(said: &'static str, env: Env, sorts: &Sorts) -> Node {
 /// a triangle has them as it has a membership's wider sets. None for any
 /// other fact.
 fn triangle_apart(fact: &Node, env: Env, sorts: &Sorts) -> Option<Vec<Node>> {
-    if fact.notation() != NotationId::of("forms-a-triangle") || fact.children.len() != 3 {
+    if fact.notation() != NotationId::of("forms-a-triangle") || fact.children.len() != 3
+    {
         return None;
     }
     let mut local = sorts.clone();
@@ -273,10 +274,17 @@ fn triangle_apart(fact: &Node, env: Env, sorts: &Sorts) -> Option<Vec<Node>> {
     let binders = env.g.binders();
     let c = &fact.children;
     let apart = |one: &Node, other: &Node| {
-        let put = Binding::from([(Symbol::of("P"), one.clone()), (Symbol::of("Q"), other.clone())]);
+        let put = Binding::from([
+            (Symbol::of("P"), one.clone()),
+            (Symbol::of("Q"), other.clone()),
+        ]);
         substitute_apart_by(&template("P ≠ Q", env, &local), &put, &binders)
     };
-    Some(vec![apart(&c[0], &c[1]), apart(&c[1], &c[2]), apart(&c[0], &c[2])])
+    Some(vec![
+        apart(&c[0], &c[1]),
+        apart(&c[1], &c[2]),
+        apart(&c[0], &c[2]),
+    ])
 }
 
 /// What a subset says of its members (`SYNTAX.md`, What a cited line says):

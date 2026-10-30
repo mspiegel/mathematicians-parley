@@ -153,7 +153,7 @@ method demands it, and it is written once: on the line that introduces p,
 `let p ∈ ℝ`, the sentence `p ∈ ℤ` that an `obtain` states of each name it
 introduces, or the kind of number a naming line says its name is, `let m =
 gcd(s, w), a positive integer` (`SYNTAX.md`). A step does not write it again,
-and does not cite that line for it. The same holds of six kinds of term,
+and does not cite that line for it. The same holds of eight kinds of term,
 and of nothing else:
 
 - **a numeral**, or a term of numerals alone that `arithmetic` works out,
@@ -170,6 +170,12 @@ and of nothing else:
 - **a distance** |PQ| between two points, in ℝ and ℂ, said once where the
   points are introduced: `|AB| ∈ ℝ`, and so `|AB|·|AC|` and
   `|AB|² + |BC|²` by the rule for terms built from these, below;
+- **an angle** ∠PQR, in ℝ and ℂ, said once where its three points are said
+  to differ, which is wherever an angle may be written (`SYNTAX.md`,
+  Formulas): `∠ABC ∈ ℝ`;
+- **a sine, a cosine or an exponential of a real number** said once by these
+  rules, in ℝ and ℂ: `cos(∠ABC) ∈ ℝ`, `sin(x) ∈ ℝ` where `let x ∈ ℝ`,
+  `exp(2·t) ∈ ℝ` where `let t ∈ ℝ`;
 - **a term built from those** by +, −, ·, a power whose exponent is a
   numeral or a letter introduced in ℕ or ℕ₀, and /, in the smallest number
   system closed under what builds it: a·x + b·y is an integer when a, b, x
@@ -193,11 +199,12 @@ on one step, and those lines buried the ones that can fail.
 What a quotient demands is still written: its divisor's `≠ 0`, which can fail,
 unless the page says once the divisor is not zero: a term of numerals alone
 whose value is not zero, as 2 and 1 − 3 are, or a positive integer such as
-k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the four kinds do
+k, k + 1 or 2^n with k ∈ ℕ and n ∈ ℕ₀. So is every membership the kinds above do
 not reach: a defined name whose naming line says no kind of number, a
 function's value outside a sum, a sum whose term divides or leaves its
 function's domain, |x|, n!, a power whose exponent is any other term,
-2^(j + 1) or 2^k with k ∈ ℤ, and any term a library item builds. These
+2^(j + 1) or 2^k with k ∈ ℤ, and any other term a library item builds, √x
+and ln x among them, whose argument must be positive. These
 rest on a lemma or a line a reader may want to see, and a requires line
 points to it. Once one is written, what +, −, · and / build from it is not
 written again: a line saying N(n) ∈ ℝ says N(n) + 1 is real as well.

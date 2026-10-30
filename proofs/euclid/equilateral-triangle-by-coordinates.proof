@@ -1,11 +1,9 @@
 import mundane theorem    stdlib/geometry/points-apart-by-coordinates
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/angle-turned
 import mundane theorem    stdlib/geometry/angle-by-cosine
 import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-real
 
 theorem equilateral-triangle-by-coordinates
   note        The sides are read off the coordinates and all come to 2. The
@@ -68,8 +66,6 @@ theorem equilateral-triangle-by-coordinates
 
 12. cos(∠CAB) = 1/2
     algebra, from 11
-    requires ∠CAB ∈ ℝ: mun:angle-real, from 2, 4, 6
-    requires cos(∠CAB) ∈ ℝ: mun:cos-real a := ∠CAB
 
 13. cos(∠BAC) = 1/2
     substitute

@@ -32,7 +32,10 @@ fn refuse(why: &str) -> ExitCode {
 /// `parley renumber <theorem> <steps> <shift> [--dry-run]`.
 fn renumber(rest: &[String]) -> ExitCode {
     let dry = rest.iter().any(|a| a == "--dry-run");
-    if let Some(option) = rest.iter().find(|a| a.starts_with("--") && *a != "--dry-run") {
+    if let Some(option) = rest
+        .iter()
+        .find(|a| a.starts_with("--") && *a != "--dry-run")
+    {
         return refuse(&format!("unknown option {option}"));
     }
     let given: Vec<&String> = rest.iter().filter(|a| !a.starts_with("--")).collect();
@@ -40,12 +43,20 @@ fn renumber(rest: &[String]) -> ExitCode {
         return refuse("renumber takes a theorem, the steps to move and a shift");
     };
     let Some(run) = parley::tools::renumber::Run::parse(steps) else {
-        return refuse(&format!("{steps} is not a run of steps: 4.2..4.9, 4.2.. or 4.2"));
+        return refuse(&format!(
+            "{steps} is not a run of steps: 4.2..4.9, 4.2.. or 4.2"
+        ));
     };
     let Some(by) = parley::tools::renumber::shift(by) else {
         return refuse(&format!("{by} is not a shift: +n or -n"));
     };
-    say(parley::tools::renumber::run(Path::new("."), name, &run, by, dry))
+    say(parley::tools::renumber::run(
+        Path::new("."),
+        name,
+        &run,
+        by,
+        dry,
+    ))
 }
 
 fn main() -> ExitCode {

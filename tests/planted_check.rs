@@ -61,7 +61,7 @@ fn edit(file: &'static str, old: Option<String>, new: String) -> Edit {
 const SINES_FILE: &str = "proofs/wiedijk/similar-by-sines.proof";
 
 /// Similar triangles by the angle sum and the law of sines, a proof whose
-/// algebra combines angles and sines under requires lines. The corpus
+/// algebra combines angles and sines. The corpus
 /// proves similarity from the postulates instead (`angle-angle-similar`),
 /// so the cases that plant defects in such lines write this one first.
 const SINES: &str = r#"import theorem            proofs/wiedijk/angle-sum/angle-sum
@@ -73,10 +73,8 @@ import mundane theorem    stdlib/geometry/angle-symmetric
 import mundane theorem    stdlib/geometry/between-symmetric
 import mundane theorem    stdlib/geometry/sine-positive
 import definition         stdlib/geometry/triangle
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/numbers/multiply-cancel
 import definition         stdlib/trigonometry/sin
-import mundane theorem    stdlib/trigonometry/sin-real
 
 theorem similar-triangles
   note        Two triangles with two angles equal have the third equal too
@@ -107,10 +105,6 @@ theorem similar-triangles
 
 4.  ∠QRP = ∠Q′R′P′
     algebra, from H9, H10, 3
-    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
-    requires ∠Q′P′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
-    requires ∠P′Q′R′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
-    requires ∠Q′R′P′ ∈ ℝ: mun:triangle-angle-real P := P′, Q := Q′, R := R′, from H8
 
 5.  |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
     thm:law-of-sines, from H7
@@ -126,17 +120,9 @@ theorem similar-triangles
 
 9.  |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
     algebra, from 5
-    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
-    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
 10. |P′Q′|·|PR|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)
     algebra, from 8
-    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
-    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP
 
 11. |PQ|·|P′R′|·sin(∠PQR) = |P′Q′|·|PR|·sin(∠PQR)
     calculation
@@ -150,14 +136,10 @@ theorem similar-triangles
     inequalities
       sin(∠PQR) > 0      12
       sin(∠PQR) ≠ 0      weakening
-    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
 
 14. |PQ|·|P′R′| = |P′Q′|·|PR|
     mun:multiply-cancel a := |PQ|·|P′R′|, b := |P′Q′|·|PR|, c := sin(∠PQR),
       from 11
-    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7
-    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR
     requires sin(∠PQR) ≠ 0: from 13
 "#;
 
@@ -894,18 +876,6 @@ fn cases() -> Vec<Case> {
             )],
             "proofs/wiedijk/infinitely-many-primes.proof:46  nothing says n! ∈ ℝ or ∈ ℂ, which this step needs",
         ),
-        // An angle is no letter, numeral or term built from them, so the
-        // `algebra` step combining it writes its membership, unless a cited
-        // equation gives it: H9 does for ∠QPR, and nothing does for ∠QRP,
-        // which line 3 holds only inside a sum.
-        case(
-            "leave out the membership of an angle an algebra step combines",
-            in_sines(
-                "    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n",
-                "",
-            ),
-            "nothing says ∠QRP ∈ ℝ or ∈ ℂ, which this step needs",
-        ),
         // A line marked impossible is reached by its reasons from the lines
         // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
         // cites nothing and proves only what is true, and the step is told
@@ -937,11 +907,12 @@ fn cases() -> Vec<Case> {
         // membership is `membership`'s.
         case(
             "give a requires line's membership a method that does not decide it",
-            in_sines(
-                "    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n\n14.",
-                "    requires sin(∠PQR) ∈ ℝ: algebra\n\n14.",
-            ),
-            "proofs/wiedijk/similar-by-sines.proof:88  the requires line sin(∠PQR) ∈ ℝ of step 13 names algebra, which does not decide what it says",
+            vec![edit(
+                "proofs/setmm/square-root-positive.proof",
+                Some("inequalities, from S\n          requires √a ∈ ℝ: from 1".to_string()),
+                "inequalities, from S\n          requires √a ∈ ℝ: algebra".to_string(),
+            )],
+            "the requires line √a ∈ ℝ of step 2.1 names algebra, which does not decide what it says",
         ),
         // A letter of a range not starting at 1 or 0 is said once to be an
         // integer, and its being no zero is not: a divisor's `≠ 0` is written
@@ -4590,7 +4561,7 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/heron.proof", Some("    mun:sin-cos-squares a := ∠BCA\n".to_string()), "    mun:sin-cos-squares a := ∠BCA, from H1\n".to_string()),
             ],
-            "step 5 cites H1, and mun:sin-cos-squares asks for nothing it says",
+            "step 4 cites H1, and mun:sin-cos-squares asks for nothing it says",
         ),
         // A count step's claim fixes the property it is applied to, and so
         // supplies its hypotheses with no search for them; a line named
@@ -5083,7 +5054,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a betweenness after an or without brackets",
             vec![
-                edit("proofs/wiedijk/law-of-cosines.proof", Some("2.  H = Q or (H is between Q and R) or".to_string()), "2.  H = Q or H is between Q and R or".to_string()),
+                edit("proofs/wiedijk/law-of-cosines.proof", Some("1.  H = Q or (H is between Q and R) or".to_string()), "1.  H = Q or H is between Q and R or".to_string()),
             ],
             "`or` and `is between` are not ordered against each other",
         ),
@@ -6285,7 +6256,7 @@ fn cases() -> Vec<Case> {
             "one algebra step multiplying two cited equations",
             in_sines(
                 "    calculation\n      |PQ|·|P′R′|·sin(∠PQR) = |PR|·|P′R′|·sin(∠QRP)       9\n                            = |P′Q′|·|PR|·sin(∠PQR)       10",
-                "    algebra, from 5, 8\n    requires ∠PQR ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠PQR) ∈ ℝ: mun:sin-real a := ∠PQR\n    requires ∠QRP ∈ ℝ: mun:triangle-angle-real, from H7\n    requires sin(∠QRP) ∈ ℝ: mun:sin-real a := ∠QRP",
+                "    algebra, from 5, 8",
             ),
             "at most one equation multiplied by a term",
         ),
@@ -6787,36 +6758,37 @@ fn cases() -> Vec<Case> {
             "nothing says x ≠ 0, which this step needs to divide by it",
         ),
         // A requires line under a let's reason is checked as one under a
-        // step: it does work for the reason, which the angle at B with its
-        // arms the other way round does not.
+        // step: it does work for the reason, which the distance from A to C
+        // does not.
         case(
             "a requires line under a let's reason that the reason does not use",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("from H4, H5, H6\n    reads".to_string()),
-                "from H4, H5, H6\n    requires ∠CBA ∈ ℝ: mun:angle-real P := C, Q := B, R := A, from H4, H5, H6\n    reads".to_string(),
+                Some("P := A, Q := B\n".to_string()),
+                "P := A, Q := B\n    requires |AC| ≥ 0: mun:distance-nonneg P := A, Q := C\n".to_string(),
             )],
-            "the requires line of let D1 says ∠CBA ∈ ℝ, and neither mun:cos-real nor the let's other lines ask for it",
+            "the requires line of let D1 says |AC| ≥ 0, and neither def:sqrt nor the let's other lines ask for it",
         ),
         case(
-            "a let's reason without the requires line its item asks for",
+            "a let's reason without the requires lines its item asks for",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("    requires ∠ABC ∈ ℝ: mun:angle-real P := A, Q := B, R := C, from H4, H5, H6\n".to_string()),
+                Some("    requires |AB| ≥ 0: mun:distance-nonneg P := A, Q := B\n    requires √|AB| ∈ ℝ and √|AB| ≥ 0: def:sqrt x := |AB|\n".to_string()),
                 String::new(),
             )],
-            "the reason under let D1 cites mun:cos-real, which asks for ∠ABC ∈ ℝ, and what it cites does not supply it",
+            "the reason under let D1 cites def:sqrt, which asks for √|AB| ∈ ℝ; 0 ≤ √|AB|, and what it cites does not supply them",
         ),
         // A let's requires line answers to the item it cites as a step's
-        // does: angle-real asks that the three points differ.
+        // does: the root of |AB| asks that |AB| is at least 0, which the
+        // line above it says.
         case(
             "a requires line under a let citing an item without a fact it asks for",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("R := C, from H4, H5, H6\n".to_string()),
-                "R := C, from H4, H5\n".to_string(),
+                Some("    requires |AB| ≥ 0: mun:distance-nonneg P := A, Q := B\n".to_string()),
+                String::new(),
             )],
-            "the requires line of let D1 cites mun:angle-real, which asks for A ≠ C, and what it cites does not supply it",
+            "the requires line of let D1 cites def:sqrt, which asks for 0 ≤ |AB|, and what it cites does not supply it",
         ),
         // An angle is written only where its three points are said to
         // differ (`SYNTAX.md`, Formulas): in a statement, by its hypotheses.
@@ -6844,8 +6816,8 @@ fn cases() -> Vec<Case> {
             "a requires line under a let citing the let",
             vec![edit(
                 "tests/elaborator/a-naming-let-with-a-requires-line.proof",
-                Some("    mun:cos-real a := ∠ABC\n".to_string()),
-                "    mun:cos-real a := ∠ABC\n    requires c ∈ ℝ: from D1\n".to_string(),
+                Some("    def:sqrt x := √|AB|\n".to_string()),
+                "    def:sqrt x := √|AB|\n    requires r ∈ ℝ: from D1\n".to_string(),
             )],
             "the requires line under let D1 cites D1, which is not above the let",
         ),

@@ -1,5 +1,4 @@
 import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/triangle-extension
 
 theorem vertical-angles
@@ -27,6 +26,3 @@ theorem vertical-angles
 
 4.  ∠AOB = ∠COD
     algebra, from 2, 3
-    requires ∠AOB ∈ ℝ: mun:triangle-angle-real P := A, Q := O, R := B, from H8
-    requires ∠BOC ∈ ℝ: mun:triangle-angle-real P := B, Q := O, R := C, from 1
-    requires ∠COD ∈ ℝ: mun:triangle-angle-real P := C, Q := O, R := D, from H9

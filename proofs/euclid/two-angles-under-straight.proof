@@ -1,5 +1,4 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
-import mundane theorem    stdlib/geometry/triangle-angle-real
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/sine-positive
 import definition         stdlib/trigonometry/sin
@@ -25,7 +24,6 @@ theorem two-angles-under-straight
 
     3.1.  ∠BCA ≤ 0
           inequalities, from S
-          requires ∠BCA ∈ ℝ: from 1
 
     3.2.  ∠BCA = 0
           antisymmetry, from 1, 3.1
@@ -38,9 +36,6 @@ theorem two-angles-under-straight
       ∠BCA > 0                                    3
       0 < ∠BCA                                    restate
       ∠BAC + ∠ABC < ∠BAC + ∠ABC + ∠BCA            adding ∠BAC + ∠ABC
-    requires ∠BAC ∈ ℝ: mun:triangle-angle-real, from H4
-    requires ∠ABC ∈ ℝ: mun:triangle-angle-real, from H4
-    requires ∠BCA ∈ ℝ: from 1
 
 5.  ∠BAC + ∠ABC < 180°
     calculation

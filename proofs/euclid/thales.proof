@@ -2,11 +2,9 @@ import theorem            proofs/euclid/apollonius/apollonius
 import mundane theorem    stdlib/geometry/segment-addition
 import theorem            stdlib/geometry/law-of-cosines
 import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import mundane theorem    stdlib/geometry/angle-real
 import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/numbers/product-positive
 import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane theorem    stdlib/trigonometry/cos-real
 import definition         stdlib/trigonometry/cos
 
 theorem thales
@@ -52,28 +50,21 @@ theorem thales
 9.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
     thm:law-of-cosines P := A, Q := C, R := B, from H5
 
-10. ∠ACB ∈ ℝ
-    mun:angle-real P := A, Q := C, R := B, from H5
-
-11. cos(∠ACB)·(|CA|·|CB|) = 0·(|CA|·|CB|)
+10. cos(∠ACB)·(|CA|·|CB|) = 0·(|CA|·|CB|)
     algebra, from 8, 9
-    requires ∠ACB ∈ ℝ: from 10
-    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
 
-12. |CA| > 0
+11. |CA| > 0
     axi:distance-positive P := C, Q := A, from H5
 
-13. |CB| > 0
+12. |CB| > 0
     axi:distance-positive P := C, Q := B, from H5
 
-14. |CA|·|CB| > 0
-    mun:product-positive x := |CA|, y := |CB|, from 12, 13
+13. |CA|·|CB| > 0
+    mun:product-positive x := |CA|, y := |CB|, from 11, 12
 
-15. cos(∠ACB) = 0
-    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |CA|·|CB|, from 11
-    requires |CA|·|CB| ≠ 0: weakening, from 14
-    requires ∠ACB ∈ ℝ: from 10
-    requires cos(∠ACB) ∈ ℝ: mun:cos-real a := ∠ACB
+14. cos(∠ACB) = 0
+    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |CA|·|CB|, from 10
+    requires |CA|·|CB| ≠ 0: weakening, from 13
 
-16. ∠ACB = 90°
-    mun:right-angle-by-cosine P := A, Q := C, R := B, from H5, 15
+15. ∠ACB = 90°
+    mun:right-angle-by-cosine P := A, Q := C, R := B, from H5, 14

@@ -129,12 +129,17 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
     let end = region_end(&found.theorems, thm, lines.len());
     let old = lines.clone();
     renumber(thm, &mut lines, end, &map);
-    let changed: Vec<usize> = (0..lines.len()).filter(|&i| lines[i] != old[i]).collect();
+    let changed: Vec<usize> =
+        (0..lines.len()).filter(|&i| lines[i] != old[i]).collect();
     let mut printed = String::new();
     for &i in &changed {
-        printed += &format!("{}:{}\n  - {}\n  + {}\n", thm.path, i + 1, old[i], lines[i]);
+        printed +=
+            &format!("{}:{}\n  - {}\n  + {}\n", thm.path, i + 1, old[i], lines[i]);
     }
-    let quoted = quoted_lines(root, &changed.iter().map(|&i| old[i].trim()).collect::<Vec<_>>());
+    let quoted = quoted_lines(
+        root,
+        &changed.iter().map(|&i| old[i].trim()).collect::<Vec<_>>(),
+    );
     for (line, place) in &quoted {
         printed += &format!("quoted in {place}: {line}\n");
     }
@@ -142,7 +147,11 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
         "{} step(s) moved, {} line(s) changed{}\n",
         map.len(),
         changed.len(),
-        if dry { ", nothing written (dry run)" } else { "" }
+        if dry {
+            ", nothing written (dry run)"
+        } else {
+            ""
+        }
     );
     if !dry {
         let mut out = lines.join("\n");
@@ -162,7 +171,11 @@ pub fn run(root: &Path, name: &str, run: &Run, by: i64, dry: bool) -> Said {
 
 /// Each moved step's number and its new one, sub-steps included; or why the
 /// move is refused: a number below 1, or one another step keeps.
-fn moved(thm: &Theorem, run: &Run, by: i64) -> Result<BTreeMap<String, String>, String> {
+fn moved(
+    thm: &Theorem,
+    run: &Run,
+    by: i64,
+) -> Result<BTreeMap<String, String>, String> {
     let mut map = BTreeMap::new();
     let mut landed: BTreeSet<Vec<u32>> = BTreeSet::new();
     for s in &thm.steps {
@@ -171,7 +184,13 @@ fn moved(thm: &Theorem, run: &Run, by: i64) -> Result<BTreeMap<String, String>, 
             continue;
         };
         let new = i64::from(n[at]) + by;
-        let Ok(new) = u32::try_from(new).map_err(|_| ()).and_then(|v| if v == 0 { Err(()) } else { Ok(v) }) else {
+        let Ok(new) = u32::try_from(new).map_err(|_| ()).and_then(|v| {
+            if v == 0 {
+                Err(())
+            } else {
+                Ok(v)
+            }
+        }) else {
             return Err(format!("step {} would be numbered below 1", s.number));
         };
         let mut to = n.clone();
@@ -209,7 +228,12 @@ fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
 
 /// Every line of the theorem with its moved steps numbered as `map` says:
 /// each moved step's number where its claim opens, and every citation.
-fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<String, String>) {
+fn renumber(
+    thm: &Theorem,
+    lines: &mut [String],
+    end: usize,
+    map: &BTreeMap<String, String>,
+) {
     let mut edits: BTreeMap<usize, Vec<(usize, usize, String)>> = BTreeMap::new();
     // A chain line's or a substitute row's reason may be a bare number; of
     // an inequalities step's rows, only one the reader reads as citing a
@@ -234,7 +258,10 @@ fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<Stri
         };
         if let Some(new) = map.get(reason) {
             let at = reason.as_ptr() as usize - line.as_ptr() as usize;
-            edits.entry(l).or_default().push((at, at + reason.len(), new.clone()));
+            edits
+                .entry(l)
+                .or_default()
+                .push((at, at + reason.len(), new.clone()));
         }
     }
     let claims: BTreeSet<usize> = thm.steps.iter().map(|s| s.line - 1).collect();
@@ -245,7 +272,11 @@ fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<Stri
             // A step's own number, where its claim opens.
             if claims.contains(&l) && start == line.len() - line.trim_start().len() {
                 if let Some(new) = word.strip_suffix('.').and_then(|n| map.get(n)) {
-                    edits.entry(l).or_default().push((start, start + word.len() - 1, new.clone()));
+                    edits.entry(l).or_default().push((
+                        start,
+                        start + word.len() - 1,
+                        new.clone(),
+                    ));
                 }
                 continue;
             }
@@ -254,7 +285,11 @@ fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<Stri
             if one || listing {
                 if let Some(new) = map.get(core) {
                     let at = start + lead;
-                    edits.entry(l).or_default().push((at, at + core.len(), new.clone()));
+                    edits.entry(l).or_default().push((
+                        at,
+                        at + core.len(),
+                        new.clone(),
+                    ));
                 }
             }
             listing = OPENS_LIST.contains(&core) || (listing && word.ends_with(','));
@@ -277,7 +312,8 @@ fn renumber(thm: &Theorem, lines: &mut [String], end: usize, map: &BTreeMap<Stri
             if header && from == line.len() - line.trim_start().len() {
                 let after = from + new.len() + 1;
                 let gap = line[after..].len() - line[after..].trim_start().len();
-                let wanted = (gap as i64 + old_len as i64 - new.len() as i64).max(1) as usize;
+                let wanted =
+                    (gap as i64 + old_len as i64 - new.len() as i64).max(1) as usize;
                 line.replace_range(after..after + gap, &" ".repeat(wanted));
             }
         }
@@ -342,10 +378,28 @@ mod tests {
     fn a_run_reads_its_three_forms() {
         assert_eq!(
             Run::parse("4.2..4.9"),
-            Some(Run { parent: vec![4], first: 2, last: Some(9) })
+            Some(Run {
+                parent: vec![4],
+                first: 2,
+                last: Some(9)
+            })
         );
-        assert_eq!(Run::parse("4.2.."), Some(Run { parent: vec![4], first: 2, last: None }));
-        assert_eq!(Run::parse("5"), Some(Run { parent: vec![], first: 5, last: Some(5) }));
+        assert_eq!(
+            Run::parse("4.2.."),
+            Some(Run {
+                parent: vec![4],
+                first: 2,
+                last: None
+            })
+        );
+        assert_eq!(
+            Run::parse("5"),
+            Some(Run {
+                parent: vec![],
+                first: 5,
+                last: Some(5)
+            })
+        );
         assert_eq!(Run::parse("4.2..5.1"), None);
         assert_eq!(Run::parse("4.9..4.2"), None);
         assert_eq!(shift("+2"), Some(2));
