@@ -15,7 +15,8 @@ use std::rc::Rc;
 use indexmap::IndexSet;
 use parley::checker::{statements_in_scope, BoundThere, CheckedTheorem, ObtainedThere};
 use parley::corpus::proof::{
-    chain, chain_cited, parse_proof, rows, Head, Intro, Method, RowReason, Theorem,
+    chain, chain_cited, parse_proof, rows, substitute_rows, Head, Intro, Method,
+    Requires, RowReason, Theorem,
 };
 use parley::corpus::skeleton::{chain_reason, is_ref};
 use parley::corpus::{define_parts, naming_pieces, Corpus, DefineParts, Values};
@@ -130,31 +131,56 @@ fn class(letter: &str) -> u8 {
 }
 
 /// A reason a theorem writes, and the values it gives what it cites.
-struct Reasoned<'t> {
-    text: &'t str,
-    values: &'t Values,
+struct Reasoned {
+    text: String,
+    values: Values,
+}
+
+impl Reasoned {
+    fn of(r: &Requires) -> Reasoned {
+        Reasoned {
+            text: r.how.clone(),
+            values: r.values().clone(),
+        }
+    }
 }
 
 /// Every reason a theorem writes: each step's justification, each requires
-/// line's, and each let's under it.
-fn reasons(thm: &Theorem) -> Vec<Reasoned<'_>> {
+/// line's, each chain line's and substitute row's of its own, and each
+/// let's under it.
+fn reasons(thm: &Theorem) -> Vec<Reasoned> {
     let mut out = Vec::new();
     for step in &thm.steps {
         out.push(Reasoned {
-            text: &step.just.text,
-            values: &step.just.values,
+            text: step.just.text.clone(),
+            values: step.just.values.clone(),
         });
-        out.extend(step.requires.iter().map(|r| Reasoned {
-            text: &r.how,
-            values: r.values(),
-        }));
+        out.extend(step.requires.iter().map(Reasoned::of));
+        if let Some(Ok(c)) = chain(&step.just, &thm.path) {
+            out.extend(
+                c.lines
+                    .iter()
+                    .filter_map(|l| l.reason.as_ref())
+                    .map(Reasoned::of),
+            );
+        }
+        if let Some(Ok(rows)) = substitute_rows(&step.just, &thm.path) {
+            out.extend(
+                rows.iter()
+                    .filter_map(|r| r.reason.as_ref())
+                    .map(Reasoned::of),
+            );
+        }
     }
-    out.extend(thm.defines.iter().filter_map(|d| {
-        d.reason.as_ref().map(|r| Reasoned {
-            text: &r.how,
-            values: r.values(),
-        })
-    }));
+    out.extend(
+        thm.defines
+            .iter()
+            .filter_map(|d| d.reason.as_ref())
+            .map(|r| Reasoned {
+                text: r.how.clone(),
+                values: r.values().clone(),
+            }),
+    );
     out
 }
 
@@ -191,7 +217,7 @@ impl Context {
             corpus.theorems.iter().map(|t| t.qualified()).collect();
         for thm in &corpus.theorems {
             for reason in reasons(thm) {
-                for full in cites(thm, reason.text) {
+                for full in cites(thm, &reason.text) {
                     if theorems.contains(&full) && full != thm.qualified() {
                         cited.insert(full);
                     }
@@ -971,7 +997,7 @@ fn held_own(ctx: &Context, thm: &Theorem) -> BTreeSet<String> {
     let mut out = ctx.constants.clone();
     for reason in reasons(thm) {
         let named: BTreeSet<String> = reason.values.names().map(String::from).collect();
-        for full in cites(thm, reason.text) {
+        for full in cites(thm, &reason.text) {
             if let Some(other) =
                 ctx.corpus.theorems.iter().find(|t| t.qualified() == full)
             {
@@ -1186,14 +1212,17 @@ fn subjects_named(
 /// takes no letter from outside, so it keeps the meaning whatever the two
 /// letters are; the two need not be of one sort.
 fn swap(
-    _: &Context,
+    ctx: &Context,
     thm: &Theorem,
     _: &BTreeSet<String>,
     held: &BTreeSet<String>,
 ) -> Option<BTreeMap<String, String>> {
+    // A letter the theorem also binds, `for all i, j ∈ T` in a phrase's
+    // meaning written out, would capture the other letter put for it.
+    let binds = bound(ctx, thm);
     let free: Vec<String> = introduced(thm)
         .into_iter()
-        .filter(|l| !held.contains(l))
+        .filter(|l| !held.contains(l) && !binds.contains(l))
         .collect();
     let (a, b) = free.iter().enumerate().find_map(|(i, a)| {
         free[i + 1..]
@@ -1209,7 +1238,7 @@ fn swap(
 fn library_pool(ctx: &Context, thm: &Theorem) -> Vec<String> {
     let mut pool: Vec<String> = Vec::new();
     for reason in reasons(thm) {
-        for full in cites(thm, reason.text) {
+        for full in cites(thm, &reason.text) {
             if let Some(r) = ctx.corpus.records.iter().find(|r| r.qualified() == full) {
                 let mut texts: Vec<&str> =
                     r.hypotheses.iter().map(|h| h.text.as_str()).collect();
@@ -1786,11 +1815,29 @@ fn citations_of(thm: &Theorem, lines: &[String], end: usize) -> Vec<Citation> {
             step: Some(step.line),
         });
     }
+    // A chain line's or a substitute row's reason of its own is read as a
+    // requires line is (`chain`, `substitute_rows`), and cites as one does.
+    let reasons: Vec<Requires> = thm
+        .steps
+        .iter()
+        .flat_map(|s| {
+            let links = match chain(&s.just, &thm.path) {
+                Some(Ok(c)) => c.lines.into_iter().filter_map(|l| l.reason).collect(),
+                _ => Vec::new(),
+            };
+            let rows = match substitute_rows(&s.just, &thm.path) {
+                Some(Ok(r)) => r.into_iter().filter_map(|r| r.reason).collect(),
+                _ => Vec::new(),
+            };
+            links.into_iter().chain(rows)
+        })
+        .collect();
     for r in thm
         .steps
         .iter()
         .flat_map(|s| &s.requires)
         .chain(thm.let_requires())
+        .chain(&reasons)
     {
         let l = r.line - 1;
         let mut at = vec![l];
@@ -2399,14 +2446,26 @@ fn naming_follows(
                 | Method::Contradiction
                 | Method::Induction
                 | Method::BothDirections => {}
-                // Each link carries one line: it writes the name exactly where
-                // the line it cites does.
+                // A link citing a line carries that line: it writes the name
+                // exactly where the line does. A link with a reason of its own
+                // reads the term above it as well as its own, as a step
+                // citing an item reads its claim, and is left alone where
+                // either writes the part, since what the reason makes of the
+                // name is the reason's.
                 Method::Calculation => {
-                    for &l in &links {
-                        let cited =
-                            chain_cited(&lines[l]).is_some_and(|r| says_part(&r));
-                        if writes(&l) != cited {
-                            return None;
+                    for (i, &l) in links.iter().enumerate() {
+                        match chain_cited(&lines[l]) {
+                            Some(r) => {
+                                if writes(&l) != says_part(&r) {
+                                    return None;
+                                }
+                            }
+                            None => {
+                                let above = i.checked_sub(1).map(|k| links[k]);
+                                if writes(&l) || above.is_some_and(|a| writes(&a)) {
+                                    return None;
+                                }
+                            }
                         }
                     }
                 }
@@ -3745,9 +3804,35 @@ fn lemma_of(
     for h in &thm.hypotheses {
         read_hypotheses.push(names_in(&hypothesis_read(ctx, sorts, thm, h)?));
     }
-    // An `assume` is needed where the block cites it, and where it is what
+    // An `assume` is needed where the block cites it, where it is what
     // gives a name the lemma writes its sort, as `assume H is a subgroup of
-    // G` gives H, which no `let` writes.
+    // G` gives H, which no `let` writes, and where it may say the points of
+    // an angle the block writes differ: an angle is written only where they
+    // are said to, by any line in scope (`SYNTAX.md`, Formulas), as
+    // `assume A, C, B form a triangle` says it for ∠ACB. And an `assume`
+    // saying a letter the lemma writes exists is kept with the `let` that
+    // introduces it: `let A be a set` alone says A exists, which a theorem
+    // writing the two lines does not say of its A.
+    let mut exists_of: Vec<Option<BTreeSet<String>>> = Vec::new();
+    for h in &thm.hypotheses {
+        let says = match h.kind {
+            Intro::Let => None,
+            _ => {
+                let read = hypothesis_read(ctx, sorts, thm, h)?;
+                match read.as_slice() {
+                    [one] if &*one.notation_name() == "exists" => Some(one.names()),
+                    _ => None,
+                }
+            }
+        };
+        exists_of.push(says);
+    }
+    let angles: Vec<BTreeSet<String>> = block_trees
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter(|n| &*n.notation_name() == "angle")
+        .map(|n| n.names())
+        .collect();
     let by_let: BTreeSet<String> = thm
         .hypotheses
         .iter()
@@ -3767,6 +3852,11 @@ fn lemma_of(
                         || writes
                             .iter()
                             .any(|l| used.contains(l) && !by_let.contains(l))
+                        || (!writes.is_empty()
+                            && angles.iter().any(|points| writes.is_subset(points)))
+                        || exists_of[i]
+                            .as_ref()
+                            .is_some_and(|said| said.iter().all(|l| used.contains(l)))
                 }
             };
             if needed && kept.insert(i) {
@@ -4759,24 +4849,19 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             o.number.len() > x.number.len()
                 && o.number.0[..x.number.len()] == x.number.0[..]
         });
-        // A requires line holds for its own step only, and a statement
-        // applying a define is carried to from the proof's outermost lines,
-        // one of which may say an argument is in the define's domain
-        // (`checker::citations::check_conclusion_domains`): such a line, a
-        // membership or a part, stays a line.
-        let says_domain = ctx
+        // A membership or a part stays a line. A membership the page says
+        // once, k! ∈ ℕ, is one no requires line may say, since the step
+        // already has it (`check_repeated`); a statement applying a define is
+        // carried to from the proof's outermost lines, one of which may say
+        // an argument is in the define's domain
+        // (`checker::citations::check_conclusion_domains`); and a part,
+        // X ⊆ A, is cited for what it says of its members as well, "for all
+        // x ∈ X, x ∈ A" (`SYNTAX.md`, a subset as its members), which no
+        // hypothesis asks in that form.
+        let membership_or_part = ctx
             .tokens(x.claim.text())
             .is_some_and(|t| t.iter().any(|t| t.text == "∈" || t.text == "⊆"));
-        let carried_from =
-            x.number.len() == 1 && says_domain && applies_a_define(ctx, thm);
-        // A part, X ⊆ A, is cited for what it says of its members as well,
-        // "for all x ∈ X, x ∈ A" (`SYNTAX.md`, a subset as its members),
-        // which no hypothesis asks in that form: it stays a line.
-        let a_part = ctx
-            .tokens(x.claim.text())
-            .is_some_and(|t| t.iter().any(|t| t.text == "⊆"));
-        !carried_from
-            && !a_part
+        !membership_or_part
             && x.just.head.is_item()
             && asks(&x.just)
             && x.just.target.is_none()
@@ -4873,22 +4958,6 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
         theorems,
         declined: Vec::new(),
     }
-}
-
-/// Whether `thm`'s statement applies a define of its own or of its file,
-/// as `G(m − 1, n)` applies G: a name a define gives, written with a
-/// bracket after it, as the tokeniser cuts the statement.
-fn applies_a_define(ctx: &Context, thm: &Theorem) -> bool {
-    let mut names = file_names(ctx, thm);
-    for d in &thm.defines {
-        if let Built(parts) = define_parts(&d.text) {
-            names.extend(parts.names());
-        }
-    }
-    let tokens = ctx.tokens(thm.stated().text()).unwrap_or_default();
-    tokens
-        .windows(2)
-        .any(|w| names.contains(&w[0].text) && w[1].text == "(")
 }
 
 /// Each define in a proof over nothing but what the theorem's header gives
