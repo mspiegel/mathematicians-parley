@@ -628,41 +628,41 @@ not in this table is mundane; every axiom and definition is named.
 |---|---|---|
 | parallel-through | `theorem` | "draw the line through R parallel to PQ", angle-sum step 1; proved on the page from the parallel postulate |
 | pascal, division-algorithm, prime-factor, gcd-mod, divides-gcd, group-cancel, archimedean, sum-telescopes | `theorem` | "by Pascal's rule", "by the division algorithm" |
-| sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", perfect-numbers steps 8, 9 and 12 |
-| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.13 and 2.14 |
-| rolle | `theorem` | "by Rolle's theorem", mean-value step 24 |
+| sigma-multiplicative, sigma-prime, sigma-prime-power | `theorem` | "σ is multiplicative", "the divisor sum of a prime", euclid-perfect steps 6, 7 and 9 |
+| cos-add, sin-add | `theorem` | "by the angle-addition formulas", de-moivre steps 2.5 and 2.6 |
+| rolle | `theorem` | "by Rolle's theorem", mean-value step 22 |
 | remainder | `theorem` | "by the remainder theorem", factor step 1 |
-| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 2 |
-| prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 7.8 |
-| pigeonhole | `theorem` | "by the pigeonhole principle", erdos-szekeres step 1.13 |
-| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 10 to 15 |
-| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.7, 10, 12, 13, 19 and 23 |
-| triangle-inequality | `theorem` | "by the triangle inequality", distance-triangle step 2; `proofs/wiedijk/triangle-inequality.proof` proves it as its own theorem |
+| convergent-bounded, archimedean-natural | `theorem` | "a convergent sequence is bounded", harmonic step 1.2; "by the Archimedean property, choose N > 2M", harmonic-unbounded step 3 |
+| prime-powers-unique | `theorem` | "by unique factorisation", rationals-countable step 7.6 |
+| pigeonhole | `theorem` | "by the pigeonhole principle", erdos-szekeres step 1.17 |
+| continuous-sum, continuous-linear, derivative-sum, derivative-linear | `theorem` | "a sum of continuous functions is continuous", "the derivative of a sum is the sum of the derivatives", mean-value steps 11 to 16 |
+| congruent-cancel, product-reorder, product-congruent, product-factor, product-coprime, coprime-divides | `theorem` | "cancel a, which is coprime to n", "the same remainders in another order", "congruences multiply", "a comes out once per factor", "a product of numbers coprime to n is coprime to n", "n divides the product and is coprime to one factor", euler steps 7.7, 10, 12, 14, 18 and 21 |
+| triangle-inequality | `theorem` | "by the triangle inequality", distance-triangle step 1; `proofs/wiedijk/triangle-inequality.proof` proves it as its own theorem |
 | alternate-angles, angles-on-a-line | `theorem` | "alternate angles are equal", "the angles on a line make 180°", angle-sum steps 2 and 4 |
-| altitude-foot, law-of-sines | `theorem` | "drop the altitude from the right angle to the hypotenuse", "by the law of sines", pythagoras step 1, similar-triangles step 5 |
-| coprime-square | `theorem` | "coprime numbers whose product is a square are squares", primitive-triple step 54 |
+| altitude-foot, law-of-sines | `theorem` | "drop the altitude from the right angle to the hypotenuse", "by the law of sines", pythagoras step 1, thirty-sixty-ninety step 1 |
+| coprime-square | `theorem` | "coprime numbers whose product is a square are squares", primitive-triple step 45 |
 | area-function, continuous-difference, derivative-difference | `theorem` | "by the fundamental theorem of calculus, part one", "a difference of continuous functions is continuous", "and of differentiable ones differentiable", fundamental-calculus steps 11, 14 and 15 |
 | count-functions, count-one-to-one | `theorem` | "there are \|Y\|^\|X\| functions from X to Y", "and \|Y\|(\|Y\| − 1)⋯ of them are one-to-one", birthday steps 5 and 10 |
-| area-by-sine, law-of-cosines | `theorem` | "the area is half the product of two sides and the sine of the angle between them", "by the law of cosines", heron steps 4 and 5; `proofs/wiedijk/law-of-cosines.proof` proves law-of-cosines as its own theorem |
-| bernoulli-difference, sum-telescopes-up | `theorem` | "B(n, x + 1) − B(n, x) = n·x^(n − 1)", "the sum telescopes", sum-of-powers steps 1.1 and 3 |
-| absorption | `theorem` | "by the absorption identity", ballot-recurrence step 24 |
-| bernoulli-inequality | `theorem` | "by Bernoulli's inequality", am-gm-power step 1.2.16.3 |
-| phi-prime, product-congruent-termwise, prime-divides-product | `theorem` | "φ(p) = p − 1 for a prime p", "multiply the congruences factor by factor", "by Euclid's lemma", wilson step 5.4, paired-product step 21, wilson step 5.15.1.5 |
-| heron | `theorem` | "by Heron's formula", heron-formula step 3; `proofs/wiedijk/heron.proof` proves it as its own theorem |
-| chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 10, chords-through-circle step 8; `proofs/wiedijk/chords.proof` proves intersecting-chords as its own theorem |
+| area-by-sine, law-of-cosines | `theorem` | "the area is half the product of two sides and the sine of the angle between them", "by the law of cosines", heron steps 1 and 2; `proofs/wiedijk/law-of-cosines.proof` proves law-of-cosines as its own theorem |
+| bernoulli-difference, sum-telescopes-up | `theorem` | "B(n, x + 1) − B(n, x) = n·x^(n − 1)", "the sum telescopes", sum-of-powers steps 1.1 and 2 |
+| absorption | `theorem` | "by the absorption identity", ballot-recurrence step 22 |
+| bernoulli-inequality | `theorem` | "by Bernoulli's inequality", am-gm-power step 1.2.14.3 |
+| phi-prime, product-congruent-termwise, prime-divides-product | `theorem` | "φ(p) = p − 1 for a prime p", "multiply the congruences factor by factor", "by Euclid's lemma", wilson step 5.7.2, paired-product step 19, wilson step 5.14.1.4 |
+| heron | `theorem` | "by Heron's formula", heron-formula step 1; `proofs/wiedijk/heron.proof` proves it as its own theorem |
+| chord-midpoint-right-angle, intersecting-chords | `theorem` | "the line from the centre to the midpoint of a chord is perpendicular to it", "by the intersecting chords theorem", chord-bisector step 4, chords-through-circle step 1; `proofs/wiedijk/chords.proof` proves intersecting-chords as its own theorem |
 | perpendicular-foot | `theorem` | "drop the perpendicular from P to line QR", law-of-cosines step 1 |
-| triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 18, triangle-equality-case step 1 |
+| triangle-inequality-points, triangle-inequality-strict, triangle-equality-between | `theorem` | "by the triangle inequality", "strictly, unless Q lies between P and R", "equality puts Q between them", difference-of-sides step 1, greater-side-greater-angle step 10, triangle-equality-case step 1 |
 | rolle-on-part, cauchy-mean-value, continuous-extension | `theorem` | "by Rolle's theorem", "by Cauchy's mean value theorem", "extended by its limit, f is continuous at c", cauchy-quotient steps 3.1 and 4, quotient-between step 14 |
 | continuous-constant, continuous-power, continuous-scaled, continuous-quotient, derivative-power, derivative-scaled | `theorem` | "a constant, a power, a multiple and a quotient of continuous functions are continuous", "the power rule", power-integral steps 12 to 17, integrand-continuous steps 15 and 20 |
-| integral-difference, integral-order, integral-nonneg | `theorem` | "the integral of a difference", "a smaller integrand gives a smaller integral", "a nonnegative integrand a nonnegative integral", integral-recurrence step 14, integral-bounds steps 13 and 14 |
+| integral-difference, integral-order, integral-nonneg | `theorem` | "the integral of a difference", "a smaller integrand gives a smaller integral", "a nonnegative integrand a nonnegative integral", integral-recurrence step 18, integral-bounds steps 13 and 14 |
 | continuous-arctan, derivative-arctan | `theorem` | "arctan is continuous", "its derivative is 1/(1 + t²)", integral-of-arctan-derivative steps 9 and 10 |
 | continuous-bounded, integer-polynomial-at-a-fraction, roots-isolated, polynomial-on-the-reals | `theorem` | "a continuous function on [a, b] is bounded", "q^N·F(p/q) is an integer", "the roots of a polynomial are isolated", "a polynomial is continuous and differentiable", liouville steps 4, 7 and 14, value-at-a-fraction step 1 |
-| monotone-limit, limit-at-most, limit-at-least, algebraic-root | `theorem` | "an increasing sequence bounded above converges", "a bound the terms keep, the limit keeps", "an algebraic number is a root of a polynomial with integer coefficients", liouville-number steps 12, 14.1, 14.12 and 14.23 |
+| monotone-limit, limit-at-most, limit-at-least, algebraic-root | `theorem` | "an increasing sequence bounded above converges", "a bound the terms keep, the limit keeps", "an algebraic number is a root of a polynomial with integer coefficients", liouville-number steps 9, 10.1, 10.16 and 10.20 |
 | continuous-square, derivative-square, convergent-abs-bounded | `theorem` | "x² is continuous", "and differentiable", "a convergent sequence is bounded in size": not cited by a proof, only by the tests (`tests/notations/integrals.proof`, `tests/notations/calculus.proof`, `tests/stdlib/calculus.proof`) |
 | signed-angle-sum | `theorem` | "the angles of a triangle add up to π", in signed form, angle-at-centre steps 7 and 8 |
-| pythagoras, bezout, least-combination-divides, power-of-a-point | `theorem` | "by Pythagoras", "by Bézout's lemma", "the least positive combination divides both", "the power of P", power-of-a-point steps 8.9 and 8.11.13, coprime-divides step 1, bezout step 10, intersecting-chords step 1; pythagoras and bezout are the library's copies of the Wiedijk proofs of those names, which keep their own |
+| pythagoras, bezout, least-combination-divides, power-of-a-point | `theorem` | "by Pythagoras", "by Bézout's lemma", "the least positive combination divides both", "the power of P", power-of-a-point steps 8.10 and 8.12.15, coprime-divides step 1, bezout step 10, intersecting-chords step 1; pythagoras and bezout are the library's copies of the Wiedijk proofs of those names, which keep their own |
 | angle-sum | `theorem` | "the angles of a triangle make 180°": not cited by a proof; the library's copy of `proofs/wiedijk/angle-sum.proof` |
-| angle-at-centre, same-arc-angles | `theorem` | "the angle at the centre is twice the angle at the circle" (Euclid III.20), "angles on the same arc are equal" (III.21), same-arc-angles steps 7 and 8, intersecting-chords-by-angles step 16 |
+| angle-at-centre, same-arc-angles | `theorem` | "the angle at the centre is twice the angle at the circle" (Euclid III.20), "angles on the same arc are equal" (III.21), same-arc-angles steps 7 and 8, intersecting-chords-by-angles step 30 |
 | prime-divides-power | `theorem` | "by Euclid's lemma, for a power": not cited by a proof; `proofs/setmm/prime-divides-power.proof` proves it as its own theorem |
 
 Some mundane theorems are worth a word, since a reader might expect otherwise:
