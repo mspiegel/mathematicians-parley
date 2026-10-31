@@ -493,8 +493,11 @@ impl Requires {
 pub struct StepNo(pub Vec<u32>);
 
 impl StepNo {
+    /// The number of the step whose block this one is in; the empty number,
+    /// the theorem proved `by` a method, for a step at the top level. The
+    /// theorem's own step has none, and is given the empty number again.
     pub fn parent(&self) -> StepNo {
-        StepNo(self.0[..self.0.len() - 1].to_vec())
+        StepNo(self.0[..self.0.len().saturating_sub(1)].to_vec())
     }
 
     pub fn prefix(&self, k: usize) -> StepNo {
@@ -950,13 +953,22 @@ impl Step {
         self.claim.text().to_string()
     }
 
-    /// The step as a message names it: `step 4`, or `let D1` for a let's
-    /// reason read as a step.
+    /// The step as a message names it: `step 4`, `let D1` for a let's
+    /// reason read as a step, or `the theorem` for the step a theorem proved
+    /// `by` a method is (`proves_theorem`).
     pub fn called(&self) -> String {
         match &self.reason_of {
             Some(label) => format!("let {label}"),
+            None if self.proves_theorem() => "the theorem".to_string(),
             None => format!("step {}", self.number),
         }
+    }
+
+    /// Whether this is the step a theorem proved `by` a method is: numbered
+    /// with no number, its claim the theorem's conclusion, and every step of
+    /// the proof in its block.
+    pub fn proves_theorem(&self) -> bool {
+        self.number.is_empty() && self.reason_of.is_none()
     }
 
     /// What the step is, in a message: `step`, or `let`.
@@ -1257,10 +1269,13 @@ pub fn references(thm: &Theorem) -> Vec<Reference> {
             cited_by(&mut out, &r.by, r.line);
         }
         for opener in step.openers.iter().filter(|o| o.is_hypothesis) {
-            if let Some(said) = skeleton::induction_hypothesis(&opener.text) {
-                let at = skeleton::offset(&opener.text, said.step);
+            // `the theorem is true for k` names no step.
+            if let Some(step) =
+                skeleton::induction_hypothesis(&opener.text).and_then(|s| s.step)
+            {
+                let at = skeleton::offset(&opener.text, step);
                 out.push(Reference {
-                    cite: skeleton::cite_at(said.step, at),
+                    cite: skeleton::cite_at(step, at),
                     line: opener.line,
                 });
             }
@@ -1370,6 +1385,27 @@ fn parse_justification(
     // every later line in the file.
     let slots = skeleton::cut(&line.text, path, line.no, labels)?;
     Ok(Justification::of(slots, line.no, names))
+}
+
+/// The labels a justification line of `thm` may cite a define by: the
+/// file's defines, the theorem's, and the labels the file's imports give,
+/// each once.
+fn justification_labels(scope: &FileScope, thm: &Theorem) -> skeleton::Labels {
+    let mut defines: Vec<String> = Vec::new();
+    for d in scope.defines.iter().chain(thm.defines.iter()) {
+        if !defines.contains(&d.label) {
+            defines.push(d.label.clone());
+        }
+    }
+    for label in scope.imports.iter().filter_map(|i| i.label.as_ref()) {
+        if !defines.contains(label) {
+            defines.push(label.clone());
+        }
+    }
+    skeleton::Labels {
+        defines,
+        phrases: phrase_labels(scope),
+    }
 }
 
 /// The label of each define of a phrase the file has written so far, with
@@ -2304,16 +2340,34 @@ pub fn parse_proof(
                 "an induction hypothesis outside the step part of an induction",
             ));
         }
-        if said.step != fmt(&owner.number) {
-            return Err(Problem::new(
-                path,
-                no,
-                format!(
-                    "the induction hypothesis names step {}, and the induction is step {}",
-                    said.step,
-                    fmt(&owner.number)
-                ),
-            ));
+        // The theorem proved `by` the induction is its step numbered [], and
+        // its hypothesis says the theorem is true for k.
+        let proves_theorem = owner.number.is_empty();
+        match (said.step, proves_theorem) {
+            (Some(step), false) if step == fmt(&owner.number) => {}
+            (None, true) => {}
+            (Some(_), true) => {
+                return Err(Problem::new(
+                    path,
+                    no,
+                    format!(
+                        "the theorem has no step {}; its induction hypothesis says `assume the theorem is true for {}, the induction hypothesis`",
+                        said.step.unwrap_or_default(),
+                        said.letter
+                    ),
+                ));
+            }
+            (named, false) => {
+                return Err(Problem::new(
+                    path,
+                    no,
+                    format!(
+                        "the induction hypothesis names {}, and the induction is step {}",
+                        named.map_or("the theorem".to_string(), |s| format!("step {s}")),
+                        fmt(&owner.number)
+                    ),
+                ));
+            }
         }
         Ok(said.letter.to_string())
     }
@@ -2621,19 +2675,20 @@ pub fn parse_proof(
             {
                 if !owner.is_some_and(cases_owner) {
                     let last = draft.steps.last().map(|s| s.step.number.clone());
+                    // The theorem proved `by cases` is the block at the
+                    // empty number.
                     let open = last.and_then(|n| {
-                        (1..=n.len())
-                            .rev()
-                            .map(|k| n.prefix(k))
-                            .find(|p| by_number.get(p).is_some_and(|&i| cases_owner(i)))
+                        (0..=n.len()).rev().map(|k| n.prefix(k)).find_map(|p| {
+                            by_number.get(&p).copied().filter(|&i| cases_owner(i))
+                        })
                     });
                     if let Some(open) = open {
                         return Err(Problem::new(
                             path,
                             *at,
                             format!(
-                                "this case of step {} has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
-                                fmt(&open)
+                                "this case of {} has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
+                                draft.steps[open].step.called()
                             ),
                         ));
                     }
@@ -2667,6 +2722,69 @@ pub fn parse_proof(
             });
             let at = draft.steps.len() - 1;
             by_number.insert(number, at);
+            step = Some(at);
+            continue;
+        }
+
+        // `by <method>` under `then`: the theorem is the step the method
+        // proves, numbered with no number, and the method's blocks open at
+        // the top level, its steps numbered 1, 2, … (`SYNTAX.md`, a theorem
+        // proved by a method). A line opening with `by` that continues a
+        // step's claim is the claim's.
+        let continues_claim = step.is_some_and(|at| !draft.steps[at].has_just);
+        if head == "by" && !continues_claim {
+            if !draft.steps.is_empty() || draft.thm.conclusion.is_empty() {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "`by` comes once, under `then`, before the proof",
+                ));
+            }
+            let said = str::trim(&t["by".len()..]);
+            let labels = justification_labels(&scope, &draft.thm);
+            let written = Line {
+                no: line.no,
+                text: said.to_string(),
+                indent: line.indent,
+            };
+            let just = parse_justification(path, &written, &labels, &draft.thm.names)?;
+            const BLOCKS: [Method; 5] = [
+                Method::BothDirections,
+                Method::Contradiction,
+                Method::Proof,
+                Method::Induction,
+                Method::Cases,
+            ];
+            if !BLOCKS.iter().any(|&m| just.head.is(m)) {
+                let word = said.split(',').next().unwrap_or(said);
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!(
+                        "`by` names a method that opens a block: both directions, contradiction, proof, induction or cases; {word} proves a step"
+                    ),
+                ));
+            }
+            let conclusion = draft.thm.conclusion.clone();
+            draft.steps.push(DraftStep {
+                step: Step {
+                    number: StepNo(Vec::new()),
+                    claim: Written::new(&conclusion, path, draft.thm.conclusion_line),
+                    just,
+                    requires: Vec::new(),
+                    parts: Vec::new(),
+                    openers: Vec::new(),
+                    line: line.no,
+                    part: None,
+                    note: None,
+                    part_notes: IndexMap::new(),
+                    impossible: false,
+                    reason_of: None,
+                },
+                has_just: true,
+            });
+            let at = draft.steps.len() - 1;
+            by_number.insert(StepNo(Vec::new()), at);
             step = Some(at);
             continue;
         }
@@ -2799,8 +2917,9 @@ pub fn parse_proof(
             // in, so it is in the innermost `cases` block open at this line.
             let draft = thm.as_mut().unwrap();
             let last = draft.steps.last().map(|s| s.step.number.clone());
+            // The theorem proved `by cases` is the block at the empty number.
             let owner = last.and_then(|n| {
-                (1..=n.len()).rev().map(|k| n.prefix(k)).find(|p| {
+                (0..=n.len()).rev().map(|k| n.prefix(k)).find(|p| {
                     by_number.get(p).is_some_and(|&i| {
                         draft.steps[i].step.just.head.is(Method::Cases)
                     })
@@ -2892,21 +3011,7 @@ pub fn parse_proof(
         }
         if let Some(at) = step {
             if !draft.steps[at].has_just {
-                let mut defines: Vec<String> = Vec::new();
-                for d in scope.defines.iter().chain(draft.thm.defines.iter()) {
-                    if !defines.contains(&d.label) {
-                        defines.push(d.label.clone());
-                    }
-                }
-                for label in scope.imports.iter().filter_map(|i| i.label.as_ref()) {
-                    if !defines.contains(label) {
-                        defines.push(label.clone());
-                    }
-                }
-                let labels = skeleton::Labels {
-                    defines,
-                    phrases: phrase_labels(&scope),
-                };
+                let labels = justification_labels(&scope, &draft.thm);
                 if is_justification(&t, &labels) {
                     draft.steps[at].step.just =
                         parse_justification(path, &line, &labels, &draft.thm.names)?;

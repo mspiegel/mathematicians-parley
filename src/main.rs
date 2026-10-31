@@ -11,6 +11,10 @@ const USAGE: &str = "usage: parley check [name]
        parley renumber <theorem> <steps> <shift> [--dry-run]
          <steps> is 4.2..4.9, 4.2.. (to the end of its block) or 4.2;
          <shift> is +n or -n
+       parley by <theorem> [--dry-run]
+       parley by --list
+         write a theorem whose only step repeats its conclusion and opens
+         a block as one proved `by` that block's method
 
 Run from the working tree: the directory holding corpus/ and the proofs.";
 
@@ -27,6 +31,25 @@ fn say(outcome: Said) -> ExitCode {
 fn refuse(why: &str) -> ExitCode {
     eprintln!("{why}\n\n{USAGE}");
     ExitCode::from(2)
+}
+
+/// `parley by <theorem> [--dry-run]`, or `parley by --list`.
+fn by_form(rest: &[String]) -> ExitCode {
+    if rest.iter().any(|a| a == "--list") {
+        return say(parley::tools::by_form::list(Path::new(".")));
+    }
+    let dry = rest.iter().any(|a| a == "--dry-run");
+    if let Some(option) = rest
+        .iter()
+        .find(|a| a.starts_with("--") && *a != "--dry-run")
+    {
+        return refuse(&format!("unknown option {option}"));
+    }
+    let given: Vec<&String> = rest.iter().filter(|a| !a.starts_with("--")).collect();
+    let [name] = given.as_slice() else {
+        return refuse("by takes one theorem");
+    };
+    say(parley::tools::by_form::run(Path::new("."), name, dry))
 }
 
 /// `parley renumber <theorem> <steps> <shift> [--dry-run]`.
@@ -66,6 +89,9 @@ fn main() -> ExitCode {
     };
     if sub == "renumber" {
         return renumber(rest);
+    }
+    if sub == "by" {
+        return by_form(rest);
     }
     // At most this many arguments, for each command.
     let most = match sub.as_str() {

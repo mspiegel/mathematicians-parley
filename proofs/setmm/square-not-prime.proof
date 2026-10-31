@@ -12,75 +12,74 @@ theorem square-not-prime
               which is not above 1.
   let A ∈ ℤ                                                           (H1)
   then not (A² is prime)
+  by          contradiction
 
-1.  not (A² is prime)
+suppose A² is prime                                                   (S)
+
+1.  A² ∈ ℕ
+    mun:prime-nat p := A², from S
+
+2.  A² > 1
+    def:prime p := A², from S, 1
+
+3.  |A|² = A²
+    mun:abs-square x := A
+
+4.  |A| ≠ 0
     contradiction
-    suppose A² is prime                                               (S)
+    suppose |A| = 0                                                   (S2)
 
-    1.1.  A² ∈ ℕ
-          mun:prime-nat p := A², from S
+    4.1.  0² = A²
+          substitute |A| = 0 (S2) into line 3
 
-    1.2.  A² > 1
-          def:prime p := A², from S, 1.1
-
-    1.3.  |A|² = A²
-          mun:abs-square x := A
-
-    1.4.  |A| ≠ 0
-          contradiction
-          suppose |A| = 0                                             (S2)
-
-          1.4.1.  0² = A²
-                  substitute |A| = 0 (S2) into line 1.3
-
-          1.4.2.  0² ≥ A²
-                  inequalities
-                    0² = A²          1.4.1
-                    0² ≥ A²          weakening
-
-          1.4.3.  not (A² > 1)
-                  inequalities, from 1.4.2, contradicting 1.2
-
-    1.5.  |A| ∈ ℕ
-          mun:nat0-nonzero m := |A|, from 1.4
-
-    1.6.  A² = |A|·|A|
-          algebra, from 1.3
-
-    1.7.  |A| divides A²
-          def:divides d := |A|, n := A², from 1.6
-
-    1.8.  For all d ∈ ℕ, if d divides A² then d = 1 or d = A².
-          def:prime p := A², from S, 1.1
-
-    1.9.  If |A| divides A² then |A| = 1 or |A| = A².
-          instantiate d := |A| in line 1.8, from 1.5
-
-    1.10. |A| = 1 or |A| = A²
-          mun:modus-ponens, from 1.7, 1.9
-
-    1.11. |A| = 1
-          cases, from 1.10
-
-          case
-          assume |A| = 1, which is the claim                          (C1)
-
-          case
-          assume |A| = A²                                             (C2)
-
-          1.11.1. |A|·|A| = 1·|A|
-                  transitivity, from 1.6, C2
-
-          1.11.2. |A| = 1
-                  mun:multiply-cancel a := |A|, b := 1, c := |A|, from 1.4, 1.11.1
-
-    1.12. 1² = A²
-          substitute |A| = 1 (line 1.11) into line 1.3
-
-    1.13. 1² ≥ A²
+    4.2.  0² ≥ A²
           inequalities
-            1² = A²          1.12
-            1² ≥ A²          weakening
+            0² = A²          4.1
+            0² ≥ A²          weakening
 
-    1.14. not (A² > 1)
-          inequalities, from 1.13, contradicting 1.2
+    4.3.  not (A² > 1)
+          inequalities, from 4.2, contradicting 2
+
+5.  |A| ∈ ℕ
+    mun:nat0-nonzero m := |A|, from 4
+
+6.  A² = |A|·|A|
+    algebra, from 3
+
+7.  |A| divides A²
+    def:divides d := |A|, n := A², from 6
+
+8.  For all d ∈ ℕ, if d divides A² then d = 1 or d = A².
+    def:prime p := A², from S, 1
+
+9.  If |A| divides A² then |A| = 1 or |A| = A².
+    instantiate d := |A| in line 8, from 5
+
+10. |A| = 1 or |A| = A²
+    mun:modus-ponens, from 7, 9
+
+11. |A| = 1
+    cases, from 10
+
+    case
+    assume |A| = 1, which is the claim                                (C1)
+
+    case
+    assume |A| = A²                                                   (C2)
+
+    11.1. |A|·|A| = 1·|A|
+          transitivity, from 6, C2
+
+    11.2. |A| = 1
+          mun:multiply-cancel a := |A|, b := 1, c := |A|, from 4, 11.1
+
+12. 1² = A²
+    substitute |A| = 1 (line 11) into line 3
+
+13. 1² ≥ A²
+    inequalities
+      1² = A²          12
+      1² ≥ A²          weakening
+
+14. not (A² > 1)
+    inequalities, from 13, contradicting 2

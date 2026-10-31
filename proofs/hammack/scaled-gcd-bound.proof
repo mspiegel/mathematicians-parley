@@ -64,27 +64,26 @@ theorem scaled-pair-not-both-zero
   assume not (x = 0 and y = 0)                                        (H4)
   assume c ≠ 0                                                        (H5)
   then not (c·x = 0 and c·y = 0)
+  by          contradiction
 
-1.  not (c·x = 0 and c·y = 0)
+suppose c·x = 0 and c·y = 0                                           (S)
+
+1.  x = 0
     contradiction
-    suppose c·x = 0 and c·y = 0                                       (S)
+    suppose not (x = 0)                                               (S1)
 
-    1.1.  x = 0
-          contradiction
-          suppose not (x = 0)                                         (S1)
+    1.1.  c·x ≠ 0
+          mun:product-nonzero x := c, y := x, from H5, S1, contradicting S
 
-          1.1.1.  c·x ≠ 0
-                  mun:product-nonzero x := c, y := x, from H5, S1, contradicting S
+2.  y = 0
+    contradiction
+    suppose not (y = 0)                                               (S2)
 
-    1.2.  y = 0
-          contradiction
-          suppose not (y = 0)                                         (S2)
+    2.1.  c·y ≠ 0
+          mun:product-nonzero x := c, from H5, S2, contradicting S
 
-          1.2.1.  c·y ≠ 0
-                  mun:product-nonzero x := c, from H5, S2, contradicting S
-
-    1.3.  x = 0 and y = 0
-          join 1.1, 1.2, contradicting H4
+3.  x = 0 and y = 0
+    join 1, 2, contradicting H4
 
 theorem scaled-gcd-bound
   note        Let d = gcd(a, b). Then c·d divides c·a and c·b, so it divides

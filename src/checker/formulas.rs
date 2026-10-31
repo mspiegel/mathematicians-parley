@@ -349,7 +349,9 @@ fn say_unread(
 /// what its induction's claim says.
 pub(super) fn claim_parts(thm: &Theorem) -> Vec<FormulaPart> {
     let mut out = Vec::new();
-    for s in &thm.steps {
+    // The theorem proved `by` a method claims the statement, which is read
+    // once, below.
+    for s in thm.steps.iter().filter(|s| !s.proves_theorem()) {
         let what = format!("step {}", s.number);
         out.push(FormulaPart::new(s.line, what, &s.claim));
     }
@@ -1225,8 +1227,8 @@ pub fn check_contradiction(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} supposes something that is neither its claim negated nor the thing its claim negates, so neither expansion of `contradiction` applies",
-                    step.number
+                    "{} supposes something that is neither its claim negated nor the thing its claim negates, so neither expansion of `contradiction` applies",
+                    step.called()
                 ),
             );
         }
@@ -1469,8 +1471,9 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
                     &thm.path,
                     o.line,
                     format!(
-                        "case {} says it is the claim of step {}, and it is not",
-                        o.label, owner.number
+                        "case {} says it is the claim of {}, and it is not",
+                        o.label,
+                        owner.called()
                     ),
                 );
             }
@@ -1503,7 +1506,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
             report.say(
                 &thm.path,
                 owner.line,
-                format!("step {} proves both directions, and {why}", owner.number),
+                format!("{} proves both directions, and {why}", owner.called()),
             );
         };
         let Some(claim) = known.whole(owner, &owner.claim) else {
@@ -1590,8 +1593,8 @@ pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
             &known.thm.path,
             owner.line,
             format!(
-                "step {} opens a {} block and claims {} sentences; the block proves one, and each other sentence is a step of its own",
-                owner.number,
+                "{} opens a {} block and claims {} sentences; the block proves one, and each other sentence is a step of its own",
+                owner.called(),
                 owner.just.head,
                 claim.len()
             ),
@@ -1603,7 +1606,7 @@ pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
             .map(|part| Owed {
                 part: Some(part),
                 claim: claim.clone(),
-                called: format!("case {} of step {}", part + 1, owner.number),
+                called: format!("case {} of {}", part + 1, owner.called()),
             })
             .collect(),
         (Some(Method::Proof), [one]) => vec![proof_owes(owner, one, known)?],
@@ -1743,8 +1746,11 @@ fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
             }
         }
     }
+    // A theorem proved `by` a method ends with its block, which owes the
+    // statement part by part, above; no top-level step owes it whole.
+    let by_method = thm.steps.first().is_some_and(Step::proves_theorem);
     let last = thm.steps.iter().rev().find(|s| s.number.len() == 1);
-    if last.is_some_and(|l| l.line == step.line) {
+    if !by_method && last.is_some_and(|l| l.line == step.line) {
         let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
         let said = conjuncts_read(&step.claim, |s| known.read_as_written(s));
         let owed = conjuncts_read(&stated, |s| known.read_as_written(s));
@@ -1898,7 +1904,7 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
             owed.push(Owed {
                 part: Some(part),
                 claim: vec![claim],
-                called: format!("the {which} part of step {}", owner.number),
+                called: format!("the {which} part of {}", owner.called()),
             });
         }
     }
@@ -1976,8 +1982,8 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                         path,
                         o.line,
                         format!(
-                            "step {} opens a proof block assuming {}, and its claim supposes {}",
-                            owner.number,
+                            "{} opens a proof block assuming {}, and its claim supposes {}",
+                            owner.called(),
                             known.print(&assumed),
                             known.print(&rest.children[0])
                         ),
@@ -1990,8 +1996,8 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                     path,
                     o.line,
                     format!(
-                        "step {} opens a proof block with a let line, and its claim says nothing of every such name",
-                        owner.number
+                        "{} opens a proof block with a let line, and its claim says nothing of every such name",
+                        owner.called()
                     ),
                 ))
             }
@@ -2000,8 +2006,8 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                     path,
                     o.line,
                     format!(
-                        "step {} opens a proof block with an assume line, and its claim supposes nothing there",
-                        owner.number
+                        "{} opens a proof block with an assume line, and its claim supposes nothing there",
+                        owner.called()
                     ),
                 ))
             }
@@ -2010,7 +2016,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
     Ok(Owed {
         part: None,
         claim: vec![rest],
-        called: format!("the proof block of step {}", owner.number),
+        called: format!("the proof block of {}", owner.called()),
     })
 }
 
@@ -2092,8 +2098,8 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
                 &thm.path,
                 owner.just.line,
                 format!(
-                    "step {} takes its cases from {cited}, which does not claim their assumptions joined by \"or\", in the order the cases take them",
-                    owner.number
+                    "{} takes its cases from {cited}, which does not claim their assumptions joined by \"or\", in the order the cases take them",
+                    owner.called()
                 ),
             );
         }

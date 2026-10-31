@@ -142,13 +142,20 @@ impl<'a> Elaborator<'a> {
             }
         }
         if block {
+            // A line inside the block: one numbered under the step, or, for
+            // the theorem proved `by` a method, every numbered step, and no
+            // hypothesis or other line kept by name.
+            let theorem = step.proves_theorem();
             let prefix = format!("{number}.");
-            out.extend(
-                self.lines
-                    .keys()
-                    .into_iter()
-                    .filter(|k| k.starts_with(&prefix)),
-            );
+            let inside = |name: &str| {
+                if theorem {
+                    name.split('.')
+                        .all(|p| !p.is_empty() && p.bytes().all(|b| b.is_ascii_digit()))
+                } else {
+                    name.starts_with(&prefix)
+                }
+            };
+            out.extend(self.lines.keys().into_iter().filter(|k| inside(k)));
             // A step's requires lines are the block's as the step is: the
             // last step of a part says there what the part's end asks, an
             // identity element's operand a number (`SYNTAX.md`).
@@ -156,7 +163,7 @@ impl<'a> Elaborator<'a> {
                 self.thm
                     .steps
                     .iter()
-                    .filter(|s| number_of(s).starts_with(&prefix))
+                    .filter(|s| inside(&number_of(s)))
                     .flat_map(|s| s.requires.iter().map(|r| requirement(r.line))),
             );
             out.extend(
@@ -173,7 +180,7 @@ impl<'a> Elaborator<'a> {
                 .thm
                 .steps
                 .iter()
-                .filter(|s| number_of(s).starts_with(&prefix))
+                .filter(|s| inside(&number_of(s)))
                 .map(|s| s.line)
                 .max();
             if let Some(last) = last {
@@ -185,10 +192,16 @@ impl<'a> Elaborator<'a> {
                         .map(|d| d.label.clone()),
                 );
             }
-            let depth = number.matches('.').count() + 1;
+            // The block's own steps, one level below it: the top level for
+            // the theorem.
+            let depth = if theorem {
+                0
+            } else {
+                number.matches('.').count() + 1
+            };
             for inner in &self.thm.steps {
                 let name = number_of(inner);
-                if !name.starts_with(&prefix) || name.matches('.').count() != depth {
+                if !inside(&name) || name.matches('.').count() != depth {
                     continue;
                 }
                 if inner.just.head.is(Method::Join)

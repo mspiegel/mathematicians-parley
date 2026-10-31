@@ -11,75 +11,73 @@ theorem or-over-and
   let b ∈ ℝ                                                           (H2)
   let c ∈ ℝ                                                           (H3)
   then (a = 0 or (b = 0 and c = 0)) ↔ ((a = 0 or b = 0) and (a = 0 or c = 0))
+  by          both directions
 
-1.  (a = 0 or (b = 0 and c = 0)) ↔ ((a = 0 or b = 0) and (a = 0 or c = 0))
-    both directions
+direction
+assume a = 0 or (b = 0 and c = 0)                                     (D1)
 
-    direction
-    assume a = 0 or (b = 0 and c = 0)                                 (D1)
+1.  (a = 0 or b = 0) and (a = 0 or c = 0)
+    cases, from D1
 
-    1.1.  (a = 0 or b = 0) and (a = 0 or c = 0)
-          cases, from D1
+    case
+    assume a = 0                                                      (C1)
+
+    1.1.  a = 0 or b = 0
+          mun:or-left, from C1
+
+    1.2.  a = 0 or c = 0
+          mun:or-left, from C1
+
+    1.3.  (a = 0 or b = 0) and (a = 0 or c = 0)
+          join 1.1, 1.2
+
+    case
+    assume b = 0 and c = 0                                            (C2)
+
+    1.4.  a = 0 or b = 0
+          mun:or-right, from C2
+
+    1.5.  a = 0 or c = 0
+          mun:or-right, from C2
+
+    1.6.  (a = 0 or b = 0) and (a = 0 or c = 0)
+          join 1.4, 1.5
+
+direction
+assume (a = 0 or b = 0) and (a = 0 or c = 0)                          (D2)
+
+2.  a = 0 or b = 0
+    restate D2
+
+3.  a = 0 or c = 0
+    restate D2
+
+4.  a = 0 or (b = 0 and c = 0)
+    cases, from 2
+
+    case
+    assume a = 0                                                      (C3)
+
+    4.1.  a = 0 or (b = 0 and c = 0)
+          mun:or-left, from C3
+
+    case
+    assume b = 0                                                      (C4)
+
+    4.2.  a = 0 or (b = 0 and c = 0)
+          cases, from 3
 
           case
-          assume a = 0                                                (C1)
+          assume a = 0                                                (C5)
 
-          1.1.1.  a = 0 or b = 0
-                  mun:or-left, from C1
-
-          1.1.2.  a = 0 or c = 0
-                  mun:or-left, from C1
-
-          1.1.3.  (a = 0 or b = 0) and (a = 0 or c = 0)
-                  join 1.1.1, 1.1.2
+          4.2.1.  a = 0 or (b = 0 and c = 0)
+                  mun:or-left, from C5
 
           case
-          assume b = 0 and c = 0                                      (C2)
+          assume c = 0                                                (C6)
 
-          1.1.4.  a = 0 or b = 0
-                  mun:or-right, from C2
+          4.2.2.  b = 0 and c = 0
+                  join C4, C6
 
-          1.1.5.  a = 0 or c = 0
-                  mun:or-right, from C2
-
-          1.1.6.  (a = 0 or b = 0) and (a = 0 or c = 0)
-                  join 1.1.4, 1.1.5
-
-    direction
-    assume (a = 0 or b = 0) and (a = 0 or c = 0)                      (D2)
-
-    1.2.  a = 0 or b = 0
-          restate D2
-
-    1.3.  a = 0 or c = 0
-          restate D2
-
-    1.4.  a = 0 or (b = 0 and c = 0)
-          cases, from 1.2
-
-          case
-          assume a = 0                                                (C3)
-
-          1.4.1.  a = 0 or (b = 0 and c = 0)
-                  mun:or-left, from C3
-
-          case
-          assume b = 0                                                (C4)
-
-          1.4.2.  a = 0 or (b = 0 and c = 0)
-                  cases, from 1.3
-
-                  case
-                  assume a = 0                                        (C5)
-
-                  1.4.2.1.  a = 0 or (b = 0 and c = 0)
-                            mun:or-left, from C5
-
-                  case
-                  assume c = 0                                        (C6)
-
-                  1.4.2.2.  b = 0 and c = 0
-                            join C4, C6
-
-                  1.4.2.3.  a = 0 or (b = 0 and c = 0)
-                            mun:or-right, from 1.4.2.2
+          4.2.3.  a = 0 or (b = 0 and c = 0)
+                  mun:or-right, from 4.2.2

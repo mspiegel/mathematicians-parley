@@ -4030,7 +4030,14 @@ pub fn check_conclusion_domains(
     if functions.is_empty() {
         return;
     }
-    let Some(last) = thm.steps.iter().rev().find(|s| s.number.len() == 1) else {
+    // A theorem proved `by` a method holds every step in that method's
+    // block, so what it holds at its outermost level is its hypotheses.
+    let by_method = thm.steps.first().filter(|s| s.proves_theorem());
+    let last = match by_method {
+        Some(theorem) => Some(theorem),
+        None => thm.steps.iter().rev().find(|s| s.number.len() == 1),
+    };
+    let Some(last) = last else {
         return; // `check_last_step` says there is none
     };
     let asked = stated_applications(&functions, &thm.stated(), known, library);
@@ -4046,7 +4053,7 @@ pub fn check_conclusion_domains(
         .chain(
             thm.steps
                 .iter()
-                .filter(|s| s.number.len() == 1)
+                .filter(|s| by_method.is_none() && s.number.len() == 1)
                 .map(|s| s.number.to_string()),
         )
         .collect();

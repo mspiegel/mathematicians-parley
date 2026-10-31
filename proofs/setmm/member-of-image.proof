@@ -9,27 +9,25 @@ theorem member-of-image
   let X ⊆ A                                                           (H4)
   let y be an element                                                 (H5)
   then y ∈ F[X] ↔ there is x ∈ X with F(x) = y
+  by          both directions
 
-1.  y ∈ F[X] ↔ there is x ∈ X with F(x) = y
-    both directions
+direction
+assume y ∈ F[X]                                                       (D1)
 
-    direction
-    assume y ∈ F[X]                                                   (D1)
+1.  x ∈ X. y = F(x).
+    obtain x: def:image u := y, from D1, H4
 
-    1.1.  x ∈ X. y = F(x).
-          obtain x: def:image u := y, from D1, H4
+2.  there is x ∈ X with F(x) = y
+    exhibit, from 1
 
-    1.2.  there is x ∈ X with F(x) = y
-          exhibit, from 1.1
+direction
+assume there is x ∈ X with F(x) = y                                   (D2)
 
-    direction
-    assume there is x ∈ X with F(x) = y                               (D2)
+3.  x ∈ X. F(x) = y.
+    obtain x from D2
 
-    1.3.  x ∈ X. F(x) = y.
-          obtain x from D2
+4.  F(x) ∈ F[X]
+    mun:value-in-image Y := X, s := x, from H4, 3
 
-    1.4.  F(x) ∈ F[X]
-          mun:value-in-image Y := X, s := x, from H4, 1.3
-
-    1.5.  y ∈ F[X]
-          substitute F(x) = y (line 1.3) into line 1.4
+5.  y ∈ F[X]
+    substitute F(x) = y (line 3) into line 4

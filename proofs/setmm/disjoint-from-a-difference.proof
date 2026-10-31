@@ -11,27 +11,26 @@ theorem disjoint-from-a-difference
   let C be a set                                                      (H3)
   assume (A ∖ B) ∩ C = ∅                                              (H4)
   then C ⊆ A → C ⊆ B
+  by          proof
 
-1.  C ⊆ A → C ⊆ B
+assume C ⊆ A                                                          (K1)
+
+1.  For all t ∈ C, t ∈ B.
     proof
-    assume C ⊆ A                                                      (K1)
+    let t ∈ C                                                         (K2)
 
-    1.1.  For all t ∈ C, t ∈ B.
-          proof
-          let t ∈ C                                                   (K2)
+    1.1.  t ∈ A
+          mun:in-subset X := C, Y := A, u := t, from K1, K2
 
-          1.1.1.  t ∈ A
-                  mun:in-subset X := C, Y := A, u := t, from K1, K2
+    1.2.  t ∈ B
+          contradiction
+          suppose t ∉ B                                               (S)
 
-          1.1.2.  t ∈ B
-                  contradiction
-                  suppose t ∉ B                                       (S)
+          1.2.1.  t ∈ A ∖ B
+                  def:difference u := t, Y := A, Z := B, from S, 1.1
 
-                  1.1.2.1.  t ∈ A ∖ B
-                            def:difference u := t, Y := A, Z := B, from S, 1.1.1
+          1.2.2.  t ∉ C
+                  mun:disjoint-member Y := A ∖ B, Z := C, from H4, 1.2.1, contradicting K2
 
-                  1.1.2.2.  t ∉ C
-                            mun:disjoint-member Y := A ∖ B, Z := C, from H4, 1.1.2.1, contradicting K2
-
-    1.2.  C ⊆ B
-          def:subset, from 1.1
+2.  C ⊆ B
+    def:subset, from 1

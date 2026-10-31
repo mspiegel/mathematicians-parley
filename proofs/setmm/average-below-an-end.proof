@@ -5,24 +5,22 @@ theorem average-below-an-end
   let A ∈ ℝ                                                           (H1)
   let B ∈ ℝ                                                           (H2)
   then A < B ↔ (A + B)/2 < B
+  by          both directions
 
-1.  A < B ↔ (A + B)/2 < B
-    both directions
+direction
+assume A < B                                                          (D1)
 
-    direction
-    assume A < B                                                      (D1)
+1.  (A + B)/2 < B
+    inequalities
+      A < B              D1
+      A + B < B + B      adding B
+      (A + B)/2 < B      multiplying by 1/2
 
-    1.1.  (A + B)/2 < B
-          inequalities
-            A < B              D1
-            A + B < B + B      adding B
-            (A + B)/2 < B      multiplying by 1/2
+direction
+assume (A + B)/2 < B                                                  (D2)
 
-    direction
-    assume (A + B)/2 < B                                              (D2)
-
-    1.2.  A < B
-          inequalities
-            (A + B)/2 < B      D2
-            A + B < 2B         multiplying by 2
-            A < B              adding −B
+2.  A < B
+    inequalities
+      (A + B)/2 < B      D2
+      A + B < 2B         multiplying by 2
+      A < B              adding −B

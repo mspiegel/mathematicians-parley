@@ -22,24 +22,22 @@ theorem power-sets-keep-order
   let A be a set                                                      (H1)
   let B be a set                                                      (H2)
   then A ⊆ B ↔ 𝒫A ⊆ 𝒫B
+  by          both directions
 
-1.  A ⊆ B ↔ 𝒫A ⊆ 𝒫B
-    both directions
+direction
+assume A ⊆ B                                                          (D1)
 
-    direction
-    assume A ⊆ B                                                      (D1)
+1.  𝒫A ⊆ 𝒫B
+    mun:powerset-monotone X := B, Y := A, from D1
 
-    1.1.  𝒫A ⊆ 𝒫B
-          mun:powerset-monotone X := B, Y := A, from D1
+direction
+assume 𝒫A ⊆ 𝒫B                                                        (D2)
 
-    direction
-    assume 𝒫A ⊆ 𝒫B                                                    (D2)
+2.  A ∈ 𝒫A
+    thm:set-is-a-part-of-itself
 
-    1.2.  A ∈ 𝒫A
-          thm:set-is-a-part-of-itself
+3.  A ∈ 𝒫B
+    mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 2
 
-    1.3.  A ∈ 𝒫B
-          mun:in-subset X := 𝒫A, Y := 𝒫B, u := A, from D2, 1.2
-
-    1.4.  A ⊆ B
-          def:powerset S := A, A := B, from 1.3
+4.  A ⊆ B
+    def:powerset S := A, A := B, from 3

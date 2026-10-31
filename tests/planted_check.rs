@@ -491,7 +491,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     (
         "inspection",
         "proofs/setmm/image-empty.proof",
-        "                  inspection, contradicting 1.1.2",
+        "          inspection, contradicting 1.2",
     ),
     (
         "join",
@@ -521,7 +521,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     ),
     (
         "both directions",
-        "proofs/setmm/multiplying-bounds.proof",
+        "proofs/setmm/square-roots-equal.proof",
         "    both directions",
     ),
     (
@@ -901,7 +901,7 @@ fn cases() -> Vec<Case> {
                 Some("                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n          requires s(n) ∈ ℝ: from 2\n".to_string()),
                 "                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n".to_string(),
             )],
-            "proofs/wiedijk/liouville-number.proof:221  nothing says s(n) ∈ ℝ or ∈ ℂ, which this step needs",
+            "proofs/wiedijk/liouville-number.proof:218  nothing says s(n) ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A line marked impossible is reached by its reasons from the lines
         // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
@@ -3486,9 +3486,9 @@ fn cases() -> Vec<Case> {
         case(
             "an obtain from a line that says no there is",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("          obtain k, m, n from line 1.2".to_string()), "          obtain k, m, n from H1".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    obtain k, m, n from line 2".to_string()), "    obtain k, m, n from H1".to_string()),
             ],
-            "step 1.3 obtains k, m, n from a line, which says no \"there is\" of as many",
+            "step 3 obtains k, m, n from a line, which says no \"there is\" of as many",
         ),
         case(
             "an obtain of more names than the item's there is binds",
@@ -5600,9 +5600,9 @@ fn cases() -> Vec<Case> {
         case(
             "a direction that does not assume a side of the claim",
             vec![
-                edit("proofs/wiedijk/pythagorean-triples.proof", Some("    assume a² + b² = c²                                               (D1)".to_string()), "    assume a² + b² = c² + 1                                           (D1)".to_string()),
+                edit("proofs/wiedijk/pythagorean-triples.proof", Some("assume a² + b² = c²                                                   (D1)".to_string()), "assume a² + b² = c² + 1                                               (D1)".to_string()),
             ],
-            "step 1 proves both directions, and direction 1 does not assume the claim's side it starts from",
+            "the theorem proves both directions, and direction 1 does not assume the claim's side it starts from",
         ),
         case(
             "a chain link saying a modulus after a relation that is not ≡",
@@ -6997,6 +6997,63 @@ fn cases() -> Vec<Case> {
                 "from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.11, 1.2.3.4.16".to_string(),
             )],
             "step 1.2.3.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+        ),
+        // A theorem proved `by` a method is that method's step, numbered with
+        // no number, whose block holds every step of the proof (`SYNTAX.md`,
+        // a theorem proved by a method).
+        case(
+            "prove a theorem by a method that opens no block",
+            vec![edit(
+                "proofs/setmm/subset-of-union-and-difference.proof",
+                Some("  by          both directions".to_string()),
+                "  by          algebra".to_string(),
+            )],
+            "`by` names a method that opens a block: both directions, contradiction, proof, induction or cases; algebra proves a step",
+        ),
+        case(
+            "write by twice",
+            vec![edit(
+                "proofs/setmm/subset-of-union-and-difference.proof",
+                Some("  by          both directions\n".to_string()),
+                "  by          both directions\n  by          both directions\n".to_string(),
+            )],
+            "`by` comes once, under `then`, before the proof",
+        ),
+        case(
+            "a step above the first part of a theorem proved by both directions",
+            vec![edit(
+                "proofs/setmm/subset-of-union-and-difference.proof",
+                Some("  by          both directions\n\ndirection\n".to_string()),
+                "  by          both directions\n\n1.  A ⊆ A\n    mun:subset-reflexive X := A\n\ndirection\n".to_string(),
+            )],
+            "step 1 stands outside the theorem's block; under `by` every step is in one of its parts",
+        ),
+        case(
+            "an induction hypothesis naming a step of a theorem proved by induction",
+            vec![edit(
+                "proofs/wiedijk/liouville-number.proof",
+                Some("assume the theorem is true for j, the induction hypothesis            (IH)".to_string()),
+                "assume step 1 is true for j, the induction hypothesis                 (IH)".to_string(),
+            )],
+            "the theorem has no step 1; its induction hypothesis says `assume the theorem is true for j, the induction hypothesis`",
+        ),
+        case(
+            "a theorem proved by contradiction whose block ends on no contradiction",
+            vec![edit(
+                "proofs/hammack/rational-squares-sum-not-three.proof",
+                Some("    inequalities, from H2, contradicting 1\n".to_string()),
+                "    inequalities, from H2\n".to_string(),
+            )],
+            "step 2 ends a contradiction block and does not say which line it contradicts",
+        ),
+        case(
+            "a theorem proved by contradiction with no steps",
+            vec![edit(
+                "proofs/hammack/rational-squares-sum-not-three.proof",
+                Some("  by          contradiction\n\nsuppose 3 divides r                                                   (S)\n\n1.  3 ≤ r\n    mun:divides-le e := 3, m := r, from S\n\n2.  not 3 ≤ r\n    inequalities, from H2, contradicting 1\n".to_string()),
+                "  by          contradiction\n".to_string(),
+            )],
+            "the theorem is proved `by contradiction` and its block has no steps",
         ),
     ]
 }

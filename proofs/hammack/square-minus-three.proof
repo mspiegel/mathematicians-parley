@@ -68,53 +68,52 @@ theorem square-minus-three
               4(k² + k − m) = 2. No multiple of 4 is 1 or 2.
   let n ∈ ℤ                                                           (H1)
   then not (4 divides n² − 3)
+  by          contradiction
 
-1.  not (4 divides n² − 3)
-    contradiction
-    suppose 4 divides n² − 3                                          (S)
+suppose 4 divides n² − 3                                              (S)
 
-    1.1.  m ∈ ℤ. n² − 3 = 4m.
-          obtain m: def:divides d := 4, n := n² − 3, from S
+1.  m ∈ ℤ. n² − 3 = 4m.
+    obtain m: def:divides d := 4, n := n² − 3, from S
 
-    1.2.  n is even or n is odd
-          mun:even-or-odd
+2.  n is even or n is odd
+    mun:even-or-odd
 
-    1.3.  n² − 3 ≠ 4m
-          cases, from 1.2
+3.  n² − 3 ≠ 4m
+    cases, from 2
 
-          case
-          assume n is even                                            (C1)
+    case
+    assume n is even                                                  (C1)
 
-          1.3.1.  k ∈ ℤ. n = 2k.
-                  obtain k: def:even, from C1
+    3.1.  k ∈ ℤ. n = 2k.
+          obtain k: def:even, from C1
 
-          1.3.2.  (2k)² − 3 = 4m
-                  substitute n = 2k (line 1.3.1) into line 1.1
+    3.2.  (2k)² − 3 = 4m
+          substitute n = 2k (line 3.1) into line 1
 
-          1.3.3.  4(m − k² + 1) = 1
-                  algebra, from 1.3.2
+    3.3.  4(m − k² + 1) = 1
+          algebra, from 3.2
 
-          1.3.4.  4(m − k² + 1) ≠ 1
-                  thm:four-times-between j := m − k² + 1, r := 1, contradicting 1.3.3
-                  requires 1 > 0: arithmetic
-                  requires 1 < 4: arithmetic
+    3.4.  4(m − k² + 1) ≠ 1
+          thm:four-times-between j := m − k² + 1, r := 1, contradicting 3.3
+          requires 1 > 0: arithmetic
+          requires 1 < 4: arithmetic
 
-          case
-          assume n is odd                                             (C2)
+    case
+    assume n is odd                                                   (C2)
 
-          1.3.5.  k ∈ ℤ. n = 2k + 1.
-                  obtain k: def:odd, from C2
+    3.5.  k ∈ ℤ. n = 2k + 1.
+          obtain k: def:odd, from C2
 
-          1.3.6.  (2k + 1)² − 3 = 4m
-                  substitute n = 2k + 1 (line 1.3.5) into line 1.1
+    3.6.  (2k + 1)² − 3 = 4m
+          substitute n = 2k + 1 (line 3.5) into line 1
 
-          1.3.7.  4(k² + k − m) = 2
-                  algebra, from 1.3.6
+    3.7.  4(k² + k − m) = 2
+          algebra, from 3.6
 
-          1.3.8.  4(k² + k − m) ≠ 2
-                  thm:four-times-between j := k² + k − m, r := 2, contradicting 1.3.7
-                  requires 2 > 0: arithmetic
-                  requires 2 < 4: arithmetic
+    3.8.  4(k² + k − m) ≠ 2
+          thm:four-times-between j := k² + k − m, r := 2, contradicting 3.7
+          requires 2 > 0: arithmetic
+          requires 2 < 4: arithmetic
 
-    1.4.  n² − 3 ≠ 4m
-          restate 1.3, contradicting 1.1
+4.  n² − 3 ≠ 4m
+    restate 3, contradicting 1

@@ -4,25 +4,23 @@ theorem average-above-left
   let A ∈ ℝ                                                           (H1)
   let B ∈ ℝ                                                           (H2)
   then A < B ↔ A < (A + B)/2
+  by          both directions
 
-1.  A < B ↔ A < (A + B)/2
-    both directions
+direction
+assume A < B                                                          (D1)
 
-    direction
-    assume A < B                                                      (D1)
+1.  A < (A + B)/2
+    inequalities
+      A < B                D1
+      A + A < A + B        adding A
+      2·A < A + B          algebra
+      A < (A + B)/2        multiplying by 1/2
 
-    1.1.  A < (A + B)/2
-          inequalities
-            A < B                D1
-            A + A < A + B        adding A
-            2·A < A + B          algebra
-            A < (A + B)/2        multiplying by 1/2
+direction
+assume A < (A + B)/2                                                  (D2)
 
-    direction
-    assume A < (A + B)/2                                              (D2)
-
-    1.2.  A < B
-          inequalities
-            A < (A + B)/2        D2
-            2·A < A + B          multiplying by 2
-            A < B                adding −A
+2.  A < B
+    inequalities
+      A < (A + B)/2        D2
+      2·A < A + B          multiplying by 2
+      A < B                adding −A

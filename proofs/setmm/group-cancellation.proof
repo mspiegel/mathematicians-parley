@@ -105,46 +105,44 @@ theorem left-cancellation
   let b ∈ G                                                           (H3)
   let g ∈ G                                                           (H4)
   then g·a = g·b ↔ a = b
+  by          both directions
 
-1.  g·a = g·b ↔ a = b
-    both directions
+direction
+assume g·a = g·b                                                      (D1)
 
-    direction
-    assume g·a = g·b                                                  (D1)
+1.  g⁻¹ ∈ G
+    axi:group-inverse-closed a := g, from H4
 
-    1.1.  g⁻¹ ∈ G
-          axi:group-inverse-closed a := g, from H4
+2.  g⁻¹·g = e
+    thm:the-left-inverse a := g, from H4
 
-    1.2.  g⁻¹·g = e
-          thm:the-left-inverse a := g, from H4
+3.  (g⁻¹·g)·a = g⁻¹·(g·a)
+    axi:group-associative a := g⁻¹, b := g, c := a, from H2, H4, 1
 
-    1.3.  (g⁻¹·g)·a = g⁻¹·(g·a)
-          axi:group-associative a := g⁻¹, b := g, c := a, from H2, H4, 1.1
+4.  (g⁻¹·g)·b = g⁻¹·(g·b)
+    axi:group-associative a := g⁻¹, b := g, c := b, from H3, H4, 1
 
-    1.4.  (g⁻¹·g)·b = g⁻¹·(g·b)
-          axi:group-associative a := g⁻¹, b := g, c := b, from H3, H4, 1.1
+5.  e·a = g⁻¹·(g·a)
+    substitute g⁻¹·g = e (line 2) into line 3
 
-    1.5.  e·a = g⁻¹·(g·a)
-          substitute g⁻¹·g = e (line 1.2) into line 1.3
+6.  e·a = g⁻¹·(g·b)
+    substitute g·a = g·b (D1) into line 5
 
-    1.6.  e·a = g⁻¹·(g·b)
-          substitute g·a = g·b (D1) into line 1.5
+7.  e·b = g⁻¹·(g·b)
+    substitute g⁻¹·g = e (line 2) into line 4
 
-    1.7.  e·b = g⁻¹·(g·b)
-          substitute g⁻¹·g = e (line 1.2) into line 1.4
+8.  a = b
+    calculation
+    a = e·a               thm:the-left-identity, from H2
+      = g⁻¹·(g·b)         6
+      = e·b               7
+      = b                 thm:the-left-identity a := b, from H3
 
-    1.8.  a = b
-          calculation
-          a = e·a               thm:the-left-identity, from H2
-            = g⁻¹·(g·b)         1.6
-            = e·b               1.7
-            = b                 thm:the-left-identity a := b, from H3
+direction
+assume a = b                                                          (D2)
 
-    direction
-    assume a = b                                                      (D2)
-
-    1.9.  g·a = g·b
-          substitute a = b (D2)
+9.  g·a = g·b
+    substitute a = b (D2)
 
 theorem right-cancellation
   note        Multiplying by g⁻¹ on the right undoes multiplying by g.
@@ -153,46 +151,44 @@ theorem right-cancellation
   let b ∈ G                                                           (H3)
   let g ∈ G                                                           (H4)
   then a·g = b·g ↔ a = b
+  by          both directions
 
-1.  a·g = b·g ↔ a = b
-    both directions
+direction
+assume a·g = b·g                                                      (D1)
 
-    direction
-    assume a·g = b·g                                                  (D1)
+1.  g⁻¹ ∈ G
+    axi:group-inverse-closed a := g, from H4
 
-    1.1.  g⁻¹ ∈ G
-          axi:group-inverse-closed a := g, from H4
+2.  g·g⁻¹ = e
+    axi:group-inverse a := g, from H4
 
-    1.2.  g·g⁻¹ = e
-          axi:group-inverse a := g, from H4
+3.  (a·g)·g⁻¹ = a·(g·g⁻¹)
+    axi:group-associative b := g, c := g⁻¹, from H2, H4, 1
 
-    1.3.  (a·g)·g⁻¹ = a·(g·g⁻¹)
-          axi:group-associative b := g, c := g⁻¹, from H2, H4, 1.1
+4.  (a·g)·g⁻¹ = a·e
+    substitute g·g⁻¹ = e (line 2) into line 3
 
-    1.4.  (a·g)·g⁻¹ = a·e
-          substitute g·g⁻¹ = e (line 1.2) into line 1.3
+5.  (b·g)·g⁻¹ = a·e
+    substitute a·g = b·g (D1) into line 4
 
-    1.5.  (b·g)·g⁻¹ = a·e
-          substitute a·g = b·g (D1) into line 1.4
+6.  (b·g)·g⁻¹ = b·(g·g⁻¹)
+    axi:group-associative a := b, b := g, c := g⁻¹, from H3, H4, 1
 
-    1.6.  (b·g)·g⁻¹ = b·(g·g⁻¹)
-          axi:group-associative a := b, b := g, c := g⁻¹, from H3, H4, 1.1
+7.  (b·g)·g⁻¹ = b·e
+    substitute g·g⁻¹ = e (line 2) into line 6
 
-    1.7.  (b·g)·g⁻¹ = b·e
-          substitute g·g⁻¹ = e (line 1.2) into line 1.6
+8.  a = b
+    calculation
+    a = a·e               axi:group-identity, from H2
+      = (b·g)·g⁻¹         5
+      = b·e               7
+      = b                 axi:group-identity a := b, from H3
 
-    1.8.  a = b
-          calculation
-          a = a·e               axi:group-identity, from H2
-            = (b·g)·g⁻¹         1.5
-            = b·e               1.7
-            = b                 axi:group-identity a := b, from H3
+direction
+assume a = b                                                          (D2)
 
-    direction
-    assume a = b                                                      (D2)
-
-    1.9.  a·g = b·g
-          substitute a = b (D2)
+9.  a·g = b·g
+    substitute a = b (D2)
 
 theorem inverse-reverses-products
   note        Undoing a·b undoes b first. b⁻¹·a⁻¹ does that: b·(b⁻¹·a⁻¹)
@@ -278,31 +274,29 @@ theorem quotient-is-identity
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
   then a·b⁻¹ = e ↔ a = b
+  by          both directions
 
-1.  a·b⁻¹ = e ↔ a = b
-    both directions
+direction
+assume a·b⁻¹ = e                                                      (D1)
 
-    direction
-    assume a·b⁻¹ = e                                                  (D1)
+1.  (a·b⁻¹)·b = a
+    thm:quotient-times-divisor, from H2, H3
 
-    1.1.  (a·b⁻¹)·b = a
-          thm:quotient-times-divisor, from H2, H3
+2.  e·b = a
+    substitute a·b⁻¹ = e (D1) into line 1
 
-    1.2.  e·b = a
-          substitute a·b⁻¹ = e (D1) into line 1.1
+3.  a = b
+    calculation
+    a = e·b     2
+      = b       thm:the-left-identity a := b, from H3
 
-    1.3.  a = b
-          calculation
-          a = e·b     1.2
-            = b       thm:the-left-identity a := b, from H3
+direction
+assume a = b                                                          (D2)
 
-    direction
-    assume a = b                                                      (D2)
-
-    1.4.  a·b⁻¹ = e
-          calculation
-          a·b⁻¹ = b·b⁻¹     substitute D2
-                = e         axi:group-inverse a := b, from H3
+4.  a·b⁻¹ = e
+    calculation
+    a·b⁻¹ = b·b⁻¹     substitute D2
+          = e         axi:group-inverse a := b, from H3
 
 theorem quotient-and-product
   note        a·b⁻¹ is c exactly when c·b is a: multiplying a·b⁻¹ by b gives
@@ -312,38 +306,36 @@ theorem quotient-and-product
   let b ∈ G                                                           (H3)
   let c ∈ G                                                           (H4)
   then a·b⁻¹ = c ↔ c·b = a
+  by          both directions
 
-1.  a·b⁻¹ = c ↔ c·b = a
-    both directions
+direction
+assume a·b⁻¹ = c                                                      (D1)
 
-    direction
-    assume a·b⁻¹ = c                                                  (D1)
+1.  (a·b⁻¹)·b = a
+    thm:quotient-times-divisor, from H2, H3
 
-    1.1.  (a·b⁻¹)·b = a
-          thm:quotient-times-divisor, from H2, H3
+2.  c·b = a
+    substitute a·b⁻¹ = c (D1) into line 1
 
-    1.2.  c·b = a
-          substitute a·b⁻¹ = c (D1) into line 1.1
+direction
+assume c·b = a                                                        (D2)
 
-    direction
-    assume c·b = a                                                    (D2)
+3.  b⁻¹ ∈ G
+    axi:group-inverse-closed a := b, from H3
 
-    1.3.  b⁻¹ ∈ G
-          axi:group-inverse-closed a := b, from H3
+4.  (c·b)·b⁻¹ = c·(b·b⁻¹)
+    axi:group-associative a := c, c := b⁻¹, from H3, H4, 3
 
-    1.4.  (c·b)·b⁻¹ = c·(b·b⁻¹)
-          axi:group-associative a := c, c := b⁻¹, from H3, H4, 1.3
+5.  (c·b)·b⁻¹ = c·e
+    substitute
+      (c·b)·b⁻¹ = c·(b·b⁻¹)      4
+      (c·b)·b⁻¹ = c·e            axi:group-inverse a := b, from H3
 
-    1.5.  (c·b)·b⁻¹ = c·e
-          substitute
-            (c·b)·b⁻¹ = c·(b·b⁻¹)      1.4
-            (c·b)·b⁻¹ = c·e            axi:group-inverse a := b, from H3
-
-    1.6.  a·b⁻¹ = c
-          calculation
-          a·b⁻¹ = (c·b)·b⁻¹     substitute D2
-                = c·e           1.5
-                = c             axi:group-identity a := c, from H4
+6.  a·b⁻¹ = c
+    calculation
+    a·b⁻¹ = (c·b)·b⁻¹     substitute D2
+          = c·e           5
+          = c             axi:group-identity a := c, from H4
 
 theorem subgroup-quotient
   note        A subgroup holds a·b⁻¹ for any two of its members: it holds

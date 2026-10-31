@@ -16,93 +16,91 @@ theorem shifted-product-even-iff
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then (a − 3)·b² is even ↔ a is odd or b is even
+  by          both directions
 
-1.  (a − 3)·b² is even ↔ a is odd or b is even
-    both directions
+direction
+assume (a − 3)·b² is even                                             (D1)
 
-    direction
-    assume (a − 3)·b² is even                                         (D1)
+1.  a − 3 is even or b² is even
+    mun:even-product-factor n := a − 3, from D1
 
-    1.1.  a − 3 is even or b² is even
-          mun:even-product-factor n := a − 3, from D1
+2.  a is odd or b is even
+    cases, from 1
 
-    1.2.  a is odd or b is even
-          cases, from 1.1
+    case
+    assume a − 3 is even                                              (C1)
 
-          case
-          assume a − 3 is even                                        (C1)
+    2.1.  k ∈ ℤ. a − 3 = 2k.
+          obtain k: def:even n := a − 3, from C1
 
-          1.2.1.  k ∈ ℤ. a − 3 = 2k.
-                  obtain k: def:even n := a − 3, from C1
+    2.2.  a = 2(k + 1) + 1
+          algebra, from 2.1
 
-          1.2.2.  a = 2(k + 1) + 1
-                  algebra, from 1.2.1
+    2.3.  a is odd
+          def:odd n := a, from 2.2
 
-          1.2.3.  a is odd
-                  def:odd n := a, from 1.2.2
+    2.4.  a is odd or b is even
+          mun:or-left P := a is odd, Q := b is even, from 2.3
 
-          1.2.4.  a is odd or b is even
-                  mun:or-left P := a is odd, Q := b is even, from 1.2.3
+    case
+    assume b² is even                                                 (C2)
 
-          case
-          assume b² is even                                           (C2)
+    2.5.  b is even or b is odd
+          mun:even-or-odd n := b
 
-          1.2.5.  b is even or b is odd
-                  mun:even-or-odd n := b
-
-          1.2.6.  b is even
-                  cases, from 1.2.5
-
-                  case
-                  assume b is even, which is the claim                (C3)
-
-                  case
-                  assume b is odd                                     (C4)
-
-                  1.2.6.1.  k ∈ ℤ. b = 2k + 1.
-                            obtain k: def:odd n := b, from C4
-
-                  1.2.6.2.  b² = 2(2k² + 2k) + 1
-                            algebra, from 1.2.6.1
-
-                  1.2.6.3.  b² is odd
-                            def:odd n := b², from 1.2.6.2
-
-                  1.2.6.4.  b² is not odd
-                            mun:not-both n := b², from C2, contradicting 1.2.6.3
-
-          1.2.7.  a is odd or b is even
-                  mun:or-right P := a is odd, Q := b is even, from 1.2.6
-
-    direction
-    assume a is odd or b is even                                      (D2)
-
-    1.3.  (a − 3)·b² is even
-          cases, from D2
+    2.6.  b is even
+          cases, from 2.5
 
           case
-          assume a is odd                                             (C5)
-
-          1.3.1.  k ∈ ℤ. a = 2k + 1.
-                  obtain k: def:odd, from C5
-
-          1.3.2.  a − 3 = 2(k − 1)
-                  algebra, from 1.3.1
-
-          1.3.3.  a − 3 is even
-                  def:even n := a − 3, from 1.3.2
-
-          1.3.4.  (a − 3)·b² is even
-                  mun:even-product a := a − 3, x := b², from 1.3.3
+          assume b is even, which is the claim                        (C3)
 
           case
-          assume b is even                                            (C6)
+          assume b is odd                                             (C4)
 
-          1.3.5.  k ∈ ℤ. b = 2k.
-                  obtain k: def:even, from C6
+          2.6.1.  k ∈ ℤ. b = 2k + 1.
+                  obtain k: def:odd n := b, from C4
 
-          1.3.6.  (a − 3)·b² = 2(2(a − 3)·k²)
-                  algebra, from 1.3.5
+          2.6.2.  b² = 2(2k² + 2k) + 1
+                  algebra, from 2.6.1
 
-          1.3.7.  (a − 3)·b² is even
-                  def:even n := (a − 3)·b², from 1.3.6
+          2.6.3.  b² is odd
+                  def:odd n := b², from 2.6.2
+
+          2.6.4.  b² is not odd
+                  mun:not-both n := b², from C2, contradicting 2.6.3
+
+    2.7.  a is odd or b is even
+          mun:or-right P := a is odd, Q := b is even, from 2.6
+
+direction
+assume a is odd or b is even                                          (D2)
+
+3.  (a − 3)·b² is even
+    cases, from D2
+
+    case
+    assume a is odd                                                   (C5)
+
+    3.1.  k ∈ ℤ. a = 2k + 1.
+          obtain k: def:odd, from C5
+
+    3.2.  a − 3 = 2(k − 1)
+          algebra, from 3.1
+
+    3.3.  a − 3 is even
+          def:even n := a − 3, from 3.2
+
+    3.4.  (a − 3)·b² is even
+          mun:even-product a := a − 3, x := b², from 3.3
+
+    case
+    assume b is even                                                  (C6)
+
+    3.5.  k ∈ ℤ. b = 2k.
+          obtain k: def:even, from C6
+
+    3.6.  (a − 3)·b² = 2(2(a − 3)·k²)
+          algebra, from 3.5
+
+    3.7.  (a − 3)·b² is even
+          def:even n := (a − 3)·b², from 3.6

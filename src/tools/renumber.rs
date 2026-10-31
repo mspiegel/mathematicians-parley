@@ -222,7 +222,7 @@ fn moved(
 
 /// The line after the theorem's last: where the next theorem of its file
 /// opens, or the file's end.
-fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
+pub(crate) fn region_end(theorems: &[Theorem], thm: &Theorem, lines: usize) -> usize {
     theorems
         .iter()
         .filter(|t| t.path == thm.path && t.line > thm.line)
@@ -308,7 +308,7 @@ struct Cut {
 /// (`proof::references`). Where the reader places a number that the file
 /// does not write there, the reading and the file disagree: that is said,
 /// and nothing is changed.
-fn renumber(
+pub(crate) fn renumber(
     thm: &Theorem,
     lines: &mut [String],
     map: &BTreeMap<StepNo, StepNo>,

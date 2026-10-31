@@ -37,7 +37,9 @@ use crate::text::{prefix, repr};
 /// it there. Steps inside a closed block are not visible outside it.
 pub fn in_scope(cited: &StepNo, here: &StepNo) -> bool {
     let (c, h) = (&cited.0, &here.0);
-    if c.len() > h.len() {
+    // The theorem proved `by` a method, numbered with no number, is what
+    // the proof proves and is never cited.
+    if c.is_empty() || c.len() > h.len() {
         return false;
     }
     let k = c.len();
@@ -167,6 +169,12 @@ pub fn check_numbering(report: &mut Report, thm: &Theorem) {
     let mut last: IndexMap<StepNo, u32> = IndexMap::new();
     for step in &thm.steps {
         let n = &step.number;
+        // The theorem proved `by` a method has no number to check; its
+        // block's steps count from 1 under it.
+        if step.proves_theorem() {
+            seen.insert(n.clone());
+            continue;
+        }
         let parent = n.parent();
         if seen.contains(n) {
             report.say(&thm.path, step.line, format!("step {n} is numbered twice"));
@@ -214,10 +222,41 @@ pub fn check_blocks(
     known: &Known,
 ) {
     for (at, step) in thm.steps.iter().enumerate() {
-        let has_children = thm.steps.iter().any(|s| s.number.parent() == step.number);
+        // The theorem proved `by` a method is numbered with no number, whose
+        // parent is itself again: it is not its own sub-step.
+        let has_children = thm
+            .steps
+            .iter()
+            .any(|s| s.number != step.number && s.number.parent() == step.number);
         let head = step.just.head.to_string();
         let method = methods.get(&head);
         let wants_block = step.just.head.takes_block();
+        if step.proves_theorem() && !has_children {
+            report.say(
+                &thm.path,
+                step.line,
+                format!("the theorem is proved `by {head}` and its block has no steps"),
+            );
+            continue;
+        }
+        // A theorem proved by a method with parts holds each of its steps
+        // in one of them: a step above the first part marker is in none.
+        if step.proves_theorem() && !step.parts.is_empty() {
+            for s in thm
+                .steps
+                .iter()
+                .filter(|s| s.number.len() == 1 && s.part.is_none())
+            {
+                report.say(
+                    &thm.path,
+                    s.line,
+                    format!(
+                        "step {} stands outside the theorem's block; under `by` every step is in one of its parts",
+                        s.number
+                    ),
+                );
+            }
+        }
         if wants_block && !has_children && !step.just.head.is(Method::Calculation) {
             // A block whose steps are numbered as the step's siblings, 2.4
             // under a step 2.3 where 2.3.1 is meant, is read as the
@@ -264,8 +303,8 @@ pub fn check_blocks(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} takes one case, and a case split takes two or more; prove the one case as a plain step",
-                    step.number
+                    "{} takes one case, and a case split takes two or more; prove the one case as a plain step",
+                    step.called()
                 ),
             );
         }
@@ -305,8 +344,8 @@ pub fn check_blocks(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} cites {head}, whose block carries the parts {}, and has no part markers",
-                    step.number,
+                    "{} cites {head}, whose block carries the parts {}, and has no part markers",
+                    step.called(),
                     declared.join(", ")
                 ),
             );
@@ -340,8 +379,8 @@ pub fn check_blocks(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} is a contradiction whose block does not open with `suppose`",
-                    step.number
+                    "{} is a contradiction whose block does not open with `suppose`",
+                    step.called()
                 ),
             );
         }
@@ -358,8 +397,8 @@ pub fn check_blocks(
                 &thm.path,
                 step.line,
                 format!(
-                    "step {} is a proof whose block does not open with `let` or `assume`",
-                    step.number
+                    "{} is a proof whose block does not open with `let` or `assume`",
+                    step.called()
                 ),
             );
         }
@@ -380,9 +419,9 @@ pub fn check_blocks(
                         &thm.path,
                         *no,
                         format!(
-                            "the {} part of step {} does not open with a labelled `assume`",
+                            "the {} part of {} does not open with a labelled `assume`",
                             repr(marker),
-                            step.number
+                            step.called()
                         ),
                     );
                 }
@@ -412,8 +451,9 @@ fn check_supposition_used(report: &mut Report, thm: &Theorem, step: &Step) {
                 &thm.path,
                 o.line,
                 format!(
-                    "step {} is a contradiction whose block never uses its supposition {}",
-                    step.number, o.label
+                    "{} is a contradiction whose block never uses its supposition {}",
+                    step.called(),
+                    o.label
                 ),
             );
         }
@@ -444,8 +484,8 @@ fn check_proof_letters(report: &mut Report, thm: &Theorem, step: &Step, known: &
                 &thm.path,
                 o.line,
                 format!(
-                    "the block of step {} lets {name}, and the claim it proves is about every {}; the block opens with the claim's own letter",
-                    step.number,
+                    "the block of {} lets {name}, and the claim it proves is about every {}; the block opens with the claim's own letter",
+                    step.called(),
                     bound.join(", ")
                 ),
             );
@@ -486,7 +526,9 @@ fn letters_bound(claim: &Node, known: &Known) -> Vec<String> {
 /// step N is true for k, the induction hypothesis`. Its base part opens with
 /// nothing.
 fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Known) {
-    let number = fmt(&step.number);
+    // `step 2`, or `the theorem` for one proved `by induction`, which its
+    // hypothesis names the same way: `assume the theorem is true for k`.
+    let called = step.called();
     let Some(claim) = known.whole_as_written(&step.claim) else {
         return; // `check_formulas` says it does not read
     };
@@ -498,7 +540,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
                 &thm.path,
                 step.line,
                 format!(
-                    "step {number} inducts on {k}, and what it says of every {k} does not mention {k}; the induction does no work, and the statement is a step of its own",
+                    "{called} inducts on {k}, and what it says of every {k} does not mention {k}; the induction does no work, and the statement is a step of its own",
                     k = letter.text
                 ),
             );
@@ -510,7 +552,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
                 &thm.path,
                 step.line,
                 format!(
-                    "step {number} is an induction whose claim does not say \"for all k ∈ X, …\""
+                    "{called} is an induction whose claim does not say \"for all k ∈ X, …\""
                 ),
             );
             return;
@@ -536,7 +578,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             &thm.path,
             step.line,
             format!(
-                "step {number} is an induction on {k}, and {k} is a letter already introduced here; an induction runs over a letter of its own",
+                "{called} is an induction on {k}, and {k} is a letter already introduced here; an induction runs over a letter of its own",
                 k = letter.text
             ),
         );
@@ -552,10 +594,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
                 report.say(
                     &thm.path,
                     o.line,
-                    format!(
-                        "the base part of step {number} opens with a {} line",
-                        o.kind
-                    ),
+                    format!("the base part of {called} opens with a {} line", o.kind),
                 );
             }
             continue;
@@ -589,12 +628,12 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
             let (k, x) = (known.print(letter), known.print(set));
             let said = match whole {
                 None => format!(
-                    "the step part of step {number} does not open with `let {k} ∈ {x}` and `assume step {number} is true for {k}, the induction hypothesis`, those two lines in that order and no other"
+                    "the step part of {called} does not open with `let {k} ∈ {x}` and `assume {called} is true for {k}, the induction hypothesis`, those two lines in that order and no other"
                 ),
                 Some(whole) => {
                     let w = known.print(whole);
                     format!(
-                        "the step part of step {number} does not open with `let {k} ⊆ {w}`, `assume step {number} is true for {k}, the induction hypothesis` and `let a ∈ {w} ∖ {k}`, a the member the step adds, those three lines in that order and no other"
+                        "the step part of {called} does not open with `let {k} ⊆ {w}`, `assume {called} is true for {k}, the induction hypothesis` and `let a ∈ {w} ∖ {k}`, a the member the step adds, those three lines in that order and no other"
                     )
                 }
             };
@@ -609,7 +648,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
                 &thm.path,
                 o.line,
                 format!(
-                    "the induction hypothesis is for {said}, and step {number} is said for all {}",
+                    "the induction hypothesis is for {said}, and {called} is said for all {}",
                     letter.text
                 ),
             );
@@ -673,7 +712,7 @@ fn check_parts_induction_runs(
     whole: &Node,
     known: &Known,
 ) {
-    let number = fmt(&step.number);
+    let called = step.called();
     let g = known.env.g;
     let empty = made_by_name(g, EMPTY_SET, Vec::new());
     let written = step.just.start.as_deref().map(str::trim);
@@ -710,7 +749,7 @@ fn check_parts_induction_runs(
             &thm.path,
             step.just.line,
             format!(
-                "step {number} inducts over the parts of {w}, which holds of a finite set only; it carries `requires {w} is finite`"
+                "{called} inducts over the parts of {w}, which holds of a finite set only; it carries `requires {w} is finite`"
             ),
         );
     }
@@ -728,13 +767,13 @@ fn check_induction_runs(
     set: &Node,
     known: &Known,
 ) {
-    let number = fmt(&step.number);
+    let called = step.called();
     for wanted in ["base", "step"] {
         if !step.parts.iter().any(|(marker, _)| marker == wanted) {
             report.say(
                 &thm.path,
                 step.line,
-                format!("step {number} is an induction with no {wanted} part"),
+                format!("{called} is an induction with no {wanted} part"),
             );
         }
     }
@@ -759,7 +798,7 @@ fn check_induction_runs(
             &thm.path,
             step.line,
             format!(
-                "step {number} is an induction over {}, and an induction runs over {}",
+                "{called} is an induction over {}, and an induction runs over {}",
                 known.print(set),
                 runs.join(" or ")
             ),
@@ -1543,7 +1582,8 @@ pub fn check_steps_used(report: &mut Report, thm: &Theorem, relied: &BTreeSet<St
     }
     for (i, step) in thm.steps.iter().enumerate() {
         let number = step.number.to_string();
-        if cited.contains(&number) {
+        // The theorem proved `by` a method is what the proof ends with.
+        if cited.contains(&number) || step.proves_theorem() {
             continue;
         }
         let depth = step.number.len();
@@ -1592,6 +1632,12 @@ fn cites(just: &Justification, cited: &mut BTreeSet<String>) {
 /// `Known::alike` compares two. A sentence that does not read is reported by
 /// `check_formulas`, and not compared here.
 pub fn check_last_step(report: &mut Report, thm: &Theorem, known: &Known) {
+    // A theorem proved `by` a method ends with that method's block, whose
+    // claim is the conclusion itself; each part's last step is checked
+    // against what the part owes (`formulas::check_block_ends`).
+    if thm.steps.first().is_some_and(Step::proves_theorem) {
+        return;
+    }
     let Some(last) = thm.steps.iter().rev().find(|s| s.number.0.len() == 1) else {
         report.say(
             &thm.path,

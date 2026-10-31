@@ -10,24 +10,22 @@ theorem value-and-inverse-agree
   let C ∈ A                                                           (H5)
   let D ∈ B                                                           (H6)
   then F(C) = D ↔ F⁻¹(D) = C
+  by          both directions
 
-1.  F(C) = D ↔ F⁻¹(D) = C
-    both directions
+direction
+assume F(C) = D                                                       (D1)
 
-    direction
-    assume F(C) = D                                                   (D1)
+1.  F⁻¹(F(C)) = C
+    thm:inverse-of-value, from H3, H4, H5
 
-    1.1.  F⁻¹(F(C)) = C
-          thm:inverse-of-value, from H3, H4, H5
+2.  F⁻¹(D) = C
+    substitute F(C) = D (D1) into line 1
 
-    1.2.  F⁻¹(D) = C
-          substitute F(C) = D (D1) into line 1.1
+direction
+assume F⁻¹(D) = C                                                     (D2)
 
-    direction
-    assume F⁻¹(D) = C                                                 (D2)
+3.  F(F⁻¹(D)) = D
+    thm:value-of-inverse C := D, from H3, H4, H6
 
-    1.3.  F(F⁻¹(D)) = D
-          thm:value-of-inverse C := D, from H3, H4, H6
-
-    1.4.  F(C) = D
-          substitute F⁻¹(D) = C (D2) into line 1.3
+4.  F(C) = D
+    substitute F⁻¹(D) = C (D2) into line 3

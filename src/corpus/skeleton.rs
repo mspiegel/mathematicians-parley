@@ -338,20 +338,21 @@ pub fn starts_with_head(text: &str) -> bool {
 }
 
 /// An induction's hypothesis as its line writes it, `assume step N is true
-/// for k, the induction hypothesis (IH)`: the induction's step, and the
-/// letter it is for.
+/// for k, the induction hypothesis (IH)`, or `assume the theorem is true
+/// for k, …` where the theorem is proved `by` the induction: the step it
+/// names, None for the theorem, and the letter it is for.
 pub struct InductionHypothesis<'t> {
-    pub step: &'t str,
+    pub step: Option<&'t str>,
     pub letter: &'t str,
 }
 
 /// The line read as an induction's hypothesis; None for any other line.
 pub fn induction_hypothesis(text: &str) -> Option<InductionHypothesis<'_>> {
     let (said, rest) = text.split_once(',')?;
-    let ["assume", "step", step, "is", "true", "for", letter] =
-        said.split_whitespace().collect::<Vec<_>>()[..]
-    else {
-        return None;
+    let (step, letter) = match said.split_whitespace().collect::<Vec<_>>()[..] {
+        ["assume", "step", step, "is", "true", "for", letter] => (Some(step), letter),
+        ["assume", "the", "theorem", "is", "true", "for", letter] => (None, letter),
+        _ => return None,
     };
     let ["the", "induction", "hypothesis", label] =
         rest.split_whitespace().collect::<Vec<_>>()[..]

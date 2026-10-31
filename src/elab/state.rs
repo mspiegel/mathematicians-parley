@@ -823,8 +823,13 @@ pub fn names_of(term: &Term) -> Vars {
     (*term.names()).clone()
 }
 
-/// The steps of a block, as their numbers are written.
+/// The steps of a block, as their numbers are written; `the theorem` for
+/// the step a theorem proved `by` a method is, which has no number, and
+/// whose line is kept apart from an unlabelled hypothesis's, kept under "".
 pub fn number_of(step: &Step) -> String {
+    if step.proves_theorem() {
+        return "the theorem".to_string();
+    }
     step.number
         .0
         .iter()

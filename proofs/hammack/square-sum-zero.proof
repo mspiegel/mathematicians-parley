@@ -6,33 +6,31 @@ theorem square-sum-zero
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then (x + y)² = x² + y² ↔ x = 0 or y = 0
+  by          both directions
 
-1.  (x + y)² = x² + y² ↔ x = 0 or y = 0
-    both directions
+direction
+assume (x + y)² = x² + y²                                             (D1)
 
-    direction
-    assume (x + y)² = x² + y²                                         (D1)
+1.  x·y = 0
+    algebra, from D1
 
-    1.1.  x·y = 0
-          algebra, from D1
+2.  x = 0 or y = 0
+    mun:zero-product, from 1
 
-    1.2.  x = 0 or y = 0
-          mun:zero-product, from 1.1
+direction
+assume x = 0 or y = 0                                                 (D2)
 
-    direction
-    assume x = 0 or y = 0                                             (D2)
+3.  (x + y)² = x² + y²
+    cases, from D2
 
-    1.3.  (x + y)² = x² + y²
-          cases, from D2
+    case
+    assume x = 0                                                      (C1)
 
-          case
-          assume x = 0                                                (C1)
+    3.1.  (x + y)² = x² + y²
+          algebra, from C1
 
-          1.3.1.  (x + y)² = x² + y²
-                  algebra, from C1
+    case
+    assume y = 0                                                      (C2)
 
-          case
-          assume y = 0                                                (C2)
-
-          1.3.2.  (x + y)² = x² + y²
-                  algebra, from C2
+    3.2.  (x + y)² = x² + y²
+          algebra, from C2
