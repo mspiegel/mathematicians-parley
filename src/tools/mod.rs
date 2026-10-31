@@ -4,7 +4,6 @@
 
 pub mod assumed;
 pub mod build;
-pub mod by_form;
 pub mod gate;
 pub mod labels;
 pub mod renumber;

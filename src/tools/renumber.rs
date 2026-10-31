@@ -18,8 +18,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
 use crate::corpus::lines::physical;
-use crate::corpus::proof::{references, Reference, StepNo};
-use crate::corpus::skeleton::{is_number, Cited};
+use crate::corpus::proof::{references, Reference, Step, StepNo};
+use crate::corpus::skeleton::{self, is_number, Cited};
 use crate::corpus::{corpus, Theorem};
 use crate::said::Said;
 use crate::source::Disk;
@@ -218,6 +218,297 @@ fn moved(
         }
     }
     Ok(map)
+}
+
+/// Lift the steps under the step `at` of the theorem `name` names one level,
+/// into its place (`^1`), writing its file unless `dry`: the step's claim
+/// and method lines go, each step under it loses the step's place in its
+/// number (`4.2.3.1` becomes `4.4.1` where 4.2 holds three), the steps after
+/// it in its block move on past them, every citation of these follows, and
+/// the block moves left to where its new numbers put it. The step's openers
+/// stay, and become the lines of the block it stood in; whatever else the
+/// lifted steps now need, a `by` line or a merged opener, is the writer's.
+/// A step something cites, or one with no steps under it, is refused.
+pub fn lift(root: &Path, name: &str, at: &str, dry: bool) -> Said {
+    let refused = |why: String| Said {
+        printed: String::new(),
+        complained: format!("{why}\n"),
+        status: 2,
+    };
+    let tree = Disk::new(root.to_path_buf());
+    let found = match corpus(&tree) {
+        Ok(found) => found,
+        Err(p) => return refused(p.to_string()),
+    };
+    let Some(thm) = found.theorems.iter().find(|t| t.qualified() == name) else {
+        return refused(format!("no theorem {name}"));
+    };
+    let Some(target) = number(at).map(StepNo) else {
+        return refused(format!("{at} is not a step number"));
+    };
+    let file = root.join(&thm.path);
+    let text = match std::fs::read_to_string(&file) {
+        Ok(text) => text,
+        Err(e) => return refused(format!("{}: {e}", thm.path)),
+    };
+    let old: Vec<String> = text.lines().map(str::to_string).collect();
+    let region = region_end(&found.theorems, thm, old.len());
+    let Lifted { lines, moved } = match lifted_lines(thm, &target, &old, region) {
+        Ok(done) => done,
+        Err(why) => return refused(why),
+    };
+    let mut printed = format!(
+        "{}: the steps under {at} lifted into its place, {moved} step(s) renumbered{}\n",
+        thm.path,
+        if dry {
+            ", nothing written (dry run)"
+        } else {
+            ""
+        }
+    );
+    if dry {
+        let shown = region - (old.len() - lines.len());
+        for l in lines.iter().take(shown).skip(thm.line - 1) {
+            printed += &format!("  {l}\n");
+        }
+    } else {
+        let mut out = lines.join("\n");
+        if text.ends_with('\n') {
+            out.push('\n');
+        }
+        if let Err(e) = std::fs::write(&file, out) {
+            return refused(format!("{}: {e}", thm.path));
+        }
+    }
+    Said {
+        printed,
+        complained: String::new(),
+        status: 0,
+    }
+}
+
+/// A theorem's file with a step's sub-steps lifted into its place.
+struct Lifted {
+    lines: Vec<String>,
+    /// How many steps were renumbered.
+    moved: usize,
+}
+
+/// The file `old` with the steps under `target` lifted into its place
+/// (`lift`); `region` is where the theorem's lines end. Refused where
+/// something cites the step, it has no steps under it, or the reader and
+/// the file disagree on a number's place (`renumber`).
+fn lifted_lines(
+    thm: &Theorem,
+    target: &StepNo,
+    old: &[String],
+    region: usize,
+) -> Result<Lifted, String> {
+    let Some(step) = thm.steps.iter().find(|s| s.number == *target) else {
+        return Err(format!("{} has no step {target}", thm.name));
+    };
+    let cited = references(thm).into_iter().find(|r| {
+        r.line != step.line && matches!(&r.cite.cited, Cited::Line(n) if n == target)
+    });
+    if let Some(r) = cited {
+        return Err(format!(
+            "{}:{} cites step {target}, which lifting takes away",
+            thm.path, r.line
+        ));
+    }
+    let map = lifted(thm, target);
+    if map.is_empty() {
+        return Err(format!("step {target} has no steps under it to lift"));
+    }
+    // The block ends where the next step outside it stands.
+    let end = thm
+        .steps
+        .iter()
+        .filter(|s| s.line > step.line && !under(&s.number, target))
+        .map(|s| s.line - 1)
+        .min()
+        .unwrap_or(region);
+    let mut lines = old.to_vec();
+    renumber(thm, &mut lines, &map)?;
+    relaid(thm, step, old, &mut lines, end, &map);
+    // The step's claim and method lines go. Where it opens the block it
+    // stands in and has openers of its own, the blank line above it goes
+    // too, so its openers follow the block's.
+    let first = step.line - 1;
+    let last = step.just.line - 1;
+    lines.drain(first..=last);
+    let leads = !thm.steps.iter().any(|s| {
+        s.number.parent() == target.parent()
+            && s.part == step.part
+            && s.line < step.line
+    });
+    let blank_above = first > 0 && lines[first - 1].trim().is_empty();
+    if leads && !step.openers.is_empty() && blank_above {
+        lines.remove(first - 1);
+    } else if lines.get(first).is_some_and(|l| l.trim().is_empty()) && blank_above {
+        lines.remove(first);
+    }
+    Ok(Lifted {
+        lines,
+        moved: map.len(),
+    })
+}
+
+/// Whether `number` is a step under `step`.
+fn under(number: &StepNo, step: &StepNo) -> bool {
+    number.len() > step.len() && number.prefix(step.len()) == *step
+}
+
+/// Each number a lift of the step `target` changes, with its new one: a
+/// step under it loses the step's place, so its k-th child takes the place
+/// k − 1 after it; a later step of its block moves on past them.
+fn lifted(thm: &Theorem, target: &StepNo) -> BTreeMap<StepNo, StepNo> {
+    let depth = target.len();
+    let place = target.last();
+    let children = thm
+        .steps
+        .iter()
+        .filter(|s| s.number.len() == depth + 1 && under(&s.number, target))
+        .count() as u32;
+    let parent = target.parent();
+    let mut map = BTreeMap::new();
+    for s in &thm.steps {
+        let n = &s.number.0;
+        if under(&s.number, target) {
+            let mut to = parent.0.clone();
+            to.push(place + n[depth] - 1);
+            to.extend_from_slice(&n[depth + 1..]);
+            map.insert(s.number.clone(), StepNo(to));
+        } else if n.len() >= depth
+            && s.number.prefix(depth - 1) == parent
+            && n[depth - 1] > place
+            && children > 1
+        {
+            let mut to = n.clone();
+            to[depth - 1] += children - 1;
+            map.insert(s.number.clone(), StepNo(to));
+        }
+    }
+    map
+}
+
+/// The column a line's text starts at.
+fn indent(line: &str) -> usize {
+    line.len() - line.trim_start().len()
+}
+
+/// The column the claim of the step written on `line` starts at: past its
+/// number and the spaces after it.
+fn claim_column(line: &str) -> usize {
+    let at = indent(line);
+    let rest = &line[at..];
+    let number = rest.find(char::is_whitespace).unwrap_or(rest.len());
+    at + number + indent(&rest[number..])
+}
+
+/// How wide a step's number and the spaces after it are, as the corpus
+/// writes them: `1.  `, `10. `, `1.1.  `, `1.10. `, wide enough for the
+/// number and one space, and never narrower than two columns a level and
+/// two more.
+fn number_width(number: &StepNo) -> usize {
+    (format!("{number}.").len() + 1).max(2 * number.len() + 2)
+}
+
+/// The block of `step`, already renumbered in `lines` as `map` says, laid
+/// out where its new numbers put it: the steps standing directly in it at
+/// the column `step`'s own number stands at, each deeper step at the claim
+/// column of the step whose block it is in, every number as wide as
+/// `number_width` says, and every other line moved with the nearest step
+/// above it whose claim column it stands at or right of. A line closing on
+/// a label keeps the label in its column. Lines from `step`'s justification
+/// to `end` are laid out.
+pub(crate) fn relaid(
+    thm: &Theorem,
+    step: &Step,
+    old: &[String],
+    lines: &mut [String],
+    end: usize,
+    map: &BTreeMap<StepNo, StepNo>,
+) {
+    let inside: Vec<&Step> = thm
+        .steps
+        .iter()
+        .filter(|s| under(&s.number, &step.number) && map.contains_key(&s.number))
+        .collect();
+    // Each step's claim column as written, and as it will be.
+    let mut was: BTreeMap<StepNo, usize> = BTreeMap::new();
+    let mut now: BTreeMap<StepNo, usize> = BTreeMap::new();
+    was.insert(step.number.clone(), claim_column(&old[step.line - 1]));
+    now.insert(step.number.clone(), indent(&old[step.line - 1]));
+    for s in &inside {
+        was.insert(s.number.clone(), claim_column(&old[s.line - 1]));
+        let at = now.get(&s.number.parent()).copied().unwrap_or(0);
+        now.insert(s.number.clone(), at + number_width(&map[&s.number]));
+    }
+    let headers: BTreeMap<usize, &Step> =
+        inside.iter().map(|s| (s.line - 1, *s)).collect();
+    for l in step.just.line..end {
+        let line = &old[l];
+        if line.trim().is_empty() {
+            continue;
+        }
+        let at = indent(line);
+        // The step this line belongs to: its own, for a step's line;
+        // otherwise the nearest above whose claim column it reaches.
+        let owner = std::iter::once(step)
+            .chain(inside.iter().copied())
+            .filter(|s| {
+                s.line - 1 < l || headers.get(&l).is_some_and(|h| h.line == s.line)
+            })
+            .filter(|s| {
+                if let Some(h) = headers.get(&l) {
+                    s.number == h.number.parent()
+                } else {
+                    was[&s.number] <= at
+                }
+            })
+            .max_by_key(|s| s.line);
+        let Some(owner) = owner else {
+            continue;
+        };
+        let shift = now[&owner.number] as isize - was[&owner.number] as isize;
+        let moved = (at as isize + shift).max(0) as usize;
+        let text = match headers.get(&l) {
+            Some(h) => {
+                let renumbered = &map[&h.number];
+                let head = format!("{renumbered}.");
+                let claim = lines[l][claim_column(&lines[l])..].to_string();
+                format!(
+                    "{}{head:<width$}{claim}",
+                    " ".repeat(moved),
+                    width = number_width(renumbered)
+                )
+            }
+            None => format!("{}{}", " ".repeat(moved), lines[l].trim_start()),
+        };
+        lines[l] = kept_label(&text, line);
+    }
+}
+
+/// `text` with its closing label moved back to the column `was` writes it
+/// at, where `was` closes on one after two spaces or more and `text` leaves
+/// room for it.
+fn kept_label(text: &str, was: &str) -> String {
+    let (Some(label), Some(_)) =
+        (skeleton::label_at_end(text), skeleton::label_at_end(was))
+    else {
+        return text.to_string();
+    };
+    let written = format!("({label})");
+    let column = was.len() - written.len();
+    if !was[..column].ends_with("  ") {
+        return text.to_string();
+    }
+    let body = text[..text.len() - written.len()].trim_end();
+    if body.len() + 2 > column {
+        return text.to_string();
+    }
+    format!("{body}{}{written}", " ".repeat(column - body.len()))
 }
 
 /// The line after the theorem's last: where the next theorem of its file
@@ -541,6 +832,60 @@ mod tests {
         );
         let quotes = document_quotes(text, &written);
         assert_eq!(quotes, vec!["1.  n = 2k", "algebra, from H1"]);
+    }
+
+    #[test]
+    fn a_lift_puts_a_steps_block_in_its_place() {
+        let text = concat!(
+            "theorem t\n",
+            "  let x ∈ ℤ                                                           (H1)\n",
+            "  then for all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a\n",
+            "\n",
+            "1.  For all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a.\n",
+            "    proof\n",
+            "    let a ∈ ℤ                                                         (K1)\n",
+            "\n",
+            "    1.1.  For all b ∈ ℤ, a + b = b + a.\n",
+            "          proof\n",
+            "          let b ∈ ℤ                                                   (K2)\n",
+            "\n",
+            "          1.1.1.  b + a = b + a\n",
+            "                  algebra\n",
+            "\n",
+            "          1.1.2.  a + b = b + a\n",
+            "                  algebra, from 1.1.1\n",
+            "\n",
+            "2.  For all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a.\n",
+            "    restate 1\n",
+        );
+        let (_, theorems) = crate::corpus::parse_proof("t.proof", text, 0).unwrap();
+        let old: Vec<String> = text.lines().map(str::to_string).collect();
+        let done =
+            lifted_lines(&theorems[0], &StepNo(vec![1, 1]), &old, old.len()).unwrap();
+        let want = concat!(
+            "theorem t\n",
+            "  let x ∈ ℤ                                                           (H1)\n",
+            "  then for all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a\n",
+            "\n",
+            "1.  For all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a.\n",
+            "    proof\n",
+            "    let a ∈ ℤ                                                         (K1)\n",
+            "    let b ∈ ℤ                                                         (K2)\n",
+            "\n",
+            "    1.1.  b + a = b + a\n",
+            "          algebra\n",
+            "\n",
+            "    1.2.  a + b = b + a\n",
+            "          algebra, from 1.1\n",
+            "\n",
+            "2.  For all a ∈ ℤ, for all b ∈ ℤ, a + b = b + a.\n",
+            "    restate 1\n",
+        );
+        assert_eq!(done.lines.join("\n") + "\n", want);
+        assert_eq!(done.moved, 2);
+        // A step something cites is not lifted away.
+        let refused = lifted_lines(&theorems[0], &StepNo(vec![1]), &old, old.len());
+        assert!(refused.is_err_and(|why| why.contains("cites step 1")));
     }
 
     #[test]
