@@ -374,11 +374,14 @@ with B. The method is `proof`, as a textbook writes "Proof." under a claim
 inside a larger argument: the word says only that the argument follows, and
 the `let` and `assume` lines under it say what it takes on. A claim "if A
 then B" with no "for all" opens with `assume A` alone, as "Suppose
-k + 1 ≤ n. …" does. The hypotheses are therefore written twice,
+k + 1 ≤ n. …" does. A claim that leads with several, "for all p ∈ ℤ, for
+all q ∈ ℕ, …" or "if A then if B then …", opens with the lines of each in
+turn, in one block. The hypotheses are therefore written twice,
 once in the claim and once as lines, and the reader checks that they match.
 This is the same rule by which a theorem's proof proves its statement: at
 theorem level the `let` and `assume` lines are the statement, and a proof
-that is one block names its method on a `by` line (below). The alternative, letting a step's claim be written in the
+that is one block names its method on a `by` line (below). The alternative,
+letting a step's claim be written in the
 `let`, `assume`, `then` form with no method, was considered and rejected
 for being less explicit: the claim would no longer be a formula, and the
 block would be the one form signalled only by its shape.
@@ -415,6 +418,33 @@ the theorem, `assume the theorem is true for k, the induction hypothesis
 (IH)`, and a message names it "the theorem". `by` takes the methods that
 open a block: `both directions`, `contradiction`, `proof`, `induction` and
 `cases`.
+
+**A part of a block names the method of its own block the same way.** An
+induction's part, a case, a direction or a `proof` block whose argument is a
+`proof` block or a contradiction would otherwise hold one step repeating what
+the part owes, only to open that block. The method is written instead on a
+`by` line after the part's own openers; the block's openers follow it, and
+its steps continue the part, numbered as the block's:
+
+```proof
+    step
+    let m ∈ ℕ₀                                                        (K)
+    assume step 3 is true for m, the induction hypothesis             (IH)
+    by          proof
+    assume P divides Q^(m + 1)                                        (C2)
+
+    3.5.  Q^(m + 1) = Q^m·Q
+          mun:exponent-step a := Q
+```
+
+Under `by proof` the part's last step claims what the part owes with the
+block's `let` and `assume` lines taken off. Under `by contradiction` the
+part's next line supposes, and its last step contradicts a line. A part says
+`by` once, after its openers and before its first step, and names `proof` or
+`contradiction`, whose blocks open with lines: a `cases` block opens parts,
+whose markers could not be told from the part's own. A `proof` block takes no
+`by proof`, since its lines go on as one block's, and a contradiction block
+takes no `by`, owing no claim.
 
 This is the shape of Lamport's structured proofs, of Isar's
 `have ... proof ... qed`, of Mizar's `proof ... end` and of Lean's
@@ -602,7 +632,7 @@ step of its own.
 | `restate L` | as `join`, for one cited line: the claim is that line, or what `join` would take from it, such as one of its parts. A define the step cites to read a name is not a line: `restate D1, 1`. A `join` of one line, or a `restate` of several, is refused, and told the word to use |
 | `contradiction`, then `suppose B (S)` | C is the step's claim; the block supposes B, labelled S, and its last step reaches the opposite of an earlier line and names it after its reasons, `inequalities, from 3.1, contradicting 3.4`, or reaches a closed fact that `arithmetic`, or `real arithmetic` where it holds a square root, π, e or a logarithm, finds false and says so after its claim, `2 ≤ 1, which is impossible`. Some step of the block cites S. B is either "not C", which is reductio, or the thing C negates, which is how a negation is proved directly; no formula is its own double negation, so which one it is never has to be guessed. Any rewriting of B, such as p ≤ n for "not p > n", is a step inside the block. `METHODS.md` says what each shape expands to and which of them needs the classical step |
 | `proof`, then `let x ∈ S (K)` and `assume A (H)` | the claim is "for all x ∈ S, if A then B", or "if A then B" where the block opens with `assume` alone; the block opens with the claim's `let` and `assume` lines, each labelled, and its last step is B, or, where A cannot hold, a step reaching the opposite of an earlier line that names it after its reasons, as a case that cannot occur does. The claim is one sentence: the block proves one statement, and each other sentence is a step of its own |
-| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)` (or, where the theorem is proved `by` the induction, `assume the theorem is true for k, the induction hypothesis (IH)`), those two lines in that order and no other, N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence. Over the parts of a finite set, the claim is "for all Y ⊆ X, P(Y)" and the start ∅, and a requires line says X is finite. The `step` part opens with `let Y ⊆ X (K)`, the induction hypothesis and `let a ∈ X ∖ Y`, those three lines in that order, and its last step claims P(Y ∪ {a}) |
+| `induction on k starting at m`, with parts `base` and `step` | the claim is "for all k ∈ X, P(k)", X being ℕ or ℕ₀ and m its first element; the `base` part's last step claims P(m); the `step` part opens with `let k ∈ X (K)` and `assume step N is true for k, the induction hypothesis (IH)` (or, where the theorem is proved `by` the induction, `assume the theorem is true for k, the induction hypothesis (IH)`), those two lines in that order and no other before any `by` line (Blocks), N being the induction's number, and its last step claims P(k + 1), with P read off the claim. A claim about only some k, "for all k ∈ ℕ₀ with k ≤ n, S", is the formula "for all k ∈ ℕ₀, if k ≤ n then S", so P(k) is "if k ≤ n then S": the base claims "if 0 ≤ n then …", and each part proves its "if" by a `proof` block opening `assume`. The starting point is written even when the set fixes it, so that every induction reads the same way and inductions from 2 or 4 need no new form. k is a letter of the induction's own: one the theorem or a block around the induction has already introduced would be two things at once, and a reader could not tell which a line means. P(k) mentions k: a statement that does not is no induction, and is a step of its own. The claim is one sentence. Over the parts of a finite set, the claim is "for all Y ⊆ X, P(Y)" and the start ∅, and a requires line says X is finite. The `step` part opens with `let Y ⊆ X (K)`, the induction hypothesis and `let a ∈ X ∖ Y`, those three lines in that order, and its last step claims P(Y ∪ {a}) |
 | `cases, from L`, with one `case` part per disjunct, two or more: one case is no case split, and is a plain step | L claims "P or Q": the line as a whole is the "or", as written or, for a "for all" line cited inside a block, read at the block's letter (What a cited line says); a line saying the "or" and something besides is not it; each part opens with `assume` of its disjunct, labelled, in the order of L, and its last step claims the same formula as the step above the block |
 | `both directions`, with two `direction` parts | the claim is "A ↔ B"; the first part opens with `assume A`, labelled, and its last step claims B; the second opens with `assume B` and its last step claims A. It is how a textbook proves "if and only if", a direction at a time |
 | `calculation`, then a chain | each line of the chain is `rel t  reason`, where rel is =, ≤, <, ≥ or >, or `≡ t (mod n)`, and the reason is one of these: a line number or label whose claim is exactly the previous term rel t; `arithmetic` or `real arithmetic`, where the previous term and t differ only in pieces with no letter in them, each piece worked out, or where the line is a congruence of numerals alone; or any other reason a step claiming "previous term rel t" could give: `algebra` or `algebra, from L`, `substitute line L`, `instantiate v := t in line L`, or a theorem or definition cited as a step cites it. Their requires lines go under the calculation step. The chain goes one way, its orders all ≤ and < or all ≥ and >; the claim is first term rel last term, with rel being = if every line is =, ≤ if every line is = or ≤, < if any line is <, ≥ and > the same way going down, and ≡ (mod n) if any line is ≡, every ≡ line saying the same n, none mixed with an order, and every line after the first ≡ a ≡ too (`GRAMMAR.md`). A calculation opens no block: its chain is all of it. A chain that says ≡ relates integers: each term is one, said once, by a line a link cites, or beside one in an equation such a line says |

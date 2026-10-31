@@ -1147,10 +1147,12 @@ a block. The block is the sub-steps numbered under the step, together with an
 opening line or part markers as the method requires.
 
 ```grammar
-<block> ::= [ <opener> ] { <part> | <step> }
+<block> ::= [ <opener> ] [ <inner> ] { <part> | <step> }
 <opener>::= `suppose` <formula> `(` <label> `)`          -- contradiction
           | <hypothesis> { <hypothesis> }                -- proof
-<part>  ::= <part marker> [ <note> ] [ <hypothesis> ] { <step> }
+<part>  ::= <part marker> [ <note> ] { <hypothesis> } [ <inner> ] { <step> }
+<inner> ::= `by` `proof` <hypothesis> { <hypothesis> }
+          | `by` `contradiction` `suppose` <formula> `(` <label> `)`
 <part marker> ::= `base` | `step` | `case` | `direction`
 ```
 
@@ -1166,7 +1168,9 @@ own: what it assumes is step N's statement after "for all k ∈ X,", taken
 from the tree of N's claim (`Opener::is_hypothesis`), and the k it names is
 the letter that claim binds. Over the parts of a set, a claim "for all Y ⊆
 X", it opens with `let Y ⊆ X`, the hypothesis, and `let a ∈ X ∖ Y`, the
-member the step adds.
+member the step adds. A part's `by` line, or a `proof` block's, opens a block
+of that method inside the part, whose steps are the part's (`SYNTAX.md`,
+Blocks): a contradiction block takes none, and a `proof` block no `by proof`.
 
 ## Calculation chains
 
