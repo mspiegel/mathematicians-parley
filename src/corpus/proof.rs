@@ -136,6 +136,32 @@ pub struct Opener {
     /// The letter the induction hypothesis says it is for, the k of `true
     /// for k`; None for any other line.
     pub hypothesis_for: Option<String>,
+    /// The line stands after its part's `by` line (`PartBy`): it opens the
+    /// block of the method `by` names, not the part itself.
+    pub after_by: bool,
+}
+
+/// A `by <method>` line in a part of a block, after the part's own openers
+/// and before its first step: the part's steps prove what the part owes by
+/// the block of that method, whose openers follow the line (`SYNTAX.md`,
+/// Blocks). The method is `proof` or `contradiction`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PartBy {
+    /// The part, as `Opener::part` numbers it; None for a block with no
+    /// parts.
+    pub part: Option<usize>,
+    pub method: Method,
+    pub line: usize,
+}
+
+/// The openers of one part of a block, split at the part's `by` line.
+pub struct PartOpening<'a> {
+    /// The part's own openers, those its owner's method asks for.
+    pub own: Vec<&'a Opener>,
+    /// The part's `by` line, if it has one.
+    pub by: Option<&'a PartBy>,
+    /// The openers after the `by` line, which open its method's block.
+    pub inner: Vec<&'a Opener>,
 }
 
 /// A `define` or naming `let` line as written.
@@ -939,6 +965,8 @@ pub struct Step {
     pub note: Option<(String, usize)>,
     /// What each part of its block does, by the part's index.
     pub part_notes: IndexMap<usize, (String, usize)>,
+    /// The `by` lines of its block's parts, at most one a part.
+    pub by_lines: Vec<PartBy>,
     /// The claim says `, which is impossible`: a closed fact `arithmetic`
     /// shows false, which ends a contradiction block on this step.
     pub impossible: bool,
@@ -961,6 +989,55 @@ impl Step {
             Some(label) => format!("let {label}"),
             None if self.proves_theorem() => "the theorem".to_string(),
             None => format!("step {}", self.number),
+        }
+    }
+
+    /// The openers of `part` of its block (None for a block with no parts),
+    /// split at the part's `by` line.
+    pub fn opening(&self, part: Option<usize>) -> PartOpening<'_> {
+        let (inner, own) = self
+            .openers
+            .iter()
+            .filter(|o| o.part == part)
+            .partition(|o| o.after_by);
+        PartOpening {
+            own,
+            by: self.by_lines.iter().find(|b| b.part == part),
+            inner,
+        }
+    }
+
+    /// A part of its block as a message names it: `case 2 of step 4`, `the
+    /// step part of step 3`, `direction 1 of the theorem`; for a block with
+    /// no parts, `the proof block of step 4`, or the step itself.
+    pub fn part_called(&self, part: Option<usize>) -> String {
+        let called = self.called();
+        let Some(index) = part else {
+            return if self.just.head.is(Method::Proof) {
+                format!("the proof block of {called}")
+            } else {
+                called
+            };
+        };
+        let Some((marker, _)) = self.parts.get(index) else {
+            return called;
+        };
+        let nth = self.parts[..=index]
+            .iter()
+            .filter(|(m, _)| m == marker)
+            .count();
+        match marker.as_str() {
+            "case" | "direction" => format!("{marker} {nth} of {called}"),
+            _ => format!("the {marker} part of {called}"),
+        }
+    }
+
+    /// The method whose block `part` of its block ends: the part's `by`
+    /// method, or else the step's own.
+    pub fn closing(&self, part: Option<usize>) -> Option<Method> {
+        match self.by_lines.iter().find(|b| b.part == part) {
+            Some(by) => Some(by.method),
+            None => self.just.head.method(),
         }
     }
 
@@ -2148,6 +2225,7 @@ pub fn reason_as_step(step: &Step, req: &Requires, by: &Justification) -> Step {
         line: req.line,
         note: None,
         part_notes: IndexMap::new(),
+        by_lines: Vec::new(),
         impossible: false,
         ..step.clone()
     }
@@ -2230,8 +2308,23 @@ pub fn parse_proof(
     // step's parent, which is the step that owns the block.
     // Each held marker, its line, and the note said under it.
     type Said = (String, usize);
+    /// An opener held until the step it belongs to arrives.
+    struct HeldOpener {
+        kind: Intro,
+        text: String,
+        label: String,
+        line: usize,
+        /// It stands after its part's `by` line (`Opener::after_by`).
+        after_by: bool,
+    }
+    /// A part's `by` line, held as its openers are.
+    struct HeldBy {
+        method: Method,
+        line: usize,
+    }
     let mut pending_markers: Vec<(String, usize, Option<Said>)> = Vec::new();
-    let mut pending_openers: Vec<(Intro, String, String, usize)> = Vec::new();
+    let mut pending_openers: Vec<HeldOpener> = Vec::new();
+    let mut pending_by: Option<HeldBy> = None;
     let mut part_no: IndexMap<StepNo, usize> = IndexMap::new();
     let mut by_number: IndexMap<StepNo, usize> = IndexMap::new();
 
@@ -2241,8 +2334,8 @@ pub fn parse_proof(
     }
 
     /// The first opener held, by its label and line.
-    fn first_opener(held: &[(Intro, String, String, usize)]) -> Option<(&str, usize)> {
-        held.first().map(|(_, _, label, at)| (label.as_str(), *at))
+    fn first_opener(held: &[HeldOpener]) -> Option<(&str, usize)> {
+        held.first().map(|o| (o.label.as_str(), o.line))
     }
 
     fn close_step(
@@ -2273,7 +2366,8 @@ pub fn parse_proof(
         owner: Option<usize>,
         parent: &StepNo,
         markers: &mut Vec<(String, usize, Option<Said>)>,
-        openers: &mut Vec<(Intro, String, String, usize)>,
+        openers: &mut Vec<HeldOpener>,
+        held_by: &mut Option<HeldBy>,
         part_no: &mut IndexMap<StepNo, usize>,
     ) -> Checked<Option<usize>> {
         for (marker, no, note) in markers.drain(..) {
@@ -2292,32 +2386,71 @@ pub fn parse_proof(
             }
         }
         let current = part_no.get(parent).copied();
-        for (kind, text, label, no) in openers.drain(..) {
+        if let Some(HeldBy { method, line }) = held_by.take() {
+            let Some(owner) = owner else {
+                return Err(Problem::new(path, line, "`by` line outside any block"));
+            };
+            let step = &draft.steps[owner].step;
+            if step.just.head.is(Method::Contradiction) {
+                return Err(Problem::new(
+                    path,
+                    line,
+                    format!(
+                        "{} is a contradiction, whose block owes no claim for `by` to prove",
+                        step.called()
+                    ),
+                ));
+            }
+            if step.just.head.is(Method::Proof) && method == Method::Proof {
+                return Err(Problem::new(
+                    path,
+                    line,
+                    format!(
+                        "the proof block of {} says `by proof`; its let and assume lines go on without it",
+                        step.called()
+                    ),
+                ));
+            }
+            draft.steps[owner].step.by_lines.push(PartBy {
+                part: current,
+                method,
+                line,
+            });
+        }
+        for held in openers.drain(..) {
             let Some(owner) = owner else {
                 return Err(Problem::new(
                     path,
-                    no,
-                    format!("{kind} line outside any block"),
+                    held.line,
+                    format!("{} line outside any block", held.kind),
                 ));
             };
-            let hypothesis_for = match skeleton::induction_hypothesis(&text) {
+            let hypothesis_for = match skeleton::induction_hypothesis(&held.text) {
+                Some(_) if held.after_by => {
+                    return Err(Problem::new(
+                        path,
+                        held.line,
+                        "the induction hypothesis comes before the part's `by` line",
+                    ));
+                }
                 Some(said) => Some(induction_hypothesis(
                     path,
                     &draft.steps[owner].step,
                     &said,
-                    no,
+                    held.line,
                 )?),
                 None => None,
             };
             draft.steps[owner].step.openers.push(Opener {
-                kind,
-                text: text.clone(),
-                label,
-                line: no,
+                kind: held.kind,
+                text: held.text,
+                label: held.label,
+                line: held.line,
                 part: current,
                 is_claim: false,
                 is_hypothesis: hypothesis_for.is_some(),
                 hypothesis_for,
+                after_by: held.after_by,
             });
         }
         Ok(current)
@@ -2496,6 +2629,7 @@ pub fn parse_proof(
                 path,
                 first_marker(&pending_markers),
                 first_opener(&pending_openers),
+                pending_by.as_ref().map(|b| b.line),
             )?;
             settle(path, thm.take(), &mut scope, &mut theorems)?;
             let name = str::trim(name).to_string();
@@ -2536,6 +2670,7 @@ pub fn parse_proof(
             });
             pending_markers.clear();
             pending_openers.clear();
+            pending_by = None;
             part_no.clear();
             by_number.clear();
             header = true;
@@ -2701,6 +2836,7 @@ pub fn parse_proof(
                 &parent,
                 &mut pending_markers,
                 &mut pending_openers,
+                &mut pending_by,
                 &mut part_no,
             )?;
             draft.steps.push(DraftStep {
@@ -2715,6 +2851,7 @@ pub fn parse_proof(
                     part: current,
                     note: None,
                     part_notes: IndexMap::new(),
+                    by_lines: Vec::new(),
                     impossible: false,
                     reason_of: None,
                 },
@@ -2733,13 +2870,6 @@ pub fn parse_proof(
         // step's claim is the claim's.
         let continues_claim = step.is_some_and(|at| !draft.steps[at].has_just);
         if head == "by" && !continues_claim {
-            if !draft.steps.is_empty() || draft.thm.conclusion.is_empty() {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    "`by` comes once, under `then`, before the proof",
-                ));
-            }
             let said = str::trim(&t["by".len()..]);
             let labels = justification_labels(&scope, &draft.thm);
             let written = Line {
@@ -2747,6 +2877,73 @@ pub fn parse_proof(
                 text: said.to_string(),
                 indent: line.indent,
             };
+            // A `by` under a part's marker or openers, before its first
+            // step, names the method of the part's own block (`PartBy`).
+            let held = !pending_markers.is_empty()
+                || !pending_openers.is_empty()
+                || pending_by.is_some();
+            if held {
+                if pending_by.is_some() {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        "a part says `by` once, after its openers and before its first step",
+                    ));
+                }
+                let just =
+                    parse_justification(path, &written, &labels, &draft.thm.names)?;
+                let method = just
+                    .head
+                    .method()
+                    .filter(|m| matches!(m, Method::Proof | Method::Contradiction));
+                let word = said.split(',').next().unwrap_or(said);
+                let Some(method) = method else {
+                    let parts = just.head.method().is_some_and(|m| {
+                        matches!(
+                            m,
+                            Method::Cases | Method::Induction | Method::BothDirections
+                        )
+                    });
+                    let opens = if parts {
+                        "opens parts"
+                    } else {
+                        "proves a step"
+                    };
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        format!(
+                            "`by` inside a block names proof or contradiction, whose blocks open with lines; {word} {opens}"
+                        ),
+                    ));
+                };
+                if !just.refs.is_empty() {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        format!("`by` inside a block names its method alone; {word} cites nothing here"),
+                    ));
+                }
+                pending_by = Some(HeldBy {
+                    method,
+                    line: line.no,
+                });
+                continue;
+            }
+            if draft.steps.last().is_some_and(|s| !s.step.proves_theorem()) {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "`by` in a block comes after its part's openers, before its first step",
+                ));
+            }
+            if !draft.steps.is_empty() || draft.thm.conclusion.is_empty() {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "`by` comes once, under `then`, before the proof",
+                ));
+            }
             let just = parse_justification(path, &written, &labels, &draft.thm.names)?;
             const BLOCKS: [Method; 5] = [
                 Method::BothDirections,
@@ -2778,6 +2975,7 @@ pub fn parse_proof(
                     part: None,
                     note: None,
                     part_notes: IndexMap::new(),
+                    by_lines: Vec::new(),
                     impossible: false,
                     reason_of: None,
                 },
@@ -2898,6 +3096,16 @@ pub fn parse_proof(
             continue;
         }
         if super::PART_MARKERS.contains(&t.as_str()) {
+            if let Some(held) = &pending_by {
+                return Err(Problem::new(
+                    path,
+                    held.line,
+                    format!(
+                        "the `by` line on line {} has no steps before the next part",
+                        held.line
+                    ),
+                ));
+            }
             pending_markers.push((t.clone(), line.no, None));
             continue;
         }
@@ -2910,9 +3118,22 @@ pub fn parse_proof(
                 ));
             };
             let Some(said) = skeleton::which_is_the_claim(&t) else {
-                pending_openers.push((kind, t.clone(), label, line.no));
+                pending_openers.push(HeldOpener {
+                    kind,
+                    text: t.clone(),
+                    label,
+                    line: line.no,
+                    after_by: pending_by.is_some(),
+                });
                 continue;
             };
+            if pending_by.is_some() {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "a case that is the claim has no steps and says no `by`",
+                ));
+            }
             // A case that is the claim has no step to say which block it is
             // in, so it is in the innermost `cases` block open at this line.
             let draft = thm.as_mut().unwrap();
@@ -2940,6 +3161,7 @@ pub fn parse_proof(
                 &parent,
                 &mut pending_markers,
                 &mut pending_openers,
+                &mut pending_by,
                 &mut part_no,
             )?;
             draft.steps[at].step.openers.push(Opener {
@@ -2951,6 +3173,7 @@ pub fn parse_proof(
                 is_claim: true,
                 is_hypothesis: false,
                 hypothesis_for: None,
+                after_by: false,
             });
             continue;
         }
@@ -3093,6 +3316,7 @@ pub fn parse_proof(
         path,
         first_marker(&pending_markers),
         first_opener(&pending_openers),
+        pending_by.as_ref().map(|b| b.line),
     )?;
     settle(path, thm.take(), &mut scope, &mut theorems)?;
     Ok((scope, theorems))
@@ -3106,7 +3330,15 @@ fn held_at_end(
     path: &str,
     marker: Option<(&str, usize)>,
     opener: Option<(&str, usize)>,
+    by: Option<usize>,
 ) -> Checked<()> {
+    if let Some(at) = by {
+        return Err(Problem::new(
+            path,
+            at,
+            "this `by` line has no steps, and the theorem ends under it",
+        ));
+    }
     if let Some((marker, at)) = marker {
         let claim = if marker == "case" {
             ", or end its assumption `, which is the claim`"

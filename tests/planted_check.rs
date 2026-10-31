@@ -7055,5 +7055,134 @@ fn cases() -> Vec<Case> {
             )],
             "the theorem is proved `by contradiction` and its block has no steps",
         ),
+        // A part of a block names the method of its own block on a `by` line
+        // after its openers: `by proof` or `by contradiction` (`SYNTAX.md`,
+        // Blocks).
+        case(
+            "a part proved by cases",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    by          proof\n    assume P divides Q^(m + 1)".to_string()),
+                "    by          cases\n    assume P divides Q^(m + 1)".to_string(),
+            )],
+            "`by` inside a block names proof or contradiction, whose blocks open with lines; cases opens parts",
+        ),
+        case(
+            "a part that says by twice",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    base\n    by          proof\n".to_string()),
+                "    base\n    by          proof\n    by          proof\n".to_string(),
+            )],
+            "a part says `by` once, after its openers and before its first step",
+        ),
+        case(
+            "a part's by line after its first step",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    3.1.  Q^0 = 1\n          algebra\n".to_string()),
+                "    3.1.  Q^0 = 1\n          algebra\n    by          proof\n".to_string(),
+            )],
+            "`by` in a block comes after its part's openers, before its first step",
+        ),
+        case(
+            "a part's by line with a part marker after it",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    base\n    by          proof\n".to_string()),
+                "    base\n    by          proof\n    step\n".to_string(),
+            )],
+            "has no steps before the next part",
+        ),
+        case(
+            "an induction hypothesis after the part's by line",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    assume step 3 is true for m, the induction hypothesis             (IH)\n    by          proof\n".to_string()),
+                "    by          proof\n    assume step 3 is true for m, the induction hypothesis             (IH)\n".to_string(),
+            )],
+            "the induction hypothesis comes before the part's `by` line",
+        ),
+        case(
+            "a part proved by proof that lets and assumes nothing",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    by          proof\n    assume P divides Q^0                                              (C1)\n".to_string()),
+                "    by          proof\n".to_string(),
+            )],
+            "the base part of step 3 is proved by `proof` and does not open with `let` or `assume` after its `by` line",
+        ),
+        case(
+            "a part proved by proof assuming what it does not owe",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("    assume P divides Q^(m + 1)                                        (C2)".to_string()),
+                "    assume P divides Q^m                                              (C2)".to_string(),
+            )],
+            "the step part of step 3 opens a proof block assuming",
+        ),
+        case(
+            "a part proved by proof ending on what it does not owe",
+            vec![edit(
+                "proofs/setmm/prime-divides-power.proof",
+                Some("          inequalities, contradicting 3.3\n".to_string()),
+                "          inequalities\n".to_string(),
+            )],
+            "step 3.4 ends the base part of step 3, which owes P = Q",
+        ),
+        case(
+            "a part proved by contradiction that assumes",
+            vec![edit(
+                "proofs/setmm/contrapositive.proof",
+                Some("suppose a = 0                                                         (S)".to_string()),
+                "assume a = 0                                                          (S)".to_string(),
+            )],
+            "the proof block of the theorem is proved by contradiction and does not open with `suppose` after its `by` line",
+        ),
+        case(
+            "a part proved by contradiction supposing what it does not deny",
+            vec![edit(
+                "proofs/setmm/contrapositive.proof",
+                Some("suppose a = 0                                                         (S)".to_string()),
+                "suppose a = 1                                                         (S)".to_string(),
+            )],
+            "the proof block of the theorem supposes something that is neither what it owes negated nor the thing it owes negates",
+        ),
+        case(
+            "a part proved by contradiction ending on no contradiction",
+            vec![edit(
+                "proofs/setmm/contrapositive.proof",
+                Some("    restate K2, contradicting 1".to_string()),
+                "    restate K2".to_string(),
+            )],
+            "step 2 ends the proof block of the theorem, proved by contradiction, and does not say which line it contradicts",
+        ),
+        case(
+            "a part proved by contradiction that never uses its supposition",
+            vec![edit(
+                "proofs/setmm/contrapositive.proof",
+                Some("    mun:modus-ponens, from K1, S".to_string()),
+                "    mun:modus-ponens, from K1".to_string(),
+            )],
+            "the proof block of the theorem is proved by contradiction and never uses its supposition S",
+        ),
+        case(
+            "a proof block that says by proof",
+            vec![edit(
+                "proofs/setmm/contrapositive.proof",
+                Some("by          contradiction\nsuppose a = 0".to_string()),
+                "by          proof\nassume a = 0".to_string(),
+            )],
+            "the proof block of the theorem says `by proof`; its let and assume lines go on without it",
+        ),
+        case(
+            "a contradiction block that says by",
+            vec![edit(
+                "proofs/hammack/rational-squares-sum-not-three.proof",
+                Some("suppose 3 divides r                                                   (S)\n".to_string()),
+                "suppose 3 divides r                                                   (S)\nby          proof\n".to_string(),
+            )],
+            "the theorem is a contradiction, whose block owes no claim for `by` to prove",
+        ),
     ]
 }

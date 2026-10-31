@@ -7,21 +7,15 @@ theorem contrapositive
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then if (if a = 0 then b = 0) then if b ≠ 0 then a ≠ 0
+  by          proof
 
-1.  If (if a = 0 then b = 0) then if b ≠ 0 then a ≠ 0.
-    proof
-    assume if a = 0 then b = 0                                        (K1)
+assume if a = 0 then b = 0                                            (K1)
+assume b ≠ 0                                                          (K2)
+by          contradiction
+suppose a = 0                                                         (S)
 
-    1.1.  If b ≠ 0 then a ≠ 0.
-          proof
-          assume b ≠ 0                                                (K2)
+1.  b = 0
+    mun:modus-ponens, from K1, S
 
-          1.1.1.  a ≠ 0
-                  contradiction
-                  suppose a = 0                                       (S)
-
-                  1.1.1.1.  b = 0
-                            mun:modus-ponens, from K1, S
-
-                  1.1.1.2.  b ≠ 0
-                            restate K2, contradicting 1.1.1.1
+2.  b ≠ 0
+    restate K2, contradicting 1

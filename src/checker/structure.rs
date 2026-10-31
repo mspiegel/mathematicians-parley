@@ -11,8 +11,8 @@ use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
     cited_items, define_parts, described, fmt, is_label, item_kind, DefineParts,
-    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
-    Requires, Step, StepNo, Theorem,
+    FileScope, Head, Intro, Item, Justification, Method, Opener, Range, Record,
+    RecordKind, Requires, Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
@@ -372,8 +372,9 @@ pub fn check_blocks(
                 );
             }
         }
+        let own = step.opening(None).own;
         if step.just.head.is(Method::Contradiction)
-            && !step.openers.iter().any(|o| o.kind == Intro::Suppose)
+            && !own.iter().any(|o| o.kind == Intro::Suppose)
         {
             report.say(
                 &thm.path,
@@ -385,11 +386,10 @@ pub fn check_blocks(
             );
         }
         if step.just.head.is(Method::Contradiction) {
-            check_supposition_used(report, thm, step);
+            check_supposition_used(report, thm, step, None, &own);
         }
         if step.just.head.is(Method::Proof)
-            && !step
-                .openers
+            && !own
                 .iter()
                 .any(|o| matches!(o.kind, Intro::Let | Intro::Assume))
         {
@@ -403,17 +403,28 @@ pub fn check_blocks(
             );
         }
         if step.just.head.is(Method::Proof) {
-            check_proof_letters(report, thm, step, known);
+            if let Some(claim) = step
+                .claim
+                .sentences()
+                .into_iter()
+                .next()
+                .and_then(|first| known.read(step, &first))
+            {
+                let called = step.called();
+                check_proof_letters(report, thm, &called, &claim, &own, known);
+            }
         }
+        check_part_by(report, thm, step, known);
         if step.just.head.is(Method::Induction) {
             check_step_part(report, thm, step, known);
         }
         if method.and_then(|m| m.field("part-opens")) == Some("assume, labelled") {
             for (index, (marker, no)) in step.parts.iter().enumerate() {
                 if !step
-                    .openers
+                    .opening(Some(index))
+                    .own
                     .iter()
-                    .any(|o| o.kind == Intro::Assume && o.part == Some(index))
+                    .any(|o| o.kind == Intro::Assume)
                 {
                     report.say(
                         &thm.path,
@@ -435,26 +446,45 @@ pub fn check_blocks(
 /// the supposition. A block that reaches its contradiction without it
 /// shows that lines above it contradict each other, which is not what
 /// supposing the claim false and refuting it says.
-fn check_supposition_used(report: &mut Report, thm: &Theorem, step: &Step) {
-    let under = |s: &&Step| {
-        s.number.len() > step.number.len()
-            && s.number.prefix(step.number.len()) == step.number
-    };
-    for o in step.openers.iter().filter(|o| o.kind == Intro::Suppose) {
+fn check_supposition_used(
+    report: &mut Report,
+    thm: &Theorem,
+    owner: &Step,
+    part: Option<usize>,
+    supposes: &[&Opener],
+) {
+    let depth = owner.number.len() + 1;
+    // The steps of the part, and every step under one of them.
+    let heads: Vec<&StepNo> = thm
+        .steps
+        .iter()
+        .filter(|s| {
+            s.number.len() == depth
+                && s.number.prefix(depth - 1) == owner.number
+                && s.part == part
+        })
+        .map(|s| &s.number)
+        .collect();
+    let under =
+        |s: &&Step| s.number.len() >= depth && heads.contains(&&s.number.prefix(depth));
+    for o in supposes.iter().filter(|o| o.kind == Intro::Suppose) {
         let names = |s: &&Step| {
             s.just.refs.contains(&o.label)
                 || s.just.contradicting.as_ref() == Some(&o.label)
                 || s.requires.iter().any(|r| r.refs().contains(&o.label))
         };
         if !thm.steps.iter().filter(under).any(|s| names(&s)) {
+            let whose = match owner.opening(part).by {
+                Some(_) => format!(
+                    "{} is proved by contradiction and",
+                    owner.part_called(part)
+                ),
+                None => format!("{} is a contradiction whose block", owner.called()),
+            };
             report.say(
                 &thm.path,
                 o.line,
-                format!(
-                    "{} is a contradiction whose block never uses its supposition {}",
-                    step.called(),
-                    o.label
-                ),
+                format!("{whose} never uses its supposition {}", o.label),
             );
         }
     }
@@ -463,18 +493,21 @@ fn check_supposition_used(report: &mut Report, thm: &Theorem, step: &Step) {
 /// A `proof` block of a claim about every member of a set opens with the
 /// claim's own `let` lines (`SYNTAX.md`, the `proof` row): "for all u ∈ A, …"
 /// is proved by a block letting u, and a block letting v proves it of no u.
-fn check_proof_letters(report: &mut Report, thm: &Theorem, step: &Step, known: &Known) {
-    let Some(first) = step.claim.sentences().into_iter().next() else {
-        return;
-    };
-    let Some(claim) = known.read(step, &first) else {
-        return;
-    };
-    let bound = letters_bound(&claim, known);
+/// `called` names the block's owner, `claim` is what the block proves, and
+/// `opens` are its openers.
+fn check_proof_letters(
+    report: &mut Report,
+    thm: &Theorem,
+    called: &str,
+    claim: &Node,
+    opens: &[&Opener],
+    known: &Known,
+) {
+    let bound = letters_bound(claim, known);
     if bound.is_empty() {
         return;
     }
-    for o in step.openers.iter().filter(|o| o.kind == Intro::Let) {
+    for o in opens.iter().filter(|o| o.kind == Intro::Let) {
         let introduced = Introduction::read(o.body(&thm.path));
         let Some(name) = introduced.name() else {
             continue;
@@ -484,11 +517,70 @@ fn check_proof_letters(report: &mut Report, thm: &Theorem, step: &Step, known: &
                 &thm.path,
                 o.line,
                 format!(
-                    "the block of {} lets {name}, and the claim it proves is about every {}; the block opens with the claim's own letter",
-                    step.called(),
+                    "the block of {called} lets {name}, and the claim it proves is about every {}; the block opens with the claim's own letter",
                     bound.join(", ")
                 ),
             );
+        }
+    }
+}
+
+/// A part's `by` line opens the block of its method (`SYNTAX.md`, Blocks):
+/// under `by contradiction` the part's next line supposes, and the part
+/// uses what it supposes; under `by proof` the next lines let and assume,
+/// with the letters of what the part owes.
+fn check_part_by(report: &mut Report, thm: &Theorem, step: &Step, known: &Known) {
+    for by in &step.by_lines {
+        let opening = step.opening(by.part);
+        let called = step.part_called(by.part);
+        match by.method {
+            Method::Contradiction => {
+                if opening
+                    .inner
+                    .first()
+                    .is_none_or(|o| o.kind != Intro::Suppose)
+                {
+                    report.say(
+                        &thm.path,
+                        by.line,
+                        format!(
+                            "{called} is proved by contradiction and does not open with `suppose` after its `by` line"
+                        ),
+                    );
+                    continue;
+                }
+                check_supposition_used(report, thm, step, by.part, &opening.inner);
+            }
+            _ => {
+                if !opening
+                    .inner
+                    .iter()
+                    .any(|o| matches!(o.kind, Intro::Let | Intro::Assume))
+                {
+                    report.say(
+                        &thm.path,
+                        by.line,
+                        format!(
+                            "{called} is proved by `proof` and does not open with `let` or `assume` after its `by` line"
+                        ),
+                    );
+                    continue;
+                }
+                // What the part owes is read where the block's own claims
+                // are (`formulas::block_owes`), which reports a claim that
+                // does not read.
+                let Ok(owed) = super::formulas::block_owes(step, known) else {
+                    continue;
+                };
+                let Some(claim) = owed
+                    .iter()
+                    .find(|o| o.part == by.part)
+                    .and_then(|o| o.claim.first())
+                else {
+                    continue;
+                };
+                check_proof_letters(report, thm, &called, claim, &opening.inner, known);
+            }
         }
     }
 }
@@ -584,11 +676,7 @@ fn check_step_part(report: &mut Report, thm: &Theorem, step: &Step, known: &Know
         );
     }
     for (index, (marker, no)) in step.parts.iter().enumerate() {
-        let opens: Vec<_> = step
-            .openers
-            .iter()
-            .filter(|o| o.part == Some(index))
-            .collect();
+        let opens = step.opening(Some(index)).own;
         if marker == "base" {
             if let Some(o) = opens.first() {
                 report.say(

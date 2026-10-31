@@ -156,6 +156,9 @@ impl<'a> Elaborator<'a> {
                 }
             };
             out.extend(self.lines.keys().into_iter().filter(|k| inside(k)));
+            // Its steps, whose lines a block a part's `by` line opened gives
+            // back when it closes, as any block does.
+            out.extend(self.thm.steps.iter().map(number_of).filter(|n| inside(n)));
             // A step's requires lines are the block's as the step is: the
             // last step of a part says there what the part's end asks, an
             // identity element's operand a number (`SYNTAX.md`).

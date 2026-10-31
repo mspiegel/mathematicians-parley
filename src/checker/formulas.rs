@@ -19,8 +19,8 @@ use crate::corpus::proof::{
 };
 use crate::corpus::{
     define_parts, DefineParts, FileScope, Head, Intro, Item, Justification, Method,
-    Record, RecordKind, Recursion, Requires, RuleText, Source, Step, Theorem, Value,
-    Values,
+    Opener, Record, RecordKind, Recursion, Requires, RuleText, Source, Step, Theorem,
+    Value, Values,
 };
 use crate::formula::notation_id::{NotationId, Spelling};
 use crate::formula::page::{
@@ -1206,12 +1206,15 @@ pub fn check_contradiction(
 ) {
     let wrappers = wrappers(env);
     let shape = CheckedTheorem::of(thm);
+    for step in &thm.steps {
+        check_part_contradictions(report, thm, step, &wrappers, known);
+    }
     for (at, step) in thm.steps.iter().enumerate() {
         if !step.just.head.is(Method::Contradiction) {
             continue;
         }
-        let Some(opener) = step.openers.iter().find(|o| o.kind == Intro::Suppose)
-        else {
+        let own = step.opening(None).own;
+        let Some(opener) = own.iter().find(|o| o.kind == Intro::Suppose) else {
             continue; // already reported as a missing suppose
         };
         let supposed = known.whole(step, &opener.body(&thm.path));
@@ -1253,6 +1256,82 @@ pub fn check_contradiction(
     }
 }
 
+/// Each part of the block `owner` opens that is proved `by contradiction`
+/// relates its supposition to what the part owes, as a contradiction step
+/// relates its supposition to its claim, and its last step says which line
+/// it contradicts (`check_contradiction`). What the part owes is read as
+/// `block_owes` reads it, and so is the supposition.
+fn check_part_contradictions(
+    report: &mut Report,
+    thm: &Theorem,
+    owner: &Step,
+    wrappers: &FxIndexSet<NotationId>,
+    known: &Known,
+) {
+    let contradicted = owner
+        .by_lines
+        .iter()
+        .any(|b| b.method == Method::Contradiction);
+    if !contradicted {
+        return;
+    }
+    // A claim that does not read is reported where it is read.
+    let Ok(owed) = block_owes(owner, known) else {
+        return;
+    };
+    let outside = known.citing(&[]);
+    for by in owner
+        .by_lines
+        .iter()
+        .filter(|b| b.method == Method::Contradiction)
+    {
+        let called = owner.part_called(by.part);
+        let opening = owner.opening(by.part);
+        // A part with no supposition is `check_part_by`'s to report.
+        let Some(opener) = opening.inner.first().filter(|o| o.kind == Intro::Suppose)
+        else {
+            continue;
+        };
+        let body = opener.body(&thm.path);
+        let supposed = match body.sentences().as_slice() {
+            [one] => known.read_citing(one, &outside),
+            _ => None,
+        };
+        let claimed = owed.iter().find(|o| o.part == by.part).and_then(|o| {
+            match o.claim.as_slice() {
+                [one] => Some(one.clone()),
+                _ => None,
+            }
+        });
+        if supposed.is_some()
+            && claimed.is_some()
+            && !(negates(supposed.as_ref(), claimed.as_ref(), wrappers, known)
+                || negates(claimed.as_ref(), supposed.as_ref(), wrappers, known))
+        {
+            report.say(
+                &thm.path,
+                opener.line,
+                format!(
+                    "{called} supposes something that is neither what it owes negated nor the thing it owes negates, so neither expansion of `contradiction` applies"
+                ),
+            );
+        }
+        let Some(last) = last_of_part(thm, owner, by.part) else {
+            continue; // `check_block_ends` says the part has no steps
+        };
+        if last.just.contradicting.is_none() && !last.impossible {
+            report.say(
+                &thm.path,
+                last.line,
+                format!(
+                    "step {} ends {called}, proved by contradiction, and does not say which line it contradicts: write `contradicting` and the line after its reasons, or `, which is impossible` after a claim of numerals alone",
+                    last.number
+                ),
+            );
+        }
+    }
+}
+
 /// Whether the step at `at` is the last of a contradiction block, which it
 /// closes, or of a case, which it shows cannot occur.
 fn ends_block(thm: &Theorem, at: usize) -> bool {
@@ -1263,13 +1342,12 @@ fn ends_block(thm: &Theorem, at: usize) -> bool {
         s.number.len() + 1 == depth && step.number.prefix(s.number.len()) == s.number
     });
     let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
-    match owner.map(|o| &o.just.head) {
-        // A `proof` block whose assumption cannot hold ends as a case that
-        // cannot occur does.
-        Some(h) if h.is(Method::Contradiction) || h.is(Method::Proof) => {
-            later.is_none_or(|s| s.number.len() < depth)
-        }
-        Some(h) if h.is(Method::Cases) => match later {
+    // The method whose block the step's part ends: the part's `by` method,
+    // or the owner's. A `proof` block whose assumption cannot hold ends as a
+    // case that cannot occur does.
+    let closes = owner.and_then(|o| o.closing(step.part));
+    match closes {
+        Some(Method::Contradiction | Method::Proof | Method::Cases) => match later {
             None => true,
             Some(s) => s.number.len() < depth || s.part != step.part,
         },
@@ -1495,8 +1573,8 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
 }
 
 /// A `both directions` block proves "A ↔ B" as a textbook proves an "if and
-/// only if": its first part assumes A and ends on B, its second assumes B
-/// and ends on A.
+/// only if": its first part assumes A, its second assumes B. What each
+/// ends on, the other side, is `check_block_ends`'s to see (`block_owes`).
 pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) {
     for owner in &thm.steps {
         if !owner.just.head.is(Method::BothDirections) {
@@ -1519,7 +1597,7 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
         let mut assumed: Vec<_> = owner
             .openers
             .iter()
-            .filter(|o| o.kind == Intro::Assume && o.part.is_some())
+            .filter(|o| o.kind == Intro::Assume && o.part.is_some() && !o.after_by)
             .collect();
         assumed.sort_by_key(|o| o.part);
         if owner.parts.len() != 2 || assumed.len() != 2 {
@@ -1529,30 +1607,14 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
             );
             continue;
         }
-        let depth = owner.number.len() + 1;
         for (n, opener) in assumed.iter().enumerate() {
-            let (side, other) = (&claim.children[n], &claim.children[1 - n]);
+            let side = &claim.children[n];
             let read = known.whole(owner, &opener.body(&thm.path));
             if read.as_ref().is_some_and(|r| !known.alike(r, side)) {
                 say(
                     report,
                     format!(
                         "direction {} does not assume the claim's side it starts from",
-                        n + 1
-                    ),
-                );
-            }
-            let last = thm.steps.iter().rev().find(|s| {
-                s.number.len() == depth
-                    && s.number.prefix(depth - 1) == owner.number
-                    && s.part == opener.part
-            });
-            let ends = last.and_then(|s| known.whole(s, &s.claim));
-            if ends.as_ref().is_some_and(|e| !known.alike(e, other)) {
-                say(
-                    report,
-                    format!(
-                        "direction {} does not end on the claim's other side",
                         n + 1
                     ),
                 );
@@ -1565,8 +1627,48 @@ pub fn check_both_directions(report: &mut Report, thm: &Theorem, known: &Known) 
 /// sentences its last step claims, and how a message names the part.
 pub(super) struct Owed {
     pub(super) part: Option<usize>,
+    /// What the part owes, as its owner's method gives it.
     pub(super) claim: Vec<Node>,
+    /// What the part's last step ends on: the claim, or what the part's `by`
+    /// line makes of it (`after_by`).
+    pub(super) ends: Ends,
     called: String,
+}
+
+/// What the last step of a part ends on.
+pub(super) enum Ends {
+    /// These sentences.
+    Claim(Vec<Node>),
+    /// A contradiction: the part is proved `by contradiction`, and
+    /// `check_contradiction` sees its last step.
+    Contradiction,
+}
+
+impl Owed {
+    /// A part owing `claim`, whose last step ends on it.
+    fn new(part: Option<usize>, claim: Vec<Node>, called: String) -> Owed {
+        Owed {
+            part,
+            ends: Ends::Claim(claim.clone()),
+            claim,
+            called,
+        }
+    }
+}
+
+/// The last step of `part` of the block `owner` opens, one of its own and
+/// not of a block inside it; None for a part with no steps.
+pub(super) fn last_of_part<'a>(
+    thm: &'a Theorem,
+    owner: &Step,
+    part: Option<usize>,
+) -> Option<&'a Step> {
+    let depth = owner.number.len() + 1;
+    thm.steps.iter().rev().find(|s| {
+        s.number.len() == depth
+            && s.number.prefix(depth - 1) == owner.number
+            && s.part == part
+    })
 }
 
 /// What each part of the block `owner` opens owes (`check_block_ends`):
@@ -1600,18 +1702,43 @@ pub(super) fn block_owes(owner: &Step, known: &Known) -> Checked<Vec<Owed>> {
             ),
         ));
     }
-    Ok(match (method, claim.as_slice()) {
+    let owed = match (method, claim.as_slice()) {
         (Some(Method::Induction), [one]) => induction_owes(owner, one, known),
         (Some(Method::Cases), _) => (0..owner.parts.len())
-            .map(|part| Owed {
-                part: Some(part),
-                claim: claim.clone(),
-                called: format!("case {} of {}", part + 1, owner.called()),
+            .map(|part| {
+                let called = format!("case {} of {}", part + 1, owner.called());
+                Owed::new(Some(part), claim.clone(), called)
             })
             .collect(),
-        (Some(Method::Proof), [one]) => vec![proof_owes(owner, one, known)?],
+        (Some(Method::Proof), [one]) => {
+            let called = owner.called();
+            let own = owner.opening(None).own;
+            let rest = peel(&called, &own, one, known)?;
+            vec![Owed::new(
+                None,
+                vec![rest],
+                format!("the proof block of {called}"),
+            )]
+        }
+        // Each direction ends on the side of "A ↔ B" the other assumes; a
+        // claim of another shape is `check_both_directions`'s to report.
+        (Some(Method::BothDirections), [one])
+            if one.notation() == BICONDITIONAL
+                && one.children.len() == 2
+                && owner.parts.len() == 2 =>
+        {
+            (0..2)
+                .map(|n| {
+                    let called = format!("direction {} of {}", n + 1, owner.called());
+                    Owed::new(Some(n), vec![one.children[1 - n].clone()], called)
+                })
+                .collect()
+        }
         _ => Vec::new(),
-    })
+    };
+    owed.into_iter()
+        .map(|o| after_by(owner, o, known))
+        .collect()
 }
 
 /// Each part of an induction, a `cases` block and a `proof` block ends on
@@ -1643,19 +1770,11 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
                 continue;
             }
         };
-        let contradicts = !owner.just.head.is(Method::Induction);
         for Owed {
-            part,
-            claim,
-            called,
+            part, ends, called, ..
         } in owed
         {
-            let depth = owner.number.len() + 1;
-            let Some(last) = thm.steps.iter().rev().find(|s| {
-                s.number.len() == depth
-                    && s.number.prefix(depth - 1) == owner.number
-                    && s.part == part
-            }) else {
+            let Some(last) = last_of_part(thm, owner, part) else {
                 // A case that says it is the claim has no steps; any other
                 // part with none shows nothing of what it owes.
                 let claimed =
@@ -1669,6 +1788,14 @@ pub fn check_block_ends(report: &mut Report, thm: &Theorem, known: &Known) {
                 }
                 continue;
             };
+            // A part proved `by contradiction` ends contradicting a line,
+            // which `check_contradiction` sees.
+            let Ends::Claim(claim) = ends else {
+                continue;
+            };
+            // A case and a `proof` block whose assumption cannot hold end on
+            // a contradiction; an induction's part never does.
+            let contradicts = owner.closing(part) != Some(Method::Induction);
             if contradicts && (last.just.contradicting.is_some() || last.impossible) {
                 continue;
             }
@@ -1724,18 +1851,14 @@ fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
         let Ok(owed) = block_owes(owner, known) else {
             continue;
         };
-        let depth = owner.number.len() + 1;
         for Owed {
-            part,
-            claim,
-            called,
+            part, ends, called, ..
         } in owed
         {
-            let last = thm.steps.iter().rev().find(|s| {
-                s.number.len() == depth
-                    && s.number.prefix(depth - 1) == owner.number
-                    && s.part == part
-            });
+            let Ends::Claim(claim) = ends else {
+                continue;
+            };
+            let last = last_of_part(thm, owner, part);
             if last.is_none_or(|l| l.line != step.line) {
                 continue;
             }
@@ -1901,11 +2024,11 @@ fn induction_owes(owner: &Step, claim: &Node, known: &Known) -> Vec<Owed> {
             _ => continue,
         };
         if let Some(claim) = value.map(at) {
-            owed.push(Owed {
-                part: Some(part),
-                claim: vec![claim],
-                called: format!("the {which} part of {}", owner.called()),
-            });
+            owed.push(Owed::new(
+                Some(part),
+                vec![claim],
+                format!("the {which} part of {}", owner.called()),
+            ));
         }
     }
     owed
@@ -1920,9 +2043,10 @@ fn member_added(owner: &Step, known: &Known) -> Option<Node> {
         .iter()
         .position(|(marker, _)| marker == "step")?;
     let lets: Vec<_> = owner
-        .openers
-        .iter()
-        .filter(|o| o.part == Some(part) && o.kind == Intro::Let && !o.is_hypothesis)
+        .opening(Some(part))
+        .own
+        .into_iter()
+        .filter(|o| o.kind == Intro::Let && !o.is_hypothesis)
         .collect();
     let [_, third] = lets.as_slice() else {
         return None;
@@ -1931,14 +2055,16 @@ fn member_added(owner: &Step, known: &Known) -> Option<Node> {
     said.children.first().cloned()
 }
 
-/// What a `proof` block owes: its claim with a "for all" taken off for each
-/// `let` line and an "if" for each `assume`, in the order they open the
-/// block (`SYNTAX.md`, proof). A claim without the layer an opener takes off
-/// is the page's defect, and so is a name that does not read.
-fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
+/// What a `proof` block owes: `claim` with a "for all" taken off for each
+/// `let` line of `opens` and an "if" for each `assume`, in the order they
+/// open the block (`SYNTAX.md`, proof). A claim without the layer an opener
+/// takes off is the page's defect, and so is a name that does not read;
+/// `called` names the block's owner, or the part proved `by proof`, in the
+/// message.
+fn peel(called: &str, opens: &[&Opener], claim: &Node, known: &Known) -> Checked<Node> {
     let path = &known.thm.path;
     let mut rest = claim.clone();
-    for o in owner.openers.iter().filter(|o| o.part.is_none()) {
+    for o in opens {
         rest = match (o.kind, rest.notation()) {
             (Intro::Let, FOR_ALL) if rest.children.len() == 3 => {
                 let mut put = Binding::new();
@@ -1982,8 +2108,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                         path,
                         o.line,
                         format!(
-                            "{} opens a proof block assuming {}, and its claim supposes {}",
-                            owner.called(),
+                            "{called} opens a proof block assuming {}, and its claim supposes {}",
                             known.print(&assumed),
                             known.print(&rest.children[0])
                         ),
@@ -1996,8 +2121,7 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                     path,
                     o.line,
                     format!(
-                        "{} opens a proof block with a let line, and its claim says nothing of every such name",
-                        owner.called()
+                        "{called} opens a proof block with a let line, and its claim says nothing of every such name"
                     ),
                 ))
             }
@@ -2006,18 +2130,39 @@ fn proof_owes(owner: &Step, claim: &Node, known: &Known) -> Checked<Owed> {
                     path,
                     o.line,
                     format!(
-                        "{} opens a proof block with an assume line, and its claim supposes nothing there",
-                        owner.called()
+                        "{called} opens a proof block with an assume line, and its claim supposes nothing there"
                     ),
                 ))
             }
         };
     }
-    Ok(Owed {
-        part: None,
-        claim: vec![rest],
-        called: format!("the proof block of {}", owner.called()),
-    })
+    Ok(rest)
+}
+
+/// What a part owes, with what its `by` line makes of it (`Owed::ends`):
+/// under `by proof`, the claim with the part's inner `let` and `assume`
+/// lines taken off (`peel`); under `by contradiction`, a contradiction.
+fn after_by(owner: &Step, owed: Owed, known: &Known) -> Checked<Owed> {
+    let opening = owner.opening(owed.part);
+    let Some(by) = opening.by else {
+        return Ok(owed);
+    };
+    let called = owner.part_called(owed.part);
+    let ends = match (by.method, owed.claim.as_slice()) {
+        (Method::Contradiction, _) => Ends::Contradiction,
+        (_, [one]) => Ends::Claim(vec![peel(&called, &opening.inner, one, known)?]),
+        (_, many) => {
+            return Err(Problem::new(
+                &known.thm.path,
+                by.line,
+                format!(
+                    "{called} is proved by `proof` and owes {} sentences; a proof block proves one",
+                    many.len()
+                ),
+            ))
+        }
+    };
+    Ok(Owed { ends, ..owed })
 }
 
 /// The sentences a formula says, an "and" taken apart, in order.
@@ -2059,7 +2204,7 @@ pub fn check_cases_cited(report: &mut Report, thm: &Theorem, known: &Known) {
         let mut parts: Vec<_> = owner
             .openers
             .iter()
-            .filter(|o| o.kind == Intro::Assume && o.part.is_some())
+            .filter(|o| o.kind == Intro::Assume && o.part.is_some() && !o.after_by)
             .collect();
         if parts.is_empty() {
             continue;

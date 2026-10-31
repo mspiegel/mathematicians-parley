@@ -19,14 +19,16 @@ use indexmap::IndexMap;
 use super::elaborate::{Given, Reading, Sides};
 use super::reading::CLASS_NAMES;
 use super::state::{
-    number_of, Binding, Block, BlockLetter, Closer, Contradicted, DefineCloser,
+    number_of, Binding, Block, BlockLetter, ByPart, Closer, Contradicted, DefineCloser,
     Elaborator, Frame, ObtainCloser, PartEnd, ProvedClaim,
 };
 use super::{Facts, Line};
 use crate::binds;
-use crate::checker::record::CheckedTheorem;
+use crate::checker::record::{self, CheckedTheorem};
+use crate::corpus::proof::PartBy;
 use crate::corpus::{
-    define_parts, fmt, DefineParts, Intro, Item, Kinded, Method, Step,
+    define_parts, fmt, DefineParts, Head, Intro, Item, Justification, Kinded, Method,
+    Opener, Step,
 };
 use crate::formula::page::{made_as, Written};
 use crate::formula::symbol::Symbol;
@@ -735,6 +737,7 @@ impl<'a> Elaborator<'a> {
             claim: Rpn::default(),
             proof: None,
             parts: IndexMap::new(),
+            by_part: None,
         };
         match step.just.head.method() {
             Some(Method::Contradiction) => {
@@ -759,7 +762,9 @@ impl<'a> Elaborator<'a> {
                 self.contradicted = None;
             }
             Some(Method::Proof) => {
-                for o in &step.openers {
+                // A `by` line's openers open the block it names
+                // (`open_by_part`).
+                for o in step.openers.iter().filter(|o| !o.after_by) {
                     let said = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                     if o.kind == Intro::Let {
                         // A fixed name is a variable of the kernel, not a
@@ -858,7 +863,7 @@ impl<'a> Elaborator<'a> {
                 // `cases` opens one per part, so nothing is widened here and
                 // the part is entered when its first child arrives; each
                 // direction of a `both directions` is such a part.
-                for o in &step.openers {
+                for o in step.openers.iter().filter(|o| !o.after_by) {
                     let node = self.hypothesis_node(o.kind, &o.body(&self.thm.path))?;
                     block
                         .assumed
@@ -967,7 +972,7 @@ impl<'a> Elaborator<'a> {
             .owner
             .openers
             .iter()
-            .filter(|o| o.part == Some(part))
+            .filter(|o| o.part == Some(part) && !o.after_by)
             .cloned()
             .collect();
         // The first `let` fixes the claim's letter; a second, over the parts
@@ -1150,13 +1155,12 @@ impl<'a> Elaborator<'a> {
         let Some(at) = CheckedTheorem::index_of(self.thm, step) else {
             return Ok(());
         };
+        // The step ends a part that closes by contradiction: the owner's
+        // own method, or the part's `by` method.
         let ends = self.checked.places[at].is_some_and(|p| {
-            let block = &self.checked.blocks[p.block];
-            block.last() == Some(at)
-                && self.thm.steps[block.owner]
-                    .just
-                    .head
-                    .is(Method::Contradiction)
+            let owner = &self.thm.steps[self.checked.blocks[p.block].owner];
+            self.checked.last_in(p.block, p.part) == Some(at)
+                && owner.closing(p.part) == Some(Method::Contradiction)
         });
         if !ends {
             return Ok(());
@@ -1281,6 +1285,23 @@ impl<'a> Elaborator<'a> {
             }
         };
         let number = number_of(&step);
+        // A block a part's `by` line opened is no step: what it proves is
+        // its part's end, which `hand_up` gives the block around it, or for
+        // a block with no parts the line that block closes on.
+        if let Some(by) = block.by_part {
+            block.claim = claim.clone();
+            block.proof = Some(proof.clone());
+            let outer = block.outside.copy();
+            self.know(&outer, claim.clone(), proof.clone());
+            self.lines.restore(&block.lines);
+            if by.part.is_none() {
+                let key = format!("{number} by");
+                self.lines
+                    .set(key.clone(), Line::new(claim, proof, Vec::new()));
+                self.last = Some(key);
+            }
+            return Ok((block.outer.clone(), outer, closers));
+        }
         let proof = self.check_step(proof, &step, &number, true)?;
         block.claim = claim.clone();
         block.proof = Some(proof.clone());
@@ -1344,7 +1365,7 @@ impl<'a> Elaborator<'a> {
                 "the last step and the line it contradicts are not a contradiction",
             ));
         };
-        let claim = self.claim_of(&step.claim)?;
+        let claim = self.block_claim(step)?;
         let one = self
             .held(&known, &first, deep)?
             .expect("a claim `opposing` found held");
@@ -1574,6 +1595,9 @@ impl<'a> Elaborator<'a> {
     /// it taken off. It is read with the names in force where it is asked,
     /// which are the block's own while the block is open.
     pub(crate) fn owed_goal(&mut self, owner: &Step) -> Checked<Rpn> {
+        if let Some(by) = self.by_part_of(owner) {
+            return self.owed_end(by, owner.line);
+        }
         let owed = CheckedTheorem::index_of(self.thm, owner)
             .and_then(|i| self.checked.block_of(i))
             .and_then(|b| b.owes.first())
@@ -1588,6 +1612,111 @@ impl<'a> Elaborator<'a> {
         self.term(&node)
     }
 
+    /// The block a part's `by` line names, opened where the part has opened
+    /// (`Step::by_lines`): `owner`, the step whose part it is, stands at
+    /// `at` in the theorem. The block's owner stands in for that step, with
+    /// the `by` method and the openers after the line, in the part.
+    pub fn open_by_part(
+        &mut self,
+        owner: &Step,
+        at: usize,
+        by: &PartBy,
+        scope: &Rpn,
+        facts: &Facts,
+    ) -> Checked<Block> {
+        let openers = owner
+            .opening(by.part)
+            .inner
+            .into_iter()
+            .map(|o| Opener {
+                part: None,
+                after_by: false,
+                ..o.clone()
+            })
+            .collect();
+        let standing = Step {
+            just: Justification {
+                head: Head::Method(by.method),
+                refs: Vec::new(),
+                contradicting: None,
+                ..owner.just.clone()
+            },
+            requires: Vec::new(),
+            parts: Vec::new(),
+            openers,
+            line: by.line,
+            part: by.part,
+            note: None,
+            part_notes: IndexMap::new(),
+            by_lines: Vec::new(),
+            impossible: false,
+            ..owner.clone()
+        };
+        let mut block = self.open_block(&standing, scope, facts)?;
+        block.by_part = Some(ByPart {
+            owner: at,
+            part: by.part,
+        });
+        Ok(block)
+    }
+
+    /// The part a block opened by a `by` line serves, where `owner` stands
+    /// in for its step (`open_by_part`): the stand-in is at the `by` line,
+    /// which no step of the theorem is.
+    fn by_part_of(&self, owner: &Step) -> Option<ByPart> {
+        self.thm.steps.iter().enumerate().find_map(|(at, s)| {
+            s.by_lines
+                .iter()
+                .find(|b| b.line == owner.line)
+                .map(|b| ByPart {
+                    owner: at,
+                    part: b.part,
+                })
+        })
+    }
+
+    /// What the checker's record says part `by` of its block owes
+    /// (`record::Owed`), or a fault at `line` where it says nothing.
+    fn owed_part(&self, by: ByPart, line: usize) -> Checked<record::Owed> {
+        self.checked
+            .block_of(by.owner)
+            .and_then(|b| b.owes.iter().find(|o| o.part == by.part))
+            .cloned()
+            .ok_or_else(|| {
+                self.unreached(line, "the checker's record says nothing this part owes")
+            })
+    }
+
+    /// What the last step of a part proved `by proof` ends on: what the part
+    /// owes with the block's openers taken off (`record::Owed::ends`).
+    fn owed_end(&mut self, by: ByPart, line: usize) -> Checked<Rpn> {
+        let owed = self.owed_part(by, line)?;
+        match owed.ends.first() {
+            Some(node) => self.term(node),
+            None => {
+                Err(self.unreached(line, "a part proved by contradiction owes no end"))
+            }
+        }
+    }
+
+    /// What a block claims: its owner's claim as written, or for a block a
+    /// part's `by` line opened, what the part owes.
+    pub(crate) fn block_claim(&mut self, owner: &Step) -> Checked<Rpn> {
+        match self.by_part_of(owner) {
+            Some(by) => {
+                let owed = self.owed_part(by, owner.line)?;
+                match owed.claim.as_slice() {
+                    [one] => self.term(one),
+                    _ => {
+                        Err(self
+                            .unreached(owner.line, "a part owing several sentences"))
+                    }
+                }
+            }
+            None => self.claim_of(&owner.claim),
+        }
+    }
+
     /// What a `proof` block's claim says under each of its openers, outermost
     /// first: what the block gives back as it closes. What is left once each
     /// is taken off is what the block owes (`owed_goal`).
@@ -1598,7 +1727,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Vec<OpenerLayer>> {
         let mut layers: Vec<OpenerLayer> = Vec::new();
         let mut rest = self.to_term(claim);
-        for o in &step.openers {
+        for o in step.openers.iter().filter(|o| !o.after_by) {
             if o.kind == Intro::Let && rest.label() == Some("wral") {
                 let kids = rest.children().to_vec();
                 layers.push(OpenerLayer {
@@ -1653,7 +1782,7 @@ impl<'a> Elaborator<'a> {
         let step = &block.owner;
         // Read with the variables the block had, not the ones given back.
         let kept = std::mem::replace(&mut self.bound_as, block.inner.clone());
-        let claim = self.claim_of(&step.claim);
+        let claim = self.block_claim(step);
         self.bound_as = kept;
         let claim = claim?;
         let layers = self.opener_layers(step, &claim)?;

@@ -285,6 +285,10 @@ pub fn checked_where(
                     .into_iter()
                     .map(|o| record::Owed {
                         part: o.part,
+                        ends: match o.ends {
+                            formulas::Ends::Claim(ends) => ends,
+                            formulas::Ends::Contradiction => Vec::new(),
+                        },
                         claim: o.claim,
                     })
                     .collect();

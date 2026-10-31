@@ -30,7 +30,7 @@ use super::provenance::requirement;
 use super::reading::{is_subgroup, CLASS_NAMES};
 use super::scopes::written_parts;
 use super::state::{
-    fit, names_of, number_of, Binding, Block, Closer, Contradicted, Elaborator,
+    fit, names_of, number_of, Binding, Block, ByPart, Closer, Contradicted, Elaborator,
     PartEnd, ProvedClaim, Vars,
 };
 use super::tables::Leaf;
@@ -158,6 +158,20 @@ fn qualified(item: Item) -> String {
 /// The prefix a citation of the item writes.
 fn item_kind(item: Item) -> &'static str {
     item.cited_as().prefix()
+}
+
+/// Whether `block` is still open at a step standing in the parts `around`
+/// (`CheckedTheorem::around`, each part named by its block's owner): a
+/// block a part's `by` line opened is open while its part is, any other
+/// while its owner's block is.
+fn stands_open(thm: &Theorem, block: &Block, around: &[ByPart]) -> bool {
+    match block.by_part {
+        Some(by) => around
+            .iter()
+            .any(|p| p.owner == by.owner && p.part == by.part),
+        None => CheckedTheorem::index_of(thm, &block.owner)
+            .is_some_and(|i| around.iter().any(|p| p.owner == i)),
+    }
 }
 
 impl<'a> Elaborator<'a> {
@@ -628,16 +642,19 @@ impl<'a> Elaborator<'a> {
         for (at, step) in self.thm.steps.clone().into_iter().enumerate() {
             // A block closes at the first step the checker's record does not
             // stand inside it (`CheckedTheorem::around`).
-            let owners: Vec<usize> = self
+            let around: Vec<ByPart> = self
                 .checked
                 .around(at)
                 .iter()
-                .map(|p| self.checked.blocks[p.block].owner)
+                .map(|p| ByPart {
+                    owner: self.checked.blocks[p.block].owner,
+                    part: p.part,
+                })
                 .collect();
-            while blocks.last().is_some_and(|b| {
-                CheckedTheorem::index_of(self.thm, &b.owner)
-                    .is_none_or(|i| !owners.contains(&i))
-            }) {
+            while blocks
+                .last()
+                .is_some_and(|b| !stands_open(self.thm, b, &around))
+            {
                 let mut done = blocks.pop().unwrap();
                 closers = self.settle_claimed(&mut done, closers, None)?;
                 (scope, facts, closers) =
@@ -667,7 +684,20 @@ impl<'a> Elaborator<'a> {
                     self.enter_case(&mut block, part)?
                 };
                 block.case_opened_at = Some(closers.len());
+                let by = block.owner.opening(Some(part)).by.cloned();
+                let owner = block.owner.clone();
                 blocks.push(block);
+                // The part's `by` line opens its block where the part opens.
+                if let (Some(by), Some(owner_at)) =
+                    (by, CheckedTheorem::index_of(self.thm, &owner))
+                {
+                    let mut inner =
+                        self.open_by_part(&owner, owner_at, &by, &scope, &facts)?;
+                    inner.opened_at = closers.len();
+                    scope = inner.scope.clone();
+                    facts = inner.facts.clone();
+                    blocks.push(inner);
+                }
             }
             // Any define standing above this step, now that the block and
             // the case it sits in are open and the names it leans on are in
@@ -684,6 +714,17 @@ impl<'a> Elaborator<'a> {
                 scope = block.scope.clone();
                 facts = block.facts.clone();
                 blocks.push(block);
+                // A block with no parts opens the block its `by` line names
+                // under its own openers.
+                if let Some(by) =
+                    step.opening(None).by.filter(|_| step.parts.is_empty())
+                {
+                    let mut inner = self.open_by_part(&step, at, by, &scope, &facts)?;
+                    inner.opened_at = closers.len();
+                    scope = inner.scope.clone();
+                    facts = inner.facts.clone();
+                    blocks.push(inner);
+                }
                 continue;
             }
             self.in_contradiction = blocks
@@ -758,7 +799,10 @@ impl<'a> Elaborator<'a> {
             } else {
                 None
             };
-            if let (Some(part), Some(block)) = (step.part, blocks.last_mut()) {
+            // A part a `by` line opened a block in ends where that block
+            // closes (`Elaborator::hand_up`).
+            let in_part = blocks.last_mut().filter(|b| b.by_part.is_none());
+            if let (Some(part), Some(block)) = (step.part, in_part) {
                 let last = self.last.clone().expect("a step's number");
                 let held = self
                     .line_written(&last, &self.lines)
@@ -815,12 +859,15 @@ impl<'a> Elaborator<'a> {
             // said to be impossible, as a case that cannot occur does: what
             // the block claims of the name it fixes is reached from the two,
             // and stands as the block's last line.
+            // A part's `by proof` block holds steps of the part, which the
+            // block closes as one with no parts.
             let fixing = blocks
                 .last()
                 .filter(|b| b.owner.just.head.is(Method::Proof))
+                .filter(|b| step.part.is_none() || b.by_part.is_some())
                 .map(|b| b.owner.clone());
             let closes_fixing = step.just.contradicting.is_some() || denied.is_some();
-            if let (true, Some(owner), None) = (closes_fixing, fixing, step.part) {
+            if let (true, Some(owner)) = (closes_fixing, fixing) {
                 let last = self.last.clone().expect("a step's number");
                 let line = self.lines.get(&last).expect("the step's line");
                 let held = self

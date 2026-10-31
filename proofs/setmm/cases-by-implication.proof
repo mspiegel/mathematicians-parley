@@ -8,30 +8,23 @@ theorem cases-by-implication
   let b ∈ ℝ                                                           (H2)
   let c ∈ ℝ                                                           (H3)
   then if (if a = 0 then c = 0) then if (if b = 0 then c = 0) then if (a = 0 or b = 0) then c = 0
+  by          proof
 
-1.  If (if a = 0 then c = 0) then if (if b = 0 then c = 0) then if (a = 0 or b = 0) then c = 0.
-    proof
-    assume if a = 0 then c = 0                                        (K1)
+assume if a = 0 then c = 0                                            (K1)
+assume if b = 0 then c = 0                                            (K2)
+assume a = 0 or b = 0                                                 (K3)
 
-    1.1.  If (if b = 0 then c = 0) then if (a = 0 or b = 0) then c = 0.
-          proof
-          assume if b = 0 then c = 0                                  (K2)
+1.  c = 0
+    cases, from K3
 
-          1.1.1.  If (a = 0 or b = 0) then c = 0.
-                  proof
-                  assume a = 0 or b = 0                               (K3)
+    case
+    assume a = 0                                                      (C1)
 
-                  1.1.1.1.  c = 0
-                            cases, from K3
+    1.1.  c = 0
+          mun:modus-ponens, from C1, K1
 
-                            case
-                            assume a = 0                              (C1)
+    case
+    assume b = 0                                                      (C2)
 
-                            1.1.1.1.1.  c = 0
-                                        mun:modus-ponens, from C1, K1
-
-                            case
-                            assume b = 0                              (C2)
-
-                            1.1.1.1.2.  c = 0
-                                        mun:modus-ponens, from C2, K2
+    1.2.  c = 0
+          mun:modus-ponens, from C2, K2

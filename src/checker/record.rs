@@ -50,6 +50,12 @@ pub struct Owed {
     /// The part, counted from 0; None for a `proof` block, which has none.
     pub part: Option<usize>,
     pub claim: Vec<Node>,
+    /// What the part's last step ends on, where the part names a method on
+    /// a `by` line (`Step::by_lines`): under `by proof`, the claim with the
+    /// part's inner `let` and `assume` lines taken off; empty under `by
+    /// contradiction`, whose last step contradicts a line. The claim itself
+    /// for a part with no `by` line.
+    pub ends: Vec<Node>,
 }
 
 impl Block {
@@ -57,6 +63,18 @@ impl Block {
     /// block inside it.
     pub fn last(&self) -> Option<usize> {
         self.children.last().copied()
+    }
+}
+
+impl CheckedTheorem {
+    /// The last step of its own that part `part` of block `block` holds.
+    pub fn last_in(&self, block: usize, part: Option<usize>) -> Option<usize> {
+        self.blocks[block]
+            .children
+            .iter()
+            .rev()
+            .copied()
+            .find(|&c| self.places[c].is_some_and(|p| p.part == part))
     }
 }
 

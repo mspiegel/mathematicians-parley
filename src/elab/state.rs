@@ -169,6 +169,19 @@ pub struct Block {
     pub proof: Option<Proof>,
     /// Part number -> the last fact in it.
     pub parts: IndexMap<usize, PartEnd>,
+    /// For the block a part's `by` line opens (`Step::by_lines`): the step
+    /// whose part it is and the part. Its `owner` then stands in for that
+    /// step, with the `by` method and the openers after the line.
+    pub by_part: Option<ByPart>,
+}
+
+/// The part of a block whose `by` line opened a block of its own.
+#[derive(Clone, Copy)]
+pub struct ByPart {
+    /// The step owning the part's block, by its index in the theorem.
+    pub owner: usize,
+    /// The part; None for a block with no parts.
+    pub part: Option<usize>,
 }
 
 /// A letter a block's `let x ∈ X` introduces: the letter as a kernel term,
