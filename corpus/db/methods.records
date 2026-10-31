@@ -294,7 +294,9 @@ method induction
               element. The base part opens with nothing, and its last step
               claims P(m). The step part opens with `let k ∈ X` and `assume step
               N is true for k, the induction hypothesis`, N the induction's own
-              number, which assumes P(k); its last step claims P(k + 1). The
+              number, or, where the theorem is proved `by` the induction,
+              `assume the theorem is true for k, the induction hypothesis`,
+              which assumes P(k); its last step claims P(k + 1). The
               letter is the claim's, so the hypothesis is the claim's words
               after the comma, and nothing is put in for anything. A claim
               "for all k ∈ X with C, S" is the formula "for all k ∈ X, if C
