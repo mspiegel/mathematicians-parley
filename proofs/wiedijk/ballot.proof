@@ -910,6 +910,55 @@ let V = {c ∈ G(m, n) : m + n ∉ c}                                     (D4)
     requires 0 ≠ m + (n − 1): weakening, from 36
 
 
+theorem tie-count
+  note        With as many votes for B as for A, both sides of the formula
+              are 0: with no votes there is nothing to count, and otherwise
+              no counting keeps A ahead.
+  let m ∈ ℕ₀                                                          (H1)
+  then |G(m, m)|·(m + m) = (m − m)·C(m + m, m)
+
+1.  m = 0 or m ≠ 0
+    axi:excluded-middle P := m = 0
+
+2.  |G(m, m)|·(m + m) = (m − m)·C(m + m, m)
+    cases, from 1
+
+    case
+    note no votes at all
+    assume m = 0                                                      (C1)
+
+    2.1.  G(m, m) is finite
+          thm:good-finite n := m
+
+    2.2.  |G(m, m)| ∈ ℕ₀
+          mun:card-nat0 X := G(m, m), from 2.1
+
+    2.3.  |G(m, m)|·(m + m) = (m − m)·C(m + m, m)
+          calculation
+            |G(m, m)|·(m + m) = 0                      algebra, from C1, 2.2
+                              = (m − m)·C(m + m, m)    algebra
+
+    case
+    note some votes, and A and B end level
+    assume m ≠ 0                                                      (C2)
+
+    2.4.  m ∈ ℕ
+          mun:nat0-nonzero, from C2
+
+    2.5.  G(m, m) = ∅
+          thm:tie-at-the-end, from 2.4
+
+    2.6.  |G(m, m)| = 0
+          calculation
+            |G(m, m)| = |∅|    substitute line 2.5
+                      = 0      mun:card-empty
+
+    2.7.  |G(m, m)|·(m + m) = (m − m)·C(m + m, m)
+          calculation
+            |G(m, m)|·(m + m) = 0                      algebra, from 2.6
+                              = (m − m)·C(m + m, m)    algebra
+
+
 theorem ballot-count
   note        By induction on the number of votes. A good counting ends
               with a vote for A or for B, and taking that vote away leaves
@@ -1081,44 +1130,11 @@ theorem ballot-count
                   note A and B end level, so no counting keeps A ahead
                   assume n = m                                        (C6)
 
-                  1.2.3.5.  m + m = k + 1
-                            substitute n = m (C6) into C2
+                  1.2.3.5.  |G(m, m)|·(m + m) = (m − m)·C(m + m, m)
+                            thm:tie-count, from K4
 
-                  1.2.3.6.  1 ≤ k + 1
-                            inequalities, from K3
-
-                  1.2.3.7.  1 ≤ m + m
-                            transitivity, from 1.2.3.6, 1.2.3.5
-
-                  1.2.3.8.  1/2 ≤ m
-                            inequalities
-                              1 ≤ m + m      1.2.3.7
-                              1/2 ≤ m        multiplying by 1/2
-
-                  1.2.3.9.  0 < 1/2
-                            arithmetic
-
-                  1.2.3.10. 0 < m
-                            transitivity, from 1.2.3.9, 1.2.3.8
-
-                  1.2.3.11. m ∈ ℕ
-                            mun:pos-int-nat, from 1.2.3.10
-
-                  1.2.3.12. G(m, m) = ∅
-                            thm:tie-at-the-end, from 1.2.3.11
-
-                  1.2.3.13. G(m, n) = ∅
-                            substitute n = m (C6) into line 1.2.3.12
-
-                  1.2.3.14. |G(m, n)| = 0
-                            calculation
-                              |G(m, n)| = |∅|    substitute line 1.2.3.13
-                                        = 0      mun:card-empty
-
-                  1.2.3.15. |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
-                            calculation
-                              |G(m, n)|·(m + n) = 0                      algebra, from 1.2.3.14
-                                                = (m − n)·C(m + n, m)    algebra, from C6
+                  1.2.3.6.  |G(m, n)|·(m + n) = (m − n)·C(m + n, m)
+                            substitute n = m (C6) into line 1.2.3.5
 
 2.  |G(a, b)|·(a + b) = (a − b)·C(a + b, a)
     instantiate k := a + b, m := a, n := b in line 1, from H3
