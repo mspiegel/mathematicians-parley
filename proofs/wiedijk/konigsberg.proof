@@ -192,21 +192,19 @@ theorem walk-parity
 4.  For all i ∈ {1, …, n}, not (x = v(i − 1) and x = v(i)).
     proof
     let i ∈ {1, …, n}                                                 (K2)
+    by          contradiction
+    suppose x = v(i − 1) and x = v(i)                                 (S1)
 
     4.1.  v(i − 1) ≠ v(i)
           mun:walk-distinct, from K2, 1
 
-    4.2.  not (x = v(i − 1) and x = v(i))
-          contradiction
-          suppose x = v(i − 1) and x = v(i)                           (S1)
+    4.2.  v(i − 1) = v(i)
+          calculation
+            v(i − 1) = x          S1
+                     = v(i)       S1
 
-          4.2.1.  v(i − 1) = v(i)
-                  calculation
-                    v(i − 1) = x          S1
-                             = v(i)       S1
-
-          4.2.2.  v(i − 1) = v(i)
-                  restate 4.2.1, contradicting 4.1
+    4.3.  v(i − 1) = v(i)
+          restate 4.2, contradicting 4.1
 
 let d = |{i ∈ {1, …, n} : x = v(i − 1)}|                              (D1)
        reads how many of the walk's edges leave x

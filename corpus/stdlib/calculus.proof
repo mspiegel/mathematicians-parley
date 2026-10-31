@@ -873,19 +873,17 @@ theorem monotone-limit
           10.2.1. For all s ∈ x[ℕ], s ≤ c − ε.
                   proof
                   let s ∈ x[ℕ]                                        (K2)
+                  by          contradiction
+                  suppose not s ≤ c − ε                               (S2)
 
                   10.2.1.1. s ∈ ℝ
                             mun:in-subset, from K2, 2
 
-                  10.2.1.2. s ≤ c − ε
-                            contradiction
-                            suppose not s ≤ c − ε                     (S2)
+                  10.2.1.2. c − ε < s
+                            inequalities, from S2, 10.2.1.1
 
-                            10.2.1.2.1. c − ε < s
-                                        inequalities, from S2, 10.2.1.1
-
-                            10.2.1.2.2. There is s ∈ x[ℕ] with c − ε < s.
-                                        exhibit, from K2, 10.2.1.2.1, contradicting S
+                  10.2.1.3. There is s ∈ x[ℕ] with c − ε < s.
+                            exhibit, from K2, 10.2.1.2, contradicting S
 
           10.2.2. c − ε is an upper bound of x[ℕ]
                   def:upper-bound, from 10.2.1

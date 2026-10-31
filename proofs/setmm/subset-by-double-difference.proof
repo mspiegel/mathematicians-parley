@@ -18,19 +18,17 @@ assume A ⊆ B                                                          (D1)
 1.  For all t ∈ B ∖ (B ∖ A), t ∈ A.
     proof
     let t ∈ B ∖ (B ∖ A)                                               (K1)
+    by          contradiction
+    suppose t ∉ A                                                     (S1)
 
     1.1.  t ∈ B. t ∉ B ∖ A.
           def:difference u := t, Y := B, Z := B ∖ A, from K1
 
-    1.2.  t ∈ A
-          contradiction
-          suppose t ∉ A                                               (S1)
+    1.2.  t ∈ B ∖ A
+          def:difference u := t, Y := B, Z := A, from S1, 1.1
 
-          1.2.1.  t ∈ B ∖ A
-                  def:difference u := t, Y := B, Z := A, from S1, 1.1
-
-          1.2.2.  t ∉ B ∖ A
-                  restate 1.1, contradicting 1.2.1
+    1.3.  t ∉ B ∖ A
+          restate 1.1, contradicting 1.2
 
 2.  B ∖ (B ∖ A) ⊆ A
     def:subset, from 1

@@ -270,6 +270,8 @@ let O = {d ⊆ {1, …, m + m} : |d| = m}                                 (D3)
 2.  For all c ∈ O, not (c is a counting ahead through m + m).
     proof
     let c ∈ O                                                         (K1)
+    by          contradiction
+    suppose c is a counting ahead through m + m                       (S1)
 
     2.1.  c ⊆ {1, …, m + m}. |c| = m.
           def:part-builder u := c, from D3, K1
@@ -277,21 +279,17 @@ let O = {d ⊆ {1, …, m + m} : |d| = m}                                 (D3)
     2.2.  |{1, …, m + m} ∖ c| = m. |{1, …, m + m} ∩ c| = m.
           thm:last-place n := m, from 2.1
 
-    2.3.  not (c is a counting ahead through m + m)
-          contradiction
-          suppose c is a counting ahead through m + m                 (S1)
+    2.3.  For all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
+          D1, from S1
 
-          2.3.1.  For all i ∈ {1, …, m + m}, |{1, …, i} ∖ c| < |{1, …, i} ∩ c|.
-                  D1, from S1
+    2.4.  m < m
+          calculation
+            m = |{1, …, m + m} ∖ c|      2.2
+              < |{1, …, m + m} ∩ c|      instantiate i := m + m in line 2.3, from 1
+              = m                        2.2
 
-          2.3.2.  m < m
-                  calculation
-                    m = |{1, …, m + m} ∖ c|      2.2
-                      < |{1, …, m + m} ∩ c|      instantiate i := m + m in line 2.3.1, from 1
-                      = m                        2.2
-
-          2.3.3.  not m < m
-                  inequalities, contradicting 2.3.2
+    2.5.  not m < m
+          inequalities, contradicting 2.4
 
 3.  G(m, m) = ∅
     mun:set-builder-empty X := O, from D2, D3, 2
