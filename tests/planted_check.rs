@@ -2258,16 +2258,16 @@ fn cases() -> Vec<Case> {
             "step 8.2.3 cites D2 and claims a value it does not give: no line it cites says whether a case's condition holds or fails",
         ),
         // An obtain from part-builder claims what K's condition says of the set
-        // the cited line puts in K: K18 gives Y = aH, and Z = aH is another
+        // the cited line puts in K: K2 gives Y = aH, and Z = aH is another
         // claim.
         case(
             "obtain from part-builder a claim the condition does not give",
             vec![edit(
                 "proofs/wiedijk/lagrange.proof",
-                Some("    14.1. a ∈ G. Y = aH.\n".to_string()),
-                "    14.1. a ∈ G. Z = aH.\n".to_string(),
+                Some("    8.1.  a ∈ G. Y = aH.\n".to_string()),
+                "    8.1.  a ∈ G. Z = aH.\n".to_string(),
             )],
-            "step 14.4 takes Y = aH from 14.1, which does not say it",
+            "step 8.4 takes Y = aH from 8.1, which does not say it",
         ),
         // An obtain from a definition reads its left side off a line it cites,
         // through a define's name where the line uses one: C9 says b ∈ R, and R
@@ -2287,10 +2287,10 @@ fn cases() -> Vec<Case> {
             "a coset member with no line naming what it is the element times",
             vec![edit(
                 "proofs/wiedijk/lagrange.proof",
-                Some("def:coset u := g, from H2, K3, 4.1, 4.2".to_string()),
-                "def:coset u := g, from H2, K3, 4.1".to_string(),
+                Some("def:coset u := g, from H2, H3, 1, 2".to_string()),
+                "def:coset u := g, from H2, H3, 1".to_string(),
             )],
-            "step 4.3 claims something that def:coset does not conclude",
+            "step 3 claims something that def:coset does not conclude",
         ),
         // `inequalities` takes two terms differing only from a line it cites,
         // and not from a requires line above: 0 ≤ r alone gives no 0 < r.
@@ -4973,9 +4973,9 @@ fn cases() -> Vec<Case> {
         case(
             "read a coset without saying H is a subgroup",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("          def:coset u := g, from H2, K3, 4.1, 4.2\n".to_string()), "          def:coset u := g, from K3, 4.1, 4.2\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("    def:coset u := g, from H2, H3, 1, 2\n".to_string()), "    def:coset u := g, from H3, 1, 2\n".to_string()),
             ],
-            "step 4.3 cites def:coset, which asks for H is a subgroup of G",
+            "step 3 cites def:coset, which asks for H is a subgroup of G",
         ),
         // An equation names a witness read either way round, and only so: g
         // is in gH as g = g·h for some h ∈ H, and e·g = g fits that neither
@@ -4983,20 +4983,20 @@ fn cases() -> Vec<Case> {
         case(
             "name a coset witness by an equation that does not fit either way",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("    4.2.  g·e = g\n".to_string()), "    4.2.  e·g = g\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("\n2.  g·e = g\n".to_string()), "\n2.  e·g = g\n".to_string()),
             ],
-            "step 4.3 claims something that def:coset does not conclude",
+            "step 3 claims something that def:coset does not conclude",
         ),
         // A claim may bind another letter than the definition it reads, and says
         // the same thing only where the letter it binds is the one it uses: with
-        // b bound and a free, gH = aH is a claim about a, and 11.2 reads K's
+        // b bound and a free, gH = aH is a claim about a, and 5.4 reads K's
         // condition from it.
         case(
             "read a definition with a bound letter the claim does not use",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is b ∈ G with gH = aH.\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("    5.3.  There is a ∈ G with gH = aH.\n".to_string()), "    5.3.  There is b ∈ G with gH = aH.\n".to_string()),
             ],
-            "step 11.2 claims something that def:part-builder does not conclude",
+            "step 5.4 claims something that def:part-builder does not conclude",
         ),
         // K binds g, and read at gH it is `there is a ∈ G with gH = aH`: the g
         // of gH is not caught by K's. So the sentence written with it caught
@@ -5004,18 +5004,18 @@ fn cases() -> Vec<Case> {
         case(
             "read a definition at a term its bound letter would catch",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("    11.1. There is a ∈ G with gH = aH.\n".to_string()), "    11.1. There is g ∈ G with gH = gH.\n".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("    5.3.  There is a ∈ G with gH = aH.\n".to_string()), "    5.3.  There is g ∈ G with gH = gH.\n".to_string()),
             ],
-            "step 11.2 claims something that def:part-builder does not conclude",
+            "step 5.4 claims something that def:part-builder does not conclude",
         ),
         // An obtain from part-builder finds its "there is" in the condition of
-        // the set the cited line puts Y in; K20 says only x ∈ Y ∩ Z.
+        // the set the cited line puts Y in; K4 says only x ∈ Y ∩ Z.
         case(
             "obtain from part-builder citing no line that puts the set in it",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("obtain a: def:part-builder, from D1, K18".to_string()), "obtain a: def:part-builder, from D1, K20".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("obtain a: def:part-builder, from D1, K2".to_string()), "obtain a: def:part-builder, from D1, K4".to_string()),
             ],
-            "step 14.1 obtains from def:part-builder, which says there is one only from something the step does not cite",
+            "step 8.1 obtains from def:part-builder, which says there is one only from something the step does not cite",
         ),
         // A requires line says what the step's other lines do not: m − k ∈ ℕ₀
         // above already says m − k is real.
@@ -5040,9 +5040,9 @@ fn cases() -> Vec<Case> {
         case(
             "count by parts without saying they do not overlap",
             vec![
-                edit("proofs/wiedijk/lagrange.proof", Some("from H1, 13, 14, 15".to_string()), "from H1, 13, 15".to_string()),
+                edit("proofs/wiedijk/lagrange.proof", Some("from H1, 7, 8, 9".to_string()), "from H1, 7, 9".to_string()),
             ],
-            "step 16 cites mun:partition-count, which asks for",
+            "step 10 cites mun:partition-count, which asks for",
         ),
         // A define by recursion gives each name a value at 0 and a rule at the
         // step, the rule naming the sequences only at k, and a citation of it

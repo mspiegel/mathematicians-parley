@@ -28,6 +28,238 @@ import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 import mundane theorem    stdlib/sets/union-within
 
+theorem coset-within
+  note        Each member of gH is g times a member of H, and both are in G.
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let g ∈ G                                                           (H3)
+  then gH ⊆ G
+
+1.  H ⊆ G
+    mun:subgroup-within, from H2
+
+2.  For all u ∈ gH, u ∈ G.
+    proof
+    let u ∈ gH                                                        (K1)
+
+    2.1.  h ∈ H. u = g·h.
+          obtain h: def:coset, from H2, H3, K1
+
+    2.2.  h ∈ G
+          mun:in-subset, from 1, 2.1
+
+    2.3.  g·h ∈ G
+          axi:group-closed a := g, b := h, from H3, 2.2
+
+    2.4.  u ∈ G
+          substitute u = g·h (line 2.1) into line 2.3
+
+3.  gH ⊆ G
+    def:subset, from 2
+
+theorem coset-member
+  note        g is g times the identity, which is in H.
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let g ∈ G                                                           (H3)
+  then g ∈ gH
+
+1.  e ∈ H
+    mun:subgroup-identity, from H2
+
+2.  g·e = g
+    axi:group-identity a := g, from H3
+
+3.  g ∈ gH
+    def:coset u := g, from H2, H3, 1, 2
+
+theorem coset-inclusion
+  note        x is a·h for some h in H, so x times a member c of H is
+              a·(h·c), and h·c is in H.
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let a ∈ G                                                           (H3)
+  let x ∈ aH                                                          (H4)
+  then xH ⊆ aH
+
+1.  H ⊆ G
+    mun:subgroup-within, from H2
+
+2.  h ∈ H. x = a·h.
+    obtain h: def:coset u := x, g := a, from H2, H3, H4
+
+3.  aH ⊆ G
+    thm:coset-within g := a, from H2, H3
+
+4.  x ∈ G
+    mun:in-subset, from H4, 3
+
+5.  h ∈ G
+    mun:in-subset, from 1, 2
+
+6.  For all u ∈ xH, u ∈ aH.
+    proof
+    let u ∈ xH                                                        (K1)
+
+    6.1.  c ∈ H. u = x·c.
+          obtain c: def:coset g := x, from H2, K1, 4
+
+    6.2.  c ∈ G
+          mun:in-subset, from 1, 6.1
+
+    6.3.  h·c ∈ H
+          mun:subgroup-closed a := h, b := c, from H2, 2, 6.1
+
+    6.4.  u = a·(h·c)
+          calculation
+            u = x·c              6.1
+              = (a·h)·c          substitute line 2
+              = a·(h·c)          axi:group-associative b := h, from H3, 5, 6.2
+
+    6.5.  u ∈ aH
+          def:coset g := a, from H2, H3, 6.3, 6.4
+
+7.  xH ⊆ aH
+    def:subset, from 6
+
+theorem coset-of-member
+  note        A coset is the coset of any of its members: x is in aH, and a
+              is in xH, so each coset holds the other.
+  let G be a group with operation · and identity e                    (H1)
+  assume H is a subgroup of G                                         (H2)
+  let a ∈ G                                                           (H3)
+  let x ∈ aH                                                          (H4)
+  then xH = aH
+
+1.  H ⊆ G
+    mun:subgroup-within, from H2
+
+2.  h ∈ H. x = a·h.
+    obtain h: def:coset u := x, g := a, from H2, H3, H4
+
+3.  h ∈ G
+    mun:in-subset, from 1, 2
+
+4.  h⁻¹ ∈ H
+    mun:subgroup-inverse a := h, from H2, 2
+
+5.  h⁻¹ ∈ G
+    axi:group-inverse-closed a := h, from 3
+
+6.  h·h⁻¹ = e
+    axi:group-inverse a := h, from 3
+
+7.  a = x·h⁻¹
+    calculation
+      a = a·e                  axi:group-identity, from H3
+        = a·(h·h⁻¹)            substitute line 6
+        = (a·h)·h⁻¹            axi:group-associative b := h, c := h⁻¹, from H3, 3, 5
+        = x·h⁻¹                substitute line 2
+
+8.  aH ⊆ G
+    thm:coset-within g := a, from H2, H3
+
+9.  x ∈ G
+    mun:in-subset, from H4, 8
+
+10. a ∈ xH
+    def:coset u := a, g := x, from H2, 4, 7, 9
+
+11. xH ⊆ aH
+    thm:coset-inclusion, from H2, H3, H4
+
+12. aH ⊆ xH
+    thm:coset-inclusion a := x, x := a, from H2, 9, 10
+
+13. xH = aH
+    mun:subset-antisymmetric, from 11, 12
+
+theorem coset-size
+  note        Multiplying by g sends H one to one onto gH.
+  let G be a finite group with operation · and identity e             (H1)
+  assume H is a subgroup of G                                         (H2)
+  let g ∈ G                                                           (H3)
+  then |gH| = |H|
+
+1.  H ⊆ G
+    mun:subgroup-within, from H2
+
+2.  H is finite
+    mun:finite-part, from H1, 1
+
+let t(c) = g·c, for c ∈ H                                             (D1)
+       reads g times c
+
+3.  For all h ∈ H, t(h) ∈ gH.
+    proof
+    let h ∈ H                                                         (K1)
+
+    3.1.  t(h) = g·h
+          D1, from K1
+
+    3.2.  t(h) ∈ gH
+          def:coset u := t(h), from H2, H3, K1, 3.1
+
+4.  t : H → gH
+    mun:function-into, from 3
+    requires t is a function on H: from D1
+
+5.  For all s, r ∈ H, if t(s) = t(r) then s = r.
+    proof
+    let s ∈ H                                                         (K2)
+    let r ∈ H                                                         (K3)
+    assume t(s) = t(r)                                                (A1)
+
+    5.1.  t(s) = g·s
+          D1, from K2
+
+    5.2.  t(r) = g·r
+          D1, from K3
+
+    5.3.  g·s = g·r
+          calculation
+            g·s = t(s)           5.1
+                = t(r)           A1
+                = g·r            5.2
+
+    5.4.  s ∈ G
+          mun:in-subset, from K2, 1
+
+    5.5.  r ∈ G
+          mun:in-subset, from K3, 1
+
+    5.6.  s = r
+          thm:group-cancel a := s, b := r, from H3, 5.3, 5.4, 5.5
+
+6.  t : H → gH is one-to-one
+    def:one-to-one, from 4, 5
+
+7.  For all u ∈ gH, there is h ∈ H with u = t(h).
+    proof
+    let u ∈ gH                                                        (K4)
+
+    7.1.  h ∈ H. u = g·h.
+          obtain h: def:coset, from H2, H3, K4
+
+    7.2.  t(h) = g·h
+          D1, from 7.1
+
+    7.3.  u = t(h)
+          calculation
+            u = g·h              7.1
+              = t(h)             7.2
+
+    7.4.  There is h ∈ H with u = t(h).
+          exhibit, from 7.1, 7.3
+
+8.  There is a bijection from H to gH.
+    def:bijection
+    requires t : H → gH is onto: def:onto, from 4, 7
+    requires t : H → gH is one-to-one and onto: def:one-to-one-onto, from 6
+
+9.  |gH| = |H|
+    mun:card-equal X := H, Y := gH, from 2, 8
+
 theorem lagrange
   metamath    lagsubg, which says it of the index set.mm builds from the
               relation of being in one coset, where this counts the cosets
@@ -46,297 +278,96 @@ let K = {X ⊆ G : there is g ∈ G with X = gH}                        (D1)
 2.  H is finite
     mun:finite-part, from H1, 1
 
-3.  For all g ∈ G, gH ⊆ G.
-    proof
-    let g ∈ G                                                         (K1)
-
-    3.1.  For all u ∈ gH, u ∈ G.
-          proof
-          let u ∈ gH                                                  (K2)
-
-          3.1.1.  h ∈ H. u = g·h.
-                  obtain h: def:coset, from H2, K1, K2
-
-          3.1.2.  h ∈ G
-                  mun:in-subset, from 1, 3.1.1
-
-          3.1.3.  g·h ∈ G
-                  axi:group-closed a := g, b := h, from K1, 3.1.2
-
-          3.1.4.  u ∈ G
-                  substitute u = g·h (line 3.1.1) into line 3.1.3
-
-    3.2.  gH ⊆ G
-          def:subset, from 3.1
-
-4.  For all g ∈ G, g ∈ gH.
-    proof
-    let g ∈ G                                                         (K3)
-
-    4.1.  e ∈ H
-          mun:subgroup-identity, from H2
-
-    4.2.  g·e = g
-          axi:group-identity a := g, from K3
-
-    4.3.  g ∈ gH
-          def:coset u := g, from H2, K3, 4.1, 4.2
-
-5.  For all a ∈ G, for all x ∈ aH, xH ⊆ aH.
-    proof
-    let a ∈ G                                                         (K4)
-    let x ∈ aH                                                        (K5)
-
-    5.1.  h ∈ H. x = a·h.
-          obtain h: def:coset u := x, g := a, from H2, K4, K5
-
-    5.2.  x ∈ G
-          mun:in-subset, from K5, 3
-
-    5.3.  h ∈ G
-          mun:in-subset, from 1, 5.1
-
-    5.4.  For all u ∈ xH, u ∈ aH.
-          proof
-          let u ∈ xH                                                  (K6)
-
-          5.4.1.  c ∈ H. u = x·c.
-                  obtain c: def:coset g := x, from H2, K6, 5.2
-
-          5.4.2.  c ∈ G
-                  mun:in-subset, from 1, 5.4.1
-
-          5.4.3.  h·c ∈ H
-                  mun:subgroup-closed a := h, b := c, from H2, 5.1, 5.4.1
-
-          5.4.4.  u = a·(h·c)
-                  calculation
-                    u = x·c              5.4.1
-                      = (a·h)·c          substitute line 5.1
-                      = a·(h·c)          axi:group-associative b := h, from K4, 5.3, 5.4.2
-
-          5.4.5.  u ∈ aH
-                  def:coset g := a, from H2, K4, 5.4.3, 5.4.4
-
-    5.5.  xH ⊆ aH
-          def:subset, from 5.4
-
-6.  For all a ∈ G, for all x ∈ aH, a ∈ xH.
-    proof
-    let a ∈ G                                                         (K7)
-    let x ∈ aH                                                        (K8)
-
-    6.1.  h ∈ H. x = a·h.
-          obtain h: def:coset u := x, g := a, from H2, K7, K8
-
-    6.2.  h ∈ G
-          mun:in-subset, from 1, 6.1
-
-    6.3.  h⁻¹ ∈ H
-          mun:subgroup-inverse a := h, from H2, 6.1
-
-    6.4.  h⁻¹ ∈ G
-          axi:group-inverse-closed a := h, from 6.2
-
-    6.5.  h·h⁻¹ = e
-          axi:group-inverse a := h, from 6.2
-
-    6.6.  a = x·h⁻¹
-          calculation
-            a = a·e                  axi:group-identity, from K7
-              = a·(h·h⁻¹)            substitute line 6.5
-              = (a·h)·h⁻¹            axi:group-associative b := h, c := h⁻¹, from K7, 6.2, 6.4
-              = x·h⁻¹                substitute line 6.1
-
-    6.7.  x ∈ G
-          mun:in-subset, from K8, 3
-
-    6.8.  a ∈ xH
-          def:coset u := a, g := x, from H2, 6.3, 6.6, 6.7
-
-7.  For all b ∈ G, for all y ∈ bH, yH = bH.
-    proof
-    note a coset is the coset of any of its elements: steps 5 and 6 give both inclusions
-    let b ∈ G                                                         (K9)
-    let y ∈ bH                                                        (K10)
-
-    7.1.  yH ⊆ bH
-          instantiate a := b, x := y in line 5, from K9, K10
-
-    7.2.  y ∈ G
-          mun:in-subset, from K10, 3
-
-    7.3.  b ∈ yH
-          instantiate a := b, x := y in line 6, from K9, K10
-
-    7.4.  bH ⊆ yH
-          instantiate a := y, x := b in line 5, from 7.2, 7.3
-
-    7.5.  yH = bH
-          mun:subset-antisymmetric, from 7.1, 7.4
-
-8.  For all g ∈ G, |gH| = |H|.
-    proof
-    note multiplying by g sends H one to one onto gH
-    let g ∈ G                                                         (K11)
-
-    let t(c) = g·c, for c ∈ H                                         (D2)
-           reads g times c
-
-    8.1.  For all h ∈ H, t(h) ∈ gH.
-          proof
-          let h ∈ H                                                   (K12)
-
-          8.1.1.  t(h) = g·h
-                  D2, from K12
-
-          8.1.2.  t(h) ∈ gH
-                  def:coset u := t(h), from H2, K11, K12, 8.1.1
-
-    8.2.  t : H → gH
-          mun:function-into, from 8.1
-          requires t is a function on H: from D2
-
-    8.3.  For all s, r ∈ H, if t(s) = t(r) then s = r.
-          proof
-          let s ∈ H                                                   (K13)
-          let r ∈ H                                                   (K14)
-          assume t(s) = t(r)                                          (A1)
-
-          8.3.1.  t(s) = g·s
-                  D2, from K13
-
-          8.3.2.  t(r) = g·r
-                  D2, from K14
-
-          8.3.3.  g·s = g·r
-                  calculation
-                    g·s = t(s)           8.3.1
-                        = t(r)           A1
-                        = g·r            8.3.2
-
-          8.3.4.  s ∈ G
-                  mun:in-subset, from K13, 1
-
-          8.3.5.  r ∈ G
-                  mun:in-subset, from K14, 1
-
-          8.3.6.  s = r
-                  thm:group-cancel a := s, b := r, from K11, 8.3.3, 8.3.4, 8.3.5
-
-    8.4.  t : H → gH is one-to-one
-          def:one-to-one, from 8.2, 8.3
-
-    8.5.  For all u ∈ gH, there is h ∈ H with u = t(h).
-          proof
-          let u ∈ gH                                                  (K15)
-
-          8.5.1.  h ∈ H. u = g·h.
-                  obtain h: def:coset, from H2, K11, K15
-
-          8.5.2.  t(h) = g·h
-                  D2, from 8.5.1
-
-          8.5.3.  u = t(h)
-                  calculation
-                    u = g·h              8.5.1
-                      = t(h)             8.5.2
-
-          8.5.4.  There is h ∈ H with u = t(h).
-                  exhibit, from 8.5.1, 8.5.3
-
-    8.6.  There is a bijection from H to gH.
-          def:bijection
-          requires t : H → gH is onto: def:onto, from 8.2, 8.5
-          requires t : H → gH is one-to-one and onto: def:one-to-one-onto, from 8.4
-
-    8.7.  |H| = |gH|
-          mun:card-equal X := H, Y := gH, from 2, 8.6
-
-9.  For all Y ∈ K, Y ⊆ G.
+3.  For all Y ∈ K, Y ⊆ G.
     def:part-builder, from D1
 
-10. ⋃(Y ∈ K) Y ⊆ G
-    mun:union-within, from 9
+4.  ⋃(Y ∈ K) Y ⊆ G
+    mun:union-within, from 3
 
-11. For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
+5.  For all g ∈ G, g ∈ ⋃(Y ∈ K) Y.
     proof
     note the cosets cover G: g is in its own coset gH
-    let g ∈ G                                                         (K17)
+    let g ∈ G                                                         (K1)
 
-    11.1. There is a ∈ G with gH = aH.
-          exhibit, from K17
+    5.1.  gH ⊆ G
+          thm:coset-within, from H2, K1
 
-    11.2. gH ∈ K
-          def:part-builder u := gH, from D1, 3, 11.1
+    5.2.  g ∈ gH
+          thm:coset-member, from H2, K1
 
-    11.3. There is Y ∈ K with g ∈ Y.
-          exhibit, from 4, 11.2
+    5.3.  There is a ∈ G with gH = aH.
+          exhibit, from K1
 
-    11.4. g ∈ ⋃(Y ∈ K) Y
-          def:indexed-union u := g, from 11.3
+    5.4.  gH ∈ K
+          def:part-builder u := gH, from D1, 5.1, 5.3
 
-12. G ⊆ ⋃(Y ∈ K) Y
-    def:subset, from 11
+    5.5.  There is Y ∈ K with g ∈ Y.
+          exhibit, from 5.2, 5.4
 
-13. ⋃(Y ∈ K) Y = G
-    mun:subset-antisymmetric, from 10, 12
+    5.6.  g ∈ ⋃(Y ∈ K) Y
+          def:indexed-union u := g, from 5.5
 
-14. For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
+6.  G ⊆ ⋃(Y ∈ K) Y
+    def:subset, from 5
+
+7.  ⋃(Y ∈ K) Y = G
+    mun:subset-antisymmetric, from 4, 6
+
+8.  For all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z.
     proof
     note two cosets that share an element x are both xH, so they do not overlap otherwise
-    let Y ∈ K                                                         (K18)
-    let Z ∈ K                                                         (K19)
-    let x ∈ Y ∩ Z                                                     (K20)
+    let Y ∈ K                                                         (K2)
+    let Z ∈ K                                                         (K3)
+    let x ∈ Y ∩ Z                                                     (K4)
 
-    14.1. a ∈ G. Y = aH.
-          obtain a: def:part-builder, from D1, K18
+    8.1.  a ∈ G. Y = aH.
+          obtain a: def:part-builder, from D1, K2
 
-    14.2. b ∈ G. Z = bH.
-          obtain b: def:part-builder, from D1, K19
+    8.2.  b ∈ G. Z = bH.
+          obtain b: def:part-builder, from D1, K3
 
-    14.3. x ∈ Y. x ∈ Z.
-          def:intersection, from K20
+    8.3.  x ∈ Y. x ∈ Z.
+          def:intersection, from K4
 
-    14.4. x ∈ aH
-          substitute Y = aH (line 14.1) into line 14.3
+    8.4.  x ∈ aH
+          substitute Y = aH (line 8.1) into line 8.3
 
-    14.5. x ∈ bH
-          substitute Z = bH (line 14.2) into line 14.3
+    8.5.  x ∈ bH
+          substitute Z = bH (line 8.2) into line 8.3
 
-    14.6. Y = Z
+    8.6.  Y = Z
           calculation
-            Y = aH                  14.1
-              = xH                  instantiate b := a, y := x in line 7, from 14.1, 14.4
-              = bH                  instantiate b := b, y := x in line 7, from 14.2, 14.5
-              = Z                   14.2
+            Y = aH                  8.1
+              = xH                  thm:coset-of-member a := a, from H2, 8.1, 8.4
+              = bH                  thm:coset-of-member a := b, from H2, 8.2, 8.5
+              = Z                   8.2
 
-15. For all Y ∈ K, |Y| = |H|.
+9.  For all Y ∈ K, |Y| = |H|.
     proof
-    let Y ∈ K                                                         (K21)
+    let Y ∈ K                                                         (K5)
 
-    15.1. a ∈ G. Y = aH.
-          obtain a: def:part-builder, from D1, K21
+    9.1.  a ∈ G. Y = aH.
+          obtain a: def:part-builder, from D1, K5
 
-    15.2. |Y| = |H|
+    9.2.  |Y| = |H|
           calculation
-            |Y| = |aH|               substitute line 15.1
-                = |H|                instantiate g := a in line 8, from 15.1
+            |Y| = |aH|               substitute line 9.1
+                = |H|                thm:coset-size g := a, from H2, 9.1
 
-16. |G| = |K| · |H|
-    mun:partition-count A := G, m := |H|, from H1, 13, 14, 15
+10. |G| = |K| · |H|
+    mun:partition-count A := G, m := |H|, from H1, 7, 8, 9
     requires |H| ∈ ℕ₀: mun:card-nat0, from 2
 
-17. K is finite
-    mun:parts-finite A := G, from H1, 9
+11. K is finite
+    mun:parts-finite A := G, from H1, 3
 
-18. |G| = |H|·|K|
-    algebra, from 16
-    requires |K| ∈ ℕ₀: mun:card-nat0, from 17
+12. |G| = |H|·|K|
+    algebra, from 10
+    requires |K| ∈ ℕ₀: mun:card-nat0, from 11
     requires |H| ∈ ℕ₀: mun:card-nat0, from 2
 
-19. |H| divides |G|
-    def:divides d := |H|, n := |G|, from 18
+13. |H| divides |G|
+    def:divides d := |H|, n := |G|, from 12
     requires |H| ∈ ℕ₀: mun:card-nat0, from 2
-    requires |K| ∈ ℕ₀: mun:card-nat0, from 17
+    requires |K| ∈ ℕ₀: mun:card-nat0, from 11
     requires |G| ∈ ℕ₀: mun:card-nat0, from H1
