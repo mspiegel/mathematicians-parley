@@ -1635,6 +1635,7 @@ fn link_passes(report: &mut Report, c: &Checking<'_>, thm: &Theorem, k: &Known<'
     citations::check_instance_claimed(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);
     citations::check_stated_domains(report, thm, library, k, scopes);
+    citations::check_cited_domains(report, thm, library, k, scopes);
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     for step in &thm.steps {
         structure::check_justification_form(report, &thm.path, &step.just);
@@ -1724,6 +1725,7 @@ fn check_passes(
     citations::check_instance_claimed(report, thm, library, k);
     citations::check_define_domains(report, thm, library, k, scopes);
     citations::check_stated_domains(report, thm, library, k, scopes);
+    citations::check_cited_domains(report, thm, library, k, scopes);
     formulas::check_method_cites_used(report, thm, library, k, scopes);
     formulas::check_chain_links(report, thm, library, k, scopes);
     check_link_reasons(report, c, thm, k);

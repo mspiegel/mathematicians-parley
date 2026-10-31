@@ -842,7 +842,13 @@ walk's parity can be stated of `c(k, x)`, the count of its first k edges at
 x, which names the walk's edges e (`tests/elaborator/induction-under-a-condition.proof`).
 The statement means its define written out: the
 kernel states it so, and a theorem citing it compares its own lines with
-the rule, never with the name, which the citing proof does not have. A
+the rule, never with the name, which the citing proof does not have. So a
+step citing such a theorem meets its hypotheses and conclusion only where
+each argument the statement applies the define to is in the define's
+domain, and it asks that, as a step citing the define does: a step citing
+ballot-recurrence at m, whose hypothesis is the formula at G(m − 1, n),
+cites or requires a line saying m − 1 ∈ ℕ₀, unless what it cites makes the
+membership by `membership`. A
 function only one proof needs is defined there and nowhere else: it takes
 no letter from any other proof.
 

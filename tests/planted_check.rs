@@ -6985,5 +6985,18 @@ fn cases() -> Vec<Case> {
             )],
             "the conclusion of add-last-place applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and neither a hypothesis nor a line of its proof outside a block says it",
         ),
+        // A theorem stated over a define writes it out, so a step citing it
+        // meets its hypotheses only where each argument is in the define's
+        // domain: ballot-recurrence asks for the formula at G(m − 1, n), and
+        // without the lines saying m − 1 and n − 1 are in ℕ₀ nothing does.
+        case(
+            "cite a theorem stated over a define at a term the step does not put in its domain",
+            vec![edit(
+                "proofs/wiedijk/ballot.proof",
+                Some("from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.6, 1.2.3.4.7,\n                                          1.2.3.4.11, 1.2.3.4.16".to_string()),
+                "from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.11, 1.2.3.4.16".to_string(),
+            )],
+            "step 1.2.3.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+        ),
     ]
 }

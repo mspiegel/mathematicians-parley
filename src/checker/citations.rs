@@ -3875,6 +3875,139 @@ pub fn check_stated_domains(
     }
 }
 
+/// A theorem stated over a define writes it out (`SYNTAX.md`, "The
+/// statement means its define written out"), so a step citing it meets what
+/// the theorem asks and concludes, at the step's arguments, only where each
+/// argument the statement applies the define to is in its domain:
+/// ballot-recurrence asks for the formula at G(m − 1, n), with G on ℕ₀, and
+/// a step citing it at m asks m − 1 ∈ ℕ₀. So the step asks it of what it
+/// cites or requires, as a step citing the define does
+/// (`check_define_domains`). An argument holding a letter the statement
+/// binds is left out: its binder says where it lies.
+pub fn check_cited_domains(
+    report: &mut Report,
+    thm: &Theorem,
+    library: &Library,
+    known: &Known,
+    scopes: &[FileScope],
+) {
+    let functions =
+        defined_functions(thm.defines.iter().chain(&scopes[thm.scope].defines));
+    if functions.is_empty() {
+        return;
+    }
+    for step in &thm.steps {
+        let Some(item) = step.just.cited_item() else {
+            continue;
+        };
+        let over = crate::sorts::stated_over(thm, scopes, &step.just.item(&item));
+        let used: Vec<Defined> = functions
+            .iter()
+            .filter(|f| !f.recursive && over.contains(&f.label))
+            .cloned()
+            .collect();
+        if used.is_empty() {
+            continue;
+        }
+        let Some(read) = cited(step, library, known) else {
+            continue; // the citation's own checks say why it does not read
+        };
+        // The statement as its page writes it, the define by name: what the
+        // build reads written out.
+        let Some(crate::corpus::Item::Theorem(of)) = library.item(&read.item) else {
+            continue;
+        };
+        let written: Vec<Written> = of
+            .hypotheses
+            .iter()
+            .map(|h| h.body(&of.path))
+            .chain([of.stated()])
+            .collect();
+        let stated: Vec<Node> = written
+            .iter()
+            .flat_map(|w| w.sentences())
+            .filter_map(|s| known.read_as_written(&s))
+            .collect();
+        let mut asked = Vec::new();
+        for said in &stated {
+            let mut bound = BTreeSet::new();
+            letters_bound(said, &library.ctx, &mut bound);
+            let at = filled(said, &read.binding, &library.ctx);
+            asked.extend(
+                applied(&used, &at, false, known)
+                    .into_iter()
+                    .filter(|a| a.arg.names().is_disjoint(&bound)),
+            );
+        }
+        // The kernel reads the argument written out as well, s(s(t)) as s
+        // at (t + 1) mod 10, and a membership `membership` builds of that
+        // from what the step cites is asked of no line.
+        let defined = known.citing_step(step);
+        let facts: Vec<Node> = known
+            .parts(step, library)
+            .facts
+            .iter()
+            .map(|f| known.as_cited(f, &defined))
+            .collect();
+        let asked: Vec<Applied> = asked
+            .into_iter()
+            .filter(|a| {
+                let written = known.as_cited(&a.says[0], &defined);
+                !built_from(&written, &facts, step, known, library)
+            })
+            .collect();
+        for asked in unsaid_by(step, asked, known, library) {
+            report.say(
+                &thm.path,
+                step.just.line,
+                format!(
+                    "step {} cites {}, whose statement applies the define {} at {} and is written out, so it needs {}, and nothing it cites or requires says it",
+                    step.number,
+                    item,
+                    asked.label,
+                    known.print(&asked.arg),
+                    known.print(&asked.says[0])
+                ),
+            );
+        }
+    }
+}
+
+/// Whether `fact`, a membership in a number system, is one `membership`
+/// would build from what `step` cites (`methods::membership::holds`): its
+/// parts in the system by the letters, the function types in scope and
+/// `facts`, as (t + 1) mod 10 ∈ ℤ is where a cited line says t ∈ ℤ. The
+/// build proves such a membership from the same facts.
+fn built_from(
+    fact: &Node,
+    facts: &[Node],
+    step: &Step,
+    known: &Known,
+    library: &Library,
+) -> bool {
+    let (MEMBERSHIP, [term, set]) = (fact.notation(), fact.children.as_slice()) else {
+        return false;
+    };
+    let Some(system) = (set.notation() == NUMBER_SYSTEMS)
+        .then(|| System::of_sign(&set.text))
+        .flatten()
+    else {
+        return false;
+    };
+    let mut typed = typed_in_scope(known, step);
+    typed.extend(facts.iter().filter(|f| types_a_function(f)).cloned());
+    let given = crate::methods::membership::Facts {
+        facts,
+        letters: super::library::introduced(known, step),
+        ranged: IndexMap::new(),
+        typed: &typed,
+        in_sums: &typed,
+        targets: &library.targets,
+        ctx: known.ctx,
+    };
+    crate::methods::membership::holds(term, system, &given)
+}
+
 /// The last step's claim speaks of a define's name where the statement
 /// writes the define out (`check_stated_domains`), and the theorem is the
 /// last step carried to its statement, which reads the name as its rule at
