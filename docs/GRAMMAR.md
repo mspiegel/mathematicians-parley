@@ -696,6 +696,7 @@ substitution in the corpus comes close.
                   { <theorem field> }
                   { <hypothesis> | <naming> }
                   <conclusion>
+                  [ `by` <justification> ]
                   { <naming> | <step> }
 <theorem field> ::= ( `metamath` | `note` ) <words>
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
@@ -1052,6 +1053,8 @@ from 4.1`, and only where a define in scope carries it: a claim may well begin
 with a capital, as `C ⊆ A` does.
 
 A step numbered `p.n` belongs to the block of the step numbered `p`.
+Under a theorem's `by` line, a step numbered `n` belongs to the theorem's
+block: the theorem is the step its method proves, and has no number.
 
 ```grammar
 <requires> ::= `requires` <formula> `:` <justification>
@@ -1148,7 +1151,7 @@ opening line or part markers as the method requires.
 <opener>::= `suppose` <formula> `(` <label> `)`          -- contradiction
           | <hypothesis> { <hypothesis> }                -- proof
 <part>  ::= <part marker> [ <note> ] [ <hypothesis> ] { <step> }
-<part marker> ::= `base` | `step` | `case`
+<part marker> ::= `base` | `step` | `case` | `direction`
 ```
 
 A part marker is a bare word on its own line. Which markers a block may carry,
@@ -1156,7 +1159,9 @@ in which order, and whether a part opens with an assumption, are read from that
 method's record in `corpus/db/methods.records`, not hard-coded: induction declares `base,
 step`, and cases declares a repeating `case` whose parts open with `assume`.
 An induction's `step` part opens with `let k ∈ X` and `assume step N is true
-for k, the induction hypothesis (IH)`. The second writes no formula of its
+for k, the induction hypothesis (IH)`, or, where the theorem is proved `by`
+the induction, `assume the theorem is true for k, the induction hypothesis
+(IH)`. The second writes no formula of its
 own: what it assumes is step N's statement after "for all k ∈ X,", taken
 from the tree of N's claim (`Opener::is_hypothesis`), and the k it names is
 the letter that claim binds. Over the parts of a set, a claim "for all Y ⊆
