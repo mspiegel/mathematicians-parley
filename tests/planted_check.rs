@@ -532,7 +532,7 @@ const READ_REASONS: &[(&str, &str, &str)] = &[
     (
         "an item",
         "proofs/wiedijk/pythagoras.proof",
-        "    mun:between-symmetric R := D, S := A, T := B, from 1",
+        "    mun:segment-addition P := A, Q := B, S := D, from 1",
     ),
 ];
 
@@ -1777,10 +1777,10 @@ fn cases() -> Vec<Case> {
             "write a distance's membership",
             vec![edit(
                 "proofs/wiedijk/pythagoras.proof",
-                Some("    algebra, from 4, 8, 9\n".to_string()),
-                "    algebra, from 4, 8, 9\n    requires |AC| ∈ ℝ: membership\n".to_string(),
+                Some("    algebra, from 4, 7, 8\n".to_string()),
+                "    algebra, from 4, 7, 8\n    requires |AC| ∈ ℝ: membership\n".to_string(),
             )],
-            "the requires line of step 10 says |AC| ∈ ℝ, which the page says once",
+            "the requires line of step 9 says |AC| ∈ ℝ, which the page says once",
         ),
         // A chain of equations is a whole sentence (`SYNTAX.md`), never a
         // part of another formula.
@@ -2208,7 +2208,7 @@ fn cases() -> Vec<Case> {
                 Some("      ∠BDC = 90°        1\n           = ∠ACB       H5\n".to_string()),
                 "      ∠BDC = 90°        1\n           = ∠ACB       3\n".to_string(),
             )],
-            "a link of step 7 cites 3, which does not say 90° = ∠ACB; a link cites the line that states it, and a substitution is a step of its own",
+            "a link of step 6 cites 3, which does not say 90° = ∠ACB; a link cites the line that states it, and a substitution is a step of its own",
         ),
         // A claim of u = a where the item says u ≠ a is not what it says.
         case(
@@ -3009,10 +3009,10 @@ fn cases() -> Vec<Case> {
             "a requires line putting an equation into a line without its side",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 7, 9\n".to_string()),
-                "    requires Q is not on line HK: substitute line HK = line XY (line 8) into H16\n".to_string(),
+                Some("    requires Q is not on line HK: mun:off-line-along A := H, B := S, X := K, P := Q, from H15, 6, 8\n".to_string()),
+                "    requires Q is not on line HK: substitute line HK = line XY (line 7) into H16\n".to_string(),
             )],
-            "step 10 claims Q is not on line HK, which putting one side of line HK = (line XY) for the other does not make",
+            "step 9 claims Q is not on line HK, which putting one side of line HK = (line XY) for the other does not make",
         ),
         // A point on a line is a member of the line, the set
         // (`rules::OTHER_FORMS`), so an equation of lines is put into "H is
@@ -3732,7 +3732,7 @@ fn cases() -> Vec<Case> {
         case(
             "two names run together into a declared word",
             vec![
-                edit("proofs/wiedijk/pythagoras.proof", Some("9.  |AD| + |DB| = |AB|".to_string()), "9.  |an| + |DB| = |AB|".to_string()),
+                edit("proofs/wiedijk/pythagoras.proof", Some("8.  |AD| + |DB| = |AB|".to_string()), "8.  |an| + |DB| = |AB|".to_string()),
             ],
             "run together",
         ),
@@ -4337,10 +4337,10 @@ fn cases() -> Vec<Case> {
             "give algebra for an equation turned round",
             vec![edit(
                 "corpus/stdlib/geometry.proof",
-                Some("40. ∠ECA = ∠BAC\n    restate 15".to_string()),
-                "40. ∠ECA = ∠BAC\n    algebra, from 15".to_string(),
+                Some("37. ∠ECA = ∠BAC\n    restate 14".to_string()),
+                "37. ∠ECA = ∠BAC\n    algebra, from 14".to_string(),
             )],
-            "step 40 says an equation 15 says, which is `restate 15`, not algebra",
+            "step 37 says an equation 14 says, which is `restate 14`, not algebra",
         ),
         // An induction over the parts of a set holds of a finite set only,
         // starts at ∅, opens its step with the member it adds, and ends it

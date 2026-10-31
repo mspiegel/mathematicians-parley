@@ -7,5 +7,5 @@ $[ stdlib/proved.mm $]
 
 ${
   tests.stdlib.geometry.opposite-sides-off-line $p |- ( ( ( ( ( A e. CC /\ B e. CC ) /\ C e. CC ) /\ D e. CC ) /\ ( ( Im ` ( ( C - A ) / ( B - A ) ) ) x. ( Im ` ( ( D - A ) / ( B - A ) ) ) ) < 0 ) -> ( ( -. A = B /\ -. ( A = B \/ ( ( C - A ) / ( B - A ) ) e. RR ) ) /\ -. ( A = B \/ ( ( D - A ) / ( B - A ) ) e. RR ) ) ) $=
-    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr wceq wn cr wo wne goppoffab wb df-ne a1i mpbid goppoffp jca goppoffq ) AEFZBEFZGZCEFZGZDEFZGZCAHIZBAHIZJIZKLZDAHIZURJIZKLZMIZNOPZGZABQZRZVGUSSFZTZRZGVGVBSFTRVFVHVKVFABUAZVHABCDUBVLVHUCVFABUDUEUFABCDUGUHABCDUIUH $.
+    ( cc wcel wa cmin co cdiv cim cfv cmul cc0 clt wbr wceq wn cr wo wne goppoffab wb df-ne a1i mpbid goppoffp jca simpl id syl simpr goppcomd ) AEFZBEFZGZCEFZGZDEFZGZCAHIZBAHIZJIZKLZDAHIZVBJIZKLZMIZNOPZGZABQZRZVKVCSFZTZRZGVKVFSFZTZRZVJVLVOVJABUAZVLABCDUBVSVLUCVJABUDUEUFABCDUGUHVJUPUSGZUQGZVGVDMIZNOPZGVRVJWAWCVJVTUQVJUPUSVJUNUOVJUTUNUTVIUIZUTURUNURUSUIZURUPUNUPUQUIZUPUNUNUNUOUIZUNUJZUKZUKZUKZUKZVJUTUOWDUTURUOWEURUPUOWFUNUOULZUKZUKZUKZUHVJUTUSWDURUSULZUKZUHVJUTUQWDUTURUQWEUPUQULZUKZUKZUHVJVIWCUTVIULVJABCDXAWRWLWPUMUFUHABDCUGUKUH $.
 $}

@@ -59,6 +59,9 @@ struct PairExchanged {
     term: Term,
     /// Whether the two stood out of the standard order.
     out_of_order: bool,
+    /// The two as they stood, the first hole's and the second's.
+    first: Term,
+    second: Term,
 }
 
 /// How one rewrite toward the standard form is made at the head of a term.
@@ -130,6 +133,9 @@ impl<'a> Elaborator<'a> {
     fn written_form(&mut self, term: &Term) -> Term {
         if term.variable().is_some() || term.children().is_empty() {
             return term.clone();
+        }
+        if let Some((_, turned)) = self.pair_first(term) {
+            return self.written_form(&turned);
         }
         let kids: Vec<Term> = term
             .children()
@@ -2647,6 +2653,8 @@ impl<'a> Elaborator<'a> {
         }
         let found = if term.variable().is_some() || term.children().is_empty() {
             term.clone()
+        } else if let Some((_, turned)) = self.pair_first(term) {
+            self.standard(&turned)
         } else {
             let kids: Vec<Term> =
                 term.children().iter().map(|c| self.standard(c)).collect();
@@ -2748,6 +2756,44 @@ impl<'a> Elaborator<'a> {
         self.listing_step(term)
     }
 
+    /// A formula's two holes in no order, put in order on the formula as
+    /// written, before its parts are rewritten toward the standard form
+    /// (`written_form`, `standard`, `closed_toward`): the parts of a
+    /// formula's target are relations the standard form rewrites, as C ≠ A
+    /// inside a betweenness becomes ¬ A = C, which would hide the pair. A
+    /// term's pair, as |AB|'s, is put in order after its parts
+    /// (`written_step`), so that an identity element inside it goes first:
+    /// |x − 0| is |x|, not |0 − x|. None for a term, or a formula whose two
+    /// are in order.
+    fn pair_first(&self, term: &Term) -> Option<(How, Term)> {
+        if !self.is_wff(term) {
+            return None;
+        }
+        self.pair_step(term)
+    }
+
+    /// `one` with its pair exchanged, where `one` and `other` are formulas
+    /// of one notation whose pair in no order stands crossed between them:
+    /// each one's first is the other's second, and not its first. None
+    /// where they are no such formulas, or their pairs correspond as they
+    /// stand, as a ≡ b (mod n) and a′ ≡ b′ (mod n) with a and a′ one term
+    /// spelt two ways.
+    fn pair_crossed(&mut self, one: &Term, other: &Term) -> Option<(How, Term)> {
+        if !self.is_wff(one) {
+            return None;
+        }
+        let ours = self.pair_exchanged(one)?;
+        let theirs = self.pair_exchanged(other)?;
+        if ours.lemma != theirs.lemma {
+            return None;
+        }
+        let in_place = self.alike_in_place(&ours.first, &theirs.first)
+            && self.alike_in_place(&ours.second, &theirs.second);
+        let across = self.alike_in_place(&ours.first, &theirs.second)
+            && self.alike_in_place(&ours.second, &theirs.first);
+        (across && !in_place).then_some((How::Exchanged(ours.lemma), ours.term))
+    }
+
     /// `term` with two holes its notation puts in no order exchanged, where
     /// they stand out of order: b ≡ a (mod n) for a ≡ b (mod n), the
     /// target `_3 _1 _2 cmin co cdvds wbr` read with a letter of its own in
@@ -2831,6 +2877,8 @@ impl<'a> Elaborator<'a> {
                 lemma: p.lemma,
                 term: pattern.substitute(&swapped),
                 out_of_order,
+                first: a.clone(),
+                second: b.clone(),
             });
         }
         None
@@ -3509,6 +3557,36 @@ impl<'a> Elaborator<'a> {
         if self.rpn(one) == self.rpn(other) {
             return Ok(None);
         }
+        if let Some((how, turned)) = self.pair_first(one) {
+            let Built(made) = self.standard_proof(one, &how, &turned, where_, held)?
+            else {
+                return Ok(Some(Route::no("the pair cannot be turned")));
+            };
+            let mut links = vec![ChainLink {
+                from: one.clone(),
+                to: turned.clone(),
+                proof: made,
+            }];
+            if self.rpn(&turned) != self.rpn(other) {
+                let rest = self.congruence(
+                    &turned,
+                    other,
+                    where_,
+                    held,
+                    None,
+                    &Leaf::Rows(vec![Row::Toward]),
+                )?;
+                let Built(rest) = rest else {
+                    return Ok(Some(rest));
+                };
+                links.push(ChainLink {
+                    from: turned,
+                    to: other.clone(),
+                    proof: rest,
+                });
+            }
+            return Ok(Some(Built(self.chained(where_, &links))));
+        }
         // A function applied keeps its function.
         let wrapped = one.label().is_some_and(|l| rules::WRAPS.contains(&l));
         let n = one.children().len();
@@ -3626,7 +3704,13 @@ impl<'a> Elaborator<'a> {
                 return Ok(self.conditioned(one, other, where_, held)?.map(Built));
             }
         }
-        if self.lifts(one, other) {
+        // A formula's pair in no order, crossed between the two sides, is
+        // exchanged at the head before the walk goes in: P and A on one side
+        // of a line differ from A and P inside a product the pair spreads
+        // across, Im(…P…)·Im(…A…), whose factors are exchanged only where
+        // each is known to be a number.
+        let crossed = self.pair_crossed(one, other);
+        if crossed.is_none() && self.lifts(one, other) {
             let mut all = true;
             for (x, y) in one.children().iter().zip(other.children()) {
                 if !self.alike_in_place(x, y) {
@@ -3641,7 +3725,11 @@ impl<'a> Elaborator<'a> {
         // One rewrite at the head of either side, and the walk again from
         // there, touches only what differs.
         for (x, y, forward) in [(one, other, true), (other, one, false)] {
-            let Some((how, nxt)) = self.standard_step(x) else {
+            let turned = match &crossed {
+                Some(c) if forward => Some(c.clone()),
+                _ => None,
+            };
+            let Some((how, nxt)) = turned.or_else(|| self.standard_step(x)) else {
                 continue;
             };
             let Built(made) = self.standard_proof(x, &how, &nxt, where_, held)? else {

@@ -3,7 +3,6 @@ import theorem            stdlib/geometry/altitude-foot
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/angle-along-segment
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/between-symmetric
 
 theorem similar-triangles
   note        Two triangles with two angles equal have their sides about the
@@ -55,26 +54,23 @@ theorem pythagoras
     thm:similar-triangles P := A, Q := D, R := C, P′ := A, Q′ := C, R′ := B,
       from H4, 1, 2, 3
 
-5.  D is between B and A
-    mun:between-symmetric R := D, S := A, T := B, from 1
-
-6.  ∠DBC = ∠CBA
+5.  ∠DBC = ∠CBA
     calculation
-      ∠DBC = ∠ABC       mun:angle-along-segment P := B, Q := A, R := C, S := D, from 1, 5
+      ∠DBC = ∠ABC       mun:angle-along-segment P := B, Q := A, R := C, S := D, from 1
            = ∠CBA       mun:angle-symmetric P := A, Q := B, R := C, from H4
 
-7.  ∠BDC = ∠BCA
+6.  ∠BDC = ∠BCA
     calculation
       ∠BDC = 90°        1
            = ∠ACB       H5
            = ∠BCA       mun:angle-symmetric P := B, Q := C, R := A, from H4
 
-8.  |BD|·|BA| = |BC|·|BC|
+7.  |BD|·|BA| = |BC|·|BC|
     thm:similar-triangles P := B, Q := D, R := C, P′ := B, Q′ := C, R′ := A,
-      from H4, 1, 6, 7
+      from H4, 1, 5, 6
 
-9.  |AD| + |DB| = |AB|
+8.  |AD| + |DB| = |AB|
     mun:segment-addition P := A, Q := B, S := D, from 1
 
-10. |AB|² = |AC|² + |BC|²
-    algebra, from 4, 8, 9
+9.  |AB|² = |AC|² + |BC|²
+    algebra, from 4, 7, 8

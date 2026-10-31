@@ -1942,6 +1942,7 @@ notation between
   pattern     _ is between _ and _
   sort        point, point, point → formula
   level       betweenness
+  commutes    any order of holes 2 and 3
   reads       is between, and
   metamath    the second apart from the first, and the third minus the first
               a negative multiple of the second minus the first
@@ -2011,6 +2012,7 @@ notation midpoint
   pattern     _ is the midpoint of __
   sort        point, point, point → formula
   level       predicate
+  commutes    any order of holes 2 and 3
   reads       is the midpoint of
   metamath    between the two ends and equally far from each, as
               def:stdlib/geometry/midpoint states it
@@ -2024,6 +2026,7 @@ notation same-side
   pattern     _ and _ are on the same side of line __
   sort        point, point, point, point → formula
   level       predicate
+  commutes    any order of holes 1 and 2
   reads       are on the same side of the line through
   metamath    the imaginary parts of the two points' positions relative to
               the line have a positive product
@@ -2036,6 +2039,7 @@ notation opposite-sides
   pattern     _ and _ are on opposite sides of line __
   sort        point, point, point, point → formula
   level       predicate
+  commutes    any order of holes 1 and 2
   reads       are on opposite sides of the line through
   metamath    the imaginary parts of the two points' positions relative to
               the line have a negative product

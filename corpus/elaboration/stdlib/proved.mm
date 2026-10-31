@@ -300,6 +300,49 @@ $d x T $.  $d y T $.
     eqcomd simp2d rereccld eqeltrd reclt0 mpbid eqbrtrd 3jca ex )
     ADEZBDEZCDEZBAFZCAGHZBAGHZIHZJEZVEKLMZNZCAFZVDVCIHZJEZVJKLMZNZOZOUSUTPZVAVNVOVAPZVHVMVPVHPZVIVKVLVQCAVPVAVHVOVAQZRZVPUSVHVOUSVAUSUSUTUSSZRZRZRZVQVCKFZVEKFZVQVEVQVBVFVGVPVHQZTZUAZVQVCVDVQCAVSWCUBZVQBAVPUTVHVOUTVAUSUTQZRZRZWCUBZVQBAWLWCVQVBVFVGWFUCZUDZUEZUFZUGVQVJUHVEIHZJVQWRVJVQVCVDWIWMWQWOUIZUJZVQVEVQVBVFVGWFUKZWHULUMVQVJWRKLWTVQVGWRKLMWGVQVEXAWHUNUOUPUQURURUR $.
 
+  ${
+    gbetcomd.1 $e |- ( ph -> R e. CC ) $.
+    gbetcomd.2 $e |- ( ph -> S e. CC ) $.
+    gbetcomd.3 $e |- ( ph -> T e. CC ) $.
+  gbetcomd $p |- ( ph -> ( ( S =/= R /\ ( ( T - R ) / ( S - R ) ) e. RR /\ ( ( T - R ) / ( S - R ) ) < 0 ) <-> ( T =/= R /\ ( ( S - R ) / ( T - R ) ) e. RR /\ ( ( S - R ) / ( T - R ) ) < 0 ) ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr w3a cc wi gbetsym syl3c impbid )
+    ACBHZDBIJZCBIJZKJZLMZUFNOPZQZDBHZUEUDKJZLMZUKNOPZQZABRMZCRMZDRMZUIUNSEFGBCDTUAAUOUQUPUNUISEGFBDCTUAUB $.
+  $}
+
+  ${
+    gmidcomd.1 $e |- ( ph -> M e. CC ) $.
+    gmidcomd.2 $e |- ( ph -> A e. CC ) $.
+    gmidcomd.3 $e |- ( ph -> B e. CC ) $.
+  gmidcomd $p |- ( ph -> ( ( ( A =/= M /\ ( ( B - M ) / ( A - M ) ) e. RR /\ ( ( B - M ) / ( A - M ) ) < 0 ) /\ ( abs ` ( A - M ) ) = ( abs ` ( M - B ) ) ) <-> ( ( B =/= M /\ ( ( A - M ) / ( B - M ) ) e. RR /\ ( ( A - M ) / ( B - M ) ) < 0 ) /\ ( abs ` ( B - M ) ) = ( abs ` ( M - A ) ) ) ) ) $=
+    ( wne cmin co cdiv cr wcel cc0 clt wbr w3a cabs cfv wceq gbetcomd eqcom
+    abssubd eqeq12d bitrid anbi12d )
+    ABDHCDIJZBDIJZKJZLMUINOPQCDHUHUGKJZLMUJNOPQUHRSZDCIJZRSZTZUGRSZDBIJZRSZTZADBCEFGUAUNUMUKTAURUKUMUBAUMUOUKUQADCEGUCABDFEUCUDUEUF $.
+  $}
+
+  gmulcomall $p |- ( A x. B ) = ( B x. A ) $=
+    ( cc wcel wa cmul co wceq mulcom cxp axmulf fdmi ndmovcom pm2.61i )
+    ACDBCDEABFGBAFGHABIABCFCCJCFKLMN $.
+
+  ${
+    gsamecomd.1 $e |- ( ph -> P e. CC ) $.
+    gsamecomd.2 $e |- ( ph -> Q e. CC ) $.
+    gsamecomd.3 $e |- ( ph -> A e. CC ) $.
+    gsamecomd.4 $e |- ( ph -> B e. CC ) $.
+  gsamecomd $p |- ( ph -> ( 0 < ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) <-> 0 < ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) ) ) $=
+    ( cmin co cdiv cim cfv cmul cc0 clt wceq gmulcomall a1i breq2d )
+    ADBJKZCBJKZLKZMNZEBJKZUCLKZMNZOKZUHUEOKZPQUIUJRAUEUHSTUA $.
+  $}
+
+  ${
+    goppcomd.1 $e |- ( ph -> P e. CC ) $.
+    goppcomd.2 $e |- ( ph -> Q e. CC ) $.
+    goppcomd.3 $e |- ( ph -> A e. CC ) $.
+    goppcomd.4 $e |- ( ph -> B e. CC ) $.
+  goppcomd $p |- ( ph -> ( ( ( Im ` ( ( P - A ) / ( B - A ) ) ) x. ( Im ` ( ( Q - A ) / ( B - A ) ) ) ) < 0 <-> ( ( Im ` ( ( Q - A ) / ( B - A ) ) ) x. ( Im ` ( ( P - A ) / ( B - A ) ) ) ) < 0 ) ) $=
+    ( cmin co cdiv cim cfv cmul cc0 clt wceq gmulcomall a1i breq1d )
+    ADBJKZCBJKZLKZMNZEBJKZUCLKZMNZOKZUHUEOKZPQUIUJRAUEUHSTUA $.
+  $}
+
   gangseg $p |- ( P e. CC -> ( Q e. CC -> ( R e. CC -> ( S e. CC -> ( ( P =/= S /\ ( ( Q - S ) / ( P - S ) ) e. RR /\ ( ( Q - S ) / ( P - S ) ) < 0 ) -> ( -. R = P -> ( abs ` ( ( S - P ) ang ( R - P ) ) ) = ( abs ` ( ( Q - P ) ang ( R - P ) ) ) ) ) ) ) ) ) $=
     ( cc wcel wne cmin co cdiv cr cc0 clt wbr w3a wceq wn cang cabs cfv wi wa
     c1 cmul cneg caddc simpr adantr id npncand subcld simp1d subne0d divcan1d

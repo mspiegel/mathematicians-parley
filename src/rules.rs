@@ -1176,6 +1176,27 @@ pub const SYMMETRIC: [&str; 3] = ["eqcom", "addcom", "mulcom"];
 pub const PAIRS_EXCHANGED: &[(&str, &str)] = &[
     ("_3 _1 _2 cmin co cdvds wbr", "gcongcomd"),
     ("_1 _2 cmin co cabs cfv", "abssubd"),
+    (
+        "_2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel \
+         _3 _1 cmin co _2 _1 cmin co cdiv co cc0 clt wbr w3a",
+        "gbetcomd",
+    ),
+    (
+        "_2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel _3 _1 cmin co \
+         _2 _1 cmin co cdiv co cc0 clt wbr w3a _2 _1 cmin co cabs cfv _1 _3 \
+         cmin co cabs cfv wceq wa",
+        "gmidcomd",
+    ),
+    (
+        "cc0 _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv \
+         _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co clt wbr",
+        "gsamecomd",
+    ),
+    (
+        "_1 _3 cmin co _4 _3 cmin co cdiv co cim cfv \
+         _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co cc0 clt wbr",
+        "goppcomd",
+    ),
 ];
 
 /// The lemmas that exchange two elements next to each other in a listed

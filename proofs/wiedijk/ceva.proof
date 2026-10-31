@@ -1,7 +1,6 @@
 import theorem            stdlib/geometry/law-of-sines
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/between-apart
-import mundane theorem    stdlib/geometry/between-symmetric
 import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/geometry/sine-positive
 import mundane theorem    stdlib/geometry/triangle-on-side
@@ -30,84 +29,78 @@ theorem cevian-ratio
 1.  A, B, D form a triangle
     mun:triangle-on-side P := A, Q := B, R := C, S := D, from H6, H7
 
-2.  D is between C and B
-    mun:between-symmetric R := D, S := B, T := C, from H7
+2.  A, C, D form a triangle
+    mun:triangle-on-side P := A, Q := C, R := B, S := D, from H6, H7
 
-3.  A, C, D form a triangle
-    mun:triangle-on-side P := A, Q := C, R := B, S := D, from H6, 2
+3.  B, D, O form a triangle
+    mun:triangle-on-side P := B, Q := D, R := A, S := O, from H8, 1
 
-4.  O is between D and A
-    mun:between-symmetric R := O, S := A, T := D, from H8
+4.  C, D, O form a triangle
+    mun:triangle-on-side P := C, Q := D, R := A, S := O, from H8, 2
 
-5.  B, D, O form a triangle
-    mun:triangle-on-side P := B, Q := D, R := A, S := O, from 1, 4
-
-6.  C, D, O form a triangle
-    mun:triangle-on-side P := C, Q := D, R := A, S := O, from 3, 4
-
-7.  B, A, O form a triangle
+5.  B, A, O form a triangle
     mun:triangle-on-side P := B, Q := A, R := D, S := O, from H8, 1
 
-8.  |BD|·sin(∠BDO) = |BO|·sin(∠DOB)
-    thm:law-of-sines P := B, Q := D, R := O, from 5
+6.  |BD|·sin(∠BDO) = |BO|·sin(∠DOB)
+    thm:law-of-sines P := B, Q := D, R := O, from 3
 
-9.  |CO|·sin(∠COD) = |CD|·sin(∠ODC)
-    thm:law-of-sines P := C, Q := O, R := D, from 6
+7.  |CO|·sin(∠COD) = |CD|·sin(∠ODC)
+    thm:law-of-sines P := C, Q := O, R := D, from 4
 
-10. ∠BDO + ∠ODC = 180°
-    axi:supplementary-angles A := B, B := D, D := O, from H7, H10, 5
+8.  ∠BDO + ∠ODC = 180°
+    axi:supplementary-angles A := B, B := D, D := O, from H7, H10, 3
 
-11. ∠DOB + ∠BOA = 180°
-    axi:supplementary-angles A := D, B := O, C := A, D := B, from 1, 4, 5
+9.  ∠DOB + ∠BOA = 180°
+    axi:supplementary-angles A := D, B := O, C := A, D := B, from H8, 1, 3
 
-12. ∠AOC + ∠COD = 180°
-    axi:supplementary-angles B := O, C := D, D := C, from H8, 3, 6
+10. ∠AOC + ∠COD = 180°
+    axi:supplementary-angles B := O, C := D, D := C, from H8, 2, 4
 
-13. ∠ODC = 180° − ∠BDO
-    algebra, from 10
+11. ∠ODC = 180° − ∠BDO
+    algebra, from 8
 
-14. sin(∠ODC) = sin(∠BDO)
+12. sin(∠ODC) = sin(∠BDO)
     calculation
-      sin(∠ODC) = sin(180° − ∠BDO)      substitute line 13
+      sin(∠ODC) = sin(180° − ∠BDO)      substitute line 11
                 = sin(∠BDO)            mun:sin-supplement x := ∠BDO
 
-15. ∠DOB = 180° − ∠BOA
-    algebra, from 11
+13. ∠DOB = 180° − ∠BOA
+    algebra, from 9
 
-16. sin(∠DOB) = sin(∠BOA)
+14. sin(∠DOB) = sin(∠BOA)
     calculation
-      sin(∠DOB) = sin(180° − ∠BOA)      substitute line 15
+      sin(∠DOB) = sin(180° − ∠BOA)      substitute line 13
                 = sin(∠BOA)            mun:sin-supplement x := ∠BOA
 
-17. ∠COD = 180° − ∠AOC
-    algebra, from 12
+15. ∠COD = 180° − ∠AOC
+    algebra, from 10
 
-18. sin(∠COD) = sin(∠AOC)
+16. sin(∠COD) = sin(∠AOC)
     calculation
-      sin(∠COD) = sin(180° − ∠AOC)      substitute line 17
+      sin(∠COD) = sin(180° − ∠AOC)      substitute line 15
                 = sin(∠AOC)            mun:sin-supplement x := ∠AOC
 
-19. |BD|·sin(∠BDO) = |BO|·sin(∠BOA)
-    substitute sin(∠DOB) = sin(∠BOA) (line 16) into line 8
+17. |BD|·sin(∠BDO) = |BO|·sin(∠BOA)
+    substitute sin(∠DOB) = sin(∠BOA) (line 14) into line 6
 
-20. |CO|·sin(∠AOC) = |CD|·sin(∠ODC)
-    substitute sin(∠COD) = sin(∠AOC) (line 18) into line 9
+18. |CO|·sin(∠AOC) = |CD|·sin(∠ODC)
+    substitute sin(∠COD) = sin(∠AOC) (line 16) into line 7
 
-21. |CO|·sin(∠AOC) = |CD|·sin(∠BDO)
-    substitute sin(∠ODC) = sin(∠BDO) (line 14) into line 20
+19. |CO|·sin(∠AOC) = |CD|·sin(∠BDO)
+    substitute sin(∠ODC) = sin(∠BDO) (line 12) into line 18
 
-22. |OB| > 0
-    axi:distance-positive P := O, Q := B, from 5
+20. |OB| > 0
+    axi:distance-positive P := O, Q := B, from 3
 
-23. sin(∠BOA) > 0
-    mun:sine-positive P := B, Q := O, R := A, from 7
+21. sin(∠BOA) > 0
+    mun:sine-positive P := B, Q := O, R := A, from 5
 
-24. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
+22. |DC| = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))
     calculation
-      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     algebra, from 19
-           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     algebra, from 21
-    requires |OB| ≠ 0: weakening, from 22
-    requires sin(∠BOA) ≠ 0: weakening, from 23
+      |DC| = |BD|·|DC|·sin(∠BDO)/(|OB|·sin(∠BOA))     algebra, from 17
+           = |BD|·|OC|·sin(∠AOC)/(|OB|·sin(∠BOA))     algebra, from 19
+    requires |OB| ≠ 0: weakening, from 20
+    requires sin(∠BOA) ≠ 0: weakening, from 21
 
 theorem ceva
   metamath    cevath, which states it of the differences rather than their
