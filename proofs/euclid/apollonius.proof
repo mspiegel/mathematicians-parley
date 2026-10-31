@@ -1,18 +1,33 @@
-import mundane theorem    stdlib/geometry/between-apart
-import theorem            stdlib/geometry/law-of-cosines
-import axiom              stdlib/geometry/supplementary-angles
-import mundane theorem    stdlib/geometry/distance-zero
+import theorem            proofs/wiedijk/pythagoras/pythagoras
+import mundane theorem    stdlib/geometry/foot
+import axiom              stdlib/geometry/ruler
+import definition         stdlib/geometry/line
+import definition         stdlib/geometry/on-line
+import mundane theorem    stdlib/geometry/on-line-ends
+import mundane theorem    stdlib/geometry/on-line-other
+import mundane theorem    stdlib/geometry/off-line-other
+import mundane theorem    stdlib/geometry/triangle-off-line
+import mundane theorem    stdlib/geometry/right-angle-along
+import mundane theorem    stdlib/geometry/between-ends-apart
+import mundane theorem    stdlib/geometry/between-collinear
 import mundane theorem    stdlib/geometry/segment-addition
-import mundane theorem    stdlib/trigonometry/cos-supplement
-import definition         stdlib/trigonometry/cos
+import mundane theorem    stdlib/geometry/distance-zero
+import mundane theorem    stdlib/numbers/abs-square
+import mundane theorem    stdlib/numbers/square-zero
 import axiom              stdlib/reasoning/excluded-middle
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem apollonius
-  note        The law of cosines at M in the triangles ABM and ACM. The
-              angles at M are supplementary, so their cosines are opposite,
-              and the terms in the cosines cancel when the two are added.
-              Where A is M there are no angles at M, and |AM| = 0; where A
-              is B or C there is one fewer, and |AB| or |AC| is 0.
+  note        Lay a ruler along line BC. A distance along the line is a
+              difference of coordinates, and |BM| = |MC| with M between B
+              and C puts M halfway between B and C; so for every point X of
+              the line, |XB|² + |XC|² = 2·|XM|² + 2·|BM|² is algebra, and
+              where A is on the line that is the claim. Otherwise drop the
+              perpendicular from A to line BC, foot H. Pythagoras gives
+              |AX|² = |AH|² + |HX|² for every point X of the line, and with
+              X at B, at C and at M the claim follows from the same equation
+              at H.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -21,123 +36,202 @@ theorem apollonius
   assume |BM| = |MC|                                                  (H6)
   then |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
 
-1.  A = M or A ≠ M
-    axi:excluded-middle P := A = M
+1.  B ≠ C
+    mun:between-ends-apart R := M, S := B, T := C, from H5
 
-2.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-    cases, from 1
+2.  B is on line BC. C is on line BC.
+    mun:on-line-ends A := B, B := C
 
-    case
-    assume A = M                                                      (C1)
+3.  C, M, B are collinear
+    mun:between-collinear R := M, S := B, T := C, from H5
 
-    2.1.  |AM| = 0
-          mun:distance-zero P := A, Q := M, from C1
+4.  M is on line BC
+    def:on-line P := M, A := B, B := C, from 3
 
-    2.2.  |AB|² + |AC|² = |MB|² + |MC|²
-          substitute A = M (C1)
+5.  B ∈ line BC
+    def:line P := B, A := B, B := C, from 2
 
-    2.3.  |AB|² + |AC|² = |BM|² + |BM|²
-          substitute |MC| = |BM| (H6) into line 2.2
+6.  C ∈ line BC
+    def:line P := C, A := B, B := C, from 2
 
-    2.4.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-          algebra, from 2.1, 2.3
+7.  M ∈ line BC
+    def:line P := M, A := B, B := C, from 4
 
-    case
-    assume A ≠ M                                                      (C2)
+8.  f : line BC → ℝ. f : line BC → ℝ is one-to-one and onto. For all
+    P, Q ∈ line BC, |PQ| = |f(P) − f(Q)|.
+    obtain f: axi:ruler A := B, B := C, from 1
 
-    2.5.  B ≠ M. C ≠ M.
-          mun:between-apart R := M, S := B, T := C, from H5
+9.  |BM| = |f(B) − f(M)|
+    instantiate P := B, Q := M in line 8, from 5, 7
 
-    2.6.  |BC| = 2·|BM|
+10. |MC| = |f(M) − f(C)|
+    instantiate P := M, Q := C in line 8, from 6, 7
+
+11. |BC| = |f(B) − f(C)|
+    instantiate P := B, Q := C in line 8, from 5, 6
+
+12. |BM|² = (f(B) − f(M))²
+    calculation
+      |BM|² = |f(B) − f(M)|²      substitute line 9
+            = (f(B) − f(M))²      mun:abs-square x := f(B) − f(M), from 5, 7, 8
+
+13. |MC|² = (f(M) − f(C))²
+    calculation
+      |MC|² = |f(M) − f(C)|²      substitute line 10
+            = (f(M) − f(C))²      mun:abs-square x := f(M) − f(C), from 6, 7, 8
+
+14. |BC|² = (f(B) − f(C))²
+    calculation
+      |BC|² = |f(B) − f(C)|²      substitute line 11
+            = (f(B) − f(C))²      mun:abs-square x := f(B) − f(C), from 5, 6, 8
+
+15. |BC| = 2·|BM|
+    calculation
+      |BC| = |BM| + |MC|      mun:segment-addition P := B, Q := C, S := M, from H5
+           = |BM| + |BM|      substitute H6
+           = 2·|BM|           algebra
+
+16. (f(B) − 2·f(M) + f(C))² = 0
+    calculation
+      (f(B) − 2·f(M) + f(C))² = 2·(f(B) − f(M))² + 2·(f(M) − f(C))² − (f(B) − f(C))²    algebra
+                              = 2·|BM|² + 2·(f(M) − f(C))² − (f(B) − f(C))²             substitute line 12
+                              = 2·|BM|² + 2·|MC|² − (f(B) − f(C))²                      substitute line 13
+                              = 2·|BM|² + 2·|MC|² − |BC|²                               substitute line 14
+                              = 2·|BM|² + 2·|BM|² − |BC|²                               substitute H6
+                              = 2·|BM|² + 2·|BM|² − (2·|BM|)²                           substitute line 15
+                              = 0                                                       algebra
+    requires f(B) ∈ ℝ: from 5, 8
+    requires f(C) ∈ ℝ: from 6, 8
+    requires f(M) ∈ ℝ: from 7, 8
+
+17. f(B) − 2·f(M) + f(C) = 0
+    mun:square-zero x := f(B) − 2·f(M) + f(C), from 5, 6, 7, 8, 16
+
+18. For all X ∈ 𝔼², if X is on line BC then |XB|² + |XC|² = 2·|XM|² + 2·|BM|².
+    proof
+    let X ∈ 𝔼²                                                        (K1)
+    assume X is on line BC                                            (A1)
+
+    18.1. X ∈ line BC
+          def:line P := X, A := B, B := C, from A1
+
+    18.2. |XB| = |f(X) − f(B)|
+          instantiate P := X, Q := B in line 8, from 5, 18.1
+
+    18.3. |XC| = |f(X) − f(C)|
+          instantiate P := X, Q := C in line 8, from 6, 18.1
+
+    18.4. |XM| = |f(X) − f(M)|
+          instantiate P := X, Q := M in line 8, from 7, 18.1
+
+    18.5. |XB|² = (f(X) − f(B))²
           calculation
-            |BC| = |BM| + |MC|     mun:segment-addition P := B, Q := C, S := M, from H5
-                 = |BM| + |BM|     substitute H6
-                 = 2·|BM|          algebra
+            |XB|² = |f(X) − f(B)|²      substitute line 18.2
+                  = (f(X) − f(B))²      mun:abs-square x := f(X) − f(B), from 5, 8, 18.1
 
-    2.7.  A = B or A ≠ B
-          axi:excluded-middle P := A = B
+    18.6. |XC|² = (f(X) − f(C))²
+          calculation
+            |XC|² = |f(X) − f(C)|²      substitute line 18.3
+                  = (f(X) − f(C))²      mun:abs-square x := f(X) − f(C), from 6, 8, 18.1
 
-    2.8.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-          cases, from 2.7
+    18.7. |XM|² = (f(X) − f(M))²
+          calculation
+            |XM|² = |f(X) − f(M)|²      substitute line 18.4
+                  = (f(X) − f(M))²      mun:abs-square x := f(X) − f(M), from 7, 8, 18.1
 
-          case
-          note A is B: there is no angle at M with B, and |AB| = 0
-          assume A = B                                                (C3)
+    18.8. |XB|² + |XC|² = 2·|XM|² + 2·|BM|²
+          calculation
+            |XB|² + |XC|² = (f(X) − f(B))² + |XC|²                     substitute line 18.5
+                          = (f(X) − f(B))² + (f(X) − f(C))²            substitute line 18.6
+                          = 2·(f(X) − f(M))² + 2·(f(B) − f(M))²        algebra, from 17
+                          = 2·|XM|² + 2·(f(B) − f(M))²                 substitute line 18.7
+                          = 2·|XM|² + 2·|BM|²                          substitute line 12
+          requires f(X) ∈ ℝ: from 8, 18.1
+          requires f(B) ∈ ℝ: from 5, 8
+          requires f(C) ∈ ℝ: from 6, 8
+          requires f(M) ∈ ℝ: from 7, 8
 
-          2.8.1.  |AB| = 0
-                  mun:distance-zero P := A, Q := B, from C3
+19. A is on line BC or A is not on line BC
+    axi:excluded-middle P := A is on line BC
 
-          2.8.2.  |AC| = |BC|
-                  substitute A = B (C3)
+20. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+    cases, from 19
 
-          2.8.3.  |AM| = |BM|
-                  substitute A = B (C3)
+    case
+    note   A is a point of the line, where the claim is line 18 at A.
+    assume A is on line BC                                            (C1)
 
-          2.8.4.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-                  calculation
-                    |AB|² + |AC|² = 0² + |AC|²             substitute line 2.8.1
-                                  = 0² + |BC|²             substitute line 2.8.2
-                                  = 0² + (2·|BM|)²         substitute line 2.6
-                                  = 2·|BM|² + 2·|BM|²      algebra
-                                  = 2·|AM|² + 2·|BM|²      substitute line 2.8.3
+    20.1. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          instantiate X := A in line 18, from C1
 
-          case
-          assume A ≠ B                                                (C4)
+    case
+    assume A is not on line BC                                        (C2)
 
-          2.8.5.  A = C or A ≠ C
-                  axi:excluded-middle P := A = C
+    20.2. A, B, C form a triangle
+          mun:triangle-off-line P := A, Q := B, R := C, from C2, 1
 
-          2.8.6.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-                  cases, from 2.8.5
+    20.3. H ∈ 𝔼². S ∈ 𝔼². H is on line BC. S is on line BC. S ≠ H. A ≠ H.
+          A ≠ S. ∠AHS = 90°.
+          obtain H, S: mun:foot P := A, Q := B, R := C, from 20.2
 
-                  case
-                  note A is C: there is no angle at M with C, and |AC| = 0
-                  assume A = C                                        (C5)
+    20.4. For all X ∈ 𝔼², if X is on line BC then |AX|² = |AH|² + |HX|².
+          proof
+          let X ∈ 𝔼²                                                  (K2)
+          assume X is on line BC                                      (A2)
 
-                  2.8.6.1.  |AC| = 0
-                            mun:distance-zero P := A, Q := C, from C5
+          20.4.1. X = H or X ≠ H
+                  axi:excluded-middle P := X = H
 
-                  2.8.6.2.  |AB| = |CB|
-                            substitute A = C (C5)
-
-                  2.8.6.3.  |AM| = |CM|
-                            substitute A = C (C5)
-
-                  2.8.6.4.  |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-                            calculation
-                              |AB|² + |AC|² = |AB|² + 0²             substitute line 2.8.6.1
-                                            = |CB|² + 0²             substitute line 2.8.6.2
-                                            = (2·|BM|)² + 0²         substitute line 2.6
-                                            = 2·|BM|² + 2·|BM|²      algebra
-                                            = 2·|MC|² + 2·|BM|²      substitute H6
-                                            = 2·|AM|² + 2·|BM|²      substitute line 2.8.6.3
+          20.4.2. |AX|² = |AH|² + |HX|²
+                  cases, from 20.4.1
 
                   case
-                  note the angles at M with B and with C are supplementary
-                  assume A ≠ C                                        (C6)
+                  assume X = H                                        (C3)
 
-                  2.8.6.5.  |AB|² = |BM|² + |MA|² − 2·(|BM|·|MA|·cos(∠BMA))
-                            thm:law-of-cosines P := B, Q := M, R := A, from C2, C4, 2.5
+                  20.4.2.1. |HX| = 0
+                            mun:distance-zero P := H, Q := X, from C3
 
-                  2.8.6.6.  |CA|² = |AM|² + |MC|² − 2·(|AM|·|MC|·cos(∠AMC))
-                            thm:law-of-cosines P := A, Q := M, R := C, from C2, C6, 2.5
-
-                  2.8.6.7.  ∠BMA + ∠AMC = 180°
-                            axi:supplementary-angles A := B, B := M, D := A, from C2, C4, C6, H5
-
-                  2.8.6.8.  ∠AMC = 180° − ∠BMA
-                            algebra, from 2.8.6.7
-
-                  2.8.6.9.  cos(∠AMC) = −cos(∠BMA)
+                  20.4.2.2. |AX|² = |AH|² + |HX|²
                             calculation
-                              cos(∠AMC) = cos(180° − ∠BMA)      substitute line 2.8.6.8
-                                        = −cos(∠BMA)            mun:cos-supplement x := ∠BMA
+                              |AX|² = |AH|²              substitute C3
+                                    = |AH|² + |HX|²      algebra, from 20.4.2.1
 
-                  2.8.6.10. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·cos(∠AMC))
-                            substitute |MC| = |BM| (H6) into line 2.8.6.6
+                  case
+                  assume X ≠ H                                        (C4)
 
-                  2.8.6.11. |AC|² = |AM|² + |BM|² − 2·(|AM|·|BM|·−cos(∠BMA))
-                            substitute cos(∠AMC) = −cos(∠BMA) (line 2.8.6.9) into line 2.8.6.10
+                  20.4.2.3. X is on line HS
+                            mun:on-line-other A := B, B := C, X := H, Y := S,
+                              Z := X, from A2, 1, 20.3
 
-                  2.8.6.12. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
-                            algebra, from 2.8.6.5, 2.8.6.11
+                  20.4.2.4. A is not on line HX
+                            mun:off-line-other A := B, B := C, X := H, Y := X,
+                              O := A, from A2, C2, C4, 1, 20.3
+
+                  20.4.2.5. A, H, X form a triangle
+                            mun:triangle-off-line P := A, Q := H, R := X,
+                              from C4, 20.4.2.4
+
+                  20.4.2.6. ∠AHX = 90°
+                            mun:right-angle-along P := A, T := X,
+                              from 20.3, 20.4.2.3, 20.4.2.5
+
+                  20.4.2.7. |AX|² = |AH|² + |XH|²
+                            thm:pythagoras B := X, C := H, from 20.4.2.5, 20.4.2.6
+
+    20.5. |AB|² = |AH|² + |HB|²
+          instantiate X := B in line 20.4, from 2
+
+    20.6. |AC|² = |AH|² + |HC|²
+          instantiate X := C in line 20.4, from 2
+
+    20.7. |AM|² = |AH|² + |HM|²
+          instantiate X := M in line 20.4, from 4
+
+    20.8. |HB|² + |HC|² = 2·|HM|² + 2·|BM|²
+          instantiate X := H in line 18, from 20.3
+
+    20.9. |AB|² + |AC|² = 2·|AM|² + 2·|BM|²
+          calculation
+            |AB|² + |AC|² = 2·|AH|² + |HB|² + |HC|²            algebra, from 20.5, 20.6
+                          = 2·|AH|² + 2·|HM|² + 2·|BM|²        algebra, from 20.8
+                          = 2·|AM|² + 2·|BM|²                  algebra, from 20.7

@@ -4,6 +4,8 @@ import definition         stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/numbers/square-equal
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem thales-converse
   note        Pythagoras at the right angle C gives |AB|² = |AC|² + |BC|²,

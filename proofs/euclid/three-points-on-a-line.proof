@@ -1,5 +1,7 @@
 import mundane theorem    stdlib/geometry/between-by-coordinates
 import mundane theorem    stdlib/geometry/between-collinear
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem three-points-on-a-line
   note        By the coordinates, B is between A and C: the vectors from B

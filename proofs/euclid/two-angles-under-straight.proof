@@ -2,6 +2,8 @@ import theorem            proofs/wiedijk/angle-sum/angle-sum
 import mundane theorem    stdlib/geometry/angle-real
 import mundane theorem    stdlib/geometry/sine-positive
 import definition         stdlib/trigonometry/sin
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem two-angles-under-straight
   note        Euclid I.17. The three angles of a triangle make 180° and the

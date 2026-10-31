@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/triangle-inequality-points
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem difference-of-sides
   note        Each difference is the triangle inequality with the other side

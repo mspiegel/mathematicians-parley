@@ -3,6 +3,8 @@ import mundane theorem    stdlib/geometry/distance-nonneg
 import axiom              stdlib/geometry/distance-positive
 import mundane theorem    stdlib/numbers/square-positive
 import mundane theorem    stdlib/numbers/square-less
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem hypotenuse-longest
   note        Pythagoras gives |AB|² = |AC|² + |BC|², and |BC|² is

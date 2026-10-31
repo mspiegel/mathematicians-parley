@@ -1,4 +1,6 @@
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem right-isosceles-triangle
   note        Each side is read off the coordinates. The long side squared is

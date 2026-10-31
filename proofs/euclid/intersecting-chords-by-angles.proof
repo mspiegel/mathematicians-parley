@@ -14,6 +14,8 @@ import mundane theorem    stdlib/geometry/segment-off-line
 import mundane theorem    stdlib/geometry/triangle-not-on-line
 import mundane theorem    stdlib/geometry/triangle-off-line
 import mundane theorem    stdlib/geometry/triangle-on-side
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem intersecting-chords-by-angles
   note        Euclid III.35 as a school text proves it. The angles APC and

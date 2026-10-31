@@ -1,15 +1,24 @@
-import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/right-angle-by-cosine
+import axiom              stdlib/geometry/angle-construction
+import mundane theorem    stdlib/geometry/ray-point
+import mundane theorem    stdlib/geometry/same-side-off-line
+import mundane theorem    stdlib/geometry/triangle-off-line
+import mundane theorem    stdlib/geometry/angle-same-ray
+import mundane theorem    stdlib/geometry/angle-turned
 import axiom              stdlib/geometry/distance-positive
-import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane theorem    stdlib/numbers/product-positive
+import mundane theorem    stdlib/geometry/distance-nonneg
+import theorem            stdlib/geometry/pythagoras
+import theorem            stdlib/geometry/side-side-side
+import definition         stdlib/geometry/congruent
+import mundane theorem    stdlib/numbers/square-equal
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem converse-of-pythagoras
-  note        Euclid I.48. The law of cosines at C gives |AB|² =
-              |AC|² + |BC|² − 2·|AC|·|BC|·cos ∠ACB. The hypothesis says the
-              last term is 0, and the two sides are not, so the cosine is 0,
-              and an angle whose cosine is 0 is a right angle.
+  note        Euclid I.48. Draw from C the line at right angles to CB, and
+              mark D on it with |CD| = |CA|. Pythagoras in the right
+              triangle DCB gives |DB|² = |CA|² + |CB|², which is |AB|², so
+              |DB| = |AB|. The triangles ACB and DCB then have their three
+              sides equal, and so the angle at C is the right angle ∠DCB.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -17,27 +26,54 @@ theorem converse-of-pythagoras
   assume |AB|² = |AC|² + |BC|²                                        (H5)
   then ∠ACB = 90°
 
-1.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    thm:law-of-cosines P := A, Q := C, R := B, from H4
+1.  E ∈ 𝔼². E and A are on the same side of line CB. ∠BCE = 90°.
+    obtain E: axi:angle-construction A := C, C := A, x := 90°, from H4
+    requires 90° > 0°: real arithmetic
+    requires 90° < 180°: real arithmetic
 
-2.  |AC|² + |BC|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
-    substitute |AB|² = |AC|² + |BC|² (H5) into line 1
+2.  not (E is on line CB)
+    mun:same-side-off-line A := C, P := E, Q := A, from 1
 
-3.  cos(∠ACB)·(|AC|·|BC|) = 0·(|AC|·|BC|)
-    algebra, from 2
+3.  E, C, B form a triangle.
+    mun:triangle-off-line P := E, Q := C, R := B, from H4, 2
 
-4.  |AC| > 0
-    axi:distance-positive P := A, Q := C, from H4
+4.  |CA| > 0
+    axi:distance-positive P := C, Q := A, from H4
 
-5.  |BC| > 0
-    axi:distance-positive P := B, Q := C, from H4
+5.  D ∈ 𝔼². D is on line CE. D and E are on the same side of line CB.
+    |CD| = |CA|.
+    obtain D: mun:ray-point A := C, B := E, C := B, r := |CA|, from 3, 4
 
-6.  |AC|·|BC| > 0
-    mun:product-positive x := |AC|, y := |BC|, from 4, 5
+6.  not (D is on line CB)
+    mun:same-side-off-line A := C, P := D, Q := E, from 5
 
-7.  cos(∠ACB) = 0
-    mun:multiply-cancel a := cos(∠ACB), b := 0, c := |AC|·|BC|, from 3
-    requires |AC|·|BC| ≠ 0: weakening, from 6
+7.  D, C, B form a triangle.
+    mun:triangle-off-line P := D, Q := C, R := B, from H4, 6
 
-8.  ∠ACB = 90°
-    mun:right-angle-by-cosine P := A, Q := C, R := B, from H4, 7
+8.  ∠DCB = 90°
+    calculation
+      ∠DCB = ∠BCD       mun:angle-turned P := D, Q := C, R := B, from 7
+           = ∠BCE       mun:angle-same-ray R := B, P := C, Q := E, X := D, from 5
+           = 90°        1
+
+9.  |DB|² = |DC|² + |BC|²
+    thm:pythagoras A := D, from 7, 8
+
+10. |DB|² = |AB|²
+    algebra, from H5, 5, 9
+
+11. |DB| = |AB|
+    mun:square-equal x := |DB|, y := |AB|, from 10
+    requires |DB| ≥ 0: mun:distance-nonneg P := D, Q := B
+    requires |AB| ≥ 0: mun:distance-nonneg P := A, Q := B
+
+12. triangle ACB ≅ triangle DCB
+    thm:side-side-side B := C, C := B, E := C, F := B,
+      from H4, 5, 7, 11
+
+13. ∠ACB = ∠DCB
+    def:congruent P := A, Q := C, R := B, P′ := D, Q′ := C, R′ := B,
+      from H4, 7, 12
+
+14. ∠ACB = 90°
+    transitivity, from 13, 8

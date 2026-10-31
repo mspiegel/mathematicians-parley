@@ -1,5 +1,7 @@
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/triangle-extension
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem vertical-angles
   note        Euclid I.15. Each of ∠AOB and ∠COD makes 180° with ∠BOC, since

@@ -1,4 +1,6 @@
 import mundane theorem stdlib/geometry/distance-by-coordinates
+forbid theorem stdlib/geometry/law-of-cosines
+forbid theorem stdlib/geometry/law-of-sines
 
 theorem midpoint-is-equidistant
   note        Both distances are worked out from the coordinates. Each is

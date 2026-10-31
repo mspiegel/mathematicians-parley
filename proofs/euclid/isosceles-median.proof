@@ -1,23 +1,17 @@
-import theorem            proofs/euclid/sss-congruence/angle-from-sides
+import theorem            stdlib/geometry/side-side-side
 import definition         stdlib/geometry/midpoint
-import definition         stdlib/geometry/triangle
-import mundane theorem    stdlib/geometry/between-apart
-import mundane theorem    stdlib/geometry/between-collinear
-import theorem            stdlib/geometry/law-of-cosines
+import definition         stdlib/geometry/congruent
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-turned
-import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import axiom              stdlib/geometry/distance-positive
-import mundane theorem    stdlib/trigonometry/cos-supplement
-import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane theorem    stdlib/numbers/product-positive
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem isosceles-median
-  note        The law of cosines at M in the triangles ABM and ACM, whose
-              angles at M are supplementary, gives cos(∠AMB) = 0. The
-              triangles ABM and ACM have their three sides equal, so the
-              angles at A are equal.
+  note        The triangles ABM and ACM have their three sides equal: AB and
+              AC by hypothesis, BM and CM since M is the midpoint, and AM is
+              common. So they are congruent (side-side-side), and the angles
+              at A are equal, and so are the angles at M. Those two angles at
+              M together make a straight angle, so each is 90°.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -32,75 +26,29 @@ theorem isosceles-median
 1.  M is between B and C. |BM| = |MC|.
     def:midpoint A := B, B := C, from H7
 
-2.  B ≠ M. C ≠ M.
-    mun:between-apart R := M, S := B, T := C, from 1
+2.  |BM| = |CM|
+    restate 1
 
-3.  C, M, B are collinear
-    mun:between-collinear R := M, S := B, T := C, from 1
+3.  triangle ABM ≅ triangle ACM
+    thm:side-side-side C := M, D := A, E := C, F := M, from H6, H8, H9, 2
 
-4.  A ≠ M
-    contradiction
-    suppose A = M                                                     (S)
+4.  ∠BMA = ∠CMA. ∠MAB = ∠MAC.
+    def:congruent P := A, Q := B, R := M, P′ := A, Q′ := C, R′ := M,
+      from H8, H9, 3
 
-    4.1.  C, A, B are collinear
-          substitute M = A (S) into line 3
+5.  ∠CMA + ∠AMB = 180°
+    axi:supplementary-angles A := C, B := M, C := B, D := A, from H5, H8, 1
 
-    4.2.  not (A, B, C are collinear)
-          def:triangle P := A, Q := B, R := C, from H5, contradicting 4.1
+6.  ∠AMB = ∠BMA
+    mun:angle-turned P := A, Q := M, R := B, from H8
 
-5.  |BA|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
-    thm:law-of-cosines P := A, Q := M, R := B, from H5, 2, 4
+7.  ∠AMB = 90°
+    algebra, from 4, 5, 6
 
-6.  |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))
-    thm:law-of-cosines P := C, Q := M, R := A, from H5, 2, 4
-
-7.  ∠CMA + ∠AMB = 180°
-    axi:supplementary-angles A := C, B := M, C := B, D := A, from H5, 1, 4
-
-8.  ∠CMA = 180° − ∠AMB
-    algebra, from 7
-
-9.  cos(∠CMA) = −cos(∠AMB)
+8.  ∠BAM = ∠MAC
     calculation
-      cos(∠CMA) = cos(180° − ∠AMB)      substitute line 8
-                = −cos(∠AMB)            mun:cos-supplement x := ∠AMB
+      ∠BAM = ∠MAB      mun:angle-turned P := B, Q := A, R := M, from H8
+           = ∠MAC      4
 
-10. |AC|² = |AM|² + |MB|² − 2·(|AM|·|MB|·cos(∠AMB))
-    substitute |AB| = |AC| (H6) into line 5
-
-11. |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))
-    substitute
-      |AC|² = |CM|² + |MA|² − 2·(|CM|·|MA|·cos(∠CMA))       6
-      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·cos(∠CMA))       substitute line 1
-      |AC|² = |BM|² + |AM|² − 2·(|BM|·|AM|·−cos(∠AMB))      substitute line 9
-
-12. cos(∠AMB)·(|AM|·|BM|) = 0·(|AM|·|BM|)
-    algebra, from 10, 11
-
-13. |AM| > 0
-    axi:distance-positive P := A, Q := M, from 4
-
-14. |BM| > 0
-    axi:distance-positive P := B, Q := M, from 2
-
-15. |AM|·|BM| > 0
-    mun:product-positive x := |AM|, y := |BM|, from 13, 14
-
-16. cos(∠AMB) = 0
-    mun:multiply-cancel a := cos(∠AMB), b := 0, c := |AM|·|BM|, from 12
-    requires |AM|·|BM| ≠ 0: weakening, from 15
-
-17. ∠AMB = 90°
-    mun:right-angle-by-cosine P := A, Q := M, R := B, from H5, 2, 4, 16
-
-18. ∠BAM = ∠CAM
-    thm:angle-from-sides P := B, Q := A, R := M, P′ := C, Q′ := A, R′ := M,
-      from H5, H6, 1, 2, 4
-
-19. ∠BAM = ∠MAC
-    calculation
-      ∠BAM = ∠CAM      18
-           = ∠MAC      mun:angle-turned P := C, Q := A, R := M, from H5, 2, 4
-
-20. ∠AMB = 90°. ∠BAM = ∠MAC.
-    join 17, 19
+9.  ∠AMB = 90°. ∠BAM = ∠MAC.
+    join 7, 8

@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/triangle-inequality-strict
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem two-sides-exceed-third
   note        Euclid I.20, cited as the library records it.

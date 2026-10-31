@@ -1,4 +1,6 @@
 import mundane theorem stdlib/geometry/distance-by-coordinates
+forbid theorem stdlib/geometry/law-of-cosines
+forbid theorem stdlib/geometry/law-of-sines
 
 theorem distance-minus-four-one
   then |(−4, 1)(3, −4)| = √74

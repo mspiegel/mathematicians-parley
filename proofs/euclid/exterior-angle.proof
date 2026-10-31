@@ -1,6 +1,8 @@
 import theorem            proofs/wiedijk/angle-sum/angle-sum
 import axiom              stdlib/geometry/supplementary-angles
 import mundane theorem    stdlib/geometry/angle-symmetric
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem exterior-angle
   note        Euclid I.32. The exterior angle ∠ABD and the interior angle at

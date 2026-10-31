@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/heron
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem heron-formula
   let A be a point                                                    (H1)

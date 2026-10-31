@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/intersecting-chords
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem chords-through-circle
   let A be a point                                                    (H1)

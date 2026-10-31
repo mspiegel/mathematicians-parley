@@ -1,5 +1,7 @@
 import theorem            proofs/euclid/converse-of-pythagoras/converse-of-pythagoras
 import mundane theorem    stdlib/geometry/angle-symmetric
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem three-four-five
   note        3² + 4² = 5², so the converse of Pythagoras makes the angle at

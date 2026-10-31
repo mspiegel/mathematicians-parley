@@ -1,99 +1,324 @@
-import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/angle-real
-import mundane theorem    stdlib/geometry/angle-at-most-straight
+import theorem            proofs/wiedijk/pythagoras/pythagoras
+import theorem            stdlib/geometry/perpendicular-foot
+import theorem            stdlib/geometry/angle-sum
+import axiom              stdlib/geometry/angle-measure
+import axiom              stdlib/geometry/supplementary-angles
+import mundane theorem    stdlib/geometry/on-line-cases
+import mundane theorem    stdlib/geometry/between-apart
+import mundane theorem    stdlib/geometry/between-ends-apart
+import mundane theorem    stdlib/geometry/angle-along-segment
+import mundane theorem    stdlib/geometry/angle-symmetric
+import mundane theorem    stdlib/geometry/right-angle-triangle
+import mundane theorem    stdlib/geometry/segment-addition
 import axiom              stdlib/geometry/distance-positive
-import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/trigonometry/cos-decreasing
-import definition         stdlib/calculus/interval
 import mundane theorem    stdlib/numbers/product-positive
-import mundane theorem    stdlib/numbers/less-scaled
+import axiom              stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/modus-ponens
+import mundane theorem    stdlib/reasoning/iff-both-true
+import mundane theorem    stdlib/reasoning/iff-both-false
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem acute-angle-by-squares
-  note        Euclid II.12 and II.13. The law of cosines at C writes |AB|²
-              as |AC|² + |BC|² less 2·|AC|·|BC|·cos ∠ACB, so |AB|² falls
-              short of |AC|² + |BC|² just when the cosine is positive, and on
-              [0, π] the cosine is positive just when the angle is under 90°.
+  note        Euclid II.12 and II.13. Drop the perpendicular from A to line
+              BC, foot H. Where H is C the angle at C is right, and by
+              Pythagoras |AB|² = |AC|² + |BC|². Otherwise Pythagoras in the
+              right triangles AHC and AHB writes |AB|² by |AC|², |BC|² and
+              |CH|. Where H is on the ray from C through B, |AB|² falls short
+              of |AC|² + |BC|² by 2·|BC|·|CH|, and the angle at C is an
+              angle of the right triangle AHC, less than a right angle.
+              Where C is between H and B, |AB|² exceeds the sum by as much,
+              and the angle at C is the supplement of that angle, more than
+              a right angle.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
   assume A, B, C form a triangle                                      (H4)
   then ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
 
-1.  |BA|² = |AC|² + |CB|² − 2·(|AC|·|CB|·cos(∠ACB))
-    thm:law-of-cosines P := A, Q := C, R := B, from H4
+1.  H ∈ 𝔼². H is on line CB. A ≠ H. If H ≠ C then ∠AHC = 90°.
+    If H ≠ B then ∠AHB = 90°.
+    obtain H: thm:perpendicular-foot P := A, Q := C, R := B, from H4
 
-2.  |AC| > 0
-    axi:distance-positive P := A, Q := C, from H4
-
-3.  |BC| > 0
+2.  |BC| > 0
     axi:distance-positive P := B, Q := C, from H4
 
-4.  |AC|·|BC| > 0
-    mun:product-positive x := |AC|, y := |BC|, from 2, 3
+3.  ∠ACB = ∠BCA
+    mun:angle-symmetric P := A, Q := C, R := B, from H4
 
-5.  ∠ACB ∈ ℝ. ∠ACB ≥ 0.
-    mun:angle-real P := A, Q := C, R := B, from H4
+4.  H = C or H ≠ C
+    axi:excluded-middle P := H = C
 
-6.  ∠ACB ≤ 180°
-    mun:angle-at-most-straight P := A, Q := C, R := B, from H4
+5.  ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+    cases, from 4
 
-7.  ∠ACB ≤ π
-    substitute 180° = π (real arithmetic) into line 6
+    case
+    note   The foot is C, and the angle at C is right.
+    assume H = C                                                      (C1)
 
-8.  ∠ACB ∈ [0, π]
-    def:interval x := ∠ACB, from 5, 7
+    5.1.  H ≠ B
+          substitute C = H (C1) into H4
 
-9.  90° ∈ [0, π]
-    def:interval x := 90°
-    requires 0 ≤ 90°: real arithmetic
-    requires 90° ≤ π: real arithmetic
+    5.2.  ∠AHB = 90°
+          mun:modus-ponens, from 1, 5.1
 
-10. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
-    both directions
+    5.3.  ∠ACB = 90°
+          substitute H = C (C1) into line 5.2
 
-    direction
-    assume ∠ACB < 90°                                                 (D1)
+    5.4.  |AB|² = |AC|² + |BC|²
+          thm:pythagoras, from H4, 5.3
 
-    10.1.  cos(90°) < cos(∠ACB)
-           mun:cos-decreasing a := ∠ACB, b := 90°, from D1, 8, 9
+    5.5.  ∠ACB ≥ 90°
+          inequalities
+            ∠ACB = 90°                   5.3
+            ∠ACB ≥ 90°                   weakening
 
-    10.2.  0 < cos(∠ACB)
-           substitute cos(90°) = 0 (real arithmetic) into line 10.1
+    5.6.  not (∠ACB < 90°)
+          inequalities, from 5.5
 
-    10.3.  0 < |AC|·|BC|·cos(∠ACB)
-           mun:product-positive x := |AC|·|BC|, y := cos(∠ACB), from 4, 10.2
+    5.7.  |AB|² ≥ |AC|² + |BC|²
+          inequalities
+            |AB|² = |AC|² + |BC|²        5.4
+            |AB|² ≥ |AC|² + |BC|²        weakening
 
-    10.4.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
-           inequalities
-             0 < |AC|·|BC|·cos(∠ACB)                                 10.3
-             0 < 2·(|AC|·|BC|·cos(∠ACB))                             multiplying by 2
-             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   adding |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))
+    5.8.  not (|AB|² < |AC|² + |BC|²)
+          inequalities, from 5.7
 
-    10.5.  |AB|² < |AC|² + |BC|²
-           calculation
-             |AB|² = |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB))        1
-                   < |AC|² + |BC|²                                  10.4
+    5.9.  ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+          mun:iff-both-false, from 5.6, 5.8
 
-    direction
-    assume |AB|² < |AC|² + |BC|²                                      (D2)
+    case
+    assume H ≠ C                                                      (C2)
 
-    10.6.  |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²
-           calculation
-             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) = |AB|²        1
-                                                     < |AC|² + |BC|²  D2
+    5.10. ∠AHC = 90°
+          mun:modus-ponens, from C2, 1
 
-    10.7.  |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)
-           inequalities
-             |AC|² + |BC|² − 2·(|AC|·|BC|·cos(∠ACB)) < |AC|² + |BC|²   10.6
-             −2·(|AC|·|BC|·cos(∠ACB)) < 0                           adding −(|AC|² + |BC|²)
-             |AC|·|BC|·cos(∠ACB) > 0                                multiplying by −1/2
-             0 < |AC|·|BC|·cos(∠ACB)                                restate
-             |AC|·|BC|·0 < |AC|·|BC|·cos(∠ACB)                      algebra
+    5.11. A, H, C form a triangle
+          mun:right-angle-triangle P := A, Q := H, R := C, from C2, H4, 1, 5.10
 
-    10.8.  cos(90°) < cos(∠ACB)
-           calculation
-             cos(90°) = 0                 real arithmetic
-                      < cos(∠ACB)         mun:less-scaled x := 0, y := cos(∠ACB), c := |AC|·|BC|, from 4, 10.7
+    5.12. |AC|² = |AH|² + |HC|²
+          thm:pythagoras B := C, C := H, from 5.10, 5.11
 
-    10.9.  ∠ACB < 90°
-           mun:cos-decreasing a := ∠ACB, b := 90°, from 8, 9, 10.8
+    5.13. ∠HAC + ∠AHC + ∠HCA = 180°
+          thm:angle-sum B := H, from 5.11
+
+    5.14. ∠HAC > 0°
+          axi:angle-measure P := H, Q := A, R := C, from 5.11
+
+    5.15. ∠HCA = 90° − ∠HAC
+          algebra, from 5.10, 5.13
+
+    5.16. 90° − ∠HAC < 90°
+          inequalities
+            ∠HAC > 0°                    5.14
+            0° < ∠HAC                    restate
+            90° − ∠HAC < 90°             adding 90° − ∠HAC
+
+    5.17. ∠HCA < 90°
+          calculation
+            ∠HCA = 90° − ∠HAC            5.15
+                 < 90°                   5.16
+
+    5.18. |CH| > 0
+          axi:distance-positive P := C, Q := H, from C2
+
+    5.19. |BC|·|CH| > 0
+          mun:product-positive x := |BC|, y := |CH|, from 2, 5.18
+
+    5.20. |AC|² + |BC|² − 2·(|BC|·|CH|) < |AC|² + |BC|²
+          inequalities
+            |BC|·|CH| > 0                                       5.19
+            2·(|BC|·|CH|) > 0                                   multiplying by 2
+            0 < 2·(|BC|·|CH|)                                   restate
+            |AC|² + |BC|² − 2·(|BC|·|CH|) < |AC|² + |BC|²       adding |AC|² + |BC|² − 2·(|BC|·|CH|)
+
+    5.21. |AC|² + |BC|² < |AC|² + |BC|² + 2·(|BC|·|CH|)
+          inequalities
+            |BC|·|CH| > 0                                       5.19
+            2·(|BC|·|CH|) > 0                                   multiplying by 2
+            0 < 2·(|BC|·|CH|)                                   restate
+            |AC|² + |BC|² < |AC|² + |BC|² + 2·(|BC|·|CH|)       adding |AC|² + |BC|²
+
+    5.22. H = C or (H is between C and B) or H = B or (B is between C and H) or
+          (C is between H and B)
+          mun:on-line-cases P := H, Q := C, R := B, from H4, 1
+
+    5.23. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+          cases, from 5.22
+
+          case
+          assume H = C                                                (C3)
+
+          5.23.1.  H ≠ C
+                   restate C2, contradicting C3
+
+          case
+          note   The foot is on the side BC, and the angle at C is acute.
+          assume H is between C and B                                 (C4)
+
+          5.23.2.  C ≠ H. B ≠ H.
+                   mun:between-apart R := H, S := C, T := B, from C4
+
+          5.23.3.  ∠AHB = 90°
+                   mun:modus-ponens, from 1, 5.23.2
+
+          5.23.4.  A, H, B form a triangle
+                   mun:right-angle-triangle P := A, Q := H, R := B, from H4, 1,
+                     5.23.2, 5.23.3
+
+          5.23.5.  |AB|² = |AH|² + |BH|²
+                   thm:pythagoras C := H, from 5.23.3, 5.23.4
+
+          5.23.6.  |CH| + |HB| = |CB|
+                   mun:segment-addition P := C, Q := B, S := H, from C4
+
+          5.23.7.  |AB|² < |AC|² + |BC|²
+                   calculation
+                     |AB|² = |AH|² + |HB|²                      5.23.5
+                           = |AC|² − |HC|² + |HB|²              algebra, from 5.12
+                           = |AC|² − |HC|² + (|CB| − |CH|)²     algebra, from 5.23.6
+                           = |AC|² + |BC|² − 2·(|BC|·|CH|)      algebra
+                           < |AC|² + |BC|²                      5.20
+
+          5.23.8.  ∠HCA = ∠BCA
+                   mun:angle-along-segment P := C, Q := B, R := A, S := H,
+                     from C4, H4, 1
+
+          5.23.9.  ∠ACB < 90°
+                   calculation
+                     ∠ACB = ∠BCA       3
+                          = ∠HCA       5.23.8
+                          < 90°        5.17
+
+          5.23.10. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+                   mun:iff-both-true, from 5.23.7, 5.23.9
+
+          case
+          note   The foot is B, and the right angle is at B.
+          assume H = B                                                (C5)
+
+          5.23.11. |AC|² = |AB|² + |BC|²
+                   substitute H = B (C5) into line 5.12
+
+          5.23.12. |AB|² < |AC|² + |BC|²
+                   calculation
+                     |AB|² = |AC|² − |BC|²                      algebra, from 5.23.11
+                           = |AC|² + |BC|² − 2·(|BC|·|CB|)      algebra
+                           = |AC|² + |BC|² − 2·(|BC|·|CH|)      substitute C5
+                           < |AC|² + |BC|²                      5.20
+
+          5.23.13. ∠BCA < 90°
+                   substitute H = B (C5) into line 5.17
+
+          5.23.14. ∠ACB < 90°
+                   calculation
+                     ∠ACB = ∠BCA       3
+                          < 90°        5.23.13
+
+          5.23.15. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+                   mun:iff-both-true, from 5.23.12, 5.23.14
+
+          case
+          note   The foot is beyond B, and the angle at C is acute.
+          assume B is between C and H                                 (C6)
+
+          5.23.16. C ≠ B. H ≠ B.
+                   mun:between-apart R := B, S := C, T := H, from C6
+
+          5.23.17. ∠AHB = 90°
+                   mun:modus-ponens, from 1, 5.23.16
+
+          5.23.18. A, H, B form a triangle
+                   mun:right-angle-triangle P := A, Q := H, R := B, from H4, 1,
+                     5.23.16, 5.23.17
+
+          5.23.19. |AB|² = |AH|² + |BH|²
+                   thm:pythagoras C := H, from 5.23.17, 5.23.18
+
+          5.23.20. |CB| + |BH| = |CH|
+                   mun:segment-addition P := C, Q := H, S := B, from C6
+
+          5.23.21. |AB|² < |AC|² + |BC|²
+                   calculation
+                     |AB|² = |AH|² + |HB|²                      5.23.19
+                           = |AC|² − |HC|² + |HB|²              algebra, from 5.12
+                           = |AC|² − |HC|² + (|CH| − |CB|)²     algebra, from 5.23.20
+                           = |AC|² + |BC|² − 2·(|BC|·|CH|)      algebra
+                           < |AC|² + |BC|²                      5.20
+
+          5.23.22. ∠BCA = ∠HCA
+                   mun:angle-along-segment P := C, Q := H, R := A, S := B,
+                     from C6, H4, 1
+
+          5.23.23. ∠ACB < 90°
+                   calculation
+                     ∠ACB = ∠BCA       3
+                          = ∠HCA       5.23.22
+                          < 90°        5.17
+
+          5.23.24. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+                   mun:iff-both-true, from 5.23.21, 5.23.23
+
+          case
+          note   The foot is beyond C, and the angle at C is obtuse.
+          assume C is between H and B                                 (C7)
+
+          5.23.25. H ≠ B
+                   mun:between-ends-apart R := C, S := H, T := B, from C7
+
+          5.23.26. ∠AHB = 90°
+                   mun:modus-ponens, from 1, 5.23.25
+
+          5.23.27. A, H, B form a triangle
+                   mun:right-angle-triangle P := A, Q := H, R := B, from H4, 1,
+                     5.23.25, 5.23.26
+
+          5.23.28. |AB|² = |AH|² + |BH|²
+                   thm:pythagoras C := H, from 5.23.26, 5.23.27
+
+          5.23.29. |HC| + |CB| = |HB|
+                   mun:segment-addition P := H, Q := B, S := C, from C7
+
+          5.23.30. |AC|² + |BC|² < |AB|²
+                   calculation
+                     |AC|² + |BC|² < |AC|² + |BC|² + 2·(|BC|·|CH|)      5.21
+                                   = |AC|² − |HC|² + (|HC| + |CB|)²     algebra
+                                   = |AC|² − |HC|² + |HB|²              substitute line 5.23.29
+                                   = |AH|² + |HB|²                      algebra, from 5.12
+                                   = |AB|²                              5.23.28
+
+          5.23.31. |AC|² + |BC|² ≤ |AB|²
+                   inequalities
+                     |AC|² + |BC|² < |AB|²       5.23.30
+                     |AC|² + |BC|² ≤ |AB|²       weakening
+
+          5.23.32. not (|AB|² < |AC|² + |BC|²)
+                   inequalities, from 5.23.31
+
+          5.23.33. ∠HCA + ∠ACB = 180°
+                   axi:supplementary-angles A := H, B := C, C := B, D := A,
+                     from C7, H4, 1
+
+          5.23.34. ∠ACB = 180° − ∠HCA
+                   algebra, from 5.23.33
+
+          5.23.35. 90° < 180° − ∠HCA
+                   inequalities
+                     ∠HCA < 90°                  5.17
+                     90° < 180° − ∠HCA           adding 90° − ∠HCA
+
+          5.23.36. ∠ACB > 90°
+                   calculation
+                     ∠ACB = 180° − ∠HCA          5.23.34
+                          > 90°                  5.23.35
+
+          5.23.37. ∠ACB ≥ 90°
+                   inequalities
+                     ∠ACB > 90°                  5.23.36
+                     ∠ACB ≥ 90°                  weakening
+
+          5.23.38. not (∠ACB < 90°)
+                   inequalities, from 5.23.37
+
+          5.23.39. ∠ACB < 90° ↔ |AB|² < |AC|² + |BC|²
+                   mun:iff-both-false, from 5.23.32, 5.23.38

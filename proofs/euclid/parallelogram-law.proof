@@ -1,6 +1,8 @@
 import theorem            proofs/euclid/apollonius/apollonius
 import definition         stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem parallelogram-law
   note        M is the midpoint of both diagonals. Apollonius applied to the

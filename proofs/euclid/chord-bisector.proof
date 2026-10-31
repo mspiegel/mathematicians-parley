@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/chord-midpoint-right-angle
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem chord-bisector
   note        The theorem on a chord's midpoint gives the right angle on

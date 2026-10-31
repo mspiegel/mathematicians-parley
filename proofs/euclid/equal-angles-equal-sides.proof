@@ -1,13 +1,13 @@
-import theorem            stdlib/geometry/law-of-sines
+import theorem            stdlib/geometry/angle-side-angle
 import mundane theorem    stdlib/geometry/angle-symmetric
-import mundane theorem    stdlib/geometry/sine-positive
-import mundane theorem    stdlib/numbers/multiply-cancel
-import definition         stdlib/trigonometry/sin
+import definition         stdlib/geometry/congruent
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem equal-angles-equal-sides
-  note        Euclid I.6. The law of sines gives |CA|·sin ∠CAB = |CB|·sin ∠ABC;
-              the two angles are equal and their sine is positive, so it
-              cancels.
+  note        Euclid I.6. Read the triangle as ABC and as BAC. The side AB is
+              common, and the angles at its two ends agree, so the two are
+              congruent and the sides CA and CB opposite those angles match.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -15,18 +15,14 @@ theorem equal-angles-equal-sides
   assume ∠CAB = ∠CBA                                                  (H5)
   then |CA| = |CB|
 
-1.  |CA|·sin(∠CAB) = |CB|·sin(∠ABC)
-    thm:law-of-sines P := C, Q := A, R := B, from H4
+1.  ∠ABC = ∠BAC
+    calculation
+      ∠ABC = ∠CBA       mun:angle-symmetric P := A, Q := B, R := C, from H4
+           = ∠CAB       H5
+           = ∠BAC       mun:angle-symmetric P := C, Q := A, R := B, from H4
 
-2.  |CA|·sin(∠CAB) = |CB|·sin(∠CAB)
-    substitute
-      |CA|·sin(∠CAB) = |CB|·sin(∠ABC)      1
-      |CA|·sin(∠CAB) = |CB|·sin(∠CBA)      mun:angle-symmetric P := A, Q := B, R := C, from H4
-      |CA|·sin(∠CAB) = |CB|·sin(∠CAB)      substitute H5
+2.  triangle ABC ≅ triangle BAC
+    thm:angle-side-angle D := B, E := A, F := C, from H4, H5, 1
 
-3.  sin(∠CAB) > 0
-    mun:sine-positive P := C, Q := A, R := B, from H4
-
-4.  |CA| = |CB|
-    mun:multiply-cancel a := |CA|, b := |CB|, c := sin(∠CAB), from 2
-    requires sin(∠CAB) ≠ 0: weakening, from 3
+3.  |CA| = |CB|
+    def:congruent, from H4, 2

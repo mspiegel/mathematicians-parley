@@ -3,15 +3,16 @@ import mundane theorem    stdlib/geometry/collinear-by-coordinates
 import mundane theorem    stdlib/geometry/distance-of-points-by-coordinates
 import mundane theorem    stdlib/reasoning/iff-not-from-right
 import definition         stdlib/geometry/triangle
-import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/right-angle-by-cosine
-import definition         stdlib/trigonometry/cos
+import theorem            proofs/euclid/converse-of-pythagoras/converse-of-pythagoras
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem right-triangle-three-four-five
   note        The sides are read off the coordinates. The triangle is a
               triangle because its vertices are apart and the cross product of
-              AB and AC is not 0. The law of cosines at A, with the sides 3, 4
-              and 5, leaves cos ∠BAC = 0, which is a right angle.
+              AB and AC is not 0. The sides are 3, 4 and 5, and 3² + 4² = 5²,
+              so the converse of Pythagoras makes the angle at A a right
+              angle.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -75,21 +76,15 @@ theorem right-triangle-three-four-five
            = √25                        arithmetic
            = 5                          real arithmetic
 
-15. |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))
-    thm:law-of-cosines, from 2, 4, 6
+15. |BC|² = |BA|² + |CA|²
+    calculation
+      |BC|² = 5²                substitute line 14
+            = 3² + 4²           arithmetic
+            = |BA|² + 4²        substitute line 12
+            = |BA|² + |CA|²     substitute line 13
 
-16. 5² = 3² + 4² − 2·(3·4·cos(∠BAC))
-    substitute
-      |CB|² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))      15
-      5² = |BA|² + |AC|² − 2·(|BA|·|AC|·cos(∠BAC))         substitute line 14
-      5² = 3² + |AC|² − 2·(3·|AC|·cos(∠BAC))               substitute line 12
-      5² = 3² + 4² − 2·(3·4·cos(∠BAC))                     substitute line 13
+16. ∠BAC = 90°
+    thm:converse-of-pythagoras A := B, B := C, C := A, from 11, 15
 
-17. cos(∠BAC) = 0
-    algebra, from 16
-
-18. ∠BAC = 90°
-    mun:right-angle-by-cosine, from 2, 4, 6, 17
-
-19. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
-    join 11, 18, 14
+17. A, B, C form a triangle. ∠BAC = 90°. |BC| = 5.
+    join 11, 16, 14

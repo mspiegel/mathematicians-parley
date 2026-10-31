@@ -1,68 +1,10 @@
-import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/angle-equal-by-cosine
-import axiom              stdlib/geometry/distance-positive
-import mundane theorem    stdlib/numbers/multiply-cancel
-import mundane theorem    stdlib/numbers/product-positive
-import definition         stdlib/trigonometry/cos
 import theorem            stdlib/geometry/side-side-side
-
-theorem angle-from-sides
-  note        The law of cosines at Q gives the cosine of the angle from
-              the three sides, so equal sides give equal cosines, and the
-              cosine is one-to-one on the angles. Only that the three points
-              of each angle differ is used: they may lie on a line.
-  let P be a point                                                    (H1)
-  let Q be a point                                                    (H2)
-  let R be a point                                                    (H3)
-  let P′ be a point                                                   (H4)
-  let Q′ be a point                                                   (H5)
-  let R′ be a point                                                   (H6)
-  assume P ≠ Q                                                        (H7)
-  assume R ≠ Q                                                        (H8)
-  assume P′ ≠ Q′                                                      (H9)
-  assume R′ ≠ Q′                                                      (H10)
-  assume |PQ| = |P′Q′|                                                (H11)
-  assume |QR| = |Q′R′|                                                (H12)
-  assume |RP| = |R′P′|                                                (H13)
-  assume P ≠ R                                                        (H14)
-  assume P′ ≠ R′                                                      (H15)
-  then ∠PQR = ∠P′Q′R′
-
-1.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-    thm:law-of-cosines, from H7, H8, H14
-
-2.  |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))
-    thm:law-of-cosines P := P′, Q := Q′, R := R′, from H9, H10, H15
-
-3.  |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))
-    substitute
-      |R′P′|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))      2
-      |RP|² = |P′Q′|² + |Q′R′|² − 2·(|P′Q′|·|Q′R′|·cos(∠P′Q′R′))        substitute H13
-      |RP|² = |PQ|² + |Q′R′|² − 2·(|PQ|·|Q′R′|·cos(∠P′Q′R′))            substitute H11
-      |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠P′Q′R′))                substitute H12
-
-4.  cos(∠PQR)·(|PQ|·|QR|) = cos(∠P′Q′R′)·(|PQ|·|QR|)
-    algebra, from 1, 3
-
-5.  |PQ| > 0
-    axi:distance-positive, from H7
-
-6.  |QR| > 0
-    axi:distance-positive P := Q, Q := R, from H8
-
-7.  |PQ|·|QR| > 0
-    mun:product-positive x := |PQ|, y := |QR|, from 5, 6
-
-8.  cos(∠PQR) = cos(∠P′Q′R′)
-    mun:multiply-cancel a := cos(∠PQR), b := cos(∠P′Q′R′), c := |PQ|·|QR|, from 4
-    requires |PQ|·|QR| ≠ 0: weakening, from 7
-
-9.  ∠PQR = ∠P′Q′R′
-    mun:angle-equal-by-cosine, from H7, H8, H9, H10, H14, H15, 8
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem sss
-  note        Euclid I.8, as the library proves it from the postulates
-              (side-side-side).
+  note        Euclid I.8: two triangles with their three sides equal are
+              congruent (side-side-side).
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)

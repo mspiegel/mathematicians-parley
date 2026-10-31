@@ -1,18 +1,45 @@
-import theorem            stdlib/geometry/law-of-cosines
-import mundane theorem    stdlib/geometry/angle-order-by-cosine
-import mundane theorem    stdlib/geometry/angle-turned
-import mundane theorem    stdlib/geometry/distance-nonneg
+import axiom              stdlib/geometry/angle-measure
+import axiom              stdlib/geometry/angle-construction
+import axiom              stdlib/geometry/side-angle-side
 import axiom              stdlib/geometry/distance-positive
-import definition         stdlib/trigonometry/cos
-import mundane theorem    stdlib/numbers/product-positive
-import mundane theorem    stdlib/numbers/square-less
+import axiom              stdlib/geometry/plane-separation
+import axiom              stdlib/geometry/plane-separation-crossing
+import definition         stdlib/geometry/congruent
+import definition         stdlib/geometry/on-line
+import theorem            stdlib/geometry/triangle-inequality-strict
+import theorem            stdlib/geometry/triangle-inequality-points
+import mundane theorem    stdlib/geometry/ray-point
+import mundane theorem    stdlib/geometry/angle-same-ray
+import mundane theorem    stdlib/geometry/angle-addition
+import mundane theorem    stdlib/geometry/segment-addition
+import mundane theorem    stdlib/geometry/segment-extension
+import mundane theorem    stdlib/geometry/on-line-cases
+import mundane theorem    stdlib/geometry/on-line-ends
+import mundane theorem    stdlib/geometry/between-collinear
+import mundane theorem    stdlib/geometry/triangle-on-side
+import mundane theorem    stdlib/geometry/triangle-off-line
+import mundane theorem    stdlib/geometry/triangle-not-on-line
+import mundane theorem    stdlib/geometry/off-line-apart
+import mundane theorem    stdlib/geometry/same-side-off-line
+import mundane theorem    stdlib/geometry/opposite-sides-off-line
+import mundane theorem    stdlib/geometry/same-side-same
+import mundane theorem    stdlib/geometry/same-opposite-opposite
+import mundane theorem    stdlib/geometry/same-not-opposite
+import mundane theorem    stdlib/geometry/segment-off-line
+import mundane theorem    stdlib/geometry/segment-across-line
+import mundane theorem    stdlib/geometry/line-crossing-between
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem hinge
-  note        Euclid I.24. The law of cosines at A and at D, with the two
-              sides at each vertex equal, gives |BC|² − |EF|² =
-              2·|CA|·|AB|·(cos ∠FDE − cos ∠CAB). The larger angle has the
-              smaller cosine, so this is positive, and so is the difference
-              of the lengths.
+  note        Euclid I.24. Copy the angle EDF at A, on C's side of line AB,
+              and lay off |AC| along it to G. The triangle BAG is then the
+              triangle EDF over again (side-angle-side), so |BG| = |EF|. As
+              ∠BAG is less than ∠BAC, G is inside the angle BAC, so line AG
+              crosses BC at a point X, on the ray from A through G. In the
+              triangle AXC the side AC is less than the other two together,
+              and |AG| = |AC|, so |XG| < |XC| wherever G lies on the ray;
+              then |BG| ≤ |BX| + |XG| < |BX| + |XC| = |BC|.
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   let C be a point                                                    (H3)
@@ -26,60 +53,368 @@ theorem hinge
   assume ∠BAC > ∠EDF                                                  (H11)
   then |BC| > |EF|
 
-1.  ∠CAB = ∠BAC
-    mun:angle-turned P := C, Q := A, R := B, from H7
+1.  ∠EDF > 0°. ∠EDF < 180°.
+    axi:angle-measure P := E, Q := D, R := F, from H8
 
-2.  ∠FDE = ∠EDF
-    mun:angle-turned P := F, Q := D, R := E, from H8
+2.  G′ ∈ 𝔼². G′ and C are on the same side of line AB. ∠BAG′ = ∠EDF.
+    obtain G′: axi:angle-construction x := ∠EDF, from H7, 1
 
-3.  ∠FDE < ∠CAB
-    transitivity, from 2, H11, 1
+3.  G′ is not on line AB
+    mun:same-side-off-line P := G′, Q := C, from 2
 
-4.  cos(∠CAB) < cos(∠FDE)
-    mun:angle-order-by-cosine P := F, Q := D, R := E, P′ := C, Q′ := A, R′ := B, from H7, H8, 3
+4.  G′, A, B form a triangle.
+    mun:triangle-off-line P := G′, Q := A, R := B, from H7, 3
 
-5.  |BC|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠CAB))
-    thm:law-of-cosines P := C, Q := A, R := B, from H7
+5.  |AC| > 0
+    axi:distance-positive P := A, Q := C, from H7
 
-6.  |EF|² = |FD|² + |DE|² − 2·(|FD|·|DE|·cos(∠FDE))
-    thm:law-of-cosines P := F, Q := D, R := E, from H8
+6.  G ∈ 𝔼². G is on line AG′. G and G′ are on the same side of line AB.
+    |AG| = |AC|.
+    obtain G: mun:ray-point B := G′, C := B, r := |AC|, from 4, 5
 
-7.  |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))
-    substitute
-      |EF|² = |FD|² + |DE|² − 2·(|FD|·|DE|·cos(∠FDE))      6
-      |EF|² = |CA|² + |DE|² − 2·(|CA|·|DE|·cos(∠FDE))      substitute H10
-      |EF|² = |CA|² + |AB|² − 2·(|CA|·|AB|·cos(∠FDE))      substitute H9
+7.  G and C are on the same side of line AB
+    mun:same-side-same P := G, Q := G′, R := C, from 2, 6
 
-8.  |CA| > 0
-    axi:distance-positive P := C, Q := A, from H7
+8.  G is not on line AB
+    mun:same-side-off-line P := G, Q := C, from 7
 
-9.  |AB| > 0
-    axi:distance-positive P := A, Q := B, from H7
+9.  G, A, B form a triangle.
+    mun:triangle-off-line P := G, Q := A, R := B, from H7, 8
 
-10. |CA|·|AB| > 0
-    mun:product-positive x := |CA|, y := |AB|, from 8, 9
-
-11. 0 < cos(∠FDE) − cos(∠CAB)
-    inequalities
-      cos(∠CAB) < cos(∠FDE)                  4
-      0 < cos(∠FDE) − cos(∠CAB)              adding −cos(∠CAB)
-
-12. |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0
-    mun:product-positive x := |CA|·|AB|, y := cos(∠FDE) − cos(∠CAB), from 10, 11
-
-13. |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²
-    inequalities
-      |CA|·|AB|·(cos(∠FDE) − cos(∠CAB)) > 0              12
-      0 < |CA|·|AB|·(cos(∠FDE) − cos(∠CAB))              restate
-      0 < 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))          multiplying by 2
-      |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB))) < |BC|²   adding |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))
-
-14. |EF|² < |BC|²
+10. ∠BAG = ∠EDF
     calculation
-      |EF|² = |BC|² − 2·(|CA|·|AB|·(cos(∠FDE) − cos(∠CAB)))     algebra, from 5, 7
-            < |BC|²                                              13
+      ∠BAG = ∠BAG′      mun:angle-same-ray R := B, P := A, Q := G′, X := G, from 6
+           = ∠EDF       2
 
-15. |BC| > |EF|
-    mun:square-less x := |EF|, y := |BC|, from 14
-    requires |EF| ≥ 0: mun:distance-nonneg P := E, Q := F
-    requires |BC| ≥ 0: mun:distance-nonneg P := B, Q := C
+11. |AG| = |DF|
+    transitivity, from H10, 6
+
+12. triangle BAG ≅ triangle EDF
+    axi:side-angle-side P := B, Q := A, R := G, P′ := E, Q′ := D, R′ := F,
+      from H8, H9, 9, 10, 11
+
+13. |BG| = |EF|
+    def:congruent P := B, Q := A, R := G, P′ := E, Q′ := D, R′ := F,
+      from H8, 9, 12
+
+14. ∠BAG < ∠BAC
+    transitivity, from 10, H11
+
+15. G is not on line AC
+    contradiction
+    suppose G is on line AC                                           (S)
+
+    15.1.  ∠BAG = ∠BAC
+           mun:angle-same-ray R := B, P := A, Q := C, X := G, from S, 7
+
+    15.2.  ∠BAC < ∠BAC
+           substitute ∠BAG = ∠BAC (line 15.1) into line 14
+
+    15.3.  0 < 0, which is impossible
+           inequalities
+             ∠BAC < ∠BAC         15.2
+             0 < 0               adding −∠BAC
+
+16. B is not on line AC
+    mun:triangle-not-on-line P := B, Q := A, R := C, from H7
+
+17. G and B are on the same side of line AC or G and B are on opposite
+    sides of line AC
+    axi:plane-separation B := C, P := G, Q := B, from H7, 15, 16
+
+18. G and B are on the same side of line AC
+    cases, from 17
+
+    case
+    assume G and B are on the same side of line AC, which is the claim (C1)
+
+    case
+    assume G and B are on opposite sides of line AC                  (C2)
+
+    18.1.  Z ∈ 𝔼². Z is on line AC. Z is between G and B.
+           obtain Z: axi:plane-separation-crossing B := C, P := G, Q := B,
+             from C2, H7
+
+    18.2.  B is on line AB
+           mun:on-line-ends
+
+    18.3.  Z and G are on the same side of line AB
+           mun:segment-off-line P := G, Q := B, X := Z, from H7, 8, 18.1, 18.2
+
+    18.4.  Z and C are on the same side of line AB
+           mun:same-side-same P := Z, Q := G, R := C, from 7, 18.3
+
+    18.5.  ∠BAZ = ∠BAC
+           mun:angle-same-ray R := B, P := A, Q := C, X := Z, from 18.1, 18.4
+
+    18.6.  Z is not on line AB
+           mun:same-side-off-line P := Z, Q := G, from 18.3
+
+    18.7.  Z ≠ A
+           mun:off-line-apart P := Z, from 18.6
+
+    18.8.  ∠BAZ + ∠ZAG = ∠BAG
+           mun:angle-addition A := B, B := G, C := A, M := Z, from 9, 18.1, 18.7
+
+    18.9.  A, G, Z form a triangle.
+           mun:triangle-on-side P := A, Q := G, R := B, S := Z, from 9, 18.1
+
+    18.10. ∠ZAG > 0°. ∠ZAG < 180°.
+           axi:angle-measure P := Z, Q := A, R := G, from 18.9
+
+    18.11. ∠BAZ + ∠ZAG > ∠BAZ
+           inequalities
+             ∠ZAG > 0°                       18.10
+             ∠BAZ + ∠ZAG > ∠BAZ + 0°         adding ∠BAZ
+             ∠BAZ + ∠ZAG > ∠BAZ              algebra
+
+    18.12. ∠BAG = ∠BAZ + ∠ZAG
+           restate 18.8
+
+    18.13. ∠BAG > ∠BAC
+           calculation
+             ∠BAG = ∠BAZ + ∠ZAG       18.12
+                  > ∠BAZ              18.11
+                  = ∠BAC              18.5
+
+    18.14. ∠BAC ≤ ∠BAG
+           inequalities
+             ∠BAG > ∠BAC       18.13
+             ∠BAC < ∠BAG       restate
+             ∠BAC ≤ ∠BAG       weakening
+
+    18.15. not (∠BAG < ∠BAC)
+           inequalities, from 18.14, contradicting 14
+
+19. G, A, C form a triangle.
+    mun:triangle-off-line P := G, Q := A, R := C, from H7, 15
+
+20. C is not on line AG
+    mun:triangle-not-on-line P := C, Q := A, R := G, from 19
+
+21. B is not on line AG
+    mun:triangle-not-on-line P := B, Q := A, R := G, from 9
+
+22. B and C are on the same side of line AG or B and C are on opposite
+    sides of line AG
+    axi:plane-separation B := G, P := B, Q := C, from 9, 20, 21
+
+23. B and C are on opposite sides of line AG
+    cases, from 22
+
+    case
+    assume B and C are on the same side of line AG                    (C1)
+
+    23.1.  |AB| > 0
+           axi:distance-positive P := A, Q := B, from H7
+
+    23.2.  B′ ∈ 𝔼². A is between B and B′. |AB′| = |AB|.
+           obtain B′: mun:segment-extension A := B, B := A, r := |AB|,
+             from H7, 23.1
+
+    23.3.  A is on line AG
+           mun:on-line-ends B := G
+
+    23.4.  B and B′ are on opposite sides of line AG
+           mun:segment-across-line B := G, P := B, Q := B′, M := A,
+             from 9, 21, 23.2, 23.3
+
+    23.5.  C and B′ are on opposite sides of line AG
+           mun:same-opposite-opposite B := G, P := C, Q := B, R := B′,
+             from C1, 23.4
+
+    23.6.  Y ∈ 𝔼². Y is on line AG. Y is between C and B′.
+           obtain Y: axi:plane-separation-crossing B := G, P := C, Q := B′,
+             from 9, 23.5
+
+    23.7.  B′, A, B are collinear.
+           mun:between-collinear R := A, S := B, T := B′, from 23.2
+
+    23.8.  B′ is on line AB
+           def:on-line P := B′, from 23.7
+
+    23.9.  C is not on line AB
+           mun:triangle-not-on-line P := C, Q := A, R := B, from H7
+
+    23.10. Y and C are on the same side of line AB
+           mun:segment-off-line P := C, Q := B′, X := Y,
+             from H7, 23.6, 23.8, 23.9
+
+    23.11. Y and G are on the same side of line AB
+           mun:same-side-same P := Y, Q := C, R := G, from 7, 23.10
+
+    23.12. A is on line AC
+           mun:on-line-ends B := C
+
+    23.13. B and B′ are on opposite sides of line AC
+           mun:segment-across-line B := C, P := B, Q := B′, M := A,
+             from H7, 16, 23.2, 23.12
+
+    23.14. B′ is not on line AC
+           mun:opposite-sides-off-line B := C, P := B, Q := B′, from 23.13
+
+    23.15. C is on line AC
+           mun:on-line-ends B := C
+
+    23.16. Y and B′ are on the same side of line AC
+           mun:segment-off-line B := C, P := B′, Q := C, X := Y,
+             from H7, 23.6, 23.14, 23.15
+
+    23.17. Y and B are on opposite sides of line AC
+           mun:same-opposite-opposite B := C, P := Y, Q := B′, R := B,
+             from 23.13, 23.16
+
+    23.18. G and Y are on opposite sides of line AC
+           mun:same-opposite-opposite B := C, P := G, Q := B, R := Y,
+             from 18, 23.17
+
+    23.19. A is between G and Y
+           mun:line-crossing-between R := A, P := C, S := G, X := Y,
+             from 23.6, 23.18
+
+    23.20. A is on line AB
+           mun:on-line-ends
+
+    23.21. G and Y are on opposite sides of line AB
+           mun:segment-across-line P := G, Q := Y, M := A,
+             from H7, 8, 23.19, 23.20
+
+    23.22. not (G and Y are on opposite sides of line AB)
+           mun:same-not-opposite P := G, Q := Y, from 23.11, contradicting 23.21
+
+    case
+    assume B and C are on opposite sides of line AG, which is the claim (C2)
+
+24. X ∈ 𝔼². X is on line AG. X is between B and C.
+    obtain X: axi:plane-separation-crossing B := G, P := B, Q := C, from 9, 23
+
+25. C is not on line AB
+    mun:triangle-not-on-line P := C, Q := A, R := B, from H7
+
+26. X and C are on the same side of line AB
+    mun:segment-off-line P := C, Q := B, from H7, 24, 25
+    requires B is on line AB: mun:on-line-ends
+
+27. X and G are on the same side of line AB
+    mun:same-side-same P := X, Q := C, R := G, from 7, 26
+
+28. X is not on line AB
+    mun:same-side-off-line P := X, Q := G, from 27
+
+29. C is on line AC
+    mun:on-line-ends B := C
+
+30. X and B are on the same side of line AC
+    mun:segment-off-line B := C, P := B, Q := C, from H7, 16, 24, 29
+
+31. X is not on line AC
+    mun:same-side-off-line B := C, P := X, Q := B, from 30
+
+32. X, A, C form a triangle.
+    mun:triangle-off-line P := X, Q := A, R := C, from H7, 31
+
+33. |BX| + |XC| = |BC|
+    mun:segment-addition P := B, Q := C, S := X, from 24
+
+34. X = A or (X is between A and G) or X = G or (G is between A and X) or
+    (A is between X and G)
+    mun:on-line-cases P := X, Q := A, R := G, from 9, 24
+
+35. |BG| < |BC|
+    cases, from 34
+
+    case
+    assume X = A                                                      (C1)
+
+    35.1.  A is not on line AB
+           substitute X = A (C1) into line 28
+
+    35.2.  A is on line AB
+           mun:on-line-ends, contradicting 35.1
+
+    case
+    assume X is between A and G                                       (C2)
+
+    35.3.  |AX| + |XG| = |AG|
+           mun:segment-addition P := A, Q := G, S := X, from C2
+
+    35.4.  |AC| < |AX| + |XC|
+           thm:triangle-inequality-strict P := A, Q := X, R := C, from 32
+
+    35.5.  |BX| + |AC| − |AX| < |BX| + |XC|
+           inequalities
+             |AC| < |AX| + |XC|                       35.4
+             |AC| − |AX| < |XC|                       adding −|AX|
+             |BX| + |AC| − |AX| < |BX| + |XC|         adding |BX|
+
+    35.6.  |BG| < |BC|
+           calculation
+             |BG| ≤ |BX| + |XG|            thm:triangle-inequality-points P := B, Q := X, R := G
+                  = |BX| + |AC| − |AX|     algebra, from 6, 35.3
+                  < |BX| + |XC|            35.5
+                  = |BC|                   33
+
+    case
+    assume X = G                                                      (C3)
+
+    35.7.  G is between B and C
+           substitute X = G (C3) into line 24
+
+    35.8.  |BG| + |GC| = |BC|
+           mun:segment-addition P := B, Q := C, S := G, from 35.7
+
+    35.9.  |GC| > 0
+           axi:distance-positive P := G, Q := C
+           requires G ≠ C: mun:off-line-apart B := C, P := G, from 15
+
+    35.10. |BG| < |BG| + |GC|
+           inequalities
+             |GC| > 0                      35.9
+             |BG| + |GC| > |BG| + 0        adding |BG|
+             |BG| + |GC| > |BG|            algebra
+             |BG| < |BG| + |GC|            restate
+
+    35.11. |BG| < |BC|
+           calculation
+             |BG| < |BG| + |GC|       35.10
+                  = |BC|              35.8
+
+    case
+    assume G is between A and X                                       (C4)
+
+    35.12. |AG| + |GX| = |AX|
+           mun:segment-addition P := A, Q := X, S := G, from C4
+
+    35.13. |AX| < |AC| + |CX|
+           thm:triangle-inequality-strict P := A, Q := C, R := X, from 32
+
+    35.14. |BX| + |AX| − |AC| < |BX| + |XC|
+           inequalities
+             |AX| < |AC| + |CX|                       35.13
+             |AX| − |AC| < |CX|                       adding −|AC|
+             |BX| + |AX| − |AC| < |BX| + |XC|         adding |BX|
+
+    35.15. |BG| < |BC|
+           calculation
+             |BG| ≤ |BX| + |XG|            thm:triangle-inequality-points P := B, Q := X, R := G
+                  = |BX| + |AX| − |AC|     algebra, from 6, 35.12
+                  < |BX| + |XC|            35.14
+                  = |BC|                   33
+
+    case
+    assume A is between X and G                                       (C5)
+
+    35.16. A is on line AB
+           mun:on-line-ends
+
+    35.17. X and G are on opposite sides of line AB
+           mun:segment-across-line P := X, Q := G, M := A,
+             from C5, H7, 28, 35.16
+
+    35.18. not (X and G are on opposite sides of line AB)
+           mun:same-not-opposite P := X, Q := G, from 27, contradicting 35.17
+
+36. |BC| > |EF|
+    calculation
+      |BC| > |BG|       35
+           = |EF|       13

@@ -1,4 +1,6 @@
 import theorem            stdlib/geometry/triangle-equality-between
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem triangle-equality-case
   let A be a point                                                    (H1)

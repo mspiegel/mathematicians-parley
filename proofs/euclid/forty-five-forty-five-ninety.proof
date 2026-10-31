@@ -4,6 +4,8 @@ import theorem            proofs/wiedijk/angle-sum/angle-sum
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/numbers/square-equal
 import mundane theorem    stdlib/numbers/product-nonneg
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem forty-five-forty-five-ninety
   note        Pythagoras at the right angle gives |AB|² = 2·|CA|². The

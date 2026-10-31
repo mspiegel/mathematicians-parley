@@ -3,6 +3,8 @@ import definition         stdlib/geometry/midpoint
 import mundane theorem    stdlib/geometry/segment-addition
 import mundane theorem    stdlib/geometry/distance-nonneg
 import mundane theorem    stdlib/numbers/square-equal
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
 
 theorem midline
   note        Apollonius for the median BN of triangle BAC and for the

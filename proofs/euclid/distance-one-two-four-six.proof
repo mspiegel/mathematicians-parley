@@ -1,4 +1,6 @@
 import mundane theorem stdlib/geometry/distance-by-coordinates
+forbid theorem stdlib/geometry/law-of-cosines
+forbid theorem stdlib/geometry/law-of-sines
 
 theorem distance-one-two-four-six
   then |(1, 2)(4, 6)| = 5
