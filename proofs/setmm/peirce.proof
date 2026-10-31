@@ -8,21 +8,18 @@ theorem peirce
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then if (if (if a = 0 then b = 0) then a = 0) then a = 0
+  by          proof
 
-1.  If (if (if a = 0 then b = 0) then a = 0) then a = 0.
+assume if (if a = 0 then b = 0) then a = 0                            (K1)
+by          contradiction
+suppose a ≠ 0                                                         (S)
+
+1.  If a = 0 then b = 0.
     proof
-    assume if (if a = 0 then b = 0) then a = 0                        (K1)
+    assume a = 0                                                      (K2)
 
-    1.1.  a = 0
-          contradiction
-          suppose a ≠ 0                                               (S)
+    1.1.  a ≠ 0
+          restate S, contradicting K2
 
-          1.1.1.  If a = 0 then b = 0.
-                  proof
-                  assume a = 0                                        (K2)
-
-                  1.1.1.1.  a ≠ 0
-                            restate S, contradicting K2
-
-          1.1.2.  a = 0
-                  mun:modus-ponens, from K1, 1.1.1, contradicting S
+2.  a = 0
+    mun:modus-ponens, from K1, 1, contradicting S

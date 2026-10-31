@@ -26,75 +26,72 @@ theorem prime-not-divides-factorial
     induction on k starting at 1
 
     base
-    2.1.  If 1 < P then not (P divides 1!).
-          proof
-          assume 1 < P                                                (B)
+    by          proof
+    assume 1 < P                                                      (B)
 
-          2.1.1.  not (P divides 1!)
-                  contradiction
-                  suppose P divides 1!                                (S1)
+    2.1.  not (P divides 1!)
+          contradiction
+          suppose P divides 1!                                        (S1)
 
-                  2.1.1.1.  1! = 1
-                            def:factorial
+          2.1.1.  1! = 1
+                  def:factorial
 
-                  2.1.1.2.  P divides 1
-                            substitute 1! = 1 (line 2.1.1.1) into S1
+          2.1.2.  P divides 1
+                  substitute 1! = 1 (line 2.1.1) into S1
 
-                  2.1.1.3.  P = 1
-                            mun:divides-one d := P, from 2.1.1.2
+          2.1.3.  P = 1
+                  mun:divides-one d := P, from 2.1.2
 
-                  2.1.1.4.  P ≠ 1
-                            inequalities, contradicting 2.1.1.3
-                              P > 1            1
-                              P ≠ 1            weakening
+          2.1.4.  P ≠ 1
+                  inequalities, contradicting 2.1.3
+                    P > 1            1
+                    P ≠ 1            weakening
 
     step
     let k ∈ ℕ                                                         (K)
     assume step 2 is true for k, the induction hypothesis             (IH)
+    by          proof
+    assume k + 1 < P                                                  (A)
 
-    2.2.  If k + 1 < P then not (P divides (k + 1)!).
-          proof
-          assume k + 1 < P                                            (A)
+    2.2.  not (P divides (k + 1)!)
+          contradiction
+          suppose P divides (k + 1)!                                  (S2)
 
-          2.2.1.  not (P divides (k + 1)!)
-                  contradiction
-                  suppose P divides (k + 1)!                          (S2)
+          2.2.1.  (k + 1)! = k!·(k + 1)
+                  def:factorial n := k
 
-                  2.2.1.1.  (k + 1)! = k!·(k + 1)
-                            def:factorial n := k
+          2.2.2.  P divides k!·(k + 1)
+                  substitute (k + 1)! = k!·(k + 1) (line 2.2.1) into S2
 
-                  2.2.1.2.  P divides k!·(k + 1)
-                            substitute (k + 1)! = k!·(k + 1) (line 2.2.1.1) into S2
+          2.2.3.  P divides k!·(k + 1) ↔ P divides k! or P divides k + 1
+                  thm:prime-divides-product m := k!, n := k + 1, from H2
 
-                  2.2.1.3.  P divides k!·(k + 1) ↔ P divides k! or P divides k + 1
-                            thm:prime-divides-product m := k!, n := k + 1, from H2
+          2.2.4.  P divides k! or P divides k + 1
+                  mun:iff-from-left, from 2.2.2, 2.2.3
 
-                  2.2.1.4.  P divides k! or P divides k + 1
-                            mun:iff-from-left, from 2.2.1.2, 2.2.1.3
+          2.2.5.  k < P
+                  inequalities, from A
 
-                  2.2.1.5.  k < P
-                            inequalities, from A
+          2.2.6.  not (P divides k!)
+                  mun:modus-ponens, from IH, 2.2.5
 
-                  2.2.1.6.  not (P divides k!)
-                            mun:modus-ponens, from IH, 2.2.1.5
+          2.2.7.  P ≤ k + 1
+                  cases, from 2.2.4
 
-                  2.2.1.7.  P ≤ k + 1
-                            cases, from 2.2.1.4
+                  case
+                  assume P divides k!                                 (C1)
 
-                            case
-                            assume P divides k!                       (C1)
+                  2.2.7.1.  not (P divides k!)
+                            restate 2.2.6, contradicting C1
 
-                            2.2.1.7.1.  not (P divides k!)
-                                        restate 2.2.1.6, contradicting C1
+                  case
+                  assume P divides k + 1                              (C2)
 
-                            case
-                            assume P divides k + 1                    (C2)
+                  2.2.7.2.  P ≤ k + 1
+                            mun:divides-le e := P, m := k + 1, from C2
 
-                            2.2.1.7.2.  P ≤ k + 1
-                                        mun:divides-le e := P, m := k + 1, from C2
-
-                  2.2.1.8.  not (k + 1 < P)
-                            inequalities, from 2.2.1.7, contradicting A
+          2.2.8.  not (k + 1 < P)
+                  inequalities, from 2.2.7, contradicting A
 
 3.  N = 0 or N ≠ 0
     axi:excluded-middle P := N = 0

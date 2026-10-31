@@ -39,13 +39,11 @@ assume not (a = 0 or b = 0)                                           (D1)
 
 direction
 assume a ≠ 0 and b ≠ 0                                                (D2)
+by          contradiction
+suppose a = 0 or b = 0                                                (S3)
 
-4.  not (a = 0 or b = 0)
-    contradiction
-    suppose a = 0 or b = 0                                            (S3)
+4.  a = 0
+    mun:disjunctive-syllogism, from D2, S3
 
-    4.1.  a = 0
-          mun:disjunctive-syllogism, from D2, S3
-
-    4.2.  a ≠ 0
-          restate D2, contradicting 4.1
+5.  a ≠ 0
+    restate D2, contradicting 4

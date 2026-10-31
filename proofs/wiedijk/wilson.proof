@@ -554,30 +554,28 @@ let f(a) = (a^(p − 2)) mod p, for a ∈ {2, …, p − 2}                   (D
           proof
           note a² ≡ 1 would make p divide (a − 1)(a + 1)
           let a ∈ {2, …, p − 2}                                       (K8)
+          by          contradiction
+          suppose f(a) = a                                            (S4)
 
-          5.14.1. f(a) ≠ a
-                  contradiction
-                  suppose f(a) = a                                    (S4)
+          5.14.1. a·a ≡ 1 (mod p)
+                  substitute f(a) = a (S4) into line 5.7
 
-                  5.14.1.1. a·a ≡ 1 (mod p)
-                            substitute f(a) = a (S4) into line 5.7
+          5.14.2. p divides a·a − 1
+                  def:congruent-mod, from 5.14.1
 
-                  5.14.1.2. p divides a·a − 1
-                            def:congruent-mod, from 5.14.1.1
+          5.14.3. p divides (a − 1)·(a + 1)
+                  substitute
+                    p divides a·a − 1              5.14.2
+                    p divides (a − 1)·(a + 1)      algebra
 
-                  5.14.1.3. p divides (a − 1)·(a + 1)
-                            substitute
-                              p divides a·a − 1              5.14.1.2
-                              p divides (a − 1)·(a + 1)      algebra
+          5.14.4. p divides a − 1 or p divides a + 1
+                  thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.14.3
 
-                  5.14.1.4. p divides a − 1 or p divides a + 1
-                            thm:prime-divides-product m := a − 1, n := a + 1, from H2, 5.14.1.3
+          5.14.5. p divides a + 1
+                  mun:disjunctive-syllogism-left, from 5.8, 5.14.4
 
-                  5.14.1.5. p divides a + 1
-                            mun:disjunctive-syllogism-left, from 5.8, 5.14.1.4
-
-                  5.14.1.6. not (p divides a + 1)
-                            restate 5.9, contradicting 5.14.1.5
+          5.14.6. not (p divides a + 1)
+                  restate 5.9, contradicting 5.14.5
 
     5.15. For all a ∈ {2, …, p − 2}, f(f(a)) = a.
           proof

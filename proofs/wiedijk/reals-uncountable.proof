@@ -318,69 +318,66 @@ let U(k) = (N(k) + 1)/10^k, for k ∈ ℕ₀                                 (D6
     note the lower ends only rise and the upper ends only fall
 
     base
-    5.1.  For all p ∈ ℕ₀, L(p) ≤ L(p) and U(p) ≤ U(p).
-          proof
-          let p ∈ ℕ₀                                                  (P1)
+    by          proof
+    let p ∈ ℕ₀                                                        (P1)
 
-          5.1.1.  L(p) ≤ L(p) and U(p) ≤ U(p)
-                  inequalities, from 4
+    5.1.  L(p) ≤ L(p) and U(p) ≤ U(p)
+          inequalities, from 4
 
     step
     let g ∈ ℕ₀                                                        (G)
     assume step 5 is true for g, the induction hypothesis             (IH2)
+    by          proof
+    let p ∈ ℕ₀                                                        (P2)
 
-    5.2.  For all p ∈ ℕ₀, L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p).
-          proof
-          let p ∈ ℕ₀                                                  (P2)
+    5.2.  L(p) ≤ L(p + g) and U(p + g) ≤ U(p)
+          instantiate p := p in IH2
 
-          5.2.1.  L(p) ≤ L(p + g) and U(p + g) ≤ U(p)
-                  instantiate p := p in IH2
+    5.3.  L(p + g) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p + g)
+          instantiate k := p + g in line 3
 
-          5.2.2.  L(p + g) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p + g)
-                  instantiate k := p + g in line 3
+    5.4.  L(p) ∈ ℝ. U(p) ∈ ℝ. L(p) ≤ U(p).
+          instantiate k := p in line 4
 
-          5.2.3.  L(p) ∈ ℝ. U(p) ∈ ℝ. L(p) ≤ U(p).
-                  instantiate k := p in line 4
+    5.5.  L(p + g) ∈ ℝ. U(p + g) ∈ ℝ. L(p + g) ≤ U(p + g).
+          instantiate k := p + g in line 4
 
-          5.2.4.  L(p + g) ∈ ℝ. U(p + g) ∈ ℝ. L(p + g) ≤ U(p + g).
-                  instantiate k := p + g in line 4
+    5.6.  L((p + g) + 1) ∈ ℝ. U((p + g) + 1) ∈ ℝ.
+          L((p + g) + 1) ≤ U((p + g) + 1).
+          instantiate k := (p + g) + 1 in line 4
 
-          5.2.5.  L((p + g) + 1) ∈ ℝ. U((p + g) + 1) ∈ ℝ.
-                  L((p + g) + 1) ≤ U((p + g) + 1).
-                  instantiate k := (p + g) + 1 in line 4
+    5.7.  L(p) ≤ L(p + g)
+          inequalities, from 5.2, 5.4, 5.5
 
-          5.2.6.  L(p) ≤ L(p + g)
-                  inequalities, from 5.2.1, 5.2.3, 5.2.4
+    5.8.  L(p + g) ≤ L((p + g) + 1)
+          inequalities, from 5.3, 5.5, 5.6
 
-          5.2.7.  L(p + g) ≤ L((p + g) + 1)
-                  inequalities, from 5.2.2, 5.2.4, 5.2.5
+    5.9.  L(p) ≤ L((p + g) + 1)
+          transitivity, from 5.7, 5.8
+          requires L(p) ∈ ℝ: from 5.4
+          requires L(p + g) ∈ ℝ: from 5.5
+          requires L((p + g) + 1) ∈ ℝ: from 5.6
 
-          5.2.8.  L(p) ≤ L((p + g) + 1)
-                  transitivity, from 5.2.6, 5.2.7
-                  requires L(p) ∈ ℝ: from 5.2.3
-                  requires L(p + g) ∈ ℝ: from 5.2.4
-                  requires L((p + g) + 1) ∈ ℝ: from 5.2.5
+    5.10. U((p + g) + 1) ≤ U(p + g)
+          inequalities, from 5.3, 5.5, 5.6
 
-          5.2.9.  U((p + g) + 1) ≤ U(p + g)
-                  inequalities, from 5.2.2, 5.2.4, 5.2.5
+    5.11. U(p + g) ≤ U(p)
+          inequalities, from 5.2, 5.4, 5.5
 
-          5.2.10. U(p + g) ≤ U(p)
-                  inequalities, from 5.2.1, 5.2.3, 5.2.4
+    5.12. U((p + g) + 1) ≤ U(p)
+          transitivity, from 5.10, 5.11
+          requires U(p) ∈ ℝ: from 5.4
+          requires U(p + g) ∈ ℝ: from 5.5
+          requires U((p + g) + 1) ∈ ℝ: from 5.6
 
-          5.2.11. U((p + g) + 1) ≤ U(p)
-                  transitivity, from 5.2.9, 5.2.10
-                  requires U(p) ∈ ℝ: from 5.2.3
-                  requires U(p + g) ∈ ℝ: from 5.2.4
-                  requires U((p + g) + 1) ∈ ℝ: from 5.2.5
+    5.13. L(p) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p)
+          join 5.9, 5.12
 
-          5.2.12. L(p) ≤ L((p + g) + 1) and U((p + g) + 1) ≤ U(p)
-                  join 5.2.8, 5.2.11
+    5.14. (p + g) + 1 = p + (g + 1)
+          algebra
 
-          5.2.13. (p + g) + 1 = p + (g + 1)
-                  algebra
-
-          5.2.14. L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p)
-                  substitute (p + g) + 1 = p + (g + 1) (line 5.2.13) into line 5.2.12
+    5.15. L(p) ≤ L(p + (g + 1)) and U(p + (g + 1)) ≤ U(p)
+          substitute (p + g) + 1 = p + (g + 1) (line 5.14) into line 5.13
 
 6.  For all j ∈ ℕ₀, for all k ∈ ℕ₀, L(j) ≤ U(k).
     proof
@@ -810,25 +807,24 @@ theorem reals-uncountable
   note        A bijection from ℕ to ℝ would list every real as some f(n), and
               sequence-misses-real gives a real the list misses.
   then there is no bijection from ℕ to ℝ
+  by          contradiction
 
-1.  There is no bijection from ℕ to ℝ.
-    contradiction
-    suppose there is a bijection from ℕ to ℝ                          (S)
+suppose there is a bijection from ℕ to ℝ                              (S)
 
-    1.1.  f : ℕ → ℝ. f : ℕ → ℝ is onto.
-          obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
+1.  f : ℕ → ℝ. f : ℕ → ℝ is onto.
+    obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
 
-    1.2.  For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
-          def:onto, from 1.1
+2.  For all y ∈ ℝ, there is n ∈ ℕ with y = f(n).
+    def:onto, from 1
 
-    1.3.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
-          obtain x: thm:sequence-misses-real
+3.  x ∈ ℝ. For all n ∈ ℕ, f(n) ≠ x.
+    obtain x: thm:sequence-misses-real
 
-    1.4.  There is n ∈ ℕ with x = f(n).
-          instantiate y := x in line 1.2
+4.  There is n ∈ ℕ with x = f(n).
+    instantiate y := x in line 2
 
-    1.5.  m ∈ ℕ. x = f(m).
-          obtain m from line 1.4
+5.  m ∈ ℕ. x = f(m).
+    obtain m from line 4
 
-    1.6.  x ≠ f(m)
-          instantiate n := m in line 1.3, contradicting 1.5
+6.  x ≠ f(m)
+    instantiate n := m in line 3, contradicting 5

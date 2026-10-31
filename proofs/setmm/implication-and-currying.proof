@@ -12,30 +12,23 @@ theorem implication-and-currying
 
 direction
 assume if (a = 0 and b = 0) then c = 0                                (D1)
+by          proof
+assume a = 0                                                          (K1)
+assume b = 0                                                          (K2)
 
-1.  If a = 0 then (if b = 0 then c = 0).
-    proof
-    assume a = 0                                                      (K1)
+1.  a = 0 and b = 0
+    join K1, K2
 
-    1.1.  If b = 0 then c = 0.
-          proof
-          assume b = 0                                                (K2)
-
-          1.1.1.  a = 0 and b = 0
-                  join K1, K2
-
-          1.1.2.  c = 0
-                  mun:modus-ponens, from D1, 1.1.1
+2.  c = 0
+    mun:modus-ponens, from D1, 1
 
 direction
 assume if a = 0 then (if b = 0 then c = 0)                            (D2)
+by          proof
+assume a = 0 and b = 0                                                (K3)
 
-2.  If (a = 0 and b = 0) then c = 0.
-    proof
-    assume a = 0 and b = 0                                            (K3)
+3.  If b = 0 then c = 0.
+    mun:modus-ponens, from D2, K3
 
-    2.1.  If b = 0 then c = 0.
-          mun:modus-ponens, from D2, K3
-
-    2.2.  c = 0
-          mun:modus-ponens, from K3, 2.1
+4.  c = 0
+    mun:modus-ponens, from K3, 3

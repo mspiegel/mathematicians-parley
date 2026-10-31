@@ -19,16 +19,14 @@ theorem size-at-least-one
     1.1.  For all s ∈ A, s ∉ A.
           proof
           let s ∈ A                                                   (K)
+          by          contradiction
+          suppose s ∈ A                                               (S2)
 
-          1.1.1.  s ∉ A
-                  contradiction
-                  suppose s ∈ A                                       (S2)
+          1.1.1.  there is a ∈ A
+                  exhibit, from S2
 
-                  1.1.1.1.  there is a ∈ A
-                            exhibit, from S2
-
-                  1.1.1.2.  there is no a ∈ A
-                            restate S, contradicting 1.1.1.1
+          1.1.2.  there is no a ∈ A
+                  restate S, contradicting 1.1.1
 
     1.2.  A = ∅
           calculation

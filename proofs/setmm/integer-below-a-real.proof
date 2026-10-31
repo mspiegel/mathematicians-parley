@@ -26,28 +26,26 @@ theorem integer-below-a-real
 
     direction
     assume B ≤ A                                                      (C1)
+    by          contradiction
+    suppose not B ≤ ⌊A⌋                                               (S)
 
-    4.1.  B ≤ ⌊A⌋
-          contradiction
-          suppose not B ≤ ⌊A⌋                                         (S)
+    4.1.  ⌊A⌋ < B
+          inequalities, from S
+          requires ⌊A⌋ ∈ ℝ: from 1
 
-          4.1.1.  ⌊A⌋ < B
-                  inequalities, from S
-                  requires ⌊A⌋ ∈ ℝ: from 1
+    4.2.  ⌊A⌋ + 1 ≤ B
+          mun:integer-step m := ⌊A⌋, n := B, from 1, 4.1
 
-          4.1.2.  ⌊A⌋ + 1 ≤ B
-                  mun:integer-step m := ⌊A⌋, n := B, from 1, 4.1.1
+    4.3.  A < B
+          transitivity, from 3, 4.2
+          requires ⌊A⌋ ∈ ℝ: from 1
 
-          4.1.3.  A < B
-                  transitivity, from 3, 4.1.2
-                  requires ⌊A⌋ ∈ ℝ: from 1
-
-          4.1.4.  not B ≤ A
-                  inequalities, from 4.1.3, contradicting C1
+    4.4.  not B ≤ A
+          inequalities, from 4.3, contradicting C1
 
     direction
     assume B ≤ ⌊A⌋                                                    (C2)
 
-    4.2.  B ≤ A
+    4.5.  B ≤ A
           transitivity, from C2, 2
           requires ⌊A⌋ ∈ ℝ: from 1

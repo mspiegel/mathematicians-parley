@@ -1056,8 +1056,8 @@ fn cases() -> Vec<Case> {
             "an inequalities step combining an atom it names nothing real of",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("          5.2.6.  L(p) ≤ L(p + g)\n                  inequalities, from 5.2.1, 5.2.3, 5.2.4\n".to_string()),
-                "          5.2.6.  L(p) ≤ L(p + g)\n                  inequalities, from 5.2.1, 5.2.4\n".to_string(),
+                Some("    5.7.  L(p) ≤ L(p + g)\n          inequalities, from 5.2, 5.4, 5.5\n".to_string()),
+                "    5.7.  L(p) ≤ L(p + g)\n          inequalities, from 5.2, 5.5\n".to_string(),
             )],
             "nothing says L(p) ∈ ℝ, which this step needs",
         ),
@@ -1904,10 +1904,10 @@ fn cases() -> Vec<Case> {
             "settle a side condition from a line the step does not cite",
             vec![edit(
                 "proofs/wiedijk/subsets.proof",
-                Some("n := 2^k, from 1.2.3, 1.2.5, 1.2.6".to_string()),
-                "n := 2^k, from 1.2.3, 1.2.6".to_string(),
+                Some("n := 2^k, from 1.8, 1.10, 1.11".to_string()),
+                "n := 2^k, from 1.8, 1.11".to_string(),
             )],
-            "step 1.2.8 cites mun:card-disjoint-union, which asks for |T| = 2^k, and what it cites does not supply it",
+            "step 1.13 cites mun:card-disjoint-union, which asks for |T| = 2^k, and what it cites does not supply it",
         ),
         // `card-remove` loses its target, and the edit to its record changes
         // what it concludes, so the step citing it claims what it does not.
@@ -1918,7 +1918,7 @@ fn cases() -> Vec<Case> {
                 Some("  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
                 "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n".to_string(),
             )],
-            "step 1.2.2 claims something that mun:card-remove does not conclude",
+            "step 1.7 claims something that mun:card-remove does not conclude",
         ),
         // A definition with no target concludes only what its record says,
         // and a step claiming something else of it is refused.
@@ -2186,7 +2186,7 @@ fn cases() -> Vec<Case> {
                 Some("obtain a: mun:card-nonempty, from C2\n".to_string()),
                 "obtain a: mun:card-nonempty\n".to_string(),
             )],
-            "step 1.2.1 cites mun:card-nonempty, which asks for k ∈ ℕ₀; |X| = k + 1, and what it cites does not supply them",
+            "step 1.6 cites mun:card-nonempty, which asks for k ∈ ℕ₀; |X| = k + 1, and what it cites does not supply them",
         ),
         // What is put in an image comes from a cited line saying where the
         // map is read. With the line gone nothing says it.
@@ -4007,7 +4007,7 @@ fn cases() -> Vec<Case> {
         case(
             "write a formula that reads two ways because nothing says what a name is",
             vec![
-                edit("proofs/wiedijk/subsets.proof", Some("1.2.5.  |T| = 2^k".to_string()), "1.2.5.  |W| = 2^k".to_string()),
+                edit("proofs/wiedijk/subsets.proof", Some("1.10. |T| = 2^k".to_string()), "1.10. |W| = 2^k".to_string()),
             ],
             "'|W| = 2^k' reads as absolute-value or as cardinality, and nothing says what W is",
         ),
@@ -4549,7 +4549,7 @@ fn cases() -> Vec<Case> {
         case(
             "say a line is the claim outside any cases block",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("suppose f(x) = B                                            (S)".to_string()), "suppose f(x) = B, which is the claim                        (S)".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("    suppose f(x) = B                                                  (S)".to_string()), "    suppose f(x) = B, which is the claim                              (S)".to_string()),
             ],
             "a line saying it is the claim outside any `cases` block",
         ),
@@ -4937,9 +4937,9 @@ fn cases() -> Vec<Case> {
         case(
             "cite a value in an image with nothing saying the set is in the domain",
             vec![
-                edit("proofs/wiedijk/schroeder-bernstein.proof", Some("                  mun:value-in-image, from D1, K2\n                  requires C ⊆ A: from 2\n".to_string()), "                  mun:value-in-image, from D1, K2\n".to_string()),
+                edit("proofs/wiedijk/schroeder-bernstein.proof", Some("          mun:value-in-image, from D1, K2\n          requires C ⊆ A: from 2\n".to_string()), "          mun:value-in-image, from D1, K2\n".to_string()),
             ],
-            "step 4.1.2 cites mun:value-in-image, which asks for",
+            "step 4.2 cites mun:value-in-image, which asks for",
         ),
         // An obtain states what its name is, and ⊆ says it of a part as ∈ 𝒫
         // would; with neither the name's sort is left to be inferred.
@@ -6442,8 +6442,8 @@ fn cases() -> Vec<Case> {
             "leave out the membership of an atom the method combines",
             vec![edit(
                 "proofs/wiedijk/reals-uncountable.proof",
-                Some("                  transitivity, from 5.2.6, 5.2.7\n                  requires L(p) ∈ ℝ: from 5.2.3\n".to_string()),
-                "                  transitivity, from 5.2.6, 5.2.7\n".to_string(),
+                Some("          transitivity, from 5.7, 5.8\n          requires L(p) ∈ ℝ: from 5.4\n".to_string()),
+                "          transitivity, from 5.7, 5.8\n".to_string(),
             )],
             "nothing says L(p) ∈ ℝ, which this step needs; transitivity takes a membership from a requires line",
         ),
@@ -6993,10 +6993,10 @@ fn cases() -> Vec<Case> {
             "cite a theorem stated over a define at a term the step does not put in its domain",
             vec![edit(
                 "proofs/wiedijk/ballot.proof",
-                Some("from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.6, 1.2.3.4.7,\n                                          1.2.3.4.11, 1.2.3.4.16".to_string()),
-                "from C3, 1.2.3.2, 1.2.3.4.5, 1.2.3.4.11, 1.2.3.4.16".to_string(),
+                Some("from C3, 1.16.2, 1.16.4.5, 1.16.4.6, 1.16.4.7,\n                               1.16.4.11, 1.16.4.16".to_string()),
+                "from C3, 1.16.2, 1.16.4.5, 1.16.4.11, 1.16.4.16".to_string(),
             )],
-            "step 1.2.3.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
+            "step 1.16.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),
         // A theorem proved `by` a method is that method's step, numbered with
         // no number, whose block holds every step of the proof (`SYNTAX.md`,
