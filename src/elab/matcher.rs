@@ -719,6 +719,19 @@ impl<'a> Elaborator<'a> {
         if label == Some("wtru") {
             return Ok(Built(pf!(self.b; rpn, scope, self.step("tru"), "a1i")));
         }
+        // An equation whose two sides are one term but for the order of a
+        // pair in no order, |AB| = |BA|, holds as x = x does: the checker
+        // reads the two sides as one, and the lemma exchanging the pair
+        // carries the one to the other (`same`).
+        if label == Some("wceq") && kids.len() == 2 {
+            let (one, other) = (kids[0].clone(), kids[1].clone());
+            let (a, b) = (self.pairs_in_order(&one), self.pairs_in_order(&other));
+            if self.rpn(&one) != self.rpn(&other) && self.rpn(&a) == self.rpn(&b) {
+                if let Built(p) = self.same(&one, &other, scope, facts, None)? {
+                    return Ok(Built(p));
+                }
+            }
+        }
         // A map is a function on the domain it writes, said once
         // (`SYNTAX.md`, a map), where each value its rule gives is a set
         // (`mptfng`), as a define's function is (`define_on`).
