@@ -576,6 +576,32 @@ fn a_reason_that_does_not_read_is_told_only_that() {
     }
 }
 
+/// A forbid the file keeps is no defect: a file that does not import the
+/// law of cosines may forbid it, and an item it imports, the converse of
+/// Pythagoras, may rest on it.
+#[test]
+fn a_forbid_kept_says_nothing() {
+    let clean = clean();
+    let file = "proofs/euclid/three-four-five.proof";
+    let case = case(
+        "forbid an item the file does not import",
+        vec![edit(
+            file,
+            Some("\ntheorem ".to_string()),
+            "forbid theorem            stdlib/geometry/law-of-cosines\n\ntheorem "
+                .to_string(),
+        )],
+        "",
+    );
+    let tree = plant(&case, &clean).unwrap();
+    let out = checked_planted(&case, &tree);
+    let problems: Vec<&str> = out
+        .lines()
+        .filter(|l| l.starts_with(&format!("{file}:")))
+        .collect();
+    assert!(problems.is_empty(), "{problems:#?}");
+}
+
 /// A citation whose claim is what the item concludes, with one hypothesis
 /// not supplied, is reported once, naming that hypothesis: here
 /// divides-difference without line 5.2, which says p divides n!. The other
@@ -3632,6 +3658,50 @@ fn cases() -> Vec<Case> {
                 edit("proofs/wiedijk/intermediate-value.proof", Some("import theorem            proofs/wiedijk/triangle-inequality/abs-bounds\n".to_string()), "import theorem            proofs/wiedijk/triangle-inequality/abs-bounds\nimport theorem            proofs/wiedijk/triangle-inequality/abs-bounds\n".to_string()),
             ],
             "proofs/wiedijk/triangle-inequality/abs-bounds is imported twice",
+        ),
+        // A forbid names an item the file does not import, after the words
+        // its record's header says, once, and after the imports.
+        case(
+            "import an item the file forbids",
+            vec![
+                edit("proofs/euclid/isosceles-median.proof", Some("import mundane theorem    stdlib/numbers/product-positive\n".to_string()), "import mundane theorem    stdlib/numbers/product-positive\nforbid theorem            stdlib/geometry/law-of-cosines\n".to_string()),
+            ],
+            "imports stdlib/geometry/law-of-cosines, which this file forbids at line 15",
+        ),
+        case(
+            "forbid an item with words that are not its header",
+            vec![
+                edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "forbid mundane theorem stdlib/geometry/law-of-cosines\n\ntheorem cantor\n".to_string()),
+            ],
+            "forbid mundane theorem stdlib/geometry/law-of-cosines: stdlib/geometry/law-of-cosines is a theorem; forbid it as `forbid theorem stdlib/geometry/law-of-cosines`",
+        ),
+        case(
+            "forbid an item that is not there",
+            vec![
+                edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "forbid theorem stdlib/geometry/nonesuch\n\ntheorem cantor\n".to_string()),
+            ],
+            "forbid theorem stdlib/geometry/nonesuch: stdlib/geometry holds no item nonesuch",
+        ),
+        case(
+            "forbid the same item twice",
+            vec![
+                edit("proofs/wiedijk/cantor.proof", Some("theorem cantor\n".to_string()), "forbid theorem stdlib/geometry/law-of-cosines\nforbid theorem stdlib/geometry/law-of-cosines\n\ntheorem cantor\n".to_string()),
+            ],
+            "stdlib/geometry/law-of-cosines is forbidden twice",
+        ),
+        case(
+            "an import below a forbid",
+            vec![
+                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "forbid theorem            stdlib/geometry/law-of-cosines\nimport axiom              stdlib/reasoning/excluded-middle\n".to_string()),
+            ],
+            "an import below a forbid",
+        ),
+        case(
+            "a forbid below a define",
+            vec![
+                edit("proofs/wiedijk/ballot.proof", Some("theorem good-finite\n".to_string()), "forbid theorem stdlib/geometry/law-of-cosines\n\ntheorem good-finite\n".to_string()),
+            ],
+            "a forbid below a define",
         ),
         // Every name a file cites is distinct within it.
         case(

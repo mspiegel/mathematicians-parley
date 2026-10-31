@@ -478,6 +478,33 @@ fn import_rest<'t>(words: &[&'t str], mundane: bool) -> Option<ImportLine<'t>> {
     })
 }
 
+/// A `forbid` line: `forbid [mundane] <kind> <module>/<name>`, an item the
+/// file does not import, written as an import of it is but with no alias and
+/// no label.
+pub struct ForbidLine<'t> {
+    pub mundane: bool,
+    /// The header word of what it names, as the line writes it.
+    pub kind: &'t str,
+    /// The module and the name, `stdlib/geometry/law-of-cosines`.
+    pub full: &'t str,
+}
+
+/// The line read as a forbid; None where it takes no forbid's shape. The
+/// words after `forbid` are read as an import's are.
+pub fn forbid_line(text: &str) -> Option<ForbidLine<'_>> {
+    let words: Vec<&str> = text.split_whitespace().collect();
+    let (mundane, kind, full) = match words.as_slice() {
+        ["forbid", "mundane", kind, full] => (true, *kind, *full),
+        ["forbid", kind, full] => (false, *kind, *full),
+        _ => return None,
+    };
+    imported_path(full).then_some(ForbidLine {
+        mundane,
+        kind,
+        full,
+    })
+}
+
 /// Whether a path names what an import brings in: modules by item names,
 /// and last the name, which for a define is the one letter a formula writes
 /// and may be Greek, with digits, subscripts, primes and hyphens after it.

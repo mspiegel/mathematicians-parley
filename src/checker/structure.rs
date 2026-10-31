@@ -10,9 +10,9 @@ use super::record::CheckedTheorem;
 use super::{Report, RELATIONS};
 use crate::corpus::proof::visible;
 use crate::corpus::{
-    cited_items, define_parts, fmt, is_label, item_kind, DefineParts, FileScope, Head,
-    Intro, Item, Justification, Method, Range, Record, RecordKind, Requires, Step,
-    StepNo, Theorem,
+    cited_items, define_parts, described, fmt, is_label, item_kind, DefineParts,
+    FileScope, Head, Intro, Item, Justification, Method, Range, Record, RecordKind,
+    Requires, Step, StepNo, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
@@ -2394,6 +2394,93 @@ pub fn check_imports(
     for module in modules {
         visit(module, &graph, &files, &mut done, &mut trail, report);
     }
+}
+
+/// A file imports nothing it forbids (`GRAMMAR.md`, "A forbid names one item
+/// the file does not import"). Each forbid names an item, after the words
+/// its record's header says before its name, and names it once. Only the
+/// file's own imports are held to its forbids: an item it imports may rest
+/// on one it forbids.
+pub fn check_forbids(
+    report: &mut Report,
+    theorems: &[Theorem],
+    scopes: &[FileScope],
+    items: &IndexMap<String, Item>,
+) {
+    for thms in by_file(theorems).values() {
+        let path = &thms[0].path;
+        let scope = &scopes[thms[0].scope];
+        let mut forbidden: IndexMap<String, usize> = IndexMap::new();
+        for f in &scope.forbids {
+            let full = f.full();
+            if let Some(first) = forbidden.get(&full) {
+                report.say(
+                    path,
+                    f.line,
+                    format!("{full} is forbidden twice, here and at line {first}"),
+                );
+                continue;
+            }
+            forbidden.insert(full.clone(), f.line);
+            let header = match items.get(&full) {
+                Some(item) => Some(item.header()),
+                None => defined_in(scopes, &f.module, &f.name)
+                    .then(|| RecordKind::Definition.to_string()),
+            };
+            match header {
+                None => report.say(
+                    path,
+                    f.line,
+                    format!("forbid {} {full}: {} holds no item {}", f.said, f.module, f.name),
+                ),
+                Some(header) if header != f.said => report.say(
+                    path,
+                    f.line,
+                    format!(
+                        "forbid {} {full}: {full} is {}; forbid it as `forbid {header} {full}`",
+                        f.said,
+                        described(&header)
+                    ),
+                ),
+                Some(_) => {}
+            }
+        }
+        // Every import, whatever its words and whatever name it gives the
+        // item: an item and a library function by their item's path, and a
+        // define of a proof file by its file's path and its name there.
+        let imported = scope
+            .items
+            .iter()
+            .map(|i| (i.full(), i.line))
+            .chain(
+                scope
+                    .imports
+                    .iter()
+                    .map(|i| (format!("{}/{}", i.module, i.name), i.line)),
+            )
+            .chain(
+                scope
+                    .functions
+                    .iter()
+                    .map(|f| (format!("{}/{}", f.module, f.name), f.line)),
+            );
+        for (full, no) in imported {
+            if let Some(at) = forbidden.get(&full) {
+                report.say(
+                    path,
+                    no,
+                    format!("imports {full}, which this file forbids at line {at}"),
+                );
+            }
+        }
+    }
+}
+
+/// Whether the proof file of `module` defines `name` outside its theorems.
+fn defined_in(scopes: &[FileScope], module: &str, name: &str) -> bool {
+    scopes
+        .iter()
+        .any(|s| s.module() == module && s.written(name).is_some())
 }
 
 /// No theorem cites itself, and no theorems cite one another round a

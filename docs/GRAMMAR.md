@@ -687,9 +687,10 @@ substitution in the corpus comes close.
 ## Files
 
 ```grammar
-<proof file>  ::= { <import> } { <theorem> | <define> }
+<proof file>  ::= { <import> } { <forbid> } { <theorem> | <define> }
 <import>      ::= `import` ( `mundane` `theorem` | <kind> ) <module> `/` <name>
                   [ `as` <name> ] [ `(` <label> `)` ]
+<forbid>      ::= `forbid` ( `mundane` `theorem` | <kind> ) <module> `/` <name>
 <kind>        ::= `axiom` | `theorem` | `definition`
 <theorem>     ::= `theorem` <name>
                   { <theorem field> }
@@ -914,6 +915,26 @@ file. There is no import of a whole file, and a bare `import` is a defect, as
 is `import mundane` with no kind. The path is the full one from the root, so
 moving or renaming a directory changes the imports and nothing else about
 them.
+
+**A forbid names one item the file does not import.** It is written as an
+import is, after the words its record's header says before its name, and
+with no `as` and no label; the forbids follow the imports:
+
+```proof
+import theorem            stdlib/geometry/side-side-side
+import axiom              stdlib/geometry/side-angle-side
+forbid theorem            stdlib/geometry/law-of-cosines
+forbid theorem            stdlib/geometry/law-of-sines
+```
+
+A forbid changes nothing in how the file is read or proved. It says what
+the proofs in the file do without, as Euclid's congruences do without the
+trigonometry that would make them short, and the checker holds the file to
+it. An import of an item the file forbids is a defect, whatever kind it
+names and whatever name it gives the item. So is a forbid whose words are
+not the item's own (`forbid theorem` for a theorem marked mundane), one
+naming no item, and one naming an item a second time. Only the file's own
+imports are held to it: an item it imports may rest on one it forbids.
 
 **A citation writes the prefix its import's words give and the item's name,
 not its path:** `mun:` where the words open with `mundane`, which only a

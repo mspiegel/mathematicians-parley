@@ -376,6 +376,24 @@ impl ItemImport {
     }
 }
 
+/// A `forbid` line: an item the file does not import, named as an import of
+/// it would name it, `forbid theorem stdlib/geometry/law-of-cosines`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Forbid {
+    /// Its keywords as one text, which is the header of the record it names
+    /// before the name: `mundane theorem`, `axiom`.
+    pub said: String,
+    pub module: String,
+    pub name: String,
+    pub line: usize,
+}
+
+impl Forbid {
+    pub fn full(&self) -> String {
+        format!("{}/{}", self.module, self.name)
+    }
+}
+
 /// What each name a proof file cites stands for.
 ///
 /// An import says where an item comes from, so a citation writes only its
@@ -983,6 +1001,8 @@ pub struct FileScope {
     pub imports: Vec<Import>,
     /// The items it imports that a step cites by prefix and name.
     pub items: Vec<ItemImport>,
+    /// The items it forbids itself to import.
+    pub forbids: Vec<Forbid>,
     /// Each definition import, by its alias, and the define it names in the
     /// scope that wrote it (`link_definitions`).
     pub linked: IndexMap<String, (ScopeId, DefineLine)>,
@@ -1003,6 +1023,7 @@ impl FileScope {
             readings: IndexMap::new(),
             imports: Vec::new(),
             items: Vec::new(),
+            forbids: Vec::new(),
             linked: IndexMap::new(),
             functions: Vec::new(),
             theorems: IndexMap::new(),
@@ -1406,6 +1427,103 @@ enum Imported {
     Define(Import),
 }
 
+/// The words an `import` or `forbid` line writes before its path, read as a
+/// record's header, and the path cut into its file and the item's name.
+struct HeaderWords<'t> {
+    /// What a citation of the item writes, which the words say.
+    kind: ItemKind,
+    record_kind: RecordKind,
+    /// The words as one text: `mundane theorem`, `axiom`.
+    keyword: String,
+    module: &'t str,
+    name: &'t str,
+}
+
+/// The words `line`, `import` or `forbid`, writes before `whole`: a kind an
+/// item may have, with `mundane` only before `theorem`, and a path naming a
+/// file. Whether they are the header of the item the path names is the
+/// checker's to ask, since it wants the item.
+fn header_words<'t>(
+    path: &str,
+    no: usize,
+    line: &str,
+    mundane: bool,
+    word: &str,
+    whole: &'t str,
+) -> Checked<HeaderWords<'t>> {
+    let Some(record_kind) = RecordKind::parse(word).filter(|k| k.is_item()) else {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "{line} {word}: {} says the header of the item it names, its kind, axiom, theorem or definition, with mundane before a theorem taken for granted, as `{line} mundane theorem stdlib/numbers/int-closure`",
+                if line == "import" { "an import" } else { "a forbid" }
+            ),
+        ));
+    };
+    if mundane && record_kind != RecordKind::Theorem {
+        return Err(Problem::new(
+            path,
+            no,
+            format!(
+                "{line} mundane {word} {whole}: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane; {line} it as `{line} {word} {whole}`"
+            ),
+        ));
+    }
+    let kind = if mundane {
+        ItemKind::Mundane
+    } else {
+        match record_kind {
+            RecordKind::Axiom => ItemKind::Axiom,
+            RecordKind::Definition => ItemKind::Definition,
+            _ => ItemKind::Theorem,
+        }
+    };
+    let keyword = if mundane {
+        format!("mundane {word}")
+    } else {
+        word.to_string()
+    };
+    let (module, name) = match whole.rfind('/') {
+        Some(at) => (&whole[..at], &whole[at + 1..]),
+        None => ("", whole),
+    };
+    if module.is_empty() {
+        return Err(Problem::new(
+            path,
+            no,
+            format!("{line} {keyword} {whole} names no file"),
+        ));
+    }
+    Ok(HeaderWords {
+        kind,
+        record_kind,
+        keyword,
+        module,
+        name,
+    })
+}
+
+/// One `forbid` line: one item the file does not import, with the words its
+/// record's header says before its name. It changes nothing in how the file
+/// is read; the checker holds the file's imports to it.
+fn forbidding(path: &str, no: usize, text: &str) -> Checked<Forbid> {
+    let Some(m) = skeleton::forbid_line(text) else {
+        return Err(Problem::new(
+            path,
+            no,
+            "a forbid says `forbid <kind> <file>/<name>`, as `forbid theorem stdlib/geometry/law-of-cosines` does",
+        ));
+    };
+    let words = header_words(path, no, "forbid", m.mundane, m.kind, m.full)?;
+    Ok(Forbid {
+        said: words.keyword,
+        module: words.module.to_string(),
+        name: words.name.to_string(),
+        line: no,
+    })
+}
+
 /// One `import` line: one item, with the words its record's header says
 /// before its name, `mundane` for a theorem a proof takes for granted and
 /// then its kind.
@@ -1427,53 +1545,14 @@ fn importing(path: &str, no: usize, text: &str) -> Checked<Imported> {
             "an import says `import <kind> <file>/<name>`, as `import theorem stdlib/divisibility/prime-factor` does",
         ));
     };
-    let mundane = m.mundane;
-    let word = m.kind;
-    let Some(record_kind) = RecordKind::parse(word).filter(|k| k.is_item()) else {
-        return Err(Problem::new(
-            path,
-            no,
-            format!(
-                "import {word}: an import says the header of the item it names, its kind, axiom, theorem or definition, with mundane before a theorem taken for granted, as `import mundane theorem stdlib/numbers/int-closure`"
-            ),
-        ));
-    };
-    if mundane && record_kind != RecordKind::Theorem {
-        return Err(Problem::new(
-            path,
-            no,
-            format!(
-                "import mundane {word} {}: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane; import it as `import {word} {}`",
-                m.full, m.full
-            ),
-        ));
-    }
-    let kind = if mundane {
-        ItemKind::Mundane
-    } else {
-        match record_kind {
-            RecordKind::Axiom => ItemKind::Axiom,
-            RecordKind::Definition => ItemKind::Definition,
-            _ => ItemKind::Theorem,
-        }
-    };
-    let keyword = if mundane {
-        format!("mundane {word}")
-    } else {
-        word.to_string()
-    };
     let whole = m.full;
-    let (module, name) = match whole.rfind('/') {
-        Some(at) => (&whole[..at], &whole[at + 1..]),
-        None => ("", whole),
-    };
-    if module.is_empty() {
-        return Err(Problem::new(
-            path,
-            no,
-            format!("import {keyword} {whole} names no file"),
-        ));
-    }
+    let HeaderWords {
+        kind,
+        record_kind,
+        keyword,
+        module,
+        name,
+    } = header_words(path, no, "import", m.mundane, m.kind, whole)?;
     let alias = m.alias.unwrap_or(name);
     let label = m.label.map(String::from);
     let from_library = in_stdlib(whole);
@@ -2418,10 +2497,28 @@ pub fn parse_proof(
                         "an import below a define; imports come first",
                     ));
                 }
+                if !scope.forbids.is_empty() {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        "an import below a forbid; imports come first, and the forbids after them",
+                    ));
+                }
                 match importing(path, line.no, &t)? {
                     Imported::Item(import) => scope.items.push(import),
                     Imported::Define(import) => scope.imports.push(import),
                 }
+                continue;
+            }
+            if t.split_whitespace().next() == Some("forbid") {
+                if !scope.defines.is_empty() || !scope.phrases.is_empty() {
+                    return Err(Problem::new(
+                        path,
+                        line.no,
+                        "a forbid below a define; the forbids follow the imports, before any define",
+                    ));
+                }
+                scope.forbids.push(forbidding(path, line.no, &t)?);
                 continue;
             }
             // A define before any theorem is the file's, for every theorem; a

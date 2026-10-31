@@ -163,6 +163,17 @@ pub fn link_definitions(
     problems
 }
 
+/// What an item with `header` is, as a message says it: `a mundane
+/// theorem`, `an axiom`.
+pub fn described(header: &str) -> String {
+    let article = if header.starts_with(['a', 'e', 'i', 'o', 'u']) {
+        "an"
+    } else {
+        "a"
+    };
+    format!("{article} {header}")
+}
+
 /// An item a proof may cite: a record of the library, or a theorem a proof
 /// of this corpus proves.
 #[derive(Clone, Copy, Debug)]
@@ -195,13 +206,7 @@ impl<'a> Item<'a> {
 
     /// What it is, as a message says it: `a mundane theorem`, `an axiom`.
     pub fn described(&self) -> String {
-        let header = self.header();
-        let article = if header.starts_with(['a', 'e', 'i', 'o', 'u']) {
-            "an"
-        } else {
-            "a"
-        };
-        format!("{article} {header}")
+        described(&self.header())
     }
 
     /// Whether a step citing it unfolds it: a definition, as its record

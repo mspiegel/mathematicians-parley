@@ -1114,6 +1114,7 @@ fn prepared_in<T>(
         .map(|r| r.module().to_string())
         .collect();
     structure::check_imports(&mut report, theorems, scopes, &items, &library);
+    structure::check_forbids(&mut report, theorems, scopes, &items);
     structure::check_citation_cycles(&mut report, theorems);
 
     let counts = counts_of(corpus);
