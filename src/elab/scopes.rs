@@ -1817,15 +1817,23 @@ impl<'a> Elaborator<'a> {
             proof = self.close(close, proof, &said)?;
         }
         // The last line and the claim are written in different places, so a
-        // name bound in both may be spelt two ways.
+        // name bound in both may be spelt two ways. A block a part's `by`
+        // line opened claims what its last line says where that is what the
+        // part owes said another way, L(p) for L(p + 0): the part's close
+        // carries it there, as it carries a step's claim (`close_induction`,
+        // `direction_reached`).
         let want = owed.clone();
-        let Some(mut proof) = self.respelt(&proof, &said, &want, &scope)? else {
-            return Err(self.defect(
-                step.line,
-                "the block does not reach what it claims of the name it fixed",
-            ));
-        };
-        let mut said = want;
+        let (mut proof, mut said, as_said) =
+            match self.respelt(&proof, &said, &want, &scope)? {
+                Some(proof) => (proof, want, false),
+                None if block.by_part.is_some() => (proof, said, true),
+                None => {
+                    return Err(self.defect(
+                        step.line,
+                        "the block does not reach what it claims of the name it fixed",
+                    ))
+                }
+            };
         for (i, (OpenerLayer { how, what, over }, outer)) in
             layers.iter().zip(scopes.iter()).enumerate().rev()
         {
@@ -1869,6 +1877,9 @@ impl<'a> Elaborator<'a> {
                     said = t!(said, what, over, "wral");
                 }
             }
+        }
+        if as_said {
+            return Ok((said, proof));
         }
         Ok((claim, proof))
     }

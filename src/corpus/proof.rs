@@ -3127,13 +3127,6 @@ pub fn parse_proof(
                 });
                 continue;
             };
-            if pending_by.is_some() {
-                return Err(Problem::new(
-                    path,
-                    line.no,
-                    "a case that is the claim has no steps and says no `by`",
-                ));
-            }
             // A case that is the claim has no step to say which block it is
             // in, so it is in the innermost `cases` block open at this line.
             let draft = thm.as_mut().unwrap();
@@ -3153,6 +3146,13 @@ pub fn parse_proof(
                     "a line saying it is the claim outside any `cases` block",
                 ));
             };
+            if pending_by.is_some() {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    "a case that is the claim has no steps and says no `by`",
+                ));
+            }
             let at = by_number[&parent];
             let current = attach(
                 path,
