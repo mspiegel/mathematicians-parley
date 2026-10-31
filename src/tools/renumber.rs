@@ -414,6 +414,33 @@ fn number_width(number: &StepNo) -> usize {
     (format!("{number}.").len() + 1).max(2 * number.len() + 2)
 }
 
+/// How wide the number of the step renumbered `to` is written, with the
+/// spaces after it: as wide as a step of its new block that does not move
+/// is written, so the block's claims keep one column, or `number_width`
+/// where every step of the block moves. Files differ in how wide they
+/// write a number with a part of two digits before its last (`16.29.3.`
+/// takes one space after it in some and two in others), so the block
+/// itself says which.
+fn block_width(
+    thm: &Theorem,
+    old: &[String],
+    map: &BTreeMap<StepNo, StepNo>,
+    to: &StepNo,
+) -> usize {
+    let staying = thm.steps.iter().find(|s| {
+        s.number.len() == to.len()
+            && s.number.parent() == to.parent()
+            && !map.contains_key(&s.number)
+    });
+    match staying {
+        Some(s) => {
+            let line = &old[s.line - 1];
+            (claim_column(line) - indent(line)).max(format!("{to}.").len() + 1)
+        }
+        None => number_width(to),
+    }
+}
+
 /// The block of `step`, already renumbered in `lines` as `map` says, laid
 /// out where its new numbers put it: the steps standing directly in it at
 /// the column `step`'s own number stands at, each deeper step at the claim
@@ -438,12 +465,15 @@ pub(crate) fn relaid(
     // Each step's claim column as written, and as it will be.
     let mut was: BTreeMap<StepNo, usize> = BTreeMap::new();
     let mut now: BTreeMap<StepNo, usize> = BTreeMap::new();
+    let mut width: BTreeMap<StepNo, usize> = BTreeMap::new();
     was.insert(step.number.clone(), claim_column(&old[step.line - 1]));
     now.insert(step.number.clone(), indent(&old[step.line - 1]));
     for s in &inside {
         was.insert(s.number.clone(), claim_column(&old[s.line - 1]));
         let at = now.get(&s.number.parent()).copied().unwrap_or(0);
-        now.insert(s.number.clone(), at + number_width(&map[&s.number]));
+        let wide = block_width(thm, old, map, &map[&s.number]);
+        width.insert(s.number.clone(), wide);
+        now.insert(s.number.clone(), at + wide);
     }
     let headers: BTreeMap<usize, &Step> =
         inside.iter().map(|s| (s.line - 1, *s)).collect();
@@ -481,7 +511,7 @@ pub(crate) fn relaid(
                 format!(
                     "{}{head:<width$}{claim}",
                     " ".repeat(moved),
-                    width = number_width(renumbered)
+                    width = width[&h.number]
                 )
             }
             None => format!("{}{}", " ".repeat(moved), lines[l].trim_start()),
@@ -886,6 +916,46 @@ mod tests {
         // A step something cites is not lifted away.
         let refused = lifted_lines(&theorems[0], &StepNo(vec![1]), &old, old.len());
         assert!(refused.is_err_and(|why| why.contains("cites step 1")));
+    }
+
+    #[test]
+    fn a_lifted_step_takes_its_blocks_claim_column() {
+        let mut text = concat!(
+            "theorem t\n",
+            "  let x ∈ ℤ                                                           (H1)\n",
+            "  assume x = 1                                                        (H2)\n",
+            "  then x = 1\n",
+            "\n",
+        )
+        .to_string();
+        for n in 1..10 {
+            text += &format!("{n}.  x = 1\n    restate H2\n\n");
+        }
+        text += concat!(
+            "10. x = 1\n",
+            "    contradiction\n",
+            "    suppose x ≠ 1                                                     (S1)\n",
+            "\n",
+            "    10.1.  x = 1\n",
+            "           restate H2\n",
+            "\n",
+            "    10.2.  x = 1\n",
+            "           contradiction\n",
+            "           suppose x ≠ 1                                              (S2)\n",
+            "\n",
+            "           10.2.1. x = 1\n",
+            "                   restate H2, contradicting S2\n",
+        );
+        let (_, theorems) = crate::corpus::parse_proof("t.proof", &text, 0).unwrap();
+        let old: Vec<String> = text.lines().map(str::to_string).collect();
+        let done =
+            lifted_lines(&theorems[0], &StepNo(vec![10, 2]), &old, old.len()).unwrap();
+        // 10.1 is written two spaces wide, so the lifted 10.2 is too.
+        let tail = done.lines[done.lines.len() - 2..].join("\n");
+        assert_eq!(
+            tail,
+            "    10.2.  x = 1\n           restate H2, contradicting S2"
+        );
     }
 
     #[test]
