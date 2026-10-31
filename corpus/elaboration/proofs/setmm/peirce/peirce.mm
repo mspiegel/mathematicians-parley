@@ -7,5 +7,5 @@ $[ stdlib/definitions.mm $]
 
 ${
   proofs.setmm.peirce.peirce $p |- ( ( A e. RR /\ B e. RR ) -> ( ( ( A = 0 -> B = 0 ) -> A = 0 ) -> A = 0 ) ) $=
-    ( cr wcel wa cc0 wceq wi wn simpr simpl syl pm2.21dd ex mpd wo exmid a1i mpjaodan ) ACDZBCDZEZAFGZBFGZHZUCHZUCUBUFEZUCUCUCIZUGUCJUGUHEZUEUCUIUCUDUIUCEZUCUDUIUCJUJUIUHUIUCKUGUHJLMNUIUGUFUGUHKUBUFJLOUCUHPUGUCQRSN $.
+    ( cr wcel wa cc0 wceq wi wn simpr simpl syl pm2.21dd ex mpd neqcomd pm2.18d ) ACDZBCDZEZAFGZBFGZHZUAHZUATUDEZUAUEUAIZUAUEUFEZUAUAUGUCUAUGUAUBUGUAEZUAUBUGUAJUHUGUFUGUAKUEUFJZLMNUGUEUDUEUFKTUDJLOUGFAUGAFUIPPMNQN $.
 $}

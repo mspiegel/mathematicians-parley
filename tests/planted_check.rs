@@ -576,8 +576,8 @@ fn a_reason_that_does_not_read_is_told_only_that() {
     }
 }
 
-/// A forbid the file keeps is no defect: a file that does not import the
-/// law of cosines may forbid it, and an item it imports, the converse of
+/// A forbid the file keeps is no defect: a file that does not import
+/// side-side-side may forbid it, and an item it imports, the converse of
 /// Pythagoras, may rest on it.
 #[test]
 fn a_forbid_kept_says_nothing() {
@@ -587,8 +587,8 @@ fn a_forbid_kept_says_nothing() {
         "forbid an item the file does not import",
         vec![edit(
             file,
-            Some("\ntheorem ".to_string()),
-            "forbid theorem            stdlib/geometry/law-of-cosines\n\ntheorem "
+            Some("forbid theorem            stdlib/geometry/law-of-sines\n".to_string()),
+            "forbid theorem            stdlib/geometry/law-of-sines\nforbid theorem            stdlib/geometry/side-side-side\n"
                 .to_string(),
         )],
         "",
@@ -1707,42 +1707,42 @@ fn cases() -> Vec<Case> {
             "step 23 claims something that mun:sum-first does not conclude",
         ),
         // A `requires` line has a claim and a reason, and the reason is what
-        // proves it. Here H6 does not say `A ≠ C`, and no line above this one
-        // does.
+        // proves it. Here H6 does not say `C ≠ B`, and the step no longer
+        // cites H5, which does.
         case(
             "name a line that does not state the side condition",
             vec![
                 edit(
                     "proofs/euclid/thales.proof",
-                    Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()),
-                    "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string(),
+                    Some("import theorem            stdlib/geometry/angle-sum\n".to_string()),
+                    "import theorem            stdlib/geometry/angle-sum\nimport definition         stdlib/geometry/triangle\n".to_string(),
                 ),
                 edit(
                     "proofs/euclid/thales.proof",
-                    Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
-                    "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
+                    Some("    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H5, H6, 1\n".to_string()),
+                    "    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H6, 1\n    requires C ≠ B: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
                 ),
             ],
-            "the requires line of step 9 needs something that def:triangle does not conclude",
+            "the requires line of step 7 needs something that def:triangle does not conclude",
         ),
-        // The same, where the scope already holds the claim for another reason:
-        // the hypothesis says A, B, C form a triangle, so `B ≠ C` is held before
-        // the line is read, and H6 does not say it.
+        // The same, where the step already holds the claim for another reason:
+        // it cites H5, which says A, B, C form a triangle, so `C ≠ B` is held
+        // before the line is read, and H6 does not say it.
         case(
             "name a line that does not state a claim the scope already holds",
             vec![
                 edit(
                     "proofs/euclid/thales.proof",
-                    Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()),
-                    "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string(),
+                    Some("import theorem            stdlib/geometry/angle-sum\n".to_string()),
+                    "import theorem            stdlib/geometry/angle-sum\nimport definition         stdlib/geometry/triangle\n".to_string(),
                 ),
                 edit(
                     "proofs/euclid/thales.proof",
-                    Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()),
-                    "    thm:law-of-cosines P := A, Q := C, R := B\n    requires B ≠ C: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
+                    Some("    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H5, H6, 1\n".to_string()),
+                    "    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H5, H6, 1\n    requires C ≠ B: def:triangle P := A, Q := B, R := C, from H6\n".to_string(),
                 ),
             ],
-            "the requires line of step 9 needs something that def:triangle does not conclude",
+            "the requires line of step 7 needs something that def:triangle does not conclude",
         ),
         // A requires line below that cites an item asks for that item's
         // hypotheses, and only those: mun:sum-real asks nothing of x^m, and
@@ -3003,11 +3003,11 @@ fn cases() -> Vec<Case> {
         case(
             "a last case with no steps that does not say it is the claim",
             vec![edit(
-                "proofs/wiedijk/cantor.proof",
-                Some("assume x ∉ B, which is the claim                    (C2)".to_string()),
-                "assume x ∉ B                    (C2)".to_string(),
+                "proofs/euclid/hinge.proof",
+                Some("assume B and C are on opposite sides of line AG, which is the claim (C2)".to_string()),
+                "assume B and C are on opposite sides of line AG (C2)".to_string(),
             )],
-            "this case of step 2.1.2 has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
+            "this case of step 23 has no steps, and its assumption does not say it is the claim; write its steps, or end the line `, which is the claim`",
         ),
         // A substitution puts one side for the other and reorders nothing.
         case(
@@ -3221,16 +3221,16 @@ fn cases() -> Vec<Case> {
             ],
             "step 8.1",
         ),
-        // `requires A ≠ C: def:triangle` unfolds a line saying A, B, C form a
+        // `requires C ≠ B: def:triangle` unfolds a line saying A, B, C form a
         // triangle; cited, that line is what it rests on, and without it
         // nothing is.
         case(
             "unfold a triangle no line above says",
             vec![
-                edit("proofs/euclid/thales.proof", Some("import theorem            proofs/euclid/apollonius/apollonius\n".to_string()), "import theorem            proofs/euclid/apollonius/apollonius\nimport definition         stdlib/geometry/triangle\n".to_string()),
-                edit("proofs/euclid/thales.proof", Some("    thm:law-of-cosines P := A, Q := C, R := B, from H5\n".to_string()), "    thm:law-of-cosines P := A, Q := C, R := B\n    requires A ≠ C: def:triangle P := A, Q := B, R := C\n".to_string()),
+                edit("proofs/euclid/thales.proof", Some("import theorem            stdlib/geometry/angle-sum\n".to_string()), "import theorem            stdlib/geometry/angle-sum\nimport definition         stdlib/geometry/triangle\n".to_string()),
+                edit("proofs/euclid/thales.proof", Some("    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H5, H6, 1\n".to_string()), "    mun:angle-along-segment P := A, Q := B, R := C, S := M, from H6, 1\n    requires C ≠ B: def:triangle P := A, Q := B, R := C\n".to_string()),
             ],
-            "the requires line of step 9 needs something that def:triangle does not conclude",
+            "the requires line of step 7 needs something that def:triangle does not conclude",
         ),
         // A requires line's item asks for what the lines it cites supply:
         // `mod-natural` asks b ∈ ℕ, and without 4.3.6, which says b(k) ∈ ℕ,
@@ -3534,14 +3534,14 @@ fn cases() -> Vec<Case> {
         case(
             "import an item as mundane without its kind",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane stdlib/reasoning/excluded-middle\n".to_string()),
             ],
             "import mundane: an import says the header of the item it names",
         ),
         case(
             "import an axiom as a mundane theorem",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane theorem    stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane theorem    stdlib/reasoning/excluded-middle\n".to_string()),
             ],
             "import mundane theorem stdlib/reasoning/excluded-middle: stdlib/reasoning/excluded-middle is an axiom; import it as `import axiom stdlib/reasoning/excluded-middle`",
         ),
@@ -3556,14 +3556,14 @@ fn cases() -> Vec<Case> {
         case(
             "import an axiom as mundane",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "import mundane axiom      stdlib/reasoning/excluded-middle\n".to_string()),
             ],
             "import mundane axiom stdlib/reasoning/excluded-middle: an axiom or a definition gives meaning, and a pedantic textbook cites it, so it is never mundane",
         ),
         case(
             "cite an axiom as mundane",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("axi:excluded-middle".to_string()), "mun:excluded-middle".to_string()),
+                edit("proofs/wiedijk/euclid.proof", Some("axi:excluded-middle".to_string()), "mun:excluded-middle".to_string()),
             ],
             "mun:excluded-middle names an axiom",
         ),
@@ -3627,7 +3627,7 @@ fn cases() -> Vec<Case> {
         case(
             "cite a library item without importing it",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
+                edit("proofs/wiedijk/euclid.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), String::new()),
             ],
             "axi:excluded-middle is neither imported nor a theorem of this file",
         ),
@@ -3664,9 +3664,9 @@ fn cases() -> Vec<Case> {
         case(
             "import an item the file forbids",
             vec![
-                edit("proofs/euclid/isosceles-median.proof", Some("import mundane theorem    stdlib/numbers/product-positive\n".to_string()), "import mundane theorem    stdlib/numbers/product-positive\nforbid theorem            stdlib/geometry/law-of-cosines\n".to_string()),
+                edit("proofs/wiedijk/ptolemy.proof", Some("import mundane theorem    stdlib/numbers/multiply-cancel\n".to_string()), "import mundane theorem    stdlib/numbers/multiply-cancel\nforbid theorem            stdlib/geometry/law-of-cosines\n".to_string()),
             ],
-            "imports stdlib/geometry/law-of-cosines, which this file forbids at line 15",
+            "imports stdlib/geometry/law-of-cosines, which this file forbids at line 19",
         ),
         case(
             "forbid an item with words that are not its header",
@@ -3692,7 +3692,7 @@ fn cases() -> Vec<Case> {
         case(
             "an import below a forbid",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("import axiom              stdlib/reasoning/excluded-middle\n".to_string()), "forbid theorem            stdlib/geometry/law-of-cosines\nimport axiom              stdlib/reasoning/excluded-middle\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("import definition         stdlib/sets/set-builder\n".to_string()), "forbid theorem            stdlib/geometry/law-of-cosines\nimport definition         stdlib/sets/set-builder\n".to_string()),
             ],
             "an import below a forbid",
         ),
@@ -4535,16 +4535,16 @@ fn cases() -> Vec<Case> {
         case(
             "say a case is the claim when it is not",
             vec![
-                edit("proofs/wiedijk/euclid.proof", Some("assume b(N) = 0, which is the claim".to_string()), "assume b(N) = 1, which is the claim".to_string()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("assume f(c) = 0, which is the claim".to_string()), "assume f(c) = 1, which is the claim".to_string()),
             ],
-            "case C7 says it is the claim of step 9, and it is not",
+            "case C2 says it is the claim of step 16, and it is not",
         ),
         case(
             "say a case with steps is the claim",
             vec![
-                edit("proofs/wiedijk/euclid.proof", Some("assume b(N) ≠ 0                                                   (C8)".to_string()), "assume b(N) ≠ 0, which is the claim                               (C8)".to_string()),
+                edit("proofs/wiedijk/intermediate-value.proof", Some("assume 0 < f(c)                                                   (C3)".to_string()), "assume 0 < f(c), which is the claim                               (C3)".to_string()),
             ],
-            "case C8 is the claim and has steps of its own",
+            "case C3 is the claim and has steps of its own",
         ),
         case(
             "say a line is the claim outside any cases block",
@@ -5149,7 +5149,7 @@ fn cases() -> Vec<Case> {
         case(
             "mix and with or without brackets",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("          2.1.1.  x ∈ B or x ∉ B".to_string()), "          2.1.1.  x ∈ B or x ∉ B and x ∈ A".to_string()),
+                edit("proofs/hammack/consecutive-coprime.proof", Some("1.  n = 0 or n ≠ 0".to_string()), "1.  n = 0 or n ≠ 0 and n ∈ ℕ".to_string()),
             ],
             "`or` and `and` are not ordered against each other",
         ),

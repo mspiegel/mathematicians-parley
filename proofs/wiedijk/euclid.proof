@@ -252,29 +252,21 @@ theorem euclid
 7.  b(N) + N ≤ N or b(N) = 0
     instantiate k := N in line 5
 
-8.  b(N) = 0 or b(N) ≠ 0
-    axi:excluded-middle P := b(N) = 0
+8.  b(N) = 0
+    contradiction
+    suppose b(N) ≠ 0                                                  (S)
 
-9.  b(N) = 0
-    cases, from 8
+    8.1.  b(N) + N ≤ N
+          mun:disjunctive-syllogism, from S, 7
 
-    case
-    assume b(N) = 0, which is the claim                               (C7)
+    8.2.  b(N) ∈ ℕ
+          mun:nat0-nonzero, from S, 6
 
-    case
-    assume b(N) ≠ 0                                                   (C8)
+    8.3.  not b(N) + N ≤ N
+          inequalities, from 8.2, contradicting 8.1
 
-    9.1.  b(N) + N ≤ N
-          mun:disjunctive-syllogism, from C8, 7
-
-    9.2.  b(N) ∈ ℕ
-          mun:nat0-nonzero, from C8, 6
-
-    9.3.  not b(N) + N ≤ N
-          inequalities, from 9.2, contradicting 9.1
-
-10. a(N) = gcd(M, N)
+9.  a(N) = gcd(M, N)
     calculation
       a(N) = gcd(a(N), 0)          mun:gcd-zero, from 6
-           = gcd(a(N), b(N))       substitute line 9
+           = gcd(a(N), b(N))       substitute line 8
            = gcd(M, N)             instantiate k := N in line 4

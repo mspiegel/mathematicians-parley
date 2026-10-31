@@ -34,9 +34,7 @@ import mundane theorem    stdlib/numbers/nat0-successor
 import mundane theorem    stdlib/numbers/pos-int-nat
 import mundane theorem    stdlib/numbers/power-order
 import mundane theorem    stdlib/numbers/product-positive
-import axiom              stdlib/reasoning/excluded-middle
-import mundane theorem    stdlib/reasoning/or-left
-import mundane theorem    stdlib/reasoning/or-right
+import mundane theorem    stdlib/reasoning/not-either
 import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/triple-subset
 import mundane theorem    stdlib/sums/range-bounds
@@ -514,58 +512,35 @@ let c = m/(2^p − 1), a positive integer                               (D3)
     let d ∈ ℕ                                                         (K1)
     assume d divides m                                                (A1)
 
-    26.1.  d = 1 or d ≠ 1
-           axi:excluded-middle P := d = 1
+    26.1.  d = 1 or d = m
+           contradiction
+           suppose not (d = 1 or d = m)                               (S4)
 
-    26.2.  d = 1 or d = m
-           cases, from 26.1
+           26.1.1.  d ≠ 1. d ≠ m.
+                    mun:not-either P := d = 1, Q := d = m, from S4
 
-           case
-           assume d = 1                                               (C1)
+           26.1.2.  d ≤ m
+                    mun:divides-le e := d, from A1
 
-           26.2.1.  d = 1 or d = m
-                    mun:or-left, from C1
+           26.1.3.  1 < d
+                    inequalities, from K1, 26.1.1
 
-           case
-           assume d ≠ 1                                               (C2)
+           26.1.4.  d < m
+                    inequalities, from 26.1.1, 26.1.2
 
-           26.2.2.  d = m or d ≠ m
-                    axi:excluded-middle P := d = m
+           26.1.5.  σ(m) ≥ 1 + d + m
+                    thm:three-divisors e := d, from A1, 26.1.3, 26.1.4
 
-           26.2.3.  d = 1 or d = m
-                    cases, from 26.2.2
+           26.1.6.  1 + d + m ≤ m + 1
+                    transitivity, from 26.1.5, 25
 
-                    case
-                    assume d = m                                      (C3)
+           26.1.7.  d ≤ 0
+                    inequalities
+                      1 + d + m ≤ m + 1        26.1.6
+                      d ≤ 0                    adding −1 − m
 
-                    26.2.3.1.  d = 1 or d = m
-                               mun:or-right, from C3
-
-                    case
-                    assume d ≠ m                                      (C4)
-
-                    26.2.3.2.  d ≤ m
-                               mun:divides-le e := d, from A1
-
-                    26.2.3.3.  1 < d
-                               inequalities, from C2, K1
-
-                    26.2.3.4.  d < m
-                               inequalities, from C4, 26.2.3.2
-
-                    26.2.3.5.  σ(m) ≥ 1 + d + m
-                               thm:three-divisors e := d, from A1, 26.2.3.3, 26.2.3.4
-
-                    26.2.3.6.  1 + d + m ≤ m + 1
-                               transitivity, from 26.2.3.5, 25
-
-                    26.2.3.7.  d ≤ 0
-                               inequalities
-                                 1 + d + m ≤ m + 1        26.2.3.6
-                                 d ≤ 0                    adding −1 − m
-
-                    26.2.3.8.  not 1 < d
-                               inequalities, from 26.2.3.7, contradicting 26.2.3.3
+           26.1.8.  not 1 < d
+                    inequalities, from 26.1.7, contradicting 26.1.3
 
 27. m > 1
     substitute m = 2^p − 1 (line 24) into line 6
