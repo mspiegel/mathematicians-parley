@@ -1,5 +1,7 @@
 import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
+import axiom              stdlib/reasoning/excluded-middle
+import mundane theorem    stdlib/reasoning/disjunctive-syllogism-left
 
 theorem or-over-and
   metamath    ordi
@@ -52,32 +54,29 @@ assume (a = 0 or b = 0) and (a = 0 or c = 0)                          (D2)
 3.  a = 0 or c = 0
     restate D2
 
-4.  a = 0 or (b = 0 and c = 0)
-    cases, from 2
+4.  a = 0 or a ≠ 0
+    axi:excluded-middle P := a = 0
+
+5.  a = 0 or (b = 0 and c = 0)
+    cases, from 4
 
     case
     assume a = 0                                                      (C3)
 
-    4.1.  a = 0 or (b = 0 and c = 0)
+    5.1.  a = 0 or (b = 0 and c = 0)
           mun:or-left, from C3
 
     case
-    assume b = 0                                                      (C4)
+    assume a ≠ 0                                                      (C4)
 
-    4.2.  a = 0 or (b = 0 and c = 0)
-          cases, from 3
+    5.2.  b = 0
+          mun:disjunctive-syllogism-left, from C4, 2
 
-          case
-          assume a = 0                                                (C5)
+    5.3.  c = 0
+          mun:disjunctive-syllogism-left, from C4, 3
 
-          4.2.1.  a = 0 or (b = 0 and c = 0)
-                  mun:or-left, from C5
+    5.4.  b = 0 and c = 0
+          join 5.2, 5.3
 
-          case
-          assume c = 0                                                (C6)
-
-          4.2.2.  b = 0 and c = 0
-                  join C4, C6
-
-          4.2.3.  a = 0 or (b = 0 and c = 0)
-                  mun:or-right, from 4.2.2
+    5.5.  a = 0 or (b = 0 and c = 0)
+          mun:or-right, from 5.4
