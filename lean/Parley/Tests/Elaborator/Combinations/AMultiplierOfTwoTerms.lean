@@ -12,6 +12,6 @@ theorem a_multiplier_of_two_terms (x : ℝ) (y : ℝ) (H3 : y = 1) :
     x ^ 2 * y - x * y + 2 = x ^ 2 - x + 2 := by
   -- 1. algebra, from H3
   have s1 : x ^ 2 * y - x * y + 2 = x ^ 2 - x + 2 := by linear_combination (x ^ 2 - x) * H3
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.Combinations.AMultiplierOfTwoTerms

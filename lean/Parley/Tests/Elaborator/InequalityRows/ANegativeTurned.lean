@@ -12,6 +12,6 @@ theorem a_negative_turned (x : ℝ) (H2 : x < 0) :
     0 < -x := by
   -- 1. inequalities
   have s1 : 0 < -x := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.InequalityRows.ANegativeTurned

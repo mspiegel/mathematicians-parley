@@ -15,7 +15,7 @@ theorem a_for_all_line_giving_a_substitute_its_equation (H1 : ∀ x : ℝ, x ^ 2
     intro y
     -- 1.1. substitute y² = y·y (H1)
     have s1_1 : y ^ 2 + 1 = y * y + 1 := by parley_subst H1
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineGivingASubstituteItsEquation

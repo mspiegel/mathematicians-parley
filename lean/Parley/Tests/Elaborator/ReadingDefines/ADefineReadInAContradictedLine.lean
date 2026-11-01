@@ -19,7 +19,7 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (H2 : a + 1 ≠ 0) :
     have S : a = -1 := by parley_suppose hc_S
     -- 2.1. algebra, from D1, S
     have s2_1 : a + 1 = 0 := by linear_combination S
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAContradictedLine

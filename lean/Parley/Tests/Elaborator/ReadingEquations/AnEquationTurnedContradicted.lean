@@ -16,7 +16,7 @@ theorem an_equation_turned_contradicted (a : ℝ) (b : ℝ) (H3 : b = a) :
     have S : a ≠ b := by parley_suppose hc_S
     -- 1.1. restate S
     have s1_1 : a ≠ b := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedContradicted

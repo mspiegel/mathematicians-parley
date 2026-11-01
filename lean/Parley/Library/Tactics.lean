@@ -27,11 +27,20 @@ macro "parley_side" : tactic =>
     | (positivity; done)
     | (omega; done)
     | (linarith; done)
+    | (assumption_mod_cast; done)
+    | (push_cast at *; linarith; done)
+    | (qify at *; linarith; done)
+    | (rify at *; linarith; done)
+    | (apply lt_of_le_of_ne <;> (first | linarith | assumption | (apply Ne.symm; assumption)); done)
     | (intro _; linarith; done)
     | (norm_num at *; done)
+    | (norm_num at *; subst_vars; norm_num; done)
+    | (norm_cast at *; subst_vars; norm_num; done)
     | (norm_num at *; omega; done)
+    | (norm_num at *; norm_cast at *; omega; done)
     | (norm_num at *; linarith; done)
     | (contradiction; done)
+    | (exfalso; apply ‹¬ _›; exact Int.ModEq.symm ‹_›; done)
     | (exfalso; linarith; done)
     | (simp_all; done)))
 
@@ -41,11 +50,22 @@ the page chose. -/
 macro "parley_suppose " h:ident : tactic =>
   `(tactic| first
     | (exact $h; done)
+    | (exact Eq.symm $h; done)
     | (push_neg at $h:ident; exact $h; done)
     | (push_neg at $h:ident; linarith; done)
     | (simpa using $h; done)
     | (simp only [not_not] at $h:ident; exact $h; done)
+    | (simp only [not_not, ne_eq] at $h:ident; exact Eq.symm $h; done)
+    | (push_neg at $h:ident; exact Eq.symm $h; done)
     | (intro _; apply $h; simp_all; done))
+
+/-- `arithmetic`: a closed fact of numbers, worked out, and that a fraction
+which is no whole number is no member of ℕ or ℤ. -/
+macro "parley_arith" : tactic =>
+  `(tactic| first
+    | (norm_num; done)
+    | (rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega)
+    | (rintro ⟨m, h⟩; field_simp at h; norm_cast at h; omega))
 
 /-- Clears what an `algebra` step divides by, from the lines saying each
 divisor is not 0, a product, a quotient or a negation not 0 taken as each
@@ -76,7 +96,10 @@ macro "parley_subst " e:term:max : tactic =>
     | (simp only [$e:term]; ring1; done)
     | (simp only [← $e:term]; ring1; done)
     | (linear_combination $e:term; done)
-    | (linear_combination (-1 : _) * $e:term; done))
+    | (linear_combination (-1 : _) * $e:term; done)
+    | (have h := $e:term; norm_cast at h; rw [h]; done)
+    | (have h := $e:term; norm_cast at h; rw [← h]; done)
+    | (have h := $e:term; norm_cast at h; simp only [h]; done))
 
 /-- `substitute` into the line `h`: the goal is `h` with a term put for
 another by the equation `e`, either way round. -/
@@ -93,7 +116,12 @@ macro "parley_subst_at " e:term:max h:ident : tactic =>
     | (simp only [$e:term] at $h:ident ⊢; linarith; done)
     | (simp only [← $e:term] at $h:ident ⊢; linarith; done)
     | (rw [$e:term] at $h:ident; parley_side; done)
-    | (rw [← $e:term] at $h:ident; parley_side; done))
+    | (rw [← $e:term] at $h:ident; parley_side; done)
+    | (rw [$e:term] at $h:ident; exact_mod_cast $h; done)
+    | (rw [← $e:term] at $h:ident; exact_mod_cast $h; done)
+    | (rw [← $e:term]; exact $h _; done)
+    | (rw [$e:term]; exact $h _; done)
+    | (exact $h _; done))
 
 /-- What `linear_combination` asks once the cited equations are subtracted,
 where the step divides: zero, once the divisions are cleared. -/

@@ -19,6 +19,6 @@ theorem even_minus_odd (A : ℤ) (B : ℤ) (H3 : Even A) (H4 : Odd B) :
   have s3 : A - B = 2 * (k - l - 1) + 1 := by linear_combination s1 + (-1) * s2
   -- 4. def:odd n := A − B, from 3
   have s4 : Odd (A - B) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A - B))).mpr ⟨k - l - 1, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Setmm.Parity.EvenMinusOdd

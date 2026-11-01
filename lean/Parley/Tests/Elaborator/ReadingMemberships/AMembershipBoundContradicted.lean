@@ -16,7 +16,7 @@ theorem a_membership_bound_contradicted (k : ℕ) (H1 : 0 < k) :
     have S : (k : ℤ) ≤ 0 := by parley_suppose hc_S
     -- 1.1. inequalities, from S
     have s1_1 : ¬ (k : ℤ) > 0 := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundContradicted

@@ -19,6 +19,6 @@ theorem odd_plus_even (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Even B) :
   have s3 : A + B = 2 * (k + l) + 1 := by linear_combination s1 + s2
   -- 4. def:odd n := A + B, from 3
   have s4 : Odd (A + B) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A + B))).mpr ⟨k + l, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.OddPlusEven

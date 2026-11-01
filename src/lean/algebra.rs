@@ -99,10 +99,19 @@ pub fn algebra(
     let Some((taken, how)) = found else {
         return Route::no("no sum of the cited equations is the claim");
     };
-    let at = match carrier_of(writer, claim) {
+    // The multipliers are written in the type the step works in: the
+    // claim's, or a cited line's where it is wider, as of a closed claim.
+    let mut at = match carrier_of(writer, claim) {
         Route::Built(n) => n,
         Route::Declined(d) => return Route::Declined(d),
     };
+    for c in cited {
+        if c.node.notation() == crate::notations::EQUALITY {
+            if let Route::Built(n) = carrier_of(writer, &c.node) {
+                at = at.max(n);
+            }
+        }
+    }
     // The decision combines each equation with its denominators multiplied
     // out, and the claim with its own, less what its reading divided out.
     // As written, the claim's difference of sides is then the sum of each
@@ -110,11 +119,19 @@ pub fn algebra(
     // the claim's reading divided out and the equation's own denominators,
     // over the claim's denominators and what the equation's reading divided
     // out.
+    // The claim's denominators side by side, kept apart, so that each is
+    // one a requires line says is not 0.
+    let sides: Vec<Poly> = claimed
+        .children()
+        .iter()
+        .map(|side| field::read(side, &labels).under)
+        .collect();
     let mut parts = Vec::new();
     for t in &how {
         let over = t.multiplier().times(&taken).times(&own_under[t.which]);
-        let under = claim_under.times(&own_taken[t.which]);
-        let multiplier = match ratio_text(writer, &over, &under, &atoms, at) {
+        let mut under: Vec<Poly> = sides.clone();
+        under.push(own_taken[t.which].clone());
+        let multiplier = match ratio_text(writer, over, under, &atoms, at) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -137,27 +154,47 @@ pub fn algebra(
     })
 }
 
-/// `over / under` as a Lean term of type `at`: a polynomial where `under`
-/// divides `over` exactly, a quotient otherwise.
+/// `over` divided by the product of `under`, as a Lean term of type `at`:
+/// each factor of `under` that divides `over` exactly divided out, and the
+/// rest written as a product of the factors, each of which a line says is
+/// not 0, rather than multiplied out, which `field_simp` could not see is
+/// not 0.
 fn ratio_text(
     writer: &Writer,
-    over: &Poly,
-    under: &Poly,
+    mut over: Poly,
+    under: Vec<Poly>,
     atoms: &IndexMap<Rpn, Node>,
     at: Num,
 ) -> Route<String> {
-    if let Some(whole) = field::exactly(over, under) {
-        return poly_text(writer, &whole, atoms, at);
+    let mut kept = Vec::new();
+    for factor in under {
+        if constant(&factor) {
+            match factor.constant_value() {
+                Some(c) if !c.is_one() => kept.push(factor),
+                _ => {}
+            }
+            continue;
+        }
+        match field::exactly(&over, &factor) {
+            Some(rest) => over = rest,
+            None => kept.push(factor),
+        }
     }
-    let top = match poly_text(writer, over, atoms, at) {
+    let top = match poly_text(writer, &over, atoms, at) {
         Route::Built(t) => t,
         Route::Declined(d) => return Route::Declined(d),
     };
-    let bottom = match poly_text(writer, under, atoms, at) {
-        Route::Built(t) => t,
-        Route::Declined(d) => return Route::Declined(d),
-    };
-    Route::Built(format!("({top}) / ({bottom})"))
+    if kept.is_empty() {
+        return Route::Built(top);
+    }
+    let mut bottom = Vec::new();
+    for f in &kept {
+        match poly_text(writer, f, atoms, at) {
+            Route::Built(t) => bottom.push(format!("({t})")),
+            Route::Declined(d) => return Route::Declined(d),
+        }
+    }
+    Route::Built(format!("({top}) / ({})", bottom.join(" * ")))
 }
 
 /// The type an equation is computed in.

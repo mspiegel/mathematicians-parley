@@ -12,6 +12,6 @@ theorem two_halves_below (A : ℝ) (B : ℝ) (C : ℝ) (H4 : A < C / 2) (H5 : B 
     A + B < C := by
   -- 1. inequalities, from H4, H5
   have s1 : A + B < C := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Setmm.TwoHalvesBelow.TwoHalvesBelow

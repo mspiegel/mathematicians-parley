@@ -12,6 +12,6 @@ theorem an_equation_read_as_an_order (x : ℝ) (y : ℝ) (H3 : y = x) :
     x ≤ y := by
   -- 1. inequalities
   have s1 : x ≤ y := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.InequalityRows.AnEquationReadAsAnOrder

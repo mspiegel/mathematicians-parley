@@ -19,8 +19,8 @@ theorem a_for_all_line_contradicted (H1 : ∀ x : ℝ, x ^ 2 + 1 ≠ 0) :
       have S : y ^ 2 + 1 = 0 := by parley_suppose hc_S
       -- 1.1.1. restate S
       have s1_1_1 : y ^ 2 + 1 = 0 := by parley_side
-      parley_side
-    parley_side
-  parley_side
+      all_goals parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineContradicted

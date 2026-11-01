@@ -15,7 +15,7 @@ theorem an_and_part_contradicted (a : ℝ) (b : ℝ) (H3 : a = 1 ∧ b ≠ 2) :
     intro K1
     -- 1.1. restate K1
     have s1_1 : b = 2 := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartContradicted

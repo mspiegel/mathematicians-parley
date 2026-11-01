@@ -12,7 +12,7 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartUnfolded
 theorem an_and_part_unfolded (a : ℝ) (b : ℤ) (H3 : a = 1 ∧ Even b) :
     (∃ k : ℤ, b = 2 * k) := by
   -- 1. def:even n := b, from H3
-  have s1 : ∃ k : ℤ, b = 2 * k := by simpa using ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)
-  parley_side
+  have s1 : ∃ k : ℤ, b = 2 * k := by first | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartUnfolded

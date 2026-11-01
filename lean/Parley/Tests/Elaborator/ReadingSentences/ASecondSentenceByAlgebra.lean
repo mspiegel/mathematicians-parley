@@ -12,6 +12,6 @@ theorem a_second_sentence_by_algebra (a : ℝ) (b : ℝ) (H3a : a = 1) (H3b : b 
     b * b = 4 := by
   -- 1. algebra, from H3
   have s1 : b * b = 4 := by linear_combination (b + 2) * H3b
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceByAlgebra

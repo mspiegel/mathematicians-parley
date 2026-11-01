@@ -12,7 +12,7 @@ theorem the_claim_divides_by_a_power (t : ℝ) (F : ℝ) (H3 : t ≠ 0) (H4 : F 
     F = 1 / t ^ 2 := by
   -- 1. algebra, from H4
   have r26_1 : t ≠ 0 := by parley_side
-  have s1 : F = 1 / t ^ 2 := by linear_combination (norm := parley_field) ((1) / (t ^ 2)) * H4
-  parley_side
+  have s1 : F = 1 / t ^ 2 := by linear_combination (norm := parley_field) ((1) / ((t ^ 2))) * H4
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.CitedEquationDivisorAPower.TheClaimDividesByAPower

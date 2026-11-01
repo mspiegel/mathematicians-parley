@@ -12,6 +12,6 @@ theorem two_divided_equations_subtracted (A : ℝ) (B : ℝ) (p : ℤ) (q : ℕ)
     A = (p : ℝ) / (q : ℝ) - (r : ℝ) / (s : ℝ) := by
   -- 1. algebra, from H7, H8
   have s1 : A = (p : ℝ) / (q : ℝ) - (r : ℝ) / (s : ℝ) := by linear_combination (norm := parley_field) H7 + (-1) * H8
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.DividedEquationsCombined.TwoDividedEquationsSubtracted

@@ -12,6 +12,6 @@ theorem a_row_multiplied_by_a_negative_number_read_from_its_other_side (x : ℝ)
     0 ≤ -(8 * x) + 10 := by
   -- 1. inequalities
   have s1 : 0 ≤ -(8 * x) + 10 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNumberReadFromItsOtherSide

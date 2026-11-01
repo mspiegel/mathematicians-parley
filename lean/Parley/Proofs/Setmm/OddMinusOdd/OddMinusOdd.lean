@@ -19,6 +19,6 @@ theorem odd_minus_odd (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Odd B) :
   have s3 : A - B = 2 * (a - b) := by linear_combination s1 + (-1) * s2
   -- 4. def:divides d := 2, n := A − B, from 3
   have s4 : (2 : ℤ) ∣ A - B := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := A - B))).mpr ⟨a - b, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Setmm.OddMinusOdd.OddMinusOdd

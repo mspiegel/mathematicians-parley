@@ -14,6 +14,6 @@ theorem each_factor_by_its_requires_line (x : ℝ) (y : ℝ) (H3 : x ≠ 0) (H4 
   have r20_1 : x ≠ 0 := by parley_side
   have r20_2 : y ≠ 0 := by parley_side
   have s1 : (2 * x * y + 3) / (x * y) = 2 + 3 / (x * y) := by parley_ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.Divisors.EachFactorByItsRequiresLine

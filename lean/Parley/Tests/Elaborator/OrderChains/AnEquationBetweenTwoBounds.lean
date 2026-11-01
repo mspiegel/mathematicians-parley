@@ -21,6 +21,6 @@ theorem an_equation_between_two_bounds (x : ℝ) (y : ℝ) (H3 : 0 ≤ y) :
     calc x < x + 1 := by parley_side
       _ = 1 + x := by parley_side
       _ ≤ 1 + x + y := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.OrderChains.AnEquationBetweenTwoBounds

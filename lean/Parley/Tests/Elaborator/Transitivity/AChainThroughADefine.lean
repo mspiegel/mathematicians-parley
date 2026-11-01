@@ -15,6 +15,6 @@ theorem a_chain_through_a_define (a : ℝ) (b : ℝ) (c : ℝ) (H4 : a + 1 ≤ b
   have s1 : e < c := by parley_side
   -- 2. substitute e = a + 1 (D1) into line 1
   have s2 : a + 1 < c := by parley_subst_at D1 s1
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.Transitivity.AChainThroughADefine

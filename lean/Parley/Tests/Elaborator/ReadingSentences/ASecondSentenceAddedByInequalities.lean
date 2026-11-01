@@ -12,6 +12,6 @@ theorem a_second_sentence_added_by_inequalities (a : ℝ) (b : ℝ) (c : ℝ) (H
     b + c > 0 := by
   -- 1. inequalities, from H4, H5
   have s1 : b + c > 0 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceAddedByInequalities

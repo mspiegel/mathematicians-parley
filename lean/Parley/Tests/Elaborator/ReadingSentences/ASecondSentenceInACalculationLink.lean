@@ -14,6 +14,6 @@ theorem a_second_sentence_in_a_calculation_link (a : ℝ) (b : ℝ) (H3a : a = 1
   have s1 : b = 1 + 1 := by
     calc b = 2 := by parley_side
       _ = 1 + 1 := by norm_num
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInACalculationLink

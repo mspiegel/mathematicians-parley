@@ -18,6 +18,6 @@ theorem a_square_in_a_divisor_said_nonzero (x : ℝ) (y : ℝ) (H3 : y = 1 / (1 
   -- 3. transitivity, from H3, H4
   have r17_1 : 1 + x ^ 2 ≠ 0 := by parley_side
   have s3 : y ≥ 0 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADivisorSaidNonzero

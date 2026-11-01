@@ -15,6 +15,6 @@ theorem a_define_read_in_an_algebra_step (a : ℝ) (b : ℝ) (H3 : a + 1 = 2 * b
   have s1 : e = 2 * b := by parley_subst_at D1 H3
   -- 2. algebra, from D1, 1
   have s2 : a = 2 * b - 1 := by linear_combination (-1) * D1 + s1
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnAlgebraStep

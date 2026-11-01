@@ -25,7 +25,7 @@ theorem negative_quadratic (x : ℝ) (H2 : x ^ 2 + 5 * x < 0) :
     have s4 : x ^ 2 + 5 * x ≥ 0 := by parley_side
     -- 5. inequalities, from 4
     have s5 : ¬ x ^ 2 + 5 * x < 0 := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic

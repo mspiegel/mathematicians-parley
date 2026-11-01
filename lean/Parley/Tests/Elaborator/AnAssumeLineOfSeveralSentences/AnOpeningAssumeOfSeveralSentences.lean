@@ -14,15 +14,15 @@ theorem an_opening_assume_of_several_sentences (a : ℝ) (b : ℝ) :
   have s1 : a = 1 ∧ b = 2 → a + b = 3 := by
     intro K1
     -- 1.1. substitute a = 1 (K1)
-    have s1_1 : a + b = 1 + b := by parley_subst K1
+    have s1_1 : a + b = 1 + b := by parley_subst K1.1
     -- 1.2. substitute b = 2 (K1)
-    have s1_2 : 1 + b = 1 + 2 := by parley_subst K1
+    have s1_2 : 1 + b = 1 + 2 := by parley_subst K1.2
     -- 1.3. calculation
     have s1_3 : a + b = 3 := by
       calc a + b = 1 + b := by parley_side
         _ = 1 + 2 := by parley_side
         _ = 3 := by norm_num
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences

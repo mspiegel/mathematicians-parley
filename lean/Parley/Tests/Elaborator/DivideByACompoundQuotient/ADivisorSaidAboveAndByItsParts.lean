@@ -12,6 +12,6 @@ theorem a_divisor_said_above_and_by_its_parts (x : ℝ) (H2 : x ≠ 0) (H3 : 1 /
     1 / (1 / x) = x := by
   -- 1. algebra, from H2
   have s1 : 1 / (1 / x) = x := by parley_ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.DivideByACompoundQuotient.ADivisorSaidAboveAndByItsParts

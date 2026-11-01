@@ -390,7 +390,6 @@ notation square-root
   decided     real arithmetic
   metamath    csqrt
   target      _1 csqrt cfv
-  lean        ℝ → ℝ: Real.sqrt _1
   note        `real arithmetic` works out the square root of a rational of at
               least 0; `arithmetic` takes no root.
 

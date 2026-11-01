@@ -28,7 +28,7 @@ theorem fourteen_divides (a : ℤ) :
       have s5 : (2 : ℤ) ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := a))).mpr ⟨7 * k, by parley_side⟩
       -- 6. join 3, 5
       have s6 : (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a := by parley_side
-      parley_side
+      all_goals parley_side
     · skip
       intro D2
       -- 7. obtain m: def:divides d := 7, n := a, from D2
@@ -39,7 +39,7 @@ theorem fourteen_divides (a : ℤ) :
       have s9 : a = 14 * (n - 3 * m) := by linear_combination (-6) * s7 + (7) * s8
       -- 10. def:divides d := 14, n := a, from 9
       have s10 : (14 : ℤ) ∣ a := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (14 : ℤ)) (n := a))).mpr ⟨n - 3 * m, by parley_side⟩
-      parley_side
-  parley_side
+      all_goals parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.FourteenDivides.FourteenDivides

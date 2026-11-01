@@ -22,7 +22,7 @@ theorem odd_before_even (N : ℤ) :
       have s2 : N + 1 = 2 * (k + 1) := by linear_combination s1
       -- 3. def:divides d := 2, n := N + 1, from 2
       have s3 : (2 : ℤ) ∣ N + 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, by parley_side⟩
-      parley_side
+      all_goals parley_side
     · skip
       intro D2
       -- 4. obtain j: def:divides d := 2, n := N + 1, from D2
@@ -31,7 +31,7 @@ theorem odd_before_even (N : ℤ) :
       have s5 : N = 2 * (j - 1) + 1 := by linear_combination s4
       -- 6. def:odd n := N, from 5
       have s6 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, by parley_side⟩
-      parley_side
-  parley_side
+      all_goals parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Setmm.OddBeforeEven.OddBeforeEven

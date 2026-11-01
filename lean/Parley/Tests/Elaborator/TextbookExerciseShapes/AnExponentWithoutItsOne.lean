@@ -12,6 +12,6 @@ theorem an_exponent_without_its_one (d : ℕ) (H1 : 0 < d) :
     (2 ^ (d * 1) : ℤ) = 2 ^ d := by
   -- 1. algebra
   have s1 : (2 ^ (d * 1) : ℤ) = 2 ^ d := by ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AnExponentWithoutItsOne

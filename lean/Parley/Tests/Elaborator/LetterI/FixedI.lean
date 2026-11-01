@@ -12,6 +12,6 @@ theorem fixed_i (i : ℕ) (H1 : 0 < i) :
     (i : ℤ) ≥ 1 := by
   -- 1. inequalities, from H1
   have s1 : (i : ℤ) ≥ 1 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.LetterI.FixedI

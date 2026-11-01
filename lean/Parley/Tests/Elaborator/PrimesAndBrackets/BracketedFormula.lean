@@ -12,6 +12,6 @@ theorem bracketed_formula (a : ℝ) (H2 : ∀ x : ℝ, x ≤ a) :
     a ≤ a := by
   -- 1. instantiate x := a in H2
   have s1 : a ≤ a := by linarith [(H2 a)]
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.PrimesAndBrackets.BracketedFormula

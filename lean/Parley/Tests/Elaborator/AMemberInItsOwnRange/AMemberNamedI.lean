@@ -11,6 +11,6 @@ namespace Parley.Tests.Elaborator.AMemberInItsOwnRange.AMemberNamedI
 theorem a_member_named_i (n : ℕ) :
     True := by
   -- 1. membership
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AMemberInItsOwnRange.AMemberNamedI

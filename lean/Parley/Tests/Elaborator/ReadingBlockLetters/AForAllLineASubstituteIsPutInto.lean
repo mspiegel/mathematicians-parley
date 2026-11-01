@@ -16,7 +16,7 @@ theorem a_for_all_line_a_substitute_is_put_into (b : ℝ) (H2 : ∀ x : ℝ, x ^
     intro A1
     -- 1.1. substitute y = b (A1) into H2
     have s1_1 : b ^ 2 ≥ 0 := by parley_subst_at A1 H2
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineASubstituteIsPutInto

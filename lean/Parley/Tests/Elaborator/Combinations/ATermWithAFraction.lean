@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.Combinations.ATermWithAFraction
 theorem a_term_with_a_fraction (x : ℝ) (y : ℝ) (z : ℝ) (H4 : 3 + x = 0) :
     1 / 5 * (x * z) + y + 3 / 5 * z = y := by
   -- 1. algebra, from H4
-  have s1 : 1 / 5 * (x * z) + y + 3 / 5 * z = y := by linear_combination ((1 / 5 : ℝ) * z) * H4
-  parley_side
+  have s1 : 1 / 5 * (x * z) + y + 3 / 5 * z = y := by linear_combination ((5 * z) / ((25))) * H4
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.Combinations.ATermWithAFraction

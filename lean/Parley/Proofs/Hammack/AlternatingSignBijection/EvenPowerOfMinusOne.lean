@@ -1,0 +1,36 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+
+/-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
+
+theorem even_power_of_minus_one (k : ℕ) :
+    ((-1) ^ (2 * k) : ℤ) = 1 := by
+  -- 1. induction on j starting at 0
+  have s1 : ∀ j : ℕ, ((-1) ^ (2 * j) : ℤ) = 1 := by
+    intro j
+    induction j with
+    | zero =>
+      -- 1.1. arithmetic
+      have s1_1 : ((-1) ^ (2 * 0) : ℤ) = 1 := by parley_arith
+      all_goals parley_side
+    | succ j IH =>
+      -- 1.2. algebra
+      have s1_2 : 2 * ((j : ℤ) + 1) = 2 * (j : ℤ) + 2 := by ring
+      -- 1.3. calculation
+      have s1_3 : ((-1) ^ (2 * (j + 1)) : ℤ) = 1 := by
+        calc ((-1) ^ (2 * (j + 1)) : ℤ) = (-1) ^ (2 * j + 2) := by parley_subst s1_2
+          _ = (-1) ^ (2 * j) * (-1) ^ 2 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (-1 : ℤ)) (m := 2 * j) (n := 2))
+          _ = 1 * (-1) ^ 2 := by parley_subst IH
+          _ = 1 := by norm_num
+      all_goals parley_side
+  -- 2. instantiate j := k in line 1
+  have s2 : ((-1) ^ (2 * k) : ℤ) = 1 := by linear_combination (s1 k)
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne

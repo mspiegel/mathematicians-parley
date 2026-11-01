@@ -16,7 +16,7 @@ theorem a_supposition_denying_its_claim_written_otherwise (a : ℝ) (H2 : a = 1)
     have S : 1 ≠ a := by parley_suppose hc_S
     -- 1.1. restate S
     have s1_1 : 1 ≠ a := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyingItsClaimWrittenOtherwise

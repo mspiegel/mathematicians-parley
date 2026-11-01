@@ -12,7 +12,7 @@ namespace Parley.Proofs.Hammack.OddQuadraticAlways.OddQuadraticAlways
 theorem odd_quadratic_always (n : ℤ) :
     Odd (5 * n ^ 2 + 3 * n + 7) := by
   -- 1. mun:even-or-odd
-  have s1 : Even n ∨ Odd n := by simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
+  have s1 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
   -- 2. cases, from 1
   have s2 : Odd (5 * n ^ 2 + 3 * n + 7) := by
     rcases s1 with C1 | C2
@@ -25,7 +25,7 @@ theorem odd_quadratic_always (n : ℤ) :
           _ = 2 * (10 * k ^ 2 + 3 * k + 3) + 1 := by ring
       -- 2.3. def:odd n := 5n² + 3n + 7, from 2.2
       have s2_3 : Odd (5 * n ^ 2 + 3 * n + 7) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 3 * k + 3, by parley_side⟩
-      parley_side
+      all_goals parley_side
     · skip
       -- 2.4. obtain k: def:odd, from C2
       obtain ⟨k, s2_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)
@@ -35,7 +35,7 @@ theorem odd_quadratic_always (n : ℤ) :
           _ = 2 * (10 * k ^ 2 + 13 * k + 7) + 1 := by ring
       -- 2.6. def:odd n := 5n² + 3n + 7, from 2.5
       have s2_6 : Odd (5 * n ^ 2 + 3 * n + 7) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, by parley_side⟩
-      parley_side
-  parley_side
+      all_goals parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.OddQuadraticAlways.OddQuadraticAlways

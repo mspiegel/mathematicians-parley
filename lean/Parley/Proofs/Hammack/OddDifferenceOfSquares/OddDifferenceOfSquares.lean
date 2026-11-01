@@ -19,6 +19,6 @@ theorem odd_difference_of_squares (n : ℤ) (H2 : Odd n) :
       _ = (k + 1) ^ 2 - k ^ 2 := by ring
   -- 3. exhibit, from 2
   have s3 : ∃ a : ℤ, ∃ b : ℤ, n = a ^ 2 - b ^ 2 := ⟨k + 1, k, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.OddDifferenceOfSquares.OddDifferenceOfSquares

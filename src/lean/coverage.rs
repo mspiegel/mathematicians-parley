@@ -102,6 +102,24 @@ fn covered(
             reason: format!("notation {first} has no lean field"),
         };
     }
+    // A letter whose sort Lean has no type for yet: the writer types
+    // numbers only.
+    let mut letters: Vec<(String, String)> = rec
+        .page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .filter(|n| n.is_name())
+        .filter_map(|n| {
+            let sort = rec.sorts.get(n.text.as_str())?;
+            (!sort.is("number")).then(|| (n.text.to_string(), sort.describe()))
+        })
+        .collect();
+    letters.sort();
+    if let Some((letter, sort)) = letters.first() {
+        return Covered::Out {
+            reason: format!("{letter} is {sort}, which has no Lean type yet"),
+        };
+    }
     for (full, _) in cited_items(thm) {
         if let Some(record) = super::items::record_of(checked, &full) {
             if record.field("lean").is_none() {

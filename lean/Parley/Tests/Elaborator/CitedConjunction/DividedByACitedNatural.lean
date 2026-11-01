@@ -12,6 +12,6 @@ theorem divided_by_a_cited_natural (a : ℕ) (H1 : 0 < a) (k : ℤ) (H3 : (0 < k
     ((a : ℚ) / (k : ℚ)) ^ 2 = (a : ℚ) ^ 2 / (k : ℚ) ^ 2 := by
   -- 1. algebra, from H3
   have s1 : ((a : ℚ) / (k : ℚ)) ^ 2 = (a : ℚ) ^ 2 / (k : ℚ) ^ 2 := by parley_ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.CitedConjunction.DividedByACitedNatural

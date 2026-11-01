@@ -14,6 +14,6 @@ theorem a_calculation_asks_no_membership (k : ℕ) (H1 : 0 < k) (y : ℝ) (H3 : 
   have s1 : y < 2 * (Nat.factorial k : ℝ) * 2 := by
     calc y ≤ 2 * (Nat.factorial k : ℝ) := by parley_side
       _ < 2 * (Nat.factorial k : ℝ) * 2 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksNoMembership

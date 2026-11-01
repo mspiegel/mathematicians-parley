@@ -8,10 +8,10 @@ public section
 
 namespace Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeBelowZero
 
-theorem a_range_below_zero (n : ℤ) (H2 : n ∈ Finset.Icc (-2) 0) :
+theorem a_range_below_zero (n : ℤ) (n : ℤ) (H2 : n ∈ Finset.Icc (-2) 0) :
     ((n = -2 ∨ n = -1) ∨ n = 0) := by
   -- 1. inspection, from H2
   have s1 : (n = -2 ∨ n = -1) ∨ n = 0 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeBelowZero

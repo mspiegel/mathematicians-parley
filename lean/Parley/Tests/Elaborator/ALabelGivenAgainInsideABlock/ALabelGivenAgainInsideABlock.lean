@@ -21,17 +21,17 @@ theorem a_label_given_again_inside_a_block :
       -- 1.1.1. inequalities
       have s1_1_1 : y + 1 > 1 := by parley_side
       -- 1.1.2. arithmetic
-      have s1_1_2 : (1 : ℤ) > 0 := by norm_num
+      have s1_1_2 : (1 : ℤ) > 0 := by parley_arith
       -- 1.1.3. transitivity, from 1.1.1, 1.1.2
       have s1_1_3 : y + 1 > 0 := by parley_side
-      parley_side
+      all_goals parley_side
     -- 1.2. instantiate y := x in line 1.1, from J
     have s1_2 : x + 1 > 0 := by linarith [(s1_1 x (by parley_side))]
     -- 1.3. inequalities
     have s1_3 : x ≥ 0 := by parley_side
     -- 1.4. join 1.3, 1.2
     have s1_4 : x ≥ 0 ∧ x + 1 > 0 := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ALabelGivenAgainInsideABlock.ALabelGivenAgainInsideABlock

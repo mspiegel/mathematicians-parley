@@ -12,6 +12,6 @@ theorem an_order_claimed_with_an_identity (x : ℝ) (y : ℝ) (H3 : x = y) :
     x ≤ (y / 1) ^ 1 := by
   -- 1. inequalities
   have s1 : x ≤ (y / 1) ^ 1 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AnOrderClaimedWithAnIdentity.AnOrderClaimedWithAnIdentity

@@ -21,6 +21,6 @@ theorem odd_factor (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Even (A * B)) :
   have s4 : B = 2 * (a - b * B) := by linear_combination s3
   -- 5. def:even n := B, from 4
   have s5 : Even B := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor

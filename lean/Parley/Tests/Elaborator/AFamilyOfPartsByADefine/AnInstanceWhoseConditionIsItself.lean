@@ -12,6 +12,6 @@ theorem an_instance_whose_condition_is_itself (a : ℤ) (b : ℤ) (H3 : ∀ k : 
     a ≤ a + b := by
   -- 1. instantiate k := a + b in H3
   have s1 : a ≤ a + b := by linarith [(H3 (a + b) (by parley_side))]
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AFamilyOfPartsByADefine.AnInstanceWhoseConditionIsItself

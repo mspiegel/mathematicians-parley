@@ -12,6 +12,6 @@ theorem a_sum_of_seven_naturals (a : ℕ) (H1 : 0 < a) (b : ℕ) (H2 : 0 < b) (c
     (a : ℤ) + (b : ℤ) + (c : ℤ) + (d : ℤ) + (e : ℤ) + (f : ℤ) + (g : ℤ) > 0 := by
   -- 1. inequalities, from H1, H2, H3, H4, H5, H6, H7
   have s1 : (a : ℤ) + (b : ℤ) + (c : ℤ) + (d : ℤ) + (e : ℤ) + (f : ℤ) + (g : ℤ) > 0 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ASumOfManyLinesByInequalities.ASumOfSevenNaturals

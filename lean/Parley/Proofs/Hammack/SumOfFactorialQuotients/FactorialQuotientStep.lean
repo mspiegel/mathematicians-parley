@@ -22,9 +22,11 @@ theorem factorial_quotient_step (c : ℕ) (H1 : 0 < c) (F : ℝ) (H3 : F ≠ 0) 
   have r82_1 : F ≠ 0 := by parley_side
   have s4 : 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / (F * ((c : ℝ) + 1)) := by
     calc 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / F + 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := by parley_subst s1
-      _ = 1 - 1 / F + 1 / F * (1 - 1 / ((c : ℝ) + 1)) := by parley_subst s2
+      _ = 1 - 1 / F + 1 / F * (1 - 1 / ((c : ℝ) + 1)) := by
+          have s2_w : (c : ℝ) / ((c : ℝ) + 1) = 1 - 1 / ((c : ℝ) + 1) := by have h := congrArg (fun x : ℚ => (x : ℝ)) s2; push_cast at h; linear_combination h
+          parley_subst s2_w
       _ = 1 - 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
       _ = 1 - 1 / (F * ((c : ℝ) + 1)) := by parley_subst s3
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep

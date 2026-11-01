@@ -15,6 +15,6 @@ theorem a_chain_going_down (a : ℝ) (b : ℝ) (c : ℝ) (H4 : a ≥ b) (H5 : b 
     calc a ≥ b := by parley_side
       _ > c := by parley_side
       _ = 2 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AChainGoingDown.AChainGoingDown

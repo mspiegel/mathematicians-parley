@@ -15,11 +15,13 @@ theorem odd_square_less_one_over_eight (n : ℤ) (H2 : Odd n) :
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)
   -- 2. algebra, from 1
-  have s2 : ((n : ℚ) ^ 2 - 1) / 8 = (k : ℚ) * ((k : ℚ) + 1) / 2 := by linear_combination ((1 / 4 : ℚ) * (k : ℚ) + (1 / 8 : ℚ) * (n : ℚ) + (1 / 8 : ℚ)) * s1
+  have s2 : ((n : ℚ) ^ 2 - 1) / 8 = (k : ℚ) * ((k : ℚ) + 1) / 2 := by
+    have s1_w : (n : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination h
+    linear_combination ((4 * (k : ℚ) + 2 * (n : ℚ) + 2) / ((8) * (2))) * s1_w
   -- 3. thm:triangular-number-integer n := k
-  have s3 : ∃ m : ℤ, (m : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by simpa using (Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k))
+  have s3 : ∃ m : ℤ, (m : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by first | exact (Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k)) | exact ((Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k))).symm | simpa using (Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger.triangular_number_integer (n := k))
   -- 4. membership, from 2, 3
   have s4 : ∃ m : ℤ, (m : ℚ) = ((n : ℚ) ^ 2 - 1) / 8 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Setmm.OddSquareLessOneOverEight.OddSquareLessOneOverEight

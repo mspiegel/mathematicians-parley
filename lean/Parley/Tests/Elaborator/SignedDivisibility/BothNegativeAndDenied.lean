@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.SignedDivisibility.BothNegativeAndDenied
 theorem both_negative_and_denied :
     ¬ (-3 : ℤ) ∣ (-7 : ℤ) := by
   -- 1. arithmetic
-  have s1 : ¬ (-3 : ℤ) ∣ (-7 : ℤ) := by norm_num
-  parley_side
+  have s1 : ¬ (-3 : ℤ) ∣ (-7 : ℤ) := by parley_arith
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.SignedDivisibility.BothNegativeAndDenied

@@ -16,6 +16,6 @@ theorem positive_from_a_natural_with_a_bound_uncited (n : ℕ) (H1 : 0 < n) :
   have s2 : (n : ℤ) > 0 := by parley_side
   -- 3. join 1, 2
   have s3 : 1 ≤ (n : ℤ) ∧ (n : ℤ) > 0 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.BoundsFromCited.PositiveFromANaturalWithABoundUncited

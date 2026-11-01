@@ -17,9 +17,9 @@ theorem nothing_below_one_is_two :
     -- 1.1. restate K2
     have s1_1 : x ≤ 1 := by parley_side
     -- 1.2. substitute x = 2 (K2) into line 1.1
-    have s1_2 : (2 : ℤ) ≤ 1 := by parley_subst_at K2 s1_1
+    have s1_2 : (2 : ℝ) ≤ 1 := by parley_subst_at K2.2 s1_1
     exact absurd s1_2 (by norm_num)
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AProofBlockEndingImpossible.NothingBelowOneIsTwo

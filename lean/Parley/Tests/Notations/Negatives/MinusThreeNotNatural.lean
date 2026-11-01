@@ -11,7 +11,7 @@ namespace Parley.Tests.Notations.Negatives.MinusThreeNotNatural
 theorem minus_three_not_natural :
     ¬ 0 ≤ -3 := by
   -- 1. arithmetic
-  have s1 : ¬ 0 ≤ -3 := by norm_num
-  parley_side
+  have s1 : ¬ 0 ≤ -3 := by parley_arith
+  all_goals parley_side
 
 end Parley.Tests.Notations.Negatives.MinusThreeNotNatural

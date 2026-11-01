@@ -15,7 +15,7 @@ theorem a_for_all_line_as_the_first_row_of_inequalities (H1 : ∀ x : ℝ, x ^ 2
     intro y
     -- 1.1. inequalities
     have s1_1 : y ^ 2 + 1 ≥ 0 := by parley_side
-    parley_side
-  parley_side
+    all_goals parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineAsTheFirstRowOfInequalities

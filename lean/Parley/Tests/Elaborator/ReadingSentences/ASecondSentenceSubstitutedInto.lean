@@ -12,6 +12,6 @@ theorem a_second_sentence_substituted_into (a : ℝ) (b : ℝ) (H3a : a = 1) (H3
     a < 2 := by
   -- 1. substitute b = 2 (H4) into H3
   have s1 : a < 2 := by parley_subst_at H4 H3a
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceSubstitutedInto

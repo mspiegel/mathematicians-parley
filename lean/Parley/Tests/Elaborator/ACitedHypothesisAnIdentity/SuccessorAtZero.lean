@@ -13,6 +13,6 @@ theorem successor_at_zero :
     (2 * 1 : ℤ) = 2 * 0 + 2 := by
   -- 1. thm:successor-sum i := 0, j := 1
   have s1 : (2 * 1 : ℤ) = 2 * 0 + 2 := by linear_combination (Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum.successor_sum (i := 0) (j := 1) (by parley_side) (by parley_side))
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorAtZero

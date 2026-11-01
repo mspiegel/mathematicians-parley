@@ -11,6 +11,6 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundReadByTheMe
 theorem a_membership_bound_read_by_the_membership_method (x : ℝ) (x : ℕ) (H2 : 0 < x) :
     True := by
   -- 1. membership, from H2
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundReadByTheMembershipMethod

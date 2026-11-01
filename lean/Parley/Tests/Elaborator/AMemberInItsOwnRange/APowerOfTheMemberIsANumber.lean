@@ -11,6 +11,6 @@ namespace Parley.Tests.Elaborator.AMemberInItsOwnRange.APowerOfTheMemberIsANumbe
 theorem a_power_of_the_member_is_a_number (n : ℕ) :
     True := by
   -- 1. membership
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AMemberInItsOwnRange.APowerOfTheMemberIsANumber

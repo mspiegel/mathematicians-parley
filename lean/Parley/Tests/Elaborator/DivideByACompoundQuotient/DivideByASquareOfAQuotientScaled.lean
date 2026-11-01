@@ -12,6 +12,6 @@ theorem divide_by_a_square_of_a_quotient_scaled (j : ℕ) (H1 : 0 < j) :
     2 / (1 / (j : ℚ)) ^ 2 = 2 * (j : ℚ) ^ 2 := by
   -- 1. algebra
   have s1 : 2 / (1 / (j : ℚ)) ^ 2 = 2 * (j : ℚ) ^ 2 := by parley_ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByASquareOfAQuotientScaled

@@ -20,6 +20,6 @@ theorem a_chain_showing_its_work (n : ℤ) (H2 : Odd n) :
       _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by ring
   -- 3. def:odd n := n², from 2
   have s3 : Odd (n ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainShowingItsWork

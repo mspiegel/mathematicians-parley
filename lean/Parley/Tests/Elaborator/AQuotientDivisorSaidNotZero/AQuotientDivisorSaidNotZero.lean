@@ -18,6 +18,6 @@ theorem a_quotient_divisor_said_not_zero (ε : ℝ) (d : ℝ) (n : ℕ) (H3 : 0 
   -- 3. transitivity, from 2, H5
   have r23_1 : 2 * d ≠ 0 := by parley_side
   have s3 : 0 - ε / (2 * d) < 1 / (n : ℝ) := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero

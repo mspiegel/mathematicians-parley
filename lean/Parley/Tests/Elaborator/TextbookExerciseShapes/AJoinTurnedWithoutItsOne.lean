@@ -12,6 +12,6 @@ theorem a_join_turned_without_its_one (x : ℝ) (y : ℝ) (H3 : x * 1 = y) :
     y = x := by
   -- 1. restate H3
   have s1 : y = x := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AJoinTurnedWithoutItsOne

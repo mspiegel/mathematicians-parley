@@ -13,6 +13,6 @@ theorem exponent_sum (a : ℝ) (m : ℕ) (n : ℕ) :
     a ^ (m + n) = a ^ m * a ^ n := by
   -- 1. mun:numbers-exponent-sum
   have s1 : a ^ (m + n) = a ^ m * a ^ n := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n))
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Stdlib.Numbers.ExponentSum

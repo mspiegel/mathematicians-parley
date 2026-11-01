@@ -12,6 +12,6 @@ theorem halfway_above (A : ℝ) (B : ℝ) (H3 : A < B) :
     A < (A + B) / 2 := by
   -- 1. inequalities
   have s1 : A < (A + B) / 2 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.InequalityRows.HalfwayAbove

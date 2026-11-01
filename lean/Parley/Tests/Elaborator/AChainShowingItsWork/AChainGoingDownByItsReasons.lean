@@ -16,6 +16,6 @@ theorem a_chain_going_down_by_its_reasons (a : ℝ) (H2 : a ≥ 3) :
   have s2 : a + a ≥ 6 := by
     calc a + a = 2 * a := by ring
       _ ≥ 6 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons

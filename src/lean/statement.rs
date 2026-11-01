@@ -60,11 +60,34 @@ pub fn introduces(node: &Node) -> Option<(String, System)> {
     Some((x.text.to_string(), system_of(set)?))
 }
 
+/// The letter a fact `k ∈ {a, …, b}` introduces, an integer between the
+/// range's ends; None for any other fact.
+pub fn range_letter(node: &Node) -> Option<String> {
+    let [x, set] = node.children.as_slice() else {
+        return None;
+    };
+    let fits = node.spelling() == IN
+        && x.is_name()
+        && set.notation() == crate::notations::INTEGER_RANGE;
+    fits.then(|| x.text.to_string())
+}
+
 /// The binders of the facts asked, in order, each letter added to the
 /// writer's letters as it is introduced, so a later fact reads it.
 pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
     let mut out = Vec::new();
     for a in asked {
+        // A letter of a range is an integer, and the range a fact about it.
+        if let Some(letter) = range_letter(a.node) {
+            let ty = LetterType::Number(super::templates::Num::Int);
+            writer.letters.insert(letter.clone(), ty.clone());
+            out.push(Binder::Letter {
+                name: super::names::letter(&letter),
+                page: letter,
+                general: false,
+                ty,
+            });
+        }
         if let Some((letter, system)) = introduces(a.node) {
             let ty = LetterType::Number(letter_type(system));
             writer.letters.insert(letter.clone(), ty.clone());

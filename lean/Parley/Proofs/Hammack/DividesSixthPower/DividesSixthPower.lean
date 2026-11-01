@@ -25,6 +25,6 @@ theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (H4 : a ^ 2 ∣ b) (H5
       _ = a ^ 6 * (k ^ 3 * m) := by ring
   -- 6. def:divides d := a⁶, n := c, from 5
   have s6 : a ^ 6 ∣ c := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 6) (n := c))).mpr ⟨k ^ 3 * m, by parley_side⟩
-  parley_side
+  all_goals parley_side
 
 end Parley.Proofs.Hammack.DividesSixthPower.DividesSixthPower

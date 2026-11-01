@@ -239,6 +239,14 @@ impl Writer<'_> {
     /// The least number type that holds the node, ℤ at least: the type a
     /// formula made of it alone is computed in.
     pub fn carrier(&self, node: &Node) -> Route<Num> {
+        // A power to an exponent that is no natural number is taken in a
+        // field, where Lean's integer power is what the page means.
+        if let Some([base, _]) = self.integer_power(node) {
+            return match self.carrier(base) {
+                Route::Built(n) => Route::Built(n.max(Num::Rat)),
+                declined => declined,
+            };
+        }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
                 Some(LetterType::Number(n)) => Route::Built((*n).max(Num::Int)),
@@ -284,6 +292,17 @@ impl Writer<'_> {
         }
     }
 
+    /// The base and exponent of a power whose exponent is no natural number
+    /// as Lean computes one: a negative or an integer letter. None for any
+    /// other node.
+    fn integer_power<'n>(&self, node: &'n Node) -> Option<&'n [Node; 2]> {
+        if node.notation() != crate::notations::POWER {
+            return None;
+        }
+        let parts: &[Node; 2] = node.children.as_slice().try_into().ok()?;
+        (!self.natural(&parts[1])).then_some(parts)
+    }
+
     /// The function letter an application applies, with the types it takes
     /// and gives.
     fn applied(&self, node: &Node) -> Route<(Num, Num)> {
@@ -299,7 +318,7 @@ impl Writer<'_> {
     /// Whether some part of the node fixes the type Lean computes it in: a
     /// letter, a function's value, or an operation of a fixed type. A
     /// formula of numerals alone is computed in ℕ unless told otherwise.
-    fn pinned(&self, node: &Node) -> bool {
+    pub fn pinned(&self, node: &Node) -> bool {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
@@ -358,6 +377,27 @@ impl Writer<'_> {
                 "{} would be computed in ℕ, where subtraction stops at 0",
                 self.grammar.print(node)
             ));
+        }
+        if let Some([base, exponent]) = self.integer_power(node) {
+            if at < Num::Rat {
+                return Route::no(format!(
+                    "{} is a power to an integer, taken in {}",
+                    self.grammar.print(node),
+                    at.lean()
+                ));
+            }
+            let base = match self.number(base, at) {
+                Route::Built(b) => b,
+                declined => return declined,
+            };
+            let exponent = match self.number_fixed(exponent, Num::Int) {
+                Route::Built(e) => e,
+                declined => return declined,
+            };
+            return Route::Built(Printed {
+                text: format!("{} ^ {}", base.at(76), exponent.at(75)),
+                prec: 75,
+            });
         }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
@@ -588,6 +628,24 @@ impl Writer<'_> {
     /// type where the other does not fix it. `negated` writes an equation
     /// as `≠`.
     fn relation(&self, node: &Node, negated: bool) -> Route<Printed> {
+        self.relation_from(node, negated, Num::Int)
+    }
+
+    /// A relation of numerals alone, `5 = 0`, written in the type `floor`
+    /// at least: the type of the lines it is reached from.
+    pub fn closed_formula(&self, node: &Node, floor: Num) -> Route<Printed> {
+        if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
+            if inner.notation() == EQUALITY {
+                return self.relation_from(inner, true, floor);
+            }
+        }
+        match node.notation() {
+            EQUALITY | ORDER => self.relation_from(node, false, floor),
+            _ => self.formula(node),
+        }
+    }
+
+    fn relation_from(&self, node: &Node, negated: bool, floor: Num) -> Route<Printed> {
         let [left, right] = node.children.as_slice() else {
             return Route::no("a relation of other than two sides");
         };
@@ -598,7 +656,7 @@ impl Writer<'_> {
             ));
         }
         let at = match (self.carrier(left), self.carrier(right)) {
-            (Route::Built(a), Route::Built(b)) => a.max(b),
+            (Route::Built(a), Route::Built(b)) => a.max(b).max(floor),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                 return Route::Declined(d)
             }
@@ -644,6 +702,41 @@ impl Writer<'_> {
             let [from, to] = set.children.as_slice() else {
                 return Route::no("a range of other than two ends");
             };
+            // A range whose ends are no integers as Lean computes them, 6/3,
+            // is said by the order of its member between them, in the type
+            // that holds all three.
+            let wide = [x, from, to]
+                .iter()
+                .any(|n| matches!(self.carrier(n), Route::Built(c) if c > Num::Int));
+            if wide {
+                let mut at = Num::Int;
+                for n in [x, from, to] {
+                    match self.carrier(n) {
+                        Route::Built(c) => at = at.max(c),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                let mut out = Vec::new();
+                for n in [from, x, to] {
+                    match self.number(n, at) {
+                        Route::Built(p) => out.push(p),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                if !self.pinned(x) && !self.pinned(from) {
+                    out[0] = self.cast(&out[0], at);
+                }
+                return Route::Built(Printed {
+                    text: format!(
+                        "{} ≤ {} ∧ {} ≤ {}",
+                        out[0].at(51),
+                        out[1].at(51),
+                        out[1].at(51),
+                        out[2].at(51)
+                    ),
+                    prec: 35,
+                });
+            }
             let parts = [
                 self.number(x, Num::Int),
                 self.number(from, Num::Int),

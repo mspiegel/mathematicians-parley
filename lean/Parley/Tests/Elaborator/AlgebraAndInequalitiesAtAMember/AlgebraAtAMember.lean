@@ -12,6 +12,6 @@ theorem algebra_at_a_member (n : ℕ) (H1 : 0 < n) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 (n : ℤ) → i + i = 2 * i) := by
   -- 1. algebra
   have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 (n : ℤ) → i + i = 2 * i := by intro i h_i; ring
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember

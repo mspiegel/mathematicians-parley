@@ -12,6 +12,6 @@ theorem a_second_sentence_as_a_first_row (a : ℝ) (b : ℝ) (H3a : a = 1) (H3b 
     b + 1 > 1 := by
   -- 1. inequalities
   have s1 : b + 1 > 1 := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceAsAFirstRow

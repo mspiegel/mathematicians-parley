@@ -14,6 +14,6 @@ theorem a_chain_going_down_from_an_equation (a : ℝ) (b : ℝ) (c : ℝ) (H4 : 
   have s1 : a ≥ c := by
     calc a = b := by parley_side
       _ ≥ c := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.AChainGoingDown.AChainGoingDownFromAnEquation

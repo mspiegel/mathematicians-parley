@@ -15,6 +15,6 @@ theorem a_strict_link_then_a_bound (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (H5 :
     calc a < b := by parley_side
       _ ≤ c := by parley_side
       _ < d := by parley_side
-  parley_side
+  all_goals parley_side
 
 end Parley.Tests.Elaborator.OrderChains.AStrictLinkThenABound
