@@ -16,7 +16,7 @@ theorem odd_cube (n : ℤ) (hH2 : Odd n) :
   -- 2. substitute n = 2k + 1 (line 1)
   have s2 : n ^ 3 = (2 * k + 1) ^ 3 := by parley_subst s1
   -- 3. algebra
-  have s3 : (2 * k + 1) ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by ring
+  have s3 : (2 * k + 1) ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_ring
   -- 4. transitivity, from 2, 3
   have s4 : n ^ 3 = 2 * (4 * k ^ 3 + 6 * k ^ 2 + 3 * k) + 1 := by parley_side
   -- 5. def:odd n := n³, from 4

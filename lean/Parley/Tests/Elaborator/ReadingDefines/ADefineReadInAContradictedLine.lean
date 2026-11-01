@@ -21,7 +21,7 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
     have s2_1 : a + 1 = 0 := by
       try simp only [hD1] at *
       try push_cast at *
-      linear_combination hS
+      linear_combination (norm := parley_norm) hS
     all_goals parley_side
   all_goals parley_side
 

@@ -15,7 +15,7 @@ theorem abs_difference_below (A : ℝ) (B : ℝ) :
   have s1 : |A - B + B| ≤ |A - B| + |B| := by first | linarith [(Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B))] | (have h := (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.thm_triangle_inequality (a := A - B) (b := B))
   -- 2. substitute
   have s2 : |A| ≤ |A - B| + |B| := by
-    have c1 : A - B + B = A := by ring
+    have c1 : A - B + B = A := by parley_ring
     have row1 : |A| ≤ |A - B| + |B| := by parley_subst_at c1 s1
     exact row1
   -- 3. inequalities

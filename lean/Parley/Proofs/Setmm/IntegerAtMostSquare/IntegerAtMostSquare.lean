@@ -16,7 +16,7 @@ theorem integer_at_most_square (n : ℤ) :
   -- 2. mun:square-nonneg x := n
   have s2 : n ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 3. algebra
-  have s3 : n ^ 2 = n * n := by ring
+  have s3 : n ^ 2 = n * n := by parley_ring
   -- 4. cases, from 1
   have s4 : n ≤ n ^ 2 := by
     rcases s1 with (hC1 | hC2) | hC3
@@ -28,7 +28,7 @@ theorem integer_at_most_square (n : ℤ) :
       all_goals parley_side
     · skip
       -- 4.3. algebra, from C2
-      have s4_3 : n * n = 0 := by linear_combination (n) * hC2
+      have s4_3 : n * n = 0 := by linear_combination (norm := parley_norm) (n) * hC2
       -- 4.4. transitivity, from C2, 4.3, 3
       have s4_4 : n = n ^ 2 := by parley_side
       -- 4.5. inequalities

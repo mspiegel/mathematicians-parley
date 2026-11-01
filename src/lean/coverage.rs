@@ -36,6 +36,8 @@ pub const IN_CODE: &[&str] = &[
     "for-all",
     "integer-range",
     "comma-conjunction",
+    "function-type",
+    "composition",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -89,6 +91,20 @@ fn covered(
             reason: "the checker refuses it".to_string(),
         };
     }
+    // A letter the page gives a function type, `f : ℝ → ℝ`, is a Lean
+    // function of its own; a composite of such is one too.
+    let own: std::collections::BTreeSet<String> = rec
+        .page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .filter(|n| n.notation() == crate::notations::FUNCTION_TYPE)
+        .filter_map(|n| {
+            n.children
+                .first()
+                .filter(|f| f.is_name())
+                .map(|f| f.text.to_string())
+        })
+        .collect();
     // A library function applied is in where its definition says what it
     // is in Lean (`lean-builds`).
     let mut notations: Vec<String> = rec
@@ -98,13 +114,20 @@ fn covered(
         .filter_map(|n| {
             let name = n.notation_name().to_string();
             if matches!(name.as_str(), "application" | "application-to-two") {
-                let f = n
-                    .children
-                    .first()
-                    .map(|f| f.text.to_string())
-                    .unwrap_or_default();
+                let head = n.children.first()?;
+                if !head.is_name() || own.contains(head.text.as_str()) {
+                    return None;
+                }
+                let f = head.text.to_string();
                 return templates.function(&f).is_none().then(|| {
                     format!("{f}, applied, whose definition has no lean-builds field")
+                });
+            }
+            if n.notation() == crate::notations::FUNCTION_TYPE {
+                let typed = matches!(n.children.as_slice(), [_, from, to]
+                    if super::expr::function_systems(from, to).is_some());
+                return (!typed).then(|| {
+                    "a function type between sets Lean has no type for yet".to_string()
                 });
             }
             (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
@@ -124,6 +147,7 @@ fn covered(
         .entries()
         .flat_map(|(_, node)| node.walk())
         .filter(|n| n.is_name() && templates.function(&n.text).is_none())
+        .filter(|n| !own.contains(n.text.as_str()))
         .filter_map(|n| {
             let sort = rec.sorts.get(n.text.as_str())?;
             (!sort.is("number")).then(|| (n.text.to_string(), sort.describe()))

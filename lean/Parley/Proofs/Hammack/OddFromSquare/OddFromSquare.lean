@@ -20,7 +20,7 @@ theorem odd_from_square (a : ℤ) (hH2 : ¬ (4 : ℤ) ∣ a ^ 2) :
       -- 2.1. obtain k: def:even, from C1
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp (by parley_side)
       -- 2.2. algebra, from 2.1
-      have s2_2 : a ^ 2 = 4 * k ^ 2 := by linear_combination (a + 2 * k) * s2_1
+      have s2_2 : a ^ 2 = 4 * k ^ 2 := by linear_combination (norm := parley_norm) (a + 2 * k) * s2_1
       -- 2.3. def:divides d := 4, n := a², from 2.2
       have s2_3 : (4 : ℤ) ∣ a ^ 2 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := a ^ 2))).mpr ⟨k ^ 2, by parley_side⟩
       all_goals parley_side

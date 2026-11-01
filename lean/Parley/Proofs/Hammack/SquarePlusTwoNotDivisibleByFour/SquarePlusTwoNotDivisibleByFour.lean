@@ -29,7 +29,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
         -- 3.2. substitute n = 2k (line 3.1) into line 1
         have s3_2 : (2 * k) ^ 2 + 2 = 4 * m := by parley_subst_at s3_1 s1
         -- 3.3. algebra, from 3.2
-        have s3_3 : 4 * (m - k ^ 2) = 2 := by linear_combination (-1) * s3_2
+        have s3_3 : 4 * (m - k ^ 2) = 2 := by linear_combination (norm := parley_norm) (-1) * s3_2
         -- 3.4. thm:four-times-between j := m − k², r := 2
         have r38_1 : (2 : ℤ) > 0 := by parley_arith
         have r38_2 : (2 : ℤ) < 4 := by parley_arith
@@ -41,7 +41,7 @@ theorem square_plus_two_not_divisible_by_four (n : ℤ) :
         -- 3.6. substitute n = 2k + 1 (line 3.5) into line 1
         have s3_6 : (2 * k + 1) ^ 2 + 2 = 4 * m := by parley_subst_at s3_5 s1
         -- 3.7. algebra, from 3.6
-        have s3_7 : 4 * (m - k ^ 2 - k) = 3 := by linear_combination (-1) * s3_6
+        have s3_7 : 4 * (m - k ^ 2 - k) = 3 := by linear_combination (norm := parley_norm) (-1) * s3_6
         -- 3.8. thm:four-times-between j := m − k² − k, r := 3
         have r55_1 : (3 : ℤ) > 0 := by parley_arith
         have r55_2 : (3 : ℤ) < 4 := by parley_arith

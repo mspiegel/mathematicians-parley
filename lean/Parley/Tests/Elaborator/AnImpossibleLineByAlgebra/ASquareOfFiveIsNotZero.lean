@@ -15,7 +15,7 @@ theorem a_square_of_five_is_not_zero (x : ℝ) (hH2 : x ^ 2 = 5) :
     by_contra hc_hS
     have hS : x = 0 := by parley_suppose hc_hS
     -- 1.1. algebra, from H2, S
-    have s1_1 : (5 : ℝ) = 0 := by linear_combination (-1) * hH2 + (x) * hS
+    have s1_1 : (5 : ℝ) = 0 := by linear_combination (norm := parley_norm) (-1) * hH2 + (x) * hS
     exact absurd s1_1 (by norm_num)
     all_goals parley_side
   all_goals parley_side

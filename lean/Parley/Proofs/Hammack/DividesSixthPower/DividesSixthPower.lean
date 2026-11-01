@@ -22,7 +22,7 @@ theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 ∣ b) (h
   -- 5. calculation
   have s5 : c = a ^ 6 * (k ^ 3 * m) := by
     calc c = (a ^ 2 * k) ^ 3 * m := by parley_side
-      _ = a ^ 6 * (k ^ 3 * m) := by ring
+      _ = a ^ 6 * (k ^ 3 * m) := by parley_ring
   -- 6. def:divides d := a⁶, n := c, from 5
   have s6 : a ^ 6 ∣ c := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 6) (n := c))).mpr ⟨k ^ 3 * m, by parley_side⟩
   all_goals parley_side

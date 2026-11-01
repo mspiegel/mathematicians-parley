@@ -85,6 +85,18 @@ pub struct Writer<'a> {
     /// For an item's statement, the number type that stands for any ring
     /// of a kind, written `K` (`items`); None elsewhere.
     pub general: Option<Num>,
+    /// Terms of a wider type that a hypothesis already stated says are
+    /// integers, f(a) of `f(a) ∈ ℤ` with f into ℝ: each is the integer that
+    /// hypothesis gives, where the page computes with it in ℤ.
+    pub integers: Vec<SaidInteger>,
+}
+
+/// A term a hypothesis says is an integer: the term as the page prints it,
+/// and the hypothesis's Lean name, `∃ m : ℤ, (m : ℝ) = f a`.
+#[derive(Clone, Debug)]
+pub struct SaidInteger {
+    pub term: String,
+    pub proof: String,
 }
 
 /// The type variable an item's general letters range over.
@@ -112,7 +124,21 @@ impl<'a> Writer<'a> {
             templates: self.templates,
             letters,
             general: self.general,
+            integers: self.integers.clone(),
         }
+    }
+
+    /// The hypothesis that says this term is an integer; None where none
+    /// does.
+    fn said_integer(&self, node: &Node) -> Option<&str> {
+        if node.is_name() || node.notation() == NUMERAL {
+            return None;
+        }
+        let printed = self.grammar.print(node);
+        self.integers
+            .iter()
+            .find(|s| s.term == printed)
+            .map(|s| s.proof.as_str())
     }
 }
 
@@ -271,6 +297,10 @@ impl Writer<'_> {
     /// The least number type that holds the node, ℤ at least: the type a
     /// formula made of it alone is computed in.
     pub fn carrier(&self, node: &Node) -> Route<Num> {
+        // A term a hypothesis says is an integer is the integer it gives.
+        if self.said_integer(node).is_some() {
+            return Route::Built(Num::Int);
+        }
         // A power to an exponent that is no natural number is taken in a
         // field, where Lean's integer power is what the page means.
         if let Some([base, _]) = self.integer_power(node) {
@@ -344,12 +374,55 @@ impl Writer<'_> {
     /// The function letter an application applies, with the types it takes
     /// and gives.
     fn applied(&self, node: &Node) -> Route<(Num, Num)> {
-        let Some(f) = node.children.first().filter(|f| f.is_name()) else {
-            return Route::no("a function that is no letter is applied");
+        let Some(f) = node.children.first() else {
+            return Route::no("an application of nothing");
         };
-        match self.letters.get(f.text.as_str()) {
-            Some(LetterType::Function { from, to }) => Route::Built((*from, *to)),
-            _ => Route::no(format!("{} has no Lean function type", f.text)),
+        self.function_type(f)
+    }
+
+    /// The types a function takes and gives: a function letter's, or a
+    /// composite's, g ∘ f taking what f takes and giving what g gives.
+    pub fn function_type(&self, f: &Node) -> Route<(Num, Num)> {
+        if f.is_name() {
+            return match self.letters.get(f.text.as_str()) {
+                Some(LetterType::Function { from, to }) => Route::Built((*from, *to)),
+                _ => Route::no(format!("{} has no Lean function type", f.text)),
+            };
+        }
+        let [g, inner] = f.children.as_slice() else {
+            return Route::no("a function that is no letter or composite");
+        };
+        if &*f.notation_name() != "composition" {
+            return Route::no("a function that is no letter or composite");
+        }
+        let (from, middle) = match self.function_type(inner) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let (takes, to) = match self.function_type(g) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        if takes != middle {
+            return Route::no("a composite of functions whose types do not meet");
+        }
+        Route::Built((from, to))
+    }
+
+    /// A function as a printed term, a citation's value.
+    pub fn function_printed(&self, f: &Node) -> Printed {
+        Printed::atom(self.function_text(f))
+    }
+
+    /// A function as Lean writes it: a letter, or `(g ∘ f)`.
+    fn function_text(&self, f: &Node) -> String {
+        match f.children.as_slice() {
+            [g, inner] => format!(
+                "({} ∘ {})",
+                self.function_text(g),
+                self.function_text(inner)
+            ),
+            _ => super::names::letter(&f.text),
         }
     }
 
@@ -412,6 +485,10 @@ impl Writer<'_> {
 
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
+        if let Some(proof) = self.said_integer(node) {
+            let value = Printed::atom(format!("(Classical.choose {proof})"));
+            return self.raise(value, Num::Int, at);
+        }
         if at == Num::Nat && !self.natural(node) {
             return Route::no(format!(
                 "{} would be computed in ℕ, where subtraction stops at 0",
@@ -471,7 +548,7 @@ impl Writer<'_> {
                 let value = Printed {
                     text: format!(
                         "{} {}",
-                        super::names::letter(&node.children[0].text),
+                        self.function_text(&node.children[0]),
                         arg.at(MAX)
                     ),
                     prec: APP,
@@ -617,6 +694,27 @@ impl Writer<'_> {
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
             MEMBERSHIP => self.membership(node),
+            // f : A → B, which Lean's types give where f takes and gives
+            // those.
+            crate::notations::FUNCTION_TYPE => {
+                let [f, from, to] = node.children.as_slice() else {
+                    return Route::no("a function type of other than three parts");
+                };
+                let Some((takes, gives)) = function_systems(from, to) else {
+                    return Route::no(
+                        "a function type between sets that are no number system",
+                    );
+                };
+                match self.function_type(f) {
+                    Route::Built(t) if t == (takes, gives) => {
+                        Route::Built(Printed::atom("True"))
+                    }
+                    Route::Built(_) => {
+                        Route::no("a function type other than the function's own")
+                    }
+                    Route::Declined(d) => Route::Declined(d),
+                }
+            }
             THERE_IS | FOR_ALL => self.quantified(node),
             crate::notations::COMMA_CONJUNCTION => {
                 let mut parts = Vec::new();
@@ -974,6 +1072,19 @@ pub fn system_of(set: &Node) -> Option<System> {
         "ℂ" => Some(System::Type(Num::Complex)),
         _ => None,
     }
+}
+
+/// The Lean types of a function from one number system to another, `A → B`
+/// of `f : A → B`. A function into ℕ, whose values are above 0, is not one
+/// Lean's ℕ says, so it has none here; one from ℕ is a function on all of
+/// Lean's ℕ, of which the page's facts say only what they say from 1.
+pub fn function_systems(from: &Node, to: &Node) -> Option<(Num, Num)> {
+    let takes = letter_type(system_of(from)?);
+    let gives = system_of(to)?;
+    if gives == System::Positive {
+        return None;
+    }
+    Some((takes, letter_type(gives)))
 }
 
 /// The Lean type a letter introduced in a number system takes.

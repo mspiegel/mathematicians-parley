@@ -39,7 +39,7 @@ theorem even_leg_integers (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 + b ^ 2 = c
           have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by parley_subst_at c2 row1
           exact row2
         -- 2.2.4. algebra, from 2.2.3
-        have s2_2_4 : c ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by linear_combination (-1) * s2_2_3
+        have s2_2_4 : c ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by linear_combination (norm := parley_norm) (-1) * s2_2_3
         -- 2.2.5. def:even n := c², from 2.2.4
         have s2_2_5 : Even (c ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_even (n := c ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, by parley_side⟩
         -- 2.2.6. thm:even-square n := c, from 2.2.5
@@ -49,7 +49,7 @@ theorem even_leg_integers (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 + b ^ 2 = c
         -- 2.2.8. substitute c = 2r (line 2.2.7) into line 2.2.3
         have s2_2_8 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (2 * r) ^ 2 := by parley_subst_at s2_2_7 s2_2_3
         -- 2.2.9. algebra, from 2.2.8
-        have s2_2_9 : 2 = 4 * (r ^ 2 - p ^ 2 - p - q ^ 2 - q) := by linear_combination s2_2_8
+        have s2_2_9 : 2 = 4 * (r ^ 2 - p ^ 2 - p - q ^ 2 - q) := by linear_combination (norm := parley_norm) s2_2_8
         -- 2.2.10. def:divides d := 4, n := 2, from 2.2.9
         have s2_2_10 : (4 : ℤ) ∣ (2 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := (2 : ℤ)))).mpr ⟨r ^ 2 - p ^ 2 - p - q ^ 2 - q, by parley_side⟩
         exact absurd s2_2_10 (by norm_num)

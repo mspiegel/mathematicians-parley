@@ -29,7 +29,7 @@ theorem divides_sum_with_divisor (M : ℤ) (N : ℤ) :
       have s4 : M ∣ M + N - M := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := M) (a := M + N) (b := M) (by parley_side) (by parley_side))
       -- 5. substitute
       have s5 : M ∣ N := by
-        have c1 : M + N - M = N := by ring
+        have c1 : M + N - M = N := by parley_ring
         have row1 : M ∣ N := by parley_subst_at c1 s4
         exact row1
       all_goals parley_side

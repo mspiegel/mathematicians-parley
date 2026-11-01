@@ -22,7 +22,7 @@ theorem negative_powers (x : ℝ) (hH2 : x < 0) :
   -- 5. mun:square-nonneg x := x²
   have s5 : (x ^ 2) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x ^ 2))
   -- 6. algebra
-  have s6 : x ^ 4 = (x ^ 2) ^ 2 := by ring
+  have s6 : x ^ 4 = (x ^ 2) ^ 2 := by parley_ring
   -- 7. transitivity, from 6, 5
   have s7 : x ^ 4 ≥ 0 := by parley_side
   -- 8. mun:product-nonneg x := x⁴, y := −x, from 1, 7

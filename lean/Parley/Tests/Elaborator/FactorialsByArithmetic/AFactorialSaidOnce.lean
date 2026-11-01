@@ -9,9 +9,9 @@ public section
 namespace Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce
 
 theorem a_factorial_said_once (x : ℝ) :
-    x * (Nat.factorial 0 : ℝ) = (Nat.factorial 0 : ℝ) * x := by
+    x * (Parley.Library.factorial (0 : ℤ) : ℝ) = (Parley.Library.factorial (0 : ℤ) : ℝ) * x := by
   -- 1. algebra
-  have s1 : x * (Nat.factorial 0 : ℝ) = (Nat.factorial 0 : ℝ) * x := by ring
+  have s1 : x * (Parley.Library.factorial (0 : ℤ) : ℝ) = (Parley.Library.factorial (0 : ℤ) : ℝ) * x := by parley_ring
   all_goals parley_side
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce

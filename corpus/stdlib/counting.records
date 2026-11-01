@@ -24,7 +24,7 @@ definition factorial
   then        (n + 1)! = n!·(n + 1)
   metamath    fac0, fac1, facp1
   target      fac0, fac1, facp1
-  lean        by simp ; by simp ; by push_cast [Nat.factorial_succ]; ring
+  lean        by simp ; by simp ; by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, Parley.Library.factorial_natCast, Parley.Library.factorial_natCast, Nat.factorial_succ]; push_cast; ring
   note        Two `then` groups: the base sentences have no hypothesis and the
               step sentence has H1, every n from 0 on, as set.mm states it.
               See DATABASE.md on recursive definitions.
@@ -34,6 +34,7 @@ mundane theorem factorial-nat
   then        n! ∈ ℕ
   metamath    faccl
   target      faccl
+  lean        by simpa using Nat.factorial_pos n
 
 mundane theorem factorial-product
   let n ∈ ℕ₀                                                          (H1)
@@ -49,6 +50,7 @@ mundane theorem factorial-at-most
   then        m! ≤ n!
   metamath    facwordi
   target      facwordi
+  lean        by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
   note        A larger number has the larger factorial, the product of more
               factors at least 1.
 
@@ -59,6 +61,7 @@ mundane theorem factorial-divisible
   then        m divides n!
   metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
   target      dvdsfac
+  lean        by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
 
 mundane theorem card-zero
   let X be a set                                                      (H1)
@@ -123,6 +126,7 @@ mundane theorem card-disjoint-union
 definition C
   sort        number, number → number
   metamath-builds _1 _2 cbc co
+  lean-builds ℤ, ℤ → ℕ: Parley.Library.choose _1 _2
   reads       choose
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, −1) = 0
@@ -131,6 +135,7 @@ definition C
               if n < k then C(n, k) = 0.
   metamath    bcneg1, bcval2, bcval4
   target      bcneg1, bcval2, bcval4
+  lean        by simp [Parley.Library.choose] ; by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [Parley.Library.choose_natCast, Parley.Library.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm] ; by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
   note        set.mm defines C(n, k) for every integer k, as 0 outside
               0 … n, and the formula is its value inside. That it is 0 above
               n and at −1 is a convention a writer chooses, so both are
@@ -144,6 +149,7 @@ theorem pascal
   then        C(n, k) + C(n, k − 1) = C(n + 1, k)
   metamath    bcpasc
   target      bcpasc
+  lean        by exact_mod_cast Parley.Library.pascal n k
   note        Holds for every integer k, the ends included, because C(n, k)
               is 0 outside 0 … n.
 
@@ -153,6 +159,7 @@ theorem absorption
   then        C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
   metamath    bcp1nk
   target      bcp1nk
+  lean        by exact_mod_cast Parley.Library.absorption n k h2
   note        The absorption identity, as set.mm states it: multiplied out,
               (k + 1)·C(n + 1, k + 1) = (n + 1)·C(n, k), which is
               k·C(m, k) = m·C(m − 1, k − 1) at m = n + 1.
@@ -164,12 +171,14 @@ mundane theorem binomial-zero-index
   then        C(n, 0) = 1
   metamath    bcn0
   target      bcn0
+  lean        by simp [Parley.Library.choose]
 
 mundane theorem binomial-one
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 1) = n
   metamath    bcn1
   target      bcn1
+  lean        by simp [Parley.Library.choose]
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-one (DATABASE.md).
 
@@ -178,6 +187,7 @@ mundane theorem binomial-all
   then        C(n, n) = 1
   metamath    bcnn
   target      bcnn
+  lean        by simp
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-all (DATABASE.md).
 
@@ -186,6 +196,7 @@ mundane theorem binomial-two
   then        C(n, 2) = n·(n − 1)/2
   metamath    bcn2
   target      bcn2
+  lean        by simp [Parley.Library.choose, Nat.cast_choose_two]
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-two (DATABASE.md).
 
@@ -196,6 +207,7 @@ mundane theorem binomial-outside
   then        C(n, k) = 0
   metamath    bcval3
   target      bcval3
+  lean        by exact_mod_cast Parley.Library.choose_outside n k h3
 
 mundane theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)
@@ -203,6 +215,7 @@ mundane theorem binomial-nat0
   then        C(n, k) ∈ ℕ₀
   metamath    bccl
   target      bccl
+  lean        by positivity
 
 mundane theorem binomial-nat
   let n ∈ ℕ₀                                                          (H1)
@@ -210,6 +223,7 @@ mundane theorem binomial-nat
   then        C(n, k) ∈ ℕ
   metamath    bccl2
   target      bccl2
+  lean        by exact_mod_cast Parley.Library.choose_pos n k h2
   note        A coefficient inside 0 … n is a positive whole number: it
               counts the parts of k elements of a set of n, and there is at
               least one.
@@ -231,6 +245,7 @@ mundane theorem factorial-nonzero
   then        n! ≠ 0
   metamath    facne0
   target      facne0
+  lean        by simp [Nat.factorial_ne_zero]
   note        A factorial is a product of numbers above 0, and 0! is 1.
 
 mundane theorem union-finite

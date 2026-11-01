@@ -12,7 +12,7 @@ namespace Parley.Tests.Stdlib.Numbers.ExponentSum
 theorem exponent_sum (a : ℝ) (m : ℕ) (n : ℕ) :
     a ^ (m + n) = a ^ m * a ^ n := by
   -- 1. mun:numbers-exponent-sum
-  have s1 : a ^ (m + n) = a ^ m * a ^ n := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n))
+  have s1 : a ^ (m + n) = a ^ m * a ^ n := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := a) (m := m) (n := n))).symm
   all_goals parley_side
 
 end Parley.Tests.Stdlib.Numbers.ExponentSum

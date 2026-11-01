@@ -28,7 +28,7 @@ theorem cubic_plus_multiple_of_three (n : ℕ) :
       have s1_4 : (3 : ℤ) ∣ (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6 + 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6) (b := 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6) (b := 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (3 : ℤ)) (a := (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6) (b := 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2)) (by parley_side) (by parley_side))
       -- 1.5. substitute
       have s1_5 : (3 : ℤ) ∣ ((k : ℤ) + 1) ^ 3 + 5 * ((k : ℤ) + 1) + 6 := by
-        have c1 : (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6 + 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2) = ((k : ℤ) + 1) ^ 3 + 5 * ((k : ℤ) + 1) + 6 := by ring
+        have c1 : (k : ℤ) ^ 3 + 5 * (k : ℤ) + 6 + 3 * ((k : ℤ) ^ 2 + (k : ℤ) + 2) = ((k : ℤ) + 1) ^ 3 + 5 * ((k : ℤ) + 1) + 6 := by parley_ring
         have row1 : (3 : ℤ) ∣ ((k : ℤ) + 1) ^ 3 + 5 * ((k : ℤ) + 1) + 6 := by parley_subst_at c1 s1_4
         exact row1
       all_goals parley_side

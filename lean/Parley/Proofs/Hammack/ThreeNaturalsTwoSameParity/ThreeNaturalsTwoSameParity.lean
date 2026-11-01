@@ -53,7 +53,7 @@ theorem three_naturals_two_same_parity (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 
               -- 2.4.4.4. obtain r: def:odd n := b − c, from C6
               obtain ⟨r, s2_4_4_4⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (b : ℤ) - (c : ℤ)))).mp (by parley_side)
               -- 2.4.4.5. algebra, from 2.4.4.2, 2.4.4.3, 2.4.4.4
-              have s2_4_4_5 : 1 = 2 * ((a : ℤ) - p - q - r - 1) := by linear_combination (-1) * s2_4_4_2 + (-1) * s2_4_4_3 + (-1) * s2_4_4_4
+              have s2_4_4_5 : 1 = 2 * ((a : ℤ) - p - q - r - 1) := by linear_combination (norm := parley_norm) (-1) * s2_4_4_2 + (-1) * s2_4_4_3 + (-1) * s2_4_4_4
               -- 2.4.4.6. def:even n := 1, from 2.4.4.5
               have s2_4_4_6 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨(a : ℤ) - p - q - r - 1, by parley_side⟩
               -- 2.4.4.7. mun:not-both n := 1, from 2.4.4.6

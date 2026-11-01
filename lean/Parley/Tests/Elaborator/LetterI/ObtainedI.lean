@@ -16,7 +16,7 @@ theorem obtained_i (n : ℤ) (hH2 : Odd n) :
   -- 2. substitute n = 2i + 1 (line 1)
   have s2 : n ^ 2 = (2 * i + 1) ^ 2 := by parley_subst s1
   -- 3. algebra
-  have s3 : (2 * i + 1) ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by ring
+  have s3 : (2 * i + 1) ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by parley_ring
   -- 4. calculation
   have s4 : n ^ 2 = 2 * (2 * i ^ 2 + 2 * i) + 1 := by
     calc n ^ 2 = (2 * i + 1) ^ 2 := by parley_side

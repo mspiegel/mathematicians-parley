@@ -15,7 +15,7 @@ theorem a_named_term_is_a_number (N : ℤ) :
   have s1 : M - 1 = 2 * N := by
     try simp only [hD1] at *
     try push_cast at *
-    ring
+    parley_ring
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.ANamedTermIsANumber

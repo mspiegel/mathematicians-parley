@@ -22,11 +22,11 @@ theorem two_does_not_divide_odd (A : ℤ) :
     have s2 : 2 * (k - A) = 1 := by
       try simp only [hD1] at *
       try push_cast at *
-      linear_combination (-1) * s1
+      linear_combination (norm := parley_norm) (-1) * s1
     -- 3. def:divides d := 2, n := 1, from 2
     have s3 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, by parley_side⟩
     -- 4. mun:divides-one d := 2, from 3
-    have s4 : (2 : ℤ) = 1 := by linear_combination (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side))
+    have s4 : (2 : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side))).symm
     exact absurd s4 (by norm_num)
     all_goals parley_side
   all_goals parley_side

@@ -16,9 +16,9 @@ theorem product_nonzero (x : ℝ) (y : ℝ) (hH3 : x ≠ 0) (hH4 : y ≠ 0) :
     by_contra hc_hS
     have hS : x * y = 0 := by parley_suppose hc_hS
     -- 1. algebra, from S
-    have s1 : x * y = 0 * y := by linear_combination hS
+    have s1 : x * y = 0 * y := by linear_combination (norm := parley_norm) hS
     -- 2. mun:multiply-cancel a := x, b := 0, c := y, from H4, 1
-    have s2 : x = 0 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side))
+    have s2 : x = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := x) (b := (0 : ℝ)) (c := y) (by parley_side) (by parley_side))).symm
     all_goals parley_side
   all_goals parley_side
 

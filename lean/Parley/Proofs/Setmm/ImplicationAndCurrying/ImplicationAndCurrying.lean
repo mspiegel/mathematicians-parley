@@ -21,7 +21,7 @@ theorem implication_and_currying (a : ℝ) (b : ℝ) (c : ℝ) :
       -- 1. join K1, K2
       have s1 : a = 0 ∧ b = 0 := by parley_side
       -- 2. mun:modus-ponens, from D1, 1
-      have s2 : c = 0 := by linear_combination (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) (by parley_side) (by parley_side))
+      have s2 : c = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 ∧ b = 0) (Q := c = 0) (by parley_side) (by parley_side))).symm
       all_goals parley_side
     · skip
       intro hD2
@@ -29,7 +29,7 @@ theorem implication_and_currying (a : ℝ) (b : ℝ) (c : ℝ) :
       -- 3. mun:modus-ponens, from D2, K3
       have s3 : b = 0 → c = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0) (Q := b = 0 → c = 0) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0) (Q := b = 0 → c = 0) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0) (Q := b = 0 → c = 0) (by parley_side) (by parley_side))
       -- 4. mun:modus-ponens, from K3, 3
-      have s4 : c = 0 := by linear_combination (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := b = 0) (Q := c = 0) (by parley_side) (by parley_side))
+      have s4 : c = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := b = 0) (Q := c = 0) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := b = 0) (Q := c = 0) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := b = 0) (Q := c = 0) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := b = 0) (Q := c = 0) (by parley_side) (by parley_side))).symm
       all_goals parley_side
   all_goals parley_side
 

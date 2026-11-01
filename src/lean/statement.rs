@@ -60,6 +60,19 @@ pub fn introduces(node: &Node) -> Option<(String, System)> {
     Some((x.text.to_string(), system_of(set)?))
 }
 
+/// The letter a fact `f : A → B` introduces, a function between number
+/// systems, with its Lean type; None for any other fact.
+pub fn introduces_function(node: &Node) -> Option<(String, LetterType)> {
+    let [f, from, to] = node.children.as_slice() else {
+        return None;
+    };
+    if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+        return None;
+    }
+    let (from, to) = super::expr::function_systems(from, to)?;
+    Some((f.text.to_string(), LetterType::Function { from, to }))
+}
+
 /// The letter a fact `k ∈ {a, …, b}` introduces, an integer between the
 /// range's ends; None for any other fact.
 pub fn range_letter(node: &Node) -> Option<String> {
@@ -88,6 +101,16 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 ty,
             });
         }
+        if let Some((letter, ty)) = introduces_function(a.node) {
+            writer.letters.insert(letter.clone(), ty.clone());
+            out.push(Binder::Letter {
+                name: super::names::letter(&letter),
+                page: letter,
+                general: false,
+                ty,
+            });
+            continue;
+        }
         if let Some((letter, system)) = introduces(a.node) {
             let ty = LetterType::Number(letter_type(system));
             writer.letters.insert(letter.clone(), ty.clone());
@@ -114,6 +137,22 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
             name: a.name.clone(),
             says: says.text,
         });
+        // A term of a wider type said to be an integer is, in what is
+        // asked after, the integer this hypothesis gives.
+        if let [term, set] = a.node.children.as_slice() {
+            let integer = a.node.notation() == crate::notations::MEMBERSHIP
+                && system_of(set) == Some(System::Type(super::templates::Num::Int))
+                && writer
+                    .carrier(term)
+                    .built()
+                    .is_some_and(|c| c > super::templates::Num::Int);
+            if integer {
+                writer.integers.push(super::expr::SaidInteger {
+                    term: writer.grammar.print(term),
+                    proof: a.name.clone(),
+                });
+            }
+        }
     }
     Route::Built(out)
 }

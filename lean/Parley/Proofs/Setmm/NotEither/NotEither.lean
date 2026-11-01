@@ -42,7 +42,7 @@ theorem not_either (a : ℝ) (b : ℝ) :
       by_contra hc_hS3
       have hS3 : a = 0 ∨ b = 0 := by parley_suppose hc_hS3
       -- 4. mun:disjunctive-syllogism, from D2, S3
-      have s4 : a = 0 := by linear_combination (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := a = 0) (Q := b = 0) (by parley_side) (by parley_side))
+      have s4 : a = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := a = 0) (Q := b = 0) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := a = 0) (Q := b = 0) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := a = 0) (Q := b = 0) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := a = 0) (Q := b = 0) (by parley_side) (by parley_side))).symm
       -- 5. restate D2
       have s5 : a ≠ 0 := by parley_side
       all_goals parley_side

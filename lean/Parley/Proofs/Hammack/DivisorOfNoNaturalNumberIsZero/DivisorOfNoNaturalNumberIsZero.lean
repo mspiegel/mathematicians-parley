@@ -26,7 +26,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℕ, 0 < k
     have s4 : b ∣ b * b := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := b) (a := b) (x := b) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := b) (a := b) (x := b) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := b) (a := b) (x := b) (by parley_side))
     -- 5. substitute
     have s5 : b ∣ b ^ 2 := by
-      have c1 : b * b = b ^ 2 := by ring
+      have c1 : b * b = b ^ 2 := by parley_ring
       have row1 : b ∣ b ^ 2 := by parley_subst_at c1 s4
       exact row1
     -- 6. instantiate k := b² in H2, from 2

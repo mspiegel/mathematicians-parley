@@ -13,7 +13,7 @@ theorem an_equation_between_two_bounds (x : ℝ) (y : ℝ) (hH3 : 0 ≤ y) :
   -- 1. inequalities
   have s1 : x < x + 1 := by parley_side
   -- 2. algebra
-  have s2 : x + 1 = 1 + x := by ring
+  have s2 : x + 1 = 1 + x := by parley_ring
   -- 3. inequalities
   have s3 : 1 + x ≤ 1 + x + y := by parley_side
   -- 4. calculation

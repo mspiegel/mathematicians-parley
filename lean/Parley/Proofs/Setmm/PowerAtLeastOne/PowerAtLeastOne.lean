@@ -19,13 +19,13 @@ theorem power_at_least_one (a : ℝ) (n : ℕ) (hH3 : 1 ≤ a) :
     induction m with
     | zero =>
       -- 2.1. algebra
-      have s2_1 : a ^ 0 = 1 := by ring
+      have s2_1 : a ^ 0 = 1 := by parley_ring
       -- 2.2. inequalities
       have s2_2 : 1 ≤ a ^ 0 := by parley_side
       all_goals parley_side
     | succ m hIH =>
       -- 2.3. mun:exponent-step
-      have s2_3 : a ^ (m + 1) = a ^ m * a := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m))
+      have s2_3 : a ^ (m + 1) = a ^ m * a := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m))).symm
       -- 2.4. mun:multiply-le x := 1, y := a^m, c := a, from IH, 1
       have s2_4 : a * 1 ≤ a * a ^ m := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))
       -- 2.5. inequalities

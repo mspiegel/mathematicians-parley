@@ -14,7 +14,7 @@ theorem a_for_all_line_instantiated (hH1 : ∀ x : ℝ, ∀ z : ℝ, x * z = z *
   have s1 : ∀ y : ℝ, y * 2 = 2 * y := by
     intro y
     -- 1.1. instantiate z := 2 in H1
-    have s1_1 : y * 2 = 2 * y := by linear_combination (hH1 y (2 : ℝ))
+    have s1_1 : y * 2 = 2 * y := by first | linear_combination (norm := parley_norm) (hH1 y (2 : ℝ)) | (have h := (hH1 y (2 : ℝ)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (hH1 y (2 : ℝ)) | exact_mod_cast ((hH1 y (2 : ℝ))).symm
     all_goals parley_side
   all_goals parley_side
 

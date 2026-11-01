@@ -14,7 +14,7 @@ theorem a_for_all_line_joined_in_a_block :
   have s1 : ∀ x : ℤ, x * 1 = x := by
     intro x
     -- 1.1. algebra
-    have s1_1 : x * 1 = x := by ring
+    have s1_1 : x * 1 = x := by parley_ring
     all_goals parley_side
   -- 2. proof
   have s2 : ∀ z : ℤ, z * 1 = z := by

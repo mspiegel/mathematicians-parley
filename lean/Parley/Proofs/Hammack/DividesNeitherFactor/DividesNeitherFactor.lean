@@ -28,7 +28,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     have s2_1 : x ∣ z * y := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side))
     -- 2.2. substitute
     have s2_2 : x ∣ y * z := by
-      have c1 : z * y = y * z := by ring
+      have c1 : z * y = y * z := by parley_ring
       have row1 : x ∣ y * z := by parley_subst_at c1 s2_1
       exact row1
     -- 2.3. restate H5

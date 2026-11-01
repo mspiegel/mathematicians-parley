@@ -8,7 +8,7 @@
 //! `linear_combination` checks exactly that, by `ring`. Where a denominator
 //! is not a number, `field_simp` clears it first, from the lines that say
 //! it is not 0. With no line cited the claim is an identity, `ring`'s, or
-//! `field_simp`'s and then `ring`'s where it divides.
+//! `field_simp`'s and then `ring`'s where it divides (`parley_ring`).
 
 use indexmap::IndexMap;
 use num_traits::{One, Signed};
@@ -40,17 +40,8 @@ pub fn algebra(
     let labels = FloatLabels::new(IndexMap::new());
     let claimed = term_of_node(claim, targets);
     let divides = !constant(&denominators(&claimed, &labels));
-    let writes_division = claim
-        .walk()
-        .iter()
-        .any(|n| n.spelling() == crate::notations::DIVIDED);
     if cited.is_empty() {
-        let divides = divides || writes_division;
-        return Route::Built(if divides {
-            "by parley_ring".to_string()
-        } else {
-            "by ring".to_string()
-        });
+        return Route::Built("by parley_ring".to_string());
     }
     let Some(want) = field::equation(&claimed, &labels) else {
         return Route::no("algebra whose claim is no equation");
@@ -83,11 +74,7 @@ pub fn algebra(
     // Lines cited for what they say of a divisor, and no equation: the claim
     // is an identity, cleared of its divisions by those lines.
     if given.is_empty() {
-        return Route::Built(if divided || writes_division {
-            "by parley_ring".to_string()
-        } else {
-            "by ring".to_string()
-        });
+        return Route::Built("by parley_ring".to_string());
     }
     let claim_under = denominators(&claimed, &labels);
     let found = readings(&claimed, want, &labels)
@@ -101,10 +88,11 @@ pub fn algebra(
     };
     // The multipliers are written in the type the step works in: the
     // claim's, or a cited line's where it is wider, as of a closed claim.
-    let mut at = match carrier_of(writer, claim) {
+    let own = match carrier_of(writer, claim) {
         Route::Built(n) => n,
         Route::Declined(d) => return Route::Declined(d),
     };
+    let mut at = own;
     for c in cited {
         if c.node.notation() == crate::notations::EQUALITY {
             if let Route::Built(n) = carrier_of(writer, &c.node) {
@@ -126,15 +114,23 @@ pub fn algebra(
         .iter()
         .map(|side| field::read(side, &labels).under)
         .collect();
-    // A combination in ℤ that takes half of an equation is one in ℚ: the
-    // step is moved there by `qify`, which casts every line alike.
+    // A combination in ℤ that takes half of an equation is one in ℚ. So is
+    // one whose cited lines are wider than its claim: the step is moved to
+    // their type by `qify` or `rify`, which casts every line alike.
     let fractional = how
         .iter()
         .any(|t| t.multiplier().terms.values().any(|c| !c.is_integer()));
-    let qify = at == Num::Int && fractional;
-    if qify {
+    if at == Num::Int && fractional {
         at = Num::Rat;
     }
+    // A claim of numerals alone is written in its cited lines' type, so
+    // only one whose parts fix its type is moved.
+    let pinned = claim.children.iter().any(|side| writer.pinned(side));
+    let moved = match (pinned && own < at, at) {
+        (true, Num::Rat) => Some("qify"),
+        (true, Num::Real) => Some("rify"),
+        _ => None,
+    };
     let mut parts = Vec::new();
     for t in &how {
         let over = t.multiplier().times(&taken).times(&own_under[t.which]);
@@ -158,10 +154,10 @@ pub fn algebra(
     };
     Route::Built(if divided {
         format!("by linear_combination (norm := parley_field) {sum}")
-    } else if qify {
-        format!("by qify at *; linear_combination {sum}")
+    } else if let Some(cast) = moved {
+        format!("by {cast} at *; linear_combination (norm := parley_norm) {sum}")
     } else {
-        format!("by linear_combination {sum}")
+        format!("by linear_combination (norm := parley_norm) {sum}")
     })
 }
 

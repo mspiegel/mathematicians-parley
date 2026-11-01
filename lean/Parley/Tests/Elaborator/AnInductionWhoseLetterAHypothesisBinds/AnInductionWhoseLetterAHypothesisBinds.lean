@@ -20,7 +20,7 @@ theorem an_induction_whose_letter_a_hypothesis_binds (hH1 : ∀ m : ℕ, (m : �
       all_goals parley_side
     | succ m hIH =>
       -- 1.2. algebra
-      have s1_2 : (m : ℤ) + 1 + 0 = (m : ℤ) + 1 := by ring
+      have s1_2 : (m : ℤ) + 1 + 0 = (m : ℤ) + 1 := by parley_ring
       all_goals parley_side
   all_goals parley_side
 

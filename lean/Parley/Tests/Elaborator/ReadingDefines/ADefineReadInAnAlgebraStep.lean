@@ -17,7 +17,7 @@ theorem a_define_read_in_an_algebra_step (a : ℝ) (b : ℝ) (hH3 : a + 1 = 2 * 
   have s2 : a = 2 * b - 1 := by
     try simp only [hD1] at *
     try push_cast at *
-    linear_combination s1
+    linear_combination (norm := parley_norm) s1
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnAlgebraStep

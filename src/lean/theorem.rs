@@ -74,6 +74,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
         templates: sources.templates,
         letters: IndexMap::new(),
         general: None,
+        integers: Vec::new(),
     };
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
@@ -296,6 +297,7 @@ pub fn theorem(
             templates: sources.templates,
             letters: IndexMap::new(),
             general: None,
+            integers: Vec::new(),
         },
         lines: Vec::new(),
         origins: Vec::new(),
@@ -939,6 +941,7 @@ impl<'a> Proof<'a> {
             return Route::no("an exhibit the checker read no values for");
         };
         let mut parts = Vec::new();
+        let mut known = Vec::new();
         let mut body = node;
         while body.notation() == crate::notations::THERE_IS {
             let [letter, set, inner] = body.children.as_slice() else {
@@ -960,19 +963,22 @@ impl<'a> Proof<'a> {
                     }
                 }
             };
-            match self.writer.number_fixed(value, ty) {
-                Route::Built(p) => parts.push(p.text),
+            match self.witness(value, ty) {
+                Route::Built(w) => {
+                    parts.push(w.term);
+                    known.extend(w.known);
+                }
                 Route::Declined(d) => return Route::Declined(d),
             }
             if guarded {
-                parts.push("by parley_side".to_string());
+                parts.push(format!("by {}parley_side", known.concat()));
             }
             body = inner;
         }
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push("by parley_side".to_string());
+        parts.push(format!("by {}parley_side", known.concat()));
         Route::Built(format!("⟨{}⟩", parts.join(", ")))
     }
 
@@ -1140,54 +1146,6 @@ impl<'a> Proof<'a> {
             .collect()
     }
 
-    /// A claim `s ∈ ℤ` reached by putting s into a line `t ∈ ℤ` that Lean's
-    /// types give, by an equation between t and s: the integer t is the
-    /// witness, and the equation its proof. None where the claim is not so.
-    fn integer_by_equation(
-        &self,
-        equation: &Node,
-        name: &str,
-        claim: &Node,
-    ) -> Option<String> {
-        let [s, set] = claim.children.as_slice() else {
-            return None;
-        };
-        let integers = claim.notation() == crate::notations::MEMBERSHIP
-            && super::expr::system_of(set)
-                == Some(super::expr::System::Type(super::templates::Num::Int));
-        let [left, right] = equation.children.as_slice() else {
-            return None;
-        };
-        if !integers || equation.notation() != EQUALITY {
-            return None;
-        }
-        let real = |n: &Node| {
-            self.writer
-                .number_fixed(n, super::templates::Num::Real)
-                .built()
-                .map(|p| p.text)
-        };
-        let said = real(s)?;
-        let t = if real(right).as_ref() == Some(&said) {
-            left
-        } else if real(left).as_ref() == Some(&said) {
-            right
-        } else {
-            return None;
-        };
-        if self.writer.carrier(t).built()? != super::templates::Num::Int {
-            return None;
-        }
-        let witness = self
-            .writer
-            .number_fixed(t, super::templates::Num::Int)
-            .built()?;
-        Some(format!(
-            "⟨{}, by first | exact {name} | exact {name}.symm | parley_side⟩",
-            witness.text
-        ))
-    }
-
     /// `substitute`: the claim is a line, or the left side of a calculation's
     /// link, with a term put for another by an equation, which a line says
     /// or arithmetic works out.
@@ -1225,8 +1183,12 @@ impl<'a> Proof<'a> {
                     })
                     .or(parts.first())
                     .map(|c| (c.node.clone(), c.proof.clone()));
+                // Put into a line Lean's types give, `⌊A⌋ ∈ ℤ`, the claim is
+                // a membership the equation shows.
                 if let Some((line, name)) = &chosen {
-                    if let Some(proof) = self.integer_by_equation(line, name, claim) {
+                    if let Some(proof) =
+                        member_by_equation(&self.writer, line, name, claim)
+                    {
                         return Route::Built(proof);
                     }
                 }
@@ -1340,44 +1302,20 @@ impl<'a> Proof<'a> {
         })
     }
 
-    /// `membership`. A term wider than the integers said to be one is some
-    /// integer: a side of a cited equation that is one already, the other
-    /// side being the term. Any other membership is what the lines and the
-    /// letters' types give.
+    /// `membership`. A term of a wider type said to be in a number system,
+    /// an integer or a real, is one by a cited equation (`member_by_equation`).
+    /// Any other membership is what the lines and the letters' types give.
     fn membership(
         &self,
         just: &Justification,
         node: &Node,
         writer: &Writer,
     ) -> Route<String> {
-        let [term, set] = node.children.as_slice() else {
-            return Route::Built("by parley_side".to_string());
-        };
-        let integer = node.notation() == crate::notations::MEMBERSHIP
-            && set.notation() == crate::notations::NUMBER_SYSTEMS
-            && super::expr::system_of(set)
-                == Some(super::expr::System::Type(super::templates::Num::Int));
-        let wide = matches!(writer.carrier(term), Route::Built(n) if n > super::templates::Num::Int);
-        if !integer || !wide {
-            return Route::Built("by parley_side".to_string());
-        }
         for cited in self.cited_parts(&just.refs) {
-            if cited.node.notation() != crate::notations::EQUALITY {
-                continue;
-            }
-            for side in &cited.node.children {
-                let fits = matches!(writer.carrier(side), Route::Built(n) if n <= super::templates::Num::Int);
-                if !fits || side.names().is_empty() && !writer.is_number(side) {
-                    continue;
-                }
-                if let Route::Built(w) =
-                    writer.number_fixed(side, super::templates::Num::Int)
-                {
-                    return Route::Built(format!(
-                        "⟨{}, by push_cast; linarith [{}]⟩",
-                        w.text, cited.proof
-                    ));
-                }
+            if let Some(proof) =
+                member_by_equation(writer, &cited.node, &cited.proof, node)
+            {
+                return Route::Built(proof);
             }
         }
         Route::Built("by parley_side".to_string())
@@ -1710,8 +1648,18 @@ impl<'a> Proof<'a> {
                         (LetterType::Number(n), None) => {
                             self.writer.number_fixed(value, *n)
                         }
-                        (LetterType::Function { .. }, _) => {
-                            Route::no("a function given as a citation's value")
+                        // A function given for a function letter, of the
+                        // same types.
+                        (LetterType::Function { from, to }, _) => {
+                            match self.writer.function_type(value) {
+                                Route::Built(t) if t == (*from, *to) => {
+                                    Route::Built(self.writer.function_printed(value))
+                                }
+                                Route::Built(_) => Route::no(
+                                    "a function given for a letter of other types",
+                                ),
+                                Route::Declined(d) => Route::Declined(d),
+                            }
                         }
                         (LetterType::Statement, _) => self.writer.formula(value),
                     };
@@ -1814,6 +1762,16 @@ impl<'a> Proof<'a> {
         let [_, right] = sentence.says.children.as_slice() else {
             return Route::no("a definition of other than two sides");
         };
+        // A witness that is a letter bound by the line cited, the k of its
+        // "there is k", is no value in scope: the line says the right side
+        // whole.
+        let bound_by_line = cited
+            .bound
+            .values()
+            .any(|v| v.is_name() && !self.writer.letters.contains_key(v.text.as_str()));
+        if bound_by_line {
+            return Route::Built("(by parley_side)".to_string());
+        }
         let mut parts = Vec::new();
         // What a line said of a witness the page wrote as a fraction that
         // is an integer, put in scope where the witness's facts are proved.
@@ -1831,15 +1789,12 @@ impl<'a> Proof<'a> {
                 Some(s) => super::expr::letter_type(s),
                 None => return Route::no("a witness ranging over no number system"),
             };
-            match self.writer.number_fixed(value, ty) {
-                Route::Built(p) => parts.push(p.text),
-                Route::Declined(d) => match self.said_integer(value, ty) {
-                    Some(line) => {
-                        parts.push(format!("Classical.choose {line}"));
-                        known.push(format!("have := Classical.choose_spec {line}; "));
-                    }
-                    None => return Route::Declined(d),
-                },
+            match self.witness(value, ty) {
+                Route::Built(w) => {
+                    parts.push(w.term);
+                    known.extend(w.known);
+                }
+                Route::Declined(d) => return Route::Declined(d),
             }
             if system == Some(super::expr::System::Positive) {
                 parts.push(format!("by {}parley_side", known.concat()));
@@ -1851,6 +1806,26 @@ impl<'a> Proof<'a> {
         }
         parts.push(format!("by {}parley_side", known.concat()));
         Route::Built(format!("⟨{}⟩", parts.join(", ")))
+    }
+
+    /// A witness of a "there is" over `ty`: the value as Lean computes it
+    /// there, or, for a value the page writes as a fraction that a line
+    /// says is an integer, the integer that line gives, with what it says
+    /// of it put in scope where the witness's facts are proved.
+    fn witness(&self, value: &Node, ty: super::templates::Num) -> Route<Witness> {
+        match self.writer.number_fixed(value, ty) {
+            Route::Built(p) => Route::Built(Witness {
+                term: p.text,
+                known: None,
+            }),
+            Route::Declined(d) => match self.said_integer(value, ty) {
+                Some(line) => Route::Built(Witness {
+                    term: format!("Classical.choose {line}"),
+                    known: Some(format!("have := Classical.choose_spec {line}; ")),
+                }),
+                None => Route::Declined(d),
+            },
+        }
     }
 
     /// The Lean name of a line in scope saying a term is an integer, `(N −
@@ -2402,6 +2377,17 @@ impl<'a> Proof<'a> {
                             );
                             continue;
                         }
+                        if let Some((letter, ty)) =
+                            super::statement::introduces_function(node)
+                        {
+                            self.writer.letters.insert(letter.clone(), ty);
+                            self.push(
+                                format!("{p}intro {}", super::names::letter(&letter)),
+                                o.line,
+                                spot.clone(),
+                            );
+                            continue;
+                        }
                         let Some((letter, system)) = introduces(node) else {
                             return Route::no(
                                 "a let that introduces no letter of a number system",
@@ -2497,6 +2483,51 @@ fn with_haves(haves: &[String], tactic: &str) -> String {
     out
 }
 
+/// A claim `s ∈ S`, S ℤ, ℚ or ℝ and s of a wider type, shown by an
+/// equation, `name`, one side of which is in S already: that side is the
+/// witness, and the equation, with the casts pushed in, its proof. None
+/// where the claim or the equation is not so.
+fn member_by_equation(
+    writer: &Writer,
+    equation: &Node,
+    name: &str,
+    claim: &Node,
+) -> Option<String> {
+    let [term, set] = claim.children.as_slice() else {
+        return None;
+    };
+    if claim.notation() != crate::notations::MEMBERSHIP
+        || set.notation() != crate::notations::NUMBER_SYSTEMS
+        || equation.notation() != EQUALITY
+    {
+        return None;
+    }
+    let super::expr::System::Type(n) = super::expr::system_of(set)? else {
+        return None;
+    };
+    if writer.carrier(term).built()? <= n {
+        return None;
+    }
+    equation.children.iter().find_map(|side| {
+        let fits = writer.carrier(side).built().is_some_and(|c| c <= n);
+        if !fits || side.names().is_empty() && !writer.is_number(side) {
+            return None;
+        }
+        let w = writer.number_fixed(side, n).built()?;
+        Some(format!(
+            "⟨{}, by first | (push_cast; linarith [{name}]) | (rw [{name}]; push_cast; ring) | (rw [← {name}]; push_cast; ring) | exact {name} | exact {name}.symm⟩",
+            w.text
+        ))
+    })
+}
+
+/// A witness as Lean writes it, and the tactic that puts what a line says
+/// of it in scope, where it is an integer a line gives.
+struct Witness {
+    term: String,
+    known: Option<String>,
+}
+
 /// A define a step cites: its letter, the term it names, and the Lean name
 /// of its equation.
 struct CitedDefine {
@@ -2590,7 +2621,11 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// arithmetic, anything else as it stands.
 fn close(claim: &Node, term: &str) -> String {
     match claim.notation() {
-        EQUALITY => format!("by linear_combination {term}"),
+        // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
+        // for 0, is taken with them pushed in.
+        EQUALITY => format!(
+            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm"
+        ),
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.
         // An item over ℝ cited for a claim the page computes in ℚ gives

@@ -237,6 +237,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 templates: writer.templates,
                 letters: IndexMap::new(),
                 general: None,
+                integers: Vec::new(),
             };
             let kind = general_kind(group, says);
             w.general = kind.map(|k| k.num);

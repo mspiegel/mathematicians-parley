@@ -17,7 +17,7 @@ theorem congruent_times (a : ℤ) (b : ℤ) (c : ℤ) (n : ℕ) (hH4 : 0 < n) (h
   have s2 : (n : ℤ) ∣ (a - b) * c := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := c) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := c) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := c) (by parley_side))
   -- 3. substitute
   have s3 : (n : ℤ) ∣ a * c - b * c := by
-    have c1 : (a - b) * c = a * c - b * c := by ring
+    have c1 : (a - b) * c = a * c - b * c := by parley_ring
     have row1 : (n : ℤ) ∣ a * c - b * c := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3

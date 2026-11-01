@@ -1,0 +1,25 @@
+module
+
+public import Parley.Items.Stdlib.Counting
+public import Parley.Library
+public import Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero
+
+/-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineCited
+
+theorem a_hypothesis_from_the_line_cited (k : ℕ) (hH1 : 0 < k) :
+    ((Parley.Library.factorial (k : ℤ) : ℤ) ≠ 0 ∧ (Parley.Library.factorial (k : ℤ) : ℤ) * (k : ℤ) ≠ 0) := by
+  -- 1. mun:factorial-nonzero n := k
+  have s1 : (Parley.Library.factorial (k : ℤ) : ℤ) ≠ 0 := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := k)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := k))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := k))
+  -- 2. mun:factorial-nat n := k
+  have s2 : 0 < (Parley.Library.factorial (k : ℤ) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k))
+  -- 3. thm:product-nonzero x := k!, y := k, from H1, 2
+  have s3 : (Parley.Library.factorial (k : ℤ) : ℤ) * (k : ℤ) ≠ 0 := by first | exact (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (Parley.Library.factorial (k : ℤ) : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side)) | exact ((Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (Parley.Library.factorial (k : ℤ) : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero.product_nonzero (x := (Parley.Library.factorial (k : ℤ) : ℝ)) (y := (k : ℝ)) (by parley_side) (by parley_side))
+  -- 4. join 1, 3
+  have s4 : (Parley.Library.factorial (k : ℤ) : ℤ) ≠ 0 ∧ (Parley.Library.factorial (k : ℤ) : ℤ) * (k : ℤ) ≠ 0 := by parley_side
+  all_goals parley_side
+
+end Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineCited

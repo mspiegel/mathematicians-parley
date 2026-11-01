@@ -21,14 +21,14 @@ theorem nine_power_from_zero (n : ℕ) :
       all_goals parley_side
     | succ k hIH =>
       -- 1.2. mun:exponent-step a := 9, m := k
-      have s1_2 : (9 ^ (k + 1) : ℤ) = 9 ^ k * 9 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k))
+      have s1_2 : (9 ^ (k + 1) : ℤ) = 9 ^ k * 9 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (9 : ℤ)) (m := k))).symm
       -- 1.3. mun:exponent-step a := 3, m := k
-      have s1_3 : (3 ^ (k + 1) : ℤ) = 3 ^ k * 3 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k))
+      have s1_3 : (3 ^ (k + 1) : ℤ) = 3 ^ k * 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k))).symm
       -- 1.4. algebra, from IH, 1.2, 1.3
-      have s1_4 : (9 ^ (k + 1) : ℤ) = 3 ^ (k + 1) * 3 ^ (k + 1) := by linear_combination (9) * hIH + s1_2 + (-3 ^ (k + 1) - 3 * 3 ^ k) * s1_3
+      have s1_4 : (9 ^ (k + 1) : ℤ) = 3 ^ (k + 1) * 3 ^ (k + 1) := by linear_combination (norm := parley_norm) (9) * hIH + s1_2 + (-3 ^ (k + 1) - 3 * 3 ^ k) * s1_3
       all_goals parley_side
   -- 2. instantiate k := n in line 1
-  have s2 : (9 ^ n : ℤ) = 3 ^ n * 3 ^ n := by linear_combination (s1 n)
+  have s2 : (9 ^ n : ℤ) = 3 ^ n * 3 ^ n := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm
   all_goals parley_side
 
 end Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero

@@ -21,9 +21,9 @@ theorem odd_half (N : ℤ) :
       -- 2. algebra, from 1
       have s2 : ((N : ℚ) - 1) / 2 = (k : ℚ) := by
         have s1_w : (N : ℚ) = 2 * (k : ℚ) + 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination h
-        linear_combination ((1) / ((2))) * s1_w
+        linear_combination (norm := parley_norm) ((1) / ((2))) * s1_w
       -- 3. membership, from 2
-      have s3 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) - 1) / 2 := ⟨k, by push_cast; linarith [s2]⟩
+      have s3 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) - 1) / 2 := ⟨k, by first | (push_cast; linarith [s2]) | (rw [s2]; push_cast; ring) | (rw [← s2]; push_cast; ring) | exact s2 | exact s2.symm⟩
       all_goals parley_side
     · skip
       intro hD2

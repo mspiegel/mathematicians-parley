@@ -18,13 +18,13 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
     induction k with
     | zero =>
       -- 1.1. algebra
-      have s1_1 : A ^ 0 = 1 := by ring
+      have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
       have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_side
       all_goals parley_side
     | succ k hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
-      have s1_3 : A ^ (k + 1) = A ^ k * A := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))
+      have s1_3 : A ^ (k + 1) = A ^ k * A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))).symm
       -- 1.4. inequalities
       have s1_4 : 0 ≤ A ^ k - ((A - 1) * (k : ℝ) + 1) := by parley_side
       set X : ℝ := A ^ k - ((A - 1) * (k : ℝ) + 1) with hD1
@@ -41,7 +41,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
       have s1_8 : A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
         try simp only [hD1] at *
         try push_cast at *
-        ring
+        parley_ring
       -- 1.9. inequalities, from 1.5, 1.7
       have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_side
       -- 1.10. transitivity, from 1.9, 1.8

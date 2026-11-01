@@ -26,9 +26,9 @@ theorem sum_of_squares_divisible_by_four (a : ℤ) (b : ℤ) (hH3 : (4 : ℤ) �
     -- 2.4. substitute b = 2n + 1 (line 2.2)
     have s2_4 : b ^ 2 = (2 * n + 1) ^ 2 := by parley_subst s2_2
     -- 2.5. algebra, from 1, 2.3, 2.4
-    have s2_5 : (2 * m + 1) ^ 2 + (2 * n + 1) ^ 2 = 4 * k := by linear_combination s1 + (-1) * s2_3 + (-1) * s2_4
+    have s2_5 : (2 * m + 1) ^ 2 + (2 * n + 1) ^ 2 = 4 * k := by linear_combination (norm := parley_norm) s1 + (-1) * s2_3 + (-1) * s2_4
     -- 2.6. algebra, from 2.5
-    have s2_6 : 1 = 2 * (k - m ^ 2 - m - n ^ 2 - n) := by qify at *; linear_combination ((1 / 2 : ℚ)) * s2_5
+    have s2_6 : 1 = 2 * (k - m ^ 2 - m - n ^ 2 - n) := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s2_5
     -- 2.7. def:even n := 1, from 2.6
     have s2_7 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k - m ^ 2 - m - n ^ 2 - n, by parley_side⟩
     -- 2.8. mun:not-both n := 1, from 2.7

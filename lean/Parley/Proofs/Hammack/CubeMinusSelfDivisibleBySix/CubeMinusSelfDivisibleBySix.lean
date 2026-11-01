@@ -27,7 +27,7 @@ theorem cube_minus_self_divisible_by_six (n : ℕ) :
       have s1_3 : (6 : ℤ) ∣ (k : ℤ) ^ 3 - (k : ℤ) + 3 * (k : ℤ) * ((k : ℤ) + 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := (k : ℤ) ^ 3 - (k : ℤ)) (b := 3 * (k : ℤ) * ((k : ℤ) + 1)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := (k : ℤ) ^ 3 - (k : ℤ)) (b := 3 * (k : ℤ) * ((k : ℤ) + 1)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (6 : ℤ)) (a := (k : ℤ) ^ 3 - (k : ℤ)) (b := 3 * (k : ℤ) * ((k : ℤ) + 1)) (by parley_side) (by parley_side))
       -- 1.4. substitute
       have s1_4 : (6 : ℤ) ∣ ((k : ℤ) + 1) ^ 3 - ((k : ℤ) + 1) := by
-        have c1 : (k : ℤ) ^ 3 - (k : ℤ) + 3 * (k : ℤ) * ((k : ℤ) + 1) = ((k : ℤ) + 1) ^ 3 - ((k : ℤ) + 1) := by ring
+        have c1 : (k : ℤ) ^ 3 - (k : ℤ) + 3 * (k : ℤ) * ((k : ℤ) + 1) = ((k : ℤ) + 1) ^ 3 - ((k : ℤ) + 1) := by parley_ring
         have row1 : (6 : ℤ) ∣ ((k : ℤ) + 1) ^ 3 - ((k : ℤ) + 1) := by parley_subst_at c1 s1_3
         exact row1
       all_goals parley_side

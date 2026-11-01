@@ -17,7 +17,7 @@ theorem square_congruent_one_mod_five (a : ℤ) (hH2 : a ≡ (1 : ℤ) [ZMOD (5 
   have s2 : (5 : ℤ) ∣ (a - 1) * (a + 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (5 : ℤ)) (a := a - 1) (x := a + 1) (by parley_side))
   -- 3. substitute
   have s3 : (5 : ℤ) ∣ a ^ 2 - 1 := by
-    have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by ring
+    have c1 : (a - 1) * (a + 1) = a ^ 2 - 1 := by parley_ring
     have row1 : (5 : ℤ) ∣ a ^ 2 - 1 := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3

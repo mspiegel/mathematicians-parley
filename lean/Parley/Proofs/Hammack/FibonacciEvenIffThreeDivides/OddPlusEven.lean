@@ -16,7 +16,7 @@ theorem odd_plus_even (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even B) :
   -- 2. obtain l: def:even n := B, from H4
   obtain ⟨l, s2⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mp (by parley_side)
   -- 3. algebra, from 1, 2
-  have s3 : A + B = 2 * (k + l) + 1 := by linear_combination s1 + s2
+  have s3 : A + B = 2 * (k + l) + 1 := by linear_combination (norm := parley_norm) s1 + s2
   -- 4. def:odd n := A + B, from 3
   have s4 : Odd (A + B) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A + B))).mpr ⟨k + l, by parley_side⟩
   all_goals parley_side

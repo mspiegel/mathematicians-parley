@@ -28,7 +28,7 @@ theorem no_integer_combination :
     -- 5. substitute 21a + 30b = 1 (line 1) into line 4
     have s5 : (3 : ℤ) ∣ (1 : ℤ) := by parley_subst_at s1 s4
     -- 6. mun:divides-one d := 3, from 5
-    have s6 : (3 : ℤ) = 1 := by linear_combination (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 3) (by parley_side) (by parley_side))
+    have s6 : (3 : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 3) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 3) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 3) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 3) (by parley_side) (by parley_side))).symm
     exact absurd s6 (by norm_num)
     all_goals parley_side
   all_goals parley_side

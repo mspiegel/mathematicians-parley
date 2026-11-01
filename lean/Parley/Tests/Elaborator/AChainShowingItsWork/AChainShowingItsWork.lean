@@ -16,8 +16,8 @@ theorem a_chain_showing_its_work (n : ℤ) (hH2 : Odd n) :
   -- 2. calculation
   have s2 : n ^ 2 = 2 * (2 * k ^ 2 + 2 * k) + 1 := by
     calc n ^ 2 = (2 * k + 1) ^ 2 := by parley_subst s1
-      _ = 4 * k ^ 2 + 4 * k + 1 := by ring
-      _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by ring
+      _ = 4 * k ^ 2 + 4 * k + 1 := by parley_ring
+      _ = 2 * (2 * k ^ 2 + 2 * k) + 1 := by parley_ring
   -- 3. def:odd n := n², from 2
   have s3 : Odd (n ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * k ^ 2 + 2 * k, by parley_side⟩
   all_goals parley_side

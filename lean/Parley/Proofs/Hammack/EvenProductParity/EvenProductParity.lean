@@ -36,7 +36,7 @@ theorem even_product_parity (x : ℤ) (y : ℤ) (hH3 : Even (x ^ 2 * (y + 3))) :
           have s2_3_3 : x ^ 2 * (y + 3) = 2 * (4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1) + 1 := by
             calc x ^ 2 * (y + 3) = (2 * a + 1) ^ 2 * (y + 3) := by parley_subst s2_3_1
               _ = (2 * a + 1) ^ 2 * (2 * b + 3) := by parley_subst s2_3_2
-              _ = 2 * (4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1) + 1 := by ring
+              _ = 2 * (4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1) + 1 := by parley_ring
           -- 2.3.4. def:odd n := x²·(y + 3), from 2.3.3
           have s2_3_4 : Odd (x ^ 2 * (y + 3)) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 2 * (y + 3)))).mpr ⟨4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1, by parley_side⟩
           -- 2.3.5. mun:not-both n := x²·(y + 3), from H3

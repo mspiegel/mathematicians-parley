@@ -98,6 +98,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         templates: &templates,
         letters: IndexMap::new(),
         general: None,
+        integers: Vec::new(),
     };
 
     // The library's items with a lean field, by full name, and each
@@ -361,6 +362,12 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
                     failed = true;
                 }
             }
+        }
+    }
+    if !made.left_out.is_empty() {
+        said.printed += "\nleft out of the Lean build:\n";
+        for (name, why) in &made.left_out {
+            said.printed += &format!("  {name}: {why}\n");
         }
     }
     if !made.gaps.is_empty() {

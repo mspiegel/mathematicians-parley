@@ -28,8 +28,8 @@ theorem power_of_two_above (n : ℕ) (hH1 : 0 < n) :
       -- 1.4. calculation
       have s1_4 : (k : ℤ) + 1 ≤ 2 ^ (k + 1) := by
         calc (k : ℤ) + 1 ≤ 2 ^ k + 2 ^ k := by parley_side
-          _ = 2 ^ k * 2 := by ring
-          _ = 2 ^ (k + 1) := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k))
+          _ = 2 ^ k * 2 := by parley_ring
+          _ = 2 ^ (k + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k))).symm
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : (n : ℤ) ≤ 2 ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side))

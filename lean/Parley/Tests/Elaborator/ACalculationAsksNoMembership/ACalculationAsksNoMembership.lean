@@ -8,12 +8,12 @@ public section
 
 namespace Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksNoMembership
 
-theorem a_calculation_asks_no_membership (k : ℕ) (hH1 : 0 < k) (y : ℝ) (hH3 : y ≤ 2 * (Nat.factorial k : ℝ)) (hH4 : 2 * (Nat.factorial k : ℤ) < 2 * (Nat.factorial k : ℤ) * 2) :
-    y < 2 * (Nat.factorial k : ℝ) * 2 := by
+theorem a_calculation_asks_no_membership (k : ℕ) (hH1 : 0 < k) (y : ℝ) (hH3 : y ≤ 2 * (Parley.Library.factorial (k : ℤ) : ℝ)) (hH4 : 2 * (Parley.Library.factorial (k : ℤ) : ℤ) < 2 * (Parley.Library.factorial (k : ℤ) : ℤ) * 2) :
+    y < 2 * (Parley.Library.factorial (k : ℤ) : ℝ) * 2 := by
   -- 1. calculation
-  have s1 : y < 2 * (Nat.factorial k : ℝ) * 2 := by
-    calc y ≤ 2 * (Nat.factorial k : ℝ) := by parley_side
-      _ < 2 * (Nat.factorial k : ℝ) * 2 := by parley_side
+  have s1 : y < 2 * (Parley.Library.factorial (k : ℤ) : ℝ) * 2 := by
+    calc y ≤ 2 * (Parley.Library.factorial (k : ℤ) : ℝ) := by parley_side
+      _ < 2 * (Parley.Library.factorial (k : ℤ) : ℝ) * 2 := by parley_side
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ACalculationAsksNoMembership.ACalculationAsksNoMembership

@@ -18,7 +18,7 @@ theorem no_integers_with_eighteen_a_plus_six_b_one :
     -- 1. obtain a, b from S
     obtain ⟨a, b, s1⟩ := hS
     -- 2. algebra, from 1
-    have s2 : 1 = 2 * (9 * a + 3 * b) := by linear_combination (-1) * s1
+    have s2 : 1 = 2 * (9 * a + 3 * b) := by linear_combination (norm := parley_norm) (-1) * s1
     -- 3. def:even n := 1, from 2
     have s3 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨9 * a + 3 * b, by parley_side⟩
     -- 4. mun:not-both n := 1, from 3

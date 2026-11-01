@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.PrimesAndBrackets.PrimeName
 theorem prime_name (c : ℝ) (c' : ℝ) (hH3 : c' = c + 1) :
     c' - c = 1 := by
   -- 1. algebra, from H3
-  have s1 : c' - c = 1 := by linear_combination hH3
+  have s1 : c' - c = 1 := by linear_combination (norm := parley_norm) hH3
   all_goals parley_side
 
 end Parley.Tests.Elaborator.PrimesAndBrackets.PrimeName

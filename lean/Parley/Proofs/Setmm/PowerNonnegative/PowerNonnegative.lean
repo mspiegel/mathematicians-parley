@@ -17,7 +17,7 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
     induction m with
     | zero =>
       -- 1.1. algebra
-      have s1_1 : a ^ 0 = 1 := by ring
+      have s1_1 : a ^ 0 = 1 := by parley_ring
       -- 1.2. arithmetic
       have s1_2 : (0 : ℤ) ≤ 1 := by parley_arith
       -- 1.3. transitivity, from 1.2, 1.1
@@ -25,7 +25,7 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
       all_goals parley_side
     | succ m hIH =>
       -- 1.4. mun:exponent-step
-      have s1_4 : a ^ (m + 1) = a ^ m * a := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m))
+      have s1_4 : a ^ (m + 1) = a ^ m * a := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m))).symm
       -- 1.5. axi:trichotomy x := a
       have s1_5 : (a < 0 ∨ a = 0) ∨ 0 < a := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))
       -- 1.6. cases, from 1.5
@@ -37,7 +37,7 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
           all_goals parley_side
         · skip
           -- 1.6.2. algebra, from C2
-          have s1_6_2 : a ^ m * a = 0 := by linear_combination (a ^ m) * hC2
+          have s1_6_2 : a ^ m * a = 0 := by linear_combination (norm := parley_norm) (a ^ m) * hC2
           -- 1.6.3. transitivity, from 1.6.2, 1.4
           have s1_6_3 : 0 = a ^ (m + 1) := by parley_side
           -- 1.6.4. inequalities

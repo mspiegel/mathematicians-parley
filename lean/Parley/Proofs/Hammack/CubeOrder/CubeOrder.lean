@@ -34,7 +34,7 @@ theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
     -- 9. mun:product-nonneg x := x − y, y := x² + x·y + y², from 2, 8
     have s9 : (x - y) * (x ^ 2 + x * y + y ^ 2) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := x - y) (y := x ^ 2 + x * y + y ^ 2) (by parley_side) (by parley_side))
     -- 10. algebra
-    have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by ring
+    have s10 : x ^ 3 - y ^ 3 = (x - y) * (x ^ 2 + x * y + y ^ 2) := by parley_ring
     -- 11. transitivity, from 10, 9
     have s11 : x ^ 3 - y ^ 3 ≥ 0 := by parley_side
     -- 12. inequalities

@@ -17,7 +17,7 @@ theorem five_divides_half (b : ℤ) (hH2 : (5 : ℤ) ∣ 2 * b) :
   have s2 : (5 : ℤ) ∣ 2 * b * -2 + 5 * b := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (5 : ℤ)) (a := 2 * b) (b := (5 : ℤ)) (x := (-2 : ℤ)) (y := b) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (5 : ℤ)) (a := 2 * b) (b := (5 : ℤ)) (x := (-2 : ℤ)) (y := b) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (5 : ℤ)) (a := 2 * b) (b := (5 : ℤ)) (x := (-2 : ℤ)) (y := b) (by parley_side) (by parley_side))
   -- 3. substitute
   have s3 : (5 : ℤ) ∣ b := by
-    have c1 : 2 * b * -2 + 5 * b = b := by ring
+    have c1 : 2 * b * -2 + 5 * b = b := by parley_ring
     have row1 : (5 : ℤ) ∣ b := by parley_subst_at c1 s2
     exact row1
   all_goals parley_side

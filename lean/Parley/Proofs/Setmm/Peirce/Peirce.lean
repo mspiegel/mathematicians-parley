@@ -23,7 +23,7 @@ theorem peirce (a : ℝ) (b : ℝ) :
       have s1_1 : a ≠ 0 := by parley_side
       all_goals parley_side
     -- 2. mun:modus-ponens, from K1, 1
-    have s2 : a = 0 := by linear_combination (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) (by parley_side) (by parley_side))
+    have s2 : a = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := a = 0 → b = 0) (Q := a = 0) (by parley_side) (by parley_side))).symm
     all_goals parley_side
   all_goals parley_side
 

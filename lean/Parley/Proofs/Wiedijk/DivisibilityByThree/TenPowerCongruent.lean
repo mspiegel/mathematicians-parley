@@ -24,7 +24,7 @@ theorem ten_power_congruent (k : ℕ) :
       all_goals parley_side
     | succ m hIH =>
       -- 1.2. mun:exponent-step a := 10
-      have s1_2 : (10 ^ (m + 1) : ℤ) = 10 ^ m * 10 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m))
+      have s1_2 : (10 ^ (m + 1) : ℤ) = 10 ^ m * 10 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (10 : ℤ)) (m := m))).symm
       -- 1.3. calculation
       have s1_3 : (10 ^ (m + 1) : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by
         calc (10 ^ (m + 1) : ℤ) = 10 ^ m * 10 := by parley_side

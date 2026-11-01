@@ -22,7 +22,7 @@ theorem nonnegative_product (x : ℝ) (y : ℝ) (hH3 : 0 ≤ x) (hH4 : 0 ≤ y) 
       all_goals parley_side
     · skip
       -- 2.2. algebra, from C2
-      have s2_2 : x * y = 0 := by linear_combination (y) * hC2
+      have s2_2 : x * y = 0 := by linear_combination (norm := parley_norm) (y) * hC2
       -- 2.3. inequalities
       have s2_3 : 0 ≤ x * y := by parley_side
       all_goals parley_side

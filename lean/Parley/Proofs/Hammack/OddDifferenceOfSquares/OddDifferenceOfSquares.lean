@@ -16,7 +16,7 @@ theorem odd_difference_of_squares (n : ℤ) (hH2 : Odd n) :
   -- 2. calculation
   have s2 : n = (k + 1) ^ 2 - k ^ 2 := by
     calc n = 2 * k + 1 := by parley_side
-      _ = (k + 1) ^ 2 - k ^ 2 := by ring
+      _ = (k + 1) ^ 2 - k ^ 2 := by parley_ring
   -- 3. exhibit, from 2
   have s3 : ∃ a : ℤ, ∃ b : ℤ, n = a ^ 2 - b ^ 2 := ⟨k + 1, k, by parley_side⟩
   all_goals parley_side

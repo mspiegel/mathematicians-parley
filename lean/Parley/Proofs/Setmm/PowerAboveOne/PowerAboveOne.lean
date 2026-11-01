@@ -34,8 +34,8 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℕ) (hH3 : 0 < n) :
       -- 1.7. calculation
       have s1_7 : 1 < A ^ (k + 1) := by
         calc (1 : ℝ) < A * A ^ k := by parley_side
-          _ = A ^ k * A := by ring
-          _ = A ^ (k + 1) := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))
+          _ = A ^ k * A := by parley_ring
+          _ = A ^ (k + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))).symm
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : 1 < A ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side))

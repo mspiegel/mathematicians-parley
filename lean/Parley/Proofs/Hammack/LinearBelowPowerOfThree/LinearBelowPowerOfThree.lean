@@ -22,7 +22,7 @@ theorem linear_below_power_of_three (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 3
-      have s1_2 : (3 ^ (k + 1) : ℤ) = 3 ^ k * 3 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k))
+      have s1_2 : (3 ^ (k + 1) : ℤ) = 3 ^ k * 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k))).symm
       -- 1.3. inequalities
       have s1_3 : 6 * (k : ℤ) + 3 ≤ 3 ^ k * 3 := by parley_side
       -- 1.4. inequalities, from K

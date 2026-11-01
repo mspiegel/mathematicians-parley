@@ -19,7 +19,7 @@ theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℕ) (hH
   have s3 : (n : ℤ) ∣ (a - b) * c + (c - d) * b := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (n : ℤ)) (a := a - b) (b := c - d) (x := c) (y := b) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (n : ℤ)) (a := a - b) (b := c - d) (x := c) (y := b) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_combination (e := (n : ℤ)) (a := a - b) (b := c - d) (x := c) (y := b) (by parley_side) (by parley_side))
   -- 4. substitute
   have s4 : (n : ℤ) ∣ a * c - b * d := by
-    have c1 : (a - b) * c + (c - d) * b = a * c - b * d := by ring
+    have c1 : (a - b) * c + (c - d) * b = a * c - b * d := by parley_ring
     have row1 : (n : ℤ) ∣ a * c - b * d := by parley_subst_at c1 s3
     exact row1
   -- 5. def:congruent-mod, from 4

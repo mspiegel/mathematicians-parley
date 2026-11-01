@@ -19,7 +19,7 @@ theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (hH5 : a ∣ b) 
   have s3 : b * d = a * c * (k * m) := by
     calc b * d = a * k * d := by parley_subst s1
       _ = a * k * (c * m) := by parley_subst s2
-      _ = a * c * (k * m) := by ring
+      _ = a * c * (k * m) := by parley_ring
   -- 4. def:divides d := a·c, n := b·d, from 3
   have s4 : a * c ∣ b * d := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, by parley_side⟩
   all_goals parley_side

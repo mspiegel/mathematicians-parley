@@ -9,9 +9,9 @@ public section
 namespace Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialOfSeveralDigits
 
 theorem a_factorial_of_several_digits :
-    (Nat.factorial 12 : ℤ) = 479001600 := by
+    (Parley.Library.factorial (12 : ℤ) : ℤ) = 479001600 := by
   -- 1. arithmetic
-  have s1 : (Nat.factorial 12 : ℤ) = 479001600 := by parley_arith
+  have s1 : (Parley.Library.factorial (12 : ℤ) : ℤ) = 479001600 := by parley_arith
   all_goals parley_side
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialOfSeveralDigits

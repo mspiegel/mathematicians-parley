@@ -25,7 +25,7 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
     -- 4. inequalities, from 1, 3
     have s4 : (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_side
     -- 5. algebra, from H3
-    have s5 : (a - b) * (a ^ 2 + a * b + b ^ 2) = 0 := by linear_combination hH3
+    have s5 : (a - b) * (a ^ 2 + a * b + b ^ 2) = 0 := by linear_combination (norm := parley_norm) hH3
     -- 6. mun:zero-product x := a − b, y := a² + a·b + b², from 5
     have s6 : a - b = 0 ∨ a ^ 2 + a * b + b ^ 2 = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side)
     -- 7. cases, from 6
@@ -33,12 +33,12 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
       rcases s6 with hC1 | hC2
       · skip
         -- 7.1. algebra, from C1
-        have s7_1 : a = b := by linear_combination hC1
+        have s7_1 : a = b := by linear_combination (norm := parley_norm) hC1
         all_goals parley_side
       · skip
         all_goals parley_side
     -- 8. algebra, from 7
-    have s8 : (a - b) ^ 2 + 3 * (a + b) ^ 2 = 0 := by linear_combination (4) * s7
+    have s8 : (a - b) ^ 2 + 3 * (a + b) ^ 2 = 0 := by linear_combination (norm := parley_norm) (4) * s7
     -- 9. inequalities
     have s9 : (a - b) ^ 2 + 3 * (a + b) ^ 2 ≤ 0 := by parley_side
     -- 10. inequalities, from 9

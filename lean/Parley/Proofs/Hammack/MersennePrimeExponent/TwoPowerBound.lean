@@ -22,7 +22,7 @@ theorem two_power_bound (d : ℕ) (hH1 : 0 < d) :
       all_goals parley_side
     | succ m hK hIH =>
       -- 1.2. mun:exponent-step a := 2
-      have s1_2 : (2 ^ (m + 1) : ℤ) = 2 ^ m * 2 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m))
+      have s1_2 : (2 ^ (m + 1) : ℤ) = 2 ^ m * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := m))).symm
       -- 1.3. inequalities
       have s1_3 : 2 ^ m * 2 ≥ ((m : ℤ) + 1) * 2 := by parley_side
       -- 1.4. inequalities, from K
