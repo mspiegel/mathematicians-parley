@@ -3139,8 +3139,18 @@ impl<'a> Elaborator<'a> {
             {
                 break;
             }
+            // As written, in the standard form, and with identity elements
+            // dropped, as `unfolding` fits its hint: the page's |x| < δ is a
+            // limit's |x − c| < δ at c := 0.
             let filled = fit(&part, &target, &binding, &variables)
-                .or_else(|| self.fits_as(&part, &target, &variables, Some(&binding)));
+                .or_else(|| self.fits_as(&part, &target, &variables, Some(&binding)))
+                .or_else(|| {
+                    let bare = self.identities_dropped(&part, &binding);
+                    let held = self.without_identities(&target);
+                    fit(&bare, &held, &binding, &variables).or_else(|| {
+                        self.fits_as(&bare, &held, &variables, Some(&binding))
+                    })
+                });
             if let Some(filled) = filled {
                 binding = filled;
                 break;
@@ -3210,7 +3220,8 @@ impl<'a> Elaborator<'a> {
         if let Some(p) = self.held(&known, term, scope)? {
             return Ok(Built(p));
         }
-        // Or it is, once what the lemma says is put in the page's words.
+        // Or it is, once what the lemma says is put in the page's words, or
+        // once its identity elements are dropped, as the checker reads it.
         for (said, shown) in known.entries() {
             if let Built(alike) =
                 self.same(&self.to_term(&said), &target, scope, &facts, None)?
@@ -3218,6 +3229,24 @@ impl<'a> Elaborator<'a> {
                 return Ok(Built(
                     pf!(self.b; scope, said, term, shown, alike, "mpbid"),
                 ));
+            }
+            if let Some(tidy) = self.tidied(&shown, &said, term, scope, &facts)? {
+                return Ok(Built(tidy));
+            }
+            // Both at once: the identity elements dropped first, and what is
+            // left put in the page's words, `-. x = 0` for `x =/= 0` and the
+            // page's own bound letters.
+            let bare = self.rpn(&self.without_identities(&self.to_term(&said)));
+            if bare != said {
+                if let Some(tidy) = self.tidied(&shown, &said, &bare, scope, &facts)? {
+                    if let Built(alike) =
+                        self.same(&self.to_term(&bare), &target, scope, &facts, None)?
+                    {
+                        return Ok(Built(
+                            pf!(self.b; scope, bare, term, tidy, alike, "mpbid"),
+                        ));
+                    }
+                }
             }
         }
         // What the unfolding says and how the readable line spells it are
@@ -3350,6 +3379,12 @@ impl<'a> Elaborator<'a> {
                     return Ok(Built(
                         pf!(self.b; scope, said, term, proof, across, "mpbid"),
                     ));
+                }
+                // Or the claim with its identity elements dropped, as the
+                // checker reads it: a ≡ 0 (mod 4) is 4 ∥ (a − 0) in the
+                // kernel, and the step says 4 divides a.
+                if let Some(tidy) = self.tidied(&proof, &said, term, scope, &held)? {
+                    return Ok(Built(tidy));
                 }
             }
         }

@@ -21,15 +21,15 @@ suppose there is L ∈ ℝ with f tends to L at 0                         (S)
 1.  L ∈ ℝ. f tends to L at 0.
     obtain L from S
 
-2.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+2.  For all ε > 0, there exists δ > 0 such that |f(x) − L| < ε for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x| < δ).
     def:limit-at D := ℝ ∖ {0}, c := 0, from 1
     requires ℝ ∖ {0} ⊆ ℝ: mun:difference-subset X := ℝ, Y := {0}
 
-3.  There exists δ > 0 such that |f(x) − L| < 1 for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < δ).
+3.  There exists δ > 0 such that |f(x) − L| < 1 for all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x| < δ).
     instantiate ε := 1 in line 2
     requires 0 < 1: arithmetic
 
-4.  p ∈ ℝ. p > 0. For all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x − 0| < p), |f(x) − L| < 1.
+4.  p ∈ ℝ. p > 0. For all x ∈ ℝ ∖ {0} with (x ≠ 0 and |x| < p), |f(x) − L| < 1.
     obtain p from line 3
 
 5.  p/2 > 0

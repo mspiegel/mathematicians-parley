@@ -2488,8 +2488,13 @@ impl<'a> Elaborator<'a> {
 
     /// The number system a letter introduced in `set` is in first: the
     /// system itself, the one a range lies in (`range_system`), or the one
-    /// an interval lies in (`interval_within`). None for any other set.
+    /// an interval lies in (`interval_within`), each with points taken out
+    /// too, as the checker reads it (`citing::once::set_system`): a member
+    /// of ℝ ∖ {2} is in ℝ. None for any other set.
     fn introduced_system(&self, set: &Rpn) -> Option<&'static str> {
+        if let Some(from) = self.taken_from(set) {
+            return self.introduced_system(&from);
+        }
         if let Some((label, _)) = set
             .alone()
             .and_then(|s| rules::SYSTEMS.iter().find(|(label, _)| *label == s))
@@ -2570,11 +2575,6 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        // A range's or an interval's member is in the system the set lies
-        // in first; any other set a letter is let into is a number system's
-        // label.
-        let range = self.range_system(set);
-        let interval = self.interval_within(set);
         let base = self.introduced_system(set).unwrap_or_default();
         if rules::within_path(Some(base), system.alone()).is_none() {
             return Ok(Route::no(format!("{set} is not inside {system}")));
@@ -2593,6 +2593,34 @@ impl<'a> Elaborator<'a> {
             return Ok(Route::no("the introducing line is not in scope"));
         };
         let mut proof = self.seal(held, &format!("{MEMBERSHIP}{letter}"));
+        // A member of S ∖ {c} is a member of S first, where S is a number
+        // system or a range; an interval's points taken out are the
+        // interval's own (`out_of_interval`).
+        let mut set = set.clone();
+        while let Some(from) = self.taken_from(&set) {
+            if self.interval_within(&from).is_some() {
+                break;
+            }
+            let removed = self.rpn(&self.to_term(&set).children()[1]);
+            let law = self.b.ap(
+                "eldifi",
+                &binds! {"A" => said, "B" => &from, "C" => &removed},
+                &[],
+            );
+            proof = self.b.ap(
+                "syl",
+                &binds! {"ph" => scope, "ps" => t!(said, &set, "wcel"), "ch" => t!(said, &from, "wcel")},
+                &[&proof, &law],
+            );
+            set = from;
+        }
+        let set = &set;
+        let claim = t!(said, set, "wcel");
+        // A range's or an interval's member is in the system the set lies
+        // in first; any other set a letter is let into is a number system's
+        // label.
+        let range = self.range_system(set);
+        let interval = self.interval_within(set);
         if let Some((inside, lemma)) = range {
             let says = self.statement(lemma);
             let Some(binding) = fit(

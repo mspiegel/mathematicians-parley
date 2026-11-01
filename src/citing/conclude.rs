@@ -20,7 +20,6 @@ use super::parts::{bound_in, Bound};
 use super::supply::{
     body_reading, search, supplier, supply, unwitnessed, Sites, Unwitnessed, Ways,
 };
-use crate::rules;
 
 /// Every sentence of the claim takes a reading of the conclusion, and what
 /// those readings ask for is then supplied by the facts: the binding they
@@ -75,14 +74,37 @@ fn take(
             }]
         };
         // The claim is fitted every way it fits, so that the facts decide
-        // which way it is the conclusion (`claim_matched`).
-        let tries: Vec<(&Start, Binding)> = starts
-            .iter()
-            .flat_map(|s| {
-                claim_matched(cand, claim, &s.binding, variables, sites, library)
-                    .into_iter()
-                    .map(move |found| (s, found))
-            })
+        // which way it is the conclusion (`claim_matched`). Where it fits no
+        // way as the binding stands, what the reading asks first is supplied
+        // first and the claim fitted under that: a claim that drops an
+        // identity element, "4 divides a" for congruent-mod's "n divides
+        // a − b", is the conclusion only once a line saying a ≡ 0 (mod 4)
+        // has put b at 0 (`SYNTAX.md`, "An identity element goes without
+        // saying"). The element is the line's, never supposed.
+        let fitted = |starts: &[Start]| -> Vec<(usize, Binding)> {
+            starts
+                .iter()
+                .enumerate()
+                .flat_map(|(i, s)| {
+                    claim_matched(cand, claim, &s.binding, variables, sites, library)
+                        .into_iter()
+                        .map(move |found| (i, found))
+                })
+                .collect()
+        };
+        let mut found_ways = fitted(&starts);
+        let mut starts = starts;
+        if found_ways.is_empty()
+            && !first.is_empty()
+            && starts.len() == 1
+            && starts[0].path.is_empty()
+        {
+            starts = supplied_first(first, given, binding, variables, library, sites);
+            found_ways = fitted(&starts);
+        }
+        let tries: Vec<(&Start, Binding)> = found_ways
+            .into_iter()
+            .map(|(i, b)| (&starts[i], b))
             .collect();
         for (start, found) in tries {
             if !identities_on_numbers(cand, claim, &found, given, library) {
@@ -222,20 +244,18 @@ pub fn not_numbers(
     if dropped.is_empty() {
         return dropped;
     }
-    // A letter the claim or the instance binds over a number system, for
-    // all of it or for some, is said to be in it by its binder, as a `let`
-    // says it; what is left is spelt in the instance's letters where the
-    // two bind different ones.
+    // A letter the claim or the instance binds over a set of numbers, for
+    // all of it or for some, is said to be in its number system by its
+    // binder, as a `let` over that set says it (`set_system`): x of "for
+    // all x ∈ ℝ ∖ {0}" is in ℝ. What is left is spelt in the instance's
+    // letters where the two bind different ones.
     let mut bound = Introduced::new();
     for node in claim.walk().into_iter().chain(instance.walk()) {
         if let [name, set, _] = node.children.as_slice() {
             let binds = library.exists.contains(&node.notation())
                 || library.every.contains(&node.notation());
-            if binds
-                && name.is_name()
-                && set.notation() == crate::notations::NUMBER_SYSTEMS
-            {
-                if let Some(system) = rules::System::of_sign(&set.text) {
+            if binds && name.is_name() {
+                if let Some(system) = super::once::set_system(set, &bound) {
                     bound.insert(name.text.to_string(), system);
                 }
             }

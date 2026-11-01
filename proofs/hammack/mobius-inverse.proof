@@ -46,6 +46,6 @@ theorem mobius-inverse
     4.7.  f⁻¹(y) = (2y + 1)/(y − 5)
           calculation
             f⁻¹(y) = x                  4.6
-                   = (2y + 1)/(y − 5)   algebra, from 4.3, 4.4
+                   = (2y + 1)/(y − 5)   algebra, from 4.4
           requires x − 2 ≠ 0: inequalities, from 4.3
           requires y − 5 ≠ 0: inequalities, from 4.1

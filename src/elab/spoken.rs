@@ -390,6 +390,20 @@ impl Elaborator<'_> {
         node: &Node,
         bound: &IndexMap<String, BoundAs>,
     ) -> Option<Sort> {
+        // A set with points taken out holds what the set holds: the x of
+        // "for all x ∈ ℝ ∖ {0}" is a number, as the page reads it.
+        if let ([from, _], true) = (
+            node.children.as_slice(),
+            node.spelling() == crate::notations::WITHOUT,
+        ) {
+            return self.read_set_holds(from, bound);
+        }
+        // A number system holds numbers, as the page reader gives a letter
+        // bound in one (`grammar`, a binder's letter): the x of "for all
+        // x ∈ ℝ" is a number, and |x| its absolute value.
+        if node.notation() == crate::notations::NUMBER_SYSTEMS {
+            return Some(Sort::of("number"));
+        }
         let mut sorts = self.sorts_now.clone();
         for (letter, said) in bound {
             if said.sort.name().is_some() {

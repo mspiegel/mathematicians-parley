@@ -27,7 +27,7 @@ use crate::notations::{
     ABSOLUTE_VALUE, ADDITIVE, APPLICATION, APPLICATION_TO_TWO, CLOSED_INTERVAL,
     COMMA_CONJUNCTION, COMPLEXES, CONJUNCTION, DIVIDED, IMAGINARY_UNIT, IN,
     JUXTAPOSITION, MULTIPLICATIVE, OPEN_INTERVAL, POWER, RATIONALS, REALS, REAL_POWER,
-    ROOT, SET_BUILDER, SUBSET, SUPERSCRIPT, UNARY_MINUS,
+    ROOT, SET_BUILDER, SUBSET, SUPERSCRIPT, UNARY_MINUS, WITHOUT,
 };
 use crate::outcome::{Checked, Problem};
 
@@ -109,6 +109,10 @@ pub fn needs_not_be_whole(set: &Node, real: &dyn Fn(&str) -> bool) -> bool {
     }
     if set.is_name() {
         return real(&set.text);
+    }
+    // A set with points taken out holds what the set holds: ℝ ∖ {0}.
+    if let ([from, _], true) = (set.children.as_slice(), spelling == WITHOUT) {
+        return needs_not_be_whole(from, real);
     }
     if id == SET_BUILDER {
         return set

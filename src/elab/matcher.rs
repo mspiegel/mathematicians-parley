@@ -7508,6 +7508,19 @@ impl<'a> Elaborator<'a> {
                     if !seeded.is_declined() {
                         return Ok(seeded);
                     }
+                    // Either side may be the claim written without an
+                    // identity element it has (`SYNTAX.md`, "An identity
+                    // element goes without saying"): a limit's
+                    // |x − c| < δ at c := 0, which the page writes |x| < δ,
+                    // reached at the literal instance and carried to the
+                    // claim (`as_tidied`).
+                    for side in [reads.children()[1].clone(), near] {
+                        let tidy = self
+                            .as_tidied(label, &side, goal, scope, facts, step, seed)?;
+                        if !tidy.is_declined() {
+                            return Ok(tidy);
+                        }
+                    }
                 }
                 // One way of the biconditional may be the claim.
                 if goal.label() == Some("wi") {

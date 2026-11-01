@@ -51,12 +51,22 @@ pub fn introduction(said: &Node, letters: &Introduced) -> Option<(String, System
     if said.spelling() != IN || !letter.is_name() {
         return None;
     }
-    let system = match set.notation() {
-        NUMBER_SYSTEMS => System::of_sign(&set.text)?,
-        INTEGER_RANGE => range_system(set)?,
-        _ => interval_system(set, letters)?,
-    };
-    Some((letter.text.to_string(), system))
+    Some((letter.text.to_string(), set_system(set, letters)?))
+}
+
+/// The number system a member of `set` is in: a number system's own, a
+/// range's (`range_system`) or an interval's (`interval_system`), and the
+/// same for each with points taken out, since a member of S ∖ {c} is a
+/// member of S: x ∈ ℝ ∖ {0} is in ℝ. None for a set none of these is.
+pub fn set_system(set: &Node, letters: &Introduced) -> Option<System> {
+    if let ([from, _], true) = (set.children.as_slice(), set.spelling() == WITHOUT) {
+        return set_system(from, letters);
+    }
+    match set.notation() {
+        NUMBER_SYSTEMS => System::of_sign(&set.text),
+        INTEGER_RANGE => range_system(set),
+        _ => interval_system(set, letters),
+    }
 }
 
 /// The number system the declared table puts an interval in, ℝ for (a, b)

@@ -166,7 +166,10 @@ and of nothing else:
 - **a letter**, in the set its introducing line names and every number system
   containing that one, ℕ ⊆ ℕ₀ ⊆ ℤ ⊆ ℚ ⊆ ℝ ⊆ ℂ; a letter introduced in a
   range of integers, {a, …, b}, is an integer, and one introduced in an
-  interval, (a, b), [a, b] or (a, b) ∖ {c}, a real number;
+  interval, (a, b), [a, b] or (a, b) ∖ {c}, a real number; one introduced in
+  a number system or a range with points taken out, as ℝ ∖ {0} or ℕ ∖ {1},
+  is in that system, since a member of S ∖ {c} is a member of S. A letter a
+  "for all" or "there is" binds is read the same way;
 - **a distance** |PQ| between two points, in ℝ and ℂ, said once where the
   points are introduced: `|AB| ∈ ℝ`, and so `|AB|·|AC|` and
   `|AB|² + |BC|²` by the rule for terms built from these, below;
