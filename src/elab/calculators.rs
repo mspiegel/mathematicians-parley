@@ -28,7 +28,7 @@ use super::state::{Elaborator, ProvedClaim, Vars};
 use super::{Facts, Line, Lines};
 use crate::binds;
 use crate::corpus::proof::{rows, RowReason};
-use crate::corpus::{fmt, Item, Method, RecordKind, Step};
+use crate::corpus::{Item, Method, RecordKind, Step};
 use crate::formula::symbol::Symbol;
 pub use crate::methods::algebra::rescales;
 use crate::methods::algebra::{
@@ -563,7 +563,7 @@ impl<'a> Elaborator<'a> {
                 step.line,
                 format!(
                     "step {} is an identity, and algebra cannot write its proof: {}",
-                    fmt(&step.number),
+                    step.number,
                     self.say(d)
                 ),
             ));
@@ -775,7 +775,7 @@ impl<'a> Elaborator<'a> {
                     let what = format!(
                         "the scale {} of step {}",
                         self.render(&times),
-                        fmt(&step.number)
+                        step.number
                     );
                     let apart_from_zero = t!(times, "cc0", "wne");
                     let nonzero = self.closed_fact(
@@ -1999,7 +1999,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let what = format!("step {} claims {}", fmt(&step.number), step.claim.text());
+        let what = format!("step {} claims {}", step.number, step.claim.text());
         self.closed_fact(term, scope, facts, &what, Some(step))
             .map(Built)
     }
@@ -3616,7 +3616,7 @@ impl<'a> Elaborator<'a> {
             step.line,
             format!(
                 "step {} follows from what it cites, and inequalities cannot write its proof: {}",
-                fmt(&step.number),
+                step.number,
                 self.say(d)
             ),
         ))
@@ -3656,7 +3656,7 @@ impl<'a> Elaborator<'a> {
         if let Some(member) = self.member.clone() {
             if let Some(proof) = self.held(facts, &member, scope)? {
                 let line = Line::new(member, proof, Vec::new());
-                let own = fmt(&step.number);
+                let own = step.number.to_string();
                 lines_out.set(own.clone(), line);
                 refs.push(own);
             }
@@ -3805,7 +3805,7 @@ impl<'a> Elaborator<'a> {
                                 row.line,
                                 format!(
                                     "the algebra row of step {} rewrites {} as {}, which algebra does not prove: {}",
-                                    fmt(&step.number),
+                                    step.number,
                                     self.render(&was),
                                     self.render(&now),
                                     self.say(&d)
@@ -4252,7 +4252,7 @@ impl<'a> Elaborator<'a> {
                 format!(
                     "{} is not built from what step {} cites: {}",
                     self.render(term),
-                    fmt(&step.number),
+                    step.number,
                     self.say(&d)
                 ),
             )),

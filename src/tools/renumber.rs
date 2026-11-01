@@ -18,7 +18,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
 use crate::corpus::lines::physical;
-use crate::corpus::proof::{references, Reference, Step, StepNo};
+use crate::corpus::proof::{references, Reference, Step, StepNo, StepPlace};
 use crate::corpus::skeleton::{self, is_number, Cited};
 use crate::corpus::{corpus, Theorem};
 use crate::said::Said;
@@ -182,13 +182,16 @@ fn moved(
     by: i64,
 ) -> Result<BTreeMap<StepNo, StepNo>, String> {
     let mut map = BTreeMap::new();
-    let mut landed: BTreeSet<Vec<u32>> = BTreeSet::new();
+    let mut landed: BTreeSet<StepNo> = BTreeSet::new();
+    // The theorem's own step has no number, and no run moves it.
     for s in &thm.steps {
-        let n = &s.number.0;
-        let Some(at) = run.moves(n) else {
+        let Some(n) = s.number.number() else {
             continue;
         };
-        let new = i64::from(n[at]) + by;
+        let Some(at) = run.moves(n.parts()) else {
+            continue;
+        };
+        let new = i64::from(n.parts()[at]) + by;
         let Ok(new) = u32::try_from(new).map_err(|_| ()).and_then(|v| {
             if v == 0 {
                 Err(())
@@ -198,22 +201,20 @@ fn moved(
         }) else {
             return Err(format!("step {} would be numbered below 1", s.number));
         };
-        let mut to = n.clone();
-        to[at] = new;
-        if to.len() == at + 1 {
+        let to = n.with(at, new);
+        if to.depth() == at + 1 {
             landed.insert(to.clone());
         }
-        map.insert(s.number.clone(), StepNo(to));
+        map.insert(n.clone(), to);
     }
-    for s in &thm.steps {
-        let n = &s.number.0;
-        if run.moves(n).is_none() && landed.contains(n) {
+    for n in thm.steps.iter().filter_map(|s| s.number.number()) {
+        if run.moves(n.parts()).is_none() && landed.contains(n) {
             return Err(format!(
                 "step {} would land on step {}, which stays where it is",
                 map.iter()
-                    .find(|(_, to)| **to == s.number)
+                    .find(|(_, to)| *to == n)
                     .map_or_else(String::new, |(from, _)| from.to_string()),
-                s.number
+                n
             ));
         }
     }
@@ -243,7 +244,7 @@ pub fn lift(root: &Path, name: &str, at: &str, dry: bool) -> Said {
     let Some(thm) = found.theorems.iter().find(|t| t.qualified() == name) else {
         return refused(format!("no theorem {name}"));
     };
-    let Some(target) = number(at).map(StepNo) else {
+    let Some(target) = StepNo::parse(at) else {
         return refused(format!("{at} is not a step number"));
     };
     let file = root.join(&thm.path);
@@ -324,7 +325,7 @@ fn lifted_lines(
     let end = thm
         .steps
         .iter()
-        .filter(|s| s.line > step.line && !under(&s.number, target))
+        .filter(|s| s.line > step.line && !under(&s.number, &step.number))
         .map(|s| s.line - 1)
         .min()
         .unwrap_or(region);
@@ -354,39 +355,42 @@ fn lifted_lines(
     })
 }
 
-/// Whether `number` is a step under `step`.
-fn under(number: &StepNo, step: &StepNo) -> bool {
-    number.len() > step.len() && number.prefix(step.len()) == *step
+/// Whether the step at `place` is under the step at `step`, in its block at
+/// any depth: every numbered step is under the theorem's own.
+fn under(place: &StepPlace, step: &StepPlace) -> bool {
+    place != step && step.contains(place)
 }
 
 /// Each number a lift of the step `target` changes, with its new one: a
 /// step under it loses the step's place, so its k-th child takes the place
 /// k − 1 after it; a later step of its block moves on past them.
 fn lifted(thm: &Theorem, target: &StepNo) -> BTreeMap<StepNo, StepNo> {
-    let depth = target.len();
+    let depth = target.depth();
     let place = target.last();
+    let at = StepPlace::from(target.clone());
     let children = thm
         .steps
         .iter()
-        .filter(|s| s.number.len() == depth + 1 && under(&s.number, target))
+        .filter(|s| s.number.depth() == depth + 1 && under(&s.number, &at))
         .count() as u32;
     let parent = target.parent();
     let mut map = BTreeMap::new();
-    for s in &thm.steps {
-        let n = &s.number.0;
-        if under(&s.number, target) {
-            let mut to = parent.0.clone();
-            to.push(place + n[depth] - 1);
-            to.extend_from_slice(&n[depth + 1..]);
-            map.insert(s.number.clone(), StepNo(to));
-        } else if n.len() >= depth
-            && s.number.prefix(depth - 1) == parent
-            && n[depth - 1] > place
+    for n in thm.steps.iter().filter_map(|s| s.number.number()) {
+        let parts = n.parts();
+        if n.depth() > depth && n.starts_with(target) {
+            let to = parent
+                .child(place + parts[depth] - 1)
+                .joined(&parts[depth + 1..]);
+            map.insert(n.clone(), to);
+        } else if n.depth() >= depth
+            && StepPlace::from(n.clone()).prefix(depth - 1) == parent
+            && parts[depth - 1] > place
             && children > 1
         {
-            let mut to = n.clone();
-            to[depth - 1] += children - 1;
-            map.insert(s.number.clone(), StepNo(to));
+            map.insert(
+                n.clone(),
+                n.with(depth - 1, parts[depth - 1] + children - 1),
+            );
         }
     }
     map
@@ -411,7 +415,7 @@ fn claim_column(line: &str) -> usize {
 /// number and one space, and never narrower than two columns a level and
 /// two more.
 fn number_width(number: &StepNo) -> usize {
-    (format!("{number}.").len() + 1).max(2 * number.len() + 2)
+    (format!("{number}.").len() + 1).max(2 * number.depth() + 2)
 }
 
 /// How wide the number of the step renumbered `to` is written, with the
@@ -428,9 +432,9 @@ fn block_width(
     to: &StepNo,
 ) -> usize {
     let staying = thm.steps.iter().find(|s| {
-        s.number.len() == to.len()
+        s.number.depth() == to.depth()
             && s.number.parent() == to.parent()
-            && !map.contains_key(&s.number)
+            && !s.number.number().is_some_and(|n| map.contains_key(n))
     });
     match staying {
         Some(s) => {
@@ -457,21 +461,26 @@ pub(crate) fn relaid(
     end: usize,
     map: &BTreeMap<StepNo, StepNo>,
 ) {
-    let inside: Vec<&Step> = thm
-        .steps
-        .iter()
-        .filter(|s| under(&s.number, &step.number) && map.contains_key(&s.number))
-        .collect();
+    // The steps under `step` that move, each with its new number.
+    let mut renumbered: BTreeMap<StepPlace, &StepNo> = BTreeMap::new();
+    let mut inside: Vec<&Step> = Vec::new();
+    for s in &thm.steps {
+        let to = s.number.number().and_then(|n| map.get(n));
+        if let Some(to) = to.filter(|_| under(&s.number, &step.number)) {
+            renumbered.insert(s.number.clone(), to);
+            inside.push(s);
+        }
+    }
     // Each step's claim column as written, and as it will be.
-    let mut was: BTreeMap<StepNo, usize> = BTreeMap::new();
-    let mut now: BTreeMap<StepNo, usize> = BTreeMap::new();
-    let mut width: BTreeMap<StepNo, usize> = BTreeMap::new();
+    let mut was: BTreeMap<StepPlace, usize> = BTreeMap::new();
+    let mut now: BTreeMap<StepPlace, usize> = BTreeMap::new();
+    let mut width: BTreeMap<StepPlace, usize> = BTreeMap::new();
     was.insert(step.number.clone(), claim_column(&old[step.line - 1]));
     now.insert(step.number.clone(), indent(&old[step.line - 1]));
     for s in &inside {
         was.insert(s.number.clone(), claim_column(&old[s.line - 1]));
         let at = now.get(&s.number.parent()).copied().unwrap_or(0);
-        let wide = block_width(thm, old, map, &map[&s.number]);
+        let wide = block_width(thm, old, map, renumbered[&s.number]);
         width.insert(s.number.clone(), wide);
         now.insert(s.number.clone(), at + wide);
     }
@@ -505,8 +514,7 @@ pub(crate) fn relaid(
         let moved = (at as isize + shift).max(0) as usize;
         let text = match headers.get(&l) {
             Some(h) => {
-                let renumbered = &map[&h.number];
-                let head = format!("{renumbered}.");
+                let head = format!("{}.", renumbered[&h.number]);
                 let claim = lines[l][claim_column(&lines[l])..].to_string();
                 format!(
                     "{}{head:<width$}{claim}",
@@ -598,10 +606,9 @@ fn notes_naming(
             let word = word
                 .trim_start_matches(['(', '"', '`'])
                 .trim_end_matches([',', ';', ':', ')', '"', '`', '.']);
-            if !is_number(word) {
+            let Some(was) = StepNo::parse(word) else {
                 continue;
-            }
-            let was = StepNo::parse(word);
+            };
             if let Some(now) = map.get(&was) {
                 if seen.insert(was.clone()) {
                     out.push(NoteNaming {
@@ -891,7 +898,8 @@ mod tests {
         let (_, theorems) = crate::corpus::parse_proof("t.proof", text, 0).unwrap();
         let old: Vec<String> = text.lines().map(str::to_string).collect();
         let done =
-            lifted_lines(&theorems[0], &StepNo(vec![1, 1]), &old, old.len()).unwrap();
+            lifted_lines(&theorems[0], &StepNo::top(1).child(1), &old, old.len())
+                .unwrap();
         let want = concat!(
             "theorem t\n",
             "  let x ∈ ℤ                                                           (H1)\n",
@@ -914,7 +922,7 @@ mod tests {
         assert_eq!(done.lines.join("\n") + "\n", want);
         assert_eq!(done.moved, 2);
         // A step something cites is not lifted away.
-        let refused = lifted_lines(&theorems[0], &StepNo(vec![1]), &old, old.len());
+        let refused = lifted_lines(&theorems[0], &StepNo::top(1), &old, old.len());
         assert!(refused.is_err_and(|why| why.contains("cites step 1")));
     }
 
@@ -949,7 +957,8 @@ mod tests {
         let (_, theorems) = crate::corpus::parse_proof("t.proof", &text, 0).unwrap();
         let old: Vec<String> = text.lines().map(str::to_string).collect();
         let done =
-            lifted_lines(&theorems[0], &StepNo(vec![10, 2]), &old, old.len()).unwrap();
+            lifted_lines(&theorems[0], &StepNo::top(10).child(2), &old, old.len())
+                .unwrap();
         // 10.1 is written two spaces wide, so the lifted 10.2 is too.
         let tail = done.lines[done.lines.len() - 2..].join("\n");
         assert_eq!(
@@ -977,14 +986,14 @@ mod tests {
         let thm = &theorems[0];
         let region: Vec<String> = text.lines().map(str::to_string).collect();
         let map = BTreeMap::from([
-            (StepNo(vec![1]), StepNo(vec![2])),
-            (StepNo(vec![2]), StepNo(vec![3])),
+            (StepNo::top(1), StepNo::top(2)),
+            (StepNo::top(2), StepNo::top(3)),
         ]);
         let named = notes_naming(thm, &region, &map);
         assert_eq!(named.len(), 1);
         assert_eq!(
             (named[0].line, &named[0].was, &named[0].now),
-            (2, &StepNo(vec![2]), &StepNo(vec![3]))
+            (2, &StepNo::top(2), &StepNo::top(3))
         );
         let mut lines = region.clone();
         renumber(thm, &mut lines, &map).unwrap();

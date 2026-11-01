@@ -27,7 +27,7 @@ use crate::binds;
 use crate::checker::record::{self, CheckedTheorem};
 use crate::corpus::proof::PartBy;
 use crate::corpus::{
-    define_parts, fmt, DefineParts, Head, Intro, Item, Justification, Kinded, Method,
+    define_parts, DefineParts, Head, Intro, Item, Justification, Kinded, Method,
     Opener, Step,
 };
 use crate::formula::page::{made_as, Written};
@@ -3426,7 +3426,7 @@ impl<'a> Elaborator<'a> {
                 step.line,
                 format!(
                     "step {} states no membership of {}",
-                    fmt(&step.number),
+                    step.number,
                     missing.join(", ")
                 ),
             ));
@@ -3434,10 +3434,7 @@ impl<'a> Elaborator<'a> {
         if rest.is_empty() {
             return Err(self.unreached(
                 step.line,
-                format!(
-                    "step {} states nothing of what it obtains",
-                    fmt(&step.number)
-                ),
+                format!("step {} states nothing of what it obtains", step.number),
             ));
         }
         self.names_kept(|me| -> Checked<Rpn> {

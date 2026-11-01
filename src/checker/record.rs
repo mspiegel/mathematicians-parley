@@ -11,7 +11,7 @@ use std::rc::Rc;
 use indexmap::IndexMap;
 
 use crate::citing::{Concluded, Group};
-use crate::corpus::{Step, StepNo, Theorem};
+use crate::corpus::{Step, StepPlace, Theorem};
 use crate::formula::page::Sentence;
 use crate::formula::{Node, Sorts};
 use crate::matching::{Binding, Definitions};
@@ -300,8 +300,8 @@ impl CheckedTheorem {
         for (i, step) in thm.steps.iter().enumerate() {
             while let Some(&b) = open.last() {
                 let owner = &thm.steps[out.blocks[b].owner].number;
-                if step.number.len() > owner.len()
-                    && step.number.prefix(owner.len()) == *owner
+                if step.number.depth() > owner.depth()
+                    && step.number.prefix(owner.depth()) == *owner
                 {
                     break;
                 }
@@ -391,8 +391,8 @@ impl CheckedTheorem {
         }
     }
 
-    /// The step numbered `number` written nearest above `step`.
-    pub fn written(thm: &Theorem, number: &StepNo, step: &Step) -> Option<usize> {
+    /// The step at `number` written nearest above `step`.
+    pub fn written(thm: &Theorem, number: &StepPlace, step: &Step) -> Option<usize> {
         thm.steps
             .iter()
             .rposition(|s| &s.number == number && s.line < step.line)

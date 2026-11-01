@@ -20,7 +20,7 @@ use super::pairs::InClass;
 use super::state::Elaborator;
 use super::Facts;
 use crate::binds;
-use crate::corpus::{fmt, Step};
+use crate::corpus::Step;
 use crate::methods::inspection::{
     disjuncts, integer_value, is_prime, least_factor, range_elements,
 };
@@ -147,7 +147,7 @@ impl Elaborator<'_> {
                 step.line,
                 format!(
                     "step {} is not seen by inspection of what it cites: {}",
-                    fmt(&step.number),
+                    step.number,
                     self.say(&d)
                 ),
             )),

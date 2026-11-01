@@ -6998,9 +6998,9 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.16.4.17 cites thm:ballot-recurrence, whose statement applies the define D2 at m − 1 and is written out, so it needs m − 1 ∈ ℕ₀, and nothing it cites or requires says it",
         ),
-        // A theorem proved `by` a method is that method's step, numbered with
-        // no number, whose block holds every step of the proof (`SYNTAX.md`,
-        // a theorem proved by a method).
+        // A theorem proved `by` a method is that method's step, which the
+        // page gives no number, whose block holds every step of the proof
+        // (`SYNTAX.md`, a theorem proved by a method).
         case(
             "prove a theorem by a method that opens no block",
             vec![edit(

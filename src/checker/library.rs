@@ -12,7 +12,7 @@ use crate::citing::{
     self, at_a_member, conjuncts_in, finished, implied_facts, introduction, said_once,
     subset_members, Introduced, Library, Parts, Taken,
 };
-use crate::corpus::{Intro, Kinded, Method, Step, StepNo, Theorem, Values};
+use crate::corpus::{Intro, Kinded, Method, Step, StepPlace, Theorem, Values};
 use crate::formula::page::{chain_pairs, conjoined, filled, Sentence, Written};
 use crate::formula::symbol::Symbol;
 use crate::formula::{Node, Sorts};
@@ -25,7 +25,7 @@ use crate::outcome::Route;
 use crate::sorts::introduction::{Form, Introduction};
 use crate::sorts::{citing_labels, Env, OutsideDefines, TYPING};
 
-type PartsKey = (StepNo, String, String, Vec<String>, Vec<String>);
+type PartsKey = (StepPlace, String, String, Vec<String>, Vec<String>);
 
 /// Which search of an item's groups a check asks of a step's parts
 /// (`citations::searched`).
@@ -157,11 +157,11 @@ pub struct Known<'a> {
     /// The definitions from outside the theorem a citation may write out.
     outside: OutsideDefines,
     cited: RefCell<FxIndexMap<Vec<String>, Rc<Definitions>>>,
-    scopes: RefCell<FxIndexMap<(StepNo, usize), Rc<Statements>>>,
+    scopes: RefCell<FxIndexMap<(StepPlace, usize), Rc<Statements>>>,
     /// What is in scope at each place a step stands, read once for the
     /// place: a step's copies with a line taken away stand there too
     /// (`Known::in_scope`).
-    in_scope: RefCell<FxIndexMap<(StepNo, usize), Rc<InScope>>>,
+    in_scope: RefCell<FxIndexMap<(StepPlace, usize), Rc<InScope>>>,
     parts: RefCell<FxIndexMap<PartsKey, Rc<Parts>>>,
     /// Each search a check has asked of a step's citation, which several
     /// checks ask alike: the parts and the groups are kept for the run
@@ -1234,7 +1234,7 @@ fn introducing(known: &Known, step: &Step) -> Vec<Stated> {
                 said.push((o.line, Stated::Introduced(introduced)));
             }
         }
-        let around = step.number.0.starts_with(&other.number.parent().0);
+        let around = other.number.parent().contains(&step.number);
         if other.just.head.is(Method::Obtain) && other.line < step.line && around {
             said.push((other.line, Stated::Written(other.claim.clone())));
         }

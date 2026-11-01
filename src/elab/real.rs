@@ -33,7 +33,7 @@ use super::provenance::MEMBERSHIP;
 use super::state::{fit, names_of, Binding, Elaborator};
 use super::Facts;
 use crate::binds;
-use crate::corpus::{fmt, Step};
+use crate::corpus::Step;
 use crate::methods::pairs::{self, Coordinate, PairRelation};
 use crate::methods::reals::{self, Atom, Real};
 use crate::methods::surds::{self, Surd, Verdict};
@@ -133,7 +133,7 @@ impl<'a> Elaborator<'a> {
         scope: &Rpn,
         facts: &Facts,
     ) -> Checked<Route<Proof>> {
-        let what = format!("step {} claims {}", fmt(&step.number), step.claim.text());
+        let what = format!("step {} claims {}", step.number, step.claim.text());
         self.real_fact(term, scope, facts, &what).map(Built)
     }
 

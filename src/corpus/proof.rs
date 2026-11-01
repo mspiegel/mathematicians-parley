@@ -514,37 +514,89 @@ impl Requires {
     }
 }
 
-/// A step's number, as the text writes it: 3.1.2.
+/// A step's number, as the text writes it: 3.1.2. It has at least one
+/// part, which `StepNo::new` holds, so its first and last parts are always
+/// there to read; the step a theorem proved `by` a method is has no number,
+/// and is `StepPlace::Theorem`, not a `StepNo`.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct StepNo(pub Vec<u32>);
+pub struct StepNo(Vec<u32>);
 
 impl StepNo {
-    /// The number of the step whose block this one is in; the empty number,
-    /// the theorem proved `by` a method, for a step at the top level. The
-    /// theorem's own step has none, and is given the empty number again.
-    pub fn parent(&self) -> StepNo {
-        StepNo(self.0[..self.0.len().saturating_sub(1)].to_vec())
+    /// The number with these parts; None where there are none.
+    pub fn new(parts: Vec<u32>) -> Option<StepNo> {
+        (!parts.is_empty()).then_some(StepNo(parts))
     }
 
+    /// A step at the top level, numbered `n`.
+    pub fn top(n: u32) -> StepNo {
+        StepNo(vec![n])
+    }
+
+    /// Step `n` in this step's block: 3.1 of 3.
+    pub fn child(&self, n: u32) -> StepNo {
+        self.joined(&[n])
+    }
+
+    /// This number with `rest` after it: 3.1.2 of 3 and [1, 2].
+    pub fn joined(&self, rest: &[u32]) -> StepNo {
+        let mut parts = self.0.clone();
+        parts.extend_from_slice(rest);
+        StepNo(parts)
+    }
+
+    pub fn parts(&self) -> &[u32] {
+        &self.0
+    }
+
+    /// This number with its part `at` set to `value`: 4.5.1 of 4.2.1 for
+    /// at = 1, value = 5.
+    pub fn with(&self, at: usize, value: u32) -> StepNo {
+        let mut parts = self.0.clone();
+        parts[at] = value;
+        StepNo(parts)
+    }
+
+    /// The place of the step whose block this one is in: the theorem's own
+    /// step for a step at the top level.
+    pub fn parent(&self) -> StepPlace {
+        match StepNo::new(self.0[..self.0.len() - 1].to_vec()) {
+            Some(number) => StepPlace::Step(number),
+            None => StepPlace::Theorem,
+        }
+    }
+
+    /// The first `k` parts, at least one: 3.1 of 3.1.2 for k = 2.
     pub fn prefix(&self, k: usize) -> StepNo {
-        StepNo(self.0[..k.min(self.0.len())].to_vec())
+        StepNo(self.0[..k.clamp(1, self.0.len())].to_vec())
     }
 
-    pub fn len(&self) -> usize {
+    /// How many parts the number has: 1 for a top-level step.
+    pub fn depth(&self) -> usize {
         self.0.len()
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+    /// The top-level step this one is in, or is: 3 of 3.1.2.
+    pub fn first(&self) -> u32 {
+        self.0[0]
     }
 
     pub fn last(&self) -> u32 {
         self.0[self.0.len() - 1]
     }
 
-    /// Parsed from a reference such as `3.1`.
-    pub fn parse(text: &str) -> StepNo {
-        StepNo(text.split('.').map(|x| x.parse().unwrap_or(0)).collect())
+    /// Whether this number is `other` or a step in its block, at any depth.
+    pub fn starts_with(&self, other: &StepNo) -> bool {
+        self.0.starts_with(&other.0)
+    }
+
+    /// Parsed from a reference such as `3.1`; None where `text` is not a
+    /// step number (`skeleton::is_number`).
+    pub fn parse(text: &str) -> Option<StepNo> {
+        if !crate::corpus::skeleton::is_number(text) {
+            return None;
+        }
+        let parts: Option<Vec<u32>> = text.split('.').map(|x| x.parse().ok()).collect();
+        StepNo::new(parts?)
     }
 }
 
@@ -563,6 +615,97 @@ impl fmt::Display for StepNo {
 /// A step number written as the text writes it.
 pub fn fmt(number: &StepNo) -> String {
     number.to_string()
+}
+
+/// Where a step stands: the step a theorem proved `by` a method is, which
+/// the page gives no number, or a numbered step. The theorem's step comes
+/// before every numbered one, and every top-level step is in its block.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum StepPlace {
+    Theorem,
+    Step(StepNo),
+}
+
+impl StepPlace {
+    /// The step's number; None for the theorem's own step.
+    pub fn number(&self) -> Option<&StepNo> {
+        match self {
+            StepPlace::Theorem => None,
+            StepPlace::Step(number) => Some(number),
+        }
+    }
+
+    pub fn is_theorem(&self) -> bool {
+        matches!(self, StepPlace::Theorem)
+    }
+
+    /// How deep the step stands: 0 for the theorem's own step, 1 for a
+    /// top-level step.
+    pub fn depth(&self) -> usize {
+        self.number().map_or(0, StepNo::depth)
+    }
+
+    /// The place `k` levels down the way to this step: the theorem's own
+    /// step for k = 0, the top-level step for k = 1.
+    pub fn prefix(&self, k: usize) -> StepPlace {
+        match self {
+            StepPlace::Step(number) if k > 0 => StepPlace::Step(number.prefix(k)),
+            _ => StepPlace::Theorem,
+        }
+    }
+
+    /// The place of the step whose block this one is in; the theorem's own
+    /// step is in no block, and is given its own place again.
+    pub fn parent(&self) -> StepPlace {
+        match self {
+            StepPlace::Theorem => StepPlace::Theorem,
+            StepPlace::Step(number) => number.parent(),
+        }
+    }
+
+    /// Step `n` in this step's block: step `n` at the top level for the
+    /// theorem's own step.
+    pub fn child(&self, n: u32) -> StepNo {
+        match self {
+            StepPlace::Theorem => StepNo::top(n),
+            StepPlace::Step(number) => number.child(n),
+        }
+    }
+
+    /// Whether the step at `other` is this one or in its block, at any depth:
+    /// every step is in the theorem's.
+    pub fn contains(&self, other: &StepPlace) -> bool {
+        match (self, other) {
+            (StepPlace::Theorem, _) => true,
+            (StepPlace::Step(_), StepPlace::Theorem) => false,
+            (StepPlace::Step(mine), StepPlace::Step(theirs)) => {
+                theirs.starts_with(mine)
+            }
+        }
+    }
+}
+
+impl PartialEq<StepNo> for StepPlace {
+    fn eq(&self, other: &StepNo) -> bool {
+        self.number() == Some(other)
+    }
+}
+
+impl From<StepNo> for StepPlace {
+    fn from(number: StepNo) -> StepPlace {
+        StepPlace::Step(number)
+    }
+}
+
+/// A numbered step as its number; the theorem's own step, which the page
+/// gives none, as `the theorem`.
+impl fmt::Display for StepPlace {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            StepPlace::Theorem => f.write_str("the theorem"),
+            StepPlace::Step(number) => number.fmt(f),
+        }
+    }
 }
 
 /// What a citation's prefix or an import's keyword says of the item it names:
@@ -948,10 +1091,11 @@ impl Justification {
     }
 }
 
-/// One numbered step of a proof.
+/// One step of a proof: a numbered one, or the step a theorem proved `by` a
+/// method is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Step {
-    pub number: StepNo,
+    pub number: StepPlace,
     pub claim: Written,
     pub just: Justification,
     pub requires: Vec<Requires>,
@@ -1041,11 +1185,11 @@ impl Step {
         }
     }
 
-    /// Whether this is the step a theorem proved `by` a method is: numbered
-    /// with no number, its claim the theorem's conclusion, and every step of
-    /// the proof in its block.
+    /// Whether this is the step a theorem proved `by` a method is: at
+    /// `StepPlace::Theorem`, its claim the theorem's conclusion, and every
+    /// step of the proof in its block.
     pub fn proves_theorem(&self) -> bool {
-        self.number.is_empty() && self.reason_of.is_none()
+        self.number.is_theorem() && self.reason_of.is_none()
     }
 
     /// What the step is, in a message: `step`, or `let`.
@@ -1330,14 +1474,17 @@ pub fn references(thm: &Theorem) -> Vec<Reference> {
         }
     }
     for step in &thm.steps {
-        out.push(Reference {
-            cite: Cite {
-                cited: Cited::Line(step.number.clone()),
-                at: 0,
-                len: fmt(&step.number).len(),
-            },
-            line: step.line,
-        });
+        // The theorem's own step has no number written on the page.
+        if let Some(number) = step.number.number() {
+            out.push(Reference {
+                cite: Cite {
+                    cited: Cited::Line(number.clone()),
+                    at: 0,
+                    len: fmt(number).len(),
+                },
+                line: step.line,
+            });
+        }
         out.extend(step.just.cited.iter().map(|c| Reference {
             cite: c.clone(),
             line: step.just.line,
@@ -2325,8 +2472,8 @@ pub fn parse_proof(
     let mut pending_markers: Vec<(String, usize, Option<Said>)> = Vec::new();
     let mut pending_openers: Vec<HeldOpener> = Vec::new();
     let mut pending_by: Option<HeldBy> = None;
-    let mut part_no: IndexMap<StepNo, usize> = IndexMap::new();
-    let mut by_number: IndexMap<StepNo, usize> = IndexMap::new();
+    let mut part_no: IndexMap<StepPlace, usize> = IndexMap::new();
+    let mut by_number: IndexMap<StepPlace, usize> = IndexMap::new();
 
     /// The first marker held, by its word and line.
     fn first_marker(held: &[(String, usize, Option<Said>)]) -> Option<(&str, usize)> {
@@ -2364,11 +2511,11 @@ pub fn parse_proof(
         path: &str,
         draft: &mut DraftTheorem,
         owner: Option<usize>,
-        parent: &StepNo,
+        parent: &StepPlace,
         markers: &mut Vec<(String, usize, Option<Said>)>,
         openers: &mut Vec<HeldOpener>,
         held_by: &mut Option<HeldBy>,
-        part_no: &mut IndexMap<StepNo, usize>,
+        part_no: &mut IndexMap<StepPlace, usize>,
     ) -> Checked<Option<usize>> {
         for (marker, no, note) in markers.drain(..) {
             let Some(owner) = owner else {
@@ -2473,13 +2620,12 @@ pub fn parse_proof(
                 "an induction hypothesis outside the step part of an induction",
             ));
         }
-        // The theorem proved `by` the induction is its step numbered [], and
-        // its hypothesis says the theorem is true for k.
-        let proves_theorem = owner.number.is_empty();
-        match (said.step, proves_theorem) {
-            (Some(step), false) if step == fmt(&owner.number) => {}
-            (None, true) => {}
-            (Some(_), true) => {
+        // The theorem proved `by` the induction is its own step, and its
+        // hypothesis says the theorem is true for k.
+        match (said.step, owner.number.number()) {
+            (Some(step), Some(number)) if step == fmt(number) => {}
+            (None, None) => {}
+            (Some(_), None) => {
                 return Err(Problem::new(
                     path,
                     no,
@@ -2490,14 +2636,14 @@ pub fn parse_proof(
                     ),
                 ));
             }
-            (named, false) => {
+            (named, Some(number)) => {
                 return Err(Problem::new(
                     path,
                     no,
                     format!(
                         "the induction hypothesis names {}, and the induction is step {}",
                         named.map_or("the theorem".to_string(), |s| format!("step {s}")),
-                        fmt(&owner.number)
+                        fmt(number)
                     ),
                 ));
             }
@@ -2795,7 +2941,15 @@ pub fn parse_proof(
         if let Some(said) = skeleton::step_line(&t) {
             close_step(path, &thm, &mut step)?;
             let draft = thm.as_mut().unwrap();
-            let number = StepNo::parse(said.number);
+            // `step_line` reads digits only, so the one number it gives that
+            // does not read is one too large to count.
+            let Some(number) = StepNo::parse(said.number) else {
+                return Err(Problem::new(
+                    path,
+                    line.no,
+                    format!("step {} has a number too large to read", said.number),
+                ));
+            };
             // Resolve held markers and openers against the owner of the block
             // that this step sits in, and say which part it sits in.
             let parent = number.parent();
@@ -2810,10 +2964,10 @@ pub fn parse_proof(
             {
                 if !owner.is_some_and(cases_owner) {
                     let last = draft.steps.last().map(|s| s.step.number.clone());
-                    // The theorem proved `by cases` is the block at the
-                    // empty number.
+                    // The theorem proved `by cases` is the block of the
+                    // theorem's own step.
                     let open = last.and_then(|n| {
-                        (0..=n.len()).rev().map(|k| n.prefix(k)).find_map(|p| {
+                        (0..=n.depth()).rev().map(|k| n.prefix(k)).find_map(|p| {
                             by_number.get(&p).copied().filter(|&i| cases_owner(i))
                         })
                     });
@@ -2841,7 +2995,7 @@ pub fn parse_proof(
             )?;
             draft.steps.push(DraftStep {
                 step: Step {
-                    number: number.clone(),
+                    number: StepPlace::Step(number.clone()),
                     claim: Written::new(said.claim, path, line.no),
                     just: placeholder_justification(),
                     requires: Vec::new(),
@@ -2858,13 +3012,13 @@ pub fn parse_proof(
                 has_just: false,
             });
             let at = draft.steps.len() - 1;
-            by_number.insert(number, at);
+            by_number.insert(StepPlace::Step(number), at);
             step = Some(at);
             continue;
         }
 
         // `by <method>` under `then`: the theorem is the step the method
-        // proves, numbered with no number, and the method's blocks open at
+        // proves, at `StepPlace::Theorem`, and the method's blocks open at
         // the top level, its steps numbered 1, 2, … (`SYNTAX.md`, a theorem
         // proved by a method). A line opening with `by` that continues a
         // step's claim is the claim's.
@@ -2965,7 +3119,7 @@ pub fn parse_proof(
             let conclusion = draft.thm.conclusion.clone();
             draft.steps.push(DraftStep {
                 step: Step {
-                    number: StepNo(Vec::new()),
+                    number: StepPlace::Theorem,
                     claim: Written::new(&conclusion, path, draft.thm.conclusion_line),
                     just,
                     requires: Vec::new(),
@@ -2982,7 +3136,7 @@ pub fn parse_proof(
                 has_just: true,
             });
             let at = draft.steps.len() - 1;
-            by_number.insert(StepNo(Vec::new()), at);
+            by_number.insert(StepPlace::Theorem, at);
             step = Some(at);
             continue;
         }
@@ -3131,9 +3285,10 @@ pub fn parse_proof(
             // in, so it is in the innermost `cases` block open at this line.
             let draft = thm.as_mut().unwrap();
             let last = draft.steps.last().map(|s| s.step.number.clone());
-            // The theorem proved `by cases` is the block at the empty number.
+            // The theorem proved `by cases` is the block of the theorem's own
+            // step.
             let owner = last.and_then(|n| {
-                (0..=n.len()).rev().map(|k| n.prefix(k)).find(|p| {
+                (0..=n.depth()).rev().map(|k| n.prefix(k)).find(|p| {
                     by_number.get(p).is_some_and(|&i| {
                         draft.steps[i].step.just.head.is(Method::Cases)
                     })

@@ -12,7 +12,7 @@ use crate::corpus::proof::visible;
 use crate::corpus::{
     cited_items, define_parts, described, fmt, is_label, item_kind, DefineParts,
     FileScope, Head, Intro, Item, Justification, Method, Opener, Range, Record,
-    RecordKind, Requires, Step, StepNo, Theorem,
+    RecordKind, Requires, Step, StepNo, StepPlace, Theorem,
 };
 use crate::formula::library::Function;
 use crate::formula::notation_id::NotationId;
@@ -35,11 +35,14 @@ use crate::text::{prefix, repr};
 /// A step numbered `cited` is visible from the step numbered `here` when it
 /// is an ancestor, or shares `here`'s path to some position and comes before
 /// it there. Steps inside a closed block are not visible outside it.
-pub fn in_scope(cited: &StepNo, here: &StepNo) -> bool {
-    let (c, h) = (&cited.0, &here.0);
-    // The theorem proved `by` a method, numbered with no number, is what
-    // the proof proves and is never cited.
-    if c.is_empty() || c.len() > h.len() {
+pub fn in_scope(cited: &StepPlace, here: &StepPlace) -> bool {
+    // The theorem proved `by` a method is what the proof proves and is never
+    // cited, and every step is in its block, so it sees none.
+    let (Some(cited), Some(here)) = (cited.number(), here.number()) else {
+        return false;
+    };
+    let (c, h) = (cited.parts(), here.parts());
+    if c.len() > h.len() {
         return false;
     }
     let k = c.len();
@@ -48,8 +51,8 @@ pub fn in_scope(cited: &StepNo, here: &StepNo) -> bool {
 
 /// Why a line that exists is not in scope where `here` cites it: it comes
 /// later, or it is inside a block that closed before `here`.
-fn why_out_of_scope(cited: &StepNo, here: &StepNo) -> &'static str {
-    if cited.0 > here.0 && !cited.0.starts_with(&here.0) {
+fn why_out_of_scope(cited: &StepPlace, here: &StepPlace) -> &'static str {
+    if cited > here && !here.contains(cited) {
         "which comes after it"
     } else {
         "which is inside a block that has closed"
@@ -64,7 +67,7 @@ fn why_out_of_scope(cited: &StepNo, here: &StepNo) -> &'static str {
 pub fn out_of_reach(
     thm: &Theorem,
     shape: &CheckedTheorem,
-    cited: &StepNo,
+    cited: &StepPlace,
     here: &Step,
 ) -> Option<&'static str> {
     if !in_scope(cited, &here.number) {
@@ -121,7 +124,7 @@ pub fn labels_in_scope(
         }
     }
     for other in &thm.steps {
-        let k = other.number.len();
+        let k = other.number.depth();
         if other.number != step.number.prefix(k) || other.number == step.number {
             continue;
         }
@@ -138,7 +141,11 @@ pub fn labels_in_scope(
 /// The step numbered `number` that `step` stands under or is: the nearest
 /// written at or above it. A number written twice is `check_numbering`'s to
 /// report, and each of its steps keeps the blocks it is written in.
-fn on_the_way<'t>(thm: &'t Theorem, step: &Step, number: &StepNo) -> Option<&'t Step> {
+fn on_the_way<'t>(
+    thm: &'t Theorem,
+    step: &Step,
+    number: &StepPlace,
+) -> Option<&'t Step> {
     thm.steps
         .iter()
         .rfind(|s| &s.number == number && s.line <= step.line)
@@ -165,21 +172,21 @@ pub fn check_justification_form(
 /// counting 1, 2, 3 in the order the text writes them: a gap is a defect,
 /// since a reader meeting 3 after 1 looks for the 2 that is not there.
 pub fn check_numbering(report: &mut Report, thm: &Theorem) {
-    let mut seen: IndexSet<StepNo> = IndexSet::new();
-    let mut last: IndexMap<StepNo, u32> = IndexMap::new();
+    let mut seen: IndexSet<StepPlace> = IndexSet::new();
+    let mut last: IndexMap<StepPlace, u32> = IndexMap::new();
     for step in &thm.steps {
-        let n = &step.number;
         // The theorem proved `by` a method has no number to check; its
         // block's steps count from 1 under it.
-        if step.proves_theorem() {
-            seen.insert(n.clone());
+        let Some(n) = step.number.number() else {
+            seen.insert(step.number.clone());
             continue;
-        }
+        };
         let parent = n.parent();
-        if seen.contains(n) {
+        let twice = seen.contains(&step.number);
+        if twice {
             report.say(&thm.path, step.line, format!("step {n} is numbered twice"));
         }
-        if n.len() > 1 && !seen.contains(&parent) {
+        if n.depth() > 1 && !seen.contains(&parent) {
             report.say(
                 &thm.path,
                 step.line,
@@ -187,9 +194,8 @@ pub fn check_numbering(report: &mut Report, thm: &Theorem) {
             );
         }
         let expected = last.get(&parent).copied().unwrap_or(0) + 1;
-        if !seen.contains(n) && n.last() != expected {
-            let mut should = parent.clone();
-            should.0.push(expected);
+        if !twice && n.last() != expected {
+            let should = parent.child(expected);
             report.say(
                 &thm.path,
                 step.line,
@@ -198,7 +204,7 @@ pub fn check_numbering(report: &mut Report, thm: &Theorem) {
         }
         let before = last.get(&parent).copied().unwrap_or(0);
         last.insert(parent, before.max(n.last()));
-        seen.insert(n.clone());
+        seen.insert(step.number.clone());
     }
 }
 
@@ -222,8 +228,8 @@ pub fn check_blocks(
     known: &Known,
 ) {
     for (at, step) in thm.steps.iter().enumerate() {
-        // The theorem proved `by` a method is numbered with no number, whose
-        // parent is itself again: it is not its own sub-step.
+        // The theorem proved `by` a method stands at `StepPlace::Theorem`,
+        // whose parent is itself again: it is not its own sub-step.
         let has_children = thm
             .steps
             .iter()
@@ -245,7 +251,7 @@ pub fn check_blocks(
             for s in thm
                 .steps
                 .iter()
-                .filter(|s| s.number.len() == 1 && s.part.is_none())
+                .filter(|s| s.number.depth() == 1 && s.part.is_none())
             {
                 report.say(
                     &thm.path,
@@ -269,10 +275,9 @@ pub fn check_blocks(
                 .filter(|s| s.number.parent() == parent);
             let said = match below {
                 Some(next) => {
-                    let enclosing = if parent.0.is_empty() {
-                        "the proof's own steps".to_string()
-                    } else {
-                        format!("part of step {parent}'s block")
+                    let enclosing = match parent.number() {
+                        None => "the proof's own steps".to_string(),
+                        Some(parent) => format!("part of step {parent}'s block"),
                     };
                     format!(
                         "step {n} is justified by {head}, which needs a block, and has no sub-steps: the step below it is numbered {next}, so what stands under it is read as {enclosing}; a step of {n}'s block is numbered {n}.1",
@@ -453,20 +458,21 @@ fn check_supposition_used(
     part: Option<usize>,
     supposes: &[&Opener],
 ) {
-    let depth = owner.number.len() + 1;
+    let depth = owner.number.depth() + 1;
     // The steps of the part, and every step under one of them.
-    let heads: Vec<&StepNo> = thm
+    let heads: Vec<&StepPlace> = thm
         .steps
         .iter()
         .filter(|s| {
-            s.number.len() == depth
+            s.number.depth() == depth
                 && s.number.prefix(depth - 1) == owner.number
                 && s.part == part
         })
         .map(|s| &s.number)
         .collect();
-    let under =
-        |s: &&Step| s.number.len() >= depth && heads.contains(&&s.number.prefix(depth));
+    let under = |s: &&Step| {
+        s.number.depth() >= depth && heads.contains(&&s.number.prefix(depth))
+    };
     for o in supposes.iter().filter(|o| o.kind == Intro::Suppose) {
         let names = |s: &&Step| {
             s.just.refs.contains(&o.label)
@@ -1050,7 +1056,8 @@ pub fn check_citations(
     methods: &IndexMap<String, &Record>,
     scopes: &[FileScope],
 ) {
-    let numbers: IndexSet<&StepNo> = thm.steps.iter().map(|s| &s.number).collect();
+    let numbers: IndexSet<&StepNo> =
+        thm.steps.iter().filter_map(|s| s.number.number()).collect();
     let shape = CheckedTheorem::of(thm);
     for step in &thm.steps {
         let just = &step.just;
@@ -1086,22 +1093,25 @@ pub fn check_citations(
                 }
                 continue;
             }
-            let cited = StepNo::parse(r);
-            if !numbers.contains(&cited) {
-                report.say(
+            match StepNo::parse(r).filter(|cited| numbers.contains(cited)) {
+                None => report.say(
                     &thm.path,
                     just.line,
                     format!(
                         "step {} cites line {r}, which does not exist",
                         step.number
                     ),
-                );
-            } else if let Some(why) = out_of_reach(thm, &shape, &cited, step) {
-                report.say(
-                    &thm.path,
-                    just.line,
-                    format!("step {} cites line {r}, {why}", step.number),
-                );
+                ),
+                Some(cited) => {
+                    let cited = StepPlace::Step(cited);
+                    if let Some(why) = out_of_reach(thm, &shape, &cited, step) {
+                        report.say(
+                            &thm.path,
+                            just.line,
+                            format!("step {} cites line {r}, {why}", step.number),
+                        );
+                    }
+                }
             }
         }
         if let Some(target) = &just.target {
@@ -1195,7 +1205,7 @@ pub fn check_citations(
             let below = thm
                 .steps
                 .iter()
-                .find(|s| fmt(&s.number) == *r)
+                .find(|s| s.number.number().is_some_and(|n| fmt(n) == *r))
                 .is_some_and(|s| s.line > d.line);
             if below || *r == d.label {
                 let what = if by.line == reason.line {
@@ -1302,15 +1312,23 @@ impl Cited<'_> {
                 }
                 continue;
             }
-            let cited = StepNo::parse(r);
-            if !self.numbers.contains(&cited) {
-                report.say(
+            match StepNo::parse(r).filter(|cited| self.numbers.contains(cited)) {
+                None => report.say(
                     &thm.path,
                     no,
                     format!("{what} cites line {r}, which does not exist"),
-                );
-            } else if let Some(why) = out_of_reach(thm, self.shape, &cited, self.step) {
-                report.say(&thm.path, no, format!("{what} cites line {r}, {why}"));
+                ),
+                Some(cited) => {
+                    let cited = StepPlace::Step(cited);
+                    if let Some(why) = out_of_reach(thm, self.shape, &cited, self.step)
+                    {
+                        report.say(
+                            &thm.path,
+                            no,
+                            format!("{what} cites line {r}, {why}"),
+                        );
+                    }
+                }
             }
         }
     }
@@ -1674,10 +1692,10 @@ pub fn check_steps_used(report: &mut Report, thm: &Theorem, relied: &BTreeSet<St
         if cited.contains(&number) || step.proves_theorem() {
             continue;
         }
-        let depth = step.number.len();
+        let depth = step.number.depth();
         let parent = step.number.prefix(depth - 1);
         let followed = thm.steps[i + 1..].iter().any(|s| {
-            s.number.len() == depth
+            s.number.depth() == depth
                 && s.number.prefix(depth - 1) == parent
                 && s.part == step.part
         });
@@ -1726,7 +1744,7 @@ pub fn check_last_step(report: &mut Report, thm: &Theorem, known: &Known) {
     if thm.steps.first().is_some_and(Step::proves_theorem) {
         return;
     }
-    let Some(last) = thm.steps.iter().rev().find(|s| s.number.0.len() == 1) else {
+    let Some(last) = thm.steps.iter().rev().find(|s| s.number.depth() == 1) else {
         report.say(
             &thm.path,
             thm.line,
@@ -2790,7 +2808,7 @@ pub fn letters_introduced(
 ) -> BTreeSet<String> {
     let mut out = hypotheses_introduce(thm, known);
     for other in &thm.steps {
-        let k = other.number.len();
+        let k = other.number.depth();
         let encloses =
             other.number == step.number.prefix(k) && other.number != step.number;
         if encloses {

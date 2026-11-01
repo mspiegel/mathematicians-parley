@@ -840,13 +840,5 @@ pub fn names_of(term: &Term) -> Vars {
 /// the step a theorem proved `by` a method is, which has no number, and
 /// whose line is kept apart from an unlabelled hypothesis's, kept under "".
 pub fn number_of(step: &Step) -> String {
-    if step.proves_theorem() {
-        return "the theorem".to_string();
-    }
-    step.number
-        .0
-        .iter()
-        .map(|p| p.to_string())
-        .collect::<Vec<_>>()
-        .join(".")
+    step.number.to_string()
 }

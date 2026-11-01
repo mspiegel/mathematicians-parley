@@ -77,7 +77,7 @@ impl Report {
             step.just.line,
             format!(
                 "step {} names {}, which does not decide what it claims",
-                crate::corpus::fmt(&step.number),
+                step.number,
                 method.as_str()
             ),
         );

@@ -43,8 +43,8 @@ use crate::corpus::proof::{
 };
 use crate::corpus::Method;
 use crate::corpus::{
-    define_parts, fmt, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step,
-    Theorem, Value,
+    define_parts, Corpus, DefineParts, Hypothesis, Intro, Item, Record, Step, Theorem,
+    Value,
 };
 use crate::formula::page::{related, Written};
 use crate::formula::symbol::Symbol;
@@ -748,7 +748,7 @@ impl<'a> Elaborator<'a> {
                 let negated = t!(held.claim, "wn");
                 let what = format!(
                     "step {} says {} is impossible",
-                    fmt(&step.number),
+                    step.number,
                     step.claim_text()
                 );
                 let goal = self.to_term(&negated);
@@ -1534,7 +1534,7 @@ impl<'a> Elaborator<'a> {
             // The item names itself, and what its labels did not reach is
             // said as it stands.
             let wanted = if step.just.head.to_string() == "obtain" {
-                format!("what step {} obtains", fmt(&step.number))
+                format!("what step {} obtains", step.number)
             } else {
                 self.render(&self.rpn(&self.to_term(goal)))
             };
@@ -1605,7 +1605,7 @@ impl<'a> Elaborator<'a> {
             step.line,
             format!(
                 "step {} cites {}:{}, which the database gives no target for, and nothing is taken as stated",
-                fmt(&step.number),
+                step.number,
                 item_kind(Item::Record(item)),
                 item.qualified()
             ),
@@ -2092,7 +2092,7 @@ impl<'a> Elaborator<'a> {
                         format!(
                             "instantiating at that term wants {}, which step {} does not supply: {}",
                             self.render(&asks),
-                            fmt(&step.number),
+                            step.number,
                             self.say(&d)
                         ),
                     ));
@@ -2204,8 +2204,7 @@ impl<'a> Elaborator<'a> {
                     self.unreached(row.line, "a row after the first with no reason")
                 );
             };
-            let what =
-                format!("a row of step {} writes {}", fmt(&step.number), row.formula);
+            let what = format!("a row of step {} writes {}", step.number, row.formula);
             let change = match self.as_a_step(step, req, &what, scope, &supplied)? {
                 Built(p) => p,
                 Declined(d) => {
@@ -2361,7 +2360,7 @@ impl<'a> Elaborator<'a> {
         // not the text's, so either is accepted and turned if it has to be.
         let mut facing = self.held(facts, &t!(old, new, "wceq"), scope)?;
         if *source == crate::corpus::Source::Arithmetic {
-            let what = format!("step {} substitutes {written}", fmt(&step.number));
+            let what = format!("step {} substitutes {written}", step.number);
             facing = Some(self.closed_fact(
                 &t!(old, new, "wceq"),
                 scope,
@@ -2371,7 +2370,7 @@ impl<'a> Elaborator<'a> {
             )?);
         }
         if *source == crate::corpus::Source::RealArithmetic {
-            let what = format!("step {} substitutes {written}", fmt(&step.number));
+            let what = format!("step {} substitutes {written}", step.number);
             facing =
                 Some(self.real_fact(&t!(old, new, "wceq"), scope, facts, &what)?);
         }
@@ -3345,7 +3344,7 @@ impl<'a> Elaborator<'a> {
                 "{}:{} has no target, and nothing step {} cites says {}",
                 item_kind(Item::Record(item)),
                 item.qualified(),
-                fmt(&step.number),
+                step.number,
                 self.render(term)
             ),
         ))
@@ -3378,7 +3377,7 @@ impl<'a> Elaborator<'a> {
                 step.line,
                 format!(
                     "no clause of {head} gives what step {} claims: {}",
-                    fmt(&step.number),
+                    step.number,
                     self.say(&d)
                 ),
             )),
@@ -3784,7 +3783,7 @@ impl<'a> Elaborator<'a> {
                                     step.line,
                                     format!(
                                         "step {} chains {}, and nothing it writes or cites says it is a number: {}",
-                                        fmt(&step.number),
+                                        step.number,
                                         self.render(t),
                                         self.say(&d)
                                     ),
@@ -4243,7 +4242,7 @@ impl<'a> Elaborator<'a> {
         defines: &BTreeSet<String>,
     ) -> Checked<Proof> {
         let cite = line.cite.as_str();
-        let what = format!("a link of step {} claims {written}", fmt(&step.number));
+        let what = format!("a link of step {} claims {written}", step.number);
         // A line giving a reason of its own proves its link as the step it
         // would be, resting on the calculation's requires lines, as a
         // requires line is proved (`as_a_step`).
@@ -5366,7 +5365,7 @@ impl<'a> Elaborator<'a> {
                         format!(
                             "exhibiting that witness wants {}, which step {} does not supply: {}",
                             self.render(want),
-                            fmt(&step.number),
+                            step.number,
                             self.say(&d)
                         ),
                     ));
@@ -5729,7 +5728,7 @@ impl<'a> Elaborator<'a> {
                 format!(
                     "no clause of {} reaches what step {} claims: {}",
                     step.just.head,
-                    fmt(&step.number),
+                    step.number,
                     self.say(&d)
                 ),
             )),
@@ -6778,8 +6777,7 @@ impl<'a> Elaborator<'a> {
             step.line,
             format!(
                 "{} does not conclude what step {} claims",
-                step.just.head,
-                fmt(&step.number)
+                step.just.head, step.number
             ),
         ))
     }

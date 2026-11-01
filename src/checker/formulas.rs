@@ -1337,11 +1337,14 @@ fn check_part_contradictions(
 fn ends_block(thm: &Theorem, at: usize) -> bool {
     let step = &thm.steps[at];
     // The step's block is the one its number sits directly under.
-    let depth = step.number.len();
+    let depth = step.number.depth();
     let owner = thm.steps[..at].iter().rev().find(|s| {
-        s.number.len() + 1 == depth && step.number.prefix(s.number.len()) == s.number
+        s.number.depth() + 1 == depth
+            && step.number.prefix(s.number.depth()) == s.number
     });
-    let later = thm.steps[at + 1..].iter().find(|s| s.number.len() <= depth);
+    let later = thm.steps[at + 1..]
+        .iter()
+        .find(|s| s.number.depth() <= depth);
     // The method whose block the step's part ends: the part's `by` method,
     // or the owner's. A `proof` block whose assumption cannot hold ends as a
     // case that cannot occur does.
@@ -1349,7 +1352,7 @@ fn ends_block(thm: &Theorem, at: usize) -> bool {
     match closes {
         Some(Method::Contradiction | Method::Proof | Method::Cases) => match later {
             None => true,
-            Some(s) => s.number.len() < depth || s.part != step.part,
+            Some(s) => s.number.depth() < depth || s.part != step.part,
         },
         _ => false,
     }
@@ -1555,9 +1558,9 @@ pub fn check_claimed_cases(report: &mut Report, thm: &Theorem, known: &Known) {
                     ),
                 );
             }
-            let depth = owner.number.len() + 1;
+            let depth = owner.number.depth() + 1;
             let inside = thm.steps.iter().any(|s| {
-                s.number.len() == depth
+                s.number.depth() == depth
                     && s.number.prefix(depth - 1) == owner.number
                     && s.part == o.part
             });
@@ -1663,9 +1666,9 @@ pub(super) fn last_of_part<'a>(
     owner: &Step,
     part: Option<usize>,
 ) -> Option<&'a Step> {
-    let depth = owner.number.len() + 1;
+    let depth = owner.number.depth() + 1;
     thm.steps.iter().rev().find(|s| {
-        s.number.len() == depth
+        s.number.depth() == depth
             && s.number.prefix(depth - 1) == owner.number
             && s.part == part
     })
@@ -1872,7 +1875,7 @@ fn endings(thm: &Theorem, step: &Step, known: &Known) -> Vec<Ending> {
     // A theorem proved `by` a method ends with its block, which owes the
     // statement part by part, above; no top-level step owes it whole.
     let by_method = thm.steps.first().is_some_and(Step::proves_theorem);
-    let last = thm.steps.iter().rev().find(|s| s.number.len() == 1);
+    let last = thm.steps.iter().rev().find(|s| s.number.depth() == 1);
     if !by_method && last.is_some_and(|l| l.line == step.line) {
         let stated = Written::new(&thm.conclusion, &thm.path, thm.line);
         let said = conjuncts_read(&step.claim, |s| known.read_as_written(s));

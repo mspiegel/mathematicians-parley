@@ -132,10 +132,9 @@ pub struct Cite {
 /// `written`, a citation found `at` bytes into its text: a step where it is
 /// a number, and a labelled line otherwise.
 pub fn cite_at(written: &str, at: usize) -> Cite {
-    let cited = if is_number(written) {
-        Cited::Line(StepNo::parse(written))
-    } else {
-        Cited::Label(written.to_string())
+    let cited = match StepNo::parse(written) {
+        Some(number) => Cited::Line(number),
+        None => Cited::Label(written.to_string()),
     };
     Cite {
         cited,

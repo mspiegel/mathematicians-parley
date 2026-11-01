@@ -4046,7 +4046,7 @@ pub fn check_conclusion_domains(
     let by_method = thm.steps.first().filter(|s| s.proves_theorem());
     let last = match by_method {
         Some(theorem) => Some(theorem),
-        None => thm.steps.iter().rev().find(|s| s.number.len() == 1),
+        None => thm.steps.iter().rev().find(|s| s.number.depth() == 1),
     };
     let Some(last) = last else {
         return; // `check_last_step` says there is none
@@ -4064,7 +4064,7 @@ pub fn check_conclusion_domains(
         .chain(
             thm.steps
                 .iter()
-                .filter(|s| by_method.is_none() && s.number.len() == 1)
+                .filter(|s| by_method.is_none() && s.number.depth() == 1)
                 .map(|s| s.number.to_string()),
         )
         .collect();

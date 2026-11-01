@@ -19,7 +19,7 @@ use parley::checker::{
 };
 use parley::corpus::proof::{
     chain, chain_cited, parse_proof, rows, substitute_rows, Head, Intro, Method,
-    Requires, RowReason, Theorem,
+    Requires, RowReason, StepNo, Theorem,
 };
 use parley::corpus::skeleton::{chain_reason, is_ref};
 use parley::corpus::{define_parts, naming_pieces, Corpus, DefineParts, Values};
@@ -2291,7 +2291,7 @@ fn parts_of(ctx: &Context, thm: &Theorem) -> Result<Vec<Part>, String> {
         .collect();
     let mut out: Vec<Part> = Vec::new();
     for (index, step) in thm.steps.iter().enumerate() {
-        if step.number.0.len() != 1 || step.impossible {
+        if step.number.depth() != 1 || step.impossible {
             continue;
         }
         for sentence in sentences(&step.claim_text()) {
@@ -2876,8 +2876,12 @@ fn requires_raised_in(
             .chars()
             .take_while(|c| c.is_whitespace())
             .collect();
-        // The new step takes the step's number.
-        let changed = moved_down(thm, lines, end, step);
+        // The new step takes the step's number; the theorem's own step has
+        // none to give.
+        let Some(number) = step.number.number() else {
+            continue;
+        };
+        let changed = moved_down(thm, lines, end, number);
         // The step cites the new one, and its requires line goes.
         let reason = step.just.line - 1;
         let cites = if step.just.from.is_empty() {
@@ -2910,34 +2914,31 @@ fn moved_down(
     thm: &Theorem,
     lines: &mut [String],
     end: usize,
-    step: &parley::corpus::Step,
+    number: &StepNo,
 ) -> usize {
-    let map = run_shifted(thm, step, |n| n >= step.number.0[step.number.len() - 1], 1);
+    let map = run_shifted(thm, number, |n| n >= number.last(), 1);
     renumbered(thm, lines, end, &map)
 }
 
-/// The numbers of `step`'s run, and of the steps inside them, that `moves`
-/// picks by their place in the run, each moved by `by`.
+/// The numbers of the run of the step numbered `number`, and of the steps
+/// inside them, that `moves` picks by their place in the run, each moved by
+/// `by`.
 fn run_shifted(
     thm: &Theorem,
-    step: &parley::corpus::Step,
+    number: &StepNo,
     moves: impl Fn(u32) -> bool,
     by: i32,
 ) -> BTreeMap<String, String> {
-    let depth = step.number.len();
+    let depth = number.depth();
     let mut map: BTreeMap<String, String> = BTreeMap::new();
-    for other in &thm.steps {
-        let v = &other.number.0;
+    for other in thm.steps.iter().filter_map(|s| s.number.number()) {
+        let v = other.parts();
         if v.len() >= depth
-            && v[..depth - 1] == step.number.0[..depth - 1]
+            && v[..depth - 1] == number.parts()[..depth - 1]
             && moves(v[depth - 1])
         {
-            let mut w = v.clone();
-            w[depth - 1] = w[depth - 1].saturating_add_signed(by);
-            map.insert(
-                other.number.to_string(),
-                parley::corpus::proof::StepNo(w).to_string(),
-            );
+            let to = other.with(depth - 1, v[depth - 1].saturating_add_signed(by));
+            map.insert(other.to_string(), to.to_string());
         }
     }
     map
@@ -3131,9 +3132,13 @@ fn dull_step_moved(
             Head::Method(m) => REQUIRES_METHODS.contains(m),
             Head::Define | Head::Lines | Head::Manipulation(_) => false,
         };
-        let mut next = step.number.0.clone();
-        *next.last_mut()? += 1;
-        let next = parley::corpus::proof::StepNo(next).to_string();
+        // The theorem's own step has no number for one to follow.
+        let Some(number) = step.number.number() else {
+            continue;
+        };
+        let next = number
+            .with(number.depth() - 1, number.last() + 1)
+            .to_string();
         let opens = numbers
             .iter()
             .any(|other| other.starts_with(&format!("{no}.")));
@@ -3260,22 +3265,11 @@ fn dull_step_moved(
             continue;
         }
         // The steps after it, numbered again.
-        let depth = step.number.len();
-        let mut map: BTreeMap<String, String> = BTreeMap::new();
-        for other in &thm.steps {
-            let v = &other.number.0;
-            if v.len() >= depth
-                && v[..depth - 1] == step.number.0[..depth - 1]
-                && v[depth - 1] > step.number.0[depth - 1]
-            {
-                let mut w = v.clone();
-                w[depth - 1] -= 1;
-                map.insert(
-                    other.number.to_string(),
-                    parley::corpus::proof::StepNo(w).to_string(),
-                );
-            }
-        }
+        let Some(number) = step.number.number() else {
+            continue;
+        };
+        let last = number.last();
+        let map = run_shifted(thm, number, |m| m > last, -1);
         for (l, new) in &said {
             if let Some(new) = new {
                 lines[*l] = new.clone();
@@ -3445,11 +3439,11 @@ fn lifted(
     end: usize,
 ) -> Result<Option<Lifted>, String> {
     let tops: Vec<&parley::corpus::Step> =
-        thm.steps.iter().filter(|s| s.number.0.len() == 1).collect();
+        thm.steps.iter().filter(|s| s.number.depth() == 1).collect();
     let has_block = |s: &parley::corpus::Step| {
         thm.steps
             .iter()
-            .any(|o| o.number.0.len() > 1 && o.number.0[0] == s.number.0[0])
+            .any(|o| o.number.depth() > 1 && s.number.contains(&o.number))
     };
     let blocks: Vec<&parley::corpus::Step> =
         tops.iter().copied().filter(|s| has_block(s)).collect();
@@ -3648,9 +3642,11 @@ fn lemma_of(
     named: &BTreeSet<String>,
     sorts: &Sorts,
 ) -> Result<Lemma, String> {
-    let top = step.number.0[0];
-    let inner: Vec<&parley::corpus::Step> =
-        thm.steps.iter().filter(|o| o.number.0[0] == top).collect();
+    let inner: Vec<&parley::corpus::Step> = thm
+        .steps
+        .iter()
+        .filter(|o| step.number.contains(&o.number))
+        .collect();
     let start = step.line - 1;
     let next = tops
         .iter()
@@ -3960,13 +3956,8 @@ fn lemma_of(
     out.push(String::new());
     // The block, numbered again under step 1, its citations of lines above
     // said by the labels they now have.
-    for s in &inner {
-        let mut v = s.number.0.clone();
-        v[0] = 1;
-        map.insert(
-            s.number.to_string(),
-            vec![parley::corpus::proof::StepNo(v).to_string()],
-        );
+    for n in inner.iter().filter_map(|s| s.number.number()) {
+        map.insert(n.to_string(), vec![n.with(0, 1).to_string()]);
     }
     let mut reasons: BTreeSet<usize> = BTreeSet::new();
     let mut links: BTreeSet<usize> = BTreeSet::new();
@@ -4358,7 +4349,11 @@ fn obtain_claimed(
             .ok_or("the obtain names no item")?
         + 1;
     let cited = lines[reason][item_at..].trim_start().to_string();
-    let mut changed = moved_down(thm, lines, end, step);
+    let number = step
+        .number
+        .number()
+        .ok_or("the theorem's own step has no number to move")?;
+    let mut changed = moved_down(thm, lines, end, number);
     // The obtain, under the number the run moved it to, from the new line.
     let mut obtain: Vec<String> = vec![String::new()];
     obtain.extend(claim_lines);
@@ -4808,7 +4803,10 @@ pub fn cited_lines_restated(ctx: &Context, path: &str, text: &str) -> Rewritten 
             .chars()
             .take_while(|c| c.is_whitespace())
             .collect();
-        count += moved_down(thm, &mut lines, end, step);
+        let Some(moving) = step.number.number() else {
+            continue;
+        };
+        count += moved_down(thm, &mut lines, end, moving);
         let map = BTreeMap::from([(restated.clone(), number.clone())]);
         let mut reason = vec![step.just.line - 1];
         reason.extend(continued(&lines, step.just.line - 1, end));
@@ -4879,8 +4877,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
     };
     let movable = |thm: &Theorem, x: &parley::corpus::Step, lines: &[String]| {
         let opens = thm.steps.iter().any(|o| {
-            o.number.len() > x.number.len()
-                && o.number.0[..x.number.len()] == x.number.0[..]
+            o.number.depth() > x.number.depth() && x.number.contains(&o.number)
         });
         // A requires line holds for its own step only, and a statement
         // applying a define is carried to from the proof's outermost lines,
@@ -4891,7 +4888,7 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             .tokens(x.claim.text())
             .is_some_and(|t| t.iter().any(|t| t.text == "∈" || t.text == "⊆"));
         let carried_from =
-            x.number.len() == 1 && says_domain && applies_a_define(ctx, thm);
+            x.number.depth() == 1 && says_domain && applies_a_define(ctx, thm);
         // A part, X ⊆ A, is cited for what it says of its members as well,
         // "for all x ∈ X, x ∈ A" (`SYNTAX.md`, a subset as its members),
         // which no hypothesis asks in that form: it stays a line.
@@ -4982,8 +4979,11 @@ pub fn steps_as_requires(ctx: &Context, path: &str, text: &str) -> Rewritten {
             continue;
         };
         lines[at] = format!("{indent}{rest}");
-        let n = x.number.0[x.number.len() - 1];
-        let map = run_shifted(thm, x, |m| m > n, -1);
+        let Some(moving) = x.number.number() else {
+            continue;
+        };
+        let n = moving.last();
+        let map = run_shifted(thm, moving, |m| m > n, -1);
         count += renumbered(thm, &mut lines, end, &map);
         let fact = x.claim.text().trim().trim_end_matches('.').to_string();
         lines.insert(
