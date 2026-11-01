@@ -634,9 +634,14 @@ pub fn searched(
         Search::Takes => {
             taken(&groups, &parts.claims, &parts.facts, &parts.seed, library)
         }
-        Search::Obtains => {
-            obtained(&groups, &parts.facts, &parts.claims, &parts.seed, library)
-        }
+        Search::Obtains => obtained(
+            &groups,
+            &parts.facts,
+            &parts.claims,
+            &step.just.obtained,
+            &parts.seed,
+            library,
+        ),
         Search::Alone => concluded_alone(&groups, &parts, library),
     });
     known.searches.borrow_mut().insert(key, made.clone());
@@ -2228,8 +2233,14 @@ pub fn check_obtained(
         // A hypothesis nothing supplies is `check_hypotheses`'s to name; the
         // way to the "there is" fails for it, and saying so again would
         // point at the line the step does cite.
-        if !obtains(&groups, &parts.facts, &parts.claims, &parts.seed, library)
-            && unsupplied(step, known, library).is_none()
+        if !obtains(
+            &groups,
+            &parts.facts,
+            &parts.claims,
+            &just.obtained,
+            &parts.seed,
+            library,
+        ) && unsupplied(step, known, library).is_none()
         {
             report.say(
                 &thm.path,

@@ -36,20 +36,17 @@ assume f : A → B is one-to-one                                        (D1)
           2.1.1.  u ∈ A. f(u) ∈ f[X].
                   def:preimage Z := f[X], from K2
 
-          2.1.2.  There is s ∈ X with f(u) = f(s).
-                  def:image u := f(u), Y := X, from K1, 2.1.1
+          2.1.2.  s ∈ X. f(u) = f(s).
+                  obtain s: def:image u := f(u), Y := X, from K1, 2.1.1
 
-          2.1.3.  s ∈ X. f(u) = f(s).
-                  obtain s from line 2.1.2
+          2.1.3.  s ∈ A
+                  mun:in-subset Y := A, u := s, from K1, 2.1.2
 
-          2.1.4.  s ∈ A
-                  mun:in-subset Y := A, u := s, from K1, 2.1.3
+          2.1.4.  u = s
+                  instantiate s := u, t := s in line 1, from 2.1.1, 2.1.2, 2.1.3
 
-          2.1.5.  u = s
-                  instantiate s := u, t := s in line 1, from 2.1.1, 2.1.3, 2.1.4
-
-          2.1.6.  u ∈ X
-                  substitute u = s (line 2.1.5) into line 2.1.3
+          2.1.5.  u ∈ X
+                  substitute u = s (line 2.1.4) into line 2.1.2
 
     2.2.  f⁻¹[f[X]] ⊆ X
           def:subset, from 2.1

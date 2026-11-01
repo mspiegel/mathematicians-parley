@@ -267,60 +267,57 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D5)
           note a run longer than r − 1 would be a run as long as r
           let u ∈ I(k)                                                (K5)
 
-          1.10.1. There is S ∈ U(k) with u = |S|.
-                  def:set-image, from D4, K1, K5
+          1.10.1. T ∈ U(k). u = |T|.
+                  obtain T: def:set-image, from D4, K1, K5
 
-          1.10.2. T ∈ U(k). u = |T|.
-                  obtain T from line 1.10.1
+          1.10.2. T ⊆ {1, …, k}. For all p, q ∈ T, if p < q then c(p) < c(q).
+                  def:part-builder u := T, from D3, K1, 1.10.1
 
-          1.10.3. T ⊆ {1, …, k}. For all p, q ∈ T, if p < q then c(p) < c(q).
-                  def:part-builder u := T, from D3, K1, 1.10.2
-
-          1.10.4. {1, …, k} is finite
+          1.10.3. {1, …, k} is finite
                   mun:range-finite a := 1, b := k
 
-          1.10.5. T is finite
-                  mun:finite-part, from 1.10.3, 1.10.4
+          1.10.4. T is finite
+                  mun:finite-part, from 1.10.2, 1.10.3
 
-          1.10.6. |T| ∈ ℕ₀
-                  mun:card-nat0, from 1.10.5
+          1.10.5. |T| ∈ ℕ₀
+                  mun:card-nat0, from 1.10.4
 
-          1.10.7. {1, …, k} ⊆ {1, …, N}
+          1.10.6. {1, …, k} ⊆ {1, …, N}
                   mun:range-within, from 1.1
 
-          1.10.8. T ⊆ {1, …, N}
-                  mun:subset-transitive, from 1.10.3, 1.10.7
+          1.10.7. T ⊆ {1, …, N}
+                  mun:subset-transitive, from 1.10.2, 1.10.6
 
-          1.10.9. not r ≤ |T|
+          1.10.8. not r ≤ |T|
                   contradiction
                   suppose r ≤ |T|                                     (S1)
 
-                  1.10.9.1.  T is a rising run of c of size at least r
-                             D1, from S1, 1.10.3
+                  1.10.8.1.  T is a rising run of c of size at least r
+                             D1, from S1, 1.10.2
 
-                  1.10.9.2.  There is S ⊆ {1, …, N} with S is a rising run of c of size at least r.
-                             exhibit, from 1.10.8, 1.10.9.1, contradicting H4
+                  1.10.8.2.  There is S ⊆ {1, …, N} with S is a rising run of c of size at least r.
+                             exhibit, from 1.10.7, 1.10.8.1, contradicting H4
 
-          1.10.10. |T| < r
-                   inequalities, from 1.10.6, 1.10.9
+          1.10.9.  |T| < r
+                   inequalities, from 1.10.5, 1.10.8
 
-          1.10.11. |T| + 1 ≤ r
-                   mun:integer-step m := |T|, n := r, from 1.10.6, 1.10.10
+          1.10.10. |T| + 1 ≤ r
+                   mun:integer-step m := |T|, n := r, from 1.10.5, 1.10.9
 
-          1.10.12. |T| ≤ r − 1
-                   inequalities, from 1.10.6, 1.10.11
+          1.10.11. |T| ≤ r − 1
+                   inequalities, from 1.10.5, 1.10.10
 
-          1.10.13. u ∈ ℕ₀
-                   substitute u = |T| (line 1.10.2) into line 1.10.6
+          1.10.12. u ∈ ℕ₀
+                   substitute u = |T| (line 1.10.1) into line 1.10.5
 
-          1.10.14. u ∈ ℤ
-                   membership, from 1.10.13
+          1.10.13. u ∈ ℤ
+                   membership, from 1.10.12
 
-          1.10.15. u ≤ r − 1
-                   substitute u = |T| (line 1.10.2) into line 1.10.12
+          1.10.14. u ≤ r − 1
+                   substitute u = |T| (line 1.10.1) into line 1.10.11
 
-          1.10.16. u ∈ ℤ and u ≤ r − 1
-                   join 1.10.14, 1.10.15
+          1.10.15. u ∈ ℤ and u ≤ r − 1
+                   join 1.10.13, 1.10.14
 
     1.11. For all u ∈ I(k), u ∈ ℤ.
           proof
@@ -387,90 +384,87 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D5)
     2.2.  L(j) ∈ I(j). L(j) is an upper bound of I(j). L(j) ∈ ℤ. L(j) ∈ {1, …, r − 1}.
           instantiate k := j in line 1, from K9
 
-    2.3.  There is S ∈ U(i) with L(i) = |S|.
-          def:set-image u := L(i), from D4, K8, 2.1
+    2.3.  T ∈ U(i). L(i) = |T|.
+          obtain T: def:set-image u := L(i), from D4, K8, 2.1
 
-    2.4.  T ∈ U(i). L(i) = |T|.
-          obtain T from line 2.3
+    2.4.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
+          def:part-builder u := T, from D3, K8, 2.3
 
-    2.5.  T ⊆ {1, …, i}. i ∈ T. For all p, q ∈ T, if p < q then c(p) < c(q).
-          def:part-builder u := T, from D3, K8, 2.4
-
-    2.6.  j ∉ T
+    2.5.  j ∉ T
           contradiction
           suppose j ∈ T                                               (S2)
 
-          2.6.1.  j ∈ {1, …, i}
-                  mun:in-subset, from S2, 2.5
+          2.5.1.  j ∈ {1, …, i}
+                  mun:in-subset, from S2, 2.4
 
-          2.6.2.  j ≤ i
-                  mun:range-bounds a := 1, b := i, k := j, from 2.6.1
+          2.5.2.  j ≤ i
+                  mun:range-bounds a := 1, b := i, k := j, from 2.5.1
 
-          2.6.3.  not j ≤ i
-                  inequalities, from K10, contradicting 2.6.2
+          2.5.3.  not j ≤ i
+                  inequalities, from K10, contradicting 2.5.2
 
-    2.7.  {1, …, i} is finite
+    2.6.  {1, …, i} is finite
           mun:range-finite a := 1, b := i
 
-    2.8.  T is finite
-          mun:finite-part, from 2.5, 2.7
+    2.7.  T is finite
+          mun:finite-part, from 2.4, 2.6
 
-    2.9.  i ≤ j
+    2.8.  i ≤ j
           inequalities
             i < j      K10
             i ≤ j      weakening
 
-    2.10. {1, …, i} ⊆ {1, …, j}
-          mun:range-within, from 2.9
+    2.9.  {1, …, i} ⊆ {1, …, j}
+          mun:range-within, from 2.8
 
-    2.11. T ⊆ {1, …, j}
-          mun:subset-transitive, from 2.5, 2.10
+    2.10. T ⊆ {1, …, j}
+          mun:subset-transitive, from 2.4, 2.9
 
-    2.12. 1 ≤ j. j ≤ N.
+    2.11. 1 ≤ j. j ≤ N.
           mun:range-bounds a := 1, b := N, k := j, from K9
 
-    2.13. j ∈ {1, …, j}
-          def:range-between k := j, a := 1, b := j, from 2.12
+    2.12. j ∈ {1, …, j}
+          def:range-between k := j, a := 1, b := j, from 2.11
           requires j ≤ j: inequalities
 
-    2.14. {j} ⊆ {1, …, j}
-          mun:singleton-subset, from 2.13
+    2.13. {j} ⊆ {1, …, j}
+          mun:singleton-subset, from 2.12
 
-    2.15. T ∪ {j} ⊆ {1, …, j}
-          mun:union-subset, from 2.11, 2.14
+    2.14. T ∪ {j} ⊆ {1, …, j}
+          mun:union-subset, from 2.10, 2.13
 
-    2.16. j ∈ T ∪ {j}
+    2.15. j ∈ T ∪ {j}
           mun:in-union-singleton
 
-    2.17. For all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q).
-          thm:extend-run, from H3, K8, K9, K10, 2.5
+    2.16. For all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q).
+          thm:extend-run, from H3, K8, K9, K10, 2.4
 
-    2.18. j ∈ T ∪ {j} and for all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q)
-          join 2.16, 2.17
+    2.17. j ∈ T ∪ {j} and for all p, q ∈ T ∪ {j}, if p < q then c(p) < c(q)
+          join 2.15, 2.16
 
-    2.19. T ∪ {j} ∈ U(j)
-          def:part-builder u := T ∪ {j}, from D3, K9, 2.15, 2.18
+    2.18. T ∪ {j} ∈ U(j)
+          def:part-builder u := T ∪ {j}, from D3, K9, 2.14, 2.17
 
-    2.20. |T ∪ {j}| = |T| + 1
-          mun:card-add-one, from 2.6, 2.8
+    2.19. |T ∪ {j}| = |T| + 1
+          mun:card-add-one, from 2.5, 2.7
 
-    2.21. There is S ∈ U(j) with |T| + 1 = |S|.
-          exhibit, from 2.19, 2.20
+    2.20. There is S ∈ U(j) with |T| + 1 = |S|.
+          exhibit, from 2.18, 2.19
 
-    2.22. |T| + 1 ∈ I(j)
-          def:set-image u := |T| + 1, from D4, K9, 2.21
+    2.21. |T| + 1 ∈ I(j)
+          def:set-image u := |T| + 1, from D4, K9, 2.20
 
-    2.23. For all s ∈ I(j), s ≤ L(j).
+    2.22. For all s ∈ I(j), s ≤ L(j).
           def:upper-bound, from 2.2
 
-    2.24. |T| + 1 ≤ L(j)
-          instantiate s := |T| + 1 in line 2.23, from 2.22
+    2.23. |T| + 1 ≤ L(j)
+          instantiate s := |T| + 1 in line 2.22, from 2.21
 
-    2.25. L(i) + 1 ≤ L(j)
-          substitute L(i) = |T| (line 2.4) into line 2.24
+    2.24. L(i) + 1 ≤ L(j)
+          substitute L(i) = |T| (line 2.3) into line 2.23
 
-    2.26. L(i) < L(j)
-          inequalities, from 2.1, 2.2, 2.25
+    2.25. L(i) < L(j)
+          inequalities, from 2.1, 2.2, 2.24
 
 3.  For all k ∈ {1, …, N}, L(k) ∈ {1, …, r − 1}.
     proof

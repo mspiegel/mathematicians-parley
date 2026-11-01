@@ -12,32 +12,29 @@ theorem multiples-of-six
     proof
     let t ∈ {6n : n ∈ ℤ}                                              (K1)
 
-    1.1.  There is n ∈ ℤ with t = 6n.
-          def:set-image u := t, from K1
+    1.1.  m ∈ ℤ. t = 6m.
+          obtain m: def:set-image u := t, from K1
 
-    1.2.  m ∈ ℤ. t = 6m.
-          obtain m from line 1.1
+    1.2.  t = 2·(3m)
+          algebra, from 1.1
 
-    1.3.  t = 2·(3m)
-          algebra, from 1.2
+    1.3.  There is n ∈ ℤ with t = 2n.
+          exhibit, from 1.2
 
-    1.4.  There is n ∈ ℤ with t = 2n.
-          exhibit, from 1.3
+    1.4.  t ∈ {2n : n ∈ ℤ}
+          def:set-image u := t, from 1.3
 
-    1.5.  t ∈ {2n : n ∈ ℤ}
-          def:set-image u := t, from 1.4
+    1.5.  t = 3·(2m)
+          algebra, from 1.1
 
-    1.6.  t = 3·(2m)
-          algebra, from 1.2
+    1.6.  There is n ∈ ℤ with t = 3n.
+          exhibit, from 1.5
 
-    1.7.  There is n ∈ ℤ with t = 3n.
-          exhibit, from 1.6
+    1.7.  t ∈ {3n : n ∈ ℤ}
+          def:set-image u := t, from 1.6
 
-    1.8.  t ∈ {3n : n ∈ ℤ}
-          def:set-image u := t, from 1.7
-
-    1.9.  t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
-          def:intersection u := t, from 1.5, 1.8
+    1.8.  t ∈ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
+          def:intersection u := t, from 1.4, 1.7
 
 2.  {6n : n ∈ ℤ} ⊆ {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ}
     def:subset, from 1
@@ -52,42 +49,36 @@ theorem multiples-of-six
     3.2.  t ∈ {3n : n ∈ ℤ}
           def:intersection u := t, from K2
 
-    3.3.  There is n ∈ ℤ with t = 2n.
-          def:set-image u := t, from 3.1
+    3.3.  a ∈ ℤ. t = 2a.
+          obtain a: def:set-image u := t, from 3.1
 
-    3.4.  a ∈ ℤ. t = 2a.
-          obtain a from line 3.3
+    3.4.  b ∈ ℤ. t = 3b.
+          obtain b: def:set-image u := t, from 3.2
 
-    3.5.  There is n ∈ ℤ with t = 3n.
-          def:set-image u := t, from 3.2
-
-    3.6.  b ∈ ℤ. t = 3b.
-          obtain b from line 3.5
-
-    3.7.  t = 3·t − 2·t
+    3.5.  t = 3·t − 2·t
           algebra
-          requires t ∈ ℝ: membership, from 3.4
+          requires t ∈ ℝ: membership, from 3.3
 
-    3.8.  t = 6·a − 2·t
+    3.6.  t = 6·a − 2·t
           substitute
-            t = 3·t − 2·t      3.7
-            t = 6·a − 2·t      algebra, from 3.4
+            t = 3·t − 2·t      3.5
+            t = 6·a − 2·t      algebra, from 3.3
 
-    3.9.  t = 6·a − 6·b
+    3.7.  t = 6·a − 6·b
           substitute
-            t = 6·a − 2·t      3.8
-            t = 6·a − 6·b      algebra, from 3.6
+            t = 6·a − 2·t      3.6
+            t = 6·a − 6·b      algebra, from 3.4
 
-    3.10. t = 6·(a − b)
+    3.8.  t = 6·(a − b)
           calculation
-            t = 6·a − 6·b       3.9
+            t = 6·a − 6·b       3.7
               = 6·(a − b)       algebra
 
-    3.11. There is n ∈ ℤ with t = 6n.
-          exhibit, from 3.10
+    3.9.  There is n ∈ ℤ with t = 6n.
+          exhibit, from 3.8
 
-    3.12. t ∈ {6n : n ∈ ℤ}
-          def:set-image u := t, from 3.11
+    3.10. t ∈ {6n : n ∈ ℤ}
+          def:set-image u := t, from 3.9
 
 4.  {2n : n ∈ ℤ} ∩ {3n : n ∈ ℤ} ⊆ {6n : n ∈ ℤ}
     def:subset, from 3

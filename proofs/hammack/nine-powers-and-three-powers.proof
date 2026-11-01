@@ -205,22 +205,19 @@ theorem powers-of-nine-in-powers-of-three
     proof
     let t ∈ {9^n : n ∈ ℤ}                                             (K1)
 
-    1.1.  There is n ∈ ℤ with t = 9^n.
-          def:set-image u := t, from K1
+    1.1.  m ∈ ℤ. t = 9^m.
+          obtain m: def:set-image u := t, from K1
 
-    1.2.  m ∈ ℤ. t = 9^m.
-          obtain m from line 1.1
-
-    1.3.  t = 3^(2m)
+    1.2.  t = 3^(2m)
           calculation
-            t = 9^m        1.2
+            t = 9^m        1.1
               = 3^(2m)     thm:nine-power-is-three-power
 
-    1.4.  There is n ∈ ℤ with t = 3^n.
-          exhibit, from 1.3
+    1.3.  There is n ∈ ℤ with t = 3^n.
+          exhibit, from 1.2
 
-    1.5.  t ∈ {3^n : n ∈ ℤ}
-          def:set-image u := t, from 1.4
+    1.4.  t ∈ {3^n : n ∈ ℤ}
+          def:set-image u := t, from 1.3
 
 2.  {9^n : n ∈ ℤ} ⊆ {3^n : n ∈ ℤ}
     def:subset, from 1
@@ -229,49 +226,46 @@ theorem powers-of-nine-in-powers-of-three
     contradiction
     suppose 3 ∈ {9^n : n ∈ ℤ}                                         (S1)
 
-    3.1.  There is n ∈ ℤ with 3 = 9^n.
-          def:set-image u := 3, from S1
+    3.1.  m ∈ ℤ. 3 = 9^m.
+          obtain m: def:set-image u := 3, from S1
 
-    3.2.  m ∈ ℤ. 3 = 9^m.
-          obtain m from line 3.1
-
-    3.3.  3^1 = 3^(2m)
+    3.2.  3^1 = 3^(2m)
           calculation
             3^1 = 3          arithmetic
-                = 9^m        3.2
+                = 9^m        3.1
                 = 3^(2m)     thm:nine-power-is-three-power
 
-    3.4.  1 = 2m
-          mun:power-cancel a := 3, m := 1, n := 2m, from 3.3
+    3.3.  1 = 2m
+          mun:power-cancel a := 3, m := 1, n := 2m, from 3.2
           requires 3 > 1: arithmetic
 
-    3.5.  m = 1/2
-          algebra, from 3.4
+    3.4.  m = 1/2
+          algebra, from 3.3
 
-    3.6.  1/2 ≤ m
+    3.5.  1/2 ≤ m
           inequalities
-            m = 1/2        3.5
+            m = 1/2        3.4
             1/2 = m        restate
             1/2 ≤ m        weakening
 
-    3.7.  0 < m
-          inequalities, from 3.6
+    3.6.  0 < m
+          inequalities, from 3.5
 
-    3.8.   0 + 1 ≤ m
-           mun:integer-step m := 0, n := m, from 3.7
+    3.7.   0 + 1 ≤ m
+           mun:integer-step m := 0, n := m, from 3.6
 
-    3.9.   2 ≤ 2m
+    3.8.   2 ≤ 2m
            inequalities
-             0 + 1 ≤ m      3.8
+             0 + 1 ≤ m      3.7
              1 ≤ m          algebra
              2 ≤ 2m         multiplying by 2
 
-    3.10.  1 < 2m
-           inequalities, from 3.9
+    3.9.   1 < 2m
+           inequalities, from 3.8
 
-    3.11.  1 ≠ 2m
-           inequalities, contradicting 3.4
-             1 < 2m         3.10
+    3.10.  1 ≠ 2m
+           inequalities, contradicting 3.3
+             1 < 2m         3.9
              1 ≠ 2m         weakening
 
 4.  {9^n : n ∈ ℤ} ≠ {3^n : n ∈ ℤ}

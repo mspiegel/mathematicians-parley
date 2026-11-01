@@ -41,17 +41,14 @@ assume f : A → B is onto                                              (D1)
           proof
           let y ∈ f[f⁻¹[Y]]                                           (K3)
 
-          2.3.1.  There is s ∈ f⁻¹[Y] with y = f(s).
-                  def:image u := y, Y := f⁻¹[Y], from K3, 2.2
+          2.3.1.  s ∈ f⁻¹[Y]. y = f(s).
+                  obtain s: def:image u := y, Y := f⁻¹[Y], from K3, 2.2
 
-          2.3.2.  s ∈ f⁻¹[Y]. y = f(s).
-                  obtain s from line 2.3.1
+          2.3.2.  s ∈ A. f(s) ∈ Y.
+                  def:preimage u := s, Z := Y, from 2.3.1
 
-          2.3.3.  s ∈ A. f(s) ∈ Y.
-                  def:preimage u := s, Z := Y, from 2.3.2
-
-          2.3.4.  y ∈ Y
-                  substitute y = f(s) (line 2.3.2) into line 2.3.3
+          2.3.3.  y ∈ Y
+                  substitute y = f(s) (line 2.3.1) into line 2.3.2
 
     2.4.  f[f⁻¹[Y]] ⊆ Y
           def:subset, from 2.3
@@ -115,17 +112,14 @@ assume for all Y ⊆ B, f[f⁻¹[Y]] = Y                                  (D2)
     3.5.  f⁻¹[{y}] ⊆ A
           def:subset, from 3.4
 
-    3.6.  There is s ∈ f⁻¹[{y}] with y = f(s).
-          def:image u := y, Y := f⁻¹[{y}], from 3.3, 3.5
+    3.6.  s ∈ f⁻¹[{y}]. y = f(s).
+          obtain s: def:image u := y, Y := f⁻¹[{y}], from 3.3, 3.5
 
-    3.7.  s ∈ f⁻¹[{y}]. y = f(s).
-          obtain s from line 3.6
+    3.7.  s ∈ A
+          def:preimage u := s, Z := {y}, from 3.6
 
-    3.8.  s ∈ A
-          def:preimage u := s, Z := {y}, from 3.7
-
-    3.9.  There is x ∈ A with y = f(x).
-          exhibit, from 3.7, 3.8
+    3.8.  There is x ∈ A with y = f(x).
+          exhibit, from 3.6, 3.7
 
 4.  f : A → B is onto
     def:onto, from H3, 3

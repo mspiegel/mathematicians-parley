@@ -15,60 +15,57 @@ theorem remainder-by-two
 direction
 assume N mod 2 = 1                                                    (D1)
 
-1.  There is q ∈ ℤ with q·2 + 1 = N.
-    mun:mod-remainder a := N, m := 2, r := 1, from D1
+1.  q ∈ ℤ. q·2 + 1 = N.
+    obtain q: mun:mod-remainder a := N, m := 2, r := 1, from D1
     requires 1 < 2: arithmetic
 
-2.  q ∈ ℤ. q·2 + 1 = N.
-    obtain q from line 1
+2.  N = 2q + 1
+    algebra, from 1
 
-3.  N = 2q + 1
-    algebra, from 2
+3.  N is odd
+    def:odd n := N, from 2
 
-4.  N is odd
-    def:odd n := N, from 3
-
-5.  not (2 divides N)
+4.  not (2 divides N)
     contradiction
     suppose 2 divides N                                               (S1)
 
-    5.1.  k ∈ ℤ. N = 2·k.
+    4.1.  k ∈ ℤ. N = 2·k.
           obtain k: def:divides d := 2, n := N, from S1
 
-    5.2.  N is even
-          def:even n := N, from 5.1
+    4.2.  N is even
+          def:even n := N, from 4.1
 
-    5.3.  N is not odd
-          mun:not-both n := N, from 5.2, contradicting 4
+    4.3.  N is not odd
+          mun:not-both n := N, from 4.2, contradicting 3
 
 direction
 assume not (2 divides N)                                              (D2)
 
-6.  not (N is even)
+5.  not (N is even)
     contradiction
     suppose N is even                                                 (S2)
 
-    6.1.  k ∈ ℤ. N = 2k.
+    5.1.  k ∈ ℤ. N = 2k.
           obtain k: def:even n := N, from S2
 
-    6.2.  2 divides N
-          def:divides d := 2, n := N, from 6.1, contradicting D2
+    5.2.  2 divides N
+          def:divides d := 2, n := N, from 5.1, contradicting D2
 
-7.  N is even or N is odd
+6.  N is even or N is odd
     mun:even-or-odd
 
-8.  N is odd
-    mun:disjunctive-syllogism-left P := N is even, Q := N is odd, from 6, 7
+7.  N is odd
+    mun:disjunctive-syllogism-left P := N is even, Q := N is odd, from 5, 6
 
-9.  k ∈ ℤ. N = 2k + 1.
-    obtain k: def:odd, from 8
+8.  k ∈ ℤ. N = 2k + 1.
+    obtain k: def:odd, from 7
 
-10. k·2 + 1 = N
-    algebra, from 9
+9.  k·2 + 1 = N
+    algebra, from 8
 
-11. There is q ∈ ℤ with q·2 + 1 = N.
-    exhibit, from 10
+10. There is q ∈ ℤ with q·2 + 1 = N.
+    exhibit, from 9
 
-12. N mod 2 = 1
-    mun:mod-remainder a := N, m := 2, r := 1, from 11
+11. N mod 2 = 1
+    mun:mod-remainder a := N, m := 2, r := 1, from 10
     requires 1 < 2: arithmetic

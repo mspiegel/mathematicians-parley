@@ -18,17 +18,14 @@ theorem odd-from-square
     case
     assume a is even                                                  (C1)
 
-    2.1.  There is k ∈ ℤ with a = 2k.
-          def:even, from C1
+    2.1.  k ∈ ℤ. a = 2k.
+          obtain k: def:even, from C1
 
-    2.2.  k ∈ ℤ. a = 2k.
-          obtain k from line 2.1
+    2.2.  a² = 4·k²
+          algebra, from 2.1
 
-    2.3.  a² = 4·k²
-          algebra, from 2.2
-
-    2.4.  4 divides a²
-          def:divides d := 4, n := a², from 2.3, contradicting H2
+    2.3.  4 divides a²
+          def:divides d := 4, n := a², from 2.2, contradicting H2
 
     case
     assume a is odd, which is the claim                               (C2)

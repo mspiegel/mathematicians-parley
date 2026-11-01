@@ -25,41 +25,38 @@ theorem image-of-union
     proof
     let y ∈ f[W ∪ X]                                                  (K1)
 
-    2.1.  There is s ∈ W ∪ X with y = f(s).
-          def:image u := y, Y := W ∪ X, from K1, 1
+    2.1.  s ∈ W ∪ X. y = f(s).
+          obtain s: def:image u := y, Y := W ∪ X, from K1, 1
 
-    2.2.  s ∈ W ∪ X. y = f(s).
-          obtain s from line 2.1
+    2.2.  s ∈ W or s ∈ X.
+          def:union u := s, Y := W, Z := X, from 2.1
 
-    2.3.  s ∈ W or s ∈ X.
-          def:union u := s, Y := W, Z := X, from 2.2
-
-    2.4.  y ∈ f[W] ∪ f[X]
-          cases, from 2.3
+    2.3.  y ∈ f[W] ∪ f[X]
+          cases, from 2.2
 
           case
           assume s ∈ W                                                (C1)
 
-          2.4.1.  f(s) ∈ f[W]
+          2.3.1.  f(s) ∈ f[W]
                   mun:value-in-image Y := W, from C1, H4
 
-          2.4.2.  y ∈ f[W]
-                  substitute y = f(s) (line 2.2) into line 2.4.1
+          2.3.2.  y ∈ f[W]
+                  substitute y = f(s) (line 2.1) into line 2.3.1
 
-          2.4.3.  y ∈ f[W] ∪ f[X]
-                  mun:in-union-left Y := f[W], Z := f[X], from 2.4.2
+          2.3.3.  y ∈ f[W] ∪ f[X]
+                  mun:in-union-left Y := f[W], Z := f[X], from 2.3.2
 
           case
           assume s ∈ X                                                (C2)
 
-          2.4.4.  f(s) ∈ f[X]
+          2.3.4.  f(s) ∈ f[X]
                   mun:value-in-image Y := X, from C2, H5
 
-          2.4.5.  y ∈ f[X]
-                  substitute y = f(s) (line 2.2) into line 2.4.4
+          2.3.5.  y ∈ f[X]
+                  substitute y = f(s) (line 2.1) into line 2.3.4
 
-          2.4.6.  y ∈ f[W] ∪ f[X]
-                  mun:in-union-right Y := f[W], Z := f[X], from 2.4.5
+          2.3.6.  y ∈ f[W] ∪ f[X]
+                  mun:in-union-right Y := f[W], Z := f[X], from 2.3.5
 
 3.  f[W ∪ X] ⊆ f[W] ∪ f[X]
     def:subset, from 2

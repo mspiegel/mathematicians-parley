@@ -17,42 +17,36 @@ theorem difference-remainder-zero
 direction
 assume (A − B) mod N = 0                                              (C1)
 
-1.  There is q ∈ ℤ with q·N + 0 = A − B.
-    mun:mod-remainder a := A − B, m := N, r := 0, from C1
+1.  q ∈ ℤ. q·N + 0 = A − B.
+    obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
     requires 0 < N: inequalities, from H3
 
-2.  q ∈ ℤ. q·N + 0 = A − B.
-    obtain q from line 1
-
-3.  (q·N + B) mod N = B mod N
+2.  (q·N + B) mod N = B mod N
     mun:mod-multiple r := B, m := N
 
-4.  A mod N = B mod N
+3.  A mod N = B mod N
     substitute
-      (q·N + B) mod N = B mod N      3
-      A mod N = B mod N              algebra, from 2
+      (q·N + B) mod N = B mod N      2
+      A mod N = B mod N              algebra, from 1
 
 direction
 assume A mod N = B mod N                                              (C2)
 
-5.  A ≡ B (mod N)
+4.  A ≡ B (mod N)
     mun:mod-equal-congruent, from C2
 
-6.  N divides A − B
-    def:congruent-mod, from 5
+5.  N divides A − B
+    def:congruent-mod, from 4
 
-7.  There is k ∈ ℤ with A − B = N·k.
-    def:divides d := N, n := A − B, from 6
+6.  k ∈ ℤ. A − B = N·k.
+    obtain k: def:divides d := N, n := A − B, from 5
 
-8.  k ∈ ℤ. A − B = N·k.
-    obtain k from line 7
+7.  k·N + 0 = A − B
+    algebra, from 6
 
-9.  k·N + 0 = A − B
-    algebra, from 8
+8.  There is q ∈ ℤ with q·N + 0 = A − B.
+    exhibit, from 7
 
-10. There is q ∈ ℤ with q·N + 0 = A − B.
-    exhibit, from 9
-
-11. (A − B) mod N = 0
-    mun:mod-remainder a := A − B, m := N, r := 0, from 10
+9.  (A − B) mod N = 0
+    mun:mod-remainder a := A − B, m := N, r := 0, from 8
     requires 0 < N: inequalities, from H3

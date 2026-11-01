@@ -47,59 +47,56 @@ theorem square-mod-three
 3.  n mod 3 = 0 or n mod 3 = 1 or n mod 3 = 2
     thm:residue-mod-three r := n mod 3, from 1, 2
 
-4.  There is q ∈ ℤ with q·3 + n mod 3 = n.
-    mun:mod-remainder a := n, m := 3, r := n mod 3, from 1, 2
+4.  q ∈ ℤ. q·3 + n mod 3 = n.
+    obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 1, 2
 
-5.  q ∈ ℤ. q·3 + n mod 3 = n.
-    obtain q from line 4
-
-6.  3 divides n² or 3 divides n² − 1
+5.  3 divides n² or 3 divides n² − 1
     cases, from 3
 
     case
     assume n mod 3 = 0                                                (C1)
 
-    6.1.  q·3 = n
-          substitute n mod 3 = 0 (C1) into line 5
+    5.1.  q·3 = n
+          substitute n mod 3 = 0 (C1) into line 4
 
-    6.2.  n² = 3·(3·q²)
-          algebra, from 6.1
+    5.2.  n² = 3·(3·q²)
+          algebra, from 5.1
 
-    6.3.  3 divides n²
-          def:divides d := 3, n := n², from 6.2
+    5.3.  3 divides n²
+          def:divides d := 3, n := n², from 5.2
 
-    6.4.  3 divides n² or 3 divides n² − 1
-          mun:or-left, from 6.3
+    5.4.  3 divides n² or 3 divides n² − 1
+          mun:or-left, from 5.3
 
     case
     assume n mod 3 = 1                                                (C2)
 
-    6.5.  q·3 + 1 = n
-          substitute n mod 3 = 1 (C2) into line 5
+    5.5.  q·3 + 1 = n
+          substitute n mod 3 = 1 (C2) into line 4
 
-    6.6.  n² − 1 = 3·(3·q² + 2·q)
-          algebra, from 6.5
+    5.6.  n² − 1 = 3·(3·q² + 2·q)
+          algebra, from 5.5
 
-    6.7.  3 divides n² − 1
-          def:divides d := 3, n := n² − 1, from 6.6
+    5.7.  3 divides n² − 1
+          def:divides d := 3, n := n² − 1, from 5.6
 
-    6.8.  3 divides n² or 3 divides n² − 1
-          mun:or-right, from 6.7
+    5.8.  3 divides n² or 3 divides n² − 1
+          mun:or-right, from 5.7
 
     case
     assume n mod 3 = 2                                                (C3)
 
-    6.9.  q·3 + 2 = n
-          substitute n mod 3 = 2 (C3) into line 5
+    5.9.  q·3 + 2 = n
+          substitute n mod 3 = 2 (C3) into line 4
 
-    6.10. n² − 1 = 3·(3·q² + 4·q + 1)
-          algebra, from 6.9
+    5.10. n² − 1 = 3·(3·q² + 4·q + 1)
+          algebra, from 5.9
 
-    6.11. 3 divides n² − 1
-          def:divides d := 3, n := n² − 1, from 6.10
+    5.11. 3 divides n² − 1
+          def:divides d := 3, n := n² − 1, from 5.10
 
-    6.12. 3 divides n² or 3 divides n² − 1
-          mun:or-right, from 6.11
+    5.12. 3 divides n² or 3 divides n² − 1
+          mun:or-right, from 5.11
 
 
 theorem three-divides-sum-of-squares

@@ -517,17 +517,14 @@ let B = {w ∈ X ∖ {v} : {v, w} ∉ E}                                    (D3)
            32.10.7. {v, w} ∈ F
                     mun:disjunctive-syllogism-left, from 32.10.1, 32.10.6
 
-    32.11. There is U ⊆ X with U is a clique in F of size at least j + 1 or U is a clique in E of size at least k + 1.
-           thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
+    32.11. U ⊆ X. U is a clique in F of size at least j + 1 or U is a clique in E of size at least k + 1.
+           obtain U: thm:grow-by-one N := B, E := F, F := E, k := j, j := k + 1, from 1, 9, 15, 32.8, 32.9, 32.10
 
-    32.12. U ⊆ X. U is a clique in F of size at least j + 1 or U is a clique in E of size at least k + 1.
-           obtain U from line 32.11
+    32.12. U is a clique in E of size at least k + 1 or U is a clique in F of size at least j + 1
+           mun:or-swap, from 32.11
 
-    32.13. U is a clique in E of size at least k + 1 or U is a clique in F of size at least j + 1
-           mun:or-swap, from 32.12
-
-    32.14. There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
-           exhibit, from 32.12, 32.13
+    32.13. There is W ⊆ X with W is a clique in E of size at least k + 1 or W is a clique in F of size at least j + 1.
+           exhibit, from 32.11, 32.12
 
 theorem ramsey
   note        Ramsey's theorem for two colours. Colour every pair of points

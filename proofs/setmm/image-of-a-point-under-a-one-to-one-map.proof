@@ -22,23 +22,20 @@ theorem image-of-a-point-under-a-one-to-one-map
     direction
     assume F(X) ∈ F[Y]                                                (D1)
 
-    2.1.  There is s ∈ Y with F(X) = F(s).
-          def:image u := F(X), from D1, H5
+    2.1.  s ∈ Y. F(X) = F(s).
+          obtain s: def:image u := F(X), from D1, H5
 
-    2.2.  s ∈ Y. F(X) = F(s).
-          obtain s from line 2.1
+    2.2.  s ∈ A
+          mun:in-subset X := Y, Y := A, u := s, from H5, 2.1
 
-    2.3.  s ∈ A
-          mun:in-subset X := Y, Y := A, u := s, from H5, 2.2
+    2.3.  X = s
+          instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
 
-    2.4.  X = s
-          instantiate s := X, t := s in line 1, from H4, 2.2, 2.3
-
-    2.5.  X ∈ Y
-          substitute X = s (line 2.4) into line 2.2
+    2.4.  X ∈ Y
+          substitute X = s (line 2.3) into line 2.1
 
     direction
     assume X ∈ Y                                                      (D2)
 
-    2.6.  F(X) ∈ F[Y]
+    2.5.  F(X) ∈ F[Y]
           mun:value-in-image s := X, from D2, H5
