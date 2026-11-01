@@ -4810,10 +4810,10 @@ theorem angle-at-centre
 28. ∡BOC + ∡OCB + ∡OCB = (2·r + 1)·π
     substitute ∡CBO = ∡OCB (line 6) into line 26
 
-29. ∡AOC + ∡COA = 0 + 2·m·π
+29. ∡AOC + ∡COA = 2·m·π
     substitute ∡AOA = 0 (line 13) into line 11
 
-30. ∡COB + ∡BOC = 0 + 2·p·π
+30. ∡COB + ∡BOC = 2·p·π
     substitute ∡COC = 0 (line 14) into line 12
 
 31. ∡AOB = ∡AOC + ∡COB − 2·i·π

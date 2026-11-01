@@ -12,11 +12,8 @@ theorem empty-sum
 1.  Σ(k = 0 to 0) B(k) = B(0)
     mun:sum-single a := 0
 
-2.  Σ(k = 0 to 0) B(k) = B(0) + Σ(k = 0 + 1 to 0) B(k)
+2.  Σ(k = 0 to 0) B(k) = B(0) + Σ(k = 1 to 0) B(k)
     mun:sum-first n := 0
 
-3.  Σ(k = 0 + 1 to 0) B(k) = 0
+3.  Σ(k = 1 to 0) B(k) = 0
     algebra, from 1, 2
-
-4.  Σ(k = 1 to 0) B(k) = 0
-    restate 3

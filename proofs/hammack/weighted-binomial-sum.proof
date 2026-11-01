@@ -152,20 +152,16 @@ theorem weighted-row-sum
     5.1.  C(m, k) ∈ ℝ
           membership
 
-6.  0 + 1 = 1
-    arithmetic
-
-7.  Σ(k = 1 to m + 1) C(m, k − 1) = 2^m
+6.  Σ(k = 1 to m + 1) C(m, k − 1) = 2^m
     calculation
-      Σ(k = 1 to m + 1) C(m, k − 1) = Σ(k = 0 + 1 to m + 1) C(m, k − 1)     substitute line 6
-                                    = Σ(k = 0 to m) C(m, k)                 mun:sum-shift a := 0, b := m, c := 1, from 5
+      Σ(k = 1 to m + 1) C(m, k − 1) = Σ(k = 0 to m) C(m, k)                 mun:sum-shift a := 0, b := m, c := 1, from 5
                                     = 2^m                                   thm:binomial-row-sum
 
-8.  Σ(k = 1 to m + 1) k·C(m + 1, k) = (m + 1)·2^m
+7.  Σ(k = 1 to m + 1) k·C(m + 1, k) = (m + 1)·2^m
     calculation
       Σ(k = 1 to m + 1) k·C(m + 1, k) = Σ(k = 1 to m + 1) (m + 1)·C(m, k − 1)      mun:sum-termwise a := 1, b := m + 1, from 1, 2, 3
                                       = (m + 1)·(Σ(k = 1 to m + 1) C(m, k − 1))    mun:sum-scaled a := 1, b := m + 1, c := m + 1, from 4
-                                      = (m + 1)·2^m                                substitute line 7
+                                      = (m + 1)·2^m                                substitute line 6
 
 theorem weighted-binomial-sum
   note        Write n as m + 1 with m = n − 1, and the weighted-row-sum

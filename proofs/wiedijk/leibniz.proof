@@ -422,8 +422,7 @@ let F(x) = arctan(x), for x ∈ [0, 1]                                  (D2)
       J(0) = ∫(0 to 1) g(t) dt     21
            = F(1) − F(0)           thm:fundamental-calculus a := 0, b := 1, f := g, from 5, 7, 8, 9, 10, 12, 13
            = π/4 − F(0)            substitute line 19
-           = π/4 − 0               substitute line 20
-           = π/4                   real arithmetic
+           = π/4                   substitute line 20
 
 theorem integral-recurrence
   note        t^(2n + 2)/(1 + t²) is t^(2n) less t^(2n)/(1 + t²), so J(n + 1)

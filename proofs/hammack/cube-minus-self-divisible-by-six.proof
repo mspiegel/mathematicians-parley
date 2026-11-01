@@ -54,7 +54,7 @@ theorem cube-minus-self-divisible-by-six
     induction on k starting at 0
 
     base
-    1.1.  6 divides 0³ − 0
+    1.1.  6 divides 0³
           arithmetic
 
     step

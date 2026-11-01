@@ -135,10 +135,8 @@ theorem two-point-parts
             |Y| = 2          H4
                 = 1 + 1      arithmetic
 
-    5.2.  |Y ∖ {v}| = 0 + 1
-          calculation
-            |Y ∖ {v}| = 1        mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
-                      = 0 + 1    arithmetic
+    5.2.  |Y ∖ {v}| = 1
+          mun:card-remove X := Y, a := v, k := 1, from C1, 5.1
 
     5.3.  w ∈ Y ∖ {v}
           obtain w: mun:card-nonempty X := Y ∖ {v}, k := 0, from 5.2

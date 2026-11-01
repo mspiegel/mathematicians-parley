@@ -17,12 +17,12 @@ theorem sum-of-binomials-along-a-diagonal
     induction on m starting at 0
 
     base
-    1.1.  S(0) = C(n + 0 + 1, 0)
+    1.1.  S(0) = C(n + 1, 0)
           calculation
             S(0) = Σ(j = 0 to 0) C(n + j, j)    D1
-                 = C(n + 0, 0)                  mun:sum-single a := 0
-                 = 1                            mun:binomial-zero-index n := n + 0
-                 = C(n + 0 + 1, 0)              mun:binomial-zero-index n := n + 0 + 1
+                 = C(n, 0)                      mun:sum-single a := 0
+                 = 1                            mun:binomial-zero-index
+                 = C(n + 1, 0)                  mun:binomial-zero-index n := n + 1
 
     step
     let m ∈ ℕ₀                                                        (K)

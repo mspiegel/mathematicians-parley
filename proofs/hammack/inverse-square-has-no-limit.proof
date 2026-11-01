@@ -116,7 +116,7 @@ suppose there is L ∈ ℝ with f tends to L at 0                         (S)
     10.12. t < p
            transitivity, from D1, 10.7
 
-    10.13. |t − 0| < p
+    10.13. |t| < p
            transitivity, from 10.11, 10.12
 
     10.14. |f(t) − L| < 1

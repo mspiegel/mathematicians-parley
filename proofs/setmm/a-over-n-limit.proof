@@ -34,7 +34,7 @@ theorem a-over-n-tends-to-zero
     4.1.  A/n ∈ ℝ
           membership
 
-5.  For all ε > 0, there exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+5.  For all ε > 0, there exists N ∈ ℕ such that |A/n| < ε for all n ≥ N.
     proof
     let ε ∈ ℝ                                                         (K2)
     assume ε > 0                                                      (A1)
@@ -49,7 +49,7 @@ theorem a-over-n-tends-to-zero
     5.3.  N ∈ ℕ. 1/N < ε/(2·(|A| + 1)).
           obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 5.1, 5.2
 
-    5.4.  For all n ≥ N, |A/n − 0| < ε.
+    5.4.  For all n ≥ N, |A/n| < ε.
           proof
           let n ∈ ℕ                                                   (K3)
           assume n ≥ N                                                (A2)
@@ -80,12 +80,12 @@ theorem a-over-n-tends-to-zero
           5.4.6.  |A·(1/n)| < ε
                   thm:scaled-small C := A, u := 1/n, from A1, 5.4.5
 
-          5.4.7.  |A/n − 0| < ε
+          5.4.7.  |A/n| < ε
                   substitute
                     |A·(1/n)| < ε      5.4.6
-                    |A/n − 0| < ε      algebra
+                    |A/n| < ε      algebra
 
-    5.5.  There exists N ∈ ℕ such that |A/n − 0| < ε for all n ≥ N.
+    5.5.  There exists N ∈ ℕ such that |A/n| < ε for all n ≥ N.
           exhibit, from 5.4
 
 6.  A/n → 0 as n → ∞

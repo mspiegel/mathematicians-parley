@@ -44,44 +44,34 @@ theorem factorial-gap
   by          induction on j starting at 0
 
 base
-1.  n + 1 + 0 = n + 1
-    algebra
-
-2.  (n + 1 + 0)! = (n + 1)!
-    substitute n + 1 + 0 = n + 1 (line 1)
-
-3.  (n + 1)! + 0 ≤ (n + 1 + 0)!
+1.  (n + 1)! ≤ (n + 1)!
     inequalities
-      (n + 1 + 0)! = (n + 1)!         2
-      (n + 1)! = (n + 1 + 0)!         restate
-      (n + 1)! + 0 = (n + 1 + 0)!     algebra
-      (n + 1)! + 0 ≤ (n + 1 + 0)!     weakening
 
 step
 let j ∈ ℕ₀                                                            (K)
 assume the theorem is true for j, the induction hypothesis            (IH)
 
-4.  n + 1 + j + 1 = n + 1 + (j + 1)
+2.  n + 1 + j + 1 = n + 1 + (j + 1)
     algebra
 
-5.  (n + 1 + j)! ∈ ℕ
+3.  (n + 1 + j)! ∈ ℕ
     mun:factorial-nat n := n + 1 + j
 
-6.  (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
+4.  (n + 1 + j)!·(n + 1 + j + 1) = (n + 1 + j + 1)·(n + 1 + j)!
     algebra
 
-7.  (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
-    inequalities, from IH, 5
+5.  (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!
+    inequalities, from IH, 3
 
-8.  (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
+6.  (n + 1)! + (j + 1) ≤ (n + 1 + (j + 1))!
     calculation
-      (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         7
+      (n + 1)! + (j + 1) ≤ 2·(n + 1 + j)!                         5
                          ≤ (n + 1 + j + 1)·(n + 1 + j)!           mun:multiply-le-nonneg x := 2, y := n + 1 + j + 1, c := (n + 1 + j)!
-                         = (n + 1 + j)!·(n + 1 + j + 1)           6
+                         = (n + 1 + j)!·(n + 1 + j + 1)           4
                          = (n + 1 + j + 1)!                       def:factorial n := n + 1 + j
-                         = (n + 1 + (j + 1))!                     substitute line 4
+                         = (n + 1 + (j + 1))!                     substitute line 2
     requires 2 ≤ n + 1 + j + 1: inequalities, from H1, K
-    requires (n + 1 + j)! ≥ 0: inequalities, from 5
+    requires (n + 1 + j)! ≥ 0: inequalities, from 3
 
 theorem terms-real
   let m ∈ ℕ                                                           (H1)
@@ -130,96 +120,90 @@ let A = (n + 1)!, a natural number                                    (D1)
     induction on j starting at 0
 
     base
-    3.1.  n + 0 = n
-          algebra
+    3.1.  s(n) − s(n) = 2/2^A − 2/2^A
+          algebra, from 2
 
-    3.2.  s(n + 0) = s(n)
-          substitute n + 0 = n (line 3.1)
-
-    3.3.  s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)
-          algebra, from 2, 3.2
-
-    3.4.  s(n + 0) − s(n) ≤ 2/2^A − 2/2^(A + 0)
+    3.2.  s(n) − s(n) ≤ 2/2^A − 2/2^A
           inequalities
-            s(n + 0) − s(n) = 2/2^A − 2/2^(A + 0)     3.3
-            s(n + 0) − s(n) ≤ 2/2^A − 2/2^(A + 0)     weakening
-          requires s(n + 0) ∈ ℝ: from 2
+            s(n) − s(n) = 2/2^A − 2/2^A     3.1
+            s(n) − s(n) ≤ 2/2^A − 2/2^A     weakening
+          requires s(n) ∈ ℝ: from 2
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 3 is true for j, the induction hypothesis             (IH)
 
-    3.5.  n + j ∈ ℕ
+    3.3.  n + j ∈ ℕ
           mun:nat-plus-nat0 a := n, b := j
 
-    3.6.  n + j + 1 ∈ ℕ
-          mun:nat-plus-nat0 a := n + j, b := 1, from 3.5
+    3.4.  n + j + 1 ∈ ℕ
+          mun:nat-plus-nat0 a := n + j, b := 1, from 3.3
 
-    3.7.  2^((n + j + 1)!) > 0
+    3.5.  2^((n + j + 1)!) > 0
           mun:power-positive a := 2, m := (n + j + 1)!
           requires 2 > 0: arithmetic
 
-    3.8.  n + j + 1 = n + (j + 1)
+    3.6.  n + j + 1 = n + (j + 1)
           algebra
 
-    3.9.  s(n + (j + 1)) = s(n + j + 1)
-          substitute n + j + 1 = n + (j + 1) (line 3.8)
+    3.7.  s(n + (j + 1)) = s(n + j + 1)
+          substitute n + j + 1 = n + (j + 1) (line 3.6)
 
-    3.10. For all k ∈ {1, …, n + j + 1}, 1/2^(k!) ∈ ℝ.
-          thm:terms-real m := n + j + 1, from 3.6
+    3.8.  For all k ∈ {1, …, n + j + 1}, 1/2^(k!) ∈ ℝ.
+          thm:terms-real m := n + j + 1, from 3.4
 
-    3.11. Σ(k = 1 to n + j + 1) 1/2^(k!) = Σ(k = 1 to n + j) 1/2^(k!) + 1/2^((n + j + 1)!)
-          mun:sum-extended a := 1, n := n + j, from 3.10
-          requires n + j ≥ 1: inequalities, from 3.5
+    3.9.  Σ(k = 1 to n + j + 1) 1/2^(k!) = Σ(k = 1 to n + j) 1/2^(k!) + 1/2^((n + j + 1)!)
+          mun:sum-extended a := 1, n := n + j, from 3.8
+          requires n + j ≥ 1: inequalities, from 3.3
 
-    3.12. s(n + j + 1) = s(n + j) + 1/2^((n + j + 1)!)
-          algebra, from D0, 3.11
+    3.10. s(n + j + 1) = s(n + j) + 1/2^((n + j + 1)!)
+          algebra, from D0, 3.9
 
-    3.13. A + j ≤ (n + 1 + j)!
+    3.11. A + j ≤ (n + 1 + j)!
           instantiate j := j in line 1, from D1
 
-    3.14. A + j ≤ (n + j + 1)!
+    3.12. A + j ≤ (n + j + 1)!
           substitute
-            A + j ≤ (n + 1 + j)!      3.13
+            A + j ≤ (n + 1 + j)!      3.11
             A + j ≤ (n + j + 1)!      algebra
 
-    3.15. 2^(A + j) ≤ 2^((n + j + 1)!)
-          mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.14
+    3.13. 2^(A + j) ≤ 2^((n + j + 1)!)
+          mun:power-exponent-le a := 2, m := A + j, n := (n + j + 1)!, from 3.12
           requires 1 ≤ 2: arithmetic
 
-    3.16. 2^(A + j) > 0
+    3.14. 2^(A + j) > 0
           mun:power-positive a := 2, m := A + j
           requires 2 > 0: arithmetic
 
-    3.17. 1/2^((n + j + 1)!) ≤ 1/2^(A + j)
-          mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.7, 3.15, 3.16
+    3.15. 1/2^((n + j + 1)!) ≤ 1/2^(A + j)
+          mun:reciprocal-order x := 2^(A + j), y := 2^((n + j + 1)!), from 3.5, 3.13, 3.14
 
-    3.18. A + j + 1 = A + (j + 1)
+    3.16. A + j + 1 = A + (j + 1)
           algebra
 
-    3.19. 2^(A + j)·2 = 2^(A + (j + 1))
+    3.17. 2^(A + j)·2 = 2^(A + (j + 1))
           calculation
             2^(A + j)·2 = 2^(A + j + 1)      mun:exponent-step a := 2, m := A + j
-                        = 2^(A + (j + 1))    substitute line 3.18
+                        = 2^(A + (j + 1))    substitute line 3.16
 
-    3.20. 2/(2^(A + j)·2) = 1/2^(A + j)
+    3.18. 2/(2^(A + j)·2) = 1/2^(A + j)
           algebra
 
-    3.21. 2/2^(A + (j + 1)) = 1/2^(A + j)
-          substitute 2^(A + j)·2 = 2^(A + (j + 1)) (line 3.19) into line 3.20
+    3.19. 2/2^(A + (j + 1)) = 1/2^(A + j)
+          substitute 2^(A + j)·2 = 2^(A + (j + 1)) (line 3.17) into line 3.18
 
-    3.22. s(n + j) − s(n) + 1/2^((n + j + 1)!) ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)
-          inequalities, from IH, 3.17
+    3.20. s(n + j) − s(n) + 1/2^((n + j + 1)!) ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)
+          inequalities, from IH, 3.15
           requires s(n) ∈ ℝ: from 2
-          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.5
+          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.3
 
-    3.23. s(n + (j + 1)) − s(n) ≤ 2/2^A − 2/2^(A + (j + 1))
+    3.21. s(n + (j + 1)) − s(n) ≤ 2/2^A − 2/2^(A + (j + 1))
           calculation
-            s(n + (j + 1)) − s(n) = s(n + j) − s(n) + 1/2^((n + j + 1)!)    algebra, from 3.9, 3.12
-                                  ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)       3.22
-                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21
+            s(n + (j + 1)) − s(n) = s(n + j) − s(n) + 1/2^((n + j + 1)!)    algebra, from 3.7, 3.10
+                                  ≤ 2/2^A − 2/2^(A + j) + 1/2^(A + j)       3.20
+                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.19
           requires s(n) ∈ ℝ: from 2
-          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.5
+          requires s(n + j) ∈ ℝ: thm:partial-sum-real m := n + j, from 3.3
 
 4.  For all j ∈ ℕ₀, s(n + j) − s(n) ≤ 2/2^((n + 1)!) − 2/2^((n + 1)! + j).
     substitute A = (n + 1)! (D1) into line 3
@@ -249,53 +233,44 @@ theorem partial-sums-increase
     induction on j starting at 0
 
     base
-    2.1.  n + 0 = n
-          algebra
-
-    2.2.  s(n + 0) = s(n)
-          substitute n + 0 = n (line 2.1)
-
-    2.3.  s(n) ≤ s(n + 0)
+    2.1.  s(n) ≤ s(n)
           inequalities
-            s(n + 0) = s(n)     2.2
-            s(n) = s(n + 0)     restate
-            s(n) ≤ s(n + 0)     weakening
           requires s(n) ∈ ℝ: from 1
 
     step
     let j ∈ ℕ₀                                                        (K)
     assume step 2 is true for j, the induction hypothesis             (IH)
 
-    2.4.  n + j ∈ ℕ
+    2.2.  n + j ∈ ℕ
           mun:nat-plus-nat0 a := n, b := j
 
-    2.5.  2^((n + j + 1)!) > 0
+    2.3.  2^((n + j + 1)!) > 0
           mun:power-positive a := 2, m := (n + j + 1)!
           requires 2 > 0: arithmetic
 
-    2.6.  1/2^((n + j + 1)!) > 0
-          mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.5
+    2.4.  1/2^((n + j + 1)!) > 0
+          mun:reciprocal-positive x := 2^((n + j + 1)!), from 2.3
 
-    2.7.  s(n + j) ∈ ℝ
-          thm:partial-sum-real m := n + j, from 2.4
+    2.5.  s(n + j) ∈ ℝ
+          thm:partial-sum-real m := n + j, from 2.2
 
-    2.8.  s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)
+    2.6.  s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)
           inequalities
-            1/2^((n + j + 1)!) > 0                          2.6
+            1/2^((n + j + 1)!) > 0                          2.4
             0 < 1/2^((n + j + 1)!)                          restate
             s(n + j) < s(n + j) + 1/2^((n + j + 1)!)        adding s(n + j)
             s(n + j) ≤ s(n + j) + 1/2^((n + j + 1)!)        weakening
-          requires s(n + j) ∈ ℝ: from 2.7
+          requires s(n + j) ∈ ℝ: from 2.5
 
-    2.9.  n + j + 1 = n + (j + 1)
+    2.7.  n + j + 1 = n + (j + 1)
           algebra
 
-    2.10. s(n) ≤ s(n + (j + 1))
+    2.8.  s(n) ≤ s(n + (j + 1))
           calculation
             s(n) ≤ s(n + j)                                 IH
-                 ≤ s(n + j) + 1/2^((n + j + 1)!)            2.8
-                 = s(n + j + 1)                             thm:partial-sum-step n := n + j, from 2.4
-                 = s(n + (j + 1))                           substitute line 2.9
+                 ≤ s(n + j) + 1/2^((n + j + 1)!)            2.6
+                 = s(n + j + 1)                             thm:partial-sum-step n := n + j, from 2.2
+                 = s(n + (j + 1))                           substitute line 2.7
 
 theorem later-at-least
   let n ∈ ℕ                                                           (H1)

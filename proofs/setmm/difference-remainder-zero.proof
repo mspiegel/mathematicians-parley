@@ -41,10 +41,10 @@ assume A mod N = B mod N                                              (C2)
 6.  k ∈ ℤ. A − B = N·k.
     obtain k: def:divides d := N, n := A − B, from 5
 
-7.  k·N + 0 = A − B
+7.  k·N = A − B
     algebra, from 6
 
-8.  There is q ∈ ℤ with q·N + 0 = A − B.
+8.  There is q ∈ ℤ with q·N = A − B.
     exhibit, from 7
 
 9.  (A − B) mod N = 0

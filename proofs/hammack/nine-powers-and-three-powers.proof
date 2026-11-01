@@ -251,13 +251,12 @@ theorem powers-of-nine-in-powers-of-three
     3.6.  0 < m
           inequalities, from 3.5
 
-    3.7.   0 + 1 ≤ m
+    3.7.   1 ≤ m
            mun:integer-step m := 0, n := m, from 3.6
 
     3.8.   2 ≤ 2m
            inequalities
-             0 + 1 ≤ m      3.7
-             1 ≤ m          algebra
+             1 ≤ m          3.7
              2 ≤ 2m         multiplying by 2
 
     3.9.   1 < 2m

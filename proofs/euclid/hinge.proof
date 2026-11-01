@@ -370,8 +370,7 @@ theorem hinge
     35.10. |BG| < |BG| + |GC|
            inequalities
              |GC| > 0                      35.9
-             |BG| + |GC| > |BG| + 0        adding |BG|
-             |BG| + |GC| > |BG|            algebra
+             |BG| + |GC| > |BG|            adding |BG|
              |BG| < |BG| + |GC|            restate
 
     35.11. |BG| < |BC|
