@@ -123,8 +123,18 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
     (
         RecordKind::Definition,
         &[
-            "sort", "builds", "reads", "metamath", "target", "open", "symbol",
-            "defines", "decided", "lean", "note",
+            "sort",
+            "builds",
+            "reads",
+            "metamath",
+            "target",
+            "open",
+            "symbol",
+            "defines",
+            "decided",
+            "lean",
+            "lean-builds",
+            "note",
         ],
     ),
     (

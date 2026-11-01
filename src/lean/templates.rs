@@ -103,6 +103,9 @@ pub struct Templates {
     by_pattern: IndexMap<(String, String), Template>,
     /// The notations with a `lean` field, by name.
     mapped: IndexMap<String, ()>,
+    /// Each library function a definition record's `lean-builds` field
+    /// gives a Lean form, by its name: `gcd(a, b)` is `Int.gcd a b`.
+    functions: IndexMap<String, Template>,
 }
 
 impl Templates {
@@ -110,6 +113,23 @@ impl Templates {
     pub fn read(records: &[Record]) -> Checked<Templates> {
         let mut out = Templates::default();
         for r in records {
+            if r.kind == RecordKind::Definition {
+                if let Some(entry) = r.field("lean-builds") {
+                    let line = r.lines.get("lean-builds").copied().unwrap_or(r.line);
+                    let template = Template::read(entry.trim()).ok_or_else(|| {
+                        Problem::new(
+                            &r.path,
+                            line,
+                            format!(
+                                "definition {}: lean-builds {entry:?} does not read",
+                                r.name
+                            ),
+                        )
+                    })?;
+                    out.functions.insert(r.name.clone(), template);
+                }
+                continue;
+            }
             if r.kind != RecordKind::Notation {
                 continue;
             }
@@ -161,6 +181,11 @@ impl Templates {
     /// Whether a notation has a `lean` field.
     pub fn maps(&self, notation: &str) -> bool {
         self.mapped.contains_key(notation)
+    }
+
+    /// The Lean form of a library function, by its name.
+    pub fn function(&self, name: &str) -> Option<&Template> {
+        self.functions.get(name)
     }
 }
 

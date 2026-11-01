@@ -89,17 +89,32 @@ fn covered(
             reason: "the checker refuses it".to_string(),
         };
     }
+    // A library function applied is in where its definition says what it
+    // is in Lean (`lean-builds`).
     let mut notations: Vec<String> = rec
         .page
         .entries()
         .flat_map(|(_, node)| node.walk())
-        .map(|n| n.notation_name().to_string())
-        .filter(|n| !IN_CODE.contains(&n.as_str()) && !templates.maps(n))
+        .filter_map(|n| {
+            let name = n.notation_name().to_string();
+            if matches!(name.as_str(), "application" | "application-to-two") {
+                let f = n
+                    .children
+                    .first()
+                    .map(|f| f.text.to_string())
+                    .unwrap_or_default();
+                return templates.function(&f).is_none().then(|| {
+                    format!("{f}, applied, whose definition has no lean-builds field")
+                });
+            }
+            (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
+                .then(|| format!("notation {name}, which has no lean field"))
+        })
         .collect();
     notations.sort();
     if let Some(first) = notations.first() {
         return Covered::Out {
-            reason: format!("notation {first} has no lean field"),
+            reason: format!("it writes {first}"),
         };
     }
     // A letter whose sort Lean has no type for yet: the writer types
@@ -108,7 +123,7 @@ fn covered(
         .page
         .entries()
         .flat_map(|(_, node)| node.walk())
-        .filter(|n| n.is_name())
+        .filter(|n| n.is_name() && templates.function(&n.text).is_none())
         .filter_map(|n| {
             let sort = rec.sorts.get(n.text.as_str())?;
             (!sort.is("number")).then(|| (n.text.to_string(), sort.describe()))

@@ -228,6 +228,7 @@ definition gcd
               e ≤ gcd(a, b).
   metamath    gcdnncl, gcddvds, dvdslegcd
   target      gcdnncl, gcddvds, dvdslegcd
+  lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2
   note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
               this statement puts it in ℕ, which gcdnncl gives because both
               arguments are natural numbers; gcddvds says in one conjunction
@@ -238,6 +239,7 @@ definition gcd
 definition lcm
   sort        number, number → number
   builds      _1 _2 clcm co
+  lean-builds ℤ, ℤ → ℕ: Int.lcm _1 _2
   reads       the least common multiple of
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)

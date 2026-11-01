@@ -221,6 +221,9 @@ impl Writer<'_> {
     /// The template the node's notation and pattern have in Lean, or a
     /// decline naming the notation.
     pub fn template(&self, node: &Node) -> Route<&Template> {
+        if let Some(t) = self.library_function(node) {
+            return Route::Built(t);
+        }
         let name = node.notation_name();
         let Some(pattern) = self.grammar.written_by(node.spelling()) else {
             return Route::no(format!("{name} is written by no plain pattern"));
@@ -228,6 +231,32 @@ impl Writer<'_> {
         match self.templates.get(&name, &pattern.pattern) {
             Some(t) => Route::Built(t),
             None => Route::no(format!("notation {name} has no lean field")),
+        }
+    }
+
+    /// The Lean form of the library function a node applies, `gcd(a, b)`;
+    /// None for any other node, a letter of the page applied included.
+    pub fn library_function(&self, node: &Node) -> Option<&Template> {
+        if !matches!(
+            node.notation(),
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
+        ) {
+            return None;
+        }
+        let f = node.children.first()?;
+        if !f.is_name() || self.letters.contains_key(f.text.as_str()) {
+            return None;
+        }
+        self.templates.function(&f.text)
+    }
+
+    /// What a node's template fills its holes with: its children, or for a
+    /// library function applied, what it is applied to.
+    fn args<'n>(&self, node: &'n Node) -> &'n [Node] {
+        if self.library_function(node).is_some() {
+            &node.children[1..]
+        } else {
+            &node.children
         }
     }
 
@@ -260,10 +289,12 @@ impl Writer<'_> {
             } else {
                 Num::Int
             }),
-            crate::notations::APPLICATION => match self.applied(node) {
-                Route::Built((_, to)) => Route::Built(to.max(Num::Int)),
-                Route::Declined(d) => Route::Declined(d),
-            },
+            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+                match self.applied(node) {
+                    Route::Built((_, to)) => Route::Built(to.max(Num::Int)),
+                    Route::Declined(d) => Route::Declined(d),
+                }
+            }
             _ => {
                 let template = match self.template(node) {
                     Route::Built(t) => t,
@@ -277,7 +308,8 @@ impl Writer<'_> {
                     )),
                     Slot::Alpha(floor) => {
                         let mut out = floor;
-                        for (child, slot) in node.children.iter().zip(&template.holes) {
+                        for (child, slot) in self.args(node).iter().zip(&template.holes)
+                        {
                             if let Slot::Alpha(_) = slot {
                                 match self.carrier(child) {
                                     Route::Built(n) => out = out.max(n),
@@ -322,11 +354,13 @@ impl Writer<'_> {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
-            crate::notations::APPLICATION => true,
+            crate::notations::APPLICATION if self.library_function(node).is_none() => {
+                true
+            }
             _ => match self.template(node) {
                 Route::Built(t) => match t.yields {
-                    Slot::Alpha(_) => node
-                        .children
+                    Slot::Alpha(_) => self
+                        .args(node)
                         .iter()
                         .zip(&t.holes)
                         .any(|(c, s)| matches!(s, Slot::Alpha(_)) && self.pinned(c)),
@@ -347,7 +381,7 @@ impl Writer<'_> {
                 Some(LetterType::Number(Num::Nat))
             ),
             NUMERAL => !node.text.contains('.'),
-            crate::notations::APPLICATION => {
+            crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 matches!(self.applied(node), Route::Built((_, Num::Nat)))
             }
             _ => {
@@ -360,7 +394,7 @@ impl Writer<'_> {
                         let literal = node.spelling().text();
                         !matches!(&*literal, "−" | "/")
                             && !matches!(&*node.notation_name(), "unary-minus")
-                            && node.children.iter().zip(&t.holes).all(|(c, s)| {
+                            && self.args(node).iter().zip(&t.holes).all(|(c, s)| {
                                 !matches!(s, Slot::Alpha(_)) || self.natural(c)
                             })
                     }
@@ -416,7 +450,7 @@ impl Writer<'_> {
                 _ => Route::no(format!("{} has no Lean number type", node.text)),
             },
             NUMERAL => Route::Built(Printed::atom(&*node.text)),
-            crate::notations::APPLICATION => {
+            crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 let (from, to) = match self.applied(node) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
@@ -505,16 +539,17 @@ impl Writer<'_> {
         template: &Template,
         alpha: Num,
     ) -> Route<Vec<Printed>> {
-        if node.children.len() != template.holes.len() {
+        let args = self.args(node);
+        if args.len() != template.holes.len() {
             return Route::no(format!(
                 "{} has {} parts and its lean template {} holes",
                 node.notation_name(),
-                node.children.len(),
+                args.len(),
                 template.holes.len()
             ));
         }
         let mut out = Vec::new();
-        for (child, slot) in node.children.iter().zip(&template.holes) {
+        for (child, slot) in args.iter().zip(&template.holes) {
             let printed = match slot {
                 Slot::Alpha(_) => self.number(child, alpha),
                 Slot::Fixed(n) => self.number_fixed(child, *n),
@@ -611,7 +646,7 @@ impl Writer<'_> {
     /// each of them.
     fn alpha_of(&self, node: &Node, template: &Template) -> Route<Num> {
         let mut out = Num::Int;
-        for (child, slot) in node.children.iter().zip(&template.holes) {
+        for (child, slot) in self.args(node).iter().zip(&template.holes) {
             if let Slot::Alpha(floor) = slot {
                 out = out.max(*floor);
                 match self.carrier(child) {
