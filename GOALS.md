@@ -260,7 +260,18 @@ Three pieces, with the LLM outside all of them:
 
 ## Comparison with Lean 4
 
-Rejected on purpose:
+Metamath is the first backend because it decides nothing for us: every step
+the build writes is a step the kernel checks, and nothing between the page and
+the kernel searches or chooses. That is a reason to start with it, not a
+reason to have only it. A second backend is wanted for the reason decision 6
+gives: two backends that prove the same page against two libraries check each
+other. A Lean backend over Mathlib would take the page from the same checker,
+and prove each step with Mathlib's lemmas and Lean's tactics. The two share
+the reading of the page, so a misreading passes both; what they check
+independently is that each library proves what the records say, and that each
+proof holds in both.
+
+How the two differ:
 
 | | Lean 4 | this project |
 |---|---|---|
