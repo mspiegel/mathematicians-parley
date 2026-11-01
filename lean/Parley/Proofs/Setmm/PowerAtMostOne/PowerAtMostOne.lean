@@ -45,7 +45,7 @@ theorem power_at_most_one (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) (hH4 : a ≤ 1) :
           all_goals parley_side
         · skip
           -- 1.6.5. mun:multiply-le x := a^m, y := 1, c := a, from C3, IH
-          have s1_6_5 : a * a ^ m ≤ a * 1 := by linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side))]
+          have s1_6_5 : a * a ^ m ≤ a * 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := a ^ m) (y := (1 : ℝ)) (c := a) (by parley_side) (by parley_side))
           -- 1.6.6. inequalities
           have s1_6_6 : a * a ^ m ≤ a := by parley_side
           -- 1.6.7. transitivity, from 1.3, 1.4, 1.6.6, H4
@@ -53,7 +53,7 @@ theorem power_at_most_one (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) (hH4 : a ≤ 1) :
           all_goals parley_side
       all_goals parley_side
   -- 2. instantiate m := n in line 1
-  have s2 : a ^ n ≤ 1 := by linarith [(s1 n)]
+  have s2 : a ^ n ≤ 1 := by first | linarith [(s1 n)] | (have h := (s1 n); push_cast at h; linarith) | exact_mod_cast (s1 n)
   all_goals parley_side
 
 end Parley.Proofs.Setmm.PowerAtMostOne.PowerAtMostOne

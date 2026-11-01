@@ -18,7 +18,10 @@ theorem a_define_read_in_a_contradicted_line (a : ℝ) (hH2 : a + 1 ≠ 0) :
     by_contra hc_hS
     have hS : a = -1 := by parley_suppose hc_hS
     -- 2.1. algebra, from D1, S
-    have s2_1 : a + 1 = 0 := by linear_combination hS
+    have s2_1 : a + 1 = 0 := by
+      try simp only [hD1] at *
+      try push_cast at *
+      linear_combination hS
     all_goals parley_side
   all_goals parley_side
 

@@ -12,7 +12,10 @@ theorem a_named_term_is_a_number (N : ℤ) :
     2 * N + 1 - 1 = 2 * N := by
   set M : ℤ := 2 * N + 1 with hD1
   -- 1. algebra, from D1
-  have s1 : M - 1 = 2 * N := by linear_combination hD1
+  have s1 : M - 1 = 2 * N := by
+    try simp only [hD1] at *
+    try push_cast at *
+    ring
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ANamedTermIsANumber.ANamedTermIsANumber

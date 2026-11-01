@@ -45,7 +45,7 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
           all_goals parley_side
         · skip
           -- 1.6.5. mun:multiply-le x := 0, y := a^m, c := a, from C3, IH
-          have s1_6_5 : a * 0 ≤ a * a ^ m := by linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))]
+          have s1_6_5 : a * 0 ≤ a * a ^ m := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))
           -- 1.6.6. inequalities
           have s1_6_6 : 0 ≤ a ^ m * a := by parley_side
           -- 1.6.7. transitivity, from 1.6.6, 1.4
@@ -53,7 +53,7 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
           all_goals parley_side
       all_goals parley_side
   -- 2. instantiate m := n in line 1
-  have s2 : 0 ≤ a ^ n := by linarith [(s1 n)]
+  have s2 : 0 ≤ a ^ n := by first | linarith [(s1 n)] | (have h := (s1 n); push_cast at h; linarith) | exact_mod_cast (s1 n)
   all_goals parley_side
 
 end Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative

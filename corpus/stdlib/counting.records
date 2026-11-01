@@ -24,6 +24,7 @@ definition factorial
   then        (n + 1)! = n!·(n + 1)
   metamath    fac0, fac1, facp1
   target      fac0, fac1, facp1
+  lean        by simp ; by simp ; by push_cast [Nat.factorial_succ]; ring
   note        Two `then` groups: the base sentences have no hypothesis and the
               step sentence has H1, every n from 0 on, as set.mm states it.
               See DATABASE.md on recursive definitions.

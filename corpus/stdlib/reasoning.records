@@ -23,6 +23,7 @@ axiom excluded-middle
   then        P or not P
   metamath    exmid
   target      exmid
+  lean        em P
   note        The first citation to substitute a formula for a variable rather
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
@@ -33,6 +34,7 @@ mundane theorem double-negation
   then        P
   metamath    notnotr
   target      notnotr
+  lean        not_not.mp h1
   note        The step intuitionistic logic refuses, so citing it is the text
               saying which logic it is in. No proof cites it: a contradiction
               block proving a negation supposes what the negation denies, so
@@ -45,6 +47,7 @@ mundane theorem disjunctive-syllogism
   then        P
   metamath    orel2
   target      orel2
+  lean        h1.resolve_right h2
   note        The √2 pilot asked whether a school reader can check this on
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.
@@ -55,6 +58,7 @@ mundane theorem disjunctive-syllogism-left
   then        Q
   metamath    orel1
   target      orel1
+  lean        h1.resolve_left h2
   note        disjunctive-syllogism with the other side failing.
 
 mundane theorem or-left
@@ -86,6 +90,7 @@ mundane theorem not-either
   then        not (P or Q) ↔ not P and not Q
   metamath    ioran
   target      ioran
+  lean        not_or
   note        De Morgan's law for "or": neither of two things holds just when
               each fails. Cited either way, as a biconditional is.
 

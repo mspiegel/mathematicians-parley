@@ -1,0 +1,34 @@
+module
+
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Library
+
+/-! Written from proofs/setmm/two-does-not-divide-odd.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.TwoDoesNotDivideOdd.TwoDoesNotDivideOdd
+
+theorem two_does_not_divide_odd (A : ℤ) :
+    ¬ (2 : ℤ) ∣ 2 * A + 1 := by
+  set B : ℤ := 2 * A + 1 with hD1
+  -- the theorem. contradiction
+  have sThm : ¬ (2 : ℤ) ∣ B := by
+    by_contra hc_hS
+    have hS : (2 : ℤ) ∣ B := by parley_suppose hc_hS
+    -- 1. obtain k: def:divides d := 2, n := B, from S
+    obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := B))).mp (by parley_side)
+    -- 2. algebra, from D1, 1
+    have s2 : 2 * (k - A) = 1 := by
+      try simp only [hD1] at *
+      try push_cast at *
+      linear_combination (-1) * s1
+    -- 3. def:divides d := 2, n := 1, from 2
+    have s3 : (2 : ℤ) ∣ (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := (1 : ℤ)))).mpr ⟨k - A, by parley_side⟩
+    -- 4. mun:divides-one d := 2, from 3
+    have s4 : (2 : ℤ) = 1 := by linear_combination (Parley.Items.Stdlib.Divisibility.mun_divides_one (d := 2) (by parley_side) (by parley_side))
+    exact absurd s4 (by norm_num)
+    all_goals parley_side
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.TwoDoesNotDivideOdd.TwoDoesNotDivideOdd

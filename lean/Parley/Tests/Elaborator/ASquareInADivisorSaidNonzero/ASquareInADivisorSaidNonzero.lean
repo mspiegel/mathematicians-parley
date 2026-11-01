@@ -12,7 +12,7 @@ namespace Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADivisor
 theorem a_square_in_a_divisor_said_nonzero (x : ℝ) (y : ℝ) (hH3 : y = 1 / (1 + x ^ 2)) (hH4 : 1 / (1 + x ^ 2) ≥ 0) :
     y ≥ 0 := by
   -- 1. mun:square-nonneg
-  have s1 : x ^ 2 ≥ 0 := by linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))]
+  have s1 : x ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))
   -- 2. inequalities, from 1
   have s2 : 1 + x ^ 2 > 0 := by parley_side
   -- 3. transitivity, from H3, H4

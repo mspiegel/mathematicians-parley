@@ -142,6 +142,7 @@ mundane theorem pos-int-nat
   then        m ∈ ℕ
   metamath    elnnz
   target      elnnz
+  lean        h2
 
 mundane theorem nat0-nonzero
   let m ∈ ℕ₀                                                          (H1)
@@ -157,6 +158,7 @@ mundane theorem integer-step
   then        m + 1 ≤ n
   metamath    zltp1le
   target      zltp1le
+  lean        by omega
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
 
@@ -172,12 +174,14 @@ mundane theorem floor-below
   then        ⌊x⌋ ≤ x
   metamath    flle
   target      flle
+  lean        Int.floor_le x
 
 mundane theorem floor-above
   let x ∈ ℝ                                                           (H1)
   then        x < ⌊x⌋ + 1
   metamath    flltp1
   target      flltp1
+  lean        Int.lt_floor_add_one x
 
 mundane theorem floor-between
   let x ∈ ℝ                                                           (H1)
@@ -372,6 +376,7 @@ mundane theorem power-nat
   then        a^m ∈ ℕ
   metamath    nnexpcl
   target      nnexpcl
+  lean        by positivity
 
 mundane theorem real-power-complex
   let x ∈ ℂ                                                           (H1)
@@ -665,6 +670,7 @@ mundane theorem square-positive
   then        x² > 0
   metamath    sqgt0
   target      sqgt0
+  lean        lt_of_le_of_ne (sq_nonneg x) (Ne.symm (pow_ne_zero 2 h2))
 
 mundane theorem square-equal
   let x ∈ ℝ                                                           (H1)
@@ -692,6 +698,7 @@ mundane theorem square-le
   then        x ≤ y ↔ x² ≤ y²
   metamath    le2sq
   target      le2sq
+  lean        ⟨fun h => by nlinarith, fun h => by nlinarith⟩
   note        square-less with ≤ for <: of two numbers at least 0, the
               larger has the larger square.
 
@@ -808,6 +815,7 @@ mundane theorem zero-product
   then        x·y = 0 ↔ x = 0 or y = 0
   metamath    mul0or
   target      mul0or
+  lean        mul_eq_zero
 
 mundane theorem quotient-nonneg
   let x ∈ ℝ                                                           (H1)
@@ -838,6 +846,7 @@ mundane theorem less-scaled
   then        x < y ↔ c·x < c·y
   metamath    ltmul2
   target      ltmul2
+  lean        ⟨fun h => by nlinarith, fun h => by nlinarith⟩
   note        `inequalities` multiplies a bound only by a number; scaling by
               a term above 0 keeps a strict bound, and that is cited.
 
@@ -911,6 +920,7 @@ mundane theorem multiply-cancel
   then        a = b
   metamath    mulcan2ad
   target      mulcan2ad
+  lean        mul_right_cancel₀ h5 h4
   note        A common factor that is not 0 cancels. `algebra` multiplies
               equations together but never divides one by a factor, so the
               cancellation is a step of its own.
@@ -1065,6 +1075,7 @@ theorem triangle-inequality
   then        |a + b| ≤ |a| + |b|
   metamath    abstri
   target      abstri
+  lean        abs_add_le a b
   note        `proofs/wiedijk/triangle-inequality.proof` proves it as its
               own exercise (DATABASE.md).
 

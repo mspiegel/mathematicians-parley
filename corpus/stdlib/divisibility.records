@@ -154,6 +154,7 @@ mundane theorem even-product-factor
   then        a·b is even ↔ a is even or b is even
   metamath    euclemma
   target      euclemma with P := 2
+  lean        Int.even_mul
   note        thm:stdlib/divisibility/prime-divides-product at 2, said in
               the words even and odd use. An odd factor of an even product
               leaves the other even.
@@ -301,6 +302,7 @@ mundane theorem divides-one
   then        d = 1
   metamath    dvds1, read left to right
   target      dvds1
+  lean        by exact_mod_cast Int.eq_one_of_dvd_one (by positivity) h2
 
 mundane theorem divides-combination
   let e ∈ ℤ                                                           (H1)
@@ -313,6 +315,7 @@ mundane theorem divides-combination
   then        e divides a·x + b·y
   metamath    dvds2ln
   target      dvds2ln with K := e, I := x, M := a, J := y, N := b
+  lean        dvd_add (Dvd.dvd.mul_right h6 x) (Dvd.dvd.mul_right h7 y)
 
 mundane theorem divides-le
   let e ∈ ℕ                                                           (H1)
@@ -321,6 +324,7 @@ mundane theorem divides-le
   then        e ≤ m
   metamath    dvdsle
   target      dvdsle
+  lean        Int.le_of_dvd (by omega) h3
 
 mundane theorem below-not-divisible
   let n ∈ ℕ                                                           (H1)
@@ -471,6 +475,7 @@ mundane theorem mod-multiple
               corpus reaches from integers and a natural number in
               elaboration/stdlib/proved.mm
   target      gmuladdmod
+  lean        by rw [add_comm, Int.add_mul_emod_self_right]
   note        A whole number of m's added changes no remainder: the last
               digit of q·10 + r is the last digit of r.
 

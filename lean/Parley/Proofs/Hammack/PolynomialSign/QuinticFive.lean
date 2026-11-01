@@ -18,10 +18,10 @@ theorem quintic_five (x : ℝ) (hH2 : x ^ 5 - 4 * x ^ 4 + 3 * x ^ 3 - x ^ 2 + 3 
     -- 1. inequalities, from S
     have s1 : x < 0 := by parley_side
     -- 2. thm:negative-powers, from 1
-    have s2a : x ^ 2 ≥ 0 := by linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).1]
-    have s2b : x ^ 3 ≤ 0 := by linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.1]
-    have s2c : x ^ 4 ≥ 0 := by linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.1]
-    have s2d : x ^ 5 ≤ 0 := by linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.2]
+    have s2a : x ^ 2 ≥ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).1
+    have s2b : x ^ 3 ≤ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.1
+    have s2c : x ^ 4 ≥ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.1] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.1; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.1
+    have s2d : x ^ 5 ≤ 0 := by first | linarith [(Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.2] | (have h := (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.2; push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.PolynomialSign.NegativePowers.negative_powers (x := x) (by parley_side)).2.2.2
     -- 3. inequalities
     have s3 : -(4 * x ^ 4) ≤ 0 := by parley_side
     -- 4. inequalities

@@ -28,7 +28,7 @@ theorem nonnegative_product (x : ℝ) (y : ℝ) (hH3 : 0 ≤ x) (hH4 : 0 ≤ y) 
       all_goals parley_side
     · skip
       -- 2.4. mun:multiply-le x := 0, c := x, from C3, H4
-      have s2_4 : x * 0 ≤ x * y := by linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side))]
+      have s2_4 : x * 0 ≤ x * y := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (0 : ℝ)) (y := y) (c := x) (by parley_side) (by parley_side))
       -- 2.5. inequalities, from 2.4
       have s2_5 : 0 ≤ x * y := by parley_side
       all_goals parley_side

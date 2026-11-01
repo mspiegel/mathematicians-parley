@@ -14,7 +14,7 @@ theorem a_define_read_in_an_instantiated_line (a : ℝ) (hH2 : ∀ x : ℝ, x + 
   -- 1. substitute e = a + 1 (D1) into H2
   have s1 : ∀ x : ℝ, x + e > x := by intro x; parley_subst_at hD1 hH2
   -- 2. instantiate x := 2 in line 1, from D1
-  have s2 : 2 + (a + 1) > 2 := by linarith [(s1 (2 : ℝ))]
+  have s2 : 2 + (a + 1) > 2 := by first | linarith [(s1 (2 : ℝ))] | (have h := (s1 (2 : ℝ)); push_cast at h; linarith) | exact_mod_cast (s1 (2 : ℝ))
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnInstantiatedLine

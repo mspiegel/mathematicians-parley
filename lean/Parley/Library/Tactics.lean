@@ -111,6 +111,10 @@ macro "parley_subst_at " e:term:max h:ident : tactic =>
     | (rw [← $e:term]; exact $h; done)
     | (simp only [$e:term] at $h:ident ⊢; exact $h; done)
     | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
+    -- An equation of naturals cast up to ℤ, put where ℕ is wanted, an
+    -- exponent, is taken back down first.
+    | (have e := $e; norm_cast at e; rw [← e] at $h:ident; exact $h; done)
+    | (have e := $e; norm_cast at e; rw [e] at $h:ident; exact $h; done)
     | (rw [$e:term] at $h:ident; linarith; done)
     | (rw [← $e:term] at $h:ident; linarith; done)
     | (simp only [$e:term] at $h:ident ⊢; linarith; done)

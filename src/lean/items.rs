@@ -64,13 +64,20 @@ pub struct General {
 impl General {
     /// The Lean binders of the type and its class.
     pub fn binders(&self) -> String {
-        let ring = if self.field { "Field" } else { "CommRing" };
+        // A domain, so that a statement that cancels a factor, or says a
+        // product is 0 only where a factor is, holds; ℤ, ℚ, ℝ and ℂ are
+        // all domains, and a field is one already.
+        let ring = if self.field {
+            format!("[Field {GENERAL}]")
+        } else {
+            format!("[CommRing {GENERAL}] [IsDomain {GENERAL}]")
+        };
         let order = if self.ordered {
             format!(" [LinearOrder {GENERAL}] [IsStrictOrderedRing {GENERAL}]")
         } else {
             String::new()
         };
-        format!("{{{GENERAL} : Type*}} [{ring} {GENERAL}]{order}")
+        format!("{{{GENERAL} : Type*}} {ring}{order}")
     }
 }
 

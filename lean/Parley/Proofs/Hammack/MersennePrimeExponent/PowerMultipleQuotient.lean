@@ -40,14 +40,14 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
           _ = 2 ^ d * ((2 ^ d - 1) * (q : ℤ)) + (2 ^ d - 1) := by parley_subst s1_3b
           _ = (2 ^ d - 1) * (2 ^ d * (q : ℤ) + 1) := by ring
       -- 1.7. thm:two-power-bound
-      have s1_7 : 2 ^ d ≥ (d : ℤ) + 1 := by linarith [(Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))]
+      have s1_7 : 2 ^ d ≥ (d : ℤ) + 1 := by first | linarith [(Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))] | (have h := (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))
       -- 1.8. inequalities, from H1
       have s1_8 : (d : ℤ) + 1 ≥ 1 := by parley_side
       -- 1.9. transitivity, from 1.7, 1.8
       have s1_9 : (2 ^ d : ℤ) ≥ 1 := by parley_side
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
       have r134_1 : (q : ℤ) > 0 := by parley_side
-      have s1_10 : (q : ℤ) * 1 ≤ (q : ℤ) * 2 ^ d := by linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side))]
+      have s1_10 : (q : ℤ) * 1 ≤ (q : ℤ) * 2 ^ d := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side))
       -- 1.11. algebra
       have s1_11 : (q : ℤ) * 2 ^ d = 2 ^ d * (q : ℤ) := by ring
       -- 1.12. inequalities

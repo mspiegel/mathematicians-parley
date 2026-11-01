@@ -1,0 +1,40 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+
+/-! Written from proofs/hammack/product-of-one-minus-halves.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour
+
+theorem power_of_two_at_least_four (m : ℕ) (hH1 : 0 < m) :
+    (2 ^ (m + 1) : ℤ) ≥ 4 := by
+  -- 1. induction on k starting at 1
+  have s1 : ∀ k : ℕ, 0 < k → (2 ^ (k + 1) : ℤ) ≥ 4 := by
+    intro k h_k
+    replace h_k : 1 ≤ k := h_k
+    induction k, h_k using Nat.le_induction with
+    | base =>
+      -- 1.1. arithmetic
+      have s1_1 : (2 ^ (1 + 1) : ℤ) ≥ 4 := by parley_arith
+      all_goals parley_side
+    | succ k hK hIH =>
+      -- 1.2. mun:power-nat a := 2, m := k + 1
+      have s1_2 : 0 < 2 ^ (k + 1) := by first | exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | exact ((Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1))
+      -- 1.3. inequalities, from 1.2
+      have s1_3 : (2 ^ (k + 1) : ℤ) ≥ 0 := by parley_side
+      -- 1.4. inequalities, from IH, 1.3
+      have s1_4 : (2 ^ (k + 1) + 2 ^ (k + 1) : ℤ) ≥ 4 := by parley_side
+      -- 1.5. calculation
+      have s1_5 : (2 ^ (k + 1 + 1) : ℤ) ≥ 4 := by
+        calc (2 ^ (k + 1 + 1) : ℤ) = 2 ^ (k + 1) * 2 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1))
+          _ = 2 ^ (k + 1) + 2 ^ (k + 1) := by ring
+          _ ≥ 4 := by parley_side
+      all_goals parley_side
+  -- 2. instantiate k := m in line 1
+  have s2 : (2 ^ (m + 1) : ℤ) ≥ 4 := by first | linarith [(s1 m (by parley_side))] | (have h := (s1 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 m (by parley_side))
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour
