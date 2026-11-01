@@ -12,7 +12,8 @@
 # Three lanes run side by side:
 #
 #   debug:    cargo clippy                           (target/debug)
-#   release:  cargo build --release, then parley build, then parley gate
+#   release:  cargo build --release, then parley build metamath and
+#             parley build lean, then parley gate
 #             (parley check in its place with --branch)
 #   test:     cargo nextest run --release            (target/release)
 #
@@ -112,6 +113,14 @@ parley_build() {
     return $status
 }
 
+# The Lean build only writes files, and needs no Lean installed.
+parley_build_lean() {
+    ./target/release/parley build lean >"$logs/build-lean.out"
+    local status=$?
+    tail -n 3 "$logs/build-lean.out"
+    return $status
+}
+
 debug_lane() {
     step debug "cargo clippy" cargo clippy --all-targets -- -D warnings || return 1
 }
@@ -119,6 +128,7 @@ debug_lane() {
 release_lane() {
     step release "cargo build --release" cargo build --release || return 1
     step release "parley build metamath" parley_build || return 1
+    step release "parley build lean" parley_build_lean || return 1
     if [ -n "$branch" ]; then
         step release "parley check" ./target/release/parley check || return 1
     else
@@ -156,6 +166,11 @@ if [ -f "$logs/build.out" ] && ! grep -q " 0 changed$" "$logs/build.out"; then
     failed="$failed artifacts-changed"
     echo
     echo "parley build rewrote artifacts: commit them and run this again"
+fi
+if [ -f "$logs/build-lean.out" ] && ! grep -q " 0 changed," "$logs/build-lean.out"; then
+    failed="$failed lean-files-changed"
+    echo
+    echo "parley build lean rewrote Lean files: commit them and run this again"
 fi
 
 echo

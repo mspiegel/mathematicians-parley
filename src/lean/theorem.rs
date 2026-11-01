@@ -73,6 +73,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
         grammar: &sources.checked.grammar,
         templates: sources.templates,
         letters: IndexMap::new(),
+        general: None,
     };
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
@@ -98,6 +99,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
             prop: c.prop.text,
             part: projection(i, n),
             arithmetic: arithmetic.clone(),
+            general: None,
         })
         .collect();
     Route::Built(Item {
@@ -253,6 +255,7 @@ pub fn theorem(
             grammar: &sources.checked.grammar,
             templates: sources.templates,
             letters: IndexMap::new(),
+            general: None,
         },
         lines: Vec::new(),
         origins: Vec::new(),
@@ -575,11 +578,7 @@ impl<'a> Proof<'a> {
     /// their guards are introduced by, the body, and the letters in scope
     /// with the claim's own added.
     fn peel<'n>(&self, node: &'n Node) -> (Vec<String>, &'n Node, Writer<'a>) {
-        let mut writer = Writer {
-            grammar: self.writer.grammar,
-            templates: self.writer.templates,
-            letters: self.writer.letters.clone(),
-        };
+        let mut writer = self.writer.with_letters(self.writer.letters.clone());
         let mut intros = Vec::new();
         let mut body = node;
         while body.notation() == crate::notations::FOR_ALL {
@@ -973,20 +972,65 @@ impl<'a> Proof<'a> {
         &self,
         sentence: &Sentence,
         binding: &crate::matching::Binding,
+        claim: Option<&Node>,
     ) -> Route<String> {
+        // The type an item's general letters take: the least that holds the
+        // claim and every value given them, a field's at least where the
+        // item divides.
+        let general = match sentence.general {
+            Some(g) => {
+                let mut at = if g.field {
+                    super::templates::Num::Rat
+                } else {
+                    super::templates::Num::Int
+                };
+                let values = sentence.binders.iter().filter_map(|b| match b {
+                    Binder::Letter {
+                        page,
+                        general: true,
+                        ..
+                    } => binding.get(&crate::formula::symbol::Symbol::of(page)),
+                    _ => None,
+                });
+                let numbers: Vec<&Node> = claim
+                    .into_iter()
+                    .flat_map(|c| c.children.iter())
+                    .filter(|c| self.writer.is_number(c))
+                    .chain(values)
+                    .collect();
+                for n in numbers {
+                    match self.writer.carrier(n) {
+                        Route::Built(c) => at = at.max(c),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                Some(at)
+            }
+            None => None,
+        };
         let mut args = Vec::new();
         for b in &sentence.binders {
             match b {
-                Binder::Letter { name, page, ty } => {
+                Binder::Letter {
+                    name,
+                    page,
+                    ty,
+                    general: in_general,
+                } => {
                     let Some(value) =
                         binding.get(&crate::formula::symbol::Symbol::of(page))
                     else {
                         args.push(format!("({name} := _)"));
                         continue;
                     };
-                    let printed = match ty {
-                        LetterType::Number(n) => self.writer.number_fixed(value, *n),
-                        LetterType::Function { .. } => {
+                    let printed = match (ty, general.filter(|_| *in_general)) {
+                        (LetterType::Number(_), Some(at)) => {
+                            self.writer.number_fixed(value, at)
+                        }
+                        (LetterType::Number(n), None) => {
+                            self.writer.number_fixed(value, *n)
+                        }
+                        (LetterType::Function { .. }, _) => {
                             Route::no("a function given as a citation's value")
                         }
                     };
@@ -1032,7 +1076,7 @@ impl<'a> Proof<'a> {
         let Some(sentence) = item.sentences.get(concluded.sentence) else {
             return Route::no("a conclusion the item does not have in Lean");
         };
-        let inst = match self.instance(sentence, &cited.binding) {
+        let inst = match self.instance(sentence, &cited.binding, Some(node)) {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -1127,7 +1171,7 @@ impl<'a> Proof<'a> {
         for (k, v) in &cited.written {
             binding.entry(*k).or_insert_with(|| v.clone());
         }
-        let inst = match self.instance(sentence, &binding) {
+        let inst = match self.instance(sentence, &binding, None) {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),
         };

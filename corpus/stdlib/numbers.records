@@ -193,6 +193,7 @@ mundane theorem exponent-step
   then        a^(m + 1) = a^m·a
   metamath    expp1
   target      expp1
+  lean        pow_succ a m
 
 mundane theorem exponent-sum
   let a ∈ ℂ                                                           (H1)
@@ -201,6 +202,7 @@ mundane theorem exponent-sum
   then        a^(m + n) = a^m·a^n
   metamath    expadd
   target      expadd
+  lean        pow_add a m n
 
 mundane theorem exponent-sum-integer
   let a ∈ ℂ                                                           (H1)
@@ -479,6 +481,7 @@ mundane theorem nonneg-or-neg
   then        x ≥ 0 or x < 0
   metamath    0re, lelttric
   target      lelttric
+  lean        le_or_gt 0 x
 
 mundane theorem rational-coprime
   let x ∈ ℚ                                                           (H1)
@@ -618,6 +621,7 @@ mundane theorem square-nonneg
   then        x² ≥ 0
   metamath    sqge0
   target      sqge0
+  lean        sq_nonneg x
 
 mundane theorem square-zero
   let x ∈ ℝ                                                           (H1)

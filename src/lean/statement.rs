@@ -20,6 +20,9 @@ pub enum Binder {
         name: String,
         page: String,
         ty: LetterType,
+        /// Whether its type is an item's general one, `K`, which a
+        /// citation fills with the citing claim's type.
+        general: bool,
     },
     /// A hypothesis, by its name, and what it says.
     Fact { name: String, says: String },
@@ -28,6 +31,11 @@ pub enum Binder {
 impl Binder {
     pub fn lean(&self) -> String {
         match self {
+            Binder::Letter {
+                name,
+                general: true,
+                ..
+            } => format!("({name} : {})", super::expr::GENERAL),
             Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
             Binder::Fact { name, says } => format!("({name} : {says})"),
         }
@@ -64,6 +72,7 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
             out.push(Binder::Letter {
                 name: name.clone(),
                 page: letter.clone(),
+                general: writer.general == Some(letter_type(system)),
                 ty,
             });
             if system == System::Positive {

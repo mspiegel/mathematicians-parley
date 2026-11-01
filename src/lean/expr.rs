@@ -79,6 +79,38 @@ pub struct Writer<'a> {
     pub grammar: &'a Grammar,
     pub templates: &'a Templates,
     pub letters: Letters,
+    /// For an item's statement, the number type that stands for any ring
+    /// of a kind, written `K` (`items`); None elsewhere.
+    pub general: Option<Num>,
+}
+
+/// The type variable an item's general letters range over.
+pub const GENERAL: &str = "K";
+
+impl<'a> Writer<'a> {
+    /// A number type as this writer writes it: `K` for the general one.
+    pub fn type_name(&self, n: Num) -> String {
+        if self.general == Some(n) {
+            GENERAL.to_string()
+        } else {
+            n.lean().to_string()
+        }
+    }
+
+    /// A term cast to a number type.
+    fn cast(&self, text: &Printed, to: Num) -> Printed {
+        Printed::atom(format!("({} : {})", text.text, self.type_name(to)))
+    }
+
+    /// A writer with the same grammar and notations, and these letters.
+    pub fn with_letters(&self, letters: Letters) -> Writer<'a> {
+        Writer {
+            grammar: self.grammar,
+            templates: self.templates,
+            letters,
+            general: self.general,
+        }
+    }
 }
 
 /// How a template's text takes its holes: the precedence of the whole and
@@ -183,11 +215,6 @@ fn fill(template: &Template, children: &[Printed]) -> Printed {
         text,
         prec: shape.prec,
     }
-}
-
-/// A Lean number type written as a cast target.
-fn cast(text: &Printed, to: Num) -> Printed {
-    Printed::atom(format!("({} : {})", text.text, to.lean()))
 }
 
 impl Writer<'_> {
@@ -337,10 +364,9 @@ impl Writer<'_> {
                 Some(LetterType::Number(n)) if *n == at => {
                     Route::Built(Printed::atom(super::names::letter(&node.text)))
                 }
-                Some(LetterType::Number(n)) if *n < at => Route::Built(cast(
-                    &Printed::atom(super::names::letter(&node.text)),
-                    at,
-                )),
+                Some(LetterType::Number(n)) if *n < at => Route::Built(
+                    self.cast(&Printed::atom(super::names::letter(&node.text)), at),
+                ),
                 Some(LetterType::Number(n)) => Route::no(format!(
                     "{} is in {}, which Lean would cast down to {}",
                     node.text,
@@ -420,7 +446,7 @@ impl Writer<'_> {
         if own == at {
             Route::Built(value)
         } else if own < at {
-            Route::Built(cast(&value, at))
+            Route::Built(self.cast(&value, at))
         } else {
             Route::no(format!(
                 "a value in {} where Lean is asked for {}",
@@ -487,7 +513,7 @@ impl Writer<'_> {
         if self.pinned(child) || n == Num::Nat {
             Route::Built(printed)
         } else {
-            Route::Built(cast(&printed, n))
+            Route::Built(self.cast(&printed, n))
         }
     }
 
@@ -586,7 +612,7 @@ impl Writer<'_> {
             Route::Declined(d) => return Route::Declined(d),
         };
         if !self.pinned(left) && !self.pinned(right) {
-            l = cast(&l, at);
+            l = self.cast(&l, at);
         }
         let op = match &*node.spelling().text() {
             "=" if node.spelling() == EQUALS && negated => "≠",
@@ -693,8 +719,8 @@ impl Writer<'_> {
                 Route::Built(Printed {
                     text: format!(
                         "∃ m : {}, (m : {}) = {}",
-                        n.lean(),
-                        own.lean(),
+                        self.type_name(n),
+                        self.type_name(own),
                         x.at(51)
                     ),
                     prec: 0,
@@ -713,7 +739,7 @@ impl Writer<'_> {
                 Route::Built(Printed {
                     text: format!(
                         "∃ m : ℕ, {positive}(m : {}) = {}",
-                        own.lean(),
+                        self.type_name(own),
                         x.at(51)
                     ),
                     prec: 0,
@@ -759,11 +785,7 @@ impl Writer<'_> {
         } else {
             return Route::no(format!("a quantifier over {}", set.notation_name()));
         };
-        let mut inner = Writer {
-            grammar: self.grammar,
-            templates: self.templates,
-            letters: self.letters.clone(),
-        };
+        let mut inner = self.with_letters(self.letters.clone());
         inner
             .letters
             .insert(letter.text.to_string(), LetterType::Number(ty));
@@ -775,7 +797,7 @@ impl Writer<'_> {
         if body.text == "True" {
             return Route::Built(Printed::atom("True"));
         }
-        let ty = ty.lean();
+        let ty = self.type_name(ty);
         let text = match (exists, guard) {
             (true, None) => format!("∃ {name} : {ty}, {}", body.text),
             (true, Some(g)) => format!("∃ {name} : {ty}, {g} ∧ {}", body.at(36)),

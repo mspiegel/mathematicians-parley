@@ -8,9 +8,10 @@
 
 use indexmap::IndexMap;
 
-use super::expr::Writer;
+use super::expr::{Writer, GENERAL};
 use super::names::{module_of, snake};
 use super::statement::{binders, Asked, Binder};
+use super::templates::Num;
 use crate::checker::CheckedCorpus;
 use crate::corpus::{Record, RecordKind};
 use crate::formula::Node;
@@ -33,6 +34,8 @@ pub struct Sentence {
     /// statement, what it asks included, which the gate's read-back
     /// compares with what Lean elaborated (`readback`).
     pub arithmetic: std::collections::BTreeMap<String, usize>,
+    /// What its general letters range over; None where it has none.
+    pub general: Option<General>,
 }
 
 /// An item of the library in Lean: its sentences, counted across its
@@ -44,6 +47,106 @@ pub struct Item {
     /// The record's `lean` entry for each sentence; empty for a corpus
     /// theorem, which its own file proves.
     pub proofs: Vec<String>,
+}
+
+/// What an item's general letters range over: the number type the record
+/// puts them in, and the kind of ring a statement of that type needs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct General {
+    /// ℂ or ℝ, as the record says.
+    pub num: Num,
+    /// Whether the statement divides, so that it holds in a field.
+    pub field: bool,
+    /// Whether it orders, so that it holds in an ordered ring.
+    pub ordered: bool,
+}
+
+impl General {
+    /// The Lean binders of the type and its class.
+    pub fn binders(&self) -> String {
+        let ring = if self.field { "Field" } else { "CommRing" };
+        let order = if self.ordered {
+            format!(" [LinearOrder {GENERAL}] [IsStrictOrderedRing {GENERAL}]")
+        } else {
+            String::new()
+        };
+        format!("{{{GENERAL} : Type*}} [{ring} {GENERAL}]{order}")
+    }
+}
+
+/// The notations a statement may use and hold in any ring of a kind: its
+/// arithmetic, order and connectives. A statement using any other, √ or π,
+/// is about ℝ or ℂ themselves.
+const ALGEBRAIC: &[&str] = &[
+    "name",
+    "numeral",
+    "additive",
+    "multiplicative",
+    "power",
+    "superscript",
+    "unary-minus",
+    "equality",
+    "order",
+    "absolute-value",
+    "conjunction",
+    "comma-conjunction",
+    "disjunction",
+    "logical-not",
+    "biconditional",
+    "conditional",
+    "implication",
+    "membership",
+    "number-systems",
+];
+
+/// Whether an item's sentence holds of any ring of a kind, and which: where
+/// the record puts a letter in ℂ or ℝ and the sentence uses only arithmetic,
+/// order and connectives, it is said of any commutative ring, a field where
+/// it divides, ordered where it orders, as Mathlib states such facts. A
+/// citation then applies it in the citing claim's own type.
+fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
+    let nodes: Vec<&Node> = group
+        .wants
+        .iter()
+        .map(|(_, n)| n)
+        .chain(std::iter::once(says))
+        .collect();
+    let systems: Vec<Num> = nodes
+        .iter()
+        .filter_map(|n| super::statement::introduces(n))
+        .map(|(_, s)| super::expr::letter_type(s))
+        .collect();
+    let num = if systems.contains(&Num::Complex) {
+        Num::Complex
+    } else if systems.contains(&Num::Real) {
+        Num::Real
+    } else {
+        return None;
+    };
+    let parts: Vec<Node> = nodes.iter().flat_map(|n| n.walk()).collect();
+    if !parts
+        .iter()
+        .all(|p| ALGEBRAIC.contains(&&*p.notation_name()))
+    {
+        return None;
+    }
+    let field = parts
+        .iter()
+        .any(|p| p.spelling() == crate::notations::DIVIDED);
+    let ordered = parts.iter().any(|p| {
+        matches!(
+            p.notation(),
+            crate::notations::ORDER | crate::notations::ABSOLUTE_VALUE
+        )
+    });
+    if num == Num::Complex && ordered {
+        return None;
+    }
+    Some(General {
+        num,
+        field,
+        ordered,
+    })
 }
 
 /// The prefix a citation writes before an item of this kind.
@@ -89,7 +192,10 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 grammar: writer.grammar,
                 templates: writer.templates,
                 letters: IndexMap::new(),
+                general: None,
             };
+            let kind = general_kind(group, says);
+            w.general = kind.map(|k| k.num);
             let asked: Vec<Asked> = group
                 .wants
                 .iter()
@@ -123,6 +229,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 prop,
                 part: String::new(),
                 arithmetic,
+                general: kind,
             });
         }
     }
@@ -147,7 +254,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
 /// A Lean theorem's declaration, its name taken from its full name.
 pub fn declaration(sentence: &Sentence, proof: &str) -> String {
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
-    let binders: Vec<String> = sentence.binders.iter().map(Binder::lean).collect();
+    let mut binders: Vec<String> =
+        sentence.general.iter().map(General::binders).collect();
+    binders.extend(sentence.binders.iter().map(Binder::lean));
     let space = if binders.is_empty() { "" } else { " " };
     format!(
         "theorem {short}{space}{} :\n    {} :=\n  {proof}",

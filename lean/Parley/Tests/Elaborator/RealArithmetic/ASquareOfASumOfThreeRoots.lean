@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/real-arithmetic.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.RealArithmetic.ASquareOfASumOfThreeRoots
+
+theorem a_square_of_a_sum_of_three_roots :
+    (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ) + Real.sqrt (5 : ℝ)) ^ 2 = 10 + 2 * Real.sqrt (6 : ℝ) + 2 * Real.sqrt (10 : ℝ) + 2 * Real.sqrt (15 : ℝ) := by
+  -- 1. real arithmetic
+  have s1 : (Real.sqrt (2 : ℝ) + Real.sqrt (3 : ℝ) + Real.sqrt (5 : ℝ)) ^ 2 = 10 + 2 * Real.sqrt (6 : ℝ) + 2 * Real.sqrt (10 : ℝ) + 2 * Real.sqrt (15 : ℝ) := by norm_num
+  parley_side
+
+end Parley.Tests.Elaborator.RealArithmetic.ASquareOfASumOfThreeRoots

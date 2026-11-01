@@ -140,8 +140,8 @@ pub fn accepted(root: &Path) -> Said {
         said.status = 1;
         return said;
     }
-    let failed: std::collections::BTreeSet<String> =
-        refused.iter().map(|r| r.module.clone()).collect();
+    let failed =
+        with_dependents(refused.iter().map(|r| r.module.clone()).collect(), &made);
     if failed.is_empty() {
         said.printed += &format!("Lean accepts all {} files\n", made.files.len());
     } else {
@@ -179,6 +179,44 @@ pub fn accepted(root: &Path) -> Said {
     said
 }
 
+/// The modules refused, with every module that imports one of them, which
+/// Lean could not build either.
+fn with_dependents(
+    mut failed: std::collections::BTreeSet<String>,
+    made: &Made,
+) -> std::collections::BTreeSet<String> {
+    // Each file's imports, as the build wrote its header.
+    let imports: Vec<(String, Vec<String>)> = made
+        .files
+        .iter()
+        .map(|(path, text)| {
+            let module = path
+                .trim_start_matches(&format!("{PROJECT}/"))
+                .trim_end_matches(".lean")
+                .replace('/', ".");
+            let imported = text
+                .lines()
+                .filter_map(|l| l.strip_prefix("public import "))
+                .map(str::to_string)
+                .collect();
+            (module, imported)
+        })
+        .collect();
+    loop {
+        let more: Vec<String> = imports
+            .iter()
+            .filter(|(m, i)| {
+                !failed.contains(m) && i.iter().any(|x| failed.contains(x))
+            })
+            .map(|(m, _)| m.clone())
+            .collect();
+        if more.is_empty() {
+            return failed;
+        }
+        failed.extend(more);
+    }
+}
+
 /// The module a declaration is in: its name without its last part.
 fn module_of_decl(decl: &str) -> &str {
     decl.rsplit_once('.').map_or(decl, |(module, _)| module)
@@ -204,7 +242,7 @@ fn refusals(output: &str, made: &Made) -> Vec<Refusal> {
         } else {
             continue;
         };
-        let sorry = rest.contains("declaration uses 'sorry'");
+        let sorry = rest.contains("declaration uses `sorry`");
         if !error && !sorry {
             continue;
         }

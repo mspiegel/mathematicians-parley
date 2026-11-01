@@ -390,6 +390,7 @@ notation square-root
   decided     real arithmetic
   metamath    csqrt
   target      _1 csqrt cfv
+  lean        ℝ → ℝ: Real.sqrt _1
   note        `real arithmetic` works out the square root of a rational of at
               least 0; `arithmetic` takes no root.
 
@@ -504,6 +505,7 @@ notation absolute-value
   reads       the absolute value of
   metamath    cabs
   target      _1 cabs cfv
+  lean        α → α: |_1|
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
@@ -514,6 +516,7 @@ notation floor
   reads       the largest whole number at most
   metamath    cfl
   target      _1 cfl cfv
+  lean        α≥ℚ → ℤ: ⌊_1⌋
   note        The whole number a real rounds down to, ⌊2.7⌋ = 2 and
               ⌊−2.7⌋ = −3. Needs no assoc and no level: a token sits at each
               edge, as with |_|.
@@ -554,6 +557,7 @@ notation factorial
   decided     arithmetic
   metamath    cfa
   target      _1 cfa cfv
+  lean        ℕ → ℕ: Nat.factorial _1
   note        No assoc: only the left edge is a hole, so n!! reads one way.
               `arithmetic` works out n! of a whole number n, from 0! = 1 by
               (m + 1)! = m!·(m + 1).
@@ -567,6 +571,7 @@ notation mod
   decided     arithmetic
   metamath    cmo
   target      _1 _2 cmo co
+  lean        ℤ, ℤ → ℤ: _1 % _2
   note        The remainder, a mod b, as Euclid's algorithm writes each
               step. It binds as division does and reads left to right with
               it, so `x·y mod m` is (x·y) mod m. The word never meets the
@@ -1655,6 +1660,7 @@ notation congruent-mod
   reads       is congruent to, modulo
   metamath    wbr with cdvds, of a difference
   target      _3 _1 _2 cmin co cdvds wbr
+  lean        ℤ, ℤ, ℤ → Prop: _1 ≡ _2 [ZMOD _3]
   note        a ≡ b (mod n) says n divides a − b, which is Hammack's definition
               and what the target writes, so a congruence and the divisibility
               it abbreviates are one formula and every lemma about the one is
@@ -1793,6 +1799,7 @@ notation prime
   reads       is prime
   metamath    wcel with cprime
   target      _1 cprime wcel
+  lean        ℕ → Prop: Nat.Prime _1
 
 notation perfect
   pattern     _ is perfect
@@ -1812,6 +1819,7 @@ notation irrational
   reads       is irrational
   metamath    wcel with ℝ ∖ ℚ
   target      _1 cr cq cdif wcel
+  lean        ℝ → Prop: Irrational _1
 
 notation is-a-point
   pattern     _ is a point

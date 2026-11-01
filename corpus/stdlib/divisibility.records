@@ -62,6 +62,7 @@ mundane theorem even-or-odd
   then        n is even or n is odd
   metamath    zeo3
   target      gevenodd
+  lean        Int.even_or_odd n
   note        zeo3 says 2 ∥ n or not 2 ∥ n of an integer; gevenodd joins H1
               to its second case, which is what "n is odd" says.
 
@@ -512,6 +513,7 @@ mundane theorem divides-self
   then        n divides n
   metamath    iddvds
   target      iddvds
+  lean        dvd_refl n
 
 mundane theorem prime-nat
   let p ∈ ℤ                                                           (H1)

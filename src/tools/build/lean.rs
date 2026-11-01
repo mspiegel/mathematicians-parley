@@ -65,6 +65,16 @@ pub struct Origins {
     pub lines: Vec<crate::lean::theorem::Origin>,
 }
 
+/// A theorem the build wrote that imports a module it could not write.
+struct Unwritten {
+    /// The theorem's module.
+    module: String,
+    /// The theorem, by its full name.
+    theorem: String,
+    /// The module it imports that was not written.
+    import: String,
+}
+
 /// The header every generated file opens with.
 fn header(imports: &[String], from: &str) -> String {
     let mut out = String::from("module\n\n");
@@ -87,6 +97,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         grammar: &checked.grammar,
         templates: &templates,
         letters: IndexMap::new(),
+        general: None,
     };
 
     // The library's items with a lean field, by full name, and each
@@ -158,6 +169,8 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
     }
     let mut written: Vec<String> = modules.keys().cloned().collect();
+    // Each theorem's module, with the theorem and the modules it imports.
+    let mut imported: IndexMap<String, (String, Vec<String>)> = IndexMap::new();
     for (thm, rec) in theorems {
         let name = thm.qualified();
         let sources = Sources {
@@ -184,6 +197,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             }
         }
         let imports: Vec<String> = imports.into_iter().collect();
+        imported.insert(module.clone(), (name.clone(), imports.clone()));
         let mut text = header(&imports, &thm.path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         let above = text.lines().count();
@@ -211,6 +225,46 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
         made.files.insert(path, text);
         written.push(module);
+    }
+
+    // A theorem citing one the build could not write cannot be written
+    // either, and nor can one citing it.
+    loop {
+        let missing: Vec<Unwritten> = imported
+            .iter()
+            .filter(|(m, _)| written.contains(m))
+            .filter_map(|(m, (name, imports))| {
+                imports
+                    .iter()
+                    .find(|i| *i != LIBRARY && !written.contains(i))
+                    .map(|i| Unwritten {
+                        module: m.clone(),
+                        theorem: name.clone(),
+                        import: i.clone(),
+                    })
+            })
+            .collect();
+        if missing.is_empty() {
+            break;
+        }
+        for Unwritten {
+            module,
+            theorem: name,
+            import,
+        } in missing
+        {
+            written.retain(|w| *w != module);
+            let path = path_of_module(&module);
+            made.files.shift_remove(&path);
+            made.origins.shift_remove(&path);
+            if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
+                made.statements.shift_remove(&s.decl);
+            }
+            made.gaps.insert(
+                name,
+                format!("it cites {import}, which the Lean build cannot yet write"),
+            );
+        }
     }
 
     let mut root = String::from("module\n\n");
