@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InequalityRows.RowsFromOneSentenceOfALine
 
-theorem rows_from_one_sentence_of_a_line (p : ℝ) (q : ℝ) (H3 : 0 < q ∧ q < 1) :
+theorem rows_from_one_sentence_of_a_line (p : ℝ) (q : ℝ) (hH3 : 0 < q ∧ q < 1) :
     2 * q < 2 ∧ p / q * q = p := by
   -- 1. inequalities
   have s1 : 2 * q < 2 := by parley_side

@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.DivideByACompoundQuotient.DivideByASquareOfAQuotient
 
-theorem divide_by_a_square_of_a_quotient (j : ℕ) (H1 : 0 < j) :
+theorem divide_by_a_square_of_a_quotient (j : ℕ) (hH1 : 0 < j) :
     1 / (1 / (j : ℚ)) ^ 2 = (j : ℚ) ^ 2 := by
   -- 1. algebra
   have s1 : 1 / (1 / (j : ℚ)) ^ 2 = (j : ℚ) ^ 2 := by parley_ring

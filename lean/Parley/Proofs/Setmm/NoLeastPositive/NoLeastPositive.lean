@@ -12,10 +12,10 @@ theorem no_least_positive :
     ¬ (∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x)) := by
   -- 1. contradiction
   have s1 : ¬ (∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x)) := by
-    by_contra hc_S
-    have S : ∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x) := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : ∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x) := by parley_suppose hc_hS
     -- 1.1. obtain x from S
-    obtain ⟨x, s1_1a, s1_1b⟩ := S
+    obtain ⟨x, s1_1a, s1_1b⟩ := hS
     -- 1.2. inequalities
     have s1_2 : 0 < x / 2 := by parley_side
     -- 1.3. inequalities

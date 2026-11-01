@@ -72,6 +72,7 @@ mundane theorem not-both
   then        n is not odd
   metamath    gnotboth
   target      gnotboth
+  lean        Int.not_odd_iff_even.mpr h2
   note        "n is odd" says not 2 ∥ n, which H2 denies.
 
 mundane theorem odd-not-even
@@ -281,6 +282,7 @@ mundane theorem divides-sum
   then        d divides a + b
   metamath    dvds2add
   target      dvds2add
+  lean        dvd_add h4 h5
 
 mundane theorem divides-difference
   let d ∈ ℤ                                                           (H1)
@@ -291,6 +293,7 @@ mundane theorem divides-difference
   then        d divides a − b
   metamath    dvds2sub
   target      dvds2sub
+  lean        dvd_sub h4 h5
 
 mundane theorem divides-one
   let d ∈ ℕ                                                           (H1)
@@ -336,6 +339,7 @@ definition congruent-mod
   then        a ≡ b (mod n) ↔ n divides a − b
   decided     arithmetic
   metamath    the notation's own target, n ∥ ( a − b )
+  lean        Int.modEq_comm.trans Int.modEq_iff_dvd
   note        The two sides are one formula in the kernel, so unfolding it is
               saying the same thing the other way, and nothing is stated: a
               step reading one from a line saying the other has that line's
@@ -349,6 +353,7 @@ mundane theorem divides-multiple
   then        e divides a·x
   metamath    dvdsmultr1
   target      dvdsmultr1
+  lean        Dvd.dvd.mul_right h4 x
 
 mundane theorem congruent-divides
   let m ∈ ℤ                                                           (H1)

@@ -8,12 +8,12 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedContradicted
 
-theorem an_equation_turned_contradicted (a : ℝ) (b : ℝ) (H3 : b = a) :
+theorem an_equation_turned_contradicted (a : ℝ) (b : ℝ) (hH3 : b = a) :
     a = b := by
   -- 1. contradiction
   have s1 : a = b := by
-    by_contra hc_S
-    have S : a ≠ b := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : a ≠ b := by parley_suppose hc_hS
     -- 1.1. restate S
     have s1_1 : a ≠ b := by parley_side
     all_goals parley_side

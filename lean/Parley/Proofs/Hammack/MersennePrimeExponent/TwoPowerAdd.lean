@@ -21,7 +21,7 @@ theorem two_power_add (a : ℕ) (b : ℕ) :
       -- 1.2. substitute 2^0 = 1 (line 1.1)
       have s1_2 : (2 ^ a : ℤ) = 2 ^ a * 2 ^ 0 := by parley_subst s1_1
       all_goals parley_side
-    | succ k IH =>
+    | succ k hIH =>
       -- 1.3. algebra
       have s1_3 : (a : ℤ) + ((k : ℤ) + 1) = (a : ℤ) + (k : ℤ) + 1 := by ring
       -- 1.4. mun:exponent-step a := 2, m := k
@@ -30,7 +30,7 @@ theorem two_power_add (a : ℕ) (b : ℕ) :
       have s1_5 : (2 ^ (a + (k + 1)) : ℤ) = 2 ^ a * 2 ^ (k + 1) := by
         calc (2 ^ (a + (k + 1)) : ℤ) = 2 ^ (a + k + 1) := by parley_subst s1_3
           _ = 2 ^ (a + k) * 2 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := a + k))
-          _ = 2 ^ a * 2 ^ k * 2 := by parley_subst IH
+          _ = 2 ^ a * 2 ^ k * 2 := by parley_subst hIH
           _ = 2 ^ a * (2 ^ k * 2) := by ring
           _ = 2 ^ a * 2 ^ (k + 1) := by parley_subst s1_4
       all_goals parley_side

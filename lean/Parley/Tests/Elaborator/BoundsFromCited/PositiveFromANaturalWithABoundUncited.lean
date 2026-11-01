@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.BoundsFromCited.PositiveFromANaturalWithABoundUncited
 
-theorem positive_from_a_natural_with_a_bound_uncited (n : ℕ) (H1 : 0 < n) :
+theorem positive_from_a_natural_with_a_bound_uncited (n : ℕ) (hH1 : 0 < n) :
     (1 ≤ (n : ℤ) ∧ (n : ℤ) > 0) := by
   -- 1. inequalities, from H1
   have s1 : 1 ≤ (n : ℤ) := by parley_side

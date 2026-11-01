@@ -15,7 +15,7 @@ theorem fourteen_divides (a : ℤ) :
   have sThm : (14 : ℤ) ∣ a ↔ (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a := by
     constructor
     · skip
-      intro D1
+      intro hD1
       -- 1. obtain k: def:divides d := 14, n := a, from D1
       obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (14 : ℤ)) (n := a))).mp (by parley_side)
       -- 2. algebra, from 1
@@ -30,7 +30,7 @@ theorem fourteen_divides (a : ℤ) :
       have s6 : (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a := by parley_side
       all_goals parley_side
     · skip
-      intro D2
+      intro hD2
       -- 7. obtain m: def:divides d := 7, n := a, from D2
       obtain ⟨m, s7⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (7 : ℤ)) (n := a))).mp (by parley_side)
       -- 8. obtain n: def:divides d := 2, n := a, from D2

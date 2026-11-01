@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DividesTimesCommonFactor.DividesTimesCommonFactor
 
-theorem divides_times_common_factor (M : ℤ) (N : ℤ) (K : ℤ) (H4 : M ∣ N) :
+theorem divides_times_common_factor (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N) :
     M * K ∣ N * K := by
   -- 1. obtain j: def:divides d := M, n := N, from H4
   obtain ⟨j, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := M) (n := N))).mp (by parley_side)

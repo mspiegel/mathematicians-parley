@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube
 
-theorem odd_cube (n : ℤ) (H2 : Odd n) :
+theorem odd_cube (n : ℤ) (hH2 : Odd n) :
     Odd (n ^ 3) := by
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)

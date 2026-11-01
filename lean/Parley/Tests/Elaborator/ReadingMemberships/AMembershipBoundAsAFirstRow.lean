@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAsAFirstRow
 
-theorem a_membership_bound_as_a_first_row (k : ℕ) (H1 : 0 < k) :
+theorem a_membership_bound_as_a_first_row (k : ℕ) (hH1 : 0 < k) :
     (k : ℤ) + 1 ≥ 2 := by
   -- 1. inequalities
   have s1 : (k : ℤ) + 1 ≥ 2 := by parley_side

@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DividesProduct.DividesProduct
 
-theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (H5 : a ∣ b) (H6 : c ∣ d) :
+theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (hH5 : a ∣ b) (hH6 : c ∣ d) :
     a * c ∣ b * d := by
   -- 1. obtain k: def:divides, from H5
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := b))).mp (by parley_side)

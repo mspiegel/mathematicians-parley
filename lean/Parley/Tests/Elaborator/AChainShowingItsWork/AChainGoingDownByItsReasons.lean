@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons
 
-theorem a_chain_going_down_by_its_reasons (a : ℝ) (H2 : a ≥ 3) :
+theorem a_chain_going_down_by_its_reasons (a : ℝ) (hH2 : a ≥ 3) :
     a + a ≥ 6 := by
   -- 1. inequalities
   have s1 : 2 * a ≥ 6 := by parley_side

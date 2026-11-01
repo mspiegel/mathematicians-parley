@@ -76,7 +76,9 @@ pub fn line_name(reference: &str) -> String {
     if reference.starts_with(|c: char| c.is_ascii_digit()) {
         format!("s{}", reference.replace('.', "_"))
     } else {
-        snake(reference)
+        // A label is written after an `h`, so that a label spelt as a
+        // letter of the page, K, never hides the letter.
+        format!("h{}", snake(reference))
     }
 }
 
@@ -101,7 +103,7 @@ mod tests {
     #[test]
     fn lines_and_declarations_are_identifiers() {
         assert_eq!(line_name("4.1"), "s4_1");
-        assert_eq!(line_name("H2"), "H2");
+        assert_eq!(line_name("H2"), "hH2");
         assert_eq!(
             snake("seven-divides-four-times"),
             "seven_divides_four_times"

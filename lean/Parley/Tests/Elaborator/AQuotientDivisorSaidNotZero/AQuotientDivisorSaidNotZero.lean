@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero
 
-theorem a_quotient_divisor_said_not_zero (ε : ℝ) (d : ℝ) (n : ℕ) (H3 : 0 < n) (H4 : ε / (2 * d) > 0) (H5 : 1 / (n : ℚ) > 0) (H6 : d > 0) :
+theorem a_quotient_divisor_said_not_zero (ε : ℝ) (d : ℝ) (n : ℕ) (hH3 : 0 < n) (hH4 : ε / (2 * d) > 0) (hH5 : 1 / (n : ℚ) > 0) (hH6 : d > 0) :
     0 - ε / (2 * d) < 1 / (n : ℝ) := by
   -- 1. inequalities
   have s1 : 2 * d ≠ 0 := by parley_side

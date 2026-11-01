@@ -15,7 +15,7 @@ theorem triangular_number_integer (n : ℤ) :
   have s1 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
   -- 2. cases, from 1
   have s2 : ∃ m : ℤ, (m : ℚ) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by
-    rcases s1 with C1 | C2
+    rcases s1 with hC1 | hC2
     · skip
       -- 2.1. obtain k: def:even, from C1
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp (by parley_side)

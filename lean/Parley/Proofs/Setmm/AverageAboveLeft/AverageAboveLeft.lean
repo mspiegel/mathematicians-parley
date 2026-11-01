@@ -14,12 +14,12 @@ theorem average_above_left (A : ℝ) (B : ℝ) :
   have sThm : A < B ↔ A < (A + B) / 2 := by
     constructor
     · skip
-      intro D1
+      intro hD1
       -- 1. inequalities
       have s1 : A < (A + B) / 2 := by parley_side
       all_goals parley_side
     · skip
-      intro D2
+      intro hD2
       -- 2. inequalities
       have s2 : A < B := by parley_side
       all_goals parley_side

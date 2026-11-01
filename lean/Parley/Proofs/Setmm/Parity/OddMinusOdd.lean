@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Setmm.Parity.OddMinusOdd
 
-theorem odd_minus_odd (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Odd B) :
+theorem odd_minus_odd (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Odd B) :
     Even (A - B) := by
   -- 1. obtain k: def:odd n := A, from H3
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A))).mp (by parley_side)

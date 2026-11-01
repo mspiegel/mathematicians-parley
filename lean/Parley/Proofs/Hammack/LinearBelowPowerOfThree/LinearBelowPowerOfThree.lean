@@ -9,18 +9,18 @@ public section
 
 namespace Parley.Proofs.Hammack.LinearBelowPowerOfThree.LinearBelowPowerOfThree
 
-theorem linear_below_power_of_three (n : ℕ) (H1 : 0 < n) :
+theorem linear_below_power_of_three (n : ℕ) (hH1 : 0 < n) :
     2 * (n : ℤ) + 1 ≤ 3 ^ n := by
   -- 1. induction on k starting at 1
   have s1 : ∀ k : ℕ, 0 < k → 2 * (k : ℤ) + 1 ≤ 3 ^ k := by
     intro k h_k
-    have h1_k : 1 ≤ k := h_k
-    induction k, h1_k using Nat.le_induction with
+    replace h_k : 1 ≤ k := h_k
+    induction k, h_k using Nat.le_induction with
     | base =>
       -- 1.1. arithmetic
       have s1_1 : (2 * 1 + 1 : ℤ) ≤ 3 ^ 1 := by parley_arith
       all_goals parley_side
-    | succ k K IH =>
+    | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 3
       have s1_2 : (3 ^ (k + 1) : ℤ) = 3 ^ k * 3 := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := k))
       -- 1.3. inequalities

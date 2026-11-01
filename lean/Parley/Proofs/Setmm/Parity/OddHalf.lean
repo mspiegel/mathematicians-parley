@@ -15,7 +15,7 @@ theorem odd_half (N : ℤ) :
   have sThm : Odd N ↔ (∃ m : ℤ, (m : ℚ) = ((N : ℚ) - 1) / 2) := by
     constructor
     · skip
-      intro D1
+      intro hD1
       -- 1. obtain k: def:odd n := N, from D1
       obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mp (by parley_side)
       -- 2. algebra, from 1
@@ -26,11 +26,11 @@ theorem odd_half (N : ℤ) :
       have s3 : ∃ m : ℤ, (m : ℚ) = ((N : ℚ) - 1) / 2 := ⟨k, by push_cast; linarith [s2]⟩
       all_goals parley_side
     · skip
-      intro D2
+      intro hD2
       -- 4. algebra
       have s4 : (N : ℚ) = 2 * (((N : ℚ) - 1) / 2) + 1 := by parley_ring
       -- 5. def:odd n := N, from D2, 4
-      have s5 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose D2, by have := Classical.choose_spec D2; parley_side⟩
+      have s5 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; parley_side⟩
       all_goals parley_side
   all_goals parley_side
 

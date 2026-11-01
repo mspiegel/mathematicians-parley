@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.Divisors.AProductWrittenNotZero
 
-theorem a_product_written_not_zero (x : ℝ) (y : ℝ) (H3 : x * y ≠ 0) :
+theorem a_product_written_not_zero (x : ℝ) (y : ℝ) (hH3 : x * y ≠ 0) :
     (2 * x * y + 3) / (x * y) = 2 + 3 / (x * y) := by
   -- 1. algebra
   have r8_1 : x * y ≠ 0 := by parley_side

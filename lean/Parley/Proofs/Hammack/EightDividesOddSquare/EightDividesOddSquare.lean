@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.EightDividesOddSquare.EightDividesOddSquare
 
-theorem eight_divides_odd_square (n : ℤ) (H2 : Odd n) :
+theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     (8 : ℤ) ∣ n ^ 2 - 1 := by
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)
@@ -21,7 +21,7 @@ theorem eight_divides_odd_square (n : ℤ) (H2 : Odd n) :
   have s3 : Even k ∨ Odd k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))
   -- 4. cases, from 3
   have s4 : (8 : ℤ) ∣ n ^ 2 - 1 := by
-    rcases s3 with C1 | C2
+    rcases s3 with hC1 | hC2
     · skip
       -- 4.1. obtain j: def:even n := k, from C1
       obtain ⟨j, s4_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := k))).mp (by parley_side)

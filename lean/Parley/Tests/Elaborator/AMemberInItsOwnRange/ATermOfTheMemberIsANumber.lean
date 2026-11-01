@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AMemberInItsOwnRange.ATermOfTheMemberIsANumber
 
-theorem a_term_of_the_member_is_a_number (n : ℕ) (H1 : 0 < n) :
+theorem a_term_of_the_member_is_a_number (n : ℕ) (hH1 : 0 < n) :
     True := by
   -- 1. membership
   all_goals parley_side

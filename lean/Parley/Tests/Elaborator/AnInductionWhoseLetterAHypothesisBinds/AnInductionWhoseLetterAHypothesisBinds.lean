@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AnInductionWhoseLetterAHypothesisBinds.AnInductionWhoseLetterAHypothesisBinds
 
-theorem an_induction_whose_letter_a_hypothesis_binds (H1 : ∀ m : ℕ, (m : ℤ) ≥ 0) :
+theorem an_induction_whose_letter_a_hypothesis_binds (hH1 : ∀ m : ℕ, (m : ℤ) ≥ 0) :
     (∀ m : ℕ, (m : ℤ) + 0 = (m : ℤ)) := by
   -- 1. induction on m starting at 0
   have s1 : ∀ m : ℕ, (m : ℤ) + 0 = (m : ℤ) := by
@@ -18,7 +18,7 @@ theorem an_induction_whose_letter_a_hypothesis_binds (H1 : ∀ m : ℕ, (m : ℤ
       -- 1.1. arithmetic
       have s1_1 : (0 + 0 : ℤ) = 0 := by parley_arith
       all_goals parley_side
-    | succ m IH =>
+    | succ m hIH =>
       -- 1.2. algebra
       have s1_2 : (m : ℤ) + 1 + 0 = (m : ℤ) + 1 := by ring
       all_goals parley_side

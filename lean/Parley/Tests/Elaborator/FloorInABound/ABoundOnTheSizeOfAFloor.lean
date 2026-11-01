@@ -1,0 +1,20 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+
+/-! Written from tests/elaborator/floor-in-a-bound.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.FloorInABound.ABoundOnTheSizeOfAFloor
+
+theorem a_bound_on_the_size_of_a_floor (A : ℝ) (hH2 : |⌊A⌋| = ⌊A⌋) (hH3 : ⌊A⌋ ≤ 1) :
+    |⌊A⌋| ≤ 1 := by
+  -- 1. mun:floor-integer x := A
+  -- 2. membership, from 1
+  -- 3. transitivity, from H2, H3
+  have s3 : |⌊A⌋| ≤ 1 := by parley_side
+  all_goals parley_side
+
+end Parley.Tests.Elaborator.FloorInABound.ABoundOnTheSizeOfAFloor

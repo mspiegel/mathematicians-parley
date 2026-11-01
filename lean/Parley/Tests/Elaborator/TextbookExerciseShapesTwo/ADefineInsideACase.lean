@@ -8,13 +8,13 @@ public section
 
 namespace Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ADefineInsideACase
 
-theorem a_define_inside_a_case (x : ℝ) (H2 : x = 1 ∨ x = 2) :
+theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
     x > 0 := by
   -- 1. cases, from H2
   have s1 : x > 0 := by
-    rcases H2 with C1 | C2
+    rcases hH2 with hC1 | hC2
     · skip
-      set y : ℝ := x with D1
+      set y : ℝ := x with hD1
       -- 1.1. D1
       have s1_1 : y = x := by parley_side
       -- 1.2. arithmetic

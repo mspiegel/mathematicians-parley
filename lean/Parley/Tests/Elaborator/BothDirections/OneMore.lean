@@ -14,14 +14,14 @@ theorem one_more (n : ℤ) :
   have s1 : n + 1 = 3 ↔ n = 2 := by
     constructor
     · skip
-      intro D1
+      intro hD1
       -- 1.1. algebra, from D1
-      have s1_1 : n = 2 := by linear_combination D1
+      have s1_1 : n = 2 := by linear_combination hD1
       all_goals parley_side
     · skip
-      intro D2
+      intro hD2
       -- 1.2. algebra, from D2
-      have s1_2 : n + 1 = 3 := by linear_combination D2
+      have s1_2 : n + 1 = 3 := by linear_combination hD2
       all_goals parley_side
   all_goals parley_side
 

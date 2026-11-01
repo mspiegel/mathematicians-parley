@@ -12,11 +12,11 @@ theorem an_opening_assume_of_several_sentences (a : ℝ) (b : ℝ) :
     (a = 1 ∧ b = 2 → a + b = 3) := by
   -- 1. proof
   have s1 : a = 1 ∧ b = 2 → a + b = 3 := by
-    intro K1
+    intro hK1
     -- 1.1. substitute a = 1 (K1)
-    have s1_1 : a + b = 1 + b := by parley_subst K1.1
+    have s1_1 : a + b = 1 + b := by parley_subst hK1.1
     -- 1.2. substitute b = 2 (K1)
-    have s1_2 : 1 + b = 1 + 2 := by parley_subst K1.2
+    have s1_2 : 1 + b = 1 + 2 := by parley_subst hK1.2
     -- 1.3. calculation
     have s1_3 : a + b = 3 := by
       calc a + b = 1 + b := by parley_side

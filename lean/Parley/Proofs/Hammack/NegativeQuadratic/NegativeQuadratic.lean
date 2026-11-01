@@ -9,12 +9,12 @@ public section
 
 namespace Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic
 
-theorem negative_quadratic (x : ℝ) (H2 : x ^ 2 + 5 * x < 0) :
+theorem negative_quadratic (x : ℝ) (hH2 : x ^ 2 + 5 * x < 0) :
     x < 0 := by
   -- the theorem. contradiction
   have sThm : x < 0 := by
-    by_contra hc_S
-    have S : ¬ x < 0 := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : ¬ x < 0 := by parley_suppose hc_hS
     -- 1. inequalities, from S
     have s1 : x ≥ 0 := by parley_side
     -- 2. mun:square-nonneg

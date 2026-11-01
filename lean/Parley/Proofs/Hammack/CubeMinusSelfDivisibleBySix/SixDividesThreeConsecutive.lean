@@ -15,7 +15,7 @@ theorem six_divides_three_consecutive (k : ℕ) :
   have s1 : Even (k : ℤ) ∨ Odd (k : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ)))
   -- 2. cases, from 1
   have s2 : (6 : ℤ) ∣ 3 * (k : ℤ) * ((k : ℤ) + 1) := by
-    rcases s1 with C1 | C2
+    rcases s1 with hC1 | hC2
     · skip
       -- 2.1. obtain m: def:even n := k, from C1
       obtain ⟨m, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := (k : ℤ)))).mp (by parley_side)

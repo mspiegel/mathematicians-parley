@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInAPlainInequalitiesStep
 
-theorem a_for_all_line_in_a_plain_inequalities_step (H1 : ∀ x : ℝ, ¬ x ^ 2 < 0) :
+theorem a_for_all_line_in_a_plain_inequalities_step (hH1 : ∀ x : ℝ, ¬ x ^ 2 < 0) :
     (∀ y : ℝ, y ^ 2 ≥ 0) := by
   -- 1. proof
   have s1 : ∀ y : ℝ, y ^ 2 ≥ 0 := by

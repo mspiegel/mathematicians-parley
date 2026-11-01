@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SevenDividesFourTimes.SevenDividesFourTimes
 
-theorem seven_divides_four_times (a : ℤ) (H2 : (7 : ℤ) ∣ 4 * a) :
+theorem seven_divides_four_times (a : ℤ) (hH2 : (7 : ℤ) ∣ 4 * a) :
     (7 : ℤ) ∣ a := by
   -- 1. obtain k: def:divides d := 7, n := 4a, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (7 : ℤ)) (n := 4 * a))).mp (by parley_side)

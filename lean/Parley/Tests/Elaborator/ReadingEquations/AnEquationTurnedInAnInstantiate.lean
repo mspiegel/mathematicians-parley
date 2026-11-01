@@ -8,10 +8,10 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInAnInstantiate
 
-theorem an_equation_turned_in_an_instantiate (y : ℝ) (H2 : ∀ x : ℝ, x = x * 1) :
+theorem an_equation_turned_in_an_instantiate (y : ℝ) (hH2 : ∀ x : ℝ, x = x * 1) :
     y * 1 = y := by
   -- 1. instantiate x := y in H2
-  have s1 : y * 1 = y := by linear_combination (H2 y)
+  have s1 : y * 1 = y := by linear_combination (hH2 y)
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInAnInstantiate

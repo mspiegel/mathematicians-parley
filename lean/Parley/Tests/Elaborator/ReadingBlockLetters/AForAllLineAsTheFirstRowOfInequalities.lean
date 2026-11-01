@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineAsTheFirstRowOfInequalities
 
-theorem a_for_all_line_as_the_first_row_of_inequalities (H1 : ∀ x : ℝ, x ^ 2 + 1 > 0) :
+theorem a_for_all_line_as_the_first_row_of_inequalities (hH1 : ∀ x : ℝ, x ^ 2 + 1 > 0) :
     (∀ y : ℝ, y ^ 2 + 1 ≥ 0) := by
   -- 1. proof
   have s1 : ∀ y : ℝ, y ^ 2 + 1 ≥ 0 := by

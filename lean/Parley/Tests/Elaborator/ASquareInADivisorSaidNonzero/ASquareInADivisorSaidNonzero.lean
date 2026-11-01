@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADivisorSaidNonzero
 
-theorem a_square_in_a_divisor_said_nonzero (x : ℝ) (y : ℝ) (H3 : y = 1 / (1 + x ^ 2)) (H4 : 1 / (1 + x ^ 2) ≥ 0) :
+theorem a_square_in_a_divisor_said_nonzero (x : ℝ) (y : ℝ) (hH3 : y = 1 / (1 + x ^ 2)) (hH4 : 1 / (1 + x ^ 2) ≥ 0) :
     y ≥ 0 := by
   -- 1. mun:square-nonneg
   have s1 : x ^ 2 ≥ 0 := by linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))]

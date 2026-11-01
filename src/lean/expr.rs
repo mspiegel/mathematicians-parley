@@ -25,12 +25,15 @@ pub enum LetterType {
     Number(Num),
     /// A function from numbers of one type to numbers of another.
     Function { from: Num, to: Num },
+    /// A statement, the P of "if P then Q" in a rule of reasoning.
+    Statement,
 }
 
 impl LetterType {
     /// How Lean writes the type.
     pub fn lean(&self) -> String {
         match self {
+            LetterType::Statement => "Prop".to_string(),
             LetterType::Number(n) => n.lean().to_string(),
             LetterType::Function { from, to } => {
                 format!("{} → {}", from.lean(), to.lean())
@@ -281,6 +284,9 @@ impl Writer<'_> {
                 Some(LetterType::Number(n)) => Route::Built((*n).max(Num::Int)),
                 Some(LetterType::Function { .. }) => {
                     Route::no(format!("{} is a function, not a number", node.text))
+                }
+                Some(LetterType::Statement) => {
+                    Route::no(format!("{} is a statement, not a number", node.text))
                 }
                 None => Route::no(format!("{} has no Lean type", node.text)),
             },
@@ -594,6 +600,12 @@ impl Writer<'_> {
 
     /// The node, a formula, written as a Lean proposition.
     pub fn formula(&self, node: &Node) -> Route<Printed> {
+        // A letter that stands for a statement.
+        if node.is_name()
+            && self.letters.get(node.text.as_str()) == Some(&LetterType::Statement)
+        {
+            return Route::Built(Printed::atom(super::names::letter(&node.text)));
+        }
         // not (a = b) between numbers is written a ≠ b, as Mathlib writes it.
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY

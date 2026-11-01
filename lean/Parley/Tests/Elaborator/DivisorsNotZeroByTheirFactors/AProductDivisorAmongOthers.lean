@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.AProductDivisorAmongOthers
 
-theorem a_product_divisor_among_others (m : ℤ) (H2 : m > 0) :
+theorem a_product_divisor_among_others (m : ℤ) (hH2 : m > 0) :
     1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by
   -- 1. inequalities, from H2
   have s1 : m + 1 > 0 := by parley_side

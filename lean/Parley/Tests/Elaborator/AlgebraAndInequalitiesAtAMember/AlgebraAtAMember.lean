@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember
 
-theorem algebra_at_a_member (n : ℕ) (H1 : 0 < n) :
+theorem algebra_at_a_member (n : ℕ) (hH1 : 0 < n) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 (n : ℤ) → i + i = 2 * i) := by
   -- 1. algebra
   have s1 : ∀ i : ℤ, i ∈ Finset.Icc 1 (n : ℤ) → i + i = 2 * i := by intro i h_i; ring

@@ -62,6 +62,7 @@ mundane theorem or-left
   then        P or Q
   metamath    orc
   target      orc
+  lean        Or.inl h1
   note        A claim that one of two things holds, from a line saying the
               first does. Euclid's algorithm proves "b(k) = 0 or b(k) + k ≤
               N" at each k, knowing one side or the other.
@@ -71,6 +72,7 @@ mundane theorem or-right
   then        P or Q
   metamath    olc
   target      olc
+  lean        Or.inr h1
   note        The same, from a line saying the second holds.
 
 mundane theorem or-swap
@@ -93,6 +95,7 @@ mundane theorem modus-ponens
   then        Q
   metamath    mpd
   target      mpd
+  lean        h1 h2
   note        An "if" used where what it asks holds: an induction over the k
               with k ≤ n has the hypothesis "if k ≤ n then …", and its step
               uses it at a k it has shown is at most n.

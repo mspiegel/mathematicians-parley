@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.APowerDivisorAmongOthers
 
-theorem a_power_divisor_among_others (k : ℤ) (H2 : k > 0) :
+theorem a_power_divisor_among_others (k : ℤ) (hH2 : k > 0) :
     1 / (k : ℚ) - 1 / ((k : ℚ) + 1) - 1 / ((k : ℚ) + 1) ^ 2 = 1 / ((k : ℚ) * ((k : ℚ) + 1) ^ 2) := by
   -- 1. inequalities, from H2
   have s1 : k + 1 > 0 := by parley_side

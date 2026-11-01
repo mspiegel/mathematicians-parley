@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.OddPlusEven
 
-theorem odd_plus_even (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Even B) :
+theorem odd_plus_even (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even B) :
     Odd (A + B) := by
   -- 1. obtain k: def:odd n := A, from H3
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A))).mp (by parley_side)

@@ -8,15 +8,15 @@ public section
 
 namespace Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AContradictionEndingInCases
 
-theorem a_contradiction_ending_in_cases (x : ℝ) (H2 : x > 2 ∨ x > 1) :
+theorem a_contradiction_ending_in_cases (x : ℝ) (hH2 : x > 2 ∨ x > 1) :
     x > 0 := by
   -- 1. contradiction
   have s1 : x > 0 := by
-    by_contra hc_S
-    have S : ¬ x > 0 := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : ¬ x > 0 := by parley_suppose hc_hS
     -- 1.1. cases, from H2
     have s1_1 : x > 0 := by
-      rcases H2 with C1 | C2
+      rcases hH2 with hC1 | hC2
       · skip
         -- 1.1.1. inequalities, from C1
         have s1_1_1 : x > 0 := by parley_side

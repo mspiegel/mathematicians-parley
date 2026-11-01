@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ScaleDivisibility.ScaleDivisibility
 
-theorem scale_divisibility (M : ℤ) (N : ℤ) (K : ℤ) (H4 : M ∣ N) :
+theorem scale_divisibility (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N) :
     K * M ∣ K * N := by
   -- 1. obtain c: def:divides, from H4
   obtain ⟨c, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := M) (n := N))).mp (by parley_side)

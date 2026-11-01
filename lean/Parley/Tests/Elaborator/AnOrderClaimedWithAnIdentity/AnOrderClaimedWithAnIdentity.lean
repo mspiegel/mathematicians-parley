@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AnOrderClaimedWithAnIdentity.AnOrderClaimedWithAnIdentity
 
-theorem an_order_claimed_with_an_identity (x : ℝ) (y : ℝ) (H3 : x = y) :
+theorem an_order_claimed_with_an_identity (x : ℝ) (y : ℝ) (hH3 : x = y) :
     x ≤ (y / 1) ^ 1 := by
   -- 1. inequalities
   have s1 : x ≤ (y / 1) ^ 1 := by parley_side

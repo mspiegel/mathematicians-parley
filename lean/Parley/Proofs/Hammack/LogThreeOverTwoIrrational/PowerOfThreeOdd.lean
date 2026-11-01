@@ -22,7 +22,7 @@ theorem power_of_three_odd (n : ℕ) :
       -- 1.2. def:odd n := 3^0, from 1.1
       have s1_2 : Odd (3 ^ 0 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ 0 : ℤ)))).mpr ⟨(0 : ℤ), by parley_side⟩
       all_goals parley_side
-    | succ j IH =>
+    | succ j hIH =>
       -- 1.3. obtain k: def:odd n := 3^j, from IH
       obtain ⟨k, s1_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ j : ℤ)))).mp (by parley_side)
       -- 1.4. calculation

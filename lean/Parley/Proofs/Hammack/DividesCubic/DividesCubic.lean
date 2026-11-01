@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DividesCubic.DividesCubic
 
-theorem divides_cubic (a : ℤ) (b : ℤ) (H3 : a ∣ b) :
+theorem divides_cubic (a : ℤ) (b : ℤ) (hH3 : a ∣ b) :
     a ∣ 3 * b ^ 3 - b ^ 2 + 5 * b := by
   -- 1. obtain k: def:divides, from H3
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a) (n := b))).mp (by parley_side)

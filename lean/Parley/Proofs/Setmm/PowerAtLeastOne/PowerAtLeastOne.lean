@@ -1,0 +1,40 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+
+/-! Written from proofs/setmm/power-at-least-one.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne
+
+theorem power_at_least_one (a : ℝ) (n : ℕ) (hH3 : 1 ≤ a) :
+    1 ≤ a ^ n := by
+  -- 1. inequalities, from H3
+  have s1 : a > 0 := by parley_side
+  -- 2. induction on m starting at 0
+  have s2 : ∀ m : ℕ, 1 ≤ a ^ m := by
+    intro m
+    induction m with
+    | zero =>
+      -- 2.1. algebra
+      have s2_1 : a ^ 0 = 1 := by ring
+      -- 2.2. inequalities
+      have s2_2 : 1 ≤ a ^ 0 := by parley_side
+      all_goals parley_side
+    | succ m hIH =>
+      -- 2.3. mun:exponent-step
+      have s2_3 : a ^ (m + 1) = a ^ m * a := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := a) (m := m))
+      -- 2.4. mun:multiply-le x := 1, y := a^m, c := a, from IH, 1
+      have s2_4 : a * 1 ≤ a * a ^ m := by linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := a ^ m) (c := a) (by parley_side) (by parley_side))]
+      -- 2.5. inequalities
+      have s2_5 : a ≤ a ^ m * a := by parley_side
+      -- 2.6. transitivity, from H3, 2.5, 2.3
+      have s2_6 : 1 ≤ a ^ (m + 1) := by parley_side
+      all_goals parley_side
+  -- 3. instantiate m := n in line 2
+  have s3 : 1 ≤ a ^ n := by linarith [(s2 n)]
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne

@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ConstantLeftOver.OneEquationAndAConstant
 
-theorem one_equation_and_a_constant (s : ℝ) (H2 : s = 1) :
+theorem one_equation_and_a_constant (s : ℝ) (hH2 : s = 1) :
     s ≥ 0 := by
   -- 1. inequalities
   have s1 : s ≥ 1 := by parley_side

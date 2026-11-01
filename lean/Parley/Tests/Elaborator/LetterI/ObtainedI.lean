@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.LetterI.ObtainedI
 
-theorem obtained_i (n : ℤ) (H2 : Odd n) :
+theorem obtained_i (n : ℤ) (hH2 : Odd n) :
     Odd (n ^ 2) := by
   -- 1. obtain i: def:odd, from H2
   obtain ⟨i, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)

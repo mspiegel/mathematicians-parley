@@ -10,7 +10,7 @@ public section
 
 namespace Parley.Proofs.Setmm.OddSquareLessOneOverEight.OddSquareLessOneOverEight
 
-theorem odd_square_less_one_over_eight (n : ℤ) (H2 : Odd n) :
+theorem odd_square_less_one_over_eight (n : ℤ) (hH2 : Odd n) :
     (∃ m : ℤ, (m : ℚ) = ((n : ℚ) ^ 2 - 1) / 8) := by
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)

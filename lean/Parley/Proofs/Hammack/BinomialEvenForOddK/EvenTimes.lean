@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes
 
-theorem even_times (A : ℤ) (B : ℤ) (H3 : Even A) :
+theorem even_times (A : ℤ) (B : ℤ) (hH3 : Even A) :
     Even (A * B) := by
   -- 1. obtain a: def:even, from H3
   obtain ⟨a, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := A))).mp (by parley_side)

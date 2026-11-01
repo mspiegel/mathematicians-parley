@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OddAsSumOfThreeOdds.OddAsSumOfThreeOdds
 
-theorem odd_as_sum_of_three_odds (n : ℤ) (H2 : Odd n) :
+theorem odd_as_sum_of_three_odds (n : ℤ) (hH2 : Odd n) :
     (∃ a : ℤ, ∃ b : ℤ, ∃ c : ℤ, ((Odd a ∧ Odd b) ∧ Odd c) ∧ n = a + b + c) := by
   -- 1. arithmetic
   have s1 : (1 : ℤ) = 2 * 0 + 1 := by parley_arith

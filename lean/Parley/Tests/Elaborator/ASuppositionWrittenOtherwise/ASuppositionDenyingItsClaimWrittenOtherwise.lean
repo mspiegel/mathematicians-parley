@@ -8,12 +8,12 @@ public section
 
 namespace Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyingItsClaimWrittenOtherwise
 
-theorem a_supposition_denying_its_claim_written_otherwise (a : ℝ) (H2 : a = 1) :
+theorem a_supposition_denying_its_claim_written_otherwise (a : ℝ) (hH2 : a = 1) :
     a = 1 := by
   -- 1. contradiction
   have s1 : a = 1 := by
-    by_contra hc_S
-    have S : 1 ≠ a := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : 1 ≠ a := by parley_suppose hc_hS
     -- 1.1. restate S
     have s1_1 : 1 ≠ a := by parley_side
     all_goals parley_side

@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundInACalculationLink
 
-theorem a_membership_bound_in_a_calculation_link (k : ℕ) (H1 : 0 < k) (m : ℤ) (H3 : (k : ℤ) ≤ m) :
+theorem a_membership_bound_in_a_calculation_link (k : ℕ) (hH1 : 0 < k) (m : ℤ) (hH3 : (k : ℤ) ≤ m) :
     0 < m := by
   -- 1. calculation
   have s1 : 0 < m := by

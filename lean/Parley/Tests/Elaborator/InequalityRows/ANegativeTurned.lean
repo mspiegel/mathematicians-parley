@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
 
-theorem a_negative_turned (x : ℝ) (H2 : x < 0) :
+theorem a_negative_turned (x : ℝ) (hH2 : x < 0) :
     0 < -x := by
   -- 1. inequalities
   have s1 : 0 < -x := by parley_side

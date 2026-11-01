@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DividesSixthPower.DividesSixthPower
 
-theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (H4 : a ^ 2 ∣ b) (H5 : b ^ 3 ∣ c) :
+theorem divides_sixth_power (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : a ^ 2 ∣ b) (hH5 : b ^ 3 ∣ c) :
     a ^ 6 ∣ c := by
   -- 1. obtain k: def:divides, from H4
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a ^ 2) (n := b))).mp (by parley_side)

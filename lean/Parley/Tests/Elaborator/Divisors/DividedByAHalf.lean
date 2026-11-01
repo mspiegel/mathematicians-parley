@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.Divisors.DividedByAHalf
 
-theorem divided_by_a_half (x : ℝ) (H2 : x ≠ 0) :
+theorem divided_by_a_half (x : ℝ) (hH2 : x ≠ 0) :
     3 / (x / 2) = 6 / x := by
   -- 1. algebra
   have r42_1 : x ≠ 0 := by parley_side

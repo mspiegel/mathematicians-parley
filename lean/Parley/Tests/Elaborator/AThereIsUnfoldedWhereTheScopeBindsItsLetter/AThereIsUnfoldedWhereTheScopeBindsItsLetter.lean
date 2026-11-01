@@ -9,12 +9,12 @@ public section
 
 namespace Parley.Tests.Elaborator.AThereIsUnfoldedWhereTheScopeBindsItsLetter.AThereIsUnfoldedWhereTheScopeBindsItsLetter
 
-theorem a_there_is_unfolded_where_the_scope_binds_its_letter (p : ℤ) (H2 : (3 : ℤ) ∣ p) :
+theorem a_there_is_unfolded_where_the_scope_binds_its_letter (p : ℤ) (hH2 : (3 : ℤ) ∣ p) :
     ¬ ¬ (∃ s : ℤ, p = 3 * s) := by
   -- 1. contradiction
   have s1 : ¬ ¬ (∃ s : ℤ, p = 3 * s) := by
-    by_contra hc_S
-    have S : ¬ (∃ s : ℤ, p = 3 * s) := by parley_suppose hc_S
+    by_contra hc_hS
+    have hS : ¬ (∃ s : ℤ, p = 3 * s) := by parley_suppose hc_hS
     -- 1.1. def:divides d := 3, n := p, from H2
     have s1_1 : ∃ s : ℤ, p = 3 * s := by first | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p))).mp (by parley_side)
     all_goals parley_side

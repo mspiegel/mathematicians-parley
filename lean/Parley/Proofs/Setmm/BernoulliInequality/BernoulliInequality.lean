@@ -1,0 +1,52 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+public import Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct
+
+/-! Written from proofs/setmm/bernoulli-inequality.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality
+
+theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
+    (A - 1) * (n : ℝ) + 1 ≤ A ^ n := by
+  -- 1. induction on k starting at 0
+  have s1 : ∀ k : ℕ, (A - 1) * (k : ℝ) + 1 ≤ A ^ k := by
+    intro k
+    induction k with
+    | zero =>
+      -- 1.1. algebra
+      have s1_1 : A ^ 0 = 1 := by ring
+      -- 1.2. inequalities
+      have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_side
+      all_goals parley_side
+    | succ k hIH =>
+      -- 1.3. mun:exponent-step a := A, m := k
+      have s1_3 : A ^ (k + 1) = A ^ k * A := by linear_combination (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))
+      -- 1.4. inequalities
+      have s1_4 : 0 ≤ A ^ k - ((A - 1) * (k : ℝ) + 1) := by parley_side
+      set X : ℝ := A ^ k - ((A - 1) * (k : ℝ) + 1) with hD1
+      -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
+      have s1_5 : 0 ≤ A * X := by linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) (by parley_side) (by parley_side))]
+      -- 1.6. mun:square-nonneg x := A − 1
+      have s1_6 : 0 ≤ (A - 1) ^ 2 := by linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))]
+      -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
+      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) (by parley_side) (by parley_side))]
+      -- 1.8. algebra, from D1
+      have s1_8 : A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by linear_combination (-A) * hD1
+      -- 1.9. inequalities, from 1.5, 1.7
+      have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_side
+      -- 1.10. transitivity, from 1.9, 1.8
+      have s1_10 : 0 ≤ A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by parley_side
+      -- 1.11. inequalities
+      have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k * A := by parley_side
+      -- 1.12. transitivity, from 1.11, 1.3
+      have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1) := by parley_side
+      all_goals parley_side
+  -- 2. instantiate k := n in line 1
+  have s2 : (A - 1) * (n : ℝ) + 1 ≤ A ^ n := by linarith [(s1 n)]
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality

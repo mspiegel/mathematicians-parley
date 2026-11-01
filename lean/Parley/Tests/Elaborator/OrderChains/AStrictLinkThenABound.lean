@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.OrderChains.AStrictLinkThenABound
 
-theorem a_strict_link_then_a_bound (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (H5 : a < b) (H6 : b ≤ c) (H7 : c < d) :
+theorem a_strict_link_then_a_bound (a : ℝ) (b : ℝ) (c : ℝ) (d : ℝ) (hH5 : a < b) (hH6 : b ≤ c) (hH7 : c < d) :
     a < d := by
   -- 1. calculation
   have s1 : a < d := by

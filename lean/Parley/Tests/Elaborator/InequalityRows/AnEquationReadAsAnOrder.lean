@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InequalityRows.AnEquationReadAsAnOrder
 
-theorem an_equation_read_as_an_order (x : ℝ) (y : ℝ) (H3 : y = x) :
+theorem an_equation_read_as_an_order (x : ℝ) (y : ℝ) (hH3 : y = x) :
     x ≤ y := by
   -- 1. inequalities
   have s1 : x ≤ y := by parley_side

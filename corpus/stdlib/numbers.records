@@ -165,6 +165,7 @@ mundane theorem floor-integer
   then        ⌊x⌋ ∈ ℤ
   metamath    flcl
   target      flcl
+  lean        trivial
 
 mundane theorem floor-below
   let x ∈ ℝ                                                           (H1)
@@ -475,6 +476,7 @@ axiom trichotomy
   then        x < 0 or x = 0 or 0 < x
   metamath    lttri4, 0re
   target      lttri4 with B := 0
+  lean        or_assoc.mpr (lt_trichotomy x 0)
 
 mundane theorem nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
@@ -641,6 +643,7 @@ mundane theorem multiply-le
   then        c·x ≤ c·y
   metamath    lemul2
   target      lemul2
+  lean        mul_le_mul_of_nonneg_left h4 h5.le
   note        `inequalities` multiplies a line only by a number, so a step
               multiplying both sides by a positive term cites this.
 
@@ -700,6 +703,7 @@ mundane theorem product-nonneg
   then        x·y ≥ 0
   metamath    mulge0
   target      mulge0
+  lean        mul_nonneg h3 h4
   note        `inequalities` combines bounds and multiplies one only by a
               number, so a product of two terms each at least 0 cites this.
 

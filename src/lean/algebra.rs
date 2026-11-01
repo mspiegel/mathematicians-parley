@@ -126,6 +126,15 @@ pub fn algebra(
         .iter()
         .map(|side| field::read(side, &labels).under)
         .collect();
+    // A combination in ℤ that takes half of an equation is one in ℚ: the
+    // step is moved there by `qify`, which casts every line alike.
+    let fractional = how
+        .iter()
+        .any(|t| t.multiplier().terms.values().any(|c| !c.is_integer()));
+    let qify = at == Num::Int && fractional;
+    if qify {
+        at = Num::Rat;
+    }
     let mut parts = Vec::new();
     for t in &how {
         let over = t.multiplier().times(&taken).times(&own_under[t.which]);
@@ -149,6 +158,8 @@ pub fn algebra(
     };
     Route::Built(if divided {
         format!("by linear_combination (norm := parley_field) {sum}")
+    } else if qify {
+        format!("by qify at *; linear_combination {sum}")
     } else {
         format!("by linear_combination {sum}")
     })

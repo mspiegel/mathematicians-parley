@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceUnfolded
 
-theorem a_second_sentence_unfolded (a : ℝ) (b : ℤ) (H3a : a = 1) (H3b : Even b) :
+theorem a_second_sentence_unfolded (a : ℝ) (b : ℤ) (hH3a : a = 1) (hH3b : Even b) :
     (∃ k : ℤ, b = 2 * k) := by
   -- 1. def:even n := b, from H3
   have s1 : ∃ k : ℤ, b = 2 * k := by first | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)

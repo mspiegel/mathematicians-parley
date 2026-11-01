@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.DivisorOrder.ANegationDivisor
 
-theorem a_negation_divisor (x : ℝ) (H2 : x ≠ 0) (H3 : -x ≠ 0) :
+theorem a_negation_divisor (x : ℝ) (hH2 : x ≠ 0) (hH3 : -x ≠ 0) :
     1 / -x = -(1 / x) := by
   -- 1. algebra, from H2
   have s1 : 1 / -x = -(1 / x) := by parley_ring

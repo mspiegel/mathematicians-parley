@@ -13,11 +13,11 @@ theorem a_label_given_again_inside_a_block :
   -- 1. proof
   have s1 : ∀ x : ℝ, x > 0 → x ≥ 0 ∧ x + 1 > 0 := by
     intro x
-    intro J
+    intro hJ
     -- 1.1. proof
     have s1_1 : ∀ y : ℝ, y > 0 → y + 1 > 0 := by
       intro y
-      intro J
+      intro hJ
       -- 1.1.1. inequalities
       have s1_1_1 : y + 1 > 1 := by parley_side
       -- 1.1.2. arithmetic

@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalBelowAPositiveRational.RationalBelowAPositiveRational
 
-theorem rational_below_a_positive_rational (x : ℚ) (H2 : x > 0) :
+theorem rational_below_a_positive_rational (x : ℚ) (hH2 : x > 0) :
     (∃ y : ℚ, y > 0 ∧ y < x) := by
   -- 1. inequalities
   have s1 : x / 2 > 0 := by parley_side

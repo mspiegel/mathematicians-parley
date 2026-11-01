@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.ANaturalAnswersAtLeastOne
 
-theorem a_natural_answers_at_least_one (j : ℕ) (H1 : 0 < j) :
+theorem a_natural_answers_at_least_one (j : ℕ) (hH1 : 0 < j) :
     0 < (j : ℤ) := by
   -- 1. thm:at-least-one-right x := j, from H1
   have s1 : 0 < (j : ℤ) := by linarith [(Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight.at_least_one_right (x := (j : ℤ)) (by parley_side))]

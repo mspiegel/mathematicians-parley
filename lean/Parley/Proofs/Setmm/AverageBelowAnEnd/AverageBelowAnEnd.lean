@@ -14,12 +14,12 @@ theorem average_below_an_end (A : ℝ) (B : ℝ) :
   have sThm : A < B ↔ (A + B) / 2 < B := by
     constructor
     · skip
-      intro D1
+      intro hD1
       -- 1. inequalities
       have s1 : (A + B) / 2 < B := by parley_side
       all_goals parley_side
     · skip
-      intro D2
+      intro hD2
       -- 2. inequalities
       have s2 : A < B := by parley_side
       all_goals parley_side

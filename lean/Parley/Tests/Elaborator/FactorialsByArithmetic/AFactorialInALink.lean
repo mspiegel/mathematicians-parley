@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialInALink
 
-theorem a_factorial_in_a_link (x : ℝ) (H2 : x = 1 / (Nat.factorial (1 + 1) : ℝ)) :
+theorem a_factorial_in_a_link (x : ℝ) (hH2 : x = 1 / (Nat.factorial (1 + 1) : ℝ)) :
     x = 1 - 1 / (Nat.factorial (1 + 1) : ℝ) := by
   -- 1. calculation
   have s1 : x = 1 - 1 / (Nat.factorial (1 + 1) : ℝ) := by

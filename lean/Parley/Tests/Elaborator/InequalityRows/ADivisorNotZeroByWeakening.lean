@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InequalityRows.ADivisorNotZeroByWeakening
 
-theorem a_divisor_not_zero_by_weakening (p : ℝ) (q : ℝ) (H3 : q > 0) :
+theorem a_divisor_not_zero_by_weakening (p : ℝ) (q : ℝ) (hH3 : q > 0) :
     p / q * q = p := by
   -- 1. algebra
   have r50_1 : q ≠ 0 := by parley_side

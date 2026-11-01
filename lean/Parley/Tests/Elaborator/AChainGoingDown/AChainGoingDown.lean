@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AChainGoingDown.AChainGoingDown
 
-theorem a_chain_going_down (a : ℝ) (b : ℝ) (c : ℝ) (H4 : a ≥ b) (H5 : b > c) (H6 : c = 2) :
+theorem a_chain_going_down (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a ≥ b) (hH5 : b > c) (hH6 : c = 2) :
     a > 2 := by
   -- 1. calculation
   have s1 : a > 2 := by

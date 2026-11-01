@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep
 
-theorem factorial_quotient_step (c : ℕ) (H1 : 0 < c) (F : ℝ) (H3 : F ≠ 0) :
+theorem factorial_quotient_step (c : ℕ) (hH1 : 0 < c) (F : ℝ) (hH3 : F ≠ 0) :
     1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / (F * ((c : ℝ) + 1)) := by
   -- 1. algebra
   have r71_1 : F ≠ 0 := by parley_side

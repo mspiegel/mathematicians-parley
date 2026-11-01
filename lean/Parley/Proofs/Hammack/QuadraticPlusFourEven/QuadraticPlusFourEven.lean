@@ -15,7 +15,7 @@ theorem quadratic_plus_four_even (n : ℤ) :
   have s1 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
   -- 2. cases, from 1
   have s2 : Even (n ^ 2 + 3 * n + 4) := by
-    rcases s1 with C1 | C2
+    rcases s1 with hC1 | hC2
     · skip
       -- 2.1. obtain k: def:even, from C1
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := n))).mp (by parley_side)

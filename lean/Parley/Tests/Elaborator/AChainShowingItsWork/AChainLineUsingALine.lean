@@ -8,11 +8,11 @@ public section
 
 namespace Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineUsingALine
 
-theorem a_chain_line_using_a_line (a : ℝ) (b : ℝ) (H3 : a = 2 * b) :
+theorem a_chain_line_using_a_line (a : ℝ) (b : ℝ) (hH3 : a = 2 * b) :
     3 * a + 1 = 1 + 6 * b := by
   -- 1. calculation
   have s1 : 3 * a + 1 = 1 + 6 * b := by
-    calc 3 * a + 1 = 6 * b + 1 := by linear_combination (3) * H3
+    calc 3 * a + 1 = 6 * b + 1 := by linear_combination (3) * hH3
       _ = 1 + 6 * b := by ring
   all_goals parley_side
 

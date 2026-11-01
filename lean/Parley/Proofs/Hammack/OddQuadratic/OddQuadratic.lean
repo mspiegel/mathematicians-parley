@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OddQuadratic.OddQuadratic
 
-theorem odd_quadratic (a : ℤ) (H2 : Odd a) :
+theorem odd_quadratic (a : ℤ) (hH2 : Odd a) :
     Odd (a ^ 2 + 3 * a + 5) := by
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp (by parley_side)

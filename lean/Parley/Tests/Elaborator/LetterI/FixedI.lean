@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.LetterI.FixedI
 
-theorem fixed_i (i : ℕ) (H1 : 0 < i) :
+theorem fixed_i (i : ℕ) (hH1 : 0 < i) :
     (i : ℤ) ≥ 1 := by
   -- 1. inequalities, from H1
   have s1 : (i : ℤ) ≥ 1 := by parley_side

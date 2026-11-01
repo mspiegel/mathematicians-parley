@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineInACalculationLink
 
-theorem a_for_all_line_in_a_calculation_link (n : ℕ) (H1 : 0 < n) (c : ℤ) (H3 : c ≡ (1 : ℤ) [ZMOD (n : ℤ)]) (H4 : ∀ x : ℤ, x ≡ c [ZMOD (n : ℤ)]) :
+theorem a_for_all_line_in_a_calculation_link (n : ℕ) (hH1 : 0 < n) (c : ℤ) (hH3 : c ≡ (1 : ℤ) [ZMOD (n : ℤ)]) (hH4 : ∀ x : ℤ, x ≡ c [ZMOD (n : ℤ)]) :
     (∀ b : ℤ, b ≡ (1 : ℤ) [ZMOD (n : ℤ)]) := by
   -- 1. proof
   have s1 : ∀ b : ℤ, b ≡ (1 : ℤ) [ZMOD (n : ℤ)] := by

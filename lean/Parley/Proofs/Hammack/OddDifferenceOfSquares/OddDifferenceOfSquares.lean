@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OddDifferenceOfSquares.OddDifferenceOfSquares
 
-theorem odd_difference_of_squares (n : ℤ) (H2 : Odd n) :
+theorem odd_difference_of_squares (n : ℤ) (hH2 : Odd n) :
     (∃ a : ℤ, ∃ b : ℤ, n = a ^ 2 - b ^ 2) := by
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n))).mp (by parley_side)

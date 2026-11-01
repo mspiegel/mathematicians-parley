@@ -329,7 +329,17 @@ pub fn theorem(
         Spot::Statement,
     );
     // The names the statement wrote out, named again for the proof.
+    // Only those the theorem's page writes: a file's other defines are its
+    // other theorems'.
+    let written: std::collections::BTreeSet<String> = rec
+        .page
+        .entries()
+        .flat_map(|(_, node)| node.names())
+        .collect();
     for (name, body) in statement_terms(rec) {
+        if !written.contains(&name) {
+            continue;
+        }
         let own = thm.defines.iter().position(|d| {
             d.line < thm.conclusion_line
                 && matches!(
@@ -1533,6 +1543,7 @@ impl<'a> Proof<'a> {
                         (LetterType::Function { .. }, _) => {
                             Route::no("a function given as a citation's value")
                         }
+                        (LetterType::Statement, _) => self.writer.formula(value),
                     };
                     match printed {
                         Route::Built(p) => args.push(format!("({name} := {})", p.text)),
@@ -1891,14 +1902,14 @@ impl<'a> Proof<'a> {
             Method::Cases => {
                 // The sentence, or the part of one, of the lines named that
                 // says "or".
-                let Some(source) = self
+                let Some(said) = self
                     .cited_parts(&step.just.from)
                     .into_iter()
                     .find(|c| c.node.notation() == crate::notations::DISJUNCTION)
-                    .map(|c| c.proof)
                 else {
                     return Route::no("cases from no line that says \"or\"");
                 };
+                let source = said.proof.clone();
                 let labels: Vec<String> = parts
                     .iter()
                     .map(|part| {
@@ -1909,13 +1920,37 @@ impl<'a> Proof<'a> {
                             .unwrap_or_else(|| "_".to_string())
                     })
                     .collect();
+                // The pattern follows the "or" as the page groups it: a ∨ b
+                // ∨ c read from the left is (a ∨ b) ∨ c.
+                let mut names = labels.iter();
+                let pattern = or_pattern(&said.node, &mut names);
+                let pattern = if names.next().is_none() {
+                    pattern
+                } else {
+                    labels.join(" | ")
+                };
                 self.push(
-                    format!("{inner}rcases {source} with {}", labels.join(" | ")),
+                    format!("{inner}rcases {source} with {pattern}"),
                     step.line,
                     spot.clone(),
                 );
                 for (part, label) in parts.iter().zip(&labels) {
                     self.named.insert(label.clone(), vec![label.clone()]);
+                    // What the case assumes, for a step that cites it.
+                    if let Some(o) = step.openers.iter().find(|o| o.part == *part) {
+                        let nodes: Vec<Node> = o
+                            .body(&self.thm.path)
+                            .sentences()
+                            .iter()
+                            .filter_map(|s| self.rec.page.get(s).cloned())
+                            .collect();
+                        if let [node] = nodes.as_slice() {
+                            self.trees.insert(
+                                o.label.clone(),
+                                vec![(node.clone(), label.clone())],
+                            );
+                        }
+                    }
                     let children: Vec<usize> = block
                         .children
                         .iter()
@@ -2006,13 +2041,15 @@ impl<'a> Proof<'a> {
         );
         if from_one {
             self.push(format!("{p}intro {name} h_{name}"), step.line, spot.clone());
+            // The guard put as Nat.le_induction reads it, in its place, so
+            // that the induction hypothesis does not ask it again.
             self.push(
-                format!("{p}have h1_{name} : 1 ≤ {name} := h_{name}"),
+                format!("{p}replace h_{name} : 1 ≤ {name} := h_{name}"),
                 step.line,
                 spot.clone(),
             );
             self.push(
-                format!("{p}induction {name}, h1_{name} using Nat.le_induction with"),
+                format!("{p}induction {name}, h_{name} using Nat.le_induction with"),
                 step.line,
                 spot.clone(),
             );
@@ -2205,6 +2242,24 @@ fn with_haves(haves: &[String], tactic: &str) -> String {
     }
     out.push_str(&format!("\n  {}", body.replace('\n', "\n  ")));
     out
+}
+
+/// An `rcases` pattern for an "or" as its tree groups it, each disjunct
+/// named in turn from `names`: `(C1 | C2) | C3` for (a ∨ b) ∨ c.
+fn or_pattern(node: &Node, names: &mut std::slice::Iter<'_, String>) -> String {
+    if let ([left, right], crate::notations::DISJUNCTION) =
+        (node.children.as_slice(), node.notation())
+    {
+        let l = or_pattern(left, names);
+        let r = or_pattern(right, names);
+        let l = if left.notation() == crate::notations::DISJUNCTION {
+            format!("({l})")
+        } else {
+            l
+        };
+        return format!("{l} | {r}");
+    }
+    names.next().cloned().unwrap_or_else(|| "_".to_string())
 }
 
 /// A line whose proof runs over several lines, each line after the first

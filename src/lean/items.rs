@@ -8,7 +8,7 @@
 
 use indexmap::IndexMap;
 
-use super::expr::{Writer, GENERAL};
+use super::expr::{LetterType, Writer, GENERAL};
 use super::names::{module_of, snake};
 use super::statement::{binders, Asked, Binder};
 use super::templates::Num;
@@ -149,6 +149,43 @@ fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
     })
 }
 
+/// The letters that stand where a statement stands: a whole sentence, or a
+/// part an "and", "or", "not", "if" or "↔" joins, the P and Q of a rule of
+/// reasoning.
+fn statement_letters(sentences: &[Node]) -> std::collections::BTreeSet<String> {
+    use crate::notations::{
+        BICONDITIONAL, COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION,
+        IMPLICATION, LOGICAL_NOT,
+    };
+    let mut out = std::collections::BTreeSet::new();
+    for s in sentences {
+        if s.is_name() {
+            out.insert(s.text.to_string());
+        }
+        for n in s.walk() {
+            let joins = matches!(
+                n.notation(),
+                BICONDITIONAL
+                    | COMMA_CONJUNCTION
+                    | CONDITIONAL
+                    | CONJUNCTION
+                    | DISJUNCTION
+                    | IMPLICATION
+                    | LOGICAL_NOT
+            );
+            if joins {
+                out.extend(
+                    n.children
+                        .iter()
+                        .filter(|c| c.is_name())
+                        .map(|c| c.text.to_string()),
+                );
+            }
+        }
+    }
+    out
+}
+
 /// The prefix a citation writes before an item of this kind.
 pub fn prefix(record: &Record) -> &'static str {
     match record.kind {
@@ -205,8 +242,29 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     name: format!("h{}", i + 1),
                 })
                 .collect();
+            // A letter of the item that stands for a statement, the P of
+            // "P or Q", is a proposition it is stated for.
+            let mut statements = Vec::new();
+            let stated: Vec<Node> = group
+                .wants
+                .iter()
+                .map(|(_, n)| n.clone())
+                .chain(std::iter::once(says.clone()))
+                .collect();
+            let said = statement_letters(&stated);
+            for name in group.free_names(&writer.grammar.binders()) {
+                if said.contains(&name) {
+                    w.letters.insert(name.clone(), LetterType::Statement);
+                    statements.push(Binder::Letter {
+                        name: super::names::letter(&name),
+                        page: name,
+                        ty: LetterType::Statement,
+                        general: false,
+                    });
+                }
+            }
             let binders = match binders(&mut w, &asked) {
-                Route::Built(b) => b,
+                Route::Built(b) => statements.into_iter().chain(b).collect(),
                 Route::Declined(d) => return Route::Declined(d),
             };
             let prop = match w.formula(says) {

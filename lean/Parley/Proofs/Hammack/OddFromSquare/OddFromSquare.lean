@@ -9,13 +9,13 @@ public section
 
 namespace Parley.Proofs.Hammack.OddFromSquare.OddFromSquare
 
-theorem odd_from_square (a : ℤ) (H2 : ¬ (4 : ℤ) ∣ a ^ 2) :
+theorem odd_from_square (a : ℤ) (hH2 : ¬ (4 : ℤ) ∣ a ^ 2) :
     Odd a := by
   -- 1. mun:even-or-odd
   have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
   -- 2. cases, from 1
   have s2 : Odd a := by
-    rcases s1 with C1 | C2
+    rcases s1 with hC1 | hC2
     · skip
       -- 2.1. obtain k: def:even, from C1
       obtain ⟨k, s2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := a))).mp (by parley_side)

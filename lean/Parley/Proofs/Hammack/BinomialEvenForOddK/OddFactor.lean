@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor
 
-theorem odd_factor (A : ℤ) (B : ℤ) (H3 : Odd A) (H4 : Even (A * B)) :
+theorem odd_factor (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even (A * B)) :
     Even B := by
   -- 1. obtain b: def:odd, from H3
   obtain ⟨b, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := A))).mp (by parley_side)

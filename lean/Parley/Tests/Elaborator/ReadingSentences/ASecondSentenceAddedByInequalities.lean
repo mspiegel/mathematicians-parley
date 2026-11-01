@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceAddedByInequalities
 
-theorem a_second_sentence_added_by_inequalities (a : ℝ) (b : ℝ) (c : ℝ) (H4a : a = 1) (H4b : b > 0) (H5 : c > 0) :
+theorem a_second_sentence_added_by_inequalities (a : ℝ) (b : ℝ) (c : ℝ) (hH4a : a = 1) (hH4b : b > 0) (hH5 : c > 0) :
     b + c > 0 := by
   -- 1. inequalities, from H4, H5
   have s1 : b + c > 0 := by parley_side

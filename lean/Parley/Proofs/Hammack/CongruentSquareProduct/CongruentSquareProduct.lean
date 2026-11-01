@@ -1,0 +1,27 @@
+module
+
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Library
+
+/-! Written from proofs/hammack/congruent-square-product.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.CongruentSquareProduct.CongruentSquareProduct
+
+theorem congruent_square_product (a : ℤ) (b : ℤ) (n : ℕ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD (n : ℤ)]) :
+    (a ^ 2) ≡ (a * b) [ZMOD (n : ℤ)] := by
+  -- 1. def:congruent-mod, from H4
+  have s1 : (n : ℤ) ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := a) (b := b))).mp (by parley_side)
+  -- 2. mun:divides-multiple e := n, a := a − b, x := a, from 1
+  have s2 : (n : ℤ) ∣ (a - b) * a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := a) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := a) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (n : ℤ)) (a := a - b) (x := a) (by parley_side))
+  -- 3. substitute
+  have s3 : (n : ℤ) ∣ a ^ 2 - a * b := by
+    have c1 : (a - b) * a = a ^ 2 - a * b := by ring
+    have row1 : (n : ℤ) ∣ a ^ 2 - a * b := by parley_subst_at c1 s2
+    exact row1
+  -- 4. def:congruent-mod, from 3
+  have s4 : (a ^ 2) ≡ (a * b) [ZMOD (n : ℤ)] := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := a ^ 2) (b := a * b))).mpr (by parley_side)
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.CongruentSquareProduct.CongruentSquareProduct

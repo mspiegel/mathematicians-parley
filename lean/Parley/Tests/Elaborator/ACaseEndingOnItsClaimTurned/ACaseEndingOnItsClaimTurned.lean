@@ -9,13 +9,13 @@ public section
 
 namespace Parley.Tests.Elaborator.ACaseEndingOnItsClaimTurned.ACaseEndingOnItsClaimTurned
 
-theorem a_case_ending_on_its_claim_turned (x : ℝ) (y : ℝ) (H3 : x < y) :
+theorem a_case_ending_on_its_claim_turned (x : ℝ) (y : ℝ) (hH3 : x < y) :
     y ≠ x := by
   -- 1. mun:nonneg-or-neg
   have s1 : x ≥ 0 ∨ x < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x))
   -- 2. cases, from 1
   have s2 : y ≠ x := by
-    rcases s1 with C1 | C2
+    rcases s1 with hC1 | hC2
     · skip
       -- 2.1. inequalities
       have s2_1 : x ≠ y := by parley_side

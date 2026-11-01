@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineInARequiresLineByAMethod
 
-theorem a_for_all_line_in_a_requires_line_by_a_method (H1 : ∀ x : ℝ, x ^ 2 + 1 > 0) :
+theorem a_for_all_line_in_a_requires_line_by_a_method (hH1 : ∀ x : ℝ, x ^ 2 + 1 > 0) :
     True := by
   -- 1. proof
   -- what this block shows, Lean's types give
