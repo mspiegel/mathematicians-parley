@@ -898,10 +898,10 @@ fn cases() -> Vec<Case> {
             "lean on a line the step does not name",
             vec![edit(
                 "proofs/wiedijk/liouville-number.proof",
-                Some("                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n          requires s(n) ∈ ℝ: from 2\n".to_string()),
-                "                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.21\n".to_string(),
+                Some("                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.19\n          requires s(n) ∈ ℝ: from 2\n".to_string()),
+                "                                  = 2/2^A − 2/2^(A + (j + 1))               algebra, from 3.19\n".to_string(),
             )],
-            "proofs/wiedijk/liouville-number.proof:218  nothing says s(n) ∈ ℝ or ∈ ℂ, which this step needs",
+            "proofs/wiedijk/liouville-number.proof:202  nothing says s(n) ∈ ℝ or ∈ ℂ, which this step needs",
         ),
         // A line marked impossible is reached by its reasons from the lines
         // they cite (`SYNTAX.md`, contradiction); `arithmetic` as its reason
@@ -6427,11 +6427,18 @@ fn cases() -> Vec<Case> {
         // and so is what it drops.
         case(
             "drop a 0 into a claim whose order is turned round",
-            vec![edit(
-                "proofs/hammack/abs-limit-zero.proof",
-                Some("          1.4.6.  |a(n) − 0| < ε\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n".to_string()),
-                "          1.4.6.  ε > |a(n) − 0|\n                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n".to_string(),
-            )],
+            vec![
+                edit(
+                    "proofs/hammack/abs-limit-zero.proof",
+                    Some("          1.4.1.  ||a(n)|| < ε\n".to_string()),
+                    "          1.4.1.  ||a(n)| − 0| < ε\n".to_string(),
+                ),
+                edit(
+                    "proofs/hammack/abs-limit-zero.proof",
+                    Some("          1.4.6.  |a(n)| < ε\n".to_string()),
+                    "          1.4.6.  ε > |a(n) − 0|\n".to_string(),
+                ),
+            ],
             "drops an identity element from what the substitution makes",
         ),
         // Each atom a method combines is real, and the step says so where
@@ -6559,11 +6566,18 @@ fn cases() -> Vec<Case> {
         // line says a(n) is.
         case(
             "drop an identity element inside the place a substitution matches",
-            vec![edit(
-                "proofs/hammack/abs-limit-zero.proof",
-                Some("                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n                  requires a(n) ∈ ℝ: from 1.4.2\n".to_string()),
-                "                  substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1\n".to_string(),
-            )],
+            vec![
+                edit(
+                    "proofs/hammack/abs-limit-zero.proof",
+                    Some("          1.4.1.  ||a(n)|| < ε\n".to_string()),
+                    "          1.4.1.  ||a(n)| − 0| < ε\n".to_string(),
+                ),
+                edit(
+                    "proofs/hammack/abs-limit-zero.proof",
+                    Some("          1.4.6.  |a(n)| < ε\n".to_string()),
+                    "          1.4.6.  |a(n) − 0| < ε\n".to_string(),
+                ),
+            ],
             "step 1.4.6 drops an identity element from what the substitution makes, and nothing says a(n) is a number",
         ),
         // A base that ends on its instance with an identity element dropped,

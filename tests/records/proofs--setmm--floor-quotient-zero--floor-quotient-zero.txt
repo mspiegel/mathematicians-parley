@@ -28,7 +28,7 @@ read 32: ⌊A/B⌋ = 0  as  equality:=(floor:⌊⌋(multiplicative:/(name:A, nam
 read 33: 0  as  numeral:0  a number
 read 33: A/B  as  multiplicative:/(name:A, name:B)  a number
 read 36: ⌊A/B⌋ = 0  as  equality:=(floor:⌊⌋(multiplicative:/(name:A, name:B)), numeral:0)  a statement
-read 38: 0 ≤ A/B and A/B < 0 + 1  as  conjunction:and(order:≤(numeral:0, multiplicative:/(name:A, name:B)), order:<(multiplicative:/(name:A, name:B), additive:+(numeral:0, numeral:1)))  a statement
+read 38: 0 ≤ A/B and A/B < 1  as  conjunction:and(order:≤(numeral:0, multiplicative:/(name:A, name:B)), order:<(multiplicative:/(name:A, name:B), numeral:1))  a statement
 read 39: 0  as  numeral:0  a number
 read 39: A/B  as  multiplicative:/(name:A, name:B)  a number
 read 41: B·(A/B) < B  as  order:<(multiplicative:·(name:B, multiplicative:/(name:A, name:B)), name:B)  a statement

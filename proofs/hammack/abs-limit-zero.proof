@@ -20,10 +20,10 @@ theorem abs-limit-zero
     1.1.  For all ε > 0, there exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N.
           def:tends-to L := 0, from H2
 
-    1.2.  There exists N ∈ ℕ such that ||a(n)| − 0| < ε for all n ≥ N.
+    1.2.  There exists N ∈ ℕ such that ||a(n)|| < ε for all n ≥ N.
           instantiate ε := ε in line 1.1, from A1
 
-    1.3.  N ∈ ℕ. ||a(n)| − 0| < ε for all n ≥ N.
+    1.3.  N ∈ ℕ. ||a(n)|| < ε for all n ≥ N.
           obtain N from line 1.2
 
     1.4.  For all n ≥ N, |a(n)| < ε.
@@ -31,7 +31,7 @@ theorem abs-limit-zero
           let n ∈ ℕ                                                   (K2)
           assume n ≥ N                                                (A2)
 
-          1.4.1.  ||a(n)| − 0| < ε
+          1.4.1.  ||a(n)|| < ε
                   instantiate n := n in line 1.3, from A2
 
           1.4.2.  a(n) ∈ ℝ
@@ -48,7 +48,6 @@ theorem abs-limit-zero
 
           1.4.6.  |a(n)| < ε
                   substitute ||a(n)|| = |a(n)| (line 1.4.5) into line 1.4.1
-                  requires |a(n)| ∈ ℝ: from 1.4.4
 
     1.5.  There exists N ∈ ℕ such that |a(n)| < ε for all n ≥ N.
           exhibit, from 1.4

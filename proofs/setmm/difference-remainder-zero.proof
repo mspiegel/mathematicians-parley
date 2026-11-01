@@ -17,7 +17,7 @@ theorem difference-remainder-zero
 direction
 assume (A − B) mod N = 0                                              (C1)
 
-1.  q ∈ ℤ. q·N + 0 = A − B.
+1.  q ∈ ℤ. q·N = A − B.
     obtain q: mun:mod-remainder a := A − B, m := N, r := 0, from C1
     requires 0 < N: inequalities, from H3
 

@@ -49,18 +49,18 @@ let S(m) = Σ(k = 0 to m) C(m − k, k), for m ∈ ℕ₀                      (
                  = 1                             mun:binomial-zero-index n := 0
                  = G(0)                          2.2
 
-    2.4.  For all k ∈ {0, …, 0 + 1}, C((0 + 1) − k, k) ∈ ℝ.
+    2.4.  For all k ∈ {0, …, 1}, C(1 − k, k) ∈ ℝ.
           proof
-          let k ∈ {0, …, 0 + 1}                                       (L)
+          let k ∈ {0, …, 1}                                           (L)
 
-          2.4.1.  (0 + 1) − k ∈ ℕ₀
-                  mun:range-difference a := 0, n := 0 + 1, from L
+          2.4.1.  1 − k ∈ ℕ₀
+                  mun:range-difference a := 0, n := 1, from L
 
-          2.4.2.  C((0 + 1) − k, k) ∈ ℝ
+          2.4.2.  C(1 − k, k) ∈ ℝ
                   membership
-                  requires (0 + 1) − k ∈ ℕ₀: from 2.4.1
+                  requires 1 − k ∈ ℕ₀: from 2.4.1
 
-    2.5.  For all k ∈ {0, …, 0}, C((0 + 1) − k, k) ∈ ℝ.
+    2.5.  For all k ∈ {0, …, 0}, C(1 − k, k) ∈ ℝ.
           proof
           let k ∈ {0, …, 0}                                           (L)
 
@@ -70,38 +70,38 @@ let S(m) = Σ(k = 0 to m) C(m − k, k), for m ∈ ℕ₀                      (
           2.5.2.  (0 − k) + 1 ∈ ℕ
                   mun:nat0-successor k := 0 − k, from 2.5.1
 
-          2.5.3.  (0 + 1) − k ∈ ℕ
+          2.5.3.  1 − k ∈ ℕ
                   substitute
                     (0 − k) + 1 ∈ ℕ      2.5.2
-                    (0 + 1) − k ∈ ℕ      algebra
+                    1 − k ∈ ℕ            algebra
 
-          2.5.4.  C((0 + 1) − k, k) ∈ ℝ
+          2.5.4.  C(1 − k, k) ∈ ℝ
                   membership
-                  requires (0 + 1) − k ∈ ℕ₀: from 2.5.3
+                  requires 1 − k ∈ ℕ₀: from 2.5.3
 
-    2.6.  Σ(k = 0 to 0) C((0 + 1) − k, k) = C(0 + 1, 0)
+    2.6.  Σ(k = 0 to 0) C(1 − k, k) = C(1, 0)
           mun:sum-single a := 0, from 2.5
 
-    2.7.  C(0 + 1, 0) = 1
-          mun:binomial-zero-index n := 0 + 1
+    2.7.  C(1, 0) = 1
+          mun:binomial-zero-index n := 1
 
-    2.8.  (0 + 1) − (0 + 1) = 0
+    2.8.  1 − 1 = 0
           arithmetic
 
-    2.9.  0 < 0 + 1
+    2.9.  0 < 1
           arithmetic
 
-    2.10. C((0 + 1) − (0 + 1), 0 + 1) = 0
+    2.10. C(1 − 1, 1) = 0
           calculation
-            C((0 + 1) − (0 + 1), 0 + 1) = C(0, 0 + 1)     substitute line 2.8
-                                        = 0               def:C n := 0, k := 0 + 1, from 2.9
+            C(1 − 1, 1) = C(0, 1)     substitute line 2.8
+                        = 0           def:C n := 0, k := 1, from 2.9
 
-    2.11. Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = 1
+    2.11. Σ(k = 0 to 1) C(1 − k, k) = 1
           calculation
-            Σ(k = 0 to 0 + 1) C((0 + 1) − k, k) = Σ(k = 0 to 0) C((0 + 1) − k, k) + C((0 + 1) − (0 + 1), 0 + 1)     mun:sum-last n := 0, from 2.4
-                                                = C(0 + 1, 0) + C((0 + 1) − (0 + 1), 0 + 1)                         substitute line 2.6
-                                                = 1 + C((0 + 1) − (0 + 1), 0 + 1)                                   substitute line 2.7
-                                                = 1                                                                 substitute line 2.10
+            Σ(k = 0 to 1) C(1 − k, k) = Σ(k = 0 to 0) C(1 − k, k) + C(1 − 1, 1)     mun:sum-last n := 0, from 2.4
+                                      = C(1, 0) + C(1 − 1, 1)                       substitute line 2.6
+                                      = 1 + C(1 − 1, 1)                             substitute line 2.7
+                                      = 1                                           substitute line 2.10
 
     2.12. G(0 + 1) = F(0) + G(0)
           D1
@@ -109,16 +109,16 @@ let S(m) = Σ(k = 0 to m) C(m − k, k), for m ∈ ℕ₀                      (
     2.13. F(0) = 0
           D1
 
-    2.14. S(0 + 1) = G(0 + 1)
+    2.14. S(1) = G(1)
           calculation
-            S(0 + 1) = Σ(k = 0 to 0 + 1) C((0 + 1) − k, k)     D2
-                     = 1                                       2.11
-                     = 0 + 1                                   arithmetic
-                     = 0 + G(0)                                substitute line 2.2
-                     = F(0) + G(0)                             substitute line 2.13
-                     = G(0 + 1)                                2.12
+            S(1) = Σ(k = 0 to 1) C(1 − k, k)     D2
+                 = 1                             2.11
+                 = 0 + 1                         arithmetic
+                 = 0 + G(0)                      substitute line 2.2
+                 = F(0) + G(0)                   substitute line 2.13
+                 = G(1)                          2.12
 
-    2.15. S(0) = G(0). S(0 + 1) = G(0 + 1).
+    2.15. S(0) = G(0). S(1) = G(1).
           join 2.3, 2.14
 
     step
