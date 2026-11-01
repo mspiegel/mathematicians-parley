@@ -1,16 +1,289 @@
 //! `parley build lean`: every theorem the Lean build covers, written as a
 //! Lean file over Mathlib under `lean/`.
+//!
+//! The build writes three kinds of file. Each module of the library with a
+//! record that has a `lean` field becomes `lean/Parley/Items/…`, a theorem
+//! for each sentence an item concludes. Each theorem the build covers
+//! (`lean::coverage`) becomes a file of its own, which imports the items
+//! and the theorems it cites. `lean/Parley.lean` imports them all, so that
+//! `lake build` checks exactly what this build made. A generated file the
+//! build no longer makes is removed; `lean/Parley/Library/`, written by
+//! hand, is never touched.
+//!
+//! The build only writes. The gate asks Lean whether the files prove what
+//! they say.
 
+use std::collections::BTreeSet;
 use std::path::Path;
 
-use crate::said::Said;
+use indexmap::IndexMap;
 
-/// Build the theorem `wanted`, or every theorem the Lean build covers, in
-/// the tree at `root`, writing each file that changed.
-pub fn run(_root: &Path, _wanted: Option<&str>) -> Said {
-    Said {
-        complained: "the Lean writer is not built yet\n".to_string(),
-        status: 2,
-        ..Said::default()
+use super::{write_changed, Written};
+use crate::checker::CheckedCorpus;
+use crate::corpus::{cited_items, RecordKind};
+use crate::lean::coverage::{coverage, Covered};
+use crate::lean::expr::Writer;
+use crate::lean::items::{declaration, item, items_module, Item};
+use crate::lean::names::{module_of, path_of_module};
+use crate::lean::templates::Templates;
+use crate::lean::theorem::{as_item, theorem, Sources};
+use crate::outcome::Route;
+use crate::said::Said;
+use crate::source::Disk;
+
+/// The hand-written part of the Lean project, which the build never writes.
+pub const LIBRARY: &str = "Parley.Library";
+
+/// What a Lean build makes: each file's path and text, the theorems left
+/// out and why, and what could not be written.
+#[derive(Default)]
+pub struct Made {
+    /// Each file, by its path from the root of the tree.
+    pub files: IndexMap<String, String>,
+    /// Each theorem left out, and why.
+    pub left_out: IndexMap<String, String>,
+    /// Each item or theorem in the build that could not be written, and
+    /// why: a gap of the Lean writer's.
+    pub gaps: IndexMap<String, String>,
+}
+
+/// The header every generated file opens with.
+fn header(imports: &[String], from: &str) -> String {
+    let mut out = String::from("module\n\n");
+    for i in imports {
+        out.push_str(&format!("public import {i}\n"));
     }
+    out.push_str(&format!(
+        "\n/-! Written from {from} by parley build lean. -/\n\n"
+    ));
+    out
+}
+
+/// Everything the Lean build makes of the corpus as the checker read it.
+pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
+    let templates = Templates::read(&checked.corpus.records)?;
+    let targets =
+        crate::methods::terms::Targets::of(&checked.grammar, &checked.corpus.records);
+    let mut made = Made::default();
+    let writer = Writer {
+        grammar: &checked.grammar,
+        templates: &templates,
+        letters: IndexMap::new(),
+    };
+
+    // The library's items with a lean field, by full name, and each
+    // module's declarations.
+    let mut items: IndexMap<String, Item> = IndexMap::new();
+    let mut modules: IndexMap<String, (String, Vec<String>)> = IndexMap::new();
+    for record in &checked.corpus.records {
+        if record.kind == RecordKind::Notation || record.field("lean").is_none() {
+            continue;
+        }
+        let full = format!("{}/{}", record.module(), record.name);
+        match item(&writer, checked, record) {
+            Route::Built(it) => {
+                let entry = modules
+                    .entry(items_module(record))
+                    .or_insert_with(|| (record.path.clone(), Vec::new()));
+                for (s, proof) in it.sentences.iter().zip(&it.proofs) {
+                    entry.1.push(declaration(s, proof));
+                }
+                items.insert(full, it);
+            }
+            Route::Declined(d) => {
+                made.gaps.insert(full, d.reason());
+            }
+        }
+    }
+    for (module, (path, decls)) in &modules {
+        let mut text = header(&[LIBRARY.to_string()], path);
+        text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
+        for d in decls {
+            text.push_str(d);
+            text.push_str("\n\n");
+        }
+        text.push_str(&format!("end {module}\n"));
+        made.files.insert(path_of_module(module), text);
+    }
+
+    // The theorems the build covers, first as items a citation names.
+    let covered = coverage(checked, &templates);
+    let mut theorems = Vec::new();
+    for thm in &checked.corpus.theorems {
+        let name = thm.qualified();
+        match covered.get(&name) {
+            Some(Covered::In) => {}
+            Some(Covered::Out { reason }) => {
+                made.left_out.insert(name, reason.clone());
+                continue;
+            }
+            None => continue,
+        }
+        let Some(rec) = checked.theorems.get(&name) else {
+            continue;
+        };
+        let sources = Sources {
+            checked,
+            templates: &templates,
+            targets: &targets,
+            items: &items,
+        };
+        match as_item(&sources, thm, rec) {
+            Route::Built(it) => {
+                theorems.push((thm, rec));
+                items.insert(name, it);
+            }
+            Route::Declined(d) => {
+                made.gaps.insert(name, d.reason());
+            }
+        }
+    }
+    let mut written: Vec<String> = modules.keys().cloned().collect();
+    for (thm, rec) in theorems {
+        let name = thm.qualified();
+        let sources = Sources {
+            checked,
+            templates: &templates,
+            targets: &targets,
+            items: &items,
+        };
+        let file = match theorem(&sources, thm, rec) {
+            Route::Built(f) => f,
+            Route::Declined(d) => {
+                made.gaps.insert(name, d.reason());
+                continue;
+            }
+        };
+        let module = module_of(&name);
+        let mut imports: BTreeSet<String> = BTreeSet::new();
+        imports.insert(LIBRARY.to_string());
+        for (full, _) in cited_items(thm) {
+            if let Some(it) = items.get(&full) {
+                if it.module != module {
+                    imports.insert(it.module.clone());
+                }
+            }
+        }
+        let imports: Vec<String> = imports.into_iter().collect();
+        let mut text = header(&imports, &thm.path);
+        text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
+        text.push_str(&file.text);
+        text.push_str(&format!("\nend {module}\n"));
+        made.files.insert(path_of_module(&module), text);
+        written.push(module);
+    }
+
+    let mut root = String::from("module\n\n");
+    root.push_str(&format!("public import {LIBRARY}\n"));
+    for m in &written {
+        root.push_str(&format!("public import {m}\n"));
+    }
+    made.files.insert("lean/Parley.lean".to_string(), root);
+    Ok(made)
+}
+
+/// Every `.lean` file under `lean/Parley/` the build wrote before: all but
+/// the hand-written library.
+fn generated_in_tree(root: &Path) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut stack = vec![root.join("lean/Parley")];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        for e in entries.flatten() {
+            let path = e.path();
+            let rel = path
+                .strip_prefix(root)
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default();
+            if rel.starts_with("lean/Parley/Library") {
+                continue;
+            }
+            if path.is_dir() {
+                stack.push(path);
+            } else if rel.ends_with(".lean") {
+                out.push(rel);
+            }
+        }
+    }
+    out.sort();
+    out
+}
+
+/// Build the Lean files of the tree at `root`, writing each file that
+/// changed. Every file is made each time, since `lean/Parley.lean` imports
+/// them all; a theorem `wanted` that is not in the build is reported, with
+/// why, and nothing is written.
+pub fn run(root: &Path, wanted: Option<&str>) -> Said {
+    let mut said = Said::default();
+    let source = Disk::new(root.to_path_buf());
+    let checked = match crate::checker::checked(&source) {
+        Ok(checked) => checked,
+        Err(out) => return out,
+    };
+    let made = match make(&checked) {
+        Ok(made) => made,
+        Err(problem) => {
+            said.complained = format!("{problem}\n");
+            said.status = 2;
+            return said;
+        }
+    };
+    if let Some(name) = wanted {
+        if !made.files.contains_key(&path_of_module(&module_of(name))) {
+            said.complained = match made.left_out.get(name).or(made.gaps.get(name)) {
+                Some(why) => format!("{name} is not in the Lean build: {why}\n"),
+                None => format!("no theorem {name}\n"),
+            };
+            said.status = 2;
+            return said;
+        }
+    }
+    let mut changed = 0;
+    let mut failed = false;
+    for (path, text) in &made.files {
+        match write_changed(root, path, text) {
+            Ok(Written::Changed) => {
+                changed += 1;
+                said.printed += &format!("* {path}\n");
+            }
+            Ok(Written::Same) => said.printed += &format!("  {path}\n"),
+            Err(problem) => {
+                said.complained += &format!("{problem}\n");
+                failed = true;
+            }
+        }
+    }
+    for path in generated_in_tree(root) {
+        if !made.files.contains_key(&path) {
+            match std::fs::remove_file(root.join(&path)) {
+                Ok(()) => {
+                    changed += 1;
+                    said.printed += &format!("- {path}\n");
+                }
+                Err(e) => {
+                    said.complained += &format!("{path}: {e}\n");
+                    failed = true;
+                }
+            }
+        }
+    }
+    if !made.gaps.is_empty() {
+        said.printed +=
+            "\nthe Lean build cannot yet write these, which the checker accepts:\n";
+        for (name, why) in &made.gaps {
+            said.printed += &format!("  {name}: {why}\n");
+        }
+        failed = true;
+    }
+    said.printed += &format!(
+        "\n{} built, {changed} changed, {} left out\n",
+        made.files.len(),
+        made.left_out.len()
+    );
+    if failed {
+        said.status = 1;
+    }
+    said
 }

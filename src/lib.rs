@@ -14,6 +14,7 @@ pub mod citing;
 pub mod corpus;
 pub mod elab;
 pub mod formula;
+pub mod lean;
 pub mod matching;
 pub mod methods;
 pub mod mm;

@@ -1,0 +1,87 @@
+//! What a theorem or an item asks for, as Lean binders.
+//!
+//! A `let` that puts a letter in a number system makes the letter a binder
+//! of that type; the page's ℕ, which starts at 1, adds the hypothesis that
+//! the letter is above 0. Every other fact asked for is a hypothesis. The
+//! same reading serves a theorem's own statement and a citation of it, so
+//! the two agree on the order of what is asked.
+
+use super::expr::{letter_type, system_of, LetterType, Printed, System, Writer};
+use crate::formula::Node;
+use crate::notations::{IN, NUMBER_SYSTEMS};
+use crate::outcome::Route;
+
+/// One binder of a statement.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Binder {
+    /// A letter of a type: its Lean name, and the letter as the page
+    /// writes it, which a citation's values are given by.
+    Letter {
+        name: String,
+        page: String,
+        ty: LetterType,
+    },
+    /// A hypothesis, by its name, and what it says.
+    Fact { name: String, says: String },
+}
+
+impl Binder {
+    pub fn lean(&self) -> String {
+        match self {
+            Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
+            Binder::Fact { name, says } => format!("({name} : {says})"),
+        }
+    }
+}
+
+/// A fact a statement asks for, with the name its proof calls it by.
+pub struct Asked<'n> {
+    pub node: &'n Node,
+    pub name: String,
+}
+
+/// The letter and system a fact `x ∈ S` introduces, S a number system;
+/// None for any other fact.
+pub fn introduces(node: &Node) -> Option<(String, System)> {
+    let [x, set] = node.children.as_slice() else {
+        return None;
+    };
+    if node.spelling() != IN || !x.is_name() || set.notation() != NUMBER_SYSTEMS {
+        return None;
+    }
+    Some((x.text.to_string(), system_of(set)?))
+}
+
+/// The binders of the facts asked, in order, each letter added to the
+/// writer's letters as it is introduced, so a later fact reads it.
+pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
+    let mut out = Vec::new();
+    for a in asked {
+        if let Some((letter, system)) = introduces(a.node) {
+            let ty = LetterType::Number(letter_type(system));
+            writer.letters.insert(letter.clone(), ty.clone());
+            let name = super::names::letter(&letter);
+            out.push(Binder::Letter {
+                name: name.clone(),
+                page: letter.clone(),
+                ty,
+            });
+            if system == System::Positive {
+                out.push(Binder::Fact {
+                    name: a.name.clone(),
+                    says: format!("0 < {name}"),
+                });
+            }
+            continue;
+        }
+        let says: Printed = match writer.formula(a.node) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        out.push(Binder::Fact {
+            name: a.name.clone(),
+            says: says.text,
+        });
+    }
+    Route::Built(out)
+}

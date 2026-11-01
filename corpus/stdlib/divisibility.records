@@ -26,6 +26,7 @@ definition divides
   decided     arithmetic, inspection
   metamath    df-dvds, as divides states it
   target      divides, equation reversed
+  lean        Iff.rfl
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
               dull fact. This is the principle recorded by the primes pilot: a
               relation is defined once, on the widest set where it makes sense.
@@ -36,6 +37,7 @@ definition even
   decided     arithmetic, inspection
   metamath    df-dvds, whose right side is the same existential
   target      divides, equation reversed
+  lean        even_iff_exists_two_mul
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.
 
@@ -50,6 +52,7 @@ definition odd
   decided     arithmetic, inspection
   metamath    odd2np1, of n ∈ ℤ and not 2 ∥ n
   target      godd2np1, equation reversed
+  lean        Iff.rfl
   note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
               godd2np1 is odd2np1 with the membership joined, and is proved
               in elaboration/stdlib/proved.mm.

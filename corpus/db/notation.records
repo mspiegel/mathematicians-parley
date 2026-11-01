@@ -293,6 +293,7 @@ notation additive
   reads       plus, minus
   metamath    caddc, cmin
   target      _1 _2 caddc co, _1 _2 cmin co
+  lean        α, α → α: _1 + _2 ; α, α → α: _1 - _2
   note        Left is the only defensible reading of a − b − c. No chain of
               either operator occurs in the corpus, but the parse tree is
               load-bearing for the literal-instance rule and for the expansion,
@@ -308,6 +309,7 @@ notation multiplicative
   reads       times, divided by
   metamath    cmul, cdiv
   target      _1 _2 cmul co, _1 _2 cdiv co
+  lean        α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
 
 notation group-operation
   pattern     _ · _
@@ -329,6 +331,7 @@ notation unary-minus
   reads       minus
   metamath    cneg
   target      _1 cneg
+  lean        α → α: -_1
   note        No assoc, because only the right edge is a hole: −−x can be read
               one way. Written with the same character as binary minus and told
               apart by position, not by spacing.
@@ -342,6 +345,7 @@ notation power
   reads       to the power
   metamath    cexp
   target      _1 _2 cexp co
+  lean        α, ℕ → α: _1 ^ _2
   note        Right by universal convention. No tower occurs in the corpus.
               An exponent that is not a numeral makes the whole power an atom
               to `algebra`; see METHODS.md. Its exponent decides between `↑`
@@ -370,6 +374,7 @@ notation superscript
   reads       to the power
   metamath    cexp, the exponent being the numeral written raised
   target      _1 _2 cexp co
+  lean        α, ℕ → α: _1 ^ _2
   note        x², N³, 2¹⁰: a power whose exponent is a numeral, written raised
               as a textbook writes it. `ⁿ` in the pattern stands for any run
               of raised digits, which is one numeral (`GRAMMAR.md`). A numeral
@@ -411,6 +416,7 @@ notation logical-not
   reads       not
   metamath    wn
   target      _1 wn
+  lean        Prop → Prop: ¬ _1
   note        No assoc: only the right edge is a hole.
 
 notation conjunction
@@ -421,6 +427,7 @@ notation conjunction
   reads       and
   metamath    wa
   target      _1 _2 wa
+  lean        Prop, Prop → Prop: _1 ∧ _2
   note        Left matches set.mm's ternary conjunction, so a claim of three
               sentences maps onto the library's own lemma. See METHODS.md.
 
@@ -454,6 +461,7 @@ notation disjunction
   reads       or
   metamath    wo
   target      _1 _2 wo
+  lean        Prop, Prop → Prop: _1 ∨ _2
 
 notation implication
   pattern     _ → _
@@ -463,6 +471,7 @@ notation implication
   reads       implies
   metamath    wi
   target      _1 _2 wi
+  lean        Prop, Prop → Prop: _1 → _2
 
 notation biconditional
   pattern     _ ↔ _
@@ -472,6 +481,7 @@ notation biconditional
   reads       if and only if
   metamath    wb
   target      _1 _2 wb
+  lean        Prop, Prop → Prop: _1 ↔ _2
   note        ∀ and ∃ are not declared as symbols anywhere: SYNTAX.md writes
               them as the binders below, and ¬ ∧ ∨ as words.
 
@@ -482,6 +492,7 @@ notation conditional
   reads       if, then
   metamath    wi
   target      _1 _2 wi
+  lean        Prop, Prop → Prop: _1 → _2
   note        The same connective as →, written the way a definition by cases
               is read. Both spellings are in the corpus. Unlike → it needs no
               assoc, because it opens with a token: `if A then if B then C`
@@ -1633,6 +1644,7 @@ notation divides
   reads       divides
   metamath    wbr with cdvds
   target      _1 _2 cdvds wbr
+  lean        ℤ, ℤ → Prop: _1 ∣ _2
   note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
 
 notation congruent-mod
@@ -1764,6 +1776,7 @@ notation parity
   reads       is even, is odd, is not odd
   metamath    2 ∥ n; n ∈ ℤ and not 2 ∥ n, set.mm's odd integer; its negation
   target      c2 _1 cdvds wbr, _1 cz wcel c2 _1 cdvds wbr wn wa, folded
+  lean        ℤ → Prop: Even _1 ; ℤ → Prop: Odd _1 ; -
   note        An odd number is an integer, as set.mm's `df-odd` and its odd
               theorems (`opoe`, `m1expo`) say, so "n is odd" carries n ∈ ℤ
               and π is not odd; "n is even" needs no such part, since 2 ∥ n

@@ -101,7 +101,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "pattern", "sort", "level", "assoc", "commutes", "identity", "negates",
             "spells", "places", "nests", "bounds", "joins", "wraps", "fills",
             "repeats", "shadowed", "wanted", "instead", "binds", "reads", "member",
-            "target", "metamath", "decided", "note",
+            "target", "metamath", "decided", "lean", "note",
         ],
     ),
     (
@@ -124,11 +124,17 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         RecordKind::Definition,
         &[
             "sort", "builds", "reads", "metamath", "target", "open", "symbol",
-            "defines", "decided", "note",
+            "defines", "decided", "lean", "note",
         ],
     ),
-    (RecordKind::Axiom, &["metamath", "target", "open", "note"]),
-    (RecordKind::Theorem, &["metamath", "target", "open", "note"]),
+    (
+        RecordKind::Axiom,
+        &["metamath", "target", "open", "lean", "note"],
+    ),
+    (
+        RecordKind::Theorem,
+        &["metamath", "target", "open", "lean", "note"],
+    ),
 ];
 
 /// One record of a database file.

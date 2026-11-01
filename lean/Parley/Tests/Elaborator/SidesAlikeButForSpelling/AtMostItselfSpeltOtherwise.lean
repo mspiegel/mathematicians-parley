@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/sides-alike-but-for-spelling.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOtherwise
+
+theorem at_most_itself_spelt_otherwise (A : ℝ) (B : ℝ) :
+    B + (A - B) ≤ A := by
+  -- 1. inequalities
+  have s1 : B + (A - B) ≤ A := by linarith
+  parley_side
+
+end Parley.Tests.Elaborator.SidesAlikeButForSpelling.AtMostItselfSpeltOtherwise

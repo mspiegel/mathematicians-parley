@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from proofs/setmm/two-halves-below.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.TwoHalvesBelow.TwoHalvesBelow
+
+theorem two_halves_below (A : ℝ) (B : ℝ) (C : ℝ) (H4 : A < C / 2) (H5 : B < C / 2) :
+    A + B < C := by
+  -- 1. inequalities, from H4, H5
+  have s1 : A + B < C := by linarith
+  parley_side
+
+end Parley.Proofs.Setmm.TwoHalvesBelow.TwoHalvesBelow

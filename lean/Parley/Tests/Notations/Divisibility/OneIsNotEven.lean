@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/notations/divisibility.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Notations.Divisibility.OneIsNotEven
+
+theorem one_is_not_even :
+    ¬ Even (1 : ℤ) := by
+  -- 1. arithmetic
+  have s1 : ¬ Even (1 : ℤ) := by norm_num
+  parley_side
+
+end Parley.Tests.Notations.Divisibility.OneIsNotEven

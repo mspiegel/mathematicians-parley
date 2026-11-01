@@ -1,0 +1,16 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/notations/negatives.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Notations.Negatives.MinusThreeInteger
+
+theorem minus_three_integer :
+    True := by
+  -- 1. arithmetic
+  parley_side
+
+end Parley.Tests.Notations.Negatives.MinusThreeInteger
