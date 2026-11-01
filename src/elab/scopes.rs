@@ -2799,6 +2799,10 @@ impl<'a> Elaborator<'a> {
         let proof = self
             .held(&lifted, &body, &inner)?
             .expect("the body just laid down");
+        // What carrying the body to the line may rest on: what the step
+        // names, and the body it obtains, which stands for the step.
+        let mut allowed = self.named(step, number, false);
+        allowed.insert(number.to_string());
         // The line is what the page writes. An item states its body in its
         // own bound letters, `for all x ∈ ℂ`, and the page may bind another,
         // `for all n ∈ ℂ`, which a later `instantiate n := …` names; the two
@@ -2816,9 +2820,6 @@ impl<'a> Elaborator<'a> {
                             &binds! {"ph" => &inner, "ps" => &body, "ch" => &said},
                             &[&proof, &same],
                         );
-                        // Known at this scope, so a deeper one carries it as
-                        // it carries the body.
-                        self.know(&lifted, said.clone(), proof.clone());
                         (said, proof)
                     }
                     None if said == body => (body.clone(), proof),
@@ -2827,19 +2828,24 @@ impl<'a> Elaborator<'a> {
                     // identity elements of both are dropped (`reached`);
                     // anything else is a claim the existence does not give.
                     None => {
-                        let alike = self.same(
-                            &self.to_term(&body),
-                            &self.to_term(&said),
-                            &inner,
-                            &lifted,
-                            Some(step),
-                        )?;
+                        let (from, to) = (self.to_term(&body), self.to_term(&said));
+                        let alike = self.resting_on(Some(allowed.clone()), |me| {
+                            let offered = me.in_hand(&lifted);
+                            me.same(&from, &to, &inner, &offered, Some(step))
+                        })?;
                         let proof = match alike {
                             Built(alike) => {
                                 pf!(self.b; &inner, body, said, proof, alike, "mpbid")
                             }
                             Declined(_) => {
-                                match self.reached(&proof, &body, &said, &inner, &lifted)? {
+                                let reached =
+                                    self.resting_on(Some(allowed.clone()), |me| {
+                                        let offered = me.in_hand(&lifted);
+                                        me.reached(
+                                            &proof, &body, &said, &inner, &offered,
+                                        )
+                                    })?;
+                                match reached {
                                     Some(p) => p,
                                     None => {
                                         return Err(self.defect(
@@ -2854,13 +2860,29 @@ impl<'a> Elaborator<'a> {
                                 }
                             }
                         };
-                        self.know(&lifted, said.clone(), proof.clone());
                         (said, proof)
                     }
                 }
             }
             _ => (body.clone(), proof),
         };
+        // The line rests on nothing the step does not name but the body it
+        // obtains, and stands for the step from here on, as a step's proof
+        // does (`check_step`): what carried the body to the claim, an
+        // identity element dropped from a number its `let` says, is the
+        // obtain's, not a citer's.
+        self.rests_on_named(
+            &line_proof,
+            &allowed,
+            step.line,
+            &format!("step {number}"),
+        )?;
+        let line_proof = self.seal(line_proof, number);
+        if line_term != body {
+            // Known at this scope, so a deeper one carries it as it carries
+            // the body.
+            self.know(&lifted, line_term.clone(), line_proof.clone());
+        }
         self.lines
             .set(number, Line::new(line_term, line_proof, sentences));
         let discharge = if layers.len() == 1 {

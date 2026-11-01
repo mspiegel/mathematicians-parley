@@ -1,0 +1,21 @@
+define d(n) := 2n, for n ∈ ℕ₀                                        (D0)
+       reads twice n
+
+theorem doubled-successor
+  let n ∈ ℕ₀                                                          (H1)
+  then d(n + 1) = d(n) + 2
+
+1.  d(n + 1) = d(n) + 2
+    calculation
+      d(n + 1) = 2(n + 1)      D0
+               = 2n + 2        algebra
+               = d(n) + 2      D0
+
+theorem doubled-successor-at-zero
+  note        At n := 0 the theorem above concludes d(0 + 1) = d(0) + 2,
+              which is d(1) = d(0) + 2 once the 0 is dropped: the claim is
+              written without it, in the build as in the checker.
+  then d(1) = d(0) + 2
+
+1.  d(1) = d(0) + 2
+    thm:doubled-successor n := 0

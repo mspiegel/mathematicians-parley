@@ -2057,6 +2057,12 @@ impl<'a> Elaborator<'a> {
                     pf!(self.b; scope, reached, term, proof, alike, "mpbid"),
                 ));
             }
+            // Or the claim with its identity elements dropped, as the checker
+            // compares the two (`SYNTAX.md`, "An identity element goes without
+            // saying"): the line at k := 0 says F(0 + 2), and the step F(2).
+            if let Some(tidy) = self.tidied(&proof, &reached, term, scope, facts)? {
+                return Ok(Built(tidy));
+            }
             if reads.label() != Some("wi") {
                 return Err(self.defect(
                     step.line,
@@ -6746,6 +6752,29 @@ impl<'a> Elaborator<'a> {
                 self.same(&self.to_term(&one), &self.to_term(term), scope, facts, None)?
             {
                 return Ok(pf!(self.b; scope, one, term, shown, alike, "mpbid"));
+            }
+        }
+        // Or the claim with its identity elements dropped, as the checker
+        // compares the two (`SYNTAX.md`, "An identity element goes without
+        // saying"): at n := 0 the statement says J(0 + 1), and the step J(1).
+        // Where the statement writes a defined name out, the claim is read
+        // through its names too.
+        for (one, shown) in taken.entries() {
+            if let Some(p) = self.tidied(&shown, &one, term, scope, facts)? {
+                return Ok(p);
+            }
+            if read_rpn != *term {
+                if let Some(there) =
+                    self.tidied(&shown, &one, &read_rpn, scope, facts)?
+                {
+                    if let Built(alike) =
+                        self.same(&read, &claim, scope, facts, None)?
+                    {
+                        return Ok(
+                            pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
+                        );
+                    }
+                }
             }
         }
         // A sentence "A ↔ B" with a line stating A gives B, and B gives A;

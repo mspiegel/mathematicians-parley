@@ -1,0 +1,10 @@
+theorem an-instance-without-its-zero
+  note        At k := 0 the hypothesis says a(0 + 1) = a(0) + 2, which is
+              a(1) = a(0) + 2 once the 0 is dropped: the instance is
+              written without it, in the build as in the checker.
+  let a : ℕ₀ → ℝ                                                      (H1)
+  assume for all k ∈ ℕ₀, a(k + 1) = a(k) + 2                          (H2)
+  then a(1) = a(0) + 2
+
+1.  a(1) = a(0) + 2
+    instantiate k := 0 in H2

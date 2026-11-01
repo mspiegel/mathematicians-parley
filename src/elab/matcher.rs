@@ -2429,11 +2429,22 @@ impl<'a> Elaborator<'a> {
             }
         }
         let offered = held.with(&written);
-        let goal = self.to_term(&t!(self.rpn(term), self.rpn(kept), "wceq"));
+        let goal_rpn = t!(self.rpn(term), self.rpn(kept), "wceq");
+        let goal = self.to_term(&goal_rpn);
         for label in rules::IDENTITY {
             if let Built(p) =
                 self.apply_lemma(label, &goal, where_, &offered, None, false, None)?
             {
+                // A lemma is proved in a frame and carried to the innermost
+                // one (`allowed`, `carry`); a scope inside a binder, as a
+                // sum's term under its index, is that frame with more
+                // added, and the proof is lifted the rest of the way.
+                let innermost = self.frames.last().map(|f| f.scope.clone());
+                if let Some(at) = innermost.filter(|at| at != where_) {
+                    if let Some(lifted) = self.lifted_to(&goal_rpn, &p, &at, where_) {
+                        return Ok(Built(lifted));
+                    }
+                }
                 return Ok(Built(p));
             }
         }
