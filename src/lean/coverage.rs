@@ -36,7 +36,6 @@ pub const IN_CODE: &[&str] = &[
     "for-all",
     "integer-range",
     "comma-conjunction",
-    "application",
 ];
 
 /// Every theorem of the corpus, in or out.

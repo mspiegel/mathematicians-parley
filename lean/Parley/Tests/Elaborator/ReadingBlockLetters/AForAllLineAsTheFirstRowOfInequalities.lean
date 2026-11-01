@@ -1,0 +1,21 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/reading-block-letters.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineAsTheFirstRowOfInequalities
+
+theorem a_for_all_line_as_the_first_row_of_inequalities (H1 : ∀ x : ℝ, x ^ 2 + 1 > 0) :
+    (∀ y : ℝ, y ^ 2 + 1 ≥ 0) := by
+  -- 1. proof
+  have s1 : ∀ y : ℝ, y ^ 2 + 1 ≥ 0 := by
+    intro y
+    -- 1.1. inequalities
+    have s1_1 : y ^ 2 + 1 ≥ 0 := by parley_side
+    parley_side
+  parley_side
+
+end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineAsTheFirstRowOfInequalities

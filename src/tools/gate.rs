@@ -1,7 +1,7 @@
 //! Everything about the corpus that must be green before a commit.
 //!
 //! Whether the tool itself is right is `cargo test`; this is whether the
-//! corpus is. Seven stages, in the order they are printed:
+//! corpus is. Nine stages, in the order they are printed:
 //!
 //! 1. the checker over the whole corpus;
 //! 2. every artifact built afresh in memory and compared with the file in
@@ -14,7 +14,11 @@
 //!    of metamath-knife) over every proof the elaborator has written;
 //! 7. every library item with a target restated as a theorem citing it,
 //!    built and verified the same way (`restated`), and each item it cannot
-//!    restate listed in `ELABORATION.md`.
+//!    restate listed in `ELABORATION.md`;
+//! 8. every Lean file built afresh in memory and compared with the file in
+//!    the tree, as the second stage does for the Metamath files;
+//! 9. Lean over every Lean file, and each statement it proved read back
+//!    against the page's arithmetic and Lean's own axioms (`lean_gate`).
 //!
 //! The verifier stages are the only evidence the elaborator is right rather
 //! than consistent. The others read the corpus against itself or
@@ -31,7 +35,9 @@
 //! Three stages need set.mm, which belongs to metamath and is not committed:
 //! say where it is with `SET_MM`, or leave a copy or a link at the root of
 //! the working tree. A gate that skipped them would be saying green about a
-//! thing it had not looked at.
+//! thing it had not looked at. The ninth needs Lean and Mathlib, which are
+//! not committed either, and is red where they are missing for the same
+//! reason.
 
 use std::path::Path;
 
@@ -192,6 +198,14 @@ pub fn run(root: &Path) -> Said {
         (
             "every library item gives its target what it asks",
             Box::new(|| restated::run(&source, libraries)),
+        ),
+        (
+            "every Lean file is what a fresh build makes",
+            Box::new(|| super::lean_gate::fresh(root)),
+        ),
+        (
+            "Lean accepts every file, and each statement is the page's",
+            Box::new(|| super::lean_gate::accepted(root)),
         ),
     ];
 

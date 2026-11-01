@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceAsTheSubstitutedEquation
+
+theorem a_second_sentence_as_the_substituted_equation (a : ℝ) (b : ℝ) (H3a : a = 1) (H3b : b = 2) :
+    a + b = a + 2 := by
+  -- 1. substitute b = 2 (H3)
+  have s1 : a + b = a + 2 := by parley_subst H3a
+  parley_side
+
+end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceAsTheSubstitutedEquation

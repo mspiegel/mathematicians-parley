@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/cited-conjunction.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.CitedConjunction.DividedByACitedNatural
+
+theorem divided_by_a_cited_natural (a : ℕ) (H1 : 0 < a) (k : ℤ) (H3 : (0 < k ∧ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (a : ℚ) / (k : ℚ))) ∧ (a : ℤ) > 1) :
+    ((a : ℚ) / (k : ℚ)) ^ 2 = (a : ℚ) ^ 2 / (k : ℚ) ^ 2 := by
+  -- 1. algebra, from H3
+  have s1 : ((a : ℚ) / (k : ℚ)) ^ 2 = (a : ℚ) ^ 2 / (k : ℚ) ^ 2 := by parley_ring
+  parley_side
+
+end Parley.Tests.Elaborator.CitedConjunction.DividedByACitedNatural

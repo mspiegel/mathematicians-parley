@@ -80,8 +80,14 @@ pub fn algebra(
         given.push(read.says);
         proofs.push(c.proof.clone());
     }
+    // Lines cited for what they say of a divisor, and no equation: the claim
+    // is an identity, cleared of its divisions by those lines.
     if given.is_empty() {
-        return Route::no("algebra citing no equation");
+        return Route::Built(if divided || writes_division {
+            "by parley_ring".to_string()
+        } else {
+            "by ring".to_string()
+        });
     }
     let claim_under = denominators(&claimed, &labels);
     let found = readings(&claimed, want, &labels)

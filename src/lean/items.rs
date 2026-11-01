@@ -29,6 +29,10 @@ pub struct Sentence {
     /// Where the item is a corpus theorem whose statement holds several
     /// sentences joined, the projection that takes this one, `.2.1`.
     pub part: String,
+    /// The arithmetic the page writes in the whole of the declaration's
+    /// statement, what it asks included, which the gate's read-back
+    /// compares with what Lean elaborated (`readback`).
+    pub arithmetic: std::collections::BTreeMap<String, usize>,
 }
 
 /// An item of the library in Lean: its sentences, counted across its
@@ -108,12 +112,17 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             } else {
                 format!("{base}_{}", sentences.len() + 1)
             };
+            let mut stated: Vec<Node> =
+                group.wants.iter().map(|(_, n)| n.clone()).collect();
+            stated.push(says.clone());
+            let arithmetic = super::readback::page_arithmetic(&w, &stated);
             sentences.push(Sentence {
                 decl: format!("{module}.{name}"),
                 binders,
                 says: says.clone(),
                 prop,
                 part: String::new(),
+                arithmetic,
             });
         }
     }

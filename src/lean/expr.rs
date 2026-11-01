@@ -397,7 +397,16 @@ impl Writer<'_> {
                         ))
                     }
                 };
-                let children = match self.holes(node, template, here) {
+                // A value of a fixed type, ⌊x⌋ in ℤ, computes what it takes
+                // in that part's own least type, not the type around it.
+                let alpha = match template.yields {
+                    Slot::Fixed(_) => match self.alpha_of(node, template) {
+                        Route::Built(a) => a,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                    _ => here,
+                };
+                let children = match self.holes(node, template, alpha) {
                     Route::Built(c) => c,
                     Route::Declined(d) => return Route::Declined(d),
                 };

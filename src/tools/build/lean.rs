@@ -45,6 +45,24 @@ pub struct Made {
     /// Each item or theorem in the build that could not be written, and
     /// why: a gap of the Lean writer's.
     pub gaps: IndexMap<String, String>,
+    /// Each declaration written, by its full Lean name, with the arithmetic
+    /// the page writes in its statement, which the gate's read-back
+    /// compares with what Lean elaborated.
+    pub statements: IndexMap<String, std::collections::BTreeMap<String, usize>>,
+    /// Each theorem's file, by its path, with where on the page each of its
+    /// lines was written for.
+    pub origins: IndexMap<String, Origins>,
+}
+
+/// Where a theorem's Lean file comes from, line by line.
+pub struct Origins {
+    /// The theorem, by its full name.
+    pub theorem: String,
+    /// The proof file it is written in.
+    pub page: String,
+    /// Each line of the Lean file, from 1, with the place on the page it
+    /// was written for.
+    pub lines: Vec<crate::lean::theorem::Origin>,
 }
 
 /// The header every generated file opens with.
@@ -87,6 +105,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
                     .or_insert_with(|| (record.path.clone(), Vec::new()));
                 for (s, proof) in it.sentences.iter().zip(&it.proofs) {
                     entry.1.push(declaration(s, proof));
+                    made.statements.insert(s.decl.clone(), s.arithmetic.clone());
                 }
                 items.insert(full, it);
             }
@@ -167,9 +186,30 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         let imports: Vec<String> = imports.into_iter().collect();
         let mut text = header(&imports, &thm.path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
+        let above = text.lines().count();
         text.push_str(&file.text);
         text.push_str(&format!("\nend {module}\n"));
-        made.files.insert(path_of_module(&module), text);
+        let origins = file
+            .origins
+            .into_iter()
+            .map(|o| crate::lean::theorem::Origin {
+                line: o.line + above,
+                ..o
+            })
+            .collect();
+        let path = path_of_module(&module);
+        made.origins.insert(
+            path.clone(),
+            Origins {
+                theorem: name.clone(),
+                page: thm.path.clone(),
+                lines: origins,
+            },
+        );
+        if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
+            made.statements.insert(s.decl.clone(), s.arithmetic.clone());
+        }
+        made.files.insert(path, text);
         written.push(module);
     }
 
@@ -184,7 +224,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
 
 /// Every `.lean` file under `lean/Parley/` the build wrote before: all but
 /// the hand-written library.
-fn generated_in_tree(root: &Path) -> Vec<String> {
+pub fn generated_in_tree(root: &Path) -> Vec<String> {
     let mut out = Vec::new();
     let mut stack = vec![root.join("lean/Parley")];
     while let Some(dir) = stack.pop() {

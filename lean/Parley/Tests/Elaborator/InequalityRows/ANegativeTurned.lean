@@ -1,0 +1,17 @@
+module
+
+public import Parley.Library
+
+/-! Written from tests/elaborator/inequality-rows.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
+
+theorem a_negative_turned (x : ℝ) (H2 : x < 0) :
+    0 < -x := by
+  -- 1. inequalities
+  have s1 : 0 < -x := by parley_side
+  parley_side
+
+end Parley.Tests.Elaborator.InequalityRows.ANegativeTurned

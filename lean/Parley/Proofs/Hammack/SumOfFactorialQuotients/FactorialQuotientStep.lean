@@ -1,0 +1,30 @@
+module
+
+public import Parley.Library
+
+/-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep
+
+theorem factorial_quotient_step (c : ℕ) (H1 : 0 < c) (F : ℝ) (H3 : F ≠ 0) :
+    1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / (F * ((c : ℝ) + 1)) := by
+  -- 1. algebra
+  have r71_1 : F ≠ 0 := by parley_side
+  have s1 : (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := by parley_ring
+  -- 2. algebra
+  have s2 : (c : ℚ) / ((c : ℚ) + 1) = 1 - 1 / ((c : ℚ) + 1) := by parley_ring
+  -- 3. algebra
+  have r78_1 : F ≠ 0 := by parley_side
+  have s3 : 1 / (F * ((c : ℝ) + 1)) = 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
+  -- 4. calculation
+  have r82_1 : F ≠ 0 := by parley_side
+  have s4 : 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / (F * ((c : ℝ) + 1)) := by
+    calc 1 - 1 / F + (c : ℝ) / (F * ((c : ℝ) + 1)) = 1 - 1 / F + 1 / F * ((c : ℝ) / ((c : ℝ) + 1)) := by parley_subst s1
+      _ = 1 - 1 / F + 1 / F * (1 - 1 / ((c : ℝ) + 1)) := by parley_subst s2
+      _ = 1 - 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
+      _ = 1 - 1 / (F * ((c : ℝ) + 1)) := by parley_subst s3
+  parley_side
+
+end Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep

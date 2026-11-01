@@ -63,6 +63,38 @@ macro "parley_ring" : tactic =>
     | (parley_clear <;> ring1; done)
     | (parley_clear; done))
 
+/-- `substitute`, into the goal: the goal is what the equation `e` makes of
+a term in it, either way round. -/
+macro "parley_subst " e:term:max : tactic =>
+  `(tactic| first
+    | (rw [$e:term]; done)
+    | (rw [← $e:term]; done)
+    | (rw [$e:term]; ring1; done)
+    | (rw [← $e:term]; ring1; done)
+    | (simp only [$e:term]; done)
+    | (simp only [← $e:term]; done)
+    | (simp only [$e:term]; ring1; done)
+    | (simp only [← $e:term]; ring1; done)
+    | (linear_combination $e:term; done)
+    | (linear_combination (-1 : _) * $e:term; done))
+
+/-- `substitute` into the line `h`: the goal is `h` with a term put for
+another by the equation `e`, either way round. -/
+macro "parley_subst_at " e:term:max h:ident : tactic =>
+  `(tactic| first
+    | (rw [$e:term] at $h:ident; exact $h; done)
+    | (rw [← $e:term] at $h:ident; exact $h; done)
+    | (rw [$e:term]; exact $h; done)
+    | (rw [← $e:term]; exact $h; done)
+    | (simp only [$e:term] at $h:ident ⊢; exact $h; done)
+    | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
+    | (rw [$e:term] at $h:ident; linarith; done)
+    | (rw [← $e:term] at $h:ident; linarith; done)
+    | (simp only [$e:term] at $h:ident ⊢; linarith; done)
+    | (simp only [← $e:term] at $h:ident ⊢; linarith; done)
+    | (rw [$e:term] at $h:ident; parley_side; done)
+    | (rw [← $e:term] at $h:ident; parley_side; done))
+
 /-- What `linear_combination` asks once the cited equations are subtracted,
 where the step divides: zero, once the divisions are cleared. -/
 macro "parley_field" : tactic =>

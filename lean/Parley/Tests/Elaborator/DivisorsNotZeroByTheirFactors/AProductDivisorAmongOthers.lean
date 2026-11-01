@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.DivisorsNotZeroByTheirFactors.AProductDivisorA
 theorem a_product_divisor_among_others (m : ℤ) (H2 : m > 0) :
     1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by
   -- 1. inequalities, from H2
-  have s1 : m + 1 > 0 := by linarith
+  have s1 : m + 1 > 0 := by parley_side
   -- 2. algebra
   have r30_1 : m ≠ 0 := by parley_side
   have r30_2 : m + 1 ≠ 0 := by parley_side

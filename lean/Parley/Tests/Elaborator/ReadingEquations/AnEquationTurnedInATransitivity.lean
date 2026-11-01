@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInATransitivi
 theorem an_equation_turned_in_a_transitivity (a : ℝ) (b : ℝ) (c : ℝ) (H4 : b = a) (H5 : b < c) :
     a < c := by
   -- 1. transitivity, from H4, H5
-  have s1 : a < c := by linarith
+  have s1 : a < c := by parley_side
   parley_side
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInATransitivity

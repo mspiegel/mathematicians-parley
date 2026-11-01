@@ -1,0 +1,28 @@
+module
+
+public import Parley.Library
+
+/-! Written from proofs/setmm/average-above-left.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.AverageAboveLeft.AverageAboveLeft
+
+theorem average_above_left (A : ℝ) (B : ℝ) :
+    (A < B ↔ A < (A + B) / 2) := by
+  -- the theorem. both directions
+  have sThm : A < B ↔ A < (A + B) / 2 := by
+    constructor
+    · skip
+      intro D1
+      -- 1. inequalities
+      have s1 : A < (A + B) / 2 := by parley_side
+      parley_side
+    · skip
+      intro D2
+      -- 2. inequalities
+      have s2 : A < B := by parley_side
+      parley_side
+  parley_side
+
+end Parley.Proofs.Setmm.AverageAboveLeft.AverageAboveLeft
