@@ -136,18 +136,15 @@ let F(x) = (1/(m + 1))·q(x), for x ∈ [0, 1]                           (D3)
            mun:in-subset, from K1
            requires (0, 1) ⊆ [0, 1]: mun:open-within-closed
 
-    19.2.  q′(x) = (m + 1)·x^m
-           instantiate x := x in line 16, from K1
-
-    19.3.  p(x) = x^m
+    19.2.  p(x) = x^m
            D1, from 19.1
 
-    19.4.  F′(x) = p(x)
+    19.3.  F′(x) = p(x)
            calculation
-             F′(x) = (1/(m + 1))·q′(x)              instantiate x := x in line 18, from K1
-                   = (1/(m + 1))·((m + 1)·x^m)      substitute line 19.2
+             F′(x) = (1/(m + 1))·q′(x)              18
+                   = (1/(m + 1))·((m + 1)·x^m)      substitute line 16
                    = x^m                            algebra
-                   = p(x)                           19.3
+                   = p(x)                           19.2
            requires m + 1 ≠ 0: inequalities, from 1
 
 20. 0 < 1
@@ -381,7 +378,7 @@ let F(x) = arctan(x), for x ∈ [0, 1]                                  (D2)
 
     12.4.  F′(x) = g(x)
            calculation
-             F′(x) = 1/(1 + x²)              instantiate x := x in line 11, from K2
+             F′(x) = 1/(1 + x²)              11
                    = x^(2·0)/(1 + x²)        substitute line 12.2
                    = g(x)                    12.3
 
