@@ -5,11 +5,12 @@ elaborator in `src/elab/` does, and everything in this repository rests on it
 working.
 
 ```
-parley build [<name>] [<set.mm>]
+parley build metamath [<name>]
 ```
 
 run from the working tree, writes every generated file, or the one named,
-and says which changed. It reads the page through the checker first: a
+and says which changed; set.mm is where `SET_MM` says, or `./set.mm`.
+`parley build lean` writes the same proofs over Mathlib (`LEAN.md`). It reads the page through the checker first: a
 theorem the checker refuses is not built, and the build reports the
 checker's own first problem in it (`checker::refused`), so the two tools
 refuse the same text and say it the same way. What the checker decides of a
@@ -22,7 +23,7 @@ its second stage builds everything afresh in memory and compares it with the
 files in the tree, so an elaborator broken while the built files are left
 alone fails the gate.
 
-Every theorem in `proofs/` elaborates, and `parley build` writes one artifact
+Every theorem in `proofs/` elaborates, and `parley build metamath` writes one artifact
 for each, one for the definitions, one for the library's own proofs, and one
 for each proof worked out by hand: 99 in all. Nothing lists them: the build
 reads the theorems off the proof files, and a file's path under
@@ -117,7 +118,7 @@ bridged on set.mm's side, and a proof reads as a mathematician writes it.
    provenance states the rules.
 
 **The checker reads the page, and the elaborator builds what it read.**
-`parley build` runs the checker first (`checker::checked`). It reads the
+`parley build metamath` runs the checker first (`checker::checked`). It reads the
 corpus once and decides every question about the page: which sentence a
 citation takes and under what binding, which memberships the page says
 once, what each part of a block owes, and whether a step uses what it
@@ -1884,7 +1885,7 @@ The elaborator never writes normal format. A proof is built as steps
 rather than copying them, and the compressed file is written from those
 (`compress::shapes_of`). So what a proof costs to build follows its distinct
 parts: the intermediate value theorem is 63 million labels written out and
-3,030 distinct subproofs, and `parley build` makes it in 1.7 seconds and
+3,030 distinct subproofs, and `parley build metamath` makes it in 1.7 seconds and
 0.5GB, reading set.mm included. As a
 step is built, each part is checked against the kind its label takes, so a
 proof handed where a class belongs fails at the call that made it rather

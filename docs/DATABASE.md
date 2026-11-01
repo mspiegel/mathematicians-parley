@@ -13,7 +13,7 @@ corpus/stdlib/*.records      the standard library: axioms, theorems and
                              definitions, some theorems marked mundane
 corpus/stdlib/*.proof        Parley proofs of library items, beside the
                              records of their subject
-corpus/elaboration/          what parley build writes from all of it
+corpus/elaboration/          what parley build metamath writes from all of it
 proofs/wiedijk/*.proof       the pilots, theorems of Wiedijk's list of 100
 proofs/setmm/*.proof         theorems set.mm proves, written in proof trials
 proofs/hammack/*.proof       exercises of Hammack's Book of Proof, likewise
@@ -140,6 +140,12 @@ Every item in the standard library carries a field saying where it comes from:
 |---|---|---|
 | `metamath` | a set.mm label or labels supply it | 623 |
 | `open` | it is cited but unproved and unbridged | 5 |
+
+Any notation, definition, axiom or theorem may also carry `lean`: for a
+notation, one Lean template for each pattern; for an item, one Lean proof for
+each sentence it concludes. A function's definition may carry `lean-builds`,
+what it is in Lean, beside `metamath-builds` (`LEAN.md`). They are optional,
+and the rule that every item carries `metamath` or `open` stands.
 
 A theorem this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
@@ -356,7 +362,7 @@ repaired.
   checker's first true positive and is repaired: the theorem is now step 2 and
   the chain cites that number.
 - **`scripts/precommit.sh` is what must be green before a commit.** It runs
-  `cargo fmt --check`, clippy, `cargo test`, `parley build` and `parley gate`.
+  `cargo fmt --check`, clippy, `cargo test`, `parley build metamath`, `parley build lean` and `parley gate`.
   `cargo test` is whether the tool is right: the planted defects the checker
   must catch, the planted defects the elaborator must report, the planted
   defects each of the gate's other stages must catch, and that a compressed
