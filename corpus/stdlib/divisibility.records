@@ -219,7 +219,7 @@ definition prime
 
 definition gcd
   sort        number, number → number
-  builds      _1 _2 cgcd co
+  metamath-builds _1 _2 cgcd co
   reads       the greatest common divisor of
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
@@ -238,7 +238,7 @@ definition gcd
 
 definition lcm
   sort        number, number → number
-  builds      _1 _2 clcm co
+  metamath-builds _1 _2 clcm co
   lean-builds ℤ, ℤ → ℕ: Int.lcm _1 _2
   reads       the least common multiple of
   let a ∈ ℤ                                                           (H1)
@@ -542,7 +542,7 @@ mundane theorem prime-coprime
 
 definition σ
   sort        number → number
-  builds      c1 _1 csgm co
+  metamath-builds c1 _1 csgm co
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
   then        σ(n) = Σ(d ∈ ℕ : d divides n) d
@@ -624,7 +624,7 @@ mundane theorem coprime-power
 
 definition φ
   sort        number → number
-  builds      _1 cphi cfv
+  metamath-builds _1 cphi cfv
   reads       Euler's φ, how many whole numbers below n have no factor in common with
   let n ∈ ℕ                                                           (H1)
   then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|

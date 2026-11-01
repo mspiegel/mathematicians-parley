@@ -366,7 +366,8 @@ pub struct Import {
 /// library file that declares it: `import definition
 /// stdlib/divisibility/gcd`. Its words are read as any item's are, and it
 /// is a function because the
-/// definition it names has `sort` and `builds` lines (`link_functions`). It
+/// definition it names has `sort` and `metamath-builds` lines
+/// (`link_functions`). It
 /// takes no `as`, since the library's name for it is the one every formula
 /// reads.
 #[derive(Clone, Debug, PartialEq, Eq)]

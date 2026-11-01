@@ -81,12 +81,13 @@ pub fn library_functions(records: &[Record]) -> Checked<IndexMap<String, Functio
                 ),
             ));
         }
-        let (Some(sort), Some(builds)) = (r.field("sort"), r.field("builds")) else {
+        let (Some(sort), Some(builds)) = (r.field("sort"), r.field("metamath-builds"))
+        else {
             return Err(Problem::new(
                 &r.path,
                 line,
                 format!(
-                    "definition {} gives a function's `sort` and does not say what it `builds`",
+                    "definition {} gives a function's `sort` and does not say what it builds in set.mm, `metamath-builds`",
                     r.name
                 ),
             ));

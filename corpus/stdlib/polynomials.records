@@ -39,7 +39,7 @@ mundane theorem polynomial-value
 
 definition B
   sort        number, number → number
-  builds      _1 _2 cbp co
+  metamath-builds _1 _2 cbp co
   reads       the Bernoulli polynomial
   let n ∈ ℕ₀                                                          (H1)
   let x ∈ ℂ                                                           (H2)

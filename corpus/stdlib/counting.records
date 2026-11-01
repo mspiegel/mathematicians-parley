@@ -121,7 +121,7 @@ mundane theorem card-disjoint-union
 
 definition C
   sort        number, number → number
-  builds      _1 _2 cbc co
+  metamath-builds _1 _2 cbc co
   reads       choose
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, −1) = 0

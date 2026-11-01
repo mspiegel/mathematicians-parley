@@ -1319,7 +1319,7 @@ and a field outside them is refused:
 | `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
 | `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
-| `definition` | `sort`, `builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
+| `definition` | `sort`, `metamath-builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
 | `precedence` | the levels it declares |
 
 `wanted` names the category a hole must want for the pattern to be read
@@ -1356,7 +1356,7 @@ by name and not by notation:
 ```records
 definition gcd
   sort        number, number → number
-  builds      _1 _2 cgcd co
+  metamath-builds _1 _2 cgcd co
   reads       the greatest common divisor of
   let a ∈ ℕ                                                           (H1)
   …
@@ -1369,9 +1369,9 @@ ASCII, `sigma`. `sort` says what the arguments and the value are, and the number
 places before its arrow is the number of arguments, so `definition gcd` with
 `sort number, number → number` is applied as `gcd(_, _)`: a name applied to one
 hole for each argument and nothing else, which is what keeps it from being
-notation. `builds` is the set.mm term an application stands for, `_1` for the
+notation. `metamath-builds` is the set.mm term an application stands for, `_1` for the
 first argument, since `target` already names the theorem the record's statement
-is, and a definition with a `sort` line and no `builds` is refused. A `then`
+is, and a definition with a `sort` line and no `metamath-builds` is refused. A `then`
 line is optional: `min` and `max` have none, and what a proof needs of them is
 in items of their own. A proof file that applies a function imports it as it
 imports any item, after its record's header, from the library file that

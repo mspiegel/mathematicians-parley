@@ -16,13 +16,13 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note, and for a function, sort, builds, reads and
+# Other fields: target, note, and for a function, sort, metamath-builds, reads and
 # decided.
 
 
 definition ln
   sort        number → number
-  builds      _1 clog cfv
+  metamath-builds _1 clog cfv
   reads       the natural logarithm of
   decided     real arithmetic
   metamath    df-log, the inverse of the exponential function
@@ -34,7 +34,7 @@ definition ln
 
 definition exp
   sort        number → number
-  builds      _1 ce cfv
+  metamath-builds _1 ce cfv
   reads       the exponential of
   decided     real arithmetic
   metamath    df-ef, by its power series

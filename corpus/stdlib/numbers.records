@@ -540,7 +540,7 @@ mundane theorem abs-difference-le
 
 definition min
   sort        number, number → number
-  builds      _1 _2 cle wbr _1 _2 cif
+  metamath-builds _1 _2 cle wbr _1 _2 cif
   lean-builds α, α → α: min _1 _2
   reads       the smaller of
   metamath    set.mm writes the smaller of x and y inline, as
@@ -551,7 +551,7 @@ definition min
 
 definition max
   sort        number, number → number
-  builds      _1 _2 cle wbr _2 _1 cif
+  metamath-builds _1 _2 cle wbr _2 _1 cif
   lean-builds α, α → α: max _1 _2
   reads       the larger of
   metamath    set.mm writes the larger of x and y inline, as
@@ -1010,7 +1010,7 @@ mundane theorem abs-integer
 
 definition numer
   sort        number → number
-  builds      _1 cnumer cfv
+  metamath-builds _1 cnumer cfv
   reads       the numerator in lowest terms of
   metamath    df-numer
   note        The numerator of a rational written in lowest terms with a
@@ -1019,7 +1019,7 @@ definition numer
 
 definition denom
   sort        number → number
-  builds      _1 cdenom cfv
+  metamath-builds _1 cdenom cfv
   reads       the denominator in lowest terms of
   metamath    df-denom
   note        The positive denominator of a rational in lowest terms, under

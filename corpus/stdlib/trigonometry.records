@@ -15,12 +15,12 @@
 #   metamath    a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note, and for a function, sort, builds and reads.
+# Other fields: target, note, and for a function, sort, metamath-builds and reads.
 
 
 definition cos
   sort        number → number
-  builds      _1 ccos cfv
+  metamath-builds _1 ccos cfv
   reads       the cosine of
   decided     real arithmetic
   metamath    df-cos, by the exponential function
@@ -31,7 +31,7 @@ definition cos
 
 definition sin
   sort        number → number
-  builds      _1 csin cfv
+  metamath-builds _1 csin cfv
   reads       the sine of
   decided     real arithmetic
   metamath    df-sin, by the exponential function
@@ -190,7 +190,7 @@ mundane theorem sin-supplement
 
 definition arctan
   sort        number → number
-  builds      _1 catan cfv
+  metamath-builds _1 catan cfv
   reads       the arctangent of
   metamath    df-atan, by the complex logarithm
   note        As for cos, this definition states nothing but what arctan(x)

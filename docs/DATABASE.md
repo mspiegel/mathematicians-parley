@@ -127,7 +127,7 @@ grammar, and one parser reads both.
 
 A function a proof may apply is a definition with a `sort` line: its name is
 the function's, its `sort` line gives one place before the arrow for each
-argument, its `builds` line gives the set.mm term an application stands for,
+argument, its `metamath-builds` line gives the set.mm term an application stands for,
 and its `reads` line says it in words. A proof file that applies it imports
 it as it imports any item, `import definition stdlib/divisibility/gcd`, and the
 name is then read
@@ -570,7 +570,7 @@ proof's step 6 cites `m < m + 1`. The formula's (n − k)! is said only where
 k ∈ {0, …, n}, so it is never said where it has no value.
 
 **A function is a definition with a `sort` line.** The four are `gcd`, `C`,
-`min` and `max`. They take `sort`, `builds` and `reads` beside the fields
+`min` and `max`. They take `sort`, `metamath-builds` and `reads` beside the fields
 every definition takes, and a `then` line is optional: `min` and `max` have
 none, and what a proof needs of them is in items of their own. There is no
 field for the applied form. The name is the record's and the number of holes

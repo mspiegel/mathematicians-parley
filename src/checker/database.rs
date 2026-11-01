@@ -124,7 +124,8 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
             // A definition that introduces a symbol says what it stands for
             // in `defines`, and that is its statement: what follows from it
             // is a theorem of its own. A function says what an application of
-            // it `builds`, which is its statement in the same way, as min's is
+            // it builds (`metamath-builds`), which is its statement in the
+            // same way, as min's is
             // where set.mm has no minimum of its own.
             if r.conclusions.is_empty()
                 && !r.fields.contains_key("open")

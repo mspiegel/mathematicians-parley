@@ -65,7 +65,7 @@ pub fn corpus(source: &dyn Source) -> Checked<Corpus> {
 }
 
 /// Set apart, in each file, the imports that name a library function: a
-/// definition with `sort` and `builds` lines, which a formula applies by its
+/// definition with `sort` and `metamath-builds` lines, which a formula applies by its
 /// name. Its words are read as any item's are, so they are not what tell a
 /// function apart; the record is. Say what is wrong with such an import:
 /// (path, line, message) for each.

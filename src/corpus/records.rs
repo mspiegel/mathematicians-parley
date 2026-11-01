@@ -124,7 +124,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         RecordKind::Definition,
         &[
             "sort",
-            "builds",
+            "metamath-builds",
             "reads",
             "metamath",
             "target",
@@ -216,7 +216,8 @@ impl Record {
 
     /// Whether it declares a function a formula applies, `gcd(a, b)`: a
     /// definition with a `sort` line. Such a definition also says what it
-    /// `builds`, and `library_functions` refuses one that does not.
+    /// builds in set.mm, `metamath-builds`, and `library_functions` refuses
+    /// one that does not.
     pub fn is_function(&self) -> bool {
         self.kind == RecordKind::Definition && self.fields.contains_key("sort")
     }
