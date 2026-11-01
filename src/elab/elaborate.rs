@@ -1592,7 +1592,7 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 step.line,
                 format!(
-                    "{}:{} targets {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build`",
+                    "{}:{} targets {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build metamath`",
                     item_kind(Item::Record(item)),
                     item.qualified()
                 ),
@@ -6154,7 +6154,7 @@ impl<'a> Elaborator<'a> {
             self.defect(
                 step.line,
                 format!(
-                    "{name}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build`"
+                    "{name}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build metamath`"
                 ),
             )
         })?;

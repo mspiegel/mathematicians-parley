@@ -169,7 +169,7 @@ pub fn run(
         for path in missing {
             said.printed += &format!("not built: {path}\n");
         }
-        said.printed += "\nrun parley build\n";
+        said.printed += "\nrun parley build metamath\n";
         said.status = 2;
         return said;
     }

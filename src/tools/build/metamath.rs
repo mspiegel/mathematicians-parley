@@ -1,4 +1,5 @@
-//! Every file this project generates, what generates it, and where it goes.
+//! Every file the Metamath build generates, what generates it, and where it
+//! goes.
 //!
 //! What there is to build is read off the tree rather than listed. Every
 //! theorem of a `.proof` file is elaborated; the library's definitions and
@@ -40,7 +41,9 @@ use crate::proofs::comparison::COMPARISONS;
 use crate::said::Said;
 use crate::source::{Disk, Source};
 
-use super::path_of;
+use super::{waves, write_changed, Written};
+use crate::tools::path_of;
+use crate::tools::verify::Verifier;
 
 /// The library's definitions, which everything reads.
 pub const DEFINITIONS: &str = "stdlib/definitions";
@@ -68,16 +71,11 @@ pub enum Recipe {
     ByHand(fn() -> String),
 }
 
-/// One generated file: what makes it, and the artifacts whose files it
-/// reads.
-pub struct Artifact {
-    /// Its path under `corpus/elaboration/`, without `.mm`.
-    pub name: String,
-    pub recipe: Recipe,
-    pub needs: Vec<String>,
-}
+/// One generated file of the Metamath build.
+pub type Artifact = super::Artifact<Recipe>;
 
 impl Artifact {
+    /// Its path under `corpus/elaboration/`.
     pub fn path(&self) -> String {
         path_of(&self.name)
     }
@@ -179,45 +177,6 @@ pub fn verified(found: &Corpus) -> Vec<String> {
     artifacts(found).iter().map(Artifact::path).collect()
 }
 
-/// The artifacts in the order they are made: groups in which none reads
-/// another's file, each group after every group it reads.
-///
-/// A `needs` naming something not being made is not waited for: asking for
-/// one theorem remakes that theorem and not the library it reads.
-///
-/// Artifacts that wait on one another round a cycle can never be made. The
-/// checker refuses theorems that cite one another so, and every caller
-/// checks first, so a cycle here is a fault of the tool's.
-pub fn waves<'a>(wanted: &[&'a Artifact]) -> Checked<Vec<Vec<&'a Artifact>>> {
-    let here: BTreeSet<&str> = wanted.iter().map(|a| a.name.as_str()).collect();
-    let mut done: BTreeSet<&str> = BTreeSet::new();
-    let mut left: Vec<&Artifact> = wanted.to_vec();
-    let mut out = Vec::new();
-    while !left.is_empty() {
-        let (ready, rest): (Vec<&Artifact>, Vec<&Artifact>) =
-            left.into_iter().partition(|a| {
-                a.needs
-                    .iter()
-                    .all(|n| !here.contains(n.as_str()) || done.contains(n.as_str()))
-            });
-        if ready.is_empty() {
-            let stuck: Vec<&str> = rest.iter().map(|a| a.name.as_str()).collect();
-            return Err(Problem::internal(
-                rest[0].path(),
-                0,
-                format!(
-                    "these wait on one another and none can be built first: {}",
-                    stuck.join(", ")
-                ),
-            ));
-        }
-        done.extend(ready.iter().map(|a| a.name.as_str()));
-        out.push(ready);
-        left = rest;
-    }
-    Ok(out)
-}
-
 /// set.mm read once, and what it reads as with each `proved.mm` asked for,
 /// kept by that text: a fresh build reads the `proved.mm` it has just made,
 /// which a planted defect may change, and what was read is reused only for
@@ -231,7 +190,7 @@ pub struct Libraries {
     /// set.mm as the verifier has it, made the first time a run verifies,
     /// for a process that verifies often (`read_verifying_often`); None for
     /// one that verifies afresh each time.
-    verifier: Option<OnceLock<super::verify::Verifier>>,
+    verifier: Option<OnceLock<Verifier>>,
 }
 
 impl Libraries {
@@ -263,9 +222,9 @@ impl Libraries {
 
     /// set.mm parsed and verified once, where these libraries were read for
     /// verifying often; None where each run verifies afresh.
-    pub fn shared_verifier(&self) -> Option<&super::verify::Verifier> {
+    pub fn shared_verifier(&self) -> Option<&Verifier> {
         let kept = self.verifier.as_ref()?;
-        Some(kept.get_or_init(|| super::verify::Verifier::of(&self.setmm)))
+        Some(kept.get_or_init(|| Verifier::of(&self.setmm)))
     }
 
     /// What set.mm and `proved` read as, read the first time it is asked
@@ -394,7 +353,7 @@ impl<'a> Maker<'a> {
                     &thm.path,
                     line,
                     format!(
-                        "{full}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build`"
+                        "{full}, which this step cites, has no built file under corpus/elaboration/: build it first, or build everything with `parley build metamath`"
                     ),
                 ));
             }
@@ -432,8 +391,9 @@ fn gb(bytes: u64) -> f64 {
 }
 
 /// Build the artifact `wanted`, or every artifact, in the tree at `root`,
-/// writing each file that changed.
-pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
+/// writing each file that changed. set.mm is where the environment or the
+/// root of the tree says (`where_set_mm`).
+pub fn run(root: &Path, wanted: Option<&str>) -> Said {
     let mut said = Said::default();
     let source = Disk::new(root.to_path_buf());
     // The checker reads the page first, and the build builds only what it
@@ -458,7 +418,7 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
         said.status = 2;
         return said;
     }
-    let library = where_set_mm(setmm, root);
+    let library = where_set_mm(None, root);
     let library = match library {
         Some(path) => path,
         None if wanted.iter().any(|a| a.wants_library()) => {
@@ -507,22 +467,18 @@ pub fn run(root: &Path, wanted: Option<&str>, setmm: Option<&str>) -> Said {
                     continue;
                 }
             };
-            let path = root.join(artifact.path());
-            let before = std::fs::read_to_string(&path).ok();
-            if before.as_deref() != Some(written.as_str()) {
-                let wrote = path
-                    .parent()
-                    .map_or(Ok(()), std::fs::create_dir_all)
-                    .and_then(|()| std::fs::write(&path, &written));
-                if let Err(e) = wrote {
-                    said.complained += &format!("{}: {e}\n", path.display());
-                    failed = true;
-                    continue;
+            match write_changed(root, &artifact.path(), &written) {
+                Ok(Written::Changed) => {
+                    changed += 1;
+                    marks.insert(artifact.name.clone(), '*');
                 }
-                changed += 1;
-                marks.insert(artifact.name.clone(), '*');
-            } else {
-                marks.insert(artifact.name.clone(), ' ');
+                Ok(Written::Same) => {
+                    marks.insert(artifact.name.clone(), ' ');
+                }
+                Err(problem) => {
+                    said.complained += &format!("{problem}\n");
+                    failed = true;
+                }
             }
         }
         // The next wave reads what this one made, so a failure stops here.

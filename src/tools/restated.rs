@@ -230,7 +230,9 @@ fn obtaining(number: usize, there: &Witnessed, how: &str) -> String {
     )
 }
 
-use super::build::{artifacts, Artifact, Libraries, Maker, DEFINITIONS, PROVED};
+use super::build::metamath::{
+    artifacts, Artifact, Libraries, Maker, DEFINITIONS, PROVED,
+};
 use super::{path_of, verify};
 
 /// Where the restatements stand, as if they were proof files of the tree.

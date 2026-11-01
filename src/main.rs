@@ -6,7 +6,8 @@ use parley::said::Said;
 use parley::source::Disk;
 
 const USAGE: &str = "usage: parley check [name]
-       parley build [name] [set.mm]
+       parley build metamath [name]
+       parley build lean [name]
        parley gate
        parley renumber <theorem> <steps> <shift> [--dry-run]
          <steps> is 4.2..4.9, 4.2.. (to the end of its block) or 4.2;
@@ -99,11 +100,19 @@ fn main() -> ExitCode {
             &Disk::new(root.to_path_buf()),
             rest.first().map(String::as_str),
         )),
-        "build" => say(parley::tools::build::run(
-            root,
-            rest.first().map(String::as_str),
-            rest.get(1).map(String::as_str),
-        )),
+        "build" => {
+            let name = rest.get(1).map(String::as_str);
+            match rest.first().map(String::as_str) {
+                Some("metamath") => {
+                    say(parley::tools::build::metamath::run(root, name))
+                }
+                Some("lean") => say(parley::tools::build::lean::run(root, name)),
+                Some(other) => refuse(&format!(
+                    "unknown backend {other}: build takes metamath or lean"
+                )),
+                None => refuse("build takes a backend: metamath or lean"),
+            }
+        }
         _ => say(parley::tools::gate::run(root)),
     }
 }

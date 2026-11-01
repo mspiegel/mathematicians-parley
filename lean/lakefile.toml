@@ -1,0 +1,15 @@
+name = "parley"
+defaultTargets = ["Parley"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "v4.35.0"
+
+[[require]]
+name = "lean4export"
+git = "https://github.com/leanprover/lean4export"
+rev = "v4.35.0"
+
+[[lean_lib]]
+name = "Parley"

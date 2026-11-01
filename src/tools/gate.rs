@@ -40,9 +40,10 @@ use crate::mm::library::where_set_mm;
 use crate::said::Said;
 use crate::source::{Disk, Source};
 
-use super::build::{
-    artifacts, reached_by, verified, waves, Artifact, Libraries, Maker,
+use super::build::metamath::{
+    artifacts, reached_by, verified, Artifact, Libraries, Maker,
 };
+use super::build::waves;
 use super::{assumed, labels, restated, tested, verify};
 
 /// Where a label missing from a rule table is said to be written.
@@ -128,7 +129,7 @@ fn built_as(
         all.len()
     );
     if differ > 0 {
-        said.printed += "\nrun parley build\n";
+        said.printed += "\nrun parley build metamath\n";
         said.status = 1;
     }
     said

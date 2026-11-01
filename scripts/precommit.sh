@@ -106,7 +106,7 @@ echo "[start] cargo fmt --check ok"
 
 # The build's report is kept apart as well, to see whether it changed files.
 parley_build() {
-    ./target/release/parley build >"$logs/build.out"
+    ./target/release/parley build metamath >"$logs/build.out"
     local status=$?
     cat "$logs/build.out"
     return $status
@@ -118,7 +118,7 @@ debug_lane() {
 
 release_lane() {
     step release "cargo build --release" cargo build --release || return 1
-    step release "parley build" parley_build || return 1
+    step release "parley build metamath" parley_build || return 1
     if [ -n "$branch" ]; then
         step release "parley check" ./target/release/parley check || return 1
     else

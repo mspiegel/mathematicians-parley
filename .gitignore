@@ -1,6 +1,10 @@
 # What cargo builds.
 /target/
 
+# Lake's downloads and builds: Mathlib and its compiled files, several GB.
+# The versions are pinned by lean/lake-manifest.json, which is committed.
+/lean/.lake/
+
 # The library is fetched, never committed. A stray copy is 51 MB and
 # arrives by `cp` following a symlink into a directory of elaborated proofs.
 set.mm
