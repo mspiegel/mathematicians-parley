@@ -67,18 +67,18 @@ theorem fibonacci-even-iff-three-divides
     4.1.  F(0) = 0
           D1
 
-    4.2.  F(0 + 1) = G(0)
+    4.2.  F(1) = G(0)
           D1
 
     4.3.  G(0) = 1
           D1
 
-    4.4.  F(0 + 1) = 1
+    4.4.  F(1) = 1
           calculation
-            F(0 + 1) = G(0)    4.2
-                     = 1       4.3
+            F(1) = G(0)    4.2
+                 = 1       4.3
 
-    4.5.  F(0 + 2) = F(0) + F(0 + 1)
+    4.5.  F(2) = F(0) + F(1)
           instantiate k := 0 in line 3
 
     4.6.  F(3·0) = 2·0
@@ -93,7 +93,7 @@ theorem fibonacci-even-iff-three-divides
 
     4.8.  F(3·0 + 1) = 2·0 + 1
           calculation
-            F(3·0 + 1) = F(0 + 1)    arithmetic
+            F(3·0 + 1) = F(1)        arithmetic
                        = 1           4.4
                        = 2·0 + 1     arithmetic
 
@@ -103,7 +103,7 @@ theorem fibonacci-even-iff-three-divides
 
     4.10. F(3·0 + 2) = 2·0 + 1
           calculation
-            F(3·0 + 2) = F(0 + 2)    arithmetic
+            F(3·0 + 2) = F(2)        arithmetic
                        = 1           algebra, from 4.1, 4.4, 4.5
                        = 2·0 + 1     arithmetic
 

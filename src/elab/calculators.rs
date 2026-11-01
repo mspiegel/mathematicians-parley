@@ -479,8 +479,40 @@ impl<'a> Elaborator<'a> {
             facts,
             lines
         )?);
-        let found =
-            self.algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?;
+        // An atom spelt two ways, F(0 + 1) and F(1), is one once identity
+        // elements are dropped, as the checker reads the step: where the
+        // claim or a line it cites has one, the claim and the lines are
+        // decided bare, and the proof carried back.
+        let mut found: Route<Proof> = Route::no("nothing to decide bare");
+        if let Built(bare) =
+            self.identities_written_out(&step.just.refs, &out, scope)?
+        {
+            // The cited lines are read from the elaborator's own table as
+            // well as from the ones handed down, a membership of an atom
+            // among them, so the bare lines stand there while they are
+            // decided.
+            let kept = std::mem::replace(&mut self.lines, bare.lines.clone());
+            let decided = self.field_either_way(
+                step,
+                &bare.term,
+                scope,
+                &bare.facts,
+                &bare.lines,
+            );
+            self.lines = kept;
+            if let Built(p) = decided? {
+                if let Some(back) =
+                    self.tidied(&p, &bare.term, &out.term, scope, &out.facts)?
+                {
+                    found = Built(back);
+                }
+            }
+        }
+        let found = match found {
+            Built(p) => Built(p),
+            Declined(_) => self
+                .algebra_written_out(step, &out.term, scope, &out.facts, &out.lines)?,
+        };
         if out.term == *term {
             return Ok(found);
         }
@@ -534,6 +566,32 @@ impl<'a> Elaborator<'a> {
         Ok(Built(self.pairs_apart(pairs, scope, at, &apart, &members)))
     }
 
+    /// `prove_field` of the claim, or of the claim turned round: an equation
+    /// is one claim either way round, and a route that reaches `b = a`
+    /// reaches the claim `a = b` turned (`turned_claim`).
+    fn field_either_way(
+        &mut self,
+        step: &Step,
+        term: &Rpn,
+        scope: &Rpn,
+        facts: &Facts,
+        lines: &Lines,
+    ) -> Checked<Route<Proof>> {
+        let found = self.prove_field(Some(step), term, scope, facts, lines)?;
+        if !found.is_declined() {
+            return Ok(found);
+        }
+        if let Some((turned, flip)) = self.turned_claim(term) {
+            if let Built(p) =
+                self.prove_field(Some(step), &turned, scope, facts, lines)?
+            {
+                let Sides { left, right } = self.equation_sides(&turned);
+                return Ok(Built(pf!(self.b; scope, left, right, p, flip)));
+            }
+        }
+        Ok(found)
+    }
+
     /// `algebra` over a claim and lines whose defined names are written out.
     fn algebra_written_out(
         &mut self,
@@ -543,19 +601,7 @@ impl<'a> Elaborator<'a> {
         facts: &Facts,
         lines: &Lines,
     ) -> Checked<Route<Proof>> {
-        let mut found = self.prove_field(Some(step), term, scope, facts, lines)?;
-        // An equation is one claim either way round, and a route that reaches
-        // `b = a` reaches the claim `a = b` turned (`turned_claim`).
-        if found.is_declined() {
-            if let Some((turned, flip)) = self.turned_claim(term) {
-                if let Built(p) =
-                    self.prove_field(Some(step), &turned, scope, facts, lines)?
-                {
-                    let Sides { left, right } = self.equation_sides(&turned);
-                    found = Built(pf!(self.b; scope, left, right, p, flip));
-                }
-            }
-        }
+        let found = self.field_either_way(step, term, scope, facts, lines)?;
         if let Declined(d) = &found {
             // Decided but not written is a gap in the method, and nothing is
             // taken in its place: the build stops here.
@@ -3929,6 +3975,87 @@ impl<'a> Elaborator<'a> {
             self.know(&facts_out, out_rpn.clone(), proof.clone());
             let kept = lines.get(r).expect("a line cited");
             lines_out.set(r.clone(), kept.restated(out_rpn, proof));
+        }
+        Ok(Built(WrittenOut {
+            term: term_out,
+            facts: facts_out,
+            lines: lines_out,
+        }))
+    }
+
+    /// Whether dropping identity elements changes an atom of `term`, a part
+    /// `field` reads as a whole, F(0 + 1) for F(1): what is under +, −, ·, /,
+    /// a power or a negation is the field's to read, and an identity element
+    /// there is one it reads already.
+    fn drops_inside_atom(&self, term: &Term) -> bool {
+        if term.variable().is_some() || term.children().is_empty() {
+            return false;
+        }
+        let arithmetic = field::Op::applied(term).is_some()
+            || (term.label() == Some(field::NEG) && term.children().len() == 1);
+        if arithmetic {
+            let operands = match field::Op::applied(term) {
+                Some(_) => &term.children()[..2],
+                None => term.children(),
+            };
+            return operands.iter().any(|c| self.drops_inside_atom(c));
+        }
+        if matches!(term.label(), Some("wceq") | Some("wne") | Some("wn")) {
+            return term.children().iter().any(|c| self.drops_inside_atom(c));
+        }
+        self.rpn(&self.without_identities(term)) != self.rpn(term)
+    }
+
+    /// The claim and the lines a step cites with their identity elements
+    /// dropped, as the checker reads them for `algebra` (`SYNTAX.md`, "An
+    /// identity element goes without saying"): F(0 + 1) is F(1), one atom.
+    /// Only where an atom changes: an identity element the field reads it
+    /// reads already (`drops_inside_atom`).
+    /// Each cited line written otherwise is laid down bare, carried across
+    /// by `tidied`; a line that is not carried, or nothing to drop, is a
+    /// decline.
+    fn identities_written_out(
+        &mut self,
+        refs: &[String],
+        out: &WrittenOut,
+        scope: &Rpn,
+    ) -> Checked<Route<WrittenOut>> {
+        let claim_changes = self.drops_inside_atom(&self.to_term(&out.term));
+        let line_changes = refs.iter().any(|r| {
+            self.line_written(r, &out.lines)
+                .is_some_and(|l| self.drops_inside_atom(&self.to_term(&l.claim)))
+        });
+        if !claim_changes && !line_changes {
+            return Ok(Route::no(
+                "no atom changes once identity elements are dropped",
+            ));
+        }
+        let term_out = self.rpn(&self.without_identities(&self.to_term(&out.term)));
+        let (facts_out, lines_out) = (out.facts.copy(), out.lines.copy());
+        let mut dropped = term_out != out.term;
+        for r in refs {
+            let Some(line) = self.line_written(r, &out.lines) else {
+                continue;
+            };
+            let bare = self.rpn(&self.without_identities(&self.to_term(&line.claim)));
+            if bare == line.claim {
+                continue;
+            }
+            let held = self.carried(r, &out.facts, &out.lines);
+            let Some(proof) =
+                self.tidied(&held, &line.claim, &bare, scope, &out.facts)?
+            else {
+                return Ok(Route::no(
+                    "a cited line is not carried to its identity elements dropped",
+                ));
+            };
+            self.know(&facts_out, bare.clone(), proof.clone());
+            let kept = out.lines.get(r).expect("a line cited");
+            lines_out.set(r.clone(), kept.restated(bare, proof));
+            dropped = true;
+        }
+        if !dropped {
+            return Ok(Route::no("no identity element to drop"));
         }
         Ok(Built(WrittenOut {
             term: term_out,

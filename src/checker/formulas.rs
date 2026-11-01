@@ -2898,10 +2898,17 @@ fn algebra_holds(
     read.read_at_member(known);
     let labels = FloatLabels::new(IndexMap::new());
     // The cited lines fact by fact, so that a line saying several things,
-    // in sentences or joined by "and", asks only of the ones combined.
+    // in sentences or joined by "and", asks only of the ones combined. Each
+    // is decided with its identity elements dropped, as the claim is
+    // (`SYNTAX.md`, "An identity element goes without saying"): F(0 + 1) and
+    // F(1) are one atom.
+    let ctx = &known.ctx;
     let facts: Vec<Node> = read.lines.iter().flat_map(conjuncts).collect();
-    let cited: Vec<Term> = facts.iter().map(|n| term_of_node(n, targets)).collect();
-    let claimed = term_of_node(&read.claimed, targets);
+    let cited: Vec<Term> = facts
+        .iter()
+        .map(|n| term_of_node(&crate::matching::bare(n, ctx), targets))
+        .collect();
+    let claimed = term_of_node(&crate::matching::bare(&read.claimed, ctx), targets);
     // Sums are read as linear where some term of the step is linear in
     // something, as the build reads them (`field::says_something_linear`).
     let linear = std::iter::once(&claimed)
@@ -5974,7 +5981,10 @@ fn recursion_cited(thm: &Theorem, label: &str) -> Option<(Recursion, usize)> {
 
 /// What the define by recursion says `name` is at the argument `at`, as
 /// (the rule's term there, the index it is taken at, or None at 0); or None
-/// where `at` is neither 0 nor something plus one.
+/// where `at` is neither 0 nor something plus one. 1 is 0 + 1 with its 0
+/// dropped (`SYNTAX.md`, "An identity element goes without saying"), so
+/// F(1) is the step rule at 0; 2 is not 1 + 1 by any element dropped, and
+/// is a value no rule gives.
 fn recursion_value(
     said: &Recursion,
     name: &str,
@@ -5991,6 +6001,8 @@ fn recursion_value(
         && at.children[1].text == "1"
     {
         (&said.step[name], Some(at.children[0].clone()))
+    } else if at.notation() == NUMERAL && at.text == "1" {
+        (&said.step[name], Some(Node::numeral("0")))
     } else {
         return Ok(None);
     };

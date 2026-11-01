@@ -1,0 +1,17 @@
+theorem a-recursion-value-without-its-zero
+  note        F(1) is the rule at k + 1 read at 0, 1 being 0 + 1 with its 0
+              dropped; and algebra reads F(1) and F(0 + 1) as one term, so
+              the lines may spell it either way, in the build as in the
+              checker.
+  let F(0) = 0,  F(k + 1) = F(k) + 2,  for k ∈ ℕ₀                     (D1)
+         reads the even numbers
+  then F(0 + 1) = 2
+
+1.  F(0) = 0
+    D1
+
+2.  F(1) = F(0) + 2
+    D1
+
+3.  F(0 + 1) = 2
+    algebra, from 1, 2

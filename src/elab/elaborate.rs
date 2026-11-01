@@ -4775,6 +4775,26 @@ impl<'a> Elaborator<'a> {
             return Ok(Built((value.clone(), proof)));
         }
         let (at, made) = (core.children()[0].clone(), core.children()[1].clone());
+        // At 1 the value is the step's at 0, 1 being 0 + 1 with its 0
+        // dropped (`SYNTAX.md`, "An identity element goes without saying"),
+        // as the checker reads F(1) by the rule at k + 1: the value is
+        // restated at 0 + 1, carried across by `tidied`, and read there.
+        if self.rpn(&at).alone() == Some("c1") {
+            let padded_at = self.to_term(&t!("cc0", "c1", "caddc", "co"));
+            let mut padded = t!(self.rpn(&padded_at), self.rpn(&made), "cfv");
+            for part in path.iter().rev() {
+                padded = t!(padded, part, "cfv");
+            }
+            let padded = self.to_term(&padded);
+            let (said, want) = (
+                t!(self.rpn(one), self.rpn(value), "wceq"),
+                t!(self.rpn(one), self.rpn(&padded), "wceq"),
+            );
+            let Some(moved) = self.tidied(&proof, &said, &want, scope, held)? else {
+                return Ok(Built((value.clone(), proof)));
+            };
+            return self.recursion_value(one, &padded, moved, scope, held);
+        }
         let recursion = self.rpn(&made);
         let super::state::Recurrence {
             step,
@@ -6797,6 +6817,34 @@ impl<'a> Elaborator<'a> {
         for (one, shown) in taken.entries() {
             if let Some(p) = self.tidied(&shown, &one, term, scope, facts)? {
                 return Ok(p);
+            }
+            // The statement's identity elements dropped where it stands,
+            // over its own bound letters, then renamed onto the claim read
+            // through its names: J(0 + 1) written out binds t, and the
+            // claim's J(1) read out binds a letter of its own.
+            // Both are compared bare, since dropping may take more from the
+            // statement than the claim leaves out: t^(2·(0 + 1)) is t² bare,
+            // where the claim read out says i^(2·1).
+            let bare = self.rpn(&self.without_identities(&self.to_term(&one)));
+            let bare_read = self.rpn(&self.without_identities(&read));
+            if bare != one && read_rpn != *term && self.rebound(&bare, &bare_read) {
+                if let Some(dropped) = self.tidied(&shown, &one, &bare, scope, facts)? {
+                    if let Some(across) = self.renaming_apart(&bare, &bare_read)? {
+                        let turned = pf!(self.b; t!(bare, bare_read, "wb"), scope, across, "a1i");
+                        let renamed = pf!(self.b; scope, bare, bare_read, dropped, turned, "mpbid");
+                        if let Some(there) =
+                            self.tidied(&renamed, &bare_read, &read_rpn, scope, facts)?
+                        {
+                            if let Built(alike) =
+                                self.same(&read, &claim, scope, facts, None)?
+                            {
+                                return Ok(
+                                    pf!(self.b; scope, read_rpn, term, there, alike, "mpbid"),
+                                );
+                            }
+                        }
+                    }
+                }
             }
             if read_rpn != *term {
                 if let Some(there) =
