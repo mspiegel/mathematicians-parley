@@ -226,9 +226,11 @@ impl<'a> Elaborator<'a> {
         }
         // A lemma's left side need not fix everything it mentions, so what
         // the caller can say of the right side fixes the rest.
-        // The fit is made as written and then as the standard form reads the
+        // The fit is made as written, then as the standard form reads the
         // two, as `apply_lemma` fits an antecedent: the page's x ≠ c is
-        // "not (x = c)" where a lemma writes `=/=`.
+        // "not (x = c)" where a lemma writes `=/=`; and then with identity
+        // elements dropped, as the checker reads a cited line
+        // (`identities_dropped`), as written and in the standard form.
         // What is offered may be the facts a step names joined, a define's
         // equation among them, and then the right side is one of them.
         if let Some(offered) = hint.or(ex) {
@@ -236,14 +238,23 @@ impl<'a> Elaborator<'a> {
             let mut pieces = vec![offered.clone()];
             pieces.extend(super::matcher::conjuncts_of(&offered));
             let filled = pieces.iter().find_map(|piece| {
-                fit(&reads.children()[1], piece, &binding, &variables).or_else(|| {
-                    self.fits_as(
-                        &reads.children()[1],
-                        piece,
-                        &variables,
-                        Some(&binding),
-                    )
-                })
+                fit(&reads.children()[1], piece, &binding, &variables)
+                    .or_else(|| {
+                        self.fits_as(
+                            &reads.children()[1],
+                            piece,
+                            &variables,
+                            Some(&binding),
+                        )
+                    })
+                    .or_else(|| {
+                        let bare =
+                            self.identities_dropped(&reads.children()[1], &binding);
+                        let held = self.without_identities(piece);
+                        fit(&bare, &held, &binding, &variables).or_else(|| {
+                            self.fits_as(&bare, &held, &variables, Some(&binding))
+                        })
+                    })
             });
             if let Some(filled) = filled {
                 binding = filled;
@@ -2766,11 +2777,12 @@ impl<'a> Elaborator<'a> {
             &known,
             hint.as_ref()
         )?);
-        let under = take!(self.settle(
+        // The right side is settled as the checker reads the lines that
+        // answer it, with identity elements dropped (`settle_or_bare`).
+        let under = take!(self.settle_or_bare(
             &self.to_term(&right),
             scope,
             &known,
-            3,
             Some(step),
             Some(lines)
         )?);

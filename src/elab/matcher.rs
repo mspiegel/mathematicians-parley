@@ -2452,6 +2452,21 @@ impl<'a> Elaborator<'a> {
             .any(|law| super::field::numeral(law.element) == spelt)
     }
 
+    /// A lemma's `pattern` as the checker reads it against a cited line,
+    /// with its identity elements dropped (`SYNTAX.md`, "An identity element
+    /// goes without saying"): a limit's |x − c| < δ at c := 0 is |x| < δ.
+    /// Only a letter `binding` already puts at an identity element is put
+    /// in first, since a letter of the proof may share a name with one of
+    /// the lemma's.
+    pub fn identities_dropped(&self, pattern: &Term, binding: &Binding) -> Term {
+        let at_identity: Binding = binding
+            .iter()
+            .filter(|(_, v)| self.is_identity_element(v))
+            .map(|(k, v)| (*k, v.clone()))
+            .collect();
+        self.without_identities(&pattern.substitute(&at_identity))
+    }
+
     fn identity_dropped(&self, term: &Term) -> Option<Term> {
         if term.variable().is_some() {
             return None;
