@@ -3647,10 +3647,23 @@ fn lemma_of(
         .iter()
         .filter(|o| step.number.contains(&o.number))
         .collect();
+    // A step that ends its theorem's contradiction says so in its own
+    // justification, which a lemma proving its claim could not say.
+    if step.just.contradicting.is_some() {
+        return Err("it ends the theorem's contradiction".into());
+    }
     let start = step.line - 1;
+    // The block ends at the next top step, or before at the next part of a
+    // theorem proved `by` a method, whose marker and openers stay.
+    let theorem_parts = thm
+        .steps
+        .iter()
+        .filter(|s| s.number.is_theorem())
+        .flat_map(|s| s.parts.iter().map(|(_, line)| line - 1));
     let next = tops
         .iter()
         .map(|t| t.line - 1)
+        .chain(theorem_parts)
         .filter(|&l| l > start)
         .min()
         .unwrap_or(end);
@@ -3725,6 +3738,20 @@ fn lemma_of(
         .map(|n| format!("H{n}"))
         .filter(move |l| !taken.contains(l));
     let obtained = re(r"^obtain\s+(.+?)(?::|\s+from\b)");
+    // The names each step the block cites writes, all of which the lemma
+    // assumes: a step above it that obtains one of them is then brought in
+    // by the walk below, though it comes first.
+    for t in tops.iter().filter(|t| t.line - 1 < start) {
+        if !outside.contains(&t.number.to_string()) {
+            continue;
+        }
+        for sentence in t.claim.sentences() {
+            let said = sentence.read(&ctx.g, sorts).map_err(|p| {
+                format!("step {} does not read: {}", t.number, p.message)
+            })?;
+            used.extend(said.names());
+        }
+    }
     let mut map: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let mut above: Vec<Assumed> = Vec::new();
     let mut cite: Vec<String> = Vec::new();
@@ -3766,8 +3793,14 @@ fn lemma_of(
                 || said.children.get(1).is_some_and(|set| {
                     set.notation() == parley::notations::POLYNOMIALS
                 });
+            let point = said.notation() == parley::notations::MEMBERSHIP
+                && said
+                    .children
+                    .get(1)
+                    .is_some_and(|set| set.notation() == parley::notations::PLANE);
             let introduced = match said.notation() {
                 _ if polynomial => format!("{} be a polynomial", name.text),
+                _ if point => format!("{} be a point", name.text),
                 parley::notations::MEMBERSHIP | parley::notations::FUNCTION_TYPE => {
                     ctx.g.print(&said)
                 }

@@ -93,6 +93,24 @@ struct Pushed {
     floats: Vec<(Symbol, Symbol)>,
 }
 
+impl Pushed {
+    /// Whether two of the theorem's set variables are given one letter,
+    /// which its disjointness forbids.
+    fn letters_meet(&self) -> bool {
+        let letters: Vec<&Rpn> = self
+            .floats
+            .iter()
+            .zip(&self.values)
+            .filter(|((typecode, _), _)| typecode.as_str() == "setvar")
+            .map(|(_, value)| value)
+            .collect();
+        letters
+            .iter()
+            .enumerate()
+            .any(|(i, a)| letters[i + 1..].contains(a))
+    }
+}
+
 /// Which of the four ways a biconditional definition reaches a claim.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Way {
@@ -2062,6 +2080,27 @@ impl<'a> Elaborator<'a> {
             // saying"): the line at k := 0 says F(0 + 2), and the step F(2).
             if let Some(tidy) = self.tidied(&proof, &reached, term, scope, facts)? {
                 return Ok(Built(tidy));
+            }
+            // Or both: the instance with its identity elements dropped, and
+            // that the claim in other words, as a(1) = a(0) + 2 is the step's
+            // a(0) + 2 = a(1).
+            let bare = self.rpn(&self.without_identities(&reads));
+            if bare != reached {
+                if let Some(dropped) =
+                    self.tidied(&proof, &reached, &bare, scope, facts)?
+                {
+                    if let Built(alike) = self.same(
+                        &self.to_term(&bare),
+                        &self.to_term(term),
+                        scope,
+                        facts,
+                        None,
+                    )? {
+                        return Ok(Built(
+                            pf!(self.b; scope, bare, term, dropped, alike, "mpbid"),
+                        ));
+                    }
+                }
             }
             if reads.label() != Some("wi") {
                 return Err(self.defect(
@@ -6599,11 +6638,30 @@ impl<'a> Elaborator<'a> {
             proof = Some(pf!(self.b; scope, p, extra, proof.unwrap(), held, "jca"));
             pair = Some(t!(p, extra, "wa"));
         }
-        let applied = match &pair {
+        let mut applied = match &pair {
             Some(pair) => t!(pair, whole, "wi"),
             None => whole.clone(),
         };
-        let pushed = self.cited_pushes(step, &full, &applied)?;
+        let mut pushed = self.cited_pushes(step, &full, &applied)?;
+        // The theorem keeps its bound letters apart, and a class put in it
+        // that binds one of them again would hand two of them one letter:
+        // its statement is read with its own letters moved off
+        // (`unshadowed`), and `concluded` carries that back to the claim.
+        let mut whole = whole;
+        if pushed.letters_meet() {
+            let Some(unshadowed) = self.unshadowed(&self.to_term(&whole)) else {
+                return Err(self.defect(
+                    step.line,
+                    "no letter is left to move the cited theorem's bound letters apart from the classes put in it",
+                ));
+            };
+            whole = self.rpn(&unshadowed);
+            applied = match &pair {
+                Some(pair) => t!(pair, whole, "wi"),
+                None => whole.clone(),
+            };
+            pushed = self.cited_pushes(step, &full, &applied)?;
+        }
         let cited = label_of(
             &full,
             &self.b.sigs,

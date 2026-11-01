@@ -31,6 +31,7 @@ import theorem            stdlib/geometry/triangle-equality-between as geometry-
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
 import mundane theorem    stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
+import mundane theorem    stdlib/geometry/between-symmetric as geometry-between-symmetric
 import mundane theorem    stdlib/geometry/between-collinear as geometry-between-collinear
 import mundane theorem    stdlib/geometry/triangle-on-side as geometry-triangle-on-side
 import mundane theorem    stdlib/geometry/midpoint-unique as geometry-midpoint-unique
@@ -617,6 +618,16 @@ theorem angle-addition
 
 1.  ∠ACM + ∠MCB = ∠ACB
     mun:geometry-angle-addition, from H5, H6, H7
+
+theorem between-symmetric
+  let R be a point                                                    (H1)
+  let S be a point                                                    (H2)
+  let T be a point                                                    (H3)
+  assume R is between S and T                                         (H4)
+  then R is between T and S
+
+1.  R is between T and S
+    mun:geometry-between-symmetric, from H4
 
 theorem between-apart
   let R be a point                                                    (H1)

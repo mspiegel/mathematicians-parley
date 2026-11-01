@@ -2668,6 +2668,66 @@ impl<'a> Elaborator<'a> {
         out
     }
 
+    /// The term with each letter a binder binds moved to one nothing holds,
+    /// where a class inside the binder binds that letter again: a cited
+    /// theorem's `A. k e. NN0 ( ( k e. NN0 |-> B ) ` k ) ...`, its own k
+    /// put where the citing proof's map for F binds k too. A theorem that
+    /// keeps its two letters apart cannot be applied with both at one
+    /// letter. None when no letter is left to move one to.
+    pub fn unshadowed(&self, term: &Term) -> Option<Term> {
+        let mut seen = vec![term.clone()];
+        self.unshadowed_in(term, &mut seen)
+    }
+
+    fn unshadowed_in(&self, node: &Term, seen: &mut Vec<Term>) -> Option<Term> {
+        if node.variable().is_some() {
+            return Some(node.clone());
+        }
+        let mut node = node.clone();
+        for letter in self.bound_here(&node) {
+            let rebinds = node.children().iter().any(|c| {
+                c.variable_symbol() != Some(letter)
+                    && self.letters_bound(c).contains(&letter)
+            });
+            if !rebinds {
+                continue;
+            }
+            let refs: Vec<&Term> = seen.iter().collect();
+            let fresh = self.unheld(&refs)?;
+            seen.push(fresh.clone());
+            let name = self.rpn(&Term::var(letter));
+            let spare = self.rpn(&fresh);
+            let kids = node
+                .children()
+                .iter()
+                .map(|c| match c.variable_symbol() == Some(letter) {
+                    true => fresh.clone(),
+                    false => self.free_renamed(c, &name, &spare),
+                })
+                .collect();
+            node = node.with_children(kids);
+        }
+        let kids = node
+            .children()
+            .iter()
+            .map(|c| self.unshadowed_in(c, seen))
+            .collect::<Option<Vec<_>>>()?;
+        Some(node.with_children(kids))
+    }
+
+    /// The set variables a node binds itself: those standing directly under
+    /// it, where it is not `cv` (`letters_bound`).
+    fn bound_here(&self, node: &Term) -> Vec<Symbol> {
+        if node.variable().is_some() || node.label() == Some("cv") {
+            return Vec::new();
+        }
+        node.children()
+            .iter()
+            .filter_map(|c| c.variable_symbol())
+            .filter(|v| self.is_setvar(&self.float_of(v)))
+            .collect()
+    }
+
     /// What decides which of a symmetric pair goes first: the term as
     /// reverse Polish, with every letter the statement binds read as a
     /// blank.

@@ -321,7 +321,7 @@ fn cases() -> Vec<Case> {
             "corpus/stdlib/counting.records",
             "  target      hashdifsnp1 with V := X, N := a, Y := k",
             "  target      hashdifsnp1 with V := X, N := a, Y := X",
-            "no clause of mun:card-remove reaches what step 1.2.2 claims",
+            "no clause of mun:card-remove reaches what step 1.7 claims",
         ),
         // A definition read with no pair for its subject is about the proof's
         // letter of the same name (`SYNTAX.md`). odd-square has an n, so
