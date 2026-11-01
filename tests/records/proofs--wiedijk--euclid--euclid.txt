@@ -17,9 +17,7 @@ block of 5: 5.1, 5.2, 5.3, 5.4
 block of 5.4: 5.4.1, 5.4.2, 5.4.3, 5.4.4, 5.4.5, 5.4.6, 5.4.7, 5.4.8, 5.4.9, 5.4.10, 5.4.11, 5.4.12, 5.4.13, 5.4.14
   part 0 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
   part 1 owes b(k + 1) + (k + 1) ≤ N or b(k + 1) = 0
-block of 9: 9.1, 9.2, 9.3
-  part 0 owes b(N) = 0
-  part 1 owes b(N) = 0
+block of 8: 8.1, 8.2, 8.3
 step 3.4 cites stdlib/reasoning/excluded-middle group 0; P := b(k) = 0; concludes 0 AsWritten; from no line
 step 3.5.8 cites stdlib/numbers/nat0-nonzero group 0; m := b(k); concludes 0 AsWritten; from no line
 step 3.5.9 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
@@ -37,9 +35,8 @@ step 5.4.7 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); 
 step 5.4.10 cites stdlib/numbers/integer-step group 0; m := b(k + 1), n := b(k); concludes 0 AsWritten; from no line
 step 5.4.11 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(k) + k ≤ N, Q := b(k) = 0; concludes 0 AsWritten; from no line
 step 5.4.14 cites stdlib/reasoning/or-left group 0; P := b(k + 1) + (k + 1) ≤ N, Q := b(k + 1) = 0; concludes 0 AsWritten; from no line
-step 8 cites stdlib/reasoning/excluded-middle group 0; P := b(N) = 0; concludes 0 AsWritten; from no line
-step 9.1 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(N) + N ≤ N, Q := b(N) = 0; concludes 0 AsWritten; from no line
-step 9.2 cites stdlib/numbers/nat0-nonzero group 0; m := b(N); concludes 0 AsWritten; from no line
+step 8.1 cites stdlib/reasoning/disjunctive-syllogism group 0; P := b(N) + N ≤ N, Q := b(N) = 0; concludes 0 AsWritten; from no line
+step 8.2 cites stdlib/numbers/nat0-nonzero group 0; m := b(N); concludes 0 AsWritten; from no line
 requires line 1 of step 3.5.9 cites stdlib/numbers/nat0-int group 0; m := a(k); concludes 0 AsWritten; from no line
 requires line 1 of step 4.3.8 cites stdlib/numbers/nat0-int group 0; m := b(k); concludes 0 AsWritten; from no line
 requires line 2 of step 4.3.8 cites stdlib/divisibility/mod-natural group 0; a := a(k), b := b(k); concludes 0 AsWritten; from no line
@@ -50,7 +47,7 @@ requires line 1 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k 
 requires line 2 of step 5.4.12 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
 requires line 1 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k + 1); concludes 0 AsWritten; from no line
 requires line 2 of step 5.4.13 cites stdlib/numbers/nat0-real group 0; m := b(k); concludes 0 AsWritten; from no line
-requires line on line 278 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line
+requires line on line 270 cites stdlib/divisibility/gcd-zero group 0; n := a(N); concludes 0 AsWritten; from no line
 step 5.4.13 chains b(k + 1) + (k + 1) ≤ b(k) + k | b(k) + k ≤ N
 read 16: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
 read 22: M ∈ ℕ₀  as  membership:∈(name:M, number-systems:ℕ₀)  a statement
@@ -176,20 +173,17 @@ read 249: a(N) ∈ ℕ₀ and b(N) ∈ ℕ₀  as  conjunction:and(membership:�
 read 250: N  as  name:N  a number
 read 252: b(N) + N ≤ N or b(N) = 0  as  disjunction:or(order:≤(additive:+(application:()(name:b, name:N), name:N), name:N), equality:=(application:()(name:b, name:N), numeral:0))  a statement
 read 253: N  as  name:N  a number
-read 255: b(N) = 0 or b(N) ≠ 0  as  disjunction:or(equality:=(application:()(name:b, name:N), numeral:0), logical-not:not(equality:=(application:()(name:b, name:N), numeral:0)))  a statement
-read 256: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
-read 258: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
-read 262: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
-read 265: b(N) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:N), numeral:0))  a statement
-read 267: b(N) + N ≤ N  as  order:≤(additive:+(application:()(name:b, name:N), name:N), name:N)  a statement
-read 270: b(N) ∈ ℕ  as  membership:∈(application:()(name:b, name:N), number-systems:ℕ)  a statement
-read 273: not b(N) + N ≤ N  as  logical-not:not(order:≤(additive:+(application:()(name:b, name:N), name:N), name:N))  a statement
-read 276: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
-read 278: a(N)  as  application:()(name:a, name:N)  a number
-read 278: a(N) = gcd(a(N), 0)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0))  a statement
-read 278: gcd(a(N), 0)  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0)  a number
-read 279: gcd(a(N), 0) = gcd(a(N), b(N))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0), application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)))  a statement
-read 279: gcd(a(N), b(N))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N))  a number
-read 280: N  as  name:N  a number
-read 280: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
-read 280: gcd(a(N), b(N)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 255: b(N) = 0  as  equality:=(application:()(name:b, name:N), numeral:0)  a statement
+read 257: b(N) ≠ 0  as  logical-not:not(equality:=(application:()(name:b, name:N), numeral:0))  a statement
+read 259: b(N) + N ≤ N  as  order:≤(additive:+(application:()(name:b, name:N), name:N), name:N)  a statement
+read 262: b(N) ∈ ℕ  as  membership:∈(application:()(name:b, name:N), number-systems:ℕ)  a statement
+read 265: not b(N) + N ≤ N  as  logical-not:not(order:≤(additive:+(application:()(name:b, name:N), name:N), name:N))  a statement
+read 268: a(N) = gcd(M, N)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
+read 270: a(N)  as  application:()(name:a, name:N)  a number
+read 270: a(N) = gcd(a(N), 0)  as  equality:=(application:()(name:a, name:N), application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0))  a statement
+read 270: gcd(a(N), 0)  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0)  a number
+read 271: gcd(a(N), 0) = gcd(a(N), b(N))  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), numeral:0), application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)))  a statement
+read 271: gcd(a(N), b(N))  as  application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N))  a number
+read 272: N  as  name:N  a number
+read 272: gcd(M, N)  as  application-to-two:(,)(name:gcd, name:M, name:N)  a number
+read 272: gcd(a(N), b(N)) = gcd(M, N)  as  equality:=(application-to-two:(,)(name:gcd, application:()(name:a, name:N), application:()(name:b, name:N)), application-to-two:(,)(name:gcd, name:M, name:N))  a statement
