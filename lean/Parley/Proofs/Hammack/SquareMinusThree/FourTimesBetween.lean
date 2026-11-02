@@ -12,7 +12,7 @@ namespace Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween
 theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
     4 * j ≠ r := by
   -- 1. mun:nonneg-or-neg x := j − 1
-  have s1 : j - 1 ≥ 0 ∨ j - 1 < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)); parley_side)
+  have s1 : j - 1 ≥ 0 ∨ j - 1 < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := j - 1)); parley_side)
   -- 2. cases, from 1
   have s2 : 4 * j ≠ r := by
     rcases s1 with hC1 | hC2

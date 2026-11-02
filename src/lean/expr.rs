@@ -79,7 +79,7 @@ impl Members {
 }
 
 /// A type written with a space in it, bracketed to stand as an argument.
-fn bracketed(ty: &str) -> String {
+pub fn bracketed(ty: &str) -> String {
     if ty.contains(' ') {
         format!("({ty})")
     } else {
@@ -127,7 +127,7 @@ pub struct Printed {
 /// bracketed term.
 pub const MAX: u32 = 1024;
 /// The precedence of a function applied to its arguments.
-const APP: u32 = 1023;
+pub const APP: u32 = 1023;
 
 impl Printed {
     pub fn atom(text: impl Into<String>) -> Printed {
@@ -966,6 +966,10 @@ impl Writer<'_> {
                 return r;
             }
         }
+        // What a map between sets is, f : A → B or f : A → B is one-to-one.
+        if let Some(r) = self.map_claim(node) {
+            return r;
+        }
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
             MEMBERSHIP => self.membership(node),
@@ -1121,27 +1125,40 @@ impl Writer<'_> {
         if let Some(m) = self.set_membership(x, set) {
             return m;
         }
-        // x ∈ {a, b, c} of numbers: x is one of them.
+        // x ∈ {a, b, c} of numbers: a membership of Lean's sets, in the
+        // least type that holds x and every member, so that x is written
+        // once, as the page writes it.
         if matches!(
             &*set.notation_name(),
             "singleton" | "listed-two" | "listed-three" | "listed-four"
         ) && self.is_number(x)
         {
-            let mut ways = Vec::new();
-            for member in &set.children {
-                let equal = Node::of(
-                    EQUALS,
-                    crate::formula::node::Sort::of("formula"),
-                    vec![x.clone(), member.clone()],
-                );
-                match self.relation_from(&equal, false, Num::Int) {
-                    Route::Built(p) => ways.push(p.at(31)),
+            let mut at = Num::Int;
+            for n in std::iter::once(x).chain(&set.children) {
+                match self.carrier(n) {
+                    Route::Built(c) => at = at.max(c),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
+            let mut members = Vec::new();
+            for member in &set.children {
+                match self.number_fixed(member, at) {
+                    Route::Built(p) => members.push(p.text),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            let x = match self.number_fixed(x, at) {
+                Route::Built(p) => p,
+                Route::Declined(d) => return Route::Declined(d),
+            };
             return Route::Built(Printed {
-                text: ways.join(" ∨ "),
-                prec: 30,
+                text: format!(
+                    "{} ∈ ({{{}}} : Set {})",
+                    x.at(51),
+                    members.join(", "),
+                    self.type_name(at)
+                ),
+                prec: 50,
             });
         }
         if set.notation() == INTEGER_RANGE {

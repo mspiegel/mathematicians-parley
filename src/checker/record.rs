@@ -235,6 +235,11 @@ pub struct CheckedTheorem {
     /// each sentence of its claim, what each letter of its "there is" stands
     /// for (`citations::exhibit_values`).
     pub exhibited: IndexMap<usize, Vec<Option<Binding>>>,
+    /// What each of the theorem's `let` lines asserts that the page does not
+    /// read as a formula, `f : A → B be one-to-one` as `f : A → B is
+    /// one-to-one`, by the hypothesis's index; empty for any other line
+    /// (`library::let_assertions`).
+    pub asserted: Vec<Vec<Node>>,
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,

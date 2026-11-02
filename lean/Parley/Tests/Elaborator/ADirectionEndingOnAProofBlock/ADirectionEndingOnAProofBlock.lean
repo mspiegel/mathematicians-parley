@@ -1,0 +1,33 @@
+module
+
+public import LeanBridges
+public import Parley.Items.Stdlib.Sets
+
+/-! Written from tests/elaborator/a-direction-ending-on-a-proof-block.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
+
+theorem a_direction_ending_on_a_proof_block {α : Type*} (A : Set α) (B : Set α) :
+    (A ⊆ B ↔ (∀ t ∈ A, t ∈ B)) := by
+  -- 1. both directions
+  have s1 : A ⊆ B ↔ (∀ t ∈ A, t ∈ B) := by
+    constructor
+    · skip
+      intro hD1
+      -- 1.1. proof
+      have s1_1 : ∀ t ∈ A, t ∈ B := by
+        intro t hK1
+        -- 1.1.1. mun:in-subset X := A, Y := B, u := t, from D1, K1
+        have s1_1_1 : t ∈ B := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := A) (Y := B) (u := t) (by parley_side) (by parley_side)); parley_side)
+        all_goals parley_side
+      all_goals parley_side
+    · skip
+      intro hD2
+      -- 1.2. def:subset, from D2
+      have s1_2 : A ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_side); parley_side)
+      all_goals parley_side
+  all_goals parley_side
+
+end Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock

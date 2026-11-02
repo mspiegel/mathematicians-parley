@@ -4,6 +4,7 @@ public import LeanBridges
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
+public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
@@ -12,6 +13,7 @@ public import Parley.Items.Stdlib.Sums
 public import Parley.Items.Stdlib.Trigonometry
 public import Parley.Stdlib.Calculus.IncreasingTerms
 public import Parley.Stdlib.Divisibility.LeastCombinationDivides
+public import Parley.Stdlib.Geometry.HalfTurn
 public import Parley.Stdlib.Numbers.AbsBounds
 public import Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
 public import Parley.Proofs.Hammack.AlternatingSignBijection.OddPowerOfMinusOne
@@ -54,9 +56,11 @@ public import Parley.Proofs.Hammack.CubeRootInjective.CubeInjective
 public import Parley.Proofs.Hammack.CubicAboveMinusOne.CubicAboveMinusOne
 public import Parley.Proofs.Hammack.CubicPlusMultipleOfThree.CubicPlusMultipleOfThree
 public import Parley.Proofs.Hammack.CubicSumEvenIffEven.CubicSumEvenIffEven
+public import Parley.Proofs.Hammack.DifferenceKeepsSubset.SubsetMinusASet
 public import Parley.Proofs.Hammack.DifferenceOfAUnion.UnionThenDifference
 public import Parley.Proofs.Hammack.DifferenceOfIntersection.DifferenceOfIntersection
 public import Parley.Proofs.Hammack.DifferenceOfUnion.DifferenceOfUnion
+public import Parley.Proofs.Hammack.DisjointPowerSetDifference.DisjointPowerSetDifference
 public import Parley.Proofs.Hammack.DividesCubic.DividesCubic
 public import Parley.Proofs.Hammack.DividesNeitherFactor.DividesNeitherFactor
 public import Parley.Proofs.Hammack.DividesOrNotPrime.DividesOrNotPrime
@@ -85,10 +89,13 @@ public import Parley.Proofs.Hammack.GcdEqualsFirst.GcdEqualsFirst
 public import Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural
 public import Parley.Proofs.Hammack.GcdMinusSecondNatural.GcdMinusSecondNatural
 public import Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder
+public import Parley.Proofs.Hammack.GcdWithSuccessorTwoFromMinusOne.GcdWithSuccessorTwoFromMinusOne
 public import Parley.Proofs.Hammack.GeometricSumBaseThree.GeometricSumBaseThree
 public import Parley.Proofs.Hammack.GeometricSumBaseTwo.GeometricSumBaseTwo
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicLowerBound
+public import Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
+public import Parley.Proofs.Hammack.ImageOfUnion.ImageOfUnion
 public import Parley.Proofs.Hammack.IntersectionOverUnion.IntersectionOverUnion
 public import Parley.Proofs.Hammack.IntersectionThenDifference.IntersectionThenDifference
 public import Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded
@@ -117,6 +124,7 @@ public import Parley.Proofs.Hammack.PolynomialSign.NegativePowers
 public import Parley.Proofs.Hammack.PolynomialSign.QuinticFive
 public import Parley.Proofs.Hammack.PolynomialSign.QuinticSix
 public import Parley.Proofs.Hammack.PositiveNumberWithSquareBelowRoot.PositiveNumberWithSquareBelowRoot
+public import Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
 public import Parley.Proofs.Hammack.PowersOfTwoSum.PowersOfTwoSum
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut
@@ -140,6 +148,7 @@ public import Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalProductSum
 public import Parley.Proofs.Hammack.ScaledGcdBound.GcdPositive
 public import Parley.Proofs.Hammack.ScaledGcdBound.ScaledPairNotBothZero
 public import Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound
+public import Parley.Proofs.Hammack.SetMeetsItsComplementInNothing.SetMeetsWhatItLacksInNothing
 public import Parley.Proofs.Hammack.SevenDividesFourTimes.SevenDividesFourTimes
 public import Parley.Proofs.Hammack.ShiftedProductEvenIff.ShiftedProductEvenIff
 public import Parley.Proofs.Hammack.ShiftedPronicSum.ShiftedPronicSum
@@ -157,6 +166,8 @@ public import Parley.Proofs.Hammack.SquareOfSmaller.SquareOfSmaller
 public import Parley.Proofs.Hammack.SquareOfSumEqualsSumOfCubes.SquareOfSumEqualsSumOfCubes
 public import Parley.Proofs.Hammack.SquarePlusTwoNotDivisibleByFour.SquarePlusTwoNotDivisibleByFour
 public import Parley.Proofs.Hammack.SquareSumZero.SquareSumZero
+public import Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection
+public import Parley.Proofs.Hammack.SubsetIffDifferenceEmpty.SubsetIffDifferenceEmpty
 public import Parley.Proofs.Hammack.SumEvenSameParity.SumEvenSameParity
 public import Parley.Proofs.Hammack.SumOfCubes.SumOfCubes
 public import Parley.Proofs.Hammack.SumOfEightIMinusFive.SumOfEightIMinusFive
@@ -213,6 +224,7 @@ public import Parley.Proofs.Setmm.Contrapositive.Contrapositive
 public import Parley.Proofs.Setmm.DifferenceFormulas.SineOfDifference
 public import Parley.Proofs.Setmm.DifferenceFormulas.CosineOfDifference
 public import Parley.Proofs.Setmm.DifferenceFormulas.ProductOfSines
+public import Parley.Proofs.Setmm.DifferenceInsideALargerSet.DifferenceInsideALargerSet
 public import Parley.Proofs.Setmm.DifferenceLaws.IntersectionWithDifference
 public import Parley.Proofs.Setmm.DifferenceLaws.DifferenceOfIntersection
 public import Parley.Proofs.Setmm.DifferenceLaws.SplitByMembership
@@ -220,6 +232,8 @@ public import Parley.Proofs.Setmm.DifferenceNotZero.DifferenceNotZero
 public import Parley.Proofs.Setmm.DifferenceOfMagnitudes.DifferenceOfMagnitudes
 public import Parley.Proofs.Setmm.DifferenceOfSizes.DifferenceOfSizes
 public import Parley.Proofs.Setmm.DifferenceRemainderZero.DifferenceRemainderZero
+public import Parley.Proofs.Setmm.DisjointFromADifference.DisjointFromADifference
+public import Parley.Proofs.Setmm.DisjointWithinDifference.DisjointWithinDifference
 public import Parley.Proofs.Setmm.DistanceTriangle.DistanceTriangle
 public import Parley.Proofs.Setmm.DividesDifferenceWithDivisor.DividesDifferenceWithDivisor
 public import Parley.Proofs.Setmm.DividesSumWithDivisor.DividesSumWithDivisor
@@ -241,6 +255,10 @@ public import Parley.Proofs.Setmm.FloorIsMonotone.FloorIsMonotone
 public import Parley.Proofs.Setmm.FloorQuotientZero.FloorQuotientZero
 public import Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple
 public import Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove
+public import Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
+public import Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair
+public import Parley.Proofs.Setmm.ImageOfPart.ImageOfPart
+public import Parley.Proofs.Setmm.ImageOfUnion.ImageOfUnion
 public import Parley.Proofs.Setmm.ImplicationAndCurrying.ImplicationAndCurrying
 public import Parley.Proofs.Setmm.IntegerAtMostSquare.IntegerAtMostSquare
 public import Parley.Proofs.Setmm.IntegerBelowAReal.IntegerBelowAReal
@@ -267,6 +285,8 @@ public import Parley.Proofs.Setmm.OddMinusOdd.OddMinusOdd
 public import Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum
 public import Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo
 public import Parley.Proofs.Setmm.OddSquareLessOneOverEight.OddSquareLessOneOverEight
+public import Parley.Proofs.Setmm.OntoBijectionOneToOne.OntoBijectionOneToOne
+public import Parley.Proofs.Setmm.OntoBijectionReachesAll.OntoBijectionReachesAll
 public import Parley.Proofs.Setmm.OrCommutes.OrCommutes
 public import Parley.Proofs.Setmm.OrOverAnd.OrOverAnd
 public import Parley.Proofs.Setmm.Parity.OddPlusOdd
@@ -282,6 +302,7 @@ public import Parley.Proofs.Setmm.PowerAboveOne.PowerAboveOne
 public import Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne
 public import Parley.Proofs.Setmm.PowerAtMostOne.PowerAtMostOne
 public import Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative
+public import Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself
 public import Parley.Proofs.Setmm.PrimeDividesPower.PrimeDividesPower
 public import Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor
 public import Parley.Proofs.Setmm.PrimeDivisorInRange.PrimeDivisorInRange
@@ -301,8 +322,11 @@ public import Parley.Proofs.Setmm.RootOrder.RootOrder
 public import Parley.Proofs.Setmm.RoundingError.RoundingError
 public import Parley.Proofs.Setmm.ScaleDivisibility.ScaleDivisibility
 public import Parley.Proofs.Setmm.SetOrderLaws.UnionOverIntersection
+public import Parley.Proofs.Setmm.SetOrderLaws.UnionKeepsOrder
+public import Parley.Proofs.Setmm.SetOrderLaws.IntersectionKeepsOrder
 public import Parley.Proofs.Setmm.SineOfDouble2.SineOfDouble
 public import Parley.Proofs.Setmm.SineOfDouble.SineOfDouble
+public import Parley.Proofs.Setmm.SizeOfDifference.PartAndRest
 public import Parley.Proofs.Setmm.SizeOfUnion.UnionSplit
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialTwo
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialThree
@@ -311,13 +335,19 @@ public import Parley.Proofs.Setmm.SquareRootOrder.SquareRootOrder
 public import Parley.Proofs.Setmm.SquareRootPositive.SquareRootPositive
 public import Parley.Proofs.Setmm.SquareRootsEqual.SquareRootsEqual
 public import Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder
+public import Parley.Proofs.Setmm.SubsetByDoubleDifference.SubsetByDoubleDifference
+public import Parley.Proofs.Setmm.SubsetOfAUnionWithADisjointSet.SubsetOfAUnionWithADisjointSet
+public import Parley.Proofs.Setmm.SubsetOfIntersection2.SubsetOfIntersection
 public import Parley.Proofs.Setmm.SubsetOfIntersection.SubsetOfIntersection
+public import Parley.Proofs.Setmm.SubsetOfUnionAndDifference.SubsetOfUnionAndDifference
 public import Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight
 public import Parley.Proofs.Setmm.SubsetOfUnion.SubsetOfUnion
 public import Parley.Proofs.Setmm.SumOfSquaresZero.SumOfSquaresZero
 public import Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger
 public import Parley.Proofs.Setmm.TwoDoesNotDivideOdd.TwoDoesNotDivideOdd
 public import Parley.Proofs.Setmm.TwoHalvesBelow.TwoHalvesBelow
+public import Parley.Proofs.Setmm.UnionAndDifferenceEqual.UnionAndDifferenceEqual
+public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock
@@ -364,6 +394,7 @@ public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceCitedT
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACalculationReadingACongruenceTheOtherWay
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceClaimedTheOtherWayRound
 public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ValueAtOne
+public import Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
 public import Parley.Tests.Elaborator.ADividesFoldWithItsWitness.ADividesFoldWithItsWitness
 public import Parley.Tests.Elaborator.ADivisorMultiplyingAQuotient.ADivisorMultiplyingAQuotient
 public import Parley.Tests.Elaborator.ADivisorNegatingAQuotient.ADivisorNegatingAQuotient
@@ -400,6 +431,8 @@ public import Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto
 public import Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
 public import Parley.Tests.Elaborator.AProofBlockEndingImpossible.NothingBelowOneIsTwo
 public import Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero
+public import Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOver
+public import Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOverRequired
 public import Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLinesBounds
 public import Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited
 public import Parley.Tests.Elaborator.ARequiresLineAddingWhatTheCheckerAdded.ARequiresLineAddingWhatTheCheckerAdded
@@ -538,6 +571,7 @@ public import Parley.Tests.Elaborator.LargeArithmetic.RemainderOfASmallNumber
 public import Parley.Tests.Elaborator.LargeArithmetic.TwoSentencesByArithmetic
 public import Parley.Tests.Elaborator.LetterI.ObtainedI
 public import Parley.Tests.Elaborator.LetterI.FixedI
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairInsideASubset
 public import Parley.Tests.Elaborator.OrderChains.TwoBoundsInARow
 public import Parley.Tests.Elaborator.OrderChains.AStrictLinkThenABound
 public import Parley.Tests.Elaborator.OrderChains.AnEquationBetweenTwoBounds
@@ -699,6 +733,7 @@ public import Parley.Tests.Notations.Divisibility.OneIsNotEven
 public import Parley.Tests.Notations.Divisibility.SeventeenTwoModFive
 public import Parley.Tests.Notations.Divisibility.MinusOneFourModFive
 public import Parley.Tests.Notations.Divisibility.SeventeenNotThreeModFive
+public import Parley.Tests.Notations.Functions.AnOntoFunctionHasItsValues
 public import Parley.Tests.Notations.Negatives.MinusThreeBelowZero
 public import Parley.Tests.Notations.Negatives.MinusThreeBelowMinusOne
 public import Parley.Tests.Notations.Negatives.MinusOfMinus
@@ -815,6 +850,10 @@ public import Parley.Tests.Stdlib.Reasoning.DoubleNegation
 public import Parley.Tests.Stdlib.Reasoning.OrLeft
 public import Parley.Tests.Stdlib.Reasoning.NotEither
 public import Parley.Tests.Stdlib.Reasoning.OrRight
+public import Parley.Tests.Stdlib.Sets.UnionDifference
+public import Parley.Tests.Stdlib.Sets.IntersectionCommutes
+public import Parley.Tests.Stdlib.Sets.IntersectionSelf
+public import Parley.Tests.Stdlib.Sets.SubsetEmpty
 public import Parley.Tests.Stdlib.Sums.RangeNat0
 public import Parley.Tests.Stdlib.Sums.RangeBetween
 public import Parley.Tests.Stdlib.Trigonometry.CosComplex

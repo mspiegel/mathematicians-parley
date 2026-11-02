@@ -1,0 +1,20 @@
+module
+
+public import LeanBridges
+public import Parley.Items.Stdlib.Sets
+
+/-! Written from proofs/setmm/power-sets.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself
+
+theorem set_is_a_part_of_itself {α : Type*} (A : Set α) :
+    A ∈ 𝒫 A := by
+  -- 1. mun:subset-self
+  have s1 : A ⊆ A := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := A))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := A)); parley_side)
+  -- 2. def:powerset S := A, from 1
+  have s2 : A ∈ 𝒫 A := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_powerset (A := A) (S := A))).mpr (by parley_side); parley_side)
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.PowerSets.SetIsAPartOfItself

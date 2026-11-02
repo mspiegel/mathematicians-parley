@@ -12,7 +12,7 @@ namespace Parley.Tests.Elaborator.ReadingSentences.AnAndPartFillingAnItem
 theorem an_and_part_filling_an_item (a : ℝ) (b : ℝ) (hH3 : a = 1 ∧ b = 2) :
     (b = 0 ∨ b = 2) := by
   -- 1. mun:or-right P := b = 0, Q := b = 2, from H3
-  have s1 : b = 0 ∨ b = 2 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)); parley_side)
+  have s1 : b = 0 ∨ b = 2 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b = 0) (Q := b = 2) (by parley_side)); parley_side)
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartFillingAnItem

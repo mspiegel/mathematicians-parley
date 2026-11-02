@@ -471,6 +471,33 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     && !sets.iter().any(|(s, _)| *s == *x.text);
                 if let Some(m) = member.then(|| w.members_of(set)).flatten() {
                     sets.push((x.text.to_string(), LetterType::Member(m)));
+                    continue;
+                }
+                // x ∈ {u, w} where no letter of it has a number's sort, the
+                // pair of elements of any sort: each is a thing, and the
+                // statement holds of numbers as of any other type.
+                let listed = matches!(
+                    &*set.notation_name(),
+                    "singleton" | "listed-two" | "listed-three" | "listed-four"
+                );
+                let things: Vec<&Node> =
+                    std::iter::once(x).chain(&set.children).collect();
+                let of_no_number = |n: &&Node| {
+                    n.is_name()
+                        && free.iter().any(|f| *f.name == *n.text)
+                        && !n.sort.is("number")
+                };
+                if n.notation() == crate::notations::MEMBERSHIP
+                    && listed
+                    && things.iter().all(of_no_number)
+                {
+                    for t in things {
+                        if !sets.iter().any(|(s, _)| *s == *t.text) {
+                            let ty = LetterType::Member(super::expr::Members::Things);
+                            w.letters.insert(t.text.to_string(), ty.clone());
+                            sets.push((t.text.to_string(), ty));
+                        }
+                    }
                 }
             }
             let free: Vec<FreeLetter> = free
@@ -539,6 +566,59 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     page: name.clone(),
                     ty: ty.clone(),
                     general: false,
+                });
+            }
+            // A map the item has, `f : D → E`, maps the one set into the
+            // other, which its groups leave out as they leave out its type.
+            for node in checked
+                .library
+                .function_types
+                .get(&full)
+                .into_iter()
+                .flatten()
+            {
+                let [f, from, to] = node.children.as_slice() else {
+                    continue;
+                };
+                if !matches!(
+                    w.letters.get(f.text.as_str()),
+                    Some(LetterType::Map { .. })
+                ) {
+                    continue;
+                }
+                // A set named only in the map's type, the W of `f : X → W`,
+                // is a letter of the item all the same.
+                for set in [from, to] {
+                    let unbound =
+                        set.is_name() && !w.letters.contains_key(set.text.as_str());
+                    if let Some(ty) =
+                        unbound.then(|| set_type_in(sorts, &set.text)).flatten()
+                    {
+                        w.letters.insert(set.text.to_string(), ty.clone());
+                        statements.push(Binder::Letter {
+                            name: super::names::letter(&set.text),
+                            page: set.text.to_string(),
+                            ty,
+                            general: false,
+                        });
+                    }
+                }
+                let (Route::Built(a), Route::Built(b)) =
+                    (w.set_term(from), w.set_term(to))
+                else {
+                    return Route::no(format!(
+                        "{} maps between sets with no Lean form",
+                        f.text
+                    ));
+                };
+                let name = super::names::letter(&f.text);
+                statements.push(Binder::Fact {
+                    name: format!("h{name}"),
+                    says: format!(
+                        "Set.MapsTo {name} {} {}",
+                        a.at(super::expr::MAX),
+                        b.at(super::expr::MAX)
+                    ),
                 });
             }
             for letter in &free {

@@ -12,7 +12,7 @@ namespace Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder
 theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     a ^ 2 ≤ b ^ 2 := by
   -- 1. axi:trichotomy x := b − a
-  have s1 : (b - a < 0 ∨ b - a = 0) ∨ 0 < b - a := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)); parley_side)
+  have s1 : (b - a < 0 ∨ b - a = 0) ∨ 0 < b - a := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := b - a)); parley_side)
   -- 2. cases, from 1
   have s2 : a ^ 2 ≤ b ^ 2 := by
     rcases s1 with (hC1 | hC2) | hC3

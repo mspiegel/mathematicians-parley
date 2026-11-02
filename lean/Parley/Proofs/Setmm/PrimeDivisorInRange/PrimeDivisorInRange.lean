@@ -20,7 +20,7 @@ theorem prime_divisor_in_range (N : ℕ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 3. inequalities, from 1
   have s3 : 0 < I := by parley_side
   -- 4. mun:pos-int-nat m := I, from 3
-  have s4 : 0 < I := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)); parley_side)
+  have s4 : 0 < I := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := I) (by parley_side)); parley_side)
   lift I to ℕ using s4.le
   -- 5. inequalities, from 1
   have s5 : (I : ℤ) > 1 := by parley_side

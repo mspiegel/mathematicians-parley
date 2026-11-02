@@ -27,7 +27,7 @@ theorem factorial_beats_power (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.4. mun:factorial-nat n := k
-      have s1_4 : 0 < (LeanBridges.Counting.factorial (k : ℤ) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)); parley_side)
+      have s1_4 : 0 < (LeanBridges.Counting.factorial (k : ℤ) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k)); parley_side)
       -- 1.5. inequalities, from 1.4
       have s1_5 : (LeanBridges.Counting.factorial (k : ℤ) : ℤ) > 0 := by parley_side
       -- 1.6. def:factorial n := k
@@ -58,7 +58,7 @@ theorem factorial_beats_power (n : ℕ) (hH1 : 0 < n) :
       have s1_16 : 2 ^ (k + 1) ≤ 2 * (LeanBridges.Counting.factorial ((k : ℤ) + 1) : ℤ) ∧ ((k : ℤ) + 1) * 2 ^ (k + 1) ≤ 4 * (LeanBridges.Counting.factorial ((k : ℤ) + 1) : ℤ) := by parley_side
       all_goals parley_side
   -- 2. instantiate k := n in line 1
-  have s2 : 2 ^ n ≤ 2 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ∧ (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
+  have s2 : 2 ^ n ≤ 2 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ∧ (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (s1 n (by parley_side)); parley_side)
   -- 3. restate 2
   have s3 : (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by parley_side
   all_goals parley_side

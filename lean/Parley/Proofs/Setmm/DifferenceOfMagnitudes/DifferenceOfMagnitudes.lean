@@ -33,7 +33,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     have row1 : abs (B - A) = abs (A - B) := by parley_subst_at c1 s5
     exact row1
   -- 7. mun:nonneg-or-neg x := |A| − |B|
-  have s7 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)); parley_side)
+  have s7 : abs A - abs B ≥ 0 ∨ abs A - abs B < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := abs A - abs B)); parley_side)
   -- 8. cases, from 7
   have s8 : abs (abs A - abs B) ≤ abs (A - B) := by
     rcases s7 with hC1 | hC2

@@ -55,7 +55,7 @@ mundane theorem function-value
   note        The intermediate value pilot called this mun:stdlib/functions/function, colliding
               with the Cantor pilot's definition of the same name. Renamed by the
               merge; that proof's three citations are renamed with it.
-  lean-proof  not yet implemented
+  lean-proof  hf h1
 
 mundane theorem image-of-injection
   let Y be a set                                                      (H1)
@@ -100,7 +100,7 @@ definition image
               set as `def:stdlib/functions/set-image` speaks of for a map
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/functions/image
 
 mundane theorem image-within
   let f : X → W                                                       (H1)
@@ -113,7 +113,7 @@ mundane theorem image-monotone
   assume Y ⊆ Z                                                        (H2)
   then        f[Y] ⊆ f[Z]
   metamath-proof imass2
-  lean-proof  not yet implemented
+  lean-proof  Set.image_mono h1
 
 mundane theorem function-into
   let E be a function on X                                            (H1)
@@ -136,7 +136,7 @@ mundane theorem value-in-image
   let s ∈ Y                                                           (H3)
   then        f(s) ∈ f[Y]
   metamath-proof metamath-bridges/functions/gfnfvima
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_image_of_mem f h2
 
 definition one-to-one
   let f : X → Y                                                       (H1)

@@ -12,7 +12,7 @@ namespace Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConse
 theorem six_divides_three_consecutive (k : ℕ) :
     (6 : ℤ) ∣ 3 * (k : ℤ) * ((k : ℤ) + 1) := by
   -- 1. mun:even-or-odd n := k
-  have s1 : Even (k : ℤ) ∨ Odd (k : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))); parley_side)
+  have s1 : Even (k : ℤ) ∨ Odd (k : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (k : ℤ))); parley_side)
   -- 2. cases, from 1
   have s2 : (6 : ℤ) ∣ 3 * (k : ℤ) * ((k : ℤ) + 1) := by
     rcases s1 with hC1 | hC2

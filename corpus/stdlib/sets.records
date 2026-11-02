@@ -189,18 +189,18 @@ mundane theorem subset-transitive
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z
   metamath-proof sstr
-  lean-proof  not yet implemented
+  lean-proof  h1.trans h2
 
 mundane theorem subset-self
   then        X ⊆ X
   metamath-proof ssid
-  lean-proof  not yet implemented
+  lean-proof  Set.Subset.refl X
 
 definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
   metamath-proof elpwg
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem powerset-empty
   then        𝒫∅ = {∅}
@@ -212,7 +212,7 @@ definition pair
   then        x ∈ {u, w} ↔ x = u or x = w
   metamath-proof elprg
   note        What is in a set of two listed things is one of the two.
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem pair-equal
   let a be an element                                                 (H1)
@@ -254,7 +254,7 @@ definition singleton
   metamath-proof elsng
   note        What is in a set of one listed thing is that thing, as `pair`
               says of two.
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition triple
   let x be an element                                                 (H1)
@@ -363,7 +363,7 @@ mundane theorem disjoint-empty
               in `disj` and over the second in `disjr`, and the second is the
               one the subsets proof has: what it can run over is the part it
               built, not the part it split off.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sets/disjoint-empty
 
 mundane theorem not-in-difference
   let X be a set                                                      (H1)
@@ -380,7 +380,7 @@ mundane theorem union-subset
   assume Y ⊆ Z                                                        (H2)
   then        X ∪ Y ⊆ Z
   metamath-proof unss
-  lean-proof  not yet implemented
+  lean-proof  Set.union_subset h1 h2
 
 mundane theorem in-union-left
   assume u ∈ Y                                                        (H1)
@@ -397,7 +397,7 @@ mundane theorem in-union-right
 mundane theorem difference-subset
   then        X ∖ Y ⊆ X
   metamath-proof difss
-  lean-proof  not yet implemented
+  lean-proof  Set.diff_subset
 
 mundane theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
@@ -425,14 +425,14 @@ mundane theorem singleton-subset
   let a ∈ X                                                           (H1)
   then        {a} ⊆ X
   metamath-proof snssi
-  lean-proof  not yet implemented
+  lean-proof  Set.singleton_subset_iff.mpr h1
 
 mundane theorem pair-subset
   let a ∈ X                                                           (H1)
   let b ∈ X                                                           (H2)
   then        {a, b} ⊆ X
   metamath-proof prssi
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sets/pair-subset
 
 mundane theorem triple-subset
   let a ∈ X                                                           (H1)
@@ -469,7 +469,7 @@ mundane theorem remove-member
 mundane theorem intersection-commutes
   then        Y ∩ Z = Z ∩ Y
   metamath-proof incom
-  lean-proof  not yet implemented
+  lean-proof  Set.inter_comm Y Z
 
 mundane theorem union-commutes
   then        Y ∪ Z = Z ∪ Y
@@ -480,7 +480,7 @@ mundane theorem union-difference
   then        Y ∪ (Z ∖ Y) = Y ∪ Z
   metamath-proof undif2
   note        Adding what Z has beyond Y adds all of Z.
-  lean-proof  not yet implemented
+  lean-proof  Set.union_diff_self
 
 mundane theorem nonempty-member
   assume Y ≠ ∅                                                        (H1)
@@ -500,7 +500,7 @@ mundane theorem member-nonempty
 mundane theorem intersection-self
   then        Y ∩ Y = Y
   metamath-proof inidm
-  lean-proof  not yet implemented
+  lean-proof  Set.inter_self Y
 
 mundane theorem union-self
   then        Y ∪ Y = Y
@@ -561,7 +561,7 @@ mundane theorem intersection-and-difference-disjoint
 mundane theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
   metamath-proof ss0b
-  lean-proof  not yet implemented
+  lean-proof  Set.subset_empty_iff
 
 definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
@@ -573,7 +573,7 @@ mundane theorem in-subset
   assume u ∈ X                                                        (H2)
   then        u ∈ Y
   metamath-proof ssel2
-  lean-proof  not yet implemented
+  lean-proof  h1 h2
 
 mundane theorem difference-reverses
   assume X ⊆ Y                                                        (H1)
@@ -611,7 +611,7 @@ mundane theorem disjoint-member
   assume u ∈ Y                                                        (H2)
   then        u ∉ Z
   metamath-proof disjel
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sets/disjoint-member
 
 mundane theorem disjoint-difference
   then        Y ∩ (Z ∖ Y) = ∅

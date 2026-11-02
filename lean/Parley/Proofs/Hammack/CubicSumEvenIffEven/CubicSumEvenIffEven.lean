@@ -17,7 +17,7 @@ theorem cubic_sum_even_iff_even (a : ℤ) :
     · skip
       intro hD1
       -- 1. mun:even-or-odd n := a
-      have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); parley_side)
+      have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); parley_side)
       -- 2. cases, from 1
       have s2 : Even a := by
         rcases s1 with hC1 | hC2
@@ -31,7 +31,7 @@ theorem cubic_sum_even_iff_even (a : ℤ) :
           -- 2.3. def:odd n := a³ + a² + a, from 2.2
           have s2_3 : Odd (a ^ 3 + a ^ 2 + a) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 3 + a ^ 2 + a))).mpr ⟨4 * k ^ 3 + 8 * k ^ 2 + 6 * k + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 3 + a ^ 2 + a))).mpr ⟨4 * k ^ 3 + 8 * k ^ 2 + 6 * k + 1, by parley_side⟩; parley_side)
           -- 2.4. mun:not-both n := a³ + a² + a, from D1
-          have s2_4 : ¬ Odd (a ^ 3 + a ^ 2 + a) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)); parley_side)
+          have s2_4 : ¬ Odd (a ^ 3 + a ^ 2 + a) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 3 + a ^ 2 + a) (by parley_side)); parley_side)
           all_goals parley_side
       all_goals parley_side
     · skip

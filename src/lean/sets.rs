@@ -32,6 +32,8 @@ impl Writer<'_> {
         if node.is_name() {
             return match self.letters.get(node.text.as_str()) {
                 Some(LetterType::Set(m)) => Some(m.clone()),
+                // A member of a set of sets, the t of t ∈ 𝒫A, is a set.
+                Some(LetterType::Member(Members::Sets(m))) => Some((**m).clone()),
                 _ => None,
             };
         }
@@ -118,14 +120,22 @@ impl Writer<'_> {
             },
             "empty-set" => Route::Built(Printed::atom("∅")),
             "singleton" | "listed-two" | "listed-three" | "listed-four" => {
+                // Ascribed its type, which Lean cannot take from a member
+                // alone: `{u, w}` of things of α is `({u, w} : Set α)`.
+                let ty = node
+                    .children
+                    .iter()
+                    .find_map(|c| self.member_kind(c))
+                    .map(|m| format!("Set {}", super::expr::bracketed(&m.lean())));
                 match parts(node.children.len()) {
                     Route::Built(p) => {
                         let listed: Vec<String> =
                             p.into_iter().map(|x| x.text).collect();
-                        Route::Built(Printed::atom(format!(
-                            "{{{}}}",
-                            listed.join(", ")
-                        )))
+                        let set = format!("{{{}}}", listed.join(", "));
+                        Route::Built(Printed::atom(match ty {
+                            Some(t) => format!("({set} : {t})"),
+                            None => set,
+                        }))
                     }
                     Route::Declined(d) => Route::Declined(d),
                 }
@@ -211,10 +221,65 @@ impl Writer<'_> {
         }
     }
 
+    /// What a map between sets is: `f : A → B` is `Set.MapsTo f A B`, and
+    /// one-to-one and onto add `Set.InjOn f A` and `Set.SurjOn f A B`, each
+    /// a part of a conjunction a hypothesis is taken apart by. None where
+    /// the node says none of these of a map letter.
+    pub fn map_claim(&self, node: &Node) -> Option<Route<Printed>> {
+        let extra: &[&str] = match &*node.notation_name() {
+            "function-type" => &[],
+            "one-to-one" => &["Set.InjOn _f _A"],
+            "onto" => &["Set.SurjOn _f _A _B"],
+            "one-to-one-onto" => &["Set.InjOn _f _A", "Set.SurjOn _f _A _B"],
+            _ => return None,
+        };
+        let [f, from, to] = node.children.as_slice() else {
+            return None;
+        };
+        if !matches!(
+            self.letters.get(f.text.as_str()),
+            Some(LetterType::Map { .. })
+        ) {
+            return None;
+        }
+        let (a, b) = match (self.set_term(from), self.set_term(to)) {
+            (Route::Built(a), Route::Built(b)) => (a.at(MAX), b.at(MAX)),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Some(Route::Declined(d))
+            }
+        };
+        let name = super::names::letter(&f.text);
+        let parts: Vec<String> = std::iter::once("Set.MapsTo _f _A _B")
+            .chain(extra.iter().copied())
+            .map(|p| p.replace("_f", &name).replace("_A", &a).replace("_B", &b))
+            .collect();
+        let prec = if parts.len() == 1 {
+            super::expr::APP
+        } else {
+            35
+        };
+        Some(Route::Built(Printed {
+            text: parts.join(" ∧ "),
+            prec,
+        }))
+    }
+
     /// x ∈ S of a set S this writer has a type for: `x ∈ S`.
     pub fn set_membership(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
-        self.members_of(set)?;
-        Some(match (self.set_term(x), self.set_term(set)) {
+        // ∅ holds nothing of any type, so x ∈ ∅ is of x's.
+        let empty = &*set.notation_name() == "empty-set";
+        let members = self
+            .members_of(set)
+            .or_else(|| empty.then(|| self.member_kind(x)).flatten())?;
+        // ∅ is told its type, which nothing else in `t ∈ ∅` gives Lean.
+        let set_text = match empty {
+            true => Route::Built(Printed::atom(format!(
+                "(∅ : Set {})",
+                super::expr::bracketed(&members.lean())
+            ))),
+            false => self.set_term(set),
+        };
+        Some(match (self.set_term(x), set_text) {
             (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
                 text: format!("{} ∈ {}", a.at(51), b.at(51)),
                 prec: 50,

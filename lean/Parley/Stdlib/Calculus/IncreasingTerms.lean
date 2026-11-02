@@ -34,7 +34,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : 
       intro m hK1
       intro hA1
       -- 1.5. mun:le-cases x := m, y := n + 1, from A1
-      have s1_5 : (m : ℤ) < (n : ℤ) + 1 ∨ (m : ℤ) = (n : ℤ) + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side); parley_side)
+      have s1_5 : (m : ℤ) < (n : ℤ) + 1 ∨ (m : ℤ) = (n : ℤ) + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (m : ℤ)) (y := (n : ℤ) + 1))).mp (by parley_side); parley_side)
       -- 1.6. cases, from 1.5
       have s1_6 : x (m : ℤ) ≤ x ((n : ℤ) + 1) := by
         rcases s1_5 with hC1 | hC2

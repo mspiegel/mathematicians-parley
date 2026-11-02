@@ -63,8 +63,10 @@ macro "parley_side" : tactic =>
     -- An integer a line gives as a quotient, (M! + 1)/N, in an equation of
     -- integers: in ℚ, with the division cleared, it is linear.
     | (qify at *; field_simp at *; linarith; done)
-    -- One of a listed set, x = a ∨ x = b, taken case by case.
+    -- One of a listed set, x ∈ {a, b}, taken case by case.
     | (rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
+    | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;
+       rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
     | (simp_all; done)))
 
 /-- `parley_suppose h`, where `h` denies what a contradiction block claims:

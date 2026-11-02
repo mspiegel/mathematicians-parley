@@ -22,7 +22,7 @@ theorem power_of_two_at_least_four (m : ℕ) (hH1 : 0 < m) :
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.2. mun:power-nat a := 2, m := k + 1
-      have s1_2 : 0 < 2 ^ (k + 1) := by first | exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | exact ((Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)); parley_side)
+      have s1_2 : 0 < 2 ^ (k + 1) := by first | exact (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | exact ((Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_nat (a := 2) (by parley_side) (m := k + 1)); parley_side)
       -- 1.3. inequalities, from 1.2
       have s1_3 : (2 ^ (k + 1) : ℤ) ≥ 0 := by parley_side
       -- 1.4. inequalities, from IH, 1.3

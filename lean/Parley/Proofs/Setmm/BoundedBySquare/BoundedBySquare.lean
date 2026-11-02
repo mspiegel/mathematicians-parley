@@ -22,7 +22,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
   -- 4. inequalities
   have s4 : 0 ≤ abs A := by parley_side
   -- 5. mun:nonneg-or-neg x := A
-  have s5 : A ≥ 0 ∨ A < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); parley_side)
+  have s5 : A ≥ 0 ∨ A < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); parley_side)
   -- 6. both directions
   have s6 : A ≤ B ∧ -A ≤ B ↔ A ^ 2 ≤ B ^ 2 := by
     constructor

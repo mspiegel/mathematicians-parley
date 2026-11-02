@@ -15,7 +15,7 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s1 : ∀ u ∈ A \ (A ∩ B), u ∈ A \ B := by
     intro u hK1
     -- 1.1. def:difference, from K1
-    have s1_1 : u ∈ A ∧ ¬ u ∈ A ∩ B := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side); parley_side)
+    have s1_1 : u ∈ A ∧ ¬ u ∈ A ∩ B := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := A ∩ B) (u := u))).mp (by parley_side); parley_side)
     -- 1.2. contradiction
     have s1_2 : ¬ u ∈ B := by
       by_contra hc_hS1
@@ -36,13 +36,13 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
   have s3 : ∀ u ∈ A \ B, u ∈ A \ (A ∩ B) := by
     intro u hK2
     -- 3.1. def:difference, from K2
-    have s3_1 : u ∈ A ∧ ¬ u ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side); parley_side)
+    have s3_1 : u ∈ A ∧ ¬ u ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := u))).mp (by parley_side); parley_side)
     -- 3.2. contradiction
     have s3_2 : ¬ u ∈ A ∩ B := by
       by_contra hc_hS2
       have hS2 : u ∈ A ∩ B := by parley_suppose hc_hS2
       -- 3.2.1. def:intersection, from S2
-      have s3_2_1 : u ∈ A ∧ u ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side); parley_side)
+      have s3_2_1 : u ∈ A ∧ u ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A) (Z := B) (u := u))).mp (by parley_side); parley_side)
       -- 3.2.2. restate 3.2.1
       have s3_2_2 : u ∈ B := by parley_side
       all_goals parley_side

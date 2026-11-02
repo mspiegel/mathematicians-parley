@@ -136,6 +136,16 @@ fn introduces_in_set(
             let m = writer.members_of(set)?;
             Some((letter.text.to_string(), LetterType::Set(m), None))
         }
+        // f : A → B is one-to-one, onto, or both: a map, and the line the
+        // fact the writer writes of it.
+        ("one-to-one" | "onto" | "one-to-one-onto", [from, to]) => {
+            let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
+            Some((
+                letter.text.to_string(),
+                LetterType::Map { from: a, to: b },
+                None,
+            ))
+        }
         ("function-type", [from, to]) => {
             let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
             let (from_text, to_text) =

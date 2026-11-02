@@ -14,7 +14,7 @@ namespace Parley.Proofs.Setmm.NicomachusRow.NicomachusRow
 theorem nicomachus_row (N : ℕ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (N : ℤ), ((N : ℤ) ^ 2 - (N : ℤ) + (2 * k - 1) : ℤ)) = (N : ℤ) ^ 3 := by
   -- 1. def:nat0 n := N
-  have s1 : 0 < N ∨ (N : ℤ) = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); parley_side)
+  have s1 : 0 < N ∨ (N : ℤ) = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); parley_side)
   -- 2. cases, from 1
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (N : ℤ), ((N : ℤ) ^ 2 - (N : ℤ) + (2 * k - 1) : ℤ)) = (N : ℤ) ^ 3 := by
     rcases s1 with hC1 | hC2

@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.InspectionCasesOfARange.OneOfASingleton
 
-theorem one_of_a_singleton (x : ℤ) (hH1 : x = 3) :
+theorem one_of_a_singleton (x : ℤ) (hH1 : x ∈ ({(3 : ℤ)} : Set ℤ)) :
     x = 3 := by
   -- 1. inspection, from H1
   have s1 : x = 3 := by parley_side

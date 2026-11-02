@@ -62,7 +62,7 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
       have s1_16 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * (j + 1)) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (j : ℤ) + 1) := ⟨2 ^ d * q + 1, by parley_side, by parley_side⟩
       all_goals parley_side
   -- 2. instantiate j := m in line 1
-  have s2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ)) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)
+  have s2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ)) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (s1 m (by parley_side)); parley_side)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient

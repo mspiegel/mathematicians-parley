@@ -52,6 +52,9 @@ pub const IN_CODE: &[&str] = &[
     "listed-three",
     "listed-four",
     "image",
+    "one-to-one",
+    "onto",
+    "one-to-one-onto",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -126,6 +129,22 @@ fn set_line(
     }
 }
 
+/// Whether what a `let` line asserts is a map between sets with a property,
+/// `f : A → B is one-to-one`, onto, or both, its sets no number systems.
+fn map_line(asserted: Option<&Vec<crate::formula::Node>>) -> bool {
+    let map = |n: &crate::formula::Node| {
+        matches!(
+            &*n.notation_name(),
+            "one-to-one" | "onto" | "one-to-one-onto"
+        ) && n.children.iter().skip(1).all(|set| {
+            set.walk()
+                .iter()
+                .all(|m| m.notation() != crate::notations::NUMBER_SYSTEMS)
+        })
+    };
+    asserted.is_some_and(|a| !a.is_empty() && a.iter().all(map))
+}
+
 /// The function a proof's define line gives, where the Lean build writes it
 /// (`Proof::define_function`): one argument, running over a number system,
 /// `let S(m) = …, for m ∈ ℕ`. None for any other line.
@@ -185,14 +204,14 @@ fn covered(
             reason: "the checker refuses it".to_string(),
         };
     }
-    // A `let` that says a property beside a type, `let a : A → B be
-    // one-to-one`, is read part by part, which the writer does not read yet.
-    // A `let` the page does not read as a formula is in only where it is
-    // `A be a set` or `x be an element` of a sort Lean has a type for.
-    let in_parts = thm.hypotheses.iter().any(|h| {
+    // A `let` the page does not read as a formula is in where it is `A be a
+    // set` or `x be an element` of a sort Lean has a type for, or a map
+    // between sets with a property, `let f : A → B be one-to-one`, which
+    // the writer states from what the checker reads the line to assert.
+    let in_parts = thm.hypotheses.iter().enumerate().any(|(i, h)| {
         let body = h.body(&thm.path);
         let unread = body.sentences().iter().any(|s| rec.page.get(s).is_none());
-        unread && !set_line(body, rec)
+        unread && !set_line(body, rec) && !map_line(rec.asserted.get(i))
     });
     if in_parts {
         return Covered::Out {
@@ -228,8 +247,10 @@ fn covered(
             .entries()
             .flat_map(|(_, node)| node.walk())
             .any(|n| {
-                let compared = matches!(&*n.notation_name(), "subset" | "set-builder")
-                    || n.notation() == crate::notations::EQUALITY;
+                let compared = matches!(
+                    &*n.notation_name(),
+                    "subset" | "set-builder" | "set-operations"
+                ) || n.notation() == crate::notations::EQUALITY;
                 // A side listed or built of numbers, whose sort the reading may
                 // leave as no more than a set.
                 let numbers_listed = |c: &crate::formula::Node| {

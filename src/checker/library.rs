@@ -1145,6 +1145,34 @@ pub fn sums_said_once(known: &Known, step: &Step) -> Vec<Node> {
     out
 }
 
+/// What each of the theorem's `let` lines asserts where the page does not
+/// read the line as a formula, `f : A → B be one-to-one`, by the
+/// hypothesis's index; empty for any other line, and for one whose reading
+/// fails, which the checker reports where it reads the line.
+pub fn let_assertions(known: &Known) -> Vec<Vec<Node>> {
+    let path = &known.thm.path;
+    known
+        .thm
+        .hypotheses
+        .iter()
+        .map(|h| {
+            let body = h.body(path);
+            let on_page = body
+                .sentences()
+                .iter()
+                .all(|s| known.read_as_written(s).is_some());
+            if h.kind != Intro::Let || on_page {
+                return Vec::new();
+            }
+            known
+                .said_parts(&Stated::Introduced(Introduction::read(body)), None)
+                .into_iter()
+                .flatten()
+                .collect()
+        })
+        .collect()
+}
+
 /// The function types the lines in scope at `step` say, `v : {0, …, n} →
 /// V`, read off the same introducing lines as `introduced`.
 pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {

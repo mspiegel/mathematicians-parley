@@ -133,12 +133,17 @@ fn hypothesis_sentences(
     let mut out = Vec::new();
     for (i, h) in thm.hypotheses.iter().enumerate() {
         let label = h.label.clone().unwrap_or_else(|| format!("H{}", i + 1));
-        let nodes: Vec<Node> = h
+        let mut nodes: Vec<Node> = h
             .body(&thm.path)
             .sentences()
             .iter()
             .filter_map(|s| rec.page.get(s).cloned())
             .collect();
+        // A `let` the page does not read as a formula, `f : A → B be
+        // one-to-one`, says what the checker reads it to assert.
+        if nodes.is_empty() {
+            nodes = rec.asserted.get(i).cloned().unwrap_or_default();
+        }
         let base = line_name(&label);
         let n = nodes.len();
         let said = nodes
@@ -1230,15 +1235,16 @@ impl<'a> Proof<'a> {
                     } else {
                         super::expr::system_of(set).map(super::expr::letter_type)
                     };
+                    // A set's letter is a member of its kind.
+                    let member = writer.members_of(set).map(LetterType::Member);
                     let at: Vec<String> = node
                         .names()
                         .into_iter()
                         .filter(|n| !own.contains(n))
                         .filter(|n| {
-                            ty.is_some_and(|t| {
-                                writer.letters.get(n.as_str())
-                                    == Some(&LetterType::Number(t))
-                            })
+                            let has = writer.letters.get(n.as_str());
+                            ty.is_some_and(|t| has == Some(&LetterType::Number(t)))
+                                || (member.is_some() && has == member.as_ref())
                         })
                         .collect();
                     // A claim that is itself a "for all" keeps the letters
@@ -1252,6 +1258,16 @@ impl<'a> Proof<'a> {
                     Node::name(letter.sort.clone(), at)
                 }
             };
+            // A member of a set: the value, and that it is in the set.
+            if writer.members_of(set).is_some() {
+                match writer.set_term(&value) {
+                    Route::Built(p) => args.push(p.at(super::expr::MAX)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                args.push("(by parley_side)".to_string());
+                body = inner;
+                continue;
+            }
             let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
                 (super::templates::Num::Int, true)
             } else {
@@ -1764,38 +1780,55 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
+        // A chain of sets, A ∩ B = B ∩ A = ∅, is written as sets are, and
+        // has no number type to work in.
+        let of_sets = terms.iter().any(|t| writer.members_of(t).is_some());
         let mut at = super::templates::Num::Int;
-        for t in &terms {
-            match writer.carrier(t) {
-                Route::Built(n) => at = at.max(n),
-                Route::Declined(d) => return Route::Declined(d),
-            }
-        }
         let mut printed = Vec::new();
-        for t in &terms {
-            match writer.number(t, at) {
-                Route::Built(p) => printed.push(p.at(51)),
-                Route::Declined(d) => return Route::Declined(d),
+        if of_sets {
+            for t in &terms {
+                match writer.set_term(t) {
+                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
             }
-        }
-        // A first term whose type nothing in it fixes, numerals alone or a
-        // power whose letters are only in its exponent, is told its type.
-        if !writer.pinned(&terms[0]) {
-            printed[0] = format!("({} : {})", printed[0], writer.type_name(at));
+        } else {
+            for t in &terms {
+                match writer.carrier(t) {
+                    Route::Built(n) => at = at.max(n),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            for t in &terms {
+                match writer.number(t, at) {
+                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            // A first term whose type nothing in it fixes, numerals alone or
+            // a power whose letters are only in its exponent, is told its
+            // type.
+            if !writer.pinned(&terms[0]) {
+                printed[0] = format!("({} : {})", printed[0], writer.type_name(at));
+            }
         }
         // The claim, the first term and the last, is stated in its own
         // least type; a chain worked out in a wider one moves the goal there
         // first, as `qify` or `rify` does.
         let mut own = super::templates::Num::Int;
         for t in [terms.first(), terms.last()].into_iter().flatten() {
+            if of_sets {
+                break;
+            }
             if let Route::Built(n) = writer.carrier(t) {
                 own = own.max(n);
             }
         }
-        let pinned = [terms.first(), terms.last()]
-            .into_iter()
-            .flatten()
-            .any(|t| writer.pinned(t));
+        let pinned = !of_sets
+            && [terms.first(), terms.last()]
+                .into_iter()
+                .flatten()
+                .any(|t| writer.pinned(t));
         let mut out = match (pinned && own < at, at) {
             (true, super::templates::Num::Rat) => String::from("by\n  qify\n  calc "),
             (true, super::templates::Num::Real) => String::from("by\n  rify\n  calc "),
@@ -1954,6 +1987,30 @@ impl<'a> Proof<'a> {
             }
             None => None,
         };
+        // The type an item's things are where they are given numbers, x ∈
+        // {u, w} cited of 1 and 2: the least that holds the claim and every
+        // number given them.
+        let things_at = {
+            let mut at = self.worked_in.get().unwrap_or(super::templates::Num::Int);
+            let numbers = claim
+                .into_iter()
+                .flat_map(|c| c.children.iter())
+                .chain(sentence.binders.iter().filter_map(|b| match b {
+                    Binder::Letter {
+                        page,
+                        ty: LetterType::Member(super::expr::Members::Things),
+                        ..
+                    } => binding.get(&crate::formula::symbol::Symbol::of(page)),
+                    _ => None,
+                }))
+                .filter(|n| self.writer.is_number(n));
+            for n in numbers {
+                if let Route::Built(c) = self.writer.carrier(n) {
+                    at = at.max(c);
+                }
+            }
+            at
+        };
         let mut args = Vec::new();
         // Each ℕ letter given an integer's `toNat`: the letter, and the
         // integer.
@@ -2049,6 +2106,13 @@ impl<'a> Proof<'a> {
                             }
                         }
                         (LetterType::Statement, _) => self.writer.formula(value),
+                        // A thing given a number: the number, at the type
+                        // the things are taken at here.
+                        (LetterType::Member(super::expr::Members::Things), _)
+                            if self.writer.is_number(value) =>
+                        {
+                            self.writer.number_fixed(value, things_at)
+                        }
                         // A set, a member or a map given for one: the term
                         // as the writer writes a set's.
                         (
@@ -3236,9 +3300,10 @@ fn close(claim: &Node, term: &str) -> String {
         // A relation said either way round, a congruence or a ↔, as the
         // claim writes it. Here and above, the last way takes the
         // citation's "and" apart: a definition unfolded to "p > 1 and for
-        // all d …" gives either half.
+        // all d …" gives either half. A set listed in another order than
+        // the item's, {w, u} for {u, w}, is put in one order on both sides.
         _ => format!(
-            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term} | (have h := {term}; parley_side)"
+            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term} | (have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := {term}; parley_side)"
         ),
     }
 }
