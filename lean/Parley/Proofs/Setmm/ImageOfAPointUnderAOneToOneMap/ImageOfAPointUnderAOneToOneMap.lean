@@ -1,0 +1,39 @@
+module
+
+public import LeanBridges
+public import Parley.Items.Stdlib.Functions
+public import Parley.Items.Stdlib.Sets
+
+/-! Written from proofs/setmm/image-of-a-point-under-a-one-to-one-map.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap
+
+theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (X : α) (hH4 : X ∈ A) (Y : Set α) (hH5 : Y ⊆ A) :
+    (F X ∈ F '' Y ↔ X ∈ Y) := by
+  -- 1. def:one-to-one, from H3
+  have s1a : Set.MapsTo F A B := by first | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1 | exact ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1).symm | simpa using (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1 | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).1; parley_side)
+  have s1b : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by first | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).2; parley_side)
+  -- 2. both directions
+  have s2 : F X ∈ F '' Y ↔ X ∈ Y := by
+    constructor
+    · skip
+      intro hD1
+      -- 2.1. obtain s: def:image u := F(X), from D1, H5
+      obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := Y) (f := F) (u := F X) (W := Set.univ) (by parley_side) (by parley_side))).mp (by parley_side)
+      -- 2.2. mun:in-subset X := Y, Y := A, u := s, from H5, 2.1
+      have s2_2 : s ∈ A := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_side) (by parley_side)); parley_side)
+      -- 2.3. instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
+      have s2_3 : X = s := by first | linear_combination (norm := parley_norm) (s1b X (by parley_side) s (by parley_side) (by parley_side)) | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1b X (by parley_side) s (by parley_side) (by parley_side)) | exact_mod_cast ((s1b X (by parley_side) s (by parley_side) (by parley_side))).symm | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); parley_int_power h) | (have h := (s1b X (by parley_side) s (by parley_side) (by parley_side)); parley_side)
+      -- 2.4. substitute X = s (line 2.3) into line 2.1
+      have s2_4 : X ∈ Y := by parley_subst_at s2_3 s2_1a
+      all_goals parley_side
+    · skip
+      intro hD2
+      -- 2.5. mun:value-in-image s := X, from D2, H5
+      have s2_5 : F X ∈ F '' Y := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+      all_goals parley_side
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap

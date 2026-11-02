@@ -3014,11 +3014,21 @@ impl<'a> Proof<'a> {
             let label = line_name(&o.label);
             self.named.insert(o.label.clone(), vec![label.clone()]);
             let body = o.body(&self.thm.path);
-            let nodes: Vec<Node> = body
+            let mut nodes: Vec<Node> = body
                 .sentences()
                 .iter()
                 .filter_map(|s| self.rec.page.get(s).cloned())
                 .collect();
+            // A `let` the page does not read as a formula, `let X ⊆ A`, says
+            // what the checker reads it to assert.
+            if nodes.is_empty() {
+                nodes = self
+                    .rec
+                    .opener_asserted
+                    .get(&o.line)
+                    .cloned()
+                    .unwrap_or_default();
+            }
             match o.kind {
                 Intro::Let => {
                     for node in &nodes {
@@ -3052,16 +3062,24 @@ impl<'a> Proof<'a> {
                         }
                         // `let t ∈ S` of a set S: the member and the fact
                         // that it is one, as "for all t ∈ S" gives them.
+                        // `let X ⊆ A` likewise gives a set and the fact.
                         if let [t, set] = node.children.as_slice() {
                             let member = node.notation()
                                 == crate::notations::MEMBERSHIP
                                 && t.is_name();
-                            if let Some(m) =
-                                member.then(|| self.writer.members_of(set)).flatten()
-                            {
-                                self.writer
-                                    .letters
-                                    .insert(t.text.to_string(), m.letter());
+                            let part =
+                                &*node.notation_name() == "subset" && t.is_name();
+                            let ty = match (member, part) {
+                                (true, _) => {
+                                    self.writer.members_of(set).map(|m| m.letter())
+                                }
+                                (_, true) => {
+                                    self.writer.set_members(set).map(LetterType::Set)
+                                }
+                                _ => None,
+                            };
+                            if let Some(ty) = ty {
+                                self.writer.letters.insert(t.text.to_string(), ty);
                                 self.trees.insert(
                                     o.label.clone(),
                                     vec![(node.clone(), label.clone())],

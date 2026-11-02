@@ -28,6 +28,18 @@ theorem mun_value_in_image {α : Type*} (X : Set α) (Y : Set α) (f : α → α
     f s ∈ f '' Y :=
   Set.mem_image_of_mem f h2
 
+theorem def_one_to_one {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
+    Set.MapsTo f X Y ∧ Set.InjOn f X ↔ Set.MapsTo f X Y ∧ (∀ s ∈ X, ∀ t ∈ X, f s = f t → s = t) :=
+  Iff.rfl
+
+theorem def_onto {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
+    Set.MapsTo f X Y ∧ Set.SurjOn f X Y ↔ Set.MapsTo f X Y ∧ (∀ y ∈ Y, ∃ x ∈ X, y = f x) :=
+  LeanBridges.Functions.onto X Y f hf
+
+theorem def_one_to_one_onto {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
+    Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y ↔ (Set.MapsTo f X Y ∧ Set.InjOn f X) ∧ Set.MapsTo f X Y ∧ Set.SurjOn f X Y :=
+  LeanBridges.Functions.one_to_one_onto X Y f hf
+
 theorem mun_inverse_value {α : Type*} (X : Set α) (Y : Set α) (g : α → α) (y : α) (h1 : Set.MapsTo g Y X ∧ Set.InjOn g Y) (h2 : y ∈ Y) :
     LeanBridges.Functions.inverse g Y (g y) = y :=
   LeanBridges.Functions.inverse_of_value g Y y h1.2 h2

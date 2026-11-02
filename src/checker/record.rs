@@ -240,6 +240,9 @@ pub struct CheckedTheorem {
     /// one-to-one`, by the hypothesis's index; empty for any other line
     /// (`library::let_assertions`).
     pub asserted: Vec<Vec<Node>>,
+    /// The same of each `let` opening a block, `let X ⊆ A`, by the line it
+    /// is on (`library::opener_assertions`).
+    pub opener_asserted: IndexMap<usize, Vec<Node>>,
 }
 
 /// A step's citation of an item as the checker reads it (`citing::taken`,

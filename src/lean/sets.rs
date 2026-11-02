@@ -502,10 +502,20 @@ impl Writer<'_> {
         let [f, from, to] = node.children.as_slice() else {
             return None;
         };
+        // A map between sets, or a function between number systems, whose
+        // sets are all of its types.
         if !matches!(
             self.letters.get(f.text.as_str()),
-            Some(LetterType::Map { .. })
+            Some(LetterType::Map { .. } | LetterType::Function { .. })
         ) {
+            return None;
+        }
+        // f : ℤ → ℤ alone is said by f's Lean type, as `formula` writes it.
+        let function = matches!(
+            self.letters.get(f.text.as_str()),
+            Some(LetterType::Function { .. })
+        );
+        if function && extra.is_empty() {
             return None;
         }
         let (a, b) = match (self.set_term(from), self.set_term(to)) {

@@ -121,9 +121,12 @@ public import Parley.Proofs.Hammack.OddAndQuarticCoprime.OddAndQuarticCoprime
 public import Parley.Proofs.Hammack.OddAsSumOfThreeOdds.OddAsSumOfThreeOdds
 public import Parley.Proofs.Hammack.OddDifferenceOfSquares.OddDifferenceOfSquares
 public import Parley.Proofs.Hammack.OddFromSquare.OddFromSquare
+public import Parley.Proofs.Hammack.OddLineOneToOne.OddLineOneToOne
 public import Parley.Proofs.Hammack.OddProductOddFactors.OddProductOddFactors
 public import Parley.Proofs.Hammack.OddQuadraticAlways.OddQuadraticAlways
 public import Parley.Proofs.Hammack.OddQuadratic.OddQuadratic
+public import Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage
+public import Parley.Proofs.Hammack.OntoImageOfPreimage.OntoImageOfPreimage
 public import Parley.Proofs.Hammack.PolynomialSign.NegativePowers
 public import Parley.Proofs.Hammack.PolynomialSign.QuinticFive
 public import Parley.Proofs.Hammack.PolynomialSign.QuinticSix
@@ -162,6 +165,7 @@ public import Parley.Proofs.Hammack.SevenDividesFourTimes.SevenDividesFourTimes
 public import Parley.Proofs.Hammack.ShiftedMultiplesOfFour.ShiftedMultiplesOfFour
 public import Parley.Proofs.Hammack.ShiftedProductEvenIff.ShiftedProductEvenIff
 public import Parley.Proofs.Hammack.ShiftedPronicSum.ShiftedPronicSum
+public import Parley.Proofs.Hammack.SixMinusNBijection.SixMinusNBijection
 public import Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
 public import Parley.Proofs.Hammack.SquareCongruentOneModFive.SquareCongruentOneModFive
 public import Parley.Proofs.Hammack.SquareDividesItself.SquareDividesItself
@@ -251,6 +255,7 @@ public import Parley.Proofs.Setmm.DividesTimesCommonFactor.DividesTimesCommonFac
 public import Parley.Proofs.Setmm.DivisorOfPower.DivisorOfPower
 public import Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime
 public import Parley.Proofs.Setmm.EmptySum.EmptySum
+public import Parley.Proofs.Setmm.EqualValues.EqualValues
 public import Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor
 public import Parley.Proofs.Setmm.FactorialPlusOne.FactorialPlusOne
 public import Parley.Proofs.Setmm.FloorAddInteger.FloorAddInteger
@@ -267,8 +272,10 @@ public import Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple
 public import Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove
 public import Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
 public import Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair
+public import Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap
 public import Parley.Proofs.Setmm.ImageOfPart.ImageOfPart
 public import Parley.Proofs.Setmm.ImageOfUnion.ImageOfUnion
+public import Parley.Proofs.Setmm.ImagesOfPartsUnderAOneToOneMap.ImagesOfPartsUnderAOneToOneMap
 public import Parley.Proofs.Setmm.ImplicationAndCurrying.ImplicationAndCurrying
 public import Parley.Proofs.Setmm.IntegerAtMostSquare.IntegerAtMostSquare
 public import Parley.Proofs.Setmm.IntegerBelowAReal.IntegerBelowAReal
@@ -297,6 +304,7 @@ public import Parley.Proofs.Setmm.OddMinusOdd.OddMinusOdd
 public import Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum
 public import Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo
 public import Parley.Proofs.Setmm.OddSquareLessOneOverEight.OddSquareLessOneOverEight
+public import Parley.Proofs.Setmm.OneToOneValues.OneToOneValues
 public import Parley.Proofs.Setmm.OntoBijectionOneToOne.OntoBijectionOneToOne
 public import Parley.Proofs.Setmm.OntoBijectionReachesAll.OntoBijectionReachesAll
 public import Parley.Proofs.Setmm.OrCommutes.OrCommutes
@@ -750,6 +758,8 @@ public import Parley.Tests.Notations.Divisibility.OneIsNotEven
 public import Parley.Tests.Notations.Divisibility.SeventeenTwoModFive
 public import Parley.Tests.Notations.Divisibility.MinusOneFourModFive
 public import Parley.Tests.Notations.Divisibility.SeventeenNotThreeModFive
+public import Parley.Tests.Notations.Functions.ABijectionIsOnto
+public import Parley.Tests.Notations.Functions.AnOntoFunctionReachesAPoint
 public import Parley.Tests.Notations.Functions.AnOntoFunctionHasItsValues
 public import Parley.Tests.Notations.Functions.AValueInAnImage
 public import Parley.Tests.Notations.Negatives.MinusThreeBelowZero

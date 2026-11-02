@@ -1173,6 +1173,33 @@ pub fn let_assertions(known: &Known) -> Vec<Vec<Node>> {
         .collect()
 }
 
+/// What each `let` opening a block asserts where the page does not read it
+/// as a formula, `let X ⊆ A`, by the line it is on; such lines alone.
+pub fn opener_assertions(known: &Known) -> IndexMap<usize, Vec<Node>> {
+    let path = &known.thm.path;
+    let mut out = IndexMap::new();
+    for o in known.thm.steps.iter().flat_map(|s| &s.openers) {
+        if o.kind != Intro::Let || o.is_claim || o.is_hypothesis {
+            continue;
+        }
+        let body = o.body(path);
+        let on_page = body
+            .sentences()
+            .iter()
+            .all(|s| known.read_as_written(s).is_some());
+        if on_page {
+            continue;
+        }
+        let said: Vec<Node> = known
+            .said_parts(&Stated::Introduced(Introduction::read(body)), None)
+            .into_iter()
+            .flatten()
+            .collect();
+        out.insert(o.line, said);
+    }
+    out
+}
+
 /// The function types the lines in scope at `step` say, `v : {0, …, n} →
 /// V`, read off the same introducing lines as `introduced`.
 pub fn typed_in_scope(known: &Known, step: &Step) -> Vec<Node> {

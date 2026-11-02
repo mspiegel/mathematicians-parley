@@ -143,21 +143,21 @@ definition one-to-one
   then        f : X → Y is one-to-one ↔ f : X → Y and for all s, t ∈ X,
               if f(s) = f(t) then s = t
   metamath-proof dff13
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is onto ↔ f : X → Y and for all y ∈ Y, there is
               x ∈ X with y = f(x)
   metamath-proof dffo3
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/functions/onto
 
 definition one-to-one-onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one and onto ↔ f : X → Y is one-to-one
               and f : X → Y is onto
   metamath-proof df-f1o
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/functions/one-to-one-onto
 
 mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)

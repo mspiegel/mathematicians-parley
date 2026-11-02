@@ -237,27 +237,29 @@ fn covered(
                         matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                     }))
             });
-    // A set-image over the page's ℕ or ℕ₀, {p·n : n ∈ ℕ}, maps Lean's ℕ
-    // into ℤ, and the map items take one type in and out, α → α.
-    let image_from_naturals =
-        rec.page
-            .entries()
-            .flat_map(|(_, node)| node.walk())
-            .any(|n| {
-                &*n.notation_name() == "set-image"
-                    && n.children.get(2).is_some_and(|set| {
-                        matches!(
-                            super::expr::system_of(set),
-                            Some(
-                                super::expr::System::Positive
-                                    | super::expr::System::NonNegative
-                            )
-                        )
-                    })
-            });
-    if image_from_naturals {
+    // A set-image over the page's ℕ or ℕ₀, {p·n : n ∈ ℕ}, or a map from it
+    // said one-to-one or onto, f : ℕ → ℤ, maps Lean's ℕ into ℤ, and the map
+    // items take one type in and out, α → α.
+    let naturals = |set: &crate::formula::Node| {
+        matches!(
+            super::expr::system_of(set),
+            Some(super::expr::System::Positive | super::expr::System::NonNegative)
+        )
+    };
+    let from_naturals = rec
+        .page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .any(|n| match &*n.notation_name() {
+            "set-image" => n.children.get(2).is_some_and(naturals),
+            "one-to-one" | "onto" | "one-to-one-onto" => {
+                n.children.get(1).is_some_and(naturals)
+            }
+            _ => false,
+        });
+    if from_naturals {
         return Covered::Out {
-            reason: "a set-image over ℕ, a map from Lean's ℕ into ℤ, where the map items take one type"
+            reason: "a map from ℕ, Lean's ℕ into ℤ, where the map items take one type"
                 .to_string(),
         };
     }

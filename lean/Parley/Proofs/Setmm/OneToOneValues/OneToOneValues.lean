@@ -1,0 +1,23 @@
+module
+
+public import LeanBridges
+public import Parley.Items.Stdlib.Functions
+public import Parley.Items.Stdlib.Reasoning
+
+/-! Written from proofs/setmm/one-to-one-values.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.OneToOneValues.OneToOneValues
+
+theorem one_to_one_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (C : α) (hH4 : C ∈ A) (D : α) (hH5 : D ∈ A) (hH6 : F C = F D) :
+    C = D := by
+  -- 1. def:one-to-one, from H3
+  have s1 : ∀ s ∈ A, ∀ t ∈ A, F s = F t → s = t := by first | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := F) (by parley_side))).mp (by parley_side); parley_side)
+  -- 2. instantiate s := C, t := D in line 1, from H4, H5
+  have s2 : F C = F D → C = D := by first | exact (s1 C (by parley_side) D (by parley_side)) | exact ((s1 C (by parley_side) D (by parley_side))).symm | simpa using (s1 C (by parley_side) D (by parley_side)) | exact_mod_cast (s1 C (by parley_side) D (by parley_side)) | (have h := (s1 C (by parley_side) D (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (s1 C (by parley_side) D (by parley_side)); parley_side)
+  -- 3. mun:modus-ponens, from H6, 2
+  have s3 : C = D := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_side) (by parley_side)); parley_side)
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.OneToOneValues.OneToOneValues

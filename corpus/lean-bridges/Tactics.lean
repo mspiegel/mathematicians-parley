@@ -18,9 +18,10 @@ public section
 /-- What a page leaves to its reader: a side condition of a cited item, a
 membership said once, a line restated or joined from lines above, or a
 block's last line taken as what the block owes. The lines above are taken
-apart at each "and" first. -/
+apart at each "and" first: `cases_type* And` leaves whole an "and" beside a
+`Set.InjOn` (it reports no match), which `casesm* _ ∧ _` takes apart. -/
 macro "parley_side" : tactic =>
-  `(tactic| ((try cases_type* And) <;> first
+  `(tactic| ((try cases_type* And) <;> (try casesm* _ ∧ _) <;> first
     | (assumption; done)
     -- An integer in ℕ₀, said `0 ≤ x` of an integer and `∃ m : ℕ, ↑m = x`
     -- where an item over any ring says it. Tried only on such a goal: on
