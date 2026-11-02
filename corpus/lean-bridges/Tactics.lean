@@ -23,13 +23,14 @@ macro "parley_side" : tactic =>
   `(tactic| ((try cases_type* And) <;> first
     | (assumption; done)
     -- An integer in ℕ₀, said `0 ≤ x` of an integer and `∃ m : ℕ, ↑m = x`
-    -- where an item over any ring says it.
-    | (exact ⟨_, Int.toNat_of_nonneg (by omega)⟩; done)
+    -- where an item over any ring says it. Tried only on such a goal: on
+    -- another, d ∣ 1 among them, the unifying recurses past Lean's limit,
+    -- which ends `first`.
+    | (show ∃ _ : ℕ, _; exact ⟨_, Int.toNat_of_nonneg (by omega)⟩; done)
     | ((cases_type* Exists); omega; done)
     -- A line that says the goal with its casts set otherwise, ((n : ℤ) : ℝ)
     -- for (n : ℝ), as an item on a range of integers gives a sequence's term.
     | (push_cast at *; assumption; done)
-    | (simp only [Int.cast_natCast] at *; assumption; done)
     | (apply Eq.symm; assumption; done)
     | (apply Ne.symm; assumption; done)
     | (constructor <;> assumption; done)
@@ -62,6 +63,8 @@ macro "parley_side" : tactic =>
     -- An integer a line gives as a quotient, (M! + 1)/N, in an equation of
     -- integers: in ℚ, with the division cleared, it is linear.
     | (qify at *; field_simp at *; linarith; done)
+    -- One of a listed set, x = a ∨ x = b, taken case by case.
+    | (rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
     | (simp_all; done)))
 
 /-- `parley_suppose h`, where `h` denies what a contradiction block claims:

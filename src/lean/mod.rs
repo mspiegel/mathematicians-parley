@@ -13,6 +13,7 @@ pub mod expr;
 pub mod items;
 pub mod names;
 pub mod readback;
+pub mod sets;
 pub mod statement;
 pub mod templates;
 pub mod theorem;

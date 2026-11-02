@@ -334,6 +334,17 @@ fn free_letters(
         .collect()
 }
 
+/// The Lean type the sorts give a letter that is a set, a member of one or
+/// a map between sets; None for any other letter.
+fn set_type_in(
+    sorts: Option<&crate::formula::Sorts>,
+    name: &str,
+) -> Option<LetterType> {
+    sorts
+        .and_then(|s| s.get(name))
+        .and_then(super::sets::set_letter_type)
+}
+
 /// The letters that stand where a statement stands: a whole sentence, or a
 /// part an "and", "or", "not", "if" or "↔" joins, the P and Q of a rule of
 /// reasoning.
@@ -424,6 +435,48 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .map_or(&[], Vec::as_slice);
             let free =
                 free_letters(group, says, functions, &w, &writer.grammar.binders());
+            // A letter the record's sorts make a set, a member of one or a
+            // map between sets, `let Y be a set`: of Lean's `Set α`, and no
+            // number the item's general type is chosen for.
+            let sorts = checked
+                .corpus
+                .records
+                .iter()
+                .position(|r| std::ptr::eq(r, record))
+                .and_then(|i| checked.library.record_sorts.get(&i));
+            let mut sets: Vec<(String, LetterType)> = free
+                .iter()
+                .filter_map(|f| {
+                    set_type_in(sorts, &f.name).map(|ty| (f.name.clone(), ty))
+                })
+                .collect();
+            for (name, ty) in &sets {
+                w.letters.insert(name.clone(), ty.clone());
+            }
+            // A letter the sorts leave out that stands as a member of a set,
+            // the u of "u ∈ Y ∖ Z", is a member of that set's kind.
+            let said: Vec<&Node> = group
+                .wants
+                .iter()
+                .map(|(_, n)| n)
+                .chain(std::iter::once(says))
+                .collect();
+            for n in said.iter().flat_map(|n| n.walk()) {
+                let [x, set] = n.children.as_slice() else {
+                    continue;
+                };
+                let member = n.notation() == crate::notations::MEMBERSHIP
+                    && x.is_name()
+                    && free.iter().any(|f| *f.name == *x.text)
+                    && !sets.iter().any(|(s, _)| *s == *x.text);
+                if let Some(m) = member.then(|| w.members_of(set)).flatten() {
+                    sets.push((x.text.to_string(), LetterType::Member(m)));
+                }
+            }
+            let free: Vec<FreeLetter> = free
+                .into_iter()
+                .filter(|f| !sets.iter().any(|(s, _)| *s == f.name))
+                .collect();
             let kind = general_kind(group, says, functions, &free);
             w.general = kind.map(|k| k.num);
             let asked: Vec<Asked> = group
@@ -478,6 +531,15 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         general,
                     });
                 }
+            }
+            for (name, ty) in &sets {
+                w.letters.insert(name.clone(), ty.clone());
+                statements.push(Binder::Letter {
+                    name: super::names::letter(name),
+                    page: name.clone(),
+                    ty: ty.clone(),
+                    general: false,
+                });
             }
             for letter in &free {
                 if w.letters.contains_key(&letter.name) {
@@ -567,6 +629,7 @@ pub fn declaration(sentence: &Sentence, proof: &str) -> String {
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
     let mut binders: Vec<String> =
         sentence.general.iter().map(General::binders).collect();
+    binders.extend(super::statement::things_binder(&sentence.binders));
     binders.extend(sentence.binders.iter().map(Binder::lean));
     let space = if binders.is_empty() { "" } else { " " };
     format!(

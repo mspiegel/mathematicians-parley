@@ -212,7 +212,33 @@ fn statement(
     rec: &CheckedTheorem,
 ) -> Route<Statement> {
     let said = hypothesis_sentences(thm, rec);
-    let read: usize = said.iter().map(|(_, s)| s.len()).sum();
+    // A `let` that is no formula, `A be a set` or `x be an element`, gives
+    // its letter the type its sort settles, ahead of the lines that use it.
+    let mut binders_of_sets = Vec::new();
+    let mut read: usize = said.iter().map(|(_, s)| s.len()).sum();
+    for h in &thm.hypotheses {
+        let body = h.body(&thm.path);
+        if body.sentences().iter().all(|s| rec.page.get(s).is_some()) {
+            continue;
+        }
+        use crate::sorts::introduction::{Form, Introduction};
+        let name = match Introduction::read(body.clone()).form {
+            Form::Set(name) | Form::Element(name) => name,
+            _ => continue,
+        };
+        let Some(ty) = rec.sorts.get(&name).and_then(super::sets::set_letter_type)
+        else {
+            continue;
+        };
+        writer.letters.insert(name.clone(), ty.clone());
+        binders_of_sets.push(Binder::Letter {
+            name: super::names::letter(&name),
+            page: name,
+            general: false,
+            ty,
+        });
+        read += body.sentences().len();
+    }
     let written: usize = thm
         .hypotheses
         .iter()
@@ -237,7 +263,7 @@ fn statement(
         })
         .collect();
     let binders = match binders(writer, &asked) {
-        Route::Built(b) => b,
+        Route::Built(b) => binders_of_sets.into_iter().chain(b).collect::<Vec<_>>(),
         Route::Declined(d) => return Route::Declined(d),
     };
     let mut conclusion = Vec::new();
@@ -323,7 +349,10 @@ pub fn theorem(
         proof.trees.insert(label, said);
     }
     let props: Vec<String> = conclusion.iter().map(|c| c.prop.at(36)).collect();
-    let binders: Vec<String> = binders.iter().map(Binder::lean).collect();
+    let binders: Vec<String> = super::statement::things_binder(&binders)
+        .into_iter()
+        .chain(binders.iter().map(Binder::lean))
+        .collect();
     let space = if binders.is_empty() { "" } else { " " };
     proof.push(
         format!(
@@ -538,9 +567,27 @@ impl<'a> Proof<'a> {
                     self.writer
                         .letters
                         .insert(letter, LetterType::Number(super::templates::Num::Int));
+                } else if let Some((letter, members)) = self.set_member_said(node) {
+                    self.writer
+                        .letters
+                        .insert(letter, LetterType::Member(members));
                 }
             }
         }
+    }
+
+    /// The letter a line says is a member of a set, `x ∈ A`, where the
+    /// letter is new and the writer has a type for A's members.
+    fn set_member_said(&self, node: &Node) -> Option<(String, super::expr::Members)> {
+        let [x, set] = node.children.as_slice() else {
+            return None;
+        };
+        let new = node.notation() == crate::notations::MEMBERSHIP
+            && x.is_name()
+            && !self.writer.letters.contains_key(x.text.as_str());
+        new.then(|| self.writer.members_of(set))
+            .flatten()
+            .map(|m| (x.text.to_string(), m))
     }
 
     fn step(&mut self, i: usize, depth: usize) -> Route<()> {
@@ -1061,6 +1108,17 @@ impl<'a> Proof<'a> {
             let Some(value) = binding.get(&letter.text) else {
                 return Route::no(format!("no value for {}", letter.text));
             };
+            // A member of a set: the value as the writer writes a member,
+            // and its membership left to `parley_side`.
+            if self.writer.members_of(set).is_some() {
+                match self.writer.set_term(value) {
+                    Route::Built(p) => parts.push(p.text),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                parts.push(format!("by {}parley_side", known.concat()));
+                body = inner;
+                continue;
+            }
             let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
                 (super::templates::Num::Int, true)
             } else {
@@ -1991,11 +2049,35 @@ impl<'a> Proof<'a> {
                             }
                         }
                         (LetterType::Statement, _) => self.writer.formula(value),
+                        // A set, a member or a map given for one: the term
+                        // as the writer writes a set's.
+                        (
+                            LetterType::Set(_)
+                            | LetterType::Member(_)
+                            | LetterType::Map { .. },
+                            _,
+                        ) => self.writer.set_term(value),
                     };
                     match printed {
                         Route::Built(p) => args.push(format!("({name} := {})", p.text)),
                         Route::Declined(d) => return Route::Declined(d),
                     }
+                }
+                // A fact asked of a letter given an integer's `toNat` is
+                // asked of the integer: the `toNat` is rewritten back first,
+                // as `simp` on a cast of a `toNat` may recurse past Lean's
+                // limit, which no `first` recovers from.
+                Binder::Fact { .. } if !to_nat.is_empty() => {
+                    let rewrites: Vec<String> = to_nat
+                        .iter()
+                        .map(|(_, int)| {
+                            format!("Int.toNat_of_nonneg (show (0 : ℤ) ≤ {int} by parley_side)")
+                        })
+                        .collect();
+                    args.push(format!(
+                        "(by (try rw [{}]); parley_side)",
+                        rewrites.join(", ")
+                    ));
                 }
                 Binder::Fact { .. } => args.push("(by parley_side)".to_string()),
             }
@@ -2356,9 +2438,21 @@ impl<'a> Proof<'a> {
         let mut guards: IndexMap<String, String> = IndexMap::new();
         let mut body: Vec<String> = Vec::new();
         for ((node, _), name) in claim.iter().zip(&names) {
+            // A letter's fact of being in a set, x ∈ A, as of a range.
+            let in_set = match node.children.as_slice() {
+                [x, set]
+                    if node.notation() == crate::notations::MEMBERSHIP
+                        && x.is_name()
+                        && self.writer.members_of(set).is_some() =>
+                {
+                    Some(x.text.to_string())
+                }
+                _ => None,
+            };
             let letter = introduces(node)
                 .map(|(l, _)| l)
-                .or_else(|| super::statement::range_letter(node));
+                .or_else(|| super::statement::range_letter(node))
+                .or(in_set);
             match letter.filter(|l| step.just.obtained.contains(l)) {
                 Some(l) => {
                     guards.insert(l, name.clone());
@@ -2381,7 +2475,8 @@ impl<'a> Proof<'a> {
             }
             pattern.push(super::names::letter(obtained));
             let guarded = set.notation() == crate::notations::INTEGER_RANGE
-                || super::expr::system_of(set) == Some(super::expr::System::Positive);
+                || super::expr::system_of(set) == Some(super::expr::System::Positive)
+                || self.writer.members_of(set).is_some();
             if guarded {
                 pattern.push(
                     guards
@@ -2820,6 +2915,33 @@ impl<'a> Proof<'a> {
                                 spot.clone(),
                             );
                             continue;
+                        }
+                        // `let t ∈ S` of a set S: the member and the fact
+                        // that it is one, as "for all t ∈ S" gives them.
+                        if let [t, set] = node.children.as_slice() {
+                            let member = node.notation()
+                                == crate::notations::MEMBERSHIP
+                                && t.is_name();
+                            if let Some(m) =
+                                member.then(|| self.writer.members_of(set)).flatten()
+                            {
+                                self.writer
+                                    .letters
+                                    .insert(t.text.to_string(), LetterType::Member(m));
+                                self.trees.insert(
+                                    o.label.clone(),
+                                    vec![(node.clone(), label.clone())],
+                                );
+                                self.push(
+                                    format!(
+                                        "{p}intro {} {label}",
+                                        super::names::letter(&t.text)
+                                    ),
+                                    o.line,
+                                    spot.clone(),
+                                );
+                                continue;
+                            }
                         }
                         let Some((letter, system)) = introduces(node) else {
                             return Route::no(

@@ -17,7 +17,7 @@ theorem least_combination_divides (a : ℤ) (b : ℕ) (hH2 : 0 < b) (c : ℤ) (d
   -- 2. mun:mod-less a := c, b := d
   have s2 : c % (d : ℤ) < (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := c) (b := d) (by parley_side)); parley_side)
   -- 3. obtain q: mun:mod-remainder a := c, m := d, r := c mod d, from 1, 2
-  obtain ⟨q, s3⟩ := ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (c % (d : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) (by parley_side) (r := (c % (d : ℤ)).toNat) (by parley_side)))).mp (by parley_side)
+  obtain ⟨q, s3⟩ := ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (c % (d : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := c) (m := d) (by parley_side) (r := (c % (d : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (c % (d : ℤ)) by parley_side)]); parley_side)))).mp (by parley_side)
   -- 4. algebra, from H9, H10, 3
   have s4 : c % (d : ℤ) = a * (u - q * x₀) + (b : ℤ) * (v - q * y₀) := by linear_combination (norm := parley_norm) hH9 + (-q) * hH10 + s3
   -- 5. contradiction

@@ -100,6 +100,70 @@ pub fn range_letter(node: &Node) -> Option<String> {
 
 /// The binders of the facts asked, in order, each letter added to the
 /// writer's letters as it is introduced, so a later fact reads it.
+/// The letter a line introduces in or under a set the writer has a type
+/// for, or as a map between such sets: the letter, its type, and the fact a
+/// map's line says, `Set.MapsTo f A B` (None where the line itself is the
+/// fact). None for any other line, and for a letter already typed.
+fn introduces_in_set(
+    writer: &Writer,
+    node: &Node,
+) -> Option<(String, LetterType, Option<String>)> {
+    let [letter, rest @ ..] = node.children.as_slice() else {
+        return None;
+    };
+    if !letter.is_name() || writer.letters.contains_key(letter.text.as_str()) {
+        return None;
+    }
+    match (node.notation_name().as_ref(), rest) {
+        // x ∈ {1, 2} of numbers: a number of the type that holds them all.
+        ("membership", [set])
+            if matches!(
+                set.notation_name().as_ref(),
+                "singleton" | "listed-two" | "listed-three" | "listed-four"
+            ) && set.children.iter().all(|c| writer.is_number(c)) =>
+        {
+            let mut at = super::templates::Num::Int;
+            for c in &set.children {
+                at = at.max(writer.carrier(c).built()?);
+            }
+            Some((letter.text.to_string(), LetterType::Number(at), None))
+        }
+        ("membership", [set]) => {
+            let m = writer.members_of(set)?;
+            Some((letter.text.to_string(), LetterType::Member(m), None))
+        }
+        ("subset", [set]) => {
+            let m = writer.members_of(set)?;
+            Some((letter.text.to_string(), LetterType::Set(m), None))
+        }
+        ("function-type", [from, to]) => {
+            let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
+            let (from_text, to_text) =
+                (writer.set_term(from).built()?, writer.set_term(to).built()?);
+            let name = super::names::letter(&letter.text);
+            Some((
+                letter.text.to_string(),
+                LetterType::Map { from: a, to: b },
+                Some(format!(
+                    "Set.MapsTo {name} {} {}",
+                    from_text.at(super::expr::MAX),
+                    to_text.at(super::expr::MAX)
+                )),
+            ))
+        }
+        _ => None,
+    }
+}
+
+/// `{α : Type*}`, where a binder is a set of things, a member of one or a
+/// map between sets; None where none is.
+pub fn things_binder(binders: &[Binder]) -> Option<String> {
+    binders
+        .iter()
+        .any(|b| matches!(b, Binder::Letter { ty, .. } if ty.uses_things()))
+        .then(|| format!("{{{} : Type*}}", super::expr::THINGS))
+}
+
 pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
     let mut out = Vec::new();
     for a in asked {
@@ -121,6 +185,30 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 page: letter,
                 general: false,
                 ty,
+            });
+            continue;
+        }
+        // A letter a line puts in a set or under one, `x ∈ A` or `X ⊆ A`,
+        // or a map between sets, `f : A → B`: the letter, of its type, and
+        // the line a fact about it, the map's `Set.MapsTo f A B`.
+        if let Some((letter, ty, fact)) = introduces_in_set(writer, a.node) {
+            writer.letters.insert(letter.clone(), ty.clone());
+            out.push(Binder::Letter {
+                name: super::names::letter(&letter),
+                page: letter,
+                general: false,
+                ty,
+            });
+            let says = match fact {
+                Some(f) => f,
+                None => match writer.formula(a.node) {
+                    Route::Built(p) => p.text,
+                    Route::Declined(d) => return Route::Declined(d),
+                },
+            };
+            out.push(Binder::Fact {
+                name: a.name.clone(),
+                says,
             });
             continue;
         }

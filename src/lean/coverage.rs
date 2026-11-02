@@ -42,6 +42,16 @@ pub const IN_CODE: &[&str] = &[
     "sum",
     "product",
     "tends-to",
+    "subset",
+    "set-operations",
+    "empty-set",
+    "powerset",
+    "set-builder",
+    "singleton",
+    "listed-two",
+    "listed-three",
+    "listed-four",
+    "image",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -98,6 +108,22 @@ fn uses_real_arithmetic(thm: &crate::corpus::Theorem) -> bool {
             || step.impossible
             || step.requires.iter().any(|r| r.by.as_ref().is_ok_and(real))
     })
+}
+
+/// Whether a `let` line is `A be a set` or `x be an element` of a letter
+/// whose sort Lean has a type for (`sets::set_letter_type`).
+fn set_line(
+    body: crate::formula::page::Written,
+    rec: &crate::checker::CheckedTheorem,
+) -> bool {
+    use crate::sorts::introduction::{Form, Introduction};
+    match Introduction::read(body).form {
+        Form::Set(name) | Form::Element(name) => rec
+            .sorts
+            .get(&name)
+            .is_some_and(|s| super::sets::set_letter_type(s).is_some()),
+        _ => false,
+    }
 }
 
 /// The function a proof's define line gives, where the Lean build writes it
@@ -161,11 +187,12 @@ fn covered(
     }
     // A `let` that says a property beside a type, `let a : A → B be
     // one-to-one`, is read part by part, which the writer does not read yet.
+    // A `let` the page does not read as a formula is in only where it is
+    // `A be a set` or `x be an element` of a sort Lean has a type for.
     let in_parts = thm.hypotheses.iter().any(|h| {
-        h.body(&thm.path)
-            .sentences()
-            .iter()
-            .any(|s| rec.page.get(s).is_none())
+        let body = h.body(&thm.path);
+        let unread = body.sentences().iter().any(|s| rec.page.get(s).is_none());
+        unread && !set_line(body, rec)
     });
     if in_parts {
         return Covered::Out {
@@ -189,6 +216,43 @@ fn covered(
                         matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                     }))
             });
+    // A set of numbers compared or built, {x ∈ {−3, 5} : x is odd} = {−3, 5},
+    // has no Lean type yet; one only a member is said to be in, x ∈ {1, 2},
+    // is that member's disjunction.
+    let set_of_numbers = |n: &crate::formula::Node| {
+        matches!(n.sort.full(), Some(crate::formula::Whole::Set(m))
+            if matches!(**m, crate::formula::Whole::Number))
+    };
+    let numbers_as_sets =
+        rec.page
+            .entries()
+            .flat_map(|(_, node)| node.walk())
+            .any(|n| {
+                let compared = matches!(&*n.notation_name(), "subset" | "set-builder")
+                    || n.notation() == crate::notations::EQUALITY;
+                // A side listed or built of numbers, whose sort the reading may
+                // leave as no more than a set.
+                let numbers_listed = |c: &crate::formula::Node| {
+                    matches!(
+                        &*c.notation_name(),
+                        "set-builder"
+                            | "singleton"
+                            | "listed-two"
+                            | "listed-three"
+                            | "listed-four"
+                    ) && c.walk().iter().any(|m| m.sort.is("number"))
+                };
+                compared
+                    && n.children
+                        .iter()
+                        .any(|c| set_of_numbers(c) || numbers_listed(c))
+            });
+    if numbers_as_sets {
+        return Covered::Out {
+            reason: "a set of numbers, which the Lean build gives no type yet"
+                .to_string(),
+        };
+    }
     // A limit's proof writes its claims of natural numbers, |1/n − 1| < 1/2,
     // in ℚ, their least type, beside the sequence's lines in ℝ, and Lean does
     // not carry one to the other under the quantifiers.
@@ -250,8 +314,13 @@ fn covered(
                 });
             }
             if n.notation() == crate::notations::FUNCTION_TYPE {
+                // Between number systems, or between sets of things, a map
+                // `α → α` (`sets`).
                 let typed = matches!(n.children.as_slice(), [_, from, to]
-                    if super::expr::function_systems(from, to).is_some());
+                if super::expr::function_systems(from, to).is_some()
+                    || [from, to].iter().all(|s| {
+                        s.sort.full().and_then(super::expr::Members::of_set).is_some()
+                    }));
                 return (!typed).then(|| {
                     "a function type between sets Lean has no type for yet".to_string()
                 });
@@ -276,7 +345,9 @@ fn covered(
         .filter(|n| !own.contains(n.text.as_str()))
         .filter_map(|n| {
             let sort = rec.sorts.get(n.text.as_str())?;
-            (!sort.is("number")).then(|| (n.text.to_string(), sort.describe()))
+            let typed =
+                sort.is("number") || super::sets::set_letter_type(sort).is_some();
+            (!typed).then(|| (n.text.to_string(), sort.describe()))
         })
         .collect();
     letters.sort();

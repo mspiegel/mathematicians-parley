@@ -108,7 +108,7 @@ axiom choice
 definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
   metamath-proof dfss3
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition set-builder
   let X be a set                                                      (H1)
@@ -386,13 +386,13 @@ mundane theorem in-union-left
   assume u ∈ Y                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath-proof elun1
-  lean-proof  not yet implemented
+  lean-proof  Or.inl h1
 
 mundane theorem in-union-right
   assume u ∈ Z                                                        (H1)
   then        u ∈ Y ∪ Z
   metamath-proof elun2
-  lean-proof  not yet implemented
+  lean-proof  Or.inr h1
 
 mundane theorem difference-subset
   then        X ∖ Y ⊆ X
@@ -451,12 +451,12 @@ mundane theorem powerset-monotone
 definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
   metamath-proof elin
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
   metamath-proof elun
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem remove-member
   let Y be a set                                                      (H1)
@@ -566,7 +566,7 @@ mundane theorem subset-empty
 definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
   metamath-proof eldif
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem in-subset
   assume X ⊆ Y                                                        (H1)
@@ -654,4 +654,4 @@ mundane theorem subset-antisymmetric
   assume Y ⊆ X                                                        (H4)
   then        X = Y
   metamath-proof stdlib/sets/subset-antisymmetric
-  lean-proof  not yet implemented
+  lean-proof  Set.Subset.antisymm h1 h2

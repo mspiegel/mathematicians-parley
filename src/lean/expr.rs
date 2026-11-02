@@ -27,6 +27,64 @@ pub enum LetterType {
     Function { from: Num, to: Num },
     /// A statement, the P of "if P then Q" in a rule of reasoning.
     Statement,
+    /// A set whose members are these, `A : Set α`.
+    Set(Members),
+    /// A member of a set whose members are these, `t : α`.
+    Member(Members),
+    /// A function from members of one kind to members of another, `f : α
+    /// → α`; where it maps one set into another is a fact beside it.
+    Map { from: Members, to: Members },
+}
+
+/// What the members of a set are in Lean: the one type of things a
+/// theorem's sets hold, `α`, as set.mm's sets all hold sets; or sets of
+/// those, 𝒫A's members.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Members {
+    Things,
+    Sets(Box<Members>),
+}
+
+/// The type variable a theorem's sets of things are sets of.
+pub const THINGS: &str = "α";
+
+impl Members {
+    /// The members a set of this sort has; None for a sort no Lean type is
+    /// written for yet, numbers among them.
+    pub fn of_set(sort: &crate::formula::node::Whole) -> Option<Members> {
+        match sort {
+            crate::formula::node::Whole::Set(inner) => Members::of(inner),
+            _ => None,
+        }
+    }
+
+    /// Members of this sort.
+    pub fn of(sort: &crate::formula::node::Whole) -> Option<Members> {
+        match sort {
+            crate::formula::node::Whole::Open => Some(Members::Things),
+            crate::formula::node::Whole::Set(inner) => {
+                Members::of(inner).map(|m| Members::Sets(Box::new(m)))
+            }
+            _ => None,
+        }
+    }
+
+    /// How Lean writes a member's type.
+    pub fn lean(&self) -> String {
+        match self {
+            Members::Things => THINGS.to_string(),
+            Members::Sets(m) => format!("Set {}", bracketed(&m.lean())),
+        }
+    }
+}
+
+/// A type written with a space in it, bracketed to stand as an argument.
+fn bracketed(ty: &str) -> String {
+    if ty.contains(' ') {
+        format!("({ty})")
+    } else {
+        ty.to_string()
+    }
 }
 
 impl LetterType {
@@ -38,7 +96,19 @@ impl LetterType {
             LetterType::Function { from, to } => {
                 format!("{} → {}", from.lean(), to.lean())
             }
+            LetterType::Set(m) => format!("Set {}", bracketed(&m.lean())),
+            LetterType::Member(m) => m.lean(),
+            LetterType::Map { from, to } => format!("{} → {}", from.lean(), to.lean()),
         }
+    }
+
+    /// Whether the type holds the things a theorem's sets are of, so that
+    /// its statement takes `{α : Type*}`.
+    pub fn uses_things(&self) -> bool {
+        matches!(
+            self,
+            LetterType::Set(_) | LetterType::Member(_) | LetterType::Map { .. }
+        )
     }
 }
 
@@ -358,6 +428,9 @@ impl Writer<'_> {
                 Some(LetterType::Statement) => {
                     Route::no(format!("{} is a statement, not a number", node.text))
                 }
+                Some(
+                    LetterType::Set(_) | LetterType::Member(_) | LetterType::Map { .. },
+                ) => Route::no(format!("{} is no number", node.text)),
                 None => Route::no(format!("{} has no Lean type", node.text)),
             },
             NUMERAL => Route::Built(if node.text.contains('.') {
@@ -882,6 +955,17 @@ impl Writer<'_> {
         if &*node.notation_name() == "tends-to" {
             return self.tends_to(node);
         }
+        // A relation between sets, A ⊆ B or A = B.
+        if &*node.notation_name() == "subset" {
+            if let Some(r) = self.set_relation(node, "⊆") {
+                return r;
+            }
+        }
+        if node.notation() == EQUALITY {
+            if let Some(r) = self.set_relation(node, "=") {
+                return r;
+            }
+        }
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
             MEMBERSHIP => self.membership(node),
@@ -1033,6 +1117,32 @@ impl Writer<'_> {
         };
         if set.notation() == NUMBER_SYSTEMS {
             return self.in_system(x, set);
+        }
+        if let Some(m) = self.set_membership(x, set) {
+            return m;
+        }
+        // x ∈ {a, b, c} of numbers: x is one of them.
+        if matches!(
+            &*set.notation_name(),
+            "singleton" | "listed-two" | "listed-three" | "listed-four"
+        ) && self.is_number(x)
+        {
+            let mut ways = Vec::new();
+            for member in &set.children {
+                let equal = Node::of(
+                    EQUALS,
+                    crate::formula::node::Sort::of("formula"),
+                    vec![x.clone(), member.clone()],
+                );
+                match self.relation_from(&equal, false, Num::Int) {
+                    Route::Built(p) => ways.push(p.at(31)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+            return Route::Built(Printed {
+                text: ways.join(" ∨ "),
+                prec: 30,
+            });
         }
         if set.notation() == INTEGER_RANGE {
             let [from, to] = set.children.as_slice() else {
@@ -1196,6 +1306,9 @@ impl Writer<'_> {
             return Route::no("a quantifier over a term that is no letter");
         }
         let exists = node.notation() == THERE_IS;
+        if let Some(q) = self.quantified_over_set(letter, set, body, exists) {
+            return q;
+        }
         let name = super::names::letter(&letter.text);
         let (ty, guard) = if set.notation() == NUMBER_SYSTEMS {
             match system_of(set) {
