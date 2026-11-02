@@ -144,7 +144,7 @@ notation plane
   pattern     𝔼²
   sort        → set of point
   reads       the Euclidean plane
-  metamath-counterpart cc, the complex numbers read as the plane
+  metamath-syntax cc, the complex numbers read as the plane
   metamath-builds cc
 ```
 
@@ -179,7 +179,7 @@ about every triangle quantifies over its three points.
 **Lines, midpoints and circles are said of points.** `P is on line AB` is
 `A, B, P are collinear` with the point first. `line AB ⊥ line CD` says A ≠ B,
 C ≠ D and that the quotient of the two directions has real part 0. Like
-`parallel`, it is an `open` definition, read as a right angle by
+`parallel`, it is a definition that states nothing, `metamath-proof none`, read as a right angle by
 `perpendicular-by-right-angle` where the lines meet. `M is the midpoint of AB`
 says M is between A and B and |AM| = |MB|, a `biid` definition. The kernel's
 (A + B)/2 is reached inside `gmidval` and never written. A circle is a set of

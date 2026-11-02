@@ -698,7 +698,7 @@ substitution in the corpus comes close.
                   <conclusion>
                   [ `by` <justification> ]
                   { <naming> | <step> }
-<theorem field> ::= ( `metamath-counterpart` | `note` ) <words>
+<theorem field> ::= `note` <words>
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
                 | <name> `∉` <term>
@@ -823,11 +823,10 @@ phrase stands at the level
 `predicate`, or at `betweenness` where its words write "and" or "or".
 
 Theorems may appear in any order. No theorem cites itself, and no theorems
-of a file cite one another round a cycle. A theorem field says what a record's field of the same name says: a
-`metamath-counterpart` line names set.mm's counterpart of the theorem, which is checked to
-be a label set.mm has, and a `note` is prose for a person. Each is said at most
-once, between the `theorem` line and the statement, and continues on lines
-indented further than it. A `define` line states what its name is and is cited by its label, and the
+of a file cite one another round a cycle. A theorem's one field, `note`, is
+prose for a person, as a record's is. It is said at most once, between the
+`theorem` line and the statement, and continues on lines indented further
+than it. A `define` line states what its name is and is cited by its label, and the
 `reads` line under it says in words what the name means. Both `reads` and the
 `note` a block opener may carry are one line each, are the only prose a proof
 holds, and are read by no tool: what is checked is that a define has a reading
@@ -1316,10 +1315,13 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `metamath-builds`, `metamath-counterpart`, `decided`, `lean-builds`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `metamath-builds`, `metamath-syntax`, `decided`, `lean-builds`, `note` |
 | `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath-proof`, `note` |
-| `axiom`, `theorem` | `metamath-counterpart`, `metamath-proof`, `open`, `lean-proof`, `note` |
-| `definition` | `sort`, `metamath-builds`, `lean-builds`, `reads`, `metamath-counterpart`, `metamath-proof`, `open`, `lean-proof`, `symbol`, `defines`, `decided`, `note` |
+| `axiom`, `theorem` | `metamath-proof`, `lean-proof`, `note` |
+| `definition` | `sort`, `metamath-builds`, `lean-builds`, `reads`, `metamath-proof`, `lean-proof`, `symbol`, `defines`, `decided`, `note` |
+
+Every item carries `metamath-proof` and `lean-proof` (`DATABASE.md`, "Every
+item in the standard library carries two fields").
 | `precedence` | the levels it declares |
 
 `wanted` names the category a hole must want for the pattern to be read

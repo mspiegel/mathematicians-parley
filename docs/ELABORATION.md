@@ -2304,13 +2304,11 @@ of a `metamath-proof`, a `metamath-builds` or a `defines`, which are machine-rea
 plus what the rule tables in `src/rules.rs` list — and asks set.mm whether it
 has them.
 
-`metamath-counterpart` is prose meant for a person and names its labels in a sentence, so
+A notation's `metamath-syntax`, and a method's `metamath-proof`, is prose meant for a person and names its labels in a sentence, so
 it is read only as far as it is certainly naming them: the leading entries that
 are a single label-shaped word, stopping at the first that is not. That gives
-`df-dvds` out of `df-dvds, whose right side is the same existential` and
-nothing out of `Σ over 0...n with fsum1 and fsump1`. Reading that field is not
-optional — the one error the check has ever found was a `dvds` that meant
-`df-dvds`, and it was there.
+`wrex` out of `wrex, and wrex under wn` and nothing out of `the cited item's
+own label, with substitution`.
 
 set.mm is 51 MB and belongs to metamath, so it is not committed: say where it
 is with `SET_MM`, or leave a copy or a link at the root of the working tree.

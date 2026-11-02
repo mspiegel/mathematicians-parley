@@ -44,19 +44,18 @@ the rules under "Names". Prose outside a proof, as in this document and the
 records' notes, names an item by its prefix and full name,
 `def:stdlib/divisibility/odd`, since it has no imports to say where to look.
 
-The standard library is every item a set.mm label supplies, that a proof in
-`corpus/stdlib/<subject>.proof` proves on the page, or that is still open:
-what a proof cites, or may. A record whose lemma the corpus proves in
-`corpus/proved/` is one the page cannot state the reason for, as a fact about
-the argument of a complex number is. A theorem with a textbook proof from
-what the library already has is proved on the page, in its subject's proof
-file, and has a record all the same: the record is the library's statement
-of it, and the proof proves that statement as written. The record says, for
-each build, how that build proves it: `metamath-proof` for the Metamath
-build and `lean-proof` for the Lean build, each a lemma of its library or
-the words `on the page`, which builds the proof on the page. Nothing is
-assumed: a record with a proof on the page says `on the page` for each
-build that uses it.
+The standard library is every item a proof cites, or may: each supplied by
+a statement of a build's library, by a proof in
+`corpus/stdlib/<subject>.proof`, by a bridge, or not yet. A record whose
+lemma is a bridge in `corpus/metamath-bridges/` is one the page cannot state
+the reason for, as a fact about the argument of a complex number is. A
+theorem with a textbook proof from what the library already has is proved on
+the page, in its subject's proof file, and has a record all the same: the
+record is the library's statement of it, and the proof proves that
+statement as written. The record says, for each build, how that build proves
+it: `metamath-proof` for the Metamath build and `lean-proof` for the Lean
+build. Nothing is assumed: a record whose proof is on the page names that
+proof, `stdlib/numbers/abs-bounds`, for each build that uses it.
 A definition a phrase states, "u is an upper bound of S", may be written on
 the page too, as a define of the phrase in the subject's proof file
 (`SYNTAX.md`, "A define may name a phrase"): `upper-bound` and
@@ -70,8 +69,8 @@ every item is cited by a proof, or by its test in `tests/stdlib/<subject>.proof`
 a theorem whose one step cites it: the item's hypotheses, and its conclusion,
 or for a definition its right side from its left. One direction is enough,
 since the lemma applied either way has the whole statement to match. The
-gate's cited-or-tested stage is red for an item neither cites; an `open` item
-has no lemma and is not asked. An item may be added before a proof needs it,
+gate's cited-or-tested stage is red for an item neither cites; an item that
+states nothing has no lemma and is not asked. An item may be added before a proof needs it,
 and its test is what checks it until one does.
 
 Which items are added ahead is chosen, not swept. They come from the set.mm
@@ -141,25 +140,65 @@ name is then read
 wherever the file applies it, as a proof's own `T(k)` is; nothing about it is
 notation (`GRAMMAR.md`, "Database records").
 
-Every item in the standard library carries a field saying where it comes from:
+Every item in the standard library carries two fields, one for each build,
+saying how that build proves it. Both take the same kinds of value, and each
+means the same thing in both:
 
-| field | meaning | count |
+| value | `metamath-proof` | `lean-proof` |
 |---|---|---|
-| `metamath-counterpart` | a set.mm label or labels supply it | 623 |
-| `open` | it is cited but unproved and unbridged | 5 |
+| the library's own statement | a set.mm label, `dvdsmultr1` | a Mathlib proof, `Dvd.dvd.mul_right h4 x` |
+| a Parley proof of the corpus | its full name, `stdlib/numbers/abs-bounds` | the same |
+| a bridge | its full name, `metamath-bridges/numbers/gzmodlt` | its full name, `lean-bridges/counting/pascal` |
+| `none` | the build has nothing to prove | the same |
+| `not yet implemented` | the build cannot use the item yet | the same |
 
-Each field says which build or library it is for, and what it gives:
-`metamath-proof` and `lean-proof` are what each build proves an item with,
-`metamath-builds` and `lean-builds` the template each build writes a notation,
-or a library function applied, with, and `metamath-counterpart` what the item
-or notation is in set.mm, for the reader, which no build proves anything
-with. Any notation may carry `lean-builds`, one Lean template for each
-pattern, and any item `lean-proof`, one Lean proof for each sentence it
-concludes; a function's definition may carry `lean-builds`, what it is in
-Lean, beside `metamath-builds` (`LEAN.md`). They are optional, and the rule
-that every item carries `metamath-counterpart` or `open` stands. A record
-whose proof is on the page says, in `lean-proof` as in `metamath-proof`, `on
-the page` where that build builds the proof rather than citing its library.
+A full name is written as an import writes one, without `corpus/` or the
+file's extension, and the checker finds the theorem or lemma it names. A
+bare label is set.mm's. In a list, one entry for each `then` group, each
+entry is a label or a full name of its own, and a `with` clause stands at the
+end: `absid, metamath-bridges/numbers/absnid`.
+
+**Nothing to prove.** An item that states nothing has no `then` line: a
+function, `ln`, whose definition is what an application of it builds, or a
+word the readable layer cannot yet state, `collinear`, whose note says why.
+An item whose two sides are one formula in a library has nothing to prove
+there: `def:stdlib/divisibility/congruent-mod` is `none` for the Metamath
+build, since its notation builds a ≡ b (mod n) as n ∥ (a − b), and a step
+citing it reads the line it cites as its claim; it has a `lean-proof`,
+since Lean writes the two sides differently. `none` is said for each build
+on its own.
+
+**Not yet implemented.** A build cannot use the item, and every theorem
+citing it is out of that build: the Lean build leaves such a theorem out
+and says so.
+
+**Where a proof comes from, in order of preference.**
+
+1. The library's own statement: set.mm or Mathlib states the fact, and the
+   build cites it.
+2. A Parley proof of the corpus's own, read, checked and built like any
+   other from what the library already has.
+3. A bridge: a short proof written in the library's own language,
+   `corpus/metamath-bridges/` for set.mm and `corpus/lean-bridges/` for
+   Mathlib. It is the last resort, since nothing on the page states or
+   explains it, and the corpus has been removing them. Geometry is the
+   exception: set.mm has no Euclidean geometry, only the complex plane, so
+   the postulates and what reaches the plane's facts from them are Metamath
+   bridges, and are expected to stay.
+
+A proof on the page may not reach its own record, whether directly or round
+a cycle of other records' proofs, since a proof that rests on its own claim
+proves nothing.
+
+The other fields say which build or library they are for, and what they
+give: `metamath-builds` and `lean-builds` the template each build writes a
+notation, or a library function applied, with. A notation's
+`metamath-syntax` names the set.mm construct it is, `wceq` for `=`, and the
+checker sorts notations by it; only a notation carries it. Any notation may
+carry `lean-builds`, one Lean template for each pattern; an item's
+`lean-proof` gives one Lean proof for each sentence it concludes; and a
+function's definition may carry `lean-builds`, what it is in Lean, beside
+`metamath-builds` (`LEAN.md`).
 
 A theorem of `proofs/` that this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
@@ -174,18 +213,17 @@ proves it as its own exercise: odd + odd is even is
 proves it for its own sake. The proof keeps its theorem and does not cite
 the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
-theorem by its proof. What a record would say beside the statement,
-the set.mm theorem it answers to and a note, the proof says in
-`metamath-counterpart` and `note` lines under its `theorem` line; 84 of the
-667 name a set.mm counterpart.
+theorem by its proof. A note a record would carry beside the statement, the
+proof says in a `note` line under its `theorem` line.
 
-A definition may also carry a `metamath-proof`, which says which set.mm
-theorem unfolds it, or, for one stated as an equation, one theorem per clause:
+A definition's `metamath-proof` says which set.mm theorem unfolds it, or,
+for one stated as an equation, one theorem per clause:
 `def:stdlib/numbers/abs` names `absid, absnid`, and which clause a step uses is decided by
-which one's conclusion is what the step claims. That is not what `metamath-counterpart` says: `metamath-counterpart` says what the
-definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
-existential the `then` line states is `odd2np1`. An elaborator needs the
-second and cannot derive it from the first. A second entry, `equation
+which one's conclusion is what the step claims. It names the theorem that
+unfolds the word to what the page says, not set.mm's own definition of it:
+`def:stdlib/divisibility/odd` is set.mm's "not 2 ∥ n", and its
+`metamath-proof` is `odd2np1`, which unfolds it to the existential the
+`then` line states. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
 `then` line, which `odd2np1` and `divides` both do. `corpus/db/notation.records`
 documents the notation side, `metamath-builds`.
@@ -545,9 +583,9 @@ a `define`. The mark decides the prefix a citation writes, `mun:`, and an
 import repeats the header, `import mundane theorem
 stdlib/numbers/int-closure`; it changes nothing else.
 
-Every item is supplied by a set.mm label or is `open`, and the thirty-eight axioms are
-supplied the way every other item is: by a lemma set.mm proves,
-or by one `corpus/elaboration/stdlib/proved.mm` proves.
+Every item says in `metamath-proof` how the Metamath build proves it, and
+the thirty-eight axioms are proved the way every other item is: by a lemma
+set.mm proves, or by a bridge `corpus/elaboration/stdlib/proved.mm` proves.
 So an axiom's kind is the reader's view of it and not the kernel's. Notation
 and methods keep their own records in `corpus/db/`.
 
