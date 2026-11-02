@@ -118,11 +118,11 @@ const CANTOR_WRONG: &str = "E. m e. ~P A A. x e. A ( B ` x ) = m ) $=";
 fn cases() -> Vec<Case> {
     vec![
         Case {
-            name: "a target names a label set.mm does not have",
+            name: "a metamath-proof names a label set.mm does not have",
             stage: labels_case,
             file: "corpus/stdlib/numbers.records",
-            old: "  target      nnrecl\n",
-            new: "  target      nnreclzz\n",
+            old: "  metamath-proof nnrecl\n",
+            new: "  metamath-proof nnreclzz\n",
             expect: "names nnreclzz, which set.mm does not have",
         },
         Case {
@@ -130,7 +130,7 @@ fn cases() -> Vec<Case> {
             stage: tested_case,
             file: "corpus/stdlib/sets.records",
             old: "mundane theorem union-self\n",
-            new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath    unidm\n  target      unidm\n\nmundane theorem union-self\n",
+            new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath-counterpart unidm\n  metamath-proof unidm\n\nmundane theorem union-self\n",
             expect: "stdlib/sets/union-self-again is cited by no proof and has no test",
         },
         Case {

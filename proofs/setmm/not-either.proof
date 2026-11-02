@@ -3,7 +3,7 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
 theorem not-either
-  metamath    ioran
+  metamath-counterpart ioran
   note        Neither holds exactly when each fails: if a = 0 or b = 0 could
               hold, one of them would, and if b = 0 fails, a = 0 must hold.
   let a ∈ ℝ                                                           (H1)

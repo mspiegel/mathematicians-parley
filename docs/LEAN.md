@@ -18,9 +18,9 @@ installed; the gate does.
 
 ## What the build writes
 
-- `lean/Parley/Items/<module>.lean`: each library item with a `lean` field,
+- `lean/Parley/Items/<module>.lean`: each library item with a `lean-proof` field,
   one Lean theorem for each sentence it concludes. The statement is printed
-  from the record as the checker read it, and the proof is the `lean` field's
+  from the record as the checker read it, and the proof is the `lean-proof` field's
   entry for that sentence. `def:divides` is
   `theorem def_divides (d n : ℤ) : d ∣ n ↔ ∃ k : ℤ, n = d * k := Iff.rfl`.
 - `lean/Parley/<path>.lean`: each theorem the build covers, one file each,
@@ -35,12 +35,14 @@ the build no longer makes is removed.
 
 A theorem is in the Lean build when every notation its page uses, every
 library function it applies and every item it cites has a Lean form: a
-notation or a record with a `lean` field, a function whose definition has a
-`lean-builds` field, or a theorem of the corpus that is itself in; and when
+notation with a `lean-builds` field or a record with a `lean-proof` field, a
+function whose definition has a `lean-builds` field, a theorem of the corpus
+that is itself in, or a record whose `lean-proof` field is `on the page` and
+whose proof is itself in; and when
 every letter it writes is a number, the one sort the writer gives a Lean type
 to so far. Nothing lists the theorems; the build grows as fields are added. A
 theorem left out is printed with what keeps it out, `it writes notation
-set-operations, which has no lean field`. A theorem that is in and that the
+set-operations, which has no lean-builds field`. A theorem that is in and that the
 writer cannot write, or Lean refuses, is a gap of the Lean build and the gate
 is red.
 
@@ -79,18 +81,21 @@ states such facts. A citation applies it in the citing claim's own type.
 
 ## Fields
 
-A notation's `lean` field has one entry for each of its patterns, set apart
-by ` ; `: what each hole takes, what it yields, and the Lean text.
+A notation's `lean-builds` field has one entry for each of its patterns, set
+apart by ` ; `: what each hole takes, what it yields, and the Lean text.
 
 ```
-lean        α, α → α: _1 + _2 ; α, α → α: _1 - _2
-lean        α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
-lean        ℤ, ℤ → Prop: _1 ∣ _2
+lean-builds α, α → α: _1 + _2 ; α, α → α: _1 - _2
+lean-builds α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
+lean-builds ℤ, ℤ → Prop: _1 ∣ _2
 ```
 
 `α` is the formula's type and `α≥ℚ` that type raised to ℚ at least. An entry
-`-` is a pattern the parser folds into another. An item's `lean` field has
-one Lean proof for each sentence it concludes, a term or `by …`. A library
+`-` is a pattern the parser folds into another. An item's `lean-proof` field
+has one Lean proof for each sentence it concludes, a term or `by …`. A record
+the standard library proves on the page, in `corpus/stdlib/<subject>.proof`,
+gives either a Mathlib proof, as any item does, or `on the page`, which
+writes the page's proof in Lean, as `metamath-proof` does for the Metamath build. A library
 function's definition says what the function is in Lean with `lean-builds`,
 a template of the same form, beside `metamath-builds`:
 `lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2`.

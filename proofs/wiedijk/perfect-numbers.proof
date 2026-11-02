@@ -48,7 +48,7 @@ define power-times-odd: j is a power of two times an odd number means
        reads j is 2 to some power, times an odd number
 
 theorem euclid-perfect
-  metamath    perfect1
+  metamath-counterpart perfect1
   note        σ multiplies over numbers that share no factor, as 2^(p − 1) and
               2^p − 1 do. σ(2^(p − 1)) = 2^p − 1 by the geometric sum, and
               σ(2^p − 1) = 2^p since it is prime. Their product is twice the
@@ -309,7 +309,7 @@ theorem three-divisors
     requires e ≠ m: weakening, from H5
 
 theorem euler-perfect
-  metamath    perfect
+  metamath-counterpart perfect
   note        Write the number as 2^k·m with m odd. σ multiplies, so
               (2^(k + 1) − 1)·σ(m) = 2^(k + 1)·m, and 2^(k + 1) − 1 divides
               m, say m = (2^(k + 1) − 1)·c. Then σ(m) = m + c, and m has no

@@ -84,7 +84,7 @@ impl std::fmt::Display for RecordKind {
 
 /// The fields each kind of record may carry, as the header of each records
 /// file describes them. A field outside its kind's list is refused: the tools
-/// read fields by name, so a misspelt `target` is not a target, and the item
+/// read fields by name, so a misspelt `metamath-proof` is not one, and the item
 /// it belongs to would stop the build wherever it is cited. A precedence
 /// record is not listed, because its fields are the levels it declares.
 pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
@@ -94,14 +94,51 @@ pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
         .map(|(_, fields)| *fields)
 }
 
+/// What a record is in set.mm, for the reader; the checker sorts notations
+/// by it (`matching`).
+pub const METAMATH_COUNTERPART: &str = "metamath-counterpart";
+/// The set.mm lemmas the Metamath build proves an item or a method's step
+/// with, or `on the page`.
+pub const METAMATH_PROOF: &str = "metamath-proof";
+/// The set.mm template the Metamath build writes a notation, or a library
+/// function applied, with.
+pub const METAMATH_BUILDS: &str = "metamath-builds";
+/// The Mathlib proof the Lean build proves an item with, or `on the page`.
+pub const LEAN_PROOF: &str = "lean-proof";
+/// The Lean template the Lean build writes a notation, or a library
+/// function applied, with.
+pub const LEAN_BUILDS: &str = "lean-builds";
+
 pub const FIELDS: [(RecordKind, &[&str]); 5] = [
     (
         RecordKind::Notation,
         &[
-            "pattern", "sort", "level", "assoc", "commutes", "identity", "negates",
-            "spells", "places", "nests", "bounds", "joins", "wraps", "fills",
-            "repeats", "shadowed", "wanted", "instead", "binds", "reads", "member",
-            "target", "metamath", "decided", "lean", "note",
+            "pattern",
+            "sort",
+            "level",
+            "assoc",
+            "commutes",
+            "identity",
+            "negates",
+            "spells",
+            "places",
+            "nests",
+            "bounds",
+            "joins",
+            "wraps",
+            "fills",
+            "repeats",
+            "shadowed",
+            "wanted",
+            "instead",
+            "binds",
+            "reads",
+            "member",
+            METAMATH_BUILDS,
+            METAMATH_COUNTERPART,
+            "decided",
+            LEAN_BUILDS,
+            "note",
         ],
     ),
     (
@@ -116,7 +153,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "decides",
             "hypotheses",
             "specified-in",
-            "metamath",
+            METAMATH_PROOF,
             "note",
         ],
     ),
@@ -124,26 +161,38 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
         RecordKind::Definition,
         &[
             "sort",
-            "metamath-builds",
+            METAMATH_BUILDS,
             "reads",
-            "metamath",
-            "target",
+            METAMATH_COUNTERPART,
+            METAMATH_PROOF,
             "open",
             "symbol",
             "defines",
             "decided",
-            "lean",
-            "lean-builds",
+            LEAN_PROOF,
+            LEAN_BUILDS,
             "note",
         ],
     ),
     (
         RecordKind::Axiom,
-        &["metamath", "target", "open", "lean", "note"],
+        &[
+            METAMATH_COUNTERPART,
+            METAMATH_PROOF,
+            "open",
+            LEAN_PROOF,
+            "note",
+        ],
     ),
     (
         RecordKind::Theorem,
-        &["metamath", "target", "open", "lean", "note"],
+        &[
+            METAMATH_COUNTERPART,
+            METAMATH_PROOF,
+            "open",
+            LEAN_PROOF,
+            "note",
+        ],
     ),
 ];
 
@@ -202,6 +251,36 @@ impl Record {
     /// A field, or the empty text where the record does not say it.
     pub fn field_or_empty(&self, name: &str) -> &str {
         self.field(name).unwrap_or("")
+    }
+
+    /// What the Metamath build writes for the record: a notation's set.mm
+    /// template, `metamath-builds`, and an item's or a method's set.mm
+    /// lemmas, `metamath-proof`.
+    pub fn metamath_target(&self) -> Option<&str> {
+        match self.kind {
+            RecordKind::Notation => self.field(METAMATH_BUILDS),
+            _ => self.field(METAMATH_PROOF),
+        }
+    }
+
+    /// `metamath_target`, or the empty text where the record does not say it.
+    pub fn metamath_target_or_empty(&self) -> &str {
+        self.metamath_target().unwrap_or("")
+    }
+
+    /// What the Lean build writes for the record: a notation's Lean template,
+    /// `lean-builds`, and an item's Mathlib proof, `lean-proof`.
+    pub fn lean_target(&self) -> Option<&str> {
+        match self.kind {
+            RecordKind::Notation => self.field(LEAN_BUILDS),
+            _ => self.field(LEAN_PROOF),
+        }
+    }
+
+    /// What the record is in set.mm, `metamath-counterpart`, or the empty
+    /// text where it does not say.
+    pub fn counterpart(&self) -> &str {
+        self.field_or_empty(METAMATH_COUNTERPART)
     }
 
     /// Its header's words before its name, as a message names the record:

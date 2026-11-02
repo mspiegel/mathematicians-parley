@@ -4,7 +4,7 @@ import mundane theorem      stdlib/sums/sum-first
 import mundane theorem      stdlib/sums/sum-single
 
 theorem odd-numbers-sum
-  metamath    oddnumth
+  metamath-counterpart oddnumth
   note        By induction on k: adding the next odd number 2(k + 1) − 1
               to k² gives (k + 1)².
   let N ∈ ℕ₀                                                          (H1)

@@ -5,7 +5,7 @@ import definition         stdlib/trigonometry/cos
 import definition         stdlib/trigonometry/sin
 
 theorem sine-of-double
-  metamath    sin2t
+  metamath-counterpart sin2t
   note        Write 2A as A + A and use the addition formula for the sine.
   let A ∈ ℂ                                                           (H1)
   then sin(2·A) = 2·sin(A)·cos(A)

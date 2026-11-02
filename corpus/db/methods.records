@@ -9,7 +9,7 @@
 #   parts       the part markers the block carries, in order
 #   part-opens  what a part marker is followed by, when it carries an assumption
 #   checks      what a reader checks, from SYNTAX.md
-#   metamath    the lemma families the expansion targets
+#   metamath-proof the lemma families the Metamath build expands the method into
 #   note        anything a reader or an implementer needs
 #
 # Every method must eventually carry a specified expansion, as READERS.md
@@ -22,7 +22,7 @@ method citation
   checks      apply the definition or theorem X with its variables set as given,
               using the lines L to discharge its hypotheses. The claim is the
               literal instance of one sentence of X's conclusion.
-  metamath    the cited item's own label, with substitution
+  metamath-proof the cited item's own label, with substitution
   note        The method name is not written. The pointer is the justification.
               The prefix is mun: for a theorem marked mundane, and otherwise
               the prefix of the kind of the item it names.
@@ -34,7 +34,7 @@ method obtain
   block       none
   checks      the cited item, or with no item the line in L, concludes an
               existence claim. Name its objects a and b. The claim is the body.
-  metamath    exlimiv, eximd, rexlimiv
+  metamath-proof exlimiv, eximd, rexlimiv
   note        obtain keeps its names, because a new name is a choice the reader
               cannot infer.
 
@@ -44,7 +44,7 @@ method exhibit
   checks      the claim is a bare "there is" sentence. The lines L state its body
               with some value in place of the bound variable, and the reader
               finds the value by comparing.
-  metamath    rspcev, spcev
+  metamath-proof rspcev, spcev
   note        The value is never written. By the literal-instance rule the cited
               lines determine it. Where the "there is" is a sentence of a cited
               definition, no keyword is used and the citation stands alone.
@@ -57,7 +57,7 @@ method substitute
               which is part of line L1, replaced by the other. Without `into`,
               the claim is t = t′, where t′ is t with one side of e replaced by
               the other.
-  metamath    oveq1d, oveq2d, eqtrd, fveq2d
+  metamath-proof oveq1d, oveq2d, eqtrd, fveq2d
   note        The equation e may be used from either side.
 
 method instantiate
@@ -67,7 +67,7 @@ method instantiate
               of v, and L2 supplies t ∈ X. Several variables may be given at
               once. L may also be a hypothesis or supposition label, or a
               definition whose sentence is a "for all".
-  metamath    rspcv, rspccva
+  metamath-proof rspcv, rspccva
 
 method algebra
   form        algebra, from L
@@ -84,7 +84,7 @@ method algebra
   hypotheses  every atom is a real number, and every denominator is nonzero;
               both are dull facts discharged by a cited line or a requires line
   specified-in METHODS.md
-  metamath    a normaliser over the ℂ field lemmas
+  metamath-proof a normaliser over the ℂ field lemmas
   note        Turns (1 − a^(k + 1))/(1 − a) + a^(k + 1) into
               (1 − a^(k + 1)·a)/(1 − a), but will not turn a^(k + 1)·a into
               a^(k + 2), because the exponent is not a numeral and so the power
@@ -101,7 +101,7 @@ method arithmetic
   hypotheses  none, and it cites nothing; requires lines do not nest, so this
               is where that recursion stops
   specified-in METHODS.md
-  metamath    2re, 2z, 0z, 1z, 1nn, 2pos, 2ne0, 1lt2, and the deccl and decadd
+  metamath-proof 2re, 2z, 0z, 1z, 1nn, 2pos, 2ne0, 1lt2, and the deccl and decadd
               families for longer numerals
   note        The line between arithmetic and algebra is closed numerals against
               symbols: a claim containing a variable is never arithmetic.
@@ -119,7 +119,7 @@ method real-arithmetic
               of square roots of squarefree whole numbers
   hypotheses  none, and it cites nothing, as arithmetic
   specified-in METHODS.md
-  metamath    sqrtmuld, sqrtsqd, sqsqrtd, sqrtcld, resqrtcld, subeq0ad,
+  metamath-proof sqrtmuld, sqrtsqd, sqsqrtd, sqrtcld, resqrtcld, subeq0ad,
               mulcanad, mulne0bad, subne0ad, divmuld, expp1d, expnegd
   note        Kept apart from arithmetic so that what arithmetic decides stays
               small enough to read. A claim with no square root cites
@@ -135,7 +135,7 @@ method membership
   hypotheses  a divisor is not zero, by a cited line, a requires line, or
               being a digit other than zero or a product of such
   specified-in METHODS.md
-  metamath    readdcld, remulcld, redivcld, divcld, mulne0d, divne0d
+  metamath-proof readdcld, remulcld, redivcld, divcld, mulne0d, divne0d
   note        What algebra and inequalities work out for every atom they
               touch, stated as a step's claim, so that a membership is one
               line rather than a library item per operation.
@@ -156,7 +156,7 @@ method inspection
               one equation where S has one element
   hypotheses  none beyond its facts in
   specified-in METHODS.md
-  metamath    snidg, elun1, elun2, nelsn, noel, elun, ioran, rabun2,
+  metamath-proof snidg, elun1, elun2, nelsn, noel, elun, ioran, rabun2,
               rabsnif, iftrue, iffalse, hashsng, hashunsng, hash0, rspcdva,
               eqssd, fzsn, fzsuc, fzn, elsni, orc, olc, jaod
   note        What a textbook writes as "by inspection": the reader runs down
@@ -178,7 +178,7 @@ method inequalities
   hypotheses  every atom is a real number, discharged by a cited line or a
               requires line like any other dull fact
   specified-in METHODS.md
-  metamath    ltne, lelttr, ltnle, letri3
+  metamath-proof ltne, lelttr, ltnle, letri3
   note        The name misleads. This is about the ordering of numbers, not
               about things being unequal. A ≠ reaches it only because the
               order gives one a meaning — a ≠ b is a < b or b < a — so a
@@ -200,7 +200,7 @@ method transitivity
   hypotheses  where a link is an order, every atom of the chain's terms is a
               real number, as an inequalities step's are
   specified-in METHODS.md
-  metamath    eqbrtrd, breqtrd, letrd, lttrd, lelttrd, ltletrd
+  metamath-proof eqbrtrd, breqtrd, letrd, lttrd, lelttrd, ltletrd
   note        A calculation whose terms the cited lines write: it puts two
               facts together without an "and", as a calculation's links do.
 
@@ -212,7 +212,7 @@ method antisymmetry
   decides     the antisymmetry of ≤
   hypotheses  every atom of the two sides is a real number
   specified-in METHODS.md
-  metamath    letri3d, eqcomd
+  metamath-proof letri3d, eqcomd
 
 method join
   form        join L
@@ -225,7 +225,7 @@ method join
               shape of argument
   hypotheses  none
   specified-in METHODS.md
-  metamath    jca, and the projection lemmas where a cited line contributes one
+  metamath-proof jca, and the projection lemmas where a cited line contributes one
               of several sentences
   note        Named `lines` until it was specified. That name said what it
               cited and nothing about what it did, and four unrelated jobs
@@ -247,7 +247,7 @@ method restate
               cite it by itself
   hypotheses  none
   specified-in METHODS.md
-  metamath    the projection lemmas where the line says several sentences
+  metamath-proof the projection lemmas where the line says several sentences
 
 method contradiction
   form        contradiction
@@ -259,7 +259,7 @@ method contradiction
               is reductio, or C is "not B", which proves a negation directly.
               The block's last step states some P and also not P. Any
               rewriting of B is a step inside the block. See METHODS.md.
-  metamath    pm2.65, and notnotr as well where the claim is not a negation
+  metamath-proof pm2.65, and notnotr as well where the claim is not a negation
 
 method proof
   form        proof
@@ -270,7 +270,7 @@ method proof
               per let line and in that order, or "if A then B" where the block
               lets nothing. The block opens with the claim's let and assume
               lines, each labelled, and its last step is B.
-  metamath    ralrimiva, ex, alrimiv
+  metamath-proof ralrimiva, ex, alrimiv
   note        The same rule by which a theorem's block proves its statement. At
               theorem level no method is named because the let and assume lines
               are the statement. The word is a textbook's "Proof." after a
@@ -306,7 +306,7 @@ method induction
               The step part opens with `let Y ⊆ X`, the induction hypothesis
               and `let a ∈ X ∖ Y`, those three lines in that order, and its
               last step claims P(Y ∪ {a}).
-  metamath    nnind, nn0ind, uzind, and gfinind over findcard2d for the parts
+  metamath-proof nnind, nn0ind, uzind, and gfinind over findcard2d for the parts
               of a finite set
   note        The starting point is written even when the set fixes it, so that
               every induction reads the same way and inductions from 2 or 4 need
@@ -323,7 +323,7 @@ method cases
               formula as the step above the block, or contradicts a line. A
               part whose assume line ends ", which is the claim" assumes that
               formula and has no steps.
-  metamath    jaodan, jaoi, pm2.21dd
+  metamath-proof jaodan, jaoi, pm2.21dd
   note        A case that cannot occur ends on the step reaching the opposite
               of an earlier line, written `contradicting` and the line; from
               the two, pm2.21dd gives the formula the other cases claim.
@@ -338,7 +338,7 @@ method both-directions
               its last step claims B; the second assumes B and its last step
               claims A. This is how a textbook proves "if and only if": each
               direction in turn.
-  metamath    impbida
+  metamath-proof impbida
   note        Each part is a case over its assumption, entered and left as
               a `cases` part is, and impbida joins the two implications.
 
@@ -352,7 +352,7 @@ method calculation
               any line is <, and ≡ (mod n) if any line is ≡, every ≡ line
               saying the same n, none mixed with ≤ or <, and every line after
               the first ≡ a ≡ too.
-  metamath    eqtrd, 3eqtrd, eqbrtrd, lelttrd; for a congruence, oveq1d
+  metamath-proof eqtrd, 3eqtrd, eqbrtrd, lelttrd; for a congruence, oveq1d
               carrying the equations before it into the difference n
               divides, and dvds2addd with npncand joining two congruences
   note        A calculation only joins. Every line cites a numbered step or

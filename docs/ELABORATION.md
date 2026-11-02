@@ -247,7 +247,7 @@ were a fact already in hand and 22.0% came from structure (a conjunction
 split, a membership carried between number systems or through an operation, a
 digit, sethood). The search through declared lemmas answered 4.2%, with 45
 pairings of what was wanted and which lemma gave it, from 36 lemmas. Of the
-items whose target names several lemmas, only `def:stdlib/sets/set-builder`
+items whose metamath-proof names several lemmas, only `def:stdlib/sets/set-builder`
 names two, and `elrab` fitted all ten times.
 
 **What comparing through one standard form changed.** Four of the thirty
@@ -302,7 +302,7 @@ with operation · and identity e` is set.mm's `W e. Grp` for a class W, with
 `( Base ` W ) e. Fin` conjoined where the group is finite. G names
 `( Base ` W )` and e names `( 0g ` W )`. The notations that need the group's
 operation, inverse, subgroups or cosets write `@op`, `@inv`, `@subgroups` and
-`@lsm` in their targets, and `Reading.pattern` fills them from the names the
+`@lsm` in their metamath-proofs, and `Reading.pattern` fills them from the names the
 `let` line gave, so `a·b` is `( a ( +g ` W ) b )` and `gH` is
 `( { g } ( LSSum ` W ) H )`. A notation that needs a group where no `let`
 line gives one is a defect at the line writing it. `assume H is a subgroup
@@ -424,9 +424,9 @@ Which letter a statement binds is no part of what it says, and a lemma's
 disjointness conditions are about letters, so the letters a lemma keeps apart
 from its scope are chosen by one rule rather than searched for. A hypothesis
 saying Σ(k = 1 to n) … → 1 as n → ∞ binds k and n in the theorem's own scope,
-and `sersumlim`, which `def:stdlib/calculus/series-sum` targets, keeps both
+and `sersumlim`, which `def:stdlib/calculus/series-sum`'s metamath-proof names, keeps both
 apart from any scope it is used under; `gpartsfin`, which
-`mun:stdlib/counting/parts-finite` targets, keeps its y apart from a scope
+`mun:stdlib/counting/parts-finite`'s metamath-proof names, keeps its y apart from a scope
 that may itself say "for all Y ∈ K", binding the same letter. So:
 
 - every letter the lemma binds and keeps apart from its scope, or from
@@ -743,7 +743,7 @@ cases, each case is taken by `iftrue` where `settle` finds its condition among
 what the step names, or by `iffalse` where it finds the negation. `same`
 carries what is left to the other side, and `eqtrd` joins them.
 
-**A definition is a theorem, not a replacement.** `def:stdlib/divisibility/odd` targets `2 ∥ n`
+**A definition is a theorem, not a replacement.** `def:stdlib/divisibility/odd`'s metamath-proof gives `2 ∥ n`
 negated, so unfolding it is citing a set.mm theorem — it costs a step and it
 can fail, where a definitional replacement could not.
 
@@ -756,7 +756,7 @@ from a line that states the existence itself — `g ∈ ⋃(Y ∈ K) Y` from
 `there is Y ∈ K with g ∈ Y` — is read right to left as any other is, and
 one reached from lines naming the witness takes the witness route; which of
 the two is decided once, by whether a cited line states the existence
-(`reading`). A definition's target may name more
+(`reading`). A definition's metamath-proof may name more
 than one lemma — `rabid` and `elrab` say the same thing of a set-builder and
 differ only in what they ask — and a definition stated in clauses is one
 theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
@@ -764,13 +764,13 @@ theorem per clause, as `def:stdlib/numbers/abs` names `absid, absnid`.
 **The kernel writes equations the other way round.** `odd2np1` writes
 `( 2 x. n ) + 1 = N` where the corpus writes `n = 2k + 1`, and `divides` does
 the same. Each use pays a flip and a commutation — `eqcomd` and `mulcomd` —
-that appear nowhere in the readable proof. A `target` says `equation reversed`
+that appear nowhere in the readable proof. A `metamath-proof` says `equation reversed`
 where the orientation is neither the readable line's nor the label's.
 
 ## Names
 
 A name a proof introduces becomes a variable of the kernel, and it cannot be
-one a notation's own target binds, nor a letter the proof writes as a name: a
+one a notation's own metamath-builds binds, nor a letter the proof writes as a name: a
 binder takes its own letter where it can, so the binomial proof's
 `Σ(k = 0 to m)` is over k, and a spare handed out as k before that sum is read
 would be one variable for two things.
@@ -1152,7 +1152,7 @@ is proved by the reason that line gives, or the elaborator says it cannot.
 `side` is where one line is discharged, and it tries, in order:
 
 1. the lines the page cites, taken apart, where the reason is those lines — a
-   `from H1`, or a definition with no `target`. Such a definition is one the
+   `from H1`, or a definition with no `metamath-proof`. Such a definition is one the
    notation folds away, so there is nothing in the library to cite and the
    unfolding is the cited line itself: `A, B, C form a triangle` is four claims
    conjoined, and a line asking for one of them is asking for a conjunct of the
@@ -1160,7 +1160,7 @@ is proved by the reason that line gives, or the elaborator says it cannot.
    same claim for another reason;
 2. the facts already in scope;
 3. the method the line names, both halves of it, where it names a method;
-4. the item the line names, where the item has a `target` — the same citation a
+4. the item the line names, where the item has a `metamath-proof` — the same citation a
    step naming it makes.
 
 A line the page cites says what it states and what a membership among its
@@ -1206,7 +1206,7 @@ goes without saying"), and is put among the facts proved by `eqidd`, so that
 a hypothesis of the lemma that reads a size off such an equation is settled
 from it as from a line.
 
-The item branch is guarded on the `target` because citing an item without one
+The item branch is guarded on the `metamath-proof` because citing an item without one
 runs `assume_item`, which would turn proved facts into assumed ones. The name
 ends at the first space, since what follows it is the instantiation:
 `mun:abs-real x := a, from H1` names `abs-real`.
@@ -1217,7 +1217,7 @@ the lines name between them is answered a part at a time. `SPLIT` says how a
 fact one holds comes apart, `JOIN` how a goal one wants goes together, and
 `conjoined` is the three moves both callers share.
 
-The variables of a cited item are fixed by the lemma the target names rather
+The variables of a cited item are fixed by the lemma the metamath-proof names rather
 than by the item's own letters, which is why a `requires` line needs no
 `v := t` of its own, though a few write one.
 
@@ -1604,7 +1604,7 @@ nothing is taken as stated in its place:
   is an identity, and algebra cannot write its proof: …";
 - a requires line its method does not reach: "inequalities does not reach
   …, which this line claims it supplies";
-- a step citing an item the database gives no target for.
+- a step citing an item the database gives no metamath-proof for.
 
 A gap in a method is so found at the line that has it, and not later by the
 gate. Stating one in its place hid more than the gap: a requires line above
@@ -1616,7 +1616,7 @@ the check that asks each line to do work.
 dividing by zero, too large to work out, not rational, or true and past what
 it can show, which is cited instead.
 
-A definition with no target, or whose target is `biid` because its
+A definition with no metamath-proof, or whose metamath-proof is `biid` because its
 notations make its two sides one formula, is read off a line the step cites
 that already says the claim, by one rule: the line, or one of its conjuncts,
 is the claim or is one with it as `same` reads two claims. That takes in a
@@ -1626,7 +1626,7 @@ notation reads "b is an upper bound of S" as every s in S being at most b and
 the block that proved that fixed a variable of its own; and a defined name
 read as what it names where the step cites the define: `3 divides b`, with b
 defined as Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k), is the congruence of
-the two sums mod 3. Otherwise the step stops: "def:perfect has no target,
+the two sums mod 3. Otherwise the step stops: "def:perfect has no metamath-proof,
 and nothing step 10 cites says …".
 
 A lemma may conclude a three-way disjunction with one constructor, `w3o`,
@@ -1653,7 +1653,7 @@ other; between the two is a contrapositive and trichotomy, which is logic
 and not a spelling. set.mm also names the witness, the supremum, and says
 each thing the page asks of it in a lemma of its own: `suprcl` that it is
 real, `suprub` that each member of S is at most it, `suprleub` that it is at
-most any B exactly when every member is. So the target names the witness,
+most any B exactly when every member is. So the metamath-proof names the witness,
 `with c := sup S`: a `with` name that is none of the lemmas' variables can
 only be the claim's own binder. The supremum is put in for c, each part of
 what the claim then says is proved by the first of the three that reaches
@@ -1815,7 +1815,7 @@ The orders follow five rules, and each search below is one of them applied.
    never stands in for one that says what is wanted outright); a line
    matched as it stands before as the standard form reads it (`opened`,
    `unfolds_from`); an equation facing the way it is written before turned
-   round (`witnessed`, `substitute`); a seed as the target writes it before
+   round (`witnessed`, `substitute`); a seed as the metamath-proof writes it before
    read through (`in_other_words`).
 3. **The nearer reading comes before the deeper one.** `apply_lemma` fits
    the claim to a lemma's conclusion at each level before peeling another
@@ -1842,7 +1842,7 @@ The orders follow five rules, and each search below is one of them applied.
      asks may be a larger term than the last, so a reading inside a reading
      need not end.
    - `apply_lemma`, where the conclusion does not fit as written: through an
-     existential, at the seed the target gives, through a conjunct, a
+     existential, at the seed the metamath-proof gives, through a conjunct, a
      universal generalised, in other words, and last with an identity
      element left out (`as_tidied`). A cited item that reaches no claim this
      way reaches the instance the checker compared the claim with, which is
@@ -1863,7 +1863,7 @@ The orders follow five rules, and each search below is one of them applied.
    on; `rules::STANDARD` for the standard form (rules
    that ask nothing before rules that ask something), `WITHIN`, `SYSTEM_OF`,
    `IMPLIED`, `OTHER_FORMS` and `RANGE_WITHIN` for what a membership says. An item's
-   `target` is tried clause by clause in the order the record writes it
+   `metamath-proof` is tried clause by clause in the order the record writes it
    (`targets::clauses`), which is the database's order to decide.
 
 A lookup by key, an exact fact, and a loop that needs every candidate
@@ -1928,8 +1928,8 @@ unless "Steps taken as stated" above records it; a verifier over every
 proof the elaborator has written, all of them joined, after asking that
 each file reach every label it uses through its own inclusions, since
 joined each sees the others' (`intermediate-value` used `proved.mm`'s
-`gdivcanx` and included only `abs-bounds`); and that every library item with a target
-gives its target what it asks, by a theorem restating the item and citing
+`gdivcanx` and included only `abs-bounds`); and that every library item with a metamath-proof
+gives its metamath-proof what it asks, by a theorem restating the item and citing
 it from its own lines, built and verified (`src/tools/restated.rs`); and
 that every requires line is needed, and every pair naming a variable for
 itself (`SYNTAX.md`, no pair says what goes without saying), each taken away
@@ -2126,7 +2126,7 @@ proved (`discharged_by`).
     the parser's own precedence, and `tests/print.rs` reads every formula
     the corpus claims or requires, prints it and reads it again.
     The elaborator's messages say its kernel terms the same way (`spoken`):
-    each notation's `target` read backwards gives the pattern a term came
+    each notation's `metamath-builds` read backwards gives the pattern a term came
     from, the longest first, so ∠QPR is not read as an absolute value; a
     name is the one the page gave the term or bound the letter under, and a
     group's operation is read through the parts its `let` line names. A
@@ -2168,10 +2168,10 @@ proved (`discharged_by`).
     A definition that unfolds is not asked: the elaborator reaches the
     existence an obtain of one claims from the claim itself. Page trees are
     compared in one standard order (`matching::standard`), as the
-    elaborator's terms are: a spelling whose target is another's with the
+    elaborator's terms are: a spelling whose metamath-builds is another's with the
     holes exchanged is read as that one, so `x > 0` is `0 < x`, taken from
-    the notation's `target` line and not named in the code. A spelling
-    that, holding another in one hole, is a third's target is read as the
+    the notation's `metamath-builds` line and not named in the code. A spelling
+    that, holding another in one hole, is a third's metamath-builds is read as the
     third, where the third binds a letter: `∏(k ∈ {a, …, b}) t` is
     `∏(k = a to b) t`, and `Σ(k ∈ {a, …, b}) t` is `Σ(k = a to b) t`, so an
     item stated either way is cited at either. A divisibility of a
@@ -2239,7 +2239,7 @@ of sorts reports a page that claims an element of a set of numbers is a set. See
 file states rather than proves* for the proof this let back into `proofs/`.
 
 **Library items no proof restates.** The last stage restates each library
-item with a target as a theorem of its own, and thirty-one it cannot, because a
+item with a metamath-proof as a theorem of its own, and thirty-one it cannot, because a
 letter in each stands for something a proof cannot introduce. Each is cited
 by a proof or tested, at a formula of that proof's own, so what it says is
 used and verified there; only the restatement is missing.
@@ -2300,11 +2300,11 @@ C form a triangle" once and is done.
 ## Keeping set.mm where the tools can see it
 
 The gate's labels stage (`src/tools/labels.rs`) reads 609 labels — every token
-of a `target` or a `defines`, which are machine-read and so name nothing else,
+of a `metamath-proof`, a `metamath-builds` or a `defines`, which are machine-read and so name nothing else,
 plus what the rule tables in `src/rules.rs` list — and asks set.mm whether it
 has them.
 
-`metamath` is prose meant for a person and names its labels in a sentence, so
+`metamath-counterpart` is prose meant for a person and names its labels in a sentence, so
 it is read only as far as it is certainly naming them: the leading entries that
 are a single label-shaped word, stopping at the first that is not. That gives
 `df-dvds` out of `df-dvds, whose right side is the same existential` and
@@ -2379,7 +2379,7 @@ would leave the gate green on the day a proof was added and not read.
 14. **A step may have to be hoisted out of its scope.**
 
 15. **A definition is read whichever of three ways the claim asks for**, and
-    its target may name more than one lemma.
+    its metamath-proof may name more than one lemma.
 
 16. **A name introduced is not the letter it is spelt with.** The kernel has to
     see two names where the text writes one.

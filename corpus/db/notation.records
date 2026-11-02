@@ -14,8 +14,8 @@
 #   pattern     the pattern, with _ for each hole a term fills and ⁿ for a
 #               numeral written raised, a run of the digits ⁰ to ⁹ that is
 #               one token and a hole of its own. A record may carry several
-#               patterns when they differ only in symbol and set.mm target;
-#               the metamath list then matches the pattern list in order.
+#               patterns when they differ only in symbol and set.mm term;
+#               the metamath-builds list then matches the pattern list in order.
 #   sort        the sort each hole takes, in order, and the sort the pattern
 #               produces: `α, set of α → formula` for membership, `→ set of
 #               number` for a pattern with no hole. A sort is number, point,
@@ -123,7 +123,7 @@
 #               the term: `repeats hole 4 after , building _ csn cun` makes
 #               {_, _, _, _} take {a, b, c, d, e} and beyond, every element
 #               of the hole's sort, the fifth adding `_5 csn cun` to the
-#               target and so on. `_′` in what it builds is the term before:
+#               term and so on. `_′` in what it builds is the term before:
 #               `building _′ _ wceq wa` joins each further term of a chain
 #               of equations to the one before it. Only the last hole
 #               repeats.
@@ -138,41 +138,46 @@
 #               unit i has it, the one constant mathematics also uses as a
 #               letter.
 #   reads       how a viewer says it in words.
-#   metamath    the set.mm syntax constructors the elaborator targets, said
+#   metamath-counterpart
+#               the set.mm syntax constructors the elaborator builds, said
 #               the way a person checking them wants to read it.
-#   target      the same thing said the way a program reads it: the term this
+#   metamath-builds
+#               the same thing said the way a program reads it: the term this
 #               pattern builds, in the reverse Polish the kernel uses, with
 #               `_1`, `_2`, `_3` standing for the pattern's holes in the order
-#               they are written. So `_ + _` targets `_1 _2 caddc co` and
-#               `_ divides _` targets `_1 _2 cdvds wbr`.
+#               they are written. So `_ + _` builds `_1 _2 caddc co` and
+#               `_ divides _` builds `_1 _2 cdvds wbr`.
 #
-#               Three things this says that `metamath` cannot. A hole may be
-#               used out of order, which is how `_ > _` targets `_2 _1 clt wbr`
-#               and shares its constructor with `_ < _`. A term may carry an
-#               operand the pattern has no hole for, which is how `_ is even`
-#               targets `c2 _1 cdvds wbr`. And the entry is `folded` for a pattern that
+#               Three things this says that `metamath-counterpart` cannot. A
+#               hole may be used out of order, which is how `_ > _` builds
+#               `_2 _1 clt wbr` and shares its constructor with `_ < _`. A
+#               term may carry an operand the pattern has no hole for, which
+#               is how `_ is even` builds `c2 _1 cdvds wbr`. And the entry is
+#               `folded` for a pattern that
 #               the `negates` or `spells` line turns into another notation's
 #               tree, since such a pattern builds no node of its own.
 #
 #               A word beginning `@` stands for a part of the group the
 #               theorem lets, which the page never writes: `@op` its
 #               operation, `@inv` its inverse, `@subgroups` its subgroups and
-#               `@lsm` the sum of two of its subsets. So `_ · _` targets
+#               `@lsm` the sum of two of its subsets. So `_ · _` builds
 #               `_1 _2 @op co`, and the group's `let` line says which group.
 #
 #               A function a proof needs of its own, such as the sum of the
 #               first m numbers, is a `define` in that proof and not a
 #               notation here: `define S(m) := …, for m ∈ ℕ` (`GRAMMAR.md`).
 #               A function the library offers, such as gcd, is a definition
-#               with `sort` and `builds` lines in `corpus/stdlib`, and not a notation
+#               with `sort` and `metamath-builds` lines in `corpus/stdlib`, and not a notation
 #               here either: a proof file imports it by name, and gcd(a, b) is
 #               read as the name gcd applied to a and b, through
 #               `application-to-two`.
 #
 #               One entry per pattern, in pattern order. A record with no
-#               `target` is one whose term is not a constructor applied to its
+#               `metamath-builds` is one whose term is not a constructor applied to its
 #               holes; an elaborator cannot build it from this file alone, and
-#               `metamath` says in words what it is.
+#               `metamath-counterpart` says in words what it is.
+#   lean-builds the Lean template of each pattern, for the Lean build, one
+#               entry per pattern set apart by ` ; ` (`LEAN.md`).
 #   note        anything a reader or an implementer needs.
 #
 # A line beginning with # is a comment. A record begins at column 0 and its
@@ -234,8 +239,8 @@ notation number-systems
   member      a natural number / a positive integer, a natural number or 0 /
               a nonnegative integer, an integer, a rational number, a real
               number, a complex number
-  metamath    cn, cn0, cz, cq, cr, cc
-  target      cn, cn0, cz, cq, cr, cc
+  metamath-counterpart cn, cn0, cz, cq, cr, cc
+  metamath-builds cn, cn0, cz, cq, cr, cc
   note        ℕ starts at 1, as set.mm's cn does, and ℕ₀ starts at 0. A reader
               taught that the natural numbers begin at 0 needs this pointer to
               say so. Nothing in any text assumes either convention beyond it.
@@ -246,8 +251,8 @@ notation membership
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       is in, is not in
-  metamath    wcel, wnel
-  target      _1 _2 wcel, folded
+  metamath-counterpart wcel, wnel
+  metamath-builds _1 _2 wcel, folded
   note        No assoc: it yields a formula and its left hole takes a term, so
               a ∈ b ∈ c cannot parse at all rather than parsing two ways.
 
@@ -257,8 +262,8 @@ notation equality
   level       relational
   negates     pattern 2 is logical-not of pattern 1
   reads       equals, is not equal to
-  metamath    wceq, wne
-  target      _1 _2 wceq, folded
+  metamath-counterpart wceq, wne
+  metamath-builds _1 _2 wceq, folded
 
 notation equal-chain
   pattern     _ = _ = _
@@ -266,8 +271,8 @@ notation equal-chain
   level       relational
   repeats     hole 3 after = building _′ _ wceq wa
   reads       equals, which equals
-  metamath    wceq joined by wa: each term equal to the next
-  target      _1 _2 wceq _2 _3 wceq wa
+  metamath-counterpart wceq joined by wa: each term equal to the next
+  metamath-builds _1 _2 wceq _2 _3 wceq wa
   note        A chain of equations, a = b = c = d, says that all its terms
               are equal (`SYNTAX.md`). What it states is the equations
               between neighbouring terms, joined from the left, so it is the
@@ -281,8 +286,8 @@ notation order
   sort        number, number → formula
   level       relational
   reads       is less than, is greater than, is at most, is at least
-  metamath    clt, cle
-  target      _1 _2 clt wbr, _2 _1 clt wbr, _1 _2 cle wbr, _2 _1 cle wbr
+  metamath-counterpart clt, cle
+  metamath-builds _1 _2 clt wbr, _2 _1 clt wbr, _1 _2 cle wbr, _2 _1 cle wbr
 
 notation additive
   pattern     _ + _        _ − _
@@ -291,9 +296,9 @@ notation additive
   assoc       left
   identity    0 on either side, 0 on the right
   reads       plus, minus
-  metamath    caddc, cmin
-  target      _1 _2 caddc co, _1 _2 cmin co
-  lean        α, α → α: _1 + _2 ; α, α → α: _1 - _2
+  metamath-counterpart caddc, cmin
+  metamath-builds _1 _2 caddc co, _1 _2 cmin co
+  lean-builds α, α → α: _1 + _2 ; α, α → α: _1 - _2
   note        Left is the only defensible reading of a − b − c. No chain of
               either operator occurs in the corpus, but the parse tree is
               load-bearing for the literal-instance rule and for the expansion,
@@ -307,9 +312,9 @@ notation multiplicative
   commutes    yes, no
   identity    1 on either side, 1 on the right
   reads       times, divided by
-  metamath    cmul, cdiv
-  target      _1 _2 cmul co, _1 _2 cdiv co
-  lean        α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
+  metamath-counterpart cmul, cdiv
+  metamath-builds _1 _2 cmul co, _1 _2 cdiv co
+  lean-builds α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
 
 notation group-operation
   pattern     _ · _
@@ -317,8 +322,8 @@ notation group-operation
   level       multiplicative
   assoc       left
   reads       combined by the group's operation with
-  metamath    the group's +g, the operation its `let` line names
-  target      _1 _2 @op co
+  metamath-counterpart the group's +g, the operation its `let` line names
+  metamath-builds _1 _2 @op co
   note        Written with the dot a product is written with, and told apart
               from it by what it joins: elements of a group, which the
               group's `let` line gives their own sort. `@op` is that line's
@@ -329,9 +334,9 @@ notation unary-minus
   sort        number → number
   level       unary-minus
   reads       minus
-  metamath    cneg
-  target      _1 cneg
-  lean        α → α: -_1
+  metamath-counterpart cneg
+  metamath-builds _1 cneg
+  lean-builds α → α: -_1
   note        No assoc, because only the right edge is a hole: −−x can be read
               one way. Written with the same character as binary minus and told
               apart by position, not by spacing.
@@ -343,9 +348,9 @@ notation power
   assoc       right
   identity    1 on the right
   reads       to the power
-  metamath    cexp
-  target      _1 _2 cexp co
-  lean        α, ℕ → α: _1 ^ _2
+  metamath-counterpart cexp
+  metamath-builds _1 _2 cexp co
+  lean-builds α, ℕ → α: _1 ^ _2
   note        Right by universal convention. No tower occurs in the corpus.
               An exponent that is not a numeral makes the whole power an atom
               to `algebra`; see METHODS.md. Its exponent decides between `↑`
@@ -359,8 +364,8 @@ notation real-power
   assoc       right
   instead     of power, where the exponent is not whole
   reads       to the power
-  metamath    ccxp, the principal power, exp(y · log x) for x ≠ 0
-  target      _1 _2 ccxp co
+  metamath-counterpart ccxp, the principal power, exp(y · log x) for x ≠ 0
+  metamath-builds _1 _2 ccxp co
   note        x^(1/3), 2^y for y ∈ ℝ, e^(x³ + 1): written as a power is, and
               read as this where the exponent is not whole (`GRAMMAR.md`), so
               the parser never reads it of its own. For x > 0 it is the real
@@ -372,9 +377,9 @@ notation superscript
   sort        number, number → number
   level       power
   reads       to the power
-  metamath    cexp, the exponent being the numeral written raised
-  target      _1 _2 cexp co
-  lean        α, ℕ → α: _1 ^ _2
+  metamath-counterpart cexp, the exponent being the numeral written raised
+  metamath-builds _1 _2 cexp co
+  lean-builds α, ℕ → α: _1 ^ _2
   note        x², N³, 2¹⁰: a power whose exponent is a numeral, written raised
               as a textbook writes it. `ⁿ` in the pattern stands for any run
               of raised digits, which is one numeral (`GRAMMAR.md`). A numeral
@@ -388,8 +393,8 @@ notation square-root
   level       power
   reads       the square root of
   decided     real arithmetic
-  metamath    csqrt
-  target      _1 csqrt cfv
+  metamath-counterpart csqrt
+  metamath-builds _1 csqrt cfv
   note        `real arithmetic` works out the square root of a rational of at
               least 0; `arithmetic` takes no root.
 
@@ -398,9 +403,9 @@ notation root
   sort        number, number → number
   level       power
   reads       the root, of the index, of
-  metamath    the real root: x ↑𝑐 (1/n) for x ≥ 0, and −((−x) ↑𝑐 (1/n))
+  metamath-counterpart the real root: x ↑𝑐 (1/n) for x ≥ 0, and −((−x) ↑𝑐 (1/n))
               below, by if
-  target      cc0 _2 cle wbr _2 c1 _1 cdiv co ccxp co _2 cneg c1 _1 cdiv co ccxp co cneg cif
+  metamath-builds cc0 _2 cle wbr _2 c1 _1 cdiv co ccxp co _2 cneg c1 _1 cdiv co ccxp co cneg cif
   note        ⁵√x, the index a numeral written raised as an exponent is; ∛x
               and ∜x are ³√x and ⁴√x written as one character. The index is 3
               or more, √ being the square root. For an odd index it is the
@@ -414,9 +419,9 @@ notation logical-not
   sort        formula → formula
   level       negation
   reads       not
-  metamath    wn
-  target      _1 wn
-  lean        Prop → Prop: ¬ _1
+  metamath-counterpart wn
+  metamath-builds _1 wn
+  lean-builds Prop → Prop: ¬ _1
   note        No assoc: only the right edge is a hole.
 
 notation conjunction
@@ -425,9 +430,9 @@ notation conjunction
   level       conjunction
   assoc       left
   reads       and
-  metamath    wa
-  target      _1 _2 wa
-  lean        Prop, Prop → Prop: _1 ∧ _2
+  metamath-counterpart wa
+  metamath-builds _1 _2 wa
+  lean-builds Prop, Prop → Prop: _1 ∧ _2
   note        Left matches set.mm's ternary conjunction, so a claim of three
               sentences maps onto the library's own lemma. See METHODS.md.
 
@@ -437,8 +442,8 @@ notation comma-conjunction
   level       conjunction
   assoc       left
   reads       and
-  metamath    wa, and nested wa for a longer list
-  target      _1 _2 wa, _1 _2 wa
+  metamath-counterpart wa, and nested wa for a longer list
+  metamath-builds _1 _2 wa, _1 _2 wa
   note        The comma list SYNTAX.md describes, used where a run of "and"s
               reads badly, as it does inside a "there is ... with ..." phrase.
               Two patterns reach every length: the comma form builds the list
@@ -459,9 +464,9 @@ notation disjunction
   level       disjunction
   assoc       left
   reads       or
-  metamath    wo
-  target      _1 _2 wo
-  lean        Prop, Prop → Prop: _1 ∨ _2
+  metamath-counterpart wo
+  metamath-builds _1 _2 wo
+  lean-builds Prop, Prop → Prop: _1 ∨ _2
 
 notation implication
   pattern     _ → _
@@ -469,9 +474,9 @@ notation implication
   level       implication
   assoc       right
   reads       implies
-  metamath    wi
-  target      _1 _2 wi
-  lean        Prop, Prop → Prop: _1 → _2
+  metamath-counterpart wi
+  metamath-builds _1 _2 wi
+  lean-builds Prop, Prop → Prop: _1 → _2
 
 notation biconditional
   pattern     _ ↔ _
@@ -479,9 +484,9 @@ notation biconditional
   level       biconditional
   assoc       right
   reads       if and only if
-  metamath    wb
-  target      _1 _2 wb
-  lean        Prop, Prop → Prop: _1 ↔ _2
+  metamath-counterpart wb
+  metamath-builds _1 _2 wb
+  lean-builds Prop, Prop → Prop: _1 ↔ _2
   note        ∀ and ∃ are not declared as symbols anywhere: SYNTAX.md writes
               them as the binders below, and ¬ ∧ ∨ as words.
 
@@ -490,9 +495,9 @@ notation conditional
   sort        formula, formula → formula
   level       implication
   reads       if, then
-  metamath    wi
-  target      _1 _2 wi
-  lean        Prop, Prop → Prop: _1 → _2
+  metamath-counterpart wi
+  metamath-builds _1 _2 wi
+  lean-builds Prop, Prop → Prop: _1 → _2
   note        The same connective as →, written the way a definition by cases
               is read. Both spellings are in the corpus. Unlike → it needs no
               assoc, because it opens with a token: `if A then if B then C`
@@ -502,9 +507,9 @@ notation absolute-value
   pattern     |_|
   sort        number → number
   reads       the absolute value of
-  metamath    cabs
-  target      _1 cabs cfv
-  lean        α → α: abs _1
+  metamath-counterpart cabs
+  metamath-builds _1 cabs cfv
+  lean-builds α → α: abs _1
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
@@ -513,9 +518,9 @@ notation floor
   pattern     ⌊_⌋
   sort        number → number
   reads       the largest whole number at most
-  metamath    cfl
-  target      _1 cfl cfv
-  lean        α≥ℚ → ℤ: ⌊_1⌋
+  metamath-counterpart cfl
+  metamath-builds _1 cfl cfv
+  lean-builds α≥ℚ → ℤ: ⌊_1⌋
   note        The whole number a real rounds down to, ⌊2.7⌋ = 2 and
               ⌊−2.7⌋ = −3. Needs no assoc and no level: a token sits at each
               edge, as with |_|.
@@ -524,24 +529,24 @@ notation cardinality
   pattern     |_|
   sort        set of α → number
   reads       the number of elements of
-  metamath    chash
-  target      _1 chash cfv
+  metamath-counterpart chash
+  metamath-builds _1 chash cfv
 
 notation finite
   pattern     _ is finite
   sort        set of α → formula
   level       relational
   reads       has finitely many elements
-  metamath    Fin
-  target      _1 cfn wcel
+  metamath-counterpart Fin
+  metamath-builds _1 cfn wcel
 
 notation distance
   pattern     |__|
   sort        point, point → number
   commutes    any order
   reads       the distance between the two points
-  metamath    ( abs ` ( P − Q ) )
-  target      _1 _2 cmin co cabs cfv
+  metamath-counterpart ( abs ` ( P − Q ) )
+  metamath-builds _1 _2 cmin co cabs cfv
   note        Its two holes are juxtaposed, with no token between them, so it
               is the one bar notation that is also the juxtaposition shape.
               |CA| would otherwise read as a product; the point sort is what
@@ -554,9 +559,9 @@ notation factorial
   level       power
   reads       factorial
   decided     arithmetic
-  metamath    cfa
-  target      _1 cfa cfv
-  lean        ℤ → ℕ: Parley.Library.factorial _1
+  metamath-counterpart cfa
+  metamath-builds _1 cfa cfv
+  lean-builds ℤ → ℕ: Parley.Library.factorial _1
   note        No assoc: only the left edge is a hole, so n!! reads one way.
               `arithmetic` works out n! of a whole number n, from 0! = 1 by
               (m + 1)! = m!·(m + 1).
@@ -568,9 +573,9 @@ notation mod
   assoc       left
   reads       the remainder on dividing by
   decided     arithmetic
-  metamath    cmo
-  target      _1 _2 cmo co
-  lean        ℤ, ℤ → ℤ: _1 % _2
+  metamath-counterpart cmo
+  metamath-builds _1 _2 cmo co
+  lean-builds ℤ, ℤ → ℤ: _1 % _2
   note        The remainder, a mod b, as Euclid's algorithm writes each
               step. It binds as division does and reads left to right with
               it, so `x·y mod m` is (x·y) mod m. The word never meets the
@@ -582,8 +587,8 @@ notation by-cases
   sort        α, formula, α → α
   level       binder
   reads       the first if, and else the second
-  metamath    cif
-  target      _2 _1 _3 cif
+  metamath-counterpart cif
+  metamath-builds _2 _1 _3 cif
   note        What a define by cases stands for: its lines, each a value and
               the condition it is taken under and the last `otherwise`, are
               this, nested from the right (`SYNTAX.md`).
@@ -593,16 +598,16 @@ notation subset
   sort        set of α, set of α → formula
   level       relational
   reads       is a subset of
-  metamath    wss
-  target      _1 _2 wss
+  metamath-counterpart wss
+  metamath-builds _1 _2 wss
 
 notation imaginary-unit
   pattern     i
   sort        → number
   reads       i
   shadowed    by a name the text introduces
-  metamath    ci
-  target      ci
+  metamath-counterpart ci
+  metamath-builds ci
   note        The square root of −1, def:stdlib/numbers/i. A line that
               introduces an i of its own, `obtain i`, `let i ∈ ℤ` or a sum's
               index, makes i that name in its scope, as a reader takes it;
@@ -614,8 +619,8 @@ notation pi
   sort        → number
   reads       pi
   decided     real arithmetic
-  metamath    cpi
-  target      cpi
+  metamath-counterpart cpi
+  metamath-builds cpi
   note        Half a turn, measured in radians. A geometry text writes 180°,
               which is this; see the degrees notation. Real arithmetic holds
               it as an atom (METHODS.md).
@@ -626,8 +631,8 @@ notation euler
   reads       e
   shadowed    by a name the text introduces
   decided     real arithmetic
-  metamath    ceu
-  target      ceu
+  metamath-counterpart ceu
+  metamath-builds ceu
   note        Euler's number, exp(1) (df-e). A line that introduces an e of its
               own, a group's identity, a walk `let e : {1, …, n} → E` or a
               define, makes e that name in its scope, as a reader takes it;
@@ -639,8 +644,8 @@ notation degrees
   level       power
   reads       degrees
   decided     real arithmetic
-  metamath    multiplied by π and divided by 180
-  target      _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
+  metamath-counterpart multiplied by π and divided by 180
+  metamath-builds _1 cpi cmul co c1 c8 cdc cc0 cdc cdiv co
   note        An angle is a number of radians, from 0 to π, as
               def:stdlib/geometry/angle has it, and x° is that number written
               in degrees, so 180° is π. The page writes degrees because a
@@ -650,23 +655,23 @@ notation empty-set
   pattern     ∅
   sort        → set of α
   reads       the empty set
-  metamath    c0
-  target      c0
+  metamath-counterpart c0
+  metamath-builds c0
 
 notation singleton
   pattern     {_}
   sort        α → set of α
   reads       the set whose only element is
-  metamath    csn
-  target      _1 csn
+  metamath-counterpart csn
+  metamath-builds _1 csn
 
 notation listed-two
   pattern     {_, _}
   sort        α, α → set of α
   commutes    any order
   reads       the set whose elements are, and
-  metamath    cpr
-  target      _1 _2 cpr
+  metamath-counterpart cpr
+  metamath-builds _1 _2 cpr
   note        A set given by listing what is in it. One, two and three
               elements are records of their own, since set.mm has a
               constructor for each, and `listed-four` takes four or more.
@@ -677,8 +682,8 @@ notation listed-three
   sort        α, α, α → set of α
   commutes    any order
   reads       the set whose elements are, and
-  metamath    ctp
-  target      _1 _2 _3 ctp
+  metamath-counterpart ctp
+  metamath-builds _1 _2 _3 ctp
   note        set.mm's unordered triple. See `listed-two`.
 
 notation listed-four
@@ -687,8 +692,8 @@ notation listed-four
   commutes    any order
   repeats     hole 4 after , building _ csn cun
   reads       the set whose elements are, and
-  metamath    ctp and csn joined by cun: the first three with the rest
-  target      _1 _2 _3 ctp _4 csn cun
+  metamath-counterpart ctp and csn joined by cun: the first three with the rest
+  metamath-builds _1 _2 _3 ctp _4 csn cun
   note        Four elements or more, as many as the page lists: each from
               the fourth on is the set before it joined with its singleton,
               which is how set.mm builds its pair and triple from
@@ -700,8 +705,8 @@ notation set-operations
   level       additive
   assoc       left
   reads       union, difference, intersection
-  metamath    cun, cdif, cin
-  target      _1 _2 cun, _1 _2 cdif, _1 _2 cin
+  metamath-counterpart cun, cdif, cin
+  metamath-builds _1 _2 cun, _1 _2 cdif, _1 _2 cin
   note        Difference needs the assoc for the same reason subtraction does.
               No chain of any of the three occurs in the corpus.
 
@@ -710,8 +715,8 @@ notation powerset
   sort        set of α → set of set of α
   level       power
   reads       the power set of
-  metamath    cpw
-  target      _1 cpw
+  metamath-counterpart cpw
+  metamath-builds _1 cpw
   note        No assoc: only the right edge is a hole.
 
 notation supremum
@@ -719,8 +724,8 @@ notation supremum
   sort        set of number → number
   level       power
   reads       the least upper bound of
-  metamath    df-sup
-  target      _1 cr clt csup
+  metamath-counterpart df-sup
+  metamath-builds _1 cr clt csup
   note        set.mm's supremum is taken in an order and over a set of numbers,
               and the page's is always the reals under <, which is what the
               target writes. Only `axi:stdlib/calculus/completeness`'s target writes it so far:
@@ -731,8 +736,8 @@ notation set-builder
   sort        α, set of α, formula → set of α
   binds       hole 1 over hole 3
   reads       the set of those in the second with the third
-  metamath    crab
-  target      _3 _1 _2 crab
+  metamath-counterpart crab
+  metamath-builds _3 _1 _2 crab
   note        Told apart from set-image by what precedes the colon: a variable
               and its domain here, an expression there. See def:stdlib/sets/set-builder.
 
@@ -743,8 +748,8 @@ notation set-builder-part
   spells      set-builder {∈:}
   wraps       hole 2 in powerset
   reads       the set of those parts of the second with the third
-  metamath    crab over a power set
-  target      _3 _1 _2 cpw crab
+  metamath-counterpart crab over a power set
+  metamath-builds _3 _1 _2 cpw crab
   note        "The parts X of A with …", built as {X ∈ 𝒫A : …} exactly, as
               `for-all-part` is.
 
@@ -753,8 +758,8 @@ notation set-image
   sort        β, α, set of α → set of β
   binds       hole 2 over hole 1
   reads       the set of the first as the second runs over the third
-  metamath    the range of a cmpt, which is what elrnmpt speaks of
-  target      _2 _3 _1 cmpt crn
+  metamath-counterpart the range of a cmpt, which is what elrnmpt speaks of
+  metamath-builds _2 _3 _1 cmpt crn
   note        The binding hole is not the first one, which is why `binds` names
               the holes rather than assuming an order. See def:stdlib/functions/set-image.
 
@@ -764,8 +769,8 @@ notation indexed-union
   level       summation
   binds       hole 1 over hole 3
   reads       the union, as the first runs over the second, of the third
-  metamath    ciun
-  target      _1 _2 _3 ciun
+  metamath-counterpart ciun
+  metamath-builds _1 _2 _3 ciun
   note        Written as Σ is, since it gathers sets as Σ adds numbers. Where
               the set gathered is the index itself, ⋃(X ∈ D) X is set.mm's
               U. D, and `uniiun` says the two are one.
@@ -776,8 +781,8 @@ notation indexed-intersection
   level       summation
   binds       hole 1 over hole 3
   reads       the intersection, as the first runs over the second, of the third
-  metamath    ciin
-  target      _1 _2 _3 ciin
+  metamath-counterpart ciin
+  metamath-builds _1 _2 _3 ciin
   note        What is in the third hole for every member of the second.
               ⋂(X ∈ D) X is the intersection of the sets in D, set.mm's |^| D
               (`intiin`). Over an empty index it is everything there is, which
@@ -790,8 +795,8 @@ notation map-of-two
   level       binder
   binds       holes 1 and 3 over hole 5
   reads       the map sending each of the first in the second, and each of the third in the fourth, to the fifth
-  metamath    cmpo
-  target      _1 _3 _2 _4 _5 cmpo
+  metamath-counterpart cmpo
+  metamath-builds _1 _3 _2 _4 _5 cmpo
   note        A function of two arguments, which a define of two builds: `define
               G(a, n) := …, for a ∈ ℝ, n ∈ ℕ₀` is this map, and G(a, n) is it
               applied to both (`application-to-two`). Its sort takes the
@@ -803,8 +808,8 @@ notation map
   level       binder
   binds       hole 1 over hole 3
   reads       the map sending each of the first in the second to the third
-  metamath    cmpt
-  target      _1 _2 _3 cmpt
+  metamath-counterpart cmpt
+  metamath-builds _1 _2 _3 cmpt
   note        What set-image is the range of, which is why the two agree on
               everything but the `crn`. The corpus can say what a function
               does to a thing and what comes out of it, and until this could
@@ -823,8 +828,8 @@ notation map-arrow
   binds       hole 1 over hole 3
   spells      map themapsending∈to
   reads       maps each of the first in the second to the third
-  metamath    cmpt
-  target      _1 _2 _3 cmpt
+  metamath-counterpart cmpt
+  metamath-builds _1 _2 _3 cmpt
   note        The map written short, as a textbook writes x ↦ e with its
               domain: `the map sending x ∈ A to e` in another spelling, the
               same tree (`GRAMMAR.md`). It binds more loosely than anything,
@@ -836,16 +841,16 @@ notation function-type
   sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a function from, to
-  metamath    wf
-  target      _2 _3 _1 wf
+  metamath-counterpart wf
+  metamath-builds _2 _3 _1 wf
 
 notation function-on
   pattern     _ is a function on _
   sort        function from α to β, set of α → formula
   level       predicate
   reads       is a function on
-  metamath    wfn
-  target      _1 _2 wfn
+  metamath-counterpart wfn
+  metamath-builds _1 _2 wfn
   note        A function known by its domain alone: what a `define` with a
               parameter gives, before anything says where its values lie.
               The formula-position counterpart of `let E be a function on
@@ -856,8 +861,8 @@ notation functions-from
   sort        set of α, set of β → set of function from α to β
   level       binder
   reads       the functions from, to
-  metamath    cmap
-  target      _2 _1 cmap co
+  metamath-counterpart cmap
+  metamath-builds _2 _1 cmap co
   note        What "there is f : X → Y with …" runs over, which that
               notation joins from its two sets and the page does not write.
               set.mm's Y ↑m X, the functions from X to Y, writes the
@@ -868,8 +873,8 @@ notation one-to-one
   sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a one-to-one function from, to
-  metamath    wf1
-  target      _2 _3 _1 wf1
+  metamath-counterpart wf1
+  metamath-builds _2 _3 _1 wf1
   note        A function that never sends two things to one place. The page
               keeps the arrow every function is written with and says the
               property after it, as a textbook does.
@@ -879,8 +884,8 @@ notation onto
   sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a function from, onto
-  metamath    wfo
-  target      _2 _3 _1 wfo
+  metamath-counterpart wfo
+  metamath-builds _2 _3 _1 wfo
   note        A function that reaches every point of its codomain, said as
               one-to-one is: the arrow, and the property after it.
 
@@ -889,8 +894,8 @@ notation one-to-one-onto
   sort        function from α to β, set of α, set of β → formula
   level       relational
   reads       is a one-to-one function from, onto
-  metamath    wf1o
-  target      _2 _3 _1 wf1o
+  metamath-counterpart wf1o
+  metamath-builds _2 _3 _1 wf1o
   note        A function pairing its domain off against its codomain, the
               textbook's bijection: both properties said after one arrow.
               "there is a bijection from X to Y" says two sets are paired
@@ -900,8 +905,8 @@ notation application
   pattern     _(_)
   sort        function from α to β, α → β
   reads       applied to
-  metamath    cfv
-  target      _2 _1 cfv
+  metamath-counterpart cfv
+  metamath-builds _2 _1 cfv
   note        Written identically to juxtaposition-multiplication: f(x) applies
               and k(k + 1) multiplies. The function sort of the first hole is
               what separates them, not spacing, which the corpus does not use.
@@ -913,8 +918,8 @@ notation composition
   level       multiplicative
   assoc       left
   reads       composed with
-  metamath    ccom
-  target      _1 _2 ccom
+  metamath-counterpart ccom
+  metamath-builds _1 _2 ccom
   note        g ∘ f is f first and then g, as a textbook writes it and as
               set.mm's `( G o. F )` is. It binds as a product does, so
               (g ∘ f)(x) brackets the composite before applying it.
@@ -923,8 +928,8 @@ notation application-to-two
   pattern     _(_, _)
   sort        function from α to function from β to γ, α, β → γ
   reads       applied to, and
-  metamath    co
-  target      _2 _3 _1 co
+  metamath-counterpart co
+  metamath-builds _2 _3 _1 co
   note        A function of two arguments applied to both, as gcd(a, b) is
               the library's gcd applied to a and b. Its sort takes the
               arguments one at a time, a function from the first to a
@@ -938,8 +943,8 @@ notation application-to-pair
   pattern     _(_, _)
   sort        function from pair of α and β to γ, α, β → γ
   reads       applied to the pair of, and
-  metamath    co
-  target      _2 _3 _1 co
+  metamath-counterpart co
+  metamath-builds _2 _3 _1 co
   note        A function on pairs applied to one, written as a textbook
               writes it: f(x, y) for f : X × Y → Z. set.mm's ( x F y ) is F
               applied to the pair <. x , y >., which is the target; the sort
@@ -951,8 +956,8 @@ notation inverse
   sort        function from α to β → function from β to α
   level       power
   reads       the inverse of
-  metamath    ccnv
-  target      _1 ccnv
+  metamath-counterpart ccnv
+  metamath-builds _1 ccnv
   note        g⁻¹(y) is the thing g sends to y. set.mm's converse is defined
               for every relation, and it is a function where g is one-to-one,
               which is where the page writes it.
@@ -962,8 +967,8 @@ notation group-inverse
   sort        group-element → group-element
   level       power
   reads       the inverse in the group of
-  metamath    the group's invg
-  target      _1 @inv cfv
+  metamath-counterpart the group's invg
+  metamath-builds _1 @inv cfv
   note        g⁻¹ undoes g in the group: g·g⁻¹ = e. The pattern is the
               inverse of a function's, told apart by what it inverts.
 
@@ -972,8 +977,8 @@ notation subgroup
   sort        set of group-element, set of group-element → formula
   level       relational
   reads       is a subgroup of
-  metamath    SubGrp of the group its `let` line names
-  target      _1 @subgroups wcel
+  metamath-counterpart SubGrp of the group its `let` line names
+  metamath-builds _1 @subgroups wcel
   note        The second hole names the group, which a theorem lets once;
               the kernel takes it from there (`@subgroups`).
 
@@ -983,8 +988,8 @@ notation coset
   level       multiplicative
   assoc       right
   reads       the coset of the second by the first
-  metamath    LSSum of the singleton {g} and the subgroup H
-  target      _1 csn _2 @lsm co
+  metamath-counterpart LSSum of the singleton {g} and the subgroup H
+  metamath-builds _1 csn _2 @lsm co
   note        gH is {g·h : h ∈ H}. Two letters side by side are joined only
               here, and only where the first is a group element and the
               second a group's set; "and" is neither.
@@ -993,8 +998,8 @@ notation image
   pattern     _[_]
   sort        function from α to β, set of α → set of β
   reads       the image under the first of the second
-  metamath    cima
-  target      _1 _2 cima
+  metamath-counterpart cima
+  metamath-builds _1 _2 cima
   note        f[X] is everything f sends X to, {f(x) : x ∈ X}, which
               def:stdlib/functions/image says. Square brackets and not f(X):
               f(X) is f applied to one thing, and M(C) beside f[C] in
@@ -1004,8 +1009,8 @@ notation derivative
   pattern     _′
   sort        function from number to number → function from number to number
   reads       the derivative of
-  metamath    cdv over ℝ
-  target      cr _1 cdv co
+  metamath-counterpart cdv over ℝ
+  metamath-builds cr _1 cdv co
   note        f′ is the derivative of f, set.mm's ( RR _D F ), and f′(x) is it
               applied to x. A prime is part of a name to the lexer, so c′ and
               P′ are names; the parser reads f′ as this notation where nothing
@@ -1018,8 +1023,8 @@ notation nth-derivative
   sort        function from number to number, number → function from number to number
   level       power
   reads       the derivative of the order
-  metamath    cdvn over ℝ
-  target      _2 cr _1 cdvn co cfv
+  metamath-counterpart cdvn over ℝ
+  metamath-builds _2 cr _1 cdvn co cfv
   note        f^(n) is the n-th derivative of f, set.mm's ( ( RR Dn F ) ` N ):
               f^(0) is f, f^(1) is f′, and f^(k + 1) is the derivative of
               f^(k). The stem's sort decides, as for f′: where f is a number,
@@ -1031,8 +1036,8 @@ notation defined-at
   sort        function from number to number, number → formula
   level       predicate
   reads       is defined at
-  metamath    membership of the domain, cdm
-  target      _2 _1 cdm wcel
+  metamath-counterpart membership of the domain, cdm
+  metamath-builds _2 _1 cdm wcel
   note        f^(n) is defined at c: the n-th derivative of f has a value at
               c, so f has derivatives up to the n-th near c. Said of any
               function, it is that c lies in its domain, which is what
@@ -1042,7 +1047,7 @@ notation holds-of
   pattern     _(_)
   sort        property of α, α → formula
   reads       holds of
-  metamath    substitution into a wff, which set.mm writes by naming the
+  metamath-counterpart substitution into a wff, which set.mm writes by naming the
               variable rather than with a constructor
   note        P(t) says the property P holds of t. It is not a function applied
               to an argument: nothing is called, and P(t) is the property with
@@ -1059,16 +1064,16 @@ notation closed-interval
   pattern     [_, _]
   sort        number, number → set of number
   reads       the closed interval from, to
-  metamath    cicc
-  target      _1 _2 cicc co
+  metamath-counterpart cicc
+  metamath-builds _1 _2 cicc co
 
 notation pair
   pattern     (_, _)
   sort        α, β → pair of α and β
   reads       the pair of, and
   decided     arithmetic, real arithmetic
-  metamath    cop
-  target      _1 _2 cop
+  metamath-counterpart cop
+  metamath-builds _1 _2 cop
   note        Told apart from a bracketed term by its comma, and from a
               function applied to two arguments, f(a, b), by having no name
               before it. Where a set is wanted the same brackets name the
@@ -1082,8 +1087,8 @@ notation open-interval
   sort        number, number → set of number
   wanted      set
   reads       the open interval from, to
-  metamath    cioo
-  target      _1 _2 cioo co
+  metamath-counterpart cioo
+  metamath-builds _1 _2 cioo co
   note        The pair of its ends, read where a set is wanted: x ∈ (a, b),
               for all x ∈ (0, π), f : (0, 1) → ℝ. It asks nothing of its
               ends, and (3, 1) is the empty set, as set.mm has it.
@@ -1093,8 +1098,8 @@ notation point-coordinates
   sort        number, number → point
   wanted      point
   reads       the point with coordinates, and
-  metamath    cc, the complex numbers read as the plane
-  target      _1 ci _2 cmul co caddc co
+  metamath-counterpart cc, the complex numbers read as the plane
+  metamath-builds _1 ci _2 cmul co caddc co
   note        The pair of a point's coordinates, read where a point is
               wanted: A = (1, 2), |(0, 0)(3, 4)|. The plane is ℂ in the
               kernel (GEOMETRY.md), so the point with coordinates x and y is
@@ -1106,8 +1111,8 @@ notation product-set
   level       multiplicative
   assoc       left
   reads       the pairs from, and
-  metamath    cxp
-  target      _1 _2 cxp
+  metamath-counterpart cxp
+  metamath-builds _1 _2 cxp
   note        A × B holds the pairs whose first part is in A and whose
               second is in B.
 
@@ -1115,8 +1120,8 @@ notation integer-range
   pattern     {_, …, _}
   sort        number, number → set of number
   reads       the whole numbers from, to
-  metamath    cfz
-  target      _1 _2 cfz co
+  metamath-counterpart cfz
+  metamath-builds _1 _2 cfz co
   note        The range a sum runs over, written as a set so that a line can
               say something of every index in it. A sum over {0, …, m} and a
               line "for all k ∈ {0, …, m}" name one set, which is how a
@@ -1130,8 +1135,8 @@ notation juxtaposition
   assoc       left
   spells      multiplicative ·
   reads       times
-  metamath    cmul
-  target      folded
+  metamath-counterpart cmul
+  metamath-builds folded
   note        `spells` says 2r and 2·r are one formula, which they are: both
               are cmul, and the corpus writes whichever reads better. Without
               it the √2 proof could not cite def:stdlib/divisibility/divides, whose statement says
@@ -1149,8 +1154,8 @@ notation angle
   pattern     ∠___
   sort        point, point, point → number
   reads       the angle at the second from the first to the third
-  metamath    the absolute value of ang applied to the two differences
-  target      _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
+  metamath-counterpart the absolute value of ang applied to the two differences
+  metamath-builds _1 _2 cmin co _3 _2 cmin co cang co cabs cfv
   note        Three juxtaposed holes after a token. set.mm's angle function is
               signed and it never names it, so `ang` is the one constant this
               corpus introduces; see def:stdlib/geometry/angle. The absolute value is what
@@ -1160,8 +1165,8 @@ notation signed-angle
   pattern     ∡___
   sort        point, point, point → number
   reads       the signed angle at the second from the first to the third
-  metamath    ang applied to the two differences
-  target      _1 _2 cmin co _3 _2 cmin co cang co
+  metamath-counterpart ang applied to the two differences
+  metamath-builds _1 _2 cmin co _3 _2 cmin co cang co
   note        The angle turned through from the ray toward the first point to
               the ray toward the third, counterclockwise positive, in
               (−180°, 180°]. ∡RQP is −∡PQR except at 180°, and |∡PQR| is
@@ -1171,10 +1176,10 @@ notation area
   pattern     the area of △___
   sort        point, point, point → number
   reads       the area of the triangle
-  metamath    half the product of the sides at the third point and the size
+  metamath-counterpart half the product of the sides at the third point and the size
               of the sine of the signed angle between them, as set.mm's heron
               writes the area
-  target      c1 c2 cdiv co _2 _3 cmin co cabs cfv _1 _3 cmin co cabs cfv cmul co
+  metamath-builds c1 c2 cdiv co _2 _3 cmin co cabs cfv _1 _3 cmin co cabs cfv cmul co
               cmul co _2 _3 cmin co _1 _3 cmin co cang co csin cfv cabs cfv cmul co
   note        The area of △PQR is (1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is 0
               where the three are on one line. The words leave room for the
@@ -1185,9 +1190,9 @@ notation congruent
   sort        point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
-  metamath    the three sides and the three angles equal, as def:stdlib/geometry/congruent
+  metamath-counterpart the three sides and the three angles equal, as def:stdlib/geometry/congruent
               states them
-  target      _1 _2 cmin co cabs cfv _4 _5 cmin co cabs cfv wceq _2 _3 cmin co
+  metamath-builds _1 _2 cmin co cabs cfv _4 _5 cmin co cabs cfv wceq _2 _3 cmin co
               cabs cfv _5 _6 cmin co cabs cfv wceq wa _3 _1 cmin co cabs cfv _6 _4
               cmin co cabs cfv wceq wa _1 _2 cmin co _3 _2 cmin co cang co cabs
               cfv _4 _5 cmin co _6 _5 cmin co cang co cabs cfv wceq wa _2 _3 cmin
@@ -1200,8 +1205,8 @@ notation congruent-by-symbol
   sort        point, point, point, point, point, point → formula
   level       predicate
   reads       is congruent to
-  metamath    the three sides and the three angles equal
-  target      folded
+  metamath-counterpart the three sides and the three angles equal
+  metamath-builds folded
   note        △PQR ≅ △P′Q′R′ is triangle PQR ≅ triangle P′Q′R′ as a school
               book writes it, and builds the same formula.
   spells      congruent triangle≅triangle
@@ -1211,9 +1216,9 @@ notation isosceles
   sort        point, point, point → formula
   level       predicate
   reads       is isosceles
-  metamath    the three points form a triangle and two of its sides are equal,
+  metamath-counterpart the three points form a triangle and two of its sides are equal,
               as def:stdlib/geometry/isosceles states it
-  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+  metamath-builds _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
               _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _1 _3
               cmin co cabs cfv wceq _2 _1 cmin co cabs cfv _2 _3 cmin co cabs
               cfv wceq wo _3 _1 cmin co cabs cfv _3 _2 cmin co cabs cfv wceq wo
@@ -1226,9 +1231,9 @@ notation equilateral
   sort        point, point, point → formula
   level       predicate
   reads       is equilateral
-  metamath    the three points form a triangle and its three sides are equal,
+  metamath-counterpart the three points form a triangle and its three sides are equal,
               as def:stdlib/geometry/equilateral states it
-  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+  metamath-builds _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
               _1 cmin co cdiv co cr wcel wn wa _1 _2 cmin co cabs cfv _2 _3
               cmin co cabs cfv wceq wa _2 _3 cmin co cabs cfv _3 _1 cmin co cabs
               cfv wceq wa
@@ -1238,9 +1243,9 @@ notation right-angled
   sort        point, point, point, point → formula
   level       predicate
   reads       is right-angled at
-  metamath    the three points form a triangle and the angle at the named
+  metamath-counterpart the three points form a triangle and the angle at the named
               vertex is 90°, as def:stdlib/geometry/right-angled states it
-  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
+  metamath-builds _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa _3 _1 cmin co _2
               _1 cmin co cdiv co cr wcel wn wa _4 _1 wceq _2 _1 cmin co _3 _1
               cmin co cang co cabs cfv c9 cc0 cdc cpi cmul co c1 c8 cdc cc0 cdc
               cdiv co wceq wa _4 _2 wceq _1 _2 cmin co _3 _2 cmin co cang co cabs
@@ -1262,8 +1267,8 @@ notation for-all
   level       binder
   binds       hole 1 over hole 3
   reads       for all
-  metamath    wral
-  target      _3 _1 _2 wral
+  metamath-counterpart wral
+  metamath-builds _3 _1 _2 wral
   note        No assoc: the pattern opens with a token, so a nested binder
               announces itself and there is one reading.
 
@@ -1273,8 +1278,8 @@ notation for-all-two
   level       binder
   binds       holes 1 and 2 over hole 4
   reads       for all, of each
-  metamath    wral twice
-  target      _4 _2 _3 wral _1 _3 wral
+  metamath-counterpart wral twice
+  metamath-builds _4 _2 _3 wral _1 _3 wral
   note        "For all x, y ∈ ℤ, …", two names over one set, as a textbook
               writes "for all a, b ∈ ℝ": the set is each name's. It is "for
               all x ∈ ℤ, for all y ∈ ℤ, …" abbreviated, and builds exactly
@@ -1290,8 +1295,8 @@ notation for-all-two-part
   binds       holes 1 and 2 over hole 4
   wraps       hole 3 in powerset
   reads       for all parts of, of each
-  metamath    wral twice over a power set
-  target      _4 _2 _3 cpw wral _1 _3 cpw wral
+  metamath-counterpart wral twice over a power set
+  metamath-builds _4 _2 _3 cpw wral _1 _3 cpw wral
   note        "For all X, Y ⊆ A, …", built as "for all X ⊆ A, for all Y ⊆ A,
               …" is.
   nests       1 3, 2 3
@@ -1304,8 +1309,8 @@ notation for-all-part
   binds       hole 1 over hole 3
   wraps       hole 2 in powerset
   reads       for all parts of
-  metamath    wral over a power set
-  target      _3 _1 _2 cpw wral
+  metamath-counterpart wral over a power set
+  metamath-builds _3 _1 _2 cpw wral
   note        "For all X ⊆ A" is "for all X ∈ 𝒫A" in words a school reader
               has: all parts of A. It builds that formula exactly, so nothing
               downstream tells the two spellings apart. `spells` comes last
@@ -1320,8 +1325,8 @@ notation for-all-function
   binds       hole 1 over hole 4
   joins       hole 2 to hole 3 by functions-from
   reads       for all functions, from, to
-  metamath    wral over the functions from one set to another
-  target      _4 _1 _3 _2 cmap co wral
+  metamath-counterpart wral over the functions from one set to another
+  metamath-builds _4 _1 _3 _2 cmap co wral
   note        "For all f : X → Y, …" is "for all f ∈ (the functions from X
               to Y), …", built as exactly that formula, as there-is-function
               builds its "there is". `spells` comes last, as for-all-part's
@@ -1336,8 +1341,8 @@ notation for-all-with
   joins       hole 3 to hole 4 by conditional
   spells      for-all forall∈,
   reads       for all, with
-  metamath    wral, with wi inside it
-  target      _3 _4 wi _1 _2 wral
+  metamath-counterpart wral, with wi inside it
+  metamath-builds _3 _4 wi _1 _2 wral
   note        The restricted universal, "for all ε ∈ ℝ with ε > 0, …". It is
               "for all ε ∈ ℝ, if ε > 0 then …" and builds exactly that tree:
               `joins` holds the condition and the body as the `if … then`
@@ -1357,8 +1362,8 @@ notation for-all-after
   assoc       left
   binds       hole 2 over hole 1
   reads       for all, written after what it says
-  metamath    wral
-  target      _1 _2 _3 wral
+  metamath-counterpart wral
+  metamath-builds _1 _2 _3 wral
   note        "f(x) ≠ B for all x ∈ A", the universal written after its
               condition, as a textbook writes one inside "such that". The
               same formula as "for all x ∈ A, f(x) ≠ B". The condition is a
@@ -1382,8 +1387,8 @@ notation for-all-after-part
   binds       hole 2 over hole 1
   wraps       hole 3 in powerset
   reads       for all parts of, written after what it says
-  metamath    wral over a power set
-  target      _1 _2 _3 cpw wral
+  metamath-counterpart wral over a power set
+  metamath-builds _1 _2 _3 cpw wral
   note        "… for all X ⊆ A", built as `for-all-part` builds "for all X ⊆
               A, …".
   places      2 3 1
@@ -1398,8 +1403,8 @@ notation for-all-after-bounded
   bounds      hole 2 by hole 3, joined to hole 1 by conditional
   spells      for-all forall∈,
   reads       for all, written after what it says, with a bound in place of the set
-  metamath    wral, with wi inside it
-  target      folded, folded, folded, folded, folded
+  metamath-counterpart wral, with wi inside it
+  metamath-builds folded, folded, folded, folded, folded
   note        "… < ε for all n ≥ N", as a textbook writes it inside "such
               that", where the theorem says what n ranges over. It builds
               what "for all n ∈ ℕ, if n ≥ N then …" builds, so it meets
@@ -1416,8 +1421,8 @@ notation for-all-after-with
   places      2 3 4
   spells      for-all forall∈,
   reads       for all, with, written after what it says
-  metamath    wral, with wi inside it
-  target      _4 _1 wi _2 _3 wral
+  metamath-counterpart wral, with wi inside it
+  metamath-builds _4 _1 wi _2 _3 wral
   note        "|f(x) − f(c)| < ε for all x ∈ D with |x − c| < δ", as a
               textbook writes continuity. It builds what "for all x ∈ D, if
               |x − c| < δ then |f(x) − f(c)| < ε" builds: `joins` holds the
@@ -1433,8 +1438,8 @@ notation there-is
   level       binder
   binds       hole 1 over hole 3
   reads       there is
-  metamath    wrex
-  target      _3 _1 _2 wrex
+  metamath-counterpart wrex
+  metamath-builds _3 _1 _2 wrex
 
 notation there-is-part
   pattern     there is _ ⊆ _ with _
@@ -1444,8 +1449,8 @@ notation there-is-part
   spells      there-is thereis∈with
   wraps       hole 2 in powerset
   reads       there is a part of, with
-  metamath    wrex over a power set
-  target      _3 _1 _2 cpw wrex
+  metamath-counterpart wrex over a power set
+  metamath-builds _3 _1 _2 cpw wrex
   note        "There is C ⊆ A with …" is "there is C ∈ 𝒫A with …", built
               as exactly that formula, as `for-all-part` is.
 
@@ -1457,8 +1462,8 @@ notation there-is-function
   joins       hole 2 to hole 3 by functions-from
   spells      there-is thereis∈with
   reads       there is a function, from, to, with
-  metamath    wrex over the functions from one set to another
-  target      _4 _1 _3 _2 cmap co wrex
+  metamath-counterpart wrex over the functions from one set to another
+  metamath-builds _4 _1 _3 _2 cmap co wrex
   note        "There is f : X → Y with …" is "there is f ∈ (the functions
               from X to Y) with …", built as exactly that formula, as
               `there-is-part` builds its power set. An obtain from it states
@@ -1471,8 +1476,8 @@ notation there-exists
   level       binder
   binds       hole 1 over hole 3
   reads       there exists, such that
-  metamath    wrex
-  target      folded
+  metamath-counterpart wrex
+  metamath-builds folded
   note        "There exists x ∈ S such that …" is "there is x ∈ S with …" in
               the words a textbook states a theorem in, and builds the same
               formula, so the page writes whichever reads better.
@@ -1486,8 +1491,8 @@ notation there-exists-part
   spells      there-is thereis∈with
   wraps       hole 2 in powerset
   reads       there exists a part of, such that
-  metamath    wrex over a power set
-  target      _3 _1 _2 cpw wrex
+  metamath-counterpart wrex over a power set
+  metamath-builds _3 _1 _2 cpw wrex
   note        "There exists C ⊆ A such that …", built as there-is-part builds
               "there is C ⊆ A with …".
 
@@ -1499,8 +1504,8 @@ notation for-all-bounded
   bounds      hole 1 by hole 2, joined to hole 3 by conditional
   spells      for-all forall∈,
   reads       for all, with a bound in place of the set
-  metamath    wral, with wi inside it
-  target      folded, folded, folded, folded, folded
+  metamath-counterpart wral, with wi inside it
+  metamath-builds folded, folded, folded, folded, folded
   note        "For all ε > 0, …", as a textbook writes it, where the theorem
               says what ε ranges over: `ε ranges over ℝ` in its statement.
               It builds exactly what "for all ε ∈ ℝ, if ε > 0 then …" builds,
@@ -1519,8 +1524,8 @@ notation there-is-bounded
   bounds      hole 1 by hole 2, joined to hole 3 by conjunction
   spells      there-is thereis∈with
   reads       there is, with a bound in place of the set
-  metamath    wrex
-  target      folded, folded, folded, folded, folded
+  metamath-counterpart wrex
+  metamath-builds folded, folded, folded, folded, folded
   note        "There is δ > 0 with …", where the theorem says what δ ranges
               over. It builds what "there is δ ∈ ℝ with δ > 0 and …" builds:
               the condition goes in front of what follows "with", at the far
@@ -1534,8 +1539,8 @@ notation there-exists-bounded
   bounds      hole 1 by hole 2, joined to hole 3 by conjunction
   spells      there-is thereis∈with
   reads       there exists, with a bound in place of the set, such that
-  metamath    wrex
-  target      folded, folded, folded, folded, folded
+  metamath-counterpart wrex
+  metamath-builds folded, folded, folded, folded, folded
   note        "There exists δ > 0 such that …", the words a textbook states a
               theorem in, built as "there is δ > 0 with …" builds it.
 
@@ -1545,8 +1550,8 @@ notation there-is-some
   level       binder
   binds       hole 1 over nothing
   reads       there is
-  metamath    wrex over a true body; set.mm states it as ≠ ∅
-  target      wtru _1 _2 wrex
+  metamath-counterpart wrex over a true body; set.mm states it as ≠ ∅
+  metamath-builds wtru _1 _2 wrex
   note        Nonemptiness, with a name for the element and nothing said about
               it. Three uses: the statement of mun:stdlib/counting/card-nonempty and a
               hypothesis each of axi:stdlib/numbers/well-ordering and axi:stdlib/calculus/completeness.
@@ -1564,8 +1569,8 @@ notation there-are
   level       binder
   binds       holes 1 and 3 over hole 5
   reads       there are, and, with
-  metamath    wrex nested twice, one for each variable
-  target      _5 _3 _4 wrex _1 _2 wrex
+  metamath-counterpart wrex nested twice, one for each variable
+  metamath-builds _5 _3 _4 wrex _1 _2 wrex
   note        The two-variable form, for two names over two sets, as
               def:stdlib/numbers/rational has p ∈ ℤ and q ∈ ℕ. Writing it as
               two nested `there is` phrases reads far worse, but it says the
@@ -1581,8 +1586,8 @@ notation there-are-two
   level       binder
   binds       holes 1 and 2 over hole 4
   reads       there are, of each, with
-  metamath    wrex nested twice, one for each variable
-  target      _4 _2 _3 wrex _1 _3 wrex
+  metamath-counterpart wrex nested twice, one for each variable
+  metamath-builds _4 _2 _3 wrex _1 _3 wrex
   note        "There are x, y ∈ ℤ with …", two names over one set: the set is
               each name's. It is "there are x ∈ ℤ and y ∈ ℤ with …"
               abbreviated, and builds what that builds, one `there-is` node
@@ -1596,8 +1601,8 @@ notation there-exist-two
   level       binder
   binds       holes 1 and 2 over hole 4
   reads       there exist, of each, such that
-  metamath    wrex nested twice, one for each variable
-  target      _4 _2 _3 wrex _1 _3 wrex
+  metamath-counterpart wrex nested twice, one for each variable
+  metamath-builds _4 _2 _3 wrex _1 _3 wrex
   note        "There exist x, y ∈ ℤ such that …", the words a textbook states
               a theorem in, as "there exists … such that" is for one name.
               It builds what "there are x, y ∈ ℤ with …" builds.
@@ -1610,8 +1615,8 @@ notation there-are-three
   level       binder
   binds       holes 1 and 2 and 3 over hole 5
   reads       there are, of each, with
-  metamath    wrex nested three times, one for each variable
-  target      _5 _3 _4 wrex _2 _4 wrex _1 _4 wrex
+  metamath-counterpart wrex nested three times, one for each variable
+  metamath-builds _5 _3 _4 wrex _2 _4 wrex _1 _4 wrex
   note        "There are k, m, n ∈ ℕ with …", three names over one set, as
               the Pythagorean triples are stated. It is "there is k ∈ ℕ with
               there is m ∈ ℕ with there is n ∈ ℕ with …" and builds exactly
@@ -1626,8 +1631,8 @@ notation for-all-sets
   level       binder
   binds       hole 1 over hole 2
   reads       for all sets
-  metamath    wal, with no restricting domain
-  target      _2 _1 wal
+  metamath-counterpart wal, with no restricting domain
+  metamath-builds _2 _1 wal
   note        The domain-free binder, quantifying over an arbitrary set rather
               than over the elements of a named one. It is the formula-position
               counterpart of the hypothesis line `let X be a set`, exactly as
@@ -1646,9 +1651,9 @@ notation divides
   sort        number, number → formula
   level       predicate
   reads       divides
-  metamath    wbr with cdvds
-  target      _1 _2 cdvds wbr
-  lean        ℤ, ℤ → Prop: _1 ∣ _2
+  metamath-counterpart wbr with cdvds
+  metamath-builds _1 _2 cdvds wbr
+  lean-builds ℤ, ℤ → Prop: _1 ∣ _2
   note        Seventeen uses, the commonest word predicate. See def:stdlib/divisibility/divides.
 
 notation congruent-mod
@@ -1657,9 +1662,9 @@ notation congruent-mod
   level       relational
   commutes    any order of holes 1 and 2
   reads       is congruent to, modulo
-  metamath    wbr with cdvds, of a difference
-  target      _3 _1 _2 cmin co cdvds wbr
-  lean        ℤ, ℤ, ℤ → Prop: _1 ≡ _2 [ZMOD _3]
+  metamath-counterpart wbr with cdvds, of a difference
+  metamath-builds _3 _1 _2 cmin co cdvds wbr
+  lean-builds ℤ, ℤ, ℤ → Prop: _1 ≡ _2 [ZMOD _3]
   note        a ≡ b (mod n) says n divides a − b, which is Hammack's definition
               and what the target writes, so a congruence and the divisibility
               it abbreviates are one formula and every lemma about the one is
@@ -1671,8 +1676,8 @@ notation sum
   level       summation
   binds       hole 1 over hole 4
   reads       the sum, from, to, of
-  metamath    csu over ( M ... N )
-  target      _2 _3 cfz co _4 _1 csu
+  metamath-counterpart csu over ( M ... N )
+  metamath-builds _2 _3 cfz co _4 _1 csu
   note        The sum of the fourth hole for each whole number from the second
               to the third. It binds tighter than + and −, as a reader expects:
               Σ(k = 0 to n) d(k)·10^k − Σ(k = 0 to n) d(k) is one sum less
@@ -1684,8 +1689,8 @@ notation product
   level       summation
   binds       hole 1 over hole 4
   reads       the product, from, to, of
-  metamath    cprod over ( M ... N )
-  target      _2 _3 cfz co _4 _1 cprod
+  metamath-counterpart cprod over ( M ... N )
+  metamath-builds _2 _3 cfz co _4 _1 cprod
   note        The product of the fourth hole for each whole number from the
               second to the third, as Σ(_ = _ to _) is its sum, and at its
               level: ∏(k = 1 to n) 2·k is the product of the doubles, and a
@@ -1698,8 +1703,8 @@ notation series
   level       summation
   binds       hole 1 over hole 3
   reads       the sum, from, without end, of
-  metamath    csu over ( ZZ>= ` M )
-  target      _2 cuz cfv _3 _1 csu
+  metamath-counterpart csu over ( ZZ>= ` M )
+  metamath-builds _2 cuz cfv _3 _1 csu
   note        The sum of the third hole for every whole number from the second
               on: the value of the series, which def:stdlib/calculus/series-sum
               says is the limit of its partial sums. set.mm sums over the
@@ -1710,8 +1715,8 @@ notation integral
   sort        number, number, number, number → number
   binds       hole 4 over hole 3
   reads       the integral from, to, of, with respect to
-  metamath    cdit, the directed integral S_ [ A -> B ] C _d x
-  target      _4 _1 _2 _3 cdit
+  metamath-counterpart cdit, the directed integral S_ [ A -> B ] C _d x
+  metamath-builds _4 _1 _2 _3 cdit
   note        The integral from the first hole to the second of the third,
               in the letter the fourth names, as a textbook writes
               ∫ₐᵇ f(t) dt: `dt` is the literal d and the letter it binds,
@@ -1726,8 +1731,8 @@ notation sum-over
   level       summation
   binds       hole 1 over hole 3
   reads       the sum, as the first runs over the second, of the third
-  metamath    csu over a finite set
-  target      _2 _3 _1 csu
+  metamath-counterpart csu over a finite set
+  metamath-builds _2 _3 _1 csu
   note        The sum of the third hole for each member of the second, which is
               finite, whatever it holds: numbers, sets, points. Σ(k = a to b)
               is this sum over {a, …, b}, and is kept because a reader writes
@@ -1739,8 +1744,8 @@ notation product-over
   level       summation
   binds       hole 1 over hole 3
   reads       the product, as the first runs over the second, of the third
-  metamath    cprod over a finite set
-  target      _2 _3 _1 cprod
+  metamath-counterpart cprod over a finite set
+  metamath-builds _2 _3 _1 cprod
   note        The product of the third hole for each member of the second,
               which is finite, whatever it holds, as Σ(_ ∈ _) is its sum.
 
@@ -1750,8 +1755,8 @@ notation sum-over-condition
   level       summation
   binds       hole 1 over holes 3 and 4
   reads       the sum, as the first runs over those in the second with the third, of the fourth
-  metamath    csu over crab, one letter binding both
-  target      _3 _1 _2 crab _4 _1 csu
+  metamath-counterpart csu over crab, one letter binding both
+  metamath-builds _3 _1 _2 crab _4 _1 csu
   note        The sum over the members of a set that meet a condition, with one
               letter for both, as a reader writes it: σ(n) is
               Σ(d ∈ ℕ : d divides n) d, the sum of the divisors of n. It is
@@ -1764,8 +1769,8 @@ notation tends-to
   level       relational
   binds       hole 3 over hole 1
   reads       tends to, as, grows without end
-  metamath    ~~> of the sequence ( n e. NN |-> a )
-  target      _3 cn _1 cmpt _2 cli wbr
+  metamath-counterpart ~~> of the sequence ( n e. NN |-> a )
+  metamath-builds _3 cn _1 cmpt _2 cli wbr
   note        A sequence tending to a limit, written as a textbook writes it:
               the first hole is its n-th term, and the third names n. The
               sequence is indexed by ℕ. set.mm's `~~>` is a relation between
@@ -1779,9 +1784,9 @@ notation parity
   level       predicate
   negates     pattern 3 is logical-not of pattern 2
   reads       is even, is odd, is not odd
-  metamath    2 ∥ n; n ∈ ℤ and not 2 ∥ n, set.mm's odd integer; its negation
-  target      c2 _1 cdvds wbr, _1 cz wcel c2 _1 cdvds wbr wn wa, folded
-  lean        ℤ → Prop: Even _1 ; ℤ → Prop: Odd _1 ; -
+  metamath-counterpart 2 ∥ n; n ∈ ℤ and not 2 ∥ n, set.mm's odd integer; its negation
+  metamath-builds c2 _1 cdvds wbr, _1 cz wcel c2 _1 cdvds wbr wn wa, folded
+  lean-builds ℤ → Prop: Even _1 ; ℤ → Prop: Odd _1 ; -
   note        An odd number is an integer, as set.mm's `df-odd` and its odd
               theorems (`opoe`, `m1expo`) say, so "n is odd" carries n ∈ ℤ
               and π is not odd; "n is even" needs no such part, since 2 ∥ n
@@ -1796,17 +1801,17 @@ notation prime
   sort        number → formula
   level       predicate
   reads       is prime
-  metamath    wcel with cprime
-  target      _1 cprime wcel
-  lean        ℕ → Prop: Nat.Prime _1
+  metamath-counterpart wcel with cprime
+  metamath-builds _1 cprime wcel
+  lean-builds ℕ → Prop: Nat.Prime _1
 
 notation perfect
   pattern     _ is perfect
   sort        number → formula
   level       predicate
   reads       is perfect
-  metamath    σ(n) = 2n, which set.mm writes and never names
-  target      c1 _1 csgm co c2 _1 cmul co wceq
+  metamath-counterpart σ(n) = 2n, which set.mm writes and never names
+  metamath-builds c1 _1 csgm co c2 _1 cmul co wceq
   note        A number is perfect when the sum of its divisors is twice it, which
               is what the target writes, so the word and the equation are one
               formula; def:stdlib/divisibility/perfect says so for the reader.
@@ -1816,17 +1821,17 @@ notation irrational
   sort        number → formula
   level       predicate
   reads       is irrational
-  metamath    wcel with ℝ ∖ ℚ
-  target      _1 cr cq cdif wcel
-  lean        ℝ → Prop: Irrational _1
+  metamath-counterpart wcel with ℝ ∖ ℚ
+  metamath-builds _1 cr cq cdif wcel
+  lean-builds ℝ → Prop: Irrational _1
 
 notation is-a-point
   pattern     _ is a point
   sort        point → formula
   level       predicate
   reads       is a point
-  metamath    wcel with ℂ, the plane
-  target      _1 cc wcel
+  metamath-counterpart wcel with ℂ, the plane
+  metamath-builds _1 cc wcel
   note        The counterpart of the `let A be a point` introduction, as
               is-a-set is of `let X be a set`. What a point is made of is the
               encoding and the reader does not meet it: the page says a point
@@ -1837,8 +1842,8 @@ notation exists
   sort        set of α → formula
   level       predicate
   reads       exists
-  metamath    wcel with _V, as difexg states it
-  target      _1 cvv wcel
+  metamath-counterpart wcel with _V, as difexg states it
+  metamath-builds _1 cvv wcel
   note        That a collection exists: it is one set theory allows, and
               not too big to be a set, as the collection of all sets is.
               ZF calls such a collection a set and set.mm writes it as
@@ -1854,8 +1859,8 @@ notation continuous
   sort        function from number to number, set of number → formula
   level       predicate
   reads       is continuous on
-  metamath    ccncf, of f restricted to the set, cres
-  target      _1 _2 cres _2 cr ccncf co wcel
+  metamath-counterpart ccncf, of f restricted to the set, cres
+  metamath-builds _1 _2 cres _2 cr ccncf co wcel
   note        set.mm has no predicate for continuity at all: `-cn->` takes a
               domain and a codomain and gives the set of continuous functions
               between them, so continuity is membership of that set. The
@@ -1872,8 +1877,8 @@ notation function-limit
   sort        function from number to number, number, number → formula
   level       predicate
   reads       tends to, at
-  metamath    climc, as membership of the set of limits
-  target      _2 _1 _3 climc co wcel
+  metamath-counterpart climc, as membership of the set of limits
+  metamath-builds _2 _1 _3 climc co wcel
   note        The limit of a function at a point, said of a function with a
               name, as continuity is: "f tends to L at c". set.mm's limCC
               gives the set of limits of F at c, which is empty or holds one,
@@ -1886,8 +1891,8 @@ notation differentiable
   sort        function from number to number, set of number → formula
   level       predicate
   reads       is differentiable on
-  metamath    the domain of the derivative, cdm of cdv over ℝ
-  target      _2 cr _1 cdv co cdm wss
+  metamath-counterpart the domain of the derivative, cdm of cdv over ℝ
+  metamath-builds _2 cr _1 cdv co cdm wss
   note        set.mm has no predicate for this either. The target says the
               derivative of f is defined at every point of the set, as a
               textbook means it: x² is differentiable on (0, 1) though it is
@@ -1900,8 +1905,8 @@ notation open
   sort        set of number → formula
   level       predicate
   reads       is open
-  metamath    the open sets of the real line, topGen ran (,)
-  target      _1 cioo crn ctg cfv wcel
+  metamath-counterpart the open sets of the real line, topGen ran (,)
+  metamath-builds _1 cioo crn ctg cfv wcel
   note        U is open when every point of it has an open interval about it
               inside U, which is what being in the topology the open intervals
               generate says. A line is differentiable on an open set inside its
@@ -1913,9 +1918,9 @@ notation collinear
   level       predicate
   commutes    any order
   reads       are collinear
-  metamath    the first two are one point, or the ratio of the two
+  metamath-counterpart the first two are one point, or the ratio of the two
               differences is real
-  target      _1 _2 wceq _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wo
+  metamath-builds _1 _2 wceq _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wo
   note        Three points on one line, which def:stdlib/geometry/triangle needs to say that a
               triangle's are not. Its definition is open, as def:stdlib/geometry/angle is while
               the ∠ notation stands declared: incidence is a primitive of the
@@ -1928,16 +1933,16 @@ notation forms-a-triangle
   level       predicate
   commutes    any order
   reads       form a triangle
-  metamath    the three vertices distinct and not on one line
-  target      _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa
+  metamath-counterpart the three vertices distinct and not on one line
+  metamath-builds _1 _2 wceq wn _2 _3 wceq wn wa _1 _3 wceq wn wa
               _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel wn wa
 
 notation plane
   pattern     𝔼²
   sort        → set of point
   reads       the Euclidean plane
-  metamath    cc, the complex numbers read as the plane
-  target      cc
+  metamath-counterpart cc, the complex numbers read as the plane
+  metamath-builds cc
   note        What a point is in, for a claim that names one: "there are
               D, E ∈ 𝔼² with …". It is ℂ in the kernel and never ℂ on the
               page, and the point sort is what keeps a proof from multiplying
@@ -1948,8 +1953,8 @@ notation parallel
   sort        point, point, point, point → formula
   level       predicate
   reads       is parallel to
-  metamath    the ratio of the two differences is real
-  target      _2 _1 cmin co _4 _3 cmin co cdiv co cr wcel
+  metamath-counterpart the ratio of the two differences is real
+  metamath-builds _2 _1 cmin co _4 _3 cmin co cdiv co cr wcel
   note        line PQ ∥ line RS says the line through P and Q runs the same way
               as the one through R and S. Each pair of letters is juxtaposed
               after the word line, as in "on the same side of line PQ": a
@@ -1964,9 +1969,9 @@ notation between
   level       betweenness
   commutes    any order of holes 2 and 3
   reads       is between, and
-  metamath    the second apart from the first, and the third minus the first
+  metamath-counterpart the second apart from the first, and the third minus the first
               a negative multiple of the second minus the first
-  target      _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
+  metamath-builds _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel
               _3 _1 cmin co _2 _1 cmin co cdiv co cc0 clt wbr w3a
   note        Strictly between: R is between S and T says R lies on the
               segment from S to T and is neither end. See
@@ -1978,9 +1983,9 @@ notation on-line
   level       predicate
   negates     pattern 2 is logical-not of pattern 1
   reads       is on the line through, is not on the line through
-  metamath    the three are collinear, as def:stdlib/geometry/on-line states
+  metamath-counterpart the three are collinear, as def:stdlib/geometry/on-line states
               it, and its negation
-  target      _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo, folded
+  metamath-builds _2 _3 wceq _1 _2 cmin co _3 _2 cmin co cdiv co cr wcel wo, folded
   note        P is on line AB says what A, B, P are collinear says, with the
               point first, as a book writes a point on a line.
 
@@ -1988,10 +1993,10 @@ notation line
   pattern     line __
   sort        point, point → set of point
   reads       the line through
-  metamath    the points P with A = B or (P − A)/(B − A) real, the points
+  metamath-counterpart the points P with A = B or (P − A)/(B − A) real, the points
               of which P is on line AB is said, as def:stdlib/geometry/line
               states it
-  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel wo vu cc
+  metamath-builds _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel wo vu cc
               crab
   note        The line through A and B as a set of points, for a statement
               that speaks of a line itself: a function on it, or its points
@@ -2007,9 +2012,9 @@ notation ray
   pattern     ray __
   sort        point, point → set of point
   reads       the ray from, through
-  metamath    the points P with A = B or (P − A)/(B − A) a real number at
+  metamath-counterpart the points P with A = B or (P − A)/(B − A) a real number at
               least 0, as def:stdlib/geometry/ray states it
-  target      _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel cc0 vu
+  metamath-builds _1 _2 wceq vu cv _1 cmin co _2 _1 cmin co cdiv co cr wcel cc0 vu
               cv _1 cmin co _2 _1 cmin co cdiv co cle wbr wa wo vu cc crab
   note        The ray from A through B: A, and the points on the side of A
               that B is on. A ≠ B where it is a ray, as for `line`. `u` is
@@ -2020,8 +2025,8 @@ notation perpendicular
   sort        point, point, point, point → formula
   level       predicate
   reads       is perpendicular to
-  metamath    the two directions are apart and their quotient is imaginary
-  target      _1 _2 wne _3 _4 wne _4 _3 cmin co _2 _1 cmin co cdiv co cre cfv
+  metamath-counterpart the two directions are apart and their quotient is imaginary
+  metamath-builds _1 _2 wne _3 _4 wne _4 _3 cmin co _2 _1 cmin co cdiv co cre cfv
               cc0 wceq w3a
   note        line AB ⊥ line CD says A ≠ B, C ≠ D, and the line through C
               and D runs at a right angle to the one through A and B: the
@@ -2034,9 +2039,9 @@ notation midpoint
   level       predicate
   commutes    any order of holes 2 and 3
   reads       is the midpoint of
-  metamath    between the two ends and equally far from each, as
+  metamath-counterpart between the two ends and equally far from each, as
               def:stdlib/geometry/midpoint states it
-  target      _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel _3 _1 cmin co
+  metamath-builds _2 _1 wne _3 _1 cmin co _2 _1 cmin co cdiv co cr wcel _3 _1 cmin co
               _2 _1 cmin co cdiv co cc0 clt wbr w3a _2 _1 cmin co cabs cfv _1 _3
               cmin co cabs cfv wceq wa
   note        The two ends are juxtaposed, as `line __` writes them: M is the
@@ -2048,9 +2053,9 @@ notation same-side
   level       predicate
   commutes    any order of holes 1 and 2
   reads       are on the same side of the line through
-  metamath    the imaginary parts of the two points' positions relative to
+  metamath-counterpart the imaginary parts of the two points' positions relative to
               the line have a positive product
-  target      cc0 _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
+  metamath-builds cc0 _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
               _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co clt wbr
   note        Neither point is on the line, and the line does not pass
               between them. See def:stdlib/geometry/same-side.
@@ -2061,9 +2066,9 @@ notation opposite-sides
   level       predicate
   commutes    any order of holes 1 and 2
   reads       are on opposite sides of the line through
-  metamath    the imaginary parts of the two points' positions relative to
+  metamath-counterpart the imaginary parts of the two points' positions relative to
               the line have a negative product
-  target      _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
+  metamath-builds _1 _3 cmin co _4 _3 cmin co cdiv co cim cfv
               _2 _3 cmin co _4 _3 cmin co cdiv co cim cfv cmul co cc0 clt wbr
   note        Neither point is on the line, and the line passes between them.
               See def:stdlib/geometry/same-side.
@@ -2073,8 +2078,8 @@ notation bijection
   sort        set of α, set of β → formula
   level       predicate
   reads       there is a bijection from, to
-  metamath    wbr with cen
-  target      _1 _2 cen wbr
+  metamath-counterpart wbr with cen
+  metamath-builds _1 _2 cen wbr
   note        Not a binder despite the "there is": it names no variable, and
               the subsets pilot records that the language has no way to name a
               function built on the spot.
@@ -2083,8 +2088,8 @@ notation polynomials
   pattern     polynomials
   sort        → set of function from number to number
   reads       the polynomials with complex coefficients
-  metamath    Poly over ℂ
-  target      cc cply cfv
+  metamath-counterpart Poly over ℂ
+  metamath-builds cc cply cfv
   note        What a polynomial is in. The page says "p is a polynomial" and
               "there is a polynomial q with …", each of which fills this set
               into the notation it spells, and never writes the set itself.
@@ -2098,8 +2103,8 @@ notation is-a-polynomial
   spells      membership ∈
   fills       hole 2 with polynomials
   reads       is a polynomial
-  metamath    wcel with Poly over ℂ
-  target      _1 cc cply cfv wcel
+  metamath-counterpart wcel with Poly over ℂ
+  metamath-builds _1 cc cply cfv wcel
   note        "p is a polynomial" is "p ∈ (the polynomials)", built as exactly
               that formula, as `there-is-part` builds its power set.
 
@@ -2108,8 +2113,8 @@ notation is-an-integer-polynomial
   sort        function from number to number → formula
   level       predicate
   reads       is a polynomial with integer coefficients
-  metamath    wcel with Poly over ℤ
-  target      _1 cz cply cfv wcel
+  metamath-counterpart wcel with Poly over ℤ
+  metamath-builds _1 cz cply cfv wcel
   note        "p is a polynomial with integer coefficients" is p ∈ Poly ℤ: a
               polynomial all of whose coefficients are integers.
 
@@ -2117,8 +2122,8 @@ notation polynomial-degree
   pattern     deg(_)
   sort        function from number to number → number
   reads       the degree of
-  metamath    cdgr
-  target      _1 cdgr cfv
+  metamath-counterpart cdgr
+  metamath-builds _1 cdgr cfv
   note        The degree of a polynomial, set.mm's deg: the highest power
               with a coefficient other than 0. `deg(_)` is also a vertex's
               degree in its graph (`degree`), and the argument's sort decides
@@ -2129,8 +2134,8 @@ notation algebraic
   sort        number → formula
   level       predicate
   reads       is algebraic, is transcendental
-  metamath    wcel with set.mm's AA; a complex number not in AA
-  target      _1 caa wcel, _1 cc wcel _1 caa wcel wn wa
+  metamath-counterpart wcel with set.mm's AA; a complex number not in AA
+  metamath-builds _1 caa wcel, _1 cc wcel _1 caa wcel wn wa
   note        α is algebraic when some polynomial with integer coefficients,
               other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
               transcendental when it is a complex number and not algebraic,
@@ -2145,8 +2150,8 @@ notation there-is-a-polynomial
   spells      there-is thereis∈with
   fills       hole 2 with polynomials
   reads       there is a polynomial, with
-  metamath    wrex over Poly over ℂ
-  target      _2 _1 cc cply cfv wrex
+  metamath-counterpart wrex over Poly over ℂ
+  metamath-builds _2 _1 cc cply cfv wrex
   note        "There is a polynomial q with …" is "there is q ∈ (the
               polynomials) with …", so obtaining and exhibiting it work as
               for any "there is".
@@ -2165,8 +2170,8 @@ notation joins
   sort        α, β, β → formula
   level       predicate
   reads       joins, and
-  metamath    wceq with the ends of an edge, set.mm's iEdg
-  target      _1 @ends cfv _2 _3 cpr wceq
+  metamath-counterpart wceq with the ends of an edge, set.mm's iEdg
+  metamath-builds _1 @ends cfv _2 _3 cpr wceq
   note        An edge's two ends, in no order: "e joins u and v" is
               "e joins v and u".
 
@@ -2176,8 +2181,8 @@ notation incident
   level       predicate
   negates     pattern 2 is logical-not of pattern 1
   reads       is incident with, is not incident with
-  metamath    wcel with the ends of an edge, and its negation
-  target      _1 _2 @ends cfv wcel, folded
+  metamath-counterpart wcel with the ends of an edge, and its negation
+  metamath-builds _1 _2 @ends cfv wcel, folded
   note        A vertex is incident with an edge when it is one of the edge's
               two ends (Bondy and Murty, "Graph Theory", §1.1).
 
@@ -2185,8 +2190,8 @@ notation degree
   pattern     deg(_)
   sort        β → number
   reads       the degree of
-  metamath    VtxDeg
-  target      _1 @deg cfv
+  metamath-counterpart VtxDeg
+  metamath-builds _1 @deg cfv
   note        The number of edges a vertex is incident with, set.mm's VtxDeg,
               which in a graph without loops counts exactly those edges
               (`vtxdumgrval`).
@@ -2197,8 +2202,8 @@ notation traversable
   level       predicate
   negates     pattern 2 is logical-not of pattern 1
   reads       is traversable, is not traversable
-  metamath    wne with set.mm's EulerPaths and the empty set
-  target      _1 ceupth cfv c0 wne, folded
+  metamath-counterpart wne with set.mm's EulerPaths and the empty set
+  metamath-builds _1 ceupth cfv c0 wne, folded
   note        A graph is traversable where a walk crosses every edge exactly
               once: an Euler path, which set.mm names and the page does not.
               `def:stdlib/graphs/traversable` says what it is.
@@ -2208,9 +2213,9 @@ notation walk
   sort        function from number to β, function from number to α, number → formula
   level       predicate
   reads       and, form a walk of, edges
-  metamath    the edge at each place joining the vertices on either side of it,
+  metamath-counterpart the edge at each place joining the vertices on either side of it,
               as def:stdlib/graphs/walk states it
-  target      vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
+  metamath-builds vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
               vz c1 _3 cfz co wral
   note        v(0), e(1), v(1), …, e(n), v(n): the vertices the walk passes
               through, in order, and the edges it crosses, each e(i) joining
@@ -2223,9 +2228,9 @@ notation euler-path
   sort        function from number to β, function from number to α, number → formula
   level       predicate
   reads       and, form an Euler path of, edges
-  metamath    a walk whose edges are one-to-one and reach every edge, as
+  metamath-counterpart a walk whose edges are one-to-one and reach every edge, as
               def:stdlib/graphs/euler-path states it
-  target      vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
+  metamath-builds vz cv _2 cfv @ends cfv vz cv c1 cmin co _1 cfv vz cv _1 cfv cpr wceq
               vz c1 _3 cfz co wral c1 _3 cfz co @ends cdm _2 wf1 wa
               vy cv vz cv _2 cfv wceq vz c1 _3 cfz co wrex vy @ends cdm wral wa
   note        A walk that crosses every edge of the graph exactly once. The

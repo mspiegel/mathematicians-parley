@@ -1,11 +1,12 @@
 //! Where the readable layer's words land in set.mm.
 //!
-//! `corpus/db/notation.records` and the `corpus/stdlib/*.records` files carry a `target`
-//! field beside `metamath`, and this reads it. `metamath` says in words
-//! which set.mm construct a pattern or an item corresponds to, which is what
-//! a person checking the database wants; `target` says the same thing as a
-//! term, which is what a program needs. Neither is derivable from the other,
-//! so both are written.
+//! `corpus/db/notation.records` carries a `metamath-builds` field and the
+//! `corpus/stdlib/*.records` files a `metamath-proof` field, each beside
+//! `metamath-counterpart`, and this reads them (`Record::metamath_target`).
+//! `metamath-counterpart` says in words which set.mm construct a pattern or
+//! an item corresponds to, which is what a person checking the database
+//! wants; the other says the same thing as a term or a lemma, which is what a
+//! program needs. Neither is derivable from the other, so both are written.
 //!
 //! Which set.mm lemmas an elaborator may lean on for what the readable layer
 //! never writes is not a database field either; `rules` holds it.
@@ -30,7 +31,7 @@ regex!(CONTEXT, r"@[a-z]+");
 pub const FOLDED: &str = "folded";
 pub const REVERSED: &str = "equation reversed";
 
-/// What a `target` may say that is not a lemma: that a pattern builds
+/// What a `metamath-builds` or `metamath-proof` may say that is not a lemma: that a pattern builds
 /// another notation's tree, and that the lemma writes its equation the other
 /// way round from the `then` line. `DATABASE.md` documents both.
 pub fn is_marker(entry: &str) -> bool {
@@ -66,7 +67,8 @@ pub fn contexts(pattern: &str) -> Vec<&str> {
     CONTEXT.find_iter(pattern).map(|m| m.as_str()).collect()
 }
 
-/// The entries of a `target` field, one per pattern.
+/// The entries of a `metamath-builds` field, one per pattern, or of a
+/// `metamath-proof` field, one per `then` group.
 pub fn split_entries(value: &str) -> Vec<&str> {
     value
         .split(',')
@@ -85,7 +87,7 @@ pub fn terms(records: &[Record]) -> IndexMap<String, Vec<Option<String>>> {
         if r.kind != RecordKind::Notation {
             continue;
         }
-        let Some(target) = r.field("target") else {
+        let Some(target) = r.metamath_target() else {
             continue;
         };
         out.insert(
@@ -108,7 +110,7 @@ pub fn terms(records: &[Record]) -> IndexMap<String, Vec<Option<String>>> {
 /// The theorem that unfolds a definition, and whether it faces the other way
 /// from the `then` line.
 pub fn unfolding(record: &Record) -> (Option<String>, bool) {
-    let Some(value) = record.field("target").filter(|v| !v.is_empty()) else {
+    let Some(value) = record.metamath_target().filter(|v| !v.is_empty()) else {
         return (None, false);
     };
     let entries = split_entries(value);
@@ -124,7 +126,7 @@ pub fn unfolding(record: &Record) -> (Option<String>, bool) {
 /// is even`. So the item says it, as `notnot with ph := n is even`, and each
 /// right-hand side is a formula in the item's own names.
 pub fn lemma(record: &Record) -> (Option<String>, IndexMap<String, String>) {
-    let value = record.field("target").filter(|v| !v.is_empty());
+    let value = record.metamath_target().filter(|v| !v.is_empty());
     let Some(value) = value else {
         return (None, IndexMap::new());
     };
@@ -219,7 +221,7 @@ pub fn commuting(records: &[Record]) -> Vec<Commuting> {
             continue;
         }
         let says = commutes_said(r);
-        let patterns = r.field("target").map(split_entries).unwrap_or_default();
+        let patterns = r.metamath_target().map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(says.iter()) {
             let places = slots(pattern);
             // A target whose two holes a lemma exchanges deeper than one
@@ -271,7 +273,7 @@ pub struct PairInAnyOrder {
 pub fn pairs_in_any_order(records: &[Record]) -> Vec<PairInAnyOrder> {
     let mut out = Vec::new();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
-        let patterns = r.field("target").map(split_entries).unwrap_or_default();
+        let patterns = r.metamath_target().map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(commutes_said(r)) {
             // Two holes in no order, named or the only two the target has.
             let (i, j) = match said {
@@ -320,7 +322,7 @@ pub fn identities(records: &[Record]) -> Vec<Identity> {
             continue;
         };
         let says = split_entries(says);
-        let patterns = r.field("target").map(split_entries).unwrap_or_default();
+        let patterns = r.metamath_target().map(split_entries).unwrap_or_default();
         for (pattern, said) in patterns.iter().zip(says.iter()) {
             let Some(law) = identity_said(said) else {
                 continue;
@@ -362,7 +364,7 @@ pub fn identity_said(said: &str) -> Option<(u32, Vec<usize>)> {
     Some((element, holes))
 }
 
-/// The lemmas an item's `target` names, one per `then` group.
+/// The lemmas an item's `metamath-proof` names, one per `then` group.
 ///
 /// An item may state several things at once — that a sum and a difference
 /// are both real — and set.mm proves each separately, so a step citing the
@@ -372,7 +374,7 @@ pub fn identity_said(said: &str) -> Option<(u32, Vec<usize>)> {
 /// lemma in it. What stands after it is the filling and not a list, however
 /// many commas it takes.
 pub fn clauses(record: &Record) -> Vec<String> {
-    let Some(value) = record.field("target").filter(|v| !v.is_empty()) else {
+    let Some(value) = record.metamath_target().filter(|v| !v.is_empty()) else {
         return Vec::new();
     };
     let listed = if value.contains(" with ") {

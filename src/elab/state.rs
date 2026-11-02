@@ -82,7 +82,7 @@ pub struct Frame {
     pub facts: Facts,
 }
 
-/// A shape a `target` pattern reads as, so a rewrite can walk down it.
+/// A shape a `metamath-builds` pattern reads as, so a rewrite can walk down it.
 #[derive(Clone, Debug)]
 pub enum Shape {
     Hole(usize),
@@ -286,7 +286,7 @@ pub struct Elaborator<'a> {
     /// The sort of each name, as the grammar reads it now.
     pub sorts_now: Sorts,
     pub b: Builder,
-    /// Notation record -> the `target` entry of each of its patterns.
+    /// Notation record -> the `metamath-builds` entry of each of its patterns.
     pub terms: FxIndexMap<NotationId, Vec<Option<String>>>,
     /// Letters the notations' own targets bind and the proof writes.
     pub taken: IndexSet<String>,
@@ -433,7 +433,7 @@ pub struct Elaborator<'a> {
     pub frames: Vec<Frame>,
     pub lines: Lines,
     /// Notation record -> the literals of its patterns, in the order the
-    /// `pattern` and `target` fields both use, each as a spelling of the
+    /// `pattern` and `metamath-builds` fields both use, each as a spelling of the
     /// record's own notation.
     pub literals: FxIndexMap<NotationId, Vec<Spelling>>,
     /// Notation -> the holes each binder introduces a name in.

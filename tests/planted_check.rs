@@ -1909,21 +1909,22 @@ fn cases() -> Vec<Case> {
             )],
             "step 1.13 cites mun:card-disjoint-union, which asks for |T| = 2^k, and what it cites does not supply it",
         ),
-        // `card-remove` loses its target, and the edit to its record changes
-        // what it concludes, so the step citing it claims what it does not.
+        // `card-remove` loses its metamath-proof, and the edit to its record
+        // changes what it concludes, so the step citing it claims what it
+        // does not.
         case(
-            "cite a theorem the database gives no target for",
+            "cite a theorem the database gives no metamath-proof for",
             vec![edit(
                 "corpus/stdlib/counting.records",
-                Some("  then        |X ∖ {a}| = k\n  metamath    hashdifsnp1\n  target      hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
-                "  then        |X ∖ {a}| ≤ k\n  metamath    hashdifsnp1\n".to_string(),
+                Some("  then        |X ∖ {a}| = k\n  metamath-counterpart hashdifsnp1\n  metamath-proof hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
+                "  then        |X ∖ {a}| ≤ k\n  metamath-counterpart hashdifsnp1\n".to_string(),
             )],
             "step 1.7 claims something that mun:card-remove does not conclude",
         ),
-        // A definition with no target concludes only what its record says,
-        // and a step claiming something else of it is refused.
+        // A definition with no metamath-proof concludes only what its record
+        // says, and a step claiming something else of it is refused.
         case(
-            "unfold a definition with no target into what it does not say",
+            "unfold a definition with no metamath-proof into what it does not say",
             vec![edit(
                 "proofs/wiedijk/intermediate-value.proof",
                 Some("10. For all s ∈ S, s ≤ c.".to_string()),
@@ -3181,7 +3182,7 @@ fn cases() -> Vec<Case> {
         case(
             "an item that says nothing about where it comes from",
             vec![
-                edit("corpus/stdlib/sets.records", Some("mundane theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath    pw0".to_string()), "mundane theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
+                edit("corpus/stdlib/sets.records", Some("mundane theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath-counterpart pw0".to_string()), "mundane theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
             ],
             "neither which set.mm label",
         ),
@@ -3778,16 +3779,16 @@ fn cases() -> Vec<Case> {
         case(
             "an item stated outside the standard library",
             vec![
-                edit("corpus/db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath    exmid\n\nmethod algebra\n".to_string()),
+                edit("corpus/db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath-counterpart exmid\n\nmethod algebra\n".to_string()),
             ],
             "stray is outside stdlib/",
         ),
         case(
             "a theorem field said twice",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("  metamath    canth\n".to_string()), "  metamath    canth\n  metamath    canth\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("  metamath-counterpart canth\n".to_string()), "  metamath-counterpart canth\n  metamath-counterpart canth\n".to_string()),
             ],
-            "says metamath twice",
+            "says metamath-counterpart twice",
         ),
         case(
             "a let line that asserts instead of introducing",
@@ -4038,7 +4039,7 @@ fn cases() -> Vec<Case> {
         case(
             "drop a hole from the term a notation builds",
             vec![
-                edit("corpus/db/notation.records", Some("  target      _1 _2 caddc co, _1 _2 cmin co".to_string()), "  target      _1 _1 caddc co, _1 _2 cmin co".to_string()),
+                edit("corpus/db/notation.records", Some("  metamath-builds _1 _2 caddc co, _1 _2 cmin co".to_string()), "  metamath-builds _1 _1 caddc co, _1 _2 cmin co".to_string()),
             ],
             "leaves a hole out",
         ),
@@ -4064,11 +4065,11 @@ fn cases() -> Vec<Case> {
             "is not `hole N over hole M`",
         ),
         case(
-            "give a notation fewer targets than it has patterns",
+            "give a notation fewer metamath-builds entries than it has patterns",
             vec![
-                edit("corpus/db/notation.records", Some("  target      _1 _2 cmul co, _1 _2 cdiv co".to_string()), "  target      _1 _2 cmul co".to_string()),
+                edit("corpus/db/notation.records", Some("  metamath-builds _1 _2 cmul co, _1 _2 cdiv co".to_string()), "  metamath-builds _1 _2 cmul co".to_string()),
             ],
-            "target entr",
+            "metamath-builds entr",
         ),
         case(
             "give a notation fewer commutes entries than it has patterns",
@@ -4612,19 +4613,19 @@ fn cases() -> Vec<Case> {
         case(
             "state a field twice, which reads as one field joined",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  target      eldif\n  then        x is irrational".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("definition irrational\n  then        x is irrational".to_string()), "definition irrational\n  metamath-proof eldif\n  then        x is irrational".to_string()),
             ],
             "a second time",
         ),
         // A field is read by its name, so a misspelt one is not the field: the
-        // Archimedean item would have no target, and Theorem 13's citation of it
-        // would stop the build.
+        // Archimedean item would have no metamath-proof, and Theorem 13's
+        // citation of it would stop the build.
         case(
             "misspell a field name",
             vec![
-                edit("corpus/stdlib/numbers.records", Some("  target      nnrecl\n".to_string()), "  taget       nnrecl\n".to_string()),
+                edit("corpus/stdlib/numbers.records", Some("  metamath-proof nnrecl\n".to_string()), "  metamath-prof nnrecl\n".to_string()),
             ],
-            "theorem archimedean has a field 'taget', which a theorem record does not have",
+            "theorem archimedean has a field 'metamath-prof', which a theorem record does not have",
         ),
         // Everything a citation names does work. The requires line says
         // a + b ∈ ℝ, which is what `mun:nonneg-or-neg` asks; H1 says a ∈ ℝ,
@@ -4705,7 +4706,8 @@ fn cases() -> Vec<Case> {
             ],
             "step 8 cites H3, and axi:completeness asks for nothing it says",
         ),
-        // An item states what its target proves of every value of its names.
+        // An item states what its metamath-proof proves of every value of its
+        // names.
         // This one said |X| = k + 1 without saying what k was, and at k = −1
         // and X = ∅ it is false.
         case(
@@ -5525,7 +5527,7 @@ fn cases() -> Vec<Case> {
         case(
             "a theorem record with no then line",
             vec![
-                edit("corpus/stdlib/sums.records", Some("  then        Σ(k = 0 to n) t(k) ∈ ℤ\n  metamath    fsumzcl".to_string()), "  metamath    fsumzcl".to_string()),
+                edit("corpus/stdlib/sums.records", Some("  then        Σ(k = 0 to n) t(k) ∈ ℤ\n  metamath-counterpart fsumzcl".to_string()), "  metamath-counterpart fsumzcl".to_string()),
             ],
             "sum-integer has no `then` line",
         ),
@@ -5537,7 +5539,7 @@ fn cases() -> Vec<Case> {
             "method induction declares part",
         ),
         // A notation record says what it writes, what each hole takes, and
-        // what its target makes of the holes.
+        // what its metamath-builds makes of the holes.
         case(
             "a notation with no pattern",
             vec![
@@ -5553,11 +5555,11 @@ fn cases() -> Vec<Case> {
             "notation sum: sort",
         ),
         case(
-            "a notation target naming a hole it does not have",
+            "a notation's metamath-builds naming a hole it does not have",
             vec![
-                edit("corpus/db/notation.records", Some("  target      _2 _3 cfz co _4 _1 csu".to_string()), "  target      _2 _3 cfz co _5 _1 csu".to_string()),
+                edit("corpus/db/notation.records", Some("  metamath-builds _2 _3 cfz co _4 _1 csu".to_string()), "  metamath-builds _2 _3 cfz co _5 _1 csu".to_string()),
             ],
-            "notation sum target",
+            "notation sum metamath-builds",
         ),
         case(
             "a notation that can nest in itself with no assoc",

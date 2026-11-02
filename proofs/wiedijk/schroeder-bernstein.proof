@@ -28,7 +28,7 @@ import mundane theorem    stdlib/sets/union-contains-member
 import mundane theorem    stdlib/sets/union-within
 
 theorem fixed-part
-  metamath    sbthlem3, which says it of the union set.mm builds, where this
+  metamath-counterpart sbthlem3, which says it of the union set.mm builds, where this
               says there is such a part
   note        C is a part of A such that g, applied to everything f misses
               from C, lands exactly on the rest of A. On C the bijection
@@ -152,7 +152,7 @@ let C = ⋃(X ∈ D) X                                                   (D3)
 
 
 theorem schroeder-bernstein
-  metamath    sbth, which says it of one set dominating another, where this
+  metamath-counterpart sbth, which says it of one set dominating another, where this
               says it of the one-to-one functions that dominating names
   note        Take the part C of A that fixed-part gives. Send C along f and
               the rest of A back along g. Each element of B is reached once:

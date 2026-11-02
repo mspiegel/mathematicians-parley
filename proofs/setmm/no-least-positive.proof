@@ -1,5 +1,5 @@
 theorem no-least-positive
-  metamath    nominpos
+  metamath-counterpart nominpos
   note        Below any positive real x lies the positive real x/2, so no
               positive real is the least.
   then there is no x ∈ ℝ with 0 < x and there is no y ∈ ℝ with 0 < y and y < x

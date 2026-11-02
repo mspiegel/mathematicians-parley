@@ -14,10 +14,10 @@
 # beneath it is never written (`GRAMMAR.md`, the group introduction).
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 axiom group-closed
@@ -25,8 +25,8 @@ axiom group-closed
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
   then        a·b ∈ G
-  metamath    grpcl
-  target      grpcl
+  metamath-counterpart grpcl
+  metamath-proof grpcl
 
 axiom group-associative
   let G be a group with operation · and identity e                    (H1)
@@ -34,35 +34,35 @@ axiom group-associative
   let b ∈ G                                                           (H3)
   let c ∈ G                                                           (H4)
   then        (a·b)·c = a·(b·c)
-  metamath    grpass
-  target      grpass
+  metamath-counterpart grpass
+  metamath-proof grpass
 
 axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
-  metamath    grprid
-  target      grprid
+  metamath-counterpart grprid
+  metamath-proof grprid
 
 axiom group-identity-closed
   let G be a group with operation · and identity e                    (H1)
   then        e ∈ G
-  metamath    grpidcl
-  target      grpidcl
+  metamath-counterpart grpidcl
+  metamath-proof grpidcl
 
 axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
-  metamath    grprinv
-  target      grprinv
+  metamath-counterpart grprinv
+  metamath-proof grprinv
 
 axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
-  metamath    grpinvcl
-  target      grpinvcl
+  metamath-counterpart grpinvcl
+  metamath-proof grpinvcl
 
 theorem group-cancel
   let G be a group with operation · and identity e                    (H1)
@@ -71,22 +71,22 @@ theorem group-cancel
   let g ∈ G                                                           (H4)
   assume g·a = g·b                                                    (H5)
   then        a = b
-  metamath    grplcan
-  target      grplcan
+  metamath-counterpart grplcan
+  metamath-proof grplcan
 
 mundane theorem subgroup-within
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        H ⊆ G
-  metamath    subgss
-  target      subgss
+  metamath-counterpart subgss
+  metamath-proof subgss
 
 mundane theorem subgroup-identity
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        e ∈ H
-  metamath    subg0cl
-  target      subg0cl
+  metamath-counterpart subg0cl
+  metamath-proof subg0cl
 
 mundane theorem subgroup-closed
   let G be a group with operation · and identity e                    (H1)
@@ -94,25 +94,25 @@ mundane theorem subgroup-closed
   let a ∈ H                                                           (H3)
   let b ∈ H                                                           (H4)
   then        a·b ∈ H
-  metamath    subgcl
-  target      subgcl
+  metamath-counterpart subgcl
+  metamath-proof subgcl
 
 mundane theorem subgroup-inverse
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)
   then        a⁻¹ ∈ H
-  metamath    subginvcl
-  target      subginvcl
+  metamath-counterpart subginvcl
+  metamath-proof subginvcl
 
 definition coset
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let g ∈ G                                                           (H3)
   then        u ∈ gH ↔ there is h ∈ H with u = g·h
-  metamath    lsmelvalx and rexsng, which this corpus proves together in
+  metamath-counterpart lsmelvalx and rexsng, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gelcoset
+  metamath-proof gelcoset
   note        gH is everything g combines with a member of H to give. set.mm
               writes it as the sum of two subsets, {g} and H, and a school
               reader writes gH.

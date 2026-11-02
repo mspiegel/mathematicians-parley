@@ -261,7 +261,7 @@ let t(c) = g·c, for c ∈ H                                             (D1)
     mun:card-equal X := H, Y := gH, from 2, 8
 
 theorem lagrange
-  metamath    lagsubg, which says it of the index set.mm builds from the
+  metamath-counterpart lagsubg, which says it of the index set.mm builds from the
               relation of being in one coset, where this counts the cosets
   note        The cosets of H split G into parts, each with as many elements
               as H. So |G| is |H| times the number of cosets.

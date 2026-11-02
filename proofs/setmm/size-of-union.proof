@@ -86,7 +86,7 @@ theorem union-split
     mun:subset-antisymmetric X := A ∪ (B ∖ A), Y := A ∪ B, from 2, 4
 
 theorem size-of-union
-  metamath    hashun2
+  metamath-counterpart hashun2
   note        A ∪ B is A together with the part of B outside A, two sets with
               nothing in common, so its size is |A| plus the size of that part,
               which is at most |B|.

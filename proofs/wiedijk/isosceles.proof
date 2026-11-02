@@ -3,7 +3,7 @@ import mundane theorem    stdlib/geometry/angle-symmetric
 import definition         stdlib/geometry/congruent
 
 theorem isosceles
-  metamath    isosctr
+  metamath-counterpart isosctr
   note        Read the triangle as ACB and as BCA. Two sides and the angle
               between them agree, |CA| = |CB| and the angle at C, so the two
               are congruent and the angles at A and at B match.

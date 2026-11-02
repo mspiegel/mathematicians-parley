@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/reasoning/modus-ponens
 
 theorem implication-and-currying
-  metamath    impexp
+  metamath-counterpart impexp
   note        To get c = 0 from both a = 0 and b = 0, take a = 0 first and
               then b = 0, and conversely.
   let a ∈ ℝ                                                           (H1)

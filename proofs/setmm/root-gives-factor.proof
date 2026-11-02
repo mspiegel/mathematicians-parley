@@ -2,7 +2,7 @@ import theorem            stdlib/polynomials/remainder
 import mundane theorem    stdlib/polynomials/polynomial-value
 
 theorem root-gives-factor
-  metamath    facth
+  metamath-counterpart facth
   note        The remainder of p on division by x − a is p(a), which is 0, so
               the division leaves no remainder.
   let p be a polynomial                                               (H1)

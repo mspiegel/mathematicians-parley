@@ -48,8 +48,15 @@ The standard library is every item a set.mm label supplies, that a proof in
 `corpus/stdlib/<subject>.proof` proves on the page, or that is still open:
 what a proof cites, or may. A record whose lemma the corpus proves in
 `corpus/proved/` is one the page cannot state the reason for, as a fact about
-the argument of a complex number is; a theorem with a textbook proof from
-what the library already has is proved on the page, and has no record.
+the argument of a complex number is. A theorem with a textbook proof from
+what the library already has is proved on the page, in its subject's proof
+file, and has a record all the same: the record is the library's statement
+of it, and the proof proves that statement as written. The record says, for
+each build, how that build proves it: `metamath-proof` for the Metamath
+build and `lean-proof` for the Lean build, each a lemma of its library or
+the words `on the page`, which builds the proof on the page. Nothing is
+assumed: a record with a proof on the page says `on the page` for each
+build that uses it.
 A definition a phrase states, "u is an upper bound of S", may be written on
 the page too, as a define of the phrase in the subject's proof file
 (`SYNTAX.md`, "A define may name a phrase"): `upper-bound` and
@@ -138,19 +145,29 @@ Every item in the standard library carries a field saying where it comes from:
 
 | field | meaning | count |
 |---|---|---|
-| `metamath` | a set.mm label or labels supply it | 623 |
+| `metamath-counterpart` | a set.mm label or labels supply it | 623 |
 | `open` | it is cited but unproved and unbridged | 5 |
 
-Any notation, definition, axiom or theorem may also carry `lean`: for a
-notation, one Lean template for each pattern; for an item, one Lean proof for
-each sentence it concludes. A function's definition may carry `lean-builds`,
-what it is in Lean, beside `metamath-builds` (`LEAN.md`). They are optional,
-and the rule that every item carries `metamath` or `open` stands.
+Each field says which build or library it is for, and what it gives:
+`metamath-proof` and `lean-proof` are what each build proves an item with,
+`metamath-builds` and `lean-builds` the template each build writes a notation,
+or a library function applied, with, and `metamath-counterpart` what the item
+or notation is in set.mm, for the reader, which no build proves anything
+with. Any notation may carry `lean-builds`, one Lean template for each
+pattern, and any item `lean-proof`, one Lean proof for each sentence it
+concludes; a function's definition may carry `lean-builds`, what it is in
+Lean, beside `metamath-builds` (`LEAN.md`). They are optional, and the rule
+that every item carries `metamath-counterpart` or `open` stands. A record
+whose proof is on the page says, in `lean-proof` as in `metamath-proof`, `on
+the page` where that build builds the proof rather than citing its library.
 
-A theorem this corpus proves has no
+A theorem of `proofs/` that this corpus proves has no
 record: it is its proof, and its statement is the head of the proof file, so
 that it has one home and cannot drift. This is the rule that the collisions
-below were caused by breaking. A proof file is written to stand alone, so a
+below were caused by breaking. A theorem of the standard library proved in
+`corpus/stdlib/<subject>.proof` has a record, which is the library's
+statement of it, and the checker refuses the proof unless it proves the
+record as written, so the two cannot drift either. A proof file is written to stand alone, so a
 fact proofs reach for as known is a library item even where one proof file
 proves it as its own exercise: odd + odd is even is
 `mun:stdlib/divisibility/odd-plus-odd`, and `proofs/setmm/parity.proof`
@@ -158,25 +175,25 @@ proves it for its own sake. The proof keeps its theorem and does not cite
 the record; every other proof cites the record. The two are one fact in two
 roles, each checked on its own: the record against its set.mm lemma, the
 theorem by its proof. What a record would say beside the statement,
-the set.mm theorem it answers to and a note, the proof says in `metamath` and
-`note` lines under its `theorem` line; 84 of the 667 name a set.mm
-counterpart.
+the set.mm theorem it answers to and a note, the proof says in
+`metamath-counterpart` and `note` lines under its `theorem` line; 84 of the
+667 name a set.mm counterpart.
 
-A definition may also carry a `target`, which says which set.mm theorem
-unfolds it, or, for one stated as an equation, one theorem per clause:
+A definition may also carry a `metamath-proof`, which says which set.mm
+theorem unfolds it, or, for one stated as an equation, one theorem per clause:
 `def:stdlib/numbers/abs` names `absid, absnid`, and which clause a step uses is decided by
-which one's conclusion is what the step claims. That is not what `metamath` says: `metamath` says what the
+which one's conclusion is what the step claims. That is not what `metamath-counterpart` says: `metamath-counterpart` says what the
 definition means, and `def:stdlib/divisibility/odd` gives `not 2 ∥ n`, where unfolding it to the
 existential the `then` line states is `odd2np1`. An elaborator needs the
 second and cannot derive it from the first. A second entry, `equation
 reversed`, says the theorem writes its equation the other way round from the
 `then` line, which `odd2np1` and `divides` both do. `corpus/db/notation.records`
-documents the same field on the notation side.
+documents the notation side, `metamath-builds`.
 
-A target may end `with v := t, …`, saying what the lemma's variables stand
+A `metamath-proof` may end `with v := t, …`, saying what the lemma's variables stand
 for where the claim does not fix them: `divalg with N := n, D := d`. A name
 there that is none of the lemmas' variables is the claim's own binder, and
-what it is given is the witness: `axi:stdlib/calculus/completeness` targets `suprcl,
+what it is given is the witness: `axi:stdlib/calculus/completeness`'s `metamath-proof` is `suprcl,
 suprub, suprleub with c := sup S`, and the least upper bound it promises is
 the supremum, which each of the three lemmas says one thing about.
 
@@ -214,23 +231,23 @@ exp(ln 5) and cos(π/3). A function record carries the field only for
 `real arithmetic`; `gcd` carries none, so `real arithmetic` refuses
 gcd(4, 6). No word names `real arithmetic`.
 
-**A `target` that never fires is an error, not a shrug.** An item with no
-`target` builds nothing, and a step citing it stops the build, except a
+**A `metamath-proof` that never fires is an error, not a shrug.** An item with no
+`metamath-proof` builds nothing, and a step citing it stops the build, except a
 definition read off a line the step cites that already says the claim. An
 item that has one and whose every clause misses the claim is a different
 thing: the field says where the claim lands and it does not land there. The
 elaborator names the item, the labels it tried and the step, and stops, so a
-wrong target cannot sit in this file unnoticed.
+wrong metamath-proof cannot sit in this file unnoticed.
 
-**Nothing compares an item's hypotheses with its target's.** A citation is
-built from the set.mm theorem the target names, with that theorem's own
+**Nothing compares an item's hypotheses with its metamath-proof's.** A citation is
+built from the set.mm theorem the metamath-proof names, with that theorem's own
 hypotheses, so a record whose `let` lines say less than the theorem asks
 still builds and every proof citing it verifies: `mun:stdlib/counting/card-nonempty`
 with `let k ∈ ℤ` in place of `let k ∈ ℕ₀`, where `hashgt0elex` asks k ∈ ℕ₀,
 passes every stage of the gate. The proofs are sound and the record misstates
 the lemma. The checker reports a name the item says nothing of where a number goes
 (`check_unsorted`), not a name it says too little of. Closing this means
-reading each target's hypotheses from set.mm and requiring the item's to
+reading each metamath-proof's hypotheses from set.mm and requiring the item's to
 imply them.
 
 Every pointer from a proof resolves, every `def:` or `thm:` prefix matches the
@@ -289,7 +306,7 @@ three times for exactly that. The fact is now `mun:stdlib/functions/function-val
 three citations are renamed. A function's type is now cited for its values
 (`READERS.md`), so `function-value` is cited only where the value is a step
 of the argument, Schröder–Bernstein's f(s) ∈ B. The definition is not an
-item: no proof cites it, and `f : A → B` means what its notation's target,
+item: no proof cites it, and `f : A → B` means what its notation's `metamath-builds`,
 `wf`, says. Written as an item it would be set.mm's `ffnfv`, f : A → B when
 f is a function on A and every f(x) lies in B, which a restatement cannot
 yet introduce f for, since `let f be an element` does not declare a
@@ -374,7 +391,7 @@ repaired.
   every library item is cited by a proof or has a test; that no elaborated
   proof takes a step as stated that `ELABORATION.md` does not record; a
   verifier not written for this project, `metamath-rs`, over every proof the
-  elaborator has written; and every library item with a target restated by a
+  elaborator has written; and every library item with a metamath-proof restated by a
   theorem citing it, built and verified. set.mm belongs to metamath and is not vendored: it
   is found by `SET_MM` or by a copy or link at the root, and without it the
   gate fails and says how to supply it, because a gate that skipped a stage
@@ -421,18 +438,18 @@ repaired.
 
 All four are geometry, which is what the isosceles pilot predicted: the proof
 is trivial and the database is not. None is cited, and a claim of any of
-them elaborates by its notation's target; what is open is the readable
+them elaborates by its notation's `metamath-builds`; what is open is the readable
 statement of the equivalence.
 
 `def:stdlib/geometry/congruent` and `def:stdlib/geometry/point` are `biid`:
-each notation's target is the formula its definition's other side builds,
+each notation's `metamath-builds` is the formula its definition's other side builds,
 the six equations for a congruence and A ∈ ℂ for "A is a point", so the
 definition says one formula twice. `def:stdlib/geometry/triangle` says three
-inequalities and the collinearity denied, and its target denies only the
+inequalities and the collinearity denied, and its `metamath-builds` denies only the
 quotient being real, since the points are already distinct; `gtridef`
 carries one to the other. A step takes a
 conjunct of one from a line that says it, as it does of a definition with
-no target (`ELABORATION.md`). The counting lemmas the subsets pilot
+no metamath-proof (`ELABORATION.md`). The counting lemmas the subsets pilot
 leaned on are theorems of its proof file, and
 `mun:stdlib/functions/function`, which no proof cited, is not an item. Six
 more were open and are not. `thm:proofs/wiedijk/intermediate-value/point-right`
@@ -465,7 +482,7 @@ The four are open for a reason rather than for want of work. Incidence is a
 primitive, and `def:stdlib/geometry/collinear` says so: in
 the plane collinearity is P = Q, or (R − P)/(Q − P) being real, and subtraction takes
 numbers while P, Q and R are points, so the sorts that stop |CA| reading as a
-product stop this too. The notation carries a target, so a claim of
+product stop this too. The notation carries a `metamath-builds`, so a claim of
 collinearity elaborates; what has no readable statement is the equivalence.
 
 **Vectors would let the page state all four.** A sort `vector`, with a point
@@ -482,11 +499,11 @@ the textbook's:
   Q, Hilbert's segment that does not cross the line.
 
 Each needs a bridge in `proved.mm` from its readable form to its notation's
-target, and that is not the last resort above: the reader reads the
+`metamath-builds`, and that is not the last resort above: the reader reads the
 statement, and the Metamath proof only joins two spellings of it, as
 `gbijonto` does for a bijection. For the first three the bridge is short,
-since t is the quotient the target says is real. For the fourth it is a real
-proof: the target compares the signs of two imaginary parts, and that the
+since t is the quotient the `metamath-builds` says is real. For the fourth it is a real
+proof: the `metamath-builds` compares the signs of two imaginary parts, and that the
 segment between two points of opposite sign meets the line is the
 intermediate value theorem along it. None of the four is cited, so the work
 waits for the first proof that needs one.

@@ -2,7 +2,7 @@
 //! Lean file over Mathlib under `lean/`.
 //!
 //! The build writes three kinds of file. Each module of the library with a
-//! record that has a `lean` field becomes `lean/Parley/Items/…`, a theorem
+//! record that has a `lean-proof` field becomes `lean/Parley/Items/…`, a theorem
 //! for each sentence an item concludes. Each theorem the build covers
 //! (`lean::coverage`) becomes a file of its own, which imports the items
 //! and the theorems it cites. `lean/Parley.lean` imports them all, so that
@@ -106,7 +106,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
     let mut items: IndexMap<String, Item> = IndexMap::new();
     let mut modules: IndexMap<String, (String, Vec<String>)> = IndexMap::new();
     for record in &checked.corpus.records {
-        if record.kind == RecordKind::Notation || record.field("lean").is_none() {
+        if record.kind == RecordKind::Notation || record.lean_target().is_none() {
             continue;
         }
         let full = format!("{}/{}", record.module(), record.name);

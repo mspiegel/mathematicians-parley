@@ -28,7 +28,7 @@ use crate::targets::{is_context, is_hole, repeated};
 
 use super::state::{fit, Binding, Elaborator};
 
-/// A `target` read as a tree: a hole, numbered from 1, a label applied to
+/// A `metamath-builds` read as a tree: a hole, numbered from 1, a label applied to
 /// what it takes, or a part of a structure a `let` line introduced, which
 /// stands for the kernel term the theorem gave it (`@op`).
 enum Pattern {

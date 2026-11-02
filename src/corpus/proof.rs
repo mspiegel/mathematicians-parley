@@ -1357,7 +1357,7 @@ pub struct Theorem {
     pub steps: Vec<Step>,
     pub line: usize,
     pub path: String,
-    /// `metamath` and `note`, where it says them.
+    /// `metamath-counterpart` and `note`, where it says them.
     pub fields: IndexMap<String, String>,
     pub scope: ScopeId,
     /// What the names its file cites stand for.
@@ -2347,7 +2347,7 @@ struct DraftTheorem {
     steps: Vec<DraftStep>,
 }
 
-const THEOREM_FIELDS: [&str; 2] = ["metamath", "note"];
+const THEOREM_FIELDS: [&str; 2] = [super::records::METAMATH_COUNTERPART, "note"];
 
 fn label_at_end(text: &str) -> Option<String> {
     skeleton::label_at_end(text).map(String::from)

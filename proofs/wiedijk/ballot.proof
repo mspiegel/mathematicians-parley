@@ -1136,7 +1136,7 @@ theorem ballot-count
 
 
 theorem ballot
-  metamath    ballotth
+  metamath-counterpart ballotth
   note        In an election A gets m votes and B gets n < m. Counted in a
               random order, all orders alike, the chance that A is ahead
               after every vote is (m − n)/(m + n). A counting is given by

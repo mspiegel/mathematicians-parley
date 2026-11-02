@@ -692,7 +692,7 @@ theorem triple-parameters
     D0, from 3
 
 theorem pythagorean-triples
-  metamath    pythagtrip, which says the two legs' places with an "or"
+  metamath-counterpart pythagtrip, which says the two legs' places with an "or"
   note        Both directions: every triple has the form (triple-parameters),
               and every number of the form is a triple
               (triple-from-parameters). The legs are k(m² − n²) and 2kmn in

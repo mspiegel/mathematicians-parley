@@ -63,7 +63,7 @@ theorem least-combination-divides
 
 
 theorem bezout
-  metamath    bezout
+  metamath-counterpart bezout
   note        Let d be the least positive number of the form a·x + b·y. It
               divides a and b (least-combination-divides), so d ≤ gcd(a, b);
               and gcd(a, b) divides every a·x + b·y, d among them, so

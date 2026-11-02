@@ -41,22 +41,25 @@ struct Where {
     who: String,
 }
 
-/// What names labels: a record, or a proved theorem's `metamath` line.
+/// What names labels: a record, or a proved theorem's
+/// `metamath-counterpart` line.
 struct Naming<'a> {
     path: &'a str,
     line: usize,
     name: &'a str,
     fields: &'a IndexMap<String, String>,
+    /// The record's kind; None for a proved theorem.
+    kind: Option<crate::corpus::RecordKind>,
 }
 
 /// Every label the databases name, with where each was written.
 ///
-/// A `target` is reverse Polish or a list of labels and a `defines` is
-/// reverse Polish, so every token in either is a label unless it is a hole
-/// or a marker, which says how to read the lemma beside it rather than
-/// naming one.
+/// A `metamath-builds` is reverse Polish, a `metamath-proof` a list of
+/// labels and a `defines` reverse Polish, so every token in any of them is a
+/// label unless it is a hole or a marker, which says how to read the lemma
+/// beside it rather than naming one.
 ///
-/// `metamath` is prose meant for a person and names its labels in a
+/// `metamath-counterpart` is prose meant for a person and names its labels in a
 /// sentence, so it is read only as far as it is certainly naming them: the
 /// leading entries that are a single label-shaped word, stopping at the
 /// first that is not.
@@ -68,15 +71,31 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
             line: r.line,
             who: r.name.to_string(),
         };
-        for field in ["target", "defines"] {
+        // What the Metamath build writes for the record: a notation's
+        // template, or an item's or a method's lemmas.
+        // A method's `metamath-proof` says in words which lemma families its
+        // steps expand into, and is read as prose, as a counterpart is.
+        let method = r.kind == Some(crate::corpus::RecordKind::Method);
+        let target = match r.kind {
+            Some(crate::corpus::RecordKind::Notation) => {
+                crate::corpus::records::METAMATH_BUILDS
+            }
+            _ => crate::corpus::records::METAMATH_PROOF,
+        };
+        let read = if method {
+            vec!["defines"]
+        } else {
+            vec![target, "defines"]
+        };
+        for field in read {
             let Some(value) = r.fields.get(field) else {
                 continue;
             };
             // What a target writes after `with` is the lemma's variables and
             // the item's own formulas for them, which are not labels and are
             // not set.mm's words. Only the head before it names a lemma.
-            let value = match (field, value.split_once(" with ")) {
-                ("target", Some((head, _))) => head,
+            let value = match value.split_once(" with ") {
+                Some((head, _)) if field == target => head,
                 _ => value.as_str(),
             };
             for entry in targets::split_entries(value) {
@@ -91,8 +110,13 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
                 }
             }
         }
-        let metamath = r.fields.get("metamath").map_or("", String::as_str);
-        for entry in targets::split_entries(metamath) {
+        let prose = if method {
+            crate::corpus::records::METAMATH_PROOF
+        } else {
+            crate::corpus::records::METAMATH_COUNTERPART
+        };
+        let said = r.fields.get(prose).map_or("", String::as_str);
+        for entry in targets::split_entries(said) {
             if !LABEL_SHAPED.is_match(entry) {
                 break;
             }
@@ -164,15 +188,17 @@ pub fn run(source: &dyn Source, library: Option<&Path>, tables_at: &str) -> Said
             line: r.line,
             name: &r.name,
             fields: &r.fields,
+            kind: Some(r.kind),
         })
         .collect();
-    // A proved theorem's `metamath` line says which set.mm theorem is its
-    // counterpart, and is checked like any record's.
+    // A proved theorem's `metamath-counterpart` line says which set.mm
+    // theorem is its counterpart, and is checked like any record's.
     namings.extend(c.theorems.iter().map(|t| Naming {
         path: &t.path,
         line: t.line,
         name: &t.name,
         fields: &t.fields,
+        kind: None,
     }));
     let wanted = named(&namings, tables_at);
     let mut have: BTreeSet<String> = match mm::read(&[library]) {

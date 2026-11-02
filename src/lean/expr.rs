@@ -259,7 +259,7 @@ impl Writer<'_> {
         };
         match self.templates.get(&name, &pattern.pattern) {
             Some(t) => Route::Built(t),
-            None => Route::no(format!("notation {name} has no lean field")),
+            None => Route::no(format!("notation {name} has no lean-builds field")),
         }
     }
 

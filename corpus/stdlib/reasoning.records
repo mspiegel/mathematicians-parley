@@ -13,17 +13,17 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 axiom excluded-middle
   then        P or not P
-  metamath    exmid
-  target      exmid
-  lean        em P
+  metamath-counterpart exmid
+  metamath-proof exmid
+  lean-proof em P
   note        The first citation to substitute a formula for a variable rather
               than a term. A school reader has never been told that "P or not P"
               is a law, which is why it is cited and not folded into a method.
@@ -32,9 +32,9 @@ axiom excluded-middle
 mundane theorem double-negation
   assume not not P                                                    (H1)
   then        P
-  metamath    notnotr
-  target      notnotr
-  lean        not_not.mp h1
+  metamath-counterpart notnotr
+  metamath-proof notnotr
+  lean-proof not_not.mp h1
   note        The step intuitionistic logic refuses, so citing it is the text
               saying which logic it is in. No proof cites it: a contradiction
               block proving a negation supposes what the negation denies, so
@@ -45,9 +45,9 @@ mundane theorem disjunctive-syllogism
   assume P or Q                                                       (H1)
   assume not Q                                                        (H2)
   then        P
-  metamath    orel2
-  target      orel2
-  lean        h1.resolve_right h2
+  metamath-counterpart orel2
+  metamath-proof orel2
+  lean-proof h1.resolve_right h2
   note        The √2 pilot asked whether a school reader can check this on
               paper, and called it the acceptance test. Citing it puts the
               question where a reader can see it rather than inside a method.
@@ -56,17 +56,17 @@ mundane theorem disjunctive-syllogism-left
   assume P or Q                                                       (H1)
   assume not P                                                        (H2)
   then        Q
-  metamath    orel1
-  target      orel1
-  lean        h1.resolve_left h2
+  metamath-counterpart orel1
+  metamath-proof orel1
+  lean-proof h1.resolve_left h2
   note        disjunctive-syllogism with the other side failing.
 
 mundane theorem or-left
   assume P                                                            (H1)
   then        P or Q
-  metamath    orc
-  target      orc
-  lean        Or.inl h1
+  metamath-counterpart orc
+  metamath-proof orc
+  lean-proof Or.inl h1
   note        A claim that one of two things holds, from a line saying the
               first does. Euclid's algorithm proves "b(k) = 0 or b(k) + k ≤
               N" at each k, knowing one side or the other.
@@ -74,23 +74,23 @@ mundane theorem or-left
 mundane theorem or-right
   assume Q                                                            (H1)
   then        P or Q
-  metamath    olc
-  target      olc
-  lean        Or.inr h1
+  metamath-counterpart olc
+  metamath-proof olc
+  lean-proof Or.inr h1
   note        The same, from a line saying the second holds.
 
 mundane theorem or-swap
   assume P or Q                                                       (H1)
   then        Q or P
-  metamath    pm1.4
-  target      pm1.4
+  metamath-counterpart pm1.4
+  metamath-proof pm1.4
   note        One of two things holds, said in the other order.
 
 mundane theorem not-either
   then        not (P or Q) ↔ not P and not Q
-  metamath    ioran
-  target      ioran
-  lean        not_or
+  metamath-counterpart ioran
+  metamath-proof ioran
+  lean-proof not_or
   note        De Morgan's law for "or": neither of two things holds just when
               each fails. Cited either way, as a biconditional is.
 
@@ -98,9 +98,9 @@ mundane theorem modus-ponens
   assume if P then Q                                                  (H1)
   assume P                                                            (H2)
   then        Q
-  metamath    mpd
-  target      mpd
-  lean        h1 h2
+  metamath-counterpart mpd
+  metamath-proof mpd
+  lean-proof h1 h2
   note        An "if" used where what it asks holds: an induction over the k
               with k ≤ n has the hypothesis "if k ≤ n then …", and its step
               uses it at a k it has shown is at most n.
@@ -109,8 +109,8 @@ mundane theorem iff-both-true
   assume P                                                            (H1)
   assume Q                                                            (H2)
   then        P ↔ Q
-  metamath    2thd
-  target      2thd
+  metamath-counterpart 2thd
+  metamath-proof 2thd
   note        Two claims that both hold are equivalent, as a count that is
               odd at a vertex that is the walk's last.
 
@@ -118,8 +118,8 @@ mundane theorem iff-both-false
   assume not P                                                        (H1)
   assume not Q                                                        (H2)
   then        P ↔ Q
-  metamath    2falsed
-  target      2falsed
+  metamath-counterpart 2falsed
+  metamath-proof 2falsed
   note        Two claims that both fail are equivalent, the other way an
               "if and only if" is settled without proving each direction.
 
@@ -127,8 +127,8 @@ mundane theorem iff-from-left
   assume P ↔ Q                                                        (H1)
   assume P                                                            (H2)
   then        Q
-  metamath    mpbid
-  target      mpbid
+  metamath-counterpart mpbid
+  metamath-proof mpbid
   note        Using an "if and only if" from its left side: the right holds
               where the left does.
 
@@ -136,8 +136,8 @@ mundane theorem iff-from-right
   assume P ↔ Q                                                        (H1)
   assume Q                                                            (H2)
   then        P
-  metamath    mpbird
-  target      mpbird
+  metamath-counterpart mpbird
+  metamath-proof mpbird
   note        Using an "if and only if" from its right side: the left holds
               where the right does.
 
@@ -145,6 +145,6 @@ mundane theorem iff-not-from-right
   assume P ↔ Q                                                        (H1)
   assume not Q                                                        (H2)
   then        not P
-  metamath    mtbird
-  target      mtbird
+  metamath-counterpart mtbird
+  metamath-proof mtbird
   note        The same where the right side fails: then so does the left.

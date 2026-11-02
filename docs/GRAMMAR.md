@@ -698,7 +698,7 @@ substitution in the corpus comes close.
                   <conclusion>
                   [ `by` <justification> ]
                   { <naming> | <step> }
-<theorem field> ::= ( `metamath` | `note` ) <words>
+<theorem field> ::= ( `metamath-counterpart` | `note` ) <words>
 <hypothesis>  ::= ( `let` <introduction> | `assume` <formula> ) `(` <label> `)`
 <introduction>::= <name> `∈` <term>
                 | <name> `∉` <term>
@@ -824,7 +824,7 @@ phrase stands at the level
 
 Theorems may appear in any order. No theorem cites itself, and no theorems
 of a file cite one another round a cycle. A theorem field says what a record's field of the same name says: a
-`metamath` line names set.mm's counterpart of the theorem, which is checked to
+`metamath-counterpart` line names set.mm's counterpart of the theorem, which is checked to
 be a label set.mm has, and a `note` is prose for a person. Each is said at most
 once, between the `theorem` line and the statement, and continues on lines
 indented further than it. A `define` line states what its name is and is cited by its label, and the
@@ -1316,10 +1316,10 @@ and a field outside them is refused:
 
 | kind | fields |
 |---|---|
-| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `target`, `metamath`, `decided`, `note` |
-| `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath`, `note` |
-| `axiom`, `theorem` | `metamath`, `target`, `open`, `note` |
-| `definition` | `sort`, `metamath-builds`, `reads`, `metamath`, `target`, `open`, `symbol`, `defines`, `note` |
+| `notation` | `pattern`, `sort`, `level`, `assoc`, `commutes`, `identity`, `negates`, `spells`, `places`, `nests`, `bounds`, `joins`, `wraps`, `fills`, `repeats`, `shadowed`, `wanted`, `binds`, `reads`, `member`, `metamath-builds`, `metamath-counterpart`, `decided`, `lean-builds`, `note` |
+| `method` | `form`, `block`, `parts`, `parts-repeat`, `part-opens`, `checks`, `decides`, `hypotheses`, `specified-in`, `metamath-proof`, `note` |
+| `axiom`, `theorem` | `metamath-counterpart`, `metamath-proof`, `open`, `lean-proof`, `note` |
+| `definition` | `sort`, `metamath-builds`, `lean-builds`, `reads`, `metamath-counterpart`, `metamath-proof`, `open`, `lean-proof`, `symbol`, `defines`, `decided`, `note` |
 | `precedence` | the levels it declares |
 
 `wanted` names the category a hole must want for the pattern to be read
@@ -1331,7 +1331,7 @@ and `DATABASE.md`, "Record kinds", says what each is to a reader and what the
 mark means.
 
 The tools read a field by its name, so a misspelt one is not that field: an
-item whose `target` is spelt `taget` has no target, and every citation of it
+item whose `metamath-proof` is spelt `metamath-prof` has no metamath-proof, and every citation of it
 would stop the build. `parse.FIELDS` holds the list and the checker reads
 it.
 
@@ -1370,7 +1370,7 @@ places before its arrow is the number of arguments, so `definition gcd` with
 `sort number, number → number` is applied as `gcd(_, _)`: a name applied to one
 hole for each argument and nothing else, which is what keeps it from being
 notation. `metamath-builds` is the set.mm term an application stands for, `_1` for the
-first argument, since `target` already names the theorem the record's statement
+first argument, since `metamath-proof` already names the theorem the record's statement
 is, and a definition with a `sort` line and no `metamath-builds` is refused. A `then`
 line is optional: `min` and `max` have none, and what a proof needs of them is
 in items of their own. A proof file that applies a function imports it as it
@@ -1417,7 +1417,7 @@ that letter is no function and may be written anywhere.
   perpendicular from C to line AB`, `let c be the least upper bound of S`,
   `let ⊙O be the circle with centre O and radius r`. Each description would
   be a notation of its own, a term written in words (`the least upper bound
-  of _`, whose target is `sup`), and the line would read as the naming `let`
+  of _`, whose `metamath-builds` is `sup`), and the line would read as the naming `let`
   that takes the term, `let c = the least upper bound of S`. It adds nothing
   the page cannot say: a description with a term is a naming `let` today,
   and one without is an `obtain`, or a `let` with `assume` lines giving the

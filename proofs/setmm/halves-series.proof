@@ -43,7 +43,7 @@ theorem power-of-two-above
     instantiate k := n in line 1
 
 theorem halves-series
-  metamath    geoihalfsum
+  metamath-counterpart geoihalfsum
   note        The first n terms add up to 1 − 1/2^n, by induction on n, and
               1/2^n is as small as 1/n or smaller, so the partial sums tend
               to 1.

@@ -1,9 +1,10 @@
 //! Which theorems the Lean build covers.
 //!
 //! A theorem is in the Lean build exactly when every notation its page uses
-//! and every item it cites has a Lean form: a notation or a record with a
-//! `lean` field, or a theorem of the corpus that is itself in. Nothing lists
-//! the theorems; the build grows as `lean` fields are added. A theorem left
+//! and every item it cites has a Lean form: a notation with a `lean-builds`
+//! field, a record with a `lean-proof` field, or a theorem of the corpus that
+//! is itself in. Nothing lists the theorems; the build grows as fields are
+//! added. A theorem left
 //! out is reported with what keeps it out.
 
 use indexmap::IndexMap;
@@ -22,7 +23,7 @@ pub enum Covered {
     },
 }
 
-/// The notations the writer reads in code rather than by a `lean` field:
+/// The notations the writer reads in code rather than by a `lean-builds` field:
 /// letters, numerals, relations, memberships and quantifiers, whose Lean
 /// form depends on the number types around them.
 pub const IN_CODE: &[&str] = &[
@@ -131,7 +132,7 @@ fn covered(
                 });
             }
             (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
-                .then(|| format!("notation {name}, which has no lean field"))
+                .then(|| format!("notation {name}, which has no lean-builds field"))
         })
         .collect();
     notations.sort();
@@ -161,9 +162,9 @@ fn covered(
     }
     for (full, _) in cited_items(thm) {
         if let Some(record) = super::items::record_of(checked, &full) {
-            if record.field("lean").is_none() {
+            if record.lean_target().is_none() {
                 return Covered::Out {
-                    reason: format!("{full} has no lean field"),
+                    reason: format!("{full} has no lean-proof field"),
                 };
             }
             continue;

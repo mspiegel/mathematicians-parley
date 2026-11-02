@@ -382,8 +382,7 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            r.kind == RecordKind::Notation
-                && WCEQ.is_match(str::trim(r.field_or_empty("metamath")))
+            r.kind == RecordKind::Notation && WCEQ.is_match(str::trim(r.counterpart()))
         })
         .map(|r| r.name.clone())
         .collect()
@@ -432,7 +431,7 @@ fn turned(notations: &[Notation], records: &[Record]) -> FxIndexMap<Spelling, Tu
     let mut first_of: FxIndexMap<String, Spelling> = FxIndexMap::default();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let targets: Vec<&str> = r
-            .field_or_empty("target")
+            .metamath_target_or_empty()
             .split(", ")
             .map(str::trim)
             .collect();
@@ -594,7 +593,7 @@ fn filled(
     let mut all: Vec<Targeted> = Vec::new();
     for r in records.iter().filter(|r| r.kind == RecordKind::Notation) {
         let targets: Vec<&str> = r
-            .field_or_empty("target")
+            .metamath_target_or_empty()
             .split(", ")
             .map(str::trim)
             .collect();
@@ -800,49 +799,48 @@ pub fn map_arguments(node: &Node) -> Vec<(Node, Node)> {
     }
 }
 
-/// The notations whose `metamath` is set.mm's `Fn`: what a define with a
+/// The notations whose `metamath-counterpart` is set.mm's `Fn`: what a define with a
 /// parameter says of its function.
 pub fn functions_on(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            r.kind == RecordKind::Notation
-                && str::trim(r.field_or_empty("metamath")) == "wfn"
+            r.kind == RecordKind::Notation && str::trim(r.counterpart()) == "wfn"
         })
         .map(|r| r.name.clone())
         .collect()
 }
 
-/// The notations whose `metamath` is set.mm's `csu`, a sum over some range.
+/// The notations whose `metamath-counterpart` is set.mm's `csu`, a sum over some range.
 pub fn sums(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
             r.kind == RecordKind::Notation
-                && str::trim(r.field_or_empty("metamath")).starts_with("csu ")
+                && str::trim(r.counterpart()).starts_with("csu ")
         })
         .map(|r| r.name.clone())
         .collect()
 }
 
-/// The notations saying there is something: their `metamath` is `wrex`,
+/// The notations saying there is something: their `metamath-counterpart` is `wrex`,
 /// once or nested, over whatever set.
 pub fn existences(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
             r.kind == RecordKind::Notation
-                && str::trim(r.field_or_empty("metamath")).starts_with("wrex")
+                && str::trim(r.counterpart()).starts_with("wrex")
         })
         .map(|r| r.name.clone())
         .collect()
 }
 
 /// The notations joining two claims by "and": the first word of their
-/// `metamath` is `wa`, as "wa, …" may say more after the target.
+/// `metamath-counterpart` is `wa`, as "wa, …" may say more after the label.
 pub fn conjunctions(records: &[Record]) -> IndexSet<String> {
     let first_word = |r: &Record| -> String {
-        str::trim(r.field_or_empty("metamath"))
+        str::trim(r.counterpart())
             .chars()
             .take_while(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || *c == '-')
             .collect()
@@ -854,13 +852,13 @@ pub fn conjunctions(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
-/// The notations saying something of everything: their `metamath` is
+/// The notations saying something of everything: their `metamath-counterpart` is
 /// `wral`, once or nested, over whatever set, or `wal`, over no set.
 pub fn universals(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            let metamath = str::trim(r.field_or_empty("metamath"));
+            let metamath = str::trim(r.counterpart());
             r.kind == RecordKind::Notation
                 && (metamath.starts_with("wral") || metamath.starts_with("wal"))
         })

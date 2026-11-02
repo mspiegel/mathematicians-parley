@@ -1,7 +1,7 @@
 import mundane theorem    stdlib/reasoning/modus-ponens
 
 theorem peirce
-  metamath    peirce
+  metamath-counterpart peirce
   note        Suppose a = 0 fails. Then "if a = 0 then b = 0" holds because
               its condition cannot, and the hypothesis turns that into a = 0,
               which contradicts the supposition.

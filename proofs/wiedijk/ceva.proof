@@ -103,7 +103,7 @@ theorem cevian-ratio
     requires sin(∠BOA) ≠ 0: weakening, from 21
 
 theorem ceva
-  metamath    cevath, which states it of the differences rather than their
+  metamath-counterpart cevath, which states it of the differences rather than their
               lengths and says the cevians meet by signed areas
   note        Ceva's theorem. Each cevian through O divides its side as the
               sines of the angles at O do (cevian-ratio), times the ratio of

@@ -12,17 +12,17 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note, and for the one definition that
+# Other fields: metamath-proof, lean-proof, note, and for the one definition that
 # introduces a symbol, symbol and defines.
 
 
 definition point
   then        A is a point ↔ A ∈ 𝔼²
-  metamath    biid, since "A is a point" and A ∈ 𝔼² are both built as A ∈ ℂ
-  target      biid
+  metamath-counterpart biid, since "A is a point" and A ∈ 𝔼² are both built as A ∈ ℂ
+  metamath-proof biid
   note        A point is a member of the plane. The plane is ℂ in the kernel,
               which the page never says (GEOMETRY.md).
 
@@ -30,7 +30,7 @@ definition angle
   symbol      ang
   defines     vx vy cc cc0 csn cdif cc cc0 csn cdif
               vy cv vx cv cdiv co clog cfv cim cfv cmpo
-  metamath    set.mm writes this function inline in every theorem about it and
+  metamath-counterpart set.mm writes this function inline in every theorem about it and
               never names it, so the corpus declares the constant
   note        The angle the corpus writes is unsigned: ∠PQR is the absolute
               value of ang applied to the two differences, which lands in
@@ -52,9 +52,9 @@ mundane theorem angle-real
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
-  metamath    gangbnd3, which this corpus proves in
+  metamath-counterpart gangbnd3, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gangbnd3
+  metamath-proof gangbnd3
   note        ∠PQR is an absolute value, so it is real and at least 0; what
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
@@ -67,8 +67,8 @@ mundane theorem signed-angle-size
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        |∡PQR| = ∠PQR
-  metamath    eqid, since ∠PQR is built as the absolute value of ∡PQR
-  target      eqid
+  metamath-counterpart eqid, since ∠PQR is built as the absolute value of ∡PQR
+  metamath-proof eqid
   note        The angle is the signed angle's size, whichever way it turns.
 
 mundane theorem signed-angle-real
@@ -78,8 +78,8 @@ mundane theorem signed-angle-real
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
   then        ∡PQR ∈ ℝ. −π < ∡PQR. ∡PQR ≤ π.
-  metamath    gsangcl, from angcld
-  target      gsangcl
+  metamath-counterpart gsangcl, from angcld
+  metamath-proof gsangcl
 
 mundane theorem signed-angle-reverse
   let P be a point                                                    (H1)
@@ -89,8 +89,8 @@ mundane theorem signed-angle-reverse
   assume R ≠ Q                                                        (H5)
   assume ∡PQR ≠ π                                                     (H6)
   then        ∡RQP = −∡PQR
-  metamath    gsangrev, from logrec
-  target      gsangrev
+  metamath-counterpart gsangrev, from logrec
+  metamath-proof gsangrev
   note        Turned the other way, the signed angle changes sign; at π, a
               straight angle, it is π both ways.
 
@@ -102,8 +102,8 @@ theorem signed-angle-sum
   assume Q ≠ R                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
-  metamath    gang180, from ang180
-  target      gang180
+  metamath-counterpart gang180, from ang180
+  metamath-proof gang180
   note        The signed angles of a triangle, each turned the same way
               around it, add to π or to −π as the triangle runs
               counterclockwise or clockwise. The three points need only be
@@ -114,9 +114,9 @@ mundane theorem signed-angle-zero
   let Q be a point                                                    (H2)
   assume P ≠ Q                                                        (H3)
   then        ∡PQP = 0
-  metamath    gsangid, which this corpus proves in
+  metamath-counterpart gsangid, which this corpus proves in
               elaboration/stdlib/proved.mm from log1
-  target      gsangid
+  metamath-proof gsangid
   note        A ray turned to itself turns through nothing.
 
 mundane theorem three-rays
@@ -128,9 +128,9 @@ mundane theorem three-rays
   assume B ≠ Q                                                        (H6)
   assume X ≠ Q                                                        (H7)
   then        there is k ∈ ℤ with ∡AQX + ∡XQB = ∡AQB + 2·k·π
-  metamath    gsang3, which this corpus proves in
+  metamath-counterpart gsang3, which this corpus proves in
               elaboration/stdlib/proved.mm from eflogeq
-  target      gsang3
+  metamath-proof gsang3
   note        Three rays from Q: turning from QA to QX and then on to QB
               turns from QA to QB, give or take whole turns, since each
               signed angle is kept between −π and π.
@@ -144,9 +144,9 @@ mundane theorem isosceles-signed-angles
   assume A ≠ B                                                        (H6)
   assume |AQ| = |BQ|                                                  (H7)
   then        ∡QAB = ∡ABQ
-  metamath    gisosctr, set.mm's isosctr, which this corpus states of its
+  metamath-counterpart gisosctr, set.mm's isosctr, which this corpus states of its
               angle in elaboration/stdlib/proved.mm
-  target      gisosctr with C := Q
+  metamath-proof gisosctr with C := Q
   note        The base angles of an isosceles triangle, each turned the same
               way round it, are equal as signed angles: from AQ to AB at A
               and from BA to BQ at B. isosceles-angles says it unsigned.
@@ -158,9 +158,9 @@ mundane theorem same-side-turns-alike
   let D be a point                                                    (H4)
   assume C and D are on the same side of line AB                      (H5)
   then        ∡ACB·∡ADB > 0
-  metamath    gsamesang, which this corpus proves in
+  metamath-counterpart gsamesang, which this corpus proves in
               elaboration/stdlib/proved.mm from gsideang
-  target      gsamesang
+  metamath-proof gsamesang
   note        Two points on one side of a line see a segment of it turned
               the same way: the signed angle ACB is positive when C is on the
               counterclockwise side of AB and negative on the other.
@@ -183,12 +183,12 @@ definition triangle
   let R be a point                                                    (H3)
   then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
               not (P, Q, R are collinear)
-  metamath    gtridef, which this corpus proves in
+  metamath-counterpart gtridef, which this corpus proves in
               elaboration/stdlib/proved.mm: the notation's target is the three
               inequalities and the quotient it denies, and collinearity is the
               first two one point or the quotient real, which with the points
               distinct is the quotient
-  target      gtridef
+  metamath-proof gtridef
   note        set.mm has no single notion. "Form a triangle" and "are
               collinear" are notations whose targets make the two sides one
               formula; what collinearity is in words is
@@ -208,8 +208,8 @@ definition congruent
   then        triangle PQR ≅ triangle P′Q′R′ ↔ |PQ| = |P′Q′|, |QR| = |Q′R′|,
               |RP| = |R′P′|, ∠PQR = ∠P′Q′R′, ∠QRP = ∠Q′R′P′, and
               ∠RPQ = ∠R′P′Q′
-  metamath    biid, since the notation's target is the six equations
-  target      biid
+  metamath-counterpart biid, since the notation's target is the six equations
+  metamath-proof biid
   note        set.mm has no congruence of triangles, and the notation stands
               for the six equations themselves, so the two sides are one
               formula.
@@ -220,9 +220,9 @@ definition isosceles
   let R be a point                                                    (H3)
   then        △PQR is isosceles ↔ P, Q, R form a triangle and
               (|PQ| = |PR| or |QP| = |QR| or |RP| = |RQ|)
-  metamath    biid, since the notation's target is the triangle and the
+  metamath-counterpart biid, since the notation's target is the triangle and the
               three equalities it chooses among
-  target      biid
+  metamath-proof biid
   note        Two sides equal, whichever two: a triangle named by its three
               points has no apex until a proof says which equality holds.
 
@@ -232,9 +232,9 @@ definition equilateral
   let R be a point                                                    (H3)
   then        △PQR is equilateral ↔ P, Q, R form a triangle and |PQ| = |QR|
               and |QR| = |RP|
-  metamath    biid, since the notation's target is the triangle and the two
+  metamath-counterpart biid, since the notation's target is the triangle and the two
               equalities
-  target      biid
+  metamath-proof biid
 
 definition right-angled
   let P be a point                                                    (H1)
@@ -244,9 +244,9 @@ definition right-angled
   then        △PQR is right-angled at V ↔ P, Q, R form a triangle and
               ((V = P and ∠QPR = 90°) or (V = Q and ∠PQR = 90°) or
               (V = R and ∠PRQ = 90°))
-  metamath    biid, since the notation's target is the triangle and the
+  metamath-counterpart biid, since the notation's target is the triangle and the
               right angle at whichever vertex V is
-  target      biid
+  metamath-proof biid
   note        V is one of the three vertices and the angle there is right.
 
 mundane theorem right-angled-at-vertex
@@ -255,8 +255,8 @@ mundane theorem right-angled-at-vertex
   let R be a point                                                    (H3)
   then        △PQR is right-angled at R ↔ P, Q, R form a triangle and
               ∠PRQ = 90°
-  metamath    grightat3
-  target      grightat3
+  metamath-counterpart grightat3
+  metamath-proof grightat3
   note        Named at the vertex it writes last, a right angle is the angle
               there: the triangle's R ≠ P and R ≠ Q rule out the other two.
 
@@ -264,8 +264,8 @@ mundane theorem distance-symmetric
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| = |QP|
-  metamath    abssub
-  target      abssub
+  metamath-counterpart abssub
+  metamath-proof abssub
 
 mundane theorem angle-symmetric
   let P be a point                                                    (H1)
@@ -273,13 +273,13 @@ mundane theorem angle-symmetric
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        ∠PQR = ∠RQP
-  metamath    gangsym3, which this corpus proves in elaboration/stdlib/proved.mm.
+  metamath-counterpart gangsym3, which this corpus proves in elaboration/stdlib/proved.mm.
               The angle it writes is unsigned, which is what makes this true:
               ang itself is signed, and the two directions differ in sign. Off
               the branch cut that is arginv; on the cut nothing is negated and
               lognegb gives both directions as π. So the proof is in two cases
               and the absolute values agree either way.
-  target      gangsym3
+  metamath-proof gangsym3
 
 mundane theorem angle-turned
   let P be a point                                                    (H1)
@@ -289,8 +289,8 @@ mundane theorem angle-turned
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR = ∠RQP
-  metamath    gangsym3, which this corpus proves in elaboration/stdlib/proved.mm
-  target      gangsym3
+  metamath-counterpart gangsym3, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-proof gangsym3
   note        As angle-symmetric, for points that may lie on a line: the
               angle between two arms does not depend on which is named first.
 
@@ -303,11 +303,11 @@ definition parallel
   assume C ≠ D                                                        (H6)
   then        line AB ∥ line CD ↔ line AB = line CD or not (there is
               X ∈ 𝔼² with X is on line AB and X is on line CD)
-  metamath    gpardef, which this corpus proves in
+  metamath-counterpart gpardef, which this corpus proves in
               elaboration/stdlib/proved.mm: in the plane line AB ∥ line CD
               says (B − A)/(D − C) is real, which is true just where the two
               lines are one or share no point
-  target      gpardef
+  metamath-proof gpardef
   note        Two lines are parallel when they are one line or never meet,
               as SMSG defines it of distinct lines. Named for the angle sum,
               whose proof draws the parallel to one side through the
@@ -324,18 +324,18 @@ definition on-line
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   then        P is on line AB ↔ A, B, P are collinear
-  metamath    biid, since both notations' targets are the one quotient
-  target      biid
+  metamath-counterpart biid, since both notations' targets are the one quotient
+  metamath-proof biid
 
 definition line
   let P be a point                                                    (H1)
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   then        P ∈ line AB ↔ P is on line AB
-  metamath    glinel, which this corpus proves in
+  metamath-counterpart glinel, which this corpus proves in
               elaboration/stdlib/proved.mm from elrab3: line AB is the set of
               the points P is on line AB says of P
-  target      glinel
+  metamath-proof glinel
   note        The line through A and B as a set, for a statement that
               speaks of the line itself. A ≠ B where it is a line.
 
@@ -346,10 +346,10 @@ definition ray
   assume A ≠ B                                                        (H4)
   then        P ∈ ray AB ↔ P = A or P = B or (P is between A and B) or
               (B is between A and P)
-  metamath    grayel, which this corpus proves in
+  metamath-counterpart grayel, which this corpus proves in
               elaboration/stdlib/proved.mm from elrab3: (P − A)/(B − A) is
               0, 1, between them or above 1
-  target      grayel
+  metamath-proof grayel
   note        The ray from A through B: the segment AB and the points
               beyond B.
 
@@ -357,10 +357,10 @@ mundane theorem line-turned
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   then        line AB = line BA
-  metamath    glineturn, which this corpus proves in
+  metamath-counterpart glineturn, which this corpus proves in
               elaboration/stdlib/proved.mm: the three points turned round
               are collinear still, by gcolrotate and gcolswap
-  target      glineturn
+  metamath-proof glineturn
 
 mundane theorem on-line-cases
   let P be a point                                                    (H1)
@@ -370,10 +370,10 @@ mundane theorem on-line-cases
   assume P is on line QR                                              (H5)
   then        P = Q or (P is between Q and R) or P = R or
               (R is between Q and P) or (Q is between P and R)
-  metamath    gonline, which this corpus proves in
+  metamath-counterpart gonline, which this corpus proves in
               elaboration/stdlib/proved.mm: P is Q + t(R − Q) with t real,
               and t is 0, between 0 and 1, 1, above 1 or below 0
-  target      gonline
+  metamath-proof gonline
   note        A point of a line through two points is one of them, between
               them, or beyond one of them, which a figure shows and a proof
               takes as the cases there are.
@@ -394,8 +394,8 @@ mundane theorem perpendicular-by-right-angle
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        line QP ⊥ line QR ↔ ∠PQR = 90°
-  metamath    gperp90, from angrteqvd
-  target      gperp90
+  metamath-counterpart gperp90, from angrteqvd
+  metamath-proof gperp90
   note        Two lines through Q are perpendicular when the angle between
               them at Q is a right angle.
 
@@ -405,9 +405,9 @@ definition midpoint
   let B be a point                                                    (H3)
   then        M is the midpoint of AB ↔ (M is between A and B) and
               |AM| = |MB|
-  metamath    biid, since the notation's target is the betweenness and the
+  metamath-counterpart biid, since the notation's target is the betweenness and the
               equal halves
-  target      biid
+  metamath-proof biid
   note        In the plane the midpoint is (A + B)/2, which the page does not
               write: it adds points.
 
@@ -419,9 +419,9 @@ mundane theorem midpoint-unique
   assume M is the midpoint of AB                                      (H5)
   assume N is the midpoint of AB                                      (H6)
   then        M = N
-  metamath    gmiduniq, which this corpus proves in
+  metamath-counterpart gmiduniq, which this corpus proves in
               elaboration/stdlib/proved.mm from gmidval: each is (A + B)/2
-  target      gmiduniq
+  metamath-proof gmiduniq
   note        A segment has one midpoint, which is what "the midpoint of AB"
               takes for granted.
 
@@ -433,10 +433,10 @@ mundane theorem midpoint-determines-end
   assume M is the midpoint of AB                                      (H5)
   assume M is the midpoint of AC                                      (H6)
   then        B = C
-  metamath    gmidend, which this corpus proves in
+  metamath-counterpart gmidend, which this corpus proves in
               elaboration/stdlib/proved.mm from gmidval: (A + B)/2 =
               (A + C)/2 cancels to B = C
-  target      gmidend
+  metamath-proof gmidend
   note        The reflection of a point through another is one point: B is
               the point beyond M from A at the distance |AM|.
 
@@ -460,9 +460,9 @@ axiom supplementary-angles
   assume D ≠ A                                                        (H7)
   assume D ≠ C                                                        (H8)
   then        ∠ABD + ∠DBC = 180°
-  metamath    gsupp, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gsupp, which this corpus proves in elaboration/stdlib/proved.mm
               from cosangneg2d, cospim and cos11
-  target      gsupp
+  metamath-proof gsupp
   note        Two angles on a line, Euclid I.13: with B on the segment AC,
               the angles ABD and DBC make a straight angle wherever D is.
               SMSG's postulate 14, the supplement postulate: two angles
@@ -473,8 +473,8 @@ theorem triangle-inequality-points
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   then        |PR| ≤ |PQ| + |QR|
-  metamath    abs3dif
-  target      abs3dif
+  metamath-counterpart abs3dif
+  metamath-proof abs3dif
 
 mundane theorem angle-addition
   let A be a point                                                    (H1)
@@ -485,9 +485,9 @@ mundane theorem angle-addition
   assume M is between A and B                                         (H6)
   assume C ≠ M                                                        (H7)
   then        ∠ACM + ∠MCB = ∠ACB
-  metamath    gangadd, which this corpus proves in
+  metamath-counterpart gangadd, which this corpus proves in
               elaboration/stdlib/proved.mm: set.mm adds no two angles
-  target      gangadd
+  metamath-proof gangadd
   note        A point of the side AB splits the angle at C in two. With T
               the point beyond C from A, angles-on-a-line makes ACM, MCB
               and BCT a straight angle, and supplementary-angles makes ACB
@@ -499,18 +499,18 @@ mundane theorem distance-nonneg
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| ≥ 0
-  metamath    gdistnn, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gdistnn, which this corpus proves in elaboration/stdlib/proved.mm
               from absge0
-  target      gdistnn
+  metamath-proof gdistnn
 
 axiom distance-positive
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   assume P ≠ Q                                                        (H3)
   then        |PQ| > 0
-  metamath    gdistpos, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gdistpos, which this corpus proves in elaboration/stdlib/proved.mm
               from absgt0
-  target      gdistpos
+  metamath-proof gdistpos
   note        SMSG's postulate 2, the distance postulate: two distinct
               points are a positive distance apart.
 
@@ -518,9 +518,9 @@ mundane theorem distance-zero
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| = 0 ↔ P = Q
-  metamath    gdist0, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gdist0, which this corpus proves in elaboration/stdlib/proved.mm
               from abs00 and subeq0
-  target      gdist0
+  metamath-proof gdist0
   note        A point is at distance 0 from itself and from no other point.
 
 mundane theorem distance-by-coordinates
@@ -529,9 +529,9 @@ mundane theorem distance-by-coordinates
   let c ∈ ℝ                                                           (H3)
   let d ∈ ℝ                                                           (H4)
   then        |(a, b)(c, d)| = √((a − c)² + (b − d)²)
-  metamath    gdistco, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gdistco, which this corpus proves in elaboration/stdlib/proved.mm
               from absreim
-  target      gdistco
+  metamath-proof gdistco
 
 mundane theorem collinear-by-coordinates
   let a ∈ ℝ                                                           (H1)
@@ -541,10 +541,10 @@ mundane theorem collinear-by-coordinates
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
   then        (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
-  metamath    gcolco, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gcolco, which this corpus proves in elaboration/stdlib/proved.mm
               from gdivre: a quotient is real just where the first times
               the conjugate of the second has imaginary part 0
-  target      gcolco
+  metamath-proof gcolco
 
 mundane theorem between-by-coordinates
   let a ∈ ℝ                                                           (H1)
@@ -554,11 +554,11 @@ mundane theorem between-by-coordinates
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
   then        (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
-  metamath    gbetco, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gbetco, which this corpus proves in elaboration/stdlib/proved.mm
               from gdivneg: a quotient is a negative real just where the
               first times the conjugate of the second has imaginary part 0
               and negative real part
-  target      gbetco
+  metamath-proof gbetco
   note        The three points are collinear, and the two ends lie on
               opposite sides of the middle one: the differences from it
               point opposite ways, so their dot product is negative.
@@ -573,10 +573,10 @@ mundane theorem points-apart-by-coordinates
   assume A = (a, b)                                                   (H7)
   assume B = (c, d)                                                   (H8)
   then        A ≠ B ↔ (a, b) ≠ (c, d)
-  metamath    gptapart, which this corpus proves in
+  metamath-counterpart gptapart, which this corpus proves in
               elaboration/stdlib/proved.mm from cru and opthneg: each
               differs just where a coordinate does
-  target      gptapart
+  metamath-proof gptapart
   note        On the left (a, b) and (c, d) are points, as A and B are;
               on the right they are pairs, which `arithmetic` compares
               coordinate by coordinate (`METHODS.md`, Pairs).
@@ -591,10 +591,10 @@ mundane theorem distance-of-points-by-coordinates
   assume A = (a, b)                                                   (H7)
   assume B = (c, d)                                                   (H8)
   then        |AB| = √((a − c)² + (b − d)²)
-  metamath    gptdist, which this corpus proves in
+  metamath-counterpart gptdist, which this corpus proves in
               elaboration/stdlib/proved.mm from gdistco, the points put for
               their coordinates
-  target      gptdist
+  metamath-proof gptdist
   note        distance-by-coordinates for two points named by letters, so a
               proof that gives its points coordinates reads each distance
               off in one step.
@@ -605,9 +605,9 @@ mundane theorem between-symmetric
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        R is between T and S
-  metamath    gbetsym, which this corpus proves in elaboration/stdlib/proved.mm:
+  metamath-counterpart gbetsym, which this corpus proves in elaboration/stdlib/proved.mm:
               the quotient read the other way is its reciprocal
-  target      gbetsym
+  metamath-proof gbetsym
 
 mundane theorem between-apart
   let R be a point                                                    (H1)
@@ -615,11 +615,11 @@ mundane theorem between-apart
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        S ≠ R. T ≠ R.
-  metamath    gbetne0, which this corpus proves in
+  metamath-counterpart gbetne0, which this corpus proves in
               elaboration/stdlib/proved.mm: the first is part of what
               between says, and T = R would make the quotient 0, which
               is not negative
-  target      gbetne0
+  metamath-proof gbetne0
   note        A point between two others is apart from both, so the
               angles and triangles at it are defined.
 
@@ -629,10 +629,10 @@ mundane theorem between-ends-apart
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        S ≠ T
-  metamath    gbetends, which this corpus proves in
+  metamath-counterpart gbetends, which this corpus proves in
               elaboration/stdlib/proved.mm: S = T would make the quotient
               1, which is not negative
-  target      gbetends
+  metamath-proof gbetends
   note        A segment with a point strictly between its ends has two ends.
 
 mundane theorem between-collinear
@@ -641,9 +641,9 @@ mundane theorem between-collinear
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        T, R, S are collinear
-  metamath    gbetcol, which this corpus proves in
+  metamath-counterpart gbetcol, which this corpus proves in
               elaboration/stdlib/proved.mm from gtricol
-  target      gbetcol
+  metamath-proof gbetcol
   note        A point between two others is on their line.
 
 mundane theorem triangle-on-side
@@ -654,9 +654,9 @@ mundane theorem triangle-on-side
   assume P, Q, R form a triangle                                      (H5)
   assume S is between Q and R                                         (H6)
   then        P, Q, S form a triangle
-  metamath    gtriside, which this corpus proves in
+  metamath-counterpart gtriside, which this corpus proves in
               elaboration/stdlib/proved.mm: set.mm has no triangles over ℂ
-  target      gtriside
+  metamath-proof gtriside
   note        A point of the side QR, apart from its ends, makes a smaller
               triangle with the vertex opposite and either end: S lies on
               line QR, which P does not.
@@ -671,8 +671,8 @@ mundane theorem angle-along-segment
   assume R ≠ S                                                        (H7)
   assume R ≠ Q                                                        (H8)
   then        ∠SPR = ∠QPR
-  metamath    gangseg, which this corpus proves in elaboration/stdlib/proved.mm
-  target      gangseg
+  metamath-counterpart gangseg, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-proof gangseg
   note        S on the segment from P to Q is on the ray from P through Q,
               so the angle that ray makes with PR is the same measured to S
               as to Q.
@@ -683,8 +683,8 @@ mundane theorem segment-addition
   let S be a point                                                    (H3)
   assume S is between P and Q                                         (H4)
   then        |PS| + |SQ| = |PQ|
-  metamath    gsegadd, which this corpus proves in elaboration/stdlib/proved.mm
-  target      gsegadd
+  metamath-counterpart gsegadd, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-proof gsegadd
 
 mundane theorem sine-positive
   let P be a point                                                    (H1)
@@ -692,8 +692,8 @@ mundane theorem sine-positive
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        sin(∠PQR) > 0
-  metamath    gsinpos, which this corpus proves in elaboration/stdlib/proved.mm
-  target      gsinpos
+  metamath-counterpart gsinpos, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-proof gsinpos
   note        An angle of a triangle is strictly between 0° and 180°, where
               the sine is positive.
 
@@ -703,9 +703,9 @@ theorem law-of-sines
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
-  metamath    glawsin, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart glawsin, which this corpus proves in elaboration/stdlib/proved.mm
               from heron, taken at Q and at R
-  target      glawsin
+  metamath-proof glawsin
   note        Each side over the sine of the angle opposite it is the same:
               PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
               |PQ|/sin(∠QRP), written without division.
@@ -715,8 +715,8 @@ definition area
   let Q be a point                                                    (H2)
   let R be a point                                                    (H3)
   then        the area of △PQR = (1/2)·(|QR|·|PR|)·|sin(∡QRP)|
-  metamath    eqid, since the notation's target is the right side
-  target      eqid
+  metamath-counterpart eqid, since the notation's target is the right side
+  metamath-proof eqid
   note        Half of two sides times the sine of the angle between them,
               the sine's size taken so that the area does not depend on which
               way the triangle runs.
@@ -729,8 +729,8 @@ theorem area-by-sine
   assume Q ≠ R                                                        (H5)
   assume Q ≠ P                                                        (H6)
   then        the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
-  metamath    garea, from gsinabs
-  target      garea
+  metamath-counterpart garea, from gsinabs
+  metamath-proof garea
 
 mundane theorem area-real
   let P be a point                                                    (H1)
@@ -739,9 +739,9 @@ mundane theorem area-real
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
   then        the area of △PQR ∈ ℝ
-  metamath    gareacl, which this corpus proves in
+  metamath-counterpart gareacl, which this corpus proves in
               elaboration/stdlib/proved.mm from gsangcl
-  target      gareacl
+  metamath-proof gareacl
 
 axiom area-positive
   let P be a point                                                    (H1)
@@ -749,8 +749,8 @@ axiom area-positive
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        the area of △PQR > 0
-  metamath    gareapos, from gsinpos
-  target      gareapos
+  metamath-counterpart gareapos, from gsinpos
+  metamath-proof gareapos
   note        SMSG's postulate 17, said of a triangle: a triangle has a
               positive area.
 
@@ -763,8 +763,8 @@ theorem heron
   assume Q ≠ R                                                        (H6)
   assume s = (|QR| + |PR| + |PQ|)/2                                   (H7)
   then        the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
-  metamath    gheron, from heron
-  target      gheron
+  metamath-counterpart gheron, from heron
+  metamath-proof gheron
   note        Heron's formula: the area from the three sides alone, s being
               half the perimeter.
 
@@ -776,9 +776,9 @@ theorem law-of-cosines
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-  metamath    glawcos, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart glawcos, which this corpus proves in elaboration/stdlib/proved.mm
               from lawcos
-  target      glawcos
+  metamath-proof glawcos
   note        The side opposite Q, from the two sides at Q and the angle
               between them; at a right angle the last term is 0 and it is
               Pythagoras.
@@ -798,8 +798,8 @@ mundane theorem angle-equal-by-cosine
   assume P ≠ R                                                        (H12)
   assume P′ ≠ R′                                                      (H13)
   then        ∠PQR = ∠P′Q′R′
-  metamath    gangeq3, from cos11
-  target      gangeq3
+  metamath-counterpart gangeq3, from cos11
+  metamath-proof gangeq3
   note        An angle is between 0° and 180°, where the cosine is one-to-one.
 
 mundane theorem angle-order-by-cosine
@@ -816,8 +816,8 @@ mundane theorem angle-order-by-cosine
   assume P ≠ R                                                        (H11)
   assume P′ ≠ R′                                                      (H12)
   then        ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
-  metamath    gangord3, from cosord
-  target      gangord3
+  metamath-counterpart gangord3, from cosord
+  metamath-proof gangord3
   note        An angle is between 0° and 180°, where the cosine falls: the
               larger angle has the smaller cosine.
 
@@ -829,8 +829,8 @@ mundane theorem right-angle-by-cosine
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR = 90° ↔ cos(∠PQR) = 0
-  metamath    gright3, from coseq00topi
-  target      gright3
+  metamath-counterpart gright3, from coseq00topi
+  metamath-proof gright3
 
 mundane theorem right-angle-triangle
   let P be a point                                                    (H1)
@@ -841,10 +841,10 @@ mundane theorem right-angle-triangle
   assume ∠PQR = 90°                                                   (H6)
   assume P ≠ R                                                        (H7)
   then        P, Q, R form a triangle
-  metamath    grttri, which this corpus proves in
+  metamath-counterpart grttri, which this corpus proves in
               elaboration/stdlib/proved.mm from gperp90: the quotient of the
               two arms has real part 0, so it is real only where it is 0
-  target      grttri
+  metamath-proof grttri
   note        The arms of a right angle are not on one line.
 
 mundane theorem cosine-right-triangle
@@ -856,10 +856,10 @@ mundane theorem cosine-right-triangle
   assume ∠PRQ = 90°                                                   (H6)
   assume P ≠ Q                                                        (H7)
   then        |QR| = |QP|·cos(∠RQP)
-  metamath    gcosrt, which this corpus proves in
+  metamath-counterpart gcosrt, which this corpus proves in
               elaboration/stdlib/proved.mm from glawcos, at Q and at the
               right angle
-  target      gcosrt
+  metamath-proof gcosrt
   note        In a triangle with a right angle at R, the side QR next to
               the angle at Q is the hypotenuse times that angle's cosine:
               the cosine is the adjacent side over the hypotenuse, which is
@@ -873,9 +873,9 @@ mundane theorem angle-at-most-straight
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR ≤ 180°
-  metamath    gangle180, which this corpus proves in
+  metamath-counterpart gangle180, which this corpus proves in
               elaboration/stdlib/proved.mm from gangicc3
-  target      gangle180
+  metamath-proof gangle180
 
 mundane theorem angle-by-cosine
   let P be a point                                                    (H1)
@@ -888,9 +888,9 @@ mundane theorem angle-by-cosine
   assume x ≤ 180°                                                     (H8)
   assume P ≠ R                                                        (H9)
   then        ∠PQR = x ↔ cos(∠PQR) = cos(x)
-  metamath    gangcos, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart gangcos, which this corpus proves in elaboration/stdlib/proved.mm
               from gangicc3 and cos11
-  target      gangcos
+  metamath-proof gangcos
   note        An angle is read from its cosine, as right-angle-by-cosine
               reads a right angle: on [0°, 180°] the cosine takes each value
               once.
@@ -908,7 +908,7 @@ axiom side-angle-side
   assume ∠PQR = ∠P′Q′R′                                               (H10)
   assume |QR| = |Q′R′|                                                (H11)
   then        triangle PQR ≅ triangle P′Q′R′
-  metamath    gsas, which this corpus proves in elaboration/stdlib/proved.mm. An
+  metamath-counterpart gsas, which this corpus proves in elaboration/stdlib/proved.mm. An
               axiom in Euclid and in Hilbert, because a synthetic geometry has
               no coordinates to compute with and congruence has to be
               stipulated; over ℂ it is a theorem. The proof is the law of
@@ -917,7 +917,7 @@ axiom side-angle-side
               The third side comes first, since equal sides and equal cosines
               make equal squares and a length is not negative; with all three
               sides equal the other two angles follow the other way round.
-  target      gsas
+  metamath-proof gsas
   note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
               this statement's variable names. One of the two must change; the
               merge changed neither. See DATABASE.md.
@@ -939,19 +939,19 @@ axiom line-uniqueness
   assume A is on line CD                                              (H7)
   assume B is on line CD                                              (H8)
   then        line AB = line CD
-  metamath    glineuniq, which this corpus proves in
+  metamath-counterpart glineuniq, which this corpus proves in
               elaboration/stdlib/proved.mm: a point's place along line AB
               is a real affine change of its place along line CD
-  target      glineuniq
+  metamath-proof glineuniq
   note        SMSG's postulate 1: two distinct points lie on exactly one
               line. Lines are said by two of their points, so the postulate
               says that any two distinct points of a line make that line.
 
 axiom three-points
   then        there are P, Q, R ∈ 𝔼² with P, Q, R form a triangle
-  metamath    gthreepts, which this corpus proves in
+  metamath-counterpart gthreepts, which this corpus proves in
               elaboration/stdlib/proved.mm: 0, 1 and i, since i is not real
-  target      gthreepts
+  metamath-proof gthreepts
   note        SMSG's postulate 5, of the plane: it holds three points not on
               one line.
 
@@ -961,10 +961,10 @@ axiom angle-measure
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        ∠PQR > 0°. ∠PQR < 180°.
-  metamath    gangmeas, which this corpus proves in
+  metamath-counterpart gangmeas, which this corpus proves in
               elaboration/stdlib/proved.mm: the angle is in [0, π] and its
               sine is positive, and the sine is 0 at both ends
-  target      gangmeas
+  metamath-proof gangmeas
   note        SMSG's postulate 11: an angle, two rays from one point not on
               one line, has a measure strictly between 0° and 180°.
               mun:stdlib/geometry/angle-real and
@@ -977,10 +977,10 @@ axiom ruler
   assume A ≠ B                                                        (H3)
   then        there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and
               onto and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
-  metamath    gruler, which this corpus proves in
+  metamath-counterpart gruler, which this corpus proves in
               elaboration/stdlib/proved.mm: f takes P to (P − A)/(B − A)
               times |AB|, which is real on the line
-  target      gruler
+  metamath-proof gruler
   note        SMSG's postulate 3, the ruler: the points of a line are paired
               with the real numbers so that a distance is a difference of
               coordinates.
@@ -992,9 +992,9 @@ axiom ruler-placement
   then        there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and
               onto and f(A) = 0 and f(B) > 0 and for all P, Q ∈ line AB,
               |PQ| = |f(P) − f(Q)|
-  metamath    grulerplace, which this corpus proves in
+  metamath-counterpart grulerplace, which this corpus proves in
               elaboration/stdlib/proved.mm, with the f of gruler
-  target      grulerplace
+  metamath-proof grulerplace
   note        SMSG's postulate 4: a ruler may be laid along a line with any
               point of it at 0 and any other on the positive side.
 
@@ -1011,10 +1011,10 @@ axiom parallel-uniqueness
   assume line PC ∥ line AB                                            (H10)
   assume line PD ∥ line AB                                            (H11)
   then        line PC = line PD
-  metamath    gparuniq, which this corpus proves in
+  metamath-counterpart gparuniq, which this corpus proves in
               elaboration/stdlib/proved.mm: both lines run the way B − A
               does, so D − P is a real multiple of C − P
-  target      gparuniq
+  metamath-proof gparuniq
   note        SMSG's postulate 16, the parallel postulate: through a point
               not on a line there is at most one line parallel to it. That
               there is one is thm:stdlib/geometry/parallel-through.
@@ -1029,10 +1029,10 @@ axiom plane-separation
   assume not (Q is on line AB)                                        (H7)
   then        P and Q are on the same side of line AB or P and Q are on
               opposite sides of line AB
-  metamath    gplanesep, which this corpus proves in
+  metamath-counterpart gplanesep, which this corpus proves in
               elaboration/stdlib/proved.mm: neither point's side of the
               line is 0, so their product is positive or negative
-  target      gplanesep
+  metamath-proof gplanesep
   note        SMSG's postulate 9, the plane separation postulate, in three
               parts: a line divides the points off it into two sides, each
               side holds a segment between two of its points
@@ -1049,10 +1049,10 @@ axiom plane-separation-convex
   assume P and Q are on the same side of line AB                      (H7)
   assume X is between P and Q                                         (H8)
   then        X and P are on the same side of line AB
-  metamath    gplanesepcvx, which this corpus proves in
+  metamath-counterpart gplanesepcvx, which this corpus proves in
               elaboration/stdlib/proved.mm: X's side is a weighted mean of
               P's and Q's
-  target      gplanesepcvx
+  metamath-proof gplanesepcvx
   note        SMSG's postulate 9, second part: each side of a line is
               convex.
 
@@ -1065,9 +1065,9 @@ axiom plane-separation-crossing
   assume P and Q are on opposite sides of line AB                     (H6)
   then        there is X ∈ 𝔼² with X is on line AB and
               (X is between P and Q)
-  metamath    gplanesepcross, which this corpus proves in
+  metamath-counterpart gplanesepcross, which this corpus proves in
               elaboration/stdlib/proved.mm: the point of PQ whose side is 0
-  target      gplanesepcross
+  metamath-proof gplanesepcross
   note        SMSG's postulate 9, third part: a segment joining the two
               sides of a line meets the line.
 
@@ -1081,10 +1081,10 @@ axiom angle-construction
   assume x < 180°                                                     (H7)
   then        there is D ∈ 𝔼² with D and C are on the same side of line AB
               and ∠BAD = x
-  metamath    gangconsm, which this corpus proves in
+  metamath-counterpart gangconsm, which this corpus proves in
               elaboration/stdlib/proved.mm from gangcons: D is A plus B − A
               turned through x toward C's side
-  target      gangconsm
+  metamath-proof gangconsm
   note        SMSG's postulate 12, the angle construction postulate: on a
               given side of a line, a ray from a point of it makes each
               angle from 0° to 180° with the line, in two parts. This is
@@ -1102,10 +1102,10 @@ axiom angle-construction-unique
   assume E and C are on the same side of line AB                      (H8)
   assume ∠BAD = ∠BAE                                                  (H9)
   then        E ∈ ray AD
-  metamath    gangconsuniq, which this corpus proves in
+  metamath-counterpart gangconsuniq, which this corpus proves in
               elaboration/stdlib/proved.mm: on one side of the line, the
               angle fixes the argument of (D − A)/(B − A)
-  target      gangconsuniq
+  metamath-proof gangconsuniq
   note        SMSG's postulate 12, second part: the ray is the only one.
 
 axiom angle-addition-inside
@@ -1117,10 +1117,10 @@ axiom angle-addition-inside
   assume D and C are on the same side of line AB                      (H6)
   assume D and B are on the same side of line AC                      (H7)
   then        ∠BAD + ∠DAC = ∠BAC
-  metamath    gangaddin, which this corpus proves in
+  metamath-counterpart gangaddin, which this corpus proves in
               elaboration/stdlib/proved.mm: the arguments of the two
               quotients add, and both lie on one side of the real line
-  target      gangaddin
+  metamath-proof gangaddin
   note        SMSG's postulate 13, the angle addition postulate: D is
               inside angle BAC, on C's side of line AB and B's side of line
               AC. mun:stdlib/geometry/angle-addition says the same of a D
@@ -1137,10 +1137,10 @@ axiom area-congruent
   assume P′, Q′, R′ form a triangle                                   (H8)
   assume triangle PQR ≅ triangle P′Q′R′                               (H9)
   then        the area of △PQR = the area of △P′Q′R′
-  metamath    gareacong, which this corpus proves in
+  metamath-counterpart gareacong, which this corpus proves in
               elaboration/stdlib/proved.mm from garea: two sides and the
               angle between them fix the area
-  target      gareacong
+  metamath-proof gareacong
   note        SMSG's postulate 18: congruent triangles have the same area.
 
 axiom area-base-height
@@ -1152,10 +1152,10 @@ axiom area-base-height
   assume H is on line QR                                              (H6)
   assume line PH ⊥ line QR                                            (H7)
   then        the area of △PQR = (1/2)·|QR|·|PH|
-  metamath    gareabh, which this corpus proves in
+  metamath-counterpart gareabh, which this corpus proves in
               elaboration/stdlib/proved.mm: |PH| is |PR| times the sine of
               the angle at R
-  target      gareabh
+  metamath-proof gareabh
   note        SMSG's postulate 20, said of a triangle: half the base times
               the height, where SMSG says it of a rectangle.
 
@@ -1167,10 +1167,10 @@ axiom area-addition
   assume P, Q, R form a triangle                                      (H5)
   assume D is between Q and R                                         (H6)
   then        the area of △PQR = the area of △PQD + the area of △PDR
-  metamath    gareaadd, which this corpus proves in
+  metamath-counterpart gareaadd, which this corpus proves in
               elaboration/stdlib/proved.mm: the three triangles have one
               height over line QR, and QD and DR make QR
-  target      gareaadd
+  metamath-proof gareaadd
   note        SMSG's postulate 19, said of a triangle cut in two by a
               segment from a vertex.
 
@@ -1183,9 +1183,9 @@ mundane theorem midpoint-exists
   let B be a point                                                    (H2)
   assume A ≠ B                                                        (H3)
   then        there is M ∈ 𝔼² with M is the midpoint of AB
-  metamath    gmidex, which this corpus proves in
+  metamath-counterpart gmidex, which this corpus proves in
               elaboration/stdlib/proved.mm: (A + B)/2
-  target      gmidex
+  metamath-proof gmidex
 
 mundane theorem segment-extension
   let A be a point                                                    (H1)
@@ -1194,10 +1194,10 @@ mundane theorem segment-extension
   assume A ≠ B                                                        (H4)
   assume r > 0                                                        (H5)
   then        there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
-  metamath    gextend, which this corpus proves in
+  metamath-counterpart gextend, which this corpus proves in
               elaboration/stdlib/proved.mm: B plus r times the unit
               direction from A to B
-  target      gextend
+  metamath-proof gextend
   note        Euclid's second postulate, a segment produced, with the length
               it is produced by.
 
@@ -1208,10 +1208,10 @@ mundane theorem segment-point
   assume r > 0                                                        (H4)
   assume r < |AB|                                                     (H5)
   then        there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
-  metamath    gsegpt, which this corpus proves in
+  metamath-counterpart gsegpt, which this corpus proves in
               elaboration/stdlib/proved.mm: A plus r times the unit
               direction from A to B
-  target      gsegpt
+  metamath-proof gsegpt
   note        A length shorter than a segment, laid off along it from one
               end.
 
@@ -1222,9 +1222,9 @@ mundane theorem triangle-off-line
   assume Q ≠ R                                                        (H4)
   assume not (P is on line QR)                                        (H5)
   then        P, Q, R form a triangle
-  metamath    gtrioff, which this corpus proves in
+  metamath-counterpart gtrioff, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gtrioff
+  metamath-proof gtrioff
 
 mundane theorem ray-on-line
   let P be a point                                                    (H1)
@@ -1232,9 +1232,9 @@ mundane theorem ray-on-line
   let B be a point                                                    (H3)
   assume P ∈ ray AB                                                   (H4)
   then        P is on line AB
-  metamath    grayline, which this corpus proves in
+  metamath-counterpart grayline, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      grayline
+  metamath-proof grayline
   note        A ray lies on its line.
 
 mundane theorem same-not-opposite
@@ -1244,9 +1244,9 @@ mundane theorem same-not-opposite
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        not (P and Q are on opposite sides of line AB)
-  metamath    gsidenot, which this corpus proves in
+  metamath-counterpart gsidenot, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsidenot
+  metamath-proof gsidenot
   note        The two sides of a line do not meet, which SMSG's plane
               separation postulate says in calling them two sets.
 
@@ -1258,9 +1258,9 @@ mundane theorem parallel-turned
   assume A ≠ B                                                        (H5)
   assume line AB ∥ line CD                                            (H6)
   then        line CD ∥ line AB
-  metamath    gparturn, which this corpus proves in
+  metamath-counterpart gparturn, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gparturn
+  metamath-proof gparturn
   note        Being parallel goes both ways.
 
 mundane theorem perpendicular-turned
@@ -1270,9 +1270,9 @@ mundane theorem perpendicular-turned
   let D be a point                                                    (H4)
   assume line AB ⊥ line CD                                            (H5)
   then        line BA ⊥ line CD
-  metamath    gperpturn, which this corpus proves in
+  metamath-counterpart gperpturn, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gperpturn
+  metamath-proof gperpturn
   note        Line BA is line AB, so a line perpendicular to the one is
               perpendicular to the other.
 
@@ -1288,9 +1288,9 @@ mundane theorem perpendicular-along
   assume F is on line CD                                              (H9)
   assume E ≠ F                                                        (H10)
   then        line AB ⊥ line EF
-  metamath    gperpalong, which this corpus proves in
+  metamath-counterpart gperpalong, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gperpalong
+  metamath-proof gperpalong
   note        Being perpendicular belongs to the line, not to the two
               points that name it.
 
@@ -1300,10 +1300,10 @@ mundane theorem area-rotated
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        the area of △PQR = the area of △QRP
-  metamath    garearot, which this corpus proves in
+  metamath-counterpart garearot, which this corpus proves in
               elaboration/stdlib/proved.mm: each is half the size of the
               imaginary part of (P − R) times the conjugate of (Q − R)
-  target      garearot
+  metamath-proof garearot
   note        The area of a triangle does not depend on which vertex is
               named first.
 
@@ -1314,9 +1314,9 @@ mundane theorem same-side-turned
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        Q and P are on the same side of line AB
-  metamath    gsameturn, which this corpus proves in
+  metamath-counterpart gsameturn, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsameturn
+  metamath-proof gsameturn
 
 mundane theorem opposite-sides-turned
   let A be a point                                                    (H1)
@@ -1325,9 +1325,9 @@ mundane theorem opposite-sides-turned
   let Q be a point                                                    (H4)
   assume P and Q are on opposite sides of line AB                     (H5)
   then        Q and P are on opposite sides of line AB
-  metamath    goppturn, which this corpus proves in
+  metamath-counterpart goppturn, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      goppturn
+  metamath-proof goppturn
 
 mundane theorem same-side-same
   let A be a point                                                    (H1)
@@ -1338,9 +1338,9 @@ mundane theorem same-side-same
   assume P and Q are on the same side of line AB                      (H6)
   assume Q and R are on the same side of line AB                      (H7)
   then        P and R are on the same side of line AB
-  metamath    gsametr, which this corpus proves in
+  metamath-counterpart gsametr, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsametr
+  metamath-proof gsametr
 
 mundane theorem opposite-opposite-same
   let A be a point                                                    (H1)
@@ -1351,9 +1351,9 @@ mundane theorem opposite-opposite-same
   assume P and Q are on opposite sides of line AB                     (H6)
   assume Q and R are on opposite sides of line AB                     (H7)
   then        P and R are on the same side of line AB
-  metamath    goppopp, which this corpus proves in
+  metamath-counterpart goppopp, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      goppopp
+  metamath-proof goppopp
 
 mundane theorem same-opposite-opposite
   let A be a point                                                    (H1)
@@ -1364,9 +1364,9 @@ mundane theorem same-opposite-opposite
   assume P and Q are on the same side of line AB                      (H6)
   assume Q and R are on opposite sides of line AB                     (H7)
   then        P and R are on opposite sides of line AB
-  metamath    gsameopp, which this corpus proves in
+  metamath-counterpart gsameopp, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsameopp
+  metamath-proof gsameopp
 
 mundane theorem same-side-of-line
   let A be a point                                                    (H1)
@@ -1381,10 +1381,10 @@ mundane theorem same-side-of-line
   assume D is on line AB                                              (H10)
   assume P and Q are on the same side of line AB                      (H11)
   then        P and Q are on the same side of line CD
-  metamath    gsideline, which this corpus proves in
+  metamath-counterpart gsideline, which this corpus proves in
               elaboration/stdlib/proved.mm: a point's place along line CD
               is a real affine change of its place along line AB
-  target      gsideline
+  metamath-proof gsideline
   note        Which side a point is on belongs to the line, not to the two
               points that name it.
 
@@ -1401,9 +1401,9 @@ mundane theorem opposite-sides-of-line
   assume D is on line AB                                              (H10)
   assume P and Q are on opposite sides of line AB                     (H11)
   then        P and Q are on opposite sides of line CD
-  metamath    goppline, which this corpus proves in
+  metamath-counterpart goppline, which this corpus proves in
               elaboration/stdlib/proved.mm, as gsideline
-  target      goppline
+  metamath-proof goppline
 
 mundane theorem segment-off-line
   let A be a point                                                    (H1)
@@ -1416,9 +1416,9 @@ mundane theorem segment-off-line
   assume not (P is on line AB)                                        (H8)
   assume X is between P and Q                                         (H9)
   then        X and P are on the same side of line AB
-  metamath    gsegside, which this corpus proves in
+  metamath-counterpart gsegside, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsegside
+  metamath-proof gsegside
   note        A segment from a point off a line to a point on it stays on
               the first point's side.
 
@@ -1433,9 +1433,9 @@ mundane theorem segment-across-line
   assume not (P is on line AB)                                        (H8)
   assume M is between P and Q                                         (H9)
   then        P and Q are on opposite sides of line AB
-  metamath    gsegcross, which this corpus proves in
+  metamath-counterpart gsegcross, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsegcross
+  metamath-proof gsegcross
   note        A segment through a point of a line, from a point off it,
               ends on the other side.
 
@@ -1450,9 +1450,9 @@ mundane theorem segment-beyond-off-line
   assume not (X is on line AB)                                        (H8)
   assume X is between P and Q                                         (H9)
   then        P and X are on the same side of line AB
-  metamath    gsegbeyond, which this corpus proves in
+  metamath-counterpart gsegbeyond, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gsegbeyond
+  metamath-proof gsegbeyond
   note        A segment from a point of a line through a point off it goes
               on, past that point, on its side.
 
@@ -1463,9 +1463,9 @@ mundane theorem same-side-off-line
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        A ≠ B. not (P is on line AB). not (Q is on line AB).
-  metamath    gsameoffab, gsameoffp, gsameoffq, which this corpus proves in
+  metamath-counterpart gsameoffab, gsameoffp, gsameoffq, which this corpus proves in
               elaboration/stdlib/proved.mm from gsameoff
-  target      gsameoffab, gsameoffp, gsameoffq
+  metamath-proof gsameoffab, gsameoffp, gsameoffq
   note        One target to a sentence.
 
 mundane theorem opposite-sides-off-line
@@ -1475,18 +1475,18 @@ mundane theorem opposite-sides-off-line
   let Q be a point                                                    (H4)
   assume P and Q are on opposite sides of line AB                     (H5)
   then        A ≠ B. not (P is on line AB). not (Q is on line AB).
-  metamath    goppoffab, goppoffp, goppoffq, which this corpus proves in
+  metamath-counterpart goppoffab, goppoffp, goppoffq, which this corpus proves in
               elaboration/stdlib/proved.mm from goppoff
-  target      goppoffab, goppoffp, goppoffq
+  metamath-proof goppoffab, goppoffp, goppoffq
   note        One target to a sentence.
 
 mundane theorem on-line-ends
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   then        A is on line AB. B is on line AB.
-  metamath    gonends1, gonends2, which this corpus proves in
+  metamath-counterpart gonends1, gonends2, which this corpus proves in
               elaboration/stdlib/proved.mm from gonends
-  target      gonends1, gonends2
+  metamath-proof gonends1, gonends2
   note        One target to a sentence.
 
 mundane theorem triangle-not-on-line
@@ -1495,9 +1495,9 @@ mundane theorem triangle-not-on-line
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        not (P is on line QR)
-  metamath    gtrinot, which this corpus proves in
+  metamath-counterpart gtrinot, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gtrinot
+  metamath-proof gtrinot
 
 mundane theorem triangle-extension
   let P be a point                                                    (H1)
@@ -1507,9 +1507,9 @@ mundane theorem triangle-extension
   assume P, Q, R form a triangle                                      (H5)
   assume Q is between R and S                                         (H6)
   then        P, Q, S form a triangle
-  metamath    gtriext, which this corpus proves in
+  metamath-counterpart gtriext, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gtriext
+  metamath-proof gtriext
   note        A side produced past a vertex, as triangle-on-side takes a
               point within it.
 
@@ -1519,9 +1519,9 @@ mundane theorem off-line-apart
   let P be a point                                                    (H3)
   assume not (P is on line AB)                                        (H4)
   then        P ≠ A. P ≠ B.
-  metamath    goffapart1, goffapart2, which this corpus proves in
+  metamath-counterpart goffapart1, goffapart2, which this corpus proves in
               elaboration/stdlib/proved.mm from goffapart
-  target      goffapart1, goffapart2
+  metamath-proof goffapart1, goffapart2
   note        One target to a sentence.
 
 mundane theorem on-off-apart
@@ -1532,9 +1532,9 @@ mundane theorem on-off-apart
   assume X is on line AB                                              (H5)
   assume not (Y is on line AB)                                        (H6)
   then        X ≠ Y
-  metamath    gonoffapart, which this corpus proves in
+  metamath-counterpart gonoffapart, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gonoffapart
+  metamath-proof gonoffapart
 
 mundane theorem off-line-through
   let R be a point                                                    (H1)
@@ -1545,9 +1545,9 @@ mundane theorem off-line-through
   assume X is on line RS                                              (H6)
   assume X ≠ R                                                        (H7)
   then        not (X is on line RP)
-  metamath    gofflinethru, which this corpus proves in
+  metamath-counterpart gofflinethru, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gofflinethru
+  metamath-proof gofflinethru
   note        Two lines through R meet only at R.
 
 mundane theorem line-crossing-between
@@ -1558,9 +1558,9 @@ mundane theorem line-crossing-between
   assume X is on line RS                                              (H5)
   assume S and X are on opposite sides of line RP                     (H6)
   then        R is between S and X
-  metamath    glinecrossbet, which this corpus proves in
+  metamath-counterpart glinecrossbet, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      glinecrossbet
+  metamath-proof glinecrossbet
   note        A line through R crosses another line through R at R, so a
               point of it on the far side is beyond R.
 
@@ -1572,9 +1572,9 @@ mundane theorem angle-same-ray
   assume X is on line PQ                                              (H5)
   assume X and Q are on the same side of line PR                      (H6)
   then        ∠RPX = ∠RPQ
-  metamath    gangsameray, which this corpus proves in
+  metamath-counterpart gangsameray, which this corpus proves in
               elaboration/stdlib/proved.mm from gangrp
-  target      gangsameray
+  metamath-proof gangsameray
   note        A point of line PQ on Q's side of line PR is on the ray from
               P through Q, so it makes the same angle.
 
@@ -1588,9 +1588,9 @@ mundane theorem ray-side-transfer
   assume X and P are on the same side of line RS                      (H7)
   assume not (P is on line RQ)                                        (H8)
   then        X and P are on the same side of line RQ
-  metamath    graysidetr, which this corpus proves in
+  metamath-counterpart graysidetr, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      graysidetr
+  metamath-proof graysidetr
   note        A point on the ray from R through P is on P's side of every
               line through R that P is off.
 
@@ -1605,9 +1605,9 @@ mundane theorem parallel-along
   assume E is on line AB                                              (H8)
   assume E ≠ A                                                        (H9)
   then        line AE ∥ line DC
-  metamath    gparalong, which this corpus proves in
+  metamath-counterpart gparalong, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gparalong
+  metamath-proof gparalong
   note        Being parallel belongs to the two lines, not to the points
               that name them.
 
@@ -1617,6 +1617,6 @@ mundane theorem off-line-swap
   let Q be a point                                                    (H3)
   assume not (Q is on line RP)                                        (H4)
   then        not (P is on line RQ)
-  metamath    goffswap, which this corpus proves in
+  metamath-counterpart goffswap, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      goffswap
+  metamath-proof goffswap

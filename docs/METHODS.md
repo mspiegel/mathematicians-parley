@@ -734,7 +734,7 @@ denominator is 1, in ℕ when it is also positive, in ℕ₀ when it is also
 non-negative, and in ℚ and ℝ always.
 
 Three of the four words are one relation to set.mm: "n is even" is 2 ∥ n,
-and a ≡ b (mod n) is n ∥ (a − b), as their notation records' targets say.
+and a ≡ b (mod n) is n ∥ (a − b), as their notation records' `metamath-builds` say.
 "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n. So d divides n is
 decided by evaluating both, each an integer and d not 0, and dividing: it
 holds when the remainder is 0, and fails otherwise. n is odd when its value
@@ -1218,7 +1218,7 @@ atoms like √p, given π ∈ ℂ (`picn`), e ∈ ℂ and ln p ∈ ℂ.
   equal to k + ln r, r = Π p^nₚ, by an identity and the logarithm above;
   exp(k + ln r) is exp k · exp(ln r) (`efadd`), exp(ln r) is r (`reeflog`),
   and exp k is (exp 1)ᵏ (`efexp`), which is eᵏ by `df-e`.
-- **Degrees.** x° is (x·π)/180 by its notation's target, an operation like
+- **Degrees.** x° is (x·π)/180 by its notation's `metamath-builds`, an operation like
   any other.
 - **A sine or a cosine.** For sin x with x of value q·π, q = 2k + r and
   0 ≤ r < 2, x is proved equal to a(r) + k·(2·π), or to a(r) where k is 0,

@@ -234,8 +234,8 @@ mundane theorem subset-self-then-nonempty
   let k ∈ ℕ₀                                                          (H2)
   assume |X| = k + 1                                                  (H3)
   then        there is a ∈ X
-  metamath    ssid, hashgt0elex
-  target      ssid, hashgt0elex with V := X
+  metamath-counterpart ssid, hashgt0elex
+  metamath-proof ssid, hashgt0elex with V := X
 ";
     const PROOF: &str =
         "import mundane theorem    stdlib/counting/subset-self-then-nonempty
@@ -282,45 +282,47 @@ fn cases() -> Vec<Case> {
         // A gap in the database rather than in the text, reported at the line
         // that wrote the notation.
         case(
-            "take away a target the corpus writes",
+            "take away a metamath-builds the corpus writes",
             "proofs/wiedijk/cantor/cantor",
             "corpus/db/notation.records",
-            "  target      _1 cpw",
-            "  metamath    cpw-without-a-target",
-            "notation 'powerset' has no target field",
+            "  metamath-builds _1 cpw",
+            "  metamath-counterpart cpw-without-a-template",
+            "notation 'powerset' has no metamath-builds field",
         ),
         // A database defect rather than a text one, and on an item rather than
-        // a notation: the target names a lemma that proves the other `then`
-        // group, so the step's own group has nothing behind it. The checker
-        // reads no set.mm, so the page it accepts is a gap in the build.
+        // a notation: the metamath-proof names a lemma that proves the other
+        // `then` group, so the step's own group has nothing behind it. The
+        // checker reads no set.mm, so the page it accepts is a gap in the
+        // build.
         case(
-            "name the wrong clause in a definition target",
+            "name the wrong clause in a definition's metamath-proof",
             "proofs/wiedijk/triangle-inequality/abs-bounds",
             "corpus/stdlib/numbers.records",
-            "  target      absid, absnid\n",
-            "  target      absid, absid\n",
+            "  metamath-proof absid, absnid\n",
+            "  metamath-proof absid, absid\n",
             "the build cannot yet prove this, which the checker accepts: no clause of def:abs gives what step 2.6 claims",
         )
         .at("proofs/wiedijk/triangle-inequality.proof", "2.6.  |x| = −x"),
         // Each part of what the claim asks of the witness is one of the
-        // target's lemmas, and a part none of them reaches is the target
-        // failing, not something to take as stated.
+        // metamath-proof's lemmas, and a part none of them reaches is the
+        // metamath-proof failing, not something to take as stated.
         case(
             "leave out the lemma saying the supremum is least",
             "proofs/wiedijk/intermediate-value/intermediate-value",
             "corpus/stdlib/calculus.records",
-            "  target      suprcl, suprub, suprleub with c := sup S",
-            "  target      suprcl, suprub with c := sup S",
-            "axi:stdlib/calculus/completeness targets suprcl, suprub, and none of them reaches what step 8 obtains",
+            "  metamath-proof suprcl, suprub, suprleub with c := sup S",
+            "  metamath-proof suprcl, suprub with c := sup S",
+            "axi:stdlib/calculus/completeness's metamath-proof names suprcl, suprub, and none of them reaches what step 8 obtains",
         ),
-        // A target is where the claim lands, and a variable bound to the wrong
-        // name makes it land somewhere else. That is reported, not assumed.
+        // A metamath-proof is where the claim lands, and a variable bound to
+        // the wrong name makes it land somewhere else. That is reported, not
+        // assumed.
         case(
-            "bind a target variable to the wrong name",
+            "bind a metamath-proof variable to the wrong name",
             "proofs/wiedijk/subsets/subsets-count",
             "corpus/stdlib/counting.records",
-            "  target      hashdifsnp1 with V := X, N := a, Y := k",
-            "  target      hashdifsnp1 with V := X, N := a, Y := X",
+            "  metamath-proof hashdifsnp1 with V := X, N := a, Y := k",
+            "  metamath-proof hashdifsnp1 with V := X, N := a, Y := X",
             "no clause of mun:card-remove reaches what step 1.7 claims",
         ),
         // A definition read with no pair for its subject is about the proof's
@@ -335,16 +337,16 @@ fn cases() -> Vec<Case> {
             "    def:odd, from 2",
             "with 2 · j + 1 = n",
         ),
-        // A target naming a lemma the library as built does not hold, as
-        // one added to corpus/proved/ before a whole build has written it,
-        // is said where the item is cited, and the build goes on.
+        // A metamath-proof naming a lemma the library as built does not
+        // hold, as one added to corpus/proved/ before a whole build has
+        // written it, is said where the item is cited, and the build goes on.
         case(
-            "a target naming a lemma the library does not hold",
+            "a metamath-proof naming a lemma the library does not hold",
             "tests/stdlib/sums/sum-empty-range",
             "corpus/stdlib/sums.records",
-            "  target      gfsum0\n",
-            "  target      gfsumnone\n",
-            "mun:stdlib/sums/sum-empty-range targets gfsumnone, which neither set.mm nor proved.mm as built holds",
+            "  metamath-proof gfsum0\n",
+            "  metamath-proof gfsumnone\n",
+            "mun:stdlib/sums/sum-empty-range's metamath-proof names gfsumnone, which neither set.mm nor proved.mm as built holds",
         ),
     ]
 }

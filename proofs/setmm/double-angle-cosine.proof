@@ -7,7 +7,7 @@ import definition         stdlib/trigonometry/cos
 import definition         stdlib/trigonometry/sin
 
 theorem sine-squared-plus-cosine-squared
-  metamath    sincossq
+  metamath-counterpart sincossq
   note        cos(A + (−A)) = cos(0) = 1, and the addition formula with the
               cosine even and the sine odd turns the left side into
               cos(A)² + sin(A)².
@@ -35,7 +35,7 @@ theorem sine-squared-plus-cosine-squared
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
 theorem cosine-of-double
-  metamath    cos2t
+  metamath-counterpart cos2t
   note        Put B = A in the addition formula, and replace sin(A)² by
               1 − cos(A)².
   let A ∈ ℂ                                                           (H1)
@@ -56,7 +56,7 @@ theorem cosine-of-double
     requires cos(A) ∈ ℂ: mun:cos-complex a := A
 
 theorem cosine-of-double-by-sine
-  metamath    cos2tsin
+  metamath-counterpart cos2tsin
   note        As for the cosine of a double, with cos(A)² replaced by
               1 − sin(A)².
   let A ∈ ℂ                                                           (H1)

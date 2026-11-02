@@ -54,7 +54,7 @@ theorem zero-derivative-ends
     requires H(b) ∈ ℝ: from H4, 2
 
 theorem fundamental-calculus
-  metamath    ftc2
+  metamath-counterpart ftc2
   note        The integral of f from a to b is F(b) − F(a), for F an
               antiderivative of f. The area function G, the integral from a
               up to x, has derivative f, as F does; so G − F has derivative 0

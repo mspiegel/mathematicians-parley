@@ -256,7 +256,7 @@ let q(k) = C(m, k − 1)·x^((m + 1) − k)·y^k, for k ∈ {0, …, m + 1}     
 
 
 theorem binomial
-  metamath    binom
+  metamath-counterpart binom
   note        By induction on the power: (x + y)^0 = 1 is the one term of row
               0, and (x + y)^(m + 1) is (x + y)^m·(x + y), which binomial-step
               turns into row m + 1.

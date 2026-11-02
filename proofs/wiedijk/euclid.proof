@@ -14,7 +14,7 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
 theorem euclid
-  metamath    eucalg
+  metamath-counterpart eucalg
   note        Each step replaces (a, b) by (b, a mod b), which keeps the gcd
               and makes b smaller, until b is 0 and the gcd is a itself. b
               starts at N and falls by at least 1 a step, so after N steps

@@ -13,10 +13,10 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 definition divides
@@ -24,9 +24,9 @@ definition divides
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ there is k ∈ ℤ with n = d·k
   decided     arithmetic, inspection
-  metamath    df-dvds, as divides states it
-  target      divides, equation reversed
-  lean        Iff.rfl
+  metamath-counterpart df-dvds, as divides states it
+  metamath-proof divides, equation reversed
+  lean-proof Iff.rfl
   note        Defined once on ℤ. A proof about ℕ discharges membership of ℤ as a
               dull fact. This is the principle recorded by the primes pilot: a
               relation is defined once, on the widest set where it makes sense.
@@ -35,9 +35,9 @@ definition even
   let n ∈ ℤ                                                           (H1)
   then        n is even ↔ there is k ∈ ℤ with n = 2k
   decided     arithmetic, inspection
-  metamath    df-dvds, whose right side is the same existential
-  target      divides, equation reversed
-  lean        even_iff_exists_two_mul
+  metamath-counterpart df-dvds, whose right side is the same existential
+  metamath-proof divides, equation reversed
+  lean-proof even_iff_exists_two_mul
   note        set.mm writes 2 ∥ n and has no primitive for "even". This names the
               word. See DATABASE.md on what def: means.
 
@@ -50,9 +50,9 @@ definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
-  metamath    odd2np1, of n ∈ ℤ and not 2 ∥ n
-  target      godd2np1, equation reversed
-  lean        Iff.rfl
+  metamath-counterpart odd2np1, of n ∈ ℤ and not 2 ∥ n
+  metamath-proof godd2np1, equation reversed
+  lean-proof Iff.rfl
   note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
               godd2np1 is odd2np1 with the membership joined, and is proved
               in elaboration/stdlib/proved.mm.
@@ -60,9 +60,9 @@ definition odd
 mundane theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
-  metamath    zeo3
-  target      gevenodd
-  lean        Int.even_or_odd n
+  metamath-counterpart zeo3
+  metamath-proof gevenodd
+  lean-proof Int.even_or_odd n
   note        zeo3 says 2 ∥ n or not 2 ∥ n of an integer; gevenodd joins H1
               to its second case, which is what "n is odd" says.
 
@@ -70,17 +70,17 @@ mundane theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
-  metamath    gnotboth
-  target      gnotboth
-  lean        Int.not_odd_iff_even.mpr h2
+  metamath-counterpart gnotboth
+  metamath-proof gnotboth
+  lean-proof Int.not_odd_iff_even.mpr h2
   note        "n is odd" says not 2 ∥ n, which H2 denies.
 
 mundane theorem odd-not-even
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (n is even)
-  metamath    simpr
-  target      simpr
+  metamath-counterpart simpr
+  metamath-proof simpr
   note        not-both the other way: "n is not even" is the second part of
               what "n is odd" says.
 
@@ -88,8 +88,8 @@ mundane theorem odd-not-divisible
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        not (2 divides n)
-  metamath    simpr
-  target      simpr
+  metamath-counterpart simpr
+  metamath-proof simpr
   note        "not (2 divides n)" is the second part of what "n is odd"
               says, as for "n is not even".
 
@@ -99,8 +99,8 @@ mundane theorem odd-plus-odd
   let b ∈ ℤ                                                           (H3)
   assume b is odd                                                     (H4)
   then        a + b is even
-  metamath    opoe
-  target      opoe
+  metamath-counterpart opoe
+  metamath-proof opoe
   note        `proofs/setmm/parity.proof` proves it as its own exercise
               (DATABASE.md).
 
@@ -110,8 +110,8 @@ mundane theorem odd-minus-odd
   let b ∈ ℤ                                                           (H3)
   assume b is odd                                                     (H4)
   then        a − b is even
-  metamath    omoe
-  target      omoe
+  metamath-counterpart omoe
+  metamath-proof omoe
   note        `proofs/setmm/parity.proof` proves it as its own exercise
               (DATABASE.md).
 
@@ -121,8 +121,8 @@ mundane theorem odd-plus-even
   let b ∈ ℤ                                                           (H3)
   assume b is even                                                    (H4)
   then        a + b is odd
-  metamath    opeo
-  target      gopeo
+  metamath-counterpart opeo
+  metamath-proof gopeo
   note        opeo concludes not 2 ∥ (a + b); gopeo joins a + b ∈ ℤ, which
               "is odd" says too.
 
@@ -132,8 +132,8 @@ mundane theorem odd-minus-even
   let b ∈ ℤ                                                           (H3)
   assume b is even                                                    (H4)
   then        a − b is odd
-  metamath    omeo
-  target      gomeo
+  metamath-counterpart omeo
+  metamath-proof gomeo
   note        omeo concludes not 2 ∥ (a − b); gomeo joins a − b ∈ ℤ, which
               "is odd" says too.
 
@@ -142,9 +142,9 @@ mundane theorem even-product
   assume a is even                                                    (H2)
   let x ∈ ℤ                                                           (H3)
   then        a·x is even
-  metamath    dvdsmultr1
-  target      dvdsmultr1 with K := 2
-  lean        h2.mul_right x
+  metamath-counterpart dvdsmultr1
+  metamath-proof dvdsmultr1 with K := 2
+  lean-proof h2.mul_right x
   note        An even number times any integer is even:
               mun:stdlib/divisibility/divides-multiple at 2, said in the
               words even and odd use.
@@ -153,9 +153,9 @@ mundane theorem even-product-factor
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        a·b is even ↔ a is even or b is even
-  metamath    euclemma
-  target      euclemma with P := 2
-  lean        Int.even_mul
+  metamath-counterpart euclemma
+  metamath-proof euclemma with P := 2
+  lean-proof Int.even_mul
   note        thm:stdlib/divisibility/prime-divides-product at 2, said in
               the words even and odd use. An odd factor of an even product
               leaves the other even.
@@ -166,8 +166,8 @@ theorem prime-divides-product
   let m ∈ ℤ                                                           (H3)
   let n ∈ ℤ                                                           (H4)
   then        p divides m·n ↔ p divides m or p divides n
-  metamath    euclemma
-  target      euclemma
+  metamath-counterpart euclemma
+  metamath-proof euclemma
   note        Euclid's lemma. `proofs/setmm/prime-divides-product.proof`
               proves it as its own exercise (DATABASE.md).
 
@@ -177,8 +177,8 @@ theorem prime-divides-power
   let a ∈ ℤ                                                           (H3)
   let n ∈ ℕ                                                           (H4)
   then        p divides a^n ↔ p divides a
-  metamath    prmdvdsexp
-  target      prmdvdsexp
+  metamath-counterpart prmdvdsexp
+  metamath-proof prmdvdsexp
   note        Euclid's lemma over the n factors of a^n.
 
 theorem divides-gcd
@@ -188,16 +188,16 @@ theorem divides-gcd
   assume d divides a                                                  (H4)
   assume d divides b                                                  (H5)
   then        d divides gcd(a, b)
-  metamath    dvdsgcd
-  target      dvdsgcd
-  lean        Int.dvd_coe_gcd h4 h5
+  metamath-counterpart dvdsgcd
+  metamath-proof dvdsgcd
+  lean-proof Int.dvd_coe_gcd h4 h5
 
 theorem division-algorithm
   let n ∈ ℕ                                                           (H1)
   let d ∈ ℕ                                                           (H2)
   then        there exist q, r ∈ ℤ such that n = q·d + r, 0 ≤ r, and r < d
-  metamath    divalg
-  target      divalg with N := n, D := d
+  metamath-counterpart divalg
+  metamath-proof divalg with N := n, D := d
   note        divalg says exactly one remainder, quantified the other way
               round, bounded by the absolute value, and saying its three
               things in a different order. The elaborator takes its
@@ -210,8 +210,8 @@ definition prime
   let p ∈ ℕ                                                           (H1)
   then        p is prime ↔ p > 1 and for all d ∈ ℕ, if d divides p then
               d = 1 or d = p
-  metamath    isprm2, whose first conjunct is membership of ℤ≥2
-  target      isprm2
+  metamath-counterpart isprm2, whose first conjunct is membership of ℤ≥2
+  metamath-proof isprm2
   decided     inspection
   note        Whether a number below 841 is prime is seen by inspection, by
               trial division by the primes up to 23 (`METHODS.md`).
@@ -230,9 +230,9 @@ definition gcd
   then        gcd(a, b) ∈ ℕ. gcd(a, b) divides a. gcd(a, b) divides b.
               For all e ∈ ℕ, if e divides a and e divides b then
               e ≤ gcd(a, b).
-  metamath    gcdnncl, gcddvds, dvdslegcd
-  target      gcdnncl, gcddvds, dvdslegcd
-  lean        by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; fun e he h => Int.le_of_dvd (by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this) (Int.dvd_coe_gcd h.1 h.2)
+  metamath-counterpart gcdnncl, gcddvds, dvdslegcd
+  metamath-proof gcdnncl, gcddvds, dvdslegcd
+  lean-proof by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; fun e he h => Int.le_of_dvd (by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this) (Int.dvd_coe_gcd h.1 h.2)
   lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2
   note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
               this statement puts it in ℕ, which gcdnncl gives because both
@@ -251,9 +251,9 @@ definition lcm
   then        lcm(a, b) ∈ ℕ₀. a divides lcm(a, b). b divides lcm(a, b).
               For all k ∈ ℤ, if a divides k and b divides k then
               lcm(a, b) divides k.
-  metamath    lcmcl, dvdslcm, lcmdvds
-  target      lcmcl, dvdslcm, lcmdvds
-  lean        by positivity ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; fun k h => Int.dvd_natAbs.mp (Int.natCast_dvd_natCast.mpr (Int.lcm_dvd (Int.dvd_natAbs.mpr h.1) (Int.dvd_natAbs.mpr h.2)))
+  metamath-counterpart lcmcl, dvdslcm, lcmdvds
+  metamath-proof lcmcl, dvdslcm, lcmdvds
+  lean-proof by positivity ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; fun k h => Int.dvd_natAbs.mp (Int.natCast_dvd_natCast.mpr (Int.lcm_dvd (Int.dvd_natAbs.mpr h.1) (Int.dvd_natAbs.mpr h.2)))
   note        As gcd: four sentences from three lemmas, dvdslcm saying the
               second and third in one conjunction and lcmdvds the fourth of
               one multiple. "Least" is in the divisibility order, as set.mm
@@ -263,15 +263,15 @@ mundane theorem lcm-times-gcd
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        lcm(a, b)·gcd(a, b) = |a·b|
-  metamath    lcmgcd
-  target      lcmgcd
+  metamath-counterpart lcmgcd
+  metamath-proof lcmgcd
 
 theorem prime-factor
   let m ∈ ℕ                                                           (H1)
   assume m > 1                                                        (H2)
   then        there is p ∈ ℕ with p is prime and p divides m
-  metamath    exprmfct, which quantifies over Prime rather than over ℕ
-  target      exprmfct
+  metamath-counterpart exprmfct, which quantifies over Prime rather than over ℕ
+  metamath-proof exprmfct
   note        No target, so an elaborator states this and lists it. exprmfct
               says E. p e. Prime p || N, putting primality in the domain; this
               quantifies over ℕ and says it in the body, which is how a reader
@@ -285,9 +285,9 @@ mundane theorem divides-sum
   assume d divides a                                                  (H4)
   assume d divides b                                                  (H5)
   then        d divides a + b
-  metamath    dvds2add
-  target      dvds2add
-  lean        dvd_add h4 h5
+  metamath-counterpart dvds2add
+  metamath-proof dvds2add
+  lean-proof dvd_add h4 h5
 
 mundane theorem divides-difference
   let d ∈ ℤ                                                           (H1)
@@ -296,17 +296,17 @@ mundane theorem divides-difference
   assume d divides a                                                  (H4)
   assume d divides b                                                  (H5)
   then        d divides a − b
-  metamath    dvds2sub
-  target      dvds2sub
-  lean        dvd_sub h4 h5
+  metamath-counterpart dvds2sub
+  metamath-proof dvds2sub
+  lean-proof dvd_sub h4 h5
 
 mundane theorem divides-one
   let d ∈ ℕ                                                           (H1)
   assume d divides 1                                                  (H2)
   then        d = 1
-  metamath    dvds1, read left to right
-  target      dvds1
-  lean        by exact_mod_cast Int.eq_one_of_dvd_one (by positivity) h2
+  metamath-counterpart dvds1, read left to right
+  metamath-proof dvds1
+  lean-proof by exact_mod_cast Int.eq_one_of_dvd_one (by positivity) h2
 
 mundane theorem divides-combination
   let e ∈ ℤ                                                           (H1)
@@ -317,27 +317,27 @@ mundane theorem divides-combination
   assume e divides a                                                  (H6)
   assume e divides b                                                  (H7)
   then        e divides a·x + b·y
-  metamath    dvds2ln
-  target      dvds2ln with K := e, I := x, M := a, J := y, N := b
-  lean        dvd_add (Dvd.dvd.mul_right h6 x) (Dvd.dvd.mul_right h7 y)
+  metamath-counterpart dvds2ln
+  metamath-proof dvds2ln with K := e, I := x, M := a, J := y, N := b
+  lean-proof dvd_add (Dvd.dvd.mul_right h6 x) (Dvd.dvd.mul_right h7 y)
 
 mundane theorem divides-le
   let e ∈ ℕ                                                           (H1)
   let m ∈ ℕ                                                           (H2)
   assume e divides m                                                  (H3)
   then        e ≤ m
-  metamath    dvdsle
-  target      dvdsle
-  lean        Int.le_of_dvd (by omega) h3
+  metamath-counterpart dvdsle
+  metamath-proof dvdsle
+  lean-proof Int.le_of_dvd (by omega) h3
 
 mundane theorem below-not-divisible
   let n ∈ ℕ                                                           (H1)
   let x ∈ ℕ                                                           (H2)
   assume x < n                                                        (H3)
   then        not (n divides x)
-  metamath    fzm1ndvds, read over x ∈ ℕ below n, which this corpus proves
+  metamath-counterpart fzm1ndvds, read over x ∈ ℕ below n, which this corpus proves
               in elaboration/stdlib/proved.mm
-  target      gnndvdslt with N := n, K := x
+  metamath-proof gnndvdslt with N := n, K := x
   note        A natural number below n is too small for n to divide it.
 
 definition congruent-mod
@@ -346,8 +346,8 @@ definition congruent-mod
   let b ∈ ℤ                                                           (H3)
   then        a ≡ b (mod n) ↔ n divides a − b
   decided     arithmetic
-  metamath    the notation's own target, n ∥ ( a − b )
-  lean        Int.modEq_comm.trans Int.modEq_iff_dvd
+  metamath-counterpart the notation's own target, n ∥ ( a − b )
+  lean-proof Int.modEq_comm.trans Int.modEq_iff_dvd
   note        The two sides are one formula in the kernel, so unfolding it is
               saying the same thing the other way, and nothing is stated: a
               step reading one from a line saying the other has that line's
@@ -359,9 +359,9 @@ mundane theorem divides-multiple
   let x ∈ ℤ                                                           (H3)
   assume e divides a                                                  (H4)
   then        e divides a·x
-  metamath    dvdsmultr1
-  target      dvdsmultr1
-  lean        Dvd.dvd.mul_right h4 x
+  metamath-counterpart dvdsmultr1
+  metamath-proof dvdsmultr1
+  lean-proof Dvd.dvd.mul_right h4 x
 
 mundane theorem congruent-divides
   let m ∈ ℤ                                                           (H1)
@@ -369,16 +369,16 @@ mundane theorem congruent-divides
   let b ∈ ℤ                                                           (H3)
   assume a ≡ b (mod m)                                                (H4)
   then        m divides a ↔ m divides b
-  metamath    dvdssub2
-  target      dvdssub2
+  metamath-counterpart dvdssub2
+  metamath-proof dvdssub2
   note        Two numbers congruent modulo m are divisible by m together.
 
 mundane theorem gcd-integer
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        gcd(a, b) ∈ ℕ₀. gcd(a, b) divides a. gcd(a, b) divides b.
-  metamath    gcdcl, gcddvds
-  target      gcdcl, gcddvds
+  metamath-counterpart gcdcl, gcddvds
+  metamath-proof gcdcl, gcddvds
   note        The gcd over the integers, where the definition says it over
               ℕ: it is at least 0, being 0 only for gcd(0, 0), and divides
               both arguments.
@@ -388,60 +388,60 @@ mundane theorem gcd-natural
   let b ∈ ℤ                                                           (H2)
   assume not (a = 0 and b = 0)                                        (H3)
   then        gcd(a, b) ∈ ℕ
-  metamath    gcdn0cl
-  target      gcdn0cl
+  metamath-counterpart gcdn0cl
+  metamath-proof gcdn0cl
 
 mundane theorem gcd-scaled
   let c ∈ ℕ₀                                                          (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
   then        gcd(c·a, c·b) = c·gcd(a, b)
-  metamath    mulgcd
-  target      mulgcd
+  metamath-counterpart mulgcd
+  metamath-proof mulgcd
 
 mundane theorem gcd-scaled-integer
   let c ∈ ℤ                                                           (H1)
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
   then        gcd(c·a, c·b) = |c·gcd(a, b)|
-  metamath    absmulgcd
-  target      absmulgcd
+  metamath-counterpart absmulgcd
+  metamath-proof absmulgcd
   note        gcd-scaled for a factor of either sign.
 
 mundane theorem gcd-negative
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        gcd(−a, b) = gcd(a, b)
-  metamath    neggcd
-  target      neggcd
+  metamath-counterpart neggcd
+  metamath-proof neggcd
 
 mundane theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        gcd(a, b) = gcd(b, a)
-  metamath    gcdcom
-  target      gcdcom
-  lean        by rw [Int.gcd_comm]
+  metamath-counterpart gcdcom
+  metamath-proof gcdcom
+  lean-proof by rw [Int.gcd_comm]
 
 mundane theorem gcd-one
   let a ∈ ℤ                                                           (H1)
   then        gcd(a, 1) = 1
-  metamath    gcd1
-  target      gcd1
+  metamath-counterpart gcd1
+  metamath-proof gcd1
 
 mundane theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
   then        gcd(n, 0) = n
-  metamath    nn0gcdid0
-  target      nn0gcdid0
+  metamath-counterpart nn0gcdid0
+  metamath-proof nn0gcdid0
 
 theorem gcd-mod
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        gcd(a mod b, b) = gcd(a, b)
-  metamath    modgcd
-  target      modgcd
-  lean        by rw [Int.gcd_emod]
+  metamath-counterpart modgcd
+  metamath-proof modgcd
+  lean-proof by rw [Int.gcd_emod]
   note        One step of Euclid's algorithm keeps the gcd: the remainder
               and the divisor have the gcd the dividend and divisor had.
 
@@ -449,17 +449,17 @@ mundane theorem mod-natural
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a mod b ∈ ℕ₀
-  metamath    zmodcl
-  target      zmodcl
+  metamath-counterpart zmodcl
+  metamath-proof zmodcl
 
 mundane theorem mod-less
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a mod b < b
-  metamath    modlt, said of a real and a positive real, which this corpus
+  metamath-counterpart modlt, said of a real and a positive real, which this corpus
               reaches from an integer and a natural number in
               elaboration/stdlib/proved.mm
-  target      gzmodlt
+  metamath-proof gzmodlt
 
 mundane theorem mod-remainder
   let a ∈ ℤ                                                           (H1)
@@ -467,9 +467,9 @@ mundane theorem mod-remainder
   let r ∈ ℕ₀                                                          (H3)
   assume r < m                                                        (H4)
   then        a mod m = r ↔ there is q ∈ ℤ with q·m + r = a
-  metamath    modremain
-  target      modremain
-  lean        ⟨fun h => ⟨a / (m : ℤ), by have := Int.ediv_mul_add_emod a m; rw [h] at this; exact this⟩, fun ⟨q, hq⟩ => by rw [← hq, add_comm, Int.add_mul_emod_self_right]; exact Int.emod_eq_of_lt (by omega) (by omega)⟩
+  metamath-counterpart modremain
+  metamath-proof modremain
+  lean-proof ⟨fun h => ⟨a / (m : ℤ), by have := Int.ediv_mul_add_emod a m; rw [h] at this; exact this⟩, fun ⟨q, hq⟩ => by rw [← hq, add_comm, Int.add_mul_emod_self_right]; exact Int.emod_eq_of_lt (by omega) (by omega)⟩
   note        The remainder is the r left over when a is a whole number of
               m's and r: the last digit of q·10 + r is r, for a digit r.
 
@@ -478,11 +478,11 @@ mundane theorem mod-multiple
   let m ∈ ℕ                                                           (H2)
   let q ∈ ℤ                                                           (H3)
   then        (q·m + r) mod m = r mod m
-  metamath    muladdmod, said of a real and a positive real, which this
+  metamath-counterpart muladdmod, said of a real and a positive real, which this
               corpus reaches from integers and a natural number in
               elaboration/stdlib/proved.mm
-  target      gmuladdmod
-  lean        by rw [add_comm, Int.add_mul_emod_self_right]
+  metamath-proof gmuladdmod
+  lean-proof by rw [add_comm, Int.add_mul_emod_self_right]
   note        A whole number of m's added changes no remainder: the last
               digit of q·10 + r is the last digit of r.
 
@@ -491,9 +491,9 @@ mundane theorem mod-real
   let b ∈ ℝ                                                           (H2)
   assume b > 0                                                        (H3)
   then        a mod b ∈ ℝ
-  metamath    modcl, said of a positive real, which this corpus reaches
+  metamath-counterpart modcl, said of a positive real, which this corpus reaches
               from a real greater than 0 in elaboration/stdlib/proved.mm
-  target      gmodcl
+  metamath-proof gmodcl
   note        A remainder is a number: mod-natural says so of whole numbers,
               this of reals.
 
@@ -502,9 +502,9 @@ mundane theorem mod-value
   let b ∈ ℝ                                                           (H2)
   assume b > 0                                                        (H3)
   then        a mod b = a − b·⌊a/b⌋
-  metamath    modval, said of a positive real, which this corpus reaches
+  metamath-counterpart modval, said of a positive real, which this corpus reaches
               from a real greater than 0 in elaboration/stdlib/proved.mm
-  target      gmodval
+  metamath-proof gmodval
   note        The remainder of any real on dividing by a positive one: as
               many whole b's as fit below a are taken away, so 7.5 mod 2 is
               7.5 − 2·3 = 1.5 and −1 mod 3 is −1 − 3·(−1) = 2. For whole
@@ -516,35 +516,35 @@ mundane theorem mod-below
   assume 0 ≤ a                                                        (H3)
   assume a < b                                                        (H4)
   then        a mod b = a
-  metamath    modid, said of a positive real, which this corpus reaches
+  metamath-counterpart modid, said of a positive real, which this corpus reaches
               from a real above a in elaboration/stdlib/proved.mm
-  target      gmodid
+  metamath-proof gmodid
   note        A number already below the divisor is its own remainder.
 
 mundane theorem zero-divides
   let n ∈ ℤ                                                           (H1)
   then        0 divides n ↔ n = 0
-  metamath    0dvds
-  target      0dvds
+  metamath-counterpart 0dvds
+  metamath-proof 0dvds
 
 mundane theorem divides-self
   let n ∈ ℤ                                                           (H1)
   then        n divides n
-  metamath    iddvds
-  target      iddvds
-  lean        dvd_refl n
+  metamath-counterpart iddvds
+  metamath-proof iddvds
+  lean-proof dvd_refl n
 
 mundane theorem prime-nat
   let p ∈ ℤ                                                           (H1)
   assume p is prime                                                   (H2)
   then        p ∈ ℕ
-  metamath    prmnn
-  target      prmnn
+  metamath-counterpart prmnn
+  metamath-proof prmnn
 
 mundane theorem two-prime
   then        2 is prime
-  metamath    2prm
-  target      2prm
+  metamath-counterpart 2prm
+  metamath-proof 2prm
 
 mundane theorem prime-coprime
   let p ∈ ℕ                                                           (H1)
@@ -552,8 +552,8 @@ mundane theorem prime-coprime
   let a ∈ ℤ                                                           (H3)
   assume not (p divides a)                                            (H4)
   then        gcd(p, a) = 1
-  metamath    coprm, read left to right
-  target      coprm
+  metamath-counterpart coprm, read left to right
+  metamath-proof coprm
   note        A prime shares a factor with a only by dividing it, since its
               only divisors are 1 and itself.
 
@@ -563,16 +563,16 @@ definition σ
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
   then        σ(n) = Σ(d ∈ ℕ : d divides n) d
-  metamath    sgmval2 with its power 1 written away, which this corpus proves
+  metamath-counterpart sgmval2 with its power 1 written away, which this corpus proves
               in elaboration/stdlib/proved.mm
-  target      g1sgmval
+  metamath-proof g1sgmval
   note        set.mm's sigma takes a power first, A sigma n being the sum of
               the A-th powers of the divisors of n, and σ is 1 sigma n.
 
 definition perfect
   let n ∈ ℕ                                                           (H1)
   then        n is perfect ↔ σ(n) = 2n
-  metamath    the notation's own target, σ(n) = 2n
+  metamath-counterpart the notation's own target, σ(n) = 2n
   note        The two sides are one formula in the kernel, as for
               def:stdlib/divisibility/congruent-mod, so unfolding it says the
               same thing the other way. A proof names it: "so n is perfect,
@@ -583,41 +583,41 @@ theorem sigma-multiplicative
   let n ∈ ℕ                                                           (H2)
   assume gcd(m, n) = 1                                                (H3)
   then        σ(m·n) = σ(m)·σ(n)
-  metamath    sgmmul
-  target      sgmmul with A := 1
+  metamath-counterpart sgmmul
+  metamath-proof sgmmul with A := 1
 
 theorem sigma-prime
   let p ∈ ℕ                                                           (H1)
   assume p is prime                                                   (H2)
   then        σ(p) = p + 1
-  metamath    1sgmprm
-  target      1sgmprm
+  metamath-counterpart 1sgmprm
+  metamath-proof 1sgmprm
 
 theorem sigma-prime-power
   let p ∈ ℕ                                                           (H1)
   assume p is prime                                                   (H2)
   let k ∈ ℕ₀                                                          (H3)
   then        σ(p^k) = Σ(j = 0 to k) p^j
-  metamath    sgmppw with its power 1 written away, which this corpus proves
+  metamath-counterpart sgmppw with its power 1 written away, which this corpus proves
               in elaboration/stdlib/proved.mm
-  target      g1sgmppw
+  metamath-proof g1sgmppw
   note        The divisors of p^k are 1, p, …, p^k, so their sum is a
               geometric series.
 
 mundane theorem sigma-nat
   let n ∈ ℕ                                                           (H1)
   then        σ(n) ∈ ℕ
-  metamath    sgmnncl
-  target      sgmnncl with A := 1
+  metamath-counterpart sgmnncl
+  metamath-proof sgmnncl with A := 1
 
 mundane theorem sigma-part
   let n ∈ ℕ                                                           (H1)
   let Y ⊆ {d ∈ ℕ : d divides n}                                       (H2)
   then        Σ(d ∈ Y) d ≤ σ(n)
-  metamath    fsumless over the divisors of n, a finite set by dvdsfi, with
+  metamath-counterpart fsumless over the divisors of n, a finite set by dvdsfi, with
               sgmval2 at power 1, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      g1sgmpart
+  metamath-proof g1sgmpart
   note        A sum of some of the divisors of n is at most the sum of all
               of them: leaving out numbers none of which is below 0 cannot
               make a sum larger.
@@ -625,8 +625,8 @@ mundane theorem sigma-part
 mundane theorem one-divides
   let n ∈ ℤ                                                           (H1)
   then        1 divides n
-  metamath    1dvds
-  target      1dvds
+  metamath-counterpart 1dvds
+  metamath-proof 1dvds
 
 mundane theorem coprime-power
   let a ∈ ℤ                                                           (H1)
@@ -634,8 +634,8 @@ mundane theorem coprime-power
   let k ∈ ℕ₀                                                          (H3)
   assume gcd(a, b) = 1                                                (H4)
   then        gcd(a^k, b) = 1
-  metamath    rpexp1i
-  target      rpexp1i
+  metamath-counterpart rpexp1i
+  metamath-proof rpexp1i
   note        A number sharing no factor with b shares none with b in any
               of its powers.
 
@@ -645,22 +645,22 @@ definition φ
   reads       Euler's φ, how many whole numbers below n have no factor in common with
   let n ∈ ℕ                                                           (H1)
   then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|
-  metamath    dfphi2 with 0 ..^ n read as 0 ... n − 1 by fzoval, which this
+  metamath-counterpart dfphi2 with 0 ..^ n read as 0 ... n − 1 by fzoval, which this
               corpus proves in elaboration/stdlib/proved.mm
-  target      gphival
+  metamath-proof gphival
 
 mundane theorem phi-natural
   let n ∈ ℕ                                                           (H1)
   then        φ(n) ∈ ℕ
-  metamath    phicl
-  target      phicl
+  metamath-counterpart phicl
+  metamath-proof phicl
 
 theorem phi-prime
   let p ∈ ℕ                                                           (H1)
   assume p is prime                                                   (H2)
   then        φ(p) = p − 1
-  metamath    phiprm
-  target      phiprm
+  metamath-counterpart phiprm
+  metamath-proof phiprm
   note        Below a prime p, only 0 shares a factor with p, so p − 1 of
               the p remainders are counted.
 
@@ -671,9 +671,9 @@ mundane theorem coprime-product
   assume gcd(x, n) = 1                                                (H4)
   assume gcd(y, n) = 1                                                (H5)
   then        gcd(x·y, n) = 1
-  metamath    rpmul, which puts n first in each gcd, and gcdcom, which this
+  metamath-counterpart rpmul, which puts n first in each gcd, and gcdcom, which this
               corpus proves together in elaboration/stdlib/proved.mm
-  target      grpmul
+  metamath-proof grpmul
 
 mundane theorem congruent-in-range
   let n ∈ ℕ                                                           (H1)
@@ -681,24 +681,24 @@ mundane theorem congruent-in-range
   let y ∈ {0, …, n − 1}                                               (H3)
   assume x ≡ y (mod n)                                                (H4)
   then        x = y
-  metamath    fzocongeq, with 0 ..^ n read as 0 ... n − 1 by fzoval, which
+  metamath-counterpart fzocongeq, with 0 ..^ n read as 0 ... n − 1 by fzoval, which
               this corpus proves in elaboration/stdlib/proved.mm
-  target      gfzocong0
+  metamath-proof gfzocong0
 
 mundane theorem mod-congruent
   let x ∈ ℤ                                                           (H1)
   let n ∈ ℕ                                                           (H2)
   then        x ≡ x mod n (mod n)
-  metamath    moddvds and modabs2, which this corpus proves together in
+  metamath-counterpart moddvds and modabs2, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gmodcong
+  metamath-proof gmodcong
 
 mundane theorem minus-one-congruent
   let n ∈ ℕ                                                           (H1)
   then        n − 1 ≡ −1 (mod n)
-  metamath    iddvds, with (n − 1) − (−1) read as n, which this corpus
+  metamath-counterpart iddvds, with (n − 1) − (−1) read as n, which this corpus
               proves in elaboration/stdlib/proved.mm
-  target      gm1cong with N := n
+  metamath-proof gm1cong with N := n
   note        The two sides differ by n.
 
 mundane theorem mod-equal-congruent
@@ -707,33 +707,33 @@ mundane theorem mod-equal-congruent
   let n ∈ ℕ                                                           (H3)
   assume x mod n = y mod n                                            (H4)
   then        x ≡ y (mod n)
-  metamath    moddvds, read one way, which this corpus proves in
+  metamath-counterpart moddvds, read one way, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gmodeqdvds
-  lean        h4
+  metamath-proof gmodeqdvds
+  lean-proof h4
 
 
 mundane theorem divides-square
   let d ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ d² divides n²
-  metamath    dvdssq
-  target      dvdssq
+  metamath-counterpart dvdssq
+  metamath-proof dvdssq
 
 mundane theorem divides-quotient
   let n ∈ ℕ                                                           (H1)
   let d ∈ ℕ                                                           (H2)
   then        d divides n ↔ n/d ∈ ℕ
-  metamath    nndivdvds
-  target      nndivdvds
+  metamath-counterpart nndivdvds
+  metamath-proof nndivdvds
 
 mundane theorem gcd-quotients-coprime
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   assume b ≠ 0                                                        (H3)
   then        gcd(a/gcd(a, b), b/gcd(a, b)) = 1
-  metamath    divgcdcoprm0
-  target      divgcdcoprm0
+  metamath-counterpart divgcdcoprm0
+  metamath-proof divgcdcoprm0
   note        Dividing two numbers by their greatest common divisor leaves
               two with no factor in common.
 
@@ -744,6 +744,6 @@ mundane theorem divides-transitive
   assume d divides e                                                  (H4)
   assume e divides n                                                  (H5)
   then        d divides n
-  metamath    dvdstr
-  target      dvdstr
+  metamath-counterpart dvdstr
+  metamath-proof dvdstr
 

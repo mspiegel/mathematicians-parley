@@ -25,7 +25,7 @@ import mundane theorem    stdlib/sets/subset-self
 import mundane theorem    stdlib/sets/subset-transitive
 
 theorem cauchy-quotient
-  metamath    cmvth, which says it without the quotient
+  metamath-counterpart cmvth, which says it without the quotient
   note        Cauchy's mean value theorem gives ξ between p and q with
               (F(q) − F(p))·G′(ξ) = (G(q) − G(p))·F′(ξ). G′ is never 0, so by
               Rolle's theorem G(p) ≠ G(q), and both sides divide.
@@ -108,7 +108,7 @@ theorem cauchy-quotient
     join 3, 12
 
 theorem quotient-two-points
-  metamath    cmvth, as cauchy-quotient, between two points in either order
+  metamath-counterpart cmvth, as cauchy-quotient, between two points in either order
   note        Between u and v, whichever comes first, the quotient form of
               Cauchy's mean value theorem gives ξ strictly between them, so
               nearer u than v is. Where v < u the quotient comes with its
@@ -295,7 +295,7 @@ theorem quotient-two-points
           join 4.21, 4.29
 
 theorem quotient-between
-  metamath    lhop1lem, which bounds the quotient near the limit instead
+  metamath-counterpart lhop1lem, which bounds the quotient near the limit instead
   note        F and G are f and g with 0 put in at c, so continuous on (a, b)
               and differentiable but at c. On the interval between c and x
               the quotient form of Cauchy's mean value theorem gives ξ with
@@ -539,7 +539,7 @@ let G(t) = 0       if t = c
     join 39, 40
 
 theorem lhopital
-  metamath    lhop, which asks g be nonzero off c as well and says it on any
+  metamath-counterpart lhop, which asks g be nonzero off c as well and says it on any
               open set holding c
   note        Near c, f(x)/g(x) is f′(ξ)/g′(ξ) at a point ξ nearer c than x is
               (quotient-between). So wherever x is within the δ that keeps

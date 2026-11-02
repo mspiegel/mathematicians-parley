@@ -196,7 +196,7 @@ pub fn run(root: &Path) -> Said {
             Box::new(|| verifies(&source, libraries)),
         ),
         (
-            "every library item gives its target what it asks",
+            "every library item gives its metamath-proof what it asks",
             Box::new(|| restated::run(&source, libraries)),
         ),
         (

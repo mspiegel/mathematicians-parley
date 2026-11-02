@@ -1,4 +1,4 @@
-//! What each notation is in Lean: a notation record's `lean` field, read.
+//! What each notation is in Lean: a notation record's `lean-builds` field, read.
 //!
 //! The field has one entry for each of the record's patterns, in the order
 //! of its `pattern` field, separated by ` ; ` since Lean text has commas in
@@ -22,6 +22,7 @@
 
 use indexmap::IndexMap;
 
+use crate::corpus::records::LEAN_BUILDS;
 use crate::corpus::{Record, RecordKind};
 use crate::outcome::{Checked, Problem};
 
@@ -101,7 +102,7 @@ pub struct Template {
 #[derive(Clone, Debug, Default)]
 pub struct Templates {
     by_pattern: IndexMap<(String, String), Template>,
-    /// The notations with a `lean` field, by name.
+    /// The notations with a `lean-builds` field, by name.
     mapped: IndexMap<String, ()>,
     /// Each library function a definition record's `lean-builds` field
     /// gives a Lean form, by its name: `gcd(a, b)` is `Int.gcd a b`.
@@ -109,13 +110,13 @@ pub struct Templates {
 }
 
 impl Templates {
-    /// The `lean` field of every notation record that has one.
+    /// The `lean-builds` field of every notation record that has one.
     pub fn read(records: &[Record]) -> Checked<Templates> {
         let mut out = Templates::default();
         for r in records {
             if r.kind == RecordKind::Definition {
-                if let Some(entry) = r.field("lean-builds") {
-                    let line = r.lines.get("lean-builds").copied().unwrap_or(r.line);
+                if let Some(entry) = r.field(LEAN_BUILDS) {
+                    let line = r.lines.get(LEAN_BUILDS).copied().unwrap_or(r.line);
                     let template = Template::read(entry.trim()).ok_or_else(|| {
                         Problem::new(
                             &r.path,
@@ -133,10 +134,10 @@ impl Templates {
             if r.kind != RecordKind::Notation {
                 continue;
             }
-            let Some(field) = r.field("lean") else {
+            let Some(field) = r.lean_target() else {
                 continue;
             };
-            let line = r.lines.get("lean").copied().unwrap_or(r.line);
+            let line = r.lines.get(LEAN_BUILDS).copied().unwrap_or(r.line);
             let patterns = patterns_of(r.field_or_empty("pattern"));
             let entries: Vec<&str> = field.split(" ; ").map(str::trim).collect();
             if entries.len() != patterns.len() {
@@ -178,7 +179,7 @@ impl Templates {
             .get(&(notation.to_string(), pattern.to_string()))
     }
 
-    /// Whether a notation has a `lean` field.
+    /// Whether a notation has a `lean-builds` field.
     pub fn maps(&self, notation: &str) -> bool {
         self.mapped.contains_key(notation)
     }

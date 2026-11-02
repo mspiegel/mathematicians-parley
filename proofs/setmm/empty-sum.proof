@@ -2,7 +2,7 @@ import mundane theorem      stdlib/sums/sum-first
 import mundane theorem      stdlib/sums/sum-single
 
 theorem empty-sum
-  metamath    sum0
+  metamath-counterpart sum0
   note        The range from 1 to 0 has no members. Its sum is what is left
               of the one-term sum Σ(k = 0 to 0) B(k) when its first term is
               taken away.

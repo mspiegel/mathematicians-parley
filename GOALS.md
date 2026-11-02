@@ -451,8 +451,9 @@ answer later would invalidate work already done.
 
    The first half is still open. Writing the program found what the databases
    were missing — which theorem unfolds a definition, and which constructor a
-   notation targets in a form a program can read — and both are now a
-   `target` field beside `metamath`, checked by the gate.
+   notation targets in a form a program can read — and both are now fields
+   beside `metamath-counterpart`, `metamath-proof` for a definition and
+   `metamath-builds` for a notation, checked by the gate.
 
 5. **Notation at the input side.** Unicode or ASCII; how notation and precedence
    are declared; how a definition unfolds on demand. Needed in draft form for

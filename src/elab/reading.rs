@@ -631,7 +631,7 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 self.at,
                 format!(
-                    "notation {} has no target field",
+                    "notation {} has no metamath-builds field",
                     repr(&node.notation_name())
                 ),
             ));

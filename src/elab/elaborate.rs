@@ -1223,7 +1223,7 @@ impl<'a> Elaborator<'a> {
             // it; one stated as an equation is used by citing the lemma that
             // proves it. With no target it is read off the lines the step
             // cites, or is a defect (`take_definition`).
-            how = Some(if !item.fields.contains_key("target") {
+            how = Some(if item.metamath_target().is_none() {
                 How::TakeDefinition
             } else if item.conclusions.iter().any(|(text, _)| text.contains('↔')) {
                 How::Reading(self.reading(item, step)?)
@@ -1570,7 +1570,7 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 step.line,
                 format!(
-                    "{}:{} targets {}, and none of them reaches {wanted}",
+                    "{}:{}'s metamath-proof names {}, and none of them reaches {wanted}",
                     item_kind(item),
                     record.qualified(),
                     labels.join(", ")
@@ -1592,7 +1592,7 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 step.line,
                 format!(
-                    "{}:{} targets {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build metamath`",
+                    "{}:{}'s metamath-proof names {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build metamath`",
                     item_kind(Item::Record(item)),
                     item.qualified()
                 ),
@@ -1633,7 +1633,7 @@ impl<'a> Elaborator<'a> {
         self.defect(
             step.line,
             format!(
-                "step {} cites {}:{}, which the database gives no target for, and nothing is taken as stated",
+                "step {} cites {}:{}, which the database gives no metamath-proof for, and nothing is taken as stated",
                 step.number,
                 item_kind(Item::Record(item)),
                 item.qualified()
@@ -3332,7 +3332,10 @@ impl<'a> Elaborator<'a> {
             }
         }
         if declines.is_empty() {
-            return Ok(Route::no(format!("{} targets nothing", qualified(item))));
+            return Ok(Route::no(format!(
+                "{} has no metamath-proof",
+                qualified(item)
+            )));
         }
         Ok(Route::no(declines.join("; ")))
     }
@@ -3433,7 +3436,7 @@ impl<'a> Elaborator<'a> {
         Err(self.defect(
             step.line,
             format!(
-                "{}:{} has no target, and nothing step {} cites says {}",
+                "{}:{} has no metamath-proof, and nothing step {} cites says {}",
                 item_kind(Item::Record(item)),
                 item.qualified(),
                 step.number,
@@ -3456,10 +3459,11 @@ impl<'a> Elaborator<'a> {
         let Item::Record(item) = self.item_cited(&head)? else {
             panic!("a definition of the database");
         };
-        let labels: Vec<String> = targets::split_entries(item.field_or_empty("target"))
-            .into_iter()
-            .map(String::from)
-            .collect();
+        let labels: Vec<String> =
+            targets::split_entries(item.metamath_target_or_empty())
+                .into_iter()
+                .map(String::from)
+                .collect();
         let seed = self.filling(step, item)?;
         match self
             .by_clause_or_instance(item, &labels, term, scope, facts, step, &seed)?
@@ -5578,7 +5582,9 @@ impl<'a> Elaborator<'a> {
                 let item = cited;
                 let (lemma, flipped) = targets::unfolding(item);
                 let Some(lemma) = lemma else {
-                    return Err(me.defect(me.at, format!("{head} has no target field")));
+                    return Err(
+                        me.defect(me.at, format!("{head} has no metamath-proof field"))
+                    );
                 };
                 let node = me.in_its_names(Item::Record(item), |me| {
                     me.read_one(&item.stated()[0])

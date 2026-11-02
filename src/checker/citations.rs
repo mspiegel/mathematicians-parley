@@ -5474,7 +5474,7 @@ fn needed_below(
 /// What an item citation names, it needs.
 ///
 /// `DATABASE.md` holds that a named thing doing no work is an error, the
-/// shape of a `target` that never fires. For a step citing an item, the
+/// shape of a `metamath-proof` that never fires. For a step citing an item, the
 /// item's statement says what is needed and the two checks above say
 /// whether it is supplied; taking each named line away in turn and asking
 /// them again says which lines supply it. One whose absence changes nothing

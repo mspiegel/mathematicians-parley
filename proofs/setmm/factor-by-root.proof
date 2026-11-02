@@ -2,7 +2,7 @@ import theorem            stdlib/polynomials/remainder
 import mundane theorem    stdlib/polynomials/polynomial-value
 
 theorem factor-by-root
-  metamath    facth
+  metamath-counterpart facth
   note        Dividing p by x − a leaves the constant remainder p(a), which is 0.
   let p be a polynomial                                               (H1)
   let a ∈ ℂ                                                           (H2)

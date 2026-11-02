@@ -6,7 +6,7 @@ import mundane theorem    stdlib/divisibility/divides-one
 import definition         stdlib/divisibility/prime
 
 theorem prime-above
-  metamath    infpn
+  metamath-counterpart infpn
   note        n! + 1 has a prime factor p. If p were at most n, it would divide
               n! as well, and so their difference, 1.
   let n ∈ ℕ                                                           (H1)

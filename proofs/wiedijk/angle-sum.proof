@@ -5,7 +5,7 @@ import mundane theorem    stdlib/geometry/opposite-sides-off-line
 import mundane theorem    stdlib/geometry/triangle-off-line
 
 theorem angle-sum
-  metamath    ang180
+  metamath-counterpart ang180
   note        Draw through B the line parallel to AC. The angles it makes with
               BA and BC equal the triangle's angles at A and at C (alternate
               angles), and with the angle at B they make a straight line.

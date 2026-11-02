@@ -3,7 +3,7 @@ import mundane theorem stdlib/reasoning/or-left
 import mundane theorem stdlib/reasoning/or-right
 
 theorem average-at-most-an-end
-  metamath    avgle
+  metamath-counterpart avgle
   note        The average of two numbers is at most the larger one: if B is
               not below A it is at most B, and otherwise at most A.
   let A ∈ ℝ                                                           (H1)

@@ -12,10 +12,10 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 axiom extensionality
@@ -24,33 +24,33 @@ axiom extensionality
   assume for all t ∈ X, t ∈ Y                                         (H3)
   assume for all t ∈ Y, t ∈ X                                         (H4)
   then        X = Y
-  metamath    eqss and dfss3, which this corpus proves together in
+  metamath-counterpart eqss and dfss3, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gext
+  metamath-proof gext
   note        A set is its members: two sets each of whose members is in
               the other are one set. set.mm's ax-ext, said of sets as the
               page writes them.
 
 axiom empty-set
   then        ∅ exists
-  metamath    0ex
-  target      0ex
+  metamath-counterpart 0ex
+  metamath-proof 0ex
   note        A collection with no members exists; ∅ names it.
 
 axiom pairing
   let a be an element                                                 (H1)
   let b be an element                                                 (H2)
   then        {a, b} exists
-  metamath    prex
-  target      prex
+  metamath-counterpart prex
+  metamath-proof prex
 
 axiom unions
   let C be a set                                                      (H1)
   assume C exists                                                     (H2)
   then        ⋃(X ∈ C) X exists
-  metamath    uniexg, with the union written over its members by uniiun,
+  metamath-counterpart uniexg, with the union written over its members by uniiun,
               which this corpus proves in elaboration/stdlib/proved.mm
-  target      giunex
+  metamath-proof giunex
   note        What is in some member of a collection that exists makes a
               collection that exists.
 
@@ -58,8 +58,8 @@ axiom power-sets
   let X be a set                                                      (H1)
   assume X exists                                                     (H2)
   then        𝒫X exists
-  metamath    pwexg
-  target      pwexg
+  metamath-counterpart pwexg
+  metamath-proof pwexg
   note        The parts of a collection that exists make one that exists.
 
 axiom separation
@@ -67,8 +67,8 @@ axiom separation
   assume X exists                                                     (H2)
   let P be a property of the elements of X                            (H3)
   then        {t ∈ X : P(t)} exists
-  metamath    rabexg
-  target      rabexg
+  metamath-counterpart rabexg
+  metamath-proof rabexg
   note        The members of a collection that exists with a property make
               one that exists. A property is not a thing, so this is one
               axiom for every property.
@@ -79,16 +79,16 @@ axiom replacement
   let Z be a set                                                      (H3)
   let E : Y → Z                                                       (H4)
   then        {E(s) : s ∈ Y} exists
-  metamath    mptexg and rnexg, which this corpus proves together in
+  metamath-counterpart mptexg and rnexg, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      grnmptex
+  metamath-proof grnmptex
   note        The values a function takes on a collection that exists make
               one that exists.
 
 axiom infinity
   then        ℕ exists
-  metamath    nnex
-  target      nnex
+  metamath-counterpart nnex
+  metamath-proof nnex
   note        An infinite collection exists. Textbooks build it as the
               least one holding ∅ and x ∪ {x} with each x; the page says it
               of ℕ, which set.mm builds from it.
@@ -98,9 +98,9 @@ axiom choice
   assume C exists                                                     (H2)
   assume for all X ∈ C, X ≠ ∅                                         (H3)
   then        there is f : C → ⋃(Y ∈ C) Y with for all X ∈ C, f(X) ∈ X
-  metamath    ac6sg, its function read as a map into the union, which
+  metamath-counterpart ac6sg, its function read as a map into the union, which
               this corpus proves in elaboration/stdlib/proved.mm
-  target      gchoice
+  metamath-proof gchoice
   note        A collection that exists, of non-empty sets, has a function
               choosing a member of each. The union's letter Y is not the
               letter X the "for all" binds, as set.mm keeps a map's
@@ -108,15 +108,15 @@ axiom choice
 
 definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
-  metamath    df-ss, ssel
-  target      dfss3
+  metamath-counterpart df-ss, ssel
+  metamath-proof dfss3
 
 definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
-  metamath    rabid, elrab
-  target      rabid, elrab
+  metamath-counterpart rabid, elrab
+  metamath-proof rabid, elrab
   note        P(t) says the property holds of t. The line above says what P is
               a property of and never mentions t, because the braces are what
               introduce t: it does not exist until they open. See the
@@ -134,9 +134,9 @@ definition part-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
-  metamath    elrab over the power set, and elpw2g, which this corpus
+  metamath-counterpart elrab over the power set, and elpw2g, which this corpus
               proves together in elaboration/stdlib/proved.mm
-  target      gelrabpw
+  metamath-proof gelrabpw
   note        The parts of X with a property: `def:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
 
@@ -144,45 +144,45 @@ mundane theorem part-builder-empty
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        {t ⊆ X : P(t)} = ∅ ↔ for all t ⊆ X, not P(t)
-  metamath    rabeq0
-  target      rabeq0
+  metamath-counterpart rabeq0
+  metamath-proof rabeq0
   note        No part of X has the property exactly when the parts of X
               with it make up the empty set.
 
 mundane theorem empty-subset
   then        ∅ ⊆ X
-  metamath    0ss
-  target      0ss
+  metamath-counterpart 0ss
+  metamath-proof 0ss
 
 mundane theorem set-builder-subset
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
-  metamath    ssrab2
-  target      ssrab2
+  metamath-counterpart ssrab2
+  metamath-proof ssrab2
 
 mundane theorem set-builder-split
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        X = {t ∈ X : P(t)} ∪ {t ∈ X : not P(t)}
-  metamath    rabxm
-  target      rabxm
+  metamath-counterpart rabxm
+  metamath-proof rabxm
   note        Every element of X has the property or does not.
 
 mundane theorem set-builder-split-disjoint
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ∩ {t ∈ X : not P(t)} = ∅
-  metamath    rabnc
-  target      rabnc
+  metamath-counterpart rabnc
+  metamath-proof rabnc
   note        No element both has the property and does not.
 
 mundane theorem set-builder-empty
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} = ∅ ↔ for all t ∈ X, not P(t)
-  metamath    rabeq0
-  target      rabeq0
+  metamath-counterpart rabeq0
+  metamath-proof rabeq0
   note        `mun:stdlib/sets/part-builder-empty` is the same over the parts
               of a set.
 
@@ -190,30 +190,30 @@ mundane theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z
-  metamath    sstr
-  target      sstr
+  metamath-counterpart sstr
+  metamath-proof sstr
 
 mundane theorem subset-self
   then        X ⊆ X
-  metamath    ssid
-  target      ssid
+  metamath-counterpart ssid
+  metamath-proof ssid
 
 definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
-  metamath    elpw, elpwg
-  target      elpwg
+  metamath-counterpart elpw, elpwg
+  metamath-proof elpwg
 
 mundane theorem powerset-empty
   then        𝒫∅ = {∅}
-  metamath    pw0
-  target      pw0
+  metamath-counterpart pw0
+  metamath-proof pw0
 
 definition pair
   let x be an element                                                 (H1)
   then        x ∈ {u, w} ↔ x = u or x = w
-  metamath    elprg
-  target      elprg
+  metamath-counterpart elprg
+  metamath-proof elprg
   note        What is in a set of two listed things is one of the two.
 
 mundane theorem pair-equal
@@ -222,8 +222,8 @@ mundane theorem pair-equal
   let c be an element                                                 (H3)
   let d be an element                                                 (H4)
   then        {a, b} = {c, d} ↔ (a = c and b = d) or (a = d and b = c)
-  metamath    preq12bg
-  target      preq12bg
+  metamath-counterpart preq12bg
+  metamath-proof preq12bg
   note        Two sets of two listed things are one set when they list the
               same two, in either order.
 
@@ -233,8 +233,8 @@ mundane theorem pair-parts-equal
   let c be an element                                                 (H3)
   let d be an element                                                 (H4)
   then        (a, b) = (c, d) ↔ a = c and b = d
-  metamath    opthg
-  target      opthg
+  metamath-counterpart opthg
+  metamath-proof opthg
   note        Two pairs are one pair when their first parts are equal and
               their second parts are, the order counting, as it does not
               for {a, b} (`pair-equal`).
@@ -245,24 +245,24 @@ mundane theorem pair-in-product
   let a be an element                                                 (H3)
   let b be an element                                                 (H4)
   then        (a, b) ∈ X × Y ↔ a ∈ X and b ∈ Y
-  metamath    opelxp
-  target      opelxp
+  metamath-counterpart opelxp
+  metamath-proof opelxp
   note        A pair is in X × Y when its first part is in X and its second
               in Y.
 
 definition singleton
   let x be an element                                                 (H1)
   then        x ∈ {a} ↔ x = a
-  metamath    elsng
-  target      elsng
+  metamath-counterpart elsng
+  metamath-proof elsng
   note        What is in a set of one listed thing is that thing, as `pair`
               says of two.
 
 definition triple
   let x be an element                                                 (H1)
   then        x ∈ {u, v, w} ↔ x = u or x = v or x = w
-  metamath    eltpg
-  target      geltpg
+  metamath-counterpart eltpg
+  metamath-proof geltpg
   note        What is in a set of three listed things is one of the three,
               as `pair` says of two. set.mm says the three cases as one
               three-way "or"; the page's "or" pairs from the left, and the
@@ -273,94 +273,94 @@ mundane theorem triple-members
   let v be an element                                                 (H2)
   let w be an element                                                 (H3)
   then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
-  metamath    tpid1g, tpid2g, tpid3g
-  target      tpid1g, tpid2g, tpid3g
+  metamath-counterpart tpid1g, tpid2g, tpid3g
+  metamath-proof tpid1g, tpid2g, tpid3g
   note        Each thing a set lists is in it.
 
 mundane theorem pair-finite
   then        {u, w} is finite
-  metamath    prfi
-  target      prfi
+  metamath-counterpart prfi
+  metamath-proof prfi
 
 mundane theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        X ∖ {a} exists
-  metamath    difexg
-  target      difexg
+  metamath-counterpart difexg
+  metamath-proof difexg
 
 mundane theorem subset-of-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X ∖ {a}                                                  (H2)
   then        a ∉ Y
-  metamath    ssdifsn
-  target      ssdifsn
+  metamath-counterpart ssdifsn
+  metamath-proof ssdifsn
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
 
 mundane theorem difference-of-union
   let a be an element                                                 (H1)
   then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
-  metamath    difun2
-  target      difun2
+  metamath-counterpart difun2
+  metamath-proof difun2
 
 mundane theorem difference-absent
   let a ∉ Y                                                           (H1)
   then        Y ∖ {a} = Y
-  metamath    difsn
-  target      difsn
+  metamath-counterpart difsn
+  metamath-proof difsn
 
 mundane theorem singleton-outside
   let a ∉ Y                                                           (H1)
   then        Y ∩ {a} = ∅
-  metamath    disjsn
-  target      disjsn
+  metamath-counterpart disjsn
+  metamath-proof disjsn
   note        What is not in Y shares nothing with Y.
 
 mundane theorem difference-by-union
   then        X ∖ (Y ∪ Z) = (X ∖ Y) ∖ Z
-  metamath    difun1
-  target      difun1
+  metamath-counterpart difun1
+  metamath-proof difun1
   note        Taking away a union is taking away its parts one after the
               other.
 
 mundane theorem nothing-left-outside
   then        Y ⊆ X ↔ Y ∖ X = ∅
-  metamath    ssdif0
-  target      ssdif0
+  metamath-counterpart ssdif0
+  metamath-proof ssdif0
   note        Nothing of Y is left outside X exactly when Y lies inside X.
 
 mundane theorem intersection-of-part
   assume Y ⊆ X                                                        (H1)
   then        X ∩ Y = Y
-  metamath    sseqin2
-  target      sseqin2
+  metamath-counterpart sseqin2
+  metamath-proof sseqin2
   note        A part of X shares all of itself with X.
 
 mundane theorem not-in-subset
   let a ∉ Z                                                           (H1)
   assume Y ⊆ Z                                                        (H2)
   then        a ∉ Y
-  metamath    ssneld
-  target      ssneld
+  metamath-counterpart ssneld
+  metamath-proof ssneld
 
 mundane theorem in-union-singleton
   let a be an element                                                 (H1)
   then        a ∈ Y ∪ {a}
-  metamath    elun2, over the singleton snidg puts a in
-  target      elun2
+  metamath-counterpart elun2, over the singleton snidg puts a in
+  metamath-proof elun2
 
 mundane theorem listed-repeat
   then        {a, b, b} = {a, b}
-  metamath    tpidm23
-  target      tpidm23
+  metamath-counterpart tpidm23
+  metamath-proof tpidm23
   note        A list names each element once however often it is written.
 
 mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅
-  metamath    disjr
-  target      disjr
+  metamath-counterpart disjr
+  metamath-proof disjr
   note        Two sets are disjoint when nothing in one is in the other, which
               is what a reader proves. set.mm says it twice, over the first set
               in `disj` and over the second in `disjr`, and the second is the
@@ -371,8 +371,8 @@ mundane theorem not-in-difference
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        a ∉ X ∖ {a}
-  metamath    neldifsn
-  target      neldifsn
+  metamath-counterpart neldifsn
+  metamath-proof neldifsn
   note        Added because thm:proofs/wiedijk/subsets/add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
@@ -381,255 +381,255 @@ mundane theorem union-subset
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ∪ Y ⊆ Z
-  metamath    unss
-  target      unss
+  metamath-counterpart unss
+  metamath-proof unss
 
 mundane theorem in-union-left
   assume u ∈ Y                                                        (H1)
   then        u ∈ Y ∪ Z
-  metamath    elun1
-  target      elun1
+  metamath-counterpart elun1
+  metamath-proof elun1
 
 mundane theorem in-union-right
   assume u ∈ Z                                                        (H1)
   then        u ∈ Y ∪ Z
-  metamath    elun2
-  target      elun2
+  metamath-counterpart elun2
+  metamath-proof elun2
 
 mundane theorem difference-subset
   then        X ∖ Y ⊆ X
-  metamath    difss
-  target      difss
+  metamath-counterpart difss
+  metamath-proof difss
 
 mundane theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
   then        Y ∖ Z ⊆ X ∖ Z
-  metamath    ssdif
-  target      ssdif
+  metamath-counterpart ssdif
+  metamath-proof ssdif
 
 mundane theorem subset-into-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X                                                        (H2)
   assume a ∉ Y                                                        (H3)
   then        Y ⊆ X ∖ {a}
-  metamath    ssdifsn
-  target      ssdifsn
+  metamath-counterpart ssdifsn
+  metamath-proof ssdifsn
   note        The other half of `ssdifsn` from `mun:stdlib/sets/subset-of-difference`:
               inside X and without a is inside X ∖ {a}.
 
 mundane theorem remove-and-restore
   let a ∈ Y                                                           (H1)
   then        (Y ∖ {a}) ∪ {a} = Y
-  metamath    difsnid
-  target      difsnid
+  metamath-counterpart difsnid
+  metamath-proof difsnid
 
 mundane theorem singleton-subset
   let a ∈ X                                                           (H1)
   then        {a} ⊆ X
-  metamath    snssi
-  target      snssi
+  metamath-counterpart snssi
+  metamath-proof snssi
 
 mundane theorem pair-subset
   let a ∈ X                                                           (H1)
   let b ∈ X                                                           (H2)
   then        {a, b} ⊆ X
-  metamath    prssi
-  target      prssi
+  metamath-counterpart prssi
+  metamath-proof prssi
 
 mundane theorem triple-subset
   let a ∈ X                                                           (H1)
   let b ∈ X                                                           (H2)
   let c ∈ X                                                           (H3)
   then        {a, b, c} ⊆ X
-  metamath    tpssi
-  target      tpssi
+  metamath-counterpart tpssi
+  metamath-proof tpssi
 
 mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X
-  metamath    sspw
-  target      sspw
+  metamath-counterpart sspw
+  metamath-proof sspw
 
 definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
-  metamath    elin
-  target      elin
+  metamath-counterpart elin
+  metamath-proof elin
 
 definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
-  metamath    elun
-  target      elun
+  metamath-counterpart elun
+  metamath-proof elun
 
 mundane theorem remove-member
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let u be an element                                                 (H3)
   then        u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
-  metamath    eldifsn
-  target      eldifsn
+  metamath-counterpart eldifsn
+  metamath-proof eldifsn
 
 mundane theorem intersection-commutes
   then        Y ∩ Z = Z ∩ Y
-  metamath    incom
-  target      incom
+  metamath-counterpart incom
+  metamath-proof incom
 
 mundane theorem union-commutes
   then        Y ∪ Z = Z ∪ Y
-  metamath    uncom
-  target      uncom
+  metamath-counterpart uncom
+  metamath-proof uncom
 
 mundane theorem union-difference
   then        Y ∪ (Z ∖ Y) = Y ∪ Z
-  metamath    undif2
-  target      undif2
+  metamath-counterpart undif2
+  metamath-proof undif2
   note        Adding what Z has beyond Y adds all of Z.
 
 mundane theorem nonempty-member
   assume Y ≠ ∅                                                        (H1)
   then        there is a ∈ Y
-  metamath    n0
-  target      n0
+  metamath-counterpart n0
+  metamath-proof n0
   note        A set that is not empty has an element, which an obtain names.
 
 mundane theorem member-nonempty
   assume a ∈ Y                                                        (H1)
   then        Y ≠ ∅
-  metamath    ne0i
-  target      ne0i
+  metamath-counterpart ne0i
+  metamath-proof ne0i
   note        The converse of nonempty-member: a set with an element is
               not empty.
 
 mundane theorem intersection-self
   then        Y ∩ Y = Y
-  metamath    inidm
-  target      inidm
+  metamath-counterpart inidm
+  metamath-proof inidm
 
 mundane theorem union-self
   then        Y ∪ Y = Y
-  metamath    unidm
-  target      unidm
+  metamath-counterpart unidm
+  metamath-proof unidm
 
 mundane theorem union-empty
   then        Y ∪ ∅ = Y
-  metamath    un0
-  target      un0
+  metamath-counterpart un0
+  metamath-proof un0
 
 mundane theorem intersection-empty
   then        Y ∩ ∅ = ∅
-  metamath    in0
-  target      in0
+  metamath-counterpart in0
+  metamath-proof in0
 
 mundane theorem difference-self
   then        Y ∖ Y = ∅
-  metamath    difid
-  target      difid
+  metamath-counterpart difid
+  metamath-proof difid
 
 mundane theorem difference-empty
   then        Y ∖ ∅ = Y
-  metamath    dif0
-  target      dif0
+  metamath-counterpart dif0
+  metamath-proof dif0
 
 mundane theorem intersection-distributes
   then        X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
-  metamath    indi
-  target      indi
+  metamath-counterpart indi
+  metamath-proof indi
 
 mundane theorem intersection-distributes-right
   then        (X ∪ Y) ∩ Z = (X ∩ Z) ∪ (Y ∩ Z)
-  metamath    indir
-  target      indir
+  metamath-counterpart indir
+  metamath-proof indir
 
 mundane theorem intersection-distributes-over-intersection
   then        X ∩ Y ∩ Z = (X ∩ Z) ∩ (Y ∩ Z)
-  metamath    inindir
-  target      inindir
+  metamath-counterpart inindir
+  metamath-proof inindir
 
 mundane theorem intersection-subset
   then        Y ∩ Z ⊆ Y
-  metamath    inss1
-  target      inss1
+  metamath-counterpart inss1
+  metamath-proof inss1
 
 mundane theorem intersection-and-difference
   then        (Y ∩ Z) ∪ (Y ∖ Z) = Y
-  metamath    inundif
-  target      inundif
+  metamath-counterpart inundif
+  metamath-proof inundif
   note        What Y shares with Z, and what Y has outside Z, make up Y.
 
 mundane theorem intersection-and-difference-disjoint
   then        (Y ∩ Z) ∩ (Y ∖ Z) = ∅
-  metamath    inindif
-  target      inindif
+  metamath-counterpart inindif
+  metamath-proof inindif
 
 mundane theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
-  metamath    ss0b
-  target      ss0b
+  metamath-counterpart ss0b
+  metamath-proof ss0b
 
 definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
-  metamath    eldif
-  target      eldif
+  metamath-counterpart eldif
+  metamath-proof eldif
 
 mundane theorem in-subset
   assume X ⊆ Y                                                        (H1)
   assume u ∈ X                                                        (H2)
   then        u ∈ Y
-  metamath    ssel2
-  target      ssel2
+  metamath-counterpart ssel2
+  metamath-proof ssel2
 
 mundane theorem difference-reverses
   assume X ⊆ Y                                                        (H1)
   then        Z ∖ Y ⊆ Z ∖ X
-  metamath    sscon
-  target      sscon
+  metamath-counterpart sscon
+  metamath-proof sscon
 
 mundane theorem complement-swap
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z ∖ Y ↔ Y ⊆ Z ∖ X
-  metamath    ssconb
-  target      ssconb
+  metamath-counterpart ssconb
+  metamath-proof ssconb
 
 mundane theorem complement-swap-outside
   then        Z ∖ Y ⊆ X ↔ Z ∖ X ⊆ Y
-  metamath    difcom
-  target      difcom
+  metamath-counterpart difcom
+  metamath-proof difcom
 
 mundane theorem equal-subset
   assume X = Y                                                        (H1)
   then        X ⊆ Y
-  metamath    eqimss
-  target      eqimss
+  metamath-counterpart eqimss
+  metamath-proof eqimss
 
 mundane theorem disjoint-within
   assume X ⊆ Y                                                        (H1)
   assume Y ∩ Z = ∅                                                    (H2)
   then        X ∩ Z = ∅
-  metamath    ssdisj
-  target      ssdisj
+  metamath-counterpart ssdisj
+  metamath-proof ssdisj
 
 mundane theorem disjoint-member
   assume Y ∩ Z = ∅                                                    (H1)
   assume u ∈ Y                                                        (H2)
   then        u ∉ Z
-  metamath    disjel
-  target      disjel
+  metamath-counterpart disjel
+  metamath-proof disjel
 
 mundane theorem disjoint-difference
   then        Y ∩ (Z ∖ Y) = ∅
-  metamath    disjdif
-  target      disjdif
+  metamath-counterpart disjdif
+  metamath-proof disjdif
 
 definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
-  metamath    eliun
-  target      eliun
+  metamath-counterpart eliun
+  metamath-proof eliun
 
 mundane theorem union-contains-member
   assume Y ∈ D                                                        (H1)
   then        Y ⊆ ⋃(X ∈ D) X
-  metamath    ssiun2s
-  target      ssiun2s with C := Y
+  metamath-counterpart ssiun2s
+  metamath-proof ssiun2s with C := Y
   note        ssiun2 says it with one letter for the member and the union's
               index; ssiun2s keeps them apart, as the page does, and ties
               them by its hypothesis that the two sets agree where they are
@@ -638,13 +638,13 @@ mundane theorem union-contains-member
 mundane theorem union-within
   assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
-  metamath    iunss
-  target      iunss
+  metamath-counterpart iunss
+  metamath-proof iunss
 
 mundane theorem intersection-within
   assume for all X ∈ D, Z ⊆ X                                         (H1)
   then        Z ⊆ ⋂(X ∈ D) X
-  metamath    ssiin
-  target      ssiin
+  metamath-counterpart ssiin
+  metamath-proof ssiin
   note        A set within every set of D is within their intersection. It
               holds for an empty D too, the intersection then being everything.

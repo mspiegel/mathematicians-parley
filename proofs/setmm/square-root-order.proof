@@ -2,7 +2,7 @@ import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/numbers/square-less
 
 theorem square-root-order
-  metamath    sqrtle
+  metamath-counterpart sqrtle
   note        For numbers that are not negative, squaring keeps the order
               strictly, so √A > √B would give A > B and the other way
               round.

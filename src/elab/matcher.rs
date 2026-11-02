@@ -6011,7 +6011,9 @@ impl<'a> Elaborator<'a> {
         seed: Option<&Binding>,
     ) -> Checked<Route<Proof>> {
         let Some(seed) = seed.filter(|s| !labels.is_empty() && !s.is_empty()) else {
-            return Ok(Route::no("no `with` target says what the lemmas are about"));
+            return Ok(Route::no(
+                "no `with` in the metamath-proof says what the lemmas are about",
+            ));
         };
         let want = self.to_term(goal);
         if want.label() != Some("wrex") {
@@ -6049,7 +6051,7 @@ impl<'a> Elaborator<'a> {
             }
             if reads.names().iter().any(|n| !seed.contains_key(&**n)) {
                 return Ok(Route::no(format!(
-                    "the target does not say what {label} is about"
+                    "the metamath-proof does not say what {label} is about"
                 )));
             }
             let said = self.rpn(&reads.substitute(seed));
@@ -6085,7 +6087,7 @@ impl<'a> Elaborator<'a> {
     ) -> Checked<Route<Proof>> {
         if witness.len() != 1 {
             return Ok(Route::no(format!(
-                "the target names {} witnesses and the claim is read one binder at a time",
+                "the metamath-proof names {} witnesses and the claim is read one binder at a time",
                 witness.len()
             )));
         }
@@ -6367,7 +6369,7 @@ impl<'a> Elaborator<'a> {
             seed.is_some_and(|s| reads.names().iter().all(|n| s.contains_key(&**n)));
         if !full {
             return Ok(Route::no(format!(
-                "the target does not fix every variable of {label}"
+                "the metamath-proof does not fix every variable of {label}"
             )));
         }
         let seed = seed.unwrap();

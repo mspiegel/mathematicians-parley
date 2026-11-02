@@ -482,7 +482,7 @@ let L(k) = sup I(k), for k ∈ {1, …, N}                                (D5)
 
 
 theorem erdos-szekeres
-  metamath    erdsze
+  metamath-counterpart erdsze
   note        Every sequence of N different numbers, with N greater than
               (r − 1)(s − 1), has a rising run of r of them or a falling run
               of s. Label each place with the lengths of the longest rising

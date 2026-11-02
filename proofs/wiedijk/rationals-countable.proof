@@ -10,7 +10,7 @@ import definition         stdlib/numbers/numer
 import axiom              stdlib/reasoning/excluded-middle
 
 theorem rationals-countable
-  metamath    qnnen, which says it of ℚ and ℕ the other way round
+  metamath-counterpart qnnen, which says it of ℚ and ℕ the other way round
   note        ℕ goes one to one into ℚ as itself, and ℚ goes one to one into
               ℕ by a code: p/q in lowest terms, with sign s, goes to
               2^|p|·3^q·5^s, and a number has only one factoring into primes.

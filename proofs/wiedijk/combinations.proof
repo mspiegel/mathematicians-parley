@@ -406,7 +406,7 @@ let W = {T ∪ {a} : T ∈ V}                                             (D4)
 
 
 theorem combinations
-  metamath    hashbc
+  metamath-counterpart hashbc
   note        By induction on the size. Taking one element a out of a set of
               m + 1 splits its parts with j elements into those without a,
               C(m, j) of them, and those with a, one for each part of the

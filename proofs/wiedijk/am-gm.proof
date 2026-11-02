@@ -239,7 +239,7 @@ theorem am-gm-power
     mun:modus-ponens, from 2, 3
 
 theorem am-gm
-  metamath    amgm
+  metamath-counterpart amgm
   note        The geometric mean of n numbers none of them negative is at
               most their arithmetic mean: take n-th roots in am-gm-power.
   let n ∈ ℕ                                                           (H1)

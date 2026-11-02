@@ -13,10 +13,10 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 mundane theorem sum-divisible
@@ -25,8 +25,8 @@ mundane theorem sum-divisible
   let t : ℕ₀ → ℤ                                                      (H3)
   assume for all k ∈ ℕ₀, m divides t(k)                               (H4)
   then        m divides Σ(k = 0 to n) t(k)
-  metamath    fsumdvds
-  target      fsumdvds
+  metamath-counterpart fsumdvds
+  metamath-proof fsumdvds
   note        A number dividing every term divides the sum. set.mm asks it
               only of the terms the sum takes, k from 0 to n; asked of every
               k ∈ ℕ₀ it asks more, which is what a proof that fixes an
@@ -36,30 +36,30 @@ mundane theorem sum-integer
   let n ∈ ℕ₀                                                          (H1)
   let t : ℕ₀ → ℤ                                                      (H2)
   then        Σ(k = 0 to n) t(k) ∈ ℤ
-  metamath    fsumzcl
-  target      fsumzcl
+  metamath-counterpart fsumzcl
+  metamath-proof fsumzcl
 
 mundane theorem sum-difference
   let n ∈ ℕ₀                                                          (H1)
   let t : ℕ₀ → ℤ                                                      (H2)
   let u : ℕ₀ → ℤ                                                      (H3)
   then        Σ(k = 0 to n) (t(k) − u(k)) = Σ(k = 0 to n) t(k) − Σ(k = 0 to n) u(k)
-  metamath    fsumsub
-  target      fsumsub
+  metamath-counterpart fsumsub
+  metamath-proof fsumsub
 
 mundane theorem sum-single
   let a ∈ ℤ                                                           (H1)
   let t : {a, …, a} → ℝ                                               (H2)
   then        Σ(k = a to a) t(k) = t(a)
-  metamath    fsum1
-  target      fsum1
+  metamath-counterpart fsum1
+  metamath-proof fsum1
 
 mundane theorem sum-last
   let n ∈ ℕ₀                                                          (H1)
   let t : {0, …, n + 1} → ℝ                                           (H2)
   then        Σ(k = 0 to n + 1) t(k) = Σ(k = 0 to n) t(k) + t(n + 1)
-  metamath    fsump1
-  target      fsump1
+  metamath-counterpart fsump1
+  metamath-proof fsump1
 
 mundane theorem sum-extended
   let a ∈ ℤ                                                           (H1)
@@ -67,8 +67,8 @@ mundane theorem sum-extended
   assume n ≥ a                                                        (H3)
   let t : {a, …, n + 1} → ℝ                                           (H4)
   then        Σ(k = a to n + 1) t(k) = Σ(k = a to n) t(k) + t(n + 1)
-  metamath    fsump1
-  target      fsump1
+  metamath-counterpart fsump1
+  metamath-proof fsump1
   note        `sum-last` from a start of the proof's own choosing: the sum
               formula counts from 1, where `sum-last` counts from 0.
 
@@ -78,8 +78,8 @@ theorem sum-telescopes
   assume b + 1 ≥ a                                                    (H3)
   let t : {a, …, b + 1} → ℝ                                           (H4)
   then        Σ(k = a to b) (t(k) − t(k + 1)) = t(a) − t(b + 1)
-  metamath    telfsum
-  target      telfsum
+  metamath-counterpart telfsum
+  metamath-proof telfsum
   note        A telescoping sum: each term's second half cancels the next
               term's first, and what is left is the first and the last.
 
@@ -89,8 +89,8 @@ theorem sum-telescopes-up
   assume b + 1 ≥ a                                                    (H3)
   let t : {a, …, b + 1} → ℂ                                           (H4)
   then        Σ(k = a to b) (t(k + 1) − t(k)) = t(b + 1) − t(a)
-  metamath    telfsum2
-  target      telfsum2
+  metamath-counterpart telfsum2
+  metamath-proof telfsum2
   note        The telescoping sum with each term's differences taken the
               other way, each value less the one before, over ℂ as set.mm
               states it: what is left is the last less the first.
@@ -99,8 +99,8 @@ mundane theorem sum-first
   let n ∈ ℕ₀                                                          (H1)
   let t : {0, …, n} → ℝ                                               (H2)
   then        Σ(k = 0 to n) t(k) = t(0) + Σ(k = 0 + 1 to n) t(k)
-  metamath    fsum1p
-  target      fsum1p
+  metamath-counterpart fsum1p
+  metamath-proof fsum1p
   note        The rest of the sum starts at 0 + 1, as set.mm writes it; a
               proof that wants 1 there substitutes.
 
@@ -110,8 +110,8 @@ mundane theorem sum-shift
   let c ∈ ℤ                                                           (H3)
   let t : {a, …, b} → ℝ                                               (H4)
   then        Σ(k = a to b) t(k) = Σ(k = a + c to b + c) t(k − c)
-  metamath    fsumshft
-  target      fsumshft
+  metamath-counterpart fsumshft
+  metamath-proof fsumshft
   note        The same terms counted from a different start: the term the
               left side takes at k, the right side takes at k + c.
 
@@ -121,8 +121,8 @@ mundane theorem sum-scaled
   let c ∈ ℝ                                                           (H3)
   let t : {a, …, b} → ℝ                                               (H4)
   then        c·(Σ(k = a to b) t(k)) = Σ(k = a to b) c·t(k)
-  metamath    fsummulc2
-  target      fsummulc2
+  metamath-counterpart fsummulc2
+  metamath-proof fsummulc2
 
 mundane theorem sum-add
   let a ∈ ℤ                                                           (H1)
@@ -130,8 +130,8 @@ mundane theorem sum-add
   let t : {a, …, b} → ℝ                                               (H3)
   let u : {a, …, b} → ℝ                                               (H4)
   then        Σ(k = a to b) (t(k) + u(k)) = Σ(k = a to b) t(k) + Σ(k = a to b) u(k)
-  metamath    fsumadd
-  target      fsumadd
+  metamath-counterpart fsumadd
+  metamath-proof fsumadd
 
 mundane theorem sum-termwise
   let a ∈ ℤ                                                           (H1)
@@ -140,8 +140,8 @@ mundane theorem sum-termwise
   let u : {a, …, b} → ℝ                                               (H4)
   assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
-  metamath    sumeq2dv
-  target      sumeq2dv
+  metamath-counterpart sumeq2dv
+  metamath-proof sumeq2dv
   note        Two sums over one range are equal when their terms are, index
               by index. The terms need agree only where the sum takes them,
               which is what lets a term be rewritten by a fact that holds on
@@ -154,8 +154,8 @@ mundane theorem sum-termwise-complex
   let u : {a, …, b} → ℂ                                               (H4)
   assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
-  metamath    sumeq2dv
-  target      sumeq2dv
+  metamath-counterpart sumeq2dv
+  metamath-proof sumeq2dv
   note        `sum-termwise` for terms that are complex numbers.
 
 mundane theorem sum-real
@@ -163,16 +163,16 @@ mundane theorem sum-real
   let b ∈ ℤ                                                           (H2)
   let t : {a, …, b} → ℝ                                               (H3)
   then        Σ(k = a to b) t(k) ∈ ℝ
-  metamath    fsumrecl
-  target      fsumrecl
+  metamath-counterpart fsumrecl
+  metamath-proof fsumrecl
 
 mundane theorem product-real
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   let t : {a, …, b} → ℝ                                               (H3)
   then        ∏(k ∈ {a, …, b}) t(k) ∈ ℝ
-  metamath    fprodrecl
-  target      fprodrecl
+  metamath-counterpart fprodrecl
+  metamath-proof fprodrecl
 
 mundane theorem product-range-nonneg
   let a ∈ ℤ                                                           (H1)
@@ -180,9 +180,9 @@ mundane theorem product-range-nonneg
   let t : {a, …, b} → ℝ                                               (H3)
   assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
   then        ∏(k ∈ {a, …, b}) t(k) ≥ 0
-  metamath    fprodge0, which this corpus proves in elaboration/stdlib/proved.mm
+  metamath-counterpart fprodge0, which this corpus proves in elaboration/stdlib/proved.mm
               for a context that may name the index bound
-  target      gfprodge0
+  metamath-proof gfprodge0
   note        As sum-nonneg, for a product: factors none of them negative
               have a product that is not negative.
 
@@ -190,8 +190,8 @@ mundane theorem product-single
   let a ∈ ℤ                                                           (H1)
   let t : {a, …, a} → ℝ                                               (H2)
   then        ∏(k ∈ {a, …, a}) t(k) = t(a)
-  metamath    fprod1
-  target      fprod1
+  metamath-counterpart fprod1
+  metamath-proof fprod1
 
 mundane theorem product-extended
   let a ∈ ℤ                                                           (H1)
@@ -199,8 +199,8 @@ mundane theorem product-extended
   assume n ≥ a                                                        (H3)
   let t : {a, …, n + 1} → ℝ                                           (H4)
   then        ∏(k ∈ {a, …, n + 1}) t(k) = (∏(k ∈ {a, …, n}) t(k))·t(n + 1)
-  metamath    fprodp1
-  target      fprodp1
+  metamath-counterpart fprodp1
+  metamath-proof fprodp1
   note        As sum-extended, for a product: the last factor split off.
 
 mundane theorem product-first
@@ -209,8 +209,8 @@ mundane theorem product-first
   assume a ≤ b                                                        (H3)
   let t : {a, …, b} → ℝ                                               (H4)
   then        ∏(k = a to b) t(k) = t(a)·∏(k = a + 1 to b) t(k)
-  metamath    fprod1p
-  target      fprod1p
+  metamath-counterpart fprod1p
+  metamath-proof fprod1p
   note        As sum-first, for a product: the first factor split off.
 
 mundane theorem product-termwise
@@ -220,8 +220,8 @@ mundane theorem product-termwise
   let u : Y → W                                                       (H4)
   assume for all k ∈ {a, …, b}, t(k) = u(k)                           (H5)
   then        ∏(k ∈ {a, …, b}) t(k) = ∏(k ∈ {a, …, b}) u(k)
-  metamath    prodeq2dv
-  target      prodeq2dv
+  metamath-counterpart prodeq2dv
+  metamath-proof prodeq2dv
   note        As sum-termwise, for a product: two products over one range
               are equal when their factors are, index by index. The two
               functions need agree only on the range, and either may be
@@ -232,8 +232,8 @@ mundane theorem range-difference
   let n ∈ ℤ                                                           (H2)
   let k ∈ {a, …, n}                                                   (H3)
   then        n − k ∈ ℕ₀
-  metamath    fznn0sub
-  target      fznn0sub
+  metamath-counterpart fznn0sub
+  metamath-proof fznn0sub
   note        An index no greater than n leaves a whole number when taken
               from n, which is what lets x^(n − k) be a power with a natural
               exponent.
@@ -243,22 +243,22 @@ mundane theorem range-integer
   let b ∈ ℤ                                                           (H2)
   let k ∈ {a, …, b}                                                   (H3)
   then        k ∈ ℤ
-  metamath    elfzelz
-  target      elfzelz
+  metamath-counterpart elfzelz
+  metamath-proof elfzelz
 
 mundane theorem range-nat0
   let n ∈ ℤ                                                           (H1)
   let k ∈ {0, …, n}                                                   (H2)
   then        k ∈ ℕ₀
-  metamath    elfznn0
-  target      elfznn0
+  metamath-counterpart elfznn0
+  metamath-proof elfznn0
 
 mundane theorem range-nat
   let n ∈ ℤ                                                           (H1)
   let k ∈ {1, …, n}                                                   (H2)
   then        k ∈ ℕ
-  metamath    elfznn
-  target      elfznn
+  metamath-counterpart elfznn
+  metamath-proof elfznn
   note        No proof cites it: a line saying k ∈ {1, …, n} says k ∈ ℕ as
               well, and a line said of every k ∈ ℕ answers a hypothesis over
               the range (`SYNTAX.md`), both by this lemma.
@@ -266,50 +266,50 @@ mundane theorem range-nat
 definition range
   let n ∈ ℤ                                                           (H1)
   then        k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
-  metamath    fznn
-  target      fznn
+  metamath-counterpart fznn
+  metamath-proof fznn
 
 definition range0
   let n ∈ ℕ₀                                                          (H1)
   then        k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
-  metamath    fznn0
-  target      fznn0
+  metamath-counterpart fznn0
+  metamath-proof fznn0
 
 mundane theorem range-single
   let m ∈ ℤ                                                           (H1)
   then        {m, …, m} = {m}
-  metamath    fzsn
-  target      fzsn
+  metamath-counterpart fzsn
+  metamath-proof fzsn
 
 mundane theorem range-empty
   then        {1, …, 0} = ∅
-  metamath    fz10
-  target      fz10
+  metamath-counterpart fz10
+  metamath-proof fz10
 
 mundane theorem range-split
   let k ∈ {m, …, n}                                                   (H1)
   then        {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
-  metamath    fzsplit
-  target      fzsplit
+  metamath-counterpart fzsplit
+  metamath-proof fzsplit
 
 mundane theorem range-extended
   let k ∈ {a, …, b}                                                   (H1)
   then        k ∈ {a, …, b + 1}
-  metamath    fzelp1
-  target      fzelp1
+  metamath-counterpart fzelp1
+  metamath-proof fzelp1
 
 mundane theorem range-without-last
   let n ∈ ℕ                                                           (H1)
   then        {1, …, n} = {1, …, n + 1} ∖ {n + 1}
-  metamath    fzdifsuc
-  target      fzdifsuc with M := 1, N := n
+  metamath-counterpart fzdifsuc
+  metamath-proof fzdifsuc with M := 1, N := n
   note        The numbers up to n are the numbers up to n + 1 but the last.
 
 mundane theorem range-end
   let n ∈ ℕ                                                           (H1)
   then        n ∈ {1, …, n}
-  metamath    elfz1end
-  target      elfz1end
+  metamath-counterpart elfz1end
+  metamath-proof elfz1end
   note        The last of the numbers from 1 to n is n.
 
 mundane theorem range-within
@@ -318,8 +318,8 @@ mundane theorem range-within
   let n ∈ ℤ                                                           (H3)
   assume k ≤ n                                                        (H4)
   then        {a, …, k} ⊆ {a, …, n}
-  metamath    fzss2
-  target      fzss2 with M := a, K := k, N := n
+  metamath-counterpart fzss2
+  metamath-proof fzss2 with M := a, K := k, N := n
   note        A range that stops sooner lies inside one that stops later.
 
 mundane theorem range-inside
@@ -330,9 +330,9 @@ mundane theorem range-inside
   assume c ≤ a                                                        (H5)
   assume b ≤ d                                                        (H6)
   then        {a, …, b} ⊆ {c, …, d}
-  metamath    fzss1 and fzss2 joined, which this corpus proves in
+  metamath-counterpart fzss1 and fzss2 joined, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gfzss with K := c, M := a, N := b, L := d
+  metamath-proof gfzss with K := c, M := a, N := b, L := d
   note        A range whose ends lie within another's lies inside it.
 
 definition range-between
@@ -340,9 +340,9 @@ definition range-between
   let a ∈ ℤ                                                           (H2)
   let b ∈ ℤ                                                           (H3)
   then        k ∈ {a, …, b} ↔ a ≤ k and k ≤ b
-  metamath    elfz
-  target      elfz
-  lean        Finset.mem_Icc
+  metamath-counterpart elfz
+  metamath-proof elfz
+  lean-proof Finset.mem_Icc
   note        A whole number is in a range when it lies between the ends,
               whatever the ends are: {0, …, n − 1} is read so at n = 0, where
               it is empty, as well as at every other n.
@@ -352,8 +352,8 @@ mundane theorem range-bounds
   let b ∈ ℤ                                                           (H2)
   let k ∈ {a, …, b}                                                   (H3)
   then        a ≤ k. k ≤ b.
-  metamath    elfzle1, elfzle2
-  target      elfzle1, elfzle2
+  metamath-counterpart elfzle1, elfzle2
+  metamath-proof elfzle1, elfzle2
 
 mundane theorem sum-split
   let a ∈ ℤ                                                           (H1)
@@ -363,9 +363,9 @@ mundane theorem sum-split
   assume b ≤ c                                                        (H5)
   let t : {a, …, c} → ℝ                                               (H6)
   then        Σ(k = a to c) t(k) = Σ(k = a to b) t(k) + Σ(k = b + 1 to c) t(k)
-  metamath    fsumsplit, fzsplit2 and fzdisj, which this corpus proves together
+  metamath-counterpart fsumsplit, fzsplit2 and fzdisj, which this corpus proves together
               in elaboration/stdlib/proved.mm
-  target      gfsumsplit
+  metamath-proof gfsumsplit
   note        A sum over a range is the sum over its first part and the sum
               over the rest.
 
@@ -376,8 +376,8 @@ mundane theorem sum-le
   let u : {a, …, b} → ℝ                                               (H4)
   assume for all k ∈ {a, …, b}, t(k) ≤ u(k)                           (H5)
   then        Σ(k = a to b) t(k) ≤ Σ(k = a to b) u(k)
-  metamath    fsumle
-  target      fsumle
+  metamath-counterpart fsumle
+  metamath-proof fsumle
   note        A sum whose every term is at most another's, index by index,
               is at most the other sum.
 
@@ -387,9 +387,9 @@ mundane theorem sum-constant
   assume a ≤ b                                                        (H3)
   let c ∈ ℝ                                                           (H4)
   then        Σ(k = a to b) c = (b − a + 1)·c
-  metamath    fsumconst and hashfz, which this corpus proves together in
+  metamath-counterpart fsumconst and hashfz, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gfsumconst
+  metamath-proof gfsumconst
   note        The same term b − a + 1 times.
 
 mundane theorem sum-constant-over
@@ -397,8 +397,8 @@ mundane theorem sum-constant-over
   assume X is finite                                                  (H2)
   let c ∈ ℂ                                                           (H3)
   then        Σ(x ∈ X) c = |X|·c
-  metamath    fsumconst
-  target      fsumconst
+  metamath-counterpart fsumconst
+  metamath-proof fsumconst
   note        The same term once for each member of X, whatever X holds.
 
 mundane theorem sum-empty-range
@@ -407,9 +407,9 @@ mundane theorem sum-empty-range
   assume b < a                                                        (H3)
   let t : {a, …, b} → ℝ                                               (H4)
   then        Σ(k = a to b) t(k) = 0
-  metamath    fzn, sumeq1d and sum0, which this corpus proves together in
+  metamath-counterpart fzn, sumeq1d and sum0, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gfsum0
+  metamath-proof gfsum0
   note        A range that ends before it starts has no terms, and their sum
               is 0: Σ(k = 1 to 0) (2k − 1) = 0 is the base case of an
               induction from 0 over a sum from 1.
@@ -417,8 +417,8 @@ mundane theorem sum-empty-range
 mundane theorem sum-empty-set
   let t : ℤ → ℝ                                                       (H1)
   then        Σ(k ∈ ∅) t(k) = 0
-  metamath    sum0
-  target      sum0
+  metamath-counterpart sum0
+  metamath-proof sum0
   note        A sum over a set with no members is 0.
 
 mundane theorem sum-of-three
@@ -429,8 +429,8 @@ mundane theorem sum-of-three
   assume a ≠ c                                                        (H5)
   assume b ≠ c                                                        (H6)
   then        Σ(d ∈ {a, b, c}) d = a + b + c
-  metamath    sumtp
-  target      sumtp with V := ℝ, W := ℝ, X := ℝ
+  metamath-counterpart sumtp
+  metamath-proof sumtp with V := ℝ, W := ℝ, X := ℝ
   note        Three different numbers listed, summed. sumtp asks each
               number to lie in some set, and ℝ is the one they lie in.
 
@@ -440,8 +440,8 @@ mundane theorem sum-nonneg
   let t : {a, …, b} → ℝ                                               (H3)
   assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
   then        Σ(k = a to b) t(k) ≥ 0
-  metamath    fsumge0
-  target      fsumge0
+  metamath-counterpart fsumge0
+  metamath-proof fsumge0
 
 mundane theorem sum-zero-terms
   let a ∈ ℤ                                                           (H1)
@@ -450,8 +450,8 @@ mundane theorem sum-zero-terms
   assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
   assume Σ(k = a to b) t(k) = 0                                       (H5)
   then        for all k ∈ {a, …, b}, t(k) = 0
-  metamath    fsum00
-  target      fsum00
+  metamath-counterpart fsum00
+  metamath-proof fsum00
   note        A sum of terms none of them negative is 0 only where every
               term is.
 
@@ -459,32 +459,32 @@ mundane theorem range-finite
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        {a, …, b} is finite
-  metamath    fzfi
-  target      fzfi
+  metamath-counterpart fzfi
+  metamath-proof fzfi
 
 mundane theorem range-in-integers
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        {a, …, b} ⊆ ℤ
-  metamath    fzssz
-  target      fzssz
+  metamath-counterpart fzssz
+  metamath-proof fzssz
 
 mundane theorem range-from-bounds
   let m ∈ ℕ                                                           (H1)
   let x ∈ ℕ₀                                                          (H2)
   assume x < m                                                        (H3)
   then        x ∈ {0, …, m − 1}
-  metamath    elfzo0, with 0 ..^ m read as 0 ... m − 1 by fzoval, which this
+  metamath-counterpart elfzo0, with 0 ..^ m read as 0 ... m − 1 by fzoval, which this
               corpus proves in elaboration/stdlib/proved.mm
-  target      gelfz0m1
+  metamath-proof gelfz0m1
 
 mundane theorem product-integer
   let X ⊆ ℤ                                                           (H1)
   assume X is finite                                                  (H2)
   then        ∏(x ∈ X) x ∈ ℤ
-  metamath    fprodzcl, which this corpus proves in
+  metamath-counterpart fprodzcl, which this corpus proves in
               elaboration/stdlib/proved.mm from X ⊆ ℤ
-  target      gfprodz
+  metamath-proof gfprodz
 
 mundane theorem product-split
   let X be a set                                                      (H1)
@@ -493,8 +493,8 @@ mundane theorem product-split
   assume Y ∩ Z = ∅                                                    (H4)
   let t : X → ℝ                                                       (H5)
   then        ∏(x ∈ X) t(x) = (∏(x ∈ Y) t(x))·∏(x ∈ Z) t(x)
-  metamath    fprodsplit
-  target      fprodsplit
+  metamath-counterpart fprodsplit
+  metamath-proof fprodsplit
   note        A finite set made of two parts with nothing in common: the
               product over it is the product over one part times the
               product over the other.
@@ -505,10 +505,10 @@ mundane theorem product-reindex
   let g : Y → Z be one-to-one and onto                                (H3)
   let t : Z → ℝ                                                       (H4)
   then        ∏(z ∈ Z) t(z) = ∏(y ∈ Y) t(g(y))
-  metamath    fprodf1o, with the image of each member of Y under g
+  metamath-counterpart fprodf1o, with the image of each member of Y under g
               written as g(y), which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gfprodf1o
+  metamath-proof gfprodf1o
   note        g pairs each member of Y with one of Z, so the factors over
               Z are those over Y, counted through g.
 
@@ -518,8 +518,8 @@ mundane theorem product-of-products
   let t : X → ℝ                                                       (H3)
   let u : X → ℝ                                                       (H4)
   then        ∏(x ∈ X) t(x)·u(x) = (∏(x ∈ X) t(x))·∏(x ∈ X) u(x)
-  metamath    fprodmul
-  target      fprodmul
+  metamath-counterpart fprodmul
+  metamath-proof fprodmul
   note        Each factor a product of two: the two kinds of factor may be
               multiplied out separately.
 
@@ -527,15 +527,15 @@ mundane theorem product-of-ones
   let X be a set                                                      (H1)
   assume X is finite                                                  (H2)
   then        ∏(x ∈ X) 1 = 1
-  metamath    prod1
-  target      prod1
+  metamath-counterpart prod1
+  metamath-proof prod1
 
 mundane theorem product-empty
   let X be a set                                                      (H1)
   let t : X → ℝ                                                       (H2)
   then        ∏(x ∈ ∅) t(x) = 1
-  metamath    prod0
-  target      prod0
+  metamath-counterpart prod0
+  metamath-proof prod0
   note        A product over a set with no members is 1, the base of an
               induction over the parts of a finite set.
 
@@ -547,7 +547,7 @@ mundane theorem product-add-one
   assume a ∉ Y                                                        (H5)
   let t : X → ℝ                                                       (H6)
   then        ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
-  metamath    fprodsplitsn, which this corpus proves in this form in elaboration/stdlib/proved.mm
-  target      gprodaddone
+  metamath-counterpart fprodsplitsn, which this corpus proves in this form in elaboration/stdlib/proved.mm
+  metamath-proof gprodaddone
   note        A member added to a finite set multiplies the product by its
               term, the step of an induction over the parts of a finite set.

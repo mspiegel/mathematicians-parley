@@ -3,7 +3,7 @@ import mundane theorem    stdlib/counting/card-nat0
 import mundane theorem    stdlib/numbers/nat0-real
 
 theorem size-positive
-  metamath    hashgt0
+  metamath-counterpart hashgt0
   note        A nonempty set has at least 1 element, and 0 is less than 1.
   let A be a set                                                      (H1)
   assume A is finite                                                  (H2)

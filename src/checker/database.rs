@@ -111,7 +111,11 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                     ),
                 );
             }
-            if !r.fields.contains_key("metamath") && !r.fields.contains_key("open") {
+            if !r
+                .fields
+                .contains_key(crate::corpus::records::METAMATH_COUNTERPART)
+                && !r.fields.contains_key("open")
+            {
                 report.say(
                     &r.path,
                     r.line,
@@ -223,10 +227,10 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
         let holes: Vec<&str> = holes.iter().map(String::as_str).collect();
         let yields = yields.as_str();
 
-        // A `target` says what each pattern builds, one entry per pattern, so
+        // A `metamath-builds` says what each pattern builds, one entry per pattern, so
         // the two lists have to line up and every hole has to be used. What
         // the entries name is checked against set.mm, which is not read here.
-        if let Some(target) = r.field("target") {
+        if let Some(target) = r.metamath_target() {
             let entries: Vec<&str> = target
                 .split(',')
                 .map(str::trim)
@@ -237,7 +241,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                     &r.path,
                     r.line,
                     format!(
-                        "notation {} has {} pattern(s) but {} target entr(ies)",
+                        "notation {} has {} pattern(s) but {} metamath-builds entr(ies)",
                         r.name,
                         patterns.len(),
                         entries.len()
@@ -258,7 +262,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                         &r.path,
                         r.line,
                         format!(
-                            "notation {} target {} names a hole outside 1 to {want}",
+                            "notation {} metamath-builds {} names a hole outside 1 to {want}",
                             r.name,
                             repr(entry)
                         ),
@@ -272,7 +276,7 @@ pub fn check_notation(report: &mut Report, records: &[Record]) {
                         &r.path,
                         r.line,
                         format!(
-                            "notation {} target {} leaves a hole out",
+                            "notation {} metamath-builds {} leaves a hole out",
                             r.name,
                             repr(entry)
                         ),
@@ -456,7 +460,7 @@ pub fn check_symbols(report: &mut Report, records: &[Record]) {
     let mut reached: IndexSet<&str> = IndexSet::new();
     for r in records {
         if r.kind == RecordKind::Notation {
-            reached.extend(r.field_or_empty("target").split_whitespace());
+            reached.extend(r.metamath_target_or_empty().split_whitespace());
         }
     }
     for (token, r) in &claimed {

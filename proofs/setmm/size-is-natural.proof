@@ -4,7 +4,7 @@ import mundane theorem    stdlib/counting/card-zero
 import mundane theorem    stdlib/numbers/nat0-nonzero
 
 theorem size-is-natural
-  metamath    hashnncl
+  metamath-counterpart hashnncl
   note        The size of a finite set is a whole number, and it is not 0
               exactly when the set has an element.
   let A be a set                                                      (H1)

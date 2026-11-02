@@ -21,7 +21,7 @@ makes the corpus's geometry permanently assumed, which is the opposite
 direction.
 
 **2. Every construct has something below it.** Design decision 1, *"Growth
-lives above the kernel"*. A notation needs a `target`; an item without one is
+lives above the kernel"*. A notation needs a `metamath-builds`; an item without a `metamath-proof` is
 stated and listed. A backend that leaves five notations and six items with
 nothing to point at has not been adopted, only named.
 
@@ -96,7 +96,7 @@ written `𝔼²` on the page. What follows is why, and what it waits on.
 ```
 
 where `F` is set.mm's `ang`. It is the only candidate that passes all six:
-it adds no axioms, every notation gets a target, the readable text is
+it adds no axioms, every notation gets a `metamath-builds`, the readable text is
 unchanged, and the theorems to cite are already written.
 
 ### Why the unsigned angle is cheap here, which was not obvious
@@ -144,15 +144,15 @@ notation plane
   pattern     𝔼²
   sort        → set of point
   reads       the Euclidean plane
-  metamath    cc, the complex numbers read as the plane
-  target      cc
+  metamath-counterpart cc, the complex numbers read as the plane
+  metamath-builds cc
 ```
 
 `𝔼²` is the established notation for the Euclidean plane as a geometric
 object, distinguished from ℝ² or ℂ as algebraic ones, which is the
 distinction being drawn. `def:stdlib/geometry/point` then states `A is a point ↔ A ∈ 𝔼²`,
 every dull fact reads `requires A ∈ 𝔼²`, and ℂ appears nowhere above the
-`target` field. `def:stdlib/numbers/irrational` is the precedent one level up: it names a
+`metamath-builds` field. `def:stdlib/numbers/irrational` is the precedent one level up: it names a
 word for `ℝ ∖ ℚ` rather than introducing a symbol.
 
 One thing to watch. `𝔼²` and `ℂ` are the same object in the kernel, so
@@ -208,7 +208,7 @@ itself, in (−π, π] and positive counterclockwise. ∠PQR stays unsigned, and
 the area need it.
 
 **The area of △PQR is set.mm's own term.** `heron` writes the area as
-(1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is the notation's target, so Heron's
+(1/2)·(|QR|·|PR|)·|sin(∡QRP)|, which is the notation's `metamath-builds`, so Heron's
 formula is cited as set.mm states it. `area-by-sine` gives the school form,
 with ∠QRP.
 
@@ -288,10 +288,10 @@ finished rather than a starting point — `lawcos`, `pythag`, `isosctr`,
 
 | entry | becomes |
 | --- | --- |
-| `notation plane` | new: `𝔼²`, `target cc` |
-| `notation is-a-point` | `target _1 cc wcel`, read as `∈ 𝔼²` |
-| `notation distance` | `target` the absolute value of a difference |
-| `notation angle` | `target` the absolute value of `ang` |
+| `notation plane` | new: `𝔼²`, `metamath-builds cc` |
+| `notation is-a-point` | `metamath-builds _1 cc wcel`, read as `∈ 𝔼²` |
+| `notation distance` | `metamath-builds` the absolute value of a difference |
+| `notation angle` | `metamath-builds` the absolute value of `ang` |
 | `def:stdlib/geometry/point` | `A is a point ↔ A ∈ 𝔼²` |
 | `def:stdlib/geometry/angle` | the unsigned angle, and why it is unsigned |
 | `def:stdlib/geometry/triangle` | the three disequalities |
@@ -410,7 +410,7 @@ is on is the sign of the imaginary part of (X − P)/(Q − P). Two points are o
 the same side when the two signs multiply to a positive number, and on
 opposite sides when to a negative one. Lines are parallel when the quotient
 of their directions is real, and R is between S and T when (T − R)/(S − R)
-is a negative real. All three are notations with targets and definitions
+is a negative real. All three are notations with `metamath-builds` and definitions
 the readable layer cannot state, as `collinear` is.
 
 **Why the sum is 180°.** The three angles at B are the arguments of three
@@ -432,7 +432,7 @@ took".
 The plane is still ℂ underneath, and nothing is assumed. On the page, plane
 geometry stands on the School Mathematics Study Group's plane postulates,
 with the area postulates said of triangles: "SMSG with area for triangles".
-Each postulate is a stdlib `axiom` record whose target is a lemma of
+Each postulate is a stdlib `axiom` record whose `metamath-proof` is a lemma of
 `corpus/proved/postulates.proved`, so a reader takes it as given and the
 kernel proves it.
 

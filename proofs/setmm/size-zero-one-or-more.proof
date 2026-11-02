@@ -7,7 +7,7 @@ import mundane theorem    stdlib/reasoning/iff-from-left
 import mundane theorem    stdlib/reasoning/not-either
 
 theorem size-zero-one-or-more
-  metamath    hashv01gt1
+  metamath-counterpart hashv01gt1
   note        A whole number is 0, or it is 1, or it is more than 1.
   let M be a set                                                      (H1)
   assume M is finite                                                  (H2)

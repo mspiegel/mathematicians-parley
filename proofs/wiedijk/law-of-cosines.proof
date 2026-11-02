@@ -250,7 +250,7 @@ theorem distance-from-foot
           algebra, from 2.34
 
 theorem law-of-cosines
-  metamath    lawcos, which states it for any three points with the third
+  metamath-counterpart lawcos, which states it for any three points with the third
               apart from the other two, by the signed angle, and names the
               sides by hypotheses
   note        Euclid II.12 and II.13 by the cosine. Drop the perpendicular

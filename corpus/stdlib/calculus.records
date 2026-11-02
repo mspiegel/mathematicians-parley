@@ -13,26 +13,26 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 definition interval
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        x ∈ [a, b] ↔ x ∈ ℝ and a ≤ x and x ≤ b
-  metamath    elicc2
-  target      elicc2
+  metamath-counterpart elicc2
+  metamath-proof elicc2
 
 definition open-interval
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        x ∈ (a, b) ↔ x ∈ ℝ and a < x and x < b
-  metamath    elioo2, said of real ends, which this corpus proves in
+  metamath-counterpart elioo2, said of real ends, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gelioo2
+  metamath-proof gelioo2
   note        As `interval` says what is in [a, b], with the bounds strict.
               set.mm's `elioo2` takes the ends in the extended reals, and
               `gelioo2` says it of the real ends the page writes.
@@ -41,22 +41,22 @@ mundane theorem interval-real
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        [a, b] ⊆ ℝ
-  metamath    iccssre
-  target      iccssre
+  metamath-counterpart iccssre
+  metamath-proof iccssre
 
 mundane theorem open-interval-real
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) ⊆ ℝ
-  metamath    ioossre
-  target      ioossre
+  metamath-counterpart ioossre
+  metamath-proof ioossre
 
 mundane theorem open-within-closed
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) ⊆ [a, b]
-  metamath    ioossicc
-  target      ioossicc
+  metamath-counterpart ioossicc
+  metamath-proof ioossicc
 
 mundane theorem closed-within-open
   let a ∈ ℝ                                                           (H1)
@@ -64,8 +64,8 @@ mundane theorem closed-within-open
   let p ∈ (a, b)                                                      (H3)
   let q ∈ (a, b)                                                      (H4)
   then        [p, q] ⊆ (a, b)
-  metamath    iccssioo2
-  target      iccssioo2
+  metamath-counterpart iccssioo2
+  metamath-proof iccssioo2
   note        The closed interval between two points of (a, b) lies in it, as
               the mean value theorem asks of an interval inside a function's
               open domain.
@@ -74,25 +74,25 @@ mundane theorem open-interval-open
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) is open
-  metamath    iooretop
-  target      iooretop
+  metamath-counterpart iooretop
+  metamath-proof iooretop
 
 mundane theorem open-without-point
   let U ⊆ ℝ                                                           (H1)
   assume U is open                                                    (H2)
   let c ∈ U                                                           (H3)
   then        U ∖ {c} is open
-  metamath    difopn, icccld and iccid, which this corpus proves together
+  metamath-counterpart difopn, icccld and iccid, which this corpus proves together
               in elaboration/stdlib/proved.mm
-  target      gopndifsn
+  metamath-proof gopndifsn
   note        A point is a closed set, the interval [c, c], and an open set
               with a closed one taken out is open: (a, b) ∖ {c} is open, as a
               derivative there asks.
 
 mundane theorem reals-open
   then        ℝ is open
-  metamath    reopn
-  target      reopn
+  metamath-counterpart reopn
+  metamath-proof reopn
 
 definition continuous-on
   let D ⊆ ℝ                                                           (H1)
@@ -101,9 +101,9 @@ definition continuous-on
   then        f is continuous on D ↔ for all c ∈ D, for all ε > 0, there
               exists δ > 0 such that |f(x) − f(c)| < ε for all x ∈ D with
               |x − c| < δ
-  metamath    elcncf2, said of f restricted to D, which this corpus proves
+  metamath-counterpart elcncf2, said of f restricted to D, which this corpus proves
               in elaboration/stdlib/proved.mm
-  target      gcncfre
+  metamath-proof gcncfre
   note        `elcncf2` quantifies over ℝ⁺ where the page says ε > 0 with ε
               ranging over ℝ, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
@@ -117,9 +117,9 @@ definition limit-at
   ε, δ range over ℝ
   then        f tends to L at c ↔ for all ε > 0, there exists δ > 0 such
               that |f(x) − L| < ε for all x ∈ D with (x ≠ c and |x − c| < δ)
-  metamath    ellimc3, said of a real function on a part of ℝ, which this
+  metamath-counterpart ellimc3, said of a real function on a part of ℝ, which this
               corpus proves in elaboration/stdlib/proved.mm
-  target      glimcre
+  metamath-proof glimcre
   note        f(x) is within ε of L wherever x is within δ of c, c itself
               left out: the value at c, if f has one, says nothing of the
               limit.
@@ -131,9 +131,9 @@ definition tends-to
   n ranges over ℕ
   then        x(n) → L as n → ∞ ↔ for all ε > 0, there exists N ∈ ℕ such
               that |x(n) − L| < ε for all n ≥ N
-  metamath    climnnre, which this corpus proves in
+  metamath-counterpart climnnre, which this corpus proves in
               elaboration/stdlib/proved.mm from clim2's neighbours
-  target      climnnre
+  metamath-proof climnnre
   note        A sequence tends to L when, however small a distance ε is
               named, its terms from some N on are all within ε of L. set.mm's
               `clim2` says it over ℝ⁺ and the upper integers, with every term
@@ -146,9 +146,9 @@ definition series-sum
   let L ∈ ℝ                                                           (H2)
   assume Σ(k = 1 to n) t(k) → L as n → ∞                              (H3)
   then        Σ(k = 1 to ∞) t(k) = L
-  metamath    sersumlim, which this corpus proves in
+  metamath-counterpart sersumlim, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      sersumlim
+  metamath-proof sersumlim
   note        The value of a series is the limit of its partial sums, which
               is how a textbook defines it. set.mm defines an infinite sum
               through a sequence of its own, and `sersumlim` is the join,
@@ -159,9 +159,9 @@ definition series-sum-from-zero
   let L ∈ ℝ                                                           (H2)
   assume Σ(k = 0 to n) t(k) → L as n → ∞                              (H3)
   then        Σ(k = 0 to ∞) t(k) = L
-  metamath    sersumlim0, which this corpus proves in
+  metamath-counterpart sersumlim0, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      sersumlim0
+  metamath-proof sersumlim0
   note        series-sum, for a series whose first term is the 0th, as
               1 − 1/3 + 1/5 − … is written.
 
@@ -170,8 +170,8 @@ axiom completeness
   assume there is s ∈ S                                               (H2)
   assume there is u ∈ ℝ with u is an upper bound of S                 (H3)
   then        there is c ∈ ℝ with c is a least upper bound of S
-  metamath    suprcl, suprub, suprleub
-  target      suprcl, suprub, suprleub with c := sup S
+  metamath-counterpart suprcl, suprub, suprleub
+  metamath-proof suprcl, suprub, suprleub with c := sup S
   note        The least upper bound is set.mm's supremum, and each thing the
               page asks of it is a lemma: that it is real, that nothing in S
               is above it, and that it is at most anything nothing in S is
@@ -183,8 +183,8 @@ mundane theorem integer-sup-member
   assume there is s ∈ S                                               (H2)
   assume there is u ∈ ℤ with u is an upper bound of S                 (H3)
   then        sup S ∈ S
-  metamath    suprzcl2
-  target      suprzcl2
+  metamath-counterpart suprzcl2
+  metamath-proof suprzcl2
   note        A set of whole numbers with an element and an upper bound has
               a largest element, and it is the least upper bound: below the
               bound there are only finitely many whole numbers to pass.
@@ -194,8 +194,8 @@ mundane theorem integer-sup-above
   assume there is u ∈ ℤ with u is an upper bound of S                 (H2)
   let x ∈ S                                                           (H3)
   then        x ≤ sup S
-  metamath    suprzub
-  target      suprzub
+  metamath-counterpart suprzub
+  metamath-proof suprzub
   note        No element of a set of whole numbers bounded above is above
               its least upper bound.
 
@@ -208,9 +208,9 @@ theorem rolle
   assume f is differentiable on (a, b)                                (H6)
   assume f(a) = f(b)                                                  (H7)
   then        there is c ∈ (a, b) with f′(c) = 0
-  metamath    rolle, through grolle, which this corpus proves in
+  metamath-counterpart rolle, through grolle, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      grolleres
+  metamath-proof grolleres
   note        rolle asks that f′ be defined on exactly (a, b); the page says
               on (a, b), and for f on [a, b] the two agree (gdvdmicc).
 
@@ -225,9 +225,9 @@ theorem rolle-on-part
   assume f is differentiable on (a, b)                                (H8)
   assume f(a) = f(b)                                                  (H9)
   then        there is c ∈ (a, b) with f′(c) = 0
-  metamath    rolle, of f restricted to [a, b], which this corpus proves in
+  metamath-counterpart rolle, of f restricted to [a, b], which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      grollepart with D := D
+  metamath-proof grollepart with D := D
   note        Rolle's theorem for a function on a larger set D: f restricted
               to [a, b] has f′ for its derivative on (a, b), the interior of
               [a, b] (dvres, iccntr), and f's values at the ends.
@@ -239,9 +239,9 @@ mundane theorem derivative-real
   assume f is differentiable on (a, b)                                (H4)
   let x ∈ (a, b)                                                      (H5)
   then        f′(x) ∈ ℝ
-  metamath    gdvre, which this corpus proves in
+  metamath-counterpart gdvre, which this corpus proves in
               elaboration/stdlib/proved.mm from dvfre
-  target      gdvre with A := a, B := b
+  metamath-proof gdvre with A := a, B := b
   note        A and B are only in the hypotheses of `gdvre`, so the `with`
               says which they are rather than leaving them to the first
               real numbers the step's facts hold.
@@ -253,9 +253,9 @@ mundane theorem derivative-real-on
   assume f is differentiable on U                                     (H4)
   let x ∈ U                                                           (H5)
   then        f′(x) ∈ ℝ
-  metamath    dvfre, which this corpus applies in
+  metamath-counterpart dvfre, which this corpus applies in
               elaboration/stdlib/proved.mm
-  target      gdvrepart with D := D, U := U
+  metamath-proof gdvrepart with D := D, U := U
   note        derivative-real, for a function on any set of reals.
 
 theorem continuous-sum
@@ -267,9 +267,9 @@ theorem continuous-sum
   assume f is continuous on D                                         (H6)
   assume g is continuous on D                                         (H7)
   then        F is continuous on D
-  metamath    gcncfadd, which this corpus proves in
+  metamath-counterpart gcncfadd, which this corpus proves in
               elaboration/stdlib/proved.mm from addcncf
-  target      gcncfaddres with F := f, G := g
+  metamath-proof gcncfaddres with F := f, G := g
 
 theorem continuous-difference
   let D ⊆ ℝ                                                           (H1)
@@ -280,9 +280,9 @@ theorem continuous-difference
   assume f is continuous on D                                         (H6)
   assume g is continuous on D                                         (H7)
   then        F is continuous on D
-  metamath    gcncfsub, which this corpus proves in
+  metamath-counterpart gcncfsub, which this corpus proves in
               elaboration/stdlib/proved.mm from subcncf
-  target      gcncfsubres with F := f, G := g
+  metamath-proof gcncfsubres with F := f, G := g
 
 theorem continuous-linear
   let D ⊆ ℝ                                                           (H1)
@@ -290,18 +290,18 @@ theorem continuous-linear
   let g : D → ℝ                                                       (H3)
   assume for all x ∈ D, g(x) = m·x                                    (H4)
   then        g is continuous on D
-  metamath    gcncflin, which this corpus proves in
+  metamath-counterpart gcncflin, which this corpus proves in
               elaboration/stdlib/proved.mm from mulcncf
-  target      gcncflinres with M := m
+  metamath-proof gcncflinres with M := m
 
 theorem continuous-square
   let D ⊆ ℝ                                                           (H1)
   let g : D → ℝ                                                       (H2)
   assume for all x ∈ D, g(x) = x²                                     (H3)
   then        g is continuous on D
-  metamath    gcncfsq, which this corpus proves in
+  metamath-counterpart gcncfsq, which this corpus proves in
               elaboration/stdlib/proved.mm from mulcncf, x² being x·x
-  target      gcncfsqres
+  metamath-proof gcncfsqres
 
 theorem continuous-constant
   let D ⊆ ℝ                                                           (H1)
@@ -309,9 +309,9 @@ theorem continuous-constant
   let g : D → ℝ                                                       (H3)
   assume for all x ∈ D, g(x) = c                                      (H4)
   then        g is continuous on D
-  metamath    gcncfconst, which this corpus proves in
+  metamath-counterpart gcncfconst, which this corpus proves in
               elaboration/stdlib/proved.mm from cncfmptc
-  target      gcncfconstres with C := c
+  metamath-proof gcncfconstres with C := c
 
 theorem continuous-power
   let D ⊆ ℝ                                                           (H1)
@@ -319,9 +319,9 @@ theorem continuous-power
   let g : D → ℝ                                                       (H3)
   assume for all x ∈ D, g(x) = x^n                                    (H4)
   then        g is continuous on D
-  metamath    gcncfexp, which this corpus proves in
+  metamath-counterpart gcncfexp, which this corpus proves in
               elaboration/stdlib/proved.mm from expcncf
-  target      gcncfexpres with N := n
+  metamath-proof gcncfexpres with N := n
 
 theorem continuous-scaled
   let D ⊆ ℝ                                                           (H1)
@@ -331,9 +331,9 @@ theorem continuous-scaled
   assume for all x ∈ D, F(x) = c·f(x)                                 (H5)
   assume f is continuous on D                                         (H6)
   then        F is continuous on D
-  metamath    gcncfmulc, which this corpus proves in
+  metamath-counterpart gcncfmulc, which this corpus proves in
               elaboration/stdlib/proved.mm from mulcncf
-  target      gcncfmulcres with C := c, F := f
+  metamath-proof gcncfmulcres with C := c, F := f
 
 theorem continuous-quotient
   let D ⊆ ℝ                                                           (H1)
@@ -345,9 +345,9 @@ theorem continuous-quotient
   assume f is continuous on D                                         (H7)
   assume g is continuous on D                                         (H8)
   then        F is continuous on D
-  metamath    gcncfdiv, which this corpus proves in
+  metamath-counterpart gcncfdiv, which this corpus proves in
               elaboration/stdlib/proved.mm from divcncf
-  target      gcncfdivres with F := f, G := g
+  metamath-proof gcncfdivres with F := f, G := g
 
 mundane theorem continuous-on-part
   let D ⊆ ℝ                                                           (H1)
@@ -355,9 +355,9 @@ mundane theorem continuous-on-part
   let S ⊆ D                                                           (H3)
   assume f is continuous on D                                         (H4)
   then        f is continuous on S
-  metamath    rescncf, which this corpus proves in
+  metamath-counterpart rescncf, which this corpus proves in
               elaboration/stdlib/proved.mm of f restricted to D
-  target      gcncfpart
+  metamath-proof gcncfpart
   note        A function continuous on a set is continuous on any part of
               it, as the mean value theorem asks of f on [c, x] inside its
               domain.
@@ -368,9 +368,9 @@ mundane theorem map-continuous-on-part
   let f : D → ℝ                                                       (H3)
   assume f is continuous on S                                         (H4)
   then        (x ∈ S ↦ f(x)) is continuous on S
-  metamath    resmpt, f on S being the map of its values there, which this
+  metamath-counterpart resmpt, f on S being the map of its values there, which this
               corpus proves in elaboration/stdlib/proved.mm
-  target      gcncfmappart with D := D
+  metamath-proof gcncfmappart with D := D
   note        "f is continuous on S" says f restricted to S is, and that
               restriction is the map sending each x ∈ S to f(x).
 
@@ -380,9 +380,9 @@ theorem continuous-bounded
   let f : [a, b] → ℝ                                                  (H3)
   assume f is continuous on [a, b]                                    (H4)
   then        there exists M ∈ ℝ such that |f(x)| ≤ M for all x ∈ [a, b]
-  metamath    cniccbdd, which this corpus proves in this form in
+  metamath-counterpart cniccbdd, which this corpus proves in this form in
               elaboration/stdlib/proved.mm
-  target      gcncfbdd
+  metamath-proof gcncfbdd
   note        A function continuous on a closed interval is bounded there.
 
 mundane theorem differentiable-on-part
@@ -392,8 +392,8 @@ mundane theorem differentiable-on-part
   let f : D → ℝ                                                       (H4)
   assume f is differentiable on U                                     (H5)
   then        f is differentiable on S
-  metamath    sstr
-  target      sstr
+  metamath-counterpart sstr
+  metamath-proof sstr
   note        Differentiable on U says f′ is defined at every point of U, so
               at every point of a part of U.
 
@@ -409,9 +409,9 @@ mundane theorem derivative-local
   assume f is differentiable on U                                     (H9)
   then        F is differentiable on U.
               For all x ∈ U, F′(x) = f′(x).
-  metamath    dvres, which this corpus applies in gdvloc and gdvlocv in
+  metamath-counterpart dvres, which this corpus applies in gdvloc and gdvlocv in
               elaboration/stdlib/proved.mm
-  target      gdvloc, gdvlocv with D := D, E := E, F := f
+  metamath-proof gdvloc, gdvlocv with D := D, E := E, F := f
   note        A derivative at a point sees only the function near it, so two
               functions equal on an open set have one derivative there: each
               restricted to U has its derivative restricted to U (dvres), U
@@ -429,9 +429,9 @@ theorem continuous-extension
   assume f is differentiable on U ∖ {c}                               (H9)
   assume f tends to L at c                                            (H10)
   then        F is continuous on U
-  metamath    cnlimc, limcdif and dvcnp2, which this corpus proves together
+  metamath-counterpart cnlimc, limcdif and dvcnp2, which this corpus proves together
               in elaboration/stdlib/proved.mm
-  target      gcncfext with C := c, L := L, F := f
+  metamath-proof gcncfext with C := c, L := L, F := f
   note        f extended to c by its limit there: F is continuous at c,
               since it tends to its value, and at every other point, since
               it is differentiable there (dvcnp2), agreeing with f on the
@@ -448,9 +448,9 @@ theorem derivative-sum
   assume g is differentiable on U                                     (H8)
   then        F is differentiable on U.
               For all x ∈ U, F′(x) = f′(x) + g′(x).
-  metamath    gdvadd, gdvaddv, which this corpus proves in
+  metamath-counterpart gdvadd, gdvaddv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvaddbr
-  target      gdvadd, gdvaddv with D := D, F := f, G := g
+  metamath-proof gdvadd, gdvaddv with D := D, F := f, G := g
   note        One target to a sentence, as completeness has. A sum is
               differentiable at each point both its parts are, so U may be any
               set: (a, b) inside [a, b], or ℝ itself.
@@ -466,9 +466,9 @@ theorem derivative-difference
   assume g is differentiable on U                                     (H8)
   then        F is differentiable on U.
               For all x ∈ U, F′(x) = f′(x) − g′(x).
-  metamath    gdvdif, gdvdifv, which this corpus proves in
+  metamath-counterpart gdvdif, gdvdifv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvaddbr and dvmulbr
-  target      gdvdif, gdvdifv with D := D, F := f, G := g
+  metamath-proof gdvdif, gdvdifv with D := D, F := f, G := g
   note        As derivative-sum, at each point both parts are differentiable.
               set.mm has no rule for a difference at a point; f − g is
               f + (−1)·g (ofnegsub), and the constant −1 has derivative 0
@@ -483,9 +483,9 @@ theorem derivative-linear
   assume for all x ∈ D, g(x) = m·x                                    (H6)
   then        g is differentiable on U.
               For all x ∈ U, g′(x) = m.
-  metamath    gdvlin, gdvlinv, which this corpus proves in
+  metamath-counterpart gdvlin, gdvlinv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvmptcmul and dvres
-  target      gdvlin, gdvlinv with D := D, M := m
+  metamath-proof gdvlin, gdvlinv with D := D, M := m
   note        U is open because a line on [a, b] has no derivative at a or b:
               the derivative is taken where a neighbourhood lies in the domain.
 
@@ -497,10 +497,10 @@ theorem derivative-square
   assume for all x ∈ D, g(x) = x²                                     (H5)
   then        g is differentiable on U.
               For all x ∈ U, g′(x) = 2x.
-  metamath    gdvsq, gdvsqv, which this corpus proves in
+  metamath-counterpart gdvsq, gdvsqv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvmptmul and dvres, x² being
               x·x
-  target      gdvsq, gdvsqv with D := D
+  metamath-proof gdvsq, gdvsqv with D := D
   note        set.mm's dvexp is the power rule over ℂ; the page asks it of a
               function on a set of reals, named apart from its values, as
               derivative-linear does.
@@ -514,9 +514,9 @@ theorem derivative-power
   assume for all x ∈ D, g(x) = x^(n + 1)                              (H6)
   then        g is differentiable on U.
               For all x ∈ U, g′(x) = (n + 1)·x^n.
-  metamath    gdvexp, gdvexpv, which this corpus proves in
+  metamath-counterpart gdvexp, gdvexpv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvexp and dvres
-  target      gdvexp, gdvexpv with D := D, N := n
+  metamath-proof gdvexp, gdvexpv with D := D, N := n
   note        The power rule, as derivative-square has it for n = 1. It is
               written for the power n + 1 so that the derivative's exponent
               is n itself, a number a power's exponent may be.
@@ -531,9 +531,9 @@ theorem derivative-scaled
   assume f is differentiable on U                                     (H7)
   then        F is differentiable on U.
               For all x ∈ U, F′(x) = c·f′(x).
-  metamath    gdvmulc, gdvmulcv, which this corpus proves in
+  metamath-counterpart gdvmulc, gdvmulcv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvcmul and dvmulbr
-  target      gdvmulc, gdvmulcv with D := D, C := c, F := f
+  metamath-proof gdvmulc, gdvmulcv with D := D, C := c, F := f
   note        As derivative-sum, at each point f is differentiable.
 
 theorem area-function
@@ -547,10 +547,10 @@ theorem area-function
   then        G is continuous on [a, b].
               G is differentiable on (a, b).
               For all x ∈ (a, b), G′(x) = f(x).
-  metamath    gftc1c, gftc1, gftc1v, which this corpus proves in
+  metamath-counterpart gftc1c, gftc1, gftc1v, which this corpus proves in
               elaboration/stdlib/proved.mm from ftc1a, ftc1, ditgpos and
               cniccibl
-  target      gftc1cres, gftc1res, gftc1vres with A := a, B := b, F := f, G := G
+  metamath-proof gftc1cres, gftc1res, gftc1vres with A := a, B := b, F := f, G := G
   note        The fundamental theorem of calculus, part one: the integral
               of f from a up to x, as x moves, has derivative f. set.mm's
               ftc1 asks f be integrable, which a function continuous on
@@ -566,9 +566,9 @@ mundane theorem integral-real
   assume f is continuous on [a, b]                                    (H5)
   let x ∈ [a, b]                                                      (H6)
   then        ∫(a to x) f(t) dt ∈ ℝ
-  metamath    gditgre, which this corpus proves in
+  metamath-counterpart gditgre, which this corpus proves in
               elaboration/stdlib/proved.mm from itgrecl and ditgpos
-  target      gditgreres with A := a, B := b, F := f, C := x
+  metamath-proof gditgreres with A := a, B := b, F := f, C := x
   note        The integral of a real function continuous on [a, b], from a
               to a point of [a, b], is a real number: f is integrable there
               because it is continuous (cniccibl), and real where it is
@@ -578,8 +578,8 @@ mundane theorem integral-point
   let a ∈ ℝ                                                           (H1)
   let f : X → ℝ                                                       (H2)
   then        ∫(a to a) f(t) dt = 0
-  metamath    ditg0
-  target      ditg0
+  metamath-counterpart ditg0
+  metamath-proof ditg0
   note        An integral from a point to itself is 0, whatever the
               integrand: set.mm's directed integral over [a, a] is the
               integral over the empty interval (a, a).
@@ -595,10 +595,10 @@ theorem integral-difference
   assume f is continuous on [a, b]                                    (H8)
   assume g is continuous on [a, b]                                    (H9)
   then        ∫(a to b) h(t) dt = ∫(a to b) f(t) dt − ∫(a to b) g(t) dt
-  metamath    gditgsub, which this corpus proves in
+  metamath-counterpart gditgsub, which this corpus proves in
               elaboration/stdlib/proved.mm from itgsub, ditgpos and
               cniccibl
-  target      gditgsubres with A := a, B := b, F := f, G := g
+  metamath-proof gditgsubres with A := a, B := b, F := f, G := g
   note        The integral of a difference is the difference of the
               integrals. Each is integrable because it is continuous on
               [a, b] (cniccibl), so the page never says it.
@@ -613,10 +613,10 @@ theorem integral-order
   assume f is continuous on [a, b]                                    (H7)
   assume g is continuous on [a, b]                                    (H8)
   then        ∫(a to b) f(t) dt ≤ ∫(a to b) g(t) dt
-  metamath    gditgle, which this corpus proves in
+  metamath-counterpart gditgle, which this corpus proves in
               elaboration/stdlib/proved.mm from itgle, ditgpos and
               cniccibl
-  target      gditgleres with A := a, B := b, F := f, G := g
+  metamath-proof gditgleres with A := a, B := b, F := f, G := g
   note        A smaller function has the smaller integral. set.mm states it
               of the integral over (a, b), which the directed one is where
               a ≤ b (ditgpos).
@@ -629,9 +629,9 @@ theorem integral-nonneg
   assume for all x ∈ [a, b], f(x) ≥ 0                                 (H5)
   assume f is continuous on [a, b]                                    (H6)
   then        ∫(a to b) f(t) dt ≥ 0
-  metamath    gditgge0, which this corpus proves in
+  metamath-counterpart gditgge0, which this corpus proves in
               elaboration/stdlib/proved.mm from itgge0, ditgpos and
               cniccibl
-  target      gditgge0res with A := a, B := b, F := f
+  metamath-proof gditgge0res with A := a, B := b, F := f
   note        A function that is never negative has an integral that is
               not negative.

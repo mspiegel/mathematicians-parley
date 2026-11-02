@@ -12,10 +12,10 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note, and for a function, sort, metamath-builds and reads.
+# Other fields: metamath-proof, lean-proof, note, and for a function, sort, metamath-builds and reads.
 
 
 definition cos
@@ -23,7 +23,7 @@ definition cos
   metamath-builds _1 ccos cfv
   reads       the cosine of
   decided     real arithmetic
-  metamath    df-cos, by the exponential function
+  metamath-counterpart df-cos, by the exponential function
   note        A reader knows the cosine from school, and set.mm's definition of
               it by the exponential is not what that reader means by it, so
               this definition states nothing but what cos(x) builds; what a
@@ -34,7 +34,7 @@ definition sin
   metamath-builds _1 csin cfv
   reads       the sine of
   decided     real arithmetic
-  metamath    df-sin, by the exponential function
+  metamath-counterpart df-sin, by the exponential function
   note        As for cos. Real arithmetic works out the sine and cosine of an
               angle of value 0 or a rational multiple of π whose denominator
               divides 4 or 6 (METHODS.md).
@@ -43,37 +43,37 @@ theorem cos-add
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
-  metamath    cosadd
-  target      cosadd
+  metamath-counterpart cosadd
+  metamath-proof cosadd
 
 theorem sin-add
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
-  metamath    sinadd
-  target      sinadd
+  metamath-counterpart sinadd
+  metamath-proof sinadd
 
 mundane theorem cos-zero
   then        cos(0) = 1
-  metamath    cos0
-  target      cos0
+  metamath-counterpart cos0
+  metamath-proof cos0
 
 mundane theorem sin-zero
   then        sin(0) = 0
-  metamath    sin0
-  target      sin0
+  metamath-counterpart sin0
+  metamath-proof sin0
 
 mundane theorem cos-real
   let a ∈ ℝ                                                           (H1)
   then        cos(a) ∈ ℝ
-  metamath    recoscl
-  target      recoscl
+  metamath-counterpart recoscl
+  metamath-proof recoscl
 
 mundane theorem cos-complex
   let a ∈ ℂ                                                           (H1)
   then        cos(a) ∈ ℂ
-  metamath    coscl
-  target      coscl
+  metamath-counterpart coscl
+  metamath-proof coscl
   note        As cos-real, for a complex argument: cos-add and sin-add are
               stated over ℂ, and algebra on what they give asks each value
               to be a number.
@@ -81,31 +81,31 @@ mundane theorem cos-complex
 mundane theorem sin-complex
   let a ∈ ℂ                                                           (H1)
   then        sin(a) ∈ ℂ
-  metamath    sincl
-  target      sincl
+  metamath-counterpart sincl
+  metamath-proof sincl
   note        As cos-complex.
 
 mundane theorem cos-negative
   let a ∈ ℂ                                                           (H1)
   then        cos(−a) = cos(a)
-  metamath    cosneg
-  target      cosneg
+  metamath-counterpart cosneg
+  metamath-proof cosneg
   note        The cosine is even. With cos-add it gives the cosine of a
               difference.
 
 mundane theorem sin-negative
   let a ∈ ℂ                                                           (H1)
   then        sin(−a) = −sin(a)
-  metamath    sinneg
-  target      sinneg
+  metamath-counterpart sinneg
+  metamath-proof sinneg
   note        The sine is odd. With sin-add it gives the sine of a
               difference.
 
 mundane theorem sin-cos-squares
   let a ∈ ℂ                                                           (H1)
   then        sin(a)² + cos(a)² = 1
-  metamath    sincossq
-  target      sincossq
+  metamath-counterpart sincossq
+  metamath-proof sincossq
   note        A school reader takes it from the unit circle. From cos-add
               alone it is cos(a + (−a)) = cos(0), which asks the two items
               above.
@@ -113,8 +113,8 @@ mundane theorem sin-cos-squares
 mundane theorem sin-nonneg
   let a ∈ [0, π]                                                      (H1)
   then        0 ≤ sin(a)
-  metamath    sinq12ge0
-  target      sinq12ge0
+  metamath-counterpart sinq12ge0
+  metamath-proof sinq12ge0
   note        The sine is at least 0 over the upper half of the unit circle.
               With cos(a) = −sin(a − π/2) it gives the sign of the cosine
               on [π/2, 3π/2].
@@ -122,52 +122,52 @@ mundane theorem sin-nonneg
 mundane theorem sin-positive
   let a ∈ (0, π)                                                      (H1)
   then        0 < sin(a)
-  metamath    sinq12gt0
-  target      sinq12gt0
+  metamath-counterpart sinq12gt0
+  metamath-proof sinq12gt0
 
 mundane theorem cos-nonneg
   let a ∈ [−π/2, π/2]                                                 (H1)
   then        0 ≤ cos(a)
-  metamath    cosq14ge0
-  target      cosq14ge0
+  metamath-counterpart cosq14ge0
+  metamath-proof cosq14ge0
   note        The cosine is at least 0 over the right half of the unit
               circle.
 
 mundane theorem cos-positive
   let a ∈ (−π/2, π/2)                                                 (H1)
   then        0 < cos(a)
-  metamath    cosq14gt0
-  target      cosq14gt0
+  metamath-counterpart cosq14gt0
+  metamath-proof cosq14gt0
 
 mundane theorem sin-bounded
   let a ∈ ℝ                                                           (H1)
   then        −1 ≤ sin(a). sin(a) ≤ 1.
-  metamath    sinbnd
-  target      sinbnd
+  metamath-counterpart sinbnd
+  metamath-proof sinbnd
   note        A point of the unit circle is at most 1 from its centre in
               each direction.
 
 mundane theorem cos-bounded
   let a ∈ ℝ                                                           (H1)
   then        −1 ≤ cos(a). cos(a) ≤ 1.
-  metamath    cosbnd
-  target      cosbnd
+  metamath-counterpart cosbnd
+  metamath-proof cosbnd
 
 mundane theorem cos-decreasing
   let a ∈ [0, π]                                                      (H1)
   let b ∈ [0, π]                                                      (H2)
   then        a < b ↔ cos(b) < cos(a)
-  metamath    cosord
-  target      cosord
+  metamath-counterpart cosord
+  metamath-proof cosord
   note        The cosine falls from 1 to −1 as its argument runs from 0 to π,
               so on that interval a larger argument has a smaller cosine.
 
 mundane theorem special-angles
   then        cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
-  metamath    gcos90, gsin90, gcos60, gsin30, which this corpus proves in
+  metamath-counterpart gcos90, gsin90, gcos60, gsin30, which this corpus proves in
               elaboration/stdlib/proved.mm from coshalfpi, sinhalfpi,
               sincos3rdpi and sincos6thpi
-  target      gcos90, gsin90, gcos60, gsin30
+  metamath-proof gcos90, gsin90, gcos60, gsin30
   note        The values a school reader takes from the unit circle. set.mm
               states them at π/2, π/3 and π/6; each lemma first writes the
               degrees as that fraction of π.
@@ -175,16 +175,16 @@ mundane theorem special-angles
 mundane theorem cos-supplement
   let x ∈ ℝ                                                           (H1)
   then        cos(180° − x) = −cos(x)
-  metamath    gcossupp, which this corpus proves in
+  metamath-counterpart gcossupp, which this corpus proves in
               elaboration/stdlib/proved.mm from cospim
-  target      gcossupp
+  metamath-proof gcossupp
 
 mundane theorem sin-supplement
   let x ∈ ℝ                                                           (H1)
   then        sin(180° − x) = sin(x)
-  metamath    gsinsupp, which this corpus proves in
+  metamath-counterpart gsinsupp, which this corpus proves in
               elaboration/stdlib/proved.mm from sinpim
-  target      gsinsupp
+  metamath-proof gsinsupp
   note        Supplementary angles have one sine, as the two angles at a
               point of a line do.
 
@@ -192,7 +192,7 @@ definition arctan
   sort        number → number
   metamath-builds _1 catan cfv
   reads       the arctangent of
-  metamath    df-atan, by the complex logarithm
+  metamath-counterpart df-atan, by the complex logarithm
   note        As for cos, this definition states nothing but what arctan(x)
               builds. On ℝ it is the inverse of the tangent on (−π/2, π/2),
               the function a reader knows; what a proof needs of it is in
@@ -200,29 +200,29 @@ definition arctan
 
 mundane theorem pi-positive
   then        π > 0
-  metamath    pipos
-  target      pipos
+  metamath-counterpart pipos
+  metamath-proof pipos
   note        A half turn is a positive number, as a proof scaling by π asks.
 
 mundane theorem arctan-values
   then        arctan(0) = 0. arctan(1) = π/4.
-  metamath    atan0, atan1
-  target      atan0, atan1
+  metamath-counterpart atan0, atan1
+  metamath-proof atan0, atan1
 
 mundane theorem arctan-real
   let x ∈ ℝ                                                           (H1)
   then        arctan(x) ∈ ℝ
-  metamath    atanrecl
-  target      atanrecl
+  metamath-counterpart atanrecl
+  metamath-proof atanrecl
 
 theorem continuous-arctan
   let D ⊆ ℝ                                                           (H1)
   let g : D → ℝ                                                       (H2)
   assume for all x ∈ D, g(x) = arctan(x)                              (H3)
   then        g is continuous on D
-  metamath    gcncfatan, which this corpus proves in
+  metamath-counterpart gcncfatan, which this corpus proves in
               elaboration/stdlib/proved.mm from atancn and ressatans
-  target      gcncfatanres
+  metamath-proof gcncfatanres
 
 theorem derivative-arctan
   let D ⊆ ℝ                                                           (H1)
@@ -232,9 +232,9 @@ theorem derivative-arctan
   assume for all x ∈ D, g(x) = arctan(x)                              (H5)
   then        g is differentiable on U.
               For all x ∈ U, g′(x) = 1/(1 + x²).
-  metamath    gdvatan, gdvatanv, which this corpus proves in
+  metamath-counterpart gdvatan, gdvatanv, which this corpus proves in
               elaboration/stdlib/proved.mm from dvatan and dvres
-  target      gdvatan, gdvatanv with D := D
+  metamath-proof gdvatan, gdvatanv with D := D
   note        set.mm's dvatan is taken on the complex domain where arctan
               is differentiable, which holds ℝ (ressatans); the page asks
               it of a function on a set of reals, as derivative-square does.

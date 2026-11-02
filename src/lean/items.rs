@@ -230,7 +230,7 @@ pub fn record_of<'c>(checked: &'c CheckedCorpus, full: &str) -> Option<&'c Recor
 }
 
 /// The item a record states, in Lean; declined where a sentence of it does
-/// not print. The record's `lean` field holds one proof for each sentence,
+/// not print. The record's `lean-proof` field holds one proof for each sentence,
 /// set apart by ` ; `.
 pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<Item> {
     let full = format!("{}/{}", record.module(), record.name);
@@ -311,12 +311,12 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
         }
     }
     let proofs: Vec<String> = record
-        .field("lean")
+        .lean_target()
         .map(|f| f.split(" ; ").map(|p| p.trim().to_string()).collect())
         .unwrap_or_default();
     if proofs.len() != sentences.len() {
         return Route::no(format!(
-            "{full} concludes {} sentences and its lean field gives {} proofs",
+            "{full} concludes {} sentences and its lean-proof field gives {} proofs",
             sentences.len(),
             proofs.len()
         ));

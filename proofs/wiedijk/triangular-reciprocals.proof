@@ -12,7 +12,7 @@ define T(k) := k(k + 1)/2, for k ∈ ℕ                                  (D1)
        reads the k-th triangular number
 
 theorem triangular-reciprocals
-  metamath    trirecip
+  metamath-counterpart trirecip
   note        1/T(k) = 2/k − 2/(k + 1), so the first n terms telescope to
               2 − 2/(n + 1), which tends to 2.
   ε ranges over ℝ

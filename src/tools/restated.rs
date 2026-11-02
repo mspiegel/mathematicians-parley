@@ -268,7 +268,7 @@ pub fn restatements(records: &[Record], g: &Grammar) -> Checked<Restatements> {
         // phrase and its meaning, with `biid` as target, so it says what its
         // target asks by construction; and its file may be any proof file,
         // where this stage reads the library alone.
-        if !r.kind.is_item() || !r.fields.contains_key("target") || r.phrase.is_some() {
+        if !r.kind.is_item() || r.metamath_target().is_none() || r.phrase.is_some() {
             continue;
         }
         if says_of_statements(r, g) {
@@ -676,7 +676,7 @@ fn built_and_verified(
     let unbuilt = wanted.len() - made.len();
     if unbuilt > 0 {
         said.printed += &format!(
-            "\n{unbuilt} of {} library items do not give their target what it asks\n",
+            "\n{unbuilt} of {} library items do not give their metamath-proof what it asks\n",
             wanted.len()
         );
         said.status = 1;

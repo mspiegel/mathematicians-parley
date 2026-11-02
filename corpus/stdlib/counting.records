@@ -12,19 +12,19 @@
 # assume lines with labels, then a `then` line.
 #
 # Every item carries at least one of:
-#   metamath    a set.mm label or labels supply it
+#   metamath-counterpart  a set.mm label or labels supply it
 #   open        it is cited but unproved and unbridged
 #
-# Other fields: target, note.
+# Other fields: metamath-proof, lean-proof, note.
 
 
 definition factorial
   then        0! = 1. 1! = 1.
   let n ∈ ℕ₀                                                          (H1)
   then        (n + 1)! = n!·(n + 1)
-  metamath    fac0, fac1, facp1
-  target      fac0, fac1, facp1
-  lean        by simp ; by simp ; by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, Parley.Library.factorial_natCast, Parley.Library.factorial_natCast, Nat.factorial_succ]; push_cast; ring
+  metamath-counterpart fac0, fac1, facp1
+  metamath-proof fac0, fac1, facp1
+  lean-proof by simp ; by simp ; by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, Parley.Library.factorial_natCast, Parley.Library.factorial_natCast, Nat.factorial_succ]; push_cast; ring
   note        Two `then` groups: the base sentences have no hypothesis and the
               step sentence has H1, every n from 0 on, as set.mm states it.
               See DATABASE.md on recursive definitions.
@@ -32,15 +32,15 @@ definition factorial
 mundane theorem factorial-nat
   let n ∈ ℕ₀                                                          (H1)
   then        n! ∈ ℕ
-  metamath    faccl
-  target      faccl
-  lean        by simpa using Nat.factorial_pos n
+  metamath-counterpart faccl
+  metamath-proof faccl
+  lean-proof by simpa using Nat.factorial_pos n
 
 mundane theorem factorial-product
   let n ∈ ℕ₀                                                          (H1)
   then        n! = ∏(k = 1 to n) k
-  metamath    fprodfac
-  target      fprodfac
+  metamath-counterpart fprodfac
+  metamath-proof fprodfac
   note        n! is 1·2·…·n, and 0! the empty product.
 
 mundane theorem factorial-at-most
@@ -48,9 +48,9 @@ mundane theorem factorial-at-most
   let n ∈ ℕ₀                                                          (H2)
   assume m ≤ n                                                        (H3)
   then        m! ≤ n!
-  metamath    facwordi
-  target      facwordi
-  lean        by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
+  metamath-counterpart facwordi
+  metamath-proof facwordi
+  lean-proof by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
   note        A larger number has the larger factorial, the product of more
               factors at least 1.
 
@@ -59,22 +59,22 @@ mundane theorem factorial-divisible
   let m ∈ ℕ                                                           (H2)
   assume m ≤ n                                                        (H3)
   then        m divides n!
-  metamath    dvdsfac, which asks m ≤ n as membership of ℤ≥m
-  target      dvdsfac
-  lean        by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
+  metamath-counterpart dvdsfac, which asks m ≤ n as membership of ℤ≥m
+  metamath-proof dvdsfac
+  lean-proof by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
 
 mundane theorem card-zero
   let X be a set                                                      (H1)
   assume |X| = 0                                                      (H2)
   then        X = ∅
-  metamath    hasheq0
-  target      hasheq0
+  metamath-counterpart hasheq0
+  metamath-proof hasheq0
 
 mundane theorem card-singleton
   let x be an element                                                 (H1)
   then        |{x}| = 1
-  metamath    hashsng
-  target      hashsng
+  metamath-counterpart hashsng
+  metamath-proof hashsng
   note        A singleton has one element only when there is an element for it
               to have: `{ x }` for a proper class x is empty, and `hashsng`
               asks for the set because of it.
@@ -84,8 +84,8 @@ mundane theorem card-nonempty
   let k ∈ ℕ₀                                                          (H2)
   assume |X| = k + 1                                                  (H3)
   then        there is a ∈ X
-  metamath    hashgt0elex
-  target      hashgt0elex with V := X
+  metamath-counterpart hashgt0elex
+  metamath-proof hashgt0elex with V := X
   note        `hashgt0elex` asks that the size be positive where the
               hypothesis says what the size is, so the size is read as
               k + 1 through that hypothesis before `nn0p1gt0` answers.
@@ -96,8 +96,8 @@ mundane theorem card-remove
   let k ∈ ℕ₀                                                          (H3)
   assume |X| = k + 1                                                  (H4)
   then        |X ∖ {a}| = k
-  metamath    hashdifsnp1
-  target      hashdifsnp1 with V := X, N := a, Y := k
+  metamath-counterpart hashdifsnp1
+  metamath-proof hashdifsnp1 with V := X, N := a, Y := k
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
 
@@ -108,8 +108,8 @@ mundane theorem card-bijection
   assume |X| = m                                                      (H4)
   assume there is a bijection from X to Y                             (H5)
   then        |Y| = m
-  metamath    hashen
-  target      hashen with A := X, B := Y
+  metamath-counterpart hashen
+  metamath-proof hashen with A := X, B := Y
 
 mundane theorem card-disjoint-union
   let X be a set                                                      (H1)
@@ -120,8 +120,8 @@ mundane theorem card-disjoint-union
   assume |Y| = n                                                      (H6)
   assume X ∩ Y = ∅                                                    (H7)
   then        |X ∪ Y| = m + n
-  metamath    hashun
-  target      hashun with A := X, B := Y
+  metamath-counterpart hashun
+  metamath-proof hashun with A := X, B := Y
 
 definition C
   sort        number, number → number
@@ -133,9 +133,9 @@ definition C
   let k ∈ ℤ                                                           (H2)
   then        if k ∈ {0, …, n} then C(n, k) = n!/((n − k)!·k!).
               if n < k then C(n, k) = 0.
-  metamath    bcneg1, bcval2, bcval4
-  target      bcneg1, bcval2, bcval4
-  lean        by simp [Parley.Library.choose] ; by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [Parley.Library.choose_natCast, Parley.Library.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm] ; by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
+  metamath-counterpart bcneg1, bcval2, bcval4
+  metamath-proof bcneg1, bcval2, bcval4
+  lean-proof by simp [Parley.Library.choose] ; by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [Parley.Library.choose_natCast, Parley.Library.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm] ; by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
   note        set.mm defines C(n, k) for every integer k, as 0 outside
               0 … n, and the formula is its value inside. That it is 0 above
               n and at −1 is a convention a writer chooses, so both are
@@ -147,9 +147,9 @@ theorem pascal
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)
   then        C(n, k) + C(n, k − 1) = C(n + 1, k)
-  metamath    bcpasc
-  target      bcpasc
-  lean        by exact_mod_cast Parley.Library.pascal n k
+  metamath-counterpart bcpasc
+  metamath-proof bcpasc
+  lean-proof by exact_mod_cast Parley.Library.pascal n k
   note        Holds for every integer k, the ends included, because C(n, k)
               is 0 outside 0 … n.
 
@@ -157,9 +157,9 @@ theorem absorption
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ {0, …, n}                                                   (H2)
   then        C(n + 1, k + 1) = C(n, k)·((n + 1)/(k + 1))
-  metamath    bcp1nk
-  target      bcp1nk
-  lean        by exact_mod_cast Parley.Library.absorption n k h2
+  metamath-counterpart bcp1nk
+  metamath-proof bcp1nk
+  lean-proof by exact_mod_cast Parley.Library.absorption n k h2
   note        The absorption identity, as set.mm states it: multiplied out,
               (k + 1)·C(n + 1, k + 1) = (n + 1)·C(n, k), which is
               k·C(m, k) = m·C(m − 1, k − 1) at m = n + 1.
@@ -169,34 +169,34 @@ theorem absorption
 mundane theorem binomial-zero-index
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 0) = 1
-  metamath    bcn0
-  target      bcn0
-  lean        by simp [Parley.Library.choose]
+  metamath-counterpart bcn0
+  metamath-proof bcn0
+  lean-proof by simp [Parley.Library.choose]
 
 mundane theorem binomial-one
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 1) = n
-  metamath    bcn1
-  target      bcn1
-  lean        by simp [Parley.Library.choose]
+  metamath-counterpart bcn1
+  metamath-proof bcn1
+  lean-proof by simp [Parley.Library.choose]
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-one (DATABASE.md).
 
 mundane theorem binomial-all
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, n) = 1
-  metamath    bcnn
-  target      bcnn
-  lean        by simp
+  metamath-counterpart bcnn
+  metamath-proof bcnn
+  lean-proof by simp
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-all (DATABASE.md).
 
 mundane theorem binomial-two
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 2) = n·(n − 1)/2
-  metamath    bcn2
-  target      bcn2
-  lean        by simp [Parley.Library.choose, Nat.cast_choose_two]
+  metamath-counterpart bcn2
+  metamath-proof bcn2
+  lean-proof by simp [Parley.Library.choose, Nat.cast_choose_two]
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-two (DATABASE.md).
 
@@ -205,69 +205,69 @@ mundane theorem binomial-outside
   let k ∈ ℤ                                                           (H2)
   assume k ∉ {0, …, n}                                                (H3)
   then        C(n, k) = 0
-  metamath    bcval3
-  target      bcval3
-  lean        by exact_mod_cast Parley.Library.choose_outside n k h3
+  metamath-counterpart bcval3
+  metamath-proof bcval3
+  lean-proof by exact_mod_cast Parley.Library.choose_outside n k h3
 
 mundane theorem binomial-nat0
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ ℤ                                                           (H2)
   then        C(n, k) ∈ ℕ₀
-  metamath    bccl
-  target      bccl
-  lean        by positivity
+  metamath-counterpart bccl
+  metamath-proof bccl
+  lean-proof by positivity
 
 mundane theorem binomial-nat
   let n ∈ ℕ₀                                                          (H1)
   let k ∈ {0, …, n}                                                   (H2)
   then        C(n, k) ∈ ℕ
-  metamath    bccl2
-  target      bccl2
-  lean        by exact_mod_cast Parley.Library.choose_pos n k h2
+  metamath-counterpart bccl2
+  metamath-proof bccl2
+  lean-proof by exact_mod_cast Parley.Library.choose_pos n k h2
   note        A coefficient inside 0 … n is a positive whole number: it
               counts the parts of k elements of a set of n, and there is at
               least one.
 
 mundane theorem card-empty
   then        |∅| = 0
-  metamath    hash0
-  target      hash0
+  metamath-counterpart hash0
+  metamath-proof hash0
 
 mundane theorem finite-part
   assume X is finite                                                  (H1)
   assume Y ⊆ X                                                        (H2)
   then        Y is finite
-  metamath    ssfi
-  target      ssfi
+  metamath-counterpart ssfi
+  metamath-proof ssfi
 
 mundane theorem factorial-nonzero
   let n ∈ ℕ₀                                                          (H1)
   then        n! ≠ 0
-  metamath    facne0
-  target      facne0
-  lean        by simp [Nat.factorial_ne_zero]
+  metamath-counterpart facne0
+  metamath-proof facne0
+  lean-proof by simp [Nat.factorial_ne_zero]
   note        A factorial is a product of numbers above 0, and 0! is 1.
 
 mundane theorem union-finite
   assume X is finite                                                  (H1)
   assume Y is finite                                                  (H2)
   then        X ∪ Y is finite
-  metamath    unfi
-  target      unfi
+  metamath-counterpart unfi
+  metamath-proof unfi
 
 mundane theorem card-nat0
   assume X is finite                                                  (H1)
   then        |X| ∈ ℕ₀
-  metamath    hashcl
-  target      hashcl
+  metamath-counterpart hashcl
+  metamath-proof hashcl
 
 mundane theorem card-finite
   let X be a set                                                      (H1)
   let m ∈ ℕ₀                                                          (H2)
   assume |X| = m                                                      (H3)
   then        X is finite
-  metamath    hashvnfin
-  target      hashvnfin with S := X, N := m
+  metamath-counterpart hashvnfin
+  metamath-proof hashvnfin with S := X, N := m
   note        A set whose size is a whole number is finite: an infinite
               set's size is +∞ in set.mm, which is no whole number.
 
@@ -275,15 +275,15 @@ mundane theorem card-difference
   assume X is finite                                                  (H1)
   assume Y ⊆ X                                                        (H2)
   then        |X ∖ Y| = |X| − |Y|
-  metamath    hashssdif
-  target      hashssdif
+  metamath-counterpart hashssdif
+  metamath-proof hashssdif
 
 mundane theorem card-at-least-one
   let X be a set                                                      (H1)
   assume X ≠ ∅                                                        (H2)
   then        |X| ≥ 1
-  metamath    hashge1
-  target      hashge1
+  metamath-counterpart hashge1
+  metamath-proof hashge1
   note        A set with something in it has at least one element. set.mm
               says it of every set, finite or not, since +∞ ≥ 1 too.
 
@@ -291,9 +291,9 @@ mundane theorem parts-finite
   assume A is finite                                                  (H1)
   assume for all Y ∈ K, Y ⊆ A                                         (H2)
   then        K is finite
-  metamath    pwfi and ssfi, which this corpus proves together in
+  metamath-counterpart pwfi and ssfi, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gpartsfin
+  metamath-proof gpartsfin
   note        A finite set has finitely many parts, so any set of its parts
               is finite.
 
@@ -301,9 +301,9 @@ mundane theorem card-equal
   assume X is finite                                                  (H1)
   assume there is a bijection from X to Y                             (H2)
   then        |X| = |Y|
-  metamath    enfi and hashen, which this corpus proves together in
+  metamath-counterpart enfi and hashen, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gcardeq
+  metamath-proof gcardeq
   note        Y is finite because X is, and two finite sets paired off one
               to one have the same number of elements.
 
@@ -316,9 +316,9 @@ mundane theorem partition-count
   assume for all Y, Z ∈ K, for all x ∈ Y ∩ Z, Y = Z                   (H6)
   assume for all Y ∈ K, |Y| = m                                       (H7)
   then        |A| = |K| · m
-  metamath    hashiun and fsumconst, which this corpus proves together in
+  metamath-counterpart hashiun and fsumconst, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gpartcnt
+  metamath-proof gpartcnt
   note        A finite set split into parts that each have m elements has
               (number of parts) · m of them. The parts make up A, and two
               that share a point are the same part.
@@ -327,17 +327,17 @@ mundane theorem count-nat0
   let P be a property of the elements of ℕ                            (H1)
   let k ∈ ℤ                                                           (H2)
   then        |{i ∈ {1, …, k} : P(i)}| ∈ ℕ₀
-  metamath    fzfi, rabfi and hashcl, which this corpus proves together in
+  metamath-counterpart fzfi, rabfi and hashcl, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gcntcl
+  metamath-proof gcntcl
   note        A count of numbers among the first k is a whole number.
 
 mundane theorem count-empty-range
   let P be a property of the elements of ℕ                            (H1)
   then        |{i ∈ {1, …, 0} : P(i)}| = 0
-  metamath    fz10, rab0 and hash0, which this corpus proves together in
+  metamath-counterpart fz10, rab0 and hash0, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gcnt0
+  metamath-proof gcnt0
   note        Nothing is counted among the numbers from 1 to 0.
 
 mundane theorem count-step-holds
@@ -345,9 +345,9 @@ mundane theorem count-step-holds
   let k ∈ ℕ₀                                                          (H2)
   assume P(k + 1)                                                     (H3)
   then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}| + 1
-  metamath    fzsuc2, rabun2, rabsnif and hashunsng, which this corpus
+  metamath-counterpart fzsuc2, rabun2, rabsnif and hashunsng, which this corpus
               proves together in elaboration/stdlib/proved.mm
-  target      gcntsuc
+  metamath-proof gcntsuc
   note        One more number, which has the property, counts once more.
 
 mundane theorem count-step-fails
@@ -355,9 +355,9 @@ mundane theorem count-step-fails
   let k ∈ ℕ₀                                                          (H2)
   assume not P(k + 1)                                                 (H3)
   then        |{i ∈ {1, …, k + 1} : P(i)}| = |{i ∈ {1, …, k} : P(i)}|
-  metamath    fzsuc2, rabun2, rabsnif and un0, which this corpus proves
+  metamath-counterpart fzsuc2, rabun2, rabsnif and un0, which this corpus proves
               together in elaboration/stdlib/proved.mm
-  target      gcntsucn
+  metamath-proof gcntsucn
   note        One more number, which lacks the property, adds nothing.
 
 mundane theorem count-same
@@ -366,9 +366,9 @@ mundane theorem count-same
   let n ∈ ℤ                                                           (H3)
   assume for all i ∈ {1, …, n}, P(i) ↔ Q(i)                           (H4)
   then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n} : Q(i)}|
-  metamath    rabbi, under the count, which this corpus proves in
+  metamath-counterpart rabbi, under the count, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gcntsame
+  metamath-proof gcntsame
   note        Two properties that hold of the same numbers count the same.
 
 mundane theorem count-either
@@ -377,9 +377,9 @@ mundane theorem count-either
   let n ∈ ℤ                                                           (H3)
   assume for all i ∈ {1, …, n}, not (P(i) and Q(i))                   (H4)
   then        |{i ∈ {1, …, n} : P(i) or Q(i)}| = |{i ∈ {1, …, n} : P(i)}| + |{i ∈ {1, …, n} : Q(i)}|
-  metamath    unrab, inrab and hashun, which this corpus proves together
+  metamath-counterpart unrab, inrab and hashun, which this corpus proves together
               in elaboration/stdlib/proved.mm
-  target      gcnteither
+  metamath-proof gcnteither
   note        The numbers with one property or the other, never both, are
               those with the first and those with the second, counted
               apart.
@@ -388,9 +388,9 @@ mundane theorem count-shift
   let P be a property of the elements of ℤ                            (H1)
   let n ∈ ℤ                                                           (H2)
   then        |{i ∈ {1, …, n} : P(i − 1)}| = |{i ∈ {0, …, n − 1} : P(i)}|
-  metamath    the shift of a range by one, which this corpus proves in
+  metamath-counterpart the shift of a range by one, which this corpus proves in
               elaboration/stdlib/proved.mm
-  target      gcntshift
+  metamath-proof gcntshift
   note        Counting i with P(i − 1) for i from 1 to n is counting j with
               P(j) for j from 0 to n − 1: each i is j + 1.
 
@@ -399,9 +399,9 @@ mundane theorem count-first-fails
   let m ∈ ℤ                                                           (H2)
   assume not P(0)                                                     (H3)
   then        |{i ∈ {0, …, m} : P(i)}| = |{i ∈ {1, …, m} : P(i)}|
-  metamath    the range split at its first number, which this corpus
+  metamath-counterpart the range split at its first number, which this corpus
               proves in elaboration/stdlib/proved.mm
-  target      gcntfirst
+  metamath-proof gcntfirst
   note        A first number without the property adds nothing.
 
 mundane theorem count-last-fails
@@ -409,18 +409,18 @@ mundane theorem count-last-fails
   let n ∈ ℤ                                                           (H2)
   assume not P(n)                                                     (H3)
   then        |{i ∈ {1, …, n} : P(i)}| = |{i ∈ {1, …, n − 1} : P(i)}|
-  metamath    the range split at its last number, which this corpus
+  metamath-counterpart the range split at its last number, which this corpus
               proves in elaboration/stdlib/proved.mm
-  target      gcntlast
+  metamath-proof gcntlast
   note        A last number without the property adds nothing.
 
 mundane theorem card-pair
   let u be an element                                                 (H1)
   let w be an element                                                 (H2)
   then        |{u, w}| ≤ 2
-  metamath    hashprlei, its second part, which this corpus takes in
+  metamath-counterpart hashprlei, its second part, which this corpus takes in
               elaboration/stdlib/proved.mm
-  target      gcardpr
+  metamath-proof gcardpr
   note        Two things listed make a set of at most two: one, where they
               are the same.
 
@@ -429,15 +429,15 @@ mundane theorem card-subset
   let B be a set                                                      (H2)
   assume A ⊆ B                                                        (H3)
   then        |A| ≤ |B|
-  metamath    hashss
-  target      hashss
+  metamath-counterpart hashss
+  metamath-proof hashss
 
 mundane theorem card-pair-distinct
   let u be an element                                                 (H1)
   let w be an element                                                 (H2)
   then        u ≠ w ↔ |{u, w}| = 2
-  metamath    hashprg
-  target      hashprg
+  metamath-counterpart hashprg
+  metamath-proof hashprg
 
 mundane theorem card-two
   let Y be a set                                                      (H1)
@@ -446,8 +446,8 @@ mundane theorem card-two
   let b ∈ Y                                                           (H4)
   assume a ≠ b                                                        (H5)
   then        Y = {a, b}
-  metamath    hash2prd
-  target      hash2prd
+  metamath-counterpart hash2prd
+  metamath-proof hash2prd
   note        A set of two elements is any two different elements of it,
               listed.
 
@@ -455,23 +455,23 @@ mundane theorem card-positive
   let X be a set                                                      (H1)
   assume 0 < |X|                                                      (H2)
   then        X ≠ ∅
-  metamath    hashgt0n0
-  target      hashgt0n0
+  metamath-counterpart hashgt0n0
+  metamath-proof hashgt0n0
   note        A set whose size is above 0 is not empty, and
               `mun:stdlib/sets/nonempty-member` names an element of it.
 
 mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)
   then        |{1, …, n}| = n
-  metamath    hashfz1
-  target      hashfz1
+  metamath-counterpart hashfz1
+  metamath-proof hashfz1
 
 mundane theorem card-add-one
   assume X is finite                                                  (H1)
   let a ∉ X                                                           (H2)
   then        |X ∪ {a}| = |X| + 1
-  metamath    hashunsng
-  target      hashunsng
+  metamath-counterpart hashunsng
+  metamath-proof hashunsng
   note        One element more, which was not there already, counts once
               more.
 
@@ -479,8 +479,8 @@ mundane theorem card-product
   assume X is finite                                                  (H1)
   assume Y is finite                                                  (H2)
   then        |X × Y| = |X|·|Y|
-  metamath    hashxp
-  target      hashxp
+  metamath-counterpart hashxp
+  metamath-proof hashxp
   note        Each of the |X| first parts goes with each of the |Y| second
               parts.
 
@@ -488,9 +488,9 @@ theorem pigeonhole
   let Y be a set                                                      (H1)
   let f : X → Y be one-to-one                                         (H2)
   then        |X| ≤ |Y|
-  metamath    f1domg and hashdomi, which this corpus proves together in
+  metamath-counterpart f1domg and hashdomi, which this corpus proves together in
               elaboration/stdlib/proved.mm
-  target      gf1hashle
+  metamath-proof gf1hashle
   note        A function that sends no two points of X to one place needs
               as many places as X has points: put more than |Y| things into
               Y and two of them share a place.
@@ -501,9 +501,9 @@ theorem count-functions
   assume X is finite                                                  (H3)
   assume Y is finite                                                  (H4)
   then        |the functions from X to Y| = |Y|^|X|
-  metamath    hashmap, which this corpus states in
+  metamath-counterpart hashmap, which this corpus states in
               elaboration/stdlib/proved.mm
-  target      gmapcnt
+  metamath-proof gmapcnt
   note        Each of the |X| elements of X goes to one of the |Y| elements
               of Y.
 
@@ -514,9 +514,9 @@ theorem count-one-to-one
   assume Y is finite                                                  (H4)
   assume |X| ≤ |Y|                                                    (H5)
   then        |{f ∈ the functions from X to Y : f : X → Y is one-to-one}| = ∏(k ∈ {0, …, |X| − 1}) (|Y| − k)
-  metamath    hashf1, bcfallfac and fallfacval, which this corpus proves
+  metamath-counterpart hashf1, bcfallfac and fallfacval, which this corpus proves
               together in elaboration/stdlib/proved.mm
-  target      gf1cnt
+  metamath-proof gf1cnt
   note        The one-to-one functions from X to Y number
               |Y|·(|Y| − 1)·…·(|Y| − |X| + 1): each element of X in turn
               goes to one of the elements of Y not yet used.

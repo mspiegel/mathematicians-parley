@@ -87,7 +87,7 @@ const ATOM: &str = "§";
 /// (`targets::terms`).
 pub struct Targets {
     terms: FxIndexMap<NotationId, Vec<Option<String>>>,
-    /// Each record's spellings, in the order its `target` entries take.
+    /// Each record's spellings, in the order its `metamath-builds` entries take.
     literals: FxIndexMap<NotationId, Vec<Spelling>>,
     /// What each library function builds, by its name (`builds`).
     builds: IndexMap<String, String>,
