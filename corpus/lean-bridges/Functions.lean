@@ -36,4 +36,9 @@ theorem image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (u : α) (W
     u ∈ f '' Y ↔ (∃ s ∈ Y, u = f s) :=
   ⟨fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩, fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩⟩
 
+/-- `def:stdlib/functions/set-image`. -/
+theorem set_image {α : Type*} (E : α → α) (Y : Set α) (u : α) (Z : Set α) (hE : Set.MapsTo E Y Z) :
+    u ∈ (fun s => E s) '' Y ↔ (∃ s ∈ Y, u = E s) :=
+  ⟨fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩, fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩⟩
+
 end LeanBridges.Functions

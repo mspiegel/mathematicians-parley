@@ -37,12 +37,13 @@ pub enum LetterType {
 }
 
 /// What the members of a set are in Lean: the one type of things a
-/// theorem's sets hold, `α`, as set.mm's sets all hold sets; or sets of
-/// those, 𝒫A's members.
+/// theorem's sets hold, `α`, as set.mm's sets all hold sets; sets of
+/// those, 𝒫A's members; or numbers of one type, {2n : n ∈ ℤ}'s.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Members {
     Things,
     Sets(Box<Members>),
+    Numbers(Num),
 }
 
 /// The type variable a theorem's sets of things are sets of.
@@ -74,6 +75,26 @@ impl Members {
         match self {
             Members::Things => THINGS.to_string(),
             Members::Sets(m) => format!("Set {}", bracketed(&m.lean())),
+            Members::Numbers(n) => n.lean().to_string(),
+        }
+    }
+
+    /// The type a letter that runs over such members has: a number of the
+    /// type, or a member.
+    pub fn letter(&self) -> LetterType {
+        match self {
+            Members::Numbers(n) => LetterType::Number(*n),
+            other => LetterType::Member(other.clone()),
+        }
+    }
+
+    /// Whether they are the things a theorem's sets hold, or sets of them,
+    /// so that its statement takes `{α : Type*}`.
+    fn uses_things(&self) -> bool {
+        match self {
+            Members::Things => true,
+            Members::Sets(m) => m.uses_things(),
+            Members::Numbers(_) => false,
         }
     }
 }
@@ -105,10 +126,11 @@ impl LetterType {
     /// Whether the type holds the things a theorem's sets are of, so that
     /// its statement takes `{α : Type*}`.
     pub fn uses_things(&self) -> bool {
-        matches!(
-            self,
-            LetterType::Set(_) | LetterType::Member(_) | LetterType::Map { .. }
-        )
+        match self {
+            LetterType::Set(m) | LetterType::Member(m) => m.uses_things(),
+            LetterType::Map { from, to } => from.uses_things() || to.uses_things(),
+            _ => false,
+        }
     }
 }
 
@@ -1139,12 +1161,10 @@ impl Writer<'_> {
         if set.notation() == NUMBER_SYSTEMS {
             return self.in_system(x, set);
         }
-        if let Some(m) = self.set_membership(x, set) {
-            return m;
-        }
         // x ∈ {a, b, c} of numbers: a membership of Lean's sets, in the
         // least type that holds x and every member, so that x is written
-        // once, as the page writes it.
+        // once, as the page writes it. Ahead of other sets, whose type is
+        // their members' alone.
         if matches!(
             &*set.notation_name(),
             "singleton" | "listed-two" | "listed-three" | "listed-four"
@@ -1177,6 +1197,9 @@ impl Writer<'_> {
                 ),
                 prec: 50,
             });
+        }
+        if let Some(m) = self.set_membership(x, set) {
+            return m;
         }
         if set.notation() == INTEGER_RANGE {
             let [from, to] = set.children.as_slice() else {

@@ -21,7 +21,7 @@ theorem disjoint_empty {α : Type*} (Y : Set α) (Z : Set α) (h1 : ∀ s ∈ Z,
 
 /-- `mun:stdlib/sets/pair-subset`. -/
 theorem pair_subset {α : Type*} (X : Set α) (a : α) (b : α) (h1 : a ∈ X) (h2 : b ∈ X) :
-    {a, b} ⊆ X :=
+    ({a, b} : Set α) ⊆ X :=
   Set.insert_subset_iff.mpr ⟨h1, Set.singleton_subset_iff.mpr h2⟩
 
 /-- `mun:stdlib/sets/disjoint-member`. -/

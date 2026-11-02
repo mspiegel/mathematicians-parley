@@ -63,6 +63,13 @@ macro "parley_side" : tactic =>
     -- An integer a line gives as a quotient, (M! + 1)/N, in an equation of
     -- integers: in ℚ, with the division cleared, it is linear.
     | (qify at *; field_simp at *; linarith; done)
+    -- Two finite sets of numbers equal, {x ∈ {−3, −2, 0, 5} : x is odd} =
+    -- {−3, 5}: member by member, each case decided.
+    | (ext x; simp only [Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff];
+       constructor <;> intro h <;> (try casesm* _ ∨ _, _ ∧ _) <;> (try subst_vars) <;>
+       simp_all (config := {decide := true}); done)
+    -- A map into all of its type, Set.MapsTo f A Set.univ.
+    | (exact Set.mapsTo_univ _ _; done)
     -- One of a listed set, x ∈ {a, b}, taken case by case.
     | (rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
     | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;

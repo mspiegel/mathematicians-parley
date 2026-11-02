@@ -56,6 +56,7 @@ pub const IN_CODE: &[&str] = &[
     "onto",
     "one-to-one-onto",
     "inverse",
+    "set-image",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -236,42 +237,27 @@ fn covered(
                         matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                     }))
             });
-    // A set of numbers compared or built, {x ∈ {−3, 5} : x is odd} = {−3, 5},
-    // has no Lean type yet; one only a member is said to be in, x ∈ {1, 2},
-    // is that member's disjunction.
-    let set_of_numbers = |n: &crate::formula::Node| {
-        matches!(n.sort.full(), Some(crate::formula::Whole::Set(m))
-            if matches!(**m, crate::formula::Whole::Number))
-    };
-    let numbers_as_sets =
+    // A set-image over the page's ℕ or ℕ₀, {p·n : n ∈ ℕ}, maps Lean's ℕ
+    // into ℤ, and the map items take one type in and out, α → α.
+    let image_from_naturals =
         rec.page
             .entries()
             .flat_map(|(_, node)| node.walk())
             .any(|n| {
-                let compared = matches!(
-                    &*n.notation_name(),
-                    "subset" | "set-builder" | "set-operations"
-                ) || n.notation() == crate::notations::EQUALITY;
-                // A side listed or built of numbers, whose sort the reading may
-                // leave as no more than a set.
-                let numbers_listed = |c: &crate::formula::Node| {
-                    matches!(
-                        &*c.notation_name(),
-                        "set-builder"
-                            | "singleton"
-                            | "listed-two"
-                            | "listed-three"
-                            | "listed-four"
-                    ) && c.walk().iter().any(|m| m.sort.is("number"))
-                };
-                compared
-                    && n.children
-                        .iter()
-                        .any(|c| set_of_numbers(c) || numbers_listed(c))
+                &*n.notation_name() == "set-image"
+                    && n.children.get(2).is_some_and(|set| {
+                        matches!(
+                            super::expr::system_of(set),
+                            Some(
+                                super::expr::System::Positive
+                                    | super::expr::System::NonNegative
+                            )
+                        )
+                    })
             });
-    if numbers_as_sets {
+    if image_from_naturals {
         return Covered::Out {
-            reason: "a set of numbers, which the Lean build gives no type yet"
+            reason: "a set-image over ℕ, a map from Lean's ℕ into ℤ, where the map items take one type"
                 .to_string(),
         };
     }

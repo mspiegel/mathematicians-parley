@@ -140,13 +140,13 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
         }
         ("membership", [set]) => Some(InSet {
             letter: letter.text.to_string(),
-            ty: LetterType::Member(writer.members_of(set)?),
+            ty: writer.members_of(set)?.letter(),
             fact: None,
             domain: None,
         }),
         ("subset", [set]) => Some(InSet {
             letter: letter.text.to_string(),
-            ty: LetterType::Set(writer.members_of(set)?),
+            ty: LetterType::Set(writer.set_members(set)?),
             fact: None,
             domain: None,
         }),

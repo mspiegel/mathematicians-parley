@@ -8,6 +8,10 @@ public section
 
 namespace Parley.Items.Stdlib.Functions
 
+theorem def_set_image {α : Type*} (E : α → α) (Y : Set α) (u : α) (Z : Set α) (hE : Set.MapsTo E Y Z) :
+    u ∈ (fun s : α => E s) '' Y ↔ (∃ s ∈ Y, u = E s) :=
+  LeanBridges.Functions.set_image E Y u Z hE
+
 theorem mun_function_value {α : Type*} (D : Set α) (E : Set α) (f : α → α) (x : α) (hf : Set.MapsTo f D E) (h1 : x ∈ D) :
     f x ∈ E :=
   hf h1

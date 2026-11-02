@@ -561,9 +561,7 @@ impl<'a> Proof<'a> {
                         .letters
                         .insert(letter, LetterType::Number(super::templates::Num::Int));
                 } else if let Some((letter, members)) = self.set_member_said(node) {
-                    self.writer
-                        .letters
-                        .insert(letter, LetterType::Member(members));
+                    self.writer.letters.insert(letter, members.letter());
                 }
             }
         }
@@ -1103,8 +1101,8 @@ impl<'a> Proof<'a> {
             };
             // A member of a set: the value as the writer writes a member,
             // and its membership left to `parley_side`.
-            if self.writer.members_of(set).is_some() {
-                match self.writer.set_term(value) {
+            if let Some(members) = self.writer.members_of(set) {
+                match self.writer.element_term(value, &members) {
                     Route::Built(p) => parts.push(p.text),
                     Route::Declined(d) => return Route::Declined(d),
                 }
@@ -1224,7 +1222,7 @@ impl<'a> Proof<'a> {
                         super::expr::system_of(set).map(super::expr::letter_type)
                     };
                     // A set's letter is a member of its kind.
-                    let member = writer.members_of(set).map(LetterType::Member);
+                    let member = writer.members_of(set).map(|m| m.letter());
                     let at: Vec<String> = node
                         .names()
                         .into_iter()
@@ -1247,8 +1245,8 @@ impl<'a> Proof<'a> {
                 }
             };
             // A member of a set: the value, and that it is in the set.
-            if writer.members_of(set).is_some() {
-                match writer.set_term(&value) {
+            if let Some(members) = writer.members_of(set) {
+                match writer.element_term(&value, &members) {
                     Route::Built(p) => args.push(p.at(super::expr::MAX)),
                     Route::Declined(d) => return Route::Declined(d),
                 }
@@ -2000,6 +1998,24 @@ impl<'a> Proof<'a> {
                     at = at.max(c);
                 }
             }
+            // A set of things given a set of numbers, X := ℝ, sets the
+            // things' type at least to that set's.
+            for b in &sentence.binders {
+                let Binder::Letter {
+                    page,
+                    ty: LetterType::Set(super::expr::Members::Things),
+                    ..
+                } = b
+                else {
+                    continue;
+                };
+                let given = binding.get(&crate::formula::symbol::Symbol::of(page));
+                if let Some(super::expr::Members::Numbers(n)) =
+                    given.and_then(|v| self.writer.set_members(v))
+                {
+                    at = at.max(n);
+                }
+            }
             at
         };
         let mut args = Vec::new();
@@ -2017,7 +2033,14 @@ impl<'a> Proof<'a> {
                     let Some(value) =
                         binding.get(&crate::formula::symbol::Symbol::of(page))
                     else {
-                        args.push(format!("({name} := _)"));
+                        // A set the citation gives no value, the Z a map
+                        // goes into, is all of its type, which every map
+                        // goes into; anything else is left to Lean.
+                        let fill = match ty {
+                            LetterType::Set(_) => "Set.univ",
+                            _ => "_",
+                        };
+                        args.push(format!("({name} := {fill})"));
                         continue;
                     };
                     let printed = match (ty, general.filter(|_| *in_general)) {
@@ -2103,6 +2126,44 @@ impl<'a> Proof<'a> {
                             if self.writer.is_number(value) =>
                         {
                             self.writer.number_fixed(value, things_at)
+                        }
+                        // A set of things given a set of numbers: the set at
+                        // the type the things are taken at here.
+                        (LetterType::Set(super::expr::Members::Things), _)
+                            if matches!(
+                                self.writer.set_members(value),
+                                Some(super::expr::Members::Numbers(_))
+                            ) =>
+                        {
+                            self.writer.numbers_at(value, things_at)
+                        }
+                        // A map of things given by its values on numbers,
+                        // n ↦ 2n: `fun n => 2 * n`, at the type the things
+                        // are taken at here.
+                        (LetterType::Map { .. }, _)
+                            if &*value.notation_name() == "property-of" =>
+                        {
+                            match value.children.as_slice() {
+                                [body] => {
+                                    let mut letters = self.writer.letters.clone();
+                                    letters.insert(
+                                        value.text.to_string(),
+                                        LetterType::Number(things_at),
+                                    );
+                                    let inner = self.writer.with_letters(letters);
+                                    inner.number_fixed(body, things_at).map(|b| {
+                                        super::expr::Printed::atom(format!(
+                                            "(fun {} : {} => {})",
+                                            super::names::letter(&value.text),
+                                            things_at.lean(),
+                                            b.text
+                                        ))
+                                    })
+                                }
+                                _ => Route::no(
+                                    "a map by its values of other than one body",
+                                ),
+                            }
                         }
                         // A set, a member or a map given for one: the term
                         // as the writer writes a set's.
@@ -2317,10 +2378,25 @@ impl<'a> Proof<'a> {
                 return Route::no(format!("no witness for {}", letter.text));
             };
             let system = super::expr::system_of(set);
-            let ty = match system {
-                Some(s) => super::expr::letter_type(s),
-                None => return Route::no("a witness ranging over no number system"),
+            let Some(s) = system else {
+                // A witness in a set: the value, a number at its own type
+                // or a member as the writer writes one, and that it is in
+                // the set.
+                let term = match self.writer.carrier(value) {
+                    Route::Built(at) if self.writer.is_number(value) => {
+                        self.writer.number_fixed(value, at)
+                    }
+                    _ => self.writer.set_term(value),
+                };
+                match term {
+                    Route::Built(p) => parts.push(p.text),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                parts.push(format!("by {}parley_side", known.concat()));
+                body = inner;
+                continue;
             };
+            let ty = super::expr::letter_type(s);
             match self.witness(value, ty) {
                 Route::Built(w) => {
                     parts.push(w.term);
@@ -2529,9 +2605,12 @@ impl<'a> Proof<'a> {
                 );
             }
             pattern.push(super::names::letter(obtained));
+            // Lean writes "there is s ∈ S" with the membership beside s
+            // for every S but a number system its type gives, ℤ, ℚ, ℝ or
+            // ℂ, and ℕ₀; the page's ℕ adds that s is above 0.
             let guarded = set.notation() == crate::notations::INTEGER_RANGE
                 || super::expr::system_of(set) == Some(super::expr::System::Positive)
-                || self.writer.members_of(set).is_some();
+                || super::expr::system_of(set).is_none();
             if guarded {
                 pattern.push(
                     guards
@@ -2982,7 +3061,7 @@ impl<'a> Proof<'a> {
                             {
                                 self.writer
                                     .letters
-                                    .insert(t.text.to_string(), LetterType::Member(m));
+                                    .insert(t.text.to_string(), m.letter());
                                 self.trees.insert(
                                     o.label.clone(),
                                     vec![(node.clone(), label.clone())],

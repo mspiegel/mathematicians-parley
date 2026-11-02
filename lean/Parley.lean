@@ -94,6 +94,7 @@ public import Parley.Proofs.Hammack.GeometricSumBaseThree.GeometricSumBaseThree
 public import Parley.Proofs.Hammack.GeometricSumBaseTwo.GeometricSumBaseTwo
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicLowerBound
+public import Parley.Proofs.Hammack.ImageOfAffineMap.ImageOfAffineMap
 public import Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
 public import Parley.Proofs.Hammack.ImageOfPreimageOfImage.ImageOfPreimageOfImage
 public import Parley.Proofs.Hammack.ImageOfUnion.ImageOfUnion
@@ -108,6 +109,8 @@ public import Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound
 public import Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient
+public import Parley.Proofs.Hammack.MultiplesOfSix.MultiplesOfSix
+public import Parley.Proofs.Hammack.MultiplesOfTwelve.MultiplesOfTwelve
 public import Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.PositivePowerIsReal
@@ -145,6 +148,7 @@ public import Parley.Proofs.Hammack.QuadraticPlusFourTimesOddIffEven.QuadraticPl
 public import Parley.Proofs.Hammack.RationalBelowAPositiveRational.RationalBelowAPositiveRational
 public import Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube
 public import Parley.Proofs.Hammack.RationalCubeRootOfTwo.EvenCube
+public import Parley.Proofs.Hammack.RationalMultiplesOfNine.RationalMultiplesOfNine
 public import Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesNoSmall
 public import Parley.Proofs.Hammack.RationalSquaresSumNotThree.SquareModThree
 public import Parley.Proofs.Hammack.RationalTimesIrrational.RationalTimesIrrational
@@ -155,6 +159,7 @@ public import Parley.Proofs.Hammack.ScaledGcdBound.ScaledPairNotBothZero
 public import Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound
 public import Parley.Proofs.Hammack.SetMeetsItsComplementInNothing.SetMeetsWhatItLacksInNothing
 public import Parley.Proofs.Hammack.SevenDividesFourTimes.SevenDividesFourTimes
+public import Parley.Proofs.Hammack.ShiftedMultiplesOfFour.ShiftedMultiplesOfFour
 public import Parley.Proofs.Hammack.ShiftedProductEvenIff.ShiftedProductEvenIff
 public import Parley.Proofs.Hammack.ShiftedPronicSum.ShiftedPronicSum
 public import Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
@@ -449,6 +454,7 @@ public import Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineIn
 public import Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineFromAForAll
 public import Parley.Tests.Elaborator.ARequiresWeakeningWithItsMembership.ARequiresWeakeningWithItsMembership
 public import Parley.Tests.Elaborator.ARootSaidReal.ARootSaidReal
+public import Parley.Tests.Elaborator.ASetImageFromAnEquation.ASetImageFromAnEquation
 public import Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADivisorSaidNonzero
 public import Parley.Tests.Elaborator.ASquareRootByAlgebra.ASquareRootByAlgebra
 public import Parley.Tests.Elaborator.ASquareRootByAlgebra.ASquareOfASumWithARoot
@@ -698,6 +704,7 @@ public import Parley.Tests.Elaborator.SignedDivisibility.ANegativeDivisor
 public import Parley.Tests.Elaborator.SignedDivisibility.BothNegativeAndDenied
 public import Parley.Tests.Elaborator.SignedDivisibility.ASideWorkedBelowZero
 public import Parley.Tests.Elaborator.SignedDivisibility.ANegativeEven
+public import Parley.Tests.Elaborator.SignedDivisibility.TheOddOnesOfASignedList
 public import Parley.Tests.Elaborator.SubstituteRows.SubstituteRows
 public import Parley.Tests.Elaborator.SubstituteRows.SubstituteRowsFromALine
 public import Parley.Tests.Elaborator.SubstituteRows.SubstituteRowsChangingASum
@@ -708,6 +715,7 @@ public import Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ADefineInsideACa
 public import Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AnObtainThroughTheSecondSentence
 public import Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ARootInABound
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.AOneDroppedFromTheMiddle
+public import Parley.Tests.Elaborator.TextbookExerciseShapes.ADefinitionUnfoldingTheSecondSentence
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.AHypothesisFromTheLineCited
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.AnObtainThroughAnIff
@@ -743,6 +751,7 @@ public import Parley.Tests.Notations.Divisibility.SeventeenTwoModFive
 public import Parley.Tests.Notations.Divisibility.MinusOneFourModFive
 public import Parley.Tests.Notations.Divisibility.SeventeenNotThreeModFive
 public import Parley.Tests.Notations.Functions.AnOntoFunctionHasItsValues
+public import Parley.Tests.Notations.Functions.AValueInAnImage
 public import Parley.Tests.Notations.Negatives.MinusThreeBelowZero
 public import Parley.Tests.Notations.Negatives.MinusThreeBelowMinusOne
 public import Parley.Tests.Notations.Negatives.MinusOfMinus
@@ -777,6 +786,9 @@ public import Parley.Tests.Notations.Primes.FloorOfMinusHalfNotZero
 public import Parley.Tests.Notations.Primes.FloorOfSevenHalves
 public import Parley.Tests.Notations.Sets.OneNotInALongListedSet
 public import Parley.Tests.Notations.Sets.FourNotInAWrittenSet
+public import Parley.Tests.Notations.Sets.InAUnion
+public import Parley.Tests.Notations.Sets.NotInAnIntersection
+public import Parley.Tests.Notations.Sets.APartOfASet
 public import Parley.Tests.Notations.Sums.AConstantSummed
 public import Parley.Tests.Notations.Sums.OneToThreeSummed
 public import Parley.Tests.Notations.Sums.OneToThreeNotFive

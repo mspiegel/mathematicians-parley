@@ -30,7 +30,7 @@ definition set-image
   note        {E(s) : s ∈ Y} is the range of the map s ↦ E(s) on Y, and
               elrnmptg says what is in that range where every E(s) is a set,
               which a function's value always is (`fvex`).
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/functions/set-image
 
 mundane theorem added-elements-are-new
   let Y be a set                                                      (H1)

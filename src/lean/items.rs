@@ -464,7 +464,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     && free.iter().any(|f| *f.name == *x.text)
                     && !sets.iter().any(|(s, _)| *s == *x.text);
                 if let Some(m) = member.then(|| w.members_of(set)).flatten() {
-                    sets.push((x.text.to_string(), LetterType::Member(m)));
+                    sets.push((x.text.to_string(), m.letter()));
                     continue;
                 }
                 // x ∈ {u, w} where no letter of it has a number's sort, the
