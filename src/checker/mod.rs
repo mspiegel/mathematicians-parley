@@ -304,6 +304,7 @@ pub fn checked_where(
             record_sorts: c.record_sorts.clone(),
             cited: c.cited.clone(),
             groups: c.library.all_groups(),
+            function_types: c.library.all_function_types(),
         };
         (out, library)
     });

@@ -53,6 +53,7 @@ mundane theorem sum-single
   then        Σ(k = a to a) t(k) = t(a)
   metamath-counterpart fsum1
   metamath-proof fsum1
+  lean-proof  by simp
 
 mundane theorem sum-last
   let n ∈ ℕ₀                                                          (H1)
@@ -69,6 +70,7 @@ mundane theorem sum-extended
   then        Σ(k = a to n + 1) t(k) = Σ(k = a to n) t(k) + t(n + 1)
   metamath-counterpart fsump1
   metamath-proof fsump1
+  lean-proof  Parley.Library.sum_Icc_succ_top (by omega) t
   note        `sum-last` from a start of the proof's own choosing: the sum
               formula counts from 1, where `sum-last` counts from 0.
 
@@ -142,6 +144,7 @@ mundane theorem sum-termwise
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
   metamath-counterpart sumeq2dv
   metamath-proof sumeq2dv
+  lean-proof  Finset.sum_congr rfl h3
   note        Two sums over one range are equal when their terms are, index
               by index. The terms need agree only where the sum takes them,
               which is what lets a term be rewritten by a fact that holds on
@@ -156,6 +159,7 @@ mundane theorem sum-termwise-complex
   then        Σ(k = a to b) t(k) = Σ(k = a to b) u(k)
   metamath-counterpart sumeq2dv
   metamath-proof sumeq2dv
+  lean-proof  Finset.sum_congr rfl h3
   note        `sum-termwise` for terms that are complex numbers.
 
 mundane theorem sum-real
@@ -234,6 +238,7 @@ mundane theorem range-difference
   then        n − k ∈ ℕ₀
   metamath-counterpart fznn0sub
   metamath-proof fznn0sub
+  lean-proof  by have := Finset.mem_Icc.mp h3; omega
   note        An index no greater than n leaves a whole number when taken
               from n, which is what lets x^(n − k) be a power with a natural
               exponent.
@@ -354,6 +359,7 @@ mundane theorem range-bounds
   then        a ≤ k. k ≤ b.
   metamath-counterpart elfzle1, elfzle2
   metamath-proof elfzle1, elfzle2
+  lean-proof  (Finset.mem_Icc.mp h3).1 ; (Finset.mem_Icc.mp h3).2
 
 mundane theorem sum-split
   let a ∈ ℤ                                                           (H1)

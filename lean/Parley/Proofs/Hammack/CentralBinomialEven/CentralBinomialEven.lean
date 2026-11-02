@@ -1,0 +1,43 @@
+module
+
+public import Parley.Items.Stdlib.Counting
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Items.Stdlib.Sums
+public import Parley.Library
+public import Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm
+
+/-! Written from proofs/hammack/central-binomial-even.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.CentralBinomialEven.CentralBinomialEven
+
+theorem central_binomial_even (n : ℕ) (hH1 : 0 < n) :
+    Even (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) := by
+  -- 1. mun:nat-minus-one n := 2n
+  have s1 : 0 ≤ 2 * (n : ℤ) - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := 2 * n) (by parley_side))
+  -- 2. inequalities, from H1
+  have s2 : 1 ≤ (n : ℤ) := by parley_side
+  -- 3. inequalities, from H1
+  have s3 : (n : ℤ) ≤ 2 * (n : ℤ) - 1 + 1 := by parley_side
+  -- 4. def:range-between k := n, a := 1, b := (2n − 1) + 1, from 2, 3
+  have s4 : (n : ℤ) ∈ Finset.Icc (1 : ℤ) (2 * (n : ℤ) - 1 + 1) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (n : ℤ)) (a := (1 : ℤ)) (b := 2 * (n : ℤ) - 1 + 1))).mpr (by parley_side)
+  -- 5. thm:weighted-term m := 2n − 1, k := n, from 1, 4
+  have s5 : (n : ℤ) * (Parley.Library.choose (2 * (n : ℤ) - 1 + 1) (n : ℤ) : ℤ) = (2 * (n : ℤ) - 1 + 1) * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) := by first | linear_combination (norm := parley_norm) (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side))) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side))) | exact_mod_cast ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side)))).symm | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side))); rify; linear_combination (norm := parley_norm) h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm.weighted_term (m := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ)) (by parley_side))); qify; linear_combination (norm := parley_norm) h)
+  -- 6. substitute
+  have s6 : (n : ℤ) * (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) = 2 * (n : ℤ) * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) := by
+    have c1 : 2 * (n : ℤ) - 1 + 1 = 2 * (n : ℤ) := by parley_ring
+    have row1 : (n : ℤ) * (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) = 2 * (n : ℤ) * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) := by parley_subst_at c1 s5
+    exact row1
+  -- 7. mun:binomial-nat0 n := 2n − 1, k := n − 1, from 1
+  have s7 : 0 ≤ (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ) - 1))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ) - 1)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ) - 1))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (2 * (n : ℤ) - 1) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_binomial_nat0 (n := (2 * (n : ℤ) - 1).toNat) (k := (n : ℤ) - 1)))
+  -- 8. algebra, from 6
+  have s8 : (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) * (n : ℤ) = 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) * (n : ℤ) := by linear_combination (norm := parley_norm) s6
+  -- 9. mun:multiply-cancel a := C(2n, n), b := 2·C(2n − 1, n − 1), c := n, from H1, 8
+  have s9 : (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) = 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_cancel (a := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)) (b := 2 * (Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ)) (c := (n : ℤ)) (by parley_side) (by parley_side)); qify; linear_combination (norm := parley_norm) h)
+  -- 10. def:even n := C(2n, n), from 9
+  have s10 : Even (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (Parley.Library.choose (2 * (n : ℤ)) (n : ℤ) : ℤ)))).mpr ⟨(Parley.Library.choose (2 * (n : ℤ) - 1) ((n : ℤ) - 1) : ℤ), by parley_side⟩
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.CentralBinomialEven.CentralBinomialEven

@@ -30,7 +30,7 @@ theorem five_divides_power_of_two_multiple (a : ℤ) (n : ℕ) (hH2 : 0 < n) (hH
       intro c
       intro hA
       -- 1.4. mun:exponent-step a := 2, m := k
-      have s1_4 : (2 ^ (k + 1) : ℤ) = 2 ^ k * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k))).symm
+      have s1_4 : (2 ^ (k + 1) : ℤ) = 2 ^ k * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k)); qify; linear_combination (norm := parley_norm) h)
       -- 1.5. algebra, from 1.4
       have s1_5 : 2 ^ (k + 1) * c = 2 ^ k * (2 * c) := by linear_combination (norm := parley_norm) (c) * s1_4
       -- 1.6. substitute 2^(k + 1)·c = 2^k·(2·c) (line 1.5) into A

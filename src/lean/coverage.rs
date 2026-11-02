@@ -39,6 +39,7 @@ pub const IN_CODE: &[&str] = &[
     "comma-conjunction",
     "function-type",
     "composition",
+    "sum",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -90,6 +91,20 @@ fn covered(
     if !rec.problems.is_empty() {
         return Covered::Out {
             reason: "the checker refuses it".to_string(),
+        };
+    }
+    // A `let` that says a property beside a type, `let a : A → B be
+    // one-to-one`, is read part by part, which the writer does not read yet.
+    let in_parts = thm.hypotheses.iter().any(|h| {
+        h.body(&thm.path)
+            .sentences()
+            .iter()
+            .any(|s| rec.page.get(s).is_none())
+    });
+    if in_parts {
+        return Covered::Out {
+            reason: "a let line says a property beside a type, which the Lean build does not read yet"
+                .to_string(),
         };
     }
     // A letter the page gives a function type, `f : ℝ → ℝ`, is a Lean

@@ -693,6 +693,7 @@ mundane theorem square-less
   then        x < y ↔ x² < y²
   metamath-counterpart lt2sq
   metamath-proof lt2sq
+  lean-proof  ⟨fun h => by nlinarith, fun h => by nlinarith⟩
 
 mundane theorem square-le
   let x ∈ ℝ                                                           (H1)
@@ -884,6 +885,7 @@ mundane theorem one-power
   then        1^m = 1
   metamath-counterpart 1exp
   metamath-proof 1exp
+  lean-proof  one_zpow m
   note        An exponent that is a letter makes the power an atom to
               `algebra`, so 1^m = 1 is cited.
 
@@ -893,6 +895,7 @@ mundane theorem le-cases
   then        x ≤ y ↔ x < y or x = y
   metamath-counterpart leloe
   metamath-proof leloe
+  lean-proof  le_iff_lt_or_eq
   note        A bound is a strict one or an equation: what a proof by cases
               on x ≤ y takes its two cases from.
 
@@ -998,6 +1001,7 @@ theorem archimedean-natural
   then        there is m ∈ ℕ with m > x
   metamath-counterpart arch
   metamath-proof arch
+  lean-proof  by obtain ⟨m, hm⟩ := exists_nat_gt (max x 0); exact ⟨m + 1, by omega, by push_cast; linarith [le_max_left x 0]⟩
   note        However large a real, some natural number is larger: the
               Archimedean property in the form that passes a bound.
 
@@ -1007,6 +1011,7 @@ mundane theorem abs-product
   then        |x·y| = |x|·|y|
   metamath-counterpart absmul
   metamath-proof absmul
+  lean-proof  abs_mul x y
 
 mundane theorem abs-quotient
   let x ∈ ℝ                                                           (H1)
@@ -1028,6 +1033,7 @@ mundane theorem abs-integer
   then        |z| ∈ ℕ₀
   metamath-counterpart nn0abscl
   metamath-proof nn0abscl
+  lean-proof  abs_nonneg z
 
 definition numer
   sort        number → number
@@ -1068,6 +1074,7 @@ mundane theorem abs-square
   then        |x|² = x²
   metamath-counterpart absresq
   metamath-proof absresq
+  lean-proof  sq_abs x
 
 mundane theorem abs-power
   let x ∈ ℝ                                                           (H1)

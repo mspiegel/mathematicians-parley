@@ -91,6 +91,16 @@ pub struct Writer<'a> {
     pub integers: Vec<SaidInteger>,
 }
 
+/// A sum read for writing: the writer its term is read with, where its index
+/// is an integer, and its parts.
+struct Summed<'a, 'n> {
+    inner: Writer<'a>,
+    index: &'n Node,
+    from: &'n Node,
+    to: &'n Node,
+    term: &'n Node,
+}
+
 /// A term a hypothesis says is an integer: the term as the page prints it,
 /// and the hypothesis's Lean name, `∃ m : ℤ, (m : ℝ) = f a`.
 #[derive(Clone, Debug)]
@@ -309,6 +319,13 @@ impl Writer<'_> {
                 declined => declined,
             };
         }
+        // A sum is computed in its terms' type, its index an integer.
+        if node.notation() == crate::notations::SUM {
+            return match self.summed(node) {
+                Route::Built(s) => s.inner.carrier(s.term),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
                 Some(LetterType::Number(n)) => Route::Built((*n).max(Num::Int)),
@@ -433,6 +450,7 @@ impl Writer<'_> {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
+            crate::notations::SUM => true,
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 true
             }
@@ -483,6 +501,65 @@ impl Writer<'_> {
         }
     }
 
+    /// A sum's parts: the writer its term is read with, its index letter an
+    /// integer there, and its index, ends and term.
+    fn summed<'n>(&self, node: &'n Node) -> Route<Summed<'_, 'n>> {
+        let [index, from, to, term] = node.children.as_slice() else {
+            return Route::no("a sum of other than four parts");
+        };
+        if !index.is_name() {
+            return Route::no("a sum whose index is no letter");
+        }
+        let mut inner = self.with_letters(self.letters.clone());
+        inner
+            .letters
+            .insert(index.text.to_string(), LetterType::Number(Num::Int));
+        Route::Built(Summed {
+            inner,
+            index,
+            from,
+            to,
+            term,
+        })
+    }
+
+    /// Σ(k = a to b) t, `∑ k ∈ Finset.Icc a b, t`, its index ranging over
+    /// the integers from a to b, and t computed in `at`. It is bracketed
+    /// wherever it stands in more, since its body reaches as far right as
+    /// it can.
+    fn sum(&self, node: &Node, at: Num) -> Route<Printed> {
+        let s = match self.summed(node) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let ends = (
+            self.number_fixed(s.from, Num::Int),
+            self.number_fixed(s.to, Num::Int),
+        );
+        let (from, to) = match ends {
+            (Route::Built(f), Route::Built(t)) => (f, t),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        let term = match s.inner.number(s.term, at) {
+            Route::Built(t) => t,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
+        // sum of k, plus 1; a body below that is bracketed.
+        Route::Built(Printed {
+            text: format!(
+                "∑ {} ∈ Finset.Icc {} {}, {}",
+                super::names::letter(&s.index.text),
+                from.at(MAX),
+                to.at(MAX),
+                term.at(67)
+            ),
+            prec: 10,
+        })
+    }
+
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
         if let Some(proof) = self.said_integer(node) {
@@ -515,6 +592,9 @@ impl Writer<'_> {
                 text: format!("{} ^ {}", base.at(76), exponent.at(75)),
                 prec: 75,
             });
+        }
+        if node.notation() == crate::notations::SUM {
+            return self.sum(node, at);
         }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
@@ -1089,10 +1169,22 @@ pub fn system_of(set: &Node) -> Option<System> {
 
 /// The Lean types of a function from one number system to another, `A → B`
 /// of `f : A → B`. A function into ℕ, whose values are above 0, is not one
-/// Lean's ℕ says, so it has none here; one from ℕ is a function on all of
-/// Lean's ℕ, of which the page's facts say only what they say from 1.
+/// Lean's ℕ says, so it has none here; one from ℕ, ℕ₀ or a range is a
+/// function on all of ℤ, of which the page's facts say only what they say
+/// of the part it names.
 pub fn function_systems(from: &Node, to: &Node) -> Option<(Num, Num)> {
-    let takes = letter_type(system_of(from)?);
+    // A function on a range of integers, a sum's term t : {a, …, b} → ℝ, or
+    // on ℕ or ℕ₀, is a function on all of ℤ, of which what is said uses the
+    // part the page names: a sum's index is an integer, and a natural
+    // argument is cast up.
+    let takes = if from.notation() == INTEGER_RANGE {
+        Num::Int
+    } else {
+        match system_of(from)? {
+            System::Positive | System::NonNegative => Num::Int,
+            System::Type(n) => n,
+        }
+    };
     let gives = system_of(to)?;
     if gives == System::Positive {
         return None;

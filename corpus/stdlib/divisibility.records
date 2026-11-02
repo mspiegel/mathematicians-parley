@@ -428,6 +428,7 @@ mundane theorem gcd-one
   then        gcd(a, 1) = 1
   metamath-counterpart gcd1
   metamath-proof gcd1
+  lean-proof  by simp
 
 mundane theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
@@ -451,6 +452,7 @@ mundane theorem mod-natural
   then        a mod b ∈ ℕ₀
   metamath-counterpart zmodcl
   metamath-proof zmodcl
+  lean-proof  Int.emod_nonneg a (by omega)
 
 mundane theorem mod-less
   let a ∈ ℤ                                                           (H1)
@@ -460,6 +462,7 @@ mundane theorem mod-less
               reaches from an integer and a natural number in
               elaboration/stdlib/proved.mm
   metamath-proof gzmodlt
+  lean-proof  Int.emod_lt_of_pos a (by omega)
 
 mundane theorem mod-remainder
   let a ∈ ℤ                                                           (H1)
@@ -526,6 +529,7 @@ mundane theorem zero-divides
   then        0 divides n ↔ n = 0
   metamath-counterpart 0dvds
   metamath-proof 0dvds
+  lean-proof  zero_dvd_iff
 
 mundane theorem divides-self
   let n ∈ ℤ                                                           (H1)

@@ -27,7 +27,7 @@ theorem power_of_three_odd (n : ℕ) :
       obtain ⟨k, s1_3⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ j : ℤ)))).mp (by parley_side)
       -- 1.4. calculation
       have s1_4 : 3 ^ (j + 1) = 2 * (3 * k + 1) + 1 := by
-        calc (3 ^ (j + 1) : ℤ) = 3 ^ j * 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j))).symm
+        calc (3 ^ (j + 1) : ℤ) = 3 ^ j * 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (3 : ℤ)) (m := j)); qify; linear_combination (norm := parley_norm) h)
           _ = (2 * k + 1) * 3 := by parley_subst s1_3
           _ = 2 * (3 * k + 1) + 1 := by parley_ring
       -- 1.5. def:odd n := 3^(j + 1), from 1.4

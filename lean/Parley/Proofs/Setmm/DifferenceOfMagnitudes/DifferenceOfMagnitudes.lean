@@ -26,7 +26,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
     have row1 : abs B ≤ abs (B - A) + abs A := by parley_subst_at c1 s3
     exact row1
   -- 5. mun:abs-negative x := A − B
-  have s5 : abs (-(A - B)) = abs (A - B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))).symm
+  have s5 : abs (-(A - B)) = abs (A - B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_negative (x := A - B)); qify; linear_combination (norm := parley_norm) h)
   -- 6. substitute
   have s6 : abs (B - A) = abs (A - B) := by
     have c1 : -(A - B) = B - A := by parley_ring
@@ -42,7 +42,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
       have s8_1 : abs A - abs B ≤ abs (A - B) := by parley_side
       -- 8.2. calculation
       have s8_2 : abs (abs A - abs B) ≤ abs (A - B) := by
-        calc abs (abs A - abs B) = abs A - abs B := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side)).symm
+        calc abs (abs A - abs B) = abs A - abs B := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := abs A - abs B)) (by parley_side); qify; linear_combination (norm := parley_norm) h)
           _ ≤ abs (A - B) := by parley_side
       all_goals parley_side
     · skip
@@ -52,7 +52,7 @@ theorem difference_of_magnitudes (A : ℝ) (B : ℝ) :
       have s8_4 : -(abs A - abs B) ≤ abs (A - B) := by parley_side
       -- 8.5. calculation
       have s8_5 : abs (abs A - abs B) ≤ abs (A - B) := by
-        calc abs (abs A - abs B) = -(abs A - abs B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side)).symm
+        calc abs (abs A - abs B) = -(abs A - abs B) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := abs A - abs B)) (by parley_side); qify; linear_combination (norm := parley_norm) h)
           _ ≤ abs (A - B) := by parley_side
       all_goals parley_side
   all_goals parley_side

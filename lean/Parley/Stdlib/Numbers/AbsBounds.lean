@@ -18,7 +18,7 @@ theorem abs_bounds (x : ℝ) :
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. def:abs, from C1
-      have s2_1 : abs x = x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side)).symm
+      have s2_1 : abs x = x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := x)) (by parley_side); qify; linear_combination (norm := parley_norm) h)
       -- 2.2. inequalities
       have s2_2 : x ≤ abs x := by parley_side
       -- 2.3. inequalities
@@ -31,7 +31,7 @@ theorem abs_bounds (x : ℝ) :
       all_goals parley_side
     · skip
       -- 2.6. def:abs, from C2
-      have s2_6 : abs x = -x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side)).symm
+      have s2_6 : abs x = -x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := x)) (by parley_side); qify; linear_combination (norm := parley_norm) h)
       -- 2.7. inequalities
       have s2_7 : -x ≤ abs x := by parley_side
       -- 2.8. inequalities

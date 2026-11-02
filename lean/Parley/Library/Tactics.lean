@@ -26,6 +26,13 @@ macro "parley_side" : tactic =>
     | (apply Ne.symm; assumption; done)
     | (constructor <;> assumption; done)
     | (constructor <;> assumption_mod_cast; done)
+    -- Two sides that differ only in where a cast stands, x ↑(n + 1) and
+    -- x (↑n + 1).
+    | (push_cast; done)
+    -- Something said of every integer of a range from 1, given of every
+    -- natural number: each such integer is a natural above 0.
+    | (intro k; intros; (try simp only [Finset.mem_Icc] at *); lift k to ℕ using (by omega);
+        push_cast; apply_assumption; omega; done)
     | (positivity; done)
     | (omega; done)
     | (linarith; done)
@@ -88,7 +95,9 @@ once the divisions are cleared. -/
 macro "parley_norm" : tactic =>
   `(tactic| first
     | (ring1; done)
-    | (push_cast; ring1; done))
+    | (push_cast; ring1; done)
+    -- A function of numerals written two ways, (1 + 1)! beside 2!.
+    | (norm_num [Parley.Library.factorial, Nat.factorial]; done))
 
 macro "parley_ring" : tactic =>
   `(tactic| first
@@ -150,6 +159,10 @@ macro "parley_field" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
+    -- A divisor said not 0 in its own least type, 3 * (n : ℤ) - 1 ≠ 0, and
+    -- divided by in ℝ, written the other way round, ↑n * 3 - 1: the facts
+    -- cast up and both normalised, field_simp sees they are one.
+    | ((try rify at *); ring_nf at *; field_simp; ring1; done)
     | (parley_clear <;> ring1; done))
 
 end

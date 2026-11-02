@@ -92,6 +92,10 @@ theorem mun_square_positive {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K
     0 < x ^ 2 :=
   lt_of_le_of_ne (sq_nonneg x) (Ne.symm (pow_ne_zero 2 h2))
 
+theorem mun_square_less {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) (y : K) (h3 : 0 ≤ x) (h4 : 0 ≤ y) :
+    x < y ↔ x ^ 2 < y ^ 2 :=
+  ⟨fun h => by nlinarith, fun h => by nlinarith⟩
+
 theorem mun_square_le {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) (y : K) (h3 : 0 ≤ x) (h4 : 0 ≤ y) :
     x ≤ y ↔ x ^ 2 ≤ y ^ 2 :=
   ⟨fun h => by nlinarith, fun h => by nlinarith⟩
@@ -112,6 +116,14 @@ theorem mun_less_scaled {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [I
     x < y ↔ c * x < c * y :=
   ⟨fun h => by nlinarith, fun h => by nlinarith⟩
 
+theorem mun_one_power (m : ℤ) :
+    (1 ^ m : ℚ) = 1 :=
+  one_zpow m
+
+theorem mun_le_cases {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) (y : K) :
+    x ≤ y ↔ x < y ∨ x = y :=
+  le_iff_lt_or_eq
+
 theorem mun_divide_le {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) (y : K) (c : K) (h4 : x ≤ y) (h5 : 0 < c) :
     x / c ≤ y / c :=
   by rw [div_le_div_iff_of_pos_right h5]; exact h4
@@ -120,9 +132,25 @@ theorem mun_multiply_cancel {K : Type*} [CommRing K] [IsDomain K] (a : K) (b : K
     a = b :=
   mul_right_cancel₀ h5 h4
 
+theorem thm_archimedean_natural (x : ℝ) :
+    ∃ m : ℕ, 0 < m ∧ x < (m : ℝ) :=
+  by obtain ⟨m, hm⟩ := exists_nat_gt (max x 0); exact ⟨m + 1, by omega, by push_cast; linarith [le_max_left x 0]⟩
+
+theorem mun_abs_product {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) (y : K) :
+    abs (x * y) = abs x * abs y :=
+  abs_mul x y
+
 theorem mun_abs_negative {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) :
     abs (-x) = abs x :=
   abs_neg x
+
+theorem mun_abs_integer (z : ℤ) :
+    0 ≤ abs z :=
+  abs_nonneg z
+
+theorem mun_abs_square {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (x : K) :
+    abs x ^ 2 = x ^ 2 :=
+  sq_abs x
 
 theorem thm_triangle_inequality {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (a : K) (b : K) :
     abs (a + b) ≤ abs a + abs b :=

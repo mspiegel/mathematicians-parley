@@ -12,8 +12,8 @@ theorem an_identity_a_substitution_makes_at_a_value (b : ℤ → ℝ) (k : ℤ) 
     b 0 * 1 ^ k = b 0 := by
   -- 1. substitute 1^k = 1 (H3)
   have s1 : b 0 * 1 ^ k = b 0 := by
-    have hH3_w : (1 ^ k : ℝ) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) hH3; push_cast at h; linear_combination h
-    parley_subst hH3_w
+    have hH3_w : (1 ^ k : ℝ) = 1 := by have h := congrArg (fun x : ℚ => (x : ℝ)) hH3; push_cast at h; linear_combination (norm := parley_norm) h
+    first | parley_subst hH3_w | parley_subst hH3
   all_goals parley_side
 
 end Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubstitutionMakesAtAValue

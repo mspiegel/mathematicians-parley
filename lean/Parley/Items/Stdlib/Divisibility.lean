@@ -104,9 +104,21 @@ theorem mun_gcd_commutes (a : ℤ) (b : ℤ) :
     (Int.gcd a b : ℤ) = (Int.gcd b a : ℤ) :=
   by rw [Int.gcd_comm]
 
+theorem mun_gcd_one (a : ℤ) :
+    (Int.gcd a (1 : ℤ) : ℤ) = 1 :=
+  by simp
+
 theorem thm_gcd_mod (a : ℤ) (b : ℕ) (h2 : 0 < b) :
     (Int.gcd (a % (b : ℤ)) (b : ℤ) : ℤ) = (Int.gcd a (b : ℤ) : ℤ) :=
   by rw [Int.gcd_emod]
+
+theorem mun_mod_natural (a : ℤ) (b : ℕ) (h2 : 0 < b) :
+    0 ≤ a % (b : ℤ) :=
+  Int.emod_nonneg a (by omega)
+
+theorem mun_mod_less (a : ℤ) (b : ℕ) (h2 : 0 < b) :
+    a % (b : ℤ) < (b : ℤ) :=
+  Int.emod_lt_of_pos a (by omega)
 
 theorem mun_mod_remainder (a : ℤ) (m : ℕ) (h2 : 0 < m) (r : ℕ) (h4 : (r : ℤ) < (m : ℤ)) :
     a % (m : ℤ) = (r : ℤ) ↔ (∃ q : ℤ, q * (m : ℤ) + (r : ℤ) = a) :=
@@ -115,6 +127,10 @@ theorem mun_mod_remainder (a : ℤ) (m : ℕ) (h2 : 0 < m) (r : ℕ) (h4 : (r : 
 theorem mun_mod_multiple (r : ℤ) (m : ℕ) (h2 : 0 < m) (q : ℤ) :
     (q * (m : ℤ) + r) % (m : ℤ) = r % (m : ℤ) :=
   by rw [add_comm, Int.add_mul_emod_self_right]
+
+theorem mun_zero_divides (n : ℤ) :
+    (0 : ℤ) ∣ n ↔ n = 0 :=
+  zero_dvd_iff
 
 theorem mun_divides_self (n : ℤ) :
     n ∣ n :=

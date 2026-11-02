@@ -29,7 +29,7 @@ theorem power_of_two_at_least_four (m : ℕ) (hH1 : 0 < m) :
       have s1_4 : (2 ^ (k + 1) + 2 ^ (k + 1) : ℤ) ≥ 4 := by parley_side
       -- 1.5. calculation
       have s1_5 : (2 ^ (k + 1 + 1) : ℤ) ≥ 4 := by
-        calc (2 ^ (k + 1 + 1) : ℤ) = 2 ^ (k + 1) * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1))).symm
+        calc (2 ^ (k + 1 + 1) : ℤ) = 2 ^ (k + 1) * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℤ)) (m := k + 1)); qify; linear_combination (norm := parley_norm) h)
           _ = 2 ^ (k + 1) + 2 ^ (k + 1) := by parley_ring
           _ ≥ 4 := by parley_side
       all_goals parley_side

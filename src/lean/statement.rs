@@ -33,6 +33,12 @@ impl Binder {
         match self {
             Binder::Letter {
                 name,
+                ty: LetterType::Function { from, .. },
+                general: true,
+                ..
+            } => format!("({name} : {} → {})", from.lean(), super::expr::GENERAL),
+            Binder::Letter {
+                name,
                 general: true,
                 ..
             } => format!("({name} : {})", super::expr::GENERAL),

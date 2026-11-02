@@ -1,0 +1,64 @@
+module
+
+public import Parley.Items.Stdlib.Counting
+public import Parley.Items.Stdlib.Sums
+public import Parley.Library
+public import Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep
+
+/-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.SumOfFactorialQuotients.SumOfFactorialQuotients
+
+theorem sum_of_factorial_quotients (n : ℕ) (hH1 : 0 < n) :
+    (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (k : ℚ) / (Parley.Library.factorial (k + 1) : ℚ)) = 1 - 1 / (Parley.Library.factorial ((n : ℤ) + 1) : ℚ) := by
+  -- 1. proof
+  -- what this block shows, Lean's types give
+  -- 2. induction on k starting at 1
+  have s2 : ∀ k : ℕ, 0 < k → (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) = 1 - 1 / (Parley.Library.factorial ((k : ℤ) + 1) : ℚ) := by
+    intro k h_k
+    replace h_k : 1 ≤ k := h_k
+    induction k, h_k using Nat.le_induction with
+    | base =>
+      -- 2.1. def:factorial
+      have s2_1 : (Parley.Library.factorial (1 : ℤ) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Counting.def_factorial_2 | (have h := Parley.Items.Stdlib.Counting.def_factorial_2; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast Parley.Items.Stdlib.Counting.def_factorial_2 | exact_mod_cast (Parley.Items.Stdlib.Counting.def_factorial_2).symm | (have h := Parley.Items.Stdlib.Counting.def_factorial_2; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.def_factorial_2; qify; linear_combination (norm := parley_norm) h)
+      -- 2.2. calculation
+      have s2_2 : (Parley.Library.factorial (1 + 1 : ℤ) : ℤ) = 2 := by
+        calc (Parley.Library.factorial (1 + 1 : ℤ) : ℤ) = (Parley.Library.factorial (1 : ℤ) : ℤ) * (1 + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1)) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1))).symm | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := 1)); qify; linear_combination (norm := parley_norm) h)
+          _ = 1 * (1 + 1) := by parley_subst s2_1
+          _ = 2 := by norm_num
+      -- 2.3. calculation
+      have s2_3 : (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) = 1 - 1 / (Parley.Library.factorial (1 + 1 : ℤ) : ℚ) := by
+        calc (∑ j ∈ Finset.Icc (1 : ℤ) (1 : ℤ), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) = 1 / (Parley.Library.factorial (1 + 1 : ℤ) : ℚ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h)
+          _ = 1 / 2 := by
+              have s2_2_w : (Parley.Library.factorial (1 + 1 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_2; push_cast at h; linear_combination (norm := parley_norm) h
+              first | parley_subst s2_2_w | parley_subst s2_2
+          _ = 1 - 1 / 2 := by norm_num
+          _ = 1 - 1 / (Parley.Library.factorial (1 + 1 : ℤ) : ℚ) := by
+              have s2_2_w : (Parley.Library.factorial (1 + 1 : ℤ) : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_2; push_cast at h; linear_combination (norm := parley_norm) h
+              first | parley_subst s2_2_w | parley_subst s2_2
+      all_goals parley_side
+    | succ k hK hIH =>
+      -- 2.4. def:factorial n := k + 1
+      have s2_4 : (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℤ) = (Parley.Library.factorial ((k : ℤ) + 1) : ℤ) * ((k : ℤ) + 1 + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1)) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1))).symm | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k + 1)); qify; linear_combination (norm := parley_norm) h)
+      -- 2.5. mun:factorial-nat n := k + 1
+      have s2_5 : 0 < (Parley.Library.factorial ((k : ℤ) + 1) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := k + 1))
+      -- 2.6. calculation
+      have r133_1 : (k : ℤ) ≥ 1 := by parley_side
+      have s2_6 : (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) = 1 - 1 / (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) := by
+        calc (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ)) + ((k : ℚ) + 1) / (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => (j : ℚ) / (Parley.Library.factorial (j + 1) : ℚ))) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h)
+          _ = 1 - 1 / (Parley.Library.factorial ((k : ℤ) + 1) : ℚ) + ((k : ℚ) + 1) / (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) := by parley_subst hIH
+          _ = 1 - 1 / (Parley.Library.factorial ((k : ℤ) + 1) : ℚ) + ((k : ℚ) + 1) / ((Parley.Library.factorial ((k : ℤ) + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by
+              have s2_4_w : (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) = (Parley.Library.factorial ((k : ℤ) + 1) : ℚ) * ((k : ℚ) + 1 + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+              first | parley_subst s2_4_w | parley_subst s2_4
+          _ = 1 - 1 / ((Parley.Library.factorial ((k : ℤ) + 1) : ℚ) * ((k : ℚ) + 1 + 1)) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side)) | (have h := (Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side)) | exact_mod_cast ((Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side))).symm | (have h := (Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep.factorial_quotient_step (c := k + 1) (by parley_side) (F := (Parley.Library.factorial ((k : ℤ) + 1) : ℝ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h)
+          _ = 1 - 1 / (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) := by
+              have s2_4_w : (Parley.Library.factorial ((k : ℤ) + 1 + 1) : ℚ) = (Parley.Library.factorial ((k : ℤ) + 1) : ℚ) * ((k : ℚ) + 1 + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2_4; push_cast at h; linear_combination (norm := parley_norm) h
+              first | parley_subst s2_4_w | parley_subst s2_4
+      all_goals parley_side
+  -- 3. instantiate k := n in line 2
+  have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (k : ℚ) / (Parley.Library.factorial (k + 1) : ℚ)) = 1 - 1 / (Parley.Library.factorial ((n : ℤ) + 1) : ℚ) := by first | linear_combination (norm := parley_norm) (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (s2 n (by parley_side)) | exact_mod_cast ((s2 n (by parley_side))).symm | (have h := (s2 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); qify; linear_combination (norm := parley_norm) h)
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.SumOfFactorialQuotients.SumOfFactorialQuotients

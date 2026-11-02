@@ -176,6 +176,10 @@ pub struct LibraryReading {
     /// Each item's groups, by its full name, a record's and a proved
     /// theorem's (`citing::Library::groups`).
     pub groups: IndexMap<String, Option<Rc<Vec<Group>>>>,
+    /// What each item's function-type `let` lines say, `t : {a, …, b} → ℝ`,
+    /// by its full name, which its groups leave out
+    /// (`citing::Library::function_types`).
+    pub function_types: IndexMap<String, Vec<crate::formula::Node>>,
 }
 
 /// A theorem as the checker reads it.

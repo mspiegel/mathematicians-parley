@@ -26,10 +26,10 @@ theorem choose_all (N : ℕ) :
   -- 5. calculation
   have s5 : (Parley.Library.choose (N : ℤ) (N : ℤ) : ℤ) = 1 := by
     qify
-    calc (Parley.Library.choose (N : ℤ) (N : ℤ) : ℚ) = (Parley.Library.factorial (N : ℤ) : ℚ) / ((Parley.Library.factorial ((N : ℤ) - (N : ℤ)) : ℚ) * (Parley.Library.factorial (N : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side)).symm
+    calc (Parley.Library.choose (N : ℤ) (N : ℤ) : ℚ) = (Parley.Library.factorial (N : ℤ) : ℚ) / ((Parley.Library.factorial ((N : ℤ) - (N : ℤ)) : ℚ) * (Parley.Library.factorial (N : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (N : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h)
       _ = (Parley.Library.factorial (N : ℤ) : ℚ) / (1 * (Parley.Library.factorial (N : ℤ) : ℚ)) := by
-          have s4_w : (Parley.Library.factorial ((N : ℤ) - (N : ℤ)) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4; push_cast at h; linear_combination h
-          parley_subst s4_w
+          have s4_w : (Parley.Library.factorial ((N : ℤ) - (N : ℤ)) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4; push_cast at h; linear_combination (norm := parley_norm) h
+          first | parley_subst s4_w | parley_subst s4
       _ = 1 := by parley_ring
   all_goals parley_side
 

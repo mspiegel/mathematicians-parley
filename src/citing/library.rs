@@ -411,6 +411,16 @@ impl<'a> Library<'a> {
             .collect()
     }
 
+    /// What every item's function-type `let` lines say (`function_types`),
+    /// by the item's full name, for the build to read from.
+    pub fn all_function_types(&self) -> IndexMap<String, Vec<Node>> {
+        self.items
+            .keys()
+            .chain(self.proved.keys())
+            .map(|name| (name.clone(), self.function_types(name)))
+            .collect()
+    }
+
     /// Every sentence of every item a citation may name, read with the
     /// item's own sorts, by where it is written: each hypothesis, a `let`
     /// line part by part (`Introduction::parts`), each conclusion, and each

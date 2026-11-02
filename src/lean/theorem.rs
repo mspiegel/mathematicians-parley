@@ -818,7 +818,7 @@ impl<'a> Proof<'a> {
             Method::Substitute => return self.substitute(just, node, writer),
             Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node),
-            Method::Instantiate => return self.instantiate(just, node),
+            Method::Instantiate => return self.instantiate(just, node, writer),
             Method::Membership => return self.membership(just, node, writer),
             Method::Restate | Method::Join => "by parley_side".to_string(),
             other => {
@@ -862,6 +862,11 @@ impl<'a> Proof<'a> {
             Some("a real number") => Num::Real,
             Some("a rational number") => Num::Rat,
             Some("an integer") => Num::Int,
+            // A whole number above or at 0 is an integer; that it is not
+            // negative is a fact the line's reason shows, not a type.
+            Some(
+                "a positive integer" | "a natural number" | "a nonnegative integer",
+            ) => Num::Int,
             Some("a complex number") => Num::Complex,
             Some(other) => return Route::no(format!("a define of {other}")),
             None => match self.writer.carrier(&body) {
@@ -988,7 +993,12 @@ impl<'a> Proof<'a> {
     /// `instantiate`: the "for all" line at the values given, each guard
     /// left to `parley_side`, and an "if" in it applied where the claim is
     /// what it gives.
-    fn instantiate(&self, just: &Justification, node: &Node) -> Route<String> {
+    fn instantiate(
+        &self,
+        just: &Justification,
+        node: &Node,
+        writer: &Writer,
+    ) -> Route<String> {
         let Some(target) = just
             .target
             .as_deref()
@@ -1047,20 +1057,35 @@ impl<'a> Proof<'a> {
                     Route::Declined(d) => return Route::Declined(d),
                 },
                 None => {
-                    let own = line.names();
-                    let ty = super::expr::system_of(set).map(super::expr::letter_type);
+                    // The names the line writes free: a letter it binds
+                    // itself, as the block's may be named, is not one.
+                    let own = crate::matching::free_names(
+                        line,
+                        &self.sources.checked.grammar.binders(),
+                    );
+                    // A range's letter is an integer.
+                    let ty = if set.notation() == crate::notations::INTEGER_RANGE {
+                        Some(super::templates::Num::Int)
+                    } else {
+                        super::expr::system_of(set).map(super::expr::letter_type)
+                    };
                     let at: Vec<String> = node
                         .names()
                         .into_iter()
                         .filter(|n| !own.contains(n))
                         .filter(|n| {
                             ty.is_some_and(|t| {
-                                self.writer.letters.get(n.as_str())
+                                writer.letters.get(n.as_str())
                                     == Some(&LetterType::Number(t))
                             })
                         })
                         .collect();
+                    // A claim that is itself a "for all" keeps the letters
+                    // given no value: the line is read at those given.
                     let [at] = at.as_slice() else {
+                        if node.notation() == crate::notations::FOR_ALL {
+                            break;
+                        }
                         return Route::no(format!("no value for {}", letter.text));
                     };
                     Node::name(letter.sort.clone(), at)
@@ -1083,7 +1108,7 @@ impl<'a> Proof<'a> {
             // with b ∈ ℤ, takes its `toNat`, whose cast back is the integer
             // once it is not negative.
             let natural = ty == super::templates::Num::Nat;
-            let in_nat = self.writer.number_fixed(&value, ty);
+            let in_nat = writer.number_fixed(&value, ty);
             match (in_nat, natural) {
                 (Route::Built(p), _) => {
                     args.push(p.at(super::expr::MAX));
@@ -1092,13 +1117,11 @@ impl<'a> Proof<'a> {
                     }
                 }
                 (Route::Declined(_), true) => {
-                    let int = match self
-                        .writer
-                        .number_fixed(&value, super::templates::Num::Int)
-                    {
-                        Route::Built(p) => p.at(super::expr::MAX),
-                        Route::Declined(d) => return Route::Declined(d),
-                    };
+                    let int =
+                        match writer.number_fixed(&value, super::templates::Num::Int) {
+                            Route::Built(p) => p.at(super::expr::MAX),
+                            Route::Declined(d) => return Route::Declined(d),
+                        };
                     args.push(format!("{int}.toNat"));
                     if guarded {
                         args.push(format!(
@@ -1274,7 +1297,10 @@ impl<'a> Proof<'a> {
                 "by first | parley_subst_at {equation} {line} | parley_subst_at {own} {line}"
             ),
             (Some(line), None) => format!("by parley_subst_at {equation} {line}"),
-            (None, _) => format!("by parley_subst {equation}"),
+            (None, Some(own)) => {
+                format!("by first | parley_subst {equation} | parley_subst {own}")
+            }
+            (None, None) => format!("by parley_subst {equation}"),
         };
         Route::Built(with_haves(&haves, &tactic))
     }
@@ -1305,12 +1331,20 @@ impl<'a> Proof<'a> {
             return None;
         }
         let system = super::expr::system_of(set)?;
-        // A guarded "for all" asks a proof besides the letter.
-        if system == super::expr::System::Positive {
-            return None;
-        }
+        // A guarded "for all", over ℕ, asks a proof besides the letter, that
+        // it is above 0, which the lines in scope give.
+        let guard = if system == super::expr::System::Positive {
+            " (by parley_side)"
+        } else {
+            ""
+        };
         let ty = super::expr::letter_type(system);
-        let own = cited.node.names();
+        // The names the line writes free: the letter it binds may be named
+        // as the block's is.
+        let own = crate::matching::free_names(
+            &cited.node,
+            &self.sources.checked.grammar.binders(),
+        );
         let candidates: Vec<&String> = names
             .iter()
             .filter(|n| !own.contains(*n))
@@ -1332,7 +1366,7 @@ impl<'a> Proof<'a> {
         );
         Some(super::algebra::Cited {
             node: read,
-            proof: format!("({} {})", cited.proof, super::names::letter(at)),
+            proof: format!("({} {}{guard})", cited.proof, super::names::letter(at)),
         })
     }
 
@@ -1423,9 +1457,16 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let row_name = format!("row{k}");
-            haves.push(format!(
-                "have {row_name} : {row_text} := by parley_subst_at {used} {above}"
-            ));
+            // At the type the term has where it stands, as `substitute`
+            // puts its equation in.
+            let put = if used == change_name {
+                format!("parley_subst_at {used} {above}")
+            } else {
+                format!(
+                    "first | parley_subst_at {used} {above} | parley_subst_at {change_name} {above}"
+                )
+            };
+            haves.push(format!("have {row_name} : {row_text} := by {put}"));
             above = row_name;
         }
         Route::Built(with_haves(&haves, &format!("by exact {above}")))
@@ -1492,7 +1533,7 @@ impl<'a> Proof<'a> {
         let wide = format!("{}_w", name.replace('.', "_"));
         Route::Built(Widened {
             have: Some(format!(
-                "have {wide} : {} = {} := by have h := congrArg (fun x : {} => (x : {})) {name}; push_cast at h; linear_combination h",
+                "have {wide} : {} = {} := by have h := congrArg (fun x : {} => (x : {})) {name}; push_cast at h; linear_combination (norm := parley_norm) h",
                 printed[0],
                 printed[1],
                 writer.type_name(own),
@@ -1653,22 +1694,33 @@ impl<'a> Proof<'a> {
                 } else {
                     super::templates::Num::Int
                 };
-                let values = sentence.binders.iter().filter_map(|b| match b {
-                    Binder::Letter {
-                        page,
-                        general: true,
-                        ..
-                    } => binding.get(&crate::formula::symbol::Symbol::of(page)),
-                    _ => None,
-                });
                 let numbers: Vec<&Node> = claim
                     .into_iter()
                     .flat_map(|c| c.children.iter())
                     .filter(|c| self.writer.is_number(c))
-                    .chain(values)
                     .collect();
                 for n in numbers {
                     match self.writer.carrier(n) {
+                        Route::Built(c) => at = at.max(c),
+                        Route::Declined(d) => return Route::Declined(d),
+                    }
+                }
+                for b in &sentence.binders {
+                    let Binder::Letter {
+                        page,
+                        ty,
+                        general: true,
+                        ..
+                    } = b
+                    else {
+                        continue;
+                    };
+                    let Some(value) =
+                        binding.get(&crate::formula::symbol::Symbol::of(page))
+                    else {
+                        continue;
+                    };
+                    match self.given_type(value, ty) {
                         Route::Built(c) => at = at.max(c),
                         Route::Declined(d) => return Route::Declined(d),
                     }
@@ -1726,9 +1778,41 @@ impl<'a> Proof<'a> {
                         }
                         // A function given for a function letter, of the
                         // same types.
-                        (LetterType::Function { from, to }, _) => {
+                        // A function given by its values, k ↦ t, a sum's
+                        // term: `fun k : ℤ => t`, t in what it gives.
+                        (LetterType::Function { from, to }, given)
+                            if &*value.notation_name() == "property-of" =>
+                        {
+                            // A function into the general type gives the
+                            // type chosen for it.
+                            let gives = given.unwrap_or(*to);
+                            match value.children.as_slice() {
+                                [body] => {
+                                    let mut letters = self.writer.letters.clone();
+                                    letters.insert(
+                                        value.text.to_string(),
+                                        LetterType::Number(*from),
+                                    );
+                                    let inner = self.writer.with_letters(letters);
+                                    inner.number_fixed(body, gives).map(|b| {
+                                        super::expr::Printed::atom(format!(
+                                            "(fun {} : {} => {})",
+                                            super::names::letter(&value.text),
+                                            from.lean(),
+                                            b.text
+                                        ))
+                                    })
+                                }
+                                _ => Route::no(
+                                    "a function by its values of other than one body",
+                                ),
+                            }
+                        }
+                        (LetterType::Function { from, to }, given) => {
                             match self.writer.function_type(value) {
-                                Route::Built(t) if t == (*from, *to) => {
+                                Route::Built(t)
+                                    if t == (*from, given.unwrap_or(*to)) =>
+                                {
                                     Route::Built(self.writer.function_printed(value))
                                 }
                                 Route::Built(_) => Route::no(
@@ -1759,6 +1843,29 @@ impl<'a> Proof<'a> {
             );
         }
         Route::Built(format!("{head}{}", sentence.part))
+    }
+
+    /// The type a value given a general letter is in: a number's own, a
+    /// function by its values k ↦ t the type of t with k of the type the
+    /// function takes, and a function letter's what it gives.
+    fn given_type(
+        &self,
+        value: &Node,
+        ty: &LetterType,
+    ) -> Route<super::templates::Num> {
+        match (ty, value.children.as_slice()) {
+            (LetterType::Function { from, .. }, [body])
+                if &*value.notation_name() == "property-of" =>
+            {
+                let mut letters = self.writer.letters.clone();
+                letters.insert(value.text.to_string(), LetterType::Number(*from));
+                self.writer.with_letters(letters).carrier(body)
+            }
+            (LetterType::Function { .. }, _) => {
+                self.writer.function_type(value).map(|(_, to)| to)
+            }
+            _ => self.writer.carrier(value),
+        }
     }
 
     /// The item a reason cites, in Lean.
@@ -2769,9 +2876,11 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 fn close(claim: &Node, term: &str) -> String {
     match claim.notation() {
         // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
-        // for 0, is taken with them pushed in.
+        // for 0, is taken with them pushed in. A corpus theorem stated in a
+        // wider type than the claim, ℝ for a claim in ℚ, has the claim moved
+        // up to it.
         EQUALITY => format!(
-            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm"
+            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h)"
         ),
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.

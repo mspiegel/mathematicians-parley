@@ -1,0 +1,73 @@
+module
+
+public import Parley.Items.Stdlib.Counting
+public import Parley.Items.Stdlib.Sums
+public import Parley.Library
+
+/-! Written from proofs/hammack/choose-two-then-choose-the-rest.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTheRest
+
+theorem choose_two_then_choose_the_rest (n : ℕ) (hH1 : 0 < n) (k : ℕ) (hH2 : 0 < k) (hH3 : 2 ≤ (k : ℤ)) (hH4 : (k : ℤ) ≤ (n : ℤ)) :
+    (Parley.Library.choose (n : ℤ) (2 : ℤ) : ℤ) * (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℤ) = (Parley.Library.choose (n : ℤ) (k : ℤ) : ℤ) * (Parley.Library.choose (k : ℤ) (2 : ℤ) : ℤ) := by
+  -- 1. transitivity, from H3, H4
+  have s1 : 2 ≤ (n : ℤ) := by parley_side
+  -- 2. inequalities, from 1
+  have s2a : (0 : ℤ) ≤ 2 := by parley_side
+  have s2b : 2 ≤ (n : ℤ) := by parley_side
+  -- 3. inequalities, from H3
+  have s3a : (0 : ℤ) ≤ 2 := by parley_side
+  have s3b : 2 ≤ (k : ℤ) := by parley_side
+  -- 4. inequalities, from H2, H4
+  have s4a : 0 ≤ (k : ℤ) := by parley_side
+  have s4b : (k : ℤ) ≤ (n : ℤ) := by parley_side
+  -- 5. inequalities
+  have s5 : 0 ≤ (k : ℤ) - 2 := by parley_side
+  -- 6. inequalities
+  have s6 : (k : ℤ) - 2 ≤ (n : ℤ) - 2 := by parley_side
+  -- 7. def:range-between k := 2, a := 0, b := n, from 2
+  have s7 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (n : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (n : ℤ)))).mpr (by parley_side)
+  -- 8. def:range-between k := 2, a := 0, b := k, from 3
+  have s8 : (2 : ℤ) ∈ Finset.Icc (0 : ℤ) (k : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (2 : ℤ)) (a := (0 : ℤ)) (b := (k : ℤ)))).mpr (by parley_side)
+  -- 9. def:range-between a := 0, b := n, from 4
+  have s9 : (k : ℤ) ∈ Finset.Icc (0 : ℤ) (n : ℤ) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (k : ℤ)) (a := (0 : ℤ)) (b := (n : ℤ)))).mpr (by parley_side)
+  -- 10. def:range-between k := k − 2, a := 0, b := n − 2, from 5, 6
+  have s10 : (k : ℤ) - 2 ∈ Finset.Icc (0 : ℤ) ((n : ℤ) - 2) := ((Parley.Items.Stdlib.Sums.def_range_between (k := (k : ℤ) - 2) (a := (0 : ℤ)) (b := (n : ℤ) - 2))).mpr (by parley_side)
+  -- 11. mun:range-difference a := 0, k := 2, from 7
+  have s11 : 0 ≤ (n : ℤ) - 2 := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (2 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (2 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (2 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (2 : ℤ)) (by parley_side))
+  -- 12. mun:range-difference a := 0, n := k, k := 2, from 8
+  have s12 : 0 ≤ (k : ℤ) - 2 := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (k : ℤ)) (k := (2 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (k : ℤ)) (k := (2 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (k : ℤ)) (k := (2 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (k : ℤ)) (k := (2 : ℤ)) (by parley_side))
+  -- 13. mun:range-difference a := 0, from 9
+  have s13 : 0 ≤ (n : ℤ) - (k : ℤ) := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (k : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (k : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (k : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (n : ℤ)) (k := (k : ℤ)) (by parley_side))
+  -- 14. def:C k := 2, from 7
+  have s14 : (Parley.Library.choose (n : ℤ) (2 : ℤ) : ℚ) = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - 2) : ℚ) * (Parley.Library.factorial (2 : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (2 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h)
+  -- 15. def:C n := n − 2, k := k − 2, from 10, 11
+  have s15 : (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℚ) = (Parley.Library.factorial ((n : ℤ) - 2) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - 2 - ((k : ℤ) - 2)) : ℚ) * (Parley.Library.factorial ((k : ℤ) - 2) : ℚ)) := by first | linear_combination (norm := parley_norm) (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side) | exact_mod_cast ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side)).symm | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.def_C_2 (n := ((n : ℤ) - 2).toNat) (k := (k : ℤ) - 2))) (by parley_side); qify; linear_combination (norm := parley_norm) h)
+  -- 16. def:C, from 9
+  have s16 : (Parley.Library.choose (n : ℤ) (k : ℤ) : ℚ) = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial (k : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := n) (k := (k : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h)
+  -- 17. def:C n := k, k := 2, from 8
+  have s17 : (Parley.Library.choose (k : ℤ) (2 : ℤ) : ℚ) = (Parley.Library.factorial (k : ℤ) : ℚ) / ((Parley.Library.factorial ((k : ℤ) - 2) : ℚ) * (Parley.Library.factorial (2 : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := k) (k := (2 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h)
+  -- 18. algebra
+  have s18 : (n : ℤ) - 2 - ((k : ℤ) - 2) = (n : ℤ) - (k : ℤ) := by parley_ring
+  -- 19. substitute
+  have s19 : (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℚ) = (Parley.Library.factorial ((n : ℤ) - 2) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial ((k : ℤ) - 2) : ℚ)) := by
+    have c1 : (n : ℤ) - 2 - ((k : ℤ) - 2) = (n : ℤ) - (k : ℤ) := by parley_subst s18
+    have c1_w : (n : ℚ) - 2 - ((k : ℚ) - 2) = (n : ℚ) - (k : ℚ) := by have h := congrArg (fun x : ℤ => (x : ℚ)) c1; push_cast at h; linear_combination (norm := parley_norm) h
+    have row1 : (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℚ) = (Parley.Library.factorial ((n : ℤ) - 2) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial ((k : ℤ) - 2) : ℚ)) := by first | parley_subst_at c1_w s15 | parley_subst_at c1 s15
+    exact row1
+  -- 20. calculation
+  have r78_1 : 0 < (Parley.Library.factorial ((n : ℤ) - 2) : ℤ) := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - 2).toNat))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - 2).toNat)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - 2).toNat))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - 2).toNat)))
+  have r78_2 : 0 < (Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℤ) := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - (k : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - (k : ℤ)).toNat))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - (k : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - (k : ℤ)).toNat)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - (k : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - (k : ℤ)).toNat))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - (k : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((n : ℤ) - (k : ℤ)).toNat)))
+  have r78_3 : 0 < (Parley.Library.factorial ((k : ℤ) - 2) : ℤ) := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((k : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((k : ℤ) - 2).toNat))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((k : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((k : ℤ) - 2).toNat)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((k : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((k : ℤ) - 2).toNat))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((k : ℤ) - 2) by parley_side) ▸ (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := ((k : ℤ) - 2).toNat)))
+  have s20 : (Parley.Library.choose (n : ℤ) (2 : ℤ) : ℤ) * (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℤ) = (Parley.Library.choose (n : ℤ) (k : ℤ) : ℤ) * (Parley.Library.choose (k : ℤ) (2 : ℤ) : ℤ) := by
+    qify
+    calc (Parley.Library.choose (n : ℤ) (2 : ℤ) : ℚ) * (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℚ) = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - 2) : ℚ) * (Parley.Library.factorial (2 : ℤ) : ℚ)) * (Parley.Library.choose ((n : ℤ) - 2) ((k : ℤ) - 2) : ℚ) := by parley_subst s14
+      _ = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - 2) : ℚ) * (Parley.Library.factorial (2 : ℤ) : ℚ)) * ((Parley.Library.factorial ((n : ℤ) - 2) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial ((k : ℤ) - 2) : ℚ))) := by parley_subst s19
+      _ = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial (k : ℤ) : ℚ)) * ((Parley.Library.factorial (k : ℤ) : ℚ) / ((Parley.Library.factorial ((k : ℤ) - 2) : ℚ) * (Parley.Library.factorial (2 : ℤ) : ℚ))) := by parley_ring
+      _ = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - (k : ℤ)) : ℚ) * (Parley.Library.factorial (k : ℤ) : ℚ)) * (Parley.Library.choose (k : ℤ) (2 : ℤ) : ℚ) := by parley_subst s17
+      _ = (Parley.Library.choose (n : ℤ) (k : ℤ) : ℚ) * (Parley.Library.choose (k : ℤ) (2 : ℤ) : ℚ) := by parley_subst s16
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTheRest

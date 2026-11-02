@@ -112,6 +112,9 @@ const ALGEBRAIC: &[&str] = &[
     "implication",
     "membership",
     "number-systems",
+    "sum",
+    "for-all",
+    "integer-range",
 ];
 
 /// Whether an item's sentence holds of any ring of a kind, and which: where
@@ -119,17 +122,31 @@ const ALGEBRAIC: &[&str] = &[
 /// order and connectives, it is said of any commutative ring, a field where
 /// it divides, ordered where it orders, as Mathlib states such facts. A
 /// citation then applies it in the citing claim's own type.
-fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
+fn general_kind(
+    group: &crate::citing::Group,
+    says: &Node,
+    functions: &[Node],
+) -> Option<General> {
     let nodes: Vec<&Node> = group
         .wants
         .iter()
         .map(|(_, n)| n)
         .chain(std::iter::once(says))
         .collect();
+    // What the letters are numbers of, and what its functions give: a sum's
+    // term t : {a, …, b} → ℝ is a function into any ring of the kind.
+    let given = functions
+        .iter()
+        .filter_map(super::statement::introduces_function)
+        .filter_map(|(_, ty)| match ty {
+            super::expr::LetterType::Function { to, .. } => Some(to),
+            _ => None,
+        });
     let systems: Vec<Num> = nodes
         .iter()
         .filter_map(|n| super::statement::introduces(n))
         .map(|(_, s)| super::expr::letter_type(s))
+        .chain(given)
         .collect();
     let num = if systems.contains(&Num::Complex) {
         Num::Complex
@@ -138,10 +155,23 @@ fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
     } else {
         return None;
     };
+    // The item's own function letters may be applied; a library function,
+    // cos, is about ℝ itself.
+    let own: Vec<String> = functions
+        .iter()
+        .filter_map(super::statement::introduces_function)
+        .map(|(f, _)| f)
+        .collect();
+    let applies_own = |p: &Node| {
+        &*p.notation_name() == "application"
+            && p.children
+                .first()
+                .is_some_and(|f| own.iter().any(|o| *o == *f.text))
+    };
     let parts: Vec<Node> = nodes.iter().flat_map(|n| n.walk()).collect();
     if !parts
         .iter()
-        .all(|p| ALGEBRAIC.contains(&&*p.notation_name()))
+        .all(|p| ALGEBRAIC.contains(&&*p.notation_name()) || applies_own(p))
     {
         return None;
     }
@@ -250,7 +280,12 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 general: None,
                 integers: Vec::new(),
             };
-            let kind = general_kind(group, says);
+            let functions: &[Node] = checked
+                .library
+                .function_types
+                .get(&full)
+                .map_or(&[], Vec::as_slice);
+            let kind = general_kind(group, says, functions);
             w.general = kind.map(|k| k.num);
             let asked: Vec<Asked> = group
                 .wants
@@ -279,6 +314,29 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         page: name,
                         ty: LetterType::Statement,
                         general: false,
+                    });
+                }
+            }
+            // A function the item has, `t : {a, …, b} → ℝ`, which its
+            // groups leave out because a citation supplies nothing for it.
+            for node in checked
+                .library
+                .function_types
+                .get(&full)
+                .into_iter()
+                .flatten()
+            {
+                if let Some((letter, ty)) = super::statement::introduces_function(node)
+                {
+                    // A function into the item's general type gives K.
+                    let general = matches!(ty, LetterType::Function { to, .. }
+                        if w.general == Some(to));
+                    w.letters.insert(letter.clone(), ty.clone());
+                    statements.push(Binder::Letter {
+                        name: super::names::letter(&letter),
+                        page: letter,
+                        ty,
+                        general,
                     });
                 }
             }
