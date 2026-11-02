@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import Parley.Library.Counting
+public import Counting
 
 /-!
 # Tactics the generated proofs use
@@ -76,7 +76,7 @@ which is no whole number is no member of ℕ or ℤ. -/
 macro "parley_arith" : tactic =>
   `(tactic| first
     | (norm_num; done)
-    | (norm_num [Parley.Library.factorial, Parley.Library.choose, Nat.factorial]; done)
+    | (norm_num [LeanBridges.Counting.factorial, LeanBridges.Counting.choose, Nat.factorial]; done)
     | (rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega)
     | (rintro ⟨m, h⟩; field_simp at h; norm_cast at h; omega))
 
@@ -97,14 +97,14 @@ macro "parley_norm" : tactic =>
     | (ring1; done)
     | (push_cast; ring1; done)
     -- A function of numerals written two ways, (1 + 1)! beside 2!.
-    | (norm_num [Parley.Library.factorial, Nat.factorial]; done))
+    | (norm_num [LeanBridges.Counting.factorial, Nat.factorial]; done))
 
 macro "parley_ring" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
     -- A factorial divided by itself, which is not 0.
-    | (field_simp [Parley.Library.factorial, Nat.factorial_ne_zero]; done)
+    | (field_simp [LeanBridges.Counting.factorial, Nat.factorial_ne_zero]; done)
     | (simp only [inv_inv, one_div, div_div, div_pow] <;> ring1; done)
     | (parley_clear <;> ring1; done)
     | (parley_clear; done))

@@ -18,7 +18,7 @@ taken here of integers and is Mathlib's on the naturals.
 
 public section
 
-namespace Parley.Library
+namespace LeanBridges.Counting
 
 /-- n! of an integer n that is not negative: `Nat.factorial n.toNat`. -/
 @[expose] def factorial (n : ℤ) : ℕ :=
@@ -65,23 +65,23 @@ theorem pascal (n : ℕ) (k : ℤ) :
 
 /-- C(n, k) is 0 outside 0 … n. -/
 theorem choose_outside (n : ℕ) (k : ℤ) (h : k ∉ Finset.Icc 0 (n : ℤ)) :
-    choose n k = 0 := by
+    (choose n k : ℤ) = 0 := by
   rw [Finset.mem_Icc, not_and_or, not_le, not_le] at h
   unfold choose
   split_ifs with h0
   · lift k to ℕ using h0
     have hk : n < k := by omega
     simp [Nat.choose_eq_zero_of_lt hk]
-  · rfl
+  · simp
 
 /-- C(n, k) is above 0 inside 0 … n. -/
 theorem choose_pos (n : ℕ) (k : ℤ) (h : k ∈ Finset.Icc 0 (n : ℤ)) :
-    0 < choose n k := by
+    0 < (choose n k : ℤ) := by
   rw [Finset.mem_Icc] at h
   obtain ⟨h0, h1⟩ := h
   lift k to ℕ using h0
   rw [choose_natCast]
-  exact Nat.choose_pos (by exact_mod_cast h1)
+  exact_mod_cast Nat.choose_pos (by exact_mod_cast h1)
 
 /-- The absorption identity, as set.mm states it. -/
 theorem absorption (n : ℕ) (k : ℤ) (h : k ∈ Finset.Icc 0 (n : ℤ)) :
@@ -100,4 +100,4 @@ theorem absorption (n : ℕ) (k : ℤ) (h : k ∈ Finset.Icc 0 (n : ℤ)) :
   field_simp
   linarith
 
-end Parley.Library
+end LeanBridges.Counting

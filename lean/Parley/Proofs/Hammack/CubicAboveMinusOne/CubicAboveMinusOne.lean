@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from proofs/hammack/cubic-above-minus-one.proof by parley build lean. -/
 

@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 
 /-! Written from proofs/wiedijk/triangle-inequality.proof by parley build lean. -/

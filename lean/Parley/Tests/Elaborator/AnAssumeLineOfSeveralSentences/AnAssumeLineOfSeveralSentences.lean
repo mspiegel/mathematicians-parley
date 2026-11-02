@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/an-assume-line-of-several-sentences.proof by parley build lean. -/
 

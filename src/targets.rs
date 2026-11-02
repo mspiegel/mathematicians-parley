@@ -74,6 +74,25 @@ pub fn split_entries(value: &str) -> Vec<&str> {
         .collect()
 }
 
+/// Where a Metamath bridge's full name begins.
+pub const METAMATH_BRIDGES: &str = "metamath-bridges/";
+
+/// The label one entry of a `metamath-proof` names. A set.mm label is
+/// written bare; a bridge is written by its full name,
+/// `metamath-bridges/numbers/gzmodlt`, and is the lemma its last part
+/// names, which `tools::labels` checks that group holds.
+pub fn label_of(entry: &str) -> &str {
+    match entry.strip_prefix(METAMATH_BRIDGES) {
+        Some(rest) => rest.rsplit_once('/').map_or(rest, |(_, label)| label),
+        None => entry,
+    }
+}
+
+/// The entries of a `metamath-proof` field, each the label it names.
+pub fn lemma_entries(value: &str) -> Vec<&str> {
+    split_entries(value).into_iter().map(label_of).collect()
+}
+
 /// For each notation, the term each of its patterns builds.
 ///
 /// A folded pattern builds another notation's tree, so it has no entry of
@@ -110,7 +129,7 @@ pub fn unfolding(record: &Record) -> (Option<String>, bool) {
     let Some(value) = record.metamath_target().filter(|v| !v.is_empty()) else {
         return (None, false);
     };
-    let entries = split_entries(value);
+    let entries = lemma_entries(value);
     let reversed = entries.iter().skip(1).any(|e| e.contains("reversed"));
     (entries.first().map(|e| e.to_string()), reversed)
 }
@@ -127,8 +146,9 @@ pub fn lemma(record: &Record) -> (Option<String>, IndexMap<String, String>) {
     let Some(value) = value else {
         return (None, IndexMap::new());
     };
+    let labels = |head: &str| lemma_entries(head).join(", ");
     let Some((head, rest)) = value.split_once(" with ") else {
-        return (Some(str::trim(value).to_string()), IndexMap::new());
+        return (Some(labels(value)), IndexMap::new());
     };
     let mut fills = IndexMap::new();
     for piece in split_entries(rest) {
@@ -141,7 +161,7 @@ pub fn lemma(record: &Record) -> (Option<String>, IndexMap<String, String>) {
             }
         }
     }
-    (Some(str::trim(head).to_string()), fills)
+    (Some(labels(head)), fills)
 }
 
 /// A pair of exchangeable operands: the constructor, the two positions the
@@ -382,7 +402,7 @@ pub fn clauses(record: &Record) -> Vec<String> {
     // `equation reversed` says how the lemmas write their equation, and is
     // not one of them: a route that reached it would ask set.mm for a label
     // it does not have.
-    split_entries(&listed)
+    lemma_entries(&listed)
         .into_iter()
         .filter(|e| !is_marker(e))
         .map(String::from)

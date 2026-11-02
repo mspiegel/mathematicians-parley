@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 
 /-! Written from proofs/hammack/sum-of-squares-divisible-by-four.proof by parley build lean. -/
 

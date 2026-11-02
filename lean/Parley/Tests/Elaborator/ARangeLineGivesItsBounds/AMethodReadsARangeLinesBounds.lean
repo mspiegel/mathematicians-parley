@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-range-line-gives-its-bounds.proof by parley build lean. -/
 

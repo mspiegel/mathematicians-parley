@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/divide-by-a-compound-quotient.proof by parley build lean. -/
 

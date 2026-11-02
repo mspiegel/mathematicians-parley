@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow
 
 /-! Written from proofs/setmm/reverse-triangle-inequality.proof by parley build lean. -/

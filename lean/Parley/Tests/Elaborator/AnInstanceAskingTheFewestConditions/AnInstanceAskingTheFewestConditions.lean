@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/an-instance-asking-the-fewest-conditions.proof by parley build lean. -/
 

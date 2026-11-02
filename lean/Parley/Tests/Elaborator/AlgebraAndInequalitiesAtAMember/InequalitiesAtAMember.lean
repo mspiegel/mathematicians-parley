@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/algebra-and-inequalities-at-a-member.proof by parley build lean. -/
 

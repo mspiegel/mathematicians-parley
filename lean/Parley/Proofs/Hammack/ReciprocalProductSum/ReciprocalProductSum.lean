@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Sums
-public import Parley.Library
 public import Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep
 
 /-! Written from proofs/hammack/reciprocal-product-sum.proof by parley build lean. -/

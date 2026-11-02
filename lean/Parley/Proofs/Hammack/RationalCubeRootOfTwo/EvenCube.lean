@@ -1,8 +1,8 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 public import Parley.Proofs.Hammack.RationalCubeRootOfTwo.OddCube
 
 /-! Written from proofs/hammack/rational-cube-root-of-two.proof by parley build lean. -/

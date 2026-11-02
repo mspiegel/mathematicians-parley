@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers

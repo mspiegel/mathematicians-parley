@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/
 

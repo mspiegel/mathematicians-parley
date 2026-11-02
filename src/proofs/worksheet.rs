@@ -69,6 +69,22 @@ struct Shown {
 /// A group's lemmas, read from its text and built, each registered in `b`
 /// as it is read so that a later one may apply it.
 pub fn read(path: &str, text: &str, b: &mut Builder) -> Checked<Group> {
+    let (head, written) = written(path, text)?;
+    let mut out = Vec::new();
+    for one in &written {
+        out.push(lemma(path, one, b)?);
+    }
+    Ok(Group { head, lemmas: out })
+}
+
+/// The labels of a group's lemmas, in order, read without building them.
+pub fn labels(path: &str, text: &str) -> Checked<Vec<String>> {
+    let (_, written) = written(path, text)?;
+    Ok(written.into_iter().map(|w| w.label).collect())
+}
+
+/// A group's head, and its lemmas as the file writes them.
+fn written(path: &str, text: &str) -> Checked<(String, Vec<Written>)> {
     let defect = |line: usize, why: String| Problem::new(path, line, why);
     let mut head = String::new();
     let mut lines = text.lines().enumerate().peekable();
@@ -122,11 +138,7 @@ pub fn read(path: &str, text: &str, b: &mut Builder) -> Checked<Group> {
             });
         }
     }
-    let mut out = Vec::new();
-    for one in &written {
-        out.push(lemma(path, one, b)?);
-    }
-    Ok(Group { head, lemmas: out })
+    Ok((head, written))
 }
 
 /// One lemma, built from its lines.

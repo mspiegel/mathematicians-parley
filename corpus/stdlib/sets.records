@@ -27,7 +27,7 @@ axiom extensionality
   assume for all t ∈ X, t ∈ Y                                         (H3)
   assume for all t ∈ Y, t ∈ X                                         (H4)
   then        X = Y
-  metamath-proof gext
+  metamath-proof metamath-bridges/zfc/gext
   note        A set is its members: two sets each of whose members is in
               the other are one set. set.mm's ax-ext, said of sets as the
               page writes them.
@@ -50,7 +50,7 @@ axiom unions
   let C be a set                                                      (H1)
   assume C exists                                                     (H2)
   then        ⋃(X ∈ C) X exists
-  metamath-proof giunex
+  metamath-proof metamath-bridges/zfc/giunex
   note        What is in some member of a collection that exists makes a
               collection that exists.
   lean-proof  not yet implemented
@@ -80,7 +80,7 @@ axiom replacement
   let Z be a set                                                      (H3)
   let E : Y → Z                                                       (H4)
   then        {E(s) : s ∈ Y} exists
-  metamath-proof grnmptex
+  metamath-proof metamath-bridges/zfc/grnmptex
   note        The values a function takes on a collection that exists make
               one that exists.
   lean-proof  not yet implemented
@@ -98,7 +98,7 @@ axiom choice
   assume C exists                                                     (H2)
   assume for all X ∈ C, X ≠ ∅                                         (H3)
   then        there is f : C → ⋃(Y ∈ C) Y with for all X ∈ C, f(X) ∈ X
-  metamath-proof gchoice
+  metamath-proof metamath-bridges/zfc/gchoice
   note        A collection that exists, of non-empty sets, has a function
               choosing a member of each. The union's letter Y is not the
               letter X the "for all" binds, as set.mm keeps a map's
@@ -120,7 +120,6 @@ definition set-builder
               introduce t: it does not exist until they open. See the
               `holds-of` notation for why this is not a function applied to an
               argument.
-  lean-proof  not yet implemented
 
               The element is u and the braces bind t, as def:stdlib/functions/set-image writes
               them. Both were t until the conclusion check went in, and a
@@ -128,12 +127,13 @@ definition set-builder
               the braces bind cannot be matched against a use of it: the free
               one binds to the element and the bound one then has to be the
               element too.
+  lean-proof  not yet implemented
 
 definition part-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
-  metamath-proof gelrabpw
+  metamath-proof metamath-bridges/sets/gelrabpw
   note        The parts of X with a property: `def:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
   lean-proof  not yet implemented
@@ -259,7 +259,7 @@ definition singleton
 definition triple
   let x be an element                                                 (H1)
   then        x ∈ {u, v, w} ↔ x = u or x = v or x = w
-  metamath-proof geltpg
+  metamath-proof metamath-bridges/sets/geltpg
   note        What is in a set of three listed things is one of the three,
               as `pair` says of two. set.mm says the three cases as one
               three-way "or"; the page's "or" pairs from the left, and the

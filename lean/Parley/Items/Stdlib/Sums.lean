@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from corpus/stdlib/sums.records by parley build lean. -/
 
@@ -14,7 +14,7 @@ theorem mun_sum_single {K : Type*} [CommRing K] [IsDomain K] (t : ℤ → K) (a 
 
 theorem mun_sum_extended {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (t : ℤ → K) (a : ℤ) (n : ℤ) (h3 : a ≤ n) :
     (∑ k ∈ Finset.Icc a (n + 1), t k) = (∑ k ∈ Finset.Icc a n, t k) + t (n + 1) :=
-  Parley.Library.sum_Icc_succ_top (by omega) t
+  LeanBridges.Sums.sum_extended t a n h3
 
 theorem mun_sum_termwise {K : Type*} [CommRing K] [IsDomain K] (t : ℤ → K) (u : ℤ → K) (a : ℤ) (b : ℤ) (h3 : ∀ k : ℤ, k ∈ Finset.Icc a b → t k = u k) :
     (∑ k ∈ Finset.Icc a b, t k) = (∑ k ∈ Finset.Icc a b, u k) :=

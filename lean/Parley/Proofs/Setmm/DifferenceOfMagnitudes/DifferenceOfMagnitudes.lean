@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from proofs/setmm/difference-of-magnitudes.proof by parley build lean. -/
 

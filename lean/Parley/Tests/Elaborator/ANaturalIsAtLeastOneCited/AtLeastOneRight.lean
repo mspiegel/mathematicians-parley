@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/
 

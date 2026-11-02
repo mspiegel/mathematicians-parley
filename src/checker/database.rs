@@ -118,7 +118,7 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                 (crate::corpus::records::METAMATH_PROOF, "Metamath"),
                 (crate::corpus::records::LEAN_PROOF, "Lean"),
             ] {
-                if !r.fields.contains_key(field) {
+                let Some(value) = r.fields.get(field) else {
                     report.say(
                         &r.path,
                         r.line,
@@ -127,6 +127,29 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                             r.name
                         ),
                     );
+                    continue;
+                };
+                // `none` and `not yet implemented` are the whole value, so
+                // a paragraph that runs on after one, as a note's second
+                // paragraph does, is not read as a proof.
+                for keyword in [
+                    crate::corpus::records::NOTHING_TO_PROVE,
+                    crate::corpus::records::NOT_YET,
+                ] {
+                    let more = value
+                        .trim()
+                        .strip_prefix(keyword)
+                        .filter(|rest| rest.starts_with(char::is_whitespace));
+                    if more.is_some() {
+                        report.say(
+                            &r.path,
+                            r.line,
+                            format!(
+                                "{}'s `{field}` says `{keyword}` and then more; `{keyword}` is the whole value",
+                                r.name
+                            ),
+                        );
+                    }
                 }
             }
             // A definition that introduces a symbol says what it stands for

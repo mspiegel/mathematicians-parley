@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from tests/elaborator/a-named-value-of-a-function.proof by parley build lean. -/
 

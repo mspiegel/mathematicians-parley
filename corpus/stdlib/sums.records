@@ -71,7 +71,7 @@ mundane theorem sum-extended
   let t : {a, …, n + 1} → ℝ                                           (H4)
   then        Σ(k = a to n + 1) t(k) = Σ(k = a to n) t(k) + t(n + 1)
   metamath-proof fsump1
-  lean-proof  Parley.Library.sum_Icc_succ_top (by omega) t
+  lean-proof  lean-bridges/sums/sum-extended
   note        `sum-last` from a start of the proof's own choosing: the sum
               formula counts from 1, where `sum-last` counts from 0.
 
@@ -183,7 +183,7 @@ mundane theorem product-range-nonneg
   let t : {a, …, b} → ℝ                                               (H3)
   assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
   then        ∏(k ∈ {a, …, b}) t(k) ≥ 0
-  metamath-proof gfprodge0
+  metamath-proof metamath-bridges/ranges/gfprodge0
   note        As sum-nonneg, for a product: factors none of them negative
               have a product that is not negative.
   lean-proof  not yet implemented
@@ -332,7 +332,7 @@ mundane theorem range-inside
   assume c ≤ a                                                        (H5)
   assume b ≤ d                                                        (H6)
   then        {a, …, b} ⊆ {c, …, d}
-  metamath-proof gfzss with K := c, M := a, N := b, L := d
+  metamath-proof metamath-bridges/ranges/gfzss with K := c, M := a, N := b, L := d
   note        A range whose ends lie within another's lies inside it.
   lean-proof  not yet implemented
 
@@ -363,7 +363,7 @@ mundane theorem sum-split
   assume b ≤ c                                                        (H5)
   let t : {a, …, c} → ℝ                                               (H6)
   then        Σ(k = a to c) t(k) = Σ(k = a to b) t(k) + Σ(k = b + 1 to c) t(k)
-  metamath-proof gfsumsplit
+  metamath-proof metamath-bridges/ranges/gfsumsplit
   note        A sum over a range is the sum over its first part and the sum
               over the rest.
   lean-proof  not yet implemented
@@ -386,7 +386,7 @@ mundane theorem sum-constant
   assume a ≤ b                                                        (H3)
   let c ∈ ℝ                                                           (H4)
   then        Σ(k = a to b) c = (b − a + 1)·c
-  metamath-proof gfsumconst
+  metamath-proof metamath-bridges/ranges/gfsumconst
   note        The same term b − a + 1 times.
   lean-proof  not yet implemented
 
@@ -405,7 +405,7 @@ mundane theorem sum-empty-range
   assume b < a                                                        (H3)
   let t : {a, …, b} → ℝ                                               (H4)
   then        Σ(k = a to b) t(k) = 0
-  metamath-proof gfsum0
+  metamath-proof metamath-bridges/ranges/gfsum0
   note        A range that ends before it starts has no terms, and their sum
               is 0: Σ(k = 1 to 0) (2k − 1) = 0 is the base case of an
               induction from 0 over a sum from 1.
@@ -471,14 +471,14 @@ mundane theorem range-from-bounds
   let x ∈ ℕ₀                                                          (H2)
   assume x < m                                                        (H3)
   then        x ∈ {0, …, m − 1}
-  metamath-proof gelfz0m1
+  metamath-proof metamath-bridges/totient/gelfz0m1
   lean-proof  not yet implemented
 
 mundane theorem product-integer
   let X ⊆ ℤ                                                           (H1)
   assume X is finite                                                  (H2)
   then        ∏(x ∈ X) x ∈ ℤ
-  metamath-proof gfprodz
+  metamath-proof metamath-bridges/totient/gfprodz
   lean-proof  not yet implemented
 
 mundane theorem product-split
@@ -500,7 +500,7 @@ mundane theorem product-reindex
   let g : Y → Z be one-to-one and onto                                (H3)
   let t : Z → ℝ                                                       (H4)
   then        ∏(z ∈ Z) t(z) = ∏(y ∈ Y) t(g(y))
-  metamath-proof gfprodf1o
+  metamath-proof metamath-bridges/totient/gfprodf1o
   note        g pairs each member of Y with one of Z, so the factors over
               Z are those over Y, counted through g.
   lean-proof  not yet implemented
@@ -540,7 +540,7 @@ mundane theorem product-add-one
   assume a ∉ Y                                                        (H5)
   let t : X → ℝ                                                       (H6)
   then        ∏(x ∈ Y ∪ {a}) t(x) = (∏(x ∈ Y) t(x))·t(a)
-  metamath-proof gprodaddone
+  metamath-proof metamath-bridges/induction/gprodaddone
   note        A member added to a finite set multiplies the product by its
               term, the step of an induction over the parts of a finite set.
   lean-proof  not yet implemented

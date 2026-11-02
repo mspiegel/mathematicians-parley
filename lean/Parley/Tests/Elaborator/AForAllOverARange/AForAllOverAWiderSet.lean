@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Sums
-public import Parley.Library
 
 /-! Written from tests/elaborator/a-for-all-over-a-range.proof by parley build lean. -/
 

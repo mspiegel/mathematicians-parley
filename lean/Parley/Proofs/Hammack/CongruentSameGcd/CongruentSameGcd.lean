@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 public import Parley.Proofs.Hammack.GcdWithRemainder.GcdWithRemainder
 
 /-! Written from proofs/hammack/congruent-same-gcd.proof by parley build lean. -/

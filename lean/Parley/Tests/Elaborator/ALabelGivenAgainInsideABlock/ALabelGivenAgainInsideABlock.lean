@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-label-given-again-inside-a-block.proof by parley build lean. -/
 

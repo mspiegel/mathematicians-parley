@@ -125,6 +125,24 @@ fn cases() -> Vec<Case> {
             new: "  metamath-proof nnreclzz\n",
             expect: "names nnreclzz, which set.mm does not have",
         },
+        // A bridge is written by its full name, so a record says whether it
+        // means set.mm's label or the corpus's own lemma.
+        Case {
+            name: "a metamath-proof names a bridge by its bare label",
+            stage: labels_case,
+            file: "corpus/stdlib/divisibility.records",
+            old: "  metamath-proof metamath-bridges/numbers/gzmodlt\n",
+            new: "  metamath-proof gzmodlt\n",
+            expect: "names gzmodlt, a Metamath bridge, which is written metamath-bridges/numbers/gzmodlt",
+        },
+        Case {
+            name: "a metamath-proof names a bridge in the wrong group",
+            stage: labels_case,
+            file: "corpus/stdlib/divisibility.records",
+            old: "  metamath-proof metamath-bridges/numbers/gzmodlt\n",
+            new: "  metamath-proof metamath-bridges/divisors/gzmodlt\n",
+            expect: "names metamath-bridges/divisors/gzmodlt, which is a lemma of metamath-bridges/numbers",
+        },
         Case {
             name: "a library item nothing cites",
             stage: tested_case,
@@ -160,7 +178,7 @@ fn cases() -> Vec<Case> {
         Case {
             name: "a library proof step that does not follow",
             stage: as_built_case,
-            file: "corpus/proved/divisors.proved",
+            file: "corpus/metamath-bridges/divisors.bridge",
             old: "  7 nncn |- ( k e. NN -> k e. CC )\n",
             new: "  7 nncn |- ( k e. NN -> k e. RR )\n",
             expect: "nncn does not prove what the step says",
@@ -170,7 +188,7 @@ fn cases() -> Vec<Case> {
         Case {
             name: "a worksheet comment proved.mm would carry outside ASCII",
             stage: as_built_case,
-            file: "corpus/proved/calculus.proved",
+            file: "corpus/metamath-bridges/calculus.bridge",
             old: "$( The bound letters of a limit, x, y and z,",
             new: "$( The bound letters of a limit, ε, δ and x,",
             expect: "'ε' goes into proved.mm, which is ASCII",

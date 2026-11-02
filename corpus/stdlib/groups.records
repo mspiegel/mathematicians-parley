@@ -113,7 +113,7 @@ definition coset
   assume H is a subgroup of G                                         (H2)
   let g ∈ G                                                           (H3)
   then        u ∈ gH ↔ there is h ∈ H with u = g·h
-  metamath-proof gelcoset
+  metamath-proof metamath-bridges/groups/gelcoset
   note        gH is everything g combines with a member of H to give. set.mm
               writes it as the sum of two subsets, {g} and H, and a school
               reader writes gH.

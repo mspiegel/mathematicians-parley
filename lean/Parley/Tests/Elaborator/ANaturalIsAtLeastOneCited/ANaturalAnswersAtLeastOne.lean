@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.AtLeastOneRight
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/

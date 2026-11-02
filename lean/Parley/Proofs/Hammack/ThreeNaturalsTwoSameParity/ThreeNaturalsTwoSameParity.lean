@@ -1,8 +1,8 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 
 /-! Written from proofs/hammack/three-naturals-two-same-parity.proof by parley build lean. -/
 

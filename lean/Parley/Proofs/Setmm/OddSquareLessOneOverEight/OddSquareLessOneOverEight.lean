@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 public import Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger
 
 /-! Written from proofs/setmm/odd-square-less-one-over-eight.proof by parley build lean. -/

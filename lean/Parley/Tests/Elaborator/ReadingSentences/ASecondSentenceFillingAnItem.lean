@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 
 /-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/
 

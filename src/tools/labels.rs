@@ -15,9 +15,9 @@ use std::path::Path;
 
 use indexmap::{IndexMap, IndexSet};
 
-use super::path_of;
 use crate::corpus::corpus;
 use crate::mm;
+use crate::outcome::{Checked, Problem};
 use crate::regex;
 use crate::rules;
 use crate::said::Said;
@@ -145,14 +145,10 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
     out
 }
 
-/// The labels this corpus introduces, which set.mm will not have.
-///
-/// A definition that carries a `symbol` brings a constant and the axiom
-/// defining it; the library's own proofs bring whatever they prove.
-fn supplied(
-    source: &dyn Source,
-    records: &[crate::corpus::Record],
-) -> IndexSet<String> {
+/// The labels this corpus introduces by a definition, which set.mm will not
+/// have: a definition that carries a `symbol` brings a constant and the
+/// axiom defining it.
+fn symbols(records: &[crate::corpus::Record]) -> IndexSet<String> {
     let mut out = IndexSet::new();
     for r in records {
         if let Some(symbol) = r.field("symbol") {
@@ -161,11 +157,58 @@ fn supplied(
             out.insert(format!("df-{token}"));
         }
     }
-    let built = path_of("stdlib/proved");
-    if let Ok(text) = source.read_text(&built) {
-        out.extend(mm::read_texts(&[&text]).into_keys().map(String::from));
-    }
     out
+}
+
+/// Each Metamath bridge's label, with the group whose file holds it.
+fn bridges(source: &dyn Source) -> Checked<IndexMap<String, String>> {
+    let mut out = IndexMap::new();
+    for group in crate::proofs::stdlib::NAMES {
+        let path = format!("{}{group}.bridge", crate::proofs::stdlib::WORKSHEETS);
+        let text = source
+            .read_text(&path)
+            .map_err(|e| Problem::new(&path, 0, format!("cannot read it: {e}")))?;
+        for label in crate::proofs::worksheet::labels(&path, &text)? {
+            out.insert(label, group.to_string());
+        }
+    }
+    Ok(out)
+}
+
+/// Why a label the corpus names is wrong, or None where it is right.
+///
+/// A set.mm label is written bare and a bridge by its full name,
+/// `metamath-bridges/numbers/gzmodlt`, so a record says which it means. A
+/// rule table names a bridge's lemma bare, as `proved.mm` has it.
+fn wrong(
+    named: &str,
+    at: &Where,
+    tables_at: &str,
+    have: &BTreeSet<String>,
+    bridged: &IndexMap<String, String>,
+    file: &str,
+) -> Option<String> {
+    if let Some(rest) = named.strip_prefix(targets::METAMATH_BRIDGES) {
+        let label = targets::label_of(named);
+        let group = rest.strip_suffix(label).and_then(|g| g.strip_suffix('/'));
+        return match (group, bridged.get(label)) {
+            (Some(group), Some(holds)) if group == holds => None,
+            (_, Some(holds)) => Some(format!(
+                "{named}, which is a lemma of metamath-bridges/{holds}"
+            )),
+            (_, None) => Some(format!("{named}, which no Metamath bridge proves")),
+        };
+    }
+    if have.contains(named) {
+        return None;
+    }
+    match bridged.get(named) {
+        Some(_) if at.place == tables_at => None,
+        Some(group) => Some(format!(
+            "{named}, a Metamath bridge, which is written metamath-bridges/{group}/{named}"
+        )),
+        None => Some(format!("{named}, which {file} does not have")),
+    }
 }
 
 /// Check every label the corpus names against the library at `library`.
@@ -212,25 +255,35 @@ pub fn run(source: &dyn Source, library: Option<&Path>, tables_at: &str) -> Said
             }
         }
     };
-    have.extend(supplied(source, &c.records));
+    have.extend(symbols(&c.records));
+    let bridged = match bridges(source) {
+        Ok(b) => b,
+        Err(trouble) => {
+            return Said {
+                printed: String::new(),
+                complained: format!("{trouble}\n"),
+                status: 2,
+            }
+        }
+    };
     let file = library
         .file_name()
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
-    let mut missing: Vec<(&String, usize, &String, &String)> = wanted
+    let mut missing: Vec<(&String, usize, &String, String)> = wanted
         .iter()
-        .filter(|(label, _)| !have.contains(*label))
-        .map(|(label, Where { place, line, who })| (place, *line, who, label))
+        .filter_map(|(named, at)| {
+            let why = wrong(named, at, tables_at, &have, &bridged, &file)?;
+            Some((&at.place, at.line, &at.who, why))
+        })
         .collect();
     missing.sort();
     let mut printed = String::new();
-    for (place, line, who, label) in &missing {
-        printed.push_str(&format!(
-            "{place}:{line}  {who} names {label}, which {file} does not have\n"
-        ));
+    for (place, line, who, why) in &missing {
+        printed.push_str(&format!("{place}:{line}  {who} names {why}\n"));
     }
     printed.push_str(&format!(
-        "\n{} labels named, {} not in {file}\n",
+        "\n{} labels named, {} not in {file} or a bridge as written\n",
         wanted.len(),
         missing.len()
     ));

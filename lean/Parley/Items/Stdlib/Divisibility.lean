@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from corpus/stdlib/divisibility.records by parley build lean. -/
 

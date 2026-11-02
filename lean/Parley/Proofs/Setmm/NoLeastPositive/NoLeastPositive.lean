@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from proofs/setmm/no-least-positive.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Proofs.Hammack.AlternatingSignBijection.SignOfEven
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/

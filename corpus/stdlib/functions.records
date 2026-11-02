@@ -95,7 +95,7 @@ definition image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   then        u ∈ f[Y] ↔ there is s ∈ Y with u = f(s)
-  metamath-proof gfvelima
+  metamath-proof metamath-bridges/functions/gfvelima
   note        f[Y] is everything f sends Y to, {f(s) : s ∈ Y}. It is the same
               set as `def:stdlib/functions/set-image` speaks of for a map
               written on the spot; this is the one for a function with a
@@ -135,7 +135,7 @@ mundane theorem value-in-image
   assume Y ⊆ X                                                        (H2)
   let s ∈ Y                                                           (H3)
   then        f(s) ∈ f[Y]
-  metamath-proof gfnfvima
+  metamath-proof metamath-bridges/functions/gfnfvima
   lean-proof  not yet implemented
 
 definition one-to-one
@@ -163,13 +163,13 @@ mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
-  metamath-proof gf1cnvfv1
+  metamath-proof metamath-bridges/functions/gf1cnvfv1
   lean-proof  not yet implemented
 
 definition preimage
   let f : X → W                                                       (H1)
   then        u ∈ f⁻¹[Z] ↔ u ∈ X and f(u) ∈ Z
-  metamath-proof gelpreima
+  metamath-proof metamath-bridges/functions/gelpreima
   note        f⁻¹[Z] is everything in X that f sends into Z, whether or not
               f has an inverse.
   lean-proof  not yet implemented
@@ -177,7 +177,7 @@ definition preimage
 mundane theorem preimage-within
   let f : X → W                                                       (H1)
   then        f⁻¹[Z] ⊆ X
-  metamath-proof gpreimass
+  metamath-proof metamath-bridges/functions/gpreimass
   note        A preimage holds only points of the domain.
   lean-proof  not yet implemented
 
@@ -185,7 +185,7 @@ mundane theorem inverse-function
   let f : X → Y be one-to-one                                         (H1)
   assume f[X] = Y                                                     (H2)
   then        f⁻¹ : Y → X
-  metamath-proof gf1cnvf
+  metamath-proof metamath-bridges/functions/gf1cnvf
   note        A one-to-one function that reaches all of Y has an inverse
               that takes Y back to X.
   lean-proof  not yet implemented
@@ -229,7 +229,7 @@ definition bijection
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)
   then        there is f : X → Y with f : X → Y is onto
-  metamath-proof gbijonto
+  metamath-proof metamath-bridges/functions/gbijonto
   note        The way back from `bijection`, as far as a proof needs it: a
               pairing of X with Y is a function from X onto Y. That it is
               one-to-one as well is not said, since no proof asks it.

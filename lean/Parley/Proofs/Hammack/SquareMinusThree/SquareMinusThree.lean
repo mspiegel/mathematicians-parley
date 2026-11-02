@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 public import Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween
 
 /-! Written from proofs/hammack/square-minus-three.proof by parley build lean. -/

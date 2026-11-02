@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from tests/elaborator/a-case-ending-on-its-claim-turned.proof by parley build lean. -/
 

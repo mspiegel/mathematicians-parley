@@ -564,7 +564,7 @@ notation factorial
   decided     arithmetic
   metamath-syntax cfa
   metamath-builds _1 cfa cfv
-  lean-builds ℤ → ℕ: Parley.Library.factorial _1
+  lean-builds ℤ → ℕ: LeanBridges.Counting.factorial _1
   note        No assoc: only the left edge is a hole, so n!! reads one way.
               `arithmetic` works out n! of a whole number n, from 0! = 1 by
               (m + 1)! = m!·(m + 1).

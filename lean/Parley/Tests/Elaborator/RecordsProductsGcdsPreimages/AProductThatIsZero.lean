@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/
 

@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Setmm.FloorBasics.FloorAddInteger
 
 /-! Written from proofs/setmm/floor-basics.proof by parley build lean. -/

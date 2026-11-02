@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 public import Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive
 
 /-! Written from proofs/hammack/cube-minus-self-divisible-by-six.proof by parley build lean. -/

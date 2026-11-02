@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 
 /-! Written from proofs/wiedijk/divisibility-by-three.proof by parley build lean. -/

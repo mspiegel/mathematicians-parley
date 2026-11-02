@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Sums
-public import Parley.Library
 
 /-! Written from tests/elaborator/sum-letter-in-scope.proof by parley build lean. -/
 

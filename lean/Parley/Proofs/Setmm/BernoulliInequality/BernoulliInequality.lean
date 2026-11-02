@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct
 
 /-! Written from proofs/setmm/bernoulli-inequality.proof by parley build lean. -/

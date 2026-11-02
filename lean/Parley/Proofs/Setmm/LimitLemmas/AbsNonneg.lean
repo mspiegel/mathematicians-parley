@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 
 /-! Written from proofs/setmm/limit-lemmas.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/divisors-not-zero-by-their-factors.proof by parley build lean. -/
 

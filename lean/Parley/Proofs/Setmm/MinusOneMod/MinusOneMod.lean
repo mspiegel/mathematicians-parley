@@ -1,8 +1,8 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from proofs/setmm/minus-one-mod.proof by parley build lean. -/
 

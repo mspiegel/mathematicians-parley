@@ -38,14 +38,14 @@ definition angle
               0 to π and makes mun:stdlib/geometry/angle-symmetric true. ang itself is
               signed, in −π to π, as set.mm has it. GEOMETRY.md weighs the
               seven candidate geometries and takes this one.
-  metamath-proof none
-  lean-proof  none
 
               This is the only definition in the corpus that introduces a
               symbol; every other names a word for something set.mm already
               has. See GOALS.md decision 12. Its statement is `defines`, what
               the symbol stands for, and what follows from that is
               mun:stdlib/geometry/angle-real.
+  metamath-proof none
+  lean-proof  none
 
 mundane theorem angle-real
   let P be a point                                                    (H1)
@@ -55,7 +55,7 @@ mundane theorem angle-real
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR ∈ ℝ. ∠PQR ≥ 0.
-  metamath-proof gangbnd3
+  metamath-proof metamath-bridges/geometry/gangbnd3
   note        ∠PQR is an absolute value, so it is real and at least 0; what
               makes that a proof is that ang of the two differences is a
               number, which gangrange gives by putting ∠PQR in [0, π].
@@ -80,7 +80,7 @@ mundane theorem signed-angle-real
   assume P ≠ Q                                                        (H4)
   assume R ≠ Q                                                        (H5)
   then        ∡PQR ∈ ℝ. −π < ∡PQR. ∡PQR ≤ π.
-  metamath-proof gsangcl
+  metamath-proof metamath-bridges/geometry/gsangcl
   lean-proof  not yet implemented
 
 mundane theorem signed-angle-reverse
@@ -91,7 +91,7 @@ mundane theorem signed-angle-reverse
   assume R ≠ Q                                                        (H5)
   assume ∡PQR ≠ π                                                     (H6)
   then        ∡RQP = −∡PQR
-  metamath-proof gsangrev
+  metamath-proof metamath-bridges/geometry/gsangrev
   note        Turned the other way, the signed angle changes sign; at π, a
               straight angle, it is π both ways.
   lean-proof  not yet implemented
@@ -104,7 +104,7 @@ theorem signed-angle-sum
   assume Q ≠ R                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∡RQP + ∡PRQ + ∡QPR ∈ {−π, π}
-  metamath-proof gang180
+  metamath-proof metamath-bridges/geometry/gang180
   note        The signed angles of a triangle, each turned the same way
               around it, add to π or to −π as the triangle runs
               counterclockwise or clockwise. The three points need only be
@@ -116,7 +116,7 @@ mundane theorem signed-angle-zero
   let Q be a point                                                    (H2)
   assume P ≠ Q                                                        (H3)
   then        ∡PQP = 0
-  metamath-proof gsangid
+  metamath-proof metamath-bridges/circles/gsangid
   note        A ray turned to itself turns through nothing.
   lean-proof  not yet implemented
 
@@ -129,7 +129,7 @@ mundane theorem three-rays
   assume B ≠ Q                                                        (H6)
   assume X ≠ Q                                                        (H7)
   then        there is k ∈ ℤ with ∡AQX + ∡XQB = ∡AQB + 2·k·π
-  metamath-proof gsang3
+  metamath-proof metamath-bridges/circles/gsang3
   note        Three rays from Q: turning from QA to QX and then on to QB
               turns from QA to QB, give or take whole turns, since each
               signed angle is kept between −π and π.
@@ -144,7 +144,7 @@ mundane theorem isosceles-signed-angles
   assume A ≠ B                                                        (H6)
   assume |AQ| = |BQ|                                                  (H7)
   then        ∡QAB = ∡ABQ
-  metamath-proof gisosctr with C := Q
+  metamath-proof metamath-bridges/circles/gisosctr with C := Q
   note        The base angles of an isosceles triangle, each turned the same
               way round it, are equal as signed angles: from AQ to AB at A
               and from BA to BQ at B. isosceles-angles says it unsigned.
@@ -157,7 +157,7 @@ mundane theorem same-side-turns-alike
   let D be a point                                                    (H4)
   assume C and D are on the same side of line AB                      (H5)
   then        ∡ACB·∡ADB > 0
-  metamath-proof gsamesang
+  metamath-proof metamath-bridges/circles/gsamesang
   note        Two points on one side of a line see a segment of it turned
               the same way: the signed angle ACB is positive when C is on the
               counterclockwise side of AB and negative on the other.
@@ -184,7 +184,7 @@ definition triangle
   let R be a point                                                    (H3)
   then        P, Q, R form a triangle ↔ P ≠ Q and Q ≠ R and P ≠ R and
               not (P, Q, R are collinear)
-  metamath-proof gtridef
+  metamath-proof metamath-bridges/plane/gtridef
   note        set.mm has no single notion. "Form a triangle" and "are
               collinear" are notations whose targets make the two sides one
               formula; what collinearity is in words is
@@ -249,7 +249,7 @@ mundane theorem right-angled-at-vertex
   let R be a point                                                    (H3)
   then        △PQR is right-angled at R ↔ P, Q, R form a triangle and
               ∠PRQ = 90°
-  metamath-proof grightat3
+  metamath-proof metamath-bridges/geometry/grightat3
   note        Named at the vertex it writes last, a right angle is the angle
               there: the triangle's R ≠ P and R ≠ Q rule out the other two.
   lean-proof  not yet implemented
@@ -267,7 +267,7 @@ mundane theorem angle-symmetric
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        ∠PQR = ∠RQP
-  metamath-proof gangsym3
+  metamath-proof metamath-bridges/geometry/gangsym3
   lean-proof  not yet implemented
 
 mundane theorem angle-turned
@@ -278,7 +278,7 @@ mundane theorem angle-turned
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR = ∠RQP
-  metamath-proof gangsym3
+  metamath-proof metamath-bridges/geometry/gangsym3
   note        As angle-symmetric, for points that may lie on a line: the
               angle between two arms does not depend on which is named first.
   lean-proof  not yet implemented
@@ -292,7 +292,7 @@ definition parallel
   assume C ≠ D                                                        (H6)
   then        line AB ∥ line CD ↔ line AB = line CD or not (there is
               X ∈ 𝔼² with X is on line AB and X is on line CD)
-  metamath-proof gpardef
+  metamath-proof metamath-bridges/postulates/gpardef
   note        Two lines are parallel when they are one line or never meet,
               as SMSG defines it of distinct lines. Named for the angle sum,
               whose proof draws the parallel to one side through the
@@ -320,7 +320,7 @@ definition line
   let A be a point                                                    (H2)
   let B be a point                                                    (H3)
   then        P ∈ line AB ↔ P is on line AB
-  metamath-proof glinel
+  metamath-proof metamath-bridges/postulates/glinel
   note        The line through A and B as a set, for a statement that
               speaks of the line itself. A ≠ B where it is a line.
   lean-proof  not yet implemented
@@ -332,7 +332,7 @@ definition ray
   assume A ≠ B                                                        (H4)
   then        P ∈ ray AB ↔ P = A or P = B or (P is between A and B) or
               (B is between A and P)
-  metamath-proof grayel
+  metamath-proof metamath-bridges/postulates/grayel
   note        The ray from A through B: the segment AB and the points
               beyond B.
   lean-proof  not yet implemented
@@ -341,7 +341,7 @@ mundane theorem line-turned
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   then        line AB = line BA
-  metamath-proof glineturn
+  metamath-proof metamath-bridges/postulates/glineturn
   lean-proof  not yet implemented
 
 mundane theorem on-line-cases
@@ -352,7 +352,7 @@ mundane theorem on-line-cases
   assume P is on line QR                                              (H5)
   then        P = Q or (P is between Q and R) or P = R or
               (R is between Q and P) or (Q is between P and R)
-  metamath-proof gonline
+  metamath-proof metamath-bridges/plane/gonline
   note        A point of a line through two points is one of them, between
               them, or beyond one of them, which a figure shows and a proof
               takes as the cases there are.
@@ -377,7 +377,7 @@ mundane theorem perpendicular-by-right-angle
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        line QP ⊥ line QR ↔ ∠PQR = 90°
-  metamath-proof gperp90
+  metamath-proof metamath-bridges/triangles/gperp90
   note        Two lines through Q are perpendicular when the angle between
               them at Q is a right angle.
   lean-proof  not yet implemented
@@ -401,7 +401,7 @@ mundane theorem midpoint-unique
   assume M is the midpoint of AB                                      (H5)
   assume N is the midpoint of AB                                      (H6)
   then        M = N
-  metamath-proof gmiduniq
+  metamath-proof metamath-bridges/plane/gmiduniq
   note        A segment has one midpoint, which is what "the midpoint of AB"
               takes for granted.
   lean-proof  not yet implemented
@@ -414,7 +414,7 @@ mundane theorem midpoint-determines-end
   assume M is the midpoint of AB                                      (H5)
   assume M is the midpoint of AC                                      (H6)
   then        B = C
-  metamath-proof gmidend
+  metamath-proof metamath-bridges/plane/gmidend
   note        The reflection of a point through another is one point: B is
               the point beyond M from A at the distance |AM|.
   lean-proof  not yet implemented
@@ -442,7 +442,7 @@ axiom supplementary-angles
   assume D ≠ A                                                        (H7)
   assume D ≠ C                                                        (H8)
   then        ∠ABD + ∠DBC = 180°
-  metamath-proof gsupp
+  metamath-proof metamath-bridges/plane/gsupp
   note        Two angles on a line, Euclid I.13: with B on the segment AC,
               the angles ABD and DBC make a straight angle wherever D is.
               SMSG's postulate 14, the supplement postulate: two angles
@@ -466,7 +466,7 @@ mundane theorem angle-addition
   assume M is between A and B                                         (H6)
   assume C ≠ M                                                        (H7)
   then        ∠ACM + ∠MCB = ∠ACB
-  metamath-proof gangadd
+  metamath-proof metamath-bridges/plane/gangadd
   note        A point of the side AB splits the angle at C in two. With T
               the point beyond C from A, angles-on-a-line makes ACM, MCB
               and BCT a straight angle, and supplementary-angles makes ACB
@@ -479,7 +479,7 @@ mundane theorem distance-nonneg
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| ≥ 0
-  metamath-proof gdistnn
+  metamath-proof metamath-bridges/plane/gdistnn
   lean-proof  not yet implemented
 
 axiom distance-positive
@@ -487,7 +487,7 @@ axiom distance-positive
   let Q be a point                                                    (H2)
   assume P ≠ Q                                                        (H3)
   then        |PQ| > 0
-  metamath-proof gdistpos
+  metamath-proof metamath-bridges/plane/gdistpos
   note        SMSG's postulate 2, the distance postulate: two distinct
               points are a positive distance apart.
   lean-proof  not yet implemented
@@ -496,7 +496,7 @@ mundane theorem distance-zero
   let P be a point                                                    (H1)
   let Q be a point                                                    (H2)
   then        |PQ| = 0 ↔ P = Q
-  metamath-proof gdist0
+  metamath-proof metamath-bridges/plane/gdist0
   note        A point is at distance 0 from itself and from no other point.
   lean-proof  not yet implemented
 
@@ -506,7 +506,7 @@ mundane theorem distance-by-coordinates
   let c ∈ ℝ                                                           (H3)
   let d ∈ ℝ                                                           (H4)
   then        |(a, b)(c, d)| = √((a − c)² + (b − d)²)
-  metamath-proof gdistco
+  metamath-proof metamath-bridges/plane/gdistco
   lean-proof  not yet implemented
 
 mundane theorem collinear-by-coordinates
@@ -517,7 +517,7 @@ mundane theorem collinear-by-coordinates
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
   then        (a, b), (c, d), (e, f) are collinear ↔ (c − a)·(f − b) = (e − a)·(d − b)
-  metamath-proof gcolco
+  metamath-proof metamath-bridges/plane/gcolco
   lean-proof  not yet implemented
 
 mundane theorem between-by-coordinates
@@ -528,7 +528,7 @@ mundane theorem between-by-coordinates
   let e ∈ ℝ                                                           (H5)
   let f ∈ ℝ                                                           (H6)
   then        (c, d) is between (a, b) and (e, f) ↔ (a − c)·(f − d) = (e − c)·(b − d) and (a − c)·(e − c) + (b − d)·(f − d) < 0
-  metamath-proof gbetco
+  metamath-proof metamath-bridges/plane/gbetco
   note        The three points are collinear, and the two ends lie on
               opposite sides of the middle one: the differences from it
               point opposite ways, so their dot product is negative.
@@ -544,7 +544,7 @@ mundane theorem points-apart-by-coordinates
   assume A = (a, b)                                                   (H7)
   assume B = (c, d)                                                   (H8)
   then        A ≠ B ↔ (a, b) ≠ (c, d)
-  metamath-proof gptapart
+  metamath-proof metamath-bridges/plane/gptapart
   note        On the left (a, b) and (c, d) are points, as A and B are;
               on the right they are pairs, which `arithmetic` compares
               coordinate by coordinate (`METHODS.md`, Pairs).
@@ -560,7 +560,7 @@ mundane theorem distance-of-points-by-coordinates
   assume A = (a, b)                                                   (H7)
   assume B = (c, d)                                                   (H8)
   then        |AB| = √((a − c)² + (b − d)²)
-  metamath-proof gptdist
+  metamath-proof metamath-bridges/plane/gptdist
   note        distance-by-coordinates for two points named by letters, so a
               proof that gives its points coordinates reads each distance
               off in one step.
@@ -572,7 +572,7 @@ mundane theorem between-symmetric
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        R is between T and S
-  metamath-proof gbetsym
+  metamath-proof metamath-bridges/triangles/gbetsym
   lean-proof  not yet implemented
 
 mundane theorem between-apart
@@ -581,7 +581,7 @@ mundane theorem between-apart
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        S ≠ R. T ≠ R.
-  metamath-proof gbetne0
+  metamath-proof metamath-bridges/plane/gbetne0
   note        A point between two others is apart from both, so the
               angles and triangles at it are defined.
   lean-proof  not yet implemented
@@ -592,7 +592,7 @@ mundane theorem between-ends-apart
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        S ≠ T
-  metamath-proof gbetends
+  metamath-proof metamath-bridges/plane/gbetends
   note        A segment with a point strictly between its ends has two ends.
   lean-proof  not yet implemented
 
@@ -602,7 +602,7 @@ mundane theorem between-collinear
   let T be a point                                                    (H3)
   assume R is between S and T                                         (H4)
   then        T, R, S are collinear
-  metamath-proof gbetcol
+  metamath-proof metamath-bridges/plane/gbetcol
   note        A point between two others is on their line.
   lean-proof  not yet implemented
 
@@ -614,7 +614,7 @@ mundane theorem triangle-on-side
   assume P, Q, R form a triangle                                      (H5)
   assume S is between Q and R                                         (H6)
   then        P, Q, S form a triangle
-  metamath-proof gtriside
+  metamath-proof metamath-bridges/triangles/gtriside
   note        A point of the side QR, apart from its ends, makes a smaller
               triangle with the vertex opposite and either end: S lies on
               line QR, which P does not.
@@ -630,7 +630,7 @@ mundane theorem angle-along-segment
   assume R ≠ S                                                        (H7)
   assume R ≠ Q                                                        (H8)
   then        ∠SPR = ∠QPR
-  metamath-proof gangseg
+  metamath-proof metamath-bridges/triangles/gangseg
   note        S on the segment from P to Q is on the ray from P through Q,
               so the angle that ray makes with PR is the same measured to S
               as to Q.
@@ -642,7 +642,7 @@ mundane theorem segment-addition
   let S be a point                                                    (H3)
   assume S is between P and Q                                         (H4)
   then        |PS| + |SQ| = |PQ|
-  metamath-proof gsegadd
+  metamath-proof metamath-bridges/triangles/gsegadd
   lean-proof  not yet implemented
 
 mundane theorem sine-positive
@@ -651,7 +651,7 @@ mundane theorem sine-positive
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        sin(∠PQR) > 0
-  metamath-proof gsinpos
+  metamath-proof metamath-bridges/triangles/gsinpos
   note        An angle of a triangle is strictly between 0° and 180°, where
               the sine is positive.
   lean-proof  not yet implemented
@@ -662,7 +662,7 @@ theorem law-of-sines
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        |PQ|·sin(∠PQR) = |PR|·sin(∠QRP)
-  metamath-proof glawsin
+  metamath-proof metamath-bridges/triangles/glawsin
   note        Each side over the sine of the angle opposite it is the same:
               PR is opposite Q and PQ opposite R, so |PR|/sin(∠PQR) =
               |PQ|/sin(∠QRP), written without division.
@@ -687,7 +687,7 @@ theorem area-by-sine
   assume Q ≠ R                                                        (H5)
   assume Q ≠ P                                                        (H6)
   then        the area of △PQR = (1/2)·(|QR|·|PR|)·sin(∠QRP)
-  metamath-proof garea
+  metamath-proof metamath-bridges/triangles/garea
   lean-proof  not yet implemented
 
 mundane theorem area-real
@@ -697,7 +697,7 @@ mundane theorem area-real
   assume P ≠ R                                                        (H4)
   assume Q ≠ R                                                        (H5)
   then        the area of △PQR ∈ ℝ
-  metamath-proof gareacl
+  metamath-proof metamath-bridges/triangles/gareacl
   lean-proof  not yet implemented
 
 axiom area-positive
@@ -706,7 +706,7 @@ axiom area-positive
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        the area of △PQR > 0
-  metamath-proof gareapos
+  metamath-proof metamath-bridges/triangles/gareapos
   note        SMSG's postulate 17, said of a triangle: a triangle has a
               positive area.
   lean-proof  not yet implemented
@@ -720,7 +720,7 @@ theorem heron
   assume Q ≠ R                                                        (H6)
   assume s = (|QR| + |PR| + |PQ|)/2                                   (H7)
   then        the area of △PQR = √(s·(s − |QR|)·((s − |PR|)·(s − |PQ|)))
-  metamath-proof gheron
+  metamath-proof metamath-bridges/triangles/gheron
   note        Heron's formula: the area from the three sides alone, s being
               half the perimeter.
   lean-proof  not yet implemented
@@ -733,7 +733,7 @@ theorem law-of-cosines
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        |RP|² = |PQ|² + |QR|² − 2·(|PQ|·|QR|·cos(∠PQR))
-  metamath-proof glawcos
+  metamath-proof metamath-bridges/geometry/glawcos
   note        The side opposite Q, from the two sides at Q and the angle
               between them; at a right angle the last term is 0 and it is
               Pythagoras.
@@ -754,7 +754,7 @@ mundane theorem angle-equal-by-cosine
   assume P ≠ R                                                        (H12)
   assume P′ ≠ R′                                                      (H13)
   then        ∠PQR = ∠P′Q′R′
-  metamath-proof gangeq3
+  metamath-proof metamath-bridges/geometry/gangeq3
   note        An angle is between 0° and 180°, where the cosine is one-to-one.
   lean-proof  not yet implemented
 
@@ -772,7 +772,7 @@ mundane theorem angle-order-by-cosine
   assume P ≠ R                                                        (H11)
   assume P′ ≠ R′                                                      (H12)
   then        ∠PQR < ∠P′Q′R′ ↔ cos(∠P′Q′R′) < cos(∠PQR)
-  metamath-proof gangord3
+  metamath-proof metamath-bridges/geometry/gangord3
   note        An angle is between 0° and 180°, where the cosine falls: the
               larger angle has the smaller cosine.
   lean-proof  not yet implemented
@@ -785,7 +785,7 @@ mundane theorem right-angle-by-cosine
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR = 90° ↔ cos(∠PQR) = 0
-  metamath-proof gright3
+  metamath-proof metamath-bridges/triangles/gright3
   lean-proof  not yet implemented
 
 mundane theorem right-angle-triangle
@@ -797,7 +797,7 @@ mundane theorem right-angle-triangle
   assume ∠PQR = 90°                                                   (H6)
   assume P ≠ R                                                        (H7)
   then        P, Q, R form a triangle
-  metamath-proof grttri
+  metamath-proof metamath-bridges/plane/grttri
   note        The arms of a right angle are not on one line.
   lean-proof  not yet implemented
 
@@ -810,7 +810,7 @@ mundane theorem cosine-right-triangle
   assume ∠PRQ = 90°                                                   (H6)
   assume P ≠ Q                                                        (H7)
   then        |QR| = |QP|·cos(∠RQP)
-  metamath-proof gcosrt
+  metamath-proof metamath-bridges/plane/gcosrt
   note        In a triangle with a right angle at R, the side QR next to
               the angle at Q is the hypotenuse times that angle's cosine:
               the cosine is the adjacent side over the hypotenuse, which is
@@ -825,7 +825,7 @@ mundane theorem angle-at-most-straight
   assume R ≠ Q                                                        (H5)
   assume P ≠ R                                                        (H6)
   then        ∠PQR ≤ 180°
-  metamath-proof gangle180
+  metamath-proof metamath-bridges/plane/gangle180
   lean-proof  not yet implemented
 
 mundane theorem angle-by-cosine
@@ -839,7 +839,7 @@ mundane theorem angle-by-cosine
   assume x ≤ 180°                                                     (H8)
   assume P ≠ R                                                        (H9)
   then        ∠PQR = x ↔ cos(∠PQR) = cos(x)
-  metamath-proof gangcos
+  metamath-proof metamath-bridges/plane/gangcos
   note        An angle is read from its cosine, as right-angle-by-cosine
               reads a right angle: on [0°, 180°] the cosine takes each value
               once.
@@ -858,7 +858,7 @@ axiom side-angle-side
   assume ∠PQR = ∠P′Q′R′                                               (H10)
   assume |QR| = |Q′R′|                                                (H11)
   then        triangle PQR ≅ triangle P′Q′R′
-  metamath-proof gsas
+  metamath-proof metamath-bridges/geometry/gsas
   note        The isosceles proof instantiates A, B, C, A′, B′, C′, which are not
               this statement's variable names. One of the two must change; the
               merge changed neither. See DATABASE.md.
@@ -881,7 +881,7 @@ axiom line-uniqueness
   assume A is on line CD                                              (H7)
   assume B is on line CD                                              (H8)
   then        line AB = line CD
-  metamath-proof glineuniq
+  metamath-proof metamath-bridges/postulates/glineuniq
   note        SMSG's postulate 1: two distinct points lie on exactly one
               line. Lines are said by two of their points, so the postulate
               says that any two distinct points of a line make that line.
@@ -889,7 +889,7 @@ axiom line-uniqueness
 
 axiom three-points
   then        there are P, Q, R ∈ 𝔼² with P, Q, R form a triangle
-  metamath-proof gthreepts
+  metamath-proof metamath-bridges/postulates/gthreepts
   note        SMSG's postulate 5, of the plane: it holds three points not on
               one line.
   lean-proof  not yet implemented
@@ -900,7 +900,7 @@ axiom angle-measure
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        ∠PQR > 0°. ∠PQR < 180°.
-  metamath-proof gangmeas
+  metamath-proof metamath-bridges/postulates/gangmeas
   note        SMSG's postulate 11: an angle, two rays from one point not on
               one line, has a measure strictly between 0° and 180°.
               mun:stdlib/geometry/angle-real and
@@ -914,7 +914,7 @@ axiom ruler
   assume A ≠ B                                                        (H3)
   then        there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and
               onto and for all P, Q ∈ line AB, |PQ| = |f(P) − f(Q)|
-  metamath-proof gruler
+  metamath-proof metamath-bridges/postulates/gruler
   note        SMSG's postulate 3, the ruler: the points of a line are paired
               with the real numbers so that a distance is a difference of
               coordinates.
@@ -927,7 +927,7 @@ axiom ruler-placement
   then        there is f : line AB → ℝ with f : line AB → ℝ is one-to-one and
               onto and f(A) = 0 and f(B) > 0 and for all P, Q ∈ line AB,
               |PQ| = |f(P) − f(Q)|
-  metamath-proof grulerplace
+  metamath-proof metamath-bridges/postulates/grulerplace
   note        SMSG's postulate 4: a ruler may be laid along a line with any
               point of it at 0 and any other on the positive side.
   lean-proof  not yet implemented
@@ -945,7 +945,7 @@ axiom parallel-uniqueness
   assume line PC ∥ line AB                                            (H10)
   assume line PD ∥ line AB                                            (H11)
   then        line PC = line PD
-  metamath-proof gparuniq
+  metamath-proof metamath-bridges/postulates/gparuniq
   note        SMSG's postulate 16, the parallel postulate: through a point
               not on a line there is at most one line parallel to it. That
               there is one is thm:stdlib/geometry/parallel-through.
@@ -961,7 +961,7 @@ axiom plane-separation
   assume not (Q is on line AB)                                        (H7)
   then        P and Q are on the same side of line AB or P and Q are on
               opposite sides of line AB
-  metamath-proof gplanesep
+  metamath-proof metamath-bridges/postulates/gplanesep
   note        SMSG's postulate 9, the plane separation postulate, in three
               parts: a line divides the points off it into two sides, each
               side holds a segment between two of its points
@@ -979,7 +979,7 @@ axiom plane-separation-convex
   assume P and Q are on the same side of line AB                      (H7)
   assume X is between P and Q                                         (H8)
   then        X and P are on the same side of line AB
-  metamath-proof gplanesepcvx
+  metamath-proof metamath-bridges/postulates/gplanesepcvx
   note        SMSG's postulate 9, second part: each side of a line is
               convex.
   lean-proof  not yet implemented
@@ -993,7 +993,7 @@ axiom plane-separation-crossing
   assume P and Q are on opposite sides of line AB                     (H6)
   then        there is X ∈ 𝔼² with X is on line AB and
               (X is between P and Q)
-  metamath-proof gplanesepcross
+  metamath-proof metamath-bridges/postulates/gplanesepcross
   note        SMSG's postulate 9, third part: a segment joining the two
               sides of a line meets the line.
   lean-proof  not yet implemented
@@ -1008,7 +1008,7 @@ axiom angle-construction
   assume x < 180°                                                     (H7)
   then        there is D ∈ 𝔼² with D and C are on the same side of line AB
               and ∠BAD = x
-  metamath-proof gangconsm
+  metamath-proof metamath-bridges/postulates/gangconsm
   note        SMSG's postulate 12, the angle construction postulate: on a
               given side of a line, a ray from a point of it makes each
               angle from 0° to 180° with the line, in two parts. This is
@@ -1027,7 +1027,7 @@ axiom angle-construction-unique
   assume E and C are on the same side of line AB                      (H8)
   assume ∠BAD = ∠BAE                                                  (H9)
   then        E ∈ ray AD
-  metamath-proof gangconsuniq
+  metamath-proof metamath-bridges/postulates/gangconsuniq
   note        SMSG's postulate 12, second part: the ray is the only one.
   lean-proof  not yet implemented
 
@@ -1040,7 +1040,7 @@ axiom angle-addition-inside
   assume D and C are on the same side of line AB                      (H6)
   assume D and B are on the same side of line AC                      (H7)
   then        ∠BAD + ∠DAC = ∠BAC
-  metamath-proof gangaddin
+  metamath-proof metamath-bridges/postulates/gangaddin
   note        SMSG's postulate 13, the angle addition postulate: D is
               inside angle BAC, on C's side of line AB and B's side of line
               AC. mun:stdlib/geometry/angle-addition says the same of a D
@@ -1058,7 +1058,7 @@ axiom area-congruent
   assume P′, Q′, R′ form a triangle                                   (H8)
   assume triangle PQR ≅ triangle P′Q′R′                               (H9)
   then        the area of △PQR = the area of △P′Q′R′
-  metamath-proof gareacong
+  metamath-proof metamath-bridges/postulates/gareacong
   note        SMSG's postulate 18: congruent triangles have the same area.
   lean-proof  not yet implemented
 
@@ -1071,7 +1071,7 @@ axiom area-base-height
   assume H is on line QR                                              (H6)
   assume line PH ⊥ line QR                                            (H7)
   then        the area of △PQR = (1/2)·|QR|·|PH|
-  metamath-proof gareabh
+  metamath-proof metamath-bridges/postulates/gareabh
   note        SMSG's postulate 20, said of a triangle: half the base times
               the height, where SMSG says it of a rectangle.
   lean-proof  not yet implemented
@@ -1084,7 +1084,7 @@ axiom area-addition
   assume P, Q, R form a triangle                                      (H5)
   assume D is between Q and R                                         (H6)
   then        the area of △PQR = the area of △PQD + the area of △PDR
-  metamath-proof gareaadd
+  metamath-proof metamath-bridges/postulates/gareaadd
   note        SMSG's postulate 19, said of a triangle cut in two by a
               segment from a vertex.
   lean-proof  not yet implemented
@@ -1098,7 +1098,7 @@ mundane theorem midpoint-exists
   let B be a point                                                    (H2)
   assume A ≠ B                                                        (H3)
   then        there is M ∈ 𝔼² with M is the midpoint of AB
-  metamath-proof gmidex
+  metamath-proof metamath-bridges/postulates/gmidex
   lean-proof  not yet implemented
 
 mundane theorem segment-extension
@@ -1108,7 +1108,7 @@ mundane theorem segment-extension
   assume A ≠ B                                                        (H4)
   assume r > 0                                                        (H5)
   then        there is X ∈ 𝔼² with (B is between A and X) and |BX| = r
-  metamath-proof gextend
+  metamath-proof metamath-bridges/postulates/gextend
   note        Euclid's second postulate, a segment produced, with the length
               it is produced by.
   lean-proof  not yet implemented
@@ -1120,7 +1120,7 @@ mundane theorem segment-point
   assume r > 0                                                        (H4)
   assume r < |AB|                                                     (H5)
   then        there is X ∈ 𝔼² with (X is between A and B) and |AX| = r
-  metamath-proof gsegpt
+  metamath-proof metamath-bridges/postulates/gsegpt
   note        A length shorter than a segment, laid off along it from one
               end.
   lean-proof  not yet implemented
@@ -1132,7 +1132,7 @@ mundane theorem triangle-off-line
   assume Q ≠ R                                                        (H4)
   assume not (P is on line QR)                                        (H5)
   then        P, Q, R form a triangle
-  metamath-proof gtrioff
+  metamath-proof metamath-bridges/postulates/gtrioff
   lean-proof  not yet implemented
 
 mundane theorem ray-on-line
@@ -1141,7 +1141,7 @@ mundane theorem ray-on-line
   let B be a point                                                    (H3)
   assume P ∈ ray AB                                                   (H4)
   then        P is on line AB
-  metamath-proof grayline
+  metamath-proof metamath-bridges/postulates/grayline
   note        A ray lies on its line.
   lean-proof  not yet implemented
 
@@ -1152,7 +1152,7 @@ mundane theorem same-not-opposite
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        not (P and Q are on opposite sides of line AB)
-  metamath-proof gsidenot
+  metamath-proof metamath-bridges/postulates/gsidenot
   note        The two sides of a line do not meet, which SMSG's plane
               separation postulate says in calling them two sets.
   lean-proof  not yet implemented
@@ -1165,7 +1165,7 @@ mundane theorem parallel-turned
   assume A ≠ B                                                        (H5)
   assume line AB ∥ line CD                                            (H6)
   then        line CD ∥ line AB
-  metamath-proof gparturn
+  metamath-proof metamath-bridges/postulates/gparturn
   note        Being parallel goes both ways.
   lean-proof  not yet implemented
 
@@ -1176,7 +1176,7 @@ mundane theorem perpendicular-turned
   let D be a point                                                    (H4)
   assume line AB ⊥ line CD                                            (H5)
   then        line BA ⊥ line CD
-  metamath-proof gperpturn
+  metamath-proof metamath-bridges/postulates/gperpturn
   note        Line BA is line AB, so a line perpendicular to the one is
               perpendicular to the other.
   lean-proof  not yet implemented
@@ -1193,7 +1193,7 @@ mundane theorem perpendicular-along
   assume F is on line CD                                              (H9)
   assume E ≠ F                                                        (H10)
   then        line AB ⊥ line EF
-  metamath-proof gperpalong
+  metamath-proof metamath-bridges/postulates/gperpalong
   note        Being perpendicular belongs to the line, not to the two
               points that name it.
   lean-proof  not yet implemented
@@ -1204,7 +1204,7 @@ mundane theorem area-rotated
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        the area of △PQR = the area of △QRP
-  metamath-proof garearot
+  metamath-proof metamath-bridges/postulates/garearot
   note        The area of a triangle does not depend on which vertex is
               named first.
   lean-proof  not yet implemented
@@ -1216,7 +1216,7 @@ mundane theorem same-side-turned
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        Q and P are on the same side of line AB
-  metamath-proof gsameturn
+  metamath-proof metamath-bridges/postulates/gsameturn
   lean-proof  not yet implemented
 
 mundane theorem opposite-sides-turned
@@ -1226,7 +1226,7 @@ mundane theorem opposite-sides-turned
   let Q be a point                                                    (H4)
   assume P and Q are on opposite sides of line AB                     (H5)
   then        Q and P are on opposite sides of line AB
-  metamath-proof goppturn
+  metamath-proof metamath-bridges/postulates/goppturn
   lean-proof  not yet implemented
 
 mundane theorem same-side-same
@@ -1238,7 +1238,7 @@ mundane theorem same-side-same
   assume P and Q are on the same side of line AB                      (H6)
   assume Q and R are on the same side of line AB                      (H7)
   then        P and R are on the same side of line AB
-  metamath-proof gsametr
+  metamath-proof metamath-bridges/postulates/gsametr
   lean-proof  not yet implemented
 
 mundane theorem opposite-opposite-same
@@ -1250,7 +1250,7 @@ mundane theorem opposite-opposite-same
   assume P and Q are on opposite sides of line AB                     (H6)
   assume Q and R are on opposite sides of line AB                     (H7)
   then        P and R are on the same side of line AB
-  metamath-proof goppopp
+  metamath-proof metamath-bridges/postulates/goppopp
   lean-proof  not yet implemented
 
 mundane theorem same-opposite-opposite
@@ -1262,7 +1262,7 @@ mundane theorem same-opposite-opposite
   assume P and Q are on the same side of line AB                      (H6)
   assume Q and R are on opposite sides of line AB                     (H7)
   then        P and R are on opposite sides of line AB
-  metamath-proof gsameopp
+  metamath-proof metamath-bridges/postulates/gsameopp
   lean-proof  not yet implemented
 
 mundane theorem same-side-of-line
@@ -1278,7 +1278,7 @@ mundane theorem same-side-of-line
   assume D is on line AB                                              (H10)
   assume P and Q are on the same side of line AB                      (H11)
   then        P and Q are on the same side of line CD
-  metamath-proof gsideline
+  metamath-proof metamath-bridges/postulates/gsideline
   note        Which side a point is on belongs to the line, not to the two
               points that name it.
   lean-proof  not yet implemented
@@ -1296,7 +1296,7 @@ mundane theorem opposite-sides-of-line
   assume D is on line AB                                              (H10)
   assume P and Q are on opposite sides of line AB                     (H11)
   then        P and Q are on opposite sides of line CD
-  metamath-proof goppline
+  metamath-proof metamath-bridges/postulates/goppline
   lean-proof  not yet implemented
 
 mundane theorem segment-off-line
@@ -1310,7 +1310,7 @@ mundane theorem segment-off-line
   assume not (P is on line AB)                                        (H8)
   assume X is between P and Q                                         (H9)
   then        X and P are on the same side of line AB
-  metamath-proof gsegside
+  metamath-proof metamath-bridges/postulates/gsegside
   note        A segment from a point off a line to a point on it stays on
               the first point's side.
   lean-proof  not yet implemented
@@ -1326,7 +1326,7 @@ mundane theorem segment-across-line
   assume not (P is on line AB)                                        (H8)
   assume M is between P and Q                                         (H9)
   then        P and Q are on opposite sides of line AB
-  metamath-proof gsegcross
+  metamath-proof metamath-bridges/postulates/gsegcross
   note        A segment through a point of a line, from a point off it,
               ends on the other side.
   lean-proof  not yet implemented
@@ -1342,7 +1342,7 @@ mundane theorem segment-beyond-off-line
   assume not (X is on line AB)                                        (H8)
   assume X is between P and Q                                         (H9)
   then        P and X are on the same side of line AB
-  metamath-proof gsegbeyond
+  metamath-proof metamath-bridges/postulates/gsegbeyond
   note        A segment from a point of a line through a point off it goes
               on, past that point, on its side.
   lean-proof  not yet implemented
@@ -1354,7 +1354,7 @@ mundane theorem same-side-off-line
   let Q be a point                                                    (H4)
   assume P and Q are on the same side of line AB                      (H5)
   then        A ≠ B. not (P is on line AB). not (Q is on line AB).
-  metamath-proof gsameoffab, gsameoffp, gsameoffq
+  metamath-proof metamath-bridges/postulates/gsameoffab, metamath-bridges/postulates/gsameoffp, metamath-bridges/postulates/gsameoffq
   note        One target to a sentence.
   lean-proof  not yet implemented
 
@@ -1365,7 +1365,7 @@ mundane theorem opposite-sides-off-line
   let Q be a point                                                    (H4)
   assume P and Q are on opposite sides of line AB                     (H5)
   then        A ≠ B. not (P is on line AB). not (Q is on line AB).
-  metamath-proof goppoffab, goppoffp, goppoffq
+  metamath-proof metamath-bridges/postulates/goppoffab, metamath-bridges/postulates/goppoffp, metamath-bridges/postulates/goppoffq
   note        One target to a sentence.
   lean-proof  not yet implemented
 
@@ -1373,7 +1373,7 @@ mundane theorem on-line-ends
   let A be a point                                                    (H1)
   let B be a point                                                    (H2)
   then        A is on line AB. B is on line AB.
-  metamath-proof gonends1, gonends2
+  metamath-proof metamath-bridges/postulates/gonends1, metamath-bridges/postulates/gonends2
   note        One target to a sentence.
   lean-proof  not yet implemented
 
@@ -1383,7 +1383,7 @@ mundane theorem triangle-not-on-line
   let R be a point                                                    (H3)
   assume P, Q, R form a triangle                                      (H4)
   then        not (P is on line QR)
-  metamath-proof gtrinot
+  metamath-proof metamath-bridges/postulates/gtrinot
   lean-proof  not yet implemented
 
 mundane theorem triangle-extension
@@ -1394,7 +1394,7 @@ mundane theorem triangle-extension
   assume P, Q, R form a triangle                                      (H5)
   assume Q is between R and S                                         (H6)
   then        P, Q, S form a triangle
-  metamath-proof gtriext
+  metamath-proof metamath-bridges/postulates/gtriext
   note        A side produced past a vertex, as triangle-on-side takes a
               point within it.
   lean-proof  not yet implemented
@@ -1405,7 +1405,7 @@ mundane theorem off-line-apart
   let P be a point                                                    (H3)
   assume not (P is on line AB)                                        (H4)
   then        P ≠ A. P ≠ B.
-  metamath-proof goffapart1, goffapart2
+  metamath-proof metamath-bridges/postulates/goffapart1, metamath-bridges/postulates/goffapart2
   note        One target to a sentence.
   lean-proof  not yet implemented
 
@@ -1417,7 +1417,7 @@ mundane theorem on-off-apart
   assume X is on line AB                                              (H5)
   assume not (Y is on line AB)                                        (H6)
   then        X ≠ Y
-  metamath-proof gonoffapart
+  metamath-proof metamath-bridges/postulates/gonoffapart
   lean-proof  not yet implemented
 
 mundane theorem off-line-through
@@ -1429,7 +1429,7 @@ mundane theorem off-line-through
   assume X is on line RS                                              (H6)
   assume X ≠ R                                                        (H7)
   then        not (X is on line RP)
-  metamath-proof gofflinethru
+  metamath-proof metamath-bridges/postulates/gofflinethru
   note        Two lines through R meet only at R.
   lean-proof  not yet implemented
 
@@ -1441,7 +1441,7 @@ mundane theorem line-crossing-between
   assume X is on line RS                                              (H5)
   assume S and X are on opposite sides of line RP                     (H6)
   then        R is between S and X
-  metamath-proof glinecrossbet
+  metamath-proof metamath-bridges/postulates/glinecrossbet
   note        A line through R crosses another line through R at R, so a
               point of it on the far side is beyond R.
   lean-proof  not yet implemented
@@ -1454,7 +1454,7 @@ mundane theorem angle-same-ray
   assume X is on line PQ                                              (H5)
   assume X and Q are on the same side of line PR                      (H6)
   then        ∠RPX = ∠RPQ
-  metamath-proof gangsameray
+  metamath-proof metamath-bridges/postulates/gangsameray
   note        A point of line PQ on Q's side of line PR is on the ray from
               P through Q, so it makes the same angle.
   lean-proof  not yet implemented
@@ -1469,7 +1469,7 @@ mundane theorem ray-side-transfer
   assume X and P are on the same side of line RS                      (H7)
   assume not (P is on line RQ)                                        (H8)
   then        X and P are on the same side of line RQ
-  metamath-proof graysidetr
+  metamath-proof metamath-bridges/postulates/graysidetr
   note        A point on the ray from R through P is on P's side of every
               line through R that P is off.
   lean-proof  not yet implemented
@@ -1485,7 +1485,7 @@ mundane theorem parallel-along
   assume E is on line AB                                              (H8)
   assume E ≠ A                                                        (H9)
   then        line AE ∥ line DC
-  metamath-proof gparalong
+  metamath-proof metamath-bridges/postulates/gparalong
   note        Being parallel belongs to the two lines, not to the points
               that name them.
   lean-proof  not yet implemented
@@ -1496,5 +1496,5 @@ mundane theorem off-line-swap
   let Q be a point                                                    (H3)
   assume not (Q is on line RP)                                        (H4)
   then        not (P is on line RQ)
-  metamath-proof goffswap
+  metamath-proof metamath-bridges/postulates/goffswap
   lean-proof  not yet implemented

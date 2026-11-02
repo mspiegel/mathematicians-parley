@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 
 /-! Written from proofs/setmm/triangular-number-integer.proof by parley build lean. -/
 

@@ -51,7 +51,7 @@ definition odd
   let n ∈ ℤ                                                           (H1)
   then        n is odd ↔ there is k ∈ ℤ with n = 2k + 1
   decided     arithmetic, inspection
-  metamath-proof godd2np1, equation reversed
+  metamath-proof metamath-bridges/parity/godd2np1, equation reversed
   lean-proof Iff.rfl
   note        "n is odd" is set.mm's odd integer, n ∈ ℤ and not 2 ∥ n;
               godd2np1 is odd2np1 with the membership joined, and is proved
@@ -60,7 +60,7 @@ definition odd
 mundane theorem even-or-odd
   let n ∈ ℤ                                                           (H1)
   then        n is even or n is odd
-  metamath-proof gevenodd
+  metamath-proof metamath-bridges/parity/gevenodd
   lean-proof Int.even_or_odd n
   note        zeo3 says 2 ∥ n or not 2 ∥ n of an integer; gevenodd joins H1
               to its second case, which is what "n is odd" says.
@@ -69,7 +69,7 @@ mundane theorem not-both
   let n ∈ ℤ                                                           (H1)
   assume n is even                                                    (H2)
   then        n is not odd
-  metamath-proof gnotboth
+  metamath-proof metamath-bridges/parity/gnotboth
   lean-proof Int.not_odd_iff_even.mpr h2
   note        "n is odd" says not 2 ∥ n, which H2 denies.
 
@@ -119,7 +119,7 @@ mundane theorem odd-plus-even
   let b ∈ ℤ                                                           (H3)
   assume b is even                                                    (H4)
   then        a + b is odd
-  metamath-proof gopeo
+  metamath-proof metamath-bridges/parity/gopeo
   note        opeo concludes not 2 ∥ (a + b); gopeo joins a + b ∈ ℤ, which
               "is odd" says too.
   lean-proof  not yet implemented
@@ -130,7 +130,7 @@ mundane theorem odd-minus-even
   let b ∈ ℤ                                                           (H3)
   assume b is even                                                    (H4)
   then        a − b is odd
-  metamath-proof gomeo
+  metamath-proof metamath-bridges/parity/gomeo
   note        omeo concludes not 2 ∥ (a − b); gomeo joins a − b ∈ ℤ, which
               "is odd" says too.
   lean-proof  not yet implemented
@@ -323,7 +323,7 @@ mundane theorem below-not-divisible
   let x ∈ ℕ                                                           (H2)
   assume x < n                                                        (H3)
   then        not (n divides x)
-  metamath-proof gnndvdslt with N := n, K := x
+  metamath-proof metamath-bridges/divisors/gnndvdslt with N := n, K := x
   note        A natural number below n is too small for n to divide it.
   lean-proof  not yet implemented
 
@@ -440,7 +440,7 @@ mundane theorem mod-less
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a mod b < b
-  metamath-proof gzmodlt
+  metamath-proof metamath-bridges/numbers/gzmodlt
   lean-proof  Int.emod_lt_of_pos a (by omega)
 
 mundane theorem mod-remainder
@@ -459,7 +459,7 @@ mundane theorem mod-multiple
   let m ∈ ℕ                                                           (H2)
   let q ∈ ℤ                                                           (H3)
   then        (q·m + r) mod m = r mod m
-  metamath-proof gmuladdmod
+  metamath-proof metamath-bridges/numbers/gmuladdmod
   lean-proof by rw [add_comm, Int.add_mul_emod_self_right]
   note        A whole number of m's added changes no remainder: the last
               digit of q·10 + r is the last digit of r.
@@ -469,7 +469,7 @@ mundane theorem mod-real
   let b ∈ ℝ                                                           (H2)
   assume b > 0                                                        (H3)
   then        a mod b ∈ ℝ
-  metamath-proof gmodcl
+  metamath-proof metamath-bridges/numbers/gmodcl
   note        A remainder is a number: mod-natural says so of whole numbers,
               this of reals.
   lean-proof  not yet implemented
@@ -479,7 +479,7 @@ mundane theorem mod-value
   let b ∈ ℝ                                                           (H2)
   assume b > 0                                                        (H3)
   then        a mod b = a − b·⌊a/b⌋
-  metamath-proof gmodval
+  metamath-proof metamath-bridges/numbers/gmodval
   note        The remainder of any real on dividing by a positive one: as
               many whole b's as fit below a are taken away, so 7.5 mod 2 is
               7.5 − 2·3 = 1.5 and −1 mod 3 is −1 − 3·(−1) = 2. For whole
@@ -492,7 +492,7 @@ mundane theorem mod-below
   assume 0 ≤ a                                                        (H3)
   assume a < b                                                        (H4)
   then        a mod b = a
-  metamath-proof gmodid
+  metamath-proof metamath-bridges/numbers/gmodid
   note        A number already below the divisor is its own remainder.
   lean-proof  not yet implemented
 
@@ -537,7 +537,7 @@ definition σ
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
   then        σ(n) = Σ(d ∈ ℕ : d divides n) d
-  metamath-proof g1sgmval
+  metamath-proof metamath-bridges/divisors/g1sgmval
   note        set.mm's sigma takes a power first, A sigma n being the sum of
               the A-th powers of the divisors of n, and σ is 1 sigma n.
   lean-proof  not yet implemented
@@ -572,7 +572,7 @@ theorem sigma-prime-power
   assume p is prime                                                   (H2)
   let k ∈ ℕ₀                                                          (H3)
   then        σ(p^k) = Σ(j = 0 to k) p^j
-  metamath-proof g1sgmppw
+  metamath-proof metamath-bridges/divisors/g1sgmppw
   note        The divisors of p^k are 1, p, …, p^k, so their sum is a
               geometric series.
   lean-proof  not yet implemented
@@ -587,7 +587,7 @@ mundane theorem sigma-part
   let n ∈ ℕ                                                           (H1)
   let Y ⊆ {d ∈ ℕ : d divides n}                                       (H2)
   then        Σ(d ∈ Y) d ≤ σ(n)
-  metamath-proof g1sgmpart
+  metamath-proof metamath-bridges/divisors/g1sgmpart
   note        A sum of some of the divisors of n is at most the sum of all
               of them: leaving out numbers none of which is below 0 cannot
               make a sum larger.
@@ -616,7 +616,7 @@ definition φ
   reads       Euler's φ, how many whole numbers below n have no factor in common with
   let n ∈ ℕ                                                           (H1)
   then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|
-  metamath-proof gphival
+  metamath-proof metamath-bridges/totient/gphival
   lean-proof  not yet implemented
 
 mundane theorem phi-natural
@@ -641,7 +641,7 @@ mundane theorem coprime-product
   assume gcd(x, n) = 1                                                (H4)
   assume gcd(y, n) = 1                                                (H5)
   then        gcd(x·y, n) = 1
-  metamath-proof grpmul
+  metamath-proof metamath-bridges/totient/grpmul
   lean-proof  not yet implemented
 
 mundane theorem congruent-in-range
@@ -650,20 +650,20 @@ mundane theorem congruent-in-range
   let y ∈ {0, …, n − 1}                                               (H3)
   assume x ≡ y (mod n)                                                (H4)
   then        x = y
-  metamath-proof gfzocong0
+  metamath-proof metamath-bridges/totient/gfzocong0
   lean-proof  not yet implemented
 
 mundane theorem mod-congruent
   let x ∈ ℤ                                                           (H1)
   let n ∈ ℕ                                                           (H2)
   then        x ≡ x mod n (mod n)
-  metamath-proof gmodcong
+  metamath-proof metamath-bridges/totient/gmodcong
   lean-proof  not yet implemented
 
 mundane theorem minus-one-congruent
   let n ∈ ℕ                                                           (H1)
   then        n − 1 ≡ −1 (mod n)
-  metamath-proof gm1cong with N := n
+  metamath-proof metamath-bridges/divisors/gm1cong with N := n
   note        The two sides differ by n.
   lean-proof  not yet implemented
 
@@ -673,7 +673,7 @@ mundane theorem mod-equal-congruent
   let n ∈ ℕ                                                           (H3)
   assume x mod n = y mod n                                            (H4)
   then        x ≡ y (mod n)
-  metamath-proof gmodeqdvds
+  metamath-proof metamath-bridges/totient/gmodeqdvds
   lean-proof h4
 
 

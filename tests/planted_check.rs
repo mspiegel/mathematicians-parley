@@ -5531,6 +5531,15 @@ fn cases() -> Vec<Case> {
             ],
             "sum-integer has no `then` line",
         ),
+        // A paragraph after a blank line continues the field above it, so
+        // a `none` written above a note's second paragraph runs on into it.
+        case(
+            "a lean-proof that says none and then more",
+            vec![
+                edit("corpus/stdlib/geometry.records", Some("  metamath-proof none\n  lean-proof  none\n\nmundane theorem angle-real".to_string()), "  metamath-proof none\n  lean-proof  none\n\n              A second paragraph.\n\nmundane theorem angle-real".to_string()),
+            ],
+            "angle's `lean-proof` says `none` and then more",
+        ),
         case(
             "a method declaring a part that is no part marker",
             vec![

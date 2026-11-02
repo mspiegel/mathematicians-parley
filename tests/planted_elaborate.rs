@@ -338,14 +338,14 @@ fn cases() -> Vec<Case> {
             "with 2 · j + 1 = n",
         ),
         // A metamath-proof naming a lemma the library as built does not
-        // hold, as one added to corpus/proved/ before a whole build has
+        // hold, as one added to corpus/metamath-bridges/ before a whole build has
         // written it, is said where the item is cited, and the build goes on.
         case(
             "a metamath-proof naming a lemma the library does not hold",
             "tests/stdlib/sums/sum-empty-range",
             "corpus/stdlib/sums.records",
-            "  metamath-proof gfsum0\n",
-            "  metamath-proof gfsumnone\n",
+            "  metamath-proof metamath-bridges/ranges/gfsum0\n",
+            "  metamath-proof metamath-bridges/ranges/gfsumnone\n",
             "mun:stdlib/sums/sum-empty-range's metamath-proof names gfsumnone, which neither set.mm nor proved.mm as built holds",
         ),
     ]

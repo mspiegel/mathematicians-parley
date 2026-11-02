@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 
 /-! Written from proofs/setmm/or-over-and.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Tests.Elaborator.AnObtainFromASecondSentence.FourPositiveAndEven
 
 /-! Written from tests/elaborator/an-obtain-from-a-second-sentence.proof by parley build lean. -/

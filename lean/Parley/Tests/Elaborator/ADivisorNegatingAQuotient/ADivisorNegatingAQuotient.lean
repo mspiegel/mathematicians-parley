@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-divisor-negating-a-quotient.proof by parley build lean. -/
 

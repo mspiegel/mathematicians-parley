@@ -1,9 +1,9 @@
 //! `proved.mm`: what the library proves below the readable layer.
 //!
 //! The corpus supplies an item in one of three ways: a set.mm label, a proof
-//! file in the readable layer, or a Metamath proof here, for what set.mm does
+//! file in the readable layer, or a Metamath bridge here, for what set.mm does
 //! not state and the readable layer cannot. Each group of them is a text
-//! file in `corpus/proved/`, written as a proof worksheet (`worksheet`), and
+//! file in `corpus/metamath-bridges/`, written as a proof worksheet (`worksheet`), and
 //! each is written in a block of its own, so what one group holds apart
 //! (`$d`) holds nothing apart in another. A label is global all the same,
 //! and a proof file that cites any of them includes this one file.
@@ -15,8 +15,8 @@ use crate::outcome::{Checked, Problem};
 use super::Lemma;
 
 /// The groups, in the order they are written: a later group may take a
-/// label an earlier one proved. Each is `corpus/proved/<name>.proved`.
-const NAMES: [&str; 25] = [
+/// label an earlier one proved. Each is `corpus/metamath-bridges/<name>.bridge`.
+pub const NAMES: [&str; 25] = [
     "geometry",
     "parallels",
     "triangles",
@@ -55,7 +55,7 @@ $[ stdlib/definitions.mm $]
 ";
 
 /// Where the worksheets `proved` reads are, each by its name.
-pub const WORKSHEETS: &str = "corpus/proved/";
+pub const WORKSHEETS: &str = "corpus/metamath-bridges/";
 
 /// The text of `proved.mm`, from each group's worksheet, which `read` gives
 /// by its path, and the library read alongside the corpus's definitions:
@@ -68,7 +68,7 @@ pub fn proved(
     let mut b = Builder::new(sigs);
     let mut out = String::from(HEAD);
     for name in NAMES {
-        let path = format!("{WORKSHEETS}{name}.proved");
+        let path = format!("{WORKSHEETS}{name}.bridge");
         let text =
             read(&path).ok_or_else(|| Problem::new(&path, 0, "cannot read it"))?;
         let group = super::worksheet::read(&path, &text, &mut b)?;

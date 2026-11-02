@@ -32,7 +32,7 @@ definition traversable
   then        G is traversable ↔ there is n ∈ ℕ₀ with there is
               e : {1, …, n} → E with there is v : {0, …, n} → V with
               v and e form an Euler path of n edges
-  metamath-proof gtrav
+  metamath-proof metamath-bridges/graphs/gtrav
   note        A walk that crosses every edge exactly once is an Euler path,
               and a graph that has one is traversable (ProofWiki,
               "Characteristics of Traversable Graph"). The edges are counted
@@ -79,7 +79,7 @@ mundane theorem walk-step
   let i ∈ {1, …, n}                                                   (H5)
   assume v and e form a walk of n edges                               (H6)
   then        e(i) joins v(i − 1) and v(i)
-  metamath-proof gwalkstep
+  metamath-proof metamath-bridges/graphs/gwalkstep
   note        Each edge of a walk joins the vertices on either side of it.
   lean-proof  not yet implemented
 
@@ -90,7 +90,7 @@ mundane theorem joined-incident
   let w ∈ V                                                           (H4)
   assume a joins u and w                                              (H5)
   then        u is incident with a. w is incident with a.
-  metamath-proof gjoinend1, gjoinend2
+  metamath-proof metamath-bridges/graphs/gjoinend1, metamath-bridges/graphs/gjoinend2
   lean-proof  not yet implemented
 
 mundane theorem walk-distinct
@@ -101,7 +101,7 @@ mundane theorem walk-distinct
   let i ∈ {1, …, n}                                                   (H5)
   assume v and e form a walk of n edges                               (H6)
   then        v(i − 1) ≠ v(i)
-  metamath-proof gwalkne
+  metamath-proof metamath-bridges/graphs/gwalkne
   note        A walk never stays where it is: an edge of a multigraph joins
               two different vertices.
   lean-proof  not yet implemented
@@ -111,7 +111,7 @@ mundane theorem incident-of-joined
   let x ∈ V                                                           (H2)
   assume a joins u and w                                              (H3)
   then        x is incident with a ↔ x = u or x = w
-  metamath-proof gends
+  metamath-proof metamath-bridges/graphs/gends
   note        The vertices incident with an edge that joins u and w are u
               and w.
   lean-proof  not yet implemented
@@ -126,7 +126,7 @@ mundane theorem not-incident
   assume x ≠ u                                                        (H7)
   assume x ≠ w                                                        (H8)
   then        x is not incident with a
-  metamath-proof gnotend
+  metamath-proof metamath-bridges/graphs/gnotend
   lean-proof  not yet implemented
 
 mundane theorem join-distinct
@@ -136,14 +136,14 @@ mundane theorem join-distinct
   let w ∈ V                                                           (H4)
   assume a joins u and w                                              (H5)
   then        u ≠ w
-  metamath-proof gjoinne
+  metamath-proof metamath-bridges/graphs/gjoinne
   lean-proof  not yet implemented
 
 definition degree
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
   then        deg(x) = |{a ∈ E : x is incident with a}|
-  metamath-proof gdeg
+  metamath-proof metamath-bridges/graphs/gdeg
   note        The degree of a vertex is how many edges it is incident with. A
               multigraph has no edge from a vertex to itself, so no edge counts
               twice.

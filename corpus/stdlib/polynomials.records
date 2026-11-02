@@ -26,7 +26,7 @@ theorem remainder
   let p be a polynomial                                               (H1)
   let a ∈ ℂ                                                           (H2)
   then        there is a polynomial q with p(x) = (x − a)·q(x) + p(a) for all x ∈ ℂ
-  metamath-proof gplyrem
+  metamath-proof metamath-bridges/polynomials/gplyrem
   note        The remainder theorem: dividing p by x − a leaves a polynomial
               quotient and the constant remainder p(a).
   lean-proof  not yet implemented
@@ -35,7 +35,7 @@ mundane theorem polynomial-value
   let p be a polynomial                                               (H1)
   let x ∈ ℂ                                                           (H2)
   then        p(x) ∈ ℂ
-  metamath-proof gplyval
+  metamath-proof metamath-bridges/polynomials/gplyval
   lean-proof  not yet implemented
 
 definition B
@@ -72,7 +72,7 @@ theorem algebraic-root
   assume α is algebraic                                               (H2)
   then        there is F : ℂ → ℂ with (F is a polynomial with integer
               coefficients and deg(F) ∈ ℕ and F(α) = 0)
-  metamath-proof galgroot
+  metamath-proof metamath-bridges/polynomials/galgroot
   note        What being algebraic is: a root of a polynomial with integer
               coefficients, other than 0, so of degree at least 1.
   lean-proof  not yet implemented
@@ -80,7 +80,7 @@ theorem algebraic-root
 definition transcendental
   let α ∈ ℂ                                                           (H1)
   then        α is transcendental ↔ not (α is algebraic)
-  metamath-proof gtransc
+  metamath-proof metamath-bridges/parity/gtransc
   note        A transcendental number is a complex number that is not
               algebraic; of one known complex, that it is not algebraic is
               all there is to say.
@@ -92,7 +92,7 @@ theorem integer-polynomial-at-a-fraction
   let p ∈ ℤ                                                           (H3)
   let q ∈ ℕ                                                           (H4)
   then        q^deg(F)·F(p/q) ∈ ℤ
-  metamath-proof gaalioulem1
+  metamath-proof metamath-bridges/polynomials/gaalioulem1
   note        Each term a·(p/q)^k of F(p/q), k at most the degree, times
               q^deg(F) is an integer, so the whole is.
   lean-proof  not yet implemented
@@ -102,7 +102,7 @@ mundane theorem integer-polynomial-real
   assume F is a polynomial with integer coefficients                  (H2)
   let x ∈ ℝ                                                           (H3)
   then        F(x) ∈ ℝ
-  metamath-proof gplyzre with F := F
+  metamath-proof metamath-bridges/polynomials/gplyzre with F := F
   lean-proof  not yet implemented
 
 theorem roots-isolated
@@ -115,7 +115,7 @@ theorem roots-isolated
   δ ranges over ℝ
   then        there exists δ > 0 such that r = α for all r ∈ ℝ with
               (|α − r| ≤ δ and F(r) = 0)
-  metamath-proof grootsiso
+  metamath-proof metamath-bridges/polynomials/grootsiso
   note        A polynomial other than 0 has finitely many roots, so the
               others lie some distance from α.
   lean-proof  not yet implemented
@@ -127,7 +127,7 @@ theorem polynomial-on-the-reals
   assume for all x ∈ ℝ, f(x) = F(x)                                   (H4)
   then        f is continuous on ℝ. f is differentiable on ℝ.
               f′ : ℝ → ℝ. f′ is continuous on ℝ.
-  metamath-proof gplyrecn, gplyredv, gplyredvf, gplyredvcn
+  metamath-proof metamath-bridges/polynomials/gplyrecn, metamath-bridges/polynomials/gplyredv, metamath-bridges/polynomials/gplyredvf, metamath-bridges/polynomials/gplyredvcn
   note        F on the real line: continuous, differentiable everywhere, and
               its derivative is a polynomial too, so continuous.
   lean-proof  not yet implemented

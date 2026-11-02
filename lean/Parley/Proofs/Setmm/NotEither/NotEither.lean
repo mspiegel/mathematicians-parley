@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 
 /-! Written from proofs/setmm/not-either.proof by parley build lean. -/
 

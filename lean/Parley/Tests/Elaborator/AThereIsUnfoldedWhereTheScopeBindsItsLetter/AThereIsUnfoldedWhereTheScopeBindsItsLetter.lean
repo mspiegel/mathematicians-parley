@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 
 /-! Written from tests/elaborator/a-there-is-unfolded-where-the-scope-binds-its-letter.proof by parley build lean. -/
 

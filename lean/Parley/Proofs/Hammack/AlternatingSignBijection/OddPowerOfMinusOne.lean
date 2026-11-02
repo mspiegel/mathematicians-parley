@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/

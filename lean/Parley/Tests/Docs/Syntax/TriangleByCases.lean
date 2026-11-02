@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Tests.Docs.Syntax.SumNegBounded
 public import Parley.Tests.Docs.Syntax.SumNonnegBounded
 

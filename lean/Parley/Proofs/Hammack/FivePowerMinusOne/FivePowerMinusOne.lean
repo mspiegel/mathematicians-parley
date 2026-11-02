@@ -1,8 +1,8 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 
 /-! Written from proofs/hammack/five-power-minus-one.proof by parley build lean. -/
 

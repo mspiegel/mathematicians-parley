@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/inspection-of-a-range-below-zero.proof by parley build lean. -/
 

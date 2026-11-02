@@ -29,6 +29,13 @@ pub enum Binder {
 }
 
 impl Binder {
+    /// Its Lean name.
+    pub fn name(&self) -> &str {
+        match self {
+            Binder::Letter { name, .. } | Binder::Fact { name, .. } => name,
+        }
+    }
+
     pub fn lean(&self) -> String {
         match self {
             Binder::Letter {

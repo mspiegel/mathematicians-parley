@@ -368,22 +368,46 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             });
         }
     }
-    let proofs: Vec<String> = record
+    let entries: Vec<&str> = record
         .lean_target()
-        .map(|f| f.split(" ; ").map(|p| p.trim().to_string()).collect())
+        .map(|f| f.split(" ; ").map(str::trim).collect())
         .unwrap_or_default();
-    if proofs.len() != sentences.len() {
+    if entries.len() != sentences.len() {
         return Route::no(format!(
             "{full} concludes {} sentences and its lean-proof field gives {} proofs",
             sentences.len(),
-            proofs.len()
+            entries.len()
         ));
+    }
+    let mut proofs = Vec::new();
+    for (entry, sentence) in entries.iter().zip(&sentences) {
+        match proof_of(entry, sentence) {
+            Route::Built(proof) => proofs.push(proof),
+            Route::Declined(d) => return Route::Declined(d),
+        }
     }
     Route::Built(Item {
         module,
         sentences,
         proofs,
     })
+}
+
+/// One `lean-proof` entry as Lean text. A bridge, named in full,
+/// `lean-bridges/counting/pascal`, states the item as the build writes it,
+/// so it is applied to the item's letters and hypotheses in order; any
+/// other entry is Mathlib's proof, written in Lean already.
+fn proof_of(entry: &str, sentence: &Sentence) -> Route<String> {
+    if !entry.starts_with(super::names::LEAN_BRIDGES) {
+        return Route::Built(entry.to_string());
+    }
+    let bridge = match super::names::bridge_of(entry) {
+        Route::Built(bridge) => bridge,
+        Route::Declined(d) => return Route::Declined(d),
+    };
+    let mut applied = vec![bridge];
+    applied.extend(sentence.binders.iter().map(|b| b.name().to_string()));
+    Route::Built(applied.join(" "))
 }
 
 /// A Lean theorem's declaration, its name taken from its full name.

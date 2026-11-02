@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 
 /-! Written from tests/elaborator/a-for-all-line-read-in-a-block.proof by parley build lean. -/

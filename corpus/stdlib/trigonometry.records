@@ -169,7 +169,7 @@ mundane theorem cos-decreasing
 
 mundane theorem special-angles
   then        cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
-  metamath-proof gcos90, gsin90, gcos60, gsin30
+  metamath-proof metamath-bridges/plane/gcos90, metamath-bridges/plane/gsin90, metamath-bridges/plane/gcos60, metamath-bridges/plane/gsin30
   note        The values a school reader takes from the unit circle. set.mm
               states them at π/2, π/3 and π/6; each lemma first writes the
               degrees as that fraction of π.
@@ -178,13 +178,13 @@ mundane theorem special-angles
 mundane theorem cos-supplement
   let x ∈ ℝ                                                           (H1)
   then        cos(180° − x) = −cos(x)
-  metamath-proof gcossupp
+  metamath-proof metamath-bridges/plane/gcossupp
   lean-proof  not yet implemented
 
 mundane theorem sin-supplement
   let x ∈ ℝ                                                           (H1)
   then        sin(180° − x) = sin(x)
-  metamath-proof gsinsupp
+  metamath-proof metamath-bridges/plane/gsinsupp
   note        Supplementary angles have one sine, as the two angles at a
               point of a line do.
   lean-proof  not yet implemented
@@ -222,7 +222,7 @@ theorem continuous-arctan
   let g : D → ℝ                                                       (H2)
   assume for all x ∈ D, g(x) = arctan(x)                              (H3)
   then        g is continuous on D
-  metamath-proof gcncfatanres
+  metamath-proof metamath-bridges/calculus/gcncfatanres
   lean-proof  not yet implemented
 
 theorem derivative-arctan
@@ -233,7 +233,7 @@ theorem derivative-arctan
   assume for all x ∈ D, g(x) = arctan(x)                              (H5)
   then        g is differentiable on U.
               For all x ∈ U, g′(x) = 1/(1 + x²).
-  metamath-proof gdvatan, gdvatanv with D := D
+  metamath-proof metamath-bridges/calculus/gdvatan, metamath-bridges/calculus/gdvatanv with D := D
   note        set.mm's dvatan is taken on the complex domain where arctan
               is differentiable, which holds ℝ (ressatans); the page asks
               it of a function on a set of reals, as derivative-square does.

@@ -7,8 +7,9 @@
 //! (`lean::coverage`) becomes a file of its own, which imports the items
 //! and the theorems it cites. `lean/Parley.lean` imports them all, so that
 //! `lake build` checks exactly what this build made. A generated file the
-//! build no longer makes is removed; `lean/Parley/Library/`, written by
-//! hand, is never touched.
+//! build no longer makes is removed. The Lean bridges, written by hand, are
+//! in `corpus/lean-bridges/`, a library of their own that every file
+//! imports.
 //!
 //! The build only writes. The gate asks Lean whether the files prove what
 //! they say.
@@ -31,8 +32,9 @@ use crate::outcome::Route;
 use crate::said::Said;
 use crate::source::Disk;
 
-/// The hand-written part of the Lean project, which the build never writes.
-pub const LIBRARY: &str = "Parley.Library";
+/// The Lean bridges, a library of their own in `corpus/lean-bridges/`,
+/// written by hand: the module importing them all.
+pub const LIBRARY: &str = "LeanBridges";
 
 /// What a Lean build makes: each file's path and text, the theorems left
 /// out and why, and what could not be written.
@@ -277,8 +279,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
     Ok(made)
 }
 
-/// Every `.lean` file under `lean/Parley/` the build wrote before: all but
-/// the hand-written library.
+/// Every `.lean` file under `lean/Parley/` the build wrote before.
 pub fn generated_in_tree(root: &Path) -> Vec<String> {
     let mut out = Vec::new();
     let mut stack = vec![root.join("lean/Parley")];
@@ -292,9 +293,6 @@ pub fn generated_in_tree(root: &Path) -> Vec<String> {
                 .strip_prefix(root)
                 .map(|p| p.to_string_lossy().to_string())
                 .unwrap_or_default();
-            if rel.starts_with("lean/Parley/Library") {
-                continue;
-            }
             if path.is_dir() {
                 stack.push(path);
             } else if rel.ends_with(".lean") {

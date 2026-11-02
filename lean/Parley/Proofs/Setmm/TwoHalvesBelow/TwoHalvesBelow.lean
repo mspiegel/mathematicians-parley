@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from proofs/setmm/two-halves-below.proof by parley build lean. -/
 

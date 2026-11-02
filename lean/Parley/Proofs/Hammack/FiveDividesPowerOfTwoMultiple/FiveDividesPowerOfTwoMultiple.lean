@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Numbers
-public import Parley.Library
 public import Parley.Proofs.Hammack.FiveDividesPowerOfTwoMultiple.FiveDividesHalf
 
 /-! Written from proofs/hammack/five-divides-power-of-two-multiple.proof by parley build lean. -/

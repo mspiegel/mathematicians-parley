@@ -32,6 +32,31 @@ pub fn module_of(name: &str) -> String {
     format!("Parley.{}", parts.join("."))
 }
 
+/// Where a Lean bridge's full name begins.
+pub const LEAN_BRIDGES: &str = "lean-bridges/";
+
+/// The Lean declaration a bridge's full name names: `lean-bridges/counting/
+/// choose-outside` is `LeanBridges.Counting.choose_outside`, declared in
+/// `corpus/lean-bridges/Counting.lean`. Declines a name that is not a
+/// subject and a lemma under `lean-bridges/`.
+pub fn bridge_of(full: &str) -> crate::outcome::Route<String> {
+    let parts: Option<Vec<&str>> = full
+        .strip_prefix(LEAN_BRIDGES)
+        .map(|rest| rest.split('/').collect());
+    match parts.as_deref() {
+        Some([subject, lemma]) if !subject.is_empty() && !lemma.is_empty() => {
+            crate::outcome::Route::Built(format!(
+                "LeanBridges.{}.{}",
+                camel(subject),
+                snake(lemma)
+            ))
+        }
+        _ => crate::outcome::Route::no(format!(
+            "{full} is not a Lean bridge's full name, lean-bridges/<subject>/<lemma>"
+        )),
+    }
+}
+
 /// The file under `lean/` that holds a module.
 pub fn path_of_module(module: &str) -> String {
     format!("lean/{}.lean", module.replace('.', "/"))

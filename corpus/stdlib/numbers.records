@@ -361,7 +361,7 @@ mundane theorem difference-nat0
 mundane theorem integer-sign
   let n ∈ ℤ                                                           (H1)
   then        n ∈ ℕ₀ or −n ∈ ℕ₀
-  metamath-proof gznn0neg
+  metamath-proof metamath-bridges/numbers/gznn0neg
   note        An integer is a whole number or the negative of one.
   lean-proof  not yet implemented
 
@@ -402,7 +402,7 @@ mundane theorem real-power-positive
   assume x > 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
   then        x^y > 0
-  metamath-proof gcxpgt0
+  metamath-proof metamath-bridges/numbers/gcxpgt0
   lean-proof  not yet implemented
 
 mundane theorem real-power-sum
@@ -441,26 +441,26 @@ mundane theorem half-power
 mundane theorem cube-root-real
   let x ∈ ℝ                                                           (H1)
   then        ∛x ∈ ℝ
-  metamath-proof gcbrtre
+  metamath-proof metamath-bridges/roots/gcbrtre
   lean-proof  not yet implemented
 
 mundane theorem cube-root-cubed
   let x ∈ ℝ                                                           (H1)
   then        (∛x)³ = x
-  metamath-proof gcbrtexp
+  metamath-proof metamath-bridges/roots/gcbrtexp
   lean-proof  not yet implemented
 
 mundane theorem cube-root-of-cube
   let x ∈ ℝ                                                           (H1)
   then        ∛(x³) = x
-  metamath-proof gcbrtcube
+  metamath-proof metamath-bridges/roots/gcbrtcube
   lean-proof  not yet implemented
 
 mundane theorem cube-root-as-power
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   then        ∛x = x^(1/3)
-  metamath-proof gcbrtpw
+  metamath-proof metamath-bridges/roots/gcbrtpw
   note        Where x ≥ 0 the real root and the principal power are one; below
               0 they differ, ∛(−8) being −2 and (−8)^(1/3) not real.
   lean-proof  not yet implemented
@@ -732,7 +732,7 @@ mundane theorem power-exponent-le
   assume 1 ≤ a                                                        (H4)
   assume m ≤ n                                                        (H5)
   then        a^m ≤ a^n
-  metamath-proof gleexp2
+  metamath-proof metamath-bridges/powers/gleexp2
   note        As power-order, the exponents allowed to be equal: a larger
               exponent gives a power at least as large, of a base at least 1.
   lean-proof  not yet implemented
@@ -839,7 +839,7 @@ mundane theorem nonzero-integer-abs
   let z ∈ ℤ                                                           (H1)
   assume z ≠ 0                                                        (H2)
   then        |z| ≥ 1
-  metamath-proof gzabsge1
+  metamath-proof metamath-bridges/numbers/gzabsge1
   note        An integer other than 0 is at least 1 in size: its absolute
               value is a positive integer.
   lean-proof  not yet implemented

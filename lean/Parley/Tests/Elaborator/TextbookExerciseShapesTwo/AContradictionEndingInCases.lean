@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
 

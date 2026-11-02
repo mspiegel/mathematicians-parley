@@ -1,8 +1,8 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
-public import Parley.Library
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.OddSquare
 
 /-! Written from tests/docs/syntax.proof by parley build lean. -/

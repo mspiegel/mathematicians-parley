@@ -1584,7 +1584,7 @@ impl<'a> Elaborator<'a> {
     /// says, and the build takes nothing as stated, so citing it stops here.
     /// The lemmas an item's target names, each one the library this build
     /// read holds. A building of one theorem reads `proved.mm` as it was
-    /// last written, so a lemma added to `corpus/proved/` since is not there
+    /// last written, so a lemma added to `corpus/metamath-bridges/` since is not there
     /// until a whole build writes it.
     fn target_labels(&self, step: &Step, item: &Record) -> Checked<Vec<String>> {
         let labels = targets::clauses(item);
@@ -1592,7 +1592,7 @@ impl<'a> Elaborator<'a> {
             return Err(self.defect(
                 step.line,
                 format!(
-                    "{}:{}'s metamath-proof names {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/proved/ reaches proved.mm when everything is built with `parley build metamath`",
+                    "{}:{}'s metamath-proof names {missing}, which neither set.mm nor proved.mm as built holds: a lemma of corpus/metamath-bridges/ reaches proved.mm when everything is built with `parley build metamath`",
                     item_kind(Item::Record(item)),
                     item.qualified()
                 ),
@@ -3460,7 +3460,7 @@ impl<'a> Elaborator<'a> {
             panic!("a definition of the database");
         };
         let labels: Vec<String> =
-            targets::split_entries(item.metamath_target_or_empty())
+            targets::lemma_entries(item.metamath_target_or_empty())
                 .into_iter()
                 .map(String::from)
                 .collect();

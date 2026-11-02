@@ -1,9 +1,9 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
-public import Parley.Library
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural
 
 /-! Written from proofs/hammack/five-consecutive-divisible.proof by parley build lean. -/

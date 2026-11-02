@@ -1,6 +1,6 @@
 module
 
-public import Parley.Library
+public import LeanBridges
 
 /-! Written from tests/elaborator/a-closed-conjunction-joined-by-and.proof by parley build lean. -/
 

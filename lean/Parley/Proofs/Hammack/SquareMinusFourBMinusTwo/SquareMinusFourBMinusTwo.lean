@@ -1,7 +1,7 @@
 module
 
+public import LeanBridges
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Library
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare
 
 /-! Written from proofs/hammack/square-minus-four-b-minus-two.proof by parley build lean. -/
