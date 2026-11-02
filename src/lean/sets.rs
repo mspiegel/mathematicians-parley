@@ -540,6 +540,128 @@ impl Writer<'_> {
         }))
     }
 
+    /// Whether a term counts a set somewhere, |A| or |A| + 1.
+    pub fn counts(node: &Node) -> bool {
+        node.walk()
+            .iter()
+            .any(|n| &*n.notation_name() == "cardinality")
+    }
+
+    /// A count as Lean's `Set.encard` gives it, in ℕ∞, where an infinite
+    /// set counts as ∞ as set.mm's ♯ counts it +∞: |A| is `A.encard`, a
+    /// numeral or a letter of ℕ or ℕ₀ is cast up, and + and · are ℕ∞'s.
+    /// Subtraction declines: ℕ∞'s stops at 0, where the page's does not.
+    pub fn count_term(&self, node: &Node) -> Route<Printed> {
+        if &*node.notation_name() == "cardinality" {
+            let [set] = node.children.as_slice() else {
+                return Route::no("a count of other than one set");
+            };
+            // ∅ counted is told it is a set of things, which nothing else
+            // in |∅| = 0 gives Lean.
+            if &*set.notation_name() == "empty-set" {
+                return Route::Built(Printed {
+                    text: format!("(∅ : Set {}).encard", super::expr::THINGS),
+                    prec: MAX,
+                });
+            }
+            return match self.set_term(set) {
+                Route::Built(s) => Route::Built(Printed {
+                    text: format!("{}.encard", s.at(MAX)),
+                    prec: MAX,
+                }),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
+        // A number of ℕ, the type ℕ∞ holds: a numeral, or a letter of ℕ
+        // or ℕ₀, cast up.
+        if !Writer::counts(node) {
+            return match self.number_fixed(node, Num::Nat) {
+                Route::Built(p) => {
+                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text)))
+                }
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
+        let op = match (&*node.notation_name(), &*node.spelling().text()) {
+            ("additive", "+") => "+",
+            ("multiplicative", "·") => "*",
+            (_, other) => {
+                return Route::no(format!(
+                    "{other} of a count, which ℕ∞ does not compute as the page does"
+                ))
+            }
+        };
+        let [a, b] = node.children.as_slice() else {
+            return Route::no("an operation on a count of other than two parts");
+        };
+        let prec = if op == "+" { 65 } else { 70 };
+        match (self.count_term(a), self.count_term(b)) {
+            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
+                text: format!("{} {op} {}", a.at(prec), b.at(prec + 1)),
+                prec,
+            }),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+        }
+    }
+
+    /// An equation or order between counts, |A| = 2 or 1 ≤ |A|, both sides
+    /// in ℕ∞; None where neither side counts a set.
+    pub fn count_relation(&self, node: &Node) -> Option<Route<Printed>> {
+        let [a, b] = node.children.as_slice() else {
+            return None;
+        };
+        if !Writer::counts(a) && !Writer::counts(b) {
+            return None;
+        }
+        let op = node.spelling().text().to_string();
+        Some(match (self.count_term(a), self.count_term(b)) {
+            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
+                text: format!("{} {op} {}", a.at(51), b.at(51)),
+                prec: 50,
+            }),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+        })
+    }
+
+    /// A count in ℕ or ℕ₀, |A| ∈ ℕ: some natural number is the count, and
+    /// for the page's ℕ, which starts at 1, one above 0. None where the term
+    /// counts no set.
+    pub fn count_in_system(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
+        if !Writer::counts(x) {
+            return None;
+        }
+        let count = match self.count_term(x) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let above = match system_of(set) {
+            Some(super::expr::System::Positive) => "0 < m ∧ ",
+            Some(super::expr::System::NonNegative) => "",
+            _ => return Some(Route::no("a count in other than ℕ or ℕ₀")),
+        };
+        Some(Route::Built(Printed {
+            text: format!("∃ m : ℕ, {above}(m : ℕ∞) = {}", count.text),
+            prec: 0,
+        }))
+    }
+
+    /// X is finite: `X.Finite`.
+    pub fn finite(&self, node: &Node) -> Option<Route<Printed>> {
+        if &*node.notation_name() != "finite" {
+            return None;
+        }
+        let [set] = node.children.as_slice() else {
+            return None;
+        };
+        Some(match self.set_term(set) {
+            Route::Built(s) => Route::Built(Printed {
+                text: format!("{}.Finite", s.at(MAX)),
+                prec: MAX,
+            }),
+            Route::Declined(d) => Route::Declined(d),
+        })
+    }
+
     /// x ∈ S of a set S this writer has a type for: `x ∈ S`.
     pub fn set_membership(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
         // ∅ holds nothing of any type, so x ∈ ∅ is of x's.

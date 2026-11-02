@@ -67,7 +67,7 @@ mundane theorem card-zero
   assume |X| = 0                                                      (H2)
   then        X = ∅
   metamath-proof hasheq0
-  lean-proof  not yet implemented
+  lean-proof  Set.encard_eq_zero.mp (by simpa using h1)
 
 mundane theorem card-singleton
   let x be an element                                                 (H1)
@@ -76,7 +76,7 @@ mundane theorem card-singleton
   note        A singleton has one element only when there is an element for it
               to have: `{ x }` for a proper class x is empty, and `hashsng`
               asks for the set because of it.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-singleton
 
 mundane theorem card-nonempty
   let X be a set                                                      (H1)
@@ -120,7 +120,7 @@ mundane theorem card-disjoint-union
   assume X ∩ Y = ∅                                                    (H7)
   then        |X ∪ Y| = m + n
   metamath-proof hashun with A := X, B := Y
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-disjoint-union
 
 definition C
   sort        number, number → number
@@ -220,14 +220,14 @@ mundane theorem binomial-nat
 mundane theorem card-empty
   then        |∅| = 0
   metamath-proof hash0
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-empty
 
 mundane theorem finite-part
   assume X is finite                                                  (H1)
   assume Y ⊆ X                                                        (H2)
   then        Y is finite
   metamath-proof ssfi
-  lean-proof  not yet implemented
+  lean-proof  h1.subset h2
 
 mundane theorem factorial-nonzero
   let n ∈ ℕ₀                                                          (H1)
@@ -247,7 +247,7 @@ mundane theorem card-nat0
   assume X is finite                                                  (H1)
   then        |X| ∈ ℕ₀
   metamath-proof hashcl
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-nat0
 
 mundane theorem card-finite
   let X be a set                                                      (H1)
@@ -257,7 +257,7 @@ mundane theorem card-finite
   metamath-proof hashvnfin with S := X, N := m
   note        A set whose size is a whole number is finite: an infinite
               set's size is +∞ in set.mm, which is no whole number.
-  lean-proof  not yet implemented
+  lean-proof  Set.finite_of_encard_eq_coe h2
 
 mundane theorem card-difference
   assume X is finite                                                  (H1)
@@ -273,7 +273,7 @@ mundane theorem card-at-least-one
   metamath-proof hashge1
   note        A set with something in it has at least one element. set.mm
               says it of every set, finite or not, since +∞ ≥ 1 too.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-at-least-one
 
 mundane theorem parts-finite
   assume A is finite                                                  (H1)
@@ -397,7 +397,7 @@ mundane theorem card-pair
   metamath-proof metamath-bridges/counts/gcardpr
   note        Two things listed make a set of at most two: one, where they
               are the same.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-pair
 
 mundane theorem card-subset
   let A be a set                                                      (H1)
@@ -405,14 +405,14 @@ mundane theorem card-subset
   assume A ⊆ B                                                        (H3)
   then        |A| ≤ |B|
   metamath-proof hashss
-  lean-proof  not yet implemented
+  lean-proof  Set.encard_le_encard h1
 
 mundane theorem card-pair-distinct
   let u be an element                                                 (H1)
   let w be an element                                                 (H2)
   then        u ≠ w ↔ |{u, w}| = 2
   metamath-proof hashprg
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-pair-distinct
 
 mundane theorem card-two
   let Y be a set                                                      (H1)
@@ -424,7 +424,7 @@ mundane theorem card-two
   metamath-proof hash2prd
   note        A set of two elements is any two different elements of it,
               listed.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-two
 
 mundane theorem card-positive
   let X be a set                                                      (H1)
@@ -433,7 +433,7 @@ mundane theorem card-positive
   metamath-proof hashgt0n0
   note        A set whose size is above 0 is not empty, and
               `mun:stdlib/sets/nonempty-member` names an element of it.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/counting/card-positive
 
 mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)

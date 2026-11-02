@@ -69,6 +69,11 @@ macro "parley_side" : tactic =>
     | (ext x; simp only [Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff];
        constructor <;> intro h <;> (try casesm* _ ∨ _, _ ∧ _) <;> (try subst_vars) <;>
        simp_all (config := {decide := true}); done)
+    -- A count of a finite set the page lists or builds, |{1, 2}| = 2:
+    -- counted as a Finset, each member decided.
+    | (rw [Set.encard_eq_coe_toFinset_card];
+       simp (config := {decide := true})
+         [Set.toFinset_insert, Set.toFinset_singleton, Set.toFinset_setOf]; done)
     -- A map into all of its type, Set.MapsTo f A Set.univ.
     | (exact Set.mapsTo_univ _ _; done)
     -- One of a listed set, x ∈ {a, b}, taken case by case.

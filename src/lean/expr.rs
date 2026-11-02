@@ -427,6 +427,11 @@ impl Writer<'_> {
     /// gives a number type, the ε a "for all ε ∈ ℝ" binds, whose sort a
     /// record's reading may leave unknown.
     pub fn is_number(&self, node: &Node) -> bool {
+        // A count of a set is a number of ℕ∞, which the writer's number
+        // types do not hold (`sets::count_term`).
+        if Writer::counts(node) {
+            return false;
+        }
         node.sort.is("number")
             || (node.is_name()
                 && matches!(
@@ -1009,6 +1014,15 @@ impl Writer<'_> {
         if let Some(r) = self.map_claim(node) {
             return r;
         }
+        // A count of a set, |A| = 2 or 1 ≤ |A|, in ℕ∞; and A is finite.
+        if matches!(node.notation(), EQUALITY | ORDER) {
+            if let Some(r) = self.count_relation(node) {
+                return r;
+            }
+        }
+        if let Some(r) = self.finite(node) {
+            return r;
+        }
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
             MEMBERSHIP => self.membership(node),
@@ -1097,6 +1111,10 @@ impl Writer<'_> {
     /// A relation of numerals alone, `5 = 0`, written in the type `floor`
     /// at least: the type of the lines it is reached from.
     pub fn closed_formula(&self, node: &Node, floor: Num) -> Route<Printed> {
+        // A count, |∅| = 0, is in ℕ∞ whatever the lines around it.
+        if Writer::counts(node) {
+            return self.formula(node);
+        }
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY {
                 return self.relation_from(inner, true, floor);
@@ -1159,6 +1177,9 @@ impl Writer<'_> {
             return Route::no("a membership of other than two sides");
         };
         if set.notation() == NUMBER_SYSTEMS {
+            if let Some(r) = self.count_in_system(x, set) {
+                return r;
+            }
             return self.in_system(x, set);
         }
         // x ∈ {a, b, c} of numbers: a membership of Lean's sets, in the

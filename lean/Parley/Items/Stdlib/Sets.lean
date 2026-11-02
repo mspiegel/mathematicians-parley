@@ -24,11 +24,11 @@ theorem def_powerset {α : Type*} (A : Set α) (S : Set α) :
     S ∈ 𝒫 A ↔ S ⊆ A :=
   Iff.rfl
 
-theorem def_pair {α : Type*} (x : α) (u : α) (w : α) :
+theorem def_pair {α : Type*} (u : α) (w : α) (x : α) :
     x ∈ ({u, w} : Set α) ↔ x = u ∨ x = w :=
   Iff.rfl
 
-theorem def_singleton {α : Type*} (x : α) (a : α) :
+theorem def_singleton {α : Type*} (a : α) (x : α) :
     x ∈ ({a} : Set α) ↔ x = a :=
   Iff.rfl
 

@@ -57,6 +57,8 @@ pub const IN_CODE: &[&str] = &[
     "one-to-one-onto",
     "inverse",
     "set-image",
+    "cardinality",
+    "finite",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -237,6 +239,39 @@ fn covered(
                         matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                     }))
             });
+    // A count of a set is in ℕ∞ (`sets::count_term`), whose subtraction
+    // stops at 0 where the page's does not: |A| − |B| is not written.
+    let count_subtracted =
+        rec.page
+            .entries()
+            .flat_map(|(_, node)| node.walk())
+            .any(|n| {
+                let arithmetic =
+                    matches!(&*n.notation_name(), "additive" | "multiplicative");
+                let plus_or_times = matches!(&*n.spelling().text(), "+" | "·");
+                arithmetic && !plus_or_times && super::expr::Writer::counts(&n)
+            });
+    if count_subtracted {
+        return Covered::Out {
+            reason: "a count of a set subtracted or divided, which ℕ∞ does not compute as the page does"
+                .to_string(),
+        };
+    }
+    // A citation that gives a count for a letter of a number system, m :=
+    // |A| for m ∈ ℕ₀: the count is in ℕ∞, the letter in Lean's ℕ, and they
+    // meet only through A being finite, which the writer does not carry.
+    let count_given = rec
+        .cited
+        .iter()
+        .flatten()
+        .chain(rec.cited_requires.values())
+        .any(|c| c.binding.values().any(super::expr::Writer::counts));
+    if count_given {
+        return Covered::Out {
+            reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"
+                .to_string(),
+        };
+    }
     // A set-image over the page's ℕ or ℕ₀, {p·n : n ∈ ℕ}, or a map from it
     // said one-to-one or onto, f : ℕ → ℤ, maps Lean's ℕ into ℤ, and the map
     // items take one type in and out, α → α.

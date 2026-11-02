@@ -179,12 +179,16 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
 }
 
 /// `{α : Type*}`, where a binder is a set of things, a member of one or a
-/// map between sets; None where none is.
-pub fn things_binder(binders: &[Binder]) -> Option<String> {
-    binders
-        .iter()
-        .any(|b| matches!(b, Binder::Letter { ty, .. } if ty.uses_things()))
-        .then(|| format!("{{{} : Type*}}", super::expr::THINGS))
+/// map between sets, or the statement writes a set of them though no
+/// letter is one, `(∅ : Set α).encard = 0`; None where none is.
+pub fn things_binder(binders: &[Binder], statement: &str) -> Option<String> {
+    let things = super::expr::THINGS;
+    let written = statement.contains(&format!("Set {things}"));
+    (written
+        || binders
+            .iter()
+            .any(|b| matches!(b, Binder::Letter { ty, .. } if ty.uses_things())))
+    .then(|| format!("{{{things} : Type*}}"))
 }
 
 /// Where a line says what sets a map letter maps between, `f : A → B` or

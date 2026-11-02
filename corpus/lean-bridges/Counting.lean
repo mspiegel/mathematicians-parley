@@ -180,3 +180,52 @@ theorem factorial_nonzero (n : ℕ) :
   by simp [Nat.factorial_ne_zero]
 
 end LeanBridges.Counting
+
+namespace LeanBridges.Counting
+
+/-- `mun:stdlib/counting/card-singleton`. -/
+theorem card_singleton {α : Type*} (x : α) :
+    ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
+  by simp
+
+/-- `mun:stdlib/counting/card-disjoint-union`. -/
+theorem card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
+    (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
+  by rw [Set.encard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5), h3, h4]; push_cast; rfl
+
+/-- `mun:stdlib/counting/card-empty`. -/
+theorem card_empty {α : Type*} :
+    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) :=
+  by simp
+
+/-- `mun:stdlib/counting/card-nat0`. -/
+theorem card_nat0 {α : Type*} (X : Set α) (h1 : X.Finite) :
+    ∃ m : ℕ, (m : ℕ∞) = X.encard :=
+  ⟨X.ncard, h1.cast_ncard_eq⟩
+
+/-- `mun:stdlib/counting/card-at-least-one`. -/
+theorem card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
+    ((1 : ℕ) : ℕ∞) ≤ X.encard :=
+  by simpa using Set.one_le_encard_iff_nonempty.mpr (Set.nonempty_iff_ne_empty.mpr h1)
+
+/-- `mun:stdlib/counting/card-pair`. -/
+theorem card_pair {α : Type*} (u : α) (w : α) :
+    ({u, w} : Set α).encard ≤ ((2 : ℕ) : ℕ∞) :=
+  by rcases eq_or_ne u w with h | h <;> first | (subst h; simp; done) | (rw [Set.encard_pair h]; rfl)
+
+/-- `mun:stdlib/counting/card-pair-distinct`. -/
+theorem card_pair_distinct {α : Type*} (u : α) (w : α) :
+    ¬ u = w ↔ ({u, w} : Set α).encard = ((2 : ℕ) : ℕ∞) :=
+  ⟨fun h => by simpa using Set.encard_pair h, fun h hu => by subst hu; simp at h⟩
+
+/-- `mun:stdlib/counting/card-two`. -/
+theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
+    Y = ({a, b} : Set α) :=
+  (Set.Finite.eq_of_subset_of_encard_le (s := ({a, b} : Set α)) (t := Y) (Set.toFinite _) (Set.insert_subset_iff.mpr ⟨h2, Set.singleton_subset_iff.mpr h3⟩) (by simp [h1, Set.encard_pair h4])).symm
+
+/-- `mun:stdlib/counting/card-positive`. -/
+theorem card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :
+    ¬ X = ∅ :=
+  by intro h; subst h; simp at h1
+
+end LeanBridges.Counting

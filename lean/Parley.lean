@@ -449,6 +449,8 @@ public import Parley.Tests.Elaborator.ANaturalIsAtLeastOneCited.ANaturalAnswersA
 public import Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerByArithmetic
 public import Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerInASystem
 public import Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerOfANegative
+public import Parley.Tests.Elaborator.APartCountedSaidBack.APartWithASize
+public import Parley.Tests.Elaborator.APartCountedSaidBack.EveryPartWithASize
 public import Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto
 public import Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
 public import Parley.Tests.Elaborator.AProofBlockEndingImpossible.NothingBelowOneIsTwo
@@ -502,6 +504,7 @@ public import Parley.Tests.Elaborator.AnInductionOverARangeItEnds.AnInductionOve
 public import Parley.Tests.Elaborator.AnInductionWhoseLetterAHypothesisBinds.AnInductionWhoseLetterAHypothesisBinds
 public import Parley.Tests.Elaborator.AnInstanceAskingTheFewestConditions.AnInstanceAskingTheFewestConditions
 public import Parley.Tests.Elaborator.AnInstanceWithoutItsZero.AnInstanceWithoutItsZero
+public import Parley.Tests.Elaborator.AnIntersectionCounted.AnIntersectionCounted
 public import Parley.Tests.Elaborator.AnItemAtAMember.AnItemAtAMemberAsAStep
 public import Parley.Tests.Elaborator.AnNthDerivative.ANumberToABracketedPower
 public import Parley.Tests.Elaborator.AnObtainFromASecondSentence.FourPositiveAndEven
@@ -594,6 +597,11 @@ public import Parley.Tests.Elaborator.LargeArithmetic.RemainderOfASmallNumber
 public import Parley.Tests.Elaborator.LargeArithmetic.TwoSentencesByArithmetic
 public import Parley.Tests.Elaborator.LetterI.ObtainedI
 public import Parley.Tests.Elaborator.LetterI.FixedI
+public import Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingFive
+public import Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingANegative
+public import Parley.Tests.Elaborator.ListedNumerals.AValueWrittenTwice
+public import Parley.Tests.Elaborator.ListedNumerals.TheOddOnesCounted
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairCitedInTheOtherOrder
 public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairInsideASubset
 public import Parley.Tests.Elaborator.OrderChains.TwoBoundsInARow
 public import Parley.Tests.Elaborator.OrderChains.AStrictLinkThenABound
@@ -749,6 +757,7 @@ public import Parley.Tests.Notations.Counting.FactorialOfTwo
 public import Parley.Tests.Notations.Counting.FactorialOfFour
 public import Parley.Tests.Notations.Counting.ChooseFourTwo
 public import Parley.Tests.Notations.Counting.ChooseTwoThree
+public import Parley.Tests.Notations.Counting.SizeOfEmpty
 public import Parley.Tests.Notations.Divisibility.ThreeDividesTwelve
 public import Parley.Tests.Notations.Divisibility.FiveDividesZero
 public import Parley.Tests.Notations.Divisibility.TwoDoesNotDivideSeven
@@ -795,6 +804,7 @@ public import Parley.Tests.Notations.Primes.FloorOfMinusHalf
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalfNotZero
 public import Parley.Tests.Notations.Primes.FloorOfSevenHalves
 public import Parley.Tests.Notations.Sets.OneNotInALongListedSet
+public import Parley.Tests.Notations.Sets.APairCounted
 public import Parley.Tests.Notations.Sets.FourNotInAWrittenSet
 public import Parley.Tests.Notations.Sets.InAUnion
 public import Parley.Tests.Notations.Sets.NotInAnIntersection
@@ -818,6 +828,7 @@ public import Parley.Tests.Stdlib.Counting.FactorialAtMost
 public import Parley.Tests.Stdlib.Counting.FactorialBase
 public import Parley.Tests.Stdlib.Counting.FactorialStep
 public import Parley.Tests.Stdlib.Counting.BinomialCoefficient
+public import Parley.Tests.Stdlib.Counting.CardEmpty
 public import Parley.Tests.Stdlib.Divisibility.OddNotEven
 public import Parley.Tests.Stdlib.Divisibility.EvenProductFactor
 public import Parley.Tests.Stdlib.Divisibility.PrimeDividesProduct

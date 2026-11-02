@@ -455,6 +455,32 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .map(|(_, n)| n)
                 .chain(std::iter::once(says))
                 .collect();
+            let listed = |n: &Node| {
+                matches!(
+                    &*n.notation_name(),
+                    "singleton" | "listed-two" | "listed-three" | "listed-four"
+                )
+            };
+            let of_no_number = |n: &Node| {
+                n.is_name()
+                    && free.iter().any(|f| *f.name == *n.text)
+                    && !n.sort.is("number")
+            };
+            // {u, w} where no letter of it has a number's sort, a pair of
+            // elements of any sort, wherever it stands: each is a thing, and
+            // the statement holds of numbers as of any other type. Ahead of
+            // the memberships below, so that x of x ∈ {u, w} is one too.
+            for n in said.iter().flat_map(|n| n.walk()) {
+                if listed(&n) && n.children.iter().all(of_no_number) {
+                    for t in &n.children {
+                        if !sets.iter().any(|(s, _)| *s == *t.text) {
+                            let ty = LetterType::Member(super::expr::Members::Things);
+                            w.letters.insert(t.text.to_string(), ty.clone());
+                            sets.push((t.text.to_string(), ty));
+                        }
+                    }
+                }
+            }
             for n in said.iter().flat_map(|n| n.walk()) {
                 let [x, set] = n.children.as_slice() else {
                     continue;
@@ -465,33 +491,6 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     && !sets.iter().any(|(s, _)| *s == *x.text);
                 if let Some(m) = member.then(|| w.members_of(set)).flatten() {
                     sets.push((x.text.to_string(), m.letter()));
-                    continue;
-                }
-                // x ∈ {u, w} where no letter of it has a number's sort, the
-                // pair of elements of any sort: each is a thing, and the
-                // statement holds of numbers as of any other type.
-                let listed = matches!(
-                    &*set.notation_name(),
-                    "singleton" | "listed-two" | "listed-three" | "listed-four"
-                );
-                let things: Vec<&Node> =
-                    std::iter::once(x).chain(&set.children).collect();
-                let of_no_number = |n: &&Node| {
-                    n.is_name()
-                        && free.iter().any(|f| *f.name == *n.text)
-                        && !n.sort.is("number")
-                };
-                if n.notation() == crate::notations::MEMBERSHIP
-                    && listed
-                    && things.iter().all(of_no_number)
-                {
-                    for t in things {
-                        if !sets.iter().any(|(s, _)| *s == *t.text) {
-                            let ty = LetterType::Member(super::expr::Members::Things);
-                            w.letters.insert(t.text.to_string(), ty.clone());
-                            sets.push((t.text.to_string(), ty));
-                        }
-                    }
                 }
             }
             let free: Vec<FreeLetter> = free
@@ -704,7 +703,10 @@ pub fn declaration(sentence: &Sentence, proof: &str) -> String {
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
     let mut binders: Vec<String> =
         sentence.general.iter().map(General::binders).collect();
-    binders.extend(super::statement::things_binder(&sentence.binders));
+    binders.extend(super::statement::things_binder(
+        &sentence.binders,
+        &sentence.prop,
+    ));
     binders.extend(sentence.binders.iter().map(Binder::lean));
     let space = if binders.is_empty() { "" } else { " " };
     format!(

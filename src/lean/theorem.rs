@@ -342,10 +342,11 @@ pub fn theorem(
         proof.trees.insert(label, said);
     }
     let props: Vec<String> = conclusion.iter().map(|c| c.prop.at(36)).collect();
-    let binders: Vec<String> = super::statement::things_binder(&binders)
-        .into_iter()
-        .chain(binders.iter().map(Binder::lean))
-        .collect();
+    let binders: Vec<String> =
+        super::statement::things_binder(&binders, &props.join(" "))
+            .into_iter()
+            .chain(binders.iter().map(Binder::lean))
+            .collect();
     let space = if binders.is_empty() { "" } else { " " };
     proof.push(
         format!(
@@ -1772,9 +1773,18 @@ impl<'a> Proof<'a> {
         let of_sets = terms
             .iter()
             .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
+        // A chain of counts, |A| = |∅| = 0, is in ℕ∞ (`sets::count_term`).
+        let of_counts = terms.iter().any(Writer::counts);
         let mut at = super::templates::Num::Int;
         let mut printed = Vec::new();
-        if of_sets {
+        if of_counts {
+            for t in &terms {
+                match writer.count_term(t) {
+                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+            }
+        } else if of_sets {
             for t in &terms {
                 match writer.set_term(t) {
                     Route::Built(p) => printed.push(p.at(51)),
@@ -1804,16 +1814,17 @@ impl<'a> Proof<'a> {
         // The claim, the first term and the last, is stated in its own
         // least type; a chain worked out in a wider one moves the goal there
         // first, as `qify` or `rify` does.
+        let of_numbers = !of_sets && !of_counts;
         let mut own = super::templates::Num::Int;
         for t in [terms.first(), terms.last()].into_iter().flatten() {
-            if of_sets {
+            if !of_numbers {
                 break;
             }
             if let Route::Built(n) = writer.carrier(t) {
                 own = own.max(n);
             }
         }
-        let pinned = !of_sets
+        let pinned = of_numbers
             && [terms.first(), terms.last()]
                 .into_iter()
                 .flatten()
@@ -3368,6 +3379,12 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// an equation by the ring identity between the two, an order by linear
 /// arithmetic, anything else as it stands.
 fn close(claim: &Node, term: &str) -> String {
+    // An equation or order between sets, members or counts is closed as
+    // any other claim: the closers for numbers work in a field or a ring.
+    let of_numbers = claim
+        .children
+        .iter()
+        .all(|c| c.sort.is("number") && !Writer::counts(c));
     match claim.notation() {
         // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
         // for 0, is taken with them pushed in, and one whose equation the
@@ -3375,14 +3392,14 @@ fn close(claim: &Node, term: &str) -> String {
         // c = a + b, is taken negated. A corpus theorem stated in a
         // wider type than the claim, ℝ for a claim in ℚ, has the claim moved
         // up to it.
-        EQUALITY => format!(
+        EQUALITY if of_numbers => format!(
             "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h) | (have h := {term}; parley_side)"
         ),
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.
         // An item over ℝ cited for a claim the page computes in ℚ gives
         // the claim cast up, which exact_mod_cast brings down.
-        ORDER => format!(
+        ORDER if of_numbers => format!(
             "by first | linarith [{term}] | (have h := {term}; push_cast at h; linarith) | exact_mod_cast {term} | (have h := {term}; parley_side)"
         ),
         // A relation said either way round, a congruence or a ↔, as the
