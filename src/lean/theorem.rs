@@ -215,7 +215,7 @@ fn statement(
     // its letter the type its sort settles, ahead of the lines that use it.
     let mut binders_of_sets = Vec::new();
     let mut read: usize = said.iter().map(|(_, s)| s.len()).sum();
-    for h in &thm.hypotheses {
+    for (i, h) in thm.hypotheses.iter().enumerate() {
         let body = h.body(&thm.path);
         if body.sentences().iter().all(|s| rec.page.get(s).is_some()) {
             continue;
@@ -223,6 +223,27 @@ fn statement(
         use crate::sorts::introduction::{Form, Introduction};
         let name = match Introduction::read(body.clone()).form {
             Form::Set(name) | Form::Element(name) => name,
+            // `let G be a group with operation · and identity e`: the type
+            // of its elements with Mathlib's group on it, and e its 1. What
+            // else the line asserts, that G is finite, is among `said`.
+            Form::Group {
+                group, identity, ..
+            } => {
+                writer.letters.insert(group.clone(), LetterType::Group);
+                writer
+                    .letters
+                    .insert(identity, LetterType::Identity(group.clone()));
+                binders_of_sets.push(Binder::Letter {
+                    name: super::names::letter(&group),
+                    page: group,
+                    general: false,
+                    ty: LetterType::Group,
+                });
+                if rec.asserted.get(i).is_none_or(Vec::is_empty) {
+                    read += body.sentences().len();
+                }
+                continue;
+            }
             _ => continue,
         };
         let Some(ty) = rec.sorts.get(&name).and_then(super::sets::set_letter_type)
@@ -921,6 +942,21 @@ impl<'a> Proof<'a> {
             );
         };
         let body = (*body).clone();
+        // A name for an element or a set, `let b = a⁻¹`: of the type its
+        // value has, written as the writer writes such terms.
+        let set_like = self
+            .writer
+            .member_kind(&body)
+            .map(|m| m.letter())
+            .or_else(|| self.writer.members_of(&body).map(LetterType::Set));
+        if let Some(ty) = set_like.filter(|_| def.kind.is_none()) {
+            let value = match self.writer.set_term(&body) {
+                Route::Built(v) => v,
+                Route::Declined(why) => return Route::Declined(why),
+            };
+            self.name_value(d, &def.name, ty, &value.text, body, depth);
+            return Route::Built(());
+        }
         use super::templates::Num;
         let ty = match def.kind.as_deref() {
             Some("a real number") => Num::Real,
@@ -942,31 +978,50 @@ impl<'a> Proof<'a> {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
         };
-        let name = super::names::letter(&def.name);
+        self.name_value(
+            d,
+            &def.name,
+            LetterType::Number(ty),
+            &value.text,
+            body,
+            depth,
+        );
+        Route::Built(())
+    }
+
+    /// A define's name given its value, `set b : G := a⁻¹ with hD1`: the
+    /// letter of its type, and the line's equation, b = a⁻¹, by its label.
+    fn name_value(
+        &mut self,
+        d: usize,
+        name: &str,
+        ty: LetterType,
+        value: &str,
+        body: Node,
+        depth: usize,
+    ) {
+        let line = &self.thm.defines[d];
         let label = line_name(&line.label);
+        let (at, page_label) = (line.line, line.label.clone());
         self.push(
             format!(
-                "{}set {name} : {} := {} with {label}",
+                "{}set {} : {} := {value} with {label}",
                 pad(depth),
-                ty.lean(),
-                value.text
+                super::names::letter(name),
+                ty.lean()
             ),
-            line.line,
+            at,
             Spot::Statement,
         );
-        self.writer
-            .letters
-            .insert(def.name.clone(), LetterType::Number(ty));
-        let letter = Node::name(body.sort.clone(), &def.name);
+        self.writer.letters.insert(name.to_string(), ty);
+        let letter = Node::name(body.sort.clone(), name);
         let equation = Node::of(
             crate::notations::EQUALS,
             crate::formula::node::Sort::of("formula"),
             vec![letter, body],
         );
-        self.named.insert(line.label.clone(), vec![label.clone()]);
-        self.trees
-            .insert(line.label.clone(), vec![(equation, label)]);
-        Route::Built(())
+        self.named.insert(page_label.clone(), vec![label.clone()]);
+        self.trees.insert(page_label, vec![(equation, label)]);
     }
 
     /// A define of a function of one number in a proof, `let S(m) =
@@ -2189,6 +2244,18 @@ impl<'a> Proof<'a> {
                             | LetterType::Map { .. },
                             _,
                         ) => self.writer.set_term(value),
+                        // A group given for a group, or a subgroup for a
+                        // subgroup: its Lean name, the type or the
+                        // `Subgroup G` itself, not the set it stands for.
+                        (LetterType::Group | LetterType::Subgroup(_), _) => {
+                            Route::Built(super::expr::Printed::atom(
+                                super::names::letter(&value.text),
+                            ))
+                        }
+                        // The identity is no binder: `1` of the group.
+                        (LetterType::Identity(_), _) => {
+                            Route::no("an identity given as a letter of an item")
+                        }
                     };
                     match printed {
                         Route::Built(p) => args.push(format!("({name} := {})", p.text)),

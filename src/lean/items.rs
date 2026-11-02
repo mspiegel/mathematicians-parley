@@ -410,6 +410,37 @@ pub fn record_of<'c>(checked: &'c CheckedCorpus, full: &str) -> Option<&'c Recor
 /// The item a record states, in Lean; declined where a sentence of it does
 /// not print. The record's `lean-proof` field holds one proof for each sentence,
 /// set apart by ` ; `.
+/// A record's line letting a group, `let G be a group with operation · and
+/// identity e`: the group's name, its identity's, and the line's text, by
+/// which its reading is told among what the item asks.
+struct GroupLine {
+    group: String,
+    identity: String,
+    text: String,
+}
+
+/// Each line of the record that lets a group.
+fn group_lines(record: &Record) -> Vec<GroupLine> {
+    use crate::sorts::introduction::{Form, Introduction};
+    record
+        .hypotheses
+        .iter()
+        .filter_map(|h| {
+            let body = h.body(&record.path);
+            match Introduction::read(body.clone()).form {
+                Form::Group {
+                    group, identity, ..
+                } => Some(GroupLine {
+                    group,
+                    identity,
+                    text: body.text().to_string(),
+                }),
+                _ => None,
+            }
+        })
+        .collect()
+}
+
 pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<Item> {
     let full = format!("{}/{}", record.module(), record.name);
     let Some(Some(groups)) = checked.library.groups.get(&full) else {
@@ -419,9 +450,15 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let base = format!("{}_{}", prefix(record), snake(&record.name));
     let total: usize = groups.iter().map(|g| g.gives.len()).sum();
     let mut sentences = Vec::new();
+    let groups_let = group_lines(record);
     for group in groups.iter() {
         for says in &group.gives {
             let mut w = Writer::new(writer.grammar, writer.templates);
+            for g in &groups_let {
+                w.letters.insert(g.group.clone(), LetterType::Group);
+                w.letters
+                    .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
+            }
             let functions: &[Node] = checked
                 .library
                 .function_types
@@ -489,20 +526,36 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     && x.is_name()
                     && free.iter().any(|f| *f.name == *x.text)
                     && !sets.iter().any(|(s, _)| *s == *x.text);
+                // Typed as it is met, so that a later set made of it, the gH
+                // of u ∈ gH after g ∈ G, has a type too.
                 if let Some(m) = member.then(|| w.members_of(set)).flatten() {
+                    w.letters.insert(x.text.to_string(), m.letter());
                     sets.push((x.text.to_string(), m.letter()));
                 }
             }
+            // The letters left are numbers. A group's own, its name and its
+            // identity, are typed by its line; its subgroups and elements by
+            // the lines that let them, `H is a subgroup of G`, `a ∈ G`.
+            let of_group = |name: &str| {
+                let sort = sorts.and_then(|s| s.get(name)).and_then(|s| s.full());
+                matches!(sort, Some(crate::formula::Whole::GroupElement))
+                    || matches!(sort, Some(crate::formula::Whole::Set(m))
+                        if matches!(**m, crate::formula::Whole::GroupElement))
+            };
             let free: Vec<FreeLetter> = free
                 .into_iter()
                 .filter(|f| !sets.iter().any(|(s, _)| *s == f.name))
+                .filter(|f| !w.letters.contains_key(&f.name) && !of_group(&f.name))
                 .collect();
             let kind = general_kind(group, says, functions, &free);
             w.general = kind.map(|k| k.num);
+            // A group line is the group's binder, not a fact asked
+            // (`group_lines`).
             let asked: Vec<Asked> = group
                 .wants
                 .iter()
                 .enumerate()
+                .filter(|(_, (text, _))| !groups_let.iter().any(|g| g.text == *text))
                 .map(|(i, (_, node))| Asked {
                     node,
                     name: format!("h{}", i + 1),
@@ -510,7 +563,15 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .collect();
             // A letter of the item that stands for a statement, the P of
             // "P or Q", is a proposition it is stated for.
-            let mut statements = Vec::new();
+            let mut statements: Vec<Binder> = groups_let
+                .iter()
+                .map(|g| Binder::Letter {
+                    name: super::names::letter(&g.group),
+                    page: g.group.clone(),
+                    general: false,
+                    ty: LetterType::Group,
+                })
+                .collect();
             let stated: Vec<Node> = group
                 .wants
                 .iter()
@@ -693,8 +754,24 @@ fn proof_of(entry: &str, sentence: &Sentence) -> Route<String> {
         Route::Built(bridge) => bridge,
         Route::Declined(d) => return Route::Declined(d),
     };
+    // A group binds its type implicitly, `{G : Type*} [Group G]`, which Lean
+    // fills from the arguments after it.
     let mut applied = vec![bridge];
-    applied.extend(sentence.binders.iter().map(|b| b.name().to_string()));
+    applied.extend(
+        sentence
+            .binders
+            .iter()
+            .filter(|b| {
+                !matches!(
+                    b,
+                    Binder::Letter {
+                        ty: LetterType::Group,
+                        ..
+                    }
+                )
+            })
+            .map(|b| b.name().to_string()),
+    );
     Route::Built(applied.join(" "))
 }
 

@@ -49,6 +49,13 @@ impl Binder {
                 general: true,
                 ..
             } => format!("({name} : {})", super::expr::GENERAL),
+            // A group is the type of its elements, with Mathlib's group on
+            // it: the page's operation is `*`, its identity `1`.
+            Binder::Letter {
+                name,
+                ty: LetterType::Group,
+                ..
+            } => format!("{{{name} : Type*}} [Group {name}]"),
             Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
             Binder::Fact { name, says } => format!("({name} : {says})"),
         }
@@ -102,11 +109,17 @@ pub fn range_letter(node: &Node) -> Option<String> {
 struct InSet {
     letter: String,
     ty: LetterType,
-    /// The fact a map's line says, `Set.MapsTo f A B`; None where the line
-    /// itself is the fact.
-    fact: Option<String>,
+    fact: Fact,
     /// A map's domain as Lean writes it, the A of `f : A → B`.
     domain: Option<String>,
+}
+
+/// What a line that introduces a letter says of it beside its type.
+enum Fact {
+    /// The line itself, `x ∈ A`.
+    Line,
+    /// This, which Lean's type does not give: a map's `Set.MapsTo f A B`.
+    Said(String),
 }
 
 /// The letter a line introduces in or under a set the writer has a type
@@ -134,22 +147,37 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             Some(InSet {
                 letter: letter.text.to_string(),
                 ty: LetterType::Number(at),
-                fact: None,
+                fact: Fact::Line,
                 domain: None,
             })
         }
         ("membership", [set]) => Some(InSet {
             letter: letter.text.to_string(),
             ty: writer.members_of(set)?.letter(),
-            fact: None,
+            fact: Fact::Line,
             domain: None,
         }),
         ("subset", [set]) => Some(InSet {
             letter: letter.text.to_string(),
             ty: LetterType::Set(writer.set_members(set)?),
-            fact: None,
+            fact: Fact::Line,
             domain: None,
         }),
+        // H is a subgroup of G: Lean's `Subgroup G`, whose type says it, so
+        // that the line's own hypothesis is `True` (`sets::subgroup_claim`).
+        ("subgroup", [group])
+            if matches!(
+                writer.letters.get(group.text.as_str()),
+                Some(LetterType::Group)
+            ) =>
+        {
+            Some(InSet {
+                letter: letter.text.to_string(),
+                ty: LetterType::Subgroup(group.text.to_string()),
+                fact: Fact::Line,
+                domain: None,
+            })
+        }
         // f : A → B, alone or one-to-one, onto, or both: a map, and the
         // fact of it, which is the line itself where it says more than the
         // type.
@@ -165,12 +193,13 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             Some(InSet {
                 letter: letter.text.to_string(),
                 ty: LetterType::Map { from: a, to: b },
-                fact: (kind == "function-type").then(|| {
-                    format!(
+                fact: match kind == "function-type" {
+                    true => Fact::Said(format!(
                         "Set.MapsTo {lean} {domain} {}",
                         to_text.at(super::expr::MAX)
-                    )
-                }),
+                    )),
+                    false => Fact::Line,
+                },
                 domain: Some(domain),
             })
         }
@@ -259,8 +288,8 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 ty,
             });
             let says = match fact {
-                Some(f) => f,
-                None => match writer.formula(a.node) {
+                Fact::Said(f) => f,
+                Fact::Line => match writer.formula(a.node) {
                     Route::Built(p) => p.text,
                     Route::Declined(d) => return Route::Declined(d),
                 },

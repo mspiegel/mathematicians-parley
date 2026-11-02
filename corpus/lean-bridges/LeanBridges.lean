@@ -11,3 +11,4 @@ public import SetTactics
 public import Calculus
 public import Functions
 public import Sets
+public import Groups

@@ -40,10 +40,17 @@ impl Writer<'_> {
                 Some(LetterType::Set(m)) => Some(m.clone()),
                 // A member of a set of sets, the t of t ∈ 𝒫A, is a set.
                 Some(LetterType::Member(Members::Sets(m))) => Some((**m).clone()),
+                // A group, or a subgroup of it, holds the group's elements.
+                Some(LetterType::Group) => {
+                    Some(Members::Elements(node.text.to_string()))
+                }
+                Some(LetterType::Subgroup(g)) => Some(Members::Elements(g.clone())),
                 _ => None,
             };
         }
         match &*node.notation_name() {
+            // gH holds elements of g's group.
+            "coset" => self.member_kind(node.children.first()?),
             "set-operations" | "set-builder" => {
                 let first = match &*node.notation_name() {
                     "set-builder" => node.children.get(1)?,
@@ -152,9 +159,17 @@ impl Writer<'_> {
     /// itself, a member of a set of sets.
     pub fn member_kind(&self, node: &Node) -> Option<Members> {
         if node.is_name() {
-            if let Some(LetterType::Member(m)) = self.letters.get(node.text.as_str()) {
-                return Some(m.clone());
+            match self.letters.get(node.text.as_str()) {
+                Some(LetterType::Member(m)) => return Some(m.clone()),
+                Some(LetterType::Identity(g)) => {
+                    return Some(Members::Elements(g.clone()))
+                }
+                _ => {}
             }
+        }
+        // a·b and a⁻¹ in a group are elements of it.
+        if matches!(&*node.notation_name(), "group-operation" | "group-inverse") {
+            return node.children.iter().find_map(|c| self.member_kind(c));
         }
         if let Some(LetterType::Map { to, .. }) = node
             .children
@@ -187,8 +202,61 @@ impl Writer<'_> {
                     | LetterType::Map { .. }
                     | LetterType::Function { .. },
                 ) => Route::Built(Printed::atom(super::names::letter(&node.text))),
+                // A group standing as a set is all of its elements; its
+                // identity is Lean's 1 of it; a subgroup as a set is its
+                // elements.
+                Some(LetterType::Group) => Route::Built(Printed::atom(format!(
+                    "(Set.univ : Set {})",
+                    super::names::letter(&node.text)
+                ))),
+                Some(LetterType::Identity(g)) => Route::Built(Printed::atom(format!(
+                    "(1 : {})",
+                    super::names::letter(g)
+                ))),
+                Some(LetterType::Subgroup(g)) => Route::Built(Printed::atom(format!(
+                    "({} : Set {})",
+                    super::names::letter(&node.text),
+                    super::names::letter(g)
+                ))),
                 _ => Route::no(format!("{} is no set, member or map", node.text)),
             };
+        }
+        // a·b, a⁻¹ and gH of a group: Mathlib's `*`, `⁻¹`, and the left
+        // coset.
+        match &*node.notation_name() {
+            "group-operation" => {
+                let p = match self.set_parts(node, 2) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                return Route::Built(Printed {
+                    text: format!("{} * {}", p[0].at(70), p[1].at(71)),
+                    prec: 70,
+                });
+            }
+            "group-inverse" => {
+                let p = match self.set_parts(node, 1) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                return Route::Built(Printed {
+                    text: format!("{}⁻¹", p[0].at(MAX)),
+                    prec: MAX,
+                });
+            }
+            // gH is the image of H under h ↦ g·h, as Mathlib's left coset
+            // g • H is defined, written so that no scope need be opened.
+            "coset" => {
+                let p = match self.set_parts(node, 2) {
+                    Route::Built(p) => p,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                return Route::Built(Printed {
+                    text: format!("({} * ·) '' {}", p[0].at(70), p[1].at(MAX)),
+                    prec: 80,
+                });
+            }
+            _ => {}
         }
         // A number system standing as a set: all of its type, or for the
         // page's ℕ, which starts at 1, the naturals above 0.
@@ -643,6 +711,25 @@ impl Writer<'_> {
             text: format!("∃ m : ℕ, {above}(m : ℕ∞) = {}", count.text),
             prec: 0,
         }))
+    }
+
+    /// H is a subgroup of G, of a letter Lean types `Subgroup G`: its type
+    /// says it, so the claim is `True`. None for any other claim.
+    pub fn subgroup_claim(&self, node: &Node) -> Option<Route<Printed>> {
+        if &*node.notation_name() != "subgroup" {
+            return None;
+        }
+        let [h, g] = node.children.as_slice() else {
+            return None;
+        };
+        let typed = matches!(self.letters.get(h.text.as_str()),
+            Some(LetterType::Subgroup(of)) if *of == *g.text);
+        Some(match typed {
+            true => Route::Built(Printed::atom("True")),
+            false => {
+                Route::no(format!("{} as a subgroup, which no line types", h.text))
+            }
+        })
     }
 
     /// X is finite: `X.Finite`.

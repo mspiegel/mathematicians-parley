@@ -29,7 +29,7 @@ axiom group-closed
   let b ∈ G                                                           (H3)
   then        a·b ∈ G
   metamath-proof grpcl
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_univ _
 
 axiom group-associative
   let G be a group with operation · and identity e                    (H1)
@@ -38,34 +38,34 @@ axiom group-associative
   let c ∈ G                                                           (H4)
   then        (a·b)·c = a·(b·c)
   metamath-proof grpass
-  lean-proof  not yet implemented
+  lean-proof  mul_assoc a b c
 
 axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
   metamath-proof grprid
-  lean-proof  not yet implemented
+  lean-proof  mul_one a
 
 axiom group-identity-closed
   let G be a group with operation · and identity e                    (H1)
   then        e ∈ G
   metamath-proof grpidcl
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_univ _
 
 axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
   metamath-proof grprinv
-  lean-proof  not yet implemented
+  lean-proof  mul_inv_cancel a
 
 axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
   metamath-proof grpinvcl
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_univ _
 
 theorem group-cancel
   let G be a group with operation · and identity e                    (H1)
@@ -75,21 +75,21 @@ theorem group-cancel
   assume g·a = g·b                                                    (H5)
   then        a = b
   metamath-proof grplcan
-  lean-proof  not yet implemented
+  lean-proof  mul_left_cancel h4
 
 mundane theorem subgroup-within
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        H ⊆ G
   metamath-proof subgss
-  lean-proof  not yet implemented
+  lean-proof  Set.subset_univ _
 
 mundane theorem subgroup-identity
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        e ∈ H
   metamath-proof subg0cl
-  lean-proof  not yet implemented
+  lean-proof  H.one_mem
 
 mundane theorem subgroup-closed
   let G be a group with operation · and identity e                    (H1)
@@ -98,7 +98,7 @@ mundane theorem subgroup-closed
   let b ∈ H                                                           (H4)
   then        a·b ∈ H
   metamath-proof subgcl
-  lean-proof  not yet implemented
+  lean-proof  H.mul_mem h2 h3
 
 mundane theorem subgroup-inverse
   let G be a group with operation · and identity e                    (H1)
@@ -106,7 +106,7 @@ mundane theorem subgroup-inverse
   let a ∈ H                                                           (H3)
   then        a⁻¹ ∈ H
   metamath-proof subginvcl
-  lean-proof  not yet implemented
+  lean-proof  H.inv_mem h2
 
 definition coset
   let G be a group with operation · and identity e                    (H1)
@@ -117,4 +117,4 @@ definition coset
   note        gH is everything g combines with a member of H to give. set.mm
               writes it as the sum of two subsets, {g} and H, and a school
               reader writes gH.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/groups/coset

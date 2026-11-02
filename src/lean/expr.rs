@@ -34,6 +34,13 @@ pub enum LetterType {
     /// A function from members of one kind to members of another, `f : α
     /// → α`; where it maps one set into another is a fact beside it.
     Map { from: Members, to: Members },
+    /// A group, `{G : Type*} [Group G]`: its elements are a type, and as a
+    /// set it is all of them.
+    Group,
+    /// The identity of the group named, `(1 : G)`.
+    Identity(String),
+    /// A subgroup of the group named, `H : Subgroup G`.
+    Subgroup(String),
 }
 
 /// What the members of a set are in Lean: the one type of things a
@@ -44,6 +51,8 @@ pub enum Members {
     Things,
     Sets(Box<Members>),
     Numbers(Num),
+    /// The elements of the group of this page name, of Lean type G.
+    Elements(String),
 }
 
 /// The type variable a theorem's sets of things are sets of.
@@ -76,6 +85,7 @@ impl Members {
             Members::Things => THINGS.to_string(),
             Members::Sets(m) => format!("Set {}", bracketed(&m.lean())),
             Members::Numbers(n) => n.lean().to_string(),
+            Members::Elements(g) => super::names::letter(g),
         }
     }
 
@@ -94,7 +104,7 @@ impl Members {
         match self {
             Members::Things => true,
             Members::Sets(m) => m.uses_things(),
-            Members::Numbers(_) => false,
+            Members::Numbers(_) | Members::Elements(_) => false,
         }
     }
 }
@@ -120,6 +130,9 @@ impl LetterType {
             LetterType::Set(m) => format!("Set {}", bracketed(&m.lean())),
             LetterType::Member(m) => m.lean(),
             LetterType::Map { from, to } => format!("{} → {}", from.lean(), to.lean()),
+            LetterType::Group => "Type*".to_string(),
+            LetterType::Identity(g) => super::names::letter(g),
+            LetterType::Subgroup(g) => format!("Subgroup {}", super::names::letter(g)),
         }
     }
 
@@ -473,7 +486,12 @@ impl Writer<'_> {
                     Route::no(format!("{} is a statement, not a number", node.text))
                 }
                 Some(
-                    LetterType::Set(_) | LetterType::Member(_) | LetterType::Map { .. },
+                    LetterType::Set(_)
+                    | LetterType::Member(_)
+                    | LetterType::Map { .. }
+                    | LetterType::Group
+                    | LetterType::Identity(_)
+                    | LetterType::Subgroup(_),
                 ) => Route::no(format!("{} is no number", node.text)),
                 None => Route::no(format!("{} has no Lean type", node.text)),
             },
@@ -1021,6 +1039,9 @@ impl Writer<'_> {
             }
         }
         if let Some(r) = self.finite(node) {
+            return r;
+        }
+        if let Some(r) = self.subgroup_claim(node) {
             return r;
         }
         match node.notation() {

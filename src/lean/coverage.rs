@@ -59,6 +59,10 @@ pub const IN_CODE: &[&str] = &[
     "set-image",
     "cardinality",
     "finite",
+    "group-operation",
+    "group-inverse",
+    "subgroup",
+    "coset",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -129,6 +133,8 @@ fn set_line(
             .sorts
             .get(&name)
             .is_some_and(|s| super::sets::set_letter_type(s).is_some()),
+        // A group is a type with Mathlib's group on it (`theorem::statement`).
+        Form::Group { .. } => true,
         _ => false,
     }
 }
@@ -390,8 +396,15 @@ fn covered(
         .filter(|n| !own.contains(n.text.as_str()))
         .filter_map(|n| {
             let sort = rec.sorts.get(n.text.as_str())?;
-            let typed =
-                sort.is("number") || super::sets::set_letter_type(sort).is_some();
+            // A group's elements, the group itself and its subgroups take
+            // their types from the group line (`theorem::statement`).
+            let of_group =
+                matches!(sort.full(), Some(crate::formula::Whole::GroupElement))
+                    || matches!(sort.full(), Some(crate::formula::Whole::Set(m))
+                    if matches!(**m, crate::formula::Whole::GroupElement));
+            let typed = sort.is("number")
+                || super::sets::set_letter_type(sort).is_some()
+                || of_group;
             (!typed).then(|| (n.text.to_string(), sort.describe()))
         })
         .collect();

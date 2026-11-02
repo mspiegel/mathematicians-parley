@@ -49,7 +49,11 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
         Some("addition")
     } else if spelling == MINUS {
         Some("subtraction")
-    } else if spelling == TIMES {
+    } else if spelling == TIMES
+        || matches!(&*node.notation_name(), "group-operation" | "coset")
+    {
+        // A group's operation a·b is its multiplication, Lean's `*` on G;
+        // a coset gH is g times each element of H, `(g * ·) '' H`.
         Some("multiplication")
     } else if spelling == DIVIDED {
         Some("division")
