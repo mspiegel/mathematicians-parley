@@ -12,7 +12,6 @@ import definition         stdlib/sets/subset
 import mundane theorem    stdlib/sets/subset-antisymmetric
 
 theorem two-elements
-  metamath-counterpart hash2prb
   note        A set of 2 elements has an element b, and what is left after
               taking b away has 1 element a, and then nothing is left: the
               set is {a, b}. Conversely {a, b} has 2 elements when a and b

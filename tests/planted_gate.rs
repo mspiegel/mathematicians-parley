@@ -130,7 +130,7 @@ fn cases() -> Vec<Case> {
             stage: tested_case,
             file: "corpus/stdlib/sets.records",
             old: "mundane theorem union-self\n",
-            new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath-counterpart unidm\n  metamath-proof unidm\n\nmundane theorem union-self\n",
+            new: "mundane theorem union-self-again\n  then        Y ∪ Y = Y\n  metamath-proof unidm\n  lean-proof  not yet implemented\n\nmundane theorem union-self\n",
             expect: "stdlib/sets/union-self-again is cited by no proof and has no test",
         },
         Case {

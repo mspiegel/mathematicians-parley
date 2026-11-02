@@ -2,7 +2,6 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
 theorem and-over-or
-  metamath-counterpart andi
   note        If a = 0 and one of b = 0, c = 0 holds, then a = 0 goes with
               whichever it is; and conversely a = 0 is common to both ways.
   let a ∈ ℝ                                                           (H1)

@@ -109,12 +109,12 @@ pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
     // two sides are one formula, as for the database's definitions whose
     // notation's target is the formula they define.
     fields.insert(
-        super::records::METAMATH_COUNTERPART.to_string(),
-        "biid, since the phrase is written out as its meaning".to_string(),
-    );
-    fields.insert(
         super::records::METAMATH_PROOF.to_string(),
         "biid".to_string(),
+    );
+    fields.insert(
+        super::records::LEAN_PROOF.to_string(),
+        super::records::NOT_YET.to_string(),
     );
     if let Some(reads) = &p.reads {
         fields.insert("reads".to_string(), reads.clone());

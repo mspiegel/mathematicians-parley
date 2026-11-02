@@ -12,16 +12,18 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 axiom excluded-middle
   then        P or not P
-  metamath-counterpart exmid
   metamath-proof exmid
   lean-proof em P
   note        The first citation to substitute a formula for a variable rather
@@ -32,7 +34,6 @@ axiom excluded-middle
 mundane theorem double-negation
   assume not not P                                                    (H1)
   then        P
-  metamath-counterpart notnotr
   metamath-proof notnotr
   lean-proof not_not.mp h1
   note        The step intuitionistic logic refuses, so citing it is the text
@@ -45,7 +46,6 @@ mundane theorem disjunctive-syllogism
   assume P or Q                                                       (H1)
   assume not Q                                                        (H2)
   then        P
-  metamath-counterpart orel2
   metamath-proof orel2
   lean-proof h1.resolve_right h2
   note        The √2 pilot asked whether a school reader can check this on
@@ -56,7 +56,6 @@ mundane theorem disjunctive-syllogism-left
   assume P or Q                                                       (H1)
   assume not P                                                        (H2)
   then        Q
-  metamath-counterpart orel1
   metamath-proof orel1
   lean-proof h1.resolve_left h2
   note        disjunctive-syllogism with the other side failing.
@@ -64,7 +63,6 @@ mundane theorem disjunctive-syllogism-left
 mundane theorem or-left
   assume P                                                            (H1)
   then        P or Q
-  metamath-counterpart orc
   metamath-proof orc
   lean-proof Or.inl h1
   note        A claim that one of two things holds, from a line saying the
@@ -74,7 +72,6 @@ mundane theorem or-left
 mundane theorem or-right
   assume Q                                                            (H1)
   then        P or Q
-  metamath-counterpart olc
   metamath-proof olc
   lean-proof Or.inr h1
   note        The same, from a line saying the second holds.
@@ -82,13 +79,12 @@ mundane theorem or-right
 mundane theorem or-swap
   assume P or Q                                                       (H1)
   then        Q or P
-  metamath-counterpart pm1.4
   metamath-proof pm1.4
   note        One of two things holds, said in the other order.
+  lean-proof  not yet implemented
 
 mundane theorem not-either
   then        not (P or Q) ↔ not P and not Q
-  metamath-counterpart ioran
   metamath-proof ioran
   lean-proof not_or
   note        De Morgan's law for "or": neither of two things holds just when
@@ -98,7 +94,6 @@ mundane theorem modus-ponens
   assume if P then Q                                                  (H1)
   assume P                                                            (H2)
   then        Q
-  metamath-counterpart mpd
   metamath-proof mpd
   lean-proof h1 h2
   note        An "if" used where what it asks holds: an induction over the k
@@ -109,42 +104,42 @@ mundane theorem iff-both-true
   assume P                                                            (H1)
   assume Q                                                            (H2)
   then        P ↔ Q
-  metamath-counterpart 2thd
   metamath-proof 2thd
   note        Two claims that both hold are equivalent, as a count that is
               odd at a vertex that is the walk's last.
+  lean-proof  not yet implemented
 
 mundane theorem iff-both-false
   assume not P                                                        (H1)
   assume not Q                                                        (H2)
   then        P ↔ Q
-  metamath-counterpart 2falsed
   metamath-proof 2falsed
   note        Two claims that both fail are equivalent, the other way an
               "if and only if" is settled without proving each direction.
+  lean-proof  not yet implemented
 
 mundane theorem iff-from-left
   assume P ↔ Q                                                        (H1)
   assume P                                                            (H2)
   then        Q
-  metamath-counterpart mpbid
   metamath-proof mpbid
   note        Using an "if and only if" from its left side: the right holds
               where the left does.
+  lean-proof  not yet implemented
 
 mundane theorem iff-from-right
   assume P ↔ Q                                                        (H1)
   assume Q                                                            (H2)
   then        P
-  metamath-counterpart mpbird
   metamath-proof mpbird
   note        Using an "if and only if" from its right side: the left holds
               where the right does.
+  lean-proof  not yet implemented
 
 mundane theorem iff-not-from-right
   assume P ↔ Q                                                        (H1)
   assume not Q                                                        (H2)
   then        not P
-  metamath-counterpart mtbird
   metamath-proof mtbird
   note        The same where the right side fails: then so does the left.
+  lean-proof  not yet implemented

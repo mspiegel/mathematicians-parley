@@ -4,7 +4,6 @@ import mundane theorem    stdlib/numbers/abs-negative
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem difference-of-magnitudes
-  metamath-counterpart abs2difabs, over ℝ
   note        |A| is at most |A − B| + |B| and |B| is at most |B − A| + |A|,
               by the triangle inequality, and |B − A| is |A − B|. So |A| − |B|
               and its negative are both at most |A − B|, and the absolute

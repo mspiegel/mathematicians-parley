@@ -13,50 +13,52 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 definition rational
   then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℕ with x = p/q
-  metamath-counterpart elq
   metamath-proof elq
+  lean-proof  not yet implemented
 
 definition i
   then        i·i = −1
-  metamath-counterpart ixi
   metamath-proof ixi
   note        What a reader knows of i, and all a proof asks of it. set.mm
               builds ℂ first and finds i in it; a reader meets i by this.
+  lean-proof  not yet implemented
 
 mundane theorem i-complex
   then        i ∈ ℂ
-  metamath-counterpart ax-icn
   metamath-proof ax-icn
+  lean-proof  not yet implemented
 
 definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
-  metamath-counterpart ℝ ∖ ℚ, as in sqrt2irr0
   metamath-proof eldif
   note        Names a word for an existing set.mm construct rather than
               introducing a symbol. See DATABASE.md on what def: means.
+  lean-proof  not yet implemented
 
 definition sqrt
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
-  metamath-counterpart df-sqrt, resqrtcl, sqrtge0, resqrtth
   metamath-proof resqrtcl, sqrtge0, resqrtth
+  lean-proof  not yet implemented
 
 mundane theorem int-closure
   let a ∈ ℤ                                                           (H1)
   then        a² ∈ ℤ
   let b ∈ ℤ                                                           (H2)
   then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
-  metamath-counterpart zsqcl, zaddcl, zsubcl, zmulcl
   metamath-proof zsqcl, zaddcl, zsubcl, zmulcl
   lean-proof trivial ; trivial ; trivial ; trivial
   note        The square stands in a group of its own because it needs one
@@ -69,79 +71,78 @@ mundane theorem nat-closure
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        a + b ∈ ℕ. a·b ∈ ℕ.
-  metamath-counterpart nnaddcl, nnmulcl
   metamath-proof nnaddcl, nnmulcl
+  lean-proof  not yet implemented
 
 mundane theorem real-closure
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x + y ∈ ℝ. x − y ∈ ℝ.
-  metamath-counterpart readdcl, resubcl
   metamath-proof readdcl, resubcl
   note        The triangle inequality pilot stated addition only; the
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
+  lean-proof  not yet implemented
 
 mundane theorem nat-plus-nat0
   let a ∈ ℕ                                                           (H1)
   let b ∈ ℕ₀                                                          (H2)
   then        a + b ∈ ℕ
-  metamath-counterpart nnnn0addcl
   metamath-proof nnnn0addcl
   note        As nat0-successor, the number added any whole number.
+  lean-proof  not yet implemented
 
 mundane theorem nat0-successor
   let k ∈ ℕ₀                                                          (H1)
   then        k + 1 ∈ ℕ
-  metamath-counterpart nn0p1nn
   metamath-proof nn0p1nn
   note        The number after a whole number is positive: a sum is in ℕ by
               `membership` only when both its parts are, and k may be 0.
+  lean-proof  not yet implemented
 
 mundane theorem nat-int
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℤ
-  metamath-counterpart nnz
   metamath-proof nnz
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℤ as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
+  lean-proof  not yet implemented
 
 mundane theorem int-real
   let m ∈ ℤ                                                           (H1)
   then        m ∈ ℝ
-  metamath-counterpart zre
   metamath-proof zre
   note        `algebra` and `inequalities` work over a field, so a step
               reasoning about integers carries its atoms into ℝ first.
+  lean-proof  not yet implemented
 
 mundane theorem nat-real
   let m ∈ ℕ                                                           (H1)
   then        m ∈ ℝ
-  metamath-counterpart nnre
   metamath-proof nnre
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℝ as well
               (`SYNTAX.md`, what a membership line says), by this lemma
               directly rather than through ℤ.
+  lean-proof  not yet implemented
 
 mundane theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℝ
-  metamath-counterpart nn0re
   metamath-proof nn0re
   note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
               this lemma, as `nat-real`'s note says of ℕ.
+  lean-proof  not yet implemented
 
 mundane theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℤ
-  metamath-counterpart nn0z
   metamath-proof nn0z
+  lean-proof  not yet implemented
 
 mundane theorem pos-int-nat
   let m ∈ ℤ                                                           (H1)
   assume 0 < m                                                        (H2)
   then        m ∈ ℕ
-  metamath-counterpart elnnz
   metamath-proof elnnz
   lean-proof h2
 
@@ -149,15 +150,14 @@ mundane theorem nat0-nonzero
   let m ∈ ℕ₀                                                          (H1)
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
-  metamath-counterpart elnnne0
   metamath-proof elnnne0
+  lean-proof  not yet implemented
 
 mundane theorem integer-step
   let m ∈ ℤ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   assume m < n                                                        (H3)
   then        m + 1 ≤ n
-  metamath-counterpart zltp1le
   metamath-proof zltp1le
   lean-proof by omega
   note        Between whole numbers, less than is at least one less: no
@@ -166,21 +166,18 @@ mundane theorem integer-step
 mundane theorem floor-integer
   let x ∈ ℝ                                                           (H1)
   then        ⌊x⌋ ∈ ℤ
-  metamath-counterpart flcl
   metamath-proof flcl
   lean-proof trivial
 
 mundane theorem floor-below
   let x ∈ ℝ                                                           (H1)
   then        ⌊x⌋ ≤ x
-  metamath-counterpart flle
   metamath-proof flle
   lean-proof Int.floor_le x
 
 mundane theorem floor-above
   let x ∈ ℝ                                                           (H1)
   then        x < ⌊x⌋ + 1
-  metamath-counterpart flltp1
   metamath-proof flltp1
   lean-proof Int.lt_floor_add_one x
 
@@ -188,7 +185,6 @@ mundane theorem floor-between
   let x ∈ ℝ                                                           (H1)
   let k ∈ ℤ                                                           (H2)
   then        ⌊x⌋ = k ↔ k ≤ x and x < k + 1
-  metamath-counterpart flbi
   metamath-proof flbi
   lean-proof Int.floor_eq_iff
   note        With floor-below, ⌊x⌋ is the whole number with x in [⌊x⌋,
@@ -198,7 +194,6 @@ mundane theorem exponent-step
   let a ∈ ℂ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
-  metamath-counterpart expp1
   metamath-proof expp1
   lean-proof pow_succ a m
 
@@ -207,7 +202,6 @@ mundane theorem exponent-sum
   let m ∈ ℕ₀                                                          (H2)
   let n ∈ ℕ₀                                                          (H3)
   then        a^(m + n) = a^m·a^n
-  metamath-counterpart expadd
   metamath-proof expadd
   lean-proof pow_add a m n
 
@@ -217,26 +211,26 @@ mundane theorem exponent-sum-integer
   let m ∈ ℤ                                                           (H3)
   let n ∈ ℤ                                                           (H4)
   then        a^(m + n) = a^m·a^n
-  metamath-counterpart expaddz
   metamath-proof expaddz
   note        exponent-sum over the integers, where a power to a negative
               exponent asks a base other than 0.
+  lean-proof  not yet implemented
 
 mundane theorem exponent-negative
   let a ∈ ℂ                                                           (H1)
   assume a ≠ 0                                                        (H2)
   let m ∈ ℤ                                                           (H3)
   then        a^(−m) = 1/a^m
-  metamath-counterpart expnegz
   metamath-proof expnegz
+  lean-proof  not yet implemented
 
 mundane theorem power-of-power
   let a ∈ ℂ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   let n ∈ ℕ₀                                                          (H3)
   then        a^(m·n) = (a^m)^n
-  metamath-counterpart expmul
   metamath-proof expmul
+  lean-proof  not yet implemented
 
 mundane theorem power-of-power-integer
   let a ∈ ℂ                                                           (H1)
@@ -244,18 +238,18 @@ mundane theorem power-of-power-integer
   let m ∈ ℤ                                                           (H3)
   let n ∈ ℤ                                                           (H4)
   then        a^(m·n) = (a^m)^n
-  metamath-counterpart expmulz
   metamath-proof expmulz
   note        power-of-power over the integers, where a power to a negative
               exponent asks a base other than 0.
+  lean-proof  not yet implemented
 
 mundane theorem power-of-product
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   let n ∈ ℕ₀                                                          (H3)
   then        (a·b)^n = a^n·b^n
-  metamath-counterpart mulexp
   metamath-proof mulexp
+  lean-proof  not yet implemented
 
 mundane theorem power-of-product-integer
   let a ∈ ℂ                                                           (H1)
@@ -264,10 +258,10 @@ mundane theorem power-of-product-integer
   assume b ≠ 0                                                        (H4)
   let n ∈ ℤ                                                           (H5)
   then        (a·b)^n = a^n·b^n
-  metamath-counterpart mulexpz
   metamath-proof mulexpz
   note        power-of-product over the integers, where a power to a
               negative exponent asks each base to be other than 0.
+  lean-proof  not yet implemented
 
 mundane theorem power-cancel
   let a ∈ ℝ                                                           (H1)
@@ -275,9 +269,9 @@ mundane theorem power-cancel
   let n ∈ ℤ                                                           (H3)
   assume a > 1                                                        (H4)
   then        a^m = a^n ↔ m = n
-  metamath-counterpart expcan
   metamath-proof expcan
   note        Powers of a number above 1 are equal only at equal exponents.
+  lean-proof  not yet implemented
 
 mundane theorem power-order
   let a ∈ ℝ                                                           (H1)
@@ -285,24 +279,24 @@ mundane theorem power-order
   let n ∈ ℤ                                                           (H3)
   assume a > 1                                                        (H4)
   then        m < n ↔ a^m < a^n
-  metamath-counterpart ltexp2
   metamath-proof ltexp2
   note        Powers of a number above 1 grow with the exponent.
+  lean-proof  not yet implemented
 
 mundane theorem minus-one-even-power
   let n ∈ ℤ                                                           (H1)
   then        (−1)^(2n) = 1
-  metamath-counterpart m1expeven
   metamath-proof m1expeven
   note        `proofs/setmm/minus-one-even-power.proof` proves it for
               n ∈ ℕ₀ as its own exercise (DATABASE.md).
+  lean-proof  not yet implemented
 
 mundane theorem minus-one-odd-power
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        (−1)^n = −1
-  metamath-counterpart m1expo
   metamath-proof m1expo
+  lean-proof  not yet implemented
 
 mundane theorem product-nonzero
   let x ∈ ℂ                                                           (H1)
@@ -310,50 +304,49 @@ mundane theorem product-nonzero
   assume x ≠ 0                                                        (H3)
   assume y ≠ 0                                                        (H4)
   then        x·y ≠ 0
-  metamath-counterpart mulne0
   metamath-proof mulne0
+  lean-proof  not yet implemented
 
 mundane theorem power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℤ
-  metamath-counterpart zexpcl
   metamath-proof zexpcl
+  lean-proof  not yet implemented
 
 mundane theorem power-real
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℝ
-  metamath-counterpart reexpcl
   metamath-proof reexpcl
   note        A power whose exponent is not a numeral is an atom to `algebra`.
               Where the exponent is a letter introduced in ℕ or ℕ₀ the page
               says the power is real once; for any other exponent, 2^(m + 1),
               it is cited for that.
+  lean-proof  not yet implemented
 
 mundane theorem power-real-integer
   let a ∈ ℝ                                                           (H1)
   assume a ≠ 0                                                        (H2)
   let m ∈ ℤ                                                           (H3)
   then        a^m ∈ ℝ
-  metamath-counterpart reexpclz
   metamath-proof reexpclz
   note        power-real over the integers, where a power to a negative
               exponent asks a base other than 0.
+  lean-proof  not yet implemented
 
 mundane theorem power-nat0
   let a ∈ ℕ₀                                                          (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℕ₀
-  metamath-counterpart nn0expcl
   metamath-proof nn0expcl
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
+  lean-proof  not yet implemented
 
 mundane theorem nat-minus-one
   let n ∈ ℕ                                                           (H1)
   then        n − 1 ∈ ℕ₀
-  metamath-counterpart nnm1nn0
   metamath-proof nnm1nn0
   lean-proof by omega
 
@@ -362,22 +355,20 @@ mundane theorem difference-nat0
   let n ∈ ℕ₀                                                          (H2)
   assume m ≤ n                                                        (H3)
   then        n − m ∈ ℕ₀
-  metamath-counterpart nn0sub2
   metamath-proof nn0sub2
+  lean-proof  not yet implemented
 
 mundane theorem integer-sign
   let n ∈ ℤ                                                           (H1)
   then        n ∈ ℕ₀ or −n ∈ ℕ₀
-  metamath-counterpart elznn0, its second part, which this corpus takes in
-              elaboration/stdlib/proved.mm
   metamath-proof gznn0neg
   note        An integer is a whole number or the negative of one.
+  lean-proof  not yet implemented
 
 mundane theorem power-nat
   let a ∈ ℕ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℕ
-  metamath-counterpart nnexpcl
   metamath-proof nnexpcl
   lean-proof by positivity
 
@@ -385,35 +376,34 @@ mundane theorem real-power-complex
   let x ∈ ℂ                                                           (H1)
   let y ∈ ℂ                                                           (H2)
   then        x^y ∈ ℂ
-  metamath-counterpart cxpcl
   metamath-proof cxpcl
   note        A power whose exponent is not whole is the principal power
               (`GRAMMAR.md`), here and in the items after it.
+  lean-proof  not yet implemented
 
 mundane theorem real-power-real
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
   then        x^y ∈ ℝ
-  metamath-counterpart recxpcl
   metamath-proof recxpcl
+  lean-proof  not yet implemented
 
 mundane theorem real-power-nonneg
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
   then        x^y ≥ 0
-  metamath-counterpart cxpge0
   metamath-proof cxpge0
+  lean-proof  not yet implemented
 
 mundane theorem real-power-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   let y ∈ ℝ                                                           (H3)
   then        x^y > 0
-  metamath-counterpart gcxpgt0, which this corpus proves in elaboration/stdlib/proved.mm
-              from cxpgt0d
   metamath-proof gcxpgt0
+  lean-proof  not yet implemented
 
 mundane theorem real-power-sum
   let x ∈ ℂ                                                           (H1)
@@ -421,8 +411,8 @@ mundane theorem real-power-sum
   let a ∈ ℂ                                                           (H3)
   let b ∈ ℂ                                                           (H4)
   then        x^(a + b) = x^a·x^b
-  metamath-counterpart cxpadd
   metamath-proof cxpadd
+  lean-proof  not yet implemented
 
 mundane theorem real-power-of-power
   let x ∈ ℝ                                                           (H1)
@@ -430,90 +420,83 @@ mundane theorem real-power-of-power
   let a ∈ ℝ                                                           (H3)
   let b ∈ ℂ                                                           (H4)
   then        x^(a·b) = (x^a)^b
-  metamath-counterpart cxpmul
   metamath-proof cxpmul
+  lean-proof  not yet implemented
 
 mundane theorem root-power
   let x ∈ ℂ                                                           (H1)
   let n ∈ ℕ                                                           (H2)
   then        (x^(1/n))^n = x
-  metamath-counterpart cxproot
   metamath-proof cxproot
   note        The principal n-th root of x, raised to the n-th power, which
               is a whole power.
+  lean-proof  not yet implemented
 
 mundane theorem half-power
   let x ∈ ℂ                                                           (H1)
   then        x^(1/2) = √x
-  metamath-counterpart cxpsqrt
   metamath-proof cxpsqrt
+  lean-proof  not yet implemented
 
 mundane theorem cube-root-real
   let x ∈ ℝ                                                           (H1)
   then        ∛x ∈ ℝ
-  metamath-counterpart gcbrtre, which this corpus proves in elaboration/stdlib/proved.mm
-              from grootre, the real root of any odd index
   metamath-proof gcbrtre
+  lean-proof  not yet implemented
 
 mundane theorem cube-root-cubed
   let x ∈ ℝ                                                           (H1)
   then        (∛x)³ = x
-  metamath-counterpart gcbrtexp, which this corpus proves in elaboration/stdlib/proved.mm
-              from grootexp, by cxproot and oexpneg
   metamath-proof gcbrtexp
+  lean-proof  not yet implemented
 
 mundane theorem cube-root-of-cube
   let x ∈ ℝ                                                           (H1)
   then        ∛(x³) = x
-  metamath-counterpart gcbrtcube, which this corpus proves in elaboration/stdlib/proved.mm
-              from grootexpr
   metamath-proof gcbrtcube
+  lean-proof  not yet implemented
 
 mundane theorem cube-root-as-power
   let x ∈ ℝ                                                           (H1)
   assume x ≥ 0                                                        (H2)
   then        ∛x = x^(1/3)
-  metamath-counterpart gcbrtpw, which this corpus proves in elaboration/stdlib/proved.mm
-              from grootpw
   metamath-proof gcbrtpw
   note        Where x ≥ 0 the real root and the principal power are one; below
               0 they differ, ∛(−8) being −2 and (−8)^(1/3) not real.
+  lean-proof  not yet implemented
 
 axiom trichotomy
   let x ∈ ℝ                                                           (H1)
   then        x < 0 or x = 0 or 0 < x
-  metamath-counterpart lttri4, 0re
   metamath-proof lttri4 with B := 0
   lean-proof or_assoc.mpr (lt_trichotomy x 0)
 
 mundane theorem nonneg-or-neg
   let x ∈ ℝ                                                           (H1)
   then        x ≥ 0 or x < 0
-  metamath-counterpart 0re, lelttric
   metamath-proof lelttric
   lean-proof le_or_gt 0 x
 
 mundane theorem rational-coprime
   let x ∈ ℚ                                                           (H1)
   then        there are p ∈ ℤ and q ∈ ℕ with x = p/q and gcd(p, q) = 1
-  metamath-counterpart elq2
   metamath-proof elq2 with Q := x
   note        set.mm's second reading of being rational, beside elq, which is
               def:stdlib/numbers/rational. An implication and not a biconditional: it says a
               rational can be written one way, not what one is.
+  lean-proof  not yet implemented
 
 axiom well-ordering
   assume S ⊆ ℕ                                                        (H1)
   assume there is s ∈ S                                               (H2)
   then        there is d ∈ S with for all s ∈ S, d ≤ s
-  metamath-counterpart nnwo
   metamath-proof nnwo
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.
+  lean-proof  not yet implemented
 
 definition abs
   let x ∈ ℝ                                                           (H1)
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
-  metamath-counterpart absid, absnid
   metamath-proof absid, absnid
   lean-proof fun h => abs_of_nonneg h ; fun h => abs_of_neg h
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
@@ -524,115 +507,114 @@ definition abs
 mundane theorem abs-real
   let x ∈ ℝ                                                           (H1)
   then        |x| ∈ ℝ
-  metamath-counterpart recn, abscl
   metamath-proof abscl
   note        No proof cites it yet. `inequalities` treats |x| as an atom it
               knows nothing about, so an absolute value has to be known real
               like any other term. Eight steps of the triangle inequality and
               intermediate value proofs will need it. set.mm defines abs on ℂ
               by df-abs, so the real case goes through recn. See METHODS.md.
+  lean-proof  not yet implemented
 
 mundane theorem abs-difference-lt
   let x ∈ ℝ                                                           (H1)
   let c ∈ ℝ                                                           (H2)
   let δ ∈ ℝ                                                           (H3)
   then        |x − c| < δ ↔ c − δ < x and x < c + δ
-  metamath-counterpart absdiflt, abslt
   metamath-proof absdiflt
+  lean-proof  not yet implemented
 
 mundane theorem abs-difference-le
   let x ∈ ℝ                                                           (H1)
   let c ∈ ℝ                                                           (H2)
   let δ ∈ ℝ                                                           (H3)
   then        |x − c| ≤ δ ↔ c − δ ≤ x and x ≤ c + δ
-  metamath-counterpart absdifle
   metamath-proof absdifle
   note        As abs-difference-lt, with the ends allowed.
+  lean-proof  not yet implemented
 
 definition min
   sort        number, number → number
   metamath-builds _1 _2 cle wbr _1 _2 cif
   lean-builds α, α → α: min _1 _2
   reads       the smaller of
-  metamath-counterpart set.mm writes the smaller of x and y inline, as
-              if ( x <_ y , x , y )
   note        set.mm has no minimum of its own, so this definition states
               nothing but what min(x, y) builds; what the page needs of it
               is min-real, min-le and lt-min, from ifcl, min1, min2 and ltmin.
+  metamath-proof none
+  lean-proof  none
 
 definition max
   sort        number, number → number
   metamath-builds _1 _2 cle wbr _2 _1 cif
   lean-builds α, α → α: max _1 _2
   reads       the larger of
-  metamath-counterpart set.mm writes the larger of x and y inline, as
-              if ( x <_ y , y , x )
   note        As min: max-real, le-max and max-le say what the page needs,
               from ifcl, max1, max2 and maxle.
+  metamath-proof none
+  lean-proof  none
 
 mundane theorem min-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ∈ ℝ
-  metamath-counterpart ifcl
   metamath-proof ifcl
+  lean-proof  not yet implemented
 
 mundane theorem min-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ≤ x. min(x, y) ≤ y.
-  metamath-counterpart min1, min2
   metamath-proof min1, min2
+  lean-proof  not yet implemented
 
 mundane theorem lt-min
   let z ∈ ℝ                                                           (H1)
   let x ∈ ℝ                                                           (H2)
   let y ∈ ℝ                                                           (H3)
   then        z < min(x, y) ↔ z < x and z < y
-  metamath-counterpart ltmin
   metamath-proof ltmin
+  lean-proof  not yet implemented
 
 mundane theorem max-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        max(x, y) ∈ ℝ
-  metamath-counterpart ifcl
   metamath-proof ifcl
   note        No proof cites it yet; it is here beside `min-real`, which
               the intermediate value proof cites.
+  lean-proof  not yet implemented
 
 mundane theorem le-max
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x ≤ max(x, y). y ≤ max(x, y).
-  metamath-counterpart max1, max2
   metamath-proof max1, max2
   note        No proof cites it yet.
+  lean-proof  not yet implemented
 
 mundane theorem max-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   let z ∈ ℝ                                                           (H3)
   then        max(x, y) ≤ z ↔ x ≤ z and y ≤ z
-  metamath-counterpart maxle
   metamath-proof maxle
   note        No proof cites it yet.
+  lean-proof  not yet implemented
 
 mundane theorem quotient-real
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
   then        x/y ∈ ℝ
-  metamath-counterpart redivcl
   metamath-proof redivcl
   note        No proof cites it: the method `membership` builds a quotient's
               membership from its parts, and a quotient of letters and
               numerals is said once (`READERS.md`).
+  lean-proof  not yet implemented
 
 mundane theorem square-nonneg
   let x ∈ ℝ                                                           (H1)
   then        x² ≥ 0
-  metamath-counterpart sqge0
   metamath-proof sqge0
   lean-proof sq_nonneg x
 
@@ -640,8 +622,8 @@ mundane theorem square-zero
   let x ∈ ℝ                                                           (H1)
   assume x² = 0                                                       (H2)
   then        x = 0
-  metamath-counterpart sqeq0
   metamath-proof sqeq0
+  lean-proof  not yet implemented
 
 mundane theorem multiply-le
   let x ∈ ℝ                                                           (H1)
@@ -650,7 +632,6 @@ mundane theorem multiply-le
   assume x ≤ y                                                        (H4)
   assume c > 0                                                        (H5)
   then        c·x ≤ c·y
-  metamath-counterpart lemul2
   metamath-proof lemul2
   lean-proof mul_le_mul_of_nonneg_left h4 h5.le
   note        `inequalities` multiplies a line only by a number, so a step
@@ -663,16 +644,15 @@ mundane theorem multiply-le-nonneg
   assume x ≤ y                                                        (H4)
   assume c ≥ 0                                                        (H5)
   then        x·c ≤ y·c
-  metamath-counterpart lemul1a
   metamath-proof lemul1a
   note        As multiply-le, by a factor that may be 0, written on the
               right.
+  lean-proof  not yet implemented
 
 mundane theorem square-positive
   let x ∈ ℝ                                                           (H1)
   assume x ≠ 0                                                        (H2)
   then        x² > 0
-  metamath-counterpart sqgt0
   metamath-proof sqgt0
   lean-proof lt_of_le_of_ne (sq_nonneg x) (Ne.symm (pow_ne_zero 2 h2))
 
@@ -682,8 +662,8 @@ mundane theorem square-equal
   assume x ≥ 0                                                        (H3)
   assume y ≥ 0                                                        (H4)
   then        x² = y² ↔ x = y
-  metamath-counterpart sq11
   metamath-proof sq11
+  lean-proof  not yet implemented
 
 mundane theorem square-less
   let x ∈ ℝ                                                           (H1)
@@ -691,7 +671,6 @@ mundane theorem square-less
   assume x ≥ 0                                                        (H3)
   assume y ≥ 0                                                        (H4)
   then        x < y ↔ x² < y²
-  metamath-counterpart lt2sq
   metamath-proof lt2sq
   lean-proof  ⟨fun h => by nlinarith, fun h => by nlinarith⟩
 
@@ -701,7 +680,6 @@ mundane theorem square-le
   assume x ≥ 0                                                        (H3)
   assume y ≥ 0                                                        (H4)
   then        x ≤ y ↔ x² ≤ y²
-  metamath-counterpart le2sq
   metamath-proof le2sq
   lean-proof ⟨fun h => by nlinarith, fun h => by nlinarith⟩
   note        square-less with ≤ for <: of two numbers at least 0, the
@@ -713,7 +691,6 @@ mundane theorem product-nonneg
   assume x ≥ 0                                                        (H3)
   assume y ≥ 0                                                        (H4)
   then        x·y ≥ 0
-  metamath-counterpart mulge0
   metamath-proof mulge0
   lean-proof mul_nonneg h3 h4
   note        `inequalities` combines bounds and multiplies one only by a
@@ -725,9 +702,9 @@ mundane theorem product-positive
   assume x > 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        x·y > 0
-  metamath-counterpart mulgt0
   metamath-proof mulgt0
   note        As product-nonneg, strictly.
+  lean-proof  not yet implemented
 
 mundane theorem factor-positive
   let a ∈ ℝ                                                           (H1)
@@ -735,18 +712,18 @@ mundane theorem factor-positive
   assume a ≥ 0                                                        (H3)
   assume a·b > 0                                                      (H4)
   then        b > 0
-  metamath-counterpart prodgt0
   metamath-proof prodgt0
   note        A positive product of a factor at least 0 and another has the
               other positive.
+  lean-proof  not yet implemented
 
 mundane theorem power-positive
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℤ                                                           (H2)
   assume a > 0                                                        (H3)
   then        a^m > 0
-  metamath-counterpart expgt0
   metamath-proof expgt0
+  lean-proof  not yet implemented
 
 mundane theorem power-exponent-le
   let a ∈ ℝ                                                           (H1)
@@ -755,37 +732,36 @@ mundane theorem power-exponent-le
   assume 1 ≤ a                                                        (H4)
   assume m ≤ n                                                        (H5)
   then        a^m ≤ a^n
-  metamath-counterpart leexp2a, which this corpus proves for exponents in ℕ₀ in
-              elaboration/stdlib/proved.mm
   metamath-proof gleexp2
   note        As power-order, the exponents allowed to be equal: a larger
               exponent gives a power at least as large, of a base at least 1.
+  lean-proof  not yet implemented
 
 mundane theorem power-at-least-one
   let a ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   assume 1 ≤ a                                                        (H3)
   then        1 ≤ a^n
-  metamath-counterpart expge1
   metamath-proof expge1
   note        A power of a number at least 1 is at least 1.
+  lean-proof  not yet implemented
 
 mundane theorem power-nonneg
   let a ∈ ℝ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   assume a ≥ 0                                                        (H3)
   then        a^m ≥ 0
-  metamath-counterpart expge0
   metamath-proof expge0
   note        As power-positive, for a base at least 0.
+  lean-proof  not yet implemented
 
 mundane theorem zero-power
   let n ∈ ℕ                                                           (H1)
   then        0^n = 0
-  metamath-counterpart 0exp
   metamath-proof 0exp
   note        An exponent that is a letter makes the power an atom to
               `algebra`, so 0^n = 0 is cited, as 1^m = 1 is.
+  lean-proof  not yet implemented
 
 mundane theorem power-less
   let x ∈ ℝ                                                           (H1)
@@ -794,10 +770,10 @@ mundane theorem power-less
   assume 0 ≤ x                                                        (H4)
   assume x < y                                                        (H5)
   then        x^n < y^n
-  metamath-counterpart expmordi
   metamath-proof expmordi
   note        Of two numbers at least 0, the larger has the larger n-th
               power.
+  lean-proof  not yet implemented
 
 mundane theorem quotients-compared
   let x ∈ ℝ                                                           (H1)
@@ -809,16 +785,15 @@ mundane theorem quotients-compared
   assume 0 < w                                                        (H7)
   assume w ≤ y                                                        (H8)
   then        x/y ≤ z/w
-  metamath-counterpart lediv12a
   metamath-proof lediv12a
   note        A smaller top over a larger bottom: both moves make the
               quotient smaller.
+  lean-proof  not yet implemented
 
 mundane theorem zero-product
   let x ∈ ℂ                                                           (H1)
   let y ∈ ℂ                                                           (H2)
   then        x·y = 0 ↔ x = 0 or y = 0
-  metamath-counterpart mul0or
   metamath-proof mul0or
   lean-proof mul_eq_zero
 
@@ -828,7 +803,6 @@ mundane theorem quotient-nonneg
   assume x ≥ 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        x/y ≥ 0
-  metamath-counterpart divge0
   metamath-proof divge0
   lean-proof div_nonneg h3 h4.le
   note        As product-nonneg, for a quotient by a term above 0.
@@ -839,10 +813,10 @@ mundane theorem quotient-positive
   assume x > 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        x/y > 0
-  metamath-counterpart divgt0
   metamath-proof divgt0
   note        As quotient-nonneg, strictly: ε/2 > 0 and ε/(2·d) > 0 are what
               a limit proof takes them from.
+  lean-proof  not yet implemented
 
 mundane theorem less-scaled
   let x ∈ ℝ                                                           (H1)
@@ -850,7 +824,6 @@ mundane theorem less-scaled
   let c ∈ ℝ                                                           (H3)
   assume c > 0                                                        (H4)
   then        x < y ↔ c·x < c·y
-  metamath-counterpart ltmul2
   metamath-proof ltmul2
   lean-proof ⟨fun h => by nlinarith, fun h => by nlinarith⟩
   note        `inequalities` multiplies a bound only by a number; scaling by
@@ -859,31 +832,29 @@ mundane theorem less-scaled
 mundane theorem abs-positive
   let x ∈ ℂ                                                           (H1)
   then        x ≠ 0 ↔ |x| > 0
-  metamath-counterpart absgt0
   metamath-proof absgt0
+  lean-proof  not yet implemented
 
 mundane theorem nonzero-integer-abs
   let z ∈ ℤ                                                           (H1)
   assume z ≠ 0                                                        (H2)
   then        |z| ≥ 1
-  metamath-counterpart nnabscl and nnge1, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gzabsge1
   note        An integer other than 0 is at least 1 in size: its absolute
               value is a positive integer.
+  lean-proof  not yet implemented
 
 mundane theorem abs-nonneg
   let x ∈ ℂ                                                           (H1)
   then        |x| ≥ 0
-  metamath-counterpart absge0
   metamath-proof absge0
   note        `inequalities` treats |x| as an atom it knows nothing about, so
               that it is at least 0 is cited, as that it is real is.
+  lean-proof  not yet implemented
 
 mundane theorem one-power
   let m ∈ ℤ                                                           (H1)
   then        1^m = 1
-  metamath-counterpart 1exp
   metamath-proof 1exp
   lean-proof  one_zpow m
   note        An exponent that is a letter makes the power an atom to
@@ -893,7 +864,6 @@ mundane theorem le-cases
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x ≤ y ↔ x < y or x = y
-  metamath-counterpart leloe
   metamath-proof leloe
   lean-proof  le_iff_lt_or_eq
   note        A bound is a strict one or an equation: what a proof by cases
@@ -903,10 +873,10 @@ mundane theorem unequal-cases
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        x ≠ y ↔ x < y or y < x
-  metamath-counterpart lttri2
   metamath-proof lttri2
   note        Two different numbers are in one order or the other: what a
               proof by cases on x ≠ y takes its two cases from.
+  lean-proof  not yet implemented
 
 mundane theorem divide-le
   let x ∈ ℝ                                                           (H1)
@@ -915,7 +885,6 @@ mundane theorem divide-le
   assume x ≤ y                                                        (H4)
   assume c > 0                                                        (H5)
   then        x/c ≤ y/c
-  metamath-counterpart lediv1
   metamath-proof lediv1
   lean-proof by rw [div_le_div_iff_of_pos_right h5]; exact h4
   note        As multiply-le, for dividing both sides by a positive term.
@@ -927,7 +896,6 @@ mundane theorem multiply-cancel
   assume a·c = b·c                                                    (H4)
   assume c ≠ 0                                                        (H5)
   then        a = b
-  metamath-counterpart mulcan2ad
   metamath-proof mulcan2ad
   lean-proof mul_right_cancel₀ h5 h4
   note        A common factor that is not 0 cancels. `algebra` multiplies
@@ -938,8 +906,8 @@ mundane theorem reciprocal-positive
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        1/x > 0
-  metamath-counterpart recgt0
   metamath-proof recgt0
+  lean-proof  not yet implemented
 
 mundane theorem reciprocal-order
   let x ∈ ℝ                                                           (H1)
@@ -947,12 +915,12 @@ mundane theorem reciprocal-order
   let y ∈ ℝ                                                           (H3)
   assume y > 0                                                        (H4)
   then        x ≤ y ↔ 1/y ≤ 1/x
-  metamath-counterpart lerec
   metamath-proof lerec with A := x, B := y
   note        `inequalities` reads 1/x as an atom it knows nothing about, so
               that a larger number has the smaller reciprocal is cited. The
               `with` says which side is which: 1/y ≤ 1/x fits the near side
               too, at x := 1/y, and that reading asks 1/y to be positive.
+  lean-proof  not yet implemented
 
 mundane theorem reciprocal-order-strict
   let x ∈ ℝ                                                           (H1)
@@ -960,9 +928,9 @@ mundane theorem reciprocal-order-strict
   let y ∈ ℝ                                                           (H3)
   assume y > 0                                                        (H4)
   then        x < y ↔ 1/y < 1/x
-  metamath-counterpart ltrec
   metamath-proof ltrec with A := x, B := y
   note        reciprocal-order with < for ≤.
+  lean-proof  not yet implemented
 
 mundane theorem cross-multiplied-order
   let a ∈ ℝ                                                           (H1)
@@ -972,34 +940,33 @@ mundane theorem cross-multiplied-order
   let d ∈ ℝ                                                           (H5)
   assume d > 0                                                        (H6)
   then        a·b < c·d ↔ a/d < c/b
-  metamath-counterpart lt2mul2div
   metamath-proof lt2mul2div
   note        Two quotients with positive denominators compare as their
               cross products do.
+  lean-proof  not yet implemented
 
 theorem bernoulli-inequality
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   assume x ≥ −1                                                       (H3)
   then        1 + x·n ≤ (1 + x)^n
-  metamath-counterpart bernneq
   metamath-proof bernneq
   note        Bernoulli's inequality: raising 1 + x to the n-th power gains
               at least n times x.
+  lean-proof  not yet implemented
 
 theorem archimedean
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        there is N ∈ ℕ with 1/N < x
-  metamath-counterpart nnrecl
   metamath-proof nnrecl
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
+  lean-proof  not yet implemented
 
 theorem archimedean-natural
   let x ∈ ℝ                                                           (H1)
   then        there is m ∈ ℕ with m > x
-  metamath-counterpart arch
   metamath-proof arch
   lean-proof  by obtain ⟨m, hm⟩ := exists_nat_gt (max x 0); exact ⟨m + 1, by omega, by push_cast; linarith [le_max_left x 0]⟩
   note        However large a real, some natural number is larger: the
@@ -1009,7 +976,6 @@ mundane theorem abs-product
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        |x·y| = |x|·|y|
-  metamath-counterpart absmul
   metamath-proof absmul
   lean-proof  abs_mul x y
 
@@ -1018,20 +984,18 @@ mundane theorem abs-quotient
   let y ∈ ℝ                                                           (H2)
   assume y ≠ 0                                                        (H3)
   then        |x/y| = |x|/|y|
-  metamath-counterpart absdiv
   metamath-proof absdiv
+  lean-proof  not yet implemented
 
 mundane theorem abs-negative
   let x ∈ ℝ                                                           (H1)
   then        |−x| = |x|
-  metamath-counterpart absneg
   metamath-proof absneg
   lean-proof abs_neg x
 
 mundane theorem abs-integer
   let z ∈ ℤ                                                           (H1)
   then        |z| ∈ ℕ₀
-  metamath-counterpart nn0abscl
   metamath-proof nn0abscl
   lean-proof  abs_nonneg z
 
@@ -1039,40 +1003,41 @@ definition numer
   sort        number → number
   metamath-builds _1 cnumer cfv
   reads       the numerator in lowest terms of
-  metamath-counterpart df-numer
   note        The numerator of a rational written in lowest terms with a
               positive denominator, under set.mm's name for it. What a proof
               needs of it is in `lowest-terms-parts`, as for cos and sin.
+  metamath-proof none
+  lean-proof  none
 
 definition denom
   sort        number → number
   metamath-builds _1 cdenom cfv
   reads       the denominator in lowest terms of
-  metamath-counterpart df-denom
   note        The positive denominator of a rational in lowest terms, under
               set.mm's name for it.
+  metamath-proof none
+  lean-proof  none
 
 mundane theorem lowest-terms-parts
   let x ∈ ℚ                                                           (H1)
   then        numer(x) ∈ ℤ. denom(x) ∈ ℕ.
               x = numer(x)/denom(x).
-  metamath-counterpart qnumcl, qdencl, qeqnumdivden
   metamath-proof qnumcl, qdencl, qeqnumdivden
+  lean-proof  not yet implemented
 
 mundane theorem abs-zero
   then        |0| = 0
-  metamath-counterpart abs0
   metamath-proof abs0
+  lean-proof  not yet implemented
 
 mundane theorem abs-one
   then        |1| = 1
-  metamath-counterpart abs1
   metamath-proof abs1
+  lean-proof  not yet implemented
 
 mundane theorem abs-square
   let x ∈ ℝ                                                           (H1)
   then        |x|² = x²
-  metamath-counterpart absresq
   metamath-proof absresq
   lean-proof  sq_abs x
 
@@ -1080,14 +1045,13 @@ mundane theorem abs-power
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℕ₀                                                          (H2)
   then        |x^n| = |x|^n
-  metamath-counterpart absexp
   metamath-proof absexp
+  lean-proof  not yet implemented
 
 theorem triangle-inequality
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        |a + b| ≤ |a| + |b|
-  metamath-counterpart abstri
   metamath-proof abstri
   lean-proof abs_add_le a b
   note        `proofs/wiedijk/triangle-inequality.proof` proves it as its
@@ -1095,10 +1059,10 @@ theorem triangle-inequality
 
 definition nat0
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
-  metamath-counterpart elnn0
   metamath-proof elnn0
+  lean-proof  not yet implemented
 
 mundane theorem nat0-as-int
   then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
-  metamath-counterpart elnn0z
   metamath-proof elnn0z
+  lean-proof  not yet implemented

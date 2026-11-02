@@ -178,7 +178,6 @@ theorem harmonic-unbounded
 
 
 theorem harmonic
-  metamath-counterpart harmonic
   note        A sum with a limit is bounded, and the harmonic sums are not:
               harmonic-unbounded passes any bound B.
   then there is no L ∈ ℝ with Σ(k = 1 to n) 1/k → L as n → ∞

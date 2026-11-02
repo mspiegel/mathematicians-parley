@@ -1,7 +1,6 @@
 import mundane theorem    stdlib/reasoning/modus-ponens
 
 theorem contrapositive
-  metamath-counterpart con3
   note        If a = 0 forces b = 0 and b = 0 fails, then a = 0 cannot hold,
               for it would bring b = 0 with it.
   let a ∈ ℝ                                                           (H1)

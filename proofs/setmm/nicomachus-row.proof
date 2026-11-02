@@ -6,7 +6,6 @@ import mundane theorem      stdlib/sums/sum-single
 import theorem              proofs/setmm/odd-numbers-sum/odd-numbers-sum
 
 theorem nicomachus-row
-  metamath-counterpart nicomachus
   note        The N terms of row N are N² − N each, plus the first N odd
               numbers, which add up to N².
   let N ∈ ℕ₀                                                          (H1)

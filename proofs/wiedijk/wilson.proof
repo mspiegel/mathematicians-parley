@@ -283,7 +283,6 @@ theorem coprime-below-prime
                 = 1             mun:prime-coprime, from H2, 1
 
 theorem wilson
-  metamath-counterpart wilthimp
   note        Each a from 2 to p − 2 has an inverse f(a) modulo p, by
               Euler's theorem, as φ(p) = p − 1 for a prime: a^(p − 2)
               taken modulo p. The inverse is again from 2 to p − 2, it is

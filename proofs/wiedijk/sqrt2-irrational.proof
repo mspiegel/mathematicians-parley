@@ -13,7 +13,6 @@ import definition         stdlib/numbers/sqrt
 import mundane theorem    stdlib/reasoning/disjunctive-syllogism
 
 theorem odd-square
-  metamath-counterpart zesq covers it
   note        An odd number is 2k + 1, and its square 4k² + 4k + 1 is twice
               2k² + 2k, plus 1.
   let n ∈ ℤ                                                           (H1)
@@ -34,7 +33,6 @@ theorem odd-square
 
 
 theorem even-square
-  metamath-counterpart zesq
   note        If n were odd, its square would be odd by odd-square, and n² is
               even. Every integer is even or odd, so n is even.
   let n ∈ ℤ                                                           (H1)
@@ -98,7 +96,6 @@ theorem lowest-terms
 
 
 theorem sqrt2-irrational
-  metamath-counterpart sqrt2irr
   note        Suppose √2 = p/q in lowest terms. Then p² = 2q², so p is even;
               writing p = 2r gives q² = 2r², so q is even too, and 2 divides
               both, which lowest terms rules out.

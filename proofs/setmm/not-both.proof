@@ -2,7 +2,6 @@ import mundane theorem    stdlib/reasoning/double-negation
 import mundane theorem    stdlib/reasoning/not-either
 
 theorem not-both
-  metamath-counterpart ianor
   note        Both fail to hold together exactly when one of them fails: if
               neither a ≠ 0 nor b ≠ 0, then a = 0 and b = 0 both hold.
   let a ∈ ℝ                                                           (H1)

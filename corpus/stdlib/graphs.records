@@ -13,11 +13,14 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 #
 # A graph is set.mm's structure, named by its `let` line and never written:
 # `let G be an undirected multigraph with vertices V and edges E` gives the
@@ -29,15 +32,13 @@ definition traversable
   then        G is traversable ↔ there is n ∈ ℕ₀ with there is
               e : {1, …, n} → E with there is v : {0, …, n} → V with
               v and e form an Euler path of n edges
-  metamath-counterpart iseupthf1o and upgriswlk, the walk's word of edges read as a
-              function on {0, …, n − 1} and renumbered from 1, which this
-              corpus proves together in elaboration/stdlib/proved.mm
   metamath-proof gtrav
   note        A walk that crosses every edge exactly once is an Euler path,
               and a graph that has one is traversable (ProofWiki,
               "Characteristics of Traversable Graph"). The edges are counted
               from 1, as `def:stdlib/graphs/euler-path` counts them; set.mm
               counts them from 0, and `gtrav` carries one count to the other.
+  lean-proof  not yet implemented
 
 definition walk
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -46,12 +47,12 @@ definition walk
   let v : {0, …, n} → V                                               (H4)
   then        v and e form a walk of n edges ↔ for all i ∈ {1, …, n},
               e(i) joins v(i − 1) and v(i)
-  metamath-counterpart biid, since the notation's target is the joins at every place
   metamath-proof biid
   note        A walk is the vertices it passes through, v(0) first, and the
               edges it crosses, e(1) first, each edge joining the vertex
               before it to the vertex after it (Diestel, "Graph Theory",
               §1.3, and ProofWiki, "Definition:Walk (Graph Theory)").
+  lean-proof  not yet implemented
 
 definition euler-path
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -61,7 +62,6 @@ definition euler-path
   then        v and e form an Euler path of n edges ↔ v and e form a walk of
               n edges and e : {1, …, n} → E is one-to-one and for all a ∈ E,
               there is i ∈ {1, …, n} with a = e(i)
-  metamath-counterpart biid, since the notation's target is the three conditions
   metamath-proof biid
   note        A walk that crosses every edge exactly once: its edges e(1), …,
               e(n) are all different and every edge is one of them (Bondy and
@@ -69,6 +69,7 @@ definition euler-path
               edges from 0, and `def:stdlib/graphs/traversable` says the one
               count is the other). A Hamiltonian path is the same for
               vertices.
+  lean-proof  not yet implemented
 
 mundane theorem walk-step
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -78,10 +79,9 @@ mundane theorem walk-step
   let i ∈ {1, …, n}                                                   (H5)
   assume v and e form a walk of n edges                               (H6)
   then        e(i) joins v(i − 1) and v(i)
-  metamath-counterpart rspcv, at the place i, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof gwalkstep
   note        Each edge of a walk joins the vertices on either side of it.
+  lean-proof  not yet implemented
 
 mundane theorem joined-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -90,9 +90,8 @@ mundane theorem joined-incident
   let w ∈ V                                                           (H4)
   assume a joins u and w                                              (H5)
   then        u is incident with a. w is incident with a.
-  metamath-counterpart prid1g and prid2g, at the ends iEdg gives, which this corpus
-              proves in elaboration/stdlib/proved.mm
   metamath-proof gjoinend1, gjoinend2
+  lean-proof  not yet implemented
 
 mundane theorem walk-distinct
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -102,22 +101,20 @@ mundane theorem walk-distinct
   let i ∈ {1, …, n}                                                   (H5)
   assume v and e form a walk of n edges                               (H6)
   then        v(i − 1) ≠ v(i)
-  metamath-counterpart umgrnloopv at the edge `walk-step` gives, which this corpus
-              proves in elaboration/stdlib/proved.mm
   metamath-proof gwalkne
   note        A walk never stays where it is: an edge of a multigraph joins
               two different vertices.
+  lean-proof  not yet implemented
 
 mundane theorem incident-of-joined
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
   assume a joins u and w                                              (H3)
   then        x is incident with a ↔ x = u or x = w
-  metamath-counterpart elprg, at the ends iEdg gives, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof gends
   note        The vertices incident with an edge that joins u and w are u
               and w.
+  lean-proof  not yet implemented
 
 mundane theorem not-incident
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -129,9 +126,8 @@ mundane theorem not-incident
   assume x ≠ u                                                        (H7)
   assume x ≠ w                                                        (H8)
   then        x is not incident with a
-  metamath-counterpart elpri, at the ends iEdg gives, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof gnotend
+  lean-proof  not yet implemented
 
 mundane theorem join-distinct
   let G be an undirected multigraph with vertices V and edges E      (H1)
@@ -140,17 +136,15 @@ mundane theorem join-distinct
   let w ∈ V                                                           (H4)
   assume a joins u and w                                              (H5)
   then        u ≠ w
-  metamath-counterpart umgrnloopv, a multigraph having no edge from a vertex to
-              itself, which this corpus proves in elaboration/stdlib/proved.mm
   metamath-proof gjoinne
+  lean-proof  not yet implemented
 
 definition degree
   let G be an undirected multigraph with vertices V and edges E      (H1)
   let x ∈ V                                                           (H2)
   then        deg(x) = |{a ∈ E : x is incident with a}|
-  metamath-counterpart vtxdumgrval, with the graph's parts named, which this corpus
-              states in elaboration/stdlib/proved.mm
   metamath-proof gdeg
   note        The degree of a vertex is how many edges it is incident with. A
               multigraph has no edge from a vertex to itself, so no edge counts
               twice.
+  lean-proof  not yet implemented

@@ -200,7 +200,6 @@ theorem powerset-split
 
 
 theorem subsets-count
-  metamath-counterpart hashpw
   note        By induction on the size. Taking one element a out of a set of
               k + 1 splits its parts into those without a and those with it,
               2^k of each, and 2^k + 2^k = 2^(k + 1).

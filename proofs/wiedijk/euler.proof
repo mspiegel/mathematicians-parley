@@ -28,7 +28,6 @@ import mundane theorem    stdlib/sets/set-builder-subset
 import mundane theorem    stdlib/sets/subset-transitive
 
 theorem euler
-  metamath-counterpart eulerth
   note        Multiplying each remainder in S by a, and taking the remainder
               again, only reorders S. So the product of the r·a is the
               product of S, up to multiples of n, and it is also a^φ(n) times

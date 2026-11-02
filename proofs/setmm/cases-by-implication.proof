@@ -1,7 +1,6 @@
 import mundane theorem    stdlib/reasoning/modus-ponens
 
 theorem cases-by-implication
-  metamath-counterpart jao
   note        If a = 0 gives c = 0 and b = 0 gives c = 0, then whichever of
               the two holds, c = 0 follows.
   let a ∈ ℝ                                                           (H1)

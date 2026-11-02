@@ -2,7 +2,6 @@ import definition         stdlib/numbers/abs
 import mundane theorem    stdlib/numbers/nonneg-or-neg
 
 theorem abs-bounds
-  metamath-counterpart leabs, absneg
   note        |x| is x or −x, whichever is not negative, so it is at least
               both.
   let x ∈ ℝ                                                           (H1)
@@ -68,7 +67,6 @@ theorem abs-bounds
 
 
 theorem triangle-inequality
-  metamath-counterpart abstri, over ℂ
   note        |a + b| is a + b or −(a + b), and each of those is at most
               |a| + |b|, since a and −a are at most |a| (abs-bounds), and the
               same for b.

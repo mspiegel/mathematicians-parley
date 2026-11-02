@@ -8,7 +8,6 @@ import mundane theorem    stdlib/numbers/multiply-le
 import axiom              stdlib/numbers/trichotomy
 
 theorem cauchy-schwarz
-  metamath-counterpart csbren
   note        The sum of the squares (a(k)·t + b(k))² is never negative, and it
               is A·t² + 2B·t + C. If A = 0, every a(k) is 0 and both sides are
               0. If A > 0, t = −B/A gives C − B²/A ≥ 0, so B² ≤ A·C.

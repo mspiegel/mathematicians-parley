@@ -2,7 +2,6 @@ import definition         stdlib/sets/set-builder
 import mundane theorem    stdlib/sets/set-builder-subset
 
 theorem cantor
-  metamath-counterpart canth
   note        Let B be the elements of A that their own image leaves out. If B
               were some f(x), then x would be in B exactly when it is not.
   let A be a set                                                      (H1)

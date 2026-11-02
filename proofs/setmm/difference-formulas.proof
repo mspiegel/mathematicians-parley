@@ -8,7 +8,6 @@ import definition         stdlib/trigonometry/cos
 import definition         stdlib/trigonometry/sin
 
 theorem sine-of-difference
-  metamath-counterpart sinsub
   note        A − B = A + (−B); the addition formula with the cosine even and
               the sine odd.
   let A ∈ ℂ                                                           (H1)
@@ -37,7 +36,6 @@ theorem sine-of-difference
     requires cos(B) ∈ ℂ: mun:cos-complex a := B
 
 theorem cosine-of-difference
-  metamath-counterpart cossub
   note        A − B = A + (−B); the addition formula with the cosine even and
               the sine odd.
   let A ∈ ℂ                                                           (H1)
@@ -66,7 +64,6 @@ theorem cosine-of-difference
     requires cos(B) ∈ ℂ: mun:cos-complex a := B
 
 theorem product-of-sines
-  metamath-counterpart sinmul
   note        Subtracting the addition formula for cos(A + B) from the
               difference formula for cos(A − B) leaves 2·sin(A)·sin(B).
   let A ∈ ℂ                                                           (H1)

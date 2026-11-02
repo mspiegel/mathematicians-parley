@@ -2,7 +2,6 @@ import mundane theorem stdlib/numbers/square-nonneg
 import mundane theorem stdlib/numbers/square-zero
 
 theorem sum-of-squares-zero
-  metamath-counterpart sumsqeq0
   note        If both numbers are 0 the sum of squares is 0. Conversely the
               two squares are not negative and add to 0, so each is 0, and a
               number whose square is 0 is 0.

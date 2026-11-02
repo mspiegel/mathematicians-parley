@@ -3,7 +3,6 @@ import mundane theorem    stdlib/counting/card-pair-distinct
 import mundane theorem    stdlib/sets/pair-subset
 
 theorem size-without-a-pair
-  metamath-counterpart hashdifpr
   note        Two different elements B and C make a part of A with 2 elements,
               and taking a part away takes its size away.
   let A be a set                                                      (H1)

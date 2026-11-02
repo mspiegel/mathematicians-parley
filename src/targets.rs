@@ -1,12 +1,9 @@
 //! Where the readable layer's words land in set.mm.
 //!
-//! `corpus/db/notation.records` carries a `metamath-builds` field and the
-//! `corpus/stdlib/*.records` files a `metamath-proof` field, each beside
-//! `metamath-counterpart`, and this reads them (`Record::metamath_target`).
-//! `metamath-counterpart` says in words which set.mm construct a pattern or
-//! an item corresponds to, which is what a person checking the database
-//! wants; the other says the same thing as a term or a lemma, which is what a
-//! program needs. Neither is derivable from the other, so both are written.
+//! `corpus/db/notation.records` carries a `metamath-builds` field, the term a
+//! pattern builds, and the `corpus/stdlib/*.records` files a `metamath-proof`
+//! field, the lemmas an item is proved with, and this reads them
+//! (`Record::metamath_target`).
 //!
 //! Which set.mm lemmas an elaborator may lean on for what the readable layer
 //! never writes is not a database field either; `rules` holds it.

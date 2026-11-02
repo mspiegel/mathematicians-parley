@@ -24,7 +24,6 @@ theorem similar-triangles
     thm:angle-angle-similar, from H7, H8, H9, H10
 
 theorem pythagoras
-  metamath-counterpart pythag
   note        Drop the altitude from C to its foot D on AB. The two smaller
               triangles are each similar to ABC, which gives |AD|·|AB| = |AC|²
               and |DB|·|AB| = |BC|². Adding, with |AD| + |DB| = |AB|, gives

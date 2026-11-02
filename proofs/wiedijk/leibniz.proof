@@ -729,7 +729,6 @@ theorem series-remainder
           requires J(n + 1) ∈ ℝ: thm:integral-bounds n := n + 1
 
 theorem leibniz
-  metamath-counterpart leibpisum
   note        The partial sums differ from π/4 by J(n + 1), which is at most
               1/(2n + 3), so they come within any ε > 0 of π/4 and stay there.
   ε ranges over ℝ

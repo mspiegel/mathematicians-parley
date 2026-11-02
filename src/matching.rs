@@ -382,7 +382,7 @@ pub fn equations(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            r.kind == RecordKind::Notation && WCEQ.is_match(str::trim(r.counterpart()))
+            r.kind == RecordKind::Notation && WCEQ.is_match(str::trim(r.syntax()))
         })
         .map(|r| r.name.clone())
         .collect()
@@ -799,48 +799,44 @@ pub fn map_arguments(node: &Node) -> Vec<(Node, Node)> {
     }
 }
 
-/// The notations whose `metamath-counterpart` is set.mm's `Fn`: what a define with a
+/// The notations whose `metamath-syntax` is set.mm's `Fn`: what a define with a
 /// parameter says of its function.
 pub fn functions_on(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
-        .filter(|r| {
-            r.kind == RecordKind::Notation && str::trim(r.counterpart()) == "wfn"
-        })
+        .filter(|r| r.kind == RecordKind::Notation && str::trim(r.syntax()) == "wfn")
         .map(|r| r.name.clone())
         .collect()
 }
 
-/// The notations whose `metamath-counterpart` is set.mm's `csu`, a sum over some range.
+/// The notations whose `metamath-syntax` is set.mm's `csu`, a sum over some range.
 pub fn sums(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            r.kind == RecordKind::Notation
-                && str::trim(r.counterpart()).starts_with("csu ")
+            r.kind == RecordKind::Notation && str::trim(r.syntax()).starts_with("csu ")
         })
         .map(|r| r.name.clone())
         .collect()
 }
 
-/// The notations saying there is something: their `metamath-counterpart` is `wrex`,
+/// The notations saying there is something: their `metamath-syntax` is `wrex`,
 /// once or nested, over whatever set.
 pub fn existences(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            r.kind == RecordKind::Notation
-                && str::trim(r.counterpart()).starts_with("wrex")
+            r.kind == RecordKind::Notation && str::trim(r.syntax()).starts_with("wrex")
         })
         .map(|r| r.name.clone())
         .collect()
 }
 
 /// The notations joining two claims by "and": the first word of their
-/// `metamath-counterpart` is `wa`, as "wa, …" may say more after the label.
+/// `metamath-syntax` is `wa`, as "wa, …" may say more after the label.
 pub fn conjunctions(records: &[Record]) -> IndexSet<String> {
     let first_word = |r: &Record| -> String {
-        str::trim(r.counterpart())
+        str::trim(r.syntax())
             .chars()
             .take_while(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || *c == '-')
             .collect()
@@ -852,13 +848,13 @@ pub fn conjunctions(records: &[Record]) -> IndexSet<String> {
         .collect()
 }
 
-/// The notations saying something of everything: their `metamath-counterpart` is
+/// The notations saying something of everything: their `metamath-syntax` is
 /// `wral`, once or nested, over whatever set, or `wal`, over no set.
 pub fn universals(records: &[Record]) -> IndexSet<String> {
     records
         .iter()
         .filter(|r| {
-            let metamath = str::trim(r.counterpart());
+            let metamath = str::trim(r.syntax());
             r.kind == RecordKind::Notation
                 && (metamath.starts_with("wral") || metamath.starts_with("wal"))
         })

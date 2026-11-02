@@ -177,9 +177,13 @@ fn covered(
     }
     for (full, _) in cited_items(thm) {
         if let Some(record) = super::items::record_of(checked, &full) {
-            if record.lean_target().is_none() {
+            // An item the Lean build cannot use yet keeps out what cites
+            // it; one with nothing to prove, or with a proof, does not.
+            if let Some(crate::corpus::records::Provided::NotYet) | None =
+                record.lean_provided()
+            {
                 return Covered::Out {
-                    reason: format!("{full} has no lean-proof field"),
+                    reason: format!("{full}'s lean-proof is not yet implemented"),
                 };
             }
             continue;

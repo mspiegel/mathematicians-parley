@@ -13,11 +13,14 @@
 # `let G be a group with operation · and identity e`, and set.mm's structure
 # beneath it is never written (`GRAMMAR.md`, the group introduction).
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 axiom group-closed
@@ -25,8 +28,8 @@ axiom group-closed
   let a ∈ G                                                           (H2)
   let b ∈ G                                                           (H3)
   then        a·b ∈ G
-  metamath-counterpart grpcl
   metamath-proof grpcl
+  lean-proof  not yet implemented
 
 axiom group-associative
   let G be a group with operation · and identity e                    (H1)
@@ -34,35 +37,35 @@ axiom group-associative
   let b ∈ G                                                           (H3)
   let c ∈ G                                                           (H4)
   then        (a·b)·c = a·(b·c)
-  metamath-counterpart grpass
   metamath-proof grpass
+  lean-proof  not yet implemented
 
 axiom group-identity
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·e = a
-  metamath-counterpart grprid
   metamath-proof grprid
+  lean-proof  not yet implemented
 
 axiom group-identity-closed
   let G be a group with operation · and identity e                    (H1)
   then        e ∈ G
-  metamath-counterpart grpidcl
   metamath-proof grpidcl
+  lean-proof  not yet implemented
 
 axiom group-inverse
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a·a⁻¹ = e
-  metamath-counterpart grprinv
   metamath-proof grprinv
+  lean-proof  not yet implemented
 
 axiom group-inverse-closed
   let G be a group with operation · and identity e                    (H1)
   let a ∈ G                                                           (H2)
   then        a⁻¹ ∈ G
-  metamath-counterpart grpinvcl
   metamath-proof grpinvcl
+  lean-proof  not yet implemented
 
 theorem group-cancel
   let G be a group with operation · and identity e                    (H1)
@@ -71,22 +74,22 @@ theorem group-cancel
   let g ∈ G                                                           (H4)
   assume g·a = g·b                                                    (H5)
   then        a = b
-  metamath-counterpart grplcan
   metamath-proof grplcan
+  lean-proof  not yet implemented
 
 mundane theorem subgroup-within
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        H ⊆ G
-  metamath-counterpart subgss
   metamath-proof subgss
+  lean-proof  not yet implemented
 
 mundane theorem subgroup-identity
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   then        e ∈ H
-  metamath-counterpart subg0cl
   metamath-proof subg0cl
+  lean-proof  not yet implemented
 
 mundane theorem subgroup-closed
   let G be a group with operation · and identity e                    (H1)
@@ -94,25 +97,24 @@ mundane theorem subgroup-closed
   let a ∈ H                                                           (H3)
   let b ∈ H                                                           (H4)
   then        a·b ∈ H
-  metamath-counterpart subgcl
   metamath-proof subgcl
+  lean-proof  not yet implemented
 
 mundane theorem subgroup-inverse
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let a ∈ H                                                           (H3)
   then        a⁻¹ ∈ H
-  metamath-counterpart subginvcl
   metamath-proof subginvcl
+  lean-proof  not yet implemented
 
 definition coset
   let G be a group with operation · and identity e                    (H1)
   assume H is a subgroup of G                                         (H2)
   let g ∈ G                                                           (H3)
   then        u ∈ gH ↔ there is h ∈ H with u = g·h
-  metamath-counterpart lsmelvalx and rexsng, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gelcoset
   note        gH is everything g combines with a member of H to give. set.mm
               writes it as the sum of two subsets, {g} and H, and a school
               reader writes gH.
+  lean-proof  not yet implemented

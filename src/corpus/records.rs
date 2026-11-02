@@ -94,17 +94,52 @@ pub fn allowed_fields(kind: RecordKind) -> Option<&'static [&'static str]> {
         .map(|(_, fields)| *fields)
 }
 
-/// What a record is in set.mm, for the reader; the checker sorts notations
-/// by it (`matching`).
-pub const METAMATH_COUNTERPART: &str = "metamath-counterpart";
-/// The set.mm lemmas the Metamath build proves an item or a method's step
-/// with, or `on the page`.
+/// The set.mm syntax constructor a notation is, `wceq` for `=`: the checker
+/// sorts notations by its first word (`matching`). A notation's field only.
+pub const METAMATH_SYNTAX: &str = "metamath-syntax";
+/// What the Metamath build proves an item or a method's step with
+/// (`Provided`).
 pub const METAMATH_PROOF: &str = "metamath-proof";
 /// The set.mm template the Metamath build writes a notation, or a library
 /// function applied, with.
 pub const METAMATH_BUILDS: &str = "metamath-builds";
-/// The Mathlib proof the Lean build proves an item with, or `on the page`.
+/// What the Lean build proves an item with (`Provided`).
 pub const LEAN_PROOF: &str = "lean-proof";
+/// A proof field's value for a build that has nothing to prove: the record
+/// states nothing, or its two sides are one formula in that library.
+pub const NOTHING_TO_PROVE: &str = "none";
+/// A proof field's value for a build that cannot use the record yet.
+pub const NOT_YET: &str = "not yet implemented";
+
+/// What a record's `metamath-proof` or `lean-proof` says.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Provided<'a> {
+    /// How the build proves it: the library's own statement, a Parley
+    /// proof's full name, or a bridge's.
+    By(&'a str),
+    /// `none`: the build has nothing to prove.
+    Nothing,
+    /// `not yet implemented`: the build cannot use the record yet.
+    NotYet,
+}
+
+impl<'a> Provided<'a> {
+    fn read(value: &'a str) -> Provided<'a> {
+        match value.trim() {
+            NOTHING_TO_PROVE => Provided::Nothing,
+            NOT_YET => Provided::NotYet,
+            other => Provided::By(other),
+        }
+    }
+
+    /// The proof, where the build has one.
+    pub fn by(self) -> Option<&'a str> {
+        match self {
+            Provided::By(v) => Some(v),
+            _ => None,
+        }
+    }
+}
 /// The Lean template the Lean build writes a notation, or a library
 /// function applied, with.
 pub const LEAN_BUILDS: &str = "lean-builds";
@@ -135,7 +170,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "reads",
             "member",
             METAMATH_BUILDS,
-            METAMATH_COUNTERPART,
+            METAMATH_SYNTAX,
             "decided",
             LEAN_BUILDS,
             "note",
@@ -163,9 +198,7 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "sort",
             METAMATH_BUILDS,
             "reads",
-            METAMATH_COUNTERPART,
             METAMATH_PROOF,
-            "open",
             "symbol",
             "defines",
             "decided",
@@ -174,26 +207,8 @@ pub const FIELDS: [(RecordKind, &[&str]); 5] = [
             "note",
         ],
     ),
-    (
-        RecordKind::Axiom,
-        &[
-            METAMATH_COUNTERPART,
-            METAMATH_PROOF,
-            "open",
-            LEAN_PROOF,
-            "note",
-        ],
-    ),
-    (
-        RecordKind::Theorem,
-        &[
-            METAMATH_COUNTERPART,
-            METAMATH_PROOF,
-            "open",
-            LEAN_PROOF,
-            "note",
-        ],
-    ),
+    (RecordKind::Axiom, &[METAMATH_PROOF, LEAN_PROOF, "note"]),
+    (RecordKind::Theorem, &[METAMATH_PROOF, LEAN_PROOF, "note"]),
 ];
 
 /// One record of a database file.
@@ -254,13 +269,24 @@ impl Record {
     }
 
     /// What the Metamath build writes for the record: a notation's set.mm
-    /// template, `metamath-builds`, and an item's or a method's set.mm
-    /// lemmas, `metamath-proof`.
+    /// template, `metamath-builds`, and an item's or a method's proof,
+    /// `metamath-proof`, where it has one; None where it says `none` or
+    /// `not yet implemented`.
     pub fn metamath_target(&self) -> Option<&str> {
         match self.kind {
             RecordKind::Notation => self.field(METAMATH_BUILDS),
-            _ => self.field(METAMATH_PROOF),
+            _ => self.metamath_provided().and_then(Provided::by),
         }
+    }
+
+    /// What its `metamath-proof` says; None where it has none.
+    pub fn metamath_provided(&self) -> Option<Provided<'_>> {
+        self.field(METAMATH_PROOF).map(Provided::read)
+    }
+
+    /// What its `lean-proof` says; None where it has none.
+    pub fn lean_provided(&self) -> Option<Provided<'_>> {
+        self.field(LEAN_PROOF).map(Provided::read)
     }
 
     /// `metamath_target`, or the empty text where the record does not say it.
@@ -269,18 +295,19 @@ impl Record {
     }
 
     /// What the Lean build writes for the record: a notation's Lean template,
-    /// `lean-builds`, and an item's Mathlib proof, `lean-proof`.
+    /// `lean-builds`, and an item's proof, `lean-proof`, where it has one;
+    /// None where it says `none` or `not yet implemented`.
     pub fn lean_target(&self) -> Option<&str> {
         match self.kind {
             RecordKind::Notation => self.field(LEAN_BUILDS),
-            _ => self.field(LEAN_PROOF),
+            _ => self.lean_provided().and_then(Provided::by),
         }
     }
 
-    /// What the record is in set.mm, `metamath-counterpart`, or the empty
-    /// text where it does not say.
-    pub fn counterpart(&self) -> &str {
-        self.field_or_empty(METAMATH_COUNTERPART)
+    /// The set.mm syntax constructor a notation is, `metamath-syntax`, or
+    /// the empty text where it does not say.
+    pub fn syntax(&self) -> &str {
+        self.field_or_empty(METAMATH_SYNTAX)
     }
 
     /// Its header's words before its name, as a message names the record:

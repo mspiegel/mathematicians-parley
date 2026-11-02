@@ -1,5 +1,4 @@
 theorem average-below-an-end
-  metamath-counterpart avglt2
   note        The average of A and B lies below B by half of B − A, so it is
               below B exactly when A is.
   let A ∈ ℝ                                                           (H1)

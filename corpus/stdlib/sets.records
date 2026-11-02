@@ -11,11 +11,14 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 axiom extensionality
@@ -24,54 +27,52 @@ axiom extensionality
   assume for all t ∈ X, t ∈ Y                                         (H3)
   assume for all t ∈ Y, t ∈ X                                         (H4)
   then        X = Y
-  metamath-counterpart eqss and dfss3, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gext
   note        A set is its members: two sets each of whose members is in
               the other are one set. set.mm's ax-ext, said of sets as the
               page writes them.
+  lean-proof  not yet implemented
 
 axiom empty-set
   then        ∅ exists
-  metamath-counterpart 0ex
   metamath-proof 0ex
   note        A collection with no members exists; ∅ names it.
+  lean-proof  not yet implemented
 
 axiom pairing
   let a be an element                                                 (H1)
   let b be an element                                                 (H2)
   then        {a, b} exists
-  metamath-counterpart prex
   metamath-proof prex
+  lean-proof  not yet implemented
 
 axiom unions
   let C be a set                                                      (H1)
   assume C exists                                                     (H2)
   then        ⋃(X ∈ C) X exists
-  metamath-counterpart uniexg, with the union written over its members by uniiun,
-              which this corpus proves in elaboration/stdlib/proved.mm
   metamath-proof giunex
   note        What is in some member of a collection that exists makes a
               collection that exists.
+  lean-proof  not yet implemented
 
 axiom power-sets
   let X be a set                                                      (H1)
   assume X exists                                                     (H2)
   then        𝒫X exists
-  metamath-counterpart pwexg
   metamath-proof pwexg
   note        The parts of a collection that exists make one that exists.
+  lean-proof  not yet implemented
 
 axiom separation
   let X be a set                                                      (H1)
   assume X exists                                                     (H2)
   let P be a property of the elements of X                            (H3)
   then        {t ∈ X : P(t)} exists
-  metamath-counterpart rabexg
   metamath-proof rabexg
   note        The members of a collection that exists with a property make
               one that exists. A property is not a thing, so this is one
               axiom for every property.
+  lean-proof  not yet implemented
 
 axiom replacement
   let Y be a set                                                      (H1)
@@ -79,49 +80,47 @@ axiom replacement
   let Z be a set                                                      (H3)
   let E : Y → Z                                                       (H4)
   then        {E(s) : s ∈ Y} exists
-  metamath-counterpart mptexg and rnexg, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof grnmptex
   note        The values a function takes on a collection that exists make
               one that exists.
+  lean-proof  not yet implemented
 
 axiom infinity
   then        ℕ exists
-  metamath-counterpart nnex
   metamath-proof nnex
   note        An infinite collection exists. Textbooks build it as the
               least one holding ∅ and x ∪ {x} with each x; the page says it
               of ℕ, which set.mm builds from it.
+  lean-proof  not yet implemented
 
 axiom choice
   let C be a set                                                      (H1)
   assume C exists                                                     (H2)
   assume for all X ∈ C, X ≠ ∅                                         (H3)
   then        there is f : C → ⋃(Y ∈ C) Y with for all X ∈ C, f(X) ∈ X
-  metamath-counterpart ac6sg, its function read as a map into the union, which
-              this corpus proves in elaboration/stdlib/proved.mm
   metamath-proof gchoice
   note        A collection that exists, of non-empty sets, has a function
               choosing a member of each. The union's letter Y is not the
               letter X the "for all" binds, as set.mm keeps a map's
               codomain apart from its argument.
+  lean-proof  not yet implemented
 
 definition subset
   then        X ⊆ Y ↔ for all t ∈ X, t ∈ Y
-  metamath-counterpart df-ss, ssel
   metamath-proof dfss3
+  lean-proof  not yet implemented
 
 definition set-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        u ∈ {t ∈ X : P(t)} ↔ u ∈ X and P(u)
-  metamath-counterpart rabid, elrab
   metamath-proof rabid, elrab
   note        P(t) says the property holds of t. The line above says what P is
               a property of and never mentions t, because the braces are what
               introduce t: it does not exist until they open. See the
               `holds-of` notation for why this is not a function applied to an
               argument.
+  lean-proof  not yet implemented
 
               The element is u and the braces bind t, as def:stdlib/functions/set-image writes
               them. Both were t until the conclusion check went in, and a
@@ -134,87 +133,86 @@ definition part-builder
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        u ∈ {t ⊆ X : P(t)} ↔ u ⊆ X and P(u)
-  metamath-counterpart elrab over the power set, and elpw2g, which this corpus
-              proves together in elaboration/stdlib/proved.mm
   metamath-proof gelrabpw
   note        The parts of X with a property: `def:stdlib/sets/set-builder`
               over 𝒫X, with being in 𝒫X said as being a part of X.
+  lean-proof  not yet implemented
 
 mundane theorem part-builder-empty
   let X be a set                                                      (H1)
   let P be a property of the elements of 𝒫X                           (H2)
   then        {t ⊆ X : P(t)} = ∅ ↔ for all t ⊆ X, not P(t)
-  metamath-counterpart rabeq0
   metamath-proof rabeq0
   note        No part of X has the property exactly when the parts of X
               with it make up the empty set.
+  lean-proof  not yet implemented
 
 mundane theorem empty-subset
   then        ∅ ⊆ X
-  metamath-counterpart 0ss
   metamath-proof 0ss
+  lean-proof  not yet implemented
 
 mundane theorem set-builder-subset
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
-  metamath-counterpart ssrab2
   metamath-proof ssrab2
+  lean-proof  not yet implemented
 
 mundane theorem set-builder-split
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        X = {t ∈ X : P(t)} ∪ {t ∈ X : not P(t)}
-  metamath-counterpart rabxm
   metamath-proof rabxm
   note        Every element of X has the property or does not.
+  lean-proof  not yet implemented
 
 mundane theorem set-builder-split-disjoint
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ∩ {t ∈ X : not P(t)} = ∅
-  metamath-counterpart rabnc
   metamath-proof rabnc
   note        No element both has the property and does not.
+  lean-proof  not yet implemented
 
 mundane theorem set-builder-empty
   let X be a set                                                      (H1)
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} = ∅ ↔ for all t ∈ X, not P(t)
-  metamath-counterpart rabeq0
   metamath-proof rabeq0
   note        `mun:stdlib/sets/part-builder-empty` is the same over the parts
               of a set.
+  lean-proof  not yet implemented
 
 mundane theorem subset-transitive
   assume X ⊆ Y                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z
-  metamath-counterpart sstr
   metamath-proof sstr
+  lean-proof  not yet implemented
 
 mundane theorem subset-self
   then        X ⊆ X
-  metamath-counterpart ssid
   metamath-proof ssid
+  lean-proof  not yet implemented
 
 definition powerset
   let A be a set                                                      (H1)
   then        S ∈ 𝒫A ↔ S ⊆ A
-  metamath-counterpart elpw, elpwg
   metamath-proof elpwg
+  lean-proof  not yet implemented
 
 mundane theorem powerset-empty
   then        𝒫∅ = {∅}
-  metamath-counterpart pw0
   metamath-proof pw0
+  lean-proof  not yet implemented
 
 definition pair
   let x be an element                                                 (H1)
   then        x ∈ {u, w} ↔ x = u or x = w
-  metamath-counterpart elprg
   metamath-proof elprg
   note        What is in a set of two listed things is one of the two.
+  lean-proof  not yet implemented
 
 mundane theorem pair-equal
   let a be an element                                                 (H1)
@@ -222,10 +220,10 @@ mundane theorem pair-equal
   let c be an element                                                 (H3)
   let d be an element                                                 (H4)
   then        {a, b} = {c, d} ↔ (a = c and b = d) or (a = d and b = c)
-  metamath-counterpart preq12bg
   metamath-proof preq12bg
   note        Two sets of two listed things are one set when they list the
               same two, in either order.
+  lean-proof  not yet implemented
 
 mundane theorem pair-parts-equal
   let a be an element                                                 (H1)
@@ -233,11 +231,11 @@ mundane theorem pair-parts-equal
   let c be an element                                                 (H3)
   let d be an element                                                 (H4)
   then        (a, b) = (c, d) ↔ a = c and b = d
-  metamath-counterpart opthg
   metamath-proof opthg
   note        Two pairs are one pair when their first parts are equal and
               their second parts are, the order counting, as it does not
               for {a, b} (`pair-equal`).
+  lean-proof  not yet implemented
 
 mundane theorem pair-in-product
   let X be a set                                                      (H1)
@@ -245,406 +243,406 @@ mundane theorem pair-in-product
   let a be an element                                                 (H3)
   let b be an element                                                 (H4)
   then        (a, b) ∈ X × Y ↔ a ∈ X and b ∈ Y
-  metamath-counterpart opelxp
   metamath-proof opelxp
   note        A pair is in X × Y when its first part is in X and its second
               in Y.
+  lean-proof  not yet implemented
 
 definition singleton
   let x be an element                                                 (H1)
   then        x ∈ {a} ↔ x = a
-  metamath-counterpart elsng
   metamath-proof elsng
   note        What is in a set of one listed thing is that thing, as `pair`
               says of two.
+  lean-proof  not yet implemented
 
 definition triple
   let x be an element                                                 (H1)
   then        x ∈ {u, v, w} ↔ x = u or x = v or x = w
-  metamath-counterpart eltpg
   metamath-proof geltpg
   note        What is in a set of three listed things is one of the three,
               as `pair` says of two. set.mm says the three cases as one
               three-way "or"; the page's "or" pairs from the left, and the
               lemma says it so.
+  lean-proof  not yet implemented
 
 mundane theorem triple-members
   let u be an element                                                 (H1)
   let v be an element                                                 (H2)
   let w be an element                                                 (H3)
   then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
-  metamath-counterpart tpid1g, tpid2g, tpid3g
   metamath-proof tpid1g, tpid2g, tpid3g
   note        Each thing a set lists is in it.
+  lean-proof  not yet implemented
 
 mundane theorem pair-finite
   then        {u, w} is finite
-  metamath-counterpart prfi
   metamath-proof prfi
+  lean-proof  not yet implemented
 
 mundane theorem difference-set
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        X ∖ {a} exists
-  metamath-counterpart difexg
   metamath-proof difexg
+  lean-proof  not yet implemented
 
 mundane theorem subset-of-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X ∖ {a}                                                  (H2)
   then        a ∉ Y
-  metamath-counterpart ssdifsn
   metamath-proof ssdifsn
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
+  lean-proof  not yet implemented
 
 mundane theorem difference-of-union
   let a be an element                                                 (H1)
   then        (Y ∪ {a}) ∖ {a} = Y ∖ {a}
-  metamath-counterpart difun2
   metamath-proof difun2
+  lean-proof  not yet implemented
 
 mundane theorem difference-absent
   let a ∉ Y                                                           (H1)
   then        Y ∖ {a} = Y
-  metamath-counterpart difsn
   metamath-proof difsn
+  lean-proof  not yet implemented
 
 mundane theorem singleton-outside
   let a ∉ Y                                                           (H1)
   then        Y ∩ {a} = ∅
-  metamath-counterpart disjsn
   metamath-proof disjsn
   note        What is not in Y shares nothing with Y.
+  lean-proof  not yet implemented
 
 mundane theorem difference-by-union
   then        X ∖ (Y ∪ Z) = (X ∖ Y) ∖ Z
-  metamath-counterpart difun1
   metamath-proof difun1
   note        Taking away a union is taking away its parts one after the
               other.
+  lean-proof  not yet implemented
 
 mundane theorem nothing-left-outside
   then        Y ⊆ X ↔ Y ∖ X = ∅
-  metamath-counterpart ssdif0
   metamath-proof ssdif0
   note        Nothing of Y is left outside X exactly when Y lies inside X.
+  lean-proof  not yet implemented
 
 mundane theorem intersection-of-part
   assume Y ⊆ X                                                        (H1)
   then        X ∩ Y = Y
-  metamath-counterpart sseqin2
   metamath-proof sseqin2
   note        A part of X shares all of itself with X.
+  lean-proof  not yet implemented
 
 mundane theorem not-in-subset
   let a ∉ Z                                                           (H1)
   assume Y ⊆ Z                                                        (H2)
   then        a ∉ Y
-  metamath-counterpart ssneld
   metamath-proof ssneld
+  lean-proof  not yet implemented
 
 mundane theorem in-union-singleton
   let a be an element                                                 (H1)
   then        a ∈ Y ∪ {a}
-  metamath-counterpart elun2, over the singleton snidg puts a in
   metamath-proof elun2
+  lean-proof  not yet implemented
 
 mundane theorem listed-repeat
   then        {a, b, b} = {a, b}
-  metamath-counterpart tpidm23
   metamath-proof tpidm23
   note        A list names each element once however often it is written.
+  lean-proof  not yet implemented
 
 mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
   then        Y ∩ Z = ∅
-  metamath-counterpart disjr
   metamath-proof disjr
   note        Two sets are disjoint when nothing in one is in the other, which
               is what a reader proves. set.mm says it twice, over the first set
               in `disj` and over the second in `disjr`, and the second is the
               one the subsets proof has: what it can run over is the part it
               built, not the part it split off.
+  lean-proof  not yet implemented
 
 mundane theorem not-in-difference
   let X be a set                                                      (H1)
   let a be an element                                                 (H2)
   then        a ∉ X ∖ {a}
-  metamath-counterpart neldifsn
   metamath-proof neldifsn
   note        Added because thm:proofs/wiedijk/subsets/add-element-bijection assumes the element it
               adds is not already there, and the subsets proof adds it back to
               X ∖ {a} without ever saying so.
+  lean-proof  not yet implemented
 
 mundane theorem union-subset
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ∪ Y ⊆ Z
-  metamath-counterpart unss
   metamath-proof unss
+  lean-proof  not yet implemented
 
 mundane theorem in-union-left
   assume u ∈ Y                                                        (H1)
   then        u ∈ Y ∪ Z
-  metamath-counterpart elun1
   metamath-proof elun1
+  lean-proof  not yet implemented
 
 mundane theorem in-union-right
   assume u ∈ Z                                                        (H1)
   then        u ∈ Y ∪ Z
-  metamath-counterpart elun2
   metamath-proof elun2
+  lean-proof  not yet implemented
 
 mundane theorem difference-subset
   then        X ∖ Y ⊆ X
-  metamath-counterpart difss
   metamath-proof difss
+  lean-proof  not yet implemented
 
 mundane theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
   then        Y ∖ Z ⊆ X ∖ Z
-  metamath-counterpart ssdif
   metamath-proof ssdif
+  lean-proof  not yet implemented
 
 mundane theorem subset-into-difference
   let a be an element                                                 (H1)
   assume Y ⊆ X                                                        (H2)
   assume a ∉ Y                                                        (H3)
   then        Y ⊆ X ∖ {a}
-  metamath-counterpart ssdifsn
   metamath-proof ssdifsn
   note        The other half of `ssdifsn` from `mun:stdlib/sets/subset-of-difference`:
               inside X and without a is inside X ∖ {a}.
+  lean-proof  not yet implemented
 
 mundane theorem remove-and-restore
   let a ∈ Y                                                           (H1)
   then        (Y ∖ {a}) ∪ {a} = Y
-  metamath-counterpart difsnid
   metamath-proof difsnid
+  lean-proof  not yet implemented
 
 mundane theorem singleton-subset
   let a ∈ X                                                           (H1)
   then        {a} ⊆ X
-  metamath-counterpart snssi
   metamath-proof snssi
+  lean-proof  not yet implemented
 
 mundane theorem pair-subset
   let a ∈ X                                                           (H1)
   let b ∈ X                                                           (H2)
   then        {a, b} ⊆ X
-  metamath-counterpart prssi
   metamath-proof prssi
+  lean-proof  not yet implemented
 
 mundane theorem triple-subset
   let a ∈ X                                                           (H1)
   let b ∈ X                                                           (H2)
   let c ∈ X                                                           (H3)
   then        {a, b, c} ⊆ X
-  metamath-counterpart tpssi
   metamath-proof tpssi
+  lean-proof  not yet implemented
 
 mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X
-  metamath-counterpart sspw
   metamath-proof sspw
+  lean-proof  not yet implemented
 
 definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
-  metamath-counterpart elin
   metamath-proof elin
+  lean-proof  not yet implemented
 
 definition union
   then        u ∈ Y ∪ Z ↔ u ∈ Y or u ∈ Z
-  metamath-counterpart elun
   metamath-proof elun
+  lean-proof  not yet implemented
 
 mundane theorem remove-member
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let u be an element                                                 (H3)
   then        u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
-  metamath-counterpart eldifsn
   metamath-proof eldifsn
+  lean-proof  not yet implemented
 
 mundane theorem intersection-commutes
   then        Y ∩ Z = Z ∩ Y
-  metamath-counterpart incom
   metamath-proof incom
+  lean-proof  not yet implemented
 
 mundane theorem union-commutes
   then        Y ∪ Z = Z ∪ Y
-  metamath-counterpart uncom
   metamath-proof uncom
+  lean-proof  not yet implemented
 
 mundane theorem union-difference
   then        Y ∪ (Z ∖ Y) = Y ∪ Z
-  metamath-counterpart undif2
   metamath-proof undif2
   note        Adding what Z has beyond Y adds all of Z.
+  lean-proof  not yet implemented
 
 mundane theorem nonempty-member
   assume Y ≠ ∅                                                        (H1)
   then        there is a ∈ Y
-  metamath-counterpart n0
   metamath-proof n0
   note        A set that is not empty has an element, which an obtain names.
+  lean-proof  not yet implemented
 
 mundane theorem member-nonempty
   assume a ∈ Y                                                        (H1)
   then        Y ≠ ∅
-  metamath-counterpart ne0i
   metamath-proof ne0i
   note        The converse of nonempty-member: a set with an element is
               not empty.
+  lean-proof  not yet implemented
 
 mundane theorem intersection-self
   then        Y ∩ Y = Y
-  metamath-counterpart inidm
   metamath-proof inidm
+  lean-proof  not yet implemented
 
 mundane theorem union-self
   then        Y ∪ Y = Y
-  metamath-counterpart unidm
   metamath-proof unidm
+  lean-proof  not yet implemented
 
 mundane theorem union-empty
   then        Y ∪ ∅ = Y
-  metamath-counterpart un0
   metamath-proof un0
+  lean-proof  not yet implemented
 
 mundane theorem intersection-empty
   then        Y ∩ ∅ = ∅
-  metamath-counterpart in0
   metamath-proof in0
+  lean-proof  not yet implemented
 
 mundane theorem difference-self
   then        Y ∖ Y = ∅
-  metamath-counterpart difid
   metamath-proof difid
+  lean-proof  not yet implemented
 
 mundane theorem difference-empty
   then        Y ∖ ∅ = Y
-  metamath-counterpart dif0
   metamath-proof dif0
+  lean-proof  not yet implemented
 
 mundane theorem intersection-distributes
   then        X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
-  metamath-counterpart indi
   metamath-proof indi
+  lean-proof  not yet implemented
 
 mundane theorem intersection-distributes-right
   then        (X ∪ Y) ∩ Z = (X ∩ Z) ∪ (Y ∩ Z)
-  metamath-counterpart indir
   metamath-proof indir
+  lean-proof  not yet implemented
 
 mundane theorem intersection-distributes-over-intersection
   then        X ∩ Y ∩ Z = (X ∩ Z) ∩ (Y ∩ Z)
-  metamath-counterpart inindir
   metamath-proof inindir
+  lean-proof  not yet implemented
 
 mundane theorem intersection-subset
   then        Y ∩ Z ⊆ Y
-  metamath-counterpart inss1
   metamath-proof inss1
+  lean-proof  not yet implemented
 
 mundane theorem intersection-and-difference
   then        (Y ∩ Z) ∪ (Y ∖ Z) = Y
-  metamath-counterpart inundif
   metamath-proof inundif
   note        What Y shares with Z, and what Y has outside Z, make up Y.
+  lean-proof  not yet implemented
 
 mundane theorem intersection-and-difference-disjoint
   then        (Y ∩ Z) ∩ (Y ∖ Z) = ∅
-  metamath-counterpart inindif
   metamath-proof inindif
+  lean-proof  not yet implemented
 
 mundane theorem subset-empty
   then        Y ⊆ ∅ ↔ Y = ∅
-  metamath-counterpart ss0b
   metamath-proof ss0b
+  lean-proof  not yet implemented
 
 definition difference
   then        u ∈ Y ∖ Z ↔ u ∈ Y and u ∉ Z
-  metamath-counterpart eldif
   metamath-proof eldif
+  lean-proof  not yet implemented
 
 mundane theorem in-subset
   assume X ⊆ Y                                                        (H1)
   assume u ∈ X                                                        (H2)
   then        u ∈ Y
-  metamath-counterpart ssel2
   metamath-proof ssel2
+  lean-proof  not yet implemented
 
 mundane theorem difference-reverses
   assume X ⊆ Y                                                        (H1)
   then        Z ∖ Y ⊆ Z ∖ X
-  metamath-counterpart sscon
   metamath-proof sscon
+  lean-proof  not yet implemented
 
 mundane theorem complement-swap
   assume X ⊆ Z                                                        (H1)
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z ∖ Y ↔ Y ⊆ Z ∖ X
-  metamath-counterpart ssconb
   metamath-proof ssconb
+  lean-proof  not yet implemented
 
 mundane theorem complement-swap-outside
   then        Z ∖ Y ⊆ X ↔ Z ∖ X ⊆ Y
-  metamath-counterpart difcom
   metamath-proof difcom
+  lean-proof  not yet implemented
 
 mundane theorem equal-subset
   assume X = Y                                                        (H1)
   then        X ⊆ Y
-  metamath-counterpart eqimss
   metamath-proof eqimss
+  lean-proof  not yet implemented
 
 mundane theorem disjoint-within
   assume X ⊆ Y                                                        (H1)
   assume Y ∩ Z = ∅                                                    (H2)
   then        X ∩ Z = ∅
-  metamath-counterpart ssdisj
   metamath-proof ssdisj
+  lean-proof  not yet implemented
 
 mundane theorem disjoint-member
   assume Y ∩ Z = ∅                                                    (H1)
   assume u ∈ Y                                                        (H2)
   then        u ∉ Z
-  metamath-counterpart disjel
   metamath-proof disjel
+  lean-proof  not yet implemented
 
 mundane theorem disjoint-difference
   then        Y ∩ (Z ∖ Y) = ∅
-  metamath-counterpart disjdif
   metamath-proof disjdif
+  lean-proof  not yet implemented
 
 definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
-  metamath-counterpart eliun
   metamath-proof eliun
+  lean-proof  not yet implemented
 
 mundane theorem union-contains-member
   assume Y ∈ D                                                        (H1)
   then        Y ⊆ ⋃(X ∈ D) X
-  metamath-counterpart ssiun2s
   metamath-proof ssiun2s with C := Y
   note        ssiun2 says it with one letter for the member and the union's
               index; ssiun2s keeps them apart, as the page does, and ties
               them by its hypothesis that the two sets agree where they are
               equal.
+  lean-proof  not yet implemented
 
 mundane theorem union-within
   assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
-  metamath-counterpart iunss
   metamath-proof iunss
+  lean-proof  not yet implemented
 
 mundane theorem intersection-within
   assume for all X ∈ D, Z ⊆ X                                         (H1)
   then        Z ⊆ ⋂(X ∈ D) X
-  metamath-counterpart ssiin
   metamath-proof ssiin
   note        A set within every set of D is within their intersection. It
               holds for an empty D too, the intersection then being everything.
+  lean-proof  not yet implemented

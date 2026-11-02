@@ -12,30 +12,31 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 theorem remainder
   let p be a polynomial                                               (H1)
   let a ∈ ℂ                                                           (H2)
   then        there is a polynomial q with p(x) = (x − a)·q(x) + p(a) for all x ∈ ℂ
-  metamath-counterpart plyrem, read at each x, and quotcl2 for the quotient, which this
-              corpus proves together in elaboration/stdlib/proved.mm
   metamath-proof gplyrem
   note        The remainder theorem: dividing p by x − a leaves a polynomial
               quotient and the constant remainder p(a).
+  lean-proof  not yet implemented
 
 mundane theorem polynomial-value
   let p be a polynomial                                               (H1)
   let x ∈ ℂ                                                           (H2)
   then        p(x) ∈ ℂ
-  metamath-counterpart plyf and ffvelcdm, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gplyval
+  lean-proof  not yet implemented
 
 definition B
   sort        number, number → number
@@ -44,49 +45,46 @@ definition B
   let n ∈ ℕ₀                                                          (H1)
   let x ∈ ℂ                                                           (H2)
   then        B(n, x) = x^n − Σ(k = 0 to n − 1) C(n, k)·(B(k, x)/((n − k) + 1))
-  metamath-counterpart bpolyval
   metamath-proof bpolyval
   note        B(n, x) is the n-th Bernoulli polynomial at x, defined by
               recursion on n: each is x^n less a weighted sum of the ones
               before it.
+  lean-proof  not yet implemented
 
 mundane theorem bernoulli-complex
   let n ∈ ℕ₀                                                          (H1)
   let x ∈ ℂ                                                           (H2)
   then        B(n, x) ∈ ℂ
-  metamath-counterpart bpolycl
   metamath-proof bpolycl
+  lean-proof  not yet implemented
 
 theorem bernoulli-difference
   let n ∈ ℕ                                                           (H1)
   let x ∈ ℂ                                                           (H2)
   then        B(n, x + 1) − B(n, x) = n·x^(n − 1)
-  metamath-counterpart bpolydif
   metamath-proof bpolydif
   note        The property the Bernoulli polynomials are made for: a step
               of 1 in x changes B(n, x) by n·x^(n − 1).
+  lean-proof  not yet implemented
 
 theorem algebraic-root
   let α ∈ ℂ                                                           (H1)
   assume α is algebraic                                               (H2)
   then        there is F : ℂ → ℂ with (F is a polynomial with integer
               coefficients and deg(F) ∈ ℕ and F(α) = 0)
-  metamath-counterpart elaa, a polynomial other than 0 with a root being of degree
-              at least 1, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof galgroot
   note        What being algebraic is: a root of a polynomial with integer
               coefficients, other than 0, so of degree at least 1.
+  lean-proof  not yet implemented
 
 definition transcendental
   let α ∈ ℂ                                                           (H1)
   then        α is transcendental ↔ not (α is algebraic)
-  metamath-counterpart ibar, of α ∈ ℂ and not α ∈ 𝔸, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof gtransc
   note        A transcendental number is a complex number that is not
               algebraic; of one known complex, that it is not algebraic is
               all there is to say.
+  lean-proof  not yet implemented
 
 theorem integer-polynomial-at-a-fraction
   let F : ℂ → ℂ                                                       (H1)
@@ -94,20 +92,18 @@ theorem integer-polynomial-at-a-fraction
   let p ∈ ℤ                                                           (H3)
   let q ∈ ℕ                                                           (H4)
   then        q^deg(F)·F(p/q) ∈ ℤ
-  metamath-counterpart aalioulem1, its two factors turned, which this corpus proves
-              in elaboration/stdlib/proved.mm
   metamath-proof gaalioulem1
   note        Each term a·(p/q)^k of F(p/q), k at most the degree, times
               q^deg(F) is an integer, so the whole is.
+  lean-proof  not yet implemented
 
 mundane theorem integer-polynomial-real
   let F : ℂ → ℂ                                                       (H1)
   assume F is a polynomial with integer coefficients                  (H2)
   let x ∈ ℝ                                                           (H3)
   then        F(x) ∈ ℝ
-  metamath-counterpart plyreres, Poly ℤ inside Poly ℝ, which this corpus proves in
-              elaboration/stdlib/proved.mm
   metamath-proof gplyzre with F := F
+  lean-proof  not yet implemented
 
 theorem roots-isolated
   let F : ℂ → ℂ                                                       (H1)
@@ -119,11 +115,10 @@ theorem roots-isolated
   δ ranges over ℝ
   then        there exists δ > 0 such that r = α for all r ∈ ℝ with
               (|α − r| ≤ δ and F(r) = 0)
-  metamath-counterpart fta1, which bounds the roots of F by its degree, which this
-              corpus proves into this form in elaboration/stdlib/proved.mm
   metamath-proof grootsiso
   note        A polynomial other than 0 has finitely many roots, so the
               others lie some distance from α.
+  lean-proof  not yet implemented
 
 theorem polynomial-on-the-reals
   let F : ℂ → ℂ                                                       (H1)
@@ -132,8 +127,7 @@ theorem polynomial-on-the-reals
   assume for all x ∈ ℝ, f(x) = F(x)                                   (H4)
   then        f is continuous on ℝ. f is differentiable on ℝ.
               f′ : ℝ → ℝ. f′ is continuous on ℝ.
-  metamath-counterpart plycn, dvply2 and dvcnre, which this corpus proves of F on the
-              reals in elaboration/stdlib/proved.mm
   metamath-proof gplyrecn, gplyredv, gplyredvf, gplyredvcn
   note        F on the real line: continuous, differentiable everywhere, and
               its derivative is a polynomial too, so continuous.
+  lean-proof  not yet implemented

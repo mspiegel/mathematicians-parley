@@ -110,7 +110,6 @@ theorem power-of-a-point
           requires |PA| + |PB| ≠ 0: weakening, from 2.19
 
 theorem intersecting-chords
-  metamath-counterpart chordthm
   note        Euclid III.35. Each chord through P is cut by P into parts
               whose product is |AO|² − |PO|², the radius squared less the
               square of P's distance from the centre (power-of-a-point), and

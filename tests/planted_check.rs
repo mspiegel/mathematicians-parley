@@ -1916,8 +1916,8 @@ fn cases() -> Vec<Case> {
             "cite a theorem the database gives no metamath-proof for",
             vec![edit(
                 "corpus/stdlib/counting.records",
-                Some("  then        |X ∖ {a}| = k\n  metamath-counterpart hashdifsnp1\n  metamath-proof hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
-                "  then        |X ∖ {a}| ≤ k\n  metamath-counterpart hashdifsnp1\n".to_string(),
+                Some("  then        |X ∖ {a}| = k\n  metamath-proof hashdifsnp1 with V := X, N := a, Y := k\n".to_string()),
+                "  then        |X ∖ {a}| ≤ k\n  metamath-proof not yet implemented\n".to_string(),
             )],
             "step 1.7 claims something that mun:card-remove does not conclude",
         ),
@@ -3182,9 +3182,9 @@ fn cases() -> Vec<Case> {
         case(
             "an item that says nothing about where it comes from",
             vec![
-                edit("corpus/stdlib/sets.records", Some("mundane theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath-counterpart pw0".to_string()), "mundane theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
+                edit("corpus/stdlib/sets.records", Some("mundane theorem powerset-empty\n  then        𝒫∅ = {∅}\n  metamath-proof pw0".to_string()), "mundane theorem powerset-empty\n  then        𝒫∅ = {∅}".to_string()),
             ],
-            "neither which set.mm label",
+            "powerset-empty has no `metamath-proof`",
         ),
         case(
             "a block whose method takes none",
@@ -3779,16 +3779,16 @@ fn cases() -> Vec<Case> {
         case(
             "an item stated outside the standard library",
             vec![
-                edit("corpus/db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath-counterpart exmid\n\nmethod algebra\n".to_string()),
+                edit("corpus/db/methods.records", Some("method algebra\n".to_string()), "theorem stray\n  then        P\n  metamath-proof exmid\n  lean-proof  not yet implemented\n\nmethod algebra\n".to_string()),
             ],
             "stray is outside stdlib/",
         ),
         case(
             "a theorem field said twice",
             vec![
-                edit("proofs/wiedijk/cantor.proof", Some("  metamath-counterpart canth\n".to_string()), "  metamath-counterpart canth\n  metamath-counterpart canth\n".to_string()),
+                edit("proofs/wiedijk/cantor.proof", Some("  note        Let B be".to_string()), "  note        twice.\n  note        Let B be".to_string()),
             ],
-            "says metamath-counterpart twice",
+            "says note twice",
         ),
         case(
             "a let line that asserts instead of introducing",
@@ -5527,7 +5527,7 @@ fn cases() -> Vec<Case> {
         case(
             "a theorem record with no then line",
             vec![
-                edit("corpus/stdlib/sums.records", Some("  then        Σ(k = 0 to n) t(k) ∈ ℤ\n  metamath-counterpart fsumzcl".to_string()), "  metamath-counterpart fsumzcl".to_string()),
+                edit("corpus/stdlib/sums.records", Some("  then        Σ(k = 0 to n) t(k) ∈ ℤ\n  metamath-proof fsumzcl".to_string()), "  metamath-proof fsumzcl".to_string()),
             ],
             "sum-integer has no `then` line",
         ),

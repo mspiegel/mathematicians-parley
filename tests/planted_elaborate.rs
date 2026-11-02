@@ -234,8 +234,8 @@ mundane theorem subset-self-then-nonempty
   let k ∈ ℕ₀                                                          (H2)
   assume |X| = k + 1                                                  (H3)
   then        there is a ∈ X
-  metamath-counterpart ssid, hashgt0elex
   metamath-proof ssid, hashgt0elex with V := X
+  lean-proof  not yet implemented
 ";
     const PROOF: &str =
         "import mundane theorem    stdlib/counting/subset-self-then-nonempty
@@ -285,8 +285,8 @@ fn cases() -> Vec<Case> {
             "take away a metamath-builds the corpus writes",
             "proofs/wiedijk/cantor/cantor",
             "corpus/db/notation.records",
-            "  metamath-builds _1 cpw",
-            "  metamath-counterpart cpw-without-a-template",
+            "\n  metamath-builds _1 cpw",
+            "",
             "notation 'powerset' has no metamath-builds field",
         ),
         // A database defect rather than a text one, and on an item rather than

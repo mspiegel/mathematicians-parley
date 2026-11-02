@@ -406,7 +406,6 @@ theorem near-a-root
                   requires f(x) ∈ ℝ: from H1
 
 theorem liouville
-  metamath-counterpart aaliou
   note        Take c below 1, below the distance δ from α to any other root,
               and below 1/(2K), K bounding |F′| near α. A fraction p/q further
               than that from α is further than c/q^N. One nearer is α itself

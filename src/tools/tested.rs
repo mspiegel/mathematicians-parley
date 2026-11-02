@@ -35,7 +35,6 @@ pub fn untested(source: &dyn Source) -> Result<Vec<String>, crate::Problem> {
         .iter()
         .filter(|r| {
             r.kind.is_item()
-                && !r.fields.contains_key("open")
                 && !r.conclusions.is_empty()
                 && !cited.contains(&r.qualified())
         })

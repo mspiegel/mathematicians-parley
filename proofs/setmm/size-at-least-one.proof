@@ -5,7 +5,6 @@ import mundane theorem    stdlib/sets/intersection-self
 import mundane theorem    stdlib/sets/singleton-subset
 
 theorem size-at-least-one
-  metamath-counterpart hashge1
   note        A set with an element a holds the one-element set {a}, which has
               1 element, so it has at least 1.
   let A be a set                                                      (H1)

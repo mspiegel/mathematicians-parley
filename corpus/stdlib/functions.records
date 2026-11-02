@@ -11,11 +11,14 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note.
+# Other fields: note.
 
 
 definition set-image
@@ -23,18 +26,17 @@ definition set-image
   let Z be a set                                                      (H2)
   let E : Y → Z                                                       (H3)
   then        u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)
-  metamath-counterpart elrnmptg
   metamath-proof elrnmptg
   note        {E(s) : s ∈ Y} is the range of the map s ↦ E(s) on Y, and
               elrnmptg says what is in that range where every E(s) is a set,
               which a function's value always is (`fvex`).
+  lean-proof  not yet implemented
 
 mundane theorem added-elements-are-new
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∉ Z                                   (H3)
   then        for all u ∈ {s ∪ {a} : s ∈ Y}, u ∉ Z
-  metamath-counterpart ralrnmpt
   metamath-proof ralrnmpt
   note        Running over the sets with a added is running over the sets and
               adding a, which `ralrnmpt` says of the range of any map written
@@ -43,23 +45,23 @@ mundane theorem added-elements-are-new
               property it asks, being outside a set Z, because the language
               can name neither — the same gap `notation bijection` records.
               Z may be Y itself, as the subsets proof has it.
+  lean-proof  not yet implemented
 
 mundane theorem function-value
   let f : D → E                                                       (H1)
   let x ∈ D                                                           (H2)
   then        f(x) ∈ E
-  metamath-counterpart ffvelcdm
   metamath-proof ffvelcdm
   note        The intermediate value pilot called this mun:stdlib/functions/function, colliding
               with the Cantor pilot's definition of the same name. Renamed by the
               merge; that proof's three citations are renamed with it.
+  lean-proof  not yet implemented
 
 mundane theorem image-of-injection
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all S, T ∈ Y, if S ∪ {a} = T ∪ {a} then S = T            (H3)
   then        there is a bijection from Y to {S ∪ {a} : S ∈ Y}
-  metamath-counterpart f1oeng, over the map f1mpt and f1f1orn show is one-to-one
   metamath-proof f1oeng with F := the map sending S ∈ Y to S ∪ {a}
   note        A map that sends no two things to the same place pairs its
               domain off against what comes out of it. Narrowed to the one
@@ -67,175 +69,168 @@ mundane theorem image-of-injection
               readable layer states the property and the `target` names the
               map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
               and does not name a function to say it.
+  lean-proof  not yet implemented
 
 mundane theorem added-element-in-image
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   let s ∈ Y                                                           (H3)
   then        s ∪ {a} ∈ {t ∪ {a} : t ∈ Y}
-  metamath-counterpart elrnmpt1s
   metamath-proof elrnmpt1s
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
+  lean-proof  not yet implemented
 
 mundane theorem added-elements-stay-inside
   let Y be a set                                                      (H1)
   let a be an element                                                 (H2)
   assume for all s ∈ Y, s ∪ {a} ∈ Z                                   (H3)
   then        {s ∪ {a} : s ∈ Y} ⊆ Z
-  metamath-counterpart rnmptss
   metamath-proof rnmptss
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
+  lean-proof  not yet implemented
 
 definition image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   then        u ∈ f[Y] ↔ there is s ∈ Y with u = f(s)
-  metamath-counterpart fvelimab, with ffn and eqcom, which this corpus proves
-              together in elaboration/stdlib/proved.mm
   metamath-proof gfvelima
   note        f[Y] is everything f sends Y to, {f(s) : s ∈ Y}. It is the same
               set as `def:stdlib/functions/set-image` speaks of for a map
               written on the spot; this is the one for a function with a
               name, which a bracket can follow.
+  lean-proof  not yet implemented
 
 mundane theorem image-within
   let f : X → W                                                       (H1)
   then        f[Y] ⊆ W
-  metamath-counterpart fimass
   metamath-proof fimass
+  lean-proof  not yet implemented
 
 mundane theorem image-monotone
   let f : X → W                                                       (H1)
   assume Y ⊆ Z                                                        (H2)
   then        f[Y] ⊆ f[Z]
-  metamath-counterpart imass2
   metamath-proof imass2
+  lean-proof  not yet implemented
 
 mundane theorem function-into
   let E be a function on X                                            (H1)
   assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
-  metamath-counterpart ffnfv
   metamath-proof ffnfv
+  lean-proof  not yet implemented
 
 mundane theorem function-on-domain
   let f : X → Y                                                       (H1)
   then        f is a function on X
-  metamath-counterpart ffn
   metamath-proof ffn
   note        A function from X into Y is a function on X, which its values
               may then be said to lie in another set.
+  lean-proof  not yet implemented
 
 mundane theorem value-in-image
   let f : X → W                                                       (H1)
   assume Y ⊆ X                                                        (H2)
   let s ∈ Y                                                           (H3)
   then        f(s) ∈ f[Y]
-  metamath-counterpart fnfvima, with ffn, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gfnfvima
+  lean-proof  not yet implemented
 
 definition one-to-one
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one ↔ f : X → Y and for all s, t ∈ X,
               if f(s) = f(t) then s = t
-  metamath-counterpart dff13
   metamath-proof dff13
+  lean-proof  not yet implemented
 
 definition onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is onto ↔ f : X → Y and for all y ∈ Y, there is
               x ∈ X with y = f(x)
-  metamath-counterpart dffo3
   metamath-proof dffo3
+  lean-proof  not yet implemented
 
 definition one-to-one-onto
   let f : X → Y                                                       (H1)
   then        f : X → Y is one-to-one and onto ↔ f : X → Y is one-to-one
               and f : X → Y is onto
-  metamath-counterpart df-f1o
   metamath-proof df-f1o
+  lean-proof  not yet implemented
 
 mundane theorem inverse-value
   let g : Y → X be one-to-one                                         (H1)
   let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
-  metamath-counterpart f1f1orn and f1ocnvfv1, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gf1cnvfv1
+  lean-proof  not yet implemented
 
 definition preimage
   let f : X → W                                                       (H1)
   then        u ∈ f⁻¹[Z] ↔ u ∈ X and f(u) ∈ Z
-  metamath-counterpart elpreima, with ffn, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gelpreima
   note        f⁻¹[Z] is everything in X that f sends into Z, whether or not
               f has an inverse.
+  lean-proof  not yet implemented
 
 mundane theorem preimage-within
   let f : X → W                                                       (H1)
   then        f⁻¹[Z] ⊆ X
-  metamath-counterpart cnvimass and fdm, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gpreimass
   note        A preimage holds only points of the domain.
+  lean-proof  not yet implemented
 
 mundane theorem inverse-function
   let f : X → Y be one-to-one                                         (H1)
   assume f[X] = Y                                                     (H2)
   then        f⁻¹ : Y → X
-  metamath-counterpart f1f1orn, f1ocnv, f1of and fnima, which this corpus proves
-              together in elaboration/stdlib/proved.mm
   metamath-proof gf1cnvf
   note        A one-to-one function that reaches all of Y has an inverse
               that takes Y back to X.
+  lean-proof  not yet implemented
 
 mundane theorem composition-function
   let f : X → Y                                                       (H1)
   let g : Y → W                                                       (H2)
   then        g ∘ f : X → W
-  metamath-counterpart fco
   metamath-proof fco
   note        f takes X into Y, where g takes over.
+  lean-proof  not yet implemented
 
 mundane theorem composition-value
   let f : X → Y                                                       (H1)
   let g : Y → W                                                       (H2)
   let x ∈ X                                                           (H3)
   then        (g ∘ f)(x) = g(f(x))
-  metamath-counterpart fvco3
   metamath-proof fvco3
+  lean-proof  not yet implemented
 
 mundane theorem composition-one-to-one
   let f : X → Y be one-to-one                                         (H1)
   let g : Y → W be one-to-one                                         (H2)
   then        g ∘ f : X → W is one-to-one
-  metamath-counterpart f1co
   metamath-proof f1co
   note        Two different points stay apart under f, and their images
               stay apart under g.
+  lean-proof  not yet implemented
 
 definition bijection
   let X be a set                                                      (H1)
   let f : X → Y be one-to-one and onto                                (H2)
   then        there is a bijection from X to Y
-  metamath-counterpart f1oeng
   metamath-proof f1oeng
   note        A function that never sends two things to one place and
               reaches every point pairs its domain off against its
               codomain: one such function is what there being a bijection
               between two sets means.
+  lean-proof  not yet implemented
 
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)
   then        there is f : X → Y with f : X → Y is onto
-  metamath-counterpart bren and f1ofo, with encv and elmapg placing f among the
-              functions from X to Y, which this corpus proves together in
-              elaboration/stdlib/proved.mm
   metamath-proof gbijonto
   note        The way back from `bijection`, as far as a proof needs it: a
               pairing of X with Y is a function from X onto Y. That it is
               one-to-one as well is not said, since no proof asks it.
+  lean-proof  not yet implemented

@@ -7,7 +7,6 @@ import mundane theorem    stdlib/sums/sum-scaled
 import mundane theorem    stdlib/sums/sum-termwise-complex
 
 theorem sum-of-powers
-  metamath-counterpart fsumkthpow
   note        B(k + 1, n + 1) − B(k + 1, n) = (k + 1)·n^k, so (k + 1) times
               the sum of the n^k telescopes to B(k + 1, m + 1) − B(k + 1, 0).
   let k ∈ ℕ₀                                                          (H1)

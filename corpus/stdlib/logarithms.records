@@ -12,11 +12,14 @@
 # An item's statement is written in the theorem form of SYNTAX.md: let and
 # assume lines with labels, then a `then` line.
 #
-# Every item carries at least one of:
-#   metamath-counterpart  a set.mm label or labels supply it
-#   open        it is cited but unproved and unbridged
+# Every item carries both:
+#   metamath-proof  how the Metamath build proves it: a set.mm label, the
+#                   full name of a Parley proof or of a bridge, `none` where
+#                   it has nothing to prove, or `not yet implemented`
+#   lean-proof      the same for the Lean build, a Mathlib proof in place of
+#                   a set.mm label
 #
-# Other fields: metamath-proof, lean-proof, note, and for a function, sort, metamath-builds, reads and
+# Other fields: note, and for a function, sort, metamath-builds, reads and
 # decided.
 
 
@@ -25,22 +28,24 @@ definition ln
   metamath-builds _1 clog cfv
   reads       the natural logarithm of
   decided     real arithmetic
-  metamath-counterpart df-log, the inverse of the exponential function
   note        set.mm's log is taken in ℂ, its value at a negative number having
               an imaginary part; real arithmetic takes it only of a positive
               rational, or one times a whole power of e (METHODS.md), where it
               is the logarithm a reader knows. As for cos, this definition
               states nothing but what ln(x) builds.
+  metamath-proof none
+  lean-proof  none
 
 definition exp
   sort        number → number
   metamath-builds _1 ce cfv
   reads       the exponential of
   decided     real arithmetic
-  metamath-counterpart df-ef, by its power series
   note        exp(x) is eˣ, which set.mm defines the other way round, e being
               exp(1) (df-e). Real arithmetic takes it of a whole number of at
               least 0 plus whole multiples of logarithms of primes.
+  metamath-proof none
+  lean-proof  none
 
 mundane theorem ln-product
   let x ∈ ℝ                                                           (H1)
@@ -48,8 +53,8 @@ mundane theorem ln-product
   assume x > 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        ln(x·y) = ln(x) + ln(y)
-  metamath-counterpart relogmul
   metamath-proof relogmul
+  lean-proof  not yet implemented
 
 mundane theorem ln-quotient
   let x ∈ ℝ                                                           (H1)
@@ -57,38 +62,38 @@ mundane theorem ln-quotient
   assume x > 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        ln(x/y) = ln(x) − ln(y)
-  metamath-counterpart relogdiv
   metamath-proof relogdiv
+  lean-proof  not yet implemented
 
 mundane theorem ln-power
   let x ∈ ℝ                                                           (H1)
   let n ∈ ℤ                                                           (H2)
   assume x > 0                                                        (H3)
   then        ln(x^n) = n·ln(x)
-  metamath-counterpart relogexp
   metamath-proof relogexp
+  lean-proof  not yet implemented
 
 mundane theorem exp-ln
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        exp(ln(x)) = x
-  metamath-counterpart reeflog
   metamath-proof reeflog
   note        With ln-exp, the logarithm and the exponential undo each other:
               each is one-to-one where the other is defined.
+  lean-proof  not yet implemented
 
 mundane theorem ln-exp
   let x ∈ ℝ                                                           (H1)
   then        ln(exp(x)) = x
-  metamath-counterpart relogef
   metamath-proof relogef
+  lean-proof  not yet implemented
 
 mundane theorem exp-sum
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        exp(a + b) = exp(a)·exp(b)
-  metamath-counterpart efadd
   metamath-proof efadd
+  lean-proof  not yet implemented
 
 mundane theorem ln-order
   let x ∈ ℝ                                                           (H1)
@@ -96,40 +101,40 @@ mundane theorem ln-order
   assume x > 0                                                        (H3)
   assume y > 0                                                        (H4)
   then        x < y ↔ ln(x) < ln(y)
-  metamath-counterpart logltb
   metamath-proof logltb with A := x, B := y
+  lean-proof  not yet implemented
 
 mundane theorem ln-real
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        ln(x) ∈ ℝ
-  metamath-counterpart relogcl
   metamath-proof relogcl
+  lean-proof  not yet implemented
 
 mundane theorem ln-nonzero
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   assume x ≠ 1                                                        (H3)
   then        ln(x) ≠ 0
-  metamath-counterpart logne0
   metamath-proof logne0
+  lean-proof  not yet implemented
 
 mundane theorem exp-real
   let x ∈ ℝ                                                           (H1)
   then        exp(x) ∈ ℝ
-  metamath-counterpart reefcl
   metamath-proof reefcl
+  lean-proof  not yet implemented
 
 mundane theorem e-power
   let y ∈ ℂ                                                           (H1)
   then        e^y = exp(y)
-  metamath-counterpart ecxp
   metamath-proof ecxp
   note        e to a power that is not whole is the principal power
               (`GRAMMAR.md`), which is exp of the exponent.
+  lean-proof  not yet implemented
 
 mundane theorem exp-positive
   let x ∈ ℝ                                                           (H1)
   then        exp(x) > 0
-  metamath-counterpart efgt0
   metamath-proof efgt0
+  lean-proof  not yet implemented

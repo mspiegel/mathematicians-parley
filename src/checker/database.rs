@@ -111,28 +111,38 @@ pub fn check_database(report: &mut Report, records: &[Record]) {
                     ),
                 );
             }
-            if !r
-                .fields
-                .contains_key(crate::corpus::records::METAMATH_COUNTERPART)
-                && !r.fields.contains_key("open")
-            {
-                report.say(
-                    &r.path,
-                    r.line,
-                    format!(
-                        "{} says neither which set.mm label supplies it nor that it is open",
-                        r.name
-                    ),
-                );
+            // Each build says how it proves the item: the library's own
+            // statement, a Parley proof, a bridge, `none` where it has
+            // nothing to prove, or `not yet implemented`.
+            for (field, build) in [
+                (crate::corpus::records::METAMATH_PROOF, "Metamath"),
+                (crate::corpus::records::LEAN_PROOF, "Lean"),
+            ] {
+                if !r.fields.contains_key(field) {
+                    report.say(
+                        &r.path,
+                        r.line,
+                        format!(
+                            "{} has no `{field}`: say how the {build} build proves it, or `none` or `not yet implemented`",
+                            r.name
+                        ),
+                    );
+                }
             }
             // A definition that introduces a symbol says what it stands for
             // in `defines`, and that is its statement: what follows from it
             // is a theorem of its own. A function says what an application of
             // it builds (`metamath-builds`), which is its statement in the
             // same way, as min's is
-            // where set.mm has no minimum of its own.
+            // where set.mm has no minimum of its own. A word the readable
+            // layer cannot yet state, collinear, states nothing, and its
+            // `metamath-proof` says so with `none`.
+            let states_nothing = matches!(
+                r.metamath_provided(),
+                Some(crate::corpus::records::Provided::Nothing)
+            );
             if r.conclusions.is_empty()
-                && !r.fields.contains_key("open")
+                && !states_nothing
                 && !r.fields.contains_key("defines")
                 && !r.is_function()
             {

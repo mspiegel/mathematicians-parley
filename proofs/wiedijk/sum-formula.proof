@@ -2,7 +2,6 @@ import mundane theorem    stdlib/sums/sum-extended
 import mundane theorem    stdlib/sums/sum-single
 
 theorem sum-formula
-  metamath-counterpart arisum
   note        By induction on n: adding k + 1 to k(k + 1)/2 gives
               (k + 1)(k + 2)/2.
   let n ∈ ℕ                                                           (H1)

@@ -4,7 +4,6 @@ import mundane theorem    stdlib/numbers/one-power
 import mundane theorem    stdlib/sums/sum-termwise
 
 theorem binomial-coefficients-sum
-  metamath-counterpart binom11
   note        The binomial theorem at x = 1 and y = 1: every power of 1 is
               1, so the terms are the coefficients, and (1 + 1)^N is 2^N.
   let N ∈ ℕ₀                                                          (H1)

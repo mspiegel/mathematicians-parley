@@ -259,7 +259,7 @@ impl<'a> Library<'a> {
             if r.kind != RecordKind::Notation {
                 continue;
             }
-            let Some(first) = FIRST_WORD.find(str::trim(r.counterpart())) else {
+            let Some(first) = FIRST_WORD.find(str::trim(r.syntax())) else {
                 continue;
             };
             let set = match first.as_str() {

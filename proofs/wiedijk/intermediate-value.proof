@@ -17,7 +17,6 @@ import mundane theorem    stdlib/sets/subset-transitive
 import definition         stdlib/calculus/continuous-on
 
 theorem intermediate-value
-  metamath-counterpart ivth, the general form
   note        Let c be the least upper bound of the points where f is below 0.
               If f(c) < 0, f stays below 0 a little to the right of c, so c is
               no upper bound. If f(c) > 0, f stays above 0 a little to the

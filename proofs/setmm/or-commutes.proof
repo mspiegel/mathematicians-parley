@@ -2,7 +2,6 @@ import mundane theorem    stdlib/reasoning/or-left
 import mundane theorem    stdlib/reasoning/or-right
 
 theorem or-commutes
-  metamath-counterpart orcom
   note        Either way round, "a or b" holds when one of the two does.
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
