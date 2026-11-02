@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited
 
-theorem a_range_member_is_cited (N : ℕ) (k : ℤ) (hH2 : k ∈ Finset.Icc 0 (N : ℤ)) :
+theorem a_range_member_is_cited (N : ℕ) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 : ℤ) (N : ℤ)) :
     (Parley.Library.choose (N : ℤ) k : ℤ) * 1 = (Parley.Library.choose (N : ℤ) k : ℤ) := by
   -- 1. algebra
   have s1 : (Parley.Library.choose (N : ℤ) k : ℤ) * 1 = (Parley.Library.choose (N : ℤ) k : ℤ) := by parley_ring

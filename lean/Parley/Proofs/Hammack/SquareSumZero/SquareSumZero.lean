@@ -19,7 +19,7 @@ theorem square_sum_zero (x : ℝ) (y : ℝ) :
       -- 1. algebra, from D1
       have s1 : x * y = 0 := by linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * hD1
       -- 2. mun:zero-product, from 1
-      have s2 : x = 0 ∨ y = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side)
+      have s2 : x = 0 ∨ y = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := x) (y := y))).mp (by parley_side)
       all_goals parley_side
     · skip
       intro hD2

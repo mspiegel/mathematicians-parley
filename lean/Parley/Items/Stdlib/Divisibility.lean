@@ -28,9 +28,49 @@ theorem mun_not_both (n : ℤ) (h2 : Even n) :
     ¬ Odd n :=
   Int.not_odd_iff_even.mpr h2
 
+theorem mun_even_product (a : ℤ) (h2 : Even a) (x : ℤ) :
+    Even (a * x) :=
+  h2.mul_right x
+
 theorem mun_even_product_factor (a : ℤ) (b : ℤ) :
     Even (a * b) ↔ Even a ∨ Even b :=
   Int.even_mul
+
+theorem thm_divides_gcd (d : ℤ) (a : ℤ) (b : ℤ) (h4 : d ∣ a) (h5 : d ∣ b) :
+    d ∣ (Int.gcd a b : ℤ) :=
+  Int.dvd_coe_gcd h4 h5
+
+theorem def_gcd_1 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
+    0 < (Int.gcd (a : ℤ) (b : ℤ) : ℤ) :=
+  by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this
+
+theorem def_gcd_2 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
+    (Int.gcd (a : ℤ) (b : ℤ) : ℤ) ∣ (a : ℤ) :=
+  Int.gcd_dvd_left a b
+
+theorem def_gcd_3 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
+    (Int.gcd (a : ℤ) (b : ℤ) : ℤ) ∣ (b : ℤ) :=
+  Int.gcd_dvd_right a b
+
+theorem def_gcd_4 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
+    ∀ e : ℕ, 0 < e → (e : ℤ) ∣ (a : ℤ) ∧ (e : ℤ) ∣ (b : ℤ) → (e : ℤ) ≤ (Int.gcd (a : ℤ) (b : ℤ) : ℤ) :=
+  fun e he h => Int.le_of_dvd (by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this) (Int.dvd_coe_gcd h.1 h.2)
+
+theorem def_lcm_1 (a : ℤ) (b : ℤ) :
+    0 ≤ (Int.lcm a b : ℤ) :=
+  by positivity
+
+theorem def_lcm_2 (a : ℤ) (b : ℤ) :
+    a ∣ (Int.lcm a b : ℤ) :=
+  Int.dvd_lcm_left a b
+
+theorem def_lcm_3 (a : ℤ) (b : ℤ) :
+    b ∣ (Int.lcm a b : ℤ) :=
+  Int.dvd_lcm_right a b
+
+theorem def_lcm_4 (a : ℤ) (b : ℤ) :
+    ∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k :=
+  fun k h => Int.dvd_natAbs.mp (Int.natCast_dvd_natCast.mpr (Int.lcm_dvd (Int.dvd_natAbs.mpr h.1) (Int.dvd_natAbs.mpr h.2)))
 
 theorem mun_divides_sum (d : ℤ) (a : ℤ) (b : ℤ) (h4 : d ∣ a) (h5 : d ∣ b) :
     d ∣ a + b :=
@@ -60,6 +100,18 @@ theorem mun_divides_multiple (e : ℤ) (a : ℤ) (x : ℤ) (h4 : e ∣ a) :
     e ∣ a * x :=
   Dvd.dvd.mul_right h4 x
 
+theorem mun_gcd_commutes (a : ℤ) (b : ℤ) :
+    (Int.gcd a b : ℤ) = (Int.gcd b a : ℤ) :=
+  by rw [Int.gcd_comm]
+
+theorem thm_gcd_mod (a : ℤ) (b : ℕ) (h2 : 0 < b) :
+    (Int.gcd (a % (b : ℤ)) (b : ℤ) : ℤ) = (Int.gcd a (b : ℤ) : ℤ) :=
+  by rw [Int.gcd_emod]
+
+theorem mun_mod_remainder (a : ℤ) (m : ℕ) (h2 : 0 < m) (r : ℕ) (h4 : (r : ℤ) < (m : ℤ)) :
+    a % (m : ℤ) = (r : ℤ) ↔ (∃ q : ℤ, q * (m : ℤ) + (r : ℤ) = a) :=
+  ⟨fun h => ⟨a / (m : ℤ), by have := Int.ediv_mul_add_emod a m; rw [h] at this; exact this⟩, fun ⟨q, hq⟩ => by rw [← hq, add_comm, Int.add_mul_emod_self_right]; exact Int.emod_eq_of_lt (by omega) (by omega)⟩
+
 theorem mun_mod_multiple (r : ℤ) (m : ℕ) (h2 : 0 < m) (q : ℤ) :
     (q * (m : ℤ) + r) % (m : ℤ) = r % (m : ℤ) :=
   by rw [add_comm, Int.add_mul_emod_self_right]
@@ -67,5 +119,9 @@ theorem mun_mod_multiple (r : ℤ) (m : ℕ) (h2 : 0 < m) (q : ℤ) :
 theorem mun_divides_self (n : ℤ) :
     n ∣ n :=
   dvd_refl n
+
+theorem mun_mod_equal_congruent (x : ℤ) (y : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : x % (n : ℤ) = y % (n : ℤ)) :
+    x ≡ y [ZMOD (n : ℤ)] :=
+  h4
 
 end Parley.Items.Stdlib.Divisibility

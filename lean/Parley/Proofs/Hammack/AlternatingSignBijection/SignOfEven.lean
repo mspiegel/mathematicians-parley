@@ -24,7 +24,7 @@ theorem sign_of_even (n : ℕ) (hH1 : 0 < n) (hH2 : Even (n : ℤ)) :
   -- 5. inequalities
   have s5 : k > 0 := by parley_side
   -- 6. mun:pos-int-nat m := k, from 5
-  have s6 : 0 < k := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side))
+  have s6 : 0 < k := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k) (by parley_side))
   lift k to ℕ using s6.le
   -- 7. thm:even-power-of-minus-one, from 6
   have s7 : ((-1) ^ (2 * k) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k)) | (have h := (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k)) | exact_mod_cast ((Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne.even_power_of_minus_one (k := k))).symm

@@ -34,7 +34,7 @@ theorem power_of_three_odd (n : ℕ) :
       have s1_5 : Odd (3 ^ (j + 1) : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 ^ (j + 1) : ℤ)))).mpr ⟨3 * k + 1, by parley_side⟩
       all_goals parley_side
   -- 2. instantiate j := n in line 1
-  have s2 : Odd (3 ^ n : ℤ) := by first | exact (s1 n) | exact ((s1 n)).symm | simpa using (s1 n)
+  have s2 : Odd (3 ^ n : ℤ) := by first | exact (s1 n) | exact ((s1 n)).symm | simpa using (s1 n) | exact_mod_cast (s1 n)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd

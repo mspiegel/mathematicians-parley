@@ -18,7 +18,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
     -- 1. algebra, from S
     have s1 : a ^ 2 = 4 * b + 3 := by linear_combination (norm := parley_norm) hS
     -- 2. mun:even-or-odd n := a
-    have s2 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
+    have s2 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))
     -- 3. cases, from 2
     have s3 : Even (1 : ℤ) := by
       rcases s2 with hC1 | hC2
@@ -49,7 +49,7 @@ theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
         have s3_8 : Even (1 : ℤ) := ((Parley.Items.Stdlib.Divisibility.def_even (n := (1 : ℤ)))).mpr ⟨k ^ 2 + k - b, by parley_side⟩
         all_goals parley_side
     -- 4. mun:not-both n := 1, from 3
-    have s4 : ¬ Odd (1 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side))
+    have s4 : ¬ Odd (1 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (1 : ℤ)) (by parley_side))
     -- 5. arithmetic
     have s5 : Odd (1 : ℤ) := by parley_arith
     all_goals parley_side

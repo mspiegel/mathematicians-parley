@@ -631,9 +631,20 @@ impl Writer<'_> {
                 template.holes.len()
             ));
         }
+        // A value of a fixed type, ⌊7/2⌋ in ℤ, takes no type from around
+        // it, so where nothing in what it takes fixes that type the type is
+        // written: ⌊(7 : ℝ) / 2⌋.
+        let told = matches!(template.yields, Slot::Fixed(_))
+            && !args
+                .iter()
+                .zip(&template.holes)
+                .any(|(c, s)| matches!(s, Slot::Alpha(_)) && self.pinned(c));
         let mut out = Vec::new();
         for (child, slot) in args.iter().zip(&template.holes) {
             let printed = match slot {
+                Slot::Alpha(_) if told => {
+                    self.number(child, alpha).map(|p| self.cast(&p, alpha))
+                }
                 Slot::Alpha(_) => self.number(child, alpha),
                 Slot::Fixed(n) => self.number_fixed(child, *n),
                 Slot::Prop => self.formula(child),
@@ -882,10 +893,12 @@ impl Writer<'_> {
                     prec: 35,
                 });
             }
+            // Each written as an integer, a numeral too, so that a range of
+            // numerals alone is not read in ℕ.
             let parts = [
-                self.number(x, Num::Int),
-                self.number(from, Num::Int),
-                self.number(to, Num::Int),
+                self.number_fixed(x, Num::Int),
+                self.number_fixed(from, Num::Int),
+                self.number_fixed(to, Num::Int),
             ];
             let mut out = Vec::new();
             for p in parts {

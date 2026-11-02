@@ -1,0 +1,18 @@
+module
+
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Library
+
+/-! Written from tests/stdlib/divisibility.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Stdlib.Divisibility.LcmAMultiple
+
+theorem lcm_a_multiple (a : ℤ) (b : ℤ) :
+    a ∣ (Int.lcm a b : ℤ) := by
+  -- 1. def:lcm
+  have s1 : a ∣ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))
+  all_goals parley_side
+
+end Parley.Tests.Stdlib.Divisibility.LcmAMultiple

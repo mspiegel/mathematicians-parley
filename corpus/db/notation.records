@@ -504,7 +504,7 @@ notation absolute-value
   reads       the absolute value of
   metamath    cabs
   target      _1 cabs cfv
-  lean        α → α: |_1|
+  lean        α → α: abs _1
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
@@ -515,7 +515,7 @@ notation floor
   reads       the largest whole number at most
   metamath    cfl
   target      _1 cfl cfv
-  lean        α≥ℝ → ℤ: ⌊_1⌋
+  lean        α≥ℚ → ℤ: ⌊_1⌋
   note        The whole number a real rounds down to, ⌊2.7⌋ = 2 and
               ⌊−2.7⌋ = −3. Needs no assoc and no level: a token sits at each
               edge, as with |_|.

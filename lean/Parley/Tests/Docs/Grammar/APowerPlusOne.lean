@@ -1,0 +1,17 @@
+module
+
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Library
+
+/-! Written from tests/docs/grammar.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Docs.Grammar.APowerPlusOne
+
+theorem a_power_plus_one (a : ℤ) (k : ℕ) :
+    True := by
+  -- 1. mun:int-closure a := a^k, b := 1
+  all_goals parley_side
+
+end Parley.Tests.Docs.Grammar.APowerPlusOne

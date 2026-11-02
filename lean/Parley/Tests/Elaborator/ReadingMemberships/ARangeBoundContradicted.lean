@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundContradicted
 
-theorem a_range_bound_contradicted (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc 1 n) :
+theorem a_range_bound_contradicted (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) n) :
     ¬ n < k := by
   -- 1. contradiction
   have s1 : ¬ n < k := by

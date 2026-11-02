@@ -12,7 +12,7 @@ namespace Parley.Proofs.Setmm.IntegerAtMostSquare.IntegerAtMostSquare
 theorem integer_at_most_square (n : ℤ) :
     n ≤ n ^ 2 := by
   -- 1. axi:trichotomy x := n
-  have s1 : (n < 0 ∨ n = 0) ∨ 0 < n := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n))
+  have s1 : (n < 0 ∨ n = 0) ∨ 0 < n := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := n))
   -- 2. mun:square-nonneg x := n
   have s2 : n ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := n))
   -- 3. algebra

@@ -12,7 +12,7 @@ namespace Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger
 theorem triangular_number_integer (n : ℤ) :
     (∃ m : ℤ, (m : ℚ) = (n : ℚ) * ((n : ℚ) + 1) / 2) := by
   -- 1. mun:even-or-odd
-  have s1 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
+  have s1 : Even n ∨ Odd n := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := n))
   -- 2. cases, from 1
   have s2 : ∃ m : ℤ, (m : ℚ) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by
     rcases s1 with hC1 | hC2

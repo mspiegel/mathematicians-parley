@@ -19,7 +19,7 @@ theorem choose_two_even (a : ℕ) (hH2 : (a : ℤ) ≡ (0 : ℤ) [ZMOD (4 : ℤ)
     rcases hH2 with hC1 | hC2
     · skip
       -- 2.1. def:congruent-mod, from C1
-      have s2_1 : (4 : ℤ) ∣ (a : ℤ) := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side)
+      have s2_1 : (4 : ℤ) ∣ (a : ℤ) := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (0 : ℤ)))).mp (by parley_side)
       -- 2.2. obtain k: def:divides d := 4, n := a, from 2.1
       obtain ⟨k, s2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := (a : ℤ)))).mp (by parley_side)
       -- 2.3. algebra, from 1, 2.2
@@ -29,7 +29,7 @@ theorem choose_two_even (a : ℕ) (hH2 : (a : ℤ) ≡ (0 : ℤ) [ZMOD (4 : ℤ)
       all_goals parley_side
     · skip
       -- 2.5. def:congruent-mod, from C2
-      have s2_5 : (4 : ℤ) ∣ (a : ℤ) - 1 := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side)
+      have s2_5 : (4 : ℤ) ∣ (a : ℤ) - 1 := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (4 : ℤ)) (a := (a : ℤ)) (b := (1 : ℤ)))).mp (by parley_side)
       -- 2.6. obtain k: def:divides d := 4, n := a − 1, from 2.5
       obtain ⟨k, s2_6⟩ := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := (a : ℤ) - 1))).mp (by parley_side)
       -- 2.7. algebra, from 1, 2.6

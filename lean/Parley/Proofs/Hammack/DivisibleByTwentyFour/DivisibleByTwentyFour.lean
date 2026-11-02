@@ -30,11 +30,11 @@ theorem divisible_by_twenty_four (n : ℕ) :
         calc (5 ^ (2 * (m + 1)) : ℤ) = 5 ^ (2 * m + 2) := by parley_subst s1_3
           _ = 5 ^ (2 * m) * 5 ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (n := 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (n := 2)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (n := 2)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_sum (a := (5 : ℤ)) (m := 2 * m) (n := 2))).symm
       -- 1.5. mun:divides-multiple e := 24, a := 5^(2m) − 1, x := 25, from IH
-      have s1_5 : (24 : ℤ) ∣ ((5 ^ (2 * m) - 1) * 25 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side))
+      have s1_5 : (24 : ℤ) ∣ ((5 ^ (2 * m) - 1) * 25 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (24 : ℤ)) (a := (5 ^ (2 * m) - 1 : ℤ)) (x := (25 : ℤ)) (by parley_side))
       -- 1.6. mun:divides-self n := 24
-      have s1_6 : (24 : ℤ) ∣ (24 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ)))
+      have s1_6 : (24 : ℤ) ∣ (24 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_self (n := (24 : ℤ)))
       -- 1.7. mun:divides-sum d := 24, a := (5^(2m) − 1)·25, b := 24, from 1.5, 1.6
-      have s1_7 : (24 : ℤ) ∣ ((5 ^ (2 * m) - 1) * 25 + 24 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side))
+      have s1_7 : (24 : ℤ) ∣ ((5 ^ (2 * m) - 1) * 25 + 24 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_sum (d := (24 : ℤ)) (a := ((5 ^ (2 * m) - 1) * 25 : ℤ)) (b := (24 : ℤ)) (by parley_side) (by parley_side))
       -- 1.8. substitute
       have s1_8 : (24 : ℤ) ∣ (5 ^ (2 * (m + 1)) - 1 : ℤ) := by
         have c1 : ((5 ^ (2 * m) - 1) * 25 + 24 : ℤ) = 5 ^ (2 * (m + 1)) - 1 := by linear_combination (norm := parley_norm) (-1) * s1_4
@@ -42,7 +42,7 @@ theorem divisible_by_twenty_four (n : ℕ) :
         exact row1
       all_goals parley_side
   -- 2. instantiate m := n in line 1
-  have s2 : (24 : ℤ) ∣ (5 ^ (2 * n) - 1 : ℤ) := by first | exact (s1 n) | exact ((s1 n)).symm | simpa using (s1 n)
+  have s2 : (24 : ℤ) ∣ (5 ^ (2 * n) - 1 : ℤ) := by first | exact (s1 n) | exact ((s1 n)).symm | simpa using (s1 n) | exact_mod_cast (s1 n)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.DivisibleByTwentyFour.DivisibleByTwentyFour

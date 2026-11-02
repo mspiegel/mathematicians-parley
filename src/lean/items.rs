@@ -59,6 +59,8 @@ pub struct General {
     pub field: bool,
     /// Whether it orders, so that it holds in an ordered ring.
     pub ordered: bool,
+    /// Whether it takes a floor, so that it holds in a ring with one.
+    pub floor: bool,
 }
 
 impl General {
@@ -77,13 +79,18 @@ impl General {
         } else {
             String::new()
         };
-        format!("{{{GENERAL} : Type*}} {ring}{order}")
+        let floor = if self.floor {
+            format!(" [FloorRing {GENERAL}]")
+        } else {
+            String::new()
+        };
+        format!("{{{GENERAL} : Type*}} {ring}{order}{floor}")
     }
 }
 
 /// The notations a statement may use and hold in any ring of a kind: its
-/// arithmetic, order and connectives. A statement using any other, √ or π,
-/// is about ℝ or ℂ themselves.
+/// arithmetic, order, floor and connectives. A statement using any other, √
+/// or π, is about ℝ or ℂ themselves.
 const ALGEBRAIC: &[&str] = &[
     "name",
     "numeral",
@@ -95,6 +102,7 @@ const ALGEBRAIC: &[&str] = &[
     "equality",
     "order",
     "absolute-value",
+    "floor",
     "conjunction",
     "comma-conjunction",
     "disjunction",
@@ -140,12 +148,14 @@ fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
     let field = parts
         .iter()
         .any(|p| p.spelling() == crate::notations::DIVIDED);
-    let ordered = parts.iter().any(|p| {
-        matches!(
-            p.notation(),
-            crate::notations::ORDER | crate::notations::ABSOLUTE_VALUE
-        )
-    });
+    let floor = parts.iter().any(|p| &*p.notation_name() == "floor");
+    let ordered = floor
+        || parts.iter().any(|p| {
+            matches!(
+                p.notation(),
+                crate::notations::ORDER | crate::notations::ABSOLUTE_VALUE
+            )
+        });
     if num == Num::Complex && ordered {
         return None;
     }
@@ -153,6 +163,7 @@ fn general_kind(group: &crate::citing::Group, says: &Node) -> Option<General> {
         num,
         field,
         ordered,
+        floor,
     })
 }
 

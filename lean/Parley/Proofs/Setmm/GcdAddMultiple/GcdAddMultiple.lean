@@ -1,0 +1,33 @@
+module
+
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Library
+
+/-! Written from proofs/setmm/gcd-add-multiple.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple
+
+theorem gcd_add_multiple (K : ℤ) (M : ℕ) (hH2 : 0 < M) (N : ℤ) :
+    (Int.gcd (M : ℤ) N : ℤ) = (Int.gcd (M : ℤ) (N + K * (M : ℤ)) : ℤ) := by
+  -- 1. thm:gcd-mod a := N + K·M, b := M
+  have s1 : (Int.gcd ((N + K * (M : ℤ)) % (M : ℤ)) (M : ℤ) : ℤ) = (Int.gcd (N + K * (M : ℤ)) (M : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N + K * (M : ℤ)) (b := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N + K * (M : ℤ)) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N + K * (M : ℤ)) (b := M) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N + K * (M : ℤ)) (b := M) (by parley_side))).symm
+  -- 2. mun:mod-multiple r := N, m := M, q := K
+  have s2 : (K * (M : ℤ) + N) % (M : ℤ) = N % (M : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := N) (m := M) (by parley_side) (q := K)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := N) (m := M) (by parley_side) (q := K)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := N) (m := M) (by parley_side) (q := K)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_multiple (r := N) (m := M) (by parley_side) (q := K))).symm
+  -- 3. substitute
+  have s3 : (N + K * (M : ℤ)) % (M : ℤ) = N % (M : ℤ) := by
+    have c1 : K * (M : ℤ) + N = N + K * (M : ℤ) := by parley_ring
+    have row1 : (N + K * (M : ℤ)) % (M : ℤ) = N % (M : ℤ) := by parley_subst_at c1 s2
+    exact row1
+  -- 4. substitute (N + K·M) mod M = N mod M (line 3) into line 1
+  have s4 : (Int.gcd (N % (M : ℤ)) (M : ℤ) : ℤ) = (Int.gcd (N + K * (M : ℤ)) (M : ℤ) : ℤ) := by parley_subst_at s3 s1
+  -- 5. calculation
+  have s5 : (Int.gcd (M : ℤ) N : ℤ) = (Int.gcd (M : ℤ) (N + K * (M : ℤ)) : ℤ) := by
+    calc (Int.gcd (M : ℤ) N : ℤ) = (Int.gcd N (M : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := (M : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := (M : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := (M : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N) (b := (M : ℤ)))).symm
+      _ = (Int.gcd (N % (M : ℤ)) (M : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.thm_gcd_mod (a := N) (b := M) (by parley_side))).symm
+      _ = (Int.gcd (N + K * (M : ℤ)) (M : ℤ) : ℤ) := by parley_side
+      _ = (Int.gcd (M : ℤ) (N + K * (M : ℤ)) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * (M : ℤ)) (b := (M : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * (M : ℤ)) (b := (M : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * (M : ℤ)) (b := (M : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_gcd_commutes (a := N + K * (M : ℤ)) (b := (M : ℤ)))).symm
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple

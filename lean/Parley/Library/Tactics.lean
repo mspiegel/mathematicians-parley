@@ -25,6 +25,7 @@ macro "parley_side" : tactic =>
     | (apply Eq.symm; assumption; done)
     | (apply Ne.symm; assumption; done)
     | (constructor <;> assumption; done)
+    | (constructor <;> assumption_mod_cast; done)
     | (positivity; done)
     | (omega; done)
     | (linarith; done)
@@ -93,6 +94,8 @@ macro "parley_ring" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
+    -- A factorial divided by itself, which is not 0.
+    | (field_simp [Parley.Library.factorial, Nat.factorial_ne_zero]; done)
     | (simp only [inv_inv, one_div, div_div, div_pow] <;> ring1; done)
     | (parley_clear <;> ring1; done)
     | (parley_clear; done))

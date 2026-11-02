@@ -144,6 +144,7 @@ mundane theorem even-product
   then        a·x is even
   metamath    dvdsmultr1
   target      dvdsmultr1 with K := 2
+  lean        h2.mul_right x
   note        An even number times any integer is even:
               mun:stdlib/divisibility/divides-multiple at 2, said in the
               words even and odd use.
@@ -189,6 +190,7 @@ theorem divides-gcd
   then        d divides gcd(a, b)
   metamath    dvdsgcd
   target      dvdsgcd
+  lean        Int.dvd_coe_gcd h4 h5
 
 theorem division-algorithm
   let n ∈ ℕ                                                           (H1)
@@ -230,6 +232,7 @@ definition gcd
               e ≤ gcd(a, b).
   metamath    gcdnncl, gcddvds, dvdslegcd
   target      gcdnncl, gcddvds, dvdslegcd
+  lean        by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; fun e he h => Int.le_of_dvd (by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this) (Int.dvd_coe_gcd h.1 h.2)
   lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2
   note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
               this statement puts it in ℕ, which gcdnncl gives because both
@@ -250,6 +253,7 @@ definition lcm
               lcm(a, b) divides k.
   metamath    lcmcl, dvdslcm, lcmdvds
   target      lcmcl, dvdslcm, lcmdvds
+  lean        by positivity ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; fun k h => Int.dvd_natAbs.mp (Int.natCast_dvd_natCast.mpr (Int.lcm_dvd (Int.dvd_natAbs.mpr h.1) (Int.dvd_natAbs.mpr h.2)))
   note        As gcd: four sentences from three lemmas, dvdslcm saying the
               second and third in one conjunction and lcmdvds the fourth of
               one multiple. "Least" is in the divisibility order, as set.mm
@@ -417,6 +421,7 @@ mundane theorem gcd-commutes
   then        gcd(a, b) = gcd(b, a)
   metamath    gcdcom
   target      gcdcom
+  lean        by rw [Int.gcd_comm]
 
 mundane theorem gcd-one
   let a ∈ ℤ                                                           (H1)
@@ -436,6 +441,7 @@ theorem gcd-mod
   then        gcd(a mod b, b) = gcd(a, b)
   metamath    modgcd
   target      modgcd
+  lean        by rw [Int.gcd_emod]
   note        One step of Euclid's algorithm keeps the gcd: the remainder
               and the divisor have the gcd the dividend and divisor had.
 
@@ -463,6 +469,7 @@ mundane theorem mod-remainder
   then        a mod m = r ↔ there is q ∈ ℤ with q·m + r = a
   metamath    modremain
   target      modremain
+  lean        ⟨fun h => ⟨a / (m : ℤ), by have := Int.ediv_mul_add_emod a m; rw [h] at this; exact this⟩, fun ⟨q, hq⟩ => by rw [← hq, add_comm, Int.add_mul_emod_self_right]; exact Int.emod_eq_of_lt (by omega) (by omega)⟩
   note        The remainder is the r left over when a is a whole number of
               m's and r: the last digit of q·10 + r is r, for a digit r.
 
@@ -703,6 +710,7 @@ mundane theorem mod-equal-congruent
   metamath    moddvds, read one way, which this corpus proves in
               elaboration/stdlib/proved.mm
   target      gmodeqdvds
+  lean        h4
 
 
 mundane theorem divides-square

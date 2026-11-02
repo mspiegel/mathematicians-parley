@@ -342,6 +342,7 @@ definition range-between
   then        k ∈ {a, …, b} ↔ a ≤ k and k ≤ b
   metamath    elfz
   target      elfz
+  lean        Finset.mem_Icc
   note        A whole number is in a range when it lies between the ends,
               whatever the ends are: {0, …, n − 1} is read so at n = 0, where
               it is empty, as well as at every other n.

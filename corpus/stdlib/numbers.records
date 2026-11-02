@@ -58,6 +58,7 @@ mundane theorem int-closure
   then        a + b ∈ ℤ. a − b ∈ ℤ. a·b ∈ ℤ.
   metamath    zsqcl, zaddcl, zsubcl, zmulcl
   target      zsqcl, zaddcl, zsubcl, zmulcl
+  lean        trivial ; trivial ; trivial ; trivial
   note        The square stands in a group of its own because it needs one
               integer and the rest need two. A proof asking only that n² is an
               integer cites this item from one line, and a `then` group with
@@ -189,6 +190,7 @@ mundane theorem floor-between
   then        ⌊x⌋ = k ↔ k ≤ x and x < k + 1
   metamath    flbi
   target      flbi
+  lean        Int.floor_eq_iff
   note        With floor-below, ⌊x⌋ is the whole number with x in [⌊x⌋,
               ⌊x⌋ + 1): x is at most one more than it, and never that much.
 
@@ -353,6 +355,7 @@ mundane theorem nat-minus-one
   then        n − 1 ∈ ℕ₀
   metamath    nnm1nn0
   target      nnm1nn0
+  lean        by omega
 
 mundane theorem difference-nat0
   let m ∈ ℕ₀                                                          (H1)
@@ -512,6 +515,7 @@ definition abs
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
   metamath    absid, absnid
   target      absid, absnid
+  lean        fun h => abs_of_nonneg h ; fun h => abs_of_neg h
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
               the real case. So this elaborates to a pair of theorems, not to a
               definition. It is still called def:stdlib/numbers/abs because that is what it is
@@ -825,6 +829,7 @@ mundane theorem quotient-nonneg
   then        x/y ≥ 0
   metamath    divge0
   target      divge0
+  lean        div_nonneg h3 h4.le
   note        As product-nonneg, for a quotient by a term above 0.
 
 mundane theorem quotient-positive
@@ -909,6 +914,7 @@ mundane theorem divide-le
   then        x/c ≤ y/c
   metamath    lediv1
   target      lediv1
+  lean        by rw [div_le_div_iff_of_pos_right h5]; exact h4
   note        As multiply-le, for dividing both sides by a positive term.
 
 mundane theorem multiply-cancel
@@ -1015,6 +1021,7 @@ mundane theorem abs-negative
   then        |−x| = |x|
   metamath    absneg
   target      absneg
+  lean        abs_neg x
 
 mundane theorem abs-integer
   let z ∈ ℤ                                                           (H1)

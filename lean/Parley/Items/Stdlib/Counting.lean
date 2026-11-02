@@ -37,7 +37,7 @@ theorem def_C_1 (n : ℕ) :
   by simp [Parley.Library.choose]
 
 theorem def_C_2 (n : ℕ) (k : ℤ) :
-    k ∈ Finset.Icc 0 (n : ℤ) → (Parley.Library.choose (n : ℤ) k : ℚ) = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - k) : ℚ) * (Parley.Library.factorial k : ℚ)) :=
+    k ∈ Finset.Icc (0 : ℤ) (n : ℤ) → (Parley.Library.choose (n : ℤ) k : ℚ) = (Parley.Library.factorial (n : ℤ) : ℚ) / ((Parley.Library.factorial ((n : ℤ) - k) : ℚ) * (Parley.Library.factorial k : ℚ)) :=
   by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [Parley.Library.choose_natCast, Parley.Library.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm]
 
 theorem def_C_3 (n : ℕ) (k : ℤ) :
@@ -48,7 +48,7 @@ theorem thm_pascal (n : ℕ) (k : ℤ) :
     (Parley.Library.choose (n : ℤ) k : ℤ) + (Parley.Library.choose (n : ℤ) (k - 1) : ℤ) = (Parley.Library.choose ((n : ℤ) + 1) k : ℤ) :=
   by exact_mod_cast Parley.Library.pascal n k
 
-theorem thm_absorption (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc 0 (n : ℤ)) :
+theorem thm_absorption (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n : ℤ)) :
     (Parley.Library.choose ((n : ℤ) + 1) (k + 1) : ℚ) = (Parley.Library.choose (n : ℤ) k : ℚ) * (((n : ℚ) + 1) / ((k : ℚ) + 1)) :=
   by exact_mod_cast Parley.Library.absorption n k h2
 
@@ -68,7 +68,7 @@ theorem mun_binomial_two (n : ℕ) :
     (Parley.Library.choose (n : ℤ) (2 : ℤ) : ℚ) = (n : ℚ) * ((n : ℚ) - 1) / 2 :=
   by simp [Parley.Library.choose, Nat.cast_choose_two]
 
-theorem mun_binomial_outside (n : ℕ) (k : ℤ) (h3 : ¬ k ∈ Finset.Icc 0 (n : ℤ)) :
+theorem mun_binomial_outside (n : ℕ) (k : ℤ) (h3 : ¬ k ∈ Finset.Icc (0 : ℤ) (n : ℤ)) :
     (Parley.Library.choose (n : ℤ) k : ℤ) = 0 :=
   by exact_mod_cast Parley.Library.choose_outside n k h3
 
@@ -76,7 +76,7 @@ theorem mun_binomial_nat0 (n : ℕ) (k : ℤ) :
     0 ≤ (Parley.Library.choose (n : ℤ) k : ℤ) :=
   by positivity
 
-theorem mun_binomial_nat (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc 0 (n : ℤ)) :
+theorem mun_binomial_nat (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n : ℤ)) :
     0 < (Parley.Library.choose (n : ℤ) k : ℤ) :=
   by exact_mod_cast Parley.Library.choose_pos n k h2
 

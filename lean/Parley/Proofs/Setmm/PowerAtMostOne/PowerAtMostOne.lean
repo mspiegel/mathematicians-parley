@@ -27,7 +27,7 @@ theorem power_at_most_one (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) (hH4 : a ≤ 1) :
       -- 1.4. algebra
       have s1_4 : a ^ m * a = a * a ^ m := by parley_ring
       -- 1.5. axi:trichotomy x := a
-      have s1_5 : (a < 0 ∨ a = 0) ∨ 0 < a := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))
+      have s1_5 : (a < 0 ∨ a = 0) ∨ 0 < a := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := a))
       -- 1.6. cases, from 1.5
       have s1_6 : a ^ (m + 1) ≤ 1 := by
         rcases s1_5 with (hC1 | hC2) | hC3

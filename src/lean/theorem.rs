@@ -505,8 +505,11 @@ impl<'a> Proof<'a> {
     fn introduce(&mut self, step: &Step) {
         for s in step.claim.sentences() {
             if let Some(node) = self.rec.page.get(&s) {
-                let known = introduces(node)
-                    .is_some_and(|(l, _)| self.writer.letters.contains_key(l.as_str()));
+                let letter = introduces(node)
+                    .map(|(l, _)| l)
+                    .or_else(|| super::statement::range_letter(node));
+                let known = letter
+                    .is_some_and(|l| self.writer.letters.contains_key(l.as_str()));
                 if known {
                     continue;
                 }
@@ -1159,6 +1162,10 @@ impl<'a> Proof<'a> {
             return self.substitute_rows(just, writer);
         }
         let mut haves = Vec::new();
+        // The equation's own name, where it is widened to the claim's type.
+        let mut stated: Option<String> = None;
+        // The equation put in, as a tree.
+        let mut put: Option<Node> = None;
         let equation = match (&just.source, &just.equation) {
             (Some(crate::corpus::skeleton::Source::At(place)), written) => {
                 // Of a line saying several things, the equation the step
@@ -1197,6 +1204,8 @@ impl<'a> Proof<'a> {
                     {
                         Route::Built(w) => {
                             haves.extend(w.have);
+                            stated = Some(name.clone());
+                            put = Some(line.clone());
                             w.name
                         }
                         Route::Declined(d) => return Route::Declined(d),
@@ -1222,13 +1231,32 @@ impl<'a> Proof<'a> {
             _ => return Route::Built("by parley_side".to_string()),
         };
         // The line put into, cast up to the claim's type where it is
-        // narrower.
+        // narrower. Of a line saying several things, the one the equation
+        // turns into the claim; else the one that says what the claim does,
+        // divides where the claim divides; else the first.
+        let grammar = &self.sources.checked.grammar;
+        let turns = |part: &Node| -> bool {
+            let Some([left, right]) = put.as_ref().map(|e| e.children.as_slice())
+            else {
+                return false;
+            };
+            let want = grammar.print(claim);
+            [(left, right), (right, left)].iter().any(|(from, to)| {
+                grammar.print(&put_term(part, from, to, grammar)) == want
+            })
+        };
         let into = match just
             .into
             .as_ref()
             .and_then(|place| self.trees.get(place.named()))
-            .and_then(|t| t.first())
-        {
+            .and_then(|t| {
+                t.iter()
+                    .find(|(n, _)| turns(n))
+                    .or_else(|| {
+                        t.iter().find(|(n, _)| n.notation() == claim.notation())
+                    })
+                    .or(t.first())
+            }) {
             Some((line, name)) => match self.widened(line, name, claim, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
@@ -1238,9 +1266,15 @@ impl<'a> Proof<'a> {
             },
             None => None,
         };
-        let tactic = match into {
-            Some(line) => format!("by parley_subst_at {equation} {line}"),
-            None => format!("by parley_subst {equation}"),
+        // The equation is put in at the type its term has where it stands:
+        // widened to the claim's, or as stated, where the term sits in a
+        // part of a fixed type, (4 − 2)! of a claim in ℚ.
+        let tactic = match (into, stated.filter(|s| *s != equation)) {
+            (Some(line), Some(own)) => format!(
+                "by first | parley_subst_at {equation} {line} | parley_subst_at {own} {line}"
+            ),
+            (Some(line), None) => format!("by parley_subst_at {equation} {line}"),
+            (None, _) => format!("by parley_subst {equation}"),
         };
         Route::Built(with_haves(&haves, &tactic))
     }
@@ -1503,7 +1537,24 @@ impl<'a> Proof<'a> {
         if !writer.pinned(&terms[0]) {
             printed[0] = format!("({} : {})", printed[0], writer.type_name(at));
         }
-        let mut out = String::from("by\n  calc ");
+        // The claim, the first term and the last, is stated in its own
+        // least type; a chain worked out in a wider one moves the goal there
+        // first, as `qify` or `rify` does.
+        let mut own = super::templates::Num::Int;
+        for t in [terms.first(), terms.last()].into_iter().flatten() {
+            if let Route::Built(n) = writer.carrier(t) {
+                own = own.max(n);
+            }
+        }
+        let pinned = [terms.first(), terms.last()]
+            .into_iter()
+            .flatten()
+            .any(|t| writer.pinned(t));
+        let mut out = match (pinned && own < at, at) {
+            (true, super::templates::Num::Rat) => String::from("by\n  qify\n  calc "),
+            (true, super::templates::Num::Real) => String::from("by\n  rify\n  calc "),
+            _ => String::from("by\n  calc "),
+        };
         out.push_str(&printed[0]);
         let single = chain.lines.len() == 1;
         for (k, line) in chain.lines.iter().enumerate() {
@@ -1627,6 +1678,7 @@ impl<'a> Proof<'a> {
             None => None,
         };
         let mut args = Vec::new();
+        let mut to_nat: Vec<String> = Vec::new();
         for b in &sentence.binders {
             match b {
                 Binder::Letter {
@@ -1644,6 +1696,30 @@ impl<'a> Proof<'a> {
                     let printed = match (ty, general.filter(|_| *in_general)) {
                         (LetterType::Number(_), Some(at)) => {
                             self.writer.number_fixed(value, at)
+                        }
+                        // A letter of ℕ given an integer the page shows is
+                        // not negative, M − 1, takes its `toNat`, and the
+                        // instance is rewritten back below.
+                        (LetterType::Number(super::templates::Num::Nat), None) => {
+                            match self
+                                .writer
+                                .number_fixed(value, super::templates::Num::Nat)
+                            {
+                                Route::Built(p) => Route::Built(p),
+                                Route::Declined(d) => match self
+                                    .writer
+                                    .number_fixed(value, super::templates::Num::Int)
+                                {
+                                    Route::Built(p) => {
+                                        let int = p.at(super::expr::MAX);
+                                        to_nat.push(int.clone());
+                                        Route::Built(super::expr::Printed::atom(
+                                            format!("{int}.toNat"),
+                                        ))
+                                    }
+                                    Route::Declined(_) => Route::Declined(d),
+                                },
+                            }
                         }
                         (LetterType::Number(n), None) => {
                             self.writer.number_fixed(value, *n)
@@ -1671,11 +1747,17 @@ impl<'a> Proof<'a> {
                 Binder::Fact { .. } => args.push("(by parley_side)".to_string()),
             }
         }
-        let head = if args.is_empty() {
+        let mut head = if args.is_empty() {
             sentence.decl.clone()
         } else {
             format!("({} {})", sentence.decl, args.join(" "))
         };
+        // Each `toNat` given a letter cast back to the integer it is.
+        for int in &to_nat {
+            head = format!(
+                "(Int.toNat_of_nonneg (show (0 : ℤ) ≤ {int} by parley_side) ▸ {head})"
+            );
+        }
         Route::Built(format!("{head}{}", sentence.part))
     }
 
@@ -1719,7 +1801,7 @@ impl<'a> Proof<'a> {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
             Way::Backward => {
-                let witness = match self.witnesses(sentence, cited) {
+                let witness = match self.witnesses(sentence, cited, &reason.just.refs) {
                     Route::Built(w) => w,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -1758,6 +1840,7 @@ impl<'a> Proof<'a> {
         &self,
         sentence: &Sentence,
         cited: &crate::checker::record::Cited,
+        refs: &[String],
     ) -> Route<String> {
         let [_, right] = sentence.says.children.as_slice() else {
             return Route::no("a definition of other than two sides");
@@ -1765,10 +1848,18 @@ impl<'a> Proof<'a> {
         // A witness that is a letter bound by the line cited, the k of its
         // "there is k", is no value in scope: the line says the right side
         // whole.
+        let bound_here: std::collections::BTreeSet<String> = self
+            .cited_parts(refs)
+            .iter()
+            .filter(|c| c.node.notation() == crate::notations::THERE_IS)
+            .filter_map(|c| c.node.children.first())
+            .filter(|l| l.is_name())
+            .map(|l| l.text.to_string())
+            .collect();
         let bound_by_line = cited
             .bound
             .values()
-            .any(|v| v.is_name() && !self.writer.letters.contains_key(v.text.as_str()));
+            .any(|v| v.is_name() && bound_here.contains(v.text.as_str()));
         if bound_by_line {
             return Route::Built("(by parley_side)".to_string());
         }
@@ -2029,8 +2120,24 @@ impl<'a> Proof<'a> {
             );
             return Route::Built(());
         }
-        let [(claimed, prop)] = claim else {
-            return Route::no("a block whose claim is other than one sentence");
+        // A claim of several sentences is proved as their "and", and taken
+        // apart after into each sentence's name.
+        let Some((claimed, _)) = claim.first() else {
+            return Route::no("a block with no claim");
+        };
+        if claim.len() > 1 && method == Method::Induction {
+            return Route::no("an induction whose claim is several sentences");
+        }
+        let (whole, prop) = match claim {
+            [(_, prop)] => (names[0].clone(), prop.text.clone()),
+            _ => (
+                format!("{}_all", names[0]),
+                claim
+                    .iter()
+                    .map(|(_, p)| p.at(36))
+                    .collect::<Vec<_>>()
+                    .join(" ∧ "),
+            ),
         };
         let Some(block_at) = self.rec.blocks.iter().position(|b| b.owner == i) else {
             return Route::no("a block the checker did not record");
@@ -2039,7 +2146,7 @@ impl<'a> Proof<'a> {
         let p = pad(depth);
         let inner = pad(depth + 1);
         self.push(
-            format!("{p}have {} : {} := by", names[0], prop.text),
+            format!("{p}have {whole} : {prop} := by"),
             step.line,
             spot.clone(),
         );
@@ -2069,9 +2176,20 @@ impl<'a> Proof<'a> {
             Method::Cases => {
                 // The sentence, or the part of one, of the lines named that
                 // says "or".
+                // A "for all" line is read at the letters the cases assume,
+                // as the checker reads it.
+                let mut letters = std::collections::BTreeSet::new();
+                for o in &step.openers {
+                    for s in o.body(&self.thm.path).sentences() {
+                        if let Some(n) = self.rec.page.get(&s) {
+                            letters.extend(n.names());
+                        }
+                    }
+                }
                 let Some(said) = self
                     .cited_parts(&step.just.from)
                     .into_iter()
+                    .map(|c| self.read_at_letters(&c, &letters).unwrap_or(c))
                     .find(|c| c.node.notation() == crate::notations::DISJUNCTION)
                 else {
                     return Route::no("cases from no line that says \"or\"");
@@ -2196,6 +2314,13 @@ impl<'a> Proof<'a> {
             }
         }
         self.writer.letters = kept;
+        if claim.len() > 1 {
+            self.push(
+                format!("{p}obtain ⟨{}⟩ := {whole}", names.join(", ")),
+                step.line,
+                spot,
+            );
+        }
         Route::Built(())
     }
 
@@ -2549,6 +2674,28 @@ fn written_out(defines: &[CitedDefine]) -> Vec<String> {
     ]
 }
 
+/// `node` with `to` put for each part that is `from`, the two compared as
+/// the grammar prints them.
+fn put_term(
+    node: &Node,
+    from: &Node,
+    to: &Node,
+    grammar: &crate::formula::Grammar,
+) -> Node {
+    if grammar.print(node) == grammar.print(from) {
+        return to.clone();
+    }
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    node.with_children(
+        node.children
+            .iter()
+            .map(|c| put_term(c, from, to, grammar))
+            .collect(),
+    )
+}
+
 /// `node` with `value` put for each place the letter `name` stands.
 fn put_for(node: &Node, name: &Node, value: &Node) -> Node {
     if node.is_name() && node.text == name.text {
@@ -2636,7 +2783,7 @@ fn close(claim: &Node, term: &str) -> String {
         // A relation said either way round, a congruence or a ↔, as the
         // claim writes it.
         _ => format!(
-            "by first | exact {term} | exact ({term}).symm | simpa using {term}"
+            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}"
         ),
     }
 }

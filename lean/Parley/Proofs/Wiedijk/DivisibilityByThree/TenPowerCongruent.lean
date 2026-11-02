@@ -28,12 +28,12 @@ theorem ten_power_congruent (k : ℕ) :
       -- 1.3. calculation
       have s1_3 : (10 ^ (m + 1) : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by
         calc (10 ^ (m + 1) : ℤ) = 10 ^ m * 10 := by parley_side
-          _ ≡ 1 * 10 [ZMOD (3 : ℤ)] := by first | exact (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side)) | exact ((Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side))).symm | simpa using (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side))
+          _ ≡ 1 * 10 [ZMOD (3 : ℤ)] := by first | exact (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side)) | exact ((Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side))).symm | simpa using (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes.congruent_times (a := (10 ^ m : ℤ)) (b := (1 : ℤ)) (c := (10 : ℤ)) (n := 3) (by parley_side) (by parley_side))
           _ ≡ 10 [ZMOD (3 : ℤ)] := by norm_num
           _ ≡ 1 [ZMOD (3 : ℤ)] := by norm_num
       all_goals parley_side
   -- 2. instantiate m := k in line 1
-  have s2 : (10 ^ k : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by first | exact (s1 k) | exact ((s1 k)).symm | simpa using (s1 k)
+  have s2 : (10 ^ k : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by first | exact (s1 k) | exact ((s1 k)).symm | simpa using (s1 k) | exact_mod_cast (s1 k)
   all_goals parley_side
 
 end Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
