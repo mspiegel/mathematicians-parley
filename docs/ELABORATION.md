@@ -30,8 +30,8 @@ reads the theorems off the proof files, and a file's path under
 `corpus/elaboration/` is its name. `corpus/elaboration/proofs/wiedijk/bezout/bezout.mm` is the
 theorem `proofs/wiedijk/bezout/bezout`, and a file citing it includes it by that path.
 `corpus/elaboration/stdlib/` holds the library's side: `definitions.mm`, which the
-elaborator writes, and `proved.mm`, written from `corpus/proved/`, one text
-file per group of proofs (`geometry.proved`), and the only statement of what
+elaborator writes, and `proved.mm`, written from `corpus/metamath-bridges/`, one text
+file per group of proofs (`geometry.bridge`), and the only statement of what
 it proves. Each lemma there is a proof worksheet: a step a line, naming the
 lemma it applies, the steps it takes and the formula it proves, and what the
 step substitutes is read off by matching, so a step is checked as it is read
@@ -2289,7 +2289,7 @@ angle read unsigned. The angle is a constant this corpus declares — `ang`, in
 `corpus/elaboration/stdlib/proved.mm`: the four `isosceles` cites, the three of
 the angle sum, and those of Pythagoras, each group in a block of its own. All
 three proofs elaborate and assume nothing. The SMSG postulates the page reads
-are proved there too, in `postulates.proved`, with the order facts the page
+are proved there too, in `postulates.bridge`, with the order facts the page
 proofs take for granted.
 
 What that costs is non-degeneracy: `angval` wants both arguments non-zero and

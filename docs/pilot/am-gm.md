@@ -109,7 +109,7 @@ named. Each of these is mundane: `multiply-le-nonneg` (`lemul1a`),
 `power-nonneg` (`expge0`), `zero-power` (`0exp`) and `power-less`
 (`expmordi`). In `corpus/stdlib/sums.records`, mundane:
 `product-range-nonneg` (`fprodge0`, through `gfprodge0` in `proved.mm`,
-from `corpus/proved/ranges.proved`). `fprodge0` asks that k is not free in
+from `corpus/metamath-bridges/ranges.bridge`). `fprodge0` asks that k is not free in
 the context, and `gfprodge0` gives this by `nfv`.
 
 The proof also cites `real-power-real` (`recxpcl`) and `root-power`

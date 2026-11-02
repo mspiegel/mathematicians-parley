@@ -79,7 +79,7 @@ the integral from a to a, which is 0, so
    entries (bound letter, sethood, congruence in both ends), and the items
    `area-function`, `integral-real`, `integral-point`,
    `derivative-difference` and `continuous-difference`, with their bridges
-   in `calculus.proved`.
+   in `calculus.bridge`.
 2. **Testing first worked.** The test proofs of `tests/stdlib/calculus.proof`
    and `tests/elaborator/integral.proof`, written before the theorem, met
    four faults in a few lines each: congruence applied by position rather

@@ -27,9 +27,15 @@ installed; the gate does.
   importing the items and theorems it cites.
 - `lean/Parley.lean`, which imports them all.
 
-`lean/Parley/Library/` is written by hand and the build never touches it:
-`Tactics.lean` holds the tactics the files share (below). A generated file
-the build no longer makes is removed.
+The Lean bridges are written by hand in `corpus/lean-bridges/`, a Lake
+library of their own that every generated file imports, and the build never
+touches them. `Tactics.lean` holds the tactics the files share (below);
+`Counting.lean` and `Sums.lean` hold the bridges. A bridge states its item
+exactly as the build writes it, with the item's letters and hypotheses in
+the same order, so a record names it in full, `lean-proof
+lean-bridges/counting/pascal`, and the build writes
+`LeanBridges.Counting.pascal n k`. A generated file the build no longer
+makes is removed.
 
 ## Which theorems are in
 

@@ -128,10 +128,10 @@ In `corpus/stdlib/divisibility.records`:
 The proof also cites `set-builder-split` and `set-builder-split-disjoint`,
 which the Ramsey pilot added.
 
-The lemmas behind these are in `corpus/proved/`. `totient.proved` has
-`gfprodf1o`. `divisors.proved` has `gnndvdslt` and
+The lemmas behind these are in `corpus/metamath-bridges/`. `totient.bridge` has
+`gfprodf1o`. `divisors.bridge` has `gnndvdslt` and
 `gm1cong`, and also `gcongcomd`, which puts a congruence's two sides in
-order (point 6 below). `ranges.proved` has `gfzss`. In
+order (point 6 below). `ranges.bridge` has `gfzss`. In
 `corpus/db/notation.records`, `congruent-mod` says `commutes any order of
 holes 1 and 2`.
 

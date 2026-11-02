@@ -732,7 +732,7 @@ Some mundane theorems are worth a word, since a reader might expect otherwise:
 |---|---|---|
 | powerset-empty, or-left, or-right | `mundane theorem` | the definition applied, not the definition |
 | derivative-real | `mundane theorem` | a real function's derivative is real, which no textbook says aloud: a requires line of mean-value step 29 |
-| three-rays, isosceles-signed-angles, same-side-turns-alike, signed-angle-zero, pi-positive | `mundane theorem` | what the circle theorems see in the figure: turning from one ray to a second and on to a third turns from the first to the third, up to whole turns; the base angles of an isosceles triangle turn alike; two points on one side of a line see a segment of it turned alike. Each is a lemma of `corpus/proved/circles.proved`, about arguments of complex numbers, angle-at-centre and same-arc-angles |
+| three-rays, isosceles-signed-angles, same-side-turns-alike, signed-angle-zero, pi-positive | `mundane theorem` | what the circle theorems see in the figure: turning from one ray to a second and on to a third turns from the first to the third, up to whole turns; the base angles of an isosceles triangle turn alike; two points on one side of a line see a segment of it turned alike. Each is a lemma of `corpus/metamath-bridges/circles.bridge`, about arguments of complex numbers, angle-at-centre and same-arc-angles |
 
 `divides-gcd` is a theorem because the definition of gcd says a common divisor
 is at most the gcd, and that it divides the gcd takes Bézout's identity or

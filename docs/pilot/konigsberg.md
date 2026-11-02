@@ -92,10 +92,10 @@ has at most two. ∎
 
 ## What the pilot reveals
 
-1. **A graph library,** `graphs.records` and `graphs.proved`: a multigraph's
+1. **A graph library,** `graphs.records` and `graphs.bridge`: a multigraph's
    `let` line, "joins", "is incident with", deg, "form a walk", "form an
    Euler path" and traversable, with counting over a range in
-   `counts.proved`.
+   `counts.bridge`.
 2. **`inspection` works out each side of a claim and compares them:** a
    listed set, a set-builder over one, its size, a closed numeral, or a term
    a cited "for all" equation over a listed set gives at an element.

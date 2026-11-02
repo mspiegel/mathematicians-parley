@@ -58,7 +58,7 @@ In `corpus/stdlib/sets.records`:
 - `triple`: what is in a set of three listed things.
 - `triple-members`: each thing a set lists is in it.
 
-In `corpus/proved/sets.proved`: `geltpg`. It is `eltpg` with its three-way
+In `corpus/metamath-bridges/sets.bridge`: `geltpg`. It is `eltpg` with its three-way
 "or" read as two, since the page's "or" pairs from the left.
 
 ---

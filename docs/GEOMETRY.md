@@ -199,7 +199,7 @@ points; a point between two others is apart from both (between-apart). cos 90°,
 sin 90°, cos 60° and sin 30° are one record, and angle-by-cosine reads an angle
 from its cosine on [0°, 180°]. The triangle inequality for points is set.mm's
 `abs3dif`. Its equality case and strict form, supplementary angles and the
-addition of angles are proved in `corpus/proved/plane.proved`, since set.mm
+addition of angles are proved in `corpus/metamath-bridges/plane.bridge`, since set.mm
 states none of them over ℂ.
 
 **The signed angle is a second notation, ∡PQR, beside ∠PQR.** It is `ang`
@@ -433,7 +433,7 @@ The plane is still ℂ underneath, and nothing is assumed. On the page, plane
 geometry stands on the School Mathematics Study Group's plane postulates,
 with the area postulates said of triangles: "SMSG with area for triangles".
 Each postulate is a stdlib `axiom` record whose `metamath-proof` is a lemma of
-`corpus/proved/postulates.proved`, so a reader takes it as given and the
+`corpus/metamath-bridges/postulates.bridge`, so a reader takes it as given and the
 kernel proves it.
 
 | postulate | record |
@@ -477,7 +477,7 @@ So `angle-at-centre` concludes that ∡AOB is 2·∡ACB up to a whole number of
 turns, and holds wherever O and C are, A, B and C apart on the circle.
 
 It stands on four mundane facts of the signed angle, each a lemma of
-`corpus/proved/circles.proved`:
+`corpus/metamath-bridges/circles.bridge`:
 
 | item | lemma | carries |
 | --- | --- | --- |
