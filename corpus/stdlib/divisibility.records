@@ -165,7 +165,7 @@ theorem prime-divides-product
   metamath-proof euclemma
   note        Euclid's lemma. `proofs/setmm/prime-divides-product.proof`
               proves it as its own exercise (DATABASE.md).
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/prime-divides-product
 
 theorem prime-divides-power
   let p ∈ ℕ                                                           (H1)
@@ -214,7 +214,7 @@ definition prime
               words of the right side. What carries one to the other is
               eluz2gt1, declared with the rest of what an elaborator may
               lean on. `target` still names the unfolding and nothing else.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/prime
 
 definition gcd
   sort        number, number → number
@@ -226,7 +226,7 @@ definition gcd
               For all e ∈ ℕ, if e divides a and e divides b then
               e ≤ gcd(a, b).
   metamath-proof gcdnncl, gcddvds, dvdslegcd
-  lean-proof by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; fun e he h => Int.le_of_dvd (by have := Int.gcd_pos_of_ne_zero_left (b : ℤ) (by omega : (a : ℤ) ≠ 0); exact_mod_cast this) (Int.dvd_coe_gcd h.1 h.2)
+  lean-proof  lean-bridges/divisibility/gcd-1 ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b ; lean-bridges/divisibility/gcd-4
   lean-builds ℤ, ℤ → ℕ: Int.gcd _1 _2
   note        Four sentences from three lemmas. gcdcl puts a gcd in ℕ₀ and
               this statement puts it in ℕ, which gcdnncl gives because both
@@ -246,7 +246,7 @@ definition lcm
               For all k ∈ ℤ, if a divides k and b divides k then
               lcm(a, b) divides k.
   metamath-proof lcmcl, dvdslcm, lcmdvds
-  lean-proof by positivity ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; fun k h => Int.dvd_natAbs.mp (Int.natCast_dvd_natCast.mpr (Int.lcm_dvd (Int.dvd_natAbs.mpr h.1) (Int.dvd_natAbs.mpr h.2)))
+  lean-proof  lean-bridges/divisibility/lcm-1 ; Int.dvd_lcm_left a b ; Int.dvd_lcm_right a b ; lean-bridges/divisibility/lcm-4
   note        As gcd: four sentences from three lemmas, dvdslcm saying the
               second and third in one conjunction and lcmdvds the fourth of
               one multiple. "Least" is in the divisibility order, as set.mm
@@ -269,7 +269,7 @@ theorem prime-factor
               quantifies over ℕ and says it in the body, which is how a reader
               meets the claim. The two are equivalent and the bridge is a proof
               rather than a field of this file.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/prime-factor
 
 mundane theorem divides-sum
   let d ∈ ℤ                                                           (H1)
@@ -296,7 +296,7 @@ mundane theorem divides-one
   assume d divides 1                                                  (H2)
   then        d = 1
   metamath-proof dvds1
-  lean-proof by exact_mod_cast Int.eq_one_of_dvd_one (by positivity) h2
+  lean-proof  lean-bridges/divisibility/divides-one
 
 mundane theorem divides-combination
   let e ∈ ℤ                                                           (H1)
@@ -367,7 +367,7 @@ mundane theorem gcd-integer
   note        The gcd over the integers, where the definition says it over
               ℕ: it is at least 0, being 0 only for gcd(0, 0), and divides
               both arguments.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/gcd-integer-1 ; Int.gcd_dvd_left a b ; Int.gcd_dvd_right a b
 
 mundane theorem gcd-natural
   let a ∈ ℤ                                                           (H1)
@@ -406,26 +406,26 @@ mundane theorem gcd-commutes
   let b ∈ ℤ                                                           (H2)
   then        gcd(a, b) = gcd(b, a)
   metamath-proof gcdcom
-  lean-proof by rw [Int.gcd_comm]
+  lean-proof  lean-bridges/divisibility/gcd-commutes
 
 mundane theorem gcd-one
   let a ∈ ℤ                                                           (H1)
   then        gcd(a, 1) = 1
   metamath-proof gcd1
-  lean-proof  by simp
+  lean-proof  lean-bridges/divisibility/gcd-one
 
 mundane theorem gcd-zero
   let n ∈ ℕ₀                                                          (H1)
   then        gcd(n, 0) = n
   metamath-proof nn0gcdid0
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/gcd-zero
 
 theorem gcd-mod
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℕ                                                           (H2)
   then        gcd(a mod b, b) = gcd(a, b)
   metamath-proof modgcd
-  lean-proof by rw [Int.gcd_emod]
+  lean-proof  lean-bridges/divisibility/gcd-mod
   note        One step of Euclid's algorithm keeps the gcd: the remainder
               and the divisor have the gcd the dividend and divisor had.
 
@@ -450,7 +450,7 @@ mundane theorem mod-remainder
   assume r < m                                                        (H4)
   then        a mod m = r ↔ there is q ∈ ℤ with q·m + r = a
   metamath-proof modremain
-  lean-proof ⟨fun h => ⟨a / (m : ℤ), by have := Int.ediv_mul_add_emod a m; rw [h] at this; exact this⟩, fun ⟨q, hq⟩ => by rw [← hq, add_comm, Int.add_mul_emod_self_right]; exact Int.emod_eq_of_lt (by omega) (by omega)⟩
+  lean-proof  lean-bridges/divisibility/mod-remainder
   note        The remainder is the r left over when a is a whole number of
               m's and r: the last digit of q·10 + r is r, for a digit r.
 
@@ -460,7 +460,7 @@ mundane theorem mod-multiple
   let q ∈ ℤ                                                           (H3)
   then        (q·m + r) mod m = r mod m
   metamath-proof metamath-bridges/numbers/gmuladdmod
-  lean-proof by rw [add_comm, Int.add_mul_emod_self_right]
+  lean-proof  lean-bridges/divisibility/mod-multiple
   note        A whole number of m's added changes no remainder: the last
               digit of q·10 + r is the last digit of r.
 
@@ -529,7 +529,7 @@ mundane theorem prime-coprime
   metamath-proof coprm
   note        A prime shares a factor with a only by dividing it, since its
               only divisors are 1 and itself.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/prime-coprime
 
 definition σ
   sort        number → number

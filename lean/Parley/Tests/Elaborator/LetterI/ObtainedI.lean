@@ -22,7 +22,7 @@ theorem obtained_i (n : ℤ) (hH2 : Odd n) :
     calc n ^ 2 = (2 * i + 1) ^ 2 := by parley_side
       _ = 2 * (2 * i ^ 2 + 2 * i) + 1 := by parley_side
   -- 5. def:odd n := n², from 4
-  have s5 : Odd (n ^ 2) := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * i ^ 2 + 2 * i, by parley_side⟩
+  have s5 : Odd (n ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * i ^ 2 + 2 * i, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := n ^ 2))).mpr ⟨2 * i ^ 2 + 2 * i, by parley_side⟩; parley_side)
   all_goals parley_side
 
 end Parley.Tests.Elaborator.LetterI.ObtainedI

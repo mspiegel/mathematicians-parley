@@ -26,7 +26,7 @@
 definition rational
   then        x ∈ ℚ ↔ there are p ∈ ℤ and q ∈ ℕ with x = p/q
   metamath-proof elq
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/rational
 
 definition i
   then        i·i = −1
@@ -45,7 +45,7 @@ definition irrational
   metamath-proof eldif
   note        Names a word for an existing set.mm construct rather than
               introducing a symbol. See DATABASE.md on what def: means.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/irrational
 
 definition sqrt
   let x ∈ ℝ                                                           (H1)
@@ -72,7 +72,7 @@ mundane theorem nat-closure
   let b ∈ ℕ                                                           (H2)
   then        a + b ∈ ℕ. a·b ∈ ℕ.
   metamath-proof nnaddcl, nnmulcl
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/nat-closure-1 ; lean-bridges/numbers/nat-closure-2
 
 mundane theorem real-closure
   let x ∈ ℝ                                                           (H1)
@@ -82,7 +82,7 @@ mundane theorem real-closure
   note        The triangle inequality pilot stated addition only; the
               intermediate value pilot stated both. Merged to both, which is the
               shape of int-closure and nat-closure. Neither proof changes.
-  lean-proof  not yet implemented
+  lean-proof  trivial ; trivial
 
 mundane theorem nat-plus-nat0
   let a ∈ ℕ                                                           (H1)
@@ -98,7 +98,7 @@ mundane theorem nat0-successor
   metamath-proof nn0p1nn
   note        The number after a whole number is positive: a sum is in ℕ by
               `membership` only when both its parts are, and k may be 0.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/nat0-successor
 
 mundane theorem nat-int
   let m ∈ ℕ                                                           (H1)
@@ -131,13 +131,13 @@ mundane theorem nat0-real
   metamath-proof nn0re
   note        No proof cites it: a line saying m ∈ ℕ₀ says m ∈ ℝ as well, by
               this lemma, as `nat-real`'s note says of ℕ.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem nat0-int
   let m ∈ ℕ₀                                                          (H1)
   then        m ∈ ℤ
   metamath-proof nn0z
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem pos-int-nat
   let m ∈ ℤ                                                           (H1)
@@ -151,7 +151,7 @@ mundane theorem nat0-nonzero
   assume m ≠ 0                                                        (H2)
   then        m ∈ ℕ
   metamath-proof elnnne0
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/nat0-nonzero
 
 mundane theorem integer-step
   let m ∈ ℤ                                                           (H1)
@@ -159,7 +159,7 @@ mundane theorem integer-step
   assume m < n                                                        (H3)
   then        m + 1 ≤ n
   metamath-proof zltp1le
-  lean-proof by omega
+  lean-proof  lean-bridges/numbers/integer-step
   note        Between whole numbers, less than is at least one less: no
               whole number lies strictly between m and m + 1.
 
@@ -214,7 +214,7 @@ mundane theorem exponent-sum-integer
   metamath-proof expaddz
   note        exponent-sum over the integers, where a power to a negative
               exponent asks a base other than 0.
-  lean-proof  not yet implemented
+  lean-proof  zpow_add₀ h2 m n
 
 mundane theorem exponent-negative
   let a ∈ ℂ                                                           (H1)
@@ -222,7 +222,7 @@ mundane theorem exponent-negative
   let m ∈ ℤ                                                           (H3)
   then        a^(−m) = 1/a^m
   metamath-proof expnegz
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/exponent-negative
 
 mundane theorem power-of-power
   let a ∈ ℂ                                                           (H1)
@@ -305,14 +305,14 @@ mundane theorem product-nonzero
   assume y ≠ 0                                                        (H4)
   then        x·y ≠ 0
   metamath-proof mulne0
-  lean-proof  not yet implemented
+  lean-proof  mul_ne_zero h3 h4
 
 mundane theorem power-integer
   let a ∈ ℤ                                                           (H1)
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℤ
   metamath-proof zexpcl
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem power-real
   let a ∈ ℝ                                                           (H1)
@@ -323,7 +323,7 @@ mundane theorem power-real
               Where the exponent is a letter introduced in ℕ or ℕ₀ the page
               says the power is real once; for any other exponent, 2^(m + 1),
               it is cited for that.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem power-real-integer
   let a ∈ ℝ                                                           (H1)
@@ -348,7 +348,7 @@ mundane theorem nat-minus-one
   let n ∈ ℕ                                                           (H1)
   then        n − 1 ∈ ℕ₀
   metamath-proof nnm1nn0
-  lean-proof by omega
+  lean-proof  lean-bridges/numbers/nat-minus-one
 
 mundane theorem difference-nat0
   let m ∈ ℕ₀                                                          (H1)
@@ -370,7 +370,7 @@ mundane theorem power-nat
   let m ∈ ℕ₀                                                          (H2)
   then        a^m ∈ ℕ
   metamath-proof nnexpcl
-  lean-proof by positivity
+  lean-proof  lean-bridges/numbers/power-nat
 
 mundane theorem real-power-complex
   let x ∈ ℂ                                                           (H1)
@@ -498,7 +498,7 @@ definition abs
   let x ∈ ℝ                                                           (H1)
   then        if x ≥ 0 then |x| = x. if x < 0 then |x| = −x.
   metamath-proof absid, absnid
-  lean-proof fun h => abs_of_nonneg h ; fun h => abs_of_neg h
+  lean-proof  lean-bridges/numbers/abs-1 ; lean-bridges/numbers/abs-2
   note        set.mm defines abs on ℂ by df-abs as √(x·x̄); absid and absnid are
               the real case. So this elaborates to a pair of theorems, not to a
               definition. It is still called def:stdlib/numbers/abs because that is what it is
@@ -513,7 +513,7 @@ mundane theorem abs-real
               like any other term. Eight steps of the triangle inequality and
               intermediate value proofs will need it. set.mm defines abs on ℂ
               by df-abs, so the real case goes through recn. See METHODS.md.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem abs-difference-lt
   let x ∈ ℝ                                                           (H1)
@@ -623,7 +623,7 @@ mundane theorem square-zero
   assume x² = 0                                                       (H2)
   then        x = 0
   metamath-proof sqeq0
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/square-zero
 
 mundane theorem multiply-le
   let x ∈ ℝ                                                           (H1)
@@ -672,7 +672,7 @@ mundane theorem square-less
   assume y ≥ 0                                                        (H4)
   then        x < y ↔ x² < y²
   metamath-proof lt2sq
-  lean-proof  ⟨fun h => by nlinarith, fun h => by nlinarith⟩
+  lean-proof  lean-bridges/numbers/square-less
 
 mundane theorem square-le
   let x ∈ ℝ                                                           (H1)
@@ -681,7 +681,7 @@ mundane theorem square-le
   assume y ≥ 0                                                        (H4)
   then        x ≤ y ↔ x² ≤ y²
   metamath-proof le2sq
-  lean-proof ⟨fun h => by nlinarith, fun h => by nlinarith⟩
+  lean-proof  lean-bridges/numbers/square-le
   note        square-less with ≤ for <: of two numbers at least 0, the
               larger has the larger square.
 
@@ -704,7 +704,7 @@ mundane theorem product-positive
   then        x·y > 0
   metamath-proof mulgt0
   note        As product-nonneg, strictly.
-  lean-proof  not yet implemented
+  lean-proof  mul_pos h3 h4
 
 mundane theorem factor-positive
   let a ∈ ℝ                                                           (H1)
@@ -723,7 +723,7 @@ mundane theorem power-positive
   assume a > 0                                                        (H3)
   then        a^m > 0
   metamath-proof expgt0
-  lean-proof  not yet implemented
+  lean-proof  zpow_pos h3 m
 
 mundane theorem power-exponent-le
   let a ∈ ℝ                                                           (H1)
@@ -825,7 +825,7 @@ mundane theorem less-scaled
   assume c > 0                                                        (H4)
   then        x < y ↔ c·x < c·y
   metamath-proof ltmul2
-  lean-proof ⟨fun h => by nlinarith, fun h => by nlinarith⟩
+  lean-proof  lean-bridges/numbers/less-scaled
   note        `inequalities` multiplies a bound only by a number; scaling by
               a term above 0 keeps a strict bound, and that is cited.
 
@@ -886,7 +886,7 @@ mundane theorem divide-le
   assume c > 0                                                        (H5)
   then        x/c ≤ y/c
   metamath-proof lediv1
-  lean-proof by rw [div_le_div_iff_of_pos_right h5]; exact h4
+  lean-proof  lean-bridges/numbers/divide-le
   note        As multiply-le, for dividing both sides by a positive term.
 
 mundane theorem multiply-cancel
@@ -907,7 +907,7 @@ mundane theorem reciprocal-positive
   assume x > 0                                                        (H2)
   then        1/x > 0
   metamath-proof recgt0
-  lean-proof  not yet implemented
+  lean-proof  one_div_pos.mpr h2
 
 mundane theorem reciprocal-order
   let x ∈ ℝ                                                           (H1)
@@ -920,7 +920,7 @@ mundane theorem reciprocal-order
               that a larger number has the smaller reciprocal is cited. The
               `with` says which side is which: 1/y ≤ 1/x fits the near side
               too, at x := 1/y, and that reading asks 1/y to be positive.
-  lean-proof  not yet implemented
+  lean-proof  (one_div_le_one_div h4 h2).symm
 
 mundane theorem reciprocal-order-strict
   let x ∈ ℝ                                                           (H1)
@@ -968,7 +968,7 @@ theorem archimedean-natural
   let x ∈ ℝ                                                           (H1)
   then        there is m ∈ ℕ with m > x
   metamath-proof arch
-  lean-proof  by obtain ⟨m, hm⟩ := exists_nat_gt (max x 0); exact ⟨m + 1, by omega, by push_cast; linarith [le_max_left x 0]⟩
+  lean-proof  lean-bridges/numbers/archimedean-natural
   note        However large a real, some natural number is larger: the
               Archimedean property in the form that passes a bound.
 
@@ -1060,12 +1060,12 @@ theorem triangle-inequality
 definition nat0
   then        n ∈ ℕ₀ ↔ n ∈ ℕ or n = 0
   metamath-proof elnn0
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/nat0
 
 mundane theorem nat0-as-int
   then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
   metamath-proof elnn0z
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/nat0-as-int
 
 mundane theorem abs-bounds
   let x ∈ ℝ                                                           (H1)

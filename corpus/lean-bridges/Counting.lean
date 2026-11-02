@@ -101,3 +101,82 @@ theorem absorption (n : ℕ) (k : ℤ) (h : k ∈ Finset.Icc 0 (n : ℤ)) :
   linarith
 
 end LeanBridges.Counting
+
+namespace LeanBridges.Counting
+
+/-- `def:stdlib/counting/factorial`, its sentence 1. -/
+theorem factorial_1 :
+    (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 :=
+  by simp
+
+/-- `def:stdlib/counting/factorial`, its sentence 2. -/
+theorem factorial_2 :
+    (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 :=
+  by simp
+
+/-- `def:stdlib/counting/factorial`, its sentence 3. -/
+theorem factorial_3 (n : ℕ) :
+    (LeanBridges.Counting.factorial ((n : ℤ) + 1) : ℤ) = (LeanBridges.Counting.factorial (n : ℤ) : ℤ) * ((n : ℤ) + 1) :=
+  by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, LeanBridges.Counting.factorial_natCast, LeanBridges.Counting.factorial_natCast, Nat.factorial_succ]; push_cast; ring
+
+/-- `mun:stdlib/counting/factorial-nat`. -/
+theorem factorial_nat (n : ℕ) :
+    0 < (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
+  by simpa using Nat.factorial_pos n
+
+/-- `mun:stdlib/counting/factorial-at-most`. -/
+theorem factorial_at_most (m : ℕ) (n : ℕ) (h3 : (m : ℤ) ≤ (n : ℤ)) :
+    (LeanBridges.Counting.factorial (m : ℤ) : ℤ) ≤ (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
+  by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
+
+/-- `mun:stdlib/counting/factorial-divisible`. -/
+theorem factorial_divisible (n : ℕ) (h1 : 0 < n) (m : ℕ) (h2 : 0 < m) (h3 : (m : ℤ) ≤ (n : ℤ)) :
+    (m : ℤ) ∣ (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
+  by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
+
+/-- `def:stdlib/counting/C`, its sentence 1. -/
+theorem C_1 (n : ℕ) :
+    (LeanBridges.Counting.choose (n : ℤ) (-1 : ℤ) : ℤ) = 0 :=
+  by simp [LeanBridges.Counting.choose]
+
+/-- `def:stdlib/counting/C`, its sentence 2. -/
+theorem C_2 (n : ℕ) (k : ℤ) :
+    k ∈ Finset.Icc (0 : ℤ) (n : ℤ) → (LeanBridges.Counting.choose (n : ℤ) k : ℚ) = (LeanBridges.Counting.factorial (n : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((n : ℤ) - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) :=
+  by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [LeanBridges.Counting.choose_natCast, LeanBridges.Counting.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm]
+
+/-- `def:stdlib/counting/C`, its sentence 3. -/
+theorem C_3 (n : ℕ) (k : ℤ) :
+    (n : ℤ) < k → (LeanBridges.Counting.choose (n : ℤ) k : ℤ) = 0 :=
+  by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
+
+/-- `mun:stdlib/counting/binomial-zero-index`. -/
+theorem binomial_zero_index (n : ℕ) :
+    (LeanBridges.Counting.choose (n : ℤ) (0 : ℤ) : ℤ) = 1 :=
+  by simp [LeanBridges.Counting.choose]
+
+/-- `mun:stdlib/counting/binomial-one`. -/
+theorem binomial_one (n : ℕ) :
+    (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) :=
+  by simp [LeanBridges.Counting.choose]
+
+/-- `mun:stdlib/counting/binomial-all`. -/
+theorem binomial_all (n : ℕ) :
+    (LeanBridges.Counting.choose (n : ℤ) (n : ℤ) : ℤ) = 1 :=
+  by simp
+
+/-- `mun:stdlib/counting/binomial-two`. -/
+theorem binomial_two (n : ℕ) :
+    (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℚ) = (n : ℚ) * ((n : ℚ) - 1) / 2 :=
+  by simp [LeanBridges.Counting.choose, Nat.cast_choose_two]
+
+/-- `mun:stdlib/counting/binomial-nat0`. -/
+theorem binomial_nat0 (n : ℕ) (k : ℤ) :
+    0 ≤ (LeanBridges.Counting.choose (n : ℤ) k : ℤ) :=
+  by positivity
+
+/-- `mun:stdlib/counting/factorial-nonzero`. -/
+theorem factorial_nonzero (n : ℕ) :
+    (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 :=
+  by simp [Nat.factorial_ne_zero]
+
+end LeanBridges.Counting

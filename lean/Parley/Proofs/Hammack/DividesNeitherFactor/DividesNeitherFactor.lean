@@ -16,7 +16,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     by_contra hc_hS1
     have hS1 : x ∣ y := by parley_suppose hc_hS1
     -- 1.1. mun:divides-multiple e := x, a := y, x := z, from S1
-    have s1_1 : x ∣ y * z := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side))
+    have s1_1 : x ∣ y * z := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := y) (x := z) (by parley_side)); parley_side)
     -- 1.2. restate H5
     have s1_2 : ¬ x ∣ y * z := by parley_side
     all_goals parley_side
@@ -25,7 +25,7 @@ theorem divides_neither_factor (x : ℤ) (y : ℤ) (z : ℤ) (hH4 : x ≠ 0) (hH
     by_contra hc_hS2
     have hS2 : x ∣ z := by parley_suppose hc_hS2
     -- 2.1. mun:divides-multiple e := x, a := z, x := y, from S2
-    have s2_1 : x ∣ z * y := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side))
+    have s2_1 : x ∣ z * y := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := x) (a := z) (x := y) (by parley_side)); parley_side)
     -- 2.2. substitute
     have s2_2 : x ∣ y * z := by
       have c1 : z * y = y * z := by parley_ring

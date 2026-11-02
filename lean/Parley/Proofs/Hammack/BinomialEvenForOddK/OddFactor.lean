@@ -20,7 +20,7 @@ theorem odd_factor (A : ℤ) (B : ℤ) (hH3 : Odd A) (hH4 : Even (A * B)) :
   -- 4. algebra, from 3
   have s4 : B = 2 * (a - b * B) := by linear_combination (norm := parley_norm) s3
   -- 5. def:even n := B, from 4
-  have s5 : Even B := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩
+  have s5 : Even B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := B))).mpr ⟨a - b * B, by parley_side⟩; parley_side)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor

@@ -18,7 +18,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
     calc n ^ 2 - 1 = (2 * k + 1) ^ 2 - 1 := by parley_subst s1
       _ = 4 * (k * (k + 1)) := by parley_ring
   -- 3. mun:even-or-odd n := k
-  have s3 : Even k ∨ Odd k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))
+  have s3 : Even k ∨ Odd k := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := k)); parley_side)
   -- 4. cases, from 3
   have s4 : (8 : ℤ) ∣ n ^ 2 - 1 := by
     rcases s3 with hC1 | hC2
@@ -32,7 +32,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
         calc n ^ 2 - 1 = 4 * (2 * j * (2 * j + 1)) := by parley_side
           _ = 8 * (j * (2 * j + 1)) := by parley_ring
       -- 4.4. def:divides d := 8, n := n² − 1, from 4.3
-      have s4_4 : (8 : ℤ) ∣ n ^ 2 - 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), by parley_side⟩
+      have s4_4 : (8 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨j * (2 * j + 1), by parley_side⟩; parley_side)
       all_goals parley_side
     · skip
       -- 4.5. obtain j: def:odd n := k, from C2
@@ -44,7 +44,7 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
         calc n ^ 2 - 1 = 4 * ((2 * j + 1) * (2 * j + 1 + 1)) := by parley_side
           _ = 8 * ((2 * j + 1) * (j + 1)) := by parley_ring
       -- 4.8. def:divides d := 8, n := n² − 1, from 4.7
-      have s4_8 : (8 : ℤ) ∣ n ^ 2 - 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), by parley_side⟩
+      have s4_8 : (8 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), by parley_side⟩; parley_side)
       all_goals parley_side
   all_goals parley_side
 

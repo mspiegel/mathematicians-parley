@@ -10,39 +10,39 @@ namespace Parley.Items.Stdlib.Counting
 
 theorem def_factorial_1 :
     (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 :=
-  by simp
+  LeanBridges.Counting.factorial_1
 
 theorem def_factorial_2 :
     (LeanBridges.Counting.factorial (1 : ℤ) : ℤ) = 1 :=
-  by simp
+  LeanBridges.Counting.factorial_2
 
 theorem def_factorial_3 (n : ℕ) :
     (LeanBridges.Counting.factorial ((n : ℤ) + 1) : ℤ) = (LeanBridges.Counting.factorial (n : ℤ) : ℤ) * ((n : ℤ) + 1) :=
-  by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, LeanBridges.Counting.factorial_natCast, LeanBridges.Counting.factorial_natCast, Nat.factorial_succ]; push_cast; ring
+  LeanBridges.Counting.factorial_3 n
 
 theorem mun_factorial_nat (n : ℕ) :
     0 < (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
-  by simpa using Nat.factorial_pos n
+  LeanBridges.Counting.factorial_nat n
 
 theorem mun_factorial_at_most (m : ℕ) (n : ℕ) (h3 : (m : ℤ) ≤ (n : ℤ)) :
     (LeanBridges.Counting.factorial (m : ℤ) : ℤ) ≤ (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
-  by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
+  LeanBridges.Counting.factorial_at_most m n h3
 
 theorem mun_factorial_divisible (n : ℕ) (h1 : 0 < n) (m : ℕ) (h2 : 0 < m) (h3 : (m : ℤ) ≤ (n : ℤ)) :
     (m : ℤ) ∣ (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
-  by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
+  LeanBridges.Counting.factorial_divisible n h1 m h2 h3
 
 theorem def_C_1 (n : ℕ) :
     (LeanBridges.Counting.choose (n : ℤ) (-1 : ℤ) : ℤ) = 0 :=
-  by simp [LeanBridges.Counting.choose]
+  LeanBridges.Counting.C_1 n
 
 theorem def_C_2 (n : ℕ) (k : ℤ) :
     k ∈ Finset.Icc (0 : ℤ) (n : ℤ) → (LeanBridges.Counting.choose (n : ℤ) k : ℚ) = (LeanBridges.Counting.factorial (n : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((n : ℤ) - k) : ℚ) * (LeanBridges.Counting.factorial k : ℚ)) :=
-  by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [LeanBridges.Counting.choose_natCast, LeanBridges.Counting.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm]
+  LeanBridges.Counting.C_2 n k
 
 theorem def_C_3 (n : ℕ) (k : ℤ) :
     (n : ℤ) < k → (LeanBridges.Counting.choose (n : ℤ) k : ℤ) = 0 :=
-  by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
+  LeanBridges.Counting.C_3 n k
 
 theorem thm_pascal (n : ℕ) (k : ℤ) :
     (LeanBridges.Counting.choose (n : ℤ) k : ℤ) + (LeanBridges.Counting.choose (n : ℤ) (k - 1) : ℤ) = (LeanBridges.Counting.choose ((n : ℤ) + 1) k : ℤ) :=
@@ -54,19 +54,19 @@ theorem thm_absorption (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n :
 
 theorem mun_binomial_zero_index (n : ℕ) :
     (LeanBridges.Counting.choose (n : ℤ) (0 : ℤ) : ℤ) = 1 :=
-  by simp [LeanBridges.Counting.choose]
+  LeanBridges.Counting.binomial_zero_index n
 
 theorem mun_binomial_one (n : ℕ) :
     (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) :=
-  by simp [LeanBridges.Counting.choose]
+  LeanBridges.Counting.binomial_one n
 
 theorem mun_binomial_all (n : ℕ) :
     (LeanBridges.Counting.choose (n : ℤ) (n : ℤ) : ℤ) = 1 :=
-  by simp
+  LeanBridges.Counting.binomial_all n
 
 theorem mun_binomial_two (n : ℕ) :
     (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℚ) = (n : ℚ) * ((n : ℚ) - 1) / 2 :=
-  by simp [LeanBridges.Counting.choose, Nat.cast_choose_two]
+  LeanBridges.Counting.binomial_two n
 
 theorem mun_binomial_outside (n : ℕ) (k : ℤ) (h3 : ¬ k ∈ Finset.Icc (0 : ℤ) (n : ℤ)) :
     (LeanBridges.Counting.choose (n : ℤ) k : ℤ) = 0 :=
@@ -74,7 +74,7 @@ theorem mun_binomial_outside (n : ℕ) (k : ℤ) (h3 : ¬ k ∈ Finset.Icc (0 : 
 
 theorem mun_binomial_nat0 (n : ℕ) (k : ℤ) :
     0 ≤ (LeanBridges.Counting.choose (n : ℤ) k : ℤ) :=
-  by positivity
+  LeanBridges.Counting.binomial_nat0 n k
 
 theorem mun_binomial_nat (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n : ℤ)) :
     0 < (LeanBridges.Counting.choose (n : ℤ) k : ℤ) :=
@@ -82,6 +82,6 @@ theorem mun_binomial_nat (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n
 
 theorem mun_factorial_nonzero (n : ℕ) :
     (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 :=
-  by simp [Nat.factorial_ne_zero]
+  LeanBridges.Counting.factorial_nonzero n
 
 end Parley.Items.Stdlib.Counting

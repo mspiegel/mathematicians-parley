@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAt
 theorem positive_at_a_point (n : ℕ) (hH1 : 0 < n) (f : ℤ → ℝ) (hH3 : ∀ n : ℕ, 0 < n → f (n : ℤ) > 0) :
     f (n : ℤ) > 0 := by
   -- 1. instantiate n := n in H3
-  have s1 : f (n : ℤ) > 0 := by first | linarith [(hH3 n (by parley_side))] | (have h := (hH3 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH3 n (by parley_side))
+  have s1 : f (n : ℤ) > 0 := by first | linarith [(hH3 n (by parley_side))] | (have h := (hH3 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH3 n (by parley_side)) | (have h := (hH3 n (by parley_side)); parley_side)
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtAPoint

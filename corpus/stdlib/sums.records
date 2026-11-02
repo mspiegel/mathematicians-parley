@@ -55,14 +55,14 @@ mundane theorem sum-single
   let t : {a, …, a} → ℝ                                               (H2)
   then        Σ(k = a to a) t(k) = t(a)
   metamath-proof fsum1
-  lean-proof  by simp
+  lean-proof  lean-bridges/sums/sum-single
 
 mundane theorem sum-last
   let n ∈ ℕ₀                                                          (H1)
   let t : {0, …, n + 1} → ℝ                                           (H2)
   then        Σ(k = 0 to n + 1) t(k) = Σ(k = 0 to n) t(k) + t(n + 1)
   metamath-proof fsump1
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/sum-last
 
 mundane theorem sum-extended
   let a ∈ ℤ                                                           (H1)
@@ -105,7 +105,7 @@ mundane theorem sum-first
   metamath-proof fsum1p
   note        The rest of the sum starts at 0 + 1, as set.mm writes it; a
               proof that wants 1 there substitutes.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/sum-first
 
 mundane theorem sum-shift
   let a ∈ ℤ                                                           (H1)
@@ -116,7 +116,7 @@ mundane theorem sum-shift
   metamath-proof fsumshft
   note        The same terms counted from a different start: the term the
               left side takes at k, the right side takes at k + c.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/sum-shift
 
 mundane theorem sum-scaled
   let a ∈ ℤ                                                           (H1)
@@ -125,7 +125,7 @@ mundane theorem sum-scaled
   let t : {a, …, b} → ℝ                                               (H4)
   then        c·(Σ(k = a to b) t(k)) = Σ(k = a to b) c·t(k)
   metamath-proof fsummulc2
-  lean-proof  not yet implemented
+  lean-proof  Finset.mul_sum _ _ _
 
 mundane theorem sum-add
   let a ∈ ℤ                                                           (H1)
@@ -134,7 +134,7 @@ mundane theorem sum-add
   let u : {a, …, b} → ℝ                                               (H4)
   then        Σ(k = a to b) (t(k) + u(k)) = Σ(k = a to b) t(k) + Σ(k = a to b) u(k)
   metamath-proof fsumadd
-  lean-proof  not yet implemented
+  lean-proof  Finset.sum_add_distrib
 
 mundane theorem sum-termwise
   let a ∈ ℤ                                                           (H1)
@@ -167,7 +167,7 @@ mundane theorem sum-real
   let t : {a, …, b} → ℝ                                               (H3)
   then        Σ(k = a to b) t(k) ∈ ℝ
   metamath-proof fsumrecl
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem product-real
   let a ∈ ℤ                                                           (H1)
@@ -175,7 +175,7 @@ mundane theorem product-real
   let t : {a, …, b} → ℝ                                               (H3)
   then        ∏(k ∈ {a, …, b}) t(k) ∈ ℝ
   metamath-proof fprodrecl
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem product-range-nonneg
   let a ∈ ℤ                                                           (H1)
@@ -193,7 +193,7 @@ mundane theorem product-single
   let t : {a, …, a} → ℝ                                               (H2)
   then        ∏(k ∈ {a, …, a}) t(k) = t(a)
   metamath-proof fprod1
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/product-single
 
 mundane theorem product-extended
   let a ∈ ℤ                                                           (H1)
@@ -203,7 +203,7 @@ mundane theorem product-extended
   then        ∏(k ∈ {a, …, n + 1}) t(k) = (∏(k ∈ {a, …, n}) t(k))·t(n + 1)
   metamath-proof fprodp1
   note        As sum-extended, for a product: the last factor split off.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/product-extended
 
 mundane theorem product-first
   let a ∈ ℤ                                                           (H1)
@@ -235,7 +235,7 @@ mundane theorem range-difference
   let k ∈ {a, …, n}                                                   (H3)
   then        n − k ∈ ℕ₀
   metamath-proof fznn0sub
-  lean-proof  by have := Finset.mem_Icc.mp h3; omega
+  lean-proof  lean-bridges/sums/range-difference
   note        An index no greater than n leaves a whole number when taken
               from n, which is what lets x^(n − k) be a power with a natural
               exponent.
@@ -253,7 +253,7 @@ mundane theorem range-nat0
   let k ∈ {0, …, n}                                                   (H2)
   then        k ∈ ℕ₀
   metamath-proof elfznn0
-  lean-proof  not yet implemented
+  lean-proof  (Finset.mem_Icc.mp h2).1
 
 mundane theorem range-nat
   let n ∈ ℤ                                                           (H1)
@@ -366,7 +366,7 @@ mundane theorem sum-split
   metamath-proof metamath-bridges/ranges/gfsumsplit
   note        A sum over a range is the sum over its first part and the sum
               over the rest.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/sum-split
 
 mundane theorem sum-le
   let a ∈ ℤ                                                           (H1)
@@ -378,7 +378,7 @@ mundane theorem sum-le
   metamath-proof fsumle
   note        A sum whose every term is at most another's, index by index,
               is at most the other sum.
-  lean-proof  not yet implemented
+  lean-proof  Finset.sum_le_sum h3
 
 mundane theorem sum-constant
   let a ∈ ℤ                                                           (H1)
@@ -388,7 +388,7 @@ mundane theorem sum-constant
   then        Σ(k = a to b) c = (b − a + 1)·c
   metamath-proof metamath-bridges/ranges/gfsumconst
   note        The same term b − a + 1 times.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/sum-constant
 
 mundane theorem sum-constant-over
   let X be a set                                                      (H1)
@@ -472,7 +472,7 @@ mundane theorem range-from-bounds
   assume x < m                                                        (H3)
   then        x ∈ {0, …, m − 1}
   metamath-proof metamath-bridges/totient/gelfz0m1
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/sums/range-from-bounds
 
 mundane theorem product-integer
   let X ⊆ ℤ                                                           (H1)

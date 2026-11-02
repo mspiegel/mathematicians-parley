@@ -18,7 +18,7 @@ theorem square_order (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
     · skip
       intro hD1
       -- 1. thm:multiplying-bounds C := A, D := B, from D1, H3
-      have s1 : A * A < B * B := by first | linarith [(Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side))] | (have h := (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side))
+      have s1 : A * A < B * B := by first | linarith [(Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side))] | (have h := (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Proofs.Setmm.MultiplyingBounds.MultiplyingBounds.multiplying_bounds (A := A) (B := B) (C := A) (D := B) (by parley_side) (by parley_side) (by parley_side) (by parley_side)); parley_side)
       all_goals parley_side
     · skip
       intro hD2
@@ -29,9 +29,9 @@ theorem square_order (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
       -- 3. inequalities
       have s3 : A - B ≥ 0 := by parley_side
       -- 4. mun:product-nonneg x := A − B, y := B, from H4, 3
-      have s4 : (A - B) * B ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side))
+      have s4 : (A - B) * B ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := B) (by parley_side) (by parley_side)); parley_side)
       -- 5. mun:product-nonneg x := A − B, y := A, from H3, 3
-      have s5 : (A - B) * A ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side))
+      have s5 : (A - B) * A ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := A - B) (y := A) (by parley_side) (by parley_side)); parley_side)
       -- 6. inequalities
       have s6 : A * B - B * B ≥ 0 := by parley_side
       -- 7. inequalities

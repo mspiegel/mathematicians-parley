@@ -26,7 +26,7 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℕ) (hH3 : 0 < n) :
       -- 1.3. inequalities, from H2
       have s1_3 : 0 < A := by parley_side
       -- 1.4. mun:multiply-le x := 1, y := A^k, c := A, from 1.2, 1.3
-      have s1_4 : A * 1 ≤ A * A ^ k := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side))
+      have s1_4 : A * 1 ≤ A * A ^ k := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℝ)) (y := A ^ k) (c := A) (by parley_side) (by parley_side)); parley_side)
       -- 1.5. inequalities
       have s1_5 : A ≤ A * A ^ k := by parley_side
       -- 1.6. transitivity, from H2, 1.5
@@ -35,10 +35,10 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℕ) (hH3 : 0 < n) :
       have s1_7 : 1 < A ^ (k + 1) := by
         calc (1 : ℝ) < A * A ^ k := by parley_side
           _ = A ^ k * A := by parley_ring
-          _ = A ^ (k + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); qify; linear_combination (norm := parley_norm) h)
+          _ = A ^ (k + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); parley_side)
       all_goals parley_side
   -- 2. instantiate k := n in line 1
-  have s2 : 1 < A ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side))
+  have s2 : 1 < A ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
   all_goals parley_side
 
 end Parley.Proofs.Setmm.PowerAboveOne.PowerAboveOne

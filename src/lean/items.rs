@@ -61,6 +61,9 @@ pub struct General {
     pub ordered: bool,
     /// Whether it takes a floor, so that it holds in a ring with one.
     pub floor: bool,
+    /// Whether it casts a number system into the type, so that it holds in
+    /// a ring of characteristic 0.
+    pub cast: bool,
 }
 
 impl General {
@@ -84,7 +87,12 @@ impl General {
         } else {
             String::new()
         };
-        format!("{{{GENERAL} : Type*}} {ring}{order}{floor}")
+        let cast = if self.cast {
+            format!(" [CharZero {GENERAL}]")
+        } else {
+            String::new()
+        };
+        format!("{{{GENERAL} : Type*}} {ring}{order}{floor}{cast}")
     }
 }
 
@@ -113,7 +121,11 @@ const ALGEBRAIC: &[&str] = &[
     "membership",
     "number-systems",
     "sum",
+    "product",
     "for-all",
+    "there-is",
+    "there-are",
+    "there-are-two",
     "integer-range",
 ];
 
@@ -126,7 +138,12 @@ fn general_kind(
     group: &crate::citing::Group,
     says: &Node,
     functions: &[Node],
+    free: &[FreeLetter],
 ) -> Option<General> {
+    // A letter a notation reads at ℝ itself holds the item to ℝ.
+    if free.iter().any(|f| f.fixed) {
+        return None;
+    }
     let nodes: Vec<&Node> = group
         .wants
         .iter()
@@ -147,6 +164,7 @@ fn general_kind(
         .filter_map(|n| super::statement::introduces(n))
         .map(|(_, s)| super::expr::letter_type(s))
         .chain(given)
+        .chain(free.iter().map(|f| f.num))
         .collect();
     let num = if systems.contains(&Num::Complex) {
         Num::Complex
@@ -175,9 +193,34 @@ fn general_kind(
     {
         return None;
     }
+    // A quotient asks a field, and so does a power to an integer letter or
+    // a negative exponent, which Lean takes only where there are inverses.
+    let integers: Vec<String> = nodes
+        .iter()
+        .filter_map(|n| super::statement::introduces(n))
+        .filter(|(_, s)| super::expr::letter_type(*s) == Num::Int)
+        .map(|(letter, _)| letter)
+        .collect();
+    let integer_power = |p: &Node| {
+        p.notation() == crate::notations::POWER
+            && p.children.get(1).is_some_and(|e| {
+                e.walk().iter().any(|n| {
+                    integers.iter().any(|i| n.is_name() && *i == *n.text)
+                        || n.notation() == crate::notations::UNARY_MINUS
+                })
+            })
+    };
+    // A number system named, x ∈ ℚ, is a cast into the type, which asks it
+    // to have characteristic 0; a cast from ℚ asks a field.
+    let systems_named: Vec<&Node> = parts
+        .iter()
+        .filter(|p| p.notation() == crate::notations::NUMBER_SYSTEMS)
+        .collect();
+    let cast = !systems_named.is_empty();
     let field = parts
         .iter()
-        .any(|p| p.spelling() == crate::notations::DIVIDED);
+        .any(|p| p.spelling() == crate::notations::DIVIDED || integer_power(p))
+        || systems_named.iter().any(|s| &*s.text == "ℚ");
     let floor = parts.iter().any(|p| &*p.notation_name() == "floor");
     let ordered = floor
         || parts.iter().any(|p| {
@@ -189,12 +232,106 @@ fn general_kind(
     if num == Num::Complex && ordered {
         return None;
     }
+    // A "there is" beside an order may say what holds of ℝ itself and not
+    // of every ordered field: a natural number above any x, which a field
+    // that is not Archimedean lacks.
+    let exists = parts.iter().any(|p| {
+        matches!(
+            &*p.notation_name(),
+            "there-is" | "there-are" | "there-are-two"
+        )
+    });
+    if exists && ordered {
+        return None;
+    }
     Some(General {
         num,
         field,
         ordered,
         floor,
+        cast,
     })
+}
+
+/// A letter of an item no line introduces, the x of "x ∈ ℚ ↔ …".
+pub struct FreeLetter {
+    pub name: String,
+    /// What it is a number of: ℂ, set.mm's widest, or ℝ where the
+    /// statement orders it, since ℂ has no order.
+    pub num: Num,
+    /// Whether a notation reads it at ℝ itself, "x is irrational", which
+    /// holds it there.
+    pub fixed: bool,
+}
+
+/// The group's letters no fact it asks and no function type of the item's
+/// introduces, and what each is a number of.
+fn free_letters(
+    group: &crate::citing::Group,
+    says: &Node,
+    functions: &[Node],
+    w: &Writer,
+    binders: &IndexMap<
+        crate::formula::notation_id::NotationId,
+        crate::formula::Binds,
+        rustc_hash::FxBuildHasher,
+    >,
+) -> Vec<FreeLetter> {
+    let stated: Vec<Node> = group
+        .wants
+        .iter()
+        .map(|(_, n)| n.clone())
+        .chain(std::iter::once(says.clone()))
+        .collect();
+    let statements = statement_letters(&stated);
+    let ordered: std::collections::BTreeSet<String> = stated
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter(|n| n.notation() == crate::notations::ORDER)
+        .flat_map(|n| n.names())
+        .collect();
+    let mut fixed = std::collections::BTreeSet::new();
+    for n in stated.iter().flat_map(|n| n.walk()) {
+        let Route::Built(t) = w.template(&n) else {
+            continue;
+        };
+        for (slot, child) in t.holes.iter().zip(&n.children) {
+            if matches!(slot, super::templates::Slot::Fixed(Num::Real))
+                && child.is_name()
+            {
+                fixed.insert(child.text.to_string());
+            }
+        }
+    }
+    let introduced: Vec<String> = group
+        .wants
+        .iter()
+        .map(|(_, n)| n)
+        .chain(functions)
+        .filter_map(|n| {
+            super::statement::range_letter(n)
+                .or_else(|| super::statement::introduces_function(n).map(|(l, _)| l))
+                .or_else(|| super::statement::introduces(n).map(|(l, _)| l))
+        })
+        .collect();
+    group
+        .free_names(binders)
+        .into_iter()
+        .filter(|name| {
+            !group.functions.contains(name)
+                && !group.identities.contains(name)
+                && !statements.contains(name)
+                && !introduced.contains(name)
+        })
+        .map(|name| {
+            let real = ordered.contains(&name) || fixed.contains(&name);
+            FreeLetter {
+                num: if real { Num::Real } else { Num::Complex },
+                fixed: fixed.contains(&name),
+                name,
+            }
+        })
+        .collect()
 }
 
 /// The letters that stand where a statement stands: a whole sentence, or a
@@ -285,7 +422,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .function_types
                 .get(&full)
                 .map_or(&[], Vec::as_slice);
-            let kind = general_kind(group, says, functions);
+            let free =
+                free_letters(group, says, functions, &w, &writer.grammar.binders());
+            let kind = general_kind(group, says, functions, &free);
             w.general = kind.map(|k| k.num);
             let asked: Vec<Asked> = group
                 .wants
@@ -339,6 +478,19 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         general,
                     });
                 }
+            }
+            for letter in &free {
+                if w.letters.contains_key(&letter.name) {
+                    continue;
+                }
+                let ty = LetterType::Number(letter.num);
+                w.letters.insert(letter.name.clone(), ty.clone());
+                statements.push(Binder::Letter {
+                    name: super::names::letter(&letter.name),
+                    page: letter.name.clone(),
+                    ty,
+                    general: !letter.fixed && w.general == Some(letter.num),
+                });
             }
             let binders = match binders(&mut w, &asked) {
                 Route::Built(b) => statements.into_iter().chain(b).collect(),

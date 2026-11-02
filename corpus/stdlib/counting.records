@@ -26,7 +26,7 @@ definition factorial
   let n ∈ ℕ₀                                                          (H1)
   then        (n + 1)! = n!·(n + 1)
   metamath-proof fac0, fac1, facp1
-  lean-proof by simp ; by simp ; by rw [show (n : ℤ) + 1 = ((n + 1 : ℕ) : ℤ) by push_cast; ring, LeanBridges.Counting.factorial_natCast, LeanBridges.Counting.factorial_natCast, Nat.factorial_succ]; push_cast; ring
+  lean-proof  lean-bridges/counting/factorial-1 ; lean-bridges/counting/factorial-2 ; lean-bridges/counting/factorial-3
   note        Two `then` groups: the base sentences have no hypothesis and the
               step sentence has H1, every n from 0 on, as set.mm states it.
               See DATABASE.md on recursive definitions.
@@ -35,7 +35,7 @@ mundane theorem factorial-nat
   let n ∈ ℕ₀                                                          (H1)
   then        n! ∈ ℕ
   metamath-proof faccl
-  lean-proof by simpa using Nat.factorial_pos n
+  lean-proof  lean-bridges/counting/factorial-nat
 
 mundane theorem factorial-product
   let n ∈ ℕ₀                                                          (H1)
@@ -50,7 +50,7 @@ mundane theorem factorial-at-most
   assume m ≤ n                                                        (H3)
   then        m! ≤ n!
   metamath-proof facwordi
-  lean-proof by simpa using Nat.factorial_le (show m ≤ n by exact_mod_cast h3)
+  lean-proof  lean-bridges/counting/factorial-at-most
   note        A larger number has the larger factorial, the product of more
               factors at least 1.
 
@@ -60,7 +60,7 @@ mundane theorem factorial-divisible
   assume m ≤ n                                                        (H3)
   then        m divides n!
   metamath-proof dvdsfac
-  lean-proof by simpa using Int.natCast_dvd_natCast.mpr (Nat.dvd_factorial h2 (show m ≤ n by exact_mod_cast h3))
+  lean-proof  lean-bridges/counting/factorial-divisible
 
 mundane theorem card-zero
   let X be a set                                                      (H1)
@@ -133,7 +133,7 @@ definition C
   then        if k ∈ {0, …, n} then C(n, k) = n!/((n − k)!·k!).
               if n < k then C(n, k) = 0.
   metamath-proof bcneg1, bcval2, bcval4
-  lean-proof by simp [LeanBridges.Counting.choose] ; by intro h; obtain ⟨h0, h1⟩ := Finset.mem_Icc.mp h; lift k to ℕ using h0; have hk : k ≤ n := (by exact_mod_cast h1); rw [show (n : ℤ) - (k : ℤ) = ((n - k : ℕ) : ℤ) from (Nat.cast_sub hk).symm]; simp only [LeanBridges.Counting.choose_natCast, LeanBridges.Counting.factorial_natCast]; rw [Nat.cast_choose ℚ hk, mul_comm] ; by intro h; have h0 : (0 : ℤ) ≤ k := (by omega); lift k to ℕ using h0; have hk : n < k := (by exact_mod_cast h); simp [Nat.choose_eq_zero_of_lt hk]
+  lean-proof  lean-bridges/counting/C-1 ; lean-bridges/counting/C-2 ; lean-bridges/counting/C-3
   note        set.mm defines C(n, k) for every integer k, as 0 outside
               0 … n, and the formula is its value inside. That it is 0 above
               n and at −1 is a convention a writer chooses, so both are
@@ -166,13 +166,13 @@ mundane theorem binomial-zero-index
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 0) = 1
   metamath-proof bcn0
-  lean-proof by simp [LeanBridges.Counting.choose]
+  lean-proof  lean-bridges/counting/binomial-zero-index
 
 mundane theorem binomial-one
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 1) = n
   metamath-proof bcn1
-  lean-proof by simp [LeanBridges.Counting.choose]
+  lean-proof  lean-bridges/counting/binomial-one
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-one (DATABASE.md).
 
@@ -180,7 +180,7 @@ mundane theorem binomial-all
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, n) = 1
   metamath-proof bcnn
-  lean-proof by simp
+  lean-proof  lean-bridges/counting/binomial-all
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-all (DATABASE.md).
 
@@ -188,7 +188,7 @@ mundane theorem binomial-two
   let n ∈ ℕ₀                                                          (H1)
   then        C(n, 2) = n·(n − 1)/2
   metamath-proof bcn2
-  lean-proof by simp [LeanBridges.Counting.choose, Nat.cast_choose_two]
+  lean-proof  lean-bridges/counting/binomial-two
   note        `proofs/setmm/binomial-basics.proof` proves it as its own
               exercise, choose-two (DATABASE.md).
 
@@ -205,7 +205,7 @@ mundane theorem binomial-nat0
   let k ∈ ℤ                                                           (H2)
   then        C(n, k) ∈ ℕ₀
   metamath-proof bccl
-  lean-proof by positivity
+  lean-proof  lean-bridges/counting/binomial-nat0
 
 mundane theorem binomial-nat
   let n ∈ ℕ₀                                                          (H1)
@@ -233,7 +233,7 @@ mundane theorem factorial-nonzero
   let n ∈ ℕ₀                                                          (H1)
   then        n! ≠ 0
   metamath-proof facne0
-  lean-proof by simp [Nat.factorial_ne_zero]
+  lean-proof  lean-bridges/counting/factorial-nonzero
   note        A factorial is a product of numbers above 0, and 0! is 1.
 
 mundane theorem union-finite

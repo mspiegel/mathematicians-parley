@@ -22,6 +22,10 @@ apart at each "and" first. -/
 macro "parley_side" : tactic =>
   `(tactic| ((try cases_type* And) <;> first
     | (assumption; done)
+    -- An integer in ℕ₀, said `0 ≤ x` of an integer and `∃ m : ℕ, ↑m = x`
+    -- where an item over any ring says it.
+    | (exact ⟨_, Int.toNat_of_nonneg (by omega)⟩; done)
+    | ((cases_type* Exists); omega; done)
     | (apply Eq.symm; assumption; done)
     | (apply Ne.symm; assumption; done)
     | (constructor <;> assumption; done)
@@ -77,6 +81,9 @@ macro "parley_arith" : tactic =>
   `(tactic| first
     | (norm_num; done)
     | (norm_num [LeanBridges.Counting.factorial, LeanBridges.Counting.choose, Nat.factorial]; done)
+    -- A sum or a product of integers over a range of numerals, which Lean
+    -- works out term by term.
+    | (decide; done)
     | (rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega)
     | (rintro ⟨m, h⟩; field_simp at h; norm_cast at h; omega))
 
@@ -127,24 +134,29 @@ macro "parley_subst " e:term:max : tactic =>
     | (have h := $e:term; norm_cast at h; rw [← h]; done)
     | (have h := $e:term; norm_cast at h; simp only [h]; done))
 
-/-- `substitute` into the line `h`: the goal is `h` with a term put for
-another by the equation `e`, either way round. -/
-macro "parley_subst_at " e:term:max h:ident : tactic =>
+/-- `parley_subst_at e h` by rewriting, with no `simp` by `e`. That loops where one side of
+`e` stands inside the other, b in gcd(a, b), and `first` does not go on past
+a loop, so a step offering several lines tries this on each before
+`parley_subst_at` on any. -/
+macro "parley_put_at " e:term:max h:ident : tactic =>
   `(tactic| first
     | (rw [$e:term] at $h:ident; exact $h; done)
     | (rw [← $e:term] at $h:ident; exact $h; done)
-    | (rw [$e:term]; exact $h; done)
-    | (rw [← $e:term]; exact $h; done)
-    | (simp only [$e:term] at $h:ident ⊢; exact $h; done)
-    | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
+    -- `rw` closes a goal its rewriting leaves reflexive, b ∣ b, itself.
+    | (rw [$e:term]; (try exact $h); done)
+    | (rw [← $e:term]; (try exact $h); done)
+    -- A fact of naturals, b > 0 as `0 < b`, put into by an equation of
+    -- integers: the fact is taken up to ℤ first.
+    | (have h' := $h; zify at h'; rw [← $e:term] at h'; exact h'; done)
+    | (have h' := $h; zify at h'; rw [$e:term] at h'; exact h'; done)
     -- An equation of naturals cast up to ℤ, put where ℕ is wanted, an
     -- exponent, is taken back down first.
     | (have e := $e; norm_cast at e; rw [← e] at $h:ident; exact $h; done)
     | (have e := $e; norm_cast at e; rw [e] at $h:ident; exact $h; done)
     | (rw [$e:term] at $h:ident; linarith; done)
     | (rw [← $e:term] at $h:ident; linarith; done)
-    | (simp only [$e:term] at $h:ident ⊢; linarith; done)
-    | (simp only [← $e:term] at $h:ident ⊢; linarith; done)
+    -- What the putting leaves to tidy, a 0 + x of a term put to 0.
+    | (rw [$e:term] at $h:ident; simpa using $h; done)
     | (rw [$e:term] at $h:ident; parley_side; done)
     | (rw [← $e:term] at $h:ident; parley_side; done)
     | (rw [$e:term] at $h:ident; exact_mod_cast $h; done)
@@ -152,6 +164,28 @@ macro "parley_subst_at " e:term:max h:ident : tactic =>
     | (rw [← $e:term]; exact $h _; done)
     | (rw [$e:term]; exact $h _; done)
     | (exact $h _; done))
+
+/-- `substitute` into the line `h`: the goal is `h` with a term put for
+another by the equation `e`, either way round. -/
+macro "parley_subst_at " e:term:max h:ident : tactic =>
+  `(tactic| first
+    | (parley_put_at $e $h; done)
+    | (simp only [$e:term] at $h:ident ⊢; exact $h; done)
+    | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
+    | (simp only [$e:term] at $h:ident ⊢; linarith; done)
+    | (simp only [← $e:term] at $h:ident ⊢; linarith; done))
+
+/-- An equation `h` an item gives of natural exponents, given an integer's
+`toNat` for one, read at the claim's integer exponents: 2^(n − 1 + 1) with
+n − 1 an integer that a line shows not negative, which `omega` proves. An
+equation of integers is taken to ℚ first, where integer powers are. -/
+macro "parley_int_power " h:ident : tactic =>
+  `(tactic| first
+    | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
+        Int.toNat_of_nonneg] at $h:ident; linear_combination (norm := parley_norm) ($h:ident); done)
+    | (have q := congrArg (fun x : ℤ => (x : ℚ)) $h:ident; push_cast at q;
+        simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
+        Int.toNat_of_nonneg] at q; linear_combination (norm := parley_norm) q; done))
 
 /-- What `linear_combination` asks once the cited equations are subtracted,
 where the step divides: zero, once the divisions are cleared. -/

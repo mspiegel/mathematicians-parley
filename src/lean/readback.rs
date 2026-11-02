@@ -31,6 +31,11 @@ pub fn page_arithmetic(writer: &Writer, sentences: &[Node]) -> BTreeMap<String, 
 }
 
 fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
+    // A function on a range, t : {1, …, n + 1} → ℝ, is a Lean function on
+    // ℤ, so its statement writes no arithmetic of the range's ends.
+    if node.notation() == crate::notations::FUNCTION_TYPE {
+        return;
+    }
     // A membership or a quantifier Lean states as nothing says nothing.
     if matches!(node.notation(), MEMBERSHIP | FOR_ALL | THERE_IS) {
         if let crate::outcome::Route::Built(p) = writer.formula(node) {

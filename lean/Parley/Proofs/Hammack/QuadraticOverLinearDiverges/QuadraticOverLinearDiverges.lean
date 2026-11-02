@@ -33,7 +33,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 <
       -- 1.2.6. inequalities
       have s1_2_6 : (n : ℚ) ^ 2 - (n : ℚ) / 3 < (n : ℚ) ^ 2 := by parley_side
       -- 1.2.7. mun:square-nonneg x := n
-      have s1_2_7 : (n : ℤ) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ)))
+      have s1_2_7 : (n : ℤ) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := (n : ℤ))); parley_side)
       -- 1.2.8. inequalities, from 1.2.7
       have s1_2_8 : 0 < (n : ℤ) ^ 2 + 1 := by parley_side
       -- 1.2.9. inequalities
@@ -46,7 +46,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 <
           _ < 2 * (n : ℝ) ^ 2 + 1 := by parley_side
           _ = (3 * (n : ℝ) - 1) * a (n : ℤ) := by linear_combination (norm := parley_field) (-3 * (n : ℝ) + 1) * (hH2 n (by parley_side))
       -- 1.2.11. mun:less-scaled x := n/3, y := a(n), c := 3n − 1, from 1.2.4, 1.2.10
-      have s1_2_11 : (n : ℝ) / 3 < a (n : ℤ) := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a (n : ℤ)) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr (by parley_side)
+      have s1_2_11 : (n : ℝ) / 3 < a (n : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a (n : ℤ)) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_less_scaled (x := (n : ℝ) / 3) (y := a (n : ℤ)) (c := 3 * (n : ℝ) - 1) (by parley_side))).mpr (by parley_side); parley_side)
       -- 1.2.12. transitivity, from 1.1, A2
       have s1_2_12 : 3 * M < (n : ℝ) := by parley_side
       -- 1.2.13. inequalities

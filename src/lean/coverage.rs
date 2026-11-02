@@ -40,6 +40,7 @@ pub const IN_CODE: &[&str] = &[
     "function-type",
     "composition",
     "sum",
+    "product",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -65,6 +66,39 @@ pub fn coverage(
         }
     }
     out
+}
+
+/// The function a proof's define line gives, where the Lean build writes it
+/// (`Proof::define_function`): one argument, running over a number system,
+/// `let S(m) = …, for m ∈ ℕ`. None for any other line.
+pub fn defined_function(
+    line: &crate::corpus::DefineLine,
+    rec: &crate::checker::CheckedTheorem,
+) -> Option<String> {
+    let crate::outcome::Route::Built(crate::corpus::DefineParts::One(def)) =
+        crate::corpus::define_parts(&line.text)
+    else {
+        return None;
+    };
+    let [param] = def.params.as_slice() else {
+        return None;
+    };
+    let read: Vec<&crate::formula::Node> = rec
+        .page
+        .entries()
+        .filter(|(key, _)| key.line == line.line)
+        .map(|(_, node)| node)
+        .collect();
+    let over_numbers = read.iter().any(|n| {
+        n.notation() == crate::notations::NUMBER_SYSTEMS
+            && super::expr::system_of(n).is_some()
+    });
+    let values = read
+        .iter()
+        .filter(|n| n.notation() != crate::notations::NUMBER_SYSTEMS)
+        .filter(|n| !(n.is_name() && *n.text == *param.name))
+        .count();
+    (over_numbers && values == 1).then(|| def.name.clone())
 }
 
 fn covered(
@@ -108,8 +142,9 @@ fn covered(
         };
     }
     // A letter the page gives a function type, `f : ℝ → ℝ`, is a Lean
-    // function of its own; a composite of such is one too.
-    let own: std::collections::BTreeSet<String> = rec
+    // function of its own; a composite of such is one too; and so is a
+    // function the proof defines, `let S(m) = …, for m ∈ ℕ`.
+    let mut own: std::collections::BTreeSet<String> = rec
         .page
         .entries()
         .flat_map(|(_, node)| node.walk())
@@ -121,6 +156,13 @@ fn covered(
                 .map(|f| f.text.to_string())
         })
         .collect();
+    // Only a define in the proof below the statement: one in the statement
+    // is part of what the theorem says, which the statement writer reads.
+    for line in thm.defines.iter().filter(|d| d.line > thm.conclusion_line) {
+        if let Some(name) = defined_function(line, rec) {
+            own.insert(name);
+        }
+    }
     // A library function applied is in where its definition says what it
     // is in Lean (`lean-builds`).
     let mut notations: Vec<String> = rec

@@ -13,8 +13,8 @@ use indexmap::IndexMap;
 use super::templates::{Num, Slot, Template, Templates};
 use crate::formula::{Grammar, Node};
 use crate::notations::{
-    EQUALITY, EQUALS, FOR_ALL, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME, NATURALS,
-    NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER, THERE_IS,
+    EQUALITY, EQUALS, FOR_ALL, IN, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME,
+    NATURALS, NATURALS0, NUMBER_SYSTEMS, NUMERAL, ORDER, THERE_IS,
 };
 use crate::outcome::Route;
 
@@ -107,6 +107,15 @@ struct Summed<'a, 'n> {
 pub struct SaidInteger {
     pub term: String,
     pub proof: String,
+}
+
+/// Whether the node is a sum or a product over a range, Σ(k = a to b) t or
+/// ∏(k = a to b) t, which the writer reads alike.
+fn is_big_operator(node: &Node) -> bool {
+    matches!(
+        node.notation(),
+        crate::notations::SUM | crate::notations::PRODUCT
+    )
 }
 
 /// The type variable an item's general letters range over.
@@ -319,8 +328,9 @@ impl Writer<'_> {
                 declined => declined,
             };
         }
-        // A sum is computed in its terms' type, its index an integer.
-        if node.notation() == crate::notations::SUM {
+        // A sum or a product is computed in its terms' type, its index an
+        // integer.
+        if is_big_operator(node) {
             return match self.summed(node) {
                 Route::Built(s) => s.inner.carrier(s.term),
                 Route::Declined(d) => Route::Declined(d),
@@ -375,6 +385,30 @@ impl Writer<'_> {
                 }
             }
         }
+    }
+
+    /// Where the claim is that a power to an integer exponent is an integer,
+    /// 2^(n − 1) ∈ ℤ, the witness: the base's integer to the exponent's
+    /// `toNat`, which is the power where a line in scope shows the exponent
+    /// not negative. None for any other claim.
+    pub fn integer_power_witness(&self, claim: &Node) -> Option<String> {
+        let [t, set] = claim.children.as_slice() else {
+            return None;
+        };
+        if claim.spelling() != IN
+            || set.notation() != NUMBER_SYSTEMS
+            || &*set.text != "ℤ"
+        {
+            return None;
+        }
+        let [base, exponent] = self.integer_power(t)?;
+        let base = self.number_fixed(base, Num::Int).built()?;
+        let exponent = self.number_fixed(exponent, Num::Int).built()?;
+        let e = exponent.at(MAX);
+        Some(format!(
+            "⟨{} ^ {e}.toNat, by push_cast; rw [← zpow_natCast, Int.toNat_of_nonneg (show (0 : ℤ) ≤ {e} by parley_side)]⟩",
+            base.at(76)
+        ))
     }
 
     /// The base and exponent of a power whose exponent is no natural number
@@ -450,7 +484,7 @@ impl Writer<'_> {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
-            crate::notations::SUM => true,
+            crate::notations::SUM | crate::notations::PRODUCT => true,
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 true
             }
@@ -523,7 +557,7 @@ impl Writer<'_> {
         })
     }
 
-    /// Σ(k = a to b) t, `∑ k ∈ Finset.Icc a b, t`, its index ranging over
+    /// Σ(k = a to b) t, `∑ k ∈ Finset.Icc a b, t`, and ∏ alike, its index ranging over
     /// the integers from a to b, and t computed in `at`. It is bracketed
     /// wherever it stands in more, since its body reaches as far right as
     /// it can.
@@ -546,11 +580,20 @@ impl Writer<'_> {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),
         };
+        // The term is given its type: one built of numerals and naturals,
+        // Σ(k = 1 to 3) 5 or 1/2^(j + 1), gives Lean nothing else to read
+        // its type from, and Lean would take it in ℕ.
+        let term = Printed::atom(format!("({} : {})", term.text, self.type_name(at)));
         // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
         // sum of k, plus 1; a body below that is bracketed.
+        let symbol = if node.notation() == crate::notations::PRODUCT {
+            "∏"
+        } else {
+            "∑"
+        };
         Route::Built(Printed {
             text: format!(
-                "∑ {} ∈ Finset.Icc {} {}, {}",
+                "{symbol} {} ∈ Finset.Icc {} {}, {}",
                 super::names::letter(&s.index.text),
                 from.at(MAX),
                 to.at(MAX),
@@ -588,12 +631,14 @@ impl Writer<'_> {
                 Route::Built(e) => e,
                 declined => return declined,
             };
+            // Lean reads no negation after `^`, so `a ^ -m` is written
+            // `a ^ (-m)`.
             return Route::Built(Printed {
-                text: format!("{} ^ {}", base.at(76), exponent.at(75)),
+                text: format!("{} ^ {}", base.at(76), exponent.at(76)),
                 prec: 75,
             });
         }
-        if node.notation() == crate::notations::SUM {
+        if is_big_operator(node) {
             return self.sum(node, at);
         }
         match node.notation() {
@@ -939,8 +984,15 @@ impl Writer<'_> {
                 return Route::no("a range of other than two ends");
             };
             // A range whose ends are no integers as Lean computes them, 6/3,
-            // is said by the order of its member between them, in the type
-            // that holds all three.
+            // is said by the order of its integer member between them, in
+            // the type that holds all three. A member that may be no integer
+            // would lose that it is one.
+            if matches!(self.carrier(x), Route::Built(c) if c > Num::Int) {
+                return Route::no(format!(
+                    "{} is a member of a range and may be no integer",
+                    self.grammar.print(x)
+                ));
+            }
             let wide = [x, from, to]
                 .iter()
                 .any(|n| matches!(self.carrier(n), Route::Built(c) if c > Num::Int));

@@ -21,7 +21,7 @@ theorem divides_product (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (hH5 : a ∣ b) 
       _ = a * k * (c * m) := by parley_subst s2
       _ = a * c * (k * m) := by parley_ring
   -- 4. def:divides d := a·c, n := b·d, from 3
-  have s4 : a * c ∣ b * d := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, by parley_side⟩
+  have s4 : a * c ∣ b * d := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := a * c) (n := b * d))).mpr ⟨k * m, by parley_side⟩; parley_side)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.DividesProduct.DividesProduct

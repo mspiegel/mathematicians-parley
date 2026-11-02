@@ -278,6 +278,10 @@ struct Proof<'a> {
     trees: IndexMap<String, Vec<(Node, String)>>,
     /// The defines written so far, by their index in the theorem's.
     defined: indexmap::IndexSet<usize>,
+    /// While a calculation's rows are written, the type it is worked out
+    /// in: a row's claim alone, Σ j² = 1², may hold in a narrower type than
+    /// the calculation's ℚ, which a citation in the row is applied at.
+    worked_in: std::cell::Cell<Option<super::templates::Num>>,
 }
 
 /// The theorem written as a Lean file's declaration: its statement and its
@@ -304,6 +308,7 @@ pub fn theorem(
         named: IndexMap::new(),
         trees: IndexMap::new(),
         defined: indexmap::IndexSet::new(),
+        worked_in: std::cell::Cell::new(None),
     };
     let Statement {
         binders,
@@ -842,7 +847,7 @@ impl<'a> Proof<'a> {
             return Route::no("a define of a function or a phrase");
         };
         if !def.params.is_empty() {
-            return Route::no("a define of a function");
+            return self.define_function(d, &def, depth);
         }
         let bodies: Vec<&Node> = self
             .rec
@@ -902,6 +907,89 @@ impl<'a> Proof<'a> {
         self.named.insert(line.label.clone(), vec![label.clone()]);
         self.trees
             .insert(line.label.clone(), vec![(equation, label)]);
+        Route::Built(())
+    }
+
+    /// A define of a function of one number in a proof, `let S(m) =
+    /// Σ(j = 1 to m) 3^j, for m ∈ ℕ`: Lean's `set` of a function from the
+    /// type of the set its argument runs over to the least type holding its
+    /// value, whose hypothesis, named by the label, a step citing the define
+    /// unfolds it by (`written_out`).
+    fn define_function(
+        &mut self,
+        d: usize,
+        def: &crate::corpus::Define,
+        depth: usize,
+    ) -> Route<()> {
+        let line = &self.thm.defines[d];
+        let [param] = def.params.as_slice() else {
+            return Route::no("a define of a function of more than one argument");
+        };
+        // The checker reads the line's argument, the set it runs over and
+        // the value apart.
+        let read: Vec<&Node> = self
+            .rec
+            .page
+            .entries()
+            .filter(|(key, _)| key.line == line.line)
+            .map(|(_, node)| node)
+            .collect();
+        let Some(domain) = read
+            .iter()
+            .find(|n| n.notation() == crate::notations::NUMBER_SYSTEMS)
+        else {
+            return Route::no("a define of a function on other than a number system");
+        };
+        let bodies: Vec<&&Node> = read
+            .iter()
+            .filter(|n| n.notation() != crate::notations::NUMBER_SYSTEMS)
+            .filter(|n| !(n.is_name() && *n.text == *param.name))
+            .collect();
+        let [body] = bodies.as_slice() else {
+            return Route::no(
+                "a define whose value the checker did not read as one term",
+            );
+        };
+        let Some(system) = super::expr::system_of(domain) else {
+            return Route::no("a define of a function on a set Lean has no type for");
+        };
+        let from = super::expr::letter_type(system);
+        // The value is read with the argument a number of that type, and
+        // the argument is no letter of the proof's after it.
+        let before = self
+            .writer
+            .letters
+            .insert(param.name.clone(), LetterType::Number(from));
+        let value = match self.writer.carrier(body) {
+            Route::Built(to) => self.writer.number_fixed(body, to).map(|v| (to, v)),
+            Route::Declined(why) => Route::Declined(why),
+        };
+        match before {
+            Some(ty) => self.writer.letters.insert(param.name.clone(), ty),
+            None => self.writer.letters.shift_remove(&param.name),
+        };
+        let (to, value) = match value {
+            Route::Built(v) => v,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let name = super::names::letter(&def.name);
+        let label = line_name(&line.label);
+        self.push(
+            format!(
+                "{}set {name} : {} → {} := fun {} => {} with {label}",
+                pad(depth),
+                from.lean(),
+                to.lean(),
+                super::names::letter(&param.name),
+                value.text
+            ),
+            line.line,
+            Spot::Statement,
+        );
+        self.writer
+            .letters
+            .insert(def.name.clone(), LetterType::Function { from, to });
+        self.named.insert(line.label.clone(), vec![label]);
         Route::Built(())
     }
 
@@ -1192,19 +1280,33 @@ impl<'a> Proof<'a> {
         let equation = match (&just.source, &just.equation) {
             (Some(crate::corpus::skeleton::Source::At(place)), written) => {
                 // Of a line saying several things, the equation the step
-                // writes, as Lean writes both; else its first equation.
+                // writes, as Lean writes both; else the one that turns the
+                // claim's left side into its right, as a calculation's row
+                // "= 0² + 0²  substitute D1" puts B = 0 of "A = 0 and B = 0";
+                // else its first equation.
                 let wanted = written
                     .as_ref()
                     .and_then(|w| self.tree(w).built())
                     .and_then(|n| self.writer.formula(&n).built())
                     .map(|p| p.text);
                 let parts = self.cited_parts(&[place.named().to_string()]);
+                let grammar = &self.sources.checked.grammar;
                 let chosen = parts
                     .iter()
                     .find(|c| {
                         wanted.is_some()
                             && self.writer.formula(&c.node).built().map(|p| p.text)
                                 == wanted
+                    })
+                    .or_else(|| {
+                        (claim.notation() == crate::notations::EQUALITY)
+                            .then(|| {
+                                parts.iter().find(|c| {
+                                    c.node.notation() == crate::notations::EQUALITY
+                                        && makes_claim(&c.node, claim, grammar)
+                                })
+                            })
+                            .flatten()
                     })
                     .or_else(|| {
                         parts
@@ -1268,39 +1370,68 @@ impl<'a> Proof<'a> {
                 grammar.print(&put_term(part, from, to, grammar)) == want
             })
         };
-        let into = match just
+        // Where no part turns into the claim with the equation put for every
+        // place, the equation is put for some places only, gcd(a, b) ∣ b
+        // from b ∣ b, and each part that says what the claim does is offered.
+        let candidates: Vec<&(Node, String)> = just
             .into
             .as_ref()
             .and_then(|place| self.trees.get(place.named()))
-            .and_then(|t| {
-                t.iter()
-                    .find(|(n, _)| turns(n))
-                    .or_else(|| {
-                        t.iter().find(|(n, _)| n.notation() == claim.notation())
-                    })
-                    .or(t.first())
-            }) {
-            Some((line, name)) => match self.widened(line, name, claim, writer) {
+            .map(|t| {
+                let turned: Vec<_> =
+                    t.iter().filter(|(n, _)| turns(n)).take(1).collect();
+                if !turned.is_empty() {
+                    return turned;
+                }
+                let alike: Vec<_> = t
+                    .iter()
+                    .filter(|(n, _)| n.notation() == claim.notation())
+                    .collect();
+                if !alike.is_empty() {
+                    return alike;
+                }
+                t.iter().take(1).collect()
+            })
+            .unwrap_or_default();
+        let mut into = Vec::new();
+        for (line, name) in candidates {
+            match self.widened(line, name, claim, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
-                    Some(w.name)
+                    into.push(w.name);
                 }
                 Route::Declined(d) => return Route::Declined(d),
-            },
-            None => None,
-        };
+            }
+        }
         // The equation is put in at the type its term has where it stands:
         // widened to the claim's, or as stated, where the term sits in a
         // part of a fixed type, (4 − 2)! of a claim in ℚ.
-        let tactic = match (into, stated.filter(|s| *s != equation)) {
-            (Some(line), Some(own)) => format!(
-                "by first | parley_subst_at {equation} {line} | parley_subst_at {own} {line}"
-            ),
-            (Some(line), None) => format!("by parley_subst_at {equation} {line}"),
-            (None, Some(own)) => {
-                format!("by first | parley_subst {equation} | parley_subst {own}")
+        // Of several lines, each is rewritten into before any is simplified,
+        // since a simplification that loops ends the search (`parley_put_at`).
+        let own = stated.filter(|s| *s != equation);
+        let mut ways: Vec<String> = Vec::new();
+        let tactics: &[&str] = if into.len() > 1 {
+            &["parley_put_at", "parley_subst_at"]
+        } else {
+            &["parley_subst_at"]
+        };
+        for tactic in tactics {
+            for line in &into {
+                ways.push(format!("{tactic} {equation} {line}"));
+                if let Some(own) = &own {
+                    ways.push(format!("{tactic} {own} {line}"));
+                }
             }
-            (None, None) => format!("by parley_subst {equation}"),
+        }
+        if into.is_empty() {
+            ways.push(format!("parley_subst {equation}"));
+            if let Some(own) = &own {
+                ways.push(format!("parley_subst {own}"));
+            }
+        }
+        let tactic = match ways.as_slice() {
+            [one] => format!("by {one}"),
+            _ => format!("by first | {}", ways.join(" | ")),
         };
         Route::Built(with_haves(&haves, &tactic))
     }
@@ -1507,7 +1638,8 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        let mut wanted = own;
+        // The claim's type, or the calculation's where the claim is a row.
+        let mut wanted = self.worked_in.get().map_or(own, |w| w.max(own));
         for s in numbers(claim) {
             match writer.carrier(&s) {
                 Route::Built(n) => wanted = wanted.max(n),
@@ -1631,12 +1763,31 @@ impl<'a> Proof<'a> {
                         just: by,
                         cited: self.rec.cited_requires.get(&r.line),
                     };
-                    match self.proof_of(reason, 0, &fact) {
+                    self.worked_in.set(Some(at));
+                    let proof = self.proof_of(reason, 0, &fact);
+                    self.worked_in.set(None);
+                    match proof {
                         Route::Built(p) => p,
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                None if line.cited().is_some() => "by parley_side".to_string(),
+                // A row citing a define, S(1) = Σ(j = 1 to 1) j(j + 1) by
+                // D1, unfolds it and pushes in the casts that leaves.
+                None if let Some(cite) = line.cited() => {
+                    let define = self
+                        .thm
+                        .defines
+                        .iter()
+                        .any(|d| d.label == cite)
+                        .then(|| self.named.get(cite).and_then(|n| n.first()))
+                        .flatten();
+                    match define {
+                        Some(h) => format!(
+                            "by first | (simp only [{h}]; push_cast; norm_num; done) | parley_side"
+                        ),
+                        None => "by parley_side".to_string(),
+                    }
+                }
                 None => "by norm_num".to_string(),
             };
             let term = &printed[k + 1];
@@ -1689,11 +1840,12 @@ impl<'a> Proof<'a> {
         // item divides.
         let general = match sentence.general {
             Some(g) => {
-                let mut at = if g.field {
+                let least = if g.field {
                     super::templates::Num::Rat
                 } else {
                     super::templates::Num::Int
                 };
+                let mut at = self.worked_in.get().map_or(least, |w| w.max(least));
                 let numbers: Vec<&Node> = claim
                     .into_iter()
                     .flat_map(|c| c.children.iter())
@@ -1730,7 +1882,9 @@ impl<'a> Proof<'a> {
             None => None,
         };
         let mut args = Vec::new();
-        let mut to_nat: Vec<String> = Vec::new();
+        // Each ℕ letter given an integer's `toNat`: the letter, and the
+        // integer.
+        let mut to_nat: Vec<(String, String)> = Vec::new();
         for b in &sentence.binders {
             match b {
                 Binder::Letter {
@@ -1764,7 +1918,7 @@ impl<'a> Proof<'a> {
                                 {
                                     Route::Built(p) => {
                                         let int = p.at(super::expr::MAX);
-                                        to_nat.push(int.clone());
+                                        to_nat.push((name.clone(), int.clone()));
                                         Route::Built(super::expr::Printed::atom(
                                             format!("{int}.toNat"),
                                         ))
@@ -1836,8 +1990,16 @@ impl<'a> Proof<'a> {
         } else {
             format!("({} {})", sentence.decl, args.join(" "))
         };
-        // Each `toNat` given a letter cast back to the integer it is.
-        for int in &to_nat {
+        // Each `toNat` given a letter cast back to the integer it is, where
+        // the statement casts the letter up. One said only of naturals,
+        // nat0-nonzero's `0 < m`, has nothing to rewrite, and the claim is
+        // closed from it by `omega`, which reads `toNat` (`parley_side`).
+        // The statement is the writer's own Lean text, so the cast is looked
+        // for as the writer prints it.
+        for (letter, int) in &to_nat {
+            if !sentence.prop.contains(&format!("({letter} : ")) {
+                continue;
+            }
             head = format!(
                 "(Int.toNat_of_nonneg (show (0 : ℤ) ≤ {int} by parley_side) ▸ {head})"
             );
@@ -1912,7 +2074,16 @@ impl<'a> Proof<'a> {
                     Route::Built(w) => w,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(format!("({inst}).mpr {witness}"));
+                // What the definition's left side says, read in the claim's
+                // own words where the two say one thing otherwise: an item
+                // over any ring says "∈ ℕ₀" `∃ m : ℕ, ↑m = x`, a claim of
+                // integers `0 ≤ x` (`parley_side`).
+                // A claim a requires line above already states, "0 ≤ b − c"
+                // for "b − c ∈ ℕ₀", is that line: tried first, as it is
+                // quick and the others may search long.
+                return Route::Built(format!(
+                    "by first | (assumption; done) | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; parley_side)"
+                ));
             }
         };
         // Several sentences of the claim taken by one reading are its "and"
@@ -1937,7 +2108,18 @@ impl<'a> Proof<'a> {
         };
         // A define the step cites is written out first, as for algebra.
         let defines = self.cited_defines(&reason.just.refs);
-        Route::Built(with_haves(&written_out(&defines), &close(node, &term)))
+        // An item that says a natural power of an integer is one gives the
+        // claim nothing to read where the claim's exponent is an integer
+        // the page shows not negative, 2^(n − 1); the writer gives the
+        // witness.
+        let closed = match self.writer.integer_power_witness(node) {
+            Some(witness) => format!(
+                "by first | exact {witness} | exact ({})",
+                close(node, &term)
+            ),
+            None => close(node, &term),
+        };
+        Route::Built(with_haves(&written_out(&defines), &closed))
     }
 
     /// The proof of the right side of a definition a step folds: its
@@ -2350,6 +2532,10 @@ impl<'a> Proof<'a> {
                 };
                 self.push(line, step.line, spot.clone());
                 for (part, label) in parts.iter().zip(&labels) {
+                    // Each case starts from the letters as the block found
+                    // them: one a case lifts to ℕ, m ∈ ℕ₀ where it assumes
+                    // m ≥ 0, is no natural in the next.
+                    self.writer.letters = kept.clone();
                     self.named.insert(label.clone(), vec![label.clone()]);
                     // What the case assumes, for a step that cites it.
                     if let Some(o) = step.openers.iter().find(|o| o.part == *part) {
@@ -2783,6 +2969,25 @@ fn written_out(defines: &[CitedDefine]) -> Vec<String> {
 
 /// `node` with `to` put for each part that is `from`, the two compared as
 /// the grammar prints them.
+/// Whether putting one side of `equation` for the other in the left side of
+/// `claim`, an equation, gives its right side.
+fn makes_claim(
+    equation: &Node,
+    claim: &Node,
+    grammar: &crate::formula::Grammar,
+) -> bool {
+    let (Some([from, to]), Some([left, right])) = (
+        equation.children.as_slice().first_chunk::<2>(),
+        claim.children.as_slice().first_chunk::<2>(),
+    ) else {
+        return false;
+    };
+    let want = grammar.print(right);
+    [(from, to), (to, from)]
+        .iter()
+        .any(|(a, b)| grammar.print(&put_term(left, a, b, grammar)) == want)
+}
+
 fn put_term(
     node: &Node,
     from: &Node,
@@ -2876,23 +3081,27 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 fn close(claim: &Node, term: &str) -> String {
     match claim.notation() {
         // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
-        // for 0, is taken with them pushed in. A corpus theorem stated in a
+        // for 0, is taken with them pushed in, and one whose equation the
+        // claim turns round, as a cited rule written a + b = c claimed as
+        // c = a + b, is taken negated. A corpus theorem stated in a
         // wider type than the claim, ℝ for a claim in ℚ, has the claim moved
         // up to it.
         EQUALITY => format!(
-            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h)"
+            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h) | (have h := {term}; parley_side)"
         ),
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.
         // An item over ℝ cited for a claim the page computes in ℚ gives
         // the claim cast up, which exact_mod_cast brings down.
         ORDER => format!(
-            "by first | linarith [{term}] | (have h := {term}; push_cast at h; linarith) | exact_mod_cast {term}"
+            "by first | linarith [{term}] | (have h := {term}; push_cast at h; linarith) | exact_mod_cast {term} | (have h := {term}; parley_side)"
         ),
         // A relation said either way round, a congruence or a ↔, as the
-        // claim writes it.
+        // claim writes it. Here and above, the last way takes the
+        // citation's "and" apart: a definition unfolded to "p > 1 and for
+        // all d …" gives either half.
         _ => format!(
-            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}"
+            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term} | (have h := {term}; parley_side)"
         ),
     }
 }

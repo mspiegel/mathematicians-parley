@@ -21,7 +21,7 @@ theorem odd_before_even (N : ℤ) :
       -- 2. algebra, from 1
       have s2 : N + 1 = 2 * (k + 1) := by linear_combination (norm := parley_norm) s1
       -- 3. def:divides d := 2, n := N + 1, from 2
-      have s3 : (2 : ℤ) ∣ N + 1 := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, by parley_side⟩
+      have s3 : (2 : ℤ) ∣ N + 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (2 : ℤ)) (n := N + 1))).mpr ⟨k + 1, by parley_side⟩; parley_side)
       all_goals parley_side
     · skip
       intro hD2
@@ -30,7 +30,7 @@ theorem odd_before_even (N : ℤ) :
       -- 5. algebra, from 4
       have s5 : N = 2 * (j - 1) + 1 := by linear_combination (norm := parley_norm) s4
       -- 6. def:odd n := N, from 5
-      have s6 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, by parley_side⟩
+      have s6 : Odd N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨j - 1, by parley_side⟩; parley_side)
       all_goals parley_side
   all_goals parley_side
 

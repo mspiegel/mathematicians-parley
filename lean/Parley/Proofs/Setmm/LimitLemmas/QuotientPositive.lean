@@ -13,7 +13,7 @@ theorem quotient_positive (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     x / y > 0 := by
   -- 1. mun:quotient-nonneg, from H4
   have r35_1 : x ≥ 0 := by parley_side
-  have s1 : x / y ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side))
+  have s1 : x / y ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := x) (y := y) (by parley_side) (by parley_side)); parley_side)
   -- 2. contradiction
   have s2 : x / y ≠ 0 := by
     by_contra hc_hS

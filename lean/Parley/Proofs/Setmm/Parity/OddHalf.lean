@@ -30,7 +30,7 @@ theorem odd_half (N : ℤ) :
       -- 4. algebra
       have s4 : (N : ℚ) = 2 * (((N : ℚ) - 1) / 2) + 1 := by parley_ring
       -- 5. def:odd n := N, from D2, 4
-      have s5 : Odd N := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; parley_side⟩
+      have s5 : Odd N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mpr ⟨Classical.choose hD2, by have := Classical.choose_spec hD2; parley_side⟩; parley_side)
       all_goals parley_side
   all_goals parley_side
 
