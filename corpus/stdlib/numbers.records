@@ -521,7 +521,7 @@ mundane theorem abs-difference-lt
   let δ ∈ ℝ                                                           (H3)
   then        |x − c| < δ ↔ c − δ < x and x < c + δ
   metamath-proof absdiflt
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/abs-difference-lt
 
 mundane theorem abs-difference-le
   let x ∈ ℝ                                                           (H1)
@@ -558,14 +558,14 @@ mundane theorem min-real
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ∈ ℝ
   metamath-proof ifcl
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem min-le
   let x ∈ ℝ                                                           (H1)
   let y ∈ ℝ                                                           (H2)
   then        min(x, y) ≤ x. min(x, y) ≤ y.
   metamath-proof min1, min2
-  lean-proof  not yet implemented
+  lean-proof  min_le_left x y ; min_le_right x y
 
 mundane theorem lt-min
   let z ∈ ℝ                                                           (H1)
@@ -573,7 +573,7 @@ mundane theorem lt-min
   let y ∈ ℝ                                                           (H3)
   then        z < min(x, y) ↔ z < x and z < y
   metamath-proof ltmin
-  lean-proof  not yet implemented
+  lean-proof  lt_min_iff
 
 mundane theorem max-real
   let x ∈ ℝ                                                           (H1)
@@ -582,7 +582,7 @@ mundane theorem max-real
   metamath-proof ifcl
   note        No proof cites it yet; it is here beside `min-real`, which
               the intermediate value proof cites.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem le-max
   let x ∈ ℝ                                                           (H1)
@@ -590,7 +590,7 @@ mundane theorem le-max
   then        x ≤ max(x, y). y ≤ max(x, y).
   metamath-proof max1, max2
   note        No proof cites it yet.
-  lean-proof  not yet implemented
+  lean-proof  le_max_left x y ; le_max_right x y
 
 mundane theorem max-le
   let x ∈ ℝ                                                           (H1)
@@ -930,7 +930,7 @@ mundane theorem reciprocal-order-strict
   then        x < y ↔ 1/y < 1/x
   metamath-proof ltrec with A := x, B := y
   note        reciprocal-order with < for ≤.
-  lean-proof  not yet implemented
+  lean-proof  (one_div_lt_one_div h4 h2).symm
 
 mundane theorem cross-multiplied-order
   let a ∈ ℝ                                                           (H1)
@@ -962,7 +962,7 @@ theorem archimedean
   metamath-proof nnrecl
   note        However small a positive real, some 1/N is smaller: the
               Archimedean property, in the form an ε–N argument uses it.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/numbers/archimedean
 
 theorem archimedean-natural
   let x ∈ ℝ                                                           (H1)
@@ -1028,7 +1028,7 @@ mundane theorem lowest-terms-parts
 mundane theorem abs-zero
   then        |0| = 0
   metamath-proof abs0
-  lean-proof  not yet implemented
+  lean-proof  abs_zero
 
 mundane theorem abs-one
   then        |1| = 1

@@ -1,6 +1,7 @@
 module
 
 public import LeanBridges
+public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Logarithms
@@ -755,9 +756,13 @@ public import Parley.Tests.Stdlib.Numbers.LeCases
 public import Parley.Tests.Stdlib.Numbers.Rational
 public import Parley.Tests.Stdlib.Numbers.Nat0Real
 public import Parley.Tests.Stdlib.Numbers.Nat0Int
+public import Parley.Tests.Stdlib.Numbers.MaxReal
+public import Parley.Tests.Stdlib.Numbers.LeMaxLeft
+public import Parley.Tests.Stdlib.Numbers.LeMaxRight
 public import Parley.Tests.Stdlib.Numbers.QuotientReal
 public import Parley.Tests.Stdlib.Numbers.AbsProduct
 public import Parley.Tests.Stdlib.Numbers.AbsNegative
+public import Parley.Tests.Stdlib.Numbers.AbsZero
 public import Parley.Tests.Stdlib.Numbers.AbsSquare
 public import Parley.Tests.Stdlib.Numbers.Nat0
 public import Parley.Tests.Stdlib.Numbers.Nat0AsInt
@@ -765,6 +770,7 @@ public import Parley.Tests.Stdlib.Numbers.Nat0Nonzero
 public import Parley.Tests.Stdlib.Numbers.ExponentSum
 public import Parley.Tests.Stdlib.Numbers.ExponentSumInteger
 public import Parley.Tests.Stdlib.Numbers.ExponentNegative
+public import Parley.Tests.Stdlib.Numbers.ReciprocalOrderStrict
 public import Parley.Tests.Stdlib.Numbers.ProductNonzero
 public import Parley.Tests.Stdlib.Numbers.IntegerStep
 public import Parley.Tests.Stdlib.Numbers.PowerInteger

@@ -137,7 +137,7 @@ definition tends-to
               complex, and names its index apart from the sequence's, so it
               cannot read a sequence the page writes as a rule in n.
               `climnnre` says it as the page does.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/calculus/tends-to
 
 definition series-sum
   let t : ℕ → ℝ                                                       (H1)

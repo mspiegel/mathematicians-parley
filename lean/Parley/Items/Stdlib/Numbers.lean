@@ -156,6 +156,38 @@ theorem mun_abs_real {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsSt
     True :=
   trivial
 
+theorem mun_abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (c : K) (δ : K) :
+    abs (x - c) < δ ↔ c - δ < x ∧ x < c + δ :=
+  LeanBridges.Numbers.abs_difference_lt x c δ
+
+theorem mun_min_real (x : ℝ) (y : ℝ) :
+    True :=
+  trivial
+
+theorem mun_min_le_1 (x : ℝ) (y : ℝ) :
+    min x y ≤ x :=
+  min_le_left x y
+
+theorem mun_min_le_2 (x : ℝ) (y : ℝ) :
+    min x y ≤ y :=
+  min_le_right x y
+
+theorem mun_lt_min (z : ℝ) (x : ℝ) (y : ℝ) :
+    z < min x y ↔ z < x ∧ z < y :=
+  lt_min_iff
+
+theorem mun_max_real (x : ℝ) (y : ℝ) :
+    True :=
+  trivial
+
+theorem mun_le_max_1 (x : ℝ) (y : ℝ) :
+    x ≤ max x y :=
+  le_max_left x y
+
+theorem mun_le_max_2 (x : ℝ) (y : ℝ) :
+    y ≤ max x y :=
+  le_max_right x y
+
 theorem mun_quotient_real {K : Type*} [Field K] [CharZero K] (x : K) (y : K) (h3 : y ≠ 0) :
     True :=
   trivial
@@ -244,6 +276,14 @@ theorem mun_reciprocal_order {K : Type*} [Field K] [LinearOrder K] [IsStrictOrde
     x ≤ y ↔ 1 / y ≤ 1 / x :=
   (one_div_le_one_div h4 h2).symm
 
+theorem mun_reciprocal_order_strict {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (h2 : 0 < x) (y : K) (h4 : 0 < y) :
+    x < y ↔ 1 / y < 1 / x :=
+  (one_div_lt_one_div h4 h2).symm
+
+theorem thm_archimedean (x : ℝ) (h2 : 0 < x) :
+    ∃ N : ℕ, 0 < N ∧ 1 / (N : ℝ) < x :=
+  LeanBridges.Numbers.archimedean x h2
+
 theorem thm_archimedean_natural (x : ℝ) :
     ∃ m : ℕ, 0 < m ∧ x < (m : ℝ) :=
   LeanBridges.Numbers.archimedean_natural x
@@ -259,6 +299,10 @@ theorem mun_abs_negative {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [
 theorem mun_abs_integer (z : ℤ) :
     0 ≤ abs z :=
   abs_nonneg z
+
+theorem mun_abs_zero :
+    (abs 0 : ℤ) = 0 :=
+  abs_zero
 
 theorem mun_abs_square {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     abs x ^ 2 = x ^ 2 :=

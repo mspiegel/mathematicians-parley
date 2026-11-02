@@ -26,6 +26,10 @@ macro "parley_side" : tactic =>
     -- where an item over any ring says it.
     | (exact ⟨_, Int.toNat_of_nonneg (by omega)⟩; done)
     | ((cases_type* Exists); omega; done)
+    -- A line that says the goal with its casts set otherwise, ((n : ℤ) : ℝ)
+    -- for (n : ℝ), as an item on a range of integers gives a sequence's term.
+    | (push_cast at *; assumption; done)
+    | (simp only [Int.cast_natCast] at *; assumption; done)
     | (apply Eq.symm; assumption; done)
     | (apply Ne.symm; assumption; done)
     | (constructor <;> assumption; done)
@@ -201,6 +205,13 @@ macro "parley_field" : tactic =>
     -- divided by in ℝ, written the other way round, ↑n * 3 - 1: the facts
     -- cast up and both normalised, field_simp sees they are one.
     | ((try rify at *); ring_nf at *; field_simp; ring1; done)
+    -- Divisors field_simp does not clear, 3n − 1 beside a fact that says it
+    -- is not 0: the fractions are joined and multiplied out one at a time,
+    -- each divisor shown not 0 from the facts.
+    | ((try push_cast at *); (try rify at *);
+        simp (disch := simp_all) only [div_add_div, div_sub_div, div_eq_div_iff, eq_div_iff,
+          div_eq_iff, mul_one_div, mul_div_assoc', div_mul_eq_mul_div, div_add', add_div',
+          div_sub', sub_div']; ring1; done)
     | (parley_clear <;> ring1; done))
 
 end

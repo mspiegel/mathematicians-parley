@@ -41,6 +41,7 @@ pub const IN_CODE: &[&str] = &[
     "composition",
     "sum",
     "product",
+    "tends-to",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -188,6 +189,20 @@ fn covered(
                         matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
                     }))
             });
+    // A limit's proof writes its claims of natural numbers, |1/n − 1| < 1/2,
+    // in ℚ, their least type, beside the sequence's lines in ℝ, and Lean does
+    // not carry one to the other under the quantifiers.
+    let limit = rec
+        .page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .any(|n| &*n.notation_name() == "tends-to");
+    if limit {
+        return Covered::Out {
+            reason: "a limit, whose claims of natural numbers the Lean build writes in ℚ beside the sequence's lines in ℝ"
+                .to_string(),
+        };
+    }
     if transcendental && uses_real_arithmetic(thm) {
         return Covered::Out {
             reason: "real arithmetic of √, π, ln, exp, sin or cos, which the Lean build cannot yet decide"

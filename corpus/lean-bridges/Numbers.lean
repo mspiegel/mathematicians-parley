@@ -115,4 +115,14 @@ theorem nat0_as_int {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStr
     (∃ m : ℕ, (m : K) = n) ↔ (∃ m : ℤ, (m : K) = n) ∧ 0 ≤ n :=
   ⟨fun ⟨m, hm⟩ => ⟨⟨m, by rw [← hm]; norm_cast⟩, by rw [← hm]; positivity⟩, fun ⟨⟨m, hm⟩, h0⟩ => ⟨m.toNat, by have : (0 : ℤ) ≤ m := (by exact_mod_cast hm ▸ h0); rw [← hm]; exact_mod_cast Int.toNat_of_nonneg this⟩⟩
 
+/-- `mun:stdlib/numbers/abs-difference-lt`. -/
+theorem abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (c : K) (δ : K) :
+    abs (x - c) < δ ↔ c - δ < x ∧ x < c + δ :=
+  by rw [abs_sub_lt_iff]; constructor <;> rintro ⟨h1, h2⟩ <;> constructor <;> linarith
+
+/-- `thm:stdlib/numbers/archimedean`. -/
+theorem archimedean (x : ℝ) (h2 : 0 < x) :
+    ∃ N : ℕ, 0 < N ∧ 1 / (N : ℝ) < x :=
+  by obtain ⟨N, hN⟩ := exists_nat_one_div_lt h2; exact ⟨N + 1, by omega, by push_cast; exact hN⟩
+
 end LeanBridges.Numbers

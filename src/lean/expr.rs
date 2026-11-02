@@ -314,9 +314,16 @@ impl Writer<'_> {
         }
     }
 
-    /// Whether the node is a number.
+    /// Whether the node is a number: by its sort, or a letter this writer
+    /// gives a number type, the ε a "for all ε ∈ ℝ" binds, whose sort a
+    /// record's reading may leave unknown.
     pub fn is_number(&self, node: &Node) -> bool {
         node.sort.is("number")
+            || (node.is_name()
+                && matches!(
+                    self.letters.get(node.text.as_str()),
+                    Some(LetterType::Number(_))
+                ))
     }
 
     /// The least number type that holds the node, ℤ at least: the type a
@@ -609,6 +616,45 @@ impl Writer<'_> {
         })
     }
 
+    /// x(n) → L as n → ∞: `Filter.Tendsto (fun n : ℕ => x n) Filter.atTop
+    /// (nhds L)`, the letter running over the naturals and the term and its
+    /// limit computed in the type that holds both. The page's ℕ starts at 1
+    /// and Lean's at 0, which no limit sees.
+    fn tends_to(&self, node: &Node) -> Route<Printed> {
+        let [term, limit, letter] = node.children.as_slice() else {
+            return Route::no("a limit of other than three parts");
+        };
+        if !letter.is_name() {
+            return Route::no("a limit whose index is no letter");
+        }
+        let mut inner = self.with_letters(self.letters.clone());
+        inner
+            .letters
+            .insert(letter.text.to_string(), LetterType::Number(Num::Nat));
+        let at = match (inner.carrier(term), self.carrier(limit)) {
+            (Route::Built(a), Route::Built(b)) => a.max(b),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        let (body, l) = match (inner.number(term, at), self.number(limit, at)) {
+            (Route::Built(b), Route::Built(l)) => (b, l),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        Route::Built(Printed {
+            text: format!(
+                "Filter.Tendsto (fun {} : ℕ => ({} : {})) Filter.atTop (nhds {})",
+                super::names::letter(&letter.text),
+                body.text,
+                self.type_name(at),
+                l.at(MAX)
+            ),
+            prec: 1000,
+        })
+    }
+
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
         if let Some(proof) = self.said_integer(node) {
@@ -832,6 +878,9 @@ impl Writer<'_> {
             {
                 return self.relation(inner, true);
             }
+        }
+        if &*node.notation_name() == "tends-to" {
+            return self.tends_to(node);
         }
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
