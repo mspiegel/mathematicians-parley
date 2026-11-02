@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAsAFirstRow
 theorem a_membership_bound_as_a_first_row (k : ℕ) (hH1 : 0 < k) :
     (k : ℤ) + 1 ≥ 2 := by
   -- 1. inequalities
-  have s1 : (k : ℤ) + 1 ≥ 2 := by parley_side
+  have s1 : (k : ℤ) + 1 ≥ 2 := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAsAFirstRow

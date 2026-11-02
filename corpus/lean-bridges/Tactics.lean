@@ -15,6 +15,25 @@ each alternative ends in `done`, and `ring1` is used for `ring`.
 
 public section
 
+/-- An order between numbers that follows from the lines above by linear
+arithmetic, as an `inequalities`, `transitivity` or `antisymmetry` step's
+does: the ways of `parley_side` that close such a goal, the cheapest first,
+and none that do not. -/
+macro "parley_order" : tactic =>
+  `(tactic| ((try cases_type* And) <;> (try casesm* _ ∧ _) <;> first
+    | (assumption; done)
+    | (constructor <;> assumption; done)
+    | (positivity; done)
+    | (omega; done)
+    | (linarith; done)
+    | (push_cast at *; assumption; done)
+    | (assumption_mod_cast; done)
+    | (push_cast at *; linarith; done)
+    | (qify at *; linarith; done)
+    | (rify at *; linarith; done)
+    | (norm_num at *; omega; done)
+    | (apply lt_of_le_of_ne <;> (first | linarith | assumption | (apply Ne.symm; assumption)); done)))
+
 /-- What a page leaves to its reader: a side condition of a cited item, a
 membership said once, a line restated or joined from lines above, or a
 block's last line taken as what the block owes. The lines above are taken
@@ -51,35 +70,16 @@ macro "parley_side" : tactic =>
     | (qify at *; linarith; done)
     | (rify at *; linarith; done)
     | (apply lt_of_le_of_ne <;> (first | linarith | assumption | (apply Ne.symm; assumption)); done)
-    | (intro _; linarith; done)
     | (norm_num at *; done)
     | (norm_num at *; subst_vars; norm_num; done)
     | (norm_cast at *; subst_vars; norm_num; done)
     | (norm_num at *; omega; done)
     | (norm_num at *; norm_cast at *; omega; done)
-    | (norm_num at *; linarith; done)
     | (contradiction; done)
     | (exfalso; apply ‹¬ _›; exact Int.ModEq.symm ‹_›; done)
-    | (exfalso; linarith; done)
     -- An integer a line gives as a quotient, (M! + 1)/N, in an equation of
     -- integers: in ℚ, with the division cleared, it is linear.
     | (qify at *; field_simp at *; linarith; done)
-    -- Two finite sets of numbers equal, {x ∈ {−3, −2, 0, 5} : x is odd} =
-    -- {−3, 5}: member by member, each case decided.
-    | (ext x; simp only [Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff];
-       constructor <;> intro h <;> (try casesm* _ ∨ _, _ ∧ _) <;> (try subst_vars) <;>
-       simp_all (config := {decide := true}); done)
-    -- A count of a finite set the page lists or builds, |{1, 2}| = 2:
-    -- counted as a Finset, each member decided.
-    | (rw [Set.encard_eq_coe_toFinset_card];
-       simp (config := {decide := true})
-         [Set.toFinset_insert, Set.toFinset_singleton, Set.toFinset_setOf]; done)
-    -- A map into all of its type, Set.MapsTo f A Set.univ.
-    | (exact Set.mapsTo_univ _ _; done)
-    -- One of a listed set, x ∈ {a, b}, taken case by case.
-    | (rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
-    | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;
-       rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
     | (simp_all; done)))
 
 /-- `parley_suppose h`, where `h` denies what a contradiction block claims:

@@ -17,7 +17,7 @@ theorem odd_prime_above_two (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (hH3 : (
   -- 2. mun:integer-step m := 1, n := P, from 1
   have s2 : 1 + 1 ≤ (P : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (P : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (P : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (P : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (P : ℤ)) (by parley_side)); parley_side)
   -- 3. inequalities, from H3, 2
-  have s3 : 2 < (P : ℤ) := by parley_side
+  have s3 : 2 < (P : ℤ) := by parley_order
   all_goals parley_side
 
 end Parley.Proofs.Setmm.OddPrimeAboveTwo.OddPrimeAboveTwo

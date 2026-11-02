@@ -1,5 +1,6 @@
 module
 
+public import SetTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-part-substituted-into.proof by parley build lean. -/
@@ -12,6 +13,6 @@ theorem a_part_substituted_into {α : Type*} (X : Set α) (R : Set α) (hH2 : R 
     R ⊆ ∅ := by
   -- 1. substitute X = ∅ (H3) into H2
   have s1 : R ⊆ ∅ := by parley_subst_at hH3 hH2
-  all_goals parley_side
+  all_goals parley_set_side
 
 end Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto

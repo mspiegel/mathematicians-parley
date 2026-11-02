@@ -26,7 +26,7 @@ theorem quotient_positive (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) :
     all_goals parley_side
   -- 3. inequalities, from 1, 2
   have r52_1 : y ≠ 0 := by parley_side
-  have s3 : x / y > 0 := by parley_side
+  have s3 : x / y > 0 := by parley_order
   all_goals parley_side
 
 end Parley.Proofs.Setmm.LimitLemmas.QuotientPositive

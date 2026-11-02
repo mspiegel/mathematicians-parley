@@ -19,11 +19,11 @@ theorem a_contradiction_ending_in_cases (x : ℝ) (hH2 : x > 2 ∨ x > 1) :
       rcases hH2 with hC1 | hC2
       · skip
         -- 1.1.1. inequalities, from C1
-        have s1_1_1 : x > 0 := by parley_side
+        have s1_1_1 : x > 0 := by parley_order
         all_goals parley_side
       · skip
         -- 1.1.2. inequalities, from C2
-        have s1_1_2 : x > 0 := by parley_side
+        have s1_1_2 : x > 0 := by parley_order
         all_goals parley_side
     all_goals parley_side
   all_goals parley_side

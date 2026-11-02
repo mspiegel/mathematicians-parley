@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLin
 theorem a_method_reads_a_range_lines_bounds (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (2 : ℤ) n) :
     0 < k := by
   -- 1. inequalities, from H2
-  have s1 : 0 < k := by parley_side
+  have s1 : 0 < k := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLinesBounds

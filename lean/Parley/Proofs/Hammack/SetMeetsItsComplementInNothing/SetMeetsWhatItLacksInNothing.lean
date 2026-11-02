@@ -1,5 +1,6 @@
 module
 
+public import SetTactics
 public import Tactics
 public import Parley.Items.Stdlib.Sets
 
@@ -15,10 +16,10 @@ theorem set_meets_what_it_lacks_in_nothing {α : Type*} (A : Set α) (B : Set α
   have s1 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK1
     -- 1.1. def:difference u := s, Y := B, Z := A, from K1
-    have s1_1 : ¬ s ∈ A := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_side); parley_side)
-    all_goals parley_side
+    have s1_1 : ¬ s ∈ A := by first | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := B) (Z := A) (u := s))).mp (by parley_set_side); parley_set_side)
+    all_goals parley_set_side
   -- 2. mun:disjoint-empty Y := A, Z := B ∖ A, from 1
-  have s2 : A ∩ (B \ A) = ∅ := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side)) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_side)); parley_side)
-  all_goals parley_side
+  have s2 : A ∩ (B \ A) = ∅ := by first | exact (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_disjoint_empty (Y := A) (Z := B \ A) (by parley_set_side)); parley_set_side)
+  all_goals parley_set_side
 
 end Parley.Proofs.Hammack.SetMeetsItsComplementInNothing.SetMeetsWhatItLacksInNothing

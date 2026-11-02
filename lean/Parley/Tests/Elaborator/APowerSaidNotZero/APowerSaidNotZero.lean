@@ -12,7 +12,7 @@ theorem a_power_said_not_zero (n : ℕ) (hH1 : 0 < n) (ε : ℝ) (x : ℝ) (hH4 
     1 - ε < 1 - 1 / x ^ n := by
   -- 1. inequalities
   have r10_1 : x ^ n ≠ 0 := by parley_side
-  have s1 : 1 - ε < 1 - 1 / x ^ n := by parley_side
+  have s1 : 1 - ε < 1 - 1 / x ^ n := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero

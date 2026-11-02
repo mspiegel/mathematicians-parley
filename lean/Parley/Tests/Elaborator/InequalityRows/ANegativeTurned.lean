@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.InequalityRows.ANegativeTurned
 theorem a_negative_turned (x : ℝ) (hH2 : x < 0) :
     0 < -x := by
   -- 1. inequalities
-  have s1 : 0 < -x := by parley_side
+  have s1 : 0 < -x := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.InequalityRows.ANegativeTurned

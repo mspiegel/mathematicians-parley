@@ -29,7 +29,7 @@ theorem a_for_all_line_split_by_cases (hH1 : ∀ x : ℝ, x ≥ 0 ∨ x < 0) :
         -- 1.1.3. def:abs x := y, from C2
         have s1_1_3 : abs y = -y := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := y)) (by parley_side); parley_side)
         -- 1.1.4. inequalities
-        have s1_1_4 : -y ≥ 0 := by parley_side
+        have s1_1_4 : -y ≥ 0 := by parley_order
         -- 1.1.5. calculation
         have s1_1_5 : abs y ≥ 0 := by
           calc abs y = -y := by parley_side

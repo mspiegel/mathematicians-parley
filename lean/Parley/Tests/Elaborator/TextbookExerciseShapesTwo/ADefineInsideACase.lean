@@ -20,15 +20,15 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
       -- 1.2. arithmetic
       have s1_2 : (1 : ℤ) > 0 := by parley_arith
       -- 1.3. transitivity, from 1.1, C1, 1.2
-      have s1_3 : y > 0 := by parley_side
+      have s1_3 : y > 0 := by parley_order
       -- 1.4. transitivity, from 1.1, 1.3
-      have s1_4 : x > 0 := by parley_side
+      have s1_4 : x > 0 := by parley_order
       all_goals parley_side
     · skip
       -- 1.5. arithmetic
       have s1_5 : (2 : ℤ) > 0 := by parley_arith
       -- 1.6. transitivity, from C2, 1.5
-      have s1_6 : x > 0 := by parley_side
+      have s1_6 : x > 0 := by parley_order
       all_goals parley_side
   all_goals parley_side
 

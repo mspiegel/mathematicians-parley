@@ -25,7 +25,7 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
       by_contra hc_hS1
       have hS1 : ¬ Real.sqrt A ≤ Real.sqrt B := by parley_suppose hc_hS1
       -- 3.1. inequalities, from S1
-      have s3_1 : Real.sqrt B < Real.sqrt A := by parley_side
+      have s3_1 : Real.sqrt B < Real.sqrt A := by parley_order
       -- 3.2. calculation
       have s3_2 : B < A := by
         calc B = Real.sqrt B ^ 2 := by parley_side
@@ -39,7 +39,7 @@ theorem square_root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
       by_contra hc_hS2
       have hS2 : ¬ A ≤ B := by parley_suppose hc_hS2
       -- 3.4. inequalities, from S2
-      have s3_4 : B < A := by parley_side
+      have s3_4 : B < A := by parley_order
       -- 3.5. calculation
       have s3_5 : Real.sqrt B ^ 2 < Real.sqrt A ^ 2 := by
         calc Real.sqrt B ^ 2 = B := by parley_side

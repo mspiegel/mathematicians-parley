@@ -30,40 +30,40 @@ theorem inverse_squares_bounded (n : ℕ) (hH1 : 0 < n) :
       have r35_1 : (k : ℤ) ≥ 1 := by parley_side
       have s2_2 : (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (1 / (j : ℚ) ^ 2 : ℚ)) = (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => 1 / (j : ℚ) ^ 2)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); parley_side)
       -- 2.3. inequalities, from K
-      have s2_3 : (k : ℤ) + 1 > 0 := by parley_side
+      have s2_3 : (k : ℤ) + 1 > 0 := by parley_order
       -- 2.4. algebra
       have s2_4 : 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) = 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by parley_ring
       -- 2.5. mun:square-positive x := k + 1
       have r45_1 : (k : ℤ) + 1 ≠ 0 := by parley_side
       have s2_5 : ((k : ℤ) + 1) ^ 2 > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_positive (x := (k : ℤ) + 1) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := (k : ℤ) + 1) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_positive (x := (k : ℤ) + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_positive (x := (k : ℤ) + 1) (by parley_side)); parley_side)
       -- 2.6. mun:product-nonneg x := k, y := k + 1
-      have r49_1 : (k : ℤ) ≥ 0 := by parley_side
+      have r49_1 : (k : ℤ) ≥ 0 := by parley_order
       have r49_2 : (k : ℤ) + 1 ≥ 0 := by parley_side
       have s2_6 : (k : ℤ) * ((k : ℤ) + 1) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)); parley_side)
       -- 2.7. mun:product-nonzero x := k, y := k + 1
       have r54_1 : (k : ℤ) ≠ 0 := by parley_side
       have r54_2 : (k : ℤ) + 1 ≠ 0 := by parley_side
-      have s2_7 : (k : ℤ) * ((k : ℤ) + 1) ≠ 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)); parley_side)
+      have s2_7 : (k : ℤ) * ((k : ℤ) + 1) ≠ 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonzero (x := (k : ℤ)) (y := (k : ℤ) + 1) (by parley_side) (by parley_side)); parley_side)
       -- 2.8. inequalities, from 2.6, 2.7
-      have s2_8 : (k : ℤ) * ((k : ℤ) + 1) > 0 := by parley_side
+      have s2_8 : (k : ℤ) * ((k : ℤ) + 1) > 0 := by parley_order
       -- 2.9. algebra
       have s2_9 : ((k : ℤ) + 1) ^ 2 = (k : ℤ) * ((k : ℤ) + 1) + ((k : ℤ) + 1) := by parley_ring
       -- 2.10. inequalities
-      have s2_10 : (k : ℤ) * ((k : ℤ) + 1) < (k : ℤ) * ((k : ℤ) + 1) + ((k : ℤ) + 1) := by parley_side
+      have s2_10 : (k : ℤ) * ((k : ℤ) + 1) < (k : ℤ) * ((k : ℤ) + 1) + ((k : ℤ) + 1) := by parley_order
       -- 2.11. transitivity, from 2.10, 2.9
-      have s2_11 : (k : ℤ) * ((k : ℤ) + 1) < ((k : ℤ) + 1) ^ 2 := by parley_side
+      have s2_11 : (k : ℤ) * ((k : ℤ) + 1) < ((k : ℤ) + 1) ^ 2 := by parley_order
       -- 2.12. inequalities
-      have s2_12 : (k : ℤ) * ((k : ℤ) + 1) ≤ ((k : ℤ) + 1) ^ 2 := by parley_side
+      have s2_12 : (k : ℤ) * ((k : ℤ) + 1) ≤ ((k : ℤ) + 1) ^ 2 := by parley_order
       -- 2.13. mun:reciprocal-order x := k·(k + 1), y := (k + 1)², from 2.5, 2.8, 2.12
       have s2_13 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / ((k : ℚ) * ((k : ℚ) + 1)) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (k : ℚ) * ((k : ℚ) + 1)) (by parley_side) (y := ((k : ℚ) + 1) ^ 2) (by parley_side))).mp (by parley_side); parley_side)
       -- 2.14. transitivity, from 2.13, 2.4
-      have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by parley_side
+      have s2_14 : 1 / ((k : ℚ) + 1) ^ 2 ≤ 1 / (k : ℚ) - 1 / ((k : ℚ) + 1) := by parley_order
       -- 2.15. inequalities
-      have s2_15 : (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 := by parley_side
+      have s2_15 : (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (1 / (j : ℚ) ^ 2 : ℚ)) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 := by parley_order
       -- 2.16. inequalities
-      have s2_16 : 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_side
+      have s2_16 : 2 - 1 / (k : ℚ) + 1 / ((k : ℚ) + 1) ^ 2 ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
       -- 2.17. transitivity, from 2.2, 2.15, 2.16
-      have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_side
+      have s2_17 : (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (1 / (j : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / ((k : ℚ) + 1) := by parley_order
       all_goals parley_side
   -- 3. instantiate k := n in line 2
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / (k : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / (n : ℚ) := by first | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)

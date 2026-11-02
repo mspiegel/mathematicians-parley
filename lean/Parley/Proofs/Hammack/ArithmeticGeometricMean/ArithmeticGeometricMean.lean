@@ -12,9 +12,9 @@ namespace Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean
 theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0) :
     a + b ≥ 2 * Real.sqrt (a * b) := by
   -- 1. inequalities
-  have s1 : a ≥ 0 := by parley_side
+  have s1 : a ≥ 0 := by parley_order
   -- 2. inequalities
-  have s2 : b ≥ 0 := by parley_side
+  have s2 : b ≥ 0 := by parley_order
   -- 3. mun:product-nonneg x := a, y := b, from 1, 2
   have s3 : a * b ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_nonneg (x := a) (y := b) (by parley_side) (by parley_side)); parley_side)
   -- 4. def:sqrt x := a·b, from 3
@@ -25,13 +25,13 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
     by_contra hc_hS
     have hS : ¬ a + b ≥ 2 * Real.sqrt (a * b) := by parley_suppose hc_hS
     -- 5.1. inequalities, from S, 4
-    have s5_1 : a + b < 2 * Real.sqrt (a * b) := by parley_side
+    have s5_1 : a + b < 2 * Real.sqrt (a * b) := by parley_order
     -- 5.2. inequalities
-    have s5_2 : 2 * Real.sqrt (a * b) ≥ 0 := by parley_side
+    have s5_2 : 2 * Real.sqrt (a * b) ≥ 0 := by parley_order
     -- 5.3. inequalities, from H3, H4
-    have s5_3 : a + b > 0 := by parley_side
+    have s5_3 : a + b > 0 := by parley_order
     -- 5.4. inequalities
-    have s5_4 : a + b ≥ 0 := by parley_side
+    have s5_4 : a + b ≥ 0 := by parley_order
     -- 5.5. mun:square-less x := a + b, y := 2·√(a·b), from 5.1, 5.2, 5.4
     have s5_5 : (a + b) ^ 2 < (2 * Real.sqrt (a * b)) ^ 2 := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := a + b) (y := 2 * Real.sqrt (a * b)) (by parley_side) (by parley_side))).mp (by parley_side); parley_side)
     -- 5.6. substitute
@@ -44,9 +44,9 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
     -- 5.8. mun:square-nonneg x := a − b
     have s5_8 : (a - b) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a - b)); parley_side)
     -- 5.9. inequalities
-    have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by parley_side
+    have s5_9 : (a + b) ^ 2 - 4 * (a * b) < 0 := by parley_order
     -- 5.10. transitivity, from 5.7, 5.9
-    have s5_10 : (a - b) ^ 2 < 0 := by parley_side
+    have s5_10 : (a - b) ^ 2 < 0 := by parley_order
     -- 5.11. inequalities, from 5.10
     have s5_11 : ¬ (a - b) ^ 2 ≥ 0 := by parley_side
     all_goals parley_side

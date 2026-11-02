@@ -23,7 +23,7 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
     · skip
       intro hD1
       -- 3.1. transitivity, from 1, D1, 2
-      have s3_1 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by parley_side
+      have s3_1 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by parley_order
       -- 3.2. mun:square-less x := √A, y := √B, from 3.1
       have r28_3 : Real.sqrt A ≥ 0 := by parley_side
       have r28_4 : Real.sqrt B ≥ 0 := by parley_side
@@ -36,7 +36,7 @@ theorem root_order (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A) (hH4 : 0 ≤ B) :
       have r38_4 : Real.sqrt B ≥ 0 := by parley_side
       have s3_3 : Real.sqrt A ^ 2 < Real.sqrt B ^ 2 := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := Real.sqrt A) (y := Real.sqrt B) (by parley_side) (by parley_side))).mp (by parley_side); parley_side)
       -- 3.4. transitivity, from 1, 3.3, 2
-      have s3_4 : A < B := by parley_side
+      have s3_4 : A < B := by parley_order
       all_goals parley_side
   all_goals parley_side
 

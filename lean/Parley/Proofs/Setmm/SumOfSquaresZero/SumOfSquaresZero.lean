@@ -29,17 +29,17 @@ theorem sum_of_squares_zero (A : ℝ) (B : ℝ) :
       -- 3. mun:square-nonneg x := B
       have s3 : B ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := B)); parley_side)
       -- 4. inequalities
-      have s4 : A ^ 2 + B ^ 2 ≤ 0 := by parley_side
+      have s4 : A ^ 2 + B ^ 2 ≤ 0 := by parley_order
       -- 5. inequalities
-      have s5 : -(B ^ 2) ≤ 0 := by parley_side
+      have s5 : -(B ^ 2) ≤ 0 := by parley_order
       -- 6. inequalities, from 4, 5
-      have s6 : A ^ 2 ≤ 0 := by parley_side
+      have s6 : A ^ 2 ≤ 0 := by parley_order
       -- 7. antisymmetry, from 2, 6
       have s7 : A ^ 2 = 0 := by parley_side
       -- 8. inequalities
-      have s8 : -(A ^ 2) ≤ 0 := by parley_side
+      have s8 : -(A ^ 2) ≤ 0 := by parley_order
       -- 9. inequalities, from 4, 8
-      have s9 : B ^ 2 ≤ 0 := by parley_side
+      have s9 : B ^ 2 ≤ 0 := by parley_order
       -- 10. antisymmetry, from 3, 9
       have s10 : B ^ 2 = 0 := by parley_side
       -- 11. mun:square-zero x := A, from 7

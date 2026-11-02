@@ -14,7 +14,7 @@ namespace Parley.Tests.Docs.Syntax.TriangleByCases
 theorem triangle_by_cases (a : ℝ) (b : ℝ) :
     abs (a + b) ≤ abs a + abs b := by
   -- 1. mun:nonneg-or-neg x := a + b
-  have s1 : a + b ≥ 0 ∨ a + b < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)); parley_side)
+  have s1 : a + b ≥ 0 ∨ a + b < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := a + b)); parley_side)
   -- 2. cases, from 1
   have s2 : abs (a + b) ≤ abs a + abs b := by
     rcases s1 with hC1 | hC2

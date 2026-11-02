@@ -21,7 +21,7 @@ theorem sum_nonneg_bounded (a : ℝ) (b : ℝ) (hH3 : a + b ≥ 0) :
   -- 3. def:abs x := a + b, from H3
   have s3 : abs (a + b) = a + b := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := a + b)) (by parley_side); parley_side)
   -- 4. inequalities, from 1, 2
-  have s4 : a + b ≤ abs a + abs b := by parley_side
+  have s4 : a + b ≤ abs a + abs b := by parley_order
   -- 5. calculation
   have s5 : abs (a + b) ≤ abs a + abs b := by
     calc abs (a + b) = a + b := by parley_side

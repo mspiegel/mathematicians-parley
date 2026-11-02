@@ -19,7 +19,7 @@ theorem difference_of_sizes (A : ℝ) (B : ℝ) :
     have row1 : abs A ≤ abs (A - B) + abs B := by parley_subst_at c1 s1
     exact row1
   -- 3. inequalities
-  have s3 : abs A - abs B ≤ abs (A - B) := by parley_side
+  have s3 : abs A - abs B ≤ abs (A - B) := by parley_order
   all_goals parley_side
 
 end Parley.Proofs.Setmm.DifferenceOfSizes.DifferenceOfSizes

@@ -31,24 +31,24 @@ theorem harmonic_unbounded (M : ℝ) :
       -- 2.3. arithmetic
       have s2_3 : (1 : ℚ) ≥ 0 / 2 := by parley_arith
       -- 2.4. transitivity, from 2.2, 2.3
-      have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by parley_side
+      have s2_4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ 0 : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 0 / 2 := by parley_order
       all_goals parley_side
     | succ m hIH =>
       -- 2.5. thm:harmonic-block j := m
       have s2_5 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by first | linarith [(Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m))] | (have h := (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m)) | (have h := (Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock.harmonic_block (j := m)); parley_side)
       -- 2.6. inequalities
-      have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_side
+      have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 ≥ ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.7. transitivity, from 2.5, 2.6
-      have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by parley_side
+      have s2_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (k : ℚ) : ℚ)) ≥ ((m : ℚ) + 1) / 2 := by parley_order
       all_goals parley_side
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
   -- 4. instantiate m := N in line 2
   have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by first | linarith [(s2 N)] | (have h := (s2 N); push_cast at h; linarith) | exact_mod_cast (s2 N) | (have h := (s2 N); parley_side)
   -- 5. inequalities
-  have s5 : (N : ℝ) / 2 > M := by parley_side
+  have s5 : (N : ℝ) / 2 > M := by parley_order
   -- 6. transitivity, from 4, 5
-  have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N : ℤ), (1 / (k : ℝ) : ℝ)) > M := by parley_side
+  have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N : ℤ), (1 / (k : ℝ) : ℝ)) > M := by parley_order
   -- 7. exhibit, from 6
   have s7 : ∃ n : ℕ, 0 < n ∧ (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / (k : ℝ) : ℝ)) > M := ⟨2 ^ N, by parley_side, by parley_side⟩
   all_goals parley_side

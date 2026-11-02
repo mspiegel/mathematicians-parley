@@ -34,9 +34,9 @@ theorem harmonic_lower_bound (n : ℕ) (hH1 : 0 < n) :
       -- 2.3. thm:harmonic-doubling j := m
       have s2_3 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (j : ℚ) : ℚ)) ≥ (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 := by first | linarith [(Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling.harmonic_doubling (j := m))] | (have h := (Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling.harmonic_doubling (j := m)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling.harmonic_doubling (j := m)) | (have h := (Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling.harmonic_doubling (j := m)); parley_side)
       -- 2.4. inequalities
-      have s2_4 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_side
+      have s2_4 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ m : ℤ), (1 / (j : ℚ) : ℚ)) + 1 / 2 ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_order
       -- 2.5. transitivity, from 2.3, 2.4
-      have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_side
+      have s2_5 : (∑ j ∈ Finset.Icc (1 : ℤ) (2 ^ (m + 1) : ℤ), (1 / (j : ℚ) : ℚ)) ≥ 1 + ((m : ℚ) + 1) / 2 := by parley_order
       all_goals parley_side
   -- 3. instantiate m := n in line 2
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ n : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 1 + (n : ℚ) / 2 := by first | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)

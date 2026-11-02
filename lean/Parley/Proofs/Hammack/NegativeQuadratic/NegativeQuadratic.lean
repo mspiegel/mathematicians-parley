@@ -16,13 +16,13 @@ theorem negative_quadratic (x : ℝ) (hH2 : x ^ 2 + 5 * x < 0) :
     by_contra hc_hS
     have hS : ¬ x < 0 := by parley_suppose hc_hS
     -- 1. inequalities, from S
-    have s1 : x ≥ 0 := by parley_side
+    have s1 : x ≥ 0 := by parley_order
     -- 2. mun:square-nonneg
     have s2 : x ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := x)); parley_side)
     -- 3. inequalities
-    have s3 : 5 * x ≥ 0 := by parley_side
+    have s3 : 5 * x ≥ 0 := by parley_order
     -- 4. inequalities, from 2, 3
-    have s4 : x ^ 2 + 5 * x ≥ 0 := by parley_side
+    have s4 : x ^ 2 + 5 * x ≥ 0 := by parley_order
     -- 5. inequalities, from 4
     have s5 : ¬ x ^ 2 + 5 * x < 0 := by parley_side
     all_goals parley_side

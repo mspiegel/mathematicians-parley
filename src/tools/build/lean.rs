@@ -80,6 +80,21 @@ struct Unwritten {
 /// The bridge module of tactics every generated file uses.
 const TACTICS: &str = "Tactics";
 
+/// The module of the tactics a proof about sets uses beside the others.
+const SET_TACTICS: &str = "SetTactics";
+
+/// The tactic a step leaves its side conditions to, and the one a proof
+/// about sets leaves them to, which tries the first and then the ways of
+/// sets.
+const SIDE: &str = "parley_side";
+const SET_SIDE: &str = "parley_set_side";
+
+/// Whether a proof's Lean text is about sets: it writes Lean's `Set` or
+/// counts one.
+fn uses_sets(text: &str) -> bool {
+    text.contains("Set ") || text.contains("Set.") || text.contains(".encard")
+}
+
 /// The modules of the library a generated file imports: the tactics, and
 /// each bridge module its Lean text names, `Counting` for a
 /// `LeanBridges.Counting.…`. A file imports no bridge it does not use, so
@@ -234,14 +249,22 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
         let cited: Vec<String> = cited.into_iter().collect();
         imported.insert(module.clone(), (name.clone(), cited.clone()));
-        let imports: Vec<String> = library_imports(&file.text)
-            .into_iter()
-            .chain(cited)
-            .collect();
+        // A proof about sets leaves its reader the ways of sets as well,
+        // from their own module (`SetTactics`).
+        let of_sets = uses_sets(&file.text);
+        let body = match of_sets {
+            true => file.text.replace(SIDE, SET_SIDE),
+            false => file.text.clone(),
+        };
+        let mut library = library_imports(&body);
+        if of_sets {
+            library.insert(SET_TACTICS.to_string());
+        }
+        let imports: Vec<String> = library.into_iter().chain(cited).collect();
         let mut text = header(&imports, &thm.path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         let above = text.lines().count();
-        text.push_str(&file.text);
+        text.push_str(&body);
         text.push_str(&format!("\nend {module}\n"));
         let origins = file
             .origins

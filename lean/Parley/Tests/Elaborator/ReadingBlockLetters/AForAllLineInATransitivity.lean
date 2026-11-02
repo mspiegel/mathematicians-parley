@@ -15,7 +15,7 @@ theorem a_for_all_line_in_a_transitivity (b : ℝ) (hH2 : ∀ x : ℝ, x < x + 1
     intro y
     intro hA1
     -- 1.1. transitivity, from H2, A1
-    have s1_1 : y < b := by parley_side
+    have s1_1 : y < b := by parley_order
     all_goals parley_side
   all_goals parley_side
 

@@ -20,13 +20,13 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
       -- 1.1. algebra
       have s1_1 : A ^ 0 = 1 := by parley_ring
       -- 1.2. inequalities
-      have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_side
+      have s1_2 : (A - 1) * 0 + 1 ≤ A ^ 0 := by parley_order
       all_goals parley_side
     | succ k hIH =>
       -- 1.3. mun:exponent-step a := A, m := k
       have s1_3 : A ^ (k + 1) = A ^ k * A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := A) (m := k)); parley_side)
       -- 1.4. inequalities
-      have s1_4 : 0 ≤ A ^ k - ((A - 1) * (k : ℝ) + 1) := by parley_side
+      have s1_4 : 0 ≤ A ^ k - ((A - 1) * (k : ℝ) + 1) := by parley_order
       set X : ℝ := A ^ k - ((A - 1) * (k : ℝ) + 1) with hD1
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
       have s1_5 : 0 ≤ A * X := by
@@ -43,13 +43,13 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
         try push_cast at *
         parley_ring
       -- 1.9. inequalities, from 1.5, 1.7
-      have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_side
+      have s1_9 : 0 ≤ A * X + (A - 1) ^ 2 * (k : ℝ) := by parley_order
       -- 1.10. transitivity, from 1.9, 1.8
-      have s1_10 : 0 ≤ A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by parley_side
+      have s1_10 : 0 ≤ A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) := by parley_order
       -- 1.11. inequalities
-      have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k * A := by parley_side
+      have s1_11 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ k * A := by parley_order
       -- 1.12. transitivity, from 1.11, 1.3
-      have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1) := by parley_side
+      have s1_12 : (A - 1) * ((k : ℝ) + 1) + 1 ≤ A ^ (k + 1) := by parley_order
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : (A - 1) * (n : ℝ) + 1 ≤ A ^ n := by first | linarith [(s1 n)] | (have h := (s1 n); push_cast at h; linarith) | exact_mod_cast (s1 n) | (have h := (s1 n); parley_side)

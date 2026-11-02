@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.LetterI.FixedI
 theorem fixed_i (i : ℕ) (hH1 : 0 < i) :
     (i : ℤ) ≥ 1 := by
   -- 1. inequalities, from H1
-  have s1 : (i : ℤ) ≥ 1 := by parley_side
+  have s1 : (i : ℤ) ≥ 1 := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.LetterI.FixedI

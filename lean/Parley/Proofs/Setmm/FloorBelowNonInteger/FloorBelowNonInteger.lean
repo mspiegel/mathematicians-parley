@@ -22,7 +22,7 @@ theorem floor_below_non_integer (A : ℝ) (hH2 : ¬ (∃ m : ℤ, (m : ℝ) = A)
     have s3_1 : ∃ m : ℤ, (m : ℝ) = A := ⟨⌊A⌋, by first | (push_cast; linarith [hS]) | (rw [hS]; push_cast; ring) | (rw [← hS]; push_cast; ring) | exact hS | exact hS.symm⟩
     all_goals parley_side
   -- 4. inequalities, from 1, 3
-  have s4 : (⌊A⌋ : ℝ) < A := by parley_side
+  have s4 : (⌊A⌋ : ℝ) < A := by parley_order
   all_goals parley_side
 
 end Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger

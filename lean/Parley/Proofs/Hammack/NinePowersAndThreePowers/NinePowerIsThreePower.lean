@@ -14,7 +14,7 @@ namespace Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower
 theorem nine_power_is_three_power (m : ℤ) :
     (9 ^ m : ℚ) = 3 ^ (2 * m) := by
   -- 1. mun:nonneg-or-neg x := m
-  have s1 : m ≥ 0 ∨ m < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)); parley_side)
+  have s1 : m ≥ 0 ∨ m < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := m)); parley_side)
   -- 2. mun:exponent-sum-integer a := 3, n := m
   have r109_1 : (3 : ℤ) ≠ 0 := by parley_arith
   have s2 : (3 ^ (m + m) : ℚ) = 3 ^ m * 3 ^ m := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_sum_integer (a := (3 : ℚ)) (by parley_side) (m := m) (n := m)); parley_side)
@@ -37,7 +37,7 @@ theorem nine_power_is_three_power (m : ℤ) :
       all_goals parley_side
     · skip
       -- 4.3. inequalities
-      have s4_3 : -m > 0 := by parley_side
+      have s4_3 : -m > 0 := by parley_order
       -- 4.4. mun:nat0-as-int
       have r139_1 : -m ≥ 0 := by parley_side
       have s4_4 : 0 ≤ -m := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := -m))).mpr (by parley_side); parley_side)

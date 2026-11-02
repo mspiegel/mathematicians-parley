@@ -22,7 +22,7 @@ theorem an_induction_over_a_range_it_ends (n : ℕ) :
         -- 1.1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
         have s1_1_1 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) (by parley_side))] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) (by parley_side)); parley_side)
         -- 1.1.2. inequalities, from 1.1.1
-        have s1_1_2 : j ≥ 1 := by parley_side
+        have s1_1_2 : j ≥ 1 := by parley_order
         all_goals parley_side
       all_goals parley_side
     | succ N hIH =>
@@ -32,7 +32,7 @@ theorem an_induction_over_a_range_it_ends (n : ℕ) :
         -- 1.2.1. mun:range-bounds a := 1, b := N + 1, k := j, from K3
         have s1_2_1 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) (by parley_side))] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) (by parley_side)); parley_side)
         -- 1.2.2. inequalities, from 1.2.1
-        have s1_2_2 : j ≥ 1 := by parley_side
+        have s1_2_2 : j ≥ 1 := by parley_order
         all_goals parley_side
       all_goals parley_side
   -- 2. instantiate N := n in line 1

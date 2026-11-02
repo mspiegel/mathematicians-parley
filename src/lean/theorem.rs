@@ -870,8 +870,13 @@ impl<'a> Proof<'a> {
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
+            // An order is left to the ways of orders alone; a chain of
+            // equations, A = B = C, to `parley_side`.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
-                "by parley_side".to_string()
+                match node.notation() == ORDER {
+                    true => "by parley_order".to_string(),
+                    false => "by parley_side".to_string(),
+                }
             }
             Method::Inspection => "by parley_side".to_string(),
             Method::Substitute => return self.substitute(just, node, writer),
@@ -3405,10 +3410,25 @@ fn close(claim: &Node, term: &str) -> String {
         // A relation said either way round, a congruence or a ↔, as the
         // claim writes it. Here and above, the last way takes the
         // citation's "and" apart: a definition unfolded to "p > 1 and for
-        // all d …" gives either half. A set listed in another order than
-        // the item's, {w, u} for {u, w}, is put in one order on both sides.
-        _ => format!(
-            "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term} | (have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := {term}; parley_side)"
-        ),
+        // all d …" gives either half. A claim with a listed set in it, which
+        // may be in another order than the item's, {w, u} for {u, w}, is put
+        // in one order on both sides.
+        _ => {
+            let listed = claim.walk().iter().any(|n| {
+                matches!(
+                    &*n.notation_name(),
+                    "listed-two" | "listed-three" | "listed-four"
+                )
+            });
+            let reorder = match listed {
+                true => format!(
+                    " | (have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h)"
+                ),
+                false => String::new(),
+            };
+            format!(
+                "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}{reorder} | (have h := {term}; parley_side)"
+            )
+        }
     }
 }

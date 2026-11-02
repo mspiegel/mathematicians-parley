@@ -14,7 +14,7 @@ theorem a_for_all_line_in_a_plain_inequalities_step (hH1 : ∀ x : ℝ, ¬ x ^ 2
   have s1 : ∀ y : ℝ, y ^ 2 ≥ 0 := by
     intro y
     -- 1.1. inequalities, from H1
-    have s1_1 : y ^ 2 ≥ 0 := by parley_side
+    have s1_1 : y ^ 2 ≥ 0 := by parley_order
     all_goals parley_side
   all_goals parley_side
 

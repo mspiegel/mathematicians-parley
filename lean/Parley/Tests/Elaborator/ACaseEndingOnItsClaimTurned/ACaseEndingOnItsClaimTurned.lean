@@ -12,7 +12,7 @@ namespace Parley.Tests.Elaborator.ACaseEndingOnItsClaimTurned.ACaseEndingOnItsCl
 theorem a_case_ending_on_its_claim_turned (x : ℝ) (y : ℝ) (hH3 : x < y) :
     y ≠ x := by
   -- 1. mun:nonneg-or-neg
-  have s1 : x ≥ 0 ∨ x < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)); parley_side)
+  have s1 : x ≥ 0 ∨ x < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := x)); parley_side)
   -- 2. cases, from 1
   have s2 : y ≠ x := by
     rcases s1 with hC1 | hC2

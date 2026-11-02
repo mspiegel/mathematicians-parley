@@ -20,9 +20,9 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
     by_contra hc_hS
     have hS : ¬ 0 < Real.sqrt a := by parley_suppose hc_hS
     -- 2.1. inequalities, from S
-    have s2_1 : Real.sqrt a ≤ 0 := by parley_side
+    have s2_1 : Real.sqrt a ≤ 0 := by parley_order
     -- 2.2. inequalities, from 1
-    have s2_2 : Real.sqrt a ≥ 0 := by parley_side
+    have s2_2 : Real.sqrt a ≥ 0 := by parley_order
     -- 2.3. antisymmetry, from 2.1, 2.2
     have s2_3 : Real.sqrt a = 0 := by parley_side
     -- 2.4. algebra, from 2.3
@@ -30,7 +30,7 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
     -- 2.5. transitivity, from 1, 2.4
     have s2_5 : a = 0 := by parley_side
     -- 2.6. inequalities
-    have s2_6 : a ≤ 0 := by parley_side
+    have s2_6 : a ≤ 0 := by parley_order
     -- 2.7. inequalities, from 2.6
     have s2_7 : ¬ 0 < a := by parley_side
     all_goals parley_side

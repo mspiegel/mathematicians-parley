@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundAddedByInequalit
 theorem a_range_bound_added_by_inequalities (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (1 : ℤ) n) :
     k < n + 1 := by
   -- 1. inequalities, from H2
-  have s1 : k < n + 1 := by parley_side
+  have s1 : k < n + 1 := by parley_order
   all_goals parley_side
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundAddedByInequalities

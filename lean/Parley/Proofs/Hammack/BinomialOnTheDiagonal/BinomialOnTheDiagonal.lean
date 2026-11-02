@@ -22,7 +22,7 @@ theorem binomial_on_the_diagonal (m : ℕ) :
       all_goals parley_side
     | succ j hIH =>
       -- 1.2. inequalities
-      have s1_2 : (j : ℤ) < (j : ℤ) + 1 := by parley_side
+      have s1_2 : (j : ℤ) < (j : ℤ) + 1 := by parley_order
       -- 1.3. def:C n := j, k := j + 1, from 1.2
       have s1_3 : (LeanBridges.Counting.choose (j : ℤ) ((j : ℤ) + 1) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := j) (k := (j : ℤ) + 1)) (by parley_side); parley_side)
       -- 1.4. thm:pascal n := j, k := j + 1

@@ -18,9 +18,9 @@ theorem positive_rational_fraction (A : ℝ) (A : ℚ) (hH3 : 0 < A) :
     by_contra hc_hS
     have hS : ¬ 0 < p := by parley_suppose hc_hS
     -- 2.1. inequalities, from S
-    have s2_1 : p ≤ 0 := by parley_side
+    have s2_1 : p ≤ 0 := by parley_order
     -- 2.2. mun:divide-le x := p, y := 0, c := q, from 2.1
-    have r24_1 : (q : ℤ) > 0 := by parley_side
+    have r24_1 : (q : ℤ) > 0 := by parley_order
     have s2_2 : (p : ℚ) / (q : ℚ) ≤ 0 / (q : ℚ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_divide_le (x := (p : ℚ)) (y := (0 : ℚ)) (c := (q : ℚ)) (by parley_side) (by parley_side)); parley_side)
     -- 2.3. calculation
     have s2_3 : A ≤ 0 := by
@@ -31,7 +31,7 @@ theorem positive_rational_fraction (A : ℝ) (A : ℚ) (hH3 : 0 < A) :
     have s2_4 : ¬ A ≤ 0 := by parley_side
     all_goals parley_side
   -- 3. mun:pos-int-nat m := p, from 2
-  have s3 : 0 < p := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)); parley_side)
+  have s3 : 0 < p := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := p) (by parley_side)); parley_side)
   lift p to ℕ using s3.le
   -- 4. exhibit, from 1, 3
   have s4 : ∃ x : ℕ, 0 < x ∧ (∃ y : ℕ, 0 < y ∧ A = (x : ℚ) / (y : ℚ)) := ⟨p, by parley_side, q, by parley_side, by parley_side⟩

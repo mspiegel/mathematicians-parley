@@ -16,11 +16,11 @@ theorem sign_of_odd (n : ℕ) (hH1 : 0 < n) (hH2 : Odd (n : ℤ)) :
   -- 1. obtain k: def:odd, from H2
   obtain ⟨k, s1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (n : ℤ)))).mp (by parley_side)
   -- 2. inequalities, from H1
-  have s2 : (n : ℤ) ≥ 1 := by parley_side
+  have s2 : (n : ℤ) ≥ 1 := by parley_order
   -- 3. substitute n = 2·k + 1 (line 1) into line 2
   have s3 : 2 * k + 1 ≥ 1 := by parley_subst_at s1 s2
   -- 4. inequalities
-  have s4 : k ≥ 0 := by parley_side
+  have s4 : k ≥ 0 := by parley_order
   -- 5. mun:nat0-as-int n := k, from 4
   have s5 : 0 ≤ k := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_nat0_as_int (n := k))).mpr (by parley_side); parley_side)
   lift k to ℕ using (id s5)

@@ -14,8 +14,8 @@ namespace Parley.Proofs.Setmm.BinomialBasics.ChooseAll
 theorem choose_all (N : ℕ) :
     (LeanBridges.Counting.choose (N : ℤ) (N : ℤ) : ℤ) = 1 := by
   -- 1. inequalities, from H1
-  have s1a : 0 ≤ (N : ℤ) := by parley_side
-  have s1b : (N : ℤ) ≤ (N : ℤ) := by parley_side
+  have s1a : 0 ≤ (N : ℤ) := by parley_order
+  have s1b : (N : ℤ) ≤ (N : ℤ) := by parley_order
   -- 2. def:range-between k := N, a := 0, b := N, from 1
   have s2 : (N : ℤ) ∈ Finset.Icc (0 : ℤ) (N : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (N : ℤ)) (a := (0 : ℤ)) (b := (N : ℤ)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (N : ℤ)) (a := (0 : ℤ)) (b := (N : ℤ)))).mpr (by parley_side); parley_side)
   -- 3. algebra

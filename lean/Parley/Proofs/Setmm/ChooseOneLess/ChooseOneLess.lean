@@ -15,14 +15,14 @@ namespace Parley.Proofs.Setmm.ChooseOneLess.ChooseOneLess
 theorem choose_one_less (N : ℕ) :
     (LeanBridges.Counting.choose ((N : ℤ) + 1) (N : ℤ) : ℤ) = (N : ℤ) + 1 := by
   -- 1. def:nat0 n := N
-  have s1 : 0 < N ∨ (N : ℤ) = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); parley_side)
+  have s1 : 0 < N ∨ (N : ℤ) = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_nat0 (n := (N : ℤ)))).mp (by parley_side); parley_side)
   -- 2. cases, from 1
   have s2 : (LeanBridges.Counting.choose ((N : ℤ) + 1) (N : ℤ) : ℤ) = (N : ℤ) + 1 := by
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. inequalities, from H1
-      have s2_1a : 0 ≤ (N : ℤ) := by parley_side
-      have s2_1b : (N : ℤ) ≤ (N : ℤ) + 1 := by parley_side
+      have s2_1a : 0 ≤ (N : ℤ) := by parley_order
+      have s2_1b : (N : ℤ) ≤ (N : ℤ) + 1 := by parley_order
       -- 2.2. def:range-between k := N, a := 0, b := N + 1, from 2.1
       have s2_2 : (N : ℤ) ∈ Finset.Icc (0 : ℤ) ((N : ℤ) + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (N : ℤ)) (a := (0 : ℤ)) (b := (N : ℤ) + 1))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (N : ℤ)) (a := (0 : ℤ)) (b := (N : ℤ) + 1))).mpr (by parley_side); parley_side)
       -- 2.3. algebra

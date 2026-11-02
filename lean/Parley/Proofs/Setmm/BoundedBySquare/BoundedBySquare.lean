@@ -18,11 +18,11 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
   -- 2. mun:abs-square x := A
   have s2 : abs A ^ 2 = A ^ 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_square (x := A))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_square (x := A)); parley_side)
   -- 3. inequalities, from 1
-  have s3 : 0 ≤ 2 * abs A := by parley_side
+  have s3 : 0 ≤ 2 * abs A := by parley_order
   -- 4. inequalities
-  have s4 : 0 ≤ abs A := by parley_side
+  have s4 : 0 ≤ abs A := by parley_order
   -- 5. mun:nonneg-or-neg x := A
-  have s5 : A ≥ 0 ∨ A < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); parley_side)
+  have s5 : A ≥ 0 ∨ A < 0 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact ((Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nonneg_or_neg (x := A)); parley_side)
   -- 6. both directions
   have s6 : A ≤ B ∧ -A ≤ B ↔ A ^ 2 ≤ B ^ 2 := by
     constructor
@@ -35,20 +35,20 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
           -- 6.1.1. def:abs x := A, from C1
           have s6_1_1 : abs A = A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_1 (x := A)) (by parley_side); parley_side)
           -- 6.1.2. transitivity, from 6.1.1, D1
-          have s6_1_2 : abs A ≤ B := by parley_side
+          have s6_1_2 : abs A ≤ B := by parley_order
           all_goals parley_side
         · skip
           -- 6.1.3. def:abs x := A, from C2
           have s6_1_3 : abs A = -A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_abs_2 (x := A)) (by parley_side); parley_side)
           -- 6.1.4. transitivity, from 6.1.3, D1
-          have s6_1_4 : abs A ≤ B := by parley_side
+          have s6_1_4 : abs A ≤ B := by parley_order
           all_goals parley_side
       -- 6.2. contradiction
       have s6_2 : A ^ 2 ≤ B ^ 2 := by
         by_contra hc_hS1
         have hS1 : ¬ A ^ 2 ≤ B ^ 2 := by parley_suppose hc_hS1
         -- 6.2.1. inequalities, from S1
-        have s6_2_1 : B ^ 2 < A ^ 2 := by parley_side
+        have s6_2_1 : B ^ 2 < A ^ 2 := by parley_order
         -- 6.2.2. substitute |A|² = A² (line 2) into line 6.2.1
         have s6_2_2 : B ^ 2 < abs A ^ 2 := by parley_subst_at s2 s6_2_1
         -- 6.2.3. mun:square-less x := B, y := |A|, from 6.2.2
@@ -66,7 +66,7 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
         by_contra hc_hS2
         have hS2 : ¬ abs A ≤ B := by parley_suppose hc_hS2
         -- 6.3.1. inequalities, from S2
-        have s6_3_1 : B < abs A := by parley_side
+        have s6_3_1 : B < abs A := by parley_order
         -- 6.3.2. mun:square-less x := B, y := |A|, from 6.3.1
         have r88_1 : abs A ≥ 0 := by parley_side
         have r88_2 : B ≥ 0 := by parley_side
@@ -77,13 +77,13 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
         have s6_3_4 : ¬ A ^ 2 ≤ B ^ 2 := by parley_side
         all_goals parley_side
       -- 6.4. inequalities, from 1
-      have s6_4 : A ≤ abs A := by parley_side
+      have s6_4 : A ≤ abs A := by parley_order
       -- 6.5. transitivity, from 6.4, 6.3
-      have s6_5 : A ≤ B := by parley_side
+      have s6_5 : A ≤ B := by parley_order
       -- 6.6. inequalities, from 1
-      have s6_6 : -A ≤ abs A := by parley_side
+      have s6_6 : -A ≤ abs A := by parley_order
       -- 6.7. transitivity, from 6.6, 6.3
-      have s6_7 : -A ≤ B := by parley_side
+      have s6_7 : -A ≤ B := by parley_order
       -- 6.8. join 6.5, 6.7
       have s6_8 : A ≤ B ∧ -A ≤ B := by parley_side
       all_goals parley_side

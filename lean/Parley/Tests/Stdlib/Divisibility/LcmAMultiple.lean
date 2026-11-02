@@ -12,7 +12,7 @@ namespace Parley.Tests.Stdlib.Divisibility.LcmAMultiple
 theorem lcm_a_multiple (a : ℤ) (b : ℤ) :
     a ∣ (Int.lcm a b : ℤ) := by
   -- 1. def:lcm
-  have s1 : a ∣ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)); parley_side)
+  have s1 : a ∣ (Int.lcm a b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Divisibility.def_lcm_2 (a := a) (b := b)); parley_side)
   all_goals parley_side
 
 end Parley.Tests.Stdlib.Divisibility.LcmAMultiple

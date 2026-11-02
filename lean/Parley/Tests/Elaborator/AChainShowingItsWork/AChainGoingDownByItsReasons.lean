@@ -11,7 +11,7 @@ namespace Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReaso
 theorem a_chain_going_down_by_its_reasons (a : ℝ) (hH2 : a ≥ 3) :
     a + a ≥ 6 := by
   -- 1. inequalities
-  have s1 : 2 * a ≥ 6 := by parley_side
+  have s1 : 2 * a ≥ 6 := by parley_order
   -- 2. calculation
   have s2 : a + a ≥ 6 := by
     calc a + a = 2 * a := by parley_ring

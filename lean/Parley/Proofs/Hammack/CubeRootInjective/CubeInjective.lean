@@ -21,13 +21,13 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
     -- 2. mun:square-nonneg x := a + b
     have s2 : (a + b) ^ 2 ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := a + b)); parley_side)
     -- 3. inequalities
-    have s3 : 3 * (a + b) ^ 2 ≥ 0 := by parley_side
+    have s3 : 3 * (a + b) ^ 2 ≥ 0 := by parley_order
     -- 4. inequalities, from 1, 3
-    have s4 : (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_side
+    have s4 : (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_order
     -- 5. algebra, from H3
     have s5 : (a - b) * (a ^ 2 + a * b + b ^ 2) = 0 := by linear_combination (norm := parley_norm) hH3
     -- 6. mun:zero-product x := a − b, y := a² + a·b + b², from 5
-    have s6 : a - b = 0 ∨ a ^ 2 + a * b + b ^ 2 = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side); parley_side)
+    have s6 : a - b = 0 ∨ a ^ 2 + a * b + b ^ 2 = 0 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_zero_product (x := a - b) (y := a ^ 2 + a * b + b ^ 2))).mp (by parley_side); parley_side)
     -- 7. cases, from 6
     have s7 : a ^ 2 + a * b + b ^ 2 = 0 := by
       rcases s6 with hC1 | hC2
@@ -40,7 +40,7 @@ theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
     -- 8. algebra, from 7
     have s8 : (a - b) ^ 2 + 3 * (a + b) ^ 2 = 0 := by linear_combination (norm := parley_norm) (4) * s7
     -- 9. inequalities
-    have s9 : (a - b) ^ 2 + 3 * (a + b) ^ 2 ≤ 0 := by parley_side
+    have s9 : (a - b) ^ 2 + 3 * (a + b) ^ 2 ≤ 0 := by parley_order
     -- 10. inequalities, from 9
     have s10 : ¬ (a - b) ^ 2 + 3 * (a + b) ^ 2 > 0 := by parley_side
     all_goals parley_side

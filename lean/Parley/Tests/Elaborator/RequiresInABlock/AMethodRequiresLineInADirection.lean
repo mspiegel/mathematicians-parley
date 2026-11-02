@@ -17,7 +17,7 @@ theorem a_method_requires_line_in_a_direction (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A
     · skip
       intro hD1
       -- 1.1. mun:square-less x := A, y := B, from D1
-      have r17_1 : A ≥ 0 := by parley_side
+      have r17_1 : A ≥ 0 := by parley_order
       have r17_2 : B ≥ 0 := by parley_side
       have s1_1 : A ^ 2 < B ^ 2 := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mp (by parley_side); parley_side)
       all_goals parley_side

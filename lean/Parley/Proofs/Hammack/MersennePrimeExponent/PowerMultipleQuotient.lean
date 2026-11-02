@@ -42,27 +42,27 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
       -- 1.7. thm:two-power-bound
       have s1_7 : 2 ^ d ≥ (d : ℤ) + 1 := by first | linarith [(Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side))] | (have h := (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side)) | (have h := (Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound.two_power_bound (d := d) (by parley_side)); parley_side)
       -- 1.8. inequalities, from H1
-      have s1_8 : (d : ℤ) + 1 ≥ 1 := by parley_side
+      have s1_8 : (d : ℤ) + 1 ≥ 1 := by parley_order
       -- 1.9. transitivity, from 1.7, 1.8
-      have s1_9 : (2 ^ d : ℤ) ≥ 1 := by parley_side
+      have s1_9 : (2 ^ d : ℤ) ≥ 1 := by parley_order
       -- 1.10. mun:multiply-le x := 1, y := 2^d, c := q, from 1.9
-      have r134_1 : (q : ℤ) > 0 := by parley_side
+      have r134_1 : (q : ℤ) > 0 := by parley_order
       have s1_10 : (q : ℤ) * 1 ≤ (q : ℤ) * 2 ^ d := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := (2 ^ d : ℤ)) (c := (q : ℤ)) (by parley_side) (by parley_side)); parley_side)
       -- 1.11. algebra
       have s1_11 : (q : ℤ) * 2 ^ d = 2 ^ d * (q : ℤ) := by parley_ring
       -- 1.12. inequalities
-      have s1_12 : (q : ℤ) ≤ (q : ℤ) * 2 ^ d := by parley_side
+      have s1_12 : (q : ℤ) ≤ (q : ℤ) * 2 ^ d := by parley_order
       -- 1.13. inequalities, from 1.3
-      have s1_13 : (j : ℤ) ≤ (q : ℤ) := by parley_side
+      have s1_13 : (j : ℤ) ≤ (q : ℤ) := by parley_order
       -- 1.14. transitivity, from 1.13, 1.12, 1.11
-      have s1_14 : (j : ℤ) ≤ 2 ^ d * (q : ℤ) := by parley_side
+      have s1_14 : (j : ℤ) ≤ 2 ^ d * (q : ℤ) := by parley_order
       -- 1.15. inequalities
-      have s1_15 : 2 ^ d * (q : ℤ) + 1 ≥ (j : ℤ) + 1 := by parley_side
+      have s1_15 : 2 ^ d * (q : ℤ) + 1 ≥ (j : ℤ) + 1 := by parley_order
       -- 1.16. exhibit, from 1.6, 1.15
       have s1_16 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * (j + 1)) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (j : ℤ) + 1) := ⟨2 ^ d * q + 1, by parley_side, by parley_side⟩
       all_goals parley_side
   -- 2. instantiate j := m in line 1
-  have s2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ)) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h) | (have h := (s1 m (by parley_side)); parley_side)
+  have s2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ)) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)
   all_goals parley_side
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient

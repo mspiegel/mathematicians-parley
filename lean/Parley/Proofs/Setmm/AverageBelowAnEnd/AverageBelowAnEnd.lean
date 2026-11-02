@@ -16,12 +16,12 @@ theorem average_below_an_end (A : ℝ) (B : ℝ) :
     · skip
       intro hD1
       -- 1. inequalities
-      have s1 : (A + B) / 2 < B := by parley_side
+      have s1 : (A + B) / 2 < B := by parley_order
       all_goals parley_side
     · skip
       intro hD2
       -- 2. inequalities
-      have s2 : A < B := by parley_side
+      have s2 : A < B := by parley_order
       all_goals parley_side
   all_goals parley_side
 
