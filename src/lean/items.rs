@@ -421,13 +421,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let mut sentences = Vec::new();
     for group in groups.iter() {
         for says in &group.gives {
-            let mut w = Writer {
-                grammar: writer.grammar,
-                templates: writer.templates,
-                letters: IndexMap::new(),
-                general: None,
-                integers: Vec::new(),
-            };
+            let mut w = Writer::new(writer.grammar, writer.templates);
             let functions: &[Node] = checked
                 .library
                 .function_types
@@ -612,14 +606,15 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     ));
                 };
                 let name = super::names::letter(&f.text);
+                let domain = a.at(super::expr::MAX);
                 statements.push(Binder::Fact {
                     name: format!("h{name}"),
                     says: format!(
-                        "Set.MapsTo {name} {} {}",
-                        a.at(super::expr::MAX),
+                        "Set.MapsTo {name} {domain} {}",
                         b.at(super::expr::MAX)
                     ),
                 });
+                w.domains.insert(f.text.to_string(), domain);
             }
             for letter in &free {
                 if w.letters.contains_key(&letter.name) {

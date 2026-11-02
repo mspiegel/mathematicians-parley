@@ -95,13 +95,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
     let targets =
         crate::methods::terms::Targets::of(&checked.grammar, &checked.corpus.records);
     let mut made = Made::default();
-    let writer = Writer {
-        grammar: &checked.grammar,
-        templates: &templates,
-        letters: IndexMap::new(),
-        general: None,
-        integers: Vec::new(),
-    };
+    let writer = Writer::new(&checked.grammar, &templates);
 
     // The library's items with a lean field, by full name, and each
     // module's declarations.

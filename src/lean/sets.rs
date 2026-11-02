@@ -10,6 +10,10 @@ use super::expr::{LetterType, Members, Printed, Writer, MAX};
 use crate::formula::Node;
 use crate::outcome::Route;
 
+/// The inverse of a map on its domain, in the bridges: Mathlib's asks a
+/// nonempty type, which a statement over sets does not carry.
+const INVERSE: &str = "LeanBridges.Functions.inverse";
+
 /// The Lean type of a letter of this sort where it is a set, a member of
 /// one or a map between sets; None for any other sort.
 pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
@@ -52,9 +56,16 @@ impl Writer<'_> {
             "singleton" | "listed-two" | "listed-three" | "listed-four" => {
                 node.children.iter().find_map(|c| self.member_kind(c))
             }
-            "image" => match self.letters.get(node.children.first()?.text.as_str()) {
-                Some(LetterType::Map { to, .. }) => Some(to.clone()),
-                _ => None,
+            // A preimage holds what the map takes, an image what it gives.
+            "image" => match self.preimage_of(node) {
+                Some(f) => match self.letters.get(f.text.as_str()) {
+                    Some(LetterType::Map { from, .. }) => Some(from.clone()),
+                    _ => None,
+                },
+                None => match self.letters.get(node.children.first()?.text.as_str()) {
+                    Some(LetterType::Map { to, .. }) => Some(to.clone()),
+                    _ => None,
+                },
             },
             _ => None,
         }
@@ -62,7 +73,7 @@ impl Writer<'_> {
 
     /// What kind of member a term is: a letter of a set's members, or a set
     /// itself, a member of a set of sets.
-    fn member_kind(&self, node: &Node) -> Option<Members> {
+    pub fn member_kind(&self, node: &Node) -> Option<Members> {
         if node.is_name() {
             if let Some(LetterType::Member(m)) = self.letters.get(node.text.as_str()) {
                 return Some(m.clone());
@@ -75,6 +86,15 @@ impl Writer<'_> {
         {
             if &*node.notation_name() == "application" {
                 return Some(to.clone());
+            }
+        }
+        // g⁻¹(y) is a member of the set g maps from.
+        let inverse = node.children.first().and_then(|f| self.inverted(f));
+        if let Some(LetterType::Map { from, .. }) =
+            inverse.and_then(|g| self.letters.get(g.text.as_str()))
+        {
+            if &*node.notation_name() == "application" {
+                return Some(from.clone());
             }
         }
         self.members_of(node).map(|m| Members::Sets(Box::new(m)))
@@ -140,6 +160,7 @@ impl Writer<'_> {
                     Route::Declined(d) => Route::Declined(d),
                 }
             }
+            "image" if self.preimage_of(node).is_some() => self.preimage(node),
             "image" => match parts(2) {
                 Route::Built(p) => Route::Built(Printed {
                     text: format!("{} '' {}", p[0].at(MAX), p[1].at(MAX)),
@@ -150,6 +171,51 @@ impl Writer<'_> {
             "set-builder" => self.set_builder(node),
             "application" => self.map_applied(node),
             other => Route::no(format!("{other} as a set")),
+        }
+    }
+
+    /// The map letter whose inverse an image is taken under, the f of
+    /// f⁻¹[Z]; None for any other image.
+    fn preimage_of<'n>(&self, node: &'n Node) -> Option<&'n Node> {
+        self.inverted(node.children.first()?)
+    }
+
+    /// The map letter a term is the inverse of, the g of g⁻¹; None for any
+    /// other term.
+    fn inverted<'n>(&self, node: &'n Node) -> Option<&'n Node> {
+        let [g] = node.children.as_slice() else {
+            return None;
+        };
+        let inverse = &*node.notation_name() == "inverse"
+            && matches!(
+                self.letters.get(g.text.as_str()),
+                Some(LetterType::Map { .. })
+            );
+        inverse.then_some(g)
+    }
+
+    /// f⁻¹[Z], what f sends into Z, taken within f's domain A as set.mm
+    /// takes it: `A ∩ f ⁻¹' Z`.
+    fn preimage(&self, node: &Node) -> Route<Printed> {
+        let (Some(f), Some(z)) = (self.preimage_of(node), node.children.get(1)) else {
+            return Route::no("a preimage of other than a map and a set");
+        };
+        let Some(domain) = self.domains.get(f.text.as_str()) else {
+            return Route::no(format!(
+                "a preimage under {}, whose domain no line gives",
+                f.text
+            ));
+        };
+        match self.set_term(z) {
+            Route::Built(z) => Route::Built(Printed {
+                text: format!(
+                    "{domain} ∩ {} ⁻¹' {}",
+                    super::names::letter(&f.text),
+                    z.at(MAX)
+                ),
+                prec: 70,
+            }),
+            Route::Declined(d) => Route::Declined(d),
         }
     }
 
@@ -206,6 +272,23 @@ impl Writer<'_> {
         let [f, x] = node.children.as_slice() else {
             return Route::no("a map applied to other than one argument");
         };
+        // g⁻¹(y): the thing in g's domain that g sends to y.
+        if let Some(g) = self.inverted(f) {
+            let Some(domain) = self.domains.get(g.text.as_str()) else {
+                return Route::no(format!("{}⁻¹, whose domain no line gives", g.text));
+            };
+            return match self.set_term(x) {
+                Route::Built(p) => Route::Built(Printed {
+                    text: format!(
+                        "{INVERSE} {} {domain} {}",
+                        super::names::letter(&g.text),
+                        p.at(MAX)
+                    ),
+                    prec: 1023,
+                }),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
         if !matches!(
             self.letters.get(f.text.as_str()),
             Some(LetterType::Map { .. })

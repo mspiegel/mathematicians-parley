@@ -98,16 +98,21 @@ pub fn range_letter(node: &Node) -> Option<String> {
     fits.then(|| x.text.to_string())
 }
 
-/// The binders of the facts asked, in order, each letter added to the
-/// writer's letters as it is introduced, so a later fact reads it.
+/// A letter a line introduces in or under a set, or as a map between sets.
+struct InSet {
+    letter: String,
+    ty: LetterType,
+    /// The fact a map's line says, `Set.MapsTo f A B`; None where the line
+    /// itself is the fact.
+    fact: Option<String>,
+    /// A map's domain as Lean writes it, the A of `f : A → B`.
+    domain: Option<String>,
+}
+
 /// The letter a line introduces in or under a set the writer has a type
-/// for, or as a map between such sets: the letter, its type, and the fact a
-/// map's line says, `Set.MapsTo f A B` (None where the line itself is the
-/// fact). None for any other line, and for a letter already typed.
-fn introduces_in_set(
-    writer: &Writer,
-    node: &Node,
-) -> Option<(String, LetterType, Option<String>)> {
+/// for, or as a map between such sets. None for any other line, and for a
+/// letter already typed.
+fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
     let [letter, rest @ ..] = node.children.as_slice() else {
         return None;
     };
@@ -126,40 +131,48 @@ fn introduces_in_set(
             for c in &set.children {
                 at = at.max(writer.carrier(c).built()?);
             }
-            Some((letter.text.to_string(), LetterType::Number(at), None))
+            Some(InSet {
+                letter: letter.text.to_string(),
+                ty: LetterType::Number(at),
+                fact: None,
+                domain: None,
+            })
         }
-        ("membership", [set]) => {
-            let m = writer.members_of(set)?;
-            Some((letter.text.to_string(), LetterType::Member(m), None))
-        }
-        ("subset", [set]) => {
-            let m = writer.members_of(set)?;
-            Some((letter.text.to_string(), LetterType::Set(m), None))
-        }
-        // f : A → B is one-to-one, onto, or both: a map, and the line the
-        // fact the writer writes of it.
-        ("one-to-one" | "onto" | "one-to-one-onto", [from, to]) => {
-            let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
-            Some((
-                letter.text.to_string(),
-                LetterType::Map { from: a, to: b },
-                None,
-            ))
-        }
-        ("function-type", [from, to]) => {
+        ("membership", [set]) => Some(InSet {
+            letter: letter.text.to_string(),
+            ty: LetterType::Member(writer.members_of(set)?),
+            fact: None,
+            domain: None,
+        }),
+        ("subset", [set]) => Some(InSet {
+            letter: letter.text.to_string(),
+            ty: LetterType::Set(writer.members_of(set)?),
+            fact: None,
+            domain: None,
+        }),
+        // f : A → B, alone or one-to-one, onto, or both: a map, and the
+        // fact of it, which is the line itself where it says more than the
+        // type.
+        (
+            kind @ ("function-type" | "one-to-one" | "onto" | "one-to-one-onto"),
+            [from, to],
+        ) => {
             let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
             let (from_text, to_text) =
                 (writer.set_term(from).built()?, writer.set_term(to).built()?);
-            let name = super::names::letter(&letter.text);
-            Some((
-                letter.text.to_string(),
-                LetterType::Map { from: a, to: b },
-                Some(format!(
-                    "Set.MapsTo {name} {} {}",
-                    from_text.at(super::expr::MAX),
-                    to_text.at(super::expr::MAX)
-                )),
-            ))
+            let lean = super::names::letter(&letter.text);
+            let domain = from_text.at(super::expr::MAX);
+            Some(InSet {
+                letter: letter.text.to_string(),
+                ty: LetterType::Map { from: a, to: b },
+                fact: (kind == "function-type").then(|| {
+                    format!(
+                        "Set.MapsTo {lean} {domain} {}",
+                        to_text.at(super::expr::MAX)
+                    )
+                }),
+                domain: Some(domain),
+            })
         }
         _ => None,
     }
@@ -174,9 +187,32 @@ pub fn things_binder(binders: &[Binder]) -> Option<String> {
         .then(|| format!("{{{} : Type*}}", super::expr::THINGS))
 }
 
+/// Where a line says what sets a map letter maps between, `f : A → B` or
+/// `f : A → B is one-to-one`, the A it maps from is its domain, though the
+/// letter's type came first, from its sort.
+fn record_domain(writer: &mut Writer, node: &Node) {
+    let kinds = ["function-type", "one-to-one", "onto", "one-to-one-onto"];
+    let [f, from, _] = node.children.as_slice() else {
+        return;
+    };
+    let map = matches!(
+        writer.letters.get(f.text.as_str()),
+        Some(LetterType::Map { .. })
+    );
+    if !map || !kinds.contains(&&*node.notation_name()) {
+        return;
+    }
+    if let Route::Built(d) = writer.set_term(from) {
+        writer
+            .domains
+            .insert(f.text.to_string(), d.at(super::expr::MAX));
+    }
+}
+
 pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
     let mut out = Vec::new();
     for a in asked {
+        record_domain(writer, a.node);
         // A letter of a range is an integer, and the range a fact about it.
         if let Some(letter) = range_letter(a.node) {
             let ty = LetterType::Number(super::templates::Num::Int);
@@ -201,8 +237,17 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
         // A letter a line puts in a set or under one, `x ∈ A` or `X ⊆ A`,
         // or a map between sets, `f : A → B`: the letter, of its type, and
         // the line a fact about it, the map's `Set.MapsTo f A B`.
-        if let Some((letter, ty, fact)) = introduces_in_set(writer, a.node) {
+        if let Some(InSet {
+            letter,
+            ty,
+            fact,
+            domain,
+        }) = introduces_in_set(writer, a.node)
+        {
             writer.letters.insert(letter.clone(), ty.clone());
+            if let Some(d) = domain {
+                writer.domains.insert(letter.clone(), d);
+            }
             out.push(Binder::Letter {
                 name: super::names::letter(&letter),
                 page: letter,

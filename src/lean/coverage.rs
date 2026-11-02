@@ -55,6 +55,7 @@ pub const IN_CODE: &[&str] = &[
     "one-to-one",
     "onto",
     "one-to-one-onto",
+    "inverse",
 ];
 
 /// Every theorem of the corpus, in or out.

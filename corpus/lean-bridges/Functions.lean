@@ -14,6 +14,23 @@ public section
 
 namespace LeanBridges.Functions
 
+/-- g⁻¹(y) of a map g on A: the x in A that g sends to y, where there is
+one, and y itself where there is none. Mathlib's `Function.invFunOn` asks
+`[Nonempty α]`, which a statement over sets does not carry; what g⁻¹ gives
+off g's image is never used, as set.mm's converse leaves it unsaid. -/
+noncomputable def inverse {α : Type*} (g : α → α) (A : Set α) (y : α) : α := by
+  classical
+  exact if h : ∃ x ∈ A, g x = y then h.choose else y
+
+/-- g⁻¹ undoes a one-to-one g on its domain. -/
+theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
+    (hg : Set.InjOn g A) (hx : x ∈ A) : inverse g A (g x) = x := by
+  classical
+  have h : ∃ y ∈ A, g y = g x := ⟨x, hx, rfl⟩
+  unfold inverse
+  simp only [h, ↓reduceDIte]
+  exact hg h.choose_spec.1 hx h.choose_spec.2
+
 /-- `def:stdlib/functions/image`. -/
 theorem image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (u : α) (W : Set α) (hf : Set.MapsTo f X W) (h1 : Y ⊆ X) :
     u ∈ f '' Y ↔ (∃ s ∈ Y, u = f s) :=

@@ -95,6 +95,7 @@ public import Parley.Proofs.Hammack.GeometricSumBaseTwo.GeometricSumBaseTwo
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling
 public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicLowerBound
 public import Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
+public import Parley.Proofs.Hammack.ImageOfPreimageOfImage.ImageOfPreimageOfImage
 public import Parley.Proofs.Hammack.ImageOfUnion.ImageOfUnion
 public import Parley.Proofs.Hammack.IntersectionOverUnion.IntersectionOverUnion
 public import Parley.Proofs.Hammack.IntersectionThenDifference.IntersectionThenDifference
@@ -126,8 +127,12 @@ public import Parley.Proofs.Hammack.PolynomialSign.QuinticSix
 public import Parley.Proofs.Hammack.PositiveNumberWithSquareBelowRoot.PositiveNumberWithSquareBelowRoot
 public import Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
 public import Parley.Proofs.Hammack.PowersOfTwoSum.PowersOfTwoSum
+public import Parley.Proofs.Hammack.PreimageOfImageOfPreimage.PreimageOfImageOfPreimage
+public import Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage
+public import Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut
+public import Parley.Proofs.Hammack.PreimageOfUnion.PreimageOfUnion
 public import Parley.Proofs.Hammack.PrimeBetweenNinetyAndAHundred.PrimeBetweenNinetyAndAHundred
 public import Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot
 public import Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd
@@ -265,6 +270,8 @@ public import Parley.Proofs.Setmm.IntegerBelowAReal.IntegerBelowAReal
 public import Parley.Proofs.Setmm.IntegerUnderTwiceHalfFloor.IntegerUnderTwiceHalfFloor
 public import Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetLeft
 public import Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetRight
+public import Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain
+public import Parley.Proofs.Setmm.InverseOfValue.InverseOfValue
 public import Parley.Proofs.Setmm.LessThanAnInteger.LessThanAnInteger
 public import Parley.Proofs.Setmm.LimitLemmas.AbsNonneg
 public import Parley.Proofs.Setmm.LimitLemmas.QuotientPositive
@@ -347,6 +354,8 @@ public import Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberIntege
 public import Parley.Proofs.Setmm.TwoDoesNotDivideOdd.TwoDoesNotDivideOdd
 public import Parley.Proofs.Setmm.TwoHalvesBelow.TwoHalvesBelow
 public import Parley.Proofs.Setmm.UnionAndDifferenceEqual.UnionAndDifferenceEqual
+public import Parley.Proofs.Setmm.ValueAndInverseAgree.ValueAndInverseAgree
+public import Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
@@ -801,6 +810,7 @@ public import Parley.Tests.Stdlib.Divisibility.GcdMod
 public import Parley.Tests.Stdlib.Divisibility.ModNatural
 public import Parley.Tests.Stdlib.Divisibility.ModLess
 public import Parley.Tests.Stdlib.Divisibility.ZeroDivides
+public import Parley.Tests.Stdlib.Functions.Preimage
 public import Parley.Tests.Stdlib.Logarithms.LnProduct
 public import Parley.Tests.Stdlib.Logarithms.LnQuotient
 public import Parley.Tests.Stdlib.Logarithms.LnPower

@@ -69,13 +69,7 @@ pub struct Sources<'a> {
 /// `then` sentences joined into one Lean statement, each taken by its
 /// projection.
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
-    let mut writer = Writer {
-        grammar: &sources.checked.grammar,
-        templates: sources.templates,
-        letters: IndexMap::new(),
-        general: None,
-        integers: Vec::new(),
-    };
+    let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -327,13 +321,7 @@ pub fn theorem(
         sources,
         thm,
         rec,
-        writer: Writer {
-            grammar: &sources.checked.grammar,
-            templates: sources.templates,
-            letters: IndexMap::new(),
-            general: None,
-            integers: Vec::new(),
-        },
+        writer: Writer::new(&sources.checked.grammar, sources.templates),
         lines: Vec::new(),
         origins: Vec::new(),
         named: IndexMap::new(),
@@ -1780,9 +1768,12 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        // A chain of sets, A ∩ B = B ∩ A = ∅, is written as sets are, and
-        // has no number type to work in.
-        let of_sets = terms.iter().any(|t| writer.members_of(t).is_some());
+        // A chain of sets or of their members, A ∩ B = B ∩ A = ∅ or
+        // F(F⁻¹(C)) = F(x), is written as sets are, and has no number type
+        // to work in.
+        let of_sets = terms
+            .iter()
+            .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
         let mut at = super::templates::Num::Int;
         let mut printed = Vec::new();
         if of_sets {

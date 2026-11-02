@@ -1,0 +1,25 @@
+module
+
+public import LeanBridges
+public import Parley.Items.Stdlib.Functions
+public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
+
+/-! Written from proofs/setmm/inverse-lands-in-domain.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain
+
+theorem inverse_lands_in_domain {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' A = B) (C : α) (hH5 : C ∈ B) :
+    LeanBridges.Functions.inverse F A C ∈ A := by
+  -- 1. obtain x: thm:value-of-onto y := C, from H4, H5
+  obtain ⟨x, s1a, s1b⟩ := (Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto.value_of_onto (A := A) (B := B) (F := F) (by parley_side) (by parley_side) (y := C) (by parley_side))
+  -- 2. mun:inverse-value g := F, y := x, from H3, 1
+  have s2 : LeanBridges.Functions.inverse F A (F x) = x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := B) (Y := A) (g := F) (y := x) (by parley_side) (by parley_side)); parley_side)
+  -- 3. substitute C = F(x) (line 1) into line 2
+  have s3 : LeanBridges.Functions.inverse F A C = x := by parley_subst_at s1b s2
+  -- 4. substitute F⁻¹(C) = x (line 3) into line 1
+  have s4 : LeanBridges.Functions.inverse F A C ∈ A := by parley_subst_at s3 s1a
+  all_goals parley_side
+
+end Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain

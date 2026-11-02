@@ -159,6 +159,10 @@ pub struct Writer<'a> {
     /// integers, f(a) of `f(a) ∈ ℤ` with f into ℝ: each is the integer that
     /// hypothesis gives, where the page computes with it in ℤ.
     pub integers: Vec<SaidInteger>,
+    /// The set each map letter is a map from, as Lean writes it, by the
+    /// letter: the A of `f : A → B`, within which a preimage is taken and
+    /// an inverse is found.
+    pub domains: IndexMap<String, String>,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -207,6 +211,18 @@ impl<'a> Writer<'a> {
     }
 
     /// A writer with the same grammar and notations, and these letters.
+    /// A writer with no letters yet.
+    pub fn new(grammar: &'a Grammar, templates: &'a Templates) -> Writer<'a> {
+        Writer {
+            grammar,
+            templates,
+            letters: IndexMap::new(),
+            general: None,
+            integers: Vec::new(),
+            domains: IndexMap::new(),
+        }
+    }
+
     pub fn with_letters(&self, letters: Letters) -> Writer<'a> {
         Writer {
             grammar: self.grammar,
@@ -214,6 +230,7 @@ impl<'a> Writer<'a> {
             letters,
             general: self.general,
             integers: self.integers.clone(),
+            domains: self.domains.clone(),
         }
     }
 

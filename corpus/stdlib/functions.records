@@ -164,7 +164,7 @@ mundane theorem inverse-value
   let y ∈ Y                                                           (H2)
   then        g⁻¹(g(y)) = y
   metamath-proof metamath-bridges/functions/gf1cnvfv1
-  lean-proof  not yet implemented
+  lean-proof  LeanBridges.Functions.inverse_of_value g Y y h1.2 h2
 
 definition preimage
   let f : X → W                                                       (H1)
@@ -172,14 +172,14 @@ definition preimage
   metamath-proof metamath-bridges/functions/gelpreima
   note        f⁻¹[Z] is everything in X that f sends into Z, whether or not
               f has an inverse.
-  lean-proof  not yet implemented
+  lean-proof  Iff.rfl
 
 mundane theorem preimage-within
   let f : X → W                                                       (H1)
   then        f⁻¹[Z] ⊆ X
   metamath-proof metamath-bridges/functions/gpreimass
   note        A preimage holds only points of the domain.
-  lean-proof  not yet implemented
+  lean-proof  Set.inter_subset_left
 
 mundane theorem inverse-function
   let f : X → Y be one-to-one                                         (H1)
