@@ -94,4 +94,9 @@ theorem prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h4 : 
     (Int.gcd (p : ℤ) a : ℤ) = 1 :=
   by exact_mod_cast Int.isCoprime_iff_gcd_eq_one.mp ((Nat.prime_iff_prime_int.mp h2).coprime_iff_not_dvd.mpr h4)
 
+/-- `mun:stdlib/divisibility/divides-quotient`. -/
+theorem divides_quotient (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
+    (d : ℤ) ∣ (n : ℤ) ↔ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
+  ⟨fun ⟨k, hk⟩ => ⟨k.toNat, by have hk0 : 0 < k := (by rcases lt_trichotomy k 0 with h | h | h <;> [nlinarith; (subst h; simp at hk; omega); exact h]); omega, by have hk0 : (0:ℤ) ≤ k := (by rcases lt_trichotomy k 0 with h | h | h <;> [nlinarith; omega; omega]); rw [show ((k.toNat : ℕ) : ℚ) = ((k : ℤ) : ℚ) by exact_mod_cast Int.toNat_of_nonneg hk0]; field_simp; rw [mul_comm]; exact_mod_cast hk.symm⟩, fun ⟨m, _, hm⟩ => ⟨m, by field_simp at hm; exact_mod_cast (by linarith : (n : ℚ) = (d : ℚ) * (m : ℚ))⟩⟩
+
 end LeanBridges.Divisibility

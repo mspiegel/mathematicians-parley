@@ -453,8 +453,19 @@ impl<'a> Proof<'a> {
     /// membership Lean's types already give is left out, since nothing
     /// needs saying.
     fn claim(&self, step: &Step) -> Route<Vec<(Node, Printed)>> {
+        self.claimed(step).map(|c| {
+            c.into_iter()
+                .map(|(_, node, printed)| (node, printed))
+                .collect()
+        })
+    }
+
+    /// `claim`, each sentence with its place among the page's: a sentence
+    /// Lean's types already give, √x ∈ ℝ, is left out, and a citation is
+    /// read at the place the checker counted.
+    fn claimed(&self, step: &Step) -> Route<Vec<(usize, Node, Printed)>> {
         let mut out = Vec::new();
-        for s in step.claim.sentences() {
+        for (at, s) in step.claim.sentences().into_iter().enumerate() {
             let Some(node) = self.rec.page.get(&s) else {
                 return Route::no(format!(
                     "{}, which the checker did not read",
@@ -483,7 +494,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             if printed.text != "True" {
-                out.push((node.clone(), printed));
+                out.push((at, node.clone(), printed));
             }
         }
         Route::Built(out)
@@ -615,8 +626,12 @@ impl<'a> Proof<'a> {
             just: &step.just,
             cited: self.rec.cited[i].as_ref(),
         };
+        let places: Vec<usize> = match self.claimed(step) {
+            Route::Built(c) => c.into_iter().map(|(at, _, _)| at).collect(),
+            Route::Declined(d) => return Route::Declined(d),
+        };
         for (k, (node, prop)) in claim.iter().enumerate() {
-            let proof = match self.proof_of(reason, k, node) {
+            let proof = match self.proof_of(reason, places[k], node) {
                 Route::Built(t) => t,
                 Route::Declined(d) => return Route::Declined(d),
             };

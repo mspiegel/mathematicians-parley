@@ -398,6 +398,7 @@ notation square-root
   decided     real arithmetic
   metamath-syntax csqrt
   metamath-builds _1 csqrt cfv
+  lean-builds ℝ → ℝ: Real.sqrt _1
   note        `real arithmetic` works out the square root of a rational of at
               least 0; `arithmetic` takes no root.
 
@@ -624,6 +625,7 @@ notation pi
   decided     real arithmetic
   metamath-syntax cpi
   metamath-builds cpi
+  lean-builds → ℝ: Real.pi
   note        Half a turn, measured in radians. A geometry text writes 180°,
               which is this; see the degrees notation. Real arithmetic holds
               it as an atom (METHODS.md).

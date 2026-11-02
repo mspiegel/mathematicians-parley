@@ -26,6 +26,7 @@
 definition ln
   sort        number → number
   metamath-builds _1 clog cfv
+  lean-builds ℝ → ℝ: Real.log _1
   reads       the natural logarithm of
   decided     real arithmetic
   note        set.mm's log is taken in ℂ, its value at a negative number having
@@ -39,6 +40,7 @@ definition ln
 definition exp
   sort        number → number
   metamath-builds _1 ce cfv
+  lean-builds ℝ → ℝ: Real.exp _1 ; ℂ → ℂ: Complex.exp _1
   reads       the exponential of
   decided     real arithmetic
   note        exp(x) is eˣ, which set.mm defines the other way round, e being
@@ -54,7 +56,7 @@ mundane theorem ln-product
   assume y > 0                                                        (H4)
   then        ln(x·y) = ln(x) + ln(y)
   metamath-proof relogmul
-  lean-proof  not yet implemented
+  lean-proof  Real.log_mul h3.ne' h4.ne'
 
 mundane theorem ln-quotient
   let x ∈ ℝ                                                           (H1)
@@ -63,7 +65,7 @@ mundane theorem ln-quotient
   assume y > 0                                                        (H4)
   then        ln(x/y) = ln(x) − ln(y)
   metamath-proof relogdiv
-  lean-proof  not yet implemented
+  lean-proof  Real.log_div h3.ne' h4.ne'
 
 mundane theorem ln-power
   let x ∈ ℝ                                                           (H1)
@@ -71,7 +73,7 @@ mundane theorem ln-power
   assume x > 0                                                        (H3)
   then        ln(x^n) = n·ln(x)
   metamath-proof relogexp
-  lean-proof  not yet implemented
+  lean-proof  Real.log_zpow x n
 
 mundane theorem exp-ln
   let x ∈ ℝ                                                           (H1)
@@ -80,20 +82,20 @@ mundane theorem exp-ln
   metamath-proof reeflog
   note        With ln-exp, the logarithm and the exponential undo each other:
               each is one-to-one where the other is defined.
-  lean-proof  not yet implemented
+  lean-proof  Real.exp_log h2
 
 mundane theorem ln-exp
   let x ∈ ℝ                                                           (H1)
   then        ln(exp(x)) = x
   metamath-proof relogef
-  lean-proof  not yet implemented
+  lean-proof  Real.log_exp x
 
 mundane theorem exp-sum
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        exp(a + b) = exp(a)·exp(b)
   metamath-proof efadd
-  lean-proof  not yet implemented
+  lean-proof  Complex.exp_add a b
 
 mundane theorem ln-order
   let x ∈ ℝ                                                           (H1)
@@ -102,14 +104,14 @@ mundane theorem ln-order
   assume y > 0                                                        (H4)
   then        x < y ↔ ln(x) < ln(y)
   metamath-proof logltb with A := x, B := y
-  lean-proof  not yet implemented
+  lean-proof  (Real.log_lt_log_iff h3 h4).symm
 
 mundane theorem ln-real
   let x ∈ ℝ                                                           (H1)
   assume x > 0                                                        (H2)
   then        ln(x) ∈ ℝ
   metamath-proof relogcl
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem ln-nonzero
   let x ∈ ℝ                                                           (H1)
@@ -117,7 +119,7 @@ mundane theorem ln-nonzero
   assume x ≠ 1                                                        (H3)
   then        ln(x) ≠ 0
   metamath-proof logne0
-  lean-proof  not yet implemented
+  lean-proof  Real.log_ne_zero_of_pos_of_ne_one h2 h3
 
 mundane theorem exp-real
   let x ∈ ℝ                                                           (H1)
@@ -137,4 +139,4 @@ mundane theorem exp-positive
   let x ∈ ℝ                                                           (H1)
   then        exp(x) > 0
   metamath-proof efgt0
-  lean-proof  not yet implemented
+  lean-proof  Real.exp_pos x

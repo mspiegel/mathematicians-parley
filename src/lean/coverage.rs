@@ -68,6 +68,37 @@ pub fn coverage(
     out
 }
 
+/// Whether any reason of the theorem is the method `real arithmetic`: a
+/// step's own, a requires line's, a calculation row's, or the equation a
+/// substitution works out where it stands; or a line said to be impossible,
+/// which arithmetic works out false.
+fn uses_real_arithmetic(thm: &crate::corpus::Theorem) -> bool {
+    use crate::corpus::Method;
+    let real = |j: &crate::corpus::Justification| {
+        j.head.method() == Some(Method::RealArithmetic)
+    };
+    thm.steps.iter().any(|step| {
+        let rows = match crate::corpus::proof::chain(&step.just, &thm.path) {
+            Some(Ok(chain)) => chain.lines.iter().any(|l| {
+                l.cite == Method::RealArithmetic.as_str()
+                    || l.reason
+                        .as_ref()
+                        .is_some_and(|r| r.by.as_ref().is_ok_and(real))
+            }),
+            _ => false,
+        };
+        let in_place = matches!(
+            step.just.source,
+            Some(crate::corpus::skeleton::Source::RealArithmetic)
+        );
+        real(&step.just)
+            || rows
+            || in_place
+            || step.impossible
+            || step.requires.iter().any(|r| r.by.as_ref().is_ok_and(real))
+    })
+}
+
 /// The function a proof's define line gives, where the Lean build writes it
 /// (`Proof::define_function`): one argument, running over a number system,
 /// `let S(m) = …, for m ∈ ℕ`. None for any other line.
@@ -138,6 +169,28 @@ fn covered(
     if in_parts {
         return Covered::Out {
             reason: "a let line says a property beside a type, which the Lean build does not read yet"
+                .to_string(),
+        };
+    }
+    // Real arithmetic of √, π, ln, exp, sin or cos, √8 = 2√2 or 3 < π, has
+    // no Lean tactic yet that decides it.
+    let transcendental =
+        rec.page
+            .entries()
+            .flat_map(|(_, node)| node.walk())
+            .any(|n| {
+                matches!(&*n.notation_name(), "square-root" | "pi")
+                    || (matches!(
+                        n.notation(),
+                        crate::notations::APPLICATION
+                            | crate::notations::APPLICATION_TO_TWO
+                    ) && n.children.first().is_some_and(|f| {
+                        matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
+                    }))
+            });
+    if transcendental && uses_real_arithmetic(thm) {
+        return Covered::Out {
+            reason: "real arithmetic of √, π, ln, exp, sin or cos, which the Lean build cannot yet decide"
                 .to_string(),
         };
     }

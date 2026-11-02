@@ -28,6 +28,10 @@ theorem mun_not_both (n : ℤ) (h2 : Even n) :
     ¬ Odd n :=
   Int.not_odd_iff_even.mpr h2
 
+theorem mun_odd_not_even (n : ℤ) (h2 : Odd n) :
+    ¬ Even n :=
+  Int.not_even_iff_odd.mpr h2
+
 theorem mun_even_product (a : ℤ) (h2 : Even a) (x : ℤ) :
     Even (a * x) :=
   h2.mul_right x
@@ -171,5 +175,9 @@ theorem mun_prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h
 theorem mun_mod_equal_congruent (x : ℤ) (y : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : x % (n : ℤ) = y % (n : ℤ)) :
     x ≡ y [ZMOD (n : ℤ)] :=
   h4
+
+theorem mun_divides_quotient (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
+    (d : ℤ) ∣ (n : ℤ) ↔ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
+  LeanBridges.Divisibility.divides_quotient n h1 d h2
 
 end Parley.Items.Stdlib.Divisibility

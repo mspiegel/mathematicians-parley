@@ -105,8 +105,10 @@ pub struct Templates {
     /// The notations with a `lean-builds` field, by name.
     mapped: IndexMap<String, ()>,
     /// Each library function a definition record's `lean-builds` field
-    /// gives a Lean form, by its name: `gcd(a, b)` is `Int.gcd a b`.
-    functions: IndexMap<String, Template>,
+    /// gives a Lean form, by its name: `gcd(a, b)` is `Int.gcd a b`. A
+    /// function Lean has at several types has one form for each, set apart
+    /// by ` ; `: `ℝ → ℝ: Real.cos _1 ; ℂ → ℂ: Complex.cos _1`.
+    functions: IndexMap<String, Vec<Template>>,
 }
 
 impl Templates {
@@ -115,19 +117,23 @@ impl Templates {
         let mut out = Templates::default();
         for r in records {
             if r.kind == RecordKind::Definition {
-                if let Some(entry) = r.field(LEAN_BUILDS) {
+                if let Some(field) = r.field(LEAN_BUILDS) {
                     let line = r.lines.get(LEAN_BUILDS).copied().unwrap_or(r.line);
-                    let template = Template::read(entry.trim()).ok_or_else(|| {
-                        Problem::new(
-                            &r.path,
-                            line,
-                            format!(
-                                "definition {}: lean-builds {entry:?} does not read",
-                                r.name
-                            ),
-                        )
-                    })?;
-                    out.functions.insert(r.name.clone(), template);
+                    let mut forms = Vec::new();
+                    for entry in field.split(" ; ").map(str::trim) {
+                        let template = Template::read(entry).ok_or_else(|| {
+                            Problem::new(
+                                &r.path,
+                                line,
+                                format!(
+                                    "definition {}: lean-builds {entry:?} does not read",
+                                    r.name
+                                ),
+                            )
+                        })?;
+                        forms.push(template);
+                    }
+                    out.functions.insert(r.name.clone(), forms);
                 }
                 continue;
             }
@@ -184,9 +190,25 @@ impl Templates {
         self.mapped.contains_key(notation)
     }
 
-    /// The Lean form of a library function, by its name.
+    /// The Lean form of a library function, by its name: its first, where
+    /// it has one for each of several types.
     pub fn function(&self, name: &str) -> Option<&Template> {
-        self.functions.get(name)
+        self.functions.get(name).and_then(|forms| forms.first())
+    }
+
+    /// The Lean form of a library function applied to arguments of the
+    /// types given: the first whose holes hold them, a number of a type
+    /// held in each fixed hole's type; else the first.
+    pub fn function_at(&self, name: &str, args: &[Num]) -> Option<&Template> {
+        let forms = self.functions.get(name)?;
+        let holds = |t: &Template| {
+            t.holes.len() == args.len()
+                && t.holes.iter().zip(args).all(|(slot, arg)| match slot {
+                    Slot::Fixed(n) => arg <= n,
+                    _ => true,
+                })
+        };
+        forms.iter().find(|t| holds(t)).or(forms.first())
     }
 }
 

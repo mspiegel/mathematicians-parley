@@ -16,6 +16,18 @@ theorem def_irrational (x : ℝ) :
     Irrational x ↔ True ∧ ¬ (∃ m : ℚ, (m : ℝ) = x) :=
   LeanBridges.Numbers.irrational x
 
+theorem def_sqrt_1 (x : ℝ) (h2 : 0 ≤ x) :
+    True :=
+  trivial
+
+theorem def_sqrt_2 (x : ℝ) (h2 : 0 ≤ x) :
+    0 ≤ Real.sqrt x :=
+  Real.sqrt_nonneg x
+
+theorem def_sqrt_3 (x : ℝ) (h2 : 0 ≤ x) :
+    Real.sqrt x ^ 2 = x :=
+  Real.sq_sqrt h2
+
 theorem mun_int_closure_1 (a : ℤ) :
     True :=
   trivial
@@ -144,6 +156,10 @@ theorem mun_abs_real {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsSt
     True :=
   trivial
 
+theorem mun_quotient_real {K : Type*} [Field K] [CharZero K] (x : K) (y : K) (h3 : y ≠ 0) :
+    True :=
+  trivial
+
 theorem mun_square_nonneg {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     0 ≤ x ^ 2 :=
   sq_nonneg x
@@ -159,6 +175,10 @@ theorem mun_multiply_le {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [I
 theorem mun_square_positive {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (h2 : x ≠ 0) :
     0 < x ^ 2 :=
   lt_of_le_of_ne (sq_nonneg x) (Ne.symm (pow_ne_zero 2 h2))
+
+theorem mun_square_equal {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (h3 : 0 ≤ x) (h4 : 0 ≤ y) :
+    x ^ 2 = y ^ 2 ↔ x = y :=
+  sq_eq_sq₀ h3 h4
 
 theorem mun_square_less {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (h3 : 0 ≤ x) (h4 : 0 ≤ y) :
     x < y ↔ x ^ 2 < y ^ 2 :=
@@ -176,6 +196,10 @@ theorem mun_product_positive {K : Type*} [CommRing K] [IsDomain K] [LinearOrder 
     0 < x * y :=
   mul_pos h3 h4
 
+theorem mun_factor_positive {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (b : K) (h3 : 0 ≤ a) (h4 : 0 < a * b) :
+    0 < b :=
+  pos_of_mul_pos_right h4 h3
+
 theorem mun_power_positive {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℤ) (h3 : 0 < a) :
     0 < a ^ m :=
   zpow_pos h3 m
@@ -187,6 +211,10 @@ theorem mun_zero_product {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (x :
 theorem mun_quotient_nonneg {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (h3 : 0 ≤ x) (h4 : 0 < y) :
     0 ≤ x / y :=
   div_nonneg h3 h4.le
+
+theorem mun_quotient_positive {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (h3 : 0 < x) (h4 : 0 < y) :
+    0 < x / y :=
+  div_pos h3 h4
 
 theorem mun_less_scaled {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (c : K) (h4 : 0 < c) :
     x < y ↔ c * x < c * y :=

@@ -295,7 +295,13 @@ impl Writer<'_> {
         if !f.is_name() || self.letters.contains_key(f.text.as_str()) {
             return None;
         }
-        self.templates.function(&f.text)
+        // Of a function Lean has at several types, the form its arguments'
+        // types take: cos of a complex number is Complex.cos.
+        let args: Vec<Num> = node.children[1..]
+            .iter()
+            .filter_map(|a| self.carrier(a).built())
+            .collect();
+        self.templates.function_at(&f.text, &args)
     }
 
     /// What a node's template fills its holes with: its children, or for a

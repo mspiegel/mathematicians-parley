@@ -80,7 +80,7 @@ mundane theorem odd-not-even
   metamath-proof simpr
   note        not-both the other way: "n is not even" is the second part of
               what "n is odd" says.
-  lean-proof  not yet implemented
+  lean-proof  Int.not_even_iff_odd.mpr h2
 
 mundane theorem odd-not-divisible
   let n ∈ ℤ                                                           (H1)
@@ -689,7 +689,7 @@ mundane theorem divides-quotient
   let d ∈ ℕ                                                           (H2)
   then        d divides n ↔ n/d ∈ ℕ
   metamath-proof nndivdvds
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/divisibility/divides-quotient
 
 mundane theorem gcd-quotients-coprime
   let a ∈ ℤ                                                           (H1)

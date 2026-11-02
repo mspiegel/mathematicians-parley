@@ -52,7 +52,7 @@ definition sqrt
   assume x ≥ 0                                                        (H2)
   then        √x ∈ ℝ. √x ≥ 0. (√x)² = x.
   metamath-proof resqrtcl, sqrtge0, resqrtth
-  lean-proof  not yet implemented
+  lean-proof  trivial ; Real.sqrt_nonneg x ; Real.sq_sqrt h2
 
 mundane theorem int-closure
   let a ∈ ℤ                                                           (H1)
@@ -610,7 +610,7 @@ mundane theorem quotient-real
   note        No proof cites it: the method `membership` builds a quotient's
               membership from its parts, and a quotient of letters and
               numerals is said once (`READERS.md`).
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem square-nonneg
   let x ∈ ℝ                                                           (H1)
@@ -663,7 +663,7 @@ mundane theorem square-equal
   assume y ≥ 0                                                        (H4)
   then        x² = y² ↔ x = y
   metamath-proof sq11
-  lean-proof  not yet implemented
+  lean-proof  sq_eq_sq₀ h3 h4
 
 mundane theorem square-less
   let x ∈ ℝ                                                           (H1)
@@ -715,7 +715,7 @@ mundane theorem factor-positive
   metamath-proof prodgt0
   note        A positive product of a factor at least 0 and another has the
               other positive.
-  lean-proof  not yet implemented
+  lean-proof  pos_of_mul_pos_right h4 h3
 
 mundane theorem power-positive
   let a ∈ ℝ                                                           (H1)
@@ -816,7 +816,7 @@ mundane theorem quotient-positive
   metamath-proof divgt0
   note        As quotient-nonneg, strictly: ε/2 > 0 and ε/(2·d) > 0 are what
               a limit proof takes them from.
-  lean-proof  not yet implemented
+  lean-proof  div_pos h3 h4
 
 mundane theorem less-scaled
   let x ∈ ℝ                                                           (H1)

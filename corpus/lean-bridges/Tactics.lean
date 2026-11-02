@@ -149,6 +149,10 @@ macro "parley_put_at " e:term:max h:ident : tactic =>
     -- integers: the fact is taken up to ℤ first.
     | (have h' := $h; zify at h'; rw [← $e:term] at h'; exact h'; done)
     | (have h' := $h; zify at h'; rw [$e:term] at h'; exact h'; done)
+    -- A fact or an equation of numerals alone, written in ℚ, put where
+    -- the other is in ℝ, (√(1/4))² for 1/4: taken up to ℝ first.
+    | (have h' := $h; rify at h'; first | (rw [← $e:term] at h'; exact h') | (rw [$e:term] at h'; exact h'); done)
+    | (have e' := $e; rify at e'; first | (rw [← e'] at $h:ident; exact $h) | (rw [e'] at $h:ident; exact $h); done)
     -- An equation of naturals cast up to ℤ, put where ℕ is wanted, an
     -- exponent, is taken back down first.
     | (have e := $e; norm_cast at e; rw [← e] at $h:ident; exact $h; done)

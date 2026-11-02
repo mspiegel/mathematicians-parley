@@ -24,6 +24,7 @@
 definition cos
   sort        number → number
   metamath-builds _1 ccos cfv
+  lean-builds ℝ → ℝ: Real.cos _1 ; ℂ → ℂ: Complex.cos _1
   reads       the cosine of
   decided     real arithmetic
   note        A reader knows the cosine from school, and set.mm's definition of
@@ -36,6 +37,7 @@ definition cos
 definition sin
   sort        number → number
   metamath-builds _1 csin cfv
+  lean-builds ℝ → ℝ: Real.sin _1 ; ℂ → ℂ: Complex.sin _1
   reads       the sine of
   decided     real arithmetic
   note        As for cos. Real arithmetic works out the sine and cosine of an
@@ -49,14 +51,14 @@ theorem cos-add
   let b ∈ ℂ                                                           (H2)
   then        cos(a + b) = cos(a)·cos(b) − sin(a)·sin(b)
   metamath-proof cosadd
-  lean-proof  not yet implemented
+  lean-proof  Complex.cos_add a b
 
 theorem sin-add
   let a ∈ ℂ                                                           (H1)
   let b ∈ ℂ                                                           (H2)
   then        sin(a + b) = sin(a)·cos(b) + cos(a)·sin(b)
   metamath-proof sinadd
-  lean-proof  not yet implemented
+  lean-proof  Complex.sin_add a b
 
 mundane theorem cos-zero
   then        cos(0) = 1
@@ -81,14 +83,14 @@ mundane theorem cos-complex
   note        As cos-real, for a complex argument: cos-add and sin-add are
               stated over ℂ, and algebra on what they give asks each value
               to be a number.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem sin-complex
   let a ∈ ℂ                                                           (H1)
   then        sin(a) ∈ ℂ
   metamath-proof sincl
   note        As cos-complex.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem cos-negative
   let a ∈ ℂ                                                           (H1)
@@ -96,7 +98,7 @@ mundane theorem cos-negative
   metamath-proof cosneg
   note        The cosine is even. With cos-add it gives the cosine of a
               difference.
-  lean-proof  not yet implemented
+  lean-proof  Complex.cos_neg a
 
 mundane theorem sin-negative
   let a ∈ ℂ                                                           (H1)
@@ -104,7 +106,7 @@ mundane theorem sin-negative
   metamath-proof sinneg
   note        The sine is odd. With sin-add it gives the sine of a
               difference.
-  lean-proof  not yet implemented
+  lean-proof  Complex.sin_neg a
 
 mundane theorem sin-cos-squares
   let a ∈ ℂ                                                           (H1)
@@ -113,7 +115,7 @@ mundane theorem sin-cos-squares
   note        A school reader takes it from the unit circle. From cos-add
               alone it is cos(a + (−a)) = cos(0), which asks the two items
               above.
-  lean-proof  not yet implemented
+  lean-proof  Complex.sin_sq_add_cos_sq a
 
 mundane theorem sin-nonneg
   let a ∈ [0, π]                                                      (H1)
