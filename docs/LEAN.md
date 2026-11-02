@@ -18,8 +18,8 @@ installed; the gate does.
 
 ## What the build writes
 
-- `lean/Parley/Items/<module>.lean`: each library item with a `lean-proof` field,
-  one Lean theorem for each sentence it concludes. The statement is printed
+- `lean/Parley/Items/<module>.lean`: each library item whose `lean-proof` is
+  Mathlib's proof or a bridge, one Lean theorem for each sentence it concludes. The statement is printed
   from the record as the checker read it, and the proof is the `lean-proof` field's
   entry for that sentence. `def:divides` is
   `theorem def_divides (d n : ℤ) : d ∣ n ↔ ∃ k : ℤ, n = d * k := Iff.rfl`.
@@ -41,10 +41,12 @@ makes is removed.
 
 A theorem is in the Lean build when every notation its page uses, every
 library function it applies and every item it cites has a Lean form: a
-notation with a `lean-builds` field or a record with a `lean-proof` field, a
-function whose definition has a `lean-builds` field, a theorem of the corpus
-that is itself in, or a record whose `lean-proof` field is `on the page` and
-whose proof is itself in; and when
+notation with a `lean-builds` field; a record whose `lean-proof` is Mathlib's
+proof, a bridge or `none`, or names a Parley proof that is itself in; a
+function whose definition has a `lean-builds` field; or a theorem of the
+corpus that is itself in. A record whose `lean-proof` is `not yet
+implemented` keeps out every theorem that cites it. A theorem is in, too, only
+when
 every letter it writes is a number, the one sort the writer gives a Lean type
 to so far. Nothing lists the theorems; the build grows as fields are added. A
 theorem left out is printed with what keeps it out, `it writes notation

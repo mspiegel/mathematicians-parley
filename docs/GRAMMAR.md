@@ -823,7 +823,8 @@ phrase stands at the level
 `predicate`, or at `betweenness` where its words write "and" or "or".
 
 Theorems may appear in any order. No theorem cites itself, and no theorems
-of a file cite one another round a cycle. A theorem's one field, `note`, is
+cite one another round a cycle, in one file or across files; a citation of
+a record whose proof field names a Parley proof reaches that proof. A theorem's one field, `note`, is
 prose for a person, as a record's is. It is said at most once, between the
 `theorem` line and the statement, and continues on lines indented further
 than it. A `define` line states what its name is and is cited by its label, and the
