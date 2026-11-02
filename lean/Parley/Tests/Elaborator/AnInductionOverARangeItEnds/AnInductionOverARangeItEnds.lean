@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/an-induction-over-a-range-it-ends.proof by parley build lean. -/

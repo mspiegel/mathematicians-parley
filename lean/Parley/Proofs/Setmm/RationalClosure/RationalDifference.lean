@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Setmm.RationalClosure.RationalSum
 
 /-! Written from proofs/setmm/rational-closure.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/a-direction-ending-on-a-proof-block.proof by parley build lean. -/

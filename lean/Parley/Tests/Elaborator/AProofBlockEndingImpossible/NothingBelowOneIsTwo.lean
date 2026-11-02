@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-proof-block-ending-impossible.proof by parley build lean. -/
 

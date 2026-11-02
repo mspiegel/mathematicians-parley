@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cube-minus-self-divisible-by-six.proof by parley build lean. -/

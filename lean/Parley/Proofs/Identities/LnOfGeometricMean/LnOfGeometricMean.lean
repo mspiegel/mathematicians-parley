@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
 

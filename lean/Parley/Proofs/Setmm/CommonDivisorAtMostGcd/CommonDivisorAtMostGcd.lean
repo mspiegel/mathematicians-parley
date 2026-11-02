@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/common-divisor-at-most-gcd.proof by parley build lean. -/

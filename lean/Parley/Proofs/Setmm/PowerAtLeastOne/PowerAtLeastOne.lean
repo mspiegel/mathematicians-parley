@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/power-at-least-one.proof by parley build lean. -/

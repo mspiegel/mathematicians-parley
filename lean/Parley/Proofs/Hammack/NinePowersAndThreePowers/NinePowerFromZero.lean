@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/nine-powers-and-three-powers.proof by parley build lean. -/

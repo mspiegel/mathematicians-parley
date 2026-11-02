@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 
 /-! Written from tests/elaborator/a-range-member-is-cited.proof by parley build lean. -/
 

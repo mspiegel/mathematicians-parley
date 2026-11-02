@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-congruence-read-either-way.proof by parley build lean. -/
 

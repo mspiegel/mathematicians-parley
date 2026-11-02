@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/product-of-one-minus-halves.proof by parley build lean. -/

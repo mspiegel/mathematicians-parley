@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/

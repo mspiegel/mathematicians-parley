@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Hammack.AlternatingSignBijection.SignOfOdd
 
 /-! Written from proofs/hammack/alternating-sign-bijection.proof by parley build lean. -/

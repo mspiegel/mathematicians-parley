@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/setmm/subset-of-a-union-with-a-disjoint-set.proof by parley build lean. -/

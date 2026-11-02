@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/
 

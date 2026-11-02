@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/setmm/equal-values.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-supposition-written-otherwise.proof by parley build lean. -/
 

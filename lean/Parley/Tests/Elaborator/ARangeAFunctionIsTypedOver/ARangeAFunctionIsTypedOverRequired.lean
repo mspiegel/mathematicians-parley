@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-range-a-function-is-typed-over.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/hammack/sum-of-eight-i-minus-five.proof by parley build lean. -/

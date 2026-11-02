@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Setmm.RationalClosure.RationalProduct
 public import Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 

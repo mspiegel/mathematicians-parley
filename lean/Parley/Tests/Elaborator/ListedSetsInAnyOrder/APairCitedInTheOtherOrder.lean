@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/elaborator/listed-sets-in-any-order.proof by parley build lean. -/

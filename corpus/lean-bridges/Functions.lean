@@ -1,7 +1,6 @@
 module
 
 public import Mathlib
-public import Counting
 
 /-!
 # Functions

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 
 /-! Written from tests/elaborator/a-congruence-read-either-way.proof by parley build lean. -/

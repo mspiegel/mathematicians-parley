@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Reasoning
 
 /-! Written from proofs/setmm/cases-by-implication.proof by parley build lean. -/

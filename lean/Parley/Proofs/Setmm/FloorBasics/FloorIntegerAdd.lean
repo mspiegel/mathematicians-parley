@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.FloorBasics.FloorAddInteger
 

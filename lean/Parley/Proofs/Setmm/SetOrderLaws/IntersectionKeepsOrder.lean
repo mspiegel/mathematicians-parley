@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/setmm/set-order-laws.proof by parley build lean. -/

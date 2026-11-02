@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/hammack/ln-is-injective.proof by parley build lean. -/

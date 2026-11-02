@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/setmm/choose-two-pairs.proof by parley build lean. -/

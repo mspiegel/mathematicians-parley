@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from proofs/setmm/no-least-positive.proof by parley build lean. -/
 

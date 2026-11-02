@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-family-of-parts-by-a-define.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/hammack/sum-of-first-naturals.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/floor-in-a-bound.proof by parley build lean. -/

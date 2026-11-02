@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Hammack.PolynomialSign.NegativePowers
 
 /-! Written from proofs/hammack/polynomial-sign.proof by parley build lean. -/

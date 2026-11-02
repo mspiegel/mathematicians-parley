@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Sums
+public import Tactics
 
 /-! Written from corpus/stdlib/sums.records by parley build lean. -/
 

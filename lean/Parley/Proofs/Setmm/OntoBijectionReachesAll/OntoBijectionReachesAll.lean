@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 
 /-! Written from proofs/setmm/onto-bijection-reaches-all.proof by parley build lean. -/

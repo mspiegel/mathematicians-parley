@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from corpus/stdlib/trigonometry.records by parley build lean. -/
 

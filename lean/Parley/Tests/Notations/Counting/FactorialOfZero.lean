@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 
 /-! Written from tests/notations/counting.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/cited-equation-divisor-a-power.proof by parley build lean. -/
 

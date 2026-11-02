@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.InAUnionOnTheRight
 
 /-! Written from tests/elaborator/a-theorem-cited-at-other-letters.proof by parley build lean. -/

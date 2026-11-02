@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/

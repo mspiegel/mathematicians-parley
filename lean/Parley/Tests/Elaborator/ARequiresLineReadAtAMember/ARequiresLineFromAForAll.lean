@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-requires-line-read-at-a-member.proof by parley build lean. -/

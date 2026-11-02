@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/identities/exp-is-increasing.proof by parley build lean. -/

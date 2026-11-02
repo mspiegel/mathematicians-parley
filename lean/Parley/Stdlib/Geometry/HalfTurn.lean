@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from corpus/stdlib/geometry.proof by parley build lean. -/

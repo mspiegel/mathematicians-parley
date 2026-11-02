@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree

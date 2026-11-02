@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-range-line-gives-its-bounds.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/setmm/disjoint-from-a-difference.proof by parley build lean. -/

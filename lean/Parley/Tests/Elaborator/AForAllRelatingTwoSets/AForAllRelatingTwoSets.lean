@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/a-for-all-relating-two-sets.proof by parley build lean. -/

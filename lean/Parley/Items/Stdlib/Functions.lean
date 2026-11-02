@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Functions
+public import Tactics
 
 /-! Written from corpus/stdlib/functions.records by parley build lean. -/
 

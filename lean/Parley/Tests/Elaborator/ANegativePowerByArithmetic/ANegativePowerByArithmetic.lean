@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/a-negative-power-by-arithmetic.proof by parley build lean. -/
 

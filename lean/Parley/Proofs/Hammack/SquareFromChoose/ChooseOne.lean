@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/hammack/square-from-choose.proof by parley build lean. -/

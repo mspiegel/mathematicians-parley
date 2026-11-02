@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-last-term-without-its-zero.proof by parley build lean. -/

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 public import Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/notations/functions.proof by parley build lean. -/

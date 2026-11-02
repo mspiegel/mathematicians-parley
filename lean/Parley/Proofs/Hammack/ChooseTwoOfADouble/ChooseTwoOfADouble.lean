@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 public import Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo
 
 /-! Written from proofs/hammack/choose-two-of-a-double.proof by parley build lean. -/

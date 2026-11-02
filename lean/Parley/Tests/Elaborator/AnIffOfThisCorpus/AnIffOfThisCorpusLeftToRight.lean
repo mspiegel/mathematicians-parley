@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Tests.Elaborator.AnIffOfThisCorpus.ZeroDividesRestated
 
 /-! Written from tests/elaborator/an-iff-of-this-corpus.proof by parley build lean. -/

@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Functions
+public import Tactics
 public import Parley.Proofs.Setmm.InverseOfValue.InverseOfValue
 public import Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse
 

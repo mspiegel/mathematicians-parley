@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import Counting
+public import Factorials
 
 /-!
 # Tactics the generated proofs use

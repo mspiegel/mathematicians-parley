@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/inspection-of-a-range-below-zero.proof by parley build lean. -/
 

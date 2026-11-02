@@ -1,6 +1,7 @@
 module
 
 public import Mathlib
+public import Factorials
 public import Counting
 public import Divisibility
 public import Numbers

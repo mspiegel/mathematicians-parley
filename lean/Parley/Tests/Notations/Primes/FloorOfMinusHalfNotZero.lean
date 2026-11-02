@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalf
 
 /-! Written from tests/notations/primes.proof by parley build lean. -/

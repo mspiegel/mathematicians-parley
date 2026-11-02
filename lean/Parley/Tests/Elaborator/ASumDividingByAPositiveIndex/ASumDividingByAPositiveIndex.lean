@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-sum-dividing-by-a-positive-index.proof by parley build lean. -/

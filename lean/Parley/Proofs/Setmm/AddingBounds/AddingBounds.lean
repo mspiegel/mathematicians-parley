@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from proofs/setmm/adding-bounds.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/divide-by-a-compound-quotient.proof by parley build lean. -/
 

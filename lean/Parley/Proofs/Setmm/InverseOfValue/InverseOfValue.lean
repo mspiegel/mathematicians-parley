@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Functions
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/setmm/inverse-of-value.proof by parley build lean. -/

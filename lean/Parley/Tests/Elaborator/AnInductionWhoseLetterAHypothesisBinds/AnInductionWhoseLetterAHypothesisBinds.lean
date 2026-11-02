@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/an-induction-whose-letter-a-hypothesis-binds.proof by parley build lean. -/
 

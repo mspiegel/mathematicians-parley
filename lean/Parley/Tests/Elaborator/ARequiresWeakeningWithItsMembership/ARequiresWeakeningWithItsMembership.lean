@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-requires-weakening-with-its-membership.proof by parley build lean. -/

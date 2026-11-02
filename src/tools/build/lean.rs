@@ -77,6 +77,29 @@ struct Unwritten {
     import: String,
 }
 
+/// The bridge module of tactics every generated file uses.
+const TACTICS: &str = "Tactics";
+
+/// The modules of the library a generated file imports: the tactics, and
+/// each bridge module its Lean text names, `Counting` for a
+/// `LeanBridges.Counting.…`. A file imports no bridge it does not use, so
+/// that a new bridge in one subject rebuilds only the files that use it.
+fn library_imports(text: &str) -> BTreeSet<String> {
+    let prefix = format!("{LIBRARY}.");
+    let mut out = BTreeSet::from([TACTICS.to_string()]);
+    for (at, _) in text.match_indices(&prefix) {
+        let rest = &text[at + prefix.len()..];
+        let subject: String = rest
+            .chars()
+            .take_while(|c| c.is_alphanumeric() || *c == '_')
+            .collect();
+        if !subject.is_empty() {
+            out.insert(subject);
+        }
+    }
+    out
+}
+
 /// The header every generated file opens with.
 fn header(imports: &[String], from: &str) -> String {
     let mut out = String::from("module\n\n");
@@ -123,7 +146,9 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
     }
     for (module, (path, decls)) in &modules {
-        let mut text = header(&[LIBRARY.to_string()], path);
+        let body = decls.join("\n\n");
+        let imports: Vec<String> = library_imports(&body).into_iter().collect();
+        let mut text = header(&imports, path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         for d in decls {
             text.push_str(d);
@@ -197,17 +222,22 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             }
         };
         let module = module_of(&name);
-        let mut imports: BTreeSet<String> = BTreeSet::new();
-        imports.insert(LIBRARY.to_string());
+        // The modules of the items it cites, which must be written for it
+        // to be, and beside them the library it uses.
+        let mut cited: BTreeSet<String> = BTreeSet::new();
         for (full, _) in cited_items(thm) {
             if let Some(it) = items.get(&full) {
                 if it.module != module {
-                    imports.insert(it.module.clone());
+                    cited.insert(it.module.clone());
                 }
             }
         }
-        let imports: Vec<String> = imports.into_iter().collect();
-        imported.insert(module.clone(), (name.clone(), imports.clone()));
+        let cited: Vec<String> = cited.into_iter().collect();
+        imported.insert(module.clone(), (name.clone(), cited.clone()));
+        let imports: Vec<String> = library_imports(&file.text)
+            .into_iter()
+            .chain(cited)
+            .collect();
         let mut text = header(&imports, &thm.path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         let above = text.lines().count();
@@ -246,7 +276,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             .filter_map(|(m, (name, imports))| {
                 imports
                     .iter()
-                    .find(|i| *i != LIBRARY && !written.contains(i))
+                    .find(|i| !written.contains(i))
                     .map(|i| Unwritten {
                         module: m.clone(),
                         theorem: name.clone(),

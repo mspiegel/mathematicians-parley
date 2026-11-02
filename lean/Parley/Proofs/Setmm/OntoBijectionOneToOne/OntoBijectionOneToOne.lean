@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from proofs/setmm/onto-bijection-one-to-one.proof by parley build lean. -/
 

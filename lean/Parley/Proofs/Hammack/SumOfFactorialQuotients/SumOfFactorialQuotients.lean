@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Counting
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep

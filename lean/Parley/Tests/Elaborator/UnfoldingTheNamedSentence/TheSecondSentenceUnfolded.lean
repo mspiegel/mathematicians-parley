@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/unfolding-the-named-sentence.proof by parley build lean. -/

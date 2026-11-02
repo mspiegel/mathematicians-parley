@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/elaborator/an-intersection-counted.proof by parley build lean. -/

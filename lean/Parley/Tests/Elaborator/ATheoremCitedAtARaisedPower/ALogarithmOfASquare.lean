@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from tests/elaborator/a-theorem-cited-at-a-raised-power.proof by parley build lean. -/

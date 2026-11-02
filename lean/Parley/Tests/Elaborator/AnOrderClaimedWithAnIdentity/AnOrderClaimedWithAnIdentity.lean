@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/an-order-claimed-with-an-identity.proof by parley build lean. -/
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-sum-lemma-over-another-bound-letter.proof by parley build lean. -/

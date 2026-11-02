@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/an-identity-a-substitution-makes.proof by parley build lean. -/
 

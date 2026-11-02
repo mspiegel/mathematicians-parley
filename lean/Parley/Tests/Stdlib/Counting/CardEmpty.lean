@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/stdlib/counting.proof by parley build lean. -/

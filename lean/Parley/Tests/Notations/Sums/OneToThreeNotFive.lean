@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Tests.Notations.Sums.OneToThreeSummed
 
 /-! Written from tests/notations/sums.proof by parley build lean. -/

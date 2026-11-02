@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/no-integers-with-eighteen-a-plus-six-b-one.proof by parley build lean. -/

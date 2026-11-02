@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Items.Stdlib.Sets
 public import Parley.Proofs.Setmm.SubsetOfUnion.SubsetOfUnion
 public import Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight

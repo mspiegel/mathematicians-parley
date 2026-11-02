@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 
 /-! Written from proofs/setmm/difference-not-zero.proof by parley build lean. -/

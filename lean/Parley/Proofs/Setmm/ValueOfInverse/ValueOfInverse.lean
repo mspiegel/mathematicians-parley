@@ -1,6 +1,7 @@
 module
 
-public import LeanBridges
+public import Functions
+public import Tactics
 public import Parley.Items.Stdlib.Functions
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 

@@ -1,6 +1,6 @@
 module
 
-public import LeanBridges
+public import Tactics
 
 /-! Written from tests/elaborator/an-identity-a-link-drops.proof by parley build lean. -/
 
