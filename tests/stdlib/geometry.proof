@@ -28,6 +28,7 @@ import mundane theorem    stdlib/geometry/angle-by-cosine as geometry-angle-by-c
 import axiom              stdlib/geometry/supplementary-angles as geometry-supplementary-angles
 import theorem            stdlib/geometry/triangle-inequality-points as geometry-triangle-inequality-points
 import theorem            stdlib/geometry/triangle-equality-between as geometry-triangle-equality-between
+import theorem            stdlib/geometry/angle-angle-side as geometry-angle-angle-side
 import theorem            stdlib/geometry/triangle-inequality-strict as geometry-triangle-inequality-strict
 import mundane theorem    stdlib/geometry/angle-addition as geometry-angle-addition
 import mundane theorem    stdlib/geometry/between-apart as geometry-between-apart
@@ -595,6 +596,23 @@ theorem triangle-equality-between
 
 1.  Q is between P and R
     thm:geometry-triangle-equality-between, from H4, H5, H6
+
+theorem angle-angle-side
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume ∠CAB = ∠FDE                                                  (H9)
+  assume ∠ABC = ∠DEF                                                  (H10)
+  assume |BC| = |EF|                                                  (H11)
+  then triangle ABC ≅ triangle DEF
+
+1.  triangle ABC ≅ triangle DEF
+    thm:geometry-angle-angle-side, from H7, H8, H9, H10, H11
 
 theorem triangle-inequality-strict
   let P be a point                                                    (H1)

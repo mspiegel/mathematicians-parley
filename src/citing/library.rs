@@ -93,6 +93,30 @@ impl Group {
     }
 }
 
+/// Every fact the groups ask, in order.
+fn wants_of(groups: &[Group]) -> Vec<(String, Node)> {
+    groups
+        .iter()
+        .flat_map(|g| g.wants.iter().cloned())
+        .collect()
+}
+
+/// Every sentence the groups conclude, in order.
+fn gives_of(groups: &[Group]) -> Vec<Node> {
+    groups
+        .iter()
+        .flat_map(|g| g.gives.iter().cloned())
+        .collect()
+}
+
+/// Whether two lists of trees are written alike, tree for tree. A build
+/// cites a record's proof in the record's place, so a citation matched to
+/// how the record writes its statement is built from how the proof writes
+/// it, and the two are compared as written.
+fn written_alike(a: &[Node], b: &[Node]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.same_shape(y))
+}
+
 /// Each define's rule with every letter it binds that `names` uses spelt
 /// with a letter neither uses (`matching::bound_apart`).
 fn defines_apart(
@@ -367,28 +391,39 @@ impl<'a> Library<'a> {
     /// groups leave these out, since a function the theorem has asks
     /// nothing; one the citing proof defines is asked it in a requires line.
     pub fn function_types(&self, name: &str) -> Vec<Node> {
-        // A theorem's hypothesis is written with its `let`, as a proof file
-        // has it, and a record's without.
-        let (said, sorts): (Vec<(Intro, Written)>, &Sorts) =
-            if let Some(k) = self.proved.get(name) {
-                let said = k
-                    .thm
-                    .hypotheses
-                    .iter()
-                    .map(|h| (h.kind, h.body(&k.thm.path)))
-                    .collect();
-                (said, &*k.sorts)
-            } else if let Some(&i) = self.items.get(name) {
-                let record = &self.records[i];
-                let said = record
-                    .hypotheses
-                    .iter()
-                    .map(|h| (h.kind, h.body(&record.path)))
-                    .collect();
-                (said, &self.record_sorts[&i])
-            } else {
-                return Vec::new();
-            };
+        if let Some(&i) = self.items.get(name) {
+            return self.record_function_types(i);
+        }
+        match self.proved.get(name) {
+            Some(k) => self.proved_function_types(k),
+            None => Vec::new(),
+        }
+    }
+
+    /// `function_types` of the record at `i` in `records`.
+    fn record_function_types(&self, i: usize) -> Vec<Node> {
+        let record = &self.records[i];
+        let said = record
+            .hypotheses
+            .iter()
+            .map(|h| (h.kind, h.body(&record.path)))
+            .collect();
+        self.function_lines(said, &self.record_sorts[&i])
+    }
+
+    /// `function_types` of a theorem this corpus proves.
+    fn proved_function_types(&self, k: &Proved<'a>) -> Vec<Node> {
+        let said = k
+            .thm
+            .hypotheses
+            .iter()
+            .map(|h| (h.kind, h.body(&k.thm.path)))
+            .collect();
+        self.function_lines(said, &k.sorts)
+    }
+
+    /// The function-type `let` lines among `said`, read with `sorts`.
+    fn function_lines(&self, said: Vec<(Intro, Written)>, sorts: &Sorts) -> Vec<Node> {
         let lines: Vec<Written> = said
             .into_iter()
             .filter(|(kind, _)| *kind == Intro::Let)
@@ -458,63 +493,110 @@ impl<'a> Library<'a> {
     }
 
     /// One (hypotheses, conclusion sentences) pair per `then` group.
+    ///
+    /// A library theorem proved in Parley has a record too, which is its
+    /// statement, and is read as the record (`check_record_proofs` holds
+    /// the two to one statement).
     fn read(&self, name: &str) -> Option<Vec<Group>> {
-        if let Some(k) = self.proved.get(name) {
-            let thm = k.thm;
-            let lines: Vec<(Intro, Written)> = thm
-                .hypotheses
-                .iter()
-                .map(|h| (h.kind, h.body(&thm.path)))
-                .collect();
-            // A theorem's statement means what it meant in its own file: a
-            // definition it names is written out there, so what cites it is
-            // compared with the rule and never with a name of its own. The
-            // rule written out is put in the standard spelling as the rest
-            // is, as a citing step reads it (`Known::read_citing`): the x² of
-            // a define's rule is x^2.
-            let own = statement_definitions(
-                thm,
-                self.env,
-                &sorts_of_statement(thm, self.env),
-            );
-            let read_facts = self.facts(&lines, &k.sorts);
-            let conclusion =
-                Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
-            let read_gives = self.trees(&[conclusion], &k.sorts);
-            // A define written out brings the letters its rule binds, which
-            // are spelt apart from the statement's own: P(n) = ∫ t^n dt,
-            // with P's rule an integral over t, holds two integrals, and a
-            // citation may spell their letters as two.
-            let names: BTreeSet<String> = read_facts
-                .iter()
-                .map(|(_, t)| t)
-                .chain(&read_gives)
-                .flat_map(|t| t.names())
-                .collect();
-            let own = defines_apart(&own, &names, &self.ctx.binders);
-            let facts: Vec<(String, Node)> = read_facts
-                .into_iter()
-                .map(|(text, tree)| (text, standard(&expand(&tree, &own), &self.ctx)))
-                .collect();
-            let gives: Vec<Node> = read_gives
-                .iter()
-                .map(|t| standard(&expand(t, &own), &self.ctx))
-                .collect();
-            let functions = applied_functions(
-                gives.iter().chain(facts.iter().map(|(_, t)| t)),
-                &lines,
-                &k.sorts,
-                self.env,
-            );
-            let group = Group {
-                wants: facts,
-                gives,
-                functions,
-                identities: group_identities(&lines),
-            };
-            return Some(vec![group.bound_apart(&self.ctx.binders)]);
+        if let Some(&i) = self.items.get(name) {
+            return Some(self.read_record(i));
         }
-        let &i = self.items.get(name)?;
+        self.proved.get(name).map(|k| self.read_proved(k))
+    }
+
+    /// Where the record `record` and the theorem `proof` this corpus proves
+    /// do not state one thing, what differs: each as a citation reads it,
+    /// the facts asked and the sentences concluded, in order. None where
+    /// they agree, or either is not there.
+    pub fn statement_differs(&self, record: &str, proof: &str) -> Option<String> {
+        let &i = self.items.get(record)?;
+        let k = self.proved.get(proof)?;
+        let (said, proved) = (self.read_record(i), self.read_proved(k));
+        let (wants, proved_wants) = (wants_of(&said), wants_of(&proved));
+        for (n, ((text, a), (other, b))) in wants.iter().zip(&proved_wants).enumerate()
+        {
+            if !written_alike(std::slice::from_ref(a), std::slice::from_ref(b)) {
+                return Some(format!(
+                    "its fact {} is {text} where the proof's is {other}",
+                    n + 1
+                ));
+            }
+        }
+        if wants.len() != proved_wants.len() {
+            return Some(format!(
+                "it asks {} facts and the proof {}",
+                wants.len(),
+                proved_wants.len()
+            ));
+        }
+        if !written_alike(&gives_of(&said), &gives_of(&proved)) {
+            return Some("it concludes something else than the proof".to_string());
+        }
+        let maps = self.record_function_types(i);
+        if !written_alike(&maps, &self.proved_function_types(k)) {
+            return Some(
+                "its functions map between other sets than the proof's".to_string(),
+            );
+        }
+        None
+    }
+
+    /// A theorem this corpus proves, read as a citation reads it: one group.
+    fn read_proved(&self, k: &Proved<'a>) -> Vec<Group> {
+        let thm = k.thm;
+        let lines: Vec<(Intro, Written)> = thm
+            .hypotheses
+            .iter()
+            .map(|h| (h.kind, h.body(&thm.path)))
+            .collect();
+        // A theorem's statement means what it meant in its own file: a
+        // definition it names is written out there, so what cites it is
+        // compared with the rule and never with a name of its own. The
+        // rule written out is put in the standard spelling as the rest
+        // is, as a citing step reads it (`Known::read_citing`): the x² of
+        // a define's rule is x^2.
+        let own =
+            statement_definitions(thm, self.env, &sorts_of_statement(thm, self.env));
+        let read_facts = self.facts(&lines, &k.sorts);
+        let conclusion = Written::new(&thm.conclusion, &thm.path, thm.conclusion_line);
+        let read_gives = self.trees(&[conclusion], &k.sorts);
+        // A define written out brings the letters its rule binds, which
+        // are spelt apart from the statement's own: P(n) = ∫ t^n dt,
+        // with P's rule an integral over t, holds two integrals, and a
+        // citation may spell their letters as two.
+        let names: BTreeSet<String> = read_facts
+            .iter()
+            .map(|(_, t)| t)
+            .chain(&read_gives)
+            .flat_map(|t| t.names())
+            .collect();
+        let own = defines_apart(&own, &names, &self.ctx.binders);
+        let facts: Vec<(String, Node)> = read_facts
+            .into_iter()
+            .map(|(text, tree)| (text, standard(&expand(&tree, &own), &self.ctx)))
+            .collect();
+        let gives: Vec<Node> = read_gives
+            .iter()
+            .map(|t| standard(&expand(t, &own), &self.ctx))
+            .collect();
+        let functions = applied_functions(
+            gives.iter().chain(facts.iter().map(|(_, t)| t)),
+            &lines,
+            &k.sorts,
+            self.env,
+        );
+        let group = Group {
+            wants: facts,
+            gives,
+            functions,
+            identities: group_identities(&lines),
+        };
+        vec![group.bound_apart(&self.ctx.binders)]
+    }
+
+    /// The record at `i` in `records`, read as a citation reads it: one
+    /// group for each `then` line.
+    fn read_record(&self, i: usize) -> Vec<Group> {
         let item = &self.records[i];
         let sorts = &self.record_sorts[&i];
         let mut out = Vec::new();
@@ -549,7 +631,7 @@ impl<'a> Library<'a> {
                 identities: BTreeSet::new(),
             });
         }
-        Some(out)
+        out
     }
 
     /// Each sentence of what is written, read, in the standard order a

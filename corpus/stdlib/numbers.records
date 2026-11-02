@@ -1066,3 +1066,9 @@ mundane theorem nat0-as-int
   then        n ∈ ℕ₀ ↔ n ∈ ℤ and 0 ≤ n
   metamath-proof elnn0z
   lean-proof  not yet implemented
+
+mundane theorem abs-bounds
+  let x ∈ ℝ                                                           (H1)
+  then        x ≤ |x|. −x ≤ |x|.
+  metamath-proof stdlib/numbers/abs-bounds
+  lean-proof  stdlib/numbers/abs-bounds

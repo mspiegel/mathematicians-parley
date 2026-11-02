@@ -598,3 +598,81 @@ theorem integral-nonneg
   note        A function that is never negative has an integral that is
               not negative.
   lean-proof  not yet implemented
+
+theorem cauchy-mean-value
+  let D ⊆ ℝ                                                           (H1)
+  let a ∈ ℝ                                                           (H2)
+  let b ∈ ℝ                                                           (H3)
+  assume a < b                                                        (H4)
+  assume [a, b] ⊆ D                                                   (H5)
+  let f : D → ℝ                                                       (H6)
+  let g : D → ℝ                                                       (H7)
+  assume f is continuous on [a, b]                                    (H8)
+  assume g is continuous on [a, b]                                    (H9)
+  assume f is differentiable on (a, b)                                (H10)
+  assume g is differentiable on (a, b)                                (H11)
+  then        there is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
+  metamath-proof stdlib/calculus/cauchy-mean-value
+  lean-proof  not yet implemented
+
+theorem limit-at-most
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume x(n) ≤ B for all n ≥ N                                       (H6)
+  then        L ≤ B
+  metamath-proof stdlib/calculus/limit-at-most
+  lean-proof  not yet implemented
+
+theorem limit-at-least
+  n ranges over ℕ
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  let B ∈ ℝ                                                           (H4)
+  let N ∈ ℕ                                                           (H5)
+  assume B ≤ x(n) for all n ≥ N                                       (H6)
+  then        B ≤ L
+  metamath-proof stdlib/calculus/limit-at-least
+  lean-proof  not yet implemented
+
+mundane theorem first-terms-bounded
+  let x : ℕ → ℝ                                                       (H1)
+  then        for all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C
+  metamath-proof stdlib/calculus/first-terms-bounded
+  lean-proof  not yet implemented
+
+theorem convergent-abs-bounded
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then        there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
+  metamath-proof stdlib/calculus/convergent-abs-bounded
+  lean-proof  not yet implemented
+
+theorem convergent-bounded
+  let x : ℕ → ℝ                                                       (H1)
+  let L ∈ ℝ                                                           (H2)
+  assume x(n) → L as n → ∞                                            (H3)
+  then        there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
+  metamath-proof stdlib/calculus/convergent-bounded
+  lean-proof  not yet implemented
+
+mundane theorem increasing-terms
+  let x : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
+  then        for all n ∈ ℕ, for all m ∈ ℕ, if m ≤ n then x(m) ≤ x(n)
+  metamath-proof stdlib/calculus/increasing-terms
+  lean-proof  stdlib/calculus/increasing-terms
+
+theorem monotone-limit
+  let x : ℕ → ℝ                                                       (H1)
+  assume for all n ∈ ℕ, x(n) ≤ x(n + 1)                               (H2)
+  let B ∈ ℝ                                                           (H3)
+  assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
+  then        there is L ∈ ℝ with x(n) → L as n → ∞
+  metamath-proof stdlib/calculus/monotone-limit
+  lean-proof  not yet implemented

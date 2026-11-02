@@ -711,3 +711,136 @@ mundane theorem divides-transitive
   metamath-proof dvdstr
   lean-proof  not yet implemented
 
+theorem least-combination-divides
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let d ∈ ℕ                                                           (H4)
+  let u ∈ ℤ                                                           (H5)
+  let v ∈ ℤ                                                           (H6)
+  let x₀ ∈ ℤ                                                          (H7)
+  let y₀ ∈ ℤ                                                          (H8)
+  assume c = a·u + b·v                                                (H9)
+  assume d = a·x₀ + b·y₀                                              (H10)
+  assume for all x, y ∈ ℤ, if a·x + b·y ∈ ℕ then d ≤ a·x + b·y        (H11)
+  then        d divides c
+  metamath-proof stdlib/divisibility/least-combination-divides
+  lean-proof  stdlib/divisibility/least-combination-divides
+
+theorem bezout
+  let a ∈ ℤ                                                           (H1)
+  let b ∈ ℕ                                                           (H2)
+  then        there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)
+  metamath-proof stdlib/divisibility/bezout
+  lean-proof  not yet implemented
+
+theorem coprime-divides
+  let x ∈ ℤ                                                           (H1)
+  let c ∈ ℤ                                                           (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume n divides x·c                                                (H4)
+  assume gcd(c, n) = 1                                                (H5)
+  then        n divides x
+  metamath-proof stdlib/divisibility/coprime-divides
+  lean-proof  not yet implemented
+
+theorem congruent-cancel
+  let x ∈ ℤ                                                           (H1)
+  let y ∈ ℤ                                                           (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  assume x·c ≡ y·c (mod n)                                            (H5)
+  assume gcd(c, n) = 1                                                (H6)
+  then        x ≡ y (mod n)
+  metamath-proof stdlib/divisibility/congruent-cancel
+  lean-proof  not yet implemented
+
+mundane theorem coprime-square-part
+  let s ∈ ℕ                                                           (H1)
+  let t ∈ ℕ                                                           (H2)
+  let w ∈ ℕ                                                           (H3)
+  assume gcd(s, t) = 1                                                (H4)
+  assume w² = s·t                                                     (H5)
+  then        s = gcd(s, w)²
+  metamath-proof stdlib/divisibility/coprime-square-part
+  lean-proof  not yet implemented
+
+theorem coprime-square
+  let s ∈ ℕ                                                           (H1)
+  let t ∈ ℕ                                                           (H2)
+  let w ∈ ℕ                                                           (H3)
+  assume gcd(s, t) = 1                                                (H4)
+  assume w² = s·t                                                     (H5)
+  then        s = gcd(s, w)². t = gcd(t, w)².
+  metamath-proof stdlib/divisibility/coprime-square
+  lean-proof  not yet implemented
+
+mundane theorem prime-power-not-less
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let m ∈ ℤ                                                           (H5)
+  let m′ ∈ ℤ                                                          (H6)
+  assume gcd(m, p) = 1                                                (H7)
+  assume p^a·m = p^a′·m′                                              (H8)
+  then        not (a < a′)
+  metamath-proof stdlib/divisibility/prime-power-not-less
+  lean-proof  not yet implemented
+
+mundane theorem prime-power-unique
+  let p ∈ ℕ                                                           (H1)
+  assume p is prime                                                   (H2)
+  let a ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let m ∈ ℤ                                                           (H5)
+  let m′ ∈ ℤ                                                          (H6)
+  assume gcd(m, p) = 1                                                (H7)
+  assume gcd(m′, p) = 1                                               (H8)
+  assume p^a·m = p^a′·m′                                              (H9)
+  then        a = a′
+  metamath-proof stdlib/divisibility/prime-power-unique
+  lean-proof  not yet implemented
+
+theorem prime-powers-unique
+  let a ∈ ℕ₀                                                          (H1)
+  let b ∈ ℕ₀                                                          (H2)
+  let c ∈ ℕ₀                                                          (H3)
+  let a′ ∈ ℕ₀                                                         (H4)
+  let b′ ∈ ℕ₀                                                         (H5)
+  let c′ ∈ ℕ₀                                                         (H6)
+  assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
+  then        a = a′. b = b′. c = c′.
+  metamath-proof stdlib/divisibility/prime-powers-unique
+  lean-proof  not yet implemented
+
+theorem product-coprime
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
+  then        gcd(∏(x ∈ X) x, n) = 1
+  metamath-proof stdlib/divisibility/product-coprime
+  lean-proof  not yet implemented
+
+theorem product-congruent-termwise
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let n ∈ ℕ                                                           (H3)
+  let t : X → ℤ                                                       (H4)
+  let u : X → ℤ                                                       (H5)
+  assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
+  then        ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
+  metamath-proof stdlib/divisibility/product-congruent-termwise
+  lean-proof  not yet implemented
+
+theorem product-congruent
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  let n ∈ ℕ                                                           (H4)
+  let f : X → X                                                       (H5)
+  assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
+  then        ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
+  metamath-proof stdlib/divisibility/product-congruent
+  lean-proof  not yet implemented

@@ -19,8 +19,8 @@ pub use define::{
 };
 pub use lines::{read_lines, Line};
 pub use load::{
-    corpus, described, index, link_definitions, link_functions, proof_files,
-    record_files, Corpus, Item,
+    corpus, described, index, index_built, link_definitions, link_functions,
+    proof_files, record_files, Corpus, Item,
 };
 pub use proof::{
     cited_items, fmt, outermost, parse_proof, written_text, DefineLine, FileScope,

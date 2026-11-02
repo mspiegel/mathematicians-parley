@@ -544,3 +544,35 @@ mundane theorem product-add-one
   note        A member added to a finite set multiplies the product by its
               term, the step of an induction over the parts of a finite set.
   lean-proof  not yet implemented
+
+mundane theorem product-integer-terms
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let t : X → ℤ                                                       (H3)
+  then        for all Y ⊆ X, ∏(x ∈ Y) t(x) ∈ ℤ
+  metamath-proof stdlib/sums/product-integer-terms
+  lean-proof  not yet implemented
+
+mundane theorem product-constant
+  let X be a set                                                      (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℝ                                                           (H3)
+  then        ∏(x ∈ X) c = c^|X|
+  metamath-proof stdlib/sums/product-constant
+  lean-proof  not yet implemented
+
+theorem product-factor
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let c ∈ ℤ                                                           (H3)
+  then        ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
+  metamath-proof stdlib/sums/product-factor
+  lean-proof  not yet implemented
+
+theorem product-reorder
+  let X ⊆ ℤ                                                           (H1)
+  assume X is finite                                                  (H2)
+  let f : X → X be one-to-one                                         (H3)
+  then        ∏(x ∈ X) f(x) = ∏(x ∈ X) x
+  metamath-proof stdlib/sums/product-reorder
+  lean-proof  not yet implemented

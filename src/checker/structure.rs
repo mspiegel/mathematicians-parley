@@ -2642,25 +2642,45 @@ fn defined_in(scopes: &[FileScope], module: &str, name: &str) -> bool {
 /// Only citations within one file are followed. A cycle through several
 /// files passes through an import of each, and `check_imports` reports the
 /// cycle of those imports.
-pub fn check_citation_cycles(report: &mut Report, theorems: &[Theorem]) {
-    for thms in by_file(theorems).values() {
-        let ours: IndexMap<String, &Theorem> =
-            thms.iter().map(|t| (t.qualified(), *t)).collect();
-        let mut graph: IndexMap<&str, IndexMap<String, usize>> = IndexMap::new();
-        for (name, thm) in &ours {
-            let mut edges: IndexMap<String, usize> = IndexMap::new();
-            for (cited, line) in cited_items(thm) {
-                if ours.contains_key(&cited) {
+pub fn check_citation_cycles(
+    report: &mut Report,
+    theorems: &[Theorem],
+    records: &[Record],
+) {
+    let ours: IndexMap<String, &Theorem> =
+        theorems.iter().map(|t| (t.qualified(), t)).collect();
+    // A record proved by a Parley proof is reached through that proof, in
+    // whichever build proves it so: a proof that cites the record rests on
+    // the proof the record names.
+    let mut proofs: IndexMap<String, Vec<&str>> = IndexMap::new();
+    for r in records.iter().filter(|r| r.kind.is_item()) {
+        let named = r.parley_proofs();
+        if !named.is_empty() {
+            proofs.insert(r.qualified(), named);
+        }
+    }
+    let mut graph: IndexMap<&str, IndexMap<String, usize>> = IndexMap::new();
+    for (name, thm) in &ours {
+        let mut edges: IndexMap<String, usize> = IndexMap::new();
+        for (cited, line) in cited_items(thm) {
+            match proofs.get(&cited) {
+                Some(named) => {
+                    for proof in named.iter().filter(|p| ours.contains_key(**p)) {
+                        edges.entry(proof.to_string()).or_insert(line);
+                    }
+                }
+                None if ours.contains_key(&cited) => {
                     edges.entry(cited).or_insert(line);
                 }
+                None => {}
             }
-            graph.insert(name, edges);
         }
-        let mut done: IndexSet<&str> = IndexSet::new();
-        let mut trail: Vec<&str> = Vec::new();
-        for name in graph.keys().copied() {
-            cycles_from(name, &graph, &ours, &mut done, &mut trail, report);
-        }
+        graph.insert(name, edges);
+    }
+    let mut done: IndexSet<&str> = IndexSet::new();
+    let mut trail: Vec<&str> = Vec::new();
+    for name in graph.keys().copied() {
+        cycles_from(name, &graph, &ours, &mut done, &mut trail, report);
     }
 }
 

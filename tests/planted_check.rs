@@ -3746,7 +3746,38 @@ fn cases() -> Vec<Case> {
             vec![
                 edit("proofs/wiedijk/sqrt2-irrational.proof", Some("    def:odd n := n², from 2".to_string()), "    thm:even-square n := n², from 2".to_string()),
             ],
-            "closes a cycle of citations: odd-square → even-square → odd-square",
+            "closes a cycle of citations: even-square → odd-square → even-square",
+        ),
+        // A library theorem proved in Parley is stated by its record, which
+        // names the proof; the two state one thing, and a proof reaches no
+        // record that rests on it.
+        case(
+            "a record that states less than its proof",
+            vec![
+                edit("corpus/stdlib/numbers.records", Some("  then        x ≤ |x|. −x ≤ |x|.\n  metamath-proof stdlib/numbers/abs-bounds".to_string()), "  then        x ≤ |x|.\n  metamath-proof stdlib/numbers/abs-bounds".to_string()),
+            ],
+            "mundane theorem abs-bounds does not state what stdlib/numbers/abs-bounds proves: it concludes something else than the proof",
+        ),
+        case(
+            "a library proof no record names",
+            vec![
+                edit("corpus/stdlib/numbers.records", Some("  metamath-proof stdlib/numbers/abs-bounds\n  lean-proof  stdlib/numbers/abs-bounds".to_string()), "  metamath-proof not yet implemented\n  lean-proof  not yet implemented".to_string()),
+            ],
+            "theorem abs-bounds proves a library item, and no record names it",
+        ),
+        case(
+            "a record proved by a proof nothing proves",
+            vec![
+                edit("corpus/stdlib/numbers.records", Some("  metamath-proof stdlib/numbers/abs-bounds\n".to_string()), "  metamath-proof stdlib/numbers/abs-bound\n".to_string()),
+            ],
+            "is proved by stdlib/numbers/abs-bound, which no proof of the standard library proves",
+        ),
+        case(
+            "a record proved by a proof that cites it",
+            vec![
+                edit("corpus/stdlib/numbers.records", Some("  lean-proof  stdlib/numbers/abs-bounds".to_string()), "  lean-proof  stdlib/calculus/convergent-bounded".to_string()),
+            ],
+            "theorem convergent-bounded cites itself",
         ),
         case(
             "a mundane theorem outside the standard library",
@@ -3756,11 +3787,11 @@ fn cases() -> Vec<Case> {
             "mundane theorem even-square: only a theorem of the standard library is taken for granted",
         ),
         case(
-            "a library proof of an item a record states",
+            "a library proof of an item a record proves otherwise",
             vec![
                 edit("corpus/stdlib/sets.proof", None, "theorem powerset-empty\n  then 1 = 1\n\n1.  1 = 1\n    arithmetic\n".to_string()),
             ],
-            "theorem powerset-empty is also the mundane theorem at corpus/stdlib/sets.records",
+            "theorem powerset-empty proves a library item, and no record names it",
         ),
         case(
             "two theorems of one name in one file",

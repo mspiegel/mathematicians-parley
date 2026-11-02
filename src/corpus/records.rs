@@ -114,28 +114,49 @@ pub const NOT_YET: &str = "not yet implemented";
 /// What a record's `metamath-proof` or `lean-proof` says.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Provided<'a> {
-    /// How the build proves it: the library's own statement, a Parley
-    /// proof's full name, or a bridge's.
+    /// What the build cites: the library's own statement, or a bridge's
+    /// full name.
     By(&'a str),
+    /// A Parley proof of the standard library, by its full name,
+    /// `stdlib/numbers/abs-bounds`, which the build builds and cites.
+    Proof(&'a str),
     /// `none`: the build has nothing to prove.
     Nothing,
     /// `not yet implemented`: the build cannot use the record yet.
     NotYet,
 }
 
+/// Where the full name of a Parley proof of the standard library begins.
+pub const STDLIB: &str = "stdlib/";
+
 impl<'a> Provided<'a> {
-    fn read(value: &'a str) -> Provided<'a> {
+    /// A proof field's value read.
+    pub fn read(value: &'a str) -> Provided<'a> {
         match value.trim() {
             NOTHING_TO_PROVE => Provided::Nothing,
             NOT_YET => Provided::NotYet,
+            other
+                if other.starts_with(STDLIB)
+                    && !other.contains(char::is_whitespace) =>
+            {
+                Provided::Proof(other)
+            }
             other => Provided::By(other),
         }
     }
 
-    /// The proof, where the build has one.
+    /// What the build cites, where it cites the library or a bridge.
     pub fn by(self) -> Option<&'a str> {
         match self {
             Provided::By(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    /// The Parley proof's full name, where the build proves it by one.
+    pub fn proof(self) -> Option<&'a str> {
+        match self {
+            Provided::Proof(v) => Some(v),
             _ => None,
         }
     }
@@ -296,12 +317,26 @@ impl Record {
 
     /// What the Lean build writes for the record: a notation's Lean template,
     /// `lean-builds`, and an item's proof, `lean-proof`, where it has one;
-    /// None where it says `none` or `not yet implemented`.
+    /// None where it says `none` or `not yet implemented`, or names a
+    /// Parley proof, which the build writes as a theorem of its own.
     pub fn lean_target(&self) -> Option<&str> {
         match self.kind {
             RecordKind::Notation => self.field(LEAN_BUILDS),
             _ => self.lean_provided().and_then(Provided::by),
         }
+    }
+
+    /// The Parley proofs its two proof fields name, each once.
+    pub fn parley_proofs(&self) -> Vec<&str> {
+        let mut out: Vec<&str> = Vec::new();
+        for said in [self.metamath_provided(), self.lean_provided()] {
+            if let Some(name) = said.and_then(Provided::proof) {
+                if !out.contains(&name) {
+                    out.push(name);
+                }
+            }
+        }
+        out
     }
 
     /// The set.mm syntax constructor a notation is, `metamath-syntax`, or

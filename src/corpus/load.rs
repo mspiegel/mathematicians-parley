@@ -269,3 +269,24 @@ pub fn index<'a>(
     }
     out
 }
+
+/// `index` as one build cites it: a record that build proves by a Parley
+/// proof stands for that proof, which the build builds and cites as it does
+/// any theorem of the corpus. `proof_of` reads the build's proof field
+/// (`Record::metamath_provided`, `Record::lean_provided`).
+pub fn index_built<'a>(
+    records: &'a [Record],
+    theorems: &'a [Theorem],
+    proof_of: fn(&Record) -> Option<super::records::Provided<'_>>,
+) -> IndexMap<String, Item<'a>> {
+    let mut out = index(records, theorems);
+    let proved: IndexMap<String, &'a Theorem> =
+        theorems.iter().map(|t| (t.qualified(), t)).collect();
+    for r in records.iter().filter(|r| r.kind.is_item()) {
+        let named = proof_of(r).and_then(super::records::Provided::proof);
+        if let Some(thm) = named.and_then(|name| proved.get(name)) {
+            out.insert(r.qualified(), Item::Theorem(thm));
+        }
+    }
+    out
+}

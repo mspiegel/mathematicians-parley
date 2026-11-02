@@ -1498,3 +1498,638 @@ mundane theorem off-line-swap
   then        not (P is on line RQ)
   metamath-proof metamath-bridges/postulates/goffswap
   lean-proof  not yet implemented
+
+theorem vertical-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume O is between A and C                                         (H6)
+  assume O is between B and D                                         (H7)
+  assume A, O, B form a triangle                                      (H8)
+  assume C, O, D form a triangle                                      (H9)
+  then        ∠AOB = ∠COD
+  metamath-proof stdlib/geometry/vertical-angles
+  lean-proof  not yet implemented
+
+theorem exterior-angle-greater
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C is between B and D                                         (H6)
+  assume A, C, D form a triangle                                      (H7)
+  then        ∠ACD > ∠BAC
+  metamath-proof stdlib/geometry/exterior-angle-greater
+  lean-proof  not yet implemented
+
+theorem exterior-angle-greater-other
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume C is between B and D                                         (H6)
+  assume A, C, D form a triangle                                      (H7)
+  then        ∠ACD > ∠ABC
+  metamath-proof stdlib/geometry/exterior-angle-greater-other
+  lean-proof  not yet implemented
+
+theorem isosceles-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |CA| = |CB|                                                  (H5)
+  then        ∠CAB = ∠CBA
+  metamath-proof stdlib/geometry/isosceles-angles
+  lean-proof  not yet implemented
+
+theorem greater-side-greater-angle
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume |AC| > |AB|                                                  (H5)
+  then        ∠ABC > ∠ACB
+  metamath-proof stdlib/geometry/greater-side-greater-angle
+  lean-proof  not yet implemented
+
+theorem alternate-angles-converse
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume S and Q are on opposite sides of line RP                     (H6)
+  assume ∠SRP = ∠RPQ                                                  (H7)
+  then        line RS ∥ line PQ
+  metamath-proof stdlib/geometry/alternate-angles-converse
+  lean-proof  not yet implemented
+
+theorem alternate-angles
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  assume P, Q, R form a triangle                                      (H5)
+  assume line RS ∥ line PQ                                            (H6)
+  assume S and Q are on opposite sides of line RP                     (H7)
+  then        ∠SRP = ∠RPQ
+  metamath-proof stdlib/geometry/alternate-angles
+  lean-proof  not yet implemented
+
+theorem angles-on-a-line
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  let T be a point                                                    (H5)
+  assume R is between S and T                                         (H6)
+  assume P and Q are on the same side of line RS                      (H7)
+  assume S and Q are on opposite sides of line RP                     (H8)
+  assume Q, R, T form a triangle                                      (H9)
+  then        ∠SRP + ∠PRQ + ∠TRQ = 180°
+  metamath-proof stdlib/geometry/angles-on-a-line
+  lean-proof  not yet implemented
+
+theorem parallel-through
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        there are D, E ∈ 𝔼² with line RD ∥ line PQ, line RE ∥ line QP, (R is between D and E), D and Q are on opposite sides of line RP, E and P are on opposite sides of line RQ, and P and Q are on the same side of line RD
+  metamath-proof stdlib/geometry/parallel-through
+  lean-proof  not yet implemented
+
+theorem greater-angle-greater-side
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠ABC > ∠ACB                                                  (H5)
+  then        |AC| > |AB|
+  metamath-proof stdlib/geometry/greater-angle-greater-side
+  lean-proof  not yet implemented
+
+theorem triangle-inequality-strict
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        |PR| < |PQ| + |QR|
+  metamath-proof stdlib/geometry/triangle-inequality-strict
+  lean-proof  not yet implemented
+
+theorem triangle-equality-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P ≠ Q                                                        (H4)
+  assume Q ≠ R                                                        (H5)
+  assume |PQ| + |QR| = |PR|                                           (H6)
+  then        Q is between P and R
+  metamath-proof stdlib/geometry/triangle-equality-between
+  lean-proof  not yet implemented
+
+theorem chord-midpoint-right-angle
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume M is the midpoint of AB                                      (H5)
+  assume |AO| = |BO|                                                  (H6)
+  assume O ≠ M                                                        (H7)
+  assume M ≠ B                                                        (H8)
+  assume O ≠ B                                                        (H9)
+  then        ∠OMB = 90°
+  metamath-proof stdlib/geometry/chord-midpoint-right-angle
+  lean-proof  not yet implemented
+
+theorem perpendicular-foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        there is H ∈ 𝔼² with H is on line QR, P ≠ H, (if H ≠ Q then ∠PHQ = 90°), and (if H ≠ R then ∠PHR = 90°)
+  metamath-proof stdlib/geometry/perpendicular-foot
+  lean-proof  not yet implemented
+
+theorem altitude-foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  assume ∠PRQ = 90°                                                   (H5)
+  then        there is D ∈ 𝔼² with (D is between P and Q), P, D, R form a triangle, Q, D, R form a triangle, ∠PDR = 90°, and ∠QDR = 90°
+  metamath-proof stdlib/geometry/altitude-foot
+  lean-proof  not yet implemented
+
+theorem pythagoras
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  assume ∠ACB = 90°                                                   (H5)
+  then        |AB|² = |AC|² + |BC|²
+  metamath-proof stdlib/geometry/pythagoras
+  lean-proof  not yet implemented
+
+mundane theorem on-line-other
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let Z be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume X ≠ Y                                                        (H7)
+  assume X is on line AB                                              (H8)
+  assume Y is on line AB                                              (H9)
+  assume Z is on line AB                                              (H10)
+  then        Z is on line XY
+  metamath-proof stdlib/geometry/on-line-other
+  lean-proof  not yet implemented
+
+mundane theorem off-line-other
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume X ≠ Y                                                        (H7)
+  assume X is on line AB                                              (H8)
+  assume Y is on line AB                                              (H9)
+  assume O is not on line AB                                          (H10)
+  then        O is not on line XY
+  metamath-proof stdlib/geometry/off-line-other
+  lean-proof  not yet implemented
+
+mundane theorem point-off-line
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  assume A ≠ B                                                        (H3)
+  then        there is O ∈ 𝔼² with O is not on line AB
+  metamath-proof stdlib/geometry/point-off-line
+  lean-proof  not yet implemented
+
+mundane theorem between-split
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let M be a point                                                    (H3)
+  let P be a point                                                    (H4)
+  assume M is between A and B                                         (H5)
+  assume P is between A and B                                         (H6)
+  then        P = M or (P is between A and M) or (P is between M and B)
+  metamath-proof stdlib/geometry/between-split
+  lean-proof  not yet implemented
+
+theorem power-of-a-point
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let P be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume P is between A and B                                         (H5)
+  assume |AO| = |BO|                                                  (H6)
+  then        |AO|² − |PO|² = |PA|·|PB|
+  metamath-proof stdlib/geometry/power-of-a-point
+  lean-proof  not yet implemented
+
+theorem intersecting-chords
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let P be a point                                                    (H5)
+  let O be a point                                                    (H6)
+  assume P is between A and B                                         (H7)
+  assume P is between C and D                                         (H8)
+  assume |AO| = |BO|                                                  (H9)
+  assume |AO| = |CO|                                                  (H10)
+  assume |AO| = |DO|                                                  (H11)
+  then        |PA|·|PB| = |PC|·|PD|
+  metamath-proof stdlib/geometry/intersecting-chords
+  lean-proof  not yet implemented
+
+theorem angle-sum
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  assume A, B, C form a triangle                                      (H4)
+  then        ∠BAC + ∠ABC + ∠BCA = 180°
+  metamath-proof stdlib/geometry/angle-sum
+  lean-proof  not yet implemented
+
+mundane theorem ray-point
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let r ∈ ℝ                                                           (H4)
+  assume A, B, C form a triangle                                      (H5)
+  assume r > 0                                                        (H6)
+  then        there is X ∈ 𝔼² with X is on line AB, X and B are on the same side of line AC, and |AX| = r
+  metamath-proof stdlib/geometry/ray-point
+  lean-proof  not yet implemented
+
+theorem angle-side-angle
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume ∠CAB = ∠FDE                                                  (H9)
+  assume |AB| = |DE|                                                  (H10)
+  assume ∠ABC = ∠DEF                                                  (H11)
+  then        triangle ABC ≅ triangle DEF
+  metamath-proof stdlib/geometry/angle-side-angle
+  lean-proof  not yet implemented
+
+theorem angle-angle-side
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume ∠CAB = ∠FDE                                                  (H9)
+  assume ∠ABC = ∠DEF                                                  (H10)
+  assume |BC| = |EF|                                                  (H11)
+  then        triangle ABC ≅ triangle DEF
+  metamath-proof stdlib/geometry/angle-angle-side
+  lean-proof  not yet implemented
+
+mundane theorem off-line-along
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let P be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume X is on line AB                                              (H6)
+  assume X ≠ A                                                        (H7)
+  assume P is not on line AB                                          (H8)
+  then        P is not on line AX
+  metamath-proof stdlib/geometry/off-line-along
+  lean-proof  not yet implemented
+
+mundane theorem crossing-triangle
+  let D be a point                                                    (H1)
+  let E be a point                                                    (H2)
+  let F be a point                                                    (H3)
+  let G be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume D, E, F form a triangle                                      (H6)
+  assume X is on line EF                                              (H7)
+  assume X is between D and G                                         (H8)
+  assume X ≠ E                                                        (H9)
+  then        D, G, E form a triangle
+  metamath-proof stdlib/geometry/crossing-triangle
+  lean-proof  not yet implemented
+
+theorem isosceles-base-point
+  let D be a point                                                    (H1)
+  let G be a point                                                    (H2)
+  let E be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  assume D, G, E form a triangle                                      (H5)
+  assume |ED| = |EG|                                                  (H6)
+  assume X is between D and G                                         (H7)
+  assume E, D, X form a triangle                                      (H8)
+  then        ∠EDX = ∠EGX
+  metamath-proof stdlib/geometry/isosceles-base-point
+  lean-proof  not yet implemented
+
+theorem kite-angles
+  let D be a point                                                    (H1)
+  let E be a point                                                    (H2)
+  let F be a point                                                    (H3)
+  let G be a point                                                    (H4)
+  assume D, E, F form a triangle                                      (H5)
+  assume D and G are on opposite sides of line EF                     (H6)
+  assume |ED| = |EG|                                                  (H7)
+  assume |FD| = |FG|                                                  (H8)
+  then        ∠EDF = ∠EGF
+  metamath-proof stdlib/geometry/kite-angles
+  lean-proof  not yet implemented
+
+theorem side-side-side
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let E be a point                                                    (H5)
+  let F be a point                                                    (H6)
+  assume A, B, C form a triangle                                      (H7)
+  assume D, E, F form a triangle                                      (H8)
+  assume |AB| = |DE|                                                  (H9)
+  assume |BC| = |EF|                                                  (H10)
+  assume |CA| = |FD|                                                  (H11)
+  then        triangle ABC ≅ triangle DEF
+  metamath-proof stdlib/geometry/side-side-side
+  lean-proof  not yet implemented
+
+mundane theorem right-angle-along
+  let P be a point                                                    (H1)
+  let H be a point                                                    (H2)
+  let S be a point                                                    (H3)
+  let T be a point                                                    (H4)
+  assume P ≠ H                                                        (H5)
+  assume S ≠ H                                                        (H6)
+  assume ∠PHS = 90°                                                   (H7)
+  assume T is on line HS                                              (H8)
+  assume T ≠ H                                                        (H9)
+  assume P ≠ S                                                        (H10)
+  assume P, H, T form a triangle                                      (H11)
+  then        ∠PHT = 90°
+  metamath-proof stdlib/geometry/right-angle-along
+  lean-proof  not yet implemented
+
+mundane theorem height-area
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let H be a point                                                    (H4)
+  let S be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume H is on line QR                                              (H7)
+  assume S is on line QR                                              (H8)
+  assume S ≠ H                                                        (H9)
+  assume P ≠ H                                                        (H10)
+  assume P ≠ S                                                        (H11)
+  assume ∠PHS = 90°                                                   (H12)
+  then        the area of △PQR = (1/2)·|QR|·|PH|
+  metamath-proof stdlib/geometry/height-area
+  lean-proof  not yet implemented
+
+mundane theorem foot
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        there are H, S ∈ 𝔼² with H is on line QR, S is on line QR, S ≠ H, P ≠ H, P ≠ S, and ∠PHS = 90°
+  metamath-proof stdlib/geometry/foot
+  lean-proof  not yet implemented
+
+mundane theorem parallel-off
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume C ≠ D                                                        (H7)
+  assume line AB ∥ line CD                                            (H8)
+  assume A is not on line CD                                          (H9)
+  assume X is on line AB                                              (H10)
+  then        X is not on line CD
+  metamath-proof stdlib/geometry/parallel-off
+  lean-proof  not yet implemented
+
+mundane theorem parallel-same-side
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let X be a point                                                    (H5)
+  assume A ≠ B                                                        (H6)
+  assume C ≠ D                                                        (H7)
+  assume line AB ∥ line CD                                            (H8)
+  assume A is not on line CD                                          (H9)
+  assume X is on line AB                                              (H10)
+  assume X ≠ A                                                        (H11)
+  then        X and A are on the same side of line CD
+  metamath-proof stdlib/geometry/parallel-same-side
+  lean-proof  not yet implemented
+
+theorem parallel-equidistant
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let H be a point                                                    (H3)
+  let K be a point                                                    (H4)
+  assume A ≠ B                                                        (H5)
+  assume A and B are on the same side of line HK                      (H6)
+  assume line AB ∥ line HK                                            (H7)
+  assume ∠AHK = 90°                                                   (H8)
+  assume ∠BKH = 90°                                                   (H9)
+  then        |AH| = |BK|
+  metamath-proof stdlib/geometry/parallel-equidistant
+  lean-proof  not yet implemented
+
+mundane theorem area-turned
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  assume P, Q, R form a triangle                                      (H4)
+  then        the area of △PQR = the area of △PRQ
+  metamath-proof stdlib/geometry/area-turned
+  lean-proof  not yet implemented
+
+theorem same-height
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let S be a point                                                    (H4)
+  let H be a point                                                    (H5)
+  let T be a point                                                    (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume S is on line QR                                              (H8)
+  assume S ≠ Q                                                        (H9)
+  assume H is on line QR                                              (H10)
+  assume T is on line QR                                              (H11)
+  assume T ≠ H                                                        (H12)
+  assume P ≠ H                                                        (H13)
+  assume P ≠ T                                                        (H14)
+  assume ∠PHT = 90°                                                   (H15)
+  then        the area of △PQS = (1/2)·|QS|·|PH|
+  metamath-proof stdlib/geometry/same-height
+  lean-proof  not yet implemented
+
+theorem parallel-heights
+  let Q be a point                                                    (H1)
+  let R be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let H be a point                                                    (H5)
+  let S be a point                                                    (H6)
+  let K be a point                                                    (H7)
+  let T be a point                                                    (H8)
+  assume Q ≠ R                                                        (H9)
+  assume X ≠ Y                                                        (H10)
+  assume line QR ∥ line XY                                            (H11)
+  assume Q is not on line XY                                          (H12)
+  assume H is on line XY                                              (H13)
+  assume S is on line XY                                              (H14)
+  assume S ≠ H                                                        (H15)
+  assume ∠QHS = 90°                                                   (H16)
+  assume K is on line XY                                              (H17)
+  assume T is on line XY                                              (H18)
+  assume T ≠ K                                                        (H19)
+  assume ∠RKT = 90°                                                   (H20)
+  assume Q ≠ H                                                        (H21)
+  assume Q ≠ S                                                        (H22)
+  assume R ≠ K                                                        (H23)
+  assume R ≠ T                                                        (H24)
+  then        |QH| = |RK|
+  metamath-proof stdlib/geometry/parallel-heights
+  lean-proof  not yet implemented
+
+theorem same-base-area
+  let Q be a point                                                    (H1)
+  let R be a point                                                    (H2)
+  let X be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  assume Q ≠ R                                                        (H5)
+  assume Q, X, Y form a triangle                                      (H6)
+  assume R, X, Y form a triangle                                      (H7)
+  assume line XY ∥ line QR                                            (H8)
+  then        the area of △QXY = the area of △RXY
+  metamath-proof stdlib/geometry/same-base-area
+  lean-proof  not yet implemented
+
+theorem proportional-segments
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  let Y be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume X is between P and Q                                         (H7)
+  assume Y is between P and R                                         (H8)
+  assume line XY ∥ line QR                                            (H9)
+  then        |PX|·|PR| = |PY|·|PQ|
+  metamath-proof stdlib/geometry/proportional-segments
+  lean-proof  not yet implemented
+
+theorem corresponding-angles-converse
+  let P be a point                                                    (H1)
+  let X be a point                                                    (H2)
+  let Q be a point                                                    (H3)
+  let Y be a point                                                    (H4)
+  let R be a point                                                    (H5)
+  assume X is between P and Q                                         (H6)
+  assume Y and R are on the same side of line PQ                      (H7)
+  assume ∠PXY = ∠PQR                                                  (H8)
+  assume X ≠ Y                                                        (H9)
+  then        line XY ∥ line QR
+  metamath-proof stdlib/geometry/corresponding-angles-converse
+  lean-proof  not yet implemented
+
+theorem parallel-between
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let X be a point                                                    (H4)
+  let Y be a point                                                    (H5)
+  assume P, Q, R form a triangle                                      (H6)
+  assume X is between P and Q                                         (H7)
+  assume Y is on line PR                                              (H8)
+  assume Y and R are on the same side of line PQ                      (H9)
+  assume line XY ∥ line QR                                            (H10)
+  then        Y is between P and R
+  metamath-proof stdlib/geometry/parallel-between
+  lean-proof  not yet implemented
+
+theorem angle-angle-similar
+  let P be a point                                                    (H1)
+  let Q be a point                                                    (H2)
+  let R be a point                                                    (H3)
+  let P′ be a point                                                   (H4)
+  let Q′ be a point                                                   (H5)
+  let R′ be a point                                                   (H6)
+  assume P, Q, R form a triangle                                      (H7)
+  assume P′, Q′, R′ form a triangle                                   (H8)
+  assume ∠QPR = ∠Q′P′R′                                               (H9)
+  assume ∠PQR = ∠P′Q′R′                                               (H10)
+  then        |PQ|·|P′R′| = |P′Q′|·|PR|
+  metamath-proof stdlib/geometry/angle-angle-similar
+  lean-proof  not yet implemented
+
+mundane theorem circle-centre-apart
+  let X be a point                                                    (H1)
+  let Y be a point                                                    (H2)
+  let O be a point                                                    (H3)
+  assume X ≠ Y                                                        (H4)
+  assume |XO| = |YO|                                                  (H5)
+  then        X ≠ O
+  metamath-proof stdlib/geometry/circle-centre-apart
+  lean-proof  not yet implemented
+
+mundane theorem half-turn
+  let x ∈ ℝ                                                           (H1)
+  assume x ∈ {−π, π}                                                  (H2)
+  then        there is j ∈ ℤ with x = (2·j + 1)·π
+  metamath-proof stdlib/geometry/half-turn
+  lean-proof  not yet implemented
+
+theorem angle-at-centre
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let O be a point                                                    (H4)
+  assume A ≠ C                                                        (H5)
+  assume B ≠ C                                                        (H6)
+  assume |AO| = |BO|                                                  (H7)
+  assume |AO| = |CO|                                                  (H8)
+  then        there is k ∈ ℤ with ∡AOB = 2·∡ACB + 2·k·π
+  metamath-proof stdlib/geometry/angle-at-centre
+  lean-proof  not yet implemented
+
+theorem same-arc-angles
+  let A be a point                                                    (H1)
+  let B be a point                                                    (H2)
+  let C be a point                                                    (H3)
+  let D be a point                                                    (H4)
+  let O be a point                                                    (H5)
+  assume |AO| = |BO|                                                  (H6)
+  assume |AO| = |CO|                                                  (H7)
+  assume |AO| = |DO|                                                  (H8)
+  assume C and D are on the same side of line AB                      (H9)
+  then        ∠ACB = ∠ADB
+  metamath-proof stdlib/geometry/same-arc-angles
+  lean-proof  not yet implemented

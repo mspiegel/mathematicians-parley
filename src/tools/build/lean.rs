@@ -139,8 +139,18 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         made.files.insert(path_of_module(module), text);
     }
 
-    // The theorems the build covers, first as items a citation names.
+    // The theorems the build covers, first as items a citation names. A
+    // record the Lean build proves by a Parley proof is cited as that proof.
     let covered = coverage(checked, &templates);
+    let mut proves: IndexMap<&str, Vec<String>> = IndexMap::new();
+    for record in &checked.corpus.records {
+        let proof = record
+            .lean_provided()
+            .and_then(crate::corpus::records::Provided::proof);
+        if let Some(proof) = proof {
+            proves.entry(proof).or_default().push(record.qualified());
+        }
+    }
     let mut theorems = Vec::new();
     for thm in &checked.corpus.theorems {
         let name = thm.qualified();
@@ -164,6 +174,9 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         match as_item(&sources, thm, rec) {
             Route::Built(it) => {
                 theorems.push((thm, rec));
+                for record in proves.get(name.as_str()).into_iter().flatten() {
+                    items.insert(record.clone(), it.clone());
+                }
                 items.insert(name, it);
             }
             Route::Declined(d) => {

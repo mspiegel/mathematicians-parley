@@ -178,13 +178,26 @@ fn covered(
     for (full, _) in cited_items(thm) {
         if let Some(record) = super::items::record_of(checked, &full) {
             // An item the Lean build cannot use yet keeps out what cites
-            // it; one with nothing to prove, or with a proof, does not.
-            if let Some(crate::corpus::records::Provided::NotYet) | None =
-                record.lean_provided()
-            {
-                return Covered::Out {
-                    reason: format!("{full}'s lean-proof is not yet implemented"),
-                };
+            // it, and so does one proved by a Parley proof the build
+            // leaves out; one with nothing to prove, or with Mathlib's
+            // proof or a bridge, does not.
+            use crate::corpus::records::Provided;
+            match record.lean_provided() {
+                Some(Provided::NotYet) | None => {
+                    return Covered::Out {
+                        reason: format!("{full}'s lean-proof is not yet implemented"),
+                    };
+                }
+                Some(Provided::Proof(proof)) => {
+                    if !matches!(so_far.get(proof), Some(Covered::In)) {
+                        return Covered::Out {
+                            reason: format!(
+                                "{full} is proved by {proof}, which is not in the Lean build"
+                            ),
+                        };
+                    }
+                }
+                Some(Provided::By(_) | Provided::Nothing) => {}
             }
             continue;
         }

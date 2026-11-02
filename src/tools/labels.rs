@@ -62,7 +62,8 @@ struct Naming<'a> {
 /// meant for a person and name their labels in a sentence, so each is read
 /// only as far as it is certainly naming them: the leading entries that are a
 /// single label-shaped word, stopping at the first that is not. An item's
-/// `metamath-proof` of `none` or `not yet implemented` names none.
+/// `metamath-proof` of `none`, `not yet implemented` or a Parley proof names
+/// none.
 fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
     let mut out: IndexMap<String, Where> = IndexMap::new();
     for r in namings {
@@ -91,12 +92,14 @@ fn named(namings: &[Naming], tables_at: &str) -> IndexMap<String, Where> {
             let Some(value) = r.fields.get(field) else {
                 continue;
             };
-            let keyword = [
-                crate::corpus::records::NOTHING_TO_PROVE,
-                crate::corpus::records::NOT_YET,
-            ]
-            .contains(&value.trim());
-            if keyword {
+            // Only what the build cites names labels: not `none`, `not yet
+            // implemented` or a Parley proof.
+            let cited = field != crate::corpus::records::METAMATH_PROOF
+                || matches!(
+                    crate::corpus::records::Provided::read(value),
+                    crate::corpus::records::Provided::By(_)
+                );
+            if !cited {
                 continue;
             }
             // What a target writes after `with` is the lemma's variables and

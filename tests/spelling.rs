@@ -137,6 +137,11 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "if a.same_shape(b) {",
         "two terms walked in step to find where they differ (`changed_closed`)",
     ),
+    (
+        "src/citing/library.rs",
+        "a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.same_shape(y))",
+        "a record and the Parley proof a build cites in its place state one thing as written: a citation matched to the record's spelling is built from the proof's",
+    ),
 ];
 
 fn sources(dir: &Path, out: &mut Vec<std::path::PathBuf>) {

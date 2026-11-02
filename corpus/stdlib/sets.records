@@ -646,3 +646,12 @@ mundane theorem intersection-within
   note        A set within every set of D is within their intersection. It
               holds for an empty D too, the intersection then being everything.
   lean-proof  not yet implemented
+
+mundane theorem subset-antisymmetric
+  let X be a set                                                      (H1)
+  let Y be a set                                                      (H2)
+  assume X ⊆ Y                                                        (H3)
+  assume Y ⊆ X                                                        (H4)
+  then        X = Y
+  metamath-proof stdlib/sets/subset-antisymmetric
+  lean-proof  not yet implemented

@@ -1089,29 +1089,7 @@ fn prepared_in<T>(
         }
         seen.entry(name).or_insert(thm.line);
     }
-    // A library subject holds records and proofs under one name, so an item
-    // is one or the other: a record and a theorem of one name would be two
-    // statements of it, and a citation would reach only the record.
-    let recorded: IndexMap<String, &Record> = records
-        .iter()
-        .filter(|r| r.kind.is_item())
-        .map(|r| (r.qualified(), r))
-        .collect();
-    for thm in theorems {
-        if let Some(r) = recorded.get(&thm.qualified()) {
-            report.say(
-                &thm.path,
-                thm.line,
-                format!(
-                    "theorem {} is also the {} at {}:{}; an item is a record or a proof, not both",
-                    thm.name,
-                    r.header(),
-                    r.path,
-                    r.line
-                ),
-            );
-        }
-    }
+    check_proofs_named(&mut report, records, theorems);
     // The library files a proof may import: those whose items it may cite.
     let library: IndexSet<String> = records
         .iter()
@@ -1120,7 +1098,7 @@ fn prepared_in<T>(
         .collect();
     structure::check_imports(&mut report, theorems, scopes, &items, &library);
     structure::check_forbids(&mut report, theorems, scopes, &items);
-    structure::check_citation_cycles(&mut report, theorems);
+    structure::check_citation_cycles(&mut report, theorems, records);
 
     let counts = counts_of(corpus);
 
@@ -1262,6 +1240,7 @@ fn prepared_in<T>(
         })
         .collect();
     let library = Library::new(records, Cow::Borrowed(&record_sorts), proved, env);
+    check_proofs_state_records(&mut report, records, &library);
 
     formulas::check_item_clashes(&mut report, &statements, &items);
     let methods: IndexMap<String, &Record> = methods
@@ -1289,6 +1268,69 @@ fn prepared_in<T>(
     };
     let out = then(&mut report, &mut checking);
     Ok((report, counts, out))
+}
+
+/// A theorem of the standard library proved in Parley is stated by its
+/// record, the library's statement of it, which names the proof in a proof
+/// field (`Provided::Proof`). So each such theorem is named by a record,
+/// and each proof a record names is one the corpus proves.
+fn check_proofs_named(report: &mut Report, records: &[Record], theorems: &[Theorem]) {
+    let proved: IndexSet<String> = theorems.iter().map(Theorem::qualified).collect();
+    let mut named: IndexSet<&str> = IndexSet::new();
+    for r in records.iter().filter(|r| r.kind.is_item()) {
+        for proof in r.parley_proofs() {
+            named.insert(proof);
+            if !proved.contains(proof) {
+                report.say(
+                    &r.path,
+                    r.line,
+                    format!(
+                        "{} {} is proved by {proof}, which no proof of the standard library proves",
+                        r.header(),
+                        r.name
+                    ),
+                );
+            }
+        }
+    }
+    for thm in theorems {
+        let name = thm.qualified();
+        if crate::corpus::in_stdlib(&name) && !named.contains(name.as_str()) {
+            report.say(
+                &thm.path,
+                thm.line,
+                format!(
+                    "theorem {} proves a library item, and no record names it: its record says `metamath-proof {name}` or `lean-proof {name}`",
+                    thm.name
+                ),
+            );
+        }
+    }
+}
+
+/// A record proved by a Parley proof states what the proof proves: the
+/// same facts asked and the same sentences concluded, as a citation reads
+/// each (`Library::statement_differs`).
+fn check_proofs_state_records(
+    report: &mut Report,
+    records: &[Record],
+    library: &Library<'_>,
+) {
+    for r in records.iter().filter(|r| r.kind.is_item()) {
+        for proof in r.parley_proofs() {
+            if let Some(why) = library.statement_differs(&r.qualified(), proof) {
+                report.say(
+                    &r.path,
+                    r.line,
+                    format!(
+                        "{} {} does not state what {proof} proves: {why}",
+                        r.header(),
+                        r.name
+                    ),
+                );
+            }
+        }
+    }
 }
 
 /// A set of checks of one theorem: `check_theorem`, or `check_holds`.

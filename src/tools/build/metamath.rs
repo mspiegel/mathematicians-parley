@@ -29,7 +29,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use indexmap::IndexMap;
 
 use crate::checker::{CheckedCorpus, CheckedTheorem, LibraryReading};
-use crate::corpus::{cited_items, index, Corpus, Item};
+use crate::corpus::{cited_items, index_built, Corpus, Item};
 use crate::elab::definitions::write_definitions;
 use crate::elab::elaborate::Options;
 use crate::elab::{elaborate, statement_of, Elaborated, Library, ReadLibrary};
@@ -275,7 +275,11 @@ impl<'a> Maker<'a> {
             source,
             found,
             g: Rc::clone(&checked.grammar),
-            items: index(&found.records, &found.theorems),
+            items: index_built(
+                &found.records,
+                &found.theorems,
+                crate::corpus::Record::metamath_provided,
+            ),
             libraries,
             library: None,
             made: IndexMap::new(),
@@ -577,7 +581,11 @@ impl<'s> Loaded<'s> {
             let text = self.source.read_text(&path_of(cited)).ok()?;
             statement_of(&text)
         };
-        let items = index(&found.records, &found.theorems);
+        let items = index_built(
+            &found.records,
+            &found.theorems,
+            crate::corpus::Record::metamath_provided,
+        );
         let Some(checked) = self.checked.theorems.get(name) else {
             return Err(Problem::new(
                 name,
