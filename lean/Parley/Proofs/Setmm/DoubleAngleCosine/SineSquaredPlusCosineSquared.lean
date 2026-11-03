@@ -1,0 +1,31 @@
+module
+
+public import RealTactics
+public import Tactics
+public import Parley.Items.Stdlib.Trigonometry
+
+/-! Written from proofs/setmm/double-angle-cosine.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.DoubleAngleCosine.SineSquaredPlusCosineSquared
+
+theorem sine_squared_plus_cosine_squared (A : ℂ) :
+    Complex.sin A ^ 2 + Complex.cos A ^ 2 = 1 := by
+  -- 1. mun:cos-negative a := A
+  have s1 : Complex.cos (-A) = Complex.cos A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_negative (a := A)); parley_side)
+  -- 2. mun:sin-negative a := A
+  have s2 : Complex.sin (-A) = -Complex.sin A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_sin_negative (a := A)); parley_side)
+  -- 3. algebra
+  have s3 : A + -A = 0 := by parley_ring
+  -- 4. calculation
+  have s4 : Complex.sin A ^ 2 + Complex.cos A ^ 2 = 1 := by
+    calc Complex.sin A ^ 2 + Complex.cos A ^ 2 = Complex.cos A * Complex.cos A - Complex.sin A * -Complex.sin A := by parley_ring
+      _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := by parley_subst s2
+      _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := by parley_subst s1
+      _ = Complex.cos (A + -A) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); parley_side)
+      _ = Complex.cos (0 : ℂ) := by parley_subst s3
+      _ = 1 := by parley_real
+  all_goals exact s4
+
+end Parley.Proofs.Setmm.DoubleAngleCosine.SineSquaredPlusCosineSquared

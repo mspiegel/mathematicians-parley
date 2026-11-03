@@ -8,6 +8,8 @@ public import Numbers
 public import Sums
 public import Tactics
 public import SetTactics
+public import Roots
+public import RealTactics
 public import Calculus
 public import Functions
 public import Sets

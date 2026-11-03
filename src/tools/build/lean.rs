@@ -83,6 +83,11 @@ const TACTICS: &str = "Tactics";
 /// The module of the tactics a proof about sets uses beside the others.
 const SET_TACTICS: &str = "SetTactics";
 
+/// The tactic of real arithmetic of √, π, ln, exp, sin and cos, and its
+/// module, which a proof that calls it imports.
+const REAL: &str = "parley_real";
+const REAL_TACTICS: &str = "RealTactics";
+
 /// The tactic a step leaves its side conditions to, and the one a proof
 /// about sets leaves them to, which tries the first and then the ways of
 /// sets.
@@ -259,6 +264,9 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         let mut library = library_imports(&body);
         if of_sets {
             library.insert(SET_TACTICS.to_string());
+        }
+        if body.contains(REAL) {
+            library.insert(REAL_TACTICS.to_string());
         }
         let imports: Vec<String> = library.into_iter().chain(cited).collect();
         let mut text = header(&imports, &thm.path);

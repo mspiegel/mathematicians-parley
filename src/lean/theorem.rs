@@ -720,9 +720,20 @@ impl<'a> Proof<'a> {
             self.lift(node, &names[k], step.line, &spot, &p);
         }
         if step.impossible {
+            // A line of roots or of π, ln, exp, sin or cos, √2 − 1 = 0, is
+            // shown false by real arithmetic; any other by `norm_num`.
+            let real = claim.iter().any(|(node, _)| {
+                node.walk().iter().any(|n| {
+                    matches!(&*n.notation_name(), "square-root" | "pi")
+                        || n.children.first().is_some_and(|f| {
+                            matches!(&*f.text, "cos" | "sin" | "exp" | "ln" | "tan")
+                        })
+                })
+            });
+            let refute = if real { "parley_real" } else { "norm_num" };
             if let Some(last) = names.last() {
                 self.push(
-                    format!("{p}exact absurd {last} (by norm_num)"),
+                    format!("{p}exact absurd {last} (by {refute})"),
                     step.line,
                     spot,
                 );
@@ -899,9 +910,10 @@ impl<'a> Proof<'a> {
                 lines.extend(haves);
                 return Route::Built(with_haves(&lines, &proof));
             }
-            Method::Arithmetic | Method::RealArithmetic => {
-                "by parley_arith".to_string()
-            }
+            Method::Arithmetic => "by parley_arith".to_string(),
+            // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
+            // tactic, which tries `parley_arith` first (`RealTactics`).
+            Method::RealArithmetic => "by parley_real".to_string(),
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
@@ -1540,8 +1552,15 @@ impl<'a> Proof<'a> {
                     Route::Built(n) => n,
                     Route::Declined(d) => return Route::Declined(d),
                 };
+                // An equation shown by real arithmetic where it is put, ln(8)
+                // = 3·ln(2) (real arithmetic), is the real arithmetic's.
+                let real = matches!(
+                    just.source,
+                    Some(crate::corpus::skeleton::Source::RealArithmetic)
+                );
+                let tactic = if real { "parley_real" } else { "parley_side" };
                 match self.writer.formula(&node) {
-                    Route::Built(p) => format!("(show {} by parley_side)", p.text),
+                    Route::Built(p) => format!("(show {} by {tactic})", p.text),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -1955,12 +1974,10 @@ impl<'a> Proof<'a> {
                 own = own.max(n);
             }
         }
-        let pinned = of_numbers
-            && [terms.first(), terms.last()]
-                .into_iter()
-                .flatten()
-                .any(|t| writer.pinned(t));
-        let mut out = match (pinned && own < at, at) {
+        // The chain is worked in `at`, its first term told the type where
+        // nothing in it fixes one; a claim in a narrower type, 3^q = 2^p in
+        // ℤ beside ln and exp in ℝ, is moved up to it first.
+        let mut out = match (of_numbers && own < at, at) {
             (true, super::templates::Num::Rat) => String::from("by\n  qify\n  calc "),
             (true, super::templates::Num::Real) => String::from("by\n  rify\n  calc "),
             _ => String::from("by\n  calc "),
@@ -2024,6 +2041,10 @@ impl<'a> Proof<'a> {
                         ),
                         None => "by parley_side".to_string(),
                     }
+                }
+                // A row the page works out by real arithmetic, = 3·ln(2).
+                None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
+                    "by parley_real".to_string()
                 }
                 None => "by norm_num".to_string(),
             };

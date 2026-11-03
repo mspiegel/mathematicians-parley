@@ -404,6 +404,31 @@ impl Writer<'_> {
         }
     }
 
+    /// `template`, where the node is computed in `at`: a library function
+    /// takes the form for arguments of that type, so that cos(0) in a
+    /// calculation in ℂ is `Complex.cos 0`, as cos(A) beside it is.
+    fn template_at(&self, node: &Node, at: Num) -> Route<&Template> {
+        let applied = matches!(
+            node.notation(),
+            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
+        ) && self.library_function(node).is_some();
+        if !applied {
+            return self.template(node);
+        }
+        let Some(f) = node.children.first() else {
+            return self.template(node);
+        };
+        let args: Vec<Num> = node.children[1..]
+            .iter()
+            .filter_map(|a| self.carrier(a).built())
+            .map(|c| c.max(at))
+            .collect();
+        match self.templates.function_at(&f.text, &args) {
+            Some(t) => Route::Built(t),
+            None => self.template(node),
+        }
+    }
+
     /// The Lean form of the library function a node applies, `gcd(a, b)`;
     /// None for any other node, a letter of the page applied included.
     pub fn library_function(&self, node: &Node) -> Option<&Template> {
@@ -868,7 +893,7 @@ impl Writer<'_> {
                 self.raise(value, to, at)
             }
             _ => {
-                let template = match self.template(node) {
+                let template = match self.template_at(node, at) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
                 };
