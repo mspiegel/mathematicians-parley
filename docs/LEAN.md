@@ -98,6 +98,22 @@ lean-builds α, α → α: _1 * _2 ; α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2
 lean-builds ℤ, ℤ → Prop: _1 ∣ _2
 ```
 
+An entry may give the pattern a form for each type its holes take, set apart
+by ` | `. The writer takes the form whose holes are of the terms' own types,
+and failing that the first whose holes hold them, a number held in a fixed
+hole of a wider type:
+
+```
+lean-builds ℤ, ℤ → ℤ: _1 % _2 | ℝ, ℝ → ℝ: LeanBridges.Divisibility.mod _1 _2
+lean-builds α → α: abs _1 | ℂ → ℝ: ‖_1‖
+lean-builds ℕ → Prop: Nat.Prime _1 | ℤ → Prop: Nat.Prime _1.toNat
+```
+
+set.mm's mod is of real numbers, a − b·⌊a/b⌋; Mathlib's `%` is of integers,
+and the bridges define the other as set.mm does, with a lemma that the two
+agree for a divisor not negative. |x| of a complex number is its norm. A
+prime of the integers is a natural prime, as set.mm's ℙ is.
+
 `α` is the formula's type and `α≥ℚ` that type raised to ℚ at least. An entry
 `-` is a pattern the parser folds into another. An item's `lean-proof` field
 has one Lean proof for each sentence it concludes, a term or `by …`. A record
