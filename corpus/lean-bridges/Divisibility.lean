@@ -13,6 +13,42 @@ public section
 
 namespace LeanBridges.Divisibility
 
+/-- a mod b of real numbers, as set.mm defines it (`df-mod`): a less the
+whole number of b's that fit below it. Mathlib's `%` is of integers; the
+`mod` notation writes this one of real numbers. -/
+@[expose] noncomputable def mod (a b : ℝ) : ℝ :=
+  a - b * ⌊a / b⌋
+
+/-- Of integers, with a divisor not negative, set.mm's mod is Lean's `%`:
+a step of integers written with `%` meets an item of real numbers through
+it. Below 0 the two differ, `%` keeping a remainder not negative. -/
+theorem mod_intCast (a b : ℤ) (hb : 0 ≤ b) :
+    mod (a : ℝ) (b : ℝ) = ((a % b : ℤ) : ℝ) := by
+  unfold mod
+  rcases hb.eq_or_lt with rfl | hb
+  · simp
+  · have hfloor : ⌊(a : ℝ) / (b : ℝ)⌋ = a / b := by
+      rw [Int.floor_eq_iff]
+      have hb' : (0 : ℝ) < b := by exact_mod_cast hb
+      constructor
+      · rw [le_div_iff₀ hb']
+        have := Int.ediv_mul_le a hb.ne'
+        exact_mod_cast this
+      · rw [div_lt_iff₀ hb']
+        have := Int.lt_ediv_add_one_mul_self a hb
+        push_cast
+        exact_mod_cast this
+    rw [hfloor, Int.emod_def]
+    push_cast
+    ring
+
+/-- Of natural numbers, set.mm's mod is Lean's `%` of their integers. -/
+theorem mod_natCast (a b : ℕ) :
+    mod (a : ℝ) (b : ℝ) = (((a : ℤ) % (b : ℤ) : ℤ) : ℝ) := by
+  have := mod_intCast (a : ℤ) (b : ℤ) (by positivity)
+  push_cast at this ⊢
+  exact this
+
 /-- `thm:stdlib/divisibility/prime-divides-product`. -/
 theorem prime_divides_product (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (m : ℤ) (n : ℤ) :
     (p : ℤ) ∣ m * n ↔ (p : ℤ) ∣ m ∨ (p : ℤ) ∣ n :=
@@ -97,5 +133,10 @@ theorem prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h4 : 
 theorem divides_quotient (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
     (d : ℤ) ∣ (n : ℤ) ↔ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
   ⟨fun ⟨k, hk⟩ => ⟨k.toNat, by have hk0 : 0 < k := (by rcases lt_trichotomy k 0 with h | h | h <;> [nlinarith; (subst h; simp at hk; omega); exact h]); omega, by have hk0 : (0:ℤ) ≤ k := (by rcases lt_trichotomy k 0 with h | h | h <;> [nlinarith; omega; omega]); rw [show ((k.toNat : ℕ) : ℚ) = ((k : ℤ) : ℚ) by exact_mod_cast Int.toNat_of_nonneg hk0]; field_simp; rw [mul_comm]; exact_mod_cast hk.symm⟩, fun ⟨m, _, hm⟩ => ⟨m, by field_simp at hm; exact_mod_cast (by linarith : (n : ℚ) = (d : ℚ) * (m : ℚ))⟩⟩
+
+/-- `mun:stdlib/divisibility/prime-nat`. -/
+theorem prime_nat (p : ℤ) (h2 : Nat.Prime p.toNat) :
+    0 < p :=
+  by have := h2.pos; omega
 
 end LeanBridges.Divisibility

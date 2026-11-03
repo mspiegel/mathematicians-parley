@@ -9,9 +9,9 @@ public section
 namespace Parley.Tests.Notations.Primes.NinetyOneIsNotPrimeByInspection
 
 theorem ninety_one_is_not_prime_by_inspection :
-    ¬ Nat.Prime 91 := by
+    ¬ Nat.Prime (91 : ℤ).toNat := by
   -- 1. inspection
-  have s1 : ¬ Nat.Prime 91 := by parley_side
+  have s1 : ¬ Nat.Prime (91 : ℤ).toNat := by parley_side
   all_goals exact s1
 
 end Parley.Tests.Notations.Primes.NinetyOneIsNotPrimeByInspection

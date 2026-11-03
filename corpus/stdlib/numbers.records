@@ -271,7 +271,7 @@ mundane theorem power-cancel
   then        a^m = a^n ↔ m = n
   metamath-proof expcan
   note        Powers of a number above 1 are equal only at equal exponents.
-  lean-proof  not yet implemented
+  lean-proof  zpow_right_inj₀ (by linarith) h4.ne'
 
 mundane theorem power-order
   let a ∈ ℝ                                                           (H1)
@@ -850,7 +850,7 @@ mundane theorem abs-nonneg
   metamath-proof absge0
   note        `inequalities` treats |x| as an atom it knows nothing about, so
               that it is at least 0 is cited, as that it is real is.
-  lean-proof  not yet implemented
+  lean-proof  norm_nonneg x
 
 mundane theorem one-power
   let m ∈ ℤ                                                           (H1)

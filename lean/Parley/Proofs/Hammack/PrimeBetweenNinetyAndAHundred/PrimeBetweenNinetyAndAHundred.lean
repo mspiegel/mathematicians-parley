@@ -11,7 +11,7 @@ namespace Parley.Proofs.Hammack.PrimeBetweenNinetyAndAHundred.PrimeBetweenNinety
 theorem prime_between_ninety_and_a_hundred :
     (∃ p : ℕ, 0 < p ∧ ((Nat.Prime p ∧ 90 < (p : ℤ)) ∧ (p : ℤ) < 100)) := by
   -- 1. inspection
-  have s1 : Nat.Prime 97 := by parley_side
+  have s1 : Nat.Prime (97 : ℤ).toNat := by parley_side
   -- 2. arithmetic
   have s2 : (90 : ℤ) < 97 := by parley_arith
   -- 3. arithmetic

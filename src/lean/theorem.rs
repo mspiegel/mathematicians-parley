@@ -1912,7 +1912,8 @@ impl<'a> Proof<'a> {
         if line.notation() != crate::notations::EQUALITY || sides.len() != 2 {
             return same();
         }
-        let mut own = super::templates::Num::Int;
+        // The line's type as it was written: from the writer's floor.
+        let mut own = writer.floor;
         for s in &sides {
             match writer.carrier(s) {
                 Route::Built(n) => own = own.max(n),
@@ -2138,6 +2139,58 @@ impl<'a> Proof<'a> {
             }
         }
         out
+    }
+
+    /// Of a ↔ whose right side is an "and" of several parts, the part that
+    /// says the claim, as Lean writes both at the citation's values: its
+    /// place and the number of parts. None where no one part does.
+    fn part_saying(
+        &self,
+        sentence: &Sentence,
+        cited: &crate::checker::record::Cited,
+        claim: &Node,
+    ) -> Option<(usize, usize)> {
+        let [_, right] = sentence.says.children.as_slice() else {
+            return None;
+        };
+        let mut parts = Vec::new();
+        let mut rest = right;
+        while matches!(
+            rest.notation(),
+            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION
+        ) {
+            let [first, second] = rest.children.as_slice() else {
+                break;
+            };
+            parts.push(first);
+            rest = second;
+        }
+        parts.push(rest);
+        if parts.len() < 2 {
+            return None;
+        }
+        let wanted = self.writer.formula(claim).built()?.text;
+        let binders = self.sources.checked.grammar.binders();
+        let saying: Vec<usize> = parts
+            .iter()
+            .enumerate()
+            .filter(|(_, part)| {
+                let at = crate::matching::substitute_apart_by(
+                    part,
+                    &cited.binding,
+                    &binders,
+                );
+                self.writer
+                    .formula(&at)
+                    .built()
+                    .is_some_and(|p| p.text == wanted)
+            })
+            .map(|(i, _)| i)
+            .collect();
+        match saying.as_slice() {
+            [one] => Some((*one, parts.len())),
+            _ => None,
+        }
     }
 
     /// The name of the cited line that says an item's hypothesis at the
@@ -2619,6 +2672,15 @@ impl<'a> Proof<'a> {
         let term = match same.iter().position(|&i| i == k) {
             Some(at) if same.len() > 1 && !whole => {
                 format!("({term}){}", projection(at, same.len()))
+            }
+            // One sentence of the claim that is one part of the "and" the
+            // reading gives, "for all d …" of "p > 1 and for all d …": that
+            // part, found by its Lean text at the citation's values.
+            _ if !whole && same.len() == 1 && concluded.way == Way::Forward && iff => {
+                match self.part_saying(sentence, cited, node) {
+                    Some((at, n)) => format!("({term}){}", projection(at, n)),
+                    None => term,
+                }
             }
             _ => term,
         };
@@ -3699,9 +3761,20 @@ fn close(claim: &Node, term: &str) -> String {
         // c = a + b, is taken negated. A corpus theorem stated in a
         // wider type than the claim, ℝ for a claim in ℚ, has the claim moved
         // up to it.
-        EQUALITY if of_numbers => format!(
-            "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h) | (have h := {term}; parley_side)"
-        ),
+        EQUALITY if of_numbers => {
+            // A remainder of integers written with `%`, beside an item of
+            // set.mm's mod of real numbers: the item's put as `%` first.
+            let of_mod = claim.walk().iter().any(|n| &*n.notation_name() == "mod");
+            let as_remainder = match of_mod {
+                true => format!(
+                    " | (have h := {term}; simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h)"
+                ),
+                false => String::new(),
+            };
+            format!(
+                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder} | (have h := {term}; parley_side)"
+            )
+        }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.
         // An item over ℝ cited for a claim the page computes in ℚ gives

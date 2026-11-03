@@ -513,7 +513,7 @@ notation absolute-value
   reads       the absolute value of
   metamath-syntax cabs
   metamath-builds _1 cabs cfv
-  lean-builds α → α: abs _1
+  lean-builds α → α: abs _1 | ℂ → ℝ: ‖_1‖
   note        Shares its pattern with cardinality and distance and is told
               apart by the sort of its hole. Needs no assoc and no level: a
               token sits at each edge.
@@ -579,7 +579,7 @@ notation mod
   decided     arithmetic
   metamath-syntax cmo
   metamath-builds _1 _2 cmo co
-  lean-builds ℤ, ℤ → ℤ: _1 % _2
+  lean-builds ℤ, ℤ → ℤ: _1 % _2 | ℝ, ℝ → ℝ: LeanBridges.Divisibility.mod _1 _2
   note        The remainder, a mod b, as Euclid's algorithm writes each
               step. It binds as division does and reads left to right with
               it, so `x·y mod m` is (x·y) mod m. The word never meets the
@@ -1808,7 +1808,7 @@ notation prime
   reads       is prime
   metamath-syntax wcel with cprime
   metamath-builds _1 cprime wcel
-  lean-builds ℕ → Prop: Nat.Prime _1
+  lean-builds ℕ → Prop: Nat.Prime _1 | ℤ → Prop: Nat.Prime _1.toNat
 
 notation perfect
   pattern     _ is perfect

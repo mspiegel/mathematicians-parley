@@ -12,7 +12,7 @@ public section
 namespace Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
 
 theorem three_prime :
-    Nat.Prime 3 := by
+    Nat.Prime (3 : ℤ).toNat := by
   -- 1. arithmetic
   have s1 : (3 : ℤ) > 1 := by parley_arith
   -- 2. proof
@@ -69,7 +69,7 @@ theorem three_prime :
         all_goals parley_side
     all_goals parley_side
   -- 3. def:prime p := 3, from 1, 2
-  have s3 : Nat.Prime 3 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side); parley_side)
+  have s3 : Nat.Prime (3 : ℤ).toNat := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side); parley_side)
   all_goals exact s3
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

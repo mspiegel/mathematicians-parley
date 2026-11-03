@@ -404,9 +404,31 @@ impl Writer<'_> {
         let Some(pattern) = self.grammar.written_by(node.spelling()) else {
             return Route::no(format!("{name} is written by no plain pattern"));
         };
-        match self.templates.get(&name, &pattern.pattern) {
+        // Of forms by type, the one for its terms' own types: a letter of
+        // ℕ is a natural number, though it is computed in ℤ at least.
+        let args: Vec<Num> = node
+            .children
+            .iter()
+            .filter(|c| self.is_number(c))
+            .filter_map(|c| match self.letters.get(c.text.as_str()) {
+                Some(LetterType::Number(Num::Nat)) if c.is_name() => Some(Num::Nat),
+                _ => self.carrier(c).built(),
+            })
+            .collect();
+        match self.templates.get(&name, &pattern.pattern, &args) {
             Some(t) => Route::Built(t),
             None => Route::no(format!("notation {name} has no lean-builds field")),
+        }
+    }
+
+    /// The 0 a term is compared with in `at`: told its type where nothing
+    /// in the term fixes one, as 2^n − 1 of a natural n, which Lean would
+    /// otherwise read in ℕ, where its subtraction stops at 0.
+    fn zero_at(&self, x: &Node, at: Num) -> String {
+        if at == Num::Nat || self.pinned(x) {
+            "0".to_string()
+        } else {
+            format!("(0 : {})", self.type_name(at))
         }
     }
 
@@ -1371,12 +1393,13 @@ impl Writer<'_> {
         match system {
             System::Positive if held <= Num::Int => {
                 let at = if natural_letter { Num::Nat } else { Num::Int };
+                let zero = self.zero_at(x, at);
                 let x = match self.number(x, at) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 Route::Built(Printed {
-                    text: format!("0 < {}", x.at(51)),
+                    text: format!("{zero} < {}", x.at(51)),
                     prec: 50,
                 })
             }
@@ -1384,12 +1407,13 @@ impl Writer<'_> {
                 if natural_letter {
                     return Route::Built(Printed::atom("True"));
                 }
+                let zero = self.zero_at(x, Num::Int);
                 let x = match self.number(x, Num::Int) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 Route::Built(Printed {
-                    text: format!("0 ≤ {}", x.at(51)),
+                    text: format!("{zero} ≤ {}", x.at(51)),
                     prec: 50,
                 })
             }

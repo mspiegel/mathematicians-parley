@@ -101,7 +101,10 @@ pub struct Template {
 /// pattern as its `pattern` field writes it.
 #[derive(Clone, Debug, Default)]
 pub struct Templates {
-    by_pattern: IndexMap<(String, String), Template>,
+    /// Each notation's pattern's forms, by the record's name and the
+    /// pattern: one, or one for each type its holes take, set apart by
+    /// ` | ` in the field.
+    by_pattern: IndexMap<(String, String), Vec<Template>>,
     /// The notations with a `lean-builds` field, by name.
     mapped: IndexMap<String, ()>,
     /// Each library function a definition record's `lean-builds` field
@@ -162,27 +165,40 @@ impl Templates {
                 if entry == "-" {
                     continue;
                 }
-                let template = Template::read(entry).ok_or_else(|| {
-                    Problem::new(
-                        &r.path,
-                        line,
-                        format!(
-                            "notation {}: lean entry {entry:?} does not read",
-                            r.name
-                        ),
-                    )
-                })?;
-                out.by_pattern.insert((r.name.clone(), pattern), template);
+                let mut forms = Vec::new();
+                for form in entry.split(" | ").map(str::trim) {
+                    let template = Template::read(form).ok_or_else(|| {
+                        Problem::new(
+                            &r.path,
+                            line,
+                            format!(
+                                "notation {}: lean entry {form:?} does not read",
+                                r.name
+                            ),
+                        )
+                    })?;
+                    forms.push(template);
+                }
+                out.by_pattern.insert((r.name.clone(), pattern), forms);
             }
             out.mapped.insert(r.name.clone(), ());
         }
         Ok(out)
     }
 
-    /// The template of a notation's pattern.
-    pub fn get(&self, notation: &str, pattern: &str) -> Option<&Template> {
-        self.by_pattern
-            .get(&(notation.to_string(), pattern.to_string()))
+    /// The template of a notation's pattern for terms of the types given:
+    /// the form whose holes are of those types, else the first whose holes
+    /// hold them, else the first (`pick`).
+    pub fn get(
+        &self,
+        notation: &str,
+        pattern: &str,
+        args: &[Num],
+    ) -> Option<&Template> {
+        let forms = self
+            .by_pattern
+            .get(&(notation.to_string(), pattern.to_string()))?;
+        pick(forms, args)
     }
 
     /// Whether a notation has a `lean-builds` field.
@@ -210,6 +226,27 @@ impl Templates {
         };
         forms.iter().find(|t| holds(t)).or(forms.first())
     }
+}
+
+/// Of a pattern's forms, the one for terms of these types: the form whose
+/// fixed holes are of exactly their types, so that |x| of a complex number
+/// takes `‖x‖` though `α → α: abs _1` would hold it too; else the first
+/// whose holes hold them, a number held in a fixed hole of a wider type;
+/// else the first.
+fn pick<'t>(forms: &'t [Template], args: &[Num]) -> Option<&'t Template> {
+    let fits = |t: &Template, exact: bool| {
+        t.holes.len() == args.len()
+            && t.holes.iter().zip(args).all(|(slot, arg)| match slot {
+                Slot::Fixed(n) if exact => arg == n,
+                Slot::Fixed(n) => arg <= n,
+                _ => !exact,
+            })
+    };
+    forms
+        .iter()
+        .find(|t| forms.len() > 1 && fits(t, true))
+        .or_else(|| forms.iter().find(|t| fits(t, false)))
+        .or(forms.first())
 }
 
 impl Template {

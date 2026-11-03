@@ -11,7 +11,7 @@ public section
 namespace Parley.Tests.Notations.Primes.NinetyOneIsNotPrime
 
 theorem ninety_one_is_not_prime :
-    ¬ Nat.Prime 91 := by
+    ¬ Nat.Prime (91 : ℤ).toNat := by
   -- 1. arithmetic
   have s1 : (7 : ℤ) ∣ (91 : ℤ) := by parley_arith
   -- 2. arithmetic
@@ -19,11 +19,11 @@ theorem ninety_one_is_not_prime :
   -- 3. arithmetic
   have s3 : (7 : ℤ) ≠ 91 := by parley_arith
   -- 4. contradiction
-  have s4 : ¬ Nat.Prime 91 := by
+  have s4 : ¬ Nat.Prime (91 : ℤ).toNat := by
     by_contra hc_hS
-    have hS : Nat.Prime 91 := by parley_suppose hc_hS
+    have hS : Nat.Prime (91 : ℤ).toNat := by parley_suppose hc_hS
     -- 4.1. def:prime p := 91, from S
-    have s4_1 : ∀ d : ℕ, 0 < d → (d : ℤ) ∣ (91 : ℤ) → (d : ℤ) = 1 ∨ (d : ℤ) = 91 := by first | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side); parley_side)
+    have s4_1 : ∀ d : ℕ, 0 < d → (d : ℤ) ∣ (91 : ℤ) → (d : ℤ) = 1 ∨ (d : ℤ) = 91 := by first | exact (((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Divisibility.def_prime (p := 91) (by parley_side))).mp (by parley_side)).2; parley_side)
     -- 4.2. instantiate d := 7 in line 4.1
     have s4_2 : (7 : ℤ) ∣ (91 : ℤ) → (7 : ℤ) = 1 ∨ (7 : ℤ) = 91 := by first | exact (s4_1 7 (by parley_side)) | exact ((s4_1 7 (by parley_side))).symm | simpa using (s4_1 7 (by parley_side)) | exact_mod_cast (s4_1 7 (by parley_side)) | (have h := (s4_1 7 (by parley_side)); parley_side)
     -- 4.3. mun:modus-ponens, from 1, 4.2

@@ -117,6 +117,10 @@ theorem mun_exponent_negative {K : Type*} [Field K] [CharZero K] (a : K) (h2 : a
     a ^ (-m) = 1 / a ^ m :=
   LeanBridges.Numbers.exponent_negative a h2 m
 
+theorem mun_power_cancel {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℤ) (n : ℤ) (h4 : 1 < a) :
+    a ^ m = a ^ n ↔ m = n :=
+  zpow_right_inj₀ (by linarith) h4.ne'
+
 theorem mun_product_nonzero {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (x : K) (y : K) (h3 : x ≠ 0) (h4 : y ≠ 0) :
     x * y ≠ 0 :=
   mul_ne_zero h3 h4
@@ -252,6 +256,10 @@ theorem mun_quotient_positive {K : Type*} [Field K] [LinearOrder K] [IsStrictOrd
 theorem mun_less_scaled {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (c : K) (h4 : 0 < c) :
     x < y ↔ c * x < c * y :=
   LeanBridges.Numbers.less_scaled x y c h4
+
+theorem mun_abs_nonneg (x : ℂ) :
+    0 ≤ ‖x‖ :=
+  norm_nonneg x
 
 theorem mun_one_power (m : ℤ) :
     (1 ^ m : ℚ) = 1 :=

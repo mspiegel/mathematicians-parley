@@ -403,7 +403,7 @@ mundane theorem difference-shrinks
   assume Y ⊆ X                                                        (H1)
   then        Y ∖ Z ⊆ X ∖ Z
   metamath-proof ssdif
-  lean-proof  not yet implemented
+  lean-proof  Set.diff_subset_diff_left h1
 
 mundane theorem subset-into-difference
   let a be an element                                                 (H1)
@@ -446,7 +446,7 @@ mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
   then        𝒫Y ⊆ 𝒫X
   metamath-proof sspw
-  lean-proof  not yet implemented
+  lean-proof  Set.powerset_mono.mpr h1
 
 definition intersection
   then        u ∈ Y ∩ Z ↔ u ∈ Y and u ∈ Z
@@ -474,7 +474,7 @@ mundane theorem intersection-commutes
 mundane theorem union-commutes
   then        Y ∪ Z = Z ∪ Y
   metamath-proof uncom
-  lean-proof  not yet implemented
+  lean-proof  Set.union_comm Y Z
 
 mundane theorem union-difference
   then        Y ∪ (Z ∖ Y) = Y ∪ Z
@@ -505,7 +505,7 @@ mundane theorem intersection-self
 mundane theorem union-self
   then        Y ∪ Y = Y
   metamath-proof unidm
-  lean-proof  not yet implemented
+  lean-proof  Set.union_self Y
 
 mundane theorem union-empty
   then        Y ∪ ∅ = Y

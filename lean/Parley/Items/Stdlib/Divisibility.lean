@@ -161,6 +161,10 @@ theorem mun_mod_multiple (r : ℤ) (m : ℕ) (h2 : 0 < m) (q : ℤ) :
     (q * (m : ℤ) + r) % (m : ℤ) = r % (m : ℤ) :=
   LeanBridges.Divisibility.mod_multiple r m h2 q
 
+theorem mun_mod_value (a : ℝ) (b : ℝ) (h3 : 0 < b) :
+    LeanBridges.Divisibility.mod a b = a - b * (⌊a / b⌋ : ℝ) :=
+  rfl
+
 theorem mun_zero_divides (n : ℤ) :
     (0 : ℤ) ∣ n ↔ n = 0 :=
   zero_dvd_iff
@@ -168,6 +172,10 @@ theorem mun_zero_divides (n : ℤ) :
 theorem mun_divides_self (n : ℤ) :
     n ∣ n :=
   dvd_refl n
+
+theorem mun_prime_nat (p : ℤ) (h2 : Nat.Prime p.toNat) :
+    0 < p :=
+  LeanBridges.Divisibility.prime_nat p h2
 
 theorem mun_prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h4 : ¬ (p : ℤ) ∣ a) :
     (Int.gcd (p : ℤ) a : ℤ) = 1 :=

@@ -20,7 +20,7 @@ theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f :
     · skip
       intro hD1
       -- 1. def:one-to-one, from D1
-      have s1 : ∀ s ∈ A, ∀ t ∈ A, f s = f t → s = t := by first | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
+      have s1 : ∀ s ∈ A, ∀ t ∈ A, f s = f t → s = t := by first | exact (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Functions.def_one_to_one (X := A) (Y := B) (f := f) (by parley_set_side))).mp (by parley_set_side)).2; parley_set_side)
       -- 2. proof
       have s2 : ∀ X ∈ 𝒫 A, A ∩ f ⁻¹' (f '' X) = X := by
         intro X hK1

@@ -53,6 +53,10 @@ theorem mun_difference_subset {α : Type*} (X : Set α) (Y : Set α) :
     X \ Y ⊆ X :=
   Set.diff_subset
 
+theorem mun_difference_shrinks {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : Y ⊆ X) :
+    Y \ Z ⊆ X \ Z :=
+  Set.diff_subset_diff_left h1
+
 theorem mun_singleton_subset {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) :
     ({a} : Set α) ⊆ X :=
   Set.singleton_subset_iff.mpr h1
@@ -60,6 +64,10 @@ theorem mun_singleton_subset {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) :
 theorem mun_pair_subset {α : Type*} (X : Set α) (a : α) (b : α) (h1 : a ∈ X) (h2 : b ∈ X) :
     ({a, b} : Set α) ⊆ X :=
   LeanBridges.Sets.pair_subset X a b h1 h2
+
+theorem mun_powerset_monotone {α : Type*} (X : Set α) (Y : Set α) (h1 : Y ⊆ X) :
+    𝒫 Y ⊆ 𝒫 X :=
+  Set.powerset_mono.mpr h1
 
 theorem def_intersection {α : Type*} (Y : Set α) (Z : Set α) (u : α) :
     u ∈ Y ∩ Z ↔ u ∈ Y ∧ u ∈ Z :=
@@ -73,6 +81,10 @@ theorem mun_intersection_commutes {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∩ Z = Z ∩ Y :=
   Set.inter_comm Y Z
 
+theorem mun_union_commutes {α : Type*} (Y : Set α) (Z : Set α) :
+    Y ∪ Z = Z ∪ Y :=
+  Set.union_comm Y Z
+
 theorem mun_union_difference {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∪ Z \ Y = Y ∪ Z :=
   Set.union_diff_self
@@ -80,6 +92,10 @@ theorem mun_union_difference {α : Type*} (Y : Set α) (Z : Set α) :
 theorem mun_intersection_self {α : Type*} (Y : Set α) :
     Y ∩ Y = Y :=
   Set.inter_self Y
+
+theorem mun_union_self {α : Type*} (Y : Set α) :
+    Y ∪ Y = Y :=
+  Set.union_self Y
 
 theorem mun_subset_empty {α : Type*} (Y : Set α) :
     Y ⊆ ∅ ↔ Y = ∅ :=

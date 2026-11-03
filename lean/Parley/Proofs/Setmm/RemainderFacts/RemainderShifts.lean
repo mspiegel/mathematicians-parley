@@ -1,0 +1,38 @@
+module
+
+public import Divisibility
+public import Tactics
+public import Parley.Items.Stdlib.Divisibility
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Proofs.Setmm.FloorBasics.FloorAddInteger
+
+/-! Written from proofs/setmm/remainder-facts.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Setmm.RemainderFacts.RemainderShifts
+
+theorem remainder_shifts (X : ℝ) (M : ℝ) (hH3 : M > 0) (K : ℤ) :
+    LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = LeanBridges.Divisibility.mod X M := by
+  -- 1. mun:floor-integer x := X/M
+  have r16_1 : M ≠ 0 := by parley_side
+  -- 2. thm:floor-add-integer A := X/M, N := K
+  have r20_1 : M ≠ 0 := by parley_side
+  have s2 : ⌊X / M + (K : ℝ)⌋ = ⌊X / M⌋ + K := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := X / M) (N := K)); parley_side)
+  -- 3. substitute
+  have r24_1 : M ≠ 0 := by parley_side
+  have s3 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by
+    have c1 : X / M + (K : ℝ) = (X + M * (K : ℝ)) / M := by parley_ring
+    have row1 : ⌊(X + M * (K : ℝ)) / M⌋ = ⌊X / M⌋ + K := by parley_subst_at c1 s2
+    exact row1
+  -- 4. calculation
+  have s4 : LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = LeanBridges.Divisibility.mod X M := by
+    calc LeanBridges.Divisibility.mod (X + M * (K : ℝ)) M = X + M * (K : ℝ) - M * (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X + M * (K : ℝ)) (b := M) (by parley_side)); parley_side)
+      _ = X + M * (K : ℝ) - M * ((⌊X / M⌋ : ℝ) + (K : ℝ)) := by
+          have s3_w : (⌊(X + M * (K : ℝ)) / M⌋ : ℝ) = (⌊X / M⌋ : ℝ) + (K : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s3; push_cast at h; linear_combination (norm := parley_norm) h
+          first | parley_subst s3_w | parley_subst s3
+      _ = X - M * (⌊X / M⌋ : ℝ) := by parley_ring
+      _ = LeanBridges.Divisibility.mod X M := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_value (a := X) (b := M) (by parley_side)); parley_side)
+  all_goals exact s4
+
+end Parley.Proofs.Setmm.RemainderFacts.RemainderShifts
