@@ -290,7 +290,7 @@ impl<'a> Writer<'a> {
     /// The line that says this term is an integer or a rational; None
     /// where none does.
     fn said_integer(&self, node: &Node) -> Option<&SaidInteger> {
-        if node.is_name() || node.notation() == NUMERAL {
+        if node.notation() == NUMERAL {
             return None;
         }
         let printed = self.grammar.print(node);

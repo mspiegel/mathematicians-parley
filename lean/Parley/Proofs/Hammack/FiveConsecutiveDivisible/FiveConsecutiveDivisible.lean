@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible
 
+set_option maxHeartbeats 400000 in
 theorem five_consecutive_divisible (n : ℤ) :
     (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
   -- 1. mun:nonneg-or-neg x := n − 1

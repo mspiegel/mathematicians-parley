@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.LimitUnique.LimitOrder
 
+set_option maxHeartbeats 400000 in
 theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L)) (hH6 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds M)) :
     M ≤ L := by
   -- the theorem. contradiction

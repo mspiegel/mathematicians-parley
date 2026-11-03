@@ -386,9 +386,11 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
             line: Some(a.node.clone()),
         });
         // A term of a wider type said to be an integer is, in what is
-        // asked after, the integer this hypothesis gives.
+        // asked after, the integer this hypothesis gives. A letter is not:
+        // A ∈ ℤ of a real A says a fact of A, which stays the letter.
         if let [term, set] = a.node.children.as_slice() {
             let integer = a.node.notation() == crate::notations::MEMBERSHIP
+                && !term.is_name()
                 && system_of(set) == Some(System::Type(super::templates::Num::Int))
                 && writer
                     .carrier(term)

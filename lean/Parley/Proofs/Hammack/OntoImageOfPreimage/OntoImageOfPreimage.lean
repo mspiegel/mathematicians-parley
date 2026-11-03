@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OntoImageOfPreimage.OntoImageOfPreimage
 
+set_option maxHeartbeats 400000 in
 theorem onto_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.SurjOn f A B ↔ (∀ Y ∈ 𝒫 B, f '' (A ∩ (A ∩ f ⁻¹' Y)) = Y)) := by
   -- the theorem. both directions

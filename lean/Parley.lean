@@ -130,6 +130,7 @@ public import Parley.Proofs.Hammack.IntersectionThenDifference.IntersectionThenD
 public import Parley.Proofs.Hammack.InverseSquareHasNoLimit.InverseSquareHasNoLimit
 public import Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded
 public import Parley.Proofs.Hammack.IrrationalBetweenRationalsByHalfRootTwo.IrrationalBetweenRationals
+public import Parley.Proofs.Hammack.IrrationalBetweenRationals.IrrationalBetweenRationals
 public import Parley.Proofs.Hammack.LcmEqualsFirst.LcmEqualsFirst
 public import Parley.Proofs.Hammack.LimitUnique.LimitUnfolded
 public import Parley.Proofs.Hammack.LimitUnique.LimitOrder
@@ -502,6 +503,7 @@ public import Parley.Proofs.Setmm.UnionAndDifferenceEqual.UnionAndDifferenceEqua
 public import Parley.Proofs.Setmm.ValueAndInverseAgree.ValueAndInverseAgree
 public import Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
+public import Parley.Proofs.Setmm.WholeNumberBySize.WholeNumberBySize
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
 public import Parley.Proofs.Wiedijk.Factor.Factor

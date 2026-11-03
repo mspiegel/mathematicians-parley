@@ -749,10 +749,11 @@ pub fn theorem(
             .chain(binders.iter().map(Binder::lean))
             .collect();
     let space = if binders.is_empty() { "" } else { " " };
-    // Lean's budget for one declaration, 200000 heartbeats, for each 40
+    // Lean's budget for one declaration, 200000 heartbeats, for each 30
     // steps of the proof: a long proof is many steps, each of the usual
-    // cost, which the one default would cut off part way.
-    let budget = match thm.steps.len().div_ceil(40) {
+    // cost, which the one default would cut off part way. A proof of 37
+    // steps citing items over ℚ and ℝ took 16 seconds and more than one.
+    let budget = match thm.steps.len().div_ceil(30) {
         0 | 1 => String::new(),
         n => format!("set_option maxHeartbeats {} in\n", 200_000 * n),
     };
@@ -1108,7 +1109,18 @@ impl<'a> Proof<'a> {
             // A calculation's lines are its proof, written as Lean's calc;
             // every other block's steps stand in it.
             if m.takes_block() && m != Method::Calculation {
-                return self.block(i, m, &claim, &names, depth);
+                // The lines inside a block are out of scope after it, and
+                // the claim the block proves is no line in scope inside it.
+                let own = step.number.number().map(|n| n.to_string());
+                let claimed = own.as_ref().and_then(|n| self.trees.shift_remove(n));
+                let visible: std::collections::BTreeSet<String> =
+                    self.trees.keys().cloned().collect();
+                let written = self.block(i, m, &claim, &names, depth);
+                self.trees.retain(|k, _| visible.contains(k));
+                if let (Some(n), Some(said)) = (own, claimed) {
+                    self.trees.insert(n, said);
+                }
+                return written;
             }
         }
         let reason = Reason {
@@ -1309,22 +1321,28 @@ impl<'a> Proof<'a> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
-        let super::expr::System::Type(ty) = super::expr::system_of(set)? else {
-            return None;
+        use super::templates::Num;
+        // The type the term is said to be in, and the type its parts are
+        // said to be in: ℕ₀ is said of an integer, its parts integers.
+        let (claimed, ty) = match super::expr::system_of(set)? {
+            super::expr::System::Type(t @ (Num::Int | Num::Rat)) => (t, t),
+            super::expr::System::NonNegative => (Num::Nat, Num::Int),
+            _ => return None,
         };
-        if node.notation() != crate::notations::MEMBERSHIP
-            || !matches!(ty, super::templates::Num::Int | super::templates::Num::Rat)
-            || self.writer.carrier(term).built()? <= ty
-        {
+        let wide = self.writer.carrier(term).built()?;
+        if node.notation() != crate::notations::MEMBERSHIP || wide <= ty {
             return None;
         }
         let mut writer = self.writer.with_letters(self.writer.letters.clone());
         let mut lines = Vec::new();
         // The parts within the term: the term itself is what the step
-        // claims, and a letter is in its type already.
+        // claims, and a letter of the type said is in it already; a letter
+        // of a wider type, A ∈ ℝ, may be said an integer.
         let whole = writer.grammar.print(term);
         for part in term.walk() {
-            if part.is_name()
+            let typed = part.is_name()
+                && writer.carrier(&part).built().is_some_and(|c| c <= ty);
+            if typed
                 || part.notation() == crate::notations::NUMERAL
                 || writer.grammar.print(&part) == whole
             {
@@ -1347,10 +1365,18 @@ impl<'a> Proof<'a> {
             return None;
         }
         let witness = writer.number_fixed(term, ty).built()?.text;
-        Some(format!(
-            "(exact ⟨{witness}, by push_cast; (try simp only [{}]); first | done | parley_ring⟩)",
-            lines.join(", ")
-        ))
+        let specs = lines.join(", ");
+        Some(match claimed {
+            // In ℕ₀: the integer's `toNat`, which is the integer, as it is
+            // not negative.
+            Num::Nat => format!(
+                "(exact ⟨({witness}).toNat, by rw [show ((({witness}).toNat : ℕ) : {wide_t}) = ((({witness}) : ℤ) : {wide_t}) by exact_mod_cast Int.toNat_of_nonneg (by parley_side)]; push_cast; (try simp only [{specs}]); first | done | parley_ring⟩)",
+                wide_t = writer.type_name(wide)
+            ),
+            _ => format!(
+                "(exact ⟨{witness}, by push_cast; (try simp only [{specs}]); first | done | parley_ring⟩)"
+            ),
+        })
     }
 
     fn proof_by_reason(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
@@ -3074,18 +3100,36 @@ impl<'a> Proof<'a> {
                                 .number_fixed(value, super::templates::Num::Nat)
                             {
                                 Route::Built(p) => Route::Built(p),
+                                // A real a line says is in ℕ₀, |A| ∈ ℕ₀: the
+                                // natural number that line gives.
                                 Route::Declined(d) => match self
-                                    .writer
-                                    .number_fixed(value, super::templates::Num::Int)
+                                    .said_integer(value, super::templates::Num::Nat)
                                 {
-                                    Route::Built(p) => {
-                                        let int = p.at(super::expr::MAX);
-                                        to_nat.push((name.clone(), int.clone()));
-                                        Route::Built(super::expr::Printed::atom(
-                                            format!("{int}.toNat"),
-                                        ))
+                                    Some(line) => {
+                                        let printed = super::expr::Printed::atom(
+                                            format!("(Classical.choose {line})"),
+                                        );
+                                        self.said_used.borrow_mut().push(SaidUsed {
+                                            line,
+                                            term: self.writer.grammar.print(value),
+                                        });
+                                        Route::Built(printed)
                                     }
-                                    Route::Declined(_) => Route::Declined(d),
+                                    // An integer the page shows is not
+                                    // negative, M − 1: its `toNat`.
+                                    None => match self
+                                        .writer
+                                        .number_fixed(value, super::templates::Num::Int)
+                                    {
+                                        Route::Built(p) => {
+                                            let int = p.at(super::expr::MAX);
+                                            to_nat.push((name.clone(), int.clone()));
+                                            Route::Built(super::expr::Printed::atom(
+                                                format!("{int}.toNat"),
+                                            ))
+                                        }
+                                        Route::Declined(_) => Route::Declined(d),
+                                    },
                                 },
                             }
                         }
@@ -3559,6 +3603,23 @@ impl<'a> Proof<'a> {
                     term: format!("Classical.choose {line}"),
                     known: Some(format!("have := Classical.choose_spec {line}; ")),
                 }),
+                // An integer the lines show is not negative, b·m of a
+                // natural b and a positive integer m, given for a natural:
+                // its `toNat`, with that it is the integer known.
+                None if ty == super::templates::Num::Nat => {
+                    match self.writer.number_fixed(value, super::templates::Num::Int) {
+                        Route::Built(p) => {
+                            let int = p.at(super::expr::MAX);
+                            Route::Built(Witness {
+                                term: format!("{int}.toNat"),
+                                known: Some(format!(
+                                    "(try simp only [parley_cast_toNat (show (0 : ℤ) ≤ {int} by parley_side)]); (try push_cast); "
+                                )),
+                            })
+                        }
+                        Route::Declined(_) => Route::Declined(d),
+                    }
+                }
                 None => Route::Declined(d),
             },
         }
@@ -3569,10 +3630,19 @@ impl<'a> Proof<'a> {
     /// no line says so. Lean states that line as `∃ m : ℤ, (m : ℚ) = …`, so
     /// the integer is the witness it gives.
     fn said_integer(&self, value: &Node, ty: super::templates::Num) -> Option<String> {
-        if !matches!(ty, super::templates::Num::Int | super::templates::Num::Rat) {
-            return None;
-        }
+        // Lean states each as `∃ m : T, ↑m = x` of a term wider than T: ℤ,
+        // ℚ, and ℕ₀ of a term wider than ℤ, as ℕ, an integer's being `0 ≤
+        // x`. ℕ adds that m is above 0, and is not one of them.
         let at = self.writer.carrier(value).built()?;
+        let system = match ty {
+            super::templates::Num::Int | super::templates::Num::Rat => {
+                super::expr::System::Type(ty)
+            }
+            super::templates::Num::Nat if at > super::templates::Num::Int => {
+                super::expr::System::NonNegative
+            }
+            _ => return None,
+        };
         let wanted = self.writer.number(value, at).built()?.text;
         // The latest such line: an earlier one may stand in a block the
         // step is not in.
@@ -3585,8 +3655,7 @@ impl<'a> Proof<'a> {
                     return None;
                 };
                 let integer = node.notation() == crate::notations::MEMBERSHIP
-                    && super::expr::system_of(set)
-                        == Some(super::expr::System::Type(ty));
+                    && super::expr::system_of(set) == Some(system);
                 let same = self.writer.number(term, at).built().map(|p| p.text)
                     == Some(wanted.clone());
                 (integer && same).then(|| name.clone())
@@ -3888,6 +3957,9 @@ impl<'a> Proof<'a> {
         );
         let kept = self.writer.letters.clone();
         let floor = self.writer.floor;
+        // The lines in scope as the block opens: a line one case or
+        // direction says is no line of the next.
+        let kept_lines = self.trees.clone();
         let parts: Vec<Option<usize>> = if step.parts.is_empty() {
             vec![None]
         } else {
@@ -3987,6 +4059,7 @@ impl<'a> Proof<'a> {
                     // m ≥ 0, is no natural in the next.
                     self.writer.letters = kept.clone();
                     self.writer.floor = floor;
+                    self.trees = kept_lines.clone();
                     self.named.insert(label.clone(), vec![label.clone()]);
                     // What the case assumes, for a step that cites it.
                     if let Some(o) = step.openers.iter().find(|o| o.part == *part) {
@@ -4030,6 +4103,7 @@ impl<'a> Proof<'a> {
             Method::BothDirections => {
                 self.push(format!("{inner}constructor"), step.line, spot.clone());
                 for part in &parts {
+                    self.trees = kept_lines.clone();
                     self.push(format!("{inner}· skip"), step.line, spot.clone());
                     if let Route::Declined(d) = self.open(step, *part, depth + 2) {
                         return Route::Declined(d);

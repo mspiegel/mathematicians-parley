@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ReciprocalSquareNoLimit.ReciprocalSquareNoLimit
 
+set_option maxHeartbeats 400000 in
 theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ), f x = 1 / (x ^ 2 - 2 * x + 1)) :
     ¬ (∃ L : ℝ, Filter.Tendsto f (nhdsWithin 1 (((Set.univ : Set ℝ) \ ({(1 : ℝ)} : Set ℝ)) \ {1})) (nhds L)) := by
   -- the theorem. contradiction

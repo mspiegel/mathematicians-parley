@@ -15,6 +15,13 @@ each alternative ends in `done`, and `ring1` is used for `ring`.
 
 public section
 
+/-- An integer not negative, cast to any ring from the natural number its
+`toNat` is, is itself: the build gives a natural letter an integer the page
+shows is not negative as its `toNat` (`theorem::witness`). -/
+theorem parley_cast_toNat {R : Type*} [Ring R] {n : ℤ} (h : 0 ≤ n) :
+    ((n.toNat : ℕ) : R) = (n : R) := by
+  rw [← Int.cast_natCast, Int.toNat_of_nonneg h]
+
 /-- An order between numbers that follows from the lines above by linear
 arithmetic, as an `inequalities`, `transitivity` or `antisymmetry` step's
 does: the ways of `parley_side` that close such a goal, the cheapest first,

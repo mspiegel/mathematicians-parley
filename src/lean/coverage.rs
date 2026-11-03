@@ -97,6 +97,70 @@ pub fn coverage(
     out
 }
 
+/// Whether a let of the theorem names a quotient as a whole number, `let e
+/// = p/d, a positive integer`: a kind of whole number, and a value with a
+/// division outside any floor (⌊A/B⌋ is a whole number as written).
+fn kinded_quotient(
+    thm: &crate::corpus::Theorem,
+    rec: &crate::checker::CheckedTheorem,
+) -> bool {
+    thm.defines.iter().any(|d| {
+        let crate::outcome::Route::Built(crate::corpus::DefineParts::One(one)) =
+            crate::corpus::define_parts(&d.text)
+        else {
+            return false;
+        };
+        let whole = matches!(
+            one.kind.as_deref(),
+            Some(
+                "a positive integer"
+                    | "an integer"
+                    | "a natural number"
+                    | "a nonnegative integer"
+            )
+        );
+        whole
+            && rec
+                .page
+                .entries()
+                .filter(|(key, _)| key.line == d.line)
+                .any(|(_, n)| divides_outside_floor(n))
+    })
+}
+
+/// Whether a term divides somewhere a floor does not hold.
+fn divides_outside_floor(n: &crate::formula::Node) -> bool {
+    if &*n.notation_name() == "floor" {
+        return false;
+    }
+    n.spelling() == crate::notations::DIVIDED
+        || n.children.iter().any(divides_outside_floor)
+}
+
+/// Whether the theorem cites the set-image item and writes a set-image over
+/// ℤ whose term raises something to its index, {9ⁿ : n ∈ ℤ}: rationals of
+/// an integer, which the item's map of one type cannot take.
+fn image_of_powers_cited(
+    thm: &crate::corpus::Theorem,
+    rec: &crate::checker::CheckedTheorem,
+) -> bool {
+    let cites = cited_items(thm)
+        .iter()
+        .any(|(full, _)| full == "stdlib/functions/set-image");
+    cites
+        && rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+            matches!((&*n.notation_name(), n.children.as_slice()), ("set-image", [term, index, set])
+                if super::expr::system_of(set)
+                    == Some(super::expr::System::Type(super::templates::Num::Int))
+                    && term.walk().iter().any(|p| {
+                        p.notation() == crate::notations::POWER
+                            && p.children.get(1).is_some_and(|e| {
+                                e.walk().iter().any(|x| x.is_name() && x.text == index.text)
+                            })
+                    }))
+        })
+}
+
 /// Whether a line of the theorem puts the set letter among numbers, D ⊆ ℝ
 /// or D ∈ 𝒫ℝ, which gives it the type of a set of those
 /// (`items::numbers_subset`, `statement::introduces_in_set`).
@@ -276,6 +340,24 @@ fn covered(
     if in_parts {
         return Covered::Out {
             reason: "a let line says a property beside a type, which the Lean build does not read yet"
+                .to_string(),
+        };
+    }
+    // A let naming a quotient as a whole number, `let e = p/d, a positive
+    // integer`: the writer types the name by its kind and writes the value
+    // in it, and a quotient is no integer to Lean until the reason's
+    // witness is taken (`theorem::define`).
+    if kinded_quotient(thm, rec) {
+        return Covered::Out {
+            reason: "a let names a quotient as a whole number, which the writer takes in its kind's type"
+                .to_string(),
+        };
+    }
+    // The set-image item's map has one type (`items`), and {9ⁿ : n ∈ ℤ}
+    // gives rationals of an integer index.
+    if image_of_powers_cited(thm, rec) {
+        return Covered::Out {
+            reason: "a set-image of powers over ℤ cited through the set-image item, whose map takes one type"
                 .to_string(),
         };
     }

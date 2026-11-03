@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (Even (F (n : ℤ)) ↔ (3 : ℤ) ∣ (n : ℤ)) := by
   -- 1. thm:fibonacci-natural
