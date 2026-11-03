@@ -200,13 +200,17 @@ pub fn algebra(
     } else {
         parts.join(" + ")
     };
-    Route::Built(if divided {
-        format!("by linear_combination (norm := parley_field) {sum}")
-    } else if let Some(cast) = moved {
-        format!("by {cast} at *; linear_combination (norm := parley_norm) {sum}")
+    // The step moved to its cited lines' type first, where it is, and then
+    // checked by the field's normal form where it divides.
+    let cast = moved.map_or(String::new(), |c| format!("{c} at *; "));
+    let norm = if divided {
+        "parley_field"
     } else {
-        format!("by linear_combination (norm := parley_norm) {sum}")
-    })
+        "parley_norm"
+    };
+    Route::Built(format!(
+        "by {cast}linear_combination (norm := {norm}) {sum}"
+    ))
 }
 
 /// `over` divided by the product of `under`, as a Lean term of type `at`:

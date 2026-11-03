@@ -18,7 +18,7 @@ theorem cosine_is_not_one_to_one :
   -- 3. inequalities
   have s3 : 0 ≠ 2 * Real.pi := by parley_side
   -- 4. exhibit, from 1, 3
-  have s4 : ∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ Real.cos x = Real.cos y := ⟨(0 : ℝ), 2 * Real.pi, by parley_side⟩
+  have s4 : ∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ Real.cos x = Real.cos y := ⟨(0 : ℝ), 2 * Real.pi, ⟨by parley_side, by parley_side⟩⟩
   all_goals exact s4
 
 end Parley.Tests.Elaborator.AnExhibitFromAnAnd.CosineIsNotOneToOne

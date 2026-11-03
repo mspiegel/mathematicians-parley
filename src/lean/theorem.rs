@@ -927,21 +927,10 @@ impl<'a> Proof<'a> {
         // ℤ`, meets a goal that has the line's term, ⌊A/B⌋: the goal is put
         // in terms of the number first.
         let used = std::mem::take(&mut *self.said_used.borrow_mut());
-        let parts: Vec<String> = node
-            .walk()
-            .iter()
-            .map(|n| self.writer.grammar.print(n))
-            .collect();
-        let mut specs: Vec<String> = Vec::new();
-        for u in &used {
-            let spec = format!("← Classical.choose_spec {}", u.line);
-            if parts.contains(&u.term) && !specs.contains(&spec) {
-                specs.push(spec);
-            }
-        }
+        let specs = self.specs_in(node, &used);
         Route::Built(match specs.is_empty() {
             true => proof,
-            false => format!("by rw [{}]; {}", specs.join(", "), as_tactic(&proof)),
+            false => format!("by rw [{specs}]; {}", as_tactic(&proof)),
         })
     }
 
@@ -1487,7 +1476,7 @@ impl<'a> Proof<'a> {
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push(format!("by {}parley_side", known.concat()));
+        parts.push(facts_shaped(body, &known.concat()));
         Route::Built(format!("⟨{}⟩", parts.join(", ")))
     }
 
@@ -3110,10 +3099,12 @@ impl<'a> Proof<'a> {
     }
 
     fn obtain(&mut self, i: usize, depth: usize) -> Route<()> {
+        self.said_used.borrow_mut().clear();
         let source = match self.obtained_from(i) {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
+        let used = std::mem::take(&mut *self.said_used.borrow_mut());
         let step = &self.thm.steps[i];
         self.introduce(step);
         let claim = match self.claim(step) {
@@ -3190,14 +3181,62 @@ impl<'a> Proof<'a> {
             }
             said = inner;
         }
-        pattern.extend(body);
+        // What is said of the letters, taken apart as Lean nests its "and":
+        // ((d > 1 ∧ d ∣ p) ∧ d ∣ q) is ⟨⟨a, b⟩, c⟩.
+        if !body.is_empty() {
+            let mut names = body.into_iter();
+            let shaped = shaped_pattern(said, &mut names);
+            if names.next().is_some() {
+                return Route::no(
+                    "an obtain whose sentences are not the parts of its \"there is\"",
+                );
+            }
+            pattern.push(shaped);
+        }
         let p = pad(depth);
         self.push(
             format!("{p}obtain ⟨{}⟩ := {}", pattern.join(", "), source.term),
             step.line,
             Self::step_spot(step),
         );
+        // An item given a line's number, x := the rational of `√2 ∈ ℚ`,
+        // gives its facts of that number; a sentence the page says of the
+        // line's term, √2 = p/q, is that fact with the goal put in terms of
+        // the number.
+        for ((node, prop), name) in claim.iter().zip(&names) {
+            let specs = self.specs_in(node, &used);
+            if specs.is_empty() {
+                continue;
+            }
+            self.push(
+                format!(
+                    "{p}have {name} : {} := by rw [{specs}]; exact_mod_cast {name}",
+                    prop.text
+                ),
+                step.line,
+                Self::step_spot(step),
+            );
+        }
         Route::Built(())
+    }
+
+    /// The rewrites that put a claim in terms of the numbers lines give,
+    /// `← Classical.choose_spec hS` for each line used whose term the claim
+    /// has, joined for `rw`; empty where it has none.
+    fn specs_in(&self, claim: &Node, used: &[SaidUsed]) -> String {
+        let parts: Vec<String> = claim
+            .walk()
+            .iter()
+            .map(|n| self.writer.grammar.print(n))
+            .collect();
+        let mut specs: Vec<String> = Vec::new();
+        for u in used {
+            let spec = format!("← Classical.choose_spec {}", u.line);
+            if parts.contains(&u.term) && !specs.contains(&spec) {
+                specs.push(spec);
+            }
+        }
+        specs.join(", ")
     }
 
     /// A step that owns a block: its claim proved by the block's steps,
@@ -3949,6 +3988,38 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// A claim proved from a term that gives it, as the claim's shape asks:
 /// an equation by the ring identity between the two, an order by linear
 /// arithmetic, anything else as it stands.
+/// What an exhibit says of its values, taken apart as Lean nests its "and",
+/// each part left to `parley_side` with what the witnesses give known: a
+/// part alone is a line in scope, where the whole "and" may send `simp`
+/// past its depth.
+fn facts_shaped(said: &Node, known: &str) -> String {
+    match (said.notation(), said.children.as_slice()) {
+        (
+            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+            [l, r],
+        ) => {
+            format!("⟨{}, {}⟩", facts_shaped(l, known), facts_shaped(r, known))
+        }
+        _ => format!("by {known}parley_side"),
+    }
+}
+
+/// An `obtain` pattern for a sentence, one name to each part of its "and"
+/// as it nests, the names taken in order; a part left with no name is `_`.
+fn shaped_pattern(said: &Node, names: &mut impl Iterator<Item = String>) -> String {
+    match (said.notation(), said.children.as_slice()) {
+        (
+            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+            [l, r],
+        ) => {
+            let left = shaped_pattern(l, names);
+            let right = shaped_pattern(r, names);
+            format!("⟨{left}, {right}⟩")
+        }
+        _ => names.next().unwrap_or_else(|| "_".to_string()),
+    }
+}
+
 /// A proof as a tactic to stand among `first`'s alternatives: its own
 /// tactics where it is a `by` block, as an error inside a nested `by`,
 /// `exact (by …)`, is logged and does not fail the alternative, so `first`

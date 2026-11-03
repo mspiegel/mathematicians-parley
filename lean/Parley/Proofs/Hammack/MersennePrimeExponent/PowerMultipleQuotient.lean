@@ -22,11 +22,11 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
       -- 1.1. arithmetic
       have s1_1 : (1 : ℤ) ≥ 1 := by parley_arith
       -- 1.2. exhibit, from 1.1
-      have s1_2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * 1) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ 1) := ⟨1, by parley_side, by parley_side⟩
+      have s1_2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * 1) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ 1) := ⟨1, by parley_side, ⟨by parley_side, by parley_side⟩⟩
       all_goals parley_side
     | succ j hK hIH =>
       -- 1.3. obtain q from IH
-      obtain ⟨q, s1_3a, s1_3b, s1_3c⟩ := hIH
+      obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
       -- 1.4. algebra
       have s1_4 : (d : ℤ) * ((j : ℤ) + 1) = (d : ℤ) * (j : ℤ) + (d : ℤ) := by parley_ring
       -- 1.5. calculation
@@ -59,7 +59,7 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
       -- 1.15. inequalities
       have s1_15 : 2 ^ d * (q : ℤ) + 1 ≥ (j : ℤ) + 1 := by parley_order
       -- 1.16. exhibit, from 1.6, 1.15
-      have s1_16 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * (j + 1)) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (j : ℤ) + 1) := ⟨2 ^ d * q + 1, by parley_side, by parley_side⟩
+      have s1_16 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * (j + 1)) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (j : ℤ) + 1) := ⟨2 ^ d * q + 1, by parley_side, ⟨by parley_side, by parley_side⟩⟩
       all_goals parley_side
   -- 2. instantiate j := m in line 1
   have s2 : ∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ)) := by first | exact (s1 m (by parley_side)) | exact ((s1 m (by parley_side))).symm | simpa using (s1 m (by parley_side)) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)

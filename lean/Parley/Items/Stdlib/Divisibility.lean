@@ -189,4 +189,8 @@ theorem mun_divides_quotient (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
     (d : ℤ) ∣ (n : ℤ) ↔ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
   LeanBridges.Divisibility.divides_quotient n h1 d h2
 
+theorem thm_coprime_divides (x : ℤ) (c : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : (n : ℤ) ∣ x * c) (h5 : (Int.gcd c (n : ℤ) : ℤ) = 1) :
+    (n : ℤ) ∣ x :=
+  Int.dvd_of_dvd_mul_left_of_gcd_one h4 (by rw [Int.gcd_comm]; exact_mod_cast h5)
+
 end Parley.Items.Stdlib.Divisibility

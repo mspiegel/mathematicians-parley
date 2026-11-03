@@ -742,7 +742,7 @@ theorem coprime-divides
   assume gcd(c, n) = 1                                                (H5)
   then        n divides x
   metamath-proof stdlib/divisibility/coprime-divides
-  lean-proof  not yet implemented
+  lean-proof  Int.dvd_of_dvd_mul_left_of_gcd_one h4 (by rw [Int.gcd_comm]; exact_mod_cast h5)
 
 theorem congruent-cancel
   let x ∈ ℤ                                                           (H1)

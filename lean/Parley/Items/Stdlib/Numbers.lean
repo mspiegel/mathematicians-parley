@@ -149,6 +149,10 @@ theorem mun_nonneg_or_neg {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] 
     0 ≤ x ∨ x < 0 :=
   le_or_gt 0 x
 
+theorem mun_rational_coprime (x : ℚ) :
+    ∃ p : ℤ, ∃ q : ℕ, 0 < q ∧ (x = (p : ℚ) / (q : ℚ) ∧ (Int.gcd p (q : ℤ) : ℤ) = 1) :=
+  ⟨x.num, x.den, x.den_pos, (Rat.num_div_den x).symm, by simp [Int.gcd, x.reduced]⟩
+
 theorem def_abs_1 {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     0 ≤ x → abs x = x :=
   LeanBridges.Numbers.abs_1 x

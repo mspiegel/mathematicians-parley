@@ -27,7 +27,7 @@ theorem positive_number_with_square_below_root :
   -- 6. arithmetic
   have s6 : (1 / 4 : ℚ) > 0 := by parley_arith
   -- 7. exhibit, from 5, 6
-  have s7 : ∃ x : ℝ, x > 0 ∧ x ^ 2 < Real.sqrt x := ⟨(1 / 4 : ℝ), by parley_side⟩
+  have s7 : ∃ x : ℝ, x > 0 ∧ x ^ 2 < Real.sqrt x := ⟨(1 / 4 : ℝ), ⟨by parley_side, by parley_side⟩⟩
   all_goals exact s7
 
 end Parley.Proofs.Hammack.PositiveNumberWithSquareBelowRoot.PositiveNumberWithSquareBelowRoot

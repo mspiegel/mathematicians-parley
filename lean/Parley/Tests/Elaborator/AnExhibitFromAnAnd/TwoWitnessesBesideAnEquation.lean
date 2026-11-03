@@ -15,7 +15,7 @@ theorem two_witnesses_beside_an_equation :
   -- 2. arithmetic
   have s2 : (0 : ℤ) ≠ 2 := by parley_arith
   -- 3. exhibit, from 1, 2
-  have s3 : ∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ x + 1 = y + 1 - 2 := ⟨(0 : ℝ), (2 : ℝ), by parley_side⟩
+  have s3 : ∃ x : ℝ, ∃ y : ℝ, x ≠ y ∧ x + 1 = y + 1 - 2 := ⟨(0 : ℝ), (2 : ℝ), ⟨by parley_side, by parley_side⟩⟩
   all_goals exact s3
 
 end Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquation

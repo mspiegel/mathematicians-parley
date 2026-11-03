@@ -15,13 +15,13 @@ theorem no_least_positive :
     by_contra hc_hS
     have hS : ∃ x : ℝ, 0 < x ∧ ¬ (∃ y : ℝ, 0 < y ∧ y < x) := by parley_suppose hc_hS
     -- 1.1. obtain x from S
-    obtain ⟨x, s1_1a, s1_1b⟩ := hS
+    obtain ⟨x, ⟨s1_1a, s1_1b⟩⟩ := hS
     -- 1.2. inequalities
     have s1_2 : 0 < x / 2 := by parley_order
     -- 1.3. inequalities
     have s1_3 : x / 2 < x := by parley_order
     -- 1.4. exhibit, from 1.2, 1.3
-    have s1_4 : ∃ y : ℝ, 0 < y ∧ y < x := ⟨x / 2, by parley_side⟩
+    have s1_4 : ∃ y : ℝ, 0 < y ∧ y < x := ⟨x / 2, ⟨by parley_side, by parley_side⟩⟩
     all_goals parley_side
   all_goals exact s1
 

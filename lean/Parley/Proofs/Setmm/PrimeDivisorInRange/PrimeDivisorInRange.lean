@@ -25,13 +25,13 @@ theorem prime_divisor_in_range (N : ℕ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   -- 5. inequalities, from 1
   have s5 : (I : ℤ) > 1 := by parley_order
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
-  obtain ⟨p, s6a, s6b, s6c⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) (by parley_side))
+  obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) (by parley_side))
   -- 7. mun:divides-le e := p, m := I, from 4, 6
   have s7 : (p : ℤ) ≤ (I : ℤ) := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)); parley_side)
   -- 8. transitivity, from 7, 2
   have s8 : (p : ℤ) ≤ (N : ℤ) := by parley_order
   -- 9. exhibit, from 6, 8
-  have s9 : ∃ p : ℕ, 0 < p ∧ ((Nat.Prime p ∧ (p : ℤ) ≤ (N : ℤ)) ∧ (p : ℤ) ∣ (I : ℤ)) := ⟨p, by parley_side, by parley_side⟩
+  have s9 : ∃ p : ℕ, 0 < p ∧ ((Nat.Prime p ∧ (p : ℤ) ≤ (N : ℤ)) ∧ (p : ℤ) ∣ (I : ℤ)) := ⟨p, by parley_side, ⟨⟨by parley_side, by parley_side⟩, by parley_side⟩⟩
   all_goals exact s9
 
 end Parley.Proofs.Setmm.PrimeDivisorInRange.PrimeDivisorInRange

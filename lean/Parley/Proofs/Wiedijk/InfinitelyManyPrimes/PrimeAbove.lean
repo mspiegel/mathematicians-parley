@@ -18,7 +18,7 @@ theorem prime_above (n : ℕ) (hH1 : 0 < n) :
   -- 2. inequalities, from 1
   have s2 : (LeanBridges.Counting.factorial (n : ℤ) : ℤ) + 1 > 1 := by parley_order
   -- 3. obtain p: thm:prime-factor m := n! + 1, from 2
-  obtain ⟨p, s3a, s3b, s3c⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := LeanBridges.Counting.factorial (n : ℤ) + 1) (by parley_side) (by parley_side))
+  obtain ⟨p, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := LeanBridges.Counting.factorial (n : ℤ) + 1) (by parley_side) (by parley_side))
   -- 4. def:prime, from 3
   have s4 : (p : ℤ) > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := p) (by parley_side))).mp (by parley_side); parley_side)
   -- 5. contradiction
@@ -42,7 +42,7 @@ theorem prime_above (n : ℕ) (hH1 : 0 < n) :
     have s5_6 : (p : ℤ) ≠ 1 := by parley_side
     all_goals parley_side
   -- 6. exhibit, from 3, 5
-  have s6 : ∃ p : ℕ, 0 < p ∧ (Nat.Prime p ∧ (p : ℤ) > (n : ℤ)) := ⟨p, by parley_side, by parley_side⟩
+  have s6 : ∃ p : ℕ, 0 < p ∧ (Nat.Prime p ∧ (p : ℤ) > (n : ℤ)) := ⟨p, by parley_side, ⟨by parley_side, by parley_side⟩⟩
   all_goals exact s6
 
 end Parley.Proofs.Wiedijk.InfinitelyManyPrimes.PrimeAbove

@@ -84,7 +84,7 @@ theorem prime_exponent (n : ℕ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n - 1 : ℤ
     have r251_1 : 1 < (d : ℤ) := by parley_order
     have s4_7 : 1 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)); parley_side)
     -- 4.8. obtain q: thm:power-multiple-quotient m := e, from 4.4
-    obtain ⟨q, s4_8a, s4_8b, s4_8c⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) (by parley_side) (m := e) (by parley_side))
+    obtain ⟨q, s4_8a, ⟨s4_8b, s4_8c⟩⟩ := (Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient.power_multiple_quotient (d := d) (by parley_side) (m := e) (by parley_side))
     -- 4.9. calculation
     have s4_9 : 2 ^ n - 1 = (2 ^ d - 1) * (q : ℤ) := by
       calc (2 ^ n - 1 : ℤ) = 2 ^ (d * e) - 1 := by parley_subst s4_2
