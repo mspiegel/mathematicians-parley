@@ -198,6 +198,10 @@ pub struct Writer<'a> {
     /// letter: the A of `f : A → B`, within which a preimage is taken and
     /// an inverse is found.
     pub domains: IndexMap<String, String>,
+    /// The least type a relation between numbers is written in: ℤ, or ℝ
+    /// inside a block that lets a real number, the ε of a limit, where a
+    /// claim about natural numbers meets lines in ℝ (`Proof::open_lines`).
+    pub floor: Num,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -255,6 +259,7 @@ impl<'a> Writer<'a> {
             general: None,
             integers: Vec::new(),
             domains: IndexMap::new(),
+            floor: Num::Int,
         }
     }
 
@@ -266,6 +271,7 @@ impl<'a> Writer<'a> {
             general: self.general,
             integers: self.integers.clone(),
             domains: self.domains.clone(),
+            floor: self.floor,
         }
     }
 
@@ -791,8 +797,10 @@ impl Writer<'_> {
         inner
             .letters
             .insert(letter.text.to_string(), LetterType::Number(Num::Nat));
+        // A limit is of real numbers, as the tends-to item states it: the
+        // sequence and its limit are in ℝ at least, 1/n among them.
         let at = match (inner.carrier(term), self.carrier(limit)) {
-            (Route::Built(a), Route::Built(b)) => a.max(b),
+            (Route::Built(a), Route::Built(b)) => a.max(b).max(Num::Real),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                 return Route::Declined(d)
             }
@@ -1154,7 +1162,7 @@ impl Writer<'_> {
     /// type where the other does not fix it. `negated` writes an equation
     /// as `≠`.
     fn relation(&self, node: &Node, negated: bool) -> Route<Printed> {
-        self.relation_from(node, negated, Num::Int)
+        self.relation_from(node, negated, self.floor)
     }
 
     /// A relation of numerals alone, `5 = 0`, written in the type `floor`

@@ -26,13 +26,18 @@ macro "parley_order" : tactic =>
     | (positivity; done)
     | (omega; done)
     | (linarith; done)
+    -- Natural numbers in ℝ, 2 ≤ N + 1 from 0 < N: the casts moved out.
+    | (norm_cast at *; omega; done)
     | (push_cast at *; assumption; done)
     | (assumption_mod_cast; done)
     | (push_cast at *; linarith; done)
     | (qify at *; linarith; done)
     | (rify at *; linarith; done)
     | (norm_num at *; omega; done)
-    | (apply lt_of_le_of_ne <;> (first | linarith | assumption | (apply Ne.symm; assumption)); done)))
+    | (apply lt_of_le_of_ne <;> (first | linarith | assumption | (apply Ne.symm; assumption)); done)
+    -- Quotients as products with an inverse, so that 4/n and 1/2^n meet
+    -- 1/n and (2^n)⁻¹ as the same terms.
+    | (simp only [div_eq_mul_inv, one_mul] at *; linarith; done)))
 
 /-- What a page leaves to its reader: a side condition of a cited item, a
 membership said once, a line restated or joined from lines above, or a
@@ -80,6 +85,10 @@ macro "parley_side" : tactic =>
     -- An integer a line gives as a quotient, (M! + 1)/N, in an equation of
     -- integers: in ℚ, with the division cleared, it is linear.
     | (qify at *; field_simp at *; linarith; done)
+    -- A line about every natural number, in another type than the goal's:
+    -- (n : ℚ) ≤ 2^n from "for all k ∈ ℕ, k ≤ 2^k" in ℤ, each cast moved
+    -- out and the line applied.
+    | (norm_cast at *; solve_by_elim; done)
     | (simp_all; done)))
 
 /-- `parley_suppose h`, where `h` denies what a contradiction block claims:

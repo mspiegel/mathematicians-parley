@@ -14,7 +14,7 @@ theorem a_for_all_line_as_the_first_row_of_inequalities (hH1 : ∀ x : ℝ, x ^ 
   have s1 : ∀ y : ℝ, y ^ 2 + 1 ≥ 0 := by
     intro y
     -- 1.1. inequalities
-    have s1_1 : y ^ 2 + 1 ≥ 0 := by parley_order
+    have s1_1 : y ^ 2 + 1 ≥ 0 := by have := (hH1 y); parley_order
     all_goals exact s1_1
   all_goals exact s1
 

@@ -260,20 +260,6 @@ fn covered(
                 .to_string(),
         };
     }
-    // A limit's proof writes its claims of natural numbers, |1/n − 1| < 1/2,
-    // in ℚ, their least type, beside the sequence's lines in ℝ, and Lean does
-    // not carry one to the other under the quantifiers.
-    let limit = rec
-        .page
-        .entries()
-        .flat_map(|(_, node)| node.walk())
-        .any(|n| &*n.notation_name() == "tends-to");
-    if limit {
-        return Covered::Out {
-            reason: "a limit, whose claims of natural numbers the Lean build writes in ℚ beside the sequence's lines in ℝ"
-                .to_string(),
-        };
-    }
     // A letter the page gives a function type, `f : ℝ → ℝ`, is a Lean
     // function of its own; a composite of such is one too; and so is a
     // function the proof defines, `let S(m) = …, for m ∈ ℕ`.

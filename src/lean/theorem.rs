@@ -68,8 +68,50 @@ pub struct Sources<'a> {
 /// The theorem as an item of the library: its statement's binders, and its
 /// `then` sentences joined into one Lean statement, each taken by its
 /// projection.
+/// The least type a theorem writes its relations of numbers in: ℝ for one
+/// about a limit, which holds a limit, or a quantifier over ℝ with one over
+/// ℕ or ℕ₀ inside it, the shape "for all ε > 0 there is N with … for all
+/// n ≥ N"; ℤ otherwise. A claim about natural numbers in such a proof meets
+/// lines in ℝ, and is written in ℝ from the start.
+fn floor_of(rec: &CheckedTheorem) -> super::templates::Num {
+    use super::expr::{system_of, System};
+    use super::templates::Num;
+    let quantified_over = |n: &Node| -> Option<System> {
+        let [_, set, _] = n.children.as_slice() else {
+            return None;
+        };
+        matches!(
+            n.notation(),
+            crate::notations::FOR_ALL | crate::notations::THERE_IS
+        )
+        .then(|| system_of(set))
+        .flatten()
+    };
+    let limit_shape = |n: &Node| {
+        quantified_over(n) == Some(System::Type(Num::Real))
+            && n.children[2].walk().iter().any(|m| {
+                matches!(
+                    quantified_over(m),
+                    Some(System::Positive | System::NonNegative)
+                )
+            })
+    };
+    let about_limits = rec.page.entries().any(|(_, node)| {
+        node.walk().iter().any(|n| {
+            matches!(&*n.notation_name(), "tends-to" | "function-limit")
+                || limit_shape(n)
+        })
+    });
+    if about_limits {
+        Num::Real
+    } else {
+        Num::Int
+    }
+}
+
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
+    writer.floor = floor_of(rec);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -350,6 +392,7 @@ pub fn theorem(
         defined: indexmap::IndexSet::new(),
         worked_in: std::cell::Cell::new(None),
     };
+    proof.writer.floor = floor_of(rec);
     let Statement {
         binders,
         conclusion,
@@ -920,9 +963,21 @@ impl<'a> Proof<'a> {
             // An order is left to the ways of orders alone; a chain of
             // equations, A = B = C, to `parley_side`.
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
-                match node.notation() == ORDER {
-                    true => "by parley_order".to_string(),
-                    false => "by parley_side".to_string(),
+                // A cited "for all", a(n) = 1 − 1/2ⁿ for every n, is read
+                // at the claim's letter, which linear arithmetic can use.
+                let read: Vec<String> = self
+                    .cited_parts(&just.refs)
+                    .iter()
+                    .filter_map(|c| self.read_at_claim(c, node))
+                    .map(|at| format!("have := {}", at.proof))
+                    .collect();
+                let close = match node.notation() == ORDER {
+                    true => "parley_order",
+                    false => "parley_side",
+                };
+                match read.as_slice() {
+                    [] => format!("by {close}"),
+                    _ => format!("by {}; {close}", read.join("; ")),
                 }
             }
             Method::Inspection => "by parley_side".to_string(),
@@ -1925,7 +1980,8 @@ impl<'a> Proof<'a> {
             .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
         // A chain of counts, |A| = |∅| = 0, is in ℕ∞ (`sets::count_term`).
         let of_counts = terms.iter().any(Writer::counts);
-        let mut at = super::templates::Num::Int;
+        // From the writer's floor, as the claim it proves is written.
+        let mut at = writer.floor;
         let mut printed = Vec::new();
         if of_counts {
             for t in &terms {
@@ -1962,10 +2018,10 @@ impl<'a> Proof<'a> {
             }
         }
         // The claim, the first term and the last, is stated in its own
-        // least type; a chain worked out in a wider one moves the goal there
-        // first, as `qify` or `rify` does.
+        // least type, from the writer's floor; a chain worked out in a wider
+        // one moves the goal there first, as `qify` or `rify` does.
         let of_numbers = !of_sets && !of_counts;
-        let mut own = super::templates::Num::Int;
+        let mut own = writer.floor;
         for t in [terms.first(), terms.last()].into_iter().flatten() {
             if !of_numbers {
                 break;
@@ -2158,6 +2214,9 @@ impl<'a> Proof<'a> {
                 } else {
                     super::templates::Num::Int
                 };
+                // At the writer's floor at least, where claims are written
+                // in ℝ inside a block that lets a real number.
+                let least = least.max(self.writer.floor);
                 let mut at = self.worked_in.get().map_or(least, |w| w.max(least));
                 let numbers: Vec<&Node> = claim
                     .into_iter()
@@ -2930,6 +2989,7 @@ impl<'a> Proof<'a> {
             spot.clone(),
         );
         let kept = self.writer.letters.clone();
+        let floor = self.writer.floor;
         let parts: Vec<Option<usize>> = if step.parts.is_empty() {
             vec![None]
         } else {
@@ -3028,6 +3088,7 @@ impl<'a> Proof<'a> {
                     // them: one a case lifts to ℕ, m ∈ ℕ₀ where it assumes
                     // m ≥ 0, is no natural in the next.
                     self.writer.letters = kept.clone();
+                    self.writer.floor = floor;
                     self.named.insert(label.clone(), vec![label.clone()]);
                     // What the case assumes, for a step that cites it.
                     if let Some(o) = step.openers.iter().find(|o| o.part == *part) {
@@ -3099,6 +3160,7 @@ impl<'a> Proof<'a> {
             }
         }
         self.writer.letters = kept;
+        self.writer.floor = floor;
         if claim.len() > 1 {
             self.push(
                 format!("{p}obtain ⟨{}⟩ := {whole}", names.join(", ")),
@@ -3352,6 +3414,14 @@ impl<'a> Proof<'a> {
                             letter.clone(),
                             LetterType::Number(super::expr::letter_type(system)),
                         );
+                        // A block that lets a real number, the ε of a limit,
+                        // writes its claims in ℝ at least: a claim about
+                        // natural numbers there meets lines in ℝ.
+                        let at = super::expr::letter_type(system);
+                        if at >= super::templates::Num::Real {
+                            self.writer.floor =
+                                self.writer.floor.max(super::templates::Num::Real);
+                        }
                         let letter = super::names::letter(&letter);
                         if system == super::expr::System::Positive {
                             self.push(
