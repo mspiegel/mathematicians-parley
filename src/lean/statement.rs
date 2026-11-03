@@ -187,6 +187,13 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
                 domain: None,
             })
         }
+        // D ∈ 𝒫ℝ, the page's `let D ⊆ ℝ`, is a set as of `D ⊆ ℝ`.
+        ("membership", [set]) if &*set.notation_name() == "powerset" => Some(InSet {
+            letter: letter.text.to_string(),
+            ty: LetterType::Set(writer.set_members(set.children.first()?)?),
+            fact: Fact::Line,
+            domain: None,
+        }),
         ("membership", [set]) => Some(InSet {
             letter: letter.text.to_string(),
             ty: writer.members_of(set)?.letter(),

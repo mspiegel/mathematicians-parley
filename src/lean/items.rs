@@ -335,6 +335,50 @@ fn free_letters(
         .collect()
 }
 
+/// The function letter of `f : D → ℝ` between sets of numbers that are not
+/// both number systems, and its type, a function of the numbers' types;
+/// None for any other node.
+fn function_of_number_sets(
+    w: &super::expr::Writer,
+    node: &Node,
+) -> Option<(String, LetterType)> {
+    let [f, from, to] = node.children.as_slice() else {
+        return None;
+    };
+    if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+        return None;
+    }
+    match (w.set_members(from)?, w.set_members(to)?) {
+        (super::expr::Members::Numbers(a), super::expr::Members::Numbers(b)) => {
+            Some((f.text.to_string(), LetterType::Function { from: a, to: b }))
+        }
+        _ => None,
+    }
+}
+
+/// A letter a sentence says is a subset of a set of numbers, D ⊆ ℝ or D ∈
+/// 𝒫ℝ, and the type that makes it, a set of those numbers; None for any
+/// other sentence.
+fn numbers_subset(
+    w: &super::expr::Writer,
+    node: &Node,
+) -> Option<(String, LetterType)> {
+    let [d, whole] = node.children.as_slice() else {
+        return None;
+    };
+    let whole = match (&*node.notation_name(), whole.children.as_slice()) {
+        ("subset", _) => whole,
+        ("membership", [inner]) if &*whole.notation_name() == "powerset" => inner,
+        _ => return None,
+    };
+    match (d.is_name(), w.set_members(whole)?) {
+        (true, m @ super::expr::Members::Numbers(_)) => {
+            Some((d.text.to_string(), LetterType::Set(m)))
+        }
+        _ => None,
+    }
+}
+
 /// The Lean type the sorts give a letter that is a set, a member of one or
 /// a map between sets; None for any other letter.
 fn set_type_in(
@@ -493,6 +537,17 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .map(|(_, n)| n)
                 .chain(std::iter::once(says))
                 .collect();
+            // A set of numbers, which its sort does not say the type of, is
+            // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
+            for node in &said {
+                if let Some((name, ty)) = numbers_subset(&w, node) {
+                    let free_letter = free.iter().any(|f| f.name == name);
+                    if free_letter && !w.letters.contains_key(&name) {
+                        w.letters.insert(name.clone(), ty.clone());
+                        sets.push((name, ty));
+                    }
+                }
+            }
             let listed = |n: &Node| {
                 matches!(
                     &*n.notation_name(),
@@ -601,6 +656,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .flatten()
             {
                 if let Some((letter, ty)) = super::statement::introduces_function(node)
+                    .or_else(|| function_of_number_sets(&w, node))
                 {
                     // A function into the item's general type gives K.
                     let general = matches!(ty, LetterType::Function { to, .. }
@@ -635,10 +691,16 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 let [f, from, to] = node.children.as_slice() else {
                     continue;
                 };
-                if !matches!(
-                    w.letters.get(f.text.as_str()),
-                    Some(LetterType::Map { .. })
-                ) {
+                // A map of things, or a function of numbers whose domain is
+                // a set and not a number system, f : D → ℝ.
+                let of_numbers = function_of_number_sets(&w, node).is_some()
+                    && super::expr::function_systems(from, to).is_none();
+                if !of_numbers
+                    && !matches!(
+                        w.letters.get(f.text.as_str()),
+                        Some(LetterType::Map { .. })
+                    )
+                {
                     continue;
                 }
                 // A set named only in the map's type, the W of `f : X → W`,

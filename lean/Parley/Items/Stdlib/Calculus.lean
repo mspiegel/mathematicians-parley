@@ -9,6 +9,14 @@ public section
 
 namespace Parley.Items.Stdlib.Calculus
 
+theorem def_continuous_on (f : ℝ → ℝ) (D : Set ℝ) (hf : Set.MapsTo f D (Set.univ : Set ℝ)) (h1 : D ⊆ (Set.univ : Set ℝ)) :
+    ContinuousOn f D ↔ (∀ c ∈ D, ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, abs (x - c) < δ → abs (f x - f c) < ε))) :=
+  LeanBridges.Calculus.continuous_on f D hf h1
+
+theorem def_limit_at (f : ℝ → ℝ) (D : Set ℝ) (hf : Set.MapsTo f D (Set.univ : Set ℝ)) (h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (L : ℝ) :
+    Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε))) :=
+  LeanBridges.Calculus.limit_at f D hf h1 c L
+
 theorem def_tends_to (x : ℤ → ℝ) (L : ℝ) :
     Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → abs (x (n : ℤ) - L) < ε))) :=
   LeanBridges.Calculus.tends_to x L

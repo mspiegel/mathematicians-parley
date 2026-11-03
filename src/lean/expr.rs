@@ -922,6 +922,72 @@ impl Writer<'_> {
         })
     }
 
+    /// f tends to L at c: `Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds
+    /// L)`, the limit of f at c taken over its domain D with c left out, as
+    /// the limit-at definition reads it (`domain_of`).
+    fn function_limit(&self, node: &Node) -> Route<Printed> {
+        let [f, limit, at] = node.children.as_slice() else {
+            return Route::no("a function limit of other than three parts");
+        };
+        if !f.is_name() {
+            return Route::no("a limit of a function that has no name");
+        }
+        if !matches!(
+            self.letters.get(f.text.as_str()),
+            Some(LetterType::Function { to: Num::Real, .. })
+        ) {
+            return Route::no(format!("{} is no function into ℝ", f.text));
+        }
+        let Some(domain) = self.domain_of(&f.text) else {
+            return Route::no(format!(
+                "a limit of {}, whose domain no line gives",
+                f.text
+            ));
+        };
+        let (l, c) = match (self.number(limit, Num::Real), self.number(at, Num::Real)) {
+            (Route::Built(l), Route::Built(c)) => (l, c),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        let point = c.at(MAX);
+        Route::Built(Printed {
+            text: format!(
+                "Filter.Tendsto {} (nhdsWithin {point} ({domain} \\ {{{point}}})) (nhds {})",
+                super::names::letter(&f.text),
+                l.at(MAX)
+            ),
+            prec: 1000,
+        })
+    }
+
+    /// f is continuous on D: `ContinuousOn f D`, of a function into ℝ and a
+    /// set of reals.
+    fn continuous(&self, node: &Node) -> Route<Printed> {
+        let [f, set] = node.children.as_slice() else {
+            return Route::no("a continuity of other than a function and a set");
+        };
+        if !f.is_name()
+            || !matches!(
+                self.letters.get(f.text.as_str()),
+                Some(LetterType::Function { to: Num::Real, .. })
+            )
+        {
+            return Route::no(format!("{} is no function into ℝ", f.text));
+        }
+        match self.numbers_at(set, Num::Real) {
+            Route::Built(s) => Route::Built(Printed {
+                text: format!(
+                    "ContinuousOn {} {}",
+                    super::names::letter(&f.text),
+                    s.at(MAX)
+                ),
+                prec: 1000,
+            }),
+            Route::Declined(d) => Route::Declined(d),
+        }
+    }
+
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
         if let Some(s) = self.said_integer(node) {
@@ -1149,6 +1215,12 @@ impl Writer<'_> {
         if &*node.notation_name() == "tends-to" {
             return self.tends_to(node);
         }
+        if &*node.notation_name() == "function-limit" {
+            return self.function_limit(node);
+        }
+        if &*node.notation_name() == "continuous" {
+            return self.continuous(node);
+        }
         // A relation between sets, A ⊆ B or A = B.
         if &*node.notation_name() == "subset" {
             if let Some(r) = self.set_relation(node, "⊆") {
@@ -1332,6 +1404,16 @@ impl Writer<'_> {
         let [x, set] = node.children.as_slice() else {
             return Route::no("a membership of other than two sides");
         };
+        // D ∈ 𝒫ℝ of a set of numbers is D ⊆ ℝ.
+        if let ("powerset", [whole]) = (&*set.notation_name(), set.children.as_slice())
+        {
+            if let Some(Members::Numbers(_)) = self.set_members(whole) {
+                let subset = node.with_children(vec![x.clone(), whole.clone()]);
+                if let Some(r) = self.set_relation(&subset, "⊆") {
+                    return r;
+                }
+            }
+        }
         if set.notation() == NUMBER_SYSTEMS {
             if let Some(r) = self.count_in_system(x, set) {
                 return r;

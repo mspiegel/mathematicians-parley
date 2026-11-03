@@ -81,6 +81,8 @@ impl Writer<'_> {
                     .member_kind(term)
                     .or_else(|| inner.numbers_held(std::slice::from_ref(term)))
             }
+            // [a, b] holds real numbers.
+            "closed-interval" => Some(Members::Numbers(Num::Real)),
             // A preimage holds what the map takes, an image what it gives.
             "image" => match self.preimage_of(node) {
                 Some(f) => match self.letters.get(f.text.as_str()) {
@@ -338,6 +340,40 @@ impl Writer<'_> {
                     prec,
                 })
             }
+            // [a, b], the reals from a to b.
+            "closed-interval" => {
+                let [from, to] = node.children.as_slice() else {
+                    return Route::no("an interval of other than two ends");
+                };
+                match (
+                    self.number_fixed(from, Num::Real),
+                    self.number_fixed(to, Num::Real),
+                ) {
+                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::atom(
+                        format!("(Set.Icc {} {} : Set ℝ)", a.at(MAX), b.at(MAX)),
+                    )),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        Route::Declined(d)
+                    }
+                }
+            }
+            // {a, …, b}, the integers from a to b.
+            "integer-range" => {
+                let [from, to] = node.children.as_slice() else {
+                    return Route::no("a range of other than two ends");
+                };
+                match (
+                    self.number_fixed(from, Num::Int),
+                    self.number_fixed(to, Num::Int),
+                ) {
+                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::atom(
+                        format!("(Set.Icc {} {} : Set ℤ)", a.at(MAX), b.at(MAX)),
+                    )),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        Route::Declined(d)
+                    }
+                }
+            }
             "powerset" => match parts(1) {
                 Route::Built(p) => Route::Built(Printed {
                     text: format!("𝒫 {}", p[0].at(MAX)),
@@ -425,9 +461,25 @@ impl Writer<'_> {
         let inverse = &*node.notation_name() == "inverse"
             && matches!(
                 self.letters.get(g.text.as_str()),
-                Some(LetterType::Map { .. })
+                Some(LetterType::Map { .. } | LetterType::Function { .. })
             );
         inverse.then_some(g)
+    }
+
+    /// The set a map or function is defined on, as Lean writes it: the one
+    /// a line gives it, or for a function given between number systems,
+    /// all of its type; None for one from ℕ, whose type Lean's ℕ begins at
+    /// 0 where the page's begins at 1, and for any other letter.
+    pub fn domain_of(&self, f: &str) -> Option<String> {
+        if let Some(d) = self.domains.get(f) {
+            return Some(d.clone());
+        }
+        match self.letters.get(f) {
+            Some(LetterType::Function { from, .. }) if *from != Num::Nat => {
+                Some(format!("(Set.univ : Set {})", from.lean()))
+            }
+            _ => None,
+        }
     }
 
     /// f⁻¹[Z], what f sends into Z, taken within f's domain A as set.mm
@@ -436,7 +488,7 @@ impl Writer<'_> {
         let (Some(f), Some(z)) = (self.preimage_of(node), node.children.get(1)) else {
             return Route::no("a preimage of other than a map and a set");
         };
-        let Some(domain) = self.domains.get(f.text.as_str()) else {
+        let Some(domain) = self.domain_of(&f.text) else {
             return Route::no(format!(
                 "a preimage under {}, whose domain no line gives",
                 f.text

@@ -107,7 +107,7 @@ definition continuous-on
               ranging over ℝ, and `rules.STANDARD` reads the one as the other. It
               also says f : D → ℝ on its right side, where the page puts it
               in the hypothesis, and that conjunct is set aside.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/calculus/continuous-on
 
 definition limit-at
   let D ⊆ ℝ                                                           (H1)
@@ -121,7 +121,7 @@ definition limit-at
   note        f(x) is within ε of L wherever x is within δ of c, c itself
               left out: the value at c, if f has one, says nothing of the
               limit.
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/calculus/limit-at
 
 definition tends-to
   let x : ℕ → ℝ                                                       (H1)

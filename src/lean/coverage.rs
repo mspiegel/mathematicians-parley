@@ -42,6 +42,9 @@ pub const IN_CODE: &[&str] = &[
     "sum",
     "product",
     "tends-to",
+    "function-limit",
+    "continuous",
+    "closed-interval",
     "subset",
     "set-operations",
     "empty-set",
@@ -90,6 +93,39 @@ pub fn coverage(
         }
     }
     out
+}
+
+/// Whether a line of the theorem puts the set letter among numbers, D ⊆ ℝ
+/// or D ∈ 𝒫ℝ, which gives it the type of a set of those
+/// (`items::numbers_subset`, `statement::introduces_in_set`).
+fn among_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
+    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+        let [d, whole] = n.children.as_slice() else {
+            return false;
+        };
+        let whole = match (&*n.notation_name(), whole.children.as_slice()) {
+            ("subset", _) => whole,
+            ("membership", [inner]) if &*whole.notation_name() == "powerset" => inner,
+            _ => return false,
+        };
+        d.is_name() && *d.text == *name && set_of_numbers(whole)
+    })
+}
+
+/// Whether a line gives the function letter a type between sets of numbers
+/// by their shape, f : D → ℝ with D among numbers (`among_numbers`).
+fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
+    let of_numbers = |s: &crate::formula::Node| {
+        set_of_numbers(s) || (s.is_name() && among_numbers(&s.text, rec))
+    };
+    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+        matches!(n.children.as_slice(), [f, from, to]
+            if n.notation() == crate::notations::FUNCTION_TYPE
+                && f.is_name()
+                && *f.text == *name
+                && of_numbers(from)
+                && of_numbers(to))
+    })
 }
 
 /// Whether a set is one of numbers by its shape: a number system, a letter
@@ -404,9 +440,22 @@ fn covered(
                 matches!(sort.full(), Some(crate::formula::Whole::GroupElement))
                     || matches!(sort.full(), Some(crate::formula::Whole::Set(m))
                     if matches!(**m, crate::formula::Whole::GroupElement));
+            // A set of numbers a line puts among numbers, D ⊆ ℝ, is a set of
+            // those; a function of numbers is typed through its sets.
+            let of_numbers = match sort.full() {
+                Some(crate::formula::Whole::Set(m)) => {
+                    matches!(**m, crate::formula::Whole::Number)
+                        && among_numbers(&n.text, rec)
+                }
+                Some(crate::formula::Whole::Function(_, _)) => {
+                    between_number_sets(&n.text, rec)
+                }
+                _ => false,
+            };
             let typed = sort.is("number")
                 || super::sets::set_letter_type(sort).is_some()
-                || of_group;
+                || of_group
+                || of_numbers;
             (!typed).then(|| (n.text.to_string(), sort.describe()))
         })
         .collect();

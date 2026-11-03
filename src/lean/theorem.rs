@@ -750,12 +750,28 @@ impl<'a> Proof<'a> {
             step.line,
             spot.clone(),
         );
+        // The claim's first sentence as the page reads it, whose leading
+        // "for all" binds letters its requires lines may speak of.
+        let claimed = step
+            .claim
+            .sentences()
+            .first()
+            .and_then(|s| self.rec.page.get(s))
+            .cloned();
         for (k, r) in step.requires.iter().enumerate() {
             let node = match self.tree(&r.fact) {
                 Route::Built(n) => n,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let fact = match self.writer.formula(&node) {
+            // A requires line of a letter the claim says "for all" of, x²
+            // ≥ 0 of every x ∈ [0, 1], is said under the claim's binders and
+            // proved with its letters given.
+            let under = claimed
+                .as_ref()
+                .filter(|c| bound_in(c, &node))
+                .map(|c| under_binders(c, &node));
+            let stated = under.clone().unwrap_or_else(|| node.clone());
+            let fact = match self.writer.formula(&stated) {
                 Route::Built(f) => f,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -769,7 +785,19 @@ impl<'a> Proof<'a> {
                 just,
                 cited: self.rec.cited_requires.get(&r.line),
             };
-            let proof = match self.proof_of(reason, 0, &node) {
+            let proof = match &under {
+                None => self.proof_of(reason, 0, &node),
+                Some(wrapped) => {
+                    let (intros, _, inner) = self.peel(wrapped);
+                    let outer = std::mem::replace(&mut self.writer, inner);
+                    let proof = self.proof_of(reason, 0, &node);
+                    self.writer = outer;
+                    proof.map(|p| {
+                        format!("by intro {}; {}", intros.join(" "), as_tactic(&p))
+                    })
+                }
+            };
+            let proof = match proof {
                 Route::Built(t) => t,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -1027,15 +1055,19 @@ impl<'a> Proof<'a> {
                 break;
             };
             let name = super::names::letter(&letter.text);
+            // Over a range, a number system or another set of numbers, [0,
+            // 1]: the letter of the numbers' type, and where the type does
+            // not say it, the fact that it is in the set.
             let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
                 (super::templates::Num::Int, true)
             } else {
-                match super::expr::system_of(set) {
-                    Some(s) => (
+                match (super::expr::system_of(set), self.writer.set_members(set)) {
+                    (Some(s), _) => (
                         super::expr::letter_type(s),
                         s == super::expr::System::Positive,
                     ),
-                    None => break,
+                    (None, Some(super::expr::Members::Numbers(n))) => (n, true),
+                    (None, _) => break,
                 }
             };
             writer
@@ -3988,6 +4020,33 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// A claim proved from a term that gives it, as the claim's shape asks:
 /// an equation by the ring identity between the two, an order by linear
 /// arithmetic, anything else as it stands.
+/// Whether a fact speaks of a letter the claim's leading "for all" binds.
+fn bound_in(claim: &Node, fact: &Node) -> bool {
+    let mut body = claim;
+    let mut bound = Vec::new();
+    while let (crate::notations::FOR_ALL, [letter, _, inner]) =
+        (body.notation(), body.children.as_slice())
+    {
+        bound.push(letter.text.to_string());
+        body = inner;
+    }
+    let names = fact.names();
+    bound.iter().any(|b| names.iter().any(|n| **n == **b))
+}
+
+/// The fact under the claim's leading "for all" binders, x² ≥ 0 as "for
+/// all x ∈ [0, 1], x² ≥ 0".
+fn under_binders(claim: &Node, fact: &Node) -> Node {
+    match (claim.notation(), claim.children.as_slice()) {
+        (crate::notations::FOR_ALL, [letter, set, inner]) => claim.with_children(vec![
+            letter.clone(),
+            set.clone(),
+            under_binders(inner, fact),
+        ]),
+        _ => fact.clone(),
+    }
+}
+
 /// What an exhibit says of its values, taken apart as Lean nests its "and",
 /// each part left to `parley_side` with what the witnesses give known: a
 /// part alone is a line in scope, where the whole "and" may send `simp`

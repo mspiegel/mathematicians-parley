@@ -42,7 +42,22 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
             if p.text == "True" {
                 return;
             }
+            // A quantifier the writer states with its body `True`, ∀ x ∈
+            // [0, 1], True of "1/(1 + x²) ∈ ℝ", says only its set.
+            if let ([_, set, _], true) =
+                (node.children.as_slice(), p.text.ends_with(", True"))
+            {
+                count(writer, set, out);
+                return;
+            }
         }
+    }
+    // f tends to L at c is written with c twice, the point and the point
+    // left out of the domain: `nhdsWithin c (D \ {c})`.
+    if let ("function-limit", [_, _, at]) =
+        (&*node.notation_name(), node.children.as_slice())
+    {
+        count(writer, at, out);
     }
     let spelling = node.spelling();
     let op = if spelling == PLUS {

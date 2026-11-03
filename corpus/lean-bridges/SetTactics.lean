@@ -31,4 +31,7 @@ macro "parley_set_side" : tactic =>
          [Set.toFinset_insert, Set.toFinset_singleton, Set.toFinset_setOf]; done)
     -- One of a listed set, x ∈ {a, b}, taken case by case.
     | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;
-       rcases ‹_ ∨ _› with h | h <;> simp [h]; done))
+       rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
+    -- One of a range of integers, x ∈ S with S = {3, …, 5}: its bounds,
+    -- and the integers between them.
+    | (subst_vars; simp only [Set.mem_Icc] at *; omega))
