@@ -1044,6 +1044,9 @@ impl Writer<'_> {
         if let Some(r) = self.subgroup_claim(node) {
             return r;
         }
+        if let Some(r) = self.polynomial_claim(node) {
+            return r;
+        }
         match node.notation() {
             EQUALITY | ORDER if node.children.len() == 2 => self.relation(node, false),
             MEMBERSHIP => self.membership(node),
@@ -1406,6 +1409,9 @@ impl Writer<'_> {
         }
         let exists = node.notation() == THERE_IS;
         if let Some(q) = self.quantified_over_set(letter, set, body, exists) {
+            return q;
+        }
+        if let Some(q) = self.quantified_over_polynomials(letter, set, body, exists) {
             return q;
         }
         let name = super::names::letter(&letter.text);

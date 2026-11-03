@@ -16,6 +16,10 @@ use crate::outcome::Route;
 /// nonempty type, which a statement over sets does not carry.
 const INVERSE: &str = "LeanBridges.Functions.inverse";
 
+/// The polynomial functions with complex coefficients, set.mm's `Poly ℂ`,
+/// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
+const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
+
 /// The Lean type of a letter of this sort where it is a set, a member of
 /// one or a map between sets; None for any other sort.
 pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
@@ -730,6 +734,56 @@ impl Writer<'_> {
                 Route::no(format!("{} as a subgroup, which no line types", h.text))
             }
         })
+    }
+
+    /// p is a polynomial, or x ∈ the polynomials: a function from ℂ to ℂ in
+    /// set.mm's polynomials, which the bridges define (`POLYNOMIALS`). None
+    /// for any other claim.
+    pub fn polynomial_claim(&self, node: &Node) -> Option<Route<Printed>> {
+        let p = match (&*node.notation_name(), node.children.as_slice()) {
+            ("is-a-polynomial", [p]) => p,
+            ("membership", [p, set]) if &*set.notation_name() == "polynomials" => p,
+            _ => return None,
+        };
+        Some(match self.set_term(p) {
+            Route::Built(f) => Route::Built(Printed {
+                text: format!("{} ∈ {POLYNOMIALS}", f.at(51)),
+                prec: 50,
+            }),
+            Route::Declined(d) => Route::Declined(d),
+        })
+    }
+
+    /// For all, or there is, a polynomial q: a function from ℂ to ℂ, and
+    /// that it is one; None where the set is not the polynomials.
+    pub fn quantified_over_polynomials(
+        &self,
+        letter: &Node,
+        set: &Node,
+        body: &Node,
+        exists: bool,
+    ) -> Option<Route<Printed>> {
+        if &*set.notation_name() != "polynomials" {
+            return None;
+        }
+        let mut inner = self.with_letters(self.letters.clone());
+        inner.letters.insert(
+            letter.text.to_string(),
+            LetterType::Function {
+                from: Num::Complex,
+                to: Num::Complex,
+            },
+        );
+        let body = match inner.formula(body) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let q = super::names::letter(&letter.text);
+        let text = match exists {
+            true => format!("∃ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} ∧ {}", body.at(35)),
+            false => format!("∀ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} → {}", body.at(25)),
+        };
+        Some(Route::Built(Printed { text, prec: 0 }))
     }
 
     /// X is finite: `X.Finite`.

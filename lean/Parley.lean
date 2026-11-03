@@ -8,6 +8,7 @@ public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Groups
 public import Parley.Items.Stdlib.Logarithms
 public import Parley.Items.Stdlib.Numbers
+public import Parley.Items.Stdlib.Polynomials
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Items.Stdlib.Sets
 public import Parley.Items.Stdlib.Sums
@@ -257,6 +258,7 @@ public import Parley.Proofs.Setmm.DivisorOfPower.DivisorOfPower
 public import Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime
 public import Parley.Proofs.Setmm.EmptySum.EmptySum
 public import Parley.Proofs.Setmm.EqualValues.EqualValues
+public import Parley.Proofs.Setmm.FactorByRoot.FactorByRoot
 public import Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor
 public import Parley.Proofs.Setmm.FactorialPlusOne.FactorialPlusOne
 public import Parley.Proofs.Setmm.FloorAddInteger.FloorAddInteger
@@ -357,6 +359,7 @@ public import Parley.Proofs.Setmm.RationalTimesDenominator.RationalTimesDenomina
 public import Parley.Proofs.Setmm.RemainderByTwo.RemainderByTwo
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceOfAbs
+public import Parley.Proofs.Setmm.RootGivesFactor.RootGivesFactor
 public import Parley.Proofs.Setmm.RootOrder.RootOrder
 public import Parley.Proofs.Setmm.RoundingError.RoundingError
 public import Parley.Proofs.Setmm.ScaleDivisibility.ScaleDivisibility
@@ -391,6 +394,7 @@ public import Parley.Proofs.Setmm.ValueOfInverse.ValueOfInverse
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
+public import Parley.Proofs.Wiedijk.Factor.Factor
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
 public import Parley.Proofs.Wiedijk.InfinitelyManyPrimes.PrimeAbove

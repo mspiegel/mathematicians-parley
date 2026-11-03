@@ -63,6 +63,8 @@ pub const IN_CODE: &[&str] = &[
     "group-inverse",
     "subgroup",
     "coset",
+    "polynomials",
+    "is-a-polynomial",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -133,8 +135,9 @@ fn set_line(
             .sorts
             .get(&name)
             .is_some_and(|s| super::sets::set_letter_type(s).is_some()),
-        // A group is a type with Mathlib's group on it (`theorem::statement`).
-        Form::Group { .. } => true,
+        // A group is a type with Mathlib's group on it (`theorem::statement`);
+        // a polynomial a function from ℂ to ℂ among set.mm's polynomials.
+        Form::Group { .. } | Form::Polynomial(_) => true,
         _ => false,
     }
 }
@@ -339,6 +342,27 @@ fn covered(
                 .map(|f| f.text.to_string())
         })
         .collect();
+    // A polynomial is a function from ℂ to ℂ (`sets::polynomial_claim`): a
+    // letter the page says is one, in a line or a `let`, or that "there is
+    // a polynomial q" binds.
+    let said = rec
+        .page
+        .entries()
+        .map(|(_, node)| node)
+        .chain(rec.asserted.iter().flatten())
+        .flat_map(|node| node.walk());
+    for n in said {
+        if let Some(p) = super::statement::introduces_polynomial(&n) {
+            own.insert(p);
+        }
+        let over_polynomials = matches!(n.children.as_slice(), [q, set, _]
+            if matches!(n.notation(), crate::notations::THERE_IS | crate::notations::FOR_ALL)
+                && &*set.notation_name() == "polynomials"
+                && q.is_name());
+        if over_polynomials {
+            own.insert(n.children[0].text.to_string());
+        }
+    }
     // Only a define in the proof below the statement: one in the statement
     // is part of what the theorem says, which the statement writer reads.
     for line in thm.defines.iter().filter(|d| d.line > thm.conclusion_line) {

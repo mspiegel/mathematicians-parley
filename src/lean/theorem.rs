@@ -584,6 +584,16 @@ impl<'a> Proof<'a> {
                         .insert(letter, LetterType::Number(super::templates::Num::Int));
                 } else if let Some((letter, members)) = self.set_member_said(node) {
                     self.writer.letters.insert(letter, members.letter());
+                } else if let Some(letter) =
+                    super::statement::introduces_polynomial(node)
+                {
+                    self.writer.letters.insert(
+                        letter,
+                        LetterType::Function {
+                            from: super::templates::Num::Complex,
+                            to: super::templates::Num::Complex,
+                        },
+                    );
                 }
             }
         }
@@ -1171,6 +1181,16 @@ impl<'a> Proof<'a> {
                 body = inner;
                 continue;
             }
+            // A polynomial: the function, and that it is one.
+            if &*set.notation_name() == "polynomials" {
+                match self.writer.set_term(value) {
+                    Route::Built(p) => parts.push(p.text),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                parts.push(format!("by {}parley_side", known.concat()));
+                body = inner;
+                continue;
+            }
             let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
                 (super::templates::Num::Int, true)
             } else {
@@ -1509,19 +1529,34 @@ impl<'a> Proof<'a> {
         // Where no part turns into the claim with the equation put for every
         // place, the equation is put for some places only, gcd(a, b) ∣ b
         // from b ∣ b, and each part that says what the claim does is offered.
+        // A "for all" of the line is judged by what it says at the block's
+        // letter, p(x) = (x − a)·q(x) + p(a) of "… for all x ∈ ℂ" at x, and
+        // put into by its own name, which the tactic rewrites under the
+        // quantifier.
+        let at_claim = |node: &Node| -> Node {
+            let cited = super::algebra::Cited {
+                node: node.clone(),
+                proof: String::new(),
+            };
+            self.read_at_claim(&cited, claim)
+                .map_or_else(|| node.clone(), |at| at.node)
+        };
         let candidates: Vec<&(Node, String)> = just
             .into
             .as_ref()
             .and_then(|place| self.trees.get(place.named()))
             .map(|t| {
-                let turned: Vec<_> =
-                    t.iter().filter(|(n, _)| turns(n)).take(1).collect();
+                let turned: Vec<_> = t
+                    .iter()
+                    .filter(|(n, _)| turns(&at_claim(n)))
+                    .take(1)
+                    .collect();
                 if !turned.is_empty() {
                     return turned;
                 }
                 let alike: Vec<_> = t
                     .iter()
-                    .filter(|(n, _)| n.notation() == claim.notation())
+                    .filter(|(n, _)| at_claim(n).notation() == claim.notation())
                     .collect();
                 if !alike.is_empty() {
                     return alike;
@@ -2666,7 +2701,8 @@ impl<'a> Proof<'a> {
             let letter = introduces(node)
                 .map(|(l, _)| l)
                 .or_else(|| super::statement::range_letter(node))
-                .or(in_set);
+                .or(in_set)
+                .or_else(|| super::statement::introduces_polynomial(node));
             match letter.filter(|l| step.just.obtained.contains(l)) {
                 Some(l) => {
                     guards.insert(l, name.clone());

@@ -312,6 +312,7 @@ fn free_letters(
             super::statement::range_letter(n)
                 .or_else(|| super::statement::introduces_function(n).map(|(l, _)| l))
                 .or_else(|| super::statement::introduces(n).map(|(l, _)| l))
+                .or_else(|| super::statement::introduces_polynomial(n))
         })
         .collect();
     group

@@ -93,6 +93,21 @@ pub fn introduces_function(node: &Node) -> Option<(String, LetterType)> {
     Some((f.text.to_string(), LetterType::Function { from, to }))
 }
 
+/// The letter a fact `p is a polynomial` introduces, a function from ℂ to
+/// ℂ; None for any other fact. The page's words are read as the membership
+/// p ∈ (the polynomials), or as the notation itself.
+pub fn introduces_polynomial(node: &Node) -> Option<String> {
+    match (&*node.notation_name(), node.children.as_slice()) {
+        ("is-a-polynomial", [p]) if p.is_name() => Some(p.text.to_string()),
+        ("membership", [p, set])
+            if p.is_name() && &*set.notation_name() == "polynomials" =>
+        {
+            Some(p.text.to_string())
+        }
+        _ => None,
+    }
+}
+
 /// The letter a fact `k ∈ {a, …, b}` introduces, an integer between the
 /// range's ends; None for any other fact.
 pub fn range_letter(node: &Node) -> Option<String> {
@@ -131,6 +146,20 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
     };
     if !letter.is_name() || writer.letters.contains_key(letter.text.as_str()) {
         return None;
+    }
+    // p is a polynomial: a function from ℂ to ℂ, and the line that it is
+    // one of set.mm's polynomials (`sets::polynomial_claim`). Ahead of the
+    // memberships below, as the page's words read as p ∈ (the polynomials).
+    if introduces_polynomial(node).is_some() {
+        return Some(InSet {
+            letter: letter.text.to_string(),
+            ty: LetterType::Function {
+                from: super::templates::Num::Complex,
+                to: super::templates::Num::Complex,
+            },
+            fact: Fact::Line,
+            domain: None,
+        });
     }
     match (node.notation_name().as_ref(), rest) {
         // x ∈ {1, 2} of numbers: a number of the type that holds them all.

@@ -29,14 +29,14 @@ theorem remainder
   metamath-proof metamath-bridges/polynomials/gplyrem
   note        The remainder theorem: dividing p by x − a leaves a polynomial
               quotient and the constant remainder p(a).
-  lean-proof  not yet implemented
+  lean-proof  lean-bridges/polynomials/remainder
 
 mundane theorem polynomial-value
   let p be a polynomial                                               (H1)
   let x ∈ ℂ                                                           (H2)
   then        p(x) ∈ ℂ
   metamath-proof metamath-bridges/polynomials/gplyval
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 definition B
   sort        number, number → number
