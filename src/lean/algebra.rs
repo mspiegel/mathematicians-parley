@@ -30,6 +30,51 @@ pub struct Cited {
     pub proof: String,
 }
 
+/// The equation a `≠` says is false, `s − 1 = 0` of `s − 1 ≠ 0`.
+fn denied(node: &Node) -> Option<&Node> {
+    match (node.notation(), node.children.as_slice()) {
+        (crate::notations::LOGICAL_NOT, [inner])
+            if inner.notation() == crate::notations::EQUALITY =>
+        {
+            Some(inner)
+        }
+        _ => None,
+    }
+}
+
+/// A `≠` claim from a cited `≠` line, s − 1 ≠ 0 from s ≠ 1: the claim's
+/// equation supposed, the cited line's follows from it by the same
+/// decision, which the cited line denies. None where the claim is no `≠`
+/// or no cited line is one.
+fn unequal(
+    writer: &Writer,
+    targets: &Targets,
+    claim: &Node,
+    cited: &[Cited],
+) -> Option<Route<String>> {
+    let supposed = denied(claim)?;
+    let mut declined = None;
+    for c in cited {
+        let Some(wanted) = denied(&c.node) else {
+            continue;
+        };
+        let given = Cited {
+            node: supposed.clone(),
+            proof: "h".to_string(),
+        };
+        match algebra(writer, targets, wanted, std::slice::from_ref(&given)) {
+            Route::Built(inner) => {
+                return Some(Route::Built(format!(
+                    "by intro h; exact {} ({inner})",
+                    c.proof
+                )))
+            }
+            Route::Declined(d) => declined = Some(Route::Declined(d)),
+        }
+    }
+    declined
+}
+
 /// The Lean proof of an `algebra` claim from the equations cited.
 pub fn algebra(
     writer: &Writer,
@@ -37,15 +82,18 @@ pub fn algebra(
     claim: &Node,
     cited: &[Cited],
 ) -> Route<String> {
+    if let Some(proof) = unequal(writer, targets, claim, cited) {
+        return proof;
+    }
     let labels = FloatLabels::new(IndexMap::new());
     let claimed = term_of_node(claim, targets);
-    let divides = !constant(&denominators(&claimed, &labels));
     if cited.is_empty() {
         return Route::Built("by parley_ring".to_string());
     }
     let Some(want) = field::equation(&claimed, &labels) else {
         return Route::no("algebra whose claim is no equation");
     };
+    let divides = !constant(&denominators(&claimed, &labels));
     let mut given = Vec::new();
     let mut unders = Vec::new();
     let mut proofs = Vec::new();

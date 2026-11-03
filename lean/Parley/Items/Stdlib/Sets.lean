@@ -77,6 +77,10 @@ theorem def_union {α : Type*} (Y : Set α) (Z : Set α) (u : α) :
     u ∈ Y ∪ Z ↔ u ∈ Y ∨ u ∈ Z :=
   Iff.rfl
 
+theorem mun_remove_member {α : Type*} (Y : Set α) (a : α) (u : α) :
+    u ∈ Y \ ({a} : Set α) ↔ u ∈ Y ∧ ¬ u = a :=
+  Set.mem_diff_singleton
+
 theorem mun_intersection_commutes {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∩ Z = Z ∩ Y :=
   Set.inter_comm Y Z

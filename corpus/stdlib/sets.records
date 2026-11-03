@@ -464,7 +464,7 @@ mundane theorem remove-member
   let u be an element                                                 (H3)
   then        u ∈ Y ∖ {a} ↔ u ∈ Y and u ≠ a
   metamath-proof eldifsn
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_diff_singleton
 
 mundane theorem intersection-commutes
   then        Y ∩ Z = Z ∩ Y

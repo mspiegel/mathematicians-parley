@@ -201,6 +201,25 @@ impl Templates {
         pick(forms, args)
     }
 
+    /// The holes of a pattern that every one of its forms reads at ℝ, the
+    /// floor's, by place; empty where the pattern has no form.
+    pub fn always_real(&self, notation: &str, pattern: &str) -> Vec<bool> {
+        let Some(forms) = self
+            .by_pattern
+            .get(&(notation.to_string(), pattern.to_string()))
+        else {
+            return Vec::new();
+        };
+        let width = forms.iter().map(|t| t.holes.len()).max().unwrap_or(0);
+        (0..width)
+            .map(|i| {
+                forms
+                    .iter()
+                    .all(|t| t.holes.get(i) == Some(&Slot::Fixed(Num::Real)))
+            })
+            .collect()
+    }
+
     /// Whether a notation has a `lean-builds` field.
     pub fn maps(&self, notation: &str) -> bool {
         self.mapped.contains_key(notation)

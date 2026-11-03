@@ -109,9 +109,31 @@ fn floor_of(rec: &CheckedTheorem) -> super::templates::Num {
     }
 }
 
+/// The terms a theorem puts in a hole of type ℝ, the A/B of ⌊A/B⌋ (set.mm's
+/// floor being of reals), as the page prints them: each is a real wherever
+/// the theorem writes it, so that a line about it meets the floor's.
+fn held_real(rec: &CheckedTheorem, writer: &Writer) -> Vec<String> {
+    let mut out = Vec::new();
+    for (_, node) in rec.page.entries() {
+        for n in node.walk() {
+            // A letter has its own type; a term of numerals alone, the 2 of
+            // √2, takes the type of where it stands.
+            for arg in writer.always_real_args(&n) {
+                let printed = writer.grammar.print(arg);
+                let of_letters = arg.walk().iter().any(|m| m.is_name());
+                if !arg.is_name() && of_letters && !out.contains(&printed) {
+                    out.push(printed);
+                }
+            }
+        }
+    }
+    out
+}
+
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.floor = floor_of(rec);
+    writer.reals = held_real(rec, &writer);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -245,6 +267,34 @@ struct Concluded {
     prop: Printed,
 }
 
+/// The number type of `let A be an element` where later lines say A is in
+/// sets of numbers, A ∈ ℝ ∖ ℚ: the widest of those sets' types. None where
+/// no line puts A in a set of numbers.
+fn element_number_type(
+    name: &str,
+    rec: &CheckedTheorem,
+    writer: &Writer,
+) -> Option<LetterType> {
+    rec.page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .filter_map(|n| match n.children.as_slice() {
+            [x, set]
+                if n.notation() == crate::notations::MEMBERSHIP
+                    && x.is_name()
+                    && *x.text == *name =>
+            {
+                match writer.set_members(set)? {
+                    super::expr::Members::Numbers(at) => Some(at),
+                    _ => None,
+                }
+            }
+            _ => None,
+        })
+        .max()
+        .map(LetterType::Number)
+}
+
 /// A theorem's binders, from its `let` and `assume` lines, and each
 /// sentence of its `then` line with its Lean text.
 fn statement(
@@ -288,7 +338,11 @@ fn statement(
             }
             _ => continue,
         };
-        let Some(ty) = rec.sorts.get(&name).and_then(super::sets::set_letter_type)
+        let Some(ty) = rec
+            .sorts
+            .get(&name)
+            .and_then(super::sets::set_letter_type)
+            .or_else(|| element_number_type(&name, rec, writer))
         else {
             continue;
         };
@@ -370,6 +424,16 @@ struct Proof<'a> {
     /// in: a row's claim alone, Σ j² = 1², may hold in a narrower type than
     /// the calculation's ℚ, which a citation in the row is applied at.
     worked_in: std::cell::Cell<Option<super::templates::Num>>,
+    /// The lines whose numbers a citation was given while its step was
+    /// written, A/B of `A/B ∈ ℤ`, which the step's goal is put in terms of.
+    said_used: std::cell::RefCell<Vec<SaidUsed>>,
+}
+
+/// A line whose number a citation was given: its Lean name, and the term
+/// it says is in ℤ or ℚ as the page prints it.
+struct SaidUsed {
+    line: String,
+    term: String,
 }
 
 /// The theorem written as a Lean file's declaration: its statement and its
@@ -391,8 +455,10 @@ pub fn theorem(
         trees: IndexMap::new(),
         defined: indexmap::IndexSet::new(),
         worked_in: std::cell::Cell::new(None),
+        said_used: std::cell::RefCell::new(Vec::new()),
     };
     proof.writer.floor = floor_of(rec);
+    proof.writer.reals = held_real(rec, &proof.writer);
     let Statement {
         binders,
         conclusion,
@@ -832,8 +898,107 @@ impl<'a> Proof<'a> {
         }
     }
 
+    /// The widest fixed type a hole of the claim takes, ℝ of ⌊A/B⌋, which
+    /// a term in that hole is computed in; ℤ where there is none.
+    fn held_in(&self, claim: &Node) -> super::templates::Num {
+        claim
+            .walk()
+            .iter()
+            .filter_map(|n| self.writer.template(n).built())
+            .flat_map(|t| t.holes.iter())
+            .filter_map(|s| match s {
+                super::templates::Slot::Fixed(n) => Some(*n),
+                _ => None,
+            })
+            .fold(super::templates::Num::Int, std::cmp::Ord::max)
+    }
+
     /// The proof of sentence `k` of a claim, by its reason.
     fn proof_of(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
+        if let Some(witness) = self.said_member(node) {
+            return Route::Built(format!("by {witness}"));
+        }
+        self.said_used.borrow_mut().clear();
+        let proof = match self.proof_by_reason(reason, k, node) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        // A citation given a line's number, ⌊m⌋ = m for the m of `A/B ∈
+        // ℤ`, meets a goal that has the line's term, ⌊A/B⌋: the goal is put
+        // in terms of the number first.
+        let used = std::mem::take(&mut *self.said_used.borrow_mut());
+        let parts: Vec<String> = node
+            .walk()
+            .iter()
+            .map(|n| self.writer.grammar.print(n))
+            .collect();
+        let mut specs: Vec<String> = Vec::new();
+        for u in &used {
+            let spec = format!("← Classical.choose_spec {}", u.line);
+            if parts.contains(&u.term) && !specs.contains(&spec) {
+                specs.push(spec);
+            }
+        }
+        Route::Built(match specs.is_empty() {
+            true => proof,
+            false => format!("by rw [{}]; {}", specs.join(", "), as_tactic(&proof)),
+        })
+    }
+
+    /// A claim that a term of a wider type is an integer or a rational,
+    /// (A + B) − B ∈ ℚ of reals, where some part of it a line says is in
+    /// that type: the term written there, that part the number the line
+    /// gives, as Lean's witness. A citation of an item over ℚ gives such a
+    /// claim nothing, as of rationals it holds by their type.
+    fn said_member(&self, node: &Node) -> Option<String> {
+        let [term, set] = node.children.as_slice() else {
+            return None;
+        };
+        let super::expr::System::Type(ty) = super::expr::system_of(set)? else {
+            return None;
+        };
+        if node.notation() != crate::notations::MEMBERSHIP
+            || !matches!(ty, super::templates::Num::Int | super::templates::Num::Rat)
+            || self.writer.carrier(term).built()? <= ty
+        {
+            return None;
+        }
+        let mut writer = self.writer.with_letters(self.writer.letters.clone());
+        let mut lines = Vec::new();
+        // The parts within the term: the term itself is what the step
+        // claims, and a letter is in its type already.
+        let whole = writer.grammar.print(term);
+        for part in term.walk() {
+            if part.is_name()
+                || part.notation() == crate::notations::NUMERAL
+                || writer.grammar.print(&part) == whole
+            {
+                continue;
+            }
+            if let Some(line) = self.said_integer(&part, ty) {
+                let spec = format!("Classical.choose_spec {line}");
+                if lines.contains(&spec) {
+                    continue;
+                }
+                writer.integers.push(super::expr::SaidInteger {
+                    term: writer.grammar.print(&part),
+                    proof: line.clone(),
+                    ty,
+                });
+                lines.push(spec);
+            }
+        }
+        if lines.is_empty() {
+            return None;
+        }
+        let witness = writer.number_fixed(term, ty).built()?.text;
+        Some(format!(
+            "(exact ⟨{witness}, by push_cast; (try simp only [{}]); first | done | parley_ring⟩)",
+            lines.join(", ")
+        ))
+    }
+
+    fn proof_by_reason(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
         match &reason.just.head {
             Head::Item { .. } => self.citation(reason, k, node),
             Head::Method(m) => {
@@ -1742,15 +1907,22 @@ impl<'a> Proof<'a> {
         if cited.node.notation() != crate::notations::FOR_ALL || !letter.is_name() {
             return None;
         }
-        let system = super::expr::system_of(set)?;
         // A guarded "for all", over ℕ, asks a proof besides the letter, that
-        // it is above 0, which the lines in scope give.
-        let guard = if system == super::expr::System::Positive {
-            " (by parley_side)"
-        } else {
-            ""
+        // it is above 0, which the lines in scope give; one over a set of
+        // numbers, ℝ ∖ {5}, that the letter is in it.
+        let (ty, guard) = match super::expr::system_of(set) {
+            Some(system) => (
+                super::expr::letter_type(system),
+                match system == super::expr::System::Positive {
+                    true => " (by parley_side)",
+                    false => "",
+                },
+            ),
+            None => match self.writer.set_members(set)? {
+                super::expr::Members::Numbers(n) => (n, " (by parley_set_side)"),
+                _ => return None,
+            },
         };
-        let ty = super::expr::letter_type(system);
         // The names the line writes free: the letter it binds may be named
         // as the block's is.
         let own = crate::matching::free_names(
@@ -2282,6 +2454,11 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
+                // A term the claim puts in a hole of a fixed type, ⌊A/B⌋ in
+                // ℝ's, is of that type.
+                if let Some(c) = claim {
+                    at = at.max(self.held_in(c));
+                }
                 for b in &sentence.binders {
                     let Binder::Letter {
                         page,
@@ -2401,8 +2578,33 @@ impl<'a> Proof<'a> {
                                 },
                             }
                         }
+                        // A value of a wider type that a line says is in the
+                        // letter's, A + B ∈ ℚ of reals: the number that line
+                        // gives.
                         (LetterType::Number(n), None) => {
-                            self.writer.number_fixed(value, *n)
+                            match self.writer.number_fixed(value, *n) {
+                                Route::Declined(d) => {
+                                    match self.said_integer(value, *n) {
+                                        Some(line) => {
+                                            let printed = super::expr::Printed::atom(
+                                                format!("(Classical.choose {line})"),
+                                            );
+                                            self.said_used.borrow_mut().push(
+                                                SaidUsed {
+                                                    line,
+                                                    term: self
+                                                        .writer
+                                                        .grammar
+                                                        .print(value),
+                                                },
+                                            );
+                                            Route::Built(printed)
+                                        }
+                                        None => Route::Declined(d),
+                                    }
+                                }
+                                built => built,
+                            }
                         }
                         // A function given for a function letter, of the
                         // same types.
@@ -2806,7 +3008,7 @@ impl<'a> Proof<'a> {
     /// no line says so. Lean states that line as `∃ m : ℤ, (m : ℚ) = …`, so
     /// the integer is the witness it gives.
     fn said_integer(&self, value: &Node, ty: super::templates::Num) -> Option<String> {
-        if ty != super::templates::Num::Int {
+        if !matches!(ty, super::templates::Num::Int | super::templates::Num::Rat) {
             return None;
         }
         let at = self.writer.carrier(value).built()?;
@@ -2823,7 +3025,7 @@ impl<'a> Proof<'a> {
                 };
                 let integer = node.notation() == crate::notations::MEMBERSHIP
                     && super::expr::system_of(set)
-                        == Some(super::expr::System::Type(super::templates::Num::Int));
+                        == Some(super::expr::System::Type(ty));
                 let same = self.writer.number(term, at).built().map(|p| p.text)
                     == Some(wanted.clone());
                 (integer && same).then(|| name.clone())
@@ -3747,6 +3949,17 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// A claim proved from a term that gives it, as the claim's shape asks:
 /// an equation by the ring identity between the two, an order by linear
 /// arithmetic, anything else as it stands.
+/// A proof as a tactic to stand among `first`'s alternatives: its own
+/// tactics where it is a `by` block, as an error inside a nested `by`,
+/// `exact (by …)`, is logged and does not fail the alternative, so `first`
+/// would not go on to the next.
+fn as_tactic(proof: &str) -> String {
+    match proof.strip_prefix("by ") {
+        Some(t) => format!("({t})"),
+        None => format!("exact ({proof})"),
+    }
+}
+
 fn close(claim: &Node, term: &str) -> String {
     // An equation or order between sets, members or counts is closed as
     // any other claim: the closers for numbers work in a field or a ring.

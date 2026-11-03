@@ -6,7 +6,9 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
-use super::expr::{letter_type, system_of, LetterType, Members, Printed, Writer, MAX};
+use super::expr::{
+    letter_type, system_of, LetterType, Members, Printed, System, Writer, MAX,
+};
 use super::templates::Num;
 use crate::formula::Node;
 use crate::notations::NUMBER_SYSTEMS;
@@ -14,7 +16,7 @@ use crate::outcome::Route;
 
 /// The inverse of a map on its domain, in the bridges: Mathlib's asks a
 /// nonempty type, which a statement over sets does not carry.
-const INVERSE: &str = "LeanBridges.Functions.inverse";
+pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 
 /// The polynomial functions with complex coefficients, set.mm's `Poly ℂ`,
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
@@ -130,6 +132,24 @@ impl Writer<'_> {
             &*set.notation_name(),
             "singleton" | "listed-two" | "listed-three" | "listed-four"
         );
+        // A narrower number system among wider numbers, ℚ among the reals:
+        // the numbers its membership says are in it, as `in_system` writes
+        // x ∈ ℚ of a real, `{x : ℝ | ∃ m : ℚ, (m : ℝ) = x}`.
+        if let Some(system) = (set.notation() == NUMBER_SYSTEMS)
+            .then(|| system_of(set))
+            .flatten()
+            .filter(|s| letter_type(*s) < at)
+        {
+            let wide = self.type_name(at);
+            let says = match system {
+                System::Type(n) => {
+                    format!("∃ m : {}, (m : {wide}) = x", self.type_name(n))
+                }
+                System::Positive => format!("∃ m : ℕ, 0 < m ∧ (m : {wide}) = x"),
+                System::NonNegative => format!("∃ m : ℕ, (m : {wide}) = x"),
+            };
+            return Route::Built(Printed::atom(format!("{{x : {wide} | {says}}}")));
+        }
         if !listed {
             return match self.set_members(set) {
                 Some(Members::Numbers(n)) if n == at => self.set_term(set),
@@ -277,9 +297,32 @@ impl Writer<'_> {
         let parts = |want: usize| self.set_parts(node, want);
         match &*node.notation_name() {
             "set-operations" => {
-                let p = match parts(2) {
-                    Route::Built(p) => p,
-                    Route::Declined(d) => return Route::Declined(d),
+                // Of sets of numbers, both at the wider of their types: ℝ ∖
+                // {2} is `Set.univ \ ({2} : Set ℝ)`.
+                let numbers: Option<Num> = node
+                    .children
+                    .iter()
+                    .map(|c| match self.set_members(c) {
+                        Some(Members::Numbers(n)) => Some(n),
+                        _ => None,
+                    })
+                    .collect::<Option<Vec<Num>>>()
+                    .and_then(|ns| ns.into_iter().max());
+                let p = match numbers {
+                    Some(at) => {
+                        let mut out = Vec::new();
+                        for c in &node.children {
+                            match self.numbers_at(c, at) {
+                                Route::Built(x) => out.push(x),
+                                Route::Declined(d) => return Route::Declined(d),
+                            }
+                        }
+                        out
+                    }
+                    None => match parts(2) {
+                        Route::Built(p) => p,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
                 };
                 // Lean's ∪ binds at 65 and ∩ and \ at 70, and reads no ∩
                 // beside a \ unbracketed, so an operation inside another is

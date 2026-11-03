@@ -92,6 +92,25 @@ pub fn coverage(
     out
 }
 
+/// Whether a set is one of numbers by its shape: a number system, a letter
+/// the checker sorts a set of numbers, or ℝ ∖ {2}, A ∪ B and A ∩ B of such.
+fn set_of_numbers(s: &crate::formula::Node) -> bool {
+    use crate::formula::Whole;
+    if let Some(Whole::Set(m)) = s.sort.full() {
+        return matches!(**m, Whole::Number);
+    }
+    match &*s.notation_name() {
+        "number-systems" => true,
+        // A ∖ B holds what A does; A ∩ B what either does.
+        "set-operations" => match (&*s.spelling().text(), s.children.as_slice()) {
+            ("∖", [a, _]) => set_of_numbers(a),
+            ("∩", [a, b]) => set_of_numbers(a) || set_of_numbers(b),
+            (_, parts) => parts.iter().all(set_of_numbers),
+        },
+        _ => false,
+    }
+}
+
 /// Whether a `let` line is `A be a set` or `x be an element` of a letter
 /// whose sort Lean has a type for (`sets::set_letter_type`).
 fn set_line(
@@ -100,10 +119,25 @@ fn set_line(
 ) -> bool {
     use crate::sorts::introduction::{Form, Introduction};
     match Introduction::read(body).form {
-        Form::Set(name) | Form::Element(name) => rec
-            .sorts
-            .get(&name)
-            .is_some_and(|s| super::sets::set_letter_type(s).is_some()),
+        Form::Set(name) | Form::Element(name)
+            if rec
+                .sorts
+                .get(&name)
+                .is_some_and(|s| super::sets::set_letter_type(s).is_some()) =>
+        {
+            true
+        }
+        // An element a line puts in a set of numbers, A ∈ ℝ ∖ ℚ, is a number
+        // of that set's type (`theorem::element_number_type`).
+        Form::Element(name) => {
+            rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+                matches!(n.children.as_slice(), [x, set]
+                if n.notation() == crate::notations::MEMBERSHIP
+                    && x.is_name()
+                    && *x.text == *name
+                    && set_of_numbers(set))
+            })
+        }
         // A group is a type with Mathlib's group on it (`theorem::statement`);
         // a polynomial a function from ℂ to ℂ among set.mm's polynomials.
         Form::Group { .. } | Form::Polynomial(_) => true,
@@ -118,11 +152,17 @@ fn map_line(asserted: Option<&Vec<crate::formula::Node>>) -> bool {
         matches!(
             &*n.notation_name(),
             "one-to-one" | "onto" | "one-to-one-onto"
-        ) && n.children.iter().skip(1).all(|set| {
-            set.walk()
-                .iter()
-                .all(|m| m.notation() != crate::notations::NUMBER_SYSTEMS)
-        })
+        ) && {
+            // Both sets of numbers, a function of numbers; or neither
+            // touching a number system, a map of things.
+            let sets = &n.children[1..];
+            sets.iter().all(set_of_numbers)
+                || sets.iter().all(|set| {
+                    set.walk()
+                        .iter()
+                        .all(|m| m.notation() != crate::notations::NUMBER_SYSTEMS)
+                })
+        }
     };
     asserted.is_some_and(|a| !a.is_empty() && a.iter().all(map))
 }
@@ -322,13 +362,18 @@ fn covered(
                 });
             }
             if n.notation() == crate::notations::FUNCTION_TYPE {
-                // Between number systems, or between sets of things, a map
-                // `α → α` (`sets`).
-                let typed = matches!(n.children.as_slice(), [_, from, to]
+                // Between number systems, between sets of things, a map
+                // `α → α` (`sets`), or between sets of numbers, a function of
+                // the numbers' types with the sets beside it.
+                // The sets are the last two parts, after the letter where
+                // the type names one.
+                let sides = n.children.len().checked_sub(2).map(|k| &n.children[k..]);
+                let typed = matches!(sides, Some([from, to])
                 if super::expr::function_systems(from, to).is_some()
                     || [from, to].iter().all(|s| {
                         s.sort.full().and_then(super::expr::Members::of_set).is_some()
-                    }));
+                    })
+                    || [from, to].iter().all(|s| set_of_numbers(s)));
                 return (!typed).then(|| {
                     "a function type between sets Lean has no type for yet".to_string()
                 });

@@ -120,10 +120,10 @@ macro "parley_arith" : tactic =>
 
 /-- Clears what an `algebra` step divides by, from the lines saying each
 divisor is not 0, a product, a quotient or a negation not 0 taken as each
-of its parts not 0. -/
+of its parts not 0. A natural number above 0, the q of p/q, is not 0. -/
 macro "parley_clear" : tactic =>
   `(tactic| ((try simp only [ne_eq, mul_eq_zero, div_eq_zero_iff, neg_eq_zero, not_or,
-      pow_eq_zero_iff] at *) <;> (try cases_type* And) <;> field_simp))
+      pow_eq_zero_iff, Nat.pos_iff_ne_zero] at *) <;> (try cases_type* And) <;> field_simp))
 
 /-- An identity of `algebra` with no line cited: a ring identity, or one
 once the divisions are cleared. -/

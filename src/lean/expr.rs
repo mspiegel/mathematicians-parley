@@ -202,6 +202,9 @@ pub struct Writer<'a> {
     /// inside a block that lets a real number, the ε of a limit, where a
     /// claim about natural numbers meets lines in ℝ (`Proof::open_lines`).
     pub floor: Num,
+    /// Terms the theorem puts in a hole of type ℝ, A/B of ⌊A/B⌋, as the
+    /// page prints them: each is computed in ℝ wherever it is written.
+    pub reals: Vec<String>,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -214,12 +217,14 @@ struct Summed<'a, 'n> {
     term: &'n Node,
 }
 
-/// A term a hypothesis says is an integer: the term as the page prints it,
-/// and the hypothesis's Lean name, `∃ m : ℤ, (m : ℝ) = f a`.
+/// A term a line says is an integer or a rational: the term as the page
+/// prints it, the line's Lean name, `∃ m : ℤ, (m : ℝ) = f a`, and the type
+/// it says the term is in.
 #[derive(Clone, Debug)]
 pub struct SaidInteger {
     pub term: String,
     pub proof: String,
+    pub ty: Num,
 }
 
 /// Whether the node is a sum or a product over a range, Σ(k = a to b) t or
@@ -260,6 +265,7 @@ impl<'a> Writer<'a> {
             integers: Vec::new(),
             domains: IndexMap::new(),
             floor: Num::Int,
+            reals: Vec::new(),
         }
     }
 
@@ -272,20 +278,18 @@ impl<'a> Writer<'a> {
             integers: self.integers.clone(),
             domains: self.domains.clone(),
             floor: self.floor,
+            reals: self.reals.clone(),
         }
     }
 
-    /// The hypothesis that says this term is an integer; None where none
-    /// does.
-    fn said_integer(&self, node: &Node) -> Option<&str> {
+    /// The line that says this term is an integer or a rational; None
+    /// where none does.
+    fn said_integer(&self, node: &Node) -> Option<&SaidInteger> {
         if node.is_name() || node.notation() == NUMERAL {
             return None;
         }
         let printed = self.grammar.print(node);
-        self.integers
-            .iter()
-            .find(|s| s.term == printed)
-            .map(|s| s.proof.as_str())
+        self.integers.iter().find(|s| s.term == printed)
     }
 }
 
@@ -394,6 +398,23 @@ fn fill(template: &Template, children: &[Printed]) -> Printed {
 }
 
 impl Writer<'_> {
+    /// The node's arguments that every Lean form of its notation reads at ℝ,
+    /// the A/B of ⌊A/B⌋, whatever their own types.
+    pub fn always_real_args<'n>(&self, node: &'n Node) -> Vec<&'n Node> {
+        let Some(pattern) = self.grammar.written_by(node.spelling()) else {
+            return Vec::new();
+        };
+        let real = self
+            .templates
+            .always_real(&node.notation_name(), &pattern.pattern);
+        self.args(node)
+            .iter()
+            .zip(real)
+            .filter(|(_, r)| *r)
+            .map(|(a, _)| a)
+            .collect()
+    }
+
     /// The template the node's notation and pattern have in Lean, or a
     /// decline naming the notation.
     pub fn template(&self, node: &Node) -> Route<&Template> {
@@ -481,7 +502,7 @@ impl Writer<'_> {
 
     /// What a node's template fills its holes with: its children, or for a
     /// library function applied, what it is applied to.
-    fn args<'n>(&self, node: &'n Node) -> &'n [Node] {
+    pub fn args<'n>(&self, node: &'n Node) -> &'n [Node] {
         if self.library_function(node).is_some() {
             &node.children[1..]
         } else {
@@ -504,14 +525,36 @@ impl Writer<'_> {
                     self.letters.get(node.text.as_str()),
                     Some(LetterType::Number(_))
                 ))
+            // g⁻¹(y) of a function of numbers, whose sort the checker leaves
+            // open.
+            || (node.notation() == crate::notations::APPLICATION
+                && node
+                    .children
+                    .first()
+                    .is_some_and(|f| self.inverse_of_function(f).is_some()))
     }
 
     /// The least number type that holds the node, ℤ at least: the type a
     /// formula made of it alone is computed in.
     pub fn carrier(&self, node: &Node) -> Route<Num> {
-        // A term a hypothesis says is an integer is the integer it gives.
-        if self.said_integer(node).is_some() {
-            return Route::Built(Num::Int);
+        // A term the theorem takes the floor of is a real at least.
+        let own = self.own_carrier(node);
+        match own {
+            Route::Built(n)
+                if !self.reals.is_empty()
+                    && self.reals.contains(&self.grammar.print(node)) =>
+            {
+                Route::Built(n.max(Num::Real))
+            }
+            other => other,
+        }
+    }
+
+    /// The least number type that holds the node by its own parts.
+    fn own_carrier(&self, node: &Node) -> Route<Num> {
+        // A term a line says is an integer is the integer it gives.
+        if let Some(s) = self.said_integer(node) {
+            return Route::Built(s.ty);
         }
         // A power to an exponent that is no natural number is taken in a
         // field, where Lean's integer power is what the page means.
@@ -641,6 +684,16 @@ impl Writer<'_> {
                 _ => Route::no(format!("{} has no Lean function type", f.text)),
             };
         }
+        // g⁻¹ takes what g gives and gives what g takes; the bridge's
+        // inverse is of a function of one type.
+        if let Some((g, _)) = self.inverse_of_function(f) {
+            return match self.letters.get(g.text.as_str()) {
+                Some(LetterType::Function { from, to }) if from == to => {
+                    Route::Built((*to, *from))
+                }
+                _ => Route::no(format!("{}⁻¹ of a function between two types", g.text)),
+            };
+        }
         let [g, inner] = f.children.as_slice() else {
             return Route::no("a function that is no letter or composite");
         };
@@ -661,6 +714,23 @@ impl Writer<'_> {
         Route::Built((from, to))
     }
 
+    /// The function letter a term is the inverse of, g of g⁻¹, with the
+    /// domain a line gives it; None for any other term.
+    fn inverse_of_function<'n>(&self, f: &'n Node) -> Option<(&'n Node, String)> {
+        let [g] = f.children.as_slice() else {
+            return None;
+        };
+        if &*f.notation_name() != "inverse"
+            || !matches!(
+                self.letters.get(g.text.as_str()),
+                Some(LetterType::Function { .. })
+            )
+        {
+            return None;
+        }
+        Some((g, self.domains.get(g.text.as_str())?.clone()))
+    }
+
     /// A function as a printed term, a citation's value.
     pub fn function_printed(&self, f: &Node) -> Printed {
         Printed::atom(self.function_text(f))
@@ -668,6 +738,13 @@ impl Writer<'_> {
 
     /// A function as Lean writes it: a letter, or `(g ∘ f)`.
     fn function_text(&self, f: &Node) -> String {
+        if let Some((g, domain)) = self.inverse_of_function(f) {
+            return format!(
+                "({} {} {domain})",
+                super::sets::INVERSE,
+                super::names::letter(&g.text)
+            );
+        }
         match f.children.as_slice() {
             [g, inner] => format!(
                 "({} ∘ {})",
@@ -847,9 +924,9 @@ impl Writer<'_> {
 
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
-        if let Some(proof) = self.said_integer(node) {
-            let value = Printed::atom(format!("(Classical.choose {proof})"));
-            return self.raise(value, Num::Int, at);
+        if let Some(s) = self.said_integer(node) {
+            let value = Printed::atom(format!("(Classical.choose {})", s.proof));
+            return self.raise(value, s.ty, at);
         }
         if at == Num::Nat && !self.natural(node) {
             return Route::no(format!(

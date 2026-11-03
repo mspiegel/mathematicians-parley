@@ -61,6 +61,7 @@ public import Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.CubeMinusSelfDiv
 public import Parley.Proofs.Hammack.CubeOfSumModThree.CubeOfSumModThree
 public import Parley.Proofs.Hammack.CubeOrder.CubeOrder
 public import Parley.Proofs.Hammack.CubeRootInjective.CubeInjective
+public import Parley.Proofs.Hammack.CubeRootInjective.CubedMobiusOneToOne
 public import Parley.Proofs.Hammack.CubicAboveMinusOne.CubicAboveMinusOne
 public import Parley.Proofs.Hammack.CubicPlusMultipleOfThree.CubicPlusMultipleOfThree
 public import Parley.Proofs.Hammack.CubicSumEvenIffEven.CubicSumEvenIffEven
@@ -121,6 +122,8 @@ public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd
 public import Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound
 public import Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient
 public import Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent
+public import Parley.Proofs.Hammack.MobiusInverse.MobiusInverse
+public import Parley.Proofs.Hammack.MobiusOneToOne.MobiusOneToOne
 public import Parley.Proofs.Hammack.MultiplesOfSix.MultiplesOfSix
 public import Parley.Proofs.Hammack.MultiplesOfTwelve.MultiplesOfTwelve
 public import Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic
@@ -342,6 +345,8 @@ public import Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetLeft
 public import Parley.Proofs.Setmm.IntersectionSubsets.IntersectionSubsetRight
 public import Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain
 public import Parley.Proofs.Setmm.InverseOfValue.InverseOfValue
+public import Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational
+public import Parley.Proofs.Setmm.IrrationalTimesRational.IrrationalTimesRational
 public import Parley.Proofs.Setmm.LessThanAnInteger.LessThanAnInteger
 public import Parley.Proofs.Setmm.LimitAddConstant.LimitAddConstant
 public import Parley.Proofs.Setmm.LimitConstantMultiple.LimitConstantMultiple
@@ -398,6 +403,8 @@ public import Parley.Proofs.Setmm.RationalClosure.RationalDifference
 public import Parley.Proofs.Setmm.RationalClosure.RationalProduct
 public import Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 public import Parley.Proofs.Setmm.RationalClosure.RationalQuotient
+public import Parley.Proofs.Setmm.RationalClosure.IrrationalSum
+public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct
 public import Parley.Proofs.Setmm.RationalTimesDenominator.RationalTimesDenominator
 public import Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative
 public import Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor
@@ -410,6 +417,7 @@ public import Parley.Proofs.Setmm.RemainderReal.RemainderIsReal
 public import Parley.Proofs.Setmm.RemainderRules.MultipleHasNoRemainder
 public import Parley.Proofs.Setmm.RemainderRules.RemainderOfSum
 public import Parley.Proofs.Setmm.RemainderRules.RemainderOfProduct
+public import Parley.Proofs.Setmm.RemainderZero.NoRemainderIsWholeQuotient
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow
 public import Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceOfAbs
 public import Parley.Proofs.Setmm.RootGivesFactor.RootGivesFactor
@@ -420,6 +428,7 @@ public import Parley.Proofs.Setmm.SetOrderLaws.UnionEqualsIntersection
 public import Parley.Proofs.Setmm.SetOrderLaws.UnionOverIntersection
 public import Parley.Proofs.Setmm.SetOrderLaws.UnionKeepsOrder
 public import Parley.Proofs.Setmm.SetOrderLaws.IntersectionKeepsOrder
+public import Parley.Proofs.Setmm.ShiftByRational.ShiftByRational
 public import Parley.Proofs.Setmm.SineOfDouble2.SineOfDouble
 public import Parley.Proofs.Setmm.SineOfDouble.SineOfDouble
 public import Parley.Proofs.Setmm.SizeOfDifference.PartAndRest
@@ -524,6 +533,7 @@ public import Parley.Tests.Elaborator.AMemberInItsOwnRange.ATermOfTheMemberIsANu
 public import Parley.Tests.Elaborator.AMemberInItsOwnRange.APowerOfTheMemberIsANumber
 public import Parley.Tests.Elaborator.AMemberInItsOwnRange.AMemberNamedI
 public import Parley.Tests.Elaborator.AMembershipABareFromBuilds.AMembershipFromLinesTogether
+public import Parley.Tests.Elaborator.AMembershipABareFromBuilds.AProductMembershipFromALine
 public import Parley.Tests.Elaborator.AMembershipCarriedByAnEquation.AMembershipCarriedByAnEquation
 public import Parley.Tests.Elaborator.ANamedTermIsANumber.ANamedTermIsANumber
 public import Parley.Tests.Elaborator.ANamedTermIsANumber.AnOddSquareOverEight
@@ -554,6 +564,8 @@ public import Parley.Tests.Elaborator.ASquareInADivisorSaidNonzero.ASquareInADiv
 public import Parley.Tests.Elaborator.ASquareRootByAlgebra.ASquareRootByAlgebra
 public import Parley.Tests.Elaborator.ASquareRootByAlgebra.ASquareOfASumWithARoot
 public import Parley.Tests.Elaborator.ASquareRootByAlgebra.ARootHalvedByInequalities
+public import Parley.Tests.Elaborator.ASubstitutionIntoAClaimTurnedRound.ASubstitutionIntoAClaim
+public import Parley.Tests.Elaborator.ASubstitutionIntoAClaimTurnedRound.ASubstitutionIntoAClaimTurnedRound
 public import Parley.Tests.Elaborator.ASumDividingByAPositiveIndex.ASumDividingByAPositiveIndex
 public import Parley.Tests.Elaborator.ASumLemmaOverAnotherBoundLetter.ASumTermwiseOverAnotherLetter
 public import Parley.Tests.Elaborator.ASumOfManyLinesByInequalities.ASumOfSevenNaturals
@@ -574,6 +586,8 @@ public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.Inequaliti
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLineOfSeveralSentences
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences
 public import Parley.Tests.Elaborator.AnAtomNotSaidReal.AnOrderOfTwoRoots
+public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd
+public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.OneWitnessFromAnAnd
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquation
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.CosineIsNotOneToOne
 public import Parley.Tests.Elaborator.AnExhibitShownByATrivialLine.AnExhibitShownByATrivialLine
@@ -930,6 +944,7 @@ public import Parley.Tests.Notations.Functions.ABijectionIsOnto
 public import Parley.Tests.Notations.Functions.AnOntoFunctionReachesAPoint
 public import Parley.Tests.Notations.Functions.AnOntoFunctionHasItsValues
 public import Parley.Tests.Notations.Functions.AValueInAnImage
+public import Parley.Tests.Notations.Functions.AnInverseValue
 public import Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse
 public import Parley.Tests.Notations.Groups.TheInverseOfAProduct
 public import Parley.Tests.Notations.Groups.ASubgroupTest

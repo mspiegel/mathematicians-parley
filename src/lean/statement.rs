@@ -221,14 +221,27 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             kind @ ("function-type" | "one-to-one" | "onto" | "one-to-one-onto"),
             [from, to],
         ) => {
-            let (a, b) = (writer.members_of(from)?, writer.members_of(to)?);
+            let (a, b) = (writer.set_members(from)?, writer.set_members(to)?);
             let (from_text, to_text) =
                 (writer.set_term(from).built()?, writer.set_term(to).built()?);
             let lean = super::names::letter(&letter.text);
             let domain = from_text.at(super::expr::MAX);
+            // Between sets of numbers, f : ℝ ∖ {2} → ℝ, a function of the
+            // numbers' types, so that f(x) is a number; between sets of
+            // things, a map α → α.
+            let ty = match (&a, &b) {
+                (
+                    super::expr::Members::Numbers(from),
+                    super::expr::Members::Numbers(to),
+                ) => LetterType::Function {
+                    from: *from,
+                    to: *to,
+                },
+                _ => LetterType::Map { from: a, to: b },
+            };
             Some(InSet {
                 letter: letter.text.to_string(),
-                ty: LetterType::Map { from: a, to: b },
+                ty,
                 fact: match kind == "function-type" {
                     true => Fact::Said(format!(
                         "Set.MapsTo {lean} {domain} {}",
@@ -378,6 +391,7 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 writer.integers.push(super::expr::SaidInteger {
                     term: writer.grammar.print(term),
                     proof: a.name.clone(),
+                    ty: super::templates::Num::Int,
                 });
             }
         }
