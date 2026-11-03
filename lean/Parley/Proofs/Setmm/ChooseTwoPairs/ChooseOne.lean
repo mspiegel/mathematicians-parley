@@ -39,6 +39,6 @@ theorem choose_one (n : ℕ) :
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm | (have h := (s1 n); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); parley_int_power h) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne

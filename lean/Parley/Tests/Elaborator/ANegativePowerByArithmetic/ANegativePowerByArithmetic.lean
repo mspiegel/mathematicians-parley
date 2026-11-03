@@ -12,6 +12,6 @@ theorem a_negative_power_by_arithmetic :
     (2 ^ (-1 : ℤ) : ℚ) < 1 := by
   -- 1. arithmetic
   have s1 : (2 ^ (-1 : ℤ) : ℚ) < 1 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ANegativePowerByArithmetic.ANegativePowerByArithmetic

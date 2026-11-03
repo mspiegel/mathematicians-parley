@@ -28,7 +28,7 @@ theorem two_curves (x : ℝ) (y : ℝ) :
           -- 3.1. algebra, from C1
           have s3_1 : y = -x := by linear_combination (norm := parley_norm) hC1
           -- 3.2. mun:or-right, from 3.1
-          have s3_2 : y = x ^ 2 ∨ y = -x := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) (by parley_side)); parley_side)
+          have s3_2 : y = x ^ 2 ∨ y = -x := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) s3_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) s3_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) s3_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) s3_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := y = x ^ 2) (Q := y = -x) s3_1); parley_side)
           all_goals parley_side
         · skip
           -- 3.3. algebra, from 1
@@ -38,7 +38,7 @@ theorem two_curves (x : ℝ) (y : ℝ) :
           -- 3.5. algebra, from 3.4
           have s3_5 : y = x ^ 2 := by linear_combination (norm := parley_norm) s3_4
           -- 3.6. mun:or-left, from 3.5
-          have s3_6 : y = x ^ 2 ∨ y = -x := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) (by parley_side)); parley_side)
+          have s3_6 : y = x ^ 2 ∨ y = -x := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) s3_5) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) s3_5)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) s3_5) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) s3_5) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := y = x ^ 2) (Q := y = -x) s3_5); parley_side)
           all_goals parley_side
       all_goals parley_side
     · skip

@@ -12,6 +12,6 @@ theorem a_range_bound_as_a_first_row (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc
     k + 1 ≤ n + 1 := by
   -- 1. inequalities
   have s1 : k + 1 ≤ n + 1 := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundAsAFirstRow

@@ -27,6 +27,6 @@ theorem factorial_quotient_step (c : ℕ) (hH1 : 0 < c) (F : ℝ) (hH3 : F ≠ 0
           first | parley_subst s2_w | parley_subst s2
       _ = 1 - 1 / F * (1 / ((c : ℝ) + 1)) := by parley_ring
       _ = 1 - 1 / (F * ((c : ℝ) + 1)) := by parley_subst s3
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.FactorialQuotientStep

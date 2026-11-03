@@ -23,6 +23,6 @@ theorem floor_of_minus_half_not_zero :
         _ = 0 := by parley_side
     exact absurd s2_1 (by norm_num)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Notations.Primes.FloorOfMinusHalfNotZero

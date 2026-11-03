@@ -55,6 +55,6 @@ theorem choose_one_less (N : ℕ) :
           _ = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 1)); parley_side)
           _ = (N : ℤ) + 1 := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.ChooseOneLess.ChooseOneLess

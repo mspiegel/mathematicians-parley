@@ -38,6 +38,6 @@ theorem choose_two_even (a : ℕ) (hH2 : (a : ℤ) ≡ (0 : ℤ) [ZMOD (4 : ℤ)
       -- 2.8. def:even n := C(a, 2), from 2.7
       have s2_8 : Even (LeanBridges.Counting.choose (a : ℤ) (2 : ℤ) : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (a : ℤ) (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (LeanBridges.Counting.choose (a : ℤ) (2 : ℤ) : ℤ)))).mpr ⟨k * (4 * k + 1), by parley_side⟩; parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoEven

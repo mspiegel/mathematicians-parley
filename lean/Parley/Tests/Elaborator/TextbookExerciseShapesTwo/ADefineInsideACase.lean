@@ -30,6 +30,6 @@ theorem a_define_inside_a_case (x : ℝ) (hH2 : x = 1 ∨ x = 2) :
       -- 1.6. transitivity, from C2, 1.5
       have s1_6 : x > 0 := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.ADefineInsideACase

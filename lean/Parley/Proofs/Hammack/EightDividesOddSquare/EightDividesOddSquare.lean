@@ -46,6 +46,6 @@ theorem eight_divides_odd_square (n : ℤ) (hH2 : Odd n) :
       -- 4.8. def:divides d := 8, n := n² − 1, from 4.7
       have s4_8 : (8 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (8 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨(2 * j + 1) * (j + 1), by parley_side⟩; parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Hammack.EightDividesOddSquare.EightDividesOddSquare

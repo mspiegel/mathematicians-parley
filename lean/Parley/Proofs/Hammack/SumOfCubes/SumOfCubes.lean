@@ -41,6 +41,6 @@ theorem sum_of_cubes (n : ℕ) (hH1 : 0 < n) :
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) ^ 3 : ℚ)) = (n : ℚ) ^ 2 * ((n : ℚ) + 1) ^ 2 / 4 := by
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) ^ 3 : ℚ)) = (S n : ℚ) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ = (n : ℚ) ^ 2 * ((n : ℚ) + 1) ^ 2 / 4 := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.SumOfCubes.SumOfCubes

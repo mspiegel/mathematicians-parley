@@ -43,6 +43,6 @@ theorem choose_four_two :
     qify
     calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by parley_side
       _ = 6 := by norm_num
-  all_goals parley_side
+  all_goals exact s8
 
 end Parley.Tests.Notations.Counting.ChooseFourTwo

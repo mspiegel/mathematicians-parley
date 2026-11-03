@@ -32,11 +32,11 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
       have s1_5 : 0 ≤ A * X := by
         try simp only [hD1] at *
         try push_cast at *
-        first | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) (by parley_side) (by parley_side))] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) (by parley_side) (by parley_side)) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) (by parley_side) (by parley_side)); parley_side)
+        first | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4)] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := A) (y := A ^ k - ((A - 1) * (k : ℝ) + 1)) hH2 s1_4); parley_side)
       -- 1.6. mun:square-nonneg x := A − 1
       have s1_6 : 0 ≤ (A - 1) ^ 2 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1))] | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_square_nonneg (x := A - 1)); parley_side)
       -- 1.7. thm:nonnegative-product x := (A − 1)², y := k, from K, 1.6
-      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by first | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) (by parley_side) (by parley_side))] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) (by parley_side) (by parley_side)); parley_side)
+      have s1_7 : 0 ≤ (A - 1) ^ 2 * (k : ℝ) := by first | linarith [(Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side))] | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)) | (have h := (Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct.nonnegative_product (x := (A - 1) ^ 2) (y := (k : ℝ)) s1_6 (by parley_side)); parley_side)
       -- 1.8. algebra, from D1
       have s1_8 : A ^ k * A - ((A - 1) * ((k : ℝ) + 1) + 1) = A * X + (A - 1) ^ 2 * (k : ℝ) := by
         try simp only [hD1] at *
@@ -53,6 +53,6 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : (A - 1) * (n : ℝ) + 1 ≤ A ^ n := by first | linarith [(s1 n)] | (have h := (s1 n); push_cast at h; linarith) | exact_mod_cast (s1 n) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality

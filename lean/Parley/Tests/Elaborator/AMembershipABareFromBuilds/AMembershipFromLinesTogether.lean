@@ -18,6 +18,6 @@ theorem a_membership_from_lines_together (k : ℤ) (k : ℕ) (y : ℝ) (hH4 : y 
   have s2 : (LeanBridges.Counting.factorial ((k : ℤ) + 1) : ℤ) = (LeanBridges.Counting.factorial (k : ℤ) : ℤ) * ((k : ℤ) + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_factorial_3 (n := k))).symm | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_factorial_3 (n := k)); parley_side)
   -- 3. transitivity, from H4, H5
   have s3 : y ≤ 3 := by parley_order
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Elaborator.AMembershipABareFromBuilds.AMembershipFromLinesTogether

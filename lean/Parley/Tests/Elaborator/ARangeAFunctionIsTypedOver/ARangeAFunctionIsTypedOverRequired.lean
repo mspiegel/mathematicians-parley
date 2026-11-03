@@ -13,6 +13,6 @@ theorem a_range_a_function_is_typed_over_required (n : â„•) (hH1 : 0 < n) (a : â
     a k + 0 = a k := by
   -- 1. algebra
   have s1 : a k + 0 = a k := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOverRequired

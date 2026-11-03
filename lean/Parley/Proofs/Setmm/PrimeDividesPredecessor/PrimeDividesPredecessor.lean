@@ -18,7 +18,7 @@ theorem prime_divides_predecessor (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (A
     by_contra hc_hS
     have hS : (P : ℤ) ∣ A := by parley_suppose hc_hS
     -- 2.1. mun:divides-difference d := P, a := A, b := A − 1, from H4, S
-    have s2_1 : (P : ℤ) ∣ A - (A - 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) (by parley_side) (by parley_side)); parley_side)
+    have s2_1 : (P : ℤ) ∣ A - (A - 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) hS hH4) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) hS hH4)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) hS hH4) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) hS hH4) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_difference (d := (P : ℤ)) (a := A) (b := A - 1) hS hH4); parley_side)
     -- 2.2. substitute
     have s2_2 : (P : ℤ) ∣ (1 : ℤ) := by
       have c1 : A - (A - 1) = 1 := by parley_ring
@@ -29,6 +29,6 @@ theorem prime_divides_predecessor (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (A
     -- 2.4. inequalities
     have s2_4 : (P : ℤ) ≠ 1 := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.PrimeDividesPredecessor.PrimeDividesPredecessor

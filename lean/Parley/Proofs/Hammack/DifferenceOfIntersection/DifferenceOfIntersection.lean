@@ -35,15 +35,15 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : S
         -- 1.3.2. def:difference u := t, Y := A, Z := C, from 1.1, 1.3.1
         have s1_3_2 : t ∈ A \ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := C) (u := t))).mpr (by parley_set_side); parley_set_side)
         -- 1.3.3. mun:in-union-right u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.2
-        have s1_3_3 : t ∈ A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)); parley_set_side)
+        have s1_3_3 : t ∈ A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_right (Y := A \ B) (Z := A \ C) (u := t) s1_3_2); parley_set_side)
         all_goals parley_set_side
       · skip
         -- 1.3.4. def:difference u := t, Y := A, Z := B, from C2, 1.1
         have s1_3_4 : t ∈ A \ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B) (u := t))).mpr (by parley_set_side); parley_set_side)
         -- 1.3.5. mun:in-union-left u := t, Y := A ∖ B, Z := A ∖ C, from 1.3.4
-        have s1_3_5 : t ∈ A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) (by parley_set_side)); parley_set_side)
+        have s1_3_5 : t ∈ A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4) | exact ((Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4) | (have h := (Parley.Items.Stdlib.Sets.mun_in_union_left (Y := A \ B) (Z := A \ C) (u := t) s1_3_4); parley_set_side)
         all_goals parley_set_side
-    all_goals parley_set_side
+    all_goals exact s1_3
   -- 2. def:subset, from 1
   have s2 : A \ (B ∩ C) ⊆ A \ B ∪ A \ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C))).mpr (by parley_set_side); parley_set_side)
   -- 3. proof
@@ -82,11 +82,11 @@ theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : S
         -- 3.2.6. def:difference u := t, Y := A, Z := B ∩ C, from 3.2.4, 3.2.5
         have s3_2_6 : t ∈ A \ (B ∩ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_difference (Y := A) (Z := B ∩ C) (u := t))).mpr (by parley_set_side); parley_set_side)
         all_goals parley_set_side
-    all_goals parley_set_side
+    all_goals exact s3_2
   -- 4. def:subset, from 3
   have s4 : A \ B ∪ A \ C ⊆ A \ (B ∩ C) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B ∪ A \ C) (Y := A \ (B ∩ C)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A \ B ∪ A \ C) (Y := A \ (B ∩ C)))).mpr (by parley_set_side); parley_set_side)
   -- 5. mun:subset-antisymmetric, from 2, 4
-  have s5 : A \ (B ∩ C) = A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) (by parley_set_side) (by parley_set_side)); parley_set_side)
-  all_goals parley_set_side
+  have s5 : A \ (B ∩ C) = A \ B ∪ A \ C := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A \ (B ∩ C)) (Y := A \ B ∪ A \ C) s2 s4); parley_set_side)
+  all_goals exact s5
 
 end Parley.Proofs.Hammack.DifferenceOfIntersection.DifferenceOfIntersection

@@ -29,6 +29,6 @@ theorem half_turn (x : ℝ) (hH2 : x ∈ ({-Real.pi, Real.pi} : Set ℝ)) :
       -- 2.4. exhibit, from 2.3
       have s2_4 : ∃ j : ℤ, x = (2 * (j : ℝ) + 1) * Real.pi := ⟨(0 : ℤ), by parley_set_side⟩
       all_goals parley_set_side
-  all_goals parley_set_side
+  all_goals exact s2
 
 end Parley.Stdlib.Geometry.HalfTurn

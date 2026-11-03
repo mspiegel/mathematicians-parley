@@ -36,6 +36,6 @@ theorem quadratic_plus_four_even (n : ℤ) :
       -- 2.6. def:even n := n² + 3n + 4, from 2.5
       have s2_6 : Even (n ^ 2 + 3 * n + 4) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := n ^ 2 + 3 * n + 4))).mpr ⟨2 * k ^ 2 + 5 * k + 4, by parley_side⟩; parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.QuadraticPlusFourEven.QuadraticPlusFourEven

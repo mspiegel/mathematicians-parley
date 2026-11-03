@@ -34,6 +34,6 @@ theorem ten_power_congruent (k : ℕ) :
       all_goals parley_side
   -- 2. instantiate m := k in line 1
   have s2 : (10 ^ k : ℤ) ≡ (1 : ℤ) [ZMOD (3 : ℤ)] := by first | exact (s1 k) | exact ((s1 k)).symm | simpa using (s1 k) | exact_mod_cast (s1 k) | (have h := (s1 k); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent

@@ -22,17 +22,17 @@ theorem divisor_of_prime (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (M : ℕ) (
     · skip
       intro hD1
       -- 3.1. mun:modus-ponens, from D1, 2
-      have s3_1 : (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) (by parley_side) (by parley_side)); parley_side)
+      have s3_1 : (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) s2 hD1) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) s2 hD1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) s2 hD1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) s2 hD1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (M : ℤ) ∣ (P : ℤ)) (Q := (M : ℤ) = 1 ∨ (M : ℤ) = (P : ℤ)) s2 hD1); parley_side)
       -- 3.2. cases, from 3.1
       have s3_2 : (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1 := by
         rcases s3_1 with hC1 | hC2
         · skip
           -- 3.2.1. mun:or-right P := M = P, Q := M = 1, from C1
-          have s3_2_1 : (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)); parley_side)
+          have s3_2_1 : (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC1); parley_side)
           all_goals parley_side
         · skip
           -- 3.2.2. mun:or-left P := M = P, Q := M = 1, from C2
-          have s3_2_2 : (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) (by parley_side)); parley_side)
+          have s3_2_2 : (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC2) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (M : ℤ) = (P : ℤ)) (Q := (M : ℤ) = 1) hC2); parley_side)
           all_goals parley_side
       all_goals parley_side
     · skip
@@ -53,6 +53,6 @@ theorem divisor_of_prime (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (M : ℕ) (
           have s3_3_4 : (M : ℤ) ∣ (P : ℤ) := by parley_subst_at hC4 s3_3_3
           all_goals parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime

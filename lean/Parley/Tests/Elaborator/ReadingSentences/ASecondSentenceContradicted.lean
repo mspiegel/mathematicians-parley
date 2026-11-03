@@ -16,6 +16,6 @@ theorem a_second_sentence_contradicted (a : ℝ) (b : ℝ) (hH3a : a = 1) (hH3b 
     -- 1.1. restate K1
     have s1_1 : b = 2 := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceContradicted

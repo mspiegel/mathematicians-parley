@@ -36,6 +36,6 @@ theorem six_divides_three_consecutive (k : ℕ) :
       -- 2.6. def:divides d := 6, n := 3·k·(k + 1), from 2.5
       have s2_6 : (6 : ℤ) ∣ 3 * (k : ℤ) * ((k : ℤ) + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * (k : ℤ) * ((k : ℤ) + 1)))).mpr ⟨(2 * m + 1) * (m + 1), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (6 : ℤ)) (n := 3 * (k : ℤ) * ((k : ℤ) + 1)))).mpr ⟨(2 * m + 1) * (m + 1), by parley_side⟩; parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive

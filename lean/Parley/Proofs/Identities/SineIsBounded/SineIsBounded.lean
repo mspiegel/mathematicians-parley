@@ -60,6 +60,6 @@ theorem sine_is_bounded (x : ℝ) :
     all_goals parley_side
   -- 8. join 6, 7
   have s8 : -1 ≤ Real.sin x ∧ Real.sin x ≤ 1 := by parley_side
-  all_goals parley_side
+  all_goals exact s8
 
 end Parley.Proofs.Identities.SineIsBounded.SineIsBounded

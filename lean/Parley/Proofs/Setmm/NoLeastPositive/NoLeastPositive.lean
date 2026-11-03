@@ -23,6 +23,6 @@ theorem no_least_positive :
     -- 1.4. exhibit, from 1.2, 1.3
     have s1_4 : ∃ y : ℝ, 0 < y ∧ y < x := ⟨x / 2, by parley_side⟩
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Proofs.Setmm.NoLeastPositive.NoLeastPositive

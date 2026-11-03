@@ -12,6 +12,6 @@ theorem a_membership_bound_substituted_into (k : ℕ) (hH1 : 0 < k) (m : ℤ) (h
     m > 0 := by
   -- 1. substitute k = m (H3) into H1
   have s1 : m > 0 := by parley_subst_at hH3 hH1
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundSubstitutedInto

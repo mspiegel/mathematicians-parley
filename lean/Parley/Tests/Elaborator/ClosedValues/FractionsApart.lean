@@ -12,6 +12,6 @@ theorem fractions_apart :
     (17 / (3 * 2) / 65 : ℚ) ≠ 2 := by
   -- 1. arithmetic
   have s1 : (17 / (3 * 2) / 65 : ℚ) ≠ 2 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ClosedValues.FractionsApart

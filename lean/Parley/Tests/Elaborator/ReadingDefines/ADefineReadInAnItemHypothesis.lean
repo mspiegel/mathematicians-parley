@@ -19,6 +19,6 @@ theorem a_define_read_in_an_item_hypothesis (a : ℝ) (hH2 : a + 1 > 0) :
     try simp only [hD1] at *
     try push_cast at *
     first | linarith [(Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := a + 1) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := a + 1) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := a + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_reciprocal_positive (x := a + 1) (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnItemHypothesis

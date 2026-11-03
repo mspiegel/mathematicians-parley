@@ -34,6 +34,6 @@ theorem square_root_positive (a : ℝ) (hH2 : 0 < a) :
     -- 2.7. inequalities, from 2.6
     have s2_7 : ¬ 0 < a := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.SquareRootPositive.SquareRootPositive

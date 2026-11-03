@@ -12,6 +12,6 @@ theorem a_chain_through_a_turned_order (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a �
     a < c := by
   -- 1. transitivity, from H4, H5
   have s1 : a < c := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.Transitivity.AChainThroughATurnedOrder

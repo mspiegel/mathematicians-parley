@@ -45,6 +45,6 @@ theorem factorial_by_predecessor (N : ℕ) (hH1 : 0 < N) :
           _ = 1 * (N : ℤ) := by parley_side
           _ = (LeanBridges.Counting.factorial ((N : ℤ) - 1) : ℤ) * (N : ℤ) := by parley_subst s3_4
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.FactorialByPredecessor.FactorialByPredecessor

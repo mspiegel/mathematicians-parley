@@ -33,6 +33,6 @@ theorem power_of_two_above (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : (n : ℤ) ≤ 2 ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove

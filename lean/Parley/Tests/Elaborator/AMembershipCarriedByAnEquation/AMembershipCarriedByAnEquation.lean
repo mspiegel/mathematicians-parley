@@ -12,6 +12,6 @@ theorem a_membership_carried_by_an_equation (a : ℤ → ℝ) (b : ℤ → ℝ) 
     (∃ m : ℝ, (m : ℂ) = x) := by
   -- 1. membership, from H1, H2, H4
   have s1 : ∃ m : ℝ, (m : ℂ) = x := ⟨a 0 + b 0, by first | (push_cast; linarith [hH4]) | (rw [hH4]; push_cast; ring) | (rw [← hH4]; push_cast; ring) | exact hH4 | exact hH4.symm⟩
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.AMembershipCarriedByAnEquation.AMembershipCarriedByAnEquation

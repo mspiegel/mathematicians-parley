@@ -422,8 +422,12 @@ pub fn theorem(
             Spot::Statement,
         );
     } else {
+        let close = match conclusion.as_slice() {
+            [one] => proof.closing(top.last().copied(), &one.says),
+            _ => "parley_side".to_string(),
+        };
         proof.push(
-            "  all_goals parley_side".to_string(),
+            format!("  all_goals {close}"),
             thm.conclusion_line,
             Spot::Statement,
         );
@@ -997,6 +1001,38 @@ impl<'a> Proof<'a> {
             depth,
         );
         Route::Built(())
+    }
+
+    /// What closes a block or a theorem once its steps are written: its last
+    /// step by name, `exact s3`, where that step says what is owed as Lean
+    /// writes both, and otherwise `parley_side`, which finds the line. What
+    /// is owed is the claim, or of a "for all" whose letter the block lets,
+    /// what it says at that letter.
+    fn closing(&self, last: Option<usize>, owed: &Node) -> String {
+        let side = "parley_side".to_string();
+        let owed = match owed.children.as_slice() {
+            [letter, _, body]
+                if owed.notation() == crate::notations::FOR_ALL
+                    && self.writer.letters.contains_key(letter.text.as_str()) =>
+            {
+                body
+            }
+            _ => owed,
+        };
+        let Some(number) = last.and_then(|i| self.thm.steps[i].number.number()) else {
+            return side;
+        };
+        let Some([(said, name)]) =
+            self.trees.get(&number.to_string()).map(Vec::as_slice)
+        else {
+            return side;
+        };
+        match (self.writer.formula(said), self.writer.formula(owed)) {
+            (Route::Built(a), Route::Built(b)) if a.text == b.text => {
+                format!("exact {name}")
+            }
+            _ => side,
+        }
     }
 
     /// A define's name given its value, `set b : G := a⁻¹ with hD1`: the
@@ -2027,14 +2063,69 @@ impl<'a> Proof<'a> {
         out
     }
 
+    /// The name of the cited line that says an item's hypothesis at the
+    /// citation's values, where its Lean text and the hypothesis's are one;
+    /// None where no line does, or the hypothesis does not write.
+    fn line_saying(
+        &self,
+        hypothesis: &Node,
+        binding: &crate::matching::Binding,
+        cited_lines: &[super::algebra::Cited],
+        binders: &[Binder],
+    ) -> Option<String> {
+        // The item asks its hypothesis in its own letters' types: a number
+        // given a letter of another type, or of the general one, is cast,
+        // and the line, written in its own types, says something else in
+        // Lean. Each number letter of the hypothesis must take its value
+        // with no cast.
+        let uncast = hypothesis.names().iter().all(|page| {
+            let Some(Binder::Letter { ty, general, .. }) = binders
+                .iter()
+                .find(|b| matches!(b, Binder::Letter { page: p, .. } if p == page))
+            else {
+                return true;
+            };
+            let LetterType::Number(n) = ty else {
+                return true;
+            };
+            let value = binding.get(&crate::formula::symbol::Symbol::of(page));
+            !general
+                && value.is_some_and(|v| {
+                    self.writer.carrier(v).built()
+                        == Some((*n).max(super::templates::Num::Int))
+                        && *n != super::templates::Num::Nat
+                })
+        });
+        if !uncast {
+            return None;
+        }
+        let at = crate::matching::substitute_apart_by(
+            hypothesis,
+            binding,
+            &self.sources.checked.grammar.binders(),
+        );
+        let wanted = self.writer.formula(&at).built()?.text;
+        cited_lines
+            .iter()
+            .find(|c| {
+                self.writer
+                    .formula(&c.node)
+                    .built()
+                    .is_some_and(|p| p.text == wanted)
+            })
+            .map(|c| c.proof.clone())
+    }
+
     /// The Lean term an item's sentence is at a citation: the theorem with
-    /// each letter given its value, and each hypothesis left to
+    /// each letter given its value, and each hypothesis given by the line
+    /// cited that says it as Lean writes both, or else left to
     /// `parley_side`.
     fn instance(
         &self,
         sentence: &Sentence,
         binding: &crate::matching::Binding,
         claim: Option<&Node>,
+        cited_lines: &[super::algebra::Cited],
     ) -> Route<String> {
         // The type an item's general letters take: the least that holds the
         // claim and every value given them, a field's at least where the
@@ -2313,6 +2404,19 @@ impl<'a> Proof<'a> {
                         rewrites.join(", ")
                     ));
                 }
+                // A hypothesis a cited line says, as Lean writes both: the
+                // line by its name.
+                Binder::Fact {
+                    line: Some(line), ..
+                } => match self.line_saying(
+                    line,
+                    binding,
+                    cited_lines,
+                    &sentence.binders,
+                ) {
+                    Some(name) => args.push(name),
+                    None => args.push("(by parley_side)".to_string()),
+                },
                 Binder::Fact { .. } => args.push("(by parley_side)".to_string()),
             }
         }
@@ -2387,7 +2491,8 @@ impl<'a> Proof<'a> {
         let Some(sentence) = item.sentences.get(concluded.sentence) else {
             return Route::no("a conclusion the item does not have in Lean");
         };
-        let inst = match self.instance(sentence, &cited.binding, Some(node)) {
+        let lines = self.cited_parts(&reason.just.refs);
+        let inst = match self.instance(sentence, &cited.binding, Some(node), &lines) {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -2638,7 +2743,8 @@ impl<'a> Proof<'a> {
         for (k, v) in &cited.written {
             binding.entry(*k).or_insert_with(|| v.clone());
         }
-        let inst = match self.instance(sentence, &binding, None) {
+        let lines = self.cited_parts(&step.just.from);
+        let inst = match self.instance(sentence, &binding, None, &lines) {
             Route::Built(t) => t,
             Route::Declined(d) => return Route::Declined(d),
         };
@@ -2819,11 +2925,13 @@ impl<'a> Proof<'a> {
                 }
                 // A block may end on a line shown impossible, which closes
                 // it; what is left, if anything, its last line gives.
-                self.push(
-                    format!("{inner}all_goals parley_side"),
-                    step.line,
-                    spot.clone(),
-                );
+                let close = match method {
+                    Method::Proof if claim.len() == 1 => {
+                        self.closing(children.last().copied(), claimed)
+                    }
+                    _ => "parley_side".to_string(),
+                };
+                self.push(format!("{inner}all_goals {close}"), step.line, spot.clone());
             }
             Method::Cases => {
                 // The sentence, or the part of one, of the lines named that

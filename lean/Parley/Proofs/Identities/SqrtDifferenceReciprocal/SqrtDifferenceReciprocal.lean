@@ -36,6 +36,6 @@ theorem sqrt_difference_reciprocal (x : ℝ) (hH2 : x ≥ 0) :
   have s9 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := by parley_side
   -- 10. algebra, from 2, 3, 9
   have s10 : Real.sqrt (x + 1) - Real.sqrt x = 1 / (Real.sqrt (x + 1) + Real.sqrt x) := by linear_combination (norm := parley_field) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
-  all_goals parley_side
+  all_goals exact s10
 
 end Parley.Proofs.Identities.SqrtDifferenceReciprocal.SqrtDifferenceReciprocal

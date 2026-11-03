@@ -18,6 +18,6 @@ theorem a_define_read_in_an_unfolded_definition (a : ℤ) (b : ℤ) (hH3 : a + 1
     parley_subst_at hD1 hH3_w
   -- 2. def:even n := a + 1, from D1, 1
   have s2 : Even (a + 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a + 1))).mpr ⟨b, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a + 1))).mpr ⟨b, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnUnfoldedDefinition

@@ -65,6 +65,6 @@ theorem odd_numbers_sum (N : ℕ) :
       -- 3.7. substitute N = 0 (C2) into line 3.6
       have s3_7 : (∑ k ∈ Finset.Icc (1 : ℤ) (N : ℤ), (2 * k - 1 : ℤ)) = (N : ℤ) ^ 2 := by parley_subst_at hC2 s3_6
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.OddNumbersSum.OddNumbersSum

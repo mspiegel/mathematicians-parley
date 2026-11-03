@@ -13,6 +13,6 @@ theorem a_size_holding_a_negative :
     ({(-2 : ℤ), (0 : ℤ), (3 : ℤ)} : Set ℤ).encard = ((3 : ℕ) : ℕ∞) := by
   -- 1. inspection
   have s1 : ({(-2 : ℤ), (0 : ℤ), (3 : ℤ)} : Set ℤ).encard = ((3 : ℕ) : ℕ∞) := by parley_set_side
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingANegative

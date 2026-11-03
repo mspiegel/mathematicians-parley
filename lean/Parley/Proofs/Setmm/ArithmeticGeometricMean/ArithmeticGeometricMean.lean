@@ -31,6 +31,6 @@ theorem arithmetic_geometric_mean (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B �
   have s9 : Real.sqrt (A * B) ^ 2 ≤ ((A + B) / 2) ^ 2 := by parley_order
   -- 10. mun:square-le x := √(A·B), y := (A + B)/2, from 3, 5, 9
   have s10 : Real.sqrt (A * B) ≤ (A + B) / 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (A * B)) (y := (A + B) / 2) (by parley_side) (by parley_side))).mpr (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s10
 
 end Parley.Proofs.Setmm.ArithmeticGeometricMean.ArithmeticGeometricMean

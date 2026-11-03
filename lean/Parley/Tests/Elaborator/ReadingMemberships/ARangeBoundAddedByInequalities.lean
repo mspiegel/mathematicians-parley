@@ -12,6 +12,6 @@ theorem a_range_bound_added_by_inequalities (n : ℤ) (k : ℤ) (hH2 : k ∈ Fin
     k < n + 1 := by
   -- 1. inequalities, from H2
   have s1 : k < n + 1 := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundAddedByInequalities

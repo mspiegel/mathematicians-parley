@@ -44,6 +44,6 @@ theorem abs_difference_of_abs (A : ℝ) (B : ℝ) :
       -- 7.5. transitivity, from 7.3, 7.4
       have s7_5 : abs (abs A - abs B) ≤ abs (A - B) := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s7
 
 end Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceOfAbs

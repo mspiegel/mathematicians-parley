@@ -20,6 +20,6 @@ theorem nothing_below_one_is_two :
     have s1_2 : (2 : ℝ) ≤ 1 := by parley_subst_at hK2.2 s1_1
     exact absurd s1_2 (by norm_num)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.AProofBlockEndingImpossible.NothingBelowOneIsTwo

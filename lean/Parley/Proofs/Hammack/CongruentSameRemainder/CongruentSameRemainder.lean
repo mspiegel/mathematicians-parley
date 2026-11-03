@@ -22,6 +22,6 @@ theorem congruent_same_remainder (a : ℤ) (b : ℤ) (n : ℕ) (hH3 : 0 < n) (hH
     have c1 : k * (n : ℤ) + b = a := by linear_combination (norm := parley_norm) (-1) * s2
     have row1 : a % (n : ℤ) = b % (n : ℤ) := by parley_subst_at c1 s3
     exact row1
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Hammack.CongruentSameRemainder.CongruentSameRemainder

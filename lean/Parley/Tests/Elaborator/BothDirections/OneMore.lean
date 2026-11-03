@@ -23,6 +23,6 @@ theorem one_more (n : ℤ) :
       -- 1.2. algebra, from D2
       have s1_2 : n + 1 = 3 := by linear_combination (norm := parley_norm) hD2
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.BothDirections.OneMore

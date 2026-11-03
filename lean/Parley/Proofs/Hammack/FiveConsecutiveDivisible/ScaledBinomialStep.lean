@@ -30,6 +30,6 @@ theorem scaled_binomial_step (m : ℕ) (i : ℕ) (j : ℕ) (hH3 : 0 < j) (hH4 : 
   have s7 : (m : ℤ) + (i : ℤ) + 1 = (m : ℤ) + (j : ℤ) := by linear_combination (norm := parley_norm) (-1) * s1
   -- 8. substitute (m + i) + 1 = m + j (line 7) into line 6
   have s8 : (j : ℤ) * (LeanBridges.Counting.choose ((m : ℤ) + (j : ℤ)) (j : ℤ) : ℤ) = ((m : ℤ) + (j : ℤ)) * (LeanBridges.Counting.choose ((m : ℤ) + (i : ℤ)) (i : ℤ) : ℤ) := by parley_subst_at s7 s6
-  all_goals parley_side
+  all_goals exact s8
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep

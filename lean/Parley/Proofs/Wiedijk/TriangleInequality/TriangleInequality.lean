@@ -40,6 +40,6 @@ theorem triangle_inequality (a : ℝ) (b : ℝ) :
           _ = -a + -b := by parley_ring
           _ ≤ abs a + abs b := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Wiedijk.TriangleInequality.TriangleInequality

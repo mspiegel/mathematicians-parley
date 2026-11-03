@@ -26,6 +26,6 @@ theorem a_requires_line_adding_what_the_checker_added (p : ℝ) (hH2 : p > 0) (h
   have s4 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_side) (y := (m : ℝ)) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_side) (y := (m : ℝ)) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_side) (y := (m : ℝ)) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_side) (y := (m : ℝ)) (by parley_side))).mp (by parley_side); parley_side)
   -- 5. exhibit, from 4
   have s5 : ∃ n : ℕ, 0 < n ∧ 1 / (n : ℝ) ≤ 1 / (2 / p) := ⟨m, by parley_side, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Tests.Elaborator.ARequiresLineAddingWhatTheCheckerAdded.ARequiresLineAddingWhatTheCheckerAdded

@@ -37,6 +37,6 @@ theorem choose_next_row (N : ℕ) :
           have s5_w : (LeanBridges.Counting.factorial ((N : ℤ) + 1) : ℚ) = (LeanBridges.Counting.factorial (N : ℤ) : ℚ) * ((N : ℚ) + 1) := by have h := congrArg (fun x : ℤ => (x : ℚ)) s5; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s5_w | parley_subst s5
       _ = (N : ℚ) + 1 := by parley_ring
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseNextRow

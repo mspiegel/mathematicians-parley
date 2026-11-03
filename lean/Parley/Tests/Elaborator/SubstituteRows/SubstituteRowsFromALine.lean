@@ -18,6 +18,6 @@ theorem substitute_rows_from_a_line (x : ℝ) (y : ℝ) (hH3 : x = 3) (hH4 : x *
     have c2_w : (3 * 3 + 3 : ℝ) = 12 := by have h := congrArg (fun x : ℤ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
     have row2 : 12 < y := by first | parley_subst_at c2_w row1 | parley_subst_at c2 row1
     exact row2
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.SubstituteRows.SubstituteRowsFromALine

@@ -60,6 +60,6 @@ theorem sum_of_factorial_quotients (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
   -- 3. instantiate k := n in line 2
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) / (LeanBridges.Counting.factorial (k + 1) : ℚ) : ℚ)) = 1 - 1 / (LeanBridges.Counting.factorial ((n : ℤ) + 1) : ℚ) := by first | linear_combination (norm := parley_norm) (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s2 n (by parley_side)) | exact_mod_cast ((s2 n (by parley_side))).symm | (have h := (s2 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s2 n (by parley_side)); parley_int_power h) | (have h := (s2 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.SumOfFactorialQuotients.SumOfFactorialQuotients

@@ -26,6 +26,6 @@ theorem sum_neg_bounded (a : ℝ) (b : ℝ) (hH3 : a + b < 0) :
   have s5 : abs (a + b) ≤ abs a + abs b := by
     calc abs (a + b) = -(a + b) := by parley_side
       _ ≤ abs a + abs b := by parley_side
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Tests.Docs.Syntax.SumNegBounded

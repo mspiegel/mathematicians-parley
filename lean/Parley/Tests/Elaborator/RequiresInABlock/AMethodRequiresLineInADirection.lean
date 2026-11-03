@@ -28,6 +28,6 @@ theorem a_method_requires_line_in_a_direction (A : ℝ) (B : ℝ) (hH3 : 0 ≤ A
       have r25_2 : B ≥ 0 := by parley_side
       have s1_2 : A < B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_less (x := A) (y := B) (by parley_side) (by parley_side))).mpr (by parley_side); parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInADirection

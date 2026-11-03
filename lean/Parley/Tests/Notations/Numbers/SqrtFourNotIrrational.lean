@@ -27,6 +27,6 @@ theorem sqrt_four_not_irrational :
     -- 4.1. def:irrational x := √4, from S
     have s4_1 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ)) := by first | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side); parley_side)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Tests.Notations.Numbers.SqrtFourNotIrrational

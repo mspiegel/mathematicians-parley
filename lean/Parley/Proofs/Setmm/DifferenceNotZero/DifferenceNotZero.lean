@@ -20,6 +20,6 @@ theorem difference_not_zero (A : ℝ) (B : ℝ) (hH3 : abs A < B) :
   have s3 : A < B := by parley_order
   -- 4. inequalities
   have s4 : B - A ≠ 0 := by parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.DifferenceNotZero.DifferenceNotZero

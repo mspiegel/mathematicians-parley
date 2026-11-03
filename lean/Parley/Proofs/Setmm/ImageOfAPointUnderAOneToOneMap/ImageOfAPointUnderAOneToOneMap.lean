@@ -22,9 +22,9 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
     · skip
       intro hD1
       -- 2.1. obtain s: def:image u := F(X), from D1, H5
-      obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := Y) (f := F) (u := F X) (W := Set.univ) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side)
+      obtain ⟨s, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := Y) (f := F) (u := F X) (W := Set.univ) (by parley_set_side) hH5)).mp (by parley_set_side)
       -- 2.2. mun:in-subset X := Y, Y := A, u := s, from H5, 2.1
-      have s2_2 : s ∈ A := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) (by parley_set_side) (by parley_set_side)); parley_set_side)
+      have s2_2 : s ∈ A := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := Y) (Y := A) (u := s) hH5 s2_1a); parley_set_side)
       -- 2.3. instantiate s := X, t := s in line 1, from H4, 2.1, 2.2
       have s2_3 : X = s := by first | exact (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | exact ((s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side))).symm | simpa using (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | exact_mod_cast (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)) | (have h := (s1b X (by parley_set_side) s (by parley_set_side) (by parley_set_side)); parley_set_side)
       -- 2.4. substitute X = s (line 2.3) into line 2.1
@@ -33,8 +33,8 @@ theorem image_of_a_point_under_a_one_to_one_map {α : Type*} (A : Set α) (B : S
     · skip
       intro hD2
       -- 2.5. mun:value-in-image s := X, from D2, H5
-      have s2_5 : F X ∈ F '' Y := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) (by parley_set_side) (by parley_set_side)); parley_set_side)
+      have s2_5 : F X ∈ F '' Y := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) hH5 hD2) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) hH5 hD2)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) hH5 hD2) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) hH5 hD2) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := A) (Y := Y) (f := F) (s := X) (W := Set.univ) (by parley_set_side) hH5 hD2); parley_set_side)
       all_goals parley_set_side
-  all_goals parley_set_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap

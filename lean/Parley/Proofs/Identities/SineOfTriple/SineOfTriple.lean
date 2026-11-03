@@ -32,6 +32,6 @@ theorem sine_of_triple (x : ℝ) :
       _ = (Real.sin x * Real.cos x + Real.cos x * Real.sin x) * Real.cos x + Real.cos (2 * x) * Real.sin x := by parley_subst s2
       _ = (Real.sin x * Real.cos x + Real.cos x * Real.sin x) * Real.cos x + (Real.cos x * Real.cos x - Real.sin x * Real.sin x) * Real.sin x := by parley_subst s3
       _ = 3 * Real.sin x - 4 * Real.sin x ^ 3 := by linear_combination (norm := parley_norm) (3 * Real.sin x) * s5
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Identities.SineOfTriple.SineOfTriple

@@ -12,6 +12,6 @@ theorem a_range_bound_in_a_transitivity (n : ℤ) (m : ℤ) (k : ℤ) (hH3 : k �
     k < m := by
   -- 1. transitivity, from H3, H4
   have s1 : k < m := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundInATransitivity

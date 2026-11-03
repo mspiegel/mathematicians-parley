@@ -26,7 +26,7 @@ theorem integer_below_a_real (A : ℝ) (B : ℤ) :
       -- 4.1. inequalities, from S
       have s4_1 : ⌊A⌋ < B := by parley_order
       -- 4.2. mun:integer-step m := ⌊A⌋, n := B, from 1, 4.1
-      have s4_2 : ⌊A⌋ + 1 ≤ B := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)); parley_side)
+      have s4_2 : ⌊A⌋ + 1 ≤ B := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) s4_1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) s4_1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) s4_1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) s4_1); parley_side)
       -- 4.3. transitivity, from 3, 4.2
       have s4_3 : A < (B : ℝ) := by parley_order
       -- 4.4. inequalities, from 4.3
@@ -37,6 +37,6 @@ theorem integer_below_a_real (A : ℝ) (B : ℤ) :
       -- 4.5. transitivity, from C2, 2
       have s4_5 : (B : ℝ) ≤ A := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.IntegerBelowAReal.IntegerBelowAReal

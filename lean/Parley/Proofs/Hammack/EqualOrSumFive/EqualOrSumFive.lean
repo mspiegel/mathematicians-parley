@@ -19,7 +19,7 @@ theorem equal_or_sum_five (x : ℝ) (y : ℝ) (hH3 : x ^ 2 + 5 * y = y ^ 2 + 5 *
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. mun:or-right P := x = y, Q := x + y = 5, from C1
-      have s2_1 : x = y ∨ x + y = 5 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) (by parley_side)); parley_side)
+      have s2_1 : x = y ∨ x + y = 5 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := x = y) (Q := x + y = 5) hC1); parley_side)
       all_goals parley_side
     · skip
       -- 2.2. inequalities, from C2
@@ -31,8 +31,8 @@ theorem equal_or_sum_five (x : ℝ) (y : ℝ) (hH3 : x ^ 2 + 5 * y = y ^ 2 + 5 *
       -- 2.5. algebra, from 2.4
       have s2_5 : x = y := by linear_combination (norm := parley_norm) s2_4
       -- 2.6. mun:or-left P := x = y, Q := x + y = 5, from 2.5
-      have s2_6 : x = y ∨ x + y = 5 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) (by parley_side)); parley_side)
+      have s2_6 : x = y ∨ x + y = 5 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) s2_5) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) s2_5)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) s2_5) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) s2_5) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := x = y) (Q := x + y = 5) s2_5); parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.EqualOrSumFive.EqualOrSumFive

@@ -35,6 +35,6 @@ theorem power_of_three_odd (n : ℕ) :
       all_goals parley_side
   -- 2. instantiate j := n in line 1
   have s2 : Odd (3 ^ n : ℤ) := by first | exact (s1 n) | exact ((s1 n)).symm | simpa using (s1 n) | exact_mod_cast (s1 n) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd

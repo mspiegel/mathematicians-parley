@@ -17,6 +17,6 @@ theorem even_times (A : ℤ) (B : ℤ) (hH3 : Even A) :
   have s2 : A * B = 2 * (a * B) := by linear_combination (norm := parley_norm) (B) * s1
   -- 3. def:even n := A·B, from 2
   have s3 : Even (A * B) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := A * B))).mpr ⟨a * B, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := A * B))).mpr ⟨a * B, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes

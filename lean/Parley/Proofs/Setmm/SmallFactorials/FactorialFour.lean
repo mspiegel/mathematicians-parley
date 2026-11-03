@@ -29,6 +29,6 @@ theorem factorial_four :
   have s4 : (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 24 := by
     calc (LeanBridges.Counting.factorial (4 : ℤ) : ℤ) = 6 * 4 := by parley_side
       _ = 24 := by norm_num
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialFour

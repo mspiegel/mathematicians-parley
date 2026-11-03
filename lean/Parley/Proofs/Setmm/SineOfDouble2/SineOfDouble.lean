@@ -18,6 +18,6 @@ theorem sine_of_double (A : ℂ) :
     calc Complex.sin (2 * A) = Complex.sin (A + A) := by parley_subst s1
       _ = Complex.sin A * Complex.cos A + Complex.cos A * Complex.sin A := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_sin_add (a := A) (b := A)); parley_side)
       _ = 2 * Complex.sin A * Complex.cos A := by parley_ring
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.SineOfDouble2.SineOfDouble

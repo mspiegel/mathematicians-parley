@@ -40,6 +40,6 @@ theorem least_combination_divides (a : ℤ) (b : ℕ) (hH2 : 0 < b) (c : ℤ) (d
   have s6 : c = (d : ℤ) * q := by linear_combination (norm := parley_norm) (-1) * s3 + s5
   -- 7. def:divides n := c, from 6
   have s7 : (d : ℤ) ∣ c := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (d : ℤ)) (n := c))).mpr ⟨q, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (d : ℤ)) (n := c))).mpr ⟨q, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s7
 
 end Parley.Stdlib.Divisibility.LeastCombinationDivides

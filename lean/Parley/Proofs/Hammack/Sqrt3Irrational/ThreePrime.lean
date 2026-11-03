@@ -30,7 +30,7 @@ theorem three_prime :
       rcases s2_3 with hC1 | hC2
       · skip
         -- 2.4.1. mun:integer-step m := 1, n := d, from C1
-        have s2_4_1 : 1 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) (by parley_side)); parley_side)
+        have s2_4_1 : 1 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1); parley_side)
         -- 2.4.2. inequalities, from 2.4.1
         have s2_4_2 : 2 ≤ (d : ℤ) := by parley_order
         -- 2.4.3. mun:le-cases x := 2, y := d, from 2.4.2
@@ -40,13 +40,13 @@ theorem three_prime :
           rcases s2_4_3 with hC3 | hC4
           · skip
             -- 2.4.4.1. mun:integer-step m := 2, n := d, from C3
-            have s2_4_4_1 : 2 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) (by parley_side)); parley_side)
+            have s2_4_4_1 : 2 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3); parley_side)
             -- 2.4.4.2. inequalities, from 2.4.4.1
             have s2_4_4_2 : 3 ≤ (d : ℤ) := by parley_order
             -- 2.4.4.3. antisymmetry, from 2.1, 2.4.4.2
             have s2_4_4_3 : (d : ℤ) = 3 := by parley_side
             -- 2.4.4.4. mun:or-right, from 2.4.4.3
-            have s2_4_4_4 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)); parley_side)
+            have s2_4_4_4 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3); parley_side)
             all_goals parley_side
           · skip
             -- 2.4.4.5. substitute d = 2 (C4) into H
@@ -60,7 +60,7 @@ theorem three_prime :
             -- 2.4.4.9. def:odd n := 3, from 2.4.4.8
             have s2_4_4_9 : Odd (3 : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (3 : ℤ)))).mpr ⟨(1 : ℤ), by parley_side⟩; parley_side)
             -- 2.4.4.10. mun:not-both n := 3, from 2.4.4.7
-            have s2_4_4_10 : ¬ Odd (3 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) (by parley_side)); parley_side)
+            have s2_4_4_10 : ¬ Odd (3 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := (3 : ℤ)) s2_4_4_7); parley_side)
             all_goals parley_side
         all_goals parley_side
       · skip
@@ -70,6 +70,6 @@ theorem three_prime :
     all_goals parley_side
   -- 3. def:prime p := 3, from 1, 2
   have s3 : Nat.Prime 3 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

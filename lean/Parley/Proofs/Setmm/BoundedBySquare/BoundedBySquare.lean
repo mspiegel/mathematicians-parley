@@ -87,6 +87,6 @@ theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
       -- 6.8. join 6.5, 6.7
       have s6_8 : A ≤ B ∧ -A ≤ B := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Setmm.BoundedBySquare.BoundedBySquare

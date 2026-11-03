@@ -32,6 +32,6 @@ theorem nonnegative_product (x : ℝ) (y : ℝ) (hH3 : 0 ≤ x) (hH4 : 0 ≤ y) 
       -- 2.5. inequalities, from 2.4
       have s2_5 : 0 ≤ x * y := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.BernoulliInequality.NonnegativeProduct

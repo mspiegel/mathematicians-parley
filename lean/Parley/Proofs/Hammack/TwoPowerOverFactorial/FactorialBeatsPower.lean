@@ -62,6 +62,6 @@ theorem factorial_beats_power (n : ℕ) (hH1 : 0 < n) :
   have s2 : 2 ^ n ≤ 2 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ∧ (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by first | exact (s1 n (by parley_side)) | exact ((s1 n (by parley_side))).symm | simpa using (s1 n (by parley_side)) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
   -- 3. restate 2
   have s3 : (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.TwoPowerOverFactorial.FactorialBeatsPower

@@ -32,6 +32,6 @@ theorem two_power_bound (d : ℕ) (hH1 : 0 < d) :
       all_goals parley_side
   -- 2. instantiate m := d in line 1
   have s2 : 2 ^ d ≥ (d : ℤ) + 1 := by first | linarith [(s1 d (by parley_side))] | (have h := (s1 d (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 d (by parley_side)) | (have h := (s1 d (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerBound

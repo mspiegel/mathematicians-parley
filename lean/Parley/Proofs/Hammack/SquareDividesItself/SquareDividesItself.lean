@@ -75,6 +75,6 @@ theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
             exact row1
           all_goals parley_set_side
       all_goals parley_set_side
-  all_goals parley_set_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.SquareDividesItself.SquareDividesItself

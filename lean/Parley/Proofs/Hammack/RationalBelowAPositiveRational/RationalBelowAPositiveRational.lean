@@ -16,6 +16,6 @@ theorem rational_below_a_positive_rational (x : ℚ) (hH2 : x > 0) :
   have s2 : x / 2 < x := by parley_order
   -- 3. exhibit, from 1, 2
   have s3 : ∃ y : ℚ, y > 0 ∧ y < x := ⟨x / 2, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.RationalBelowAPositiveRational.RationalBelowAPositiveRational

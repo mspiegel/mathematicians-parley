@@ -12,6 +12,6 @@ theorem a_range_below_zero (n : ℤ) (n : ℤ) (hH2 : n ∈ Finset.Icc (-2 : ℤ
     ((n = -2 ∨ n = -1) ∨ n = 0) := by
   -- 1. inspection, from H2
   have s1 : (n = -2 ∨ n = -1) ∨ n = 0 := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.InspectionOfARangeBelowZero.ARangeBelowZero

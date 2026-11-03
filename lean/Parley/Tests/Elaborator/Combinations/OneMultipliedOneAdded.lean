@@ -12,6 +12,6 @@ theorem one_multiplied_one_added (x : ℝ) (y : ℝ) (z : ℝ) (hH4 : y = 1) (hH
     x * y + z = x + 2 := by
   -- 1. algebra, from H4, H5
   have s1 : x * y + z = x + 2 := by linear_combination (norm := parley_norm) (x) * hH4 + hH5
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.Combinations.OneMultipliedOneAdded

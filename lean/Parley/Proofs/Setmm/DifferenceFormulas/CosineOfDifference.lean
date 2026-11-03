@@ -24,6 +24,6 @@ theorem cosine_of_difference (A : ℂ) (B : ℂ) :
       _ = Complex.cos A * Complex.cos B - Complex.sin A * Complex.sin (-B) := by parley_subst s1
       _ = Complex.cos A * Complex.cos B - Complex.sin A * -Complex.sin B := by parley_subst s2
       _ = Complex.cos A * Complex.cos B + Complex.sin A * Complex.sin B := by parley_ring
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.DifferenceFormulas.CosineOfDifference

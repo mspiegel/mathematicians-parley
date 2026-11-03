@@ -20,6 +20,6 @@ theorem abs_difference_below (A : ℝ) (B : ℝ) :
     exact row1
   -- 3. inequalities
   have s3 : abs A - abs B ≤ abs (A - B) := by parley_order
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.ReverseTriangleInequality.AbsDifferenceBelow

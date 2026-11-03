@@ -12,6 +12,6 @@ theorem order_apart (a : ℝ) (b : ℝ) (hH3 : a < b) :
     b - a ≠ 0 := by
   -- 1. inequalities
   have s1 : b - a ≠ 0 := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.PrimesAndBrackets.OrderApart

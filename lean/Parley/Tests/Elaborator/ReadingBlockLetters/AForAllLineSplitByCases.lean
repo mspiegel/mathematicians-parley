@@ -35,7 +35,7 @@ theorem a_for_all_line_split_by_cases (hH1 : ∀ x : ℝ, x ≥ 0 ∨ x < 0) :
           calc abs y = -y := by parley_side
             _ ≥ 0 := by parley_side
         all_goals parley_side
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s1_1
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineSplitByCases

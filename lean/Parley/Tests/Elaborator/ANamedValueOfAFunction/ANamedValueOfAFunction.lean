@@ -18,6 +18,6 @@ theorem a_named_value_of_a_function (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (k
   have s2 : a k ^ 2 ≥ 0 := by
     calc a k ^ 2 = x ^ 2 := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ ≥ 0 := by parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ANamedValueOfAFunction.ANamedValueOfAFunction

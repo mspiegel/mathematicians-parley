@@ -33,7 +33,7 @@ theorem remainder_by_two (N : ℤ) :
         -- 4.2. def:even n := N, from 4.1
         have s4_2 : Even N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mpr ⟨k, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := N))).mpr ⟨k, by parley_side⟩; parley_side)
         -- 4.3. mun:not-both n := N, from 4.2
-        have s4_3 : ¬ Odd N := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) (by parley_side)); parley_side)
+        have s4_3 : ¬ Odd N := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := N) s4_2); parley_side)
         all_goals parley_side
       all_goals parley_side
     · skip
@@ -50,7 +50,7 @@ theorem remainder_by_two (N : ℤ) :
       -- 6. mun:even-or-odd
       have s6 : Even N ∨ Odd N := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := N)); parley_side)
       -- 7. mun:disjunctive-syllogism-left P := N is even, Q := N is odd, from 5, 6
-      have s7 : Odd N := by first | exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) (by parley_side) (by parley_side)); parley_side)
+      have s7 : Odd N := by first | exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) s6 s5) | exact ((Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) s6 s5)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) s6 s5) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) s6 s5) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism_left (P := Even N) (Q := Odd N) s6 s5); parley_side)
       -- 8. obtain k: def:odd, from 7
       obtain ⟨k, s8⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := N))).mp (by parley_side)
       -- 9. algebra, from 8

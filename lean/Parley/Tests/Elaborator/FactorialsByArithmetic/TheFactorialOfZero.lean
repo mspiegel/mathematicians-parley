@@ -13,6 +13,6 @@ theorem the_factorial_of_zero :
     (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by
   -- 1. arithmetic
   have s1 : (LeanBridges.Counting.factorial (0 : ℤ) : ℤ) = 1 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.TheFactorialOfZero

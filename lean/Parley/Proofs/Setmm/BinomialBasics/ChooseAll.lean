@@ -32,6 +32,6 @@ theorem choose_all (N : ℕ) :
           have s4_w : (LeanBridges.Counting.factorial ((N : ℤ) - (N : ℤ)) : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s4; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s4_w | parley_subst s4
       _ = 1 := by parley_ring
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseAll

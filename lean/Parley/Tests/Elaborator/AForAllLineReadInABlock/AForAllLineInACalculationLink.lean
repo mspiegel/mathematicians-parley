@@ -17,7 +17,7 @@ theorem a_for_all_line_in_a_calculation_link (n : ℕ) (hH1 : 0 < n) (c : ℤ) (
     have s1_1 : b ≡ (1 : ℤ) [ZMOD (n : ℤ)] := by
       calc b ≡ c [ZMOD (n : ℤ)] := by parley_side
         _ ≡ 1 [ZMOD (n : ℤ)] := by parley_side
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s1_1
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineInACalculationLink

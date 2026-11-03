@@ -24,6 +24,6 @@ theorem a_case_ending_on_its_claim_turned (x : ℝ) (y : ℝ) (hH3 : x < y) :
       -- 2.2. inequalities
       have s2_2 : y ≠ x := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ACaseEndingOnItsClaimTurned.ACaseEndingOnItsClaimTurned

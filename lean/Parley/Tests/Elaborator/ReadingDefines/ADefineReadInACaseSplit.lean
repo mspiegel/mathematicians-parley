@@ -24,6 +24,6 @@ theorem a_define_read_in_a_case_split (a : ℝ) (hH2 : a + 1 < 0 ∨ a + 1 > 0) 
       -- 2.2. inequalities
       have s2_2 : a + 1 ≠ 0 := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ReadingDefines.ADefineReadInACaseSplit

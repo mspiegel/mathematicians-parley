@@ -55,6 +55,6 @@ theorem cube_congruent_mod_three (a : ℤ) :
       all_goals parley_side
   -- 6. def:congruent-mod, from 5
   have s6 : (a ^ 3) ≡ a [ZMOD (3 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Hammack.CubeCongruentModThree.CubeCongruentModThree

@@ -18,7 +18,7 @@ theorem one_to_one_values {α : Type*} (A : Set α) (B : Set α) (F : α → α)
   -- 2. instantiate s := C, t := D in line 1, from H4, H5
   have s2 : F C = F D → C = D := by first | exact (s1 C (by parley_set_side) D (by parley_set_side)) | exact ((s1 C (by parley_set_side) D (by parley_set_side))).symm | simpa using (s1 C (by parley_set_side) D (by parley_set_side)) | exact_mod_cast (s1 C (by parley_set_side) D (by parley_set_side)) | (have h := (s1 C (by parley_set_side) D (by parley_set_side)); parley_set_side)
   -- 3. mun:modus-ponens, from H6, 2
-  have s3 : C = D := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) (by parley_set_side) (by parley_set_side)); parley_set_side)
-  all_goals parley_set_side
+  have s3 : C = D := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) s2 hH6) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) s2 hH6)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) s2 hH6) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) s2 hH6) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := F C = F D) (Q := C = D) s2 hH6); parley_set_side)
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.OneToOneValues.OneToOneValues

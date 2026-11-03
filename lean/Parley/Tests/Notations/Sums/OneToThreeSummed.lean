@@ -39,6 +39,6 @@ theorem one_to_three_summed :
   have s11 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 6 := by
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 3 + 3 := by parley_side
       _ = 6 := by norm_num
-  all_goals parley_side
+  all_goals exact s11
 
 end Parley.Tests.Notations.Sums.OneToThreeSummed

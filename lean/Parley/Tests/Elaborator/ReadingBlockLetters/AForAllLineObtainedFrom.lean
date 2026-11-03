@@ -17,7 +17,7 @@ theorem a_for_all_line_obtained_from (hH1 : ∀ x : ℤ, ∃ k : ℤ, x = 2 * k)
     obtain ⟨k, s1_1⟩ := (hH1 y)
     -- 1.2. exhibit, from 1.1
     have s1_2 : ∃ j : ℤ, y = 2 * j := ⟨k, by parley_side⟩
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s1_2
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineObtainedFrom

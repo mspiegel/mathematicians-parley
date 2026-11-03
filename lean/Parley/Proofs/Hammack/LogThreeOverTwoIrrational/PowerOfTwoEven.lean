@@ -28,6 +28,6 @@ theorem power_of_two_even (n : ℕ) (hH1 : 0 < n) :
   have s5 : ∃ m : ℤ, (m : ℚ) = 2 ^ ((n : ℤ) - 1) := by first | exact ⟨(2 : ℤ) ^ ((n : ℤ) - 1).toNat, by push_cast; rw [← zpow_natCast, Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) - 1) by parley_side)]⟩ | exact (by first | exact (Parley.Items.Stdlib.Numbers.mun_power_integer (a := (2 : ℤ)) (m := ((n : ℤ) - 1).toNat)) | exact ((Parley.Items.Stdlib.Numbers.mun_power_integer (a := (2 : ℤ)) (m := ((n : ℤ) - 1).toNat))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_power_integer (a := (2 : ℤ)) (m := ((n : ℤ) - 1).toNat)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_power_integer (a := (2 : ℤ)) (m := ((n : ℤ) - 1).toNat)) | (have h := (Parley.Items.Stdlib.Numbers.mun_power_integer (a := (2 : ℤ)) (m := ((n : ℤ) - 1).toNat)); parley_side))
   -- 6. def:even n := 2^n, from 4, 5
   have s6 : Even (2 ^ n : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (2 ^ n : ℤ)))).mpr ⟨Classical.choose s5, by have := Classical.choose_spec s5; parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfTwoEven

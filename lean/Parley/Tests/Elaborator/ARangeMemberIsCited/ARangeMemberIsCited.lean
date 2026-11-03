@@ -13,6 +13,6 @@ theorem a_range_member_is_cited (N : ℕ) (k : ℤ) (hH2 : k ∈ Finset.Icc (0 :
     (LeanBridges.Counting.choose (N : ℤ) k : ℤ) * 1 = (LeanBridges.Counting.choose (N : ℤ) k : ℤ) := by
   -- 1. algebra
   have s1 : (LeanBridges.Counting.choose (N : ℤ) k : ℤ) * 1 = (LeanBridges.Counting.choose (N : ℤ) k : ℤ) := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited

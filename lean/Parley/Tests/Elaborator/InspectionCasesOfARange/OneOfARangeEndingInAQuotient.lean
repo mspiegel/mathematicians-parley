@@ -12,6 +12,6 @@ theorem one_of_a_range_ending_in_a_quotient (k : ℤ) (hH1 : 1 - 2 + 1 ≤ (k : 
     ((k = 0 ∨ k = 1) ∨ k = 2) := by
   -- 1. inspection, from H1
   have s1 : (k = 0 ∨ k = 1) ∨ k = 2 := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.InspectionCasesOfARange.OneOfARangeEndingInAQuotient

@@ -33,6 +33,6 @@ theorem four_over_product (x : ℝ) (hH2 : 0 < x) (hH3 : x < 4) :
   -- 10. transitivity, from 9, 8
   have r46_1 : 0 ≠ x * (4 - x) := by parley_side
   have s10 : 4 / (x * (4 - x)) ≥ 1 := by parley_order
-  all_goals parley_side
+  all_goals exact s10
 
 end Parley.Proofs.Hammack.FourOverProduct.FourOverProduct

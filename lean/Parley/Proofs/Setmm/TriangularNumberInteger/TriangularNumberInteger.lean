@@ -36,6 +36,6 @@ theorem triangular_number_integer (n : ℤ) :
       -- 2.6. membership, from 2.5
       have s2_6 : ∃ m : ℤ, (m : ℚ) = (n : ℚ) * ((n : ℚ) + 1) / 2 := ⟨(2 * k + 1) * (k + 1), by first | (push_cast; linarith [s2_5]) | (rw [s2_5]; push_cast; ring) | (rw [← s2_5]; push_cast; ring) | exact s2_5 | exact s2_5.symm⟩
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.TriangularNumberInteger.TriangularNumberInteger

@@ -19,7 +19,7 @@ theorem even_product_parity (x : ℤ) (y : ℤ) (hH3 : Even (x ^ 2 * (y + 3))) :
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. mun:or-left P := x is even, Q := y is odd, from C1
-      have s2_1 : Even x ∨ Odd y := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) (by parley_side)); parley_side)
+      have s2_1 : Even x ∨ Odd y := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even x) (Q := Odd y) hC1); parley_side)
       all_goals parley_side
     · skip
       -- 2.2. mun:even-or-odd n := y
@@ -40,13 +40,13 @@ theorem even_product_parity (x : ℤ) (y : ℤ) (hH3 : Even (x ^ 2 * (y + 3))) :
           -- 2.3.4. def:odd n := x²·(y + 3), from 2.3.3
           have s2_3_4 : Odd (x ^ 2 * (y + 3)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 2 * (y + 3)))).mpr ⟨4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 2 * (y + 3)))).mpr ⟨4 * a ^ 2 * b + 6 * a ^ 2 + 4 * a * b + 6 * a + b + 1, by parley_side⟩; parley_side)
           -- 2.3.5. mun:not-both n := x²·(y + 3), from H3
-          have s2_3_5 : ¬ Odd (x ^ 2 * (y + 3)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) (by parley_side)); parley_side)
+          have s2_3_5 : ¬ Odd (x ^ 2 * (y + 3)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) hH3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) hH3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) hH3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) hH3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 2 * (y + 3)) hH3); parley_side)
           all_goals parley_side
         · skip
           -- 2.3.6. mun:or-right P := x is even, Q := y is odd, from C4
-          have s2_3_6 : Even x ∨ Odd y := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) (by parley_side)); parley_side)
+          have s2_3_6 : Even x ∨ Odd y := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) hC4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) hC4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) hC4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) hC4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x) (Q := Odd y) hC4); parley_side)
           all_goals parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.EvenProductParity.EvenProductParity

@@ -35,6 +35,6 @@ theorem a_requires_weakening_with_its_membership (x : ℝ) (hH2 : x ≥ 0) :
   -- 9. algebra, from 2, 3
   have r40_3 : Real.sqrt (x + 1) + Real.sqrt x ≠ 0 := by parley_side
   have s9 : Real.sqrt (x + 1) - Real.sqrt x = 1 / (Real.sqrt (x + 1) + Real.sqrt x) := by linear_combination (norm := parley_field) ((1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s2b + ((-1) / ((Real.sqrt (x + 1) + Real.sqrt x))) * s3b
-  all_goals parley_side
+  all_goals exact s9
 
 end Parley.Tests.Elaborator.ARequiresWeakeningWithItsMembership.ARequiresWeakeningWithItsMembership

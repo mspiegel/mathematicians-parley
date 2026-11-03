@@ -26,6 +26,6 @@ theorem choose_two_pairs (n : ℕ) :
   have s4 : (n : ℤ) + (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose ((n : ℤ) + 1) (2 : ℤ) : ℤ) := by
     calc (n : ℤ) + (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℤ) = (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℤ) + (n : ℤ) := by parley_ring
       _ = (LeanBridges.Counting.choose ((n : ℤ) + 1) (2 : ℤ) : ℤ) := by parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs

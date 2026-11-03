@@ -12,6 +12,6 @@ theorem adding_strict_bounds (A : ℝ) (B : ℝ) (C : ℝ) (D : ℝ) (hH5 : A < 
     A + B < C + D := by
   -- 1. inequalities, from H5, H6
   have s1 : A + B < C + D := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Proofs.Setmm.AddingBounds.AddingStrictBounds

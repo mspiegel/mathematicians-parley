@@ -50,6 +50,6 @@ theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0
     -- 5.11. inequalities, from 5.10
     have s5_11 : ¬ (a - b) ^ 2 ≥ 0 := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean

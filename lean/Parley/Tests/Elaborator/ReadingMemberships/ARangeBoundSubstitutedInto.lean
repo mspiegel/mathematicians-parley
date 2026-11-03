@@ -12,6 +12,6 @@ theorem a_range_bound_substituted_into (n : ℤ) (m : ℤ) (k : ℤ) (hH3 : k �
     k ≤ m := by
   -- 1. substitute n = m (H4) into H3
   have s1 : k ≤ m := by parley_subst_at hH4 hH3
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundSubstitutedInto

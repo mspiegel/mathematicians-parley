@@ -51,6 +51,6 @@ theorem nicomachus_row (N : ℕ) :
       -- 2.9. substitute N = 0 (C2) into line 2.8
       have s2_9 : (∑ k ∈ Finset.Icc (1 : ℤ) (N : ℤ), ((N : ℤ) ^ 2 - (N : ℤ) + (2 * k - 1) : ℤ)) = (N : ℤ) ^ 3 := by parley_subst_at hC2 s2_8
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.NicomachusRow.NicomachusRow

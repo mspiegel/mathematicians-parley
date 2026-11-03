@@ -13,6 +13,6 @@ theorem a_divisor_not_zero_by_weakening (p : ℝ) (q : ℝ) (hH3 : q > 0) :
   -- 1. algebra
   have r50_1 : q ≠ 0 := by parley_side
   have s1 : p / q * q = p := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.InequalityRows.ADivisorNotZeroByWeakening

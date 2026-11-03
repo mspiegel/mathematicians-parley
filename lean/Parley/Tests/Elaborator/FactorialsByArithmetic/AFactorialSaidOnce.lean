@@ -13,6 +13,6 @@ theorem a_factorial_said_once (x : ℝ) :
     x * (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) = (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) * x := by
   -- 1. algebra
   have s1 : x * (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) = (LeanBridges.Counting.factorial (0 : ℤ) : ℝ) * x := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.FactorialsByArithmetic.AFactorialSaidOnce

@@ -23,6 +23,6 @@ theorem one_to_three_not_five :
         _ = 5 := by parley_side
     exact absurd s2_1 (by norm_num)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Notations.Sums.OneToThreeNotFive

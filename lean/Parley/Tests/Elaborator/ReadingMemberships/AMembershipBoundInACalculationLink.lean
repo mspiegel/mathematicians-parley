@@ -14,6 +14,6 @@ theorem a_membership_bound_in_a_calculation_link (k : ℕ) (hH1 : 0 < k) (m : �
   have s1 : 0 < m := by
     calc (0 : ℤ) < (k : ℤ) := by parley_side
       _ ≤ m := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundInACalculationLink

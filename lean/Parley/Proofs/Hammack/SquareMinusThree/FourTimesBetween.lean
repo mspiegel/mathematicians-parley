@@ -28,7 +28,7 @@ theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
       -- 2.4. inequalities, from C2
       have s2_4 : j < 1 := by parley_order
       -- 2.5. mun:integer-step m := j, n := 1, from 2.4
-      have s2_5 : j + 1 ≤ 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) (by parley_side)); parley_side)
+      have s2_5 : j + 1 ≤ 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := j) (n := (1 : ℤ)) s2_4); parley_side)
       -- 2.6. inequalities
       have s2_6 : 4 * j ≤ 0 := by parley_order
       -- 2.7. transitivity, from 2.6, H3
@@ -36,6 +36,6 @@ theorem four_times_between (j : ℤ) (r : ℤ) (hH3 : r > 0) (hH4 : r < 4) :
       -- 2.8. inequalities
       have s2_8 : 4 * j ≠ r := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.SquareMinusThree.FourTimesBetween

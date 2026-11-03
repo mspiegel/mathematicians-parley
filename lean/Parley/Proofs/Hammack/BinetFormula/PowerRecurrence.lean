@@ -20,6 +20,6 @@ theorem power_recurrence (x : ℝ) (hH2 : x ^ 2 = x + 1) (k : ℕ) :
     calc x ^ (k + 1 + 1) = x ^ k * x * x := by linear_combination (norm := parley_norm) (x) * s1 + s2
       _ = x ^ k * (x + 1) := by linear_combination (norm := parley_norm) (x ^ k) * hH2
       _ = x ^ (k + 1) + x ^ k := by linear_combination (norm := parley_norm) (-1) * s1
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.BinetFormula.PowerRecurrence

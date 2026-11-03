@@ -12,6 +12,6 @@ theorem nineteen_is_prime :
     Nat.Prime 19 := by
   -- 1. inspection
   have s1 : Nat.Prime 19 := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Notations.Primes.NineteenIsPrime

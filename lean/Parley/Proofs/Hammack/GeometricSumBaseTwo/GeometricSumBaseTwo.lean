@@ -46,6 +46,6 @@ theorem geometric_sum_base_two (n : ℕ) (hH1 : 0 < n) :
   have s2 : (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (2 ^ k : ℚ)) = 2 ^ (n + 1) - 1 := by
     calc (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (2 ^ k : ℚ)) = S n := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ = 2 ^ (n + 1) - 1 := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm | (have h := (s1 n); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); parley_int_power h) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.GeometricSumBaseTwo.GeometricSumBaseTwo

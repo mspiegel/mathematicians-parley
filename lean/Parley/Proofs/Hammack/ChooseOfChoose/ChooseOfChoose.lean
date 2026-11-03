@@ -82,6 +82,6 @@ theorem choose_of_choose (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : �
       _ = (LeanBridges.Counting.factorial (a : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((a : ℤ) - (b : ℤ) + (c : ℤ)) : ℚ) * (LeanBridges.Counting.factorial ((b : ℤ) - (c : ℤ)) : ℚ)) * ((LeanBridges.Counting.factorial ((a : ℤ) - (b : ℤ) + (c : ℤ)) : ℚ) / ((LeanBridges.Counting.factorial ((a : ℤ) - (b : ℤ)) : ℚ) * (LeanBridges.Counting.factorial (c : ℤ) : ℚ))) := by parley_ring
       _ = (LeanBridges.Counting.factorial (a : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((a : ℤ) - (b : ℤ) + (c : ℤ)) : ℚ) * (LeanBridges.Counting.factorial ((b : ℤ) - (c : ℤ)) : ℚ)) * (LeanBridges.Counting.choose ((a : ℤ) - (b : ℤ) + (c : ℤ)) (c : ℤ) : ℚ) := by parley_subst s19
       _ = (LeanBridges.Counting.choose (a : ℤ) ((b : ℤ) - (c : ℤ)) : ℚ) * (LeanBridges.Counting.choose ((a : ℤ) - (b : ℤ) + (c : ℤ)) (c : ℤ) : ℚ) := by parley_subst s12
-  all_goals parley_side
+  all_goals exact s25
 
 end Parley.Proofs.Hammack.ChooseOfChoose.ChooseOfChoose

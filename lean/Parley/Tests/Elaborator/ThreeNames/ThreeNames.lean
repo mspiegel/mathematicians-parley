@@ -16,6 +16,6 @@ theorem three_names (hH1 : ∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c
   have s2 : 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6 := by linear_combination (norm := parley_norm) s1d
   -- 3. exhibit, from 2
   have s3 : ∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c : ℕ, 0 < c ∧ 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6)) := ⟨a, by parley_side, b, by parley_side, c, by parley_side, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Elaborator.ThreeNames.ThreeNames

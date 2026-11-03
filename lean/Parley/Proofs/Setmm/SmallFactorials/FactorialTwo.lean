@@ -28,6 +28,6 @@ theorem factorial_two :
   have s4 : (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 2 := by
     calc (LeanBridges.Counting.factorial (2 : ℤ) : ℤ) = 1 * 2 := by parley_side
       _ = 2 := by norm_num
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.SmallFactorials.FactorialTwo

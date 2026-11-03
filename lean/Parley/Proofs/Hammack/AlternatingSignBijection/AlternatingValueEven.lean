@@ -20,6 +20,6 @@ theorem alternating_value_even (f : ℤ → ℤ) (hH2 : ∀ n : ℕ, 0 < n → (
           have s1_w : ((-1) ^ m : ℚ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s1_w | parley_subst s1
       _ = (m : ℚ) / 2 := by parley_ring
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEven

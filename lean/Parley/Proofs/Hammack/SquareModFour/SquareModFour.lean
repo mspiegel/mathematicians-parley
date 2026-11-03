@@ -25,7 +25,7 @@ theorem square_mod_four (n : ℤ) :
       -- 2.3. def:divides d := 4, n := n², from 2.2
       have s2_3 : (4 : ℤ) ∣ n ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2))).mpr ⟨k ^ 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2))).mpr ⟨k ^ 2, by parley_side⟩; parley_side)
       -- 2.4. mun:or-left, from 2.3
-      have s2_4 : (4 : ℤ) ∣ n ^ 2 ∨ (4 : ℤ) ∣ n ^ 2 - 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)); parley_side)
+      have s2_4 : (4 : ℤ) ∣ n ^ 2 ∨ (4 : ℤ) ∣ n ^ 2 - 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_3); parley_side)
       all_goals parley_side
     · skip
       -- 2.5. obtain k: def:odd, from C2
@@ -35,8 +35,8 @@ theorem square_mod_four (n : ℤ) :
       -- 2.7. def:divides d := 4, n := n² − 1, from 2.6
       have s2_7 : (4 : ℤ) ∣ n ^ 2 - 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨k ^ 2 + k, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (4 : ℤ)) (n := n ^ 2 - 1))).mpr ⟨k ^ 2 + k, by parley_side⟩; parley_side)
       -- 2.8. mun:or-right, from 2.7
-      have s2_8 : (4 : ℤ) ∣ n ^ 2 ∨ (4 : ℤ) ∣ n ^ 2 - 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) (by parley_side)); parley_side)
+      have s2_8 : (4 : ℤ) ∣ n ^ 2 ∨ (4 : ℤ) ∣ n ^ 2 - 1 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (4 : ℤ) ∣ n ^ 2) (Q := (4 : ℤ) ∣ n ^ 2 - 1) s2_7); parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.SquareModFour.SquareModFour

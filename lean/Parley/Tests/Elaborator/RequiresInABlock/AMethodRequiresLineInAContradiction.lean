@@ -24,6 +24,6 @@ theorem a_method_requires_line_in_a_contradiction (A : ℝ) (B : ℝ) (hH3 : 0 �
     -- 1.3. inequalities, from 1.1
     have s1_3 : ¬ A ^ 2 < B ^ 2 := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInAContradiction

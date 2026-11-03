@@ -27,6 +27,6 @@ theorem equal_values {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3
       -- 2.2. substitute C = D (D2)
       have s2_2 : F C = F D := by parley_subst hD2
       all_goals parley_set_side
-  all_goals parley_set_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.EqualValues.EqualValues

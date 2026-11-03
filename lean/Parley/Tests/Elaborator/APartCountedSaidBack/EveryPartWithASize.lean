@@ -13,6 +13,6 @@ theorem every_part_with_a_size {α : Type*} (X : Set α) (hH2 : ∀ W ∈ 𝒫 X
     (∀ W ∈ 𝒫 X, W.encard ≤ ((2 : ℕ) : ℕ∞)) := by
   -- 1. restate H2
   have s1 : ∀ W ∈ 𝒫 X, W.encard ≤ ((2 : ℕ) : ℕ∞) := by parley_set_side
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.APartCountedSaidBack.EveryPartWithASize

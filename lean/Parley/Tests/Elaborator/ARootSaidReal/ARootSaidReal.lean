@@ -17,6 +17,6 @@ theorem a_root_said_real (A : ℝ) (hH2 : A ≥ 0) :
   have s2 : A ≤ A + 1 := by parley_order
   -- 3. transitivity, from 1, 2
   have s3 : Real.sqrt A ^ 2 ≤ A + 1 := by parley_order
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Elaborator.ARootSaidReal.ARootSaidReal

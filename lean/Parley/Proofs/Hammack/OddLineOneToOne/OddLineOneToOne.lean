@@ -27,6 +27,6 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     all_goals parley_set_side
   -- 2. def:one-to-one, from H1, 1
   have s2 : Set.MapsTo f (Set.univ : Set ℤ) (Set.univ : Set ℤ) ∧ Set.InjOn f (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
-  all_goals parley_set_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.OddLineOneToOne.OddLineOneToOne

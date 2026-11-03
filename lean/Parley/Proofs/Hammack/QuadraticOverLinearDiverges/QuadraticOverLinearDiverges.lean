@@ -56,7 +56,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 <
       all_goals parley_side
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℤ) > (N : ℤ) → a (n : ℤ) > M) := ⟨N, by parley_side, by parley_side⟩
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s1_3
+  all_goals exact s1
 
 end Parley.Proofs.Hammack.QuadraticOverLinearDiverges.QuadraticOverLinearDiverges

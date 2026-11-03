@@ -59,6 +59,6 @@ theorem weighted_binomial_column_sum (m : ℕ) (hH1 : 0 < m) (n : ℕ) (hH2 : 0 
       all_goals parley_side
   -- 2. instantiate j := n in line 1
   have s2 : (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (k * (LeanBridges.Counting.choose ((m : ℤ) + k) (m : ℤ) : ℤ) : ℤ)) = (n : ℤ) * (LeanBridges.Counting.choose ((m : ℤ) + (n : ℤ) + 1) ((m : ℤ) + 1) : ℤ) - (LeanBridges.Counting.choose ((m : ℤ) + (n : ℤ) + 1) ((m : ℤ) + 2) : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm | (have h := (s1 n); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); parley_int_power h) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.WeightedBinomialColumnSum.WeightedBinomialColumnSum

@@ -14,6 +14,6 @@ theorem factorial_nonzero (n : ℕ) :
     (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 := by
   -- 1. mun:counting-factorial-nonzero
   have s1 : (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)); parley_side)
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Stdlib.Counting.FactorialNonzero

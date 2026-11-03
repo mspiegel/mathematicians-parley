@@ -48,6 +48,6 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   have s14 : ε / 2 < ε := by parley_order
   -- 15. transitivity, from 13, 12, 14
   have s15 : abs (C * u) < ε := by parley_order
-  all_goals parley_side
+  all_goals exact s15
 
 end Parley.Proofs.Setmm.LimitLemmas.ScaledSmall

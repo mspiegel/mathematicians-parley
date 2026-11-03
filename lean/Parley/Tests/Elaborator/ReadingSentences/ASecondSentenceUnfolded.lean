@@ -13,6 +13,6 @@ theorem a_second_sentence_unfolded (a : ℝ) (b : ℤ) (hH3a : a = 1) (hH3b : Ev
     (∃ k : ℤ, b = 2 * k) := by
   -- 1. def:even n := b, from H3
   have s1 : ∃ k : ℤ, b = 2 * k := by first | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := b))).mp (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceUnfolded

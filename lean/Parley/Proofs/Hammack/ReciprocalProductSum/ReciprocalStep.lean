@@ -16,6 +16,6 @@ theorem reciprocal_step (m : ℕ) (hH1 : 0 < m) :
   have s2 : 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by
     calc 1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / (m : ℚ) + (1 / (m : ℚ) - 1 / ((m : ℚ) + 1)) := by parley_subst s1
       _ = 1 - 1 / ((m : ℚ) + 1) := by parley_ring
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep

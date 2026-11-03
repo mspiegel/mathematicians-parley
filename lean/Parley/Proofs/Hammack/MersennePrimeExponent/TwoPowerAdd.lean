@@ -36,6 +36,6 @@ theorem two_power_add (a : ℕ) (b : ℕ) :
       all_goals parley_side
   -- 2. instantiate k := b in line 1
   have s2 : (2 ^ (a + b) : ℤ) = 2 ^ a * 2 ^ b := by first | linear_combination (norm := parley_norm) (s1 b) | (have h := (s1 b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 b); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 b) | exact_mod_cast ((s1 b)).symm | (have h := (s1 b); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 b); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 b); parley_int_power h) | (have h := (s1 b); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.MersennePrimeExponent.TwoPowerAdd

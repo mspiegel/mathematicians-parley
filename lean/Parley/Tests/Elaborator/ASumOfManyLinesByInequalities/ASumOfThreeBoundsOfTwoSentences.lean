@@ -12,6 +12,6 @@ theorem a_sum_of_three_bounds_of_two_sentences (P : ℝ) (Q : ℝ) (R : ℝ) (M 
     P + Q + R > M := by
   -- 1. inequalities, from H5, H6, H7
   have s1 : P + Q + R > M := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ASumOfManyLinesByInequalities.ASumOfThreeBoundsOfTwoSentences

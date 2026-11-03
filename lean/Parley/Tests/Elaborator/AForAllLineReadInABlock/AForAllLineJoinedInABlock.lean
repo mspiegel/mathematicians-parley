@@ -15,13 +15,13 @@ theorem a_for_all_line_joined_in_a_block :
     intro x
     -- 1.1. algebra
     have s1_1 : x * 1 = x := by parley_ring
-    all_goals parley_side
+    all_goals exact s1_1
   -- 2. proof
   have s2 : ∀ z : ℤ, z * 1 = z := by
     intro z
     -- 2.1. restate 1
     have s2_1 : z * 1 = z := by parley_side
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s2_1
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.AForAllLineReadInABlock.AForAllLineJoinedInABlock

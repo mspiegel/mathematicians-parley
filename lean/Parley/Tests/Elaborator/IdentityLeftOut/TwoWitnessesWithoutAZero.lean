@@ -12,6 +12,6 @@ theorem two_witnesses_without_a_zero (A : ℤ) (N : ℤ) (k : ℤ) (m : ℤ) (hH
     (∃ p : ℤ, ∃ q : ℤ, p * N + 0 = A + q) := by
   -- 1. exhibit, from H5
   have s1 : ∃ p : ℤ, ∃ q : ℤ, p * N + 0 = A + q := ⟨k, m, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.IdentityLeftOut.TwoWitnessesWithoutAZero

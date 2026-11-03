@@ -28,7 +28,7 @@ theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α 
     have s1_4 : u ∈ A ∩ f ⁻¹' Z := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
     -- 1.5. def:intersection Y := f⁻¹[Y], Z := f⁻¹[Z], from 1.3, 1.4
     have s1_5 : u ∈ (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := A ∩ f ⁻¹' Y) (Z := A ∩ f ⁻¹' Z) (u := u))).mpr (by parley_set_side); parley_set_side)
-    all_goals parley_set_side
+    all_goals exact s1_5
   -- 2. def:subset, from 1
   have s2 : A ∩ f ⁻¹' (Y ∩ Z) ⊆ (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)))).mpr (by parley_set_side); parley_set_side)
   -- 3. proof
@@ -46,11 +46,11 @@ theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α 
     have s3_4 : f u ∈ Y ∩ Z := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := Y) (Z := Z) (u := f u))).mpr (by parley_set_side); parley_set_side)
     -- 3.5. def:preimage Z := Y ∩ Z, from 3.2, 3.4
     have s3_5 : u ∈ A ∩ f ⁻¹' (Y ∩ Z) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∩ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := Y ∩ Z) (f := f) (u := u) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
-    all_goals parley_set_side
+    all_goals exact s3_5
   -- 4. def:subset, from 3
   have s4 : (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) ⊆ A ∩ f ⁻¹' (Y ∩ Z) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (Y := A ∩ f ⁻¹' (Y ∩ Z)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (Y := A ∩ f ⁻¹' (Y ∩ Z)))).mpr (by parley_set_side); parley_set_side)
   -- 5. mun:subset-antisymmetric, from 2, 4
-  have s5 : A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (by parley_set_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (by parley_set_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (by parley_set_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) (by parley_set_side) (by parley_set_side)); parley_set_side)
-  all_goals parley_set_side
+  have s5 : A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | exact ((Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_antisymmetric (X := A ∩ f ⁻¹' (Y ∩ Z)) (Y := (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z)) s2 s4); parley_set_side)
+  all_goals exact s5
 
 end Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection

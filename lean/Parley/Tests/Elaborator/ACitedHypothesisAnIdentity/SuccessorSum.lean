@@ -12,6 +12,6 @@ theorem successor_sum (i : ℕ) (j : ℕ) (hH2 : 0 < j) (hH3 : (j : ℤ) = (i : 
     2 * (j : ℤ) = 2 * (i : ℤ) + 2 := by
   -- 1. algebra, from H3
   have s1 : 2 * (j : ℤ) = 2 * (i : ℤ) + 2 := by linear_combination (norm := parley_norm) (2) * hH3
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum

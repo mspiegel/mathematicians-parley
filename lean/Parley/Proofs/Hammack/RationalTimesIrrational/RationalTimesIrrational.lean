@@ -35,6 +35,6 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (a : ℚ) (hH4 : Irrationa
     all_goals parley_side
   -- 2. def:irrational x := b, from 1
   have s2 : Irrational b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := b))).mpr (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.RationalTimesIrrational.RationalTimesIrrational

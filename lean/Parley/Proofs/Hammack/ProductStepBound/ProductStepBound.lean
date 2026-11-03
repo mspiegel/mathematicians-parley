@@ -31,6 +31,6 @@ theorem product_step_bound (t : ℝ) (p : ℝ) (hH3 : 0 < t) (hH4 : t ≤ 1 / 4)
   have s9 : p * (1 - t) = (1 - t) * p := by parley_ring
   -- 10. transitivity, from 9, 3, 4, 8
   have s10 : p * (1 - t) ≥ 1 / 4 + t / 2 := by parley_order
-  all_goals parley_side
+  all_goals exact s10
 
 end Parley.Proofs.Hammack.ProductStepBound.ProductStepBound

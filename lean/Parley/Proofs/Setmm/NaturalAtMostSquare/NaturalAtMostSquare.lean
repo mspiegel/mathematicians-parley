@@ -20,6 +20,6 @@ theorem natural_at_most_square (n : ℕ) (hH1 : 0 < n) :
   have s3 : (n : ℤ) ^ 2 = (n : ℤ) * (n : ℤ) := by parley_ring
   -- 4. transitivity, from 2, 3
   have s4 : (n : ℤ) ≤ (n : ℤ) ^ 2 := by parley_order
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.NaturalAtMostSquare.NaturalAtMostSquare

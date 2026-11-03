@@ -54,6 +54,6 @@ theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
       all_goals parley_side
   -- 2. instantiate m := n in line 1
   have s2 : 0 ≤ a ^ n := by first | linarith [(s1 n)] | (have h := (s1 n); push_cast at h; linarith) | exact_mod_cast (s1 n) | (have h := (s1 n); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative

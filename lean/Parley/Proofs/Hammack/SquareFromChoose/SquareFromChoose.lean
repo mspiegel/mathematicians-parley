@@ -42,6 +42,6 @@ theorem square_from_choose (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
   -- 2. instantiate m := n in line 1
   have s2 : (n : ℤ) ^ 2 = 2 * (LeanBridges.Counting.choose (n : ℤ) (2 : ℤ) : ℤ) + (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.SquareFromChoose.SquareFromChoose

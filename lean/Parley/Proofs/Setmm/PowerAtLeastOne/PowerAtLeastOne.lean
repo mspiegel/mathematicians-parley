@@ -35,6 +35,6 @@ theorem power_at_least_one (a : ℝ) (n : ℕ) (hH3 : 1 ≤ a) :
       all_goals parley_side
   -- 3. instantiate m := n in line 2
   have s3 : 1 ≤ a ^ n := by first | linarith [(s2 n)] | (have h := (s2 n); push_cast at h; linarith) | exact_mod_cast (s2 n) | (have h := (s2 n); parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.PowerAtLeastOne.PowerAtLeastOne

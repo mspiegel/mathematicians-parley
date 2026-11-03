@@ -26,7 +26,7 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
         intro t hK
         -- 3.1. def:intersection u := t, from 1, 2
         have s3_1 : t ∈ B ∩ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mpr (by parley_set_side); parley_set_side)
-        all_goals parley_set_side
+        all_goals exact s3_1
       -- 4. def:subset X := A, Y := B ∩ C, from 3
       have s4 : A ⊆ B ∩ C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B ∩ C))).mpr (by parley_set_side); parley_set_side)
       all_goals parley_set_side
@@ -39,13 +39,13 @@ theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set �
         intro t hK
         -- 6.1. def:intersection u := t, from 5
         have s6_1 : t ∈ B := by first | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side); parley_set_side)
-        all_goals parley_set_side
+        all_goals exact s6_1
       -- 7. proof
       have s7 : ∀ t ∈ A, t ∈ C := by
         intro t hK
         -- 7.1. def:intersection u := t, from 5
         have s7_1 : t ∈ C := by first | exact ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_intersection (Y := B) (Z := C) (u := t))).mp (by parley_set_side); parley_set_side)
-        all_goals parley_set_side
+        all_goals exact s7_1
       -- 8. def:subset X := A, Y := B, from 6
       have s8 : A ⊆ B := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := A) (Y := B))).mpr (by parley_set_side); parley_set_side)
       -- 9. def:subset X := A, Y := C, from 7

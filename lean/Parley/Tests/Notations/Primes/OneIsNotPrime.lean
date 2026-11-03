@@ -20,6 +20,6 @@ theorem one_is_not_prime :
     -- 2.1. def:prime p := 1, from S
     have s2_1 : (1 : ℤ) > 1 := by first | linarith [((Parley.Items.Stdlib.Divisibility.def_prime (p := 1) (by parley_side))).mp (by parley_side)] | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 1) (by parley_side))).mp (by parley_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_prime (p := 1) (by parley_side))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 1) (by parley_side))).mp (by parley_side); parley_side)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Notations.Primes.OneIsNotPrime

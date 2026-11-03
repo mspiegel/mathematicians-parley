@@ -19,6 +19,6 @@ theorem an_obtain_through_an_iff_said_of_itself (a : ℤ) :
   obtain ⟨q, s3⟩ := ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := 3) (by parley_side) (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side)))).mp (by parley_side)
   -- 4. exhibit, from 3
   have s4 : ∃ q : ℤ, q * 3 + a % (3 : ℤ) = a := ⟨q, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AnObtainThroughAnIffSaidOfItself

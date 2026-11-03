@@ -12,6 +12,6 @@ theorem a_membership_bound_added_by_inequalities (k : ℕ) (hH1 : 0 < k) :
     (k : ℤ) + 1 ≥ 2 := by
   -- 1. inequalities, from H1
   have s1 : (k : ℤ) + 1 ≥ 2 := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundAddedByInequalities

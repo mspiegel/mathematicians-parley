@@ -18,6 +18,6 @@ theorem a_square_of_five_is_not_zero (x : ℝ) (hH2 : x ^ 2 = 5) :
     have s1_1 : (5 : ℝ) = 0 := by linear_combination (norm := parley_norm) (-1) * hH2 + (x) * hS
     exact absurd s1_1 (by norm_num)
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.AnImpossibleLineByAlgebra.ASquareOfFiveIsNotZero

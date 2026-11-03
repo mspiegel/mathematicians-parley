@@ -23,6 +23,6 @@ theorem floor_below_non_integer (A : ℝ) (hH2 : ¬ (∃ m : ℤ, (m : ℝ) = A)
     all_goals parley_side
   -- 4. inequalities, from 1, 3
   have s4 : (⌊A⌋ : ℝ) < A := by parley_order
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger

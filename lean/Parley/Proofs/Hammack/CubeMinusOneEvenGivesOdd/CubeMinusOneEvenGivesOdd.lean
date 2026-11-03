@@ -26,10 +26,10 @@ theorem cube_minus_one_even_gives_odd (x : ℤ) (hH2 : Even (x ^ 3 - 1)) :
       -- 2.3. def:odd n := x³ − 1, from 2.2
       have s2_3 : Odd (x ^ 3 - 1) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x ^ 3 - 1))).mpr ⟨4 * k ^ 3 - 1, by parley_side⟩; parley_side)
       -- 2.4. mun:not-both n := x³ − 1, from H2
-      have s2_4 : ¬ Odd (x ^ 3 - 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) (by parley_side)); parley_side)
+      have s2_4 : ¬ Odd (x ^ 3 - 1) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x ^ 3 - 1) hH2); parley_side)
       all_goals parley_side
     · skip
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.CubeMinusOneEvenGivesOdd.CubeMinusOneEvenGivesOdd

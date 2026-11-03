@@ -16,6 +16,6 @@ theorem a_cited_line_narrows_a_letter (q : ℤ) (hH2 : q ≥ 0) (hH3 : ∀ k : �
   lift q to ℕ using (id s1)
   -- 2. instantiate k := 3q + 1 in H3, from 1
   have s2 : 3 * (q : ℤ) + 1 + 1 > 0 := by first | linarith [(hH3 (3 * q + 1))] | (have h := (hH3 (3 * q + 1)); push_cast at h; linarith) | exact_mod_cast (hH3 (3 * q + 1)) | (have h := (hH3 (3 * q + 1)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ACitedLineNarrowsALetter.ACitedLineNarrowsALetter

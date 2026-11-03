@@ -19,6 +19,6 @@ theorem scale_divisibility (M : ℤ) (N : ℤ) (K : ℤ) (hH4 : M ∣ N) :
       _ = K * M * c := by parley_ring
   -- 3. def:divides d := K·M, n := K·N, from 2
   have s3 : K * M ∣ K * N := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := K * M) (n := K * N))).mpr ⟨c, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := K * M) (n := K * N))).mpr ⟨c, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.ScaleDivisibility.ScaleDivisibility

@@ -39,6 +39,6 @@ theorem power_above_one (A : ℝ) (hH2 : 1 < A) (n : ℕ) (hH3 : 0 < n) :
       all_goals parley_side
   -- 2. instantiate k := n in line 1
   have s2 : 1 < A ^ n := by first | linarith [(s1 n (by parley_side))] | (have h := (s1 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.PowerAboveOne.PowerAboveOne

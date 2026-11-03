@@ -24,7 +24,7 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 2.3. def:even n := a²·(b² − 2b), from 2.2
       have s2_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨2 * m ^ 2 * (b ^ 2 - 2 * b), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨2 * m ^ 2 * (b ^ 2 - 2 * b), by parley_side⟩; parley_side)
       -- 2.4. mun:not-both n := a²·(b² − 2b), from 2.3
-      have s2_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)); parley_side)
+      have s2_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s2_3); parley_side)
       all_goals parley_side
     · skip
       all_goals parley_side
@@ -41,12 +41,12 @@ theorem odd_product_odd_factors (a : ℤ) (b : ℤ) (hH3 : Odd (a ^ 2 * (b ^ 2 -
       -- 4.3. def:even n := a²·(b² − 2b), from 4.2
       have s4_3 : Even (a ^ 2 * (b ^ 2 - 2 * b)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨a ^ 2 * (2 * m ^ 2 - 2 * m), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := a ^ 2 * (b ^ 2 - 2 * b)))).mpr ⟨a ^ 2 * (2 * m ^ 2 - 2 * m), by parley_side⟩; parley_side)
       -- 4.4. mun:not-both n := a²·(b² − 2b), from 4.3
-      have s4_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) (by parley_side)); parley_side)
+      have s4_4 : ¬ Odd (a ^ 2 * (b ^ 2 - 2 * b)) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := a ^ 2 * (b ^ 2 - 2 * b)) s4_3); parley_side)
       all_goals parley_side
     · skip
       all_goals parley_side
   -- 5. join 2, 4
   have s5 : Odd a ∧ Odd b := by parley_side
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Proofs.Hammack.OddProductOddFactors.OddProductOddFactors

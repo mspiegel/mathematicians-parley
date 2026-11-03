@@ -12,7 +12,7 @@ use crate::notations::{IN, NUMBER_SYSTEMS};
 use crate::outcome::Route;
 
 /// One binder of a statement.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub enum Binder {
     /// A letter of a type: its Lean name, and the letter as the page
     /// writes it, which a citation's values are given by.
@@ -25,7 +25,14 @@ pub enum Binder {
         general: bool,
     },
     /// A hypothesis, by its name, and what it says.
-    Fact { name: String, says: String },
+    Fact {
+        name: String,
+        says: String,
+        /// The line it is as the checker read it, where one is: what a
+        /// citation compares the lines it cites with, to name the one that
+        /// says it (`Proof::instance`).
+        line: Option<Node>,
+    },
 }
 
 impl Binder {
@@ -57,7 +64,7 @@ impl Binder {
                 ..
             } => format!("{{{name} : Type*}} [Group {name}]"),
             Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
-            Binder::Fact { name, says } => format!("({name} : {says})"),
+            Binder::Fact { name, says, .. } => format!("({name} : {says})"),
         }
     }
 }
@@ -316,16 +323,17 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 general: false,
                 ty,
             });
-            let says = match fact {
-                Fact::Said(f) => f,
+            let (says, line) = match fact {
+                Fact::Said(f) => (f, None),
                 Fact::Line => match writer.formula(a.node) {
-                    Route::Built(p) => p.text,
+                    Route::Built(p) => (p.text, Some(a.node.clone())),
                     Route::Declined(d) => return Route::Declined(d),
                 },
             };
             out.push(Binder::Fact {
                 name: a.name.clone(),
                 says,
+                line,
             });
             continue;
         }
@@ -343,6 +351,7 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
                 out.push(Binder::Fact {
                     name: a.name.clone(),
                     says: format!("0 < {name}"),
+                    line: None,
                 });
             }
             continue;
@@ -354,6 +363,7 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
         out.push(Binder::Fact {
             name: a.name.clone(),
             says: says.text,
+            line: Some(a.node.clone()),
         });
         // A term of a wider type said to be an integer is, in what is
         // asked after, the integer this hypothesis gives.

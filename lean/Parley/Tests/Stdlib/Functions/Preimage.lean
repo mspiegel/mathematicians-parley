@@ -14,6 +14,6 @@ theorem preimage {α : Type*} (A : Set α) (B : Set α) (C : Set α) (f : α →
     x ∈ A ∩ f ⁻¹' C := by
   -- 1. def:functions-preimage u := x, from H5, H6
   have s1 : x ∈ A ∩ f ⁻¹' C := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := C) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_preimage (X := A) (Z := C) (f := f) (u := x) (W := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Tests.Stdlib.Functions.Preimage

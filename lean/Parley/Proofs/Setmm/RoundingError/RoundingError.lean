@@ -55,6 +55,6 @@ theorem rounding_error (A : ℝ) :
       all_goals parley_side
   -- 11. substitute e = ⌊A + 1/2⌋ − A (D1) into line 10
   have s11 : abs ((⌊A + 1 / 2⌋ : ℝ) - A) ≤ 1 / 2 := by parley_subst_at hD1 s10
-  all_goals parley_side
+  all_goals exact s11
 
 end Parley.Proofs.Setmm.RoundingError.RoundingError

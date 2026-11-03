@@ -13,6 +13,6 @@ theorem a_square_made_ten_times (x : ℝ) (z : ℝ) (hH3 : x ^ 2 ≠ 0) :
   -- 1. algebra
   have r32_1 : x ^ 2 ≠ 0 := by parley_side
   have s1 : (1 / 10 * x ^ 3 + z) / x ^ 2 = (1 / 10 * x ^ 3 + z) / x ^ 2 := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.Divisors.ASquareMadeTenTimes

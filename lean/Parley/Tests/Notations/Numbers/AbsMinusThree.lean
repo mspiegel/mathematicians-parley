@@ -19,6 +19,6 @@ theorem abs_minus_three :
   have s3 : (abs (-3) : ℤ) = 3 := by
     calc (abs (-3) : ℤ) = -(-3) := by parley_side
       _ = 3 := by norm_num
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Notations.Numbers.AbsMinusThree

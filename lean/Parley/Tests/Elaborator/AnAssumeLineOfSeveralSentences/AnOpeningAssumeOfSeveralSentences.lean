@@ -23,6 +23,6 @@ theorem an_opening_assume_of_several_sentences (a : ℝ) (b : ℝ) :
         _ = 1 + 2 := by parley_side
         _ = 3 := by norm_num
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences

@@ -17,6 +17,6 @@ theorem a_divides_fold_with_its_witness (m : ℝ) (m : ℕ) (hH2 : 0 < m) (hH3 :
   have s2 : (3 : ℤ) ∣ p ^ 2 + q ^ 2 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2 + q ^ 2))).mpr ⟨(m : ℤ) ^ 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := p ^ 2 + q ^ 2))).mpr ⟨(m : ℤ) ^ 2, by parley_side⟩; parley_side)
   -- 3. substitute p² + q² = 3m² (line 1) into line 2
   have s3 : (3 : ℤ) ∣ 3 * (m : ℤ) ^ 2 := by parley_subst_at s1 s2
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Elaborator.ADividesFoldWithItsWitness.ADividesFoldWithItsWitness

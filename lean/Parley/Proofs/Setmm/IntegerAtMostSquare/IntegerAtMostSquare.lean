@@ -36,12 +36,12 @@ theorem integer_at_most_square (n : ℤ) :
       all_goals parley_side
     · skip
       -- 4.6. mun:integer-step m := 0, from C3
-      have s4_6 : 1 ≤ n := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) (by parley_side)); parley_side)
+      have s4_6 : 1 ≤ n := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (0 : ℤ)) (n := n) hC3); parley_side)
       -- 4.7. mun:multiply-le x := 1, y := n, c := n, from C3, 4.6
       have s4_7 : n * 1 ≤ n * n := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (1 : ℤ)) (y := n) (c := n) (by parley_side) (by parley_side)); parley_side)
       -- 4.8. inequalities
       have s4_8 : n ≤ n ^ 2 := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.IntegerAtMostSquare.IntegerAtMostSquare

@@ -12,6 +12,6 @@ theorem a_fraction_not_natural :
     ¬ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = 1 / 76) := by
   -- 1. arithmetic
   have s1 : ¬ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = 1 / 76) := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ClosedValues.AFractionNotNatural

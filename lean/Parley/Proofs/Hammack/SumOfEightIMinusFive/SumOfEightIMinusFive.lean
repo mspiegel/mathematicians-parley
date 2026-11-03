@@ -41,6 +41,6 @@ theorem sum_of_eight_i_minus_five (n : ℕ) (hH1 : 0 < n) :
   have s2 : (∑ i ∈ Finset.Icc (1 : ℤ) (n : ℤ), (8 * i - 5 : ℤ)) = 4 * (n : ℤ) ^ 2 - (n : ℤ) := by
     calc (∑ i ∈ Finset.Icc (1 : ℤ) (n : ℤ), (8 * i - 5 : ℤ)) = S n := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ = 4 * (n : ℤ) ^ 2 - (n : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.SumOfEightIMinusFive.SumOfEightIMinusFive

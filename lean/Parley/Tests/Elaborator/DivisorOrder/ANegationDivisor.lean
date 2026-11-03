@@ -12,6 +12,6 @@ theorem a_negation_divisor (x : ℝ) (hH2 : x ≠ 0) (hH3 : -x ≠ 0) :
     1 / -x = -(1 / x) := by
   -- 1. algebra, from H2
   have s1 : 1 / -x = -(1 / x) := by parley_ring
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.DivisorOrder.ANegationDivisor

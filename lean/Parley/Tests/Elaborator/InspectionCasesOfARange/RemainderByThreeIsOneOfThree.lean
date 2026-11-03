@@ -41,6 +41,6 @@ theorem remainder_by_three_is_one_of_three (n : ℤ) :
         calc n % (3 : ℤ) = 2 := by parley_side
           _ ≤ 2 := by norm_num
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s5
 
 end Parley.Tests.Elaborator.InspectionCasesOfARange.RemainderByThreeIsOneOfThree

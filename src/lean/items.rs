@@ -674,6 +674,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         "Set.MapsTo {name} {domain} {}",
                         b.at(super::expr::MAX)
                     ),
+                    line: None,
                 });
                 w.domains.insert(f.text.to_string(), domain);
             }

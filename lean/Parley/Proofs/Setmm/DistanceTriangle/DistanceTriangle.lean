@@ -18,6 +18,6 @@ theorem distance_triangle (A : ℝ) (B : ℝ) (C : ℝ) :
     have c1 : A - C + (C - B) = A - B := by parley_ring
     have row1 : abs (A - B) ≤ abs (A - C) + abs (C - B) := by parley_subst_at c1 s1
     exact row1
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.DistanceTriangle.DistanceTriangle

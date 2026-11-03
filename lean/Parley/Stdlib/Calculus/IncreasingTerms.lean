@@ -40,7 +40,7 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : 
         rcases s1_5 with hC1 | hC2
         · skip
           -- 1.6.1. mun:integer-step n := n + 1, from C1
-          have s1_6_1 : (m : ℤ) + 1 ≤ (n : ℤ) + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) (by parley_side)); parley_side)
+          have s1_6_1 : (m : ℤ) + 1 ≤ (n : ℤ) + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (m : ℤ)) (n := (n : ℤ) + 1) hC1); parley_side)
           -- 1.6.2. inequalities
           have s1_6_2 : (m : ℤ) ≤ (n : ℤ) := by parley_order
           -- 1.6.3. instantiate m := m in IH, from 1.6.2
@@ -59,6 +59,6 @@ theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : 
           have s1_6_7 : x (m : ℤ) ≤ x ((n : ℤ) + 1) := by parley_order
           all_goals parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Stdlib.Calculus.IncreasingTerms

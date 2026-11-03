@@ -36,6 +36,6 @@ theorem odd_quadratic_always (n : ℤ) :
       -- 2.6. def:odd n := 5n² + 3n + 7, from 2.5
       have s2_6 : Odd (5 * n ^ 2 + 3 * n + 7) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 5 * n ^ 2 + 3 * n + 7))).mpr ⟨10 * k ^ 2 + 13 * k + 7, by parley_side⟩; parley_side)
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.OddQuadraticAlways.OddQuadraticAlways

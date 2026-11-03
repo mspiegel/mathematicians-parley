@@ -51,6 +51,6 @@ theorem harmonic_unbounded (M : ℝ) :
   have s6 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N : ℤ), (1 / (k : ℝ) : ℝ)) > M := by parley_order
   -- 7. exhibit, from 6
   have s7 : ∃ n : ℕ, 0 < n ∧ (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / (k : ℝ) : ℝ)) > M := ⟨2 ^ N, by parley_side, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s7
 
 end Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded

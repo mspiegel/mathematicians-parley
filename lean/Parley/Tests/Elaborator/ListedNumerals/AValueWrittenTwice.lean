@@ -13,6 +13,6 @@ theorem a_value_written_twice :
     ({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).encard = ((2 : ℕ) : ℕ∞) := by
   -- 1. inspection
   have s1 : ({(2 : ℤ), (3 : ℤ), (2 : ℤ)} : Set ℤ).encard = ((2 : ℕ) : ℕ∞) := by parley_set_side
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ListedNumerals.AValueWrittenTwice

@@ -31,6 +31,6 @@ theorem even_power_of_minus_one (k : ℕ) :
       all_goals parley_side
   -- 2. instantiate j := k in line 1
   have s2 : ((-1) ^ (2 * k) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (s1 k) | (have h := (s1 k); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 k); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 k) | exact_mod_cast ((s1 k)).symm | (have h := (s1 k); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 k); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 k); parley_int_power h) | (have h := (s1 k); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.EvenPowerOfMinusOne

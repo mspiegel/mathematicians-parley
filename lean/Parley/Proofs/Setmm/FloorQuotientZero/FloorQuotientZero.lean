@@ -36,6 +36,6 @@ theorem floor_quotient_zero (A : ℕ) (B : ℕ) (hH2 : 0 < B) :
       -- 3.6. transitivity, from 1, 3.5
       have s3_6 : (A : ℤ) < (B : ℤ) := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.FloorQuotientZero.FloorQuotientZero

@@ -17,6 +17,6 @@ theorem a_range_bound_contradicted (n : ℤ) (k : ℤ) (hH2 : k ∈ Finset.Icc (
     -- 1.1. inequalities, from S
     have s1_1 : ¬ k ≤ n := by parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.ARangeBoundContradicted

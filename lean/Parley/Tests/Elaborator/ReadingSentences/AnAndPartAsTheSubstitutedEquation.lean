@@ -12,6 +12,6 @@ theorem an_and_part_as_the_substituted_equation (a : ℝ) (b : ℝ) (hH3 : a = 1
     a + b = a + 2 := by
   -- 1. substitute b = 2 (H3)
   have s1 : a + b = a + 2 := by parley_subst hH3.2
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingSentences.AnAndPartAsTheSubstitutedEquation

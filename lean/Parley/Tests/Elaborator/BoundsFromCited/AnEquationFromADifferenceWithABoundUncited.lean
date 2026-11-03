@@ -12,6 +12,6 @@ theorem an_equation_from_a_difference_with_a_bound_uncited (a : ℝ) (b : ℝ) (
     a = b := by
   -- 1. inequalities
   have s1 : a = b := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.BoundsFromCited.AnEquationFromADifferenceWithABoundUncited

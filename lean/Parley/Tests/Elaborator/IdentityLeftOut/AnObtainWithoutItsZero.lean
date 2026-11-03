@@ -14,6 +14,6 @@ theorem an_obtain_without_its_zero (A : ℤ) (N : ℕ) (hH2 : 0 < N) (hH3 : ∃ 
   obtain ⟨q, s1⟩ := hH3
   -- 2. exhibit, from 1
   have s2 : ∃ k : ℤ, k * (N : ℤ) = A := ⟨q, by parley_side⟩
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.IdentityLeftOut.AnObtainWithoutItsZero

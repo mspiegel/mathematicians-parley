@@ -12,6 +12,6 @@ theorem a_congruence_the_other_way_substituted_into (a : ℤ) (b : ℤ) (c : ℤ
     c ≡ b [ZMOD (n : ℤ)] := by
   -- 1. substitute a = c (H6) into H5
   have s1 : c ≡ b [ZMOD (n : ℤ)] := by parley_subst_at hH6 hH5
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWaySubstitutedInto

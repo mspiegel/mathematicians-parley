@@ -26,6 +26,6 @@ theorem odd_from_square (a : ℤ) (hH2 : ¬ (4 : ℤ) ∣ a ^ 2) :
       all_goals parley_side
     · skip
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.OddFromSquare.OddFromSquare

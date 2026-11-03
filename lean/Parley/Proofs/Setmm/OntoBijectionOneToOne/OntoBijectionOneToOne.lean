@@ -13,6 +13,6 @@ theorem onto_bijection_one_to_one {α : Type*} (A : Set α) (B : Set α) (F : α
     (Set.MapsTo F A B ∧ Set.InjOn F A) := by
   -- 1. restate H3
   have s1 : Set.MapsTo F A B ∧ Set.InjOn F A := by parley_set_side
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Proofs.Setmm.OntoBijectionOneToOne.OntoBijectionOneToOne

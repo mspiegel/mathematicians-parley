@@ -38,6 +38,6 @@ theorem both_even_from_product_and_sum (a : ℤ) (b : ℤ) (hH3 : Even (a * b)) 
       -- 3.8. join C2, 3.7
       have s3_8 : Even a ∧ Even b := by parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.BothEvenFromProductAndSum.BothEvenFromProductAndSum

@@ -12,6 +12,6 @@ theorem a_negative_divisor :
     (-3 : ℤ) ∣ (9 : ℤ) := by
   -- 1. arithmetic
   have s1 : (-3 : ℤ) ∣ (9 : ℤ) := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.SignedDivisibility.ANegativeDivisor

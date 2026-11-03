@@ -17,6 +17,6 @@ theorem a_congruence_chain_opening_with_an_equation (a : ℤ) (b : ℤ) (n : ℕ
     calc a * (Classical.choose hH5) = (Classical.choose hH5) * a := by parley_side
       _ ≡ b [ZMOD (n : ℤ)] := by parley_side
       _ ≡ 1 [ZMOD (n : ℤ)] := by parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.ACongruenceChainOpeningWithAnEquation.ACongruenceChainOpeningWithAnEquation

@@ -35,6 +35,6 @@ theorem sqrt_of_sum_bound (a : ℝ) (b : ℝ) (hH3 : a ≥ 0) (hH4 : b ≥ 0) :
       _ = (Real.sqrt a + Real.sqrt b) ^ 2 := by linear_combination (norm := parley_norm) (-1) * s1b + (-1) * s2b
   -- 9. mun:square-le x := √(a + b), y := √a + √b, from 1, 2, 4, 5, 8
   have s9 : Real.sqrt (a + b) ≤ Real.sqrt a + Real.sqrt b := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) (by parley_side) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_square_le (x := Real.sqrt (a + b)) (y := Real.sqrt a + Real.sqrt b) (by parley_side) (by parley_side))).mpr (by parley_side); parley_side)
-  all_goals parley_side
+  all_goals exact s9
 
 end Parley.Proofs.Identities.SqrtOfSumBound.SqrtOfSumBound

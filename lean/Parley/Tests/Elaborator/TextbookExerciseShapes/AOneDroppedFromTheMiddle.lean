@@ -17,6 +17,6 @@ theorem a_one_dropped_from_the_middle (b : ℤ → ℝ) (k : ℤ) (j : ℕ) :
   have s2 : b k * 1 ^ j * 1 ^ k = b k * 1 ^ k := by
     have s1_w : (1 ^ j : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1; push_cast at h; linear_combination (norm := parley_norm) h
     first | parley_subst s1_w | parley_subst s1
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.TextbookExerciseShapes.AOneDroppedFromTheMiddle

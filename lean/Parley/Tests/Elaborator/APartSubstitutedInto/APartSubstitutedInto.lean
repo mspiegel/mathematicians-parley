@@ -13,6 +13,6 @@ theorem a_part_substituted_into {α : Type*} (X : Set α) (R : Set α) (hH2 : R 
     R ⊆ ∅ := by
   -- 1. substitute X = ∅ (H3) into H2
   have s1 : R ⊆ ∅ := by parley_subst_at hH3 hH2
-  all_goals parley_set_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto

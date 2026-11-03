@@ -39,7 +39,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
           -- 3.2.5. def:odd n := x + y, from 3.2.4
           have s3_2_5 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩; parley_side)
           -- 3.2.6. mun:not-both n := x + y, from H3
-          have s3_2_6 : ¬ Odd (x + y) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)); parley_side)
+          have s3_2_6 : ¬ Odd (x + y) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3); parley_side)
           all_goals parley_side
       all_goals parley_side
     · skip
@@ -56,7 +56,7 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
           -- 3.4.3. def:odd n := x + y, from 3.4.2
           have s3_4_3 : Odd (x + y) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := x + y))).mpr ⟨a + b, by parley_side⟩; parley_side)
           -- 3.4.4. mun:not-both n := x + y, from H3
-          have s3_4_4 : ¬ Odd (x + y) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) (by parley_side)); parley_side)
+          have s3_4_4 : ¬ Odd (x + y) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | exact ((Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3) | (have h := (Parley.Items.Stdlib.Divisibility.mun_not_both (n := x + y) hH3); parley_side)
           all_goals parley_side
         · skip
           -- 3.4.5. join C4, C6
@@ -65,6 +65,6 @@ theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
           have s3_4_6 : Even x ∧ Even y ∨ Odd x ∧ Odd y := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even x ∧ Even y) (Q := Odd x ∧ Odd y) (by parley_side)); parley_side)
           all_goals parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.SumEvenSameParity.SumEvenSameParity

@@ -12,6 +12,6 @@ theorem a_second_sentence_in_a_transitivity (a : ℝ) (b : ℝ) (c : ℝ) (hH4a 
     b < 0 := by
   -- 1. transitivity, from H4, H5
   have s1 : b < 0 := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingSentences.ASecondSentenceInATransitivity

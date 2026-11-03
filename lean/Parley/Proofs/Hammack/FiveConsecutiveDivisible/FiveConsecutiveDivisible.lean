@@ -23,7 +23,7 @@ theorem five_consecutive_divisible (n : ℤ) :
       -- 2.1. inequalities, from C1
       have s2_1 : 0 < n := by parley_order
       -- 2.2. mun:pos-int-nat m := n, from 2.1
-      have s2_2 : 0 < n := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) (by parley_side)); parley_side)
+      have s2_2 : 0 < n := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := n) s2_1); parley_side)
       lift n to ℕ using s2_2.le
       -- 2.3. mun:nat-minus-one, from 2.2
       have s2_3 : 0 ≤ (n : ℤ) - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_side)); parley_side)
@@ -45,7 +45,7 @@ theorem five_consecutive_divisible (n : ℤ) :
           -- 2.7.1. inequalities, from C2
           have s2_7_1 : n < 1 := by parley_order
           -- 2.7.2. mun:integer-step m := n, n := 1, from 2.7.1
-          have s2_7_2 : n + 1 ≤ 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) (by parley_side)); parley_side)
+          have s2_7_2 : n + 1 ≤ 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n) (n := (1 : ℤ)) s2_7_1); parley_side)
           -- 2.7.3. inequalities, from 2.7.2
           have s2_7_3 : n + 4 ≤ 4 := by parley_order
           -- 2.7.4. def:range-between k := n + 4, a := 0, b := 4, from C3, 2.7.3
@@ -88,7 +88,7 @@ theorem five_consecutive_divisible (n : ℤ) :
           all_goals parley_side
         · skip
           -- 2.7.7. mun:integer-step m := n + 4, n := 0, from C9
-          have s2_7_7 : n + 4 + 1 ≤ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) (by parley_side)); parley_side)
+          have s2_7_7 : n + 4 + 1 ≤ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := n + 4) (n := (0 : ℤ)) hC9); parley_side)
           -- 2.7.8. inequalities
           have s2_7_8 : 1 ≤ -n - 4 := by parley_order
           -- 2.7.9. inequalities, from 2.7.8
@@ -103,7 +103,7 @@ theorem five_consecutive_divisible (n : ℤ) :
             try push_cast at *
             first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (k - 1) by parley_side) ▸ (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := (k - 1).toNat))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (k - 1) by parley_side) ▸ (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := (k - 1).toNat)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (k - 1) by parley_side) ▸ (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := (k - 1).toNat))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (k - 1) by parley_side) ▸ (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := (k - 1).toNat))) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (k - 1) by parley_side) ▸ (Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural.five_consecutive_natural (m := (k - 1).toNat))); parley_side)
           -- 2.7.12. mun:divides-multiple e := 120, a := P, x := −1, from 2.7.11
-          have s2_7_12 : (120 : ℤ) ∣ P * -1 := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) (by parley_side)); parley_side)
+          have s2_7_12 : (120 : ℤ) ∣ P * -1 := by first | exact (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11) | exact ((Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11)).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_multiple (e := (120 : ℤ)) (a := P) (x := (-1 : ℤ)) s2_7_11); parley_side)
           -- 2.7.13. algebra, from D1, D2
           have s2_7_13 : P * -1 = n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by
             try simp only [hD1, hD2] at *
@@ -113,6 +113,6 @@ theorem five_consecutive_divisible (n : ℤ) :
           have s2_7_14 : (120 : ℤ) ∣ n * (n + 1) * (n + 2) * (n + 3) * (n + 4) := by parley_subst_at s2_7_13 s2_7_12
           all_goals parley_side
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible

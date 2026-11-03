@@ -39,6 +39,6 @@ theorem binomial_of_two (m : ℕ) :
       all_goals parley_side
   -- 2. instantiate j := m in line 1
   have s2 : 2 * (LeanBridges.Counting.choose (m : ℤ) (2 : ℤ) : ℤ) = (m : ℤ) * ((m : ℤ) - 1) := by first | linear_combination (norm := parley_norm) (s1 m) | (have h := (s1 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 m); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 m) | exact_mod_cast ((s1 m)).symm | (have h := (s1 m); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 m); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 m); parley_int_power h) | (have h := (s1 m); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo

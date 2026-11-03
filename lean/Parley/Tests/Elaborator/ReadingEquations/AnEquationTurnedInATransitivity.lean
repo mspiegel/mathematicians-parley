@@ -12,6 +12,6 @@ theorem an_equation_turned_in_a_transitivity (a : ℝ) (b : ℝ) (c : ℝ) (hH4 
     a < c := by
   -- 1. transitivity, from H4, H5
   have s1 : a < c := by parley_order
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingEquations.AnEquationTurnedInATransitivity

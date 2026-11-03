@@ -19,6 +19,6 @@ theorem odd_quadratic (a : ℤ) (hH2 : Odd a) :
       _ = 2 * (2 * k ^ 2 + 5 * k + 4) + 1 := by parley_ring
   -- 3. def:odd n := a² + 3a + 5, from 2
   have s3 : Odd (a ^ 2 + 3 * a + 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 3 * a + 5))).mpr ⟨2 * k ^ 2 + 5 * k + 4, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a ^ 2 + 3 * a + 5))).mpr ⟨2 * k ^ 2 + 5 * k + 4, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.OddQuadratic.OddQuadratic

@@ -12,6 +12,6 @@ theorem minus_three_not_natural :
     ¬ 0 ≤ -3 := by
   -- 1. arithmetic
   have s1 : ¬ 0 ≤ -3 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Notations.Negatives.MinusThreeNotNatural

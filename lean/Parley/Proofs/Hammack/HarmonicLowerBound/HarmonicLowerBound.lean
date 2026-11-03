@@ -40,6 +40,6 @@ theorem harmonic_lower_bound (n : ℕ) (hH1 : 0 < n) :
       all_goals parley_side
   -- 3. instantiate m := n in line 2
   have s3 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ n : ℤ), (1 / (k : ℚ) : ℚ)) ≥ 1 + (n : ℚ) / 2 := by first | linarith [(s2 n (by parley_side))] | (have h := (s2 n (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2 n (by parley_side)) | (have h := (s2 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicLowerBound

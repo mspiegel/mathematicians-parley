@@ -14,6 +14,6 @@ theorem two_bounds_in_a_row (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a ≤ b) (hH5 :
   have s1 : a ≤ c := by
     calc a ≤ b := by parley_side
       _ ≤ c := by parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.OrderChains.TwoBoundsInARow

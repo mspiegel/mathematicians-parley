@@ -20,6 +20,6 @@ theorem floor_integer_add (N : ℤ) (A : ℝ) :
     calc ⌊(N : ℝ) + A⌋ = ⌊A + (N : ℝ)⌋ := by parley_subst s2
       _ = ⌊A⌋ + N := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)) | exact_mod_cast ((Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N))).symm | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); parley_int_power h) | (have h := (Parley.Proofs.Setmm.FloorBasics.FloorAddInteger.floor_add_integer (A := A) (N := N)); parley_side)
       _ = N + ⌊A⌋ := by parley_ring
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.FloorBasics.FloorIntegerAdd

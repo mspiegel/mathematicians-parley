@@ -26,6 +26,6 @@ theorem a_contradiction_ending_in_cases (x : ℝ) (hH2 : x > 2 ∨ x > 1) :
         have s1_1_2 : x > 0 := by parley_order
         all_goals parley_side
     all_goals parley_side
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.TextbookExerciseShapesTwo.AContradictionEndingInCases

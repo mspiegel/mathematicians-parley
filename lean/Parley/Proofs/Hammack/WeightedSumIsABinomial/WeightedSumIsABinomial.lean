@@ -36,7 +36,7 @@ theorem weighted_sum_is_a_binomial (n : ℕ) (hH1 : 0 < n) :
         intro i hL
         -- 1.2.1. algebra
         have s1_2_1 : i * ((j : ℤ) + 1 - i + 1) = i * ((j : ℤ) - i + 1) + i := by parley_ring
-        all_goals parley_side
+        all_goals exact s1_2_1
       -- 1.3. membership
       -- 1.4. membership
       -- 1.5. membership
@@ -83,6 +83,6 @@ theorem weighted_sum_is_a_binomial (n : ℕ) (hH1 : 0 < n) :
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (k * ((n : ℤ) - k + 1) : ℤ)) = (LeanBridges.Counting.choose ((n : ℤ) + 2) (3 : ℤ) : ℤ) := by
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (k * ((n : ℤ) - k + 1) : ℤ)) = T n := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ = (LeanBridges.Counting.choose ((n : ℤ) + 2) (3 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.WeightedSumIsABinomial.WeightedSumIsABinomial

@@ -32,6 +32,6 @@ theorem square_roots_equal (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : 0 ≤ b) :
       -- 2.3. substitute a = b (D2)
       have s2_3 : Real.sqrt a = Real.sqrt b := by parley_subst hD2
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.SquareRootsEqual.SquareRootsEqual

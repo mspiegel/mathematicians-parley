@@ -27,10 +27,10 @@ theorem less_than_an_integer (A : ℝ) (B : ℤ) :
     · skip
       intro hC2
       -- 4.2. mun:integer-step m := ⌊A⌋, n := B, from C2, 1
-      have s4_2 : ⌊A⌋ + 1 ≤ B := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) (by parley_side)); parley_side)
+      have s4_2 : ⌊A⌋ + 1 ≤ B := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) hC2)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) hC2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) hC2) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := ⌊A⌋) (n := B) hC2); parley_side)
       -- 4.3. transitivity, from 3, 4.2
       have s4_3 : A < (B : ℝ) := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s4
 
 end Parley.Proofs.Setmm.LessThanAnInteger.LessThanAnInteger

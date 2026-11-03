@@ -16,6 +16,6 @@ theorem the_power_said_not_zero_whole (t : ℝ) (F : ℝ) (hH3 : t ≠ 0) (hH4 :
   -- 2. algebra, from H4
   have r42_1 : t ^ 2 ≠ 0 := by parley_side
   have s2 : F * t ^ 2 = 1 := by linear_combination (norm := parley_field) (t ^ 2) * hH4
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Elaborator.CitedEquationDivisorAPower.ThePowerSaidNotZeroWhole

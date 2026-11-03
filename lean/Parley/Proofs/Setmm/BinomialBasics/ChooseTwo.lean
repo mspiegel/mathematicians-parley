@@ -104,6 +104,6 @@ theorem choose_two (N : ℕ) :
               have hC2_w : (N : ℚ) = 0 := by have h := congrArg (fun x : ℤ => (x : ℚ)) hC2; push_cast at h; linear_combination (norm := parley_norm) h
               linear_combination (norm := parley_norm) ((-(N : ℚ) + 1) / ((2))) * hC2_w
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.BinomialBasics.ChooseTwo

@@ -20,7 +20,7 @@ theorem a_for_all_line_contradicted (hH1 : ∀ x : ℝ, x ^ 2 + 1 ≠ 0) :
       -- 1.1.1. restate S
       have s1_1_1 : y ^ 2 + 1 = 0 := by parley_side
       all_goals parley_side
-    all_goals parley_side
-  all_goals parley_side
+    all_goals exact s1_1
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingBlockLetters.AForAllLineContradicted

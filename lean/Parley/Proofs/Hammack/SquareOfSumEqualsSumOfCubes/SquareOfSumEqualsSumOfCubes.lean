@@ -46,6 +46,6 @@ theorem square_of_sum_equals_sum_of_cubes (n : ℕ) (hH1 : 0 < n) :
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) : ℚ)) ^ 2 = ((n : ℚ) * ((n : ℚ) + 1) / 2) ^ 2 := by parley_subst s2
       _ = (C n : ℚ) := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
       _ = (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) ^ 3 : ℚ)) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Hammack.SquareOfSumEqualsSumOfCubes.SquareOfSumEqualsSumOfCubes

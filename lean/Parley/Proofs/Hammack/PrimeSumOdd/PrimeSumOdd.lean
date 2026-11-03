@@ -34,7 +34,7 @@ theorem prime_sum_odd (p : ℕ) (hH1 : 0 < p) (q : ℕ) (hH2 : 0 < q) (hH3 : Nat
       -- 6.3. instantiate d := 2 in line 4
       have s6_3 : (2 : ℤ) ∣ (q : ℤ) → (2 : ℤ) = 1 ∨ 2 = (q : ℤ) := by first | exact (s4 2 (by parley_side)) | exact ((s4 2 (by parley_side))).symm | simpa using (s4 2 (by parley_side)) | exact_mod_cast (s4 2 (by parley_side)) | (have h := (s4 2 (by parley_side)); parley_side)
       -- 6.4. mun:modus-ponens P := 2 divides q, from 6.2, 6.3
-      have s6_4 : (2 : ℤ) = 1 ∨ 2 = (q : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) (by parley_side) (by parley_side)); parley_side)
+      have s6_4 : (2 : ℤ) = 1 ∨ 2 = (q : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) s6_3 s6_2) | exact ((Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) s6_3 s6_2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) s6_3 s6_2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) s6_3 s6_2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_modus_ponens (P := (2 : ℤ) ∣ (q : ℤ)) (Q := (2 : ℤ) = 1 ∨ 2 = (q : ℤ)) s6_3 s6_2); parley_side)
       -- 6.5. cases, from 6.4
       have s6_5 : 2 = (q : ℤ) := by
         rcases s6_4 with hC2 | hC3
@@ -55,6 +55,6 @@ theorem prime_sum_odd (p : ℕ) (hH1 : 0 < p) (q : ℕ) (hH2 : 0 < q) (hH3 : Nat
   have s8 : 2 * (p : ℤ) + (q : ℤ) ^ 2 = 2 * ((p : ℤ) + 2 * k ^ 2 + 2 * k) + 1 := by linear_combination (norm := parley_norm) (2 * k + (q : ℤ) + 1) * s7
   -- 9. def:odd n := 2p + q², from 8
   have s9 : Odd (2 * (p : ℤ) + (q : ℤ) ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * (p : ℤ) + (q : ℤ) ^ 2))).mpr ⟨(p : ℤ) + 2 * k ^ 2 + 2 * k, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_odd (n := 2 * (p : ℤ) + (q : ℤ) ^ 2))).mpr ⟨(p : ℤ) + 2 * k ^ 2 + 2 * k, by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s9
 
 end Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd

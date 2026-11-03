@@ -40,6 +40,6 @@ theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
       -- 2.9. inequalities
       have s2_9 : a ^ 2 ≤ b ^ 2 := by parley_order
       all_goals parley_side
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder

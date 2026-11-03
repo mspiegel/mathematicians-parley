@@ -20,6 +20,6 @@ theorem value_of_onto {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH
   obtain ⟨x, s2a, s2b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := A) (Y := A) (f := F) (u := y) (W := Set.univ) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side)
   -- 3. exhibit, from 2
   have s3 : ∃ x ∈ A, y = F x := ⟨x, by parley_set_side, by parley_set_side⟩
-  all_goals parley_set_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto

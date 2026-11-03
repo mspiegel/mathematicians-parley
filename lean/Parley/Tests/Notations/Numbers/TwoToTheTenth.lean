@@ -12,6 +12,6 @@ theorem two_to_the_tenth :
     (2 ^ 10 : ℤ) = 1024 := by
   -- 1. arithmetic
   have s1 : (2 ^ 10 : ℤ) = 1024 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Notations.Numbers.TwoToTheTenth

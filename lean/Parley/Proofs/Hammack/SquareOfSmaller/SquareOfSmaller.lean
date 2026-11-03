@@ -23,6 +23,6 @@ theorem square_of_smaller (x : ℝ) (y : ℝ) (hH3 : x > 0) (hH4 : y > 0) (hH5 :
   have s5 : y * y = y ^ 2 := by parley_ring
   -- 6. transitivity, from 3, 1, 4, 2, 5
   have s6 : x ^ 2 < y ^ 2 := by parley_order
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Hammack.SquareOfSmaller.SquareOfSmaller

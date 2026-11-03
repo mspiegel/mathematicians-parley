@@ -78,6 +78,6 @@ theorem nine_power_is_three_power (m : ℤ) :
   have r191_1 : (3 : ℤ) > 0 := by parley_arith
   -- 6. algebra, from 3, 4, 5
   have s6 : (9 ^ m : ℚ) = 3 ^ (2 * m) := by linear_combination (norm := parley_norm) (-1) * s3 + s4
-  all_goals parley_side
+  all_goals exact s6
 
 end Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower

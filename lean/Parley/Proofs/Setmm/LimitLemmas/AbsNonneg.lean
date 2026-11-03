@@ -18,6 +18,6 @@ theorem abs_nonneg (x : ℝ) :
   have s2 : 0 ≤ 2 * abs x := by parley_order
   -- 3. inequalities
   have s3 : abs x ≥ 0 := by parley_order
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Proofs.Setmm.LimitLemmas.AbsNonneg

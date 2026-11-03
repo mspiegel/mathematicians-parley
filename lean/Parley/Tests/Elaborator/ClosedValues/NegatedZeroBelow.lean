@@ -12,6 +12,6 @@ theorem negated_zero_below :
     (-0 : ℤ) ≤ 64 := by
   -- 1. arithmetic
   have s1 : (-0 : ℤ) ≤ 64 := by parley_arith
-  all_goals parley_side
+  all_goals exact s1
 
 end Parley.Tests.Elaborator.ClosedValues.NegatedZeroBelow

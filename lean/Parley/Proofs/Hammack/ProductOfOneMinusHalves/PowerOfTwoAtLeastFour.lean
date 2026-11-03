@@ -35,6 +35,6 @@ theorem power_of_two_at_least_four (m : ℕ) (hH1 : 0 < m) :
       all_goals parley_side
   -- 2. instantiate k := m in line 1
   have s2 : (2 ^ (m + 1) : ℤ) ≥ 4 := by first | linarith [(s1 m (by parley_side))] | (have h := (s1 m (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s1 m (by parley_side)) | (have h := (s1 m (by parley_side)); parley_side)
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour

@@ -19,6 +19,6 @@ theorem an_assume_line_of_several_sentences (a : ℝ) (b : ℝ) (hH3a : a = 1) (
     calc a + b = 1 + b := by parley_side
       _ = 1 + 2 := by parley_side
       _ = 3 := by norm_num
-  all_goals parley_side
+  all_goals exact s3
 
 end Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLineOfSeveralSentences

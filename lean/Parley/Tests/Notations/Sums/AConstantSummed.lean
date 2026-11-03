@@ -18,6 +18,6 @@ theorem a_constant_summed :
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (5 : ℤ)) = 15 := by
     calc (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (5 : ℤ)) = (3 - 1 + 1) * 5 := by parley_side
       _ = 15 := by norm_num
-  all_goals parley_side
+  all_goals exact s2
 
 end Parley.Tests.Notations.Sums.AConstantSummed

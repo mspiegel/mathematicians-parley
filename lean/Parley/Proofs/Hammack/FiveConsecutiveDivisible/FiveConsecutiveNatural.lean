@@ -43,6 +43,6 @@ theorem five_consecutive_natural (m : ℕ) :
   have s11 : ((m : ℤ) + 1) * ((m : ℤ) + 2) * ((m : ℤ) + 3) * ((m : ℤ) + 4) * ((m : ℤ) + 5) = 120 * (LeanBridges.Counting.choose ((m : ℤ) + 5) (5 : ℤ) : ℤ) := by linear_combination (norm := parley_norm) (-24) * s6 + (-(m : ℤ) - 5) * s10
   -- 12. def:divides d := 120, n := (m + 1)·(m + 2)·(m + 3)·(m + 4)·(m + 5), from 11
   have s12 : (120 : ℤ) ∣ ((m : ℤ) + 1) * ((m : ℤ) + 2) * ((m : ℤ) + 3) * ((m : ℤ) + 4) * ((m : ℤ) + 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := ((m : ℤ) + 1) * ((m : ℤ) + 2) * ((m : ℤ) + 3) * ((m : ℤ) + 4) * ((m : ℤ) + 5)))).mpr ⟨(LeanBridges.Counting.choose ((m : ℤ) + 5) (5 : ℤ) : ℤ), by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (120 : ℤ)) (n := ((m : ℤ) + 1) * ((m : ℤ) + 2) * ((m : ℤ) + 3) * ((m : ℤ) + 4) * ((m : ℤ) + 5)))).mpr ⟨(LeanBridges.Counting.choose ((m : ℤ) + 5) (5 : ℤ) : ℤ), by parley_side⟩; parley_side)
-  all_goals parley_side
+  all_goals exact s12
 
 end Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural
