@@ -27,7 +27,7 @@ definition interval
   let b ∈ ℝ                                                           (H2)
   then        x ∈ [a, b] ↔ x ∈ ℝ and a ≤ x and x ≤ b
   metamath-proof elicc2
-  lean-proof  not yet implemented
+  lean-proof  by simp [Set.mem_Icc]
 
 definition open-interval
   let a ∈ ℝ                                                           (H1)
@@ -44,7 +44,7 @@ mundane theorem interval-real
   let b ∈ ℝ                                                           (H2)
   then        [a, b] ⊆ ℝ
   metamath-proof iccssre
-  lean-proof  not yet implemented
+  lean-proof  Set.subset_univ _
 
 mundane theorem open-interval-real
   let a ∈ ℝ                                                           (H1)

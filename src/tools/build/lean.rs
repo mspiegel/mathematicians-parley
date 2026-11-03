@@ -137,6 +137,10 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
     let templates = Templates::read(&checked.corpus.records)?;
     let targets =
         crate::methods::terms::Targets::of(&checked.grammar, &checked.corpus.records);
+    let ctx = crate::matching::Context::new(
+        &checked.grammar.notations,
+        &checked.corpus.records,
+    );
     let mut made = Made::default();
     let writer = Writer::new(&checked.grammar, &templates);
 
@@ -209,6 +213,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             templates: &templates,
             targets: &targets,
             items: &items,
+            ctx: &ctx,
         };
         match as_item(&sources, thm, rec) {
             Route::Built(it) => {
@@ -233,6 +238,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             templates: &templates,
             targets: &targets,
             items: &items,
+            ctx: &ctx,
         };
         let file = match theorem(&sources, thm, rec) {
             Route::Built(f) => f,

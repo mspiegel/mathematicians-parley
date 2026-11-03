@@ -106,14 +106,14 @@ mundane theorem image-within
   let f : X → W                                                       (H1)
   then        f[Y] ⊆ W
   metamath-proof fimass
-  lean-proof  not yet implemented
+  lean-proof  (hf.mono_left Set.inter_subset_left).image_subset
 
 mundane theorem image-monotone
   let f : X → W                                                       (H1)
   assume Y ⊆ Z                                                        (H2)
   then        f[Y] ⊆ f[Z]
   metamath-proof imass2
-  lean-proof  Set.image_mono h1
+  lean-proof  Set.image_mono (Set.inter_subset_inter_right X h1)
 
 mundane theorem function-into
   let E be a function on X                                            (H1)
@@ -136,7 +136,7 @@ mundane theorem value-in-image
   let s ∈ Y                                                           (H3)
   then        f(s) ∈ f[Y]
   metamath-proof metamath-bridges/functions/gfnfvima
-  lean-proof  Set.mem_image_of_mem f h2
+  lean-proof  Set.mem_image_of_mem f ⟨h1 h2, h2⟩
 
 definition one-to-one
   let f : X → Y                                                       (H1)
@@ -204,7 +204,7 @@ mundane theorem composition-value
   let x ∈ X                                                           (H3)
   then        (g ∘ f)(x) = g(f(x))
   metamath-proof fvco3
-  lean-proof  not yet implemented
+  lean-proof  rfl
 
 mundane theorem composition-one-to-one
   let f : X → Y be one-to-one                                         (H1)

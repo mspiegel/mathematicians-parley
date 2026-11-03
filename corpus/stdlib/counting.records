@@ -87,7 +87,7 @@ mundane theorem card-nonempty
   note        `hashgt0elex` asks that the size be positive where the
               hypothesis says what the size is, so the size is read as
               k + 1 through that hypothesis before `nn0p1gt0` answers.
-  lean-proof  not yet implemented
+  lean-proof  (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast Nat.succ_ne_zero k)).imp fun _ h => ⟨h, trivial⟩
 
 mundane theorem card-remove
   let X be a set                                                      (H1)

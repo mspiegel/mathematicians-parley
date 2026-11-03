@@ -45,6 +45,8 @@ pub const IN_CODE: &[&str] = &[
     "function-limit",
     "continuous",
     "closed-interval",
+    "there-is-some",
+    "holds-of",
     "subset",
     "set-operations",
     "empty-set",
@@ -155,7 +157,7 @@ fn set_line(
 ) -> bool {
     use crate::sorts::introduction::{Form, Introduction};
     match Introduction::read(body).form {
-        Form::Set(name) | Form::Element(name)
+        Form::Set(name) | Form::Element(name) | Form::Property { name, .. }
             if rec
                 .sorts
                 .get(&name)
@@ -377,6 +379,17 @@ fn covered(
     for line in thm.defines.iter().filter(|d| d.line > thm.conclusion_line) {
         if let Some(name) = defined_function(line, rec) {
             own.insert(name);
+        }
+    }
+    // A recursion over ℕ₀ the statement lets is its functions, letters of
+    // the statement (`theorem::header_recursions`).
+    for line in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
+        if let crate::outcome::Route::Built(crate::corpus::DefineParts::Recursion(r)) =
+            crate::corpus::define_parts(&line.text)
+        {
+            if r.domain.trim() == "ℕ₀" {
+                own.extend(r.names.iter().cloned());
+            }
         }
     }
     // A library function applied is in where its definition says what it

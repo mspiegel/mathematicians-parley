@@ -11,9 +11,9 @@ namespace Parley.Proofs.Wiedijk.SumFormula.SumFormula
 
 theorem sum_formula (n : ℕ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by
-  set S : ℕ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) (m : ℤ), (j : ℤ) with hD1
+  set S : ℤ → ℤ := fun m => ∑ j ∈ Finset.Icc (1 : ℤ) m, (j : ℤ) with hD1
   -- 1. induction on k starting at 1
-  have s1 : ∀ k : ℕ, 0 < k → (S k : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by
+  have s1 : ∀ k : ℕ, 0 < k → (S (k : ℤ) : ℚ) = (k : ℚ) * ((k : ℚ) + 1) / 2 := by
     intro k h_k
     replace h_k : 1 ≤ k := h_k
     induction k, h_k using Nat.le_induction with
@@ -27,19 +27,19 @@ theorem sum_formula (n : ℕ) (hH1 : 0 < n) :
     | succ k hK hIH =>
       -- 1.2. calculation
       have r27_1 : (k : ℤ) ≥ 1 := by parley_side
-      have s1_2 : S (k + 1) = S k + ((k : ℤ) + 1) := by
-        calc S (k + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (j : ℤ)) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
+      have s1_2 : S ((k : ℤ) + 1) = S (k : ℤ) + ((k : ℤ) + 1) := by
+        calc S ((k : ℤ) + 1) = (∑ j ∈ Finset.Icc (1 : ℤ) ((k : ℤ) + 1), (j : ℤ)) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
           _ = (∑ j ∈ Finset.Icc (1 : ℤ) (k : ℤ), (j : ℤ)) + ((k : ℤ) + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := (fun j : ℤ => j)) (a := (1 : ℤ)) (n := (k : ℤ)) (by parley_side)); parley_side)
-          _ = S k + ((k : ℤ) + 1) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
+          _ = S (k : ℤ) + ((k : ℤ) + 1) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       -- 1.3. calculation
-      have s1_3 : (S (k + 1) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2 := by
-        calc (S (k + 1) : ℚ) = (S k : ℚ) + ((k : ℚ) + 1) := by parley_side
+      have s1_3 : (S ((k : ℤ) + 1) : ℚ) = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2 := by
+        calc (S ((k : ℤ) + 1) : ℚ) = (S (k : ℤ) : ℚ) + ((k : ℚ) + 1) := by parley_side
           _ = (k : ℚ) * ((k : ℚ) + 1) / 2 + ((k : ℚ) + 1) := by parley_subst hIH
           _ = ((k : ℚ) + 1) * ((k : ℚ) + 1 + 1) / 2 := by parley_ring
       all_goals parley_side
   -- 2. calculation
   have s2 : (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) : ℚ)) = (n : ℚ) * ((n : ℚ) + 1) / 2 := by
-    calc (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) : ℚ)) = (S n : ℚ) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
+    calc (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), ((k : ℚ) : ℚ)) = (S (n : ℤ) : ℚ) := by first | (simp only [hD1]; push_cast; norm_num; done) | parley_side
       _ = (n : ℚ) * ((n : ℚ) + 1) / 2 := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
   all_goals exact s2
 

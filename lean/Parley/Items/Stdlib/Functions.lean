@@ -18,16 +18,20 @@ theorem mun_function_value {α : Type*} (D : Set α) (E : Set α) (f : α → α
   hf h1
 
 theorem def_image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (u : α) (W : Set α) (hf : Set.MapsTo f X W) (h1 : Y ⊆ X) :
-    u ∈ f '' Y ↔ (∃ s ∈ Y, u = f s) :=
+    u ∈ f '' (X ∩ Y) ↔ (∃ s ∈ Y, u = f s) :=
   LeanBridges.Functions.image X Y f u W hf h1
 
+theorem mun_image_within {α : Type*} (W : Set α) (Y : Set α) (f : α → α) (X : Set α) (hf : Set.MapsTo f X W) :
+    f '' (X ∩ Y) ⊆ W :=
+  (hf.mono_left Set.inter_subset_left).image_subset
+
 theorem mun_image_monotone {α : Type*} (Y : Set α) (Z : Set α) (f : α → α) (X : Set α) (W : Set α) (hf : Set.MapsTo f X W) (h1 : Y ⊆ Z) :
-    f '' Y ⊆ f '' Z :=
-  Set.image_mono h1
+    f '' (X ∩ Y) ⊆ f '' (X ∩ Z) :=
+  Set.image_mono (Set.inter_subset_inter_right X h1)
 
 theorem mun_value_in_image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (s : α) (W : Set α) (hf : Set.MapsTo f X W) (h1 : Y ⊆ X) (h2 : s ∈ Y) :
-    f s ∈ f '' Y :=
-  Set.mem_image_of_mem f h2
+    f s ∈ f '' (X ∩ Y) :=
+  Set.mem_image_of_mem f ⟨h1 h2, h2⟩
 
 theorem def_one_to_one {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
     Set.MapsTo f X Y ∧ Set.InjOn f X ↔ Set.MapsTo f X Y ∧ (∀ s ∈ X, ∀ t ∈ X, f s = f t → s = t) :=
@@ -52,5 +56,9 @@ theorem def_preimage {α : Type*} (X : Set α) (Z : Set α) (f : α → α) (u :
 theorem mun_preimage_within {α : Type*} (X : Set α) (Z : Set α) (f : α → α) (W : Set α) (hf : Set.MapsTo f X W) :
     X ∩ f ⁻¹' Z ⊆ X :=
   Set.inter_subset_left
+
+theorem mun_composition_value {α : Type*} (X : Set α) (f : α → α) (g : α → α) (x : α) (Y : Set α) (hf : Set.MapsTo f X Y) (W : Set α) (hg : Set.MapsTo g Y W) (h1 : x ∈ X) :
+    (g ∘ f) x = g (f x) :=
+  rfl
 
 end Parley.Items.Stdlib.Functions

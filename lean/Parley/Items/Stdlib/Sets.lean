@@ -13,6 +13,10 @@ theorem def_subset {α : Type*} (X : Set α) (Y : Set α) :
     X ⊆ Y ↔ (∀ t ∈ X, t ∈ Y) :=
   Iff.rfl
 
+theorem def_set_builder {α : Type*} (P : α → Prop) (X : Set α) (u : α) :
+    u ∈ {t ∈ X | P t} ↔ u ∈ X ∧ P u :=
+  Set.mem_sep_iff
+
 theorem mun_subset_transitive {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Y) (h2 : Y ⊆ Z) :
     X ⊆ Z :=
   h1.trans h2
@@ -100,6 +104,10 @@ theorem mun_intersection_self {α : Type*} (Y : Set α) :
 theorem mun_union_self {α : Type*} (Y : Set α) :
     Y ∪ Y = Y :=
   Set.union_self Y
+
+theorem mun_difference_self {α : Type*} (Y : Set α) :
+    Y \ Y = ∅ :=
+  Set.sdiff_self
 
 theorem mun_subset_empty {α : Type*} (Y : Set α) :
     Y ⊆ ∅ ↔ Y = ∅ :=

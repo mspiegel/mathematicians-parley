@@ -29,6 +29,7 @@ pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
     match sort.full()? {
         Whole::Set(_) => Members::of_set(sort.full()?).map(LetterType::Set),
         Whole::Open => Some(LetterType::Member(Members::Things)),
+        Whole::Property(inner) => Members::of(inner).map(LetterType::Property),
         Whole::Function(from, to) => Some(LetterType::Map {
             from: Members::of(from)?,
             to: Members::of(to)?,
@@ -87,6 +88,9 @@ impl Writer<'_> {
             "image" => match self.preimage_of(node) {
                 Some(f) => match self.letters.get(f.text.as_str()) {
                     Some(LetterType::Map { from, .. }) => Some(from.clone()),
+                    Some(LetterType::Function { from, .. }) => {
+                        Some(Members::Numbers(*from))
+                    }
                     _ => None,
                 },
                 None => match self.letters.get(node.children.first()?.text.as_str()) {
@@ -421,23 +425,16 @@ impl Writer<'_> {
                     return Route::no("an image under no function");
                 };
                 match self.numbers_at(set, *from) {
-                    Route::Built(s) => Route::Built(Printed {
-                        text: format!(
-                            "{} '' {}",
-                            super::names::letter(&f.text),
-                            s.at(MAX)
-                        ),
-                        prec: 80,
-                    }),
+                    Route::Built(s) => self.image_within(f, &s),
                     Route::Declined(d) => Route::Declined(d),
                 }
             }
-            "image" => match parts(2) {
-                Route::Built(p) => Route::Built(Printed {
-                    text: format!("{} '' {}", p[0].at(MAX), p[1].at(MAX)),
-                    prec: 80,
-                }),
-                Route::Declined(d) => Route::Declined(d),
+            "image" => match (node.children.as_slice(), parts(2)) {
+                ([f, _], Route::Built(p)) => self.image_within(f, &p[1]),
+                (_, Route::Built(_)) => {
+                    Route::no("an image of other than a map and a set")
+                }
+                (_, Route::Declined(d)) => Route::Declined(d),
             },
             "set-builder" => self.set_builder(node),
             "set-image" => self.set_image(node),
@@ -464,6 +461,26 @@ impl Writer<'_> {
                 Some(LetterType::Map { .. } | LetterType::Function { .. })
             );
         inverse.then_some(g)
+    }
+
+    /// f[Y], what f sends the members of Y in its domain D to, as set.mm
+    /// takes it: `f '' (D ∩ Y)`. Lean's f is total, and its image of all of
+    /// Y would hold values the page's f does not have.
+    fn image_within(&self, f: &Node, set: &Printed) -> Route<Printed> {
+        let Some(domain) = self.domain_of(&f.text) else {
+            return Route::no(format!(
+                "an image under {}, whose domain no line gives",
+                f.text
+            ));
+        };
+        Route::Built(Printed {
+            text: format!(
+                "{} '' ({domain} ∩ {})",
+                super::names::letter(&f.text),
+                set.at(71)
+            ),
+            prec: 80,
+        })
     }
 
     /// The set a map or function is defined on, as Lean writes it: the one
@@ -639,18 +656,35 @@ impl Writer<'_> {
                 Route::Declined(d) => Route::Declined(d),
             };
         }
-        if !matches!(
-            self.letters.get(f.text.as_str()),
-            Some(LetterType::Map { .. })
-        ) {
+        let Some(map) = self.map_text(f) else {
             return Route::no(format!("{} applied, which is no map", f.text));
-        }
+        };
         match self.set_term(x) {
             Route::Built(p) => Route::Built(Printed {
-                text: format!("{} {}", super::names::letter(&f.text), p.at(MAX)),
+                text: format!("{map} {}", p.at(MAX)),
                 prec: 1023,
             }),
             Route::Declined(d) => Route::Declined(d),
+        }
+    }
+
+    /// A map as Lean writes it applied: a map letter, or g ∘ f of maps,
+    /// `(g ∘ f)`; None for anything else.
+    fn map_text(&self, f: &Node) -> Option<String> {
+        if f.is_name() {
+            return matches!(
+                self.letters.get(f.text.as_str()),
+                Some(LetterType::Map { .. })
+            )
+            .then(|| super::names::letter(&f.text));
+        }
+        match (&*f.notation_name(), f.children.as_slice()) {
+            ("composition", [g, inner]) => Some(format!(
+                "({} ∘ {})",
+                self.map_text(g)?,
+                self.map_text(inner)?
+            )),
+            _ => None,
         }
     }
 

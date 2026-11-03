@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent
 
+set_option maxHeartbeats 400000 in
 theorem prime_exponent (n : ℕ) (hH1 : 0 < n) (hH2 : Nat.Prime (2 ^ n - 1 : ℤ).toNat) :
     Nat.Prime n := by
   -- 1. mun:prime-nat p := 2^n − 1, from H2

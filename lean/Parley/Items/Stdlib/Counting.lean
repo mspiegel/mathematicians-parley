@@ -41,6 +41,10 @@ theorem mun_card_singleton {α : Type*} (x : α) :
     ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_singleton x
 
+theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
+    ∃ a ∈ X, True :=
+  (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast Nat.succ_ne_zero k)).imp fun _ h => ⟨h, trivial⟩
+
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
     (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_disjoint_union X Y m n h3 h4 h5

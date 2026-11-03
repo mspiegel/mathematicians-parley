@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep
 
+set_option maxHeartbeats 400000 in
 theorem fibonacci_binomial_step (m : ℕ) :
     (∑ k ∈ Finset.Icc (0 : ℤ) ((m : ℤ) + 1 + 1), ((LeanBridges.Counting.choose ((m : ℤ) + 1 + 1 - k) k : ℤ) : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) ((m : ℤ) + 1), ((LeanBridges.Counting.choose ((m : ℤ) + 1 - k) k : ℤ) : ℤ)) + (∑ k ∈ Finset.Icc (0 : ℤ) (m : ℤ), ((LeanBridges.Counting.choose ((m : ℤ) - k) k : ℤ) : ℤ)) := by
   -- 1. proof

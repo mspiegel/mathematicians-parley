@@ -127,7 +127,7 @@ definition set-builder
               the braces bind cannot be matched against a use of it: the free
               one binds to the element and the bound one then has to be the
               element too.
-  lean-proof  not yet implemented
+  lean-proof  Set.mem_sep_iff
 
 definition part-builder
   let X be a set                                                      (H1)
@@ -520,7 +520,7 @@ mundane theorem intersection-empty
 mundane theorem difference-self
   then        Y ∖ Y = ∅
   metamath-proof difid
-  lean-proof  not yet implemented
+  lean-proof  Set.sdiff_self
 
 mundane theorem difference-empty
   then        Y ∖ ∅ = Y

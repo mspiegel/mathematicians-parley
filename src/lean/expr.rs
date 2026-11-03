@@ -41,6 +41,8 @@ pub enum LetterType {
     Identity(String),
     /// A subgroup of the group named, `H : Subgroup G`.
     Subgroup(String),
+    /// A property of members of these, `P : α → Prop`; P(t) is `P t`.
+    Property(Members),
 }
 
 /// What the members of a set are in Lean: the one type of things a
@@ -133,6 +135,7 @@ impl LetterType {
             LetterType::Group => "Type*".to_string(),
             LetterType::Identity(g) => super::names::letter(g),
             LetterType::Subgroup(g) => format!("Subgroup {}", super::names::letter(g)),
+            LetterType::Property(m) => format!("{} → Prop", m.lean()),
         }
     }
 
@@ -140,7 +143,9 @@ impl LetterType {
     /// its statement takes `{α : Type*}`.
     pub fn uses_things(&self) -> bool {
         match self {
-            LetterType::Set(m) | LetterType::Member(m) => m.uses_things(),
+            LetterType::Set(m) | LetterType::Member(m) | LetterType::Property(m) => {
+                m.uses_things()
+            }
             LetterType::Map { from, to } => from.uses_things() || to.uses_things(),
             _ => false,
         }
@@ -525,13 +530,14 @@ impl Writer<'_> {
                     self.letters.get(node.text.as_str()),
                     Some(LetterType::Number(_))
                 ))
-            // g⁻¹(y) of a function of numbers, whose sort the checker leaves
-            // open.
+            // g⁻¹(y) and (g ∘ f)(x) of functions of numbers, whose sort the
+            // checker leaves open.
             || (node.notation() == crate::notations::APPLICATION
-                && node
-                    .children
-                    .first()
-                    .is_some_and(|f| self.inverse_of_function(f).is_some()))
+                && node.children.first().is_some_and(|f| {
+                    self.inverse_of_function(f).is_some()
+                        || (&*f.notation_name() == "composition"
+                            && self.function_type(f).built().is_some())
+                }))
     }
 
     /// The least number type that holds the node, ℤ at least: the type a
@@ -587,7 +593,8 @@ impl Writer<'_> {
                     | LetterType::Map { .. }
                     | LetterType::Group
                     | LetterType::Identity(_)
-                    | LetterType::Subgroup(_),
+                    | LetterType::Subgroup(_)
+                    | LetterType::Property(_),
                 ) => Route::no(format!("{} is no number", node.text)),
                 None => Route::no(format!("{} has no Lean type", node.text)),
             },
@@ -1220,6 +1227,38 @@ impl Writer<'_> {
         }
         if &*node.notation_name() == "continuous" {
             return self.continuous(node);
+        }
+        // P(t), the property P of t: `P t`.
+        if let ("holds-of", [p, t]) = (&*node.notation_name(), node.children.as_slice())
+        {
+            let Some(LetterType::Property(members)) = self.letters.get(p.text.as_str())
+            else {
+                return Route::no(format!(
+                    "{} holds of a term, and is no property",
+                    p.text
+                ));
+            };
+            return self.element_term(t, members).map(|t| Printed {
+                text: format!("{} {}", super::names::letter(&p.text), t.at(MAX)),
+                prec: 1023,
+            });
+        }
+        // there is a ∈ X, with nothing said of a: set.mm's "there is" over a
+        // true body, `∃ a ∈ X, True`.
+        if let ("there-is-some", [letter, set]) =
+            (&*node.notation_name(), node.children.as_slice())
+        {
+            if self.set_members(set).is_none() {
+                return Route::no("there is some member of a set with no Lean type");
+            }
+            return self.set_term(set).map(|s| Printed {
+                text: format!(
+                    "∃ {} ∈ {}, True",
+                    super::names::letter(&letter.text),
+                    s.at(51)
+                ),
+                prec: 0,
+            });
         }
         // A relation between sets, A ⊆ B or A = B.
         if &*node.notation_name() == "subset" {

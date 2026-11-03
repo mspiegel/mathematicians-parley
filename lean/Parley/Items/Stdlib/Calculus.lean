@@ -9,6 +9,14 @@ public section
 
 namespace Parley.Items.Stdlib.Calculus
 
+theorem def_interval (x : ℝ) (a : ℝ) (b : ℝ) :
+    x ∈ (Set.Icc a b : Set ℝ) ↔ (True ∧ a ≤ x) ∧ x ≤ b :=
+  by simp [Set.mem_Icc]
+
+theorem mun_interval_real (a : ℝ) (b : ℝ) :
+    (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) :=
+  Set.subset_univ _
+
 theorem def_continuous_on (f : ℝ → ℝ) (D : Set ℝ) (hf : Set.MapsTo f D (Set.univ : Set ℝ)) (h1 : D ⊆ (Set.univ : Set ℝ)) :
     ContinuousOn f D ↔ (∀ c ∈ D, ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, abs (x - c) < δ → abs (f x - f c) < ε))) :=
   LeanBridges.Calculus.continuous_on f D hf h1

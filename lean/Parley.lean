@@ -29,6 +29,8 @@ public import Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueEve
 public import Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingValueOdd
 public import Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean
 public import Parley.Proofs.Hammack.BinetFormula.PowerRecurrence
+public import Parley.Proofs.Hammack.BinetFormula.BinetFormula
+public import Parley.Proofs.Hammack.BinomialDiagonalSumIsFibonacci.BinomialDiagonalSumIsFibonacci
 public import Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes
 public import Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor
 public import Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne
@@ -44,6 +46,7 @@ public import Parley.Proofs.Hammack.ChooseTwoEven.ChooseTwoEven
 public import Parley.Proofs.Hammack.ChooseTwoOfADouble.ChooseTwoOfADouble
 public import Parley.Proofs.Hammack.ChooseTwoThenChooseTheRest.ChooseTwoThenChooseTheRest
 public import Parley.Proofs.Hammack.ComplementOfIntersection.ComplementOfIntersection
+public import Parley.Proofs.Hammack.ComposeRationalAndLine.ComposeRationalAndLine
 public import Parley.Proofs.Hammack.CongruentCubes.CongruentCubes
 public import Parley.Proofs.Hammack.CongruentModTen.CongruentModTen
 public import Parley.Proofs.Hammack.CongruentProducts.CongruentProducts
@@ -82,6 +85,7 @@ public import Parley.Proofs.Hammack.DividesSquareDifference.DividesSquareDiffere
 public import Parley.Proofs.Hammack.DivisibleByNine.DivisibleByNine
 public import Parley.Proofs.Hammack.DivisibleByTwentyFour.DivisibleByTwentyFour
 public import Parley.Proofs.Hammack.DivisorOfNoNaturalNumberIsZero.DivisorOfNoNaturalNumberIsZero
+public import Parley.Proofs.Hammack.DivisorsOfKDivideKSquared.DivisorsOfKDivideKSquared
 public import Parley.Proofs.Hammack.EightDividesOddSquare.EightDividesOddSquare
 public import Parley.Proofs.Hammack.ElevenDividesPowerOfTwoLessOne.ElevenDividesPowerOfTwoLessOne
 public import Parley.Proofs.Hammack.EqualOrSumFive.EqualOrSumFive
@@ -90,6 +94,13 @@ public import Parley.Proofs.Hammack.EvenProductParity.EvenProductParity
 public import Parley.Proofs.Hammack.FactorialPlusKNotPrime.FactorialPlusKNotPrime
 public import Parley.Proofs.Hammack.FibonacciBinomialStep.FibonacciBinomialStep
 public import Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.OddPlusEven
+public import Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides
+public import Parley.Proofs.Hammack.FibonacciEvenSum.FibonacciEvenSum
+public import Parley.Proofs.Hammack.FibonacciNumbers.FibonacciNatural
+public import Parley.Proofs.Hammack.FibonacciNumbers.FibonacciRecurrence
+public import Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum
+public import Parley.Proofs.Hammack.FibonacciSumOfSquares.FibonacciSumOfSquares
+public import Parley.Proofs.Hammack.FibonacciSum.FibonacciSum
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.ScaledBinomialStep
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural
 public import Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveDivisible
@@ -111,6 +122,7 @@ public import Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicLowerBound
 public import Parley.Proofs.Hammack.IdentityPlusTwoLimit.IdentityPlusTwoLimit
 public import Parley.Proofs.Hammack.ImageOfAffineMap.ImageOfAffineMap
 public import Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
+public import Parley.Proofs.Hammack.ImageOfParabola.ImageOfParabola
 public import Parley.Proofs.Hammack.ImageOfPreimageOfImage.ImageOfPreimageOfImage
 public import Parley.Proofs.Hammack.ImageOfUnion.ImageOfUnion
 public import Parley.Proofs.Hammack.IntersectionOverUnion.IntersectionOverUnion
@@ -134,6 +146,7 @@ public import Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient
 public import Parley.Proofs.Hammack.MersennePrimeExponent.PrimeExponent
 public import Parley.Proofs.Hammack.MobiusInverse.MobiusInverse
 public import Parley.Proofs.Hammack.MobiusOneToOne.MobiusOneToOne
+public import Parley.Proofs.Hammack.MultiplesOfAProduct.MultiplesOfAProduct
 public import Parley.Proofs.Hammack.MultiplesOfSix.MultiplesOfSix
 public import Parley.Proofs.Hammack.MultiplesOfTwelve.MultiplesOfTwelve
 public import Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic
@@ -164,6 +177,7 @@ public import Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage
 public import Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowIn
 public import Parley.Proofs.Hammack.PreimageOfParabola.SquareWindowOut
+public import Parley.Proofs.Hammack.PreimageOfParabola.PreimageOfParabola
 public import Parley.Proofs.Hammack.PreimageOfUnion.PreimageOfUnion
 public import Parley.Proofs.Hammack.PrimeBetweenNinetyAndAHundred.PrimeBetweenNinetyAndAHundred
 public import Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot
@@ -359,7 +373,9 @@ public import Parley.Proofs.Setmm.GroupInverses.GroupInverseByLeft
 public import Parley.Proofs.Setmm.GroupInverses.GroupCancelInverse
 public import Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove
 public import Parley.Proofs.Setmm.IdentityFunctionContinuous.IdentityFunctionContinuous
+public import Parley.Proofs.Setmm.ImageAsASelection.ImageAsASelection
 public import Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
+public import Parley.Proofs.Setmm.ImageIsCodomain.ImageIsCodomain
 public import Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair
 public import Parley.Proofs.Setmm.ImageOfAPointUnderAOneToOneMap.ImageOfAPointUnderAOneToOneMap
 public import Parley.Proofs.Setmm.ImageOfPart.ImageOfPart
@@ -460,6 +476,7 @@ public import Parley.Proofs.Setmm.SetOrderLaws.IntersectionKeepsOrder
 public import Parley.Proofs.Setmm.ShiftByRational.ShiftByRational
 public import Parley.Proofs.Setmm.SineOfDouble2.SineOfDouble
 public import Parley.Proofs.Setmm.SineOfDouble.SineOfDouble
+public import Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne
 public import Parley.Proofs.Setmm.SizeOfDifference.PartAndRest
 public import Parley.Proofs.Setmm.SizeOfUnion.UnionSplit
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialTwo
@@ -541,6 +558,7 @@ public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceCitedT
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACalculationReadingACongruenceTheOtherWay
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceClaimedTheOtherWayRound
 public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ValueAtOne
+public import Parley.Tests.Elaborator.ADefineWhoseBodyTheReadingRewrites.ADefineWhoseBodyTheReadingRewrites
 public import Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
 public import Parley.Tests.Elaborator.ADividesFoldWithItsWitness.ADividesFoldWithItsWitness
 public import Parley.Tests.Elaborator.ADivisorMultiplyingAQuotient.ADivisorMultiplyingAQuotient
@@ -587,7 +605,12 @@ public import Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunction
 public import Parley.Tests.Elaborator.ARangeAFunctionIsTypedOver.ARangeAFunctionIsTypedOverRequired
 public import Parley.Tests.Elaborator.ARangeLineGivesItsBounds.AMethodReadsARangeLinesBounds
 public import Parley.Tests.Elaborator.ARangeMemberIsCited.ARangeMemberIsCited
+public import Parley.Tests.Elaborator.ARecursionHeaderAndAnAssumption.ARecursionHeaderAndAnAssumption
+public import Parley.Tests.Elaborator.ARecursionRenamed.ARecursionRuleForAll
+public import Parley.Tests.Elaborator.ARecursionRenamed.ARecursionRuleByABlock
+public import Parley.Tests.Elaborator.ARecursionValueWithoutItsZero.ARecursionValueWithoutItsZero
 public import Parley.Tests.Elaborator.ARequiresLineAddingWhatTheCheckerAdded.ARequiresLineAddingWhatTheCheckerAdded
+public import Parley.Tests.Elaborator.ARequiresLineAtAMemberByTheTable.ARequiresLineAtAMemberByTheTable
 public import Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineInstantiating
 public import Parley.Tests.Elaborator.ARequiresLineReadAtAMember.ARequiresLineFromAForAll
 public import Parley.Tests.Elaborator.ARequiresWeakeningWithItsMembership.ARequiresWeakeningWithItsMembership
@@ -602,8 +625,11 @@ public import Parley.Tests.Elaborator.ASubstitutionIntoAClaimTurnedRound.ASubsti
 public import Parley.Tests.Elaborator.ASubstitutionIntoAClaimTurnedRound.ASubstitutionIntoAClaimTurnedRound
 public import Parley.Tests.Elaborator.ASumDividingByAPositiveIndex.ASumDividingByAPositiveIndex
 public import Parley.Tests.Elaborator.ASumLemmaOverAnotherBoundLetter.ASumTermwiseOverAnotherLetter
+public import Parley.Tests.Elaborator.ASumOfDefinedValuesSaidPointwise.ASumOfDefinedValuesSaidPointwise
 public import Parley.Tests.Elaborator.ASumOfManyLinesByInequalities.ASumOfSevenNaturals
 public import Parley.Tests.Elaborator.ASumOfManyLinesByInequalities.ASumOfThreeBoundsOfTwoSentences
+public import Parley.Tests.Elaborator.ASumOverACompoundOfADefinedFunction.ASumOfSquaresOfARecursion
+public import Parley.Tests.Elaborator.ASumOverACompoundOfADefinedFunction.ASumOfARecursion
 public import Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.AClaimDenyingItsSuppositionWrittenOtherwise
 public import Parley.Tests.Elaborator.ASuppositionWrittenOtherwise.ASuppositionDenyingItsClaimWrittenOtherwise
 public import Parley.Tests.Elaborator.ATheoremCitedAtARaisedPower.ALogarithmOfASquare
@@ -660,6 +686,10 @@ public import Parley.Tests.Elaborator.CitedConjunction.DividedByACitedNatural
 public import Parley.Tests.Elaborator.CitedEquationDivisorAPower.ACitedEquationDividesByAPower
 public import Parley.Tests.Elaborator.CitedEquationDivisorAPower.TheClaimDividesByAPower
 public import Parley.Tests.Elaborator.CitedEquationDivisorAPower.ThePowerSaidNotZeroWhole
+public import Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne
+public import Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOneAgain
+public import Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedOnFrom
+public import Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedOnFromALetter
 public import Parley.Tests.Elaborator.ClosedPieces.AFactorialLinkOfNumerals
 public import Parley.Tests.Elaborator.ClosedValues.NegatedZeroBelow
 public import Parley.Tests.Elaborator.ClosedValues.WholeInTheRationals
@@ -744,6 +774,7 @@ public import Parley.Tests.Elaborator.ListedNumerals.TheOddOnesCounted
 public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairCitedInTheOtherOrder
 public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairInsideASubset
 public import Parley.Tests.Elaborator.ModOnTheReals.TheFractionalPart
+public import Parley.Tests.Elaborator.Notations.AMemberOfANonemptySet
 public import Parley.Tests.Elaborator.OrderChains.TwoBoundsInARow
 public import Parley.Tests.Elaborator.OrderChains.AStrictLinkThenABound
 public import Parley.Tests.Elaborator.OrderChains.AnEquationBetweenTwoBounds
@@ -920,6 +951,12 @@ public import Parley.Tests.Elaborator.RealArithmetic.ARootOfASquaredRoot
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APreimageInTheDomain
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APowerOfAPositiveBase
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductThatIsZero
+public import Parley.Tests.Elaborator.RecursionShapesCited.TwoSequences
+public import Parley.Tests.Elaborator.RecursionShapesCited.TwoSequencesAgain
+public import Parley.Tests.Elaborator.RecursionShapesCited.NamesTheIndex
+public import Parley.Tests.Elaborator.RecursionShapesCited.NamesTheIndexAgain
+public import Parley.Tests.Elaborator.Recursion.OneSequence
+public import Parley.Tests.Elaborator.Recursion.RuleNamesIndex
 public import Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInADirection
 public import Parley.Tests.Elaborator.RequiresInABlock.AMethodRequiresLineInAContradiction
 public import Parley.Tests.Elaborator.RowsReadEitherWay.ARowMultipliedByANegativeNumberReadFromItsOtherSide
@@ -964,6 +1001,7 @@ public import Parley.Tests.Elaborator.TwoBoundsBelowAdded.TwoBoundsBelowAdded
 public import Parley.Tests.Elaborator.UnfoldingALet.ARationalLetterUnfolded
 public import Parley.Tests.Elaborator.UnfoldingTheNamedSentence.TheSecondSentenceUnfolded
 public import Parley.Tests.Notations.Calculus.ALineTendsToItsValue
+public import Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval
 public import Parley.Tests.Notations.Calculus.OneOverNTendsToZero
 public import Parley.Tests.Notations.Calculus.OneOverNDoesNotTendToOne
 public import Parley.Tests.Notations.Counting.FactorialOfZero
@@ -1063,6 +1101,7 @@ public import Parley.Tests.Stdlib.Divisibility.ModNatural
 public import Parley.Tests.Stdlib.Divisibility.ModLess
 public import Parley.Tests.Stdlib.Divisibility.ModValue
 public import Parley.Tests.Stdlib.Divisibility.ZeroDivides
+public import Parley.Tests.Stdlib.Functions.CompositionValue
 public import Parley.Tests.Stdlib.Functions.Preimage
 public import Parley.Tests.Stdlib.Logarithms.LnProduct
 public import Parley.Tests.Stdlib.Logarithms.LnQuotient
@@ -1120,6 +1159,7 @@ public import Parley.Tests.Stdlib.Sets.IntersectionCommutes
 public import Parley.Tests.Stdlib.Sets.UnionCommutes
 public import Parley.Tests.Stdlib.Sets.IntersectionSelf
 public import Parley.Tests.Stdlib.Sets.UnionSelf
+public import Parley.Tests.Stdlib.Sets.DifferenceSelf
 public import Parley.Tests.Stdlib.Sets.SubsetEmpty
 public import Parley.Tests.Stdlib.Sums.RangeNat0
 public import Parley.Tests.Stdlib.Sums.RangeBetween

@@ -36,6 +36,10 @@ pub struct Sentence {
     pub arithmetic: std::collections::BTreeMap<String, usize>,
     /// What its general letters range over; None where it has none.
     pub general: Option<General>,
+    /// The domain each of its maps is on, as Lean writes it, by the map's
+    /// letter: the X of `f : X → W`, which a citation that gives f a value
+    /// and X none takes from that value's domain.
+    pub domains: IndexMap<String, String>,
 }
 
 /// An item of the library in Lean: its sentences, counted across its
@@ -778,6 +782,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 part: String::new(),
                 arithmetic,
                 general: kind,
+                domains: w.domains.clone(),
             });
         }
     }

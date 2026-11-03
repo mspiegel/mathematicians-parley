@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ValueAndInverseAgree.ValueAndInverseAgree
 
-theorem value_and_inverse_agree {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' A = B) (C : α) (hH5 : C ∈ A) (D : α) (hH6 : D ∈ B) :
+theorem value_and_inverse_agree {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B ∧ Set.InjOn F A) (hH4 : F '' (A ∩ A) = B) (C : α) (hH5 : C ∈ A) (D : α) (hH6 : D ∈ B) :
     (F C = D ↔ LeanBridges.Functions.inverse F A D = C) := by
   -- the theorem. both directions
   have sThm : F C = D ↔ LeanBridges.Functions.inverse F A D = C := by

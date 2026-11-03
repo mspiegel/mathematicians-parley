@@ -1,0 +1,17 @@
+module
+
+public import Tactics
+
+/-! Written from tests/elaborator/a-requires-line-at-a-member-by-the-table.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.ARequiresLineAtAMemberByTheTable.ARequiresLineAtAMemberByTheTable
+
+theorem a_requires_line_at_a_member_by_the_table (m : ℕ) (hH1 : 0 < m) (F : ℤ → ℤ) (hD1 : F 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) (hH2 : True) :
+    F (m : ℤ) + F ((m : ℤ) + 1) = F ((m : ℤ) + 1) + F (m : ℤ) := by
+  -- 1. algebra
+  have s1 : F (m : ℤ) + F ((m : ℤ) + 1) = F ((m : ℤ) + 1) + F (m : ℤ) := by parley_ring
+  all_goals exact s1
+
+end Parley.Tests.Elaborator.ARequiresLineAtAMemberByTheTable.ARequiresLineAtAMemberByTheTable
