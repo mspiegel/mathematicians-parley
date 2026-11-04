@@ -29,8 +29,12 @@ installed; the gate does.
 
 The Lean bridges are written by hand in `corpus/lean-bridges/`, a Lake
 library of their own that every generated file imports, and the build never
-touches them. `Tactics.lean` holds the tactics the files share (below);
-`Counting.lean` and `Sums.lean` hold the bridges. A bridge states its item
+touches them. `Tactics.lean` holds `parley_side` and `parley_norm`, which
+nearly every file calls; each other family of tactics is a module of its own
+(`AlgebraTactics`, `SubstTactics`, `OrderTactics`, `PowerTactics`,
+`ComplexTactics`, `ArithTactics`, `SetTactics`, `RealTactics`), imported
+only by the files that call it, since a change to a module rebuilds every
+file that imports it. `Counting.lean` and `Sums.lean` hold the bridges. A bridge states its item
 exactly as the build writes it, with the item's letters and hypotheses in
 the same order, so a record names it in full, `lean-proof
 lean-bridges/counting/pascal`, and the build writes
