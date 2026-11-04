@@ -908,6 +908,11 @@ struct Proof<'a> {
     /// The lines whose numbers a citation was given while its step was
     /// written, A/B of `A/B ∈ ℤ`, which the step's goal is put in terms of.
     said_used: std::cell::RefCell<Vec<SaidUsed>>,
+    /// The labels of the defines that name the number their reason shows,
+    /// `let e = p/d, a positive integer` (`kinded_witness`): their equation
+    /// is a line about an obtained number, cited as any line is, not a
+    /// `set` written out.
+    witnessed: std::collections::BTreeSet<String>,
 }
 
 /// A line whose number a citation was given: its Lean name, and the term
@@ -946,6 +951,7 @@ pub fn theorem(
         defined: indexmap::IndexSet::new(),
         worked_in: std::cell::Cell::new(None),
         said_used: std::cell::RefCell::new(Vec::new()),
+        witnessed: std::collections::BTreeSet::new(),
     };
     proof.writer.floor = floor_of(rec);
     proof.writer.reals = held_real(rec, &proof.writer);
@@ -1987,6 +1993,16 @@ impl<'a> Proof<'a> {
                 Route::Declined(why) => return Route::Declined(why),
             },
         };
+        // A whole number whose value is wider, `let e = p/d, a positive
+        // integer`: Lean's ℤ division would round, so the name is the
+        // number its reason shows the value to be.
+        let wider = match self.writer.carrier(&body) {
+            Route::Built(n) => n > ty,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        if def.kind.is_some() && wider {
+            return self.kinded_witness(d, &def.name, body, depth);
+        }
         let value = match self.writer.number_fixed(&body, ty) {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
@@ -2067,6 +2083,88 @@ impl<'a> Proof<'a> {
         );
         self.named.insert(page_label.clone(), vec![label.clone()]);
         self.trees.insert(page_label, vec![(equation, label)]);
+    }
+
+    /// A define naming a whole number its value is shown to be, `let e =
+    /// p/d, a positive integer` with `p/d ∈ ℕ` its reason's fact: that
+    /// fact proved by the reason, as a requires line is, and the name taken
+    /// from it, `obtain ⟨e, hD1_pos, hD1⟩`, so that the define's equation
+    /// e = p/d is said in the value's type.
+    fn kinded_witness(
+        &mut self,
+        d: usize,
+        name: &str,
+        body: Node,
+        depth: usize,
+    ) -> Route<()> {
+        let line = &self.thm.defines[d];
+        let members = &self.sources.checked.grammar.members;
+        let kinded = match line.kinded(&self.thm.path, members) {
+            Ok(Some(k)) => k,
+            Ok(None) => return Route::no("a define of a kind with no reason"),
+            Err(p) => return Route::no(p.to_string()),
+        };
+        let fact = match self.tree(&kinded.shown.fact) {
+            Route::Built(n) => n,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let [_, set] = fact.children.as_slice() else {
+            return Route::no("a kind's fact that is no membership");
+        };
+        // ℕ says its witness is above 0 beside its value; ℕ₀ and ℤ only the
+        // value.
+        let (ty, positive) = match super::expr::system_of(set) {
+            Some(super::expr::System::Positive) => (super::templates::Num::Nat, true),
+            Some(super::expr::System::NonNegative) => {
+                (super::templates::Num::Nat, false)
+            }
+            Some(super::expr::System::Type(super::templates::Num::Int)) => {
+                (super::templates::Num::Int, false)
+            }
+            _ => return Route::no("a define of a kind other than ℕ, ℕ₀ or ℤ"),
+        };
+        let fact_text = match self.writer.formula(&fact) {
+            Route::Built(f) => f.text,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let Ok(just) = &kinded.shown.by else {
+            return Route::no("a define whose reason does not read");
+        };
+        let reason = Reason {
+            just,
+            cited: self.rec.cited_requires.get(&kinded.shown.line),
+        };
+        let proof = match self.proof_of(reason, 0, &fact) {
+            Route::Built(p) => p,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let label = line_name(&line.label);
+        let (at, page_label) = (line.line, line.label.clone());
+        let letter = super::names::letter(name);
+        let parts = match positive {
+            true => format!("{letter}, {label}_pos, {label}"),
+            false => format!("{letter}, {label}"),
+        };
+        self.push(
+            format!(
+                "{p}have {label}_kind : {fact_text} := {proof}\n{p}obtain ⟨{parts}⟩ := {label}_kind",
+                p = pad(depth)
+            ),
+            at,
+            Spot::Statement,
+        );
+        self.writer
+            .letters
+            .insert(name.to_string(), LetterType::Number(ty));
+        let equation = Node::of(
+            crate::notations::EQUALS,
+            crate::formula::node::Sort::of("formula"),
+            vec![Node::name(body.sort.clone(), name), body],
+        );
+        self.named.insert(page_label.clone(), vec![label.clone()]);
+        self.witnessed.insert(page_label.clone());
+        self.trees.insert(page_label, vec![(equation, label)]);
+        Route::Built(())
     }
 
     /// A define of a function of one number in a proof, `let S(m) =
@@ -2487,6 +2585,7 @@ impl<'a> Proof<'a> {
         let mut out: Vec<CitedDefine> = refs
             .iter()
             .filter(|r| self.thm.defines.iter().any(|d| d.label == **r))
+            .filter(|r| !self.witnessed.contains(*r))
             .flat_map(|r| self.trees.get(r).into_iter().flatten())
             .filter_map(|(n, proof)| match n.children.as_slice() {
                 [name, value] if n.notation() == EQUALITY && name.is_name() => {

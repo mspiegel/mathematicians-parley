@@ -184,6 +184,7 @@ public import Parley.Proofs.Hammack.PreimageOfParabola.PreimageOfParabola
 public import Parley.Proofs.Hammack.PreimageOfUnion.PreimageOfUnion
 public import Parley.Proofs.Hammack.PrimeBetweenNinetyAndAHundred.PrimeBetweenNinetyAndAHundred
 public import Parley.Proofs.Hammack.PrimeByTrialDivision.DivisorExceedsRoot
+public import Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision
 public import Parley.Proofs.Hammack.PrimeDividesAFactor.PrimeDividesAFactor
 public import Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial
 public import Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd

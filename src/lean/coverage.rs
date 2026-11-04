@@ -98,37 +98,6 @@ pub fn coverage(
     out
 }
 
-/// Whether a let of the theorem names a quotient as a whole number, `let e
-/// = p/d, a positive integer`: a kind of whole number, and a value with a
-/// division outside any floor (⌊A/B⌋ is a whole number as written).
-fn kinded_quotient(
-    thm: &crate::corpus::Theorem,
-    rec: &crate::checker::CheckedTheorem,
-) -> bool {
-    thm.defines.iter().any(|d| {
-        let crate::outcome::Route::Built(crate::corpus::DefineParts::One(one)) =
-            crate::corpus::define_parts(&d.text)
-        else {
-            return false;
-        };
-        let whole = matches!(
-            one.kind.as_deref(),
-            Some(
-                "a positive integer"
-                    | "an integer"
-                    | "a natural number"
-                    | "a nonnegative integer"
-            )
-        );
-        whole
-            && rec
-                .page
-                .entries()
-                .filter(|(key, _)| key.line == d.line)
-                .any(|(_, n)| divides_outside_floor(n))
-    })
-}
-
 /// Whether a step of a method other than citing a define, substituting from
 /// one or a calculation cites a function the header lets by its value.
 fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
@@ -217,15 +186,6 @@ fn integer_in_natural_set(
                 && natural_sets.iter().any(|name| *name == *s.text)
                 && t.walk().iter().any(|m| m.is_name() && integers.contains(&&*m.text)))
     })
-}
-
-/// Whether a term divides somewhere a floor does not hold.
-fn divides_outside_floor(n: &crate::formula::Node) -> bool {
-    if &*n.notation_name() == "floor" {
-        return false;
-    }
-    n.spelling() == crate::notations::DIVIDED
-        || n.children.iter().any(divides_outside_floor)
 }
 
 /// Whether the theorem cites the set-image item and writes a set-image over
@@ -463,16 +423,6 @@ fn covered(
     if in_parts {
         return Covered::Out {
             reason: "a let line says a property beside a type, which the Lean build does not read yet"
-                .to_string(),
-        };
-    }
-    // A let naming a quotient as a whole number, `let e = p/d, a positive
-    // integer`: the writer types the name by its kind and writes the value
-    // in it, and a quotient is no integer to Lean until the reason's
-    // witness is taken (`theorem::define`).
-    if kinded_quotient(thm, rec) {
-        return Covered::Out {
-            reason: "a let names a quotient as a whole number, which the writer takes in its kind's type"
                 .to_string(),
         };
     }
