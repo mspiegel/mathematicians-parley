@@ -14,7 +14,7 @@
 use std::path::Path;
 use std::process::Command;
 
-use super::build::lean::{generated_in_tree, make, Made};
+use super::build::lean::{make, Made};
 use crate::lean::export::{Export, STANDARD_AXIOMS};
 use crate::lean::readback::differences;
 use crate::lean::theorem::Spot;
@@ -23,6 +23,10 @@ use crate::source::{Disk, Source};
 
 /// The Lean project, under the root of the tree.
 const PROJECT: &str = "lean";
+
+/// One `lake` at a time in the project: two at once contend for the git
+/// lock of its packages, and one fails.
+static LAKE: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
 /// lean4export, as Lake builds it, from the Lean project.
 const EXPORTER: &str = ".lake/packages/lean4export/.lake/build/bin/lean4export";
@@ -40,8 +44,13 @@ fn made(source: &dyn Source) -> Result<Made, Said> {
 /// Every Lean file in the tree is what a fresh build makes, and nothing the
 /// build does not make is left in the generated part of `lean/`.
 pub fn fresh(root: &Path) -> Said {
-    let source = Disk::new(root.to_path_buf());
-    let made = match made(&source) {
+    fresh_in(&Disk::new(root.to_path_buf()))
+}
+
+/// `fresh` of a tree a source holds, which a planted-defect test edits in
+/// memory.
+pub fn fresh_in(source: &dyn Source) -> Said {
+    let made = match made(source) {
         Ok(made) => made,
         Err(said) => return said,
     };
@@ -56,7 +65,11 @@ pub fn fresh(root: &Path) -> Said {
             Err(_) => said.complained += &format!("{path} is not in the tree\n"),
         }
     }
-    for path in generated_in_tree(root) {
+    let generated = source
+        .files()
+        .into_iter()
+        .filter(|f| f.starts_with("lean/Parley/") && f.ends_with(".lean"));
+    for path in generated {
         if !made.files.contains_key(&path) {
             said.complained += &format!("{path} is no longer made by the build\n");
         }
@@ -177,6 +190,109 @@ pub fn accepted(root: &Path) -> Said {
         }
     }
     said
+}
+
+/// `accepted` of the Lean files a planted-defect test edited, each checked
+/// against what the tree has built (`lake env lean`, the file read from
+/// stdin) and every error and `sorry` said against the page; a full `lake
+/// build` of the tree for each case would take most of an hour.
+pub fn accepted_edited(source: &dyn Source, edited: &[String]) -> Said {
+    let mut said = Said::default();
+    let project = source.root().join(PROJECT);
+    if let Err(why) = ready(&project) {
+        said.complained = format!("{why}\n");
+        said.status = 1;
+        return said;
+    }
+    let made = match made(source) {
+        Ok(made) => made,
+        Err(said) => return said,
+    };
+    let lean_files: Vec<&String> = edited
+        .iter()
+        .filter(|f| f.starts_with("lean/Parley/") && f.ends_with(".lean"))
+        .collect();
+    let mut refused = Vec::new();
+    for file in &lean_files {
+        let Ok(text) = source.read_text(file) else {
+            said.complained += &format!("{file} is not in the tree\n");
+            said.status = 1;
+            continue;
+        };
+        let _one = LAKE
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let checked = Command::new("lake")
+            .args(["env", "lean", "--stdin"])
+            .current_dir(&project)
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .and_then(|mut child| {
+                if let Some(mut stdin) = child.stdin.take() {
+                    use std::io::Write;
+                    stdin.write_all(text.as_bytes())?;
+                }
+                child.wait_with_output()
+            });
+        let out = match checked {
+            Ok(out) => out,
+            Err(e) => {
+                said.complained += &format!("lean did not run on {file}: {e}\n");
+                said.status = 1;
+                continue;
+            }
+        };
+        let output = format!(
+            "{}{}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr)
+        );
+        let in_project = file.trim_start_matches(&format!("{PROJECT}/"));
+        refused.extend(refusals(&as_built_by_lake(&output, in_project), &made));
+    }
+    for r in &refused {
+        said.complained += &format!("{}\n", r.said);
+    }
+    if refused.is_empty() {
+        said.printed +=
+            &format!("Lean accepts the {} files edited\n", lean_files.len());
+    } else {
+        said.status = 1;
+    }
+    said
+}
+
+/// Lean's messages of a file read from stdin, `<stdin>:15:4: error: …`,
+/// as `lake build` writes them of the file, `error: Parley/…/X.lean:15:4:
+/// …`, which `refusals` reads.
+fn as_built_by_lake(output: &str, file: &str) -> String {
+    let mut out = String::new();
+    for line in output.lines() {
+        let Some(rest) = line.strip_prefix("<stdin>:") else {
+            out.push_str(line);
+            out.push('\n');
+            continue;
+        };
+        let mut parts = rest.splitn(3, ':');
+        let (Some(at), Some(col), Some(message)) =
+            (parts.next(), parts.next(), parts.next())
+        else {
+            continue;
+        };
+        let message = message.trim_start();
+        let (kind, said) = match (
+            message.strip_prefix("error: "),
+            message.strip_prefix("warning: "),
+        ) {
+            (Some(m), _) => ("error", m),
+            (None, Some(m)) => ("warning", m),
+            (None, None) => continue,
+        };
+        out.push_str(&format!("{kind}: {file}:{at}:{col}: {said}\n"));
+    }
+    out
 }
 
 /// The modules refused, with every module that imports one of them, which

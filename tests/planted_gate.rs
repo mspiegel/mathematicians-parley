@@ -22,7 +22,7 @@ use parley::source::{Disk, Memory, Overlay, Source};
 use parley::threads::in_order;
 use parley::tools::build::Libraries;
 use parley::tools::gate::{as_built, as_built_edited, verifies};
-use parley::tools::{assumed, labels, restated, tested};
+use parley::tools::{assumed, labels, lean_gate, restated, tested};
 
 /// set.mm, where it is and as it reads, read once for every stage and case.
 struct SetMm {
@@ -57,6 +57,10 @@ fn restated_stage(tree: &dyn Source, setmm: &SetMm) -> Said {
     restated::run(tree, Some(&setmm.libraries))
 }
 
+fn lean_fresh_stage(tree: &dyn Source, _: &SetMm) -> Said {
+    lean_gate::fresh_in(tree)
+}
+
 /// A stage as a case asks it, told the files the case edited. A case passes
 /// only where its stage says what it should, and a stage that does only
 /// the part of its work an edit reaches can only leave something unsaid;
@@ -88,14 +92,30 @@ fn restated_case(tree: &dyn Source, setmm: &SetMm, edited: &[String]) -> Said {
     restated::run_edited(tree, Some(&setmm.libraries), edited)
 }
 
-const STAGES: [(&str, Stage); 6] = [
+fn lean_fresh_case(tree: &dyn Source, setmm: &SetMm, _: &[String]) -> Said {
+    lean_fresh_stage(tree, setmm)
+}
+
+/// Lean over the files a case edited, against what the tree has built: a
+/// full `lake build` for each case would take most of an hour.
+fn lean_accepted_case(tree: &dyn Source, _: &SetMm, edited: &[String]) -> Said {
+    lean_gate::accepted_edited(tree, edited)
+}
+
+const STAGES: [(&str, Stage); 7] = [
     ("set.mm labels", labels_stage),
     ("cited or tested", tested_stage),
     ("taken as stated", assumed_stage),
     ("a fresh build", as_built_stage),
     ("the proofs verify", verify_stage),
     ("items restated", restated_stage),
+    ("a fresh Lean build", lean_fresh_stage),
 ];
+
+/// The Lean file the Lean cases edit, and a step of it with its proof.
+const RATIONAL_SUM: &str = "lean/Parley/Proofs/Setmm/RationalClosure/RationalSum.lean";
+const RATIONAL_SUM_STEP: &str =
+    ":= by linear_combination (norm := parley_field) s1b + s2b";
 
 /// One planted defect: the stage that must catch it, the file, the text
 /// replaced (its first occurrence), what replaces it, and what the stage
@@ -227,13 +247,51 @@ fn cases() -> Vec<Case> {
             new: "`stdlib/counting/count-last-fails`, `stdlib/sets/union-self`.",
             expect: "ELABORATION.md lists stdlib/sets/union-self as not restated, and it is restated",
         },
+        Case {
+            name: "a Lean file edited by hand",
+            stage: lean_fresh_case,
+            file: RATIONAL_SUM,
+            old: "  -- 3. algebra, from 1, 2\n",
+            new: "  -- 3. algebra, from 1\n",
+            expect: "RationalSum.lean differs from what a fresh build makes",
+        },
+        // A lean-builds form computing subtraction in ℕ, where it stops at
+        // 0: the writer refuses to compute it there.
+        Case {
+            name: "a subtraction template in ℕ",
+            stage: lean_fresh_case,
+            file: "corpus/db/notation.records",
+            old: "α, α → α: _1 - _2",
+            new: "ℕ, ℕ → ℕ: _1 - _2",
+            expect: "would be computed in ℕ, where subtraction stops at 0",
+        },
+        Case {
+            name: "a broken tactic in a Lean file",
+            stage: lean_accepted_case,
+            file: RATIONAL_SUM,
+            old: RATIONAL_SUM_STEP,
+            new: ":= by linear_combination (norm := parley_field) s1b",
+            expect: "rational-sum step 3 (proofs/setmm/rational-closure.proof:",
+        },
+        Case {
+            name: "a sorry in a Lean file",
+            stage: lean_accepted_case,
+            file: RATIONAL_SUM,
+            old: RATIONAL_SUM_STEP,
+            new: ":= by sorry",
+            expect: "declaration uses `sorry`",
+        },
     ]
 }
 
 /// The tree as it stands: what the stages read.
 fn clean() -> Memory {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    Memory::copy(&Disk::new(root), &["corpus", "proofs", "tests", "docs"]).unwrap()
+    Memory::copy(
+        &Disk::new(root),
+        &["corpus", "proofs", "tests", "docs", "lean"],
+    )
+    .unwrap()
 }
 
 fn set_mm() -> SetMm {
@@ -314,4 +372,23 @@ fn the_gate_catches_every_planted_defect() {
         cases.len()
     );
     assert_eq!(missed, 0, "{}", said.join("\n"));
+}
+
+/// Mathlib is not committed: over a tree whose Lean project has not
+/// downloaded it, the Lean stage is red and says how to, where a stage that
+/// skipped would call green what it had not looked at.
+#[test]
+fn the_lean_stage_is_red_without_mathlib() {
+    let root =
+        std::env::temp_dir().join(format!("parley-no-mathlib-{}", std::process::id()));
+    std::fs::create_dir_all(root.join("lean")).unwrap();
+    let said = lean_gate::accepted(&root);
+    let _ = std::fs::remove_dir_all(&root);
+    assert!(!said.green(), "the Lean stage is green with no Mathlib");
+    assert!(
+        said.complained.contains("Mathlib has not been downloaded")
+            || said.complained.contains("lake is not installed"),
+        "the Lean stage says {:?}",
+        said.complained
+    );
 }
