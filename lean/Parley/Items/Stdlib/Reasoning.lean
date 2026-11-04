@@ -32,6 +32,10 @@ theorem mun_or_right (P : Prop) (Q : Prop) (h1 : Q) :
     P ∨ Q :=
   Or.inr h1
 
+theorem mun_or_swap (P : Prop) (Q : Prop) (h1 : P ∨ Q) :
+    Q ∨ P :=
+  by aesop
+
 theorem mun_not_either (P : Prop) (Q : Prop) :
     ¬ (P ∨ Q) ↔ ¬ P ∧ ¬ Q :=
   not_or

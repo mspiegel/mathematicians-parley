@@ -357,7 +357,7 @@ mundane theorem congruent-divides
   then        m divides a ↔ m divides b
   metamath-proof dvdssub2
   note        Two numbers congruent modulo m are divisible by m together.
-  lean-proof  not yet implemented
+  lean-proof  Int.ModEq.dvd_iff h4
 
 mundane theorem gcd-integer
   let a ∈ ℤ                                                           (H1)
@@ -518,7 +518,7 @@ mundane theorem prime-nat
 mundane theorem two-prime
   then        2 is prime
   metamath-proof 2prm
-  lean-proof  not yet implemented
+  lean-proof  by norm_num at *
 
 mundane theorem prime-coprime
   let p ∈ ℕ                                                           (H1)
@@ -534,6 +534,7 @@ mundane theorem prime-coprime
 definition σ
   sort        number → number
   metamath-builds c1 _1 csgm co
+  lean-builds ℕ → ℕ: ArithmeticFunction.sigma 1 _1
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
   then        σ(n) = Σ(d ∈ ℕ : d divides n) d
@@ -597,7 +598,7 @@ mundane theorem one-divides
   let n ∈ ℤ                                                           (H1)
   then        1 divides n
   metamath-proof 1dvds
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem coprime-power
   let a ∈ ℤ                                                           (H1)
@@ -613,6 +614,7 @@ mundane theorem coprime-power
 definition φ
   sort        number → number
   metamath-builds _1 cphi cfv
+  lean-builds ℕ → ℕ: Nat.totient _1
   reads       Euler's φ, how many whole numbers below n have no factor in common with
   let n ∈ ℕ                                                           (H1)
   then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|
@@ -658,14 +660,14 @@ mundane theorem mod-congruent
   let n ∈ ℕ                                                           (H2)
   then        x ≡ x mod n (mod n)
   metamath-proof metamath-bridges/totient/gmodcong
-  lean-proof  not yet implemented
+  lean-proof  Int.ModEq.symm (Int.mod_modEq x ↑n)
 
 mundane theorem minus-one-congruent
   let n ∈ ℕ                                                           (H1)
   then        n − 1 ≡ −1 (mod n)
   metamath-proof metamath-bridges/divisors/gm1cong with N := n
   note        The two sides differ by n.
-  lean-proof  not yet implemented
+  lean-proof  Int.modEq_add_modulus_iff.mp rfl
 
 mundane theorem mod-equal-congruent
   let x ∈ ℤ                                                           (H1)
@@ -682,7 +684,7 @@ mundane theorem divides-square
   let n ∈ ℤ                                                           (H2)
   then        d divides n ↔ d² divides n²
   metamath-proof dvdssq
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem divides-quotient
   let n ∈ ℕ                                                           (H1)
@@ -709,7 +711,7 @@ mundane theorem divides-transitive
   assume e divides n                                                  (H5)
   then        d divides n
   metamath-proof dvdstr
-  lean-proof  not yet implemented
+  lean-proof  Int.dvd_trans h4 h5
 
 theorem least-combination-divides
   let a ∈ ℤ                                                           (H1)

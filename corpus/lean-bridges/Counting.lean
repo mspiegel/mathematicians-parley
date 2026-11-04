@@ -161,8 +161,12 @@ theorem card_singleton {α : Type*} (x : α) :
 
 /-- `mun:stdlib/counting/card-disjoint-union`. -/
 theorem card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
-    (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
-  by rw [Set.encard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5), h3, h4]; push_cast; rfl
+    ((X ∪ Y).ncard : ℤ) = (m : ℤ) + (n : ℤ) := by
+  have hX := Set.finite_of_encard_eq_coe h3
+  have hY := Set.finite_of_encard_eq_coe h4
+  have eX : X.ncard = m := by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this
+  have eY : Y.ncard = n := by have := hY.cast_ncard_eq; rw [h4] at this; exact_mod_cast this
+  rw [Set.ncard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5) hX hY, eX, eY]; push_cast; ring
 
 /-- `mun:stdlib/counting/card-empty`. -/
 theorem card_empty {α : Type*} :

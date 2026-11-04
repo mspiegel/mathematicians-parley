@@ -17,9 +17,29 @@ theorem def_set_builder {α : Type*} (P : α → Prop) (X : Set α) (u : α) :
     u ∈ {t ∈ X | P t} ↔ u ∈ X ∧ P u :=
   Set.mem_sep_iff
 
+theorem def_part_builder {α : Type*} (P : Set α → Prop) (X : Set α) (u : Set α) :
+    u ∈ {t ∈ 𝒫 X | P t} ↔ u ⊆ X ∧ P u :=
+  by simp_all
+
+theorem mun_part_builder_empty {α : Type*} (P : Set α → Prop) (X : Set α) :
+    {t ∈ 𝒫 X | P t} = ∅ ↔ (∀ t ∈ 𝒫 X, ¬ P t) :=
+  Set.sep_eq_empty_iff_mem_false
+
+theorem mun_empty_subset {α : Type*} (X : Set α) :
+    ∅ ⊆ X :=
+  by simp_all
+
 theorem mun_set_builder_subset {α : Type*} (P : α → Prop) (X : Set α) :
     {t ∈ X | P t} ⊆ X :=
   Set.sep_subset X P
+
+theorem mun_set_builder_split_disjoint {α : Type*} (P : α → Prop) (X : Set α) :
+    {t ∈ X | P t} ∩ {t ∈ X | ¬ P t} = ∅ :=
+  by aesop
+
+theorem mun_set_builder_empty {α : Type*} (P : α → Prop) (X : Set α) :
+    {t ∈ X | P t} = ∅ ↔ (∀ t ∈ X, ¬ P t) :=
+  by simp_all
 
 theorem mun_subset_transitive {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Y) (h2 : Y ⊆ Z) :
     X ⊆ Z :=
@@ -37,13 +57,61 @@ theorem def_pair {α : Type*} (u : α) (w : α) (x : α) :
     x ∈ ({u, w} : Set α) ↔ x = u ∨ x = w :=
   Iff.rfl
 
+theorem mun_pair_equal {α : Type*} (a : α) (b : α) (c : α) (d : α) :
+    ({a, b} : Set α) = ({c, d} : Set α) ↔ a = c ∧ b = d ∨ a = d ∧ b = c :=
+  Set.pair_eq_pair_iff
+
 theorem def_singleton {α : Type*} (a : α) (x : α) :
     x ∈ ({a} : Set α) ↔ x = a :=
   Iff.rfl
 
+theorem def_triple {α : Type*} (u : α) (v : α) (w : α) (x : α) :
+    x ∈ ({u, v, w} : Set α) ↔ (x = u ∨ x = v) ∨ x = w :=
+  by aesop
+
+theorem mun_pair_finite {α : Type*} (u : α) (w : α) :
+    ({u, w} : Set α).Finite :=
+  by simp_all
+
+theorem mun_difference_of_union {α : Type*} (Y : Set α) (a : α) :
+    (Y ∪ ({a} : Set α)) \ ({a} : Set α) = Y \ ({a} : Set α) :=
+  by simp_all
+
+theorem mun_difference_absent {α : Type*} (Y : Set α) (a : α) (h1 : ¬ a ∈ Y) :
+    Y \ ({a} : Set α) = Y :=
+  by simp_all
+
+theorem mun_singleton_outside {α : Type*} (Y : Set α) (a : α) (h1 : ¬ a ∈ Y) :
+    Y ∩ ({a} : Set α) = ∅ :=
+  by simp_all
+
+theorem mun_difference_by_union {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+    X \ (Y ∪ Z) = (X \ Y) \ Z :=
+  by aesop
+
+theorem mun_nothing_left_outside {α : Type*} (X : Set α) (Y : Set α) :
+    Y ⊆ X ↔ Y \ X = ∅ :=
+  Iff.symm Set.sdiff_eq_empty
+
+theorem mun_intersection_of_part {α : Type*} (X : Set α) (Y : Set α) (h1 : Y ⊆ X) :
+    X ∩ Y = Y :=
+  by simp_all
+
+theorem mun_not_in_subset {α : Type*} (Y : Set α) (Z : Set α) (a : α) (h1 : ¬ a ∈ Z) (h2 : Y ⊆ Z) :
+    ¬ a ∈ Y :=
+  by tauto
+
+theorem mun_in_union_singleton {α : Type*} (Y : Set α) (a : α) :
+    a ∈ Y ∪ ({a} : Set α) :=
+  by simp_all
+
 theorem mun_disjoint_empty {α : Type*} (Y : Set α) (Z : Set α) (h1 : ∀ s ∈ Z, ¬ s ∈ Y) :
     Y ∩ Z = ∅ :=
   LeanBridges.Sets.disjoint_empty Y Z h1
+
+theorem mun_not_in_difference {α : Type*} (X : Set α) (a : α) :
+    ¬ a ∈ X \ ({a} : Set α) :=
+  by simp_all
 
 theorem mun_union_subset {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Z) (h2 : Y ⊆ Z) :
     X ∪ Y ⊆ Z :=
@@ -64,6 +132,14 @@ theorem mun_difference_subset {α : Type*} (X : Set α) (Y : Set α) :
 theorem mun_difference_shrinks {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : Y ⊆ X) :
     Y \ Z ⊆ X \ Z :=
   Set.diff_subset_diff_left h1
+
+theorem mun_subset_into_difference {α : Type*} (X : Set α) (Y : Set α) (a : α) (h1 : Y ⊆ X) (h2 : ¬ a ∈ Y) :
+    Y ⊆ X \ ({a} : Set α) :=
+  Set.subset_sdiff_singleton h1 h2
+
+theorem mun_remove_and_restore {α : Type*} (Y : Set α) (a : α) (h1 : a ∈ Y) :
+    Y \ ({a} : Set α) ∪ ({a} : Set α) = Y :=
+  by simp_all
 
 theorem mun_singleton_subset {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) :
     ({a} : Set α) ⊆ X :=
@@ -101,6 +177,10 @@ theorem mun_union_difference {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∪ Z \ Y = Y ∪ Z :=
   Set.union_diff_self
 
+theorem mun_member_nonempty {α : Type*} (Y : Set α) (a : α) (h1 : a ∈ Y) :
+    ¬ Y = ∅ :=
+  by aesop
+
 theorem mun_intersection_self {α : Type*} (Y : Set α) :
     Y ∩ Y = Y :=
   Set.inter_self Y
@@ -117,6 +197,30 @@ theorem mun_difference_self {α : Type*} (Y : Set α) :
     Y \ Y = ∅ :=
   Set.sdiff_self
 
+theorem mun_intersection_distributes {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+    X ∩ (Y ∪ Z) = X ∩ Y ∪ X ∩ Z :=
+  by aesop
+
+theorem mun_intersection_distributes_right {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+    (X ∪ Y) ∩ Z = X ∩ Z ∪ Y ∩ Z :=
+  by aesop
+
+theorem mun_intersection_distributes_over_intersection {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+    (X ∩ Y) ∩ Z = (X ∩ Z) ∩ (Y ∩ Z) :=
+  by aesop
+
+theorem mun_intersection_subset {α : Type*} (Y : Set α) (Z : Set α) :
+    Y ∩ Z ⊆ Y :=
+  by simp_all
+
+theorem mun_intersection_and_difference {α : Type*} (Y : Set α) (Z : Set α) :
+    Y ∩ Z ∪ Y \ Z = Y :=
+  by simp_all
+
+theorem mun_intersection_and_difference_disjoint {α : Type*} (Y : Set α) (Z : Set α) :
+    (Y ∩ Z) ∩ (Y \ Z) = ∅ :=
+  by aesop
+
 theorem mun_subset_empty {α : Type*} (Y : Set α) :
     Y ⊆ ∅ ↔ Y = ∅ :=
   Set.subset_empty_iff
@@ -129,9 +233,25 @@ theorem mun_in_subset {α : Type*} (X : Set α) (Y : Set α) (u : α) (h1 : X �
     u ∈ Y :=
   h1 h2
 
+theorem mun_difference_reverses {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Y) :
+    Z \ Y ⊆ Z \ X :=
+  Set.sdiff_subset_sdiff (fun ⦃a⦄ a_1 => a_1) h1
+
+theorem mun_complement_swap_outside {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
+    Z \ Y ⊆ X ↔ Z \ X ⊆ Y :=
+  Set.sdiff_subset_comm
+
+theorem mun_equal_subset {α : Type*} (X : Set α) (Y : Set α) (h1 : X = Y) :
+    X ⊆ Y :=
+  by simp_all
+
 theorem mun_disjoint_member {α : Type*} (Y : Set α) (Z : Set α) (u : α) (h1 : Y ∩ Z = ∅) (h2 : u ∈ Y) :
     ¬ u ∈ Z :=
   LeanBridges.Sets.disjoint_member Y Z u h1 h2
+
+theorem mun_disjoint_difference {α : Type*} (Y : Set α) (Z : Set α) :
+    Y ∩ (Z \ Y) = ∅ :=
+  by simp_all
 
 theorem mun_subset_antisymmetric {α : Type*} (X : Set α) (Y : Set α) (h1 : X ⊆ Y) (h2 : Y ⊆ X) :
     X = Y :=

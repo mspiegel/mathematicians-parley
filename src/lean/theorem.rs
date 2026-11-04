@@ -133,27 +133,214 @@ fn held_real(rec: &CheckedTheorem, writer: &Writer) -> Vec<String> {
     out
 }
 
-/// The sets a theorem's hypotheses make finite, whose counts its statement
-/// and proof write as natural numbers (`Writer::finite`). A step's line
-/// holds only from that step on, V ⊆ {a, b} late in a proof, and the
-/// conclusion only where the hypotheses do, so neither makes a set finite.
-pub fn finite_in(
+/// The lines whose finite sets a theorem counts as natural numbers, its
+/// statement and its proof alike (`Writer::finite_from`): its hypotheses.
+/// A step's line holds only from that step on, V ⊆ {a, b} late in a proof,
+/// and the conclusion only where the hypotheses do, so neither makes a set
+/// finite.
+pub fn finite_lines(thm: &Theorem, rec: &CheckedTheorem) -> Vec<Node> {
+    hypothesis_sentences(thm, rec)
+        .into_iter()
+        .flat_map(|(_, said)| said.into_iter().map(|(node, _)| node))
+        .collect()
+}
+
+/// Why a function a proof defines whose values are sets, I(k) = {|x| : x ∈
+/// 𝒫{1, …, k}}, is not written: the writer types a function letter as one
+/// into numbers only.
+pub const SET_VALUED: &str = "a function a proof defines whose values are sets";
+
+/// Whether the checker reads the name a proof defines as a function whose
+/// values are sets.
+pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
+    matches!(
+        rec.sorts.get(name).and_then(|s| s.full()),
+        Some(crate::formula::Whole::Function(_, to))
+            if matches!(**to, crate::formula::Whole::Set(_))
+    )
+}
+
+/// The theorem as the checker read it with each function its file defines
+/// outside it written out where it is applied, T(k + 1) of `define T(k) :=
+/// k(k + 1)/2` as (k + 1)(k + 2)/2, as the Metamath build reads it
+/// (`elab::reading`): Lean has no name for such a function, and set.mm's
+/// statement never names one. Unchanged where the file defines none.
+pub fn outside_written<'r>(
+    checked: &CheckedCorpus,
+    rec: &'r CheckedTheorem,
+) -> std::borrow::Cow<'r, CheckedTheorem> {
+    let rules: crate::matching::Definitions = rec
+        .outside
+        .iter()
+        .filter(|(_, d)| matches!(d, crate::matching::Defined::Rule(_)))
+        .map(|(n, d)| (n.clone(), d.clone()))
+        .collect();
+    let phrases = phrase_meanings(checked, rec);
+    let written_page = rec
+        .page
+        .entries()
+        .flat_map(|(_, n)| n.walk())
+        .any(|n| phrases.contains_key(&n.notation()));
+    if rules.is_empty() && !written_page {
+        return std::borrow::Cow::Borrowed(rec);
+    }
+    let out = |n: &Node| {
+        let n = crate::matching::expand(n, &rules);
+        phrases_written(&n, &phrases, &checked.grammar, 8)
+    };
+    let binding = |b: &crate::matching::Binding| -> crate::matching::Binding {
+        b.iter().map(|(k, v)| (*k, out(v))).collect()
+    };
+    let mut written = rec.clone();
+    written.page = crate::checker::record::PageReading::new(
+        rec.page
+            .entries()
+            .map(|(k, n)| (k.clone(), out(n)))
+            .collect(),
+    );
+    written.asserted = rec
+        .asserted
+        .iter()
+        .map(|line| line.iter().map(out).collect())
+        .collect();
+    for c in written.cited.iter_mut().flatten() {
+        c.binding = binding(&c.binding);
+    }
+    for c in written.cited_requires.values_mut() {
+        c.binding = binding(&c.binding);
+    }
+    for all in written.exhibited.values_mut() {
+        for b in all.iter_mut().flatten() {
+            *b = binding(b);
+        }
+    }
+    std::borrow::Cow::Owned(written)
+}
+
+/// A phrase a define gives, `c is a counting ahead through k`: its slots
+/// and what it means, from the definition record the define stands for,
+/// whose statement is the phrase, `↔`, and the meaning.
+struct Phrase {
+    slots: Vec<crate::formula::symbol::Symbol>,
+    meaning: Node,
+}
+
+/// Each phrase a theorem can read, by its notation, as the Metamath build
+/// reads it (`Elaborator::phrase_meanings`).
+fn phrase_meanings(
+    checked: &CheckedCorpus,
+    rec: &CheckedTheorem,
+) -> IndexMap<crate::formula::notation_id::NotationId, Phrase> {
+    let mut out = IndexMap::new();
+    let made = checked.corpus.records.iter().filter(|r| {
+        r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
+    });
+    for r in made {
+        for written in r.stated() {
+            let Ok(sentence) = written.formula() else {
+                continue;
+            };
+            let Some(Ok(read)) = rec.items.get(&sentence) else {
+                continue;
+            };
+            let [phrase, meaning] = read.children.as_slice() else {
+                continue;
+            };
+            if read.notation() != crate::notations::BICONDITIONAL
+                || !phrase.children.iter().all(Node::is_name)
+            {
+                continue;
+            }
+            out.insert(
+                phrase.notation(),
+                Phrase {
+                    slots: phrase.children.iter().map(|c| c.text).collect(),
+                    meaning: meaning.clone(),
+                },
+            );
+        }
+    }
+    out
+}
+
+/// The tree with each phrase written out as its meaning at what fills its
+/// slots, the meaning's own letters kept apart from what is put in.
+fn phrases_written(
+    node: &Node,
+    phrases: &IndexMap<crate::formula::notation_id::NotationId, Phrase>,
+    grammar: &crate::formula::Grammar,
+    depth: usize,
+) -> Node {
+    if depth == 0 {
+        return node.clone();
+    }
+    if let Some(p) = phrases.get(&node.notation()) {
+        if p.slots.len() == node.children.len() {
+            let put: crate::matching::Binding = p
+                .slots
+                .iter()
+                .copied()
+                .zip(node.children.iter().cloned())
+                .collect();
+            let at = crate::matching::substitute_apart_by(
+                &p.meaning,
+                &put,
+                &grammar.binders(),
+            );
+            return phrases_written(&at, phrases, grammar, depth - 1);
+        }
+    }
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    node.with_children(
+        node.children
+            .iter()
+            .map(|c| phrases_written(c, phrases, grammar, depth))
+            .collect(),
+    )
+}
+
+/// To the finite sets of a theorem's hypotheses, those its defines name and
+/// the letters it binds only over sets of finite sets (`sets::finite_names`).
+pub fn finite_named(
     grammar: &crate::formula::Grammar,
     thm: &Theorem,
     rec: &CheckedTheorem,
-) -> std::collections::BTreeSet<String> {
-    let hypotheses: Vec<Node> = hypothesis_sentences(thm, rec)
-        .into_iter()
-        .flat_map(|(_, said)| said.into_iter().map(|(node, _)| node))
+    finite: &mut std::collections::BTreeSet<String>,
+) {
+    let defines: Vec<super::sets::Named> = thm
+        .defines
+        .iter()
+        .filter_map(|d| {
+            let Route::Built(crate::corpus::DefineParts::One(def)) =
+                crate::corpus::define_parts(&d.text)
+            else {
+                return None;
+            };
+            let value = rec
+                .page
+                .entries()
+                .find(|(key, _)| key.line == d.line)
+                .map(|(_, node)| node)?;
+            def.params.is_empty().then_some(super::sets::Named {
+                name: def.name,
+                value,
+            })
+        })
         .collect();
-    super::sets::finite_sets(grammar, &hypotheses)
+    let lines: Vec<&Node> = rec.page.entries().map(|(_, node)| node).collect();
+    super::sets::finite_names(grammar, finite, &defines, &lines);
 }
 
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
+    let written = outside_written(sources.checked, rec);
+    let rec: &CheckedTheorem = &written;
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.floor = floor_of(rec);
     writer.reals = held_real(rec, &writer);
-    writer.finite = finite_in(&sources.checked.grammar, thm, rec);
+    writer.finite_from(finite_lines(thm, rec));
+    finite_named(&sources.checked.grammar, thm, rec, &mut writer.finite);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -321,6 +508,10 @@ struct ThingsGiven {
     /// The type variables whose sets are given sets of numbers, X := {2n :
     /// n ∈ ℤ}.
     numbers: std::collections::BTreeSet<usize>,
+    /// What the members are of a set given for each type variable's set
+    /// where they are not numbers, sets of integers of X := {e ⊆ {1, …, m}
+    /// : |e| = m}.
+    others: std::collections::BTreeMap<usize, super::expr::Members>,
 }
 
 impl ThingsGiven {
@@ -974,6 +1165,8 @@ pub fn theorem(
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Route<LeanFile> {
+    let written = outside_written(sources.checked, rec);
+    let rec: &CheckedTheorem = &written;
     let mut proof = Proof {
         sources,
         thm,
@@ -990,7 +1183,8 @@ pub fn theorem(
     };
     proof.writer.floor = floor_of(rec);
     proof.writer.reals = held_real(rec, &proof.writer);
-    proof.writer.finite = finite_in(&sources.checked.grammar, thm, rec);
+    proof.writer.finite_from(finite_lines(thm, rec));
+    finite_named(&sources.checked.grammar, thm, rec, &mut proof.writer.finite);
     let Statement {
         binders,
         conclusion,
@@ -2218,6 +2412,9 @@ impl<'a> Proof<'a> {
         let [param] = def.params.as_slice() else {
             return Route::no("a define of a function of more than one argument");
         };
+        if set_valued(self.rec, &def.name) {
+            return Route::no(SET_VALUED);
+        }
         // The checker reads the line's argument, the set it runs over and
         // the value apart.
         let read: Vec<&Node> = self
@@ -2248,9 +2445,12 @@ impl<'a> Proof<'a> {
         else {
             return Route::no("a define of a function on other than a number system");
         };
+        // The value is what the line reads besides the domain and the
+        // argument; a value that is itself a set of numbers, {|x| : x ∈
+        // 𝒫{1, …, k}}, is not the domain.
         let bodies: Vec<&&Node> = read
             .iter()
-            .filter(|n| !over(n) && !of_numbers(n))
+            .filter(|n| !std::ptr::eq(**n, *domain))
             .filter(|n| !(n.is_name() && *n.text == *param.name))
             .collect();
         let [body] = bodies.as_slice() else {
@@ -3506,9 +3706,15 @@ impl<'a> Proof<'a> {
                 // A set of things given a set of numbers, X := ℝ, sets the
                 // things' type at least to that set's.
                 LetterType::Set(Members::Things(var)) => {
-                    if let Some(Members::Numbers(n)) = self.writer.set_members(value) {
-                        given.raise(*var, n);
-                        given.numbers.insert(*var);
+                    match self.writer.set_members(value) {
+                        Some(Members::Numbers(n)) => {
+                            given.raise(*var, n);
+                            given.numbers.insert(*var);
+                        }
+                        Some(m @ Members::Sets(_)) => {
+                            given.others.insert(*var, m);
+                        }
+                        _ => {}
                     }
                 }
                 _ => {}
@@ -3750,6 +3956,13 @@ impl<'a> Proof<'a> {
                                         things_at(var).lean().to_string(),
                                     )
                                 }
+                                // Of things given sets, a set of them.
+                                super::expr::Members::Things(var)
+                                    if things.others.contains_key(var) =>
+                                {
+                                    let m = &things.others[var];
+                                    (m.letter(), m.lean())
+                                }
                                 _ => (members.letter(), members.lean()),
                             };
                             match (&*value.notation_name(), value.children.as_slice()) {
@@ -3888,6 +4101,15 @@ impl<'a> Proof<'a> {
                                     "a map by its values of other than one body",
                                 ),
                             }
+                        }
+                        // A listed set whose members give no type, {∅},
+                        // given for a set of things that another letter
+                        // gives sets: a set of those.
+                        (LetterType::Set(super::expr::Members::Things(var)), _)
+                            if things.others.contains_key(var)
+                                && self.writer.members_of(value).is_none() =>
+                        {
+                            self.writer.listed_as(value, &things.others[var])
                         }
                         // A set, a member or a map given for one: the term
                         // as the writer writes a set's.
@@ -5103,9 +5325,11 @@ fn with_haves(haves: &[String], tactic: &str) -> String {
         return tactic.to_string();
     }
     let body = tactic.strip_prefix("by ").unwrap_or(tactic);
+    // Each line is indented, a `have` whose own proof runs over several
+    // lines included, so that its proof stays under it.
     let mut out = String::from("by");
     for h in haves {
-        out.push_str(&format!("\n  {h}"));
+        out.push_str(&format!("\n  {}", h.replace('\n', "\n  ")));
     }
     out.push_str(&format!("\n  {}", body.replace('\n', "\n  ")));
     out

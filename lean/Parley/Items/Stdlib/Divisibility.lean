@@ -121,6 +121,10 @@ theorem mun_divides_multiple (e : ℤ) (a : ℤ) (x : ℤ) (h4 : e ∣ a) :
     e ∣ a * x :=
   Dvd.dvd.mul_right h4 x
 
+theorem mun_congruent_divides (m : ℤ) (a : ℤ) (b : ℤ) (h4 : a ≡ b [ZMOD m]) :
+    m ∣ a ↔ m ∣ b :=
+  Int.ModEq.dvd_iff h4
+
 theorem mun_gcd_integer_1 (a : ℤ) (b : ℤ) :
     0 ≤ (Int.gcd a b : ℤ) :=
   LeanBridges.Divisibility.gcd_integer_1 a b
@@ -181,17 +185,41 @@ theorem mun_prime_nat (p : ℤ) (h2 : Nat.Prime p.toNat) :
     0 < p :=
   LeanBridges.Divisibility.prime_nat p h2
 
+theorem mun_two_prime :
+    Nat.Prime (2 : ℤ).toNat :=
+  by norm_num at *
+
 theorem mun_prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h4 : ¬ (p : ℤ) ∣ a) :
     (Int.gcd (p : ℤ) a : ℤ) = 1 :=
   LeanBridges.Divisibility.prime_coprime p h1 h2 a h4
+
+theorem mun_one_divides (n : ℤ) :
+    (1 : ℤ) ∣ n :=
+  by simp_all
+
+theorem mun_mod_congruent (x : ℤ) (n : ℕ) (h2 : 0 < n) :
+    x ≡ (x % (n : ℤ)) [ZMOD (n : ℤ)] :=
+  Int.ModEq.symm (Int.mod_modEq x ↑n)
+
+theorem mun_minus_one_congruent (n : ℕ) (h1 : 0 < n) :
+    ((n : ℤ) - 1) ≡ (-1 : ℤ) [ZMOD (n : ℤ)] :=
+  Int.modEq_add_modulus_iff.mp rfl
 
 theorem mun_mod_equal_congruent (x : ℤ) (y : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : x % (n : ℤ) = y % (n : ℤ)) :
     x ≡ y [ZMOD (n : ℤ)] :=
   h4
 
+theorem mun_divides_square (d : ℤ) (n : ℤ) :
+    d ∣ n ↔ d ^ 2 ∣ n ^ 2 :=
+  by simp_all
+
 theorem mun_divides_quotient (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
     (d : ℤ) ∣ (n : ℤ) ↔ (∃ m : ℕ, 0 < m ∧ (m : ℚ) = (n : ℚ) / (d : ℚ)) :=
   LeanBridges.Divisibility.divides_quotient n h1 d h2
+
+theorem mun_divides_transitive (d : ℤ) (e : ℤ) (n : ℤ) (h4 : d ∣ e) (h5 : e ∣ n) :
+    d ∣ n :=
+  Int.dvd_trans h4 h5
 
 theorem thm_coprime_divides (x : ℤ) (c : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : (n : ℤ) ∣ x * c) (h5 : (Int.gcd c (n : ℤ) : ℤ) = 1) :
     (n : ℤ) ∣ x :=

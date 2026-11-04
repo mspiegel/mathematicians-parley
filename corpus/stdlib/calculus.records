@@ -343,7 +343,7 @@ mundane theorem continuous-on-part
   note        A function continuous on a set is continuous on any part of
               it, as the mean value theorem asks of f on [c, x] inside its
               domain.
-  lean-proof  not yet implemented
+  lean-proof  ContinuousOn.congr_mono h3 (fun ⦃x⦄ => congrFun rfl) h2
 
 mundane theorem map-continuous-on-part
   let D ⊆ ℝ                                                           (H1)

@@ -148,6 +148,24 @@ enum Fact {
 /// for, or as a map between such sets. None for any other line, and for a
 /// letter already typed.
 fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
+    // v ∉ W, read as not (v ∈ W): v is a member of what W holds, and the
+    // line, `¬ v ∈ W`, a fact about it.
+    if let ([inner], crate::notations::LOGICAL_NOT) =
+        (node.children.as_slice(), node.notation())
+    {
+        if let ([v, set], crate::notations::MEMBERSHIP) =
+            (inner.children.as_slice(), inner.notation())
+        {
+            if v.is_name() && !writer.letters.contains_key(v.text.as_str()) {
+                return Some(InSet {
+                    letter: v.text.to_string(),
+                    ty: writer.members_of(set)?.letter(),
+                    fact: Fact::Line,
+                    domain: None,
+                });
+            }
+        }
+    }
     let [letter, rest @ ..] = node.children.as_slice() else {
         return None;
     };
@@ -388,7 +406,11 @@ pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
             }
             continue;
         }
-        let says: Printed = match writer.formula(a.node) {
+        let written = match writer.without_line(a.node) {
+            Some(w) => w.formula(a.node),
+            None => writer.formula(a.node),
+        };
+        let says: Printed = match written {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };

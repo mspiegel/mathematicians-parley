@@ -45,7 +45,7 @@ mundane theorem added-elements-are-new
               property it asks, being outside a set Z, because the language
               can name neither — the same gap `notation bijection` records.
               Z may be Y itself, as the subsets proof has it.
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem function-value
   let f : D → E                                                       (H1)
@@ -79,7 +79,7 @@ mundane theorem added-element-in-image
   metamath-proof elrnmpt1s
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
-  lean-proof  not yet implemented
+  lean-proof  by aesop
 
 mundane theorem added-elements-stay-inside
   let Y be a set                                                      (H1)
@@ -89,7 +89,7 @@ mundane theorem added-elements-stay-inside
   metamath-proof rnmptss
   note        Narrowed to the one map the corpus writes, as
               `mun:stdlib/functions/added-elements-are-new` is.
-  lean-proof  not yet implemented
+  lean-proof  by aesop
 
 definition image
   let f : X → W                                                       (H1)

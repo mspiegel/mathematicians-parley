@@ -20,8 +20,8 @@ theorem tends_to (x : ℤ → ℝ) (L : ℝ) :
 
 /-- `def:stdlib/calculus/limit-at`: the limit of f at c over its domain D,
 c left out, in ε and δ. -/
-theorem limit_at (f : ℝ → ℝ) (D : Set ℝ) (_hf : Set.MapsTo f D (Set.univ : Set ℝ))
-    (_h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (L : ℝ) :
+theorem limit_at (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (L : ℝ)
+    (_hf : Set.MapsTo f D (Set.univ : Set ℝ)) :
     Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε))) := by
   rw [Metric.tendsto_nhdsWithin_nhds]
   simp only [Real.dist_eq, Set.mem_sdiff, Set.mem_singleton_iff, gt_iff_lt]

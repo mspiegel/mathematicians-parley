@@ -154,7 +154,7 @@ theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : �
     all_goals parley_set_side
   -- 5. def:continuous-on, from 1, 4
   have r217_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by parley_set_side
-  have s5 : ContinuousOn g D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) (by parley_set_side) s1)).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) (by parley_set_side) s1)).mpr (by parley_set_side); parley_set_side)
+  have s5 : ContinuousOn g D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1 (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1 (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
   all_goals parley_set_side
 
 end Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair

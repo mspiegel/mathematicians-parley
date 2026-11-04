@@ -78,6 +78,21 @@ impl<'n> SaidOfSets<'n> {
         ) {
             ("finite", _, [set]) => self.finite.push(set),
             ("subset", _, [part, whole]) => self.subsets.push(Subset { part, whole }),
+            // |X| = e, a count given as a number, says X is finite.
+            (_, crate::notations::EQUALITY, [a, b]) => {
+                for (count, value) in [(a, b), (b, a)] {
+                    let counted = &*count.notation_name() == "cardinality";
+                    let a_number = !value
+                        .walk()
+                        .iter()
+                        .any(|n| &*n.notation_name() == "cardinality");
+                    if let ([set], true, true) =
+                        (count.children.as_slice(), counted, a_number)
+                    {
+                        self.finite.push(set);
+                    }
+                }
+            }
             (_, CONJUNCTION | COMMA_CONJUNCTION, parts) => {
                 for p in parts {
                     self.read(p);
@@ -89,8 +104,9 @@ impl<'n> SaidOfSets<'n> {
 }
 
 /// Whether a set is finite by what lines say (`finite_sets`) and how it
-/// is made: ∅ and a listed set {a, b}; A ∖ B where A is, A ∩ B where
-/// either is, A ∪ B where both are.
+/// is made: ∅, a listed set {a, b} and a range {a, …, b}; A ∖ B where A
+/// is, A ∩ B where either is, A ∪ B where both are; 𝒫A, {x ∈ A : …} and
+/// {E(s) : s ∈ A} where A is.
 pub fn is_finite(
     grammar: &crate::formula::Grammar,
     finite: &std::collections::BTreeSet<String>,
@@ -99,20 +115,102 @@ pub fn is_finite(
     if finite.contains(&grammar.print(set)) {
         return true;
     }
-    match &*set.notation_name() {
-        "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four" => {
-            return true
-        }
-        "set-operations" => {}
-        _ => return false,
-    }
     let of = |s: &Node| is_finite(grammar, finite, s);
-    match (&*set.spelling().text(), set.children.as_slice()) {
-        ("∖", [a, _]) => of(a),
-        ("∩", [a, b]) => of(a) || of(b),
-        ("∪", [a, b]) => of(a) && of(b),
+    match (
+        &*set.notation_name(),
+        &*set.spelling().text(),
+        set.children.as_slice(),
+    ) {
+        (
+            "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four"
+            | "integer-range",
+            _,
+            _,
+        ) => true,
+        ("set-operations", "∖", [a, _]) => of(a),
+        ("set-operations", "∩", [a, b]) => of(a) || of(b),
+        ("set-operations", "∪", [a, b]) => of(a) && of(b),
+        ("powerset", _, [a]) => of(a),
+        ("set-builder", _, [_, a, _]) => of(a),
+        ("set-image", _, [_, _, a]) => of(a),
         _ => false,
     }
+}
+
+/// Whether every member of a set is a finite set: 𝒫A where A is finite,
+/// and what is made from such a set by {x ∈ _ : …}, ∖, ∩ and ∪, or named
+/// for one (`members`).
+pub fn holds_finite(
+    grammar: &crate::formula::Grammar,
+    finite: &std::collections::BTreeSet<String>,
+    members: &std::collections::BTreeSet<String>,
+    set: &Node,
+) -> bool {
+    if members.contains(&grammar.print(set)) {
+        return true;
+    }
+    let of = |s: &Node| holds_finite(grammar, finite, members, s);
+    match (
+        &*set.notation_name(),
+        &*set.spelling().text(),
+        set.children.as_slice(),
+    ) {
+        ("powerset", _, [a]) => is_finite(grammar, finite, a),
+        ("set-builder", _, [_, a, _]) => of(a),
+        ("set-operations", "∖", [a, _]) => of(a),
+        ("set-operations", "∩", [a, b]) => of(a) || of(b),
+        ("set-operations", "∪", [a, b]) => of(a) && of(b),
+        _ => false,
+    }
+}
+
+/// A define of a proof: the name, and the term it names.
+pub struct Named<'n> {
+    pub name: String,
+    pub value: &'n Node,
+}
+
+/// What a theorem's defines and bound letters add to the finite sets its
+/// hypotheses give: a name for a finite set, F = {S ⊆ X : |S| = j} of a
+/// finite X, is one; and a letter bound over sets that hold only finite
+/// sets, the S of {S ∈ 𝒫X : |S| = j}, is one where every place the
+/// theorem binds it is such a set, so that a property given for it, "|S|
+/// = j", counts it as the set-builder does.
+pub fn finite_names(
+    grammar: &crate::formula::Grammar,
+    finite: &mut std::collections::BTreeSet<String>,
+    defines: &[Named],
+    lines: &[&Node],
+) {
+    let mut members = std::collections::BTreeSet::new();
+    for d in defines {
+        if is_finite(grammar, finite, d.value) {
+            finite.insert(d.name.clone());
+        }
+        if holds_finite(grammar, finite, &members, d.value) {
+            members.insert(d.name.clone());
+        }
+    }
+    let mut bound: std::collections::BTreeMap<String, bool> =
+        std::collections::BTreeMap::new();
+    for n in lines.iter().flat_map(|l| l.walk()) {
+        let over = match (n.notation(), &*n.notation_name(), n.children.as_slice()) {
+            (_, "set-builder", [x, set, _]) => Some((x, set)),
+            (_, "set-image", [_, x, set]) => Some((x, set)),
+            (
+                crate::notations::FOR_ALL | crate::notations::THERE_IS,
+                _,
+                [x, set, _],
+            ) => Some((x, set)),
+            _ => None,
+        };
+        if let Some((x, set)) = over.filter(|(x, _)| x.is_name()) {
+            let holds = holds_finite(grammar, finite, &members, set);
+            let all = bound.entry(x.text.to_string()).or_insert(true);
+            *all = *all && holds;
+        }
+    }
+    finite.extend(bound.into_iter().filter(|(_, all)| *all).map(|(x, _)| x));
 }
 
 /// Whether a term counts, somewhere, a set not among `finite`: a count the
@@ -192,13 +290,14 @@ impl Writer<'_> {
                     .or_else(|| node.children.get(1).and_then(|c| self.set_members(c)))
             }
             "powerset" => self
-                .members_of(node.children.first()?)
+                .set_members(node.children.first()?)
                 .map(|m| Members::Sets(Box::new(m))),
             "singleton" | "listed-two" | "listed-three" | "listed-four" => node
                 .children
                 .iter()
                 .find_map(|c| self.member_kind(c))
-                .or_else(|| self.numbers_held(&node.children)),
+                .or_else(|| self.numbers_held(&node.children))
+                .or_else(|| self.sets_of_nothing(&node.children)),
             // {E(s) : s ∈ Y} holds what E(s) is.
             "set-image" => {
                 let inner = self.set_image_inner(node)?;
@@ -207,8 +306,19 @@ impl Writer<'_> {
                     .member_kind(term)
                     .or_else(|| inner.numbers_held(std::slice::from_ref(term)))
             }
-            // [a, b] holds real numbers.
-            "closed-interval" => Some(Members::Numbers(Num::Real)),
+            // [a, b] and (a, b) hold real numbers.
+            "closed-interval" | "open-interval" => Some(Members::Numbers(Num::Real)),
+            // ⋃(x ∈ S) T holds what each T does, x a member of S.
+            "indexed-union" => {
+                let [x, s, t] = node.children.as_slice() else {
+                    return None;
+                };
+                let mut inner = self.with_letters(self.letters.clone());
+                inner
+                    .letters
+                    .insert(x.text.to_string(), self.set_members(s)?.letter());
+                inner.set_members(t)
+            }
             // A preimage holds what the map takes, an image what it gives.
             "image" => match self.preimage_of(node) {
                 Some(f) => match self.letters.get(f.text.as_str()) {
@@ -505,17 +615,21 @@ impl Writer<'_> {
                     prec,
                 })
             }
-            // [a, b], the reals from a to b.
-            "closed-interval" => {
+            // [a, b] and (a, b), the reals from a to b, ends in or out.
+            interval @ ("closed-interval" | "open-interval") => {
                 let [from, to] = node.children.as_slice() else {
                     return Route::no("an interval of other than two ends");
+                };
+                let lean = match interval {
+                    "closed-interval" => "Set.Icc",
+                    _ => "Set.Ioo",
                 };
                 match (
                     self.number_fixed(from, Num::Real),
                     self.number_fixed(to, Num::Real),
                 ) {
                     (Route::Built(a), Route::Built(b)) => Route::Built(Printed::atom(
-                        format!("(Set.Icc {} {} : Set ℝ)", a.at(MAX), b.at(MAX)),
+                        format!("({lean} {} {} : Set ℝ)", a.at(MAX), b.at(MAX)),
                     )),
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         Route::Declined(d)
@@ -553,18 +667,7 @@ impl Writer<'_> {
                 let Some(members) = self.members_of(node) else {
                     return Route::no("a listed set of members with no Lean type");
                 };
-                let mut listed = Vec::new();
-                for c in &node.children {
-                    match self.element_term(c, &members) {
-                        Route::Built(p) => listed.push(p.text),
-                        Route::Declined(d) => return Route::Declined(d),
-                    }
-                }
-                Route::Built(Printed::atom(format!(
-                    "({{{}}} : Set {})",
-                    listed.join(", "),
-                    super::expr::bracketed(&members.lean())
-                )))
+                self.listed(node, &members)
             }
             "image" if self.preimage_of(node).is_some() => self.preimage(node),
             // f[{1, 2}] of a function on numbers: the set at the type the
@@ -598,6 +701,31 @@ impl Writer<'_> {
                 (_, Route::Declined(d)) => Route::Declined(d),
             },
             "set-builder" => self.set_builder(node),
+            // ⋃(x ∈ S) T, the union of T as x runs over S: `⋃ x ∈ S, T`.
+            "indexed-union" => {
+                let [x, s, t] = node.children.as_slice() else {
+                    return Route::no("a union of other than three parts");
+                };
+                let Some(over) = self.set_members(s) else {
+                    return Route::no("a union over a set with no Lean type");
+                };
+                let mut inner = self.with_letters(self.letters.clone());
+                inner.letters.insert(x.text.to_string(), over.letter());
+                match (self.set_term(s), inner.set_term(t)) {
+                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
+                        text: format!(
+                            "⋃ {} ∈ {}, {}",
+                            super::names::letter(&x.text),
+                            a.at(MAX),
+                            b.at(67)
+                        ),
+                        prec: 10,
+                    }),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        Route::Declined(d)
+                    }
+                }
+            }
             "set-image" => self.set_image(node),
             "application" => self.map_applied(node),
             other => Route::no(format!("{other} as a set")),
@@ -906,6 +1034,36 @@ impl Writer<'_> {
         counts_in_extended(self.grammar, &self.finite, node)
     }
 
+    /// The sets these hypotheses make finite are the ones this writer
+    /// counts as natural numbers.
+    pub fn finite_from(&mut self, lines: Vec<Node>) {
+        self.finite = finite_sets(self.grammar, &lines);
+        self.finite_lines = lines;
+    }
+
+    /// The writer a hypothesis is written with: one counting as finite only
+    /// what the other hypotheses make finite, since a line cannot vouch for
+    /// itself. `|X| = 0` written with `X.ncard` would hold of every
+    /// infinite X too, and say less than the page; `X.encard = 0` says X is
+    /// finite. None where the line makes no set finite.
+    pub fn without_line(&self, line: &Node) -> Option<Writer<'_>> {
+        if finite_sets(self.grammar, std::iter::once(line)).is_empty() {
+            return None;
+        }
+        let printed = self.grammar.print(line);
+        let others: Vec<&Node> = self
+            .finite_lines
+            .iter()
+            .filter(|l| self.grammar.print(l) != printed)
+            .collect();
+        let by_others = finite_sets(self.grammar, others);
+        let by_all = finite_sets(self.grammar, &self.finite_lines);
+        let mut out = self.with_letters(self.letters.clone());
+        out.finite
+            .retain(|s| by_others.contains(s) || !by_all.contains(s));
+        Some(out)
+    }
+
     /// |A| of a set a line says is finite: the natural number `A.ncard`.
     /// None for any other term.
     pub fn finite_count(&self, node: &Node) -> Option<Route<Printed>> {
@@ -1104,25 +1262,71 @@ impl Writer<'_> {
         })
     }
 
+    /// A listed set, {u, w}, of members of the type given, ascribed it, which
+    /// Lean cannot take from a member alone: `({u, w} : Set α)`.
+    fn listed(&self, node: &Node, members: &Members) -> Route<Printed> {
+        let mut listed = Vec::new();
+        for c in &node.children {
+            match self.element_term(c, members) {
+                Route::Built(p) => listed.push(p.text),
+                Route::Declined(d) => return Route::Declined(d),
+            }
+        }
+        Route::Built(Printed::atom(format!(
+            "({{{}}} : Set {})",
+            listed.join(", "),
+            super::expr::bracketed(&members.lean())
+        )))
+    }
+
+    /// What a listed set of ∅ alone holds, {∅}, which its members do not
+    /// say: in a theorem whose sets hold things, of one type α, sets of
+    /// those. None where a member is anything but ∅, or no letter holds
+    /// things.
+    fn sets_of_nothing(&self, members: &[Node]) -> Option<Members> {
+        let empties = members.iter().all(|m| &*m.notation_name() == "empty-set");
+        let things = self.letters.values().any(|t| t.things_vars().contains(&0));
+        (empties && things).then(|| Members::Sets(Box::new(Members::Things(0))))
+    }
+
+    /// A set where what it holds is known from elsewhere: a listed set at
+    /// those members, {∅} as `({∅} : Set (Set ℤ))`; any other as the writer
+    /// writes it.
+    pub fn listed_as(&self, node: &Node, members: &Members) -> Route<Printed> {
+        match &*node.notation_name() {
+            "singleton" | "listed-two" | "listed-three" | "listed-four" => {
+                self.listed(node, members)
+            }
+            _ => self.set_term(node),
+        }
+    }
+
     /// x ∈ S of a set S this writer has a type for: `x ∈ S`.
     pub fn set_membership(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
-        // ∅ holds nothing of any type, so x ∈ ∅ is of x's.
+        // A set whose members say no type, ∅ or {∅}, holds what x is, so
+        // x ∈ ∅ is of x's type.
         let empty = &*set.notation_name() == "empty-set";
+        let listed = matches!(
+            &*set.notation_name(),
+            "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four"
+        );
         let members = self.members_of(set).or_else(|| {
-            empty
+            listed
                 .then(|| {
                     self.member_kind(x)
                         .or_else(|| self.numbers_held(std::slice::from_ref(x)))
                 })
                 .flatten()
         })?;
-        // ∅ is told its type, which nothing else in `t ∈ ∅` gives Lean.
-        let set_text = match empty {
-            true => Route::Built(Printed::atom(format!(
+        // ∅ is told its type, which nothing else in `t ∈ ∅` gives Lean, and
+        // so is a listed set whose members give none, {∅}.
+        let set_text = match (empty, listed) {
+            (true, _) => Route::Built(Printed::atom(format!(
                 "(∅ : Set {})",
                 super::expr::bracketed(&members.lean())
             ))),
-            false => self.set_term(set),
+            (false, true) => self.listed(set, &members),
+            (false, false) => self.set_term(set),
         };
         Some(match (self.element_term(x, &members), set_text) {
             (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
@@ -1159,13 +1363,30 @@ impl Writer<'_> {
                 (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
             });
         }
-        Some(match (self.set_term(a), self.set_term(b)) {
+        Some(match (self.side_term(a, b), self.side_term(b, a)) {
             (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
                 text: format!("{} {op} {}", a.at(51), b.at(51)),
                 prec: 50,
             }),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
+    }
+
+    /// One side of a relation between sets: a listed set whose members give
+    /// no type, {∅}, holds what the other side does, as Lean's `F ⊆ {∅}`
+    /// reads it; any other set as the writer writes it.
+    fn side_term(&self, side: &Node, other: &Node) -> Route<Printed> {
+        let listed = matches!(
+            &*side.notation_name(),
+            "singleton" | "listed-two" | "listed-three" | "listed-four"
+        );
+        match (
+            listed && self.members_of(side).is_none(),
+            self.set_members(other),
+        ) {
+            (true, Some(m)) => self.listed(side, &m),
+            _ => self.set_term(side),
+        }
     }
 
     /// For all t ∈ S, or there is t ∈ S, of a set S: `∀ t ∈ S, …`, the letter

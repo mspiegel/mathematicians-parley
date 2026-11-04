@@ -39,13 +39,15 @@ counts as a natural number (`sets::count_term`). -/
 theorem parley_encard_of_finite {α : Type*} {s : Set α} (h : s.Finite) :
     s.encard = (s.ncard : ℕ∞) := h.cast_ncard_eq.symm
 
-/-- That a set is finite: a line says so; it is ∅ or listed; it is made by
-∖, ∩ or ∪ from finite sets; or a line puts it inside a finite set. -/
+/-- That a set is finite: a line says so, or gives its count as a number,
+|X| = 2; it is ∅ or listed; it is made by ∖, ∩ or ∪ from finite sets; or a
+line puts it inside a finite set. -/
 syntax "parley_finite" : tactic
 macro_rules
   | `(tactic| parley_finite) => `(tactic| first
     | assumption
     | exact Set.toFinite _
+    | exact Set.finite_of_encard_eq_coe ‹_›
     | (apply Set.Finite.sdiff; parley_finite)
     | (apply Set.Finite.inter_of_left; parley_finite)
     | (apply Set.Finite.inter_of_right; parley_finite)
@@ -84,6 +86,9 @@ macro "parley_set_side" : tactic =>
     | (rw [Set.encard_eq_coe_toFinset_card];
        simp (config := {decide := true})
          [Set.toFinset_insert, Set.toFinset_singleton, Set.toFinset_setOf]; done)
+    -- The same counted as a natural number, (|{1, 2}| : ℤ) = 2.
+    | (norm_cast; rw [Set.ncard_eq_toFinset_card'];
+       simp (config := {decide := true}); done)
     -- One of a listed set, x ∈ {a, b}, taken case by case.
     | (simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at *;
        rcases ‹_ ∨ _› with h | h <;> simp [h]; done)

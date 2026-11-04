@@ -369,6 +369,7 @@ notation real-power
   reads       to the power
   metamath-syntax ccxp, the principal power, exp(y · log x) for x ≠ 0
   metamath-builds _1 _2 ccxp co
+  lean-builds ℝ, ℝ → ℝ: _1 ^ _2
   note        x^(1/3), 2^y for y ∈ ℝ, e^(x³ + 1): written as a power is, and
               read as this where the exponent is not whole (`GRAMMAR.md`), so
               the parser never reads it of its own. For x > 0 it is the real
@@ -613,6 +614,7 @@ notation imaginary-unit
   shadowed    by a name the text introduces
   metamath-syntax ci
   metamath-builds ci
+  lean-builds → ℂ: Complex.I
   note        The square root of −1, def:stdlib/numbers/i. A line that
               introduces an i of its own, `obtain i`, `let i ∈ ℤ` or a sum's
               index, makes i that name in its scope, as a reader takes it;
@@ -1819,6 +1821,7 @@ notation perfect
   reads       is perfect
   metamath-syntax σ(n) = 2n, which set.mm writes and never names
   metamath-builds c1 _1 csgm co c2 _1 cmul co wceq
+  lean-builds ℕ → Prop: ArithmeticFunction.sigma 1 _1 = 2 * _1
   note        A number is perfect when the sum of its divisors is twice it, which
               is what the target writes, so the word and the equation are one
               formula; def:stdlib/divisibility/perfect says so for the reader.
@@ -2143,6 +2146,7 @@ notation algebraic
   reads       is algebraic, is transcendental
   metamath-syntax wcel with set.mm's AA; a complex number not in AA
   metamath-builds _1 caa wcel, _1 cc wcel _1 caa wcel wn wa
+  lean-builds ℂ → Prop: IsAlgebraic ℤ _1 ; ℂ → Prop: Transcendental ℤ _1
   note        α is algebraic when some polynomial with integer coefficients,
               other than 0, has α as a root (set.mm's 𝔸, df-aa); α is
               transcendental when it is a complex number and not algebraic,

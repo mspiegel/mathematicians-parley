@@ -239,6 +239,8 @@ pub struct Writer<'a> {
     /// them: a count of one is a natural number, `A.ncard`, and of any
     /// other set in ℕ∞ (`sets::count_term`).
     pub finite: std::collections::BTreeSet<String>,
+    /// The hypotheses `finite` is read from (`Writer::finite_from`).
+    pub finite_lines: Vec<Node>,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -246,9 +248,16 @@ pub struct Writer<'a> {
 struct Summed<'a, 'n> {
     inner: Writer<'a>,
     index: &'n Node,
-    from: &'n Node,
-    to: &'n Node,
+    over: Over<'n>,
     term: &'n Node,
+}
+
+/// What a sum or product runs over.
+enum Over<'n> {
+    /// The integers from one end to the other.
+    Range { from: &'n Node, to: &'n Node },
+    /// The members of a set, Σ(x ∈ S) t.
+    Set(&'n Node),
 }
 
 /// A term a line says is an integer or a rational: the term as the page
@@ -268,7 +277,7 @@ fn is_big_operator(node: &Node) -> bool {
     matches!(
         node.notation(),
         crate::notations::SUM | crate::notations::PRODUCT
-    ) || over_range(node).is_some()
+    ) || matches!(&*node.notation_name(), "sum-over" | "product-over")
 }
 
 /// A sum or product over a set that is a range, Σ(k ∈ {a, …, b}) t: its
@@ -323,6 +332,7 @@ impl<'a> Writer<'a> {
             floor: Num::Int,
             reals: Vec::new(),
             finite: std::collections::BTreeSet::new(),
+            finite_lines: Vec::new(),
         }
     }
 
@@ -337,6 +347,7 @@ impl<'a> Writer<'a> {
             floor: self.floor,
             reals: self.reals.clone(),
             finite: self.finite.clone(),
+            finite_lines: self.finite_lines.clone(),
         }
     }
 
@@ -888,24 +899,35 @@ impl Writer<'_> {
     /// A sum's parts: the writer its term is read with, its index letter an
     /// integer there, and its index, ends and term.
     fn summed<'n>(&self, node: &'n Node) -> Route<Summed<'_, 'n>> {
-        let [index, from, to, term] = match (over_range(node), node.children.as_slice())
-        {
-            (Some(parts), _) => parts,
-            (None, [index, from, to, term]) => [index, from, to, term],
+        let (index, over, term) = match (over_range(node), node.children.as_slice()) {
+            (Some([index, from, to, term]), _) => {
+                (index, Over::Range { from, to }, term)
+            }
+            (None, [index, set, term])
+                if matches!(&*node.notation_name(), "sum-over" | "product-over") =>
+            {
+                (index, Over::Set(set), term)
+            }
+            (None, [index, from, to, term]) => (index, Over::Range { from, to }, term),
             (None, _) => return Route::no("a sum of other than four parts"),
         };
         if !index.is_name() {
             return Route::no("a sum whose index is no letter");
         }
+        // Over a range the index is an integer; over a set, a member of it.
+        let ty = match &over {
+            Over::Range { .. } => LetterType::Number(Num::Int),
+            Over::Set(set) => match self.set_members(set) {
+                Some(m) => m.letter(),
+                None => return Route::no("a sum over a set with no Lean type"),
+            },
+        };
         let mut inner = self.with_letters(self.letters.clone());
-        inner
-            .letters
-            .insert(index.text.to_string(), LetterType::Number(Num::Int));
+        inner.letters.insert(index.text.to_string(), ty);
         Route::Built(Summed {
             inner,
             index,
-            from,
-            to,
+            over,
             term,
         })
     }
@@ -919,15 +941,35 @@ impl Writer<'_> {
             Route::Built(s) => s,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let ends = (
-            self.number_fixed(s.from, Num::Int),
-            self.number_fixed(s.to, Num::Int),
-        );
-        let (from, to) = match ends {
-            (Route::Built(f), Route::Built(t)) => (f, t),
-            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
-                return Route::Declined(d)
+        // Over a range, the integers between its ends, `∑ k ∈ Finset.Icc a
+        // b`; over a set, Mathlib's sum over the members of a finite set,
+        // `∑ᶠ x ∈ S`, which is the page's where the set is finite.
+        let symbol = if is_product(node) { "∏" } else { "∑" };
+        let over = match s.over {
+            Over::Range { from, to } => {
+                match (
+                    self.number_fixed(from, Num::Int),
+                    self.number_fixed(to, Num::Int),
+                ) {
+                    (Route::Built(f), Route::Built(t)) => format!(
+                        "{symbol} {} ∈ Finset.Icc {} {}",
+                        super::names::letter(&s.index.text),
+                        f.at(MAX),
+                        t.at(MAX)
+                    ),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        return Route::Declined(d)
+                    }
+                }
             }
+            Over::Set(set) => match self.set_term(set) {
+                Route::Built(p) => format!(
+                    "{symbol}ᶠ {} ∈ {}",
+                    super::names::letter(&s.index.text),
+                    p.at(MAX)
+                ),
+                Route::Declined(d) => return Route::Declined(d),
+            },
         };
         let term = match s.inner.number(s.term, at) {
             Route::Built(t) => t,
@@ -939,15 +981,8 @@ impl Writer<'_> {
         let term = Printed::atom(format!("({} : {})", term.text, self.type_name(at)));
         // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
         // sum of k, plus 1; a body below that is bracketed.
-        let symbol = if is_product(node) { "∏" } else { "∑" };
         Route::Built(Printed {
-            text: format!(
-                "{symbol} {} ∈ Finset.Icc {} {}, {}",
-                super::names::letter(&s.index.text),
-                from.at(MAX),
-                to.at(MAX),
-                term.at(67)
-            ),
+            text: format!("{over}, {}", term.at(67)),
             prec: 10,
         })
     }
@@ -1080,9 +1115,43 @@ impl Writer<'_> {
         })
     }
 
-    /// f is continuous on D: `ContinuousOn f D`, of a function into ℝ and a
-    /// set of reals.
-    fn continuous(&self, node: &Node) -> Route<Printed> {
+    /// There is a bijection from A to B: `∃ g : α → β, Set.BijOn g A B`,
+    /// α and β the types of A's and B's members. The map's letter is one
+    /// neither set uses.
+    fn bijection(&self, a: &Node, b: &Node) -> Route<Printed> {
+        let (Some(from), Some(to)) = (self.set_members(a), self.set_members(b)) else {
+            return Route::no("a bijection between sets with no Lean type");
+        };
+        let used: Vec<String> = [a, b]
+            .iter()
+            .flat_map(|s| s.walk())
+            .map(|n| n.text.to_string())
+            .collect();
+        let Some(g) = ["g", "h", "φ", "ψ"]
+            .iter()
+            .find(|g| !used.iter().any(|u| u == *g))
+        else {
+            return Route::no("a bijection whose sets use every map letter");
+        };
+        match (self.set_term(a), self.set_term(b)) {
+            (Route::Built(x), Route::Built(y)) => Route::Built(Printed {
+                text: format!(
+                    "∃ {g} : {} → {}, Set.BijOn {g} {} {}",
+                    from.lean(),
+                    to.lean(),
+                    x.at(MAX),
+                    y.at(MAX)
+                ),
+                prec: 0,
+            }),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+        }
+    }
+
+    /// f is continuous on D, `ContinuousOn f D`, or differentiable on D,
+    /// `DifferentiableOn ℝ f D`, of a function into ℝ and a set of reals:
+    /// `predicate` is what goes before f.
+    fn continuous(&self, node: &Node, predicate: &str) -> Route<Printed> {
         let [f, set] = node.children.as_slice() else {
             return Route::no("a continuity of other than a function and a set");
         };
@@ -1097,7 +1166,7 @@ impl Writer<'_> {
         match self.numbers_at(set, Num::Real) {
             Route::Built(s) => Route::Built(Printed {
                 text: format!(
-                    "ContinuousOn {} {}",
+                    "{predicate} {} {}",
                     super::names::letter(&f.text),
                     s.at(MAX)
                 ),
@@ -1347,7 +1416,24 @@ impl Writer<'_> {
             return self.function_limit(node);
         }
         if &*node.notation_name() == "continuous" {
-            return self.continuous(node);
+            return self.continuous(node, "ContinuousOn");
+        }
+        if &*node.notation_name() == "differentiable" {
+            return self.continuous(node, "DifferentiableOn ℝ");
+        }
+        // D is open: `IsOpen D`, of a set of reals.
+        if let ("open", [set]) = (&*node.notation_name(), node.children.as_slice()) {
+            return self.numbers_at(set, Num::Real).map(|s| Printed {
+                text: format!("IsOpen {}", s.at(MAX)),
+                prec: 1000,
+            });
+        }
+        // There is a bijection from A to B: some map of the one's members to
+        // the other's that is one-to-one from A onto B, `Set.BijOn g A B`.
+        if let ("bijection", [a, b]) =
+            (&*node.notation_name(), node.children.as_slice())
+        {
+            return self.bijection(a, b);
         }
         // f is a function on a set: a Lean function is one on every set of
         // the type it takes, its values off the set none of the page's. Of

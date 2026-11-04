@@ -194,6 +194,7 @@ mundane theorem sin-supplement
 definition arctan
   sort        number → number
   metamath-builds _1 catan cfv
+  lean-builds ℝ → ℝ: Real.arctan _1
   reads       the arctangent of
   note        As for cos, this definition states nothing but what arctan(x)
               builds. On ℝ it is the inverse of the tangent on (−π/2, π/2),

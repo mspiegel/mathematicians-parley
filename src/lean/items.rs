@@ -768,10 +768,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
-            w.finite = super::sets::finite_sets(
-                writer.grammar,
-                group.wants.iter().map(|(_, n)| n),
-            );
+            w.finite_from(group.wants.iter().map(|(_, n)| n.clone()).collect());
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
@@ -935,6 +932,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             // A map the item has, `f : D → E`, maps the one set into the
             // other, which its groups leave out as they leave out its type.
+            // The fact is written once every letter has its type, after the
+            // binders, since D may be made of letters a line lets, [a, b].
+            let mut maps: Vec<(&Node, &Node, &Node)> = Vec::new();
             for node in checked
                 .library
                 .function_types
@@ -975,25 +975,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         });
                     }
                 }
-                let (Route::Built(a), Route::Built(b)) =
-                    (w.set_term(from), w.set_term(to))
-                else {
-                    return Route::no(format!(
-                        "{} maps between sets with no Lean form",
-                        f.text
-                    ));
-                };
-                let name = super::names::letter(&f.text);
-                let domain = a.at(super::expr::MAX);
-                statements.push(Binder::Fact {
-                    name: format!("h{name}"),
-                    says: format!(
-                        "Set.MapsTo {name} {domain} {}",
-                        b.at(super::expr::MAX)
-                    ),
-                    line: None,
-                });
-                w.domains.insert(f.text.to_string(), domain);
+                maps.push((f, from, to));
             }
             for letter in &free {
                 if w.letters.contains_key(&letter.name) {
@@ -1008,10 +990,31 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     general: !letter.fixed && w.general == Some(letter.num),
                 });
             }
-            let binders = match binders(&mut w, &asked) {
+            let mut binders: Vec<Binder> = match binders(&mut w, &asked) {
                 Route::Built(b) => statements.into_iter().chain(b).collect(),
                 Route::Declined(d) => return Route::Declined(d),
             };
+            for (f, from, to) in maps {
+                let (Route::Built(a), Route::Built(b)) =
+                    (w.set_term(from), w.set_term(to))
+                else {
+                    return Route::no(format!(
+                        "{} maps between sets with no Lean form",
+                        f.text
+                    ));
+                };
+                let name = super::names::letter(&f.text);
+                let domain = a.at(super::expr::MAX);
+                binders.push(Binder::Fact {
+                    name: format!("h{name}"),
+                    says: format!(
+                        "Set.MapsTo {name} {domain} {}",
+                        b.at(super::expr::MAX)
+                    ),
+                    line: None,
+                });
+                w.domains.insert(f.text.to_string(), domain);
+            }
             let prop = match w.formula(says) {
                 Route::Built(p) => p.text,
                 Route::Declined(d) => return Route::Declined(d),

@@ -30,6 +30,11 @@ macro "parley_subst " e:term:max : tactic =>
     | (have h := $e:term; norm_cast at h; rw [h]; done)
     | (have h := $e:term; norm_cast at h; rw [← h]; done)
     | (have h := $e:term; norm_cast at h; simp only [h]; done)
+    -- An equation cast up put where the term stands cast down, a factorial
+    -- in an exponent: both taken down alike, so its sides read as the goal
+    -- does.
+    | (have h := $e:term; norm_cast at h ⊢; rw [h]; done)
+    | (have h := $e:term; norm_cast at h ⊢; rw [← h]; done)
     -- A power put to an integer exponent beside one to a natural, x^0 of
     -- (m + 1) − (m + 1) beside x^0: each worked out.
     | (rw [$e:term]; norm_num; done))

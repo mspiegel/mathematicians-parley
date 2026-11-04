@@ -46,11 +46,11 @@ theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = (
   (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast Nat.succ_ne_zero k)).imp fun _ h => ⟨h, trivial⟩
 
 theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℕ) (h3 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
-    (X \ ({a} : Set α)).encard = ((k : ℕ) : ℕ∞) :=
-  by have := Set.encard_sdiff_singleton_add_one h1; rw [h3] at this; push_cast at this; exact WithTop.add_right_cancel ENat.one_ne_top this
+    ((X \ ({a} : Set α)).ncard : ℤ) = (k : ℤ) :=
+  by have hX := Set.finite_of_encard_eq_coe h3; have e : X.ncard = k + 1 := (by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this); rw [Set.ncard_sdiff_singleton_of_mem h1]; omega
 
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
-    (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
+    ((X ∪ Y).ncard : ℤ) = (m : ℤ) + (n : ℤ) :=
   LeanBridges.Counting.card_disjoint_union X Y m n h3 h4 h5
 
 theorem def_C_1 (n : ℕ) :
@@ -113,6 +113,10 @@ theorem mun_factorial_nonzero (n : ℕ) :
     (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 :=
   LeanBridges.Counting.factorial_nonzero n
 
+theorem mun_union_finite {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y.Finite) :
+    (X ∪ Y).Finite :=
+  by simp_all
+
 theorem mun_card_nat0 {α : Type*} (X : Set α) (h1 : X.Finite) :
     0 ≤ (X.ncard : ℤ) :=
   Int.natCast_nonneg _
@@ -120,6 +124,10 @@ theorem mun_card_nat0 {α : Type*} (X : Set α) (h1 : X.Finite) :
 theorem mun_card_finite {α : Type*} (X : Set α) (m : ℕ) (h2 : X.encard = ((m : ℕ) : ℕ∞)) :
     X.Finite :=
   Set.finite_of_encard_eq_coe h2
+
+theorem mun_card_difference {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
+    ((X \ Y).ncard : ℤ) = (X.ncard : ℤ) - (Y.ncard : ℤ) :=
+  Set.cast_ncard_sdiff h2 h1
 
 theorem mun_card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
     ((1 : ℕ) : ℕ∞) ≤ X.encard :=
@@ -144,5 +152,9 @@ theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard 
 theorem mun_card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) < X.encard) :
     ¬ X = ∅ :=
   LeanBridges.Counting.card_positive X h1
+
+theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
+    ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
+  by simp_all
 
 end Parley.Items.Stdlib.Counting

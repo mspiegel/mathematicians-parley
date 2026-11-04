@@ -40,7 +40,7 @@ mundane theorem sum-integer
   let t : ℕ₀ → ℤ                                                      (H2)
   then        Σ(k = 0 to n) t(k) ∈ ℤ
   metamath-proof fsumzcl
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem sum-difference
   let n ∈ ℕ₀                                                          (H1)
@@ -48,7 +48,7 @@ mundane theorem sum-difference
   let u : ℕ₀ → ℤ                                                      (H3)
   then        Σ(k = 0 to n) (t(k) − u(k)) = Σ(k = 0 to n) t(k) − Σ(k = 0 to n) u(k)
   metamath-proof fsumsub
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem sum-single
   let a ∈ ℤ                                                           (H1)
@@ -186,7 +186,7 @@ mundane theorem product-range-nonneg
   metamath-proof metamath-bridges/ranges/gfprodge0
   note        As sum-nonneg, for a product: factors none of them negative
               have a product that is not negative.
-  lean-proof  not yet implemented
+  lean-proof  Finset.prod_nonneg h3
 
 mundane theorem product-single
   let a ∈ ℤ                                                           (H1)
@@ -246,7 +246,7 @@ mundane theorem range-integer
   let k ∈ {a, …, b}                                                   (H3)
   then        k ∈ ℤ
   metamath-proof elfzelz
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem range-nat0
   let n ∈ ℤ                                                           (H1)
@@ -305,14 +305,14 @@ mundane theorem range-without-last
   then        {1, …, n} = {1, …, n + 1} ∖ {n + 1}
   metamath-proof fzdifsuc with M := 1, N := n
   note        The numbers up to n are the numbers up to n + 1 but the last.
-  lean-proof  not yet implemented
+  lean-proof  by aesop
 
 mundane theorem range-end
   let n ∈ ℕ                                                           (H1)
   then        n ∈ {1, …, n}
   metamath-proof elfz1end
   note        The last of the numbers from 1 to n is n.
-  lean-proof  not yet implemented
+  lean-proof  by aesop
 
 mundane theorem range-within
   let a ∈ ℤ                                                           (H1)
@@ -322,7 +322,7 @@ mundane theorem range-within
   then        {a, …, k} ⊆ {a, …, n}
   metamath-proof fzss2 with M := a, K := k, N := n
   note        A range that stops sooner lies inside one that stops later.
-  lean-proof  not yet implemented
+  lean-proof  Set.Icc_subset_Icc_right h4
 
 mundane theorem range-inside
   let a ∈ ℤ                                                           (H1)
@@ -334,7 +334,7 @@ mundane theorem range-inside
   then        {a, …, b} ⊆ {c, …, d}
   metamath-proof metamath-bridges/ranges/gfzss with K := c, M := a, N := b, L := d
   note        A range whose ends lie within another's lies inside it.
-  lean-proof  not yet implemented
+  lean-proof  Set.Icc_subset_Icc h5 h6
 
 definition range-between
   let k ∈ ℤ                                                           (H1)
@@ -438,7 +438,7 @@ mundane theorem sum-nonneg
   assume for all k ∈ {a, …, b}, t(k) ≥ 0                              (H4)
   then        Σ(k = a to b) t(k) ≥ 0
   metamath-proof fsumge0
-  lean-proof  not yet implemented
+  lean-proof  Finset.sum_nonneg h3
 
 mundane theorem sum-zero-terms
   let a ∈ ℤ                                                           (H1)
@@ -457,14 +457,14 @@ mundane theorem range-finite
   let b ∈ ℤ                                                           (H2)
   then        {a, …, b} is finite
   metamath-proof fzfi
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem range-in-integers
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        {a, …, b} ⊆ ℤ
   metamath-proof fzssz
-  lean-proof  not yet implemented
+  lean-proof  by simp_all
 
 mundane theorem range-from-bounds
   let m ∈ ℕ                                                           (H1)

@@ -71,6 +71,13 @@ pub const IN_CODE: &[&str] = &[
     "coset",
     "polynomials",
     "is-a-polynomial",
+    "sum-over",
+    "product-over",
+    "differentiable",
+    "open",
+    "open-interval",
+    "indexed-union",
+    "bijection",
 ];
 
 /// Every theorem of the corpus, in or out.
@@ -328,6 +335,20 @@ fn covered(
             reason: "the checker has not read it".to_string(),
         };
     };
+    // Its file's functions written out where applied, as the writer reads
+    // it (`theorem::outside_written`).
+    let written = super::theorem::outside_written(checked, rec);
+    let rec: &crate::checker::CheckedTheorem = &written;
+    let set_valued = thm.defines.iter().any(|d| {
+        matches!(crate::corpus::define_parts(&d.text),
+            crate::outcome::Route::Built(crate::corpus::DefineParts::One(def))
+                if !def.params.is_empty() && super::theorem::set_valued(rec, &def.name))
+    });
+    if set_valued {
+        return Covered::Out {
+            reason: super::theorem::SET_VALUED.to_string(),
+        };
+    }
     if !rec.problems.is_empty() {
         return Covered::Out {
             reason: "the checker refuses it".to_string(),
@@ -362,8 +383,12 @@ fn covered(
     // whose subtraction stops at 0 where the page's does not: |A| − |B| is
     // not written of such sets.
     // The theorem counts as natural numbers the sets its hypotheses make
-    // finite (`theorem::finite_in`).
-    let finite = super::theorem::finite_in(&checked.grammar, thm, rec);
+    // finite (`theorem::finite_lines`).
+    let mut finite = super::sets::finite_sets(
+        &checked.grammar,
+        &super::theorem::finite_lines(thm, rec),
+    );
+    super::theorem::finite_named(&checked.grammar, thm, rec, &mut finite);
     let extended = |n: &crate::formula::Node| {
         super::sets::counts_in_extended(&checked.grammar, &finite, n)
     };
@@ -392,6 +417,18 @@ fn covered(
         .flatten()
         .chain(rec.cited_requires.values())
         .any(|c| c.binding.values().any(extended));
+    if count_given && std::env::var("PARLEY_DEBUG_COUNT").is_ok() {
+        for c in rec
+            .cited
+            .iter()
+            .flatten()
+            .chain(rec.cited_requires.values())
+        {
+            for v in c.binding.values().filter(|v| extended(v)) {
+                eprintln!("DEBUG {name}: {} in {}", checked.grammar.print(v), c.item);
+            }
+        }
+    }
     if count_given {
         return Covered::Out {
             reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"
@@ -504,13 +541,7 @@ fn covered(
                     "a function type between sets Lean has no type for yet".to_string()
                 });
             }
-            // A sum or product over a range, Σ(k ∈ {a, …, b}), is the one
-            // from a to b (`expr::over_range`).
-            let over_range = matches!(name.as_str(), "sum-over" | "product-over")
-                && n.children
-                    .get(1)
-                    .is_some_and(|s| s.notation() == crate::notations::INTEGER_RANGE);
-            (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name) && !over_range)
+            (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
                 .then(|| format!("notation {name}, which has no lean-builds field"))
         })
         .collect();

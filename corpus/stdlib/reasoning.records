@@ -81,7 +81,7 @@ mundane theorem or-swap
   then        Q or P
   metamath-proof pm1.4
   note        One of two things holds, said in the other order.
-  lean-proof  not yet implemented
+  lean-proof  by aesop
 
 mundane theorem not-either
   then        not (P or Q) ↔ not P and not Q

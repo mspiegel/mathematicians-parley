@@ -31,7 +31,7 @@ theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
   exact hg h.choose_spec.1 hx h.choose_spec.2
 
 /-- `def:stdlib/functions/image`. -/
-theorem image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (u : β) (W : Set β) (_hf : Set.MapsTo f X W) (h1 : Y ⊆ X) :
+theorem image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (u : β) (W : Set β) (h1 : Y ⊆ X) (_hf : Set.MapsTo f X W) :
     u ∈ f '' (X ∩ Y) ↔ (∃ s ∈ Y, u = f s) :=
   ⟨fun ⟨s, ⟨_, hs⟩, e⟩ => ⟨s, hs, e.symm⟩, fun ⟨s, hs, e⟩ => ⟨s, ⟨h1 hs, hs⟩, e.symm⟩⟩
 

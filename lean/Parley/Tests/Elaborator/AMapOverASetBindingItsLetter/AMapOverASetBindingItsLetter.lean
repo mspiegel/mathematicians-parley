@@ -156,7 +156,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     all_goals parley_set_side
   -- 5. def:continuous-on f := g, from 1, 4
   have r222_1 : Set.MapsTo g D (Set.univ : Set ℝ) := by parley_set_side
-  have s5 : ContinuousOn g D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) (by parley_set_side) s1)).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) (by parley_set_side) s1)).mpr (by parley_set_side); parley_set_side)
+  have s5 : ContinuousOn g D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1 (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := g) (D := D) s1 (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
   all_goals parley_set_side
 
 end Parley.Tests.Elaborator.AMapOverASetBindingItsLetter.AMapOverASetBindingItsLetter
