@@ -7,7 +7,7 @@
 //! maps the one into the other beside it (`statement`).
 
 use super::expr::{
-    letter_type, system_of, LetterType, Members, Printed, System, Writer, MAX,
+    letter_type, system_of, LetterType, Members, Printed, System, Writer, APP, MAX,
 };
 use super::templates::Num;
 use crate::formula::Node;
@@ -197,6 +197,10 @@ impl Writer<'_> {
                 _ => {}
             }
         }
+        // A value by cases is a member of what its first value is.
+        if &*node.notation_name() == "by-cases" {
+            return self.member_kind(node.children.first()?);
+        }
         // a·b and a⁻¹ in a group are elements of it.
         if matches!(&*node.notation_name(), "group-operation" | "group-inverse") {
             return node.children.iter().find_map(|c| self.member_kind(c));
@@ -284,6 +288,32 @@ impl Writer<'_> {
                 return Route::Built(Printed {
                     text: format!("({} * ·) '' {}", p[0].at(70), p[1].at(MAX)),
                     prec: 80,
+                });
+            }
+            // F(x) if x ∈ A, G(x) otherwise, of things: as the notation's
+            // template writes it of numbers, the condition decided
+            // classically.
+            "by-cases" => {
+                let [first, condition, otherwise] = node.children.as_slice() else {
+                    return Route::no("a define by cases of other than three parts");
+                };
+                let (a, b) = match (self.set_term(first), self.set_term(otherwise)) {
+                    (Route::Built(a), Route::Built(b)) => (a, b),
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        return Route::Declined(d)
+                    }
+                };
+                let c = match self.formula(condition) {
+                    Route::Built(c) => c.at(MAX),
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                return Route::Built(Printed {
+                    text: format!(
+                        "@ite _ {c} (Classical.propDecidable {c}) {} {}",
+                        a.at(MAX),
+                        b.at(MAX)
+                    ),
+                    prec: APP,
                 });
             }
             _ => {}

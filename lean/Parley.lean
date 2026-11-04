@@ -364,6 +364,8 @@ public import Parley.Proofs.Setmm.FloorBasics.TwiceFloorOfHalf
 public import Parley.Proofs.Setmm.FloorBelowNonInteger.FloorBelowNonInteger
 public import Parley.Proofs.Setmm.FloorIsMonotone.FloorIsMonotone
 public import Parley.Proofs.Setmm.FloorQuotientZero.FloorQuotientZero
+public import Parley.Proofs.Setmm.FunctionIntoEmpty.EmptyDomain
+public import Parley.Proofs.Setmm.FunctionIntoEmpty.FunctionIntoEmpty
 public import Parley.Proofs.Setmm.GcdAddMultiple.GcdAddMultiple
 public import Parley.Proofs.Setmm.GroupCancellation.TheLeftInverse
 public import Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity
@@ -403,6 +405,7 @@ public import Parley.Proofs.Setmm.InverseLandsInDomain.InverseLandsInDomain
 public import Parley.Proofs.Setmm.InverseOfValue.InverseOfValue
 public import Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational
 public import Parley.Proofs.Setmm.IrrationalTimesRational.IrrationalTimesRational
+public import Parley.Proofs.Setmm.JoinedFunctions.JoinedFunctions
 public import Parley.Proofs.Setmm.LessThanAnInteger.LessThanAnInteger
 public import Parley.Proofs.Setmm.LimitAddConstant.LimitAddConstant
 public import Parley.Proofs.Setmm.LimitConstantMultiple.LimitConstantMultiple
@@ -523,6 +526,7 @@ public import Parley.Proofs.Wiedijk.Binomial.BinomialStep
 public import Parley.Proofs.Wiedijk.Binomial.Binomial
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
+public import Parley.Proofs.Wiedijk.Euclid.Euclid
 public import Parley.Proofs.Wiedijk.Factor.Factor
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicBlock
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
@@ -666,6 +670,10 @@ public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.CitedWithItsLe
 public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.ADoubleLessOne
 public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.CitedBesideALetterOfTheSameName
 public import Parley.Tests.Elaborator.AThereIsUnfoldedWhereTheScopeBindsItsLetter.AThereIsUnfoldedWhereTheScopeBindsItsLetter
+public import Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesCited
+public import Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesRequired
+public import Parley.Tests.Elaborator.ATypeALineStates.IntoTheEmptySet
+public import Parley.Tests.Elaborator.ATypeALineStates.ATypeALineStatesForATheorem
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.AnItemAtAValue
 public import Parley.Tests.Elaborator.AValueAtAPointSaidOnce.ARequiresLineAtAValue
 public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.AlgebraAtAMember

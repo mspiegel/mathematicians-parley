@@ -740,7 +740,10 @@ fn statement(
         }
         use crate::sorts::introduction::{Form, Introduction};
         let name = match Introduction::read(body.clone()).form {
-            Form::Set(name) | Form::Element(name) | Form::Property { name, .. } => name,
+            Form::Set(name)
+            | Form::Element(name)
+            | Form::Property { name, .. }
+            | Form::FunctionOn { name, .. } => name,
             // `let G be a group with operation · and identity e`: the type
             // of its elements with Mathlib's group on it, and e its 1. What
             // else the line asserts, that G is finite, is among `said`.
@@ -788,7 +791,11 @@ fn statement(
             general: false,
             ty,
         });
-        read += body.sentences().len();
+        // A line that asserts something of its letter, F is a function on
+        // A, is read among `said` already.
+        if rec.asserted.get(i).is_none_or(Vec::is_empty) {
+            read += body.sentences().len();
+        }
     }
     let written: usize = thm
         .hypotheses
@@ -910,6 +917,15 @@ struct SaidUsed {
     term: String,
 }
 
+/// A recursion the header lets, as a step cites it.
+struct CitedRecursion {
+    rule: crate::corpus::Recursion,
+    /// The Lean name of its hypothesis, `hD1`.
+    hypothesis: String,
+    /// Whether a rule of it is by cases, F(k) if b(k) = 0, G(k) otherwise.
+    by_cases: bool,
+}
+
 /// The theorem written as a Lean file's declaration: its statement and its
 /// proof, with an origin for every line, counted from the first line of
 /// the declaration.
@@ -940,7 +956,15 @@ pub fn theorem(
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
     };
+    // A hypothesis Lean's types give, M ∈ ℕ₀ of a natural M, has no binder
+    // and is no line in Lean: a step that uses it has the type.
+    let bound: std::collections::BTreeSet<&str> =
+        binders.iter().map(Binder::name).collect();
     for (label, said) in hypothesis_sentences(thm, rec) {
+        let said: Vec<(Node, String)> = said
+            .into_iter()
+            .filter(|(_, n)| bound.contains(n.as_str()))
+            .collect();
         let names: Vec<String> = said.iter().map(|(_, n)| n.clone()).collect();
         proof.named.insert(label.clone(), names);
         proof.trees.insert(label, said);
@@ -1546,19 +1570,26 @@ impl<'a> Proof<'a> {
 
     /// The recursion of the theorem's header a step cites by its label, with
     /// that label; None for a citation of any other define.
-    fn recursion_cited(
-        &self,
-        just: &Justification,
-    ) -> Option<(crate::corpus::Recursion, String)> {
+    fn recursion_cited(&self, just: &Justification) -> Option<CitedRecursion> {
         let label = just.defined.as_deref()?;
         let d = self
             .thm
             .defines
             .iter()
             .find(|d| d.label == label && d.line < self.thm.conclusion_line)?;
+        let by_cases = self
+            .rec
+            .page
+            .entries()
+            .filter(|(key, _)| key.line == d.line)
+            .any(|(_, n)| n.walk().iter().any(|m| &*m.notation_name() == "by-cases"));
         match crate::corpus::define_parts(&d.text) {
-            Route::Built(crate::corpus::DefineParts::Recursion(r)) => {
-                Some((r, line_name(&d.label)))
+            Route::Built(crate::corpus::DefineParts::Recursion(rule)) => {
+                Some(CitedRecursion {
+                    rule,
+                    hypothesis: line_name(&d.label),
+                    by_cases,
+                })
             }
             _ => None,
         }
@@ -1567,13 +1598,38 @@ impl<'a> Proof<'a> {
     /// A step citing a recursion's rule, F(k + 1) = G(k): the first of the
     /// claim's applications of its functions, F(a), says which. At the
     /// numeral 0 it is F's start; at any other a it is F's step at a − 1,
-    /// with a − 1 + 1 put back as a, and the arguments put in one form.
+    /// with a − 1 + 1 put back as a, and the arguments put in one form. A
+    /// rule by cases is taken at the case the cited lines say: an equation
+    /// its condition, `ite_eq_left`; one denied, `otherwise`, `ite_eq_right`.
+    /// Its condition is put at a first, a − 1 + 1 inside it as a, for the
+    /// cited line to match.
     fn recursion_clause(
         &self,
-        (r, hyp): &(crate::corpus::Recursion, String),
+        cited: &CitedRecursion,
+        cases: &[super::algebra::Cited],
         claim: &Node,
         writer: &Writer,
     ) -> Route<String> {
+        let (r, hyp) = (&cited.rule, &cited.hypothesis);
+        let mut case_rewrites = String::new();
+        if cited.by_cases {
+            for c in cases {
+                let lemma = match (c.node.notation(), c.node.children.as_slice()) {
+                    (EQUALITY, _) => "ite_eq_left",
+                    (crate::notations::LOGICAL_NOT, [inner])
+                        if inner.notation() == EQUALITY =>
+                    {
+                        "ite_eq_right"
+                    }
+                    _ => continue,
+                };
+                case_rewrites.push_str(&format!(" rw [{lemma} {}] at h;", c.proof));
+            }
+        }
+        let cancel = match case_rewrites.is_empty() {
+            true => "sub_add_cancel",
+            false => "sub_add_cancel, add_sub_cancel_right",
+        };
         let applied = claim.walk().into_iter().find_map(|n| {
             let [f, a] = n.children.as_slice() else {
                 return None;
@@ -1599,7 +1655,7 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         Route::Built(format!(
-            "by have h := ({hyp}{steps} ({} - 1) (by omega)){step}; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith",
+            "by have h := ({hyp}{steps} ({} - 1) (by omega)){step}; simp only [{cancel}] at h;{case_rewrites} (try ring_nf at h ⊢); linarith",
             a.at(66)
         ))
     }
@@ -1694,7 +1750,8 @@ impl<'a> Proof<'a> {
                 // A rule said for every n, F(n + 1) = 2F(n): said of one n.
                 Some(r) => {
                     let (intros, body, writer) = self.peel(node);
-                    self.recursion_clause(&r, body, &writer).map(|t| {
+                    let cases = self.cited_parts(&reason.just.from);
+                    self.recursion_clause(&r, &cases, body, &writer).map(|t| {
                         match intros.is_empty() {
                             true => t,
                             false => format!(
@@ -1736,22 +1793,25 @@ impl<'a> Proof<'a> {
             let name = super::names::letter(&letter.text);
             // Over a range, a number system or another set of numbers, [0,
             // 1]: the letter of the numbers' type, and where the type does
-            // not say it, the fact that it is in the set.
+            // not say it, the fact that it is in the set. Over a set of
+            // things, sets or a group's elements, a member of their type,
+            // and the fact.
             let (ty, guarded) = if set.notation() == crate::notations::INTEGER_RANGE {
-                (super::templates::Num::Int, true)
+                (LetterType::Number(super::templates::Num::Int), true)
             } else {
                 match (super::expr::system_of(set), self.writer.set_members(set)) {
                     (Some(s), _) => (
-                        super::expr::letter_type(s),
+                        LetterType::Number(super::expr::letter_type(s)),
                         s == super::expr::System::Positive,
                     ),
-                    (None, Some(super::expr::Members::Numbers(n))) => (n, true),
-                    (None, _) => break,
+                    (None, Some(super::expr::Members::Numbers(n))) => {
+                        (LetterType::Number(n), true)
+                    }
+                    (None, Some(m)) => (LetterType::Member(m), true),
+                    (None, None) => break,
                 }
             };
-            writer
-                .letters
-                .insert(letter.text.to_string(), LetterType::Number(ty));
+            writer.letters.insert(letter.text.to_string(), ty);
             intros.push(name.clone());
             if guarded {
                 intros.push(format!("h_{name}"));

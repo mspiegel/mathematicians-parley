@@ -284,6 +284,17 @@ fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool
     })
 }
 
+/// Whether a set's members have a type its sort says, or, for A ∪ B, A ∩ B
+/// or A ∖ B, its parts' sorts say.
+fn sorted_set(s: &crate::formula::Node) -> bool {
+    s.sort
+        .full()
+        .and_then(super::expr::Members::of_set)
+        .is_some()
+        || (&*s.notation_name() == "set-operations"
+            && s.children.iter().all(sorted_set))
+}
+
 /// Whether a set lists letters, {B} or {a, b}: a set of the things they
 /// are, as the writer reads it (`sets::members_of`).
 fn listed_letters(s: &crate::formula::Node) -> bool {
@@ -320,7 +331,10 @@ fn set_line(
 ) -> bool {
     use crate::sorts::introduction::{Form, Introduction};
     match Introduction::read(body).form {
-        Form::Set(name) | Form::Element(name) | Form::Property { name, .. }
+        Form::Set(name)
+        | Form::Element(name)
+        | Form::Property { name, .. }
+        | Form::FunctionOn { name, .. }
             if rec
                 .sorts
                 .get(&name)
@@ -629,7 +643,7 @@ fn covered(
                 let typed = matches!(n.children.as_slice(), [_, set]
                     if set_of_numbers(set)
                         || set.notation() == crate::notations::INTEGER_RANGE
-                        || set.sort.full().and_then(super::expr::Members::of_set).is_some());
+                        || sorted_set(set));
                 return (!typed)
                     .then(|| "a function on a set Lean has no type for".to_string());
             }
@@ -643,8 +657,9 @@ fn covered(
                 let typed = matches!(sides, Some([from, to])
                 if super::expr::function_systems(from, to).is_some()
                     || [from, to].iter().all(|s| {
-                        s.sort.full().and_then(super::expr::Members::of_set).is_some()
+                        sorted_set(s)
                             || listed_letters(s)
+                            || &*s.notation_name() == "empty-set"
                     })
                     || [from, to].iter().all(|s| set_of_numbers(s)));
                 return (!typed).then(|| {

@@ -593,6 +593,7 @@ notation by-cases
   reads       the first if, and else the second
   metamath-syntax cif
   metamath-builds _2 _1 _3 cif
+  lean-builds α, Prop, α → α: @ite _ _2 (Classical.propDecidable _2) _1 _3
   note        What a define by cases stands for: its lines, each a value and
               the condition it is taken under and the last `otherwise`, are
               this, nested from the right (`SYNTAX.md`).

@@ -228,7 +228,13 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             kind @ ("function-type" | "one-to-one" | "onto" | "one-to-one-onto"),
             [from, to],
         ) => {
-            let (a, b) = (writer.set_members(from)?, writer.set_members(to)?);
+            // ∅ holds nothing of any type, so a map into it gives the
+            // domain's.
+            let a = writer.set_members(from)?;
+            let b = match &*to.notation_name() {
+                "empty-set" => a.clone(),
+                _ => writer.set_members(to)?,
+            };
             let (from_text, to_text) =
                 (writer.set_term(from).built()?, writer.set_term(to).built()?);
             let lean = super::names::letter(&letter.text);
