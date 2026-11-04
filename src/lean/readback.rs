@@ -31,8 +31,36 @@ pub fn page_arithmetic(writer: &Writer, sentences: &[Node]) -> BTreeMap<String, 
 }
 
 fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
-    // A function on a range, t : {1, …, n + 1} → ℝ, is a Lean function on
-    // ℤ, so its statement writes no arithmetic of the range's ends.
+    // A map between sets, f : ℤ → {2ⁿ : n ∈ ℤ} is onto, writes each set as
+    // often as its claim's parts name it, `Set.MapsTo f A B ∧ Set.SurjOn f
+    // A B` (`sets::map_claim_parts`); `f : ℤ → ℚ` alone, between number
+    // systems, is said by f's type (`statement::introduces_function`).
+    let of_map = matches!(
+        node.children
+            .first()
+            .and_then(|f| writer.letters.get(f.text.as_str())),
+        Some(
+            super::expr::LetterType::Map { .. }
+                | super::expr::LetterType::Function { .. }
+        )
+    );
+    let by_type = super::statement::introduces_function(node).is_some();
+    if let (true, false, Some(parts), [_, from, to]) = (
+        of_map,
+        by_type,
+        super::sets::map_claim_parts(&node.notation_name()),
+        node.children.as_slice(),
+    ) {
+        for (hole, set) in [("_A", from), ("_B", to)] {
+            for _ in 0..parts.iter().map(|p| p.matches(hole).count()).sum::<usize>() {
+                count(writer, set, out);
+            }
+        }
+        return;
+    }
+    // A function between number systems or on a range, t : {1, …, n + 1}
+    // → ℝ, is a Lean function on ℤ, so its statement writes no arithmetic
+    // of the range's ends.
     if node.notation() == crate::notations::FUNCTION_TYPE {
         return;
     }

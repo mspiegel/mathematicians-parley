@@ -129,30 +129,6 @@ fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
     })
 }
 
-/// Whether the theorem cites the set-image item and writes a set-image over
-/// ℤ whose term raises something to its index, {9ⁿ : n ∈ ℤ}: rationals of
-/// an integer, which the item's map of one type cannot take.
-fn image_of_powers_cited(
-    thm: &crate::corpus::Theorem,
-    rec: &crate::checker::CheckedTheorem,
-) -> bool {
-    let cites = cited_items(thm)
-        .iter()
-        .any(|(full, _)| full == "stdlib/functions/set-image");
-    cites
-        && rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-            matches!((&*n.notation_name(), n.children.as_slice()), ("set-image", [term, index, set])
-                if super::expr::system_of(set)
-                    == Some(super::expr::System::Type(super::templates::Num::Int))
-                    && term.walk().iter().any(|p| {
-                        p.notation() == crate::notations::POWER
-                            && p.children.get(1).is_some_and(|e| {
-                                e.walk().iter().any(|x| x.is_name() && x.text == index.text)
-                            })
-                    }))
-        })
-}
-
 /// Whether a line of the theorem puts the set letter among numbers, D ⊆ ℝ
 /// or D ∈ 𝒫ℝ, which gives it the type of a set of those
 /// (`items::numbers_subset`, `statement::introduces_in_set`).
@@ -221,6 +197,11 @@ fn set_of_numbers(s: &crate::formula::Node) -> bool {
             ("∩", [a, b]) => set_of_numbers(a) || set_of_numbers(b),
             (_, parts) => parts.iter().all(set_of_numbers),
         },
+        // {2ⁿ : n ∈ ℤ} holds what its term is.
+        "set-image" => s
+            .children
+            .first()
+            .is_some_and(|term| term.sort.is("number")),
         _ => false,
     }
 }
@@ -374,14 +355,6 @@ fn covered(
     if header_function_through_a_method(thm) {
         return Covered::Out {
             reason: "a step cites a function the header lets through a method, which its equation for every x is not put in by"
-                .to_string(),
-        };
-    }
-    // The set-image item's map has one type (`items`), and {9ⁿ : n ∈ ℤ}
-    // gives rationals of an integer index.
-    if image_of_powers_cited(thm, rec) {
-        return Covered::Out {
-            reason: "a set-image of powers over ℤ cited through the set-image item, whose map takes one type"
                 .to_string(),
         };
     }

@@ -160,6 +160,7 @@ public import Parley.Proofs.Hammack.NegativeQuadratic.NegativeQuadratic
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerFromZero
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.PositivePowerIsReal
 public import Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower
+public import Parley.Proofs.Hammack.NinePowersAndThreePowers.PowersOfNineInPowersOfThree
 public import Parley.Proofs.Hammack.NoIntegerCombination.NoIntegerCombination
 public import Parley.Proofs.Hammack.NoIntegersWithEighteenAPlusSixBOne.NoIntegersWithEighteenAPlusSixBOne
 public import Parley.Proofs.Hammack.OddAndQuarticCoprime.OddAndQuarticCoprime
@@ -178,6 +179,7 @@ public import Parley.Proofs.Hammack.PolynomialSign.QuinticFive
 public import Parley.Proofs.Hammack.PolynomialSign.QuinticSix
 public import Parley.Proofs.Hammack.PositiveNumberWithSquareBelowRoot.PositiveNumberWithSquareBelowRoot
 public import Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
+public import Parley.Proofs.Hammack.PowersOfTwoOnto.PowersOfTwoOnto
 public import Parley.Proofs.Hammack.PowersOfTwoSum.PowersOfTwoSum
 public import Parley.Proofs.Hammack.PreimageOfImageOfPreimage.PreimageOfImageOfPreimage
 public import Parley.Proofs.Hammack.PreimageOfImage.SubsetOfPreimageOfImage

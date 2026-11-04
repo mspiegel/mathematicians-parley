@@ -295,6 +295,24 @@ fn statement_terms(rec: &CheckedTheorem) -> Vec<(String, Node)> {
         .collect()
 }
 
+/// What a citation gives an item's things (`Proof::things_given`).
+#[derive(Default)]
+struct ThingsGiven {
+    /// The least type that holds the numbers given each type variable's
+    /// things, by the variable.
+    at: std::collections::BTreeMap<usize, super::templates::Num>,
+    /// The type variables whose sets are given sets of numbers, X := {2n :
+    /// n ∈ ℤ}.
+    numbers: std::collections::BTreeSet<usize>,
+}
+
+impl ThingsGiven {
+    fn raise(&mut self, var: usize, n: super::templates::Num) {
+        let at = self.at.entry(var).or_insert(n);
+        *at = (*at).max(n);
+    }
+}
+
 /// What a theorem states, in Lean.
 struct Statement {
     /// Its binders, from its `let` and `assume` lines.
@@ -779,7 +797,7 @@ fn statement(
             .or_else(|| element_number_type(&name, rec, writer))
             .or_else(|| {
                 unsorted_element
-                    .then_some(LetterType::Member(super::expr::Members::Things))
+                    .then_some(LetterType::Member(super::expr::Members::Things(0)))
             })
         else {
             continue;
@@ -3428,6 +3446,88 @@ impl<'a> Proof<'a> {
     /// each letter given its value, and each hypothesis given by the line
     /// cited that says it as Lean writes both, or else left to
     /// `parley_side`.
+    /// The type each of an item's type variables is taken at where a
+    /// citation gives its things numbers, x ∈ {u, w} cited of 1 and 2: the
+    /// least that holds every number given them. From ℕ: a set of naturals
+    /// given for a set of things, S ⊆ ℕ, is of naturals, and a number given
+    /// raises it to ℤ at least.
+    fn things_given(
+        &self,
+        binders: &[Binder],
+        binding: &crate::matching::Binding,
+    ) -> ThingsGiven {
+        use super::expr::Members;
+        let mut given = ThingsGiven::default();
+        for b in binders {
+            let Binder::Letter { page, ty, .. } = b else {
+                continue;
+            };
+            let Some(value) = binding.get(&crate::formula::symbol::Symbol::of(page))
+            else {
+                continue;
+            };
+            match ty {
+                // A term of natural letters, b·d, is a natural; any other
+                // number is an integer at least.
+                LetterType::Member(Members::Things(var))
+                    if self.writer.is_number(value) =>
+                {
+                    let of_letters = value.walk().iter().any(|m| m.is_name());
+                    if of_letters && self.writer.natural(value) {
+                        continue;
+                    }
+                    if let Route::Built(c) = self.writer.carrier(value) {
+                        given.raise(*var, c);
+                    }
+                }
+                // A set of things given a set of numbers, X := ℝ, sets the
+                // things' type at least to that set's.
+                LetterType::Set(Members::Things(var)) => {
+                    if let Some(Members::Numbers(n)) = self.writer.set_members(value) {
+                        given.raise(*var, n);
+                        given.numbers.insert(*var);
+                    }
+                }
+                _ => {}
+            }
+        }
+        // A map given by its values, n ↦ 9ⁿ, gives what its body is with
+        // n of the type its domain's things are taken at, ℚ of n in ℤ.
+        for b in binders {
+            let Binder::Letter {
+                page,
+                ty:
+                    LetterType::Map {
+                        from: Members::Things(from),
+                        to: Members::Things(to),
+                    },
+                ..
+            } = b
+            else {
+                continue;
+            };
+            let value = binding.get(&crate::formula::symbol::Symbol::of(page));
+            let Some(value) = value.filter(|v| &*v.notation_name() == "property-of")
+            else {
+                continue;
+            };
+            let [body] = value.children.as_slice() else {
+                continue;
+            };
+            let takes = given
+                .at
+                .get(from)
+                .copied()
+                .unwrap_or(super::templates::Num::Nat);
+            let mut letters = self.writer.letters.clone();
+            letters.insert(value.text.to_string(), LetterType::Number(takes));
+            if let Route::Built(c) = self.writer.with_letters(letters).carrier(body) {
+                given.raise(*to, c);
+            }
+        }
+        given
+    }
+
     fn instance(
         &self,
         sentence: &Sentence,
@@ -3489,71 +3589,11 @@ impl<'a> Proof<'a> {
             }
             None => None,
         };
-        // The type an item's things are where they are given numbers, x ∈
-        // {u, w} cited of 1 and 2: the least that holds the claim and every
-        // number given them.
-        let things_at = {
-            // From ℕ: a set of naturals given for a set of things, S ⊆ ℕ,
-            // is of naturals, and a number given raises it to ℤ at least.
-            let mut at = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
-            let numbers = claim
-                .into_iter()
-                .flat_map(|c| c.children.iter())
-                .chain(sentence.binders.iter().filter_map(|b| match b {
-                    Binder::Letter {
-                        page,
-                        ty: LetterType::Member(super::expr::Members::Things),
-                        ..
-                    } => binding.get(&crate::formula::symbol::Symbol::of(page)),
-                    _ => None,
-                }))
-                .filter(|n| self.writer.is_number(n));
-            // A term of natural letters, b·d, is a natural; any other
-            // number is an integer at least.
-            for n in numbers {
-                let of_letters = n.walk().iter().any(|m| m.is_name());
-                if of_letters && self.writer.natural(n) {
-                    continue;
-                }
-                if let Route::Built(c) = self.writer.carrier(n) {
-                    at = at.max(c);
-                }
-            }
-            // A set of things given a set of numbers, X := ℝ, sets the
-            // things' type at least to that set's.
-            for b in &sentence.binders {
-                let Binder::Letter {
-                    page,
-                    ty: LetterType::Set(super::expr::Members::Things),
-                    ..
-                } = b
-                else {
-                    continue;
-                };
-                let given = binding.get(&crate::formula::symbol::Symbol::of(page));
-                if let Some(super::expr::Members::Numbers(n)) =
-                    given.and_then(|v| self.writer.set_members(v))
-                {
-                    at = at.max(n);
-                }
-            }
-            at
+        let things = self.things_given(&sentence.binders, binding);
+        let things_at = |var: &usize| {
+            let least = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
+            things.at.get(var).map_or(least, |n| least.max(*n))
         };
-        // Whether the citation gives the item's things numbers: a set of
-        // things given a set of numbers, X := {2n : n ∈ ℤ}.
-        let things_are_numbers = sentence.binders.iter().any(|b| match b {
-            Binder::Letter {
-                page,
-                ty: LetterType::Set(super::expr::Members::Things),
-                ..
-            } => matches!(
-                binding
-                    .get(&crate::formula::symbol::Symbol::of(page))
-                    .and_then(|v| self.writer.set_members(v)),
-                Some(super::expr::Members::Numbers(_))
-            ),
-            _ => false,
-        });
         let mut args = Vec::new();
         // Each ℕ letter given an integer's `toNat`: the letter, and the
         // integer.
@@ -3674,11 +3714,15 @@ impl<'a> Proof<'a> {
                         (LetterType::Property(members), _) => {
                             // Of things the citation gives numbers, the
                             // numbers at the type the things are taken at.
-                            let (of, lean) = match (members, things_are_numbers) {
-                                (super::expr::Members::Things, true) => (
-                                    LetterType::Number(things_at),
-                                    things_at.lean().to_string(),
-                                ),
+                            let (of, lean) = match members {
+                                super::expr::Members::Things(var)
+                                    if things.numbers.contains(var) =>
+                                {
+                                    (
+                                        LetterType::Number(things_at(var)),
+                                        things_at(var).lean().to_string(),
+                                    )
+                                }
                                 _ => (members.letter(), members.lean()),
                             };
                             match (&*value.notation_name(), value.children.as_slice()) {
@@ -3770,40 +3814,45 @@ impl<'a> Proof<'a> {
                         (LetterType::Statement, _) => self.writer.formula(value),
                         // A thing given a number: the number, at the type
                         // the things are taken at here.
-                        (LetterType::Member(super::expr::Members::Things), _)
+                        (LetterType::Member(super::expr::Members::Things(var)), _)
                             if self.writer.is_number(value) =>
                         {
-                            self.writer.number_fixed(value, things_at)
+                            self.writer.number_fixed(value, things_at(var))
                         }
                         // A set of things given a set of numbers: the set at
                         // the type the things are taken at here.
-                        (LetterType::Set(super::expr::Members::Things), _)
+                        (LetterType::Set(super::expr::Members::Things(var)), _)
                             if matches!(
                                 self.writer.set_members(value),
                                 Some(super::expr::Members::Numbers(_))
                             ) =>
                         {
-                            self.writer.numbers_at(value, things_at)
+                            self.writer.numbers_at(value, things_at(var))
                         }
                         // A map of things given by its values on numbers,
-                        // n ↦ 2n: `fun n => 2 * n`, at the type the things
-                        // are taken at here.
-                        (LetterType::Map { .. }, _)
-                            if &*value.notation_name() == "property-of" =>
-                        {
+                        // n ↦ 9ⁿ: `fun n : ℤ => 9 ^ n`, taking and giving
+                        // numbers at the types its two sides' things are
+                        // taken at here.
+                        (
+                            LetterType::Map {
+                                from: super::expr::Members::Things(from),
+                                to: super::expr::Members::Things(to),
+                            },
+                            _,
+                        ) if &*value.notation_name() == "property-of" => {
                             match value.children.as_slice() {
                                 [body] => {
                                     let mut letters = self.writer.letters.clone();
                                     letters.insert(
                                         value.text.to_string(),
-                                        LetterType::Number(things_at),
+                                        LetterType::Number(things_at(from)),
                                     );
                                     let inner = self.writer.with_letters(letters);
-                                    inner.number_fixed(body, things_at).map(|b| {
+                                    inner.number_fixed(body, things_at(to)).map(|b| {
                                         super::expr::Printed::atom(format!(
                                             "(fun {} : {} => {})",
                                             super::names::letter(&value.text),
-                                            things_at.lean(),
+                                            things_at(from).lean(),
                                             b.text
                                         ))
                                     })

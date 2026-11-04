@@ -45,12 +45,16 @@ pub enum LetterType {
     Property(Members),
 }
 
-/// What the members of a set are in Lean: the one type of things a
-/// theorem's sets hold, `α`, as set.mm's sets all hold sets; sets of
-/// those, 𝒫A's members; or numbers of one type, {2n : n ∈ ℤ}'s.
+/// What the members of a set are in Lean: things of a type variable, as
+/// set.mm's sets all hold sets; sets of those, 𝒫A's members; or numbers of
+/// one type, {2n : n ∈ ℤ}'s.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Members {
-    Things,
+    /// Things of the type variable numbered: a theorem's sets all hold
+    /// things of one, `α`; an item's map takes things of one to things of
+    /// another where nothing it says makes them one (`items::thing_types`),
+    /// so that a citation may give it numbers of two types.
+    Things(usize),
     Sets(Box<Members>),
     Numbers(Num),
     /// The elements of the group of this page name, of Lean type G.
@@ -59,6 +63,14 @@ pub enum Members {
 
 /// The type variable a theorem's sets of things are sets of.
 pub const THINGS: &str = "α";
+
+/// The name of the type variable numbered: α, then β, γ, δ.
+pub fn things_name(var: usize) -> String {
+    match ["α", "β", "γ", "δ"].get(var) {
+        Some(name) => name.to_string(),
+        None => format!("α{var}"),
+    }
+}
 
 impl Members {
     /// The members a set of this sort has; None for a sort no Lean type is
@@ -70,10 +82,10 @@ impl Members {
         }
     }
 
-    /// Members of this sort.
+    /// Members of this sort, things of the first type variable.
     pub fn of(sort: &crate::formula::node::Whole) -> Option<Members> {
         match sort {
-            crate::formula::node::Whole::Open => Some(Members::Things),
+            crate::formula::node::Whole::Open => Some(Members::Things(0)),
             crate::formula::node::Whole::Set(inner) => {
                 Members::of(inner).map(|m| Members::Sets(Box::new(m)))
             }
@@ -84,7 +96,7 @@ impl Members {
     /// How Lean writes a member's type.
     pub fn lean(&self) -> String {
         match self {
-            Members::Things => THINGS.to_string(),
+            Members::Things(var) => things_name(*var),
             Members::Sets(m) => format!("Set {}", bracketed(&m.lean())),
             Members::Numbers(n) => n.lean().to_string(),
             Members::Elements(g) => super::names::letter(g),
@@ -100,13 +112,22 @@ impl Members {
         }
     }
 
-    /// Whether they are the things a theorem's sets hold, or sets of them,
-    /// so that its statement takes `{α : Type*}`.
-    fn uses_things(&self) -> bool {
+    /// The type variable of the things they are, or are sets of, so that
+    /// a statement takes `{α : Type*}`; None for numbers or a group's.
+    fn things_var(&self) -> Option<usize> {
         match self {
-            Members::Things => true,
-            Members::Sets(m) => m.uses_things(),
-            Members::Numbers(_) | Members::Elements(_) => false,
+            Members::Things(var) => Some(*var),
+            Members::Sets(m) => m.things_var(),
+            Members::Numbers(_) | Members::Elements(_) => None,
+        }
+    }
+
+    /// The same members, things of the type variable given.
+    pub fn with_things(&self, var: usize) -> Members {
+        match self {
+            Members::Things(_) => Members::Things(var),
+            Members::Sets(m) => Members::Sets(Box::new(m.with_things(var))),
+            other => other.clone(),
         }
     }
 }
@@ -139,15 +160,19 @@ impl LetterType {
         }
     }
 
-    /// Whether the type holds the things a theorem's sets are of, so that
-    /// its statement takes `{α : Type*}`.
-    pub fn uses_things(&self) -> bool {
+    /// The type variables of the things the type holds, so that its
+    /// statement takes `{α β : Type*}`.
+    pub fn things_vars(&self) -> Vec<usize> {
         match self {
             LetterType::Set(m) | LetterType::Member(m) | LetterType::Property(m) => {
-                m.uses_things()
+                m.things_var().into_iter().collect()
             }
-            LetterType::Map { from, to } => from.uses_things() || to.uses_things(),
-            _ => false,
+            LetterType::Map { from, to } => from
+                .things_var()
+                .into_iter()
+                .chain(to.things_var())
+                .collect(),
+            _ => Vec::new(),
         }
     }
 }

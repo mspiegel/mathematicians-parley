@@ -384,14 +384,234 @@ fn numbers_subset(
 }
 
 /// The Lean type the sorts give a letter that is a set, a member of one or
-/// a map between sets; None for any other letter.
+/// a map between sets, its things of the type variable `things` gives it;
+/// None for any other letter.
 fn set_type_in(
     sorts: Option<&crate::formula::Sorts>,
+    things: &ThingTypes,
     name: &str,
 ) -> Option<LetterType> {
-    sorts
+    let ty = sorts
         .and_then(|s| s.get(name))
-        .and_then(super::sets::set_letter_type)
+        .and_then(super::sets::set_letter_type)?;
+    Some(match ty {
+        LetterType::Map { from, to } => LetterType::Map {
+            from: from.with_things(things.var(&ThingKey::From(name.to_string()))),
+            to: to.with_things(things.var(&ThingKey::To(name.to_string()))),
+        },
+        LetterType::Set(m) => LetterType::Set(m.with_things(things.of_letter(name))),
+        LetterType::Member(m) => {
+            LetterType::Member(m.with_things(things.of_letter(name)))
+        }
+        LetterType::Property(m) => {
+            LetterType::Property(m.with_things(things.of_letter(name)))
+        }
+        other => other,
+    })
+}
+
+/// Whether the node is a letter the sorts make a map.
+fn map_letter(node: &Node, sorts: Option<&crate::formula::Sorts>) -> bool {
+    node.is_name()
+        && matches!(
+            sorts
+                .and_then(|s| s.get(node.text.as_str()))
+                .and_then(|s| s.full()),
+            Some(crate::formula::Whole::Function(..))
+        )
+}
+
+/// What an item's things are of: a letter's own, or what a map letter
+/// takes or gives.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum ThingKey {
+    /// The things a set, element or property letter is or holds or is of.
+    Letter(String),
+    /// What a map letter takes.
+    From(String),
+    /// What a map letter gives.
+    To(String),
+}
+
+/// The type variable an item's things take, by what they are of: things
+/// two of its terms compare, join or are members of are of one type, and a
+/// map takes the things of its domain to those of the set it maps into,
+/// which are of another where nothing the item says makes them one. Of
+/// `E : Y → Z` and `u ∈ {E(s) : s ∈ Y} ↔ there is s ∈ Y with u = E(s)`, Y
+/// and s are α, Z and u are β; of `f : X → X`, all are α. Variables are
+/// numbered in the order the item first names their things.
+#[derive(Default)]
+struct ThingTypes {
+    parent: std::collections::BTreeMap<ThingKey, ThingKey>,
+    /// Each key, in the order first met.
+    met: Vec<ThingKey>,
+    vars: std::collections::BTreeMap<ThingKey, usize>,
+}
+
+impl ThingTypes {
+    /// Read from the item's map lines, then its lines.
+    fn read(lines: &[&Node], sorts: Option<&crate::formula::Sorts>) -> ThingTypes {
+        let mut out = ThingTypes::default();
+        for line in lines {
+            out.class(line, sorts);
+        }
+        let mut roots: Vec<ThingKey> = Vec::new();
+        for key in out.met.clone() {
+            let root = out.root(&key);
+            let var = match roots.iter().position(|r| *r == root) {
+                Some(i) => i,
+                None => {
+                    roots.push(root);
+                    roots.len() - 1
+                }
+            };
+            out.vars.insert(key, var);
+        }
+        out
+    }
+
+    /// The type variable of these things; the first for any the item
+    /// does not name.
+    fn var(&self, key: &ThingKey) -> usize {
+        self.vars.get(key).copied().unwrap_or(0)
+    }
+
+    fn of_letter(&self, name: &str) -> usize {
+        self.var(&ThingKey::Letter(name.to_string()))
+    }
+
+    fn root(&self, key: &ThingKey) -> ThingKey {
+        let mut at = key.clone();
+        while let Some(up) = self.parent.get(&at) {
+            at = up.clone();
+        }
+        at
+    }
+
+    fn meet(&mut self, key: &ThingKey) {
+        if !self.met.contains(key) {
+            self.met.push(key.clone());
+        }
+    }
+
+    /// The things of the two are of one type.
+    fn join(&mut self, a: Option<ThingKey>, b: Option<ThingKey>) {
+        let (Some(a), Some(b)) = (a, b) else {
+            return;
+        };
+        self.meet(&a);
+        self.meet(&b);
+        let (ra, rb) = (self.root(&a), self.root(&b));
+        if ra != rb {
+            self.parent.insert(rb, ra);
+        }
+    }
+
+    /// The key of the things a term is, holds or is made of, joining what
+    /// the term says are of one type; None for a statement, a number or a
+    /// map.
+    fn class(
+        &mut self,
+        node: &Node,
+        sorts: Option<&crate::formula::Sorts>,
+    ) -> Option<ThingKey> {
+        let is_map = |n: &Node| map_letter(n, sorts);
+        let name = node.notation_name();
+        let kids = node.children.as_slice();
+        match (&*name, kids) {
+            _ if node.is_name() => {
+                if is_map(node) || node.sort.is("number") || node.sort.is("formula") {
+                    return None;
+                }
+                let key = ThingKey::Letter(node.text.to_string());
+                self.meet(&key);
+                Some(key)
+            }
+            // f : Y → Z, with or without a property: f takes Y's things
+            // to Z's.
+            (
+                "function-type" | "one-to-one" | "onto" | "one-to-one-onto",
+                [f, from, to],
+            ) if is_map(f) => {
+                let (a, b) = (self.class(from, sorts), self.class(to, sorts));
+                self.join(Some(ThingKey::From(f.text.to_string())), a);
+                self.join(Some(ThingKey::To(f.text.to_string())), b);
+                None
+            }
+            // f(x), and f[X] the image: x and X are of what f takes, the
+            // value of what it gives; under g⁻¹ the other way round.
+            ("application" | "image", [f, x]) => {
+                // g⁻¹(y) is the bridges' inverse, which gives y itself where
+                // g sends nothing to it, so g's two sides are one type.
+                if let ("application", ("inverse", [g])) =
+                    (&*name, (&*f.notation_name(), f.children.as_slice()))
+                {
+                    if let Some((takes, gives)) = self.sides(g, sorts) {
+                        self.join(Some(takes), Some(gives));
+                    }
+                }
+                let arg = self.class(x, sorts);
+                match self.sides(f, sorts) {
+                    Some((takes, gives)) => {
+                        self.join(Some(takes), arg);
+                        Some(gives)
+                    }
+                    // P(t) of a property: t is of what P is of.
+                    None if f.is_name() && !node.sort.is("number") => {
+                        let p = self.class(f, sorts);
+                        self.join(p, arg);
+                        None
+                    }
+                    None => None,
+                }
+            }
+            // {E(s) : s ∈ Y}: s is of Y's things, and the set holds E(s)'s.
+            ("set-image", [term, letter, set]) => {
+                let (s, y) = (self.class(letter, sorts), self.class(set, sorts));
+                self.join(s, y);
+                self.class(term, sorts)
+            }
+            // A statement joins its terms, u = E(s), x ∈ X, ∀ x ∈ X; a
+            // number is made of numbers; a term of sets, X ∪ Y, joins them.
+            _ => {
+                let classes: Vec<ThingKey> =
+                    kids.iter().filter_map(|k| self.class(k, sorts)).collect();
+                for pair in classes.windows(2) {
+                    self.join(Some(pair[0].clone()), Some(pair[1].clone()));
+                }
+                let term = !node.sort.is("number") && !node.sort.is("formula");
+                term.then(|| classes.into_iter().next()).flatten()
+            }
+        }
+    }
+
+    /// What a map term takes and gives: f's, g ∘ f's, or g⁻¹'s; None for
+    /// a term no map letter makes.
+    fn sides(
+        &mut self,
+        f: &Node,
+        sorts: Option<&crate::formula::Sorts>,
+    ) -> Option<(ThingKey, ThingKey)> {
+        if map_letter(f, sorts) {
+            let (from, to) = (
+                ThingKey::From(f.text.to_string()),
+                ThingKey::To(f.text.to_string()),
+            );
+            self.meet(&from);
+            self.meet(&to);
+            return Some((from, to));
+        }
+        match (&*f.notation_name(), f.children.as_slice()) {
+            ("inverse", [g]) => self.sides(g, sorts).map(|(a, b)| (b, a)),
+            ("composition", [g, inner]) => {
+                let (takes, mid) = self.sides(inner, sorts)?;
+                let (mid2, gives) = self.sides(g, sorts)?;
+                self.join(Some(mid), Some(mid2));
+                Some((takes, gives))
+            }
+            _ => None,
+        }
+    }
 }
 
 /// The letters that stand where a statement stands: a whole sentence, or a
@@ -524,10 +744,16 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .iter()
                 .position(|r| std::ptr::eq(r, record))
                 .and_then(|i| checked.library.record_sorts.get(&i));
+            let lines: Vec<&Node> = functions
+                .iter()
+                .chain(group.wants.iter().map(|(_, n)| n))
+                .chain(std::iter::once(says))
+                .collect();
+            let things = ThingTypes::read(&lines, sorts);
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
-                    set_type_in(sorts, &f.name).map(|ty| (f.name.clone(), ty))
+                    set_type_in(sorts, &things, &f.name).map(|ty| (f.name.clone(), ty))
                 })
                 .collect();
             for (name, ty) in &sets {
@@ -571,7 +797,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 if listed(&n) && n.children.iter().all(of_no_number) {
                     for t in &n.children {
                         if !sets.iter().any(|(s, _)| *s == *t.text) {
-                            let ty = LetterType::Member(super::expr::Members::Things);
+                            let ty = LetterType::Member(super::expr::Members::Things(
+                                things.of_letter(&t.text),
+                            ));
                             w.letters.insert(t.text.to_string(), ty.clone());
                             sets.push((t.text.to_string(), ty));
                         }
@@ -712,8 +940,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 for set in [from, to] {
                     let unbound =
                         set.is_name() && !w.letters.contains_key(set.text.as_str());
-                    if let Some(ty) =
-                        unbound.then(|| set_type_in(sorts, &set.text)).flatten()
+                    if let Some(ty) = unbound
+                        .then(|| set_type_in(sorts, &things, &set.text))
+                        .flatten()
                     {
                         w.letters.insert(set.text.to_string(), ty.clone());
                         statements.push(Binder::Letter {

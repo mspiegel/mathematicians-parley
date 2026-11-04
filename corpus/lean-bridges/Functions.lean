@@ -31,22 +31,22 @@ theorem inverse_of_value {α : Type*} (g : α → α) (A : Set α) (x : α)
   exact hg h.choose_spec.1 hx h.choose_spec.2
 
 /-- `def:stdlib/functions/image`. -/
-theorem image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (u : α) (W : Set α) (_hf : Set.MapsTo f X W) (h1 : Y ⊆ X) :
+theorem image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (u : β) (W : Set β) (_hf : Set.MapsTo f X W) (h1 : Y ⊆ X) :
     u ∈ f '' (X ∩ Y) ↔ (∃ s ∈ Y, u = f s) :=
   ⟨fun ⟨s, ⟨_, hs⟩, e⟩ => ⟨s, hs, e.symm⟩, fun ⟨s, hs, e⟩ => ⟨s, ⟨h1 hs, hs⟩, e.symm⟩⟩
 
 /-- `def:stdlib/functions/set-image`. -/
-theorem set_image {α : Type*} (E : α → α) (Y : Set α) (u : α) (Z : Set α) (hE : Set.MapsTo E Y Z) :
+theorem set_image {α β : Type*} (E : α → β) (Y : Set α) (u : β) (Z : Set β) (hE : Set.MapsTo E Y Z) :
     u ∈ (fun s : α => E s) '' Y ↔ (∃ s ∈ Y, u = E s) :=
   ⟨fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩, fun ⟨s, hs, e⟩ => ⟨s, hs, e.symm⟩⟩
 
 /-- `def:stdlib/functions/onto`. -/
-theorem onto {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
+theorem onto {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (hf : Set.MapsTo f X Y) :
     Set.MapsTo f X Y ∧ Set.SurjOn f X Y ↔ Set.MapsTo f X Y ∧ (∀ y ∈ Y, ∃ x ∈ X, y = f x) :=
   and_congr_right fun _ => ⟨fun h y hy => let ⟨x, hx, e⟩ := h hy; ⟨x, hx, e.symm⟩, fun h y hy => let ⟨x, hx, e⟩ := h y hy; ⟨x, hx, e.symm⟩⟩
 
 /-- `def:stdlib/functions/one-to-one-onto`. -/
-theorem one_to_one_onto {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (hf : Set.MapsTo f X Y) :
+theorem one_to_one_onto {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (hf : Set.MapsTo f X Y) :
     Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y ↔ (Set.MapsTo f X Y ∧ Set.InjOn f X) ∧ Set.MapsTo f X Y ∧ Set.SurjOn f X Y :=
   ⟨fun ⟨a, b, c⟩ => ⟨⟨a, b⟩, a, c⟩, fun ⟨⟨a, b⟩, _, c⟩ => ⟨a, b, c⟩⟩
 

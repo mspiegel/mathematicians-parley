@@ -269,17 +269,23 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
     }
 }
 
-/// `{α : Type*}`, where a binder is a set of things, a member of one or a
-/// map between sets, or the statement writes a set of them though no
-/// letter is one, `(∅ : Set α).encard = 0`; None where none is.
+/// `{α β : Type*}`, a type variable for each of the things a binder holds,
+/// a set of them, a member of one or a map between sets, or the statement
+/// writes a set of though no letter is one, `(∅ : Set α).encard = 0`; None
+/// where none is.
 pub fn things_binder(binders: &[Binder], statement: &str) -> Option<String> {
-    let things = super::expr::THINGS;
-    let written = statement.contains(&format!("Set {things}"));
-    (written
-        || binders
-            .iter()
-            .any(|b| matches!(b, Binder::Letter { ty, .. } if ty.uses_things())))
-    .then(|| format!("{{{things} : Type*}}"))
+    let mut vars: std::collections::BTreeSet<usize> = binders
+        .iter()
+        .flat_map(|b| match b {
+            Binder::Letter { ty, .. } => ty.things_vars(),
+            _ => Vec::new(),
+        })
+        .collect();
+    if statement.contains(&format!("Set {}", super::expr::THINGS)) {
+        vars.insert(0);
+    }
+    let names: Vec<String> = vars.into_iter().map(super::expr::things_name).collect();
+    (!names.is_empty()).then(|| format!("{{{} : Type*}}", names.join(" ")))
 }
 
 /// Where a line says what sets a map letter maps between, `f : A → B` or

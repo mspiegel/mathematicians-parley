@@ -23,13 +23,30 @@ pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
 const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
 
+/// The parts `Writer::map_claim` writes for a line of this notation about
+/// a map f from A to B, each with `_f`, `_A` and `_B` for those; None for
+/// any other notation.
+pub fn map_claim_parts(notation: &str) -> Option<&'static [&'static str]> {
+    match notation {
+        "function-type" => Some(&["Set.MapsTo _f _A _B"]),
+        "one-to-one" => Some(&["Set.MapsTo _f _A _B", "Set.InjOn _f _A"]),
+        "onto" => Some(&["Set.MapsTo _f _A _B", "Set.SurjOn _f _A _B"]),
+        "one-to-one-onto" => Some(&[
+            "Set.MapsTo _f _A _B",
+            "Set.InjOn _f _A",
+            "Set.SurjOn _f _A _B",
+        ]),
+        _ => None,
+    }
+}
+
 /// The Lean type of a letter of this sort where it is a set, a member of
 /// one or a map between sets; None for any other sort.
 pub fn set_letter_type(sort: &crate::formula::Sort) -> Option<LetterType> {
     use crate::formula::Whole;
     match sort.full()? {
         Whole::Set(_) => Members::of_set(sort.full()?).map(LetterType::Set),
-        Whole::Open => Some(LetterType::Member(Members::Things)),
+        Whole::Open => Some(LetterType::Member(Members::Things(0))),
         Whole::Property(inner) => Members::of(inner).map(LetterType::Property),
         Whole::Function(from, to) => Some(LetterType::Map {
             from: Members::of(from)?,
@@ -734,13 +751,7 @@ impl Writer<'_> {
     /// a part of a conjunction a hypothesis is taken apart by. None where
     /// the node says none of these of a map letter.
     pub fn map_claim(&self, node: &Node) -> Option<Route<Printed>> {
-        let extra: &[&str] = match &*node.notation_name() {
-            "function-type" => &[],
-            "one-to-one" => &["Set.InjOn _f _A"],
-            "onto" => &["Set.SurjOn _f _A _B"],
-            "one-to-one-onto" => &["Set.InjOn _f _A", "Set.SurjOn _f _A _B"],
-            _ => return None,
-        };
+        let parts = map_claim_parts(&node.notation_name())?;
         let [f, from, to] = node.children.as_slice() else {
             return None;
         };
@@ -757,7 +768,7 @@ impl Writer<'_> {
             self.letters.get(f.text.as_str()),
             Some(LetterType::Function { .. })
         );
-        if function && extra.is_empty() {
+        if function && parts.len() == 1 {
             return None;
         }
         let (a, b) = match (self.set_term(from), self.set_term(to)) {
@@ -767,8 +778,8 @@ impl Writer<'_> {
             }
         };
         let name = super::names::letter(&f.text);
-        let parts: Vec<String> = std::iter::once("Set.MapsTo _f _A _B")
-            .chain(extra.iter().copied())
+        let parts: Vec<String> = parts
+            .iter()
             .map(|p| p.replace("_f", &name).replace("_A", &a).replace("_B", &b))
             .collect();
         let prec = if parts.len() == 1 {
