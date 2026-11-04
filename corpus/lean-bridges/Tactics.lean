@@ -239,6 +239,14 @@ macro "parley_int_power " h:ident : tactic =>
         Nat.cast_one, Int.toNat_of_nonneg] at q ⊢;
         linear_combination (norm := parley_norm) q; done))
 
+/-- An equation `h` an item over ℂ gives of real numbers, exp(a + 1) =
+exp(a)·exp(1) of exp-sum at a real a: read in ℝ, each complex exp, sin and
+cos of a real cast the real one. -/
+macro "parley_of_complex " h:ident : tactic =>
+  `(tactic| (simp only [← Complex.ofReal_one, ← Complex.ofReal_ofNat, ← Complex.ofReal_add,
+      ← Complex.ofReal_sub, ← Complex.ofReal_neg, ← Complex.ofReal_mul,
+      ← Complex.ofReal_exp, ← Complex.ofReal_sin, ← Complex.ofReal_cos] at $h:ident; exact_mod_cast $h:ident))
+
 /-- What `linear_combination` asks once the cited equations are subtracted,
 where the step divides: zero, once the divisions are cleared. -/
 macro "parley_field" : tactic =>

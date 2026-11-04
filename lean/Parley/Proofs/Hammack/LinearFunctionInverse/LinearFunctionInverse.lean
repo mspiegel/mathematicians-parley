@@ -1,0 +1,27 @@
+module
+
+public import RealTactics
+public import Tactics
+
+/-! Written from proofs/hammack/linear-function-inverse.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse
+
+theorem linear_function_inverse (x : ℝ) :
+    ((Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x ∧ Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x) := by
+  -- 1. real arithmetic
+  have s1 : 0 < Real.pi := by parley_real
+  -- 2. algebra
+  have r10_1 : 0 ≠ Real.pi := by parley_side
+  have s2 : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by parley_ring
+  -- 3. algebra
+  have r14_1 : 0 ≠ Real.pi := by parley_side
+  have s3 : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_ring
+  -- 4. join 2, 3
+  have s4a : (Real.pi * x - Real.exp 1 + Real.exp 1) / Real.pi = x := by parley_side
+  have s4b : Real.pi * ((x + Real.exp 1) / Real.pi) - Real.exp 1 = x := by parley_side
+  all_goals parley_side
+
+end Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse

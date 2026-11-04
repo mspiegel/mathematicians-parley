@@ -5176,6 +5176,17 @@ fn close(claim: &Node, term: &str) -> String {
             // by `▸` (`instance`): an error elaborating it against the goal,
             // as `exact_mod_cast` does, is logged and does not fail the
             // alternative, so it is cast from a `have`, which fails.
+            // A claim of exp, sin or cos, whose items are stated over ℂ: the
+            // item read back in ℝ.
+            let of_complex = match claim.walk().iter().any(|n| {
+                n.notation() == crate::notations::APPLICATION
+                    && n.children
+                        .first()
+                        .is_some_and(|f| matches!(&*f.text, "exp" | "sin" | "cos"))
+            }) {
+                true => format!(" | (have h := {term}; parley_of_complex h)"),
+                false => String::new(),
+            };
             let by_to_nat = term.contains("Int.toNat_of_nonneg");
             let cast = match by_to_nat {
                 true => format!(
@@ -5184,7 +5195,7 @@ fn close(claim: &Node, term: &str) -> String {
                 false => format!("exact_mod_cast {term} | exact_mod_cast ({term}).symm"),
             };
             format!(
-                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder} | (have h := {term}; parley_side)"
+                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder}{of_complex} | (have h := {term}; parley_side)"
             )
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),

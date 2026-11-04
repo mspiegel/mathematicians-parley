@@ -638,6 +638,7 @@ notation euler
   decided     real arithmetic
   metamath-syntax ceu
   metamath-builds ceu
+  lean-builds → ℝ: Real.exp 1
   note        Euler's number, exp(1) (df-e). A line that introduces an e of its
               own, a group's identity, a walk `let e : {1, …, n} → E` or a
               define, makes e that name in its scope, as a reader takes it;

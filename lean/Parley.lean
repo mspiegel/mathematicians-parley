@@ -137,6 +137,7 @@ public import Parley.Proofs.Hammack.LimitUnique.LimitUnfolded
 public import Parley.Proofs.Hammack.LimitUnique.LimitOrder
 public import Parley.Proofs.Hammack.LimitUnique.LimitUnique
 public import Parley.Proofs.Hammack.LinearBelowPowerOfThree.LinearBelowPowerOfThree
+public import Parley.Proofs.Hammack.LinearFunctionInverse.LinearFunctionInverse
 public import Parley.Proofs.Hammack.LinearLimit.LinearLimit
 public import Parley.Proofs.Hammack.LnIsInjective.LnIsInjective
 public import Parley.Proofs.Hammack.LogThreeOverTwoIrrational.PowerOfThreeOdd
@@ -276,6 +277,7 @@ public import Parley.Proofs.Hammack.WeightedSumIsABinomial.WeightedSumIsABinomia
 public import Parley.Proofs.Identities.CosinePlusPi.CosinePlusPi
 public import Parley.Proofs.Identities.CosinesAroundAThirdOfPi.CosinesAroundAThirdOfPi
 public import Parley.Proofs.Identities.ExpIsIncreasing.ExpIsIncreasing
+public import Parley.Proofs.Identities.ExpOfLnPlusOne.ExpOfLnPlusOne
 public import Parley.Proofs.Identities.ExpTimesExpNegative.ExpTimesExpNegative
 public import Parley.Proofs.Identities.FourthPowersAndTheDoubleAngle.FourthPowersAndTheDoubleAngle
 public import Parley.Proofs.Identities.LnAboveOneIsPositive.LnAboveOneIsPositive
@@ -909,8 +911,12 @@ public import Parley.Tests.Elaborator.RealArithmeticInPlace.ARequiresLineByRealA
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmOfAPower
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmOfAHalf
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.AnExponentialOfALogarithm
+public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmOfAPowerOfE
+public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ASquareOfPiAndE
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.TwoLogarithmsThatDiffer
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.PiIsReal
+public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ETimesTheLogarithmOfOne
+public import Parley.Tests.Elaborator.RealArithmeticLogarithms.AnExponentialOfAWholeNumberAndALogarithm
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmOfAProduct
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.PiAndALogarithmSaidOnce
 public import Parley.Tests.Elaborator.RealArithmeticLogarithms.ALogarithmNotZeroOnARequiresLine
@@ -926,6 +932,7 @@ public import Parley.Tests.Elaborator.RealArithmeticOrder.ASineBelowOne
 public import Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveZero
 public import Parley.Tests.Elaborator.RealArithmeticOrder.PiAboveThree
 public import Parley.Tests.Elaborator.RealArithmeticOrder.PiBelowFour
+public import Parley.Tests.Elaborator.RealArithmeticOrder.EBelowPi
 public import Parley.Tests.Elaborator.RealArithmeticOrder.AQuarterOfPiBelowOne
 public import Parley.Tests.Elaborator.RealArithmeticOrder.PiSquaredBelowSixteen
 public import Parley.Tests.Elaborator.RealArithmeticOrder.ALogarithmAboveZero
