@@ -19,6 +19,7 @@ theorem an_induction_over_a_range_it_ends (n : ℕ) :
       -- 1.1. proof
       have s1_1 : ∀ j : ℤ, j ∈ Finset.Icc 1 0 → j ≥ 1 := by
         intro j hK1
+        try have hK1_bounds := Finset.mem_Icc.mp hK1
         -- 1.1.1. mun:range-bounds a := 1, b := 0, k := j, from K1
         have s1_1_1 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (0 : ℤ)) (k := j) hK1); parley_side)
         -- 1.1.2. inequalities, from 1.1.1
@@ -29,6 +30,7 @@ theorem an_induction_over_a_range_it_ends (n : ℕ) :
       -- 1.2. proof
       have s1_2 : ∀ j : ℤ, j ∈ Finset.Icc 1 ((N : ℤ) + 1) → j ≥ 1 := by
         intro j hK3
+        try have hK3_bounds := Finset.mem_Icc.mp hK3
         -- 1.2.1. mun:range-bounds a := 1, b := N + 1, k := j, from K3
         have s1_2_1 : 1 ≤ j := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) hK3)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) hK3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) hK3) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (1 : ℤ)) (b := (N : ℤ) + 1) (k := j) hK3); parley_side)
         -- 1.2.2. inequalities, from 1.2.1

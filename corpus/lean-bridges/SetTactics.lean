@@ -34,4 +34,9 @@ macro "parley_set_side" : tactic =>
        rcases ‹_ ∨ _› with h | h <;> simp [h]; done)
     -- One of a range of integers, x ∈ S with S = {3, …, 5}: its bounds,
     -- and the integers between them.
-    | (subst_vars; simp only [Set.mem_Icc] at *; omega))
+    | (subst_vars; simp only [Set.mem_Icc] at *; omega)
+    -- A pair a line says, in the other order: {a, b} is {b, a}, a listed
+    -- set's order being none of the page's.
+    | (rw [Set.pair_comm]; assumption)
+    -- There is some member of a set, of a member a line names.
+    | (exact ⟨_, ‹_ ∈ _›, trivial⟩))

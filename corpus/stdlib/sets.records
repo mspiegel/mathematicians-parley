@@ -157,7 +157,7 @@ mundane theorem set-builder-subset
   let P be a property of the elements of X                            (H2)
   then        {t ∈ X : P(t)} ⊆ X
   metamath-proof ssrab2
-  lean-proof  not yet implemented
+  lean-proof  Set.sep_subset X P
 
 mundane theorem set-builder-split
   let X be a set                                                      (H1)
@@ -510,7 +510,7 @@ mundane theorem union-self
 mundane theorem union-empty
   then        Y ∪ ∅ = Y
   metamath-proof un0
-  lean-proof  not yet implemented
+  lean-proof  Set.union_empty Y
 
 mundane theorem intersection-empty
   then        Y ∩ ∅ = ∅

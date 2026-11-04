@@ -1,0 +1,45 @@
+module
+
+public import Counting
+public import Tactics
+public import Parley.Items.Stdlib.Counting
+public import Parley.Items.Stdlib.Numbers
+public import Parley.Items.Stdlib.Sums
+public import Parley.Proofs.Wiedijk.Binomial.BinomialStep
+
+/-! Written from proofs/wiedijk/binomial.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Proofs.Wiedijk.Binomial.Binomial
+
+theorem binomial (x : ℝ) (y : ℝ) (n : ℕ) :
+    (x + y) ^ n = (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), ((LeanBridges.Counting.choose (n : ℤ) k : ℝ) * x ^ ((n : ℤ) - k) * y ^ k : ℝ)) := by
+  -- 1. induction on m starting at 0
+  have s1 : ∀ m : ℕ, (x + y) ^ m = (∑ k ∈ Finset.Icc (0 : ℤ) (m : ℤ), ((LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k : ℝ)) := by
+    intro m
+    induction m with
+    | zero =>
+      -- 1.1. mun:binomial-zero-index n := 0
+      have s1_1 : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := 0)); parley_side)
+      -- 1.2. calculation
+      have s1_2 : (x + y) ^ 0 = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k : ℝ)) := by
+        calc (x + y) ^ 0 = 1 := by parley_ring
+          _ = x ^ 0 * y ^ 0 := by parley_ring
+          _ = (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) * x ^ 0 * y ^ 0 := by
+              have s1_1_w : (LeanBridges.Counting.choose (0 : ℤ) (0 : ℤ) : ℝ) = 1 := by have h := congrArg (fun x : ℤ => (x : ℝ)) s1_1; push_cast at h; linear_combination (norm := parley_norm) h
+              first | parley_subst s1_1_w | parley_subst s1_1
+          _ = (∑ k ∈ Finset.Icc (0 : ℤ) (0 : ℤ), ((LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k : ℝ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_single (t := (fun k : ℤ => (LeanBridges.Counting.choose (0 : ℤ) k : ℝ) * x ^ (0 - k) * y ^ k)) (a := (0 : ℤ))); parley_side)
+      all_goals parley_side
+    | succ m hIH =>
+      -- 1.3. calculation
+      have s1_3 : (x + y) ^ (m + 1) = (∑ k ∈ Finset.Icc (0 : ℤ) ((m : ℤ) + 1), ((LeanBridges.Counting.choose ((m : ℤ) + 1) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k : ℝ)) := by
+        calc (x + y) ^ (m + 1) = (x + y) ^ m * (x + y) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := x + y) (m := m)); parley_side)
+          _ = (∑ k ∈ Finset.Icc (0 : ℤ) (m : ℤ), ((LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k : ℝ)) * (x + y) := by parley_subst hIH
+          _ = (∑ k ∈ Finset.Icc (0 : ℤ) ((m : ℤ) + 1), ((LeanBridges.Counting.choose ((m : ℤ) + 1) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k : ℝ)) := by first | linear_combination (norm := parley_norm) (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)) | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)) | exact_mod_cast ((Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m))).symm | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); parley_int_power h) | (have h := (Parley.Proofs.Wiedijk.Binomial.BinomialStep.binomial_step (x := x) (y := y) (m := m)); parley_side)
+      all_goals parley_side
+  -- 2. instantiate m := n in line 1
+  have s2 : (x + y) ^ n = (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), ((LeanBridges.Counting.choose (n : ℤ) k : ℝ) * x ^ ((n : ℤ) - k) * y ^ k : ℝ)) := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm | (have h := (s1 n); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); parley_int_power h) | (have h := (s1 n); parley_side)
+  all_goals exact s2
+
+end Parley.Proofs.Wiedijk.Binomial.Binomial

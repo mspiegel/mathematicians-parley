@@ -98,7 +98,7 @@ mundane theorem card-remove
   metamath-proof hashdifsnp1 with V := X, N := a, Y := k
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
-  lean-proof  not yet implemented
+  lean-proof  by have := Set.encard_sdiff_singleton_add_one h1; rw [h3] at this; push_cast at this; exact WithTop.add_right_cancel ENat.one_ne_top this
 
 mundane theorem card-bijection
   let X be a set                                                      (H1)

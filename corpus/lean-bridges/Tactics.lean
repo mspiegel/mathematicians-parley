@@ -170,7 +170,10 @@ macro "parley_subst " e:term:max : tactic =>
     | (linear_combination (-1 : _) * $e:term; done)
     | (have h := $e:term; norm_cast at h; rw [h]; done)
     | (have h := $e:term; norm_cast at h; rw [← h]; done)
-    | (have h := $e:term; norm_cast at h; simp only [h]; done))
+    | (have h := $e:term; norm_cast at h; simp only [h]; done)
+    -- A power put to an integer exponent beside one to a natural, x^0 of
+    -- (m + 1) − (m + 1) beside x^0: each worked out.
+    | (rw [$e:term]; norm_num; done))
 
 /-- `parley_subst_at e h` by rewriting, with no `simp` by `e`. That loops where one side of
 `e` stands inside the other, b in gcd(a, b), and `first` does not go on past
@@ -224,10 +227,17 @@ equation of integers is taken to ℚ first, where integer powers are. -/
 macro "parley_int_power " h:ident : tactic =>
   `(tactic| first
     | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
-        Int.toNat_of_nonneg] at $h:ident; linear_combination (norm := parley_norm) ($h:ident); done)
+        Int.toNat_of_nonneg] at $h:ident;
+        first
+          | (linear_combination (norm := parley_norm) ($h:ident); done)
+          -- The claim is the equation turned round.
+          | (linear_combination (norm := parley_norm) (-$h:ident); done))
+    -- Taken to ℚ, the goal with it: the integer brought back from its
+    -- `toNat` may stand as `Int.subNatNat n 1`, which is n − 1.
     | (have q := congrArg (fun x : ℤ => (x : ℚ)) $h:ident; push_cast at q;
-        simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
-        Int.toNat_of_nonneg] at q; linear_combination (norm := parley_norm) q; done))
+        simp (disch := omega) only [Int.subNatNat_eq_coe, ← zpow_natCast, Nat.cast_add,
+        Nat.cast_one, Int.toNat_of_nonneg] at q ⊢;
+        linear_combination (norm := parley_norm) q; done))
 
 /-- What `linear_combination` asks once the cited equations are subtracted,
 where the step divides: zero, once the divisions are cleared. -/

@@ -120,7 +120,7 @@ mundane theorem function-into
   assume for all x ∈ X, E(x) ∈ Y                                      (H2)
   then        E : X → Y
   metamath-proof ffnfv
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => h2 x hx
 
 mundane theorem function-on-domain
   let f : X → Y                                                       (H1)

@@ -199,7 +199,7 @@ theorem division-algorithm
               the last two of those stop being differences. Nothing fixes
               divalg's own variables, because its conclusion is never
               matched against this claim, so `with` says which is which.
-  lean-proof  not yet implemented
+  lean-proof  ⟨(n : ℤ) / d, (n : ℤ) % d, ⟨by rw [mul_comm]; exact (Int.mul_ediv_add_emod _ _).symm, Int.emod_nonneg _ (by omega)⟩, Int.emod_lt_of_pos _ (by omega)⟩
 
 definition prime
   let p ∈ ℕ                                                           (H1)

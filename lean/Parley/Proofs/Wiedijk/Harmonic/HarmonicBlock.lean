@@ -32,6 +32,7 @@ theorem harmonic_block (j : ℕ) :
   -- 9. proof
   have s9 : ∀ k : ℤ, k ∈ Finset.Icc (2 ^ j + 1) (2 ^ (j + 1)) → 1 / 2 ^ (j + 1) ≤ 1 / (k : ℚ) := by
     intro k hK2
+    try have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 9.1. mun:range-bounds a := 2^j + 1, b := 2^(j + 1), from K2
     have s9_1a : 2 ^ j + 1 ≤ k := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_1 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2); parley_side)
     have s9_1b : k ≤ 2 ^ (j + 1) := by first | linarith [(Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2)] | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_bounds_2 (a := (2 ^ j + 1 : ℤ)) (b := (2 ^ (j + 1) : ℤ)) (k := k) hK2); parley_side)

@@ -45,6 +45,10 @@ theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = (
     ∃ a ∈ X, True :=
   (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast Nat.succ_ne_zero k)).imp fun _ h => ⟨h, trivial⟩
 
+theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℕ) (h3 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
+    (X \ ({a} : Set α)).encard = ((k : ℕ) : ℕ∞) :=
+  by have := Set.encard_sdiff_singleton_add_one h1; rw [h3] at this; push_cast at this; exact WithTop.add_right_cancel ENat.one_ne_top this
+
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
     (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_disjoint_union X Y m n h3 h4 h5

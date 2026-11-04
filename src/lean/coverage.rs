@@ -128,6 +128,65 @@ fn kinded_quotient(
     })
 }
 
+/// Whether a term with a letter a line says is an integer, a·x + b·y of
+/// x ∈ ℤ, is said to be in a set a define builds of naturals, S = {t ∈ ℕ :
+/// …}.
+fn integer_in_natural_set(
+    thm: &crate::corpus::Theorem,
+    rec: &crate::checker::CheckedTheorem,
+) -> bool {
+    use super::expr::{system_of, System};
+    let nodes: Vec<crate::formula::Node> =
+        rec.page.entries().flat_map(|(_, n)| n.walk()).collect();
+    let integers: Vec<&str> = nodes
+        .iter()
+        .filter_map(|n| match n.children.as_slice() {
+            [x, set]
+                if n.notation() == crate::notations::MEMBERSHIP
+                    && x.is_name()
+                    && system_of(set)
+                        == Some(System::Type(super::templates::Num::Int)) =>
+            {
+                Some(&*x.text)
+            }
+            _ => None,
+        })
+        .collect();
+    let natural_sets: Vec<String> = thm
+        .defines
+        .iter()
+        .filter_map(|d| {
+            let crate::outcome::Route::Built(crate::corpus::DefineParts::One(one)) =
+                crate::corpus::define_parts(&d.text)
+            else {
+                return None;
+            };
+            let of_naturals = rec
+                .page
+                .entries()
+                .filter(|(key, _)| key.line == d.line)
+                .any(
+                    |(_, n)| match (&*n.notation_name(), n.children.as_slice()) {
+                        ("set-builder", [_, over, _]) => matches!(
+                            system_of(over),
+                            Some(System::Positive | System::NonNegative)
+                        ),
+                        _ => false,
+                    },
+                );
+            of_naturals.then_some(one.name)
+        })
+        .collect();
+    nodes.iter().any(|n| {
+        matches!(n.children.as_slice(), [t, s]
+            if n.notation() == crate::notations::MEMBERSHIP
+                && !t.is_name()
+                && s.is_name()
+                && natural_sets.iter().any(|name| *name == *s.text)
+                && t.walk().iter().any(|m| m.is_name() && integers.contains(&&*m.text)))
+    })
+}
+
 /// Whether a term divides somewhere a floor does not hold.
 fn divides_outside_floor(n: &crate::formula::Node) -> bool {
     if &*n.notation_name() == "floor" {
@@ -290,13 +349,20 @@ pub fn defined_function(
         .filter(|(key, _)| key.line == line.line)
         .map(|(_, node)| node)
         .collect();
+    // Over a number system or a range of integers, {0, …, m}.
     let over_numbers = read.iter().any(|n| {
-        n.notation() == crate::notations::NUMBER_SYSTEMS
-            && super::expr::system_of(n).is_some()
+        (n.notation() == crate::notations::NUMBER_SYSTEMS
+            && super::expr::system_of(n).is_some())
+            || n.notation() == crate::notations::INTEGER_RANGE
     });
     let values = read
         .iter()
-        .filter(|n| n.notation() != crate::notations::NUMBER_SYSTEMS)
+        .filter(|n| {
+            !matches!(
+                n.notation(),
+                crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
+            )
+        })
         .filter(|n| !(n.is_name() && *n.text == *param.name))
         .count();
     (over_numbers && values == 1).then(|| def.name.clone())
@@ -350,6 +416,14 @@ fn covered(
     if kinded_quotient(thm, rec) {
         return Covered::Out {
             reason: "a let names a quotient as a whole number, which the writer takes in its kind's type"
+                .to_string(),
+        };
+    }
+    // A set of naturals a define builds, S = {t ∈ ℕ : …}, is Lean's
+    // `Set ℕ`, which no integer is a member of.
+    if integer_in_natural_set(thm, rec) {
+        return Covered::Out {
+            reason: "an integer is said to be in a set of naturals a define builds, which Lean's Set ℕ does not hold"
                 .to_string(),
         };
     }
@@ -491,6 +565,17 @@ fn covered(
                 return templates.function(&f).is_none().then(|| {
                     format!("{f}, applied, whose definition has no lean-builds field")
                 });
+            }
+            // f is a function on a set, which a Lean function of the set's
+            // type is (`expr`): a set of numbers, a range, or a set of
+            // things a letter's sort says.
+            if &*n.notation_name() == "function-on" {
+                let typed = matches!(n.children.as_slice(), [_, set]
+                    if set_of_numbers(set)
+                        || set.notation() == crate::notations::INTEGER_RANGE
+                        || set.sort.full().and_then(super::expr::Members::of_set).is_some());
+                return (!typed)
+                    .then(|| "a function on a set Lean has no type for".to_string());
             }
             if n.notation() == crate::notations::FUNCTION_TYPE {
                 // Between number systems, between sets of things, a map

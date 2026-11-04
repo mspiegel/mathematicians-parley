@@ -790,7 +790,7 @@ impl Writer<'_> {
     /// Whether a term may be computed in ℕ as Lean computes it there:
     /// built by `+`, `·` and powers from ℕ letters, numerals and values in
     /// ℕ. Subtraction and division are not.
-    fn natural(&self, node: &Node) -> bool {
+    pub fn natural(&self, node: &Node) -> bool {
         match node.notation() {
             NAME => matches!(
                 self.letters.get(node.text.as_str()),
@@ -1228,6 +1228,35 @@ impl Writer<'_> {
         if &*node.notation_name() == "continuous" {
             return self.continuous(node);
         }
+        // f is a function on a set: a Lean function is one on every set of
+        // the type it takes, its values off the set none of the page's. Of
+        // numbers, a set of numbers it takes; of things, a set of things.
+        if let ("function-on", [f, set]) =
+            (&*node.notation_name(), node.children.as_slice())
+        {
+            let of_set = match self.set_members(set) {
+                Some(m) => Some(m),
+                None if set.notation() == INTEGER_RANGE => {
+                    Some(Members::Numbers(Num::Int))
+                }
+                None => None,
+            };
+            let takes = match (self.letters.get(f.text.as_str()), of_set) {
+                (
+                    Some(LetterType::Function { from, .. }),
+                    Some(Members::Numbers(n)),
+                ) => n <= *from,
+                (Some(LetterType::Map { from, .. }), Some(m)) => *from == m,
+                _ => false,
+            };
+            return match takes {
+                true => Route::Built(Printed::atom("True")),
+                false => Route::no(format!(
+                    "{} is a function on a set of no type it takes",
+                    f.text
+                )),
+            };
+        }
         // P(t), the property P of t: `P t`.
         if let ("holds-of", [p, t]) = (&*node.notation_name(), node.children.as_slice())
         {
@@ -1299,13 +1328,39 @@ impl Writer<'_> {
                 let [f, from, to] = node.children.as_slice() else {
                     return Route::no("a function type of other than three parts");
                 };
+                // Between sets of numbers, g : D → ℝ: that g maps the one
+                // into the other, at the function's own types.
                 let Some((takes, gives)) = function_systems(from, to) else {
-                    return Route::no(
-                        "a function type between sets that are no number system",
-                    );
+                    let Route::Built((own_from, own_to)) = self.function_type(f) else {
+                        return Route::no(
+                            "a function type between sets that are no number system",
+                        );
+                    };
+                    return match (
+                        self.numbers_at(from, own_from),
+                        self.numbers_at(to, own_to),
+                    ) {
+                        (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
+                            text: format!(
+                                "Set.MapsTo {} {} {}",
+                                self.function_text(f),
+                                a.at(MAX),
+                                b.at(MAX)
+                            ),
+                            prec: APP,
+                        }),
+                        (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                            Route::Declined(d)
+                        }
+                    };
                 };
+                // Between number systems, by f's type, where it takes all
+                // the domain's numbers and gives numbers of the codomain:
+                // F : ℕ₀ → ℝ of F from ℤ into ℤ.
                 match self.function_type(f) {
-                    Route::Built(t) if t == (takes, gives) => {
+                    Route::Built((own_from, own_to))
+                        if takes <= own_from && own_to <= gives =>
+                    {
                         Route::Built(Printed::atom("True"))
                     }
                     Route::Built(_) => {

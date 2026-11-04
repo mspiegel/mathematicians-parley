@@ -49,6 +49,10 @@ theorem thm_divides_gcd (d : ℤ) (a : ℤ) (b : ℤ) (h4 : d ∣ a) (h5 : d ∣
     d ∣ (Int.gcd a b : ℤ) :=
   Int.dvd_coe_gcd h4 h5
 
+theorem thm_division_algorithm (n : ℕ) (h1 : 0 < n) (d : ℕ) (h2 : 0 < d) :
+    ∃ q : ℤ, ∃ r : ℤ, ((n : ℤ) = q * (d : ℤ) + r ∧ 0 ≤ r) ∧ r < (d : ℤ) :=
+  ⟨(n : ℤ) / d, (n : ℤ) % d, ⟨by rw [mul_comm]; exact (Int.mul_ediv_add_emod _ _).symm, Int.emod_nonneg _ (by omega)⟩, Int.emod_lt_of_pos _ (by omega)⟩
+
 theorem def_prime (p : ℕ) (h1 : 0 < p) :
     Nat.Prime p ↔ 1 < (p : ℤ) ∧ (∀ d : ℕ, 0 < d → (d : ℤ) ∣ (p : ℤ) → (d : ℤ) = 1 ∨ (d : ℤ) = (p : ℤ)) :=
   LeanBridges.Divisibility.prime p h1

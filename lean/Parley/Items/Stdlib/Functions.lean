@@ -29,6 +29,10 @@ theorem mun_image_monotone {α : Type*} (Y : Set α) (Z : Set α) (f : α → α
     f '' (X ∩ Y) ⊆ f '' (X ∩ Z) :=
   Set.image_mono (Set.inter_subset_inter_right X h1)
 
+theorem mun_function_into {α : Type*} (E : α → α) (X : Set α) (Y : Set α) (h1 : True) (h2 : ∀ x ∈ X, E x ∈ Y) :
+    Set.MapsTo E X Y :=
+  fun x hx => h2 x hx
+
 theorem mun_value_in_image {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (s : α) (W : Set α) (hf : Set.MapsTo f X W) (h1 : Y ⊆ X) (h2 : s ∈ Y) :
     f s ∈ f '' (X ∩ Y) :=
   Set.mem_image_of_mem f ⟨h1 h2, h2⟩

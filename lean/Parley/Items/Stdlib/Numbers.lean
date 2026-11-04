@@ -153,6 +153,10 @@ theorem mun_rational_coprime (x : ℚ) :
     ∃ p : ℤ, ∃ q : ℕ, 0 < q ∧ (x = (p : ℚ) / (q : ℚ) ∧ (Int.gcd p (q : ℤ) : ℤ) = 1) :=
   ⟨x.num, x.den, x.den_pos, (Rat.num_div_den x).symm, by simp [Int.gcd, x.reduced]⟩
 
+theorem axi_well_ordering (S : Set ℕ) (h1 : S ⊆ {n : ℕ | 0 < n}) (h2 : ∃ s ∈ S, True) :
+    ∃ d ∈ S, ∀ s ∈ S, (d : ℤ) ≤ (s : ℤ) :=
+  by obtain ⟨s, hs, -⟩ := h2; classical exact ⟨Nat.find (⟨s, hs⟩ : ∃ n, n ∈ S), Nat.find_spec (⟨s, hs⟩ : ∃ n, n ∈ S), fun t ht => by exact_mod_cast Nat.find_min' (⟨s, hs⟩ : ∃ n, n ∈ S) ht⟩
+
 theorem def_abs_1 {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     0 ≤ x → abs x = x :=
   LeanBridges.Numbers.abs_1 x

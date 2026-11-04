@@ -339,6 +339,175 @@ fn element_number_type(
 
 /// A theorem's binders, from its `let` and `assume` lines, and each
 /// sentence of its `then` line with its Lean text.
+/// A function the header lets by its value, `let f(x) = 2x + 1, for x ∈ ℝ`:
+/// as the page reads a let, a letter of the type the value computes in,
+/// taking the domain's numbers (integers for ℕ, ℕ₀ or a range, as the
+/// writer's sequences do), and the equation for every x as one hypothesis
+/// named by the label.
+fn header_function(
+    writer: &mut Writer,
+    d: &crate::corpus::DefineLine,
+    def: &crate::corpus::Define,
+    rec: &CheckedTheorem,
+) -> Route<Vec<Binder>> {
+    use super::templates::Num;
+    let [param] = def.params.as_slice() else {
+        return Route::no("a function the header lets of more than one argument");
+    };
+    let read: Vec<&Node> = rec
+        .page
+        .entries()
+        .filter(|(key, _)| key.line == d.line)
+        .map(|(_, node)| node)
+        .collect();
+    let over = |n: &&&Node| {
+        matches!(
+            n.notation(),
+            crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
+        )
+    };
+    // The domain: a number system or range written in the line, or a set,
+    // a letter or a set the header itself defines, written out.
+    let domain = match read.iter().find(over) {
+        Some(n) => (**n).clone(),
+        None => {
+            let sets: Vec<&&Node> = read
+                .iter()
+                .filter(|n| !(n.is_name() && *n.text == *param.name))
+                .filter(|n| {
+                    let out = defined_out(n, rec, writer);
+                    writer.set_members(&out).is_some()
+                })
+                .collect();
+            match sets.as_slice() {
+                [one] => defined_out(one, rec, writer),
+                _ => {
+                    return Route::no(
+                        "a function the header lets on no set Lean has a type for",
+                    )
+                }
+            }
+        }
+    };
+    let bodies: Vec<&&Node> = read
+        .iter()
+        .filter(|n| !over(n))
+        .filter(|n| !(n.is_name() && *n.text == *param.name))
+        .filter(|n| writer.set_members(&defined_out(n, rec, writer)).is_none())
+        .collect();
+    let [body] = bodies.as_slice() else {
+        return Route::no(
+            "a function the header lets whose value did not read as one term",
+        );
+    };
+    // What it takes: the domain's numbers, integers for ℕ, ℕ₀ or a range
+    // as the writer's sequences take; or the things of a set of things.
+    let takes = match super::expr::system_of(&domain) {
+        Some(system) => super::expr::Members::Numbers(
+            super::expr::letter_type(system).max(Num::Int),
+        ),
+        None if domain.notation() == crate::notations::INTEGER_RANGE => {
+            super::expr::Members::Numbers(Num::Int)
+        }
+        None => match writer.set_members(&domain) {
+            Some(m) => m,
+            None => {
+                return Route::no(
+                    "a function the header lets on no set Lean has a type for",
+                )
+            }
+        },
+    };
+    let before = writer.letters.insert(param.name.clone(), takes.letter());
+    // Said for every x of the domain: all of a type, or each member of a
+    // set, x ∈ D, as the writer writes that membership.
+    let whole_type = matches!(
+        super::expr::system_of(&domain),
+        Some(super::expr::System::Type(_))
+    );
+    let guard = match whole_type {
+        true => Route::Built(None),
+        false => {
+            let x = Node::name(crate::formula::Sort::none(), &param.name);
+            let member = Node::of(
+                crate::notations::IN,
+                crate::formula::Sort::none(),
+                vec![x, domain.clone()],
+            );
+            writer.formula(&member).map(|p| Some(p.text))
+        }
+    };
+    let value = match &takes {
+        super::expr::Members::Numbers(from) => match writer.carrier(body) {
+            Route::Built(to) => writer
+                .number_fixed(body, to)
+                .map(|v| (LetterType::Function { from: *from, to }, v)),
+            Route::Declined(why) => Route::Declined(why),
+        },
+        m => match writer.member_kind(body) {
+            Some(to) => writer.set_term(body).map(|v| {
+                (
+                    LetterType::Map {
+                        from: m.clone(),
+                        to,
+                    },
+                    v,
+                )
+            }),
+            None => {
+                Route::no("a function the header lets whose value has no Lean type")
+            }
+        },
+    };
+    match before {
+        Some(ty) => writer.letters.insert(param.name.clone(), ty),
+        None => writer.letters.shift_remove(&param.name),
+    };
+    let ((ty, value), guard) = match (value, guard) {
+        (Route::Built(v), Route::Built(g)) => (v, g),
+        (Route::Declined(why), _) | (_, Route::Declined(why)) => {
+            return Route::Declined(why)
+        }
+    };
+    writer.letters.insert(def.name.clone(), ty.clone());
+    // On a set, D ∖ {c}: that set is its domain, within which its images,
+    // preimages and limits are taken (`domain_of`).
+    if !whole_type {
+        let written = match &takes {
+            super::expr::Members::Numbers(n) => writer.numbers_at(&domain, *n),
+            _ => writer.set_term(&domain),
+        };
+        match written {
+            Route::Built(p) => {
+                writer
+                    .domains
+                    .insert(def.name.clone(), p.at(super::expr::MAX));
+            }
+            Route::Declined(why) => return Route::Declined(why),
+        }
+    }
+    let f = super::names::letter(&def.name);
+    let x = super::names::letter(&param.name);
+    let guard = guard.map_or(String::new(), |g| format!("{g} → "));
+    Route::Built(vec![
+        Binder::Letter {
+            name: f.clone(),
+            page: def.name.clone(),
+            general: false,
+            ty,
+        },
+        Binder::Fact {
+            name: line_name(&d.label),
+            says: format!(
+                "∀ {x} : {}, {guard}{f} {x} = {}",
+                takes.lean(),
+                value.at(51)
+            ),
+            line: None,
+        },
+    ])
+}
+
 /// One function's rules of a recursion, as the checker read them: its name,
 /// its value at 0, and its value at k + 1.
 struct RecursionRule<'r> {
@@ -390,10 +559,33 @@ fn recursion_arithmetic(
 ) -> std::collections::BTreeMap<String, usize> {
     let mut out = std::collections::BTreeMap::new();
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        let Route::Built(crate::corpus::DefineParts::Recursion(r)) =
-            crate::corpus::define_parts(&d.text)
-        else {
-            continue;
+        let r = match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
+            // A function the header lets by its value: the value, which its
+            // hypothesis states (`header_function`).
+            Route::Built(crate::corpus::DefineParts::One(one))
+                if !one.params.is_empty() =>
+            {
+                let values: Vec<Node> = rec
+                    .page
+                    .entries()
+                    .filter(|(key, _)| key.line == d.line)
+                    .map(|(_, n)| n.clone())
+                    .filter(|n| {
+                        !matches!(
+                            n.notation(),
+                            crate::notations::NUMBER_SYSTEMS
+                                | crate::notations::INTEGER_RANGE
+                        )
+                    })
+                    .filter(|n| !n.is_name())
+                    .collect();
+                for (op, n) in super::readback::page_arithmetic(writer, &values) {
+                    *out.entry(op).or_insert(0) += n;
+                }
+                continue;
+            }
+            _ => continue,
         };
         let Route::Built(rules) = recursion_rules(&r, d, rec) else {
             continue;
@@ -426,10 +618,22 @@ fn header_recursions(
     use super::templates::Num;
     let mut out = Vec::new();
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        let Route::Built(crate::corpus::DefineParts::Recursion(r)) =
-            crate::corpus::define_parts(&d.text)
-        else {
-            continue;
+        let r = match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::Recursion(r)) => r,
+            // A function the header lets by its value, f(x) = 2x + 1, for x
+            // ∈ ℝ: a function letter, and that equation for every x.
+            Route::Built(crate::corpus::DefineParts::One(one))
+                if !one.params.is_empty() =>
+            {
+                match header_function(writer, d, &one, rec) {
+                    Route::Built(b) => {
+                        out.extend(b);
+                        continue;
+                    }
+                    Route::Declined(why) => return Route::Declined(why),
+                }
+            }
+            _ => continue,
         };
         if r.domain.trim() != "ℕ₀" {
             return Route::no("a recursion over other than ℕ₀");
@@ -588,18 +792,19 @@ fn statement(
     // A define the statement is read with is written out in it: Lean's
     // statement says what the name stands for, and the proof names it again
     // (`theorem`, `set`).
-    // The hypotheses above a recursion the header lets are read before it,
-    // as its rules may use their letters, F(0) = M; those below after it,
-    // as they may use its functions.
+    // The hypotheses above a recursion or function the header lets are
+    // read before it, as its rules may use their letters, F(0) = M; those
+    // below after it, as they may use its functions.
     let recursion_line = thm
         .defines
         .iter()
         .filter(|d| d.line < thm.conclusion_line)
-        .filter(|d| {
-            matches!(
-                crate::corpus::define_parts(&d.text),
-                Route::Built(crate::corpus::DefineParts::Recursion(_))
-            )
+        .filter(|d| match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
+            Route::Built(crate::corpus::DefineParts::One(one)) => {
+                !one.params.is_empty()
+            }
+            _ => false,
         })
         .map(|d| d.line)
         .min();
@@ -731,12 +936,17 @@ pub fn theorem(
         proof.named.insert(label.clone(), names);
         proof.trees.insert(label, said);
     }
-    // A recursion the statement lets is cited by its label, as its rules'
-    // hypothesis (`header_recursions`).
+    // A recursion or a function the statement lets is cited by its label,
+    // as its hypothesis (`header_recursions`).
     for d in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
-        if let Route::Built(crate::corpus::DefineParts::Recursion(_)) =
-            crate::corpus::define_parts(&d.text)
-        {
+        let function = match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::Recursion(_)) => true,
+            Route::Built(crate::corpus::DefineParts::One(one)) => {
+                !one.params.is_empty()
+            }
+            _ => false,
+        };
+        if function {
             proof
                 .named
                 .insert(d.label.clone(), vec![line_name(&d.label)]);
@@ -1132,7 +1342,28 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         for (k, (node, prop)) in claim.iter().enumerate() {
-            let proof = match self.proof_of(reason, places[k], node) {
+            // A citation for a claim said "for all k ∈ …" of an item said of
+            // one k, its letters given values in the claim's k: the item
+            // cited at that k, given as a method takes it (`peel`). An item
+            // that says the "for all" itself is cited whole.
+            let cites_for_all = matches!(reason.just.head, Head::Item { .. })
+                && node.notation() == crate::notations::FOR_ALL
+                && self.cited_at_bound_letter(reason.cited, node);
+            let proof = if cites_for_all {
+                let (intros, body, inner) = self.peel(node);
+                let outer = std::mem::replace(&mut self.writer, inner);
+                let proof = self.proof_of(reason, places[k], body);
+                self.writer = outer;
+                proof.map(|p| match intros.is_empty() {
+                    true => p,
+                    false => {
+                        format!("by intro {}; {}", intros.join(" "), as_tactic(&p))
+                    }
+                })
+            } else {
+                self.proof_of(reason, places[k], node)
+            };
+            let proof = match proof {
                 Route::Built(t) => t,
                 Route::Declined(d) => return Route::Declined(d),
             };
@@ -1250,6 +1481,53 @@ impl<'a> Proof<'a> {
             true => proof,
             false => format!("by rw [{specs}]; {}", as_tactic(&proof)),
         })
+    }
+
+    /// Whether a citation gives its item's letters values in a letter the
+    /// claim's leading "for all" binds: the item is cited at that letter.
+    fn cited_at_bound_letter(
+        &self,
+        cited: Option<&crate::checker::record::Cited>,
+        claim: &Node,
+    ) -> bool {
+        let Some(cited) = cited else {
+            return false;
+        };
+        let mut bound = Vec::new();
+        let mut body = claim;
+        while let (crate::notations::FOR_ALL, [letter, _, inner]) =
+            (body.notation(), body.children.as_slice())
+        {
+            bound.push(letter.text);
+            body = inner;
+        }
+        // A letter free in a value: a value that binds it itself, Q := "for
+        // all x, …", says the "for all" whole.
+        let binders = self.sources.checked.grammar.binders();
+        cited.binding.values().any(|v| {
+            crate::matching::free_names(v, &binders)
+                .iter()
+                .any(|n| bound.iter().any(|b| **b == **n))
+        })
+    }
+
+    /// The hypothesis of a function the theorem's header lets by its value,
+    /// which a step cites by its label; None for any other citation.
+    fn header_function_cited(&self, just: &Justification) -> Option<String> {
+        let label = just.defined.as_deref()?;
+        let d = self
+            .thm
+            .defines
+            .iter()
+            .find(|d| d.label == label && d.line < self.thm.conclusion_line)?;
+        match crate::corpus::define_parts(&d.text) {
+            Route::Built(crate::corpus::DefineParts::One(one))
+                if !one.params.is_empty() =>
+            {
+                Some(line_name(&d.label))
+            }
+            _ => None,
+        }
     }
 
     /// The recursion of the theorem's header a step cites by its label, with
@@ -1413,7 +1691,14 @@ impl<'a> Proof<'a> {
                         }
                     })
                 }
-                None => Route::Built("by parley_side".to_string()),
+                // A function the header lets by its value: its equation
+                // put in, f(a) its value at a, and the claim closed.
+                None => match self.header_function_cited(reason.just) {
+                    Some(hyp) => Route::Built(format!(
+                        "by (try simp only [{hyp}]); first | done | parley_side"
+                    )),
+                    None => Route::Built("by parley_side".to_string()),
+                },
             },
             // A requires line's lines, or one manipulation of one of them:
             // the fact is what they say, or follows from it by arithmetic.
@@ -1734,15 +2019,30 @@ impl<'a> Proof<'a> {
             .filter(|(key, _)| key.line == line.line)
             .map(|(_, node)| node)
             .collect();
+        let over = |n: &&&Node| {
+            matches!(
+                n.notation(),
+                crate::notations::NUMBER_SYSTEMS | crate::notations::INTEGER_RANGE
+            )
+        };
+        // Over a number system, a range, or a set of numbers, X of X ⊆ ℤ.
+        let of_numbers = |n: &&&Node| {
+            !(n.is_name() && *n.text == *param.name)
+                && matches!(
+                    self.writer.set_members(n),
+                    Some(super::expr::Members::Numbers(_))
+                )
+        };
         let Some(domain) = read
             .iter()
-            .find(|n| n.notation() == crate::notations::NUMBER_SYSTEMS)
+            .find(over)
+            .or_else(|| read.iter().find(of_numbers))
         else {
             return Route::no("a define of a function on other than a number system");
         };
         let bodies: Vec<&&Node> = read
             .iter()
-            .filter(|n| n.notation() != crate::notations::NUMBER_SYSTEMS)
+            .filter(|n| !over(n) && !of_numbers(n))
             .filter(|n| !(n.is_name() && *n.text == *param.name))
             .collect();
         let [body] = bodies.as_slice() else {
@@ -1750,12 +2050,28 @@ impl<'a> Proof<'a> {
                 "a define whose value the checker did not read as one term",
             );
         };
-        let Some(system) = super::expr::system_of(domain) else {
-            return Route::no("a define of a function on a set Lean has no type for");
+        // A function on ℕ, ℕ₀ or a range {0, …, m} takes integers, as the
+        // writer's sequences do, so that q(j) of a sum's index is written
+        // as it stands; its values off the range are none of the page's.
+        let from = match (
+            super::expr::system_of(domain),
+            self.writer.set_members(domain),
+        ) {
+            (Some(system), _) => {
+                super::expr::letter_type(system).max(super::templates::Num::Int)
+            }
+            (None, _) if domain.notation() == crate::notations::INTEGER_RANGE => {
+                super::templates::Num::Int
+            }
+            (None, Some(super::expr::Members::Numbers(n))) => {
+                n.max(super::templates::Num::Int)
+            }
+            (None, _) => {
+                return Route::no(
+                    "a define of a function on a set Lean has no type for",
+                )
+            }
         };
-        // A function on ℕ or ℕ₀ takes integers, as the writer's sequences
-        // do, so that q(j) of a sum's index is written as it stands.
-        let from = super::expr::letter_type(system).max(super::templates::Num::Int);
         // The value is read with the argument a number of that type, and
         // the argument is no letter of the proof's after it.
         let before = self
@@ -2993,7 +3309,9 @@ impl<'a> Proof<'a> {
         // {u, w} cited of 1 and 2: the least that holds the claim and every
         // number given them.
         let things_at = {
-            let mut at = self.worked_in.get().unwrap_or(super::templates::Num::Int);
+            // From ℕ: a set of naturals given for a set of things, S ⊆ ℕ,
+            // is of naturals, and a number given raises it to ℤ at least.
+            let mut at = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
             let numbers = claim
                 .into_iter()
                 .flat_map(|c| c.children.iter())
@@ -3006,7 +3324,13 @@ impl<'a> Proof<'a> {
                     _ => None,
                 }))
                 .filter(|n| self.writer.is_number(n));
+            // A term of natural letters, b·d, is a natural; any other
+            // number is an integer at least.
             for n in numbers {
+                let of_letters = n.walk().iter().any(|m| m.is_name());
+                if of_letters && self.writer.natural(n) {
+                    continue;
+                }
                 if let Route::Built(c) = self.writer.carrier(n) {
                     at = at.max(c);
                 }
@@ -3731,6 +4055,11 @@ impl<'a> Proof<'a> {
             (true, [_, right]) => right.clone(),
             _ => sentence.says.clone(),
         };
+        // At the citation's values, a property given applied where the
+        // sentence applies it: P(d) of set-builder is "there are m, n with
+        // d = a·m + b·n".
+        let says =
+            read_at_values(&says, &binding, &self.sources.checked.grammar.binders());
         Route::Built(Obtained {
             term: if iff {
                 format!("({inst}).mp (by parley_side)")
@@ -3817,6 +4146,19 @@ impl<'a> Proof<'a> {
         }
         let mut pattern = Vec::new();
         let mut said = &source.says;
+        // A "there is" the sentence says after an "and", u ∈ X and (there
+        // are m, n with …): what comes before it, unnamed, and then it.
+        while let (
+            crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+            [_, right],
+        ) = (said.notation(), said.children.as_slice())
+        {
+            if right.notation() != crate::notations::THERE_IS {
+                break;
+            }
+            pattern.push("_".to_string());
+            said = right;
+        }
         for obtained in &step.just.obtained {
             let [_, set, inner] = said.children.as_slice() else {
                 return Route::no(
@@ -4329,6 +4671,15 @@ impl<'a> Proof<'a> {
                                 o.line,
                                 spot.clone(),
                             );
+                            // The range's bounds beside it, which linear
+                            // arithmetic reads, the membership kept for the
+                            // items given it; a claim may state the bounds
+                            // already.
+                            self.push(
+                                format!("{p}try have {label}_bounds := Finset.mem_Icc.mp {label}"),
+                                o.line,
+                                spot.clone(),
+                            );
                             continue;
                         }
                         if let Some((letter, ty)) =
@@ -4660,6 +5011,40 @@ fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
 /// A claim proved from a term that gives it, as the claim's shape asks:
 /// an equation by the ring identity between the two, an order by linear
 /// arithmetic, anything else as it stands.
+/// A sentence of an item with each property the citation gives by what it
+/// says, P := t ↦ …, applied where the sentence applies it: P(u) its body
+/// with u's value for t. The item's other letters stay as its statement
+/// has them, as Lean's statement of it does.
+fn read_at_values(
+    node: &Node,
+    binding: &crate::matching::Binding,
+    binders: &crate::matching::FxIndexMap<
+        crate::formula::notation_id::NotationId,
+        crate::formula::notation::Binds,
+    >,
+) -> Node {
+    if let ("holds-of", [p, arg]) = (&*node.notation_name(), node.children.as_slice()) {
+        if let Some(stands) = binding.get(&p.text) {
+            if let ("property-of", [body]) =
+                (&*stands.notation_name(), stands.children.as_slice())
+            {
+                let arg = crate::matching::substitute_apart_by(arg, binding, binders);
+                let put = crate::matching::Binding::from([(stands.text, arg)]);
+                return crate::matching::substitute_apart_by(body, &put, binders);
+            }
+        }
+    }
+    if node.children.is_empty() {
+        return node.clone();
+    }
+    node.with_children(
+        node.children
+            .iter()
+            .map(|c| read_at_values(c, binding, binders))
+            .collect(),
+    )
+}
+
 /// Whether a fact speaks of a letter the claim's leading "for all" binds.
 fn bound_in(claim: &Node, fact: &Node) -> bool {
     let mut body = claim;
@@ -4754,8 +5139,19 @@ fn close(claim: &Node, term: &str) -> String {
                 ),
                 false => String::new(),
             };
+            // A term given a natural as an integer's `toNat`, rewritten back
+            // by `▸` (`instance`): an error elaborating it against the goal,
+            // as `exact_mod_cast` does, is logged and does not fail the
+            // alternative, so it is cast from a `have`, which fails.
+            let by_to_nat = term.contains("Int.toNat_of_nonneg");
+            let cast = match by_to_nat {
+                true => format!(
+                    "(have h := {term}; exact_mod_cast h) | (have h := {term}; exact_mod_cast h.symm)"
+                ),
+                false => format!("exact_mod_cast {term} | exact_mod_cast ({term}).symm"),
+            };
             format!(
-                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast {term} | exact_mod_cast ({term}).symm | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder} | (have h := {term}; parley_side)"
+                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder} | (have h := {term}; parley_side)"
             )
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),

@@ -14,6 +14,7 @@ theorem termwise_under_a_hypothesis_over_its_letter (n : ℕ) (hH1 : 0 < n) (hH2
   -- 1. proof
   have s1 : ∀ k : ℤ, k ∈ Finset.Icc 1 (n : ℤ) → k + 0 = k := by
     intro k hJ
+    try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 1.1. algebra
     have s1_1 : k + 0 = k := by parley_ring
     all_goals exact s1_1
