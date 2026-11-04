@@ -45,10 +45,9 @@ notation with a `lean-builds` field; a record whose `lean-proof` is Mathlib's
 proof, a bridge or `none`, or names a Parley proof that is itself in; a
 function whose definition has a `lean-builds` field; or a theorem of the
 corpus that is itself in. A record whose `lean-proof` is `not yet
-implemented` keeps out every theorem that cites it. A theorem is in, too, only
-when
-every letter it writes is a number, the one sort the writer gives a Lean type
-to so far. Nothing lists the theorems; the build grows as fields are added. A
+implemented` keeps out every theorem that cites it. A theorem is in, too, only when every letter it writes has a Lean type: a
+number, a set, a member of one, a map or function between sets, a property, a
+group or one of its elements, or a polynomial. Nothing lists the theorems; the build grows as fields are added. A
 theorem left out is printed with what keeps it out, `it writes notation
 set-operations, which has no lean-builds field`. A theorem that is in and that the
 writer cannot write, or Lean refuses, is a gap of the Lean build and the gate
@@ -86,6 +85,66 @@ An item whose letters the record puts in ℂ or ℝ, and whose sentence uses
 only arithmetic, order and connectives, is a theorem about any commutative
 ring `K`: a field where it divides, ordered where it orders, as Mathlib
 states such facts. A citation applies it in the citing claim's own type.
+
+## Sets and functions
+
+A theorem's sets hold one type of things, `α`, as set.mm's sets all hold
+sets: `let A be a set` is `(A : Set α)`, `let x be an element` is `(x : α)`,
+and 𝒫A's members are `Set α`. A set of numbers is a set of the type that holds
+them, `{2n : n ∈ ℤ}` a `Set ℤ`, and ℚ among the reals is
+`{x : ℝ | ∃ m : ℚ, (m : ℝ) = x}`. A set a line puts among numbers,
+`let D ⊆ ℝ`, is a set of those numbers; a letter that is only an element,
+`let A be an element`, takes the type of the sets later lines put it in.
+
+`let f : A → B` is `(f : α → α)` with `Set.MapsTo f A B` beside it, and
+between sets of numbers `(f : ℝ → ℝ)` with the same. One-to-one is
+`Set.InjOn f A` and onto `Set.SurjOn f A B`. A map's domain is the set its line
+gives it, or all of its type where it is given between number systems other
+than ℕ; its image and preimage are taken within that domain, `f '' (A ∩ Y)`
+and `A ∩ f ⁻¹' Z`, as set.mm takes them, since Lean's `f` is total. f⁻¹(y) is
+the bridges' inverse on the domain. f is a function on A is `True` of a Lean
+function of A's type.
+
+A count is `Set.encard`, in ℕ∞; a count subtracted, or given for a letter of
+ℕ, is not written. A property, `let P be a property of the elements of X`, is
+`(P : α → Prop)` and P(t) is `P t`; a citation gives it `fun t => …`. A group
+is `{G : Type*} [Group G]`, its operation `*`, its identity `1`; a polynomial
+is a function from ℂ to ℂ among the bridges' polynomials.
+
+## Defines and recursions
+
+A define in a proof is Lean's `set`: `let m = (a + b)/2` is
+`set m : ℚ := … with D1`, and a function of one argument,
+`let q(j) = F(j)², for j ∈ ℕ₀`, is `set q : ℤ → ℤ := fun j => …`. A function
+on ℕ, ℕ₀ or a range takes integers, as the build's sequences do, so that q(j)
+of a sum's index is written as it stands. A define of a kind of number whose
+value is wider than the kind, `let e = p/d, a positive integer`, is not yet
+written.
+
+A function the header lets is read as the page reads a let: a letter, with
+its definition as a hypothesis. `let f(x) = 2x + 1, for x ∈ ℝ` is
+`(f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1)`, guarded by the domain where
+that is a set, which is then its domain. A recursion,
+`let F(0) = 0, G(0) = 1, F(k + 1) = G(k), G(k + 1) = F(k) + G(k), for k ∈ ℕ₀`,
+is `(F G : ℤ → ℤ)` with its starts and its step for k ≥ 0 as one hypothesis. A
+step citing the define, or a calculation row citing it, rewrites with that
+hypothesis; a step citing F(k + 1) by the recursion is its step at k. A
+theorem that cites another theorem over the same recursion gives it its own F
+and G.
+
+## Analysis
+
+√x, π, ln, exp, sin and cos are Mathlib's `Real.sqrt`, `Real.pi`, `Real.log`,
+`Real.exp`, `Real.sin` and `Real.cos`, and e is `Real.exp 1`. Their
+arithmetic, √8 = 2√2 or sin(9π/4) = √2/2, is `parley_real`, and an item
+stated over ℂ cited at reals is read back in ℝ (`parley_of_complex`).
+x(n) → L as n → ∞ is `Filter.Tendsto (fun n : ℕ => x n) Filter.atTop (nhds L)`;
+f tends to L at c is `Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L)`, over
+f's domain D with c left out; continuity on D is `ContinuousOn f D`; [a, b] is
+`Set.Icc a b`. Each definition is proved from Mathlib's ε–δ form in
+`Calculus.lean`. Floor takes ℝ, as set.mm's does, and a term the theorem takes
+the floor of is a real wherever it is written. A claim about natural numbers
+inside a limit's proof is written in ℝ from the start.
 
 ## Fields
 
