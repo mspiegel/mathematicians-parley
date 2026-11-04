@@ -764,11 +764,20 @@ fn statement(
             }
             _ => continue,
         };
+        // An element nothing settles a sort of, `let B be an element` of a
+        // B only listed, {B}, is a thing.
+        let unsorted_element =
+            matches!(Introduction::read(body.clone()).form, Form::Element(_))
+                && rec.sorts.get(&name).is_none();
         let Some(ty) = rec
             .sorts
             .get(&name)
             .and_then(super::sets::set_letter_type)
             .or_else(|| element_number_type(&name, rec, writer))
+            .or_else(|| {
+                unsorted_element
+                    .then_some(LetterType::Member(super::expr::Members::Things))
+            })
         else {
             continue;
         };
@@ -5218,11 +5227,17 @@ fn close(claim: &Node, term: &str) -> String {
                     "listed-two" | "listed-three" | "listed-four"
                 )
             });
-            let reorder = match listed {
-                true => format!(
+            // An equation of sets, member by member, which takes a listed
+            // set in any order and of any size; another relation, its pairs
+            // turned round.
+            let reorder = match (listed, claim.notation() == EQUALITY) {
+                (true, true) => format!(
+                    " | (have h := {term}; ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)"
+                ),
+                (true, false) => format!(
                     " | (have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h)"
                 ),
-                false => String::new(),
+                (false, _) => String::new(),
             };
             format!(
                 "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}{reorder} | (have h := {term}; parley_side)"

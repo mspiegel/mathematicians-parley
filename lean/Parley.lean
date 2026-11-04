@@ -323,6 +323,7 @@ public import Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne
 public import Parley.Proofs.Setmm.ChooseTwoPairs.ChooseTwoPairs
 public import Parley.Proofs.Setmm.CommonDivisorAtMostGcd.CommonDivisorAtMostGcd
 public import Parley.Proofs.Setmm.ConstantFunctionContinuous.ConstantFunctionContinuous
+public import Parley.Proofs.Setmm.ConstantMapIsNotOneToOne.ConstantMapIsNotOneToOne
 public import Parley.Proofs.Setmm.ConstantSequenceLimit.ConstantSequenceLimit
 public import Parley.Proofs.Setmm.Contrapositive.Contrapositive
 public import Parley.Proofs.Setmm.DifferenceFormulas.SineOfDifference
@@ -411,6 +412,7 @@ public import Parley.Proofs.Setmm.LimitLemmas.ScaledSmall
 public import Parley.Proofs.Setmm.LimitNegative.LimitNegative
 public import Parley.Proofs.Setmm.LimitUnique.LimitAtMost
 public import Parley.Proofs.Setmm.LimitUnique.LimitUnique
+public import Parley.Proofs.Setmm.MemberOfImage.MemberOfImage
 public import Parley.Proofs.Setmm.MinusOneEvenPower.MinusOneEvenPowerNatural
 public import Parley.Proofs.Setmm.MinusOneMod.MinusOneMod
 public import Parley.Proofs.Setmm.ModulusPlusRemainder.ModulusPlusRemainder
@@ -563,6 +565,7 @@ public import Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineCitingATheo
 public import Parley.Tests.Elaborator.AChainShowingItsWork.AChainGoingDownByItsReasons
 public import Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineUsingALine
 public import Parley.Tests.Elaborator.AChainShowingItsWork.AChainLineWorkingOutAClosedPiece
+public import Parley.Tests.Elaborator.ACitedCodomain.ACitedCodomain
 public import Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorSum
 public import Parley.Tests.Elaborator.ACitedHypothesisAnIdentity.SuccessorAtZero
 public import Parley.Tests.Elaborator.ACitedLetterBoundInItsOwnHypothesis.PositiveAtAPoint
@@ -796,7 +799,12 @@ public import Parley.Tests.Elaborator.ListedNumerals.ASizeHoldingANegative
 public import Parley.Tests.Elaborator.ListedNumerals.AValueWrittenTwice
 public import Parley.Tests.Elaborator.ListedNumerals.TheOddOnesCounted
 public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairCitedInTheOtherOrder
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairPairedByTheRestOfTheClaim
 public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairInsideASubset
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.APairFromLines
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.ATripleInAnEquation
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.FourInAnEquation
+public import Parley.Tests.Elaborator.ListedSetsInAnyOrder.FiveSubstituted
 public import Parley.Tests.Elaborator.ModOnTheReals.TheFractionalPart
 public import Parley.Tests.Elaborator.Notations.AMemberOfANonemptySet
 public import Parley.Tests.Elaborator.OrderChains.TwoBoundsInARow
@@ -1141,6 +1149,7 @@ public import Parley.Tests.Stdlib.Divisibility.ModValue
 public import Parley.Tests.Stdlib.Divisibility.ZeroDivides
 public import Parley.Tests.Stdlib.Functions.CompositionValue
 public import Parley.Tests.Stdlib.Functions.Preimage
+public import Parley.Tests.Stdlib.Functions.SetImage
 public import Parley.Tests.Stdlib.Logarithms.LnProduct
 public import Parley.Tests.Stdlib.Logarithms.LnQuotient
 public import Parley.Tests.Stdlib.Logarithms.LnPower
@@ -1193,6 +1202,9 @@ public import Parley.Tests.Stdlib.Reasoning.OrLeft
 public import Parley.Tests.Stdlib.Reasoning.NotEither
 public import Parley.Tests.Stdlib.Reasoning.OrRight
 public import Parley.Tests.Stdlib.Sets.UnionDifference
+public import Parley.Tests.Stdlib.Sets.Intersection
+public import Parley.Tests.Stdlib.Sets.Union
+public import Parley.Tests.Stdlib.Sets.RemoveMember
 public import Parley.Tests.Stdlib.Sets.IntersectionCommutes
 public import Parley.Tests.Stdlib.Sets.UnionCommutes
 public import Parley.Tests.Stdlib.Sets.IntersectionSelf

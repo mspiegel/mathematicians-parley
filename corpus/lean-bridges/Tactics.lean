@@ -218,7 +218,11 @@ macro "parley_subst_at " e:term:max h:ident : tactic =>
     | (simp only [$e:term] at $h:ident ⊢; exact $h; done)
     | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
     | (simp only [$e:term] at $h:ident ⊢; linarith; done)
-    | (simp only [← $e:term] at $h:ident ⊢; linarith; done))
+    | (simp only [← $e:term] at $h:ident ⊢; linarith; done)
+    -- A listed set put into a subset, its members in another order than
+    -- the claim's: member by member.
+    | (rw [$e:term] at $h:ident; intro x hx; apply $h:ident;
+        simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx ⊢; tauto))
 
 /-- An equation `h` an item gives of natural exponents, given an integer's
 `toNat` for one, read at the claim's integer exponents: 2^(n − 1 + 1) with

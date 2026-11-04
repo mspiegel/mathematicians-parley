@@ -284,6 +284,15 @@ fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool
     })
 }
 
+/// Whether a set lists letters, {B} or {a, b}: a set of the things they
+/// are, as the writer reads it (`sets::members_of`).
+fn listed_letters(s: &crate::formula::Node) -> bool {
+    matches!(
+        &*s.notation_name(),
+        "singleton" | "listed-two" | "listed-three" | "listed-four"
+    ) && s.children.iter().all(|c| c.is_name())
+}
+
 /// Whether a set is one of numbers by its shape: a number system, a letter
 /// the checker sorts a set of numbers, or ℝ ∖ {2}, A ∪ B and A ∩ B of such.
 fn set_of_numbers(s: &crate::formula::Node) -> bool {
@@ -320,15 +329,17 @@ fn set_line(
             true
         }
         // An element a line puts in a set of numbers, A ∈ ℝ ∖ ℚ, is a number
-        // of that set's type (`theorem::element_number_type`).
+        // of that set's type (`theorem::element_number_type`); one nothing
+        // settles a sort of, a thing (`theorem::statement`).
         Form::Element(name) => {
-            rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-                matches!(n.children.as_slice(), [x, set]
+            rec.sorts.get(&name).is_none()
+                || rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+                    matches!(n.children.as_slice(), [x, set]
                 if n.notation() == crate::notations::MEMBERSHIP
                     && x.is_name()
                     && *x.text == *name
                     && set_of_numbers(set))
-            })
+                })
         }
         // A group is a type with Mathlib's group on it (`theorem::statement`);
         // a polynomial a function from ℂ to ℂ among set.mm's polynomials.
@@ -633,6 +644,7 @@ fn covered(
                 if super::expr::function_systems(from, to).is_some()
                     || [from, to].iter().all(|s| {
                         s.sort.full().and_then(super::expr::Members::of_set).is_some()
+                            || listed_letters(s)
                     })
                     || [from, to].iter().all(|s| set_of_numbers(s)));
                 return (!typed).then(|| {
