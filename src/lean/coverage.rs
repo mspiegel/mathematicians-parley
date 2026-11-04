@@ -128,6 +128,37 @@ fn kinded_quotient(
     })
 }
 
+/// Whether a step of a method other than citing a define, substituting from
+/// one or a calculation cites a function the header lets by its value.
+fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
+    let labels: Vec<&str> = thm
+        .defines
+        .iter()
+        .filter(|d| d.line < thm.conclusion_line)
+        .filter(|d| {
+            matches!(
+                crate::corpus::define_parts(&d.text),
+                crate::outcome::Route::Built(crate::corpus::DefineParts::One(ref one))
+                    if !one.params.is_empty()
+            )
+        })
+        .map(|d| d.label.as_str())
+        .collect();
+    thm.steps.iter().any(|s| {
+        // A calculation's rows citing the define put it in as a citation
+        // of it does (`theorem::calculation`).
+        let through = !matches!(
+            s.just.head,
+            crate::corpus::Head::Define
+                | crate::corpus::Head::Method(
+                    crate::corpus::Method::Substitute
+                        | crate::corpus::Method::Calculation
+                )
+        );
+        through && s.just.refs.iter().any(|r| labels.contains(&r.as_str()))
+    })
+}
+
 /// Whether a term with a letter a line says is an integer, a·x + b·y of
 /// x ∈ ℤ, is said to be in a set a define builds of naturals, S = {t ∈ ℕ :
 /// …}.
@@ -419,6 +450,16 @@ fn covered(
                 .to_string(),
         };
     }
+    // A function the header lets by its value is its equation for every x
+    // (`theorem::header_function`), which a step citing the define or
+    // substituting from it puts in; a step of another method citing it, an
+    // algebra or a transitivity from D1, does not.
+    if header_function_through_a_method(thm) {
+        return Covered::Out {
+            reason: "a step cites a function the header lets through a method, which its equation for every x is not put in by"
+                .to_string(),
+        };
+    }
     // A set of naturals a define builds, S = {t ∈ ℕ : …}, is Lean's
     // `Set ℕ`, which no integer is a member of.
     if integer_in_natural_set(thm, rec) {
@@ -538,8 +579,12 @@ fn covered(
         }
     }
     // A recursion over ℕ₀ the statement lets is its functions, letters of
-    // the statement (`theorem::header_recursions`).
+    // the statement (`theorem::header_recursions`), as is a function it lets
+    // by its value over numbers (`theorem::header_function`).
     for line in thm.defines.iter().filter(|d| d.line < thm.conclusion_line) {
+        if let Some(name) = defined_function(line, rec) {
+            own.insert(name);
+        }
         if let crate::outcome::Route::Built(crate::corpus::DefineParts::Recursion(r)) =
             crate::corpus::define_parts(&line.text)
         {

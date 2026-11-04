@@ -245,6 +245,8 @@ public import Parley.Proofs.Hammack.SqueezeForSequences.SqueezeForSequences
 public import Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection
 public import Parley.Proofs.Hammack.SubsetIffDifferenceEmpty.SubsetIffDifferenceEmpty
 public import Parley.Proofs.Hammack.SumEvenSameParity.SumEvenSameParity
+public import Parley.Proofs.Hammack.SumOfBinomialsAlongADiagonal.SumOfBinomialsAlongADiagonal
+public import Parley.Proofs.Hammack.SumOfBinomialsDownAColumn.SumOfBinomialsDownAColumn
 public import Parley.Proofs.Hammack.SumOfCubes.SumOfCubes
 public import Parley.Proofs.Hammack.SumOfEightIMinusFive.SumOfEightIMinusFive
 public import Parley.Proofs.Hammack.SumOfFactorialQuotients.ProductNonzero
@@ -570,8 +572,10 @@ public import Parley.Tests.Elaborator.ACongruenceChainOpeningWithAnEquation.ACon
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceCitedTheOtherWayRound
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACalculationReadingACongruenceTheOtherWay
 public import Parley.Tests.Elaborator.ACongruenceReadEitherWay.ACongruenceClaimedTheOtherWayRound
+public import Parley.Tests.Elaborator.ADefineAtEveryMemberOfARange.ADefineAtEveryMemberOfARange
 public import Parley.Tests.Elaborator.ADefineCitedAsAStep.ADefineCitedAsAStep
 public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ValueAtOne
+public import Parley.Tests.Elaborator.ADefineFillingACitedFunction.ADefineFillingACitedFunction
 public import Parley.Tests.Elaborator.ADefineWhoseBodyTheReadingRewrites.ADefineWhoseBodyTheReadingRewrites
 public import Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair
 public import Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
@@ -829,7 +833,10 @@ public import Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayCo
 public import Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayInstantiated
 public import Parley.Tests.Elaborator.ReadingCongruence.ACongruenceTheOtherWayUnfolded
 public import Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAnItemHypothesis
+public import Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedInACalculationLink
 public import Parley.Tests.Elaborator.ReadingDefines.ADefineReadInARequiresLine
+public import Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedAsASubstitutedEquation
+public import Parley.Tests.Elaborator.ReadingDefines.ADefineAppliedSubstitutedIntoALine
 public import Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAContradictedLine
 public import Parley.Tests.Elaborator.ReadingDefines.ADefineReadInAJoin
 public import Parley.Tests.Elaborator.ReadingDefines.ADefineReadInACaseSplit
@@ -1037,6 +1044,7 @@ public import Parley.Tests.Notations.Divisibility.OneIsNotEven
 public import Parley.Tests.Notations.Divisibility.SeventeenTwoModFive
 public import Parley.Tests.Notations.Divisibility.MinusOneFourModFive
 public import Parley.Tests.Notations.Divisibility.SeventeenNotThreeModFive
+public import Parley.Tests.Notations.Functions.AValueOfALine
 public import Parley.Tests.Notations.Functions.ALineIsOneToOne
 public import Parley.Tests.Notations.Functions.ALineIsOnto
 public import Parley.Tests.Notations.Functions.ALineIsOneToOneAndOnto
@@ -1045,6 +1053,8 @@ public import Parley.Tests.Notations.Functions.AnOntoFunctionReachesAPoint
 public import Parley.Tests.Notations.Functions.AnOntoFunctionHasItsValues
 public import Parley.Tests.Notations.Functions.AValueInAnImage
 public import Parley.Tests.Notations.Functions.AnInverseValue
+public import Parley.Tests.Notations.Functions.ASquareIsNotOneToOne
+public import Parley.Tests.Notations.Functions.ASquareIsNotOnto
 public import Parley.Tests.Notations.Groups.TheIdentityIsItsOwnInverse
 public import Parley.Tests.Notations.Groups.TheInverseOfAProduct
 public import Parley.Tests.Notations.Groups.ASubgroupTest

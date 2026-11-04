@@ -18,14 +18,14 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   set ψ : ℝ := (1 - Real.sqrt (5 : ℝ)) / 2 with hD3
   -- 2. calculation
   have s2 : φ ^ 2 = φ + 1 := by
-    calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp only [hD2]; push_cast; norm_num; done) | parley_side
+    calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
       _ = (1 + Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
-      _ = φ + 1 := by first | (simp only [hD2]; push_cast; norm_num; done) | parley_side
+      _ = φ + 1 := by first | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
   -- 3. calculation
   have s3 : ψ ^ 2 = ψ + 1 := by
-    calc ψ ^ 2 = ((1 - Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp only [hD3]; push_cast; norm_num; done) | parley_side
+    calc ψ ^ 2 = ((1 - Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
       _ = (1 - Real.sqrt (5 : ℝ)) / 2 + 1 := by parley_real
-      _ = ψ + 1 := by first | (simp only [hD3]; push_cast; norm_num; done) | parley_side
+      _ = ψ + 1 := by first | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
   -- 4. induction on j starting at 0
   have s4 : ∀ j : ℕ, (F (j : ℤ) : ℝ) = (φ ^ j - ψ ^ j) / Real.sqrt (5 : ℝ) ∧ (G (j : ℤ) : ℝ) = (φ ^ (j + 1) - ψ ^ (j + 1)) / Real.sqrt (5 : ℝ) := by
     intro j
@@ -43,8 +43,8 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       have s4_4 : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by
         calc (G 0 : ℝ) = 1 := by parley_side
           _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_real
-          _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp only [hD2]; push_cast; norm_num; done) | parley_side
-          _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp only [hD3]; push_cast; norm_num; done) | parley_side
+          _ = (φ ^ (0 + 1) - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+          _ = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
       -- 4.5. join 4.3, 4.4
       have s4_5a : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by parley_side
       have s4_5b : (G 0 : ℝ) = (φ ^ (0 + 1) - ψ ^ (0 + 1)) / Real.sqrt (5 : ℝ) := by parley_side
@@ -78,8 +78,8 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   -- 6. calculation
   have s6 : (F (n : ℤ) : ℝ) = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n) / Real.sqrt (5 : ℝ) := by
     calc (F (n : ℤ) : ℝ) = (φ ^ n - ψ ^ n) / Real.sqrt (5 : ℝ) := by parley_side
-      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n - ψ ^ n) / Real.sqrt (5 : ℝ) := by first | (simp only [hD2]; push_cast; norm_num; done) | parley_side
-      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n) / Real.sqrt (5 : ℝ) := by first | (simp only [hD3]; push_cast; norm_num; done) | parley_side
+      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n - ψ ^ n) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
+      _ = (((1 + Real.sqrt (5 : ℝ)) / 2) ^ n - ((1 - Real.sqrt (5 : ℝ)) / 2) ^ n) / Real.sqrt (5 : ℝ) := by first | (simp (disch := omega) only [hD3]; push_cast; norm_num; done) | parley_side
   all_goals exact s6
 
 end Parley.Proofs.Hammack.BinetFormula.BinetFormula

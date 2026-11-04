@@ -1514,7 +1514,12 @@ impl<'a> Proof<'a> {
     /// The hypothesis of a function the theorem's header lets by its value,
     /// which a step cites by its label; None for any other citation.
     fn header_function_cited(&self, just: &Justification) -> Option<String> {
-        let label = just.defined.as_deref()?;
+        self.header_function_named(just.defined.as_deref()?)
+    }
+
+    /// The hypothesis of a function the theorem's header lets by its value,
+    /// by its label; None for any other label.
+    fn header_function_named(&self, label: &str) -> Option<String> {
         let d = self
             .thm
             .defines
@@ -2513,6 +2518,15 @@ impl<'a> Proof<'a> {
         if !just.rows.is_empty() {
             return self.substitute_rows(just, writer);
         }
+        // Substituting from a function the header lets by its value: its
+        // equation for every x, put in where f is applied.
+        if let Some(crate::corpus::skeleton::Source::At(place)) = &just.source {
+            if let Some(hyp) = self.header_function_named(place.named()) {
+                return Route::Built(format!(
+                    "by (try simp only [{hyp}] at *); first | done | parley_side"
+                ));
+            }
+        }
         let mut haves = Vec::new();
         // The equation's own name, where it is widened to the claim's type.
         let mut stated: Option<String> = None;
@@ -3070,7 +3084,9 @@ impl<'a> Proof<'a> {
                     }
                 }
                 // A row citing a define, S(1) = Σ(j = 1 to 1) j(j + 1) by
-                // D1, unfolds it and pushes in the casts that leaves.
+                // D1, unfolds it and pushes in the casts that leaves; a
+                // header's function, its equation guarded by its domain, at
+                // an argument linear arithmetic shows is in it.
                 None if let Some(cite) = line.cited() => {
                     let define = self
                         .thm
@@ -3081,7 +3097,7 @@ impl<'a> Proof<'a> {
                         .flatten();
                     match define {
                         Some(h) => format!(
-                            "by first | (simp only [{h}]; push_cast; norm_num; done) | parley_side"
+                            "by first | (simp (disch := omega) only [{h}]; push_cast; norm_num; done) | parley_side"
                         ),
                         None => "by parley_side".to_string(),
                     }
@@ -3559,6 +3575,23 @@ impl<'a> Proof<'a> {
                                     if t == (*from, given.unwrap_or(*to)) =>
                                 {
                                     Route::Built(self.writer.function_printed(value))
+                                }
+                                // A function that takes the letter's numbers
+                                // and gives numbers within its type, t of ℤ
+                                // into ℤ for f of ℕ into ℝ: t between casts.
+                                Route::Built((takes, gives))
+                                    if *from <= takes
+                                        && gives <= given.unwrap_or(*to) =>
+                                {
+                                    let wanted = given.unwrap_or(*to);
+                                    Route::Built(super::expr::Printed::atom(format!(
+                                        "(fun x : {} => (({} (x : {}) : {}) : {}))",
+                                        from.lean(),
+                                        self.writer.function_printed(value).text,
+                                        takes.lean(),
+                                        gives.lean(),
+                                        wanted.lean()
+                                    )))
                                 }
                                 Route::Built(_) => Route::no(
                                     "a function given for a letter of other types",
