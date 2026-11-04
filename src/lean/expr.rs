@@ -233,12 +233,34 @@ pub struct SaidInteger {
 }
 
 /// Whether the node is a sum or a product over a range, Σ(k = a to b) t or
-/// ∏(k = a to b) t, which the writer reads alike.
+/// ∏(k = a to b) t, which the writer reads alike; or one over a set that is
+/// a range, ∏(k ∈ {1, …, n}) t, which is the same product.
 fn is_big_operator(node: &Node) -> bool {
     matches!(
         node.notation(),
         crate::notations::SUM | crate::notations::PRODUCT
-    )
+    ) || over_range(node).is_some()
+}
+
+/// A sum or product over a set that is a range, Σ(k ∈ {a, …, b}) t: its
+/// index, the range's ends, and its term.
+fn over_range(node: &Node) -> Option<[&Node; 4]> {
+    if !matches!(&*node.notation_name(), "sum-over" | "product-over") {
+        return None;
+    }
+    let [index, set, term] = node.children.as_slice() else {
+        return None;
+    };
+    let [from, to] = set.children.as_slice() else {
+        return None;
+    };
+    (set.notation() == INTEGER_RANGE).then_some([index, from, to, term])
+}
+
+/// Whether a big operator is a product, ∏(k = a to b) or ∏(k ∈ {a, …, b}).
+fn is_product(node: &Node) -> bool {
+    node.notation() == crate::notations::PRODUCT
+        || &*node.notation_name() == "product-over"
 }
 
 /// The type variable an item's general letters range over.
@@ -578,6 +600,11 @@ impl Writer<'_> {
                 Route::Declined(d) => Route::Declined(d),
             };
         }
+        // A series is a limit, of real numbers as the series-sum item
+        // states it.
+        if &*node.notation_name() == "series" {
+            return Route::Built(Num::Real);
+        }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
                 Some(LetterType::Number(n)) => Route::Built((*n).max(Num::Int)),
@@ -769,7 +796,7 @@ impl Writer<'_> {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
-            crate::notations::SUM | crate::notations::PRODUCT => true,
+            _ if is_big_operator(node) || &*node.notation_name() == "series" => true,
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 true
             }
@@ -823,8 +850,11 @@ impl Writer<'_> {
     /// A sum's parts: the writer its term is read with, its index letter an
     /// integer there, and its index, ends and term.
     fn summed<'n>(&self, node: &'n Node) -> Route<Summed<'_, 'n>> {
-        let [index, from, to, term] = node.children.as_slice() else {
-            return Route::no("a sum of other than four parts");
+        let [index, from, to, term] = match (over_range(node), node.children.as_slice())
+        {
+            (Some(parts), _) => parts,
+            (None, [index, from, to, term]) => [index, from, to, term],
+            (None, _) => return Route::no("a sum of other than four parts"),
         };
         if !index.is_name() {
             return Route::no("a sum whose index is no letter");
@@ -871,11 +901,7 @@ impl Writer<'_> {
         let term = Printed::atom(format!("({} : {})", term.text, self.type_name(at)));
         // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
         // sum of k, plus 1; a body below that is bracketed.
-        let symbol = if node.notation() == crate::notations::PRODUCT {
-            "∏"
-        } else {
-            "∑"
-        };
+        let symbol = if is_product(node) { "∏" } else { "∑" };
         Route::Built(Printed {
             text: format!(
                 "{symbol} {} ∈ Finset.Icc {} {}, {}",
@@ -885,6 +911,54 @@ impl Writer<'_> {
                 term.at(67)
             ),
             prec: 10,
+        })
+    }
+
+    /// Σ(k = a to ∞) t, the value of a series: the limit of its partial
+    /// sums, `Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc a n, t)`,
+    /// as set.mm and the series-sum item take it. Mathlib's `∑'` is 0 for a
+    /// series that converges only conditionally, 1 − 1/3 + 1/5 − …, so it is
+    /// not used. The partial sums run over a letter the series does not use.
+    fn series(&self, node: &Node, at: Num) -> Route<Printed> {
+        let [index, from, term] = node.children.as_slice() else {
+            return Route::no("a series of other than three parts");
+        };
+        if !index.is_name() {
+            return Route::no("a series whose index is no letter");
+        }
+        if at != Num::Real {
+            return Route::no("a series computed in other than ℝ");
+        }
+        let used: Vec<String> =
+            node.walk().iter().map(|n| n.text.to_string()).collect();
+        let Some(upper) = ["n", "m", "N", "M", "j"]
+            .into_iter()
+            .find(|l| !used.iter().any(|u| u == l))
+        else {
+            return Route::no(
+                "a series using every letter its partial sums could run over",
+            );
+        };
+        let mut inner = self.with_letters(self.letters.clone());
+        inner
+            .letters
+            .insert(index.text.to_string(), LetterType::Number(Num::Int));
+        let (start, body) =
+            match (self.number_fixed(from, Num::Int), inner.number(term, at)) {
+                (Route::Built(s), Route::Built(b)) => (s, b),
+                (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                    return Route::Declined(d)
+                }
+            };
+        let body = Printed::atom(format!("({} : {})", body.text, self.type_name(at)));
+        Route::Built(Printed {
+            text: format!(
+                "Filter.limUnder Filter.atTop (fun {upper} : ℕ => ∑ {} ∈ Finset.Icc {} ({upper} : ℤ), {})",
+                super::names::letter(&index.text),
+                start.at(MAX),
+                body.at(67)
+            ),
+            prec: APP,
         })
     }
 
@@ -1032,6 +1106,9 @@ impl Writer<'_> {
         }
         if is_big_operator(node) {
             return self.sum(node, at);
+        }
+        if &*node.notation_name() == "series" {
+            return self.series(node, at);
         }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
@@ -1234,14 +1311,8 @@ impl Writer<'_> {
         if let ("function-on", [f, set]) =
             (&*node.notation_name(), node.children.as_slice())
         {
-            let of_set = match self.set_members(set) {
-                Some(m) => Some(m),
-                None if set.notation() == INTEGER_RANGE => {
-                    Some(Members::Numbers(Num::Int))
-                }
-                None => None,
-            };
-            let takes = match (self.letters.get(f.text.as_str()), of_set) {
+            let takes = match (self.letters.get(f.text.as_str()), self.set_members(set))
+            {
                 (
                     Some(LetterType::Function { from, .. }),
                     Some(Members::Numbers(n)),

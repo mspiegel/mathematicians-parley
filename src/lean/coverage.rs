@@ -42,6 +42,7 @@ pub const IN_CODE: &[&str] = &[
     "sum",
     "product",
     "tends-to",
+    "series",
     "function-limit",
     "continuous",
     "closed-interval",
@@ -666,7 +667,13 @@ fn covered(
                     "a function type between sets Lean has no type for yet".to_string()
                 });
             }
-            (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name))
+            // A sum or product over a range, Σ(k ∈ {a, …, b}), is the one
+            // from a to b (`expr::over_range`).
+            let over_range = matches!(name.as_str(), "sum-over" | "product-over")
+                && n.children
+                    .get(1)
+                    .is_some_and(|s| s.notation() == crate::notations::INTEGER_RANGE);
+            (!IN_CODE.contains(&name.as_str()) && !templates.maps(&name) && !over_range)
                 .then(|| format!("notation {name}, which has no lean-builds field"))
         })
         .collect();

@@ -38,6 +38,9 @@ macro "parley_arith" : tactic =>
     -- A sum or a product of integers over a range of numerals, which Lean
     -- works out term by term.
     | (decide; done)
+    -- The same in ℚ, a product of 365 − k over a quotient: the division
+    -- cleared, the casts taken off, and the integers worked out.
+    | (field_simp; norm_cast; done)
     | (rintro ⟨m, _, h⟩; field_simp at h; norm_cast at h; omega)
     | (rintro ⟨m, h⟩; field_simp at h; norm_cast at h; omega))
 

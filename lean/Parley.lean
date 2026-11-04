@@ -188,6 +188,7 @@ public import Parley.Proofs.Hammack.PrimeDividesAFactor.PrimeDividesAFactor
 public import Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial
 public import Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd
 public import Parley.Proofs.Hammack.ProductOfOneMinusHalves.PowerOfTwoAtLeastFour
+public import Parley.Proofs.Hammack.ProductOfOneMinusHalves.ProductOfOneMinusHalves
 public import Parley.Proofs.Hammack.ProductOfSequenceLimits.BoundedTimesSmall
 public import Parley.Proofs.Hammack.ProductOfSequenceLimits.ProductOfSequenceLimits
 public import Parley.Proofs.Hammack.ProductStepBound.ProductStepBound
@@ -386,6 +387,7 @@ public import Parley.Proofs.Setmm.GroupInverses.GroupInverseByRight
 public import Parley.Proofs.Setmm.GroupInverses.GroupInverseByLeft
 public import Parley.Proofs.Setmm.GroupInverses.GroupCancelInverse
 public import Parley.Proofs.Setmm.HalvesSeries.PowerOfTwoAbove
+public import Parley.Proofs.Setmm.HalvesSeries.HalvesSeries
 public import Parley.Proofs.Setmm.IdentityFunctionContinuous.IdentityFunctionContinuous
 public import Parley.Proofs.Setmm.ImageAsASelection.ImageAsASelection
 public import Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
@@ -628,6 +630,7 @@ public import Parley.Tests.Elaborator.APartCountedSaidBack.APartWithASize
 public import Parley.Tests.Elaborator.APartCountedSaidBack.EveryPartWithASize
 public import Parley.Tests.Elaborator.APartSubstitutedInto.APartSubstitutedInto
 public import Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
+public import Parley.Tests.Elaborator.AProductOfADefineSaidOnce.AProductOfADefineInTheHeader
 public import Parley.Tests.Elaborator.AProductReindexedThroughADefine.AValueThroughADefine
 public import Parley.Tests.Elaborator.AProofBlockEndingImpossible.NothingBelowOneIsTwo
 public import Parley.Tests.Elaborator.AQuotientDivisorSaidNotZero.AQuotientDivisorSaidNotZero
@@ -713,6 +716,7 @@ public import Parley.Tests.Elaborator.AnObtainFromTwoSentences.AnObtainFromTwoSe
 public import Parley.Tests.Elaborator.AnOddFactorOfAnEvenProduct.AnOddFactorOfAnEvenProduct
 public import Parley.Tests.Elaborator.AnOrderClaimedWithAnIdentity.AnOrderClaimedWithAnIdentity
 public import Parley.Tests.Elaborator.BothDirections.OneMore
+public import Parley.Tests.Elaborator.BoundNames.SeriesUnderItsOwnLetters
 public import Parley.Tests.Elaborator.BoundNames.CitationUnderABoundName
 public import Parley.Tests.Elaborator.BoundsFromCited.AnEquationFromADifferenceWithABoundUncited
 public import Parley.Tests.Elaborator.BoundsFromCited.PositiveFromANaturalWithABoundUncited
@@ -797,6 +801,9 @@ public import Parley.Tests.Elaborator.LargeArithmetic.SidesBelow
 public import Parley.Tests.Elaborator.LargeArithmetic.FractionsBelow
 public import Parley.Tests.Elaborator.LargeArithmetic.FractionsEqual
 public import Parley.Tests.Elaborator.LargeArithmetic.FractionAtMostAWholeNumber
+public import Parley.Tests.Elaborator.LargeArithmetic.ProductOverARange
+public import Parley.Tests.Elaborator.LargeArithmetic.TwentyThreeFactorsAsAProduct
+public import Parley.Tests.Elaborator.LargeArithmetic.TwentyThreeFactorsAsAFraction
 public import Parley.Tests.Elaborator.LargeArithmetic.RemainderOfAPower
 public import Parley.Tests.Elaborator.LargeArithmetic.RemainderOfASmallNumber
 public import Parley.Tests.Elaborator.LargeArithmetic.TwoSentencesByArithmetic
@@ -997,6 +1004,9 @@ public import Parley.Tests.Elaborator.RealArithmetic.ARootOfARootAboveANumeral
 public import Parley.Tests.Elaborator.RealArithmetic.ARootOfASumWithARoot
 public import Parley.Tests.Elaborator.RealArithmetic.ARootOfASquaredRoot
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APreimageInTheDomain
+public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductOfReals
+public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductOfOneFactor
+public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductIsReal
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.APowerOfAPositiveBase
 public import Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductThatIsZero
 public import Parley.Tests.Elaborator.RecursionShapesCited.TwoSequences
@@ -1125,11 +1135,13 @@ public import Parley.Tests.Notations.Sums.OneToThreeNotFive
 public import Parley.Tests.Notations.Sums.AProductOverARangeWorkedOut
 public import Parley.Tests.Notations.Sums.AProductOverARangeSplitAtItsLast
 public import Parley.Tests.Notations.Sums.AProductOverARangeIsReal
+public import Parley.Tests.Notations.Sums.ASumOverARangeWrittenAsASet
 public import Parley.Tests.Notations.ThereIsNo.ThereIsNoHalfInteger
 public import Parley.Tests.Notations.ThereIsNo.ThereDoesNotExistAHalfInteger
 public import Parley.Tests.Notations.ThereIsNo.ThereAreNoIntegersWithEighteenAPlusSixBOne
 public import Parley.Tests.Notations.ThereIsNo.ThereDoNotExistIntegersWithEighteenAPlusSixBOne
 public import Parley.Tests.Stdlib.Calculus.LimitUnfolded
+public import Parley.Tests.Stdlib.Calculus.ASeriesFromItsZerothTerm
 public import Parley.Tests.Stdlib.Counting.Absorption
 public import Parley.Tests.Stdlib.Counting.BinomialOne
 public import Parley.Tests.Stdlib.Counting.BinomialAll

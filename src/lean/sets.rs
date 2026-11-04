@@ -109,6 +109,10 @@ impl Writer<'_> {
     /// standing as a set, ℤ of ℝ ∖ ℤ, its numbers. A number system alone is
     /// left out of `members_of`, where `x ∈ ℤ` is read as a letter's type.
     pub fn set_members(&self, node: &Node) -> Option<Members> {
+        // A range, {a, …, b}, holds integers.
+        if node.notation() == crate::notations::INTEGER_RANGE {
+            return Some(Members::Numbers(Num::Int));
+        }
         self.members_of(node).or_else(|| {
             (node.notation() == NUMBER_SYSTEMS)
                 .then(|| system_of(node))

@@ -29,4 +29,12 @@ theorem def_tends_to (x : ℤ → ℝ) (L : ℝ) :
     Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → abs (x (n : ℤ) - L) < ε))) :=
   LeanBridges.Calculus.tends_to x L
 
+theorem def_series_sum (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+  LeanBridges.Calculus.series_sum t L h2
+
+theorem def_series_sum_from_zero (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+  LeanBridges.Calculus.series_sum_from_zero t L h2
+
 end Parley.Items.Stdlib.Calculus

@@ -41,4 +41,19 @@ theorem continuous_on (f : ℝ → ℝ) (D : Set ℝ) (_hf : Set.MapsTo f D (Set
   rw [Metric.continuousOn_iff]
   simp only [Real.dist_eq, gt_iff_lt]
 
+/-- `def:stdlib/calculus/series-sum`: the value of a series from 1 is the
+limit of its partial sums, where they have one. -/
+theorem series_sum (t : ℤ → ℝ) (L : ℝ)
+    (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ) : ℝ))
+      Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+  h2.limUnder_eq
+
+/-- `def:stdlib/calculus/series-sum-from-zero`, the same from 0. -/
+theorem series_sum_from_zero (t : ℤ → ℝ) (L : ℝ)
+    (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ) : ℝ))
+      Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+  h2.limUnder_eq
+
 end LeanBridges.Calculus

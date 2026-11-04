@@ -1,0 +1,19 @@
+module
+
+public import PowerTactics
+public import Tactics
+public import Parley.Items.Stdlib.Calculus
+
+/-! Written from tests/stdlib/calculus.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Stdlib.Calculus.ASeriesFromItsZerothTerm
+
+theorem a_series_from_its_zeroth_term (s : ℤ → ℝ) (hH2 : Filter.Tendsto (fun m : ℕ => (∑ j ∈ Finset.Icc (0 : ℤ) (m : ℤ), (s j : ℝ) : ℝ)) Filter.atTop (nhds 3)) :
+    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ j ∈ Finset.Icc (0 : ℤ) (n : ℤ), (s j : ℝ)) = 3 := by
+  -- 1. def:series-sum-from-zero t := s, L := 3, from H2
+  have s1 : Filter.limUnder Filter.atTop (fun n : ℕ => ∑ j ∈ Finset.Icc (0 : ℤ) (n : ℤ), (s j : ℝ)) = 3 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Calculus.def_series_sum_from_zero (t := s) (L := (3 : ℝ)) (by parley_side)); parley_side)
+  all_goals exact s1
+
+end Parley.Tests.Stdlib.Calculus.ASeriesFromItsZerothTerm
