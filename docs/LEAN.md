@@ -101,7 +101,11 @@ them, `{2n : n ∈ ℤ}` a `Set ℤ`, and ℚ among the reals is
 `let A be an element`, takes the type of the sets later lines put it in.
 
 `let f : A → B` is `(f : α → α)` with `Set.MapsTo f A B` beside it, and
-between sets of numbers `(f : ℝ → ℝ)` with the same. One-to-one is
+between sets of numbers `(f : ℝ → ℝ)` with the same. A library item's map
+takes things of one type to things of another, `(E : α → β)`, wherever nothing
+the item says makes the two one, so that a citation may give it integers and
+take rationals, n ↦ 2ⁿ; an item that applies g⁻¹ to a point keeps g's two sides
+one type, since the bridges' g⁻¹(y) is y itself where g sends nothing to y. One-to-one is
 `Set.InjOn f A` and onto `Set.SurjOn f A B`. A map's domain is the set its line
 gives it, or all of its type where it is given between number systems other
 than ℕ and ℕ₀; its image and preimage are taken within that domain, `f '' (A ∩ Y)`
