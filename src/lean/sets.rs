@@ -7,7 +7,8 @@
 //! maps the one into the other beside it (`statement`).
 
 use super::expr::{
-    letter_type, system_of, LetterType, Members, Printed, System, Writer, APP, MAX,
+    letter_type, set_type, system_of, LetterType, Members, Printed, System, Writer,
+    APP, MAX,
 };
 use super::templates::Num;
 use crate::formula::Node;
@@ -117,7 +118,7 @@ impl Writer<'_> {
             (node.notation() == NUMBER_SYSTEMS)
                 .then(|| system_of(node))
                 .flatten()
-                .map(|s| Members::Numbers(letter_type(s)))
+                .map(|s| Members::Numbers(set_type(s)))
         })
     }
 
@@ -148,7 +149,7 @@ impl Writer<'_> {
         if let Some(system) = (set.notation() == NUMBER_SYSTEMS)
             .then(|| system_of(set))
             .flatten()
-            .filter(|s| letter_type(*s) < at)
+            .filter(|s| set_type(*s) < at)
         {
             let wide = self.type_name(at);
             let says = match system {
@@ -323,15 +324,17 @@ impl Writer<'_> {
             _ => {}
         }
         // A number system standing as a set: all of its type, or for the
-        // page's ℕ, which starts at 1, the naturals above 0.
+        // page's ℕ and ℕ₀ the integers above and from 0, so that a map from
+        // them into ℤ, or a set of them an integer is said to be in, has
+        // one type in and out.
         if let Some(system) = (node.notation() == NUMBER_SYSTEMS)
             .then(|| system_of(node))
             .flatten()
         {
-            let ty = letter_type(system).lean();
             return Route::Built(Printed::atom(match system {
-                super::expr::System::Positive => format!("{{n : {ty} | 0 < n}}"),
-                _ => format!("(Set.univ : Set {ty})"),
+                super::expr::System::Positive => "{n : ℤ | 0 < n}".to_string(),
+                super::expr::System::NonNegative => "{n : ℤ | 0 ≤ n}".to_string(),
+                _ => format!("(Set.univ : Set {})", letter_type(system).lean()),
             }));
         }
         let parts = |want: usize| self.set_parts(node, want);
@@ -596,15 +599,19 @@ impl Writer<'_> {
         };
         let name = super::names::letter(&letter.text);
         // Over a number system, the numbers of its type: {n ∈ ℤ : P(n)} is
-        // `{n : ℤ | P n}`, and the page's ℕ adds that n is above 0.
+        // `{n : ℤ | P n}`, and the page's ℕ and ℕ₀, integers here as
+        // `set_term` writes them, add that n is above or from 0.
         if let Some(system) = (set.notation() == NUMBER_SYSTEMS)
             .then(|| system_of(set))
             .flatten()
         {
-            let ty = letter_type(system).lean();
+            let ty = set_type(system).lean();
             let condition = match system {
                 super::expr::System::Positive => {
                     format!("0 < {name} ∧ {}", condition.at(36))
+                }
+                super::expr::System::NonNegative => {
+                    format!("0 ≤ {name} ∧ {}", condition.at(36))
                 }
                 _ => condition.text,
             };

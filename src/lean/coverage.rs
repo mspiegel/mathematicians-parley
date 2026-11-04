@@ -129,65 +129,6 @@ fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
     })
 }
 
-/// Whether a term with a letter a line says is an integer, a·x + b·y of
-/// x ∈ ℤ, is said to be in a set a define builds of naturals, S = {t ∈ ℕ :
-/// …}.
-fn integer_in_natural_set(
-    thm: &crate::corpus::Theorem,
-    rec: &crate::checker::CheckedTheorem,
-) -> bool {
-    use super::expr::{system_of, System};
-    let nodes: Vec<crate::formula::Node> =
-        rec.page.entries().flat_map(|(_, n)| n.walk()).collect();
-    let integers: Vec<&str> = nodes
-        .iter()
-        .filter_map(|n| match n.children.as_slice() {
-            [x, set]
-                if n.notation() == crate::notations::MEMBERSHIP
-                    && x.is_name()
-                    && system_of(set)
-                        == Some(System::Type(super::templates::Num::Int)) =>
-            {
-                Some(&*x.text)
-            }
-            _ => None,
-        })
-        .collect();
-    let natural_sets: Vec<String> = thm
-        .defines
-        .iter()
-        .filter_map(|d| {
-            let crate::outcome::Route::Built(crate::corpus::DefineParts::One(one)) =
-                crate::corpus::define_parts(&d.text)
-            else {
-                return None;
-            };
-            let of_naturals = rec
-                .page
-                .entries()
-                .filter(|(key, _)| key.line == d.line)
-                .any(
-                    |(_, n)| match (&*n.notation_name(), n.children.as_slice()) {
-                        ("set-builder", [_, over, _]) => matches!(
-                            system_of(over),
-                            Some(System::Positive | System::NonNegative)
-                        ),
-                        _ => false,
-                    },
-                );
-            of_naturals.then_some(one.name)
-        })
-        .collect();
-    nodes.iter().any(|n| {
-        matches!(n.children.as_slice(), [t, s]
-            if n.notation() == crate::notations::MEMBERSHIP
-                && !t.is_name()
-                && s.is_name()
-                && natural_sets.iter().any(|name| *name == *s.text)
-                && t.walk().iter().any(|m| m.is_name() && integers.contains(&&*m.text)))
-    })
-}
-
 /// Whether the theorem cites the set-image item and writes a set-image over
 /// ℤ whose term raises something to its index, {9ⁿ : n ∈ ℤ}: rationals of
 /// an integer, which the item's map of one type cannot take.
@@ -436,14 +377,6 @@ fn covered(
                 .to_string(),
         };
     }
-    // A set of naturals a define builds, S = {t ∈ ℕ : …}, is Lean's
-    // `Set ℕ`, which no integer is a member of.
-    if integer_in_natural_set(thm, rec) {
-        return Covered::Out {
-            reason: "an integer is said to be in a set of naturals a define builds, which Lean's Set ℕ does not hold"
-                .to_string(),
-        };
-    }
     // The set-image item's map has one type (`items`), and {9ⁿ : n ∈ ℤ}
     // gives rationals of an integer index.
     if image_of_powers_cited(thm, rec) {
@@ -482,32 +415,6 @@ fn covered(
     if count_given {
         return Covered::Out {
             reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"
-                .to_string(),
-        };
-    }
-    // A set-image over the page's ℕ or ℕ₀, {p·n : n ∈ ℕ}, or a map from it
-    // said one-to-one or onto, f : ℕ → ℤ, maps Lean's ℕ into ℤ, and the map
-    // items take one type in and out, α → α.
-    let naturals = |set: &crate::formula::Node| {
-        matches!(
-            super::expr::system_of(set),
-            Some(super::expr::System::Positive | super::expr::System::NonNegative)
-        )
-    };
-    let from_naturals = rec
-        .page
-        .entries()
-        .flat_map(|(_, node)| node.walk())
-        .any(|n| match &*n.notation_name() {
-            "set-image" => n.children.get(2).is_some_and(naturals),
-            "one-to-one" | "onto" | "one-to-one-onto" => {
-                n.children.get(1).is_some_and(naturals)
-            }
-            _ => false,
-        });
-    if from_naturals {
-        return Covered::Out {
-            reason: "a map from ℕ, Lean's ℕ into ℤ, where the map items take one type"
                 .to_string(),
         };
     }

@@ -5356,9 +5356,12 @@ fn close(claim: &Node, term: &str) -> String {
                 false => String::new(),
             };
             let by_to_nat = term.contains("Int.toNat_of_nonneg");
+            // The `▸` of a `toNat` rewrites its cast to ℤ only; one cast to
+            // ℚ or ℝ, (1 − 2y).toNat in ℚ, is put back as the integer by
+            // `parley_cast_toNat`.
             let cast = match by_to_nat {
                 true => format!(
-                    "(have h := {term}; exact_mod_cast h) | (have h := {term}; exact_mod_cast h.symm)"
+                    "(have h := {term}; exact_mod_cast h) | (have h := {term}; exact_mod_cast h.symm) | (have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); linear_combination (norm := parley_norm) h)"
                 ),
                 false => format!("exact_mod_cast {term} | exact_mod_cast ({term}).symm"),
             };

@@ -492,7 +492,7 @@ axiom well-ordering
   then        there is d ∈ S with for all s ∈ S, d ≤ s
   metamath-proof nnwo
   note        Whether S also needs "let S be a set" is open; see DATABASE.md.
-  lean-proof  by obtain ⟨s, hs, -⟩ := h2; classical exact ⟨Nat.find (⟨s, hs⟩ : ∃ n, n ∈ S), Nat.find_spec (⟨s, hs⟩ : ∃ n, n ∈ S), fun t ht => by exact_mod_cast Nat.find_min' (⟨s, hs⟩ : ∃ n, n ∈ S) ht⟩
+  lean-proof  by obtain ⟨s, hs, -⟩ := h2; classical exact (fun hex : ∃ n : ℕ, (n : ℤ) ∈ S => ⟨Nat.find hex, Nat.find_spec hex, fun t ht => by have h0 : 0 < t := h1 ht; have := Nat.find_min' hex (m := t.toNat) (by rwa [Int.toNat_of_nonneg h0.le]); omega⟩) ⟨s.toNat, by rwa [Int.toNat_of_nonneg (h1 hs).le]⟩
 
 definition abs
   let x ∈ ℝ                                                           (H1)

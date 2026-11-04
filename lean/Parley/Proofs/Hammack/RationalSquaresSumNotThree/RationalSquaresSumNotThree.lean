@@ -25,7 +25,7 @@ theorem rational_squares_sum_not_three :
   have sThm : ¬ (∃ x : ℚ, ∃ y : ℚ, x ^ 2 + y ^ 2 - 3 = 0) := by
     by_contra hc_hS
     have hS : ∃ x : ℚ, ∃ y : ℚ, x ^ 2 + y ^ 2 - 3 = 0 := by parley_suppose hc_hS
-    set T : Set ℕ := {r : ℕ | 0 < r ∧ (∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)} with hD1
+    set T : Set ℤ := {r : ℤ | 0 < r ∧ (∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)} with hD1
     -- 1. obtain x, y from S
     obtain ⟨x, y, s1⟩ := hS
     -- 2. obtain a, b: mun:rational-coprime
@@ -41,23 +41,24 @@ theorem rational_squares_sum_not_three :
     -- 7. exhibit, from 6
     have s7 : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * ((b : ℤ) * (d : ℤ)) ^ 2 := ⟨a * (d : ℤ), c * (b : ℤ), by parley_set_side⟩
     -- 8. def:set-builder u := b·d, from D1, 7
-    have s8 : b * d ∈ T := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := b * d))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := b * d))).mpr (by parley_set_side); parley_set_side)
+    have s8 : (b : ℤ) * (d : ℤ) ∈ T := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (b : ℤ) * (d : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (b : ℤ) * (d : ℤ)))).mpr (by parley_set_side); parley_set_side)
     -- 9. mun:set-builder-subset, from D1
-    have s9 : T ⊆ {n : ℕ | 0 < n} := by
+    have s9 : T ⊆ {n : ℤ | 0 < n} := by
       try simp only [hD1] at *
       try push_cast at *
-      first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n})) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n})) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n})) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n})); parley_set_side)
+      first | exact (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})) | exact ((Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})) | (have h := (Parley.Items.Stdlib.Sets.mun_set_builder_subset (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n})); parley_set_side)
     -- 10. obtain m: axi:well-ordering, from 8, 9
     obtain ⟨m, s10a, s10b⟩ := (Parley.Items.Stdlib.Numbers.axi_well_ordering (S := T) s9 (by parley_set_side))
     -- 11. def:set-builder u := m, from D1, 10
     have s11a : 0 < m := by
       try simp only [hD1] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).1; parley_set_side)
-    have s11b : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (m : ℤ) ^ 2 := by
+      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := m))).mp (by parley_set_side)).1; parley_set_side)
+    lift m to ℕ using s11a.le
+    have s11b : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * m ^ 2 := by
       try simp only [hD1] at *
       try push_cast at *
-      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := m))).mp (by parley_set_side)).2; parley_set_side)
+      first | exact (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (m : ℤ)))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (m : ℤ)))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (m : ℤ)))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (m : ℤ)))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (m : ℤ)))).mp (by parley_set_side)).2; parley_set_side)
     -- 12. obtain p, q from line 11
     obtain ⟨p, q, s12⟩ := s11b
     -- 13. def:divides d := 3, n := p² + q², from 11, 12
@@ -103,9 +104,9 @@ theorem rational_squares_sum_not_three :
     -- 31. exhibit, from 26
     have s31 : ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (u : ℤ) ^ 2 := ⟨s, t, by parley_set_side⟩
     -- 32. def:set-builder, from D1, 30, 31
-    have s32 : u ∈ T := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := u))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℕ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * (r : ℤ) ^ 2)) (X := {n : ℕ | 0 < n}) (u := u))).mpr (by parley_set_side); parley_set_side)
+    have s32 : (u : ℤ) ∈ T := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (u : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_set_builder (P := (fun r : ℤ => ∃ j : ℤ, ∃ k : ℤ, j ^ 2 + k ^ 2 = 3 * r ^ 2)) (X := {n : ℤ | 0 < n}) (u := (u : ℤ)))).mpr (by parley_set_side); parley_set_side)
     -- 33. instantiate t := u in line 10, from 32
-    have s33 : (m : ℤ) ≤ (u : ℤ) := by first | linarith [(s10b u (by parley_set_side))] | (have h := (s10b u (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10b u (by parley_set_side)) | (have h := (s10b u (by parley_set_side)); parley_set_side)
+    have s33 : (m : ℤ) ≤ (u : ℤ) := by first | linarith [(s10b (u : ℤ) (by parley_set_side))] | (have h := (s10b (u : ℤ) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10b (u : ℤ) (by parley_set_side)) | (have h := (s10b (u : ℤ) (by parley_set_side)); parley_set_side)
     -- 34. inequalities
     have s34 : 3 * (u : ℤ) > (u : ℤ) := by parley_order
     -- 35. substitute m = 3u (line 24) into line 34

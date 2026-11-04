@@ -1906,6 +1906,16 @@ pub fn letter_type(system: System) -> Num {
     }
 }
 
+/// The type of what a number system holds where it stands as a set: the
+/// page's ℕ and ℕ₀ are sets of integers (`sets::set_term`), any other
+/// system a set of its own type.
+pub fn set_type(system: System) -> Num {
+    match system {
+        System::Positive | System::NonNegative => Num::Int,
+        System::Type(n) => n,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
