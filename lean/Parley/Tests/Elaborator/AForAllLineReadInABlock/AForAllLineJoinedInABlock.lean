@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-for-all-line-read-in-a-block.proof by parley build lean. -/

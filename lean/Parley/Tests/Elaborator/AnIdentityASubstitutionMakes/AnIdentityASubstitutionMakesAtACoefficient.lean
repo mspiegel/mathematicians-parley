@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-identity-a-substitution-makes.proof by parley build lean. -/

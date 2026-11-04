@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/

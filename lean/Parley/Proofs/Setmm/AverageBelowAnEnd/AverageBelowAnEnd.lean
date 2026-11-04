@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from proofs/setmm/average-below-an-end.proof by parley build lean. -/

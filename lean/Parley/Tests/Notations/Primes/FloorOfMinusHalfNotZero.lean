@@ -1,5 +1,7 @@
 module
 
+public import ArithTactics
+public import PowerTactics
 public import Tactics
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalf
 

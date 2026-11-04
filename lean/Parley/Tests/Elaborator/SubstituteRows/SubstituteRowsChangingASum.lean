@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/substitute-rows.proof by parley build lean. -/

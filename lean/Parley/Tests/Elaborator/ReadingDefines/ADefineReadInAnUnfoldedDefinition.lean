@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 

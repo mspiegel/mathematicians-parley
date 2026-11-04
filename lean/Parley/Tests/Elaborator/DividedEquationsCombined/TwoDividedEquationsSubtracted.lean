@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/divided-equations-combined.proof by parley build lean. -/

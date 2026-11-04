@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-define-filling-a-cited-function.proof by parley build lean. -/

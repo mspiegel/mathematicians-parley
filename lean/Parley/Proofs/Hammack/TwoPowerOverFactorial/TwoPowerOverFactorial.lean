@@ -1,6 +1,8 @@
 module
 
+public import AlgebraTactics
 public import Counting
+public import OrderTactics
 public import Tactics
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Counting

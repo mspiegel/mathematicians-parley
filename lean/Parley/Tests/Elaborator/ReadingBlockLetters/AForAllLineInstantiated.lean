@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 
 /-! Written from tests/elaborator/reading-block-letters.proof by parley build lean. -/

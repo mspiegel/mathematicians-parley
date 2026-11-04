@@ -2,6 +2,7 @@ module
 
 public import Functions
 public import SetTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Functions
 public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto

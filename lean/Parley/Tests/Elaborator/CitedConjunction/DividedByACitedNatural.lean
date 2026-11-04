@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/cited-conjunction.proof by parley build lean. -/

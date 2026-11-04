@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-quotient-divisor-said-not-zero.proof by parley build lean. -/

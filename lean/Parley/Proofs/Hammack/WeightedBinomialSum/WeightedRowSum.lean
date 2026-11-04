@@ -1,6 +1,8 @@
 module
 
 public import Counting
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Hammack.WeightedBinomialSum.BinomialRowSum

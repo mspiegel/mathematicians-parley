@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import PowerTactics
 public import Tactics
 public import Parley.Proofs.Hammack.BinomialOfThree.BinomialOfThree
 public import Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo

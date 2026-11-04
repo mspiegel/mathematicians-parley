@@ -1,6 +1,10 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
 public import Divisibility
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderOfSmall
 public import Parley.Proofs.Setmm.RemainderFacts.RemainderShifts

@@ -1,6 +1,7 @@
 module
 
 public import RealTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/real-arithmetic-logarithms.proof by parley build lean. -/

@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/order-chains.proof by parley build lean. -/

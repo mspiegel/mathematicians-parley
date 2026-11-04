@@ -1,5 +1,7 @@
 module
 
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep

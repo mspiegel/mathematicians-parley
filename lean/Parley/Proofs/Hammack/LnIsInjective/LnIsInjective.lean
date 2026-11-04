@@ -1,5 +1,8 @@
 module
 
+public import ComplexTactics
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 

@@ -1,5 +1,6 @@
 module
 
+public import ArithTactics
 public import Tactics
 
 /-! Written from proofs/hammack/prime-between-ninety-and-a-hundred.proof by parley build lean. -/

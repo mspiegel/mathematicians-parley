@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/divisors-not-zero-by-their-factors.proof by parley build lean. -/

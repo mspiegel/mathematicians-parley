@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import RealTactics
 public import Tactics
 public import Parley.Items.Stdlib.Numbers

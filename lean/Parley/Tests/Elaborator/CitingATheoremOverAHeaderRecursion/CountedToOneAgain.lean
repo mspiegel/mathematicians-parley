@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 public import Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedToOne
 

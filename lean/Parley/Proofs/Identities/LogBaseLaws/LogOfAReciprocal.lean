@@ -1,6 +1,10 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
+public import PowerTactics
 public import RealTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Logarithms
 

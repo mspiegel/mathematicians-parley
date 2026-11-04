@@ -1,5 +1,6 @@
 module
 
+public import ArithTactics
 public import Counting
 public import Tactics
 

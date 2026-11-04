@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import SetTactics
 public import Tactics
 public import Parley.Items.Stdlib.Functions

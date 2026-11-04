@@ -1,5 +1,7 @@
 module
 
+public import OrderTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/

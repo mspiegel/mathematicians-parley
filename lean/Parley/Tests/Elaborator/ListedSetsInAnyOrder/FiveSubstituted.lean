@@ -1,6 +1,7 @@
 module
 
 public import SetTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/listed-sets-in-any-order.proof by parley build lean. -/

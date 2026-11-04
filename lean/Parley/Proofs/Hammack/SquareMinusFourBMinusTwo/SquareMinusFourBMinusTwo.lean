@@ -1,5 +1,8 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare

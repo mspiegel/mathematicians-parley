@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import RealTactics
 public import Tactics
 

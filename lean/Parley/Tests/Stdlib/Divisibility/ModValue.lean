@@ -1,6 +1,7 @@
 module
 
 public import Divisibility
+public import PowerTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 

@@ -1,5 +1,7 @@
 module
 
+public import ArithTactics
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-label-given-again-inside-a-block.proof by parley build lean. -/

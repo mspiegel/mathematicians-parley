@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import Tactics
+public import ArithTactics
 public import Roots
 
 /-!

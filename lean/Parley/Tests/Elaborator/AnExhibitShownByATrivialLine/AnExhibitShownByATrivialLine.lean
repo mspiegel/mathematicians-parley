@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-exhibit-shown-by-a-trivial-line.proof by parley build lean. -/

@@ -83,10 +83,25 @@ const TACTICS: &str = "Tactics";
 /// The module of the tactics a proof about sets uses beside the others.
 const SET_TACTICS: &str = "SetTactics";
 
-/// The tactic of real arithmetic of √, π, ln, exp, sin and cos, and its
-/// module, which a proof that calls it imports.
-const REAL: &str = "parley_real";
-const REAL_TACTICS: &str = "RealTactics";
+/// Each tactic outside `Tactics` and `SetTactics`, and the module that
+/// holds it, which a file naming the tactic imports. Every file importing a
+/// module is rebuilt when it changes, so a family most files do not call is
+/// a module of its own. `parley_subst` names `parley_subst_at` too, which is
+/// in the same module.
+const TACTIC_MODULES: &[(&str, &str)] = &[
+    ("parley_clear", "AlgebraTactics"),
+    ("parley_ring", "AlgebraTactics"),
+    ("parley_field", "AlgebraTactics"),
+    ("parley_subst", "SubstTactics"),
+    ("parley_put_at", "SubstTactics"),
+    ("parley_order", "OrderTactics"),
+    ("parley_int_power", "PowerTactics"),
+    ("parley_cast_toNat", "PowerTactics"),
+    ("parley_of_complex", "ComplexTactics"),
+    ("parley_arith", "ArithTactics"),
+    ("parley_suppose", "ArithTactics"),
+    ("parley_real", "RealTactics"),
+];
 
 /// The tactic a step leaves its side conditions to, and the one a proof
 /// about sets leaves them to, which tries the first and then the ways of
@@ -100,13 +115,19 @@ fn uses_sets(text: &str) -> bool {
     text.contains("Set ") || text.contains("Set.") || text.contains(".encard")
 }
 
-/// The modules of the library a generated file imports: the tactics, and
-/// each bridge module its Lean text names, `Counting` for a
-/// `LeanBridges.Counting.…`. A file imports no bridge it does not use, so
-/// that a new bridge in one subject rebuilds only the files that use it.
+/// The modules of the library a generated file imports: the tactics every
+/// file uses, the module of each other tactic its Lean text names, and each
+/// bridge module it names, `Counting` for a `LeanBridges.Counting.…`. A file
+/// imports no module it does not use, so that a change in one rebuilds only
+/// the files that use it.
 fn library_imports(text: &str) -> BTreeSet<String> {
     let prefix = format!("{LIBRARY}.");
     let mut out = BTreeSet::from([TACTICS.to_string()]);
+    for (tactic, module) in TACTIC_MODULES {
+        if text.contains(tactic) {
+            out.insert(module.to_string());
+        }
+    }
     for (at, _) in text.match_indices(&prefix) {
         let rest = &text[at + prefix.len()..];
         let subject: String = rest
@@ -270,9 +291,6 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         let mut library = library_imports(&body);
         if of_sets {
             library.insert(SET_TACTICS.to_string());
-        }
-        if body.contains(REAL) {
-            library.insert(REAL_TACTICS.to_string());
         }
         let imports: Vec<String> = library.into_iter().chain(cited).collect();
         let mut text = header(&imports, &thm.path);

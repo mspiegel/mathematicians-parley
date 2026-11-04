@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-theorem-cited-at-other-letters.proof by parley build lean. -/

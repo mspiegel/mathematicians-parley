@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/rows-read-either-way.proof by parley build lean. -/

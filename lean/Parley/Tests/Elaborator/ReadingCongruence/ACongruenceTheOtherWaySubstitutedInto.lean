@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/

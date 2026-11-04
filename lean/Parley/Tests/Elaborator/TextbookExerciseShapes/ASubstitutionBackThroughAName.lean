@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/

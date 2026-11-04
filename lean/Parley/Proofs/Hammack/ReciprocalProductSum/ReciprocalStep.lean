@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from proofs/hammack/reciprocal-product-sum.proof by parley build lean. -/

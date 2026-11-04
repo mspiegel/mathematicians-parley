@@ -1,6 +1,7 @@
 module
 
 public import SetTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Groups
 public import Parley.Items.Stdlib.Sets

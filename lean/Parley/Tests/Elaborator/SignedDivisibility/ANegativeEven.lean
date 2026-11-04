@@ -1,5 +1,6 @@
 module
 
+public import ArithTactics
 public import Tactics
 
 /-! Written from tests/elaborator/signed-divisibility.proof by parley build lean. -/

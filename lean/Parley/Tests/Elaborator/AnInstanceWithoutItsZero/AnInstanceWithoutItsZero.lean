@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-instance-without-its-zero.proof by parley build lean. -/

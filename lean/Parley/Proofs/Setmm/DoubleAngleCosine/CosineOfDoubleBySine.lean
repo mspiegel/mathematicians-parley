@@ -1,5 +1,9 @@
 module
 
+public import AlgebraTactics
+public import ComplexTactics
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Trigonometry
 public import Parley.Proofs.Setmm.DoubleAngleCosine.SineSquaredPlusCosineSquared

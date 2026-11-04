@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 

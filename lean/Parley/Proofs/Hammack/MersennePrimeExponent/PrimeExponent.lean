@@ -1,5 +1,9 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
+public import OrderTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers

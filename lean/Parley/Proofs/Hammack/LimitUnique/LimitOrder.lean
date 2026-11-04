@@ -1,5 +1,7 @@
 module
 
+public import ArithTactics
+public import OrderTactics
 public import SetTactics
 public import Tactics
 public import Parley.Items.Stdlib.Functions

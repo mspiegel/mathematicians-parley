@@ -1,6 +1,7 @@
 module
 
 public import SetTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-part-substituted-into.proof by parley build lean. -/

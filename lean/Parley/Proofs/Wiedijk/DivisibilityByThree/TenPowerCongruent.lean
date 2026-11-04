@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes

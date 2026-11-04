@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Calculus
 

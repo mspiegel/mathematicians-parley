@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/citing-a-theorem-over-a-header-recursion.proof by parley build lean. -/

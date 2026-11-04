@@ -1,5 +1,7 @@
 module
 
+public import ArithTactics
+public import OrderTactics
 public import Tactics
 public import Parley.Proofs.Hammack.PolynomialSign.NegativePowers
 

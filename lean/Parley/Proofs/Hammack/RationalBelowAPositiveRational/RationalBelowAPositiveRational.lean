@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from proofs/hammack/rational-below-a-positive-rational.proof by parley build lean. -/

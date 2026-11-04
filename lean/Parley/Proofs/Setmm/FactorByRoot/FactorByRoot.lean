@@ -1,6 +1,7 @@
 module
 
 public import Polynomials
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Polynomials
 

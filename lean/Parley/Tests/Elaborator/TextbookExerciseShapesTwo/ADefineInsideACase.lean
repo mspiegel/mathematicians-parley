@@ -1,5 +1,7 @@
 module
 
+public import ArithTactics
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/

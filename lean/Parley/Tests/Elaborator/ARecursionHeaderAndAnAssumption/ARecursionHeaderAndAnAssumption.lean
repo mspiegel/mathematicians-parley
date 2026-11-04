@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-recursion-header-and-an-assumption.proof by parley build lean. -/

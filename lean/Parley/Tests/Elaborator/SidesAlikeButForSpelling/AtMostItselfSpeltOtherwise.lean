@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/sides-alike-but-for-spelling.proof by parley build lean. -/

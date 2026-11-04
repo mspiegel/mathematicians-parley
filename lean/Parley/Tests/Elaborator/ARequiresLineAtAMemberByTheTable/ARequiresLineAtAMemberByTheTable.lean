@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-requires-line-at-a-member-by-the-table.proof by parley build lean. -/

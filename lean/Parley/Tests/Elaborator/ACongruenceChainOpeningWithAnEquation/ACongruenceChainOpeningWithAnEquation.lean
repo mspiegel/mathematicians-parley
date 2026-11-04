@@ -1,5 +1,6 @@
 module
 
+public import AlgebraTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-congruence-chain-opening-with-an-equation.proof by parley build lean. -/

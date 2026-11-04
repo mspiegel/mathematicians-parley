@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-instance-asking-the-fewest-conditions.proof by parley build lean. -/

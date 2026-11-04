@@ -1,5 +1,7 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-induction-whose-letter-a-hypothesis-binds.proof by parley build lean. -/

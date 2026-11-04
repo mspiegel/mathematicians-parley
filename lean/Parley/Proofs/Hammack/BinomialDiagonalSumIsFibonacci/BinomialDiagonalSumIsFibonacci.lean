@@ -1,6 +1,10 @@
 module
 
+public import AlgebraTactics
+public import ArithTactics
 public import Counting
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Numbers

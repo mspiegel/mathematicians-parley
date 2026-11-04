@@ -1,6 +1,8 @@
 module
 
 public import Divisibility
+public import OrderTactics
+public import PowerTactics
 public import Tactics
 public import Parley.Proofs.Setmm.RemainderBounds.RemainderBelowDivisor
 public import Parley.Proofs.Setmm.RemainderBounds.RemainderNonnegative

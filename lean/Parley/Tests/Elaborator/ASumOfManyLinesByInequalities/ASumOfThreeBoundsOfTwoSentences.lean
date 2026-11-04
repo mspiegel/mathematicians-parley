@@ -1,5 +1,6 @@
 module
 
+public import OrderTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-sum-of-many-lines-by-inequalities.proof by parley build lean. -/

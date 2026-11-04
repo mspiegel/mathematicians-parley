@@ -1,6 +1,8 @@
 module
 
+public import AlgebraTactics
 public import RealTactics
+public import SubstTactics
 public import Tactics
 
 /-! Written from proofs/identities/log-base-closed.proof by parley build lean. -/

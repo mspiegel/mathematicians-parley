@@ -1,5 +1,6 @@
 module
 
+public import SubstTactics
 public import Tactics
 
 /-! Written from tests/elaborator/an-assume-line-of-several-sentences.proof by parley build lean. -/

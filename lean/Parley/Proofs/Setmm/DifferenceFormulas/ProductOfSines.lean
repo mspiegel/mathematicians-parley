@@ -1,5 +1,7 @@
 module
 
+public import ComplexTactics
+public import PowerTactics
 public import Tactics
 public import Parley.Items.Stdlib.Trigonometry
 public import Parley.Proofs.Setmm.DifferenceFormulas.CosineOfDifference

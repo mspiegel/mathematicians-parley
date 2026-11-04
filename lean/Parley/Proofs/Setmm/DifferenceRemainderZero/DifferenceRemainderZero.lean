@@ -1,6 +1,9 @@
 module
 
 public import Divisibility
+public import OrderTactics
+public import PowerTactics
+public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 
