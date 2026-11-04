@@ -23,6 +23,113 @@ pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
 const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
 
+/// The sets these lines make finite, as the page prints them: one a line
+/// says is, `A is finite`, and one a line puts inside such a set, B of
+/// `B ⊆ A` (`is_finite`). A line counts where it is the whole line or one
+/// part of an "and"; under an "if" or a "not" it says nothing of the set.
+pub fn finite_sets<'n>(
+    grammar: &crate::formula::Grammar,
+    lines: impl IntoIterator<Item = &'n Node>,
+) -> std::collections::BTreeSet<String> {
+    let mut said = SaidOfSets::default();
+    for line in lines {
+        said.read(line);
+    }
+    let mut out: std::collections::BTreeSet<String> =
+        said.finite.iter().map(|s| grammar.print(s)).collect();
+    // A part of a part of a finite set is finite too: until no more are.
+    loop {
+        let more: Vec<String> = said
+            .subsets
+            .iter()
+            .filter(|s| is_finite(grammar, &out, s.whole))
+            .map(|s| grammar.print(s.part))
+            .filter(|p| !out.contains(p))
+            .collect();
+        if more.is_empty() {
+            return out;
+        }
+        out.extend(more);
+    }
+}
+
+/// What lines say of sets that makes one finite.
+#[derive(Default)]
+struct SaidOfSets<'n> {
+    /// A of `A is finite`.
+    finite: Vec<&'n Node>,
+    /// `B ⊆ A`, each.
+    subsets: Vec<Subset<'n>>,
+}
+
+/// A line `part ⊆ whole`.
+struct Subset<'n> {
+    part: &'n Node,
+    whole: &'n Node,
+}
+
+impl<'n> SaidOfSets<'n> {
+    fn read(&mut self, node: &'n Node) {
+        use crate::notations::{COMMA_CONJUNCTION, CONJUNCTION};
+        match (
+            &*node.notation_name(),
+            node.notation(),
+            node.children.as_slice(),
+        ) {
+            ("finite", _, [set]) => self.finite.push(set),
+            ("subset", _, [part, whole]) => self.subsets.push(Subset { part, whole }),
+            (_, CONJUNCTION | COMMA_CONJUNCTION, parts) => {
+                for p in parts {
+                    self.read(p);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Whether a set is finite by what lines say (`finite_sets`) and how it
+/// is made: ∅ and a listed set {a, b}; A ∖ B where A is, A ∩ B where
+/// either is, A ∪ B where both are.
+pub fn is_finite(
+    grammar: &crate::formula::Grammar,
+    finite: &std::collections::BTreeSet<String>,
+    set: &Node,
+) -> bool {
+    if finite.contains(&grammar.print(set)) {
+        return true;
+    }
+    match &*set.notation_name() {
+        "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four" => {
+            return true
+        }
+        "set-operations" => {}
+        _ => return false,
+    }
+    let of = |s: &Node| is_finite(grammar, finite, s);
+    match (&*set.spelling().text(), set.children.as_slice()) {
+        ("∖", [a, _]) => of(a),
+        ("∩", [a, b]) => of(a) || of(b),
+        ("∪", [a, b]) => of(a) && of(b),
+        _ => false,
+    }
+}
+
+/// Whether a term counts, somewhere, a set not among `finite`: a count the
+/// writer takes in ℕ∞.
+pub fn counts_in_extended(
+    grammar: &crate::formula::Grammar,
+    finite: &std::collections::BTreeSet<String>,
+    node: &Node,
+) -> bool {
+    node.walk().iter().any(|n| {
+        &*n.notation_name() == "cardinality"
+            && n.children
+                .first()
+                .is_none_or(|set| !is_finite(grammar, finite, set))
+    })
+}
+
 /// The parts `Writer::map_claim` writes for a line of this notation about
 /// a map f from A to B, each with `_f`, `_A` and `_B` for those; None for
 /// any other notation.
@@ -793,45 +900,58 @@ impl Writer<'_> {
         }))
     }
 
-    /// Whether a term counts a set somewhere, |A| or |A| + 1.
-    pub fn counts(node: &Node) -> bool {
-        node.walk()
-            .iter()
-            .any(|n| &*n.notation_name() == "cardinality")
+    /// Whether a term counts, somewhere, a set no line says is finite, |A|
+    /// or |A| + 1: a count in ℕ∞.
+    pub fn counts(&self, node: &Node) -> bool {
+        counts_in_extended(self.grammar, &self.finite, node)
+    }
+
+    /// |A| of a set a line says is finite: the natural number `A.ncard`.
+    /// None for any other term.
+    pub fn finite_count(&self, node: &Node) -> Option<Route<Printed>> {
+        let [set] = node.children.as_slice() else {
+            return None;
+        };
+        let finite = &*node.notation_name() == "cardinality"
+            && is_finite(self.grammar, &self.finite, set);
+        // ∅ counted is told it is a set of things, which nothing else in
+        // |∅| = 0 gives Lean.
+        if finite && &*set.notation_name() == "empty-set" {
+            return Some(Route::Built(Printed::atom(format!(
+                "(∅ : Set {}).ncard",
+                super::expr::THINGS
+            ))));
+        }
+        finite.then(|| {
+            self.set_term(set)
+                .map(|s| Printed::atom(format!("{}.ncard", s.at(MAX))))
+        })
     }
 
     /// A count as Lean's `Set.encard` gives it, in ℕ∞, where an infinite
-    /// set counts as ∞ as set.mm's ♯ counts it +∞: |A| is `A.encard`, a
-    /// numeral or a letter of ℕ or ℕ₀ is cast up, and + and · are ℕ∞'s.
-    /// Subtraction declines: ℕ∞'s stops at 0, where the page's does not.
+    /// set counts as ∞ as set.mm's ♯ counts it +∞: |A| is `A.encard`; a
+    /// numeral, a letter of ℕ or ℕ₀, or a count of a finite set,
+    /// `A.ncard`, is cast up; and + and · are ℕ∞'s. Subtraction declines:
+    /// ℕ∞'s stops at 0, where the page's does not.
     pub fn count_term(&self, node: &Node) -> Route<Printed> {
+        // A number of ℕ, the type ℕ∞ holds, cast up.
+        if !self.counts(node) {
+            return match self.number_fixed(node, Num::Nat) {
+                Route::Built(p) => {
+                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text)))
+                }
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
         if &*node.notation_name() == "cardinality" {
             let [set] = node.children.as_slice() else {
                 return Route::no("a count of other than one set");
             };
-            // ∅ counted is told it is a set of things, which nothing else
-            // in |∅| = 0 gives Lean.
-            if &*set.notation_name() == "empty-set" {
-                return Route::Built(Printed {
-                    text: format!("(∅ : Set {}).encard", super::expr::THINGS),
-                    prec: MAX,
-                });
-            }
             return match self.set_term(set) {
                 Route::Built(s) => Route::Built(Printed {
                     text: format!("{}.encard", s.at(MAX)),
                     prec: MAX,
                 }),
-                Route::Declined(d) => Route::Declined(d),
-            };
-        }
-        // A number of ℕ, the type ℕ∞ holds: a numeral, or a letter of ℕ
-        // or ℕ₀, cast up.
-        if !Writer::counts(node) {
-            return match self.number_fixed(node, Num::Nat) {
-                Route::Built(p) => {
-                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text)))
-                }
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -863,7 +983,7 @@ impl Writer<'_> {
         let [a, b] = node.children.as_slice() else {
             return None;
         };
-        if !Writer::counts(a) && !Writer::counts(b) {
+        if !self.counts(a) && !self.counts(b) {
             return None;
         }
         let op = node.spelling().text().to_string();
@@ -880,7 +1000,7 @@ impl Writer<'_> {
     /// for the page's ℕ, which starts at 1, one above 0. None where the term
     /// counts no set.
     pub fn count_in_system(&self, x: &Node, set: &Node) -> Option<Route<Printed>> {
-        if !Writer::counts(x) {
+        if !self.counts(x) {
             return None;
         }
         let count = match self.count_term(x) {

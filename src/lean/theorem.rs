@@ -133,10 +133,27 @@ fn held_real(rec: &CheckedTheorem, writer: &Writer) -> Vec<String> {
     out
 }
 
+/// The sets a theorem's hypotheses make finite, whose counts its statement
+/// and proof write as natural numbers (`Writer::finite`). A step's line
+/// holds only from that step on, V ⊆ {a, b} late in a proof, and the
+/// conclusion only where the hypotheses do, so neither makes a set finite.
+pub fn finite_in(
+    grammar: &crate::formula::Grammar,
+    thm: &Theorem,
+    rec: &CheckedTheorem,
+) -> std::collections::BTreeSet<String> {
+    let hypotheses: Vec<Node> = hypothesis_sentences(thm, rec)
+        .into_iter()
+        .flat_map(|(_, said)| said.into_iter().map(|(node, _)| node))
+        .collect();
+    super::sets::finite_sets(grammar, &hypotheses)
+}
+
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.floor = floor_of(rec);
     writer.reals = held_real(rec, &writer);
+    writer.finite = finite_in(&sources.checked.grammar, thm, rec);
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -973,6 +990,7 @@ pub fn theorem(
     };
     proof.writer.floor = floor_of(rec);
     proof.writer.reals = held_real(rec, &proof.writer);
+    proof.writer.finite = finite_in(&sources.checked.grammar, thm, rec);
     let Statement {
         binders,
         conclusion,
@@ -2470,7 +2488,7 @@ impl<'a> Proof<'a> {
         // the checker reads it.
         if just.values.is_empty() {
             if let Some(read) = self.read_at_claim(part, node) {
-                return Route::Built(close(node, &read.proof));
+                return Route::Built(close(&self.writer, node, &read.proof));
             }
         }
         let (line, name) = (&part.node, &part.proof);
@@ -2585,7 +2603,7 @@ impl<'a> Proof<'a> {
         }
         let term = format!("({})", args.join(" "));
         if to_nat.is_empty() {
-            return Route::Built(close(node, &term));
+            return Route::Built(close(&self.writer, node, &term));
         }
         let rewrites: Vec<String> = to_nat
             .iter()
@@ -3167,7 +3185,7 @@ impl<'a> Proof<'a> {
             .iter()
             .any(|t| writer.members_of(t).is_some() || writer.member_kind(t).is_some());
         // A chain of counts, |A| = |∅| = 0, is in ℕ∞ (`sets::count_term`).
-        let of_counts = terms.iter().any(Writer::counts);
+        let of_counts = terms.iter().any(|t| writer.counts(t));
         // From the writer's floor, as the claim it proves is written.
         let mut at = writer.floor;
         let mut printed = Vec::new();
@@ -3391,10 +3409,12 @@ impl<'a> Proof<'a> {
 
     /// The name of the cited line that says an item's hypothesis at the
     /// citation's values, where its Lean text and the hypothesis's are one;
-    /// None where no line does, or the hypothesis does not write.
+    /// None where no line does, or the hypothesis does not write. `asked` is
+    /// the hypothesis as the item states it.
     fn line_saying(
         &self,
         hypothesis: &Node,
+        asked: &str,
         binding: &crate::matching::Binding,
         cited_lines: &[super::algebra::Cited],
         binders: &[Binder],
@@ -3431,6 +3451,13 @@ impl<'a> Proof<'a> {
             &self.sources.checked.grammar.binders(),
         );
         let wanted = self.writer.formula(&at).built()?.text;
+        // An item that counts a set in ℕ∞, |X| = 0 of card-zero, given a
+        // set this proof counts as a natural number: the line says
+        // `A.ncard`, the item asks `X.encard`, and the set tactics take
+        // the one to the other.
+        if asked.contains(".encard") && wanted.contains(".ncard") {
+            return None;
+        }
         cited_lines
             .iter()
             .find(|c| {
@@ -3442,10 +3469,6 @@ impl<'a> Proof<'a> {
             .map(|c| c.proof.clone())
     }
 
-    /// The Lean term an item's sentence is at a citation: the theorem with
-    /// each letter given its value, and each hypothesis given by the line
-    /// cited that says it as Lean writes both, or else left to
-    /// `parley_side`.
     /// The type each of an item's type variables is taken at where a
     /// citation gives its things numbers, x ∈ {u, w} cited of 1 and 2: the
     /// least that holds every number given them. From ℕ: a set of naturals
@@ -3528,6 +3551,10 @@ impl<'a> Proof<'a> {
         given
     }
 
+    /// The Lean term an item's sentence is at a citation: the theorem with
+    /// each letter given its value, and each hypothesis given by the line
+    /// cited that says it as Lean writes both, or else left to
+    /// `parley_side`.
     fn instance(
         &self,
         sentence: &Sentence,
@@ -3907,9 +3934,12 @@ impl<'a> Proof<'a> {
                 // A hypothesis a cited line says, as Lean writes both: the
                 // line by its name.
                 Binder::Fact {
-                    line: Some(line), ..
+                    line: Some(line),
+                    says,
+                    ..
                 } => match self.line_saying(
                     line,
+                    says,
                     binding,
                     cited_lines,
                     &sentence.binders,
@@ -4074,9 +4104,9 @@ impl<'a> Proof<'a> {
         let closed = match self.writer.integer_power_witness(node) {
             Some(witness) => format!(
                 "by first | exact {witness} | exact ({})",
-                close(node, &term)
+                close(&self.writer, node, &term)
             ),
-            None => close(node, &term),
+            None => close(&self.writer, node, &term),
         };
         Route::Built(with_haves(&written_out(&defines), &closed))
     }
@@ -5365,13 +5395,13 @@ fn as_tactic(proof: &str) -> String {
     }
 }
 
-fn close(claim: &Node, term: &str) -> String {
+fn close(writer: &Writer, claim: &Node, term: &str) -> String {
     // An equation or order between sets, members or counts is closed as
     // any other claim: the closers for numbers work in a field or a ring.
     let of_numbers = claim
         .children
         .iter()
-        .all(|c| c.sort.is("number") && !Writer::counts(c));
+        .all(|c| c.sort.is("number") && !writer.counts(c));
     match claim.notation() {
         // An instance whose casts sit otherwise than the claim's, ↑(0 : ℕ)
         // for 0, is taken with them pushed in, and one whose equation the

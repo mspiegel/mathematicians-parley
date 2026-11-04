@@ -358,8 +358,15 @@ fn covered(
                 .to_string(),
         };
     }
-    // A count of a set is in ℕ∞ (`sets::count_term`), whose subtraction
-    // stops at 0 where the page's does not: |A| − |B| is not written.
+    // A count of a set no line says is finite is in ℕ∞ (`sets::count_term`),
+    // whose subtraction stops at 0 where the page's does not: |A| − |B| is
+    // not written of such sets.
+    // The theorem counts as natural numbers the sets its hypotheses make
+    // finite (`theorem::finite_in`).
+    let finite = super::theorem::finite_in(&checked.grammar, thm, rec);
+    let extended = |n: &crate::formula::Node| {
+        super::sets::counts_in_extended(&checked.grammar, &finite, n)
+    };
     let count_subtracted =
         rec.page
             .entries()
@@ -368,7 +375,7 @@ fn covered(
                 let arithmetic =
                     matches!(&*n.notation_name(), "additive" | "multiplicative");
                 let plus_or_times = matches!(&*n.spelling().text(), "+" | "·");
-                arithmetic && !plus_or_times && super::expr::Writer::counts(&n)
+                arithmetic && !plus_or_times && extended(&n)
             });
     if count_subtracted {
         return Covered::Out {
@@ -377,14 +384,14 @@ fn covered(
         };
     }
     // A citation that gives a count for a letter of a number system, m :=
-    // |A| for m ∈ ℕ₀: the count is in ℕ∞, the letter in Lean's ℕ, and they
-    // meet only through A being finite, which the writer does not carry.
+    // |A| for m ∈ ℕ₀, of a set no line says is finite: the count is in ℕ∞,
+    // the letter in Lean's ℕ.
     let count_given = rec
         .cited
         .iter()
         .flatten()
         .chain(rec.cited_requires.values())
-        .any(|c| c.binding.values().any(super::expr::Writer::counts));
+        .any(|c| c.binding.values().any(extended));
     if count_given {
         return Covered::Out {
             reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"

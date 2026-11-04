@@ -750,6 +750,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .chain(std::iter::once(says))
                 .collect();
             let things = ThingTypes::read(&lines, sorts);
+            // A set the item's hypotheses say is finite is counted as a
+            // natural number; one only its conclusion says is, X of "if
+            // |X| = m then X is finite", is not, as the count comes first.
+            w.finite = super::sets::finite_sets(
+                writer.grammar,
+                group.wants.iter().map(|(_, n)| n),
+            );
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {

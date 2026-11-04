@@ -33,6 +33,25 @@ theorem parley_forall_nonneg (P : ℤ → Prop) : (∀ s : ℤ, 0 ≤ s → P s)
 theorem parley_exists_nonneg (P : ℤ → Prop) : (∃ s : ℤ, 0 ≤ s ∧ P s) ↔ ∃ n : ℕ, P n :=
   ⟨fun ⟨s, hs, h⟩ => by lift s to ℕ using hs; exact ⟨s, h⟩, fun ⟨n, h⟩ => ⟨n, by positivity, h⟩⟩
 
+/-- A set's count in ℕ∞, where the set is finite, is its count as a
+natural number: what an item that counts in ℕ∞ says of a set a proof
+counts as a natural number (`sets::count_term`). -/
+theorem parley_encard_of_finite {α : Type*} {s : Set α} (h : s.Finite) :
+    s.encard = (s.ncard : ℕ∞) := h.cast_ncard_eq.symm
+
+/-- That a set is finite: a line says so; it is ∅ or listed; it is made by
+∖, ∩ or ∪ from finite sets; or a line puts it inside a finite set. -/
+syntax "parley_finite" : tactic
+macro_rules
+  | `(tactic| parley_finite) => `(tactic| first
+    | assumption
+    | exact Set.toFinite _
+    | (apply Set.Finite.sdiff; parley_finite)
+    | (apply Set.Finite.inter_of_left; parley_finite)
+    | (apply Set.Finite.inter_of_right; parley_finite)
+    | (apply Set.Finite.union <;> parley_finite)
+    | (refine Set.Finite.subset ?_ (by assumption); parley_finite))
+
 /-- `parley_side`, then the ways of sets. -/
 macro "parley_set_side" : tactic =>
   `(tactic| first
@@ -48,6 +67,12 @@ macro "parley_set_side" : tactic =>
        and_intros <;> first | assumption | omega | (exact ⟨_, ‹_›⟩) | (exact ⟨_, _, ‹_›⟩) | (exact ⟨_, _, rfl⟩))
     -- There is some member of a set, of a member a line names.
     | (exact ⟨_, ‹_ ∈ _›, trivial⟩)
+    -- A count in ℕ∞ an item asks or gives, of a set the proof counts as a
+    -- natural number, |A| = 0 of card-zero from (A.ncard : ℤ) = 0: each
+    -- count of a finite set as that number, then the casts taken off.
+    | (simp (disch := parley_finite) only [parley_encard_of_finite] at *;
+       (try norm_cast at *);
+       first | done | assumption | omega | (exact_mod_cast ‹_›))
     | parley_side
     -- Two finite sets of numbers equal, {x ∈ {−3, −2, 0, 5} : x is odd} =
     -- {−3, 5}: member by member, each case decided.

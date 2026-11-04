@@ -156,7 +156,7 @@ namespace LeanBridges.Counting
 
 /-- `mun:stdlib/counting/card-singleton`. -/
 theorem card_singleton {α : Type*} (x : α) :
-    ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
+    (({x} : Set α).ncard : ℤ) = 1 :=
   by simp
 
 /-- `mun:stdlib/counting/card-disjoint-union`. -/
@@ -166,13 +166,8 @@ theorem card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n 
 
 /-- `mun:stdlib/counting/card-empty`. -/
 theorem card_empty {α : Type*} :
-    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) :=
+    ((∅ : Set α).ncard : ℤ) = 0 :=
   by simp
-
-/-- `mun:stdlib/counting/card-nat0`. -/
-theorem card_nat0 {α : Type*} (X : Set α) (h1 : X.Finite) :
-    ∃ m : ℕ, (m : ℕ∞) = X.encard :=
-  ⟨X.ncard, h1.cast_ncard_eq⟩
 
 /-- `mun:stdlib/counting/card-at-least-one`. -/
 theorem card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
@@ -181,13 +176,13 @@ theorem card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
 
 /-- `mun:stdlib/counting/card-pair`. -/
 theorem card_pair {α : Type*} (u : α) (w : α) :
-    ({u, w} : Set α).encard ≤ ((2 : ℕ) : ℕ∞) :=
-  by rcases eq_or_ne u w with h | h <;> first | (subst h; simp; done) | (rw [Set.encard_pair h]; rfl)
+    (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
+  by have := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at this; omega
 
 /-- `mun:stdlib/counting/card-pair-distinct`. -/
 theorem card_pair_distinct {α : Type*} (u : α) (w : α) :
-    ¬ u = w ↔ ({u, w} : Set α).encard = ((2 : ℕ) : ℕ∞) :=
-  ⟨fun h => by simpa using Set.encard_pair h, fun h hu => by subst hu; simp at h⟩
+    ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
+  ⟨fun h => by rw [Set.ncard_pair h]; rfl, fun h hu => by subst hu; simp at h⟩
 
 /-- `mun:stdlib/counting/card-two`. -/
 theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :

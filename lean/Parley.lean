@@ -503,8 +503,14 @@ public import Parley.Proofs.Setmm.ShiftByRational.ShiftByRational
 public import Parley.Proofs.Setmm.SineOfDouble2.SineOfDouble
 public import Parley.Proofs.Setmm.SineOfDouble.SineOfDouble
 public import Parley.Proofs.Setmm.SizeAtLeastOne.SizeAtLeastOne
+public import Parley.Proofs.Setmm.SizeIsNatural.SizeIsNatural
 public import Parley.Proofs.Setmm.SizeOfDifference.PartAndRest
+public import Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference
 public import Parley.Proofs.Setmm.SizeOfUnion.UnionSplit
+public import Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion
+public import Parley.Proofs.Setmm.SizePositive.SizePositive
+public import Parley.Proofs.Setmm.SizeWithoutAPair.SizeWithoutAPair
+public import Parley.Proofs.Setmm.SizeZeroOneOrMore.SizeZeroOneOrMore
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialTwo
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialThree
 public import Parley.Proofs.Setmm.SmallFactorials.FactorialFour
@@ -692,6 +698,7 @@ public import Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.Inequaliti
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLineOfSeveralSentences
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences
 public import Parley.Tests.Elaborator.AnAtomNotSaidReal.AnOrderOfTwoRoots
+public import Parley.Tests.Elaborator.AnEquationThePairsMakeTrue.AnEquationThePairsMakeTrue
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.OneWitnessFromAnAnd
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquation
@@ -700,6 +707,7 @@ public import Parley.Tests.Elaborator.AnExhibitShownByATrivialLine.AnExhibitShow
 public import Parley.Tests.Elaborator.AnIdentityALinkDrops.AnIdentityALinkDrops
 public import Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubstitutionMakesAtAValue
 public import Parley.Tests.Elaborator.AnIdentityASubstitutionMakes.AnIdentityASubstitutionMakesAtACoefficient
+public import Parley.Tests.Elaborator.AnIdentityOnARequiredNumber.AnIdentityOnARequiredNumber
 public import Parley.Tests.Elaborator.AnIfAnItemConcludes.AnIfByModusPonens
 public import Parley.Tests.Elaborator.AnIfAnItemConcludes.AnIfByABiconditional
 public import Parley.Tests.Elaborator.AnIffOfThisCorpus.ZeroDividesRestated
@@ -1198,6 +1206,7 @@ public import Parley.Tests.Stdlib.Numbers.ProductPositive
 public import Parley.Tests.Stdlib.Numbers.QuotientNonneg
 public import Parley.Tests.Stdlib.Numbers.LeCases
 public import Parley.Tests.Stdlib.Numbers.Rational
+public import Parley.Tests.Stdlib.Numbers.NatReal
 public import Parley.Tests.Stdlib.Numbers.Nat0Real
 public import Parley.Tests.Stdlib.Numbers.Nat0Int
 public import Parley.Tests.Stdlib.Numbers.MaxReal

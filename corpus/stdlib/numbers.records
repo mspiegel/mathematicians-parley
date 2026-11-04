@@ -123,7 +123,7 @@ mundane theorem nat-real
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℝ as well
               (`SYNTAX.md`, what a membership line says), by this lemma
               directly rather than through ℤ.
-  lean-proof  not yet implemented
+  lean-proof  trivial
 
 mundane theorem nat0-real
   let m ∈ ℕ₀                                                          (H1)

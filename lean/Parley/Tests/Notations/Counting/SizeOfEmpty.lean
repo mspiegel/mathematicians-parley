@@ -1,5 +1,6 @@
 module
 
+public import PowerTactics
 public import SetTactics
 public import Tactics
 public import Parley.Items.Stdlib.Counting
@@ -11,9 +12,9 @@ public section
 namespace Parley.Tests.Notations.Counting.SizeOfEmpty
 
 theorem size_of_empty {α : Type*} :
-    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) := by
+    ((∅ : Set α).ncard : ℤ) = 0 := by
   -- 1. mun:card-empty
-  have s1 : (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) := by first | exact Parley.Items.Stdlib.Counting.mun_card_empty | exact (Parley.Items.Stdlib.Counting.mun_card_empty).symm | simpa using Parley.Items.Stdlib.Counting.mun_card_empty | exact_mod_cast Parley.Items.Stdlib.Counting.mun_card_empty | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; parley_set_side)
+  have s1 : ((∅ : Set α).ncard : ℤ) = 0 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Counting.mun_card_empty | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Counting.mun_card_empty | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_empty).symm | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; parley_int_power h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; parley_set_side)
   all_goals exact s1
 
 end Parley.Tests.Notations.Counting.SizeOfEmpty

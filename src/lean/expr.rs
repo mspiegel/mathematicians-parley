@@ -235,6 +235,10 @@ pub struct Writer<'a> {
     /// Terms the theorem puts in a hole of type ℝ, A/B of ⌊A/B⌋, as the
     /// page prints them: each is computed in ℝ wherever it is written.
     pub reals: Vec<String>,
+    /// The sets a line says are finite, `A is finite`, as the page prints
+    /// them: a count of one is a natural number, `A.ncard`, and of any
+    /// other set in ℕ∞ (`sets::count_term`).
+    pub finite: std::collections::BTreeSet<String>,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -318,6 +322,7 @@ impl<'a> Writer<'a> {
             domains: IndexMap::new(),
             floor: Num::Int,
             reals: Vec::new(),
+            finite: std::collections::BTreeSet::new(),
         }
     }
 
@@ -331,6 +336,7 @@ impl<'a> Writer<'a> {
             domains: self.domains.clone(),
             floor: self.floor,
             reals: self.reals.clone(),
+            finite: self.finite.clone(),
         }
     }
 
@@ -568,7 +574,7 @@ impl Writer<'_> {
     pub fn is_number(&self, node: &Node) -> bool {
         // A count of a set is a number of ℕ∞, which the writer's number
         // types do not hold (`sets::count_term`).
-        if Writer::counts(node) {
+        if self.counts(node) {
             return false;
         }
         node.sort.is("number")
@@ -608,6 +614,10 @@ impl Writer<'_> {
         // A term a line says is an integer is the integer it gives.
         if let Some(s) = self.said_integer(node) {
             return Route::Built(s.ty);
+        }
+        // A count of a finite set is a natural number, computed in ℤ.
+        if let Some(count) = self.finite_count(node) {
+            return count.map(|_| Num::Int);
         }
         // A power to an exponent that is no natural number is taken in a
         // field, where Lean's integer power is what the page means.
@@ -843,6 +853,9 @@ impl Writer<'_> {
     /// built by `+`, `·` and powers from ℕ letters, numerals and values in
     /// ℕ. Subtraction and division are not.
     pub fn natural(&self, node: &Node) -> bool {
+        if self.finite_count(node).is_some() {
+            return true;
+        }
         match node.notation() {
             NAME => matches!(
                 self.letters.get(node.text.as_str()),
@@ -1099,6 +1112,12 @@ impl Writer<'_> {
         if let Some(s) = self.said_integer(node) {
             let value = Printed::atom(format!("(Classical.choose {})", s.proof));
             return self.raise(value, s.ty, at);
+        }
+        if let Some(count) = self.finite_count(node) {
+            return match count {
+                Route::Built(c) => self.raise(c, Num::Nat, at),
+                Route::Declined(d) => Route::Declined(d),
+            };
         }
         if at == Num::Nat && !self.natural(node) {
             return Route::no(format!(
@@ -1530,7 +1549,7 @@ impl Writer<'_> {
     /// at least: the type of the lines it is reached from.
     pub fn closed_formula(&self, node: &Node, floor: Num) -> Route<Printed> {
         // A count, |∅| = 0, is in ℕ∞ whatever the lines around it.
-        if Writer::counts(node) {
+        if self.counts(node) {
             return self.formula(node);
         }
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {

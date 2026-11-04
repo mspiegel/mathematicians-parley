@@ -247,7 +247,7 @@ mundane theorem card-nat0
   assume X is finite                                                  (H1)
   then        |X| ∈ ℕ₀
   metamath-proof hashcl
-  lean-proof  lean-bridges/counting/card-nat0
+  lean-proof  Int.natCast_nonneg _
 
 mundane theorem card-finite
   let X be a set                                                      (H1)

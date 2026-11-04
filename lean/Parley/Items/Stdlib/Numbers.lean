@@ -65,6 +65,10 @@ theorem mun_nat0_successor (k : ℕ) :
     0 < (k : ℤ) + 1 :=
   LeanBridges.Numbers.nat0_successor k
 
+theorem mun_nat_real {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (m : ℕ) (h1 : 0 < m) :
+    True :=
+  trivial
+
 theorem mun_nat0_real {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (m : ℕ) :
     True :=
   trivial
