@@ -65,7 +65,10 @@ Lean's ℕ starts at 0 where the page's starts at 1.
 
 - A letter keeps its own type. `let n ∈ ℕ` is `(n : ℕ) (H1 : 0 < n)`;
   `let n ∈ ℕ₀` is `(n : ℕ)`; `let a ∈ ℤ` is `(a : ℤ)`, and so for ℚ, ℝ, ℂ;
-  `let k ∈ {1, …, n}` is `(k : ℤ) (H1 : k ∈ Finset.Icc 1 n)`.
+  `let k ∈ {1, …, n}` is `(k : ℤ) (H1 : k ∈ Finset.Icc 1 n)`. A letter a
+  library item puts in a range without letting it, the k of `range`'s "k ∈
+  {1, …, n} ↔ k ∈ ℕ and k ≤ n", is `(k : ℤ)` too: of any other k both sides
+  are false.
 - Each formula is computed in the least of ℤ, ℚ, ℝ and ℂ that holds every
   letter and operation in it, never in ℕ. The two sides of a relation share
   one type, and a narrower letter is cast up. `7 divides 4a` is `7 ∣ 4 * a`;
