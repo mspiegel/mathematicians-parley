@@ -104,10 +104,13 @@ them, `{2n : n ∈ ℤ}` a `Set ℤ`, and ℚ among the reals is
 between sets of numbers `(f : ℝ → ℝ)` with the same. One-to-one is
 `Set.InjOn f A` and onto `Set.SurjOn f A B`. A map's domain is the set its line
 gives it, or all of its type where it is given between number systems other
-than ℕ; its image and preimage are taken within that domain, `f '' (A ∩ Y)`
+than ℕ and ℕ₀; its image and preimage are taken within that domain, `f '' (A ∩ Y)`
 and `A ∩ f ⁻¹' Z`, as set.mm takes them, since Lean's `f` is total. f⁻¹(y) is
 the bridges' inverse on the domain. f is a function on A is `True` of a Lean
-function of A's type.
+function of A's type. The page's ℕ and ℕ₀, standing as a set, are the integers
+above and from 0, `{n : ℤ | 0 < n}` and `{n : ℤ | 0 ≤ n}`, so that a map from
+them into ℤ, or a set of them an integer is said to be in, has one type in and
+out; a letter of ℕ stays a natural number, cast up where it meets them.
 
 A count is `Set.encard`, in ℕ∞; a count subtracted, or given for a letter of
 ℕ, is not written. A property, `let P be a property of the elements of X`, is
