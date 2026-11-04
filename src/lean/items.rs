@@ -260,8 +260,8 @@ fn general_kind(
 /// A letter of an item no line introduces, the x of "x ∈ ℚ ↔ …".
 pub struct FreeLetter {
     pub name: String,
-    /// What it is a number of: ℂ, set.mm's widest, or ℝ where the
-    /// statement orders it, since ℂ has no order.
+    /// What it is a number of: ℂ, set.mm's widest; ℝ where the statement
+    /// orders it, since ℂ has no order; or ℤ where it puts it in a range.
     pub num: Num,
     /// Whether a notation reads it at ℝ itself, "x is irrational", which
     /// holds it there.
@@ -293,6 +293,11 @@ fn free_letters(
         .flat_map(|n| n.walk())
         .filter(|n| n.notation() == crate::notations::ORDER)
         .flat_map(|n| n.names())
+        .collect();
+    let in_range: std::collections::BTreeSet<String> = stated
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter_map(|n| super::statement::range_letter(&n))
         .collect();
     let mut fixed = std::collections::BTreeSet::new();
     for n in stated.iter().flat_map(|n| n.walk()) {
@@ -330,8 +335,18 @@ fn free_letters(
         })
         .map(|name| {
             let real = ordered.contains(&name) || fixed.contains(&name);
+            // A member of a range the item names, the k of "k ∈ {1, …, n}
+            // ↔ k ∈ ℕ and k ≤ n", is an integer, as a range letter is in a
+            // theorem: of any other k both sides are false.
+            let num = if in_range.contains(&name) {
+                Num::Int
+            } else if real {
+                Num::Real
+            } else {
+                Num::Complex
+            };
             FreeLetter {
-                num: if real { Num::Real } else { Num::Complex },
+                num,
                 fixed: fixed.contains(&name),
                 name,
             }

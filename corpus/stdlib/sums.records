@@ -269,13 +269,13 @@ definition range
   let n ∈ ℤ                                                           (H1)
   then        k ∈ {1, …, n} ↔ k ∈ ℕ and k ≤ n
   metamath-proof fznn
-  lean-proof  not yet implemented
+  lean-proof  by rw [Finset.mem_Icc]; omega
 
 definition range0
   let n ∈ ℕ₀                                                          (H1)
   then        k ∈ {0, …, n} ↔ k ∈ ℕ₀ and k ≤ n
   metamath-proof fznn0
-  lean-proof  not yet implemented
+  lean-proof  Finset.mem_Icc
 
 mundane theorem range-single
   let m ∈ ℤ                                                           (H1)

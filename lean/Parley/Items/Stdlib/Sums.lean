@@ -69,6 +69,14 @@ theorem mun_range_nat0 (n : ℤ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) n) :
     0 ≤ k :=
   (Finset.mem_Icc.mp h2).1
 
+theorem def_range (k : ℤ) (n : ℤ) :
+    k ∈ Finset.Icc (1 : ℤ) n ↔ 0 < k ∧ k ≤ n :=
+  by rw [Finset.mem_Icc]; omega
+
+theorem def_range0 (k : ℤ) (n : ℕ) :
+    k ∈ Finset.Icc (0 : ℤ) (n : ℤ) ↔ 0 ≤ k ∧ k ≤ (n : ℤ) :=
+  Finset.mem_Icc
+
 theorem def_range_between (k : ℤ) (a : ℤ) (b : ℤ) :
     k ∈ Finset.Icc a b ↔ a ≤ k ∧ k ≤ b :=
   Finset.mem_Icc

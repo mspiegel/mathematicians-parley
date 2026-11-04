@@ -15,6 +15,7 @@ public import Parley.Items.Stdlib.Sums
 public import Parley.Items.Stdlib.Trigonometry
 public import Parley.Stdlib.Calculus.LimitAtMost
 public import Parley.Stdlib.Calculus.LimitAtLeast
+public import Parley.Stdlib.Calculus.FirstTermsBounded
 public import Parley.Stdlib.Calculus.IncreasingTerms
 public import Parley.Stdlib.Divisibility.LeastCombinationDivides
 public import Parley.Stdlib.Divisibility.CongruentCancel
@@ -35,6 +36,7 @@ public import Parley.Proofs.Hammack.BinetFormula.BinetFormula
 public import Parley.Proofs.Hammack.BinomialDiagonalSumIsFibonacci.BinomialDiagonalSumIsFibonacci
 public import Parley.Proofs.Hammack.BinomialEvenForOddK.EvenTimes
 public import Parley.Proofs.Hammack.BinomialEvenForOddK.OddFactor
+public import Parley.Proofs.Hammack.BinomialEvenForOddK.BinomialEvenForOddK
 public import Parley.Proofs.Hammack.BinomialOfOne.BinomialOfOne
 public import Parley.Proofs.Hammack.BinomialOfThree.BinomialOfThree
 public import Parley.Proofs.Hammack.BinomialOfTwo.BinomialOfTwo
@@ -1084,6 +1086,7 @@ public import Parley.Tests.Notations.Counting.FactorialOfFour
 public import Parley.Tests.Notations.Counting.ChooseFourTwo
 public import Parley.Tests.Notations.Counting.ChooseTwoThree
 public import Parley.Tests.Notations.Counting.SizeOfEmpty
+public import Parley.Tests.Notations.Counting.ZeroNotInOneToThree
 public import Parley.Tests.Notations.Divisibility.ThreeDividesTwelve
 public import Parley.Tests.Notations.Divisibility.FiveDividesZero
 public import Parley.Tests.Notations.Divisibility.TwoDoesNotDivideSeven
@@ -1250,6 +1253,8 @@ public import Parley.Tests.Stdlib.Sets.UnionEmpty
 public import Parley.Tests.Stdlib.Sets.DifferenceSelf
 public import Parley.Tests.Stdlib.Sets.SubsetEmpty
 public import Parley.Tests.Stdlib.Sums.RangeNat0
+public import Parley.Tests.Stdlib.Sums.Range
+public import Parley.Tests.Stdlib.Sums.Range0
 public import Parley.Tests.Stdlib.Sums.RangeBetween
 public import Parley.Tests.Stdlib.Trigonometry.CosComplex
 public import Parley.Tests.Stdlib.Trigonometry.SinComplex
