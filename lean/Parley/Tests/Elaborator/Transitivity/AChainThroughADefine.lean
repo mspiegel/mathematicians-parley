@@ -13,6 +13,7 @@ namespace Parley.Tests.Elaborator.Transitivity.AChainThroughADefine
 theorem a_chain_through_a_define (a : ℝ) (b : ℝ) (c : ℝ) (hH4 : a + 1 ≤ b) (hH5 : b < c) :
     a + 1 < c := by
   set e : ℝ := a + 1 with hD1
+  have hD1_kind : True := by parley_side
   -- 1. transitivity, from D1, H4, H5
   have s1 : e < c := by parley_order
   -- 2. substitute e = a + 1 (D1) into line 1

@@ -41,6 +41,7 @@ mundane theorem polynomial-value
 definition B
   sort        number, number → number
   metamath-builds _1 _2 cbp co
+  lean-builds ℕ, ℂ → ℂ: Polynomial.aeval _2 (Polynomial.bernoulli _1)
   reads       the Bernoulli polynomial
   let n ∈ ℕ₀                                                          (H1)
   let x ∈ ℂ                                                           (H2)
@@ -56,7 +57,7 @@ mundane theorem bernoulli-complex
   let x ∈ ℂ                                                           (H2)
   then        B(n, x) ∈ ℂ
   metamath-proof bpolycl
-  lean-proof  not yet implemented
+  lean-proof  by trivial
 
 theorem bernoulli-difference
   let n ∈ ℕ                                                           (H1)
@@ -65,7 +66,7 @@ theorem bernoulli-difference
   metamath-proof bpolydif
   note        The property the Bernoulli polynomials are made for: a step
               of 1 in x changes B(n, x) by n·x^(n − 1).
-  lean-proof  not yet implemented
+  lean-proof  by have h := congr_arg (Polynomial.aeval x) (Polynomial.bernoulli_comp_one_add_X n); simp only [Polynomial.aeval_comp, map_add, nsmul_eq_mul, map_mul, map_natCast, map_pow, Polynomial.aeval_X, map_one] at h; rw [add_comm x 1, h, (show (n : ℤ) - 1 = ((n - 1 : ℕ) : ℤ) by omega), zpow_natCast]; ring
 
 theorem algebraic-root
   let α ∈ ℂ                                                           (H1)

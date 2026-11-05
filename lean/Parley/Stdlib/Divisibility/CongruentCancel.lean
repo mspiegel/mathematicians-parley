@@ -4,7 +4,6 @@ public import AlgebraTactics
 public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Stdlib.Divisibility.CoprimeDivides
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/
 
@@ -22,7 +21,7 @@ theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℕ) (hH4 : 0 < n) (
     have row1 : (n : ℤ) ∣ (x - y) * c := by parley_subst_at c1 s1
     exact row1
   -- 3. thm:coprime-divides x := x − y, from H6, 2
-  have s3 : (n : ℤ) ∣ x - y := by first | exact (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+  have s3 : (n : ℤ) ∣ x - y := by first | exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := x - y) (c := c) (n := n) (by parley_side) (by parley_side) (by parley_side)); parley_side)
   -- 4. def:congruent-mod a := x, b := y, from 3
   have s4 : x ≡ y [ZMOD (n : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := x) (b := y))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (n : ℤ)) (a := x) (b := y))).mpr (by parley_side); parley_side)
   all_goals exact s4

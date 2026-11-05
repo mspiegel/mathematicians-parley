@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.Sqrt3Irrational.Sqrt3Irrational
 
+set_option maxHeartbeats 400000 in
 theorem sqrt3_irrational :
     Irrational (Real.sqrt (3 : ℝ)) := by
   -- 1. def:sqrt x := 3

@@ -54,7 +54,7 @@ theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : �
     (X \ ({a} : Set α)).encard = ((k : ℕ) : ℕ∞) :=
   by have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h
 
-theorem mun_card_bijection {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (h2 : X.encard = ((m : ℕ) : ℕ∞)) (h3 : ∃ g : α → α, Set.BijOn g X Y) :
+theorem mun_card_bijection {α β : Type*} (X : Set α) (Y : Set β) (m : ℕ) (h2 : X.encard = ((m : ℕ) : ℕ∞)) (h3 : ∃ g : α → β, Set.BijOn g X Y) :
     Y.encard = ((m : ℕ) : ℕ∞) :=
   by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
@@ -146,7 +146,7 @@ theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Fi
     K.Finite :=
   (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
 
-theorem mun_card_equal {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : ∃ g : α → α, Set.BijOn g X Y) :
+theorem mun_card_equal {α β : Type*} (X : Set α) (Y : Set β) (h1 : X.Finite) (h2 : ∃ g : α → β, Set.BijOn g X Y) :
     X.encard = Y.encard :=
   by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]
 

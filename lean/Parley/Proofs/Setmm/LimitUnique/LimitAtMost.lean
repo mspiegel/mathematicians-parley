@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.LimitUnique.LimitAtMost
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds A)) (hH5 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds B)) :
     A ≤ B := by
   -- 1. proof

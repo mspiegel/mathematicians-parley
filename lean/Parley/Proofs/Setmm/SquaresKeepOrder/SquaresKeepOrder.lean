@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SquaresKeepOrder.SquaresKeepOrder
 
+set_option maxHeartbeats 400000 in
 theorem squares_keep_order (a : ℝ) (b : ℝ) (hH3 : 0 ≤ a) (hH4 : a ≤ b) :
     a ^ 2 ≤ b ^ 2 := by
   -- 1. axi:trichotomy x := b − a

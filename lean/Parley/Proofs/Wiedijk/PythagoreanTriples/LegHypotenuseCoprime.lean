@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime
 
+set_option maxHeartbeats 400000 in
 theorem leg_hypotenuse_coprime (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : ℕ) (hH3 : 0 < c) (hH4 : (a : ℤ) ^ 2 + (b : ℤ) ^ 2 = (c : ℤ) ^ 2) (hH5 : (Int.gcd (a : ℤ) (b : ℤ) : ℤ) = 1) :
     (Int.gcd (b : ℤ) (c : ℤ) : ℤ) = 1 := by
   -- 1. def:gcd a := b, b := c

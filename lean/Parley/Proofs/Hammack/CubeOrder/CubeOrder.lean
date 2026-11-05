@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeOrder.CubeOrder
 
+set_option maxHeartbeats 400000 in
 theorem cube_order (x : ℝ) (y : ℝ) (hH3 : x ^ 3 < y ^ 3) :
     x < y := by
   -- the theorem. contradiction

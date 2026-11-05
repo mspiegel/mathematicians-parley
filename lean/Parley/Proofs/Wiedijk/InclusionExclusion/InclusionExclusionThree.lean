@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.InclusionExclusion.InclusionExclusionThree
 
+set_option maxHeartbeats 400000 in
 theorem inclusion_exclusion_three {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A.Finite) (hH5 : B.Finite) (hH6 : C.Finite) :
     (((A ∪ B) ∪ C).ncard : ℤ) = (A.ncard : ℤ) + (B.ncard : ℤ) + (C.ncard : ℤ) - ((A ∩ B).ncard : ℤ) - ((A ∩ C).ncard : ℤ) - ((B ∩ C).ncard : ℤ) + (((A ∩ B) ∩ C).ncard : ℤ) := by
   -- 1. mun:union-finite X := A, Y := B, from H4, H5

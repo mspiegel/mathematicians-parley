@@ -72,6 +72,7 @@ pub const IN_CODE: &[&str] = &[
     "subgroup",
     "coset",
     "polynomials",
+    "functions-from",
     "is-a-polynomial",
     "sum-over",
     "product-over",
@@ -214,14 +215,14 @@ fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool
     })
 }
 
-/// Whether a set's members have a type its sort says, or, for A ∪ B, A ∩ B
-/// or A ∖ B, its parts' sorts say.
+/// Whether a set's members have a type its sort says, or, for A ∪ B, A ∩ B,
+/// A ∖ B or 𝒫A, its parts' sorts say.
 fn sorted_set(s: &crate::formula::Node) -> bool {
     s.sort
         .full()
         .and_then(super::expr::Members::of_set)
         .is_some()
-        || (&*s.notation_name() == "set-operations"
+        || (matches!(&*s.notation_name(), "set-operations" | "powerset")
             && s.children.iter().all(sorted_set))
 }
 
@@ -295,8 +296,28 @@ fn set_line(
         // A group is a type with Mathlib's group on it (`theorem::statement`);
         // a polynomial a function from ℂ to ℂ among set.mm's polynomials.
         Form::Group { .. } | Form::Polynomial(_) => true,
+        // A set of numbers a line joins with a set of numbers, T of {1, …,
+        // i} ∖ T, or puts inside one, D ⊆ ℝ, is a set of that set's type
+        // (`theorem::joined_number_set_type`).
+        Form::Set(name) => among_numbers(&name, rec) || joined_with_numbers(&name, rec),
         _ => false,
     }
+}
+
+/// Whether a line joins the set letter by ∪, ∩ or ∖ with a set of numbers,
+/// T of {1, …, i} ∖ T.
+fn joined_with_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
+    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
+        let [a, b] = n.children.as_slice() else {
+            return false;
+        };
+        let named = |s: &crate::formula::Node| s.is_name() && *s.text == *name;
+        // The other side a set of numbers by its shape, a range or a number
+        // system, not a letter whose own type is still to be found.
+        let numbers = |s: &crate::formula::Node| !s.is_name() && set_of_numbers(s);
+        &*n.notation_name() == "set-operations"
+            && ((named(a) && numbers(b)) || (named(b) && numbers(a)))
+    })
 }
 
 /// Whether what a `let` line asserts is a map between sets with a property,
@@ -468,7 +489,20 @@ fn covered(
                 let arithmetic =
                     matches!(&*n.notation_name(), "additive" | "multiplicative");
                 let plus_or_times = matches!(&*n.spelling().text(), "+" | "·");
+                // An equation of a count alone and a number with no count,
+                // |S| = j, is said as "the count is a natural number that is
+                // j" (`sets::count_equals_number`).
+                let bare = |c: &crate::formula::Node| {
+                    &*c.notation_name() == "cardinality" && extended(c)
+                };
                 let beside = match n.children.as_slice() {
+                    [a, b]
+                        if &*n.notation_name() == "equality"
+                            && ((bare(a) && !extended(b))
+                                || (bare(b) && !extended(a))) =>
+                    {
+                        false
+                    }
                     [a, b] if matches!(&*n.notation_name(), "equality" | "order") => {
                         (extended(a) && differs(b)) || (extended(b) && differs(a))
                     }
@@ -535,7 +569,12 @@ fn covered(
             if matches!(n.notation(), crate::notations::THERE_IS | crate::notations::FOR_ALL)
                 && &*set.notation_name() == "polynomials"
                 && q.is_name());
-        if over_polynomials {
+        // f of "there is f : A → B with …" is the quantifier's own letter.
+        let over_functions = matches!(n.children.as_slice(), [q, set, _]
+            if matches!(n.notation(), crate::notations::THERE_IS | crate::notations::FOR_ALL)
+                && &*set.notation_name() == "functions-from"
+                && q.is_name());
+        if over_polynomials || over_functions {
             own.insert(n.children[0].text.to_string());
         }
     }
@@ -544,6 +583,15 @@ fn covered(
     for line in thm.defines.iter().filter(|d| d.line > thm.conclusion_line) {
         if let Some(name) = defined_function(line, rec) {
             own.insert(name);
+        }
+        // A recursion the proof lets is its function, obtained where it is
+        // let (`theorem::define_recursion`).
+        if let crate::outcome::Route::Built(crate::corpus::DefineParts::Recursion(r)) =
+            crate::corpus::define_parts(&line.text)
+        {
+            if r.domain.trim() == "ℕ₀" {
+                own.extend(r.names.iter().cloned());
+            }
         }
     }
     // A recursion over ℕ₀ the statement lets is its functions, letters of
@@ -599,8 +647,9 @@ fn covered(
             }
             if n.notation() == crate::notations::FUNCTION_TYPE {
                 // Between number systems, between sets of things, a map
-                // `α → α` (`sets`), or between sets of numbers, a function of
-                // the numbers' types with the sets beside it.
+                // `α → α` (`sets`), from things into numbers, `α → ℝ`, or
+                // between sets of numbers, a function of the numbers' types
+                // with the sets beside it.
                 // The sets are the last two parts, after the letter where
                 // the type names one.
                 let sides = n.children.len().checked_sub(2).map(|k| &n.children[k..]);
@@ -610,8 +659,8 @@ fn covered(
                         sorted_set(s)
                             || listed_letters(s)
                             || &*s.notation_name() == "empty-set"
-                    })
-                    || [from, to].iter().all(|s| set_of_numbers(s)));
+                            || set_of_numbers(s)
+                    }));
                 return (!typed).then(|| {
                     "a function type between sets Lean has no type for yet".to_string()
                 });
@@ -627,15 +676,18 @@ fn covered(
         };
     }
     // A letter whose sort Lean has no type for yet: the writer types
-    // numbers only.
+    // numbers only. A letter a binder in the line holds is the binder's,
+    // the s of "for all s ∈ S, s ≤ u" that "u is an upper bound of S"
+    // means, whatever a letter of that name is outside it.
+    let binders = checked.grammar.binders();
     let mut letters: Vec<(String, String)> = rec
         .page
         .entries()
-        .flat_map(|(_, node)| node.walk())
-        .filter(|n| n.is_name() && templates.function(&n.text).is_none())
-        .filter(|n| !own.contains(n.text.as_str()))
+        .flat_map(|(_, node)| crate::matching::free_names(node, &binders))
+        .filter(|n| templates.function(n).is_none())
+        .filter(|n| !own.contains(n.as_str()))
         .filter_map(|n| {
-            let sort = rec.sorts.get(n.text.as_str())?;
+            let sort = rec.sorts.get(n.as_str())?;
             // A group's elements, the group itself and its subgroups take
             // their types from the group line (`theorem::statement`).
             let of_group =
@@ -646,15 +698,15 @@ fn covered(
             // those; a function of numbers is typed through its sets.
             let of_numbers = match sort.full() {
                 Some(crate::formula::Whole::Set(m)) => match &**m {
-                    crate::formula::Whole::Number => among_numbers(&n.text, rec),
+                    crate::formula::Whole::Number => among_numbers(&n, rec),
                     crate::formula::Whole::Set(inner) => {
                         matches!(**inner, crate::formula::Whole::Number)
-                            && defined_parts_of_numbers(&n.text, thm, rec, 0)
+                            && defined_parts_of_numbers(&n, thm, rec, 0)
                     }
                     _ => false,
                 },
                 Some(crate::formula::Whole::Function(_, _)) => {
-                    between_number_sets(&n.text, rec)
+                    between_number_sets(&n, rec)
                 }
                 _ => false,
             };
@@ -662,7 +714,7 @@ fn covered(
                 || super::sets::set_letter_type(sort).is_some()
                 || of_group
                 || of_numbers;
-            (!typed).then(|| (n.text.to_string(), sort.describe()))
+            (!typed).then(|| (n.clone(), sort.describe()))
         })
         .collect();
     letters.sort();

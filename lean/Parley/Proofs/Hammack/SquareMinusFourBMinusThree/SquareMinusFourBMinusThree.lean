@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareMinusFourBMinusThree.SquareMinusFourBMinusThree
 
+set_option maxHeartbeats 400000 in
 theorem square_minus_four_b_minus_three (a : ℤ) (b : ℤ) :
     a ^ 2 - 4 * b - 3 ≠ 0 := by
   -- the theorem. contradiction

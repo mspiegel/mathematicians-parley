@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareLimit.SquareLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     Filter.Tendsto f (nhdsWithin 3 ((Set.univ : Set ℝ) \ {3})) (nhds 7) := by
   -- 1. proof
@@ -26,6 +26,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 7) with hD1
+    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 7)); parley_set_side)
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 7 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/7
@@ -84,7 +85,7 @@ theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 3, L := 7, from 1
   have r106_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
-  have s2 : Filter.Tendsto f (nhdsWithin 3 ((Set.univ : Set ℝ) \ {3})) (nhds 7) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (3 : ℝ)) (L := (7 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (3 : ℝ)) (L := (7 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Filter.Tendsto f (nhdsWithin 3 ((Set.univ : Set ℝ) \ {3})) (nhds 7) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (3 : ℝ)) (L := (7 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Proofs.Hammack.SquareLimit.SquareLimit

@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceInsideALargerSet.DifferenceInsideALargerSet
 
+set_option maxHeartbeats 400000 in
 theorem difference_inside_a_larger_set {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
     A \ B = (C \ B) ∩ A := by
   -- 1. proof

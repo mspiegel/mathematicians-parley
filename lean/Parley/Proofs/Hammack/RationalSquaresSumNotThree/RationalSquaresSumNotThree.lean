@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalSquaresSumNotThree.RationalSquaresSumNotThree
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem rational_squares_sum_not_three :
     ¬ (∃ x : ℚ, ∃ y : ℚ, x ^ 2 + y ^ 2 - 3 = 0) := by
   -- the theorem. contradiction

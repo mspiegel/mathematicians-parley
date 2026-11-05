@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.InfinitelyManyPrimes.PrimeAbove
 
+set_option maxHeartbeats 400000 in
 theorem prime_above (n : ℕ) (hH1 : 0 < n) :
     (∃ p : ℕ, 0 < p ∧ (Nat.Prime p ∧ (p : ℤ) > (n : ℤ))) := by
   -- 1. mun:factorial-nat

@@ -15,7 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareDividesItself.SquareDividesItself
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem square_divides_itself (a : ℤ) (hH2 : a ^ 2 ∣ a) :
     a ∈ ({(-1 : ℤ), (0 : ℤ), (1 : ℤ)} : Set ℤ) := by
   -- 1. obtain k: def:divides d := a², n := a, from H2

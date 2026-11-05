@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.GroupCancellation.InverseReversesProducts
 
+set_option maxHeartbeats 400000 in
 theorem inverse_reverses_products {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : Set G)) (b : G) (hH3 : b ∈ (Set.univ : Set G)) :
     (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
   -- 1. axi:group-closed, from H2, H3

@@ -250,6 +250,23 @@ The last two decisions are about how the tools read the page.
     18: the checker and the build read one page one way. Decision 17 still
     holds of a gap: the gate is red, or `ELABORATION.md` records it.
 
+20. **One strategy for both backends, from everything the pipeline knows.**
+    The Metamath and Lean backends read the page the same way and build
+    the same way wherever their targets allow it. A term is written in one
+    form in each. A property of a term (that it is an integer, a natural
+    number, at least 0, finite) comes from a line of the page or from what
+    the checker or another analysis has established. A backend never infers
+    it for itself. Where the targets differ, a backend may need a fact the
+    other does not: Metamath's elaborator proves 2^(p − 1) ∈ ℕ₀ inline from
+    the requires line p − 1 ∈ ℕ₀, while the Lean writer needs that fact
+    handed to it to put the term where Lean asks for a natural number. The
+    pipeline supplies such a fact once, in the checker's record, as it does
+    the sums the page says are numbers (`said_sums`), rather than the backend
+    re-deriving it. A backend departs from the other's strategy only where
+    its own target forces it, and its document says why. This is decision 19
+    carried to both backends: the build decides nothing about the page of
+    its own, and neither backend does either.
+
 ## First version
 
 Three pieces, with the LLM outside all of them:

@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.WeightedBinomialColumnSum.WeightedBinomialColumnSum
 
+set_option maxHeartbeats 400000 in
 theorem weighted_binomial_column_sum (m : ℕ) (hH1 : 0 < m) (n : ℕ) (hH2 : 0 < n) :
     (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (k * (LeanBridges.Counting.choose ((m : ℤ) + k) (m : ℤ) : ℤ) : ℤ)) = (n : ℤ) * (LeanBridges.Counting.choose ((m : ℤ) + (n : ℤ) + 1) ((m : ℤ) + 1) : ℤ) - (LeanBridges.Counting.choose ((m : ℤ) + (n : ℤ) + 1) ((m : ℤ) + 2) : ℤ) := by
   -- 1. induction on j starting at 0

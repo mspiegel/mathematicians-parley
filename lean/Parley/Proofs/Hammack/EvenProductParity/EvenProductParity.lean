@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.EvenProductParity.EvenProductParity
 
+set_option maxHeartbeats 400000 in
 theorem even_product_parity (x : ℤ) (y : ℤ) (hH3 : Even (x ^ 2 * (y + 3))) :
     (Even x ∨ Odd y) := by
   -- 1. mun:even-or-odd n := x

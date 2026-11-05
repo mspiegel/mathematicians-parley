@@ -13,7 +13,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Quartic.Quartic
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7 : P = b - 3 / 8 * a ^ 2) (Q : ℂ) (hH9 : Q = c - a * b / 2 + a ^ 3 / 8) (R : ℂ) (hH11 : R = d - c * a / 4 + (a ^ 2 * b / 16 - 3 / 256 * a ^ 4)) (U : ℂ) (hH13 : U = P ^ 2 + 12 * R) (V : ℂ) (hH15 : V = -(2 * P ^ 3) - 27 * Q ^ 2 + 72 * (P * R)) (W : ℂ) (hH17 : W ^ 2 = V ^ 2 - 4 * U ^ 3) (T : ℂ) (hH19 : T ^ 3 = (V + W) / 2) (hH20 : T ≠ 0) (M : ℂ) (hH22 : M = -((2 * P + T + U / T) / 3)) (hH23 : M ≠ 0) (S : ℂ) (hH25 : 4 * S ^ 2 = M) (I : ℂ) (hH27 : I ^ 2 = -(S ^ 2) - P / 2 + Q / 4 / S) (J : ℂ) (hH29 : J ^ 2 = -(S ^ 2) - P / 2 - Q / 4 / S) :
     (x ^ 4 + a * x ^ 3 + b * x ^ 2 + c * x + d = 0 ↔ (x = -(a / 4) - S + I ∨ x = -(a / 4) - S - I) ∨ x = -(a / 4) + S + J ∨ x = -(a / 4) + S - J) := by
   -- 1. contradiction
@@ -37,8 +37,11 @@ theorem quartic (a : ℂ) (b : ℂ) (c : ℂ) (d : ℂ) (x : ℂ) (P : ℂ) (hH7
   -- 6. algebra, from 5
   have s6 : M * (P + M) ^ 2 - Q ^ 2 - 4 * R * M = 0 := by linear_combination (norm := parley_norm) ((1 / 27 : ℂ)) * s5
   set y : ℂ := x + a / 4 with hD1
+  have hD1_kind : True := by parley_side
   set u : ℂ := (y + S - I) * (y + S + I) with hD2
+  have hD2_kind : True := by parley_side
   set v : ℂ := (y - S - J) * (y - S + J) with hD3
+  have hD3_kind : True := by parley_side
   -- 7. algebra, from D2, H27, 1
   have s7 : u = y ^ 2 + 2 * S * y + 2 * S ^ 2 + P / 2 - Q / 4 / S := by
     try simp only [hD2] at *

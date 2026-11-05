@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareMinusThree.SquareMinusThree
 
+set_option maxHeartbeats 400000 in
 theorem square_minus_three (n : ℤ) :
     ¬ (4 : ℤ) ∣ n ^ 2 - 3 := by
   -- the theorem. contradiction

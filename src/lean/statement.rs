@@ -51,6 +51,17 @@ impl Binder {
                 general: true,
                 ..
             } => format!("({name} : {} → {})", from.lean(), super::expr::GENERAL),
+            // A map of things into the general type's numbers, `α → K`.
+            Binder::Letter {
+                name,
+                ty: LetterType::Map { from, .. },
+                general: true,
+                ..
+            } => format!(
+                "({name} : {} → {})",
+                super::expr::bracketed(&from.lean()),
+                super::expr::GENERAL
+            ),
             // A set of the general type's numbers, `Set K`.
             Binder::Letter {
                 name,

@@ -33,7 +33,7 @@ mundane theorem sum-divisible
               only of the terms the sum takes, k from 0 to n; asked of every
               k ∈ ℕ₀ it asks more, which is what a proof that fixes an
               arbitrary k has.
-  lean-proof  not yet implemented
+  lean-proof  by apply Finset.dvd_sum; intro k hk; have := h3 k.toNat; rw [Finset.mem_Icc] at hk; rwa [Int.toNat_of_nonneg hk.1] at this
 
 mundane theorem sum-integer
   let n ∈ ℕ₀                                                          (H1)
@@ -96,7 +96,7 @@ theorem sum-telescopes-up
   note        The telescoping sum with each term's differences taken the
               other way, each value less the one before, over ℂ as set.mm
               states it: what is left is the last less the first.
-  lean-proof  not yet implemented
+  lean-proof  by have key : ∀ n : ℕ, ∑ k ∈ Finset.Icc a (a - 1 + n), (t (k + 1) - t k) = t (a - 1 + n + 1) - t a := (by intro n; induction n with | zero => (rw [Nat.cast_zero, add_zero, Finset.Icc_eq_empty_of_lt (by omega)]; simp) | succ n ih => (rw [(show a - 1 + ((n + 1 : ℕ) : ℤ) = (a - 1 + n) + 1 by push_cast; ring), ← Finset.insert_Icc_right_eq_Icc_add_one (by omega), Finset.sum_insert (by simp), ih]; ring)); have := key (b + 1 - a).toNat; rwa [(show a - 1 + ((b + 1 - a).toNat : ℤ) = b by omega)] at this
 
 mundane theorem sum-first
   let n ∈ ℕ₀                                                          (H1)
@@ -416,7 +416,7 @@ mundane theorem sum-empty-set
   then        Σ(k ∈ ∅) t(k) = 0
   metamath-proof sum0
   note        A sum over a set with no members is 0.
-  lean-proof  not yet implemented
+  lean-proof  by exact finsum_mem_empty
 
 mundane theorem sum-of-three
   let a ∈ ℝ                                                           (H1)
@@ -450,7 +450,7 @@ mundane theorem sum-zero-terms
   metamath-proof fsum00
   note        A sum of terms none of them negative is 0 only where every
               term is.
-  lean-proof  not yet implemented
+  lean-proof  by exact (Finset.sum_eq_zero_iff_of_nonneg h3).mp h4
 
 mundane theorem range-finite
   let a ∈ ℤ                                                           (H1)
@@ -492,7 +492,7 @@ mundane theorem product-split
   note        A finite set made of two parts with nothing in common: the
               product over it is the product over one part times the
               product over the other.
-  lean-proof  not yet implemented
+  lean-proof  by subst h2; exact finprod_mem_union (Set.disjoint_iff_inter_eq_empty.mpr h3) (h1.subset Set.subset_union_left) (h1.subset Set.subset_union_right)
 
 mundane theorem product-reindex
   let Y be a set                                                      (H1)
@@ -503,7 +503,7 @@ mundane theorem product-reindex
   metamath-proof metamath-bridges/totient/gfprodf1o
   note        g pairs each member of Y with one of Z, so the factors over
               Z are those over Y, counted through g.
-  lean-proof  not yet implemented
+  lean-proof  by rw [← h2.2.2.image_eq_of_mapsTo h2.1]; exact finprod_mem_image h2.2.1
 
 mundane theorem product-of-products
   let X be a set                                                      (H1)
@@ -514,7 +514,7 @@ mundane theorem product-of-products
   metamath-proof fprodmul
   note        Each factor a product of two: the two kinds of factor may be
               multiplied out separately.
-  lean-proof  not yet implemented
+  lean-proof  by exact finprod_mem_mul_distrib h1
 
 mundane theorem product-of-ones
   let X be a set                                                      (H1)
@@ -530,7 +530,7 @@ mundane theorem product-empty
   metamath-proof prod0
   note        A product over a set with no members is 1, the base of an
               induction over the parts of a finite set.
-  lean-proof  not yet implemented
+  lean-proof  by exact finprod_mem_empty
 
 mundane theorem product-add-one
   let X be a set                                                      (H1)
@@ -543,7 +543,7 @@ mundane theorem product-add-one
   metamath-proof metamath-bridges/induction/gprodaddone
   note        A member added to a finite set multiplies the product by its
               term, the step of an induction over the parts of a finite set.
-  lean-proof  not yet implemented
+  lean-proof  by rw [Set.union_singleton, finprod_mem_insert _ h4 h2, mul_comm]
 
 mundane theorem product-integer-terms
   let X be a set                                                      (H1)
@@ -551,7 +551,7 @@ mundane theorem product-integer-terms
   let t : X → ℤ                                                       (H3)
   then        for all Y ⊆ X, ∏(x ∈ Y) t(x) ∈ ℤ
   metamath-proof stdlib/sums/product-integer-terms
-  lean-proof  not yet implemented
+  lean-proof  by exact fun _ _ => trivial
 
 mundane theorem product-constant
   let X be a set                                                      (H1)
@@ -575,4 +575,4 @@ theorem product-reorder
   let f : X → X be one-to-one                                         (H3)
   then        ∏(x ∈ X) f(x) = ∏(x ∈ X) x
   metamath-proof stdlib/sums/product-reorder
-  lean-proof  not yet implemented
+  lean-proof  by have hb := (h2.injOn_iff_bijOn_of_mapsTo h3.1).mp h3.2; have hi := finprod_mem_image (f := fun y : ℤ => y) h3.2; rw [← hi, hb.image_eq]

@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.MultiplesOfSix.MultiplesOfSix
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem multiples_of_six :
     (fun n : ℤ => 6 * n) '' (Set.univ : Set ℤ) = (fun n : ℤ => 2 * n) '' (Set.univ : Set ℤ) ∩ (fun n : ℤ => 3 * n) '' (Set.univ : Set ℤ) := by
   -- 1. proof

@@ -2,8 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Parley.Items.Stdlib.Calculus
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
-public import Parley.Stdlib.Calculus.ConvergentBounded
 
 /-! Written from proofs/wiedijk/harmonic.proof by parley build lean. -/
 
@@ -20,7 +20,7 @@ theorem harmonic :
     -- 1.1. obtain L from S
     obtain ⟨L, s1_1⟩ := hS
     -- 1.2. obtain B: thm:convergent-bounded, from 1.1
-    obtain ⟨B, s1_2⟩ := (Parley.Stdlib.Calculus.ConvergentBounded.convergent_bounded (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / (k : ℝ) : ℝ))) (L := L) (by parley_side))
+    obtain ⟨B, s1_2⟩ := (Parley.Items.Stdlib.Calculus.thm_convergent_bounded (x := (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (1 / (k : ℝ) : ℝ))) (L := L) (by parley_side))
     -- 1.3. obtain N: thm:harmonic-unbounded M := B
     obtain ⟨N, s1_3a, s1_3b⟩ := (Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded.harmonic_unbounded (M := B))
     try lift N to ℕ using le_of_lt s1_3a

@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeRootInjective.CubeInjective
 
+set_option maxHeartbeats 400000 in
 theorem cube_injective (a : ℝ) (b : ℝ) (hH3 : a ^ 3 = b ^ 3) :
     a = b := by
   -- the theorem. contradiction

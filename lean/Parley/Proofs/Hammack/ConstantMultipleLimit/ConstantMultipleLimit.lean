@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ConstantMultipleLimit.ConstantMultipleLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℕ => (c * a (n : ℤ) : ℝ)) Filter.atTop (nhds (c * L)) := by
   -- 1. mun:abs-nonneg x := c

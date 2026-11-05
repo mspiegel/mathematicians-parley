@@ -233,4 +233,4 @@ mundane theorem bijection-onto
   note        The way back from `bijection`, as far as a proof needs it: a
               pairing of X with Y is a function from X onto Y. That it is
               one-to-one as well is not said, since no proof asks it.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨f, hf⟩ := h1; exact ⟨f, hf.mapsTo, hf.mapsTo, hf.surjOn⟩

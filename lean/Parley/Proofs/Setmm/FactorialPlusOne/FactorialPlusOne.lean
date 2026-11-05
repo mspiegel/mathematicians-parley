@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Setmm.FactorialPlusOne.FactorialPlusOne
 
+set_option maxHeartbeats 400000 in
 theorem factorial_plus_one (M : ℕ) (N : ℕ) (hH2 : 0 < N) (hH3 : 1 < (N : ℤ)) (hH4 : (N : ℤ) ≤ (M : ℤ)) :
     ¬ (∃ m : ℤ, (m : ℚ) = ((LeanBridges.Counting.factorial (M : ℤ) : ℚ) + 1) / (N : ℚ)) := by
   -- the theorem. contradiction

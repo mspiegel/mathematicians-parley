@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.AmGm.AmGmPower
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem am_gm_power (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k ∈ Finset.Icc 1 (n : ℤ) → a k ≥ 0) :
     (∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) / (n : ℝ)) ^ n := by
   -- 1. induction on j starting at 1
@@ -52,8 +52,11 @@ theorem am_gm_power (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
       -- 1.11. instantiate k := j + 1 in H3, from 1.10
       have s1_11 : a ((j : ℤ) + 1) ≥ 0 := by first | linarith [(hH3 ((j : ℤ) + 1) (by parley_side))] | (have h := (hH3 ((j : ℤ) + 1) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (hH3 ((j : ℤ) + 1) (by parley_side)) | (have h := (hH3 ((j : ℤ) + 1) (by parley_side)); parley_side)
       set x : ℝ := a ((j : ℤ) + 1) with hD1
+      have hD1_kind : True := by parley_side
       set A : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) (j : ℤ), (a k : ℝ)) / (j : ℝ) with hD2
+      have hD2_kind : True := by parley_side
       set B : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) ((j : ℤ) + 1), (a k : ℝ)) / ((j : ℝ) + 1) with hD3
+      have hD3_kind : True := by parley_side
       -- 1.12. mun:sum-extended a := 1, n := j, from 1.9
       have r128_1 : (j : ℤ) ≥ 1 := by parley_side
       have s1_12 : (∑ k ∈ Finset.Icc (1 : ℤ) ((j : ℤ) + 1), (a k : ℝ)) = (∑ k ∈ Finset.Icc (1 : ℤ) (j : ℤ), (a k : ℝ)) + a ((j : ℤ) + 1) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Sums.mun_sum_extended (t := a) (a := (1 : ℤ)) (n := (j : ℤ)) (by parley_side)); parley_side)
@@ -84,6 +87,7 @@ theorem am_gm_power (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
         rcases s1_18 with hC3 | hC4
         · skip
           set r : ℝ := B / A with hD4
+          have hD4_kind : True := by parley_side
           -- 1.19.1. mun:quotient-nonneg, from C3, D4, 1.17
           have s1_19_1 : r ≥ 0 := by
             try simp only [hD4] at *

@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ProductOfOneMinusHalves.ProductOfOneMinusHalves
 
+set_option maxHeartbeats 400000 in
 theorem product_of_one_minus_halves (n : ℕ) (hH1 : 0 < n) :
     (∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 - 1 / 2 ^ k : ℚ)) ≥ 1 / 4 + 1 / 2 ^ (n + 1) := by
   -- 1. proof

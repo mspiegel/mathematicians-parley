@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DividesOrNotPrime.DividesOrNotPrime
 
+set_option maxHeartbeats 400000 in
 theorem divides_or_not_prime (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (hH3 : (Int.gcd (a : ℤ) (b : ℤ) : ℤ) > 1) :
     ((b : ℤ) ∣ (a : ℤ) ∨ ¬ Nat.Prime b) := by
   -- the theorem. contradiction

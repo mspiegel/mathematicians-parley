@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 1) :
     Filter.Tendsto f (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 5) := by
   -- 1. proof
@@ -26,6 +26,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 12) with hD1
+    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_set_side)
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 12 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
@@ -85,7 +86,7 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 1, L := 5, from 1
   have r111_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
-  have s2 : Filter.Tendsto f (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Filter.Tendsto f (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 5) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (5 : ℝ)))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit

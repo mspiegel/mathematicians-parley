@@ -60,4 +60,8 @@ theorem mun_iff_from_right (P : Prop) (Q : Prop) (h1 : P ↔ Q) (h2 : Q) :
     P :=
   by (simp_all; done)
 
+theorem mun_iff_not_from_right (P : Prop) (Q : Prop) (h1 : P ↔ Q) (h2 : ¬ Q) :
+    ¬ P :=
+  by exact fun hp => h2 (h1.mp hp)
+
 end Parley.Items.Stdlib.Reasoning

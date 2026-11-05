@@ -15,7 +15,7 @@ namespace Parley.Proofs.Setmm.ImageIsCodomain.ImageIsCodomain
 theorem image_is_codomain {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (hH4 : ∀ y ∈ B, ∃ x ∈ A, y = F x) :
     F '' (A ∩ A) = B := by
   -- 1. mun:image-within f := F
-  have s1 : F '' (A ∩ A) ⊆ B := by first | exact (Parley.Items.Stdlib.Functions.mun_image_within (W := B) (Y := A) (f := F) (X := A) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_image_within (W := B) (Y := A) (f := F) (X := A) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_image_within (W := B) (Y := A) (f := F) (X := A) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_image_within (W := B) (Y := A) (f := F) (X := A) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_image_within (W := B) (Y := A) (f := F) (X := A) (by parley_set_side)); parley_set_side)
+  have s1 : F '' (A ∩ A) ⊆ B := by first | exact (Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_image_within (X := A) (W := B) (Y := A) (f := F) (by parley_set_side)); parley_set_side)
   -- 2. proof
   have s2 : ∀ y ∈ B, y ∈ F '' (A ∩ A) := by
     intro y hK1

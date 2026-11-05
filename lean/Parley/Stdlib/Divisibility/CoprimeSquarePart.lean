@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.CoprimeSquarePart
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem coprime_square_part (s : ℕ) (hH1 : 0 < s) (t : ℕ) (hH2 : 0 < t) (w : ℕ) (hH3 : 0 < w) (hH4 : (Int.gcd (s : ℤ) (t : ℤ) : ℤ) = 1) (hH5 : (w : ℤ) ^ 2 = (s : ℤ) * (t : ℤ)) :
     (s : ℤ) = (Int.gcd (s : ℤ) (w : ℤ) : ℤ) ^ 2 := by
   -- 1. def:gcd a := s, b := w

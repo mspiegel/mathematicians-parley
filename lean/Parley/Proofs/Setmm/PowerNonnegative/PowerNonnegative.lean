@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PowerNonnegative.PowerNonnegative
 
+set_option maxHeartbeats 400000 in
 theorem power_nonnegative (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) :
     0 ≤ a ^ n := by
   -- 1. induction on m starting at 0

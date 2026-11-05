@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.WholeNumberBySize.WholeNumberBySize
 
+set_option maxHeartbeats 400000 in
 theorem whole_number_by_size (A : ℝ) :
     ((∃ m : ℤ, (m : ℝ) = A) ↔ (∃ m : ℤ, (m : ℝ) = abs A)) := by
   -- the theorem. both directions

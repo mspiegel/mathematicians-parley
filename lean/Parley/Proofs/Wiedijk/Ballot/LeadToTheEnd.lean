@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd
 
+set_option maxHeartbeats 400000 in
 theorem lead_to_the_end (m : ℕ) (n : ℕ) (c : Set ℤ) (hH3 : c ⊆ (Set.Icc (1 : ℤ) ((m : ℤ) + (n : ℤ)) : Set ℤ)) (hH4 : (n : ℤ) < (m : ℤ)) (hH5 : c.encard = ((m : ℕ) : ℕ∞)) (hH6 : ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) + (n : ℤ) - 1) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard) :
     (∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) + (n : ℤ)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard) := by
   -- 1. D1, from H6

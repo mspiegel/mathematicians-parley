@@ -100,15 +100,15 @@ theorem mun_arctan_real (x : ℝ) :
     True :=
   by (simp_all; done)
 
-theorem thm_continuous_arctan (g : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : ∀ x ∈ D, g x = Real.arctan x) (hg : Set.MapsTo g D (Set.univ : Set ℝ)) :
+theorem thm_continuous_arctan (g : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : ∀ x ∈ D, g x = Real.arctan x) :
     ContinuousOn g D :=
   Real.continuous_arctan.continuousOn.congr (fun x hx => h2 x hx)
 
-theorem thm_derivative_arctan_1 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (h4 : ∀ x ∈ D, g x = Real.arctan x) (hg : Set.MapsTo g D (Set.univ : Set ℝ)) :
+theorem thm_derivative_arctan_1 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (h4 : ∀ x ∈ D, g x = Real.arctan x) :
     ∀ x ∈ U, D ∈ nhds x ∧ DifferentiableAt ℝ g x :=
   fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (Real.differentiable_arctan x).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))⟩
 
-theorem thm_derivative_arctan_2 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (h4 : ∀ x ∈ D, g x = Real.arctan x) (hg : Set.MapsTo g D (Set.univ : Set ℝ)) :
+theorem thm_derivative_arctan_2 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (h4 : ∀ x ∈ D, g x = Real.arctan x) :
     ∀ x ∈ U, (deriv g) x = 1 / (1 + x ^ 2) :=
   fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy)), Real.deriv_arctan]
 

@@ -175,7 +175,7 @@ theorem prime-divides-power
   then        p divides a^n ↔ p divides a
   metamath-proof prmdvdsexp
   note        Euclid's lemma over the n factors of a^n.
-  lean-proof  not yet implemented
+  lean-proof  by exact ⟨fun h => Int.Prime.dvd_pow' h2 h, fun h => dvd_pow h (Nat.pos_iff_ne_zero.mp h4)⟩
 
 theorem divides-gcd
   let d ∈ ℤ                                                           (H1)
@@ -534,7 +534,7 @@ mundane theorem prime-coprime
 definition σ
   sort        number → number
   metamath-builds c1 _1 csgm co
-  lean-builds ℕ → ℕ: ArithmeticFunction.sigma 1 _1
+  lean-builds ℕ → ℕ: ArithmeticFunction.sigma 1 _1 ; ℤ → ℕ: ArithmeticFunction.sigma 1 _1.toNat
   reads       the sum of the divisors of
   let n ∈ ℕ                                                           (H1)
   then        σ(n) = Σ(d ∈ ℕ : d divides n) d
@@ -576,7 +576,7 @@ theorem sigma-prime-power
   metamath-proof metamath-bridges/divisors/g1sgmppw
   note        The divisors of p^k are 1, p, …, p^k, so their sum is a
               geometric series.
-  lean-proof  not yet implemented
+  lean-proof  by rw [ArithmeticFunction.sigma_one_apply_prime_pow h2]; push_cast; rw [(show Finset.Icc (0 : ℤ) (k : ℤ) = (Finset.range (k + 1)).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ by ext j; simp only [Finset.mem_Icc, Finset.mem_map, Finset.mem_range, Function.Embedding.coeFn_mk]; constructor; (rintro ⟨h0, hk⟩; exact ⟨j.toNat, by omega, by omega⟩); (rintro ⟨i, hi, rfl⟩; omega))]; simp [zpow_natCast]
 
 mundane theorem sigma-nat
   let n ∈ ℕ                                                           (H1)
@@ -592,7 +592,7 @@ mundane theorem sigma-part
   note        A sum of some of the divisors of n is at most the sum of all
               of them: leaving out numbers none of which is below 0 cannot
               make a sum larger.
-  lean-proof  not yet implemented
+  lean-proof  by have hD : Y ⊆ ((n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) : Set ℤ) := (by intro d hd; obtain ⟨hp, hdv⟩ := h2 hd; simp only [Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Nat.mem_divisors]; refine ⟨d.natAbs, ⟨?_, (by omega)⟩, (by omega)⟩; have := Int.natAbs_dvd_natAbs.mpr hdv; simpa using this); have hfin : Y.Finite := (Finset.finite_toSet _).subset hD; rw [finsum_mem_eq_finite_toFinset_sum _ hfin, ArithmeticFunction.sigma_one_apply]; push_cast; have hmap : ∑ x ∈ n.divisors, (x : ℤ) = ∑ x ∈ n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩, x := (by simp [Finset.sum_map]); rw [hmap]; apply Finset.sum_le_sum_of_subset_of_nonneg; (intro d hd; have := hD ((Set.Finite.mem_toFinset hfin).mp hd); simpa using this); (intro d hd _; simp only [Finset.mem_map, Function.Embedding.coeFn_mk] at hd; obtain ⟨i, _, rfl⟩ := hd; positivity)
 
 mundane theorem one-divides
   let n ∈ ℤ                                                           (H1)
@@ -619,7 +619,7 @@ definition φ
   let n ∈ ℕ                                                           (H1)
   then        φ(n) = |{r ∈ {0, …, n − 1} : gcd(r, n) = 1}|
   metamath-proof metamath-bridges/totient/gphival
-  lean-proof  not yet implemented
+  lean-proof  by rw [Nat.totient_eq_card_coprime]; have e : {r ∈ (Set.Icc (0 : ℤ) ((n : ℤ) - 1) : Set ℤ) | (Int.gcd r (n : ℤ) : ℤ) = 1} = (((Finset.range n).filter n.Coprime).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) := (by ext r; simp only [Set.mem_setOf_eq, Set.mem_Icc, Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Finset.mem_filter, Finset.mem_range]; constructor; (rintro ⟨⟨h0, hr⟩, hg⟩; refine ⟨r.toNat, ⟨(by omega), ?_⟩, (by omega)⟩; rw [Nat.coprime_comm, Nat.Coprime, ← Int.gcd_natCast_natCast, Int.toNat_of_nonneg h0]; exact_mod_cast hg); (rintro ⟨i, ⟨hi, hc⟩, rfl⟩; refine ⟨⟨(by omega), (by omega)⟩, ?_⟩; rw [Int.gcd_natCast_natCast, Nat.Coprime.gcd_eq_one (Nat.coprime_comm.mp hc)]; rfl)); rw [e, Set.ncard_coe_finset, Finset.card_map]
 
 mundane theorem phi-natural
   let n ∈ ℕ                                                           (H1)
@@ -765,7 +765,7 @@ mundane theorem coprime-square-part
   assume w² = s·t                                                     (H5)
   then        s = gcd(s, w)²
   metamath-proof stdlib/divisibility/coprime-square-part
-  lean-proof  not yet implemented
+  lean-proof  stdlib/divisibility/coprime-square-part
 
 theorem coprime-square
   let s ∈ ℕ                                                           (H1)
@@ -775,7 +775,7 @@ theorem coprime-square
   assume w² = s·t                                                     (H5)
   then        s = gcd(s, w)². t = gcd(t, w)².
   metamath-proof stdlib/divisibility/coprime-square
-  lean-proof  not yet implemented
+  lean-proof  stdlib/divisibility/coprime-square
 
 mundane theorem prime-power-not-less
   let p ∈ ℕ                                                           (H1)
@@ -814,7 +814,7 @@ theorem prime-powers-unique
   assume 2^a·3^b·5^c = 2^a′·3^b′·5^c′                                 (H7)
   then        a = a′. b = b′. c = c′.
   metamath-proof stdlib/divisibility/prime-powers-unique
-  lean-proof  not yet implemented
+  lean-proof  by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).1; rw [h, (key a' b' c').1] at this; exact_mod_cast this.symm ; by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.1; rw [h, (key a' b' c').2.1] at this; exact_mod_cast this.symm ; by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.2; rw [h, (key a' b' c').2.2] at this; exact_mod_cast this.symm
 
 theorem product-coprime
   let X ⊆ ℤ                                                           (H1)
@@ -834,7 +834,7 @@ theorem product-congruent-termwise
   assume for all x ∈ X, t(x) ≡ u(x) (mod n)                           (H6)
   then        ∏(x ∈ X) t(x) ≡ ∏(x ∈ X) u(x) (mod n)
   metamath-proof stdlib/divisibility/product-congruent-termwise
-  lean-proof  not yet implemented
+  lean-proof  by rw [finprod_mem_eq_finite_toFinset_prod _ h1, finprod_mem_eq_finite_toFinset_prod _ h1]; exact Int.ModEq.prod fun x hx => h3 x ((Set.Finite.mem_toFinset h1).mp hx)
 
 theorem product-congruent
   let X ⊆ ℤ                                                           (H1)

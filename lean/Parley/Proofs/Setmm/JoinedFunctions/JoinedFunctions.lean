@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.JoinedFunctions.JoinedFunctions
 
+set_option maxHeartbeats 400000 in
 theorem joined_functions {α : Type*} (A : Set α) (B : Set α) (C : Set α) (D : Set α) (F : α → α) (hH5 : Set.MapsTo F A C) (G : α → α) (hH6 : Set.MapsTo G B D) (hH7 : A ∩ B = ∅) (H : α → α) (hD1 : ∀ x : α, x ∈ A ∪ B → H x = @ite _ (x ∈ A) (Classical.propDecidable (x ∈ A)) (F x) (G x)) :
     Set.MapsTo H (A ∪ B) (C ∪ D) := by
   -- 1. proof

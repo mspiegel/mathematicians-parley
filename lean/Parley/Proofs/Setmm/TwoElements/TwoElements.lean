@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.TwoElements.TwoElements
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem two_elements {α : Type*} (V : Set α) :
     (V.encard = ((2 : ℕ) : ℕ∞) ↔ (∃ a ∈ V, ∃ b ∈ V, ¬ a = b ∧ V = ({a, b} : Set α))) := by
   -- the theorem. both directions

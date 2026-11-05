@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageEmpty.ImageEmpty
 
+set_option maxHeartbeats 400000 in
 theorem image_empty {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH2 : Set.MapsTo F A Y) (B : Set α) (hH3 : B ⊆ A) :
     (F '' (A ∩ B) = ∅ ↔ B = ∅) := by
   -- the theorem. both directions

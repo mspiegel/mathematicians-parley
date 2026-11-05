@@ -19,6 +19,7 @@ theorem remainder_of_sum (A : ℝ) (B : ℝ) (M : ℝ) (hH4 : M > 0) :
   -- 1. inequalities
   have s1 : M ≠ 0 := by parley_side
   set q : ℤ := ⌊A / M⌋ with hD1
+  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | exact ((Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_integer (x := A / M)); parley_side)
   -- 2. mun:mod-value a := A, b := M, from D1, H4
   have s2 : LeanBridges.Divisibility.mod A M = A - M * (q : ℝ) := by
     try simp only [hD1] at *

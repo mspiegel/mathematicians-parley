@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Hammack.IntersectionThenDifference.IntersectionThenDifference
 
+set_option maxHeartbeats 400000 in
 theorem intersection_then_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     (A ∩ B) \ C = (A \ C) ∩ (B \ C) := by
   -- 1. proof

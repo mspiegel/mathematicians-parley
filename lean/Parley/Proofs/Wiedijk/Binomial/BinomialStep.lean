@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Binomial.BinomialStep
 
-set_option maxHeartbeats 800000 in
+set_option maxHeartbeats 1000000 in
 theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
     (∑ k ∈ Finset.Icc (0 : ℤ) (m : ℤ), ((LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k : ℝ)) * (x + y) = (∑ k ∈ Finset.Icc (0 : ℤ) ((m : ℤ) + 1), ((LeanBridges.Counting.choose ((m : ℤ) + 1) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k : ℝ)) := by
   set t : ℤ → ℝ := fun k => (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k with hD1

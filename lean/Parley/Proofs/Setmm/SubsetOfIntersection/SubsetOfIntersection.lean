@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfIntersection.SubsetOfIntersection
 
+set_option maxHeartbeats 400000 in
 theorem subset_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∧ A ⊆ C ↔ A ⊆ B ∩ C) := by
   -- the theorem. both directions

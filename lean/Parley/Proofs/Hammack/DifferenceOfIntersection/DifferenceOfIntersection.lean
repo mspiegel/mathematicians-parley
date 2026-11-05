@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DifferenceOfIntersection.DifferenceOfIntersection
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A \ (B ∩ C) = A \ B ∪ A \ C := by
   -- 1. proof

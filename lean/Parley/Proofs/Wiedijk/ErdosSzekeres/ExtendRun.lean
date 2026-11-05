@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem extend_run (N : ℕ) (hH1 : 0 < N) (c : ℤ → ℝ) (i : ℤ) (hH3 : i ∈ Finset.Icc (1 : ℤ) (N : ℤ)) (j : ℤ) (hH4 : j ∈ Finset.Icc (1 : ℤ) (N : ℤ)) (T : Set ℤ) (hH5 : T ⊆ (Set.Icc (1 : ℤ) i : Set ℤ)) (hH6 : i ∈ T) (hH7 : ∀ p ∈ T, ∀ q ∈ T, p < q → c p < c q) (hH8 : i < j) (hH9 : c i < c j) :
     (∀ p ∈ T ∪ ({j} : Set ℤ), ∀ q ∈ T ∪ ({j} : Set ℤ), p < q → c p < c q) := by
   -- 1. mun:range-bounds a := 1, b := N, k := i, from H3

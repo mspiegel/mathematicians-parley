@@ -23,6 +23,14 @@ its second stage builds everything afresh in memory and compares it with the
 files in the tree, so an elaborator broken while the built files are left
 alone fails the gate.
 
+The elaborator and the Lean writer use one strategy wherever their targets
+allow it (`GOALS.md` decision 20). Where the Lean writer needs a fact the
+elaborator proves for itself, such as a membership said once, 2^(p − 1) ∈
+ℕ₀ from the requires line p − 1 ∈ ℕ₀, the fact belongs in the checker's
+record. Neither backend re-derives it. A change to how the elaborator reads
+or proves a kind of term is a change to the Lean writer's too, or a
+difference `LEAN.md` explains.
+
 Every theorem in `proofs/` elaborates, and `parley build metamath` writes one artifact
 for each, one for the definitions, one for the library's own proofs, and one
 for each proof worked out by hand: 99 in all. Nothing lists them: the build

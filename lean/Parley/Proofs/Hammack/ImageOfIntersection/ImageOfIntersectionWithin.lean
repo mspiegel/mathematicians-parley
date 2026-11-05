@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfIntersection.ImageOfIntersectionWithin
 
+set_option maxHeartbeats 400000 in
 theorem image_of_intersection_within {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (W : Set α) (hH4 : W ⊆ A) (X : Set α) (hH5 : X ⊆ A) :
     f '' (A ∩ (W ∩ X)) ⊆ f '' (A ∩ W) ∩ f '' (A ∩ X) := by
   -- 1. proof

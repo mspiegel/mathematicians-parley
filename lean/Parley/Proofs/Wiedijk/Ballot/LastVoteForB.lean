@@ -19,7 +19,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ballot.LastVoteForB
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem last_vote_for_b (m : ℕ) (hH1 : 0 < m) (n : ℕ) (hH2 : 0 < n) (hH3 : (n : ℤ) < (m : ℤ)) :
     {c ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) ((m : ℤ) + (n : ℤ)) : Set ℤ) | d.encard = ((m : ℕ) : ℕ∞)} | ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) + (n : ℤ)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard} | ¬ (m : ℤ) + (n : ℤ) ∈ c} = {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) ((m : ℤ) + ((n : ℤ) - 1)) : Set ℤ) | d.encard = ((m : ℕ) : ℕ∞)} | ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) + ((n : ℤ) - 1)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard} := by
   set F : Set (Set ℤ) := {c ∈ {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) ((m : ℤ) + (n : ℤ)) : Set ℤ) | d.encard = ((m : ℕ) : ℕ∞)} | ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) + (n : ℤ)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard} | ¬ (m : ℤ) + (n : ℤ) ∈ c} with hD3

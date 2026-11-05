@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.IntegerAtMostSquare.IntegerAtMostSquare
 
+set_option maxHeartbeats 400000 in
 theorem integer_at_most_square (n : ℤ) :
     n ≤ n ^ 2 := by
   -- 1. axi:trichotomy x := n

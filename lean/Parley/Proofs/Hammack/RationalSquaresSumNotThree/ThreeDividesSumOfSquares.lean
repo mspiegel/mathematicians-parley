@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalSquaresSumNotThree.ThreeDividesSumOfSquares
 
+set_option maxHeartbeats 400000 in
 theorem three_divides_sum_of_squares (p : ℤ) (q : ℤ) (hH3 : (3 : ℤ) ∣ p ^ 2 + q ^ 2) :
     (3 : ℤ) ∣ p := by
   -- the theorem. contradiction

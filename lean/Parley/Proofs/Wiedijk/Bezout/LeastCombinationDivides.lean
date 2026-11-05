@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides
 
+set_option maxHeartbeats 400000 in
 theorem least_combination_divides (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : ℕ) (hH3 : 0 < c) (d : ℕ) (hH4 : 0 < d) (u : ℤ) (v : ℤ) (x₀ : ℤ) (y₀ : ℤ) (hH9 : (c : ℤ) = (a : ℤ) * u + (b : ℤ) * v) (hH10 : (d : ℤ) = (a : ℤ) * x₀ + (b : ℤ) * y₀) (hH11 : ∀ x : ℤ, ∀ y : ℤ, 0 < (a : ℤ) * x + (b : ℤ) * y → (d : ℤ) ≤ (a : ℤ) * x + (b : ℤ) * y) :
     (d : ℤ) ∣ (c : ℤ) := by
   -- 1. obtain q, r: thm:division-algorithm n := c

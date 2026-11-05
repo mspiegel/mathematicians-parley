@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Stdlib.Calculus.LimitAtLeast
 
+set_option maxHeartbeats 400000 in
 theorem limit_at_least (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (B : ℝ) (N : ℕ) (hH5 : 0 < N) (hH6 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → B ≤ x (n : ℤ)) :
     B ≤ L := by
   -- the theorem. contradiction

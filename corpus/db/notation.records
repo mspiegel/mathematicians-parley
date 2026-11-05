@@ -399,9 +399,12 @@ notation square-root
   decided     real arithmetic
   metamath-syntax csqrt
   metamath-builds _1 csqrt cfv
-  lean-builds ℝ → ℝ: Real.sqrt _1
+  lean-builds ℝ → ℝ: Real.sqrt _1 | ℂ → ℂ: _1 ^ (1 / 2 : ℂ)
   note        `real arithmetic` works out the square root of a rational of at
-              least 0; `arithmetic` takes no root.
+              least 0; `arithmetic` takes no root. Lean writes `Real.sqrt` of
+              a number shown at least 0, and of any other the principal root
+              x^(1/2) in ℂ, set.mm's `cxpsqrt`, as `Real.sqrt` of a negative
+              number is 0.
 
 notation root
   pattern     ⁿ√_

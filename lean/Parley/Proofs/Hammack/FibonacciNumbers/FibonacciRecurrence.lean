@@ -16,11 +16,11 @@ theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0
   have s1 : ∀ k : ℕ, F ((k : ℤ) + 2) = F (k : ℤ) + F ((k : ℤ) + 1) := by
     intro k
     -- 1.1. D1
-    have s1_1 : F ((k : ℤ) + 1 + 1) = G ((k : ℤ) + 1) := by have h := (hD1.2.2 (((k : ℤ) + 1 + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s1_1 : F ((k : ℤ) + 1 + 1) = G ((k : ℤ) + 1) := by have h := (hD1.2.2 (((k : ℤ) + 1 + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
     -- 1.2. D1
-    have s1_2 : G ((k : ℤ) + 1) = F (k : ℤ) + G (k : ℤ) := by have h := (hD1.2.2 (((k : ℤ) + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s1_2 : G ((k : ℤ) + 1) = F (k : ℤ) + G (k : ℤ) := by have h := (hD1.2.2 (((k : ℤ) + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
     -- 1.3. D1
-    have s1_3 : F ((k : ℤ) + 1) = G (k : ℤ) := by have h := (hD1.2.2 (((k : ℤ) + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s1_3 : F ((k : ℤ) + 1) = G (k : ℤ) := by have h := (hD1.2.2 (((k : ℤ) + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
     -- 1.4. transitivity, from 1.1, 1.2
     have s1_4 : F ((k : ℤ) + 1 + 1) = F (k : ℤ) + G (k : ℤ) := by parley_side
     -- 1.5. substitute F(k + 1) = G(k) (line 1.3) into line 1.4

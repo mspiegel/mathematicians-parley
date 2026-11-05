@@ -3,7 +3,6 @@ module
 public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
-public import Parley.Stdlib.Divisibility.Bezout
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/
 
@@ -14,7 +13,7 @@ namespace Parley.Stdlib.Divisibility.CoprimeDivides
 theorem coprime_divides (x : ℤ) (c : ℤ) (n : ℕ) (hH3 : 0 < n) (hH4 : (n : ℤ) ∣ x * c) (hH5 : (Int.gcd c (n : ℤ) : ℤ) = 1) :
     (n : ℤ) ∣ x := by
   -- 1. obtain u, v: thm:bezout a := c, b := n
-  obtain ⟨u, v, s1⟩ := (Parley.Stdlib.Divisibility.Bezout.bezout (a := c) (b := n) (by parley_side))
+  obtain ⟨u, v, s1⟩ := (Parley.Items.Stdlib.Divisibility.thm_bezout (a := c) (b := n) (by parley_side))
   -- 2. substitute gcd(c, n) = 1 (H5) into line 1
   have s2 : c * u + (n : ℤ) * v = 1 := by parley_subst_at hH5 s1
   -- 3. mun:divides-self

@@ -2,7 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
-public import Parley.Stdlib.Calculus.ConvergentAbsBounded
+public import Parley.Items.Stdlib.Calculus
 public import Parley.Stdlib.Numbers.AbsBounds
 
 /-! Written from corpus/stdlib/calculus.proof by parley build lean. -/
@@ -14,7 +14,7 @@ namespace Parley.Stdlib.Calculus.ConvergentBounded
 theorem convergent_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     (∃ B : ℝ, ∀ m : ℕ, 0 < m → x (m : ℤ) ≤ B) := by
   -- 1. obtain B: thm:convergent-abs-bounded, from H3
-  obtain ⟨B, s1⟩ := (Parley.Stdlib.Calculus.ConvergentAbsBounded.convergent_abs_bounded (x := x) (L := L) hH3)
+  obtain ⟨B, s1⟩ := (Parley.Items.Stdlib.Calculus.thm_convergent_abs_bounded (x := x) (L := L) hH3)
   -- 2. proof
   have s2 : ∀ m : ℕ, 0 < m → x (m : ℤ) ≤ B := by
     intro m hK1

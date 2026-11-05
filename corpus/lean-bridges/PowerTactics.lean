@@ -33,9 +33,21 @@ macro "parley_int_power " h:ident : tactic =>
           | (linear_combination (norm := parley_norm) ($h:ident); done)
           -- The claim is the equation turned round.
           | (linear_combination (norm := parley_norm) (-$h:ident); done))
+    -- The claim's own natural exponents read as integers too, p^a beside
+    -- p^(a′ − a), so that each power is one integer power on both sides.
+    | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
+        Int.toNat_of_nonneg] at $h:ident ⊢;
+        linear_combination (norm := parley_norm) ($h:ident); done)
     -- Taken to ℚ, the goal with it: the integer brought back from its
     -- `toNat` may stand as `Int.subNatNat n 1`, which is n − 1.
     | (have q := congrArg (fun x : ℤ => (x : ℚ)) $h:ident; push_cast at q;
+        simp (disch := omega) only [Int.subNatNat_eq_coe, ← zpow_natCast, Nat.cast_add,
+        Nat.cast_one, Int.toNat_of_nonneg] at q ⊢;
+        linear_combination (norm := parley_norm) q; done)
+    -- A claim in ℤ whose own exponents are integers' `toNat`s, p^(a′ − a)
+    -- beside p^a: the claim taken to ℚ too, where each such power is the
+    -- integer power it is.
+    | (have q := congrArg (fun x : ℤ => (x : ℚ)) $h:ident; push_cast at q; qify;
         simp (disch := omega) only [Int.subNatNat_eq_coe, ← zpow_natCast, Nat.cast_add,
         Nat.cast_one, Int.toNat_of_nonneg] at q ⊢;
         linear_combination (norm := parley_norm) q; done))

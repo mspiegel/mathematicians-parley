@@ -55,7 +55,7 @@ theorem product_single {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : �
   by simp
 
 /-- `mun:stdlib/sums/product-extended`. -/
-theorem product_extended {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (t : ℤ → K) (a : ℤ) (n : ℤ) (h3 : a ≤ n) :
+theorem product_extended {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (a : ℤ) (n : ℤ) (h3 : a ≤ n) :
     (∏ k ∈ Finset.Icc a (n + 1), (t k : K)) = (∏ k ∈ Finset.Icc a n, (t k : K)) * t (n + 1) :=
   by rw [show Finset.Icc a (n + 1) = insert (n + 1) (Finset.Icc a n) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega, Finset.prod_insert (by simp), mul_comm]
 
@@ -65,12 +65,12 @@ theorem range_difference (a : ℤ) (n : ℤ) (k : ℤ) (h3 : k ∈ Finset.Icc a 
   by have := Finset.mem_Icc.mp h3; omega
 
 /-- `mun:stdlib/sums/sum-split`. -/
-theorem sum_split {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (t : ℤ → K) (a : ℤ) (b : ℤ) (c : ℤ) (h4 : a ≤ b + 1) (h5 : b ≤ c) :
+theorem sum_split {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (a : ℤ) (b : ℤ) (c : ℤ) (h4 : a ≤ b + 1) (h5 : b ≤ c) :
     (∑ k ∈ Finset.Icc a c, (t k : K)) = (∑ k ∈ Finset.Icc a b, (t k : K)) + (∑ k ∈ Finset.Icc (b + 1) c, (t k : K)) :=
   by rw [← Finset.sum_union (Finset.disjoint_left.mpr fun x hx hx' => by simp only [Finset.mem_Icc] at hx hx'; omega)]; congr 1; ext x; simp only [Finset.mem_Icc, Finset.mem_union]; omega
 
 /-- `mun:stdlib/sums/sum-constant`. -/
-theorem sum_constant {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : ℤ) (b : ℤ) (h3 : a ≤ b) (c : K) :
+theorem sum_constant {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a : ℤ) (b : ℤ) (h3 : a ≤ b) (c : K) :
     (∑ k ∈ Finset.Icc a b, (c : K)) = ((b : K) - (a : K) + 1) * c :=
   by rw [Finset.sum_const, Int.card_Icc, nsmul_eq_mul]; congr 1; have h : ((b + 1 - a).toNat : ℤ) = b + 1 - a := Int.toNat_of_nonneg (by omega); rw [← Int.cast_natCast, h]; push_cast; ring
 

@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SumOfSquaresDivisibleByFour.SumOfSquaresDivisibleByFour
 
+set_option maxHeartbeats 400000 in
 theorem sum_of_squares_divisible_by_four (a : ℤ) (b : ℤ) (hH3 : (4 : ℤ) ∣ a ^ 2 + b ^ 2) :
     ¬ (Odd a ∧ Odd b) := by
   -- 1. obtain k: def:divides, from H3

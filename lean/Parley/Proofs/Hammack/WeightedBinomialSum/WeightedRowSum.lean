@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.WeightedBinomialSum.WeightedRowSum
 
+set_option maxHeartbeats 400000 in
 theorem weighted_row_sum (m : ℕ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) ((m : ℤ) + 1), (k * (LeanBridges.Counting.choose ((m : ℤ) + 1) k : ℤ) : ℤ)) = ((m : ℤ) + 1) * 2 ^ m := by
   -- 1. thm:weighted-term

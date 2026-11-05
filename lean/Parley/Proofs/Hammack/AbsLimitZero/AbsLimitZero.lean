@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero
 
+set_option maxHeartbeats 400000 in
 theorem abs_limit_zero (a : ℤ → ℝ) (hH2 : Filter.Tendsto (fun n : ℕ => (abs (a (n : ℤ)) : ℝ)) Filter.atTop (nhds 0)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. proof

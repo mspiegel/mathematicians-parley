@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DivisorOfPrime.DivisorOfPrime
 
+set_option maxHeartbeats 400000 in
 theorem divisor_of_prime (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (M : ℕ) (hH3 : 0 < M) :
     ((M : ℤ) ∣ (P : ℤ) ↔ (M : ℤ) = (P : ℤ) ∨ (M : ℤ) = 1) := by
   -- 1. def:prime p := P, from H2

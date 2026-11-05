@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.IntermediateValue.IntermediateValue
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1400000 in
 theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (hH6 : f a < 0) (hH7 : 0 < f b) :
     (∃ c ∈ (Set.Icc a b : Set ℝ), f c = 0) := by
   set S : Set ℝ := {x ∈ (Set.Icc a b : Set ℝ) | f x < 0} with hD1
@@ -66,7 +66,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
   have s14 : (f c < 0 ∨ f c = 0) ∨ 0 < f c := by first | exact (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | exact ((Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c))).symm | simpa using (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)) | (have h := (Parley.Items.Stdlib.Numbers.axi_trichotomy (x := f c)); parley_set_side)
   -- 15. def:continuous-on, from H5
   have r89_1 : (Set.Icc a b : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Calculus.mun_interval_real (a := a) (b := b)); parley_set_side)
-  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
+  have s15 : ∀ c' ∈ (Set.Icc a b : Set ℝ), ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.Icc a b : Set ℝ), abs (x - c') < δ → abs (f x - f c') < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := (Set.Icc a b : Set ℝ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
   -- 16. cases, from 14
   have s16 : f c = 0 := by
     rcases s14 with (hC1 | hC2) | hC3
@@ -95,6 +95,7 @@ theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (
       -- 16.5. obtain δ from line 16.4
       obtain ⟨δ, ⟨s16_5a, s16_5b⟩⟩ := s16_4
       set x₁ : ℝ := min b (c + δ / 2) with hD2
+      have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := b) (y := c + δ / 2)); parley_set_side)
       -- 16.6. inequalities
       have s16_6 : δ / 2 > 0 := by parley_order
       -- 16.7. inequalities

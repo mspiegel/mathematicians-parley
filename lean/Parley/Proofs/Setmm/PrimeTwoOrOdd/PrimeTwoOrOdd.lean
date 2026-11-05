@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PrimeTwoOrOdd.PrimeTwoOrOdd
 
+set_option maxHeartbeats 400000 in
 theorem prime_two_or_odd (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) :
     ((P : ℤ) = 2 ∨ Odd (P : ℤ)) := by
   -- 1. mun:even-or-odd n := P

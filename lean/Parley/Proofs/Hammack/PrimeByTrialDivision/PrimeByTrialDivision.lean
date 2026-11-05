@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem prime_by_trial_division (p : ℕ) (hH1 : 0 < p) (hH2 : (p : ℤ) > 1) (hH3 : ∀ n : ℕ, 0 < n → 2 ≤ (n : ℤ) ∧ (n : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ (n : ℤ) ∣ (p : ℤ)) :
     Nat.Prime p := by
   -- 1. proof
@@ -72,7 +72,7 @@ theorem prime_by_trial_division (p : ℕ) (hH1 : 0 < p) (hH2 : (p : ℤ) > 1) (h
         -- 1.11.6. inequalities
         have s1_11_6 : (e : ℤ) ≤ (d : ℤ) := by parley_order
         -- 1.11.7. mun:multiply-le x := e, y := d, c := e, from D1, 1.11.6
-        have s1_11_7 : (e : ℤ) * (e : ℤ) ≤ (e : ℤ) * (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (p : ℚ) / (d : ℚ)) (y := (d : ℚ)) (c := (p : ℚ) / (d : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (p : ℚ) / (d : ℚ)) (y := (d : ℚ)) (c := (p : ℚ) / (d : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (p : ℚ) / (d : ℚ)) (y := (d : ℚ)) (c := (p : ℚ) / (d : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (p : ℚ) / (d : ℚ)) (y := (d : ℚ)) (c := (p : ℚ) / (d : ℚ)) (by parley_side) (by parley_side)); parley_side)
+        have s1_11_7 : (e : ℤ) * (e : ℤ) ≤ (e : ℤ) * (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_multiply_le (x := (e : ℚ)) (y := (d : ℚ)) (c := (e : ℚ)) (by parley_side) (by parley_side)); parley_side)
         -- 1.11.8. algebra, from 1.1
         have s1_11_8 : (p : ℤ) = (e : ℤ) * (d : ℤ) := by linear_combination (norm := parley_norm) s1_1
         -- 1.11.9. def:divides d := e, n := p, from 1.11.8

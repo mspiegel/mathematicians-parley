@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ScaledGcdBound.ScaledGcdBound
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem scaled_gcd_bound (a : ℤ) (b : ℤ) (c : ℤ) (hH4 : ¬ (a = 0 ∧ b = 0)) (hH5 : c ≠ 0) :
     c * (Int.gcd a b : ℤ) ≤ (Int.gcd (c * a) (c * b) : ℤ) := by
   -- 1. thm:gcd-positive x := a, y := b, from H4

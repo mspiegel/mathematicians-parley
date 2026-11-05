@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Stdlib.Calculus.IncreasingTerms
 
+set_option maxHeartbeats 400000 in
 theorem increasing_terms (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ x ((n : ℤ) + 1)) :
     (∀ n : ℕ, 0 < n → (∀ m : ℕ, 0 < m → (m : ℤ) ≤ (n : ℤ) → x (m : ℤ) ≤ x (n : ℤ))) := by
   -- 1. induction on n starting at 1

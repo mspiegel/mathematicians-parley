@@ -12,6 +12,7 @@ namespace Parley.Tests.Elaborator.ReadingDefines.ADefineReadInACaseSplit
 theorem a_define_read_in_a_case_split (a : ℝ) (hH2 : a + 1 < 0 ∨ a + 1 > 0) :
     a + 1 ≠ 0 := by
   set e : ℝ := a + 1 with hD1
+  have hD1_kind : True := by parley_side
   -- 1. substitute e = a + 1 (D1) into H2
   have s1 : e < 0 ∨ e > 0 := by parley_subst_at hD1 hH2
   -- 2. cases, from D1, 1

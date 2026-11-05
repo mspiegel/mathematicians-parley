@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalFunctionLimit.RationalFunctionLimit
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem rational_function_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = (5 * (n : ℝ) ^ 2 + (n : ℝ) + 1) / (4 * (n : ℝ) ^ 2 + 2)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds (5 / 4)) := by
   -- 1. proof

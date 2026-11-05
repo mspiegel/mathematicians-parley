@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.PerfectNumbers.OddPart
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem odd_part (n : ℕ) (hH1 : 0 < n) :
     (∃ k : ℕ, ∃ m : ℕ, 0 < m ∧ (Odd (m : ℤ) ∧ (n : ℤ) = 2 ^ k * (m : ℤ))) := by
   -- 1. induction on N starting at 0

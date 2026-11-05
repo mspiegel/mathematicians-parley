@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.DeMoivre.DeMoivre
 
+set_option maxHeartbeats 400000 in
 theorem de_moivre (x : ℝ) (n : ℕ) :
     (Complex.cos (x : ℂ) + Complex.I * Complex.sin (x : ℂ)) ^ n = Complex.cos ((n : ℂ) * (x : ℂ)) + Complex.I * Complex.sin ((n : ℂ) * (x : ℂ)) := by
   -- 1. def:i

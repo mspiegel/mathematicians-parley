@@ -65,6 +65,10 @@ theorem thm_prime_divides_product (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (m :
     (p : ℤ) ∣ m * n ↔ (p : ℤ) ∣ m ∨ (p : ℤ) ∣ n :=
   LeanBridges.Divisibility.prime_divides_product p h1 h2 m n
 
+theorem thm_prime_divides_power (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (n : ℕ) (h4 : 0 < n) :
+    (p : ℤ) ∣ a ^ n ↔ (p : ℤ) ∣ a :=
+  by exact ⟨fun h => Int.Prime.dvd_pow' h2 h, fun h => dvd_pow h (Nat.pos_iff_ne_zero.mp h4)⟩
+
 theorem thm_divides_gcd (d : ℤ) (a : ℤ) (b : ℤ) (h4 : d ∣ a) (h5 : d ∣ b) :
     d ∣ (Int.gcd a b : ℤ) :=
   Int.dvd_coe_gcd h4 h5
@@ -257,9 +261,17 @@ theorem thm_sigma_prime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) :
     (ArithmeticFunction.sigma 1 p : ℤ) = (p : ℤ) + 1 :=
   by have h := ArithmeticFunction.sigma_one_apply_prime_pow h2 (i := 1); rw [pow_one] at h; rw [h]; push_cast [Finset.sum_range_succ]; ring
 
+theorem thm_sigma_prime_power (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (k : ℕ) :
+    (ArithmeticFunction.sigma 1 (p ^ k) : ℚ) = (∑ j ∈ Finset.Icc (0 : ℤ) (k : ℤ), ((p : ℚ) ^ j : ℚ)) :=
+  by rw [ArithmeticFunction.sigma_one_apply_prime_pow h2]; push_cast; rw [(show Finset.Icc (0 : ℤ) (k : ℤ) = (Finset.range (k + 1)).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ by ext j; simp only [Finset.mem_Icc, Finset.mem_map, Finset.mem_range, Function.Embedding.coeFn_mk]; constructor; (rintro ⟨h0, hk⟩; exact ⟨j.toNat, by omega, by omega⟩); (rintro ⟨i, hi, rfl⟩; omega))]; simp [zpow_natCast]
+
 theorem mun_sigma_nat (n : ℕ) (h1 : 0 < n) :
     0 < (ArithmeticFunction.sigma 1 n : ℤ) :=
   by (simp_all; done)
+
+theorem mun_sigma_part (Y : Set ℤ) (n : ℕ) (h1 : 0 < n) (h2 : Y ⊆ {d : ℤ | 0 < d ∧ d ∣ (n : ℤ)}) :
+    (∑ᶠ d ∈ Y, (d : ℤ)) ≤ (ArithmeticFunction.sigma 1 n : ℤ) :=
+  by have hD : Y ⊆ ((n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) : Set ℤ) := (by intro d hd; obtain ⟨hp, hdv⟩ := h2 hd; simp only [Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Nat.mem_divisors]; refine ⟨d.natAbs, ⟨?_, (by omega)⟩, (by omega)⟩; have := Int.natAbs_dvd_natAbs.mpr hdv; simpa using this); have hfin : Y.Finite := (Finset.finite_toSet _).subset hD; rw [finsum_mem_eq_finite_toFinset_sum _ hfin, ArithmeticFunction.sigma_one_apply]; push_cast; have hmap : ∑ x ∈ n.divisors, (x : ℤ) = ∑ x ∈ n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩, x := (by simp [Finset.sum_map]); rw [hmap]; apply Finset.sum_le_sum_of_subset_of_nonneg; (intro d hd; have := hD ((Set.Finite.mem_toFinset hfin).mp hd); simpa using this); (intro d hd _; simp only [Finset.mem_map, Function.Embedding.coeFn_mk] at hd; obtain ⟨i, _, rfl⟩ := hd; positivity)
 
 theorem mun_one_divides (n : ℤ) :
     (1 : ℤ) ∣ n :=
@@ -268,6 +280,10 @@ theorem mun_one_divides (n : ℤ) :
 theorem mun_coprime_power (a : ℤ) (b : ℤ) (k : ℕ) (h4 : (Int.gcd a b : ℤ) = 1) :
     (Int.gcd (a ^ k) b : ℤ) = 1 :=
   by have h : IsCoprime a b := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h.pow_left (m := k))
+
+theorem def_phi (n : ℕ) (h1 : 0 < n) :
+    (Nat.totient n : ℤ) = ({r ∈ (Set.Icc (0 : ℤ) ((n : ℤ) - 1) : Set ℤ) | (Int.gcd r (n : ℤ) : ℤ) = 1}.ncard : ℤ) :=
+  by rw [Nat.totient_eq_card_coprime]; have e : {r ∈ (Set.Icc (0 : ℤ) ((n : ℤ) - 1) : Set ℤ) | (Int.gcd r (n : ℤ) : ℤ) = 1} = (((Finset.range n).filter n.Coprime).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) := (by ext r; simp only [Set.mem_setOf_eq, Set.mem_Icc, Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Finset.mem_filter, Finset.mem_range]; constructor; (rintro ⟨⟨h0, hr⟩, hg⟩; refine ⟨r.toNat, ⟨(by omega), ?_⟩, (by omega)⟩; rw [Nat.coprime_comm, Nat.Coprime, ← Int.gcd_natCast_natCast, Int.toNat_of_nonneg h0]; exact_mod_cast hg); (rintro ⟨i, ⟨hi, hc⟩, rfl⟩; refine ⟨⟨(by omega), (by omega)⟩, ?_⟩; rw [Int.gcd_natCast_natCast, Nat.Coprime.gcd_eq_one (Nat.coprime_comm.mp hc)]; rfl)); rw [e, Set.ncard_coe_finset, Finset.card_map]
 
 theorem mun_phi_natural (n : ℕ) (h1 : 0 < n) :
     0 < (Nat.totient n : ℤ) :=
@@ -329,9 +345,25 @@ theorem mun_prime_power_unique (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : �
     (a : ℤ) = (a' : ℤ) :=
   by by_contra hne; have hne' : a ≠ a' := (by intro e; exact hne (by rw [e])); rcases Nat.lt_or_gt_of_ne hne' with h | h; exacts [mun_prime_power_not_less p h1 h2 a a' m m' h7 h9 (by exact_mod_cast h), mun_prime_power_not_less p h1 h2 a' a m' m h8 h9.symm (by exact_mod_cast h)]
 
+theorem thm_prime_powers_unique_1 (a : ℕ) (b : ℕ) (c : ℕ) (a' : ℕ) (b' : ℕ) (c' : ℕ) (h7 : (2 ^ a * 3 ^ b * 5 ^ c : ℤ) = 2 ^ a' * 3 ^ b' * 5 ^ c') :
+    (a : ℤ) = (a' : ℤ) :=
+  by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).1; rw [h, (key a' b' c').1] at this; exact_mod_cast this.symm
+
+theorem thm_prime_powers_unique_2 (a : ℕ) (b : ℕ) (c : ℕ) (a' : ℕ) (b' : ℕ) (c' : ℕ) (h7 : (2 ^ a * 3 ^ b * 5 ^ c : ℤ) = 2 ^ a' * 3 ^ b' * 5 ^ c') :
+    (b : ℤ) = (b' : ℤ) :=
+  by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.1; rw [h, (key a' b' c').2.1] at this; exact_mod_cast this.symm
+
+theorem thm_prime_powers_unique_3 (a : ℕ) (b : ℕ) (c : ℕ) (a' : ℕ) (b' : ℕ) (c' : ℕ) (h7 : (2 ^ a * 3 ^ b * 5 ^ c : ℤ) = 2 ^ a' * 3 ^ b' * 5 ^ c') :
+    (c : ℤ) = (c' : ℤ) :=
+  by have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.2; rw [h, (key a' b' c').2.2] at this; exact_mod_cast this.symm
+
 theorem thm_product_coprime (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (n : ℕ) (h3 : 0 < n) (h4 : ∀ y ∈ X, (Int.gcd y (n : ℤ) : ℤ) = 1) :
     (Int.gcd (∏ᶠ x ∈ X, (x : ℤ)) (n : ℤ) : ℤ) = 1 :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h
+
+theorem thm_product_congruent_termwise {α : Type*} (t : α → ℤ) (u : α → ℤ) (X : Set α) (h1 : X.Finite) (n : ℕ) (h2 : 0 < n) (h3 : ∀ x ∈ X, (t x) ≡ (u x) [ZMOD (n : ℤ)]) :
+    (∏ᶠ x ∈ X, (t x : ℤ)) ≡ (∏ᶠ x ∈ X, (u x : ℤ)) [ZMOD (n : ℤ)] :=
+  by rw [finprod_mem_eq_finite_toFinset_prod _ h1, finprod_mem_eq_finite_toFinset_prod _ h1]; exact Int.ModEq.prod fun x hx => h3 x ((Set.Finite.mem_toFinset h1).mp hx)
 
 theorem thm_product_congruent (f : ℤ → ℤ) (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (c : ℤ) (n : ℕ) (h4 : 0 < n) (h5 : ∀ y ∈ X, (y * c) ≡ (f y) [ZMOD (n : ℤ)]) (hf : Set.MapsTo f X X) :
     (∏ᶠ x ∈ X, (x * c : ℤ)) ≡ (∏ᶠ x ∈ X, (f x : ℤ)) [ZMOD (n : ℤ)] :=

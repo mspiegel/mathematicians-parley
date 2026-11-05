@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Tests.Notations.Sums.OneToThreeSummed
 
+set_option maxHeartbeats 400000 in
 theorem one_to_three_summed :
     (∑ k ∈ Finset.Icc (1 : ℤ) (3 : ℤ), (k : ℤ)) = 6 := by
   -- 1. mun:sum-single a := 1

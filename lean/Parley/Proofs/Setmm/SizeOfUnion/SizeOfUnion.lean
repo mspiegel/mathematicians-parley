@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfUnion.SizeOfUnion
 
+set_option maxHeartbeats 400000 in
 theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B.Finite) :
     (A ∪ B).encard ≤ A.encard + B.encard := by
   -- 1. mun:difference-subset X := B, Y := A

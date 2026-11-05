@@ -8,8 +8,8 @@ public section
 
 namespace Parley.Items.Proofs.Wiedijk.PythagoreanTriples
 
-theorem def_euclid_hypotenuse (a : ℂ) (b : ℂ) (c : ℂ) :
-    (∃ k : ℕ, 0 < k ∧ (∃ m : ℕ, 0 < m ∧ (∃ n : ℕ, 0 < n ∧ (c = (k : ℂ) * ((m : ℂ) ^ 2 + (n : ℂ) ^ 2) ∧ ({a, b} : Set ℂ) = ({(k : ℂ) * ((m : ℂ) ^ 2 - (n : ℂ) ^ 2), 2 * (k : ℂ) * (m : ℂ) * (n : ℂ)} : Set ℂ))))) ↔ (∃ k : ℕ, 0 < k ∧ (∃ m : ℕ, 0 < m ∧ (∃ n : ℕ, 0 < n ∧ (c = (k : ℂ) * ((m : ℂ) ^ 2 + (n : ℂ) ^ 2) ∧ ({a, b} : Set ℂ) = ({(k : ℂ) * ((m : ℂ) ^ 2 - (n : ℂ) ^ 2), 2 * (k : ℂ) * (m : ℂ) * (n : ℂ)} : Set ℂ))))) :=
+theorem def_euclid_hypotenuse {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a : K) (b : K) (c : K) :
+    (∃ k : ℕ, 0 < k ∧ (∃ m : ℕ, 0 < m ∧ (∃ n : ℕ, 0 < n ∧ (c = (k : K) * ((m : K) ^ 2 + (n : K) ^ 2) ∧ ({a, b} : Set K) = ({(k : K) * ((m : K) ^ 2 - (n : K) ^ 2), 2 * (k : K) * (m : K) * (n : K)} : Set K))))) ↔ (∃ k : ℕ, 0 < k ∧ (∃ m : ℕ, 0 < m ∧ (∃ n : ℕ, 0 < n ∧ (c = (k : K) * ((m : K) ^ 2 + (n : K) ^ 2) ∧ ({a, b} : Set K) = ({(k : K) * ((m : K) ^ 2 - (n : K) ^ 2), 2 * (k : K) * (m : K) * (n : K)} : Set K))))) :=
   Iff.rfl
 
 end Parley.Items.Proofs.Wiedijk.PythagoreanTriples

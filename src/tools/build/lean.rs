@@ -262,7 +262,10 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
                 for record in proves.get(name.as_str()).into_iter().flatten() {
                     items.insert(record.clone(), it.clone());
                 }
-                items.insert(name, it);
+                // A theorem whose record gives its own Lean proof, from
+                // Mathlib, is cited as that record's item; the Parley
+                // proof is written beside it all the same.
+                items.entry(name).or_insert(it);
             }
             Route::Declined(d) => {
                 made.gaps.insert(name, d.reason());

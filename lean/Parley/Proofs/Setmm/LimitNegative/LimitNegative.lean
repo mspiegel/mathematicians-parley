@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.LimitNegative.LimitNegative
 
+set_option maxHeartbeats 400000 in
 theorem limit_negative (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℕ => (-x (n : ℤ) : ℝ)) Filter.atTop (nhds (-L)) := by
   -- 1. proof

@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoPowerOverFactorial.TwoPowerOverFactorial
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = 2 ^ n / (LeanBridges.Counting.factorial (n : ℤ) : ℝ)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. proof

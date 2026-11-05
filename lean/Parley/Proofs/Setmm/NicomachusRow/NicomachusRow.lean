@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.NicomachusRow.NicomachusRow
 
+set_option maxHeartbeats 400000 in
 theorem nicomachus_row (N : ℕ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (N : ℤ), ((N : ℤ) ^ 2 - (N : ℤ) + (2 * k - 1) : ℤ)) = (N : ℤ) ^ 3 := by
   -- 1. def:nat0 n := N

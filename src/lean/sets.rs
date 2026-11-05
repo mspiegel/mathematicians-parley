@@ -411,7 +411,7 @@ impl Writer<'_> {
         Route::Built(Printed::atom(format!(
             "({{{}}} : Set {})",
             members.join(", "),
-            at.lean()
+            self.type_name(at)
         )))
     }
 
@@ -1196,6 +1196,9 @@ impl Writer<'_> {
         if !self.counts(a) && !self.counts(b) {
             return None;
         }
+        if let Some(said) = self.count_equals_number(node) {
+            return Some(said);
+        }
         let op = node.spelling().text().to_string();
         Some(match (self.count_term(a), self.count_term(b)) {
             (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
@@ -1204,6 +1207,49 @@ impl Writer<'_> {
             }),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
+    }
+
+    /// |S| = j of a set S not known finite and a number j no natural number
+    /// of ℕ∞'s: the count is a natural number that is j, `∃ m : ℕ, S.encard
+    /// = m ∧ (m : ℤ) = j`, as set.mm's (♯‘S) = j is false of an infinite S
+    /// and of a j no count is. None for any other relation; an order is not
+    /// said so, since j ≤ |S| holds of an infinite S, ♯ being +∞ there.
+    fn count_equals_number(&self, node: &Node) -> Option<Route<Printed>> {
+        let [a, b] = node.children.as_slice() else {
+            return None;
+        };
+        let bare = |n: &Node| &*n.notation_name() == "cardinality" && self.counts(n);
+        let (count, number, count_first) = match (bare(a), bare(b)) {
+            (true, false) if !self.counts(b) => (a, b, true),
+            (false, true) if !self.counts(a) => (b, a, false),
+            _ => return None,
+        };
+        if node.notation() != crate::notations::EQUALITY
+            || self.natural_beside_count(number)
+        {
+            return None;
+        }
+        let at = match self.carrier(number) {
+            Route::Built(n) => n,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let (count, number) =
+            match (self.count_term(count), self.number_fixed(number, at)) {
+                (Route::Built(c), Route::Built(n)) => (c, n),
+                (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                    return Some(Route::Declined(d))
+                }
+            };
+        let m = super::expr::witness_letter(node);
+        let cast = format!("({m} : {})", self.type_name(at));
+        let equation = match count_first {
+            true => format!("{cast} = {}", number.at(51)),
+            false => format!("{} = {cast}", number.at(51)),
+        };
+        Some(Route::Built(Printed {
+            text: format!("∃ {m} : ℕ, {} = ({m} : ℕ∞) ∧ {equation}", count.at(51)),
+            prec: 0,
+        }))
     }
 
     /// A count in ℕ or ℕ₀, |A| ∈ ℕ: some natural number is the count, and
@@ -1217,13 +1263,14 @@ impl Writer<'_> {
             Route::Built(p) => p,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
+        let m = super::expr::witness_letter(x);
         let above = match system_of(set) {
-            Some(super::expr::System::Positive) => "0 < m ∧ ",
-            Some(super::expr::System::NonNegative) => "",
+            Some(super::expr::System::Positive) => format!("0 < {m} ∧ "),
+            Some(super::expr::System::NonNegative) => String::new(),
             _ => return Some(Route::no("a count in other than ℕ or ℕ₀")),
         };
         Some(Route::Built(Printed {
-            text: format!("∃ m : ℕ, {above}(m : ℕ∞) = {}", count.text),
+            text: format!("∃ {m} : ℕ, {above}({m} : ℕ∞) = {}", count.text),
             prec: 0,
         }))
     }
@@ -1327,8 +1374,17 @@ impl Writer<'_> {
         Route::Built(Printed::atom(format!(
             "({{{}}} : Set {})",
             listed.join(", "),
-            super::expr::bracketed(&members.lean())
+            super::expr::bracketed(&self.members_type(members))
         )))
+    }
+
+    /// How Lean writes the type of such members here: numbers of the
+    /// type an item is general in are of K.
+    fn members_type(&self, members: &Members) -> String {
+        match members {
+            Members::Numbers(n) => self.type_name(*n),
+            other => other.lean(),
+        }
     }
 
     /// What a listed set of ∅ alone holds, {∅}, which its members do not

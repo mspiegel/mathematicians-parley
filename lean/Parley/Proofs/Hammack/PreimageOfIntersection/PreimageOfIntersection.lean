@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfIntersection.PreimageOfIntersection
 
+set_option maxHeartbeats 400000 in
 theorem preimage_of_intersection {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) (Z : Set α) (hH5 : Z ⊆ B) :
     A ∩ f ⁻¹' (Y ∩ Z) = (A ∩ f ⁻¹' Y) ∩ (A ∩ f ⁻¹' Z) := by
   -- 1. proof

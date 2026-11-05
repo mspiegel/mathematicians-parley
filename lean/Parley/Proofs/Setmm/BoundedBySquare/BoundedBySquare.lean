@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.BoundedBySquare.BoundedBySquare
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem bounded_by_square (A : ℝ) (B : ℝ) (hH3 : 0 ≤ B) :
     (A ≤ B ∧ -A ≤ B ↔ A ^ 2 ≤ B ^ 2) := by
   -- 1. thm:abs-bounds x := A

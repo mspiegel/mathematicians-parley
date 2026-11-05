@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.MultiplyingBounds.SquareOrder
 
+set_option maxHeartbeats 400000 in
 theorem square_order (A : ℝ) (B : ℝ) (hH3 : A ≥ 0) (hH4 : B ≥ 0) :
     (A < B ↔ A * A < B * B) := by
   -- the theorem. both directions

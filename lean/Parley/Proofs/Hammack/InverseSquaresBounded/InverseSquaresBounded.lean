@@ -13,7 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.InverseSquaresBounded.InverseSquaresBounded
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem inverse_squares_bounded (n : ℕ) (hH1 : 0 < n) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / (k : ℚ) ^ 2 : ℚ)) ≤ 2 - 1 / (n : ℚ) := by
   -- 1. proof

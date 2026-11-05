@@ -1,6 +1,7 @@
 module
 
 public import AlgebraTactics
+public import PowerTactics
 public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
@@ -12,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeCongruentModThree.CubeCongruentModThree
 
+set_option maxHeartbeats 400000 in
 theorem cube_congruent_mod_three (a : ℤ) :
     (a ^ 3) ≡ a [ZMOD (3 : ℤ)] := by
   -- 1. mun:mod-natural b := 3
@@ -19,7 +21,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
   -- 2. mun:mod-less b := 3
   have s2 : a % (3 : ℤ) < 3 := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := 3) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := 3) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := a) (b := 3) (by parley_side)); parley_side)
   -- 3. thm:residue-mod-three r := a mod 3, from 1, 2
-  have s3 : (a % (3 : ℤ) = 0 ∨ a % (3 : ℤ) = 1) ∨ a % (3 : ℤ) = 2 := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); parley_side)
+  have s3 : (a % (3 : ℤ) = 0 ∨ a % (3 : ℤ) = 1) ∨ a % (3 : ℤ) = 2 := by first | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); exact h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); exact h.symm) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); simpa using h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); exact_mod_cast h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side))); parley_side)
   -- 4. obtain q: mun:mod-remainder m := 3, r := a mod 3, from 1, 2
   obtain ⟨q, s4⟩ := ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := a) (m := 3) (by parley_side) (r := (a % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (a % (3 : ℤ)) by parley_side)]); parley_side)))).mp (by parley_side)
   -- 5. cases, from 3

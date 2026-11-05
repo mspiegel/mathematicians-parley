@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.RoundingError.RoundingError
 
+set_option maxHeartbeats 400000 in
 theorem rounding_error (A : ℝ) :
     abs ((⌊A + 1 / 2⌋ : ℝ) - A) ≤ 1 / 2 := by
   -- 1. mun:floor-integer x := A + 1/2
@@ -20,6 +21,7 @@ theorem rounding_error (A : ℝ) :
   -- 3. mun:floor-above x := A + 1/2
   have s3 : A + 1 / 2 < (⌊A + 1 / 2⌋ : ℝ) + 1 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2))] | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)) | (have h := (Parley.Items.Stdlib.Numbers.mun_floor_above (x := A + 1 / 2)); parley_side)
   set e : ℝ := (⌊A + 1 / 2⌋ : ℝ) - A with hD1
+  have hD1_kind : True := by parley_side
   -- 4. inequalities
   have s4 : (⌊A + 1 / 2⌋ : ℝ) - A ≤ 1 / 2 := by parley_order
   -- 5. transitivity, from D1, 4

@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ImageOfParabola.ImageOfParabola
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem image_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3) :
     f '' ((Set.univ : Set ℝ) ∩ (Set.Icc (-3 : ℝ) (5 : ℝ) : Set ℝ)) = (Set.Icc (3 : ℝ) (28 : ℝ) : Set ℝ) := by
   -- 1. mun:interval-real a := −3, b := 5

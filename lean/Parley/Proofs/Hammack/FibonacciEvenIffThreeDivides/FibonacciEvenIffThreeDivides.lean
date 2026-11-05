@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides
 
-set_option maxHeartbeats 1000000 in
+set_option maxHeartbeats 1600000 in
 theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (Even (F (n : ℤ)) ↔ (3 : ℤ) ∣ (n : ℤ)) := by
   -- 1. thm:fibonacci-natural
@@ -35,11 +35,11 @@ theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → �
     induction k with
     | zero =>
       -- 4.1. D1
-      have s4_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.2. D1
-      have s4_2 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_2 : F 1 = G 0 := by have h := (hD1.2.2 ((1 : ℤ) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.3. D1
-      have s4_3 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_3 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.4. calculation
       have s4_4 : F 1 = 1 := by
         calc F 1 = G 0 := by parley_side
@@ -127,7 +127,7 @@ theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → �
       -- 5.2. mun:mod-less a := n, b := 3
       have s5_2 : (n : ℤ) % (3 : ℤ) < 3 := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (n : ℤ)) (b := 3) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (n : ℤ)) (b := 3) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (n : ℤ)) (b := 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_less (a := (n : ℤ)) (b := 3) (by parley_side)); parley_side)
       -- 5.3. thm:residue-mod-three r := n mod 3, from 5.1, 5.2
-      have s5_3 : ((n : ℤ) % (3 : ℤ) = 0 ∨ (n : ℤ) % (3 : ℤ) = 1) ∨ (n : ℤ) % (3 : ℤ) = 2 := by first | exact (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))) | exact ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side)))).symm | simpa using (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))) | exact_mod_cast (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); parley_side)
+      have s5_3 : ((n : ℤ) % (3 : ℤ) = 0 ∨ (n : ℤ) % (3 : ℤ) = 1) ∨ (n : ℤ) % (3 : ℤ) = 2 := by first | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); exact h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); exact h.symm) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); simpa using h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); exact_mod_cast h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h) | (have h := (Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree.residue_mod_three (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side))); parley_side)
       -- 5.4. obtain q: mun:mod-remainder a := n, m := 3, r := n mod 3, from 5.1, 5.2
       obtain ⟨q, s5_4⟩ := ((Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side) ▸ (Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := (n : ℤ)) (m := 3) (by parley_side) (r := ((n : ℤ) % (3 : ℤ)).toNat) (by (try rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ ((n : ℤ) % (3 : ℤ)) by parley_side)]); parley_side)))).mp (by parley_side)
       -- 5.5. algebra, from 5.4

@@ -63,9 +63,11 @@ pub fn path_of_module(module: &str) -> String {
 }
 
 /// A declaration's name in snake_case, kept a Lean identifier: ASCII
-/// letters, digits and underscores, never starting with a digit.
+/// letters, digits and underscores, never starting with a digit. A Greek
+/// letter is spelt by its English name, as a Metamath label is: φ is
+/// `phi`.
 pub fn snake(name: &str) -> String {
-    let mut out: String = name
+    let mut out: String = crate::text::spelt_in_ascii(name)
         .chars()
         .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
         .collect();

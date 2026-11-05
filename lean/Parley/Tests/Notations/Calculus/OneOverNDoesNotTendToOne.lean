@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Tests.Notations.Calculus.OneOverNDoesNotTendToOne
 
+set_option maxHeartbeats 400000 in
 theorem one_over_n_does_not_tend_to_one :
     ¬ Filter.Tendsto (fun n : ℕ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds 1) := by
   -- 1. proof

@@ -12,9 +12,9 @@ namespace Parley.Tests.Elaborator.CitingATheoremOverAHeaderRecursion.CountedOnFr
 theorem counted_on_from (M : ℕ) (F : ℤ → ℤ) (hD1 : F 0 = (M : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = F k + 1) :
     F 1 = (M : ℤ) + 1 := by
   -- 1. D1
-  have s1 : F 0 = (M : ℤ) := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+  have s1 : F 0 = (M : ℤ) := by have h := hD1.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
   -- 2. D1
-  have s2 : F (0 + 1) = F 0 + 1 := by have h := (hD1.2 ((0 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+  have s2 : F (0 + 1) = F 0 + 1 := by have h := (hD1.2 ((0 + 1 : ℤ) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
   -- 3. substitute F(0) = M (line 1)
   have s3 : F 0 + 1 = (M : ℤ) + 1 := by parley_subst s1
   -- 4. calculation

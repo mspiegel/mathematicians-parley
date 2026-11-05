@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FiveConsecutiveDivisible.FiveConsecutiveNatural
 
+set_option maxHeartbeats 400000 in
 theorem five_consecutive_natural (m : ℕ) :
     (120 : ℤ) ∣ ((m : ℤ) + 1) * ((m : ℤ) + 2) * ((m : ℤ) + 3) * ((m : ℤ) + 4) * ((m : ℤ) + 5) := by
   -- 1. mun:binomial-zero-index n := m

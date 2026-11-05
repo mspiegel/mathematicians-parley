@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.MultiplesOfAProduct.MultiplesOfAProduct
 
+set_option maxHeartbeats 400000 in
 theorem multiples_of_a_product (m : ℤ) (n : ℤ) :
     {x : ℤ | m * n ∣ x} ⊆ {x : ℤ | m ∣ x} ∩ {x : ℤ | n ∣ x} := by
   -- 1. proof

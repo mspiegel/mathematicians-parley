@@ -142,4 +142,4 @@ mundane theorem iff-not-from-right
   then        not P
   metamath-proof mtbird
   note        The same where the right side fails: then so does the left.
-  lean-proof  not yet implemented
+  lean-proof  by exact fun hp => h2 (h1.mp hp)

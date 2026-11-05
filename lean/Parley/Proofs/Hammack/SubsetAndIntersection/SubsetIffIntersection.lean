@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SubsetAndIntersection.SubsetIffIntersection
 
+set_option maxHeartbeats 400000 in
 theorem subset_iff_intersection {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ A ∩ B = A) := by
   -- the theorem. both directions

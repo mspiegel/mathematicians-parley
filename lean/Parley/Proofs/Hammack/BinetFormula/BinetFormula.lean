@@ -19,7 +19,9 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
   -- 1. real arithmetic
   have s1 : Real.sqrt (5 : ℝ) ≠ 0 := by parley_real
   set φ : ℝ := (1 + Real.sqrt (5 : ℝ)) / 2 with hD2
+  have hD2_kind : True := by parley_side
   set ψ : ℝ := (1 - Real.sqrt (5 : ℝ)) / 2 with hD3
+  have hD3_kind : True := by parley_side
   -- 2. calculation
   have s2 : φ ^ 2 = φ + 1 := by
     calc φ ^ 2 = ((1 + Real.sqrt (5 : ℝ)) / 2) ^ 2 := by first | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_side
@@ -36,9 +38,9 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
     induction j with
     | zero =>
       -- 4.1. D1
-      have s4_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
+      have s4_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.2. D1
-      have s4_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
+      have s4_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.3. calculation
       have s4_3 : (F 0 : ℝ) = (φ ^ 0 - ψ ^ 0) / Real.sqrt (5 : ℝ) := by
         calc (F 0 : ℝ) = 0 := by parley_side
@@ -55,9 +57,9 @@ theorem binet_formula (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ
       all_goals parley_side
     | succ j hIH =>
       -- 4.6. D1
-      have s4_6 : F ((j : ℤ) + 1) = G (j : ℤ) := by have h := (hD1.2.2 (((j : ℤ) + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_6 : F ((j : ℤ) + 1) = G (j : ℤ) := by have h := (hD1.2.2 (((j : ℤ) + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.7. D1
-      have s4_7 : G ((j : ℤ) + 1) = F (j : ℤ) + G (j : ℤ) := by have h := (hD1.2.2 (((j : ℤ) + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+      have s4_7 : G ((j : ℤ) + 1) = F (j : ℤ) + G (j : ℤ) := by have h := (hD1.2.2 (((j : ℤ) + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
       -- 4.8. substitute G(j) = (φ^(j + 1) − ψ^(j + 1))/√5 (IH) into line 4.6
       have s4_8 : (F ((j : ℤ) + 1) : ℝ) = (φ ^ (j + 1) - ψ ^ (j + 1)) / Real.sqrt (5 : ℝ) := by
         have s4_6_w : (F ((j : ℤ) + 1) : ℝ) = (G (j : ℤ) : ℝ) := by have h := congrArg (fun x : ℤ => (x : ℝ)) s4_6; push_cast at h; linear_combination (norm := parley_norm) h

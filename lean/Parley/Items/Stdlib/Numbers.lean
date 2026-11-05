@@ -225,6 +225,10 @@ theorem mun_real_power_positive (x : ℝ) (h2 : 0 < x) (y : ℝ) :
     0 < x ^ y :=
   by positivity
 
+theorem mun_real_power_sum (x : ℂ) (h2 : x ≠ 0) (a : ℂ) (b : ℂ) :
+    x ^ (a + b) = x ^ a * x ^ b :=
+  by exact Complex.cpow_add a b h2
+
 theorem mun_real_power_of_power (x : ℝ) (h2 : 0 < x) (a : ℝ) (b : ℂ) :
     (x : ℂ) ^ ((a : ℂ) * b) = ((x ^ a : ℝ) : ℂ) ^ b :=
   by rw [Complex.ofReal_cpow h2.le, ← Complex.cpow_mul] <;> rw [← Complex.ofReal_log h2.le, ← Complex.ofReal_mul, Complex.ofReal_im] <;> linarith [Real.pi_pos]
@@ -232,6 +236,10 @@ theorem mun_real_power_of_power (x : ℝ) (h2 : 0 < x) (a : ℝ) (b : ℂ) :
 theorem mun_root_power (x : ℂ) (n : ℕ) (h2 : 0 < n) :
     (x ^ (1 / (n : ℂ))) ^ n = x :=
   by rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)
+
+theorem mun_half_power (x : ℂ) :
+    x ^ (1 / 2 : ℂ) = x ^ (1 / 2 : ℂ) :=
+  by rfl
 
 theorem axi_trichotomy {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     (x < 0 ∨ x = 0) ∨ 0 < x :=
@@ -352,6 +360,10 @@ theorem mun_factor_positive {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K
 theorem mun_power_positive {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℤ) (h3 : 0 < a) :
     0 < a ^ m :=
   zpow_pos h3 m
+
+theorem mun_power_exponent_le {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℕ) (n : ℕ) (h4 : 1 ≤ a) (h5 : (m : ℤ) ≤ (n : ℤ)) :
+    a ^ m ≤ a ^ n :=
+  by exact pow_le_pow_right₀ h4 (by exact_mod_cast h5)
 
 theorem mun_power_at_least_one {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (n : ℕ) (h3 : 1 ≤ a) :
     1 ≤ a ^ n :=

@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.BernoulliInequality.BernoulliInequality
 
+set_option maxHeartbeats 400000 in
 theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
     (A - 1) * (n : ℝ) + 1 ≤ A ^ n := by
   -- 1. induction on k starting at 0
@@ -31,6 +32,7 @@ theorem bernoulli_inequality (A : ℝ) (hH2 : 0 ≤ A) (n : ℕ) :
       -- 1.4. inequalities
       have s1_4 : 0 ≤ A ^ k - ((A - 1) * (k : ℝ) + 1) := by parley_order
       set X : ℝ := A ^ k - ((A - 1) * (k : ℝ) + 1) with hD1
+      have hD1_kind : True := by parley_side
       -- 1.5. thm:nonnegative-product x := A, y := X, from D1, H2, 1.4
       have s1_5 : 0 ≤ A * X := by
         try simp only [hD1] at *

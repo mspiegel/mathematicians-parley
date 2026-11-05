@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Tests.Notations.Calculus.OneOverNTendsToZero
 
+set_option maxHeartbeats 400000 in
 theorem one_over_n_tends_to_zero :
     Filter.Tendsto (fun n : ℕ => (1 / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. proof

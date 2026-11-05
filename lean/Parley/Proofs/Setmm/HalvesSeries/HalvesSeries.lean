@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Setmm.HalvesSeries.HalvesSeries
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem halves_series :
     Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / 2 ^ k : ℝ)) = 1 := by
   -- 1. proof
@@ -41,7 +41,9 @@ theorem halves_series :
       -- 2.4. mun:exponent-step a := 2
       have s2_4 : (2 ^ (m + 1) : ℝ) = 2 ^ m * 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_exponent_step (a := (2 : ℝ)) (m := m)); parley_side)
       -- 2.5. substitute 2^(m + 1) = 2^m·2 (line 2.4)
-      have s2_5 : (1 / 2 ^ (m + 1) : ℝ) = 1 / (2 ^ m * 2) := by parley_subst s2_4
+      have s2_5 : (1 / 2 ^ (m + 1) : ℝ) = 1 / (2 ^ m * 2) := by
+        have e_int : (2 ^ (m + 1) : ℤ) = 2 ^ m * 2 := by exact_mod_cast s2_4
+        parley_subst s2_4
       -- 2.6. calculation
       have s2_6 : (∑ k ∈ Finset.Icc (1 : ℤ) ((m : ℤ) + 1), (1 / 2 ^ k : ℝ)) = 1 - 1 / 2 ^ (m + 1) := by
         calc (∑ k ∈ Finset.Icc (1 : ℤ) ((m : ℤ) + 1), (1 / 2 ^ k : ℝ)) = 1 - 1 / 2 ^ m + 1 / 2 ^ (m + 1) := by parley_side

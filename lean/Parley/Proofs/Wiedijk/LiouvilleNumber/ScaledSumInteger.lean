@@ -19,6 +19,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.LiouvilleNumber.ScaledSumInteger
 
+set_option maxHeartbeats 400000 in
 theorem scaled_sum_integer :
     (∀ n : ℕ, 0 < n → (∃ m : ℤ, (m : ℚ) = 2 ^ LeanBridges.Counting.factorial (n : ℤ) * (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / 2 ^ LeanBridges.Counting.factorial k : ℚ)))) := by
   -- the theorem. induction on n starting at 1

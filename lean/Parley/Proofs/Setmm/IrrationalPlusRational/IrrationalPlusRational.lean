@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.IrrationalPlusRational.IrrationalPlusRational
 
+set_option maxHeartbeats 400000 in
 theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (B : ℚ) :
     A + (B : ℝ) ∈ (Set.univ : Set ℝ) \ {x : ℝ | ∃ m : ℚ, (m : ℝ) = x} := by
   -- 1. def:difference Y := ℝ, Z := ℚ, from H3

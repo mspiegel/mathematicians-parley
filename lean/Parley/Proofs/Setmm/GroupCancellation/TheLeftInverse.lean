@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.GroupCancellation.TheLeftInverse
 
+set_option maxHeartbeats 400000 in
 theorem the_left_inverse {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : Set G)) :
     a⁻¹ * a = (1 : G) := by
   -- 1. axi:group-identity-closed

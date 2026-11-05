@@ -396,6 +396,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
     writer.reals = held_real(rec, &writer);
     writer.finite_from(finite_lines(thm, rec));
     finite_named(&sources.checked.grammar, thm, rec, &mut writer.finite);
+    writer.bounds_from(&finite_lines(thm, rec));
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -640,6 +641,26 @@ fn element_number_type(
         .map(LetterType::Number)
 }
 
+/// The type of `let T be a set` where T is a set of numbers its lines join
+/// with or put inside a set of numbers of one type, T of {1, …, i} ∩ T or
+/// D of D ⊆ ℝ: a set of those, as an item's are (`items::numbers_joined`,
+/// `items::numbers_subset`). None where no line does.
+fn joined_number_set_type(
+    name: &str,
+    rec: &CheckedTheorem,
+    writer: &Writer,
+) -> Option<LetterType> {
+    rec.page
+        .entries()
+        .flat_map(|(_, node)| node.walk())
+        .filter_map(|n| {
+            super::items::numbers_subset(writer, &n)
+                .or_else(|| super::items::numbers_joined(writer, &n))
+        })
+        .find(|(letter, _)| letter == name)
+        .map(|(_, ty)| ty)
+}
+
 /// A theorem's binders, from its `let` and `assume` lines, and each
 /// sentence of its `then` line with its Lean text.
 /// A function the header lets by its value, `let f(x) = 2x + 1, for x ∈ ℝ`:
@@ -728,29 +749,30 @@ fn header_function(
         super::expr::system_of(&domain),
         Some(super::expr::System::Type(_))
     );
+    let x = Node::name(crate::formula::Sort::none(), &param.name);
+    let member = Node::of(
+        crate::notations::IN,
+        crate::formula::Sort::none(),
+        vec![x, domain.clone()],
+    );
     let guard = match whole_type {
         true => Route::Built(None),
-        false => {
-            let x = Node::name(crate::formula::Sort::none(), &param.name);
-            let member = Node::of(
-                crate::notations::IN,
-                crate::formula::Sort::none(),
-                vec![x, domain.clone()],
-            );
-            writer.formula(&member).map(|p| Some(p.text))
-        }
+        false => writer.formula(&member).map(|p| Some(p.text)),
     };
+    // The value is read where x is in the domain: √x of x ∈ {y ∈ ℝ : y >
+    // 0} the real square root.
+    let inside = writer.knowing(std::slice::from_ref(&member));
     // A function of a real or complex argument gives values of at least
     // that type, as continuity and derivatives read it: a step of 0 and 1
     // on [0, 1] is a function into ℝ.
     let value = match &takes {
-        super::expr::Members::Numbers(from) => match writer.carrier(body) {
+        super::expr::Members::Numbers(from) => match inside.carrier(body) {
             Route::Built(to) => {
                 let to = match *from >= Num::Real {
                     true => to.max(*from),
                     false => to,
                 };
-                writer
+                inside
                     .number_fixed(body, to)
                     .map(|v| (LetterType::Function { from: *from, to }, v))
             }
@@ -1089,6 +1111,7 @@ fn statement(
             .get(&name)
             .and_then(super::sets::set_letter_type)
             .or_else(|| element_number_type(&name, rec, writer))
+            .or_else(|| joined_number_set_type(&name, rec, writer))
             .or_else(|| {
                 unsorted_element
                     .then_some(LetterType::Member(super::expr::Members::Things(0)))
@@ -1252,6 +1275,29 @@ struct Proof<'a> {
     /// is a line about an obtained number, cited as any line is, not a
     /// `set` written out.
     witnessed: std::collections::BTreeSet<String>,
+    /// Each such define's value, m/p, and the letter that names the number,
+    /// r: a citation given the value, as the checker reads one from the
+    /// define's fact `m/p ∈ ℕ`, is given the letter.
+    witness_letters: Vec<WitnessLetter>,
+}
+
+/// The fact a define of a kind says of its value, as `Proof::kind_shown`
+/// reads it.
+struct KindShown {
+    /// The fact, `gcd(t, w) ∈ ℕ`.
+    fact: Node,
+    /// The fact as Lean writes it.
+    text: String,
+    /// Its proof by the define's reason.
+    proof: String,
+}
+
+/// A define that names the number its reason shows its value is.
+struct WitnessLetter {
+    /// The value, m/p.
+    value: Node,
+    /// The letter, r.
+    letter: Node,
 }
 
 /// A line whose number a citation was given: its Lean name, and the term
@@ -1293,11 +1339,13 @@ pub fn theorem(
         worked_in: std::cell::Cell::new(None),
         said_used: std::cell::RefCell::new(Vec::new()),
         witnessed: std::collections::BTreeSet::new(),
+        witness_letters: Vec::new(),
     };
     proof.writer.floor = floor_of(rec);
     proof.writer.reals = held_real(rec, &proof.writer);
     proof.writer.finite_from(finite_lines(thm, rec));
     finite_named(&sources.checked.grammar, thm, rec, &mut proof.writer.finite);
+    proof.writer.bounds_from(&finite_lines(thm, rec));
     let Statement {
         binders,
         conclusion,
@@ -1341,13 +1389,15 @@ pub fn theorem(
             .chain(binders.iter().map(Binder::lean))
             .collect();
     let space = if binders.is_empty() { "" } else { " " };
-    // Lean's budget for one declaration, 200000 heartbeats, for each 15
+    // Lean's budget for one declaration, 200000 heartbeats, for each 10
     // steps of the proof: a long proof is many steps, each of the usual
     // cost, which the one default would cut off part way. A proof of 37
     // steps citing items over ℚ and ℝ took 16 seconds and more than one;
     // Ramsey's 26, citing "for all" statements over sets, between two and
-    // four hundred thousand.
-    let budget = match thm.steps.len().div_ceil(15) {
+    // four hundred thousand; the cubic formula's 42, whose algebra clears
+    // divisions by terms of i and √3, between six and nine hundred
+    // thousand.
+    let budget = match thm.steps.len().div_ceil(10) {
         0 | 1 => String::new(),
         n => format!("set_option maxHeartbeats {} in\n", 200_000 * n),
     };
@@ -1574,6 +1624,8 @@ impl<'a> Proof<'a> {
                     self.writer.letters.insert(letter, members.letter());
                 } else if let Some((letter, members)) = self.part_said(node) {
                     self.writer.letters.insert(letter, LetterType::Set(members));
+                } else if let Some((letter, ty)) = self.function_said(node) {
+                    self.writer.letters.insert(letter, ty);
                 } else if let Some(letter) =
                     super::statement::introduces_polynomial(node)
                 {
@@ -1587,6 +1639,21 @@ impl<'a> Proof<'a> {
                 }
             }
         }
+    }
+
+    /// The letter a line says is a function between sets, `g : {1, …, j} →
+    /// ℕ`, where the letter is new, with the type `Writer::function_between`
+    /// gives it.
+    fn function_said(&self, node: &Node) -> Option<(String, LetterType)> {
+        let [g, from, to] = node.children.as_slice() else {
+            return None;
+        };
+        let new = node.notation() == crate::notations::FUNCTION_TYPE
+            && g.is_name()
+            && !self.writer.letters.contains_key(g.text.as_str());
+        new.then(|| self.writer.function_between(from, to))
+            .flatten()
+            .map(|ty| (g.text.to_string(), ty))
     }
 
     /// The letter a line says is a part of a set, `W ⊆ X`, where the letter
@@ -1619,6 +1686,10 @@ impl<'a> Proof<'a> {
 
     fn step(&mut self, i: usize, depth: usize) -> Route<()> {
         let step = &self.thm.steps[i];
+        // A square root of y − 3 is Mathlib's real one once a line in scope
+        // says y − 3 ≥ 0 (`Writer::principal_is_real`).
+        self.writer
+            .bounds_from(self.trees.values().flatten().map(|(n, _)| n));
         // The defines written above this step in its block, where the
         // checker opens them.
         let due: Vec<usize> = (0..self.thm.defines.len())
@@ -1683,9 +1754,7 @@ impl<'a> Proof<'a> {
                     let outer = std::mem::replace(&mut self.writer, inner);
                     let proof = self.proof_of(reason, 0, &node);
                     self.writer = outer;
-                    proof.map(|p| {
-                        format!("by intro {}; {}", intros.join(" "), as_tactic(&p))
-                    })
+                    proof.map(|p| after_intros(&intros, &p))
                 }
             };
             let proof = match proof {
@@ -1758,9 +1827,7 @@ impl<'a> Proof<'a> {
                 self.writer = outer;
                 proof.map(|p| match intros.is_empty() {
                     true => p,
-                    false => {
-                        format!("by intro {}; {}", intros.join(" "), as_tactic(&p))
-                    }
+                    false => after_intros(&intros, &p),
                 })
             } else {
                 self.proof_of(reason, places[k], node)
@@ -1904,12 +1971,14 @@ impl<'a> Proof<'a> {
             body = inner;
         }
         // A letter free in a value: a value that binds it itself, Q := "for
-        // all x, …", says the "for all" whole.
+        // all x, …", says the "for all" whole, and so does a function by its
+        // values, t := k ↦ a(k)², whose k is its own.
         let binders = self.sources.checked.grammar.binders();
         cited.binding.values().any(|v| {
+            let own = |n: &str| &*v.notation_name() == "property-of" && *v.text == *n;
             crate::matching::free_names(v, &binders)
                 .iter()
-                .any(|n| bound.iter().any(|b| **b == **n))
+                .any(|n| !own(n) && bound.iter().any(|b| **b == **n))
         })
     }
 
@@ -1937,15 +2006,12 @@ impl<'a> Proof<'a> {
         }
     }
 
-    /// The recursion of the theorem's header a step cites by its label, with
-    /// that label; None for a citation of any other define.
+    /// The recursion a step cites by its label, the header's or one the
+    /// proof lets, whose hypotheses are written alike; None for a citation
+    /// of any other define.
     fn recursion_cited(&self, just: &Justification) -> Option<CitedRecursion> {
         let label = just.defined.as_deref()?;
-        let d = self
-            .thm
-            .defines
-            .iter()
-            .find(|d| d.label == label && d.line < self.thm.conclusion_line)?;
+        let d = self.thm.defines.iter().find(|d| d.label == label)?;
         let by_cases = self
             .rec
             .page
@@ -2014,9 +2080,13 @@ impl<'a> Proof<'a> {
         let start = projection(at, n + 1);
         let steps = projection(n, n + 1);
         let step = projection(at, n);
+        // The rule in the type the recursion computes in, the claim in its
+        // own, N(0) = 0 in ℤ for (N 0 : ℝ) = 0 of a theorem in ℝ: the rule
+        // cast up first where the claim's type is wider.
+        let closed = "first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)";
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
             return Route::Built(format!(
-                "by have h := {hyp}{start}; (try ring_nf at h ⊢); linarith"
+                "by have h := {hyp}{start}; (try ring_nf at h ⊢); {closed}"
             ));
         }
         let a = match writer.number_fixed(&arg, super::templates::Num::Int) {
@@ -2024,13 +2094,14 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         Route::Built(format!(
-            "by have h := ({hyp}{steps} ({} - 1) (by omega)){step}; simp only [{cancel}] at h;{case_rewrites} (try ring_nf at h ⊢); linarith",
+            "by have h := ({hyp}{steps} ({} - 1) (by omega)){step}; simp only [{cancel}] at h;{case_rewrites} (try ring_nf at h ⊢); {closed}",
             a.at(66)
         ))
     }
 
-    /// A claim that a term of a wider type is an integer or a rational,
-    /// (A + B) − B ∈ ℚ of reals, where some part of it a line says is in
+    /// A claim that a term of a wider type is an integer, a rational or a
+    /// real, (A + B) − B ∈ ℚ of reals or √b + 1 ∈ ℝ of a square root in ℂ,
+    /// where some part of it a line says is in
     /// that type: the term written there, that part the number the line
     /// gives, as Lean's witness. A citation of an item over ℚ gives such a
     /// claim nothing, as of rationals it holds by their type.
@@ -2042,7 +2113,7 @@ impl<'a> Proof<'a> {
         // The type the term is said to be in, and the type its parts are
         // said to be in: ℕ₀ is said of an integer, its parts integers.
         let (claimed, ty) = match super::expr::system_of(set)? {
-            super::expr::System::Type(t @ (Num::Int | Num::Rat)) => (t, t),
+            super::expr::System::Type(t @ (Num::Int | Num::Rat | Num::Real)) => (t, t),
             super::expr::System::NonNegative => (Num::Nat, Num::Int),
             _ => return None,
         };
@@ -2127,6 +2198,9 @@ impl<'a> Proof<'a> {
                 };
                 if intros.is_empty() {
                     return Route::Built(tactic);
+                }
+                if tactic.starts_with("by\n") {
+                    return Route::Built(after_intros(&intros, &tactic));
                 }
                 let inner = tactic.strip_prefix("by ").unwrap_or(&tactic);
                 Route::Built(format!("by intro {}; {inner}", intros.join(" ")))
@@ -2433,16 +2507,124 @@ impl<'a> Proof<'a> {
         })
     }
 
+    /// A recursion a proof lets, `let N(0) = 0, N(k + 1) = 10·N(k) + d(k +
+    /// 1), for k ∈ ℕ₀`: its function, of ℤ into the type its rules compute
+    /// in, obtained from `recursion_exists`, and its rules one hypothesis
+    /// named by its label, as a recursion the header lets is written
+    /// (`header_recursions`), which a step cites alike. A recursion of
+    /// several functions, over other than ℕ₀, or whose step applies its
+    /// function at other than k, is declined.
+    fn define_recursion(
+        &mut self,
+        d: usize,
+        r: &crate::corpus::Recursion,
+        depth: usize,
+    ) -> Route<()> {
+        use super::templates::Num;
+        let line = self.thm.defines[d].clone();
+        if r.domain.trim() != "ℕ₀" {
+            return Route::no("a recursion over other than ℕ₀");
+        }
+        let rules = match recursion_rules(r, &line, self.rec) {
+            Route::Built(rules) => rules,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let [rule] = rules.as_slice() else {
+            return Route::no("a recursion of several functions a proof lets");
+        };
+        let saved = self.writer.letters.clone();
+        self.writer
+            .letters
+            .insert(r.index.clone(), LetterType::Number(Num::Int));
+        let mut to = Num::Int;
+        for n in [&rule.start, &rule.step] {
+            self.writer.letters.insert(
+                rule.name.clone(),
+                LetterType::Function { from: Num::Int, to },
+            );
+            match self.writer.carrier(n) {
+                Route::Built(c) => to = to.max(c),
+                Route::Declined(why) => {
+                    self.writer.letters = saved;
+                    return Route::Declined(why);
+                }
+            }
+        }
+        let ty = LetterType::Function { from: Num::Int, to };
+        self.writer.letters.insert(rule.name.clone(), ty.clone());
+        // The step as `recursion_exists` takes it: of k and the value at k,
+        // N(k) in it a letter for that value.
+        let previous = fresh_letter(&self.writer, &r.index);
+        let at_index = rule
+            .step
+            .walk()
+            .into_iter()
+            .find(|n| applied_at(n, rule.name, &r.index));
+        let stepped = match &at_index {
+            Some(at) => replaced(
+                &rule.step,
+                at,
+                &Node::name(crate::formula::Sort::none(), &previous),
+            ),
+            None => rule.step.clone(),
+        };
+        let still_applied = stepped
+            .walk()
+            .iter()
+            .any(|n| n.is_name() && &*n.text == rule.name.as_str());
+        self.writer
+            .letters
+            .insert(previous.clone(), LetterType::Number(to));
+        let written = (
+            self.writer.number_fixed(&rule.start, to),
+            self.writer.number_fixed(&rule.step, to),
+            self.writer.number_fixed(&stepped, to),
+        );
+        self.writer.letters = saved;
+        self.writer.letters.insert(rule.name.clone(), ty);
+        if still_applied {
+            return Route::no(
+                "a recursion whose step applies its function at other than k",
+            );
+        }
+        let (start, step, by_previous) = match written {
+            (Route::Built(s), Route::Built(t), Route::Built(g)) => (s, t, g),
+            (Route::Declined(why), _, _)
+            | (_, Route::Declined(why), _)
+            | (_, _, Route::Declined(why)) => return Route::Declined(why),
+        };
+        let f = super::names::letter(rule.name);
+        let k = super::names::letter(&r.index);
+        let v = super::names::letter(&previous);
+        let label = line_name(&line.label);
+        self.push(
+            format!(
+                "{}obtain ⟨{f}, {label}⟩ : ∃ {f} : ℤ → {}, {f} 0 = {} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = {} := LeanBridges.Functions.recursion_exists _ (fun {k} {v} => {})",
+                pad(depth),
+                to.lean(),
+                start.at(51),
+                step.at(51),
+                by_previous.text
+            ),
+            line.line,
+            Spot::Statement,
+        );
+        self.named.insert(line.label.clone(), vec![label]);
+        Route::Built(())
+    }
+
     /// A define in a proof, `let t = 1/j, a real number`: Lean's `set`, of
     /// the type the line names, or else of the least that holds its value,
     /// whose hypothesis is the define's equation, named by its label.
     fn define(&mut self, d: usize, depth: usize) -> Route<()> {
         self.defined.insert(d);
         let line = &self.thm.defines[d];
-        let crate::outcome::Route::Built(crate::corpus::DefineParts::One(def)) =
-            crate::corpus::define_parts(&line.text)
-        else {
-            return Route::no("a define of a function or a phrase");
+        let def = match crate::corpus::define_parts(&line.text) {
+            Route::Built(crate::corpus::DefineParts::One(def)) => def,
+            Route::Built(crate::corpus::DefineParts::Recursion(r)) => {
+                return self.define_recursion(d, &r, depth)
+            }
+            _ => return Route::no("a define of a phrase"),
         };
         if !def.params.is_empty() {
             return self.define_function(d, &def, depth);
@@ -2514,6 +2696,22 @@ impl<'a> Proof<'a> {
             body,
             depth,
         );
+        // A define of a kind whose value is already of the type, `let n =
+        // gcd(t, w), a positive integer`: the kind's fact, n above 0, is
+        // still a line, proved by the define's reason.
+        if def.kind.is_some() {
+            let KindShown { text, proof, .. } = match self.kind_shown(d) {
+                Route::Built(s) => s,
+                Route::Declined(why) => return Route::Declined(why),
+            };
+            let line = &self.thm.defines[d];
+            let label = line_name(&line.label);
+            self.push(
+                format!("{}have {label}_kind : {text} := {proof}", pad(depth)),
+                line.line,
+                Spot::Statement,
+            );
+        }
         Route::Built(())
     }
 
@@ -2584,6 +2782,39 @@ impl<'a> Proof<'a> {
         self.trees.insert(page_label, vec![(equation, label)]);
     }
 
+    /// The fact a define of a kind says of its value, `gcd(t, w) ∈ ℕ` of
+    /// `let n = gcd(t, w), a positive integer`, as Lean writes it, and its
+    /// proof by the define's reason.
+    fn kind_shown(&self, d: usize) -> Route<KindShown> {
+        let line = &self.thm.defines[d];
+        let members = &self.sources.checked.grammar.members;
+        let kinded = match line.kinded(&self.thm.path, members) {
+            Ok(Some(k)) => k,
+            Ok(None) => return Route::no("a define of a kind with no reason"),
+            Err(p) => return Route::no(p.to_string()),
+        };
+        let fact = match self.tree(&kinded.shown.fact) {
+            Route::Built(n) => n,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let text = match self.writer.formula(&fact) {
+            Route::Built(f) => f.text,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        let Ok(just) = &kinded.shown.by else {
+            return Route::no("a define whose reason does not read");
+        };
+        let reason = Reason {
+            just,
+            cited: self.rec.cited_requires.get(&kinded.shown.line),
+        };
+        let proof = match self.proof_of(reason, 0, &fact) {
+            Route::Built(p) => p,
+            Route::Declined(why) => return Route::Declined(why),
+        };
+        Route::Built(KindShown { fact, text, proof })
+    }
+
     /// A define naming a whole number its value is shown to be, `let e =
     /// p/d, a positive integer` with `p/d ∈ ℕ` its reason's fact: that
     /// fact proved by the reason, as a requires line is, and the name taken
@@ -2597,16 +2828,15 @@ impl<'a> Proof<'a> {
         depth: usize,
     ) -> Route<()> {
         let line = &self.thm.defines[d];
-        let members = &self.sources.checked.grammar.members;
-        let kinded = match line.kinded(&self.thm.path, members) {
-            Ok(Some(k)) => k,
-            Ok(None) => return Route::no("a define of a kind with no reason"),
-            Err(p) => return Route::no(p.to_string()),
-        };
-        let fact = match self.tree(&kinded.shown.fact) {
-            Route::Built(n) => n,
+        let shown = match self.kind_shown(d) {
+            Route::Built(s) => s,
             Route::Declined(why) => return Route::Declined(why),
         };
+        let KindShown {
+            fact,
+            text: fact_text,
+            proof,
+        } = shown;
         let [_, set] = fact.children.as_slice() else {
             return Route::no("a kind's fact that is no membership");
         };
@@ -2621,21 +2851,6 @@ impl<'a> Proof<'a> {
                 (super::templates::Num::Int, false)
             }
             _ => return Route::no("a define of a kind other than ℕ, ℕ₀ or ℤ"),
-        };
-        let fact_text = match self.writer.formula(&fact) {
-            Route::Built(f) => f.text,
-            Route::Declined(why) => return Route::Declined(why),
-        };
-        let Ok(just) = &kinded.shown.by else {
-            return Route::no("a define whose reason does not read");
-        };
-        let reason = Reason {
-            just,
-            cited: self.rec.cited_requires.get(&kinded.shown.line),
-        };
-        let proof = match self.proof_of(reason, 0, &fact) {
-            Route::Built(p) => p,
-            Route::Declined(why) => return Route::Declined(why),
         };
         let label = line_name(&line.label);
         let (at, page_label) = (line.line, line.label.clone());
@@ -2655,6 +2870,10 @@ impl<'a> Proof<'a> {
         self.writer
             .letters
             .insert(name.to_string(), LetterType::Number(ty));
+        self.witness_letters.push(WitnessLetter {
+            value: body.clone(),
+            letter: Node::name(body.sort.clone(), name),
+        });
         let equation = Node::of(
             crate::notations::EQUALS,
             crate::formula::node::Sort::of("formula"),
@@ -2756,11 +2975,18 @@ impl<'a> Proof<'a> {
             .letters
             .insert(param.name.clone(), LetterType::Number(from));
         // Of a real or complex argument, values of that type at least, as a
-        // header function's are (`header_function`).
+        // header function's are (`header_function`). A value in a field,
+        // N(k)/10^k, is of the type the proof's relations are written in at
+        // least, ℝ where its lines meet reals (`floor_of`), so that a claim
+        // of L(k) reads it with no cast.
         let value = match self.writer.carrier(body) {
             Route::Built(to) => {
                 let to = match from >= super::templates::Num::Real {
                     true => to.max(from),
+                    false => to,
+                };
+                let to = match to >= super::templates::Num::Rat {
+                    true => to.max(self.writer.floor),
                     false => to,
                 };
                 self.writer.number_fixed(body, to).map(|v| (to, v))
@@ -2897,6 +3123,31 @@ impl<'a> Proof<'a> {
             if &*set.notation_name() == "polynomials" {
                 match self.writer.set_term(value) {
                     Route::Built(p) => parts.push(p.text),
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                parts.push(format!("by {}parley_side", known.concat()));
+                body = inner;
+                continue;
+            }
+            // A function between sets of numbers: the function, of the
+            // types the quantifier gives it, and that it maps the one set
+            // into the other.
+            if let ("functions-from", [from, to]) =
+                (&*set.notation_name(), set.children.as_slice())
+            {
+                let wanted = match self.writer.function_between(from, to) {
+                    Some(LetterType::Function { from, to }) => (from, to),
+                    _ => {
+                        return Route::no("a function given between sets of no numbers")
+                    }
+                };
+                match self.writer.function_type(value) {
+                    Route::Built(t) if t == wanted => {
+                        parts.push(self.writer.function_printed(value).text)
+                    }
+                    Route::Built(_) => {
+                        return Route::no("a function given for one of other types")
+                    }
                     Route::Declined(d) => return Route::Declined(d),
                 }
                 parts.push(format!("by {}parley_side", known.concat()));
@@ -3136,8 +3387,12 @@ impl<'a> Proof<'a> {
             .iter()
             .map(|t| format!("Int.toNat_of_nonneg (show (0 : ℤ) ≤ {t} by parley_side)"))
             .collect();
+        // Where the `toNat` stands in a natural exponent, 2^(F + j) at j :=
+        // (i − n).toNat, which the claim writes as an integer power: the
+        // powers read as integer powers on both sides, and the cast of the
+        // `toNat` taken back to the integer.
         Route::Built(format!(
-            "by have h := {term}; rw [{}] at h; exact h",
+            "by have h := {term}; first | (rw [{}] at h; exact h) | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Int.toNat_of_nonneg] at h ⊢; exact h)",
             rewrites.join(", ")
         ))
     }
@@ -3420,7 +3675,36 @@ impl<'a> Proof<'a> {
             })
             .unwrap_or_default();
         let mut into = Vec::new();
-        for (line, name) in candidates {
+        for (i, (line, name)) in candidates.into_iter().enumerate() {
+            // A "for all" line read at the block's letter, the part of it
+            // the equation turns into the claim: line 2's "e(n) ≠ D(f(n),
+            // n)" at the block's n, the equation being of that n, which no
+            // rewriting under the line's own binder reaches.
+            let read = self.read_at_claim(
+                &super::algebra::Cited {
+                    node: line.clone(),
+                    proof: name.clone(),
+                },
+                claim,
+            );
+            let mut parts = Vec::new();
+            if let Some(at) =
+                read.filter(|_| line.notation() == crate::notations::FOR_ALL)
+            {
+                conjuncts(&at.node, at.proof, &mut parts);
+            }
+            if let Some(part) = parts.iter().find(|p| turns(&p.node)) {
+                let at_name = format!("at{i}");
+                haves.push(format!("have {at_name} := {}", part.proof));
+                match self.widened(&part.node, &at_name, claim, writer) {
+                    Route::Built(w) => {
+                        haves.extend(w.have);
+                        into.push(w.name);
+                    }
+                    Route::Declined(d) => return Route::Declined(d),
+                }
+                continue;
+            }
             match self.widened(line, name, claim, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
@@ -3434,6 +3718,34 @@ impl<'a> Proof<'a> {
         // part of a fixed type, (4 − 2)! of a claim in ℚ.
         // Of several lines, each is rewritten into before any is simplified,
         // since a simplification that loops ends the search (`parley_put_at`).
+        // An equation of whole numbers the proof states in a wider type, p +
+        // g + 1 = p + (g + 1) in ℝ, is put where those terms stand in ℤ too,
+        // as a function's argument, L(p + g + 1): the equation in ℤ.
+        let whole = |c: &Node| {
+            self.writer
+                .carrier(c)
+                .built()
+                .is_some_and(|n| n <= super::templates::Num::Int)
+        };
+        let narrowed = match (&put, &stated) {
+            (Some(e), Some(name))
+                if e.notation() == EQUALITY
+                    && e.children.iter().all(whole)
+                    && self.writer.floor > super::templates::Num::Int =>
+            {
+                self.writer
+                    .closed_formula(e, super::templates::Num::Int)
+                    .built()
+                    .map(|p| {
+                        haves.push(format!(
+                            "have e_int : {} := by exact_mod_cast {name}",
+                            p.text
+                        ));
+                        "e_int".to_string()
+                    })
+            }
+            _ => None,
+        };
         let own = stated.filter(|s| *s != equation);
         let mut ways: Vec<String> = Vec::new();
         let tactics: &[&str] = if into.len() > 1 {
@@ -3446,6 +3758,9 @@ impl<'a> Proof<'a> {
                 ways.push(format!("{tactic} {equation} {line}"));
                 if let Some(own) = &own {
                     ways.push(format!("{tactic} {own} {line}"));
+                }
+                if let Some(narrowed) = &narrowed {
+                    ways.push(format!("{tactic} {narrowed} {line}"));
                 }
             }
         }
@@ -3630,13 +3945,39 @@ impl<'a> Proof<'a> {
             };
             let row_name = format!("row{k}");
             // At the type the term has where it stands, as `substitute`
-            // puts its equation in.
-            let put = if used == change_name {
-                format!("parley_subst_at {used} {above}")
-            } else {
-                format!(
-                    "first | parley_subst_at {used} {above} | parley_subst_at {change_name} {above}"
-                )
+            // puts its equation in; an equation of whole numbers stated in
+            // a wider type, j + (k − j) = k in ℝ, in ℤ too, where the terms
+            // are a function's integer arguments.
+            let whole = |c: &Node| {
+                writer
+                    .carrier(c)
+                    .built()
+                    .is_some_and(|n| n <= super::templates::Num::Int)
+            };
+            let narrowed = match change.notation() == EQUALITY
+                && change.children.iter().all(whole)
+                && writer.floor > super::templates::Num::Int
+            {
+                true => writer
+                    .closed_formula(&change, super::templates::Num::Int)
+                    .built(),
+                false => None,
+            };
+            let mut ways = vec![format!("parley_subst_at {used} {above}")];
+            if used != change_name {
+                ways.push(format!("parley_subst_at {change_name} {above}"));
+            }
+            if let Some(int) = narrowed {
+                let int_name = format!("{change_name}_int");
+                haves.push(format!(
+                    "have {int_name} : {} := by exact_mod_cast {change_name}",
+                    int.text
+                ));
+                ways.push(format!("parley_subst_at {int_name} {above}"));
+            }
+            let put = match ways.as_slice() {
+                [one] => one.clone(),
+                _ => format!("first | {}", ways.join(" | ")),
             };
             // A row whose lines say counts both ways takes them to
             // integers first, as a step does (`count_conversion`).
@@ -4066,6 +4407,19 @@ impl<'a> Proof<'a> {
         if asked.contains(".encard") && wanted.contains(".ncard") {
             return None;
         }
+        // A relation of whole numbers, N(n) < ⌊10^n·c⌋ + 1, the proof writes
+        // in ℝ where its lines meet reals, and the item asks in ℤ: the line
+        // cast down to it.
+        let whole = matches!(
+            at.notation(),
+            crate::notations::EQUALITY | crate::notations::ORDER
+        ) && self.writer.floor > super::templates::Num::Int
+            && at.children.iter().all(|c| {
+                self.writer
+                    .carrier(c)
+                    .built()
+                    .is_some_and(|n| n <= super::templates::Num::Int)
+            });
         cited_lines
             .iter()
             .find(|c| {
@@ -4074,7 +4428,10 @@ impl<'a> Proof<'a> {
                     .built()
                     .is_some_and(|p| p.text == wanted)
             })
-            .map(|c| c.proof.clone())
+            .map(|c| match whole {
+                true => format!("(by exact_mod_cast {})", c.proof),
+                false => c.proof.clone(),
+            })
     }
 
     /// The type each of an item's type variables is taken at where a
@@ -4176,6 +4533,7 @@ impl<'a> Proof<'a> {
         claim: Option<&Node>,
         cited_lines: &[super::algebra::Cited],
     ) -> Route<String> {
+        let things = self.things_given(&sentence.binders, binding);
         // The type an item's general letters take: the least that holds the
         // claim and every value given them, a field's at least where the
         // item divides.
@@ -4187,8 +4545,15 @@ impl<'a> Proof<'a> {
                     super::templates::Num::Int
                 };
                 // At the writer's floor at least, where claims are written
-                // in ℝ inside a block that lets a real number.
-                let least = least.max(self.writer.floor);
+                // in ℝ inside a block that lets a real number; but not for a
+                // membership, k − j ∈ ℕ₀, which is written in its term's own
+                // type whatever the floor (`Writer::membership`).
+                let membership =
+                    claim.is_some_and(|c| c.notation() == crate::notations::MEMBERSHIP);
+                let least = match membership {
+                    true => least,
+                    false => least.max(self.writer.floor),
+                };
                 let mut at = self.worked_in.get().map_or(least, |w| w.max(least));
                 let numbers: Vec<&Node> = claim
                     .into_iter()
@@ -4221,7 +4586,7 @@ impl<'a> Proof<'a> {
                     else {
                         continue;
                     };
-                    match self.given_type(value, ty) {
+                    match self.given_type(value, ty, &things) {
                         Route::Built(c) => at = at.max(c),
                         Route::Declined(d) => return Route::Declined(d),
                     }
@@ -4230,7 +4595,6 @@ impl<'a> Proof<'a> {
             }
             None => None,
         };
-        let things = self.things_given(&sentence.binders, binding);
         let things_at = |var: &usize| {
             let least = self.worked_in.get().unwrap_or(super::templates::Num::Nat);
             things.at.get(var).map_or(least, |n| least.max(*n))
@@ -4276,6 +4640,13 @@ impl<'a> Proof<'a> {
                         args.push(format!("({name} := {fill})"));
                         continue;
                     };
+                    // The value of a define that names its number, m/p of
+                    // `let r = m/p, a positive integer`, is that number, r.
+                    let value = self
+                        .witness_letters
+                        .iter()
+                        .find(|w| w.value.same_shape(value))
+                        .map_or(value, |w| &w.letter);
                     let printed = match (ty, general.filter(|_| *in_general)) {
                         (LetterType::Number(_), Some(at)) => {
                             self.writer.number_fixed(value, at)
@@ -4496,6 +4867,71 @@ impl<'a> Proof<'a> {
                                 ),
                             }
                         }
+                        // A map from things into numbers given by its
+                        // values, x ↦ x·c for t : X → ℤ: `fun x : ℤ => x *
+                        // c`, x a member of what the things are taken at
+                        // here, its value a number of t's type.
+                        (
+                            LetterType::Map {
+                                from: from @ super::expr::Members::Things(_),
+                                to: super::expr::Members::Numbers(to),
+                            },
+                            given,
+                        ) if &*value.notation_name() == "property-of" => {
+                            let put = things.put(from, &things_at);
+                            let gives = given.unwrap_or(*to);
+                            match value.children.as_slice() {
+                                [body] => {
+                                    let mut letters = self.writer.letters.clone();
+                                    letters
+                                        .insert(value.text.to_string(), put.letter());
+                                    let inner = self.writer.with_letters(letters);
+                                    inner.number_fixed(body, gives).map(|b| {
+                                        super::expr::Printed::atom(format!(
+                                            "(fun {} : {} => {})",
+                                            super::names::letter(&value.text),
+                                            put.lean(),
+                                            b.text
+                                        ))
+                                    })
+                                }
+                                _ => Route::no(
+                                    "a map by its values of other than one body",
+                                ),
+                            }
+                        }
+                        // A function of numbers given for a map of things
+                        // into numbers, f for u : X → K: f itself where it
+                        // gives the numbers asked, else f's value cast up.
+                        (
+                            LetterType::Map {
+                                from: from @ super::expr::Members::Things(_),
+                                to: super::expr::Members::Numbers(to),
+                            },
+                            given,
+                        ) if self.writer.function_type(value).built().is_some() => {
+                            let wanted = given.unwrap_or(*to);
+                            let put = things.put(from, &things_at);
+                            match self.writer.function_type(value) {
+                                Route::Built((_, gives)) if gives == wanted => {
+                                    Route::Built(self.writer.function_printed(value))
+                                }
+                                Route::Built((takes, gives)) if gives < wanted => {
+                                    Route::Built(super::expr::Printed::atom(format!(
+                                        "(fun x : {} => (({} (x : {}) : {}) : {}))",
+                                        put.lean(),
+                                        self.writer.function_printed(value).text,
+                                        takes.lean(),
+                                        gives.lean(),
+                                        wanted.lean()
+                                    )))
+                                }
+                                Route::Built(_) => Route::no(
+                                    "a function given for a map into a narrower type",
+                                ),
+                                Route::Declined(d) => Route::Declined(d),
+                            }
+                        }
                         // A listed set whose members give no type, {∅},
                         // given for a set of things that another letter
                         // gives sets: a set of those.
@@ -4600,6 +5036,7 @@ impl<'a> Proof<'a> {
         &self,
         value: &Node,
         ty: &LetterType,
+        things: &ThingsGiven,
     ) -> Route<super::templates::Num> {
         match (ty, value.children.as_slice()) {
             (LetterType::Function { from, .. }, [body])
@@ -4610,6 +5047,26 @@ impl<'a> Proof<'a> {
                 self.writer.with_letters(letters).carrier(body)
             }
             (LetterType::Function { .. }, _) => {
+                self.writer.function_type(value).map(|(_, to)| to)
+            }
+            // A map of things into numbers given by its values, x ↦ x·c: the
+            // type of x·c with x a number of the type the things are given;
+            // given a function, what the function gives.
+            (
+                LetterType::Map {
+                    from: super::expr::Members::Things(var),
+                    ..
+                },
+                [body],
+            ) if &*value.notation_name() == "property-of" => {
+                let Some(takes) = things.at.get(var) else {
+                    return Route::no("a map by its values on things given no numbers");
+                };
+                let mut letters = self.writer.letters.clone();
+                letters.insert(value.text.to_string(), LetterType::Number(*takes));
+                self.writer.with_letters(letters).carrier(body)
+            }
+            (LetterType::Map { .. }, _) => {
                 self.writer.function_type(value).map(|(_, to)| to)
             }
             // A set given for a `Set K` letter: the type of its numbers.
@@ -4687,9 +5144,47 @@ impl<'a> Proof<'a> {
                 // A claim a requires line above already states, "0 ≤ b − c"
                 // for "b − c ∈ ℕ₀", is that line: tried first, as it is
                 // quick and the others may search long.
-                return Route::Built(format!(
-                    "by first | (assumption; done) | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; parley_side)"
-                ));
+                // A natural given as an integer's `toNat`, put back by `▸`,
+                // which the goal guides in an `exact`; where the claim is in
+                // a wider type than the item, the term stated by a `have`
+                // and cast to it.
+                let by_to_nat = inst.contains("Int.toNat_of_nonneg");
+                // A claim of whole numbers the proof writes in ℝ, ⌊10^n·c⌋
+                // mod 10 = d(n), stated in ℤ as the item says it, which
+                // guides the `▸`, and cast up.
+                let whole = |c: &Node| {
+                    self.writer
+                        .carrier(c)
+                        .built()
+                        .is_some_and(|n| n <= super::templates::Num::Int)
+                };
+                let in_whole = matches!(
+                    node.notation(),
+                    crate::notations::EQUALITY | crate::notations::ORDER
+                ) && self.writer.floor > super::templates::Num::Int
+                    && node.children.iter().all(whole);
+                let as_item = match in_whole {
+                    true => self
+                        .writer
+                        .closed_formula(node, super::templates::Num::Int)
+                        .built(),
+                    false => None,
+                };
+                let narrowed = match as_item {
+                    Some(p) => format!(
+                        " | (have h : {} := ({inst}).mpr {witness}; exact_mod_cast h)",
+                        p.text
+                    ),
+                    None => String::new(),
+                };
+                return Route::Built(match by_to_nat {
+                    true => format!(
+                        "by first | (assumption; done){narrowed} | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; exact_mod_cast h) | (have h := ({inst}).mpr {witness}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact_mod_cast h) | (have h := ({inst}).mpr {witness}; parley_side)"
+                    ),
+                    false => format!(
+                        "by first | (assumption; done) | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; parley_side)"
+                    ),
+                });
             }
         };
         // Several sentences of the claim taken by one reading are its "and"
@@ -4879,31 +5374,31 @@ impl<'a> Proof<'a> {
         // x`. ℕ adds that m is above 0, and is not one of them.
         let at = self.writer.carrier(value).built()?;
         let system = match ty {
-            super::templates::Num::Int | super::templates::Num::Rat => {
-                super::expr::System::Type(ty)
-            }
+            super::templates::Num::Int
+            | super::templates::Num::Rat
+            | super::templates::Num::Real => super::expr::System::Type(ty),
             super::templates::Num::Nat if at > super::templates::Num::Int => {
                 super::expr::System::NonNegative
             }
             _ => return None,
         };
         let wanted = self.writer.number(value, at).built()?.text;
-        // The latest such line: an earlier one may stand in a block the
-        // step is not in.
-        self.trees
-            .values()
-            .rev()
-            .flatten()
-            .find_map(|(node, name)| {
-                let [term, set] = node.children.as_slice() else {
-                    return None;
-                };
-                let integer = node.notation() == crate::notations::MEMBERSHIP
-                    && super::expr::system_of(set) == Some(system);
-                let same = self.writer.number(term, at).built().map(|p| p.text)
-                    == Some(wanted.clone());
-                (integer && same).then(|| name.clone())
-            })
+        // The latest such line, or part of an "and": an earlier one may
+        // stand in a block the step is not in.
+        let mut parts = Vec::new();
+        for (node, name) in self.trees.values().flatten() {
+            conjuncts(node, name.clone(), &mut parts);
+        }
+        parts.iter().rev().find_map(|c| {
+            let [term, set] = c.node.children.as_slice() else {
+                return None;
+            };
+            let integer = c.node.notation() == crate::notations::MEMBERSHIP
+                && super::expr::system_of(set) == Some(system);
+            let same = self.writer.number(term, at).built().map(|p| p.text)
+                == Some(wanted.clone());
+            (integer && same).then(|| c.proof.clone())
+        })
     }
 
     /// `obtain`: the witnesses of a "there is" an item gives, named as the
@@ -5035,10 +5530,22 @@ impl<'a> Proof<'a> {
                 }
                 _ => None,
             };
+            // A function's fact of mapping one set into another, g : A → B,
+            // the `Set.MapsTo` a "there is g : A → B" gives beside g.
+            let maps = match node.children.as_slice() {
+                [g, _, _]
+                    if node.notation() == crate::notations::FUNCTION_TYPE
+                        && g.is_name() =>
+                {
+                    Some(g.text.to_string())
+                }
+                _ => None,
+            };
             let letter = introduces(node)
                 .map(|(l, _)| l)
                 .or_else(|| super::statement::range_letter(node))
                 .or(in_set)
+                .or(maps)
                 .or_else(|| super::statement::introduces_polynomial(node));
             match letter.filter(|l| step.just.obtained.contains(l)) {
                 Some(l) => {
@@ -5821,6 +6328,10 @@ fn member_by_equation(
     if writer.carrier(term).built()? <= n {
         return None;
     }
+    // The equation is of the claim's term: a = 1 shows nothing of √b + 1.
+    if !equation.children.iter().any(|side| side.same_shape(term)) {
+        return None;
+    }
     equation.children.iter().find_map(|side| {
         let fits = writer.carrier(side).built().is_some_and(|c| c <= n);
         if !fits || side.names().is_empty() && !writer.is_number(side) {
@@ -5957,6 +6468,50 @@ fn indented(text: &str, pad: &str) -> String {
 
 /// A sentence's parts, a conjunction taken apart by Lean's projections,
 /// `H3.1` and `H3.2`, as the tree joins them.
+/// Whether the node is the function `f` applied at the letter `k`, N(k).
+fn applied_at(node: &Node, f: &str, k: &str) -> bool {
+    match node.children.as_slice() {
+        [head, arg] => {
+            node.notation() == crate::notations::APPLICATION
+                && head.is_name()
+                && &*head.text == f
+                && arg.is_name()
+                && &*arg.text == k
+        }
+        _ => false,
+    }
+}
+
+/// The node with each part of the shape of `from` put as `to`.
+fn replaced(node: &Node, from: &Node, to: &Node) -> Node {
+    if node.same_shape(from) {
+        return to.clone();
+    }
+    node.with_children(
+        node.children
+            .iter()
+            .map(|c| replaced(c, from, to))
+            .collect(),
+    )
+}
+
+/// A letter for a value no letter of the writer's or `taken` is: v, or w,
+/// u, or v with a number.
+fn fresh_letter(writer: &Writer, taken: &str) -> String {
+    let free = |l: &str| l != taken && !writer.letters.contains_key(l);
+    if let Some(l) = ["v", "w", "u"].into_iter().find(|l| free(l)) {
+        return l.to_string();
+    }
+    let mut i = 1;
+    loop {
+        let l = format!("v{i}");
+        if free(&l) {
+            return l;
+        }
+        i += 1;
+    }
+}
+
 fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
     let joined = matches!(
         node.notation(),
@@ -6073,6 +6628,22 @@ fn shaped_pattern(said: &Node, names: &mut impl Iterator<Item = String>) -> Stri
 /// tactics where it is a `by` block, as an error inside a nested `by`,
 /// `exact (by …)`, is logged and does not fail the alternative, so `first`
 /// would not go on to the next.
+/// A proof of a claim said "for all", made of a proof of its body: the
+/// letters introduced, then the body's proof. A body proved by a block of
+/// tactics on lines of their own, `by` and a line break, takes the `intro`
+/// as its first line, at the block's indentation, since a block cannot
+/// follow `intro …;` on its line.
+fn after_intros(intros: &[String], proof: &str) -> String {
+    let names = intros.join(" ");
+    match proof.strip_prefix("by\n") {
+        Some(block) => {
+            let indent: String = block.chars().take_while(|c| *c == ' ').collect();
+            format!("by\n{indent}intro {names}\n{block}")
+        }
+        None => format!("by intro {names}; {}", as_tactic(proof)),
+    }
+}
+
 fn as_tactic(proof: &str) -> String {
     match proof.strip_prefix("by ") {
         Some(t) => format!("({t})"),
@@ -6186,9 +6757,30 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
                 ),
                 (false, _) => String::new(),
             };
-            format!(
-                "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}{reorder} | (have h := {term}; parley_side)"
-            )
+            // A natural given as an integer's `toNat`, put back by `▸`: an
+            // error elaborating that against the goal is logged and does not
+            // fail the alternative, so the term is stated by a `have`, which
+            // fails. `▸` puts it back only where it is cast to ℤ; cast to ℚ
+            // or ℝ, m/(2^p − 1).toNat inside a "there is", it is put back by
+            // `parley_cast_toNat`.
+            match term.contains("Int.toNat_of_nonneg") {
+                true => format!(
+                    "by first | (have h := {term}; exact h) | (have h := {term}; exact h.symm) | (have h := {term}; simpa using h) | (have h := {term}; exact_mod_cast h){reorder} | (have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h) | (have h := {term}; parley_side)"
+                ),
+                false => {
+                    // A natural exponent given as an integer's `toNat`, p^m of
+                    // m := (a′ − a).toNat, read at the claim's integer power.
+                    let int_power = match term.contains(".toNat") {
+                        true => format!(
+                            " | (have h := {term}; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h; exact h)"
+                        ),
+                        false => String::new(),
+                    };
+                    format!(
+                        "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}{reorder}{int_power} | (have h := {term}; parley_side)"
+                    )
+                }
+            }
         }
     }
 }

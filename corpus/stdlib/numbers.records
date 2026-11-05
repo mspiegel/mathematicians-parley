@@ -412,7 +412,7 @@ mundane theorem real-power-sum
   let b ∈ ℂ                                                           (H4)
   then        x^(a + b) = x^a·x^b
   metamath-proof cxpadd
-  lean-proof  not yet implemented
+  lean-proof  by exact Complex.cpow_add a b h2
 
 mundane theorem real-power-of-power
   let x ∈ ℝ                                                           (H1)
@@ -436,7 +436,7 @@ mundane theorem half-power
   let x ∈ ℂ                                                           (H1)
   then        x^(1/2) = √x
   metamath-proof cxpsqrt
-  lean-proof  not yet implemented
+  lean-proof  by rfl
 
 mundane theorem cube-root-real
   let x ∈ ℝ                                                           (H1)
@@ -735,7 +735,7 @@ mundane theorem power-exponent-le
   metamath-proof metamath-bridges/powers/gleexp2
   note        As power-order, the exponents allowed to be equal: a larger
               exponent gives a power at least as large, of a base at least 1.
-  lean-proof  not yet implemented
+  lean-proof  by exact pow_le_pow_right₀ h4 (by exact_mod_cast h5)
 
 mundane theorem power-at-least-one
   let a ∈ ℝ                                                           (H1)

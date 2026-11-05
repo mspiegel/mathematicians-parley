@@ -126,6 +126,24 @@ const ALGEBRAIC: &[&str] = &[
     "number-systems",
     "sum",
     "product",
+    // Sums and products over a set, and what is said of the set, of things
+    // or of numbers: these ask nothing of the ring the values are in.
+    "sum-over",
+    "product-over",
+    "finite",
+    "cardinality",
+    "subset",
+    "set-operations",
+    "empty-set",
+    "singleton",
+    "listed-two",
+    "listed-three",
+    "listed-four",
+    "powerset",
+    "function-type",
+    "one-to-one",
+    "onto",
+    "one-to-one-onto",
     "for-all",
     "there-is",
     "there-are",
@@ -158,11 +176,8 @@ fn general_kind(
     // term t : {a, …, b} → ℝ is a function into any ring of the kind.
     let given = functions
         .iter()
-        .filter_map(super::statement::introduces_function)
-        .filter_map(|(_, ty)| match ty {
-            super::expr::LetterType::Function { to, .. } => Some(to),
-            _ => None,
-        });
+        .filter_map(function_gives)
+        .map(|(_, to)| to);
     let systems: Vec<Num> = nodes
         .iter()
         .filter_map(|n| super::statement::introduces(n))
@@ -179,10 +194,27 @@ fn general_kind(
     };
     // The item's own function letters may be applied; a library function,
     // cos, is about ℝ itself.
+    // Its maps between sets of things, g of `g : Y → Z be one-to-one`, are
+    // its own as well.
+    let maps = nodes
+        .iter()
+        .copied()
+        .chain(functions.iter())
+        .filter_map(|n| {
+            let mapping = matches!(
+                &*n.notation_name(),
+                "function-type" | "one-to-one" | "onto" | "one-to-one-onto"
+            );
+            match n.children.first() {
+                Some(f) if mapping && f.is_name() => Some(f.text.to_string()),
+                _ => None,
+            }
+        });
     let own: Vec<String> = functions
         .iter()
-        .filter_map(super::statement::introduces_function)
+        .filter_map(function_gives)
         .map(|(f, _)| f)
+        .chain(maps)
         .collect();
     let applies_own = |p: &Node| {
         &*p.notation_name() == "application"
@@ -226,12 +258,13 @@ fn general_kind(
         .any(|p| p.spelling() == crate::notations::DIVIDED || integer_power(p))
         || systems_named.iter().any(|s| &*s.text == "ℚ");
     let floor = parts.iter().any(|p| &*p.notation_name() == "floor");
+    // An order between integers, b + 1 ≥ a of a range's ends, is an order
+    // of ℤ and asks nothing of the ring.
     let ordered = floor
         || parts.iter().any(|p| {
-            matches!(
-                p.notation(),
-                crate::notations::ORDER | crate::notations::ABSOLUTE_VALUE
-            )
+            p.notation() == crate::notations::ABSOLUTE_VALUE
+                || (p.notation() == crate::notations::ORDER
+                    && !order_of_integers(p, &integers))
         });
     if num == Num::Complex && ordered {
         return None;
@@ -255,6 +288,38 @@ fn general_kind(
         floor,
         cast,
     })
+}
+
+/// The function letter of a function line into a number system and the
+/// type of its values: t : {a, …, b} → ℝ between number systems, or t : X
+/// → ℝ from a set of things. None for any other line.
+fn function_gives(node: &Node) -> Option<(String, Num)> {
+    if let Some((f, LetterType::Function { to, .. })) =
+        super::statement::introduces_function(node)
+    {
+        return Some((f, to));
+    }
+    let [f, _, to] = node.children.as_slice() else {
+        return None;
+    };
+    match super::expr::system_of(to) {
+        Some(super::expr::System::Type(n))
+            if node.notation() == crate::notations::FUNCTION_TYPE && f.is_name() =>
+        {
+            Some((f.text.to_string(), n))
+        }
+        _ => None,
+    }
+}
+
+/// Whether an order is between integers only: every letter in it one of
+/// the integer letters given, and at least one letter.
+fn order_of_integers(order: &Node, integers: &[String]) -> bool {
+    let walked = order.walk();
+    walked.iter().any(|n| n.is_name())
+        && walked
+            .iter()
+            .all(|n| !n.is_name() || integers.iter().any(|i| *i == *n.text))
 }
 
 /// A letter of an item no line introduces, the x of "x ∈ ℚ ↔ …".
@@ -350,7 +415,7 @@ fn free_letters(
         .chain(functions)
         .filter_map(|n| {
             super::statement::range_letter(n)
-                .or_else(|| super::statement::introduces_function(n).map(|(l, _)| l))
+                .or_else(|| function_gives(n).map(|(l, _)| l))
                 .or_else(|| super::statement::introduces(n).map(|(l, _)| l))
                 .or_else(|| super::statement::introduces_polynomial(n))
         })
@@ -387,22 +452,31 @@ fn free_letters(
         .collect()
 }
 
-/// The function letter of `f : D → ℝ` between sets of numbers that are not
-/// both number systems, and its type, a function of the numbers' types;
-/// None for any other node.
-fn function_of_number_sets(
+/// The function letter of a function into numbers and its type, alone or
+/// one-to-one or onto: of `f : D → ℝ` between sets of numbers that are
+/// not both number systems, a
+/// function of the numbers' types; of `t : X → ℝ` from a set of things, a
+/// map from those into the numbers. None for any other node.
+fn function_into_numbers(
     w: &super::expr::Writer,
     node: &Node,
 ) -> Option<(String, LetterType)> {
     let [f, from, to] = node.children.as_slice() else {
         return None;
     };
-    if node.notation() != crate::notations::FUNCTION_TYPE || !f.is_name() {
+    let typed = matches!(
+        &*node.notation_name(),
+        "function-type" | "one-to-one" | "onto" | "one-to-one-onto"
+    );
+    if !typed || !f.is_name() {
         return None;
     }
     match (w.set_members(from)?, w.set_members(to)?) {
         (super::expr::Members::Numbers(a), super::expr::Members::Numbers(b)) => {
             Some((f.text.to_string(), LetterType::Function { from: a, to: b }))
+        }
+        (from, to @ super::expr::Members::Numbers(_)) => {
+            Some((f.text.to_string(), LetterType::Map { from, to }))
         }
         _ => None,
     }
@@ -411,7 +485,7 @@ fn function_of_number_sets(
 /// A letter a sentence says is a subset of a set of numbers, D ⊆ ℝ or D ∈
 /// 𝒫ℝ, and the type that makes it, a set of those numbers; None for any
 /// other sentence.
-fn numbers_subset(
+pub(super) fn numbers_subset(
     w: &super::expr::Writer,
     node: &Node,
 ) -> Option<(String, LetterType)> {
@@ -434,7 +508,7 @@ fn numbers_subset(
 /// A set letter of numbers a ∪, ∩ or ∖ joins with a set of numbers of a
 /// type, c of {1, …, i} ∖ c, and the type that makes it a set of those;
 /// None for any other node.
-fn numbers_joined(
+pub(super) fn numbers_joined(
     w: &super::expr::Writer,
     node: &Node,
 ) -> Option<(String, LetterType)> {
@@ -494,6 +568,67 @@ fn set_type_in(
     })
 }
 
+/// Whether the set of that name is the one a function of the item maps
+/// from, `t : X → Z`, and the item applies the function only at letters a
+/// range binds, t(k) of "for all k ∈ {a, …, b}" or ∏(k ∈ {a, …, b}) t(k).
+fn domain_at_integers(set: &str, functions: &[Node], said: &[&Node]) -> bool {
+    let maps_from: Vec<&str> = functions
+        .iter()
+        .filter_map(|n| match n.children.as_slice() {
+            [f, from, _] if from.is_name() && *from.text == *set => Some(&*f.text),
+            _ => None,
+        })
+        .collect();
+    let mut applied = said
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter(|n| n.notation() == crate::notations::APPLICATION)
+        .filter(
+            |n| matches!(n.children.first(), Some(f) if maps_from.contains(&&*f.text)),
+        )
+        .peekable();
+    if applied.peek().is_none() {
+        return false;
+    }
+    let range_letters: std::collections::BTreeSet<String> = said
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter_map(|n| match n.children.as_slice() {
+            [k, range, _] if range.notation() == crate::notations::INTEGER_RANGE => {
+                k.is_name().then(|| k.text.to_string())
+            }
+            _ => None,
+        })
+        .collect();
+    applied.all(|n| {
+        matches!(n.children.as_slice(), [_, x] if x.is_name() && range_letters.contains(&*x.text))
+    })
+}
+
+/// A set letter named in a function's type that has no type yet, given the
+/// one its sort makes and a binder for it.
+fn type_named_set(
+    w: &mut Writer,
+    statements: &mut Vec<Binder>,
+    sorts: Option<&crate::formula::Sorts>,
+    things: &ThingTypes,
+    set: &Node,
+) {
+    let unbound = set.is_name() && !w.letters.contains_key(set.text.as_str());
+    if let Some(ty) = unbound
+        .then(|| set_type_in(sorts, things, &set.text))
+        .flatten()
+    {
+        w.letters.insert(set.text.to_string(), ty.clone());
+        statements.push(Binder::Letter {
+            name: super::names::letter(&set.text),
+            page: set.text.to_string(),
+            ty,
+            general: false,
+        });
+    }
+}
+
 /// Whether the node is a letter the sorts make a map.
 fn map_letter(node: &Node, sorts: Option<&crate::formula::Sorts>) -> bool {
     node.is_name()
@@ -530,6 +665,9 @@ struct ThingTypes {
     /// Each key, in the order first met.
     met: Vec<ThingKey>,
     vars: std::collections::BTreeMap<ThingKey, usize>,
+    /// The letters a "there is f : X → Y" binds, maps as a map letter of
+    /// the item's sorts is.
+    bound_maps: std::collections::BTreeSet<String>,
 }
 
 impl ThingTypes {
@@ -599,10 +737,27 @@ impl ThingTypes {
         node: &Node,
         sorts: Option<&crate::formula::Sorts>,
     ) -> Option<ThingKey> {
-        let is_map = |n: &Node| map_letter(n, sorts);
+        let bound = self.bound_maps.clone();
+        let is_map = |n: &Node| {
+            map_letter(n, sorts) || (n.is_name() && bound.contains(&*n.text))
+        };
         let name = node.notation_name();
         let kids = node.children.as_slice();
         match (&*name, kids) {
+            // There is f : X → Y with …: f a map from X's things to Y's,
+            // what the body says of it read as of a map letter.
+            ("there-is" | "for-all", [f, set, body])
+                if f.is_name() && &*set.notation_name() == "functions-from" =>
+            {
+                self.bound_maps.insert(f.text.to_string());
+                if let [from, to] = set.children.as_slice() {
+                    let (a, b) = (self.class(from, sorts), self.class(to, sorts));
+                    self.join(Some(ThingKey::From(f.text.to_string())), a);
+                    self.join(Some(ThingKey::To(f.text.to_string())), b);
+                }
+                self.class(body, sorts);
+                None
+            }
             _ if node.is_name() => {
                 if is_map(node) || node.sort.is("number") || node.sort.is("formula") {
                     return None;
@@ -649,6 +804,14 @@ impl ThingTypes {
                     None => None,
                 }
             }
+            // A bijection from X to Y, or the maps from X to Y a "there is
+            // f : X → Y" ranges over: X's things and Y's may be of two
+            // types, as a map's sides are.
+            ("bijection" | "functions-from", [from, to]) => {
+                self.class(from, sorts);
+                self.class(to, sorts);
+                None
+            }
             // {E(s) : s ∈ Y}: s is of Y's things, and the set holds E(s)'s.
             ("set-image", [term, letter, set]) => {
                 let (s, y) = (self.class(letter, sorts), self.class(set, sorts));
@@ -676,7 +839,7 @@ impl ThingTypes {
         f: &Node,
         sorts: Option<&crate::formula::Sorts>,
     ) -> Option<(ThingKey, ThingKey)> {
-        if map_letter(f, sorts) {
+        if map_letter(f, sorts) || (f.is_name() && self.bound_maps.contains(&*f.text)) {
             let (from, to) = (
                 ThingKey::From(f.text.to_string()),
                 ThingKey::To(f.text.to_string()),
@@ -819,6 +982,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 w.letters
                     .insert(g.identity.clone(), LetterType::Identity(g.group.clone()));
             }
+            w.bounds_from(group.wants.iter().map(|(_, n)| n));
             let functions: &[Node] = checked
                 .library
                 .function_types
@@ -877,6 +1041,18 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     }
                 }
             }
+            // A function a line the item asks says is one-to-one or onto,
+            // `f : X → X be one-to-one` of X ⊆ ℤ, takes its type from the
+            // sets that line names, once those have theirs.
+            for node in &said {
+                if let Some((name, ty)) = function_into_numbers(&w, node) {
+                    let free_letter = free.iter().any(|f| f.name == name);
+                    if free_letter && !w.letters.contains_key(&name) {
+                        w.letters.insert(name.clone(), ty.clone());
+                        sets.push((name, ty));
+                    }
+                }
+            }
             // Any other set of numbers is of reals where the item compares
             // numbers by order or integrates over reals, and of complex
             // numbers where it does neither, as its number letters are
@@ -906,9 +1082,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 if w.letters.contains_key(&name) || !sorted.is_some_and(of_numbers) {
                     continue;
                 }
-                let num = match ordered {
-                    true => Num::Real,
-                    false => Num::Complex,
+                // The set a function maps from, where the item applies the
+                // function only at members of a range, t(k) of k ∈ {a, …,
+                // b}, is a set of integers.
+                let num = match (domain_at_integers(&name, functions, &said), ordered) {
+                    (true, _) => Num::Int,
+                    (false, true) => Num::Real,
+                    (false, false) => Num::Complex,
                 };
                 let ty = LetterType::Set(super::expr::Members::Numbers(num));
                 w.letters.insert(name.clone(), ty.clone());
@@ -1023,12 +1203,24 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .into_iter()
                 .flatten()
             {
+                // The X of `t : X → ℝ`, named only in the type, has its
+                // own first, so that t takes its members.
+                if let [_, from, _] = node.children.as_slice() {
+                    type_named_set(&mut w, &mut statements, sorts, &things, from);
+                }
                 if let Some((letter, ty)) = super::statement::introduces_function(node)
-                    .or_else(|| function_of_number_sets(&w, node))
+                    .or_else(|| function_into_numbers(&w, node))
                 {
-                    // A function into the item's general type gives K.
-                    let general = matches!(ty, LetterType::Function { to, .. }
-                        if w.general == Some(to));
+                    // A function into the item's general type gives K, and
+                    // so does a map of things into it.
+                    let general = match &ty {
+                        LetterType::Function { to, .. } => w.general == Some(*to),
+                        LetterType::Map {
+                            to: super::expr::Members::Numbers(to),
+                            ..
+                        } => w.general == Some(*to),
+                        _ => false,
+                    };
                     w.letters.insert(letter.clone(), ty.clone());
                     statements.push(Binder::Letter {
                         name: super::names::letter(&letter),
@@ -1067,7 +1259,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 };
                 // A map of things, or a function of numbers whose domain is
                 // a set and not a number system, f : D → ℝ.
-                let of_numbers = function_of_number_sets(&w, node).is_some()
+                let of_numbers = function_into_numbers(&w, node).is_some()
                     && super::expr::function_systems(from, to).is_none();
                 if !of_numbers
                     && !matches!(
@@ -1080,20 +1272,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 // A set named only in the map's type, the W of `f : X → W`,
                 // is a letter of the item all the same.
                 for set in [from, to] {
-                    let unbound =
-                        set.is_name() && !w.letters.contains_key(set.text.as_str());
-                    if let Some(ty) = unbound
-                        .then(|| set_type_in(sorts, &things, &set.text))
-                        .flatten()
-                    {
-                        w.letters.insert(set.text.to_string(), ty.clone());
-                        statements.push(Binder::Letter {
-                            name: super::names::letter(&set.text),
-                            page: set.text.to_string(),
-                            ty,
-                            general: false,
-                        });
-                    }
+                    type_named_set(&mut w, &mut statements, sorts, &things, set);
                 }
                 maps.push((f, from, to));
             }
@@ -1117,6 +1296,22 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 Route::Declined(d) => return Route::Declined(d),
             };
             for (f, from, to) in maps {
+                let name = super::names::letter(&f.text);
+                // Into all of a number type, t : X → ℝ, its Lean type says
+                // where it maps, and K's where the item is general.
+                if matches!(
+                    super::expr::system_of(to),
+                    Some(super::expr::System::Type(_))
+                ) {
+                    let Route::Built(a) = w.set_term(from) else {
+                        return Route::no(format!(
+                            "{} maps from a set with no Lean form",
+                            f.text
+                        ));
+                    };
+                    w.domains.insert(f.text.to_string(), a.at(super::expr::MAX));
+                    continue;
+                }
                 let (Route::Built(a), Route::Built(b)) =
                     (w.set_term(from), w.set_term(to))
                 else {
@@ -1125,7 +1320,6 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         f.text
                     ));
                 };
-                let name = super::names::letter(&f.text);
                 let domain = a.at(super::expr::MAX);
                 binders.push(Binder::Fact {
                     name: format!("h{name}"),

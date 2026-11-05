@@ -64,10 +64,23 @@ compiler holds that: the parser is private to the module.
 - A reading that fails is a `Problem`. No `.ok()` on a reading, which turns a
   sentence that did not read into a check that never ran.
 
+## Backends
+
+**Both backends use one strategy, and the pipeline supplies what they
+know** (`GOALS.md` decision 20). Before a backend works out a property of a
+term for itself (that it is an integer, a natural number, at least 0,
+finite), find where the other backend gets it. Take it from the page's
+lines or the checker's record. If the record lacks it, propose adding it
+there, and do not write the inference into the backend. A term has one
+written form in each backend. A second form for some contexts is a sign the
+fact belongs in the record.
+
 ## The design documents
 
 Read the one that governs a change before making it.
 
+- `GOALS.md`: the project's decisions. Before changing how either backend
+  reads the page or what the checker hands them (decisions 18–20).
 - `docs/SYNTAX.md`, `docs/GRAMMAR.md`: how a proof is written and read.
   Before writing or changing a proof, a notation, or an import.
 - `docs/DATABASE.md`: records, kinds and the mundane mark.
@@ -75,6 +88,8 @@ Read the one that governs a change before making it.
 - `docs/ELABORATION.md`: what the elaborator does, renaming of bound
   letters included. Before changing the elaborator, or proposing a lemma
   or rule to close a gap it may already close.
+- `docs/LEAN.md`: what the Lean writer does. Before changing the writer, a
+  template or a bridge in `corpus/lean-bridges/`.
 - `docs/METHODS.md`: what each method expands to.
 - `docs/READERS.md`: who the text is for, dull facts and mundane steps.
   Before deciding whether something is named or mundane.

@@ -14,7 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OneMinusHalfPowerLimit.OneMinusHalfPowerLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = 1 - 1 / 2 ^ n) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds 1) := by
   -- 1. induction on k starting at 1

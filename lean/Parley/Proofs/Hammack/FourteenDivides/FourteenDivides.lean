@@ -9,6 +9,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FourteenDivides.FourteenDivides
 
+set_option maxHeartbeats 400000 in
 theorem fourteen_divides (a : ℤ) :
     ((14 : ℤ) ∣ a ↔ (7 : ℤ) ∣ a ∧ (2 : ℤ) ∣ a) := by
   -- the theorem. both directions

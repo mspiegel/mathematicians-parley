@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lagrange.CosetOfMember
 
+set_option maxHeartbeats 400000 in
 theorem coset_of_member {G : Type*} [Group G] (H : Subgroup G) (hH2 : True) (a : G) (hH3 : a ∈ (Set.univ : Set G)) (x : G) (hH4 : x ∈ (a * ·) '' (H : Set G)) :
     (x * ·) '' (H : Set G) = (a * ·) '' (H : Set G) := by
   -- 1. mun:subgroup-within, from H2

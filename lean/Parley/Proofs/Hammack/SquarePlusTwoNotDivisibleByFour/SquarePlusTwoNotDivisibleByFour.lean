@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquarePlusTwoNotDivisibleByFour.SquarePlusTwoNotDivisibleByFour
 
+set_option maxHeartbeats 400000 in
 theorem square_plus_two_not_divisible_by_four (n : ℤ) :
     ¬ (4 : ℤ) ∣ n ^ 2 + 2 := by
   -- the theorem. contradiction

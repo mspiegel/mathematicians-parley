@@ -14,7 +14,7 @@ theorem a_recursion_rule_by_a_block (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧
   have s1 : ∀ n : ℕ, F ((n : ℤ) + 1) = F (n : ℤ) + 1 := by
     intro n
     -- 1.1. D1
-    have s1_1 : F ((n : ℤ) + 1) = F (n : ℤ) + 1 := by have h := (hD1.2 (((n : ℤ) + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
+    have s1_1 : F ((n : ℤ) + 1) = F (n : ℤ) + 1 := by have h := (hD1.2 (((n : ℤ) + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
     all_goals exact s1_1
   all_goals exact s1
 

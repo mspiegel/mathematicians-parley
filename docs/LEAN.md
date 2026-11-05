@@ -6,6 +6,15 @@ record of the page (`GOALS.md` decision 19), and neither reads what the other
 wrote. Two backends proving one page against two libraries check each other
 (`GOALS.md`, "Comparison with Lean 4").
 
+The writer follows the Metamath backend's strategy wherever Lean allows it
+(`GOALS.md` decision 20). Each term has one Lean form. What the writer needs
+to know about a term, that it is an integer or at least 0, it takes from the
+page's lines and from the checker's record, never from a reading of its own.
+Where Lean's types force a difference, this document says so where it
+describes it: a rational's membership in ℤ as a witness, `∃ m : ℤ, (m : ℚ) =
+t`, or a real power of a base not shown at least 0 as the complex principal
+value.
+
 ```
 parley build lean [<name>]
 ```

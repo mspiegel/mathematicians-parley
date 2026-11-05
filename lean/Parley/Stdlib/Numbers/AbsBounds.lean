@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Stdlib.Numbers.AbsBounds
 
+set_option maxHeartbeats 400000 in
 theorem abs_bounds (x : ℝ) :
     x ≤ abs x ∧ -x ≤ abs x := by
   -- 1. mun:nonneg-or-neg

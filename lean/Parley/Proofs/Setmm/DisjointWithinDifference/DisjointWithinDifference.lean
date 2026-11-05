@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DisjointWithinDifference.DisjointWithinDifference
 
+set_option maxHeartbeats 400000 in
 theorem disjoint_within_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) :
     (A ∩ B = ∅ ↔ A ⊆ C \ B) := by
   -- the theorem. both directions

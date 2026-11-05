@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoCurves.TwoCurves
 
+set_option maxHeartbeats 400000 in
 theorem two_curves (x : ℝ) (y : ℝ) :
     (x ^ 3 + x ^ 2 * y = y ^ 2 + x * y ↔ y = x ^ 2 ∨ y = -x) := by
   -- the theorem. both directions

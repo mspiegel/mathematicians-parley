@@ -31,7 +31,7 @@ axiom extensionality
   note        A set is its members: two sets each of whose members is in
               the other are one set. set.mm's ax-ext, said of sets as the
               page writes them.
-  lean-proof  not yet implemented
+  lean-proof  by exact Set.Subset.antisymm h1 h2
 
 axiom empty-set
   then        ∅ exists
@@ -273,7 +273,7 @@ mundane theorem triple-members
   then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
   metamath-proof tpid1g, tpid2g, tpid3g
   note        Each thing a set lists is in it.
-  lean-proof  not yet implemented
+  lean-proof  by simp ; by simp ; by simp
 
 mundane theorem pair-finite
   then        {u, w} is finite

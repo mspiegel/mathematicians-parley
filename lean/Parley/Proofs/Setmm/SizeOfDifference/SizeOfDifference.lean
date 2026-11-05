@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfDifference.SizeOfDifference
 
+set_option maxHeartbeats 400000 in
 theorem size_of_difference {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (hH4 : B ⊆ A) :
     ((A \ B).ncard : ℤ) = (A.ncard : ℤ) - (B.ncard : ℤ) := by
   -- 1. mun:difference-subset X := A, Y := B

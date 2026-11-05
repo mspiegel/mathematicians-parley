@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.IrrationalBetweenRationalsByHalfRootTwo.IrrationalBetweenRationals
 
+set_option maxHeartbeats 400000 in
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. inequalities

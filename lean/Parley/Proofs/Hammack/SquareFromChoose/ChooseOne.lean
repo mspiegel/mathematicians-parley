@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareFromChoose.ChooseOne
 
+set_option maxHeartbeats 400000 in
 theorem choose_one (n : ℕ) (hH1 : 0 < n) :
     (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) := by
   -- 1. induction on k starting at 1

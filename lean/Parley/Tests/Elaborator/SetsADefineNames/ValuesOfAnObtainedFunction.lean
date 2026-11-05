@@ -1,0 +1,28 @@
+module
+
+public import ArithTactics
+public import OrderTactics
+public import SetTactics
+public import Tactics
+public import Parley.Items.Stdlib.Sums
+
+/-! Written from tests/elaborator/sets-a-define-names.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAnObtainedFunction
+
+theorem values_of_an_obtained_function (n : ℕ) (hH1 : 0 < n) (m : ℕ) (hH2 : 0 < m) (hH3 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ) (Set.Icc (1 : ℤ) (m : ℤ) : Set ℤ) ∧ f 1 = 1) :
+    (∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ) (Set.Icc (1 : ℤ) (m : ℤ) : Set ℤ) ∧ f 1 ≤ f 1) := by
+  -- 1. obtain g from H3
+  obtain ⟨g, s1a, s1b⟩ := hH3
+  -- 2. def:range-between k := 1, a := 1, b := n, from H1
+  have r115_1 : (1 : ℤ) ≤ 1 := by parley_arith
+  have s2 : (1 : ℤ) ∈ Finset.Icc (1 : ℤ) (n : ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := (n : ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range_between (k := (1 : ℤ)) (a := (1 : ℤ)) (b := (n : ℤ)))).mpr (by parley_set_side); parley_set_side)
+  -- 3. inequalities
+  have s3 : g 1 ≤ g 1 := by parley_order
+  -- 4. exhibit, from 1, 3
+  have s4 : ∃ f : ℤ → ℤ, Set.MapsTo f (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ) (Set.Icc (1 : ℤ) (m : ℤ) : Set ℤ) ∧ f 1 ≤ f 1 := ⟨g, by parley_set_side, by parley_set_side⟩
+  all_goals exact s4
+
+end Parley.Tests.Elaborator.SetsADefineNames.ValuesOfAnObtainedFunction

@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.ChooseFromNone
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = ((0 : ℕ) : ℕ∞)) :
     ({S ∈ 𝒫 X | (S.ncard : ℤ) = j}.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1

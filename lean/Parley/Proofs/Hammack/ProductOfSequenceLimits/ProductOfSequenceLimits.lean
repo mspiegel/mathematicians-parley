@@ -16,19 +16,21 @@ public section
 
 namespace Parley.Proofs.Hammack.ProductOfSequenceLimits.ProductOfSequenceLimits
 
-set_option maxHeartbeats 800000 in
+set_option maxHeartbeats 1000000 in
 theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (hH6 : Filter.Tendsto (fun n : ℕ => (b (n : ℤ) : ℝ)) Filter.atTop (nhds M)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) * b (n : ℤ) : ℝ)) Filter.atTop (nhds (L * M)) := by
   -- 1. mun:abs-real x := L
   -- 2. mun:abs-nonneg x := L
   have s2 : abs L ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (L : ℂ))); parley_side)
   set s : ℝ := abs L + 1 with hD1
+  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs L) (y := (1 : ℝ))); parley_side)
   -- 3. inequalities, from D1, 2
   have s3 : s > 0 := by parley_order
   -- 4. mun:abs-real x := M
   -- 5. mun:abs-nonneg x := M
   have s5 : abs M ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ)))] | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_abs_nonneg (x := (M : ℂ))); parley_side)
   set t : ℝ := abs M + 1 with hD2
+  have hD2_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs M) (y := (1 : ℝ))); parley_side)
   -- 6. inequalities, from D2, 5
   have s6 : t > 0 := by parley_order
   -- 7. inequalities
@@ -53,6 +55,7 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have s9_6 : ε / (2 * t) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * t) (by parley_side) (by parley_side)); parley_side)
     -- 9.7. mun:quotient-real x := ε, y := 2·t, from 9.5
     set m : ℝ := min 1 (ε / (2 * t)) with hD3
+    have hD3_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / (2 * t))); parley_side)
     -- 9.8. mun:lt-min z := 0, x := 1, y := ε/(2·t), from 9.6, 9.7
     have r148_1 : (0 : ℝ) < 1 := by parley_arith
     have s9_8 : 0 < min 1 (ε / (2 * t)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / (2 * t)))).mpr (by parley_side); parley_side)

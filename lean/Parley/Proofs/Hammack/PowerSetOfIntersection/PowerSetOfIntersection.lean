@@ -10,7 +10,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PowerSetOfIntersection.PowerSetOfIntersection
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem power_set_of_intersection {α : Type*} (A : Set α) (B : Set α) :
     𝒫 A ∩ 𝒫 B = 𝒫 (A ∩ B) := by
   -- 1. proof

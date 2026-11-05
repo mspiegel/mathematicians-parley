@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingBijection
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℕ, 0 < n → (f (n : ℤ) : ℚ) = ((-1) ^ n * (2 * (n : ℚ) - 1) + 1) / 4) :
     (Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ)) := by
   -- 1. proof

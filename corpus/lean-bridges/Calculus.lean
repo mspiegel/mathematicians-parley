@@ -20,8 +20,7 @@ theorem tends_to (x : ℤ → ℝ) (L : ℝ) :
 
 /-- `def:stdlib/calculus/limit-at`: the limit of f at c over its domain D,
 c left out, in ε and δ. -/
-theorem limit_at (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (L : ℝ)
-    (_hf : Set.MapsTo f D (Set.univ : Set ℝ)) :
+theorem limit_at (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (L : ℝ) :
     Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, x ≠ c ∧ abs (x - c) < δ → abs (f x - L) < ε))) := by
   rw [Metric.tendsto_nhdsWithin_nhds]
   simp only [Real.dist_eq, Set.mem_sdiff, Set.mem_singleton_iff, gt_iff_lt]
@@ -35,8 +34,7 @@ theorem limit_at (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : Set �
 
 /-- `def:stdlib/calculus/continuous-on`: continuity at each point of D, in
 ε and δ, the points near it taken within D. -/
-theorem continuous_on (f : ℝ → ℝ) (D : Set ℝ) (_hf : Set.MapsTo f D (Set.univ : Set ℝ))
-    (_h1 : D ⊆ (Set.univ : Set ℝ)) :
+theorem continuous_on (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : Set ℝ)) :
     ContinuousOn f D ↔ (∀ c ∈ D, ∀ ε : ℝ, 0 < ε → (∃ δ : ℝ, 0 < δ ∧ (∀ x ∈ D, abs (x - c) < δ → abs (f x - f c) < ε))) := by
   rw [Metric.continuousOn_iff]
   simp only [Real.dist_eq, gt_iff_lt]

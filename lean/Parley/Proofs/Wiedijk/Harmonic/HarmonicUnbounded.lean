@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
 
+set_option maxHeartbeats 400000 in
 theorem harmonic_unbounded (M : ℝ) :
     (∃ n : ℕ, 0 < n ∧ (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / (k : ℝ) : ℝ)) > M) := by
   -- 1. proof

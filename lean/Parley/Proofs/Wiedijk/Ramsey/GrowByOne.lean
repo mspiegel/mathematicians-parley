@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.GrowByOne
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem grow_by_one {α : Type*} (X : Set α) (E : Set (Set α)) (F : Set (Set α)) (hH2 : X.Finite) (k : ℕ) (hH5 : 0 < k) (j : ℕ) (hH6 : 0 < j) (v : α) (hH7 : v ∈ X) (N : Set α) (hH8 : N ⊆ X \ ({v} : Set α)) (hH9 : ∀ w ∈ N, ({v, w} : Set α) ∈ E) (W : Set α) (hH10 : W ⊆ N) (hH11 : ((k : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) ∨ ((j : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ F)) :
     (∃ U ∈ 𝒫 X, ((k + 1 : ℕ) : ℕ∞) ≤ U.encard ∧ (∀ Y ∈ 𝒫 U, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) ∨ ((j : ℕ) : ℕ∞) ≤ U.encard ∧ (∀ Y ∈ 𝒫 U, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ F)) := by
   -- 1. mun:difference-subset

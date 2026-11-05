@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PowerAtMostOne.PowerAtMostOne
 
+set_option maxHeartbeats 400000 in
 theorem power_at_most_one (a : ℝ) (n : ℕ) (hH3 : 0 ≤ a) (hH4 : a ≤ 1) :
     a ^ n ≤ 1 := by
   -- 1. induction on m starting at 0

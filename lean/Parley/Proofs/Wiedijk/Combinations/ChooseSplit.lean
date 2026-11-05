@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Combinations.ChooseSplit
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem choose_split {α : Type*} (X : Set α) (a : α) (hH2 : a ∈ X) (j : ℤ) (hH4 : X.Finite) :
     {S ∈ 𝒫 X | (S.ncard : ℤ) = j} = {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j} ∪ (fun T : Set α => T ∪ ({a} : Set α)) '' {S ∈ 𝒫 (X \ ({a} : Set α)) | (S.ncard : ℤ) = j - 1} := by
   set F : Set (Set α) := {S ∈ 𝒫 X | (S.ncard : ℤ) = j} with hD1

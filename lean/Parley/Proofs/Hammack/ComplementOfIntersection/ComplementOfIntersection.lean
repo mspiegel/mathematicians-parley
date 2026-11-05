@@ -12,7 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ComplementOfIntersection.ComplementOfIntersection
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem complement_of_intersection {α : Type*} (U : Set α) (A : Set α) (B : Set α) (hH4 : A ⊆ U) (hH5 : B ⊆ U) :
     U \ (A ∩ B) = U \ A ∪ U \ B := by
   -- 1. proof

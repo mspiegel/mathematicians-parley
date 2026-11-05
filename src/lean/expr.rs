@@ -248,6 +248,46 @@ pub struct Writer<'a> {
     /// Whether every count is written in ℕ∞, `A.encard`, finite or not:
     /// inside a relation ℕ∞ says as the page does (`formula`).
     pub in_extended: bool,
+    /// What the lines in scope say terms are at least: a real power or
+    /// square root of a term at least 0 is Mathlib's real one
+    /// (`Writer::principal_is_real`).
+    pub bounds: SaidBounds,
+}
+
+/// What lines say a term is at least: x ≥ 0 of `x > 0`, p ≥ 1 of `p ∈ ℕ`.
+#[derive(Clone, Debug, Default)]
+pub struct SaidBounds {
+    /// Each term a line bounds below, and the bound.
+    pub terms: Vec<Bound>,
+    /// The lines that bound a term at each integer of a range, `for all k ∈
+    /// {1, …, n}, a(k) ≥ 0`: in a sum or a product over that range by the
+    /// same letter, the term is so bounded.
+    pub over_ranges: Vec<Node>,
+}
+
+/// A term a line says is at least a whole number.
+#[derive(Clone, Debug)]
+pub struct Bound {
+    pub term: Node,
+    pub least: i64,
+}
+
+impl SaidBounds {
+    /// What is said of terms the letter is not in: inside a sum by a letter
+    /// k, a line about another k says nothing of it.
+    fn without_letter(&self, letter: &str) -> SaidBounds {
+        let free_of =
+            |n: &Node| !n.walk().iter().any(|m| m.is_name() && &*m.text == letter);
+        SaidBounds {
+            terms: self
+                .terms
+                .iter()
+                .filter(|b| free_of(&b.term))
+                .cloned()
+                .collect(),
+            over_ranges: self.over_ranges.clone(),
+        }
+    }
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -257,6 +297,14 @@ struct Summed<'a, 'n> {
     index: &'n Node,
     over: Over<'n>,
     term: &'n Node,
+}
+
+/// What a function applied takes and gives.
+struct Applied {
+    /// What its argument is a member of.
+    takes: Members,
+    /// The number type of its value.
+    gives: Num,
 }
 
 /// What a sum or product runs over.
@@ -302,6 +350,21 @@ fn over_range(node: &Node) -> Option<[&Node; 4]> {
     (set.notation() == INTEGER_RANGE).then_some([index, from, to, term])
 }
 
+/// The value a line gives a set letter, {y ∈ ℝ : y > 0} of D = {y ∈ ℝ : y
+/// > 0}; None for any other line.
+fn defined_as<'n>(line: &'n Node, letter: &Node) -> Option<&'n Node> {
+    match (line.notation(), line.children.as_slice()) {
+        (EQUALITY, [s, value]) if s.is_name() && s.text == letter.text => Some(value),
+        _ => None,
+    }
+}
+
+/// Whether the node is an even numeral, the 2 of x², whose power is at
+/// least 0 of any real x.
+fn is_even_numeral(node: &Node) -> bool {
+    node.notation() == NUMERAL && node.text.parse::<u64>().is_ok_and(|n| n % 2 == 0)
+}
+
 /// Whether a big operator is a product, ∏(k = a to b) or ∏(k ∈ {a, …, b}).
 fn is_product(node: &Node) -> bool {
     node.notation() == crate::notations::PRODUCT
@@ -342,6 +405,7 @@ impl<'a> Writer<'a> {
             finite_lines: Vec::new(),
             empty_of: None,
             in_extended: false,
+            bounds: SaidBounds::default(),
         }
     }
 
@@ -359,6 +423,7 @@ impl<'a> Writer<'a> {
             finite_lines: self.finite_lines.clone(),
             empty_of: self.empty_of.clone(),
             in_extended: self.in_extended,
+            bounds: self.bounds.clone(),
         }
     }
 
@@ -382,6 +447,275 @@ impl<'a> Writer<'a> {
         }
         let printed = self.grammar.print(node);
         self.integers.iter().find(|s| s.term == printed)
+    }
+
+    /// What these lines bound below is what this writer knows of its terms'
+    /// least values.
+    pub fn bounds_from<'n>(&mut self, lines: impl IntoIterator<Item = &'n Node>) {
+        let lines: Vec<&Node> = lines.into_iter().collect();
+        let mut out = SaidBounds::default();
+        for line in &lines {
+            self.said_bounds(line, &lines, &mut out);
+        }
+        self.bounds = out;
+    }
+
+    /// This writer where these lines hold as well: what they bound added to
+    /// its own.
+    pub fn knowing(&self, lines: &[Node]) -> Writer<'a> {
+        let mut said = self.bounds.clone();
+        let all: Vec<&Node> = lines.iter().collect();
+        for line in lines {
+            self.said_bounds(line, &all, &mut said);
+        }
+        let mut w = self.with_letters(self.letters.clone());
+        w.bounds = said;
+        w
+    }
+
+    /// What a line bounds below: x ≥ 0 of x ≥ 0, x > 0 or 0 < x, p ≥ 1 of
+    /// 1 < p or p ∈ ℕ, x of x ∈ D for a set D whose members are bounded,
+    /// what each part of an "and" says, and a term bounded at each k of a
+    /// range. `lines` are the lines beside it, which may say what D is. A
+    /// strict order bounds as the other does, x > 0 saying x ≥ 0 of a real
+    /// x.
+    fn said_bounds(&self, line: &Node, lines: &[&Node], out: &mut SaidBounds) {
+        use crate::notations::{AT_LEAST, AT_MOST, GREATER, LESS};
+        match (line.notation(), line.children.as_slice()) {
+            (
+                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
+                parts,
+            ) => {
+                for part in parts {
+                    self.said_bounds(part, lines, out);
+                }
+            }
+            (ORDER, [a, b]) => {
+                let s = line.spelling();
+                let said = if s == GREATER || s == AT_LEAST {
+                    self.lower(b).map(|least| (a, least))
+                } else if s == LESS || s == AT_MOST {
+                    self.lower(a).map(|least| (b, least))
+                } else {
+                    None
+                };
+                if let Some((t, least)) = said {
+                    out.terms.push(Bound {
+                        term: t.clone(),
+                        least,
+                    });
+                }
+            }
+            (MEMBERSHIP, [t, set]) if line.spelling() == IN => {
+                if let Some(least) = self.set_least(set, lines) {
+                    out.terms.push(Bound {
+                        term: t.clone(),
+                        least,
+                    });
+                }
+            }
+            (FOR_ALL, [_, set, _]) if set.notation() == INTEGER_RANGE => {
+                out.over_ranges.push(line.clone());
+            }
+            _ => {}
+        }
+    }
+
+    /// A whole number every member of the set is at least: 1 of ℕ, 0 of
+    /// ℕ₀, a's of a range or interval from a, y's of {y ∈ X : y > 0}, and of
+    /// a letter a line beside it says is such a set, D of D = {y ∈ ℝ : y >
+    /// 0}. None where nothing bounds them.
+    fn set_least(&self, set: &Node, lines: &[&Node]) -> Option<i64> {
+        match (set.notation(), set.children.as_slice()) {
+            (NUMBER_SYSTEMS, _) if set.spelling() == NATURALS => Some(1),
+            (NUMBER_SYSTEMS, _) if set.spelling() == NATURALS0 => Some(0),
+            (
+                INTEGER_RANGE
+                | crate::notations::CLOSED_INTERVAL
+                | crate::notations::OPEN_INTERVAL,
+                [from, _],
+            ) => self.lower(from),
+            (crate::notations::SET_BUILDER, [y, within, condition]) => {
+                let mut said = SaidBounds::default();
+                self.said_bounds(condition, &[], &mut said);
+                let by_condition = said
+                    .terms
+                    .iter()
+                    .filter(|b| b.term.is_name() && b.term.text == y.text)
+                    .map(|b| b.least);
+                self.set_least(within, &[])
+                    .into_iter()
+                    .chain(by_condition)
+                    .max()
+            }
+            (NAME, _) => lines
+                .iter()
+                .filter_map(|l| defined_as(l, set))
+                .filter_map(|value| self.set_least(value, &[]))
+                .max(),
+            _ => None,
+        }
+    }
+
+    /// A whole number the term is at least, where it is a number at least
+    /// 0, √2 or π, though no whole number but 0 bounds it.
+    fn lower(&self, node: &Node) -> Option<i64> {
+        self.least(node)
+            .or_else(|| self.nonnegative(node).then_some(0))
+    }
+
+    /// The greatest whole number the term is shown to be at least: by a
+    /// line in scope, or by its form, a whole numeral, a natural number
+    /// letter at 0, n! at 1, a sum of bounded terms at the sum of their
+    /// bounds, a − c at a's bound less the numeral c, a product of terms at
+    /// least 0 at the product, a power of a base at least 1 at 1. None where
+    /// nothing bounds it.
+    pub fn least(&self, node: &Node) -> Option<i64> {
+        let printed = self.grammar.print(node);
+        let said = self
+            .bounds
+            .terms
+            .iter()
+            .filter(|b| self.grammar.print(&b.term) == printed)
+            .map(|b| b.least)
+            .max();
+        let by_form = self.least_by_form(node);
+        said.into_iter().chain(by_form).max()
+    }
+
+    /// `least`, by the term's form alone (`Writer::least`).
+    fn least_by_form(&self, node: &Node) -> Option<i64> {
+        use crate::notations::{MINUS, PLUS, TIMES};
+        let children = node.children.as_slice();
+        match (node.notation(), children) {
+            (NUMERAL, _) => node.text.parse::<i64>().ok(),
+            (NAME, _) => matches!(
+                self.letters.get(node.text.as_str()),
+                Some(LetterType::Number(Num::Nat))
+            )
+            .then_some(0),
+            (crate::notations::FACTORIAL, _) => Some(1),
+            (crate::notations::ABSOLUTE_VALUE, _) => Some(0),
+            (crate::notations::ADDITIVE, [a, b]) if node.spelling() == PLUS => {
+                self.least(a)?.checked_add(self.least(b)?)
+            }
+            (crate::notations::ADDITIVE, [a, c])
+                if node.spelling() == MINUS && c.notation() == NUMERAL =>
+            {
+                self.least(a)?.checked_sub(c.text.parse::<i64>().ok()?)
+            }
+            (crate::notations::MULTIPLICATIVE, [a, b]) if node.spelling() == TIMES => {
+                let (a, b) = (self.least(a)?, self.least(b)?);
+                (a >= 0 && b >= 0).then(|| a.checked_mul(b)).flatten()
+            }
+            (crate::notations::JUXTAPOSITION, [a, b]) => {
+                let (a, b) = (self.least(a)?, self.least(b)?);
+                (a >= 0 && b >= 0).then(|| a.checked_mul(b)).flatten()
+            }
+            (
+                crate::notations::POWER | crate::notations::SUPERSCRIPT,
+                [base, exponent],
+            ) => {
+                let whole = self.least(exponent).is_some_and(|e| e >= 0);
+                match self.least(base) {
+                    Some(b) if b >= 1 && whole => Some(1),
+                    Some(b) if b >= 0 && whole => Some(0),
+                    _ => is_even_numeral(exponent).then_some(0),
+                }
+            }
+            _ => (&*node.notation_name() == "cardinality").then_some(0),
+        }
+    }
+
+    /// Whether a sum or product is at least 0: its term is, read as the
+    /// sum reads it (`Writer::summed`).
+    fn summed_nonnegative(&self, node: &Node) -> bool {
+        match self.summed(node) {
+            Route::Built(s) => s.inner.nonnegative(s.term),
+            Route::Declined(_) => false,
+        }
+    }
+
+    /// What lines bound inside a sum by `index` over a range: nothing of
+    /// another k than the index, and of the index what a line says at each
+    /// k of that same range, a(k) of `for all k ∈ {1, …, n}, a(k) ≥ 0` in
+    /// Σ(k = 1 to n) a(k).
+    fn bounds_inside(&self, index: &Node, over: &Over) -> SaidBounds {
+        let mut said = self.bounds.without_letter(&index.text);
+        let Over::Range { from, to } = over else {
+            return said;
+        };
+        for line in &self.bounds.over_ranges {
+            let [k, set, body] = line.children.as_slice() else {
+                continue;
+            };
+            let [a, b] = set.children.as_slice() else {
+                continue;
+            };
+            let same = k.text == index.text
+                && self.grammar.print(a) == self.grammar.print(from)
+                && self.grammar.print(b) == self.grammar.print(to);
+            if same {
+                self.said_bounds(body, &[], &mut said);
+            }
+        }
+        said
+    }
+
+    /// Whether the term is at least 0: a line in scope says so, or its form
+    /// does, a numeral, π, e, a natural number letter, |x|, a count, n!,
+    /// exp(x), or a sum, product, quotient, power or square root of such; a
+    /// sum or product over a range of a term a line says is at least 0 at
+    /// each k of it.
+    pub fn nonnegative(&self, node: &Node) -> bool {
+        if self.least(node).is_some_and(|l| l >= 0) {
+            return true;
+        }
+        if is_big_operator(node) {
+            return self.summed_nonnegative(node);
+        }
+        let all = |w: &Writer, parts: &[Node]| parts.iter().all(|p| w.nonnegative(p));
+        match node.notation() {
+            NUMERAL | crate::notations::PI | crate::notations::EULER => true,
+            crate::notations::ABSOLUTE_VALUE | crate::notations::FACTORIAL => true,
+            crate::notations::ADDITIVE => {
+                node.spelling() == crate::notations::PLUS && all(self, &node.children)
+            }
+            crate::notations::MULTIPLICATIVE | crate::notations::JUXTAPOSITION => {
+                all(self, &node.children)
+            }
+            crate::notations::POWER | crate::notations::SUPERSCRIPT
+                if node.children.get(1).is_some_and(is_even_numeral) =>
+            {
+                true
+            }
+            crate::notations::POWER
+            | crate::notations::SUPERSCRIPT
+            | crate::notations::REAL_POWER
+            | crate::notations::SQUARE_ROOT => {
+                node.children.first().is_some_and(|b| self.nonnegative(b))
+            }
+            crate::notations::APPLICATION => {
+                self.library_function(node).is_some()
+                    && node.children.first().is_some_and(|f| &*f.text == "exp")
+            }
+            _ => &*node.notation_name() == "cardinality",
+        }
+    }
+
+    /// Whether a real power or square root is Mathlib's real one: its base
+    /// is at least 0, where Mathlib's `x ^ y` and `Real.sqrt x` are set.mm's
+    /// principal value. Of any other base the principal value is complex,
+    /// (−4)^(1/2) = 2i where Mathlib's real power gives 0, and the node is
+    /// written in ℂ. True of every other node.
+    pub fn principal_is_real(&self, node: &Node) -> bool {
+        if !matches!(
+            node.notation(),
+            crate::notations::REAL_POWER | crate::notations::SQUARE_ROOT
+        ) {
+            return true;
+        }
+        node.children.first().is_some_and(|b| self.nonnegative(b))
     }
 }
 
@@ -450,16 +784,25 @@ fn shape_of(text: &str, holes: usize) -> Shape {
         };
     }
     let starts_binder = text.starts_with('∃') || text.starts_with('∀');
+    // A hole stands alone between brackets or separators, `(_1 : ℝ)`,
+    // `|_1|`, `, _2,`, where it needs no bracket of its own; one after a
+    // word, `(Polynomial.bernoulli _1)` or `[ZMOD _3]`, is an argument.
     let enclosed = |i: usize| {
         let mark = format!("_{}", i + 1);
         let Some(at) = text.find(&mark) else {
             return true;
         };
-        let before = text[..at].chars().last();
-        let after = text[at + mark.len()..].chars().next();
-        matches!(before, Some('(' | '|' | '⌊' | '⌈' | '⟨' | '[' | '{' | ','))
-            || matches!(after, Some(')' | '|' | '⌋' | '⌉' | '⟩' | ']' | '}' | ','))
-            || (starts_binder && after.is_none())
+        let before = text[..at].chars().rev().find(|c| !c.is_whitespace());
+        let after = text[at + mark.len()..].chars().find(|c| !c.is_whitespace());
+        let opens = matches!(
+            before,
+            Some('(' | '|' | '‖' | '⌊' | '⌈' | '⟨' | '[' | '{' | ',')
+        );
+        let closes = matches!(
+            after,
+            Some(')' | '|' | '‖' | '⌋' | '⌉' | '⟩' | ']' | '}' | ',' | ':')
+        );
+        (opens && closes) || (starts_binder && after.is_none())
     };
     let needs = (0..holes)
         .map(|i| if enclosed(i) { 0 } else { MAX })
@@ -517,6 +860,15 @@ impl Writer<'_> {
         let Some(pattern) = self.grammar.written_by(node.spelling()) else {
             return Route::no(format!("{name} is written by no plain pattern"));
         };
+        // A real power or square root of a base not shown at least 0 is the
+        // principal value, which is complex: its form in ℂ.
+        if !self.principal_is_real(node) {
+            let args = vec![Num::Complex; node.children.len()];
+            return match self.templates.get(&name, &pattern.pattern, &args) {
+                Some(t) if t.yields == Slot::Fixed(Num::Complex) => Route::Built(t),
+                _ => Route::no(format!("notation {name} has no lean-builds form in ℂ")),
+            };
+        }
         // Of forms by type, the one for its terms' own types: a letter of
         // ℕ is a natural number, though it is computed in ℤ at least.
         let args: Vec<Num> = node
@@ -559,10 +911,15 @@ impl Writer<'_> {
         let Some(f) = node.children.first() else {
             return self.template(node);
         };
+        // Computed in a field, an argument is read there; in ℤ, a natural
+        // number stays one, σ(n) of n ∈ ℕ `ArithmeticFunction.sigma 1 n`.
         let args: Vec<Num> = node.children[1..]
             .iter()
-            .filter_map(|a| self.carrier(a).built())
-            .map(|c| c.max(at))
+            .filter_map(|a| self.argument_type(a))
+            .map(|c| match at > Num::Int {
+                true => c.max(at),
+                false => c,
+            })
             .collect();
         match self.templates.function_at(&f.text, &args) {
             Some(t) => Route::Built(t),
@@ -584,12 +941,23 @@ impl Writer<'_> {
             return None;
         }
         // Of a function Lean has at several types, the form its arguments'
-        // types take: cos of a complex number is Complex.cos.
+        // types take: cos of a complex number is Complex.cos, and σ of a
+        // natural number `ArithmeticFunction.sigma 1 n`, of an integer its
+        // `toNat`'s.
         let args: Vec<Num> = node.children[1..]
             .iter()
-            .filter_map(|a| self.carrier(a).built())
+            .filter_map(|a| self.argument_type(a))
             .collect();
         self.templates.function_at(&f.text, &args)
+    }
+
+    /// The type a library function reads an argument at: ℕ for a natural
+    /// number, n of σ(n) with n ∈ ℕ, and otherwise the least that holds it.
+    fn argument_type(&self, a: &Node) -> Option<Num> {
+        match self.natural(a) {
+            true => Some(Num::Nat),
+            false => self.carrier(a).built(),
+        }
     }
 
     /// What a node's template fills its holes with: its children, or for a
@@ -618,12 +986,16 @@ impl Writer<'_> {
                     Some(LetterType::Number(_))
                 ))
             // g⁻¹(y) and (g ∘ f)(x) of functions of numbers, whose sort the
-            // checker leaves open.
+            // checker leaves open, and f(i) of a function letter into
+            // numbers a quantifier binds.
             || (node.notation() == crate::notations::APPLICATION
                 && node.children.first().is_some_and(|f| {
                     self.inverse_of_function(f).is_some()
                         || (matches!(&*f.notation_name(), "composition" | "derivative")
                             && self.function_type(f).built().is_some())
+                        || (f.is_name()
+                            && self.library_function(node).is_none()
+                            && self.applied(node).built().is_some())
                 }))
     }
 
@@ -701,7 +1073,7 @@ impl Writer<'_> {
             }),
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 match self.applied(node) {
-                    Route::Built((_, to)) => Route::Built(to.max(Num::Int)),
+                    Route::Built(a) => Route::Built(a.gives.max(Num::Int)),
                     Route::Declined(d) => Route::Declined(d),
                 }
             }
@@ -769,13 +1141,30 @@ impl Writer<'_> {
         (!self.natural(&parts[1])).then_some(parts)
     }
 
-    /// The function letter an application applies, with the types it takes
-    /// and gives.
-    fn applied(&self, node: &Node) -> Route<(Num, Num)> {
+    /// What the function an application applies takes and gives: a
+    /// function of numbers, or a map from a set of things into numbers,
+    /// t : X → ℝ, whose value is a number.
+    fn applied(&self, node: &Node) -> Route<Applied> {
         let Some(f) = node.children.first() else {
             return Route::no("an application of nothing");
         };
-        self.function_type(f)
+        if let Some(LetterType::Map {
+            from,
+            to: Members::Numbers(gives),
+        }) = self.letters.get(f.text.as_str())
+        {
+            return Route::Built(Applied {
+                takes: from.clone(),
+                gives: *gives,
+            });
+        }
+        match self.function_type(f) {
+            Route::Built((from, to)) => Route::Built(Applied {
+                takes: Members::Numbers(from),
+                gives: to,
+            }),
+            Route::Declined(d) => Route::Declined(d),
+        }
     }
 
     /// The types a function takes and gives: a function letter's, or a
@@ -916,7 +1305,13 @@ impl Writer<'_> {
             ),
             NUMERAL => !node.text.contains('.'),
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
-                matches!(self.applied(node), Route::Built((_, Num::Nat)))
+                matches!(
+                    self.applied(node),
+                    Route::Built(Applied {
+                        gives: Num::Nat,
+                        ..
+                    })
+                )
             }
             _ => {
                 let Route::Built(t) = self.template(node) else {
@@ -956,21 +1351,41 @@ impl Writer<'_> {
         if !index.is_name() {
             return Route::no("a sum whose index is no letter");
         }
-        // Over a range the index is an integer; over a set, a member of it.
+        // Over a range the index is an integer; over a set, a member of it;
+        // over ∅, which holds members of no one type, what the function
+        // the term applies to the index takes, k of Σ(k ∈ ∅) t(k).
         let ty = match &over {
             Over::Range { .. } => LetterType::Number(Num::Int),
-            Over::Set(set) => match self.set_members(set) {
+            Over::Set(set) => match self
+                .set_members(set)
+                .or_else(|| self.index_taken(index, term))
+            {
                 Some(m) => m.letter(),
                 None => return Route::no("a sum over a set with no Lean type"),
             },
         };
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(index.text.to_string(), ty);
+        inner.bounds = self.bounds_inside(index, &over);
         Route::Built(Summed {
             inner,
             index,
             over,
             term,
+        })
+    }
+
+    /// What a function the term applies to the index letter takes, the
+    /// members k is among in t(k); None where the term applies none to it.
+    fn index_taken(&self, index: &Node, term: &Node) -> Option<Members> {
+        term.walk().iter().find_map(|n| {
+            let applies = n.notation() == crate::notations::APPLICATION
+                && self.library_function(n).is_none()
+                && matches!(n.children.as_slice(), [_, x] if x.is_name() && x.text == index.text);
+            match applies.then(|| self.applied(n)) {
+                Some(Route::Built(a)) => Some(a.takes),
+                _ => None,
+            }
         })
     }
 
@@ -1002,6 +1417,17 @@ impl Writer<'_> {
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         return Route::Declined(d)
                     }
+                }
+            }
+            // ∅ takes the index's type, which Lean cannot read from it.
+            Over::Set(set) if &*set.notation_name() == "empty-set" => {
+                match s.inner.letters.get(s.index.text.as_str()) {
+                    Some(ty) => format!(
+                        "{symbol}ᶠ {} ∈ (∅ : Set {})",
+                        super::names::letter(&s.index.text),
+                        bracketed(&ty.lean())
+                    ),
+                    None => return Route::no("a sum over ∅ whose index has no type"),
                 }
             }
             Over::Set(set) => match self.set_term(set) {
@@ -1375,17 +1801,22 @@ impl Writer<'_> {
             },
             NUMERAL => Route::Built(Printed::atom(&*node.text)),
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
-                let (from, to) = match self.applied(node) {
+                let applied = match self.applied(node) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let Some(arg) = node.children.get(1) else {
                     return Route::no("an application with no argument");
                 };
-                let arg = match self.number(arg, from) {
+                let arg = match &applied.takes {
+                    Members::Numbers(from) => self.number(arg, *from),
+                    _ => self.set_term(arg),
+                };
+                let arg = match arg {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
+                let to = applied.gives;
                 let value = Printed {
                     text: format!(
                         "{} {}",
@@ -1434,7 +1865,18 @@ impl Writer<'_> {
                     Route::Built(c) => c,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                self.raise(fill(template, &children), here, at)
+                // A value of a fixed type an operation makes, ⌊x⌋ mod 10 in ℤ,
+                // is cast up whole at its own type first: Lean puts a cast
+                // around such a term at its leaves, `(a % (10 : ℤ) : ℝ)`
+                // taking the remainder in ℝ.
+                let value = fill(template, &children);
+                let value = match template.yields {
+                    Slot::Fixed(_) if here < at && value.prec < APP => {
+                        self.cast(&value, here)
+                    }
+                    _ => value,
+                };
+                self.raise(value, here, at)
             }
         }
     }
@@ -1486,14 +1928,25 @@ impl Writer<'_> {
                 .iter()
                 .zip(&template.holes)
                 .any(|(c, s)| matches!(s, Slot::Alpha(_)) && self.pinned(c));
+        // The later part of "P and Q" or "if P then Q" is read where P holds,
+        // √x of "x > 0 and x² < √x" the square root of a number at least 0.
+        let guarded = matches!(
+            node.notation(),
+            crate::notations::CONJUNCTION
+                | crate::notations::IMPLICATION
+                | crate::notations::CONDITIONAL
+        );
         let mut out = Vec::new();
-        for (child, slot) in args.iter().zip(&template.holes) {
+        for (i, (child, slot)) in args.iter().zip(&template.holes).enumerate() {
             let printed = match slot {
                 Slot::Alpha(_) if told => {
                     self.number(child, alpha).map(|p| self.cast(&p, alpha))
                 }
                 Slot::Alpha(_) => self.number(child, alpha),
                 Slot::Fixed(n) => self.number_fixed(child, *n),
+                Slot::Prop if guarded && i > 0 => {
+                    self.knowing(&args[..i]).formula(child)
+                }
                 Slot::Prop => self.formula(child),
             };
             match printed {
@@ -1729,8 +2182,8 @@ impl Writer<'_> {
             THERE_IS | FOR_ALL => self.quantified(node),
             crate::notations::COMMA_CONJUNCTION => {
                 let mut parts = Vec::new();
-                for c in &node.children {
-                    match self.formula(c) {
+                for (i, c) in node.children.iter().enumerate() {
+                    match self.knowing(&node.children[..i]).formula(c) {
                         Route::Built(p) => parts.push(p.at(36)),
                         Route::Declined(d) => return Route::Declined(d),
                     }
@@ -1751,6 +2204,9 @@ impl Writer<'_> {
                         node.notation_name()
                     ));
                 }
+                if let Some(said) = self.natural_witness(node, template) {
+                    return said;
+                }
                 let alpha = match self.alpha_of(node, template) {
                     Route::Built(a) => a,
                     Route::Declined(d) => return Route::Declined(d),
@@ -1761,6 +2217,66 @@ impl Writer<'_> {
                 }
             }
         }
+    }
+
+    /// A property of a natural number said of a term Lean does not compute
+    /// as one, 2^(p − 1)·(2^p − 1) is perfect, a rational in Lean: that the
+    /// term is some natural number m, and the property of m, `∃ m : ℕ, (m :
+    /// ℚ) = … ∧ σ m = 2 * m`. set.mm writes the term as it stands, and its
+    /// σ is of natural numbers only, so its statement holds exactly where
+    /// this one does. None where every ℕ slot holds a natural number, or
+    /// where more than one does not.
+    fn natural_witness(
+        &self,
+        node: &Node,
+        template: &Template,
+    ) -> Option<Route<Printed>> {
+        let args = self.args(node);
+        let wide: Vec<usize> = template
+            .holes
+            .iter()
+            .zip(args)
+            .enumerate()
+            .filter(|(_, (slot, arg))| {
+                **slot == Slot::Fixed(Num::Nat)
+                    && self.is_number(arg)
+                    && !self.natural(arg)
+            })
+            .map(|(i, _)| i)
+            .collect();
+        let [i] = wide.as_slice() else {
+            return None;
+        };
+        let term = &args[*i];
+        let at = match self.carrier(term) {
+            Route::Built(n) => n,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let value = match self.number_fixed(term, at) {
+            Route::Built(v) => v,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let m = witness_letter(node);
+        let mut inner = self.with_letters(self.letters.clone());
+        inner
+            .letters
+            .insert(m.clone(), LetterType::Number(Num::Nat));
+        let mut children = node.children.clone();
+        let at_child = children.len() - args.len() + i;
+        children[at_child] = Node::name(crate::formula::Sort::of("number"), &m);
+        let body = match inner.formula(&node.with_children(children)) {
+            Route::Built(b) => b,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        Some(Route::Built(Printed {
+            text: format!(
+                "∃ {m} : ℕ, ({m} : {}) = {} ∧ {}",
+                self.type_name(at),
+                value.at(51),
+                body.at(36)
+            ),
+            prec: 0,
+        }))
     }
 
     /// The type a formula's `α` holes are computed in: the least that holds
@@ -1844,6 +2360,11 @@ impl Writer<'_> {
                 return Route::Declined(d)
             }
         };
+        // ℂ has no order: x < √y of a y not shown at least 0, whose square
+        // root is the principal one in ℂ, is not written.
+        if node.notation() == ORDER && at == Num::Complex {
+            return Route::no("an order between complex numbers");
+        }
         let mut l = match self.number(left, at) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
@@ -2052,13 +2573,14 @@ impl Writer<'_> {
             }
             System::Type(n) if held <= n => Route::Built(Printed::atom("True")),
             System::Type(n) => {
+                let m = witness_letter(x);
                 let x = match self.number(x, own) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 Route::Built(Printed {
                     text: format!(
-                        "∃ m : {}, (m : {}) = {}",
+                        "∃ {m} : {}, ({m} : {}) = {}",
                         self.type_name(n),
                         self.type_name(own),
                         x.at(51)
@@ -2067,18 +2589,19 @@ impl Writer<'_> {
                 })
             }
             System::Positive | System::NonNegative => {
+                let m = witness_letter(x);
                 let x = match self.number(x, own) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let positive = if system == System::Positive {
-                    "0 < m ∧ "
+                    format!("0 < {m} ∧ ")
                 } else {
-                    ""
+                    String::new()
                 };
                 Route::Built(Printed {
                     text: format!(
-                        "∃ m : ℕ, {positive}(m : {}) = {}",
+                        "∃ {m} : ℕ, {positive}({m} : {}) = {}",
                         self.type_name(own),
                         x.at(51)
                     ),
@@ -2103,6 +2626,9 @@ impl Writer<'_> {
         }
         if let Some(q) = self.quantified_over_polynomials(letter, set, body, exists) {
             return q;
+        }
+        if &*set.notation_name() == "functions-from" {
+            return self.quantified_over_functions(letter, set, body, exists);
         }
         let name = super::names::letter(&letter.text);
         let (ty, guard) = if set.notation() == NUMBER_SYSTEMS {
@@ -2135,6 +2661,16 @@ impl Writer<'_> {
         inner
             .letters
             .insert(letter.text.to_string(), LetterType::Number(ty));
+        // The letter is bounded by the set it runs over, p ≥ 1 of "there is
+        // p ∈ ℕ", as a letter the header lets in ℕ is, so that 2^(p − 1) is
+        // written alike in the statement and the proof.
+        inner.bounds = self.bounds.without_letter(&letter.text);
+        if let Some(least) = self.set_least(set, &[]) {
+            inner.bounds.terms.push(Bound {
+                term: letter.clone(),
+                least,
+            });
+        }
         let body = match inner.formula(body) {
             Route::Built(b) => b,
             Route::Declined(d) => return Route::Declined(d),
@@ -2152,6 +2688,85 @@ impl Writer<'_> {
         };
         Route::Built(Printed { text, prec: 0 })
     }
+
+    /// The type of a function from one set to another: between sets of
+    /// numbers, a function of the numbers' types, g : {1, …, j} → ℕ a
+    /// function from ℤ to ℤ; otherwise a map between what the sets hold.
+    /// None where either set has no Lean type.
+    pub fn function_between(&self, from: &Node, to: &Node) -> Option<LetterType> {
+        match (self.set_members(from)?, self.set_members(to)?) {
+            (Members::Numbers(m), Members::Numbers(n)) => {
+                Some(LetterType::Function { from: m, to: n })
+            }
+            (a, b) => Some(LetterType::Map { from: a, to: b }),
+        }
+    }
+
+    /// "there is f : A → B with …" and "for all f : A → B, …": f a Lean
+    /// function of the types the sets' members are, and that it maps A
+    /// into B a fact beside it, `∃ f : ℤ → ℤ, Set.MapsTo f A B ∧ …`.
+    fn quantified_over_functions(
+        &self,
+        letter: &Node,
+        set: &Node,
+        body: &Node,
+        exists: bool,
+    ) -> Route<Printed> {
+        let [from, to] = set.children.as_slice() else {
+            return Route::no("the functions between other than two sets");
+        };
+        let Some(ty) = self.function_between(from, to) else {
+            return Route::no("the functions between sets with no Lean type");
+        };
+        let sides = match &ty {
+            LetterType::Function { from: m, to: n } => {
+                (self.numbers_at(from, *m), self.numbers_at(to, *n))
+            }
+            _ => (self.set_term(from), self.set_term(to)),
+        };
+        let (from_text, to_text) = match sides {
+            (Route::Built(f), Route::Built(t)) => (f, t),
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                return Route::Declined(d)
+            }
+        };
+        let name = super::names::letter(&letter.text);
+        let lean_type = ty.lean();
+        let mut inner = self.with_letters(self.letters.clone());
+        inner.letters.insert(letter.text.to_string(), ty);
+        let body = match inner.formula(body) {
+            Route::Built(b) => b,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let maps = format!(
+            "Set.MapsTo {name} {} {}",
+            from_text.at(MAX),
+            to_text.at(MAX)
+        );
+        let text = match exists {
+            true => format!("∃ {name} : {lean_type}, {maps} ∧ {}", body.at(36)),
+            false => format!("∀ {name} : {lean_type}, {maps} → {}", body.at(25)),
+        };
+        Route::Built(Printed { text, prec: 0 })
+    }
+}
+
+/// The letter a membership in a number system names its witness by, `∃ m :
+/// ℕ, (m : ℚ) = x`: m, or where x has a letter m, as m/p does, the first of
+/// m₀, m₁, … it has none of.
+pub fn witness_letter(x: &Node) -> String {
+    let used: Vec<String> = x
+        .walk()
+        .iter()
+        .filter(|n| n.is_name())
+        .map(|n| super::names::letter(&n.text))
+        .collect();
+    let subscripts = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
+    std::iter::once("m".to_string())
+        .chain(subscripts.iter().map(|s| format!("m{s}")))
+        .chain((10..).map(|i| format!("m_{i}")))
+        .find(|l| !used.contains(l))
+        .expect("the letters m_10, m_11, … do not run out")
 }
 
 /// What a number system is to a letter in Lean.

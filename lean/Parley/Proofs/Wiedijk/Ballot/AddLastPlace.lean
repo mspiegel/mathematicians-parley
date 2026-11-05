@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ballot.AddLastPlace
 
+set_option maxHeartbeats 400000 in
 theorem add_last_place (m : ℕ) (hH1 : 0 < m) (n : ℕ) (hH2 : 0 < n) :
     (∃ g : Set ℤ → Set ℤ, Set.BijOn g {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) ((m : ℤ) - 1 + (n : ℤ)) : Set ℤ) | (d.ncard : ℤ) = (m : ℤ) - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) - 1 + (n : ℤ)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard} ((fun T : Set ℤ => T ∪ ({(m : ℤ) + (n : ℤ)} : Set ℤ)) '' {c ∈ {d ∈ 𝒫 (Set.Icc (1 : ℤ) ((m : ℤ) - 1 + (n : ℤ)) : Set ℤ) | (d.ncard : ℤ) = (m : ℤ) - 1} | ∀ i : ℤ, i ∈ Finset.Icc 1 ((m : ℤ) - 1 + (n : ℤ)) → ((Set.Icc (1 : ℤ) i : Set ℤ) \ c).encard < ((Set.Icc (1 : ℤ) i : Set ℤ) ∩ c).encard})) := by
   -- 1. thm:places-before-last p := (m − 1) + n, N := m + n

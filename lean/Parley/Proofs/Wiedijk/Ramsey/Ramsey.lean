@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Ramsey.Ramsey
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem ramsey {α : Type*} (V : Set α) (E : Set (Set α)) (F : Set (Set α)) (r : ℕ) (hH1 : 0 < r) (s : ℕ) (hH2 : 0 < s) (hH4 : V.Finite) (hH7 : ∀ Y ∈ 𝒫 V, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E ∨ Y ∈ F) (hH8 : (LeanBridges.Counting.choose ((r : ℤ) + (s : ℤ) - 2) ((r : ℤ) - 1) : ℤ) ≤ (V.ncard : ℤ)) :
     (∃ W ∈ 𝒫 V, ((r : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) ∨ ((s : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ F)) := by
   -- 1. induction on k starting at 1

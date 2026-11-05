@@ -11,7 +11,7 @@ public section
 
 namespace Parley.Tests.Notations.Groups.TheInverseOfAProduct
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem the_inverse_of_a_product {G : Type*} [Group G] (a : G) (hH2 : a ∈ (Set.univ : Set G)) (b : G) (hH3 : b ∈ (Set.univ : Set G)) :
     (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
   -- 1. axi:group-closed, from H2, H3

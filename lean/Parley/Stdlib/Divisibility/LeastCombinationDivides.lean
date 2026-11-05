@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.LeastCombinationDivides
 
+set_option maxHeartbeats 400000 in
 theorem least_combination_divides (a : ℤ) (b : ℕ) (hH2 : 0 < b) (c : ℤ) (d : ℕ) (hH4 : 0 < d) (u : ℤ) (v : ℤ) (x₀ : ℤ) (y₀ : ℤ) (hH9 : c = a * u + (b : ℤ) * v) (hH10 : (d : ℤ) = a * x₀ + (b : ℤ) * y₀) (hH11 : ∀ x : ℤ, ∀ y : ℤ, 0 < a * x + (b : ℤ) * y → (d : ℤ) ≤ a * x + (b : ℤ) * y) :
     (d : ℤ) ∣ c := by
   -- 1. mun:mod-natural a := c, b := d

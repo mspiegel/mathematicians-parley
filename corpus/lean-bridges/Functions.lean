@@ -50,4 +50,17 @@ theorem one_to_one_onto {α β : Type*} (X : Set α) (Y : Set β) (f : α → β
     Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y ↔ (Set.MapsTo f X Y ∧ Set.InjOn f X) ∧ Set.MapsTo f X Y ∧ Set.SurjOn f X Y :=
   ⟨fun ⟨a, b, c⟩ => ⟨⟨a, b⟩, a, c⟩, fun ⟨⟨a, b⟩, _, c⟩ => ⟨a, b, c⟩⟩
 
+/-- A recursion a proof lets, `let N(0) = 0, N(k + 1) = 10·N(k) + d(k + 1),
+for k ∈ ℕ₀`: some function on the integers starts at a and takes each step
+from 0 on, as the build's sequences take integers. Its values below 0 are
+none of the page's. -/
+theorem recursion_exists {R : Type*} (a : R) (g : ℤ → R → R) :
+    ∃ F : ℤ → R, F 0 = a ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = g k (F k) := by
+  refine ⟨fun k => Nat.rec (motive := fun _ => R) a (fun m v => g m v) k.toNat, rfl, ?_⟩
+  intro k hk
+  show Nat.rec (motive := fun _ => R) a (fun m v => g m v) (k + 1).toNat = _
+  rw [show (k + 1).toNat = k.toNat + 1 by omega]
+  show g (k.toNat : ℤ) _ = _
+  rw [Int.toNat_of_nonneg hk]
+
 end LeanBridges.Functions

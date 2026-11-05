@@ -16,10 +16,13 @@ public section
 
 namespace Parley.Proofs.Wiedijk.AmGm.AmGm
 
+set_option maxHeartbeats 400000 in
 theorem am_gm (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k ∈ Finset.Icc 1 (n : ℤ) → a k ≥ 0) :
     (∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) ^ (1 / (n : ℝ)) ≤ (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) / (n : ℝ) := by
   set P : ℝ := ∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ) with hD1
+  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := (n : ℤ))) | exact ((Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := (n : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := (n : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := (n : ℤ))) | (have h := (Parley.Items.Stdlib.Sums.mun_product_real (t := a) (a := (1 : ℤ)) (b := (n : ℤ))); parley_side)
   set M : ℝ := (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) / (n : ℝ) with hD2
+  have hD2_kind : True := by parley_side
   -- 1. thm:am-gm-power, from D1, D2, H3
   have s1 : P ≤ M ^ n := by
     try simp only [hD1, hD2] at *
@@ -38,6 +41,7 @@ theorem am_gm (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k �
     try push_cast at *
     first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) (y := (n : ℝ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) (y := (n : ℝ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) (y := (n : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_nonneg (x := ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) (y := (n : ℝ)) (by parley_side) (by parley_side)); parley_side)
   set r : ℝ := P ^ (1 / (n : ℝ)) with hD3
+  have hD3_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) (by parley_side) (y := 1 / (n : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) (by parley_side) (y := 1 / (n : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) (by parley_side) (y := 1 / (n : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) (by parley_side) (y := 1 / (n : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_power_real (x := P) (by parley_side) (y := 1 / (n : ℝ))); parley_side)
   -- 5. mun:root-power x := P, from D3
   have s5 : r ^ n = P := by
     try simp only [hD3] at *

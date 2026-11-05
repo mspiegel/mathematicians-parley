@@ -15,7 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.IrrationalBetweenRationals.IrrationalBetweenRationals
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. def:sqrt x := 2
@@ -50,6 +50,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 9. inequalities
   have s9 : 0 < s - r := by parley_order
   set u : ℝ := (r : ℝ) + ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) with hD1
+  have hD1_kind : True := by parley_side
   -- 10. mun:product-positive x := s − r, y := (1/2)·√2, from 7, 9
   have s10 : ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (s : ℝ) - (r : ℝ)) (y := 1 / 2 * Real.sqrt (2 : ℝ)) (by parley_side) (by parley_side)); parley_side)
   -- 11. inequalities
@@ -94,6 +95,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.11. transitivity, from 17.9, 17.10
     have s17_11 : 0 < c * (q : ℤ) - p * (d : ℤ) := by parley_order
     set m : ℤ := c * (q : ℤ) - p * (d : ℤ) with hD2
+    have hD2_kind : 0 < c * (q : ℤ) - p * (d : ℤ) := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11); parley_side)
     -- 17.12. algebra, from D1
     have s17_12 : u - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
       try simp only [hD1] at *

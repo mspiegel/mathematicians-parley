@@ -43,7 +43,7 @@ theorem identity_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
       all_goals parley_set_side
     all_goals exact s1_1
   -- 2. def:continuous-on, from H1, 1
-  have s2 : ContinuousOn f D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1 (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1 (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : ContinuousOn f D := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_continuous_on (f := f) (D := D) hH1)).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Proofs.Setmm.IdentityFunctionContinuous.IdentityFunctionContinuous

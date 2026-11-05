@@ -68,7 +68,16 @@ macro "parley_side" : tactic =>
     | (push_cast at *; assumption; done)
     | (apply Eq.symm; assumption; done)
     | (apply Ne.symm; assumption; done)
+    -- A line that says the goal with an identity element written or left
+    -- out, y + 0 = 2 for y = 2, as the checker matches terms.
+    | ((simp only [add_zero, zero_add, mul_one, one_mul, sub_zero] at *);
+        (first | assumption | (apply Ne.symm; assumption) | (apply Eq.symm; assumption)); done)
     | (constructor <;> assumption; done)
+    -- A conjunction of conjunctions, each part a line: (A ∧ B) ∧ (A ∧ C).
+    -- Taken apart by `⟨_, _⟩`, which reads the goal only as written, as
+    -- `and_intros` does not: unfolding an order of sums to look for a
+    -- conjunction there takes past a proof's budget.
+    | (refine ⟨?_, ?_⟩ <;> (try refine ⟨?_, ?_⟩) <;> assumption; done)
     | (constructor <;> assumption_mod_cast; done)
     -- Two sides that differ only in where a cast stands, x ↑(n + 1) and
     -- x (↑n + 1).

@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Tests.Notations.Functions.ALineIsOneToOneAndOnto
 
+set_option maxHeartbeats 400000 in
 theorem a_line_is_one_to_one_and_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x + 1) :
     (Set.MapsTo f (Set.univ : Set ℝ) (Set.univ : Set ℝ) ∧ Set.InjOn f (Set.univ : Set ℝ) ∧ Set.SurjOn f (Set.univ : Set ℝ) (Set.univ : Set ℝ)) := by
   -- 1. mun:function-into

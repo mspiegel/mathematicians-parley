@@ -37,11 +37,11 @@ theorem def_image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (u :
     u ∈ f '' (X ∩ Y) ↔ (∃ s ∈ Y, u = f s) :=
   LeanBridges.Functions.image X Y f u W h1 hf
 
-theorem mun_image_within {α β : Type*} (W : Set β) (Y : Set α) (f : α → β) (X : Set α) (hf : Set.MapsTo f X W) :
+theorem mun_image_within {α β : Type*} (X : Set α) (W : Set β) (Y : Set α) (f : α → β) (hf : Set.MapsTo f X W) :
     f '' (X ∩ Y) ⊆ W :=
   (hf.mono_left Set.inter_subset_left).image_subset
 
-theorem mun_image_monotone {α β : Type*} (Y : Set α) (Z : Set α) (f : α → β) (X : Set α) (W : Set β) (h1 : Y ⊆ Z) (hf : Set.MapsTo f X W) :
+theorem mun_image_monotone {α β : Type*} (X : Set α) (Y : Set α) (Z : Set α) (f : α → β) (W : Set β) (h1 : Y ⊆ Z) (hf : Set.MapsTo f X W) :
     f '' (X ∩ Y) ⊆ f '' (X ∩ Z) :=
   Set.image_mono (Set.inter_subset_inter_right X h1)
 
@@ -81,12 +81,16 @@ theorem mun_preimage_within {α β : Type*} (X : Set α) (Z : Set β) (f : α �
     X ∩ f ⁻¹' Z ⊆ X :=
   Set.inter_subset_left
 
-theorem mun_composition_value {α β γ : Type*} (X : Set α) (f : α → β) (g : β → γ) (x : α) (Y : Set β) (W : Set γ) (h1 : x ∈ X) (hf : Set.MapsTo f X Y) (hg : Set.MapsTo g Y W) :
+theorem mun_composition_value {α β γ : Type*} (Y : Set β) (X : Set α) (f : α → β) (g : β → γ) (x : α) (W : Set γ) (h1 : x ∈ X) (hf : Set.MapsTo f X Y) (hg : Set.MapsTo g Y W) :
     (g ∘ f) x = g (f x) :=
   rfl
 
-theorem def_bijection {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y) :
-    ∃ g : α → α, Set.BijOn g X Y :=
+theorem def_bijection {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y) :
+    ∃ g : α → β, Set.BijOn g X Y :=
   ⟨f, h1.1, h1.2.1, h1.2.2⟩
+
+theorem mun_bijection_onto {α β : Type*} (X : Set α) (Y : Set β) (h1 : ∃ g : α → β, Set.BijOn g X Y) :
+    ∃ f : α → β, Set.MapsTo f X Y ∧ (Set.MapsTo f X Y ∧ Set.SurjOn f X Y) :=
+  by obtain ⟨f, hf⟩ := h1; exact ⟨f, hf.mapsTo, hf.mapsTo, hf.surjOn⟩
 
 end Parley.Items.Stdlib.Functions

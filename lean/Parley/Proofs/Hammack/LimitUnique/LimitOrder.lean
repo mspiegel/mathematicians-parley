@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.LimitUnique.LimitOrder
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 800000 in
 theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L)) (hH6 : Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds M)) :
     M ≤ L := by
   -- the theorem. contradiction
@@ -42,12 +42,14 @@ theorem limit_order (f : ℝ → ℝ) (c : ℝ) (L : ℝ) (M : ℝ) (hH5 : Filte
     -- 8. obtain q from line 6
     obtain ⟨q, ⟨s8a, s8b⟩⟩ := s6
     set m : ℝ := min p q with hD1
+    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := p) (y := q)); parley_set_side)
     -- 9. mun:lt-min z := 0, x := p, y := q, from 7, 8
     have s9 : 0 < min p q := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := p) (y := q))).mpr (by parley_set_side); parley_set_side)
     -- 10. mun:min-le x := p, y := q
     have s10a : min p q ≤ p := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q))] | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_1 (x := p) (y := q)); parley_set_side)
     have s10b : min p q ≤ q := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q))] | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_le_2 (x := p) (y := q)); parley_set_side)
     set x₁ : ℝ := c + m / 2 with hD2
+    have hD2_kind : True := by parley_set_side
     -- 11. inequalities, from D1, 9
     have s11 : 0 < m := by parley_order
     -- 12. inequalities
