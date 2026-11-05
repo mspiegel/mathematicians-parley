@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Identities.SineIsBounded.SineIsBounded
 
+set_option maxHeartbeats 400000 in
 theorem sine_is_bounded (x : ℝ) :
     (-1 ≤ Real.sin x ∧ Real.sin x ≤ 1) := by
   -- 1. mun:sin-cos-squares a := x

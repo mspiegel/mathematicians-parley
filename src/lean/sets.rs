@@ -1031,7 +1031,48 @@ impl Writer<'_> {
     /// Whether a term counts, somewhere, a set no line says is finite, |A|
     /// or |A| + 1: a count in ℕ∞.
     pub fn counts(&self, node: &Node) -> bool {
+        if self.in_extended {
+            return node
+                .walk()
+                .iter()
+                .any(|n| &*n.notation_name() == "cardinality");
+        }
         counts_in_extended(self.grammar, &self.finite, node)
+    }
+
+    /// Whether a relation that counts a set is one ℕ∞ says as the page
+    /// does: each side made of counts, whole numerals and natural letters
+    /// by + and ·, k ≤ |W| or |X| = |Y| + 1. Such a relation counts in ℕ∞
+    /// whatever the theorem knows of the sets, as set.mm's ♯ does. A
+    /// relation that computes with a count, |A| − |B| = 1 or |S| = j of an
+    /// integer j, counts a finite set as a natural number: the page has
+    /// shown the count is one (`card-nat0`) before computing with it.
+    pub fn said_in_extended(&self, node: &Node) -> bool {
+        let counted = node
+            .walk()
+            .iter()
+            .any(|m| &*m.notation_name() == "cardinality");
+        counted && node.children.iter().all(|c| self.natural_beside_count(c))
+    }
+
+    /// Whether a term is a natural number as ℕ∞ holds one: counts, whole
+    /// numerals, letters of ℕ, and their sums and products.
+    fn natural_beside_count(&self, node: &Node) -> bool {
+        if &*node.notation_name() == "cardinality" {
+            return true;
+        }
+        match node.notation() {
+            crate::notations::NUMERAL => !node.text.contains('.'),
+            crate::notations::NAME => matches!(
+                self.letters.get(node.text.as_str()),
+                Some(LetterType::Number(Num::Nat))
+            ),
+            _ => {
+                matches!(&*node.notation_name(), "additive" | "multiplicative")
+                    && matches!(&*node.spelling().text(), "+" | "·")
+                    && node.children.iter().all(|c| self.natural_beside_count(c))
+            }
+        }
     }
 
     /// The sets these hypotheses make finite are the ones this writer
@@ -1071,6 +1112,7 @@ impl Writer<'_> {
             return None;
         };
         let finite = &*node.notation_name() == "cardinality"
+            && !self.in_extended
             && is_finite(self.grammar, &self.finite, set);
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
@@ -1106,6 +1148,15 @@ impl Writer<'_> {
             let [set] = node.children.as_slice() else {
                 return Route::no("a count of other than one set");
             };
+            // ∅ counted is told it is a set of things, which nothing else
+            // in |∅| = 0 gives Lean.
+            if &*set.notation_name() == "empty-set" {
+                let of = match &self.empty_of {
+                    Some(m) => Members::Sets(Box::new(m.clone())).lean(),
+                    None => format!("Set {}", super::expr::THINGS),
+                };
+                return Route::Built(Printed::atom(format!("(∅ : {of}).encard")));
+            }
             return match self.set_term(set) {
                 Route::Built(s) => Route::Built(Printed {
                     text: format!("{}.encard", s.at(MAX)),

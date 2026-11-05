@@ -1,0 +1,15 @@
+module
+
+public import Tactics
+
+/-! Written from tests/elaborator/a-phrase-with-a-where-part.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Items.Tests.Elaborator.APhraseWithAWherePart
+
+theorem def_clique {α : Type*} (E : Set (Set α)) (W : Set α) (n : ℕ) :
+    ((n : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) ↔ ((n : ℕ) : ℕ∞) ≤ W.encard ∧ (∀ Y ∈ 𝒫 W, Y.encard = ((2 : ℕ) : ℕ∞) → Y ∈ E) :=
+  Iff.rfl
+
+end Parley.Items.Tests.Elaborator.APhraseWithAWherePart

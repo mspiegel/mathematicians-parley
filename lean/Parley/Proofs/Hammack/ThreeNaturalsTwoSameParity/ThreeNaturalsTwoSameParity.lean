@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ThreeNaturalsTwoSameParity.ThreeNaturalsTwoSameParity
 
+set_option maxHeartbeats 400000 in
 theorem three_naturals_two_same_parity (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : ℕ) (hH3 : 0 < c) :
     ((Even ((a : ℤ) - (b : ℤ)) ∨ Even ((a : ℤ) + (c : ℤ))) ∨ Even ((b : ℤ) - (c : ℤ))) := by
   -- 1. mun:even-or-odd n := a − b

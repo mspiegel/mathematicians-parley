@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegrandContinuous
 
+set_option maxHeartbeats 400000 in
 theorem integrand_continuous (n : ℕ) (g : ℝ → ℝ) (hH2 : Set.MapsTo g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH3 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), g x = x ^ (2 * n) / (1 + x ^ 2)) :
     ContinuousOn g (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   set u : ℝ → ℝ := fun x => x ^ (2 * n) with hD1

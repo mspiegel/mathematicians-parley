@@ -33,12 +33,12 @@ definition i
   metamath-proof ixi
   note        What a reader knows of i, and all a proof asks of it. set.mm
               builds ℂ first and finds i in it; a reader meets i by this.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem i-complex
   then        i ∈ ℂ
   metamath-proof ax-icn
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 definition irrational
   then        x is irrational ↔ x ∈ ℝ and x ∉ ℚ
@@ -421,7 +421,7 @@ mundane theorem real-power-of-power
   let b ∈ ℂ                                                           (H4)
   then        x^(a·b) = (x^a)^b
   metamath-proof cxpmul
-  lean-proof  not yet implemented
+  lean-proof  by rw [Complex.ofReal_cpow h2.le, ← Complex.cpow_mul] <;> rw [← Complex.ofReal_log h2.le, ← Complex.ofReal_mul, Complex.ofReal_im] <;> linarith [Real.pi_pos]
 
 mundane theorem root-power
   let x ∈ ℂ                                                           (H1)
@@ -430,7 +430,7 @@ mundane theorem root-power
   metamath-proof cxproot
   note        The principal n-th root of x, raised to the n-th power, which
               is a whole power.
-  lean-proof  not yet implemented
+  lean-proof  by rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)
 
 mundane theorem half-power
   let x ∈ ℂ                                                           (H1)

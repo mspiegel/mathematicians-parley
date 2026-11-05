@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Tests.Notations.Continuity.AStepIsNotContinuous
 
+set_option maxHeartbeats 400000 in
 theorem a_step_is_not_continuous (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) → f x = (@ite _ (x < 1 / 2) (Classical.propDecidable (x < 1 / 2)) 0 1 : ℝ)) :
     ¬ ContinuousOn f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) := by
   -- 1. def:interval a := 0, b := 1, x := 1/2

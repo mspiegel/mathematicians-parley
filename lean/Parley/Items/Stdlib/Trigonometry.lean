@@ -16,6 +16,10 @@ theorem thm_sin_add (a : ℂ) (b : ℂ) :
     Complex.sin (a + b) = Complex.sin a * Complex.cos b + Complex.cos a * Complex.sin b :=
   Complex.sin_add a b
 
+theorem mun_cos_zero :
+    Real.cos (0 : ℝ) = 1 :=
+  by (simp_all; done)
+
 theorem mun_sin_zero :
     Real.sin (0 : ℝ) = 0 :=
   by (simp_all; done)

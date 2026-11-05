@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.HarmonicLowerBound.HarmonicDoubling
 
+set_option maxHeartbeats 400000 in
 theorem harmonic_doubling (j : ℕ) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ (j + 1) : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ j : ℤ), (1 / (k : ℚ) : ℚ)) + 1 / 2 := by
   -- 1. mun:exponent-step a := 2, m := j

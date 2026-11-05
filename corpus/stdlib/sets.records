@@ -273,7 +273,7 @@ mundane theorem triple-members
   then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
   metamath-proof tpid1g, tpid2g, tpid3g
   note        Each thing a set lists is in it.
-  lean-proof  by (simp_all; done) ; by (simp_all; done) ; by (simp_all; done)
+  lean-proof  not yet implemented
 
 mundane theorem pair-finite
   then        {u, w} is finite

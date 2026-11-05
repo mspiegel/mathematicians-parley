@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.Leibniz
 
+set_option maxHeartbeats 400000 in
 theorem leibniz :
     Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), ((-1) ^ k / (2 * (k : ℝ) + 1) : ℝ)) = Real.pi / 4 := by
   -- 1. membership

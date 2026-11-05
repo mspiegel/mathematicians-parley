@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ChooseTwoLess.ChooseTwoLess
 
+set_option maxHeartbeats 400000 in
 theorem choose_two_less (N : ℕ) :
     (LeanBridges.Counting.choose ((N : ℤ) + 1) ((N : ℤ) - 1) : ℚ) = ((N : ℚ) + 1) * (N : ℚ) / 2 := by
   -- 1. def:nat0 n := N

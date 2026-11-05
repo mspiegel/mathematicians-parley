@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FactorialPlusKNotPrime.FactorialPlusKNotPrime
 
+set_option maxHeartbeats 400000 in
 theorem factorial_plus_k_not_prime (n : ℕ) (hH1 : 0 < n) (k : ℤ) (hH2 : k ∈ Finset.Icc (2 : ℤ) (n : ℤ)) :
     ¬ Nat.Prime ((LeanBridges.Counting.factorial (n : ℤ) : ℤ) + k).toNat := by
   -- 1. mun:range-bounds a := 2, b := n, from H2

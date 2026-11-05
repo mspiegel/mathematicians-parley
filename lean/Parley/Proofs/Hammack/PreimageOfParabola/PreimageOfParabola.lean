@@ -19,7 +19,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfParabola.PreimageOfParabola
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem preimage_of_parabola (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 + 3) :
     (Set.univ : Set ℝ) ∩ f ⁻¹' (Set.Icc (12 : ℝ) (19 : ℝ) : Set ℝ) = (Set.Icc (-4 : ℝ) (-3 : ℝ) : Set ℝ) ∪ (Set.Icc (3 : ℝ) (4 : ℝ) : Set ℝ) := by
   -- 1. proof

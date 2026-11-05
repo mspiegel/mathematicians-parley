@@ -20,6 +20,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegralRecurrence
 
+set_option maxHeartbeats 400000 in
 theorem integral_recurrence (n : ℕ) :
     (∫ t in 0..1, (t ^ (2 * (n + 1)) / (1 + t ^ 2) : ℝ)) = 1 / (2 * (n : ℝ) + 1) - (∫ t in 0..1, (t ^ (2 * n) / (1 + t ^ 2) : ℝ)) := by
   set f : ℝ → ℝ := fun x => x ^ (2 * n) with hD1

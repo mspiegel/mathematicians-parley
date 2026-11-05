@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.PrimePowersUnique
 
+set_option maxHeartbeats 400000 in
 theorem prime_powers_unique (a : ℕ) (b : ℕ) (c : ℕ) (a' : ℕ) (b' : ℕ) (c' : ℕ) (hH7 : (2 ^ a * 3 ^ b * 5 ^ c : ℤ) = 2 ^ a' * 3 ^ b' * 5 ^ c') :
     (a : ℤ) = (a' : ℤ) ∧ (b : ℤ) = (b' : ℤ) ∧ (c : ℤ) = (c' : ℤ) := by
   -- 1. mun:two-prime

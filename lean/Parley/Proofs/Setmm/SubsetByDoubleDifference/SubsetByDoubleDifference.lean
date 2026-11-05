@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetByDoubleDifference.SubsetByDoubleDifference
 
+set_option maxHeartbeats 400000 in
 theorem subset_by_double_difference {α : Type*} (A : Set α) (B : Set α) :
     (A ⊆ B ↔ B \ (B \ A) = A) := by
   -- the theorem. both directions

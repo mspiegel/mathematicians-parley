@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Setmm.HalvesSeries.HalvesSeries
 
+set_option maxHeartbeats 400000 in
 theorem halves_series :
     Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / 2 ^ k : ℝ)) = 1 := by
   -- 1. proof

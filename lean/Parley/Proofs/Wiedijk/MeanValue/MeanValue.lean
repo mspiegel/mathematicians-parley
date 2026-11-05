@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.MeanValue.MeanValue
 
+set_option maxHeartbeats 400000 in
 theorem mean_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (hH6 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ f x) :
     (∃ c ∈ (Set.Ioo a b : Set ℝ), (deriv f) c = (f b - f a) / (b - a)) := by
   -- 1. inequalities

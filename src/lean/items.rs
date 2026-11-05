@@ -296,6 +296,24 @@ fn free_letters(
         .collect();
     // A range's member is an integer, and so is a letter that stands as a
     // range's end, the k of {1, …, k}: set.mm's ranges are of integers.
+    // A letter a count is compared with, n of "n ≤ |W|", is a natural
+    // number: a count is one, or ∞ (`sets::count_term`), and Lean compares
+    // the two in ℕ∞, which holds the naturals.
+    let beside_count: std::collections::BTreeSet<String> = stated
+        .iter()
+        .flat_map(|n| n.walk())
+        .filter(|n| {
+            matches!(
+                n.notation(),
+                crate::notations::EQUALITY | crate::notations::ORDER
+            )
+        })
+        .flat_map(|n| match n.children.as_slice() {
+            [a, b] if w.counts(b) && a.is_name() => vec![a.text.to_string()],
+            [a, b] if w.counts(a) && b.is_name() => vec![b.text.to_string()],
+            _ => Vec::new(),
+        })
+        .collect();
     let in_range: std::collections::BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
@@ -351,7 +369,9 @@ fn free_letters(
             // A member of a range the item names, the k of "k ∈ {1, …, n}
             // ↔ k ∈ ℕ and k ≤ n", is an integer, as a range letter is in a
             // theorem: of any other k both sides are false.
-            let num = if in_range.contains(&name) {
+            let num = if beside_count.contains(&name) {
+                Num::Nat
+            } else if in_range.contains(&name) {
                 Num::Int
             } else if real {
                 Num::Real

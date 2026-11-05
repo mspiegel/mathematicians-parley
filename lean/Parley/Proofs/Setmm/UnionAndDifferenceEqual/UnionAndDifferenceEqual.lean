@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.UnionAndDifferenceEqual.UnionAndDifferenceEqual
 
+set_option maxHeartbeats 400000 in
 theorem union_and_difference_equal {α : Type*} (A : Set α) (B : Set α) (C : Set α) (hH4 : A ⊆ C) (hH5 : A ∩ B = ∅) :
     (A ∪ B = C ↔ C \ A = B) := by
   -- the theorem. both directions

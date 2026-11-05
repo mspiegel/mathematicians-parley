@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.QuadraticOverLinearDiverges.QuadraticOverLinearDiverges
 
+set_option maxHeartbeats 400000 in
 theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = (2 * (n : ℝ) ^ 2 + 1) / (3 * (n : ℝ) - 1)) :
     (∀ M : ℝ, ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) > (N : ℝ) → a (n : ℤ) > M)) := by
   -- 1. proof

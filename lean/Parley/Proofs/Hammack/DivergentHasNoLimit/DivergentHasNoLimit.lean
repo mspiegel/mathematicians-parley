@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DivergentHasNoLimit.DivergentHasNoLimit
 
+set_option maxHeartbeats 400000 in
 theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) > (N : ℝ) → a (n : ℤ) > M)) :
     ¬ (∃ L : ℝ, Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) := by
   -- the theorem. contradiction

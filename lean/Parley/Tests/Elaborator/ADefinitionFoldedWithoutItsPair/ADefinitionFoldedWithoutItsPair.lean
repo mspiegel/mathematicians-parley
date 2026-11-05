@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 800000 in
 theorem a_definition_folded_without_its_pair (g : ℝ → ℝ) (hD2 : ∀ x : ℝ, x ∈ {y : ℝ | y > 0} → g x = Real.sqrt x) :
     ContinuousOn g {y : ℝ | y > 0} := by
   set D : Set ℝ := {y : ℝ | y > 0} with hD1

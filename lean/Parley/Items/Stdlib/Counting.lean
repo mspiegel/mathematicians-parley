@@ -43,7 +43,7 @@ theorem mun_card_zero {α : Type*} (X : Set α) (h1 : X.encard = ((0 : ℕ) : �
   Set.encard_eq_zero.mp (by simpa using h1)
 
 theorem mun_card_singleton {α : Type*} (x : α) :
-    (({x} : Set α).ncard : ℤ) = 1 :=
+    ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_singleton x
 
 theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
@@ -51,15 +51,15 @@ theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = (
   (Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast Nat.succ_ne_zero k)).imp fun _ h => ⟨h, trivial⟩
 
 theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℕ) (h3 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
-    ((X \ ({a} : Set α)).ncard : ℤ) = (k : ℤ) :=
-  by have hX := Set.finite_of_encard_eq_coe h3; have e : X.ncard = k + 1 := (by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this); rw [Set.ncard_sdiff_singleton_of_mem h1]; omega
+    (X \ ({a} : Set α)).encard = ((k : ℕ) : ℕ∞) :=
+  by have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h
 
 theorem mun_card_bijection {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (h2 : X.encard = ((m : ℕ) : ℕ∞)) (h3 : ∃ g : α → α, Set.BijOn g X Y) :
     Y.encard = ((m : ℕ) : ℕ∞) :=
   by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
-    ((X ∪ Y).ncard : ℤ) = (m : ℤ) + (n : ℤ) :=
+    (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_disjoint_union X Y m n h3 h4 h5
 
 theorem def_C_1 (n : ℕ) :
@@ -111,7 +111,7 @@ theorem mun_binomial_nat (n : ℕ) (k : ℤ) (h2 : k ∈ Finset.Icc (0 : ℤ) (n
   LeanBridges.Counting.choose_pos n k h2
 
 theorem mun_card_empty {α : Type*} :
-    ((∅ : Set α).ncard : ℤ) = 0 :=
+    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_empty
 
 theorem mun_finite_part {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : Y ⊆ X) :
@@ -147,11 +147,11 @@ theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Fi
   (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
 
 theorem mun_card_equal {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : ∃ g : α → α, Set.BijOn g X Y) :
-    ((X.ncard : ℕ) : ℕ∞) = Y.encard :=
-  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image, h1.cast_ncard_eq]
+    X.encard = Y.encard :=
+  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]
 
 theorem mun_card_pair {α : Type*} (u : α) (w : α) :
-    (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
+    ({u, w} : Set α).encard ≤ ((2 : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_pair u w
 
 theorem mun_card_subset {α : Type*} (A : Set α) (B : Set α) (h1 : A ⊆ B) :
@@ -159,7 +159,7 @@ theorem mun_card_subset {α : Type*} (A : Set α) (B : Set α) (h1 : A ⊆ B) :
   Set.encard_le_encard h1
 
 theorem mun_card_pair_distinct {α : Type*} (u : α) (w : α) :
-    ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
+    ¬ u = w ↔ ({u, w} : Set α).encard = ((2 : ℕ) : ℕ∞) :=
   LeanBridges.Counting.card_pair_distinct u w
 
 theorem mun_card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :
@@ -171,12 +171,12 @@ theorem mun_card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) <
   LeanBridges.Counting.card_positive X h1
 
 theorem mun_range_size (n : ℕ) :
-    ((Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ).ncard : ℤ) = (n : ℤ) :=
-  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; simp
+    (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ).encard = ((n : ℕ) : ℕ∞) :=
+  by rw [← Finset.coe_Icc, Set.encard_coe_eq_coe_finsetCard, Int.card_Icc]; simp
 
 theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
-    ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
-  by simp_all
+    (X ∪ ({a} : Set α)).encard = X.encard + ((1 : ℕ) : ℕ∞) :=
+  by rw [Set.encard_union_eq (by simpa using h2), Set.encard_singleton]; rfl
 
 theorem thm_pigeonhole {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
     X.encard ≤ Y.encard :=

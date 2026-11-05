@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Stdlib.Calculus.ConvergentAbsBounded
 
+set_option maxHeartbeats 400000 in
 theorem convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     (∃ B : ℝ, ∀ m : ℕ, 0 < m → abs (x (m : ℤ)) ≤ B) := by
   -- 1. def:tends-to, from H3

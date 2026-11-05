@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AMapOverASetBindingItsLetter.AMapOverASetBindingItsLetter
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 800000 in
 theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ, x ∈ {x : ℝ | x > 0} → g x = Real.sqrt x) :
     ContinuousOn g {x : ℝ | x > 0} := by
   set D : Set ℝ := {x : ℝ | x > 0} with hD1

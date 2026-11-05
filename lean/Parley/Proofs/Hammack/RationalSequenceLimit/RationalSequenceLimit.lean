@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalSequenceLimit.RationalSequenceLimit
 
+set_option maxHeartbeats 400000 in
 theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = (2 * (n : ℝ) + 1) / (3 * (n : ℝ) - 1)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds (2 / 3)) := by
   -- 1. proof

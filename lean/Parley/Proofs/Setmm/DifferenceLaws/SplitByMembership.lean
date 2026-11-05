@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.SplitByMembership
 
+set_option maxHeartbeats 400000 in
 theorem split_by_membership {α : Type*} (A : Set α) (B : Set α) :
     A ∩ B ∪ A \ B = A := by
   -- 1. proof

@@ -19,7 +19,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegralBounds
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem integral_bounds (n : ℕ) :
     True ∧ (∫ t in 0..1, (t ^ (2 * n) / (1 + t ^ 2) : ℝ)) ≥ 0 ∧ (∫ t in 0..1, (t ^ (2 * n) / (1 + t ^ 2) : ℝ)) ≤ 1 / (2 * (n : ℝ) + 1) := by
   set f : ℝ → ℝ := fun x => x ^ (2 * n) with hD1

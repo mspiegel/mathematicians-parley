@@ -1196,6 +1196,33 @@ fn statement(
     })
 }
 
+/// Where a step takes its counts in ℕ∞ to integers (`Proof::count_conversion`).
+enum CountConversion {
+    /// Nowhere: its lines say their counts one way.
+    None,
+    /// Before its tactic, the goal and the lines in scope.
+    Before,
+    /// After its tactic, what it built and the goal together.
+    After,
+}
+
+/// How a step's lines say their counts (`Proof::count_forms`).
+struct CountForms {
+    /// One says a count in ℕ∞.
+    extended: bool,
+    /// One set's count is said both in ℕ∞ and as an integer.
+    mixed: bool,
+}
+
+/// How one set's count is said across a step's lines.
+#[derive(Default)]
+struct CountSaid {
+    /// In ℕ∞, somewhere.
+    extended: bool,
+    /// As an integer, somewhere.
+    integer: bool,
+}
+
 /// Writes one theorem's proof.
 struct Proof<'a> {
     sources: &'a Sources<'a>,
@@ -1314,11 +1341,13 @@ pub fn theorem(
             .chain(binders.iter().map(Binder::lean))
             .collect();
     let space = if binders.is_empty() { "" } else { " " };
-    // Lean's budget for one declaration, 200000 heartbeats, for each 30
+    // Lean's budget for one declaration, 200000 heartbeats, for each 15
     // steps of the proof: a long proof is many steps, each of the usual
     // cost, which the one default would cut off part way. A proof of 37
-    // steps citing items over ℚ and ℝ took 16 seconds and more than one.
-    let budget = match thm.steps.len().div_ceil(30) {
+    // steps citing items over ℚ and ℝ took 16 seconds and more than one;
+    // Ramsey's 26, citing "for all" statements over sets, between two and
+    // four hundred thousand.
+    let budget = match thm.steps.len().div_ceil(15) {
         0 | 1 => String::new(),
         n => format!("set_option maxHeartbeats {} in\n", 200_000 * n),
     };
@@ -1543,6 +1572,8 @@ impl<'a> Proof<'a> {
                         .insert(letter, LetterType::Number(super::templates::Num::Int));
                 } else if let Some((letter, members)) = self.set_member_said(node) {
                     self.writer.letters.insert(letter, members.letter());
+                } else if let Some((letter, members)) = self.part_said(node) {
+                    self.writer.letters.insert(letter, LetterType::Set(members));
                 } else if let Some(letter) =
                     super::statement::introduces_polynomial(node)
                 {
@@ -1556,6 +1587,20 @@ impl<'a> Proof<'a> {
                 }
             }
         }
+    }
+
+    /// The letter a line says is a part of a set, `W ⊆ X`, where the letter
+    /// is new and the writer has a type for X's members: a set of those.
+    fn part_said(&self, node: &Node) -> Option<(String, super::expr::Members)> {
+        let [w, set] = node.children.as_slice() else {
+            return None;
+        };
+        let new = &*node.notation_name() == "subset"
+            && w.is_name()
+            && !self.writer.letters.contains_key(w.text.as_str());
+        new.then(|| self.writer.members_of(set))
+            .flatten()
+            .map(|m| (w.text.to_string(), m))
     }
 
     /// The letter a line says is a member of a set, `x ∈ A`, where the
@@ -2056,11 +2101,29 @@ impl<'a> Proof<'a> {
             Head::Item { .. } => self.citation(reason, k, node),
             Head::Method(m) => {
                 // A claim said of every member of a set is proved of one,
-                // taken as the method's letter.
-                let (intros, body, writer) = self.peel(node);
+                // taken as the method's letter. Substitute rows each say
+                // the whole claim, "for all" and all, and end on it.
+                let rows = *m == Method::Substitute && !reason.just.rows.is_empty();
+                let (intros, body, writer) = match rows {
+                    true => (
+                        Vec::new(),
+                        node,
+                        self.writer.with_letters(self.writer.letters.clone()),
+                    ),
+                    false => self.peel(node),
+                };
                 let tactic = match self.method_proof(reason, *m, body, &writer) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
+                };
+                let tactic = match self.count_conversion(*m, body, reason.just) {
+                    CountConversion::None => tactic,
+                    CountConversion::Before => {
+                        format!("by parley_count_int; {}", as_tactic(&tactic))
+                    }
+                    CountConversion::After => {
+                        format!("by parley_count_after ({tactic})")
+                    }
                 };
                 if intros.is_empty() {
                     return Route::Built(tactic);
@@ -2100,6 +2163,106 @@ impl<'a> Proof<'a> {
             Head::Lines | Head::Manipulation(_) => {
                 Route::Built("by parley_side".to_string())
             }
+        }
+    }
+
+    /// Where a step takes the counts its claim or the lines it cites say
+    /// in ℕ∞, |X| = |Y| + 1 (`Writer::said_in_extended`), to the integers
+    /// they are, `parley_count_int`. A step that computes by a ring or an
+    /// order does so first, wherever a count is in ℕ∞, which is neither.
+    /// One that rewrites or reasons does so first only where its lines say
+    /// counts both ways, as a rewrite in ℕ∞ meets ℕ∞ lines as they are. A
+    /// calculation, and substitute rows, build their lines inside the step
+    /// as they are written, so the step takes what they build and the goal
+    /// to integers together, after; each row is taken as a step of its own
+    /// (`substitute_rows`).
+    fn count_conversion(
+        &self,
+        m: Method,
+        claim: &Node,
+        just: &Justification,
+    ) -> CountConversion {
+        let cited = self.cited_parts(&just.refs);
+        let lines: Vec<&Node> = std::iter::once(claim)
+            .chain(cited.iter().map(|c| &c.node))
+            .collect();
+        let forms = self.count_forms(&lines);
+        match m {
+            Method::Calculation if forms.extended => CountConversion::After,
+            Method::Substitute if !just.rows.is_empty() && forms.extended => {
+                CountConversion::After
+            }
+            Method::Algebra | Method::Arithmetic | Method::Inequalities
+                if forms.extended =>
+            {
+                CountConversion::Before
+            }
+            Method::Substitute
+            | Method::Transitivity
+            | Method::Antisymmetry
+            | Method::Restate
+                if forms.mixed =>
+            {
+                CountConversion::Before
+            }
+            _ => CountConversion::None,
+        }
+    }
+
+    /// How these lines say their counts: whether one says a count in ℕ∞,
+    /// and whether one set's count is said both in ℕ∞ and as an integer,
+    /// |A| = 0 beside |A| ∈ ℕ of a finite A.
+    fn count_forms(&self, lines: &[&Node]) -> CountForms {
+        let mut forms: std::collections::BTreeMap<String, CountSaid> =
+            std::collections::BTreeMap::new();
+        for line in lines {
+            self.note_counts(line, None, &mut forms);
+        }
+        CountForms {
+            extended: forms.values().any(|f| f.extended),
+            mixed: forms.values().any(|f| f.extended && f.integer),
+        }
+    }
+
+    /// Each set this node counts, with how the relation the count stands in
+    /// says it: in ℕ∞ (`Writer::said_in_extended`) or as an integer.
+    /// `extended` is that of the relation nearest above, if any.
+    fn note_counts(
+        &self,
+        node: &Node,
+        extended: Option<bool>,
+        forms: &mut std::collections::BTreeMap<String, CountSaid>,
+    ) {
+        let counting = |n: &Node| {
+            n.walk()
+                .iter()
+                .any(|c| &*c.notation_name() == "cardinality")
+        };
+        let relation = matches!(
+            node.notation(),
+            crate::notations::EQUALITY
+                | crate::notations::ORDER
+                | crate::notations::MEMBERSHIP
+        );
+        let extended = match relation && counting(node) {
+            true => {
+                Some(self.writer.said_in_extended(node) || self.writer.counts(node))
+            }
+            false => extended,
+        };
+        if let (Some(e), "cardinality", [set]) =
+            (extended, &*node.notation_name(), node.children.as_slice())
+        {
+            let said = forms
+                .entry(self.sources.checked.grammar.print(set))
+                .or_default();
+            match e {
+                true => said.extended = true,
+                false => said.integer = true,
+            }
+        }
+        for c in &node.children {
+            self.note_counts(c, extended, forms);
         }
     }
 
@@ -2170,13 +2333,31 @@ impl<'a> Proof<'a> {
                 // Lean, its equation rewrites them all, and the casts it
                 // leaves are pushed in. Lines are widened after, as they
                 // then read.
+                // A define's value may name another the step cites, v's of
+                // ω₁, so they are written out until none is left.
                 let defines = self.cited_defines(&just.refs);
                 let mut claim = node.clone();
                 for d in &defines {
-                    claim = self.put_define(&claim, d);
                     cited.retain(|c| c.proof != d.proof);
-                    for c in &mut cited {
-                        c.node = self.put_define(&c.node, d);
+                }
+                let grammar = &self.sources.checked.grammar;
+                let printed =
+                    |claim: &Node, cited: &[super::algebra::Cited]| -> Vec<String> {
+                        std::iter::once(claim)
+                            .chain(cited.iter().map(|c| &c.node))
+                            .map(|n| grammar.print(n))
+                            .collect()
+                    };
+                for _ in 0..=defines.len() {
+                    let before = printed(&claim, &cited);
+                    for d in &defines {
+                        claim = self.put_define(&claim, d);
+                        for c in &mut cited {
+                            c.node = self.put_define(&c.node, d);
+                        }
+                    }
+                    if printed(&claim, &cited) == before {
+                        break;
                     }
                 }
                 let mut haves = Vec::new();
@@ -3160,7 +3341,25 @@ impl<'a> Proof<'a> {
                     Some(crate::corpus::skeleton::Source::RealArithmetic)
                 );
                 let tactic = if real { "parley_real" } else { "parley_side" };
-                match self.writer.formula(&node) {
+                // Of numerals alone, cos(0) = 1, it is said in the type the
+                // claim is computed in, where it is put: `Complex.cos 0` in
+                // a line of complex numbers.
+                let at = claim
+                    .children
+                    .iter()
+                    .filter_map(|c| self.writer.carrier(c).built())
+                    .fold(self.writer.floor, |a, b| a.max(b));
+                // Of no letter of the proof's, cos(0) = 1, whose names are
+                // the library's functions only.
+                let lettered = node
+                    .names()
+                    .iter()
+                    .any(|n| self.writer.letters.contains_key(n.as_str()));
+                let said = match !lettered {
+                    true => self.writer.closed_formula(&node, at),
+                    false => self.writer.formula(&node),
+                };
+                match said {
                     Route::Built(p) => format!("(show {} by {tactic})", p.text),
                     Route::Declined(d) => return Route::Declined(d),
                 }
@@ -3380,6 +3579,11 @@ impl<'a> Proof<'a> {
                 first.cite
             ));
         };
+        let mut above_node: Option<Node> = self
+            .trees
+            .get(first.cite.trim())
+            .and_then(|t| t.first())
+            .map(|(n, _)| n.clone());
         let mut haves = Vec::new();
         for (k, row) in rows.iter().enumerate().skip(1) {
             let row_node = match self.tree(&row.formula) {
@@ -3434,8 +3638,20 @@ impl<'a> Proof<'a> {
                     "first | parley_subst_at {used} {above} | parley_subst_at {change_name} {above}"
                 )
             };
+            // A row whose lines say counts both ways takes them to
+            // integers first, as a step does (`count_conversion`).
+            let lines: Vec<&Node> = std::iter::once(&change)
+                .chain(above_node.as_ref())
+                .chain(std::iter::once(&row_node))
+                .collect();
+            let forms = self.count_forms(&lines);
+            let put = match forms.mixed {
+                true => format!("parley_count_int; {put}"),
+                false => put,
+            };
             haves.push(format!("have {row_name} : {row_text} := by {put}"));
             above = row_name;
+            above_node = Some(row_node);
         }
         Route::Built(with_haves(&haves, &format!("by exact {above}")))
     }
@@ -3605,9 +3821,16 @@ impl<'a> Proof<'a> {
         // The chain is worked in `at`, its first term told the type where
         // nothing in it fixes one; a claim in a narrower type, 3^q = 2^p in
         // ℤ beside ln and exp in ℝ, is moved up to it first.
+        // A claim of numerals alone may be written in the chain's type
+        // already, from the line it is reached from (`claimed`), and then
+        // has nowhere to move.
         let mut out = match (of_numbers && own < at, at) {
-            (true, super::templates::Num::Rat) => String::from("by\n  qify\n  calc "),
-            (true, super::templates::Num::Real) => String::from("by\n  rify\n  calc "),
+            (true, super::templates::Num::Rat) => {
+                String::from("by\n  try qify\n  calc ")
+            }
+            (true, super::templates::Num::Real) => {
+                String::from("by\n  try rify\n  calc ")
+            }
             _ => String::from("by\n  calc "),
         };
         out.push_str(&printed[0]);
@@ -4799,10 +5022,12 @@ impl<'a> Proof<'a> {
         let mut guards: IndexMap<String, String> = IndexMap::new();
         let mut body: Vec<String> = Vec::new();
         for ((node, _), name) in claim.iter().zip(&names) {
-            // A letter's fact of being in a set, x ∈ A, as of a range.
+            // A letter's fact of being in a set, x ∈ A, as of a range, or
+            // of being a part of one, W ⊆ X.
             let in_set = match node.children.as_slice() {
                 [x, set]
-                    if node.notation() == crate::notations::MEMBERSHIP
+                    if (node.notation() == crate::notations::MEMBERSHIP
+                        || &*node.notation_name() == "subset")
                         && x.is_name()
                         && self.writer.members_of(set).is_some() =>
                 {
@@ -5883,21 +6108,42 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // by `▸` (`instance`): an error elaborating it against the goal,
             // as `exact_mod_cast` does, is logged and does not fail the
             // alternative, so it is cast from a `have`, which fails.
-            // A claim of exp, sin or cos, whose items are stated over ℂ: the
-            // item read back in ℝ.
-            let of_complex = match claim.walk().iter().any(|n| {
-                n.notation() == crate::notations::APPLICATION
-                    && n.children
-                        .first()
-                        .is_some_and(|f| matches!(&*f.text, "exp" | "sin" | "cos"))
-            }) {
+            // An item stated over ℂ, given the claim's real numbers cast up,
+            // `(P : ℂ)`, where the claim is in ℝ: the item read back in ℝ.
+            let below_complex = claim
+                .children
+                .iter()
+                .filter_map(|c| writer.carrier(c).built())
+                .all(|n| n < super::templates::Num::Complex);
+            let of_complex = match term.contains(" : ℂ)") && below_complex {
                 true => format!(" | (have h := {term}; parley_of_complex h)"),
+                false => String::new(),
+            };
+            // An item that counts in ℕ∞, |∅| = 0, met in ℤ: the goal's
+            // counts of finite sets said in ℕ∞ (`parley_count_ext`), where
+            // the item meets it as it stands, before the `exact_mod_cast`
+            // below, whose error is logged as above.
+            let counted = claim
+                .walk()
+                .iter()
+                .any(|n| &*n.notation_name() == "cardinality");
+            let counted = match counted {
+                true => format!(
+                    "(parley_count_ext; exact_mod_cast {term}) | "
+                ),
                 false => String::new(),
             };
             let by_to_nat = term.contains("Int.toNat_of_nonneg");
             // The `▸` of a `toNat` rewrites its cast to ℤ only; one cast to
             // ℚ or ℝ, (1 − 2y).toNat in ℚ, is put back as the integer by
             // `parley_cast_toNat`.
+            // The term itself, given to `linear_combination`: not one with a
+            // `toNat` put back by `▸`, whose error is logged as above; the
+            // `have` after it takes that one.
+            let direct = match by_to_nat {
+                true => String::new(),
+                false => format!("linear_combination (norm := parley_norm) {term} | "),
+            };
             let cast = match by_to_nat {
                 true => format!(
                     "(have h := {term}; exact_mod_cast h) | (have h := {term}; exact_mod_cast h.symm) | (have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); linear_combination (norm := parley_norm) h)"
@@ -5905,7 +6151,7 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
                 false => format!("exact_mod_cast {term} | exact_mod_cast ({term}).symm"),
             };
             format!(
-                "by first | linear_combination (norm := parley_norm) {term} | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder}{of_complex} | (have h := {term}; parley_side)"
+                "by first | {direct}(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {counted}{cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder}{of_complex} | (have h := {term}; parley_side)"
             )
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),

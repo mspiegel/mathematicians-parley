@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.LcmEqualsFirst.LcmEqualsFirst
 
+set_option maxHeartbeats 400000 in
 theorem lcm_equals_first (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) :
     ((a : ℤ) = (Int.lcm (a : ℤ) (b : ℤ) : ℤ) ↔ (b : ℤ) ∣ (a : ℤ)) := by
   -- 1. def:lcm

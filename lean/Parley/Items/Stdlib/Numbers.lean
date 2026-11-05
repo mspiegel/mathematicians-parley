@@ -13,6 +13,14 @@ theorem def_rational {K : Type*} [Field K] [CharZero K] (x : K) :
     (∃ m : ℚ, (m : K) = x) ↔ (∃ p : ℤ, ∃ q : ℕ, 0 < q ∧ x = (p : K) / (q : K)) :=
   LeanBridges.Numbers.rational x
 
+theorem def_i :
+    Complex.I * Complex.I = -1 :=
+  by (simp_all; done)
+
+theorem mun_i_complex :
+    True :=
+  by (simp_all; done)
+
 theorem def_irrational (x : ℝ) :
     Irrational x ↔ True ∧ ¬ (∃ m : ℚ, (m : ℝ) = x) :=
   LeanBridges.Numbers.irrational x
@@ -216,6 +224,14 @@ theorem mun_real_power_nonneg (x : ℝ) (h2 : 0 ≤ x) (y : ℝ) :
 theorem mun_real_power_positive (x : ℝ) (h2 : 0 < x) (y : ℝ) :
     0 < x ^ y :=
   by positivity
+
+theorem mun_real_power_of_power (x : ℝ) (h2 : 0 < x) (a : ℝ) (b : ℂ) :
+    (x : ℂ) ^ ((a : ℂ) * b) = ((x ^ a : ℝ) : ℂ) ^ b :=
+  by rw [Complex.ofReal_cpow h2.le, ← Complex.cpow_mul] <;> rw [← Complex.ofReal_log h2.le, ← Complex.ofReal_mul, Complex.ofReal_im] <;> linarith [Real.pi_pos]
+
+theorem mun_root_power (x : ℂ) (n : ℕ) (h2 : 0 < n) :
+    (x ^ (1 / (n : ℂ))) ^ n = x :=
+  by rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)
 
 theorem axi_trichotomy {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     (x < 0 ∨ x = 0) ∨ 0 < x :=

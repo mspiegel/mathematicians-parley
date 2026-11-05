@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PreimageOfImageOfPreimage.PreimageOfImageOfPreimage
 
+set_option maxHeartbeats 400000 in
 theorem preimage_of_image_of_preimage {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) (Y : Set α) (hH4 : Y ⊆ B) :
     A ∩ f ⁻¹' (f '' (A ∩ (A ∩ f ⁻¹' Y))) = A ∩ f ⁻¹' Y := by
   -- 1. proof

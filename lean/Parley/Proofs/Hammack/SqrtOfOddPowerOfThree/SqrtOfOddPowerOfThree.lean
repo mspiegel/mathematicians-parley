@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SqrtOfOddPowerOfThree.SqrtOfOddPowerOfThree
 
+set_option maxHeartbeats 400000 in
 theorem sqrt_of_odd_power_of_three (k : ℕ) (hH1 : 0 < k) (hH2 : Odd (k : ℤ)) :
     Irrational (Real.sqrt (3 ^ k : ℝ)) := by
   -- 1. obtain m: def:odd n := k, from H2

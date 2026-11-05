@@ -440,6 +440,26 @@ fn covered(
     let extended = |n: &crate::formula::Node| {
         super::sets::counts_in_extended(&checked.grammar, &finite, n)
     };
+    // Nor is one compared with what is no natural number, which beside it
+    // is taken in ℕ: a difference or a quotient, |S| = j − 1, or a letter
+    // the page puts in ℤ, ℚ, ℝ or ℂ, |S| = j of j ∈ ℤ.
+    let systems: std::collections::BTreeMap<String, super::expr::System> = rec
+        .page
+        .entries()
+        .filter_map(|(_, n)| super::statement::introduces(n))
+        .collect();
+    let differs = |n: &crate::formula::Node| {
+        n.walk().iter().any(|m| {
+            let lettered = m.is_name()
+                && matches!(
+                    systems.get(m.text.as_str()),
+                    Some(super::expr::System::Type(_))
+                );
+            lettered
+                || (matches!(&*m.notation_name(), "additive" | "multiplicative")
+                    && !matches!(&*m.spelling().text(), "+" | "·"))
+        })
+    };
     let count_subtracted =
         rec.page
             .entries()
@@ -448,7 +468,13 @@ fn covered(
                 let arithmetic =
                     matches!(&*n.notation_name(), "additive" | "multiplicative");
                 let plus_or_times = matches!(&*n.spelling().text(), "+" | "·");
-                arithmetic && !plus_or_times && extended(&n)
+                let beside = match n.children.as_slice() {
+                    [a, b] if matches!(&*n.notation_name(), "equality" | "order") => {
+                        (extended(a) && differs(b)) || (extended(b) && differs(a))
+                    }
+                    _ => false,
+                };
+                (arithmetic && !plus_or_times && extended(&n)) || beside
             });
     if count_subtracted {
         return Covered::Out {
@@ -458,13 +484,19 @@ fn covered(
     }
     // A citation that gives a count for a letter of a number system, m :=
     // |A| for m ∈ ℕ₀, of a set no line says is finite: the count is in ℕ∞,
-    // the letter in Lean's ℕ.
+    // the letter in Lean's ℕ. A count inside a formula or a set given for
+    // a letter of those, P := "k ≤ |W| and …", is written as the lines
+    // around it write it.
     let count_given = rec
         .cited
         .iter()
         .flatten()
         .chain(rec.cited_requires.values())
-        .any(|c| c.binding.values().any(extended));
+        .any(|c| {
+            c.binding
+                .values()
+                .any(|v| v.sort.is("number") && extended(v))
+        });
     if count_given {
         return Covered::Out {
             reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"

@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PrimeNotDividesFactorial.PrimeNotDividesFactorial
 
+set_option maxHeartbeats 400000 in
 theorem prime_not_divides_factorial (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (N : ℕ) (hH4 : (N : ℤ) < (P : ℤ)) :
     ¬ (P : ℤ) ∣ (LeanBridges.Counting.factorial (N : ℤ) : ℤ) := by
   -- 1. def:prime p := P, from H2

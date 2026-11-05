@@ -44,7 +44,7 @@ theorem choose_four_two :
     first | parley_subst_at s2_w s6 | parley_subst_at s2 s6
   -- 8. calculation
   have s8 : (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℤ) = 6 := by
-    qify
+    try qify
     calc (LeanBridges.Counting.choose (4 : ℤ) (2 : ℤ) : ℚ) = 24 / (2 * 2) := by parley_side
       _ = 6 := by norm_num
   all_goals exact s8

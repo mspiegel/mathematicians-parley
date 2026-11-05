@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.TwoElements.TwoElements
 
+set_option maxHeartbeats 400000 in
 theorem two_elements {α : Type*} (V : Set α) :
     (V.encard = ((2 : ℕ) : ℕ∞) ↔ (∃ a ∈ V, ∃ b ∈ V, ¬ a = b ∧ V = ({a, b} : Set α))) := by
   -- the theorem. both directions
@@ -22,9 +23,9 @@ theorem two_elements {α : Type*} (V : Set α) :
     · skip
       intro hC1
       -- 1. calculation
-      have s1 : V.encard = ((1 + 1 : ℕ) : ℕ∞) := by
+      have s1 : V.encard = ((1 + 1 : ℕ) : ℕ∞) := by parley_count_after (by
         calc V.encard = ((2 : ℕ) : ℕ∞) := by parley_set_side
-          _ = ((1 + 1 : ℕ) : ℕ∞) := by norm_num
+          _ = ((1 + 1 : ℕ) : ℕ∞) := by norm_num)
       -- 2. obtain b: mun:card-nonempty X := V, k := 1, from 1
       obtain ⟨b, s2, _⟩ := (Parley.Items.Stdlib.Counting.mun_card_nonempty (X := V) (k := 1) (by parley_set_side))
       -- 3. mun:card-remove X := V, a := b, k := 1, from 1, 2
@@ -68,10 +69,10 @@ theorem two_elements {α : Type*} (V : Set α) :
                 -- 7.2.5.3. mun:remove-member u := t, Y := V ∖ {b}, from C5, 7.2.3
                 have s7_2_5_3 : t ∈ (V \ ({b} : Set α)) \ ({a} : Set α) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.mun_remove_member (Y := V \ ({b} : Set α)) (a := a) (u := t))).mpr (by parley_set_side); parley_set_side)
                 -- 7.2.5.4. substitute
-                have s7_2_5_4 : t ∈ (∅ : Set α) := by
+                have s7_2_5_4 : t ∈ (∅ : Set α) := by parley_count_after (by
                   have c1 : (V \ ({b} : Set α)) \ ({a} : Set α) = ∅ := by first | exact (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | exact ((Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6) | (have h := (Parley.Items.Stdlib.Counting.mun_card_zero (X := (V \ ({b} : Set α)) \ ({a} : Set α)) s6); parley_set_side)
                   have row1 : t ∈ (∅ : Set α) := by parley_subst_at c1 s7_2_5_3
-                  exact row1
+                  exact row1)
                 -- 7.2.5.5. inspection
                 have s7_2_5_5 : ¬ t ∈ (∅ : Set α) := by parley_set_side
                 all_goals parley_set_side
@@ -91,9 +92,9 @@ theorem two_elements {α : Type*} (V : Set α) :
       -- 12. obtain c, d from C6
       obtain ⟨c, s12a, d, s12b, ⟨s12c, s12d⟩⟩ := hC6
       -- 13. calculation
-      have s13 : V.encard = ((2 : ℕ) : ℕ∞) := by
+      have s13 : V.encard = ((2 : ℕ) : ℕ∞) := by parley_count_after (by
         calc V.encard = ((({c, d} : Set α).ncard : ℕ) : ℕ∞) := by parley_subst s12d
-          _ = ((2 : ℕ) : ℕ∞) := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side) | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side)).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); parley_int_power h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); parley_set_side)
+          _ = ((2 : ℕ) : ℕ∞) := by first | linear_combination (norm := parley_norm) ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side) | exact_mod_cast (((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side)).symm | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); rify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); qify; linear_combination (norm := parley_norm) h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); parley_int_power h) | (have h := ((Parley.Items.Stdlib.Counting.mun_card_pair_distinct (u := c) (w := d))).mp (by parley_set_side); parley_set_side))
       all_goals parley_set_side
   all_goals parley_set_side
 

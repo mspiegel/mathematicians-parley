@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Setmm.BinomialBasics.ChooseComplement
 
+set_option maxHeartbeats 400000 in
 theorem choose_complement (N : ℕ) (K : ℤ) :
     (LeanBridges.Counting.choose (N : ℤ) K : ℤ) = (LeanBridges.Counting.choose (N : ℤ) ((N : ℤ) - K) : ℤ) := by
   -- 1. axi:excluded-middle P := K ∈ {0, …, N}
@@ -46,7 +47,7 @@ theorem choose_complement (N : ℕ) (K : ℤ) :
       have s2_8 : 0 < (LeanBridges.Counting.factorial (K : ℤ) : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nat (n := K)); parley_side)
       -- 2.9. calculation
       have s2_9 : (LeanBridges.Counting.choose (N : ℤ) (K : ℤ) : ℤ) = (LeanBridges.Counting.choose (N : ℤ) ((N : ℤ) - (K : ℤ)) : ℤ) := by
-        qify
+        try qify
         calc (LeanBridges.Counting.choose (N : ℤ) (K : ℤ) : ℚ) = (LeanBridges.Counting.factorial (N : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((N : ℤ) - (K : ℤ)) : ℚ) * (LeanBridges.Counting.factorial (K : ℤ) : ℚ)) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_2 (n := N) (k := (K : ℤ))) (by parley_side); parley_side)
           _ = (LeanBridges.Counting.factorial (N : ℤ) : ℚ) / ((LeanBridges.Counting.factorial (K : ℤ) : ℚ) * (LeanBridges.Counting.factorial ((N : ℤ) - (K : ℤ)) : ℚ)) := by parley_ring
           _ = (LeanBridges.Counting.factorial (N : ℤ) : ℚ) / ((LeanBridges.Counting.factorial ((N : ℤ) - ((N : ℤ) - (K : ℤ))) : ℚ) * (LeanBridges.Counting.factorial ((N : ℤ) - (K : ℤ)) : ℚ)) := by

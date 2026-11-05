@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lhopital.QuotientTwoPoints
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem quotient_two_points (a : ℝ) (b : ℝ) (u : ℝ) (hH3 : u ∈ (Set.Ioo a b : Set ℝ)) (v : ℝ) (hH4 : v ∈ (Set.Ioo a b : Set ℝ)) (hH5 : v ≠ u) (F : ℝ → ℝ) (hH6 : Set.MapsTo F (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ)) (G : ℝ → ℝ) (hH7 : Set.MapsTo G (Set.Ioo a b : Set ℝ) (Set.univ : Set ℝ)) (hH8 : ContinuousOn F (Set.Ioo a b : Set ℝ)) (hH9 : ContinuousOn G (Set.Ioo a b : Set ℝ)) (hH10 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x) (hH11 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ)), (Set.Ioo a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ G x) (hH12 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), (deriv G) t ≠ 0) :
     G u ≠ G v ∧ (∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({u} : Set ℝ), abs (ξ - u) < abs (v - u) ∧ (F v - F u) / (G v - G u) = (deriv F) ξ / (deriv G) ξ) := by
   -- 1. mun:open-interval-real

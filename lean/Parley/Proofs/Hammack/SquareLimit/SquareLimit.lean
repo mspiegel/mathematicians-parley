@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SquareLimit.SquareLimit
 
+set_option maxHeartbeats 400000 in
 theorem square_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = x ^ 2 - 2) :
     Filter.Tendsto f (nhdsWithin 3 ((Set.univ : Set ℝ) \ {3})) (nhds 7) := by
   -- 1. proof

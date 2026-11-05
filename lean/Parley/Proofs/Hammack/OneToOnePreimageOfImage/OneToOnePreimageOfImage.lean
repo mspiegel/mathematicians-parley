@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.OneToOnePreimageOfImage.OneToOnePreimageOfImage
 
+set_option maxHeartbeats 400000 in
 theorem one_to_one_preimage_of_image {α : Type*} (A : Set α) (B : Set α) (f : α → α) (hH3 : Set.MapsTo f A B) :
     (Set.MapsTo f A B ∧ Set.InjOn f A ↔ (∀ X ∈ 𝒫 A, A ∩ f ⁻¹' (f '' (A ∩ X)) = X)) := by
   -- the theorem. both directions

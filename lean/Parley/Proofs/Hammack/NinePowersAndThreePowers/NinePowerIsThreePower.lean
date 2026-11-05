@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.NinePowersAndThreePowers.NinePowerIsThreePower
 
+set_option maxHeartbeats 400000 in
 theorem nine_power_is_three_power (m : ℤ) :
     (9 ^ m : ℚ) = 3 ^ (2 * m) := by
   -- 1. mun:nonneg-or-neg x := m

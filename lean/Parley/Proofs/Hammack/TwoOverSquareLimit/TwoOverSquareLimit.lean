@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoOverSquareLimit.TwoOverSquareLimit
 
+set_option maxHeartbeats 400000 in
 theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a (n : ℤ) = 5 + 2 / (n : ℝ) ^ 2) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds 5) := by
   -- 1. proof

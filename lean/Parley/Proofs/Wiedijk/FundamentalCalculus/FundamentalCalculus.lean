@@ -17,6 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.FundamentalCalculus.FundamentalCalculus
 
+set_option maxHeartbeats 400000 in
 theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (F : ℝ → ℝ) (hH6 : Set.MapsTo F (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH7 : ContinuousOn F (Set.Icc a b : Set ℝ)) (hH8 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (Set.Icc a b : Set ℝ) ∈ nhds x ∧ DifferentiableAt ℝ F x) (hH9 : ∀ x ∈ (Set.Ioo a b : Set ℝ), (deriv F) x = f x) :
     (∫ t in a..b, (f t : ℝ)) = F b - F a := by
   set G : ℝ → ℝ := fun x => ∫ t in a..x, (f t : ℝ) with hD1

@@ -15,7 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.IrrationalBetweenRationals.IrrationalBetweenRationals
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     (∃ u : ℝ, (Irrational u ∧ (r : ℝ) < u) ∧ u < (s : ℝ)) := by
   -- 1. def:sqrt x := 2

@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.LimitConstantMultiple.LimitConstantMultiple
 
+set_option maxHeartbeats 400000 in
 theorem limit_constant_multiple (x : ℤ → ℝ) (L : ℝ) (C : ℝ) (hH4 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℕ => (C * x (n : ℤ) : ℝ)) Filter.atTop (nhds (C * L)) := by
   -- 1. mun:abs-nonneg x := C

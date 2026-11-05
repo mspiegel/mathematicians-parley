@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Stdlib.Calculus.FirstTermsBounded
 
+set_option maxHeartbeats 400000 in
 theorem first_terms_bounded (x : ℤ → ℝ) :
     (∀ K : ℕ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 (K : ℤ) → abs (x m) ≤ C)) := by
   -- 1. induction on K starting at 1

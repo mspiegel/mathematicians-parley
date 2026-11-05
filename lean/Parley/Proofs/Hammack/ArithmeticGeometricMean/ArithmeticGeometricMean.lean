@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ArithmeticGeometricMean.ArithmeticGeometricMean
 
+set_option maxHeartbeats 400000 in
 theorem arithmetic_geometric_mean (a : ℝ) (b : ℝ) (hH3 : a > 0) (hH4 : b > 0) :
     a + b ≥ 2 * Real.sqrt (a * b) := by
   -- 1. inequalities

@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageOfAPair.ImageOfAPair
 
+set_option maxHeartbeats 400000 in
 theorem image_of_a_pair {α : Type*} (A : Set α) (Y : Set α) (F : α → α) (hH3 : Set.MapsTo F A Y) (B : α) (hH4 : B ∈ A) (C : α) (hH5 : C ∈ A) :
     F '' (A ∩ ({B, C} : Set α)) = ({F B, F C} : Set α) := by
   -- 1. mun:pair-subset a := B, b := C, X := A, from H4, H5

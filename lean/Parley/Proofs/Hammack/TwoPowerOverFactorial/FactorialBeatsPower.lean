@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.TwoPowerOverFactorial.FactorialBeatsPower
 
+set_option maxHeartbeats 400000 in
 theorem factorial_beats_power (n : ℕ) (hH1 : 0 < n) :
     (n : ℤ) * 2 ^ n ≤ 4 * (LeanBridges.Counting.factorial (n : ℤ) : ℤ) := by
   -- 1. induction on k starting at 1

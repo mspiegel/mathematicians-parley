@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Hammack.RationalSquaresSumNotThree.SquareModThree
 
+set_option maxHeartbeats 400000 in
 theorem square_mod_three (n : ℤ) :
     ((3 : ℤ) ∣ n ^ 2 ∨ (3 : ℤ) ∣ n ^ 2 - 1) := by
   -- 1. mun:mod-natural a := n, b := 3

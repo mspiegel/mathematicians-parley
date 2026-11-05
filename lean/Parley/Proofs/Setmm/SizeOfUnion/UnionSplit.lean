@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SizeOfUnion.UnionSplit
 
+set_option maxHeartbeats 400000 in
 theorem union_split {α : Type*} (A : Set α) (B : Set α) :
     A ∪ B \ A = A ∪ B := by
   -- 1. proof

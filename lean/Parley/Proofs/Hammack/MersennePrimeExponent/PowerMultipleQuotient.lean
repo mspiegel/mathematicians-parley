@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.MersennePrimeExponent.PowerMultipleQuotient
 
+set_option maxHeartbeats 400000 in
 theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) :
     (∃ q : ℕ, 0 < q ∧ (2 ^ (d * m) - 1 = (2 ^ d - 1) * (q : ℤ) ∧ (q : ℤ) ≥ (m : ℤ))) := by
   -- 1. induction on j starting at 1

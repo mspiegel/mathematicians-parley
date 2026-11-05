@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Setmm.AOverNLimit.AOverNTendsToZero
 
+set_option maxHeartbeats 400000 in
 theorem a_over_n_tends_to_zero (A : ℝ) :
     Filter.Tendsto (fun n : ℕ => (A / (n : ℝ) : ℝ)) Filter.atTop (nhds 0) := by
   -- 1. mun:abs-nonneg x := A

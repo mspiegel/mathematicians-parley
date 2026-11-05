@@ -18,6 +18,7 @@ public section
 
 namespace Parley.Proofs.Hammack.QuadraticLimit.QuadraticLimit
 
+set_option maxHeartbeats 400000 in
 theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 1) :
     Filter.Tendsto f (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 5) := by
   -- 1. proof

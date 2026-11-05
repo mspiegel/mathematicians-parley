@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SumEvenSameParity.SumEvenSameParity
 
+set_option maxHeartbeats 400000 in
 theorem sum_even_same_parity (x : ℤ) (y : ℤ) (hH3 : Even (x + y)) :
     (Even x ∧ Even y ∨ Odd x ∧ Odd y) := by
   -- 1. mun:even-or-odd n := x

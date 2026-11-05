@@ -1,6 +1,5 @@
 module
 
-public import ComplexTactics
 public import PowerTactics
 public import Tactics
 public import Parley.Items.Stdlib.Logarithms
@@ -14,7 +13,7 @@ namespace Parley.Tests.Stdlib.Logarithms.LnExp
 theorem ln_exp (x : ℝ) :
     Real.log (Real.exp x) = x := by
   -- 1. mun:logarithms-ln-exp
-  have s1 : Real.log (Real.exp x) = x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)) | exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x))).symm | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); parley_of_complex h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); parley_side)
+  have s1 : Real.log (Real.exp x) = x := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)) | exact_mod_cast ((Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x))).symm | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Logarithms.mun_ln_exp (x := x)); parley_side)
   all_goals exact s1
 
 end Parley.Tests.Stdlib.Logarithms.LnExp

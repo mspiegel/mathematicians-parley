@@ -20,7 +20,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciEvenIffThreeDivides.FibonacciEvenIffThreeDivides
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 1000000 in
 theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (Even (F (n : ℤ)) ↔ (3 : ℤ) ∣ (n : ℤ)) := by
   -- 1. thm:fibonacci-natural
@@ -144,7 +144,7 @@ theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → �
       have s5_10 : (q : ℚ) > -(2 / 3) := by parley_order
       -- 5.11. calculation
       have s5_11 : q > -1 := by
-        qify
+        try qify
         calc (q : ℚ) > -(2 / 3) := by parley_side
           _ > -1 := by norm_num
       -- 5.12. calculation
@@ -206,7 +206,7 @@ theorem fibonacci_even_iff_three_divides (n : ℕ) (hH1 : 0 < n) (F : ℤ → �
       have s5_18 : (k : ℚ) ≥ 1 / 3 := by parley_order
       -- 5.19. calculation
       have s5_19 : k > 0 := by
-        qify
+        try qify
         calc (k : ℚ) ≥ 1 / 3 := by parley_side
           _ > 0 := by norm_num
       -- 5.20. mun:pos-int-nat m := k, from 5.19

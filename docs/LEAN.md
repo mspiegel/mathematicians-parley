@@ -119,15 +119,22 @@ above and from 0, `{n : ℤ | 0 < n}` and `{n : ℤ | 0 ≤ n}`, so that a map f
 them into ℤ, or a set of them an integer is said to be in, has one type in and
 out; a letter of ℕ stays a natural number, cast up where it meets them.
 
-A count of a set the theorem's hypotheses make finite is `Set.ncard`, a natural
-number cast up where it meets others, as a letter of ℕ is: |A| − |B| is
-`(A.ncard : ℤ) - (B.ncard : ℤ)`. A set is finite where a hypothesis says so or
-puts it inside a finite set, and where it is ∅, listed, or made by ∖, ∩ or ∪
-from finite sets; a step's line holds only from that step on, so it makes no set
-finite. Any other count is `Set.encard`, in ℕ∞, where an infinite set counts as
-∞, with a finite count cast up into it; such a count subtracted, or given for a
-letter of ℕ, is not written. A citation of an item that counts in ℕ∞ takes each
-count of a finite set to its `ncard` (`parley_set_side`). A property, `let P be a property of the elements of X`, is
+A count is `Set.encard`, in ℕ∞, as set.mm's ♯ counts: an infinite set counts
+as ∞, a finite one as the natural number it is. A relation whose sides are
+counts, whole numerals and letters of ℕ joined by + and ·, k ≤ |W| or
+|X| = |Y| + 1, is written in ℕ∞ whatever the theorem knows of its sets, so one
+sentence is one Lean sentence in every theorem that states or cites it. A
+relation that computes with a count, |A| − |B| = 1, |S| = j of an integer j, or
+|A| ∈ ℕ, takes the count of a finite set as an integer, `(A.ncard : ℤ)`: the
+page has shown the count is a whole number (`card-nat0`, set.mm's `hashcl`)
+before computing with it. A set is finite where a hypothesis says so or puts it
+inside a finite set, and where it is ∅, listed, a range, or made by ∖, ∩, ∪, 𝒫,
+{x ∈ A : …} or {E(s) : s ∈ A} from finite sets; a step's line holds only from
+that step on, so it makes no set finite. Where a set is not finite by these, a
+relation that computes with its count is not written. A step that computes by a
+ring or an order with counts in ℕ∞, or whose lines say one set's count both
+ways, first takes each count in ℕ∞ of a finite set standing outside any binder
+to the integer it is (`parley_count_int`). A property, `let P be a property of the elements of X`, is
 `(P : α → Prop)` and P(t) is `P t`; a citation gives it `fun t => …`. A group
 is `{G : Type*} [Group G]`, its operation `*`, its identity `1`; a polynomial
 is a function from ℂ to ℂ among the bridges' polynomials.

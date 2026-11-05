@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Tests.Notations.Integrals.AnIntegralOfALine
 
+set_option maxHeartbeats 400000 in
 theorem an_integral_of_a_line (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), f x = 2 * x) (F : ℝ → ℝ) (hH3 : Set.MapsTo F (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) (Set.univ : Set ℝ)) (hH4 : ∀ x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ), F x = x ^ 2) :
     (∫ t in 0..1, (f t : ℝ)) = 1 := by
   -- 1. thm:continuous-linear D := [0, 1], m := 2, from H2

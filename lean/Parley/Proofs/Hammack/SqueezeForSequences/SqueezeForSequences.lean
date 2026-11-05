@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SqueezeForSequences.SqueezeForSequences
 
+set_option maxHeartbeats 400000 in
 theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → ℝ) (L : ℝ) (hH5 : ∃ M : ℤ, ∀ n : ℕ, 0 < n → (n : ℝ) > (M : ℝ) → a (n : ℤ) ≤ b (n : ℤ) ∧ b (n : ℤ) ≤ c (n : ℤ)) (hH6 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (hH7 : Filter.Tendsto (fun n : ℕ => (c (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
     Filter.Tendsto (fun n : ℕ => (b (n : ℤ) : ℝ)) Filter.atTop (nhds L) := by
   -- 1. proof

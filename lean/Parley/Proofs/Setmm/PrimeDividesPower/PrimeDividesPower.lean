@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Setmm.PrimeDividesPower.PrimeDividesPower
 
+set_option maxHeartbeats 400000 in
 theorem prime_divides_power (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (Q : ℕ) (hH3 : 0 < Q) (hH4 : Nat.Prime Q) (N : ℕ) (hH6 : (P : ℤ) ∣ (Q : ℤ) ^ N) :
     (P : ℤ) = (Q : ℤ) := by
   -- 1. def:prime p := P, from H2

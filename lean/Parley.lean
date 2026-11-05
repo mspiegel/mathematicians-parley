@@ -16,7 +16,9 @@ public import Parley.Items.Stdlib.Trigonometry
 public import Parley.Items.Proofs.Wiedijk.Ballot
 public import Parley.Items.Proofs.Wiedijk.PerfectNumbers
 public import Parley.Items.Proofs.Wiedijk.PythagoreanTriples
+public import Parley.Items.Proofs.Wiedijk.Ramsey
 public import Parley.Items.Tests.Elaborator.APhraseDefined
+public import Parley.Items.Tests.Elaborator.APhraseWithAWherePart
 public import Parley.Stdlib.Calculus.LimitAtMost
 public import Parley.Stdlib.Calculus.LimitAtLeast
 public import Parley.Stdlib.Calculus.FirstTermsBounded
@@ -552,6 +554,7 @@ public import Parley.Proofs.Setmm.ValueOfOnto.ValueOfOnto
 public import Parley.Proofs.Setmm.WholeNumberBySize.WholeNumberBySize
 public import Parley.Proofs.Wiedijk.AmGm.FirstTerms
 public import Parley.Proofs.Wiedijk.AmGm.AmGmPower
+public import Parley.Proofs.Wiedijk.AmGm.AmGm
 public import Parley.Proofs.Wiedijk.Ballot.GoodFinite
 public import Parley.Proofs.Wiedijk.Ballot.LastPlace
 public import Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd
@@ -566,6 +569,7 @@ public import Parley.Proofs.Wiedijk.Binomial.BinomialStep
 public import Parley.Proofs.Wiedijk.Binomial.Binomial
 public import Parley.Proofs.Wiedijk.Combinations.ChooseFromNone
 public import Parley.Proofs.Wiedijk.Combinations.ChooseSplit
+public import Parley.Proofs.Wiedijk.DeMoivre.DeMoivre
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
 public import Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun
@@ -609,7 +613,11 @@ public import Parley.Proofs.Wiedijk.PythagoreanTriples.EvenLeg
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.LegHypotenuseCoprime
 public import Parley.Proofs.Wiedijk.PythagoreanTriples.TripleFromParameters
 public import Parley.Proofs.Wiedijk.Quartic.Quartic
+public import Parley.Proofs.Wiedijk.Ramsey.OnePointPart
 public import Parley.Proofs.Wiedijk.Ramsey.TwoPointParts
+public import Parley.Proofs.Wiedijk.Ramsey.GrowByOne
+public import Parley.Proofs.Wiedijk.Ramsey.RamseyStep
+public import Parley.Proofs.Wiedijk.Ramsey.Ramsey
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitRange
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitStepDivides
 public import Parley.Proofs.Wiedijk.RealsUncountable.DigitStep
@@ -728,6 +736,7 @@ public import Parley.Tests.Elaborator.APhraseDefined.SixIsTriangular
 public import Parley.Tests.Elaborator.APhraseDefined.ATriangularNumberIsNatural
 public import Parley.Tests.Elaborator.APhraseImported.TenIsTriangular
 public import Parley.Tests.Elaborator.APhraseImported.NotTriangularSaidTwoWays
+public import Parley.Tests.Elaborator.APhraseWithAWherePart.ACliqueIsLarge
 public import Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
 public import Parley.Tests.Elaborator.AProductFromAToBCitedOverASet.AProductFromAToBCitedOverASet
 public import Parley.Tests.Elaborator.AProductOfADefineSaidOnce.AProductOfADefineInTheHeader
@@ -795,7 +804,6 @@ public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnAssumeLin
 public import Parley.Tests.Elaborator.AnAssumeLineOfSeveralSentences.AnOpeningAssumeOfSeveralSentences
 public import Parley.Tests.Elaborator.AnAtomNotSaidReal.AnOrderOfTwoRoots
 public import Parley.Tests.Elaborator.AnEquationThePairsMakeTrue.AnEquationThePairsMakeTrue
-public import Parley.Tests.Elaborator.AnExhibitAtAnIdentityElement.AnExhibitAtAnIdentityElement
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesFromAnAnd
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.OneWitnessFromAnAnd
 public import Parley.Tests.Elaborator.AnExhibitFromAnAnd.TwoWitnessesBesideAnEquation
@@ -1263,11 +1271,13 @@ public import Parley.Tests.Notations.Numbers.SqrtFour
 public import Parley.Tests.Notations.Numbers.SqrtFourNotIrrational
 public import Parley.Tests.Notations.Powers.ARealPowerOfAPositiveReal
 public import Parley.Tests.Notations.Powers.AFractionForAnExponent
+public import Parley.Tests.Notations.Powers.TheCubeOfACubeRoot
 public import Parley.Tests.Notations.Powers.EToARealPower
 public import Parley.Tests.Notations.Powers.ARealPowerUnderABinder
 public import Parley.Tests.Notations.Powers.ARealPowerUnderABinderCited
 public import Parley.Tests.Notations.Powers.AComplexPower
 public import Parley.Tests.Notations.Powers.ARealPowerNotBelowZero
+public import Parley.Tests.Notations.Powers.ARealPowerOfARealPower
 public import Parley.Tests.Notations.Primes.TwoIsPrime
 public import Parley.Tests.Notations.Primes.NinetySevenIsPrime
 public import Parley.Tests.Notations.Primes.NineteenIsPrime
@@ -1301,7 +1311,10 @@ public import Parley.Tests.Notations.ThereIsNo.ThereIsNoHalfInteger
 public import Parley.Tests.Notations.ThereIsNo.ThereDoesNotExistAHalfInteger
 public import Parley.Tests.Notations.ThereIsNo.ThereAreNoIntegersWithEighteenAPlusSixBOne
 public import Parley.Tests.Notations.ThereIsNo.ThereDoNotExistIntegersWithEighteenAPlusSixBOne
+public import Parley.Tests.Notations.Trigonometry.CosineOfZero
 public import Parley.Tests.Notations.Trigonometry.SineOfZero
+public import Parley.Tests.Notations.Trigonometry.CosineOfZeroNotZero
+public import Parley.Tests.Notations.Trigonometry.CosineOfASumAtZero
 public import Parley.Tests.Stdlib.Calculus.LimitUnfolded
 public import Parley.Tests.Stdlib.Calculus.DerivativeOnTheLine
 public import Parley.Tests.Stdlib.Calculus.DerivativeOfADifference

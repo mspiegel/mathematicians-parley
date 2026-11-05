@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Setmm.OrOverAnd.OrOverAnd
 
+set_option maxHeartbeats 400000 in
 theorem or_over_and (a : ℝ) (b : ℝ) (c : ℝ) :
     (a = 0 ∨ b = 0 ∧ c = 0 ↔ (a = 0 ∨ b = 0) ∧ (a = 0 ∨ c = 0)) := by
   -- the theorem. both directions

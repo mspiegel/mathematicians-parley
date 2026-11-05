@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.GcdIntegerNatural.GcdIntegerNatural
 
+set_option maxHeartbeats 400000 in
 theorem gcd_integer_natural (a : ℤ) (b : ℕ) (hH2 : 0 < b) :
     0 < (Int.gcd a (b : ℤ) : ℤ) ∧ (Int.gcd a (b : ℤ) : ℤ) ∣ a ∧ (Int.gcd a (b : ℤ) : ℤ) ∣ (b : ℤ) := by
   -- 1. thm:gcd-mod

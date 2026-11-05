@@ -156,21 +156,17 @@ namespace LeanBridges.Counting
 
 /-- `mun:stdlib/counting/card-singleton`. -/
 theorem card_singleton {α : Type*} (x : α) :
-    (({x} : Set α).ncard : ℤ) = 1 :=
+    ({x} : Set α).encard = ((1 : ℕ) : ℕ∞) :=
   by simp
 
 /-- `mun:stdlib/counting/card-disjoint-union`. -/
 theorem card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
-    ((X ∪ Y).ncard : ℤ) = (m : ℤ) + (n : ℤ) := by
-  have hX := Set.finite_of_encard_eq_coe h3
-  have hY := Set.finite_of_encard_eq_coe h4
-  have eX : X.ncard = m := by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this
-  have eY : Y.ncard = n := by have := hY.cast_ncard_eq; rw [h4] at this; exact_mod_cast this
-  rw [Set.ncard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5) hX hY, eX, eY]; push_cast; ring
+    (X ∪ Y).encard = ((m + n : ℕ) : ℕ∞) := by
+  rw [Set.encard_union_eq (Set.disjoint_iff_inter_eq_empty.mpr h5), h3, h4]; push_cast; rfl
 
 /-- `mun:stdlib/counting/card-empty`. -/
 theorem card_empty {α : Type*} :
-    ((∅ : Set α).ncard : ℤ) = 0 :=
+    (∅ : Set α).encard = ((0 : ℕ) : ℕ∞) :=
   by simp
 
 /-- `mun:stdlib/counting/card-at-least-one`. -/
@@ -180,13 +176,15 @@ theorem card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
 
 /-- `mun:stdlib/counting/card-pair`. -/
 theorem card_pair {α : Type*} (u : α) (w : α) :
-    (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
-  by have := Set.ncard_insert_le u ({w} : Set α); rw [Set.ncard_singleton] at this; omega
+    ({u, w} : Set α).encard ≤ ((2 : ℕ) : ℕ∞) := by
+  by_cases h : u = w
+  · subst h; simp
+  · rw [Set.encard_pair h]; rfl
 
 /-- `mun:stdlib/counting/card-pair-distinct`. -/
 theorem card_pair_distinct {α : Type*} (u : α) (w : α) :
-    ¬ u = w ↔ (({u, w} : Set α).ncard : ℤ) = 2 :=
-  ⟨fun h => by rw [Set.ncard_pair h]; rfl, fun h hu => by subst hu; simp at h⟩
+    ¬ u = w ↔ ({u, w} : Set α).encard = ((2 : ℕ) : ℕ∞) :=
+  ⟨fun h => by rw [Set.encard_pair h]; rfl, fun h hu => by subst hu; simp at h⟩
 
 /-- `mun:stdlib/counting/card-two`. -/
 theorem card_two {α : Type*} (Y : Set α) (a : α) (b : α) (h1 : Y.encard = ((2 : ℕ) : ℕ∞)) (h2 : a ∈ Y) (h3 : b ∈ Y) (h4 : ¬ a = b) :

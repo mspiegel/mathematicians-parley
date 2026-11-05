@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 
+set_option maxHeartbeats 400000 in
 theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     True := by
   -- 1. obtain p, q: def:rational x := A

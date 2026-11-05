@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SqueezeForLimits.SqueezeForLimits
 
+set_option maxHeartbeats 400000 in
 theorem squeeze_for_limits (f : ℝ → ℝ) (g : ℝ → ℝ) (h : ℝ → ℝ) (c : ℝ) (L : ℝ) (hH6 : ∃ δ : ℝ, δ > 0 ∧ (∀ x : ℝ, x ≠ c ∧ abs (x - c) < δ → g x ≤ f x ∧ f x ≤ h x)) (hH7 : Filter.Tendsto g (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L)) (hH8 : Filter.Tendsto h (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L)) :
     Filter.Tendsto f (nhdsWithin c ((Set.univ : Set ℝ) \ {c})) (nhds L) := by
   -- 1. proof

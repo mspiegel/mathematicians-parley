@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.FibonacciOddSum.FibonacciOddSum
 
+set_option maxHeartbeats 400000 in
 theorem fibonacci_odd_sum (n : ℕ) (hH1 : 0 < n) (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧ G 0 = (1 : ℤ) ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = G k ∧ G (k + 1) = F k + G k) :
     (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (F (2 * k - 1) : ℤ)) = F (2 * (n : ℤ)) := by
   -- 1. thm:fibonacci-natural

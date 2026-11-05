@@ -98,7 +98,7 @@ mundane theorem card-remove
   metamath-proof hashdifsnp1 with V := X, N := a, Y := k
   note        `hashdifsnp1` states this item whole, hypotheses included:
               the size is given as k + 1, so nothing asks that X be finite.
-  lean-proof  by have hX := Set.finite_of_encard_eq_coe h3; have e : X.ncard = k + 1 := (by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this); rw [Set.ncard_sdiff_singleton_of_mem h1]; omega
+  lean-proof  by have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h
 
 mundane theorem card-bijection
   let X be a set                                                      (H1)
@@ -291,7 +291,7 @@ mundane theorem card-equal
   metamath-proof metamath-bridges/sets/gcardeq
   note        Y is finite because X is, and two finite sets paired off one
               to one have the same number of elements.
-  lean-proof  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image, h1.cast_ncard_eq]
+  lean-proof  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]
 
 mundane theorem partition-count
   let A be a set                                                      (H1)
@@ -439,7 +439,7 @@ mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)
   then        |{1, …, n}| = n
   metamath-proof hashfz1
-  lean-proof  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; simp
+  lean-proof  by rw [← Finset.coe_Icc, Set.encard_coe_eq_coe_finsetCard, Int.card_Icc]; simp
 
 mundane theorem card-add-one
   assume X is finite                                                  (H1)
@@ -448,7 +448,7 @@ mundane theorem card-add-one
   metamath-proof hashunsng
   note        One element more, which was not there already, counts once
               more.
-  lean-proof  by simp_all
+  lean-proof  by rw [Set.encard_union_eq (by simpa using h2), Set.encard_singleton]; rfl
 
 mundane theorem card-product
   assume X is finite                                                  (H1)

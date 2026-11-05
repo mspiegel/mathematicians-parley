@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
 
+set_option maxHeartbeats 400000 in
 theorem three_prime :
     Nat.Prime (3 : ℤ).toNat := by
   -- 1. arithmetic

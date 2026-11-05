@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.IntermediateValue.IntermediateValue
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 1000000 in
 theorem intermediate_value (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ) (hH4 : Set.MapsTo f (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ)) (hH5 : ContinuousOn f (Set.Icc a b : Set ℝ)) (hH6 : f a < 0) (hH7 : 0 < f b) :
     (∃ c ∈ (Set.Icc a b : Set ℝ), f c = 0) := by
   set S : Set ℝ := {x ∈ (Set.Icc a b : Set ℝ) | f x < 0} with hD1

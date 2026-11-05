@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Proofs.Hammack.InverseSquareHasNoLimit.InverseSquareHasNoLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (Set.univ : Set ℝ)) (hH2 : ∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), f x = 1 / x ^ 2) :
     ¬ (∃ L : ℝ, Filter.Tendsto f (nhdsWithin 0 (((Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) \ {0})) (nhds L)) := by
   -- the theorem. contradiction

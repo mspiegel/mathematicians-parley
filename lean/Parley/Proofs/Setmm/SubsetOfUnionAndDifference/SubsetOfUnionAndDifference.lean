@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SubsetOfUnionAndDifference.SubsetOfUnionAndDifference
 
+set_option maxHeartbeats 400000 in
 theorem subset_of_union_and_difference {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     (A ⊆ B ∪ C ↔ A \ B ⊆ C) := by
   -- the theorem. both directions

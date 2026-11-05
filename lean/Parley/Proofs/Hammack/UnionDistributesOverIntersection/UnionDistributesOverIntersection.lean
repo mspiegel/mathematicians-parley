@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.UnionDistributesOverIntersection.UnionDistributesOverIntersection
 
+set_option maxHeartbeats 400000 in
 theorem union_distributes_over_intersection {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A ∪ B ∩ C = (A ∪ B) ∩ (A ∪ C) := by
   -- 1. proof

@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Bezout.Bezout
 
+set_option maxHeartbeats 400000 in
 theorem bezout (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) :
     (∃ x : ℤ, ∃ y : ℤ, (a : ℤ) * x + (b : ℤ) * y = (Int.gcd (a : ℤ) (b : ℤ) : ℤ)) := by
   set S : Set ℤ := {t : ℤ | 0 < t ∧ (∃ m : ℤ, ∃ n : ℤ, t = (a : ℤ) * m + (b : ℤ) * n)} with hD1

@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Setmm.DifferenceLaws.DifferenceOfIntersection
 
+set_option maxHeartbeats 400000 in
 theorem difference_of_intersection {α : Type*} (A : Set α) (B : Set α) :
     A \ (A ∩ B) = A \ B := by
   -- 1. proof

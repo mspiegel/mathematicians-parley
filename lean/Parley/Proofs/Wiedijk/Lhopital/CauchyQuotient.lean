@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lhopital.CauchyQuotient
 
+set_option maxHeartbeats 400000 in
 theorem cauchy_quotient (E : Set ℝ) (hH1 : E ⊆ (Set.univ : Set ℝ)) (U : Set ℝ) (hH2 : U ⊆ E) (p : ℝ) (q : ℝ) (hH5 : p < q) (hH6 : (Set.Icc p q : Set ℝ) ⊆ E) (hH7 : (Set.Ioo p q : Set ℝ) ⊆ U) (F : ℝ → ℝ) (hH8 : Set.MapsTo F E (Set.univ : Set ℝ)) (G : ℝ → ℝ) (hH9 : Set.MapsTo G E (Set.univ : Set ℝ)) (hH10 : ContinuousOn F (Set.Icc p q : Set ℝ)) (hH11 : ContinuousOn G (Set.Icc p q : Set ℝ)) (hH12 : ∀ x ∈ U, E ∈ nhds x ∧ DifferentiableAt ℝ F x) (hH13 : ∀ x ∈ U, E ∈ nhds x ∧ DifferentiableAt ℝ G x) (hH14 : ∀ t ∈ U, (deriv G) t ≠ 0) :
     G p ≠ G q ∧ (∃ ξ ∈ (Set.Ioo p q : Set ℝ), (F q - F p) / (G q - G p) = (deriv F) ξ / (deriv G) ξ) := by
   -- 1. mun:differentiable-on-part D := E, S := (p, q), f := F, from H1, H2, H7, H12

@@ -63,7 +63,7 @@ theorem sin-add
 mundane theorem cos-zero
   then        cos(0) = 1
   metamath-proof cos0
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem sin-zero
   then        sin(0) = 0

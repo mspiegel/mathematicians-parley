@@ -15,6 +15,7 @@ public section
 
 namespace Parley.Proofs.Setmm.SquareNotPrime.SquareNotPrime
 
+set_option maxHeartbeats 400000 in
 theorem square_not_prime (A : ℤ) :
     ¬ Nat.Prime (A ^ 2).toNat := by
   -- the theorem. contradiction

@@ -11,6 +11,7 @@ public section
 
 namespace Parley.Proofs.Hammack.SumOfLimits.SumOfLimits
 
+set_option maxHeartbeats 400000 in
 theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (hH6 : Filter.Tendsto (fun n : ℕ => (b (n : ℤ) : ℝ)) Filter.atTop (nhds M)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) + b (n : ℤ) : ℝ)) Filter.atTop (nhds (L + M)) := by
   -- 1. proof

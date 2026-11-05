@@ -36,7 +36,7 @@ theorem binomial_coefficients_sum (N : ℕ) :
   have s2 : (1 + 1 : ℤ) = 2 := by parley_arith
   -- 3. calculation
   have s3 : 2 ^ N = (∑ k ∈ Finset.Icc (0 : ℤ) (N : ℤ), ((LeanBridges.Counting.choose (N : ℤ) k : ℤ) : ℤ)) := by
-    qify
+    try qify
     calc (2 ^ N : ℚ) = (1 + 1) ^ N := by
           have s2_w : (1 + 1 : ℚ) = 2 := by have h := congrArg (fun x : ℤ => (x : ℚ)) s2; push_cast at h; linear_combination (norm := parley_norm) h
           first | parley_subst s2_w | parley_subst s2

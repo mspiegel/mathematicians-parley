@@ -17,7 +17,7 @@ public section
 
 namespace Parley.Stdlib.Calculus.MonotoneLimit
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ x ((n : ℤ) + 1)) (B : ℝ) (hH4 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ B) :
     (∃ L : ℝ, Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) := by
   -- 1. mun:subset-self

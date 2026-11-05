@@ -18,7 +18,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Lhopital.QuotientBetween
 
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 1000000 in
 theorem quotient_between (a : ℝ) (b : ℝ) (c : ℝ) (hH3 : c ∈ (Set.Ioo a b : Set ℝ)) (f : ℝ → ℝ) (hH4 : Set.MapsTo f ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (Set.univ : Set ℝ)) (g : ℝ → ℝ) (hH5 : Set.MapsTo g ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) (Set.univ : Set ℝ)) (hH6 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) ∈ nhds x ∧ DifferentiableAt ℝ f x) (hH7 : ∀ x ∈ ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)), ((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) ∈ nhds x ∧ DifferentiableAt ℝ g x) (hH8 : Filter.Tendsto f (nhdsWithin c (((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) \ {c})) (nhds 0)) (hH9 : Filter.Tendsto g (nhdsWithin c (((Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) \ {c})) (nhds 0)) (hH10 : ∀ t ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), (deriv g) t ≠ 0) (x : ℝ) (hH11 : x ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ)) :
     g x ≠ 0 ∧ (∃ ξ ∈ (Set.Ioo a b : Set ℝ) \ ({c} : Set ℝ), abs (ξ - c) < abs (x - c) ∧ f x / g x = (deriv f) ξ / (deriv g) ξ) := by
   set F : ℝ → ℝ := fun t => @ite _ (t = c) (Classical.propDecidable (t = c)) 0 (f t) with hD1

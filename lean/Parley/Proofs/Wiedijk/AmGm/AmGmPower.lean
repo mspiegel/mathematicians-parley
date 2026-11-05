@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.AmGm.AmGmPower
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem am_gm_power (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ, k ∈ Finset.Icc 1 (n : ℤ) → a k ≥ 0) :
     (∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) ≤ ((∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (a k : ℝ)) / (n : ℝ)) ^ n := by
   -- 1. induction on j starting at 1

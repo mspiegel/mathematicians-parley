@@ -19,6 +19,7 @@ public section
 
 namespace Parley.Tests.Elaborator.ASineLessACosineInTheSecondQuadrant.ASineLessACosineInTheSecondQuadrant
 
+set_option maxHeartbeats 400000 in
 theorem a_sine_less_a_cosine_in_the_second_quadrant (x : ℝ) (hH2 : Real.pi / 2 ≤ x) (hH3 : x ≤ Real.pi) :
     Real.sin x - Real.cos x ≥ 1 := by
   -- 1. real arithmetic

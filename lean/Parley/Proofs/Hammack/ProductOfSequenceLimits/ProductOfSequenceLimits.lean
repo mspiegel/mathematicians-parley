@@ -16,7 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ProductOfSequenceLimits.ProductOfSequenceLimits
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 800000 in
 theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (hH5 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (hH6 : Filter.Tendsto (fun n : ℕ => (b (n : ℤ) : ℝ)) Filter.atTop (nhds M)) :
     Filter.Tendsto (fun n : ℕ => (a (n : ℤ) * b (n : ℤ) : ℝ)) Filter.atTop (nhds (L * M)) := by
   -- 1. mun:abs-real x := L

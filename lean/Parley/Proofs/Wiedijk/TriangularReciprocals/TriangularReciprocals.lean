@@ -14,6 +14,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.TriangularReciprocals.TriangularReciprocals
 
+set_option maxHeartbeats 400000 in
 theorem triangular_reciprocals :
     Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / ((k : ℝ) * ((k : ℝ) + 1) / 2) : ℝ)) = 2 := by
   -- 1. proof

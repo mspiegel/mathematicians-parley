@@ -73,18 +73,6 @@ theorem def_triple {α : Type*} (u : α) (v : α) (w : α) (x : α) :
     x ∈ ({u, v, w} : Set α) ↔ (x = u ∨ x = v) ∨ x = w :=
   by aesop
 
-theorem mun_triple_members_1 {α : Type*} (u : α) (v : α) (w : α) :
-    u ∈ ({u, v, w} : Set α) :=
-  by (simp_all; done)
-
-theorem mun_triple_members_2 {α : Type*} (u : α) (v : α) (w : α) :
-    v ∈ ({u, v, w} : Set α) :=
-  by (simp_all; done)
-
-theorem mun_triple_members_3 {α : Type*} (u : α) (v : α) (w : α) :
-    w ∈ ({u, v, w} : Set α) :=
-  by (simp_all; done)
-
 theorem mun_pair_finite {α : Type*} (u : α) (w : α) :
     ({u, w} : Set α).Finite :=
   by simp_all

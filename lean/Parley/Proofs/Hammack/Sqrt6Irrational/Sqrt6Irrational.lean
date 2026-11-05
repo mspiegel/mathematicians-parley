@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational
 
+set_option maxHeartbeats 400000 in
 theorem sqrt6_irrational :
     Irrational (Real.sqrt (6 : ℝ)) := by
   -- 1. def:sqrt x := 6

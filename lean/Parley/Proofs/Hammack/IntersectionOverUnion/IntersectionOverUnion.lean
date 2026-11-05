@@ -10,6 +10,7 @@ public section
 
 namespace Parley.Proofs.Hammack.IntersectionOverUnion.IntersectionOverUnion
 
+set_option maxHeartbeats 400000 in
 theorem intersection_over_union {α : Type*} (A : Set α) (B : Set α) (C : Set α) :
     A ∩ (B ∪ C) = A ∩ B ∪ A ∩ C := by
   -- 1. proof

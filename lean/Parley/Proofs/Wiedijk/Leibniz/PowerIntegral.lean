@@ -19,7 +19,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.PowerIntegral
 
-set_option maxHeartbeats 400000 in
+set_option maxHeartbeats 600000 in
 theorem power_integral (m : ℕ) :
     (∫ t in 0..1, (t ^ m : ℝ)) = 1 / ((m : ℝ) + 1) := by
   set p : ℝ → ℝ := fun x => x ^ m with hD1

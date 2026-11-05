@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational
 
+set_option maxHeartbeats 400000 in
 theorem sqrt2_irrational :
     Irrational (Real.sqrt (2 : ℝ)) := by
   -- 1. def:sqrt x := 2

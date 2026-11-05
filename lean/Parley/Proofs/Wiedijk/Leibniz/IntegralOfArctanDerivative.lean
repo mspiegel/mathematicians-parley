@@ -22,6 +22,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.Leibniz.IntegralOfArctanDerivative
 
+set_option maxHeartbeats 400000 in
 theorem integral_of_arctan_derivative :
     (∫ t in 0..1, (t ^ (2 * 0) / (1 + t ^ 2) : ℝ)) = Real.pi / 4 := by
   set g : ℝ → ℝ := fun x => x ^ (2 * 0) / (1 + x ^ 2) with hD1

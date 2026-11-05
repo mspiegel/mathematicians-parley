@@ -13,6 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PrimeSumOdd.PrimeSumOdd
 
+set_option maxHeartbeats 400000 in
 theorem prime_sum_odd (p : ℕ) (hH1 : 0 < p) (q : ℕ) (hH2 : 0 < q) (hH3 : Nat.Prime p) (hH4 : Nat.Prime q) (hH5 : (p : ℤ) < (q : ℤ)) :
     Odd (2 * (p : ℤ) + (q : ℤ) ^ 2) := by
   -- 1. def:prime, from H3

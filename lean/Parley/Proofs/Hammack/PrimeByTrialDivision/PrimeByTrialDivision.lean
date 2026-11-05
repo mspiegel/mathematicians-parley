@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Proofs.Hammack.PrimeByTrialDivision.PrimeByTrialDivision
 
+set_option maxHeartbeats 400000 in
 theorem prime_by_trial_division (p : ℕ) (hH1 : 0 < p) (hH2 : (p : ℤ) > 1) (hH3 : ∀ n : ℕ, 0 < n → 2 ≤ (n : ℤ) ∧ (n : ℝ) ≤ Real.sqrt (p : ℝ) → ¬ (n : ℤ) ∣ (p : ℤ)) :
     Nat.Prime p := by
   -- 1. proof

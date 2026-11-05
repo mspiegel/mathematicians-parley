@@ -16,6 +16,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.Bezout
 
+set_option maxHeartbeats 400000 in
 theorem bezout (a : ℤ) (b : ℕ) (hH2 : 0 < b) :
     (∃ x : ℤ, ∃ y : ℤ, a * x + (b : ℤ) * y = (Int.gcd a (b : ℤ) : ℤ)) := by
   set S : Set ℤ := {t : ℤ | 0 < t ∧ (∃ m : ℤ, ∃ n : ℤ, t = a * m + (b : ℤ) * n)} with hD1

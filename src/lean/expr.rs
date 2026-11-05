@@ -245,6 +245,9 @@ pub struct Writer<'a> {
     /// count of a set of those, |S| = |∅| (`relation_from`); None where it
     /// is a set of the theorem's things.
     pub empty_of: Option<Members>,
+    /// Whether every count is written in ℕ∞, `A.encard`, finite or not:
+    /// inside a relation ℕ∞ says as the page does (`formula`).
+    pub in_extended: bool,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -338,6 +341,7 @@ impl<'a> Writer<'a> {
             finite: std::collections::BTreeSet::new(),
             finite_lines: Vec::new(),
             empty_of: None,
+            in_extended: false,
         }
     }
 
@@ -354,6 +358,7 @@ impl<'a> Writer<'a> {
             finite: self.finite.clone(),
             finite_lines: self.finite_lines.clone(),
             empty_of: self.empty_of.clone(),
+            in_extended: self.in_extended,
         }
     }
 
@@ -1536,6 +1541,22 @@ impl Writer<'_> {
         {
             return Route::Built(Printed::atom(super::names::letter(&node.text)));
         }
+        // A relation of counts ℕ∞ says as the page does, k ≤ |W|, counts
+        // in ℕ∞ even of a set this theorem knows is finite, as set.mm's ♯
+        // counts: one sentence is then one Lean sentence in every theorem
+        // that says or cites it (`Writer::said_in_extended`).
+        let relation = match (node.notation(), node.children.as_slice()) {
+            (LOGICAL_NOT, [inner]) => inner,
+            _ => node,
+        };
+        if matches!(relation.notation(), EQUALITY | ORDER)
+            && !self.in_extended
+            && self.said_in_extended(relation)
+        {
+            let mut w = self.with_letters(self.letters.clone());
+            w.in_extended = true;
+            return w.formula(node);
+        }
         // not (a = b) between numbers is written a ≠ b, as Mathlib writes it.
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY
@@ -1771,7 +1792,10 @@ impl Writer<'_> {
     pub fn closed_formula(&self, node: &Node, floor: Num) -> Route<Printed> {
         // A count, |∅| = 0, is in ℕ∞ whatever the lines around it; sets,
         // {1, …, 0} = ∅, are of the types their members are.
-        if self.counts(node) {
+        if self.counts(node)
+            || (matches!(node.notation(), EQUALITY | ORDER)
+                && self.said_in_extended(node))
+        {
             return self.formula(node);
         }
         if let [left, right] = node.children.as_slice() {

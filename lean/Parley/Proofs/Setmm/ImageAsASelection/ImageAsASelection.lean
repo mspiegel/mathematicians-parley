@@ -12,6 +12,7 @@ public section
 
 namespace Parley.Proofs.Setmm.ImageAsASelection.ImageAsASelection
 
+set_option maxHeartbeats 400000 in
 theorem image_as_a_selection {α : Type*} (A : Set α) (B : Set α) (F : α → α) (hH3 : Set.MapsTo F A B) (X : Set α) (hH4 : X ⊆ A) :
     F '' (A ∩ X) = {y ∈ B | ∃ x ∈ X, F x = y} := by
   -- 1. proof
