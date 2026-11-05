@@ -3,6 +3,7 @@ module
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/hammack/odd-line-one-to-one.proof by parley build lean. -/
@@ -27,7 +28,7 @@ theorem odd_line_one_to_one (f : ℤ → ℤ) (hH2 : ∀ n : ℤ, f n = 2 * n + 
     have s1_2 : s = t := by qify at *; linear_combination (norm := parley_norm) ((1 / 2 : ℚ)) * s1_1
     all_goals parley_set_side
   -- 2. def:one-to-one, from H1, 1
-  have s2 : Set.MapsTo f (Set.univ : Set ℤ) (Set.univ : Set ℤ) ∧ Set.InjOn f (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Set.MapsTo f (Set.univ : Set ℤ) (Set.univ : Set ℤ) ∧ Set.InjOn f (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℤ)) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Proofs.Hammack.OddLineOneToOne.OddLineOneToOne

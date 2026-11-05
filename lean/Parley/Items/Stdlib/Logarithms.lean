@@ -44,6 +44,14 @@ theorem mun_ln_nonzero (x : ℝ) (h2 : 0 < x) (h3 : x ≠ 1) :
     Real.log x ≠ 0 :=
   Real.log_ne_zero_of_pos_of_ne_one h2 h3
 
+theorem mun_exp_real (x : ℝ) :
+    True :=
+  by (simp_all; done)
+
+theorem mun_e_power (y : ℂ) :
+    (Real.exp 1 : ℂ) ^ y = Complex.exp y :=
+  by rw [Complex.cpow_def_of_ne_zero (by exact_mod_cast (Real.exp_pos 1).ne'), ← Complex.ofReal_log (Real.exp_pos 1).le, Real.log_exp]; simp
+
 theorem mun_exp_positive (x : ℝ) :
     0 < Real.exp x :=
   Real.exp_pos x

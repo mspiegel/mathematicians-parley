@@ -24,6 +24,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       -- 1.2. proof
       have s1_2 : ∀ m : ℤ, m ∈ Finset.Icc 1 1 → abs (x m) ≤ abs (x 1) := by
         intro m hK1
+        try push_cast at hK1
         try have hK1_bounds := Finset.mem_Icc.mp hK1
         -- 1.2.1. def:range n := 1, k := m, from K1
         have s1_2_1 : 0 < m ∧ m ≤ 1 := by first | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (1 : ℤ)))).mp (by parley_side); parley_side)
@@ -61,6 +62,7 @@ theorem first_terms_bounded (x : ℤ → ℝ) :
       -- 1.8. proof
       have s1_8 : ∀ m : ℤ, m ∈ Finset.Icc 1 ((K : ℤ) + 1) → abs (x m) ≤ E := by
         intro m hK2
+        try push_cast at hK2
         try have hK2_bounds := Finset.mem_Icc.mp hK2
         -- 1.8.1. def:range n := K + 1, k := m, from K2
         have s1_8_1 : 0 < m ∧ m ≤ (K : ℤ) + 1 := by first | exact ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (K : ℤ) + 1))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (K : ℤ) + 1))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (K : ℤ) + 1))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (K : ℤ) + 1))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Sums.def_range (k := m) (n := (K : ℤ) + 1))).mp (by parley_side); parley_side)

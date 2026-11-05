@@ -20,8 +20,10 @@ theorem rational_times_irrational (a : ℝ) (b : ℝ) (a : ℚ) (hH4 : Irrationa
     have hS : ∃ m : ℚ, (m : ℝ) = b := by parley_suppose hc_hS
     -- 1.1. obtain p, q: def:rational x := a, from H3
     obtain ⟨p, q, s1_1a, s1_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := a))).mp (by parley_side)
+    try lift q to ℕ using le_of_lt s1_1a
     -- 1.2. obtain r, s: def:rational x := b, from S
     obtain ⟨r, s, s1_2a, s1_2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := b))).mp (by parley_side)
+    try lift s to ℕ using le_of_lt s1_2a
     -- 1.3. calculation
     have s1_3 : (a : ℝ) * b = (p : ℝ) * (r : ℝ) / ((q : ℝ) * (s : ℝ)) := by
       calc (a : ℝ) * b = (p : ℝ) / (q : ℝ) * b := by

@@ -369,7 +369,7 @@ notation real-power
   reads       to the power
   metamath-syntax ccxp, the principal power, exp(y · log x) for x ≠ 0
   metamath-builds _1 _2 ccxp co
-  lean-builds ℝ, ℝ → ℝ: _1 ^ _2
+  lean-builds ℝ, ℝ → ℝ: _1 ^ _2 | ℂ, ℂ → ℂ: _1 ^ _2
   note        x^(1/3), 2^y for y ∈ ℝ, e^(x³ + 1): written as a power is, and
               read as this where the exponent is not whole (`GRAMMAR.md`), so
               the parser never reads it of its own. For x > 0 it is the real

@@ -125,7 +125,7 @@ mundane theorem exp-real
   let x ∈ ℝ                                                           (H1)
   then        exp(x) ∈ ℝ
   metamath-proof reefcl
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem e-power
   let y ∈ ℂ                                                           (H1)
@@ -133,7 +133,7 @@ mundane theorem e-power
   metamath-proof ecxp
   note        e to a power that is not whole is the principal power
               (`GRAMMAR.md`), which is exp of the exponent.
-  lean-proof  not yet implemented
+  lean-proof  by rw [Complex.cpow_def_of_ne_zero (by exact_mod_cast (Real.exp_pos 1).ne'), ← Complex.ofReal_log (Real.exp_pos 1).le, Real.log_exp]; simp
 
 mundane theorem exp-positive
   let x ∈ ℝ                                                           (H1)

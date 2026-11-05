@@ -165,7 +165,7 @@ mundane theorem set-builder-split
   then        X = {t ∈ X : P(t)} ∪ {t ∈ X : not P(t)}
   metamath-proof rabxm
   note        Every element of X has the property or does not.
-  lean-proof  not yet implemented
+  lean-proof  by ext t; by_cases h : P t <;> simp [h]
 
 mundane theorem set-builder-split-disjoint
   let X be a set                                                      (H1)
@@ -273,7 +273,7 @@ mundane theorem triple-members
   then        u ∈ {u, v, w}. v ∈ {u, v, w}. w ∈ {u, v, w}.
   metamath-proof tpid1g, tpid2g, tpid3g
   note        Each thing a set lists is in it.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done) ; by (simp_all; done) ; by (simp_all; done)
 
 mundane theorem pair-finite
   then        {u, w} is finite
@@ -294,7 +294,7 @@ mundane theorem subset-of-difference
   metamath-proof ssdifsn
   note        The half of `ssdifsn` the corpus wants. Being inside X ∖ {a}
               says two things at once, and this is the second of them.
-  lean-proof  not yet implemented
+  lean-proof  fun h => (h1 h).2 rfl
 
 mundane theorem difference-of-union
   let a be an element                                                 (H1)
@@ -352,7 +352,7 @@ mundane theorem listed-repeat
   then        {a, b, b} = {a, b}
   metamath-proof tpidm23
   note        A list names each element once however often it is written.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem disjoint-empty
   assume for all s ∈ Z, s ∉ Y                                         (H1)
@@ -440,7 +440,7 @@ mundane theorem triple-subset
   let c ∈ X                                                           (H3)
   then        {a, b, c} ⊆ X
   metamath-proof tpssi
-  lean-proof  not yet implemented
+  lean-proof  by intro x hx; rcases hx with rfl | rfl | rfl <;> assumption
 
 mundane theorem powerset-monotone
   assume Y ⊆ X                                                        (H1)
@@ -487,7 +487,7 @@ mundane theorem nonempty-member
   then        there is a ∈ Y
   metamath-proof n0
   note        A set that is not empty has an element, which an obtain names.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty.2 h1; exact ⟨a, ha, trivial⟩
 
 mundane theorem member-nonempty
   assume a ∈ Y                                                        (H1)
@@ -515,7 +515,7 @@ mundane theorem union-empty
 mundane theorem intersection-empty
   then        Y ∩ ∅ = ∅
   metamath-proof in0
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem difference-self
   then        Y ∖ Y = ∅
@@ -525,7 +525,7 @@ mundane theorem difference-self
 mundane theorem difference-empty
   then        Y ∖ ∅ = Y
   metamath-proof dif0
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem intersection-distributes
   then        X ∩ (Y ∪ Z) = (X ∩ Y) ∪ (X ∩ Z)
@@ -586,7 +586,7 @@ mundane theorem complement-swap
   assume Y ⊆ Z                                                        (H2)
   then        X ⊆ Z ∖ Y ↔ Y ⊆ Z ∖ X
   metamath-proof ssconb
-  lean-proof  not yet implemented
+  lean-proof  ⟨fun h x hx => ⟨h2 hx, fun hX => (h hX).2 hx⟩, fun h x hx => ⟨h1 hx, fun hY => (h hY).2 hx⟩⟩
 
 mundane theorem complement-swap-outside
   then        Z ∖ Y ⊆ X ↔ Z ∖ X ⊆ Y
@@ -604,7 +604,7 @@ mundane theorem disjoint-within
   assume Y ∩ Z = ∅                                                    (H2)
   then        X ∩ Z = ∅
   metamath-proof ssdisj
-  lean-proof  not yet implemented
+  lean-proof  Set.eq_empty_of_subset_empty (h2 ▸ Set.inter_subset_inter_left Z h1)
 
 mundane theorem disjoint-member
   assume Y ∩ Z = ∅                                                    (H1)
@@ -621,7 +621,7 @@ mundane theorem disjoint-difference
 definition indexed-union
   then        u ∈ ⋃(X ∈ D) X ↔ there is X ∈ D with u ∈ X
   metamath-proof eliun
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem union-contains-member
   assume Y ∈ D                                                        (H1)
@@ -631,13 +631,13 @@ mundane theorem union-contains-member
               index; ssiun2s keeps them apart, as the page does, and ties
               them by its hypothesis that the two sets agree where they are
               equal.
-  lean-proof  not yet implemented
+  lean-proof  Set.subset_biUnion_of_mem (u := fun X => X) h1
 
 mundane theorem union-within
   assume for all X ∈ D, X ⊆ Z                                         (H1)
   then        ⋃(X ∈ D) X ⊆ Z
   metamath-proof iunss
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem intersection-within
   assume for all X ∈ D, Z ⊆ X                                         (H1)

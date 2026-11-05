@@ -20,6 +20,7 @@ theorem rational_sequence_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → 
     intro hA1
     -- 1.1. obtain N: thm:archimedean x := ε, from A1
     obtain ⟨N, s1_1a, s1_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε) (by parley_side))
+    try lift N to ℕ using le_of_lt s1_1a
     -- 1.2. proof
     have s1_2 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - 2 / 3) < ε := by
       intro n hK2

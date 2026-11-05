@@ -1,0 +1,25 @@
+module
+
+public import SetTactics
+public import Tactics
+public import Parley.Items.Stdlib.Calculus
+
+/-! Written from tests/docs/grammar.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Docs.Grammar.ASetWithABound
+
+theorem a_set_with_a_bound (S : Set ℝ) (hH1 : S ⊆ (Set.univ : Set ℝ)) (hH2 : (0 : ℝ) ∈ S) (hH3 : ∀ s ∈ S, s ≤ 1) :
+    (∃ c : ℝ, (∀ s ∈ S, s ≤ c) ∧ (∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u)) := by
+  -- 1. exhibit, from H2
+  have s1 : ∃ s ∈ S, True := ⟨(0 : ℝ), by parley_set_side, trivial⟩
+  -- 2. def:upper-bound u := 1, from H3
+  have s2 : ∀ s ∈ S, s ≤ 1 := by parley_set_side
+  -- 3. exhibit, from 2
+  have s3 : ∃ u : ℝ, ∀ s ∈ S, s ≤ u := ⟨(1 : ℝ), by parley_set_side⟩
+  -- 4. axi:completeness, from H1, 1, 3
+  have s4 : ∃ c : ℝ, (∀ s ∈ S, s ≤ c) ∧ (∀ u : ℝ, (∀ s ∈ S, s ≤ u) → c ≤ u) := by first | exact (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3) | exact ((Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3)).symm | simpa using (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3) | exact_mod_cast (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3) | (have h := (Parley.Items.Stdlib.Calculus.axi_completeness (S := S) hH1 s1 s3); parley_set_side)
+  all_goals exact s4
+
+end Parley.Tests.Docs.Grammar.ASetWithABound

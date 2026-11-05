@@ -51,6 +51,13 @@ impl Binder {
                 general: true,
                 ..
             } => format!("({name} : {} → {})", from.lean(), super::expr::GENERAL),
+            // A set of the general type's numbers, `Set K`.
+            Binder::Letter {
+                name,
+                ty: LetterType::Set(super::expr::Members::Numbers(_)),
+                general: true,
+                ..
+            } => format!("({name} : Set {})", super::expr::GENERAL),
             Binder::Letter {
                 name,
                 general: true,
@@ -328,9 +335,28 @@ fn record_domain(writer: &mut Writer, node: &Node) {
     }
 }
 
-pub fn binders(writer: &mut Writer, asked: &[Asked]) -> Route<Vec<Binder>> {
+/// The binders of what is asked, in order. `maps` are the maps an item has
+/// whose lines are not among what it asks, `f : [a, b] → ℝ`, by the letter
+/// and the set it maps from: each takes its domain once that set's letters
+/// have their types, for the lines that take a limit or a derivative
+/// within it.
+pub fn binders(
+    writer: &mut Writer,
+    asked: &[Asked],
+    maps: &[(&Node, &Node)],
+) -> Route<Vec<Binder>> {
     let mut out = Vec::new();
     for a in asked {
+        for (f, from) in maps {
+            if writer.domains.contains_key(f.text.as_str()) {
+                continue;
+            }
+            if let Route::Built(d) = writer.set_term(from) {
+                writer
+                    .domains
+                    .insert(f.text.to_string(), d.at(super::expr::MAX));
+            }
+        }
         record_domain(writer, a.node);
         // A letter of a range is an integer, and the range a fact about it.
         if let Some(letter) = range_letter(a.node) {

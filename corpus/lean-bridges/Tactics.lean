@@ -1,7 +1,7 @@
 module
 
 public import Mathlib
-public import Factorials
+public import ParleySimp
 
 /-!
 # Tactics every generated proof uses
@@ -12,12 +12,39 @@ how is written once, here. Every alternative closes the goal or fails:
 `ring`, `norm_num` and `apply` can succeed while leaving a goal open, so
 each alternative ends in `done`, and `ring1` is used for `ring`.
 
-This module holds the two nearly every file calls, and that the other
-tactic modules call: `parley_side` and `parley_norm`. The rest are in one
-module for each family (`AlgebraTactics`, `SubstTactics`,
-`OrderTactics`, `PowerTactics`, `ComplexTactics`, `ArithTactics`), which a
-generated file imports only when it calls one of them, since every file
-importing a module is rebuilt when it changes.
+## How the tactic modules are laid out
+
+Lean rebuilds every file that imports a module, directly or through
+another, whenever that module changes. The layout keeps each change's
+rebuild to the files that use what changed.
+
+- This module, the core, holds only `parley_side` and `parley_norm`, which
+  nearly every generated file calls and every other tactic module calls in
+  turn. A change here rebuilds every file, so it imports nothing but
+  Mathlib and changes only when these two must.
+- Each family of tactics most files do not call is a module of its own,
+  imported only by the files that name one of its tactics:
+  `AlgebraTactics`, `SubstTactics`, `OrderTactics`, `PowerTactics`,
+  `ComplexTactics`, `ArithTactics`, `SetTactics`, `RealTactics`,
+  `WholeTactics`.
+- A definition only some files write, which a tactic called everywhere
+  must see through, is not imported here. The tactic calls `norm_num` or
+  `field_simp` with the simp set `parley_unfold` (`ParleySimp`, which
+  imports nothing but Mathlib) at the place in its list that way belongs,
+  and a module imported only by the files that write the definition tags it
+  into the set. Elsewhere the set is empty and the call is a plain one. The
+  factorial and the binomial coefficient are tagged so, in
+  `FactorialTactics`, and a change to `Factorials` rebuilds only the files
+  that write them. A `macro_rules` rule for the tactic would be tried
+  before its own alternatives, and a hook with a default would be tried
+  again after the rule failed; the set changes neither the order nor the
+  number of tries.
+- A case for a goal the writer can recognise where it writes the call goes
+  in a tactic of its own with its own name, as `parley_whole_side`, rather
+  than among `parley_side`'s alternatives.
+
+Which file imports which module is decided by the build from the file's
+Lean text (`library_imports` in `src/tools/build/lean.rs`).
 -/
 
 public section
@@ -83,7 +110,8 @@ macro "parley_norm" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
-    -- A function of numerals written two ways, (1 + 1)! beside 2!.
-    | (norm_num [LeanBridges.Counting.factorial, Nat.factorial]; done))
+    -- A function of numerals written two ways, (1 + 1)! beside 2!, where
+    -- the file's modules tag the function into `parley_unfold`.
+    | (norm_num [parley_unfold]; done))
 
 end

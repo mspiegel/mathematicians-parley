@@ -68,8 +68,10 @@ theorem product_of_sequence_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ)
     have s9_13 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (b (n : ℤ) - M) < ε / (2 * s)) := by first | exact (s9_11 (ε / (2 * s)) (by parley_side)) | exact ((s9_11 (ε / (2 * s)) (by parley_side))).symm | simpa using (s9_11 (ε / (2 * s)) (by parley_side)) | exact_mod_cast (s9_11 (ε / (2 * s)) (by parley_side)) | (have h := (s9_11 (ε / (2 * s)) (by parley_side)); parley_side)
     -- 9.14. obtain P from line 9.12
     obtain ⟨P, s9_14a, s9_14b⟩ := s9_12
+    try lift P to ℕ using le_of_lt s9_14a
     -- 9.15. obtain Q from line 9.13
     obtain ⟨Q, s9_15a, s9_15b⟩ := s9_13
+    try lift Q to ℕ using le_of_lt s9_15a
     -- 9.16. inequalities, from 9.15
     have s9_16 : (Q : ℝ) > 0 := by parley_order
     -- 9.17. inequalities

@@ -30,8 +30,10 @@ theorem rational_squares_sum_not_three :
     obtain ⟨x, y, s1⟩ := hS
     -- 2. obtain a, b: mun:rational-coprime
     obtain ⟨a, b, s2a, ⟨s2b, s2c⟩⟩ := (Parley.Items.Stdlib.Numbers.mun_rational_coprime (x := x))
+    try lift b to ℕ using le_of_lt s2a
     -- 3. obtain c, d: mun:rational-coprime x := y
     obtain ⟨c, d, s3a, ⟨s3b, s3c⟩⟩ := (Parley.Items.Stdlib.Numbers.mun_rational_coprime (x := y))
+    try lift d to ℕ using le_of_lt s3a
     -- 4. substitute x = a/b (line 2) into line 1
     have s4 : ((a : ℚ) / (b : ℚ)) ^ 2 + y ^ 2 - 3 = 0 := by parley_subst_at s2b s1
     -- 5. substitute y = c/d (line 3) into line 4

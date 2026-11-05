@@ -336,7 +336,14 @@ impl Export {
         while let Some(id) = stack.pop() {
             match self.expr(id) {
                 Some(Expr::App { .. }) => {
-                    let (head, args) = self.spine(id);
+                    let (head, mut args) = self.spine(id);
+                    // A case split's instance deciding its condition,
+                    // `Classical.propDecidable (x < 1/2)`, says the condition
+                    // again and does no arithmetic of its own.
+                    if matches!(head.as_deref(), Some("ite" | "dite")) && args.len() > 2
+                    {
+                        args.remove(2);
+                    }
                     if let Some(op) = head.as_deref().and_then(operation) {
                         let ty = args
                             .first()

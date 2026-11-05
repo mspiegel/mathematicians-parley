@@ -35,6 +35,7 @@ theorem a_over_n_tends_to_zero (A : ℝ) :
     have s5_2 : ε / (2 * (abs A + 1)) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := ε) (y := 2 * (abs A + 1)) (by parley_side) (by parley_side)); parley_side)
     -- 5.3. obtain N: thm:archimedean x := ε/(2·(|A| + 1)), from 5.1, 5.2
     obtain ⟨N, s5_3a, s5_3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / (2 * (abs A + 1))) (by parley_side))
+    try lift N to ℕ using le_of_lt s5_3a
     -- 5.4. proof
     have s5_4 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (A / (n : ℝ)) < ε := by
       intro n hK3

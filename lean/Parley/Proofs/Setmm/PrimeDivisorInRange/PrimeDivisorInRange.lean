@@ -27,6 +27,7 @@ theorem prime_divisor_in_range (N : ℕ) (hH1 : 0 < N) (I : ℤ) (hH2 : I ∈ Fi
   have s5 : (I : ℤ) > 1 := by parley_order
   -- 6. obtain p: thm:prime-factor m := I, from 4, 5
   obtain ⟨p, s6a, ⟨s6b, s6c⟩⟩ := (Parley.Items.Stdlib.Divisibility.thm_prime_factor (m := I) (by parley_side) (by parley_side))
+  try lift p to ℕ using le_of_lt s6a
   -- 7. mun:divides-le e := p, m := I, from 4, 6
   have s7 : (p : ℤ) ≤ (I : ℤ) := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := p) (by parley_side) (m := I) (by parley_side) (by parley_side)); parley_side)
   -- 8. transitivity, from 7, 2

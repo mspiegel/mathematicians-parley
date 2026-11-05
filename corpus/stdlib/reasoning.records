@@ -107,7 +107,7 @@ mundane theorem iff-both-true
   metamath-proof 2thd
   note        Two claims that both hold are equivalent, as a count that is
               odd at a vertex that is the walk's last.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem iff-both-false
   assume not P                                                        (H1)
@@ -116,7 +116,7 @@ mundane theorem iff-both-false
   metamath-proof 2falsed
   note        Two claims that both fail are equivalent, the other way an
               "if and only if" is settled without proving each direction.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem iff-from-left
   assume P ↔ Q                                                        (H1)
@@ -134,7 +134,7 @@ mundane theorem iff-from-right
   metamath-proof mpbird
   note        Using an "if and only if" from its right side: the left holds
               where the right does.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem iff-not-from-right
   assume P ↔ Q                                                        (H1)

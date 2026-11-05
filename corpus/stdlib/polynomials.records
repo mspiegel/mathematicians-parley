@@ -84,7 +84,7 @@ definition transcendental
   note        A transcendental number is a complex number that is not
               algebraic; of one known complex, that it is not algebraic is
               all there is to say.
-  lean-proof  not yet implemented
+  lean-proof  by (aesop)
 
 theorem integer-polynomial-at-a-fraction
   let F : ℂ → ℂ                                                       (H1)

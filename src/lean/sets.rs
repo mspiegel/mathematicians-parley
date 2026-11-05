@@ -1075,10 +1075,11 @@ impl Writer<'_> {
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
         if finite && &*set.notation_name() == "empty-set" {
-            return Some(Route::Built(Printed::atom(format!(
-                "(∅ : Set {}).ncard",
-                super::expr::THINGS
-            ))));
+            let of = match &self.empty_of {
+                Some(m) => Members::Sets(Box::new(m.clone())).lean(),
+                None => format!("Set {}", super::expr::THINGS),
+            };
+            return Some(Route::Built(Printed::atom(format!("(∅ : {of}).ncard"))));
         }
         finite.then(|| {
             self.set_term(set)

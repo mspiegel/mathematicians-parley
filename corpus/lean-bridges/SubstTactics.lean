@@ -37,7 +37,11 @@ macro "parley_subst " e:term:max : tactic =>
     | (have h := $e:term; norm_cast at h ⊢; rw [← h]; done)
     -- A power put to an integer exponent beside one to a natural, x^0 of
     -- (m + 1) − (m + 1) beside x^0: each worked out.
-    | (rw [$e:term]; norm_num; done))
+    | (rw [$e:term]; norm_num; done)
+    -- An equation said for every member of a set, put at the block's
+    -- member.
+    | (rw [$e:term _ (by assumption)]; done)
+    | (rw [← $e:term _ (by assumption)]; done))
 
 /-- `parley_subst_at e h` by rewriting, with no `simp` by `e`. That loops where one side of
 `e` stands inside the other, b in gcd(a, b), and `first` does not go on past
@@ -83,6 +87,16 @@ macro "parley_subst_at " e:term:max h:ident : tactic =>
     | (simp only [← $e:term] at $h:ident ⊢; exact $h; done)
     | (simp only [$e:term] at $h:ident ⊢; linarith; done)
     | (simp only [← $e:term] at $h:ident ⊢; linarith; done)
+    -- Two lines said for every member of a set, put together at the
+    -- block's member, or at each member where the claim is said of all.
+    | (have h' := $h _ (by assumption); have e' := $e _ (by assumption);
+        first | (rw [e'] at h'; exact h') | (rw [← e'] at h'; exact h'); done)
+    | (intro t ht; have h' := $h t ht; have e' := $e t (by assumption);
+        first | (rw [e'] at h'; exact h') | (rw [← e'] at h'; exact h'); done)
+    | (have e' := $e _ (by assumption);
+        first | (rw [e'] at $h:ident; exact $h) | (rw [← e'] at $h:ident; exact $h); done)
+    | (have h' := $h _ (by assumption);
+        first | (rw [$e:term] at h'; exact h') | (rw [← $e:term] at h'; exact h'); done)
     -- A listed set put into a subset, its members in another order than
     -- the claim's: member by member.
     | (rw [$e:term] at $h:ident; intro x hx; apply $h:ident;

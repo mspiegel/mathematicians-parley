@@ -33,6 +33,26 @@ theorem mun_odd_not_even (n : ℤ) (h2 : Odd n) :
     ¬ Even n :=
   Int.not_even_iff_odd.mpr h2
 
+theorem mun_odd_not_divisible (n : ℤ) (h2 : Odd n) :
+    ¬ (2 : ℤ) ∣ n :=
+  by rw [Int.two_dvd_ne_zero]; exact Int.odd_iff.1 h2
+
+theorem mun_odd_plus_odd (a : ℤ) (h2 : Odd a) (b : ℤ) (h4 : Odd b) :
+    Even (a + b) :=
+  Odd.add_odd h2 h4
+
+theorem mun_odd_minus_odd (a : ℤ) (h2 : Odd a) (b : ℤ) (h4 : Odd b) :
+    Even (a - b) :=
+  Odd.sub_odd h2 h4
+
+theorem mun_odd_plus_even (a : ℤ) (h2 : Odd a) (b : ℤ) (h4 : Even b) :
+    Odd (a + b) :=
+  Odd.add_even h2 h4
+
+theorem mun_odd_minus_even (a : ℤ) (h2 : Odd a) (b : ℤ) (h4 : Even b) :
+    Odd (a - b) :=
+  Odd.sub_even h2 h4
+
 theorem mun_even_product (a : ℤ) (h2 : Even a) (x : ℤ) :
     Even (a * x) :=
   h2.mul_right x
@@ -89,6 +109,10 @@ theorem def_lcm_4 (a : ℤ) (b : ℤ) :
     ∀ k : ℤ, a ∣ k ∧ b ∣ k → (Int.lcm a b : ℤ) ∣ k :=
   LeanBridges.Divisibility.lcm_4 a b
 
+theorem mun_lcm_times_gcd (a : ℤ) (b : ℤ) :
+    (Int.lcm a b : ℤ) * (Int.gcd a b : ℤ) = abs (a * b) :=
+  by rw [abs_mul, Int.abs_eq_natAbs, Int.abs_eq_natAbs, mul_comm]; exact_mod_cast Int.gcd_mul_lcm a b
+
 theorem thm_prime_factor (m : ℕ) (h1 : 0 < m) (h2 : 1 < (m : ℤ)) :
     ∃ p : ℕ, 0 < p ∧ (Nat.Prime p ∧ (p : ℤ) ∣ (m : ℤ)) :=
   LeanBridges.Divisibility.prime_factor m h1 h2
@@ -113,6 +137,10 @@ theorem mun_divides_le (e : ℕ) (h1 : 0 < e) (m : ℕ) (h2 : 0 < m) (h3 : (e : 
     (e : ℤ) ≤ (m : ℤ) :=
   Int.le_of_dvd (by omega) h3
 
+theorem mun_below_not_divisible (n : ℕ) (h1 : 0 < n) (x : ℕ) (h2 : 0 < x) (h3 : (x : ℤ) < (n : ℤ)) :
+    ¬ (n : ℤ) ∣ (x : ℤ) :=
+  by intro h; have := Int.le_of_dvd (by omega) h; omega
+
 theorem def_congruent_mod (n : ℤ) (a : ℤ) (b : ℤ) :
     a ≡ b [ZMOD n] ↔ n ∣ a - b :=
   Int.modEq_comm.trans Int.modEq_iff_dvd
@@ -136,6 +164,22 @@ theorem mun_gcd_integer_2 (a : ℤ) (b : ℤ) :
 theorem mun_gcd_integer_3 (a : ℤ) (b : ℤ) :
     (Int.gcd a b : ℤ) ∣ b :=
   Int.gcd_dvd_right a b
+
+theorem mun_gcd_natural (a : ℤ) (b : ℤ) (h3 : ¬ (a = 0 ∧ b = 0)) :
+    0 < (Int.gcd a b : ℤ) :=
+  by have h0 : Int.gcd a b ≠ 0 := (by intro h0; rw [Int.gcd_eq_zero_iff] at h0; exact h3 h0); omega
+
+theorem mun_gcd_scaled (c : ℕ) (a : ℤ) (b : ℤ) :
+    (Int.gcd ((c : ℤ) * a) ((c : ℤ) * b) : ℤ) = (c : ℤ) * (Int.gcd a b : ℤ) :=
+  by rw [Int.gcd_mul_left]; simp
+
+theorem mun_gcd_scaled_integer (c : ℤ) (a : ℤ) (b : ℤ) :
+    (Int.gcd (c * a) (c * b) : ℤ) = abs (c * (Int.gcd a b : ℤ)) :=
+  by rw [Int.gcd_mul_left, abs_mul]; simp
+
+theorem mun_gcd_negative (a : ℤ) (b : ℤ) :
+    (Int.gcd (-a) b : ℤ) = (Int.gcd a b : ℤ) :=
+  by (simp_all; done)
 
 theorem mun_gcd_commutes (a : ℤ) (b : ℤ) :
     (Int.gcd a b : ℤ) = (Int.gcd b a : ℤ) :=
@@ -169,9 +213,17 @@ theorem mun_mod_multiple (r : ℤ) (m : ℕ) (h2 : 0 < m) (q : ℤ) :
     (q * (m : ℤ) + r) % (m : ℤ) = r % (m : ℤ) :=
   LeanBridges.Divisibility.mod_multiple r m h2 q
 
+theorem mun_mod_real (a : ℝ) (b : ℝ) (h3 : 0 < b) :
+    True :=
+  by (simp_all; done)
+
 theorem mun_mod_value (a : ℝ) (b : ℝ) (h3 : 0 < b) :
     LeanBridges.Divisibility.mod a b = a - b * (⌊a / b⌋ : ℝ) :=
   rfl
+
+theorem mun_mod_below (a : ℝ) (b : ℝ) (h3 : 0 ≤ a) (h4 : a < b) :
+    LeanBridges.Divisibility.mod a b = a :=
+  by unfold LeanBridges.Divisibility.mod; have hb : 0 < b := (by linarith); have h0 : ⌊a / b⌋ = 0 := Int.floor_eq_zero_iff.2 ⟨div_nonneg h3 hb.le, (div_lt_one hb).2 h4⟩; rw [h0]; simp
 
 theorem mun_zero_divides (n : ℤ) :
     (0 : ℤ) ∣ n ↔ n = 0 :=
@@ -193,9 +245,45 @@ theorem mun_prime_coprime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℤ) (h
     (Int.gcd (p : ℤ) a : ℤ) = 1 :=
   LeanBridges.Divisibility.prime_coprime p h1 h2 a h4
 
+theorem def_perfect (n : ℕ) (h1 : 0 < n) :
+    ArithmeticFunction.sigma 1 n = 2 * n ↔ (ArithmeticFunction.sigma 1 n : ℤ) = 2 * (n : ℤ) :=
+  by omega
+
+theorem thm_sigma_multiplicative (m : ℕ) (h1 : 0 < m) (n : ℕ) (h2 : 0 < n) (h3 : (Int.gcd (m : ℤ) (n : ℤ) : ℤ) = 1) :
+    (ArithmeticFunction.sigma 1 (m * n) : ℤ) = (ArithmeticFunction.sigma 1 m : ℤ) * (ArithmeticFunction.sigma 1 n : ℤ) :=
+  by have hc : Nat.Coprime m n := (by have h := h3; rw [Int.gcd_natCast_natCast] at h; exact_mod_cast h); exact_mod_cast ArithmeticFunction.isMultiplicative_sigma.map_mul_of_coprime hc
+
+theorem thm_sigma_prime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) :
+    (ArithmeticFunction.sigma 1 p : ℤ) = (p : ℤ) + 1 :=
+  by have h := ArithmeticFunction.sigma_one_apply_prime_pow h2 (i := 1); rw [pow_one] at h; rw [h]; push_cast [Finset.sum_range_succ]; ring
+
+theorem mun_sigma_nat (n : ℕ) (h1 : 0 < n) :
+    0 < (ArithmeticFunction.sigma 1 n : ℤ) :=
+  by (simp_all; done)
+
 theorem mun_one_divides (n : ℤ) :
     (1 : ℤ) ∣ n :=
   by simp_all
+
+theorem mun_coprime_power (a : ℤ) (b : ℤ) (k : ℕ) (h4 : (Int.gcd a b : ℤ) = 1) :
+    (Int.gcd (a ^ k) b : ℤ) = 1 :=
+  by have h : IsCoprime a b := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h.pow_left (m := k))
+
+theorem mun_phi_natural (n : ℕ) (h1 : 0 < n) :
+    0 < (Nat.totient n : ℤ) :=
+  by (simp_all; done)
+
+theorem thm_phi_prime (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) :
+    (Nat.totient p : ℤ) = (p : ℤ) - 1 :=
+  by rw [Nat.totient_prime h2]; push_cast [Nat.cast_sub h2.one_le]; ring
+
+theorem mun_coprime_product (x : ℤ) (y : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : (Int.gcd x (n : ℤ) : ℤ) = 1) (h5 : (Int.gcd y (n : ℤ) : ℤ) = 1) :
+    (Int.gcd (x * y) (n : ℤ) : ℤ) = 1 :=
+  by have h4' : IsCoprime x (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); have h5' : IsCoprime y (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h5); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h4'.mul_left h5')
+
+theorem mun_congruent_in_range (n : ℕ) (h1 : 0 < n) (x : ℤ) (h2 : x ∈ Finset.Icc (0 : ℤ) ((n : ℤ) - 1)) (y : ℤ) (h3 : y ∈ Finset.Icc (0 : ℤ) ((n : ℤ) - 1)) (h4 : x ≡ y [ZMOD (n : ℤ)]) :
+    x = y :=
+  by simp only [Finset.mem_Icc] at h2 h3; have h := Int.ModEq.eq h4; rw [Int.emod_eq_of_lt h2.1 (by omega), Int.emod_eq_of_lt h3.1 (by omega)] at h; exact h
 
 theorem mun_mod_congruent (x : ℤ) (n : ℕ) (h2 : 0 < n) :
     x ≡ (x % (n : ℤ)) [ZMOD (n : ℤ)] :=
@@ -221,8 +309,32 @@ theorem mun_divides_transitive (d : ℤ) (e : ℤ) (n : ℤ) (h4 : d ∣ e) (h5 
     d ∣ n :=
   Int.dvd_trans h4 h5
 
+theorem thm_bezout (a : ℤ) (b : ℕ) (h2 : 0 < b) :
+    ∃ x : ℤ, ∃ y : ℤ, a * x + (b : ℤ) * y = (Int.gcd a (b : ℤ) : ℤ) :=
+  ⟨Int.gcdA a b, Int.gcdB a b, (Int.gcd_eq_gcd_ab a b).symm⟩
+
 theorem thm_coprime_divides (x : ℤ) (c : ℤ) (n : ℕ) (h3 : 0 < n) (h4 : (n : ℤ) ∣ x * c) (h5 : (Int.gcd c (n : ℤ) : ℤ) = 1) :
     (n : ℤ) ∣ x :=
   Int.dvd_of_dvd_mul_left_of_gcd_one h4 (by rw [Int.gcd_comm]; exact_mod_cast h5)
+
+theorem thm_congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℕ) (h4 : 0 < n) (h5 : (x * c) ≡ (y * c) [ZMOD (n : ℤ)]) (h6 : (Int.gcd c (n : ℤ) : ℤ) = 1) :
+    x ≡ y [ZMOD (n : ℤ)] :=
+  by have h := Int.ModEq.cancel_right_div_gcd (by exact_mod_cast h4 : (0 : ℤ) < n) h5; have hg : Int.gcd (n : ℤ) c = 1 := (by rw [Int.gcd_comm]; exact_mod_cast h6); rw [hg] at h; simpa using h
+
+theorem mun_prime_power_not_less (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℕ) (a' : ℕ) (m : ℤ) (m' : ℤ) (h7 : (Int.gcd m (p : ℤ) : ℤ) = 1) (h8 : (p : ℤ) ^ a * m = (p : ℤ) ^ a' * m') :
+    ¬ (a : ℤ) < (a' : ℤ) :=
+  by intro hlt; have hp : Prime (p : ℤ) := Nat.prime_iff_prime_int.1 h2; have hle : a + 1 ≤ a' := (by omega); have hdvd : (p : ℤ) ^ (a + 1) ∣ (p : ℤ) ^ a * m := (h8 ▸ Dvd.dvd.mul_right (pow_dvd_pow _ hle) _); rw [pow_succ] at hdvd; have hpm : (p : ℤ) ∣ m := (mul_dvd_mul_iff_left (pow_ne_zero a hp.ne_zero)).1 hdvd; have hc : IsCoprime m (p : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h7); exact hp.not_unit (hc.isUnit_of_dvd' hpm (dvd_refl _))
+
+theorem mun_prime_power_unique (p : ℕ) (h1 : 0 < p) (h2 : Nat.Prime p) (a : ℕ) (a' : ℕ) (m : ℤ) (m' : ℤ) (h7 : (Int.gcd m (p : ℤ) : ℤ) = 1) (h8 : (Int.gcd m' (p : ℤ) : ℤ) = 1) (h9 : (p : ℤ) ^ a * m = (p : ℤ) ^ a' * m') :
+    (a : ℤ) = (a' : ℤ) :=
+  by by_contra hne; have hne' : a ≠ a' := (by intro e; exact hne (by rw [e])); rcases Nat.lt_or_gt_of_ne hne' with h | h; exacts [mun_prime_power_not_less p h1 h2 a a' m m' h7 h9 (by exact_mod_cast h), mun_prime_power_not_less p h1 h2 a' a m' m h8 h9.symm (by exact_mod_cast h)]
+
+theorem thm_product_coprime (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (n : ℕ) (h3 : 0 < n) (h4 : ∀ y ∈ X, (Int.gcd y (n : ℤ) : ℤ) = 1) :
+    (Int.gcd (∏ᶠ x ∈ X, (x : ℤ)) (n : ℤ) : ℤ) = 1 :=
+  by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h
+
+theorem thm_product_congruent (f : ℤ → ℤ) (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (c : ℤ) (n : ℕ) (h4 : 0 < n) (h5 : ∀ y ∈ X, (y * c) ≡ (f y) [ZMOD (n : ℤ)]) (hf : Set.MapsTo f X X) :
+    (∏ᶠ x ∈ X, (x * c : ℤ)) ≡ (∏ᶠ x ∈ X, (f x : ℤ)) [ZMOD (n : ℤ)] :=
+  by rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, ← ZMod.intCast_eq_intCast_iff]; push_cast; exact Finset.prod_congr rfl (fun y hy => (by have h := (ZMod.intCast_eq_intCast_iff _ _ _).2 (h5 y (h2.mem_toFinset.1 hy)); push_cast at h; exact h))
 
 end Parley.Items.Stdlib.Divisibility

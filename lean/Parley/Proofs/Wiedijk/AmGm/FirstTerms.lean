@@ -19,6 +19,7 @@ theorem first_terms (n : ℕ) (hH1 : 0 < n) (a : ℤ → ℝ) (hH3 : ∀ k : ℤ
   -- 3. proof
   have s3 : ∀ k : ℤ, k ∈ Finset.Icc 1 m → a k ≥ 0 := by
     intro k hK2
+    try push_cast at hK2
     try have hK2_bounds := Finset.mem_Icc.mp hK2
     -- 3.1. instantiate k := k in H3, from 1
     have s3_1 : a k ≥ 0 := by first | linarith [(hH3 k (by parley_set_side))] | (have h := (hH3 k (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH3 k (by parley_set_side)) | (have h := (hH3 k (by parley_set_side)); parley_set_side)

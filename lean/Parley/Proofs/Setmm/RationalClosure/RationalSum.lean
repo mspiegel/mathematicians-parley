@@ -14,8 +14,10 @@ theorem rational_sum (A : ℚ) (B : ℚ) :
     True := by
   -- 1. obtain p, q: def:rational x := A
   obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  try lift q to ℕ using le_of_lt s1a
   -- 2. obtain r, s: def:rational x := B
   obtain ⟨r, s, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_side)
+  try lift s to ℕ using le_of_lt s2a
   -- 3. algebra, from 1, 2
   have s3 : A + B = ((p : ℚ) * (s : ℚ) + (r : ℚ) * (q : ℚ)) / ((q : ℚ) * (s : ℚ)) := by linear_combination (norm := parley_field) s1b + s2b
   -- 4. exhibit, from 3

@@ -294,10 +294,23 @@ fn free_letters(
         .filter(|n| n.notation() == crate::notations::ORDER)
         .flat_map(|n| n.names())
         .collect();
+    // A range's member is an integer, and so is a letter that stands as a
+    // range's end, the k of {1, …, k}: set.mm's ranges are of integers.
     let in_range: std::collections::BTreeSet<String> = stated
         .iter()
         .flat_map(|n| n.walk())
-        .filter_map(|n| super::statement::range_letter(&n))
+        .flat_map(|n| {
+            let ends: Vec<String> = match n.notation() {
+                crate::notations::INTEGER_RANGE => n
+                    .children
+                    .iter()
+                    .filter(|c| c.is_name())
+                    .map(|c| c.text.to_string())
+                    .collect(),
+                _ => Vec::new(),
+            };
+            super::statement::range_letter(&n).into_iter().chain(ends)
+        })
         .collect();
     let mut fixed = std::collections::BTreeSet::new();
     for n in stated.iter().flat_map(|n| n.walk()) {
@@ -393,6 +406,42 @@ fn numbers_subset(
     match (d.is_name(), w.set_members(whole)?) {
         (true, m @ super::expr::Members::Numbers(_)) => {
             Some((d.text.to_string(), LetterType::Set(m)))
+        }
+        _ => None,
+    }
+}
+
+/// A set letter of numbers a ∪, ∩ or ∖ joins with a set of numbers of a
+/// type, c of {1, …, i} ∖ c, and the type that makes it a set of those;
+/// None for any other node.
+fn numbers_joined(
+    w: &super::expr::Writer,
+    node: &Node,
+) -> Option<(String, LetterType)> {
+    if &*node.notation_name() != "set-operations" {
+        return None;
+    }
+    let [a, b] = node.children.as_slice() else {
+        return None;
+    };
+    let of_numbers = |n: &Node| {
+        matches!(n.sort.full(), Some(crate::formula::Whole::Set(m))
+            if matches!(**m, crate::formula::Whole::Number))
+    };
+    let (letter, other) = match (
+        a.is_name() && !w.letters.contains_key(a.text.as_str()),
+        b.is_name() && !w.letters.contains_key(b.text.as_str()),
+    ) {
+        (true, false) => (a, b),
+        (false, true) => (b, a),
+        _ => return None,
+    };
+    if !of_numbers(letter) {
+        return None;
+    }
+    match w.set_members(other)? {
+        m @ super::expr::Members::Numbers(_) => {
+            Some((letter.text.to_string(), LetterType::Set(m)))
         }
         _ => None,
     }
@@ -735,6 +784,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
     let total: usize = groups.iter().map(|g| g.gives.len()).sum();
     let mut sentences = Vec::new();
     let groups_let = group_lines(record);
+    // A phrase a define gives is written out as its meaning, as a theorem's
+    // page is (`theorem::outside_written`).
+    let phrases = super::theorem::library_phrases(checked);
+    let groups: Vec<crate::citing::Group> = groups
+        .iter()
+        .map(|g| super::theorem::group_written(g, &phrases, writer.grammar))
+        .collect();
     for group in groups.iter() {
         for says in &group.gives {
             let mut w = Writer::new(writer.grammar, writer.templates);
@@ -788,14 +844,55 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 .collect();
             // A set of numbers, which its sort does not say the type of, is
             // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
-            for node in &said {
-                if let Some((name, ty)) = numbers_subset(&w, node) {
+            // Or of the numbers of a set it is joined with or taken from:
+            // c of {1, …, i} ∖ c is a set of integers.
+            for node in said.iter().flat_map(|n| n.walk()) {
+                let found =
+                    numbers_subset(&w, &node).or_else(|| numbers_joined(&w, &node));
+                if let Some((name, ty)) = found {
                     let free_letter = free.iter().any(|f| f.name == name);
                     if free_letter && !w.letters.contains_key(&name) {
                         w.letters.insert(name.clone(), ty.clone());
                         sets.push((name, ty));
                     }
                 }
+            }
+            // Any other set of numbers is of reals where the item compares
+            // numbers by order or integrates over reals, and of complex
+            // numbers where it does neither, as its number letters are
+            // (`free_letters`).
+            let ordered = said.iter().flat_map(|n| n.walk()).any(|n| {
+                n.notation() == crate::notations::ORDER
+                    || &*n.notation_name() == "integral"
+            });
+            let of_numbers = |s: &crate::formula::Sort| {
+                matches!(s.full(), Some(crate::formula::Whole::Set(m))
+                    if matches!(**m, crate::formula::Whole::Number))
+            };
+            // A set named only in a function's type, the X of `f : X → ℝ`,
+            // is one of them too.
+            let in_types = functions
+                .iter()
+                .flat_map(|n| n.children.iter().skip(1))
+                .filter(|s| s.is_name())
+                .map(|s| s.text.to_string());
+            let names: Vec<String> = free
+                .iter()
+                .map(|f| f.name.clone())
+                .chain(in_types)
+                .collect();
+            for name in names {
+                let sorted = sorts.and_then(|s| s.get(name.as_str()));
+                if w.letters.contains_key(&name) || !sorted.is_some_and(of_numbers) {
+                    continue;
+                }
+                let num = match ordered {
+                    true => Num::Real,
+                    false => Num::Complex,
+                };
+                let ty = LetterType::Set(super::expr::Members::Numbers(num));
+                w.letters.insert(name.clone(), ty.clone());
+                sets.push((name, ty));
             }
             let listed = |n: &Node| {
                 matches!(
@@ -923,11 +1020,14 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             }
             for (name, ty) in &sets {
                 w.letters.insert(name.clone(), ty.clone());
+                // A set of the item's general type's numbers is a `Set K`.
+                let general = matches!(ty, LetterType::Set(super::expr::Members::Numbers(n))
+                    if w.general == Some(*n));
                 statements.push(Binder::Letter {
                     name: super::names::letter(name),
                     page: name.clone(),
                     ty: ty.clone(),
-                    general: false,
+                    general,
                 });
             }
             // A map the item has, `f : D → E`, maps the one set into the
@@ -990,7 +1090,9 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     general: !letter.fixed && w.general == Some(letter.num),
                 });
             }
-            let mut binders: Vec<Binder> = match binders(&mut w, &asked) {
+            let domains: Vec<(&Node, &Node)> =
+                maps.iter().map(|(f, from, _)| (*f, *from)).collect();
+            let mut binders: Vec<Binder> = match binders(&mut w, &asked, &domains) {
                 Route::Built(b) => statements.into_iter().chain(b).collect(),
                 Route::Declined(d) => return Route::Declined(d),
             };

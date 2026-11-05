@@ -34,7 +34,9 @@ which is no whole number is no member of ℕ or ℤ. -/
 macro "parley_arith" : tactic =>
   `(tactic| first
     | (norm_num; done)
-    | (norm_num [LeanBridges.Counting.factorial, LeanBridges.Counting.choose, Nat.factorial]; done)
+    -- Factorials and binomial coefficients worked out, where the file's
+    -- modules tag them into `parley_unfold`.
+    | (norm_num [parley_unfold]; done)
     -- A sum or a product of integers over a range of numerals, which Lean
     -- works out term by term.
     | (decide; done)

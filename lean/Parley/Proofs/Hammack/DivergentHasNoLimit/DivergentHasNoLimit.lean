@@ -27,10 +27,12 @@ theorem divergent_has_no_limit (a : ℤ → ℝ) (hH2 : ∀ M : ℝ, ∃ N : ℕ
     have s3 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - L) < 1) := by first | exact (s2 (1 : ℝ) (by parley_side)) | exact ((s2 (1 : ℝ) (by parley_side))).symm | simpa using (s2 (1 : ℝ) (by parley_side)) | exact_mod_cast (s2 (1 : ℝ) (by parley_side)) | (have h := (s2 (1 : ℝ) (by parley_side)); parley_side)
     -- 4. obtain P from line 3
     obtain ⟨P, s4a, s4b⟩ := s3
+    try lift P to ℕ using le_of_lt s4a
     -- 5. instantiate M := L + 1 in H2
     have s5 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) > (N : ℝ) → a (n : ℤ) > L + 1) := by first | exact (hH2 (L + 1)) | exact ((hH2 (L + 1))).symm | simpa using (hH2 (L + 1)) | exact_mod_cast (hH2 (L + 1)) | (have h := (hH2 (L + 1)); parley_side)
     -- 6. obtain Q from line 5
     obtain ⟨Q, s6a, s6b⟩ := s5
+    try lift Q to ℕ using le_of_lt s6a
     -- 7. inequalities, from 6
     have s7 : (Q : ℝ) > 0 := by parley_order
     -- 8. inequalities

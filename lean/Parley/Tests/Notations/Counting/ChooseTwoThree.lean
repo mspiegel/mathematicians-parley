@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Counting
+public import FactorialTactics
 public import PowerTactics
 public import Tactics
 public import Parley.Items.Stdlib.Counting

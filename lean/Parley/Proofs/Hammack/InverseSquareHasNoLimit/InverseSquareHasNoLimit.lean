@@ -41,6 +41,7 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     have s6 : 2 / p > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)); parley_set_side)
     -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
     obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
+    try lift m to ℕ using le_of_lt s7a
     -- 8. inequalities
     have s8 : p > p / 2 := by parley_order
     -- 9. inequalities, from 7

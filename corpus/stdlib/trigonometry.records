@@ -68,13 +68,13 @@ mundane theorem cos-zero
 mundane theorem sin-zero
   then        sin(0) = 0
   metamath-proof sin0
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem cos-real
   let a ∈ ℝ                                                           (H1)
   then        cos(a) ∈ ℝ
   metamath-proof recoscl
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem cos-complex
   let a ∈ ℂ                                                           (H1)
@@ -124,13 +124,13 @@ mundane theorem sin-nonneg
   note        The sine is at least 0 over the upper half of the unit circle.
               With cos(a) = −sin(a − π/2) it gives the sign of the cosine
               on [π/2, 3π/2].
-  lean-proof  not yet implemented
+  lean-proof  Real.sin_nonneg_of_nonneg_of_le_pi h1.1 h1.2
 
 mundane theorem sin-positive
   let a ∈ (0, π)                                                      (H1)
   then        0 < sin(a)
   metamath-proof sinq12gt0
-  lean-proof  not yet implemented
+  lean-proof  Real.sin_pos_of_pos_of_lt_pi h1.1 h1.2
 
 mundane theorem cos-nonneg
   let a ∈ [−π/2, π/2]                                                 (H1)
@@ -138,13 +138,13 @@ mundane theorem cos-nonneg
   metamath-proof cosq14ge0
   note        The cosine is at least 0 over the right half of the unit
               circle.
-  lean-proof  not yet implemented
+  lean-proof  Real.cos_nonneg_of_mem_Icc h1
 
 mundane theorem cos-positive
   let a ∈ (−π/2, π/2)                                                 (H1)
   then        0 < cos(a)
   metamath-proof cosq14gt0
-  lean-proof  not yet implemented
+  lean-proof  Real.cos_pos_of_mem_Ioo h1
 
 mundane theorem sin-bounded
   let a ∈ ℝ                                                           (H1)
@@ -152,13 +152,13 @@ mundane theorem sin-bounded
   metamath-proof sinbnd
   note        A point of the unit circle is at most 1 from its centre in
               each direction.
-  lean-proof  not yet implemented
+  lean-proof  Real.neg_one_le_sin a ; Real.sin_le_one a
 
 mundane theorem cos-bounded
   let a ∈ ℝ                                                           (H1)
   then        −1 ≤ cos(a). cos(a) ≤ 1.
   metamath-proof cosbnd
-  lean-proof  not yet implemented
+  lean-proof  Real.neg_one_le_cos a ; Real.cos_le_one a
 
 mundane theorem cos-decreasing
   let a ∈ [0, π]                                                      (H1)
@@ -167,7 +167,7 @@ mundane theorem cos-decreasing
   metamath-proof cosord
   note        The cosine falls from 1 to −1 as its argument runs from 0 to π,
               so on that interval a larger argument has a smaller cosine.
-  lean-proof  not yet implemented
+  lean-proof  ⟨fun h => Real.cos_lt_cos_of_nonneg_of_le_pi h1.1 h2.2 h, fun h => by by_contra hle; push_neg at hle; have h' := Real.cos_le_cos_of_nonneg_of_le_pi h2.1 h1.2 hle; linarith⟩
 
 mundane theorem special-angles
   then        cos(90°) = 0. sin(90°) = 1. cos(60°) = 1/2. sin(30°) = 1/2.
@@ -207,18 +207,18 @@ mundane theorem pi-positive
   then        π > 0
   metamath-proof pipos
   note        A half turn is a positive number, as a proof scaling by π asks.
-  lean-proof  not yet implemented
+  lean-proof  by positivity
 
 mundane theorem arctan-values
   then        arctan(0) = 0. arctan(1) = π/4.
   metamath-proof atan0, atan1
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done) ; by (simp_all; done)
 
 mundane theorem arctan-real
   let x ∈ ℝ                                                           (H1)
   then        arctan(x) ∈ ℝ
   metamath-proof atanrecl
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 theorem continuous-arctan
   let D ⊆ ℝ                                                           (H1)
@@ -226,7 +226,7 @@ theorem continuous-arctan
   assume for all x ∈ D, g(x) = arctan(x)                              (H3)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfatanres
-  lean-proof  not yet implemented
+  lean-proof  Real.continuous_arctan.continuousOn.congr (fun x hx => h2 x hx)
 
 theorem derivative-arctan
   let D ⊆ ℝ                                                           (H1)
@@ -240,4 +240,4 @@ theorem derivative-arctan
   note        set.mm's dvatan is taken on the complex domain where arctan
               is differentiable, which holds ℝ (ressatans); the page asks
               it of a function on a set of reals, as derivative-square does.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (Real.differentiable_arctan x).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy)), Real.deriv_arctan]

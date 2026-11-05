@@ -15,6 +15,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
     (True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) ↔ (∃ m : ℚ, (m : ℂ) = A)) := by
   -- 1. obtain r, s: def:rational x := B
   obtain ⟨r, s, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_side)
+  try lift s to ℕ using le_of_lt s1a
   -- 2. both directions
   have s2 : True ∧ (∃ m : ℚ, (m : ℂ) = A + (B : ℂ)) ↔ (∃ m : ℚ, (m : ℂ) = A) := by
     constructor
@@ -22,6 +23,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
       intro hD1
       -- 2.1. obtain p, q: def:rational x := A + B, from D1
       obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℂ)))).mp (by parley_side)
+      try lift q to ℕ using le_of_lt s2_1a
       -- 2.2. calculation
       have s2_2 : A = ((p : ℂ) * (s : ℂ) - (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by
         calc A = (p : ℂ) / (q : ℂ) - (B : ℂ) := by linear_combination (norm := parley_field) s2_1b
@@ -36,6 +38,7 @@ theorem shift_by_rational (A : ℂ) (B : ℚ) :
       intro hD2
       -- 2.4. obtain p, q: def:rational x := A, from D2
       obtain ⟨p, q, s2_4a, s2_4b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+      try lift q to ℕ using le_of_lt s2_4a
       -- 2.5. membership, from D2
       -- 2.6. calculation
       have s2_6 : A + (B : ℂ) = ((p : ℂ) * (s : ℂ) + (r : ℂ) * (q : ℂ)) / ((q : ℂ) * (s : ℂ)) := by

@@ -6,6 +6,7 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
@@ -23,7 +24,7 @@ theorem powers_of_nine_in_powers_of_three :
   have s1 : ∀ t ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ), t ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by
     intro t hK1
     -- 1.1. obtain m: def:set-image u := t, from K1
-    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (9 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_set_side))).mp (by parley_set_side)
+    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (9 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
     -- 1.2. calculation
     have s1_2 : t = 3 ^ (2 * m) := by
       calc t = 9 ^ m := by parley_set_side
@@ -31,7 +32,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 1.3. exhibit, from 1.2
     have s1_3 : ∃ n : ℤ, t = 3 ^ n := ⟨2 * m, by parley_set_side⟩
     -- 1.4. def:set-image u := t, from 1.3
-    have s1_4 : t ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+    have s1_4 : t ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := t) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
     all_goals exact s1_4
   -- 2. def:subset, from 1
   have s2 : (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) ⊆ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Sets.def_subset (X := (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ)))).mpr (by parley_set_side); parley_set_side)
@@ -40,7 +41,7 @@ theorem powers_of_nine_in_powers_of_three :
     by_contra hc_hS1
     have hS1 : (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by parley_suppose hc_hS1
     -- 3.1. obtain m: def:set-image u := 3, from S1
-    obtain ⟨m, _, s3_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (9 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_set_side))).mp (by parley_set_side)
+    obtain ⟨m, _, s3_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (9 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
     -- 3.2. calculation
     have s3_2 : (3 ^ 1 : ℚ) = 3 ^ (2 * m) := by
       calc (3 ^ 1 : ℚ) = 3 := by norm_num
@@ -75,7 +76,7 @@ theorem powers_of_nine_in_powers_of_three :
     -- 4.2. exhibit, from 4.1
     have s4_2 : ∃ n : ℤ, (3 : ℚ) = 3 ^ n := ⟨(1 : ℤ), by parley_set_side⟩
     -- 4.3. def:set-image u := 3, from 4.2
-    have s4_3 : (3 : ℚ) ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+    have s4_3 : (3 : ℚ) ∈ (fun n : ℤ => (3 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (3 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := (3 : ℚ)) (Z := Set.univ) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
     -- 4.4. substitute {9^n : n ∈ ℤ} = {3^n : n ∈ ℤ} (S2) into line 4.3
     have s4_4 : (3 : ℚ) ∈ (fun n : ℤ => (9 ^ n : ℚ)) '' (Set.univ : Set ℤ) := by parley_subst_at hS2 s4_3
     all_goals parley_set_side

@@ -69,6 +69,10 @@ theorem mun_nat0_successor (k : ℕ) :
     0 < (k : ℤ) + 1 :=
   LeanBridges.Numbers.nat0_successor k
 
+theorem mun_nat_int (m : ℕ) (h1 : 0 < m) :
+    True :=
+  by (simp_all; done)
+
 theorem mun_int_real {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (m : ℤ) :
     True :=
   by simp_all
@@ -133,9 +137,17 @@ theorem mun_power_of_power {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a
     a ^ (m * n) = (a ^ m) ^ n :=
   pow_mul a m n
 
+theorem mun_power_of_power_integer {K : Type*} [Field K] [CharZero K] (a : K) (h2 : a ≠ 0) (m : ℤ) (n : ℤ) :
+    a ^ (m * n) = (a ^ m) ^ n :=
+  zpow_mul a m n
+
 theorem mun_power_of_product {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a : K) (b : K) (n : ℕ) :
     (a * b) ^ n = a ^ n * b ^ n :=
   mul_pow a b n
+
+theorem mun_power_of_product_integer {K : Type*} [Field K] [CharZero K] (a : K) (h2 : a ≠ 0) (b : K) (h4 : b ≠ 0) (n : ℤ) :
+    (a * b) ^ n = a ^ n * b ^ n :=
+  mul_zpow a b n
 
 theorem mun_power_cancel {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℤ) (n : ℤ) (h4 : 1 < a) :
     a ^ m = a ^ n ↔ m = n :=
@@ -144,6 +156,14 @@ theorem mun_power_cancel {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedR
 theorem mun_power_order {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (a : K) (m : ℤ) (n : ℤ) (h4 : 1 < a) :
     m < n ↔ a ^ m < a ^ n :=
   by simp_all
+
+theorem mun_minus_one_even_power (n : ℤ) :
+    ((-1) ^ (2 * n) : ℚ) = 1 :=
+  by rw [zpow_mul]; simp
+
+theorem mun_minus_one_odd_power (n : ℤ) (h2 : Odd n) :
+    ((-1) ^ n : ℚ) = -1 :=
+  h2.neg_one_zpow
 
 theorem mun_product_nonzero {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (x : K) (y : K) (h3 : x ≠ 0) (h4 : y ≠ 0) :
     x * y ≠ 0 :=
@@ -157,6 +177,14 @@ theorem mun_power_real {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a : K
     True :=
   trivial
 
+theorem mun_power_real_integer {K : Type*} [Field K] [CharZero K] (a : K) (h2 : a ≠ 0) (m : ℤ) :
+    True :=
+  by (simp_all; done)
+
+theorem mun_power_nat0 (a : ℕ) (m : ℕ) :
+    0 ≤ (a : ℤ) ^ m :=
+  by (simp_all; done)
+
 theorem mun_nat_minus_one (n : ℕ) (h1 : 0 < n) :
     0 ≤ (n : ℤ) - 1 :=
   LeanBridges.Numbers.nat_minus_one n h1
@@ -165,9 +193,29 @@ theorem mun_difference_nat0 (m : ℕ) (n : ℕ) (h3 : (m : ℤ) ≤ (n : ℤ)) :
     0 ≤ (n : ℤ) - (m : ℤ) :=
   by simp_all
 
+theorem mun_integer_sign (n : ℤ) :
+    0 ≤ n ∨ 0 ≤ -n :=
+  by omega
+
 theorem mun_power_nat (a : ℕ) (h1 : 0 < a) (m : ℕ) :
     0 < (a : ℤ) ^ m :=
   LeanBridges.Numbers.power_nat a h1 m
+
+theorem mun_real_power_complex (x : ℂ) (y : ℂ) :
+    True :=
+  by (simp_all; done)
+
+theorem mun_real_power_real (x : ℝ) (h2 : 0 ≤ x) (y : ℝ) :
+    True :=
+  by (simp_all; done)
+
+theorem mun_real_power_nonneg (x : ℝ) (h2 : 0 ≤ x) (y : ℝ) :
+    0 ≤ x ^ y :=
+  by positivity
+
+theorem mun_real_power_positive (x : ℝ) (h2 : 0 < x) (y : ℝ) :
+    0 < x ^ y :=
+  by positivity
 
 theorem axi_trichotomy {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     (x < 0 ∨ x = 0) ∨ 0 < x :=
@@ -201,6 +249,10 @@ theorem mun_abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder
     abs (x - c) < δ ↔ c - δ < x ∧ x < c + δ :=
   LeanBridges.Numbers.abs_difference_lt x c δ
 
+theorem mun_abs_difference_le {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (c : K) (δ : K) :
+    abs (x - c) ≤ δ ↔ c - δ ≤ x ∧ x ≤ c + δ :=
+  by rw [abs_le]; constructor <;> intro h <;> constructor <;> linarith [h.1, h.2]
+
 theorem mun_min_real (x : ℝ) (y : ℝ) :
     True :=
   trivial
@@ -228,6 +280,10 @@ theorem mun_le_max_1 (x : ℝ) (y : ℝ) :
 theorem mun_le_max_2 (x : ℝ) (y : ℝ) :
     y ≤ max x y :=
   le_max_right x y
+
+theorem mun_max_le (x : ℝ) (y : ℝ) (z : ℝ) :
+    max x y ≤ z ↔ x ≤ z ∧ y ≤ z :=
+  by (simp_all; done)
 
 theorem mun_quotient_real {K : Type*} [Field K] [CharZero K] (x : K) (y : K) (h3 : y ≠ 0) :
     True :=
@@ -293,6 +349,14 @@ theorem mun_zero_power (n : ℕ) (h1 : 0 < n) :
     (0 ^ n : ℤ) = 0 :=
   by aesop
 
+theorem mun_power_less {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (n : ℕ) (h3 : 0 < n) (h4 : 0 ≤ x) (h5 : x < y) :
+    x ^ n < y ^ n :=
+  pow_lt_pow_left₀ h5 h4 (by omega)
+
+theorem mun_quotients_compared {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (z : K) (w : K) (h5 : 0 ≤ x) (h6 : x ≤ z) (h7 : 0 < w) (h8 : w ≤ y) :
+    x / y ≤ z / w :=
+  div_le_div₀ (h5.trans h6) h6 h7 h8
+
 theorem mun_zero_product {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (x : K) (y : K) :
     x * y = 0 ↔ x = 0 ∨ y = 0 :=
   mul_eq_zero
@@ -308,6 +372,10 @@ theorem mun_quotient_positive {K : Type*} [Field K] [LinearOrder K] [IsStrictOrd
 theorem mun_less_scaled {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (c : K) (h4 : 0 < c) :
     x < y ↔ c * x < c * y :=
   LeanBridges.Numbers.less_scaled x y c h4
+
+theorem mun_abs_positive (x : ℂ) :
+    x ≠ 0 ↔ 0 < ‖x‖ :=
+  by (simp_all; done)
 
 theorem mun_nonzero_integer_abs (z : ℤ) (h2 : z ≠ 0) :
     1 ≤ abs z :=
@@ -353,6 +421,10 @@ theorem mun_cross_multiplied_order {K : Type*} [Field K] [LinearOrder K] [IsStri
     a * b < c * d ↔ a / d < c / b :=
   Iff.symm (div_lt_div_iff₀ h6 h3)
 
+theorem thm_bernoulli_inequality {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (n : ℕ) (h3 : -1 ≤ x) :
+    1 + x * (n : K) ≤ (1 + x) ^ n :=
+  by have h := one_add_mul_le_pow (by linarith : (-2 : K) ≤ x) n; linarith
+
 theorem thm_archimedean (x : ℝ) (h2 : 0 < x) :
     ∃ N : ℕ, 0 < N ∧ 1 / (N : ℝ) < x :=
   LeanBridges.Numbers.archimedean x h2
@@ -365,6 +437,10 @@ theorem mun_abs_product {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [I
     abs (x * y) = abs x * abs y :=
   abs_mul x y
 
+theorem mun_abs_quotient {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (y : K) (h3 : y ≠ 0) :
+    abs (x / y) = abs x / abs y :=
+  abs_div x y
+
 theorem mun_abs_negative {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) :
     abs (-x) = abs x :=
   abs_neg x
@@ -372,6 +448,18 @@ theorem mun_abs_negative {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [
 theorem mun_abs_integer (z : ℤ) :
     0 ≤ abs z :=
   abs_nonneg z
+
+theorem mun_lowest_terms_parts_1 (x : ℚ) :
+    True :=
+  trivial
+
+theorem mun_lowest_terms_parts_2 (x : ℚ) :
+    0 < (Rat.den x : ℤ) :=
+  by exact_mod_cast x.den_pos
+
+theorem mun_lowest_terms_parts_3 (x : ℚ) :
+    x = (Rat.num x : ℚ) / (Rat.den x : ℚ) :=
+  (Rat.num_div_den x).symm
 
 theorem mun_abs_zero :
     (abs 0 : ℤ) = 0 :=

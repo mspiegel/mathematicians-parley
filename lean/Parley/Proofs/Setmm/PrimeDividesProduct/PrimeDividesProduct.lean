@@ -6,6 +6,7 @@ public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
+public import Parley.Stdlib.Divisibility.CoprimeDivides
 
 /-! Written from proofs/setmm/prime-divides-product.proof by parley build lean. -/
 
@@ -39,7 +40,7 @@ theorem prime_divides_product (P : ℕ) (hH1 : 0 < P) (hH2 : Nat.Prime P) (M : �
           -- 2.2.3. substitute M·N = N·M (line 1) into D1
           have s2_2_3 : (P : ℤ) ∣ N * M := by parley_subst_at s1 hD1
           -- 2.2.4. thm:coprime-divides x := N, c := M, n := P, from 2.2.2, 2.2.3
-          have s2_2_4 : (P : ℤ) ∣ N := by first | exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+          have s2_2_4 : (P : ℤ) ∣ N := by first | exact (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := N) (c := M) (n := P) (by parley_side) (by parley_side) (by parley_side)); parley_side)
           -- 2.2.5. mun:or-right P := P divides M, Q := P divides N, from 2.2.4
           have s2_2_5 : (P : ℤ) ∣ M ∨ (P : ℤ) ∣ N := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (P : ℤ) ∣ M) (Q := (P : ℤ) ∣ N) s2_2_4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (P : ℤ) ∣ M) (Q := (P : ℤ) ∣ N) s2_2_4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (P : ℤ) ∣ M) (Q := (P : ℤ) ∣ N) s2_2_4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (P : ℤ) ∣ M) (Q := (P : ℤ) ∣ N) s2_2_4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (P : ℤ) ∣ M) (Q := (P : ℤ) ∣ N) s2_2_4); parley_side)
           all_goals parley_side

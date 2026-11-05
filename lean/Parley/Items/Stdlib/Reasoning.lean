@@ -44,8 +44,20 @@ theorem mun_modus_ponens (P : Prop) (Q : Prop) (h1 : P → Q) (h2 : P) :
     Q :=
   h1 h2
 
+theorem mun_iff_both_true (P : Prop) (Q : Prop) (h1 : P) (h2 : Q) :
+    P ↔ Q :=
+  by (simp_all; done)
+
+theorem mun_iff_both_false (P : Prop) (Q : Prop) (h1 : ¬ P) (h2 : ¬ Q) :
+    P ↔ Q :=
+  by (simp_all; done)
+
 theorem mun_iff_from_left (P : Prop) (Q : Prop) (h1 : P ↔ Q) (h2 : P) :
     Q :=
   h1.mp h2
+
+theorem mun_iff_from_right (P : Prop) (Q : Prop) (h1 : P ↔ Q) (h2 : Q) :
+    P :=
+  by (simp_all; done)
 
 end Parley.Items.Stdlib.Reasoning

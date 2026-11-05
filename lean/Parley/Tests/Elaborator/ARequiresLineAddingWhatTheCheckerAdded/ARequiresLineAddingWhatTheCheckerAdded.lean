@@ -18,6 +18,7 @@ theorem a_requires_line_adding_what_the_checker_added (p : ℝ) (hH2 : p > 0) (h
   have s1 : 2 / p > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_side) (by parley_side)); parley_side)
   -- 2. obtain m from H3
   obtain ⟨m, s2a, s2b⟩ := hH3
+  try lift m to ℕ using le_of_lt s2a
   -- 3. inequalities
   have r21_1 : p ≠ 0 := by parley_side
   have s3 : (m : ℝ) ≥ 2 / p := by parley_order

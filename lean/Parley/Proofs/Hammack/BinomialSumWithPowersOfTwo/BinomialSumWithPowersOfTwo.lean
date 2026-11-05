@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Counting
+public import FactorialTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
@@ -23,6 +24,7 @@ theorem binomial_sum_with_powers_of_two (n : ℕ) :
   -- 3. proof
   have s3 : ∀ k : ℤ, k ∈ Finset.Icc 0 (n : ℤ) → (LeanBridges.Counting.choose (n : ℤ) k : ℚ) * 1 ^ ((n : ℤ) - k) * 2 ^ k = 2 ^ k * (LeanBridges.Counting.choose (n : ℤ) k : ℚ) := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 3.1. mun:one-power m := n − k
     have s3_1 : (1 ^ ((n : ℤ) - k) : ℚ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k))).symm | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.mun_one_power (m := (n : ℤ) - k)); parley_side)

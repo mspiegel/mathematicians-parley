@@ -23,7 +23,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n �
     induction k, h_k using Nat.le_induction with
     | base =>
       -- 1.1. arithmetic
-      have s1_1 : (1 : ℤ) ≤ 2 ^ 1 := by parley_arith
+      have s1_1 : (1 : ℝ) ≤ 2 ^ 1 := by parley_arith
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.2. mun:exponent-step a := 2, m := k
@@ -43,6 +43,7 @@ theorem one_minus_half_power_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n �
     intro hA1
     -- 2.1. obtain N: thm:archimedean x := ε, from A1
     obtain ⟨N, s2_1a, s2_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε) (by parley_side))
+    try lift N to ℕ using le_of_lt s2_1a
     -- 2.2. proof
     have s2_2 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - 1) < ε := by
       intro n hK2

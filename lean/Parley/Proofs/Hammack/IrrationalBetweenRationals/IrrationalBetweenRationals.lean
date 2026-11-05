@@ -70,10 +70,13 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have hS : ∃ m : ℚ, (m : ℝ) = u := by parley_suppose hc_hS
     -- 17.1. obtain a, b: def:rational x := u, from S
     obtain ⟨a, b, s17_1a, s17_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := u))).mp (by parley_side)
+    try lift b to ℕ using le_of_lt s17_1a
     -- 17.2. obtain p, q: def:rational x := r
     obtain ⟨p, q, s17_2a, s17_2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := r))).mp (by parley_side)
+    try lift q to ℕ using le_of_lt s17_2a
     -- 17.3. obtain c, d: def:rational x := s
     obtain ⟨c, d, s17_3a, s17_3b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := s))).mp (by parley_side)
+    try lift d to ℕ using le_of_lt s17_3a
     -- 17.4. substitute s = c/d (line 17.3)
     have s17_4 : s - r = (c : ℚ) / (d : ℚ) - r := by parley_subst s17_3b
     -- 17.5. substitute r = p/q (line 17.2)

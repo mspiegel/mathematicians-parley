@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import ArithTactics
 public import Counting
+public import FactorialTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
@@ -12,6 +13,7 @@ public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Hammack.WeightedBinomialSum.WeightedTerm
+public import Parley.Stdlib.Divisibility.CoprimeDivides
 
 /-! Written from proofs/hammack/prime-divides-binomial.proof by parley build lean. -/
 
@@ -69,7 +71,7 @@ theorem prime_divides_binomial (p : ℕ) (hH1 : 0 < p) (k : ℤ) (hH3 : Nat.Prim
     have row1 : (Int.gcd (k : ℤ) (p : ℤ) : ℤ) = 1 := by parley_subst_at c1 s14
     exact row1
   -- 16. thm:coprime-divides x := C(p, k), c := k, n := p, from 12, 15
-  have s16 : (p : ℤ) ∣ (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+  have s16 : (p : ℤ) ∣ (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ) := by first | exact (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := (LeanBridges.Counting.choose (p : ℤ) (k : ℤ) : ℤ)) (c := (k : ℤ)) (n := p) (by parley_side) (by parley_side) (by parley_side)); parley_side)
   all_goals exact s16
 
 end Parley.Proofs.Hammack.PrimeDividesBinomial.PrimeDividesBinomial

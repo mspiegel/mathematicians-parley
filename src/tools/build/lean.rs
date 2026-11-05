@@ -86,8 +86,9 @@ const SET_TACTICS: &str = "SetTactics";
 /// Each tactic outside `Tactics` and `SetTactics`, and the module that
 /// holds it, which a file naming the tactic imports. Every file importing a
 /// module is rebuilt when it changes, so a family most files do not call is
-/// a module of its own. `parley_subst` names `parley_subst_at` too, which is
-/// in the same module.
+/// a module of its own; the layout, and where a new tactic or case goes, is
+/// set out at the head of `corpus/lean-bridges/Tactics.lean`.
+/// `parley_subst` names `parley_subst_at` too, which is in the same module.
 const TACTIC_MODULES: &[(&str, &str)] = &[
     ("parley_clear", "AlgebraTactics"),
     ("parley_ring", "AlgebraTactics"),
@@ -101,6 +102,16 @@ const TACTIC_MODULES: &[(&str, &str)] = &[
     ("parley_arith", "ArithTactics"),
     ("parley_suppose", "ArithTactics"),
     ("parley_real", "RealTactics"),
+    ("parley_whole_side", "WholeTactics"),
+];
+
+/// Modules that tag definitions into the tactics' simp set `parley_unfold`,
+/// by what a file's Lean text writes that they apply to: a file that writes
+/// a factorial or a binomial coefficient imports the module that tags them
+/// (`FactorialTactics`), and no other file does.
+const RULE_MODULES: &[(&str, &str)] = &[
+    ("LeanBridges.Counting.factorial", "FactorialTactics"),
+    ("LeanBridges.Counting.choose", "FactorialTactics"),
 ];
 
 /// The tactic a step leaves its side conditions to, and the one a proof
@@ -123,8 +134,8 @@ fn uses_sets(text: &str) -> bool {
 fn library_imports(text: &str) -> BTreeSet<String> {
     let prefix = format!("{LIBRARY}.");
     let mut out = BTreeSet::from([TACTICS.to_string()]);
-    for (tactic, module) in TACTIC_MODULES {
-        if text.contains(tactic) {
+    for (written, module) in TACTIC_MODULES.iter().chain(RULE_MODULES) {
+        if text.contains(written) {
             out.insert(module.to_string());
         }
     }
@@ -185,6 +196,14 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
                 }
                 items.insert(full, it);
             }
+            // A phrase's definition is made from its define, its proof
+            // `Iff.rfl` wherever the meaning can be stated: one that cannot
+            // is left out, and what cites it with it (`coverage`). Any
+            // other record that gives a Lean proof claims its statement is
+            // one the build writes.
+            Route::Declined(d) if record.phrase.is_some() => {
+                made.left_out.insert(full, d.reason());
+            }
             Route::Declined(d) => {
                 made.gaps.insert(full, d.reason());
             }
@@ -205,7 +224,8 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
 
     // The theorems the build covers, first as items a citation names. A
     // record the Lean build proves by a Parley proof is cited as that proof.
-    let covered = coverage(checked, &templates);
+    let stated: BTreeSet<String> = items.keys().cloned().collect();
+    let covered = coverage(checked, &templates, &stated);
     let mut proves: IndexMap<&str, Vec<String>> = IndexMap::new();
     for record in &checked.corpus.records {
         let proof = record

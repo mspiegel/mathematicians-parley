@@ -42,7 +42,7 @@ mundane theorem factorial-product
   then        n! = ∏(k = 1 to n) k
   metamath-proof fprodfac
   note        n! is 1·2·…·n, and 0! the empty product.
-  lean-proof  not yet implemented
+  lean-proof  by induction n with | zero => simp | succ k ih => (rw [(show ((k + 1 : ℕ) : ℤ) = (k : ℤ) + 1 by push_cast; ring), LeanBridges.Counting.factorial_3, ih, (show Finset.Icc (1 : ℤ) ((k : ℤ) + 1) = insert ((k : ℤ) + 1) (Finset.Icc 1 (k : ℤ)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.prod_insert (by simp), mul_comm])
 
 mundane theorem factorial-at-most
   let m ∈ ℕ₀                                                          (H1)
@@ -108,7 +108,7 @@ mundane theorem card-bijection
   assume there is a bijection from X to Y                             (H5)
   then        |Y| = m
   metamath-proof hashen with A := X, B := Y
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
 mundane theorem card-disjoint-union
   let X be a set                                                      (H1)
@@ -282,7 +282,7 @@ mundane theorem parts-finite
   metamath-proof metamath-bridges/sets/gpartsfin
   note        A finite set has finitely many parts, so any set of its parts
               is finite.
-  lean-proof  not yet implemented
+  lean-proof  (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
 
 mundane theorem card-equal
   assume X is finite                                                  (H1)
@@ -291,7 +291,7 @@ mundane theorem card-equal
   metamath-proof metamath-bridges/sets/gcardeq
   note        Y is finite because X is, and two finite sets paired off one
               to one have the same number of elements.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image, h1.cast_ncard_eq]
 
 mundane theorem partition-count
   let A be a set                                                      (H1)
@@ -439,7 +439,7 @@ mundane theorem range-size
   let n ∈ ℕ₀                                                          (H1)
   then        |{1, …, n}| = n
   metamath-proof hashfz1
-  lean-proof  not yet implemented
+  lean-proof  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; simp
 
 mundane theorem card-add-one
   assume X is finite                                                  (H1)
@@ -467,7 +467,7 @@ theorem pigeonhole
   note        A function that sends no two points of X to one place needs
               as many places as X has points: put more than |Y| things into
               Y and two of them share a place.
-  lean-proof  not yet implemented
+  lean-proof  by rw [← h1.2.encard_image]; exact Set.encard_le_encard (h1.1.image_subset)
 
 theorem count-functions
   let X be a set                                                     (H1)

@@ -18,6 +18,7 @@ theorem quadratic_over_linear_diverges (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 <
     intro M
     -- 1.1. obtain N: thm:archimedean-natural x := 3M
     obtain ⟨N, s1_1a, s1_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 3 * M))
+    try lift N to ℕ using le_of_lt s1_1a
     -- 1.2. proof
     have s1_2 : ∀ n : ℕ, 0 < n → (n : ℝ) > (N : ℝ) → a (n : ℤ) > M := by
       intro n hK2

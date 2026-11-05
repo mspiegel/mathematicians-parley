@@ -29,8 +29,10 @@ theorem sum_of_limits (a : ℤ → ℝ) (b : ℤ → ℝ) (L : ℝ) (M : ℝ) (h
     have s1_5 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (b (n : ℤ) - M) < ε / 2) := by first | exact (s1_3 (ε / 2) (by parley_side)) | exact ((s1_3 (ε / 2) (by parley_side))).symm | simpa using (s1_3 (ε / 2) (by parley_side)) | exact_mod_cast (s1_3 (ε / 2) (by parley_side)) | (have h := (s1_3 (ε / 2) (by parley_side)); parley_side)
     -- 1.6. obtain P from line 1.4
     obtain ⟨P, s1_6a, s1_6b⟩ := s1_4
+    try lift P to ℕ using le_of_lt s1_6a
     -- 1.7. obtain Q from line 1.5
     obtain ⟨Q, s1_7a, s1_7b⟩ := s1_5
+    try lift Q to ℕ using le_of_lt s1_7a
     -- 1.8. inequalities, from 1.7
     have s1_8 : (Q : ℝ) > 0 := by parley_order
     -- 1.9. inequalities

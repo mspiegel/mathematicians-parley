@@ -4,6 +4,7 @@ public import OrderTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -53,7 +54,7 @@ theorem a_line_tends_to_its_value (g : ℝ → ℝ) (hH2 : ∀ x : ℝ, g x = 2 
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 1, L := 3, from 1
   have r82_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
-  have s2 : Filter.Tendsto g (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_set_side) (c := (1 : ℝ)) (L := (3 : ℝ)) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_set_side) (c := (1 : ℝ)) (L := (3 : ℝ)) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Filter.Tendsto g (nhdsWithin 1 ((Set.univ : Set ℝ) \ {1})) (nhds 3) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (3 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := g) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (1 : ℝ)) (L := (3 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Tests.Notations.Calculus.ALineTendsToItsValue

@@ -1,0 +1,21 @@
+module
+
+public import ArithTactics
+public import Tactics
+public import Parley.Items.Stdlib.Numbers
+
+/-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.QuotientsComparedAtAPoint
+
+theorem quotients_compared_at_a_point (x : ℝ) (hH2 : 0 ≤ x) (hH3 : x ≤ 1) :
+    x / 4 ≤ 1 / 2 := by
+  -- 1. mun:quotients-compared y := 4, z := 1, w := 2, from H2, H3
+  have r68_1 : (0 : ℤ) < 2 := by parley_arith
+  have r68_2 : (2 : ℤ) ≤ 4 := by parley_arith
+  have s1 : x / 4 ≤ 1 / 2 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x) (y := (4 : ℝ)) (z := (1 : ℝ)) (w := (2 : ℝ)) (by parley_side) (by parley_side) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x) (y := (4 : ℝ)) (z := (1 : ℝ)) (w := (2 : ℝ)) (by parley_side) (by parley_side) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x) (y := (4 : ℝ)) (z := (1 : ℝ)) (w := (2 : ℝ)) (by parley_side) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotients_compared (x := x) (y := (4 : ℝ)) (z := (1 : ℝ)) (w := (2 : ℝ)) (by parley_side) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+  all_goals exact s1
+
+end Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.QuotientsComparedAtAPoint

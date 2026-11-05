@@ -89,7 +89,7 @@ mundane theorem odd-not-divisible
   metamath-proof simpr
   note        "not (2 divides n)" is the second part of what "n is odd"
               says, as for "n is not even".
-  lean-proof  not yet implemented
+  lean-proof  by rw [Int.two_dvd_ne_zero]; exact Int.odd_iff.1 h2
 
 mundane theorem odd-plus-odd
   let a ∈ ℤ                                                           (H1)
@@ -100,7 +100,7 @@ mundane theorem odd-plus-odd
   metamath-proof opoe
   note        `proofs/setmm/parity.proof` proves it as its own exercise
               (DATABASE.md).
-  lean-proof  not yet implemented
+  lean-proof  Odd.add_odd h2 h4
 
 mundane theorem odd-minus-odd
   let a ∈ ℤ                                                           (H1)
@@ -111,7 +111,7 @@ mundane theorem odd-minus-odd
   metamath-proof omoe
   note        `proofs/setmm/parity.proof` proves it as its own exercise
               (DATABASE.md).
-  lean-proof  not yet implemented
+  lean-proof  Odd.sub_odd h2 h4
 
 mundane theorem odd-plus-even
   let a ∈ ℤ                                                           (H1)
@@ -122,7 +122,7 @@ mundane theorem odd-plus-even
   metamath-proof metamath-bridges/parity/gopeo
   note        opeo concludes not 2 ∥ (a + b); gopeo joins a + b ∈ ℤ, which
               "is odd" says too.
-  lean-proof  not yet implemented
+  lean-proof  Odd.add_even h2 h4
 
 mundane theorem odd-minus-even
   let a ∈ ℤ                                                           (H1)
@@ -133,7 +133,7 @@ mundane theorem odd-minus-even
   metamath-proof metamath-bridges/parity/gomeo
   note        omeo concludes not 2 ∥ (a − b); gomeo joins a − b ∈ ℤ, which
               "is odd" says too.
-  lean-proof  not yet implemented
+  lean-proof  Odd.sub_even h2 h4
 
 mundane theorem even-product
   let a ∈ ℤ                                                           (H1)
@@ -257,7 +257,7 @@ mundane theorem lcm-times-gcd
   let b ∈ ℤ                                                           (H2)
   then        lcm(a, b)·gcd(a, b) = |a·b|
   metamath-proof lcmgcd
-  lean-proof  not yet implemented
+  lean-proof  by rw [abs_mul, Int.abs_eq_natAbs, Int.abs_eq_natAbs, mul_comm]; exact_mod_cast Int.gcd_mul_lcm a b
 
 theorem prime-factor
   let m ∈ ℕ                                                           (H1)
@@ -325,7 +325,7 @@ mundane theorem below-not-divisible
   then        not (n divides x)
   metamath-proof metamath-bridges/divisors/gnndvdslt with N := n, K := x
   note        A natural number below n is too small for n to divide it.
-  lean-proof  not yet implemented
+  lean-proof  by intro h; have := Int.le_of_dvd (by omega) h; omega
 
 definition congruent-mod
   let n ∈ ℤ                                                           (H1)
@@ -375,7 +375,7 @@ mundane theorem gcd-natural
   assume not (a = 0 and b = 0)                                        (H3)
   then        gcd(a, b) ∈ ℕ
   metamath-proof gcdn0cl
-  lean-proof  not yet implemented
+  lean-proof  by have h0 : Int.gcd a b ≠ 0 := (by intro h0; rw [Int.gcd_eq_zero_iff] at h0; exact h3 h0); omega
 
 mundane theorem gcd-scaled
   let c ∈ ℕ₀                                                          (H1)
@@ -383,7 +383,7 @@ mundane theorem gcd-scaled
   let b ∈ ℤ                                                           (H3)
   then        gcd(c·a, c·b) = c·gcd(a, b)
   metamath-proof mulgcd
-  lean-proof  not yet implemented
+  lean-proof  by rw [Int.gcd_mul_left]; simp
 
 mundane theorem gcd-scaled-integer
   let c ∈ ℤ                                                           (H1)
@@ -392,14 +392,14 @@ mundane theorem gcd-scaled-integer
   then        gcd(c·a, c·b) = |c·gcd(a, b)|
   metamath-proof absmulgcd
   note        gcd-scaled for a factor of either sign.
-  lean-proof  not yet implemented
+  lean-proof  by rw [Int.gcd_mul_left, abs_mul]; simp
 
 mundane theorem gcd-negative
   let a ∈ ℤ                                                           (H1)
   let b ∈ ℤ                                                           (H2)
   then        gcd(−a, b) = gcd(a, b)
   metamath-proof neggcd
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem gcd-commutes
   let a ∈ ℤ                                                           (H1)
@@ -472,7 +472,7 @@ mundane theorem mod-real
   metamath-proof metamath-bridges/numbers/gmodcl
   note        A remainder is a number: mod-natural says so of whole numbers,
               this of reals.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem mod-value
   let a ∈ ℝ                                                           (H1)
@@ -494,7 +494,7 @@ mundane theorem mod-below
   then        a mod b = a
   metamath-proof metamath-bridges/numbers/gmodid
   note        A number already below the divisor is its own remainder.
-  lean-proof  not yet implemented
+  lean-proof  by unfold LeanBridges.Divisibility.mod; have hb : 0 < b := (by linarith); have h0 : ⌊a / b⌋ = 0 := Int.floor_eq_zero_iff.2 ⟨div_nonneg h3 hb.le, (div_lt_one hb).2 h4⟩; rw [h0]; simp
 
 mundane theorem zero-divides
   let n ∈ ℤ                                                           (H1)
@@ -551,7 +551,7 @@ definition perfect
               same thing the other way. A proof names it: "so n is perfect,
               by definition".
   metamath-proof none
-  lean-proof  not yet implemented
+  lean-proof  by omega
 
 theorem sigma-multiplicative
   let m ∈ ℕ                                                           (H1)
@@ -559,14 +559,14 @@ theorem sigma-multiplicative
   assume gcd(m, n) = 1                                                (H3)
   then        σ(m·n) = σ(m)·σ(n)
   metamath-proof sgmmul with A := 1
-  lean-proof  not yet implemented
+  lean-proof  by have hc : Nat.Coprime m n := (by have h := h3; rw [Int.gcd_natCast_natCast] at h; exact_mod_cast h); exact_mod_cast ArithmeticFunction.isMultiplicative_sigma.map_mul_of_coprime hc
 
 theorem sigma-prime
   let p ∈ ℕ                                                           (H1)
   assume p is prime                                                   (H2)
   then        σ(p) = p + 1
   metamath-proof 1sgmprm
-  lean-proof  not yet implemented
+  lean-proof  by have h := ArithmeticFunction.sigma_one_apply_prime_pow h2 (i := 1); rw [pow_one] at h; rw [h]; push_cast [Finset.sum_range_succ]; ring
 
 theorem sigma-prime-power
   let p ∈ ℕ                                                           (H1)
@@ -582,7 +582,7 @@ mundane theorem sigma-nat
   let n ∈ ℕ                                                           (H1)
   then        σ(n) ∈ ℕ
   metamath-proof sgmnncl with A := 1
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem sigma-part
   let n ∈ ℕ                                                           (H1)
@@ -609,7 +609,7 @@ mundane theorem coprime-power
   metamath-proof rpexp1i
   note        A number sharing no factor with b shares none with b in any
               of its powers.
-  lean-proof  not yet implemented
+  lean-proof  by have h : IsCoprime a b := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h.pow_left (m := k))
 
 definition φ
   sort        number → number
@@ -625,7 +625,7 @@ mundane theorem phi-natural
   let n ∈ ℕ                                                           (H1)
   then        φ(n) ∈ ℕ
   metamath-proof phicl
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 theorem phi-prime
   let p ∈ ℕ                                                           (H1)
@@ -634,7 +634,7 @@ theorem phi-prime
   metamath-proof phiprm
   note        Below a prime p, only 0 shares a factor with p, so p − 1 of
               the p remainders are counted.
-  lean-proof  not yet implemented
+  lean-proof  by rw [Nat.totient_prime h2]; push_cast [Nat.cast_sub h2.one_le]; ring
 
 mundane theorem coprime-product
   let x ∈ ℤ                                                           (H1)
@@ -644,7 +644,7 @@ mundane theorem coprime-product
   assume gcd(y, n) = 1                                                (H5)
   then        gcd(x·y, n) = 1
   metamath-proof metamath-bridges/totient/grpmul
-  lean-proof  not yet implemented
+  lean-proof  by have h4' : IsCoprime x (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); have h5' : IsCoprime y (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h5); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h4'.mul_left h5')
 
 mundane theorem congruent-in-range
   let n ∈ ℕ                                                           (H1)
@@ -653,7 +653,7 @@ mundane theorem congruent-in-range
   assume x ≡ y (mod n)                                                (H4)
   then        x = y
   metamath-proof metamath-bridges/totient/gfzocong0
-  lean-proof  not yet implemented
+  lean-proof  by simp only [Finset.mem_Icc] at h2 h3; have h := Int.ModEq.eq h4; rw [Int.emod_eq_of_lt h2.1 (by omega), Int.emod_eq_of_lt h3.1 (by omega)] at h; exact h
 
 mundane theorem mod-congruent
   let x ∈ ℤ                                                           (H1)
@@ -734,7 +734,7 @@ theorem bezout
   let b ∈ ℕ                                                           (H2)
   then        there exist x, y ∈ ℤ such that a·x + b·y = gcd(a, b)
   metamath-proof stdlib/divisibility/bezout
-  lean-proof  not yet implemented
+  lean-proof  ⟨Int.gcdA a b, Int.gcdB a b, (Int.gcd_eq_gcd_ab a b).symm⟩
 
 theorem coprime-divides
   let x ∈ ℤ                                                           (H1)
@@ -755,7 +755,7 @@ theorem congruent-cancel
   assume gcd(c, n) = 1                                                (H6)
   then        x ≡ y (mod n)
   metamath-proof stdlib/divisibility/congruent-cancel
-  lean-proof  not yet implemented
+  lean-proof  by have h := Int.ModEq.cancel_right_div_gcd (by exact_mod_cast h4 : (0 : ℤ) < n) h5; have hg : Int.gcd (n : ℤ) c = 1 := (by rw [Int.gcd_comm]; exact_mod_cast h6); rw [hg] at h; simpa using h
 
 mundane theorem coprime-square-part
   let s ∈ ℕ                                                           (H1)
@@ -788,7 +788,7 @@ mundane theorem prime-power-not-less
   assume p^a·m = p^a′·m′                                              (H8)
   then        not (a < a′)
   metamath-proof stdlib/divisibility/prime-power-not-less
-  lean-proof  not yet implemented
+  lean-proof  by intro hlt; have hp : Prime (p : ℤ) := Nat.prime_iff_prime_int.1 h2; have hle : a + 1 ≤ a' := (by omega); have hdvd : (p : ℤ) ^ (a + 1) ∣ (p : ℤ) ^ a * m := (h8 ▸ Dvd.dvd.mul_right (pow_dvd_pow _ hle) _); rw [pow_succ] at hdvd; have hpm : (p : ℤ) ∣ m := (mul_dvd_mul_iff_left (pow_ne_zero a hp.ne_zero)).1 hdvd; have hc : IsCoprime m (p : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h7); exact hp.not_unit (hc.isUnit_of_dvd' hpm (dvd_refl _))
 
 mundane theorem prime-power-unique
   let p ∈ ℕ                                                           (H1)
@@ -802,7 +802,7 @@ mundane theorem prime-power-unique
   assume p^a·m = p^a′·m′                                              (H9)
   then        a = a′
   metamath-proof stdlib/divisibility/prime-power-unique
-  lean-proof  not yet implemented
+  lean-proof  by by_contra hne; have hne' : a ≠ a' := (by intro e; exact hne (by rw [e])); rcases Nat.lt_or_gt_of_ne hne' with h | h; exacts [mun_prime_power_not_less p h1 h2 a a' m m' h7 h9 (by exact_mod_cast h), mun_prime_power_not_less p h1 h2 a' a m' m h8 h9.symm (by exact_mod_cast h)]
 
 theorem prime-powers-unique
   let a ∈ ℕ₀                                                          (H1)
@@ -823,7 +823,7 @@ theorem product-coprime
   assume for all y ∈ X, gcd(y, n) = 1                                 (H4)
   then        gcd(∏(x ∈ X) x, n) = 1
   metamath-proof stdlib/divisibility/product-coprime
-  lean-proof  not yet implemented
+  lean-proof  by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h
 
 theorem product-congruent-termwise
   let X be a set                                                      (H1)
@@ -845,4 +845,4 @@ theorem product-congruent
   assume for all y ∈ X, y·c ≡ f(y) (mod n)                            (H6)
   then        ∏(x ∈ X) x·c ≡ ∏(x ∈ X) f(x) (mod n)
   metamath-proof stdlib/divisibility/product-congruent
-  lean-proof  not yet implemented
+  lean-proof  by rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, ← ZMod.intCast_eq_intCast_iff]; push_cast; exact Finset.prod_congr rfl (fun y hy => (by have h := (ZMod.intCast_eq_intCast_iff _ _ _).2 (h5 y (h2.mem_toFinset.1 hy)); push_cast at h; exact h))

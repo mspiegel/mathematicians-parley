@@ -36,6 +36,7 @@ theorem constant_multiple_limit (a : ℤ → ℝ) (c : ℝ) (L : ℝ) (hH4 : Fil
     have s4_4 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - L) < ε / (abs c + 1)) := by first | exact (s4_3 (ε / (abs c + 1)) (by parley_side)) | exact ((s4_3 (ε / (abs c + 1)) (by parley_side))).symm | simpa using (s4_3 (ε / (abs c + 1)) (by parley_side)) | exact_mod_cast (s4_3 (ε / (abs c + 1)) (by parley_side)) | (have h := (s4_3 (ε / (abs c + 1)) (by parley_side)); parley_side)
     -- 4.5. obtain N from line 4.4
     obtain ⟨N, s4_5a, s4_5b⟩ := s4_4
+    try lift N to ℕ using le_of_lt s4_5a
     -- 4.6. proof
     have s4_6 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (c * a (n : ℤ) - c * L) < ε := by
       intro n hK2

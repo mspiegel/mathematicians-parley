@@ -3,6 +3,7 @@ module
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/hammack/powers-of-two-onto.proof by parley build lean. -/
@@ -17,7 +18,7 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
   have s1 : ∀ y ∈ (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ), ∃ x : ℤ, y = f x := by
     intro y hK1
     -- 1.1. obtain m: def:set-image u := y, from K1
-    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (2 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_set_side))).mp (by parley_set_side)
+    obtain ⟨m, _, s1_1⟩ := ((Parley.Items.Stdlib.Functions.def_set_image (E := (fun n : ℤ => (2 ^ n : ℚ))) (Y := (Set.univ : Set ℤ)) (u := y) (Z := Set.univ) (by parley_whole_side))).mp (by parley_set_side)
     -- 1.2. calculation
     have s1_2 : y = f m := by
       calc y = 2 ^ m := by parley_set_side
@@ -26,7 +27,7 @@ theorem powers_of_two_onto (f : ℤ → ℚ) (hH1 : Set.MapsTo f (Set.univ : Set
     have s1_3 : ∃ x : ℤ, y = f x := ⟨m, by parley_set_side⟩
     all_goals exact s1_3
   -- 2. def:onto, from H1, 1
-  have s2 : Set.MapsTo f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) ∧ Set.SurjOn f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Set.MapsTo f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) ∧ Set.SurjOn f (Set.univ : Set ℤ) ((fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℤ)) (Y := (fun n : ℤ => (2 ^ n : ℚ)) '' (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Proofs.Hammack.PowersOfTwoOnto.PowersOfTwoOnto

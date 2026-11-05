@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
@@ -37,6 +38,7 @@ theorem weighted_sum_is_a_binomial (n : ℕ) (hH1 : 0 < n) :
       -- 1.2. proof
       have s1_2 : ∀ i : ℤ, i ∈ Finset.Icc 1 ((j : ℤ) + 1) → i * ((j : ℤ) + 1 - i + 1) = i * ((j : ℤ) - i + 1) + i := by
         intro i hL
+        try push_cast at hL
         try have hL_bounds := Finset.mem_Icc.mp hL
         -- 1.2.1. algebra
         have s1_2_1 : i * ((j : ℤ) + 1 - i + 1) = i * ((j : ℤ) - i + 1) + i := by parley_ring

@@ -37,7 +37,7 @@ definition open-interval
   note        As `interval` says what is in [a, b], with the bounds strict.
               set.mm's `elioo2` takes the ends in the extended reals, and
               `gelioo2` says it of the real ends the page writes.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem interval-real
   let a ∈ ℝ                                                           (H1)
@@ -51,14 +51,14 @@ mundane theorem open-interval-real
   let b ∈ ℝ                                                           (H2)
   then        (a, b) ⊆ ℝ
   metamath-proof ioossre
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem open-within-closed
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) ⊆ [a, b]
   metamath-proof ioossicc
-  lean-proof  not yet implemented
+  lean-proof  Set.Ioo_subset_Icc_self
 
 mundane theorem closed-within-open
   let a ∈ ℝ                                                           (H1)
@@ -70,14 +70,14 @@ mundane theorem closed-within-open
   note        The closed interval between two points of (a, b) lies in it, as
               the mean value theorem asks of an interval inside a function's
               open domain.
-  lean-proof  not yet implemented
+  lean-proof  Set.Icc_subset_Ioo h3.1 h4.2
 
 mundane theorem open-interval-open
   let a ∈ ℝ                                                           (H1)
   let b ∈ ℝ                                                           (H2)
   then        (a, b) is open
   metamath-proof iooretop
-  lean-proof  not yet implemented
+  lean-proof  isOpen_Ioo
 
 mundane theorem open-without-point
   let U ⊆ ℝ                                                           (H1)
@@ -88,12 +88,12 @@ mundane theorem open-without-point
   note        A point is a closed set, the interval [c, c], and an open set
               with a closed one taken out is open: (a, b) ∖ {c} is open, as a
               derivative there asks.
-  lean-proof  not yet implemented
+  lean-proof  h2.sdiff isClosed_singleton
 
 mundane theorem reals-open
   then        ℝ is open
   metamath-proof reopn
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 definition continuous-on
   let D ⊆ ℝ                                                           (H1)
@@ -172,7 +172,7 @@ axiom completeness
               is above it, and that it is at most anything nothing in S is
               above. The `with` names what the claim binds, so it is the
               witness rather than what a lemma's variable stands for.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨s, hs, -⟩ := h2; obtain ⟨u, hu⟩ := h3; exact ⟨sSup S, fun x hx => le_csSup ⟨u, fun y hy => hu y hy⟩ hx, fun v hv => csSup_le ⟨s, hs⟩ (fun y hy => hv y hy)⟩
 
 mundane theorem integer-sup-member
   let S ⊆ ℤ                                                           (H1)
@@ -207,7 +207,7 @@ theorem rolle
   metamath-proof metamath-bridges/calculus/grolleres
   note        rolle asks that f′ be defined on exactly (a, b); the page says
               on (a, b), and for f on [a, b] the two agree (gdvdmicc).
-  lean-proof  not yet implemented
+  lean-proof  exists_deriv_eq_zero h3 h4 h6
 
 theorem rolle-on-part
   let D ⊆ ℝ                                                           (H1)
@@ -224,7 +224,7 @@ theorem rolle-on-part
   note        Rolle's theorem for a function on a larger set D: f restricted
               to [a, b] has f′ for its derivative on (a, b), the interior of
               [a, b] (dvres, iccntr), and f's values at the ends.
-  lean-proof  not yet implemented
+  lean-proof  exists_deriv_eq_zero h4 h6 h8
 
 mundane theorem derivative-real
   let a ∈ ℝ                                                           (H1)
@@ -237,7 +237,7 @@ mundane theorem derivative-real
   note        A and B are only in the hypotheses of `gdvre`, so the `with`
               says which they are rather than leaving them to the first
               real numbers the step's facts hold.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem derivative-real-on
   let D ⊆ ℝ                                                           (H1)
@@ -248,7 +248,7 @@ mundane theorem derivative-real-on
   then        f′(x) ∈ ℝ
   metamath-proof metamath-bridges/calculus/gdvrepart with D := D, U := U
   note        derivative-real, for a function on any set of reals.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 theorem continuous-sum
   let D ⊆ ℝ                                                           (H1)
@@ -260,7 +260,7 @@ theorem continuous-sum
   assume g is continuous on D                                         (H7)
   then        F is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfaddres with F := f, G := g
-  lean-proof  not yet implemented
+  lean-proof  (h3.add h4).congr (fun x hx => h2 x hx)
 
 theorem continuous-difference
   let D ⊆ ℝ                                                           (H1)
@@ -272,7 +272,7 @@ theorem continuous-difference
   assume g is continuous on D                                         (H7)
   then        F is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfsubres with F := f, G := g
-  lean-proof  not yet implemented
+  lean-proof  (h3.sub h4).congr (fun x hx => h2 x hx)
 
 theorem continuous-linear
   let D ⊆ ℝ                                                           (H1)
@@ -281,7 +281,7 @@ theorem continuous-linear
   assume for all x ∈ D, g(x) = m·x                                    (H4)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncflinres with M := m
-  lean-proof  not yet implemented
+  lean-proof  (show Continuous fun x : ℝ => m * x by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
 theorem continuous-square
   let D ⊆ ℝ                                                           (H1)
@@ -289,7 +289,7 @@ theorem continuous-square
   assume for all x ∈ D, g(x) = x²                                     (H3)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfsqres
-  lean-proof  not yet implemented
+  lean-proof  (show Continuous fun x : ℝ => x ^ 2 by fun_prop).continuousOn.congr (fun x hx => h2 x hx)
 
 theorem continuous-constant
   let D ⊆ ℝ                                                           (H1)
@@ -298,7 +298,7 @@ theorem continuous-constant
   assume for all x ∈ D, g(x) = c                                      (H4)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfconstres with C := c
-  lean-proof  not yet implemented
+  lean-proof  (show Continuous fun _ : ℝ => c by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
 theorem continuous-power
   let D ⊆ ℝ                                                           (H1)
@@ -307,7 +307,7 @@ theorem continuous-power
   assume for all x ∈ D, g(x) = x^n                                    (H4)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfexpres with N := n
-  lean-proof  not yet implemented
+  lean-proof  (show Continuous fun x : ℝ => x ^ n by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
 theorem continuous-scaled
   let D ⊆ ℝ                                                           (H1)
@@ -318,7 +318,7 @@ theorem continuous-scaled
   assume f is continuous on D                                         (H6)
   then        F is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfmulcres with C := c, F := f
-  lean-proof  not yet implemented
+  lean-proof  (continuousOn_const.mul h4).congr (fun x hx => h3 x hx)
 
 theorem continuous-quotient
   let D ⊆ ℝ                                                           (H1)
@@ -331,7 +331,7 @@ theorem continuous-quotient
   assume g is continuous on D                                         (H8)
   then        F is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfdivres with F := f, G := g
-  lean-proof  not yet implemented
+  lean-proof  (h4.div h5 h2).congr (fun x hx => h3 x hx)
 
 mundane theorem continuous-on-part
   let D ⊆ ℝ                                                           (H1)
@@ -364,7 +364,7 @@ theorem continuous-bounded
   then        there exists M ∈ ℝ such that |f(x)| ≤ M for all x ∈ [a, b]
   metamath-proof metamath-bridges/calculus/gcncfbdd
   note        A function continuous on a closed interval is bounded there.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨M, hM⟩ := isCompact_Icc.exists_bound_of_continuousOn h3; exact ⟨M, fun x hx => by simpa [Real.norm_eq_abs] using hM x hx⟩
 
 mundane theorem differentiable-on-part
   let D ⊆ ℝ                                                           (H1)
@@ -376,7 +376,7 @@ mundane theorem differentiable-on-part
   metamath-proof sstr
   note        Differentiable on U says f′ is defined at every point of U, so
               at every point of a part of U.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => h4 x (h3 hx)
 
 mundane theorem derivative-local
   let D ⊆ ℝ                                                           (H1)
@@ -395,7 +395,7 @@ mundane theorem derivative-local
               functions equal on an open set have one derivative there: each
               restricted to U has its derivative restricted to U (dvres), U
               being its own interior.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h5.mem_nhds hx) h4, (h7 x hx).2.congr_of_eventuallyEq (Filter.eventually_of_mem (h5.mem_nhds hx) (fun y hy => h6 y hy))⟩ ; fun x hx => Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h5.mem_nhds hx) (fun y hy => h6 y hy))
 
 theorem continuous-extension
   let U ⊆ ℝ                                                           (H1)
@@ -414,7 +414,7 @@ theorem continuous-extension
               since it tends to its value, and at every other point, since
               it is differentiable there (dvcnp2), agreeing with f on the
               open U ∖ {c}.
-  lean-proof  not yet implemented
+  lean-proof  by intro x hx; by_cases hxc : x = c; (subst hxc; rw [← continuousWithinAt_sdiff_self, ContinuousWithinAt, h6]; rw [(show (U \ ({x} : Set ℝ)) \ {x} = U \ {x} by ext y; simp)] at h8; exact h8.congr' (eventually_nhdsWithin_of_forall (fun y hy => (h5 y hy).symm))); have hmem : x ∈ U \ ({c} : Set ℝ) := ⟨hx, hxc⟩; exact (((h7 x hmem).2.continuousAt).congr (Filter.eventually_of_mem ((h2.sdiff isClosed_singleton).mem_nhds hmem) (fun y hy => (h5 y hy).symm))).continuousWithinAt
 
 theorem derivative-sum
   let D ⊆ ℝ                                                           (H1)
@@ -431,7 +431,7 @@ theorem derivative-sum
   note        One target to a sentence, as completeness has. A sum is
               differentiable at each point both its parts are, so U may be any
               set: (a, b) inside [a, b], or ℝ itself.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨(h4 x hx).1, ((h4 x hx).2.add (h5 x hx).2).congr_of_eventuallyEq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))]; exact deriv_add (h4 x hx).2 (h5 x hx).2
 
 theorem derivative-difference
   let D ⊆ ℝ                                                           (H1)
@@ -449,7 +449,7 @@ theorem derivative-difference
               set.mm has no rule for a difference at a point; f − g is
               f + (−1)·g (ofnegsub), and the constant −1 has derivative 0
               wherever a neighbourhood lies in D.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨(h4 x hx).1, ((h4 x hx).2.sub (h5 x hx).2).congr_of_eventuallyEq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))]; exact deriv_sub (h4 x hx).2 (h5 x hx).2
 
 theorem derivative-linear
   let D ⊆ ℝ                                                           (H1)
@@ -463,7 +463,7 @@ theorem derivative-linear
   metamath-proof metamath-bridges/calculus/gdvlin, metamath-bridges/calculus/gdvlinv with D := D, M := m
   note        U is open because a line on [a, b] has no derivative at a or b:
               the derivative is taken where a neighbourhood lies in the domain.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => m * y) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simpa using ((hasDerivAt_id x).const_mul m).deriv
 
 theorem derivative-square
   let D ⊆ ℝ                                                           (H1)
@@ -477,7 +477,7 @@ theorem derivative-square
   note        set.mm's dvexp is the power rule over ℂ; the page asks it of a
               function on a set of reals, named apart from its values, as
               derivative-linear does.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ 2) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))]; simpa using (hasDerivAt_pow 2 x).deriv
 
 theorem derivative-power
   let D ⊆ ℝ                                                           (H1)
@@ -492,7 +492,7 @@ theorem derivative-power
   note        The power rule, as derivative-square has it for n = 1. It is
               written for the power n + 1 so that the derivative's exponent
               is n itself, a number a power's exponent may be.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1)) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simpa using (hasDerivAt_pow (n + 1) x).deriv
 
 theorem derivative-scaled
   let D ⊆ ℝ                                                           (H1)
@@ -506,7 +506,7 @@ theorem derivative-scaled
               For all x ∈ U, F′(x) = c·f′(x).
   metamath-proof metamath-bridges/calculus/gdvmulc, metamath-bridges/calculus/gdvmulcv with D := D, C := c, F := f
   note        As derivative-sum, at each point f is differentiable.
-  lean-proof  not yet implemented
+  lean-proof  fun x hx => ⟨(h5 x hx).1, ((h5 x hx).2.const_mul c).congr_of_eventuallyEq (Filter.eventually_of_mem (h5 x hx).1 (fun y hy => h4 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h5 x hx).1 (fun y hy => h4 y hy))]; exact deriv_const_mul c (h5 x hx).2
 
 theorem area-function
   let a ∈ ℝ                                                           (H1)
@@ -526,7 +526,7 @@ theorem area-function
               [a, b] is (cniccibl), so the page never says it; and its
               integral is over (a, x), which the directed one is where a ≤ x
               (ditgpos).
-  lean-proof  not yet implemented
+  lean-proof  by have hi : MeasureTheory.IntegrableOn f (Set.uIcc a b) := (by rw [Set.uIcc_of_le h3.le]; exact h4.integrableOn_Icc); have hc := intervalIntegral.continuousOn_primitive_interval hi; rw [Set.uIcc_of_le h3.le] at hc; exact hc.congr (fun x hx => h5 x hx) ; fun x hx => ⟨Icc_mem_nhds hx.1 hx.2, ((intervalIntegral.integral_hasDerivAt_right ((h4.mono (Set.Icc_subset_Icc le_rfl hx.2.le)).intervalIntegrable_of_Icc hx.1.le) ((h4.mono Set.Ioo_subset_Icc_self).stronglyMeasurableAtFilter isOpen_Ioo x hx) (h4.continuousAt (Icc_mem_nhds hx.1 hx.2))).congr_of_eventuallyEq (Filter.eventually_of_mem (Icc_mem_nhds hx.1 hx.2) (fun y hy => h5 y hy))).differentiableAt⟩ ; fun x hx => ((intervalIntegral.integral_hasDerivAt_right ((h4.mono (Set.Icc_subset_Icc le_rfl hx.2.le)).intervalIntegrable_of_Icc hx.1.le) ((h4.mono Set.Ioo_subset_Icc_self).stronglyMeasurableAtFilter isOpen_Ioo x hx) (h4.continuousAt (Icc_mem_nhds hx.1 hx.2))).congr_of_eventuallyEq (Filter.eventually_of_mem (Icc_mem_nhds hx.1 hx.2) (fun y hy => h5 y hy))).deriv
 
 mundane theorem integral-real
   let a ∈ ℝ                                                           (H1)
@@ -541,7 +541,7 @@ mundane theorem integral-real
               to a point of [a, b], is a real number: f is integrable there
               because it is continuous (cniccibl), and real where it is
               integrated.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem integral-point
   let a ∈ ℝ                                                           (H1)
@@ -551,7 +551,7 @@ mundane theorem integral-point
   note        An integral from a point to itself is 0, whatever the
               integrand: set.mm's directed integral over [a, a] is the
               integral over the empty interval (a, a).
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 theorem integral-difference
   let a ∈ ℝ                                                           (H1)
@@ -568,7 +568,7 @@ theorem integral-difference
   note        The integral of a difference is the difference of the
               integrals. Each is integrable because it is continuous on
               [a, b] (cniccibl), so the page never says it.
-  lean-proof  not yet implemented
+  lean-proof  by rw [← intervalIntegral.integral_sub (h5.intervalIntegrable_of_Icc h3.le) (h6.intervalIntegrable_of_Icc h3.le)]; apply intervalIntegral.integral_congr; intro x hx; rw [Set.uIcc_of_le h3.le] at hx; exact h4 x hx
 
 theorem integral-order
   let a ∈ ℝ                                                           (H1)
@@ -584,7 +584,7 @@ theorem integral-order
   note        A smaller function has the smaller integral. set.mm states it
               of the integral over (a, b), which the directed one is where
               a ≤ b (ditgpos).
-  lean-proof  not yet implemented
+  lean-proof  intervalIntegral.integral_mono_on h3.le (h5.intervalIntegrable_of_Icc h3.le) (h6.intervalIntegrable_of_Icc h3.le) h4
 
 theorem integral-nonneg
   let a ∈ ℝ                                                           (H1)
@@ -597,7 +597,7 @@ theorem integral-nonneg
   metamath-proof metamath-bridges/calculus/gditgge0res with A := a, B := b, F := f
   note        A function that is never negative has an integral that is
               not negative.
-  lean-proof  not yet implemented
+  lean-proof  intervalIntegral.integral_nonneg h3.le h4
 
 theorem cauchy-mean-value
   let D ⊆ ℝ                                                           (H1)
@@ -613,7 +613,7 @@ theorem cauchy-mean-value
   assume g is differentiable on (a, b)                                (H11)
   then        there is c ∈ (a, b) with (f(b) − f(a))·g′(c) = (g(b) − g(a))·f′(c)
   metamath-proof stdlib/calculus/cauchy-mean-value
-  lean-proof  not yet implemented
+  lean-proof  exists_ratio_deriv_eq_ratio_slope g h4 h7 (fun x hx => (h9 x hx).2.differentiableWithinAt) f h6 (fun x hx => (h8 x hx).2.differentiableWithinAt)
 
 theorem limit-at-most
   n ranges over ℕ
@@ -625,7 +625,7 @@ theorem limit-at-most
   assume x(n) ≤ B for all n ≥ N                                       (H6)
   then        L ≤ B
   metamath-proof stdlib/calculus/limit-at-most
-  lean-proof  not yet implemented
+  lean-proof  le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
 
 theorem limit-at-least
   n ranges over ℕ
@@ -637,13 +637,13 @@ theorem limit-at-least
   assume B ≤ x(n) for all n ≥ N                                       (H6)
   then        B ≤ L
   metamath-proof stdlib/calculus/limit-at-least
-  lean-proof  not yet implemented
+  lean-proof  ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
 
 mundane theorem first-terms-bounded
   let x : ℕ → ℝ                                                       (H1)
   then        for all K ∈ ℕ, there is C ∈ ℝ with for all m ∈ {1, …, K}, |x(m)| ≤ C
   metamath-proof stdlib/calculus/first-terms-bounded
-  lean-proof  not yet implemented
+  lean-proof  fun K _ => ⟨∑ m ∈ Finset.Icc 1 (K : ℤ), |x m|, fun m hm => Finset.single_le_sum (f := fun m => |x m|) (fun i _ => abs_nonneg _) hm⟩
 
 theorem convergent-abs-bounded
   let x : ℕ → ℝ                                                       (H1)
@@ -651,7 +651,7 @@ theorem convergent-abs-bounded
   assume x(n) → L as n → ∞                                            (H3)
   then        there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
   metamath-proof stdlib/calculus/convergent-abs-bounded
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩⟩
 
 theorem convergent-bounded
   let x : ℕ → ℝ                                                       (H1)
@@ -659,7 +659,7 @@ theorem convergent-bounded
   assume x(n) → L as n → ∞                                            (H3)
   then        there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
   metamath-proof stdlib/calculus/convergent-bounded
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => le_trans (le_abs_self _) (by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩)⟩
 
 mundane theorem increasing-terms
   let x : ℕ → ℝ                                                       (H1)
@@ -675,4 +675,4 @@ theorem monotone-limit
   assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
   then        there is L ∈ ℝ with x(n) → L as n → ∞
   metamath-proof stdlib/calculus/monotone-limit
-  lean-proof  not yet implemented
+  lean-proof  by have hmono : Monotone (fun n : ℕ => x ((n : ℤ) + 1)) := (monotone_nat_of_le_succ (fun n => by have h := h1 (n + 1) (by omega); push_cast at h; exact h)); have hbdd : BddAbove (Set.range fun n : ℕ => x ((n : ℤ) + 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; have h := h3 (n + 1) (by omega); push_cast at h; exact h⟩; exact ⟨⨆ n : ℕ, x ((n : ℤ) + 1), (Filter.tendsto_add_atTop_iff_nat 1).1 (by simpa [Nat.cast_add, Nat.cast_one] using tendsto_atTop_ciSup hmono hbdd)⟩

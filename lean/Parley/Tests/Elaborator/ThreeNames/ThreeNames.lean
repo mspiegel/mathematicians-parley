@@ -12,6 +12,9 @@ theorem three_names (hH1 : ∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c
     (∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c : ℕ, 0 < c ∧ 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6))) := by
   -- 1. obtain a, b, c from H1
   obtain ⟨a, s1a, b, s1b, c, s1c, s1d⟩ := hH1
+  try lift a to ℕ using le_of_lt s1a
+  try lift b to ℕ using le_of_lt s1b
+  try lift c to ℕ using le_of_lt s1c
   -- 2. algebra, from 1
   have s2 : 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6 := by linear_combination (norm := parley_norm) s1d
   -- 3. exhibit, from 2

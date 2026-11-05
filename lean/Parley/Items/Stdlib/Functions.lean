@@ -21,6 +21,10 @@ theorem mun_function_value {α β : Type*} (D : Set α) (E : Set β) (f : α →
     f x ∈ E :=
   hf h1
 
+theorem mun_image_of_injection {α : Type*} (Y : Set (Set α)) (a : α) (h1 : ∀ S ∈ Y, ∀ T ∈ Y, S ∪ ({a} : Set α) = T ∪ ({a} : Set α) → S = T) :
+    ∃ g : Set α → Set α, Set.BijOn g Y ((fun S : Set α => S ∪ ({a} : Set α)) '' Y) :=
+  ⟨fun S => S ∪ ({a} : Set α), Set.mapsTo_image _ _, fun S hS T hT h => h1 S hS T hT h, Set.surjOn_image _ _⟩
+
 theorem mun_added_element_in_image {α : Type*} (Y : Set (Set α)) (s : Set α) (a : α) (h1 : s ∈ Y) :
     s ∪ ({a} : Set α) ∈ (fun t : Set α => t ∪ ({a} : Set α)) '' Y :=
   by aesop
@@ -44,6 +48,10 @@ theorem mun_image_monotone {α β : Type*} (Y : Set α) (Z : Set α) (f : α →
 theorem mun_function_into {α β : Type*} (E : α → β) (X : Set α) (Y : Set β) (h1 : True) (h2 : ∀ x ∈ X, E x ∈ Y) :
     Set.MapsTo E X Y :=
   fun x hx => h2 x hx
+
+theorem mun_function_on_domain {α β : Type*} (X : Set α) (f : α → β) (Y : Set β) (hf : Set.MapsTo f X Y) :
+    True :=
+  by (simp_all; done)
 
 theorem mun_value_in_image {α β : Type*} (X : Set α) (Y : Set α) (f : α → β) (s : α) (W : Set β) (h1 : Y ⊆ X) (h2 : s ∈ Y) (hf : Set.MapsTo f X W) :
     f s ∈ f '' (X ∩ Y) :=
@@ -76,5 +84,9 @@ theorem mun_preimage_within {α β : Type*} (X : Set α) (Z : Set β) (f : α �
 theorem mun_composition_value {α β γ : Type*} (X : Set α) (f : α → β) (g : β → γ) (x : α) (Y : Set β) (W : Set γ) (h1 : x ∈ X) (hf : Set.MapsTo f X Y) (hg : Set.MapsTo g Y W) :
     (g ∘ f) x = g (f x) :=
   rfl
+
+theorem def_bijection {α : Type*} (X : Set α) (Y : Set α) (f : α → α) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y) :
+    ∃ g : α → α, Set.BijOn g X Y :=
+  ⟨f, h1.1, h1.2.1, h1.2.2⟩
 
 end Parley.Items.Stdlib.Functions

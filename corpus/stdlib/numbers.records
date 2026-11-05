@@ -106,7 +106,7 @@ mundane theorem nat-int
   metamath-proof nnz
   note        No proof cites it: a line saying m ∈ ℕ says m ∈ ℤ as well
               (`SYNTAX.md`, what a membership line says), by this lemma.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem int-real
   let m ∈ ℤ                                                           (H1)
@@ -241,7 +241,7 @@ mundane theorem power-of-power-integer
   metamath-proof expmulz
   note        power-of-power over the integers, where a power to a negative
               exponent asks a base other than 0.
-  lean-proof  not yet implemented
+  lean-proof  zpow_mul a m n
 
 mundane theorem power-of-product
   let a ∈ ℂ                                                           (H1)
@@ -261,7 +261,7 @@ mundane theorem power-of-product-integer
   metamath-proof mulexpz
   note        power-of-product over the integers, where a power to a
               negative exponent asks each base to be other than 0.
-  lean-proof  not yet implemented
+  lean-proof  mul_zpow a b n
 
 mundane theorem power-cancel
   let a ∈ ℝ                                                           (H1)
@@ -289,14 +289,14 @@ mundane theorem minus-one-even-power
   metamath-proof m1expeven
   note        `proofs/setmm/minus-one-even-power.proof` proves it for
               n ∈ ℕ₀ as its own exercise (DATABASE.md).
-  lean-proof  not yet implemented
+  lean-proof  by rw [zpow_mul]; simp
 
 mundane theorem minus-one-odd-power
   let n ∈ ℤ                                                           (H1)
   assume n is odd                                                     (H2)
   then        (−1)^n = −1
   metamath-proof m1expo
-  lean-proof  not yet implemented
+  lean-proof  h2.neg_one_zpow
 
 mundane theorem product-nonzero
   let x ∈ ℂ                                                           (H1)
@@ -333,7 +333,7 @@ mundane theorem power-real-integer
   metamath-proof reexpclz
   note        power-real over the integers, where a power to a negative
               exponent asks a base other than 0.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem power-nat0
   let a ∈ ℕ₀                                                          (H1)
@@ -342,7 +342,7 @@ mundane theorem power-nat0
   metamath-proof nn0expcl
   note        A size is a member of ℕ₀, and the sizes subsets-count counts are
               powers of two.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem nat-minus-one
   let n ∈ ℕ                                                           (H1)
@@ -363,7 +363,7 @@ mundane theorem integer-sign
   then        n ∈ ℕ₀ or −n ∈ ℕ₀
   metamath-proof metamath-bridges/numbers/gznn0neg
   note        An integer is a whole number or the negative of one.
-  lean-proof  not yet implemented
+  lean-proof  by omega
 
 mundane theorem power-nat
   let a ∈ ℕ                                                           (H1)
@@ -379,7 +379,7 @@ mundane theorem real-power-complex
   metamath-proof cxpcl
   note        A power whose exponent is not whole is the principal power
               (`GRAMMAR.md`), here and in the items after it.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem real-power-real
   let x ∈ ℝ                                                           (H1)
@@ -387,7 +387,7 @@ mundane theorem real-power-real
   let y ∈ ℝ                                                           (H3)
   then        x^y ∈ ℝ
   metamath-proof recxpcl
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem real-power-nonneg
   let x ∈ ℝ                                                           (H1)
@@ -395,7 +395,7 @@ mundane theorem real-power-nonneg
   let y ∈ ℝ                                                           (H3)
   then        x^y ≥ 0
   metamath-proof cxpge0
-  lean-proof  not yet implemented
+  lean-proof  by positivity
 
 mundane theorem real-power-positive
   let x ∈ ℝ                                                           (H1)
@@ -403,7 +403,7 @@ mundane theorem real-power-positive
   let y ∈ ℝ                                                           (H3)
   then        x^y > 0
   metamath-proof metamath-bridges/numbers/gcxpgt0
-  lean-proof  not yet implemented
+  lean-proof  by positivity
 
 mundane theorem real-power-sum
   let x ∈ ℂ                                                           (H1)
@@ -530,7 +530,7 @@ mundane theorem abs-difference-le
   then        |x − c| ≤ δ ↔ c − δ ≤ x and x ≤ c + δ
   metamath-proof absdifle
   note        As abs-difference-lt, with the ends allowed.
-  lean-proof  not yet implemented
+  lean-proof  by rw [abs_le]; constructor <;> intro h <;> constructor <;> linarith [h.1, h.2]
 
 definition min
   sort        number, number → number
@@ -599,7 +599,7 @@ mundane theorem max-le
   then        max(x, y) ≤ z ↔ x ≤ z and y ≤ z
   metamath-proof maxle
   note        No proof cites it yet.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem quotient-real
   let x ∈ ℝ                                                           (H1)
@@ -773,7 +773,7 @@ mundane theorem power-less
   metamath-proof expmordi
   note        Of two numbers at least 0, the larger has the larger n-th
               power.
-  lean-proof  not yet implemented
+  lean-proof  pow_lt_pow_left₀ h5 h4 (by omega)
 
 mundane theorem quotients-compared
   let x ∈ ℝ                                                           (H1)
@@ -788,7 +788,7 @@ mundane theorem quotients-compared
   metamath-proof lediv12a
   note        A smaller top over a larger bottom: both moves make the
               quotient smaller.
-  lean-proof  not yet implemented
+  lean-proof  div_le_div₀ (h5.trans h6) h6 h7 h8
 
 mundane theorem zero-product
   let x ∈ ℂ                                                           (H1)
@@ -833,7 +833,7 @@ mundane theorem abs-positive
   let x ∈ ℂ                                                           (H1)
   then        x ≠ 0 ↔ |x| > 0
   metamath-proof absgt0
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem nonzero-integer-abs
   let z ∈ ℤ                                                           (H1)
@@ -953,7 +953,7 @@ theorem bernoulli-inequality
   metamath-proof bernneq
   note        Bernoulli's inequality: raising 1 + x to the n-th power gains
               at least n times x.
-  lean-proof  not yet implemented
+  lean-proof  by have h := one_add_mul_le_pow (by linarith : (-2 : K) ≤ x) n; linarith
 
 theorem archimedean
   let x ∈ ℝ                                                           (H1)
@@ -985,7 +985,7 @@ mundane theorem abs-quotient
   assume y ≠ 0                                                        (H3)
   then        |x/y| = |x|/|y|
   metamath-proof absdiv
-  lean-proof  not yet implemented
+  lean-proof  abs_div x y
 
 mundane theorem abs-negative
   let x ∈ ℝ                                                           (H1)
@@ -1025,7 +1025,7 @@ mundane theorem lowest-terms-parts
   then        numer(x) ∈ ℤ. denom(x) ∈ ℕ.
               x = numer(x)/denom(x).
   metamath-proof qnumcl, qdencl, qeqnumdivden
-  lean-proof  not yet implemented
+  lean-proof  trivial ; by exact_mod_cast x.den_pos ; (Rat.num_div_den x).symm
 
 mundane theorem abs-zero
   then        |0| = 0

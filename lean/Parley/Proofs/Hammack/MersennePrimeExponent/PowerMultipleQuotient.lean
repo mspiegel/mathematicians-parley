@@ -32,6 +32,7 @@ theorem power_multiple_quotient (d : ℕ) (hH1 : 0 < d) (m : ℕ) (hH2 : 0 < m) 
     | succ j hK hIH =>
       -- 1.3. obtain q from IH
       obtain ⟨q, s1_3a, ⟨s1_3b, s1_3c⟩⟩ := hIH
+      try lift q to ℕ using le_of_lt s1_3a
       -- 1.4. algebra
       have s1_4 : (d : ℤ) * ((j : ℤ) + 1) = (d : ℤ) * (j : ℤ) + (d : ℤ) := by parley_ring
       -- 1.5. calculation

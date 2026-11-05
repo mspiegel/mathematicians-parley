@@ -2,6 +2,7 @@ module
 
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/notations/functions.proof by parley build lean. -/
@@ -31,7 +32,7 @@ theorem a_line_is_one_to_one (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = 2 * x +
     have s2_4 : s = t := by linear_combination (norm := parley_norm) ((1 / 2 : ℝ)) * s2_3
     all_goals parley_set_side
   -- 3. def:one-to-one, from 1, 2
-  have s3 : Set.MapsTo f (Set.univ : Set ℝ) (Set.univ : Set ℝ) ∧ Set.InjOn f (Set.univ : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s3 : Set.MapsTo f (Set.univ : Set ℝ) (Set.univ : Set ℝ) ∧ Set.InjOn f (Set.univ : Set ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s3
 
 end Parley.Tests.Notations.Functions.ALineIsOneToOne

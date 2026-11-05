@@ -98,6 +98,10 @@ macro "parley_set_side" : tactic =>
     -- A pair a line says, in the other order: {a, b} is {b, a}, a listed
     -- set's order being none of the page's.
     | (rw [Set.pair_comm]; assumption)
+    -- A listed set a line puts inside another, in another order: each of
+    -- its members, one of the line's.
+    | (intro x hx; apply_assumption; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx ⊢;
+        tauto)
     -- A map's value at a member of its domain, f(a) > 0 of f : ℕ → ℕ:
     -- the page's ℕ is the integers above 0, which a natural a is among.
     | (simp only [Set.MapsTo, Set.mem_ofPred_eq] at *; apply_assumption; omega))

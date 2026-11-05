@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import Tactics
 
 /-! Written from tests/elaborator/a-range-member-is-cited.proof by parley build lean. -/

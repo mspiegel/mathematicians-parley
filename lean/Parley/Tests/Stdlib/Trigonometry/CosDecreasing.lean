@@ -1,0 +1,19 @@
+module
+
+public import SetTactics
+public import Tactics
+public import Parley.Items.Stdlib.Trigonometry
+
+/-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Stdlib.Trigonometry.CosDecreasing
+
+theorem cos_decreasing (a : ℝ) (hH1 : a ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ)) (b : ℝ) (hH2 : b ∈ (Set.Icc (0 : ℝ) Real.pi : Set ℝ)) :
+    (a < b ↔ Real.cos b < Real.cos a) := by
+  -- 1. mun:trigonometry-cos-decreasing, from H1, H2
+  have s1 : a < b ↔ Real.cos b < Real.cos a := by first | exact (Parley.Items.Stdlib.Trigonometry.mun_cos_decreasing (a := a) (b := b) hH1 hH2) | exact ((Parley.Items.Stdlib.Trigonometry.mun_cos_decreasing (a := a) (b := b) hH1 hH2)).symm | simpa using (Parley.Items.Stdlib.Trigonometry.mun_cos_decreasing (a := a) (b := b) hH1 hH2) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.mun_cos_decreasing (a := a) (b := b) hH1 hH2) | (have h := (Parley.Items.Stdlib.Trigonometry.mun_cos_decreasing (a := a) (b := b) hH1 hH2); parley_set_side)
+  all_goals exact s1
+
+end Parley.Tests.Stdlib.Trigonometry.CosDecreasing

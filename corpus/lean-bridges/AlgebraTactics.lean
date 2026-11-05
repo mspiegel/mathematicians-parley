@@ -27,8 +27,9 @@ macro "parley_ring" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
-    -- A factorial divided by itself, which is not 0.
-    | (field_simp [LeanBridges.Counting.factorial, Nat.factorial_ne_zero]; done)
+    -- A factorial divided by itself, which is not 0, where the file's
+    -- modules tag the factorial into `parley_unfold`.
+    | (field_simp [parley_unfold]; done)
     | (simp only [inv_inv, one_div, div_div, div_pow] <;> ring1; done)
     | (parley_clear <;> ring1; done)
     | (parley_clear; done))

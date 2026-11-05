@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import Tactics
 
 /-! Written from tests/elaborator/factorials-by-arithmetic.proof by parley build lean. -/

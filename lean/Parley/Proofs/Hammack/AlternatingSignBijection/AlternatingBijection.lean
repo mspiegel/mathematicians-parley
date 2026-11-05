@@ -5,6 +5,7 @@ public import OrderTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -92,7 +93,7 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℕ, 0 < n → (f
         all_goals parley_set_side
     all_goals parley_set_side
   -- 2. def:one-to-one, from H1, 1
-  have s2 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 3. proof
   have s3 : ∀ y : ℤ, ∃ x : ℕ, 0 < x ∧ y = f (x : ℤ) := by
     intro y
@@ -135,9 +136,9 @@ theorem alternating_bijection (f : ℤ → ℤ) (hH2 : ∀ n : ℕ, 0 < n → (f
         all_goals parley_set_side
     all_goals exact s3_2
   -- 4. def:onto, from H1, 3
-  have s4 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s4 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   -- 5. def:one-to-one-onto, from 2, 4
-  have s5 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s5 : Set.MapsTo f {n : ℤ | 0 < n} (Set.univ : Set ℤ) ∧ Set.InjOn f {n : ℤ | 0 < n} ∧ Set.SurjOn f {n : ℤ | 0 < n} (Set.univ : Set ℤ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_one_to_one_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℤ)) (f := f) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s5
 
 end Parley.Proofs.Hammack.AlternatingSignBijection.AlternatingBijection

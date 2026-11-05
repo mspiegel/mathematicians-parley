@@ -23,6 +23,7 @@ theorem two_over_square_limit (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → a 
     have s1_1 : ε / 2 > 0 := by parley_order
     -- 1.2. obtain N: thm:archimedean x := ε/2, from 1.1
     obtain ⟨N, s1_2a, s1_2b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / 2) (by parley_side))
+    try lift N to ℕ using le_of_lt s1_2a
     -- 1.3. proof
     have s1_3 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - 5) < ε := by
       intro n hK2

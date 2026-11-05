@@ -1,0 +1,17 @@
+module
+
+public import Tactics
+public import Parley.Items.Stdlib.Divisibility
+
+/-! Written from tests/stdlib/divisibility.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Stdlib.Divisibility.ModReal
+
+theorem mod_real (a : ℝ) (b : ℝ) (hH3 : b > 0) :
+    True := by
+  -- 1. mun:divisibility-mod-real, from H3
+  all_goals parley_side
+
+end Parley.Tests.Stdlib.Divisibility.ModReal

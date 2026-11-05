@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import FactorialTactics
 public import Tactics
 public import Parley.Items.Stdlib.Counting
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero

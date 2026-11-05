@@ -18,6 +18,7 @@ theorem lowest_terms (x : ℚ) :
     (∃ p : ℤ, ∃ q : ℤ, (q > 0 ∧ x = (p : ℚ) / (q : ℚ)) ∧ ¬ (∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ q)) := by
   -- 1. obtain p, q: mun:rational-coprime
   obtain ⟨p, q, s1a, ⟨s1b, s1c⟩⟩ := (Parley.Items.Stdlib.Numbers.mun_rational_coprime (x := x))
+  try lift q to ℕ using le_of_lt s1a
   -- 2. contradiction
   have s2 : ¬ (∃ d : ℤ, (d > 1 ∧ d ∣ p) ∧ d ∣ (q : ℤ)) := by
     by_contra hc_hS

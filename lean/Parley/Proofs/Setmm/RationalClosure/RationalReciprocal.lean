@@ -16,6 +16,7 @@ theorem rational_reciprocal (A : ℚ) (hH2 : A ≠ 0) :
     True := by
   -- 1. obtain p, q: def:rational x := A
   obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  try lift q to ℕ using le_of_lt s1a
   -- 2. contradiction
   have s2 : p ≠ 0 := by
     by_contra hc_hS

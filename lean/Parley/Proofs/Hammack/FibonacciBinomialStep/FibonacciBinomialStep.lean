@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
@@ -38,6 +39,7 @@ theorem fibonacci_binomial_step (m : ℕ) :
   -- 8. proof
   have s8 : ∀ k : ℤ, k ∈ Finset.Icc 0 ((m : ℤ) + 1) → (LeanBridges.Counting.choose ((m : ℤ) + 1 + 1 - k) k : ℤ) = (LeanBridges.Counting.choose ((m : ℤ) + 1 - k) k : ℤ) + (LeanBridges.Counting.choose ((m : ℤ) + 1 - k) (k - 1) : ℤ) := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 8.1. mun:range-difference a := 0, n := m + 1, from J
     have s8_1 : 0 ≤ (m : ℤ) + 1 - k := by first | exact (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (m : ℤ) + 1) (k := k) hJ) | exact ((Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (m : ℤ) + 1) (k := k) hJ)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (m : ℤ) + 1) (k := k) hJ) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (m : ℤ) + 1) (k := k) hJ) | (have h := (Parley.Items.Stdlib.Sums.mun_range_difference (a := (0 : ℤ)) (n := (m : ℤ) + 1) (k := k) hJ); parley_side)
@@ -69,6 +71,7 @@ theorem fibonacci_binomial_step (m : ℕ) :
   -- 17. proof
   have s17 : ∀ k : ℤ, k ∈ Finset.Icc 1 ((m : ℤ) + 1) → (LeanBridges.Counting.choose ((m : ℤ) + 1 - k) (k - 1) : ℤ) = (LeanBridges.Counting.choose ((m : ℤ) - (k - 1)) (k - 1) : ℤ) := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 17.1. algebra
     have s17_1 : (m : ℤ) + 1 - k = (m : ℤ) - (k - 1) := by parley_ring

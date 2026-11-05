@@ -33,6 +33,10 @@ theorem mun_set_builder_subset {α : Type*} (P : α → Prop) (X : Set α) :
     {t ∈ X | P t} ⊆ X :=
   Set.sep_subset X P
 
+theorem mun_set_builder_split {α : Type*} (P : α → Prop) (X : Set α) :
+    X = {t ∈ X | P t} ∪ {t ∈ X | ¬ P t} :=
+  by ext t; by_cases h : P t <;> simp [h]
+
 theorem mun_set_builder_split_disjoint {α : Type*} (P : α → Prop) (X : Set α) :
     {t ∈ X | P t} ∩ {t ∈ X | ¬ P t} = ∅ :=
   by aesop
@@ -69,9 +73,25 @@ theorem def_triple {α : Type*} (u : α) (v : α) (w : α) (x : α) :
     x ∈ ({u, v, w} : Set α) ↔ (x = u ∨ x = v) ∨ x = w :=
   by aesop
 
+theorem mun_triple_members_1 {α : Type*} (u : α) (v : α) (w : α) :
+    u ∈ ({u, v, w} : Set α) :=
+  by (simp_all; done)
+
+theorem mun_triple_members_2 {α : Type*} (u : α) (v : α) (w : α) :
+    v ∈ ({u, v, w} : Set α) :=
+  by (simp_all; done)
+
+theorem mun_triple_members_3 {α : Type*} (u : α) (v : α) (w : α) :
+    w ∈ ({u, v, w} : Set α) :=
+  by (simp_all; done)
+
 theorem mun_pair_finite {α : Type*} (u : α) (w : α) :
     ({u, w} : Set α).Finite :=
   by simp_all
+
+theorem mun_subset_of_difference {α : Type*} (X : Set α) (Y : Set α) (a : α) (h1 : Y ⊆ X \ ({a} : Set α)) :
+    ¬ a ∈ Y :=
+  fun h => (h1 h).2 rfl
 
 theorem mun_difference_of_union {α : Type*} (Y : Set α) (a : α) :
     (Y ∪ ({a} : Set α)) \ ({a} : Set α) = Y \ ({a} : Set α) :=
@@ -104,6 +124,10 @@ theorem mun_not_in_subset {α : Type*} (Y : Set α) (Z : Set α) (a : α) (h1 : 
 theorem mun_in_union_singleton {α : Type*} (Y : Set α) (a : α) :
     a ∈ Y ∪ ({a} : Set α) :=
   by simp_all
+
+theorem mun_listed_repeat {α : Type*} (a : α) (b : α) :
+    ({a, b, b} : Set α) = ({a, b} : Set α) :=
+  by (simp_all; done)
 
 theorem mun_disjoint_empty {α : Type*} (Y : Set α) (Z : Set α) (h1 : ∀ s ∈ Z, ¬ s ∈ Y) :
     Y ∩ Z = ∅ :=
@@ -149,6 +173,10 @@ theorem mun_pair_subset {α : Type*} (X : Set α) (a : α) (b : α) (h1 : a ∈ 
     ({a, b} : Set α) ⊆ X :=
   LeanBridges.Sets.pair_subset X a b h1 h2
 
+theorem mun_triple_subset {α : Type*} (X : Set α) (a : α) (b : α) (c : α) (h1 : a ∈ X) (h2 : b ∈ X) (h3 : c ∈ X) :
+    ({a, b, c} : Set α) ⊆ X :=
+  by intro x hx; rcases hx with rfl | rfl | rfl <;> assumption
+
 theorem mun_powerset_monotone {α : Type*} (X : Set α) (Y : Set α) (h1 : Y ⊆ X) :
     𝒫 Y ⊆ 𝒫 X :=
   Set.powerset_mono.mpr h1
@@ -177,6 +205,10 @@ theorem mun_union_difference {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∪ Z \ Y = Y ∪ Z :=
   Set.union_diff_self
 
+theorem mun_nonempty_member {α : Type*} (Y : Set α) (h1 : ¬ Y = ∅) :
+    ∃ a ∈ Y, True :=
+  by obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty.2 h1; exact ⟨a, ha, trivial⟩
+
 theorem mun_member_nonempty {α : Type*} (Y : Set α) (a : α) (h1 : a ∈ Y) :
     ¬ Y = ∅ :=
   by aesop
@@ -193,9 +225,17 @@ theorem mun_union_empty {α : Type*} (Y : Set α) :
     Y ∪ ∅ = Y :=
   Set.union_empty Y
 
+theorem mun_intersection_empty {α : Type*} (Y : Set α) :
+    Y ∩ ∅ = ∅ :=
+  by (simp_all; done)
+
 theorem mun_difference_self {α : Type*} (Y : Set α) :
     Y \ Y = ∅ :=
   Set.sdiff_self
+
+theorem mun_difference_empty {α : Type*} (Y : Set α) :
+    Y \ ∅ = Y :=
+  by (simp_all; done)
 
 theorem mun_intersection_distributes {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
     X ∩ (Y ∪ Z) = X ∩ Y ∪ X ∩ Z :=
@@ -237,6 +277,10 @@ theorem mun_difference_reverses {α : Type*} (X : Set α) (Y : Set α) (Z : Set 
     Z \ Y ⊆ Z \ X :=
   Set.sdiff_subset_sdiff (fun ⦃a⦄ a_1 => a_1) h1
 
+theorem mun_complement_swap {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Z) (h2 : Y ⊆ Z) :
+    X ⊆ Z \ Y ↔ Y ⊆ Z \ X :=
+  ⟨fun h x hx => ⟨h2 hx, fun hX => (h hX).2 hx⟩, fun h x hx => ⟨h1 hx, fun hY => (h hY).2 hx⟩⟩
+
 theorem mun_complement_swap_outside {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) :
     Z \ Y ⊆ X ↔ Z \ X ⊆ Y :=
   Set.sdiff_subset_comm
@@ -245,6 +289,10 @@ theorem mun_equal_subset {α : Type*} (X : Set α) (Y : Set α) (h1 : X = Y) :
     X ⊆ Y :=
   by simp_all
 
+theorem mun_disjoint_within {α : Type*} (X : Set α) (Y : Set α) (Z : Set α) (h1 : X ⊆ Y) (h2 : Y ∩ Z = ∅) :
+    X ∩ Z = ∅ :=
+  Set.eq_empty_of_subset_empty (h2 ▸ Set.inter_subset_inter_left Z h1)
+
 theorem mun_disjoint_member {α : Type*} (Y : Set α) (Z : Set α) (u : α) (h1 : Y ∩ Z = ∅) (h2 : u ∈ Y) :
     ¬ u ∈ Z :=
   LeanBridges.Sets.disjoint_member Y Z u h1 h2
@@ -252,6 +300,18 @@ theorem mun_disjoint_member {α : Type*} (Y : Set α) (Z : Set α) (u : α) (h1 
 theorem mun_disjoint_difference {α : Type*} (Y : Set α) (Z : Set α) :
     Y ∩ (Z \ Y) = ∅ :=
   by simp_all
+
+theorem def_indexed_union {α : Type*} (D : Set (Set α)) (u : α) :
+    u ∈ (⋃ X ∈ D, X) ↔ (∃ X ∈ D, u ∈ X) :=
+  by (simp_all; done)
+
+theorem mun_union_contains_member {α : Type*} (D : Set (Set α)) (Y : Set α) (h1 : Y ∈ D) :
+    Y ⊆ (⋃ X ∈ D, X) :=
+  Set.subset_biUnion_of_mem (u := fun X => X) h1
+
+theorem mun_union_within {α : Type*} (D : Set (Set α)) (Z : Set α) (h1 : ∀ X ∈ D, X ⊆ Z) :
+    (⋃ X ∈ D, X) ⊆ Z :=
+  by (simp_all; done)
 
 theorem mun_subset_antisymmetric {α : Type*} (X : Set α) (Y : Set α) (h1 : X ⊆ Y) (h2 : Y ⊆ X) :
     X = Y :=

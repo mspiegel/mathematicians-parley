@@ -101,7 +101,8 @@ pub fn notation_record(p: &PhraseDefine<'_>, sort: &str) -> Record {
 /// The definition record a phrase's define stands for: an item of its
 /// file's module, cited `def:`, whose statement is the phrase and its meaning and whose set.mm lemma is
 /// `biid`. The meaning is bracketed, since it may be any statement and `↔`
-/// is unordered against some.
+/// is unordered against some. The Lean build writes the phrase out as its
+/// meaning too, so there it is `Iff.rfl`.
 pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
     let d = p.line;
     let mut fields = IndexMap::new();
@@ -114,7 +115,7 @@ pub fn definition_record(p: &PhraseDefine<'_>) -> Record {
     );
     fields.insert(
         super::records::LEAN_PROOF.to_string(),
-        super::records::NOT_YET.to_string(),
+        "Iff.rfl".to_string(),
     );
     if let Some(reads) = &p.reads {
         fields.insert("reads".to_string(), reads.clone());

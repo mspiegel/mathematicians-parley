@@ -27,12 +27,15 @@ theorem squeeze_for_sequences (a : ℤ → ℝ) (b : ℤ → ℝ) (c : ℤ → �
     have s1_4 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (c (n : ℤ) - L) < ε) := by first | exact (s1_2 ε (by parley_side)) | exact ((s1_2 ε (by parley_side))).symm | simpa using (s1_2 ε (by parley_side)) | exact_mod_cast (s1_2 ε (by parley_side)) | (have h := (s1_2 ε (by parley_side)); parley_side)
     -- 1.5. obtain P from line 1.3
     obtain ⟨P, s1_5a, s1_5b⟩ := s1_3
+    try lift P to ℕ using le_of_lt s1_5a
     -- 1.6. obtain Q from line 1.4
     obtain ⟨Q, s1_6a, s1_6b⟩ := s1_4
+    try lift Q to ℕ using le_of_lt s1_6a
     -- 1.7. obtain M from H5
     obtain ⟨M, s1_7⟩ := hH5
     -- 1.8. obtain R: thm:archimedean-natural x := M
     obtain ⟨R, s1_8a, s1_8b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := (M : ℝ)))
+    try lift R to ℕ using le_of_lt s1_8a
     -- 1.9. inequalities, from 1.6, 1.8
     have s1_9 : (Q : ℝ) + (R : ℝ) > 0 := by have := (s1_6b R (by parley_side)); parley_order
     -- 1.10. inequalities

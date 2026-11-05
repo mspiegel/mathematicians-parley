@@ -31,6 +31,7 @@ theorem log_three_over_two_irrational :
     have hS : ∃ m : ℚ, (m : ℝ) = Real.log (3 : ℝ) / Real.log (2 : ℝ) := by parley_suppose hc_hS
     -- 2.1. obtain p, q: def:rational x := ln(3)/ln(2), from S
     obtain ⟨p, q, s2_1a, s2_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)))).mp (by parley_side)
+    try lift q to ℕ using le_of_lt s2_1a
     -- 2.2. mun:product-positive x := ln(3)/ln(2), y := q, from 1, 2.1
     have r102_1 : Real.log (2 : ℝ) ≠ 0 := by parley_real
     have s2_2 : Real.log (3 : ℝ) / Real.log (2 : ℝ) * (q : ℝ) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := Real.log (3 : ℝ) / Real.log (2 : ℝ)) (y := (q : ℝ)) (by parley_side) (by parley_side)); parley_side)

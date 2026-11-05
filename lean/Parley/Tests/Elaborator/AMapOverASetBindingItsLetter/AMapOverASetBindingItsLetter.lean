@@ -6,6 +6,7 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -44,7 +45,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
     -- 2.5. substitute g(x) = √x (line 2.4) into line 2.3
     all_goals parley_set_side
   -- 3. mun:function-into, from 2
-  have s3 : Set.MapsTo g D (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) s2) | exact ((Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) s2)).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) s2) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) s2) | (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) s2); parley_set_side)
+  have s3 : Set.MapsTo g D (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_function_into (E := g) (X := D) (Y := (Set.univ : Set ℝ)) (by parley_set_side) (by parley_whole_side)); parley_set_side)
   -- 4. proof
   have s4 : ∀ c ∈ D, ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ D, abs (x - c) < δ → abs (g x - g c) < ε)) := by
     intro c hK2
@@ -73,7 +74,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.4.4. substitute √c = 0 (line 4.4.3)
       have s4_4_4 : Real.sqrt c ^ 2 = 0 ^ 2 := by parley_subst s4_4_3
       -- 4.4.5. arithmetic
-      have s4_4_5 : (0 ^ 2 : ℤ) = 0 := by parley_arith
+      have s4_4_5 : (0 ^ 2 : ℝ) = 0 := by parley_arith
       -- 4.4.6. calculation
       have s4_4_6 : c = 0 := by
         calc c = Real.sqrt c ^ 2 := by parley_set_side

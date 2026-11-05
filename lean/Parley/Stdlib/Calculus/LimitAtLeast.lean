@@ -30,6 +30,7 @@ theorem limit_at_least (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
     have s4 : ∃ M : ℕ, 0 < M ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (M : ℝ) → abs (x (n : ℤ) - L) < B - L) := by first | exact (s3 (B - L) (by parley_side)) | exact ((s3 (B - L) (by parley_side))).symm | simpa using (s3 (B - L) (by parley_side)) | exact_mod_cast (s3 (B - L) (by parley_side)) | (have h := (s3 (B - L) (by parley_side)); parley_side)
     -- 5. obtain M from line 4
     obtain ⟨M, s5a, s5b⟩ := s4
+    try lift M to ℕ using le_of_lt s5a
     -- 6. inequalities, from H5
     have s6 : (M : ℝ) + (N : ℝ) ≥ (M : ℝ) := by parley_order
     -- 7. inequalities, from 5

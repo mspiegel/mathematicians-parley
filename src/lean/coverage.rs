@@ -43,6 +43,8 @@ pub const IN_CODE: &[&str] = &[
     "product",
     "tends-to",
     "series",
+    "integral",
+    "derivative",
     "function-limit",
     "continuous",
     "closed-interval",
@@ -81,9 +83,11 @@ pub const IN_CODE: &[&str] = &[
 ];
 
 /// Every theorem of the corpus, in or out.
+/// `stated` are the library's items whose statements the build wrote.
 pub fn coverage(
     checked: &CheckedCorpus,
     templates: &Templates,
+    stated: &std::collections::BTreeSet<String>,
 ) -> IndexMap<String, Covered> {
     let mut out: IndexMap<String, Covered> = IndexMap::new();
     // A theorem citing another of the corpus is in only once that one is;
@@ -92,7 +96,7 @@ pub fn coverage(
         let mut changed = false;
         for thm in &checked.corpus.theorems {
             let name = thm.qualified();
-            let covered = covered(checked, templates, &name, &out);
+            let covered = covered(checked, templates, stated, &name, &out);
             if out.get(&name) != Some(&covered) {
                 out.insert(name, covered);
                 changed = true;
@@ -153,6 +157,47 @@ fn among_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
     })
 }
 
+/// Whether a letter is a define whose value is a set of sets of numbers by
+/// its shape, as the writer types a define by its value: {d ⊆ A : …} of a
+/// set of numbers A, or {c ∈ O : …} of such a define O.
+fn defined_parts_of_numbers(
+    name: &str,
+    thm: &crate::corpus::Theorem,
+    rec: &crate::checker::CheckedTheorem,
+    depth: usize,
+) -> bool {
+    if depth > 8 {
+        return false;
+    }
+    let Some(line) = thm.defines.iter().find(|d| {
+        matches!(crate::corpus::define_parts(&d.text),
+            crate::outcome::Route::Built(crate::corpus::DefineParts::One(def))
+                if def.name == name && def.params.is_empty())
+    }) else {
+        return false;
+    };
+    rec.page
+        .entries()
+        .filter(|(key, _)| key.line == line.line)
+        .any(|(_, value)| parts_of_numbers(value, thm, rec, depth))
+}
+
+/// Whether a set term is a set of sets of numbers by its shape: {d ⊆ A : …}
+/// of a set of numbers A, 𝒫A, or {c ∈ S : …} of such a term S.
+fn parts_of_numbers(
+    s: &crate::formula::Node,
+    thm: &crate::corpus::Theorem,
+    rec: &crate::checker::CheckedTheorem,
+    depth: usize,
+) -> bool {
+    match (&*s.notation_name(), s.children.as_slice()) {
+        ("set-builder-part", [_, whole, _]) => set_of_numbers(whole),
+        ("set-builder", [_, whole, _]) => parts_of_numbers(whole, thm, rec, depth + 1),
+        ("powerset", [whole]) => set_of_numbers(whole),
+        _ => s.is_name() && defined_parts_of_numbers(&s.text, thm, rec, depth + 1),
+    }
+}
+
 /// Whether a line gives the function letter a type between sets of numbers
 /// by their shape, f : D → ℝ with D among numbers (`among_numbers`).
 fn between_number_sets(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
@@ -197,7 +242,9 @@ fn set_of_numbers(s: &crate::formula::Node) -> bool {
         return matches!(**m, Whole::Number);
     }
     match &*s.notation_name() {
-        "number-systems" => true,
+        "number-systems" | "closed-interval" | "open-interval" | "integer-range" => {
+            true
+        }
         // A ∖ B holds what A does; A ∩ B what either does.
         "set-operations" => match (&*s.spelling().text(), s.children.as_slice()) {
             ("∖", [a, _]) => set_of_numbers(a),
@@ -317,6 +364,7 @@ pub fn defined_function(
 fn covered(
     checked: &CheckedCorpus,
     templates: &Templates,
+    stated: &std::collections::BTreeSet<String>,
     name: &str,
     so_far: &IndexMap<String, Covered>,
 ) -> Covered {
@@ -417,18 +465,6 @@ fn covered(
         .flatten()
         .chain(rec.cited_requires.values())
         .any(|c| c.binding.values().any(extended));
-    if count_given && std::env::var("PARLEY_DEBUG_COUNT").is_ok() {
-        for c in rec
-            .cited
-            .iter()
-            .flatten()
-            .chain(rec.cited_requires.values())
-        {
-            for v in c.binding.values().filter(|v| extended(v)) {
-                eprintln!("DEBUG {name}: {} in {}", checked.grammar.print(v), c.item);
-            }
-        }
-    }
     if count_given {
         return Covered::Out {
             reason: "a count given for a number letter of a cited item, which Lean's ℕ meets in ℕ∞ only through finiteness"
@@ -514,6 +550,13 @@ fn covered(
             // f is a function on a set, which a Lean function of the set's
             // type is (`expr`): a set of numbers, a range, or a set of
             // things a letter's sort says.
+            // Continuity or a derivative of f′: its domain is where f has a
+            // derivative, which no line gives (`expr::differentiable`).
+            if matches!(name.as_str(), "continuous" | "differentiable")
+                && n.children.first().is_some_and(|f| !f.is_name())
+            {
+                return Some(format!("{name} of a function that is no letter"));
+            }
             if &*n.notation_name() == "function-on" {
                 let typed = matches!(n.children.as_slice(), [_, set]
                     if set_of_numbers(set)
@@ -570,10 +613,14 @@ fn covered(
             // A set of numbers a line puts among numbers, D ⊆ ℝ, is a set of
             // those; a function of numbers is typed through its sets.
             let of_numbers = match sort.full() {
-                Some(crate::formula::Whole::Set(m)) => {
-                    matches!(**m, crate::formula::Whole::Number)
-                        && among_numbers(&n.text, rec)
-                }
+                Some(crate::formula::Whole::Set(m)) => match &**m {
+                    crate::formula::Whole::Number => among_numbers(&n.text, rec),
+                    crate::formula::Whole::Set(inner) => {
+                        matches!(**inner, crate::formula::Whole::Number)
+                            && defined_parts_of_numbers(&n.text, thm, rec, 0)
+                    }
+                    _ => false,
+                },
                 Some(crate::formula::Whole::Function(_, _)) => {
                     between_number_sets(&n.text, rec)
                 }
@@ -613,6 +660,13 @@ fn covered(
                             ),
                         };
                     }
+                }
+                // A proof whose item's statement the build could not write,
+                // a phrase whose meaning it cannot state, is no proof yet.
+                Some(Provided::By(_)) if !stated.contains(&full) => {
+                    return Covered::Out {
+                        reason: format!("{full}'s statement is not in the Lean build"),
+                    };
                 }
                 Some(Provided::By(_) | Provided::Nothing) => {}
             }

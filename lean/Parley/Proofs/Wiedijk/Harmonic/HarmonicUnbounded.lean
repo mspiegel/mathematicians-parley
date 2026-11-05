@@ -47,6 +47,7 @@ theorem harmonic_unbounded (M : ℝ) :
       all_goals parley_side
   -- 3. obtain N: thm:archimedean-natural x := 2M
   obtain ⟨N, s3a, s3b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 * M))
+  try lift N to ℕ using le_of_lt s3a
   -- 4. instantiate m := N in line 2
   have s4 : (∑ k ∈ Finset.Icc (1 : ℤ) (2 ^ N : ℤ), (1 / (k : ℚ) : ℚ)) ≥ (N : ℚ) / 2 := by first | linarith [(s2 N)] | (have h := (s2 N); push_cast at h; linarith) | exact_mod_cast (s2 N) | (have h := (s2 N); parley_side)
   -- 5. inequalities

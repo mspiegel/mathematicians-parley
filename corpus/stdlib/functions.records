@@ -69,7 +69,7 @@ mundane theorem image-of-injection
               readable layer states the property and the `target` names the
               map, because a reader says "if S ∪ {a} = T ∪ {a} then S = T"
               and does not name a function to say it.
-  lean-proof  not yet implemented
+  lean-proof  ⟨fun S => S ∪ ({a} : Set α), Set.mapsTo_image _ _, fun S hS T hT h => h1 S hS T hT h, Set.surjOn_image _ _⟩
 
 mundane theorem added-element-in-image
   let Y be a set                                                      (H1)
@@ -128,7 +128,7 @@ mundane theorem function-on-domain
   metamath-proof ffn
   note        A function from X into Y is a function on X, which its values
               may then be said to lie in another set.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem value-in-image
   let f : X → W                                                       (H1)
@@ -224,7 +224,7 @@ definition bijection
               reaches every point pairs its domain off against its
               codomain: one such function is what there being a bijection
               between two sets means.
-  lean-proof  not yet implemented
+  lean-proof  ⟨f, h1.1, h1.2.1, h1.2.2⟩
 
 mundane theorem bijection-onto
   assume there is a bijection from X to Y                             (H1)

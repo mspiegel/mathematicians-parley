@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import FactorialTactics
 public import Tactics
 
 /-! Written from corpus/stdlib/counting.records by parley build lean. -/
@@ -25,6 +26,10 @@ theorem mun_factorial_nat (n : ℕ) :
     0 < (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
   LeanBridges.Counting.factorial_nat n
 
+theorem mun_factorial_product (n : ℕ) :
+    (LeanBridges.Counting.factorial (n : ℤ) : ℤ) = (∏ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (k : ℤ)) :=
+  by induction n with | zero => simp | succ k ih => (rw [(show ((k + 1 : ℕ) : ℤ) = (k : ℤ) + 1 by push_cast; ring), LeanBridges.Counting.factorial_3, ih, (show Finset.Icc (1 : ℤ) ((k : ℤ) + 1) = insert ((k : ℤ) + 1) (Finset.Icc 1 (k : ℤ)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.prod_insert (by simp), mul_comm])
+
 theorem mun_factorial_at_most (m : ℕ) (n : ℕ) (h3 : (m : ℤ) ≤ (n : ℤ)) :
     (LeanBridges.Counting.factorial (m : ℤ) : ℤ) ≤ (LeanBridges.Counting.factorial (n : ℤ) : ℤ) :=
   LeanBridges.Counting.factorial_at_most m n h3
@@ -48,6 +53,10 @@ theorem mun_card_nonempty {α : Type*} (X : Set α) (k : ℕ) (h2 : X.encard = (
 theorem mun_card_remove {α : Type*} (X : Set α) (a : α) (h1 : a ∈ X) (k : ℕ) (h3 : X.encard = ((k + 1 : ℕ) : ℕ∞)) :
     ((X \ ({a} : Set α)).ncard : ℤ) = (k : ℤ) :=
   by have hX := Set.finite_of_encard_eq_coe h3; have e : X.ncard = k + 1 := (by have := hX.cast_ncard_eq; rw [h3] at this; exact_mod_cast this); rw [Set.ncard_sdiff_singleton_of_mem h1]; omega
+
+theorem mun_card_bijection {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (h2 : X.encard = ((m : ℕ) : ℕ∞)) (h3 : ∃ g : α → α, Set.BijOn g X Y) :
+    Y.encard = ((m : ℕ) : ℕ∞) :=
+  by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]
 
 theorem mun_card_disjoint_union {α : Type*} (X : Set α) (Y : Set α) (m : ℕ) (n : ℕ) (h3 : X.encard = ((m : ℕ) : ℕ∞)) (h4 : Y.encard = ((n : ℕ) : ℕ∞)) (h5 : X ∩ Y = ∅) :
     ((X ∪ Y).ncard : ℤ) = (m : ℤ) + (n : ℤ) :=
@@ -133,6 +142,14 @@ theorem mun_card_at_least_one {α : Type*} (X : Set α) (h1 : ¬ X = ∅) :
     ((1 : ℕ) : ℕ∞) ≤ X.encard :=
   LeanBridges.Counting.card_at_least_one X h1
 
+theorem mun_parts_finite {α : Type*} (A : Set α) (K : Set (Set α)) (h1 : A.Finite) (h2 : ∀ Y ∈ K, Y ⊆ A) :
+    K.Finite :=
+  (h1.finite_subsets).subset (fun Y hY => h2 Y hY)
+
+theorem mun_card_equal {α : Type*} (X : Set α) (Y : Set α) (h1 : X.Finite) (h2 : ∃ g : α → α, Set.BijOn g X Y) :
+    ((X.ncard : ℕ) : ℕ∞) = Y.encard :=
+  by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image, h1.cast_ncard_eq]
+
 theorem mun_card_pair {α : Type*} (u : α) (w : α) :
     (({u, w} : Set α).ncard : ℤ) ≤ 2 :=
   LeanBridges.Counting.card_pair u w
@@ -153,8 +170,16 @@ theorem mun_card_positive {α : Type*} (X : Set α) (h1 : ((0 : ℕ) : ℕ∞) <
     ¬ X = ∅ :=
   LeanBridges.Counting.card_positive X h1
 
+theorem mun_range_size (n : ℕ) :
+    ((Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ).ncard : ℤ) = (n : ℤ) :=
+  by rw [← Finset.coe_Icc, Set.ncard_coe_finset, Int.card_Icc]; simp
+
 theorem mun_card_add_one {α : Type*} (X : Set α) (a : α) (h1 : X.Finite) (h2 : ¬ a ∈ X) :
     ((X ∪ ({a} : Set α)).ncard : ℤ) = (X.ncard : ℤ) + 1 :=
   by simp_all
+
+theorem thm_pigeonhole {α β : Type*} (X : Set α) (Y : Set β) (f : α → β) (h1 : Set.MapsTo f X Y ∧ Set.InjOn f X) :
+    X.encard ≤ Y.encard :=
+  by rw [← h1.2.encard_image]; exact Set.encard_le_encard (h1.1.image_subset)
 
 end Parley.Items.Stdlib.Counting

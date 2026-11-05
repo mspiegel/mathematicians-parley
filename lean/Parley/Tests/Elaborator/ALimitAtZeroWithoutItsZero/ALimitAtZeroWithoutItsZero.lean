@@ -4,6 +4,7 @@ public import OrderTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
@@ -47,7 +48,7 @@ theorem a_limit_at_zero_without_its_zero (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f
     all_goals parley_set_side
   -- 2. def:limit-at D := ℝ, c := 0, L := 2, from 1
   have r57_1 : (Set.univ : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := (Set.univ : Set ℝ))); parley_set_side)
-  have s2 : Filter.Tendsto f (nhdsWithin 0 ((Set.univ : Set ℝ) \ {0})) (nhds 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := (2 : ℝ)) (by parley_set_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := (2 : ℝ)) (by parley_set_side))).mpr (by parley_set_side); parley_set_side)
+  have s2 : Filter.Tendsto f (nhdsWithin 0 ((Set.univ : Set ℝ) \ {0})) (nhds 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (0 : ℝ)) (L := (2 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ)) (by parley_whole_side) (c := (0 : ℝ)) (L := (2 : ℝ)) (by parley_whole_side))).mpr (by parley_set_side); parley_set_side)
   all_goals exact s2
 
 end Parley.Tests.Elaborator.ALimitAtZeroWithoutItsZero.ALimitAtZeroWithoutItsZero

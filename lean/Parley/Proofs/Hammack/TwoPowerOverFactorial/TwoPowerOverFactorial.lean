@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import OrderTactics
 public import Tactics
 public import Parley.Items.Stdlib.Calculus
@@ -25,6 +26,7 @@ theorem two_power_over_factorial (a : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n →
     have s1_1 : ε / 4 > 0 := by parley_order
     -- 1.2. obtain N: thm:archimedean x := ε/4, from 1.1
     obtain ⟨N, s1_2a, s1_2b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε / 4) (by parley_side))
+    try lift N to ℕ using le_of_lt s1_2a
     -- 1.3. proof
     have s1_3 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ)) < ε := by
       intro n hK2

@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import OrderTactics
 public import PowerTactics
 public import SubstTactics
@@ -36,6 +37,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 8. proof
   have s8 : ∀ k : ℤ, k ∈ Finset.Icc 0 (m : ℤ) → x * t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 8.1. D1, from J
     have s8_1 : t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k := by parley_side
@@ -83,6 +85,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 17. proof
   have s17 : ∀ k : ℤ, k ∈ Finset.Icc 0 ((m : ℤ) + 1) → p k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 17.1. D2, from J
     have s17_1 : p k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by parley_side
@@ -94,6 +97,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 19. proof
   have s19 : ∀ k : ℤ, k ∈ Finset.Icc 0 (m : ℤ) → y * t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ (k + 1) := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 19.1. D1, from J
     have s19_1 : t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k := by parley_side
@@ -109,6 +113,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 20. proof
   have s20 : ∀ k : ℤ, k ∈ Finset.Icc 1 ((m : ℤ) + 1) → (LeanBridges.Counting.choose (m : ℤ) (k - 1) : ℝ) * x ^ ((m : ℤ) - (k - 1)) * y ^ (k - 1 + 1) = (LeanBridges.Counting.choose (m : ℤ) (k - 1) : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 20.1. algebra
     have s20_1 : (m : ℤ) - (k - 1) = (m : ℤ) + 1 - k := by parley_ring
@@ -140,6 +145,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 25. proof
   have s25 : ∀ k : ℤ, k ∈ Finset.Icc 0 ((m : ℤ) + 1) → q k = (LeanBridges.Counting.choose (m : ℤ) (k - 1) : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 25.1. D3, from J
     have s25_1 : q k = (LeanBridges.Counting.choose (m : ℤ) (k - 1) : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by parley_side
@@ -155,6 +161,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 27. proof
   have s27 : ∀ k : ℤ, k ∈ Finset.Icc 0 ((m : ℤ) + 1) → p k + q k = (LeanBridges.Counting.choose ((m : ℤ) + 1) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 27.1. D2, from J
     have s27_1 : p k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) + 1 - k) * y ^ k := by parley_side
@@ -175,6 +182,7 @@ theorem binomial_step (x : ℝ) (y : ℝ) (m : ℕ) :
   -- 28. proof
   have s28 : ∀ k : ℤ, k ∈ Finset.Icc 0 (m : ℤ) → t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k := by
     intro k hJ
+    try push_cast at hJ
     try have hJ_bounds := Finset.mem_Icc.mp hJ
     -- 28.1. D1, from J
     have s28_1 : t k = (LeanBridges.Counting.choose (m : ℤ) k : ℝ) * x ^ ((m : ℤ) - k) * y ^ k := by parley_side

@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Counting
+public import FactorialTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics

@@ -16,6 +16,7 @@ theorem positive_rational_fraction (A : ℝ) (A : ℚ) (hH3 : 0 < A) :
     (∃ x : ℕ, 0 < x ∧ (∃ y : ℕ, 0 < y ∧ A = (x : ℚ) / (y : ℚ))) := by
   -- 1. obtain p, q: def:rational x := A, from H2
   obtain ⟨p, q, s1a, s1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A))).mp (by parley_side)
+  try lift q to ℕ using le_of_lt s1a
   -- 2. contradiction
   have s2 : 0 < p := by
     by_contra hc_hS

@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Counting
+public import FactorialTactics
 public import Tactics
 
 /-! Written from tests/notations/counting.proof by parley build lean. -/

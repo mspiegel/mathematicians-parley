@@ -5,6 +5,7 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import WholeTactics
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/notations/functions.proof by parley build lean. -/
@@ -16,7 +17,7 @@ namespace Parley.Tests.Notations.Functions.AnInverseValue
 theorem an_inverse_value (f : ℝ → ℝ) (hH1 : Set.MapsTo f (Set.univ : Set ℝ) (Set.univ : Set ℝ) ∧ Set.InjOn f (Set.univ : Set ℝ)) (hH2 : ∀ x : ℝ, f x = 2 * x + 1) :
     (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) 7 = 3 := by
   -- 1. mun:inverse-value, from H1
-  have s1 : (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) (f 3) = 3 := by first | exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) hH1 (by parley_set_side)) | exact ((Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) hH1 (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) hH1 (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) hH1 (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) hH1 (by parley_set_side)); parley_set_side)
+  have s1 : (LeanBridges.Functions.inverse f (Set.univ : Set ℝ)) (f 3) = 3 := by first | exact (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_inverse_value (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (g := f) (y := (3 : ℝ)) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
   -- 2. instantiate x := 3 in H2
   have s2 : f 3 = 2 * 3 + 1 := by first | linear_combination (norm := parley_norm) (hH2 (3 : ℝ)) | (have h := (hH2 (3 : ℝ)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (hH2 (3 : ℝ)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (hH2 (3 : ℝ)) | exact_mod_cast ((hH2 (3 : ℝ))).symm | (have h := (hH2 (3 : ℝ)); rify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (3 : ℝ)); qify; linear_combination (norm := parley_norm) h) | (have h := (hH2 (3 : ℝ)); parley_int_power h) | (have h := (hH2 (3 : ℝ)); parley_set_side)
   -- 3. calculation

@@ -20,12 +20,14 @@ theorem irrational_plus_rational (A : ℝ) (B : ℝ) (hH3 : A ∈ (Set.univ : Se
   have s1 : ¬ (∃ m : ℚ, (m : ℝ) = A) := by first | exact (((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Sets.def_difference (Y := (Set.univ : Set ℝ)) (Z := {x : ℝ | ∃ m : ℚ, (m : ℝ) = x}) (u := A))).mp (by parley_set_side)).2; parley_set_side)
   -- 2. obtain p, q: def:rational x := B, from H4
   obtain ⟨p, q, s2a, s2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := B))).mp (by parley_set_side)
+  try lift q to ℕ using le_of_lt s2a
   -- 3. contradiction
   have s3 : ¬ (∃ m : ℚ, (m : ℝ) = A + (B : ℝ)) := by
     by_contra hc_hS
     have hS : ∃ m : ℚ, (m : ℝ) = A + (B : ℝ) := by parley_suppose hc_hS
     -- 3.1. obtain r, s: def:rational x := A + B, from S
     obtain ⟨r, s, s3_1a, s3_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := A + (B : ℝ)))).mp (by parley_set_side)
+    try lift s to ℕ using le_of_lt s3_1a
     -- 3.2. algebra, from 1, 3.1
     have s3_2 : A = (r : ℝ) / (s : ℝ) - (B : ℝ) := by linear_combination (norm := parley_field) s3_1b
     -- 3.3. substitute B = p/q (line 2) into line 3.2

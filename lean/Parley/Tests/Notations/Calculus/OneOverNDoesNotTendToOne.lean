@@ -27,6 +27,7 @@ theorem one_over_n_does_not_tend_to_one :
     have s2_2 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (1 / (n : ℝ) - 1) < 1 / 2) := by first | exact (s2_1 (1 / 2 : ℝ) (by parley_side)) | exact ((s2_1 (1 / 2 : ℝ) (by parley_side))).symm | simpa using (s2_1 (1 / 2 : ℝ) (by parley_side)) | exact_mod_cast (s2_1 (1 / 2 : ℝ) (by parley_side)) | (have h := (s2_1 (1 / 2 : ℝ) (by parley_side)); parley_side)
     -- 2.3. obtain N from line 2.2
     obtain ⟨N, s2_3a, s2_3b⟩ := s2_2
+    try lift N to ℕ using le_of_lt s2_3a
     -- 2.4. instantiate n := N + 1 in line 2.3
     have r303_1 : (N : ℝ) + 1 ≥ (N : ℝ) := by parley_order
     have s2_4 : abs (1 / ((N : ℝ) + 1) - 1) < 1 / 2 := by first | linarith [(s2_3b (N + 1) (by parley_side) (by parley_side))] | (have h := (s2_3b (N + 1) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (s2_3b (N + 1) (by parley_side) (by parley_side)) | (have h := (s2_3b (N + 1) (by parley_side) (by parley_side)); parley_side)

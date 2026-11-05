@@ -54,6 +54,7 @@ theorem halves_series :
     intro hA1
     -- 3.1. obtain N: thm:archimedean x := ε, from A1
     obtain ⟨N, s3_1a, s3_1b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean (x := ε) (by parley_side))
+    try lift N to ℕ using le_of_lt s3_1a
     -- 3.2. proof
     have s3_2 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs ((∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (1 / 2 ^ k : ℝ)) - 1) < ε := by
       intro n hK4

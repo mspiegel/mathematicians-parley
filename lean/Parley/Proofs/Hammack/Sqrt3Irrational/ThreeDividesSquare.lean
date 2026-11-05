@@ -7,6 +7,7 @@ public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime
+public import Parley.Stdlib.Divisibility.CoprimeDivides
 
 /-! Written from proofs/hammack/sqrt3-irrational.proof by parley build lean. -/
 
@@ -32,7 +33,7 @@ theorem three_divides_square (n : ℤ) (hH2 : (3 : ℤ) ∣ n ^ 2) :
       have row1 : (3 : ℤ) ∣ n * n := by parley_subst_at c1 hH2
       exact row1
     -- 4. thm:coprime-divides x := n, c := n, n := 3, from 2, 3
-    have s4 : (3 : ℤ) ∣ n := by first | exact (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.thm_coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)); parley_side)
+    have s4 : (3 : ℤ) ∣ n := by first | exact (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | exact ((Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side))).symm | simpa using (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | exact_mod_cast (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)) | (have h := (Parley.Stdlib.Divisibility.CoprimeDivides.coprime_divides (x := n) (c := n) (n := 3) (by parley_side) (by parley_side) (by parley_side)); parley_side)
     all_goals parley_side
   all_goals parley_side
 

@@ -1,6 +1,7 @@
 module
 
 public import Counting
+public import FactorialTactics
 public import SubstTactics
 public import Tactics
 

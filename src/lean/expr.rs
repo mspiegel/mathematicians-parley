@@ -241,6 +241,10 @@ pub struct Writer<'a> {
     pub finite: std::collections::BTreeSet<String>,
     /// The hypotheses `finite` is read from (`Writer::finite_from`).
     pub finite_lines: Vec<Node>,
+    /// What ∅ holds where nothing in it says, as a count compared with the
+    /// count of a set of those, |S| = |∅| (`relation_from`); None where it
+    /// is a set of the theorem's things.
+    pub empty_of: Option<Members>,
 }
 
 /// A sum read for writing: the writer its term is read with, where its index
@@ -333,6 +337,7 @@ impl<'a> Writer<'a> {
             reals: Vec::new(),
             finite: std::collections::BTreeSet::new(),
             finite_lines: Vec::new(),
+            empty_of: None,
         }
     }
 
@@ -348,7 +353,20 @@ impl<'a> Writer<'a> {
             reals: self.reals.clone(),
             finite: self.finite.clone(),
             finite_lines: self.finite_lines.clone(),
+            empty_of: self.empty_of.clone(),
         }
+    }
+
+    /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.
+    pub fn counted_beside_empty(&self, a: &Node, b: &Node) -> Option<Members> {
+        let ([s], [e]) = (a.children.as_slice(), b.children.as_slice()) else {
+            return None;
+        };
+        let counts = |n: &Node| &*n.notation_name() == "cardinality";
+        if !counts(a) || !counts(b) || &*e.notation_name() != "empty-set" {
+            return None;
+        }
+        self.set_members(s)
     }
 
     /// The line that says this term is an integer or a rational; None
@@ -599,7 +617,7 @@ impl Writer<'_> {
             || (node.notation() == crate::notations::APPLICATION
                 && node.children.first().is_some_and(|f| {
                     self.inverse_of_function(f).is_some()
-                        || (&*f.notation_name() == "composition"
+                        || (matches!(&*f.notation_name(), "composition" | "derivative")
                             && self.function_type(f).built().is_some())
                 }))
     }
@@ -648,7 +666,7 @@ impl Writer<'_> {
         }
         // A series is a limit, of real numbers as the series-sum item
         // states it.
-        if &*node.notation_name() == "series" {
+        if matches!(&*node.notation_name(), "series" | "integral") {
             return Route::Built(Num::Real);
         }
         match node.notation() {
@@ -774,6 +792,18 @@ impl Writer<'_> {
                 _ => Route::no(format!("{}⁻¹ of a function between two types", g.text)),
             };
         }
+        // f′ of a function of reals into ℝ, Mathlib's `deriv f`, is one too.
+        if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+            return match self.function_type(g) {
+                Route::Built((Num::Real, Num::Real)) => {
+                    Route::Built((Num::Real, Num::Real))
+                }
+                Route::Built(_) => {
+                    Route::no("a derivative of a function not from ℝ to ℝ")
+                }
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
         let [g, inner] = f.children.as_slice() else {
             return Route::no("a function that is no letter or composite");
         };
@@ -825,6 +855,9 @@ impl Writer<'_> {
                 super::names::letter(&g.text)
             );
         }
+        if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
+            return format!("(deriv {})", self.function_text(g));
+        }
         match f.children.as_slice() {
             [g, inner] => format!(
                 "({} ∘ {})",
@@ -842,7 +875,11 @@ impl Writer<'_> {
         match node.notation() {
             NAME => true,
             NUMERAL => false,
-            _ if is_big_operator(node) || &*node.notation_name() == "series" => true,
+            _ if is_big_operator(node)
+                || matches!(&*node.notation_name(), "series" | "integral") =>
+            {
+                true
+            }
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 true
             }
@@ -1035,6 +1072,47 @@ impl Writer<'_> {
         })
     }
 
+    /// ∫(a to b) t dx, the integral from a to b, `∫ x in a..b, t`: Mathlib's
+    /// interval integral, which runs from its first end to its second and is
+    /// negated backwards, as set.mm's directed integral is. The letter is a
+    /// real there, and the term is computed in ℝ.
+    fn integral(&self, node: &Node, at: Num) -> Route<Printed> {
+        let [from, to, term, letter] = node.children.as_slice() else {
+            return Route::no("an integral of other than four parts");
+        };
+        if !letter.is_name() {
+            return Route::no("an integral whose letter is no letter");
+        }
+        if at != Num::Real {
+            return Route::no("an integral computed in other than ℝ");
+        }
+        let mut inner = self.with_letters(self.letters.clone());
+        inner
+            .letters
+            .insert(letter.text.to_string(), LetterType::Number(Num::Real));
+        let (a, b, body) = match (
+            self.number(from, Num::Real),
+            self.number(to, Num::Real),
+            inner.number(term, Num::Real),
+        ) {
+            (Route::Built(a), Route::Built(b), Route::Built(t)) => (a, b, t),
+            (Route::Declined(d), _, _)
+            | (_, Route::Declined(d), _)
+            | (_, _, Route::Declined(d)) => return Route::Declined(d),
+        };
+        let body = Printed::atom(format!("({} : ℝ)", body.text));
+        Route::Built(Printed {
+            text: format!(
+                "∫ {} in {}..{}, {}",
+                super::names::letter(&letter.text),
+                a.at(MAX),
+                b.at(MAX),
+                body.at(67)
+            ),
+            prec: 10,
+        })
+    }
+
     /// x(n) → L as n → ∞: `Filter.Tendsto (fun n : ℕ => x n) Filter.atTop
     /// (nhds L)`, the letter running over the naturals and the term and its
     /// limit computed in the type that holds both. The page's ℕ starts at 1
@@ -1148,9 +1226,57 @@ impl Writer<'_> {
         }
     }
 
-    /// f is continuous on D, `ContinuousOn f D`, or differentiable on D,
-    /// `DifferentiableOn ℝ f D`, of a function into ℝ and a set of reals:
-    /// `predicate` is what goes before f.
+    /// f is differentiable on U: each point of U is inside f's domain D, D
+    /// about it, and f has a derivative there, `∀ x ∈ U, D ∈ nhds x ∧
+    /// DifferentiableAt ℝ f x`. set.mm takes a derivative only at a point
+    /// inside the domain, where it is Lean's `deriv f`; of f between number
+    /// systems, D is all of ℝ and only the derivative is said.
+    fn differentiable(&self, node: &Node) -> Route<Printed> {
+        let [f, set] = node.children.as_slice() else {
+            return Route::no("a differentiability of other than a function and a set");
+        };
+        if !f.is_name()
+            || !matches!(
+                self.letters.get(f.text.as_str()),
+                Some(LetterType::Function {
+                    from: Num::Real,
+                    to: Num::Real
+                })
+            )
+        {
+            return Route::no(format!("{} is no function from ℝ to ℝ", f.text));
+        }
+        let Some(domain) = self.domain_of(&f.text) else {
+            return Route::no(format!(
+                "a derivative of {}, whose domain no line gives",
+                f.text
+            ));
+        };
+        let u = match self.numbers_at(set, Num::Real) {
+            Route::Built(s) => s,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let Some(x) = ["x", "y", "z", "t", "w", "v"]
+            .into_iter()
+            .find(|l| !self.letters.contains_key(*l) && *l != &*f.text)
+        else {
+            return Route::no("a differentiability using every letter it could bind");
+        };
+        let given = self.domains.contains_key(f.text.as_str());
+        let f = super::names::letter(&f.text);
+        let at = format!("DifferentiableAt ℝ {f} {x}");
+        let said = match given {
+            true => format!("{domain} ∈ nhds {x} ∧ {at}"),
+            false => at,
+        };
+        Route::Built(Printed {
+            text: format!("∀ {x} ∈ {}, {said}", u.at(MAX)),
+            prec: 0,
+        })
+    }
+
+    /// f is continuous on D, `ContinuousOn f D`, of a function into ℝ and a
+    /// set of reals: `predicate` is what goes before f.
     fn continuous(&self, node: &Node, predicate: &str) -> Route<Printed> {
         let [f, set] = node.children.as_slice() else {
             return Route::no("a continuity of other than a function and a set");
@@ -1222,6 +1348,9 @@ impl Writer<'_> {
         }
         if &*node.notation_name() == "series" {
             return self.series(node, at);
+        }
+        if &*node.notation_name() == "integral" {
+            return self.integral(node, at);
         }
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
@@ -1309,6 +1438,12 @@ impl Writer<'_> {
     fn raise(&self, value: Printed, own: Num, at: Num) -> Route<Printed> {
         if own == at {
             Route::Built(value)
+        } else if own == Num::Real && at == Num::Complex && value.prec == 75 {
+            // Lean takes `(x ^ a : ℂ)` as x cast up to the power a, and has
+            // no power of a complex number to a real exponent, so a power is
+            // cast whole, at its own type first.
+            let own_typed = self.cast(&value, own);
+            Route::Built(self.cast(&own_typed, at))
         } else if own < at {
             Route::Built(self.cast(&value, at))
         } else {
@@ -1419,7 +1554,7 @@ impl Writer<'_> {
             return self.continuous(node, "ContinuousOn");
         }
         if &*node.notation_name() == "differentiable" {
-            return self.continuous(node, "DifferentiableOn ℝ");
+            return self.differentiable(node);
         }
         // D is open: `IsOpen D`, of a set of reals.
         if let ("open", [set]) = (&*node.notation_name(), node.children.as_slice()) {
@@ -1634,9 +1769,18 @@ impl Writer<'_> {
     /// A relation of numerals alone, `5 = 0`, written in the type `floor`
     /// at least: the type of the lines it is reached from.
     pub fn closed_formula(&self, node: &Node, floor: Num) -> Route<Printed> {
-        // A count, |∅| = 0, is in ℕ∞ whatever the lines around it.
+        // A count, |∅| = 0, is in ℕ∞ whatever the lines around it; sets,
+        // {1, …, 0} = ∅, are of the types their members are.
         if self.counts(node) {
             return self.formula(node);
+        }
+        if let [left, right] = node.children.as_slice() {
+            let of_sets = matches!(node.notation(), EQUALITY | ORDER)
+                && (self.set_members(left).is_some()
+                    || self.set_members(right).is_some());
+            if of_sets {
+                return self.formula(node);
+            }
         }
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY {
@@ -1653,6 +1797,17 @@ impl Writer<'_> {
         let [left, right] = node.children.as_slice() else {
             return Route::no("a relation of other than two sides");
         };
+        // |S| = |∅|: ∅ is a set of what S holds.
+        if self.empty_of.is_none() {
+            if let Some(m) = self
+                .counted_beside_empty(left, right)
+                .or_else(|| self.counted_beside_empty(right, left))
+            {
+                let mut w = self.with_letters(self.letters.clone());
+                w.empty_of = Some(m);
+                return w.relation_from(node, negated, floor);
+            }
+        }
         if !self.is_number(left) || !self.is_number(right) {
             return Route::no(format!(
                 "{} between terms that are not numbers",

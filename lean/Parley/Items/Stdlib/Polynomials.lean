@@ -17,4 +17,8 @@ theorem mun_polynomial_value (p : ℂ → ℂ) (h1 : p ∈ LeanBridges.Polynomia
     True :=
   trivial
 
+theorem def_transcendental (α : ℂ) :
+    Transcendental ℤ α ↔ ¬ IsAlgebraic ℤ α :=
+  by (aesop)
+
 end Parley.Items.Stdlib.Polynomials

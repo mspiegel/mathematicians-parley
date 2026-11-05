@@ -25,6 +25,7 @@ theorem limit_negative (x : ℤ → ℝ) (L : ℝ) (hH3 : Filter.Tendsto (fun n 
     have s1_2 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (x (n : ℤ) - L) < ε) := by first | exact (s1_1 ε (by parley_side)) | exact ((s1_1 ε (by parley_side))).symm | simpa using (s1_1 ε (by parley_side)) | exact_mod_cast (s1_1 ε (by parley_side)) | (have h := (s1_1 ε (by parley_side)); parley_side)
     -- 1.3. obtain N from line 1.2
     obtain ⟨N, s1_3a, s1_3b⟩ := s1_2
+    try lift N to ℕ using le_of_lt s1_3a
     -- 1.4. proof
     have s1_4 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (-x (n : ℤ) - -L) < ε := by
       intro n hK2

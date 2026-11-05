@@ -30,8 +30,10 @@ theorem limit_at_most (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendst
     have s1_5 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (x (n : ℤ) - B) < r / 2) := by first | exact (s1_3 (r / 2) (by parley_side)) | exact ((s1_3 (r / 2) (by parley_side))).symm | simpa using (s1_3 (r / 2) (by parley_side)) | exact_mod_cast (s1_3 (r / 2) (by parley_side)) | (have h := (s1_3 (r / 2) (by parley_side)); parley_side)
     -- 1.6. obtain P from line 1.4
     obtain ⟨P, s1_6a, s1_6b⟩ := s1_4
+    try lift P to ℕ using le_of_lt s1_6a
     -- 1.7. obtain Q from line 1.5
     obtain ⟨Q, s1_7a, s1_7b⟩ := s1_5
+    try lift Q to ℕ using le_of_lt s1_7a
     -- 1.8. inequalities, from 1.7
     have s1_8 : (P : ℝ) + (Q : ℝ) ≥ (P : ℝ) := by have := (s1_7b P (by parley_side)); parley_order
     -- 1.9. inequalities, from 1.6

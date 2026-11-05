@@ -1,0 +1,18 @@
+module
+
+public import SetTactics
+public import Tactics
+public import Parley.Items.Stdlib.Sums
+
+/-! Written from tests/elaborator/a-function-type-widened.proof by parley build lean. -/
+
+public section
+
+namespace Parley.Tests.Elaborator.AFunctionTypeWidened.AFunctionTypeWidened
+
+theorem a_function_type_widened (n : ℕ) (hH1 : 0 < n) (t : ℤ → ℤ) (hH2 : Set.MapsTo t (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ) {n : ℤ | 0 < n}) :
+    True := by
+  -- 1. mun:product-real a := 1, b := n
+  all_goals parley_set_side
+
+end Parley.Tests.Elaborator.AFunctionTypeWidened.AFunctionTypeWidened

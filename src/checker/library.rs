@@ -502,6 +502,21 @@ impl<'a> Known<'a> {
         let Ok(read) = values.read_wanted(self.env.g, &self.sorts, letters) else {
             return Binding::new();
         };
+        // A value read as its place wants it, `U := (a, b)` the open
+        // interval, is kept for the build in place of its plain reading, the
+        // pair, as this is how the line means it.
+        for (written, v) in values.written().zip(&read) {
+            let Ok(sentence) = written.formula() else {
+                continue;
+            };
+            let key = PartKey::of(&sentence);
+            let mut page = self.page.borrow_mut();
+            if let Some(kept) = page.get_mut(&key) {
+                if kept.notation() != v.value.notation() {
+                    *kept = v.value.clone();
+                }
+            }
+        }
         read.into_iter()
             .map(|v| {
                 (

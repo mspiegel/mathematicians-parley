@@ -43,6 +43,7 @@ theorem reciprocal_square_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.u
     -- 8. mun:max-real x := 1/p, y := L + 1, from 7
     -- 9. obtain N: thm:archimedean-natural x := max(1/p, L + 1), from 8
     obtain ⟨N, s9a, s9b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := max (1 / p) (L + 1)))
+    try lift N to ℕ using le_of_lt s9a
     -- 10. mun:le-max x := 1/p, y := L + 1, from 7
     have s10 : 1 / p ≤ max (1 / p) (L + 1) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := 1 / p) (y := L + 1))] | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := 1 / p) (y := L + 1)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := 1 / p) (y := L + 1)) | (have h := (Parley.Items.Stdlib.Numbers.mun_le_max_1 (x := 1 / p) (y := L + 1)); parley_set_side)
     -- 11. mun:le-max x := 1/p, y := L + 1, from 7

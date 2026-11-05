@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Counting
+public import FactorialTactics
 public import PowerTactics
 public import SetTactics
 public import SubstTactics
@@ -99,7 +100,7 @@ theorem choose_from_none {α : Type*} (X : Set α) (j : ℤ) (hH3 : X.encard = (
         all_goals parley_set_side
       -- 3.12. calculation
       have s3_12 : (F.ncard : ℤ) = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by
-        calc (F.ncard : ℤ) = ((∅ : Set α).ncard : ℤ) := by parley_subst s3_10
+        calc (F.ncard : ℤ) = ((∅ : Set (Set α)).ncard : ℤ) := by parley_subst s3_10
           _ = 0 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Counting.mun_card_empty | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Counting.mun_card_empty | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_empty).symm | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; parley_int_power h) | (have h := Parley.Items.Stdlib.Counting.mun_card_empty; parley_set_side)
           _ = (LeanBridges.Counting.choose (0 : ℤ) j : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_outside (n := 0) (k := j) (by parley_set_side)); parley_set_side)
       all_goals parley_set_side

@@ -84,7 +84,7 @@ theorem sum-telescopes
   metamath-proof telfsum
   note        A telescoping sum: each term's second half cancels the next
               term's first, and what is left is the first and the last.
-  lean-proof  not yet implemented
+  lean-proof  by obtain ⟨n, hn⟩ : ∃ n : ℕ, b = a - 1 + n := ⟨(b - (a - 1)).toNat, by omega⟩; subst hn; clear h3; induction n with | zero => (simp only [Nat.cast_zero, add_zero]; rw [Finset.Icc_eq_empty_of_lt (by omega)]; simp) | succ k ih => (rw [(show a - 1 + ((k + 1 : ℕ) : ℤ) = (a - 1 + k) + 1 by push_cast; ring), (show Finset.Icc a (a - 1 + k + 1) = insert (a - 1 + k + 1) (Finset.Icc a (a - 1 + k)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.sum_insert (by simp), ih]; ring)
 
 theorem sum-telescopes-up
   let a ∈ ℤ                                                           (H1)
@@ -213,7 +213,7 @@ mundane theorem product-first
   then        ∏(k = a to b) t(k) = t(a)·∏(k = a + 1 to b) t(k)
   metamath-proof fprod1p
   note        As sum-first, for a product: the first factor split off.
-  lean-proof  not yet implemented
+  lean-proof  by rw [(show Finset.Icc a b = insert a (Finset.Icc (a + 1) b) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.prod_insert (by simp)]
 
 mundane theorem product-termwise
   let a ∈ ℤ                                                           (H1)
@@ -227,7 +227,7 @@ mundane theorem product-termwise
               are equal when their factors are, index by index. The two
               functions need agree only on the range, and either may be
               defined beyond it, as a list extended by one place is.
-  lean-proof  not yet implemented
+  lean-proof  Finset.prod_congr rfl h3
 
 mundane theorem range-difference
   let a ∈ ℤ                                                           (H1)
@@ -263,7 +263,7 @@ mundane theorem range-nat
   note        No proof cites it: a line saying k ∈ {1, …, n} says k ∈ ℕ as
               well, and a line said of every k ∈ ℕ answers a hypothesis over
               the range (`SYNTAX.md`), both by this lemma.
-  lean-proof  not yet implemented
+  lean-proof  by (aesop)
 
 definition range
   let n ∈ ℤ                                                           (H1)
@@ -281,24 +281,24 @@ mundane theorem range-single
   let m ∈ ℤ                                                           (H1)
   then        {m, …, m} = {m}
   metamath-proof fzsn
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem range-empty
   then        {1, …, 0} = ∅
   metamath-proof fz10
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem range-split
   let k ∈ {m, …, n}                                                   (H1)
   then        {m, …, n} = {m, …, k} ∪ {k + 1, …, n}
   metamath-proof fzsplit
-  lean-proof  not yet implemented
+  lean-proof  by simp only [Finset.mem_Icc] at h1; ext x; simp only [Set.mem_union, Set.mem_Icc]; omega
 
 mundane theorem range-extended
   let k ∈ {a, …, b}                                                   (H1)
   then        k ∈ {a, …, b + 1}
   metamath-proof fzelp1
-  lean-proof  not yet implemented
+  lean-proof  by simp only [Finset.mem_Icc] at h1 ⊢; omega
 
 mundane theorem range-without-last
   let n ∈ ℕ                                                           (H1)
@@ -397,7 +397,7 @@ mundane theorem sum-constant-over
   then        Σ(x ∈ X) c = |X|·c
   metamath-proof fsumconst
   note        The same term once for each member of X, whatever X holds.
-  lean-proof  not yet implemented
+  lean-proof  by rw [finsum_mem_eq_finite_toFinset_sum _ h1, Finset.sum_const, nsmul_eq_mul, Set.ncard_eq_toFinset_card _ h1]
 
 mundane theorem sum-empty-range
   let a ∈ ℤ                                                           (H1)
@@ -409,7 +409,7 @@ mundane theorem sum-empty-range
   note        A range that ends before it starts has no terms, and their sum
               is 0: Σ(k = 1 to 0) (2k − 1) = 0 is the base case of an
               induction from 0 over a sum from 1.
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem sum-empty-set
   let t : ℤ → ℝ                                                       (H1)
@@ -429,7 +429,7 @@ mundane theorem sum-of-three
   metamath-proof sumtp with V := ℝ, W := ℝ, X := ℝ
   note        Three different numbers listed, summed. sumtp asks each
               number to lie in some set, and ℝ is the one they lie in.
-  lean-proof  not yet implemented
+  lean-proof  by rw [finsum_mem_insert _ (by simp [h4, h5]) (Set.toFinite _), finsum_mem_pair h6]; ring
 
 mundane theorem sum-nonneg
   let a ∈ ℤ                                                           (H1)
@@ -479,7 +479,7 @@ mundane theorem product-integer
   assume X is finite                                                  (H2)
   then        ∏(x ∈ X) x ∈ ℤ
   metamath-proof metamath-bridges/totient/gfprodz
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem product-split
   let X be a set                                                      (H1)
@@ -521,7 +521,7 @@ mundane theorem product-of-ones
   assume X is finite                                                  (H2)
   then        ∏(x ∈ X) 1 = 1
   metamath-proof prod1
-  lean-proof  not yet implemented
+  lean-proof  by (simp_all; done)
 
 mundane theorem product-empty
   let X be a set                                                      (H1)
@@ -559,7 +559,7 @@ mundane theorem product-constant
   let c ∈ ℝ                                                           (H3)
   then        ∏(x ∈ X) c = c^|X|
   metamath-proof stdlib/sums/product-constant
-  lean-proof  not yet implemented
+  lean-proof  by rw [finprod_mem_eq_finite_toFinset_prod _ h1, Finset.prod_const, Set.ncard_eq_toFinset_card _ h1]
 
 theorem product-factor
   let X ⊆ ℤ                                                           (H1)
@@ -567,7 +567,7 @@ theorem product-factor
   let c ∈ ℤ                                                           (H3)
   then        ∏(x ∈ X) x·c = c^|X|·∏(x ∈ X) x
   metamath-proof stdlib/sums/product-factor
-  lean-proof  not yet implemented
+  lean-proof  by rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, Finset.prod_mul_distrib, Finset.prod_const, Set.ncard_eq_toFinset_card _ h2]; ring
 
 theorem product-reorder
   let X ⊆ ℤ                                                           (H1)
