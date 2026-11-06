@@ -650,15 +650,24 @@ impl Writer<'_> {
                 let mut inner = self.with_letters(self.letters.clone());
                 inner.letters.insert(x.text.to_string(), over.letter());
                 match (self.set_term(s), inner.set_term(t)) {
-                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
-                        format!(
-                            "⋃ {} ∈ {}, {}",
-                            super::names::letter(&x.text),
-                            a.at(MAX),
-                            b.at(67)
-                        ),
-                        10,
-                    )),
+                    (Route::Built(a), Route::Built(b)) => {
+                        let ty = b.ty.clone();
+                        Route::Built(Printed {
+                            kind: TermKind::Notation {
+                                pieces: vec![
+                                    Piece::text(format!(
+                                        "⋃ {} ∈ ",
+                                        super::names::letter(&x.text)
+                                    )),
+                                    Piece::term(a, MAX),
+                                    Piece::text(", "),
+                                    Piece::term(b, 67),
+                                ],
+                                prec: 10,
+                            },
+                            ty,
+                        })
+                    }
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         Route::Declined(d)
                     }
@@ -833,29 +842,54 @@ impl Writer<'_> {
             .then(|| system_of(set))
             .flatten()
         {
-            let ty = set_type(system).lean();
-            let condition = match system {
-                super::expr::System::Positive => {
-                    format!("0 < {name} ∧ {}", condition.at(36))
-                }
-                super::expr::System::NonNegative => {
-                    format!("0 ≤ {name} ∧ {}", condition.at(36))
-                }
-                _ => condition.text(),
+            let ty = LeanType::Num(set_type(system));
+            let order = match system {
+                super::expr::System::Positive => Some("<"),
+                super::expr::System::NonNegative => Some("≤"),
+                super::expr::System::Type(_) => None,
             };
-            return Route::Built(Printed::atom(format!(
-                "{{{name} : {ty} | {condition}}}"
-            )));
+            let mut pieces = vec![Piece::text(format!("{{{name} : {} | ", ty.text()))];
+            match order {
+                Some(order) => {
+                    let bound = match relation_of(
+                        order,
+                        Printed::numeral("0", ty.clone()),
+                        Printed::letter(name.clone(), ty.clone()),
+                    ) {
+                        Route::Built(b) => b,
+                        Route::Declined(d) => return Route::Declined(d),
+                    };
+                    pieces.push(Piece::term(bound, 0));
+                    pieces.push(Piece::text(" ∧ "));
+                    pieces.push(Piece::term(condition, 36));
+                }
+                None => pieces.push(Piece::term(condition, 0)),
+            }
+            pieces.push(Piece::text("}"));
+            return Route::Built(Printed::notation(
+                pieces,
+                MAX,
+                LeanType::Set(Box::new(ty)),
+            ));
         }
         let domain = match self.set_term(set) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        Route::Built(Printed::atom(format!(
-            "{{{name} ∈ {} | {}}}",
-            domain.text(),
-            condition.text()
-        )))
+        let ty = domain.ty.clone();
+        Route::Built(Printed {
+            kind: TermKind::Notation {
+                pieces: vec![
+                    Piece::text(format!("{{{name} ∈ ")),
+                    Piece::term(domain, 0),
+                    Piece::text(" | "),
+                    Piece::term(condition, 0),
+                    Piece::text("}"),
+                ],
+                prec: MAX,
+            },
+            ty,
+        })
     }
 
     /// The writer a set-image's term is read with, {E(s) : s ∈ Y}: its
@@ -890,15 +924,19 @@ impl Writer<'_> {
             return Route::no("a set-image over a set with no Lean type");
         };
         match (inner.element_term(term, &members), self.set_term(set)) {
-            (Route::Built(t), Route::Built(y)) => Route::Built(Printed::raw(
-                format!(
-                    "(fun {} : {} => {}) '' {}",
-                    super::names::letter(&letter.text),
-                    over.lean(),
-                    t.text(),
-                    y.at(MAX)
-                ),
+            (Route::Built(t), Route::Built(y)) => Route::Built(Printed::notation(
+                vec![
+                    Piece::text(format!(
+                        "(fun {} : {} => ",
+                        super::names::letter(&letter.text),
+                        over.lean()
+                    )),
+                    Piece::term(t, 0),
+                    Piece::text(") '' "),
+                    Piece::term(y, MAX),
+                ],
                 80,
+                LeanType::Set(Box::new(members.member_type())),
             )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
@@ -938,33 +976,52 @@ impl Writer<'_> {
                 }
             });
         }
-        let Some(map) = self.map_text(f) else {
+        let Some(map) = self.map_term(f) else {
             return Route::no(format!("{} applied, which is no map", f.text));
         };
-        match self.set_term(x) {
-            Route::Built(p) => {
-                Route::Built(Printed::raw(format!("{map} {}", p.at(MAX)), 1023))
-            }
-            Route::Declined(d) => Route::Declined(d),
-        }
+        let to = match self.letters.get(f.text.as_str()) {
+            Some(LetterType::Map { to, .. }) => Some(to.member_type()),
+            _ => None,
+        };
+        self.set_term(x).map(|p| Printed {
+            kind: TermKind::App {
+                head: Box::new(map),
+                args: vec![super::doc::Arg::Explicit(p)],
+                explicit: false,
+            },
+            ty: to,
+        })
     }
 
     /// A map as Lean writes it applied: a map letter, or g ∘ f of maps,
     /// `(g ∘ f)`; None for anything else.
-    fn map_text(&self, f: &Node) -> Option<String> {
+    fn map_term(&self, f: &Node) -> Option<Printed> {
         if f.is_name() {
-            return matches!(
-                self.letters.get(f.text.as_str()),
-                Some(LetterType::Map { .. })
-            )
-            .then(|| super::names::letter(&f.text));
+            return match self.letters.get(f.text.as_str()) {
+                Some(ty @ LetterType::Map { .. }) => Some(Printed::letter(
+                    super::names::letter(&f.text),
+                    ty.lean_type(),
+                )),
+                _ => None,
+            };
         }
         match (&*f.notation_name(), f.children.as_slice()) {
-            ("composition", [g, inner]) => Some(format!(
-                "({} ∘ {})",
-                self.map_text(g)?,
-                self.map_text(inner)?
-            )),
+            ("composition", [g, inner]) => {
+                let (outer, inner) = (self.map_term(g)?, self.map_term(inner)?);
+                let ty = outer.ty.clone();
+                let composed = Printed {
+                    kind: TermKind::Infix {
+                        op: super::doc::Op::COMPOSE,
+                        lhs: Box::new(outer),
+                        rhs: Box::new(inner),
+                    },
+                    ty: ty.clone(),
+                };
+                Some(Printed {
+                    kind: TermKind::Paren(Box::new(composed)),
+                    ty,
+                })
+            }
             _ => None,
         }
     }
@@ -995,22 +1052,46 @@ impl Writer<'_> {
             return None;
         }
         let (a, b) = match (self.set_term(from), self.set_term(to)) {
-            (Route::Built(a), Route::Built(b)) => (a.at(MAX), b.at(MAX)),
+            (Route::Built(a), Route::Built(b)) => (a, b),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                 return Some(Route::Declined(d))
             }
         };
-        let name = super::names::letter(&f.text);
-        let parts: Vec<String> = parts
-            .iter()
-            .map(|p| p.replace("_f", &name).replace("_A", &a).replace("_B", &b))
-            .collect();
-        let prec = if parts.len() == 1 {
-            super::expr::APP
-        } else {
-            35
+        let map = Printed {
+            kind: TermKind::Letter(super::names::letter(&f.text)),
+            ty: self.letters.get(f.text.as_str()).map(LetterType::lean_type),
         };
-        Some(Route::Built(Printed::raw(parts.join(" ∧ "), prec)))
+        let mut claims: Vec<Printed> = Vec::new();
+        for part in parts {
+            let mut words = part.split_whitespace();
+            let Some(head) = words.next() else {
+                continue;
+            };
+            let args: Vec<Printed> = words
+                .map(|w| match w {
+                    "_f" => map.clone(),
+                    "_A" => a.clone(),
+                    _ => b.clone(),
+                })
+                .collect();
+            claims.push(Printed::applied(
+                head,
+                Source::Mathlib,
+                args,
+                LeanType::Prop,
+            ));
+        }
+        if let [one] = claims.as_slice() {
+            return Some(Route::Built(one.clone()));
+        }
+        let mut pieces = Vec::new();
+        for (i, c) in claims.into_iter().enumerate() {
+            if i > 0 {
+                pieces.push(Piece::text(" ∧ "));
+            }
+            pieces.push(Piece::term(c, 36));
+        }
+        Some(Route::Built(Printed::notation(pieces, 35, LeanType::Prop)))
     }
 
     /// Whether a term counts, somewhere, a set no line says is finite, |A|
