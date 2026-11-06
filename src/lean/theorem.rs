@@ -433,21 +433,66 @@ fn and_parts(node: &Node) -> Vec<&Node> {
 
 /// The projection that takes part `i` of an "and" as its tree nests it,
 /// `.1.2` for B of ((A ∧ B) ∧ C); None where it has no part `i`.
-fn leaf_path(node: &Node, i: usize) -> Option<String> {
+fn leaf_path(node: &Node, i: usize) -> Option<Vec<&'static str>> {
     match (node.notation(), node.children.as_slice()) {
         (
             crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
             [l, r],
         ) => {
             let left = and_parts(l).len();
-            if i < left {
-                leaf_path(l, i).map(|p| format!(".1{p}"))
-            } else {
-                leaf_path(r, i - left).map(|p| format!(".2{p}"))
+            let (side, rest) = match i < left {
+                true => ("1", leaf_path(l, i)),
+                false => ("2", leaf_path(r, i - left)),
+            };
+            rest.map(|mut path| {
+                path.insert(0, side);
+                path
+            })
+        }
+        _ => (i == 0).then(Vec::new),
+    }
+}
+
+/// A function or proof applied to one more argument: `f a b` and `h`
+/// give `f a b h`.
+fn applied_to(term: Printed, arg: Printed) -> Printed {
+    match term.kind {
+        super::doc::TermKind::App {
+            head,
+            mut args,
+            explicit,
+        } => {
+            args.push(super::doc::Arg::Explicit(arg));
+            Printed {
+                kind: super::doc::TermKind::App {
+                    head,
+                    args,
+                    explicit,
+                },
+                ty: None,
             }
         }
-        _ => (i == 0).then(String::new),
+        kind => Printed {
+            kind: super::doc::TermKind::App {
+                head: Box::new(Printed { kind, ty: term.ty }),
+                args: vec![super::doc::Arg::Explicit(arg)],
+                explicit: false,
+            },
+            ty: None,
+        },
     }
+}
+
+/// A term taken along a projection path, `(t).1.2`.
+fn projected(term: Printed, path: &[&str]) -> Printed {
+    path.iter()
+        .fold(super::tactics::bracket(term), |inner, field| Printed {
+            kind: super::doc::TermKind::Field {
+                inner: Box::new(inner),
+                field: field.to_string(),
+            },
+            ty: None,
+        })
 }
 
 /// The projection that takes sentence `i` of `n` joined by `∧`, which
@@ -2706,7 +2751,7 @@ impl<'a> Proof<'a> {
         use super::doc::Proof;
         use super::tactics as t;
         match &reason.just.head {
-            Head::Item { .. } => self.citation(reason, k, node).map(Proof::Raw),
+            Head::Item { .. } => self.citation(reason, k, node),
             Head::Method(m) => {
                 // A claim said of every member of a set is proved of one,
                 // taken as the method's letter. Substitute rows each say
@@ -3027,8 +3072,7 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let mut lines: Vec<Tactic> =
-                    written_out(&defines).into_iter().map(Tactic::Raw).collect();
+                let mut lines: Vec<Tactic> = written_out(&defines);
                 lines.extend(haves);
                 return Route::Built(haves_then(lines, proof));
             }
@@ -5906,7 +5950,14 @@ impl<'a> Proof<'a> {
     }
 
     /// Sentence `k` of a claim, by the item its reason cites.
-    fn citation(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
+    fn citation(
+        &self,
+        reason: Reason,
+        k: usize,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
         let (item, cited) = match self.cited_item(reason) {
             Route::Built(x) => x,
             Route::Declined(d) => return Route::Declined(d),
@@ -5920,7 +5971,7 @@ impl<'a> Proof<'a> {
                 r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
             });
         if phrase {
-            return Route::Built(side_proof());
+            return Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])));
         }
         let Some(concluded) = cited.concluded.get(k) else {
             return Route::no("a claim sentence no conclusion of the item gives");
@@ -5947,13 +5998,22 @@ impl<'a> Proof<'a> {
                 }
             }
         }
-        let inst = instance.term.text();
+        let inst = instance.term;
         let iff = sentence.says.notation() == BICONDITIONAL;
         let implication = matches!(sentence.says.notation(), CONDITIONAL | IMPLICATION);
         let term = match concluded.way {
             Way::AsWritten => inst,
-            Way::Forward if iff => format!("({inst}).mp (by parley_side)"),
-            Way::Forward if implication => format!("{inst} (by parley_side)"),
+            Way::Forward if iff => {
+                let mp = Printed {
+                    kind: super::doc::TermKind::Field {
+                        inner: Box::new(t::bracket(inst)),
+                        field: "mp".to_string(),
+                    },
+                    ty: None,
+                };
+                applied_to(mp, side_term(&[]))
+            }
+            Way::Forward if implication => applied_to(inst, side_term(&[])),
             Way::Forward => {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
             }
@@ -5973,15 +6033,12 @@ impl<'a> Proof<'a> {
                 // which the goal guides in an `exact`; where the claim is in
                 // a wider type than the item, the term stated by a `have`
                 // and cast to it.
-                use super::tactics as t;
-                let by_to_nat = inst.contains("Int.toNat_of_nonneg");
+                let by_to_nat = inst.text().contains("Int.toNat_of_nonneg");
                 let mpr = Printed {
                     kind: super::doc::TermKind::App {
                         head: Box::new(Printed {
                             kind: super::doc::TermKind::Field {
-                                inner: Box::new(t::bracket(Printed::atom(
-                                    inst.clone(),
-                                ))),
+                                inner: Box::new(t::bracket(inst)),
                                 field: "mpr".to_string(),
                             },
                             ty: None,
@@ -6010,7 +6067,7 @@ impl<'a> Proof<'a> {
                     ));
                 }
                 ways.push(t::on_h(&mpr, vec![t::bridge(BridgeTactic::Side, vec![])]));
-                return Route::Built(by_ways(ways));
+                return Route::Built(ways_proof(ways));
             }
         };
         // Several sentences of the claim taken by one reading are its "and"
@@ -6036,7 +6093,7 @@ impl<'a> Proof<'a> {
         let term = match same.iter().position(|&i| i == k) {
             Some(at) if same.len() > 1 && !whole => {
                 match leaf_path(read, at) {
-                    Some(path) => format!("({term}){path}"),
+                    Some(path) => projected(term, &path),
                     None => return Route::no(
                         "a reading whose \"and\" has fewer parts than its sentences",
                     ),
@@ -6050,7 +6107,7 @@ impl<'a> Proof<'a> {
                     .part_saying(read, cited, node)
                     .and_then(|at| leaf_path(read, at))
                 {
-                    Some(path) => format!("({term}){path}"),
+                    Some(path) => projected(term, &path),
                     None => term,
                 }
             }
@@ -6065,15 +6122,11 @@ impl<'a> Proof<'a> {
         let closed = match self.writer.integer_power_witness(node) {
             Some(witness) => ways_proof(vec![
                 Tactic::Exact(Printed::atom(witness)),
-                Tactic::Exact(super::tactics::bracket(proof_term(close(
-                    &self.writer,
-                    node,
-                    Printed::atom(term),
-                )))),
+                Tactic::Exact(t::bracket(proof_term(close(&self.writer, node, term)))),
             ]),
-            None => close(&self.writer, node, Printed::atom(term)),
+            None => close(&self.writer, node, term),
         };
-        Route::Built(with_haves(&written_out(&defines), &closed.text()))
+        Route::Built(haves_then(written_out(&defines), closed))
     }
 
     /// The proof of the right side of a definition a step folds: its
@@ -7212,13 +7265,6 @@ fn cast_up(
     )
 }
 
-/// A tactic proof with `have` lines written before it, inside its `by`
-/// (`haves_then`), as text.
-fn with_haves(haves: &[String], tactic: &str) -> String {
-    let haves: Vec<Tactic> = haves.iter().cloned().map(Tactic::Raw).collect();
-    haves_then(haves, super::doc::Proof::Raw(tactic.to_string())).text()
-}
-
 /// A proof with these tactics before it, inside its `by`: a block of them
 /// and then the proof's own tactic, each line indented under the `by`.
 fn haves_then(haves: Vec<Tactic>, proof: super::doc::Proof) -> super::doc::Proof {
@@ -7325,14 +7371,24 @@ struct CitedDefine {
 
 /// The tactic lines that write the defines out wherever they stand, and
 /// push in the casts that leaves; none where no define is cited.
-fn written_out(defines: &[CitedDefine]) -> Vec<String> {
+fn written_out(defines: &[CitedDefine]) -> Vec<Tactic> {
+    use super::tactics as t;
     if defines.is_empty() {
         return Vec::new();
     }
-    let rewrites: Vec<&str> = defines.iter().map(|d| d.proof.as_str()).collect();
+    let everywhere = || TacticArg::At(vec![super::doc::Location::Everywhere]);
+    let rewrites = defines
+        .iter()
+        .map(|d| t::forwards(t::hyp(&d.proof)))
+        .collect();
     vec![
-        format!("try simp only [{}] at *", rewrites.join(", ")),
-        "try push_cast at *".to_string(),
+        Tactic::Try(Box::new(t::simp_only(
+            false,
+            None,
+            rewrites,
+            Some(everywhere()),
+        ))),
+        Tactic::Try(Box::new(t::push_cast(Some(everywhere())))),
     ]
 }
 
