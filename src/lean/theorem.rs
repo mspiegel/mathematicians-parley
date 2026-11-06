@@ -44,6 +44,14 @@ pub struct Instance {
     pub statement: super::expr::Printed,
 }
 
+/// A line of a proof as the writer pushes it, which may hold several of the
+/// file's lines, and what it was written for; its line number is set where
+/// the file is put together.
+struct ProofLine {
+    text: String,
+    origin: Origin,
+}
+
 /// A proof given as an argument, as Lean text: a line's name or `(by
 /// parley_side)`.
 fn proof_arg(text: &str) -> super::doc::Arg {
@@ -1196,8 +1204,8 @@ struct Proof<'a> {
     thm: &'a Theorem,
     rec: &'a CheckedTheorem,
     writer: Writer<'a>,
-    lines: Vec<String>,
-    origins: Vec<Origin>,
+    /// The proof's lines in order, each with what it was written for.
+    lines: Vec<ProofLine>,
     /// The Lean names of each line the page can cite, by the reference
     /// that cites it: a step's number or a label.
     named: IndexMap<String, Vec<String>>,
@@ -1331,7 +1339,6 @@ pub fn theorem(
         rec,
         writer: Writer::new(&sources.checked.grammar, sources.templates),
         lines: Vec::new(),
-        origins: Vec::new(),
         named: IndexMap::new(),
         trees: IndexMap::new(),
         defined: indexmap::IndexSet::new(),
@@ -1475,15 +1482,15 @@ pub fn theorem(
     let mut text = String::new();
     let mut origins = Vec::new();
     let mut at = 1;
-    for (line, origin) in proof.lines.iter().zip(proof.origins) {
-        for _ in line.lines() {
+    for line in &proof.lines {
+        for _ in line.text.lines() {
             origins.push(Origin {
                 line: at,
-                ..origin.clone()
+                ..line.origin.clone()
             });
             at += 1;
         }
-        text.push_str(line);
+        text.push_str(&line.text);
         text.push('\n');
     }
     Route::Built(LeanFile { text, origins })
@@ -1505,11 +1512,13 @@ struct Reason<'r> {
 
 impl<'a> Proof<'a> {
     fn push(&mut self, line: String, page_line: usize, spot: Spot) {
-        self.lines.push(line);
-        self.origins.push(Origin {
-            line: 0,
-            page_line,
-            spot,
+        self.lines.push(ProofLine {
+            text: line,
+            origin: Origin {
+                line: 0,
+                page_line,
+                spot,
+            },
         });
     }
 
