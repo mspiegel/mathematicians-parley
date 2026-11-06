@@ -117,13 +117,18 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
         // is perfect as `σ 1 n = 2 * n`: the page's word says that
         // arithmetic, which Lean's statement does.
         for (written, op) in [
-            (" + ", "addition"),
-            (" - ", "subtraction"),
-            (" * ", "multiplication"),
-            (" / ", "division"),
-            (" ^ ", "power"),
+            ("+", "addition"),
+            ("-", "subtraction"),
+            ("*", "multiplication"),
+            ("/", "division"),
+            ("^", "power"),
         ] {
-            let n = t.text.matches(written).count();
+            let n = t
+                .skeleton
+                .walk()
+                .into_iter()
+                .filter(|n| matches!(&n.kind, super::doc::TermKind::Infix { op, .. } if op.symbol == written))
+                .count();
             if n > 0 {
                 *out.entry(op.to_string()).or_insert(0) += n;
             }

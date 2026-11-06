@@ -596,87 +596,19 @@ impl<'a> Writer<'a> {
     }
 }
 
-/// How a template's text takes its holes: the precedence of the whole and
-/// the least each hole needs.
-struct Shape {
-    prec: u32,
-    needs: Vec<u32>,
-}
-
-/// The shape of a template's text: an infix operator between two holes, a
-/// prefix operator before one, or anything else, whose holes are each an
-/// argument unless a bracket encloses it.
-fn shape_of(text: &str, holes: usize) -> Shape {
-    let words: Vec<&str> = text.split_whitespace().collect();
-    if let ["_1", op, "_2"] = words.as_slice() {
-        if let Some(op) = super::doc::Op::of(op) {
-            let (left, right) = op.needs();
-            return Shape {
-                prec: op.prec,
-                needs: vec![left, right],
-            };
-        }
-    }
-    if let ["¬", "_1"] = words.as_slice() {
-        return Shape {
-            prec: MAX,
-            needs: vec![40],
-        };
-    }
-    // A negation's argument is bracketed unless it is an atom, so that
-    // −(−3) is never `--3`, which Lean reads as a comment.
-    if let ["-_1"] | ["-", "_1"] = words.as_slice() {
-        return Shape {
-            prec: 75,
-            needs: vec![76],
-        };
-    }
-    let starts_binder = text.starts_with('∃') || text.starts_with('∀');
-    // A hole stands alone between brackets or separators, `(_1 : ℝ)`,
-    // `|_1|`, `, _2,`, where it needs no bracket of its own; one after a
-    // word, `(Polynomial.bernoulli _1)` or `[ZMOD _3]`, is an argument.
-    let enclosed = |i: usize| {
-        let mark = format!("_{}", i + 1);
-        let Some(at) = text.find(&mark) else {
-            return true;
-        };
-        let before = text[..at].chars().rev().find(|c| !c.is_whitespace());
-        let after = text[at + mark.len()..].chars().find(|c| !c.is_whitespace());
-        let opens = matches!(
-            before,
-            Some('(' | '|' | '‖' | '⌊' | '⌈' | '⟨' | '[' | '{' | ',')
-        );
-        let closes = matches!(
-            after,
-            Some(')' | '|' | '‖' | '⌋' | '⌉' | '⟩' | ']' | '}' | ',' | ':')
-        );
-        (opens && closes) || (starts_binder && after.is_none())
-    };
-    let needs = (0..holes)
-        .map(|i| if enclosed(i) { 0 } else { MAX })
+/// A template's tree with each hole filled, as text bracketed where Lean
+/// reads it so (`doc::print`); declined where a hole has no argument.
+fn fill(template: &Template, children: &[Printed]) -> Route<Printed> {
+    let args: Vec<super::doc::Term> = children
+        .iter()
+        .map(|c| super::doc::Term::raw(c.text.clone(), c.prec))
         .collect();
-    let prec = if starts_binder {
-        0
-    } else if words.len() == 1 {
-        MAX
-    } else {
-        APP
-    };
-    Shape { prec, needs }
-}
-
-/// A template's text with each hole filled, bracketed as its shape needs.
-fn fill(template: &Template, children: &[Printed]) -> Printed {
-    let shape = shape_of(&template.text, children.len());
-    let mut text = template.text.clone();
-    // Highest hole first, so `_1` does not take the front of `_12`.
-    for (i, child) in children.iter().enumerate().rev() {
-        let mark = format!("_{}", i + 1);
-        text = text.replace(&mark, &child.at(shape.needs[i]));
-    }
-    Printed {
-        text,
-        prec: shape.prec,
+    match template.skeleton.instantiate(&args) {
+        Some(tree) => Route::Built(Printed {
+            text: tree.text(),
+            prec: tree.prec(),
+        }),
+        None => Route::no("a template with a hole no argument fills"),
     }
 }
 
@@ -1742,7 +1674,10 @@ impl Writer<'_> {
                 // is cast up whole at its own type first: Lean puts a cast
                 // around such a term at its leaves, `(a % (10 : ℤ) : ℝ)`
                 // taking the remainder in ℝ.
-                let value = fill(template, &children);
+                let value = match fill(template, &children) {
+                    Route::Built(v) => v,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 let value = match template.yields {
                     Slot::Fixed(_) if here < at && value.prec < APP => {
                         self.cast(&value, here)
@@ -2086,7 +2021,7 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 match self.holes(node, template, alpha) {
-                    Route::Built(children) => Route::Built(fill(template, &children)),
+                    Route::Built(children) => fill(template, &children),
                     Route::Declined(d) => Route::Declined(d),
                 }
             }
@@ -2804,41 +2739,34 @@ mod tests {
 
     #[test]
     fn an_infix_template_brackets_by_lean_precedence() {
-        let minus = Template {
-            holes: vec![Slot::Alpha(Num::Int), Slot::Alpha(Num::Int)],
-            yields: Slot::Alpha(Num::Int),
-            text: "_1 - _2".to_string(),
-        };
+        let minus = Template::read("α, α → α: _1 - _2").expect("it reads");
         let sum = Printed {
             text: "a + b".to_string(),
             prec: 65,
         };
         // a + b − (a + b): the right side of a left-chaining operator is
         // bracketed at its own level, the left is not.
-        let out = fill(&minus, &[sum.clone(), sum]);
+        let Route::Built(out) = fill(&minus, &[sum.clone(), sum]) else {
+            panic!("the template fills");
+        };
         assert_eq!(out.text, "a + b - (a + b)");
     }
 
     #[test]
     fn an_argument_is_bracketed_unless_a_bracket_encloses_it() {
-        let factorial = Template {
-            holes: vec![Slot::Fixed(Num::Nat)],
-            yields: Slot::Fixed(Num::Nat),
-            text: "Nat.factorial _1".to_string(),
-        };
+        let factorial = Template::read("ℕ → ℕ: Nat.factorial _1").expect("it reads");
         let n1 = Printed {
             text: "n + 1".to_string(),
             prec: 65,
         };
-        assert_eq!(
-            fill(&factorial, std::slice::from_ref(&n1)).text,
-            "Nat.factorial (n + 1)"
-        );
-        let abs = Template {
-            holes: vec![Slot::Alpha(Num::Int)],
-            yields: Slot::Alpha(Num::Int),
-            text: "|_1|".to_string(),
+        let Route::Built(applied) = fill(&factorial, std::slice::from_ref(&n1)) else {
+            panic!("the template fills");
         };
-        assert_eq!(fill(&abs, &[n1]).text, "|n + 1|");
+        assert_eq!(applied.text, "Nat.factorial (n + 1)");
+        let floor = Template::read("ℝ → ℤ: ⌊_1⌋").expect("it reads");
+        let Route::Built(enclosed) = fill(&floor, &[n1]) else {
+            panic!("the template fills");
+        };
+        assert_eq!(enclosed.text, "⌊n + 1⌋");
     }
 }

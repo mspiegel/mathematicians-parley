@@ -12,7 +12,7 @@ public section
 namespace Parley.Proofs.Hammack.CongruentCubes.CongruentCubes
 
 theorem congruent_cubes (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡ b [ZMOD n]) :
-    (a ^ 3) ≡ (b ^ 3) [ZMOD n] := by
+    a ^ 3 ≡ b ^ 3 [ZMOD n] := by
   -- 1. def:congruent-mod, from H4
   have s1 : n ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side); parley_side)
   -- 2. mun:divides-multiple e := n, a := a − b, x := a² + a·b + b², from 1
@@ -23,7 +23,7 @@ theorem congruent_cubes (a : ℤ) (b : ℤ) (n : ℤ) (hH3 : 0 < n) (hH4 : a ≡
     have row1 : n ∣ a ^ 3 - b ^ 3 := by parley_subst_at c1 s2
     exact row1
   -- 4. def:congruent-mod, from 3
-  have s4 : (a ^ 3) ≡ (b ^ 3) [ZMOD n] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 3) (b := b ^ 3))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 3) (b := b ^ 3))).mpr (by parley_side); parley_side)
+  have s4 : a ^ 3 ≡ b ^ 3 [ZMOD n] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 3) (b := b ^ 3))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a ^ 3) (b := b ^ 3))).mpr (by parley_side); parley_side)
   all_goals exact s4
 
 end Parley.Proofs.Hammack.CongruentCubes.CongruentCubes

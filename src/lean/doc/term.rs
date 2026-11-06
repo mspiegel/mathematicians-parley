@@ -138,6 +138,19 @@ pub enum Arg {
     Named { name: String, value: Term },
 }
 
+impl Arg {
+    /// The argument with a template's holes filled (`Term::instantiate`).
+    fn instantiate(&self, args: &[Term]) -> Option<Arg> {
+        Some(match self {
+            Arg::Explicit(t) => Arg::Explicit(t.instantiate(args)?),
+            Arg::Named { name, value } => Arg::Named {
+                name: name.clone(),
+                value: value.instantiate(args)?,
+            },
+        })
+    }
+}
+
 /// A Lean term or proposition, with its type. Every node has one but text
 /// the writer made without a tree (`TermKind::Raw`), whose type went into
 /// the text.
@@ -160,8 +173,30 @@ pub enum TermKind {
     Const(ConstRef),
     /// A numeral, as written.
     Numeral(String),
-    /// A function or constant applied to arguments.
-    App { head: Box<Term>, args: Vec<Arg> },
+    /// A function or constant applied to arguments; `explicit` where every
+    /// argument is given, `@ite _ c …`.
+    App {
+        head: Box<Term>,
+        args: Vec<Arg>,
+        explicit: bool,
+    },
+    /// A hole of a template, numbered from 1, which `Term::instantiate`
+    /// fills; none stands in a term the writer finishes.
+    Hole(usize),
+    /// `_`: an argument Lean finds itself.
+    Elided,
+    /// A term between two marks, `⌊x⌋` or `‖x‖`.
+    Enclosed {
+        open: &'static str,
+        close: &'static str,
+        inner: Box<Term>,
+    },
+    /// `a ≡ b [ZMOD n]`.
+    ModEq {
+        a: Box<Term>,
+        b: Box<Term>,
+        n: Box<Term>,
+    },
     /// Two terms joined by an infix operator.
     Infix {
         op: Op,
@@ -239,8 +274,12 @@ impl Term {
             TermKind::Raw { .. }
             | TermKind::Letter(_)
             | TermKind::Const(_)
-            | TermKind::Numeral(_) => Vec::new(),
-            TermKind::App { head, args } => {
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided => Vec::new(),
+            TermKind::Enclosed { inner, .. } => vec![&**inner],
+            TermKind::ModEq { a, b, n } => vec![&**a, &**b, &**n],
+            TermKind::App { head, args, .. } => {
                 let mut out = vec![&**head];
                 out.extend(args.iter().map(|a| match a {
                     Arg::Explicit(t) => t,
@@ -264,6 +303,82 @@ impl Term {
                 out
             }
         }
+    }
+
+    /// A template's tree with hole i filled by `args[i − 1]`; None where a
+    /// hole has no argument.
+    pub fn instantiate(&self, args: &[Term]) -> Option<Term> {
+        let kind = match &self.kind {
+            TermKind::Hole(i) => return args.get(i.checked_sub(1)?).cloned(),
+            TermKind::Raw { .. }
+            | TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Elided => self.kind.clone(),
+            TermKind::App {
+                head,
+                args: given,
+                explicit,
+            } => TermKind::App {
+                head: Box::new(head.instantiate(args)?),
+                args: given
+                    .iter()
+                    .map(|a| a.instantiate(args))
+                    .collect::<Option<Vec<Arg>>>()?,
+                explicit: *explicit,
+            },
+            TermKind::Infix { op, lhs, rhs } => TermKind::Infix {
+                op: *op,
+                lhs: Box::new(lhs.instantiate(args)?),
+                rhs: Box::new(rhs.instantiate(args)?),
+            },
+            TermKind::Not(t) => TermKind::Not(Box::new(t.instantiate(args)?)),
+            TermKind::Neg(t) => TermKind::Neg(Box::new(t.instantiate(args)?)),
+            TermKind::ToNat(t) => TermKind::ToNat(Box::new(t.instantiate(args)?)),
+            TermKind::Paren(t) => TermKind::Paren(Box::new(t.instantiate(args)?)),
+            TermKind::Cast { inner, to } => TermKind::Cast {
+                inner: Box::new(inner.instantiate(args)?),
+                to: to.clone(),
+            },
+            TermKind::Count { set, form } => TermKind::Count {
+                set: Box::new(set.instantiate(args)?),
+                form: *form,
+            },
+            TermKind::Field { inner, field } => TermKind::Field {
+                inner: Box::new(inner.instantiate(args)?),
+                field: field.clone(),
+            },
+            TermKind::Enclosed { open, close, inner } => TermKind::Enclosed {
+                open,
+                close,
+                inner: Box::new(inner.instantiate(args)?),
+            },
+            TermKind::ModEq { a, b, n } => TermKind::ModEq {
+                a: Box::new(a.instantiate(args)?),
+                b: Box::new(b.instantiate(args)?),
+                n: Box::new(n.instantiate(args)?),
+            },
+            TermKind::Quantified {
+                quant,
+                letter,
+                letter_ty,
+                guard,
+                body,
+            } => TermKind::Quantified {
+                quant: *quant,
+                letter: letter.clone(),
+                letter_ty: letter_ty.clone(),
+                guard: match guard {
+                    Some(g) => Some(Box::new(g.instantiate(args)?)),
+                    None => None,
+                },
+                body: Box::new(body.instantiate(args)?),
+            },
+        };
+        Some(Term {
+            kind,
+            ty: self.ty.clone(),
+        })
     }
 
     /// The constants the tree names.

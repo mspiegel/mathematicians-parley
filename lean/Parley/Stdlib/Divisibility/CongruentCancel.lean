@@ -11,7 +11,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.CongruentCancel
 
-theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (hH5 : (x * c) ≡ (y * c) [ZMOD n]) (hH6 : (Int.gcd c n : ℤ) = 1) :
+theorem congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (hH5 : x * c ≡ y * c [ZMOD n]) (hH6 : (Int.gcd c n : ℤ) = 1) :
     x ≡ y [ZMOD n] := by
   -- 1. def:congruent-mod a := x·c, b := y·c, from H5
   have s1 : n ∣ x * c - y * c := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := x * c) (b := y * c))).mp (by parley_side); parley_side)

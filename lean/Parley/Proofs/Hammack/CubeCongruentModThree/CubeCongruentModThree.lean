@@ -14,7 +14,7 @@ namespace Parley.Proofs.Hammack.CubeCongruentModThree.CubeCongruentModThree
 
 set_option maxHeartbeats 400000 in
 theorem cube_congruent_mod_three (a : ℤ) :
-    (a ^ 3) ≡ a [ZMOD (3 : ℤ)] := by
+    a ^ 3 ≡ a [ZMOD (3 : ℤ)] := by
   -- 1. mun:mod-natural b := 3
   have s1 : 0 ≤ a % (3 : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side)) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_mod_natural (a := a) (b := (3 : ℤ)) (by parley_side)); parley_side)
   -- 2. mun:mod-less b := 3
@@ -57,7 +57,7 @@ theorem cube_congruent_mod_three (a : ℤ) :
       have s5_9 : (3 : ℤ) ∣ a ^ 3 - a := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_divides (d := (3 : ℤ)) (n := a ^ 3 - a))).mpr ⟨9 * q ^ 3 + 18 * q ^ 2 + 11 * q + 2, by parley_side⟩; parley_side)
       all_goals parley_side
   -- 6. def:congruent-mod, from 5
-  have s6 : (a ^ 3) ≡ a [ZMOD (3 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side); parley_side)
+  have s6 : a ^ 3 ≡ a [ZMOD (3 : ℤ)] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := (3 : ℤ)) (a := a ^ 3) (b := a))).mpr (by parley_side); parley_side)
   all_goals exact s6
 
 end Parley.Proofs.Hammack.CubeCongruentModThree.CubeCongruentModThree

@@ -7,6 +7,7 @@
 //! (`print`), which brackets by precedence as Lean reads.
 
 pub mod print;
+pub mod skeleton;
 pub mod tactic;
 pub mod term;
 

@@ -48,7 +48,8 @@ impl Num {
         }
     }
 
-    fn read(text: &str) -> Option<Num> {
+    /// The type Lean writes so; None for any other text.
+    pub fn read(text: &str) -> Option<Num> {
         match text {
             "ℕ" => Some(Num::Nat),
             "ℤ" => Some(Num::Int),
@@ -93,8 +94,9 @@ impl Slot {
 pub struct Template {
     pub holes: Vec<Slot>,
     pub yields: Slot,
-    /// The Lean text, with `_1`, `_2`, … for the holes.
-    pub text: String,
+    /// The Lean form read as a tree, with `TermKind::Hole` 1, 2, … for
+    /// the holes (`doc::skeleton`).
+    pub skeleton: super::doc::Term,
 }
 
 /// Every notation's patterns in Lean, by the record's name and the
@@ -269,8 +271,10 @@ fn pick<'t>(forms: &'t [Template], args: &[Num]) -> Option<&'t Template> {
 }
 
 impl Template {
-    /// One entry, `α, α → α: _1 + _2`; None where it does not read.
-    fn read(entry: &str) -> Option<Template> {
+    /// One entry, `α, α → α: _1 + _2`; None where it does not read, or its
+    /// tree does not print back as the entry writes it, so that what Lean
+    /// is given is the record's text.
+    pub fn read(entry: &str) -> Option<Template> {
         let (signature, text) = entry.split_once(": ")?;
         let (holes, yields) = signature.split_once('→')?;
         let holes = holes.trim();
@@ -282,10 +286,15 @@ impl Template {
                 .map(Slot::read)
                 .collect::<Option<Vec<Slot>>>()?
         };
+        let text = text.trim();
+        let skeleton = super::doc::skeleton::read(text)?;
+        if skeleton.text() != text {
+            return None;
+        }
         Some(Template {
             holes,
             yields: Slot::read(yields)?,
-            text: text.trim().to_string(),
+            skeleton,
         })
     }
 }
@@ -309,7 +318,7 @@ mod tests {
         let t = Template::read("α≥ℚ, α≥ℚ → α≥ℚ: _1 / _2").unwrap();
         assert_eq!(t.holes, vec![Slot::Alpha(Num::Rat), Slot::Alpha(Num::Rat)]);
         assert_eq!(t.yields, Slot::Alpha(Num::Rat));
-        assert_eq!(t.text, "_1 / _2");
+        assert_eq!(t.skeleton.text(), "_1 / _2");
         let d = Template::read("ℤ, ℤ → Prop: _1 ∣ _2").unwrap();
         assert_eq!(d.holes, vec![Slot::Fixed(Num::Int), Slot::Fixed(Num::Int)]);
         assert_eq!(d.yields, Slot::Prop);

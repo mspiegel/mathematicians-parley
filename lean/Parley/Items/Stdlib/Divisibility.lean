@@ -302,11 +302,11 @@ theorem mun_congruent_in_range (n : ℤ) (h1 : 0 < n) (x : ℤ) (h2 : x ∈ Fins
   by simp only [Finset.mem_Icc] at h2 h3; have h := Int.ModEq.eq h4; rw [Int.emod_eq_of_lt h2.1 (by omega), Int.emod_eq_of_lt h3.1 (by omega)] at h; exact h
 
 theorem mun_mod_congruent (x : ℤ) (n : ℤ) (h2 : 0 < n) :
-    x ≡ (x % n) [ZMOD n] :=
+    x ≡ x % n [ZMOD n] :=
   Int.ModEq.symm (Int.mod_modEq x ↑n)
 
 theorem mun_minus_one_congruent (n : ℤ) (h1 : 0 < n) :
-    (n - 1) ≡ (-1 : ℤ) [ZMOD n] :=
+    n - 1 ≡ (-1 : ℤ) [ZMOD n] :=
   Int.modEq_iff_dvd.mpr ⟨-1, by ring⟩
 
 theorem mun_mod_equal_congruent (x : ℤ) (y : ℤ) (n : ℤ) (h3 : 0 < n) (h4 : x % n = y % n) :
@@ -333,7 +333,7 @@ theorem thm_coprime_divides (x : ℤ) (c : ℤ) (n : ℤ) (h3 : 0 < n) (h4 : n �
     n ∣ x :=
   Int.dvd_of_dvd_mul_left_of_gcd_one h4 (by rw [Int.gcd_comm]; exact_mod_cast h5)
 
-theorem thm_congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (h4 : 0 < n) (h5 : (x * c) ≡ (y * c) [ZMOD n]) (h6 : (Int.gcd c n : ℤ) = 1) :
+theorem thm_congruent_cancel (x : ℤ) (y : ℤ) (c : ℤ) (n : ℤ) (h4 : 0 < n) (h5 : x * c ≡ y * c [ZMOD n]) (h6 : (Int.gcd c n : ℤ) = 1) :
     x ≡ y [ZMOD n] :=
   by have h := Int.ModEq.cancel_right_div_gcd (by exact_mod_cast h4 : (0 : ℤ) < n) h5; have hg : Int.gcd (n : ℤ) c = 1 := (by rw [Int.gcd_comm]; exact_mod_cast h6); rw [hg] at h; simpa using h
 
@@ -361,11 +361,11 @@ theorem thm_product_coprime (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 
     (Int.gcd (∏ᶠ x ∈ X, (x : ℤ)) n : ℤ) = 1 :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h
 
-theorem thm_product_congruent_termwise {α : Type*} (t : α → ℤ) (u : α → ℤ) (X : Set α) (h1 : X.Finite) (n : ℤ) (h2 : 0 < n) (h3 : ∀ x ∈ X, (t x) ≡ (u x) [ZMOD n]) :
+theorem thm_product_congruent_termwise {α : Type*} (t : α → ℤ) (u : α → ℤ) (X : Set α) (h1 : X.Finite) (n : ℤ) (h2 : 0 < n) (h3 : ∀ x ∈ X, t x ≡ u x [ZMOD n]) :
     (∏ᶠ x ∈ X, (t x : ℤ)) ≡ (∏ᶠ x ∈ X, (u x : ℤ)) [ZMOD n] :=
   by rw [finprod_mem_eq_finite_toFinset_prod _ h1, finprod_mem_eq_finite_toFinset_prod _ h1]; exact Int.ModEq.prod fun x hx => h3 x ((Set.Finite.mem_toFinset h1).mp hx)
 
-theorem thm_product_congruent (f : ℤ → ℤ) (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (c : ℤ) (n : ℤ) (h4 : 0 < n) (h5 : ∀ y ∈ X, (y * c) ≡ (f y) [ZMOD n]) (hf : Set.MapsTo f X X) :
+theorem thm_product_congruent (f : ℤ → ℤ) (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) (c : ℤ) (n : ℤ) (h4 : 0 < n) (h5 : ∀ y ∈ X, y * c ≡ f y [ZMOD n]) (hf : Set.MapsTo f X X) :
     (∏ᶠ x ∈ X, (x * c : ℤ)) ≡ (∏ᶠ x ∈ X, (f x : ℤ)) [ZMOD n] :=
   by lift n to ℕ using h4.le; rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, ← ZMod.intCast_eq_intCast_iff]; push_cast; exact Finset.prod_congr rfl (fun y hy => (by have h := (ZMod.intCast_eq_intCast_iff _ _ _).2 (h5 y (h2.mem_toFinset.1 hy)); push_cast at h; exact h))
 

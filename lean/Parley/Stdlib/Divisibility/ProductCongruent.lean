@@ -11,7 +11,7 @@ public section
 
 namespace Parley.Stdlib.Divisibility.ProductCongruent
 
-theorem product_congruent (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (f : ℤ → ℤ) (hH5 : Set.MapsTo f X X) (hH6 : ∀ y ∈ X, (y * c) ≡ (f y) [ZMOD n]) :
+theorem product_congruent (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (c : ℤ) (n : ℤ) (hH4 : 0 < n) (f : ℤ → ℤ) (hH5 : Set.MapsTo f X X) (hH6 : ∀ y ∈ X, y * c ≡ f y [ZMOD n]) :
     (∏ᶠ x ∈ X, (x * c : ℤ)) ≡ (∏ᶠ x ∈ X, (f x : ℤ)) [ZMOD n] := by
   -- 1. proof
   have s1 : ∀ x ∈ X, True := by

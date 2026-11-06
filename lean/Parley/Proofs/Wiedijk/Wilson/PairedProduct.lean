@@ -20,7 +20,7 @@ public section
 namespace Parley.Proofs.Wiedijk.Wilson.PairedProduct
 
 set_option maxHeartbeats 1200000 in
-theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (f : ℤ → ℤ) (hH4 : Set.MapsTo f X X) (hH5 : ∀ x ∈ X, f (f x) = x) (hH6 : ∀ x ∈ X, f x ≠ x) (hH7 : ∀ x ∈ X, (x * f x) ≡ (1 : ℤ) [ZMOD n]) :
+theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X.Finite) (n : ℤ) (hH3 : 0 < n) (f : ℤ → ℤ) (hH4 : Set.MapsTo f X X) (hH5 : ∀ x ∈ X, f (f x) = x) (hH6 : ∀ x ∈ X, f x ≠ x) (hH7 : ∀ x ∈ X, x * f x ≡ (1 : ℤ) [ZMOD n]) :
     (∏ᶠ x ∈ X, (x : ℤ)) ≡ (1 : ℤ) [ZMOD n] := by
   set L : Set ℤ := {x ∈ X | x < f x} with hD1
   set U : Set ℤ := {x ∈ X | ¬ x < f x} with hD2
@@ -150,12 +150,12 @@ theorem paired_product (X : Set ℤ) (hH1 : X ⊆ (Set.univ : Set ℤ)) (hH2 : X
   have r223_1 : ∀ x ∈ L, True := by intro x h_x; (first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := U) (Y := (Set.univ : Set ℤ)) (u := f x) (by parley_whole_side) (by parley_set_side)); parley_set_side))
   have s16 : ∀ x ∈ L, True := by intro x h_x; (first | exact (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | exact ((Parley.Items.Stdlib.Numbers.mun_int_real (m := f x))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)) | (have h := (Parley.Items.Stdlib.Numbers.mun_int_real (m := f x)); parley_set_side))
   -- 17. proof
-  have s17 : ∀ x ∈ L, (x * f x) ≡ (1 : ℤ) [ZMOD n] := by
+  have s17 : ∀ x ∈ L, x * f x ≡ (1 : ℤ) [ZMOD n] := by
     intro x hK6
     -- 17.1. mun:in-subset, from K6, 3
     have s17_1 : x ∈ X := by first | exact (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6) | exact ((Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6) | (have h := (Parley.Items.Stdlib.Sets.mun_in_subset (X := L) (Y := X) (u := x) s3 hK6); parley_set_side)
     -- 17.2. instantiate x := x in H7, from 17.1
-    have s17_2 : (x * f x) ≡ (1 : ℤ) [ZMOD n] := by first | exact (hH7 x (by parley_set_side)) | exact ((hH7 x (by parley_set_side))).symm | simpa using (hH7 x (by parley_set_side)) | exact_mod_cast (hH7 x (by parley_set_side)) | (have h := (hH7 x (by parley_set_side)); parley_set_side)
+    have s17_2 : x * f x ≡ (1 : ℤ) [ZMOD n] := by first | exact (hH7 x (by parley_set_side)) | exact ((hH7 x (by parley_set_side))).symm | simpa using (hH7 x (by parley_set_side)) | exact_mod_cast (hH7 x (by parley_set_side)) | (have h := (hH7 x (by parley_set_side)); parley_set_side)
     all_goals exact s17_2
   -- 18. proof
   have s18 : ∀ x ∈ L, True := by

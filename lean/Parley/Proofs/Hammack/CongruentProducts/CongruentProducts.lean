@@ -12,7 +12,7 @@ public section
 namespace Parley.Proofs.Hammack.CongruentProducts.CongruentProducts
 
 theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℤ) (hH5 : 0 < n) (hH6 : a ≡ b [ZMOD n]) (hH7 : c ≡ d [ZMOD n]) :
-    (a * c) ≡ (b * d) [ZMOD n] := by
+    a * c ≡ b * d [ZMOD n] := by
   -- 1. def:congruent-mod, from H6
   have s1 : n ∣ a - b := by first | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a) (b := b))).mp (by parley_side); parley_side)
   -- 2. def:congruent-mod, from H7
@@ -25,7 +25,7 @@ theorem congruent_products (a : ℤ) (b : ℤ) (c : ℤ) (d : ℤ) (n : ℤ) (hH
     have row1 : n ∣ a * c - b * d := by parley_subst_at c1 s3
     exact row1
   -- 5. def:congruent-mod, from 4
-  have s5 : (a * c) ≡ (b * d) [ZMOD n] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr (by parley_side); parley_side)
+  have s5 : a * c ≡ b * d [ZMOD n] := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_congruent_mod (n := n) (a := a * c) (b := b * d))).mpr (by parley_side); parley_side)
   all_goals exact s5
 
 end Parley.Proofs.Hammack.CongruentProducts.CongruentProducts

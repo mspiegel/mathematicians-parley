@@ -31,11 +31,15 @@ impl Term {
             TermKind::Raw { prec, .. } => *prec,
             TermKind::App { .. } => APP,
             TermKind::Infix { op, .. } => op.prec,
+            TermKind::ModEq { .. } => 50,
             TermKind::Neg(_) => 75,
             TermKind::Quantified { .. } => 0,
             TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided
+            | TermKind::Enclosed { .. }
             | TermKind::Not(_)
             | TermKind::Cast { .. }
             | TermKind::Count { .. }
@@ -61,8 +65,23 @@ impl Term {
             TermKind::Letter(name) => name.clone(),
             TermKind::Const(c) => c.name.clone(),
             TermKind::Numeral(digits) => digits.clone(),
-            TermKind::App { head, args } => {
-                let mut out = head.at(MAX);
+            TermKind::Hole(i) => format!("_{i}"),
+            TermKind::Elided => "_".to_string(),
+            TermKind::Enclosed { open, close, inner } => {
+                format!("{open}{}{close}", inner.text())
+            }
+            TermKind::ModEq { a, b, n } => {
+                format!("{} ≡ {} [ZMOD {}]", a.at(51), b.at(51), n.at(MAX))
+            }
+            TermKind::App {
+                head,
+                args,
+                explicit,
+            } => {
+                let mut out = match explicit {
+                    true => format!("@{}", head.at(MAX)),
+                    false => head.at(MAX),
+                };
                 for a in args {
                     out.push(' ');
                     out.push_str(&arg_text(a));
@@ -276,6 +295,7 @@ mod tests {
                     name: "x".to_string(),
                     value: Term::raw("(∅ : Set α)", MAX),
                 }],
+                explicit: false,
             },
             LeanType::Prop,
         );
