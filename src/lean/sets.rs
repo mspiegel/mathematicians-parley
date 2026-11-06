@@ -1232,12 +1232,13 @@ impl Writer<'_> {
         let [a, b] = node.children.as_slice() else {
             return Route::no("an operation on a count of other than two parts");
         };
-        let prec = if op == "+" { 65 } else { 70 };
+        let Some(op) = super::doc::Op::of(op) else {
+            return Route::no(format!("the operation {op} on counts"));
+        };
         match (self.count_term(a), self.count_term(b)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
-                format!("{} {op} {}", a.at(prec), b.at(prec + 1)),
-                prec,
-            )),
+            (Route::Built(a), Route::Built(b)) => {
+                Route::Built(Printed::infix(op, a, b, LeanType::ENat))
+            }
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
@@ -1256,10 +1257,7 @@ impl Writer<'_> {
         }
         let op = node.spelling().text().to_string();
         Some(match (self.count_term(a), self.count_term(b)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
-                format!("{} {op} {}", a.at(51), b.at(51)),
-                50,
-            )),
+            (Route::Built(a), Route::Built(b)) => relation_of(&op, a, b),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1296,15 +1294,20 @@ impl Writer<'_> {
                 }
             };
         let m = super::expr::witness_letter(node);
-        let cast = format!("({m} : {})", self.type_name(at));
+        let nat = LeanType::Num(Num::Nat);
+        let letter = Printed::letter(m.clone(), nat.clone());
+        let cast = Printed::cast(letter.clone(), self.num_type(at));
         let equation = match count_first {
-            true => format!("{cast} = {}", number.at(51)),
-            false => format!("{} = {cast}", number.at(51)),
+            true => relation_of("=", cast, number),
+            false => relation_of("=", number, cast),
         };
-        Some(Route::Built(Printed::raw(
-            format!("∃ {m} : ℕ, {} = ({m} : ℕ∞) ∧ {equation}", count.at(51)),
-            0,
-        )))
+        let counted = relation_of("=", count, Printed::cast(letter, LeanType::ENat));
+        Some(match (counted, equation) {
+            (Route::Built(c), Route::Built(e)) => {
+                Route::Built(witnessed(m, nat, Some(c), e))
+            }
+            (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
+        })
     }
 
     /// A count in ℕ or ℕ₀, |A| ∈ ℕ: some natural number is the count, and
@@ -1319,15 +1322,27 @@ impl Writer<'_> {
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         let m = super::expr::witness_letter(x);
+        let nat = LeanType::Num(Num::Nat);
+        let letter = Printed::letter(m.clone(), nat.clone());
         let above = match system_of(set) {
-            Some(super::expr::System::Positive) => format!("0 < {m} ∧ "),
-            Some(super::expr::System::NonNegative) => String::new(),
+            Some(super::expr::System::Positive) => Some(relation_of(
+                "<",
+                Printed::numeral("0", nat.clone()),
+                letter.clone(),
+            )),
+            Some(super::expr::System::NonNegative) => None,
             _ => return Some(Route::no("a count in other than ℕ or ℕ₀")),
         };
-        Some(Route::Built(Printed::raw(
-            format!("∃ {m} : ℕ, {above}({m} : ℕ∞) = {}", count.text()),
-            0,
-        )))
+        let said = relation_of("=", Printed::cast(letter, LeanType::ENat), count);
+        Some(match (above, said) {
+            (None, Route::Built(s)) => Route::Built(witnessed(m, nat, None, s)),
+            (Some(Route::Built(a)), Route::Built(s)) => {
+                Route::Built(witnessed(m, nat, Some(a), s))
+            }
+            (Some(Route::Declined(d)), _) | (_, Route::Declined(d)) => {
+                Route::Declined(d)
+            }
+        })
     }
 
     /// H is a subgroup of G, of a letter Lean types `Subgroup G`: its type
