@@ -301,21 +301,16 @@ fn with_dependents(
     mut failed: std::collections::BTreeSet<String>,
     made: &Made,
 ) -> std::collections::BTreeSet<String> {
-    // Each file's imports, as the build wrote its header.
+    // Each file's module, and the modules the build gave it to import.
     let imports: Vec<(String, Vec<String>)> = made
-        .files
+        .imports
         .iter()
-        .map(|(path, text)| {
+        .map(|(path, imported)| {
             let module = path
                 .trim_start_matches(&format!("{PROJECT}/"))
                 .trim_end_matches(".lean")
                 .replace('/', ".");
-            let imported = text
-                .lines()
-                .filter_map(|l| l.strip_prefix("public import "))
-                .map(str::to_string)
-                .collect();
-            (module, imported)
+            (module, imported.clone())
         })
         .collect();
     loop {

@@ -45,6 +45,9 @@ pub const LIBRARY: &str = "LeanBridges";
 pub struct Made {
     /// Each file, by its path from the root of the tree.
     pub files: IndexMap<String, String>,
+    /// The modules each file imports, by its path, as its header writes
+    /// them.
+    pub imports: IndexMap<String, Vec<String>>,
     /// Each theorem left out, and why.
     pub left_out: IndexMap<String, String>,
     /// Each item or theorem in the build that could not be written, and
@@ -236,6 +239,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
         text.push_str(&format!("end {module}\n"));
         made.files.insert(path_of_module(module), text);
+        made.imports.insert(path_of_module(module), imports);
     }
 
     // The theorems the build covers, first as items a citation names. A
@@ -368,7 +372,8 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
             made.statements.insert(s.decl.clone(), s.arithmetic.clone());
         }
-        made.files.insert(path, text);
+        made.files.insert(path.clone(), text);
+        made.imports.insert(path, imports);
         written.push(module);
     }
 
@@ -401,6 +406,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
             written.retain(|w| *w != module);
             let path = path_of_module(&module);
             made.files.shift_remove(&path);
+            made.imports.shift_remove(&path);
             made.origins.shift_remove(&path);
             if let Some(s) = items.get(&name).and_then(|it| it.sentences.first()) {
                 made.statements.shift_remove(&s.decl);
@@ -412,12 +418,16 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
     }
 
+    let root_imports: Vec<String> = std::iter::once(LIBRARY.to_string())
+        .chain(written.iter().cloned())
+        .collect();
     let mut root = String::from("module\n\n");
-    root.push_str(&format!("public import {LIBRARY}\n"));
-    for m in &written {
+    for m in &root_imports {
         root.push_str(&format!("public import {m}\n"));
     }
     made.files.insert("lean/Parley.lean".to_string(), root);
+    made.imports
+        .insert("lean/Parley.lean".to_string(), root_imports);
     Ok(made)
 }
 
