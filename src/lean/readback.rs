@@ -67,13 +67,13 @@ fn count(writer: &Writer, node: &Node, out: &mut BTreeMap<String, usize>) {
     // A membership or a quantifier Lean states as nothing says nothing.
     if matches!(node.notation(), MEMBERSHIP | FOR_ALL | THERE_IS) {
         if let crate::outcome::Route::Built(p) = writer.formula(node) {
-            if p.text == "True" {
+            if p.text() == "True" {
                 return;
             }
             // A quantifier the writer states with its body `True`, ∀ x ∈
             // [0, 1], True of "1/(1 + x²) ∈ ℝ", says only its set.
             if let ([_, set, _], true) =
-                (node.children.as_slice(), p.text.ends_with(", True"))
+                (node.children.as_slice(), p.text().ends_with(", True"))
             {
                 count(writer, set, out);
                 return;

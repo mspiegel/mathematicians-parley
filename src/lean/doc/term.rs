@@ -240,6 +240,11 @@ impl Term {
         }
     }
 
+    /// Lean text no operator can split, kept as text.
+    pub fn atom(text: impl Into<String>) -> Term {
+        Term::raw(text, crate::lean::expr::MAX)
+    }
+
     /// A node of this kind and type.
     pub fn of(kind: TermKind, ty: LeanType) -> Term {
         Term { kind, ty: Some(ty) }

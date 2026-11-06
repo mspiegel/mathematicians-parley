@@ -215,7 +215,7 @@ impl Writer<'_> {
         let mut members = Vec::new();
         for c in &set.children {
             match self.number_fixed(c, at) {
-                Route::Built(p) => members.push(p.text),
+                Route::Built(p) => members.push(p.text()),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
@@ -313,20 +313,17 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed {
-                    text: format!("{} * {}", p[0].at(70), p[1].at(71)),
-                    prec: 70,
-                });
+                return Route::Built(Printed::raw(
+                    format!("{} * {}", p[0].at(70), p[1].at(71)),
+                    70,
+                ));
             }
             "group-inverse" => {
                 let p = match self.set_parts(node, 1) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed {
-                    text: format!("{}⁻¹", p[0].at(MAX)),
-                    prec: MAX,
-                });
+                return Route::Built(Printed::raw(format!("{}⁻¹", p[0].at(MAX)), MAX));
             }
             // gH is the image of H under h ↦ g·h, as Mathlib's left coset
             // g • H is defined, written so that no scope need be opened.
@@ -335,10 +332,10 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed {
-                    text: format!("({} * ·) '' {}", p[0].at(70), p[1].at(MAX)),
-                    prec: 80,
-                });
+                return Route::Built(Printed::raw(
+                    format!("({} * ·) '' {}", p[0].at(70), p[1].at(MAX)),
+                    80,
+                ));
             }
             // F(x) if x ∈ A, G(x) otherwise, of things: as the notation's
             // template writes it of numbers, the condition decided
@@ -357,14 +354,14 @@ impl Writer<'_> {
                     Route::Built(c) => c.at(MAX),
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed {
-                    text: format!(
+                return Route::Built(Printed::raw(
+                    format!(
                         "@ite _ {c} (Classical.propDecidable {c}) {} {}",
                         a.at(MAX),
                         b.at(MAX)
                     ),
-                    prec: APP,
-                });
+                    APP,
+                ));
             }
             _ => {}
         }
@@ -421,10 +418,10 @@ impl Writer<'_> {
                     "∖" => ("\\", 70),
                     other => return Route::no(format!("the set operation {other}")),
                 };
-                Route::Built(Printed {
-                    text: format!("{} {op} {}", p[0].at(prec + 1), p[1].at(prec + 1)),
+                Route::Built(Printed::raw(
+                    format!("{} {op} {}", p[0].at(prec + 1), p[1].at(prec + 1)),
                     prec,
-                })
+                ))
             }
             // [a, b] and (a, b), the reals from a to b, ends in or out.
             interval @ ("closed-interval" | "open-interval") => {
@@ -465,10 +462,9 @@ impl Writer<'_> {
                 }
             }
             "powerset" => match parts(1) {
-                Route::Built(p) => Route::Built(Printed {
-                    text: format!("𝒫 {}", p[0].at(MAX)),
-                    prec: 100,
-                }),
+                Route::Built(p) => {
+                    Route::Built(Printed::raw(format!("𝒫 {}", p[0].at(MAX)), 100))
+                }
                 Route::Declined(d) => Route::Declined(d),
             },
             "empty-set" => Route::Built(Printed::atom("∅")),
@@ -523,15 +519,15 @@ impl Writer<'_> {
                 let mut inner = self.with_letters(self.letters.clone());
                 inner.letters.insert(x.text.to_string(), over.letter());
                 match (self.set_term(s), inner.set_term(t)) {
-                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                        text: format!(
+                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
+                        format!(
                             "⋃ {} ∈ {}, {}",
                             super::names::letter(&x.text),
                             a.at(MAX),
                             b.at(67)
                         ),
-                        prec: 10,
-                    }),
+                        10,
+                    )),
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         Route::Declined(d)
                     }
@@ -573,14 +569,14 @@ impl Writer<'_> {
                 f.text
             ));
         };
-        Route::Built(Printed {
-            text: format!(
+        Route::Built(Printed::raw(
+            format!(
                 "{} '' ({domain} ∩ {})",
                 super::names::letter(&f.text),
                 set.at(71)
             ),
-            prec: 80,
-        })
+            80,
+        ))
     }
 
     /// The set a map or function is defined on, as Lean writes it: the one
@@ -612,14 +608,14 @@ impl Writer<'_> {
             ));
         };
         match self.set_term(z) {
-            Route::Built(z) => Route::Built(Printed {
-                text: format!(
+            Route::Built(z) => Route::Built(Printed::raw(
+                format!(
                     "{domain} ∩ {} ⁻¹' {}",
                     super::names::letter(&f.text),
                     z.at(MAX)
                 ),
-                prec: 70,
-            }),
+                70,
+            )),
             Route::Declined(d) => Route::Declined(d),
         }
     }
@@ -696,7 +692,7 @@ impl Writer<'_> {
                 super::expr::System::NonNegative => {
                     format!("0 ≤ {name} ∧ {}", condition.at(36))
                 }
-                _ => condition.text,
+                _ => condition.text(),
             };
             return Route::Built(Printed::atom(format!(
                 "{{{name} : {ty} | {condition}}}"
@@ -708,7 +704,8 @@ impl Writer<'_> {
         };
         Route::Built(Printed::atom(format!(
             "{{{name} ∈ {} | {}}}",
-            domain.text, condition.text
+            domain.text(),
+            condition.text()
         )))
     }
 
@@ -744,16 +741,16 @@ impl Writer<'_> {
             return Route::no("a set-image over a set with no Lean type");
         };
         match (inner.element_term(term, &members), self.set_term(set)) {
-            (Route::Built(t), Route::Built(y)) => Route::Built(Printed {
-                text: format!(
+            (Route::Built(t), Route::Built(y)) => Route::Built(Printed::raw(
+                format!(
                     "(fun {} : {} => {}) '' {}",
                     super::names::letter(&letter.text),
                     over.lean(),
-                    t.text,
+                    t.text(),
                     y.at(MAX)
                 ),
-                prec: 80,
-            }),
+                80,
+            )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
@@ -769,14 +766,14 @@ impl Writer<'_> {
                 return Route::no(format!("{}⁻¹, whose domain no line gives", g.text));
             };
             return match self.set_term(x) {
-                Route::Built(p) => Route::Built(Printed {
-                    text: format!(
+                Route::Built(p) => Route::Built(Printed::raw(
+                    format!(
                         "{INVERSE} {} {domain} {}",
                         super::names::letter(&g.text),
                         p.at(MAX)
                     ),
-                    prec: 1023,
-                }),
+                    1023,
+                )),
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -784,10 +781,9 @@ impl Writer<'_> {
             return Route::no(format!("{} applied, which is no map", f.text));
         };
         match self.set_term(x) {
-            Route::Built(p) => Route::Built(Printed {
-                text: format!("{map} {}", p.at(MAX)),
-                prec: 1023,
-            }),
+            Route::Built(p) => {
+                Route::Built(Printed::raw(format!("{map} {}", p.at(MAX)), 1023))
+            }
             Route::Declined(d) => Route::Declined(d),
         }
     }
@@ -853,10 +849,7 @@ impl Writer<'_> {
         } else {
             35
         };
-        Some(Route::Built(Printed {
-            text: parts.join(" ∧ "),
-            prec,
-        }))
+        Some(Route::Built(Printed::raw(parts.join(" ∧ "), prec)))
     }
 
     /// Whether a term counts, somewhere, a set no line says is finite, |A|
@@ -962,7 +955,7 @@ impl Writer<'_> {
         if !self.counts(node) {
             return match self.number_fixed(node, Num::Nat) {
                 Route::Built(p) => {
-                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text)))
+                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text())))
                 }
                 Route::Declined(d) => Route::Declined(d),
             };
@@ -981,10 +974,9 @@ impl Writer<'_> {
                 return Route::Built(Printed::atom(format!("(∅ : {of}).encard")));
             }
             return match self.set_term(set) {
-                Route::Built(s) => Route::Built(Printed {
-                    text: format!("{}.encard", s.at(MAX)),
-                    prec: MAX,
-                }),
+                Route::Built(s) => {
+                    Route::Built(Printed::raw(format!("{}.encard", s.at(MAX)), MAX))
+                }
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -1002,10 +994,10 @@ impl Writer<'_> {
         };
         let prec = if op == "+" { 65 } else { 70 };
         match (self.count_term(a), self.count_term(b)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                text: format!("{} {op} {}", a.at(prec), b.at(prec + 1)),
+            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
+                format!("{} {op} {}", a.at(prec), b.at(prec + 1)),
                 prec,
-            }),
+            )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
@@ -1024,10 +1016,10 @@ impl Writer<'_> {
         }
         let op = node.spelling().text().to_string();
         Some(match (self.count_term(a), self.count_term(b)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                text: format!("{} {op} {}", a.at(51), b.at(51)),
-                prec: 50,
-            }),
+            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
+                format!("{} {op} {}", a.at(51), b.at(51)),
+                50,
+            )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1069,10 +1061,10 @@ impl Writer<'_> {
             true => format!("{cast} = {}", number.at(51)),
             false => format!("{} = {cast}", number.at(51)),
         };
-        Some(Route::Built(Printed {
-            text: format!("∃ {m} : ℕ, {} = ({m} : ℕ∞) ∧ {equation}", count.at(51)),
-            prec: 0,
-        }))
+        Some(Route::Built(Printed::raw(
+            format!("∃ {m} : ℕ, {} = ({m} : ℕ∞) ∧ {equation}", count.at(51)),
+            0,
+        )))
     }
 
     /// A count in ℕ or ℕ₀, |A| ∈ ℕ: some natural number is the count, and
@@ -1092,10 +1084,10 @@ impl Writer<'_> {
             Some(super::expr::System::NonNegative) => String::new(),
             _ => return Some(Route::no("a count in other than ℕ or ℕ₀")),
         };
-        Some(Route::Built(Printed {
-            text: format!("∃ {m} : ℕ, {above}({m} : ℕ∞) = {}", count.text),
-            prec: 0,
-        }))
+        Some(Route::Built(Printed::raw(
+            format!("∃ {m} : ℕ, {above}({m} : ℕ∞) = {}", count.text()),
+            0,
+        )))
     }
 
     /// H is a subgroup of G, of a letter Lean types `Subgroup G`: its type
@@ -1127,10 +1119,9 @@ impl Writer<'_> {
             _ => return None,
         };
         Some(match self.set_term(p) {
-            Route::Built(f) => Route::Built(Printed {
-                text: format!("{} ∈ {POLYNOMIALS}", f.at(51)),
-                prec: 50,
-            }),
+            Route::Built(f) => {
+                Route::Built(Printed::raw(format!("{} ∈ {POLYNOMIALS}", f.at(51)), 50))
+            }
             Route::Declined(d) => Route::Declined(d),
         })
     }
@@ -1164,7 +1155,7 @@ impl Writer<'_> {
             true => format!("∃ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} ∧ {}", body.at(35)),
             false => format!("∀ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} → {}", body.at(25)),
         };
-        Some(Route::Built(Printed { text, prec: 0 }))
+        Some(Route::Built(Printed::raw(text, 0)))
     }
 
     /// X is finite: `X.Finite`.
@@ -1176,10 +1167,9 @@ impl Writer<'_> {
             return None;
         };
         Some(match self.set_term(set) {
-            Route::Built(s) => Route::Built(Printed {
-                text: format!("{}.Finite", s.at(MAX)),
-                prec: MAX,
-            }),
+            Route::Built(s) => {
+                Route::Built(Printed::raw(format!("{}.Finite", s.at(MAX)), MAX))
+            }
             Route::Declined(d) => Route::Declined(d),
         })
     }
@@ -1190,7 +1180,7 @@ impl Writer<'_> {
         let mut listed = Vec::new();
         for c in &node.children {
             match self.element_term(c, members) {
-                Route::Built(p) => listed.push(p.text),
+                Route::Built(p) => listed.push(p.text()),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
@@ -1260,10 +1250,9 @@ impl Writer<'_> {
             (false, false) => self.set_term(set),
         };
         Some(match (self.element_term(x, &members), set_text) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                text: format!("{} ∈ {}", a.at(51), b.at(51)),
-                prec: 50,
-            }),
+            (Route::Built(a), Route::Built(b)) => {
+                Route::Built(Printed::raw(format!("{} ∈ {}", a.at(51), b.at(51)), 50))
+            }
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1287,18 +1276,18 @@ impl Writer<'_> {
         {
             let at = m.max(n);
             return Some(match (self.numbers_at(a, at), self.numbers_at(b, at)) {
-                (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                    text: format!("{} {op} {}", a.at(51), b.at(51)),
-                    prec: 50,
-                }),
+                (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
+                    format!("{} {op} {}", a.at(51), b.at(51)),
+                    50,
+                )),
                 (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
             });
         }
         Some(match (self.side_term(a, b), self.side_term(b, a)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                text: format!("{} {op} {}", a.at(51), b.at(51)),
-                prec: 50,
-            }),
+            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
+                format!("{} {op} {}", a.at(51), b.at(51)),
+                50,
+            )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1343,14 +1332,14 @@ impl Writer<'_> {
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         let quantifier = if exists { "∃" } else { "∀" };
-        Some(Route::Built(Printed {
-            text: format!(
+        Some(Route::Built(Printed::raw(
+            format!(
                 "{quantifier} {} ∈ {}, {}",
                 super::names::letter(&letter.text),
                 domain.at(51),
-                body.text
+                body.text()
             ),
-            prec: 0,
-        }))
+            0,
+        )))
     }
 }

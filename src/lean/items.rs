@@ -1248,7 +1248,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 w.domains.insert(f.text.to_string(), domain);
             }
             let prop = match w.formula(says) {
-                Route::Built(p) => p.text,
+                Route::Built(p) => p.text(),
                 Route::Declined(d) => return Route::Declined(d),
             };
             let name = if total == 1 {

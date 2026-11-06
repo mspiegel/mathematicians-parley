@@ -418,7 +418,7 @@ pub fn binders(
             let (says, line) = match fact {
                 Fact::Said(f) => (f, None),
                 Fact::Line => match writer.formula(a.node) {
-                    Route::Built(p) => (p.text, Some(a.node.clone())),
+                    Route::Built(p) => (p.text(), Some(a.node.clone())),
                     Route::Declined(d) => return Route::Declined(d),
                 },
             };
@@ -470,7 +470,7 @@ pub fn binders(
         };
         out.push(Binder::Fact {
             name: a.name.clone(),
-            says: says.text,
+            says: says.text(),
             line: Some(a.node.clone()),
         });
         // A term of a wider type said to be an integer is, in what is

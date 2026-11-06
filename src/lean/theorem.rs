@@ -340,7 +340,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
             decl: decl.clone(),
             binders: stated.binders.clone(),
             says: c.says,
-            prop: c.prop.text,
+            prop: c.prop.text(),
             part: projection(i, n),
             arithmetic: arithmetic.clone(),
             general: None,
@@ -667,7 +667,7 @@ fn header_function(
     );
     let guard = match whole_type {
         true => Route::Built(None),
-        false => writer.formula(&member).map(|p| Some(p.text)),
+        false => writer.formula(&member).map(|p| Some(p.text())),
     };
     // The value is read where x is in the domain: √x of x ∈ {y ∈ ℝ : y >
     // 0} the real square root.
@@ -1547,7 +1547,7 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            if printed.text != "True" {
+            if printed.text() != "True" {
                 out.push((at, node.clone(), printed));
             }
         }
@@ -1710,7 +1710,7 @@ impl<'a> Proof<'a> {
                 Route::Built(f) => f,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            if fact.text == "True" {
+            if fact.text() == "True" {
                 continue;
             }
             let Ok(just) = &r.by else {
@@ -1741,7 +1741,7 @@ impl<'a> Proof<'a> {
             };
             let name = format!("r{}_{}", step.line, k + 1);
             self.push(
-                indented(&format!("{p}have {name} : {} := {proof}", fact.text), &p),
+                indented(&format!("{p}have {name} : {} := {proof}", fact.text()), &p),
                 r.line,
                 spot.clone(),
             );
@@ -1816,7 +1816,7 @@ impl<'a> Proof<'a> {
             };
             self.push(
                 indented(
-                    &format!("{p}have {} : {} := {proof}", names[k], prop.text),
+                    &format!("{p}have {} : {} := {proof}", names[k], prop.text()),
                     &p,
                 ),
                 step.line,
@@ -2212,10 +2212,10 @@ impl<'a> Proof<'a> {
                     else {
                         return false;
                     };
-                    let written = format!("({}).toNat", int.text);
+                    let written = format!("({}).toNat", int.text());
                     let have = format!(
                         "have {name} : (({written} : ℕ) : {ty}) = {} := by exact_mod_cast Int.toNat_of_nonneg {nonneg}",
-                        value.text
+                        value.text()
                     );
                     out.push(NamedAtom {
                         have,
@@ -2240,17 +2240,17 @@ impl<'a> Proof<'a> {
                         };
                         format!(
                             "have {name} : ∃ m : ℕ, (m : {ty}) = {} := by obtain ⟨m, h0, hm⟩ := {line}; exact ⟨m.toNat, by rw [show ((m.toNat : ℕ) : {ty}) = ((m : ℤ) : {ty}) by exact_mod_cast Int.toNat_of_nonneg {nonneg}]; exact_mod_cast hm⟩",
-                            value.text
+                            value.text()
                         )
                     }
                     (System::N | System::N0, _) => format!(
                         "have {name} : ∃ m : ℤ, (m : {ty}) = {} := by obtain ⟨m, _, hm⟩ := {line}; exact ⟨m, by exact_mod_cast hm⟩",
-                        value.text
+                        value.text()
                     ),
                     _ => format!(
                         "have {name} : ∃ m : {}, (m : {ty}) = {} := by obtain ⟨m, hm⟩ := {line}; exact ⟨m, by exact_mod_cast hm⟩",
                         whole.lean(),
-                        value.text
+                        value.text()
                     ),
                 };
                 (have, None)
@@ -2281,10 +2281,10 @@ impl<'a> Proof<'a> {
                 ) else {
                     return false;
                 };
-                let written = format!("{} ^ ({}).toNat", b.at(76), e.text);
+                let written = format!("{} ^ ({}).toNat", b.at(76), e.text());
                 let have = format!(
                     "have {name} : ({} : {ty}) ^ ({}).toNat = {} := by rw [← zpow_natCast, Int.toNat_of_nonneg {nonneg}]",
-                    cast_base.text, e.text, value.text
+                    cast_base.text(), e.text(), value.text()
                 );
                 (have, Some(written))
             }
@@ -2531,7 +2531,7 @@ impl<'a> Proof<'a> {
         if lines.is_empty() {
             return None;
         }
-        let witness = writer.number_fixed(term, ty).built()?.text;
+        let witness = writer.number_fixed(term, ty).built()?.text();
         let specs = lines.join(", ");
         Some(match claimed {
             // In ℕ₀: the integer, beside its being at least 0.
@@ -3004,7 +3004,7 @@ impl<'a> Proof<'a> {
                 to.lean(),
                 start.at(51),
                 step.at(51),
-                by_previous.text
+                by_previous.text()
             ),
             line.line,
             Spot::Statement,
@@ -3054,7 +3054,7 @@ impl<'a> Proof<'a> {
                 Route::Built(v) => v,
                 Route::Declined(why) => return Route::Declined(why),
             };
-            self.name_value(d, &def.name, ty, &value.text, body, depth);
+            self.name_value(d, &def.name, ty, &value.text(), body, depth);
             return Route::Built(());
         }
         use super::templates::Num;
@@ -3097,7 +3097,7 @@ impl<'a> Proof<'a> {
             d,
             &def.name,
             LetterType::Number(ty),
-            &value.text,
+            &value.text(),
             body,
             depth,
         );
@@ -3145,7 +3145,7 @@ impl<'a> Proof<'a> {
             return side;
         };
         match (self.writer.formula(said), self.writer.formula(owed)) {
-            (Route::Built(a), Route::Built(b)) if a.text == b.text => {
+            (Route::Built(a), Route::Built(b)) if a.text() == b.text() => {
                 format!("exact {name}")
             }
             _ => side,
@@ -3203,7 +3203,7 @@ impl<'a> Proof<'a> {
             Route::Declined(why) => return Route::Declined(why),
         };
         let text = match self.writer.formula(&fact) {
-            Route::Built(f) => f.text,
+            Route::Built(f) => f.text(),
             Route::Declined(why) => return Route::Declined(why),
         };
         let Ok(just) = &kinded.shown.by else {
@@ -3270,7 +3270,7 @@ impl<'a> Proof<'a> {
             .is_some_and(|n| n <= super::templates::Num::Int);
         if integer {
             let value = match self.writer.number_fixed(&body, ty) {
-                Route::Built(v) => v.text,
+                Route::Built(v) => v.text(),
                 Route::Declined(why) => return Route::Declined(why),
             };
             self.push(
@@ -3458,7 +3458,7 @@ impl<'a> Proof<'a> {
                 from.lean(),
                 to.lean(),
                 super::names::letter(&param.name),
-                value.text
+                value.text()
             ),
             line.line,
             Spot::Statement,
@@ -3504,7 +3504,7 @@ impl<'a> Proof<'a> {
             format!(
                 "  set {lean} : {} := {} with h_{lean}",
                 self.writer.type_name(ty),
-                value.text
+                value.text()
             ),
             self.thm.line,
             Spot::Statement,
@@ -3544,7 +3544,7 @@ impl<'a> Proof<'a> {
             return self
                 .writer
                 .element_term(value, &members)
-                .map(|v| format!("⟨{}, by parley_set_side, trivial⟩", v.text));
+                .map(|v| format!("⟨{}, by parley_set_side, trivial⟩", v.text()));
         }
         let mut parts = Vec::new();
         let mut known = Vec::new();
@@ -3560,7 +3560,7 @@ impl<'a> Proof<'a> {
             // and its membership left to `parley_side`.
             if let Some(members) = self.writer.members_of(set) {
                 match self.writer.element_term(value, &members) {
-                    Route::Built(p) => parts.push(p.text),
+                    Route::Built(p) => parts.push(p.text()),
                     Route::Declined(d) => return Route::Declined(d),
                 }
                 parts.push(format!("by {}parley_side", known.concat()));
@@ -3570,7 +3570,7 @@ impl<'a> Proof<'a> {
             // A polynomial: the function, and that it is one.
             if &*set.notation_name() == "polynomials" {
                 match self.writer.set_term(value) {
-                    Route::Built(p) => parts.push(p.text),
+                    Route::Built(p) => parts.push(p.text()),
                     Route::Declined(d) => return Route::Declined(d),
                 }
                 parts.push(format!("by {}parley_side", known.concat()));
@@ -3591,7 +3591,7 @@ impl<'a> Proof<'a> {
                 };
                 match self.writer.function_type(value) {
                     Route::Built(t) if t == wanted => {
-                        parts.push(self.writer.function_printed(value).text)
+                        parts.push(self.writer.function_printed(value).text())
                     }
                     Route::Built(_) => {
                         return Route::no("a function given for one of other types")
@@ -3943,14 +3943,14 @@ impl<'a> Proof<'a> {
                     .as_ref()
                     .and_then(|w| self.tree(w).built())
                     .and_then(|n| self.writer.formula(&n).built())
-                    .map(|p| p.text);
+                    .map(|p| p.text());
                 let parts = self.cited_parts(&[place.named().to_string()]);
                 let grammar = &self.sources.checked.grammar;
                 let chosen = parts
                     .iter()
                     .find(|c| {
                         wanted.is_some()
-                            && self.writer.formula(&c.node).built().map(|p| p.text)
+                            && self.writer.formula(&c.node).built().map(|p| p.text())
                                 == wanted
                     })
                     .or_else(|| {
@@ -4033,7 +4033,7 @@ impl<'a> Proof<'a> {
                     false => self.writer.formula(&node),
                 };
                 match said {
-                    Route::Built(p) => format!("(show {} by {tactic})", p.text),
+                    Route::Built(p) => format!("(show {} by {tactic})", p.text()),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -4115,7 +4115,7 @@ impl<'a> Proof<'a> {
             for sign in ["", "-"] {
                 witnessed.push(format!(
                     "exact {lemma} {name} ({}) (by push_cast; linear_combination (norm := parley_norm) {sign}{equation})",
-                    w.text
+                    w.text()
                 ));
             }
         }
@@ -4352,7 +4352,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let row_text = match writer.formula(&row_node) {
-                Route::Built(p) => p.text,
+                Route::Built(p) => p.text(),
                 Route::Declined(d) => return Route::Declined(d),
             };
             let Some(reason) = &row.reason else {
@@ -4366,7 +4366,7 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let change_text = match writer.formula(&change) {
-                Route::Built(p) => p.text,
+                Route::Built(p) => p.text(),
                 Route::Declined(d) => return Route::Declined(d),
             };
             let proof = match self.proof_of(
@@ -4610,7 +4610,7 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     };
                     match writer.number_fixed(&modulus, super::templates::Num::Int) {
-                        Route::Built(m) => format!("≡ {{}} [ZMOD {}]", m.text),
+                        Route::Built(m) => format!("≡ {{}} [ZMOD {}]", m.text()),
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
@@ -4670,7 +4670,7 @@ impl<'a> Proof<'a> {
                         .get(cite)
                         .and_then(|t| t.first())
                         .and_then(|(node, _)| self.writer.formula(node).built())
-                        .is_some_and(|p| p.text.contains(".toNat"));
+                        .is_some_and(|p| p.text().contains(".toNat"));
                     let to_nat = [&printed[k], &printed[k + 1]]
                         .iter()
                         .any(|p| p.contains(".toNat"))
@@ -4772,7 +4772,7 @@ impl<'a> Proof<'a> {
         if parts.len() < 2 {
             return None;
         }
-        let wanted = self.writer.formula(claim).built()?.text;
+        let wanted = self.writer.formula(claim).built()?.text();
         let binders = self.sources.checked.grammar.binders();
         let saying: Vec<usize> = parts
             .iter()
@@ -4786,7 +4786,7 @@ impl<'a> Proof<'a> {
                 self.writer
                     .formula(&at)
                     .built()
-                    .is_some_and(|p| p.text == wanted)
+                    .is_some_and(|p| p.text() == wanted)
             })
             .map(|(i, _)| i)
             .collect();
@@ -4858,7 +4858,7 @@ impl<'a> Proof<'a> {
             binding,
             &self.sources.checked.grammar.binders(),
         );
-        let wanted = self.writer.formula(&at).built()?.text;
+        let wanted = self.writer.formula(&at).built()?.text();
         // An item that counts a set in ℕ∞, |X| = 0 of card-zero, given a
         // set this proof counts as a natural number: the line says
         // `A.ncard`, the item asks `X.encard`, and the set tactics take
@@ -4877,7 +4877,7 @@ impl<'a> Proof<'a> {
                 self.writer
                     .formula(&c.node)
                     .built()
-                    .is_some_and(|p| p.text == wanted)
+                    .is_some_and(|p| p.text() == wanted)
             })
             .map(|c| c.proof.clone())
     }
@@ -5139,7 +5139,7 @@ impl<'a> Proof<'a> {
                                             "(fun {} : {} => {})",
                                             super::names::letter(&value.text),
                                             lean,
-                                            b.text
+                                            b.text()
                                         ))
                                     })
                                 }
@@ -5189,7 +5189,7 @@ impl<'a> Proof<'a> {
                                             "(fun {} : {} => {})",
                                             super::names::letter(&value.text),
                                             from.lean(),
-                                            b.text
+                                            b.text()
                                         ))
                                     })
                                 }
@@ -5216,7 +5216,7 @@ impl<'a> Proof<'a> {
                                     Route::Built(super::expr::Printed::atom(format!(
                                         "(fun x : {} => (({} (x : {}) : {}) : {}))",
                                         from.lean(),
-                                        self.writer.function_printed(value).text,
+                                        self.writer.function_printed(value).text(),
                                         takes.lean(),
                                         gives.lean(),
                                         wanted.lean()
@@ -5270,7 +5270,7 @@ impl<'a> Proof<'a> {
                                             "(fun {} : {} => {})",
                                             super::names::letter(&value.text),
                                             things_at(from).lean(),
-                                            b.text
+                                            b.text()
                                         ))
                                     })
                                 }
@@ -5303,7 +5303,7 @@ impl<'a> Proof<'a> {
                                             "(fun {} : {} => {})",
                                             super::names::letter(&value.text),
                                             put.lean(),
-                                            b.text
+                                            b.text()
                                         ))
                                     })
                                 }
@@ -5332,7 +5332,7 @@ impl<'a> Proof<'a> {
                                     Route::Built(super::expr::Printed::atom(format!(
                                         "(fun x : {} => (({} (x : {}) : {}) : {}))",
                                         put.lean(),
-                                        self.writer.function_printed(value).text,
+                                        self.writer.function_printed(value).text(),
                                         takes.lean(),
                                         gives.lean(),
                                         wanted.lean()
@@ -5392,7 +5392,9 @@ impl<'a> Proof<'a> {
                         }
                     };
                     match printed {
-                        Route::Built(p) => args.push(format!("({name} := {})", p.text)),
+                        Route::Built(p) => {
+                            args.push(format!("({name} := {})", p.text()))
+                        }
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
@@ -5671,7 +5673,7 @@ impl<'a> Proof<'a> {
                     _ => self.writer.set_term(value),
                 };
                 match term {
-                    Route::Built(p) => parts.push(p.text),
+                    Route::Built(p) => parts.push(p.text()),
                     Route::Declined(d) => return Route::Declined(d),
                 }
                 parts.push(format!("by {}parley_side", known.concat()));
@@ -5705,7 +5707,7 @@ impl<'a> Proof<'a> {
     fn witness(&self, value: &Node, ty: super::templates::Num) -> Route<Witness> {
         match self.writer.number_fixed(value, ty) {
             Route::Built(p) => Route::Built(Witness {
-                term: p.text,
+                term: p.text(),
                 known: None,
             }),
             Route::Declined(d) => match self.said_integer(value, ty) {
@@ -5732,7 +5734,7 @@ impl<'a> Proof<'a> {
             | super::templates::Num::Real => super::expr::System::Type(ty),
             _ => return None,
         };
-        let wanted = self.writer.number(value, at).built()?.text;
+        let wanted = self.writer.number(value, at).built()?.text();
         // The latest such line, or part of an "and": an earlier one may
         // stand in a block the step is not in.
         let mut parts = Vec::new();
@@ -5745,7 +5747,7 @@ impl<'a> Proof<'a> {
             };
             let integer = c.node.notation() == crate::notations::MEMBERSHIP
                 && super::expr::system_of(set) == Some(system);
-            let same = self.writer.number(term, at).built().map(|p| p.text)
+            let same = self.writer.number(term, at).built().map(|p| p.text())
                 == Some(wanted.clone());
             (integer && same).then(|| c.proof.clone())
         })
@@ -6008,7 +6010,7 @@ impl<'a> Proof<'a> {
             self.push(
                 format!(
                     "{p}have {name} : {} := by rw [{specs}]; exact_mod_cast {name}",
-                    prop.text
+                    prop.text()
                 ),
                 step.line,
                 Self::step_spot(step),
@@ -6067,7 +6069,7 @@ impl<'a> Proof<'a> {
             return Route::no("an induction whose claim is several sentences");
         }
         let (whole, prop) = match claim {
-            [(_, prop)] => (names[0].clone(), prop.text.clone()),
+            [(_, prop)] => (names[0].clone(), prop.text()),
             _ => (
                 format!("{}_all", names[0]),
                 claim
@@ -6175,7 +6177,7 @@ impl<'a> Proof<'a> {
                             return Route::no("a case that assumes nothing");
                         };
                         match self.writer.formula(&node) {
-                            Route::Built(p) => says.push(format!("({})", p.text)),
+                            Route::Built(p) => says.push(format!("({})", p.text())),
                             Route::Declined(d) => return Route::Declined(d),
                         }
                     }
@@ -6577,7 +6579,7 @@ impl<'a> Proof<'a> {
                     self.push(
                         format!(
                             "{p}have {label} : {} := by parley_suppose hc_{label}",
-                            says.text
+                            says.text()
                         ),
                         o.line,
                         spot.clone(),
@@ -6664,7 +6666,7 @@ fn member_by_equation(
         let w = writer.number_fixed(side, n).built()?;
         Some(format!(
             "⟨{}, by first | (push_cast; linarith [{name}]) | (rw [{name}]; push_cast; ring) | (rw [← {name}]; push_cast; ring) | exact {name} | exact {name}.symm⟩",
-            w.text
+            w.text()
         ))
     })
 }

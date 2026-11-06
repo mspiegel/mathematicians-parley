@@ -181,37 +181,14 @@ impl LetterType {
 /// The type of each letter in scope, by its name.
 pub type Letters = IndexMap<String, LetterType>;
 
-/// Lean text, with the precedence of its outermost operator, so that a
-/// term put in a hole is bracketed only where Lean would read it otherwise.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Printed {
-    pub text: String,
-    pub prec: u32,
-}
+/// A Lean term as the writer builds it (`doc::Term`).
+pub type Printed = super::doc::Term;
 
 /// The precedence of a term no operator can split: a letter, a numeral, a
 /// bracketed term.
 pub const MAX: u32 = 1024;
 /// The precedence of a function applied to its arguments.
 pub const APP: u32 = 1023;
-
-impl Printed {
-    pub fn atom(text: impl Into<String>) -> Printed {
-        Printed {
-            text: text.into(),
-            prec: MAX,
-        }
-    }
-
-    /// The text, bracketed unless it binds at least as tightly as `need`.
-    pub fn at(&self, need: u32) -> String {
-        if self.prec >= need {
-            self.text.clone()
-        } else {
-            format!("({})", self.text)
-        }
-    }
-}
 
 /// Writes trees as Lean, with the letters in scope.
 pub struct Writer<'a> {
@@ -396,7 +373,7 @@ impl<'a> Writer<'a> {
 
     /// A term cast to a number type.
     fn cast(&self, text: &Printed, to: Num) -> Printed {
-        Printed::atom(format!("({} : {})", text.text, self.type_name(to)))
+        Printed::atom(format!("({} : {})", text.text(), self.type_name(to)))
     }
 
     /// A writer with the same grammar and notations, and these letters.
@@ -596,18 +573,11 @@ impl<'a> Writer<'a> {
     }
 }
 
-/// A template's tree with each hole filled, as text bracketed where Lean
-/// reads it so (`doc::print`); declined where a hole has no argument.
+/// A template's tree with each hole filled by the term for it; declined
+/// where a hole has no argument.
 fn fill(template: &Template, children: &[Printed]) -> Route<Printed> {
-    let args: Vec<super::doc::Term> = children
-        .iter()
-        .map(|c| super::doc::Term::raw(c.text.clone(), c.prec))
-        .collect();
-    match template.skeleton.instantiate(&args) {
-        Some(tree) => Route::Built(Printed {
-            text: tree.text(),
-            prec: tree.prec(),
-        }),
+    match template.skeleton.instantiate(children) {
+        Some(tree) => Route::Built(tree),
         None => Route::no("a template with a hole no argument fills"),
     }
 }
@@ -1225,13 +1195,10 @@ impl Writer<'_> {
         // The term is given its type: one built of numerals and naturals,
         // Σ(k = 1 to 3) 5 or 1/2^(j + 1), gives Lean nothing else to read
         // its type from, and Lean would take it in ℕ.
-        let term = Printed::atom(format!("({} : {})", term.text, self.type_name(at)));
+        let term = Printed::atom(format!("({} : {})", term.text(), self.type_name(at)));
         // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
         // sum of k, plus 1; a body below that is bracketed.
-        Route::Built(Printed {
-            text: format!("{over}, {}", term.at(67)),
-            prec: 10,
-        })
+        Route::Built(Printed::raw(format!("{over}, {}", term.at(67)), 10))
     }
 
     /// Σ(k = a to ∞) t, the value of a series: the limit of its partial
@@ -1273,16 +1240,13 @@ impl Writer<'_> {
                     return Route::Declined(d)
                 }
             };
-        let body = Printed::atom(format!("({} : {})", body.text, self.type_name(at)));
-        Route::Built(Printed {
-            text: format!(
+        let body = Printed::atom(format!("({} : {})", body.text(), self.type_name(at)));
+        Route::Built(Printed::raw(format!(
                 "Filter.limUnder Filter.atTop (fun {upper} : ℤ => ∑ {} ∈ Finset.Icc {} {upper}, {})",
                 super::names::letter(&index.text),
                 start.at(MAX),
                 body.at(67)
-            ),
-            prec: APP,
-        })
+            ), APP))
     }
 
     /// ∫(a to b) t dx, the integral from a to b, `∫ x in a..b, t`: Mathlib's
@@ -1313,17 +1277,17 @@ impl Writer<'_> {
             | (_, Route::Declined(d), _)
             | (_, _, Route::Declined(d)) => return Route::Declined(d),
         };
-        let body = Printed::atom(format!("({} : ℝ)", body.text));
-        Route::Built(Printed {
-            text: format!(
+        let body = Printed::atom(format!("({} : ℝ)", body.text()));
+        Route::Built(Printed::raw(
+            format!(
                 "∫ {} in {}..{}, {}",
                 super::names::letter(&letter.text),
                 a.at(MAX),
                 b.at(MAX),
                 body.at(67)
             ),
-            prec: 10,
-        })
+            10,
+        ))
     }
 
     /// x(n) → L as n → ∞: `Filter.Tendsto (fun n : ℤ => x n) Filter.atTop
@@ -1353,16 +1317,16 @@ impl Writer<'_> {
                 return Route::Declined(d)
             }
         };
-        Route::Built(Printed {
-            text: format!(
+        Route::Built(Printed::raw(
+            format!(
                 "Filter.Tendsto (fun {} : ℤ => ({} : {})) Filter.atTop (nhds {})",
                 super::names::letter(&letter.text),
-                body.text,
+                body.text(),
                 self.type_name(at),
                 l.at(MAX)
             ),
-            prec: 1000,
-        })
+            1000,
+        ))
     }
 
     /// f tends to L at c: `Filter.Tendsto f (nhdsWithin c (D \ {c})) (nhds
@@ -1394,14 +1358,11 @@ impl Writer<'_> {
             }
         };
         let point = c.at(MAX);
-        Route::Built(Printed {
-            text: format!(
+        Route::Built(Printed::raw(format!(
                 "Filter.Tendsto {} (nhdsWithin {point} ({domain} \\ {{{point}}})) (nhds {})",
                 super::names::letter(&f.text),
                 l.at(MAX)
-            ),
-            prec: 1000,
-        })
+            ), 1000))
     }
 
     /// There is a bijection from A to B: `∃ g : α → β, Set.BijOn g A B`,
@@ -1423,16 +1384,16 @@ impl Writer<'_> {
             return Route::no("a bijection whose sets use every map letter");
         };
         match (self.set_term(a), self.set_term(b)) {
-            (Route::Built(x), Route::Built(y)) => Route::Built(Printed {
-                text: format!(
+            (Route::Built(x), Route::Built(y)) => Route::Built(Printed::raw(
+                format!(
                     "∃ {g} : {} → {}, Set.BijOn {g} {} {}",
                     from.lean(),
                     to.lean(),
                     x.at(MAX),
                     y.at(MAX)
                 ),
-                prec: 0,
-            }),
+                0,
+            )),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
@@ -1480,10 +1441,7 @@ impl Writer<'_> {
             true => format!("{domain} ∈ nhds {x} ∧ {at}"),
             false => at,
         };
-        Route::Built(Printed {
-            text: format!("∀ {x} ∈ {}, {said}", u.at(MAX)),
-            prec: 0,
-        })
+        Route::Built(Printed::raw(format!("∀ {x} ∈ {}, {said}", u.at(MAX)), 0))
     }
 
     /// f is continuous on D, `ContinuousOn f D`, of a function into ℝ and a
@@ -1501,14 +1459,14 @@ impl Writer<'_> {
             return Route::no(format!("{} is no function into ℝ", f.text));
         }
         match self.numbers_at(set, Num::Real) {
-            Route::Built(s) => Route::Built(Printed {
-                text: format!(
+            Route::Built(s) => Route::Built(Printed::raw(
+                format!(
                     "{predicate} {} {}",
                     super::names::letter(&f.text),
                     s.at(MAX)
                 ),
-                prec: 1000,
-            }),
+                1000,
+            )),
             Route::Declined(d) => Route::Declined(d),
         }
     }
@@ -1571,10 +1529,10 @@ impl Writer<'_> {
             };
             // Lean reads no negation after `^`, so `a ^ -m` is written
             // `a ^ (-m)`.
-            return Route::Built(Printed {
-                text: format!("{} ^ {}", base.at(76), exponent.at(76)),
-                prec: 75,
-            });
+            return Route::Built(Printed::raw(
+                format!("{} ^ {}", base.at(76), exponent.at(76)),
+                75,
+            ));
         }
         if is_big_operator(node) {
             return self.sum(node, at);
@@ -1619,14 +1577,14 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let to = applied.gives;
-                let value = Printed {
-                    text: format!(
+                let value = Printed::raw(
+                    format!(
                         "{} {}",
                         self.function_text(&node.children[0]),
                         arg.at(MAX)
                     ),
-                    prec: APP,
-                };
+                    APP,
+                );
                 self.raise(value, to, at)
             }
             _ => {
@@ -1679,7 +1637,7 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let value = match template.yields {
-                    Slot::Fixed(_) if here < at && value.prec < APP => {
+                    Slot::Fixed(_) if here < at && value.prec() < APP => {
                         self.cast(&value, here)
                     }
                     _ => value,
@@ -1693,7 +1651,7 @@ impl Writer<'_> {
     fn raise(&self, value: Printed, own: Num, at: Num) -> Route<Printed> {
         if own == at {
             Route::Built(value)
-        } else if own == Num::Real && at == Num::Complex && value.prec == 75 {
+        } else if own == Num::Real && at == Num::Complex && value.prec() == 75 {
             // Lean takes `(x ^ a : ℂ)` as x cast up to the power a, and has
             // no power of a complex number to a real exponent, so a power is
             // cast whole, at its own type first.
@@ -1844,10 +1802,9 @@ impl Writer<'_> {
         }
         // D is open: `IsOpen D`, of a set of reals.
         if let ("open", [set]) = (&*node.notation_name(), node.children.as_slice()) {
-            return self.numbers_at(set, Num::Real).map(|s| Printed {
-                text: format!("IsOpen {}", s.at(MAX)),
-                prec: 1000,
-            });
+            return self
+                .numbers_at(set, Num::Real)
+                .map(|s| Printed::raw(format!("IsOpen {}", s.at(MAX)), 1000));
         }
         // There is a bijection from A to B: some map of the one's members to
         // the other's that is one-to-one from A onto B, `Set.BijOn g A B`.
@@ -1889,9 +1846,11 @@ impl Writer<'_> {
                     p.text
                 ));
             };
-            return self.element_term(t, members).map(|t| Printed {
-                text: format!("{} {}", super::names::letter(&p.text), t.at(MAX)),
-                prec: 1023,
+            return self.element_term(t, members).map(|t| {
+                Printed::raw(
+                    format!("{} {}", super::names::letter(&p.text), t.at(MAX)),
+                    1023,
+                )
             });
         }
         // there is a ∈ X, with nothing said of a: set.mm's "there is" over a
@@ -1902,13 +1861,15 @@ impl Writer<'_> {
             if self.set_members(set).is_none() {
                 return Route::no("there is some member of a set with no Lean type");
             }
-            return self.set_term(set).map(|s| Printed {
-                text: format!(
-                    "∃ {} ∈ {}, True",
-                    super::names::letter(&letter.text),
-                    s.at(51)
-                ),
-                prec: 0,
+            return self.set_term(set).map(|s| {
+                Printed::raw(
+                    format!(
+                        "∃ {} ∈ {}, True",
+                        super::names::letter(&letter.text),
+                        s.at(51)
+                    ),
+                    0,
+                )
             });
         }
         // A relation between sets, A ⊆ B or A = B.
@@ -1962,15 +1923,17 @@ impl Writer<'_> {
                         self.numbers_at(from, own_from),
                         self.numbers_at(to, own_to),
                     ) {
-                        (Route::Built(a), Route::Built(b)) => Route::Built(Printed {
-                            text: format!(
-                                "Set.MapsTo {} {} {}",
-                                self.function_text(f),
-                                a.at(MAX),
-                                b.at(MAX)
-                            ),
-                            prec: APP,
-                        }),
+                        (Route::Built(a), Route::Built(b)) => {
+                            Route::Built(Printed::raw(
+                                format!(
+                                    "Set.MapsTo {} {} {}",
+                                    self.function_text(f),
+                                    a.at(MAX),
+                                    b.at(MAX)
+                                ),
+                                APP,
+                            ))
+                        }
                         (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                             Route::Declined(d)
                         }
@@ -2000,10 +1963,7 @@ impl Writer<'_> {
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                Route::Built(Printed {
-                    text: parts.join(" ∧ "),
-                    prec: 35,
-                })
+                Route::Built(Printed::raw(parts.join(" ∧ "), 35))
             }
             _ => {
                 let template = match self.template(node) {
@@ -2055,16 +2015,16 @@ impl Writer<'_> {
             Route::Built(b) => b,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
-        Some(Route::Built(Printed {
-            text: format!(
+        Some(Route::Built(Printed::raw(
+            format!(
                 "∃ {m} : {}, ({m} : {}) = {} ∧ {}",
                 whole.lean(),
                 self.type_name(at),
                 value.at(51),
                 body.at(36)
             ),
-            prec: 0,
-        }))
+            0,
+        )))
     }
 
     /// The first term the formula puts in a slot for a whole number that
@@ -2230,10 +2190,7 @@ impl Writer<'_> {
             "≥" => "≥",
             other => return Route::no(format!("the relation {other}")),
         };
-        Route::Built(Printed {
-            text: format!("{} {op} {}", l.at(51), r.at(51)),
-            prec: 50,
-        })
+        Route::Built(Printed::raw(format!("{} {op} {}", l.at(51), r.at(51)), 50))
     }
 
     /// `x ∈ S`. In a number system, the membership is what it says of x in
@@ -2279,7 +2236,7 @@ impl Writer<'_> {
             let mut members = Vec::new();
             for member in &set.children {
                 match self.number_fixed(member, at) {
-                    Route::Built(p) => members.push(p.text),
+                    Route::Built(p) => members.push(p.text()),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -2287,15 +2244,15 @@ impl Writer<'_> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            return Route::Built(Printed {
-                text: format!(
+            return Route::Built(Printed::raw(
+                format!(
                     "{} ∈ ({{{}}} : Set {})",
                     x.at(51),
                     members.join(", "),
                     self.type_name(at)
                 ),
-                prec: 50,
-            });
+                50,
+            ));
         }
         if let Some(m) = self.set_membership(x, set) {
             return m;
@@ -2335,16 +2292,16 @@ impl Writer<'_> {
                 if !self.pinned(x) && !self.pinned(from) {
                     out[0] = self.cast(&out[0], at);
                 }
-                return Route::Built(Printed {
-                    text: format!(
+                return Route::Built(Printed::raw(
+                    format!(
                         "{} ≤ {} ∧ {} ≤ {}",
                         out[0].at(51),
                         out[1].at(51),
                         out[1].at(51),
                         out[2].at(51)
                     ),
-                    prec: 35,
-                });
+                    35,
+                ));
             }
             // Each written as an integer, a numeral too, so that a range of
             // numerals alone is not read in ℕ.
@@ -2360,15 +2317,15 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            return Route::Built(Printed {
-                text: format!(
+            return Route::Built(Printed::raw(
+                format!(
                     "{} ∈ Finset.Icc {} {}",
                     out[0].at(51),
                     out[1].at(MAX),
                     out[2].at(MAX)
                 ),
-                prec: 50,
-            });
+                50,
+            ));
         }
         Route::no(format!("a membership of {}", set.notation_name()))
     }
@@ -2397,10 +2354,7 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed {
-                    text: format!("{zero} < {}", x.at(51)),
-                    prec: 50,
-                })
+                Route::Built(Printed::raw(format!("{zero} < {}", x.at(51)), 50))
             }
             System::NonNegative if held <= Num::Int => {
                 if natural_letter {
@@ -2411,10 +2365,7 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed {
-                    text: format!("{zero} ≤ {}", x.at(51)),
-                    prec: 50,
-                })
+                Route::Built(Printed::raw(format!("{zero} ≤ {}", x.at(51)), 50))
             }
             System::Type(n) if held <= n => Route::Built(Printed::atom("True")),
             System::Type(n) => {
@@ -2423,15 +2374,15 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed {
-                    text: format!(
+                Route::Built(Printed::raw(
+                    format!(
                         "∃ {m} : {}, ({m} : {}) = {}",
                         self.type_name(n),
                         self.type_name(own),
                         x.at(51)
                     ),
-                    prec: 0,
-                })
+                    0,
+                ))
             }
             System::Positive | System::NonNegative => {
                 let m = witness_letter(x);
@@ -2444,14 +2395,14 @@ impl Writer<'_> {
                 } else {
                     "≤"
                 };
-                Route::Built(Printed {
-                    text: format!(
+                Route::Built(Printed::raw(
+                    format!(
                         "∃ {m} : ℤ, 0 {order} {m} ∧ ({m} : {}) = {}",
                         self.type_name(own),
                         x.at(51)
                     ),
-                    prec: 0,
-                })
+                    0,
+                ))
             }
         }
     }
@@ -2517,17 +2468,17 @@ impl Writer<'_> {
             Route::Declined(d) => return Route::Declined(d),
         };
         // A body the letter's type already makes true says nothing.
-        if body.text == "True" {
+        if body.text() == "True" {
             return Route::Built(Printed::atom("True"));
         }
         let ty = self.type_name(ty);
         let text = match (exists, guard) {
-            (true, None) => format!("∃ {name} : {ty}, {}", body.text),
+            (true, None) => format!("∃ {name} : {ty}, {}", body.text()),
             (true, Some(g)) => format!("∃ {name} : {ty}, {g} ∧ {}", body.at(36)),
-            (false, None) => format!("∀ {name} : {ty}, {}", body.text),
+            (false, None) => format!("∀ {name} : {ty}, {}", body.text()),
             (false, Some(g)) => format!("∀ {name} : {ty}, {g} → {}", body.at(25)),
         };
-        Route::Built(Printed { text, prec: 0 })
+        Route::Built(Printed::raw(text, 0))
     }
 
     /// The type of a function from one set to another: between sets of
@@ -2588,7 +2539,7 @@ impl Writer<'_> {
             true => format!("∃ {name} : {lean_type}, {maps} ∧ {}", body.at(36)),
             false => format!("∀ {name} : {lean_type}, {maps} → {}", body.at(25)),
         };
-        Route::Built(Printed { text, prec: 0 })
+        Route::Built(Printed::raw(text, 0))
     }
 }
 
@@ -2740,33 +2691,27 @@ mod tests {
     #[test]
     fn an_infix_template_brackets_by_lean_precedence() {
         let minus = Template::read("α, α → α: _1 - _2").expect("it reads");
-        let sum = Printed {
-            text: "a + b".to_string(),
-            prec: 65,
-        };
+        let sum = Printed::raw("a + b".to_string(), 65);
         // a + b − (a + b): the right side of a left-chaining operator is
         // bracketed at its own level, the left is not.
         let Route::Built(out) = fill(&minus, &[sum.clone(), sum]) else {
             panic!("the template fills");
         };
-        assert_eq!(out.text, "a + b - (a + b)");
+        assert_eq!(out.text(), "a + b - (a + b)");
     }
 
     #[test]
     fn an_argument_is_bracketed_unless_a_bracket_encloses_it() {
         let factorial = Template::read("ℕ → ℕ: Nat.factorial _1").expect("it reads");
-        let n1 = Printed {
-            text: "n + 1".to_string(),
-            prec: 65,
-        };
+        let n1 = Printed::raw("n + 1".to_string(), 65);
         let Route::Built(applied) = fill(&factorial, std::slice::from_ref(&n1)) else {
             panic!("the template fills");
         };
-        assert_eq!(applied.text, "Nat.factorial (n + 1)");
+        assert_eq!(applied.text(), "Nat.factorial (n + 1)");
         let floor = Template::read("ℝ → ℤ: ⌊_1⌋").expect("it reads");
         let Route::Built(enclosed) = fill(&floor, &[n1]) else {
             panic!("the template fills");
         };
-        assert_eq!(enclosed.text, "⌊n + 1⌋");
+        assert_eq!(enclosed.text(), "⌊n + 1⌋");
     }
 }
