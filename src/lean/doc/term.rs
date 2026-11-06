@@ -83,6 +83,13 @@ impl Op {
         assoc: Assoc::Neither,
     };
 
+    /// Subtraction, `a - b`.
+    pub const MINUS: Op = Op {
+        symbol: "-",
+        prec: 65,
+        assoc: Assoc::Left,
+    };
+
     /// A power, `a ^ b`.
     pub const POWER: Op = Op {
         symbol: "^",

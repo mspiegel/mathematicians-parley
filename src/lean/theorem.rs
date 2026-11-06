@@ -78,10 +78,9 @@ impl ProofLine {
     }
 }
 
-/// A proof given as an argument, as Lean text: a line's name or `(by
-/// parley_side)`.
-fn proof_arg(text: &str) -> super::doc::Arg {
-    super::doc::Arg::Explicit(super::expr::Printed::atom(text))
+/// A proof given as an argument: a line's name or `(by parley_side)`.
+fn proof_arg(proof: super::expr::Printed) -> super::doc::Arg {
+    super::doc::Arg::Explicit(proof)
 }
 
 /// The module a declaration's full name is in, `Parley.Items.Stdlib.Counting`
@@ -535,14 +534,33 @@ fn projected(term: Printed, path: &[&str]) -> Printed {
 /// The projection that takes sentence `i` of `n` joined by `∧`, which
 /// chains to the right: `.1`, `.2.1`, …, and the last `.2.2…`.
 fn projection(i: usize, n: usize) -> String {
+    projection_path(i, n)
+        .iter()
+        .map(|field| format!(".{field}"))
+        .collect()
+}
+
+/// `projection` as the fields taken in turn: `["2", "1"]` for `.2.1`.
+fn projection_path(i: usize, n: usize) -> Vec<&'static str> {
     if n == 1 {
-        return String::new();
+        return Vec::new();
     }
-    let mut out = ".2".repeat(i);
+    let mut out = vec!["2"; i];
     if i + 1 < n {
-        out.push_str(".1");
+        out.push("1");
     }
     out
+}
+
+/// A term's fields taken in turn, `h.2.1`.
+fn fields(term: Printed, path: &[&str]) -> Printed {
+    path.iter().fold(term, |inner, field| Printed {
+        kind: super::doc::TermKind::Field {
+            inner: Box::new(inner),
+            field: field.to_string(),
+        },
+        ty: None,
+    })
 }
 
 /// Each `let` and `assume` line of a theorem, by its label, with each of
@@ -1572,7 +1590,7 @@ pub fn theorem(
         ));
     }
     if conclusion.len() > 1 {
-        let each = Printed::atom("by parley_side");
+        let each = side_term(&[]);
         proof.push_at(
             1,
             Tactic::Exact(super::expr::anonymous(vec![each; conclusion.len()])),
@@ -2019,10 +2037,13 @@ impl<'a> Proof<'a> {
                         })
                 })
             });
-            let refute = if real { "parley_real" } else { "norm_num" };
+            use super::tactics as t;
+            let refute = match real {
+                true => t::bridge(BridgeTactic::Real, vec![]),
+                false => t::call("norm_num", vec![]),
+            };
             if let Some(last) = names.last() {
-                use super::tactics as t;
-                let refuted = Printed::atom(format!("(by {refute})"));
+                let refuted = proof_term(super::doc::Proof::By(refute));
                 let absurd = Printed::applied(
                     "absurd",
                     super::doc::Source::Core,
@@ -2759,9 +2780,9 @@ impl<'a> Proof<'a> {
         };
         let n = r.names.len();
         // The hypothesis is the starts and then the steps, joined by ∧.
-        let start = projection(at, n + 1);
-        let steps = projection(n, n + 1);
-        let step = projection(at, n);
+        let start = projection_path(at, n + 1);
+        let steps = projection_path(n, n + 1);
+        let step = projection_path(at, n);
         // The rule in the type the recursion computes in, the claim in its
         // own, N(0) = 0 in ℤ for (N 0 : ℝ) = 0 of a theorem in ℝ: the rule
         // cast up first where the claim's type is wider.
@@ -2773,7 +2794,7 @@ impl<'a> Proof<'a> {
         let worked = t::try_(t::call("ring_nf", vec![t::at_h(true)]));
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
             return Route::Built(Proof::By(Tactic::Seq(vec![
-                t::name_h(&Printed::atom(format!("{hyp}{start}"))),
+                t::name_h(&fields(t::hyp(hyp), &start)),
                 worked,
                 closed,
             ])));
@@ -2782,10 +2803,33 @@ impl<'a> Proof<'a> {
             Route::Built(a) => a,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let at_step = Printed::atom(format!(
-            "({hyp}{steps} ({} - 1) (by omega)){step}",
-            a.at(66)
-        ));
+        // The step at a − 1, a bracketed where it is a sum, as `a - 1`
+        // reads it.
+        let a = match a.prec() < 66 {
+            true => t::bracket(a),
+            false => a,
+        };
+        let int = super::doc::LeanType::Num(super::templates::Num::Int);
+        let one_less = Printed::infix(
+            super::doc::Op::MINUS,
+            a,
+            Printed::numeral("1", int.clone()),
+            int,
+        );
+        let rule = fields(t::hyp(hyp), &steps);
+        let omega = proof_term(Proof::By(t::call("omega", vec![])));
+        let at = Printed {
+            kind: super::doc::TermKind::App {
+                head: Box::new(rule),
+                args: vec![
+                    super::doc::Arg::Explicit(one_less),
+                    super::doc::Arg::Explicit(omega),
+                ],
+                explicit: false,
+            },
+            ty: None,
+        };
+        let at_step = fields(t::bracket(at), &step);
         let mut tactics = vec![
             t::name_h(&at_step),
             t::simp_only(false, None, cancel, Some(t::at_h(false))),
@@ -2915,7 +2959,7 @@ impl<'a> Proof<'a> {
                     ])),
                     CountConversion::After => Proof::By(t::bridge(
                         BridgeTactic::CountAfter,
-                        vec![TacticArg::Term(t::bracket(Printed::atom(proof.text())))],
+                        vec![TacticArg::Term(t::bracket(proof_term(proof)))],
                     )),
                 };
                 Route::Built(with_intros(&intros, proof))
@@ -5954,7 +5998,9 @@ impl<'a> Proof<'a> {
                 Binder::Fact { says, .. }
                     if self.given_whole(&says.text(), binding) =>
                 {
-                    args.push(proof_arg("(by parley_whole_side)"))
+                    args.push(proof_arg(proof_term(super::doc::Proof::By(
+                        super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
+                    ))))
                 }
                 // A hypothesis a cited line says, as Lean writes both: the
                 // line by its name.
@@ -5969,10 +6015,10 @@ impl<'a> Proof<'a> {
                     cited_lines,
                     &sentence.binders,
                 ) {
-                    Some(name) => args.push(proof_arg(&name)),
-                    None => args.push(proof_arg("(by parley_side)")),
+                    Some(name) => args.push(proof_arg(super::tactics::hyp(&name))),
+                    None => args.push(proof_arg(side_term(&[]))),
                 },
-                Binder::Fact { .. } => args.push(proof_arg("(by parley_side)")),
+                Binder::Fact { .. } => args.push(proof_arg(side_term(&[]))),
             }
         }
         let decl = super::expr::Printed::head(
