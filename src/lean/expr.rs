@@ -1067,7 +1067,9 @@ impl Writer<'_> {
                 kind: super::doc::TermKind::App {
                     head: Box::new(Printed::head(
                         super::sets::INVERSE,
-                        super::doc::Source::Bridge("Functions".to_string()),
+                        super::doc::Source::Bridge(
+                            super::doc::bridges::BridgeModule::Functions,
+                        ),
                     )),
                     args: vec![
                         super::doc::Arg::Explicit(letter),

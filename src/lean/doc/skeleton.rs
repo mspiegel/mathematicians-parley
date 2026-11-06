@@ -6,6 +6,7 @@
 //! term, `⌊x⌋` and `‖x‖`, `x.toNat`, a cast `(x : ℂ)`, `[ZMOD n]` after a
 //! congruence, `@` before a name given every argument, and `_`.
 
+use super::bridges::BridgeModule;
 use super::term::{Arg, ConstRef, LeanType, Op, Source, Term, TermKind};
 use crate::lean::templates::Num;
 
@@ -199,19 +200,20 @@ fn atom_word(word: &str) -> Option<Term> {
     }
     Some(skeleton(TermKind::Const(ConstRef {
         name: word.to_string(),
-        source: source_of(word),
+        source: source_of(word)?,
     })))
 }
 
 /// Where a name a template writes comes from: a bridge module for
-/// `LeanBridges.M.x`, Mathlib for any other.
-fn source_of(name: &str) -> Source {
+/// `LeanBridges.M.x`, Mathlib for any other; None for a bridge module there
+/// is none of, which the template then does not read.
+fn source_of(name: &str) -> Option<Source> {
     match name
         .strip_prefix("LeanBridges.")
         .and_then(|r| r.split_once('.'))
     {
-        Some((module, _)) => Source::Bridge(module.to_string()),
-        None => Source::Mathlib,
+        Some((module, _)) => BridgeModule::of_name(module).map(Source::Bridge),
+        None => Some(Source::Mathlib),
     }
 }
 
@@ -259,6 +261,6 @@ mod tests {
         let tree = read("LeanBridges.Counting.choose _1 _2").expect("it reads");
         let sources: Vec<&Source> =
             tree.constants().iter().map(|c| &c.source).collect();
-        assert_eq!(sources, [&Source::Bridge("Counting".to_string())]);
+        assert_eq!(sources, [&Source::Bridge(BridgeModule::Counting)]);
     }
 }

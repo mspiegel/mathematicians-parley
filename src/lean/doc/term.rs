@@ -38,8 +38,8 @@ pub enum Source {
     Core,
     /// Mathlib.
     Mathlib,
-    /// A bridge module of `corpus/lean-bridges/`, by its name.
-    Bridge(String),
+    /// A bridge module of `corpus/lean-bridges/`.
+    Bridge(super::bridges::BridgeModule),
     /// A module of the generated library, by its full name.
     Item(String),
 }

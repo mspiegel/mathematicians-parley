@@ -6,6 +6,7 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
+use super::doc::bridges::BridgeModule;
 use super::doc::{CountForm, LeanType, Piece, Source, TermKind};
 use super::expr::{
     letter_type, listed_set, relation_of, set_type, system_of, witnessed, LetterType,
@@ -964,7 +965,7 @@ impl Writer<'_> {
                     kind: TermKind::App {
                         head: Box::new(Printed::head(
                             INVERSE,
-                            Source::Bridge("Functions".to_string()),
+                            Source::Bridge(BridgeModule::Functions),
                         )),
                         args: [letter, domain, p]
                             .into_iter()
@@ -1377,7 +1378,7 @@ impl Writer<'_> {
             Route::Built(f) => relation_of(
                 "∈",
                 f,
-                Printed::head(POLYNOMIALS, Source::Bridge("Polynomials".to_string())),
+                Printed::head(POLYNOMIALS, Source::Bridge(BridgeModule::Polynomials)),
             ),
             Route::Declined(d) => Route::Declined(d),
         })
@@ -1416,7 +1417,7 @@ impl Writer<'_> {
         let polynomial = match relation_of(
             "∈",
             Printed::letter(q.clone(), ty.clone()),
-            Printed::head(POLYNOMIALS, Source::Bridge("Polynomials".to_string())),
+            Printed::head(POLYNOMIALS, Source::Bridge(BridgeModule::Polynomials)),
         ) {
             Route::Built(p) => p,
             Route::Declined(d) => return Some(Route::Declined(d)),

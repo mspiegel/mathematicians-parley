@@ -1,12 +1,32 @@
 //! Lean proofs as values: a term, or tactics.
 
+use super::bridges::BridgeTactic;
 use super::term::{Source, Term};
 
-/// A tactic the bridges or Lean define, by name, and where it comes from.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct TacticRef {
-    pub name: &'static str,
-    pub source: Source,
+/// A tactic a proof calls: one the bridges define, or one of Lean's or
+/// Mathlib's, by its name.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TacticRef {
+    Bridge(BridgeTactic),
+    Mathlib(&'static str),
+}
+
+impl TacticRef {
+    /// Its name in Lean.
+    pub fn name(self) -> &'static str {
+        match self {
+            TacticRef::Bridge(t) => t.name(),
+            TacticRef::Mathlib(name) => name,
+        }
+    }
+
+    /// Where it comes from, which a file calling it imports.
+    pub fn source(self) -> Source {
+        match self {
+            TacticRef::Bridge(t) => Source::Bridge(t.module()),
+            TacticRef::Mathlib(_) => Source::Mathlib,
+        }
+    }
 }
 
 /// A tactic.

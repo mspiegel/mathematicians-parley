@@ -161,7 +161,7 @@ impl Tactic {
             Tactic::Raw(text) => text.clone(),
             Tactic::Exact(t) => format!("exact {}", t.text()),
             Tactic::Call { tactic, args } => {
-                let mut out = tactic.name.to_string();
+                let mut out = tactic.name().to_string();
                 for a in args {
                     out.push(' ');
                     out.push_str(&a.at(MAX));
@@ -315,10 +315,7 @@ mod tests {
             LeanType::Prop,
         );
         let side = Tactic::Call {
-            tactic: TacticRef {
-                name: "parley_side",
-                source: Source::Bridge("Tactics".to_string()),
-            },
+            tactic: TacticRef::Bridge(super::super::bridges::BridgeTactic::Side),
             args: Vec::new(),
         };
         let proof = Proof::By(Tactic::First(vec![
