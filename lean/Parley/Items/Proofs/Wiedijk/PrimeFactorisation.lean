@@ -1,6 +1,15 @@
 module
 
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
 
 /-! Written from proofs/wiedijk/prime-factorisation.proof by parley build lean. -/
 

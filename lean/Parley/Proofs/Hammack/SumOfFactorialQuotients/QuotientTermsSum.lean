@@ -5,6 +5,13 @@ public import FactorialTactics
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/

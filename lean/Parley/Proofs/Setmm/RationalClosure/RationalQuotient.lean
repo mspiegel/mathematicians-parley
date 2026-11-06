@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Rat.Init
 public import Parley.Proofs.Setmm.RationalClosure.RationalProduct
 public import Parley.Proofs.Setmm.RationalClosure.RationalReciprocal
 

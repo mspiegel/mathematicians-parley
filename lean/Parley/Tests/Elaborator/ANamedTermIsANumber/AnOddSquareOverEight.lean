@@ -2,6 +2,9 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/a-named-term-is-a-number.proof by parley build lean. -/
 

@@ -2,6 +2,8 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/a-proof-block-ending-impossible.proof by parley build lean. -/
 

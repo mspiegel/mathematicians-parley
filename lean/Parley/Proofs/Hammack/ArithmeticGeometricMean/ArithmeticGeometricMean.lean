@@ -6,6 +6,13 @@ public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/arithmetic-geometric-mean.proof by parley build lean. -/

@@ -5,6 +5,9 @@ public import OrderTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/identities/log-base-closed.proof by parley build lean. -/

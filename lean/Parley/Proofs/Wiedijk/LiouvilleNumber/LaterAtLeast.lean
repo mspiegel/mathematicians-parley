@@ -5,6 +5,12 @@ public import Counting
 public import FactorialTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.PartialSumsIncrease
 

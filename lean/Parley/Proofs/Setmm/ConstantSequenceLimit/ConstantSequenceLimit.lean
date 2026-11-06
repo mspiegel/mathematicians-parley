@@ -4,6 +4,15 @@ public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Filter.AtTopBot.Defs
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Numbers
 

@@ -3,6 +3,8 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/stdlib/counting.proof by parley build lean. -/

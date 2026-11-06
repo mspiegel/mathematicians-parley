@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from corpus/stdlib/geometry.proof by parley build lean. -/

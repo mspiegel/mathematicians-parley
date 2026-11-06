@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Tests.Docs.Syntax.SumNegBounded
 public import Parley.Tests.Docs.Syntax.SumNonnegBounded

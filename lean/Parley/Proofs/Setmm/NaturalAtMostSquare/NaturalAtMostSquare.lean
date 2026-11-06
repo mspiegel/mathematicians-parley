@@ -3,6 +3,8 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/natural-at-most-square.proof by parley build lean. -/

@@ -3,6 +3,8 @@ module
 public import OrderTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/transitivity.proof by parley build lean. -/
 

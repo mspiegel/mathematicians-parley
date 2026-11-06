@@ -1,0 +1,1087 @@
+{"mathlib":"56a005855ea17e0b0958f73ec801ae140b0a1679"}
+{"key":"ArithmeticFunction.sigma","kind":"const","modules":["Mathlib.NumberTheory.ArithmeticFunction.Misc"]}
+{"key":"Classical.choose","kind":"const","modules":[]}
+{"key":"Classical.choose_spec","kind":"const","modules":[]}
+{"key":"Classical.propDecidable","kind":"const","modules":[]}
+{"key":"Complex.I","kind":"const","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"Complex.cos","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.exp","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Complex.sin","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"ContinuousOn","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"DifferentiableAt","kind":"const","modules":["Mathlib.Analysis.Calculus.FDeriv.Defs"]}
+{"key":"Even","kind":"const","modules":["Mathlib.Algebra.Group.Even"]}
+{"key":"Filter.Tendsto","kind":"const","modules":["Mathlib.Order.Filter.Defs"]}
+{"key":"Filter.atTop","kind":"const","modules":["Mathlib.Order.Filter.AtTopBot.Defs"]}
+{"key":"Filter.limUnder","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"Finset.Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"Finset.mem_Icc","kind":"const","modules":["Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"Finset.mem_Icc.mp","kind":"const","modules":[]}
+{"key":"Int.gcd","kind":"const","modules":[]}
+{"key":"Int.lcm","kind":"const","modules":[]}
+{"key":"Int.toNat_of_nonneg","kind":"const","modules":[]}
+{"key":"Irrational","kind":"const","modules":["Mathlib.NumberTheory.Real.Irrational"]}
+{"key":"IsAlgebraic","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
+{"key":"IsOpen","kind":"const","modules":["Mathlib.Topology.Defs.Basic"]}
+{"key":"Nat.Prime","kind":"const","modules":["Mathlib.Data.Nat.Prime.Defs"]}
+{"key":"Nat.totient","kind":"const","modules":["Mathlib.Data.Nat.Totient"]}
+{"key":"Odd","kind":"const","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"Polynomial.aeval","kind":"const","modules":["Mathlib.Algebra.Polynomial.AlgebraMap"]}
+{"key":"Polynomial.bernoulli","kind":"const","modules":["Mathlib.NumberTheory.BernoulliPolynomials"]}
+{"key":"Rat.den","kind":"const","modules":[]}
+{"key":"Rat.num","kind":"const","modules":[]}
+{"key":"Real.arctan","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan"]}
+{"key":"Real.cos","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.exp","kind":"const","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Real.log","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.pi","kind":"const","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin","kind":"const","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.sqrt","kind":"const","modules":["Mathlib.Analysis.Real.Sqrt"]}
+{"key":"Set.BijOn","kind":"const","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.Finite","kind":"const","modules":["Mathlib.Basic.Finite.Defs"]}
+{"key":"Set.Icc","kind":"const","modules":["Mathlib.Order.Interval.Set.Defs"]}
+{"key":"Set.InjOn","kind":"const","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.Ioo","kind":"const","modules":["Mathlib.Order.Interval.Set.Defs"]}
+{"key":"Set.MapsTo","kind":"const","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.SurjOn","kind":"const","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.encard","kind":"const","modules":["Mathlib.Data.Set.Card"]}
+{"key":"Set.ext_iff","kind":"const","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"Set.insert_comm","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.mem_insert_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.mem_singleton_iff","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.ncard","kind":"const","modules":["Mathlib.Data.Set.Card"]}
+{"key":"Set.pair_comm","kind":"const","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.univ","kind":"const","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"Transcendental","kind":"const","modules":["Mathlib.RingTheory.Algebraic.Defs"]}
+{"key":"True","kind":"const","modules":[]}
+{"key":"abs","kind":"const","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"absurd","kind":"const","modules":[]}
+{"key":"add_sub_cancel_right","kind":"const","modules":["Mathlib.Algebra.Group.Defs"]}
+{"key":"congrArg","kind":"const","modules":[]}
+{"key":"deriv","kind":"const","modules":["Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"ite","kind":"const","modules":[]}
+{"key":"ite_eq_left","kind":"const","modules":[]}
+{"key":"ite_eq_right","kind":"const","modules":[]}
+{"key":"le_of_lt","kind":"const","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"max","kind":"const","modules":[]}
+{"key":"min","kind":"const","modules":[]}
+{"key":"nhds","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"nhdsWithin","kind":"const","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"sub_add_cancel","kind":"const","modules":["Mathlib.Algebra.Group.Defs"]}
+{"key":"trivial","kind":"const","modules":[]}
+{"key":"zpow_natCast","kind":"const","modules":["Mathlib.Algebra.Group.DivInvMonoid"]}
+{"key":"ℝ","kind":"const","modules":[]}
+{"key":"ℤ","kind":"const","modules":[]}
+{"key":"∅","kind":"const","modules":[]}
+{"key":"(Finset.mem_Icc.mp h2).1","kind":"term","modules":[]}
+{"key":"(Finset.mem_Icc.mp h3).1","kind":"term","modules":[]}
+{"key":"(Finset.mem_Icc.mp h3).2","kind":"term","modules":[]}
+{"key":"(Rat.num_div_den x).symm","kind":"term","modules":["Mathlib.Algebra.Ring.Rat","Mathlib.Order.Defs.Unbundled"]}
+{"key":"(Real.log_lt_log_iff h3 h4).symm","kind":"term","modules":["Mathlib.Order.Defs.Unbundled","Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"(Set.nonempty_of_encard_ne_zero (by rw [h2]; exact_mod_cast (show (k + 1).toNat ≠ 0 by omega))).imp fun _ h => ⟨h, trivial⟩","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Data.Set.Card"]}
+{"key":"(a * ·) '' a","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"(a : G)","kind":"term","modules":[]}
+{"key":"(a : K)","kind":"term","modules":[]}
+{"key":"(a : Set (Set α))","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set (Set ℤ))","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set G)","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set K)","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set α)","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set ℚ)","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"(a : Set ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"(a : ℂ)","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"(a : ℕ)","kind":"term","modules":["Mathlib.Data.Nat.Notation"]}
+{"key":"(a : ℕ∞)","kind":"term","modules":["Mathlib.Data.ENat.Defs"]}
+{"key":"(a : ℚ)","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"(a : ℝ)","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"(a : ℤ)","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"(continuousOn_const.mul h4).congr (fun x hx => h3 x hx)","kind":"term","modules":[]}
+{"key":"(fun S : Set α => a) '' a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations"]}
+{"key":"(fun T : Set α => a) '' a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations"]}
+{"key":"(fun T : Set ℤ => a) '' a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations"]}
+{"key":"(fun k : ℤ => a) '' a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Operations"]}
+{"key":"(fun n : ℚ => a) '' a","kind":"term","modules":["Mathlib.Data.Rat.Init","Mathlib.Data.Set.Operations"]}
+{"key":"(fun n : ℤ => a) '' a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Operations"]}
+{"key":"(fun s : Set α => a) '' a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations"]}
+{"key":"(fun s : α => a) '' a","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"(fun t : Set α => a) '' a","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations"]}
+{"key":"(h1.finite_subsets).subset (fun Y hY => h2 Y hY)","kind":"term","modules":[]}
+{"key":"(h3.add h4).congr (fun x hx => h2 x hx)","kind":"term","modules":[]}
+{"key":"(h3.sub h4).congr (fun x hx => h2 x hx)","kind":"term","modules":[]}
+{"key":"(h4.div h5 h2).congr (fun x hx => h3 x hx)","kind":"term","modules":[]}
+{"key":"(hf.mono_left Set.inter_subset_left).image_subset","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"(one_div_le_one_div h4 h2).symm","kind":"term","modules":["Mathlib.Order.Defs.Unbundled","Mathlib.Algebra.Order.Field.Basic"]}
+{"key":"(one_div_lt_one_div h4 h2).symm","kind":"term","modules":["Mathlib.Order.Defs.Unbundled","Mathlib.Algebra.Order.Field.Basic"]}
+{"key":"(show Continuous fun _ : ℝ => c by fun_prop).continuousOn.congr (fun x hx => h3 x hx)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.FunProp.Elab","Mathlib.Topology.Defs.Basic"]}
+{"key":"(show Continuous fun x : ℝ => m * x by fun_prop).continuousOn.congr (fun x hx => h3 x hx)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.FunProp.Elab","Mathlib.Topology.Defs.Basic"]}
+{"key":"(show Continuous fun x : ℝ => x ^ 2 by fun_prop).continuousOn.congr (fun x hx => h2 x hx)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.FunProp.Elab","Mathlib.Topology.Defs.Basic"]}
+{"key":"(show Continuous fun x : ℝ => x ^ n.toNat by fun_prop).continuousOn.congr (fun x hx => h3 x hx)","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Tactic.FunProp.Elab","Mathlib.Topology.Defs.Basic"]}
+{"key":"-a","kind":"term","modules":[]}
+{"key":"Complex.cos_add a b","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.cos_neg a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.exp_add a b","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Complex.sin_add a b","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.sin_neg a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Complex.sin_sq_add_cos_sq a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"ContinuousOn.congr_mono h3 (fun ⦃x⦄ => congrFun rfl) h2","kind":"term","modules":["Mathlib.Topology.ContinuousOn"]}
+{"key":"Dvd.dvd.mul_right h4 x","kind":"term","modules":["Mathlib.Algebra.Divisibility.Basic"]}
+{"key":"F '' (a ∩ a)","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Finset.mem_Icc","kind":"term","modules":["Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"Finset.mul_sum _ _ _","kind":"term","modules":["Mathlib.Algebra.BigOperators.Ring.Finset"]}
+{"key":"Finset.prod_congr rfl h3","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"Finset.prod_nonneg h3","kind":"term","modules":["Mathlib.Algebra.Order.BigOperators.GroupWithZero.Finset"]}
+{"key":"Finset.sum_add_distrib","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"Finset.sum_congr rfl h3","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"Finset.sum_le_sum h3","kind":"term","modules":["Mathlib.Algebra.Order.BigOperators.Group.Finset"]}
+{"key":"Finset.sum_nonneg h3","kind":"term","modules":["Mathlib.Algebra.Order.BigOperators.Group.Finset"]}
+{"key":"H.inv_mem h2","kind":"term","modules":[]}
+{"key":"H.mul_mem h2 h3","kind":"term","modules":[]}
+{"key":"H.one_mem","kind":"term","modules":[]}
+{"key":"Iff.rfl","kind":"term","modules":[]}
+{"key":"Iff.symm (div_lt_div_iff₀ h6 h3)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"Iff.symm Set.sdiff_eq_empty","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Int.ModEq.dvd_iff h4","kind":"term","modules":["Mathlib.Data.Int.ModEq"]}
+{"key":"Int.ModEq.symm (Int.mod_modEq x ↑n)","kind":"term","modules":["Mathlib.Data.Int.ModEq"]}
+{"key":"Int.dvd_coe_gcd h4 h5","kind":"term","modules":[]}
+{"key":"Int.dvd_lcm_left a b","kind":"term","modules":[]}
+{"key":"Int.dvd_lcm_right a b","kind":"term","modules":[]}
+{"key":"Int.dvd_of_dvd_mul_left_of_gcd_one h4 (by rw [Int.gcd_comm]; exact_mod_cast h5)","kind":"term","modules":["Mathlib.Data.Int.GCD"]}
+{"key":"Int.dvd_trans h4 h5","kind":"term","modules":[]}
+{"key":"Int.emod_lt_of_pos a (by omega)","kind":"term","modules":[]}
+{"key":"Int.emod_nonneg a (by omega)","kind":"term","modules":[]}
+{"key":"Int.even_mul","kind":"term","modules":["Mathlib.Algebra.Group.Int.Even"]}
+{"key":"Int.even_or_odd n","kind":"term","modules":["Mathlib.Algebra.Ring.Int.Parity"]}
+{"key":"Int.floor_eq_iff","kind":"term","modules":["Mathlib.Algebra.Order.Floor.Ring"]}
+{"key":"Int.floor_le x","kind":"term","modules":["Mathlib.Algebra.Order.Floor.Defs"]}
+{"key":"Int.gcd_dvd_left a b","kind":"term","modules":[]}
+{"key":"Int.gcd_dvd_right a b","kind":"term","modules":[]}
+{"key":"Int.le_of_dvd (by omega) h3","kind":"term","modules":[]}
+{"key":"Int.lt_floor_add_one x","kind":"term","modules":["Mathlib.Algebra.Order.Floor.Ring"]}
+{"key":"Int.modEq_comm.trans Int.modEq_iff_dvd","kind":"term","modules":["Mathlib.Data.Int.ModEq"]}
+{"key":"Int.modEq_iff_dvd.mpr ⟨-1, by ring⟩","kind":"term","modules":["Mathlib.Tactic.Ring.RingNF"]}
+{"key":"Int.natCast_nonneg _","kind":"term","modules":[]}
+{"key":"Int.not_even_iff_odd.mpr h2","kind":"term","modules":[]}
+{"key":"Int.not_odd_iff_even.mpr h2","kind":"term","modules":[]}
+{"key":"Int.one_le_abs h2","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Int"]}
+{"key":"LeanBridges.Calculus.continuous_on f D h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Calculus.limit_at f D h1 c L","kind":"term","modules":[]}
+{"key":"LeanBridges.Calculus.series_sum t L h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Calculus.series_sum_from_zero t L h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Calculus.tends_to x L","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.C_1 n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.C_2 n h1 k","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.C_3 n h1 k","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.absorption n h1 k h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.binomial_all n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.binomial_nat0 n h1 k","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.binomial_one n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.binomial_two n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.binomial_zero_index n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_at_least_one X h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_disjoint_union X Y m h1 n h2 h3 h4 h5","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_empty","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_pair u w","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_pair_distinct u w","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_positive X h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_singleton x","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.card_two Y a b h1 h2 h3 h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.choose_outside n h1 k h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.choose_pos n h1 k h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_2","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_3 n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_at_most m h1 n h2 h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_divisible n h1 m h2 h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_nat n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.factorial_nonzero n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Counting.pascal n h1 k","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.divides_one d h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.divides_quotient n h1 d h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_1 a h1 b h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_4 a h1 b h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_commutes a b","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_integer_1 a b","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_mod a b h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_one a","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.gcd_zero n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.lcm_1 a b","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.lcm_4 a b","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.mod_multiple r m h2 q","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.mod_remainder a m h2 r h3 h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.prime p h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.prime_coprime p h1 h2 a h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.prime_divides_product p h1 h2 m n","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.prime_factor m h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Divisibility.prime_nat p h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Functions.image X Y f u W h1 hf","kind":"term","modules":[]}
+{"key":"LeanBridges.Functions.inverse_of_value g Y y h1.2 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Functions.one_to_one_onto X Y f hf","kind":"term","modules":[]}
+{"key":"LeanBridges.Functions.onto X Y f hf","kind":"term","modules":[]}
+{"key":"LeanBridges.Functions.set_image E Y u Z hE","kind":"term","modules":[]}
+{"key":"LeanBridges.Groups.coset g u H h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.abs_1 x","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.abs_2 x","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.abs_difference_lt x c δ","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.archimedean x h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.archimedean_natural x","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.divide_le x y c h4 h5","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.exponent_negative a h2 m","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.integer_step m n h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.irrational x","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.less_scaled x y c h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat0 n","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat0_as_int n","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat0_nonzero m h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat0_successor k h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat_closure_1 a h1 b h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat_closure_2 a h1 b h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.nat_minus_one n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.power_nat a h1 m h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.rational x","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.square_le x y h3 h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.square_less x y h3 h4","kind":"term","modules":[]}
+{"key":"LeanBridges.Numbers.square_zero x h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Polynomials.remainder p h1 a","kind":"term","modules":[]}
+{"key":"LeanBridges.Sets.disjoint_empty Y Z h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Sets.disjoint_member Y Z u h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Sets.pair_subset X a b h1 h2","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.product_extended t a n h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.product_single t a","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.range_difference a n k h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.range_from_bounds m h1 x h2 h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_constant a b h3 c","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_extended t a n h3","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_first t n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_last t n h1","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_shift t a b c","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_single t a","kind":"term","modules":[]}
+{"key":"LeanBridges.Sums.sum_split t a b c h4 h5","kind":"term","modules":[]}
+{"key":"MulPosMono.mul_le_mul_of_nonneg_right h5 h4","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Defs"]}
+{"key":"Odd.add_even h2 h4","kind":"term","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"Odd.add_odd h2 h4","kind":"term","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"Odd.sub_even h2 h4","kind":"term","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"Odd.sub_odd h2 h4","kind":"term","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"Or.inl h1","kind":"term","modules":[]}
+{"key":"Or.inr h1","kind":"term","modules":[]}
+{"key":"Real.continuous_arctan.continuousOn.congr (fun x hx => h2 x hx)","kind":"term","modules":[]}
+{"key":"Real.cos_le_one a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.cos_nonneg_of_mem_Icc h1","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.cos_pos_of_mem_Ioo h1","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.exp_log h2","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.exp_pos x","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential"]}
+{"key":"Real.log_div h3.ne' h4.ne'","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_exp x","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_mul h3.ne' h4.ne'","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_ne_zero_of_pos_of_ne_one h2 h3","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.log_zpow x n","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Log.Basic"]}
+{"key":"Real.neg_one_le_cos a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.neg_one_le_sin a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.sin_le_one a","kind":"term","modules":["Mathlib.Analysis.Complex.Trigonometric"]}
+{"key":"Real.sin_nonneg_of_nonneg_of_le_pi h1.1 h1.2","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sin_pos_of_pos_of_lt_pi h1.1 h1.2","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"Real.sq_sqrt h2","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt"]}
+{"key":"Real.sqrt_nonneg x","kind":"term","modules":["Mathlib.Analysis.Real.Sqrt"]}
+{"key":"Set.Icc_subset_Icc h5 h6","kind":"term","modules":["Mathlib.Order.Interval.Set.Basic"]}
+{"key":"Set.Icc_subset_Icc_right h4","kind":"term","modules":["Mathlib.Order.Interval.Set.Basic"]}
+{"key":"Set.Icc_subset_Ioo h3.1 h4.2","kind":"term","modules":["Mathlib.Order.Interval.Set.Basic"]}
+{"key":"Set.Ioo_subset_Icc_self","kind":"term","modules":["Mathlib.Order.Interval.Set.Basic"]}
+{"key":"Set.Subset.antisymm h1 h2","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.Subset.refl X","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.cast_ncard_sdiff h2 h1","kind":"term","modules":["Mathlib.Data.Set.Card"]}
+{"key":"Set.diff_subset","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.diff_subset_diff_left h1","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.encard_eq_zero.mp (by simpa using h1)","kind":"term","modules":[]}
+{"key":"Set.encard_le_encard h1","kind":"term","modules":["Mathlib.Data.Set.Card"]}
+{"key":"Set.eq_empty_of_subset_empty (h2 ▸ Set.inter_subset_inter_left Z h1)","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.finite_of_encard_eq_coe h2","kind":"term","modules":["Mathlib.Data.Set.Card"]}
+{"key":"Set.image_mono (Set.inter_subset_inter_right X h1)","kind":"term","modules":["Mathlib.Data.Set.Basic","Mathlib.Data.Set.Image"]}
+{"key":"Set.inter_comm Y Z","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.inter_self Y","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.inter_subset_left","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.mem_diff_singleton","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.mem_image_of_mem f ⟨h1 h2, h2⟩","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.mem_sep_iff","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.mem_univ _","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"Set.pair_eq_pair_iff","kind":"term","modules":["Mathlib.Data.Set.Insert"]}
+{"key":"Set.powerset_mono.mpr h1","kind":"term","modules":[]}
+{"key":"Set.sdiff_self","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.sdiff_subset_comm","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.sdiff_subset_sdiff (fun ⦃a⦄ a_1 => a_1) h1","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.sep_eq_empty_iff_mem_false","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.sep_subset X P","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.singleton_subset_iff.mpr h1","kind":"term","modules":[]}
+{"key":"Set.subset_biUnion_of_mem (u := fun X => X) h1","kind":"term","modules":["Mathlib.Data.Set.Lattice.Bounded"]}
+{"key":"Set.subset_empty_iff","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.subset_sdiff_singleton h1 h2","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.subset_univ _","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.union_comm Y Z","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.union_diff_self","kind":"term","modules":["Mathlib.Order.BooleanAlgebra.Set"]}
+{"key":"Set.union_empty Y","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.union_self Y","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"Set.union_subset h1 h2","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"a","kind":"term","modules":[]}
+{"key":"a % a","kind":"term","modules":[]}
+{"key":"a (fun m : ℤ => a) a (nhds a)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Topology.Defs.Filter"]}
+{"key":"a (fun n : ℤ => a) a (nhds a)","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Topology.Defs.Filter"]}
+{"key":"a * a","kind":"term","modules":[]}
+{"key":"a + a","kind":"term","modules":[]}
+{"key":"a - a","kind":"term","modules":[]}
+{"key":"a / a","kind":"term","modules":[]}
+{"key":"a < a","kind":"term","modules":[]}
+{"key":"a = a","kind":"term","modules":[]}
+{"key":"a > a","kind":"term","modules":[]}
+{"key":"a \\ a","kind":"term","modules":[]}
+{"key":"a ^ a","kind":"term","modules":[]}
+{"key":"a _ (fun k v => a)","kind":"term","modules":[]}
+{"key":"a a (fun n : ℤ => a)","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"a a a","kind":"term","modules":[]}
+{"key":"a f (a a (a \\ {a})) (nhds a)","kind":"term","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"a g (a a (a \\ {a})) (nhds a)","kind":"term","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"a h (a a (a \\ {a})) (nhds a)","kind":"term","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"a k (a a (a \\ {a})) (nhds a)","kind":"term","modules":["Mathlib.Topology.Defs.Filter"]}
+{"key":"a → a","kind":"term","modules":[]}
+{"key":"a ↔ a","kind":"term","modules":[]}
+{"key":"a ∈ a","kind":"term","modules":[]}
+{"key":"a ∘ a","kind":"term","modules":[]}
+{"key":"a ∣ a","kind":"term","modules":[]}
+{"key":"a ∧ a","kind":"term","modules":[]}
+{"key":"a ∧ a ∧ a","kind":"term","modules":[]}
+{"key":"a ∧ a ∧ a ∧ a","kind":"term","modules":[]}
+{"key":"a ∨ a","kind":"term","modules":[]}
+{"key":"a ∩ a","kind":"term","modules":[]}
+{"key":"a ∩ f ⁻¹' a","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"a ∪ a","kind":"term","modules":[]}
+{"key":"a ≠ a","kind":"term","modules":[]}
+{"key":"a ≡ a [ZMOD a]","kind":"term","modules":["Mathlib.Data.Int.ModEq"]}
+{"key":"a ≤ a","kind":"term","modules":[]}
+{"key":"a ≥ a","kind":"term","modules":[]}
+{"key":"a ⊆ a","kind":"term","modules":["Mathlib.Tactic.SetNotationForOrder"]}
+{"key":"a.1","kind":"term","modules":[]}
+{"key":"a.2","kind":"term","modules":[]}
+{"key":"a.2.1","kind":"term","modules":[]}
+{"key":"a.2.2","kind":"term","modules":[]}
+{"key":"a.2.2.1","kind":"term","modules":[]}
+{"key":"a.2.2.2","kind":"term","modules":[]}
+{"key":"abs_add_le a b","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"abs_div x y","kind":"term","modules":["Mathlib.Algebra.Order.Field.Basic"]}
+{"key":"abs_mul x y","kind":"term","modules":["Mathlib.Algebra.Order.Ring.Abs"]}
+{"key":"abs_neg x","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"abs_nonneg z","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"abs_zero","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"a⁻¹","kind":"term","modules":[]}
+{"key":"by (aesop)","kind":"term","modules":["Aesop.Frontend.Tactic"]}
+{"key":"by (simp_all; done)","kind":"term","modules":[]}
+{"key":"by aesop","kind":"term","modules":["Aesop.Frontend.Tactic"]}
+{"key":"by apply Finset.dvd_sum; intro k hk; rw [Finset.mem_Icc] at hk; exact h3 k hk.1","kind":"term","modules":["Mathlib.Algebra.BigOperators.Ring.Finset","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by exact (Finset.sum_eq_zero_iff_of_nonneg h3).mp h4","kind":"term","modules":["Mathlib.Algebra.Order.BigOperators.Group.Finset"]}
+{"key":"by exact Complex.cpow_add a b h2","kind":"term","modules":["Mathlib.Analysis.SpecialFunctions.Pow.Complex"]}
+{"key":"by exact Set.Subset.antisymm h1 h2","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"by exact finprod_mem_empty","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"by exact finprod_mem_mul_distrib h1","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"by exact finsum_mem_empty","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"by exact fun _ _ => trivial","kind":"term","modules":[]}
+{"key":"by exact fun hp => h2 (h1.mp hp)","kind":"term","modules":[]}
+{"key":"by exact pow_le_pow_right₀ h4 (by omega)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"by exact_mod_cast x.den_pos","kind":"term","modules":[]}
+{"key":"by ext t; by_cases h : P t <;> simp [h]","kind":"term","modules":[]}
+{"key":"by have h : IsCoprime a b := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h.pow_left (m := k.toNat))","kind":"term","modules":["Mathlib.RingTheory.Coprime.Basic","Mathlib.RingTheory.Coprime.Lemmas"]}
+{"key":"by have h := Int.ModEq.cancel_right_div_gcd (by exact_mod_cast h4 : (0 : ℤ) < n) h5; have hg : Int.gcd (n : ℤ) c = 1 := (by rw [Int.gcd_comm]; exact_mod_cast h6); rw [hg] at h; simpa using h","kind":"term","modules":["Mathlib.Data.Int.ModEq","Mathlib.Data.Int.Notation"]}
+{"key":"by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this⟩","kind":"term","modules":["Mathlib.Topology.MetricSpace.Bounded","Mathlib.Analysis.Normed.Group.Bounded","Mathlib.Analysis.Normed.Group.Real","Mathlib.Order.Filter.AtTopBot.Archimedean"]}
+{"key":"by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => le_trans (le_abs_self _) (by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this)⟩","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Topology.MetricSpace.Bounded","Mathlib.Analysis.Normed.Group.Bounded","Mathlib.Analysis.Normed.Group.Real","Mathlib.Order.Filter.AtTopBot.Archimedean","Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"by have h0 : Int.gcd a b ≠ 0 := (by intro h0; rw [Int.gcd_eq_zero_iff] at h0; exact h3 h0); omega","kind":"term","modules":[]}
+{"key":"by have h4' : IsCoprime x (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4); have h5' : IsCoprime y (n : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h5); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 (h4'.mul_left h5')","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.RingTheory.Coprime.Basic","Mathlib.RingTheory.Coprime.Lemmas"]}
+{"key":"by have hb := (h2.injOn_iff_bijOn_of_mapsTo h3.1).mp h3.2; have hi := finprod_mem_image (f := fun y : ℤ => y) h3.2; rw [← hi, hb.image_eq]","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation"]}
+{"key":"by have hi : MeasureTheory.IntegrableOn f (Set.uIcc a b) := (by rw [Set.uIcc_of_le h3.le]; exact h4.integrableOn_Icc); have hc := intervalIntegral.continuousOn_primitive_interval hi; rw [Set.uIcc_of_le h3.le] at hc; exact hc.congr (fun x hx => h5 x hx)","kind":"term","modules":["Mathlib.MeasureTheory.Integral.DominatedConvergence","Mathlib.MeasureTheory.Integral.IntegrableOn","Mathlib.Order.Interval.Set.UnorderedInterval"]}
+{"key":"by have hmono : Monotone (fun n : ℤ => x (max n 1)) := (monotone_int_of_le_succ (fun n => by rcases le_or_gt n 0 with h | h; (rw [max_eq_right (by omega), max_eq_right (by omega)]); (rw [max_eq_left (by omega), max_eq_left (by omega)]; exact h1 n h))); have hbdd : BddAbove (Set.range fun n : ℤ => x (max n 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; exact h3 _ (by omega)⟩; exact ⟨⨆ n : ℤ, x (max n 1), (tendsto_atTop_ciSup hmono hbdd).congr' (Filter.eventually_atTop.2 ⟨1, fun n hn => by simp only [max_eq_left hn]⟩)⟩","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Order.SetNotation","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Operations","Mathlib.Order.Bounds.Defs","Mathlib.Order.Defs.LinearOrder","Mathlib.Order.Monotone.Basic","Mathlib.Order.Monotone.Defs","Mathlib.Topology.Order.MonotoneConvergence","Mathlib.Order.Filter.AtTopBot.Basic"]}
+{"key":"by have key : ∀ n : ℕ, ∑ k ∈ Finset.Icc a (a - 1 + n), (t (k + 1) - t k) = t (a - 1 + n + 1) - t a := (by intro n; induction n with | zero => (rw [Nat.cast_zero, add_zero, Finset.Icc_eq_empty_of_lt (by omega)]; simp) | succ n ih => (rw [(show a - 1 + ((n + 1 : ℕ) : ℤ) = (a - 1 + n) + 1 by push_cast; ring), ← Finset.insert_Icc_right_eq_Icc_add_one (by omega), Finset.sum_insert (by simp), ih]; ring)); have := key (b + 1 - a).toNat; rwa [(show a - 1 + ((b + 1 - a).toNat : ℤ) = b by omega)] at this","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Algebra.Group.Monoid","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.Ring.RingNF","Mathlib.Data.Nat.Cast.Defs","Mathlib.Order.Interval.Finset.Basic","Mathlib.Order.Interval.Finset.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Basic","Mathlib.Algebra.BigOperators.Group.Finset.Defs","Mathlib.Algebra.Order.Interval.Finset.SuccPred"]}
+{"key":"by intro h; have := Int.le_of_dvd (by omega) h; omega","kind":"term","modules":[]}
+{"key":"by intro x hx; by_cases hxc : x = c; (subst hxc; rw [← continuousWithinAt_sdiff_self, ContinuousWithinAt, h6]; rw [(show (U \\ ({x} : Set ℝ)) \\ {x} = U \\ {x} by ext y; simp)] at h8; exact h8.congr' (eventually_nhdsWithin_of_forall (fun y hy => (h5 y hy).symm))); have hmem : x ∈ U \\ ({c} : Set ℝ) := ⟨hx, hxc⟩; exact (((h7 x hmem).2.continuousAt).congr (Filter.eventually_of_mem ((h2.sdiff isClosed_singleton).mem_nhds hmem) (fun y hy => (h5 y hy).symm))).continuousWithinAt","kind":"term","modules":["Mathlib.Topology.ContinuousOn","Mathlib.Topology.NhdsWithin","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Order.Defs.Unbundled","Mathlib.Order.Filter.Basic","Mathlib.Topology.Defs.Filter","Mathlib.Topology.Separation.Basic"]}
+{"key":"by intro x hx; rcases hx with rfl | rfl | rfl <;> assumption","kind":"term","modules":[]}
+{"key":"by lift a to ℕ using h1; lift b to ℕ using h2; lift c to ℕ using h3; lift a' to ℕ using h4; lift b' to ℕ using h5; lift c' to ℕ using h6; simp only [Int.toNat_natCast] at h7; have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).1; rw [h, (key a' b' c').1] at this; exact_mod_cast this.symm","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Finsupp.Single","Mathlib.Data.Nat.Notation","Mathlib.RingTheory.UniqueFactorizationDomain.Finsupp","Mathlib.Tactic.Positivity.Core","Mathlib.Data.Nat.Factorization.Defs"]}
+{"key":"by lift a to ℕ using h1; lift b to ℕ using h2; lift c to ℕ using h3; lift a' to ℕ using h4; lift b' to ℕ using h5; lift c' to ℕ using h6; simp only [Int.toNat_natCast] at h7; have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.1; rw [h, (key a' b' c').2.1] at this; exact_mod_cast this.symm","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Finsupp.Single","Mathlib.Data.Nat.Notation","Mathlib.RingTheory.UniqueFactorizationDomain.Finsupp","Mathlib.Tactic.Positivity.Core","Mathlib.Data.Nat.Factorization.Defs"]}
+{"key":"by lift a to ℕ using h1; lift b to ℕ using h2; lift c to ℕ using h3; lift a' to ℕ using h4; lift b' to ℕ using h5; lift c' to ℕ using h6; simp only [Int.toNat_natCast] at h7; have h : 2 ^ a * 3 ^ b * 5 ^ c = 2 ^ a' * 3 ^ b' * 5 ^ c' := (by exact_mod_cast h7); have key : ∀ x y z : ℕ, (2 ^ x * 3 ^ y * 5 ^ z).factorization 2 = x ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 3 = y ∧ (2 ^ x * 3 ^ y * 5 ^ z).factorization 5 = z := (by intro x y z; rw [Nat.factorization_mul (by positivity) (by positivity), Nat.factorization_mul (by positivity) (by positivity)]; simp [Nat.factorization_pow, Nat.prime_two.factorization, Nat.prime_three.factorization, Nat.prime_five.factorization, Finsupp.single_apply]); have := (key a b c).2.2; rw [h, (key a' b' c').2.2] at this; exact_mod_cast this.symm","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Finsupp.Single","Mathlib.Data.Nat.Notation","Mathlib.RingTheory.UniqueFactorizationDomain.Finsupp","Mathlib.Tactic.Positivity.Core","Mathlib.Data.Nat.Factorization.Defs"]}
+{"key":"by lift m to ℕ using h1.le; lift n to ℕ using h2.le; rw [← Nat.cast_mul]; simp only [Int.toNat_natCast]; have hc : Nat.Coprime m n := (by have h := h3; rw [Int.gcd_natCast_natCast] at h; exact_mod_cast h); exact_mod_cast ArithmeticFunction.isMultiplicative_sigma.map_mul_of_coprime hc","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Cast.Basic"]}
+{"key":"by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; have h := congr_arg (Polynomial.aeval x) (Polynomial.bernoulli_comp_one_add_X n); simp only [Polynomial.aeval_comp, map_add, nsmul_eq_mul, map_mul, map_natCast, map_pow, Polynomial.aeval_X, map_one] at h; push_cast; rw [add_comm x 1, h, (show (n : ℤ) - 1 = ((n - 1 : ℕ) : ℤ) by omega), zpow_natCast]; ring","kind":"term","modules":["Batteries.Logic","Mathlib.NumberTheory.BernoulliPolynomials","Mathlib.Tactic.Lift","Mathlib.Algebra.Group.DivInvMonoid","Mathlib.Algebra.Group.Semigroup","Mathlib.Algebra.Polynomial.AlgebraMap","Mathlib.Algebra.Ring.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.Ring.RingNF","Mathlib.Algebra.Group.Hom.Defs","Mathlib.Data.Nat.Cast.Basic"]}
+{"key":"by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; have hD : Y ⊆ ((n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) : Set ℤ) := (by intro d hd; obtain ⟨hp, hdv⟩ := h2 hd; simp only [Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Nat.mem_divisors]; refine ⟨d.natAbs, ⟨?_, (by omega)⟩, (by omega)⟩; have := Int.natAbs_dvd_natAbs.mpr hdv; simpa using this); have hfin : Y.Finite := (Finset.finite_toSet _).subset hD; rw [finsum_mem_eq_finite_toFinset_sum _ hfin, ArithmeticFunction.sigma_one_apply]; push_cast; have hmap : ∑ x ∈ n.divisors, (x : ℤ) = ∑ x ∈ n.divisors.map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩, x := (by simp [Finset.sum_map]); rw [hmap]; apply Finset.sum_le_sum_of_subset_of_nonneg; (intro d hd; have := hD ((Set.Finite.mem_toFinset hfin).mp hd); simpa using this); (intro d hd _; simp only [Finset.mem_map, Function.Embedding.coeFn_mk] at hd; obtain ⟨i, _, rfl⟩ := hd; positivity)","kind":"term","modules":["Mathlib.NumberTheory.Divisors","Mathlib.Tactic.Lift","Mathlib.Tactic.SetNotationForOrder","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Algebra.CharZero.Defs","Mathlib.Data.Finset.Defs","Mathlib.Data.Finset.Image","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Logic.Embedding.Basic","Mathlib.NumberTheory.ArithmeticFunction.Misc","Mathlib.Tactic.Positivity.Core","Mathlib.Data.Set.Finite.Basic","Mathlib.Algebra.BigOperators.Group.Finset.Defs","Mathlib.Algebra.Order.BigOperators.Group.Finset"]}
+{"key":"by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; rw [Nat.totient_eq_card_coprime]; have e : {r ∈ (Set.Icc (0 : ℤ) ((n : ℤ) - 1) : Set ℤ) | (Int.gcd r (n : ℤ) : ℤ) = 1} = (((Finset.range n).filter n.Coprime).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ : Finset ℤ) := (by ext r; simp only [Set.mem_setOf_eq, Set.mem_Icc, Finset.coe_map, Function.Embedding.coeFn_mk, Set.mem_image, Finset.mem_coe, Finset.mem_filter, Finset.mem_range]; constructor; (rintro ⟨⟨h0, hr⟩, hg⟩; refine ⟨r.toNat, ⟨(by omega), ?_⟩, (by omega)⟩; rw [Nat.coprime_comm, Nat.Coprime, ← Int.gcd_natCast_natCast, Int.toNat_of_nonneg h0]; exact_mod_cast hg); (rintro ⟨i, ⟨hi, hc⟩, rfl⟩; refine ⟨⟨(by omega), (by omega)⟩, ?_⟩; rw [Int.gcd_natCast_natCast, Nat.Coprime.gcd_eq_one (Nat.coprime_comm.mp hc)]; rfl)); rw [e, Set.ncard_coe_finset, Finset.card_map]","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Tactic.Lift","Mathlib.Algebra.CharZero.Defs","Mathlib.Data.Finset.Card","Mathlib.Data.Finset.Defs","Mathlib.Data.Finset.Filter","Mathlib.Data.Finset.Image","Mathlib.Data.Finset.Range","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Totient","Mathlib.Data.Set.Card","Mathlib.Data.Set.Defs","Mathlib.Data.Set.Operations","Mathlib.Logic.Embedding.Basic","Mathlib.Order.Interval.Set.Defs"]}
+{"key":"by lift n to ℕ using h1; induction n with | zero => simp | succ k ih => (rw [(show ((k + 1 : ℕ) : ℤ) = (k : ℤ) + 1 by push_cast; ring), LeanBridges.Counting.factorial_3 (k : ℤ) (by positivity), ih, (show Finset.Icc (1 : ℤ) ((k : ℤ) + 1) = insert ((k : ℤ) + 1) (Finset.Icc 1 (k : ℤ)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.prod_insert (by simp), mul_comm])","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.Group.Semigroup","Mathlib.Data.Finset.Insert","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.Positivity.Core","Mathlib.Tactic.Ring.RingNF","Mathlib.Order.Interval.Finset.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by lift n to ℕ using h2.le; simp only [Int.toNat_natCast]; push_cast; rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.Group.DivInvMonoid","Mathlib.Data.Nat.Notation","Mathlib.Analysis.SpecialFunctions.Pow.Complex"]}
+{"key":"by lift n to ℕ using h2; simp only [Int.toNat_natCast]; have h := one_add_mul_le_pow (by linarith : (-2 : K) ≤ x) n; push_cast; linarith","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Nat.Notation","Mathlib.Tactic.Linarith.Frontend","Mathlib.Algebra.Order.Ring.Pow"]}
+{"key":"by lift n to ℕ using h4.le; rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, ← ZMod.intCast_eq_intCast_iff]; push_cast; exact Finset.prod_congr rfl (fun y hy => (by have h := (ZMod.intCast_eq_intCast_iff _ _ _).2 (h5 y (h2.mem_toFinset.1 hy)); push_cast at h; exact h))","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Nat.Notation","Mathlib.Data.ZMod.Basic","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by lift p to ℕ using h1.le; lift a to ℕ using h3; lift a' to ℕ using h4; simp only [Int.toNat_natCast] at h2 h8; intro hlt; have hp : Prime (p : ℤ) := Nat.prime_iff_prime_int.1 h2; have hle : a + 1 ≤ a' := (by omega); have hdvd : (p : ℤ) ^ (a + 1) ∣ (p : ℤ) ^ a * m := (h8 ▸ Dvd.dvd.mul_right (pow_dvd_pow _ hle) _); rw [pow_succ] at hdvd; have hpm : (p : ℤ) ∣ m := (mul_dvd_mul_iff_left (pow_ne_zero a hp.ne_zero)).1 hdvd; have hc : IsCoprime m (p : ℤ) := Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h7); exact hp.not_unit (hc.isUnit_of_dvd' hpm (dvd_refl _))","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.Divisibility.Basic","Mathlib.Algebra.Group.Monoid","Mathlib.Algebra.GroupWithZero.Basic","Mathlib.Algebra.GroupWithZero.Divisibility","Mathlib.Algebra.Prime.Defs","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.RingTheory.Coprime.Basic","Mathlib.RingTheory.Coprime.Lemmas","Mathlib.Data.Nat.Prime.Int"]}
+{"key":"by lift p to ℕ using h1.le; lift k to ℕ using h3; rw [← Nat.cast_pow]; simp only [Int.toNat_natCast] at h2 ⊢; rw [ArithmeticFunction.sigma_one_apply_prime_pow h2]; push_cast; rw [(show Finset.Icc (0 : ℤ) (k : ℤ) = (Finset.range (k + 1)).map ⟨fun i : ℕ => (i : ℤ), Nat.cast_injective⟩ by ext j; simp only [Finset.mem_Icc, Finset.mem_map, Finset.mem_range, Function.Embedding.coeFn_mk]; constructor; (rintro ⟨h0, hk⟩; exact ⟨j.toNat, by omega, by omega⟩); (rintro ⟨i, hi, rfl⟩; omega))]; simp","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.CharZero.Defs","Mathlib.Data.Finset.Image","Mathlib.Data.Finset.Range","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Logic.Embedding.Basic","Mathlib.NumberTheory.ArithmeticFunction.Misc","Mathlib.Data.Nat.Cast.Basic","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by lift p to ℕ using h1.le; simp only [Int.toNat_natCast] at h2 ⊢; have h := ArithmeticFunction.sigma_one_apply_prime_pow h2 (i := 1); rw [pow_one] at h; rw [h]; push_cast [Finset.sum_range_succ]; ring","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.Group.Monoid","Mathlib.Data.Nat.Notation","Mathlib.NumberTheory.ArithmeticFunction.Misc","Mathlib.Tactic.Ring.RingNF","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by lift p to ℕ using h1.le; simp only [Int.toNat_natCast] at h2 ⊢; rw [Nat.totient_prime h2]; push_cast [Nat.cast_sub h2.one_le]; ring","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Data.Nat.Notation","Mathlib.Data.Nat.Totient","Mathlib.Tactic.Ring.RingNF","Mathlib.Data.Int.Cast.Basic"]}
+{"key":"by lift p to ℕ using h1.le; simp only [Int.toNat_natCast] at h2; exact ⟨fun h => Int.Prime.dvd_pow' h2 h, fun h => dvd_pow h (by omega)⟩","kind":"term","modules":["Mathlib.Tactic.Lift","Mathlib.Algebra.Divisibility.Basic","Mathlib.Data.Nat.Notation","Mathlib.RingTheory.Int.Basic"]}
+{"key":"by norm_num at *","kind":"term","modules":["Mathlib.Tactic.NormNum.Core"]}
+{"key":"by obtain ⟨M, hM⟩ := isCompact_Icc.exists_bound_of_continuousOn h3; exact ⟨M, fun x hx => by simpa [Real.norm_eq_abs] using hM x hx⟩","kind":"term","modules":["Mathlib.Analysis.Normed.Group.Real"]}
+{"key":"by obtain ⟨a, ha⟩ := Set.nonempty_iff_ne_empty.2 h1; exact ⟨a, ha, trivial⟩","kind":"term","modules":["Mathlib.Data.Set.Basic"]}
+{"key":"by obtain ⟨f, hf⟩ := h1; exact ⟨f, hf.mapsTo, hf.mapsTo, hf.surjOn⟩","kind":"term","modules":[]}
+{"key":"by obtain ⟨g, hg⟩ := h2; rw [← hg.image_eq, hg.injOn.encard_image]","kind":"term","modules":[]}
+{"key":"by obtain ⟨g, hg⟩ := h3; rw [← hg.image_eq, hg.injOn.encard_image, h2]","kind":"term","modules":[]}
+{"key":"by obtain ⟨n, hn⟩ : ∃ n : ℕ, b = a - 1 + n := ⟨(b - (a - 1)).toNat, by omega⟩; subst hn; clear h3; induction n with | zero => (simp only [Nat.cast_zero, add_zero]; rw [Finset.Icc_eq_empty_of_lt (by omega)]; simp) | succ k ih => (rw [(show a - 1 + ((k + 1 : ℕ) : ℤ) = (a - 1 + k) + 1 by push_cast; ring), (show Finset.Icc a (a - 1 + k + 1) = insert (a - 1 + k + 1) (Finset.Icc a (a - 1 + k)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.sum_insert (by simp), ih]; ring)","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Algebra.Group.Monoid","Mathlib.Data.Finset.Insert","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Tactic.Ring.RingNF","Mathlib.Data.Nat.Cast.Defs","Mathlib.Order.Interval.Finset.Basic","Mathlib.Order.Interval.Finset.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by obtain ⟨s, hs, -⟩ := h2; classical exact (fun hex : ∃ n : ℕ, (n : ℤ) ∈ S => ⟨Nat.find hex, Nat.find_spec hex, fun t ht => by have h0 : 0 < t := h1 ht; have := Nat.find_min' hex (m := t.toNat) (by rwa [Int.toNat_of_nonneg h0.le]); omega⟩) ⟨s.toNat, by rwa [Int.toNat_of_nonneg (h1 hs).le]⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Find","Mathlib.Data.Nat.Notation"]}
+{"key":"by obtain ⟨s, hs, -⟩ := h2; obtain ⟨u, hu⟩ := h3; exact ⟨sSup S, fun x hx => le_csSup ⟨u, fun y hy => hu y hy⟩ hx, fun v hv => csSup_le ⟨s, hs⟩ (fun y hy => hv y hy)⟩","kind":"term","modules":["Mathlib.Order.ConditionallyCompleteLattice.Basic"]}
+{"key":"by omega","kind":"term","modules":[]}
+{"key":"by positivity","kind":"term","modules":["Mathlib.Tactic.Positivity.Core"]}
+{"key":"by rcases lt_trichotomy a a' with h | h | h; exacts [absurd h (mun_prime_power_not_less p h1 h2 a h3 a' h4 m m' h7 h9), h, absurd h (mun_prime_power_not_less p h1 h2 a' h4 a h3 m' m h8 h9.symm)]","kind":"term","modules":["Batteries.Tactic.Init","Mathlib.Order.Defs.LinearOrder"]}
+{"key":"by rfl","kind":"term","modules":[]}
+{"key":"by rw [(show Finset.Icc a b = insert a (Finset.Icc (a + 1) b) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega), Finset.prod_insert (by simp)]","kind":"term","modules":["Mathlib.Data.Finset.Insert","Mathlib.Order.Interval.Finset.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by rw [Complex.cpow_def_of_ne_zero (by exact_mod_cast (Real.exp_pos 1).ne'), ← Complex.ofReal_log (Real.exp_pos 1).le, Real.log_exp]; simp","kind":"term","modules":["Mathlib.Analysis.Complex.Exponential","Mathlib.Analysis.SpecialFunctions.Complex.Log","Mathlib.Analysis.SpecialFunctions.Log.Basic","Mathlib.Analysis.SpecialFunctions.Pow.Complex"]}
+{"key":"by rw [Complex.ofReal_cpow h2.le, ← Complex.cpow_mul] <;> rw [← Complex.ofReal_log h2.le, ← Complex.ofReal_mul, Complex.ofReal_im] <;> linarith [Real.pi_pos]","kind":"term","modules":["Mathlib.Basic.Complex.Basic","Mathlib.Tactic.Linarith.Frontend","Mathlib.Analysis.SpecialFunctions.Complex.Log","Mathlib.Analysis.SpecialFunctions.Pow.Complex","Mathlib.Analysis.SpecialFunctions.Pow.Real","Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"by rw [Finset.mem_Icc]; omega","kind":"term","modules":["Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by rw [Int.gcd_mul_left, abs_mul]; simp","kind":"term","modules":["Mathlib.Algebra.Order.Ring.Abs"]}
+{"key":"by rw [Int.gcd_mul_left]; push_cast; rw [abs_of_nonneg h1]","kind":"term","modules":["Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"by rw [Int.toNat_add h2 zero_le_one] at h3; have h := Set.encard_sdiff_singleton_add_one h1; rw [h3] at h; push_cast at h; exact WithTop.add_right_cancel ENat.one_ne_top h","kind":"term","modules":["Mathlib.Algebra.Order.ZeroLEOne","Mathlib.Data.ENat.Basic","Mathlib.Data.Set.Card","Mathlib.Algebra.Order.Monoid.Unbundled.WithTop"]}
+{"key":"by rw [Int.toNat_mul h2 h3, pow_mul]","kind":"term","modules":["Mathlib.Algebra.Group.Monoid"]}
+{"key":"by rw [Int.two_dvd_ne_zero]; exact Int.odd_iff.1 h2","kind":"term","modules":["Mathlib.Algebra.Group.Int.Even","Mathlib.Algebra.Ring.Int.Parity"]}
+{"key":"by rw [Set.encard_union_eq (by simpa using h2), Set.encard_singleton]; rfl","kind":"term","modules":["Mathlib.Data.Set.Card"]}
+{"key":"by rw [Set.union_singleton, finprod_mem_insert _ h4 h2, mul_comm]","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Algebra.Group.Semigroup","Mathlib.Data.Set.Insert"]}
+{"key":"by rw [abs_le]; constructor <;> intro h <;> constructor <;> linarith [h.1, h.2]","kind":"term","modules":["Mathlib.Tactic.Linarith.Frontend","Mathlib.Algebra.Order.Group.Abs"]}
+{"key":"by rw [abs_mul, Int.abs_eq_natAbs, Int.abs_eq_natAbs, mul_comm]; exact_mod_cast Int.gcd_mul_lcm a b","kind":"term","modules":["Mathlib.Algebra.Group.Semigroup","Mathlib.Algebra.Order.Ring.Abs","Mathlib.Algebra.Order.Group.Unbundled.Int"]}
+{"key":"by rw [finprod_mem_eq_finite_toFinset_prod _ h1, Finset.prod_const, Set.ncard_eq_toFinset_card _ h1]","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Set.Card","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by rw [finprod_mem_eq_finite_toFinset_prod _ h1, finprod_mem_eq_finite_toFinset_prod _ h1]; exact Int.ModEq.prod fun x hx => h3 x ((Set.Finite.mem_toFinset h1).mp hx)","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Algebra.BigOperators.ModEq","Mathlib.Data.Set.Finite.Basic"]}
+{"key":"by rw [finprod_mem_eq_finite_toFinset_prod _ h2, finprod_mem_eq_finite_toFinset_prod _ h2, Finset.prod_mul_distrib, Finset.prod_const, Set.ncard_eq_toFinset_card _ h2]; ring","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Set.Card","Mathlib.Tactic.Ring.RingNF","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by rw [finprod_mem_eq_finite_toFinset_prod _ h2]; have h := IsCoprime.prod_left (t := h2.toFinset) (s := fun i : ℤ => i) (fun i hi => Int.isCoprime_iff_gcd_eq_one.2 (by exact_mod_cast h4 i (h2.mem_toFinset.1 hi)) : ∀ i ∈ h2.toFinset, IsCoprime i (n : ℤ)); exact_mod_cast Int.isCoprime_iff_gcd_eq_one.1 h","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Int.Notation","Mathlib.RingTheory.Coprime.Basic","Mathlib.RingTheory.Coprime.Lemmas"]}
+{"key":"by rw [finsum_mem_eq_finite_toFinset_sum _ h1, Finset.sum_const, nsmul_eq_mul, Set.ncard_eq_toFinset_card _ h1]","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Algebra.Ring.Defs","Mathlib.Data.Set.Card","Mathlib.Algebra.BigOperators.Group.Finset.Basic"]}
+{"key":"by rw [finsum_mem_insert _ (by simp [h4, h5]) (Set.toFinite _), finsum_mem_pair h6]; ring","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Basic.Finite.Defs","Mathlib.Tactic.Ring.RingNF"]}
+{"key":"by rw [show (m + 1).toNat = m.toNat + 1 by omega, pow_succ]","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Algebra.Group.Monoid"]}
+{"key":"by rw [show (m + n).toNat = m.toNat + n.toNat by omega, pow_add]","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Algebra.Group.Monoid"]}
+{"key":"by rw [zpow_mul]; simp","kind":"term","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"by rw [← Finset.coe_Icc, Set.encard_coe_eq_coe_finsetCard, Int.card_Icc]; simp","kind":"term","modules":["Mathlib.Data.Int.Interval","Mathlib.Data.Set.Card","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by rw [← h1.2.encard_image]; exact Set.encard_le_encard (h1.1.image_subset)","kind":"term","modules":["Mathlib.Data.Set.Card"]}
+{"key":"by rw [← h2.2.2.image_eq_of_mapsTo h2.1]; exact finprod_mem_image h2.2.1","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"by rw [← intervalIntegral.integral_sub (h5.intervalIntegrable_of_Icc h3.le) (h6.intervalIntegrable_of_Icc h3.le)]; apply intervalIntegral.integral_congr; intro x hx; rw [Set.uIcc_of_le h3.le] at hx; exact h4 x hx","kind":"term","modules":["Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic","Mathlib.Order.Interval.Set.UnorderedInterval"]}
+{"key":"by simp","kind":"term","modules":[]}
+{"key":"by simp [Set.mem_Icc]","kind":"term","modules":["Mathlib.Order.Interval.Set.Defs"]}
+{"key":"by simp only [Finset.mem_Icc] at h1 ⊢; omega","kind":"term","modules":["Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by simp only [Finset.mem_Icc] at h1; ext x; simp only [Set.mem_union, Set.mem_Icc]; omega","kind":"term","modules":["Mathlib.Data.Set.Basic","Mathlib.Order.Interval.Finset.Defs","Mathlib.Order.Interval.Set.Defs"]}
+{"key":"by simp only [Finset.mem_Icc] at h2 h3; have h := Int.ModEq.eq h4; rw [Int.emod_eq_of_lt h2.1 (by omega), Int.emod_eq_of_lt h3.1 (by omega)] at h; exact h","kind":"term","modules":["Mathlib.Data.Int.ModEq","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"by simp_all","kind":"term","modules":[]}
+{"key":"by subst h2; exact finprod_mem_union (Set.disjoint_iff_inter_eq_empty.mpr h3) (h1.subset Set.subset_union_left) (h1.subset Set.subset_union_right)","kind":"term","modules":["Mathlib.Algebra.BigOperators.Finprod","Mathlib.Data.Set.Basic"]}
+{"key":"by tauto","kind":"term","modules":["Mathlib.Tactic.Tauto"]}
+{"key":"by trivial","kind":"term","modules":[]}
+{"key":"by unfold LeanBridges.Divisibility.mod; have hb : 0 < b := (by linarith); have h0 : ⌊a / b⌋ = 0 := Int.floor_eq_zero_iff.2 ⟨div_nonneg h3 hb.le, (div_lt_one hb).2 h4⟩; rw [h0]; simp","kind":"term","modules":["Mathlib.Tactic.Linarith.Frontend","Mathlib.Algebra.Order.Field.Basic","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Floor.Ring","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"div_le_div₀ (h5.trans h6) h6 h7 h8","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"div_nonneg h3 h4.le","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"div_pos h3 h4","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"dvd_add (Dvd.dvd.mul_right h6 x) (Dvd.dvd.mul_right h7 y)","kind":"term","modules":["Mathlib.Algebra.Divisibility.Basic","Mathlib.Algebra.Ring.Divisibility.Basic"]}
+{"key":"dvd_add h4 h5","kind":"term","modules":["Mathlib.Algebra.Ring.Divisibility.Basic"]}
+{"key":"dvd_refl n","kind":"term","modules":["Mathlib.Algebra.Divisibility.Basic"]}
+{"key":"dvd_sub h4 h5","kind":"term","modules":["Mathlib.Algebra.Ring.Divisibility.Basic"]}
+{"key":"em P","kind":"term","modules":["Mathlib.Basic.Logic.Basic"]}
+{"key":"even_iff_exists_two_mul","kind":"term","modules":["Mathlib.Algebra.Ring.Parity"]}
+{"key":"exists_deriv_eq_zero h3 h4 h6","kind":"term","modules":["Mathlib.Analysis.Calculus.LocalExtr.Rolle"]}
+{"key":"exists_deriv_eq_zero h4 h6 h8","kind":"term","modules":["Mathlib.Analysis.Calculus.LocalExtr.Rolle"]}
+{"key":"exists_ratio_deriv_eq_ratio_slope g h4 h7 (fun x hx => (h9 x hx).2.differentiableWithinAt) f h6 (fun x hx => (h8 x hx).2.differentiableWithinAt)","kind":"term","modules":["Mathlib.Analysis.Calculus.Deriv.MeanValue"]}
+{"key":"f '' (a ∩ a)","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"fun K _ => ⟨∑ m ∈ Finset.Icc 1 (K : ℤ), |x m|, fun m hm => Finset.single_le_sum (f := fun m => |x m|) (fun i _ => abs_nonneg _) hm⟩","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Order.Interval.Finset.Defs","Mathlib.Algebra.BigOperators.Group.Finset.Defs","Mathlib.Algebra.Order.BigOperators.Group.Finset","Mathlib.Algebra.Order.Group.Unbundled.Abs"]}
+{"key":"fun S : Set α => a","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"fun S : Set ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"fun c : Set ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"fun d : Set ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"fun d : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun h => (h1 h).2 rfl","kind":"term","modules":[]}
+{"key":"fun i : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun i => a","kind":"term","modules":[]}
+{"key":"fun j : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun j => a","kind":"term","modules":[]}
+{"key":"fun k : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun k => a","kind":"term","modules":[]}
+{"key":"fun m => a","kind":"term","modules":[]}
+{"key":"fun n : ℚ => a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"fun n : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun n => a","kind":"term","modules":[]}
+{"key":"fun r : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun r => a","kind":"term","modules":[]}
+{"key":"fun t : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun t => a","kind":"term","modules":[]}
+{"key":"fun w : α => a","kind":"term","modules":[]}
+{"key":"fun x : ℚ => a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"fun x : ℝ => a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"fun x : ℤ => a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"fun x => a","kind":"term","modules":[]}
+{"key":"fun x hx => ((intervalIntegral.integral_hasDerivAt_right ((h4.mono (Set.Icc_subset_Icc le_rfl hx.2.le)).intervalIntegrable_of_Icc hx.1.le) ((h4.mono Set.Ioo_subset_Icc_self).stronglyMeasurableAtFilter isOpen_Ioo x hx) (h4.continuousAt (Icc_mem_nhds hx.1 hx.2))).congr_of_eventuallyEq (Filter.eventually_of_mem (Icc_mem_nhds hx.1 hx.2) (fun y hy => h5 y hy))).deriv","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Order.Filter.Basic","Mathlib.Topology.Order.OrderClosed","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus","Mathlib.Order.Interval.Set.Basic"]}
+{"key":"fun x hx => Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h5.mem_nhds hx) (fun y hy => h6 y hy))","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"fun x hx => by lift n to ℕ using h4; rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simp only [Int.toNat_natCast, show ((n : ℤ) + 1).toNat = n + 1 by omega]; simpa using (hasDerivAt_pow (n + 1) x).deriv","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Tactic.Lift","Mathlib.Data.Int.Notation","Mathlib.Data.Nat.Notation","Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.Calculus.Deriv.Pow"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy)), Real.deriv_arctan]","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))]; simpa using (hasDerivAt_pow 2 x).deriv","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.Calculus.Deriv.Pow"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simpa using ((hasDerivAt_id x).const_mul m).deriv","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))]; exact deriv_add (h4 x hx).2 (h5 x hx).2","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Analysis.Calculus.Deriv.Add","Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))]; exact deriv_sub (h4 x hx).2 (h5 x hx).2","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Analysis.Calculus.Deriv.Add","Mathlib.Analysis.Calculus.Deriv.Basic"]}
+{"key":"fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (h5 x hx).1 (fun y hy => h4 y hy))]; exact deriv_const_mul c (h5 x hx).2","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Analysis.Calculus.Deriv.Basic","Mathlib.Analysis.Calculus.Deriv.Mul"]}
+{"key":"fun x hx => h2 x hx","kind":"term","modules":[]}
+{"key":"fun x hx => h4 x (h3 hx)","kind":"term","modules":[]}
+{"key":"fun x hx => ⟨(h4 x hx).1, ((h4 x hx).2.add (h5 x hx).2).congr_of_eventuallyEq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))⟩","kind":"term","modules":["Mathlib.Order.Filter.Basic"]}
+{"key":"fun x hx => ⟨(h4 x hx).1, ((h4 x hx).2.sub (h5 x hx).2).congr_of_eventuallyEq (Filter.eventually_of_mem (h4 x hx).1 (fun y hy => h3 y hy))⟩","kind":"term","modules":["Mathlib.Order.Filter.Basic"]}
+{"key":"fun x hx => ⟨(h5 x hx).1, ((h5 x hx).2.const_mul c).congr_of_eventuallyEq (Filter.eventually_of_mem (h5 x hx).1 (fun y hy => h4 y hy))⟩","kind":"term","modules":["Mathlib.Order.Filter.Basic"]}
+{"key":"fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (Real.differentiable_arctan x).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))⟩","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv"]}
+{"key":"fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => m * y) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Tactic.FunProp.Elab","Mathlib.Analysis.Calculus.FDeriv.Defs"]}
+{"key":"fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1).toNat) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩","kind":"term","modules":["Mathlib.Computability.Reduce","Mathlib.Basic.Real.Basic","Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Tactic.FunProp.Elab","Mathlib.Analysis.Calculus.FDeriv.Defs"]}
+{"key":"fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ 2) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))⟩","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs","Mathlib.Tactic.FunProp.Elab","Mathlib.Analysis.Calculus.FDeriv.Defs"]}
+{"key":"fun x hx => ⟨Filter.mem_of_superset (h5.mem_nhds hx) h4, (h7 x hx).2.congr_of_eventuallyEq (Filter.eventually_of_mem (h5.mem_nhds hx) (fun y hy => h6 y hy))⟩","kind":"term","modules":["Mathlib.Order.Filter.Basic","Mathlib.Order.Filter.Defs"]}
+{"key":"fun x hx => ⟨Icc_mem_nhds hx.1 hx.2, ((intervalIntegral.integral_hasDerivAt_right ((h4.mono (Set.Icc_subset_Icc le_rfl hx.2.le)).intervalIntegrable_of_Icc hx.1.le) ((h4.mono Set.Ioo_subset_Icc_self).stronglyMeasurableAtFilter isOpen_Ioo x hx) (h4.continuousAt (Icc_mem_nhds hx.1 hx.2))).congr_of_eventuallyEq (Filter.eventually_of_mem (Icc_mem_nhds hx.1 hx.2) (fun y hy => h5 y hy))).differentiableAt⟩","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder","Mathlib.Order.Filter.Basic","Mathlib.Topology.Order.OrderClosed","Mathlib.MeasureTheory.Integral.IntervalIntegral.FundThmCalculus","Mathlib.Order.Interval.Set.Basic"]}
+{"key":"fun y : α => a","kind":"term","modules":[]}
+{"key":"fun y : ℝ => a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)","kind":"term","modules":["Mathlib.Topology.Order.OrderClosed","Mathlib.Order.Filter.AtTopBot.Basic"]}
+{"key":"h1 h2","kind":"term","modules":[]}
+{"key":"h1.mp h2","kind":"term","modules":[]}
+{"key":"h1.resolve_left h2","kind":"term","modules":[]}
+{"key":"h1.resolve_right h2","kind":"term","modules":[]}
+{"key":"h1.subset h2","kind":"term","modules":[]}
+{"key":"h1.trans h2","kind":"term","modules":[]}
+{"key":"h2","kind":"term","modules":[]}
+{"key":"h2.mul_right x","kind":"term","modules":[]}
+{"key":"h2.neg_one_zpow","kind":"term","modules":[]}
+{"key":"h2.sdiff isClosed_singleton","kind":"term","modules":["Mathlib.Topology.Separation.Basic"]}
+{"key":"h4","kind":"term","modules":[]}
+{"key":"hf h1","kind":"term","modules":[]}
+{"key":"intervalIntegral.integral_mono_on h3.le (h5.intervalIntegrable_of_Icc h3.le) (h6.intervalIntegrable_of_Icc h3.le) h4","kind":"term","modules":["Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"intervalIntegral.integral_nonneg h3.le h4","kind":"term","modules":["Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"isOpen_Ioo","kind":"term","modules":["Mathlib.Topology.Order.OrderClosed"]}
+{"key":"le_iff_lt_or_eq","kind":"term","modules":["Mathlib.Order.Defs.PartialOrder"]}
+{"key":"le_max_left x y","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"le_max_right x y","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)","kind":"term","modules":["Mathlib.Topology.Order.OrderClosed","Mathlib.Order.Filter.AtTopBot.Basic"]}
+{"key":"le_or_gt 0 x","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"lt_min_iff","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"lt_of_le_of_ne (sq_nonneg x) (Ne.symm (pow_ne_zero 2 h2))","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Basic","Mathlib.Order.Defs.PartialOrder","Mathlib.Algebra.Order.Ring.Unbundled.Basic"]}
+{"key":"min_le_left x y","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"min_le_right x y","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"mul_assoc a b c","kind":"term","modules":["Mathlib.Algebra.Group.Semigroup"]}
+{"key":"mul_eq_zero","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs"]}
+{"key":"mul_inv_cancel a","kind":"term","modules":["Mathlib.Algebra.Group.Defs"]}
+{"key":"mul_le_mul_of_nonneg_left h4 h5.le","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Defs"]}
+{"key":"mul_left_cancel h4","kind":"term","modules":["Mathlib.Algebra.Group.Semigroup"]}
+{"key":"mul_ne_zero h3 h4","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Basic"]}
+{"key":"mul_nonneg h3 h4","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"mul_one a","kind":"term","modules":["Mathlib.Algebra.Group.Monoid"]}
+{"key":"mul_pos h3 h4","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"mul_pow a b n.toNat","kind":"term","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"mul_right_cancel₀ h5 h4","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Defs"]}
+{"key":"mul_zpow a b n","kind":"term","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"norm_nonneg x","kind":"term","modules":["Mathlib.Analysis.Normed.Group.Basic"]}
+{"key":"not_not.mp h1","kind":"term","modules":[]}
+{"key":"not_or","kind":"term","modules":[]}
+{"key":"one_div_pos.mpr h2","kind":"term","modules":[]}
+{"key":"one_le_pow₀ h3","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"one_zpow m","kind":"term","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"or_assoc.mpr (lt_trichotomy x 0)","kind":"term","modules":["Mathlib.Order.Defs.LinearOrder"]}
+{"key":"pos_of_mul_pos_right h4 h3","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"pow_lt_pow_left₀ h5 h4 (by omega)","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"rfl","kind":"term","modules":[]}
+{"key":"show a by skip","kind":"term","modules":[]}
+{"key":"sq_abs x","kind":"term","modules":["Mathlib.Algebra.Order.Ring.Abs"]}
+{"key":"sq_eq_sq₀ h3 h4","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"sq_nonneg x","kind":"term","modules":["Mathlib.Algebra.Order.Ring.Unbundled.Basic"]}
+{"key":"trivial","kind":"term","modules":[]}
+{"key":"x '' (a ∩ a)","kind":"term","modules":["Mathlib.Data.Set.Operations"]}
+{"key":"zero_dvd_iff","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Divisibility"]}
+{"key":"zpow_add₀ h2 m n","kind":"term","modules":["Mathlib.Algebra.GroupWithZero.Basic"]}
+{"key":"zpow_mul a m n","kind":"term","modules":["Mathlib.Algebra.Group.Basic"]}
+{"key":"zpow_pos h3 m","kind":"term","modules":["Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"zpow_right_inj₀ (by linarith) h4.ne'","kind":"term","modules":["Mathlib.Tactic.Linarith.Frontend","Mathlib.Algebra.Order.GroupWithZero.Basic"]}
+{"key":"{S ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{a, a, a, a, a, a, a, a}","kind":"term","modules":[]}
+{"key":"{a, a, a, a, a}","kind":"term","modules":[]}
+{"key":"{a, a, a, a}","kind":"term","modules":[]}
+{"key":"{a, a, a}","kind":"term","modules":[]}
+{"key":"{a, a}","kind":"term","modules":[]}
+{"key":"{a}","kind":"term","modules":[]}
+{"key":"{c ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{d : ℤ | a ∧ a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"{d ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{e ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{n : ℤ | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"{r : ℤ | a ∧ a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"{r ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{t : ℤ | a ∧ a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"{t ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{w ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{x : ℝ | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"{x : ℤ | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"{x ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"{y : ℝ | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"{y ∈ a | a}","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Data.Set.Defs"]}
+{"key":"¬ a","kind":"term","modules":[]}
+{"key":"‖a‖","kind":"term","modules":["Mathlib.Analysis.Normed.Group.Defs"]}
+{"key":"∀ (A : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (A : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (A : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∀ (A : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (A : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (B : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (B : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (B : α), True","kind":"term","modules":[]}
+{"key":"∀ (B : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (B : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∀ (B : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (B : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (B : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (C : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (C : α), True","kind":"term","modules":[]}
+{"key":"∀ (C : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (D : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (D : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (D : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (D : α), True","kind":"term","modules":[]}
+{"key":"∀ (D : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (E : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (E : Set β), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (E : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (E : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (E : α → β), True","kind":"term","modules":[]}
+{"key":"∀ (F : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (F : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (F : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (F : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (F : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (G : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (G : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (G : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (G : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (G : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (H : Subgroup G), True","kind":"term","modules":["Mathlib.Algebra.Group.Subgroup.Defs"]}
+{"key":"∀ (H : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (H : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (I : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (I : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (J : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (K : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (K : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (K : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (L : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (L : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (M : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (M : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (M : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (M : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (N : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (N : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (N : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (N : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (P : Prop), True","kind":"term","modules":[]}
+{"key":"∀ (P : Set α → Prop), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (P : α → Prop), True","kind":"term","modules":[]}
+{"key":"∀ (P : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (P : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (P : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (Q : Prop), True","kind":"term","modules":[]}
+{"key":"∀ (Q : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (Q : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (Q : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (R : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (R : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (R : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (S : Set K), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (S : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (S : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (S : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (S : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (S : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (T : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (T : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (T : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (U : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (U : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (U : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (U : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (V : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (V : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (V : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (W : Set K), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (W : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (W : Set β), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (W : Set γ), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (W : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (W : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (X : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (X : Set ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (X : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (X : α), True","kind":"term","modules":[]}
+{"key":"∀ (X : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (Y : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Y : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Y : Set β), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Y : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Y : α), True","kind":"term","modules":[]}
+{"key":"∀ (Z : Set (Set α)), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Z : Set K), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Z : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (Z : Set β), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (a : G), True","kind":"term","modules":[]}
+{"key":"∀ (a : K), True","kind":"term","modules":[]}
+{"key":"∀ (a : α), True","kind":"term","modules":[]}
+{"key":"∀ (a : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (a : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (a : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (a : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (a : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (a' : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (b : G), True","kind":"term","modules":[]}
+{"key":"∀ (b : K), True","kind":"term","modules":[]}
+{"key":"∀ (b : α), True","kind":"term","modules":[]}
+{"key":"∀ (b : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (b : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (b : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (b : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (b : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (b' : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (c : G), True","kind":"term","modules":[]}
+{"key":"∀ (c : K), True","kind":"term","modules":[]}
+{"key":"∀ (c : Set ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∀ (c : α), True","kind":"term","modules":[]}
+{"key":"∀ (c : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (c : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (c : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (c : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (c : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (c' : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (c' : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (d : K), True","kind":"term","modules":[]}
+{"key":"∀ (d : α), True","kind":"term","modules":[]}
+{"key":"∀ (d : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (d : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (d : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (d : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (e : α), True","kind":"term","modules":[]}
+{"key":"∀ (e : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (e : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (e : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (f : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (f : α → β), True","kind":"term","modules":[]}
+{"key":"∀ (f : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (f : ℤ → ℚ), True","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init"]}
+{"key":"∀ (f : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (f : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (f : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (g : G), True","kind":"term","modules":[]}
+{"key":"∀ (g : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (g : β → γ), True","kind":"term","modules":[]}
+{"key":"∀ (g : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (g : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (g : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (h : G), True","kind":"term","modules":[]}
+{"key":"∀ (h : α → α), True","kind":"term","modules":[]}
+{"key":"∀ (h : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (i : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (j : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (j : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (k : ℝ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (k : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (k : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (m : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (m : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (m : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (m' : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (n : K), True","kind":"term","modules":[]}
+{"key":"∀ (n : ℕ), True","kind":"term","modules":["Mathlib.Data.Nat.Notation"]}
+{"key":"∀ (n : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (n : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (p : ℂ → ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (p : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (p : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (q : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (q : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (q : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (r : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∀ (r : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (r : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (s : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (s : α), True","kind":"term","modules":[]}
+{"key":"∀ (s : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (s : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∀ (s : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (s : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (s : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (s : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (t : α → K), True","kind":"term","modules":[]}
+{"key":"∀ (t : α → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (t : α), True","kind":"term","modules":[]}
+{"key":"∀ (t : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (t : ℤ → K), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (t : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (t : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (t : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (u : G), True","kind":"term","modules":[]}
+{"key":"∀ (u : K), True","kind":"term","modules":[]}
+{"key":"∀ (u : Set α), True","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∀ (u : α → K), True","kind":"term","modules":[]}
+{"key":"∀ (u : α → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (u : α), True","kind":"term","modules":[]}
+{"key":"∀ (u : β), True","kind":"term","modules":[]}
+{"key":"∀ (u : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (u : ℤ → K), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (u : ℤ → ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (u : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (v : α), True","kind":"term","modules":[]}
+{"key":"∀ (v : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (v : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (w : K), True","kind":"term","modules":[]}
+{"key":"∀ (w : α), True","kind":"term","modules":[]}
+{"key":"∀ (w : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (w : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (x : G), True","kind":"term","modules":[]}
+{"key":"∀ (x : K), True","kind":"term","modules":[]}
+{"key":"∀ (x : α), True","kind":"term","modules":[]}
+{"key":"∀ (x : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (x : ℚ), True","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∀ (x : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (x : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (x : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (x₀ : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (y : K), True","kind":"term","modules":[]}
+{"key":"∀ (y : α), True","kind":"term","modules":[]}
+{"key":"∀ (y : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (y : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (y : ℤ → ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∀ (y : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (y₀ : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (z : K), True","kind":"term","modules":[]}
+{"key":"∀ (z : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (z : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (z : ℤ), True","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ (α : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (α : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (β : ℂ), True","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ (β : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ (δ : K), True","kind":"term","modules":[]}
+{"key":"∀ (ε : ℝ), True","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ K : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ M : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ N : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ R ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ S ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ T ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ V ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ W ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ X ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ Y ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ Z ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ a ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ b : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ c : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ c : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ c ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ c' ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ d : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ e : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ g : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ i : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ i : ℤ, i ∈ Finset.Icc (1 : ℤ) (1 : ℤ) → e i = a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Order.Interval.Finset.Defs"]}
+{"key":"∀ j : ℤ, 0 < j → q j = a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ j : ℤ, 0 < j → t j = a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ j : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ k : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ k : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ m : ℤ, 0 ≤ m → S m = a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ m : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ m : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ n : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ n : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ p : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ p ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ q ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ r : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ r ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ s : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ s : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ s : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ s ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ t : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ t : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ t : ℤ, a → a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ t ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ u : K, a","kind":"term","modules":[]}
+{"key":"∀ u : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ u ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ w ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ x : α, x ∈ A → h x = a","kind":"term","modules":[]}
+{"key":"∀ x : α, x ∈ A ∪ B → H x = a","kind":"term","modules":[]}
+{"key":"∀ x : ℂ, a","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∀ x : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ x : ℝ, f x = a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ x : ℝ, x ∈ (Set.Icc (0 : ℝ) (1 : ℝ) : Set ℝ) → f x = a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Order.Interval.Set.Defs"]}
+{"key":"∀ x : ℝ, x ∈ (Set.Ioo a b : Set ℝ) → k x = a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs","Mathlib.Order.Interval.Set.Defs"]}
+{"key":"∀ x : ℝ, x ∈ D \\ ({c} : Set ℝ) → k x = a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ x : ℝ, x ∈ {x : ℝ | x > 0} → g x = a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ x : ℝ, x ∈ {y : ℝ | y > 0} → g x = a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"∀ x : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ x ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ y : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ y : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ y ∈ a, a","kind":"term","modules":[]}
+{"key":"∀ z : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∀ z : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∀ {G : Type*} [Group G], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.Group.Defs"]}
+{"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Ring.Defs"]}
+{"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Order.Defs.LinearOrder","Mathlib.Algebra.Order.Ring.Defs"]}
+{"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [FloorRing K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Ring.Defs","Mathlib.Order.Defs.LinearOrder","Mathlib.Algebra.Order.Floor.Defs","Mathlib.Algebra.Order.Ring.Defs"]}
+{"key":"∀ {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.Ring.Defs","Mathlib.Order.Defs.LinearOrder","Mathlib.Algebra.Order.Ring.Defs"]}
+{"key":"∀ {K : Type*} [CommRing K] [IsDomain K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.Ring.Defs"]}
+{"key":"∀ {K : Type*} [Field K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Field.Defs"]}
+{"key":"∀ {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K], True","kind":"term","modules":["Mathlib.Tactic.TypeStar","Mathlib.Algebra.CharZero.Defs","Mathlib.Algebra.Field.Defs","Mathlib.Order.Defs.LinearOrder","Mathlib.Algebra.Order.Ring.Defs"]}
+{"key":"∀ {α : Type*}, True","kind":"term","modules":["Mathlib.Tactic.TypeStar"]}
+{"key":"∀ {α β : Type*}, True","kind":"term","modules":["Mathlib.Tactic.TypeStar"]}
+{"key":"∀ {α β γ : Type*}, True","kind":"term","modules":["Mathlib.Tactic.TypeStar"]}
+{"key":"∀ ε : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ B : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ C : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ L : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ M : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ M : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ M : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ N : ℤ → ℤ, N 0 = a ∧ ∀ k : ℤ, 0 ≤ k → N (k + 1) = a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ N : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ T : ℤ → ℤ, T 0 = a ∧ ∀ k : ℤ, 0 ≤ k → T (k + 1) = a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ U ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ W ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ X ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ a : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ a : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ a ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ b : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ b : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ b ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ c : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ c : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ c : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ c ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ d : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ d ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ f : α → β, a ∧ a","kind":"term","modules":[]}
+{"key":"∃ f : ℤ → ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ g : Set α → Set α, a","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"∃ g : Set ℤ → Set ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"∃ g : α → β, a","kind":"term","modules":[]}
+{"key":"∃ g : ℤ → ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"∃ h ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ j : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ k : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ k : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ k ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ m : ℕ, a ∧ a","kind":"term","modules":["Mathlib.Data.Nat.Notation"]}
+{"key":"∃ m : ℚ, a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∃ m : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ m : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ m : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ m₀ : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ n : ℚ, a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∃ n : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ n : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ p : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ p : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ q : ℂ → ℂ, a ∧ a","kind":"term","modules":["Mathlib.Basic.Complex.Basic"]}
+{"key":"∃ q : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ q : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ r : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ r ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ s : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ s ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ u : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ w ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ x : ℚ, a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∃ x : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ x : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ x : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ x ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ y : ℚ, a","kind":"term","modules":["Mathlib.Data.Rat.Init"]}
+{"key":"∃ y : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ y : ℤ, a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ y : ℤ, a ∧ a","kind":"term","modules":["Mathlib.Data.Int.Notation"]}
+{"key":"∃ y ∈ a, a","kind":"term","modules":[]}
+{"key":"∃ δ : ℝ, a","kind":"term","modules":["Mathlib.Basic.Real.Basic"]}
+{"key":"∃ ξ ∈ a, a","kind":"term","modules":[]}
+{"key":"∏ i ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∏ k ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∏ᶠ k ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∏ᶠ r ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∏ᶠ x ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∏ᶠ y ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∏ᶠ z ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∑ i ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∑ j ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∑ k ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∑ n ∈ a, a","kind":"term","modules":["Mathlib.Algebra.BigOperators.Group.Finset.Defs"]}
+{"key":"∑ᶠ d ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∑ᶠ k ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∑ᶠ s ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∑ᶠ x ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Algebra.BigOperators.Finprod"]}
+{"key":"∫ b in a..a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"∫ s in a..a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"∫ t in a..a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"∫ u in a..a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"∫ x in a..a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic"]}
+{"key":"⋃ X ∈ a, a","kind":"term","modules":["Batteries.Util.ExtendedBinder","Mathlib.Order.SetNotation"]}
+{"key":"⌊a⌋","kind":"term","modules":["Mathlib.Algebra.Order.Floor.Defs"]}
+{"key":"⟨(n : ℤ) / d, (n : ℤ) % d, ⟨by rw [mul_comm]; exact (Int.mul_ediv_add_emod _ _).symm, Int.emod_nonneg _ (by omega)⟩, Int.emod_lt_of_pos _ (by omega)⟩","kind":"term","modules":["Mathlib.Algebra.Group.Semigroup","Mathlib.Data.Int.Notation","Mathlib.Order.Defs.Unbundled"]}
+{"key":"⟨Int.gcdA a b, Int.gcdB a b, (Int.gcd_eq_gcd_ab a b).symm⟩","kind":"term","modules":["Mathlib.Data.Int.GCD","Mathlib.Order.Defs.Unbundled"]}
+{"key":"⟨a, a, a, a⟩","kind":"term","modules":[]}
+{"key":"⟨a, a, a⟩","kind":"term","modules":[]}
+{"key":"⟨a, a, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨a, a, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨a, a⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip, a, by skip, a, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip, a, by skip, a⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip, a, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip, a⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨a, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨by skip, by skip, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨by skip, by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨by skip, by skip⟩","kind":"term","modules":[]}
+{"key":"⟨f, h1.1, h1.2.1, h1.2.2⟩","kind":"term","modules":[]}
+{"key":"⟨fun S => S ∪ ({a} : Set α), Set.mapsTo_image _ _, fun S hS T hT h => h1 S hS T hT h, Set.surjOn_image _ _⟩","kind":"term","modules":["Mathlib.Data.Set.Defs","Mathlib.Data.Set.Function","Mathlib.Data.Set.Operations"]}
+{"key":"⟨fun h => Real.cos_lt_cos_of_nonneg_of_le_pi h1.1 h2.2 h, fun h => by by_contra hle; push_neg at hle; have h' := Real.cos_le_cos_of_nonneg_of_le_pi h2.1 h1.2 hle; linarith⟩","kind":"term","modules":["Batteries.Tactic.Init","Mathlib.Tactic.Push","Mathlib.Tactic.Linarith.Frontend","Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic"]}
+{"key":"⟨fun h x hx => ⟨h2 hx, fun hX => (h hX).2 hx⟩, fun h x hx => ⟨h1 hx, fun hY => (h hY).2 hx⟩⟩","kind":"term","modules":[]}
+{"key":"⟨x.num, x.den, by exact_mod_cast x.den_pos, by push_cast; exact (Rat.num_div_den x).symm, by simp [Int.gcd, x.reduced]⟩","kind":"term","modules":["Mathlib.Algebra.Ring.Rat","Mathlib.Order.Defs.Unbundled"]}
+{"key":"𝒫 a","kind":"term","modules":["Mathlib.Data.Set.Defs"]}
+{"key":"assumption","kind":"tactic","modules":[]}
+{"key":"by_contra a","kind":"tactic","modules":["Batteries.Tactic.Init"]}
+{"key":"constructor","kind":"tactic","modules":[]}
+{"key":"done","kind":"tactic","modules":[]}
+{"key":"exact_mod_cast a","kind":"tactic","modules":[]}
+{"key":"ext a","kind":"tactic","modules":[]}
+{"key":"linarith","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
+{"key":"linarith [a]","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
+{"key":"linear_combination (norm := skip) a","kind":"tactic","modules":["Mathlib.Tactic.LinearCombination"]}
+{"key":"nlinarith","kind":"tactic","modules":["Mathlib.Tactic.Linarith.Frontend"]}
+{"key":"norm_num","kind":"tactic","modules":["Mathlib.Tactic.NormNum.Core"]}
+{"key":"omega","kind":"tactic","modules":[]}
+{"key":"positivity","kind":"tactic","modules":["Mathlib.Tactic.Positivity.Core"]}
+{"key":"push_cast","kind":"tactic","modules":[]}
+{"key":"push_cast at h","kind":"tactic","modules":[]}
+{"key":"qify","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}
+{"key":"qify at h","kind":"tactic","modules":["Mathlib.Tactic.Qify"]}
+{"key":"refine a","kind":"tactic","modules":[]}
+{"key":"rify","kind":"tactic","modules":["Mathlib.Tactic.Rify"]}
+{"key":"rify at h","kind":"tactic","modules":["Mathlib.Tactic.Rify"]}
+{"key":"ring","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
+{"key":"ring_nf at h","kind":"tactic","modules":["Mathlib.Tactic.Ring.RingNF"]}
+{"key":"rw [a]","kind":"tactic","modules":[]}
+{"key":"rw [a] at h","kind":"tactic","modules":[]}
+{"key":"rw [← a]","kind":"tactic","modules":[]}
+{"key":"set a : G := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set"]}
+{"key":"set a : Set (Set α) := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Set.Defs"]}
+{"key":"set a : Set (Set ℤ) := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"set a : Set α := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Set.Defs"]}
+{"key":"set a : Set ℝ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Real.Basic","Mathlib.Data.Set.Defs"]}
+{"key":"set a : Set ℤ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation","Mathlib.Data.Set.Defs"]}
+{"key":"set a : ℂ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Complex.Basic"]}
+{"key":"set a : ℝ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Real.Basic"]}
+{"key":"set a : ℝ → ℝ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Real.Basic"]}
+{"key":"set a : ℤ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation"]}
+{"key":"set a : ℤ → ℚ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation","Mathlib.Data.Rat.Init"]}
+{"key":"set a : ℤ → ℝ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Basic.Real.Basic","Mathlib.Data.Int.Notation"]}
+{"key":"set a : ℤ → ℤ := a with h","kind":"tactic","modules":["Mathlib.Tactic.Set","Mathlib.Data.Int.Notation"]}
+{"key":"simp (disch := skip) only [a]","kind":"tactic","modules":[]}
+{"key":"simp (disch := skip) only [a] at h","kind":"tactic","modules":[]}
+{"key":"simp (disch := skip) only [← a] at h","kind":"tactic","modules":[]}
+{"key":"simp +contextual (disch := skip) only [a] at h","kind":"tactic","modules":[]}
+{"key":"simp only [a]","kind":"tactic","modules":[]}
+{"key":"simp only [a] at h","kind":"tactic","modules":[]}
+{"key":"simpa using a","kind":"tactic","modules":[]}
+{"key":"skip","kind":"tactic","modules":[]}
+{"key":"specialize a","kind":"tactic","modules":[]}
+{"key":"tauto","kind":"tactic","modules":["Mathlib.Tactic.Tauto"]}

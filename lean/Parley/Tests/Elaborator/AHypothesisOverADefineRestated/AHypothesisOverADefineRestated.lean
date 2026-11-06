@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
 
 /-! Written from tests/elaborator/a-hypothesis-over-a-define-restated.proof by parley build lean. -/
 

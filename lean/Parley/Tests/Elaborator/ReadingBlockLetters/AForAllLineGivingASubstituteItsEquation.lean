@@ -2,6 +2,7 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/reading-block-letters.proof by parley build lean. -/
 

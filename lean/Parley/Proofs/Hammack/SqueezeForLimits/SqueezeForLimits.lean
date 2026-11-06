@@ -4,6 +4,14 @@ public import OrderTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Set
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers

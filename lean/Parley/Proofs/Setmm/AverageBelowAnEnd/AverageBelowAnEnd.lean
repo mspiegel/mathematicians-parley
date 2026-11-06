@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from proofs/setmm/average-below-an-end.proof by parley build lean. -/
 

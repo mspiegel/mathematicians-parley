@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from tests/stdlib/logarithms.proof by parley build lean. -/

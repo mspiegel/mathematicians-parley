@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-hypothesis-built-from-a-stated-part.proof by parley build lean. -/

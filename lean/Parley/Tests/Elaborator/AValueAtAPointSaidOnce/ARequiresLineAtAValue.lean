@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-value-at-a-point-said-once.proof by parley build lean. -/

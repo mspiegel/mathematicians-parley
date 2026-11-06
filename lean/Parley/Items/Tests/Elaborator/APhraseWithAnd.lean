@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-phrase-with-and.proof by parley build lean. -/
 

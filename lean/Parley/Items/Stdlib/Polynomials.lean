@@ -2,6 +2,21 @@ module
 
 public import Polynomials
 public import Tactics
+public import Aesop.Frontend.Tactic
+public import Batteries.Logic
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Algebra.Group.Hom.Defs
+public import Mathlib.Algebra.Group.Semigroup
+public import Mathlib.Algebra.Polynomial.AlgebraMap
+public import Mathlib.Algebra.Ring.Defs
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Basic
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.NumberTheory.BernoulliPolynomials
+public import Mathlib.RingTheory.Algebraic.Defs
+public import Mathlib.Tactic.Lift
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from corpus/stdlib/polynomials.records by parley build lean. -/
 

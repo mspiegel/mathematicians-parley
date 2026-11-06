@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/square-sum-zero.proof by parley build lean. -/

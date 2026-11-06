@@ -3,6 +3,12 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from proofs/hammack/fibonacci-numbers.proof by parley build lean. -/
 

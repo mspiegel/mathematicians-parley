@@ -2,6 +2,10 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Tests.Elaborator.ATheoremCitedAtOtherLetters.ADoubleLessOne
 
 /-! Written from tests/elaborator/a-theorem-cited-at-other-letters.proof by parley build lean. -/

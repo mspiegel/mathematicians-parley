@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/elaborator/cited-conjunction.proof by parley build lean. -/
 

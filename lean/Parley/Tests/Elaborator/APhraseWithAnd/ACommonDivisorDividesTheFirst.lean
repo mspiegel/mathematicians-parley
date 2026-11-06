@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Tests.Elaborator.APhraseWithAnd
 
 /-! Written from tests/elaborator/a-phrase-with-and.proof by parley build lean. -/

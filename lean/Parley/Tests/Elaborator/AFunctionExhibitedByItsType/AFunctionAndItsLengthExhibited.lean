@@ -3,6 +3,14 @@ module
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-function-exhibited-by-its-type.proof by parley build lean. -/

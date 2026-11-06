@@ -2,6 +2,10 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums

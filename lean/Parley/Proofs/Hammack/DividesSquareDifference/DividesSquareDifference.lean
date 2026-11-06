@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-square-difference.proof by parley build lean. -/

@@ -2,6 +2,8 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Reasoning
 

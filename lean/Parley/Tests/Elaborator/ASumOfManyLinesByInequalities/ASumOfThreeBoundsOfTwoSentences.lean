@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/a-sum-of-many-lines-by-inequalities.proof by parley build lean. -/
 

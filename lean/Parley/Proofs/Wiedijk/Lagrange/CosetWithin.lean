@@ -3,6 +3,12 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Algebra.Group.Subgroup.Defs
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Groups
 public import Parley.Items.Stdlib.Sets
 

@@ -3,6 +3,11 @@ module
 public import ArithTactics
 public import SetTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 

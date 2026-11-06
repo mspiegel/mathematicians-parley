@@ -3,6 +3,10 @@ module
 public import OrderTactics
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-square-in-a-divisor-said-nonzero.proof by parley build lean. -/

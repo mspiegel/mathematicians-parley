@@ -3,6 +3,13 @@ module
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/sum-of-squares-divisible-by-four.proof by parley build lean. -/

@@ -2,6 +2,10 @@ module
 
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
 
 /-! Written from tests/elaborator/signed-divisibility.proof by parley build lean. -/
 

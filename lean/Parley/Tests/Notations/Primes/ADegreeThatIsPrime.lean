@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
 
 /-! Written from tests/notations/primes.proof by parley build lean. -/
 

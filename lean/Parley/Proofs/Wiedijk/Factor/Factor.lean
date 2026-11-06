@@ -3,6 +3,7 @@ module
 public import Polynomials
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
 public import Parley.Items.Stdlib.Polynomials
 
 /-! Written from proofs/wiedijk/factor.proof by parley build lean. -/

@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/stdlib/sums.proof by parley build lean. -/

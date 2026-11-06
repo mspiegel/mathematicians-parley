@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/
 

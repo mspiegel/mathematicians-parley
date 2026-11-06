@@ -5,6 +5,13 @@ public import PowerTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/positive-number-with-square-below-root.proof by parley build lean. -/

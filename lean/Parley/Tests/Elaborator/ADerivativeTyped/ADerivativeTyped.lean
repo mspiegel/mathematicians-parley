@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/a-derivative-typed.proof by parley build lean. -/
 

@@ -4,6 +4,10 @@ public import ArithTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/setmm/subset-by-double-difference.proof by parley build lean. -/

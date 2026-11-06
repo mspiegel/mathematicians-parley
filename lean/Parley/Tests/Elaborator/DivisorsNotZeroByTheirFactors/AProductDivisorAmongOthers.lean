@@ -3,6 +3,8 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/elaborator/divisors-not-zero-by-their-factors.proof by parley build lean. -/
 

@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Tests.Elaborator.APhraseDefined
 
 /-! Written from tests/elaborator/a-phrase-defined.proof by parley build lean. -/

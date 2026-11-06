@@ -4,6 +4,12 @@ public import AlgebraTactics
 public import OrderTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 

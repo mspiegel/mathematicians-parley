@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/identity-left-out.proof by parley build lean. -/

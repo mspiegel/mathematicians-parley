@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/stdlib/numbers.proof by parley build lean. -/

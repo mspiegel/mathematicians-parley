@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/
 

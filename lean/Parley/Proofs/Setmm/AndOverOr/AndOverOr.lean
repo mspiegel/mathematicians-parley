@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Parley.Items.Stdlib.Reasoning
 
 /-! Written from proofs/setmm/and-over-or.proof by parley build lean. -/

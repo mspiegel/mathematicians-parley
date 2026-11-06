@@ -1,6 +1,13 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from tests/elaborator/recursion-shapes-cited.proof by parley build lean. -/
 

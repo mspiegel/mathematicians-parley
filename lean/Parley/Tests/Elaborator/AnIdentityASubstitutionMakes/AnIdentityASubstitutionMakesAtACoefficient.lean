@@ -4,6 +4,8 @@ public import Counting
 public import FactorialTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/elaborator/an-identity-a-substitution-makes.proof by parley build lean. -/
 

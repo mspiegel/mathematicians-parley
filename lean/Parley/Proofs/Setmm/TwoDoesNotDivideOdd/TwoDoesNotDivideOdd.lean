@@ -3,6 +3,13 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/two-does-not-divide-odd.proof by parley build lean. -/

@@ -3,6 +3,10 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 
 /-! Written from tests/elaborator/a-substitution-into-a-claim-turned-round.proof by parley build lean. -/
 

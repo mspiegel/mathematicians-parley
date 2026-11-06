@@ -2,6 +2,9 @@ module
 
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/real-arithmetic.proof by parley build lean. -/
 

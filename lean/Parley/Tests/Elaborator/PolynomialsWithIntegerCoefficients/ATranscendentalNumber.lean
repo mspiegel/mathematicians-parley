@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.RingTheory.Algebraic.Defs
 
 /-! Written from tests/elaborator/polynomials-with-integer-coefficients.proof by parley build lean. -/
 

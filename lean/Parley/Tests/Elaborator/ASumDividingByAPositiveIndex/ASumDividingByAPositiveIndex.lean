@@ -1,6 +1,11 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-sum-dividing-by-a-positive-index.proof by parley build lean. -/

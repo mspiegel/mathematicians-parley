@@ -2,6 +2,15 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Filter.AtTopBot.Defs
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Proofs.Wiedijk.Harmonic.HarmonicUnbounded
 

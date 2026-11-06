@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import Functions
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/an-induction-whose-letter-a-hypothesis-binds.proof by parley build lean. -/
 

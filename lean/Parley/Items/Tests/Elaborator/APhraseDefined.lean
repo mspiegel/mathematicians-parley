@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.CharZero.Defs
+public import Mathlib.Algebra.Field.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from tests/elaborator/a-phrase-defined.proof by parley build lean. -/
 

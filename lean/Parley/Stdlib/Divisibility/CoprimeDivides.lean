@@ -2,6 +2,8 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/

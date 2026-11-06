@@ -2,6 +2,8 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/a-recursion-header-and-an-assumption.proof by parley build lean. -/
 

@@ -3,6 +3,9 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 
 /-! Written from tests/elaborator/a-label-given-again-inside-a-block.proof by parley build lean. -/
 

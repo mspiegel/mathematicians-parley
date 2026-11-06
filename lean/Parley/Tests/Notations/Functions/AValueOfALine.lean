@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/notations/functions.proof by parley build lean. -/
 

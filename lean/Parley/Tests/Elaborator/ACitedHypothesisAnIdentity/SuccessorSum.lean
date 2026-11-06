@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/a-cited-hypothesis-an-identity.proof by parley build lean. -/
 

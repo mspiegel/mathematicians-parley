@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 

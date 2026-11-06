@@ -5,6 +5,7 @@ public import ArithTactics
 public import Functions
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.CubeMinusSelfDivisibleBySix.SixDividesThreeConsecutive
 

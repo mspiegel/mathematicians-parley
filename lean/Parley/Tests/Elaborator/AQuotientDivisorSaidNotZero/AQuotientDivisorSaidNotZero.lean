@@ -2,6 +2,9 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/elaborator/a-quotient-divisor-said-not-zero.proof by parley build lean. -/
 

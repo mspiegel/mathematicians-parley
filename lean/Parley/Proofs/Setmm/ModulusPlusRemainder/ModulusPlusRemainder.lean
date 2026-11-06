@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/setmm/modulus-plus-remainder.proof by parley build lean. -/

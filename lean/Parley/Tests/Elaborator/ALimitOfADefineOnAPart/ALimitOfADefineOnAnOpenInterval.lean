@@ -2,6 +2,14 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/elaborator/a-limit-of-a-define-on-a-part.proof by parley build lean. -/

@@ -2,6 +2,8 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
 
 /-! Written from tests/notations/sets.proof by parley build lean. -/
 

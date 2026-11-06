@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Rat.Init
 
 /-! Written from proofs/hammack/rational-below-a-positive-rational.proof by parley build lean. -/
 

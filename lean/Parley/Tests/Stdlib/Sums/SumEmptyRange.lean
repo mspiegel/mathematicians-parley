@@ -3,6 +3,12 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/stdlib/sums.proof by parley build lean. -/

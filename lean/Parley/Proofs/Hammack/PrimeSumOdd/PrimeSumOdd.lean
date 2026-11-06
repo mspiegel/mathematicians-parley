@@ -3,6 +3,12 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning

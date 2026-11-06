@@ -3,6 +3,9 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from tests/elaborator/a-part-substituted-into.proof by parley build lean. -/
 

@@ -1,6 +1,11 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.CharZero.Defs
+public import Mathlib.Algebra.Ring.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from proofs/wiedijk/pythagorean-triples.proof by parley build lean. -/
 

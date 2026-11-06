@@ -2,6 +2,10 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Tests.Elaborator.AnIffOfThisCorpus.ZeroDividesRestated
 
 /-! Written from tests/elaborator/an-iff-of-this-corpus.proof by parley build lean. -/

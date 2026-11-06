@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/an-obtain-from-a-second-sentence.proof by parley build lean. -/
 

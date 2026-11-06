@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/quadratic-plus-four-times-odd-iff-even.proof by parley build lean. -/

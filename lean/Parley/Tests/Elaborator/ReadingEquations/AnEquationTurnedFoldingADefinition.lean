@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-equations.proof by parley build lean. -/

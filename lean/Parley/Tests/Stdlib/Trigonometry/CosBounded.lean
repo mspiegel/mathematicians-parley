@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/

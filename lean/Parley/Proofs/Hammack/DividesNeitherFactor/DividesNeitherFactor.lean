@@ -4,6 +4,8 @@ public import AlgebraTactics
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-neither-factor.proof by parley build lean. -/

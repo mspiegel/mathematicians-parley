@@ -2,6 +2,10 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Floor.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/notations/primes.proof by parley build lean. -/

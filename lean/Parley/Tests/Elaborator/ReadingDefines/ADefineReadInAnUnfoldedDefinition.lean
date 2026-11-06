@@ -2,6 +2,11 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/

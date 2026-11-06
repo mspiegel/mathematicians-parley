@@ -3,6 +3,10 @@ module
 public import ArithTactics
 public import RealTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/an-impossible-line-by-algebra.proof by parley build lean. -/
 

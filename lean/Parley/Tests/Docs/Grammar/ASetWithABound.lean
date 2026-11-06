@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/

@@ -4,6 +4,13 @@ public import AlgebraTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/whole-number-by-size.proof by parley build lean. -/

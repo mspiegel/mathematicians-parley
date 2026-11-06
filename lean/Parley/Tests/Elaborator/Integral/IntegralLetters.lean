@@ -1,6 +1,11 @@
 module
 
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.MeasureTheory.Integral.IntervalIntegral.Basic
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/integral.proof by parley build lean. -/
 

@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/
 

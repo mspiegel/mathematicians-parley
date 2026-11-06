@@ -2,6 +2,11 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/

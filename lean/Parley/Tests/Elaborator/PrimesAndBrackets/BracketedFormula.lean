@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 
 /-! Written from tests/elaborator/primes-and-brackets.proof by parley build lean. -/
 

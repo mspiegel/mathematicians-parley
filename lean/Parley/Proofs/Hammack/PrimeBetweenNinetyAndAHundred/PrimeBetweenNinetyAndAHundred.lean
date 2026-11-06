@@ -2,6 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
 
 /-! Written from proofs/hammack/prime-between-ninety-and-a-hundred.proof by parley build lean. -/
 

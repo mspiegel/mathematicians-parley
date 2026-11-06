@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.Tauto
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/listed-sets-in-any-order.proof by parley build lean. -/

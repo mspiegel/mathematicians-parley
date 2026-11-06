@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Items.Stdlib.Sets
 

@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/
 

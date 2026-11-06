@@ -3,6 +3,8 @@ module
 public import OrderTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/squares-keep-order.proof by parley build lean. -/

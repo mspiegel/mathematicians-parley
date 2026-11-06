@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-range-a-function-is-typed-over.proof by parley build lean. -/

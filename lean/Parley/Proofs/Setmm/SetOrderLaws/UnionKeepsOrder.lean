@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 public import Parley.Proofs.Setmm.SubsetOfUnion.SubsetOfUnion
 public import Parley.Proofs.Setmm.SubsetOfUnionRight.SubsetOfUnionRight

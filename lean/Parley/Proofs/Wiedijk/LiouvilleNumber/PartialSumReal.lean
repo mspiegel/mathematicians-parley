@@ -3,6 +3,10 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Sums
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.TermsReal
 

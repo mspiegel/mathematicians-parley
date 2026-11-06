@@ -4,6 +4,11 @@ public import AlgebraTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-define-applied-in-a-hypothesis.proof by parley build lean. -/

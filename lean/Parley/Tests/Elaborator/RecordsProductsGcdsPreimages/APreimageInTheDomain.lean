@@ -3,6 +3,10 @@ module
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/

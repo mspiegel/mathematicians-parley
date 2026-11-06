@@ -4,6 +4,11 @@ public import AlgebraTactics
 public import OrderTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums

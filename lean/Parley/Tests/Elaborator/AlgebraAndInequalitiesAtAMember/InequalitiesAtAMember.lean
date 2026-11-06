@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/algebra-and-inequalities-at-a-member.proof by parley build lean. -/
 

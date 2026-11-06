@@ -7,6 +7,17 @@ public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
 

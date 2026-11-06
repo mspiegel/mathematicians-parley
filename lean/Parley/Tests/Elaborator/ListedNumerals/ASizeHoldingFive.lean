@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.ENat.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
 
 /-! Written from tests/elaborator/listed-numerals.proof by parley build lean. -/
 

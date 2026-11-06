@@ -3,6 +3,9 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Proofs.Hammack.PolynomialSign.NegativePowers
 
 /-! Written from proofs/hammack/polynomial-sign.proof by parley build lean. -/

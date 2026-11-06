@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/cube-of-sum-mod-three.proof by parley build lean. -/

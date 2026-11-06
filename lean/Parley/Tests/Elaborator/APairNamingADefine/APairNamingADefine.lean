@@ -3,6 +3,10 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.Set
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-pair-naming-a-define.proof by parley build lean. -/

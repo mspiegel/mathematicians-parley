@@ -2,6 +2,7 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/reading-memberships.proof by parley build lean. -/
 

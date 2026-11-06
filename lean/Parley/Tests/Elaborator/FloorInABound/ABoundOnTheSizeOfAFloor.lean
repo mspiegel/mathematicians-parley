@@ -2,6 +2,9 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Floor.Defs
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/floor-in-a-bound.proof by parley build lean. -/

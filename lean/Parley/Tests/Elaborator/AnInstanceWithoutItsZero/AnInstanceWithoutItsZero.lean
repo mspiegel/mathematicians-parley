@@ -2,6 +2,11 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 
 /-! Written from tests/elaborator/an-instance-without-its-zero.proof by parley build lean. -/
 

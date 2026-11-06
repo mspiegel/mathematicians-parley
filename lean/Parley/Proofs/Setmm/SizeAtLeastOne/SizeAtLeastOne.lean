@@ -5,6 +5,16 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.ENat.Defs
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sets
 

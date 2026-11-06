@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/
 

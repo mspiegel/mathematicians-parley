@@ -5,6 +5,12 @@ public import Divisibility
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Positivity.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/mod-on-the-reals.proof by parley build lean. -/

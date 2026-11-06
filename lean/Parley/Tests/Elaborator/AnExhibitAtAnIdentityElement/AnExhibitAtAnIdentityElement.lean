@@ -2,6 +2,10 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/an-exhibit-at-an-identity-element.proof by parley build lean. -/

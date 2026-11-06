@@ -4,6 +4,8 @@ public import Counting
 public import FactorialTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Counting
 public import Parley.Tests.Elaborator.TextbookExerciseShapes.ProductNonzero
 

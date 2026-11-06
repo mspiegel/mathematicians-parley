@@ -2,6 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/

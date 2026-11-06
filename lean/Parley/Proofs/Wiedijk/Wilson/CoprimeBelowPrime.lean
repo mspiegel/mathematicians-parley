@@ -2,6 +2,11 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/wiedijk/wilson.proof by parley build lean. -/

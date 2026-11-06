@@ -2,6 +2,9 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-congruence-chain-opening-with-an-equation.proof by parley build lean. -/
 

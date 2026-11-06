@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/divides-product.proof by parley build lean. -/

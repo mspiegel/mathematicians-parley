@@ -5,6 +5,11 @@ public import Counting
 public import FactorialTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/

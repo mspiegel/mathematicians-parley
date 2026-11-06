@@ -2,6 +2,9 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/
 

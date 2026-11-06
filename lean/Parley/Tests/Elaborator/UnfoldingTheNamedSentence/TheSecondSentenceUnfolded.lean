@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/unfolding-the-named-sentence.proof by parley build lean. -/

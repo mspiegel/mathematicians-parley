@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.TypeStar
 public import Parley.Tests.Elaborator.ATypeALineStates.IntoTheEmptySet
 
 /-! Written from tests/elaborator/a-type-a-line-states.proof by parley build lean. -/

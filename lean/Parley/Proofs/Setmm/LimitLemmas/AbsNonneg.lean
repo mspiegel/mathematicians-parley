@@ -2,6 +2,9 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Proofs.Wiedijk.TriangleInequality.AbsBounds
 
 /-! Written from proofs/setmm/limit-lemmas.proof by parley build lean. -/

@@ -5,6 +5,13 @@ public import Counting
 public import FactorialTactics
 public import PowerTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 public import Parley.Items.Stdlib.Sums
 

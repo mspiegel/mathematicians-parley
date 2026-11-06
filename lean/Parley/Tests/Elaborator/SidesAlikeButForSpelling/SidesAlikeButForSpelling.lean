@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/sides-alike-but-for-spelling.proof by parley build lean. -/
 

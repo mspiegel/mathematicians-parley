@@ -165,6 +165,39 @@ pub enum Proof {
     Block(Vec<Tactic>),
 }
 
+impl TacticArg {
+    /// The argument with each term a letter, as a tactic's sample takes it
+    /// (`Tactic::sample`).
+    fn sample(&self) -> TacticArg {
+        let a = || Term::letter("a", LeanType::Prop);
+        match self {
+            TacticArg::Term(_) => TacticArg::Term(a()),
+            TacticArg::Using(_) => TacticArg::Using(a()),
+            TacticArg::Setting { key, .. } => TacticArg::Setting {
+                key,
+                value: Box::new(Tactic::Call {
+                    tactic: TacticRef::Mathlib("skip"),
+                    args: Vec::new(),
+                }),
+            },
+            TacticArg::Rules(rules) => TacticArg::Rules(
+                rules
+                    .iter()
+                    .take(1)
+                    .map(|r| Rule {
+                        by: a(),
+                        backwards: r.backwards,
+                    })
+                    .collect(),
+            ),
+            TacticArg::At(_) => {
+                TacticArg::At(vec![Location::Hypothesis("h".to_string())])
+            }
+            TacticArg::Only | TacticArg::Flag(_) => self.clone(),
+        }
+    }
+}
+
 impl Proof {
     /// `Tactic::set_side` of every tactic and term of the proof.
     pub fn set_side(&mut self) {
@@ -276,6 +309,35 @@ impl Tactic {
                 }
             }
             Tactic::Comment(_) | Tactic::Intro(_) | Tactic::Alternative(_) => {}
+        }
+    }
+
+    /// The tactic's own syntax with each term a letter, `linarith [a]`:
+    /// what Lean is asked the modules of. None for a tactic of Lean's own
+    /// or of the bridges, and for one made of others, whose own samples
+    /// are taken.
+    pub fn sample(&self) -> Option<String> {
+        match self {
+            Tactic::Call {
+                tactic: tactic @ TacticRef::Mathlib(_),
+                args,
+            } => Some(
+                Tactic::Call {
+                    tactic: *tactic,
+                    args: args.iter().map(TacticArg::sample).collect(),
+                }
+                .text(),
+            ),
+            Tactic::Set { ty, .. } => Some(
+                Tactic::Set {
+                    name: "a".to_string(),
+                    ty: ty.clone(),
+                    value: Term::letter("a", LeanType::Prop),
+                    with: "h".to_string(),
+                }
+                .text(),
+            ),
+            _ => None,
         }
     }
 

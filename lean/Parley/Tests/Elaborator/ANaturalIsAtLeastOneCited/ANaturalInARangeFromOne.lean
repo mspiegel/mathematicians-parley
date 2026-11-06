@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-natural-is-at-least-one-cited.proof by parley build lean. -/

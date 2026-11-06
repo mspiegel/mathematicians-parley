@@ -2,6 +2,9 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/rational-closure.proof by parley build lean. -/

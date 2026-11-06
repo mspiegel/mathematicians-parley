@@ -2,6 +2,18 @@ module
 
 public import Sets
 public import Tactics
+public import Aesop.Frontend.Tactic
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Data.Set.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
+public import Mathlib.Data.Set.Lattice.Bounded
+public import Mathlib.Order.BooleanAlgebra.Set
+public import Mathlib.Order.SetNotation
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.Tauto
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from corpus/stdlib/sets.records by parley build lean. -/
 

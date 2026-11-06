@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/

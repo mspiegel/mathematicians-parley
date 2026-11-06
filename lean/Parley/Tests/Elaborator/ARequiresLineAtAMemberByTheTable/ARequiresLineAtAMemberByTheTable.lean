@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-requires-line-at-a-member-by-the-table.proof by parley build lean. -/
 

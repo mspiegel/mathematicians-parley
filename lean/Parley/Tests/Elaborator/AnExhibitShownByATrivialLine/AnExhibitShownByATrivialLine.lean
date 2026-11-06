@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/an-exhibit-shown-by-a-trivial-line.proof by parley build lean. -/
 

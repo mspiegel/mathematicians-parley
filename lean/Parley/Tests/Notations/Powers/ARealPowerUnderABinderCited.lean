@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Parley.Tests.Notations.Powers.ARealPowerUnderABinder
 
 /-! Written from tests/notations/powers.proof by parley build lean. -/

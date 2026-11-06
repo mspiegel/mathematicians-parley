@@ -3,6 +3,13 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/notations/trigonometry.proof by parley build lean. -/

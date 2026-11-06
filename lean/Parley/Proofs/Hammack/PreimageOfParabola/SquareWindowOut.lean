@@ -3,6 +3,8 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/preimage-of-parabola.proof by parley build lean. -/

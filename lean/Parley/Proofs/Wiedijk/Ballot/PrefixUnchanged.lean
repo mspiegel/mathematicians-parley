@@ -5,6 +5,13 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Sets
 public import Parley.Items.Stdlib.Sums
 

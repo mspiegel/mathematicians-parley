@@ -2,6 +2,39 @@ module
 
 public import Sums
 public import Tactics
+public import Aesop.Frontend.Tactic
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.BigOperators.Finprod
+public import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Algebra.BigOperators.Ring.Finset
+public import Mathlib.Algebra.CharZero.Defs
+public import Mathlib.Algebra.Group.Monoid
+public import Mathlib.Algebra.Group.Semigroup
+public import Mathlib.Algebra.Order.BigOperators.Group.Finset
+public import Mathlib.Algebra.Order.BigOperators.GroupWithZero.Finset
+public import Mathlib.Algebra.Order.Interval.Finset.SuccPred
+public import Mathlib.Algebra.Order.Ring.Defs
+public import Mathlib.Algebra.Ring.Defs
+public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Computability.Reduce
+public import Mathlib.Data.Finset.Insert
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Cast.Defs
+public import Mathlib.Data.Nat.Notation
+public import Mathlib.Data.Set.Basic
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Defs.LinearOrder
+public import Mathlib.Order.Interval.Finset.Basic
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Basic
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Ring.RingNF
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from corpus/stdlib/sums.records by parley build lean. -/
 

@@ -5,6 +5,10 @@ public import OrderTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/identities/ln-above-one-is-positive.proof by parley build lean. -/

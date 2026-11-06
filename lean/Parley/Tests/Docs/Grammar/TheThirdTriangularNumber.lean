@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/
 

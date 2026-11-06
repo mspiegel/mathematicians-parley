@@ -3,6 +3,12 @@ module
 public import ComplexTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from tests/notations/powers.proof by parley build lean. -/

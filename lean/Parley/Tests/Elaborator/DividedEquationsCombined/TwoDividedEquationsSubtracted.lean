@@ -2,6 +2,9 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/divided-equations-combined.proof by parley build lean. -/
 

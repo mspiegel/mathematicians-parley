@@ -3,6 +3,10 @@ module
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/a-cancelled-factor-against-a-dropped-one.proof by parley build lean. -/

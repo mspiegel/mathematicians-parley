@@ -566,6 +566,69 @@ impl Term {
         }
     }
 
+    /// The constants of Lean's or Mathlib's this node names: its own, and
+    /// those its printed form names through Lean's resolution of a field,
+    /// `A.ncard` for `Set.ncard`.
+    pub fn named(&self) -> Vec<super::file::Lookup> {
+        use super::file::Lookup;
+        let name = match &self.kind {
+            TermKind::Const(c) => match c.source {
+                Source::Core | Source::Mathlib => c.name.as_str(),
+                Source::Bridge(_) | Source::Item(_) => return Vec::new(),
+            },
+            TermKind::Count { form, .. } => match form {
+                CountForm::Natural => "Set.ncard",
+                CountForm::Extended => "Set.encard",
+            },
+            TermKind::Field { field, .. } if field == "Finite" => "Set.Finite",
+            _ => return Vec::new(),
+        };
+        vec![Lookup::Const(name.to_string())]
+    }
+
+    /// The node's own syntax with each term inside it a letter, `a ≡ a
+    /// [ZMOD a]` of a congruence: what Lean is asked the modules of. None
+    /// for a node whose syntax is Lean's own, or that only names (`named`).
+    pub fn sample(&self) -> Option<String> {
+        match &self.kind {
+            TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided
+            | TermKind::Open
+            | TermKind::By(_)
+            | TermKind::Paren(_)
+            | TermKind::App { .. }
+            | TermKind::Count { .. }
+            | TermKind::Field { .. }
+            | TermKind::ToNat(_) => None,
+            _ => {
+                let mut sample = self.clone();
+                for c in sample.children_mut() {
+                    *c = Term::placeholder(c);
+                }
+                Some(sample.text())
+            }
+        }
+    }
+
+    /// What stands for a term inside a sample: a letter, or `by skip` for a
+    /// proof, where the syntax asks a proof.
+    fn placeholder(term: &Term) -> Term {
+        use super::tactic::{Proof, Tactic, TacticRef};
+        match term.kind {
+            TermKind::By(_) => Term {
+                kind: TermKind::By(Box::new(Proof::By(Tactic::Call {
+                    tactic: TacticRef::Mathlib("skip"),
+                    args: Vec::new(),
+                }))),
+                ty: None,
+            },
+            _ => Term::letter("a", LeanType::Prop),
+        }
+    }
+
     /// Whether the tree writes the type `ty` somewhere, in a cast or as a
     /// bound letter's type.
     pub fn writes_type(&self, ty: &LeanType) -> bool {

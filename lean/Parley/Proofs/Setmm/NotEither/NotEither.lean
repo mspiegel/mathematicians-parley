@@ -3,6 +3,11 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Reasoning
 
 /-! Written from proofs/setmm/not-either.proof by parley build lean. -/

@@ -2,6 +2,10 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval
 public import Parley.Tests.Notations.Calculus.OneIsInTheUnitInterval

@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/stdlib/calculus.proof by parley build lean. -/

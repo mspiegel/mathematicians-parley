@@ -2,6 +2,7 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/a-divisor-negating-a-quotient.proof by parley build lean. -/
 

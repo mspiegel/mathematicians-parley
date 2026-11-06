@@ -2,6 +2,10 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/an-impossible-line-by-algebra.proof by parley build lean. -/
 

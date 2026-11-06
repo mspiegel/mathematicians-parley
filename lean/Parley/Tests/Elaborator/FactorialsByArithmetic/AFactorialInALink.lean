@@ -3,6 +3,9 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/factorials-by-arithmetic.proof by parley build lean. -/
 

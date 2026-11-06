@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/an-identity-a-link-drops.proof by parley build lean. -/
 

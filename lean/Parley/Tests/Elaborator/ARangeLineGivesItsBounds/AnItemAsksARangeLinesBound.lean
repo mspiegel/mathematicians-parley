@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-range-line-gives-its-bounds.proof by parley build lean. -/

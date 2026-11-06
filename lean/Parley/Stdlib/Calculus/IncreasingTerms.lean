@@ -4,6 +4,10 @@ public import Functions
 public import OrderTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from corpus/stdlib/calculus.proof by parley build lean. -/

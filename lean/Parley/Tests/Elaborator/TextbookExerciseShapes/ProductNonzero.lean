@@ -5,6 +5,11 @@ public import ArithTactics
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/

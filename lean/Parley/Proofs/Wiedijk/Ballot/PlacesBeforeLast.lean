@@ -4,6 +4,9 @@ public import OrderTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sums
 

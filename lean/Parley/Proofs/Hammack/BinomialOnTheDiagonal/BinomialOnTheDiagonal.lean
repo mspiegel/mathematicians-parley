@@ -8,6 +8,11 @@ public import OrderTactics
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from proofs/hammack/binomial-on-the-diagonal.proof by parley build lean. -/

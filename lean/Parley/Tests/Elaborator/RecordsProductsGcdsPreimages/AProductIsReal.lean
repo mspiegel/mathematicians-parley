@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/

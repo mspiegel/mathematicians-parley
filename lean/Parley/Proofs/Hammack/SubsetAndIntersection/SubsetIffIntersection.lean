@@ -3,6 +3,9 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from proofs/hammack/subset-and-intersection.proof by parley build lean. -/

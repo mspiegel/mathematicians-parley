@@ -5,6 +5,12 @@ public import ArithTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.NumberTheory.Real.Irrational
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Hammack.Sqrt6Irrational.Sqrt6Irrational
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct

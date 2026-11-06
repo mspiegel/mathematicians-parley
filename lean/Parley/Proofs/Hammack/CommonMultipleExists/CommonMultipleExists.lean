@@ -6,6 +6,11 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Batteries.Tactic.Init
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Sets
 

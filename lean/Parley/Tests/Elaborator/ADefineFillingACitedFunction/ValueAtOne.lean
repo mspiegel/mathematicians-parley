@@ -2,6 +2,11 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 
 /-! Written from tests/elaborator/a-define-filling-a-cited-function.proof by parley build lean. -/
 

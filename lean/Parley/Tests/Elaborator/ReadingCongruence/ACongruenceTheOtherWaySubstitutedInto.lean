@@ -2,6 +2,8 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/
 

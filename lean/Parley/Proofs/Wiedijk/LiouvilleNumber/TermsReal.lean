@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from proofs/wiedijk/liouville-number.proof by parley build lean. -/
 

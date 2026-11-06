@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/elaborator/inspection-cases-of-a-range.proof by parley build lean. -/
 

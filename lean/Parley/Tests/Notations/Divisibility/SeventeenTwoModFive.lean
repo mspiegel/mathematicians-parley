@@ -2,6 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/notations/divisibility.proof by parley build lean. -/
 

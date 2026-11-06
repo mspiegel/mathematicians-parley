@@ -1,6 +1,25 @@
 module
 
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Analysis.Calculus.Deriv.Basic
+public import Mathlib.Analysis.Calculus.FDeriv.Defs
+public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Arctan
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.ArctanDeriv
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Filter.Basic
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Positivity.Core
+public import Mathlib.Tactic.Push
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Topology.Defs.Basic
+public import Mathlib.Topology.Defs.Filter
 
 /-! Written from corpus/stdlib/trigonometry.records by parley build lean. -/
 

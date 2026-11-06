@@ -3,6 +3,14 @@ module
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Counting
 
 /-! Written from tests/elaborator/an-equation-the-pairs-make-true.proof by parley build lean. -/

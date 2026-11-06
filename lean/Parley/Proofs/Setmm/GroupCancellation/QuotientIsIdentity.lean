@@ -3,6 +3,9 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Groups
 public import Parley.Proofs.Setmm.GroupCancellation.QuotientTimesDivisor
 public import Parley.Proofs.Setmm.GroupCancellation.TheLeftIdentity

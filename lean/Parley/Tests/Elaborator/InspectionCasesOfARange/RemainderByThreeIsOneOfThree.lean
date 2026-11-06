@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Core
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Sums
 

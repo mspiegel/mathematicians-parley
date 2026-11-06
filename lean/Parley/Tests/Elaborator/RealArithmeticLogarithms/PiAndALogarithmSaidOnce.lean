@@ -2,6 +2,9 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-logarithms.proof by parley build lean. -/
 

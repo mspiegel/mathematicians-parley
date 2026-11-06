@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-sentences.proof by parley build lean. -/

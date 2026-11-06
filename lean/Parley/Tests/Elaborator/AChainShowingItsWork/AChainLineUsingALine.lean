@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 

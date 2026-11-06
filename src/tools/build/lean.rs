@@ -24,10 +24,11 @@ use crate::checker::CheckedCorpus;
 use crate::corpus::{cited_items, RecordKind};
 use crate::lean::coverage::{coverage, Covered};
 use crate::lean::doc::bridges::BridgeTactic;
-use crate::lean::doc::file::Declaration;
+use crate::lean::doc::file::{Declaration, Lookup};
 use crate::lean::doc::{Source, Tactic, TacticRef, TermKind};
 use crate::lean::expr::Writer;
 use crate::lean::items::{declaration, item, items_module, Item};
+use crate::lean::modules::{Answer, ModuleTable};
 use crate::lean::names::{module_of, path_of_module};
 use crate::lean::templates::Templates;
 use crate::lean::theorem::{as_item, theorem, Sources};
@@ -48,6 +49,11 @@ pub struct Made {
     /// The modules each file imports, by its path, as its header writes
     /// them.
     pub imports: IndexMap<String, Vec<String>>,
+    /// What the files write whose modules the table (`ModuleTable`) does
+    /// not have: the files are not whole until Lean is asked.
+    pub unanswered: BTreeSet<Lookup>,
+    /// Everything the files write whose modules come from the table.
+    pub looked_up: BTreeSet<Lookup>,
     /// Each theorem left out, and why.
     pub left_out: IndexMap<String, String>,
     /// Each item or theorem in the build that could not be written, and
@@ -167,6 +173,39 @@ fn modules_of(decl: &Declaration) -> BTreeSet<String> {
     out
 }
 
+/// The modules of Lean and Mathlib the declarations write something of, as
+/// the table has them; what it lacks is added to `unanswered`, for the
+/// build to ask Lean and make again. A sample Lean could not read is a
+/// fault in the writer.
+fn mathlib_of(
+    decls: &[&Declaration],
+    table: &ModuleTable,
+    made: &mut Made,
+) -> Result<BTreeSet<String>, crate::outcome::Problem> {
+    let mut out = BTreeSet::new();
+    for d in decls {
+        for lookup in d.lookups() {
+            made.looked_up.insert(lookup.clone());
+            match table.answers.get(&lookup) {
+                Some(Answer::Modules(m)) => out.extend(m.iter().cloned()),
+                Some(Answer::Unread(why)) => return Err(crate::outcome::Problem::new(
+                    crate::lean::modules::TABLE,
+                    1,
+                    format!(
+                        "Lean does not read the {} `{}` the Lean writer wrote: {why}",
+                        lookup.kind(),
+                        lookup.key()
+                    ),
+                )),
+                None => {
+                    made.unanswered.insert(lookup);
+                }
+            }
+        }
+    }
+    Ok(out)
+}
+
 /// The header every generated file opens with.
 fn header(imports: &[String], from: &str) -> String {
     let mut out = String::from("module\n\n");
@@ -180,7 +219,10 @@ fn header(imports: &[String], from: &str) -> String {
 }
 
 /// Everything the Lean build makes of the corpus as the checker read it.
-pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
+pub fn make(
+    checked: &CheckedCorpus,
+    table: &ModuleTable,
+) -> Result<Made, crate::outcome::Problem> {
     let templates = Templates::read(&checked.corpus.records)?;
     let targets =
         crate::methods::terms::Targets::of(&checked.grammar, &checked.corpus.records);
@@ -230,7 +272,9 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         for d in decls {
             library.extend(modules_of(d));
         }
-        let imports: Vec<String> = library.into_iter().collect();
+        let all: Vec<&Declaration> = decls.iter().collect();
+        let mathlib = mathlib_of(&all, table, &mut made)?;
+        let imports: Vec<String> = library.into_iter().chain(mathlib).collect();
         let mut text = header(&imports, path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         for d in &texts {
@@ -346,7 +390,9 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         if of_sets {
             library.insert(SET_TACTICS.to_string());
         }
-        let imports: Vec<String> = library.into_iter().chain(cited).collect();
+        let mathlib = mathlib_of(&[&decl], table, &mut made)?;
+        let imports: Vec<String> =
+            library.into_iter().chain(mathlib).chain(cited).collect();
         let mut text = header(&imports, &thm.path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
         let above = text.lines().count();
@@ -456,6 +502,33 @@ pub fn generated_in_tree(root: &Path) -> Vec<String> {
     out
 }
 
+/// What the build makes, with every module its files write something of:
+/// where the table lacks some, Lean is asked once, the table in the tree
+/// kept with its answers, and the files made again.
+fn made_with_modules(
+    root: &Path,
+    source: &Disk,
+    checked: &CheckedCorpus,
+) -> Result<Made, crate::outcome::Problem> {
+    let mut table = ModuleTable::read(source)?;
+    let mut made = make(checked, &table)?;
+    if !made.unanswered.is_empty() {
+        table.ask(root, &made.unanswered)?;
+        made = make(checked, &table)?;
+    }
+    if let Some(l) = made.unanswered.first() {
+        return Err(crate::outcome::Problem::new(
+            crate::lean::modules::TABLE,
+            1,
+            format!("Lean gave no answer for the {} `{}`", l.kind(), l.key()),
+        ));
+    }
+    // The table keeps what the files write, and nothing they no longer do.
+    table.answers.retain(|l, _| made.looked_up.contains(l));
+    write_changed(root, crate::lean::modules::TABLE, &table.text())?;
+    Ok(made)
+}
+
 /// Build the Lean files of the tree at `root`, writing each file that
 /// changed. Every file is made each time, since `lean/Parley.lean` imports
 /// them all; a theorem `wanted` that is not in the build is reported, with
@@ -467,7 +540,7 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
         Ok(checked) => checked,
         Err(out) => return out,
     };
-    let made = match make(&checked) {
+    let made = match made_with_modules(root, &source, &checked) {
         Ok(made) => made,
         Err(problem) => {
             said.complained = format!("{problem}\n");

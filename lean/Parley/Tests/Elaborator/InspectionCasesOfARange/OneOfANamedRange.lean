@@ -2,6 +2,10 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
 
 /-! Written from tests/elaborator/inspection-cases-of-a-range.proof by parley build lean. -/
 

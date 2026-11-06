@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/docs/grammar.proof by parley build lean. -/

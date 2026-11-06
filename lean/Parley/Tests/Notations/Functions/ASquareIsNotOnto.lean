@@ -6,6 +6,12 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.NormNum.Core
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
 

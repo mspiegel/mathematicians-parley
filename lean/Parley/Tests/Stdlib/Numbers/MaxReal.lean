@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/stdlib/numbers.proof by parley build lean. -/

@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/seven-divides-four-times.proof by parley build lean. -/

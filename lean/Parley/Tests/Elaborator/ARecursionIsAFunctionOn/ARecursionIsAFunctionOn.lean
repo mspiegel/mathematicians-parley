@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-recursion-is-a-function-on.proof by parley build lean. -/

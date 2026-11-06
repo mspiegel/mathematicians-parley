@@ -2,6 +2,12 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/

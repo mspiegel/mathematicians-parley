@@ -3,6 +3,9 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/shift-by-rational.proof by parley build lean. -/

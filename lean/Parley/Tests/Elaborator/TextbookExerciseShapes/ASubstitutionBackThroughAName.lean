@@ -2,6 +2,9 @@ module
 
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/textbook-exercise-shapes.proof by parley build lean. -/
 

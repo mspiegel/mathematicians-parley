@@ -2,6 +2,7 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from proofs/setmm/adding-bounds.proof by parley build lean. -/
 

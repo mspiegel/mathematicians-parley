@@ -3,6 +3,10 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
 

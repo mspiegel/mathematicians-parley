@@ -2,6 +2,13 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/wiedijk/am-gm.proof by parley build lean. -/

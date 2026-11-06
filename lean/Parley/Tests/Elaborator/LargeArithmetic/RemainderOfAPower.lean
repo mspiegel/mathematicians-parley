@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/large-arithmetic.proof by parley build lean. -/
 

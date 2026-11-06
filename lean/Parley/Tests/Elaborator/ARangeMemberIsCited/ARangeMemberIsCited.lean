@@ -4,6 +4,8 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 
 /-! Written from tests/elaborator/a-range-member-is-cited.proof by parley build lean. -/
 

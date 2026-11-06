@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Reasoning
 
 /-! Written from tests/elaborator/a-theorem-cited-at-a-raised-power.proof by parley build lean. -/

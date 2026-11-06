@@ -3,6 +3,8 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/

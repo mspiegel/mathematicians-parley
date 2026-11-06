@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/unfolding-a-let.proof by parley build lean. -/

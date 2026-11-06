@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Mathlib.Data.Rat.Init
 
 /-! Written from tests/notations/negatives.proof by parley build lean. -/
 

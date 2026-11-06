@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 
 /-! Written from tests/elaborator/a-family-of-parts-by-a-define.proof by parley build lean. -/
 

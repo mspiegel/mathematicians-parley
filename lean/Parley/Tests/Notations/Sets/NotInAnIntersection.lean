@@ -4,6 +4,13 @@ public import ArithTactics
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Insert
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Reasoning
 public import Parley.Items.Stdlib.Sets
 

@@ -4,6 +4,12 @@ public import AlgebraTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Set
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets

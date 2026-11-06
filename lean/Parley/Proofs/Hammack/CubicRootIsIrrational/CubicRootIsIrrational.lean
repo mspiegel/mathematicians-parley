@@ -4,6 +4,15 @@ public import AlgebraTactics
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.LowestTerms

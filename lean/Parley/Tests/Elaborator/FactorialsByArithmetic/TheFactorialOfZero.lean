@@ -4,6 +4,7 @@ public import ArithTactics
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/factorials-by-arithmetic.proof by parley build lean. -/
 

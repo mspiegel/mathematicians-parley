@@ -3,6 +3,16 @@ module
 public import PowerTactics
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.BigOperators.Finprod
+public import Mathlib.Basic.Finite.Defs
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/elaborator/a-product-over-a-part-of-a-domain.proof by parley build lean. -/

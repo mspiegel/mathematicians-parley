@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Items.Stdlib.Sets
 

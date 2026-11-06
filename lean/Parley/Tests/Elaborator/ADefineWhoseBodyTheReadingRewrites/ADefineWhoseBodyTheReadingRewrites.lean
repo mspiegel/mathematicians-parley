@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Set
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/a-define-whose-body-the-reading-rewrites.proof by parley build lean. -/

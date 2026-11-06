@@ -2,6 +2,8 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-power-said-not-zero.proof by parley build lean. -/
 

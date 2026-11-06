@@ -4,6 +4,11 @@ public import AlgebraTactics
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Set
+public import Mathlib.Tactic.Tauto
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Reasoning
 

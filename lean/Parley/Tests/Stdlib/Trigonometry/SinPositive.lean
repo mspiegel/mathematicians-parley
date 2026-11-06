@@ -2,6 +2,12 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Analysis.Complex.Trigonometric
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Trigonometry
 
 /-! Written from tests/stdlib/trigonometry.proof by parley build lean. -/

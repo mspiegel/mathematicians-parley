@@ -6,6 +6,15 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Analysis.Calculus.Deriv.Basic
+public import Mathlib.Analysis.Calculus.FDeriv.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Topology.Defs.Basic
 public import Parley.Items.Stdlib.Calculus
 public import Parley.Items.Stdlib.Sets
 

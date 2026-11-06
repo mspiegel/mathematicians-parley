@@ -31,14 +31,34 @@ static LAKE: std::sync::Mutex<()> = std::sync::Mutex::new(());
 /// lean4export, as Lake builds it, from the Lean project.
 const EXPORTER: &str = ".lake/packages/lean4export/.lake/build/bin/lean4export";
 
-/// What the Lean build makes of the tree, or what stops it.
-fn made(source: &dyn Source) -> Result<Made, Said> {
-    let checked = crate::checker::checked(source)?;
-    make(&checked).map_err(|problem| Said {
+/// A problem that stops the build, as the gate says it.
+fn refused(problem: crate::outcome::Problem) -> Said {
+    Said {
         printed: String::new(),
         complained: format!("{problem}\n"),
         status: 2,
-    })
+    }
+}
+
+/// What the Lean build makes of the tree, or what stops it.
+fn made(source: &dyn Source) -> Result<Made, Said> {
+    let checked = crate::checker::checked(source)?;
+    let table = crate::lean::modules::ModuleTable::read(source).map_err(refused)?;
+    let made = make(&checked, &table).map_err(refused)?;
+    // The gate asks Lean nothing: a module the table lacks would change
+    // the files a fresh build writes.
+    match made.unanswered.first() {
+        None => Ok(made),
+        Some(l) => Err(refused(crate::outcome::Problem::new(
+            crate::lean::modules::TABLE,
+            1,
+            format!(
+                "the table has no modules for the {} `{}`: run parley build lean",
+                l.kind(),
+                l.key()
+            ),
+        ))),
+    }
 }
 
 /// Every Lean file in the tree is what a fresh build makes, and nothing the

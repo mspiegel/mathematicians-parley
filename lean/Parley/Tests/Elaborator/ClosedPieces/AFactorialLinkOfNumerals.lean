@@ -3,6 +3,8 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.NormNum.Core
 
 /-! Written from tests/elaborator/closed-pieces.proof by parley build lean. -/
 

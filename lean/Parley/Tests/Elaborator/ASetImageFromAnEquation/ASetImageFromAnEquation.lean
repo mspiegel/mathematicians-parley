@@ -3,6 +3,9 @@ module
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/elaborator/a-set-image-from-an-equation.proof by parley build lean. -/

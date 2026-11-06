@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/stdlib/sums.proof by parley build lean. -/

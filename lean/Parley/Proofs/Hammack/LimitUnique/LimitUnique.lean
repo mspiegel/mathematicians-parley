@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Filter.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Proofs.Hammack.LimitUnique.LimitOrder
 
 /-! Written from proofs/hammack/limit-unique.proof by parley build lean. -/

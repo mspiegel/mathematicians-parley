@@ -12,6 +12,7 @@ pub mod doc;
 pub mod export;
 pub mod expr;
 pub mod items;
+pub mod modules;
 pub mod names;
 pub mod readback;
 pub mod sets;

@@ -3,6 +3,8 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/textbook-exercise-shapes-two.proof by parley build lean. -/
 

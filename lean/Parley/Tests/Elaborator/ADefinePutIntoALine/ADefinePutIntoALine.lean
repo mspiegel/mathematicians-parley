@@ -3,6 +3,10 @@ module
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Tactic.Set
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Sets
 
 /-! Written from tests/elaborator/a-define-put-into-a-line.proof by parley build lean. -/

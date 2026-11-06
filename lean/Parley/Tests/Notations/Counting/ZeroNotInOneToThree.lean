@@ -2,6 +2,9 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from tests/notations/counting.proof by parley build lean. -/

@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from tests/elaborator/a-define-cited-as-a-step.proof by parley build lean. -/
 

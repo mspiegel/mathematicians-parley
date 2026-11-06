@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/stdlib/functions.proof by parley build lean. -/

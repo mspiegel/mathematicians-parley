@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from tests/elaborator/three-names.proof by parley build lean. -/
 

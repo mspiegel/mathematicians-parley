@@ -2,6 +2,11 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Algebra.Ring.Parity
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/no-integers-with-eighteen-a-plus-six-b-one.proof by parley build lean. -/

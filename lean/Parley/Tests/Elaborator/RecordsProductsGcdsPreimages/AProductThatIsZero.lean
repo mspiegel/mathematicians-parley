@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Real.Basic
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/

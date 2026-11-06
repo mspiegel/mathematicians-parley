@@ -3,6 +3,10 @@ module
 public import ArithTactics
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from tests/notations/calculus.proof by parley build lean. -/

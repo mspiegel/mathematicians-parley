@@ -4,6 +4,10 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/limit-lemmas.proof by parley build lean. -/

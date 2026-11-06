@@ -2,6 +2,9 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/reading-congruence.proof by parley build lean. -/
 

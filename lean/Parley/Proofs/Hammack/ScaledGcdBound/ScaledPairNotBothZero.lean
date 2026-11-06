@@ -2,6 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Data.Int.Notation
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/hammack/scaled-gcd-bound.proof by parley build lean. -/

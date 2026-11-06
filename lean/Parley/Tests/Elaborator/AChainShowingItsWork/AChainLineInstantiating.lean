@@ -3,6 +3,11 @@ module
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 

@@ -3,6 +3,10 @@ module
 public import ArithTactics
 public import SubstTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Set
 
 /-! Written from tests/elaborator/reading-defines.proof by parley build lean. -/
 

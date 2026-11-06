@@ -2,6 +2,13 @@ module
 
 public import PowerTactics
 public import Tactics
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/stdlib/divisibility.proof by parley build lean. -/

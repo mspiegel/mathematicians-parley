@@ -3,6 +3,12 @@ module
 public import PowerTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/identities/sqrt-of-product.proof by parley build lean. -/

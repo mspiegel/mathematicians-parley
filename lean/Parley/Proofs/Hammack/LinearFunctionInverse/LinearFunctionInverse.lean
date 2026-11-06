@@ -3,6 +3,9 @@ module
 public import AlgebraTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from proofs/hammack/linear-function-inverse.proof by parley build lean. -/
 

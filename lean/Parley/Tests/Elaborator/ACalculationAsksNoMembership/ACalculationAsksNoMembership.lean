@@ -3,6 +3,8 @@ module
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-calculation-asks-no-membership.proof by parley build lean. -/
 

@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Set.Defs
 public import Parley.Tests.Notations.Calculus.OneBoundsTheUnitInterval
 
 /-! Written from tests/notations/calculus.proof by parley build lean. -/

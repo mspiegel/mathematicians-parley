@@ -2,6 +2,11 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Algebra.Group.Subgroup.Defs
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.TypeStar
 public import Parley.Items.Stdlib.Groups
 
 /-! Written from proofs/wiedijk/lagrange.proof by parley build lean. -/

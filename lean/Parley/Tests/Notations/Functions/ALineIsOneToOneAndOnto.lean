@@ -3,6 +3,11 @@ module
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from tests/notations/functions.proof by parley build lean. -/

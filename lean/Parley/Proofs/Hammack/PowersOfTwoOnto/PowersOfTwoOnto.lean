@@ -4,6 +4,13 @@ public import PowerTactics
 public import SetTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Functions
 
 /-! Written from proofs/hammack/powers-of-two-onto.proof by parley build lean. -/

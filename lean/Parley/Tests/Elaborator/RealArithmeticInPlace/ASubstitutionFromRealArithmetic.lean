@@ -3,6 +3,8 @@ module
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/real-arithmetic-in-place.proof by parley build lean. -/
 

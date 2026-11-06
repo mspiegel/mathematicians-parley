@@ -2,6 +2,10 @@ module
 
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/a-membership-a-bare-from-builds.proof by parley build lean. -/

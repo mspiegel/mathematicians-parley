@@ -3,6 +3,12 @@ module
 public import OrderTactics
 public import SetTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
 
 /-! Written from tests/elaborator/sets-a-define-names.proof by parley build lean. -/
 

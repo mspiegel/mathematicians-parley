@@ -6,6 +6,45 @@ use std::collections::BTreeSet;
 use super::tactic::{Proof, Tactic, TacticArg};
 use super::term::{LeanType, Term, TermKind};
 
+/// Something a declaration writes whose modules Lean is asked for
+/// (`lean/scripts/ModulesOf.lean`): a constant by its full name, or a
+/// sample of a term's or a tactic's syntax.
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum Lookup {
+    Const(String),
+    Term(String),
+    Tactic(String),
+}
+
+impl Lookup {
+    /// The kind the lookup script reads it as.
+    pub fn kind(&self) -> &'static str {
+        match self {
+            Lookup::Const(_) => "const",
+            Lookup::Term(_) => "term",
+            Lookup::Tactic(_) => "tactic",
+        }
+    }
+
+    /// The constant's name, or the sample.
+    pub fn key(&self) -> &str {
+        match self {
+            Lookup::Const(k) | Lookup::Term(k) | Lookup::Tactic(k) => k,
+        }
+    }
+
+    /// The lookup of a kind and a key as the script writes them; None for a
+    /// kind it does not read.
+    pub fn of(kind: &str, key: &str) -> Option<Lookup> {
+        match kind {
+            "const" => Some(Lookup::Const(key.to_string())),
+            "term" => Some(Lookup::Term(key.to_string())),
+            "tactic" => Some(Lookup::Tactic(key.to_string())),
+            _ => None,
+        }
+    }
+}
+
 /// A binder of a declaration.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Binder {
@@ -123,6 +162,35 @@ impl Declaration {
             }
         }
         parts
+    }
+
+    /// What it writes that Lean or Mathlib declares: each constant of
+    /// theirs it names, and a sample of each piece of syntax, its
+    /// notations, the types it writes, the tactics it calls, its binders
+    /// and a record's own proof.
+    pub fn lookups(&self) -> BTreeSet<Lookup> {
+        let mut out = BTreeSet::new();
+        for b in &self.binders {
+            if let Binder::Typed { text, .. } = b {
+                out.insert(Lookup::Term(format!("∀ {text}, True")));
+            }
+        }
+        if let DeclProof::Verbatim { text, .. } = &self.proof {
+            out.insert(Lookup::Term(text.clone()));
+        }
+        let parts = self.parts();
+        for t in &parts.terms {
+            out.extend(t.named());
+            if let Some(sample) = t.sample() {
+                out.insert(Lookup::Term(sample));
+            }
+        }
+        for t in &parts.tactics {
+            if let Some(sample) = t.sample() {
+                out.insert(Lookup::Tactic(sample));
+            }
+        }
+        out
     }
 
     /// The library modules a record's own proof names.

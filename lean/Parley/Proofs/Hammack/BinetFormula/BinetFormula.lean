@@ -6,6 +6,20 @@ public import PowerTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Group.Defs
+public import Mathlib.Algebra.Group.DivInvMonoid
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Positivity.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.Ring.RingNF
+public import Mathlib.Tactic.Set
 public import Parley.Proofs.Hammack.BinetFormula.PowerRecurrence
 
 /-! Written from proofs/hammack/binet-formula.proof by parley build lean. -/

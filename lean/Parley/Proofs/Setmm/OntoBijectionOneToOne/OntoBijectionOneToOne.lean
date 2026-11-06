@@ -2,6 +2,9 @@ module
 
 public import SetTactics
 public import Tactics
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.TypeStar
 
 /-! Written from proofs/setmm/onto-bijection-one-to-one.proof by parley build lean. -/
 

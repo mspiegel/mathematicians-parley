@@ -4,6 +4,15 @@ public import PowerTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Algebra.Order.Group.Unbundled.Abs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.SetNotationForOrder
+public import Mathlib.Topology.Defs.Filter
 public import Parley.Items.Stdlib.Calculus
 
 /-! Written from proofs/setmm/identity-function-continuous.proof by parley build lean. -/

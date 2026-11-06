@@ -1,6 +1,9 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.Group.Even
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from proofs/hammack/binomial-even-for-odd-k.proof by parley build lean. -/

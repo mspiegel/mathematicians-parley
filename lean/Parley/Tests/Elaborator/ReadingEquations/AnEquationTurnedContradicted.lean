@@ -2,6 +2,8 @@ module
 
 public import ArithTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/reading-equations.proof by parley build lean. -/
 

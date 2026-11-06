@@ -3,6 +3,8 @@ module
 public import ArithTactics
 public import OrderTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from proofs/setmm/no-least-positive.proof by parley build lean. -/
 

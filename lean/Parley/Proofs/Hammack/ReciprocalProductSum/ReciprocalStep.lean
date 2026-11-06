@@ -3,6 +3,8 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
 
 /-! Written from proofs/hammack/reciprocal-product-sum.proof by parley build lean. -/
 

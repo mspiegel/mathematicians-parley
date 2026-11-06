@@ -1,6 +1,10 @@
 module
 
 public import Tactics
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 
 /-! Written from tests/elaborator/sum-letter-in-scope.proof by parley build lean. -/
 

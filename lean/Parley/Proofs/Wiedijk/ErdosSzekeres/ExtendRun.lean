@@ -6,6 +6,16 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets
 public import Parley.Items.Stdlib.Sums

@@ -2,6 +2,11 @@ module
 
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Rat.Init
+public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Tactic.LinearCombination
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct
 public import Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational
 

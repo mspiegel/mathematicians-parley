@@ -3,6 +3,10 @@ module
 public import AlgebraTactics
 public import SetTactics
 public import Tactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/an-identity-on-a-required-number.proof by parley build lean. -/

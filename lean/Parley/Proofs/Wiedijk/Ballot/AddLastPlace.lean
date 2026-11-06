@@ -6,6 +6,14 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import WholeTactics
+public import Batteries.Util.ExtendedBinder
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Set.Card
+public import Mathlib.Data.Set.Defs
+public import Mathlib.Data.Set.Operations
+public import Mathlib.Order.Interval.Finset.Defs
+public import Mathlib.Order.Interval.Set.Defs
+public import Mathlib.Tactic.SetNotationForOrder
 public import Parley.Items.Stdlib.Functions
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Items.Stdlib.Sets

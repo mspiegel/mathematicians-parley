@@ -2,6 +2,8 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 
 /-! Written from tests/elaborator/a-range-line-gives-its-bounds.proof by parley build lean. -/
 

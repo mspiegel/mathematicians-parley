@@ -4,6 +4,9 @@ public import AlgebraTactics
 public import Counting
 public import FactorialTactics
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/powers-said-once.proof by parley build lean. -/
 

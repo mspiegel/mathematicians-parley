@@ -3,6 +3,9 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Divisibility
 public import Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree
 

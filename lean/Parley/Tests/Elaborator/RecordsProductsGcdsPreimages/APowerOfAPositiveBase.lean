@@ -3,6 +3,10 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.Positivity.Core
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from tests/elaborator/records-products-gcds-preimages.proof by parley build lean. -/

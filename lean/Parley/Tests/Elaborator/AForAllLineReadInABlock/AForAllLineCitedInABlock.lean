@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.ModEq
+public import Mathlib.Data.Int.Notation
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 
 /-! Written from tests/elaborator/a-for-all-line-read-in-a-block.proof by parley build lean. -/

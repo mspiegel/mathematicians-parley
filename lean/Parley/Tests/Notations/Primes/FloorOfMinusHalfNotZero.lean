@@ -3,6 +3,14 @@ module
 public import ArithTactics
 public import PowerTactics
 public import Tactics
+public import Batteries.Tactic.Init
+public import Mathlib.Algebra.Order.Floor.Defs
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.NormNum.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Tests.Notations.Primes.FloorOfMinusHalf
 
 /-! Written from tests/notations/primes.proof by parley build lean. -/

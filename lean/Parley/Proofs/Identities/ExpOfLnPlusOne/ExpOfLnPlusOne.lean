@@ -5,6 +5,13 @@ public import PowerTactics
 public import RealTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Analysis.Complex.Exponential
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/identities/exp-of-ln-plus-one.proof by parley build lean. -/

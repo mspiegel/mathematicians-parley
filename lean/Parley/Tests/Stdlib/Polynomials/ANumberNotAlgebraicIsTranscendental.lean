@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Basic.Complex.Basic
+public import Mathlib.RingTheory.Algebraic.Defs
 public import Parley.Items.Stdlib.Polynomials
 
 /-! Written from tests/stdlib/polynomials.proof by parley build lean. -/

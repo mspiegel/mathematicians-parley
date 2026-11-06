@@ -3,6 +3,8 @@ module
 public import AlgebraTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
 
 /-! Written from tests/elaborator/a-chain-showing-its-work.proof by parley build lean. -/
 

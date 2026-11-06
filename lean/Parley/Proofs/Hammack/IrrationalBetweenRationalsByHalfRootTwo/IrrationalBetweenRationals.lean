@@ -3,6 +3,11 @@ module
 public import OrderTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.Real.Sqrt
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Rat.Init
+public import Mathlib.NumberTheory.Real.Irrational
+public import Mathlib.Tactic.Linarith.Frontend
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalProduct
 public import Parley.Proofs.Setmm.RationalClosure.IrrationalSum

@@ -2,6 +2,8 @@ module
 
 public import OrderTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Nat.Prime.Defs
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from corpus/stdlib/divisibility.proof by parley build lean. -/

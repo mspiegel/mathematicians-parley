@@ -2,6 +2,11 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.Linarith.Frontend
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Ring.RingNF
 public import Parley.Items.Stdlib.Numbers
 
 /-! Written from proofs/setmm/rational-times-denominator.proof by parley build lean. -/

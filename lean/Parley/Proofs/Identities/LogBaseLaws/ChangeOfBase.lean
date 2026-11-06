@@ -2,6 +2,8 @@ module
 
 public import AlgebraTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Log.Basic
+public import Mathlib.Basic.Real.Basic
 public import Parley.Items.Stdlib.Logarithms
 
 /-! Written from proofs/identities/log-base-laws.proof by parley build lean. -/

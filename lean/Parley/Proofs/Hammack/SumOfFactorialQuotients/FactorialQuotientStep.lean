@@ -3,6 +3,10 @@ module
 public import AlgebraTactics
 public import SubstTactics
 public import Tactics
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Data.Rat.Init
+public import Mathlib.Tactic.LinearCombination
 
 /-! Written from proofs/hammack/sum-of-factorial-quotients.proof by parley build lean. -/
 

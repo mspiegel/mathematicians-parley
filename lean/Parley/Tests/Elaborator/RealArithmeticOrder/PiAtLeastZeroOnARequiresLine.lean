@@ -4,6 +4,12 @@ public import Divisibility
 public import PowerTactics
 public import RealTactics
 public import Tactics
+public import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
+public import Mathlib.Basic.Real.Basic
+public import Mathlib.Tactic.LinearCombination
+public import Mathlib.Tactic.Positivity.Core
+public import Mathlib.Tactic.Qify
+public import Mathlib.Tactic.Rify
 public import Parley.Items.Stdlib.Divisibility
 
 /-! Written from tests/elaborator/real-arithmetic-order.proof by parley build lean. -/

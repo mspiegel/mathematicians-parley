@@ -1,6 +1,8 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
+public import Mathlib.Order.Interval.Finset.Defs
 public import Parley.Items.Stdlib.Sums
 
 /-! Written from proofs/hammack/cube-congruent-mod-three.proof by parley build lean. -/

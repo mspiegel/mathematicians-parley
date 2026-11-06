@@ -1,6 +1,7 @@
 module
 
 public import Tactics
+public import Mathlib.Data.Int.Notation
 
 /-! Written from tests/elaborator/a-sum-of-defined-values-said-pointwise.proof by parley build lean. -/
 
