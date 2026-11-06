@@ -666,7 +666,7 @@ pub fn conjunction(a: Printed, b: Printed) -> Route<Printed> {
 
 /// A relation between two terms, `l op r`; declined for a symbol that is
 /// no Lean relation.
-fn relation_of(op: &str, l: Printed, r: Printed) -> Route<Printed> {
+pub fn relation_of(op: &str, l: Printed, r: Printed) -> Route<Printed> {
     match super::doc::Op::of(op) {
         Some(op) => Route::Built(Printed::infix(op, l, r, super::doc::LeanType::Prop)),
         None => Route::no(format!("the relation {op}")),

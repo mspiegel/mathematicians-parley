@@ -76,6 +76,13 @@ impl Op {
         assoc: Assoc::Right,
     };
 
+    /// Multiplication, `a * b`, a group's operation too.
+    pub const TIMES: Op = Op {
+        symbol: "*",
+        prec: 70,
+        assoc: Assoc::Left,
+    };
+
     /// Lean's infix operator of that symbol; None for any other text.
     pub fn of(symbol: &str) -> Option<Op> {
         let (symbol, prec, assoc): (&'static str, u32, Assoc) = match symbol {
@@ -98,7 +105,7 @@ impl Op {
             "+" => ("+", 65, Assoc::Left),
             "-" => ("-", 65, Assoc::Left),
             "∪" => ("∪", 65, Assoc::Left),
-            "*" => ("*", 70, Assoc::Left),
+            "*" => return Some(Op::TIMES),
             "/" => ("/", 70, Assoc::Left),
             "%" => ("%", 70, Assoc::Left),
             "∩" => ("∩", 70, Assoc::Left),

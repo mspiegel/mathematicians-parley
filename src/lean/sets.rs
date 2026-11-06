@@ -6,10 +6,10 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
-use super::doc::{CountForm, LeanType, TermKind};
+use super::doc::{CountForm, LeanType, Piece, Source, TermKind};
 use super::expr::{
-    letter_type, set_type, system_of, LetterType, Members, Printed, System, Writer,
-    APP, MAX,
+    letter_type, listed_set, relation_of, set_type, system_of, witnessed, LetterType,
+    Members, Printed, System, Writer, MAX,
 };
 use super::templates::Num;
 use crate::citing::finite::{is_finite, SaidFinite};
@@ -212,15 +212,35 @@ impl Writer<'_> {
             .flatten()
             .filter(|s| set_type(*s) < at)
         {
-            let wide = self.type_name(at);
-            let says = match system {
-                System::Type(n) => {
-                    format!("∃ m : {}, (m : {wide}) = x", self.type_name(n))
-                }
-                System::Positive => format!("∃ m : ℕ, 0 < m ∧ (m : {wide}) = x"),
-                System::NonNegative => format!("∃ m : ℕ, (m : {wide}) = x"),
+            let wide = self.num_type(at);
+            let (narrow, positive) = match system {
+                System::Type(n) => (self.num_type(n), false),
+                System::Positive => (LeanType::Num(Num::Nat), true),
+                System::NonNegative => (LeanType::Num(Num::Nat), false),
             };
-            return Route::Built(Printed::atom(format!("{{x : {wide} | {says}}}")));
+            let m = Printed::letter("m", narrow.clone());
+            let x = Printed::letter("x", wide.clone());
+            let said = relation_of("=", Printed::cast(m.clone(), wide.clone()), x);
+            let guard = positive
+                .then(|| relation_of("<", Printed::numeral("0", narrow.clone()), m));
+            let says = match (said, guard) {
+                (Route::Built(s), None) => witnessed("m".to_string(), narrow, None, s),
+                (Route::Built(s), Some(Route::Built(g))) => {
+                    witnessed("m".to_string(), narrow, Some(g), s)
+                }
+                (Route::Declined(d), _) | (_, Some(Route::Declined(d))) => {
+                    return Route::Declined(d)
+                }
+            };
+            return Route::Built(Printed::notation(
+                vec![
+                    Piece::text(format!("{{x : {} | ", wide.text())),
+                    Piece::term(says, 0),
+                    Piece::text("}"),
+                ],
+                MAX,
+                LeanType::Set(Box::new(wide)),
+            ));
         }
         if !listed {
             return match self.set_members(set) {
@@ -231,15 +251,12 @@ impl Writer<'_> {
         let mut members = Vec::new();
         for c in &set.children {
             match self.number_fixed(c, at) {
-                Route::Built(p) => members.push(p.text()),
+                Route::Built(p) => members.push(p),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        Route::Built(Printed::atom(format!(
-            "({{{}}} : Set {})",
-            members.join(", "),
-            self.type_name(at)
-        )))
+        let of = LeanType::Set(Box::new(self.num_type(at)));
+        Route::Built(Printed::cast(listed_set(members, of.clone()), of))
     }
 
     /// A member of a set of these, as Lean writes it: a number at the
@@ -295,29 +312,34 @@ impl Writer<'_> {
     /// A set, a member of one, or a map, as Lean writes it.
     pub fn set_term(&self, node: &Node) -> Route<Printed> {
         if node.is_name() {
+            let name = super::names::letter(&node.text);
             return match self.letters.get(node.text.as_str()) {
                 Some(
-                    LetterType::Set(_)
+                    ty @ (LetterType::Set(_)
                     | LetterType::Member(_)
                     | LetterType::Map { .. }
-                    | LetterType::Function { .. },
-                ) => Route::Built(Printed::atom(super::names::letter(&node.text))),
+                    | LetterType::Function { .. }),
+                ) => Route::Built(Printed::letter(name, ty.lean_type())),
                 // A group standing as a set is all of its elements; its
                 // identity is Lean's 1 of it; a subgroup as a set is its
                 // elements.
-                Some(LetterType::Group) => Route::Built(Printed::atom(format!(
-                    "(Set.univ : Set {})",
-                    super::names::letter(&node.text)
-                ))),
-                Some(LetterType::Identity(g)) => Route::Built(Printed::atom(format!(
-                    "(1 : {})",
-                    super::names::letter(g)
-                ))),
-                Some(LetterType::Subgroup(g)) => Route::Built(Printed::atom(format!(
-                    "({} : Set {})",
-                    super::names::letter(&node.text),
-                    super::names::letter(g)
-                ))),
+                Some(LetterType::Group) => {
+                    let of = LeanType::Set(Box::new(LeanType::Elements(
+                        node.text.to_string(),
+                    )));
+                    Route::Built(Printed::cast(
+                        Printed::head("Set.univ", Source::Mathlib),
+                        of,
+                    ))
+                }
+                Some(LetterType::Identity(g)) => Route::Built(Printed::cast(
+                    Printed::numeral("1", LeanType::Elements(g.clone())),
+                    LeanType::Elements(g.clone()),
+                )),
+                Some(LetterType::Subgroup(g)) => Route::Built(Printed::cast(
+                    Printed::letter(name, LeanType::Subgroup(g.clone())),
+                    LeanType::Set(Box::new(LeanType::Elements(g.clone()))),
+                )),
                 _ => Route::no(format!("{} is no set, member or map", node.text)),
             };
         }
@@ -329,17 +351,29 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed::raw(
-                    format!("{} * {}", p[0].at(70), p[1].at(71)),
-                    70,
-                ));
+                let ty = p[0].ty.clone();
+                return Route::Built(Printed {
+                    kind: TermKind::Infix {
+                        op: super::doc::Op::TIMES,
+                        lhs: Box::new(p[0].clone()),
+                        rhs: Box::new(p[1].clone()),
+                    },
+                    ty,
+                });
             }
             "group-inverse" => {
                 let p = match self.set_parts(node, 1) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed::raw(format!("{}⁻¹", p[0].at(MAX)), MAX));
+                let ty = p[0].ty.clone();
+                return Route::Built(Printed {
+                    kind: TermKind::Notation {
+                        pieces: vec![Piece::term(p[0].clone(), MAX), Piece::text("⁻¹")],
+                        prec: MAX,
+                    },
+                    ty,
+                });
             }
             // gH is the image of H under h ↦ g·h, as Mathlib's left coset
             // g • H is defined, written so that no scope need be opened.
@@ -348,10 +382,19 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed::raw(
-                    format!("({} * ·) '' {}", p[0].at(70), p[1].at(MAX)),
-                    80,
-                ));
+                let ty = p[1].ty.clone();
+                return Route::Built(Printed {
+                    kind: TermKind::Notation {
+                        pieces: vec![
+                            Piece::text("("),
+                            Piece::term(p[0].clone(), 70),
+                            Piece::text(" * ·) '' "),
+                            Piece::term(p[1].clone(), MAX),
+                        ],
+                        prec: 80,
+                    },
+                    ty,
+                });
             }
             // F(x) if x ∈ A, G(x) otherwise, of things: as the notation's
             // template writes it of numbers, the condition decided
@@ -367,17 +410,31 @@ impl Writer<'_> {
                     }
                 };
                 let c = match self.formula(condition) {
-                    Route::Built(c) => c.at(MAX),
+                    Route::Built(c) => c,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                return Route::Built(Printed::raw(
-                    format!(
-                        "@ite _ {c} (Classical.propDecidable {c}) {} {}",
-                        a.at(MAX),
-                        b.at(MAX)
-                    ),
-                    APP,
-                ));
+                let decided = Printed::applied(
+                    "Classical.propDecidable",
+                    Source::Mathlib,
+                    vec![c.clone()],
+                    LeanType::Prop,
+                );
+                let ty = a.ty.clone();
+                let args = [
+                    Printed::of(TermKind::Elided, LeanType::Universe),
+                    c,
+                    decided,
+                    a,
+                    b,
+                ];
+                return Route::Built(Printed {
+                    kind: TermKind::App {
+                        head: Box::new(Printed::head("ite", Source::Core)),
+                        args: args.into_iter().map(super::doc::Arg::Explicit).collect(),
+                        explicit: true,
+                    },
+                    ty,
+                });
             }
             _ => {}
         }
@@ -389,11 +446,33 @@ impl Writer<'_> {
             .then(|| system_of(node))
             .flatten()
         {
-            return Route::Built(Printed::atom(match system {
-                super::expr::System::Positive => "{n : ℤ | 0 < n}".to_string(),
-                super::expr::System::NonNegative => "{n : ℤ | 0 ≤ n}".to_string(),
-                _ => format!("(Set.univ : Set {})", letter_type(system).lean()),
-            }));
+            let int = LeanType::Num(Num::Int);
+            let order = match system {
+                super::expr::System::Positive => "<",
+                super::expr::System::NonNegative => "≤",
+                super::expr::System::Type(_) => {
+                    let of =
+                        LeanType::Set(Box::new(LeanType::Num(letter_type(system))));
+                    return Route::Built(Printed::cast(
+                        Printed::head("Set.univ", Source::Mathlib),
+                        of,
+                    ));
+                }
+            };
+            let n = Printed::letter("n", int.clone());
+            return relation_of(order, Printed::numeral("0", int.clone()), n).map(
+                |bound| {
+                    Printed::notation(
+                        vec![
+                            Piece::text("{n : ℤ | "),
+                            Piece::term(bound, 0),
+                            Piece::text("}"),
+                        ],
+                        MAX,
+                        LeanType::Set(Box::new(int)),
+                    )
+                },
+            );
         }
         let parts = |want: usize| self.set_parts(node, want);
         match &*node.notation_name() {
@@ -434,10 +513,18 @@ impl Writer<'_> {
                     "∖" => ("\\", 70),
                     other => return Route::no(format!("the set operation {other}")),
                 };
-                Route::Built(Printed::raw(
-                    format!("{} {op} {}", p[0].at(prec + 1), p[1].at(prec + 1)),
-                    prec,
-                ))
+                let ty = p[0].ty.clone();
+                Route::Built(Printed {
+                    kind: TermKind::Notation {
+                        pieces: vec![
+                            Piece::term(p[0].clone(), prec + 1),
+                            Piece::text(format!(" {op} ")),
+                            Piece::term(p[1].clone(), prec + 1),
+                        ],
+                        prec,
+                    },
+                    ty,
+                })
             }
             // [a, b] and (a, b), the reals from a to b, ends in or out.
             interval @ ("closed-interval" | "open-interval") => {
@@ -452,9 +539,18 @@ impl Writer<'_> {
                     self.number_fixed(from, Num::Real),
                     self.number_fixed(to, Num::Real),
                 ) {
-                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::atom(
-                        format!("({lean} {} {} : Set ℝ)", a.at(MAX), b.at(MAX)),
-                    )),
+                    (Route::Built(a), Route::Built(b)) => {
+                        let of = LeanType::Set(Box::new(LeanType::Num(Num::Real)));
+                        Route::Built(Printed::cast(
+                            Printed::applied(
+                                lean,
+                                Source::Mathlib,
+                                vec![a, b],
+                                of.clone(),
+                            ),
+                            of,
+                        ))
+                    }
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         Route::Declined(d)
                     }
@@ -469,9 +565,18 @@ impl Writer<'_> {
                     self.number_fixed(from, Num::Int),
                     self.number_fixed(to, Num::Int),
                 ) {
-                    (Route::Built(a), Route::Built(b)) => Route::Built(Printed::atom(
-                        format!("(Set.Icc {} {} : Set ℤ)", a.at(MAX), b.at(MAX)),
-                    )),
+                    (Route::Built(a), Route::Built(b)) => {
+                        let of = LeanType::Set(Box::new(LeanType::Num(Num::Int)));
+                        Route::Built(Printed::cast(
+                            Printed::applied(
+                                "Set.Icc",
+                                Source::Mathlib,
+                                vec![a, b],
+                                of.clone(),
+                            ),
+                            of,
+                        ))
+                    }
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         Route::Declined(d)
                     }
@@ -479,11 +584,21 @@ impl Writer<'_> {
             }
             "powerset" => match parts(1) {
                 Route::Built(p) => {
-                    Route::Built(Printed::raw(format!("𝒫 {}", p[0].at(MAX)), 100))
+                    let ty = p[0].ty.clone().map(|t| LeanType::Set(Box::new(t)));
+                    Route::Built(Printed {
+                        kind: TermKind::Notation {
+                            pieces: vec![
+                                Piece::text("𝒫 "),
+                                Piece::term(p[0].clone(), MAX),
+                            ],
+                            prec: 100,
+                        },
+                        ty,
+                    })
                 }
                 Route::Declined(d) => Route::Declined(d),
             },
-            "empty-set" => Route::Built(Printed::atom("∅")),
+            "empty-set" => Route::Built(Printed::head("∅", Source::Core)),
             "singleton" | "listed-two" | "listed-three" | "listed-four" => {
                 // Ascribed its type, which Lean cannot take from a member
                 // alone: `{u, w}` of things of α is `({u, w} : Set α)`.
