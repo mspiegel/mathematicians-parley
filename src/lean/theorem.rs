@@ -1299,7 +1299,7 @@ struct Proof<'a> {
     /// While a step that names whole numbers is written
     /// (`proof_with_named`), the equations of each with its term: what a
     /// row citing a line in the page's forms is put in terms of.
-    named_specs: Vec<String>,
+    named_specs: Vec<Printed>,
     /// The labels of the defines that name the number their reason shows,
     /// `let e = p/d, a positive integer` (`kinded_witness`): their equation
     /// is a line about an obtained number, cited as any line is, not a
@@ -2156,15 +2156,8 @@ impl<'a> Proof<'a> {
         inner.integers.extend(atoms.iter().map(|a| a.said.clone()));
         // Each named number's equation with its term: the one a step proves
         // of a power written out, the line's witness's for one it gives.
-        let specs: Vec<String> = atoms
-            .iter()
-            .map(|a| match a.said.value {
-                Some(_) => a.said.proof.clone(),
-                None => format!("Classical.choose_spec {}", a.said.proof),
-            })
-            .collect();
-        let spec_terms: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
-        let equal = specs_equal(&spec_terms);
+        let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
+        let equal = specs_equal(&specs);
         let mut haves: Vec<Tactic> =
             atoms.iter().map(|a| Tactic::Raw(a.have.clone())).collect();
         // Each such cited line, said of the number the step names.
@@ -2497,7 +2490,7 @@ impl<'a> Proof<'a> {
         Route::Built(match specs.is_empty() {
             true => proof,
             false => Proof::By(Tactic::Seq(vec![
-                Tactic::Raw(format!("rw [{specs}]")),
+                super::tactics::call("rw", vec![TacticArg::Rules(specs)]),
                 tactic_of(&proof),
             ])),
         })
@@ -4408,13 +4401,7 @@ impl<'a> Proof<'a> {
                 super::templates::Num::Nat => "parley_witness_at_nat",
                 _ => "parley_witness_at",
             };
-            for by in [
-                equation.clone(),
-                Printed {
-                    kind: super::doc::TermKind::Neg(Box::new(equation.clone())),
-                    ty: equation.ty.clone(),
-                },
-            ] {
+            for by in [equation.clone(), negated(equation.clone())] {
                 let shows = Proof::By(Tactic::Seq(vec![
                     t::push_cast(None),
                     t::linear_combination(by),
@@ -5030,10 +5017,9 @@ impl<'a> Proof<'a> {
                     // put as its term, and the line used.
                     let named = self.named.get(cite).and_then(|n| n.first());
                     let in_named = match (named, self.named_specs.is_empty()) {
-                        (Some(line), false) => Some(Tactic::Raw(format!(
-                            "(qify; push_cast; simp only [{s}]; first | (linear_combination (norm := parley_norm) {line}; done) | (linear_combination (norm := parley_norm) -{line}; done))",
-                            s = self.named_specs.join(", ")
-                        ))),
+                        (Some(line), false) => {
+                            Some(in_named_forms(&self.named_specs, line))
+                        }
                         _ => None,
                     };
                     // A row of integer powers citing a line of natural powers
@@ -6536,9 +6522,10 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: name.clone(),
                     says: prop.clone(),
-                    proof: Box::new(super::doc::Proof::Raw(format!(
-                        "by rw [{specs}]; exact_mod_cast {name}"
-                    ))),
+                    proof: Box::new(super::doc::Proof::By(Tactic::Seq(vec![
+                        super::tactics::call("rw", vec![TacticArg::Rules(specs)]),
+                        super::tactics::exact_mod_cast(super::tactics::hyp(name)),
+                    ]))),
                 },
                 step.line,
                 Self::step_spot(step),
@@ -6549,21 +6536,30 @@ impl<'a> Proof<'a> {
 
     /// The rewrites that put a claim in terms of the numbers lines give,
     /// `← Classical.choose_spec hS` for each line used whose term the claim
-    /// has, joined for `rw`; empty where it has none.
-    fn specs_in(&self, claim: &Node, used: &[SaidUsed]) -> String {
+    /// has, to rewrite by; none where it has none.
+    fn specs_in(&self, claim: &Node, used: &[SaidUsed]) -> Vec<super::doc::Rule> {
         let parts: Vec<String> = claim
             .walk()
             .iter()
             .map(|n| self.writer.grammar.print(n))
             .collect();
-        let mut specs: Vec<String> = Vec::new();
+        let mut lines: Vec<&str> = Vec::new();
         for u in used {
-            let spec = format!("← Classical.choose_spec {}", u.line);
-            if parts.contains(&u.term) && !specs.contains(&spec) {
-                specs.push(spec);
+            if parts.contains(&u.term) && !lines.contains(&u.line.as_str()) {
+                lines.push(&u.line);
             }
         }
-        specs.join(", ")
+        lines
+            .into_iter()
+            .map(|line| {
+                super::tactics::backwards(Printed::applied(
+                    "Classical.choose_spec",
+                    super::doc::Source::Core,
+                    vec![super::tactics::hyp(line)],
+                    super::doc::LeanType::Prop,
+                ))
+            })
+            .collect()
     }
 
     /// A step that owns a block: its claim proved by the block's steps,
@@ -7955,6 +7951,32 @@ fn unfolded(defines: &[String]) -> Vec<Tactic> {
             t::call("done", vec![]),
         ]),
     ]
+}
+
+/// `(qify; push_cast; simp only [specs]; first | (linear_combination line;
+/// done) | (linear_combination -line; done))`: a row and the line it cites
+/// taken to ℚ, each named number put as its term, and the line used either
+/// way round.
+fn in_named_forms(specs: &[Printed], line: &str) -> Tactic {
+    use super::tactics as t;
+    let rules = specs.iter().cloned().map(t::forwards).collect();
+    let by_line = |by: Printed| {
+        t::steps(vec![t::linear_combination(by), t::call("done", vec![])])
+    };
+    t::steps(vec![
+        t::call("qify", vec![]),
+        t::push_cast(None),
+        t::simp_only(false, None, rules, None),
+        Tactic::First(vec![by_line(t::hyp(line)), by_line(negated(t::hyp(line)))]),
+    ])
+}
+
+/// `-t`.
+fn negated(term: Printed) -> Printed {
+    Printed {
+        ty: term.ty.clone(),
+        kind: super::doc::TermKind::Neg(Box::new(term)),
+    }
 }
 
 /// A named number's equation with its term: the one a step proves, by its
