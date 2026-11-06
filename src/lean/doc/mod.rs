@@ -13,5 +13,5 @@ pub mod term;
 
 pub use tactic::{Proof, Tactic, TacticRef};
 pub use term::{
-    Arg, Assoc, ConstRef, CountForm, LeanType, Op, Quant, Source, Term, TermKind,
+    Arg, Assoc, ConstRef, CountForm, LeanType, Op, Piece, Quant, Source, Term, TermKind,
 };

@@ -10,6 +10,7 @@
 
 use indexmap::IndexMap;
 
+use super::doc::{LeanType, Piece};
 use super::templates::{Num, Slot, Template, Templates};
 use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
@@ -599,6 +600,27 @@ impl<'a> Writer<'a> {
     }
 }
 
+/// The integers from a to b as a finite set: `Finset.Icc a b`.
+pub fn icc(from: Printed, to: Printed) -> Printed {
+    Printed::applied(
+        "Finset.Icc",
+        super::doc::Source::Mathlib,
+        vec![from, to],
+        LeanType::Set(Box::new(LeanType::Num(Num::Int))),
+    )
+}
+
+/// ∅ told its type, `(∅ : Set α)`, which nothing else gives Lean.
+pub fn empty_of_type(ty: LeanType) -> Printed {
+    let empty = Printed::constant("∅", super::doc::Source::Core, ty.clone());
+    Printed::cast(empty, ty)
+}
+
+/// Two propositions joined by "and".
+pub fn conjunction(a: Printed, b: Printed) -> Route<Printed> {
+    relation_of("∧", a, b)
+}
+
 /// A relation between two terms, `l op r`; declined for a symbol that is
 /// no Lean relation.
 fn relation_of(op: &str, l: Printed, r: Printed) -> Route<Printed> {
@@ -1186,18 +1208,16 @@ impl Writer<'_> {
         // b`; over a set, Mathlib's sum over the members of a finite set,
         // `∑ᶠ x ∈ S`, which is the page's where the set is finite.
         let symbol = if is_product(node) { "∏" } else { "∑" };
-        let over = match s.over {
+        let index = super::names::letter(&s.index.text);
+        let (lead, over) = match s.over {
             Over::Range { from, to } => {
                 match (
                     self.number_fixed(from, Num::Int),
                     self.number_fixed(to, Num::Int),
                 ) {
-                    (Route::Built(f), Route::Built(t)) => format!(
-                        "{symbol} {} ∈ Finset.Icc {} {}",
-                        super::names::letter(&s.index.text),
-                        f.at(MAX),
-                        t.at(MAX)
-                    ),
+                    (Route::Built(f), Route::Built(t)) => {
+                        (format!("{symbol} {index} ∈ "), Piece::term(icc(f, t), 0))
+                    }
                     (Route::Declined(d), _) | (_, Route::Declined(d)) => {
                         return Route::Declined(d)
                     }
@@ -1206,20 +1226,20 @@ impl Writer<'_> {
             // ∅ takes the index's type, which Lean cannot read from it.
             Over::Set(set) if &*set.notation_name() == "empty-set" => {
                 match s.inner.letters.get(s.index.text.as_str()) {
-                    Some(ty) => format!(
-                        "{symbol}ᶠ {} ∈ (∅ : Set {})",
-                        super::names::letter(&s.index.text),
-                        bracketed(&ty.lean())
+                    Some(ty) => (
+                        format!("{symbol}ᶠ {index} ∈ "),
+                        Piece::term(
+                            empty_of_type(LeanType::Set(Box::new(ty.lean_type()))),
+                            0,
+                        ),
                     ),
                     None => return Route::no("a sum over ∅ whose index has no type"),
                 }
             }
             Over::Set(set) => match self.set_term(set) {
-                Route::Built(p) => format!(
-                    "{symbol}ᶠ {} ∈ {}",
-                    super::names::letter(&s.index.text),
-                    p.at(MAX)
-                ),
+                Route::Built(p) => {
+                    (format!("{symbol}ᶠ {index} ∈ "), Piece::term(p, MAX))
+                }
                 Route::Declined(d) => return Route::Declined(d),
             },
         };
@@ -1230,10 +1250,19 @@ impl Writer<'_> {
         // The term is given its type: one built of numerals and naturals,
         // Σ(k = 1 to 3) 5 or 1/2^(j + 1), gives Lean nothing else to read
         // its type from, and Lean would take it in ℕ.
-        let term = Printed::atom(format!("({} : {})", term.text(), self.type_name(at)));
+        let term = Printed::cast(term, self.num_type(at));
         // Mathlib reads the body at 67, so `∑ k ∈ s, k + 1` would be the
         // sum of k, plus 1; a body below that is bracketed.
-        Route::Built(Printed::raw(format!("{over}, {}", term.at(67)), 10))
+        Route::Built(Printed::notation(
+            vec![
+                Piece::text(lead),
+                over,
+                Piece::text(", "),
+                Piece::term(term, 67),
+            ],
+            10,
+            self.num_type(at),
+        ))
     }
 
     /// Σ(k = a to ∞) t, the value of a series: the limit of its partial
@@ -1275,13 +1304,36 @@ impl Writer<'_> {
                     return Route::Declined(d)
                 }
             };
-        let body = Printed::atom(format!("({} : {})", body.text(), self.type_name(at)));
-        Route::Built(Printed::raw(format!(
-                "Filter.limUnder Filter.atTop (fun {upper} : ℤ => ∑ {} ∈ Finset.Icc {} {upper}, {})",
-                super::names::letter(&index.text),
-                start.at(MAX),
-                body.at(67)
-            ), APP))
+        let body = Printed::cast(body, self.num_type(at));
+        let int = LeanType::Num(Num::Int);
+        let partial = Printed::notation(
+            vec![
+                Piece::text(format!("∑ {} ∈ ", super::names::letter(&index.text))),
+                Piece::term(icc(start, Printed::letter(upper, int.clone())), 0),
+                Piece::text(", "),
+                Piece::term(body, 67),
+            ],
+            10,
+            self.num_type(at),
+        );
+        Route::Built(Printed::notation(
+            vec![
+                Piece::term(
+                    Printed::head("Filter.limUnder", super::doc::Source::Mathlib),
+                    0,
+                ),
+                Piece::text(" "),
+                Piece::term(
+                    Printed::head("Filter.atTop", super::doc::Source::Mathlib),
+                    0,
+                ),
+                Piece::text(format!(" (fun {upper} : ℤ => ")),
+                Piece::term(partial, 0),
+                Piece::text(")"),
+            ],
+            APP,
+            self.num_type(at),
+        ))
     }
 
     /// ∫(a to b) t dx, the integral from a to b, `∫ x in a..b, t`: Mathlib's
@@ -1312,16 +1364,19 @@ impl Writer<'_> {
             | (_, Route::Declined(d), _)
             | (_, _, Route::Declined(d)) => return Route::Declined(d),
         };
-        let body = Printed::atom(format!("({} : ℝ)", body.text()));
-        Route::Built(Printed::raw(
-            format!(
-                "∫ {} in {}..{}, {}",
-                super::names::letter(&letter.text),
-                a.at(MAX),
-                b.at(MAX),
-                body.at(67)
-            ),
+        let real = LeanType::Num(Num::Real);
+        let body = Printed::cast(body, real.clone());
+        Route::Built(Printed::notation(
+            vec![
+                Piece::text(format!("∫ {} in ", super::names::letter(&letter.text))),
+                Piece::term(a, MAX),
+                Piece::text(".."),
+                Piece::term(b, MAX),
+                Piece::text(", "),
+                Piece::term(body, 67),
+            ],
             10,
+            real,
         ))
     }
 
@@ -1352,15 +1407,23 @@ impl Writer<'_> {
                 return Route::Declined(d)
             }
         };
-        Route::Built(Printed::raw(
-            format!(
-                "Filter.Tendsto (fun {} : ℤ => ({} : {})) Filter.atTop (nhds {})",
-                super::names::letter(&letter.text),
-                body.text(),
-                self.type_name(at),
-                l.at(MAX)
-            ),
+        let mathlib = || super::doc::Source::Mathlib;
+        Route::Built(Printed::notation(
+            vec![
+                Piece::term(Printed::head("Filter.Tendsto", mathlib()), 0),
+                Piece::text(format!(
+                    " (fun {} : ℤ => ",
+                    super::names::letter(&letter.text)
+                )),
+                Piece::term(Printed::cast(body, self.num_type(at)), 0),
+                Piece::text(") "),
+                Piece::term(Printed::head("Filter.atTop", mathlib()), 0),
+                Piece::text(" (nhds "),
+                Piece::term(l, MAX),
+                Piece::text(")"),
+            ],
             1000,
+            LeanType::Prop,
         ))
     }
 
@@ -1392,12 +1455,23 @@ impl Writer<'_> {
                 return Route::Declined(d)
             }
         };
-        let point = c.at(MAX);
-        Route::Built(Printed::raw(format!(
-                "Filter.Tendsto {} (nhdsWithin {point} ({domain} \\ {{{point}}})) (nhds {})",
-                super::names::letter(&f.text),
-                l.at(MAX)
-            ), 1000))
+        let mathlib = || super::doc::Source::Mathlib;
+        Route::Built(Printed::notation(
+            vec![
+                Piece::term(Printed::head("Filter.Tendsto", mathlib()), 0),
+                Piece::text(format!(" {} (", super::names::letter(&f.text))),
+                Piece::term(Printed::head("nhdsWithin", mathlib()), 0),
+                Piece::text(" "),
+                Piece::term(c.clone(), MAX),
+                Piece::text(format!(" ({domain} \\ {{")),
+                Piece::term(c, MAX),
+                Piece::text("})) (nhds "),
+                Piece::term(l, MAX),
+                Piece::text(")"),
+            ],
+            1000,
+            LeanType::Prop,
+        ))
     }
 
     /// There is a bijection from A to B: `∃ g : α → β, Set.BijOn g A B`,
@@ -1419,16 +1493,28 @@ impl Writer<'_> {
             return Route::no("a bijection whose sets use every map letter");
         };
         match (self.set_term(a), self.set_term(b)) {
-            (Route::Built(x), Route::Built(y)) => Route::Built(Printed::raw(
-                format!(
-                    "∃ {g} : {} → {}, Set.BijOn {g} {} {}",
-                    from.lean(),
-                    to.lean(),
-                    x.at(MAX),
-                    y.at(MAX)
-                ),
-                0,
-            )),
+            (Route::Built(x), Route::Built(y)) => {
+                let map = LeanType::Fun {
+                    from: Box::new(from.member_type()),
+                    to: Box::new(to.member_type()),
+                };
+                let bij = Printed::applied(
+                    "Set.BijOn",
+                    super::doc::Source::Mathlib,
+                    vec![Printed::letter(*g, map.clone()), x, y],
+                    LeanType::Prop,
+                );
+                Route::Built(Printed::of(
+                    super::doc::TermKind::Quantified {
+                        quant: super::doc::Quant::Exists,
+                        letter: g.to_string(),
+                        letter_ty: map,
+                        guard: None,
+                        body: Box::new(bij),
+                    },
+                    LeanType::Prop,
+                ))
+            }
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         }
     }
@@ -2338,16 +2424,16 @@ impl Writer<'_> {
                 if !self.pinned(x) && !self.pinned(from) {
                     out[0] = self.cast(&out[0], at);
                 }
-                return Route::Built(Printed::raw(
-                    format!(
-                        "{} ≤ {} ∧ {} ≤ {}",
-                        out[0].at(51),
-                        out[1].at(51),
-                        out[1].at(51),
-                        out[2].at(51)
-                    ),
-                    35,
-                ));
+                let [low, x, high] = [out[0].clone(), out[1].clone(), out[2].clone()];
+                let (above, below) =
+                    match (relation_of("≤", low, x.clone()), relation_of("≤", x, high))
+                    {
+                        (Route::Built(a), Route::Built(b)) => (a, b),
+                        (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                            return Route::Declined(d)
+                        }
+                    };
+                return conjunction(above, below);
             }
             // Each written as an integer, a numeral too, so that a range of
             // numerals alone is not read in ℕ.
@@ -2363,15 +2449,8 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            return Route::Built(Printed::raw(
-                format!(
-                    "{} ∈ Finset.Icc {} {}",
-                    out[0].at(51),
-                    out[1].at(MAX),
-                    out[2].at(MAX)
-                ),
-                50,
-            ));
+            let [x, from, to] = [out[0].clone(), out[1].clone(), out[2].clone()];
+            return relation_of("∈", x, icc(from, to));
         }
         Route::no(format!("a membership of {}", set.notation_name()))
     }
@@ -2495,15 +2574,9 @@ impl Writer<'_> {
             let (Route::Built(from), Route::Built(to)) = ends else {
                 return Route::no("a range whose ends are not integers");
             };
-            let range = Printed::applied(
-                "Finset.Icc",
-                super::doc::Source::Mathlib,
-                vec![from, to],
-                super::doc::LeanType::Set(Box::new(int)),
-            );
             (
                 range_letter_system(set),
-                Some(relation_of("∈", named, range)),
+                Some(relation_of("∈", named, icc(from, to))),
             )
         } else {
             return Route::no(format!("a quantifier over {}", set.notation_name()));

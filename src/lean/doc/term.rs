@@ -230,6 +230,34 @@ pub enum TermKind {
     },
     /// A bracket no precedence asks for, kept where the writer writes one.
     Paren(Box<Term>),
+    /// A Lean notation: its fixed text around terms, `∑ k ∈ Finset.Icc a
+    /// b, f k`, each term standing where it needs a precedence at least,
+    /// and the precedence of the whole.
+    Notation { pieces: Vec<Piece>, prec: u32 },
+}
+
+/// A piece of a notation.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Piece {
+    /// Text the notation writes itself: its marks and the letters it binds.
+    Text(String),
+    /// A term, bracketed unless it binds at least as tightly as `need`.
+    Term { term: Box<Term>, need: u32 },
+}
+
+impl Piece {
+    /// Fixed text.
+    pub fn text(text: impl Into<String>) -> Piece {
+        Piece::Text(text.into())
+    }
+
+    /// A term standing where it needs `need`.
+    pub fn term(term: Term, need: u32) -> Piece {
+        Piece::Term {
+            term: Box::new(term),
+            need,
+        }
+    }
 }
 
 impl Term {
@@ -280,15 +308,37 @@ impl Term {
         matches!(&self.kind, TermKind::Const(c) if c.name == "True")
     }
 
-    /// A constant applied to arguments by place.
-    pub fn applied(name: &str, source: Source, args: Vec<Term>, ty: LeanType) -> Term {
-        let head = Term {
+    /// A notation of these pieces, binding as tightly as `prec`.
+    pub fn notation(pieces: Vec<Piece>, prec: u32, ty: LeanType) -> Term {
+        Term::of(TermKind::Notation { pieces, prec }, ty)
+    }
+
+    /// A constant, standing alone.
+    pub fn constant(name: &str, source: Source, ty: LeanType) -> Term {
+        Term::of(
+            TermKind::Const(ConstRef {
+                name: name.to_string(),
+                source,
+            }),
+            ty,
+        )
+    }
+
+    /// A constant as a function some notation applies, whose own type no
+    /// part of the writer reads.
+    pub fn head(name: &str, source: Source) -> Term {
+        Term {
             kind: TermKind::Const(ConstRef {
                 name: name.to_string(),
                 source,
             }),
             ty: None,
-        };
+        }
+    }
+
+    /// A constant applied to arguments by place.
+    pub fn applied(name: &str, source: Source, args: Vec<Term>, ty: LeanType) -> Term {
+        let head = Term::head(name, source);
         Term::of(
             TermKind::App {
                 head: Box::new(head),
@@ -368,6 +418,13 @@ impl Term {
                 out.push(body);
                 out
             }
+            TermKind::Notation { pieces, .. } => pieces
+                .iter()
+                .filter_map(|p| match p {
+                    Piece::Term { term, .. } => Some(&**term),
+                    Piece::Text(_) => None,
+                })
+                .collect(),
         }
     }
 
@@ -402,6 +459,18 @@ impl Term {
             TermKind::Neg(t) => TermKind::Neg(Box::new(t.instantiate(args)?)),
             TermKind::ToNat(t) => TermKind::ToNat(Box::new(t.instantiate(args)?)),
             TermKind::Paren(t) => TermKind::Paren(Box::new(t.instantiate(args)?)),
+            TermKind::Notation { pieces, prec } => TermKind::Notation {
+                pieces: pieces
+                    .iter()
+                    .map(|p| match p {
+                        Piece::Text(t) => Some(Piece::Text(t.clone())),
+                        Piece::Term { term, need } => {
+                            Some(Piece::term(term.instantiate(args)?, *need))
+                        }
+                    })
+                    .collect::<Option<Vec<Piece>>>()?,
+                prec: *prec,
+            },
             TermKind::Cast { inner, to } => TermKind::Cast {
                 inner: Box::new(inner.instantiate(args)?),
                 to: to.clone(),

@@ -6,7 +6,7 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
-use super::doc::{ConstRef, CountForm, LeanType, Source, TermKind};
+use super::doc::{CountForm, LeanType, TermKind};
 use super::expr::{
     letter_type, set_type, system_of, LetterType, Members, Printed, System, Writer,
     APP, MAX,
@@ -964,14 +964,7 @@ impl Writer<'_> {
             Some(m) => Members::Sets(Box::new(m.clone())).member_type(),
             None => LeanType::Set(Box::new(LeanType::Things(0))),
         };
-        let empty = Printed::of(
-            TermKind::Const(ConstRef {
-                name: "∅".to_string(),
-                source: Source::Core,
-            }),
-            of.clone(),
-        );
-        Printed::cast(empty, of)
+        super::expr::empty_of_type(of)
     }
 
     /// A count as Lean's `Set.encard` gives it, in ℕ∞, where an infinite

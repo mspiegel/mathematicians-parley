@@ -5,7 +5,7 @@
 //! (`Term::at`), as `Printed::at` brackets the writer's text.
 
 use super::tactic::{Proof, Tactic};
-use super::term::{Arg, CountForm, LeanType, Quant, Term, TermKind};
+use super::term::{Arg, CountForm, LeanType, Piece, Quant, Term, TermKind};
 use crate::lean::expr::{bracketed, things_name, APP, GENERAL, MAX};
 
 impl LeanType {
@@ -32,7 +32,7 @@ impl Term {
     /// The precedence of the term's outermost operator.
     pub fn prec(&self) -> u32 {
         match &self.kind {
-            TermKind::Raw { prec, .. } => *prec,
+            TermKind::Raw { prec, .. } | TermKind::Notation { prec, .. } => *prec,
             TermKind::App { .. } => APP,
             TermKind::Infix { op, .. } => op.prec,
             TermKind::ModEq { .. } => 50,
@@ -134,6 +134,13 @@ impl Term {
                 }
             }
             TermKind::Paren(inner) => format!("({})", inner.text()),
+            TermKind::Notation { pieces, .. } => pieces
+                .iter()
+                .map(|p| match p {
+                    Piece::Text(t) => t.clone(),
+                    Piece::Term { term, need } => term.at(*need),
+                })
+                .collect(),
         }
     }
 }
