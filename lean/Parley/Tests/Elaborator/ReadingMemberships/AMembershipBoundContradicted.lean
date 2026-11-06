@@ -9,14 +9,14 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundContradicted
 
-theorem a_membership_bound_contradicted (k : ℕ) (hH1 : 0 < k) :
-    ¬ (k : ℤ) ≤ 0 := by
+theorem a_membership_bound_contradicted (k : ℤ) (hH1 : 0 < k) :
+    ¬ k ≤ 0 := by
   -- 1. contradiction
-  have s1 : ¬ (k : ℤ) ≤ 0 := by
+  have s1 : ¬ k ≤ 0 := by
     by_contra hc_hS
-    have hS : (k : ℤ) ≤ 0 := by parley_suppose hc_hS
+    have hS : k ≤ 0 := by parley_suppose hc_hS
     -- 1.1. inequalities, from S
-    have s1_1 : ¬ (k : ℤ) > 0 := by parley_side
+    have s1_1 : ¬ k > 0 := by parley_side
     all_goals parley_side
   all_goals exact s1
 

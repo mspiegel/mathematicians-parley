@@ -220,6 +220,12 @@ pub struct CheckedTheorem {
     /// (`library::sums_said_once`): what the build proves a member of ℝ or
     /// ℂ without a line saying so.
     pub said_sums: Vec<Vec<Node>>,
+    /// The number system each letter in scope at a step is introduced in,
+    /// by the step's index (`library::introduced`): the narrower of two
+    /// where a later line narrows it, q ∈ ℕ₀ of a q let in ℤ. What the
+    /// said-once walk reads letters by (`citing::reason`), so that a backend
+    /// asking it of a term asks with the checker's letters.
+    pub introduced: Vec<crate::citing::Introduced>,
     /// Each step's citation of an item, by the step's index; None for a step
     /// that cites none, or whose citation no group of the item reads, which
     /// the checker reports.

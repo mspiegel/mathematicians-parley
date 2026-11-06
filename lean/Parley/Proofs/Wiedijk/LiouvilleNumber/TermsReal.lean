@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Proofs.Wiedijk.LiouvilleNumber.TermsReal
 
-theorem terms_real (m : ℕ) (hH1 : 0 < m) :
+theorem terms_real (m : ℤ) (hH1 : 0 < m) :
     True := by
   -- the theorem. proof
   -- what this block shows, Lean's types give

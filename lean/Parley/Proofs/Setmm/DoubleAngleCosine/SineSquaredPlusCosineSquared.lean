@@ -27,7 +27,7 @@ theorem sine_squared_plus_cosine_squared (A : ℂ) :
       _ = Complex.cos A * Complex.cos A - Complex.sin A * Complex.sin (-A) := by parley_subst s2
       _ = Complex.cos A * Complex.cos (-A) - Complex.sin A * Complex.sin (-A) := by parley_subst s1
       _ = Complex.cos (A + -A) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)) | exact_mod_cast ((Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A))).symm | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Trigonometry.thm_cos_add (a := A) (b := -A)); parley_side)
-      _ = Complex.cos (0 : ℂ) := by parley_subst s3
+      _ = (Real.cos (0 : ℝ) : ℂ) := by parley_subst s3
       _ = 1 := by parley_real
   all_goals exact s4
 

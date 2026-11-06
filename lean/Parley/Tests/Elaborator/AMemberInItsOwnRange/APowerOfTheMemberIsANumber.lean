@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.AMemberInItsOwnRange.APowerOfTheMemberIsANumber
 
-theorem a_power_of_the_member_is_a_number (n : ℕ) :
+theorem a_power_of_the_member_is_a_number (n : ℤ) (hH1 : 0 ≤ n) :
     True := by
   -- 1. membership
   all_goals parley_side

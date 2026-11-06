@@ -11,10 +11,10 @@ public section
 
 namespace Parley.Tests.Elaborator.PowersSaidOnce.APowerWhoseBaseHoldsAFactorial
 
-theorem a_power_whose_base_holds_a_factorial (b : ℕ) (x : ℝ) (z : ℂ) :
-    (x : ℂ) * (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b = (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b * (x : ℂ) := by
+theorem a_power_whose_base_holds_a_factorial (b : ℤ) (hH1 : 0 ≤ b) (x : ℝ) (z : ℂ) :
+    (x : ℂ) * (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat = (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat * (x : ℂ) := by
   -- 1. algebra
-  have s1 : (x : ℂ) * (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b = (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b * (x : ℂ) := by parley_ring
+  have s1 : (x : ℂ) * (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat = (z - (LeanBridges.Counting.factorial (4 : ℤ) : ℂ)) ^ b.toNat * (x : ℂ) := by parley_ring
   all_goals exact s1
 
 end Parley.Tests.Elaborator.PowersSaidOnce.APowerWhoseBaseHoldsAFactorial

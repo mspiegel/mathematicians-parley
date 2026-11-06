@@ -13,30 +13,30 @@ public section
 
 namespace Parley.Proofs.Hammack.ConstantSequence.ConstantSequence
 
-theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℕ, 0 < n → a (n : ℤ) = c) :
-    Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds c) := by
+theorem constant_sequence (c : ℝ) (a : ℤ → ℝ) (hH3 : ∀ n : ℤ, 0 < n → a n = c) :
+    Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds c) := by
   -- 1. proof
-  have s1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - c) < ε)) := by
+  have s1 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - c) < ε)) := by
     intro ε
     intro hA1
     -- 1.1. proof
-    have s1_1 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ 1 → abs (a (n : ℤ) - c) < ε := by
+    have s1_1 : ∀ n : ℤ, 0 < n → n ≥ 1 → abs (a n - c) < ε := by
       intro n hK2
       intro hA2
       -- 1.1.1. algebra, from H3
-      have s1_1_1 : a (n : ℤ) - c = 0 := by linear_combination (norm := parley_norm) (hH3 n (by parley_side))
+      have s1_1_1 : a n - c = 0 := by linear_combination (norm := parley_norm) (hH3 n (by parley_side))
       -- 1.1.2. calculation
-      have s1_1_2 : abs (a (n : ℤ) - c) = 0 := by
-        calc abs (a (n : ℤ) - c) = abs 0 := by parley_subst s1_1_1
+      have s1_1_2 : abs (a n - c) = 0 := by
+        calc abs (a n - c) = abs 0 := by parley_subst s1_1_1
           _ = 0 := by first | linear_combination (norm := parley_norm) Parley.Items.Stdlib.Numbers.mun_abs_zero | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast Parley.Items.Stdlib.Numbers.mun_abs_zero | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_abs_zero).symm | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; rify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; qify; linear_combination (norm := parley_norm) h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; parley_int_power h) | (have h := Parley.Items.Stdlib.Numbers.mun_abs_zero; parley_side)
       -- 1.1.3. transitivity, from 1.1.2, A1
-      have s1_1_3 : abs (a (n : ℤ) - c) < ε := by parley_order
+      have s1_1_3 : abs (a n - c) < ε := by parley_order
       all_goals parley_side
     -- 1.2. exhibit, from 1.1
-    have s1_2 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (a (n : ℤ) - c) < ε) := ⟨1, by parley_side, by parley_side⟩
+    have s1_2 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (a n - c) < ε) := ⟨(1 : ℤ), by parley_side, by parley_side⟩
     all_goals parley_side
   -- 2. def:tends-to L := c, from 1
-  have s2 : Filter.Tendsto (fun n : ℕ => (a (n : ℤ) : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := c))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := c))).mpr (by parley_side); parley_side)
+  have s2 : Filter.Tendsto (fun n : ℤ => (a n : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := c))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := a) (L := c))).mpr (by parley_side); parley_side)
   all_goals exact s2
 
 end Parley.Proofs.Hammack.ConstantSequence.ConstantSequence

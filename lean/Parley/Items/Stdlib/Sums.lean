@@ -9,25 +9,25 @@ public section
 
 namespace Parley.Items.Stdlib.Sums
 
-theorem mun_sum_divisible (t : ℤ → ℤ) (n : ℕ) (m : ℤ) (h3 : ∀ k : ℕ, m ∣ t (k : ℤ)) :
-    m ∣ (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℤ)) :=
-  by apply Finset.dvd_sum; intro k hk; have := h3 k.toNat; rw [Finset.mem_Icc] at hk; rwa [Int.toNat_of_nonneg hk.1] at this
+theorem mun_sum_divisible (t : ℤ → ℤ) (n : ℤ) (h1 : 0 ≤ n) (m : ℤ) (h3 : ∀ k : ℤ, 0 ≤ k → m ∣ t k) :
+    m ∣ (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℤ)) :=
+  by apply Finset.dvd_sum; intro k hk; rw [Finset.mem_Icc] at hk; exact h3 k hk.1
 
-theorem mun_sum_integer (t : ℤ → ℤ) (n : ℕ) :
+theorem mun_sum_integer (t : ℤ → ℤ) (n : ℤ) (h1 : 0 ≤ n) :
     True :=
   by simp_all
 
-theorem mun_sum_difference (t : ℤ → ℤ) (u : ℤ → ℤ) (n : ℕ) :
-    (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k - u k : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (u k : ℤ)) :=
+theorem mun_sum_difference (t : ℤ → ℤ) (u : ℤ → ℤ) (n : ℤ) (h1 : 0 ≤ n) :
+    (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k - u k : ℤ)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℤ)) - (∑ k ∈ Finset.Icc (0 : ℤ) n, (u k : ℤ)) :=
   by simp_all
 
 theorem mun_sum_single {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (a : ℤ) :
     (∑ k ∈ Finset.Icc a a, (t k : K)) = t a :=
   LeanBridges.Sums.sum_single t a
 
-theorem mun_sum_last {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℕ) :
-    (∑ k ∈ Finset.Icc (0 : ℤ) ((n : ℤ) + 1), (t k : K)) = (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : K)) + t ((n : ℤ) + 1) :=
-  LeanBridges.Sums.sum_last t n
+theorem mun_sum_last {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℤ) (h1 : 0 ≤ n) :
+    (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), (t k : K)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : K)) + t (n + 1) :=
+  LeanBridges.Sums.sum_last t n h1
 
 theorem mun_sum_extended {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (a : ℤ) (n : ℤ) (h3 : a ≤ n) :
     (∑ k ∈ Finset.Icc a (n + 1), (t k : K)) = (∑ k ∈ Finset.Icc a n, (t k : K)) + t (n + 1) :=
@@ -41,9 +41,9 @@ theorem thm_sum_telescopes_up {K : Type*} [CommRing K] [IsDomain K] [CharZero K]
     (∑ k ∈ Finset.Icc a b, (t (k + 1) - t k : K)) = t (b + 1) - t a :=
   by have key : ∀ n : ℕ, ∑ k ∈ Finset.Icc a (a - 1 + n), (t (k + 1) - t k) = t (a - 1 + n + 1) - t a := (by intro n; induction n with | zero => (rw [Nat.cast_zero, add_zero, Finset.Icc_eq_empty_of_lt (by omega)]; simp) | succ n ih => (rw [(show a - 1 + ((n + 1 : ℕ) : ℤ) = (a - 1 + n) + 1 by push_cast; ring), ← Finset.insert_Icc_right_eq_Icc_add_one (by omega), Finset.sum_insert (by simp), ih]; ring)); have := key (b + 1 - a).toNat; rwa [(show a - 1 + ((b + 1 - a).toNat : ℤ) = b by omega)] at this
 
-theorem mun_sum_first {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℕ) :
-    (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : K)) = t 0 + (∑ k ∈ Finset.Icc (0 + 1 : ℤ) (n : ℤ), (t k : K)) :=
-  LeanBridges.Sums.sum_first t n
+theorem mun_sum_first {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℤ) (h1 : 0 ≤ n) :
+    (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : K)) = t 0 + (∑ k ∈ Finset.Icc (0 + 1 : ℤ) n, (t k : K)) :=
+  LeanBridges.Sums.sum_first t n h1
 
 theorem mun_sum_shift {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (a : ℤ) (b : ℤ) (c : ℤ) :
     (∑ k ∈ Finset.Icc a b, (t k : K)) = (∑ k ∈ Finset.Icc (a + c) (b + c), (t (k - c) : K)) :=
@@ -113,8 +113,8 @@ theorem def_range (k : ℤ) (n : ℤ) :
     k ∈ Finset.Icc (1 : ℤ) n ↔ 0 < k ∧ k ≤ n :=
   by rw [Finset.mem_Icc]; omega
 
-theorem def_range0 (k : ℤ) (n : ℕ) :
-    k ∈ Finset.Icc (0 : ℤ) (n : ℤ) ↔ 0 ≤ k ∧ k ≤ (n : ℤ) :=
+theorem def_range0 (k : ℤ) (n : ℤ) (h1 : 0 ≤ n) :
+    k ∈ Finset.Icc (0 : ℤ) n ↔ 0 ≤ k ∧ k ≤ n :=
   Finset.mem_Icc
 
 theorem mun_range_single (m : ℤ) :
@@ -133,12 +133,12 @@ theorem mun_range_extended (a : ℤ) (b : ℤ) (k : ℤ) (h1 : k ∈ Finset.Icc 
     k ∈ Finset.Icc a (b + 1) :=
   by simp only [Finset.mem_Icc] at h1 ⊢; omega
 
-theorem mun_range_without_last (n : ℕ) (h1 : 0 < n) :
-    (Set.Icc (1 : ℤ) (n : ℤ) : Set ℤ) = (Set.Icc (1 : ℤ) ((n : ℤ) + 1) : Set ℤ) \ ({(n : ℤ) + 1} : Set ℤ) :=
+theorem mun_range_without_last (n : ℤ) (h1 : 0 < n) :
+    (Set.Icc (1 : ℤ) n : Set ℤ) = (Set.Icc (1 : ℤ) (n + 1) : Set ℤ) \ ({n + 1} : Set ℤ) :=
   by aesop
 
-theorem mun_range_end (n : ℕ) (h1 : 0 < n) :
-    (n : ℤ) ∈ Finset.Icc (1 : ℤ) (n : ℤ) :=
+theorem mun_range_end (n : ℤ) (h1 : 0 < n) :
+    n ∈ Finset.Icc (1 : ℤ) n :=
   by aesop
 
 theorem mun_range_within (a : ℤ) (k : ℤ) (n : ℤ) (h4 : k ≤ n) :
@@ -205,9 +205,9 @@ theorem mun_range_in_integers (a : ℤ) (b : ℤ) :
     (Set.Icc a b : Set ℤ) ⊆ (Set.univ : Set ℤ) :=
   by simp_all
 
-theorem mun_range_from_bounds (m : ℕ) (h1 : 0 < m) (x : ℕ) (h3 : (x : ℤ) < (m : ℤ)) :
-    (x : ℤ) ∈ Finset.Icc (0 : ℤ) ((m : ℤ) - 1) :=
-  LeanBridges.Sums.range_from_bounds m h1 x h3
+theorem mun_range_from_bounds (m : ℤ) (h1 : 0 < m) (x : ℤ) (h2 : 0 ≤ x) (h3 : x < m) :
+    x ∈ Finset.Icc (0 : ℤ) (m - 1) :=
+  LeanBridges.Sums.range_from_bounds m h1 x h2 h3
 
 theorem mun_product_integer (X : Set ℤ) (h1 : X ⊆ (Set.univ : Set ℤ)) (h2 : X.Finite) :
     True :=

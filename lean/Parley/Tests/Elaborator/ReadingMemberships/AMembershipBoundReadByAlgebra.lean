@@ -9,10 +9,10 @@ public section
 
 namespace Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundReadByAlgebra
 
-theorem a_membership_bound_read_by_algebra (x : ℝ) (x : ℕ) (hH2 : 0 < x) :
-    (x : ℚ) / (x : ℚ) = 1 := by
+theorem a_membership_bound_read_by_algebra (x : ℝ) (hH2 : ∃ m : ℤ, 0 < m ∧ (m : ℝ) = x) :
+    x / x = 1 := by
   -- 1. algebra, from H2
-  have s1 : (x : ℚ) / (x : ℚ) = 1 := by parley_ring
+  have s1 : x / x = 1 := by obtain ⟨_, _, rfl⟩ := hH2; parley_ring
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ReadingMemberships.AMembershipBoundReadByAlgebra

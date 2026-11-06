@@ -22,16 +22,15 @@ theorem reals_uncountable :
     -- 1. obtain f: mun:bijection-onto X := ℕ, Y := ℝ, from S
     obtain ⟨f, _, s1⟩ := (Parley.Items.Stdlib.Functions.mun_bijection_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (by parley_whole_side))
     -- 2. def:onto, from 1
-    have s2 : ∀ y : ℝ, ∃ n : ℕ, 0 < n ∧ y = f (n : ℤ) := by first | exact ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side); parley_set_side)
+    have s2 : ∀ y : ℝ, ∃ n : ℤ, 0 < n ∧ y = f n := by first | exact ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Functions.def_onto (X := {n : ℤ | 0 < n}) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side); parley_set_side)
     -- 3. obtain x: thm:sequence-misses-real
     obtain ⟨x, s3⟩ := (Parley.Proofs.Wiedijk.RealsUncountable.SequenceMissesReal.sequence_misses_real (f := f))
     -- 4. instantiate y := x in line 2
-    have s4 : ∃ n : ℕ, 0 < n ∧ x = f (n : ℤ) := by first | exact (s2 x) | exact ((s2 x)).symm | simpa using (s2 x) | exact_mod_cast (s2 x) | (have h := (s2 x); parley_set_side)
+    have s4 : ∃ n : ℤ, 0 < n ∧ x = f n := by first | exact (s2 x) | exact ((s2 x)).symm | simpa using (s2 x) | exact_mod_cast (s2 x) | (have h := (s2 x); parley_set_side)
     -- 5. obtain m from line 4
     obtain ⟨m, s5a, s5b⟩ := s4
-    try lift m to ℕ using le_of_lt s5a
     -- 6. instantiate n := m in line 3
-    have s6 : x ≠ f (m : ℤ) := by first | exact (s3 m (by parley_set_side)) | exact ((s3 m (by parley_set_side))).symm | simpa using (s3 m (by parley_set_side)) | exact_mod_cast (s3 m (by parley_set_side)) | (have h := (s3 m (by parley_set_side)); parley_set_side)
+    have s6 : x ≠ f m := by first | exact (s3 m (by parley_set_side)) | exact ((s3 m (by parley_set_side))).symm | simpa using (s3 m (by parley_set_side)) | exact_mod_cast (s3 m (by parley_set_side)) | (have h := (s3 m (by parley_set_side)); parley_set_side)
     all_goals parley_set_side
   all_goals parley_set_side
 

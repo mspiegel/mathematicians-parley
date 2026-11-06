@@ -20,37 +20,37 @@ theorem three_prime :
   -- 1. arithmetic
   have s1 : (3 : ℤ) > 1 := by parley_arith
   -- 2. proof
-  have s2 : ∀ d : ℕ, 0 < d → (d : ℤ) ∣ (3 : ℤ) → (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by
+  have s2 : ∀ d : ℤ, 0 < d → d ∣ (3 : ℤ) → d = 1 ∨ d = 3 := by
     intro d hK
     intro hH
     -- 2.1. mun:divides-le e := d, m := 3, from H
-    have s2_1 : (d : ℤ) ≤ 3 := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := 3) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := 3) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := 3) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := 3) (by parley_side) (by parley_side)); parley_side)
+    have s2_1 : d ≤ 3 := by first | linarith [(Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH)] | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH) | (have h := (Parley.Items.Stdlib.Divisibility.mun_divides_le (e := d) (by parley_side) (m := (3 : ℤ)) (by parley_side) hH); parley_side)
     -- 2.2. inequalities, from K
-    have s2_2 : 1 ≤ (d : ℤ) := by parley_order
+    have s2_2 : 1 ≤ d := by parley_order
     -- 2.3. mun:le-cases x := 1, y := d, from 2.2
-    have s2_3 : 1 < (d : ℤ) ∨ 1 = (d : ℤ) := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (d : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := (d : ℤ)))).mp (by parley_side); parley_side)
+    have s2_3 : 1 < d ∨ 1 = d := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (1 : ℤ)) (y := d))).mp (by parley_side); parley_side)
     -- 2.4. cases, from 2.3
-    have s2_4 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by
+    have s2_4 : d = 1 ∨ d = 3 := by
       rcases s2_3 with hC1 | hC2
       · skip
         -- 2.4.1. mun:integer-step m := 1, n := d, from C1
-        have s2_4_1 : 1 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := (d : ℤ)) hC1); parley_side)
+        have s2_4_1 : 1 + 1 ≤ d := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (1 : ℤ)) (n := d) hC1); parley_side)
         -- 2.4.2. inequalities, from 2.4.1
-        have s2_4_2 : 2 ≤ (d : ℤ) := by parley_order
+        have s2_4_2 : 2 ≤ d := by parley_order
         -- 2.4.3. mun:le-cases x := 2, y := d, from 2.4.2
-        have s2_4_3 : 2 < (d : ℤ) ∨ 2 = (d : ℤ) := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := (d : ℤ)))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := (d : ℤ)))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := (d : ℤ)))).mp (by parley_side); parley_side)
+        have s2_4_3 : 2 < d ∨ 2 = d := by first | exact ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp (by parley_side) | exact (((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp (by parley_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_le_cases (x := (2 : ℤ)) (y := d))).mp (by parley_side); parley_side)
         -- 2.4.4. cases, from 2.4.3
-        have s2_4_4 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by
+        have s2_4_4 : d = 1 ∨ d = 3 := by
           rcases s2_4_3 with hC3 | hC4
           · skip
             -- 2.4.4.1. mun:integer-step m := 2, n := d, from C3
-            have s2_4_4_1 : 2 + 1 ≤ (d : ℤ) := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := (d : ℤ)) hC3); parley_side)
+            have s2_4_4_1 : 2 + 1 ≤ d := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3)] | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3) | (have h := (Parley.Items.Stdlib.Numbers.mun_integer_step (m := (2 : ℤ)) (n := d) hC3); parley_side)
             -- 2.4.4.2. inequalities, from 2.4.4.1
-            have s2_4_4_2 : 3 ≤ (d : ℤ) := by parley_order
+            have s2_4_4_2 : 3 ≤ d := by parley_order
             -- 2.4.4.3. antisymmetry, from 2.1, 2.4.4.2
-            have s2_4_4_3 : (d : ℤ) = 3 := by parley_side
+            have s2_4_4_3 : d = 3 := by parley_side
             -- 2.4.4.4. mun:or-right, from 2.4.4.3
-            have s2_4_4_4 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) s2_4_4_3); parley_side)
+            have s2_4_4_4 : d = 1 ∨ d = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := d = 1) (Q := d = 3) s2_4_4_3); parley_side)
             all_goals parley_side
           · skip
             -- 2.4.4.5. substitute d = 2 (C4) into H
@@ -69,11 +69,11 @@ theorem three_prime :
         all_goals parley_side
       · skip
         -- 2.4.5. mun:or-left, from C2
-        have s2_4_5 : (d : ℤ) = 1 ∨ (d : ℤ) = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := (d : ℤ) = 1) (Q := (d : ℤ) = 3) (by parley_side)); parley_side)
+        have s2_4_5 : d = 1 ∨ d = 3 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := d = 1) (Q := d = 3) (by parley_side)); parley_side)
         all_goals parley_side
     all_goals parley_side
   -- 3. def:prime p := 3, from 1, 2
-  have s3 : Nat.Prime (3 : ℤ).toNat := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := 3) (by parley_side))).mpr (by parley_side); parley_side)
+  have s3 : Nat.Prime (3 : ℤ).toNat := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.def_prime (p := (3 : ℤ)) (by parley_side))).mpr (by parley_side); parley_side)
   all_goals exact s3
 
 end Parley.Proofs.Hammack.Sqrt3Irrational.ThreePrime

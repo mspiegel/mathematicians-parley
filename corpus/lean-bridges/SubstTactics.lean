@@ -2,6 +2,7 @@ module
 
 public import Mathlib
 public import Tactics
+public import PowerTactics
 
 /-!
 # What a `substitute` step leaves to rewriting
@@ -21,6 +22,23 @@ macro "parley_subst " e:term:max : tactic =>
     | (rw [← $e:term]; done)
     | (rw [$e:term]; ring1; done)
     | (rw [← $e:term]; ring1; done)
+    -- An integer exponent put as a natural one cast, 2^(p − 1 + 1) as
+    -- 2^(↑p), beside the natural power 2^p: one power. Before `simp` by the
+    -- equation, which loops where one side stands in the other, p in
+    -- p − 1 + 1, and `first` goes on past no loop.
+    | (rw [$e:term]; simp only [zpow_natCast]; done)
+    | (rw [← $e:term]; simp only [zpow_natCast]; done)
+    | (rw [$e:term]; simp only [zpow_natCast]; ring1; done)
+    -- The same of a natural power to an integer's `toNat`, 2^(n.toNat)
+    -- beside 2^(n − 1 + 1): the `toNat` cast back to n by 0 ≤ n.
+    | (rw [$e:term]; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg]; done)
+    | (rw [← $e:term]; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg]; done)
+    | (rw [$e:term]; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg]; ring1; done)
+    -- An exponent that is a natural number, (n + 1)!, beside the `toNat` of
+    -- the integer the equation gives it, (n!·(n + 1)).toNat: put back, the
+    -- `toNat` of a natural's cast is the natural.
+    | (rw [← $e:term]; simp only [Int.toNat_natCast]; done)
+    | (rw [$e:term]; simp only [Int.toNat_natCast]; done)
     | (simp only [$e:term]; done)
     | (simp only [← $e:term]; done)
     | (simp only [$e:term]; ring1; done)
@@ -51,6 +69,15 @@ macro "parley_put_at " e:term:max h:ident : tactic =>
   `(tactic| first
     | (rw [$e:term] at $h:ident; exact $h; done)
     | (rw [← $e:term] at $h:ident; exact $h; done)
+    -- A natural power to an integer's `toNat` beside an integer power,
+    -- 2^(n.toNat) beside 2^(n − 1 + 1): each read as an integer power, the
+    -- `toNat` cast back to n by 0 ≤ n.
+    | (rw [$e:term] at $h:ident; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at $h:ident ⊢; exact $h; done)
+    | (rw [← $e:term] at $h:ident; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at $h:ident ⊢; exact $h; done)
+    -- The line in a field, the claim of integers, which have no integer
+    -- powers: the line's power taken to a natural one, then cast down.
+    | (rw [$e:term] at $h:ident; simp (disch := omega) only [parley_zpow_toNat] at $h:ident; exact_mod_cast $h; done)
+    | (rw [← $e:term] at $h:ident; simp (disch := omega) only [parley_zpow_toNat] at $h:ident; exact_mod_cast $h; done)
     -- `rw` closes a goal its rewriting leaves reflexive, b ∣ b, itself.
     | (rw [$e:term]; (try exact $h); done)
     | (rw [← $e:term]; (try exact $h); done)

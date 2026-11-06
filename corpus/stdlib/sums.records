@@ -33,7 +33,7 @@ mundane theorem sum-divisible
               only of the terms the sum takes, k from 0 to n; asked of every
               k ∈ ℕ₀ it asks more, which is what a proof that fixes an
               arbitrary k has.
-  lean-proof  by apply Finset.dvd_sum; intro k hk; have := h3 k.toNat; rw [Finset.mem_Icc] at hk; rwa [Int.toNat_of_nonneg hk.1] at this
+  lean-proof  by apply Finset.dvd_sum; intro k hk; rw [Finset.mem_Icc] at hk; exact h3 k hk.1
 
 mundane theorem sum-integer
   let n ∈ ℕ₀                                                          (H1)

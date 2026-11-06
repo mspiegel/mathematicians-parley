@@ -36,7 +36,7 @@ theorem one_point_part {α : Type*} (X : Set α) (G : Set (Set α)) (hH2 : X.Fin
     -- 6.1. mun:card-subset A := Y, B := {v}, from K1
     have s6_1 : Y.encard ≤ ({v} : Set α).encard := by first | exact (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1) | exact ((Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1) | (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := Y) (B := ({v} : Set α)) hK1); parley_set_side)
     -- 6.2. substitute |{v}| = 1 (line 5) into line 6.1
-    have s6_2 : Y.encard ≤ ((1 : ℕ) : ℕ∞) := by parley_subst_at s5 s6_1
+    have s6_2 : Y.encard ≤ ((1 : ℕ) : ℕ∞) := by first | parley_subst_at s5 s6_1 | (have e_nat : ({v} : Set α).ncard = 1 := by exact_mod_cast s5; parley_subst_at e_nat s6_1)
     -- 6.3. substitute |Y| = 2 (K2) into line 6.2
     have s6_3 : (2 : ℤ) ≤ 1 := by parley_subst_at hK2 s6_2
     exact absurd s6_3 (by norm_num)

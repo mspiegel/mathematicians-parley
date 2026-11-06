@@ -10,9 +10,9 @@ public section
 namespace Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.InequalitiesAtAMember
 
 theorem inequalities_at_a_member :
-    (∀ i : ℕ, 0 < i → (i : ℤ) + 1 > 1) := by
+    (∀ i : ℤ, 0 < i → i + 1 > 1) := by
   -- 1. inequalities
-  have s1 : ∀ i : ℕ, 0 < i → (i : ℤ) + 1 > 1 := by intro i h_i; parley_order
+  have s1 : ∀ i : ℤ, 0 < i → i + 1 > 1 := by intro i h_i; parley_order
   all_goals exact s1
 
 end Parley.Tests.Elaborator.AlgebraAndInequalitiesAtAMember.InequalitiesAtAMember

@@ -307,7 +307,7 @@ theorem continuous-power
   assume for all x ∈ D, g(x) = x^n                                    (H4)
   then        g is continuous on D
   metamath-proof metamath-bridges/calculus/gcncfexpres with N := n
-  lean-proof  (show Continuous fun x : ℝ => x ^ n by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
+  lean-proof  (show Continuous fun x : ℝ => x ^ n.toNat by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
 theorem continuous-scaled
   let D ⊆ ℝ                                                           (H1)
@@ -492,7 +492,7 @@ theorem derivative-power
   note        The power rule, as derivative-square has it for n = 1. It is
               written for the power n + 1 so that the derivative's exponent
               is n itself, a number a power's exponent may be.
-  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1)) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩ ; fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simpa using (hasDerivAt_pow (n + 1) x).deriv
+  lean-proof  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1).toNat) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩ ; fun x hx => by lift n to ℕ using h4; rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simp only [Int.toNat_natCast, show ((n : ℤ) + 1).toNat = n + 1 by omega]; simpa using (hasDerivAt_pow (n + 1) x).deriv
 
 theorem derivative-scaled
   let D ⊆ ℝ                                                           (H1)
@@ -625,7 +625,7 @@ theorem limit-at-most
   assume x(n) ≤ B for all n ≥ N                                       (H6)
   then        L ≤ B
   metamath-proof stdlib/calculus/limit-at-most
-  lean-proof  le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
+  lean-proof  le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)
 
 theorem limit-at-least
   n ranges over ℕ
@@ -637,7 +637,7 @@ theorem limit-at-least
   assume B ≤ x(n) for all n ≥ N                                       (H6)
   then        B ≤ L
   metamath-proof stdlib/calculus/limit-at-least
-  lean-proof  ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
+  lean-proof  ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)
 
 mundane theorem first-terms-bounded
   let x : ℕ → ℝ                                                       (H1)
@@ -651,7 +651,7 @@ theorem convergent-abs-bounded
   assume x(n) → L as n → ∞                                            (H3)
   then        there exists B ∈ ℝ such that for all m ∈ ℕ, |x(m)| ≤ B
   metamath-proof stdlib/calculus/convergent-abs-bounded
-  lean-proof  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩⟩
+  lean-proof  by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this⟩
 
 theorem convergent-bounded
   let x : ℕ → ℝ                                                       (H1)
@@ -659,7 +659,7 @@ theorem convergent-bounded
   assume x(n) → L as n → ∞                                            (H3)
   then        there exists B ∈ ℝ such that for all m ∈ ℕ, x(m) ≤ B
   metamath-proof stdlib/calculus/convergent-bounded
-  lean-proof  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => le_trans (le_abs_self _) (by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩)⟩
+  lean-proof  by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => le_trans (le_abs_self _) (by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this)⟩
 
 mundane theorem increasing-terms
   let x : ℕ → ℝ                                                       (H1)
@@ -675,4 +675,4 @@ theorem monotone-limit
   assume for all n ∈ ℕ, x(n) ≤ B                                      (H4)
   then        there is L ∈ ℝ with x(n) → L as n → ∞
   metamath-proof stdlib/calculus/monotone-limit
-  lean-proof  by have hmono : Monotone (fun n : ℕ => x ((n : ℤ) + 1)) := (monotone_nat_of_le_succ (fun n => by have h := h1 (n + 1) (by omega); push_cast at h; exact h)); have hbdd : BddAbove (Set.range fun n : ℕ => x ((n : ℤ) + 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; have h := h3 (n + 1) (by omega); push_cast at h; exact h⟩; exact ⟨⨆ n : ℕ, x ((n : ℤ) + 1), (Filter.tendsto_add_atTop_iff_nat 1).1 (by simpa [Nat.cast_add, Nat.cast_one] using tendsto_atTop_ciSup hmono hbdd)⟩
+  lean-proof  by have hmono : Monotone (fun n : ℤ => x (max n 1)) := (monotone_int_of_le_succ (fun n => by rcases le_or_gt n 0 with h | h; (rw [max_eq_right (by omega), max_eq_right (by omega)]); (rw [max_eq_left (by omega), max_eq_left (by omega)]; exact h1 n h))); have hbdd : BddAbove (Set.range fun n : ℤ => x (max n 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; exact h3 _ (by omega)⟩; exact ⟨⨆ n : ℤ, x (max n 1), (tendsto_atTop_ciSup hmono hbdd).congr' (Filter.eventually_atTop.2 ⟨1, fun n hn => by simp only [max_eq_left hn]⟩)⟩

@@ -66,7 +66,7 @@ theorem bernoulli-difference
   metamath-proof bpolydif
   note        The property the Bernoulli polynomials are made for: a step
               of 1 in x changes B(n, x) by n·x^(n − 1).
-  lean-proof  by have h := congr_arg (Polynomial.aeval x) (Polynomial.bernoulli_comp_one_add_X n); simp only [Polynomial.aeval_comp, map_add, nsmul_eq_mul, map_mul, map_natCast, map_pow, Polynomial.aeval_X, map_one] at h; rw [add_comm x 1, h, (show (n : ℤ) - 1 = ((n - 1 : ℕ) : ℤ) by omega), zpow_natCast]; ring
+  lean-proof  by lift n to ℕ using h1.le; simp only [Int.toNat_natCast]; have h := congr_arg (Polynomial.aeval x) (Polynomial.bernoulli_comp_one_add_X n); simp only [Polynomial.aeval_comp, map_add, nsmul_eq_mul, map_mul, map_natCast, map_pow, Polynomial.aeval_X, map_one] at h; push_cast; rw [add_comm x 1, h, (show (n : ℤ) - 1 = ((n - 1 : ℕ) : ℤ) by omega), zpow_natCast]; ring
 
 theorem algebraic-root
   let α ∈ ℂ                                                           (H1)

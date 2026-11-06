@@ -16,8 +16,9 @@ namespace LeanBridges.Numbers
 
 /-- `def:stdlib/numbers/rational`. -/
 theorem rational {K : Type*} [Field K] [CharZero K] (x : K) :
-    (∃ m : ℚ, (m : K) = x) ↔ (∃ p : ℤ, ∃ q : ℕ, 0 < q ∧ x = (p : K) / (q : K)) :=
-  ⟨fun ⟨m, hm⟩ => ⟨m.num, m.den, m.pos, by rw [← hm, Rat.cast_def]⟩, fun ⟨p, q, _, hx⟩ => ⟨(p : ℚ) / q, by rw [hx]; push_cast; rfl⟩⟩
+    (∃ m : ℚ, (m : K) = x) ↔ (∃ p : ℤ, ∃ q : ℤ, 0 < q ∧ x = (p : K) / (q : K)) :=
+  ⟨fun ⟨m, hm⟩ => ⟨m.num, m.den, by exact_mod_cast m.pos, by rw [← hm, Rat.cast_def]; push_cast; rfl⟩,
+   fun ⟨p, q, _, hx⟩ => ⟨(p : ℚ) / q, by rw [hx]; push_cast; rfl⟩⟩
 
 /-- `def:stdlib/numbers/irrational`. -/
 theorem irrational (x : ℝ) :
@@ -25,22 +26,22 @@ theorem irrational (x : ℝ) :
   ⟨fun h => ⟨trivial, fun ⟨m, hm⟩ => h ⟨m, hm⟩⟩, fun ⟨_, h⟩ ⟨m, hm⟩ => h ⟨m, hm⟩⟩
 
 /-- `mun:stdlib/numbers/nat-closure`, its sentence 1. -/
-theorem nat_closure_1 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
-    0 < (a : ℤ) + (b : ℤ) :=
+theorem nat_closure_1 (a : ℤ) (h1 : 0 < a) (b : ℤ) (h2 : 0 < b) :
+    0 < a + b :=
   by omega
 
 /-- `mun:stdlib/numbers/nat-closure`, its sentence 2. -/
-theorem nat_closure_2 (a : ℕ) (h1 : 0 < a) (b : ℕ) (h2 : 0 < b) :
-    0 < (a : ℤ) * (b : ℤ) :=
+theorem nat_closure_2 (a : ℤ) (h1 : 0 < a) (b : ℤ) (h2 : 0 < b) :
+    0 < a * b :=
   by positivity
 
 /-- `mun:stdlib/numbers/nat0-successor`. -/
-theorem nat0_successor (k : ℕ) :
-    0 < (k : ℤ) + 1 :=
+theorem nat0_successor (k : ℤ) (h1 : 0 ≤ k) :
+    0 < k + 1 :=
   by omega
 
 /-- `mun:stdlib/numbers/nat0-nonzero`. -/
-theorem nat0_nonzero (m : ℕ) (h2 : (m : ℤ) ≠ 0) :
+theorem nat0_nonzero (m : ℤ) (h1 : 0 ≤ m) (h2 : m ≠ 0) :
     0 < m :=
   by omega
 
@@ -55,13 +56,13 @@ theorem exponent_negative {K : Type*} [Field K] [CharZero K] (a : K) (h2 : a ≠
   by rw [zpow_neg, one_div]
 
 /-- `mun:stdlib/numbers/nat-minus-one`. -/
-theorem nat_minus_one (n : ℕ) (h1 : 0 < n) :
-    0 ≤ (n : ℤ) - 1 :=
+theorem nat_minus_one (n : ℤ) (h1 : 0 < n) :
+    0 ≤ n - 1 :=
   by omega
 
 /-- `mun:stdlib/numbers/power-nat`. -/
-theorem power_nat (a : ℕ) (h1 : 0 < a) (m : ℕ) :
-    0 < (a : ℤ) ^ m :=
+theorem power_nat (a : ℤ) (h1 : 0 < a) (m : ℤ) (h2 : 0 ≤ m) :
+    0 < a ^ m.toNat :=
   by positivity
 
 /-- `def:stdlib/numbers/abs`, its sentence 1. -/
@@ -101,18 +102,20 @@ theorem divide_le {K : Type*} [Field K] [LinearOrder K] [IsStrictOrderedRing K] 
 
 /-- `thm:stdlib/numbers/archimedean-natural`. -/
 theorem archimedean_natural (x : ℝ) :
-    ∃ m : ℕ, 0 < m ∧ x < (m : ℝ) :=
+    ∃ m : ℤ, 0 < m ∧ x < (m : ℝ) :=
   by obtain ⟨m, hm⟩ := exists_nat_gt (max x 0); exact ⟨m + 1, by omega, by push_cast; linarith [le_max_left x 0]⟩
 
 /-- `def:stdlib/numbers/nat0`. -/
 theorem nat0 {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (n : K) :
-    (∃ m : ℕ, (m : K) = n) ↔ (∃ m : ℕ, 0 < m ∧ (m : K) = n) ∨ n = 0 :=
-  ⟨fun ⟨m, hm⟩ => (Nat.eq_zero_or_pos m).elim (fun h => Or.inr (by rw [← hm, h]; simp)) (fun h => Or.inl ⟨m, h, hm⟩), fun h => h.elim (fun ⟨m, _, hm⟩ => ⟨m, hm⟩) (fun h => ⟨0, by rw [h]; simp⟩)⟩
+    (∃ m : ℤ, 0 ≤ m ∧ (m : K) = n) ↔ (∃ m : ℤ, 0 < m ∧ (m : K) = n) ∨ n = 0 :=
+  ⟨fun ⟨m, h0, hm⟩ => h0.eq_or_lt.elim (fun h => Or.inr (by rw [← hm, ← h]; simp)) (fun h => Or.inl ⟨m, h, hm⟩),
+   fun h => h.elim (fun ⟨m, hp, hm⟩ => ⟨m, hp.le, hm⟩) (fun h => ⟨0, le_refl _, by rw [h]; simp⟩)⟩
 
 /-- `mun:stdlib/numbers/nat0-as-int`. -/
 theorem nat0_as_int {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (n : K) :
-    (∃ m : ℕ, (m : K) = n) ↔ (∃ m : ℤ, (m : K) = n) ∧ 0 ≤ n :=
-  ⟨fun ⟨m, hm⟩ => ⟨⟨m, by rw [← hm]; norm_cast⟩, by rw [← hm]; positivity⟩, fun ⟨⟨m, hm⟩, h0⟩ => ⟨m.toNat, by have : (0 : ℤ) ≤ m := (by exact_mod_cast hm ▸ h0); rw [← hm]; exact_mod_cast Int.toNat_of_nonneg this⟩⟩
+    (∃ m : ℤ, 0 ≤ m ∧ (m : K) = n) ↔ (∃ m : ℤ, (m : K) = n) ∧ 0 ≤ n :=
+  ⟨fun ⟨m, h0, hm⟩ => ⟨⟨m, hm⟩, by rw [← hm]; exact_mod_cast h0⟩,
+   fun ⟨⟨m, hm⟩, h0⟩ => ⟨m, by rw [← hm] at h0; exact_mod_cast h0, hm⟩⟩
 
 /-- `mun:stdlib/numbers/abs-difference-lt`. -/
 theorem abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] [CharZero K] (x : K) (c : K) (δ : K) :
@@ -121,7 +124,7 @@ theorem abs_difference_lt {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] 
 
 /-- `thm:stdlib/numbers/archimedean`. -/
 theorem archimedean (x : ℝ) (h2 : 0 < x) :
-    ∃ N : ℕ, 0 < N ∧ 1 / (N : ℝ) < x :=
+    ∃ N : ℤ, 0 < N ∧ 1 / (N : ℝ) < x :=
   by obtain ⟨N, hN⟩ := exists_nat_one_div_lt h2; exact ⟨N + 1, by omega, by push_cast; exact hN⟩
 
 end LeanBridges.Numbers

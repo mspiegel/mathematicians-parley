@@ -21,6 +21,7 @@ the lines or worked out; the root of a product of P(1/n) of am-gm is one. -/
 macro "parley_of_complex " h:ident : tactic =>
   `(tactic| (simp (disch := first | assumption | positivity) only [one_div,
       ← Complex.ofReal_one, ← Complex.ofReal_ofNat, ← Complex.ofReal_natCast,
+      ← Complex.ofReal_intCast,
       ← Complex.ofReal_add, ← Complex.ofReal_sub, ← Complex.ofReal_neg, ← Complex.ofReal_mul,
       ← Complex.ofReal_inv, ← Complex.ofReal_div, ← Complex.ofReal_pow, ← Complex.ofReal_prod,
       ← Complex.ofReal_cpow,

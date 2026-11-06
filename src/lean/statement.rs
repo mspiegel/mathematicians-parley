@@ -369,10 +369,15 @@ pub fn binders(
             }
         }
         record_domain(writer, a.node);
-        // A letter of a range is an integer, and the range a fact about it.
+        // A letter of a range is an integer, in ℕ or ℕ₀ where the range
+        // starts at 1 or 0, and the range a fact about it.
         if let Some(letter) = range_letter(a.node) {
             let ty = LetterType::Number(super::templates::Num::Int);
-            writer.letters.insert(letter.clone(), ty.clone());
+            let system = match a.node.children.get(1) {
+                Some(range) => super::expr::range_letter_system(range),
+                None => System::Type(super::templates::Num::Int),
+            };
+            writer.introduce(&letter, system);
             out.push(Binder::Letter {
                 name: super::names::letter(&letter),
                 page: letter,
@@ -424,9 +429,14 @@ pub fn binders(
             });
             continue;
         }
-        if let Some((letter, system)) = introduces(a.node) {
+        // A membership of a letter already given its type, `assume x ∈ ℤ`
+        // after `let x ∈ ℝ`, is a fact about that letter, as set.mm's is,
+        // and no second letter.
+        let introduced = introduces(a.node)
+            .filter(|(letter, _)| !writer.letters.contains_key(letter.as_str()));
+        if let Some((letter, system)) = introduced {
             let ty = LetterType::Number(letter_type(system));
-            writer.letters.insert(letter.clone(), ty.clone());
+            writer.introduce(&letter, system);
             let name = super::names::letter(&letter);
             out.push(Binder::Letter {
                 name: name.clone(),
@@ -434,10 +444,17 @@ pub fn binders(
                 general: writer.general == Some(letter_type(system)),
                 ty,
             });
-            if system == System::Positive {
+            // n ∈ ℕ and n ∈ ℕ₀ are facts of the integer n, as set.mm's are
+            // of a number.
+            let fact = match system {
+                System::Positive => Some(format!("0 < {name}")),
+                System::NonNegative => Some(format!("0 ≤ {name}")),
+                System::Type(_) => None,
+            };
+            if let Some(says) = fact {
                 out.push(Binder::Fact {
                     name: a.name.clone(),
-                    says: format!("0 < {name}"),
+                    says,
                     line: None,
                 });
             }
@@ -472,6 +489,8 @@ pub fn binders(
                     term: writer.grammar.print(term),
                     proof: a.name.clone(),
                     ty: super::templates::Num::Int,
+                    value: None,
+                    slot_only: false,
                 });
             }
         }

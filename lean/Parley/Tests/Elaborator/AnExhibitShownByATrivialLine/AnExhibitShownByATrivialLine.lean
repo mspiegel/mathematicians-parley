@@ -9,12 +9,12 @@ public section
 
 namespace Parley.Tests.Elaborator.AnExhibitShownByATrivialLine.AnExhibitShownByATrivialLine
 
-theorem an_exhibit_shown_by_a_trivial_line (p : ℕ) (hH1 : 0 < p) (q : ℕ) (hH2 : 0 < q) :
-    (∃ n : ℕ, 0 < n ∧ (p : ℤ) * (q : ℤ) = (p : ℤ) * (n : ℤ)) := by
+theorem an_exhibit_shown_by_a_trivial_line (p : ℤ) (hH1 : 0 < p) (q : ℤ) (hH2 : 0 < q) :
+    (∃ n : ℤ, 0 < n ∧ p * q = p * n) := by
   -- 1. algebra
-  have s1 : (p : ℤ) * (q : ℤ) = (p : ℤ) * (q : ℤ) := by parley_ring
+  have s1 : p * q = p * q := by parley_ring
   -- 2. exhibit, from 1
-  have s2 : ∃ n : ℕ, 0 < n ∧ (p : ℤ) * (q : ℤ) = (p : ℤ) * (n : ℤ) := ⟨q, by parley_side, by parley_side⟩
+  have s2 : ∃ n : ℤ, 0 < n ∧ p * q = p * n := ⟨q, by parley_side, by parley_side⟩
   all_goals exact s2
 
 end Parley.Tests.Elaborator.AnExhibitShownByATrivialLine.AnExhibitShownByATrivialLine

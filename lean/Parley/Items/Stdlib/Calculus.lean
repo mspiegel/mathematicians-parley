@@ -54,15 +54,15 @@ theorem def_limit_at (f : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set
   LeanBridges.Calculus.limit_at f D h1 c L
 
 theorem def_tends_to (x : ℤ → ℝ) (L : ℝ) :
-    Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → abs (x (n : ℤ) - L) < ε))) :=
+    Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (x n - L) < ε))) :=
   LeanBridges.Calculus.tends_to x L
 
-theorem def_series_sum (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
-    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+theorem def_series_sum (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (t k : ℝ)) = L :=
   LeanBridges.Calculus.series_sum t L h2
 
-theorem def_series_sum_from_zero (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
-    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+theorem def_series_sum_from_zero (t : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℝ) : ℝ)) Filter.atTop (nhds L)) :
+    Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℝ)) = L :=
   LeanBridges.Calculus.series_sum_from_zero t L h2
 
 theorem axi_completeness (S : Set ℝ) (h1 : S ⊆ (Set.univ : Set ℝ)) (h2 : ∃ s ∈ S, True) (h3 : ∃ u : ℝ, ∀ s ∈ S, s ≤ u) :
@@ -105,9 +105,9 @@ theorem thm_continuous_constant (g : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set
     ContinuousOn g D :=
   (show Continuous fun _ : ℝ => c by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
-theorem thm_continuous_power (g : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (n : ℕ) (h3 : ∀ x ∈ D, g x = x ^ n) :
+theorem thm_continuous_power (g : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (n : ℤ) (h2 : 0 ≤ n) (h3 : ∀ x ∈ D, g x = x ^ n.toNat) :
     ContinuousOn g D :=
-  (show Continuous fun x : ℝ => x ^ n by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
+  (show Continuous fun x : ℝ => x ^ n.toNat by fun_prop).continuousOn.congr (fun x hx => h3 x hx)
 
 theorem thm_continuous_scaled (F : ℝ → ℝ) (f : ℝ → ℝ) (D : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (c : ℝ) (h3 : ∀ x ∈ D, F x = c * f x) (h4 : ContinuousOn f D) :
     ContinuousOn F D :=
@@ -173,13 +173,13 @@ theorem thm_derivative_square_2 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h
     ∀ x ∈ U, (deriv g) x = 2 * x :=
   fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h4 y hy))]; simpa using (hasDerivAt_pow 2 x).deriv
 
-theorem thm_derivative_power_1 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (n : ℕ) (h5 : ∀ x ∈ D, g x = x ^ (n + 1)) :
+theorem thm_derivative_power_1 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (n : ℤ) (h4 : 0 ≤ n) (h5 : ∀ x ∈ D, g x = x ^ (n + 1).toNat) :
     ∀ x ∈ U, D ∈ nhds x ∧ DifferentiableAt ℝ g x :=
-  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1)) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩
+  fun x hx => ⟨Filter.mem_of_superset (h3.mem_nhds hx) h2, (show DifferentiableAt ℝ (fun y : ℝ => y ^ (n + 1).toNat) x by fun_prop).congr_of_eventuallyEq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))⟩
 
-theorem thm_derivative_power_2 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (n : ℕ) (h5 : ∀ x ∈ D, g x = x ^ (n + 1)) :
-    ∀ x ∈ U, (deriv g) x = ((n : ℝ) + 1) * x ^ n :=
-  fun x hx => by rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simpa using (hasDerivAt_pow (n + 1) x).deriv
+theorem thm_derivative_power_2 (g : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (h3 : IsOpen U) (n : ℤ) (h4 : 0 ≤ n) (h5 : ∀ x ∈ D, g x = x ^ (n + 1).toNat) :
+    ∀ x ∈ U, (deriv g) x = ((n : ℝ) + 1) * x ^ n.toNat :=
+  fun x hx => by lift n to ℕ using h4; rw [Filter.EventuallyEq.deriv_eq (Filter.eventually_of_mem (Filter.mem_of_superset (h3.mem_nhds hx) h2) (fun y hy => h5 y hy))]; simp only [Int.toNat_natCast, show ((n : ℤ) + 1).toNat = n + 1 by omega]; simpa using (hasDerivAt_pow (n + 1) x).deriv
 
 theorem thm_derivative_scaled_1 (F : ℝ → ℝ) (f : ℝ → ℝ) (D : Set ℝ) (U : Set ℝ) (h1 : D ⊆ (Set.univ : Set ℝ)) (h2 : U ⊆ D) (c : ℝ) (h4 : ∀ x ∈ D, F x = c * f x) (h5 : ∀ x ∈ U, D ∈ nhds x ∧ DifferentiableAt ℝ f x) :
     ∀ x ∈ U, D ∈ nhds x ∧ DifferentiableAt ℝ F x :=
@@ -225,29 +225,29 @@ theorem thm_cauchy_mean_value (f : ℝ → ℝ) (g : ℝ → ℝ) (D : Set ℝ) 
     ∃ c ∈ (Set.Ioo a b : Set ℝ), (f b - f a) * (deriv g) c = (g b - g a) * (deriv f) c :=
   exists_ratio_deriv_eq_ratio_slope g h4 h7 (fun x hx => (h9 x hx).2.differentiableWithinAt) f h6 (fun x hx => (h8 x hx).2.differentiableWithinAt)
 
-theorem thm_limit_at_most (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (B : ℝ) (N : ℕ) (h4 : 0 < N) (h5 : ∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → x (n : ℤ) ≤ B) :
+theorem thm_limit_at_most (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) (B : ℝ) (N : ℤ) (h4 : 0 < N) (h5 : ∀ n : ℤ, 0 < n → N ≤ n → x n ≤ B) :
     L ≤ B :=
-  le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
+  le_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)
 
-theorem thm_limit_at_least (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) (B : ℝ) (N : ℕ) (h4 : 0 < N) (h5 : ∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → B ≤ x (n : ℤ)) :
+theorem thm_limit_at_least (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) (B : ℝ) (N : ℤ) (h4 : 0 < N) (h5 : ∀ n : ℤ, 0 < n → N ≤ n → B ≤ x n) :
     B ≤ L :=
-  ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) (by exact_mod_cast hn)⟩)
+  ge_of_tendsto h2 (Filter.eventually_atTop.2 ⟨N, fun n hn => h5 n (by omega) hn⟩)
 
 theorem mun_first_terms_bounded (x : ℤ → ℝ) :
-    ∀ K : ℕ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 (K : ℤ) → abs (x m) ≤ C) :=
+    ∀ K : ℤ, 0 < K → (∃ C : ℝ, ∀ m : ℤ, m ∈ Finset.Icc 1 K → abs (x m) ≤ C) :=
   fun K _ => ⟨∑ m ∈ Finset.Icc 1 (K : ℤ), |x m|, fun m hm => Finset.single_le_sum (f := fun m => |x m|) (fun i _ => abs_nonneg _) hm⟩
 
-theorem thm_convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
-    ∃ B : ℝ, ∀ m : ℕ, 0 < m → abs (x (m : ℤ)) ≤ B :=
-  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩⟩
+theorem thm_convergent_abs_bounded (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) :
+    ∃ B : ℝ, ∀ m : ℤ, 0 < m → abs (x m) ≤ B :=
+  by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this⟩
 
-theorem thm_convergent_bounded (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) :
-    ∃ B : ℝ, ∀ m : ℕ, 0 < m → x (m : ℤ) ≤ B :=
-  by obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h2); exact ⟨C, fun m _ => le_trans (le_abs_self _) (by simpa [Real.norm_eq_abs] using hC _ ⟨m, rfl⟩)⟩
+theorem thm_convergent_bounded (x : ℤ → ℝ) (L : ℝ) (h2 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) :
+    ∃ B : ℝ, ∀ m : ℤ, 0 < m → x m ≤ B :=
+  by have h := h2.comp tendsto_natCast_atTop_atTop; obtain ⟨C, hC⟩ := isBounded_iff_forall_norm_le.1 (Metric.isBounded_range_of_tendsto _ h); exact ⟨C, fun m hm => le_trans (le_abs_self _) (by have := hC _ ⟨m.toNat, rfl⟩; simpa [Real.norm_eq_abs, Int.toNat_of_nonneg hm.le] using this)⟩
 
-theorem thm_monotone_limit (x : ℤ → ℝ) (h1 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ x ((n : ℤ) + 1)) (B : ℝ) (h3 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ B) :
-    ∃ L : ℝ, Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) :=
-  by have hmono : Monotone (fun n : ℕ => x ((n : ℤ) + 1)) := (monotone_nat_of_le_succ (fun n => by have h := h1 (n + 1) (by omega); push_cast at h; exact h)); have hbdd : BddAbove (Set.range fun n : ℕ => x ((n : ℤ) + 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; have h := h3 (n + 1) (by omega); push_cast at h; exact h⟩; exact ⟨⨆ n : ℕ, x ((n : ℤ) + 1), (Filter.tendsto_add_atTop_iff_nat 1).1 (by simpa [Nat.cast_add, Nat.cast_one] using tendsto_atTop_ciSup hmono hbdd)⟩
+theorem thm_monotone_limit (x : ℤ → ℝ) (h1 : ∀ n : ℤ, 0 < n → x n ≤ x (n + 1)) (B : ℝ) (h3 : ∀ n : ℤ, 0 < n → x n ≤ B) :
+    ∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L) :=
+  by have hmono : Monotone (fun n : ℤ => x (max n 1)) := (monotone_int_of_le_succ (fun n => by rcases le_or_gt n 0 with h | h; (rw [max_eq_right (by omega), max_eq_right (by omega)]); (rw [max_eq_left (by omega), max_eq_left (by omega)]; exact h1 n h))); have hbdd : BddAbove (Set.range fun n : ℤ => x (max n 1)) := ⟨B, by rintro _ ⟨n, rfl⟩; exact h3 _ (by omega)⟩; exact ⟨⨆ n : ℤ, x (max n 1), (tendsto_atTop_ciSup hmono hbdd).congr' (Filter.eventually_atTop.2 ⟨1, fun n hn => by simp only [max_eq_left hn]⟩)⟩
 
 theorem def_upper_bound {K : Type*} [CommRing K] [IsDomain K] [LinearOrder K] [IsStrictOrderedRing K] (S : Set K) (u : K) :
     (∀ s ∈ S, s ≤ u) ↔ (∀ s ∈ S, s ≤ u) :=

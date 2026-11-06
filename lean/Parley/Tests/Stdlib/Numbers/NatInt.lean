@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Numbers.NatInt
 
-theorem nat_int (m : ℕ) (hH1 : 0 < m) :
+theorem nat_int (m : ℤ) (hH1 : 0 < m) :
     True := by
   -- 1. mun:numbers-nat-int
   all_goals parley_side

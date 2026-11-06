@@ -18,8 +18,8 @@ public section
 namespace Parley.Stdlib.Calculus.MonotoneLimit
 
 set_option maxHeartbeats 800000 in
-theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ x ((n : ℤ) + 1)) (B : ℝ) (hH4 : ∀ n : ℕ, 0 < n → x (n : ℤ) ≤ B) :
-    (∃ L : ℝ, Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L)) := by
+theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℤ, 0 < n → x n ≤ x (n + 1)) (B : ℝ) (hH4 : ∀ n : ℤ, 0 < n → x n ≤ B) :
+    (∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L)) := by
   -- 1. mun:subset-self
   have s1 : {n : ℤ | 0 < n} ⊆ {n : ℤ | 0 < n} := by first | exact (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | exact ((Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n}))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})) | (have h := (Parley.Items.Stdlib.Sets.mun_subset_self (X := {n : ℤ | 0 < n})); parley_set_side)
   -- 2. mun:image-within, from H1
@@ -31,9 +31,8 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : �
     intro s hK1
     -- 4.1. obtain k: def:image u := s, from H1, K1, 1
     obtain ⟨k, s4_1a, s4_1b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (u := s) (W := Set.univ) (by parley_whole_side) (by parley_whole_side))).mp (by parley_set_side)
-    try lift k to ℕ using le_of_lt s4_1a
     -- 4.2. instantiate n := k in H4
-    have s4_2 : x (k : ℤ) ≤ B := by first | linarith [(hH4 k (by parley_set_side))] | (have h := (hH4 k (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH4 k (by parley_set_side)) | (have h := (hH4 k (by parley_set_side)); parley_set_side)
+    have s4_2 : x k ≤ B := by first | linarith [(hH4 k (by parley_set_side))] | (have h := (hH4 k (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (hH4 k (by parley_set_side)) | (have h := (hH4 k (by parley_set_side)); parley_set_side)
     -- 4.3. transitivity, from 4.1, 4.2
     have s4_3 : s ≤ B := by parley_order
     all_goals exact s4_3
@@ -47,9 +46,9 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : �
   -- 8. def:upper-bound, from 7
   have s8 : ∀ s ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}), s ≤ c := by parley_set_side
   -- 9. mun:increasing-terms, from H2
-  have s9 : ∀ n : ℕ, 0 < n → (∀ m : ℕ, 0 < m → (m : ℝ) ≤ (n : ℝ) → x (m : ℤ) ≤ x (n : ℤ)) := by first | exact (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact ((Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2)).symm | simpa using (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact_mod_cast (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | (have h := (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2); parley_set_side)
+  have s9 : ∀ n : ℤ, 0 < n → (∀ m : ℤ, 0 < m → m ≤ n → x m ≤ x n) := by first | exact (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact ((Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2)).symm | simpa using (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | exact_mod_cast (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2) | (have h := (Parley.Stdlib.Calculus.IncreasingTerms.increasing_terms (x := x) hH2); parley_set_side)
   -- 10. proof
-  have s10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (x (n : ℤ) - c) < ε)) := by
+  have s10 : ∀ ε : ℝ, ε > 0 → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε)) := by
     intro ε
     intro hA1
     -- 10.1. inequalities
@@ -80,39 +79,38 @@ theorem monotone_limit (x : ℤ → ℝ) (hH2 : ∀ n : ℕ, 0 < n → x (n : �
     obtain ⟨s, s10_3a, s10_3b⟩ := s10_2
     -- 10.4. obtain N: def:image u := s, from H1, 1, 10.3
     obtain ⟨N, s10_4a, s10_4b⟩ := ((Parley.Items.Stdlib.Functions.def_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (u := s) (W := Set.univ) (by parley_whole_side) (by parley_whole_side))).mp (by parley_set_side)
-    try lift N to ℕ using le_of_lt s10_4a
     -- 10.5. transitivity, from 10.3, 10.4
-    have s10_5 : c - ε < x (N : ℤ) := by parley_order
+    have s10_5 : c - ε < x N := by parley_order
     -- 10.6. inequalities
     have s10_6 : c < c + ε := by parley_order
     -- 10.7. proof
-    have s10_7 : ∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (x (n : ℤ) - c) < ε := by
+    have s10_7 : ∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε := by
       intro n hK2
       intro hA2
       -- 10.7.1. inequalities
-      have s10_7_1 : (N : ℝ) ≤ (n : ℝ) := by parley_order
+      have s10_7_1 : N ≤ n := by parley_order
       -- 10.7.2. instantiate m := N in line 9, from 10.7.1
-      have s10_7_2 : x (N : ℤ) ≤ x (n : ℤ) := by first | linarith [(s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side))] | (have h := (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)) | (have h := (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)); parley_set_side)
+      have s10_7_2 : x N ≤ x n := by first | linarith [(s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side))] | (have h := (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)) | (have h := (s9 n (by parley_set_side) N (by parley_set_side) (by parley_set_side)); parley_set_side)
       -- 10.7.3. mun:value-in-image s := n, from H1, 1
-      have s10_7_3 : x (n : ℤ) ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (n : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (n : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (n : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (n : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := (n : ℤ)) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
+      have s10_7_3 : x n ∈ x '' ((Set.univ : Set ℤ) ∩ {n : ℤ | 0 < n}) := by first | exact (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact ((Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side))).symm | simpa using (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | exact_mod_cast (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)) | (have h := (Parley.Items.Stdlib.Functions.mun_value_in_image (X := {n : ℤ | 0 < n}) (Y := {n : ℤ | 0 < n}) (f := x) (s := n) (W := Set.univ) (by parley_whole_side) (by parley_whole_side) (by parley_whole_side)); parley_set_side)
       -- 10.7.4. instantiate s := x(n) in line 8, from 10.7.3
-      have s10_7_4 : x (n : ℤ) ≤ c := by first | linarith [(s8 (x (n : ℤ)) (by parley_set_side))] | (have h := (s8 (x (n : ℤ)) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s8 (x (n : ℤ)) (by parley_set_side)) | (have h := (s8 (x (n : ℤ)) (by parley_set_side)); parley_set_side)
+      have s10_7_4 : x n ≤ c := by first | linarith [(s8 (x n) (by parley_set_side))] | (have h := (s8 (x n) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s8 (x n) (by parley_set_side)) | (have h := (s8 (x n) (by parley_set_side)); parley_set_side)
       -- 10.7.5. transitivity, from 10.5, 10.7.2
-      have s10_7_5 : c - ε < x (n : ℤ) := by parley_order
+      have s10_7_5 : c - ε < x n := by parley_order
       -- 10.7.6. transitivity, from 10.7.4, 10.6
-      have s10_7_6 : x (n : ℤ) < c + ε := by parley_order
+      have s10_7_6 : x n < c + ε := by parley_order
       -- 10.7.7. join 10.7.5, 10.7.6
-      have s10_7_7 : c - ε < x (n : ℤ) ∧ x (n : ℤ) < c + ε := by parley_set_side
+      have s10_7_7 : c - ε < x n ∧ x n < c + ε := by parley_set_side
       -- 10.7.8. mun:abs-difference-lt x := x(n), δ := ε, from 10.7.7
-      have s10_7_8 : abs (x (n : ℤ) - c) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (n : ℤ)) (c := c) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x (n : ℤ)) (c := c) (δ := ε))).mpr (by parley_set_side); parley_set_side)
+      have s10_7_8 : abs (x n - c) < ε := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x n) (c := c) (δ := ε))).mpr (by parley_set_side); parley_set_side)
       all_goals parley_set_side
     -- 10.8. exhibit, from 10.7
-    have s10_8 : ∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (n : ℝ) ≥ (N : ℝ) → abs (x (n : ℤ) - c) < ε) := ⟨N, by parley_set_side, by parley_set_side⟩
+    have s10_8 : ∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → n ≥ N → abs (x n - c) < ε) := ⟨N, by parley_set_side, by parley_set_side⟩
     all_goals parley_set_side
   -- 11. def:tends-to L := c, from 10
-  have s11 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side); parley_set_side)
+  have s11 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds c) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_tends_to (x := x) (L := c))).mpr (by parley_set_side); parley_set_side)
   -- 12. exhibit, from 11
-  have s12 : ∃ L : ℝ, Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) := ⟨c, by parley_set_side⟩
+  have s12 : ∃ L : ℝ, Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L) := ⟨c, by parley_set_side⟩
   all_goals exact s12
 
 end Parley.Stdlib.Calculus.MonotoneLimit

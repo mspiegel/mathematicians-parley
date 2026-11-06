@@ -40,7 +40,7 @@ theorem constant_function_continuous (D : Set ℝ) (hH1 : D ⊆ (Set.univ : Set 
             _ < ε := by parley_set_side
         all_goals parley_set_side
       -- 1.1.2. exhibit, from 1.1.1
-      have r45_1 : (1 : ℝ) > 0 := by parley_arith
+      have r45_1 : (1 : ℤ) > 0 := by parley_arith
       have s1_1_2 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ D, abs (x - a) < δ → abs (f x - f a) < ε) := ⟨(1 : ℝ), ⟨by parley_set_side, by parley_set_side⟩⟩
       all_goals parley_set_side
     all_goals exact s1_1

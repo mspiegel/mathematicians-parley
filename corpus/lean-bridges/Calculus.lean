@@ -15,8 +15,17 @@ namespace LeanBridges.Calculus
 
 /-- `def:stdlib/calculus/tends-to`. -/
 theorem tends_to (x : ℤ → ℝ) (L : ℝ) :
-    Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℕ, 0 < N ∧ (∀ n : ℕ, 0 < n → (N : ℤ) ≤ (n : ℤ) → abs (x (n : ℤ) - L) < ε))) :=
-  by rw [Metric.tendsto_atTop]; exact ⟨fun h ε hε => by obtain ⟨N, hN⟩ := h ε hε; exact ⟨N + 1, by omega, fun n _ hNn => by have := hN n (by omega); rwa [Real.dist_eq] at this⟩, fun h ε hε => by obtain ⟨N, _, hN⟩ := h ε hε; exact ⟨N + 1, fun n hn => by rw [Real.dist_eq]; exact hN n (by omega) (by omega)⟩⟩
+    Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds L) ↔ (∀ ε : ℝ, 0 < ε → (∃ N : ℤ, 0 < N ∧ (∀ n : ℤ, 0 < n → N ≤ n → abs (x n - L) < ε))) := by
+  rw [Metric.tendsto_atTop]
+  constructor
+  · intro h ε hε
+    obtain ⟨N, hN⟩ := h ε hε
+    refine ⟨max N 1, by omega, fun n _ hNn => ?_⟩
+    have := hN n (le_trans (le_max_left _ _) hNn)
+    rwa [Real.dist_eq] at this
+  · intro h ε hε
+    obtain ⟨N, hN0, hN⟩ := h ε hε
+    exact ⟨N, fun n hn => by rw [Real.dist_eq]; exact hN n (by omega) hn⟩
 
 /-- `def:stdlib/calculus/limit-at`: the limit of f at c over its domain D,
 c left out, in ε and δ. -/
@@ -42,16 +51,16 @@ theorem continuous_on (f : ℝ → ℝ) (D : Set ℝ) (_h1 : D ⊆ (Set.univ : S
 /-- `def:stdlib/calculus/series-sum`: the value of a series from 1 is the
 limit of its partial sums, where they have one. -/
 theorem series_sum (t : ℤ → ℝ) (L : ℝ)
-    (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ) : ℝ))
+    (h2 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (1 : ℤ) n, (t k : ℝ) : ℝ))
       Filter.atTop (nhds L)) :
-    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (1 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+    Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (1 : ℤ) n, (t k : ℝ)) = L :=
   h2.limUnder_eq
 
 /-- `def:stdlib/calculus/series-sum-from-zero`, the same from 0. -/
 theorem series_sum_from_zero (t : ℤ → ℝ) (L : ℝ)
-    (h2 : Filter.Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ) : ℝ))
+    (h2 : Filter.Tendsto (fun n : ℤ => (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℝ) : ℝ))
       Filter.atTop (nhds L)) :
-    Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : ℝ)) = L :=
+    Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : ℝ)) = L :=
   h2.limUnder_eq
 
 end LeanBridges.Calculus

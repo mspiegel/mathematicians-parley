@@ -8,10 +8,10 @@ public section
 
 namespace Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter
 
-theorem a_define_written_out_beside_its_own_letter (n : ℕ) :
-    (∫ t in 0..1, (t ^ n : ℝ)) = (∫ t in 0..1, (t ^ n : ℝ)) := by
+theorem a_define_written_out_beside_its_own_letter (n : ℤ) (hH1 : 0 ≤ n) :
+    (∫ t in 0..1, (t ^ n.toNat : ℝ)) = (∫ t in 0..1, (t ^ n.toNat : ℝ)) := by
   -- 1. D1
-  have s1 : (∫ t in 0..1, (t ^ n : ℝ)) = (∫ t in 0..1, (t ^ n : ℝ)) := by parley_side
+  have s1 : (∫ t in 0..1, (t ^ n.toNat : ℝ)) = (∫ t in 0..1, (t ^ n.toNat : ℝ)) := by parley_side
   all_goals exact s1
 
 end Parley.Tests.Elaborator.ATheoremOverADefineCitedWithOtherLetters.ADefineWrittenOutBesideItsOwnLetter

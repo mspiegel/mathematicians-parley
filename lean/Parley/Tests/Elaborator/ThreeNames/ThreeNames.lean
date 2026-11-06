@@ -8,17 +8,14 @@ public section
 
 namespace Parley.Tests.Elaborator.ThreeNames.ThreeNames
 
-theorem three_names (hH1 : ∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c : ℕ, 0 < c ∧ (a : ℤ) + 2 * (b : ℤ) + 3 * (c : ℤ) = 6))) :
-    (∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c : ℕ, 0 < c ∧ 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6))) := by
+theorem three_names (hH1 : ∃ a : ℤ, 0 < a ∧ (∃ b : ℤ, 0 < b ∧ (∃ c : ℤ, 0 < c ∧ a + 2 * b + 3 * c = 6))) :
+    (∃ a : ℤ, 0 < a ∧ (∃ b : ℤ, 0 < b ∧ (∃ c : ℤ, 0 < c ∧ 3 * c + 2 * b + a = 6))) := by
   -- 1. obtain a, b, c from H1
   obtain ⟨a, s1a, b, s1b, c, s1c, s1d⟩ := hH1
-  try lift a to ℕ using le_of_lt s1a
-  try lift b to ℕ using le_of_lt s1b
-  try lift c to ℕ using le_of_lt s1c
   -- 2. algebra, from 1
-  have s2 : 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6 := by linear_combination (norm := parley_norm) s1d
+  have s2 : 3 * c + 2 * b + a = 6 := by linear_combination (norm := parley_norm) s1d
   -- 3. exhibit, from 2
-  have s3 : ∃ a : ℕ, 0 < a ∧ (∃ b : ℕ, 0 < b ∧ (∃ c : ℕ, 0 < c ∧ 3 * (c : ℤ) + 2 * (b : ℤ) + (a : ℤ) = 6)) := ⟨a, by parley_side, b, by parley_side, c, by parley_side, by parley_side⟩
+  have s3 : ∃ a : ℤ, 0 < a ∧ (∃ b : ℤ, 0 < b ∧ (∃ c : ℤ, 0 < c ∧ 3 * c + 2 * b + a = 6)) := ⟨a, by parley_side, b, by parley_side, c, by parley_side, by parley_side⟩
   all_goals exact s3
 
 end Parley.Tests.Elaborator.ThreeNames.ThreeNames

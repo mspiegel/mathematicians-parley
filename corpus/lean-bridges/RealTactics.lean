@@ -32,6 +32,10 @@ macro "parley_real" : tactic =>
         Real.mul_self_sqrt, Real.sqrt_mul_self, Real.sq_sqrt, Real.sqrt_sq, Real.exp_add,
         Real.cos_two_pi, Real.sin_two_pi]; norm_num; done)
     | (norm_num [Real.sqrt_eq_iff_mul_self_eq, Real.sq_sqrt, Real.sqrt_sq, Real.mul_self_sqrt]; done)
+    -- A value worked out to a whole numeral said to be one, √4 ∈ ℕ as
+    -- `∃ m : ℤ, 0 < m ∧ ↑m = √4`: that numeral the witness.
+    | (norm_num [Real.sqrt_eq_iff_mul_self_eq, Real.sq_sqrt, Real.sqrt_sq, Real.mul_self_sqrt];
+        first | (refine ⟨_, ?_, Int.cast_ofNat _⟩; norm_num; done) | (exact ⟨_, Int.cast_ofNat _⟩))
     -- ln of a power, a product or a quotient: ln(8) = 3·ln(2) is ln(2³).
     | (rw [← Real.log_rpow (by norm_num)]; norm_num; done)
     | (rw [← Real.log_mul (by norm_num) (by norm_num)]; norm_num; done)
@@ -96,3 +100,21 @@ macro "parley_real" : tactic =>
     | (have := Real.pi_gt_three; have := Real.pi_lt_d2; have := Real.exp_one_lt_d9;
        have := Real.exp_one_gt_d9; have := Real.log_two_lt_d9; have := Real.log_two_gt_d9;
        norm_num at *; linarith; done))
+
+/-- A line in ℝ of rationals, a "for all ε ∈ ℝ" taken at ε = 1/2, read in ℚ,
+where the claim is written in its own type: each rational term cast down,
+under any binder, `exact_mod_cast` reaching none there. -/
+macro "parley_rat_of_real " h:ident : tactic =>
+  `(tactic| (simp only [← Rat.cast_natCast (α := ℝ), ← Rat.cast_intCast (α := ℝ),
+      ← Rat.cast_one (α := ℝ), ← Rat.cast_ofNat (α := ℝ), ← Rat.cast_div, ← Rat.cast_sub,
+      ← Rat.cast_add, ← Rat.cast_mul, ← Rat.cast_abs, ← Rat.cast_neg, ← Rat.cast_pow,
+      ← Rat.cast_zpow, ← Rat.cast_sum, Rat.cast_lt, Rat.cast_le, Rat.cast_inj] at $h:ident; first
+                | exact $h:ident
+                | (linear_combination (norm := parley_norm) $h:ident; done)
+                | (linear_combination (norm := parley_norm) -$h:ident; done)
+                -- An item's natural exponent given an integer's `toNat`,
+                -- read at the claim's integer power.
+                | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Nat.cast_one,
+                    Int.toNat_of_nonneg] at $h:ident ⊢; first
+                      | (linear_combination (norm := parley_norm) $h:ident; done)
+                      | (linear_combination (norm := parley_norm) -$h:ident; done))))

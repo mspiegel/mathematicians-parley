@@ -21,9 +21,11 @@ theorem whole_number_by_size (A : ℝ) :
     · skip
       intro hD1
       -- 1. mun:abs-integer z := A, from D1
-      have s1 : ∃ m : ℕ, (m : ℝ) = abs A := by (exact ⟨(abs (Classical.choose hD1)).toNat, by rw [show (((abs (Classical.choose hD1)).toNat : ℕ) : ℝ) = (((abs (Classical.choose hD1)) : ℤ) : ℝ) by exact_mod_cast Int.toNat_of_nonneg (by parley_side)]; push_cast; (try simp only [Classical.choose_spec hD1]); first | done | parley_ring⟩)
+      have s1 : ∃ m : ℤ, 0 ≤ m ∧ (m : ℝ) = abs A := by (exact ⟨abs (Classical.choose hD1 : ℤ), by parley_side, by push_cast; (try simp only [Classical.choose_spec hD1]); first | done | parley_ring⟩)
       -- 2. mun:nat0-int m := |A|, from 1
-      have s2 : ∃ m : ℤ, (m : ℝ) = abs A := by (exact ⟨abs (Classical.choose hD1), by push_cast; (try simp only [Classical.choose_spec hD1]); first | done | parley_ring⟩)
+      have s2 : ∃ m : ℤ, (m : ℝ) = abs A := by
+        have whole1 : ∃ m : ℤ, (m : ℝ) = abs A := by obtain ⟨m, _, hm⟩ := s1; exact ⟨m, by exact_mod_cast hm⟩
+        exact ⟨(Classical.choose whole1 : ℤ), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring)⟩
       all_goals parley_side
     · skip
       intro hD2
@@ -44,7 +46,9 @@ theorem whole_number_by_size (A : ℝ) :
           -- 4.4. substitute |A| = −A (line 4.3) into D2
           have s4_4 : ∃ m : ℤ, (m : ℝ) = -A := by parley_subst_at s4_3 hD2
           -- 4.5. membership, from 4.4
-          have s4_5 : ∃ m : ℤ, (m : ℝ) = 0 - -A := by (exact ⟨0 - (Classical.choose s4_4), by push_cast; (try simp only [Classical.choose_spec s4_4]); first | done | parley_ring⟩)
+          have s4_5 : ∃ m : ℤ, (m : ℝ) = 0 - -A := by
+            have whole1 : ∃ m : ℤ, (m : ℝ) = -A := by obtain ⟨m, hm⟩ := s4_4; exact ⟨m, by exact_mod_cast hm⟩
+            exact ⟨(0 - (Classical.choose whole1 : ℤ)), by first | (push_cast; simp only [Classical.choose_spec whole1]; done) | (push_cast; simp only [Classical.choose_spec whole1]; ring)⟩
           -- 4.6. substitute
           have s4_6 : ∃ m : ℤ, (m : ℝ) = A := by
             have c1 : 0 - -A = A := by parley_ring

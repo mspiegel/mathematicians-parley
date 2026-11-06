@@ -23,7 +23,7 @@ theorem a_label_given_again_inside_a_block :
       -- 1.1.1. inequalities
       have s1_1_1 : y + 1 > 1 := by parley_order
       -- 1.1.2. arithmetic
-      have s1_1_2 : (1 : ℝ) > 0 := by parley_arith
+      have s1_1_2 : (1 : ℤ) > 0 := by parley_arith
       -- 1.1.3. transitivity, from 1.1.1, 1.1.2
       have s1_1_3 : y + 1 > 0 := by parley_order
       all_goals parley_side

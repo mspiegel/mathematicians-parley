@@ -845,6 +845,22 @@ impl Writer<'_> {
         inner
             .letters
             .insert(letter.text.to_string(), members.letter());
+        inner.wholes.shift_remove(&*letter.text);
+        // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
+        // letter a line puts there is.
+        let system = match super::expr::system_of(set) {
+            Some(s) => Some(s),
+            None if set.notation() == crate::notations::INTEGER_RANGE => {
+                Some(super::expr::range_letter_system(set))
+            }
+            None => None,
+        };
+        if let Some(
+            s @ (super::expr::System::Positive | super::expr::System::NonNegative),
+        ) = system
+        {
+            inner.introduce(&letter.text, s);
+        }
         let condition = match inner.formula(body) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
@@ -1056,17 +1072,20 @@ impl Writer<'_> {
     }
 
     /// Whether a term is a natural number as ℕ∞ holds one: counts, whole
-    /// numerals, letters of ℕ, and their sums and products.
+    /// numerals, letters the page puts in ℕ or ℕ₀ (written `↑m.toNat`
+    /// there, `count_term`), and their sums and products.
     fn natural_beside_count(&self, node: &Node) -> bool {
         if &*node.notation_name() == "cardinality" {
             return true;
         }
         match node.notation() {
             crate::notations::NUMERAL => !node.text.contains('.'),
-            crate::notations::NAME => matches!(
-                self.letters.get(node.text.as_str()),
-                Some(LetterType::Number(Num::Nat))
-            ),
+            crate::notations::NAME => {
+                matches!(
+                    self.letters.get(node.text.as_str()),
+                    Some(LetterType::Number(Num::Nat))
+                ) || self.wholes.contains_key(&*node.text)
+            }
             _ => {
                 matches!(&*node.notation_name(), "additive" | "multiplicative")
                     && matches!(&*node.spelling().text(), "+" | "·")

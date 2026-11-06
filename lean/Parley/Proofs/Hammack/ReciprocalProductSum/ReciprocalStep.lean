@@ -10,7 +10,7 @@ public section
 
 namespace Parley.Proofs.Hammack.ReciprocalProductSum.ReciprocalStep
 
-theorem reciprocal_step (m : ℕ) (hH1 : 0 < m) :
+theorem reciprocal_step (m : ℤ) (hH1 : 0 < m) :
     1 - 1 / (m : ℚ) + 1 / ((m : ℚ) * ((m : ℚ) + 1)) = 1 - 1 / ((m : ℚ) + 1) := by
   -- 1. algebra
   have s1 : 1 / (m : ℚ) - 1 / ((m : ℚ) + 1) = 1 / ((m : ℚ) * ((m : ℚ) + 1)) := by parley_ring

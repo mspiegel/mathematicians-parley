@@ -120,9 +120,16 @@ pub fn algebra(
         proofs.push(c.proof.clone());
     }
     // Lines cited for what they say of a divisor, and no equation: the claim
-    // is an identity, cleared of its divisions by those lines.
+    // is an identity, cleared of its divisions by those lines. A line that
+    // puts a letter of a wider type in ℕ, x ∈ ℕ of a real x, is unpacked
+    // first, x the natural number it is, above 0, as set.mm's x ∈ ℕ gives
+    // x ≠ 0.
     if given.is_empty() {
-        return Route::Built("by parley_ring".to_string());
+        let unpacked: String = cited
+            .iter()
+            .filter_map(|c| member_unpacked(writer, c))
+            .collect();
+        return Route::Built(format!("by {unpacked}parley_ring"));
     }
     let claim_under = denominators(&claimed, &labels);
     let found = readings(&claimed, want, &labels)
@@ -218,6 +225,27 @@ pub fn algebra(
 /// rest written as a product of the factors, each of which a line says is
 /// not 0, rather than multiplied out, which `field_simp` could not see is
 /// not 0.
+/// `obtain` of a cited line that puts a letter of a wider type in ℕ, ℕ₀ or
+/// ℤ, written `∃ m, …, (m : T) = x`: the letter becomes that number. None
+/// for any other line.
+fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<String> {
+    let [x, set] = cited.node.children.as_slice() else {
+        return None;
+    };
+    if cited.node.notation() != crate::notations::MEMBERSHIP || !x.is_name() {
+        return None;
+    }
+    let system = super::expr::system_of(set)?;
+    let own = writer.carrier(x).built()?;
+    let pattern = match system {
+        super::expr::System::Positive if own > Num::Int => "⟨_, _, rfl⟩",
+        super::expr::System::NonNegative if own > Num::Int => "⟨_, rfl⟩",
+        super::expr::System::Type(Num::Int) if own > Num::Int => "⟨_, rfl⟩",
+        _ => return None,
+    };
+    Some(format!("obtain {pattern} := {}; ", cited.proof))
+}
+
 fn ratio_text(
     writer: &Writer,
     mut over: Poly,

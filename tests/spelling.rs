@@ -142,6 +142,16 @@ const ALLOWED: &[(&str, &str, &str)] = &[
         "a.len() == b.len() && a.iter().zip(b).all(|(x, y)| x.same_shape(y))",
         "a record and the Parley proof a build cites in its place state one thing as written: a citation matched to the record's spelling is built from the proof's",
     ),
+    (
+        "src/lean/expr.rs",
+        "if node.same_shape(from) {",
+        "the Lean writer puts a whole number for a part it took from this very tree (`put_for`): the part is found where it was taken, as written",
+    ),
+    (
+        "src/lean/theorem.rs",
+        "if node.same_shape(part) {",
+        "the path to a part the Lean writer took from this very tree (`path_to`), to restate the line there: found where it was taken, as written",
+    ),
 ];
 
 fn sources(dir: &Path, out: &mut Vec<std::path::PathBuf>) {

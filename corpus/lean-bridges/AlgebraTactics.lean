@@ -14,6 +14,29 @@ it. A generated file imports this module only when it calls one of them.
 
 public section
 
+open Lean Meta Elab Tactic in
+/-- For each line `0 < x`, the line `x ≠ 0`: an integer the page puts in ℕ,
+the q of p/q, is not 0, which is what clearing a division by it asks. -/
+elab "parley_pos_ne" : tactic => withMainContext do
+  let lines := (← getLCtx).decls.toList.filterMap id |>.filter (!·.isImplementationDetail)
+  for line in lines do
+    let said ← instantiateMVars line.type
+    unless said.isAppOfArity ``LT.lt 4 do continue
+    unless (said.getArg! 2).isAppOfArity ``OfNat.ofNat 3 do continue
+    try
+      let proof ← mkAppM ``ne_of_gt #[mkFVar line.fvarId]
+      let ty ← inferType proof
+      liftMetaTactic fun g => do
+        let g' ← g.assert `h_ne ty proof
+        let (_, g'') ← g'.intro1P
+        return [g'']
+    catch _ => pure ()
+
+/-- What `field_simp` asks of a divisor cast up, `(q : ℂ) ≠ 0`: a line, or
+one of the integer itself with the cast moved (`parley_pos_ne`). -/
+macro "parley_cast_ne" : tactic =>
+  `(tactic| first | assumption | (norm_cast; done) | (exact_mod_cast ‹_›) | (norm_cast; omega))
+
 /-- Clears what an `algebra` step divides by, from the lines saying each
 divisor is not 0, a product, a quotient or a negation not 0 taken as each
 of its parts not 0. A natural number above 0, the q of p/q, is not 0. -/
@@ -27,12 +50,22 @@ macro "parley_ring" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
+    -- A power to an exponent the page puts in ℕ₀, `x ^ e.toNat`, its
+    -- `toNat` taken apart by the facts in scope (`parley_norm`).
+    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
+        mul_one, one_mul]; (try push_cast); ring1; done)
+    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
+        mul_one, one_mul]; done)
     -- A factorial divided by itself, which is not 0, where the file's
     -- modules tag the factorial into `parley_unfold`.
     | (field_simp [parley_unfold]; done)
     | (simp only [inv_inv, one_div, div_div, div_pow] <;> ring1; done)
     | (parley_clear <;> ring1; done)
     | (parley_clear; done)
+    -- Divisions by integers the page puts in ℕ, p/q − r/s: each divisor
+    -- not 0 by its fact 0 < q.
+    | (parley_pos_ne; field_simp (disch := parley_cast_ne); done)
+    | (parley_pos_ne; field_simp (disch := parley_cast_ne); ring1; done)
     -- A sum read as linear (METHODS.md): each side gathered into one sum
     -- over the range, its factors free of the index taken inside, and the
     -- summands compared index by index.
@@ -107,6 +140,9 @@ macro "parley_field" : tactic =>
           div_eq_iff, mul_one_div, mul_div_assoc', div_mul_eq_mul_div, div_add', add_div',
           div_sub', sub_div']; ring1; done)
     | (parley_clear <;> ring1; done)
+    -- A divisor of integers cast up, (k : ℂ) + 1 of k ∈ ℕ₀: not 0 by the
+    -- facts of the integers, the cast moved (`parley_cast_ne`).
+    | (field_simp (disch := parley_cast_ne); ring1; done)
     | (parley_radical; done))
 
 end

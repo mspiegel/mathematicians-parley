@@ -74,7 +74,7 @@ theorem a_map_over_a_set_binding_its_letter (g : ℝ → ℝ) (hD2 : ∀ x : ℝ
       -- 4.4.4. substitute √c = 0 (line 4.4.3)
       have s4_4_4 : Real.sqrt c ^ 2 = 0 ^ 2 := by parley_subst s4_4_3
       -- 4.4.5. arithmetic
-      have s4_4_5 : (0 ^ 2 : ℝ) = 0 := by parley_arith
+      have s4_4_5 : (0 ^ 2 : ℤ) = 0 := by parley_arith
       -- 4.4.6. calculation
       have s4_4_6 : c = 0 := by
         calc c = Real.sqrt c ^ 2 := by parley_set_side

@@ -35,9 +35,9 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
   -- 4. mun:open-within-closed
   have s4 : (Set.Ioo a b : Set ℝ) ⊆ (Set.Icc a b : Set ℝ) := by first | exact (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b)) | exact ((Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b))).symm | simpa using (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b)) | exact_mod_cast (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b)) | (have h := (Parley.Items.Stdlib.Calculus.mun_open_within_closed (a := a) (b := b)); parley_set_side)
   -- 5. D1
-  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), G x = (∫ t in a..x, (f t : ℝ)) := by parley_set_side
+  have s5 : ∀ x ∈ (Set.Icc a b : Set ℝ), G x = (∫ t in a..x, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 6. D2
-  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), H x = G x - F x := by parley_set_side
+  have s6 : ∀ x ∈ (Set.Icc a b : Set ℝ), H x = G x - F x := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 7. proof
   have s7 : ∀ x ∈ (Set.Icc a b : Set ℝ), True := by
     intro x hK1
@@ -87,13 +87,13 @@ theorem fundamental_calculus (a : ℝ) (b : ℝ) (hH3 : a < b) (f : ℝ → ℝ)
     have s17_4 : (deriv H) x = 0 := by linear_combination (norm := parley_norm) s17_2
     all_goals exact s17_4
   -- 18. D2, from 1
-  have s18 : H a = G a - F a := by parley_set_side
+  have s18 : H a = G a - F a := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 19. D2, from 2
-  have s19 : H b = G b - F b := by parley_set_side
+  have s19 : H b = G b - F b := by first | (simp (disch := omega) only [hD2]; done) | (simp (disch := omega) only [hD2]; push_cast; norm_num; done) | parley_set_side
   -- 20. D1, from 1
-  have s20 : G a = (∫ t in a..a, (f t : ℝ)) := by parley_set_side
+  have s20 : G a = (∫ t in a..a, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 21. D1, from 2
-  have s21 : G b = (∫ t in a..b, (f t : ℝ)) := by parley_set_side
+  have s21 : G b = (∫ t in a..b, (f t : ℝ)) := by first | (simp (disch := omega) only [hD1]; done) | (simp (disch := omega) only [hD1]; push_cast; norm_num; done) | parley_set_side
   -- 22. calculation
   have r178_1 : Set.MapsTo H (Set.Icc a b : Set ℝ) (Set.univ : Set ℝ) := by parley_set_side
   have s22 : G b - F b = G a - F a := by

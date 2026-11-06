@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Proofs.Setmm.LimitUnique.LimitUnique
 
-theorem limit_unique (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds A)) (hH5 : Filter.Tendsto (fun n : ℕ => (x (n : ℤ) : ℝ)) Filter.atTop (nhds B)) :
+theorem limit_unique (x : ℤ → ℝ) (A : ℝ) (B : ℝ) (hH4 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds A)) (hH5 : Filter.Tendsto (fun n : ℤ => (x n : ℝ)) Filter.atTop (nhds B)) :
     A = B := by
   -- 1. thm:limit-at-most, from H4, H5
   have s1 : A ≤ B := by first | linarith [(Parley.Proofs.Setmm.LimitUnique.LimitAtMost.limit_at_most (x := x) (A := A) (B := B) hH4 hH5)] | (have h := (Parley.Proofs.Setmm.LimitUnique.LimitAtMost.limit_at_most (x := x) (A := A) (B := B) hH4 hH5); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitUnique.LimitAtMost.limit_at_most (x := x) (A := A) (B := B) hH4 hH5) | (have h := (Parley.Proofs.Setmm.LimitUnique.LimitAtMost.limit_at_most (x := x) (A := A) (B := B) hH4 hH5); parley_side)

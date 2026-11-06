@@ -50,6 +50,24 @@ theorem one_to_one_onto {α β : Type*} (X : Set α) (Y : Set β) (f : α → β
     Set.MapsTo f X Y ∧ Set.InjOn f X ∧ Set.SurjOn f X Y ↔ (Set.MapsTo f X Y ∧ Set.InjOn f X) ∧ Set.MapsTo f X Y ∧ Set.SurjOn f X Y :=
   ⟨fun ⟨a, b, c⟩ => ⟨⟨a, b⟩, a, c⟩, fun ⟨⟨a, b⟩, _, c⟩ => ⟨a, b, c⟩⟩
 
+/-- Induction over the integers from m up, as the page's induction over ℕ
+from 1 or ℕ₀ from 0 is of its integer letter: what holds at m, and at
+n + 1 wherever it holds at n ≥ m, holds at every n ≥ m. Its cases are
+`base` and `succ`, as `Nat.le_induction`'s are. -/
+@[elab_as_elim]
+theorem le_induction {m : ℤ} {P : ∀ n : ℤ, m ≤ n → Prop}
+    (base : P m (le_refl m))
+    (succ : ∀ n (hmn : m ≤ n), P n hmn → P (n + 1) (le_trans hmn (Int.le_add_one (le_refl n)))) :
+    ∀ n (hmn : m ≤ n), P n hmn := by
+  intro n hmn
+  obtain ⟨k, hk⟩ : ∃ k : ℕ, n = m + k := ⟨(n - m).toNat, by omega⟩
+  subst hk
+  induction k with
+  | zero => simpa using base
+  | succ k ih =>
+    have := succ (m + k) (by omega) (ih (by omega))
+    simpa [add_assoc] using this
+
 /-- A recursion a proof lets, `let N(0) = 0, N(k + 1) = 10·N(k) + d(k + 1),
 for k ∈ ℕ₀`: some function on the integers starts at a and takes each step
 from 0 on, as the build's sequences take integers. Its values below 0 are

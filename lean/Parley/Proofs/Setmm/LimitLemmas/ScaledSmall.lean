@@ -3,6 +3,7 @@ module
 public import AlgebraTactics
 public import OrderTactics
 public import PowerTactics
+public import RealTactics
 public import Tactics
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Proofs.Setmm.LimitLemmas.AbsNonneg
@@ -20,7 +21,7 @@ theorem scaled_small (C : ℝ) (u : ℝ) (ε : ℝ) (hH4 : ε > 0) (hH5 : abs u 
   -- 2. thm:abs-nonneg x := C
   have s2 : abs C ≥ 0 := by first | linarith [(Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C))] | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)); push_cast at h; linarith) | exact_mod_cast (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)) | (have h := (Parley.Proofs.Setmm.LimitLemmas.AbsNonneg.abs_nonneg (x := C)); parley_side)
   set d : ℝ := abs C + 1 with hD1
-  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))); parley_side)
+  have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact ((Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ)))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_real_closure_1 (x := abs C) (y := (1 : ℝ))); parley_side)
   -- 3. inequalities, from D1, 2
   have s3 : d > 0 := by parley_order
   -- 4. inequalities

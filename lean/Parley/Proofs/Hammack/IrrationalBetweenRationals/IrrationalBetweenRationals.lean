@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import PowerTactics
+public import RealTactics
 public import SubstTactics
 public import Tactics
 public import Parley.Items.Stdlib.Numbers
@@ -21,7 +22,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
   -- 1. def:sqrt x := 2
   have r20_1 : (2 : ℤ) ≥ 0 := by parley_arith
   have s1a : Real.sqrt (2 : ℝ) ≥ 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_2 (x := (2 : ℝ)) (by parley_side)); parley_side)
-  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); parley_side)
+  have s1b : Real.sqrt (2 : ℝ) ^ 2 = 2 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.def_sqrt_3 (x := (2 : ℝ)) (by parley_side)); parley_side)
   -- 2. thm:sqrt2-irrational
   have s2 : Irrational (Real.sqrt (2 : ℝ)) := by first | exact Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational).symm | simpa using Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | exact_mod_cast Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational | (have h := Parley.Proofs.Wiedijk.Sqrt2Irrational.Sqrt2Irrational.sqrt2_irrational; parley_side)
   -- 3. calculation
@@ -71,13 +72,10 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     have hS : ∃ m : ℚ, (m : ℝ) = u := by parley_suppose hc_hS
     -- 17.1. obtain a, b: def:rational x := u, from S
     obtain ⟨a, b, s17_1a, s17_1b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := u))).mp (by parley_side)
-    try lift b to ℕ using le_of_lt s17_1a
     -- 17.2. obtain p, q: def:rational x := r
     obtain ⟨p, q, s17_2a, s17_2b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := r))).mp (by parley_side)
-    try lift q to ℕ using le_of_lt s17_2a
     -- 17.3. obtain c, d: def:rational x := s
     obtain ⟨c, d, s17_3a, s17_3b⟩ := ((Parley.Items.Stdlib.Numbers.def_rational (x := s))).mp (by parley_side)
-    try lift d to ℕ using le_of_lt s17_3a
     -- 17.4. substitute s = c/d (line 17.3)
     have s17_4 : s - r = (c : ℚ) / (d : ℚ) - r := by parley_subst s17_3b
     -- 17.5. substitute r = p/q (line 17.2)
@@ -85,7 +83,7 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.6. transitivity, from 17.4, 17.5
     have s17_6 : s - r = (c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ) := by parley_side
     -- 17.7. mun:product-positive x := q, y := d, from 17.2, 17.3
-    have s17_7 : (q : ℤ) * (d : ℤ) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := (q : ℤ)) (y := (d : ℤ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (q : ℤ)) (y := (d : ℤ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (q : ℤ)) (y := (d : ℤ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := (q : ℤ)) (y := (d : ℤ)) (by parley_side) (by parley_side)); parley_side)
+    have s17_7 : q * d > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := q) (y := d) (by parley_side) (by parley_side)); parley_side)
     -- 17.8. mun:product-positive x := s − r, y := q·d, from 9, 17.7
     have s17_8 : (s - r) * ((q : ℚ) * (d : ℚ)) > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_product_positive (x := s - r) (y := (q : ℚ) * (d : ℚ)) (by parley_side) (by parley_side)); parley_side)
     -- 17.9. substitute s − r = c/d − p/q (line 17.6) into line 17.8
@@ -93,9 +91,10 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.10. algebra
     have s17_10 : ((c : ℚ) / (d : ℚ) - (p : ℚ) / (q : ℚ)) * ((q : ℚ) * (d : ℚ)) = (c : ℚ) * (q : ℚ) - (p : ℚ) * (d : ℚ) := by parley_ring
     -- 17.11. transitivity, from 17.9, 17.10
-    have s17_11 : 0 < c * (q : ℤ) - p * (d : ℤ) := by parley_order
-    set m : ℤ := c * (q : ℤ) - p * (d : ℤ) with hD2
-    have hD2_kind : 0 < c * (q : ℤ) - p * (d : ℤ) := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * (q : ℤ) - p * (d : ℤ)) s17_11); parley_side)
+    have s17_11 : 0 < c * q - p * d := by parley_order
+    have hD2_kind : 0 < c * q - p * d := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := c * q - p * d) s17_11); parley_side)
+    set m : ℤ := c * q - p * d with hD2
+    have hD2_pos := hD2_kind
     -- 17.12. algebra, from D1
     have s17_12 : u - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by
       try simp only [hD1] at *
@@ -107,10 +106,10 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
       have row1 : (a : ℝ) / (b : ℝ) - (r : ℝ) = ((s : ℝ) - (r : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by parley_subst_at c1 s17_12
       have c2 : r = (p : ℚ) / (q : ℚ) := by parley_subst s17_2b
       have c2_w : (r : ℝ) = (p : ℝ) / (q : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c2; push_cast at h; linear_combination (norm := parley_norm) h
-      have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_subst_at c2_w row1 | parley_subst_at c2 row1
+      have row2 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((s : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c2_w row1 | parley_put_at c2 row1 | parley_subst_at c2_w row1 | parley_subst_at c2 row1
       have c3 : s = (c : ℚ) / (d : ℚ) := by parley_subst s17_3b
       have c3_w : (s : ℝ) = (c : ℝ) / (d : ℝ) := by have h := congrArg (fun x : ℚ => (x : ℝ)) c3; push_cast at h; linear_combination (norm := parley_norm) h
-      have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_subst_at c3_w row2 | parley_subst_at c3 row2
+      have row3 : (a : ℝ) / (b : ℝ) - (p : ℝ) / (q : ℝ) = ((c : ℝ) / (d : ℝ) - (p : ℝ) / (q : ℝ)) * (1 / 2 * Real.sqrt (2 : ℝ)) := by first | parley_put_at c3_w row2 | parley_put_at c3 row2 | parley_subst_at c3_w row2 | parley_subst_at c3 row2
       exact row3
     -- 17.14. algebra, from 17.13
     have s17_14 : (b : ℝ) * ((c : ℝ) * (q : ℝ) - (p : ℝ) * (d : ℝ)) * Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) := by linear_combination (norm := parley_field) (-2 * (b : ℝ) * (d : ℝ) * (q : ℝ)) * s17_13
@@ -121,9 +120,9 @@ theorem irrational_between_rationals (r : ℚ) (s : ℚ) (hH3 : r < s) :
     -- 17.16. algebra, from 17.15
     have s17_16 : Real.sqrt (2 : ℝ) = 2 * (d : ℝ) * ((a : ℝ) * (q : ℝ) - (p : ℝ) * (b : ℝ)) / ((b : ℝ) * (m : ℝ)) := by linear_combination (norm := parley_field) ((1) / (((b : ℝ) * (m : ℝ)))) * s17_15
     -- 17.17. def:rational x := √2, from 17.16
-    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * (d : ℤ) * (a * (q : ℤ) - p * (b : ℤ)), ((b : ℤ) * m).toNat, by (try simp only [parley_cast_toNat (show (0 : ℤ) ≤ ((b : ℤ) * m) by parley_side)]); (try push_cast); parley_side, by (try simp only [parley_cast_toNat (show (0 : ℤ) ≤ ((b : ℤ) * m) by parley_side)]); (try push_cast); parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * (d : ℤ) * (a * (q : ℤ) - p * (b : ℤ)), ((b : ℤ) * m).toNat, by (try simp only [parley_cast_toNat (show (0 : ℤ) ≤ ((b : ℤ) * m) by parley_side)]); (try push_cast); parley_side, by (try simp only [parley_cast_toNat (show (0 : ℤ) ≤ ((b : ℤ) * m) by parley_side)]); (try push_cast); parley_side⟩; parley_side)
+    have s17_17 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (2 : ℝ)))).mpr ⟨2 * d * (a * q - p * b), b * m, by parley_side, by parley_side⟩; parley_side)
     -- 17.18. def:irrational x := √2, from 2
-    have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by first | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2; parley_side)
+    have s17_18 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (2 : ℝ)) := by first | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (2 : ℝ)))).mp (by parley_side)).2; parley_side)
     all_goals parley_side
   -- 18. def:irrational x := u, from 17
   have s18 : Irrational u := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Numbers.def_irrational (x := u))).mpr (by parley_side); parley_side)

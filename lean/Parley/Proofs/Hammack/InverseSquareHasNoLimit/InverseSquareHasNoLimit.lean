@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import PowerTactics
+public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -27,43 +28,42 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
     -- 1. obtain L from S
     obtain ⟨L, s1⟩ := hS
     -- 2. def:limit-at D := ℝ ∖ {0}, c := 0, from 1
-    have r28_1 : (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))); parley_set_side)
-    have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side); parley_set_side)
+    have r28_1 : (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ) ⊆ (Set.univ : Set ℝ) := by first | exact (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | exact ((Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ)))).symm | simpa using (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Sets.mun_difference_subset (X := (Set.univ : Set ℝ)) (Y := ({(0 : ℝ)} : Set ℝ))); parley_set_side)
+    have s2 : ∀ ε : ℝ, ε > 0 → (∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < ε)) := by first | exact ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Calculus.def_limit_at (f := f) (D := (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ)) (by parley_set_side) (c := (0 : ℝ)) (L := L))).mp (by parley_set_side); parley_set_side)
     -- 3. instantiate ε := 1 in line 2
-    have r32_1 : (0 : ℝ) < 1 := by parley_arith
-    have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by first | exact (s2 (1 : ℝ) (by parley_set_side)) | exact ((s2 (1 : ℝ) (by parley_set_side))).symm | simpa using (s2 (1 : ℝ) (by parley_set_side)) | exact_mod_cast (s2 (1 : ℝ) (by parley_set_side)) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_set_side)
+    have r32_1 : (0 : ℤ) < 1 := by parley_arith
+    have s3 : ∃ δ : ℝ, δ > 0 ∧ (∀ x ∈ (Set.univ : Set ℝ) \ ({(0 : ℝ)} : Set ℝ), x ≠ 0 ∧ abs x < δ → abs (f x - L) < 1) := by first | exact (s2 (1 : ℝ) (by parley_set_side)) | exact ((s2 (1 : ℝ) (by parley_set_side))).symm | simpa using (s2 (1 : ℝ) (by parley_set_side)) | exact_mod_cast (s2 (1 : ℝ) (by parley_set_side)) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_rat_of_real h) | (have h := (s2 (1 : ℝ) (by parley_set_side)); parley_set_side)
     -- 4. obtain p from line 3
     obtain ⟨p, ⟨s4a, s4b⟩⟩ := s3
     -- 5. inequalities
     have s5 : p ≠ 0 := by parley_set_side
     -- 6. mun:quotient-positive x := 2, y := p, from 4
-    have r44_1 : (2 : ℝ) > 0 := by parley_arith
+    have r44_1 : (2 : ℤ) > 0 := by parley_arith
     have s6 : 2 / p > 0 := by first | linarith [(Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side))] | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_quotient_positive (x := (2 : ℝ)) (y := p) (by parley_set_side) (by parley_set_side)); parley_set_side)
     -- 7. obtain m: thm:archimedean-natural x := 2/p, from 5
     obtain ⟨m, s7a, s7b⟩ := (Parley.Items.Stdlib.Numbers.thm_archimedean_natural (x := 2 / p))
-    try lift m to ℕ using le_of_lt s7a
     -- 8. inequalities
     have s8 : p > p / 2 := by parley_order
     -- 9. inequalities, from 7
-    have s9 : (m : ℝ) ≥ 1 := by parley_order
+    have s9 : m ≥ 1 := by parley_order
     -- 10. proof
-    have s10 : ∀ j : ℕ, 0 < j → (j : ℝ) ≥ (m : ℝ) → abs ((j : ℝ) ^ 2 - L) < 1 := by
+    have s10 : ∀ j : ℤ, 0 < j → j ≥ m → abs ((j : ℝ) ^ 2 - L) < 1 := by
       intro j hK1
       intro hA1
       -- 10.1. inequalities, from K1
-      have s10_1 : (j : ℝ) > 0 := by parley_order
+      have s10_1 : j > 0 := by parley_order
       -- 10.2. inequalities, from 7
-      have s10_2 : (m : ℝ) > 0 := by parley_order
+      have s10_2 : m > 0 := by parley_order
       -- 10.3. mun:reciprocal-order x := m, y := j, from A1
-      have r72_1 : (m : ℝ) > 0 := by parley_set_side
-      have r72_2 : (j : ℝ) > 0 := by parley_set_side
-      have s10_3 : 1 / (j : ℝ) ≤ 1 / (m : ℝ) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℝ)) (by parley_set_side) (y := (j : ℝ)) (by parley_set_side))).mp (by parley_set_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℝ)) (by parley_set_side) (y := (j : ℝ)) (by parley_set_side))).mp (by parley_set_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℝ)) (by parley_set_side) (y := (j : ℝ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℝ)) (by parley_set_side) (y := (j : ℝ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
+      have r72_1 : m > 0 := by parley_set_side
+      have r72_2 : j > 0 := by parley_set_side
+      have s10_3 : 1 / (j : ℚ) ≤ 1 / (m : ℚ) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := (m : ℚ)) (by parley_set_side) (y := (j : ℚ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
       -- 10.4. inequalities
       have r77_1 : p ≠ 0 := by parley_set_side
       have s10_4 : (m : ℝ) ≥ 2 / p := by parley_order
       -- 10.5. mun:reciprocal-order x := 2/p, y := m, from 10.4
       have r83_1 : 2 / p > 0 := by parley_set_side
-      have r83_2 : (m : ℝ) > 0 := by parley_set_side
+      have r83_2 : m > 0 := by parley_set_side
       have r83_3 : p ≠ 0 := by parley_set_side
       have s10_5 : 1 / (m : ℝ) ≤ 1 / (2 / p) := by first | linarith [((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp (by parley_set_side)] | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp (by parley_set_side); push_cast at h; linarith) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_reciprocal_order (x := 2 / p) (by parley_set_side) (y := (m : ℝ)) (by parley_set_side))).mp (by parley_set_side); parley_set_side)
       -- 10.6. algebra
@@ -122,27 +122,27 @@ theorem inverse_square_has_no_limit (f : ℝ → ℝ) (hH1 : Set.MapsTo f ((Set.
       have s10_22 : abs ((j : ℝ) ^ 2 - L) < 1 := by parley_subst_at s10_21 s10_14
       all_goals parley_set_side
     -- 11. instantiate j := m in line 10
-    have r154_1 : (m : ℝ) ≥ (m : ℝ) := by parley_order
+    have r154_1 : m ≥ m := by parley_order
     have s11 : abs ((m : ℝ) ^ 2 - L) < 1 := by first | linarith [(s10 m (by parley_set_side) (by parley_set_side))] | (have h := (s10 m (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 m (by parley_set_side) (by parley_set_side)) | (have h := (s10 m (by parley_set_side) (by parley_set_side)); parley_set_side)
     -- 12. instantiate j := m + 1 in line 10
-    have r158_1 : (m : ℝ) + 1 ≥ (m : ℝ) := by parley_order
+    have r158_1 : m + 1 ≥ m := by parley_order
     have s12 : abs (((m : ℝ) + 1) ^ 2 - L) < 1 := by first | linarith [(s10 (m + 1) (by parley_set_side) (by parley_set_side))] | (have h := (s10 (m + 1) (by parley_set_side) (by parley_set_side)); push_cast at h; linarith) | exact_mod_cast (s10 (m + 1) (by parley_set_side) (by parley_set_side)) | (have h := (s10 (m + 1) (by parley_set_side) (by parley_set_side)); parley_set_side)
     -- 13. mun:abs-difference-lt x := m², c := L, δ := 1, from 11
-    have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
+    have s13 : L - 1 < (m : ℝ) ^ 2 ∧ (m : ℝ) ^ 2 < L + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := (m : ℝ) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
     -- 14. mun:abs-difference-lt x := (m + 1)², c := L, δ := 1, from 12
-    have s14 : L - 1 < ((m : ℝ) + 1) ^ 2 ∧ ((m : ℝ) + 1) ^ 2 < L + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
+    have s14 : L - 1 < ((m : ℝ) + 1) ^ 2 ∧ ((m : ℝ) + 1) ^ 2 < L + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := ((m : ℝ) + 1) ^ 2) (c := L) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
     -- 15. inequalities, from 13, 14
     have s15 : L - 1 + ((m : ℝ) + 1) ^ 2 < (m : ℝ) ^ 2 + (L + 1) := by parley_order
     -- 16. inequalities
-    have s16 : ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 < 2 := by parley_order
+    have s16 : (m + 1) ^ 2 - m ^ 2 < 2 := by parley_order
     -- 17. algebra
-    have s17 : ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 = 2 * (m : ℝ) + 1 := by parley_ring
+    have s17 : (m + 1) ^ 2 - m ^ 2 = 2 * m + 1 := by parley_ring
     -- 18. inequalities
-    have s18 : 2 * (m : ℝ) + 1 ≥ 3 := by parley_order
+    have s18 : 2 * m + 1 ≥ 3 := by parley_order
     -- 19. transitivity, from 17, 18
-    have s19 : ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 ≥ 3 := by parley_order
+    have s19 : (m + 1) ^ 2 - m ^ 2 ≥ 3 := by parley_order
     -- 20. inequalities, from 19
-    have s20 : ¬ ((m : ℝ) + 1) ^ 2 - (m : ℝ) ^ 2 < 2 := by parley_set_side
+    have s20 : ¬ (m + 1) ^ 2 - m ^ 2 < 2 := by parley_set_side
     all_goals parley_set_side
   all_goals parley_set_side
 

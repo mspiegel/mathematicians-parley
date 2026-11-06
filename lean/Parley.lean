@@ -20,6 +20,7 @@ public import Parley.Items.Proofs.Wiedijk.PythagoreanTriples
 public import Parley.Items.Proofs.Wiedijk.Ramsey
 public import Parley.Items.Tests.Elaborator.APhraseDefined
 public import Parley.Items.Tests.Elaborator.APhraseWithAWherePart
+public import Parley.Items.Tests.Elaborator.APhraseWithAnd
 public import Parley.Stdlib.Calculus.LimitAtMost
 public import Parley.Stdlib.Calculus.LimitAtLeast
 public import Parley.Stdlib.Calculus.FirstTermsBounded
@@ -33,6 +34,7 @@ public import Parley.Stdlib.Divisibility.CoprimeDivides
 public import Parley.Stdlib.Divisibility.CongruentCancel
 public import Parley.Stdlib.Divisibility.CoprimeSquarePart
 public import Parley.Stdlib.Divisibility.CoprimeSquare
+public import Parley.Stdlib.Divisibility.PrimePowerNotLess
 public import Parley.Stdlib.Divisibility.PrimePowerUnique
 public import Parley.Stdlib.Divisibility.PrimePowersUnique
 public import Parley.Stdlib.Divisibility.ProductCongruent
@@ -581,6 +583,7 @@ public import Parley.Proofs.Wiedijk.Cubic.Cubic
 public import Parley.Proofs.Wiedijk.DeMoivre.DeMoivre
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.CongruentTimes
 public import Parley.Proofs.Wiedijk.DivisibilityByThree.TenPowerCongruent
+public import Parley.Proofs.Wiedijk.DivisibilityByThree.DivisibilityByThree
 public import Parley.Proofs.Wiedijk.ErdosSzekeres.ExtendRun
 public import Parley.Proofs.Wiedijk.Euclid.Euclid
 public import Parley.Proofs.Wiedijk.Euler.Euler
@@ -619,8 +622,10 @@ public import Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtLeast
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.LaterAtMost
 public import Parley.Proofs.Wiedijk.LiouvilleNumber.ScaledSumInteger
 public import Parley.Proofs.Wiedijk.MeanValue.MeanValue
+public import Parley.Proofs.Wiedijk.PerfectNumbers.EuclidPerfect
 public import Parley.Proofs.Wiedijk.PerfectNumbers.OddPart
 public import Parley.Proofs.Wiedijk.PerfectNumbers.ThreeDivisors
+public import Parley.Proofs.Wiedijk.PerfectNumbers.EulerPerfect
 public import Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeTimesProduct
 public import Parley.Proofs.Wiedijk.PrimeFactorisation.PrimeFactorisation
 public import Parley.Proofs.Wiedijk.Ptolemy.Ptolemy
@@ -707,7 +712,6 @@ public import Parley.Tests.Elaborator.ADefineWhoseBodyTheReadingRewrites.ADefine
 public import Parley.Tests.Elaborator.ADefinitionFoldedWithoutItsPair.ADefinitionFoldedWithoutItsPair
 public import Parley.Tests.Elaborator.ADerivativeTyped.ADerivativeTyped
 public import Parley.Tests.Elaborator.ADirectionEndingOnAProofBlock.ADirectionEndingOnAProofBlock
-public import Parley.Tests.Elaborator.ADividesFoldWithItsWitness.ADividesFoldWithItsWitness
 public import Parley.Tests.Elaborator.ADivisorMultiplyingAQuotient.ADivisorMultiplyingAQuotient
 public import Parley.Tests.Elaborator.ADivisorNegatingAQuotient.ADivisorNegatingAQuotient
 public import Parley.Tests.Elaborator.ADivisorNegatingAQuotient.AnAbsoluteValueOverItsNegation
@@ -760,6 +764,7 @@ public import Parley.Tests.Elaborator.APhraseDefined.ATriangularNumberIsNatural
 public import Parley.Tests.Elaborator.APhraseImported.TenIsTriangular
 public import Parley.Tests.Elaborator.APhraseImported.NotTriangularSaidTwoWays
 public import Parley.Tests.Elaborator.APhraseWithAWherePart.ACliqueIsLarge
+public import Parley.Tests.Elaborator.APhraseWithAnd.ACommonDivisorDividesTheFirst
 public import Parley.Tests.Elaborator.APowerSaidNotZero.APowerSaidNotZero
 public import Parley.Tests.Elaborator.AProductFromAToBCitedOverASet.AProductFromAToBCitedOverASet
 public import Parley.Tests.Elaborator.AProductOfADefineSaidOnce.AProductOfADefineSaidOnce

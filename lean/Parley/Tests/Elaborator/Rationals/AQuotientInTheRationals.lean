@@ -8,7 +8,7 @@ public section
 
 namespace Parley.Tests.Elaborator.Rationals.AQuotientInTheRationals
 
-theorem a_quotient_in_the_rationals (a : ℕ) (hH1 : 0 < a) (f : ℤ → ℤ) :
+theorem a_quotient_in_the_rationals (a : ℤ) (hH1 : 0 < a) (f : ℤ → ℤ) :
     True := by
   -- 1. membership, from H2
   all_goals parley_side

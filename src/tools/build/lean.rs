@@ -98,10 +98,15 @@ const TACTIC_MODULES: &[(&str, &str)] = &[
     ("parley_order", "OrderTactics"),
     ("parley_int_power", "PowerTactics"),
     ("parley_cast_toNat", "PowerTactics"),
+    ("parley_witness_at", "PowerTactics"),
+    ("parley_witness_not_at", "PowerTactics"),
+    ("parley_line_toNat", "PowerTactics"),
+    ("parley_zpow_toNat", "PowerTactics"),
     ("parley_of_complex", "ComplexTactics"),
     ("parley_arith", "ArithTactics"),
     ("parley_suppose", "ArithTactics"),
     ("parley_real", "RealTactics"),
+    ("parley_rat_of_real", "RealTactics"),
     ("parley_whole_side", "WholeTactics"),
 ];
 

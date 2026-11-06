@@ -2,6 +2,7 @@ module
 
 public import ArithTactics
 public import PowerTactics
+public import RealTactics
 public import Tactics
 public import Parley.Items.Stdlib.Numbers
 public import Parley.Tests.Notations.Numbers.SqrtFour
@@ -21,13 +22,13 @@ theorem sqrt_four_not_irrational :
     calc Real.sqrt (4 : ℝ) = 2 := by parley_side
       _ = 2 / 1 := by norm_num
   -- 3. def:rational x := √4, from 2
-  have s3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), 1, by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), 1, by parley_side, by parley_side⟩; parley_side)
+  have s3 : ∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Numbers.def_rational (x := Real.sqrt (4 : ℝ)))).mpr ⟨(2 : ℤ), (1 : ℤ), by parley_side, by parley_side⟩; parley_side)
   -- 4. contradiction
   have s4 : ¬ Irrational (Real.sqrt (4 : ℝ)) := by
     by_contra hc_hS
     have hS : Irrational (Real.sqrt (4 : ℝ)) := by parley_suppose hc_hS
     -- 4.1. def:irrational x := √4, from S
-    have s4_1 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ)) := by first | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2; parley_side)
+    have s4_1 : ¬ (∃ m : ℚ, (m : ℝ) = Real.sqrt (4 : ℝ)) := by first | exact (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | exact ((((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2).symm | simpa using (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2 | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2; parley_rat_of_real h) | (have h := (((Parley.Items.Stdlib.Numbers.def_irrational (x := Real.sqrt (4 : ℝ)))).mp (by parley_side)).2; parley_side)
     all_goals parley_side
   all_goals exact s4
 

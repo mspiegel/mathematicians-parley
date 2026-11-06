@@ -9,12 +9,12 @@ public section
 
 namespace Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree
 
-theorem residue_mod_three (r : ℕ) (hH2 : (r : ℤ) < 3) :
-    (((r : ℤ) = 0 ∨ (r : ℤ) = 1) ∨ (r : ℤ) = 2) := by
+theorem residue_mod_three (r : ℤ) (hH1 : 0 ≤ r) (hH2 : r < 3) :
+    ((r = 0 ∨ r = 1) ∨ r = 2) := by
   -- 1. mun:range-from-bounds, from H2
-  have s1 : (r : ℤ) ∈ Finset.Icc (0 : ℤ) (3 - 1 : ℤ) := by first | exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := 3) (by parley_side) (x := r) (by parley_side)) | exact ((Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := 3) (by parley_side) (x := r) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := 3) (by parley_side) (x := r) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := 3) (by parley_side) (x := r) (by parley_side)) | (have h := (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := 3) (by parley_side) (x := r) (by parley_side)); parley_side)
+  have s1 : r ∈ Finset.Icc (0 : ℤ) (3 - 1 : ℤ) := by first | exact (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by parley_side) (x := r) (by parley_side) hH2) | exact ((Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by parley_side) (x := r) (by parley_side) hH2)).symm | simpa using (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by parley_side) (x := r) (by parley_side) hH2) | exact_mod_cast (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by parley_side) (x := r) (by parley_side) hH2) | (have h := (Parley.Items.Stdlib.Sums.mun_range_from_bounds (m := (3 : ℤ)) (by parley_side) (x := r) (by parley_side) hH2); parley_side)
   -- 2. inspection, from 1
-  have s2 : ((r : ℤ) = 0 ∨ (r : ℤ) = 1) ∨ (r : ℤ) = 2 := by parley_side
+  have s2 : (r = 0 ∨ r = 1) ∨ r = 2 := by parley_side
   all_goals exact s2
 
 end Parley.Proofs.Hammack.CubeCongruentModThree.ResidueModThree

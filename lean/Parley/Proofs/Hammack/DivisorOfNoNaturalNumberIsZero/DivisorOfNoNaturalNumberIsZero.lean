@@ -13,7 +13,7 @@ public section
 
 namespace Parley.Proofs.Hammack.DivisorOfNoNaturalNumberIsZero.DivisorOfNoNaturalNumberIsZero
 
-theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℕ, 0 < k → ¬ b ∣ (k : ℤ)) :
+theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℤ, 0 < k → ¬ b ∣ k) :
     b = 0 := by
   -- the theorem. contradiction
   have sThm : b = 0 := by
@@ -33,7 +33,7 @@ theorem divisor_of_no_natural_number_is_zero (b : ℤ) (hH2 : ∀ k : ℕ, 0 < k
       have row1 : b ∣ b ^ 2 := by parley_subst_at c1 s4
       exact row1
     -- 6. instantiate k := b² in H2, from 2
-    have s6 : ¬ b ∣ b ^ 2 := by have h := (hH2 (b ^ 2).toNat (Int.lt_toNat.mpr (show ((0 : ℕ) : ℤ) < (b ^ 2) by parley_side))); first | (rw [Int.toNat_of_nonneg (show (0 : ℤ) ≤ (b ^ 2) by parley_side)] at h; exact h) | (simp (disch := omega) only [← zpow_natCast, Nat.cast_add, Int.toNat_of_nonneg] at h ⊢; exact h)
+    have s6 : ¬ b ∣ b ^ 2 := by first | exact (hH2 (b ^ 2) (by parley_side)) | exact ((hH2 (b ^ 2) (by parley_side))).symm | simpa using (hH2 (b ^ 2) (by parley_side)) | exact_mod_cast (hH2 (b ^ 2) (by parley_side)) | (have h := (hH2 (b ^ 2) (by parley_side)); parley_side)
     -- 7. restate 5
     have s7 : b ∣ b ^ 2 := by parley_side
     all_goals parley_side

@@ -4,6 +4,7 @@ public import AlgebraTactics
 public import ArithTactics
 public import OrderTactics
 public import PowerTactics
+public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -26,11 +27,11 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
     intro ε
     intro hA1
     set m : ℝ := min 1 (ε / 12) with hD1
-    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_set_side)
+    have hD1_kind : True := by first | exact (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact ((Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_rat_of_real h) | (have h := (Parley.Items.Stdlib.Numbers.mun_min_real (x := (1 : ℝ)) (y := ε / 12)); parley_set_side)
     -- 1.1. inequalities
     have s1_1 : 0 < ε / 12 := by parley_order
     -- 1.2. mun:lt-min z := 0, x := 1, y := ε/12
-    have r36_1 : (0 : ℝ) < 1 := by parley_arith
+    have r36_1 : (0 : ℤ) < 1 := by parley_arith
     have r36_2 : 0 < ε / 12 := by parley_set_side
     have s1_2 : 0 < min 1 (ε / 12) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := (0 : ℝ)) (x := (1 : ℝ)) (y := ε / 12))).mpr (by parley_set_side); parley_set_side)
     -- 1.3. inequalities, from D1, 1.2
@@ -43,9 +44,9 @@ theorem quadratic_limit (f : ℝ → ℝ) (hH2 : ∀ x : ℝ, f x = 4 * x ^ 2 + 
       have s1_4_1 : abs (x - 1) < 1 ∧ abs (x - 1) < ε / 12 := by
         try simp only [hD1] at *
         try push_cast at *
-        first | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side); parley_set_side)
+        first | exact ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_lt_min (z := abs (x - 1)) (x := (1 : ℝ)) (y := ε / 12))).mp (by parley_set_side); parley_set_side)
       -- 1.4.2. mun:abs-difference-lt c := 1, δ := 1, from 1.4.1
-      have s1_4_2 : 1 - 1 < x ∧ x < 1 + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
+      have s1_4_2 : 1 - 1 < x ∧ x < 1 + 1 := by first | exact ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact (((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side)).symm | simpa using ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | exact_mod_cast ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_rat_of_real h) | (have h := ((Parley.Items.Stdlib.Numbers.mun_abs_difference_lt (x := x) (c := (1 : ℝ)) (δ := (1 : ℝ)))).mp (by parley_set_side); parley_set_side)
       -- 1.4.3. inequalities
       have s1_4_3 : 4 * x > 0 := by parley_order
       -- 1.4.4. inequalities, from 1.4.3

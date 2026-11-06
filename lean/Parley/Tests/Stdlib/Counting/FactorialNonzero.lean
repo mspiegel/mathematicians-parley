@@ -11,10 +11,10 @@ public section
 
 namespace Parley.Tests.Stdlib.Counting.FactorialNonzero
 
-theorem factorial_nonzero (n : ℕ) :
-    (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 := by
+theorem factorial_nonzero (n : ℤ) (hH1 : 0 ≤ n) :
+    (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := by
   -- 1. mun:counting-factorial-nonzero
-  have s1 : (LeanBridges.Counting.factorial (n : ℤ) : ℤ) ≠ 0 := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n)); parley_side)
+  have s1 : (LeanBridges.Counting.factorial n : ℤ) ≠ 0 := by first | exact (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side)) | exact ((Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side))).symm | simpa using (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side)) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_factorial_nonzero (n := n) (by parley_side)); parley_side)
   all_goals exact s1
 
 end Parley.Tests.Stdlib.Counting.FactorialNonzero

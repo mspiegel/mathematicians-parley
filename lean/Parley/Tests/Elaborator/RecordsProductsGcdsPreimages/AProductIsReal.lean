@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Elaborator.RecordsProductsGcdsPreimages.AProductIsReal
 
-theorem a_product_is_real (n : ℕ) (hH1 : 0 < n) (t : ℤ → ℝ) :
+theorem a_product_is_real (n : ℤ) (hH1 : 0 < n) (t : ℤ → ℝ) :
     True := by
   -- 1. mun:product-real a := 1, b := n
   all_goals parley_side

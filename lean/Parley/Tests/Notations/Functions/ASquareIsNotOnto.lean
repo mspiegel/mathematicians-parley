@@ -1,6 +1,7 @@
 module
 
 public import ArithTactics
+public import RealTactics
 public import SetTactics
 public import SubstTactics
 public import Tactics
@@ -23,7 +24,7 @@ theorem a_square_is_not_onto (f : ℝ → ℝ) (hD1 : ∀ x : ℝ, f x = x ^ 2) 
     -- 1.1. def:onto, from S
     have s1_1 : ∀ y : ℝ, ∃ x : ℝ, y = f x := by first | exact (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).2 | exact ((((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).2).symm | simpa using (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).2 | exact_mod_cast (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).2 | (have h := (((Parley.Items.Stdlib.Functions.def_onto (X := (Set.univ : Set ℝ)) (Y := (Set.univ : Set ℝ)) (f := f) (by parley_whole_side))).mp (by parley_set_side)).2; parley_set_side)
     -- 1.2. instantiate y := −1 in line 1.1
-    have s1_2 : ∃ x : ℝ, -1 = f x := by first | exact (s1_1 (-1 : ℝ)) | exact ((s1_1 (-1 : ℝ))).symm | simpa using (s1_1 (-1 : ℝ)) | exact_mod_cast (s1_1 (-1 : ℝ)) | (have h := (s1_1 (-1 : ℝ)); parley_set_side)
+    have s1_2 : ∃ x : ℝ, -1 = f x := by first | exact (s1_1 (-1 : ℝ)) | exact ((s1_1 (-1 : ℝ))).symm | simpa using (s1_1 (-1 : ℝ)) | exact_mod_cast (s1_1 (-1 : ℝ)) | (have h := (s1_1 (-1 : ℝ)); parley_rat_of_real h) | (have h := (s1_1 (-1 : ℝ)); parley_set_side)
     -- 1.3. obtain x from line 1.2
     obtain ⟨x, s1_3⟩ := s1_2
     -- 1.4. D1

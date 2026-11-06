@@ -195,7 +195,7 @@ mundane theorem exponent-step
   let m ∈ ℕ₀                                                          (H2)
   then        a^(m + 1) = a^m·a
   metamath-proof expp1
-  lean-proof pow_succ a m
+  lean-proof by rw [show (m + 1).toNat = m.toNat + 1 by omega, pow_succ]
 
 mundane theorem exponent-sum
   let a ∈ ℂ                                                           (H1)
@@ -203,7 +203,7 @@ mundane theorem exponent-sum
   let n ∈ ℕ₀                                                          (H3)
   then        a^(m + n) = a^m·a^n
   metamath-proof expadd
-  lean-proof pow_add a m n
+  lean-proof by rw [show (m + n).toNat = m.toNat + n.toNat by omega, pow_add]
 
 mundane theorem exponent-sum-integer
   let a ∈ ℂ                                                           (H1)
@@ -230,7 +230,7 @@ mundane theorem power-of-power
   let n ∈ ℕ₀                                                          (H3)
   then        a^(m·n) = (a^m)^n
   metamath-proof expmul
-  lean-proof  pow_mul a m n
+  lean-proof  by rw [Int.toNat_mul h2 h3, pow_mul]
 
 mundane theorem power-of-power-integer
   let a ∈ ℂ                                                           (H1)
@@ -249,7 +249,7 @@ mundane theorem power-of-product
   let n ∈ ℕ₀                                                          (H3)
   then        (a·b)^n = a^n·b^n
   metamath-proof mulexp
-  lean-proof  mul_pow a b n
+  lean-proof  mul_pow a b n.toNat
 
 mundane theorem power-of-product-integer
   let a ∈ ℂ                                                           (H1)
@@ -430,7 +430,7 @@ mundane theorem root-power
   metamath-proof cxproot
   note        The principal n-th root of x, raised to the n-th power, which
               is a whole power.
-  lean-proof  by rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)
+  lean-proof  by lift n to ℕ using h2.le; simp only [Int.toNat_natCast]; push_cast; rw [one_div]; exact Complex.cpow_nat_inv_pow x (by omega)
 
 mundane theorem half-power
   let x ∈ ℂ                                                           (H1)
@@ -484,7 +484,7 @@ mundane theorem rational-coprime
   note        set.mm's second reading of being rational, beside elq, which is
               def:stdlib/numbers/rational. An implication and not a biconditional: it says a
               rational can be written one way, not what one is.
-  lean-proof  ⟨x.num, x.den, x.den_pos, (Rat.num_div_den x).symm, by simp [Int.gcd, x.reduced]⟩
+  lean-proof  ⟨x.num, x.den, by exact_mod_cast x.den_pos, by push_cast; exact (Rat.num_div_den x).symm, by simp [Int.gcd, x.reduced]⟩
 
 axiom well-ordering
   assume S ⊆ ℕ                                                        (H1)
@@ -735,7 +735,7 @@ mundane theorem power-exponent-le
   metamath-proof metamath-bridges/powers/gleexp2
   note        As power-order, the exponents allowed to be equal: a larger
               exponent gives a power at least as large, of a base at least 1.
-  lean-proof  by exact pow_le_pow_right₀ h4 (by exact_mod_cast h5)
+  lean-proof  by exact pow_le_pow_right₀ h4 (by omega)
 
 mundane theorem power-at-least-one
   let a ∈ ℝ                                                           (H1)
@@ -953,7 +953,7 @@ theorem bernoulli-inequality
   metamath-proof bernneq
   note        Bernoulli's inequality: raising 1 + x to the n-th power gains
               at least n times x.
-  lean-proof  by have h := one_add_mul_le_pow (by linarith : (-2 : K) ≤ x) n; linarith
+  lean-proof  by lift n to ℕ using h2; simp only [Int.toNat_natCast]; have h := one_add_mul_le_pow (by linarith : (-2 : K) ≤ x) n; push_cast; linarith
 
 theorem archimedean
   let x ∈ ℝ                                                           (H1)

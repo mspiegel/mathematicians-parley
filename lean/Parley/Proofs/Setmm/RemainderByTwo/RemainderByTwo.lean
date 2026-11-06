@@ -21,7 +21,7 @@ theorem remainder_by_two (N : ℤ) :
       intro hD1
       -- 1. obtain q: mun:mod-remainder a := N, m := 2, r := 1, from D1
       have r18_1 : (1 : ℤ) < 2 := by parley_arith
-      obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := 2) (by parley_side) (r := 1) (by parley_side))).mp (by parley_side)
+      obtain ⟨q, s1⟩ := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) (by parley_side))).mp (by parley_side)
       -- 2. algebra, from 1
       have s2 : N = 2 * q + 1 := by linear_combination (norm := parley_norm) (-1) * s1
       -- 3. def:odd n := N, from 2
@@ -61,7 +61,7 @@ theorem remainder_by_two (N : ℤ) :
       have s10 : ∃ q : ℤ, q * 2 + 1 = N := ⟨k, by parley_side⟩
       -- 11. mun:mod-remainder a := N, m := 2, r := 1, from 10
       have r69_1 : (1 : ℤ) < 2 := by parley_arith
-      have s11 : N % (2 : ℤ) = 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := 2) (by parley_side) (r := 1) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := 2) (by parley_side) (r := 1) (by parley_side))).mpr (by parley_side); parley_side)
+      have s11 : N % (2 : ℤ) = 1 := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) (by parley_side))).mpr (by parley_side) | (have h := ((Parley.Items.Stdlib.Divisibility.mun_mod_remainder (a := N) (m := (2 : ℤ)) (by parley_side) (r := (1 : ℤ)) (by parley_side) (by parley_side))).mpr (by parley_side); parley_side)
       all_goals parley_side
   all_goals parley_side
 

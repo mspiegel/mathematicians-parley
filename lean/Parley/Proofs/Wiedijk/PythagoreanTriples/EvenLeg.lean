@@ -15,43 +15,43 @@ public section
 namespace Parley.Proofs.Wiedijk.PythagoreanTriples.EvenLeg
 
 set_option maxHeartbeats 400000 in
-theorem even_leg (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : ℕ) (hH3 : 0 < c) (hH4 : (a : ℤ) ^ 2 + (b : ℤ) ^ 2 = (c : ℤ) ^ 2) :
-    (Even (a : ℤ) ∨ Even (b : ℤ)) := by
+theorem even_leg (a : ℤ) (hH1 : 0 < a) (b : ℤ) (hH2 : 0 < b) (c : ℤ) (hH3 : 0 < c) (hH4 : a ^ 2 + b ^ 2 = c ^ 2) :
+    (Even a ∨ Even b) := by
   -- 1. mun:even-or-odd n := a
-  have s1 : Even (a : ℤ) ∨ Odd (a : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (a : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (a : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (a : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (a : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (a : ℤ))); parley_side)
+  have s1 : Even a ∨ Odd a := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := a)); parley_side)
   -- 2. cases, from 1
-  have s2 : Even (a : ℤ) ∨ Even (b : ℤ) := by
+  have s2 : Even a ∨ Even b := by
     rcases s1 with hC1 | hC2
     · skip
       -- 2.1. mun:or-left, from C1
-      have s2_1 : Even (a : ℤ) ∨ Even (b : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a : ℤ)) (Q := Even (b : ℤ)) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a : ℤ)) (Q := Even (b : ℤ)) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a : ℤ)) (Q := Even (b : ℤ)) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a : ℤ)) (Q := Even (b : ℤ)) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even (a : ℤ)) (Q := Even (b : ℤ)) hC1); parley_side)
+      have s2_1 : Even a ∨ Even b := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even a) (Q := Even b) hC1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even a) (Q := Even b) hC1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even a) (Q := Even b) hC1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even a) (Q := Even b) hC1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_left (P := Even a) (Q := Even b) hC1); parley_side)
       all_goals parley_side
     · skip
       -- 2.2. contradiction
-      have s2_2 : ¬ Odd (b : ℤ) := by
+      have s2_2 : ¬ Odd b := by
         by_contra hc_hS
-        have hS : Odd (b : ℤ) := by parley_suppose hc_hS
+        have hS : Odd b := by parley_suppose hc_hS
         -- 2.2.1. obtain p: def:odd n := a, from C2
-        obtain ⟨p, s2_2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (a : ℤ)))).mp (by parley_side)
+        obtain ⟨p, s2_2_1⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := a))).mp (by parley_side)
         -- 2.2.2. obtain q: def:odd n := b, from S
-        obtain ⟨q, s2_2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := (b : ℤ)))).mp (by parley_side)
+        obtain ⟨q, s2_2_2⟩ := ((Parley.Items.Stdlib.Divisibility.def_odd (n := b))).mp (by parley_side)
         -- 2.2.3. substitute
-        have s2_2_3 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (c : ℤ) ^ 2 := by
-          have c1 : (a : ℤ) = 2 * p + 1 := by parley_subst s2_2_1
-          have row1 : (2 * p + 1) ^ 2 + (b : ℤ) ^ 2 = (c : ℤ) ^ 2 := by parley_subst_at c1 hH4
-          have c2 : (b : ℤ) = 2 * q + 1 := by parley_subst s2_2_2
-          have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (c : ℤ) ^ 2 := by parley_subst_at c2 row1
+        have s2_2_3 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by
+          have c1 : a = 2 * p + 1 := by parley_subst s2_2_1
+          have row1 : (2 * p + 1) ^ 2 + b ^ 2 = c ^ 2 := by parley_subst_at c1 hH4
+          have c2 : b = 2 * q + 1 := by parley_subst s2_2_2
+          have row2 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = c ^ 2 := by parley_subst_at c2 row1
           exact row2
         -- 2.2.4. calculation
-        have s2_2_4 : (c : ℤ) ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by
-          calc (c : ℤ) ^ 2 = (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 := by parley_side
+        have s2_2_4 : c ^ 2 = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by
+          calc c ^ 2 = (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 := by parley_side
             _ = 2 * (2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1) := by parley_ring
         -- 2.2.5. def:even n := c², from 2.2.4
-        have s2_2_5 : Even ((c : ℤ) ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := (c : ℤ) ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := (c : ℤ) ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, by parley_side⟩; parley_side)
+        have s2_2_5 : Even (c ^ 2) := by first | (assumption; done) | exact ((Parley.Items.Stdlib.Divisibility.def_even (n := c ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, by parley_side⟩ | (have h := ((Parley.Items.Stdlib.Divisibility.def_even (n := c ^ 2))).mpr ⟨2 * p ^ 2 + 2 * p + 2 * q ^ 2 + 2 * q + 1, by parley_side⟩; parley_side)
         -- 2.2.6. thm:even-square n := c, from 2.2.5
-        have s2_2_6 : Even (c : ℤ) := by first | exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := (c : ℤ)) s2_2_5) | exact ((Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := (c : ℤ)) s2_2_5)).symm | simpa using (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := (c : ℤ)) s2_2_5) | exact_mod_cast (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := (c : ℤ)) s2_2_5) | (have h := (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := (c : ℤ)) s2_2_5); parley_side)
+        have s2_2_6 : Even c := by first | exact (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5) | exact ((Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5)).symm | simpa using (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5) | exact_mod_cast (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5) | (have h := (Parley.Proofs.Wiedijk.Sqrt2Irrational.EvenSquare.even_square (n := c) s2_2_5); parley_side)
         -- 2.2.7. obtain r: def:even n := c, from 2.2.6
-        obtain ⟨r, s2_2_7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := (c : ℤ)))).mp (by parley_side)
+        obtain ⟨r, s2_2_7⟩ := ((Parley.Items.Stdlib.Divisibility.def_even (n := c))).mp (by parley_side)
         -- 2.2.8. substitute c = 2r (line 2.2.7) into line 2.2.3
         have s2_2_8 : (2 * p + 1) ^ 2 + (2 * q + 1) ^ 2 = (2 * r) ^ 2 := by parley_subst_at s2_2_7 s2_2_3
         -- 2.2.9. algebra, from 2.2.8
@@ -61,11 +61,11 @@ theorem even_leg (a : ℕ) (hH1 : 0 < a) (b : ℕ) (hH2 : 0 < b) (c : ℕ) (hH3 
         exact absurd s2_2_10 (by norm_num)
         all_goals parley_side
       -- 2.3. mun:even-or-odd n := b
-      have s2_3 : Even (b : ℤ) ∨ Odd (b : ℤ) := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (b : ℤ))) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (b : ℤ)))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (b : ℤ))) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (b : ℤ))) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := (b : ℤ))); parley_side)
+      have s2_3 : Even b ∨ Odd b := by first | exact (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | exact ((Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b))).symm | simpa using (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | exact_mod_cast (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)) | (have h := (Parley.Items.Stdlib.Divisibility.mun_even_or_odd (n := b)); parley_side)
       -- 2.4. mun:disjunctive-syllogism P := b is even, Q := b is odd, from 2.2, 2.3
-      have s2_4 : Even (b : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even (b : ℤ)) (Q := Odd (b : ℤ)) s2_3 s2_2) | exact ((Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even (b : ℤ)) (Q := Odd (b : ℤ)) s2_3 s2_2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even (b : ℤ)) (Q := Odd (b : ℤ)) s2_3 s2_2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even (b : ℤ)) (Q := Odd (b : ℤ)) s2_3 s2_2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even (b : ℤ)) (Q := Odd (b : ℤ)) s2_3 s2_2); parley_side)
+      have s2_4 : Even b := by first | exact (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even b) (Q := Odd b) s2_3 s2_2) | exact ((Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even b) (Q := Odd b) s2_3 s2_2)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even b) (Q := Odd b) s2_3 s2_2) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even b) (Q := Odd b) s2_3 s2_2) | (have h := (Parley.Items.Stdlib.Reasoning.mun_disjunctive_syllogism (P := Even b) (Q := Odd b) s2_3 s2_2); parley_side)
       -- 2.5. mun:or-right, from 2.4
-      have s2_5 : Even (a : ℤ) ∨ Even (b : ℤ) := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a : ℤ)) (Q := Even (b : ℤ)) s2_4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a : ℤ)) (Q := Even (b : ℤ)) s2_4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a : ℤ)) (Q := Even (b : ℤ)) s2_4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a : ℤ)) (Q := Even (b : ℤ)) s2_4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even (a : ℤ)) (Q := Even (b : ℤ)) s2_4); parley_side)
+      have s2_5 : Even a ∨ Even b := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even a) (Q := Even b) s2_4) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even a) (Q := Even b) s2_4)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even a) (Q := Even b) s2_4) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even a) (Q := Even b) s2_4) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := Even a) (Q := Even b) s2_4); parley_side)
       all_goals parley_side
   all_goals exact s2
 

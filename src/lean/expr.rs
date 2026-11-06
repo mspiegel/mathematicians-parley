@@ -11,6 +11,7 @@
 use indexmap::IndexMap;
 
 use super::templates::{Num, Slot, Template, Templates};
+use crate::citing::bounds::{self, SaidBounds};
 use crate::formula::{Grammar, Node};
 use crate::notations::{
     EQUALITY, EQUALS, FOR_ALL, IN, INTEGER_RANGE, LOGICAL_NOT, MEMBERSHIP, NAME,
@@ -217,6 +218,10 @@ pub struct Writer<'a> {
     pub grammar: &'a Grammar,
     pub templates: &'a Templates,
     pub letters: Letters,
+    /// The letters the page puts in ℕ or ℕ₀, each a Lean integer with its
+    /// fact 0 < n or 0 ≤ n beside it, as set.mm's n ∈ ℕ is a fact about a
+    /// number (`Writer::introduce`): what the said-once rule reads of them.
+    pub wholes: IndexMap<String, System>,
     /// For an item's statement, the number type that stands for any ring
     /// of a kind, written `K` (`items`); None elsewhere.
     pub general: Option<Num>,
@@ -228,10 +233,6 @@ pub struct Writer<'a> {
     /// letter: the A of `f : A → B`, within which a preimage is taken and
     /// an inverse is found.
     pub domains: IndexMap<String, String>,
-    /// The least type a relation between numbers is written in: ℤ, or ℝ
-    /// inside a block that lets a real number, the ε of a limit, where a
-    /// claim about natural numbers meets lines in ℝ (`Proof::open_lines`).
-    pub floor: Num,
     /// Terms the theorem puts in a hole of type ℝ, A/B of ⌊A/B⌋, as the
     /// page prints them: each is computed in ℝ wherever it is written.
     pub reals: Vec<String>,
@@ -252,41 +253,44 @@ pub struct Writer<'a> {
     /// square root of a term at least 0 is Mathlib's real one
     /// (`Writer::principal_is_real`).
     pub bounds: SaidBounds,
+    /// Each real power or square root written so far in a theorem, by the
+    /// page's print of it, with the forms it was written in: Mathlib's real
+    /// one, the principal one in ℂ, or both, which the theorem's writer
+    /// reports (`Writer::roots_written_both_ways`). Shared by every writer
+    /// made from this one.
+    pub root_forms: std::rc::Rc<std::cell::RefCell<IndexMap<String, (bool, bool)>>>,
 }
 
-/// What lines say a term is at least: x ≥ 0 of `x > 0`, p ≥ 1 of `p ∈ ℕ`.
-#[derive(Clone, Debug, Default)]
-pub struct SaidBounds {
-    /// Each term a line bounds below, and the bound.
-    pub terms: Vec<Bound>,
-    /// The lines that bound a term at each integer of a range, `for all k ∈
-    /// {1, …, n}, a(k) ≥ 0`: in a sum or a product over that range by the
-    /// same letter, the term is so bounded.
-    pub over_ranges: Vec<Node>,
-}
+/// The writer's view for the shared rule of what terms are at least
+/// (`citing::bounds`): the lines in its scope, its letters' types, and how
+/// it reads a sum.
+impl bounds::BoundsAsk for Writer<'_> {
+    fn bounds(&self) -> &SaidBounds {
+        &self.bounds
+    }
 
-/// A term a line says is at least a whole number.
-#[derive(Clone, Debug)]
-pub struct Bound {
-    pub term: Node,
-    pub least: i64,
-}
+    fn same(&self, a: &Node, b: &Node) -> bool {
+        self.grammar.print(a) == self.grammar.print(b)
+    }
 
-impl SaidBounds {
-    /// What is said of terms the letter is not in: inside a sum by a letter
-    /// k, a line about another k says nothing of it.
-    fn without_letter(&self, letter: &str) -> SaidBounds {
-        let free_of =
-            |n: &Node| !n.walk().iter().any(|m| m.is_name() && &*m.text == letter);
-        SaidBounds {
-            terms: self
-                .terms
-                .iter()
-                .filter(|b| free_of(&b.term))
-                .cloned()
-                .collect(),
-            over_ranges: self.over_ranges.clone(),
+    fn natural_letter(&self, letter: &str) -> bool {
+        match self.letters.get(letter) {
+            Some(LetterType::Number(Num::Nat)) => true,
+            Some(LetterType::Number(Num::Int)) => self.wholes.contains_key(letter),
+            _ => false,
         }
+    }
+
+    fn summed_nonnegative(&self, node: &Node) -> bool {
+        match self.summed(node) {
+            Route::Built(s) => bounds::nonnegative(&s.inner, s.term),
+            Route::Declined(_) => false,
+        }
+    }
+
+    fn exponential(&self, node: &Node) -> bool {
+        self.library_function(node).is_some()
+            && node.children.first().is_some_and(|f| &*f.text == "exp")
     }
 }
 
@@ -323,6 +327,16 @@ pub struct SaidInteger {
     pub term: String,
     pub proof: String,
     pub ty: Num,
+    /// The whole number written out, where a step names it so, 2 ^ ((p :
+    /// ℤ) − 1).toNat of 2^(p − 1) from the line p − 1 ∈ ℕ₀, `proof` then
+    /// naming its equation with the term; None where the number is the
+    /// line's witness, `Classical.choose proof`.
+    pub value: Option<String>,
+    /// Whether the number stands for the term only where a whole number is
+    /// asked, as a step names one (`theorem::named_atoms`): elsewhere the
+    /// term keeps its own form. A line saying the term is an integer gives
+    /// one that stands for it everywhere after.
+    pub slot_only: bool,
 }
 
 /// Whether the node is a sum or a product over a range, Σ(k = a to b) t or
@@ -350,19 +364,12 @@ fn over_range(node: &Node) -> Option<[&Node; 4]> {
     (set.notation() == INTEGER_RANGE).then_some([index, from, to, term])
 }
 
-/// The value a line gives a set letter, {y ∈ ℝ : y > 0} of D = {y ∈ ℝ : y
-/// > 0}; None for any other line.
-fn defined_as<'n>(line: &'n Node, letter: &Node) -> Option<&'n Node> {
-    match (line.notation(), line.children.as_slice()) {
-        (EQUALITY, [s, value]) if s.is_name() && s.text == letter.text => Some(value),
-        _ => None,
+/// The node with each part of the shape of `from` put as `to`.
+pub(super) fn put_for(node: &Node, from: &Node, to: &Node) -> Node {
+    if node.same_shape(from) {
+        return to.clone();
     }
-}
-
-/// Whether the node is an even numeral, the 2 of x², whose power is at
-/// least 0 of any real x.
-fn is_even_numeral(node: &Node) -> bool {
-    node.notation() == NUMERAL && node.text.parse::<u64>().is_ok_and(|n| n % 2 == 0)
+    node.with_children(node.children.iter().map(|c| put_for(c, from, to)).collect())
 }
 
 /// Whether a big operator is a product, ∏(k = a to b) or ∏(k ∈ {a, …, b}).
@@ -396,16 +403,17 @@ impl<'a> Writer<'a> {
             grammar,
             templates,
             letters: IndexMap::new(),
+            wholes: IndexMap::new(),
             general: None,
             integers: Vec::new(),
             domains: IndexMap::new(),
-            floor: Num::Int,
             reals: Vec::new(),
             finite: std::collections::BTreeSet::new(),
             finite_lines: Vec::new(),
             empty_of: None,
             in_extended: false,
             bounds: SaidBounds::default(),
+            root_forms: Default::default(),
         }
     }
 
@@ -414,17 +422,72 @@ impl<'a> Writer<'a> {
             grammar: self.grammar,
             templates: self.templates,
             letters,
+            wholes: self.wholes.clone(),
             general: self.general,
             integers: self.integers.clone(),
             domains: self.domains.clone(),
-            floor: self.floor,
             reals: self.reals.clone(),
             finite: self.finite.clone(),
             finite_lines: self.finite_lines.clone(),
             empty_of: self.empty_of.clone(),
             in_extended: self.in_extended,
             bounds: self.bounds.clone(),
+            root_forms: self.root_forms.clone(),
         }
+    }
+
+    /// Give a letter the type its number system makes it: the page's ℕ and
+    /// ℕ₀ are integers, kept in `wholes`, and any other system its own type.
+    pub fn introduce(&mut self, letter: &str, system: System) {
+        self.letters
+            .insert(letter.to_string(), LetterType::Number(letter_type(system)));
+        match system {
+            System::Positive | System::NonNegative => {
+                self.wholes.insert(letter.to_string(), system);
+            }
+            System::Type(_) => {
+                self.wholes.shift_remove(letter);
+            }
+        }
+    }
+
+    /// The number system each number letter in scope is in, as the
+    /// said-once rule reads them: a letter of `wholes` in ℕ or ℕ₀, any
+    /// other in its type's.
+    pub fn page_systems(&self) -> crate::citing::Introduced {
+        use crate::rules::System as S;
+        self.letters
+            .iter()
+            .filter_map(|(name, ty)| {
+                let LetterType::Number(n) = ty else {
+                    return None;
+                };
+                let system = match (self.wholes.get(name), n) {
+                    (Some(System::Positive), Num::Int) => S::N,
+                    (Some(System::NonNegative), Num::Int) | (_, Num::Nat) => S::N0,
+                    (_, Num::Int) => S::Z,
+                    (_, Num::Rat) => S::Q,
+                    (_, Num::Real) => S::R,
+                    (_, Num::Complex) => S::C,
+                };
+                Some((name.clone(), system))
+            })
+            .collect()
+    }
+
+    /// Whether the page says once that a term is in ℕ₀ (`citing::within`):
+    /// n, k + 1 and 2k + 1 of letters in ℕ, as Metamath proves it from
+    /// their introducing lines. Such a term goes where Lean wants a natural
+    /// number as `(t).toNat`, and a power to it is a natural power.
+    pub fn said_whole(&self, node: &Node) -> bool {
+        let letters = self.page_systems();
+        crate::citing::within(
+            node,
+            crate::rules::System::N0,
+            &letters,
+            &|d| crate::citing::nonzero_said_once(d, &letters),
+            &|_, _| false,
+        )
     }
 
     /// What the set `a` counts holds, where `b` counts ∅: |S| beside |∅|.
@@ -454,9 +517,7 @@ impl<'a> Writer<'a> {
     pub fn bounds_from<'n>(&mut self, lines: impl IntoIterator<Item = &'n Node>) {
         let lines: Vec<&Node> = lines.into_iter().collect();
         let mut out = SaidBounds::default();
-        for line in &lines {
-            self.said_bounds(line, &lines, &mut out);
-        }
+        bounds::from_lines(self, &lines, &mut out);
         self.bounds = out;
     }
 
@@ -465,103 +526,10 @@ impl<'a> Writer<'a> {
     pub fn knowing(&self, lines: &[Node]) -> Writer<'a> {
         let mut said = self.bounds.clone();
         let all: Vec<&Node> = lines.iter().collect();
-        for line in lines {
-            self.said_bounds(line, &all, &mut said);
-        }
+        bounds::from_lines(self, &all, &mut said);
         let mut w = self.with_letters(self.letters.clone());
         w.bounds = said;
         w
-    }
-
-    /// What a line bounds below: x ≥ 0 of x ≥ 0, x > 0 or 0 < x, p ≥ 1 of
-    /// 1 < p or p ∈ ℕ, x of x ∈ D for a set D whose members are bounded,
-    /// what each part of an "and" says, and a term bounded at each k of a
-    /// range. `lines` are the lines beside it, which may say what D is. A
-    /// strict order bounds as the other does, x > 0 saying x ≥ 0 of a real
-    /// x.
-    fn said_bounds(&self, line: &Node, lines: &[&Node], out: &mut SaidBounds) {
-        use crate::notations::{AT_LEAST, AT_MOST, GREATER, LESS};
-        match (line.notation(), line.children.as_slice()) {
-            (
-                crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
-                parts,
-            ) => {
-                for part in parts {
-                    self.said_bounds(part, lines, out);
-                }
-            }
-            (ORDER, [a, b]) => {
-                let s = line.spelling();
-                let said = if s == GREATER || s == AT_LEAST {
-                    self.lower(b).map(|least| (a, least))
-                } else if s == LESS || s == AT_MOST {
-                    self.lower(a).map(|least| (b, least))
-                } else {
-                    None
-                };
-                if let Some((t, least)) = said {
-                    out.terms.push(Bound {
-                        term: t.clone(),
-                        least,
-                    });
-                }
-            }
-            (MEMBERSHIP, [t, set]) if line.spelling() == IN => {
-                if let Some(least) = self.set_least(set, lines) {
-                    out.terms.push(Bound {
-                        term: t.clone(),
-                        least,
-                    });
-                }
-            }
-            (FOR_ALL, [_, set, _]) if set.notation() == INTEGER_RANGE => {
-                out.over_ranges.push(line.clone());
-            }
-            _ => {}
-        }
-    }
-
-    /// A whole number every member of the set is at least: 1 of ℕ, 0 of
-    /// ℕ₀, a's of a range or interval from a, y's of {y ∈ X : y > 0}, and of
-    /// a letter a line beside it says is such a set, D of D = {y ∈ ℝ : y >
-    /// 0}. None where nothing bounds them.
-    fn set_least(&self, set: &Node, lines: &[&Node]) -> Option<i64> {
-        match (set.notation(), set.children.as_slice()) {
-            (NUMBER_SYSTEMS, _) if set.spelling() == NATURALS => Some(1),
-            (NUMBER_SYSTEMS, _) if set.spelling() == NATURALS0 => Some(0),
-            (
-                INTEGER_RANGE
-                | crate::notations::CLOSED_INTERVAL
-                | crate::notations::OPEN_INTERVAL,
-                [from, _],
-            ) => self.lower(from),
-            (crate::notations::SET_BUILDER, [y, within, condition]) => {
-                let mut said = SaidBounds::default();
-                self.said_bounds(condition, &[], &mut said);
-                let by_condition = said
-                    .terms
-                    .iter()
-                    .filter(|b| b.term.is_name() && b.term.text == y.text)
-                    .map(|b| b.least);
-                self.set_least(within, &[])
-                    .into_iter()
-                    .chain(by_condition)
-                    .max()
-            }
-            (NAME, _) => lines
-                .iter()
-                .filter_map(|l| defined_as(l, set))
-                .filter_map(|value| self.set_least(value, &[]))
-                .max(),
-            _ => None,
-        }
-    }
-
-    /// A whole number the term is at least, where it is a number at least
-    /// 0, √2 or π, though no whole number but 0 bounds it.
-    fn lower(&self, node: &Node) -> Option<i64> {
-        self.least(node)
-            .or_else(|| self.nonnegative(node).then_some(0))
     }
 
     /// The greatest whole number the term is shown to be at least: by a
@@ -571,136 +539,13 @@ impl<'a> Writer<'a> {
     /// least 0 at the product, a power of a base at least 1 at 1. None where
     /// nothing bounds it.
     pub fn least(&self, node: &Node) -> Option<i64> {
-        let printed = self.grammar.print(node);
-        let said = self
-            .bounds
-            .terms
-            .iter()
-            .filter(|b| self.grammar.print(&b.term) == printed)
-            .map(|b| b.least)
-            .max();
-        let by_form = self.least_by_form(node);
-        said.into_iter().chain(by_form).max()
+        bounds::least(self, node)
     }
 
-    /// `least`, by the term's form alone (`Writer::least`).
-    fn least_by_form(&self, node: &Node) -> Option<i64> {
-        use crate::notations::{MINUS, PLUS, TIMES};
-        let children = node.children.as_slice();
-        match (node.notation(), children) {
-            (NUMERAL, _) => node.text.parse::<i64>().ok(),
-            (NAME, _) => matches!(
-                self.letters.get(node.text.as_str()),
-                Some(LetterType::Number(Num::Nat))
-            )
-            .then_some(0),
-            (crate::notations::FACTORIAL, _) => Some(1),
-            (crate::notations::ABSOLUTE_VALUE, _) => Some(0),
-            (crate::notations::ADDITIVE, [a, b]) if node.spelling() == PLUS => {
-                self.least(a)?.checked_add(self.least(b)?)
-            }
-            (crate::notations::ADDITIVE, [a, c])
-                if node.spelling() == MINUS && c.notation() == NUMERAL =>
-            {
-                self.least(a)?.checked_sub(c.text.parse::<i64>().ok()?)
-            }
-            (crate::notations::MULTIPLICATIVE, [a, b]) if node.spelling() == TIMES => {
-                let (a, b) = (self.least(a)?, self.least(b)?);
-                (a >= 0 && b >= 0).then(|| a.checked_mul(b)).flatten()
-            }
-            (crate::notations::JUXTAPOSITION, [a, b]) => {
-                let (a, b) = (self.least(a)?, self.least(b)?);
-                (a >= 0 && b >= 0).then(|| a.checked_mul(b)).flatten()
-            }
-            (
-                crate::notations::POWER | crate::notations::SUPERSCRIPT,
-                [base, exponent],
-            ) => {
-                let whole = self.least(exponent).is_some_and(|e| e >= 0);
-                match self.least(base) {
-                    Some(b) if b >= 1 && whole => Some(1),
-                    Some(b) if b >= 0 && whole => Some(0),
-                    _ => is_even_numeral(exponent).then_some(0),
-                }
-            }
-            _ => (&*node.notation_name() == "cardinality").then_some(0),
-        }
-    }
-
-    /// Whether a sum or product is at least 0: its term is, read as the
-    /// sum reads it (`Writer::summed`).
-    fn summed_nonnegative(&self, node: &Node) -> bool {
-        match self.summed(node) {
-            Route::Built(s) => s.inner.nonnegative(s.term),
-            Route::Declined(_) => false,
-        }
-    }
-
-    /// What lines bound inside a sum by `index` over a range: nothing of
-    /// another k than the index, and of the index what a line says at each
-    /// k of that same range, a(k) of `for all k ∈ {1, …, n}, a(k) ≥ 0` in
-    /// Σ(k = 1 to n) a(k).
-    fn bounds_inside(&self, index: &Node, over: &Over) -> SaidBounds {
-        let mut said = self.bounds.without_letter(&index.text);
-        let Over::Range { from, to } = over else {
-            return said;
-        };
-        for line in &self.bounds.over_ranges {
-            let [k, set, body] = line.children.as_slice() else {
-                continue;
-            };
-            let [a, b] = set.children.as_slice() else {
-                continue;
-            };
-            let same = k.text == index.text
-                && self.grammar.print(a) == self.grammar.print(from)
-                && self.grammar.print(b) == self.grammar.print(to);
-            if same {
-                self.said_bounds(body, &[], &mut said);
-            }
-        }
-        said
-    }
-
-    /// Whether the term is at least 0: a line in scope says so, or its form
-    /// does, a numeral, π, e, a natural number letter, |x|, a count, n!,
-    /// exp(x), or a sum, product, quotient, power or square root of such; a
-    /// sum or product over a range of a term a line says is at least 0 at
-    /// each k of it.
+    /// Whether the term is at least 0 by the lines in scope or its form
+    /// (`citing::bounds::nonnegative`).
     pub fn nonnegative(&self, node: &Node) -> bool {
-        if self.least(node).is_some_and(|l| l >= 0) {
-            return true;
-        }
-        if is_big_operator(node) {
-            return self.summed_nonnegative(node);
-        }
-        let all = |w: &Writer, parts: &[Node]| parts.iter().all(|p| w.nonnegative(p));
-        match node.notation() {
-            NUMERAL | crate::notations::PI | crate::notations::EULER => true,
-            crate::notations::ABSOLUTE_VALUE | crate::notations::FACTORIAL => true,
-            crate::notations::ADDITIVE => {
-                node.spelling() == crate::notations::PLUS && all(self, &node.children)
-            }
-            crate::notations::MULTIPLICATIVE | crate::notations::JUXTAPOSITION => {
-                all(self, &node.children)
-            }
-            crate::notations::POWER | crate::notations::SUPERSCRIPT
-                if node.children.get(1).is_some_and(is_even_numeral) =>
-            {
-                true
-            }
-            crate::notations::POWER
-            | crate::notations::SUPERSCRIPT
-            | crate::notations::REAL_POWER
-            | crate::notations::SQUARE_ROOT => {
-                node.children.first().is_some_and(|b| self.nonnegative(b))
-            }
-            crate::notations::APPLICATION => {
-                self.library_function(node).is_some()
-                    && node.children.first().is_some_and(|f| &*f.text == "exp")
-            }
-            _ => &*node.notation_name() == "cardinality",
-        }
+        bounds::nonnegative(self, node)
     }
 
     /// Whether a real power or square root is Mathlib's real one: its base
@@ -709,13 +554,42 @@ impl<'a> Writer<'a> {
     /// (−4)^(1/2) = 2i where Mathlib's real power gives 0, and the node is
     /// written in ℂ. True of every other node.
     pub fn principal_is_real(&self, node: &Node) -> bool {
+        bounds::principal_is_real(self, node)
+    }
+
+    /// Note the form a real power or square root is written in, where it is
+    /// written (`Writer::number`), for `roots_written_both_ways`: not where
+    /// a type is only asked of it, before the lines its step stands on are
+    /// in scope.
+    fn note_root_form(&self, node: &Node) {
         if !matches!(
             node.notation(),
             crate::notations::REAL_POWER | crate::notations::SQUARE_ROOT
         ) {
-            return true;
+            return;
         }
-        node.children.first().is_some_and(|b| self.nonnegative(b))
+        let real = self.principal_is_real(node);
+        let mut forms = self.root_forms.borrow_mut();
+        let seen = forms
+            .entry(self.grammar.print(node))
+            .or_insert((false, false));
+        match real {
+            true => seen.0 = true,
+            false => seen.1 = true,
+        }
+    }
+
+    /// A real power or square root this writer and those made from it wrote
+    /// both as Mathlib's real one and as the principal one in ℂ, √(y − 3)
+    /// before and after the line y − 3 ≥ 0: one term in two forms, which a
+    /// step joining them would have to convert between. None where none
+    /// was.
+    pub fn roots_written_both_ways(&self) -> Option<String> {
+        self.root_forms
+            .borrow()
+            .iter()
+            .find(|(_, (real, complex))| *real && *complex)
+            .map(|(term, _)| term.clone())
     }
 }
 
@@ -897,36 +771,6 @@ impl Writer<'_> {
         }
     }
 
-    /// `template`, where the node is computed in `at`: a library function
-    /// takes the form for arguments of that type, so that cos(0) in a
-    /// calculation in ℂ is `Complex.cos 0`, as cos(A) beside it is.
-    fn template_at(&self, node: &Node, at: Num) -> Route<&Template> {
-        let applied = matches!(
-            node.notation(),
-            crate::notations::APPLICATION | crate::notations::APPLICATION_TO_TWO
-        ) && self.library_function(node).is_some();
-        if !applied {
-            return self.template(node);
-        }
-        let Some(f) = node.children.first() else {
-            return self.template(node);
-        };
-        // Computed in a field, an argument is read there; in ℤ, a natural
-        // number stays one, σ(n) of n ∈ ℕ `ArithmeticFunction.sigma 1 n`.
-        let args: Vec<Num> = node.children[1..]
-            .iter()
-            .filter_map(|a| self.argument_type(a))
-            .map(|c| match at > Num::Int {
-                true => c.max(at),
-                false => c,
-            })
-            .collect();
-        match self.templates.function_at(&f.text, &args) {
-            Some(t) => Route::Built(t),
-            None => self.template(node),
-        }
-    }
-
     /// The Lean form of the library function a node applies, `gcd(a, b)`;
     /// None for any other node, a letter of the page applied included.
     pub fn library_function(&self, node: &Node) -> Option<&Template> {
@@ -952,9 +796,10 @@ impl Writer<'_> {
     }
 
     /// The type a library function reads an argument at: ℕ for a natural
-    /// number, n of σ(n) with n ∈ ℕ, and otherwise the least that holds it.
+    /// number, n of σ(n) with n ∈ ℕ, written `n.toNat` where n is an
+    /// integer (`number`), and otherwise the least that holds it.
     fn argument_type(&self, a: &Node) -> Option<Num> {
-        match self.natural(a) {
+        match self.natural(a) || self.said_whole(a) {
             true => Some(Num::Nat),
             false => self.carrier(a).built(),
         }
@@ -1131,14 +976,14 @@ impl Writer<'_> {
     }
 
     /// The base and exponent of a power whose exponent is no natural number
-    /// as Lean computes one: a negative or an integer letter. None for any
-    /// other node.
+    /// as Lean computes one and is not said once in ℕ₀: a negative, an
+    /// integer letter, or n − 1 of n ∈ ℕ. None for any other node.
     fn integer_power<'n>(&self, node: &'n Node) -> Option<&'n [Node; 2]> {
         if node.notation() != crate::notations::POWER {
             return None;
         }
         let parts: &[Node; 2] = node.children.as_slice().try_into().ok()?;
-        (!self.natural(&parts[1])).then_some(parts)
+        (!self.natural(&parts[1]) && !self.said_whole(&parts[1])).then_some(parts)
     }
 
     /// What the function an application applies takes and gives: a
@@ -1298,6 +1143,15 @@ impl Writer<'_> {
         if self.finite_count(node).is_some() {
             return true;
         }
+        // A term a step names as a natural number is the one it names.
+        if let Some(s) = self.said_integer(node) {
+            return s.ty == Num::Nat;
+        }
+        // A power to an exponent that is no natural number is Lean's
+        // integer power, in ℚ at least, whatever its base.
+        if self.integer_power(node).is_some() {
+            return false;
+        }
         match node.notation() {
             NAME => matches!(
                 self.letters.get(node.text.as_str()),
@@ -1366,7 +1220,26 @@ impl Writer<'_> {
         };
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(index.text.to_string(), ty);
-        inner.bounds = self.bounds_inside(index, &over);
+        inner.wholes.shift_remove(&*index.text);
+        // An index from 0 or 1 is said once in ℕ₀ or ℕ by where it starts
+        // (`citing::index_system`), so x^k of Σ(k = 0 to n) x^k is a
+        // natural power.
+        if let Over::Range { from, .. } = &over {
+            match crate::citing::index_system(from) {
+                Some(crate::rules::System::N) => {
+                    inner.introduce(&index.text, System::Positive)
+                }
+                Some(crate::rules::System::N0) => {
+                    inner.introduce(&index.text, System::NonNegative)
+                }
+                _ => {}
+            }
+        }
+        let range = match &over {
+            Over::Range { from, to } => Some((*from, *to)),
+            Over::Set(_) => None,
+        };
+        inner.bounds = bounds::inside_sum(self, index, range);
         Route::Built(Summed {
             inner,
             index,
@@ -1456,7 +1329,7 @@ impl Writer<'_> {
     }
 
     /// Σ(k = a to ∞) t, the value of a series: the limit of its partial
-    /// sums, `Filter.limUnder Filter.atTop (fun n : ℕ => ∑ k ∈ Finset.Icc a n, t)`,
+    /// sums, `Filter.limUnder Filter.atTop (fun n : ℤ => ∑ k ∈ Finset.Icc a n, t)`,
     /// as set.mm and the series-sum item take it. Mathlib's `∑'` is 0 for a
     /// series that converges only conditionally, 1 − 1/3 + 1/5 − …, so it is
     /// not used. The partial sums run over a letter the series does not use.
@@ -1481,9 +1354,12 @@ impl Writer<'_> {
             );
         };
         let mut inner = self.with_letters(self.letters.clone());
-        inner
-            .letters
-            .insert(index.text.to_string(), LetterType::Number(Num::Int));
+        let system = match crate::citing::index_system(from) {
+            Some(crate::rules::System::N) => System::Positive,
+            Some(crate::rules::System::N0) => System::NonNegative,
+            _ => System::Type(Num::Int),
+        };
+        inner.introduce(&index.text, system);
         let (start, body) =
             match (self.number_fixed(from, Num::Int), inner.number(term, at)) {
                 (Route::Built(s), Route::Built(b)) => (s, b),
@@ -1494,7 +1370,7 @@ impl Writer<'_> {
         let body = Printed::atom(format!("({} : {})", body.text, self.type_name(at)));
         Route::Built(Printed {
             text: format!(
-                "Filter.limUnder Filter.atTop (fun {upper} : ℕ => ∑ {} ∈ Finset.Icc {} ({upper} : ℤ), {})",
+                "Filter.limUnder Filter.atTop (fun {upper} : ℤ => ∑ {} ∈ Finset.Icc {} {upper}, {})",
                 super::names::letter(&index.text),
                 start.at(MAX),
                 body.at(67)
@@ -1544,10 +1420,10 @@ impl Writer<'_> {
         })
     }
 
-    /// x(n) → L as n → ∞: `Filter.Tendsto (fun n : ℕ => x n) Filter.atTop
-    /// (nhds L)`, the letter running over the naturals and the term and its
-    /// limit computed in the type that holds both. The page's ℕ starts at 1
-    /// and Lean's at 0, which no limit sees.
+    /// x(n) → L as n → ∞: `Filter.Tendsto (fun n : ℤ => x n) Filter.atTop
+    /// (nhds L)`, the letter an integer in ℕ as any page letter in ℕ is, and
+    /// the term and its limit computed in the type that holds both. Where
+    /// the integers start, no limit sees.
     fn tends_to(&self, node: &Node) -> Route<Printed> {
         let [term, limit, letter] = node.children.as_slice() else {
             return Route::no("a limit of other than three parts");
@@ -1556,9 +1432,7 @@ impl Writer<'_> {
             return Route::no("a limit whose index is no letter");
         }
         let mut inner = self.with_letters(self.letters.clone());
-        inner
-            .letters
-            .insert(letter.text.to_string(), LetterType::Number(Num::Nat));
+        inner.introduce(&letter.text, System::Positive);
         // A limit is of real numbers, as the tends-to item states it: the
         // sequence and its limit are in ℝ at least, 1/n among them.
         let at = match (inner.carrier(term), self.carrier(limit)) {
@@ -1575,7 +1449,7 @@ impl Writer<'_> {
         };
         Route::Built(Printed {
             text: format!(
-                "Filter.Tendsto (fun {} : ℕ => ({} : {})) Filter.atTop (nhds {})",
+                "Filter.Tendsto (fun {} : ℤ => ({} : {})) Filter.atTop (nhds {})",
                 super::names::letter(&letter.text),
                 body.text,
                 self.type_name(at),
@@ -1735,13 +1609,35 @@ impl Writer<'_> {
 
     /// The node, a number, written as a Lean term of type `at`.
     pub fn number(&self, node: &Node, at: Num) -> Route<Printed> {
-        if let Some(s) = self.said_integer(node) {
-            let value = Printed::atom(format!("(Classical.choose {})", s.proof));
+        self.note_root_form(node);
+        let named = self
+            .said_integer(node)
+            .filter(|s| !s.slot_only || at <= Num::Int);
+        if let Some(s) = named {
+            let value = match &s.value {
+                Some(v) => Printed::atom(format!("({v})")),
+                None => Printed::atom(format!(
+                    "(Classical.choose {} : {})",
+                    s.proof,
+                    s.ty.lean()
+                )),
+            };
             return self.raise(value, s.ty, at);
         }
         if let Some(count) = self.finite_count(node) {
             return match count {
                 Route::Built(c) => self.raise(c, Num::Nat, at),
+                Route::Declined(d) => Route::Declined(d),
+            };
+        }
+        // A term the page says once is in ℕ₀, n or 2k + 1 of letters in
+        // ℕ, where Lean wants a natural number: the integer it is, taken to
+        // ℕ, which its fact 0 ≤ t brings back.
+        if at == Num::Nat && !self.natural(node) && self.said_whole(node) {
+            return match self.number(node, Num::Int) {
+                Route::Built(t) => {
+                    Route::Built(Printed::atom(format!("{}.toNat", t.at(MAX))))
+                }
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -1828,7 +1724,10 @@ impl Writer<'_> {
                 self.raise(value, to, at)
             }
             _ => {
-                let template = match self.template_at(node, at) {
+                // A library function takes the form for its arguments' own
+                // types, cos(0) `Real.cos 0` even in a line of complex
+                // numbers, and its value is cast up there as any value is.
+                let template = match self.template(node) {
                     Route::Built(t) => t,
                     Route::Declined(d) => return Route::Declined(d),
                 };
@@ -2014,9 +1913,13 @@ impl Writer<'_> {
         if let ([inner], LOGICAL_NOT) = (node.children.as_slice(), node.notation()) {
             if inner.notation() == EQUALITY
                 && inner.children.iter().all(|c| self.is_number(c))
+                && self.wide_in_slot(inner).is_none()
             {
                 return self.relation(inner, true);
             }
+        }
+        if let Some(said) = self.slot_witness(node) {
+            return said;
         }
         if &*node.notation_name() == "tends-to" {
             return self.tends_to(node);
@@ -2204,9 +2107,6 @@ impl Writer<'_> {
                         node.notation_name()
                     ));
                 }
-                if let Some(said) = self.natural_witness(node, template) {
-                    return said;
-                }
                 let alpha = match self.alpha_of(node, template) {
                     Route::Built(a) => a,
                     Route::Declined(d) => return Route::Declined(d),
@@ -2219,64 +2119,100 @@ impl Writer<'_> {
         }
     }
 
-    /// A property of a natural number said of a term Lean does not compute
-    /// as one, 2^(p − 1)·(2^p − 1) is perfect, a rational in Lean: that the
-    /// term is some natural number m, and the property of m, `∃ m : ℕ, (m :
-    /// ℚ) = … ∧ σ m = 2 * m`. set.mm writes the term as it stands, and its
-    /// σ is of natural numbers only, so its statement holds exactly where
-    /// this one does. None where every ℕ slot holds a natural number, or
-    /// where more than one does not.
-    fn natural_witness(
-        &self,
-        node: &Node,
-        template: &Template,
-    ) -> Option<Route<Printed>> {
-        let args = self.args(node);
-        let wide: Vec<usize> = template
-            .holes
-            .iter()
-            .zip(args)
-            .enumerate()
-            .filter(|(_, (slot, arg))| {
-                **slot == Slot::Fixed(Num::Nat)
-                    && self.is_number(arg)
-                    && !self.natural(arg)
-            })
-            .map(|(i, _)| i)
-            .collect();
-        let [i] = wide.as_slice() else {
-            return None;
-        };
-        let term = &args[*i];
-        let at = match self.carrier(term) {
+    /// A formula that puts a term Lean does not compute as a whole number
+    /// in a slot for one: "2^p − 1 divides 2^(p − 1)" of a power that is a
+    /// rational in Lean, "2^(p − 1)·(2^p − 1) is perfect", gcd(2^(p − 1), b)
+    /// = 1. The term is some whole number m, and the formula is said of m:
+    /// `∃ m : ℤ, (m : ℚ) = 2 ^ (p − 1) ∧ 2 ^ p − 1 ∣ m`. set.mm writes the
+    /// term as it stands, and its divides, σ and gcd hold of whole numbers
+    /// only, so its formula holds exactly where this one does; the term
+    /// keeps its one form (`GOALS.md` decision 20). None where no such slot
+    /// holds such a term, or none whose letters are all the formula's own.
+    fn slot_witness(&self, node: &Node) -> Option<Route<Printed>> {
+        let (term, whole) = self.wide_in_slot(node)?;
+        let at = match self.carrier(&term) {
             Route::Built(n) => n,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
-        let value = match self.number_fixed(term, at) {
+        let value = match self.number_fixed(&term, at) {
             Route::Built(v) => v,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         let m = witness_letter(node);
         let mut inner = self.with_letters(self.letters.clone());
-        inner
-            .letters
-            .insert(m.clone(), LetterType::Number(Num::Nat));
-        let mut children = node.children.clone();
-        let at_child = children.len() - args.len() + i;
-        children[at_child] = Node::name(crate::formula::Sort::of("number"), &m);
-        let body = match inner.formula(&node.with_children(children)) {
+        inner.letters.insert(m.clone(), LetterType::Number(whole));
+        let named = Node::name(crate::formula::Sort::of("number"), &m);
+        let body = match inner.formula(&put_for(node, &term, &named)) {
             Route::Built(b) => b,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         Some(Route::Built(Printed {
             text: format!(
-                "∃ {m} : ℕ, ({m} : {}) = {} ∧ {}",
+                "∃ {m} : {}, ({m} : {}) = {} ∧ {}",
+                whole.lean(),
                 self.type_name(at),
                 value.at(51),
                 body.at(36)
             ),
             prec: 0,
         }))
+    }
+
+    /// The first term the formula puts in a slot for a whole number that
+    /// Lean does not compute as one, with the slot's type, ℤ or ℕ: an
+    /// argument of divides, gcd or σ of a type wider than ℤ, or one of ℕ
+    /// that is no natural number. Only a term whose letters are all free
+    /// in the formula, so that the witness may stand outside it; and none
+    /// inside a connective or a quantifier, whose own parts are formulas
+    /// said apart. None where there is none.
+    pub(super) fn wide_in_slot(&self, node: &Node) -> Option<(Node, Num)> {
+        use crate::notations::{
+            BICONDITIONAL, COMMA_CONJUNCTION, CONDITIONAL, CONJUNCTION, DISJUNCTION,
+            IMPLICATION,
+        };
+        let joins = matches!(
+            node.notation(),
+            CONJUNCTION
+                | COMMA_CONJUNCTION
+                | DISJUNCTION
+                | IMPLICATION
+                | CONDITIONAL
+                | BICONDITIONAL
+                | LOGICAL_NOT
+                | FOR_ALL
+                | THERE_IS
+        );
+        if joins {
+            return None;
+        }
+        node.walk().into_iter().find_map(|n| self.wide_arg(&n))
+    }
+
+    /// `wide_in_slot` of one node's own arguments. A power's exponent is no
+    /// such slot: one that is no natural number makes the power Lean's
+    /// integer power (`Writer::integer_power`).
+    fn wide_arg(&self, n: &Node) -> Option<(Node, Num)> {
+        if n.notation() == crate::notations::POWER {
+            return None;
+        }
+        let template = self.template(n).built()?;
+        let args = self.args(n);
+        template.holes.iter().zip(args).find_map(|(slot, arg)| {
+            let whole = match slot {
+                Slot::Fixed(w @ (Num::Nat | Num::Int)) => *w,
+                _ => return None,
+            };
+            let free = arg
+                .names()
+                .iter()
+                .all(|name| self.letters.contains_key(name.as_str()));
+            // A term said once in ℕ₀ is written `t.toNat` there (`number`).
+            let wide = match whole {
+                Num::Nat => !self.natural(arg) && !self.said_whole(arg),
+                _ => self.carrier(arg).built().is_some_and(|c| c > Num::Int),
+            };
+            (self.is_number(arg) && free && wide).then(|| (arg.clone(), whole))
+        })
     }
 
     /// The type a formula's `α` holes are computed in: the least that holds
@@ -2300,7 +2236,7 @@ impl Writer<'_> {
     /// type where the other does not fix it. `negated` writes an equation
     /// as `≠`.
     fn relation(&self, node: &Node, negated: bool) -> Route<Printed> {
-        self.relation_from(node, negated, self.floor)
+        self.relation_from(node, negated, Num::Int)
     }
 
     /// A relation of numerals alone, `5 = 0`, written in the type `floor`
@@ -2594,14 +2530,14 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let positive = if system == System::Positive {
-                    format!("0 < {m} ∧ ")
+                let order = if system == System::Positive {
+                    "<"
                 } else {
-                    String::new()
+                    "≤"
                 };
                 Route::Built(Printed {
                     text: format!(
-                        "∃ {m} : ℕ, {positive}({m} : {}) = {}",
+                        "∃ {m} : ℤ, 0 {order} {m} ∧ ({m} : {}) = {}",
                         self.type_name(own),
                         x.at(51)
                     ),
@@ -2631,11 +2567,15 @@ impl Writer<'_> {
             return self.quantified_over_functions(letter, set, body, exists);
         }
         let name = super::names::letter(&letter.text);
-        let (ty, guard) = if set.notation() == NUMBER_SYSTEMS {
+        let (system, guard) = if set.notation() == NUMBER_SYSTEMS {
             match system_of(set) {
-                Some(System::Type(n)) => (n, None),
-                Some(System::Positive) => (Num::Nat, Some(format!("0 < {name}"))),
-                Some(System::NonNegative) => (Num::Nat, None),
+                Some(System::Type(n)) => (System::Type(n), None),
+                Some(System::Positive) => {
+                    (System::Positive, Some(format!("0 < {name}")))
+                }
+                Some(System::NonNegative) => {
+                    (System::NonNegative, Some(format!("0 ≤ {name}")))
+                }
                 None => return Route::no(format!("the number system {}", set.text)),
             }
         } else if set.notation() == INTEGER_RANGE {
@@ -2647,7 +2587,7 @@ impl Writer<'_> {
                 return Route::no("a range whose ends are not integers");
             };
             (
-                Num::Int,
+                range_letter_system(set),
                 Some(format!(
                     "{name} ∈ Finset.Icc {} {}",
                     from.at(MAX),
@@ -2657,20 +2597,12 @@ impl Writer<'_> {
         } else {
             return Route::no(format!("a quantifier over {}", set.notation_name()));
         };
+        let ty = letter_type(system);
         let mut inner = self.with_letters(self.letters.clone());
-        inner
-            .letters
-            .insert(letter.text.to_string(), LetterType::Number(ty));
-        // The letter is bounded by the set it runs over, p ≥ 1 of "there is
-        // p ∈ ℕ", as a letter the header lets in ℕ is, so that 2^(p − 1) is
-        // written alike in the statement and the proof.
-        inner.bounds = self.bounds.without_letter(&letter.text);
-        if let Some(least) = self.set_least(set, &[]) {
-            inner.bounds.terms.push(Bound {
-                term: letter.clone(),
-                least,
-            });
-        }
+        inner.introduce(&letter.text, system);
+        // The letter is bounded by the set it runs over, x ≥ 0 of "for all
+        // x ∈ ℕ₀", as a letter the header lets is, for a square root of it.
+        inner.bounds = bounds::inside_quantifier(self, letter, set);
         let body = match inner.formula(body) {
             Route::Built(b) => b,
             Route::Declined(d) => return Route::Declined(d),
@@ -2822,10 +2754,48 @@ pub fn function_systems(from: &Node, to: &Node) -> Option<(Num, Num)> {
     Some((takes, letter_type(gives)))
 }
 
-/// The Lean type a letter introduced in a number system takes.
+/// The system the index of a sum, product or series in `node` is in, where one runs
+/// over the letter `letter`: ℕ from 1, ℕ₀ from 0 (`citing::index_system`),
+/// ℤ from any other start. None where no sum in it has that index.
+pub fn index_letter_system(node: &Node, letter: &str) -> Option<System> {
+    node.walk().iter().find_map(|n| {
+        let series = &*n.notation_name() == "series";
+        if !is_big_operator(n) && !series {
+            return None;
+        }
+        let (index, from) = match (over_range(n), n.children.as_slice()) {
+            (Some([index, from, _, _]), _) => (index.clone(), from.clone()),
+            (None, [index, from, _, _]) => (index.clone(), from.clone()),
+            // Σ(k = a to ∞) t: its index and start.
+            (None, [index, from, _]) if series => (index.clone(), from.clone()),
+            _ => return None,
+        };
+        if !index.is_name() || &*index.text != letter {
+            return None;
+        }
+        Some(match crate::citing::index_system(&from) {
+            Some(crate::rules::System::N) => System::Positive,
+            Some(crate::rules::System::N0) => System::NonNegative,
+            _ => System::Type(Num::Int),
+        })
+    })
+}
+
+/// The system a letter running over a range is in, said once by the range
+/// (`citing::range_system`): ℕ from 1, ℕ₀ from 0, ℤ from any other start.
+pub fn range_letter_system(range: &Node) -> System {
+    match crate::citing::range_system(range) {
+        Some(crate::rules::System::N) => System::Positive,
+        Some(crate::rules::System::N0) => System::NonNegative,
+        _ => System::Type(Num::Int),
+    }
+}
+
+/// The Lean type a letter introduced in a number system takes: the page's ℕ
+/// and ℕ₀ are integers, as set.mm's are complex numbers with a fact.
 pub fn letter_type(system: System) -> Num {
     match system {
-        System::Positive | System::NonNegative => Num::Nat,
+        System::Positive | System::NonNegative => Num::Int,
         System::Type(n) => n,
     }
 }

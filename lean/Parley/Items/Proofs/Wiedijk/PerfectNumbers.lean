@@ -9,7 +9,7 @@ public section
 namespace Parley.Items.Proofs.Wiedijk.PerfectNumbers
 
 theorem def_power_times_odd (j : ℂ) :
-    (∃ k : ℕ, ∃ m : ℕ, 0 < m ∧ (Odd (m : ℤ) ∧ j = 2 ^ k * (m : ℂ))) ↔ (∃ k : ℕ, ∃ m : ℕ, 0 < m ∧ (Odd (m : ℤ) ∧ j = 2 ^ k * (m : ℂ))) :=
+    (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * (m : ℂ)))) ↔ (∃ k : ℤ, 0 ≤ k ∧ (∃ m : ℤ, 0 < m ∧ (Odd m ∧ j = 2 ^ k.toNat * (m : ℂ)))) :=
   Iff.rfl
 
 end Parley.Items.Proofs.Wiedijk.PerfectNumbers

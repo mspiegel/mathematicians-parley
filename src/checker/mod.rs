@@ -266,6 +266,11 @@ pub fn checked_where(
                 .iter()
                 .map(|step| library::sums_said_once(&c.known[i], step))
                 .collect();
+            record.introduced = thm
+                .steps
+                .iter()
+                .map(|step| library::introduced(&c.known[i], step))
+                .collect();
             record.cited = thm
                 .steps
                 .iter()

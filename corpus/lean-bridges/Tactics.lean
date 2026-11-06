@@ -119,6 +119,13 @@ macro "parley_norm" : tactic =>
   `(tactic| first
     | (ring1; done)
     | (push_cast; ring1; done)
+    -- A power to an exponent the page puts in ℕ₀, written `x ^ e.toNat`:
+    -- the `toNat` of a sum or product taken apart, a^(m + 1) as a^m·a, by
+    -- the facts 0 ≤ m in scope, as set.mm's `expadd` takes m, n ∈ ℕ₀.
+    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
+        mul_one, one_mul]; ring1; done)
+    | (simp (disch := omega) only [Int.toNat_add, Int.toNat_mul, Int.reduceToNat,
+        mul_one, one_mul]; push_cast; ring1; done)
     -- A function of numerals written two ways, (1 + 1)! beside 2!, where
     -- the file's modules tag the function into `parley_unfold`.
     | (norm_num [parley_unfold]; done))

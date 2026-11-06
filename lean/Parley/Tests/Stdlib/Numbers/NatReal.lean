@@ -9,7 +9,7 @@ public section
 
 namespace Parley.Tests.Stdlib.Numbers.NatReal
 
-theorem nat_real (m : ℕ) (hH1 : 0 < m) :
+theorem nat_real (m : ℤ) (hH1 : 0 < m) :
     True := by
   -- 1. mun:numbers-nat-real
   all_goals parley_side

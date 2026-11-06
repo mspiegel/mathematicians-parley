@@ -234,7 +234,7 @@ fn general_kind(
     let integers: Vec<String> = nodes
         .iter()
         .filter_map(|n| super::statement::introduces(n))
-        .filter(|(_, s)| super::expr::letter_type(*s) == Num::Int)
+        .filter(|(_, s)| *s == super::expr::System::Type(Num::Int))
         .map(|(letter, _)| letter)
         .collect();
     let integer_power = |p: &Node| {

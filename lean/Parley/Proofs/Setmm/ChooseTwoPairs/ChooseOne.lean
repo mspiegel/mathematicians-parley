@@ -3,6 +3,7 @@ module
 public import ArithTactics
 public import Counting
 public import FactorialTactics
+public import Functions
 public import PowerTactics
 public import SubstTactics
 public import Tactics
@@ -14,35 +15,36 @@ public section
 
 namespace Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne
 
-theorem choose_one (n : ℕ) :
-    (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) := by
+theorem choose_one (n : ℤ) (hH1 : 0 ≤ n) :
+    (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = n := by
   -- 1. induction on k starting at 0
-  have s1 : ∀ k : ℕ, (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) = (k : ℤ) := by
-    intro k
-    induction k with
-    | zero =>
+  have s1 : ∀ k : ℤ, 0 ≤ k → (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) = k := by
+    intro k h_k
+    replace h_k : 0 ≤ k := by omega
+    induction k, h_k using LeanBridges.Functions.le_induction with
+    | base =>
       -- 1.1. arithmetic
       have s1_1 : (0 : ℤ) < 1 := by parley_arith
       -- 1.2. def:C n := 0, k := 1, from 1.1
-      have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := 0) (k := (1 : ℤ))) (by parley_side); parley_side)
+      have s1_2 : (LeanBridges.Counting.choose (0 : ℤ) (1 : ℤ) : ℤ) = 0 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side) | exact_mod_cast ((Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side)).symm | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.def_C_3 (n := (0 : ℤ)) (by parley_side) (k := (1 : ℤ))) (by parley_side); parley_side)
       all_goals parley_side
-    | succ k hIH =>
+    | succ k hK hIH =>
       -- 1.3. thm:pascal n := k, k := 1
-      have s1_3 : (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k : ℤ) (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (k := (1 : ℤ))); parley_side)
+      have s1_3 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (1 - 1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))) | exact_mod_cast ((Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ)))).symm | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.thm_pascal (n := k) (by parley_side) (k := (1 : ℤ))); parley_side)
       -- 1.4. substitute 1 − 1 = 0 (arithmetic) into line 1.3
-      have s1_4 : (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose (k : ℤ) (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) := by parley_subst_at (show (1 - 1 : ℤ) = 0 by parley_side) s1_3
+      have s1_4 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst_at (show (1 - 1 : ℤ) = 0 by parley_side) s1_3
       -- 1.5. substitute
-      have s1_5 : (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) := by
-        have c1 : (LeanBridges.Counting.choose (k : ℤ) (0 : ℤ) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k)); parley_side)
-        have row1 : (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) := by parley_subst_at c1 s1_4
+      have s1_5 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by
+        have c1 : (LeanBridges.Counting.choose k (0 : ℤ) : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_binomial_zero_index (n := k) (by parley_side)); parley_side)
+        have row1 : (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 = (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) := by parley_subst_at c1 s1_4
         exact row1
       -- 1.6. calculation
-      have s1_6 : (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) = (k : ℤ) + 1 := by
-        calc (LeanBridges.Counting.choose ((k : ℤ) + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose (k : ℤ) (1 : ℤ) : ℤ) + 1 := by parley_side
-          _ = (k : ℤ) + 1 := by parley_subst hIH
+      have s1_6 : (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = k + 1 := by
+        calc (LeanBridges.Counting.choose (k + 1) (1 : ℤ) : ℤ) = (LeanBridges.Counting.choose k (1 : ℤ) : ℤ) + 1 := by parley_side
+          _ = k + 1 := by parley_subst hIH
       all_goals parley_side
   -- 2. instantiate k := n in line 1
-  have s2 : (LeanBridges.Counting.choose (n : ℤ) (1 : ℤ) : ℤ) = (n : ℤ) := by first | linear_combination (norm := parley_norm) (s1 n) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n) | exact_mod_cast ((s1 n)).symm | (have h := (s1 n); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n); parley_int_power h) | (have h := (s1 n); parley_side)
+  have s2 : (LeanBridges.Counting.choose n (1 : ℤ) : ℤ) = n := by first | linear_combination (norm := parley_norm) (s1 n (by parley_side)) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | exact_mod_cast (s1 n (by parley_side)) | exact_mod_cast ((s1 n (by parley_side))).symm | (have h := (s1 n (by parley_side)); rify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); qify; linear_combination (norm := parley_norm) h) | (have h := (s1 n (by parley_side)); parley_int_power h) | (have h := (s1 n (by parley_side)); parley_side)
   all_goals exact s2
 
 end Parley.Proofs.Setmm.ChooseTwoPairs.ChooseOne

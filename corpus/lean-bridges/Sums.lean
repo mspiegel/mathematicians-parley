@@ -35,13 +35,13 @@ theorem sum_single {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ �
   by simp
 
 /-- `mun:stdlib/sums/sum-last`. -/
-theorem sum_last {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℕ) :
-    (∑ k ∈ Finset.Icc (0 : ℤ) ((n : ℤ) + 1), (t k : K)) = (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : K)) + t ((n : ℤ) + 1) :=
-  by rw [show Finset.Icc (0 : ℤ) ((n : ℤ) + 1) = insert ((n : ℤ) + 1) (Finset.Icc 0 (n : ℤ)) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega, Finset.sum_insert (by simp), add_comm]
+theorem sum_last {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℤ) (h1 : 0 ≤ n) :
+    (∑ k ∈ Finset.Icc (0 : ℤ) (n + 1), (t k : K)) = (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : K)) + t (n + 1) :=
+  by rw [show Finset.Icc (0 : ℤ) (n + 1) = insert (n + 1) (Finset.Icc 0 n) by ext x; simp only [Finset.mem_Icc, Finset.mem_insert]; omega, Finset.sum_insert (by simp), add_comm]
 
 /-- `mun:stdlib/sums/sum-first`. -/
-theorem sum_first {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℕ) :
-    (∑ k ∈ Finset.Icc (0 : ℤ) (n : ℤ), (t k : K)) = t 0 + (∑ k ∈ Finset.Icc (0 + 1 : ℤ) (n : ℤ), (t k : K)) :=
+theorem sum_first {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (t : ℤ → K) (n : ℤ) (h1 : 0 ≤ n) :
+    (∑ k ∈ Finset.Icc (0 : ℤ) n, (t k : K)) = t 0 + (∑ k ∈ Finset.Icc (0 + 1 : ℤ) n, (t k : K)) :=
   by rw [Finset.Icc_eq_cons_Ioc (by omega), Finset.sum_cons]; congr 1; apply Finset.sum_congr _ (fun _ _ => rfl); ext x; simp only [Finset.mem_Ioc, Finset.mem_Icc]; omega
 
 /-- `mun:stdlib/sums/sum-shift`. -/
@@ -75,8 +75,8 @@ theorem sum_constant {K : Type*} [CommRing K] [IsDomain K] [CharZero K] (a : ℤ
   by rw [Finset.sum_const, Int.card_Icc, nsmul_eq_mul]; congr 1; have h : ((b + 1 - a).toNat : ℤ) = b + 1 - a := Int.toNat_of_nonneg (by omega); rw [← Int.cast_natCast, h]; push_cast; ring
 
 /-- `mun:stdlib/sums/range-from-bounds`. -/
-theorem range_from_bounds (m : ℕ) (h1 : 0 < m) (x : ℕ) (h3 : (x : ℤ) < (m : ℤ)) :
-    (x : ℤ) ∈ Finset.Icc (0 : ℤ) ((m : ℤ) - 1) :=
+theorem range_from_bounds (m : ℤ) (h1 : 0 < m) (x : ℤ) (h2 : 0 ≤ x) (h3 : x < m) :
+    x ∈ Finset.Icc (0 : ℤ) (m - 1) :=
   Finset.mem_Icc.mpr ⟨by omega, by omega⟩
 
 end LeanBridges.Sums

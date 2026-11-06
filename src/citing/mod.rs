@@ -10,6 +10,7 @@
 //! here, so that they answer it alike.
 
 mod asked;
+pub mod bounds;
 mod conclude;
 mod library;
 mod once;

@@ -15,23 +15,32 @@ calls `parley_set_side` where any other calls `parley_side`
 
 public section
 
-/-! The page's ℕ and ℕ₀ stand as sets of integers, `{n : ℤ | 0 < n}` and
-`{n : ℤ | 0 ≤ n}`, and a letter of them as a natural number: these say a
-property of every or some such integer is that of every or some natural. -/
-
-theorem parley_forall_pos (P : ℤ → Prop) : (∀ s : ℤ, 0 < s → P s) ↔ ∀ n : ℕ, 0 < n → P n :=
-  ⟨fun h n hn => h n (by exact_mod_cast hn), fun h s hs => by
-    lift s to ℕ using hs.le; exact h s (by exact_mod_cast hs)⟩
-
-theorem parley_exists_pos (P : ℤ → Prop) : (∃ s : ℤ, 0 < s ∧ P s) ↔ ∃ n : ℕ, 0 < n ∧ P n :=
-  ⟨fun ⟨s, hs, h⟩ => by lift s to ℕ using hs.le; exact ⟨s, by exact_mod_cast hs, h⟩,
-   fun ⟨n, hn, h⟩ => ⟨n, by exact_mod_cast hn, h⟩⟩
-
-theorem parley_forall_nonneg (P : ℤ → Prop) : (∀ s : ℤ, 0 ≤ s → P s) ↔ ∀ n : ℕ, P n :=
-  ⟨fun h n => h n (by positivity), fun h s hs => by lift s to ℕ using hs; exact h s⟩
-
-theorem parley_exists_nonneg (P : ℤ → Prop) : (∃ s : ℤ, 0 ≤ s ∧ P s) ↔ ∃ n : ℕ, P n :=
-  ⟨fun ⟨s, hs, h⟩ => by lift s to ℕ using hs; exact ⟨s, h⟩, fun ⟨n, h⟩ => ⟨n, by positivity, h⟩⟩
+open Lean Meta Elab Tactic in
+/-- "There is k with 0 ≤ k and P k", of a k a line says is at least 0 or
+above 0, 0 ≤ k of `let k ∈ ℕ₀`: that k the witness, its fact the order,
+and P k a line, cast as the goal is, L(k) = N(k)/10^k in ℚ for the goal's
+ℝ. Each such fact is tried, the latest first. -/
+elab "parley_witness_by_order" : tactic => withMainContext do
+  let lines := (← getLCtx).decls.toList.filterMap id |>.filter (!·.isImplementationDetail)
+  for line in lines.reverse do
+    let said ← instantiateMVars line.type
+    unless said.isAppOfArity ``LE.le 4 || said.isAppOfArity ``LT.lt 4 do continue
+    let saved ← saveState
+    try
+      let x ← Term.exprToSyntax (said.getArg! 3)
+      let h ← Term.exprToSyntax (mkFVar line.fvarId)
+      evalTactic (← `(tactic| refine ⟨$x, $h, ?_⟩))
+      for eq in lines.reverse do
+        let inner ← saveState
+        try
+          let e ← Term.exprToSyntax (mkFVar eq.fvarId)
+          Term.withoutErrToSorry (evalTactic (← `(tactic| exact_mod_cast $e)))
+          if (← getGoals).isEmpty then return
+        catch _ => pure ()
+        inner.restore
+    catch _ => pure ()
+    saved.restore
+  throwError "parley_witness_by_order: no fact 0 ≤ x in scope gives the witness"
 
 /-- A set's count in ℕ∞, where the set is finite, is its count as a
 natural number: what an item that counts in ℕ∞ says of a set a proof
@@ -140,7 +149,10 @@ counts, computes with the integers (`theorem::count_conversion`). -/
 macro "parley_count_int" : tactic => `(tactic|
   ((try parley_encard_closed);
    (try simp only [← Nat.cast_add, ← Nat.cast_mul, Nat.cast_inj, Nat.cast_le, Nat.cast_lt] at *);
-   (try zify at *)))
+   (try zify at *);
+   -- A count said of an integer the page puts in ℕ₀, `↑m.toNat`: the
+   -- integer itself, by its fact 0 ≤ m.
+   (try simp (disch := omega) only [Int.toNat_of_nonneg] at *)))
 
 /-- The other way, for a goal: a relation of integer counts of finite sets,
 (|X ∪ Y| : ℤ) = m + n, said in ℕ∞, (X ∪ Y).encard = m + n, as an item
@@ -164,16 +176,19 @@ macro "parley_count_after " e:term : tactic =>
 /-- `parley_side`, then the ways of sets. -/
 macro "parley_set_side" : tactic =>
   `(tactic| first
-    -- Something said of every or some member of the page's ℕ or ℕ₀, the
-    -- integers above or from 0, of a line that says it of natural numbers;
-    -- a map into all of a type maps anything there. This and the next are
-    -- tried before `parley_side`, whose last way, `simp_all`, recurses
-    -- past Lean's limit beside a set a define builds and a line x = e(x),
-    -- a = a·1 + b·0, which `first` does not recover from.
+    -- Something said of every or some member of a set given by a property,
+    -- the page's ℕ as {n : ℤ | 0 < n}, of a line that says it with the
+    -- property beside the letter; a map into all of a type maps anything
+    -- there. This and the next are tried before `parley_side`, whose last
+    -- way, `simp_all`, recurses past Lean's limit beside a set a define
+    -- builds and a line x = e(x), a = a·1 + b·0, which `first` does not
+    -- recover from.
     | (simp only [Set.mem_ofPred_eq, Set.mem_univ, Set.mapsTo_univ, true_and, true_implies,
-         forall_const, parley_forall_pos, parley_exists_pos, parley_forall_nonneg,
-         parley_exists_nonneg];
-       and_intros <;> first | assumption | omega | (exact ⟨_, ‹_›⟩) | (exact ⟨_, _, ‹_›⟩) | (exact ⟨_, _, rfl⟩))
+         forall_const];
+       and_intros <;> first | assumption | omega | (exact ⟨_, ‹_›⟩) | (exact ⟨_, _, ‹_›⟩) | (exact ⟨_, _, rfl⟩) | parley_witness_by_order)
+    -- A line of membership in a set given by a property within all of a
+    -- type, {t ∈ ℝ : P t}, where the goal names the set by its letter.
+    | (simp only [Set.mem_ofPred_eq, Set.mem_univ, true_and] at *; assumption)
     -- There is some member of a set, of a member a line names.
     | (exact ⟨_, ‹_ ∈ _›, trivial⟩)
     -- A part a line says, Y ⊆ W, asked as a member of the power set,
