@@ -2715,7 +2715,7 @@ impl<'a> Proof<'a> {
                             .cloned()
                             .collect();
                         Route::Built(match unfold.is_empty() {
-                            true => "by parley_side".to_string(),
+                            true => side_proof(),
                             false => {
                                 let mut ways = unfolded(&unfold);
                                 ways.push(super::tactics::bridge(
@@ -2730,9 +2730,7 @@ impl<'a> Proof<'a> {
             },
             // A requires line's lines, or one manipulation of one of them:
             // the fact is what they say, or follows from it by arithmetic.
-            Head::Lines | Head::Manipulation(_) => {
-                Route::Built("by parley_side".to_string())
-            }
+            Head::Lines | Head::Manipulation(_) => Route::Built(side_proof()),
         }
     }
 
@@ -2964,10 +2962,18 @@ impl<'a> Proof<'a> {
                 lines.extend(haves);
                 return Route::Built(with_haves(&lines, &proof));
             }
-            Method::Arithmetic => "by parley_arith".to_string(),
+            Method::Arithmetic => super::doc::Proof::By(super::tactics::bridge(
+                BridgeTactic::Arith,
+                vec![],
+            ))
+            .text(),
             // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
             // tactic, which tries `parley_arith` first (`RealTactics`).
-            Method::RealArithmetic => "by parley_real".to_string(),
+            Method::RealArithmetic => super::doc::Proof::By(super::tactics::bridge(
+                BridgeTactic::Real,
+                vec![],
+            ))
+            .text(),
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
@@ -2976,28 +2982,26 @@ impl<'a> Proof<'a> {
             Method::Inequalities | Method::Transitivity | Method::Antisymmetry => {
                 // A cited "for all", a(n) = 1 − 1/2ⁿ for every n, is read
                 // at the claim's letter, which linear arithmetic can use.
-                let read: Vec<String> = self
+                let mut steps: Vec<Tactic> = self
                     .cited_parts(&just.refs)
                     .iter()
                     .filter_map(|c| self.read_at_claim(c, node))
-                    .map(|at| format!("have := {}", at.proof))
+                    .map(|at| Tactic::Fact(Printed::atom(at.proof)))
                     .collect();
                 let close = match node.notation() == ORDER {
-                    true => "parley_order",
-                    false => "parley_side",
+                    true => BridgeTactic::Order,
+                    false => BridgeTactic::Side,
                 };
-                match read.as_slice() {
-                    [] => format!("by {close}"),
-                    _ => format!("by {}; {close}", read.join("; ")),
-                }
+                steps.push(super::tactics::bridge(close, vec![]));
+                super::doc::Proof::By(Tactic::Seq(steps)).text()
             }
-            Method::Inspection => "by parley_side".to_string(),
+            Method::Inspection => side_proof(),
             Method::Substitute => return self.substitute(just, node, writer),
             Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node),
             Method::Instantiate => return self.instantiate(just, node, writer),
             Method::Membership => return self.membership(just, node, writer),
-            Method::Restate | Method::Join => "by parley_side".to_string(),
+            Method::Restate | Method::Join => side_proof(),
             other => {
                 return Route::no(format!(
                     "the method {} is not written in Lean yet",
@@ -3097,7 +3101,43 @@ impl<'a> Proof<'a> {
         let k = super::names::letter(&r.index);
         let v = super::names::letter(&previous);
         let label = line_name(&line.label);
-        self.push_at(depth, Tactic::Raw(format!("obtain ⟨{f}, {label}⟩ : ∃ {f} : ℤ → {}, {f} 0 = {} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = {} := LeanBridges.Functions.recursion_exists _ (fun {k} {v} => {})", to.lean(), start.at(51), step.at(51), by_previous.text())), line.line, Spot::Statement);
+        use super::doc::Piece;
+        let rules = Printed::notation(
+            vec![
+                Piece::text(format!("∃ {f} : ℤ → {}, {f} 0 = ", to.lean())),
+                Piece::term(start, 51),
+                Piece::text(format!(" ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = ")),
+                Piece::term(step, 51),
+            ],
+            0,
+            super::doc::LeanType::Prop,
+        );
+        let exists = Printed::notation(
+            vec![
+                Piece::term(
+                    super::tactics::bridge_lemma(
+                        "LeanBridges.Functions.recursion_exists",
+                        BridgeModule::Functions,
+                    ),
+                    0,
+                ),
+                Piece::text(format!(" _ (fun {k} {v} => ")),
+                Piece::term(by_previous, 0),
+                Piece::text(")"),
+            ],
+            super::expr::APP,
+            super::doc::LeanType::Prop,
+        );
+        self.push_at(
+            depth,
+            Tactic::Obtain {
+                names: vec![f, label.clone()],
+                says: Some(rules),
+                from: exists,
+            },
+            line.line,
+            Spot::Statement,
+        );
         self.named.insert(line.label.clone(), vec![label]);
         Route::Built(())
     }
@@ -4144,7 +4184,7 @@ impl<'a> Proof<'a> {
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            _ => return Route::Built("by parley_side".to_string()),
+            _ => return Route::Built(side_proof()),
         };
         // The line put into, cast up to the claim's type where it is
         // narrower. Of a line saying several things, the one the equation
@@ -4421,7 +4461,7 @@ impl<'a> Proof<'a> {
                 return Route::Built(proof);
             }
         }
-        Route::Built("by parley_side".to_string())
+        Route::Built(side_proof())
     }
 
     /// `substitute` in rows: each row the row above with the change its
@@ -4818,9 +4858,14 @@ impl<'a> Proof<'a> {
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
                 None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
-                    "by parley_real".to_string()
+                    super::doc::Proof::By(super::tactics::bridge(
+                        BridgeTactic::Real,
+                        vec![],
+                    ))
+                    .text()
                 }
-                None => "by norm_num".to_string(),
+                None => super::doc::Proof::By(super::tactics::call("norm_num", vec![]))
+                    .text(),
             };
             // A chain of one link is that link, and its proof the step's:
             // Lean's calc would read the line after a lone link as another.
@@ -5703,7 +5748,7 @@ impl<'a> Proof<'a> {
                 r.phrase.is_some() && r.kind == crate::corpus::RecordKind::Definition
             });
         if phrase {
-            return Route::Built("by parley_side".to_string());
+            return Route::Built(side_proof());
         }
         let Some(concluded) = cited.concluded.get(k) else {
             return Route::no("a claim sentence no conclusion of the item gives");
@@ -7434,6 +7479,11 @@ fn as_tactic(proof: &str) -> String {
         Some(t) => format!("({t})"),
         None => format!("exact ({proof})"),
     }
+}
+
+/// `by parley_side`: a claim left to the bridges' side tactic.
+fn side_proof() -> String {
+    super::doc::Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![])).text()
 }
 
 /// `by` and the ways a step is closed, tried in order: `by t` of one way,

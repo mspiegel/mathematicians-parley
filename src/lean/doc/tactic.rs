@@ -45,6 +45,8 @@ pub enum Tactic {
     },
     /// `have h := t`: a term's statement named, for the tactics after it.
     Name { name: String, term: Term },
+    /// `have := t`: a term's statement put among the facts, unnamed.
+    Fact(Term),
     /// `first | a | b`: the first that closes the goal.
     First(Vec<Tactic>),
     /// `a; b`: one after the other.
@@ -180,6 +182,7 @@ impl Tactic {
                 Tactic::Raw(_)
                 | Tactic::Exact(_)
                 | Tactic::Name { .. }
+                | Tactic::Fact(_)
                 | Tactic::Have { .. }
                 | Tactic::Comment(_)
                 | Tactic::Obtain { .. }

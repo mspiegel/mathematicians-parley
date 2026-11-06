@@ -169,6 +169,7 @@ impl Tactic {
                 out
             }
             Tactic::Name { name, term } => format!("have {name} := {}", term.text()),
+            Tactic::Fact(term) => format!("have := {}", term.text()),
             Tactic::First(ts) => {
                 let alternatives: Vec<String> = ts.iter().map(Tactic::text).collect();
                 format!("first | {}", alternatives.join(" | "))
