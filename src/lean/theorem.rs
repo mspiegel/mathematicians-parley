@@ -2025,18 +2025,8 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p.at(super::expr::MAX),
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let specs: Vec<String> = atoms
-                .iter()
-                .map(|a| match a.said.value {
-                    Some(_) => a.said.proof.clone(),
-                    None => format!("Classical.choose_spec {}", a.said.proof),
-                })
-                .collect();
-            let s = specs.join(", ");
-            let equal = by_ways(vec![
-                Tactic::Raw(format!("(push_cast; simp only [{s}]; done)")),
-                Tactic::Raw(format!("(push_cast; simp only [{s}]; ring)")),
-            ]);
+            let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
+            let equal = specs_equal(&specs);
             let haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
             if !ordered {
                 return Route::Built(with_haves(
@@ -2117,11 +2107,8 @@ impl<'a> Proof<'a> {
                 None => format!("Classical.choose_spec {}", a.said.proof),
             })
             .collect();
-        let joined = specs.join(", ");
-        let equal = by_ways(vec![
-            Tactic::Raw(format!("(push_cast; simp only [{joined}]; done)")),
-            Tactic::Raw(format!("(push_cast; simp only [{joined}]; ring)")),
-        ]);
+        let spec_terms: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
+        let equal = specs_equal(&spec_terms);
         let mut haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
         // Each such cited line, said of the number the step names.
         for c in &cited {
@@ -2723,12 +2710,12 @@ impl<'a> Proof<'a> {
                         Route::Built(match unfold.is_empty() {
                             true => "by parley_side".to_string(),
                             false => {
-                                let h = unfold.join(", ");
-                                by_ways(vec![
-                                    Tactic::Raw(format!("(simp (disch := omega) only [{h}]; done)")),
-                                    Tactic::Raw(format!("(simp (disch := omega) only [{h}]; push_cast; norm_num; done)")),
-                                    Tactic::Raw("parley_side".to_string()),
-                                ])
+                                let mut ways = unfolded(&unfold);
+                                ways.push(super::tactics::bridge(
+                                    BridgeTactic::Side,
+                                    vec![],
+                                ));
+                                by_ways(ways)
                             }
                         })
                     }
@@ -4788,15 +4775,10 @@ impl<'a> Proof<'a> {
                         false => Vec::new(),
                     };
                     let mut ways: Vec<Tactic> = match define {
-                        Some(h) => vec![
-                            Tactic::Raw(format!("(simp (disch := omega) only [{h}]; done)")),
-                            Tactic::Raw(format!(
-                                "(simp (disch := omega) only [{h}]; push_cast; norm_num; done)"
-                            )),
-                        ],
+                        Some(h) => unfolded(std::slice::from_ref(h)),
                         None => Vec::new(),
                     };
-                    ways.push(Tactic::Raw("parley_side".to_string()));
+                    ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
                     ways.extend(in_named);
                     ways.extend(parts);
                     by_ways(ways)
@@ -7359,6 +7341,68 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
 
 /// The ways a claim is closed from a term that proves it, or something
 /// near it, tried in order (`close`).
+/// `(simp (disch := omega) only [h]; done)` and `(simp (disch := omega)
+/// only [h]; push_cast; norm_num; done)`: a claim made true by the
+/// equations of the defines cited, as they stand or once worked out.
+fn unfolded(defines: &[String]) -> Vec<Tactic> {
+    use super::tactics as t;
+    let rules: Vec<super::doc::Rule> =
+        defines.iter().map(|d| t::forwards(t::hyp(d))).collect();
+    let simp =
+        || t::simp_only(false, Some(t::call("omega", vec![])), rules.clone(), None);
+    vec![
+        t::steps(vec![simp(), t::call("done", vec![])]),
+        t::steps(vec![
+            simp(),
+            t::push_cast(None),
+            t::call("norm_num", vec![]),
+            t::call("done", vec![]),
+        ]),
+    ]
+}
+
+/// A named number's equation with its term: the one a step proves, by its
+/// name, or the line's witness's, `Classical.choose_spec h`.
+fn spec_of(said: &super::expr::SaidInteger) -> Printed {
+    let proof = Printed::atom(said.proof.clone());
+    match said.value {
+        Some(_) => proof,
+        None => Printed {
+            kind: super::doc::TermKind::App {
+                head: Box::new(Printed::head(
+                    "Classical.choose_spec",
+                    super::doc::Source::Core,
+                )),
+                args: vec![super::doc::Arg::Explicit(proof)],
+                explicit: false,
+            },
+            ty: None,
+        },
+    }
+}
+
+/// `by first | (push_cast; simp only [specs]; done) | (push_cast; simp only
+/// [specs]; ring)`: a claim made true by the named numbers' equations, as
+/// they stand or once worked out.
+fn specs_equal(specs: &[Printed]) -> String {
+    use super::tactics as t;
+    let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
+    by_ways(vec![
+        specs_then(&rules, t::call("done", vec![])),
+        specs_then(&rules, t::call("ring", vec![])),
+    ])
+}
+
+/// `(push_cast; simp only [specs]; last)`.
+fn specs_then(rules: &[super::doc::Rule], last: Tactic) -> Tactic {
+    use super::tactics as t;
+    t::steps(vec![
+        t::push_cast(None),
+        t::simp_only(false, None, rules.to_vec(), None),
+        last,
+    ])
+}
+
 /// `(have h := t; (try push_cast at h); (try push_cast); linear_combination
 /// (norm := parley_norm) e)`: the citation with its casts pushed in on both
 /// sides, then the claim as a combination of it.
