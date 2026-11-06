@@ -3050,9 +3050,7 @@ impl<'a> Proof<'a> {
             Method::Instantiate => {
                 return self.instantiate(just, node, writer).map(Proof::Raw)
             }
-            Method::Membership => {
-                return self.membership(just, node, writer).map(Proof::Raw)
-            }
+            Method::Membership => return self.membership(just, node, writer),
             Method::Inspection | Method::Restate | Method::Join => {
                 Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
             }
@@ -4181,7 +4179,7 @@ impl<'a> Proof<'a> {
                         claim,
                         self.sources.ctx,
                     ) {
-                        return Route::Built(proof);
+                        return Route::Built(proof.text());
                     }
                 }
                 match chosen.as_ref().map(|(n, p)| (n, p)) {
@@ -4503,7 +4501,7 @@ impl<'a> Proof<'a> {
         just: &Justification,
         node: &Node,
         writer: &Writer,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
         for cited in self.cited_parts(&just.refs) {
             if let Some(proof) = member_by_equation(
                 writer,
@@ -4515,7 +4513,10 @@ impl<'a> Proof<'a> {
                 return Route::Built(proof);
             }
         }
-        Route::Built(side_proof())
+        Route::Built(super::doc::Proof::By(super::tactics::bridge(
+            BridgeTactic::Side,
+            vec![],
+        )))
     }
 
     /// `substitute` in rows: each row the row above with the change its
@@ -7098,7 +7099,7 @@ fn member_by_equation(
     name: &str,
     claim: &Node,
     ctx: &crate::matching::Context,
-) -> Option<String> {
+) -> Option<super::doc::Proof> {
     let [term, set] = claim.children.as_slice() else {
         return None;
     };
@@ -7128,8 +7129,13 @@ fn member_by_equation(
             return None;
         }
         let w = writer.number_fixed(side, n).built()?;
-        let proof = by_ways(rewritten_by(name));
-        Some(format!("⟨{}, {proof}⟩", w.text()))
+        let proof = Printed {
+            kind: super::doc::TermKind::By(Box::new(ways_proof(rewritten_by(name)))),
+            ty: None,
+        };
+        Some(super::doc::Proof::Term(super::expr::anonymous(vec![
+            w, proof,
+        ])))
     })
 }
 

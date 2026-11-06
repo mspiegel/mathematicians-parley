@@ -244,6 +244,9 @@ pub enum TermKind {
     },
     /// A bracket no precedence asks for, kept where the writer writes one.
     Paren(Box<Term>),
+    /// A proof standing as a term, `by t`, as the proof part of `⟨w, by t⟩`
+    /// or an argument `(by parley_side)`.
+    By(Box<super::tactic::Proof>),
     /// A Lean notation: its fixed text around terms, `∑ k ∈ Finset.Icc a
     /// b, f k`, each term standing where it needs a precedence at least,
     /// and the precedence of the whole.
@@ -412,6 +415,7 @@ impl Term {
     pub fn children(&self) -> Vec<&Term> {
         match &self.kind {
             TermKind::Raw { .. }
+            | TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -488,6 +492,7 @@ impl Term {
     ) {
         match &mut self.kind {
             TermKind::Raw { .. }
+            | TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -541,6 +546,7 @@ impl Term {
         let kind = match &self.kind {
             TermKind::Hole(i) => return args.get(i.checked_sub(1)?).cloned(),
             TermKind::Raw { .. }
+            | TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -681,6 +687,7 @@ impl Term {
                 }
             }
             TermKind::Raw { .. }
+            | TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)

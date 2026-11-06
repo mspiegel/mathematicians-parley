@@ -33,6 +33,7 @@ impl Term {
     pub fn prec(&self) -> u32 {
         match &self.kind {
             TermKind::Raw { prec, .. } | TermKind::Notation { prec, .. } => *prec,
+            TermKind::By(_) => 0,
             TermKind::App { .. } => APP,
             TermKind::Infix { op, .. } => op.prec,
             TermKind::ModEq { .. } => 50,
@@ -66,6 +67,7 @@ impl Term {
     pub fn text(&self) -> String {
         match &self.kind {
             TermKind::Raw { text, .. } => text.clone(),
+            TermKind::By(proof) => proof.text(),
             TermKind::Letter(name) => name.clone(),
             TermKind::Const(c) => c.name.clone(),
             TermKind::Numeral(digits) => digits.clone(),
