@@ -2531,9 +2531,11 @@ impl<'a> Proof<'a> {
         cases: &[super::algebra::Cited],
         claim: &Node,
         writer: &Writer,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
         let (r, hyp) = (&cited.rule, &cited.hypothesis);
-        let mut case_rewrites = String::new();
+        let mut case_rewrites: Vec<Tactic> = Vec::new();
         if cited.by_cases {
             for c in cases {
                 let lemma = match (c.node.notation(), c.node.children.as_slice()) {
@@ -2545,13 +2547,20 @@ impl<'a> Proof<'a> {
                     }
                     _ => continue,
                 };
-                case_rewrites.push_str(&format!(" rw [{lemma} {}] at h;", c.proof));
+                let rule = Printed::applied(
+                    lemma,
+                    super::doc::Source::Mathlib,
+                    vec![Printed::atom(c.proof.clone())],
+                    super::doc::LeanType::Prop,
+                );
+                case_rewrites
+                    .push(t::call("rw", vec![t::rules(vec![rule]), t::at_h(false)]));
             }
         }
-        let cancel = match case_rewrites.is_empty() {
-            true => "sub_add_cancel",
-            false => "sub_add_cancel, add_sub_cancel_right",
-        };
+        let mut cancel = vec![t::forwards(t::lemma("sub_add_cancel"))];
+        if !case_rewrites.is_empty() {
+            cancel.push(t::forwards(t::lemma("add_sub_cancel_right")));
+        }
         let applied = claim.walk().into_iter().find_map(|n| {
             let [f, a] = n.children.as_slice() else {
                 return None;
@@ -2570,20 +2579,35 @@ impl<'a> Proof<'a> {
         // The rule in the type the recursion computes in, the claim in its
         // own, N(0) = 0 in ℤ for (N 0 : ℝ) = 0 of a theorem in ℝ: the rule
         // cast up first where the claim's type is wider.
-        let closed = "first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)";
+        let closed = Tactic::First(vec![
+            t::call("linarith", vec![]),
+            cast_then_linarith("rify"),
+            cast_then_linarith("qify"),
+        ]);
+        let worked = t::try_(t::call("ring_nf", vec![t::at_h(true)]));
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
-            return Route::Built(format!(
-                "by have h := {hyp}{start}; (try ring_nf at h ⊢); {closed}"
-            ));
+            return Route::Built(Proof::By(Tactic::Seq(vec![
+                t::name_h(&Printed::atom(format!("{hyp}{start}"))),
+                worked,
+                closed,
+            ])));
         }
         let a = match writer.number_fixed(&arg, super::templates::Num::Int) {
             Route::Built(a) => a,
             Route::Declined(d) => return Route::Declined(d),
         };
-        Route::Built(format!(
-            "by have h := ({hyp}{steps} ({} - 1) (by omega)){step}; simp only [{cancel}] at h;{case_rewrites} (try ring_nf at h ⊢); {closed}",
+        let at_step = Printed::atom(format!(
+            "({hyp}{steps} ({} - 1) (by omega)){step}",
             a.at(66)
-        ))
+        ));
+        let mut tactics = vec![
+            t::name_h(&at_step),
+            t::simp_only(false, None, cancel, Some(t::at_h(false))),
+        ];
+        tactics.extend(case_rewrites);
+        tactics.push(worked);
+        tactics.push(closed);
+        Route::Built(Proof::By(Tactic::Seq(tactics)))
     }
 
     /// A claim that a term of a wider type is an integer, a rational or a
@@ -2702,15 +2726,12 @@ impl<'a> Proof<'a> {
                     let (intros, body, writer) = self.peel(node);
                     let cases = self.cited_parts(&reason.just.from);
                     self.recursion_clause(&r, &cases, body, &writer)
-                        .map(|clause| {
-                            let clause = Proof::Raw(clause);
-                            match intros.is_empty() {
-                                true => clause,
-                                false => Proof::By(Tactic::Seq(vec![
-                                    Tactic::Intro(intros.clone()),
-                                    tactic_of(&clause),
-                                ])),
-                            }
+                        .map(|clause| match intros.is_empty() {
+                            true => clause,
+                            false => Proof::By(Tactic::Seq(vec![
+                                Tactic::Intro(intros.clone()),
+                                tactic_of(&clause),
+                            ])),
                         })
                 }
                 // A function the header lets by its value: its equation
@@ -7624,6 +7645,17 @@ fn rewrite_then_ring(rule: super::doc::Rule) -> Tactic {
         t::call("rw", vec![TacticArg::Rules(vec![rule])]),
         t::push_cast(None),
         t::call("ring", vec![]),
+    ])
+}
+
+/// `(rify at h; (try push_cast at h ⊢); linarith)`, or `qify`: h cast up
+/// to the claim's type, then the claim by linear arithmetic from it.
+fn cast_then_linarith(cast: &'static str) -> Tactic {
+    use super::tactics as t;
+    t::steps(vec![
+        t::call(cast, vec![t::at_h(false)]),
+        t::try_(t::push_cast(Some(t::at_h(true)))),
+        t::call("linarith", vec![]),
     ])
 }
 
