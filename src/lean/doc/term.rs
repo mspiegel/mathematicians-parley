@@ -154,11 +154,13 @@ pub enum CountForm {
     Extended,
 }
 
-/// A quantifier.
+/// A binder of one letter: a quantifier, or `fun`, which makes a function
+/// of its body.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Quant {
     ForAll,
     Exists,
+    Fun,
 }
 
 /// An argument a function or a declaration is applied to.

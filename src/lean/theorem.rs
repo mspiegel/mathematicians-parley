@@ -453,6 +453,43 @@ fn leaf_path(node: &Node, i: usize) -> Option<Vec<&'static str>> {
     }
 }
 
+/// `(fun x : T => body)`: a function by its values, bracketed as an
+/// argument.
+fn lambda(letter: &str, ty: super::doc::LeanType, body: Printed) -> Printed {
+    use super::doc::LeanType;
+    let to = body.ty.clone().unwrap_or(LeanType::Prop);
+    let fun = Printed::of(
+        super::doc::TermKind::Quantified {
+            quant: super::doc::Quant::Fun,
+            letter: letter.to_string(),
+            letter_ty: ty.clone(),
+            guard: None,
+            body: Box::new(body),
+        },
+        LeanType::Fun {
+            from: Box::new(ty),
+            to: Box::new(to),
+        },
+    );
+    super::tactics::bracket(fun)
+}
+
+/// `(fun x : A => ((f (x : B) : C) : D))`: a function of numbers taken at
+/// the members a letter runs over, A, and its values cast up to the type
+/// wanted, D, through the types it takes and gives, B and C.
+fn mapped_through(
+    f: Printed,
+    from: super::doc::LeanType,
+    takes: super::templates::Num,
+    gives: super::templates::Num,
+    wanted: super::templates::Num,
+) -> Printed {
+    use super::doc::LeanType;
+    let x = Printed::cast(super::tactics::hyp("x"), LeanType::Num(takes));
+    let value = Printed::cast(applied_to(f, x), LeanType::Num(gives));
+    lambda("x", from, Printed::cast(value, LeanType::Num(wanted)))
+}
+
 /// A function or proof applied to one more argument: `f a b` and `h`
 /// give `f a b h`.
 fn applied_to(term: Printed, arg: Printed) -> Printed {
@@ -5606,8 +5643,13 @@ impl<'a> Proof<'a> {
                                 Route::Declined(d) => {
                                     match self.said_integer(value, *n) {
                                         Some(line) => {
-                                            let printed = super::expr::Printed::atom(
-                                                format!("(Classical.choose {line})"),
+                                            let printed = super::tactics::bracket(
+                                                Printed::applied(
+                                                    "Classical.choose",
+                                                    super::doc::Source::Core,
+                                                    vec![super::tactics::hyp(&line)],
+                                                    super::doc::LeanType::Num(*n),
+                                                ),
                                             );
                                             self.said_used.borrow_mut().push(
                                                 SaidUsed {
@@ -5634,19 +5676,18 @@ impl<'a> Proof<'a> {
                             // Of things given sets, a set of them; of sets of
                             // things, sets of what is given for those.
                             let put = things.put(members, &things_at);
-                            let (of, lean) = (put.letter(), put.lean());
+                            let (of, of_type) = (put.letter(), put.member_type());
                             match (&*value.notation_name(), value.children.as_slice()) {
                                 ("property-of", [body]) => {
                                     let mut letters = self.writer.letters.clone();
                                     letters.insert(value.text.to_string(), of);
                                     let inner = self.writer.with_letters(letters);
                                     inner.formula(body).map(|b| {
-                                        super::expr::Printed::atom(format!(
-                                            "(fun {} : {} => {})",
-                                            super::names::letter(&value.text),
-                                            lean,
-                                            b.text()
-                                        ))
+                                        lambda(
+                                            &super::names::letter(&value.text),
+                                            of_type,
+                                            b,
+                                        )
                                     })
                                 }
                                 _ if value.is_name() => {
@@ -5691,12 +5732,11 @@ impl<'a> Proof<'a> {
                                         inner.introduce(&value.text, system);
                                     }
                                     inner.number_fixed(body, gives).map(|b| {
-                                        super::expr::Printed::atom(format!(
-                                            "(fun {} : {} => {})",
-                                            super::names::letter(&value.text),
-                                            from.lean(),
-                                            b.text()
-                                        ))
+                                        lambda(
+                                            &super::names::letter(&value.text),
+                                            super::doc::LeanType::Num(*from),
+                                            b,
+                                        )
                                     })
                                 }
                                 _ => Route::no(
@@ -5719,14 +5759,13 @@ impl<'a> Proof<'a> {
                                         && gives <= given.unwrap_or(*to) =>
                                 {
                                     let wanted = given.unwrap_or(*to);
-                                    Route::Built(super::expr::Printed::atom(format!(
-                                        "(fun x : {} => (({} (x : {}) : {}) : {}))",
-                                        from.lean(),
-                                        self.writer.function_printed(value).text(),
-                                        takes.lean(),
-                                        gives.lean(),
-                                        wanted.lean()
-                                    )))
+                                    Route::Built(mapped_through(
+                                        self.writer.function_printed(value),
+                                        super::doc::LeanType::Num(*from),
+                                        takes,
+                                        gives,
+                                        wanted,
+                                    ))
                                 }
                                 Route::Built(_) => Route::no(
                                     "a function given for a letter of other types",
@@ -5772,12 +5811,11 @@ impl<'a> Proof<'a> {
                                     );
                                     let inner = self.writer.with_letters(letters);
                                     inner.number_fixed(body, things_at(to)).map(|b| {
-                                        super::expr::Printed::atom(format!(
-                                            "(fun {} : {} => {})",
-                                            super::names::letter(&value.text),
-                                            things_at(from).lean(),
-                                            b.text()
-                                        ))
+                                        lambda(
+                                            &super::names::letter(&value.text),
+                                            super::doc::LeanType::Num(things_at(from)),
+                                            b,
+                                        )
                                     })
                                 }
                                 _ => Route::no(
@@ -5805,12 +5843,11 @@ impl<'a> Proof<'a> {
                                         .insert(value.text.to_string(), put.letter());
                                     let inner = self.writer.with_letters(letters);
                                     inner.number_fixed(body, gives).map(|b| {
-                                        super::expr::Printed::atom(format!(
-                                            "(fun {} : {} => {})",
-                                            super::names::letter(&value.text),
-                                            put.lean(),
-                                            b.text()
-                                        ))
+                                        lambda(
+                                            &super::names::letter(&value.text),
+                                            put.member_type(),
+                                            b,
+                                        )
                                     })
                                 }
                                 _ => Route::no(
@@ -5835,14 +5872,13 @@ impl<'a> Proof<'a> {
                                     Route::Built(self.writer.function_printed(value))
                                 }
                                 Route::Built((takes, gives)) if gives < wanted => {
-                                    Route::Built(super::expr::Printed::atom(format!(
-                                        "(fun x : {} => (({} (x : {}) : {}) : {}))",
-                                        put.lean(),
-                                        self.writer.function_printed(value).text(),
-                                        takes.lean(),
-                                        gives.lean(),
-                                        wanted.lean()
-                                    )))
+                                    Route::Built(mapped_through(
+                                        self.writer.function_printed(value),
+                                        put.member_type(),
+                                        takes,
+                                        gives,
+                                        wanted,
+                                    ))
                                 }
                                 Route::Built(_) => Route::no(
                                     "a function given for a map into a narrower type",
@@ -5870,8 +5906,13 @@ impl<'a> Proof<'a> {
                                 .writer
                                 .sets_of_nothing(std::slice::from_ref(value))
                             {
-                                Some(set) => Route::Built(super::expr::Printed::atom(
-                                    format!("(∅ : {})", set.lean()),
+                                Some(set) => Route::Built(Printed::cast(
+                                    Printed::constant(
+                                        "∅",
+                                        super::doc::Source::Core,
+                                        set.member_type(),
+                                    ),
+                                    set.member_type(),
                                 )),
                                 None => self.writer.set_term(value),
                             }
@@ -5888,9 +5929,9 @@ impl<'a> Proof<'a> {
                         // subgroup: its Lean name, the type or the
                         // `Subgroup G` itself, not the set it stands for.
                         (LetterType::Group | LetterType::Subgroup(_), _) => {
-                            Route::Built(super::expr::Printed::atom(
-                                super::names::letter(&value.text),
-                            ))
+                            Route::Built(super::tactics::hyp(&super::names::letter(
+                                &value.text,
+                            )))
                         }
                         // The identity is no binder: `1` of the group.
                         (LetterType::Identity(_), _) => {
@@ -7353,22 +7394,14 @@ fn cast_up(
     wanted: super::templates::Num,
     equation: &str,
 ) -> Printed {
-    use super::doc::Piece;
-    let map = Printed::notation(
-        vec![
-            Piece::text(format!("fun x : {} => ", writer.num_type(own).text())),
-            Piece::term(
-                Printed::cast(super::tactics::hyp("x"), writer.num_type(wanted)),
-                0,
-            ),
-        ],
-        0,
-        super::doc::LeanType::Prop,
-    );
+    let x = Printed::cast(super::tactics::hyp("x"), writer.num_type(wanted));
     Printed::applied(
         "congrArg",
         super::doc::Source::Core,
-        vec![super::tactics::bracket(map), super::tactics::hyp(equation)],
+        vec![
+            lambda("x", writer.num_type(own), x),
+            super::tactics::hyp(equation),
+        ],
         super::doc::LeanType::Prop,
     )
 }

@@ -135,6 +135,9 @@ impl Term {
                     (Quant::ForAll, Some(g)) => {
                         format!("∀ {letter} : {ty}, {} → {}", g.text(), body.at(25))
                     }
+                    (Quant::Fun, _) => {
+                        format!("fun {letter} : {ty} => {}", body.text())
+                    }
                 }
             }
             TermKind::Paren(inner) => format!("({})", inner.text()),
