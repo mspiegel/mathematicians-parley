@@ -2050,7 +2050,7 @@ impl<'a> Proof<'a> {
                 false => t::call("norm_num", vec![]),
             };
             if let Some(last) = names.last() {
-                let refuted = proof_term(super::doc::Proof::By(refute));
+                let refuted = super::tactics::by_term(super::doc::Proof::By(refute));
                 let absurd = Printed::applied(
                     "absurd",
                     super::doc::Source::Core,
@@ -2499,7 +2499,7 @@ impl<'a> Proof<'a> {
                         (
                             Num::Nat,
                             ["m", "h0", "hm"].as_slice(),
-                            vec![m_nat, proof_term(rewritten)],
+                            vec![m_nat, super::tactics::by_term(rewritten)],
                         )
                     }
                     (System::N | System::N0, _) => (
@@ -2507,7 +2507,9 @@ impl<'a> Proof<'a> {
                         ["m", "_", "hm"].as_slice(),
                         vec![
                             m(),
-                            proof_term(Proof::By(t::exact_mod_cast(t::hyp("hm")))),
+                            super::tactics::by_term(Proof::By(t::exact_mod_cast(
+                                t::hyp("hm"),
+                            ))),
                         ],
                     ),
                     _ => (
@@ -2515,7 +2517,9 @@ impl<'a> Proof<'a> {
                         ["m", "hm"].as_slice(),
                         vec![
                             m(),
-                            proof_term(Proof::By(t::exact_mod_cast(t::hyp("hm")))),
+                            super::tactics::by_term(Proof::By(t::exact_mod_cast(
+                                t::hyp("hm"),
+                            ))),
                         ],
                     ),
                 };
@@ -2824,7 +2828,7 @@ impl<'a> Proof<'a> {
             int,
         );
         let rule = fields(t::hyp(hyp), &steps);
-        let omega = proof_term(Proof::By(t::call("omega", vec![])));
+        let omega = super::tactics::by_term(Proof::By(t::call("omega", vec![])));
         let at = Printed {
             kind: super::doc::TermKind::App {
                 head: Box::new(rule),
@@ -2914,7 +2918,7 @@ impl<'a> Proof<'a> {
                 ))
             })
             .collect();
-        let equal = proof_term(super::doc::Proof::By(Tactic::Seq(vec![
+        let equal = super::tactics::by_term(super::doc::Proof::By(Tactic::Seq(vec![
             t::push_cast(None),
             t::try_(t::simp_only(false, None, rules, None)),
             Tactic::First(vec![
@@ -2966,7 +2970,9 @@ impl<'a> Proof<'a> {
                     ])),
                     CountConversion::After => Proof::By(t::bridge(
                         BridgeTactic::CountAfter,
-                        vec![TacticArg::Term(t::bracket(proof_term(proof)))],
+                        vec![TacticArg::Term(t::bracket(super::tactics::by_term(
+                            proof,
+                        )))],
                     )),
                 };
                 Route::Built(with_intros(&intros, proof))
@@ -3478,7 +3484,7 @@ impl<'a> Proof<'a> {
                 Route::Built(v) => v,
                 Route::Declined(why) => return Route::Declined(why),
             };
-            self.name_value(d, &def.name, ty, &value.text(), body, depth);
+            self.name_value(d, &def.name, ty, value, body, depth);
             return Route::Built(());
         }
         use super::templates::Num;
@@ -3517,14 +3523,7 @@ impl<'a> Proof<'a> {
             Route::Built(v) => v,
             Route::Declined(why) => return Route::Declined(why),
         };
-        self.name_value(
-            d,
-            &def.name,
-            LetterType::Number(ty),
-            &value.text(),
-            body,
-            depth,
-        );
+        self.name_value(d, &def.name, LetterType::Number(ty), value, body, depth);
         // A define of a kind whose value is already of the type, `let n =
         // a·b, an integer`: the kind's fact is still a line, proved by the
         // define's reason.
@@ -3588,7 +3587,7 @@ impl<'a> Proof<'a> {
         d: usize,
         name: &str,
         ty: LetterType,
-        value: &str,
+        value: Printed,
         body: Node,
         depth: usize,
     ) {
@@ -3600,7 +3599,7 @@ impl<'a> Proof<'a> {
             Tactic::Set {
                 name: super::names::letter(name),
                 ty: ty.lean_type(),
-                value: Printed::atom(value),
+                value,
                 with: label.clone(),
             },
             at,
@@ -3701,11 +3700,11 @@ impl<'a> Proof<'a> {
             .is_some_and(|n| n <= super::templates::Num::Int);
         if integer {
             let value = match self.writer.number_fixed(&body, ty) {
-                Route::Built(v) => v.text(),
+                Route::Built(v) => v,
                 Route::Declined(why) => return Route::Declined(why),
             };
             self.push_at(depth, kind_line, at, Spot::Statement);
-            self.name_value(d, name, LetterType::Number(ty), &value, body, depth);
+            self.name_value(d, name, LetterType::Number(ty), value, body, depth);
             self.writer.introduce(name, system);
             if ordered {
                 self.push_at(
@@ -3984,10 +3983,9 @@ impl<'a> Proof<'a> {
                 return Route::no("there is some member of a set with no Lean type");
             };
             return self.writer.element_term(value, &members).map(|v| {
-                let in_set = proof_term(super::doc::Proof::By(super::tactics::bridge(
-                    BridgeTactic::SetSide,
-                    vec![],
-                )));
+                let in_set = super::tactics::by_term(super::doc::Proof::By(
+                    super::tactics::bridge(BridgeTactic::SetSide, vec![]),
+                ));
                 let nothing = Printed::constant(
                     "trivial",
                     super::doc::Source::Core,
@@ -4604,10 +4602,14 @@ impl<'a> Proof<'a> {
                             lemma,
                             BridgeModule::PowerTactics,
                         )),
-                        args: [t::hyp(name), t::bracket(w.clone()), proof_term(shows)]
-                            .into_iter()
-                            .map(super::doc::Arg::Explicit)
-                            .collect(),
+                        args: [
+                            t::hyp(name),
+                            t::bracket(w.clone()),
+                            super::tactics::by_term(shows),
+                        ]
+                        .into_iter()
+                        .map(super::doc::Arg::Explicit)
+                        .collect(),
                         explicit: false,
                     },
                     ty: Some(super::doc::LeanType::Prop),
@@ -4750,7 +4752,8 @@ impl<'a> Proof<'a> {
         // letter, that it is above 0 or at least 0, which the lines in scope
         // give; one over any other set, ℝ ∖ {5} or B, that the letter is in
         // it.
-        let guard_by = |tactic| Some(proof_term(super::doc::Proof::By(tactic)));
+        let guard_by =
+            |tactic| Some(super::tactics::by_term(super::doc::Proof::By(tactic)));
         let (ty, guard) = match super::expr::system_of(set) {
             Some(system) => (
                 LetterType::Number(super::expr::letter_type(system)),
@@ -5992,9 +5995,12 @@ impl<'a> Proof<'a> {
                 Binder::Fact { says, .. }
                     if self.given_whole(&says.text(), binding) =>
                 {
-                    args.push(proof_arg(proof_term(super::doc::Proof::By(
-                        super::tactics::bridge(BridgeTactic::WholeSide, vec![]),
-                    ))))
+                    args.push(proof_arg(super::tactics::by_term(
+                        super::doc::Proof::By(super::tactics::bridge(
+                            BridgeTactic::WholeSide,
+                            vec![],
+                        )),
+                    )))
                 }
                 // A hypothesis a cited line says, as Lean writes both: the
                 // line by its name.
@@ -6282,8 +6288,12 @@ impl<'a> Proof<'a> {
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
             Some(witness) => ways_proof(vec![
-                Tactic::Exact(Printed::atom(witness)),
-                Tactic::Exact(t::bracket(proof_term(close(&self.writer, node, term)))),
+                Tactic::Exact(witness),
+                Tactic::Exact(t::bracket(super::tactics::by_term(close(
+                    &self.writer,
+                    node,
+                    term,
+                )))),
             ]),
             None => close(&self.writer, node, term),
         };
@@ -7491,7 +7501,7 @@ fn member_by_equation(
             return None;
         }
         let w = writer.number_fixed(side, n).built()?;
-        let proof = proof_term(ways_proof(rewritten_by(name)));
+        let proof = super::tactics::by_term(ways_proof(rewritten_by(name)));
         Some(super::doc::Proof::Term(super::expr::anonymous(vec![
             w, proof,
         ])))
@@ -7505,14 +7515,6 @@ struct Witness {
     known: Option<Tactic>,
 }
 
-/// A proof standing as a term, `by t` inside `⟨w, by t⟩`.
-fn proof_term(proof: super::doc::Proof) -> Printed {
-    Printed {
-        kind: super::doc::TermKind::By(Box::new(proof)),
-        ty: None,
-    }
-}
-
 /// `by parley_side` as a term, after the tactics that put what lines say
 /// of the witnesses before it in scope.
 fn side_term(known: &[Tactic]) -> Printed {
@@ -7522,7 +7524,7 @@ fn side_term(known: &[Tactic]) -> Printed {
         Ok([one]) => one,
         Err(all) => Tactic::Seq(all),
     };
-    proof_term(super::doc::Proof::By(tactic))
+    super::tactics::by_term(super::doc::Proof::By(tactic))
 }
 
 /// A define a step cites: its letter, the term it names, and the Lean name
@@ -7994,9 +7996,9 @@ fn tactic_of(proof: &super::doc::Proof) -> Tactic {
     match proof {
         Proof::By(t) => Tactic::Group(Box::new(t.clone())),
         Proof::Term(t) => Tactic::Exact(super::tactics::bracket(t.clone())),
-        Proof::Block(_) => {
-            Tactic::Exact(super::tactics::bracket(proof_term(proof.clone())))
-        }
+        Proof::Block(_) => Tactic::Exact(super::tactics::bracket(
+            super::tactics::by_term(proof.clone()),
+        )),
     }
 }
 
@@ -8080,7 +8082,7 @@ fn shown(says: Printed, proof: super::doc::Proof) -> Printed {
             Piece::text("show "),
             Piece::term(says, 0),
             Piece::text(" "),
-            Piece::term(proof_term(proof), 0),
+            Piece::term(super::tactics::by_term(proof), 0),
         ],
         0,
         super::doc::LeanType::Prop,
@@ -8183,7 +8185,7 @@ fn spec_of(said: &super::expr::SaidInteger) -> Printed {
 fn specs_equal(specs: &[Printed]) -> Printed {
     use super::tactics as t;
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    proof_term(ways_proof(vec![
+    super::tactics::by_term(ways_proof(vec![
         specs_then(&rules, t::call("done", vec![])),
         specs_then(&rules, t::call("ring", vec![])),
     ]))

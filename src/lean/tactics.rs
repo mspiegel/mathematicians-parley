@@ -41,6 +41,14 @@ pub fn bridge_lemma(name: &str, module: BridgeModule) -> Term {
     Term::head(name, Source::Bridge(module))
 }
 
+/// A proof standing as a term, `by t` inside `⟨w, by t⟩`.
+pub fn by_term(proof: super::doc::Proof) -> Term {
+    Term {
+        kind: TermKind::By(Box::new(proof)),
+        ty: None,
+    }
+}
+
 /// A term's `.symm`, bracketed as an argument where it needs it.
 pub fn symm(term: Term) -> Term {
     Term {

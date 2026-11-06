@@ -945,7 +945,9 @@ impl Writer<'_> {
     /// 2^(n − 1) ∈ ℤ, the witness: the base's integer to the exponent's
     /// `toNat`, which is the power where a line in scope shows the exponent
     /// not negative. None for any other claim.
-    pub fn integer_power_witness(&self, claim: &Node) -> Option<String> {
+    pub fn integer_power_witness(&self, claim: &Node) -> Option<Printed> {
+        use super::doc::{Op, Proof, Tactic, TacticArg, TermKind};
+        use super::tactics as t;
         let [t, set] = claim.children.as_slice() else {
             return None;
         };
@@ -958,11 +960,50 @@ impl Writer<'_> {
         let [base, exponent] = self.integer_power(t)?;
         let base = self.number_fixed(base, Num::Int).built()?;
         let exponent = self.number_fixed(exponent, Num::Int).built()?;
-        let e = exponent.at(MAX);
-        Some(format!(
-            "⟨{} ^ {e}.toNat, by push_cast; rw [← zpow_natCast, Int.toNat_of_nonneg (show (0 : ℤ) ≤ {e} by parley_side)]⟩",
-            base.at(76)
-        ))
+        let int = LeanType::Num(Num::Int);
+        let e = match exponent.prec() < MAX {
+            true => t::bracket(exponent),
+            false => exponent,
+        };
+        let e_nat = Printed::of(
+            TermKind::ToNat(Box::new(e.clone())),
+            LeanType::Num(Num::Nat),
+        );
+        let power = Printed::infix(Op::POWER, base, e_nat, int.clone());
+        let at_least_0 = Printed::infix(
+            Op::of("≤")?,
+            Printed::cast(Printed::numeral("0", int.clone()), int.clone()),
+            e,
+            LeanType::Prop,
+        );
+        let shown = Printed::notation(
+            vec![
+                Piece::text("show "),
+                Piece::term(at_least_0, 0),
+                Piece::text(" "),
+                Piece::term(
+                    t::by_term(Proof::By(t::bridge(
+                        super::doc::bridges::BridgeTactic::Side,
+                        vec![],
+                    ))),
+                    0,
+                ),
+            ],
+            0,
+            LeanType::Prop,
+        );
+        let nonneg = Printed::applied(
+            "Int.toNat_of_nonneg",
+            super::doc::Source::Core,
+            vec![shown],
+            LeanType::Prop,
+        );
+        let rules = vec![t::backwards(t::lemma("zpow_natCast")), t::forwards(nonneg)];
+        let equal = t::by_term(Proof::By(Tactic::Seq(vec![
+            t::push_cast(None),
+            t::call("rw", vec![TacticArg::Rules(rules)]),
+        ])));
+        Some(anonymous(vec![power, equal]))
     }
 
     /// The base and exponent of a power whose exponent is no natural number
