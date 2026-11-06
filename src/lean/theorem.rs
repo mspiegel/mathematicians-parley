@@ -26,11 +26,11 @@ use crate::formula::Node;
 use crate::notations::{BICONDITIONAL, CONDITIONAL, EQUALITY, IMPLICATION, ORDER};
 use crate::outcome::Route;
 
-/// A Lean file, and for each of its lines the place on the page it was
-/// written for.
-#[derive(Clone, Debug, Default)]
+/// A theorem's Lean declaration, and for each of its lines the place on
+/// the page it was written for.
+#[derive(Clone, Debug)]
 pub struct LeanFile {
-    pub text: String,
+    pub decl: super::doc::file::Declaration,
     pub origins: Vec<Origin>,
     /// Where a citation's item writes a term in another form than the line
     /// it proves.
@@ -67,15 +67,6 @@ struct ProofLine {
     depth: usize,
     tactic: Tactic,
     origin: Origin,
-}
-
-impl ProofLine {
-    /// The line as Lean text, indented to its depth, each line its tactic
-    /// runs over too.
-    fn text(&self) -> String {
-        let pad = pad(self.depth);
-        format!("{pad}{}", indented(&self.tactic.text(), &pad))
-    }
 }
 
 /// A proof given as an argument: a line's name or `(by parley_side)`.
@@ -1575,13 +1566,13 @@ pub fn theorem(
                 .insert(d.label.clone(), vec![line_name(&d.label)]);
         }
     }
-    let props: Vec<String> = conclusion.iter().map(|c| c.prop.at(36)).collect();
-    let binders: Vec<String> =
-        super::statement::things_binder(&binders, &props.join(" "))
+    let props: Vec<&Printed> = conclusion.iter().map(|c| &c.prop).collect();
+    let decl_binders: Vec<super::doc::file::Binder> =
+        super::statement::things_binder(&binders, &props)
             .into_iter()
-            .chain(binders.iter().map(Binder::lean))
+            .chain(binders.iter().map(Binder::doc))
             .collect();
-    let space = if binders.is_empty() { "" } else { " " };
+    let says = all_of(&props);
     // Lean's budget for one declaration, 200000 heartbeats, for each 10
     // steps of the proof: a long proof is many steps, each of the usual
     // cost, which the one default would cut off part way. A proof of 37
@@ -1590,20 +1581,10 @@ pub fn theorem(
     // four hundred thousand; the cubic formula's 42, whose algebra clears
     // divisions by terms of i and √3, between six and nine hundred
     // thousand.
-    let budget = match thm.steps.len().div_ceil(10) {
-        0 | 1 => String::new(),
-        n => format!("set_option maxHeartbeats {} in\n", 200_000 * n),
+    let heartbeats = match thm.steps.len().div_ceil(10) {
+        0 | 1 => None,
+        n => Some(200_000 * n as u64),
     };
-    proof.push(
-        format!(
-            "{budget}theorem {}{space}{} :\n    {} := by",
-            snake(&thm.name),
-            binders.join(" "),
-            props.join(" ∧ ")
-        ),
-        thm.line,
-        Spot::Statement,
-    );
     // The names the statement wrote out, named again for the proof.
     // Only those the theorem's page writes: a file's other defines are its
     // other theorems'.
@@ -1665,32 +1646,60 @@ pub fn theorem(
             Spot::Statement,
         );
     }
-    let mut text = String::new();
+    let decl = super::doc::file::Declaration {
+        heartbeats,
+        name: snake(&thm.name),
+        binders: decl_binders,
+        says,
+        proof: super::doc::file::DeclProof::Steps(Vec::new()),
+    };
+    // Each line of the file, from 1, and what it was written for: the
+    // statement's lines, then each step's.
     let mut origins = Vec::new();
-    let mut at = 1;
-    for line in &proof.lines {
-        let written = line.text();
-        for _ in written.lines() {
+    for _ in decl.head().lines() {
+        origins.push(Origin {
+            line: origins.len() + 1,
+            page_line: thm.line,
+            spot: Spot::Statement,
+        });
+    }
+    let mut steps = Vec::new();
+    for line in proof.lines {
+        let step = super::doc::file::Step {
+            depth: line.depth,
+            tactic: line.tactic,
+        };
+        for _ in step.text().lines() {
             origins.push(Origin {
-                line: at,
+                line: origins.len() + 1,
                 ..line.origin.clone()
             });
-            at += 1;
         }
-        text.push_str(&written);
-        text.push('\n');
+        steps.push(step);
     }
     let forms = proof.forms.take();
     Route::Built(LeanFile {
-        text,
+        decl: super::doc::file::Declaration {
+            proof: super::doc::file::DeclProof::Steps(steps),
+            ..decl
+        },
         origins,
         forms,
     })
 }
 
-/// Indentation for a depth of nesting.
-fn pad(depth: usize) -> String {
-    "  ".repeat(depth)
+/// The sentences of a statement as one, joined by `∧`, each bracketed
+/// where it binds more loosely: what a theorem of several says.
+fn all_of(props: &[&Printed]) -> Printed {
+    use super::doc::Piece;
+    let mut pieces = Vec::new();
+    for (i, p) in props.iter().enumerate() {
+        if i > 0 {
+            pieces.push(Piece::text(" ∧ "));
+        }
+        pieces.push(Piece::term((*p).clone(), 36));
+    }
+    Printed::notation(pieces, 0, super::doc::LeanType::Prop)
 }
 
 /// What proves a claim: a justification, and what the checker read of the
@@ -1703,10 +1712,6 @@ struct Reason<'r> {
 }
 
 impl<'a> Proof<'a> {
-    fn push(&mut self, line: String, page_line: usize, spot: Spot) {
-        self.push_at(0, Tactic::Raw(line), page_line, spot);
-    }
-
     /// `intro a b` as a line of the proof at a depth of its blocks.
     fn intro(
         &mut self,
@@ -7718,12 +7723,6 @@ fn cases_pattern(names: &[String]) -> super::doc::Pattern {
             Box::new(cases_pattern(rest)),
         ),
     }
-}
-
-/// A line whose proof runs over several lines, each line after the first
-/// indented by `pad` as the first is.
-fn indented(text: &str, pad: &str) -> String {
-    text.replace('\n', &format!("\n{pad}"))
 }
 
 /// The lines a step cites anywhere in its reason: its own references, the

@@ -1336,16 +1336,34 @@ fn proof_of(entry: &str, sentence: &Sentence) -> Route<String> {
 }
 
 /// A Lean theorem's declaration, its name taken from its full name.
-pub fn declaration(sentence: &Sentence, proof: &str) -> String {
+pub fn declaration(
+    sentence: &Sentence,
+    proof: &str,
+    modules: std::collections::BTreeSet<String>,
+) -> super::doc::file::Declaration {
+    use super::doc::file::{Binder as Doc, DeclProof, Declaration};
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
-    let mut binders: Vec<String> =
-        sentence.general.iter().map(General::binders).collect();
-    let prop = sentence.prop.text();
-    binders.extend(super::statement::things_binder(&sentence.binders, &prop));
-    binders.extend(sentence.binders.iter().map(Binder::lean));
-    let space = if binders.is_empty() { "" } else { " " };
-    format!(
-        "theorem {short}{space}{} :\n    {prop} :=\n  {proof}",
-        binders.join(" "),
-    )
+    let mut binders: Vec<Doc> = sentence
+        .general
+        .iter()
+        .map(|g| Doc::Typed {
+            text: g.binders(),
+            ty: None,
+        })
+        .collect();
+    binders.extend(super::statement::things_binder(
+        &sentence.binders,
+        &[&sentence.prop],
+    ));
+    binders.extend(sentence.binders.iter().map(Binder::doc));
+    Declaration {
+        heartbeats: None,
+        name: short.to_string(),
+        binders,
+        says: sentence.prop.clone(),
+        proof: DeclProof::Verbatim {
+            text: proof.to_string(),
+            modules,
+        },
+    }
 }

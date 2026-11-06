@@ -23,6 +23,9 @@ use super::{write_changed, Written};
 use crate::checker::CheckedCorpus;
 use crate::corpus::{cited_items, RecordKind};
 use crate::lean::coverage::{coverage, Covered};
+use crate::lean::doc::bridges::BridgeTactic;
+use crate::lean::doc::file::Declaration;
+use crate::lean::doc::{Source, Tactic, TacticRef, TermKind};
 use crate::lean::expr::Writer;
 use crate::lean::items::{declaration, item, items_module, Item};
 use crate::lean::names::{module_of, path_of_module};
@@ -86,33 +89,6 @@ const TACTICS: &str = "Tactics";
 /// The module of the tactics a proof about sets uses beside the others.
 const SET_TACTICS: &str = "SetTactics";
 
-/// Each tactic outside `Tactics` and `SetTactics`, and the module that
-/// holds it, which a file naming the tactic imports. Every file importing a
-/// module is rebuilt when it changes, so a family most files do not call is
-/// a module of its own; the layout, and where a new tactic or case goes, is
-/// set out at the head of `corpus/lean-bridges/Tactics.lean`.
-/// `parley_subst` names `parley_subst_at` too, which is in the same module.
-const TACTIC_MODULES: &[(&str, &str)] = &[
-    ("parley_clear", "AlgebraTactics"),
-    ("parley_ring", "AlgebraTactics"),
-    ("parley_field", "AlgebraTactics"),
-    ("parley_subst", "SubstTactics"),
-    ("parley_put_at", "SubstTactics"),
-    ("parley_order", "OrderTactics"),
-    ("parley_int_power", "PowerTactics"),
-    ("parley_cast_toNat", "PowerTactics"),
-    ("parley_witness_at", "PowerTactics"),
-    ("parley_witness_not_at", "PowerTactics"),
-    ("parley_line_toNat", "PowerTactics"),
-    ("parley_zpow_toNat", "PowerTactics"),
-    ("parley_of_complex", "ComplexTactics"),
-    ("parley_arith", "ArithTactics"),
-    ("parley_suppose", "ArithTactics"),
-    ("parley_real", "RealTactics"),
-    ("parley_rat_of_real", "RealTactics"),
-    ("parley_whole_side", "WholeTactics"),
-];
-
 /// Modules that tag definitions into the tactics' simp set `parley_unfold`,
 /// by what a file's Lean text writes that they apply to: a file that writes
 /// a factorial or a binomial coefficient imports the module that tags them
@@ -122,27 +98,20 @@ const RULE_MODULES: &[(&str, &str)] = &[
     ("LeanBridges.Counting.choose", "FactorialTactics"),
 ];
 
-/// The tactic a step leaves its side conditions to, and the one a proof
-/// about sets leaves them to, which tries the first and then the ways of
-/// sets.
-const SIDE: &str = "parley_side";
-const SET_SIDE: &str = "parley_set_side";
-
-/// Whether a proof's Lean text is about sets: it writes Lean's `Set` or
-/// counts one.
-fn uses_sets(text: &str) -> bool {
-    text.contains("Set ") || text.contains("Set.") || text.contains(".encard")
-}
-
-/// The modules of the library a generated file imports: the tactics every
-/// file uses, the module of each other tactic its Lean text names, and each
-/// bridge module it names, `Counting` for a `LeanBridges.Counting.…`. A file
-/// imports no module it does not use, so that a change in one rebuilds only
-/// the files that use it.
-fn library_imports(text: &str) -> BTreeSet<String> {
+/// The modules of the library a record's own Lean proof names, read when
+/// the build reads the record: the module of each bridge tactic it calls,
+/// each bridge module it names, `Counting` for a `LeanBridges.Counting.…`,
+/// and the module tagging a definition it names (`RULE_MODULES`). The
+/// proof is Lean text the record gives, so it is read as text.
+fn named_in(text: &str) -> BTreeSet<String> {
     let prefix = format!("{LIBRARY}.");
-    let mut out = BTreeSet::from([TACTICS.to_string()]);
-    for (written, module) in TACTIC_MODULES.iter().chain(RULE_MODULES) {
+    let mut out = BTreeSet::new();
+    for tactic in BridgeTactic::ALL {
+        if text.contains(tactic.name()) {
+            out.insert(tactic.module().name().to_string());
+        }
+    }
+    for (written, module) in RULE_MODULES {
         if text.contains(written) {
             out.insert(module.to_string());
         }
@@ -155,6 +124,41 @@ fn library_imports(text: &str) -> BTreeSet<String> {
             .collect();
         if !subject.is_empty() {
             out.insert(subject);
+        }
+    }
+    out
+}
+
+/// The modules of the library a declaration uses: the tactics every file
+/// uses, the module of each bridge tactic it calls and of each bridge
+/// constant it names, the module that tags a definition it names into
+/// `parley_unfold` (`RULE_MODULES`), and those a record's own proof names.
+/// A file imports no module it does not use, so that a change in one
+/// rebuilds only the files that use it.
+fn modules_of(decl: &Declaration) -> BTreeSet<String> {
+    let mut out = BTreeSet::from([TACTICS.to_string()]);
+    out.extend(decl.verbatim_modules());
+    let parts = decl.parts();
+    for t in &parts.terms {
+        let TermKind::Const(c) = &t.kind else {
+            continue;
+        };
+        if let Source::Bridge(m) = &c.source {
+            out.insert(m.name().to_string());
+        }
+        for (written, module) in RULE_MODULES {
+            if c.name == *written {
+                out.insert(module.to_string());
+            }
+        }
+    }
+    for t in &parts.tactics {
+        if let Tactic::Call {
+            tactic: TacticRef::Bridge(b),
+            ..
+        } = t
+        {
+            out.insert(b.module().name().to_string());
         }
     }
     out
@@ -187,7 +191,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
     // The library's items with a lean field, by full name, and each
     // module's declarations.
     let mut items: IndexMap<String, Item> = IndexMap::new();
-    let mut modules: IndexMap<String, (String, Vec<String>)> = IndexMap::new();
+    let mut modules: IndexMap<String, (String, Vec<Declaration>)> = IndexMap::new();
     for record in &checked.corpus.records {
         if record.kind == RecordKind::Notation || record.lean_target().is_none() {
             continue;
@@ -199,7 +203,7 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
                     .entry(items_module(record))
                     .or_insert_with(|| (record.path.clone(), Vec::new()));
                 for (s, proof) in it.sentences.iter().zip(&it.proofs) {
-                    entry.1.push(declaration(s, proof));
+                    entry.1.push(declaration(s, proof, named_in(proof)));
                     made.statements.insert(s.decl.clone(), s.arithmetic.clone());
                 }
                 items.insert(full, it);
@@ -218,11 +222,15 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         }
     }
     for (module, (path, decls)) in &modules {
-        let body = decls.join("\n\n");
-        let imports: Vec<String> = library_imports(&body).into_iter().collect();
+        let texts: Vec<String> = decls.iter().map(Declaration::text).collect();
+        let mut library = BTreeSet::new();
+        for d in decls {
+            library.extend(modules_of(d));
+        }
+        let imports: Vec<String> = library.into_iter().collect();
         let mut text = header(&imports, path);
         text.push_str(&format!("public section\n\nnamespace {module}\n\n"));
-        for d in decls {
+        for d in &texts {
             text.push_str(d);
             text.push_str("\n\n");
         }
@@ -322,12 +330,15 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
         imported.insert(module.clone(), (name.clone(), cited.clone()));
         // A proof about sets leaves its reader the ways of sets as well,
         // from their own module (`SetTactics`).
-        let of_sets = uses_sets(&file.text);
-        let body = match of_sets {
-            true => file.text.replace(SIDE, SET_SIDE),
-            false => file.text.clone(),
-        };
-        let mut library = library_imports(&body);
+        // A proof about sets leaves its side conditions to the ways of sets
+        // as well, from their own module (`SetTactics`).
+        let mut decl = file.decl.clone();
+        let of_sets = decl.about_sets();
+        if of_sets {
+            decl.with_set_side();
+        }
+        let body = format!("{}\n", decl.text());
+        let mut library = modules_of(&decl);
         if of_sets {
             library.insert(SET_TACTICS.to_string());
         }

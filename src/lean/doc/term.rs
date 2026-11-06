@@ -30,6 +30,28 @@ pub enum LeanType {
     Subgroup(String),
 }
 
+impl LeanType {
+    /// Whether it is `ty`, or is made of it, as `Set (Set α)` is of `Set
+    /// α`.
+    pub fn contains(&self, ty: &LeanType) -> bool {
+        self == ty
+            || match self {
+                LeanType::Set(inner) => inner.contains(ty),
+                LeanType::Fun { from, to } => from.contains(ty) || to.contains(ty),
+                _ => false,
+            }
+    }
+
+    /// Whether it is a type of sets, or is made of one, `ℤ → Set ℕ`.
+    pub fn has_set(&self) -> bool {
+        match self {
+            LeanType::Set(_) => true,
+            LeanType::Fun { from, to } => from.has_set() || to.has_set(),
+            _ => false,
+        }
+    }
+}
+
 /// Where a constant a term names comes from, which is what a file that
 /// names it imports.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -487,6 +509,90 @@ impl Term {
         }
     }
 
+    /// The terms directly inside this one, to change in place.
+    fn children_mut(&mut self) -> Vec<&mut Term> {
+        match &mut self.kind {
+            TermKind::By(_)
+            | TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided
+            | TermKind::Open => Vec::new(),
+            TermKind::Enclosed { inner, .. }
+            | TermKind::Cast { inner, .. }
+            | TermKind::Field { inner, .. } => vec![&mut **inner],
+            TermKind::ModEq { a, b, n } => vec![&mut **a, &mut **b, &mut **n],
+            TermKind::App { head, args, .. } => {
+                let mut out = vec![&mut **head];
+                out.extend(args.iter_mut().map(|a| match a {
+                    Arg::Explicit(t) => t,
+                    Arg::Named { value, .. } => value,
+                }));
+                out
+            }
+            TermKind::Infix { lhs, rhs, .. } => vec![&mut **lhs, &mut **rhs],
+            TermKind::Not(t)
+            | TermKind::Neg(t)
+            | TermKind::ToNat(t)
+            | TermKind::Paren(t) => {
+                vec![&mut **t]
+            }
+            TermKind::Count { set, .. } => vec![&mut **set],
+            TermKind::Quantified { guard, body, .. } => {
+                let mut out: Vec<&mut Term> =
+                    guard.iter_mut().map(|g| &mut **g).collect();
+                out.push(body);
+                out
+            }
+            TermKind::Notation { pieces, .. } => pieces
+                .iter_mut()
+                .filter_map(|p| match p {
+                    Piece::Term { term, .. } => Some(&mut **term),
+                    Piece::Text(_) => None,
+                })
+                .collect(),
+        }
+    }
+
+    /// The side tactic of sets wherever the side tactic stands in a proof
+    /// inside the term.
+    pub fn set_side(&mut self) {
+        if let TermKind::By(p) = &mut self.kind {
+            p.set_side();
+        }
+        for c in self.children_mut() {
+            c.set_side();
+        }
+    }
+
+    /// Whether the tree writes the type `ty` somewhere, in a cast or as a
+    /// bound letter's type.
+    pub fn writes_type(&self, ty: &LeanType) -> bool {
+        self.has(|k| match k {
+            TermKind::Cast { to, .. } => to.contains(ty),
+            TermKind::Quantified { letter_ty, .. } => letter_ty.contains(ty),
+            _ => false,
+        })
+    }
+
+    /// Whether this node writes something of Lean's sets: a constant of
+    /// `Set`'s namespace, a set counted in ℕ∞, a cast to or a letter of a
+    /// type of sets, or a notation whose text names `Set`.
+    pub fn about_sets(&self) -> bool {
+        match &self.kind {
+            TermKind::Const(c) => c.name.starts_with("Set."),
+            TermKind::Count { form, .. } => *form == CountForm::Extended,
+            TermKind::Cast { to, .. } => to.has_set(),
+            TermKind::Quantified { letter_ty, .. } => letter_ty.has_set(),
+            TermKind::Notation { pieces, .. } => pieces.iter().any(|p| match p {
+                Piece::Text(t) => t.contains("Set ") || t.contains("Set."),
+                Piece::Term { .. } => false,
+            }),
+            _ => false,
+        }
+    }
+
     /// The term with each letter `given` names put for by the term it
     /// gives, as a citation gives an item's letters values. A letter bound
     /// inside the term is left as it is where a quantifier binds it.
@@ -762,53 +868,8 @@ impl Term {
 
     fn clear_types(&mut self) {
         self.ty = None;
-        match &mut self.kind {
-            TermKind::App { head, args, .. } => {
-                head.clear_types();
-                for a in args {
-                    match a {
-                        Arg::Explicit(t) => t.clear_types(),
-                        Arg::Named { value, .. } => value.clear_types(),
-                    }
-                }
-            }
-            TermKind::Infix { lhs, rhs, .. } => {
-                lhs.clear_types();
-                rhs.clear_types();
-            }
-            TermKind::Not(t)
-            | TermKind::Neg(t)
-            | TermKind::ToNat(t)
-            | TermKind::Paren(t) => t.clear_types(),
-            TermKind::Cast { inner, .. }
-            | TermKind::Field { inner, .. }
-            | TermKind::Enclosed { inner, .. } => inner.clear_types(),
-            TermKind::Count { set, .. } => set.clear_types(),
-            TermKind::ModEq { a, b, n } => {
-                a.clear_types();
-                b.clear_types();
-                n.clear_types();
-            }
-            TermKind::Quantified { guard, body, .. } => {
-                if let Some(g) = guard {
-                    g.clear_types();
-                }
-                body.clear_types();
-            }
-            TermKind::Notation { pieces, .. } => {
-                for p in pieces {
-                    if let Piece::Term { term, .. } = p {
-                        term.clear_types();
-                    }
-                }
-            }
-            TermKind::By(_)
-            | TermKind::Letter(_)
-            | TermKind::Const(_)
-            | TermKind::Numeral(_)
-            | TermKind::Hole(_)
-            | TermKind::Elided
-            | TermKind::Open => {}
+        for c in self.children_mut() {
+            c.clear_types();
         }
     }
 

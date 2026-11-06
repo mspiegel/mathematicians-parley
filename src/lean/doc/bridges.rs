@@ -137,6 +137,48 @@ pub enum BridgeTactic {
 }
 
 impl BridgeTactic {
+    /// Every tactic, in no order Lean reads.
+    pub const ALL: [BridgeTactic; 38] = [
+        BridgeTactic::Side,
+        BridgeTactic::Norm,
+        BridgeTactic::SetSide,
+        BridgeTactic::CountAfter,
+        BridgeTactic::CountExt,
+        BridgeTactic::CountInt,
+        BridgeTactic::EncardClosed,
+        BridgeTactic::Finite,
+        BridgeTactic::WitnessByOrder,
+        BridgeTactic::Clear,
+        BridgeTactic::Ring,
+        BridgeTactic::Field,
+        BridgeTactic::CastNe,
+        BridgeTactic::NeZero,
+        BridgeTactic::Nz,
+        BridgeTactic::PosNe,
+        BridgeTactic::Radical,
+        BridgeTactic::Subst,
+        BridgeTactic::SubstAt,
+        BridgeTactic::PutAt,
+        BridgeTactic::Order,
+        BridgeTactic::IntPower,
+        BridgeTactic::CastToNat,
+        BridgeTactic::WitnessAt,
+        BridgeTactic::WitnessNotAt,
+        BridgeTactic::LineToNat,
+        BridgeTactic::ZpowToNat,
+        BridgeTactic::OfComplex,
+        BridgeTactic::Arith,
+        BridgeTactic::Suppose,
+        BridgeTactic::Real,
+        BridgeTactic::RatOfReal,
+        BridgeTactic::WholeSide,
+        BridgeTactic::Roots,
+        BridgeTactic::RootsOrder,
+        BridgeTactic::RootsSplit,
+        BridgeTactic::RootFacts,
+        BridgeTactic::Angles,
+    ];
+
     /// Its name in Lean.
     pub fn name(self) -> &'static str {
         match self {

@@ -181,7 +181,6 @@ impl Tactic {
     /// The tactic as Lean text, on one line.
     pub fn text(&self) -> String {
         match self {
-            Tactic::Raw(text) => text.clone(),
             Tactic::Exact(t) => format!("exact {}", t.text()),
             Tactic::Call { tactic, args } => {
                 let mut out = tactic.name().to_string();

@@ -43,6 +43,21 @@ impl Binder {
         }
     }
 
+    /// The binder in the document model.
+    pub fn doc(&self) -> super::doc::file::Binder {
+        use super::doc::file::Binder as Doc;
+        match self {
+            Binder::Fact { name, says, .. } => Doc::Fact {
+                name: name.clone(),
+                says: says.clone(),
+            },
+            Binder::Letter { ty, .. } => Doc::Typed {
+                text: self.lean(),
+                ty: Some(ty.lean_type()),
+            },
+        }
+    }
+
     pub fn lean(&self) -> String {
         match self {
             Binder::Letter {
@@ -315,7 +330,11 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
 /// a set of them, a member of one or a map between sets, or the statement
 /// writes a set of though no letter is one, `(∅ : Set α).encard = 0`; None
 /// where none is.
-pub fn things_binder(binders: &[Binder], statement: &str) -> Option<String> {
+pub fn things_binder(
+    binders: &[Binder],
+    statement: &[&Printed],
+) -> Option<super::doc::file::Binder> {
+    use super::doc::LeanType;
     let mut vars: std::collections::BTreeSet<usize> = binders
         .iter()
         .flat_map(|b| match b {
@@ -323,11 +342,15 @@ pub fn things_binder(binders: &[Binder], statement: &str) -> Option<String> {
             _ => Vec::new(),
         })
         .collect();
-    if statement.contains(&format!("Set {}", super::expr::THINGS)) {
+    let sets_of_things = LeanType::Set(Box::new(LeanType::Things(0)));
+    if statement.iter().any(|s| s.writes_type(&sets_of_things)) {
         vars.insert(0);
     }
     let names: Vec<String> = vars.into_iter().map(super::expr::things_name).collect();
-    (!names.is_empty()).then(|| format!("{{{} : Type*}}", names.join(" ")))
+    (!names.is_empty()).then(|| super::doc::file::Binder::Typed {
+        text: format!("{{{} : Type*}}", names.join(" ")),
+        ty: None,
+    })
 }
 
 /// Where a line says what sets a map letter maps between, `f : A → B` or
