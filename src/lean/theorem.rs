@@ -6570,19 +6570,34 @@ impl<'a> Proof<'a> {
         // put as `le_induction` reads it, 1 ≤ k or 0 ≤ k, in its place, so
         // that the induction hypothesis does not ask it again.
         let start = if from_one { 1 } else { 0 };
-        self.line(depth, format!("intro {name} h_{name}"), step.line, &spot);
-        self.line(
-            depth,
-            format!("replace h_{name} : {start} ≤ {name} := by omega"),
-            step.line,
-            &spot,
-        );
-        self.line(
-            depth,
-            format!("induction {name}, h_{name} using LeanBridges.Functions.le_induction with"),
-            step.line,
-            &spot,
-        );
+        let guard = format!("h_{name}");
+        let int = super::doc::LeanType::Num(super::templates::Num::Int);
+        let from = match super::expr::relation_of(
+            "≤",
+            Printed::numeral(start.to_string(), int.clone()),
+            Printed::letter(name.clone(), int),
+        ) {
+            Route::Built(r) => r,
+            Route::Declined(d) => return Route::Declined(d),
+        };
+        let lines = [
+            Tactic::Intro(vec![name.clone(), guard.clone()]),
+            Tactic::Replace {
+                name: guard.clone(),
+                says: from,
+                proof: "by omega".to_string(),
+            },
+            Tactic::Induction {
+                on: vec![name.clone(), guard],
+                using: super::tactics::bridge_lemma(
+                    "LeanBridges.Functions.le_induction",
+                    BridgeModule::Functions,
+                ),
+            },
+        ];
+        for line in lines {
+            self.push_at(depth, line, step.line, spot.clone());
+        }
         for part in parts {
             let marker = part
                 .and_then(|k| step.parts.get(k))
@@ -6592,7 +6607,12 @@ impl<'a> Proof<'a> {
                 step.openers.iter().filter(|o| o.part == *part).collect();
             match marker {
                 "base" => {
-                    self.line(depth, "| base =>".to_string(), step.line, &spot);
+                    self.push_at(
+                        depth,
+                        Tactic::Alternative("base".to_string()),
+                        step.line,
+                        spot.clone(),
+                    );
                 }
                 "step" => {
                     let hypothesis = openers
@@ -6613,7 +6633,12 @@ impl<'a> Proof<'a> {
                         .map(|o| line_name(&o.label))
                         .unwrap_or_else(|| format!("h_{name}"));
                     let case = format!("succ {name} {guard} {hypothesis}");
-                    self.line(depth, format!("| {case} =>"), step.line, &spot);
+                    self.push_at(
+                        depth,
+                        Tactic::Alternative(case),
+                        step.line,
+                        spot.clone(),
+                    );
                 }
                 other => return Route::no(format!("an induction part {other:?}")),
             }
@@ -6638,11 +6663,14 @@ impl<'a> Proof<'a> {
             if let Route::Declined(d) = self.steps(&children, depth + 1) {
                 return Route::Declined(d);
             }
-            self.line(
+            self.push_at(
                 depth + 1,
-                "all_goals parley_side".to_string(),
+                Tactic::AllGoals(Box::new(super::tactics::bridge(
+                    BridgeTactic::Side,
+                    vec![],
+                ))),
                 step.line,
-                &spot,
+                spot.clone(),
             );
         }
         Route::Built(())

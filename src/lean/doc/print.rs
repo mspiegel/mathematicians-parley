@@ -185,6 +185,14 @@ impl Tactic {
             }
             Tactic::Comment(text) => format!("-- {text}"),
             Tactic::Bullet(t) => format!("· {}", t.text()),
+            Tactic::Intro(names) => format!("intro {}", names.join(" ")),
+            Tactic::Replace { name, says, proof } => {
+                format!("replace {name} : {} := {proof}", says.text())
+            }
+            Tactic::Induction { on, using } => {
+                format!("induction {} using {} with", on.join(", "), using.text())
+            }
+            Tactic::Alternative(pattern) => format!("| {pattern} =>"),
             Tactic::Obtain { names, from } => {
                 format!("obtain ⟨{}⟩ := {}", names.join(", "), from.text())
             }

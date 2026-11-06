@@ -68,6 +68,18 @@ pub enum Tactic {
     Bullet(Box<Tactic>),
     /// `obtain ⟨a, b⟩ := t`: a statement taken apart into names.
     Obtain { names: Vec<String>, from: Term },
+    /// `intro a b`.
+    Intro(Vec<String>),
+    /// `replace name : says := proof`.
+    Replace {
+        name: String,
+        says: Term,
+        proof: String,
+    },
+    /// `induction a, b using r with`: the cases follow as alternatives.
+    Induction { on: Vec<String>, using: Term },
+    /// `| pattern =>`: a case of an induction.
+    Alternative(String),
 }
 
 /// What follows a tactic's name.
@@ -142,7 +154,11 @@ impl Tactic {
                 | Tactic::Name { .. }
                 | Tactic::Have { .. }
                 | Tactic::Comment(_)
-                | Tactic::Obtain { .. } => {}
+                | Tactic::Obtain { .. }
+                | Tactic::Intro(_)
+                | Tactic::Replace { .. }
+                | Tactic::Induction { .. }
+                | Tactic::Alternative(_) => {}
             }
             i += 1;
         }
