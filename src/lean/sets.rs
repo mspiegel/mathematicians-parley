@@ -6,6 +6,7 @@
 //! one such set to another is a function `α → α` with the fact that it
 //! maps the one into the other beside it (`statement`).
 
+use super::doc::{ConstRef, CountForm, LeanType, Source, TermKind};
 use super::expr::{
     letter_type, set_type, system_of, LetterType, Members, Printed, System, Writer,
     APP, MAX,
@@ -23,6 +24,21 @@ pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 /// The polynomial functions with complex coefficients, set.mm's `Poly ℂ`,
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
 const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
+
+/// A count of a set in this form: a natural number, or in ℕ∞.
+fn count_of(set: Printed, form: CountForm) -> Printed {
+    let ty = match form {
+        CountForm::Natural => LeanType::Num(Num::Nat),
+        CountForm::Extended => LeanType::ENat,
+    };
+    Printed::of(
+        TermKind::Count {
+            set: Box::new(set),
+            form,
+        },
+        ty,
+    )
+}
 
 /// Whether a term counts, somewhere, a set not among `finite`: a count the
 /// writer takes in ℕ∞.
@@ -933,16 +949,29 @@ impl Writer<'_> {
         // ∅ counted is told it is a set of things, which nothing else in
         // |∅| = 0 gives Lean.
         if finite && &*set.notation_name() == "empty-set" {
-            let of = match &self.empty_of {
-                Some(m) => Members::Sets(Box::new(m.clone())).lean(),
-                None => format!("Set {}", super::expr::THINGS),
-            };
-            return Some(Route::Built(Printed::atom(format!("(∅ : {of}).ncard"))));
+            return Some(Route::Built(count_of(
+                self.empty_told(),
+                CountForm::Natural,
+            )));
         }
-        finite.then(|| {
-            self.set_term(set)
-                .map(|s| Printed::atom(format!("{}.ncard", s.at(MAX))))
-        })
+        finite.then(|| self.set_term(set).map(|s| count_of(s, CountForm::Natural)))
+    }
+
+    /// ∅ told what it holds, `(∅ : Set α)`: what `empty_of` says, or the
+    /// things of the first type variable.
+    fn empty_told(&self) -> Printed {
+        let of = match &self.empty_of {
+            Some(m) => Members::Sets(Box::new(m.clone())).member_type(),
+            None => LeanType::Set(Box::new(LeanType::Things(0))),
+        };
+        let empty = Printed::of(
+            TermKind::Const(ConstRef {
+                name: "∅".to_string(),
+                source: Source::Core,
+            }),
+            of.clone(),
+        );
+        Printed::cast(empty, of)
     }
 
     /// A count as Lean's `Set.encard` gives it, in ℕ∞, where an infinite
@@ -954,9 +983,10 @@ impl Writer<'_> {
         // A number of ℕ, the type ℕ∞ holds, cast up.
         if !self.counts(node) {
             return match self.number_fixed(node, Num::Nat) {
-                Route::Built(p) => {
-                    Route::Built(Printed::atom(format!("(({} : ℕ) : ℕ∞)", p.text())))
-                }
+                Route::Built(p) => Route::Built(Printed::cast(
+                    Printed::cast(p, LeanType::Num(Num::Nat)),
+                    LeanType::ENat,
+                )),
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -967,18 +997,9 @@ impl Writer<'_> {
             // ∅ counted is told it is a set of things, which nothing else
             // in |∅| = 0 gives Lean.
             if &*set.notation_name() == "empty-set" {
-                let of = match &self.empty_of {
-                    Some(m) => Members::Sets(Box::new(m.clone())).lean(),
-                    None => format!("Set {}", super::expr::THINGS),
-                };
-                return Route::Built(Printed::atom(format!("(∅ : {of}).encard")));
+                return Route::Built(count_of(self.empty_told(), CountForm::Extended));
             }
-            return match self.set_term(set) {
-                Route::Built(s) => {
-                    Route::Built(Printed::raw(format!("{}.encard", s.at(MAX)), MAX))
-                }
-                Route::Declined(d) => Route::Declined(d),
-            };
+            return self.set_term(set).map(|s| count_of(s, CountForm::Extended));
         }
         let op = match (&*node.notation_name(), &*node.spelling().text()) {
             ("additive", "+") => "+",
@@ -1102,7 +1123,7 @@ impl Writer<'_> {
         let typed = matches!(self.letters.get(h.text.as_str()),
             Some(LetterType::Subgroup(of)) if *of == *g.text);
         Some(match typed {
-            true => Route::Built(Printed::atom("True")),
+            true => Route::Built(Printed::truth()),
             false => {
                 Route::no(format!("{} as a subgroup, which no line types", h.text))
             }

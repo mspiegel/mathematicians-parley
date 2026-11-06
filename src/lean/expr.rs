@@ -94,6 +94,17 @@ impl Members {
         }
     }
 
+    /// A member's type in the document model.
+    pub fn member_type(&self) -> super::doc::LeanType {
+        use super::doc::LeanType;
+        match self {
+            Members::Things(var) => LeanType::Things(*var),
+            Members::Sets(m) => LeanType::Set(Box::new(m.member_type())),
+            Members::Numbers(n) => LeanType::Num(*n),
+            Members::Elements(g) => LeanType::Elements(g.clone()),
+        }
+    }
+
     /// How Lean writes a member's type.
     pub fn lean(&self) -> String {
         match self {
@@ -371,9 +382,19 @@ impl<'a> Writer<'a> {
         }
     }
 
+    /// A number type in the document model as this writer writes it: the
+    /// general one for an item's general type.
+    pub fn num_type(&self, n: Num) -> super::doc::LeanType {
+        if self.general == Some(n) {
+            super::doc::LeanType::General
+        } else {
+            super::doc::LeanType::Num(n)
+        }
+    }
+
     /// A term cast to a number type.
-    fn cast(&self, text: &Printed, to: Num) -> Printed {
-        Printed::atom(format!("({} : {})", text.text(), self.type_name(to)))
+    fn cast(&self, term: &Printed, to: Num) -> Printed {
+        Printed::cast(term.clone(), self.num_type(to))
     }
 
     /// A writer with the same grammar and notations, and these letters.
@@ -570,6 +591,15 @@ impl<'a> Writer<'a> {
             .iter()
             .find(|(_, (real, complex))| *real && *complex)
             .map(|(term, _)| term.clone())
+    }
+}
+
+/// A relation between two terms, `l op r`; declined for a symbol that is
+/// no Lean relation.
+fn relation_of(op: &str, l: Printed, r: Printed) -> Route<Printed> {
+    match super::doc::Op::of(op) {
+        Some(op) => Route::Built(Printed::infix(op, l, r, super::doc::LeanType::Prop)),
+        None => Route::no(format!("the relation {op}")),
     }
 }
 
@@ -1499,9 +1529,10 @@ impl Writer<'_> {
         // ℕ, which its fact 0 ≤ t brings back.
         if at == Num::Nat && !self.natural(node) && self.said_whole(node) {
             return match self.number(node, Num::Int) {
-                Route::Built(t) => {
-                    Route::Built(Printed::atom(format!("{}.toNat", t.at(MAX))))
-                }
+                Route::Built(t) => Route::Built(Printed::of(
+                    super::doc::TermKind::ToNat(Box::new(t)),
+                    super::doc::LeanType::Num(Num::Nat),
+                )),
                 Route::Declined(d) => Route::Declined(d),
             };
         }
@@ -1546,11 +1577,18 @@ impl Writer<'_> {
         match node.notation() {
             NAME => match self.letters.get(node.text.as_str()) {
                 Some(LetterType::Number(n)) if *n == at => {
-                    Route::Built(Printed::atom(super::names::letter(&node.text)))
+                    Route::Built(Printed::letter(
+                        super::names::letter(&node.text),
+                        self.num_type(*n),
+                    ))
                 }
-                Some(LetterType::Number(n)) if *n < at => Route::Built(
-                    self.cast(&Printed::atom(super::names::letter(&node.text)), at),
-                ),
+                Some(LetterType::Number(n)) if *n < at => Route::Built(self.cast(
+                    &Printed::letter(
+                        super::names::letter(&node.text),
+                        self.num_type(*n),
+                    ),
+                    at,
+                )),
                 Some(LetterType::Number(n)) => Route::no(format!(
                     "{} is in {}, which Lean would cast down to {}",
                     node.text,
@@ -1559,7 +1597,7 @@ impl Writer<'_> {
                 )),
                 _ => Route::no(format!("{} has no Lean number type", node.text)),
             },
-            NUMERAL => Route::Built(Printed::atom(&*node.text)),
+            NUMERAL => Route::Built(Printed::numeral(&*node.text, self.num_type(at))),
             crate::notations::APPLICATION if self.library_function(node).is_none() => {
                 let applied = match self.applied(node) {
                     Route::Built(t) => t,
@@ -1758,7 +1796,10 @@ impl Writer<'_> {
         if node.is_name()
             && self.letters.get(node.text.as_str()) == Some(&LetterType::Statement)
         {
-            return Route::Built(Printed::atom(super::names::letter(&node.text)));
+            return Route::Built(Printed::letter(
+                super::names::letter(&node.text),
+                super::doc::LeanType::Prop,
+            ));
         }
         // A relation of counts ℕ∞ says as the page does, k ≤ |W|, counts
         // in ℕ∞ even of a set this theorem knows is finite, as set.mm's ♯
@@ -1829,7 +1870,7 @@ impl Writer<'_> {
                 _ => false,
             };
             return match takes {
-                true => Route::Built(Printed::atom("True")),
+                true => Route::Built(Printed::truth()),
                 false => Route::no(format!(
                     "{} is a function on a set of no type it takes",
                     f.text
@@ -1946,7 +1987,7 @@ impl Writer<'_> {
                     Route::Built((own_from, own_to))
                         if takes <= own_from && own_to <= gives =>
                     {
-                        Route::Built(Printed::atom("True"))
+                        Route::Built(Printed::truth())
                     }
                     Route::Built(_) => {
                         Route::no("a function type other than the function's own")
@@ -2190,7 +2231,7 @@ impl Writer<'_> {
             "≥" => "≥",
             other => return Route::no(format!("the relation {other}")),
         };
-        Route::Built(Printed::raw(format!("{} {op} {}", l.at(51), r.at(51)), 50))
+        relation_of(op, l, r)
     }
 
     /// `x ∈ S`. In a number system, the membership is what it says of x in
@@ -2354,20 +2395,20 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed::raw(format!("{zero} < {}", x.at(51)), 50))
+                relation_of("<", Printed::atom(zero), x)
             }
             System::NonNegative if held <= Num::Int => {
                 if natural_letter {
-                    return Route::Built(Printed::atom("True"));
+                    return Route::Built(Printed::truth());
                 }
                 let zero = self.zero_at(x, Num::Int);
                 let x = match self.number(x, Num::Int) {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed::raw(format!("{zero} ≤ {}", x.at(51)), 50))
+                relation_of("≤", Printed::atom(zero), x)
             }
-            System::Type(n) if held <= n => Route::Built(Printed::atom("True")),
+            System::Type(n) if held <= n => Route::Built(Printed::truth()),
             System::Type(n) => {
                 let m = witness_letter(x);
                 let x = match self.number(x, own) {
@@ -2469,7 +2510,7 @@ impl Writer<'_> {
         };
         // A body the letter's type already makes true says nothing.
         if body.text() == "True" {
-            return Route::Built(Printed::atom("True"));
+            return Route::Built(Printed::truth());
         }
         let ty = self.type_name(ty);
         let text = match (exists, guard) {

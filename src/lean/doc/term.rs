@@ -250,6 +250,39 @@ impl Term {
         Term { kind, ty: Some(ty) }
     }
 
+    /// A letter of a type, as Lean names it.
+    pub fn letter(name: impl Into<String>, ty: LeanType) -> Term {
+        Term::of(TermKind::Letter(name.into()), ty)
+    }
+
+    /// A numeral of a type, as written.
+    pub fn numeral(digits: impl Into<String>, ty: LeanType) -> Term {
+        Term::of(TermKind::Numeral(digits.into()), ty)
+    }
+
+    /// `True`.
+    pub fn truth() -> Term {
+        Term::of(
+            TermKind::Const(ConstRef {
+                name: "True".to_string(),
+                source: Source::Core,
+            }),
+            LeanType::Prop,
+        )
+    }
+
+    /// Two terms joined by an infix operator.
+    pub fn infix(op: Op, lhs: Term, rhs: Term, ty: LeanType) -> Term {
+        Term::of(
+            TermKind::Infix {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            },
+            ty,
+        )
+    }
+
     /// The term at a type: `(x : T)`.
     pub fn cast(inner: Term, to: LeanType) -> Term {
         Term::of(
