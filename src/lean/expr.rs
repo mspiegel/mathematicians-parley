@@ -603,45 +603,16 @@ struct Shape {
     needs: Vec<u32>,
 }
 
-/// Lean's infix operators: precedence and which side chains.
-fn infix(op: &str) -> Option<(u32, Assoc)> {
-    Some(match op {
-        "↔" => (20, Assoc::Neither),
-        "→" => (25, Assoc::Right),
-        "∨" => (30, Assoc::Right),
-        "∧" => (35, Assoc::Right),
-        "=" | "≠" | "<" | ">" | "≤" | "≥" | "∣" | "∈" | "∉" | "⊆" | "⊂" | "≡" => {
-            (50, Assoc::Neither)
-        }
-        "+" | "-" | "∪" => (65, Assoc::Left),
-        "*" | "/" | "%" | "∩" | "\\" => (70, Assoc::Left),
-        "^" => (75, Assoc::Right),
-        "∘" => (90, Assoc::Right),
-        _ => return None,
-    })
-}
-
-#[derive(Clone, Copy)]
-enum Assoc {
-    Left,
-    Right,
-    Neither,
-}
-
 /// The shape of a template's text: an infix operator between two holes, a
 /// prefix operator before one, or anything else, whose holes are each an
 /// argument unless a bracket encloses it.
 fn shape_of(text: &str, holes: usize) -> Shape {
     let words: Vec<&str> = text.split_whitespace().collect();
     if let ["_1", op, "_2"] = words.as_slice() {
-        if let Some((p, assoc)) = infix(op) {
-            let (left, right) = match assoc {
-                Assoc::Left => (p, p + 1),
-                Assoc::Right => (p + 1, p),
-                Assoc::Neither => (p + 1, p + 1),
-            };
+        if let Some(op) = super::doc::Op::of(op) {
+            let (left, right) = op.needs();
             return Shape {
-                prec: p,
+                prec: op.prec,
                 needs: vec![left, right],
             };
         }
