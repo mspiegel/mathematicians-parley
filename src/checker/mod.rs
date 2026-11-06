@@ -30,6 +30,7 @@ use crate::corpus::{
 use crate::formula::notation_id::Spelling;
 use crate::formula::page::{Sentence, Written};
 use crate::formula::Grammar;
+use crate::formula::Node;
 use crate::formula::Sorts;
 use crate::matching::Context;
 use crate::outcome::{At, Checked, Problem, Route};
@@ -230,6 +231,92 @@ pub struct CheckedCorpus {
     pub library: LibraryReading,
 }
 
+/// Each hypothesis's lines as the record reads them, in order: a `let` the
+/// page does not read as a formula, `f : A → B be one-to-one`, as what the
+/// checker reads it to assert.
+pub fn hypothesis_lines(thm: &Theorem, record: &CheckedTheorem) -> Vec<Node> {
+    let mut out = Vec::new();
+    for (i, h) in thm.hypotheses.iter().enumerate() {
+        let read: Vec<Node> = h
+            .body(&thm.path)
+            .sentences()
+            .iter()
+            .filter_map(|s| record.page.get(s).cloned())
+            .collect();
+        if read.is_empty() {
+            out.extend(record.asserted.get(i).cloned().unwrap_or_default());
+        } else {
+            out.extend(read);
+        }
+    }
+    out
+}
+
+/// What a theorem's hypotheses, defines and lines make finite, read from
+/// its record's page (`citing::finite::said_finite`). A define counts
+/// where it names a term, not a function. A backend that writes the page
+/// otherwise, a define of its file written out where applied, reads it
+/// again of the page it writes.
+pub fn finite_of(
+    g: &Grammar,
+    thm: &Theorem,
+    record: &CheckedTheorem,
+) -> crate::citing::finite::SaidFinite {
+    let defines: Vec<crate::citing::finite::Named> = thm
+        .defines
+        .iter()
+        .filter_map(|d| define_named(d, record))
+        .collect();
+    let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
+    crate::citing::finite::said_finite(
+        g,
+        &hypothesis_lines(thm, record),
+        &defines,
+        &lines,
+    )
+}
+
+/// The number system each set letter of numbers holds, read from the
+/// record's page with the letters its steps introduce
+/// (`citing::number_sets::set_letter_systems`). A backend that writes the
+/// page otherwise reads it again of the page it writes, as `finite_of`.
+pub fn set_systems_of(
+    record: &CheckedTheorem,
+) -> IndexMap<String, crate::rules::System> {
+    let mut letters = crate::citing::Introduced::new();
+    for step in &record.introduced {
+        for (name, system) in step {
+            letters.entry(name.clone()).or_insert(*system);
+        }
+    }
+    let lines: Vec<&Node> = record.page.entries().map(|(_, node)| node).collect();
+    crate::citing::number_sets::set_letter_systems(&lines, &letters)
+}
+
+/// A define without parameters, as its name and the term the page reads it
+/// to name; None for a define of a function.
+fn define_named<'r>(
+    d: &crate::corpus::DefineLine,
+    record: &'r CheckedTheorem,
+) -> Option<crate::citing::finite::Named<'r>> {
+    let Route::Built(crate::corpus::DefineParts::One(def)) =
+        crate::corpus::define_parts(&d.text)
+    else {
+        return None;
+    };
+    let value = record
+        .page
+        .entries()
+        .find(|(key, _)| key.line == d.line)
+        .map(|(_, node)| node)?;
+    def.params
+        .is_empty()
+        .then_some(crate::citing::finite::Named {
+            name: def.name,
+            value,
+        })
+}
+
 /// `checked` of the theorems whose full name `wanted` holds, and of no
 /// other: a theorem's record depends on the corpus as read and on nothing
 /// another theorem's check did, so each is what `checked` makes of it. A
@@ -301,6 +388,8 @@ pub fn checked_where(
                     .collect();
             }
             record.page = c.known[i].page_reading();
+            record.said_finite = finite_of(c.env.g, thm, &record);
+            record.set_systems = set_systems_of(&record);
             record.items = std::rc::Rc::clone(&items);
             record.outside = c.known[i].outside_definitions().clone();
             record.statement_definitions =

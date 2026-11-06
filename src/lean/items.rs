@@ -482,65 +482,6 @@ fn function_into_numbers(
     }
 }
 
-/// A letter a sentence says is a subset of a set of numbers, D ⊆ ℝ or D ∈
-/// 𝒫ℝ, and the type that makes it, a set of those numbers; None for any
-/// other sentence.
-pub(super) fn numbers_subset(
-    w: &super::expr::Writer,
-    node: &Node,
-) -> Option<(String, LetterType)> {
-    let [d, whole] = node.children.as_slice() else {
-        return None;
-    };
-    let whole = match (&*node.notation_name(), whole.children.as_slice()) {
-        ("subset", _) => whole,
-        ("membership", [inner]) if &*whole.notation_name() == "powerset" => inner,
-        _ => return None,
-    };
-    match (d.is_name(), w.set_members(whole)?) {
-        (true, m @ super::expr::Members::Numbers(_)) => {
-            Some((d.text.to_string(), LetterType::Set(m)))
-        }
-        _ => None,
-    }
-}
-
-/// A set letter of numbers a ∪, ∩ or ∖ joins with a set of numbers of a
-/// type, c of {1, …, i} ∖ c, and the type that makes it a set of those;
-/// None for any other node.
-pub(super) fn numbers_joined(
-    w: &super::expr::Writer,
-    node: &Node,
-) -> Option<(String, LetterType)> {
-    if &*node.notation_name() != "set-operations" {
-        return None;
-    }
-    let [a, b] = node.children.as_slice() else {
-        return None;
-    };
-    let of_numbers = |n: &Node| {
-        matches!(n.sort.full(), Some(crate::formula::Whole::Set(m))
-            if matches!(**m, crate::formula::Whole::Number))
-    };
-    let (letter, other) = match (
-        a.is_name() && !w.letters.contains_key(a.text.as_str()),
-        b.is_name() && !w.letters.contains_key(b.text.as_str()),
-    ) {
-        (true, false) => (a, b),
-        (false, true) => (b, a),
-        _ => return None,
-    };
-    if !of_numbers(letter) {
-        return None;
-    }
-    match w.set_members(other)? {
-        m @ super::expr::Members::Numbers(_) => {
-            Some((letter.text.to_string(), LetterType::Set(m)))
-        }
-        _ => None,
-    }
-}
-
 /// The Lean type the sorts give a letter that is a set, a member of one or
 /// a map between sets, its things of the type variable `things` gives it;
 /// None for any other letter.
@@ -565,43 +506,6 @@ fn set_type_in(
             LetterType::Property(m.with_things(things.of_letter(name)))
         }
         other => other,
-    })
-}
-
-/// Whether the set of that name is the one a function of the item maps
-/// from, `t : X → Z`, and the item applies the function only at letters a
-/// range binds, t(k) of "for all k ∈ {a, …, b}" or ∏(k ∈ {a, …, b}) t(k).
-fn domain_at_integers(set: &str, functions: &[Node], said: &[&Node]) -> bool {
-    let maps_from: Vec<&str> = functions
-        .iter()
-        .filter_map(|n| match n.children.as_slice() {
-            [f, from, _] if from.is_name() && *from.text == *set => Some(&*f.text),
-            _ => None,
-        })
-        .collect();
-    let mut applied = said
-        .iter()
-        .flat_map(|n| n.walk())
-        .filter(|n| n.notation() == crate::notations::APPLICATION)
-        .filter(
-            |n| matches!(n.children.first(), Some(f) if maps_from.contains(&&*f.text)),
-        )
-        .peekable();
-    if applied.peek().is_none() {
-        return false;
-    }
-    let range_letters: std::collections::BTreeSet<String> = said
-        .iter()
-        .flat_map(|n| n.walk())
-        .filter_map(|n| match n.children.as_slice() {
-            [k, range, _] if range.notation() == crate::notations::INTEGER_RANGE => {
-                k.is_name().then(|| k.text.to_string())
-            }
-            _ => None,
-        })
-        .collect();
-    applied.all(|n| {
-        matches!(n.children.as_slice(), [_, x] if x.is_name() && range_letters.contains(&*x.text))
     })
 }
 
@@ -1008,7 +912,13 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // A set the item's hypotheses say is finite is counted as a
             // natural number; one only its conclusion says is, X of "if
             // |X| = m then X is finite", is not, as the count comes first.
-            w.finite_from(group.wants.iter().map(|(_, n)| n.clone()).collect());
+            let wants: Vec<Node> = group.wants.iter().map(|(_, n)| n.clone()).collect();
+            w.finite_from(&crate::citing::finite::said_finite(
+                w.grammar,
+                &wants,
+                &[],
+                &[],
+            ));
             let mut sets: Vec<(String, LetterType)> = free
                 .iter()
                 .filter_map(|f| {
@@ -1030,15 +940,18 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
             // of the numbers the item puts it among: D of D ⊆ ℝ, D ∈ 𝒫ℝ.
             // Or of the numbers of a set it is joined with or taken from:
             // c of {1, …, i} ∖ c is a set of integers.
-            for node in said.iter().flat_map(|n| n.walk()) {
-                let found =
-                    numbers_subset(&w, &node).or_else(|| numbers_joined(&w, &node));
-                if let Some((name, ty)) = found {
-                    let free_letter = free.iter().any(|f| f.name == name);
-                    if free_letter && !w.letters.contains_key(&name) {
-                        w.letters.insert(name.clone(), ty.clone());
-                        sets.push((name, ty));
-                    }
+            let systems = crate::citing::number_sets::set_letter_systems(
+                &said,
+                &crate::citing::Introduced::new(),
+            );
+            for (name, system) in systems {
+                let ty = LetterType::Set(super::expr::Members::Numbers(
+                    super::expr::recorded_set_type(system),
+                ));
+                let free_letter = free.iter().any(|f| f.name == name);
+                if free_letter && !w.letters.contains_key(&name) {
+                    w.letters.insert(name.clone(), ty.clone());
+                    sets.push((name, ty));
                 }
             }
             // A function a line the item asks says is one-to-one or onto,
@@ -1085,7 +998,10 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 // The set a function maps from, where the item applies the
                 // function only at members of a range, t(k) of k ∈ {a, …,
                 // b}, is a set of integers.
-                let num = match (domain_at_integers(&name, functions, &said), ordered) {
+                let at_integers = crate::citing::number_sets::domain_at_integers(
+                    &name, functions, &said,
+                );
+                let num = match (at_integers, ordered) {
                     (true, _) => Num::Int,
                     (false, true) => Num::Real,
                     (false, false) => Num::Complex,

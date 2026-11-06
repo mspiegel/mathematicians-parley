@@ -1,0 +1,77 @@
+theorem proofs/wiedijk/inclusion-exclusion/inclusion-exclusion-two
+step 1 cites stdlib/sets/difference-subset group 0; X := B, Y := A; concludes 0 AsWritten; from no line
+step 2 cites stdlib/counting/finite-part group 0; X := B, Y := B ∖ A; concludes 0 AsWritten; from no line
+step 3 cites stdlib/sets/intersection-subset group 0; Y := A, Z := B; concludes 0 AsWritten; from no line
+step 4 cites stdlib/counting/finite-part group 0; X := A, Y := A ∩ B; concludes 0 AsWritten; from no line
+step 5 cites stdlib/counting/card-nat0 group 0; X := A; concludes 0 AsWritten; from no line
+step 6 cites stdlib/counting/card-nat0 group 0; X := B ∖ A; concludes 0 AsWritten; from no line
+step 7 cites stdlib/counting/card-nat0 group 0; X := A ∩ B; concludes 0 AsWritten; from no line
+step 8 cites stdlib/sets/disjoint-difference group 0; Y := A, Z := B; concludes 0 AsWritten; from no line
+step 9 cites stdlib/counting/card-disjoint-union group 0; X := A, Y := B ∖ A, m := |A|, n := |B ∖ A|; concludes 0 AsWritten; from no line
+step 10 cites stdlib/sets/union-difference group 0; Y := A, Z := B; concludes 0 AsWritten; from no line
+step 12 cites stdlib/sets/intersection-commutes group 0; Y := B, Z := A; concludes 0 AsWritten; from no line
+step 13 cites stdlib/sets/intersection-and-difference-disjoint group 0; Y := B, Z := A; concludes 0 AsWritten; from no line
+step 15 cites stdlib/sets/intersection-and-difference group 0; Y := B, Z := A; concludes 0 AsWritten; from no line
+step 17 cites stdlib/counting/card-disjoint-union group 0; X := A ∩ B, Y := B ∖ A, m := |A ∩ B|, n := |B ∖ A|; concludes 0 AsWritten; from no line
+finite A
+finite B
+only A is finite makes finite A
+only B is finite makes finite B
+read 15: |A ∪ B| = |A| + |B| − |A ∩ B|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:−(additive:+(cardinality:||(name:A), cardinality:||(name:B)), cardinality:||(set-operations:∩(name:A, name:B))))  a statement
+read 19: A  as  name:A  a set of things of a sort not yet settled
+read 20: B  as  name:B  a set of things of a sort not yet settled
+read 21: A is finite  as  finite:isfinite(name:A)  a statement
+read 22: B is finite  as  finite:isfinite(name:B)  a statement
+read 23: |A ∪ B| = |A| + |B| − |A ∩ B|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:−(additive:+(cardinality:||(name:A), cardinality:||(name:B)), cardinality:||(set-operations:∩(name:A, name:B))))  a statement
+read 25: B ∖ A ⊆ B  as  subset:⊆(set-operations:∖(name:B, name:A), name:B)  a statement
+read 26: A  as  name:A  a set of things of a sort not yet settled
+read 26: B  as  name:B  a set of things of a sort not yet settled
+read 28: B ∖ A is finite  as  finite:isfinite(set-operations:∖(name:B, name:A))  a statement
+read 29: B  as  name:B  a set of things of a sort not yet settled
+read 29: B ∖ A  as  set-operations:∖(name:B, name:A)  a set
+read 31: A ∩ B ⊆ A  as  subset:⊆(set-operations:∩(name:A, name:B), name:A)  a statement
+read 32: A  as  name:A  a set of things of a sort not yet settled
+read 32: B  as  name:B  a set of things of a sort not yet settled
+read 34: A ∩ B is finite  as  finite:isfinite(set-operations:∩(name:A, name:B))  a statement
+read 35: A  as  name:A  a set of things of a sort not yet settled
+read 35: A ∩ B  as  set-operations:∩(name:A, name:B)  a set
+read 37: |A| ∈ ℕ₀  as  membership:∈(cardinality:||(name:A), number-systems:ℕ₀)  a statement
+read 38: A  as  name:A  a set of things of a sort not yet settled
+read 40: |B ∖ A| ∈ ℕ₀  as  membership:∈(cardinality:||(set-operations:∖(name:B, name:A)), number-systems:ℕ₀)  a statement
+read 41: B ∖ A  as  set-operations:∖(name:B, name:A)  a set
+read 43: |A ∩ B| ∈ ℕ₀  as  membership:∈(cardinality:||(set-operations:∩(name:A, name:B)), number-systems:ℕ₀)  a statement
+read 44: A ∩ B  as  set-operations:∩(name:A, name:B)  a set
+read 46: A ∩ (B ∖ A) = ∅  as  equality:=(set-operations:∩(name:A, set-operations:∖(name:B, name:A)), empty-set:∅)  a statement
+read 47: A  as  name:A  a set of things of a sort not yet settled
+read 47: B  as  name:B  a set of things of a sort not yet settled
+read 49: |A ∪ (B ∖ A)| = |A| + |B ∖ A|  as  equality:=(cardinality:||(set-operations:∪(name:A, set-operations:∖(name:B, name:A))), additive:+(cardinality:||(name:A), cardinality:||(set-operations:∖(name:B, name:A))))  a statement
+read 50: A  as  name:A  a set of things of a sort not yet settled
+read 50: B ∖ A  as  set-operations:∖(name:B, name:A)  a set
+read 50: |A|  as  cardinality:||(name:A)  a number
+read 50: |B ∖ A|  as  cardinality:||(set-operations:∖(name:B, name:A))  a number
+read 53: A ∪ (B ∖ A) = A ∪ B  as  equality:=(set-operations:∪(name:A, set-operations:∖(name:B, name:A)), set-operations:∪(name:A, name:B))  a statement
+read 54: A  as  name:A  a set of things of a sort not yet settled
+read 54: B  as  name:B  a set of things of a sort not yet settled
+read 56: |A ∪ B| = |A| + |B ∖ A|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:+(cardinality:||(name:A), cardinality:||(set-operations:∖(name:B, name:A))))  a statement
+read 57: A ∪ (B ∖ A) = A ∪ B  as  equality:=(set-operations:∪(name:A, set-operations:∖(name:B, name:A)), set-operations:∪(name:A, name:B))  a statement
+read 59: B ∩ A = A ∩ B  as  equality:=(set-operations:∩(name:B, name:A), set-operations:∩(name:A, name:B))  a statement
+read 60: A  as  name:A  a set of things of a sort not yet settled
+read 60: B  as  name:B  a set of things of a sort not yet settled
+read 62: (B ∩ A) ∩ (B ∖ A) = ∅  as  equality:=(set-operations:∩(set-operations:∩(name:B, name:A), set-operations:∖(name:B, name:A)), empty-set:∅)  a statement
+read 63: A  as  name:A  a set of things of a sort not yet settled
+read 63: B  as  name:B  a set of things of a sort not yet settled
+read 65: (A ∩ B) ∩ (B ∖ A) = ∅  as  equality:=(set-operations:∩(set-operations:∩(name:A, name:B), set-operations:∖(name:B, name:A)), empty-set:∅)  a statement
+read 66: B ∩ A = A ∩ B  as  equality:=(set-operations:∩(name:B, name:A), set-operations:∩(name:A, name:B))  a statement
+read 68: (B ∩ A) ∪ (B ∖ A) = B  as  equality:=(set-operations:∪(set-operations:∩(name:B, name:A), set-operations:∖(name:B, name:A)), name:B)  a statement
+read 69: A  as  name:A  a set of things of a sort not yet settled
+read 69: B  as  name:B  a set of things of a sort not yet settled
+read 71: (A ∩ B) ∪ (B ∖ A) = B  as  equality:=(set-operations:∪(set-operations:∩(name:A, name:B), set-operations:∖(name:B, name:A)), name:B)  a statement
+read 72: B ∩ A = A ∩ B  as  equality:=(set-operations:∩(name:B, name:A), set-operations:∩(name:A, name:B))  a statement
+read 74: |(A ∩ B) ∪ (B ∖ A)| = |A ∩ B| + |B ∖ A|  as  equality:=(cardinality:||(set-operations:∪(set-operations:∩(name:A, name:B), set-operations:∖(name:B, name:A))), additive:+(cardinality:||(set-operations:∩(name:A, name:B)), cardinality:||(set-operations:∖(name:B, name:A))))  a statement
+read 75: A ∩ B  as  set-operations:∩(name:A, name:B)  a set
+read 75: B ∖ A  as  set-operations:∖(name:B, name:A)  a set
+read 75: |A ∩ B|  as  cardinality:||(set-operations:∩(name:A, name:B))  a number
+read 75: |B ∖ A|  as  cardinality:||(set-operations:∖(name:B, name:A))  a number
+read 78: |B| = |A ∩ B| + |B ∖ A|  as  equality:=(cardinality:||(name:B), additive:+(cardinality:||(set-operations:∩(name:A, name:B)), cardinality:||(set-operations:∖(name:B, name:A))))  a statement
+read 79: (A ∩ B) ∪ (B ∖ A) = B  as  equality:=(set-operations:∪(set-operations:∩(name:A, name:B), set-operations:∖(name:B, name:A)), name:B)  a statement
+read 81: |A ∪ B| = |A| + |B| − |A ∩ B|  as  equality:=(cardinality:||(set-operations:∪(name:A, name:B)), additive:−(additive:+(cardinality:||(name:A), cardinality:||(name:B)), cardinality:||(set-operations:∩(name:A, name:B))))  a statement

@@ -11,6 +11,7 @@ use super::expr::{
     APP, MAX,
 };
 use super::templates::Num;
+use crate::citing::finite::{is_finite, SaidFinite};
 use crate::formula::Node;
 use crate::notations::NUMBER_SYSTEMS;
 use crate::outcome::Route;
@@ -22,196 +23,6 @@ pub const INVERSE: &str = "LeanBridges.Functions.inverse";
 /// The polynomial functions with complex coefficients, set.mm's `Poly ℂ`,
 /// in the bridges: a page's polynomial is a function from ℂ to ℂ it holds.
 const POLYNOMIALS: &str = "LeanBridges.Polynomials.polynomials";
-
-/// The sets these lines make finite, as the page prints them: one a line
-/// says is, `A is finite`, and one a line puts inside such a set, B of
-/// `B ⊆ A` (`is_finite`). A line counts where it is the whole line or one
-/// part of an "and"; under an "if" or a "not" it says nothing of the set.
-pub fn finite_sets<'n>(
-    grammar: &crate::formula::Grammar,
-    lines: impl IntoIterator<Item = &'n Node>,
-) -> std::collections::BTreeSet<String> {
-    let mut said = SaidOfSets::default();
-    for line in lines {
-        said.read(line);
-    }
-    let mut out: std::collections::BTreeSet<String> =
-        said.finite.iter().map(|s| grammar.print(s)).collect();
-    // A part of a part of a finite set is finite too: until no more are.
-    loop {
-        let more: Vec<String> = said
-            .subsets
-            .iter()
-            .filter(|s| is_finite(grammar, &out, s.whole))
-            .map(|s| grammar.print(s.part))
-            .filter(|p| !out.contains(p))
-            .collect();
-        if more.is_empty() {
-            return out;
-        }
-        out.extend(more);
-    }
-}
-
-/// What lines say of sets that makes one finite.
-#[derive(Default)]
-struct SaidOfSets<'n> {
-    /// A of `A is finite`.
-    finite: Vec<&'n Node>,
-    /// `B ⊆ A`, each.
-    subsets: Vec<Subset<'n>>,
-}
-
-/// A line `part ⊆ whole`.
-struct Subset<'n> {
-    part: &'n Node,
-    whole: &'n Node,
-}
-
-impl<'n> SaidOfSets<'n> {
-    fn read(&mut self, node: &'n Node) {
-        use crate::notations::{COMMA_CONJUNCTION, CONJUNCTION};
-        match (
-            &*node.notation_name(),
-            node.notation(),
-            node.children.as_slice(),
-        ) {
-            ("finite", _, [set]) => self.finite.push(set),
-            ("subset", _, [part, whole]) => self.subsets.push(Subset { part, whole }),
-            // |X| = e, a count given as a number, says X is finite.
-            (_, crate::notations::EQUALITY, [a, b]) => {
-                for (count, value) in [(a, b), (b, a)] {
-                    let counted = &*count.notation_name() == "cardinality";
-                    let a_number = !value
-                        .walk()
-                        .iter()
-                        .any(|n| &*n.notation_name() == "cardinality");
-                    if let ([set], true, true) =
-                        (count.children.as_slice(), counted, a_number)
-                    {
-                        self.finite.push(set);
-                    }
-                }
-            }
-            (_, CONJUNCTION | COMMA_CONJUNCTION, parts) => {
-                for p in parts {
-                    self.read(p);
-                }
-            }
-            _ => {}
-        }
-    }
-}
-
-/// Whether a set is finite by what lines say (`finite_sets`) and how it
-/// is made: ∅, a listed set {a, b} and a range {a, …, b}; A ∖ B where A
-/// is, A ∩ B where either is, A ∪ B where both are; 𝒫A, {x ∈ A : …} and
-/// {E(s) : s ∈ A} where A is.
-pub fn is_finite(
-    grammar: &crate::formula::Grammar,
-    finite: &std::collections::BTreeSet<String>,
-    set: &Node,
-) -> bool {
-    if finite.contains(&grammar.print(set)) {
-        return true;
-    }
-    let of = |s: &Node| is_finite(grammar, finite, s);
-    match (
-        &*set.notation_name(),
-        &*set.spelling().text(),
-        set.children.as_slice(),
-    ) {
-        (
-            "empty-set" | "singleton" | "listed-two" | "listed-three" | "listed-four"
-            | "integer-range",
-            _,
-            _,
-        ) => true,
-        ("set-operations", "∖", [a, _]) => of(a),
-        ("set-operations", "∩", [a, b]) => of(a) || of(b),
-        ("set-operations", "∪", [a, b]) => of(a) && of(b),
-        ("powerset", _, [a]) => of(a),
-        ("set-builder", _, [_, a, _]) => of(a),
-        ("set-image", _, [_, _, a]) => of(a),
-        _ => false,
-    }
-}
-
-/// Whether every member of a set is a finite set: 𝒫A where A is finite,
-/// and what is made from such a set by {x ∈ _ : …}, ∖, ∩ and ∪, or named
-/// for one (`members`).
-pub fn holds_finite(
-    grammar: &crate::formula::Grammar,
-    finite: &std::collections::BTreeSet<String>,
-    members: &std::collections::BTreeSet<String>,
-    set: &Node,
-) -> bool {
-    if members.contains(&grammar.print(set)) {
-        return true;
-    }
-    let of = |s: &Node| holds_finite(grammar, finite, members, s);
-    match (
-        &*set.notation_name(),
-        &*set.spelling().text(),
-        set.children.as_slice(),
-    ) {
-        ("powerset", _, [a]) => is_finite(grammar, finite, a),
-        ("set-builder", _, [_, a, _]) => of(a),
-        ("set-operations", "∖", [a, _]) => of(a),
-        ("set-operations", "∩", [a, b]) => of(a) || of(b),
-        ("set-operations", "∪", [a, b]) => of(a) && of(b),
-        _ => false,
-    }
-}
-
-/// A define of a proof: the name, and the term it names.
-pub struct Named<'n> {
-    pub name: String,
-    pub value: &'n Node,
-}
-
-/// What a theorem's defines and bound letters add to the finite sets its
-/// hypotheses give: a name for a finite set, F = {S ⊆ X : |S| = j} of a
-/// finite X, is one; and a letter bound over sets that hold only finite
-/// sets, the S of {S ∈ 𝒫X : |S| = j}, is one where every place the
-/// theorem binds it is such a set, so that a property given for it, "|S|
-/// = j", counts it as the set-builder does.
-pub fn finite_names(
-    grammar: &crate::formula::Grammar,
-    finite: &mut std::collections::BTreeSet<String>,
-    defines: &[Named],
-    lines: &[&Node],
-) {
-    let mut members = std::collections::BTreeSet::new();
-    for d in defines {
-        if is_finite(grammar, finite, d.value) {
-            finite.insert(d.name.clone());
-        }
-        if holds_finite(grammar, finite, &members, d.value) {
-            members.insert(d.name.clone());
-        }
-    }
-    let mut bound: std::collections::BTreeMap<String, bool> =
-        std::collections::BTreeMap::new();
-    for n in lines.iter().flat_map(|l| l.walk()) {
-        let over = match (n.notation(), &*n.notation_name(), n.children.as_slice()) {
-            (_, "set-builder", [x, set, _]) => Some((x, set)),
-            (_, "set-image", [_, x, set]) => Some((x, set)),
-            (
-                crate::notations::FOR_ALL | crate::notations::THERE_IS,
-                _,
-                [x, set, _],
-            ) => Some((x, set)),
-            _ => None,
-        };
-        if let Some((x, set)) = over.filter(|(x, _)| x.is_name()) {
-            let holds = holds_finite(grammar, finite, &members, set);
-            let all = bound.entry(x.text.to_string()).or_insert(true);
-            *all = *all && holds;
-        }
-    }
-    finite.extend(bound.into_iter().filter(|(_, all)| *all).map(|(x, _)| x));
-}
 
 /// Whether a term counts, somewhere, a set not among `finite`: a count the
 /// writer takes in ℕ∞.
@@ -846,6 +657,10 @@ impl Writer<'_> {
             .letters
             .insert(letter.text.to_string(), members.letter());
         inner.wholes.shift_remove(&*letter.text);
+        // The condition is a sentence of its own, written as it is wherever
+        // it stands: |d| = m − 1 of {d ⊆ X : |d| = m − 1} is one Lean
+        // sentence whether or not the relation around the set counts in ℕ∞.
+        inner.in_extended = false;
         // A member of ℕ, ℕ₀ or a range from 0 or 1 is in that system, as a
         // letter a line puts there is.
         let system = match super::expr::system_of(set) {
@@ -1094,11 +909,11 @@ impl Writer<'_> {
         }
     }
 
-    /// The sets these hypotheses make finite are the ones this writer
-    /// counts as natural numbers.
-    pub fn finite_from(&mut self, lines: Vec<Node>) {
-        self.finite = finite_sets(self.grammar, &lines);
-        self.finite_lines = lines;
+    /// The sets the checker records finite are the ones this writer counts
+    /// as natural numbers.
+    pub fn finite_from(&mut self, said: &SaidFinite) {
+        self.finite = said.sets.clone();
+        self.finite_only_by = said.only_by.clone();
     }
 
     /// The writer a hypothesis is written with: one counting as finite only
@@ -1107,20 +922,9 @@ impl Writer<'_> {
     /// infinite X too, and say less than the page; `X.encard = 0` says X is
     /// finite. None where the line makes no set finite.
     pub fn without_line(&self, line: &Node) -> Option<Writer<'_>> {
-        if finite_sets(self.grammar, std::iter::once(line)).is_empty() {
-            return None;
-        }
-        let printed = self.grammar.print(line);
-        let others: Vec<&Node> = self
-            .finite_lines
-            .iter()
-            .filter(|l| self.grammar.print(l) != printed)
-            .collect();
-        let by_others = finite_sets(self.grammar, others);
-        let by_all = finite_sets(self.grammar, &self.finite_lines);
+        let only = self.finite_only_by.get(&self.grammar.print(line))?;
         let mut out = self.with_letters(self.letters.clone());
-        out.finite
-            .retain(|s| by_others.contains(s) || !by_all.contains(s));
+        out.finite.retain(|s| !only.contains(s));
         Some(out)
     }
 
@@ -1410,7 +1214,7 @@ impl Writer<'_> {
     /// say: in a theorem whose sets hold things, of one type α, sets of
     /// those. None where a member is anything but ∅, or no letter holds
     /// things.
-    fn sets_of_nothing(&self, members: &[Node]) -> Option<Members> {
+    pub fn sets_of_nothing(&self, members: &[Node]) -> Option<Members> {
         let empties = members.iter().all(|m| &*m.notation_name() == "empty-set");
         let things = self.letters.values().any(|t| t.things_vars().contains(&0));
         (empties && things).then(|| Members::Sets(Box::new(Members::Things(0))))

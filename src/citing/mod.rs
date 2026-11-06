@@ -12,7 +12,9 @@
 mod asked;
 pub mod bounds;
 mod conclude;
+pub mod finite;
 mod library;
+pub mod number_sets;
 mod once;
 mod parts;
 mod supply;

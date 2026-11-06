@@ -236,12 +236,15 @@ pub struct Writer<'a> {
     /// Terms the theorem puts in a hole of type ℝ, A/B of ⌊A/B⌋, as the
     /// page prints them: each is computed in ℝ wherever it is written.
     pub reals: Vec<String>,
-    /// The sets a line says are finite, `A is finite`, as the page prints
-    /// them: a count of one is a natural number, `A.ncard`, and of any
-    /// other set in ℕ∞ (`sets::count_term`).
+    /// The sets the checker records finite, as the page prints them
+    /// (`CheckedTheorem::said_finite`): a count of one, or of a set made
+    /// from them as `citing::finite::is_finite` says, is a natural number,
+    /// `A.ncard`, and of any other set in ℕ∞ (`sets::count_term`).
     pub finite: std::collections::BTreeSet<String>,
-    /// The hypotheses `finite` is read from (`Writer::finite_from`).
-    pub finite_lines: Vec<Node>,
+    /// For each hypothesis that makes a set finite, as printed, the sets
+    /// only it does (`Writer::without_line`).
+    pub finite_only_by:
+        std::collections::BTreeMap<String, std::collections::BTreeSet<String>>,
     /// What ∅ holds where nothing in it says, as a count compared with the
     /// count of a set of those, |S| = |∅| (`relation_from`); None where it
     /// is a set of the theorem's things.
@@ -409,7 +412,7 @@ impl<'a> Writer<'a> {
             domains: IndexMap::new(),
             reals: Vec::new(),
             finite: std::collections::BTreeSet::new(),
-            finite_lines: Vec::new(),
+            finite_only_by: std::collections::BTreeMap::new(),
             empty_of: None,
             in_extended: false,
             bounds: SaidBounds::default(),
@@ -428,7 +431,7 @@ impl<'a> Writer<'a> {
             domains: self.domains.clone(),
             reals: self.reals.clone(),
             finite: self.finite.clone(),
-            finite_lines: self.finite_lines.clone(),
+            finite_only_by: self.finite_only_by.clone(),
             empty_of: self.empty_of.clone(),
             in_extended: self.in_extended,
             bounds: self.bounds.clone(),
@@ -2788,6 +2791,20 @@ pub fn range_letter_system(range: &Node) -> System {
         Some(crate::rules::System::N) => System::Positive,
         Some(crate::rules::System::N0) => System::NonNegative,
         _ => System::Type(Num::Int),
+    }
+}
+
+/// The Lean type of the members of a set of numbers in a system the checker
+/// records (`CheckedTheorem::set_systems`): integers for ℕ, ℕ₀ and ℤ, as
+/// `set_type` gives them.
+pub fn recorded_set_type(system: crate::rules::System) -> Num {
+    match system {
+        crate::rules::System::N
+        | crate::rules::System::N0
+        | crate::rules::System::Z => Num::Int,
+        crate::rules::System::Q => Num::Rat,
+        crate::rules::System::R => Num::Real,
+        crate::rules::System::C => Num::Complex,
     }
 }
 

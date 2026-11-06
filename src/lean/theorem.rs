@@ -89,18 +89,6 @@ fn held_real(rec: &CheckedTheorem, writer: &Writer) -> Vec<String> {
     out
 }
 
-/// The lines whose finite sets a theorem counts as natural numbers, its
-/// statement and its proof alike (`Writer::finite_from`): its hypotheses.
-/// A step's line holds only from that step on, V ⊆ {a, b} late in a proof,
-/// and the conclusion only where the hypotheses do, so neither makes a set
-/// finite.
-pub fn finite_lines(thm: &Theorem, rec: &CheckedTheorem) -> Vec<Node> {
-    hypothesis_sentences(thm, rec)
-        .into_iter()
-        .flat_map(|(_, said)| said.into_iter().map(|(node, _)| node))
-        .collect()
-}
-
 /// Why a function a proof defines whose values are sets, I(k) = {|x| : x ∈
 /// 𝒫{1, …, k}}, is not written: the writer types a function letter as one
 /// into numbers only.
@@ -123,6 +111,7 @@ pub fn set_valued(rec: &CheckedTheorem, name: &str) -> bool {
 /// statement never names one. Unchanged where the file defines none.
 pub fn outside_written<'r>(
     checked: &CheckedCorpus,
+    thm: &Theorem,
     rec: &'r CheckedTheorem,
 ) -> std::borrow::Cow<'r, CheckedTheorem> {
     let rules: crate::matching::Definitions = rec
@@ -170,6 +159,11 @@ pub fn outside_written<'r>(
             *b = binding(b);
         }
     }
+    // The sets the page makes finite, read of the page as written here: a
+    // letter bound in a define written out, the c of {c ∈ 𝒫{1, …, k} : …},
+    // is one the page as read does not bind.
+    written.said_finite = crate::checker::finite_of(&checked.grammar, thm, &written);
+    written.set_systems = crate::checker::set_systems_of(&written);
     std::borrow::Cow::Owned(written)
 }
 
@@ -312,49 +306,16 @@ fn phrases_written(
     )
 }
 
-/// To the finite sets of a theorem's hypotheses, those its defines name and
-/// the letters it binds only over sets of finite sets (`sets::finite_names`).
-pub fn finite_named(
-    grammar: &crate::formula::Grammar,
-    thm: &Theorem,
-    rec: &CheckedTheorem,
-    finite: &mut std::collections::BTreeSet<String>,
-) {
-    let defines: Vec<super::sets::Named> = thm
-        .defines
-        .iter()
-        .filter_map(|d| {
-            let Route::Built(crate::corpus::DefineParts::One(def)) =
-                crate::corpus::define_parts(&d.text)
-            else {
-                return None;
-            };
-            let value = rec
-                .page
-                .entries()
-                .find(|(key, _)| key.line == d.line)
-                .map(|(_, node)| node)?;
-            def.params.is_empty().then_some(super::sets::Named {
-                name: def.name,
-                value,
-            })
-        })
-        .collect();
-    let lines: Vec<&Node> = rec.page.entries().map(|(_, node)| node).collect();
-    super::sets::finite_names(grammar, finite, &defines, &lines);
-}
-
 /// The theorem as an item of the library: its statement's binders, and its
 /// `then` sentences joined into one Lean statement, each taken by its
 /// projection.
 pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<Item> {
-    let written = outside_written(sources.checked, rec);
+    let written = outside_written(sources.checked, thm, rec);
     let rec: &CheckedTheorem = &written;
     let mut writer = Writer::new(&sources.checked.grammar, sources.templates);
     writer.reals = held_real(rec, &writer);
-    writer.finite_from(finite_lines(thm, rec));
-    finite_named(&sources.checked.grammar, thm, rec, &mut writer.finite);
-    writer.bounds_from(&finite_lines(thm, rec));
+    writer.finite_from(&rec.said_finite);
+    writer.bounds_from(&crate::checker::hypothesis_lines(thm, rec));
     let stated = match statement(&mut writer, thm, rec) {
         Route::Built(s) => s,
         Route::Declined(d) => return Route::Declined(d),
@@ -599,24 +560,15 @@ fn element_number_type(
         .map(LetterType::Number)
 }
 
-/// The type of `let T be a set` where T is a set of numbers its lines join
-/// with or put inside a set of numbers of one type, T of {1, …, i} ∩ T or
-/// D of D ⊆ ℝ: a set of those, as an item's are (`items::numbers_joined`,
-/// `items::numbers_subset`). None where no line does.
-fn joined_number_set_type(
-    name: &str,
-    rec: &CheckedTheorem,
-    writer: &Writer,
-) -> Option<LetterType> {
-    rec.page
-        .entries()
-        .flat_map(|(_, node)| node.walk())
-        .filter_map(|n| {
-            super::items::numbers_subset(writer, &n)
-                .or_else(|| super::items::numbers_joined(writer, &n))
-        })
-        .find(|(letter, _)| letter == name)
-        .map(|(_, ty)| ty)
+/// The type of `let T be a set` where T is a set of numbers the checker
+/// records the system of, T of {1, …, i} ∩ T or D of D ⊆ ℝ
+/// (`CheckedTheorem::set_systems`): a set of those. None where it records
+/// none.
+fn recorded_number_set_type(name: &str, rec: &CheckedTheorem) -> Option<LetterType> {
+    let system = rec.set_systems.get(name)?;
+    Some(LetterType::Set(super::expr::Members::Numbers(
+        super::expr::recorded_set_type(*system),
+    )))
 }
 
 /// A theorem's binders, from its `let` and `assume` lines, and each
@@ -1069,7 +1021,7 @@ fn statement(
             .get(&name)
             .and_then(super::sets::set_letter_type)
             .or_else(|| element_number_type(&name, rec, writer))
-            .or_else(|| joined_number_set_type(&name, rec, writer))
+            .or_else(|| recorded_number_set_type(&name, rec))
             .or_else(|| {
                 unsorted_element
                     .then_some(LetterType::Member(super::expr::Members::Things(0)))
@@ -1337,7 +1289,7 @@ pub fn theorem(
     thm: &Theorem,
     rec: &CheckedTheorem,
 ) -> Route<LeanFile> {
-    let written = outside_written(sources.checked, rec);
+    let written = outside_written(sources.checked, thm, rec);
     let rec: &CheckedTheorem = &written;
     let mut proof = Proof {
         sources,
@@ -1356,9 +1308,10 @@ pub fn theorem(
         witness_letters: Vec::new(),
     };
     proof.writer.reals = held_real(rec, &proof.writer);
-    proof.writer.finite_from(finite_lines(thm, rec));
-    finite_named(&sources.checked.grammar, thm, rec, &mut proof.writer.finite);
-    proof.writer.bounds_from(&finite_lines(thm, rec));
+    proof.writer.finite_from(&rec.said_finite);
+    proof
+        .writer
+        .bounds_from(&crate::checker::hypothesis_lines(thm, rec));
     let Statement {
         binders,
         conclusion,
@@ -5399,6 +5352,23 @@ impl<'a> Proof<'a> {
                                 && self.writer.members_of(value).is_none() =>
                         {
                             self.writer.listed_as(value, &things.others[var])
+                        }
+                        // ∅ given for a member, the x := ∅ of |{x}| = 1 for
+                        // |{∅}|: with the type the writer gives ∅ inside
+                        // {∅} (`Writer::sets_of_nothing`), which ∅ alone
+                        // does not give Lean.
+                        (LetterType::Member(super::expr::Members::Things(_)), _)
+                            if &*value.notation_name() == "empty-set" =>
+                        {
+                            match self
+                                .writer
+                                .sets_of_nothing(std::slice::from_ref(value))
+                            {
+                                Some(set) => Route::Built(super::expr::Printed::atom(
+                                    format!("(∅ : {})", set.lean()),
+                                )),
+                                None => self.writer.set_term(value),
+                            }
                         }
                         // A set, a member or a map given for one: the term
                         // as the writer writes a set's.

@@ -220,6 +220,14 @@ pub struct CheckedTheorem {
     /// (`library::sums_said_once`): what the build proves a member of ℝ or
     /// ℂ without a line saying so.
     pub said_sums: Vec<Vec<Node>>,
+    /// The sets the theorem's hypotheses, defines and bound letters make
+    /// finite (`citing::finite::said_finite`): what a backend that writes a
+    /// count by whether its set is finite asks with `citing::finite::is_finite`.
+    pub said_finite: crate::citing::finite::SaidFinite,
+    /// The number system each set letter of numbers holds, D of `D ⊆ ℝ` or
+    /// c of `{1, …, i} ∖ c` (`citing::number_sets::set_letter_systems`):
+    /// what a backend whose sets are typed gives the letter.
+    pub set_systems: IndexMap<String, crate::rules::System>,
     /// The number system each letter in scope at a step is introduced in,
     /// by the step's index (`library::introduced`): the narrower of two
     /// where a later line narrows it, q ∈ ℕ₀ of a q let in ℤ. What the

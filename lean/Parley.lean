@@ -565,10 +565,13 @@ public import Parley.Proofs.Wiedijk.AmGm.AmGm
 public import Parley.Proofs.Wiedijk.Ballot.GoodFinite
 public import Parley.Proofs.Wiedijk.Ballot.LastPlace
 public import Parley.Proofs.Wiedijk.Ballot.LeadToTheEnd
+public import Parley.Proofs.Wiedijk.Ballot.PrefixUnchanged
 public import Parley.Proofs.Wiedijk.Ballot.PlacesBeforeLast
 public import Parley.Proofs.Wiedijk.Ballot.TieAtTheEnd
 public import Parley.Proofs.Wiedijk.Ballot.AddLastPlace
+public import Parley.Proofs.Wiedijk.Ballot.LastVoteForA
 public import Parley.Proofs.Wiedijk.Ballot.LastVoteForB
+public import Parley.Proofs.Wiedijk.Ballot.BallotRecurrence
 public import Parley.Proofs.Wiedijk.Ballot.TieCount
 public import Parley.Proofs.Wiedijk.Bezout.LeastCombinationDivides
 public import Parley.Proofs.Wiedijk.Bezout.Bezout

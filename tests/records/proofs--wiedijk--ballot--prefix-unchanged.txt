@@ -1,0 +1,59 @@
+theorem proofs/wiedijk/ballot/prefix-unchanged
+block of 1: 1.1, 1.2
+step 1.1 cites stdlib/sums/range-bounds group 0; a := 1, b := i, k := p; concludes 1 AsWritten; from no line
+step 2 cites stdlib/sets/singleton-outside group 0; Y := {1, …, i}, a := p; concludes 0 AsWritten; from no line
+step 4 cites stdlib/sets/difference-subset group 0; X := {1, …, i}, Y := T; concludes 0 AsWritten; from no line
+step 5 cites stdlib/sets/not-in-subset group 0; Y := {1, …, i} ∖ T, Z := {1, …, i}, a := p; concludes 0 AsWritten; from no line
+requires line on line 218 cites stdlib/sets/intersection-distributes group 0; X := {1, …, i}, Y := T, Z := {p}; concludes 0 AsWritten; from no line
+requires line on line 220 cites stdlib/sets/union-empty group 0; Y := {1, …, i} ∩ T; concludes 0 AsWritten; from no line
+requires line on line 230 cites stdlib/sets/difference-by-union group 0; X := {1, …, i}, Y := T, Z := {p}; concludes 0 AsWritten; from no line
+requires line on line 231 cites stdlib/sets/difference-absent group 0; Y := {1, …, i} ∖ T, a := p; concludes 0 AsWritten; from no line
+set T holds numbers of cn
+read 194: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 194: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 197: T  as  name:T  a set of numbers
+read 198: i ∈ ℤ  as  membership:∈(name:i, number-systems:ℤ)  a statement
+read 199: p ∈ ℤ  as  membership:∈(name:p, number-systems:ℤ)  a statement
+read 200: i < p  as  order:<(name:i, name:p)  a statement
+read 201: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 201: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 203: p ∉ {1, …, i}  as  logical-not:not(membership:∈(name:p, integer-range:{,…,}(numeral:1, name:i)))  a statement
+read 205: p ∈ {1, …, i}  as  membership:∈(name:p, integer-range:{,…,}(numeral:1, name:i))  a statement
+read 207: p ≤ i  as  order:≤(name:p, name:i)  a statement
+read 208: 1  as  numeral:1  a number
+read 208: i  as  name:i  a number
+read 208: p  as  name:p  a number
+read 210: not p ≤ i  as  logical-not:not(order:≤(name:p, name:i))  a statement
+read 213: {1, …, i} ∩ {p} = ∅  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), singleton:{}(name:p)), empty-set:∅)  a statement
+read 214: p  as  name:p  a number
+read 214: {1, …, i}  as  integer-range:{,…,}(numeral:1, name:i)  a set
+read 216: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 218: ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})  as  set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), singleton:{}(name:p)))  a set
+read 218: T  as  name:T  a set of numbers
+read 218: {1, …, i}  as  integer-range:{,…,}(numeral:1, name:i)  a set
+read 218: {1, …, i} ∩ (T ∪ {p})  as  set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p)))  a set
+read 218: {1, …, i} ∩ (T ∪ {p}) = ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p})  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), singleton:{}(name:p))))  a statement
+read 218: {p}  as  singleton:{}(name:p)  a set
+read 219: ({1, …, i} ∩ T) ∪ ({1, …, i} ∩ {p}) = ({1, …, i} ∩ T) ∪ ∅  as  equality:=(set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), singleton:{}(name:p))), set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), empty-set:∅))  a statement
+read 219: ({1, …, i} ∩ T) ∪ ∅  as  set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), empty-set:∅)  a set
+read 220: ({1, …, i} ∩ T) ∪ ∅ = {1, …, i} ∩ T  as  equality:=(set-operations:∪(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T), empty-set:∅), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 220: {1, …, i} ∩ T  as  set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T)  a set
+read 222: {1, …, i} ∖ T ⊆ {1, …, i}  as  subset:⊆(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T), integer-range:{,…,}(numeral:1, name:i))  a statement
+read 223: T  as  name:T  a set of numbers
+read 223: {1, …, i}  as  integer-range:{,…,}(numeral:1, name:i)  a set
+read 225: p ∉ {1, …, i} ∖ T  as  logical-not:not(membership:∈(name:p, set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T)))  a statement
+read 226: p  as  name:p  a number
+read 226: {1, …, i}  as  integer-range:{,…,}(numeral:1, name:i)  a set
+read 226: {1, …, i} ∖ T  as  set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T)  a set
+read 228: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 230: ({1, …, i} ∖ T) ∖ {p}  as  set-operations:∖(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T), singleton:{}(name:p))  a set
+read 230: T  as  name:T  a set of numbers
+read 230: {1, …, i}  as  integer-range:{,…,}(numeral:1, name:i)  a set
+read 230: {1, …, i} ∖ (T ∪ {p})  as  set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p)))  a set
+read 230: {1, …, i} ∖ (T ∪ {p}) = ({1, …, i} ∖ T) ∖ {p}  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T), singleton:{}(name:p)))  a statement
+read 230: {p}  as  singleton:{}(name:p)  a set
+read 231: ({1, …, i} ∖ T) ∖ {p} = {1, …, i} ∖ T  as  equality:=(set-operations:∖(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T), singleton:{}(name:p)), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 231: p  as  name:p  a number
+read 231: {1, …, i} ∖ T  as  set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T)  a set
+read 233: {1, …, i} ∖ (T ∪ {p}) = {1, …, i} ∖ T  as  equality:=(set-operations:∖(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∖(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement
+read 233: {1, …, i} ∩ (T ∪ {p}) = {1, …, i} ∩ T  as  equality:=(set-operations:∩(integer-range:{,…,}(numeral:1, name:i), set-operations:∪(name:T, singleton:{}(name:p))), set-operations:∩(integer-range:{,…,}(numeral:1, name:i), name:T))  a statement

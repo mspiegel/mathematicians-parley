@@ -141,21 +141,11 @@ fn header_function_through_a_method(thm: &crate::corpus::Theorem) -> bool {
     })
 }
 
-/// Whether a line of the theorem puts the set letter among numbers, D ⊆ ℝ
-/// or D ∈ 𝒫ℝ, which gives it the type of a set of those
-/// (`items::numbers_subset`, `statement::introduces_in_set`).
+/// Whether the checker records the numbers the set letter holds, D of D ⊆
+/// ℝ or T of {1, …, i} ∖ T, which gives it the type of a set of those
+/// (`CheckedTheorem::set_systems`).
 fn among_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
-    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-        let [d, whole] = n.children.as_slice() else {
-            return false;
-        };
-        let whole = match (&*n.notation_name(), whole.children.as_slice()) {
-            ("subset", _) => whole,
-            ("membership", [inner]) if &*whole.notation_name() == "powerset" => inner,
-            _ => return false,
-        };
-        d.is_name() && *d.text == *name && set_of_numbers(whole)
-    })
+    rec.set_systems.contains_key(name)
 }
 
 /// Whether a letter is a define whose value is a set of sets of numbers by
@@ -298,26 +288,10 @@ fn set_line(
         Form::Group { .. } | Form::Polynomial(_) => true,
         // A set of numbers a line joins with a set of numbers, T of {1, …,
         // i} ∖ T, or puts inside one, D ⊆ ℝ, is a set of that set's type
-        // (`theorem::joined_number_set_type`).
-        Form::Set(name) => among_numbers(&name, rec) || joined_with_numbers(&name, rec),
+        // (`theorem::recorded_number_set_type`).
+        Form::Set(name) => among_numbers(&name, rec),
         _ => false,
     }
-}
-
-/// Whether a line joins the set letter by ∪, ∩ or ∖ with a set of numbers,
-/// T of {1, …, i} ∖ T.
-fn joined_with_numbers(name: &str, rec: &crate::checker::CheckedTheorem) -> bool {
-    rec.page.entries().flat_map(|(_, n)| n.walk()).any(|n| {
-        let [a, b] = n.children.as_slice() else {
-            return false;
-        };
-        let named = |s: &crate::formula::Node| s.is_name() && *s.text == *name;
-        // The other side a set of numbers by its shape, a range or a number
-        // system, not a letter whose own type is still to be found.
-        let numbers = |s: &crate::formula::Node| !s.is_name() && set_of_numbers(s);
-        &*n.notation_name() == "set-operations"
-            && ((named(a) && numbers(b)) || (named(b) && numbers(a)))
-    })
 }
 
 /// Whether what a `let` line asserts is a map between sets with a property,
@@ -406,7 +380,7 @@ fn covered(
     };
     // Its file's functions written out where applied, as the writer reads
     // it (`theorem::outside_written`).
-    let written = super::theorem::outside_written(checked, rec);
+    let written = super::theorem::outside_written(checked, thm, rec);
     let rec: &crate::checker::CheckedTheorem = &written;
     let set_valued = thm.defines.iter().any(|d| {
         matches!(crate::corpus::define_parts(&d.text),
@@ -451,15 +425,11 @@ fn covered(
     // A count of a set no line says is finite is in ℕ∞ (`sets::count_term`),
     // whose subtraction stops at 0 where the page's does not: |A| − |B| is
     // not written of such sets.
-    // The theorem counts as natural numbers the sets its hypotheses make
-    // finite (`theorem::finite_lines`).
-    let mut finite = super::sets::finite_sets(
-        &checked.grammar,
-        &super::theorem::finite_lines(thm, rec),
-    );
-    super::theorem::finite_named(&checked.grammar, thm, rec, &mut finite);
+    // The theorem counts as natural numbers the sets the checker records
+    // finite (`CheckedTheorem::said_finite`).
+    let finite = &rec.said_finite.sets;
     let extended = |n: &crate::formula::Node| {
-        super::sets::counts_in_extended(&checked.grammar, &finite, n)
+        super::sets::counts_in_extended(&checked.grammar, finite, n)
     };
     // Nor is one compared with what is no natural number, which beside it
     // is taken in ℕ: a difference or a quotient, |S| = j − 1, or a letter

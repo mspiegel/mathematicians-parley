@@ -11,7 +11,8 @@
 //! The theorems are chosen for the decisions they hold between them: an
 //! induction and its parts, cases, both directions, citations read
 //! forwards and backwards, a sum said once, a chain, an exhibit's values,
-//! and the witnesses of a "there is" a citation asks.
+//! the witnesses of a "there is" a citation asks, the sets hypotheses make
+//! finite, and the numbers a set letter holds.
 
 use std::path::Path;
 
@@ -21,7 +22,7 @@ use parley::source::Disk;
 mod record;
 
 /// The theorems whose records are kept, by full name.
-const KEPT: [&str; 7] = [
+const KEPT: [&str; 9] = [
     "proofs/wiedijk/euclid/euclid",
     "proofs/setmm/floor-quotient-zero/floor-quotient-zero",
     "proofs/wiedijk/triangular-reciprocals/triangular-reciprocals",
@@ -29,6 +30,8 @@ const KEPT: [&str; 7] = [
     "proofs/hammack/abs-limit-zero/abs-limit-zero",
     "tests/elaborator/an-exhibit-from-an-and/two-witnesses-beside-an-equation",
     "tests/elaborator/a-witness-the-checker-read/a-set-member-beside-an-equation",
+    "proofs/wiedijk/inclusion-exclusion/inclusion-exclusion-two",
+    "proofs/wiedijk/ballot/prefix-unchanged",
 ];
 
 /// Every sentence of the theorem's page as the checker read it and the build

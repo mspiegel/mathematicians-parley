@@ -74,6 +74,16 @@ pub fn printed_but(
             .unwrap();
         }
     }
+    for set in &record.said_finite.sets {
+        writeln!(out, "finite {set}").unwrap();
+    }
+    for (line, only) in &record.said_finite.only_by {
+        let only: Vec<&str> = only.iter().map(String::as_str).collect();
+        writeln!(out, "only {line} makes finite {}", only.join(", ")).unwrap();
+    }
+    for (set, system) in &record.set_systems {
+        writeln!(out, "set {set} holds numbers of {}", system.label()).unwrap();
+    }
     for (line, links) in &record.links {
         let at = thm
             .steps
