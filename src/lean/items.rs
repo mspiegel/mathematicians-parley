@@ -26,7 +26,7 @@ pub struct Sentence {
     /// The sentence, as the checker read it.
     pub says: Node,
     /// The sentence in Lean.
-    pub prop: String,
+    pub prop: super::expr::Printed,
     /// Where the item is a corpus theorem whose statement holds several
     /// sentences joined, the projection that takes this one, `.2.1`.
     pub part: String,
@@ -1253,7 +1253,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                 w.domains.insert(f.text.to_string(), a);
             }
             let prop = match w.formula(says) {
-                Route::Built(p) => p.text(),
+                Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
             let name = if total == 1 {
@@ -1340,15 +1340,12 @@ pub fn declaration(sentence: &Sentence, proof: &str) -> String {
     let short = sentence.decl.rsplit('.').next().unwrap_or(&sentence.decl);
     let mut binders: Vec<String> =
         sentence.general.iter().map(General::binders).collect();
-    binders.extend(super::statement::things_binder(
-        &sentence.binders,
-        &sentence.prop,
-    ));
+    let prop = sentence.prop.text();
+    binders.extend(super::statement::things_binder(&sentence.binders, &prop));
     binders.extend(sentence.binders.iter().map(Binder::lean));
     let space = if binders.is_empty() { "" } else { " " };
     format!(
-        "theorem {short}{space}{} :\n    {} :=\n  {proof}",
+        "theorem {short}{space}{} :\n    {prop} :=\n  {proof}",
         binders.join(" "),
-        sentence.prop
     )
 }

@@ -340,7 +340,7 @@ pub fn as_item(sources: &Sources, thm: &Theorem, rec: &CheckedTheorem) -> Route<
             decl: decl.clone(),
             binders: stated.binders.clone(),
             says: c.says,
-            prop: c.prop.text(),
+            prop: c.prop,
             part: projection(i, n),
             arithmetic: arithmetic.clone(),
             general: None,
