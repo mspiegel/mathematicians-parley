@@ -13,7 +13,7 @@ pub mod skeleton;
 pub mod tactic;
 pub mod term;
 
-pub use tactic::{Location, Proof, Rule, Tactic, TacticArg, TacticRef};
+pub use tactic::{Location, Pattern, Proof, Rule, Tactic, TacticArg, TacticRef};
 pub use term::{
     Arg, Assoc, ConstRef, CountForm, LeanType, Op, Piece, Quant, Source, Term, TermKind,
 };

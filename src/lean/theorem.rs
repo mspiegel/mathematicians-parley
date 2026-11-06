@@ -6800,7 +6800,10 @@ impl<'a> Proof<'a> {
                 let mut names = labels.iter();
                 let pattern = or_pattern(&said.node, &mut names);
                 let line = if disjuncts(&said.node) == labels.len() {
-                    format!("rcases {source} with {pattern}")
+                    Tactic::Rcases {
+                        from: super::tactics::hyp(&source),
+                        pattern,
+                    }
                 } else {
                     let mut says = Vec::new();
                     for part in &parts {
@@ -6818,17 +6821,23 @@ impl<'a> Proof<'a> {
                             return Route::no("a case that assumes nothing");
                         };
                         match self.writer.formula(&node) {
-                            Route::Built(p) => says.push(format!("({})", p.text())),
+                            Route::Built(p) => says.push(p),
                             Route::Declined(d) => return Route::Declined(d),
                         }
                     }
-                    format!(
-                        "rcases (show {} by have := {source}; tauto) with {}",
-                        says.join(" ∨ "),
-                        labels.join(" | ")
-                    )
+                    let restated = Tactic::Seq(vec![
+                        Tactic::Fact(super::tactics::hyp(&source)),
+                        super::tactics::call("tauto", vec![]),
+                    ]);
+                    Tactic::Rcases {
+                        from: super::tactics::bracket(shown(
+                            cases_said(says),
+                            super::doc::Proof::By(restated),
+                        )),
+                        pattern: cases_pattern(&labels),
+                    }
                 };
-                self.push_at(depth + 1, Tactic::Raw(line), step.line, spot.clone());
+                self.push_at(depth + 1, line, step.line, spot.clone());
                 for (part, label) in parts.iter().zip(&labels) {
                     // Each case starts from the letters as the block found
                     // them: a letter one case lets is none of the next's.
@@ -7559,20 +7568,45 @@ fn disjuncts(node: &Node) -> usize {
 
 /// An `rcases` pattern for an "or" as its tree groups it, each disjunct
 /// named in turn from `names`: `(C1 | C2) | C3` for (a ∨ b) ∨ c.
-fn or_pattern(node: &Node, names: &mut std::slice::Iter<'_, String>) -> String {
+fn or_pattern(
+    node: &Node,
+    names: &mut std::slice::Iter<'_, String>,
+) -> super::doc::Pattern {
+    use super::doc::Pattern;
     if let ([left, right], crate::notations::DISJUNCTION) =
         (node.children.as_slice(), node.notation())
     {
         let l = or_pattern(left, names);
         let r = or_pattern(right, names);
-        let l = if left.notation() == crate::notations::DISJUNCTION {
-            format!("({l})")
-        } else {
-            l
-        };
-        return format!("{l} | {r}");
+        return Pattern::Or(Box::new(l), Box::new(r));
     }
-    names.next().cloned().unwrap_or_else(|| "_".to_string())
+    Pattern::Name(names.next().cloned().unwrap_or_else(|| "_".to_string()))
+}
+
+/// The cases as one "or", each bracketed: `(a) ∨ (b) ∨ (c)`.
+fn cases_said(cases: Vec<Printed>) -> Printed {
+    use super::doc::Piece;
+    let mut pieces = Vec::new();
+    for (i, case) in cases.into_iter().enumerate() {
+        if i > 0 {
+            pieces.push(Piece::text(" ∨ "));
+        }
+        pieces.push(Piece::term(super::tactics::bracket(case), 0));
+    }
+    Printed::notation(pieces, 30, super::doc::LeanType::Prop)
+}
+
+/// The cases named in turn, read from the right: `a | b | c`.
+fn cases_pattern(names: &[String]) -> super::doc::Pattern {
+    use super::doc::Pattern;
+    match names {
+        [] => Pattern::Name("_".to_string()),
+        [one] => Pattern::Name(one.clone()),
+        [first, rest @ ..] => Pattern::Or(
+            Box::new(Pattern::Name(first.clone())),
+            Box::new(cases_pattern(rest)),
+        ),
+    }
 }
 
 /// A line whose proof runs over several lines, each line after the first

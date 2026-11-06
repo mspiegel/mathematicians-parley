@@ -84,6 +84,8 @@ pub enum Tactic {
     },
     /// `intro a b`.
     Intro(Vec<String>),
+    /// `rcases t with p`: a statement taken apart by a pattern.
+    Rcases { from: Term, pattern: Pattern },
     /// `replace name : says := proof`.
     Replace {
         name: String,
@@ -107,6 +109,13 @@ pub struct CalcLink {
     pub term: Term,
     pub modulus: Option<Term>,
     pub proof: Proof,
+}
+
+/// An `rcases` pattern: a name, or the cases of an "or", `a | b`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Pattern {
+    Name(String),
+    Or(Box<Pattern>, Box<Pattern>),
 }
 
 /// What follows a tactic's name.
@@ -192,6 +201,7 @@ impl Tactic {
                 | Tactic::Obtain { .. }
                 | Tactic::Set { .. }
                 | Tactic::Intro(_)
+                | Tactic::Rcases { .. }
                 | Tactic::Replace { .. }
                 | Tactic::Induction { .. }
                 | Tactic::Alternative(_)

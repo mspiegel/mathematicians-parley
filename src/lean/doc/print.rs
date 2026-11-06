@@ -4,7 +4,7 @@
 //! has a precedence, and each place a term stands needs one at least
 //! (`Term::at`), as `Printed::at` brackets the writer's text.
 
-use super::tactic::{Location, Proof, Tactic, TacticArg};
+use super::tactic::{Location, Pattern, Proof, Tactic, TacticArg};
 use super::term::{Arg, CountForm, LeanType, Piece, Quant, Term, TermKind};
 use crate::lean::expr::{bracketed, things_name, APP, GENERAL, MAX};
 
@@ -158,6 +158,23 @@ fn arg_text(arg: &Arg) -> String {
     }
 }
 
+impl Pattern {
+    /// The pattern as Lean text: an "or" whose left is an "or" bracketed,
+    /// `(a | b) | c`.
+    pub fn text(&self) -> String {
+        match self {
+            Pattern::Name(name) => name.clone(),
+            Pattern::Or(left, right) => {
+                let left = match **left {
+                    Pattern::Or(..) => format!("({})", left.text()),
+                    Pattern::Name(_) => left.text(),
+                };
+                format!("{left} | {}", right.text())
+            }
+        }
+    }
+}
+
 impl Tactic {
     /// The tactic as Lean text, on one line.
     pub fn text(&self) -> String {
@@ -191,6 +208,9 @@ impl Tactic {
             Tactic::Comment(text) => format!("-- {text}"),
             Tactic::Bullet(t) => format!("· {}", t.text()),
             Tactic::Intro(names) => format!("intro {}", names.join(" ")),
+            Tactic::Rcases { from, pattern } => {
+                format!("rcases {} with {}", from.text(), pattern.text())
+            }
             Tactic::Replace { name, says, proof } => {
                 format!("replace {name} : {} := {proof}", says.text())
             }
