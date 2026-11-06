@@ -4477,16 +4477,16 @@ impl<'a> Proof<'a> {
             // either by `simp`, which loops where one side stands in the
             // other, k in k + 1 − 1, and `first` goes on past no loop.
             let put = if used == change_name {
-                format!("parley_subst_at {used} {above}")
+                put_into(BridgeTactic::SubstAt, &used, &above)
             } else {
                 Tactic::First(vec![
-                    Tactic::Raw(format!("parley_put_at {used} {above}")),
-                    Tactic::Raw(format!("parley_put_at {change_name} {above}")),
-                    Tactic::Raw(format!("parley_subst_at {used} {above}")),
-                    Tactic::Raw(format!("parley_subst_at {change_name} {above}")),
+                    put_into(BridgeTactic::PutAt, &used, &above),
+                    put_into(BridgeTactic::PutAt, &change_name, &above),
+                    put_into(BridgeTactic::SubstAt, &used, &above),
+                    put_into(BridgeTactic::SubstAt, &change_name, &above),
                 ])
-                .text()
-            };
+            }
+            .text();
             // A row whose lines say counts both ways takes them to
             // integers first, as a step does (`count_conversion`).
             let lines: Vec<&Node> = std::iter::once(&change)
@@ -6421,7 +6421,7 @@ impl<'a> Proof<'a> {
                         .collect();
                     self.push_at(
                         depth + 1,
-                        Tactic::Raw("· skip".to_string()),
+                        Tactic::Bullet(Box::new(super::tactics::call("skip", vec![]))),
                         step.line,
                         spot.clone(),
                     );
@@ -6430,7 +6430,10 @@ impl<'a> Proof<'a> {
                     }
                     self.push_at(
                         depth + 2,
-                        Tactic::Raw("all_goals parley_side".to_string()),
+                        Tactic::AllGoals(Box::new(super::tactics::bridge(
+                            BridgeTactic::Side,
+                            vec![],
+                        ))),
                         step.line,
                         spot.clone(),
                     );
@@ -6446,7 +6449,7 @@ impl<'a> Proof<'a> {
             Method::BothDirections => {
                 self.push_at(
                     depth + 1,
-                    Tactic::Raw("constructor".to_string()),
+                    super::tactics::call("constructor", vec![]),
                     step.line,
                     spot.clone(),
                 );
@@ -6454,7 +6457,7 @@ impl<'a> Proof<'a> {
                     self.trees = kept_lines.clone();
                     self.push_at(
                         depth + 1,
-                        Tactic::Raw("· skip".to_string()),
+                        Tactic::Bullet(Box::new(super::tactics::call("skip", vec![]))),
                         step.line,
                         spot.clone(),
                     );
@@ -6472,7 +6475,10 @@ impl<'a> Proof<'a> {
                     }
                     self.push_at(
                         depth + 2,
-                        Tactic::Raw("all_goals parley_side".to_string()),
+                        Tactic::AllGoals(Box::new(super::tactics::bridge(
+                            BridgeTactic::Side,
+                            vec![],
+                        ))),
                         step.line,
                         spot.clone(),
                     );
@@ -6490,7 +6496,10 @@ impl<'a> Proof<'a> {
         if claim.len() > 1 {
             self.push_at(
                 depth,
-                Tactic::Raw(format!("obtain ⟨{}⟩ := {whole}", names.join(", "))),
+                Tactic::Obtain {
+                    names: names.to_vec(),
+                    from: super::tactics::hyp(&whole),
+                },
                 step.line,
                 spot,
             );
@@ -6888,13 +6897,7 @@ fn member_by_equation(
             return None;
         }
         let w = writer.number_fixed(side, n).built()?;
-        let proof = by_ways(vec![
-            Tactic::Raw(format!("(push_cast; linarith [{name}])")),
-            Tactic::Raw(format!("(rw [{name}]; push_cast; ring)")),
-            Tactic::Raw(format!("(rw [← {name}]; push_cast; ring)")),
-            Tactic::Raw(format!("exact {name}")),
-            Tactic::Raw(format!("exact {name}.symm")),
-        ]);
+        let proof = by_ways(rewritten_by(name));
         Some(format!("⟨{}, {proof}⟩", w.text()))
     })
 }
@@ -7341,6 +7344,46 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
 
 /// The ways a claim is closed from a term that proves it, or something
 /// near it, tried in order (`close`).
+/// The ways a claim follows from an equation a line names, either way
+/// round: by `linarith`, by rewriting with it, or as the line itself.
+fn rewritten_by(name: &str) -> Vec<Tactic> {
+    use super::tactics as t;
+    let line = || t::hyp(name);
+    vec![
+        t::steps(vec![
+            t::push_cast(None),
+            t::call("linarith", vec![t::rules(vec![line()])]),
+        ]),
+        rewrite_then_ring(t::forwards(line())),
+        rewrite_then_ring(t::backwards(line())),
+        Tactic::Exact(line()),
+        Tactic::Exact(t::symm(line())),
+    ]
+}
+
+/// `(rw [rule]; push_cast; ring)`.
+fn rewrite_then_ring(rule: super::doc::Rule) -> Tactic {
+    use super::tactics as t;
+    t::steps(vec![
+        t::call("rw", vec![TacticArg::Rules(vec![rule])]),
+        t::push_cast(None),
+        t::call("ring", vec![]),
+    ])
+}
+
+/// `parley_put_at e h` or `parley_subst_at e h`: the equation e put into
+/// the line h.
+fn put_into(tactic: BridgeTactic, equation: &str, into: &str) -> Tactic {
+    use super::tactics as t;
+    t::bridge(
+        tactic,
+        vec![
+            TacticArg::Term(t::hyp(equation)),
+            TacticArg::Term(t::hyp(into)),
+        ],
+    )
+}
+
 /// `(simp (disch := omega) only [h]; done)` and `(simp (disch := omega)
 /// only [h]; push_cast; norm_num; done)`: a claim made true by the
 /// equations of the defines cited, as they stand or once worked out.

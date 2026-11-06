@@ -184,6 +184,10 @@ impl Tactic {
                 format!("have {name} : {} := {proof}", says.text())
             }
             Tactic::Comment(text) => format!("-- {text}"),
+            Tactic::Bullet(t) => format!("· {}", t.text()),
+            Tactic::Obtain { names, from } => {
+                format!("obtain ⟨{}⟩ := {}", names.join(", "), from.text())
+            }
         }
     }
 }

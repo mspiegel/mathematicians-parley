@@ -64,6 +64,10 @@ pub enum Tactic {
     },
     /// `-- text`: what a step of the page is, above its Lean.
     Comment(String),
+    /// `· t`: one goal of several, taken by itself.
+    Bullet(Box<Tactic>),
+    /// `obtain ⟨a, b⟩ := t`: a statement taken apart into names.
+    Obtain { names: Vec<String>, from: Term },
 }
 
 /// What follows a tactic's name.
@@ -123,7 +127,10 @@ impl Tactic {
             let node = out[i];
             match node {
                 Tactic::First(ts) | Tactic::Seq(ts) => out.extend(ts.iter()),
-                Tactic::Group(t) | Tactic::Try(t) | Tactic::AllGoals(t) => out.push(t),
+                Tactic::Group(t)
+                | Tactic::Try(t)
+                | Tactic::AllGoals(t)
+                | Tactic::Bullet(t) => out.push(t),
                 Tactic::Call { args, .. } => {
                     out.extend(args.iter().filter_map(|a| match a {
                         TacticArg::Setting { value, .. } => Some(&**value),
@@ -134,7 +141,8 @@ impl Tactic {
                 | Tactic::Exact(_)
                 | Tactic::Name { .. }
                 | Tactic::Have { .. }
-                | Tactic::Comment(_) => {}
+                | Tactic::Comment(_)
+                | Tactic::Obtain { .. } => {}
             }
             i += 1;
         }
