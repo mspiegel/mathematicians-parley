@@ -5670,14 +5670,22 @@ impl<'a> Proof<'a> {
                 // a wider type than the item, the term stated by a `have`
                 // and cast to it.
                 let by_to_nat = inst.contains("Int.toNat_of_nonneg");
-                return Route::Built(match by_to_nat {
-                    true => format!(
-                        "by first | (assumption; done) | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; exact_mod_cast h) | (have h := ({inst}).mpr {witness}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact_mod_cast h) | (have h := ({inst}).mpr {witness}; parley_side)"
-                    ),
-                    false => format!(
-                        "by first | (assumption; done) | exact ({inst}).mpr {witness} | (have h := ({inst}).mpr {witness}; parley_side)"
-                    ),
-                });
+                let mut ways = vec![
+                    Tactic::Raw("(assumption; done)".to_string()),
+                    Tactic::Raw(format!("exact ({inst}).mpr {witness}")),
+                ];
+                if by_to_nat {
+                    ways.push(Tactic::Raw(format!(
+                        "(have h := ({inst}).mpr {witness}; exact_mod_cast h)"
+                    )));
+                    ways.push(Tactic::Raw(format!(
+                        "(have h := ({inst}).mpr {witness}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact_mod_cast h)"
+                    )));
+                }
+                ways.push(Tactic::Raw(format!(
+                    "(have h := ({inst}).mpr {witness}; parley_side)"
+                )));
+                return Route::Built(by_ways(ways));
             }
         };
         // Several sentences of the claim taken by one reading are its "and"
@@ -5730,10 +5738,10 @@ impl<'a> Proof<'a> {
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
-            Some(witness) => format!(
-                "by first | exact {witness} | exact ({})",
-                close(&self.writer, node, &term)
-            ),
+            Some(witness) => by_ways(vec![
+                Tactic::Raw(format!("exact {witness}")),
+                Tactic::Raw(format!("exact ({})", close(&self.writer, node, &term))),
+            ]),
             None => close(&self.writer, node, &term),
         };
         Route::Built(with_haves(&written_out(&defines), &closed))
@@ -6784,10 +6792,14 @@ fn member_by_equation(
             return None;
         }
         let w = writer.number_fixed(side, n).built()?;
-        Some(format!(
-            "⟨{}, by first | (push_cast; linarith [{name}]) | (rw [{name}]; push_cast; ring) | (rw [← {name}]; push_cast; ring) | exact {name} | exact {name}.symm⟩",
-            w.text()
-        ))
+        let proof = by_ways(vec![
+            Tactic::Raw(format!("(push_cast; linarith [{name}])")),
+            Tactic::Raw(format!("(rw [{name}]; push_cast; ring)")),
+            Tactic::Raw(format!("(rw [← {name}]; push_cast; ring)")),
+            Tactic::Raw(format!("exact {name}")),
+            Tactic::Raw(format!("exact {name}.symm")),
+        ]);
+        Some(format!("⟨{}, {proof}⟩", w.text()))
     })
 }
 
