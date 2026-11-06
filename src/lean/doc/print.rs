@@ -4,7 +4,7 @@
 //! has a precedence, and each place a term stands needs one at least
 //! (`Term::at`), as `Printed::at` brackets the writer's text.
 
-use super::tactic::{Proof, Tactic};
+use super::tactic::{Location, Proof, Tactic, TacticArg};
 use super::term::{Arg, CountForm, LeanType, Piece, Quant, Term, TermKind};
 use crate::lean::expr::{bracketed, things_name, APP, GENERAL, MAX};
 
@@ -164,10 +164,11 @@ impl Tactic {
                 let mut out = tactic.name().to_string();
                 for a in args {
                     out.push(' ');
-                    out.push_str(&a.at(MAX));
+                    out.push_str(&a.text());
                 }
                 out
             }
+            Tactic::Name { name, term } => format!("have {name} := {}", term.text()),
             Tactic::First(ts) => {
                 let alternatives: Vec<String> = ts.iter().map(Tactic::text).collect();
                 format!("first | {}", alternatives.join(" | "))
@@ -183,6 +184,40 @@ impl Tactic {
                 format!("have {name} : {} := {proof}", says.text())
             }
             Tactic::Comment(text) => format!("-- {text}"),
+        }
+    }
+}
+
+impl TacticArg {
+    /// What follows a tactic's name, as Lean text.
+    pub fn text(&self) -> String {
+        match self {
+            TacticArg::Term(t) => t.text(),
+            TacticArg::Setting { key, value } => format!("({key} := {})", value.text()),
+            TacticArg::Only => "only".to_string(),
+            TacticArg::Flag(flag) => flag.to_string(),
+            TacticArg::Rules(rules) => {
+                let rules: Vec<String> = rules
+                    .iter()
+                    .map(|r| match r.backwards {
+                        true => format!("← {}", r.by.text()),
+                        false => r.by.text(),
+                    })
+                    .collect();
+                format!("[{}]", rules.join(", "))
+            }
+            TacticArg::Using(t) => format!("using {}", t.text()),
+            TacticArg::At(places) => {
+                let places: Vec<String> = places
+                    .iter()
+                    .map(|p| match p {
+                        Location::Hypothesis(h) => h.clone(),
+                        Location::Goal => "⊢".to_string(),
+                        Location::Everywhere => "*".to_string(),
+                    })
+                    .collect();
+                format!("at {}", places.join(" "))
+            }
         }
     }
 }

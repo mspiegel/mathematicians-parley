@@ -16,5 +16,6 @@ pub mod names;
 pub mod readback;
 pub mod sets;
 pub mod statement;
+pub mod tactics;
 pub mod templates;
 pub mod theorem;

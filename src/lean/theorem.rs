@@ -10,7 +10,8 @@
 
 use indexmap::IndexMap;
 
-use super::doc::Tactic;
+use super::doc::bridges::{BridgeModule, BridgeTactic};
+use super::doc::{Tactic, TacticArg};
 use super::expr::{LetterType, Printed, Writer};
 use super::items::{Item, Sentence};
 use super::names::{line_name, snake};
@@ -7150,15 +7151,54 @@ fn has_integer_power(claim: &Node, writer: &Writer) -> bool {
 /// powers, each integer power whose exponent is at least 0 taken to one, in
 /// the goal and the term alike, inside a sum by the index's range,
 /// (k − 1) + 1 ≥ 0 of k ∈ {1, …, m + 1}.
-fn to_natural_powers(term: &str) -> Vec<Tactic> {
-    let range = "(disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith))";
+fn to_natural_powers(term: &Printed) -> Vec<Tactic> {
+    use super::tactics as t;
+    let h = || t::hyp("h");
+    // An exponent's fact found where the index's range says it.
+    let range = t::steps(vec![
+        t::simp_only(
+            false,
+            None,
+            vec![t::forwards(t::lemma("Finset.mem_Icc"))],
+            Some(TacticArg::At(vec![super::doc::Location::Everywhere])),
+        ),
+        Tactic::First(vec![
+            t::call("omega", vec![]),
+            t::call("positivity", vec![]),
+            t::call("nlinarith", vec![]),
+        ]),
+    ]);
     vec![
-        Tactic::Raw(format!(
-            "(have h := {term}; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h)"
-        )),
-        Tactic::Raw(format!(
-            "(have h := {term}; simp +contextual {range} only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h)"
-        )),
+        t::steps(vec![
+            t::name_h(term),
+            t::simp_only(
+                false,
+                Some(t::call("omega", vec![])),
+                vec![
+                    t::backwards(t::lemma("zpow_natCast")),
+                    t::forwards(t::lemma("Int.toNat_of_nonneg")),
+                ],
+                Some(t::at_h(true)),
+            ),
+            Tactic::Exact(h()),
+        ]),
+        t::steps(vec![
+            t::name_h(term),
+            t::simp_only(
+                true,
+                Some(range),
+                vec![t::forwards(t::bridge_lemma(
+                    "parley_zpow_toNat",
+                    BridgeModule::PowerTactics,
+                ))],
+                Some(t::at_h(true)),
+            ),
+            Tactic::First(vec![
+                Tactic::Exact(h()),
+                t::exact_mod_cast(h()),
+                t::linear_combination(h()),
+            ]),
+        ]),
     ]
 }
 
@@ -7319,7 +7359,40 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
 
 /// The ways a claim is closed from a term that proves it, or something
 /// near it, tried in order (`close`).
+/// `(have h := t; (try push_cast at h); (try push_cast); linear_combination
+/// (norm := parley_norm) e)`: the citation with its casts pushed in on both
+/// sides, then the claim as a combination of it.
+fn pushed_then(cited: &Printed, by: Printed) -> Tactic {
+    use super::tactics as t;
+    t::on_h(
+        cited,
+        vec![
+            t::try_(t::push_cast(Some(t::at_h(false)))),
+            t::try_(t::push_cast(None)),
+            t::linear_combination(by),
+        ],
+    )
+}
+
+/// `simp (disch := parley_side) only [parley_cast_toNat] at h`: a natural
+/// given as an integer's `toNat` put back as the integer, cast to ℚ or ℝ.
+fn cast_to_nat_at_h() -> Tactic {
+    use super::tactics as t;
+    t::simp_only(
+        false,
+        Some(t::bridge(BridgeTactic::Side, vec![])),
+        vec![t::forwards(t::bridge_lemma(
+            "parley_cast_toNat",
+            BridgeModule::PowerTactics,
+        ))],
+        Some(t::at_h(false)),
+    )
+}
+
 fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
+    use super::tactics as t;
+    let cited = Printed::atom(term);
+    let h = || t::hyp("h");
     // An equation or order between sets, members or counts is closed as
     // any other claim: the closers for numbers work in a field or a ring.
     let of_numbers = claim
@@ -7337,9 +7410,24 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
             // A remainder of integers written with `%`, beside an item of
             // set.mm's mod of real numbers: the item's put as `%` first.
             let of_mod = claim.walk().iter().any(|n| &*n.notation_name() == "mod");
-            let as_remainder = of_mod.then(|| Tactic::Raw(format!(
-                "(have h := {term}; simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h)"
-            )));
+            let as_remainder = of_mod.then(|| {
+                let mod_lemma = |name| {
+                    t::forwards(t::bridge_lemma(name, BridgeModule::Divisibility))
+                };
+                t::steps(vec![
+                    t::name_h(&cited),
+                    t::simp_only(
+                        false,
+                        Some(t::call("positivity", vec![])),
+                        vec![
+                            mod_lemma("LeanBridges.Divisibility.mod_natCast"),
+                            mod_lemma("LeanBridges.Divisibility.mod_intCast"),
+                        ],
+                        Some(t::at_h(true)),
+                    ),
+                    t::exact_mod_cast(t::hyp("h")),
+                ])
+            });
             // A term given a natural as an integer's `toNat`, rewritten back
             // by `▸` (`instance`): an error elaborating it against the goal,
             // as `exact_mod_cast` does, is logged and does not fail the
@@ -7352,21 +7440,33 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
                 .filter_map(|c| writer.carrier(c).built())
                 .all(|n| n < super::templates::Num::Complex);
             let of_complex = (term.contains(" : ℂ)") && below_complex).then(|| {
-                Tactic::Raw(format!("(have h := {term}; parley_of_complex h)"))
+                t::on_h(
+                    &cited,
+                    vec![t::bridge(
+                        BridgeTactic::OfComplex,
+                        vec![TacticArg::Term(h())],
+                    )],
+                )
             });
             // An item over ℝ given rationals, the geometric sum at a := 2,
             // where the claim is written in its own type, ℚ: cast down.
             let mut of_real: Vec<Tactic> = term
                 .contains(": ℝ)")
                 .then(|| {
-                    Tactic::Raw(format!("(have h := {term}; parley_rat_of_real h)"))
+                    t::on_h(
+                        &cited,
+                        vec![t::bridge(
+                            BridgeTactic::RatOfReal,
+                            vec![TacticArg::Term(h())],
+                        )],
+                    )
                 })
                 .into_iter()
                 .collect();
             // Natural powers to an integer's `toNat` on one side, integer
             // powers on the other (`to_natural_powers`).
             if term.contains(".toNat") || has_natural_power(claim, writer) {
-                of_real.extend(to_natural_powers(term));
+                of_real.extend(to_natural_powers(&cited));
             }
             // An item that counts in ℕ∞, |∅| = 0, met in ℤ: the goal's
             // counts of finite sets said in ℕ∞ (`parley_count_ext`), where
@@ -7377,7 +7477,10 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
                 .iter()
                 .any(|n| &*n.notation_name() == "cardinality");
             let counted = counted.then(|| {
-                Tactic::Raw(format!("(parley_count_ext; exact_mod_cast {term})"))
+                t::steps(vec![
+                    t::bridge(BridgeTactic::CountExt, vec![]),
+                    t::exact_mod_cast(cited.clone()),
+                ])
             });
             let by_to_nat = term.contains("Int.toNat_of_nonneg");
             // The `▸` of a `toNat` rewrites its cast to ℤ only; one cast to
@@ -7386,38 +7489,53 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
             // The term itself, given to `linear_combination`: not one with a
             // `toNat` put back by `▸`, whose error is logged as above; the
             // `have` after it takes that one.
-            let direct = (!by_to_nat).then(|| {
-                Tactic::Raw(format!("linear_combination (norm := parley_norm) {term}"))
-            });
+            let direct = (!by_to_nat).then(|| t::linear_combination(cited.clone()));
             let cast = match by_to_nat {
                 true => vec![
-                    Tactic::Raw(format!("(have h := {term}; exact_mod_cast h)")),
-                    Tactic::Raw(format!("(have h := {term}; exact_mod_cast h.symm)")),
-                    Tactic::Raw(format!("(have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); linear_combination (norm := parley_norm) h)")),
+                    t::on_h(&cited, vec![t::exact_mod_cast(h())]),
+                    t::on_h(&cited, vec![t::exact_mod_cast(t::symm(h()))]),
+                    t::on_h(
+                        &cited,
+                        vec![
+                            cast_to_nat_at_h(),
+                            t::try_(t::push_cast(Some(t::at_h(true)))),
+                            t::linear_combination(h()),
+                        ],
+                    ),
                 ],
                 false => vec![
-                    Tactic::Raw(format!("exact_mod_cast {term}")),
-                    Tactic::Raw(format!("exact_mod_cast ({term}).symm")),
+                    t::exact_mod_cast(cited.clone()),
+                    t::exact_mod_cast(t::symm(t::bracket(cited.clone()))),
                 ],
             };
+            let negated = Printed {
+                kind: super::doc::TermKind::Neg(Box::new(h())),
+                ty: None,
+            };
             let mut out: Vec<Tactic> = direct.into_iter().collect();
-            out.push(Tactic::Raw(format!("(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h)")));
-            out.push(Tactic::Raw(format!("(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h)")));
+            out.push(pushed_then(&cited, h()));
+            out.push(pushed_then(&cited, negated));
             out.extend(counted);
             out.extend(cast);
-            out.push(Tactic::Raw(format!(
-                "(have h := {term}; rify; linear_combination (norm := parley_norm) h)"
-            )));
-            out.push(Tactic::Raw(format!(
-                "(have h := {term}; qify; linear_combination (norm := parley_norm) h)"
-            )));
-            out.push(Tactic::Raw(format!(
-                "(have h := {term}; parley_int_power h)"
-            )));
+            out.push(t::on_h(
+                &cited,
+                vec![t::call("rify", vec![]), t::linear_combination(h())],
+            ));
+            out.push(t::on_h(
+                &cited,
+                vec![t::call("qify", vec![]), t::linear_combination(h())],
+            ));
+            out.push(t::on_h(
+                &cited,
+                vec![t::bridge(
+                    BridgeTactic::IntPower,
+                    vec![TacticArg::Term(h())],
+                )],
+            ));
             out.extend(as_remainder);
             out.extend(of_complex);
             out.extend(of_real);
-            out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+            out.push(t::on_h(&cited, vec![t::bridge(BridgeTactic::Side, vec![])]));
             out
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
@@ -7436,16 +7554,41 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
             let to_nat = (has_natural_power(claim, writer)
                 || has_integer_power(claim, writer)
                 || term.contains(".toNat"))
-            .then(|| Tactic::Raw(format!(
-                "(have h := {term}; simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith)"
-            )));
+            .then(|| {
+                t::on_h(
+                    &cited,
+                    vec![
+                        t::simp_only(
+                            false,
+                            Some(Tactic::First(vec![
+                                t::call("omega", vec![]),
+                                t::call("positivity", vec![]),
+                                t::call("nlinarith", vec![]),
+                            ])),
+                            vec![t::forwards(t::bridge_lemma(
+                                "parley_zpow_toNat",
+                                BridgeModule::PowerTactics,
+                            ))],
+                            Some(t::at_h(true)),
+                        ),
+                        Tactic::First(vec![
+                            t::exact_mod_cast(h()),
+                            t::call("linarith", vec![]),
+                        ]),
+                    ],
+                )
+            });
             let mut out: Vec<Tactic> = to_nat.into_iter().collect();
-            out.push(Tactic::Raw(format!("linarith [{term}]")));
-            out.push(Tactic::Raw(format!(
-                "(have h := {term}; push_cast at h; linarith)"
-            )));
-            out.push(Tactic::Raw(format!("exact_mod_cast {term}")));
-            out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+            out.push(t::call("linarith", vec![t::rules(vec![cited.clone()])]));
+            out.push(t::on_h(
+                &cited,
+                vec![
+                    t::push_cast(Some(t::at_h(false))),
+                    t::call("linarith", vec![]),
+                ],
+            ));
+            out.push(t::exact_mod_cast(cited.clone()));
+            out.push(t::on_h(&cited, vec![t::bridge(BridgeTactic::Side, vec![])]));
             out
         }
         // A relation said either way round, a congruence or a ↔, as the
@@ -7465,12 +7608,56 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
             // set in any order and of any size; another relation, its pairs
             // turned round.
             let reorder = match (listed, claim.notation() == EQUALITY) {
-                (true, true) => Some(Tactic::Raw(format!(
-                    "(have h := {term}; ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)"
-                ))),
-                (true, false) => Some(Tactic::Raw(format!(
-                    "(have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h)"
-                ))),
+                (true, true) => {
+                    let x = t::hyp("x");
+                    let applied = Printed {
+                        kind: super::doc::TermKind::App {
+                            head: Box::new(h()),
+                            args: vec![super::doc::Arg::Explicit(x.clone())],
+                            explicit: false,
+                        },
+                        ty: None,
+                    };
+                    Some(t::on_h(
+                        &cited,
+                        vec![
+                            t::call("ext", vec![TacticArg::Term(x)]),
+                            t::call(
+                                "rw",
+                                vec![
+                                    t::rules(vec![t::lemma("Set.ext_iff")]),
+                                    t::at_h(false),
+                                ],
+                            ),
+                            t::call("specialize", vec![TacticArg::Term(applied)]),
+                            t::simp_only(
+                                false,
+                                None,
+                                vec![
+                                    t::forwards(t::lemma("Set.mem_insert_iff")),
+                                    t::forwards(t::lemma("Set.mem_singleton_iff")),
+                                ],
+                                Some(t::at_h(true)),
+                            ),
+                            t::call("tauto", vec![]),
+                        ],
+                    ))
+                }
+                (true, false) => Some(t::on_h(
+                    &cited,
+                    vec![
+                        t::simp_only(
+                            false,
+                            None,
+                            vec![
+                                t::forwards(t::lemma("Set.pair_comm")),
+                                t::forwards(t::lemma("Set.insert_comm")),
+                            ],
+                            Some(t::at_h(true)),
+                        ),
+                        Tactic::Exact(h()),
+                    ],
+                )),
                 (false, _) => None,
             };
             // A natural given as an integer's `toNat`, put back by `▸`: an
@@ -7482,14 +7669,27 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
             match term.contains("Int.toNat_of_nonneg") {
                 true => {
                     let mut out = vec![
-                        Tactic::Raw(format!("(have h := {term}; exact h)")),
-                        Tactic::Raw(format!("(have h := {term}; exact h.symm)")),
-                        Tactic::Raw(format!("(have h := {term}; simpa using h)")),
-                        Tactic::Raw(format!("(have h := {term}; exact_mod_cast h)")),
+                        t::on_h(&cited, vec![Tactic::Exact(h())]),
+                        t::on_h(&cited, vec![Tactic::Exact(t::symm(h()))]),
+                        t::on_h(
+                            &cited,
+                            vec![t::call("simpa", vec![TacticArg::Using(h())])],
+                        ),
+                        t::on_h(&cited, vec![t::exact_mod_cast(h())]),
                     ];
                     out.extend(reorder);
-                    out.push(Tactic::Raw(format!("(have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h)")));
-                    out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+                    out.push(t::on_h(
+                        &cited,
+                        vec![
+                            cast_to_nat_at_h(),
+                            t::try_(t::push_cast(Some(t::at_h(true)))),
+                            Tactic::Exact(h()),
+                        ],
+                    ));
+                    out.push(t::on_h(
+                        &cited,
+                        vec![t::bridge(BridgeTactic::Side, vec![])],
+                    ));
                     out
                 }
                 false => {
@@ -7501,24 +7701,33 @@ fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
                     let int_power = match term.contains(".toNat")
                         || has_natural_power(claim, writer)
                     {
-                        true => to_natural_powers(term),
+                        true => to_natural_powers(&cited),
                         false => Vec::new(),
                     };
                     // A line in ℝ taken at a value, ε := 1/2, whose claim of
                     // rationals is written in its own type, ℚ: cast down.
                     let of_real = term.contains(": ℝ)").then(|| {
-                        Tactic::Raw(format!("(have h := {term}; parley_rat_of_real h)"))
+                        t::on_h(
+                            &cited,
+                            vec![t::bridge(
+                                BridgeTactic::RatOfReal,
+                                vec![TacticArg::Term(h())],
+                            )],
+                        )
                     });
                     let mut out = vec![
-                        Tactic::Raw(format!("exact {term}")),
-                        Tactic::Raw(format!("exact ({term}).symm")),
-                        Tactic::Raw(format!("simpa using {term}")),
-                        Tactic::Raw(format!("exact_mod_cast {term}")),
+                        Tactic::Exact(cited.clone()),
+                        Tactic::Exact(t::symm(t::bracket(cited.clone()))),
+                        t::call("simpa", vec![TacticArg::Using(cited.clone())]),
+                        t::exact_mod_cast(cited.clone()),
                     ];
                     out.extend(reorder);
                     out.extend(int_power);
                     out.extend(of_real);
-                    out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+                    out.push(t::on_h(
+                        &cited,
+                        vec![t::bridge(BridgeTactic::Side, vec![])],
+                    ));
                     out
                 }
             }
