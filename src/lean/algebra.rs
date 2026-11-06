@@ -30,7 +30,9 @@ use crate::outcome::Route;
 /// `s3` or a part of a line, `H2.1`.
 pub struct Cited {
     pub node: Node,
-    pub proof: String,
+    /// The line's proof: its name, a part of it, `H3.1`, or the line
+    /// read at a letter, `(h n (by parley_side))`.
+    pub proof: Printed,
 }
 
 /// The equation a `≠` says is false, `s − 1 = 0` of `s − 1 ≠ 0`.
@@ -63,16 +65,17 @@ fn unequal(
         };
         let given = Cited {
             node: supposed.clone(),
-            proof: "h".to_string(),
+            proof: t::hyp("h"),
         };
         match algebra(writer, targets, wanted, std::slice::from_ref(&given)) {
             Route::Built(inner) => {
                 let refuted = Printed {
                     kind: TermKind::App {
-                        head: Box::new(Printed::atom(c.proof.clone())),
-                        args: vec![Arg::Explicit(t::bracket(Printed::atom(
-                            inner.text(),
-                        )))],
+                        head: Box::new(c.proof.clone()),
+                        args: vec![Arg::Explicit(t::bracket(Printed {
+                            kind: TermKind::By(Box::new(inner)),
+                            ty: None,
+                        }))],
                         explicit: false,
                     },
                     ty: None,
@@ -211,9 +214,9 @@ pub fn algebra(
         };
         let proof = &proofs[t.which];
         parts.push(if multiplier == "1" {
-            proof.clone()
+            proof.text()
         } else {
-            format!("({multiplier}) * {proof}")
+            format!("({multiplier}) * {}", proof.text())
         });
     }
     let sum = if parts.is_empty() {
@@ -271,7 +274,7 @@ fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<Tactic> {
     Some(Tactic::Obtain {
         names: pattern.iter().map(|p| p.to_string()).collect(),
         says: None,
-        from: Printed::atom(cited.proof.clone()),
+        from: cited.proof.clone(),
     })
 }
 

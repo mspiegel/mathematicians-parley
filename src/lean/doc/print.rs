@@ -215,7 +215,7 @@ impl Tactic {
                 format!("rcases {} with {}", from.text(), pattern.text())
             }
             Tactic::Replace { name, says, proof } => {
-                format!("replace {name} : {} := {proof}", says.text())
+                format!("replace {name} : {} := {}", says.text(), proof.text())
             }
             Tactic::Induction { on, using } => {
                 format!("induction {} using {} with", on.join(", "), using.text())

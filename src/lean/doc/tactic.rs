@@ -90,7 +90,7 @@ pub enum Tactic {
     Replace {
         name: String,
         says: Term,
-        proof: String,
+        proof: Box<Proof>,
     },
     /// `induction a, b using r with`: the cases follow as alternatives.
     Induction { on: Vec<String>, using: Term },

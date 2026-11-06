@@ -519,6 +519,13 @@ fn applied_to(term: Printed, arg: Printed) -> Printed {
     }
 }
 
+/// `(h).mp (by parley_side)`: an "if and only if" read forwards, its
+/// left side left to `parley_side`.
+fn forwards_of(iff: Printed) -> Printed {
+    let mp = fields(super::tactics::bracket(iff), &["mp"]);
+    applied_to(mp, side_term(&[]))
+}
+
 /// A term taken along a projection path, `(t).1.2`.
 fn projected(term: Printed, path: &[&str]) -> Printed {
     path.iter()
@@ -1387,7 +1394,7 @@ struct NamedAtom {
 /// A line a step names that puts a term in a number system, `p − 1 ∈ ℕ₀`:
 /// its Lean name and the system it says.
 struct StatedLine {
-    name: String,
+    name: Printed,
     system: crate::rules::System,
 }
 
@@ -2166,7 +2173,7 @@ impl<'a> Proof<'a> {
         let cited: Vec<CitedWitness> = self
             .cited_parts(&step_cited_refs(&self.thm.steps[i], &self.thm.path))
             .into_iter()
-            .filter(|c| c.proof.chars().all(|ch| ch.is_alphanumeric() || ch == '_'))
+            .filter(|c| matches!(c.proof.kind, super::doc::TermKind::Letter(_)))
             .filter_map(|c| {
                 let (said, negated) =
                     match (c.node.notation(), c.node.children.as_slice()) {
@@ -2175,7 +2182,7 @@ impl<'a> Proof<'a> {
                     };
                 let (term, whole) = self.writer.wide_in_slot(said)?;
                 Some(CitedWitness {
-                    name: c.proof,
+                    name: c.proof.text(),
                     term,
                     whole,
                     negated,
@@ -2307,7 +2314,7 @@ impl<'a> Proof<'a> {
             if let Route::Built(node) = self.tree(&r.fact) {
                 facts.push(super::algebra::Cited {
                     node,
-                    proof: format!("r{}_{}", step.line, k + 1),
+                    proof: super::tactics::hyp(&format!("r{}_{}", step.line, k + 1)),
                 });
             }
         }
@@ -2436,7 +2443,7 @@ impl<'a> Proof<'a> {
                         value,
                         LeanType::Prop,
                     );
-                    let nonneg = nonneg_of(system, &line);
+                    let nonneg = nonneg_of(system, line);
                     out.push(NamedAtom {
                         have: Tactic::Have {
                             name: name.clone(),
@@ -2478,7 +2485,7 @@ impl<'a> Proof<'a> {
                             LeanType::Prop,
                         );
                         let same_by = Proof::By(t::exact_mod_cast(to_nat_of(
-                            nonneg_of(system, "h0"),
+                            nonneg_of(system, t::hyp("h0")),
                         )));
                         let rewritten = Proof::By(Tactic::Seq(vec![
                             t::call(
@@ -2531,7 +2538,7 @@ impl<'a> Proof<'a> {
                     Tactic::Obtain {
                         names: names.iter().map(|n| n.to_string()).collect(),
                         says: None,
-                        from: t::hyp(&line),
+                        from: line,
                     },
                     Tactic::Exact(super::expr::anonymous(witness)),
                 ]));
@@ -2584,7 +2591,7 @@ impl<'a> Proof<'a> {
                 );
                 let rules = vec![
                     t::backwards(t::lemma("zpow_natCast")),
-                    t::forwards(to_nat_of(nonneg_of(system, &line))),
+                    t::forwards(to_nat_of(nonneg_of(system, line))),
                 ];
                 let have = Tactic::Have {
                     name: name.clone(),
@@ -2757,7 +2764,7 @@ impl<'a> Proof<'a> {
                 let rule = Printed::applied(
                     lemma,
                     super::doc::Source::Mathlib,
-                    vec![Printed::atom(c.proof.clone())],
+                    vec![c.proof.clone()],
                     super::doc::LeanType::Prop,
                 );
                 case_rewrites
@@ -3201,7 +3208,7 @@ impl<'a> Proof<'a> {
                 let defines = self.cited_defines(&just.refs);
                 let mut claim = node.clone();
                 for d in &defines {
-                    cited.retain(|c| c.proof != d.proof);
+                    cited.retain(|c| c.proof != super::tactics::hyp(&d.proof));
                 }
                 let grammar = &self.sources.checked.grammar;
                 let printed =
@@ -3273,7 +3280,7 @@ impl<'a> Proof<'a> {
                     .cited_parts(&just.refs)
                     .iter()
                     .filter_map(|c| self.read_at_claim(c, node))
-                    .map(|at| Tactic::Fact(Printed::atom(at.proof)))
+                    .map(|at| Tactic::Fact(at.proof))
                     .collect();
                 let close = match node.notation() == ORDER {
                     true => BridgeTactic::Order,
@@ -4149,11 +4156,7 @@ impl<'a> Proof<'a> {
         // the checker reads it.
         if just.values.is_empty() {
             if let Some(read) = self.read_at_claim(part, node) {
-                return Route::Built(close(
-                    &self.writer,
-                    node,
-                    Printed::atom(read.proof),
-                ));
+                return Route::Built(close(&self.writer, node, read.proof));
             }
         }
         let (line, name) = (&part.node, &part.proof);
@@ -4258,7 +4261,7 @@ impl<'a> Proof<'a> {
         }
         let applied = Printed {
             kind: super::doc::TermKind::App {
-                head: Box::new(super::tactics::hyp(name)),
+                head: Box::new(name.clone()),
                 args: args.into_iter().map(super::doc::Arg::Explicit).collect(),
                 explicit: false,
             },
@@ -4397,7 +4400,7 @@ impl<'a> Proof<'a> {
         }
         let mut haves = Vec::new();
         // The equation's own name, where it is widened to the claim's type.
-        let mut stated: Option<String> = None;
+        let mut stated: Option<Printed> = None;
         // The equation put in, as a tree.
         let mut put: Option<Node> = None;
         let equation = match (&just.source, &just.equation) {
@@ -4458,7 +4461,7 @@ impl<'a> Proof<'a> {
                             haves.extend(w.have);
                             stated = Some(name.clone());
                             put = Some(line.clone());
-                            t::hyp(&w.name)
+                            w.name
                         }
                         Route::Declined(d) => return Route::Declined(d),
                     },
@@ -4535,9 +4538,14 @@ impl<'a> Proof<'a> {
         // put into by its own name, which the tactic rewrites under the
         // quantifier.
         let at_claim = |node: &Node| -> Node {
+            // Only what the line says at the claim's letter is wanted, so
+            // its proof is left out.
             let cited = super::algebra::Cited {
                 node: node.clone(),
-                proof: String::new(),
+                proof: Printed::of(
+                    super::doc::TermKind::Elided,
+                    super::doc::LeanType::Prop,
+                ),
             };
             self.read_at_claim(&cited, claim)
                 .map_or_else(|| node.clone(), |at| at.node)
@@ -4615,7 +4623,7 @@ impl<'a> Proof<'a> {
             let read = self.read_at_claim(
                 &super::algebra::Cited {
                     node: line.clone(),
-                    proof: name.clone(),
+                    proof: t::hyp(name),
                 },
                 claim,
             );
@@ -4629,9 +4637,9 @@ impl<'a> Proof<'a> {
                 let at_name = format!("at{i}");
                 haves.push(Tactic::Name {
                     name: at_name.clone(),
-                    term: Printed::atom(part.proof.clone()),
+                    term: part.proof.clone(),
                 });
-                match self.widened(&part.node, &at_name, claim, writer) {
+                match self.widened(&part.node, &t::hyp(&at_name), claim, writer) {
                     Route::Built(w) => {
                         haves.extend(w.have);
                         into.push(w.name);
@@ -4640,7 +4648,7 @@ impl<'a> Proof<'a> {
                 }
                 continue;
             }
-            match self.widened(line, name, claim, writer) {
+            match self.widened(line, &t::hyp(name), claim, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
                     into.push(w.name);
@@ -4653,10 +4661,7 @@ impl<'a> Proof<'a> {
         // part of a fixed type, (4 − 2)! of a claim in ℚ.
         // Of several lines, each is rewritten into before any is simplified,
         // since a simplification that loops ends the search (`parley_put_at`).
-        let own = stated
-            .clone()
-            .map(|s| t::hyp(&s))
-            .filter(|s| *s != equation);
+        let own = stated.clone().filter(|s| *s != equation);
         // An equation of natural numbers, A = (n + 1)!, put where its term
         // stands as a natural number, the exponent of 2^A: Lean's exponent
         // is of ℕ, so the equation is put there in ℕ.
@@ -4679,7 +4684,7 @@ impl<'a> Proof<'a> {
                             r.clone(),
                             super::doc::LeanType::Prop,
                         ),
-                        proof: Box::new(Proof::By(t::exact_mod_cast(t::hyp(name)))),
+                        proof: Box::new(Proof::By(t::exact_mod_cast(name.clone()))),
                     }),
                     _ => None,
                 }
@@ -4745,17 +4750,18 @@ impl<'a> Proof<'a> {
         // letter, that it is above 0 or at least 0, which the lines in scope
         // give; one over any other set, ℝ ∖ {5} or B, that the letter is in
         // it.
+        let guard_by = |tactic| Some(proof_term(super::doc::Proof::By(tactic)));
         let (ty, guard) = match super::expr::system_of(set) {
             Some(system) => (
                 LetterType::Number(super::expr::letter_type(system)),
                 match system {
-                    super::expr::System::Type(_) => "",
-                    _ => " (by parley_side)",
+                    super::expr::System::Type(_) => None,
+                    _ => guard_by(super::tactics::bridge(BridgeTactic::Side, vec![])),
                 },
             ),
             None => (
                 self.writer.set_members(set)?.letter(),
-                " (by parley_set_side)",
+                guard_by(super::tactics::bridge(BridgeTactic::SetSide, vec![])),
             ),
         };
         // The names the line writes free: the letter it binds may be named
@@ -4786,9 +4792,12 @@ impl<'a> Proof<'a> {
             &put,
             &self.sources.checked.grammar.binders(),
         );
+        let mut args = vec![super::tactics::hyp(&super::names::letter(at))];
+        args.extend(guard);
+        let at_letter = args.into_iter().fold(cited.proof.clone(), applied_to);
         Some(super::algebra::Cited {
             node: read,
-            proof: format!("({} {}{guard})", cited.proof, super::names::letter(at)),
+            proof: super::tactics::bracket(at_letter),
         })
     }
 
@@ -4891,7 +4900,8 @@ impl<'a> Proof<'a> {
                 says: change_says,
                 proof: Box::new(proof),
             });
-            let used = match self.widened(&change, &change_name, &row_node, writer) {
+            let change_h = super::tactics::hyp(&change_name);
+            let used = match self.widened(&change, &change_h, &row_node, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
                     w.name
@@ -4903,18 +4913,15 @@ impl<'a> Proof<'a> {
             // puts its equation in; each equation put by rewriting before
             // either by `simp`, which loops where one side stands in the
             // other, k in k + 1 − 1, and `first` goes on past no loop.
-            let (used_h, change_h) = (
-                super::tactics::hyp(&used),
-                super::tactics::hyp(&change_name),
-            );
-            let put = if used == change_name {
-                put_into(BridgeTactic::SubstAt, &used_h, &above)
+            let above_h = super::tactics::hyp(&above);
+            let put = if used == change_h {
+                put_into(BridgeTactic::SubstAt, &used, &above_h)
             } else {
                 Tactic::First(vec![
-                    put_into(BridgeTactic::PutAt, &used_h, &above),
-                    put_into(BridgeTactic::PutAt, &change_h, &above),
-                    put_into(BridgeTactic::SubstAt, &used_h, &above),
-                    put_into(BridgeTactic::SubstAt, &change_h, &above),
+                    put_into(BridgeTactic::PutAt, &used, &above_h),
+                    put_into(BridgeTactic::PutAt, &change_h, &above_h),
+                    put_into(BridgeTactic::SubstAt, &used, &above_h),
+                    put_into(BridgeTactic::SubstAt, &change_h, &above_h),
                 ])
             };
             // A row whose lines say counts both ways takes them to
@@ -4950,14 +4957,14 @@ impl<'a> Proof<'a> {
     fn widened(
         &self,
         line: &Node,
-        name: &str,
+        name: &Printed,
         claim: &Node,
         writer: &Writer,
     ) -> Route<Widened> {
         let same = || {
             Route::Built(Widened {
                 have: None,
-                name: name.to_string(),
+                name: name.clone(),
             })
         };
         let numbers = |n: &Node| -> Vec<Node> {
@@ -5007,7 +5014,7 @@ impl<'a> Proof<'a> {
         };
         // The equation mapped into the wider type, its casts pushed in, and
         // compared with what is wanted up to the ring's laws.
-        let wide = format!("{}_w", name.replace('.', "_"));
+        let wide = format!("{}_w", name.text().replace('.', "_"));
         let said = Printed::infix(
             super::doc::Op::EQUALS,
             left,
@@ -5019,12 +5026,12 @@ impl<'a> Proof<'a> {
                 name: wide.clone(),
                 says: said,
                 proof: Box::new(super::doc::Proof::By(Tactic::Seq(vec![
-                    super::tactics::name_h(&cast_up(writer, own, wanted, name)),
+                    super::tactics::name_h(&cast_up(writer, own, wanted, name.clone())),
                     super::tactics::push_cast(Some(super::tactics::at_h(false))),
                     super::tactics::linear_combination(super::tactics::hyp("h")),
                 ]))),
             }),
-            name: wide,
+            name: super::tactics::hyp(&wide),
         })
     }
 
@@ -5278,7 +5285,7 @@ impl<'a> Proof<'a> {
         let mut out = Vec::new();
         for r in refs {
             for (node, name) in self.trees.get(r).into_iter().flatten() {
-                conjuncts(node, name.clone(), &mut out);
+                conjuncts(node, super::tactics::hyp(name), &mut out);
             }
         }
         out
@@ -5383,7 +5390,7 @@ impl<'a> Proof<'a> {
         binding: &crate::matching::Binding,
         cited_lines: &[super::algebra::Cited],
         binders: &[Binder],
-    ) -> Option<String> {
+    ) -> Option<Printed> {
         // The item asks its hypothesis in its own letters' types: a number
         // given a letter of another type, or of the general one, is cast,
         // and the line, written in its own types, says something else in
@@ -5527,23 +5534,10 @@ impl<'a> Proof<'a> {
         given
     }
 
-    /// The Lean term an item's sentence is at a citation: the theorem with
-    /// each letter given its value, and each hypothesis given by the line
-    /// cited that says it as Lean writes both, or else left to
-    /// `parley_side`.
-    fn instance(
-        &self,
-        sentence: &Sentence,
-        binding: &crate::matching::Binding,
-        claim: Option<&Node>,
-        cited_lines: &[super::algebra::Cited],
-    ) -> Route<String> {
-        self.instance_of(sentence, binding, claim, cited_lines)
-            .map(|i| i.term.text())
-    }
-
-    /// The item applied to what the citation gives it (`instance`), and
-    /// what it then says.
+    /// The item applied to what the citation gives it, and what it then
+    /// says: the theorem with each letter given its value, and each
+    /// hypothesis given by the line cited that says it as Lean writes both,
+    /// or else left to `parley_side`.
     fn instance_of(
         &self,
         sentence: &Sentence,
@@ -5735,8 +5729,8 @@ impl<'a> Proof<'a> {
                                     })
                                 }
                                 _ if value.is_name() => {
-                                    Route::Built(super::expr::Printed::atom(
-                                        super::names::letter(&value.text),
+                                    Route::Built(super::tactics::hyp(
+                                        &super::names::letter(&value.text),
                                     ))
                                 }
                                 _ => Route::no(
@@ -6015,7 +6009,7 @@ impl<'a> Proof<'a> {
                     cited_lines,
                     &sentence.binders,
                 ) {
-                    Some(name) => args.push(proof_arg(super::tactics::hyp(&name))),
+                    Some(name) => args.push(proof_arg(name)),
                     None => args.push(proof_arg(side_term(&[]))),
                 },
                 Binder::Fact { .. } => args.push(proof_arg(side_term(&[]))),
@@ -6179,16 +6173,7 @@ impl<'a> Proof<'a> {
         let implication = matches!(sentence.says.notation(), CONDITIONAL | IMPLICATION);
         let term = match concluded.way {
             Way::AsWritten => inst,
-            Way::Forward if iff => {
-                let mp = Printed {
-                    kind: super::doc::TermKind::Field {
-                        inner: Box::new(t::bracket(inst)),
-                        field: "mp".to_string(),
-                    },
-                    ty: None,
-                };
-                applied_to(mp, side_term(&[]))
-            }
+            Way::Forward if iff => forwards_of(inst),
             Way::Forward if implication => applied_to(inst, side_term(&[])),
             Way::Forward => {
                 return Route::no("a forward reading of a sentence that is no ↔ or if")
@@ -6435,7 +6420,7 @@ impl<'a> Proof<'a> {
         // stand in a block the step is not in.
         let mut parts = Vec::new();
         for (node, name) in self.trees.values().flatten() {
-            conjuncts(node, name.clone(), &mut parts);
+            conjuncts(node, super::tactics::hyp(name), &mut parts);
         }
         parts.iter().rev().find_map(|c| {
             let [term, set] = c.node.children.as_slice() else {
@@ -6445,7 +6430,7 @@ impl<'a> Proof<'a> {
                 && super::expr::system_of(set) == Some(system);
             let same = self.writer.number(term, at).built().map(|p| p.text())
                 == Some(wanted.clone());
-            (integer && same).then(|| c.proof.clone())
+            (integer && same).then(|| c.proof.text())
         })
     }
 
@@ -6508,8 +6493,8 @@ impl<'a> Proof<'a> {
             binding.entry(*k).or_insert_with(|| v.clone());
         }
         let lines = self.cited_parts(&step.just.from);
-        let inst = match self.instance(sentence, &binding, None, &lines) {
-            Route::Built(t) => t,
+        let inst = match self.instance_of(sentence, &binding, None, &lines) {
+            Route::Built(i) => i.term,
             Route::Declined(d) => return Route::Declined(d),
         };
         // A definition's right side is the "there is"; a theorem's sentence
@@ -6525,11 +6510,7 @@ impl<'a> Proof<'a> {
         let says =
             read_at_values(&says, &binding, &self.sources.checked.grammar.binders());
         Route::Built(Obtained {
-            term: if iff {
-                format!("({inst}).mp (by parley_side)")
-            } else {
-                inst
-            },
+            term: if iff { forwards_of(inst) } else { inst },
             says,
             binding,
         })
@@ -6616,7 +6597,7 @@ impl<'a> Proof<'a> {
                 Tactic::Obtain {
                     names: vec![super::names::letter(obtained), guard, "_".to_string()],
                     says: None,
-                    from: Printed::atom(source.term.clone()),
+                    from: source.term.clone(),
                 },
                 step.line,
                 Self::step_spot(step),
@@ -6693,7 +6674,7 @@ impl<'a> Proof<'a> {
             Tactic::Obtain {
                 names: pattern,
                 says: None,
-                from: Printed::atom(source.term.clone()),
+                from: source.term.clone(),
             },
             step.line,
             Self::step_spot(step),
@@ -6888,7 +6869,7 @@ impl<'a> Proof<'a> {
                 let pattern = or_pattern(&said.node, &mut names);
                 let line = if disjuncts(&said.node) == labels.len() {
                     Tactic::Rcases {
-                        from: super::tactics::hyp(&source),
+                        from: source.clone(),
                         pattern,
                     }
                 } else {
@@ -6913,7 +6894,7 @@ impl<'a> Proof<'a> {
                         }
                     }
                     let restated = Tactic::Seq(vec![
-                        Tactic::Fact(super::tactics::hyp(&source)),
+                        Tactic::Fact(source.clone()),
                         super::tactics::call("tauto", vec![]),
                     ]);
                     Tactic::Rcases {
@@ -7091,7 +7072,10 @@ impl<'a> Proof<'a> {
             Tactic::Replace {
                 name: guard.clone(),
                 says: from,
-                proof: "by omega".to_string(),
+                proof: Box::new(super::doc::Proof::By(super::tactics::call(
+                    "omega",
+                    vec![],
+                ))),
             },
             Tactic::Induction {
                 on: vec![name.clone(), guard],
@@ -7419,7 +7403,7 @@ impl<'a> Proof<'a> {
 /// What an `obtain` takes its witnesses from: the Lean term that proves the
 /// "there is", and the "there is" itself.
 struct Obtained {
-    term: String,
+    term: Printed,
     says: Node,
     /// What the cited item's letters stand for, the Y of "there is s ∈ Y"
     /// given ℕ; empty for a line of the proof, which writes its own sets.
@@ -7430,7 +7414,9 @@ struct Obtained {
 /// casts it up to the claim's type where it is narrower.
 struct Widened {
     have: Option<Tactic>,
-    name: String,
+    /// The line as the claim's type has it: the line itself, or the name
+    /// of its widened copy.
+    name: Printed,
 }
 
 /// `congrArg (fun x : A => (x : B)) e`: the equation e of A mapped into B.
@@ -7438,16 +7424,13 @@ fn cast_up(
     writer: &Writer,
     own: super::templates::Num,
     wanted: super::templates::Num,
-    equation: &str,
+    equation: Printed,
 ) -> Printed {
     let x = Printed::cast(super::tactics::hyp("x"), writer.num_type(wanted));
     Printed::applied(
         "congrArg",
         super::doc::Source::Core,
-        vec![
-            lambda("x", writer.num_type(own), x),
-            super::tactics::hyp(equation),
-        ],
+        vec![lambda("x", writer.num_type(own), x), equation],
         super::doc::LeanType::Prop,
     )
 }
@@ -7475,7 +7458,7 @@ fn haves_then(haves: Vec<Tactic>, proof: super::doc::Proof) -> super::doc::Proof
 fn member_by_equation(
     writer: &Writer,
     equation: &Node,
-    name: &str,
+    name: &Printed,
     claim: &Node,
     ctx: &crate::matching::Context,
 ) -> Option<super::doc::Proof> {
@@ -7857,14 +7840,14 @@ fn to_natural_powers(term: &Printed) -> Vec<Tactic> {
 
 /// A sentence's parts, a conjunction taken apart by Lean's projections,
 /// `H3.1` and `H3.2`, as the tree joins them.
-fn conjuncts(node: &Node, proof: String, out: &mut Vec<super::algebra::Cited>) {
+fn conjuncts(node: &Node, proof: Printed, out: &mut Vec<super::algebra::Cited>) {
     let joined = matches!(
         node.notation(),
         crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION
     );
     if let ([left, right], true) = (node.children.as_slice(), joined) {
-        conjuncts(left, format!("{proof}.1"), out);
-        conjuncts(right, format!("{proof}.2"), out);
+        conjuncts(left, fields(proof.clone(), &["1"]), out);
+        conjuncts(right, fields(proof, &["2"]), out);
         return;
     }
     out.push(super::algebra::Cited {
@@ -8035,9 +8018,9 @@ fn close(writer: &Writer, claim: &Node, term: Printed) -> super::doc::Proof {
 /// near it, tried in order (`close`).
 /// The ways a claim follows from an equation a line names, either way
 /// round: by `linarith`, by rewriting with it, or as the line itself.
-fn rewritten_by(name: &str) -> Vec<Tactic> {
+fn rewritten_by(name: &Printed) -> Vec<Tactic> {
     use super::tactics as t;
-    let line = || t::hyp(name);
+    let line = || name.clone();
     vec![
         t::steps(vec![
             t::push_cast(None),
@@ -8079,13 +8062,12 @@ fn subst_by(equation: &Printed) -> Tactic {
 
 /// `parley_put_at e h` or `parley_subst_at e h`: the equation e put into
 /// the line h.
-fn put_into(tactic: BridgeTactic, equation: &Printed, into: &str) -> Tactic {
-    use super::tactics as t;
-    t::bridge(
+fn put_into(tactic: BridgeTactic, equation: &Printed, into: &Printed) -> Tactic {
+    super::tactics::bridge(
         tactic,
         vec![
             TacticArg::Term(equation.clone()),
-            TacticArg::Term(t::hyp(into)),
+            TacticArg::Term(into.clone()),
         ],
     )
 }
@@ -8145,8 +8127,7 @@ fn in_named_forms(specs: &[Printed], line: &str) -> Tactic {
 
 /// That a term is at least 0, from the line that puts it in ℕ₀, `h`, or
 /// in ℕ, `(le_of_lt h)`.
-fn nonneg_of(system: crate::rules::System, line: &str) -> Printed {
-    let line = super::tactics::hyp(line);
+fn nonneg_of(system: crate::rules::System, line: Printed) -> Printed {
     match system {
         crate::rules::System::N => Printed::applied(
             "le_of_lt",
