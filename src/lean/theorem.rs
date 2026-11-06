@@ -5729,22 +5729,43 @@ impl<'a> Proof<'a> {
                 // which the goal guides in an `exact`; where the claim is in
                 // a wider type than the item, the term stated by a `have`
                 // and cast to it.
+                use super::tactics as t;
                 let by_to_nat = inst.contains("Int.toNat_of_nonneg");
+                let mpr = Printed {
+                    kind: super::doc::TermKind::App {
+                        head: Box::new(Printed {
+                            kind: super::doc::TermKind::Field {
+                                inner: Box::new(t::bracket(Printed::atom(
+                                    inst.clone(),
+                                ))),
+                                field: "mpr".to_string(),
+                            },
+                            ty: None,
+                        }),
+                        args: vec![super::doc::Arg::Explicit(Printed::atom(witness))],
+                        explicit: false,
+                    },
+                    ty: None,
+                };
                 let mut ways = vec![
-                    Tactic::Raw("(assumption; done)".to_string()),
-                    Tactic::Raw(format!("exact ({inst}).mpr {witness}")),
+                    t::steps(vec![
+                        t::call("assumption", vec![]),
+                        t::call("done", vec![]),
+                    ]),
+                    Tactic::Exact(mpr.clone()),
                 ];
                 if by_to_nat {
-                    ways.push(Tactic::Raw(format!(
-                        "(have h := ({inst}).mpr {witness}; exact_mod_cast h)"
-                    )));
-                    ways.push(Tactic::Raw(format!(
-                        "(have h := ({inst}).mpr {witness}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact_mod_cast h)"
-                    )));
+                    ways.push(t::on_h(&mpr, vec![t::exact_mod_cast(t::hyp("h"))]));
+                    ways.push(t::on_h(
+                        &mpr,
+                        vec![
+                            cast_to_nat_at_h(),
+                            t::try_(t::push_cast(Some(t::at_h(true)))),
+                            t::exact_mod_cast(t::hyp("h")),
+                        ],
+                    ));
                 }
-                ways.push(Tactic::Raw(format!(
-                    "(have h := ({inst}).mpr {witness}; parley_side)"
-                )));
+                ways.push(t::on_h(&mpr, vec![t::bridge(BridgeTactic::Side, vec![])]));
                 return Route::Built(by_ways(ways));
             }
         };
@@ -5799,8 +5820,12 @@ impl<'a> Proof<'a> {
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
             Some(witness) => by_ways(vec![
-                Tactic::Raw(format!("exact {witness}")),
-                Tactic::Raw(format!("exact ({})", close(&self.writer, node, &term))),
+                Tactic::Exact(Printed::atom(witness)),
+                Tactic::Exact(super::tactics::bracket(Printed::atom(close(
+                    &self.writer,
+                    node,
+                    &term,
+                )))),
             ]),
             None => close(&self.writer, node, &term),
         };
