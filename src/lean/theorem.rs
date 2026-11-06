@@ -6256,8 +6256,9 @@ impl<'a> Proof<'a> {
         // A claim Lean's types already make true needs no proof, and what
         // the block shows inside it is cited nowhere outside it.
         if claim.is_empty() {
-            self.push(
-                format!("{}-- what this block shows, Lean's types give", pad(depth)),
+            self.push_at(
+                depth,
+                Tactic::Comment("what this block shows, Lean's types give".to_string()),
                 step.line,
                 spot,
             );
@@ -6272,24 +6273,32 @@ impl<'a> Proof<'a> {
             return Route::no("an induction whose claim is several sentences");
         }
         let (whole, prop) = match claim {
-            [(_, prop)] => (names[0].clone(), prop.text()),
-            _ => (
-                format!("{}_all", names[0]),
-                claim
-                    .iter()
-                    .map(|(_, p)| p.at(36))
-                    .collect::<Vec<_>>()
-                    .join(" ∧ "),
-            ),
+            [(_, prop)] => (names[0].clone(), prop.clone()),
+            _ => {
+                let mut pieces = Vec::new();
+                for (i, (_, p)) in claim.iter().enumerate() {
+                    if i > 0 {
+                        pieces.push(super::doc::Piece::text(" ∧ "));
+                    }
+                    pieces.push(super::doc::Piece::term(p.clone(), 36));
+                }
+                (
+                    format!("{}_all", names[0]),
+                    Printed::notation(pieces, 35, super::doc::LeanType::Prop),
+                )
+            }
         };
         let Some(block_at) = self.rec.blocks.iter().position(|b| b.owner == i) else {
             return Route::no("a block the checker did not record");
         };
         let block = self.rec.blocks[block_at].clone();
-        let p = pad(depth);
-        let inner = pad(depth + 1);
-        self.push(
-            format!("{p}have {whole} : {prop} := by"),
+        self.push_at(
+            depth,
+            Tactic::Have {
+                name: whole.clone(),
+                says: prop,
+                proof: "by".to_string(),
+            },
             step.line,
             spot.clone(),
         );
@@ -6320,7 +6329,12 @@ impl<'a> Proof<'a> {
                     }
                     _ => "parley_side".to_string(),
                 };
-                self.push(format!("{inner}all_goals {close}"), step.line, spot.clone());
+                self.push_at(
+                    depth + 1,
+                    Tactic::Raw(format!("all_goals {close}")),
+                    step.line,
+                    spot.clone(),
+                );
             }
             Method::Cases => {
                 // The sentence, or the part of one, of the lines named that
@@ -6362,7 +6376,7 @@ impl<'a> Proof<'a> {
                 let mut names = labels.iter();
                 let pattern = or_pattern(&said.node, &mut names);
                 let line = if disjuncts(&said.node) == labels.len() {
-                    format!("{inner}rcases {source} with {pattern}")
+                    format!("rcases {source} with {pattern}")
                 } else {
                     let mut says = Vec::new();
                     for part in &parts {
@@ -6385,12 +6399,12 @@ impl<'a> Proof<'a> {
                         }
                     }
                     format!(
-                        "{inner}rcases (show {} by have := {source}; tauto) with {}",
+                        "rcases (show {} by have := {source}; tauto) with {}",
                         says.join(" ∨ "),
                         labels.join(" | ")
                     )
                 };
-                self.push(line, step.line, spot.clone());
+                self.push_at(depth + 1, Tactic::Raw(line), step.line, spot.clone());
                 for (part, label) in parts.iter().zip(&labels) {
                     // Each case starts from the letters as the block found
                     // them: a letter one case lets is none of the next's.
@@ -6419,12 +6433,18 @@ impl<'a> Proof<'a> {
                         .copied()
                         .filter(|&c| self.rec.places[c].and_then(|pl| pl.part) == *part)
                         .collect();
-                    self.push(format!("{inner}· skip"), step.line, spot.clone());
+                    self.push_at(
+                        depth + 1,
+                        Tactic::Raw("· skip".to_string()),
+                        step.line,
+                        spot.clone(),
+                    );
                     if let Route::Declined(d) = self.steps(&children, depth + 2) {
                         return Route::Declined(d);
                     }
-                    self.push(
-                        format!("{inner}  all_goals parley_side"),
+                    self.push_at(
+                        depth + 2,
+                        Tactic::Raw("all_goals parley_side".to_string()),
                         step.line,
                         spot.clone(),
                     );
@@ -6438,10 +6458,20 @@ impl<'a> Proof<'a> {
                 }
             }
             Method::BothDirections => {
-                self.push(format!("{inner}constructor"), step.line, spot.clone());
+                self.push_at(
+                    depth + 1,
+                    Tactic::Raw("constructor".to_string()),
+                    step.line,
+                    spot.clone(),
+                );
                 for part in &parts {
                     self.trees = kept_lines.clone();
-                    self.push(format!("{inner}· skip"), step.line, spot.clone());
+                    self.push_at(
+                        depth + 1,
+                        Tactic::Raw("· skip".to_string()),
+                        step.line,
+                        spot.clone(),
+                    );
                     if let Route::Declined(d) = self.open(step, *part, depth + 2) {
                         return Route::Declined(d);
                     }
@@ -6454,8 +6484,9 @@ impl<'a> Proof<'a> {
                     if let Route::Declined(d) = self.steps(&children, depth + 2) {
                         return Route::Declined(d);
                     }
-                    self.push(
-                        format!("{inner}  all_goals parley_side"),
+                    self.push_at(
+                        depth + 2,
+                        Tactic::Raw("all_goals parley_side".to_string()),
                         step.line,
                         spot.clone(),
                     );
@@ -6471,8 +6502,9 @@ impl<'a> Proof<'a> {
         self.writer.letters = kept;
         self.writer.wholes = kept_wholes;
         if claim.len() > 1 {
-            self.push(
-                format!("{p}obtain ⟨{}⟩ := {whole}", names.join(", ")),
+            self.push_at(
+                depth,
+                Tactic::Raw(format!("obtain ⟨{}⟩ := {whole}", names.join(", "))),
                 step.line,
                 spot,
             );
