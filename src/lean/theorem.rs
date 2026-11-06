@@ -10,6 +10,7 @@
 
 use indexmap::IndexMap;
 
+use super::doc::Tactic;
 use super::expr::{LetterType, Printed, Writer};
 use super::items::{Item, Sentence};
 use super::names::{line_name, snake};
@@ -7010,11 +7011,16 @@ fn has_integer_power(claim: &Node, writer: &Writer) -> bool {
 /// powers, each integer power whose exponent is at least 0 taken to one, in
 /// the goal and the term alike, inside a sum by the index's range,
 /// (k − 1) + 1 ≥ 0 of k ∈ {1, …, m + 1}.
-fn to_natural_powers(term: &str) -> String {
+fn to_natural_powers(term: &str) -> Vec<Tactic> {
     let range = "(disch := (simp only [Finset.mem_Icc] at *; first | omega | positivity | nlinarith))";
-    format!(
-        " | (have h := {term}; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h) | (have h := {term}; simp +contextual {range} only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h)"
-    )
+    vec![
+        Tactic::Raw(format!(
+            "(have h := {term}; simp (disch := omega) only [← zpow_natCast, Int.toNat_of_nonneg] at h ⊢; exact h)"
+        )),
+        Tactic::Raw(format!(
+            "(have h := {term}; simp +contextual {range} only [parley_zpow_toNat] at h ⊢; first | exact h | exact_mod_cast h | linear_combination (norm := parley_norm) h)"
+        )),
+    ]
 }
 
 /// A sentence's parts, a conjunction taken apart by Lean's projections,
@@ -7159,6 +7165,12 @@ fn as_tactic(proof: &str) -> String {
 }
 
 fn close(writer: &Writer, claim: &Node, term: &str) -> String {
+    super::doc::Proof::By(Tactic::First(closers(writer, claim, term))).text()
+}
+
+/// The ways a claim is closed from a term that proves it, or something
+/// near it, tried in order (`close`).
+fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
     // An equation or order between sets, members or counts is closed as
     // any other claim: the closers for numbers work in a field or a ring.
     let of_numbers = claim
@@ -7176,12 +7188,9 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // A remainder of integers written with `%`, beside an item of
             // set.mm's mod of real numbers: the item's put as `%` first.
             let of_mod = claim.walk().iter().any(|n| &*n.notation_name() == "mod");
-            let as_remainder = match of_mod {
-                true => format!(
-                    " | (have h := {term}; simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h)"
-                ),
-                false => String::new(),
-            };
+            let as_remainder = of_mod.then(|| Tactic::Raw(format!(
+                "(have h := {term}; simp (disch := positivity) only [LeanBridges.Divisibility.mod_natCast, LeanBridges.Divisibility.mod_intCast] at h ⊢; exact_mod_cast h)"
+            )));
             // A term given a natural as an integer's `toNat`, rewritten back
             // by `▸` (`instance`): an error elaborating it against the goal,
             // as `exact_mod_cast` does, is logged and does not fail the
@@ -7193,23 +7202,23 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
                 .iter()
                 .filter_map(|c| writer.carrier(c).built())
                 .all(|n| n < super::templates::Num::Complex);
-            let of_complex = match term.contains(" : ℂ)") && below_complex {
-                true => format!(" | (have h := {term}; parley_of_complex h)"),
-                false => String::new(),
-            };
+            let of_complex = (term.contains(" : ℂ)") && below_complex).then(|| {
+                Tactic::Raw(format!("(have h := {term}; parley_of_complex h)"))
+            });
             // An item over ℝ given rationals, the geometric sum at a := 2,
             // where the claim is written in its own type, ℚ: cast down.
-            let of_real = match term.contains(": ℝ)") {
-                true => format!(" | (have h := {term}; parley_rat_of_real h)"),
-                false => String::new(),
-            };
+            let mut of_real: Vec<Tactic> = term
+                .contains(": ℝ)")
+                .then(|| {
+                    Tactic::Raw(format!("(have h := {term}; parley_rat_of_real h)"))
+                })
+                .into_iter()
+                .collect();
             // Natural powers to an integer's `toNat` on one side, integer
             // powers on the other (`to_natural_powers`).
-            let of_real =
-                match term.contains(".toNat") || has_natural_power(claim, writer) {
-                    true => format!("{of_real}{}", to_natural_powers(term)),
-                    false => of_real,
-                };
+            if term.contains(".toNat") || has_natural_power(claim, writer) {
+                of_real.extend(to_natural_powers(term));
+            }
             // An item that counts in ℕ∞, |∅| = 0, met in ℤ: the goal's
             // counts of finite sets said in ℕ∞ (`parley_count_ext`), where
             // the item meets it as it stands, before the `exact_mod_cast`
@@ -7218,10 +7227,9 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
                 .walk()
                 .iter()
                 .any(|n| &*n.notation_name() == "cardinality");
-            let counted = match counted {
-                true => format!("(parley_count_ext; exact_mod_cast {term}) | "),
-                false => String::new(),
-            };
+            let counted = counted.then(|| {
+                Tactic::Raw(format!("(parley_count_ext; exact_mod_cast {term})"))
+            });
             let by_to_nat = term.contains("Int.toNat_of_nonneg");
             // The `▸` of a `toNat` rewrites its cast to ℤ only; one cast to
             // ℚ or ℝ, (1 − 2y).toNat in ℚ, is put back as the integer by
@@ -7229,19 +7237,39 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // The term itself, given to `linear_combination`: not one with a
             // `toNat` put back by `▸`, whose error is logged as above; the
             // `have` after it takes that one.
-            let direct = match by_to_nat {
-                true => String::new(),
-                false => format!("linear_combination (norm := parley_norm) {term} | "),
-            };
+            let direct = (!by_to_nat).then(|| {
+                Tactic::Raw(format!("linear_combination (norm := parley_norm) {term}"))
+            });
             let cast = match by_to_nat {
-                true => format!(
-                    "(have h := {term}; exact_mod_cast h) | (have h := {term}; exact_mod_cast h.symm) | (have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); linear_combination (norm := parley_norm) h)"
-                ),
-                false => format!("exact_mod_cast {term} | exact_mod_cast ({term}).symm"),
+                true => vec![
+                    Tactic::Raw(format!("(have h := {term}; exact_mod_cast h)")),
+                    Tactic::Raw(format!("(have h := {term}; exact_mod_cast h.symm)")),
+                    Tactic::Raw(format!("(have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); linear_combination (norm := parley_norm) h)")),
+                ],
+                false => vec![
+                    Tactic::Raw(format!("exact_mod_cast {term}")),
+                    Tactic::Raw(format!("exact_mod_cast ({term}).symm")),
+                ],
             };
-            format!(
-                "by first | {direct}(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | {counted}{cast} | (have h := {term}; rify; linear_combination (norm := parley_norm) h) | (have h := {term}; qify; linear_combination (norm := parley_norm) h) | (have h := {term}; parley_int_power h){as_remainder}{of_complex}{of_real} | (have h := {term}; parley_side)"
-            )
+            let mut out: Vec<Tactic> = direct.into_iter().collect();
+            out.push(Tactic::Raw(format!("(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h)")));
+            out.push(Tactic::Raw(format!("(have h := {term}; (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h)")));
+            out.extend(counted);
+            out.extend(cast);
+            out.push(Tactic::Raw(format!(
+                "(have h := {term}; rify; linear_combination (norm := parley_norm) h)"
+            )));
+            out.push(Tactic::Raw(format!(
+                "(have h := {term}; qify; linear_combination (norm := parley_norm) h)"
+            )));
+            out.push(Tactic::Raw(format!(
+                "(have h := {term}; parley_int_power h)"
+            )));
+            out.extend(as_remainder);
+            out.extend(of_complex);
+            out.extend(of_real);
+            out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+            out
         }
         // A numeral given to a letter of ℕ arrives cast, ((3 : ℕ) : ℤ),
         // which linarith reads only once the cast is pushed in.
@@ -7256,18 +7284,20 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // beside the claim's integer power 2^(F + (i − n)): the same,
             // the claim's powers taken too. Tried first, where it applies:
             // `linarith` over such powers can run past Lean's time limit.
-            let to_nat = match has_natural_power(claim, writer)
+            let to_nat = (has_natural_power(claim, writer)
                 || has_integer_power(claim, writer)
-                || term.contains(".toNat")
-            {
-                true => format!(
-                    "(have h := {term}; simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith) | "
-                ),
-                false => String::new(),
-            };
-            format!(
-                "by first | {to_nat}linarith [{term}] | (have h := {term}; push_cast at h; linarith) | exact_mod_cast {term} | (have h := {term}; parley_side)"
-            )
+                || term.contains(".toNat"))
+            .then(|| Tactic::Raw(format!(
+                "(have h := {term}; simp (disch := first | omega | positivity | nlinarith) only [parley_zpow_toNat] at h ⊢; first | exact_mod_cast h | linarith)"
+            )));
+            let mut out: Vec<Tactic> = to_nat.into_iter().collect();
+            out.push(Tactic::Raw(format!("linarith [{term}]")));
+            out.push(Tactic::Raw(format!(
+                "(have h := {term}; push_cast at h; linarith)"
+            )));
+            out.push(Tactic::Raw(format!("exact_mod_cast {term}")));
+            out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+            out
         }
         // A relation said either way round, a congruence or a ↔, as the
         // claim writes it. Here and above, the last way takes the
@@ -7286,13 +7316,13 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // set in any order and of any size; another relation, its pairs
             // turned round.
             let reorder = match (listed, claim.notation() == EQUALITY) {
-                (true, true) => format!(
-                    " | (have h := {term}; ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)"
-                ),
-                (true, false) => format!(
-                    " | (have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h)"
-                ),
-                (false, _) => String::new(),
+                (true, true) => Some(Tactic::Raw(format!(
+                    "(have h := {term}; ext x; rw [Set.ext_iff] at h; specialize h x; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at h ⊢; tauto)"
+                ))),
+                (true, false) => Some(Tactic::Raw(format!(
+                    "(have h := {term}; simp only [Set.pair_comm, Set.insert_comm] at h ⊢; exact h)"
+                ))),
+                (false, _) => None,
             };
             // A natural given as an integer's `toNat`, put back by `▸`: an
             // error elaborating that against the goal is logged and does not
@@ -7301,9 +7331,18 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
             // or ℝ, m/(2^p − 1).toNat inside a "there is", it is put back by
             // `parley_cast_toNat`.
             match term.contains("Int.toNat_of_nonneg") {
-                true => format!(
-                    "by first | (have h := {term}; exact h) | (have h := {term}; exact h.symm) | (have h := {term}; simpa using h) | (have h := {term}; exact_mod_cast h){reorder} | (have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h) | (have h := {term}; parley_side)"
-                ),
+                true => {
+                    let mut out = vec![
+                        Tactic::Raw(format!("(have h := {term}; exact h)")),
+                        Tactic::Raw(format!("(have h := {term}; exact h.symm)")),
+                        Tactic::Raw(format!("(have h := {term}; simpa using h)")),
+                        Tactic::Raw(format!("(have h := {term}; exact_mod_cast h)")),
+                    ];
+                    out.extend(reorder);
+                    out.push(Tactic::Raw(format!("(have h := {term}; simp (disch := parley_side) only [parley_cast_toNat] at h; (try push_cast at h ⊢); exact h)")));
+                    out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+                    out
+                }
                 false => {
                     // A natural power to an integer's `toNat` on one side and
                     // an integer power on the other, 2^(k + 1).toNat in the
@@ -7314,17 +7353,24 @@ fn close(writer: &Writer, claim: &Node, term: &str) -> String {
                         || has_natural_power(claim, writer)
                     {
                         true => to_natural_powers(term),
-                        false => String::new(),
+                        false => Vec::new(),
                     };
                     // A line in ℝ taken at a value, ε := 1/2, whose claim of
                     // rationals is written in its own type, ℚ: cast down.
-                    let of_real = match term.contains(": ℝ)") {
-                        true => format!(" | (have h := {term}; parley_rat_of_real h)"),
-                        false => String::new(),
-                    };
-                    format!(
-                        "by first | exact {term} | exact ({term}).symm | simpa using {term} | exact_mod_cast {term}{reorder}{int_power}{of_real} | (have h := {term}; parley_side)"
-                    )
+                    let of_real = term.contains(": ℝ)").then(|| {
+                        Tactic::Raw(format!("(have h := {term}; parley_rat_of_real h)"))
+                    });
+                    let mut out = vec![
+                        Tactic::Raw(format!("exact {term}")),
+                        Tactic::Raw(format!("exact ({term}).symm")),
+                        Tactic::Raw(format!("simpa using {term}")),
+                        Tactic::Raw(format!("exact_mod_cast {term}")),
+                    ];
+                    out.extend(reorder);
+                    out.extend(int_power);
+                    out.extend(of_real);
+                    out.push(Tactic::Raw(format!("(have h := {term}; parley_side)")));
+                    out
                 }
             }
         }
