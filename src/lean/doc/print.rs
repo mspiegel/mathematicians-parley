@@ -44,6 +44,7 @@ impl Term {
             | TermKind::Numeral(_)
             | TermKind::Hole(_)
             | TermKind::Elided
+            | TermKind::Open
             | TermKind::Enclosed { .. }
             | TermKind::Not(_)
             | TermKind::Cast { .. }
@@ -73,6 +74,7 @@ impl Term {
             TermKind::Numeral(digits) => digits.clone(),
             TermKind::Hole(i) => format!("_{i}"),
             TermKind::Elided => "_".to_string(),
+            TermKind::Open => "?_".to_string(),
             TermKind::Enclosed { open, close, inner } => {
                 format!("{open}{}{close}", inner.text())
             }

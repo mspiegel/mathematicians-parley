@@ -1828,7 +1828,7 @@ impl<'a> Proof<'a> {
                     let outer = std::mem::replace(&mut self.writer, inner);
                     let proof = self.proof_of(reason, 0, &node);
                     self.writer = outer;
-                    proof.map(|p| after_intros(&intros, &p.text()))
+                    proof.map(|p| after_intros(&intros, p))
                 }
             };
             let proof = match proof {
@@ -1841,7 +1841,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name,
                     says: fact.clone(),
-                    proof: Box::new(super::doc::Proof::Raw(proof)),
+                    proof: Box::new(proof),
                 },
                 r.line,
                 spot.clone(),
@@ -1905,8 +1905,8 @@ impl<'a> Proof<'a> {
                 let proof = self.proof_of(reason, places[k], body);
                 self.writer = outer;
                 proof.map(|p| match intros.is_empty() {
-                    true => p.text(),
-                    false => after_intros(&intros, &p.text()),
+                    true => p,
+                    false => after_intros(&intros, p),
                 })
             } else {
                 self.proof_with_named(reason, places[k], node, i)
@@ -1920,7 +1920,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: names[k].clone(),
                     says: prop.clone(),
-                    proof: Box::new(super::doc::Proof::Raw(proof)),
+                    proof: Box::new(proof),
                 },
                 step.line,
                 spot.clone(),
@@ -1996,7 +1996,7 @@ impl<'a> Proof<'a> {
         k: usize,
         node: &Node,
         i: usize,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
         let facts = self.step_facts(i);
         self.proof_named_from(reason, k, node, i, &facts)
     }
@@ -2010,7 +2010,8 @@ impl<'a> Proof<'a> {
         node: &Node,
         i: usize,
         facts: &[super::algebra::Cited],
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
         // A claim that a term Lean does not compute as a whole number is
         // one, p^(a′ − a) ∈ ℕ, written `∃ m : ℤ, 0 < m ∧ (m : ℚ) = …`
         // (`Writer::in_system`): the number the step's lines name is the
@@ -2024,22 +2025,21 @@ impl<'a> Proof<'a> {
                 .built()
                 .is_none()
             {
-                return self.proof_of(reason, k, node).map(|p| p.text());
+                return self.proof_of(reason, k, node);
             }
             let mut inner = self.writer.with_letters(self.writer.letters.clone());
             inner.integers.extend(atoms.iter().map(|a| a.said.clone()));
             let int = match inner.number_fixed(&term, super::templates::Num::Int) {
-                Route::Built(p) => p.at(super::expr::MAX),
+                Route::Built(p) => whole_term(p),
                 Route::Declined(d) => return Route::Declined(d),
             };
             let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
             let equal = specs_equal(&specs);
-            let haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
+            let mut haves: Vec<Tactic> =
+                atoms.iter().map(|a| Tactic::Raw(a.have.clone())).collect();
             if !ordered {
-                return Route::Built(with_haves(
-                    &haves,
-                    &format!("by exact ⟨{int}, {equal}⟩"),
-                ));
+                let shown = Tactic::Exact(super::expr::anonymous(vec![int, equal]));
+                return Route::Built(haves_then(haves, Proof::By(shown)));
             }
             let outer = std::mem::replace(&mut self.writer, inner);
             let proof = self.proof_of(reason, k, node);
@@ -2048,11 +2048,13 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let tactic = format!(
-                "by refine ⟨{int}, ?_, {equal}⟩\n{}",
-                as_tactic(&proof.text())
-            );
-            return Route::Built(with_haves(&haves, &tactic));
+            haves.push(refine(vec![
+                int,
+                Printed::of(super::doc::TermKind::Open, super::doc::LeanType::Prop),
+                equal,
+            ]));
+            haves.push(tactic_of(&proof));
+            return Route::Built(Proof::Block(haves));
         }
         let claimed = self.writer.wide_in_slot(node);
         // The lines the step cites that say something of a whole number a
@@ -2079,7 +2081,7 @@ impl<'a> Proof<'a> {
             })
             .collect();
         if claimed.is_none() && cited.is_empty() {
-            return self.proof_of(reason, k, node).map(|p| p.text());
+            return self.proof_of(reason, k, node);
         }
         let mut atoms = Vec::new();
         if let Some((term, whole)) = &claimed {
@@ -2118,11 +2120,12 @@ impl<'a> Proof<'a> {
             .collect();
         let spec_terms: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
         let equal = specs_equal(&spec_terms);
-        let mut haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
+        let mut haves: Vec<Tactic> =
+            atoms.iter().map(|a| Tactic::Raw(a.have.clone())).collect();
         // Each such cited line, said of the number the step names.
         for c in &cited {
             let int = match inner.number_fixed(&c.term, c.whole) {
-                Route::Built(p) => p.at(super::expr::MAX),
+                Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
             let lemma = match (c.whole, c.negated) {
@@ -2131,12 +2134,28 @@ impl<'a> Proof<'a> {
                 (_, false) => "parley_witness_at",
                 (_, true) => "parley_witness_not_at",
             };
-            let name = &c.name;
-            haves.push(format!("have {name} := {lemma} {name} {int} ({equal})"));
+            let at = Printed {
+                kind: super::doc::TermKind::App {
+                    head: Box::new(super::tactics::bridge_lemma(
+                        lemma,
+                        BridgeModule::PowerTactics,
+                    )),
+                    args: [super::tactics::hyp(&c.name), int, equal.clone()]
+                        .into_iter()
+                        .map(super::doc::Arg::Explicit)
+                        .collect(),
+                    explicit: false,
+                },
+                ty: Some(super::doc::LeanType::Prop),
+            };
+            haves.push(Tactic::Name {
+                name: c.name.clone(),
+                term: at,
+            });
         }
         let int = match &claimed {
             Some((term, whole)) => match inner.number_fixed(term, *whole) {
-                Route::Built(p) => Some(p.at(super::expr::MAX)),
+                Route::Built(p) => Some(whole_term(p)),
                 Route::Declined(d) => return Route::Declined(d),
             },
             None => None,
@@ -2150,16 +2169,16 @@ impl<'a> Proof<'a> {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let tactic = match int {
+        match int {
             Some(int) => {
-                format!(
-                    "by refine ⟨{int}, {equal}, ?_⟩\n{}",
-                    as_tactic(&proof.text())
-                )
+                let open =
+                    Printed::of(super::doc::TermKind::Open, super::doc::LeanType::Prop);
+                haves.push(refine(vec![int, equal, open]));
+                haves.push(tactic_of(&proof));
+                Route::Built(Proof::Block(haves))
             }
-            None => proof.text(),
-        };
-        Route::Built(with_haves(&haves, &tactic))
+            None => Route::Built(haves_then(haves, proof)),
+        }
     }
 
     /// Of a claim that a term Lean computes in ℚ or wider is a whole number,
@@ -7694,7 +7713,23 @@ fn shaped_pattern(said: &Node, names: &mut impl Iterator<Item = String>) -> Stri
 /// tactics on lines of their own, `by` and a line break, takes the `intro`
 /// as its first line, at the block's indentation, since a block cannot
 /// follow `intro …;` on its line.
-fn after_intros(intros: &[String], proof: &str) -> String {
+fn after_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proof {
+    use super::doc::Proof;
+    let intro = Tactic::Intro(intros.to_vec());
+    match proof {
+        Proof::Block(mut tactics) => {
+            tactics.insert(0, intro);
+            Proof::Block(tactics)
+        }
+        Proof::Raw(text) if text.starts_with("by\n") => {
+            Proof::Raw(after_intros_text(intros, &text))
+        }
+        other => Proof::By(Tactic::Seq(vec![intro, tactic_of(&other)])),
+    }
+}
+
+/// `after_intros` of a proof given as text.
+fn after_intros_text(intros: &[String], proof: &str) -> String {
     let names = intros.join(" ");
     match proof.strip_prefix("by\n") {
         Some(block) => {
@@ -7720,7 +7755,7 @@ fn with_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proof
             Proof::Block(ts)
         }
         Proof::Raw(text) if text.starts_with("by\n") => {
-            Proof::Raw(after_intros(intros, &text))
+            Proof::Raw(after_intros_text(intros, &text))
         }
         other => {
             let text = other.text();
@@ -7889,13 +7924,30 @@ fn spec_of(said: &super::expr::SaidInteger) -> Printed {
 /// `by first | (push_cast; simp only [specs]; done) | (push_cast; simp only
 /// [specs]; ring)`: a claim made true by the named numbers' equations, as
 /// they stand or once worked out.
-fn specs_equal(specs: &[Printed]) -> String {
+fn specs_equal(specs: &[Printed]) -> Printed {
     use super::tactics as t;
     let rules: Vec<super::doc::Rule> = specs.iter().cloned().map(t::forwards).collect();
-    by_ways(vec![
+    proof_term(ways_proof(vec![
         specs_then(&rules, t::call("done", vec![])),
         specs_then(&rules, t::call("ring", vec![])),
-    ])
+    ]))
+}
+
+/// A term where it stands as one whole, bracketed unless it already is:
+/// a witness inside `⟨…⟩`, as an argument is.
+fn whole_term(term: Printed) -> Printed {
+    match term.prec() >= super::expr::MAX {
+        true => term,
+        false => super::tactics::bracket(term),
+    }
+}
+
+/// `refine ⟨parts⟩`: the goal's parts, the ones left open proved after.
+fn refine(parts: Vec<Printed>) -> Tactic {
+    super::tactics::call(
+        "refine",
+        vec![TacticArg::Term(super::expr::anonymous(parts))],
+    )
 }
 
 /// `(push_cast; simp only [specs]; last)`.

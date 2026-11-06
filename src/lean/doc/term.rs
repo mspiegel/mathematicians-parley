@@ -210,6 +210,8 @@ pub enum TermKind {
     Hole(usize),
     /// `_`: an argument Lean finds itself.
     Elided,
+    /// `?_`: a goal left for the tactics after, as in `refine ⟨w, ?_⟩`.
+    Open,
     /// A term between two marks, `⌊x⌋` or `‖x‖`.
     Enclosed {
         open: &'static str,
@@ -427,7 +429,8 @@ impl Term {
             | TermKind::Const(_)
             | TermKind::Numeral(_)
             | TermKind::Hole(_)
-            | TermKind::Elided => Vec::new(),
+            | TermKind::Elided
+            | TermKind::Open => Vec::new(),
             TermKind::Enclosed { inner, .. } => vec![&**inner],
             TermKind::ModEq { a, b, n } => vec![&**a, &**b, &**n],
             TermKind::App { head, args, .. } => {
@@ -504,7 +507,8 @@ impl Term {
             | TermKind::Const(_)
             | TermKind::Numeral(_)
             | TermKind::Hole(_)
-            | TermKind::Elided => {}
+            | TermKind::Elided
+            | TermKind::Open => {}
             TermKind::App { head, args, .. } => {
                 head.substitute(given);
                 for a in args {
@@ -557,7 +561,8 @@ impl Term {
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
-            | TermKind::Elided => self.kind.clone(),
+            | TermKind::Elided
+            | TermKind::Open => self.kind.clone(),
             TermKind::App {
                 head,
                 args: given,
@@ -699,7 +704,8 @@ impl Term {
             | TermKind::Const(_)
             | TermKind::Numeral(_)
             | TermKind::Hole(_)
-            | TermKind::Elided => {}
+            | TermKind::Elided
+            | TermKind::Open => {}
         }
     }
 
