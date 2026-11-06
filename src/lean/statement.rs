@@ -501,7 +501,7 @@ pub fn binders(
             if integer {
                 writer.integers.push(super::expr::SaidInteger {
                     term: writer.grammar.print(term),
-                    proof: a.name.clone(),
+                    proof: super::tactics::hyp(&a.name),
                     ty: super::templates::Num::Int,
                     value: None,
                     slot_only: false,

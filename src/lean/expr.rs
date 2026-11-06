@@ -321,13 +321,13 @@ enum Over<'n> {
 #[derive(Clone, Debug)]
 pub struct SaidInteger {
     pub term: String,
-    pub proof: String,
+    pub proof: Printed,
     pub ty: Num,
     /// The whole number written out, where a step names it so, 2 ^ ((p :
     /// ℤ) − 1).toNat of 2^(p − 1) from the line p − 1 ∈ ℕ₀, `proof` then
     /// naming its equation with the term; None where the number is the
     /// line's witness, `Classical.choose proof`.
-    pub value: Option<String>,
+    pub value: Option<Printed>,
     /// Whether the number stands for the term only where a whole number is
     /// asked, as a step names one (`theorem::named_atoms`): elsewhere the
     /// term keeps its own form. A line saying the term is an integer gives
@@ -1743,12 +1743,16 @@ impl Writer<'_> {
             .filter(|s| !s.slot_only || at <= Num::Int);
         if let Some(s) = named {
             let value = match &s.value {
-                Some(v) => Printed::atom(format!("({v})")),
-                None => Printed::atom(format!(
-                    "(Classical.choose {} : {})",
-                    s.proof,
-                    s.ty.lean()
-                )),
+                Some(v) => super::tactics::bracket(v.clone()),
+                None => Printed::cast(
+                    Printed::applied(
+                        "Classical.choose",
+                        super::doc::Source::Core,
+                        vec![s.proof.clone()],
+                        LeanType::Num(s.ty),
+                    ),
+                    LeanType::Num(s.ty),
+                ),
             };
             return self.raise(value, s.ty, at);
         }

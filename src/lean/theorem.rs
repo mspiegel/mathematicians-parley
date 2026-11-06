@@ -2454,9 +2454,9 @@ impl<'a> Proof<'a> {
                         },
                         said: super::expr::SaidInteger {
                             term: printed,
-                            proof: name,
+                            proof: t::hyp(&name),
                             ty: whole,
-                            value: Some(written.text()),
+                            value: Some(written),
                             slot_only: true,
                         },
                     });
@@ -2601,7 +2601,7 @@ impl<'a> Proof<'a> {
                         vec![TacticArg::Rules(rules)],
                     ))),
                 };
-                (have, Some(written.text()))
+                (have, Some(written))
             }
             (OnceReason::Built(parts), _, kids) if parts.len() == kids.len() => {
                 return kids.iter().zip(parts).all(|(kid, part)| {
@@ -2614,7 +2614,7 @@ impl<'a> Proof<'a> {
             have,
             said: super::expr::SaidInteger {
                 term: printed,
-                proof: name,
+                proof: t::hyp(&name),
                 ty: whole,
                 value: written,
                 slot_only: true,
@@ -2890,7 +2890,7 @@ impl<'a> Proof<'a> {
                 }
                 writer.integers.push(super::expr::SaidInteger {
                     term: writer.grammar.print(&part),
-                    proof: line.clone(),
+                    proof: super::tactics::hyp(&line),
                     ty,
                     value: None,
                     slot_only: false,
@@ -8160,7 +8160,7 @@ fn negated(term: Printed) -> Printed {
 /// A named number's equation with its term: the one a step proves, by its
 /// name, or the line's witness's, `Classical.choose_spec h`.
 fn spec_of(said: &super::expr::SaidInteger) -> Printed {
-    let proof = Printed::atom(said.proof.clone());
+    let proof = said.proof.clone();
     match said.value {
         Some(_) => proof,
         None => Printed {
