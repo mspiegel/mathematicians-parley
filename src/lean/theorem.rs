@@ -1553,6 +1553,17 @@ impl<'a> Proof<'a> {
         self.push_at(0, Tactic::Raw(line), page_line, spot);
     }
 
+    /// `intro a b` as a line of the proof at a depth of its blocks.
+    fn intro(
+        &mut self,
+        depth: usize,
+        names: Vec<String>,
+        page_line: usize,
+        spot: &Spot,
+    ) {
+        self.push_at(depth, Tactic::Intro(names), page_line, spot.clone());
+    }
+
     /// Tactic text as a line of the proof at a depth of its blocks.
     fn line(&mut self, depth: usize, text: String, page_line: usize, spot: &Spot) {
         self.push_at(depth, Tactic::Raw(text), page_line, spot.clone());
@@ -6743,9 +6754,9 @@ impl<'a> Proof<'a> {
                                 o.label.clone(),
                                 vec![(node.clone(), label.clone())],
                             );
-                            self.line(
+                            self.intro(
                                 depth,
-                                format!("intro {letter} {label}"),
+                                vec![letter.clone(), label.clone()],
                                 o.line,
                                 &spot,
                             );
@@ -6754,19 +6765,34 @@ impl<'a> Proof<'a> {
                             // which the page writes N + 1 and an item is
                             // given so, and Lean matching the one with the
                             // other unfolds the range past its limit.
-                            self.line(
+                            self.push_at(
                                 depth,
-                                format!("try push_cast at {label}"),
+                                Tactic::Try(Box::new(super::tactics::push_cast(Some(
+                                    TacticArg::At(vec![
+                                        super::doc::Location::Hypothesis(label.clone()),
+                                    ]),
+                                )))),
                                 o.line,
-                                &spot,
+                                spot.clone(),
                             );
                             // The range's bounds beside it, which linear
                             // arithmetic reads, the membership kept for the
                             // items given it; a claim may state the bounds
                             // already.
-                            self.line(depth, format!("try have {label}_bounds := Finset.mem_Icc.mp {label}"),
+                            let bounds = Printed::applied(
+                                "Finset.mem_Icc.mp",
+                                super::doc::Source::Mathlib,
+                                vec![super::tactics::hyp(&label)],
+                                super::doc::LeanType::Prop,
+                            );
+                            self.push_at(
+                                depth,
+                                Tactic::Try(Box::new(Tactic::Name {
+                                    name: format!("{label}_bounds"),
+                                    term: bounds,
+                                })),
                                 o.line,
-                                &spot,
+                                spot.clone(),
                             );
                             continue;
                         }
@@ -6774,9 +6800,9 @@ impl<'a> Proof<'a> {
                             super::statement::introduces_function(node)
                         {
                             self.writer.letters.insert(letter.clone(), ty);
-                            self.line(
+                            self.intro(
                                 depth,
-                                format!("intro {}", super::names::letter(&letter)),
+                                vec![super::names::letter(&letter)],
                                 o.line,
                                 &spot,
                             );
@@ -6806,12 +6832,9 @@ impl<'a> Proof<'a> {
                                     o.label.clone(),
                                     vec![(node.clone(), label.clone())],
                                 );
-                                self.line(
+                                self.intro(
                                     depth,
-                                    format!(
-                                        "intro {} {label}",
-                                        super::names::letter(&t.text)
-                                    ),
+                                    vec![super::names::letter(&t.text), label.clone()],
                                     o.line,
                                     &spot,
                                 );
@@ -6826,14 +6849,14 @@ impl<'a> Proof<'a> {
                         self.writer.introduce(&letter, system);
                         let letter = super::names::letter(&letter);
                         if !matches!(system, super::expr::System::Type(_)) {
-                            self.line(
+                            self.intro(
                                 depth,
-                                format!("intro {letter} {label}"),
+                                vec![letter.clone(), label.clone()],
                                 o.line,
                                 &spot,
                             );
                         } else {
-                            self.line(depth, format!("intro {letter}"), o.line, &spot);
+                            self.intro(depth, vec![letter.clone()], o.line, &spot);
                         }
                     }
                 }
@@ -6849,7 +6872,7 @@ impl<'a> Proof<'a> {
                         })
                         .collect();
                     self.trees.insert(o.label.clone(), said);
-                    self.line(depth, format!("intro {label}"), o.line, &spot);
+                    self.intro(depth, vec![label.clone()], o.line, &spot);
                 }
                 Intro::Suppose => {
                     let Some(node) = nodes.first() else {
@@ -6863,7 +6886,17 @@ impl<'a> Proof<'a> {
                         .insert(o.label.clone(), vec![(node.clone(), label.clone())]);
                     // The block's claim denied, and the suppose line proved
                     // from that denial in the words the page chose for it.
-                    self.line(depth, format!("by_contra hc_{label}"), o.line, &spot);
+                    self.push_at(
+                        depth,
+                        super::tactics::call(
+                            "by_contra",
+                            vec![TacticArg::Term(super::tactics::hyp(&format!(
+                                "hc_{label}"
+                            )))],
+                        ),
+                        o.line,
+                        spot.clone(),
+                    );
                     self.push_at(
                         depth,
                         Tactic::Have {
