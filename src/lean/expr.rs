@@ -971,7 +971,7 @@ impl Writer<'_> {
         );
         let power = Printed::infix(Op::POWER, base, e_nat, int.clone());
         let at_least_0 = Printed::infix(
-            Op::of("≤")?,
+            Op::AT_MOST,
             Printed::cast(Printed::numeral("0", int.clone()), int.clone()),
             e,
             LeanType::Prop,
@@ -3060,10 +3060,21 @@ pub fn set_type(system: System) -> Num {
 mod tests {
     use super::*;
 
+    /// `a + b` of two letters, integers.
+    fn sum_of_letters(a: &str, b: &str) -> Printed {
+        let int = LeanType::Num(Num::Int);
+        Printed::infix(
+            super::super::doc::Op::PLUS,
+            Printed::letter(a, int.clone()),
+            Printed::letter(b, int.clone()),
+            int,
+        )
+    }
+
     #[test]
     fn an_infix_template_brackets_by_lean_precedence() {
         let minus = Template::read("α, α → α: _1 - _2").expect("it reads");
-        let sum = Printed::raw("a + b".to_string(), 65);
+        let sum = sum_of_letters("a", "b");
         // a + b − (a + b): the right side of a left-chaining operator is
         // bracketed at its own level, the left is not.
         let Route::Built(out) = fill(&minus, &[sum.clone(), sum]) else {
@@ -3075,7 +3086,12 @@ mod tests {
     #[test]
     fn an_argument_is_bracketed_unless_a_bracket_encloses_it() {
         let factorial = Template::read("ℕ → ℕ: Nat.factorial _1").expect("it reads");
-        let n1 = Printed::raw("n + 1".to_string(), 65);
+        let n1 = Printed::infix(
+            super::super::doc::Op::PLUS,
+            Printed::letter("n", LeanType::Num(Num::Nat)),
+            Printed::numeral("1", LeanType::Num(Num::Nat)),
+            LeanType::Num(Num::Nat),
+        );
         let Route::Built(applied) = fill(&factorial, std::slice::from_ref(&n1)) else {
             panic!("the template fills");
         };

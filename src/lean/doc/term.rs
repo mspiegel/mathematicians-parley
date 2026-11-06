@@ -83,6 +83,34 @@ impl Op {
         assoc: Assoc::Neither,
     };
 
+    /// Conjunction, `a ∧ b`.
+    pub const AND: Op = Op {
+        symbol: "∧",
+        prec: 35,
+        assoc: Assoc::Right,
+    };
+
+    /// An order, `a ≤ b`.
+    pub const AT_MOST: Op = Op {
+        symbol: "≤",
+        prec: 50,
+        assoc: Assoc::Neither,
+    };
+
+    /// Addition, `a + b`.
+    pub const PLUS: Op = Op {
+        symbol: "+",
+        prec: 65,
+        assoc: Assoc::Left,
+    };
+
+    /// Division, `a / b`.
+    pub const DIVIDE: Op = Op {
+        symbol: "/",
+        prec: 70,
+        assoc: Assoc::Left,
+    };
+
     /// Subtraction, `a - b`.
     pub const MINUS: Op = Op {
         symbol: "-",
@@ -110,12 +138,12 @@ impl Op {
             "↔" => ("↔", 20, Assoc::Neither),
             "→" => ("→", 25, Assoc::Right),
             "∨" => ("∨", 30, Assoc::Right),
-            "∧" => ("∧", 35, Assoc::Right),
-            "=" => ("=", 50, Assoc::Neither),
+            "∧" => return Some(Op::AND),
+            "=" => return Some(Op::EQUALS),
             "≠" => ("≠", 50, Assoc::Neither),
             "<" => ("<", 50, Assoc::Neither),
             ">" => (">", 50, Assoc::Neither),
-            "≤" => ("≤", 50, Assoc::Neither),
+            "≤" => return Some(Op::AT_MOST),
             "≥" => ("≥", 50, Assoc::Neither),
             "∣" => ("∣", 50, Assoc::Neither),
             "∈" => ("∈", 50, Assoc::Neither),
@@ -123,11 +151,11 @@ impl Op {
             "⊆" => ("⊆", 50, Assoc::Neither),
             "⊂" => ("⊂", 50, Assoc::Neither),
             "≡" => ("≡", 50, Assoc::Neither),
-            "+" => ("+", 65, Assoc::Left),
-            "-" => ("-", 65, Assoc::Left),
+            "+" => return Some(Op::PLUS),
+            "-" => return Some(Op::MINUS),
             "∪" => ("∪", 65, Assoc::Left),
             "*" => return Some(Op::TIMES),
-            "/" => ("/", 70, Assoc::Left),
+            "/" => return Some(Op::DIVIDE),
             "%" => ("%", 70, Assoc::Left),
             "∩" => ("∩", 70, Assoc::Left),
             "\\" => ("\\", 70, Assoc::Left),
@@ -192,9 +220,7 @@ impl Arg {
     }
 }
 
-/// A Lean term or proposition, with its type. Every node has one but text
-/// the writer made without a tree (`TermKind::Raw`), whose type went into
-/// the text.
+/// A Lean term or proposition, with its type where the writer knows it.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Term {
     pub kind: TermKind,
@@ -204,10 +230,6 @@ pub struct Term {
 /// What a term is.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TermKind {
-    /// Lean text the writer made without a tree, with the precedence of its
-    /// outermost operator. It stands only while the writer's functions move
-    /// to trees one at a time, and goes when the last does.
-    Raw { text: String, prec: u32 },
     /// A letter, as Lean names it.
     Letter(String),
     /// A constant.
@@ -303,22 +325,6 @@ impl Piece {
 }
 
 impl Term {
-    /// Lean text with its precedence, kept as text.
-    pub fn raw(text: impl Into<String>, prec: u32) -> Term {
-        Term {
-            kind: TermKind::Raw {
-                text: text.into(),
-                prec,
-            },
-            ty: None,
-        }
-    }
-
-    /// Lean text no operator can split, kept as text.
-    pub fn atom(text: impl Into<String>) -> Term {
-        Term::raw(text, crate::lean::expr::MAX)
-    }
-
     /// A node of this kind and type.
     pub fn of(kind: TermKind, ty: LeanType) -> Term {
         Term { kind, ty: Some(ty) }
@@ -439,8 +445,7 @@ impl Term {
     /// The terms directly inside this one.
     pub fn children(&self) -> Vec<&Term> {
         match &self.kind {
-            TermKind::Raw { .. }
-            | TermKind::By(_)
+            TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -517,8 +522,7 @@ impl Term {
         given: &std::collections::BTreeMap<String, Term>,
     ) {
         match &mut self.kind {
-            TermKind::Raw { .. }
-            | TermKind::By(_)
+            TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -572,8 +576,7 @@ impl Term {
     pub fn instantiate(&self, args: &[Term]) -> Option<Term> {
         let kind = match &self.kind {
             TermKind::Hole(i) => return args.get(i.checked_sub(1)?).cloned(),
-            TermKind::Raw { .. }
-            | TermKind::By(_)
+            TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -714,8 +717,7 @@ impl Term {
                     }
                 }
             }
-            TermKind::Raw { .. }
-            | TermKind::By(_)
+            TermKind::By(_)
             | TermKind::Letter(_)
             | TermKind::Const(_)
             | TermKind::Numeral(_)
@@ -730,15 +732,9 @@ impl Term {
         self.walk().into_iter().any(|t| of(&t.kind))
     }
 
-    /// Whether the tree takes a whole number to ℕ somewhere, `n.toNat`: a
-    /// ToNat node, or a text leaf that writes one, a named number's value
-    /// the writer keeps as text.
+    /// Whether the tree takes a whole number to ℕ somewhere, `n.toNat`.
     pub fn has_to_nat(&self) -> bool {
-        self.has(|k| match k {
-            TermKind::ToNat(_) => true,
-            TermKind::Raw { text, .. } => text.contains(".toNat"),
-            _ => false,
-        })
+        self.has(|k| matches!(k, TermKind::ToNat(_)))
     }
 
     /// The constants the tree names.

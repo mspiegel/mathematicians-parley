@@ -452,6 +452,48 @@ fn leaf_path(node: &Node, i: usize) -> Option<Vec<&'static str>> {
     }
 }
 
+/// A recursion's rules as one hypothesis: its starts, then for every k
+/// from 0 its steps, `F 0 = a ∧ ∀ k : ℤ, 0 ≤ k → F (k + 1) = b`.
+fn rules_said(k: &str, starts: Vec<Printed>, steps: Vec<Printed>) -> Printed {
+    use super::doc::{LeanType, Op, Piece};
+    let int = LeanType::Num(super::templates::Num::Int);
+    let from_0 = Printed::infix(
+        Op::AT_MOST,
+        Printed::numeral("0", int.clone()),
+        super::tactics::hyp(k),
+        LeanType::Prop,
+    );
+    let every = Printed::of(
+        super::doc::TermKind::Quantified {
+            quant: super::doc::Quant::ForAll,
+            letter: k.to_string(),
+            letter_ty: int,
+            guard: Some(Box::new(from_0)),
+            body: Box::new(conjunction(steps).unwrap_or_else(Printed::truth)),
+        },
+        LeanType::Prop,
+    );
+    let Some(starts) = conjunction(starts) else {
+        return every;
+    };
+    Printed::notation(
+        vec![
+            Piece::term(starts, 0),
+            Piece::text(" ∧ "),
+            Piece::term(every, 0),
+        ],
+        0,
+        LeanType::Prop,
+    )
+}
+
+/// The parts joined by `∧`, which chains to the right; None of no parts.
+fn conjunction(parts: Vec<Printed>) -> Option<Printed> {
+    parts.into_iter().rev().reduce(|right, left| {
+        Printed::infix(super::doc::Op::AND, left, right, super::doc::LeanType::Prop)
+    })
+}
+
 /// `(fun x : T => body)`: a function by its values, bracketed as an
 /// argument.
 fn lambda(letter: &str, ty: super::doc::LeanType, body: Printed) -> Printed {
@@ -1085,6 +1127,8 @@ fn header_recursions(
                 .letters
                 .insert(name.clone(), LetterType::Function { from: Num::Int, to });
         }
+        use super::doc::{LeanType, Op};
+        let int = LeanType::Num(Num::Int);
         let k = super::names::letter(&index);
         let mut starts = Vec::new();
         let mut steps = Vec::new();
@@ -1099,8 +1143,20 @@ fn header_recursions(
                     return Route::Declined(d)
                 }
             };
-            starts.push(format!("{f} 0 = {}", s.at(51)));
-            steps.push(format!("{f} ({k} + 1) = {}", t.at(51)));
+            let at = |arg: Printed| applied_to(super::tactics::hyp(&f), arg);
+            let next = Printed::infix(
+                Op::PLUS,
+                super::tactics::hyp(&k),
+                Printed::numeral("1", int.clone()),
+                int.clone(),
+            );
+            starts.push(Printed::infix(
+                Op::EQUALS,
+                at(Printed::numeral("0", int.clone())),
+                s,
+                LeanType::Prop,
+            ));
+            steps.push(Printed::infix(Op::EQUALS, at(next), t, LeanType::Prop));
         }
         match before {
             Some(ty) => writer.letters.insert(index.clone(), ty),
@@ -1116,14 +1172,7 @@ fn header_recursions(
         }
         out.push(Binder::Fact {
             name: line_name(&d.label),
-            says: super::expr::Printed::raw(
-                format!(
-                    "{} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {}",
-                    starts.join(" ∧ "),
-                    steps.join(" ∧ ")
-                ),
-                0,
-            ),
+            says: rules_said(&k, starts, steps),
             line: None,
         });
     }

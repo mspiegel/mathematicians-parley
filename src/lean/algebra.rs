@@ -14,7 +14,9 @@ use indexmap::IndexMap;
 use num_traits::{One, Signed};
 
 use super::doc::bridges::BridgeTactic;
-use super::doc::{Arg, Location, Proof, Tactic, TacticArg, TermKind};
+use super::doc::{
+    Arg, LeanType, Location, Op, Piece, Proof, Tactic, TacticArg, TermKind,
+};
 use super::expr::{Printed, Writer};
 use super::tactics as t;
 use super::templates::Num;
@@ -203,27 +205,33 @@ pub fn algebra(
         (true, Num::Real) => Some("rify"),
         _ => None,
     };
-    let mut parts = Vec::new();
-    for t in &how {
-        let over = t.multiplier().times(&taken).times(&own_under[t.which]);
+    let ty = LeanType::Num(at);
+    let one = Printed::numeral("1", ty.clone());
+    let mut sum: Option<Printed> = None;
+    for how_one in &how {
+        let over = how_one
+            .multiplier()
+            .times(&taken)
+            .times(&own_under[how_one.which]);
         let mut under: Vec<Poly> = sides.clone();
-        under.push(own_taken[t.which].clone());
-        let multiplier = match ratio_text(writer, over, under, &atoms, at) {
+        under.push(own_taken[how_one.which].clone());
+        let multiplier = match ratio_term(writer, over, under, &atoms, at) {
             Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let proof = &proofs[t.which];
-        parts.push(if multiplier == "1" {
-            proof.text()
-        } else {
-            format!("({multiplier}) * {}", proof.text())
+        let proof = proofs[how_one.which].clone();
+        let part = match multiplier == one {
+            true => proof,
+            false => {
+                Printed::infix(Op::TIMES, t::bracket(multiplier), proof, ty.clone())
+            }
+        };
+        sum = Some(match sum {
+            None => part,
+            Some(s) => Printed::infix(Op::PLUS, s, part, ty.clone()),
         });
     }
-    let sum = if parts.is_empty() {
-        "0".to_string()
-    } else {
-        parts.join(" + ")
-    };
+    let sum = sum.unwrap_or_else(|| Printed::numeral("0", ty));
     // The step moved to its cited lines' type first, where it is, and then
     // checked by the field's normal form where it divides.
     let norm = if divided {
@@ -242,7 +250,7 @@ pub fn algebra(
                 key: "norm",
                 value: Box::new(t::bridge(norm, vec![])),
             },
-            TacticArg::Term(Printed::atom(sum)),
+            TacticArg::Term(sum),
         ],
     ));
     Route::Built(Proof::By(Tactic::Seq(steps)))
@@ -278,13 +286,13 @@ fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<Tactic> {
     })
 }
 
-fn ratio_text(
+fn ratio_term(
     writer: &Writer,
     mut over: Poly,
     under: Vec<Poly>,
     atoms: &IndexMap<Rpn, Node>,
     at: Num,
-) -> Route<String> {
+) -> Route<Printed> {
     let mut kept = Vec::new();
     for factor in under {
         if constant(&factor) {
@@ -299,21 +307,34 @@ fn ratio_text(
             None => kept.push(factor),
         }
     }
-    let top = match poly_text(writer, &over, atoms, at) {
+    let top = match poly_term(writer, &over, atoms, at) {
         Route::Built(t) => t,
         Route::Declined(d) => return Route::Declined(d),
     };
     if kept.is_empty() {
         return Route::Built(top);
     }
-    let mut bottom = Vec::new();
+    let ty = LeanType::Num(at);
+    let mut bottom: Option<Printed> = None;
     for f in &kept {
-        match poly_text(writer, f, atoms, at) {
-            Route::Built(t) => bottom.push(format!("({t})")),
+        let factor = match poly_term(writer, f, atoms, at) {
+            Route::Built(t) => t::bracket(t),
             Route::Declined(d) => return Route::Declined(d),
-        }
+        };
+        bottom = Some(match bottom {
+            None => factor,
+            Some(b) => Printed::infix(Op::TIMES, b, factor, ty.clone()),
+        });
     }
-    Route::Built(format!("({top}) / ({})", bottom.join(" * ")))
+    let Some(bottom) = bottom else {
+        return Route::Built(top);
+    };
+    Route::Built(Printed::infix(
+        Op::DIVIDE,
+        t::bracket(top),
+        t::bracket(bottom),
+        ty,
+    ))
 }
 
 /// The type an equation is computed in.
@@ -349,16 +370,17 @@ fn collect_atoms(
 
 /// A polynomial as a Lean term of type `at`, each atom written as the page
 /// wrote it.
-fn poly_text(
+fn poly_term(
     writer: &Writer,
     p: &Poly,
     atoms: &IndexMap<Rpn, Node>,
     at: Num,
-) -> Route<String> {
+) -> Route<Printed> {
+    let ty = LeanType::Num(at);
     let mut terms: Vec<_> = p.terms.iter().collect();
     terms.sort_by_key(|(m, _)| field::order(m));
-    let mut out = String::new();
-    for (i, (monomial, weight)) in terms.into_iter().enumerate() {
+    let mut out: Option<Printed> = None;
+    for (monomial, weight) in terms {
         let mut factors = Vec::new();
         for (atom, power) in monomial {
             let Some(node) = atoms.get(atom) else {
@@ -369,43 +391,61 @@ fn poly_text(
                 Route::Declined(d) => return Route::Declined(d),
             };
             factors.push(if *power == 1 {
-                printed.at(71)
+                at_least(printed, 71)
             } else {
-                format!("{} ^ {power}", printed.at(76))
+                let exponent =
+                    Printed::numeral(power.to_string(), LeanType::Num(Num::Nat));
+                Printed::infix(Op::POWER, at_least(printed, 76), exponent, ty.clone())
             });
         }
         let negative = weight.is_negative();
-        let size = weight.abs();
-        let coefficient = coefficient_text(&size, at);
-        let body = match (coefficient, factors.is_empty()) {
-            (None, true) => "1".to_string(),
-            (None, false) => factors.join(" * "),
-            (Some(c), true) => c,
-            (Some(c), false) => format!("{c} * {}", factors.join(" * ")),
-        };
-        if i == 0 {
-            if negative {
-                out.push('-');
-            }
-            out.push_str(&body);
-        } else {
-            out.push_str(if negative { " - " } else { " + " });
-            out.push_str(&body);
-        }
+        let mut parts: Vec<Printed> =
+            coefficient_term(&weight.abs(), at).into_iter().collect();
+        parts.extend(factors);
+        let body = parts
+            .into_iter()
+            .reduce(|l, r| Printed::infix(Op::TIMES, l, r, ty.clone()))
+            .unwrap_or_else(|| Printed::numeral("1", ty.clone()));
+        out = Some(match (out, negative) {
+            (None, false) => body,
+            (None, true) => Printed::notation(
+                vec![Piece::text("-"), Piece::term(body, 0)],
+                75,
+                ty.clone(),
+            ),
+            (Some(sum), false) => Printed::infix(Op::PLUS, sum, body, ty.clone()),
+            (Some(sum), true) => Printed::infix(Op::MINUS, sum, body, ty.clone()),
+        });
     }
-    if out.is_empty() {
-        out.push('0');
-    }
-    Route::Built(out)
+    Route::Built(out.unwrap_or_else(|| Printed::numeral("0", ty)))
 }
 
-/// A positive rational coefficient as Lean writes it; None for 1.
-fn coefficient_text(q: &Q, at: Num) -> Option<String> {
+/// A term bracketed unless it binds at least as tightly as `need`.
+fn at_least(term: Printed, need: u32) -> Printed {
+    match term.prec() < need {
+        true => t::bracket(term),
+        false => term,
+    }
+}
+
+/// A positive rational coefficient as Lean writes it, `(1 / 2 : ℚ)` of a
+/// fraction; None for 1.
+fn coefficient_term(q: &Q, at: Num) -> Option<Printed> {
     if q.is_one() {
         return None;
     }
+    let whole = LeanType::Num(Num::Int);
     if q.is_integer() {
-        return Some(q.to_integer().to_string());
+        return Some(Printed::numeral(
+            q.to_integer().to_string(),
+            LeanType::Num(at),
+        ));
     }
-    Some(format!("({} / {} : {})", q.numer(), q.denom(), at.lean()))
+    let fraction = Printed::infix(
+        Op::DIVIDE,
+        Printed::numeral(q.numer().to_string(), whole.clone()),
+        Printed::numeral(q.denom().to_string(), whole),
+        LeanType::Num(at),
+    );
+    Some(Printed::cast(fraction, LeanType::Num(at)))
 }

@@ -32,7 +32,7 @@ impl Term {
     /// The precedence of the term's outermost operator.
     pub fn prec(&self) -> u32 {
         match &self.kind {
-            TermKind::Raw { prec, .. } | TermKind::Notation { prec, .. } => *prec,
+            TermKind::Notation { prec, .. } => *prec,
             TermKind::By(_) => 0,
             TermKind::App { .. } => APP,
             TermKind::Infix { op, .. } => op.prec,
@@ -67,7 +67,6 @@ impl Term {
     /// The term as Lean text.
     pub fn text(&self) -> String {
         match &self.kind {
-            TermKind::Raw { text, .. } => text.clone(),
             TermKind::By(proof) => proof.text(),
             TermKind::Letter(name) => name.clone(),
             TermKind::Const(c) => c.name.clone(),
@@ -426,7 +425,14 @@ mod tests {
                 head: Box::new(item),
                 args: vec![Arg::Named {
                     name: "x".to_string(),
-                    value: Term::raw("(∅ : Set α)", MAX),
+                    value: Term::cast(
+                        Term::constant(
+                            "∅",
+                            Source::Core,
+                            LeanType::Set(Box::new(LeanType::Things(0))),
+                        ),
+                        LeanType::Set(Box::new(LeanType::Things(0))),
+                    ),
                 }],
                 explicit: false,
             },
@@ -439,7 +445,13 @@ mod tests {
         let proof = Proof::By(Tactic::First(vec![
             Tactic::Exact(applied.clone()),
             Tactic::Group(Box::new(Tactic::Seq(vec![
-                Tactic::Raw("have h := (x)".to_string()),
+                Tactic::Name {
+                    name: "h".to_string(),
+                    term: Term::of(
+                        TermKind::Paren(Box::new(Term::letter("x", LeanType::Prop))),
+                        LeanType::Prop,
+                    ),
+                },
                 side,
             ]))),
         ]));
@@ -447,6 +459,14 @@ mod tests {
             proof.text(),
             "by first | exact Parley.Items.Stdlib.Counting.mun_card_singleton (x := (∅ : Set α)) | (have h := (x); parley_side)"
         );
-        assert_eq!(applied.constants().len(), 1);
+        let names: Vec<&str> = applied
+            .constants()
+            .iter()
+            .map(|c| c.name.as_str())
+            .collect();
+        assert_eq!(
+            names,
+            ["Parley.Items.Stdlib.Counting.mun_card_singleton", "∅"]
+        );
     }
 }
