@@ -1490,14 +1490,12 @@ pub fn theorem(
         ));
     }
     if conclusion.len() > 1 {
-        proof.line(
+        let each = Printed::atom("by parley_side");
+        proof.push_at(
             1,
-            format!(
-                "exact ⟨{}⟩",
-                vec!["by parley_side"; conclusion.len()].join(", ")
-            ),
+            Tactic::Exact(super::expr::anonymous(vec![each; conclusion.len()])),
             thm.conclusion_line,
-            &Spot::Statement,
+            Spot::Statement,
         );
     } else {
         let close = match conclusion.as_slice() {
@@ -1562,11 +1560,6 @@ impl<'a> Proof<'a> {
         spot: &Spot,
     ) {
         self.push_at(depth, Tactic::Intro(names), page_line, spot.clone());
-    }
-
-    /// Tactic text as a line of the proof at a depth of its blocks.
-    fn line(&mut self, depth: usize, text: String, page_line: usize, spot: &Spot) {
-        self.push_at(depth, Tactic::Raw(text), page_line, spot.clone());
     }
 
     /// A tactic as a line of the proof at a depth of its blocks.
@@ -1946,12 +1939,15 @@ impl<'a> Proof<'a> {
             });
             let refute = if real { "parley_real" } else { "norm_num" };
             if let Some(last) = names.last() {
-                self.line(
-                    depth,
-                    format!("exact absurd {last} (by {refute})"),
-                    step.line,
-                    &spot,
+                use super::tactics as t;
+                let refuted = Printed::atom(format!("(by {refute})"));
+                let absurd = Printed::applied(
+                    "absurd",
+                    super::doc::Source::Core,
+                    vec![t::hyp(last), refuted],
+                    super::doc::LeanType::Prop,
                 );
+                self.push_at(depth, Tactic::Exact(absurd), step.line, spot.clone());
             }
         }
         Route::Built(())
@@ -4298,31 +4294,34 @@ impl<'a> Proof<'a> {
             }
             _ => None,
         };
-        let mut ways: Vec<String> = Vec::new();
-        let tactics: &[&str] = if into.len() > 1 {
-            &["parley_put_at", "parley_subst_at"]
+        let mut ways: Vec<Tactic> = Vec::new();
+        let tactics: &[BridgeTactic] = if into.len() > 1 {
+            &[BridgeTactic::PutAt, BridgeTactic::SubstAt]
         } else {
-            &["parley_subst_at"]
+            &[BridgeTactic::SubstAt]
         };
         for tactic in tactics {
             for line in &into {
-                ways.push(format!("{tactic} {equation} {line}"));
+                ways.push(put_into(*tactic, &equation, line));
                 if let Some(own) = &own {
-                    ways.push(format!("{tactic} {own} {line}"));
+                    ways.push(put_into(*tactic, own, line));
                 }
                 if let Some(in_nat) = &in_nat {
-                    ways.push(format!("({in_nat}; {tactic} e_nat {line})"));
+                    ways.push(super::tactics::steps(vec![
+                        Tactic::Raw(in_nat.clone()),
+                        put_into(*tactic, "e_nat", line),
+                    ]));
                 }
             }
         }
         if into.is_empty() {
-            ways.push(format!("parley_subst {equation}"));
+            ways.push(subst_by(&equation));
             if let Some(own) = &own {
-                ways.push(format!("parley_subst {own}"));
+                ways.push(subst_by(own));
             }
         }
-        ways.extend(witnessed);
-        let tactic = by_ways(ways.into_iter().map(Tactic::Raw).collect());
+        ways.extend(witnessed.into_iter().map(Tactic::Raw));
+        let tactic = by_ways(ways);
         Route::Built(with_haves(&haves, &tactic))
     }
 
@@ -7478,6 +7477,12 @@ fn rewrite_then_ring(rule: super::doc::Rule) -> Tactic {
         t::push_cast(None),
         t::call("ring", vec![]),
     ])
+}
+
+/// `parley_subst e`: the equation e put into the goal.
+fn subst_by(equation: &str) -> Tactic {
+    use super::tactics as t;
+    t::bridge(BridgeTactic::Subst, vec![TacticArg::Term(t::hyp(equation))])
 }
 
 /// `parley_put_at e h` or `parley_subst_at e h`: the equation e put into

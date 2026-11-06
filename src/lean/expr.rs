@@ -645,6 +645,20 @@ pub fn witnessed(
     )
 }
 
+/// An anonymous constructor, `⟨a, b⟩`: an "and" of proofs, or a witness and
+/// its proof.
+pub fn anonymous(parts: Vec<Printed>) -> Printed {
+    let mut pieces = vec![Piece::text("⟨")];
+    for (i, p) in parts.into_iter().enumerate() {
+        if i > 0 {
+            pieces.push(Piece::text(", "));
+        }
+        pieces.push(Piece::term(p, 0));
+    }
+    pieces.push(Piece::text("⟩"));
+    Printed::notation(pieces, MAX, LeanType::Prop)
+}
+
 /// A set listed by its members, `{a, b}`.
 pub fn listed_set(members: Vec<Printed>, ty: LeanType) -> Printed {
     let mut pieces = vec![Piece::text("{")];
