@@ -1319,7 +1319,7 @@ struct KindShown {
     /// The fact in Lean.
     says: Printed,
     /// Its proof by the define's reason.
-    proof: String,
+    proof: super::doc::Proof,
 }
 
 /// A whole number a step names for a term Lean does not compute as one,
@@ -2475,7 +2475,7 @@ impl<'a> Proof<'a> {
     ) -> Route<super::doc::Proof> {
         use super::doc::Proof;
         if let Some(witness) = self.said_member(node) {
-            return Route::Built(Proof::By(Tactic::Raw(witness)));
+            return Route::Built(witness);
         }
         self.said_used.borrow_mut().clear();
         let proof = match self.proof_by_reason(reason, k, node) {
@@ -2673,7 +2673,7 @@ impl<'a> Proof<'a> {
     /// that type: the term written there, that part the number the line
     /// gives, as Lean's witness. A citation of an item over ℚ gives such a
     /// claim nothing, as of rationals it holds by their type.
-    fn said_member(&self, node: &Node) -> Option<String> {
+    fn said_member(&self, node: &Node) -> Option<super::doc::Proof> {
         let [term, set] = node.children.as_slice() else {
             return None;
         };
@@ -2705,8 +2705,7 @@ impl<'a> Proof<'a> {
                 continue;
             }
             if let Some(line) = self.said_integer(&part, ty) {
-                let spec = format!("Classical.choose_spec {line}");
-                if lines.contains(&spec) {
+                if lines.contains(&line) {
                     continue;
                 }
                 writer.integers.push(super::expr::SaidInteger {
@@ -2716,23 +2715,40 @@ impl<'a> Proof<'a> {
                     value: None,
                     slot_only: false,
                 });
-                lines.push(spec);
+                lines.push(line);
             }
         }
         if lines.is_empty() {
             return None;
         }
-        let witness = writer.number_fixed(term, ty).built()?.text();
-        let specs = lines.join(", ");
-        Some(match claimed {
+        use super::tactics as t;
+        let witness = writer.number_fixed(term, ty).built()?;
+        let rules = lines
+            .iter()
+            .map(|line| {
+                t::forwards(Printed::applied(
+                    "Classical.choose_spec",
+                    super::doc::Source::Core,
+                    vec![t::hyp(line)],
+                    super::doc::LeanType::Prop,
+                ))
+            })
+            .collect();
+        let equal = proof_term(super::doc::Proof::By(Tactic::Seq(vec![
+            t::push_cast(None),
+            t::try_(t::simp_only(false, None, rules, None)),
+            Tactic::First(vec![
+                t::call("done", vec![]),
+                t::bridge(BridgeTactic::Ring, vec![]),
+            ]),
+        ])));
+        let parts = match claimed {
             // In ℕ₀: the integer, beside its being at least 0.
-            Num::Nat => format!(
-                "(exact ⟨{witness}, by parley_side, by push_cast; (try simp only [{specs}]); first | done | parley_ring⟩)"
-            ),
-            _ => format!(
-                "(exact ⟨{witness}, by push_cast; (try simp only [{specs}]); first | done | parley_ring⟩)"
-            ),
-        })
+            Num::Nat => vec![witness, side_term(&[]), equal],
+            _ => vec![witness, equal],
+        };
+        let shown = Tactic::Exact(super::expr::anonymous(parts));
+        Some(super::doc::Proof::By(Tactic::Group(Box::new(shown))))
     }
 
     fn proof_by_reason(
@@ -3349,7 +3365,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: format!("{label}_kind"),
                     says,
-                    proof: Box::new(super::doc::Proof::Raw(proof)),
+                    proof: Box::new(proof),
                 },
                 line.line,
                 Spot::Statement,
@@ -3453,7 +3469,7 @@ impl<'a> Proof<'a> {
             cited: self.rec.cited_requires.get(&kinded.shown.line),
         };
         let proof = match self.proof_of(reason, 0, &fact) {
-            Route::Built(p) => p.text(),
+            Route::Built(p) => p,
             Route::Declined(why) => return Route::Declined(why),
         };
         Route::Built(KindShown { fact, says, proof })
@@ -3480,7 +3496,7 @@ impl<'a> Proof<'a> {
         let kind_line = Tactic::Have {
             name: format!("{}_kind", line_name(&line.label)),
             says,
-            proof: Box::new(super::doc::Proof::Raw(proof)),
+            proof: Box::new(proof),
         };
         let [_, set] = fact.children.as_slice() else {
             return Route::no("a kind's fact that is no membership");
