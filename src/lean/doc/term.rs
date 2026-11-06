@@ -737,6 +737,81 @@ impl Term {
         self.has(|k| matches!(k, TermKind::ToNat(_)))
     }
 
+    /// Whether the tree counts a set in this form somewhere, `A.encard`.
+    pub fn has_count(&self, form: CountForm) -> bool {
+        self.has(|k| matches!(k, TermKind::Count { form: f, .. } if *f == form))
+    }
+
+    /// Whether the tree casts something to `ty` somewhere, `(x : ℝ)`.
+    pub fn has_cast_to(&self, ty: &LeanType) -> bool {
+        self.has(|k| matches!(k, TermKind::Cast { to, .. } if to == ty))
+    }
+
+    /// Whether the tree names the constant `name`.
+    pub fn names(&self, name: &str) -> bool {
+        self.constants().iter().any(|c| c.name == name)
+    }
+
+    /// The same tree with no node's type kept: two terms Lean writes alike
+    /// compare equal whatever types the writer knew of their parts.
+    pub fn untyped(&self) -> Term {
+        let mut out = self.clone();
+        out.clear_types();
+        out
+    }
+
+    fn clear_types(&mut self) {
+        self.ty = None;
+        match &mut self.kind {
+            TermKind::App { head, args, .. } => {
+                head.clear_types();
+                for a in args {
+                    match a {
+                        Arg::Explicit(t) => t.clear_types(),
+                        Arg::Named { value, .. } => value.clear_types(),
+                    }
+                }
+            }
+            TermKind::Infix { lhs, rhs, .. } => {
+                lhs.clear_types();
+                rhs.clear_types();
+            }
+            TermKind::Not(t)
+            | TermKind::Neg(t)
+            | TermKind::ToNat(t)
+            | TermKind::Paren(t) => t.clear_types(),
+            TermKind::Cast { inner, .. }
+            | TermKind::Field { inner, .. }
+            | TermKind::Enclosed { inner, .. } => inner.clear_types(),
+            TermKind::Count { set, .. } => set.clear_types(),
+            TermKind::ModEq { a, b, n } => {
+                a.clear_types();
+                b.clear_types();
+                n.clear_types();
+            }
+            TermKind::Quantified { guard, body, .. } => {
+                if let Some(g) = guard {
+                    g.clear_types();
+                }
+                body.clear_types();
+            }
+            TermKind::Notation { pieces, .. } => {
+                for p in pieces {
+                    if let Piece::Term { term, .. } = p {
+                        term.clear_types();
+                    }
+                }
+            }
+            TermKind::By(_)
+            | TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided
+            | TermKind::Open => {}
+        }
+    }
+
     /// The constants the tree names.
     pub fn constants(&self) -> Vec<&ConstRef> {
         self.walk()
