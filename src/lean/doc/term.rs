@@ -69,6 +69,13 @@ pub struct Op {
 }
 
 impl Op {
+    /// Composition of functions, `g ∘ f`.
+    pub const COMPOSE: Op = Op {
+        symbol: "∘",
+        prec: 90,
+        assoc: Assoc::Right,
+    };
+
     /// Lean's infix operator of that symbol; None for any other text.
     pub fn of(symbol: &str) -> Option<Op> {
         let (symbol, prec, assoc): (&'static str, u32, Assoc) = match symbol {
@@ -97,7 +104,7 @@ impl Op {
             "∩" => ("∩", 70, Assoc::Left),
             "\\" => ("\\", 70, Assoc::Left),
             "^" => ("^", 75, Assoc::Right),
-            "∘" => ("∘", 90, Assoc::Right),
+            "∘" => return Some(Op::COMPOSE),
             _ => return None,
         };
         Some(Op {

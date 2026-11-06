@@ -616,6 +616,49 @@ pub fn empty_of_type(ty: LeanType) -> Printed {
     Printed::cast(empty, ty)
 }
 
+/// A term in brackets that no precedence asks for, as Lean is given a
+/// function value: `(g ∘ f)`.
+fn paren(term: Printed) -> Printed {
+    let ty = term.ty.clone();
+    Printed {
+        kind: super::doc::TermKind::Paren(Box::new(term)),
+        ty,
+    }
+}
+
+/// `∃ m : T, g ∧ said`: a witness of a type, with a condition on it where
+/// there is one.
+pub fn witnessed(
+    m: String,
+    ty: LeanType,
+    guard: Option<Printed>,
+    said: Printed,
+) -> Printed {
+    Printed::of(
+        super::doc::TermKind::Quantified {
+            quant: super::doc::Quant::Exists,
+            letter: m,
+            letter_ty: ty,
+            guard: guard.map(Box::new),
+            body: Box::new(said),
+        },
+        LeanType::Prop,
+    )
+}
+
+/// A set listed by its members, `{a, b}`.
+pub fn listed_set(members: Vec<Printed>, ty: LeanType) -> Printed {
+    let mut pieces = vec![Piece::text("{")];
+    for (i, m) in members.into_iter().enumerate() {
+        if i > 0 {
+            pieces.push(Piece::text(", "));
+        }
+        pieces.push(Piece::term(m, 0));
+    }
+    pieces.push(Piece::text("}"));
+    Printed::notation(pieces, MAX, ty)
+}
+
 /// Two propositions joined by "and".
 pub fn conjunction(a: Printed, b: Printed) -> Route<Printed> {
     relation_of("∧", a, b)
@@ -696,11 +739,12 @@ impl Writer<'_> {
     /// The 0 a term is compared with in `at`: told its type where nothing
     /// in the term fixes one, as 2^n − 1 of a natural n, which Lean would
     /// otherwise read in ℕ, where its subtraction stops at 0.
-    fn zero_at(&self, x: &Node, at: Num) -> String {
+    fn zero_at(&self, x: &Node, at: Num) -> Printed {
+        let zero = Printed::numeral("0", self.num_type(at));
         if at == Num::Nat || self.pinned(x) {
-            "0".to_string()
+            zero
         } else {
-            format!("(0 : {})", self.type_name(at))
+            Printed::cast(zero, self.num_type(at))
         }
     }
 
@@ -1013,30 +1057,65 @@ impl Writer<'_> {
         Some((g, self.domains.get(g.text.as_str())?.clone()))
     }
 
-    /// A function as a printed term, a citation's value.
+    /// A function as Lean writes it, a citation's value as well: a letter,
+    /// `(g ∘ f)`, `(deriv f)` or the inverse of a map on its domain, each
+    /// but a letter in brackets.
     pub fn function_printed(&self, f: &Node) -> Printed {
-        Printed::atom(self.function_text(f))
-    }
-
-    /// A function as Lean writes it: a letter, or `(g ∘ f)`.
-    fn function_text(&self, f: &Node) -> String {
         if let Some((g, domain)) = self.inverse_of_function(f) {
-            return format!(
-                "({} {} {domain})",
-                super::sets::INVERSE,
-                super::names::letter(&g.text)
-            );
+            let letter = self.function_letter(&g.text);
+            let ty = letter.ty.clone();
+            let inverse = Printed {
+                kind: super::doc::TermKind::App {
+                    head: Box::new(Printed::head(
+                        super::sets::INVERSE,
+                        super::doc::Source::Bridge("Functions".to_string()),
+                    )),
+                    args: vec![
+                        super::doc::Arg::Explicit(letter),
+                        super::doc::Arg::Explicit(Printed::atom(domain)),
+                    ],
+                    explicit: false,
+                },
+                ty,
+            };
+            return paren(inverse);
         }
         if let ("derivative", [g]) = (&*f.notation_name(), f.children.as_slice()) {
-            return format!("(deriv {})", self.function_text(g));
+            let inner = self.function_printed(g);
+            let ty = inner.ty.clone();
+            return paren(Printed {
+                kind: super::doc::TermKind::App {
+                    head: Box::new(Printed::head("deriv", super::doc::Source::Mathlib)),
+                    args: vec![super::doc::Arg::Explicit(inner)],
+                    explicit: false,
+                },
+                ty,
+            });
         }
         match f.children.as_slice() {
-            [g, inner] => format!(
-                "({} ∘ {})",
-                self.function_text(g),
-                self.function_text(inner)
-            ),
-            _ => super::names::letter(&f.text),
+            [g, inner] => {
+                let (outer, inner) =
+                    (self.function_printed(g), self.function_printed(inner));
+                let ty = outer.ty.clone();
+                paren(Printed {
+                    kind: super::doc::TermKind::Infix {
+                        op: super::doc::Op::COMPOSE,
+                        lhs: Box::new(outer),
+                        rhs: Box::new(inner),
+                    },
+                    ty,
+                })
+            }
+            _ => self.function_letter(&f.text),
+        }
+    }
+
+    /// A function letter with the Lean type the writer gives it, where it
+    /// gives one.
+    fn function_letter(&self, name: &str) -> Printed {
+        Printed {
+            kind: super::doc::TermKind::Letter(super::names::letter(name)),
+            ty: self.letters.get(name).map(LetterType::lean_type),
         }
     }
 
@@ -1556,13 +1635,46 @@ impl Writer<'_> {
             return Route::no("a differentiability using every letter it could bind");
         };
         let given = self.domains.contains_key(f.text.as_str());
-        let f = super::names::letter(&f.text);
-        let at = format!("DifferentiableAt ℝ {f} {x}");
+        let real = LeanType::Num(Num::Real);
+        let point = Printed::letter(x, real.clone());
+        let at = Printed::applied(
+            "DifferentiableAt",
+            super::doc::Source::Mathlib,
+            vec![
+                Printed::constant("ℝ", super::doc::Source::Mathlib, LeanType::Universe),
+                self.function_letter(&f.text),
+                point.clone(),
+            ],
+            LeanType::Prop,
+        );
         let said = match given {
-            true => format!("{domain} ∈ nhds {x} ∧ {at}"),
+            true => {
+                let near = Printed::applied(
+                    "nhds",
+                    super::doc::Source::Mathlib,
+                    vec![point],
+                    LeanType::Set(Box::new(LeanType::Set(Box::new(real.clone())))),
+                );
+                match (relation_of("∈", Printed::atom(domain), near), at) {
+                    (Route::Built(inside), at) => match conjunction(inside, at) {
+                        Route::Built(c) => c,
+                        Route::Declined(d) => return Route::Declined(d),
+                    },
+                    (Route::Declined(d), _) => return Route::Declined(d),
+                }
+            }
             false => at,
         };
-        Route::Built(Printed::raw(format!("∀ {x} ∈ {}, {said}", u.at(MAX)), 0))
+        Route::Built(Printed::notation(
+            vec![
+                Piece::text(format!("∀ {x} ∈ ")),
+                Piece::term(u, MAX),
+                Piece::text(", "),
+                Piece::term(said, 0),
+            ],
+            0,
+            LeanType::Prop,
+        ))
     }
 
     /// f is continuous on D, `ContinuousOn f D`, of a function into ℝ and a
@@ -1580,13 +1692,19 @@ impl Writer<'_> {
             return Route::no(format!("{} is no function into ℝ", f.text));
         }
         match self.numbers_at(set, Num::Real) {
-            Route::Built(s) => Route::Built(Printed::raw(
-                format!(
-                    "{predicate} {} {}",
-                    super::names::letter(&f.text),
-                    s.at(MAX)
-                ),
+            Route::Built(s) => Route::Built(Printed::notation(
+                vec![
+                    Piece::term(
+                        Printed::head(predicate, super::doc::Source::Mathlib),
+                        0,
+                    ),
+                    Piece::text(" "),
+                    Piece::term(self.function_letter(&f.text), MAX),
+                    Piece::text(" "),
+                    Piece::term(s, MAX),
+                ],
                 1000,
+                LeanType::Prop,
             )),
             Route::Declined(d) => Route::Declined(d),
         }
@@ -1651,9 +1769,14 @@ impl Writer<'_> {
             };
             // Lean reads no negation after `^`, so `a ^ -m` is written
             // `a ^ (-m)`.
-            return Route::Built(Printed::raw(
-                format!("{} ^ {}", base.at(76), exponent.at(76)),
+            return Route::Built(Printed::notation(
+                vec![
+                    Piece::term(base, 76),
+                    Piece::text(" ^ "),
+                    Piece::term(exponent, 76),
+                ],
                 75,
+                self.num_type(at),
             ));
         }
         if is_big_operator(node) {
@@ -1706,13 +1829,13 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let to = applied.gives;
-                let value = Printed::raw(
-                    format!(
-                        "{} {}",
-                        self.function_text(&node.children[0]),
-                        arg.at(MAX)
-                    ),
-                    APP,
+                let value = Printed::of(
+                    super::doc::TermKind::App {
+                        head: Box::new(self.function_printed(&node.children[0])),
+                        args: vec![super::doc::Arg::Explicit(arg)],
+                        explicit: false,
+                    },
+                    self.num_type(to),
                 );
                 self.raise(value, to, at)
             }
@@ -1934,9 +2057,14 @@ impl Writer<'_> {
         }
         // D is open: `IsOpen D`, of a set of reals.
         if let ("open", [set]) = (&*node.notation_name(), node.children.as_slice()) {
-            return self
-                .numbers_at(set, Num::Real)
-                .map(|s| Printed::raw(format!("IsOpen {}", s.at(MAX)), 1000));
+            return self.numbers_at(set, Num::Real).map(|s| {
+                Printed::applied(
+                    "IsOpen",
+                    super::doc::Source::Mathlib,
+                    vec![s],
+                    LeanType::Prop,
+                )
+            });
         }
         // There is a bijection from A to B: some map of the one's members to
         // the other's that is one-to-one from A onto B, `Set.BijOn g A B`.
@@ -1978,11 +2106,17 @@ impl Writer<'_> {
                     p.text
                 ));
             };
-            return self.element_term(t, members).map(|t| {
-                Printed::raw(
-                    format!("{} {}", super::names::letter(&p.text), t.at(MAX)),
-                    1023,
-                )
+            let property = LetterType::Property(members.clone()).lean_type();
+            return self.element_term(t, members).map(|t| Printed {
+                kind: super::doc::TermKind::App {
+                    head: Box::new(Printed::letter(
+                        super::names::letter(&p.text),
+                        property,
+                    )),
+                    args: vec![super::doc::Arg::Explicit(t)],
+                    explicit: false,
+                },
+                ty: Some(LeanType::Prop),
             });
         }
         // there is a ∈ X, with nothing said of a: set.mm's "there is" over a
@@ -1994,13 +2128,18 @@ impl Writer<'_> {
                 return Route::no("there is some member of a set with no Lean type");
             }
             return self.set_term(set).map(|s| {
-                Printed::raw(
-                    format!(
-                        "∃ {} ∈ {}, True",
-                        super::names::letter(&letter.text),
-                        s.at(51)
-                    ),
+                Printed::notation(
+                    vec![
+                        Piece::text(format!(
+                            "∃ {} ∈ ",
+                            super::names::letter(&letter.text)
+                        )),
+                        Piece::term(s, 51),
+                        Piece::text(", "),
+                        Piece::term(Printed::truth(), 0),
+                    ],
                     0,
+                    LeanType::Prop,
                 )
             });
         }
@@ -2056,14 +2195,11 @@ impl Writer<'_> {
                         self.numbers_at(to, own_to),
                     ) {
                         (Route::Built(a), Route::Built(b)) => {
-                            Route::Built(Printed::raw(
-                                format!(
-                                    "Set.MapsTo {} {} {}",
-                                    self.function_text(f),
-                                    a.at(MAX),
-                                    b.at(MAX)
-                                ),
-                                APP,
+                            Route::Built(Printed::applied(
+                                "Set.MapsTo",
+                                super::doc::Source::Mathlib,
+                                vec![self.function_printed(f), a, b],
+                                LeanType::Prop,
                             ))
                         }
                         (Route::Declined(d), _) | (_, Route::Declined(d)) => {
@@ -2088,14 +2224,17 @@ impl Writer<'_> {
             }
             THERE_IS | FOR_ALL => self.quantified(node),
             crate::notations::COMMA_CONJUNCTION => {
-                let mut parts = Vec::new();
+                let mut pieces = Vec::new();
                 for (i, c) in node.children.iter().enumerate() {
+                    if i > 0 {
+                        pieces.push(Piece::text(" ∧ "));
+                    }
                     match self.knowing(&node.children[..i]).formula(c) {
-                        Route::Built(p) => parts.push(p.at(36)),
+                        Route::Built(p) => pieces.push(Piece::term(p, 36)),
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
-                Route::Built(Printed::raw(parts.join(" ∧ "), 35))
+                Route::Built(Printed::notation(pieces, 35, LeanType::Prop))
             }
             _ => {
                 let template = match self.template(node) {
@@ -2147,15 +2286,23 @@ impl Writer<'_> {
             Route::Built(b) => b,
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
-        Some(Route::Built(Printed::raw(
-            format!(
-                "∃ {m} : {}, ({m} : {}) = {} ∧ {}",
-                whole.lean(),
-                self.type_name(at),
-                value.at(51),
-                body.at(36)
-            ),
-            0,
+        let named = Printed::cast(
+            Printed::letter(m.clone(), LeanType::Num(whole)),
+            self.num_type(at),
+        );
+        let said = match relation_of("=", named, value) {
+            Route::Built(r) => r,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        Some(Route::Built(Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: super::doc::Quant::Exists,
+                letter: m,
+                letter_ty: LeanType::Num(whole),
+                guard: Some(Box::new(said)),
+                body: Box::new(body),
+            },
+            LeanType::Prop,
         )))
     }
 
@@ -2368,7 +2515,7 @@ impl Writer<'_> {
             let mut members = Vec::new();
             for member in &set.children {
                 match self.number_fixed(member, at) {
-                    Route::Built(p) => members.push(p.text()),
+                    Route::Built(p) => members.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -2376,15 +2523,12 @@ impl Writer<'_> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            return Route::Built(Printed::raw(
-                format!(
-                    "{} ∈ ({{{}}} : Set {})",
-                    x.at(51),
-                    members.join(", "),
-                    self.type_name(at)
-                ),
-                50,
-            ));
+            let of = LeanType::Set(Box::new(self.num_type(at)));
+            return relation_of(
+                "∈",
+                x,
+                Printed::cast(listed_set(members, of.clone()), of),
+            );
         }
         if let Some(m) = self.set_membership(x, set) {
             return m;
@@ -2479,7 +2623,7 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                relation_of("<", Printed::atom(zero), x)
+                relation_of("<", zero, x)
             }
             System::NonNegative if held <= Num::Int => {
                 if natural_letter {
@@ -2490,7 +2634,7 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                relation_of("≤", Printed::atom(zero), x)
+                relation_of("≤", zero, x)
             }
             System::Type(n) if held <= n => Route::Built(Printed::truth()),
             System::Type(n) => {
@@ -2499,15 +2643,15 @@ impl Writer<'_> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                Route::Built(Printed::raw(
-                    format!(
-                        "∃ {m} : {}, ({m} : {}) = {}",
-                        self.type_name(n),
-                        self.type_name(own),
-                        x.at(51)
-                    ),
-                    0,
-                ))
+                let named = Printed::cast(
+                    Printed::letter(m.clone(), self.num_type(n)),
+                    self.num_type(own),
+                );
+                let said = match relation_of("=", named, x) {
+                    Route::Built(r) => r,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
+                Route::Built(witnessed(m, self.num_type(n), None, said))
             }
             System::Positive | System::NonNegative => {
                 let m = witness_letter(x);
@@ -2520,14 +2664,23 @@ impl Writer<'_> {
                 } else {
                     "≤"
                 };
-                Route::Built(Printed::raw(
-                    format!(
-                        "∃ {m} : ℤ, 0 {order} {m} ∧ ({m} : {}) = {}",
-                        self.type_name(own),
-                        x.at(51)
-                    ),
-                    0,
-                ))
+                let int = LeanType::Num(Num::Int);
+                let letter = Printed::letter(m.clone(), int.clone());
+                let bound = relation_of(
+                    order,
+                    Printed::numeral("0", int.clone()),
+                    letter.clone(),
+                );
+                let said =
+                    relation_of("=", Printed::cast(letter, self.num_type(own)), x);
+                match (bound, said) {
+                    (Route::Built(b), Route::Built(s)) => {
+                        Route::Built(witnessed(m, int, Some(b), s))
+                    }
+                    (Route::Declined(d), _) | (_, Route::Declined(d)) => {
+                        Route::Declined(d)
+                    }
+                }
             }
         }
     }
