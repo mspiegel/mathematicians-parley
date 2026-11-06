@@ -1502,13 +1502,13 @@ pub fn theorem(
     } else {
         let close = match conclusion.as_slice() {
             [one] => proof.closing(top.last().copied(), &one.says),
-            _ => "parley_side".to_string(),
+            _ => super::tactics::bridge(BridgeTactic::Side, vec![]),
         };
-        proof.line(
+        proof.push_at(
             1,
-            format!("all_goals {close}"),
+            Tactic::AllGoals(Box::new(close)),
             thm.conclusion_line,
-            &Spot::Statement,
+            Spot::Statement,
         );
     }
     let mut text = String::new();
@@ -3212,8 +3212,8 @@ impl<'a> Proof<'a> {
     /// writes both, and otherwise `parley_side`, which finds the line. What
     /// is owed is the claim, or of a "for all" whose letter the block lets,
     /// what it says at that letter.
-    fn closing(&self, last: Option<usize>, owed: &Node) -> String {
-        let side = "parley_side".to_string();
+    fn closing(&self, last: Option<usize>, owed: &Node) -> Tactic {
+        let side = super::tactics::bridge(BridgeTactic::Side, vec![]);
         let owed = match owed.children.as_slice() {
             [letter, _, body]
                 if owed.notation() == crate::notations::FOR_ALL
@@ -3233,7 +3233,7 @@ impl<'a> Proof<'a> {
         };
         match (self.writer.formula(said), self.writer.formula(owed)) {
             (Route::Built(a), Route::Built(b)) if a.text() == b.text() => {
-                format!("exact {name}")
+                Tactic::Exact(super::tactics::hyp(name))
             }
             _ => side,
         }
@@ -4770,7 +4770,10 @@ impl<'a> Proof<'a> {
                             .into_iter()
                             .flatten()
                             .map(|part| {
-                                Tactic::Raw(format!("parley_line_toNat {part}"))
+                                super::tactics::bridge(
+                                    BridgeTactic::LineToNat,
+                                    vec![TacticArg::Term(super::tactics::hyp(part))],
+                                )
                             })
                             .collect(),
                         false => Vec::new(),
@@ -6339,11 +6342,11 @@ impl<'a> Proof<'a> {
                     Method::Proof if claim.len() == 1 => {
                         self.closing(children.last().copied(), claimed)
                     }
-                    _ => "parley_side".to_string(),
+                    _ => super::tactics::bridge(BridgeTactic::Side, vec![]),
                 };
                 self.push_at(
                     depth + 1,
-                    Tactic::Raw(format!("all_goals {close}")),
+                    Tactic::AllGoals(Box::new(close)),
                     step.line,
                     spot.clone(),
                 );
