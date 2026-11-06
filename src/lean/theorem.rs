@@ -1271,8 +1271,8 @@ struct Proof<'a> {
 struct KindShown {
     /// The fact, `gcd(t, w) ∈ ℕ`.
     fact: Node,
-    /// The fact as Lean writes it.
-    text: String,
+    /// The fact in Lean.
+    says: Printed,
     /// Its proof by the define's reason.
     proof: String,
 }
@@ -3187,7 +3187,7 @@ impl<'a> Proof<'a> {
         // a·b, an integer`: the kind's fact is still a line, proved by the
         // define's reason.
         if def.kind.is_some() {
-            let KindShown { text, proof, .. } = match self.kind_shown(d) {
+            let KindShown { says, proof, .. } = match self.kind_shown(d) {
                 Route::Built(s) => s,
                 Route::Declined(why) => return Route::Declined(why),
             };
@@ -3195,7 +3195,11 @@ impl<'a> Proof<'a> {
             let label = line_name(&line.label);
             self.push_at(
                 depth,
-                Tactic::Raw(format!("have {label}_kind : {text} := {proof}")),
+                Tactic::Have {
+                    name: format!("{label}_kind"),
+                    says,
+                    proof,
+                },
                 line.line,
                 Spot::Statement,
             );
@@ -3285,8 +3289,8 @@ impl<'a> Proof<'a> {
             Route::Built(n) => n,
             Route::Declined(why) => return Route::Declined(why),
         };
-        let text = match self.writer.formula(&fact) {
-            Route::Built(f) => f.text(),
+        let says = match self.writer.formula(&fact) {
+            Route::Built(f) => f,
             Route::Declined(why) => return Route::Declined(why),
         };
         let Ok(just) = &kinded.shown.by else {
@@ -3300,7 +3304,7 @@ impl<'a> Proof<'a> {
             Route::Built(p) => p,
             Route::Declined(why) => return Route::Declined(why),
         };
-        Route::Built(KindShown { fact, text, proof })
+        Route::Built(KindShown { fact, says, proof })
     }
 
     /// A define naming a whole number its value is shown to be, `let e =
@@ -3320,11 +3324,12 @@ impl<'a> Proof<'a> {
             Route::Built(s) => s,
             Route::Declined(why) => return Route::Declined(why),
         };
-        let KindShown {
-            fact,
-            text: fact_text,
+        let KindShown { fact, says, proof } = shown;
+        let kind_line = Tactic::Have {
+            name: format!("{}_kind", line_name(&line.label)),
+            says,
             proof,
-        } = shown;
+        };
         let [_, set] = fact.children.as_slice() else {
             return Route::no("a kind's fact that is no membership");
         };
@@ -3356,18 +3361,16 @@ impl<'a> Proof<'a> {
                 Route::Built(v) => v.text(),
                 Route::Declined(why) => return Route::Declined(why),
             };
-            self.push_at(
-                depth,
-                Tactic::Raw(format!("have {label}_kind : {fact_text} := {proof}")),
-                at,
-                Spot::Statement,
-            );
+            self.push_at(depth, kind_line, at, Spot::Statement);
             self.name_value(d, name, LetterType::Number(ty), &value, body, depth);
             self.writer.introduce(name, system);
             if ordered {
                 self.push_at(
                     depth,
-                    Tactic::Raw(format!("have {label}_pos := {label}_kind")),
+                    Tactic::Name {
+                        name: format!("{label}_pos"),
+                        term: super::tactics::hyp(&format!("{label}_kind")),
+                    },
                     at,
                     Spot::Statement,
                 );
@@ -3376,19 +3379,17 @@ impl<'a> Proof<'a> {
         }
         // A value of a wider type, p/d: its kind's fact is a witness, `∃ m :
         // ℤ, 0 < m ∧ (m : ℚ) = p/d`, and the letter is that m.
-        let parts = match ordered {
-            true => format!("{letter}, {label}_pos, {label}"),
-            false => format!("{letter}, {label}"),
+        let names = match ordered {
+            true => vec![letter.clone(), format!("{label}_pos"), label.clone()],
+            false => vec![letter.clone(), label.clone()],
         };
+        self.push_at(depth, kind_line, at, Spot::Statement);
         self.push_at(
             depth,
-            Tactic::Raw(format!("have {label}_kind : {fact_text} := {proof}")),
-            at,
-            Spot::Statement,
-        );
-        self.push_at(
-            depth,
-            Tactic::Raw(format!("obtain ⟨{parts}⟩ := {label}_kind")),
+            Tactic::Obtain {
+                names,
+                from: super::tactics::hyp(&format!("{label}_kind")),
+            },
             at,
             Spot::Statement,
         );
