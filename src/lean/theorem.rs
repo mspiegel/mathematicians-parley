@@ -1966,10 +1966,11 @@ impl<'a> Proof<'a> {
                     None => format!("Classical.choose_spec {}", a.said.proof),
                 })
                 .collect();
-            let equal = format!(
-                "by first | (push_cast; simp only [{s}]; done) | (push_cast; simp only [{s}]; ring)",
-                s = specs.join(", ")
-            );
+            let s = specs.join(", ");
+            let equal = by_ways(vec![
+                Tactic::Raw(format!("(push_cast; simp only [{s}]; done)")),
+                Tactic::Raw(format!("(push_cast; simp only [{s}]; ring)")),
+            ]);
             let haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
             if !ordered {
                 return Route::Built(with_haves(
@@ -2050,10 +2051,11 @@ impl<'a> Proof<'a> {
                 None => format!("Classical.choose_spec {}", a.said.proof),
             })
             .collect();
-        let equal = format!(
-            "by first | (push_cast; simp only [{specs}]; done) | (push_cast; simp only [{specs}]; ring)",
-            specs = specs.join(", ")
-        );
+        let joined = specs.join(", ");
+        let equal = by_ways(vec![
+            Tactic::Raw(format!("(push_cast; simp only [{joined}]; done)")),
+            Tactic::Raw(format!("(push_cast; simp only [{joined}]; ring)")),
+        ]);
         let mut haves: Vec<String> = atoms.iter().map(|a| a.have.clone()).collect();
         // Each such cited line, said of the number the step names.
         for c in &cited {
@@ -2654,10 +2656,14 @@ impl<'a> Proof<'a> {
                             .collect();
                         Route::Built(match unfold.is_empty() {
                             true => "by parley_side".to_string(),
-                            false => format!(
-                                "by first | (simp (disch := omega) only [{h}]; done) | (simp (disch := omega) only [{h}]; push_cast; norm_num; done) | parley_side",
-                                h = unfold.join(", ")
-                            ),
+                            false => {
+                                let h = unfold.join(", ");
+                                by_ways(vec![
+                                    Tactic::Raw(format!("(simp (disch := omega) only [{h}]; done)")),
+                                    Tactic::Raw(format!("(simp (disch := omega) only [{h}]; push_cast; norm_num; done)")),
+                                    Tactic::Raw("parley_side".to_string()),
+                                ])
+                            }
                         })
                     }
                 },
@@ -4243,10 +4249,7 @@ impl<'a> Proof<'a> {
             }
         }
         ways.extend(witnessed);
-        let tactic = match ways.as_slice() {
-            [one] => format!("by {one}"),
-            _ => format!("by first | {}", ways.join(" | ")),
-        };
+        let tactic = by_ways(ways.into_iter().map(Tactic::Raw).collect());
         Route::Built(with_haves(&haves, &tactic))
     }
 
@@ -4429,9 +4432,13 @@ impl<'a> Proof<'a> {
             let put = if used == change_name {
                 format!("parley_subst_at {used} {above}")
             } else {
-                format!(
-                    "first | parley_put_at {used} {above} | parley_put_at {change_name} {above} | parley_subst_at {used} {above} | parley_subst_at {change_name} {above}"
-                )
+                Tactic::First(vec![
+                    Tactic::Raw(format!("parley_put_at {used} {above}")),
+                    Tactic::Raw(format!("parley_put_at {change_name} {above}")),
+                    Tactic::Raw(format!("parley_subst_at {used} {above}")),
+                    Tactic::Raw(format!("parley_subst_at {change_name} {above}")),
+                ])
+                .text()
             };
             // A row whose lines say counts both ways takes them to
             // integers first, as a step does (`count_conversion`).
@@ -4688,11 +4695,11 @@ impl<'a> Proof<'a> {
                     // put as its term, and the line used.
                     let named = self.named.get(cite).and_then(|n| n.first());
                     let in_named = match (named, self.named_specs.is_empty()) {
-                        (Some(line), false) => format!(
-                            " | (qify; push_cast; simp only [{s}]; first | (linear_combination (norm := parley_norm) {line}; done) | (linear_combination (norm := parley_norm) -{line}; done))",
+                        (Some(line), false) => Some(Tactic::Raw(format!(
+                            "(qify; push_cast; simp only [{s}]; first | (linear_combination (norm := parley_norm) {line}; done) | (linear_combination (norm := parley_norm) -{line}; done))",
                             s = self.named_specs.join(", ")
-                        ),
-                        _ => String::new(),
+                        ))),
+                        _ => None,
                     };
                     // A row of integer powers citing a line of natural powers
                     // to an integer's `toNat`, an item's 2^(d·e).toNat: the
@@ -4702,30 +4709,37 @@ impl<'a> Proof<'a> {
                         .get(cite)
                         .and_then(|t| t.first())
                         .and_then(|(node, _)| self.writer.formula(node).built())
-                        .is_some_and(|p| p.text().contains(".toNat"));
+                        .is_some_and(|p| p.has_to_nat());
                     let to_nat = [&printed[k], &printed[k + 1]]
                         .iter()
                         .any(|p| p.contains(".toNat"))
                         || line_to_nat;
                     // Each part of the line, 4.8 obtained as s4_8a, s4_8b, …
-                    let parts: Vec<String> = match to_nat {
+                    let parts: Vec<Tactic> = match to_nat {
                         true => self
                             .named
                             .get(cite)
                             .into_iter()
                             .flatten()
-                            .map(|part| format!(" | parley_line_toNat {part}"))
+                            .map(|part| {
+                                Tactic::Raw(format!("parley_line_toNat {part}"))
+                            })
                             .collect(),
                         false => Vec::new(),
                     };
-                    let in_named = format!("{in_named}{}", parts.concat());
-                    match define {
-                        Some(h) => format!(
-                            "by first | (simp (disch := omega) only [{h}]; done) | (simp (disch := omega) only [{h}]; push_cast; norm_num; done) | parley_side{in_named}"
-                        ),
-                        None if in_named.is_empty() => "by parley_side".to_string(),
-                        None => format!("by first | parley_side{in_named}"),
-                    }
+                    let mut ways: Vec<Tactic> = match define {
+                        Some(h) => vec![
+                            Tactic::Raw(format!("(simp (disch := omega) only [{h}]; done)")),
+                            Tactic::Raw(format!(
+                                "(simp (disch := omega) only [{h}]; push_cast; norm_num; done)"
+                            )),
+                        ],
+                        None => Vec::new(),
+                    };
+                    ways.push(Tactic::Raw("parley_side".to_string()));
+                    ways.extend(in_named);
+                    ways.extend(parts);
+                    by_ways(ways)
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
                 None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
@@ -7162,6 +7176,16 @@ fn as_tactic(proof: &str) -> String {
         Some(t) => format!("({t})"),
         None => format!("exact ({proof})"),
     }
+}
+
+/// `by` and the ways a step is closed, tried in order: `by t` of one way,
+/// `by first | a | b` of several.
+fn by_ways(ways: Vec<Tactic>) -> String {
+    let tactic = match <[Tactic; 1]>::try_from(ways) {
+        Ok([one]) => one,
+        Err(ways) => Tactic::First(ways),
+    };
+    super::doc::Proof::By(tactic).text()
 }
 
 fn close(writer: &Writer, claim: &Node, term: &str) -> String {

@@ -613,6 +613,16 @@ impl Term {
         })
     }
 
+    /// Whether some node of the tree is of a kind `of` holds of.
+    pub fn has(&self, of: impl Fn(&TermKind) -> bool) -> bool {
+        self.walk().into_iter().any(|t| of(&t.kind))
+    }
+
+    /// Whether the tree takes a whole number to ℕ somewhere, `n.toNat`.
+    pub fn has_to_nat(&self) -> bool {
+        self.has(|k| matches!(k, TermKind::ToNat(_)))
+    }
+
     /// The constants the tree names.
     pub fn constants(&self) -> Vec<&ConstRef> {
         self.walk()
