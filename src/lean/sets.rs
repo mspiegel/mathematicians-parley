@@ -1374,9 +1374,11 @@ impl Writer<'_> {
             _ => return None,
         };
         Some(match self.set_term(p) {
-            Route::Built(f) => {
-                Route::Built(Printed::raw(format!("{} ∈ {POLYNOMIALS}", f.at(51)), 50))
-            }
+            Route::Built(f) => relation_of(
+                "∈",
+                f,
+                Printed::head(POLYNOMIALS, Source::Bridge("Polynomials".to_string())),
+            ),
             Route::Declined(d) => Route::Declined(d),
         })
     }
@@ -1406,11 +1408,33 @@ impl Writer<'_> {
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         let q = super::names::letter(&letter.text);
-        let text = match exists {
-            true => format!("∃ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} ∧ {}", body.at(35)),
-            false => format!("∀ {q} : ℂ → ℂ, {q} ∈ {POLYNOMIALS} → {}", body.at(25)),
+        let complex = LeanType::Num(Num::Complex);
+        let ty = LeanType::Fun {
+            from: Box::new(complex.clone()),
+            to: Box::new(complex),
         };
-        Some(Route::Built(Printed::raw(text, 0)))
+        let polynomial = match relation_of(
+            "∈",
+            Printed::letter(q.clone(), ty.clone()),
+            Printed::head(POLYNOMIALS, Source::Bridge("Polynomials".to_string())),
+        ) {
+            Route::Built(p) => p,
+            Route::Declined(d) => return Some(Route::Declined(d)),
+        };
+        let (lead, joined, need) = match exists {
+            true => ("∃", " ∧ ", 35),
+            false => ("∀", " → ", 25),
+        };
+        Some(Route::Built(Printed::notation(
+            vec![
+                Piece::text(format!("{lead} {q} : {}, ", ty.text())),
+                Piece::term(polynomial, 0),
+                Piece::text(joined),
+                Piece::term(body, need),
+            ],
+            0,
+            LeanType::Prop,
+        )))
     }
 
     /// X is finite: `X.Finite`.
@@ -1422,9 +1446,13 @@ impl Writer<'_> {
             return None;
         };
         Some(match self.set_term(set) {
-            Route::Built(s) => {
-                Route::Built(Printed::raw(format!("{}.Finite", s.at(MAX)), MAX))
-            }
+            Route::Built(s) => Route::Built(Printed::of(
+                TermKind::Field {
+                    inner: Box::new(s),
+                    field: "Finite".to_string(),
+                },
+                LeanType::Prop,
+            )),
             Route::Declined(d) => Route::Declined(d),
         })
     }
@@ -1435,23 +1463,20 @@ impl Writer<'_> {
         let mut listed = Vec::new();
         for c in &node.children {
             match self.element_term(c, members) {
-                Route::Built(p) => listed.push(p.text()),
+                Route::Built(p) => listed.push(p),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
-        Route::Built(Printed::atom(format!(
-            "({{{}}} : Set {})",
-            listed.join(", "),
-            super::expr::bracketed(&self.members_type(members))
-        )))
+        let of = LeanType::Set(Box::new(self.members_type(members)));
+        Route::Built(Printed::cast(listed_set(listed, of.clone()), of))
     }
 
-    /// How Lean writes the type of such members here: numbers of the
-    /// type an item is general in are of K.
-    fn members_type(&self, members: &Members) -> String {
+    /// The type of such members here: numbers of the type an item is
+    /// general in are of K.
+    fn members_type(&self, members: &Members) -> LeanType {
         match members {
-            Members::Numbers(n) => self.type_name(*n),
-            other => other.lean(),
+            Members::Numbers(n) => self.num_type(*n),
+            other => other.member_type(),
         }
     }
 
@@ -1496,18 +1521,15 @@ impl Writer<'_> {
         })?;
         // ∅ is told its type, which nothing else in `t ∈ ∅` gives Lean, and
         // so is a listed set whose members give none, {∅}.
-        let set_text = match (empty, listed) {
-            (true, _) => Route::Built(Printed::atom(format!(
-                "(∅ : Set {})",
-                super::expr::bracketed(&members.lean())
+        let set_term = match (empty, listed) {
+            (true, _) => Route::Built(super::expr::empty_of_type(LeanType::Set(
+                Box::new(members.member_type()),
             ))),
             (false, true) => self.listed(set, &members),
             (false, false) => self.set_term(set),
         };
-        Some(match (self.element_term(x, &members), set_text) {
-            (Route::Built(a), Route::Built(b)) => {
-                Route::Built(Printed::raw(format!("{} ∈ {}", a.at(51), b.at(51)), 50))
-            }
+        Some(match (self.element_term(x, &members), set_term) {
+            (Route::Built(a), Route::Built(b)) => relation_of("∈", a, b),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1531,18 +1553,12 @@ impl Writer<'_> {
         {
             let at = m.max(n);
             return Some(match (self.numbers_at(a, at), self.numbers_at(b, at)) {
-                (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
-                    format!("{} {op} {}", a.at(51), b.at(51)),
-                    50,
-                )),
+                (Route::Built(a), Route::Built(b)) => relation_of(op, a, b),
                 (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
             });
         }
         Some(match (self.side_term(a, b), self.side_term(b, a)) {
-            (Route::Built(a), Route::Built(b)) => Route::Built(Printed::raw(
-                format!("{} {op} {}", a.at(51), b.at(51)),
-                50,
-            )),
+            (Route::Built(a), Route::Built(b)) => relation_of(op, a, b),
             (Route::Declined(d), _) | (_, Route::Declined(d)) => Route::Declined(d),
         })
     }
@@ -1587,14 +1603,18 @@ impl Writer<'_> {
             Route::Declined(d) => return Some(Route::Declined(d)),
         };
         let quantifier = if exists { "∃" } else { "∀" };
-        Some(Route::Built(Printed::raw(
-            format!(
-                "{quantifier} {} ∈ {}, {}",
-                super::names::letter(&letter.text),
-                domain.at(51),
-                body.text()
-            ),
+        Some(Route::Built(Printed::notation(
+            vec![
+                Piece::text(format!(
+                    "{quantifier} {} ∈ ",
+                    super::names::letter(&letter.text)
+                )),
+                Piece::term(domain, 51),
+                Piece::text(", "),
+                Piece::term(body, 0),
+            ],
             0,
+            LeanType::Prop,
         )))
     }
 }
