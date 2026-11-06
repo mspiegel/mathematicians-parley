@@ -31,6 +31,20 @@ use crate::outcome::Route;
 pub struct LeanFile {
     pub text: String,
     pub origins: Vec<Origin>,
+    /// Where a citation's item writes a term in another form than the line
+    /// it proves.
+    pub forms: Vec<FormNote>,
+}
+
+/// A citation whose item, read as written, writes a term in another form
+/// than the line it proves.
+#[derive(Clone, Debug)]
+pub struct FormNote {
+    /// The line of the proof file the citation is on.
+    pub page_line: usize,
+    /// The item cited, by its full name.
+    pub item: String,
+    pub difference: super::doc::forms::FormDifference,
 }
 
 /// An item applied to what a citation gives it.
@@ -1222,6 +1236,9 @@ struct Proof<'a> {
     /// The lines whose numbers a citation was given while its step was
     /// written, A/B of `A/B ∈ ℤ`, which the step's goal is put in terms of.
     said_used: std::cell::RefCell<Vec<SaidUsed>>,
+    /// Where a citation's item, read as written, writes a term in another
+    /// form than the line it proves (`doc::forms`).
+    forms: std::cell::RefCell<Vec<FormNote>>,
     /// While a step that names whole numbers is written
     /// (`proof_with_named`), the equations of each with its term: what a
     /// row citing a line in the page's forms is put in terms of.
@@ -1344,6 +1361,7 @@ pub fn theorem(
         defined: indexmap::IndexSet::new(),
         worked_in: std::cell::Cell::new(None),
         said_used: std::cell::RefCell::new(Vec::new()),
+        forms: std::cell::RefCell::new(Vec::new()),
         named_specs: Vec::new(),
         witnessed: std::collections::BTreeSet::new(),
         witness_letters: Vec::new(),
@@ -1493,7 +1511,12 @@ pub fn theorem(
         text.push_str(&line.text);
         text.push('\n');
     }
-    Route::Built(LeanFile { text, origins })
+    let forms = proof.forms.take();
+    Route::Built(LeanFile {
+        text,
+        origins,
+        forms,
+    })
 }
 
 /// Indentation for a depth of nesting.
@@ -5553,10 +5576,12 @@ impl<'a> Proof<'a> {
                 super::doc::LeanType::Prop,
             ),
         };
-        Route::Built(Instance {
-            term,
-            statement: sentence.prop.substituted(&given),
-        })
+        let statement = sentence.prop.substituted(&given);
+        let statement = match general {
+            Some(at) => statement.with_general(super::doc::LeanType::Num(at)),
+            None => statement,
+        };
+        Route::Built(Instance { term, statement })
     }
 
     /// The type a value given a general letter is in: a number's own, a
@@ -5649,10 +5674,25 @@ impl<'a> Proof<'a> {
             return Route::no("a conclusion the item does not have in Lean");
         };
         let lines = self.cited_parts(&reason.just.refs);
-        let inst = match self.instance(sentence, &cited.binding, Some(node), &lines) {
-            Route::Built(t) => t,
-            Route::Declined(d) => return Route::Declined(d),
-        };
+        let instance =
+            match self.instance_of(sentence, &cited.binding, Some(node), &lines) {
+                Route::Built(i) => i,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+        // An item read as written says what the claim says: where the two
+        // write one term in different forms, the build reports it.
+        if concluded.way == Way::AsWritten {
+            if let Route::Built(claim) = self.writer.formula(node) {
+                for d in super::doc::forms::differences(&instance.statement, &claim) {
+                    self.forms.borrow_mut().push(FormNote {
+                        page_line: reason.just.line,
+                        item: cited.item.clone(),
+                        difference: d,
+                    });
+                }
+            }
+        }
+        let inst = instance.term.text();
         let iff = sentence.says.notation() == BICONDITIONAL;
         let implication = matches!(sentence.says.notation(), CONDITIONAL | IMPLICATION);
         let term = match concluded.way {

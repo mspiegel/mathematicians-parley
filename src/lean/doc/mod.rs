@@ -6,6 +6,7 @@
 //! agree are read from the tree. Text is made in one place, the printer
 //! (`print`), which brackets by precedence as Lean reads.
 
+pub mod forms;
 pub mod print;
 pub mod skeleton;
 pub mod tactic;

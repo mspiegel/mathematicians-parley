@@ -1894,7 +1894,7 @@ impl Writer<'_> {
                 // around such a term at its leaves, `(a % (10 : ℤ) : ℝ)`
                 // taking the remainder in ℝ.
                 let value = match fill(template, &children) {
-                    Route::Built(v) => v,
+                    Route::Built(v) => v.typed(self.num_type(here)),
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let value = match template.yields {
@@ -2261,7 +2261,9 @@ impl Writer<'_> {
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 match self.holes(node, template, alpha) {
-                    Route::Built(children) => fill(template, &children),
+                    Route::Built(children) => {
+                        fill(template, &children).map(|t| t.typed(LeanType::Prop))
+                    }
                     Route::Declined(d) => Route::Declined(d),
                 }
             }

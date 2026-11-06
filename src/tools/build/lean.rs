@@ -54,6 +54,9 @@ pub struct Made {
     /// Each theorem's file, by its path, with where on the page each of its
     /// lines was written for.
     pub origins: IndexMap<String, Origins>,
+    /// Each citation whose item, read as written, writes a term in another
+    /// form than the line it proves (`doc::forms`), said in words.
+    pub forms: Vec<String>,
 }
 
 /// Where a theorem's Lean file comes from, line by line.
@@ -296,6 +299,14 @@ pub fn make(checked: &CheckedCorpus) -> Result<Made, crate::outcome::Problem> {
                 continue;
             }
         };
+        for note in &file.forms {
+            made.forms.push(format!(
+                "{name}: line {}: {}: {}",
+                note.page_line,
+                note.item,
+                note.difference.describe()
+            ));
+        }
         let module = module_of(&name);
         // The modules of the items it cites, which must be written for it
         // to be, and beside them the library it uses.
@@ -486,6 +497,13 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
         said.printed += "\nleft out of the Lean build:\n";
         for (name, why) in &made.left_out {
             said.printed += &format!("  {name}: {why}\n");
+        }
+    }
+    if !made.forms.is_empty() {
+        said.printed +=
+            "\ncitations whose item writes a term in another form than the line:\n";
+        for note in &made.forms {
+            said.printed += &format!("  {note}\n");
         }
     }
     if !made.gaps.is_empty() {

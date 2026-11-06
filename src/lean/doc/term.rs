@@ -375,6 +375,16 @@ impl Term {
         )
     }
 
+    /// The term with the type the writer knows it has, where the node it
+    /// was made as did not say one: a template filled, whose type is the
+    /// one its notation yields there.
+    pub fn typed(mut self, ty: LeanType) -> Term {
+        if self.ty.is_none() {
+            self.ty = Some(ty);
+        }
+        self
+    }
+
     /// The term at a type: `(x : T)`.
     pub fn cast(inner: Term, to: LeanType) -> Term {
         Term::of(
@@ -611,6 +621,72 @@ impl Term {
             kind,
             ty: self.ty.clone(),
         })
+    }
+
+    /// The term with an item's general number type, `K`, made the type a
+    /// citation gives it.
+    pub fn with_general(&self, at: LeanType) -> Term {
+        let mut out = self.clone();
+        out.set_general(&at);
+        out
+    }
+
+    fn set_general(&mut self, at: &LeanType) {
+        if self.ty == Some(LeanType::General) {
+            self.ty = Some(at.clone());
+        }
+        if let TermKind::Cast { to, .. } = &mut self.kind {
+            if *to == LeanType::General {
+                *to = at.clone();
+            }
+        }
+        match &mut self.kind {
+            TermKind::App { head, args, .. } => {
+                head.set_general(at);
+                for a in args {
+                    match a {
+                        Arg::Explicit(t) => t.set_general(at),
+                        Arg::Named { value, .. } => value.set_general(at),
+                    }
+                }
+            }
+            TermKind::Infix { lhs, rhs, .. } => {
+                lhs.set_general(at);
+                rhs.set_general(at);
+            }
+            TermKind::Not(t)
+            | TermKind::Neg(t)
+            | TermKind::ToNat(t)
+            | TermKind::Paren(t) => t.set_general(at),
+            TermKind::Cast { inner, .. }
+            | TermKind::Field { inner, .. }
+            | TermKind::Enclosed { inner, .. } => inner.set_general(at),
+            TermKind::Count { set, .. } => set.set_general(at),
+            TermKind::ModEq { a, b, n } => {
+                a.set_general(at);
+                b.set_general(at);
+                n.set_general(at);
+            }
+            TermKind::Quantified { guard, body, .. } => {
+                if let Some(g) = guard {
+                    g.set_general(at);
+                }
+                body.set_general(at);
+            }
+            TermKind::Notation { pieces, .. } => {
+                for p in pieces {
+                    if let Piece::Term { term, .. } = p {
+                        term.set_general(at);
+                    }
+                }
+            }
+            TermKind::Raw { .. }
+            | TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided => {}
+        }
     }
 
     /// Whether some node of the tree is of a kind `of` holds of.
