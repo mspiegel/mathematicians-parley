@@ -1489,23 +1489,25 @@ pub fn theorem(
         ));
     }
     if conclusion.len() > 1 {
-        proof.push(
+        proof.line(
+            1,
             format!(
-                "  exact ⟨{}⟩",
+                "exact ⟨{}⟩",
                 vec!["by parley_side"; conclusion.len()].join(", ")
             ),
             thm.conclusion_line,
-            Spot::Statement,
+            &Spot::Statement,
         );
     } else {
         let close = match conclusion.as_slice() {
             [one] => proof.closing(top.last().copied(), &one.says),
             _ => "parley_side".to_string(),
         };
-        proof.push(
-            format!("  all_goals {close}"),
+        proof.line(
+            1,
+            format!("all_goals {close}"),
             thm.conclusion_line,
-            Spot::Statement,
+            &Spot::Statement,
         );
     }
     let mut text = String::new();
@@ -3100,18 +3102,7 @@ impl<'a> Proof<'a> {
         let k = super::names::letter(&r.index);
         let v = super::names::letter(&previous);
         let label = line_name(&line.label);
-        self.push(
-            format!(
-                "{}obtain ⟨{f}, {label}⟩ : ∃ {f} : ℤ → {}, {f} 0 = {} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = {} := LeanBridges.Functions.recursion_exists _ (fun {k} {v} => {})",
-                pad(depth),
-                to.lean(),
-                start.at(51),
-                step.at(51),
-                by_previous.text()
-            ),
-            line.line,
-            Spot::Statement,
-        );
+        self.push_at(depth, Tactic::Raw(format!("obtain ⟨{f}, {label}⟩ : ∃ {f} : ℤ → {}, {f} 0 = {} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {f} ({k} + 1) = {} := LeanBridges.Functions.recursion_exists _ (fun {k} {v} => {})", to.lean(), start.at(51), step.at(51), by_previous.text())), line.line, Spot::Statement);
         self.named.insert(line.label.clone(), vec![label]);
         Route::Built(())
     }
@@ -3214,8 +3205,9 @@ impl<'a> Proof<'a> {
             };
             let line = &self.thm.defines[d];
             let label = line_name(&line.label);
-            self.push(
-                format!("{}have {label}_kind : {text} := {proof}", pad(depth)),
+            self.push_at(
+                depth,
+                Tactic::Raw(format!("have {label}_kind : {text} := {proof}")),
                 line.line,
                 Spot::Statement,
             );
@@ -3269,13 +3261,13 @@ impl<'a> Proof<'a> {
         let line = &self.thm.defines[d];
         let label = line_name(&line.label);
         let (at, page_label) = (line.line, line.label.clone());
-        self.push(
-            format!(
-                "{}set {} : {} := {value} with {label}",
-                pad(depth),
+        self.push_at(
+            depth,
+            Tactic::Raw(format!(
+                "set {} : {} := {value} with {label}",
                 super::names::letter(name),
                 ty.lean()
-            ),
+            )),
             at,
             Spot::Statement,
         );
@@ -3376,19 +3368,18 @@ impl<'a> Proof<'a> {
                 Route::Built(v) => v.text(),
                 Route::Declined(why) => return Route::Declined(why),
             };
-            self.push(
-                format!(
-                    "{p}have {label}_kind : {fact_text} := {proof}",
-                    p = pad(depth)
-                ),
+            self.push_at(
+                depth,
+                Tactic::Raw(format!("have {label}_kind : {fact_text} := {proof}")),
                 at,
                 Spot::Statement,
             );
             self.name_value(d, name, LetterType::Number(ty), &value, body, depth);
             self.writer.introduce(name, system);
             if ordered {
-                self.push(
-                    format!("{p}have {label}_pos := {label}_kind", p = pad(depth)),
+                self.push_at(
+                    depth,
+                    Tactic::Raw(format!("have {label}_pos := {label}_kind")),
                     at,
                     Spot::Statement,
                 );
@@ -3401,12 +3392,15 @@ impl<'a> Proof<'a> {
             true => format!("{letter}, {label}_pos, {label}"),
             false => format!("{letter}, {label}"),
         };
-        let named = format!("{p}obtain ⟨{parts}⟩ := {label}_kind", p = pad(depth));
-        self.push(
-            format!(
-                "{p}have {label}_kind : {fact_text} := {proof}\n{named}",
-                p = pad(depth)
-            ),
+        self.push_at(
+            depth,
+            Tactic::Raw(format!("have {label}_kind : {fact_text} := {proof}")),
+            at,
+            Spot::Statement,
+        );
+        self.push_at(
+            depth,
+            Tactic::Raw(format!("obtain ⟨{parts}⟩ := {label}_kind")),
             at,
             Spot::Statement,
         );
@@ -3554,15 +3548,15 @@ impl<'a> Proof<'a> {
         };
         let name = super::names::letter(&def.name);
         let label = line_name(&line.label);
-        self.push(
-            format!(
-                "{}set {name} : {} → {} := fun {} => {} with {label}",
-                pad(depth),
+        self.push_at(
+            depth,
+            Tactic::Raw(format!(
+                "set {name} : {} → {} := fun {} => {} with {label}",
                 from.lean(),
                 to.lean(),
                 super::names::letter(&param.name),
                 value.text()
-            ),
+            )),
             line.line,
             Spot::Statement,
         );
@@ -3601,14 +3595,16 @@ impl<'a> Proof<'a> {
             Route::Declined(d) => return Route::Declined(d),
         };
         let lean = super::names::letter(name);
-        self.push(
+        let line = self.thm.line;
+        self.line(
+            1,
             format!(
-                "  set {lean} : {} := {} with h_{lean}",
+                "set {lean} : {} := {} with h_{lean}",
                 self.writer.type_name(ty),
                 value.text()
             ),
-            self.thm.line,
-            Spot::Statement,
+            line,
+            &Spot::Statement,
         );
         self.writer
             .letters
