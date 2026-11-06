@@ -1550,6 +1550,11 @@ impl<'a> Proof<'a> {
         self.push_at(0, Tactic::Raw(line), page_line, spot);
     }
 
+    /// Tactic text as a line of the proof at a depth of its blocks.
+    fn line(&mut self, depth: usize, text: String, page_line: usize, spot: &Spot) {
+        self.push_at(depth, Tactic::Raw(text), page_line, spot.clone());
+    }
+
     /// A tactic as a line of the proof at a depth of its blocks.
     fn push_at(&mut self, depth: usize, tactic: Tactic, page_line: usize, spot: Spot) {
         self.lines.push(ProofLine {
@@ -1763,7 +1768,6 @@ impl<'a> Proof<'a> {
             }
         }
         let spot = Self::step_spot(step);
-        let p = pad(depth);
         self.push_at(
             depth,
             Tactic::Comment(format!("{}. {}", step.number, step.just.text.trim())),
@@ -1928,10 +1932,11 @@ impl<'a> Proof<'a> {
             });
             let refute = if real { "parley_real" } else { "norm_num" };
             if let Some(last) = names.last() {
-                self.push(
-                    format!("{p}exact absurd {last} (by {refute})"),
+                self.line(
+                    depth,
+                    format!("exact absurd {last} (by {refute})"),
                     step.line,
-                    spot,
+                    &spot,
                 );
             }
         }
@@ -6118,15 +6123,15 @@ impl<'a> Proof<'a> {
                 .get(obtained)
                 .cloned()
                 .unwrap_or_else(|| "_".to_string());
-            self.push(
+            self.line(
+                depth,
                 format!(
-                    "{}obtain ⟨{}, {guard}, _⟩ := {}",
-                    pad(depth),
+                    "obtain ⟨{}, {guard}, _⟩ := {}",
                     super::names::letter(obtained),
                     source.term
                 ),
                 step.line,
-                Self::step_spot(step),
+                &Self::step_spot(step),
             );
             return Route::Built(());
         }
@@ -6195,11 +6200,11 @@ impl<'a> Proof<'a> {
             }
             pattern.push(shaped);
         }
-        let p = pad(depth);
-        self.push(
-            format!("{p}obtain ⟨{}⟩ := {}", pattern.join(", "), source.term),
+        self.line(
+            depth,
+            format!("obtain ⟨{}⟩ := {}", pattern.join(", "), source.term),
             step.line,
-            Self::step_spot(step),
+            &Self::step_spot(step),
         );
         // An item given a line's number, x := the rational of `√2 ∈ ℚ`,
         // gives its facts of that number; a sentence the page says of the
@@ -6210,11 +6215,13 @@ impl<'a> Proof<'a> {
             if specs.is_empty() {
                 continue;
             }
-            self.push(
-                format!(
-                    "{p}have {name} : {} := by rw [{specs}]; exact_mod_cast {name}",
-                    prop.text()
-                ),
+            self.push_at(
+                depth,
+                Tactic::Have {
+                    name: name.clone(),
+                    says: prop.clone(),
+                    proof: format!("by rw [{specs}]; exact_mod_cast {name}"),
+                },
                 step.line,
                 Self::step_spot(step),
             );
@@ -6523,7 +6530,6 @@ impl<'a> Proof<'a> {
         parts: &[Option<usize>],
         depth: usize,
     ) -> Route<()> {
-        let p = pad(depth);
         let spot = Self::step_spot(step);
         let [letter, set, body] = claimed.children.as_slice() else {
             return Route::no("an induction whose claim says no \"for all\"");
@@ -6547,16 +6553,18 @@ impl<'a> Proof<'a> {
         // put as `le_induction` reads it, 1 ≤ k or 0 ≤ k, in its place, so
         // that the induction hypothesis does not ask it again.
         let start = if from_one { 1 } else { 0 };
-        self.push(format!("{p}intro {name} h_{name}"), step.line, spot.clone());
-        self.push(
-            format!("{p}replace h_{name} : {start} ≤ {name} := by omega"),
+        self.line(depth, format!("intro {name} h_{name}"), step.line, &spot);
+        self.line(
+            depth,
+            format!("replace h_{name} : {start} ≤ {name} := by omega"),
             step.line,
-            spot.clone(),
+            &spot,
         );
-        self.push(
-            format!("{p}induction {name}, h_{name} using LeanBridges.Functions.le_induction with"),
+        self.line(
+            depth,
+            format!("induction {name}, h_{name} using LeanBridges.Functions.le_induction with"),
             step.line,
-            spot.clone(),
+            &spot,
         );
         for part in parts {
             let marker = part
@@ -6567,7 +6575,7 @@ impl<'a> Proof<'a> {
                 step.openers.iter().filter(|o| o.part == *part).collect();
             match marker {
                 "base" => {
-                    self.push(format!("{p}| base =>"), step.line, spot.clone());
+                    self.line(depth, "| base =>".to_string(), step.line, &spot);
                 }
                 "step" => {
                     let hypothesis = openers
@@ -6588,7 +6596,7 @@ impl<'a> Proof<'a> {
                         .map(|o| line_name(&o.label))
                         .unwrap_or_else(|| format!("h_{name}"));
                     let case = format!("succ {name} {guard} {hypothesis}");
-                    self.push(format!("{p}| {case} =>"), step.line, spot.clone());
+                    self.line(depth, format!("| {case} =>"), step.line, &spot);
                 }
                 other => return Route::no(format!("an induction part {other:?}")),
             }
@@ -6613,10 +6621,11 @@ impl<'a> Proof<'a> {
             if let Route::Declined(d) = self.steps(&children, depth + 1) {
                 return Route::Declined(d);
             }
-            self.push(
-                format!("{p}  all_goals parley_side"),
+            self.line(
+                depth + 1,
+                "all_goals parley_side".to_string(),
                 step.line,
-                spot.clone(),
+                &spot,
             );
         }
         Route::Built(())
@@ -6652,7 +6661,6 @@ impl<'a> Proof<'a> {
         openers: &[crate::corpus::Opener],
         depth: usize,
     ) -> Route<()> {
-        let p = pad(depth);
         let spot = Self::step_spot(step);
         for o in openers {
             let label = line_name(&o.label);
@@ -6690,29 +6698,30 @@ impl<'a> Proof<'a> {
                                 o.label.clone(),
                                 vec![(node.clone(), label.clone())],
                             );
-                            self.push(
-                                format!("{p}intro {letter} {label}"),
+                            self.line(
+                                depth,
+                                format!("intro {letter} {label}"),
                                 o.line,
-                                spot.clone(),
+                                &spot,
                             );
                             // The range as the page writes it: an
                             // induction's step leaves its end `↑(N + 1)`,
                             // which the page writes N + 1 and an item is
                             // given so, and Lean matching the one with the
                             // other unfolds the range past its limit.
-                            self.push(
-                                format!("{p}try push_cast at {label}"),
+                            self.line(
+                                depth,
+                                format!("try push_cast at {label}"),
                                 o.line,
-                                spot.clone(),
+                                &spot,
                             );
                             // The range's bounds beside it, which linear
                             // arithmetic reads, the membership kept for the
                             // items given it; a claim may state the bounds
                             // already.
-                            self.push(
-                                format!("{p}try have {label}_bounds := Finset.mem_Icc.mp {label}"),
+                            self.line(depth, format!("try have {label}_bounds := Finset.mem_Icc.mp {label}"),
                                 o.line,
-                                spot.clone(),
+                                &spot,
                             );
                             continue;
                         }
@@ -6720,10 +6729,11 @@ impl<'a> Proof<'a> {
                             super::statement::introduces_function(node)
                         {
                             self.writer.letters.insert(letter.clone(), ty);
-                            self.push(
-                                format!("{p}intro {}", super::names::letter(&letter)),
+                            self.line(
+                                depth,
+                                format!("intro {}", super::names::letter(&letter)),
                                 o.line,
-                                spot.clone(),
+                                &spot,
                             );
                             continue;
                         }
@@ -6751,13 +6761,14 @@ impl<'a> Proof<'a> {
                                     o.label.clone(),
                                     vec![(node.clone(), label.clone())],
                                 );
-                                self.push(
+                                self.line(
+                                    depth,
                                     format!(
-                                        "{p}intro {} {label}",
+                                        "intro {} {label}",
                                         super::names::letter(&t.text)
                                     ),
                                     o.line,
-                                    spot.clone(),
+                                    &spot,
                                 );
                                 continue;
                             }
@@ -6770,17 +6781,14 @@ impl<'a> Proof<'a> {
                         self.writer.introduce(&letter, system);
                         let letter = super::names::letter(&letter);
                         if !matches!(system, super::expr::System::Type(_)) {
-                            self.push(
-                                format!("{p}intro {letter} {label}"),
+                            self.line(
+                                depth,
+                                format!("intro {letter} {label}"),
                                 o.line,
-                                spot.clone(),
+                                &spot,
                             );
                         } else {
-                            self.push(
-                                format!("{p}intro {letter}"),
-                                o.line,
-                                spot.clone(),
-                            );
+                            self.line(depth, format!("intro {letter}"), o.line, &spot);
                         }
                     }
                 }
@@ -6796,7 +6804,7 @@ impl<'a> Proof<'a> {
                         })
                         .collect();
                     self.trees.insert(o.label.clone(), said);
-                    self.push(format!("{p}intro {label}"), o.line, spot.clone());
+                    self.line(depth, format!("intro {label}"), o.line, &spot);
                 }
                 Intro::Suppose => {
                     let Some(node) = nodes.first() else {
@@ -6810,12 +6818,14 @@ impl<'a> Proof<'a> {
                         .insert(o.label.clone(), vec![(node.clone(), label.clone())]);
                     // The block's claim denied, and the suppose line proved
                     // from that denial in the words the page chose for it.
-                    self.push(format!("{p}by_contra hc_{label}"), o.line, spot.clone());
-                    self.push(
-                        format!(
-                            "{p}have {label} : {} := by parley_suppose hc_{label}",
-                            says.text()
-                        ),
+                    self.line(depth, format!("by_contra hc_{label}"), o.line, &spot);
+                    self.push_at(
+                        depth,
+                        Tactic::Have {
+                            name: label.clone(),
+                            says: says.clone(),
+                            proof: format!("by parley_suppose hc_{label}"),
+                        },
                         o.line,
                         spot.clone(),
                     );
