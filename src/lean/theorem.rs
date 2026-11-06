@@ -3266,11 +3266,12 @@ impl<'a> Proof<'a> {
         let (at, page_label) = (line.line, line.label.clone());
         self.push_at(
             depth,
-            Tactic::Raw(format!(
-                "set {} : {} := {value} with {label}",
-                super::names::letter(name),
-                ty.lean()
-            )),
+            Tactic::Set {
+                name: super::names::letter(name),
+                ty: ty.lean_type(),
+                value: Printed::atom(value),
+                with: label.clone(),
+            },
             at,
             Spot::Statement,
         );
@@ -3399,6 +3400,7 @@ impl<'a> Proof<'a> {
             depth,
             Tactic::Obtain {
                 names,
+                says: None,
                 from: super::tactics::hyp(&format!("{label}_kind")),
             },
             at,
@@ -3548,15 +3550,26 @@ impl<'a> Proof<'a> {
         };
         let name = super::names::letter(&def.name);
         let label = line_name(&line.label);
+        let function = LetterType::Function { from, to }.lean_type();
+        let lambda = Printed::notation(
+            vec![
+                super::doc::Piece::text(format!(
+                    "fun {} => ",
+                    super::names::letter(&param.name)
+                )),
+                super::doc::Piece::term(value, 0),
+            ],
+            0,
+            function.clone(),
+        );
         self.push_at(
             depth,
-            Tactic::Raw(format!(
-                "set {name} : {} → {} := fun {} => {} with {label}",
-                from.lean(),
-                to.lean(),
-                super::names::letter(&param.name),
-                value.text()
-            )),
+            Tactic::Set {
+                name: name.clone(),
+                ty: function,
+                value: lambda,
+                with: label.clone(),
+            },
             line.line,
             Spot::Statement,
         );
@@ -3596,15 +3609,16 @@ impl<'a> Proof<'a> {
         };
         let lean = super::names::letter(name);
         let line = self.thm.line;
-        self.line(
+        self.push_at(
             1,
-            format!(
-                "set {lean} : {} := {} with h_{lean}",
-                self.writer.type_name(ty),
-                value.text()
-            ),
+            Tactic::Set {
+                name: lean.clone(),
+                ty: self.writer.num_type(ty),
+                value,
+                with: format!("h_{lean}"),
+            },
             line,
-            &Spot::Statement,
+            Spot::Statement,
         );
         self.writer
             .letters
@@ -6142,15 +6156,15 @@ impl<'a> Proof<'a> {
                 .get(obtained)
                 .cloned()
                 .unwrap_or_else(|| "_".to_string());
-            self.line(
+            self.push_at(
                 depth,
-                format!(
-                    "obtain ⟨{}, {guard}, _⟩ := {}",
-                    super::names::letter(obtained),
-                    source.term
-                ),
+                Tactic::Obtain {
+                    names: vec![super::names::letter(obtained), guard, "_".to_string()],
+                    says: None,
+                    from: Printed::atom(source.term.clone()),
+                },
                 step.line,
-                &Self::step_spot(step),
+                Self::step_spot(step),
             );
             return Route::Built(());
         }
@@ -6219,11 +6233,15 @@ impl<'a> Proof<'a> {
             }
             pattern.push(shaped);
         }
-        self.line(
+        self.push_at(
             depth,
-            format!("obtain ⟨{}⟩ := {}", pattern.join(", "), source.term),
+            Tactic::Obtain {
+                names: pattern,
+                says: None,
+                from: Printed::atom(source.term.clone()),
+            },
             step.line,
-            &Self::step_spot(step),
+            Self::step_spot(step),
         );
         // An item given a line's number, x := the rational of `√2 ∈ ℚ`,
         // gives its facts of that number; a sentence the page says of the
@@ -6538,6 +6556,7 @@ impl<'a> Proof<'a> {
                 depth,
                 Tactic::Obtain {
                     names: names.to_vec(),
+                    says: None,
                     from: super::tactics::hyp(&whole),
                 },
                 step.line,

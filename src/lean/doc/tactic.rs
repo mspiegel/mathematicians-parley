@@ -1,7 +1,7 @@
 //! Lean proofs as values: a term, or tactics.
 
 use super::bridges::BridgeTactic;
-use super::term::{Source, Term};
+use super::term::{LeanType, Source, Term};
 
 /// A tactic a proof calls: one the bridges define, or one of Lean's or
 /// Mathlib's, by its name.
@@ -66,8 +66,20 @@ pub enum Tactic {
     Comment(String),
     /// `· t`: one goal of several, taken by itself.
     Bullet(Box<Tactic>),
-    /// `obtain ⟨a, b⟩ := t`: a statement taken apart into names.
-    Obtain { names: Vec<String>, from: Term },
+    /// `obtain ⟨a, b⟩ := t`, or `obtain ⟨a, b⟩ : s := t` where it says what
+    /// t states: a statement taken apart into names.
+    Obtain {
+        names: Vec<String>,
+        says: Option<Term>,
+        from: Term,
+    },
+    /// `set x : T := v with h`: a letter for a value, and h its equation.
+    Set {
+        name: String,
+        ty: LeanType,
+        value: Term,
+        with: String,
+    },
     /// `intro a b`.
     Intro(Vec<String>),
     /// `replace name : says := proof`.
@@ -155,6 +167,7 @@ impl Tactic {
                 | Tactic::Have { .. }
                 | Tactic::Comment(_)
                 | Tactic::Obtain { .. }
+                | Tactic::Set { .. }
                 | Tactic::Intro(_)
                 | Tactic::Replace { .. }
                 | Tactic::Induction { .. }

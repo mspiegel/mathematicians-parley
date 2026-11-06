@@ -193,9 +193,21 @@ impl Tactic {
                 format!("induction {} using {} with", on.join(", "), using.text())
             }
             Tactic::Alternative(pattern) => format!("| {pattern} =>"),
-            Tactic::Obtain { names, from } => {
-                format!("obtain ⟨{}⟩ := {}", names.join(", "), from.text())
-            }
+            Tactic::Obtain { names, says, from } => match says {
+                Some(s) => format!(
+                    "obtain ⟨{}⟩ : {} := {}",
+                    names.join(", "),
+                    s.text(),
+                    from.text()
+                ),
+                None => format!("obtain ⟨{}⟩ := {}", names.join(", "), from.text()),
+            },
+            Tactic::Set {
+                name,
+                ty,
+                value,
+                with,
+            } => format!("set {name} : {} := {} with {with}", ty.text(), value.text()),
         }
     }
 }
