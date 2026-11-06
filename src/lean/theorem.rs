@@ -1828,7 +1828,7 @@ impl<'a> Proof<'a> {
                     let outer = std::mem::replace(&mut self.writer, inner);
                     let proof = self.proof_of(reason, 0, &node);
                     self.writer = outer;
-                    proof.map(|p| after_intros(&intros, &p))
+                    proof.map(|p| after_intros(&intros, &p.text()))
                 }
             };
             let proof = match proof {
@@ -1905,8 +1905,8 @@ impl<'a> Proof<'a> {
                 let proof = self.proof_of(reason, places[k], body);
                 self.writer = outer;
                 proof.map(|p| match intros.is_empty() {
-                    true => p,
-                    false => after_intros(&intros, &p),
+                    true => p.text(),
+                    false => after_intros(&intros, &p.text()),
                 })
             } else {
                 self.proof_with_named(reason, places[k], node, i)
@@ -2024,7 +2024,7 @@ impl<'a> Proof<'a> {
                 .built()
                 .is_none()
             {
-                return self.proof_of(reason, k, node);
+                return self.proof_of(reason, k, node).map(|p| p.text());
             }
             let mut inner = self.writer.with_letters(self.writer.letters.clone());
             inner.integers.extend(atoms.iter().map(|a| a.said.clone()));
@@ -2048,8 +2048,10 @@ impl<'a> Proof<'a> {
                 Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let tactic =
-                format!("by refine ⟨{int}, ?_, {equal}⟩\n{}", as_tactic(&proof));
+            let tactic = format!(
+                "by refine ⟨{int}, ?_, {equal}⟩\n{}",
+                as_tactic(&proof.text())
+            );
             return Route::Built(with_haves(&haves, &tactic));
         }
         let claimed = self.writer.wide_in_slot(node);
@@ -2077,7 +2079,7 @@ impl<'a> Proof<'a> {
             })
             .collect();
         if claimed.is_none() && cited.is_empty() {
-            return self.proof_of(reason, k, node);
+            return self.proof_of(reason, k, node).map(|p| p.text());
         }
         let mut atoms = Vec::new();
         if let Some((term, whole)) = &claimed {
@@ -2150,9 +2152,12 @@ impl<'a> Proof<'a> {
         };
         let tactic = match int {
             Some(int) => {
-                format!("by refine ⟨{int}, {equal}, ?_⟩\n{}", as_tactic(&proof))
+                format!(
+                    "by refine ⟨{int}, {equal}, ?_⟩\n{}",
+                    as_tactic(&proof.text())
+                )
             }
-            None => proof,
+            None => proof.text(),
         };
         Route::Built(with_haves(&haves, &tactic))
     }
@@ -2405,13 +2410,19 @@ impl<'a> Proof<'a> {
     }
 
     /// The proof of sentence `k` of a claim, by its reason.
-    fn proof_of(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
+    fn proof_of(
+        &self,
+        reason: Reason,
+        k: usize,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
         if let Some(witness) = self.said_member(node) {
-            return Route::Built(format!("by {witness}"));
+            return Route::Built(Proof::By(Tactic::Raw(witness)));
         }
         self.said_used.borrow_mut().clear();
         let proof = match self.proof_by_reason(reason, k, node) {
-            Route::Built(p) => p,
+            Route::Built(p) => Proof::Raw(p),
             Route::Declined(d) => return Route::Declined(d),
         };
         // A citation given a line's number, ⌊m⌋ = m for the m of `A/B ∈
@@ -2421,7 +2432,10 @@ impl<'a> Proof<'a> {
         let specs = self.specs_in(node, &used);
         Route::Built(match specs.is_empty() {
             true => proof,
-            false => format!("by rw [{specs}]; {}", as_tactic(&proof)),
+            false => Proof::By(Tactic::Seq(vec![
+                Tactic::Raw(format!("rw [{specs}]")),
+                tactic_of(&proof),
+            ])),
         })
     }
 
@@ -3349,7 +3363,7 @@ impl<'a> Proof<'a> {
             cited: self.rec.cited_requires.get(&kinded.shown.line),
         };
         let proof = match self.proof_of(reason, 0, &fact) {
-            Route::Built(p) => p,
+            Route::Built(p) => p.text(),
             Route::Declined(why) => return Route::Declined(why),
         };
         Route::Built(KindShown { fact, says, proof })
@@ -4528,7 +4542,10 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let change_name = format!("c{k}");
-            haves.push(format!("have {change_name} : {change_text} := {proof}"));
+            haves.push(format!(
+                "have {change_name} : {change_text} := {}",
+                proof.text()
+            ));
             let used = match self.widened(&change, &change_name, &row_node, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
@@ -4791,7 +4808,7 @@ impl<'a> Proof<'a> {
                     let proof = self.proof_of(reason, 0, &fact);
                     self.worked_in.set(None);
                     match proof {
-                        Route::Built(p) => p,
+                        Route::Built(p) => p.text(),
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
@@ -7480,6 +7497,17 @@ fn after_intros(intros: &[String], proof: &str) -> String {
             format!("by\n{indent}intro {names}\n{block}")
         }
         None => format!("by intro {names}; {}", as_tactic(proof)),
+    }
+}
+
+/// A proof as a tactic that closes the goal with it: `(t)` of `by t`,
+/// `exact (t)` of a term.
+fn tactic_of(proof: &super::doc::Proof) -> Tactic {
+    use super::doc::Proof;
+    match proof {
+        Proof::By(t) => Tactic::Group(Box::new(t.clone())),
+        Proof::Term(t) => Tactic::Exact(super::tactics::bracket(t.clone())),
+        Proof::Block(_) | Proof::Raw(_) => Tactic::Raw(as_tactic(&proof.text())),
     }
 }
 
