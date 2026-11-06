@@ -3046,7 +3046,7 @@ impl<'a> Proof<'a> {
                 return self.substitute(just, node, writer).map(Proof::Raw)
             }
             Method::Calculation => return self.calculation(just, writer),
-            Method::Exhibit => return self.exhibit(just, node).map(Proof::Raw),
+            Method::Exhibit => return self.exhibit(just, node),
             Method::Instantiate => {
                 return self.instantiate(just, node, writer).map(Proof::Raw)
             }
@@ -3716,7 +3716,7 @@ impl<'a> Proof<'a> {
 
     /// `exhibit`: the claim's "there is", with the values the checker read
     /// for its letters, and what it says of them left to `parley_side`.
-    fn exhibit(&self, just: &Justification, node: &Node) -> Route<String> {
+    fn exhibit(&self, just: &Justification, node: &Node) -> Route<super::doc::Proof> {
         let Some(step) = self.thm.steps.iter().find(|s| s.just.line == just.line)
         else {
             return Route::no("an exhibit that is no step's");
@@ -3740,10 +3740,20 @@ impl<'a> Proof<'a> {
             let Some(members) = self.writer.set_members(set) else {
                 return Route::no("there is some member of a set with no Lean type");
             };
-            return self
-                .writer
-                .element_term(value, &members)
-                .map(|v| format!("⟨{}, by parley_set_side, trivial⟩", v.text()));
+            return self.writer.element_term(value, &members).map(|v| {
+                let in_set = proof_term(super::doc::Proof::By(super::tactics::bridge(
+                    BridgeTactic::SetSide,
+                    vec![],
+                )));
+                let nothing = Printed::constant(
+                    "trivial",
+                    super::doc::Source::Core,
+                    super::doc::LeanType::Prop,
+                );
+                super::doc::Proof::Term(super::expr::anonymous(vec![
+                    v, in_set, nothing,
+                ]))
+            });
         }
         let mut parts = Vec::new();
         let mut known = Vec::new();
@@ -3759,20 +3769,20 @@ impl<'a> Proof<'a> {
             // and its membership left to `parley_side`.
             if let Some(members) = self.writer.members_of(set) {
                 match self.writer.element_term(value, &members) {
-                    Route::Built(p) => parts.push(p.text()),
+                    Route::Built(p) => parts.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
                 body = inner;
                 continue;
             }
             // A polynomial: the function, and that it is one.
             if &*set.notation_name() == "polynomials" {
                 match self.writer.set_term(value) {
-                    Route::Built(p) => parts.push(p.text()),
+                    Route::Built(p) => parts.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
                 body = inner;
                 continue;
             }
@@ -3790,14 +3800,14 @@ impl<'a> Proof<'a> {
                 };
                 match self.writer.function_type(value) {
                     Route::Built(t) if t == wanted => {
-                        parts.push(self.writer.function_printed(value).text())
+                        parts.push(self.writer.function_printed(value))
                     }
                     Route::Built(_) => {
                         return Route::no("a function given for one of other types")
                     }
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
                 body = inner;
                 continue;
             }
@@ -3822,15 +3832,15 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
             if guarded {
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
             }
             body = inner;
         }
         if parts.is_empty() {
             return Route::no("an exhibit of no \"there is\"");
         }
-        parts.push(facts_shaped(body, &known.concat()));
-        Route::Built(format!("⟨{}⟩", parts.join(", ")))
+        parts.push(facts_shaped(body, &known));
+        Route::Built(super::doc::Proof::Term(super::expr::anonymous(parts)))
     }
 
     /// `instantiate`: the "for all" line at the values given, each guard
@@ -5874,7 +5884,7 @@ impl<'a> Proof<'a> {
                             },
                             ty: None,
                         }),
-                        args: vec![super::doc::Arg::Explicit(Printed::atom(witness))],
+                        args: vec![super::doc::Arg::Explicit(witness)],
                         explicit: false,
                     },
                     ty: None,
@@ -5972,7 +5982,7 @@ impl<'a> Proof<'a> {
         sentence: &Sentence,
         cited: &crate::checker::record::Cited,
         refs: &[String],
-    ) -> Route<String> {
+    ) -> Route<Printed> {
         let [_, right] = sentence.says.children.as_slice() else {
             return Route::no("a definition of other than two sides");
         };
@@ -5992,7 +6002,7 @@ impl<'a> Proof<'a> {
             .values()
             .any(|v| v.is_name() && bound_here.contains(v.text.as_str()));
         if bound_by_line {
-            return Route::Built("(by parley_side)".to_string());
+            return Route::Built(side_term(&[]));
         }
         let mut parts = Vec::new();
         // What a line said of a witness the page wrote as a fraction that
@@ -6018,10 +6028,10 @@ impl<'a> Proof<'a> {
                     _ => self.writer.set_term(value),
                 };
                 match term {
-                    Route::Built(p) => parts.push(p.text()),
+                    Route::Built(p) => parts.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
                 body = inner;
                 continue;
             };
@@ -6034,15 +6044,15 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             }
             if system == Some(super::expr::System::Positive) {
-                parts.push(format!("by {}parley_side", known.concat()));
+                parts.push(side_term(&known));
             }
             body = inner;
         }
         if parts.is_empty() {
-            return Route::Built("(by parley_side)".to_string());
+            return Route::Built(side_term(&[]));
         }
-        parts.push(format!("by {}parley_side", known.concat()));
-        Route::Built(format!("⟨{}⟩", parts.join(", ")))
+        parts.push(side_term(&known));
+        Route::Built(super::expr::anonymous(parts))
     }
 
     /// A witness of a "there is" over `ty`: the value as Lean computes it
@@ -6052,13 +6062,23 @@ impl<'a> Proof<'a> {
     fn witness(&self, value: &Node, ty: super::templates::Num) -> Route<Witness> {
         match self.writer.number_fixed(value, ty) {
             Route::Built(p) => Route::Built(Witness {
-                term: p.text(),
+                term: p,
                 known: None,
             }),
             Route::Declined(d) => match self.said_integer(value, ty) {
                 Some(line) => Route::Built(Witness {
-                    term: format!("Classical.choose {line}"),
-                    known: Some(format!("have := Classical.choose_spec {line}; ")),
+                    term: Printed::applied(
+                        "Classical.choose",
+                        super::doc::Source::Core,
+                        vec![super::tactics::hyp(&line)],
+                        super::doc::LeanType::Num(ty),
+                    ),
+                    known: Some(Tactic::Fact(Printed::applied(
+                        "Classical.choose_spec",
+                        super::doc::Source::Core,
+                        vec![super::tactics::hyp(&line)],
+                        super::doc::LeanType::Prop,
+                    ))),
                 }),
                 None => Route::Declined(d),
             },
@@ -7129,10 +7149,7 @@ fn member_by_equation(
             return None;
         }
         let w = writer.number_fixed(side, n).built()?;
-        let proof = Printed {
-            kind: super::doc::TermKind::By(Box::new(ways_proof(rewritten_by(name)))),
-            ty: None,
-        };
+        let proof = proof_term(ways_proof(rewritten_by(name)));
         Some(super::doc::Proof::Term(super::expr::anonymous(vec![
             w, proof,
         ])))
@@ -7142,8 +7159,28 @@ fn member_by_equation(
 /// A witness as Lean writes it, and the tactic that puts what a line says
 /// of it in scope, where it is an integer a line gives.
 struct Witness {
-    term: String,
-    known: Option<String>,
+    term: Printed,
+    known: Option<Tactic>,
+}
+
+/// A proof standing as a term, `by t` inside `⟨w, by t⟩`.
+fn proof_term(proof: super::doc::Proof) -> Printed {
+    Printed {
+        kind: super::doc::TermKind::By(Box::new(proof)),
+        ty: None,
+    }
+}
+
+/// `by parley_side` as a term, after the tactics that put what lines say
+/// of the witnesses before it in scope.
+fn side_term(known: &[Tactic]) -> Printed {
+    let mut tactics = known.to_vec();
+    tactics.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
+    let tactic = match <[Tactic; 1]>::try_from(tactics) {
+        Ok([one]) => one,
+        Err(all) => Tactic::Seq(all),
+    };
+    proof_term(super::doc::Proof::By(tactic))
 }
 
 /// A define a step cites: its letter, the term it names, and the Lean name
@@ -7510,15 +7547,15 @@ fn under_binders(claim: &Node, fact: &Node) -> Node {
 /// each part left to `parley_side` with what the witnesses give known: a
 /// part alone is a line in scope, where the whole "and" may send `simp`
 /// past its depth.
-fn facts_shaped(said: &Node, known: &str) -> String {
+fn facts_shaped(said: &Node, known: &[Tactic]) -> Printed {
     match (said.notation(), said.children.as_slice()) {
         (
             crate::notations::CONJUNCTION | crate::notations::COMMA_CONJUNCTION,
             [l, r],
         ) => {
-            format!("⟨{}, {}⟩", facts_shaped(l, known), facts_shaped(r, known))
+            super::expr::anonymous(vec![facts_shaped(l, known), facts_shaped(r, known)])
         }
-        _ => format!("by {known}parley_side"),
+        _ => side_term(known),
     }
 }
 
