@@ -1236,12 +1236,17 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                         f.text
                     ));
                 };
-                let domain = a.at(super::expr::MAX);
+                let map = super::expr::Printed {
+                    kind: super::doc::TermKind::Letter(name.clone()),
+                    ty: w.letters.get(f.text.as_str()).map(LetterType::lean_type),
+                };
                 binders.push(Binder::Fact {
                     name: format!("h{name}"),
-                    says: format!(
-                        "Set.MapsTo {name} {domain} {}",
-                        b.at(super::expr::MAX)
+                    says: super::expr::Printed::applied(
+                        "Set.MapsTo",
+                        super::doc::Source::Mathlib,
+                        vec![map, a.clone(), b],
+                        super::doc::LeanType::Prop,
                     ),
                     line: None,
                 });

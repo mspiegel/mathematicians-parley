@@ -27,7 +27,7 @@ pub enum Binder {
     /// A hypothesis, by its name, and what it says.
     Fact {
         name: String,
-        says: String,
+        says: Printed,
         /// The line it is as the checker read it, where one is: what a
         /// citation compares the lines it cites with, to name the one that
         /// says it (`Proof::instance`).
@@ -82,7 +82,7 @@ impl Binder {
                 ..
             } => format!("{{{name} : Type*}} [Group {name}]"),
             Binder::Letter { name, ty, .. } => format!("({name} : {})", ty.lean()),
-            Binder::Fact { name, says, .. } => format!("({name} : {says})"),
+            Binder::Fact { name, says, .. } => format!("({name} : {})", says.text()),
         }
     }
 }
@@ -159,7 +159,7 @@ enum Fact {
     /// The line itself, `x ∈ A`.
     Line,
     /// This, which Lean's type does not give: a map's `Set.MapsTo f A B`.
-    Said(String),
+    Said(Printed),
 }
 
 /// The letter a line introduces in or under a set the writer has a type
@@ -274,8 +274,6 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
             let (from_text, to_text) =
                 (writer.set_term(from).built()?, writer.set_term(to).built()?);
             let lean = super::names::letter(&letter.text);
-            let domain = from_text.at(super::expr::MAX);
-            let domain_term = from_text;
             // Between sets of numbers, f : ℝ ∖ {2} → ℝ, a function of the
             // numbers' types, so that f(x) is a number; between sets of
             // things, a map α → α.
@@ -289,17 +287,24 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
                 },
                 _ => LetterType::Map { from: a, to: b },
             };
+            let map_type = ty.lean_type();
             Some(InSet {
                 letter: letter.text.to_string(),
                 ty,
                 fact: match kind == "function-type" {
-                    true => Fact::Said(format!(
-                        "Set.MapsTo {lean} {domain} {}",
-                        to_text.at(super::expr::MAX)
+                    true => Fact::Said(Printed::applied(
+                        "Set.MapsTo",
+                        super::doc::Source::Mathlib,
+                        vec![
+                            Printed::letter(lean, map_type),
+                            from_text.clone(),
+                            to_text,
+                        ],
+                        super::doc::LeanType::Prop,
                     )),
                     false => Fact::Line,
                 },
-                domain: Some(domain_term),
+                domain: Some(from_text),
             })
         }
         _ => None,
@@ -415,7 +420,7 @@ pub fn binders(
             let (says, line) = match fact {
                 Fact::Said(f) => (f, None),
                 Fact::Line => match writer.formula(a.node) {
-                    Route::Built(p) => (p.text(), Some(a.node.clone())),
+                    Route::Built(p) => (p, Some(a.node.clone())),
                     Route::Declined(d) => return Route::Declined(d),
                 },
             };
@@ -443,12 +448,24 @@ pub fn binders(
             });
             // n ∈ ℕ and n ∈ ℕ₀ are facts of the integer n, as set.mm's are
             // of a number.
-            let fact = match system {
-                System::Positive => Some(format!("0 < {name}")),
-                System::NonNegative => Some(format!("0 ≤ {name}")),
+            let int = super::doc::LeanType::Num(super::templates::Num::Int);
+            let order = match system {
+                System::Positive => Some("<"),
+                System::NonNegative => Some("≤"),
                 System::Type(_) => None,
             };
+            let fact = order.map(|o| {
+                super::expr::relation_of(
+                    o,
+                    Printed::numeral("0", int.clone()),
+                    Printed::letter(name.clone(), int.clone()),
+                )
+            });
             if let Some(says) = fact {
+                let says = match says {
+                    Route::Built(s) => s,
+                    Route::Declined(d) => return Route::Declined(d),
+                };
                 out.push(Binder::Fact {
                     name: a.name.clone(),
                     says,
@@ -467,7 +484,7 @@ pub fn binders(
         };
         out.push(Binder::Fact {
             name: a.name.clone(),
-            says: says.text(),
+            says,
             line: Some(a.node.clone()),
         });
         // A term of a wider type said to be an integer is, in what is

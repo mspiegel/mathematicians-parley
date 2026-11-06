@@ -740,10 +740,16 @@ fn header_function(
         },
         Binder::Fact {
             name: line_name(&d.label),
-            says: format!(
-                "∀ {x} : {}, {guard}{f} {x} = {}",
-                takes.lean(),
-                value.at(51)
+            says: super::expr::Printed::notation(
+                vec![
+                    super::doc::Piece::text(format!(
+                        "∀ {x} : {}, {guard}{f} {x} = ",
+                        takes.lean()
+                    )),
+                    super::doc::Piece::term(value, 51),
+                ],
+                0,
+                super::doc::LeanType::Prop,
             ),
             line: None,
         },
@@ -942,10 +948,13 @@ fn header_recursions(
         }
         out.push(Binder::Fact {
             name: line_name(&d.label),
-            says: format!(
-                "{} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {}",
-                starts.join(" ∧ "),
-                steps.join(" ∧ ")
+            says: super::expr::Printed::raw(
+                format!(
+                    "{} ∧ ∀ {k} : ℤ, 0 ≤ {k} → {}",
+                    starts.join(" ∧ "),
+                    steps.join(" ∧ ")
+                ),
+                0,
             ),
             line: None,
         });
@@ -5398,7 +5407,9 @@ impl<'a> Proof<'a> {
                 }
                 // A hypothesis of a set the citation gives all of ℝ or a
                 // range: what the lines say, read as the item asks it.
-                Binder::Fact { says, .. } if self.given_whole(says, binding) => {
+                Binder::Fact { says, .. }
+                    if self.given_whole(&says.text(), binding) =>
+                {
                     args.push("(by parley_whole_side)".to_string())
                 }
                 // A hypothesis a cited line says, as Lean writes both: the
@@ -5409,7 +5420,7 @@ impl<'a> Proof<'a> {
                     ..
                 } => match self.line_saying(
                     line,
-                    says,
+                    &says.text(),
                     binding,
                     cited_lines,
                     &sentence.binders,
