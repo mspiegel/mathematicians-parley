@@ -1325,7 +1325,7 @@ struct KindShown {
 /// A whole number a step names for a term Lean does not compute as one,
 /// 2^(p − 1): the `have` that names it, and the term written as it.
 struct NamedAtom {
-    have: String,
+    have: Tactic,
     said: super::expr::SaidInteger,
 }
 
@@ -2080,8 +2080,7 @@ impl<'a> Proof<'a> {
             };
             let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
             let equal = specs_equal(&specs);
-            let mut haves: Vec<Tactic> =
-                atoms.iter().map(|a| Tactic::Raw(a.have.clone())).collect();
+            let mut haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
             if !ordered {
                 let shown = Tactic::Exact(super::expr::anonymous(vec![int, equal]));
                 return Route::Built(haves_then(haves, Proof::By(shown)));
@@ -2158,8 +2157,7 @@ impl<'a> Proof<'a> {
         // of a power written out, the line's witness's for one it gives.
         let specs: Vec<Printed> = atoms.iter().map(|a| spec_of(&a.said)).collect();
         let equal = specs_equal(&specs);
-        let mut haves: Vec<Tactic> =
-            atoms.iter().map(|a| Tactic::Raw(a.have.clone())).collect();
+        let mut haves: Vec<Tactic> = atoms.iter().map(|a| a.have.clone()).collect();
         // Each such cited line, said of the number the step names.
         for c in &cited {
             let int = match inner.number_fixed(&c.term, c.whole) {
@@ -2342,8 +2340,10 @@ impl<'a> Proof<'a> {
         let Some(value) = self.writer.number_fixed(term, at).built() else {
             return false;
         };
+        use super::doc::{LeanType, Op, Proof};
+        use super::tactics as t;
         let name = format!("whole{}", out.len() + 1);
-        let ty = self.writer.type_name(at);
+        let ty = self.writer.num_type(at);
         let (have, written) = match (reason, term.notation(), term.children.as_slice())
         {
             // A term a line the step names puts in ℕ, ℕ₀ or ℤ: that line's
@@ -2362,26 +2362,36 @@ impl<'a> Proof<'a> {
                 // the natural number is the integer's `toNat`, written out as
                 // σ of an integer takes it, and its equation with the term.
                 if own <= Num::Int {
-                    let nonneg = match system {
-                        System::N => format!("(le_of_lt {line})"),
-                        _ => line,
-                    };
                     let Some(int) = self.writer.number_fixed(term, Num::Int).built()
                     else {
                         return false;
                     };
-                    let written = format!("({}).toNat", int.text());
-                    let have = format!(
-                        "have {name} : (({written} : ℕ) : {ty}) = {} := by exact_mod_cast Int.toNat_of_nonneg {nonneg}",
-                        value.text()
+                    let written = Printed::of(
+                        super::doc::TermKind::ToNat(Box::new(t::bracket(int))),
+                        LeanType::Num(Num::Nat),
                     );
+                    let as_nat =
+                        Printed::cast(written.clone(), LeanType::Num(Num::Nat));
+                    let says = Printed::infix(
+                        Op::EQUALS,
+                        Printed::cast(as_nat, ty.clone()),
+                        value,
+                        LeanType::Prop,
+                    );
+                    let nonneg = nonneg_of(system, &line);
                     out.push(NamedAtom {
-                        have,
+                        have: Tactic::Have {
+                            name: name.clone(),
+                            says,
+                            proof: Box::new(Proof::By(t::exact_mod_cast(to_nat_of(
+                                nonneg,
+                            )))),
+                        },
                         said: super::expr::SaidInteger {
                             term: printed,
                             proof: name,
                             ty: whole,
-                            value: Some(written),
+                            value: Some(written.text()),
                             slot_only: true,
                         },
                     });
@@ -2390,26 +2400,87 @@ impl<'a> Proof<'a> {
                 // Of a wider term, the line is a witness: `∃ m : ℤ, 0 ≤ m ∧
                 // ↑m = t` for ℕ₀, `0 < m` for ℕ, `↑m = t` for ℤ. A natural
                 // number asked is that integer's `toNat`, by its order.
-                let have = match (system, whole) {
+                let m = || t::hyp("m");
+                let (letter_ty, names, witness) = match (system, whole) {
                     (System::N | System::N0, Num::Nat) => {
-                        let nonneg = match system {
-                            System::N => "(le_of_lt h0)",
-                            _ => "h0",
-                        };
-                        format!(
-                            "have {name} : ∃ m : ℕ, (m : {ty}) = {} := by obtain ⟨m, h0, hm⟩ := {line}; exact ⟨m.toNat, by rw [show ((m.toNat : ℕ) : {ty}) = ((m : ℤ) : {ty}) by exact_mod_cast Int.toNat_of_nonneg {nonneg}]; exact_mod_cast hm⟩",
-                            value.text()
+                        let m_nat = Printed::of(
+                            super::doc::TermKind::ToNat(Box::new(m())),
+                            LeanType::Num(Num::Nat),
+                        );
+                        let same = Printed::infix(
+                            Op::EQUALS,
+                            Printed::cast(
+                                Printed::cast(m_nat.clone(), LeanType::Num(Num::Nat)),
+                                ty.clone(),
+                            ),
+                            Printed::cast(
+                                Printed::cast(m(), LeanType::Num(Num::Int)),
+                                ty.clone(),
+                            ),
+                            LeanType::Prop,
+                        );
+                        let same_by = Proof::By(t::exact_mod_cast(to_nat_of(
+                            nonneg_of(system, "h0"),
+                        )));
+                        let rewritten = Proof::By(Tactic::Seq(vec![
+                            t::call(
+                                "rw",
+                                vec![TacticArg::Rules(vec![t::forwards(shown(
+                                    same, same_by,
+                                ))])],
+                            ),
+                            t::exact_mod_cast(t::hyp("hm")),
+                        ]));
+                        (
+                            Num::Nat,
+                            ["m", "h0", "hm"].as_slice(),
+                            vec![m_nat, proof_term(rewritten)],
                         )
                     }
-                    (System::N | System::N0, _) => format!(
-                        "have {name} : ∃ m : ℤ, (m : {ty}) = {} := by obtain ⟨m, _, hm⟩ := {line}; exact ⟨m, by exact_mod_cast hm⟩",
-                        value.text()
+                    (System::N | System::N0, _) => (
+                        Num::Int,
+                        ["m", "_", "hm"].as_slice(),
+                        vec![
+                            m(),
+                            proof_term(Proof::By(t::exact_mod_cast(t::hyp("hm")))),
+                        ],
                     ),
-                    _ => format!(
-                        "have {name} : ∃ m : {}, (m : {ty}) = {} := by obtain ⟨m, hm⟩ := {line}; exact ⟨m, by exact_mod_cast hm⟩",
-                        whole.lean(),
-                        value.text()
+                    _ => (
+                        whole,
+                        ["m", "hm"].as_slice(),
+                        vec![
+                            m(),
+                            proof_term(Proof::By(t::exact_mod_cast(t::hyp("hm")))),
+                        ],
                     ),
+                };
+                let says = Printed::of(
+                    super::doc::TermKind::Quantified {
+                        quant: super::doc::Quant::Exists,
+                        letter: "m".to_string(),
+                        letter_ty: LeanType::Num(letter_ty),
+                        guard: None,
+                        body: Box::new(Printed::infix(
+                            Op::EQUALS,
+                            Printed::cast(m(), ty.clone()),
+                            value,
+                            LeanType::Prop,
+                        )),
+                    },
+                    LeanType::Prop,
+                );
+                let proof = Proof::By(Tactic::Seq(vec![
+                    Tactic::Obtain {
+                        names: names.iter().map(|n| n.to_string()).collect(),
+                        says: None,
+                        from: t::hyp(&line),
+                    },
+                    Tactic::Exact(super::expr::anonymous(witness)),
+                ]));
+                let have = Tactic::Have {
+                    name: name.clone(),
+                    says,
+                    proof: Box::new(proof),
                 };
                 (have, None)
             }
@@ -2428,10 +2499,6 @@ impl<'a> Proof<'a> {
                 else {
                     return false;
                 };
-                let nonneg = match system {
-                    System::N => format!("(le_of_lt {line})"),
-                    _ => line,
-                };
                 let (Some(b), Some(e), Some(cast_base)) = (
                     self.writer.number_fixed(base, whole).built(),
                     self.writer.number_fixed(exponent, Num::Int).built(),
@@ -2439,12 +2506,37 @@ impl<'a> Proof<'a> {
                 ) else {
                     return false;
                 };
-                let written = format!("{} ^ ({}).toNat", b.at(76), e.text());
-                let have = format!(
-                    "have {name} : ({} : {ty}) ^ ({}).toNat = {} := by rw [← zpow_natCast, Int.toNat_of_nonneg {nonneg}]",
-                    cast_base.text(), e.text(), value.text()
+                let power = Op::POWER;
+                let e_nat = Printed::of(
+                    super::doc::TermKind::ToNat(Box::new(t::bracket(e))),
+                    LeanType::Num(Num::Nat),
                 );
-                (have, Some(written))
+                let written =
+                    Printed::infix(power, b, e_nat.clone(), LeanType::Num(whole));
+                let says = Printed::infix(
+                    Op::EQUALS,
+                    Printed::infix(
+                        power,
+                        Printed::cast(cast_base, ty.clone()),
+                        e_nat,
+                        ty.clone(),
+                    ),
+                    value,
+                    LeanType::Prop,
+                );
+                let rules = vec![
+                    t::backwards(t::lemma("zpow_natCast")),
+                    t::forwards(to_nat_of(nonneg_of(system, &line))),
+                ];
+                let have = Tactic::Have {
+                    name: name.clone(),
+                    says,
+                    proof: Box::new(Proof::By(t::call(
+                        "rw",
+                        vec![TacticArg::Rules(rules)],
+                    ))),
+                };
+                (have, Some(written.text()))
             }
             (OnceReason::Built(parts), _, kids) if parts.len() == kids.len() => {
                 return kids.iter().zip(parts).all(|(kid, part)| {
@@ -2834,17 +2926,12 @@ impl<'a> Proof<'a> {
                             .filter_map(|r| self.named.get(r).and_then(|n| n.first()))
                             .cloned()
                             .collect();
-                        Route::Built(Proof::Raw(match unfold.is_empty() {
-                            true => side_proof(),
-                            false => {
-                                let mut ways = unfolded(&unfold);
-                                ways.push(super::tactics::bridge(
-                                    BridgeTactic::Side,
-                                    vec![],
-                                ));
-                                by_ways(ways)
-                            }
-                        }))
+                        let mut ways = match unfold.is_empty() {
+                            true => Vec::new(),
+                            false => unfolded(&unfold),
+                        };
+                        ways.push(t::bridge(BridgeTactic::Side, vec![]));
+                        Route::Built(ways_proof(ways))
                     }
                 },
             },
@@ -7851,18 +7938,8 @@ fn as_tactic(proof: &str) -> String {
     }
 }
 
-/// `by parley_side`: a claim left to the bridges' side tactic.
-fn side_proof() -> String {
-    super::doc::Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![])).text()
-}
-
-/// `by` and the ways a step is closed, tried in order: `by t` of one way,
-/// `by first | a | b` of several.
-fn by_ways(ways: Vec<Tactic>) -> String {
-    ways_proof(ways).text()
-}
-
-/// The proof `by t` of one way, `by first | a | b` of several.
+/// The proof `by t` of one way, `by first | a | b` of several: the ways a
+/// step is closed, tried in order.
 fn ways_proof(ways: Vec<Tactic>) -> super::doc::Proof {
     let tactic = match <[Tactic; 1]>::try_from(ways) {
         Ok([one]) => one,
@@ -7985,6 +8062,31 @@ fn in_named_forms(specs: &[Printed], line: &str) -> Tactic {
         t::simp_only(false, None, rules, None),
         Tactic::First(vec![by_line(t::hyp(line)), by_line(negated(t::hyp(line)))]),
     ])
+}
+
+/// That a term is at least 0, from the line that puts it in ℕ₀, `h`, or
+/// in ℕ, `(le_of_lt h)`.
+fn nonneg_of(system: crate::rules::System, line: &str) -> Printed {
+    let line = super::tactics::hyp(line);
+    match system {
+        crate::rules::System::N => Printed::applied(
+            "le_of_lt",
+            super::doc::Source::Mathlib,
+            vec![line],
+            super::doc::LeanType::Prop,
+        ),
+        _ => line,
+    }
+}
+
+/// `Int.toNat_of_nonneg h`: an integer at least 0 is its `toNat`.
+fn to_nat_of(nonneg: Printed) -> Printed {
+    Printed::applied(
+        "Int.toNat_of_nonneg",
+        super::doc::Source::Core,
+        vec![nonneg],
+        super::doc::LeanType::Prop,
+    )
 }
 
 /// `-t`.

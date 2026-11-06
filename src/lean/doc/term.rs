@@ -83,6 +83,13 @@ impl Op {
         assoc: Assoc::Neither,
     };
 
+    /// A power, `a ^ b`.
+    pub const POWER: Op = Op {
+        symbol: "^",
+        prec: 75,
+        assoc: Assoc::Right,
+    };
+
     /// Multiplication, `a * b`, a group's operation too.
     pub const TIMES: Op = Op {
         symbol: "*",
