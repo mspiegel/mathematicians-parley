@@ -107,12 +107,7 @@ impl Members {
 
     /// How Lean writes a member's type.
     pub fn lean(&self) -> String {
-        match self {
-            Members::Things(var) => things_name(*var),
-            Members::Sets(m) => format!("Set {}", bracketed(&m.lean())),
-            Members::Numbers(n) => n.lean().to_string(),
-            Members::Elements(g) => super::names::letter(g),
-        }
+        self.member_type().text()
     }
 
     /// The type a letter that runs over such members has: a number of the
@@ -156,19 +151,29 @@ pub fn bracketed(ty: &str) -> String {
 impl LetterType {
     /// How Lean writes the type.
     pub fn lean(&self) -> String {
+        self.lean_type().text()
+    }
+
+    /// The type in the document model.
+    pub fn lean_type(&self) -> super::doc::LeanType {
+        use super::doc::LeanType;
+        let fun = |from: LeanType, to: LeanType| LeanType::Fun {
+            from: Box::new(from),
+            to: Box::new(to),
+        };
         match self {
-            LetterType::Statement => "Prop".to_string(),
-            LetterType::Number(n) => n.lean().to_string(),
+            LetterType::Statement => LeanType::Prop,
+            LetterType::Number(n) => LeanType::Num(*n),
             LetterType::Function { from, to } => {
-                format!("{} → {}", from.lean(), to.lean())
+                fun(LeanType::Num(*from), LeanType::Num(*to))
             }
-            LetterType::Set(m) => format!("Set {}", bracketed(&m.lean())),
-            LetterType::Member(m) => m.lean(),
-            LetterType::Map { from, to } => format!("{} → {}", from.lean(), to.lean()),
-            LetterType::Group => "Type*".to_string(),
-            LetterType::Identity(g) => super::names::letter(g),
-            LetterType::Subgroup(g) => format!("Subgroup {}", super::names::letter(g)),
-            LetterType::Property(m) => format!("{} → Prop", m.lean()),
+            LetterType::Set(m) => LeanType::Set(Box::new(m.member_type())),
+            LetterType::Member(m) => m.member_type(),
+            LetterType::Map { from, to } => fun(from.member_type(), to.member_type()),
+            LetterType::Group => LeanType::Universe,
+            LetterType::Identity(g) => LeanType::Elements(g.clone()),
+            LetterType::Subgroup(g) => LeanType::Subgroup(g.clone()),
+            LetterType::Property(m) => fun(m.member_type(), LeanType::Prop),
         }
     }
 
@@ -2468,14 +2473,17 @@ impl Writer<'_> {
             return self.quantified_over_functions(letter, set, body, exists);
         }
         let name = super::names::letter(&letter.text);
+        let int = super::doc::LeanType::Num(Num::Int);
+        let named = Printed::letter(name.clone(), int.clone());
+        let zero = Printed::numeral("0", int.clone());
         let (system, guard) = if set.notation() == NUMBER_SYSTEMS {
             match system_of(set) {
                 Some(System::Type(n)) => (System::Type(n), None),
                 Some(System::Positive) => {
-                    (System::Positive, Some(format!("0 < {name}")))
+                    (System::Positive, Some(relation_of("<", zero, named)))
                 }
                 Some(System::NonNegative) => {
-                    (System::NonNegative, Some(format!("0 ≤ {name}")))
+                    (System::NonNegative, Some(relation_of("≤", zero, named)))
                 }
                 None => return Route::no(format!("the number system {}", set.text)),
             }
@@ -2487,16 +2495,23 @@ impl Writer<'_> {
             let (Route::Built(from), Route::Built(to)) = ends else {
                 return Route::no("a range whose ends are not integers");
             };
+            let range = Printed::applied(
+                "Finset.Icc",
+                super::doc::Source::Mathlib,
+                vec![from, to],
+                super::doc::LeanType::Set(Box::new(int)),
+            );
             (
                 range_letter_system(set),
-                Some(format!(
-                    "{name} ∈ Finset.Icc {} {}",
-                    from.at(MAX),
-                    to.at(MAX)
-                )),
+                Some(relation_of("∈", named, range)),
             )
         } else {
             return Route::no(format!("a quantifier over {}", set.notation_name()));
+        };
+        let guard = match guard {
+            Some(Route::Built(g)) => Some(Box::new(g)),
+            Some(Route::Declined(d)) => return Route::Declined(d),
+            None => None,
         };
         let ty = letter_type(system);
         let mut inner = self.with_letters(self.letters.clone());
@@ -2509,17 +2524,22 @@ impl Writer<'_> {
             Route::Declined(d) => return Route::Declined(d),
         };
         // A body the letter's type already makes true says nothing.
-        if body.text() == "True" {
+        if body.is_truth() {
             return Route::Built(Printed::truth());
         }
-        let ty = self.type_name(ty);
-        let text = match (exists, guard) {
-            (true, None) => format!("∃ {name} : {ty}, {}", body.text()),
-            (true, Some(g)) => format!("∃ {name} : {ty}, {g} ∧ {}", body.at(36)),
-            (false, None) => format!("∀ {name} : {ty}, {}", body.text()),
-            (false, Some(g)) => format!("∀ {name} : {ty}, {g} → {}", body.at(25)),
-        };
-        Route::Built(Printed::raw(text, 0))
+        Route::Built(Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: match exists {
+                    true => super::doc::Quant::Exists,
+                    false => super::doc::Quant::ForAll,
+                },
+                letter: name,
+                letter_ty: self.num_type(ty),
+                guard,
+                body: Box::new(body),
+            },
+            super::doc::LeanType::Prop,
+        ))
     }
 
     /// The type of a function from one set to another: between sets of
@@ -2564,23 +2584,36 @@ impl Writer<'_> {
             }
         };
         let name = super::names::letter(&letter.text);
-        let lean_type = ty.lean();
+        let lean_type = ty.lean_type();
         let mut inner = self.with_letters(self.letters.clone());
         inner.letters.insert(letter.text.to_string(), ty);
         let body = match inner.formula(body) {
             Route::Built(b) => b,
             Route::Declined(d) => return Route::Declined(d),
         };
-        let maps = format!(
-            "Set.MapsTo {name} {} {}",
-            from_text.at(MAX),
-            to_text.at(MAX)
+        let maps = Printed::applied(
+            "Set.MapsTo",
+            super::doc::Source::Mathlib,
+            vec![
+                Printed::letter(name.clone(), lean_type.clone()),
+                from_text,
+                to_text,
+            ],
+            super::doc::LeanType::Prop,
         );
-        let text = match exists {
-            true => format!("∃ {name} : {lean_type}, {maps} ∧ {}", body.at(36)),
-            false => format!("∀ {name} : {lean_type}, {maps} → {}", body.at(25)),
-        };
-        Route::Built(Printed::raw(text, 0))
+        Route::Built(Printed::of(
+            super::doc::TermKind::Quantified {
+                quant: match exists {
+                    true => super::doc::Quant::Exists,
+                    false => super::doc::Quant::ForAll,
+                },
+                letter: name,
+                letter_ty: lean_type,
+                guard: Some(Box::new(maps)),
+                body: Box::new(body),
+            },
+            super::doc::LeanType::Prop,
+        ))
     }
 }
 

@@ -24,6 +24,10 @@ pub enum LeanType {
         from: Box<LeanType>,
         to: Box<LeanType>,
     },
+    /// A type of any universe, what a group's carrier is: `Type*`.
+    Universe,
+    /// The subgroups of the group of that page name.
+    Subgroup(String),
 }
 
 /// Where a constant a term names comes from, which is what a file that
@@ -268,6 +272,30 @@ impl Term {
                 source: Source::Core,
             }),
             LeanType::Prop,
+        )
+    }
+
+    /// Whether the term is `True`.
+    pub fn is_truth(&self) -> bool {
+        matches!(&self.kind, TermKind::Const(c) if c.name == "True")
+    }
+
+    /// A constant applied to arguments by place.
+    pub fn applied(name: &str, source: Source, args: Vec<Term>, ty: LeanType) -> Term {
+        let head = Term {
+            kind: TermKind::Const(ConstRef {
+                name: name.to_string(),
+                source,
+            }),
+            ty: None,
+        };
+        Term::of(
+            TermKind::App {
+                head: Box::new(head),
+                args: args.into_iter().map(Arg::Explicit).collect(),
+                explicit: false,
+            },
+            ty,
         )
     }
 

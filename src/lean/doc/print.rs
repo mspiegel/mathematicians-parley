@@ -20,6 +20,10 @@ impl LeanType {
             LeanType::Things(var) => things_name(*var),
             LeanType::Elements(g) => crate::lean::names::letter(g),
             LeanType::Fun { from, to } => format!("{} → {}", from.text(), to.text()),
+            LeanType::Universe => "Type*".to_string(),
+            LeanType::Subgroup(g) => {
+                format!("Subgroup {}", crate::lean::names::letter(g))
+            }
         }
     }
 }
