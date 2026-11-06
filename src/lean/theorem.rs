@@ -3047,9 +3047,7 @@ impl<'a> Proof<'a> {
             }
             Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node),
-            Method::Instantiate => {
-                return self.instantiate(just, node, writer).map(Proof::Raw)
-            }
+            Method::Instantiate => return self.instantiate(just, node, writer),
             Method::Membership => return self.membership(just, node, writer),
             Method::Inspection | Method::Restate | Method::Join => {
                 Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
@@ -3851,7 +3849,7 @@ impl<'a> Proof<'a> {
         just: &Justification,
         node: &Node,
         writer: &Writer,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
         let Some(target) = just
             .target
             .as_deref()
@@ -3913,11 +3911,15 @@ impl<'a> Proof<'a> {
         // the checker reads it.
         if just.values.is_empty() {
             if let Some(read) = self.read_at_claim(part, node) {
-                return Route::Built(close(&self.writer, node, &read.proof));
+                return Route::Built(close(
+                    &self.writer,
+                    node,
+                    Printed::atom(read.proof),
+                ));
             }
         }
         let (line, name) = (&part.node, &part.proof);
-        let mut args = vec![name.clone()];
+        let mut args: Vec<Printed> = Vec::new();
         let mut body = line;
         while body.notation() == crate::notations::FOR_ALL {
             let [letter, set, inner] = body.children.as_slice() else {
@@ -3980,10 +3982,10 @@ impl<'a> Proof<'a> {
             // A member of a set: the value, and that it is in the set.
             if let Some(members) = writer.members_of(set) {
                 match writer.element_term(&value, &members) {
-                    Route::Built(p) => args.push(p.at(super::expr::MAX)),
+                    Route::Built(p) => args.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
-                args.push("(by parley_side)".to_string());
+                args.push(side_term(&[]));
                 body = inner;
                 continue;
             }
@@ -4002,9 +4004,9 @@ impl<'a> Proof<'a> {
             };
             match writer.number_fixed(&value, ty) {
                 Route::Built(p) => {
-                    args.push(p.at(super::expr::MAX));
+                    args.push(p);
                     if guarded {
-                        args.push("(by parley_side)".to_string());
+                        args.push(side_term(&[]));
                     }
                 }
                 Route::Declined(d) => return Route::Declined(d),
@@ -4014,10 +4016,17 @@ impl<'a> Proof<'a> {
         let gives = matches!(body.notation(), CONDITIONAL | IMPLICATION)
             && !matches!(node.notation(), CONDITIONAL | IMPLICATION);
         if gives {
-            args.push("(by parley_side)".to_string());
+            args.push(side_term(&[]));
         }
-        let term = format!("({})", args.join(" "));
-        Route::Built(close(&self.writer, node, &term))
+        let applied = Printed {
+            kind: super::doc::TermKind::App {
+                head: Box::new(super::tactics::hyp(name)),
+                args: args.into_iter().map(super::doc::Arg::Explicit).collect(),
+                explicit: false,
+            },
+            ty: Some(super::doc::LeanType::Prop),
+        };
+        Route::Built(close(&self.writer, node, super::tactics::bracket(applied)))
     }
 
     /// The defines among the lines a step cites, each as its equation says
@@ -5961,17 +5970,17 @@ impl<'a> Proof<'a> {
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
-            Some(witness) => by_ways(vec![
+            Some(witness) => ways_proof(vec![
                 Tactic::Exact(Printed::atom(witness)),
-                Tactic::Exact(super::tactics::bracket(Printed::atom(close(
+                Tactic::Exact(super::tactics::bracket(proof_term(close(
                     &self.writer,
                     node,
-                    &term,
+                    Printed::atom(term),
                 )))),
             ]),
-            None => close(&self.writer, node, &term),
+            None => close(&self.writer, node, Printed::atom(term)),
         };
-        Route::Built(with_haves(&written_out(&defines), &closed))
+        Route::Built(with_haves(&written_out(&defines), &closed.text()))
     }
 
     /// The proof of the right side of a definition a step folds: its
@@ -7658,8 +7667,8 @@ fn ways_proof(ways: Vec<Tactic>) -> super::doc::Proof {
     super::doc::Proof::By(tactic)
 }
 
-fn close(writer: &Writer, claim: &Node, term: &str) -> String {
-    super::doc::Proof::By(Tactic::First(closers(writer, claim, term))).text()
+fn close(writer: &Writer, claim: &Node, term: Printed) -> super::doc::Proof {
+    super::doc::Proof::By(Tactic::First(closers(writer, claim, term)))
 }
 
 /// The ways a claim is closed from a term that proves it, or something
@@ -7813,9 +7822,9 @@ fn cast_to_nat_at_h() -> Tactic {
     )
 }
 
-fn closers(writer: &Writer, claim: &Node, term: &str) -> Vec<Tactic> {
+fn closers(writer: &Writer, claim: &Node, cited: Printed) -> Vec<Tactic> {
     use super::tactics as t;
-    let cited = Printed::atom(term);
+    let term = cited.text();
     let h = || t::hyp("h");
     // An equation or order between sets, members or counts is closed as
     // any other claim: the closers for numbers work in a field or a ring.
