@@ -167,10 +167,6 @@ pub enum Proof {
     By(Tactic),
     /// `by` and the tactics on the lines below it.
     Block(Vec<Tactic>),
-    /// Proof text the writer made without a tree. It stands only while
-    /// the writer's proofs move to values one at a time, and goes with
-    /// `Tactic::Raw`.
-    Raw(String),
 }
 
 impl Tactic {

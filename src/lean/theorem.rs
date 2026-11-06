@@ -7380,15 +7380,12 @@ fn haves_then(haves: Vec<Tactic>, proof: super::doc::Proof) -> super::doc::Proof
     if haves.is_empty() {
         return proof;
     }
-    let last = match proof {
-        Proof::By(t) => t,
-        other => {
-            let text = other.text();
-            Tactic::Raw(text.strip_prefix("by ").unwrap_or(&text).to_string())
-        }
-    };
     let mut lines = haves;
-    lines.push(last);
+    match proof {
+        Proof::By(t) => lines.push(t),
+        Proof::Term(t) => lines.push(Tactic::Exact(t)),
+        Proof::Block(ts) => lines.extend(ts),
+    }
     Proof::Block(lines)
 }
 
@@ -7893,10 +7890,6 @@ fn shaped_pattern(said: &Node, names: &mut impl Iterator<Item = String>) -> Stri
     }
 }
 
-/// A proof as a tactic to stand among `first`'s alternatives: its own
-/// tactics where it is a `by` block, as an error inside a nested `by`,
-/// `exact (by …)`, is logged and does not fail the alternative, so `first`
-/// would not go on to the next.
 /// A proof of a claim said "for all", made of a proof of its body: the
 /// letters introduced, then the body's proof. A body proved by a block of
 /// tactics on lines of their own, `by` and a line break, takes the `intro`
@@ -7910,22 +7903,7 @@ fn after_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proo
             tactics.insert(0, intro);
             Proof::Block(tactics)
         }
-        Proof::Raw(text) if text.starts_with("by\n") => {
-            Proof::Raw(after_intros_text(intros, &text))
-        }
         other => Proof::By(Tactic::Seq(vec![intro, tactic_of(&other)])),
-    }
-}
-
-/// `after_intros` of a proof given as text.
-fn after_intros_text(intros: &[String], proof: &str) -> String {
-    let names = intros.join(" ");
-    match proof.strip_prefix("by\n") {
-        Some(block) => {
-            let indent: String = block.chars().take_while(|c| *c == ' ').collect();
-            format!("by\n{indent}intro {names}\n{block}")
-        }
-        None => format!("by intro {names}; {}", as_tactic(proof)),
     }
 }
 
@@ -7943,32 +7921,20 @@ fn with_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proof
             ts.insert(0, intro);
             Proof::Block(ts)
         }
-        Proof::Raw(text) if text.starts_with("by\n") => {
-            Proof::Raw(after_intros_text(intros, &text))
-        }
-        other => {
-            let text = other.text();
-            let inner = text.strip_prefix("by ").unwrap_or(&text).to_string();
-            Proof::Raw(format!("by intro {}; {inner}", intros.join(" ")))
-        }
+        Proof::Term(t) => Proof::By(Tactic::Seq(vec![intro, Tactic::Exact(t)])),
     }
 }
 
 /// A proof as a tactic that closes the goal with it: `(t)` of `by t`,
-/// `exact (t)` of a term.
+/// `exact (t)` of a term, `exact (by …)` of a block.
 fn tactic_of(proof: &super::doc::Proof) -> Tactic {
     use super::doc::Proof;
     match proof {
         Proof::By(t) => Tactic::Group(Box::new(t.clone())),
         Proof::Term(t) => Tactic::Exact(super::tactics::bracket(t.clone())),
-        Proof::Block(_) | Proof::Raw(_) => Tactic::Raw(as_tactic(&proof.text())),
-    }
-}
-
-fn as_tactic(proof: &str) -> String {
-    match proof.strip_prefix("by ") {
-        Some(t) => format!("({t})"),
-        None => format!("exact ({proof})"),
+        Proof::Block(_) => {
+            Tactic::Exact(super::tactics::bracket(proof_term(proof.clone())))
+        }
     }
 }
 

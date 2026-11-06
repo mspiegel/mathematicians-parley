@@ -299,7 +299,6 @@ impl Proof {
     pub fn text(&self) -> String {
         match self {
             Proof::Term(t) => t.text(),
-            Proof::Raw(text) => text.clone(),
             Proof::By(t) => format!("by {}", t.text()),
             Proof::Block(tactics) => {
                 let mut out = String::from("by");
