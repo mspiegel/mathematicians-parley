@@ -100,13 +100,13 @@ pub enum Tactic {
 }
 
 /// One link of a `calc`: the relation, the term it reaches, the modulus of
-/// a congruence, and the link's proof as Lean text.
+/// a congruence, and the link's proof.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct CalcLink {
     pub relation: String,
     pub term: Term,
     pub modulus: Option<Term>,
-    pub proof: String,
+    pub proof: Proof,
 }
 
 /// What follows a tactic's name.

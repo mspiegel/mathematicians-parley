@@ -3024,9 +3024,7 @@ impl<'a> Proof<'a> {
             Method::Substitute => {
                 return self.substitute(just, node, writer).map(Proof::Raw)
             }
-            Method::Calculation => {
-                return self.calculation(just, writer).map(Proof::Raw)
-            }
+            Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node).map(Proof::Raw),
             Method::Instantiate => {
                 return self.instantiate(just, node, writer).map(Proof::Raw)
@@ -4683,7 +4681,11 @@ impl<'a> Proof<'a> {
 
     /// `calculation`: the chain as Lean's `calc`, every term in one type,
     /// each link proved by its reason.
-    fn calculation(&self, just: &Justification, writer: &Writer) -> Route<String> {
+    fn calculation(
+        &self,
+        just: &Justification,
+        writer: &Writer,
+    ) -> Route<super::doc::Proof> {
         let Some(Ok(chain)) = crate::corpus::proof::chain(just, &self.thm.path) else {
             return Route::no("a calculation whose lines do not cut");
         };
@@ -4829,7 +4831,7 @@ impl<'a> Proof<'a> {
                     let proof = self.proof_of(reason, 0, &fact);
                     self.worked_in.set(None);
                     match proof {
-                        Route::Built(p) => p.text(),
+                        Route::Built(p) => p,
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
@@ -4892,7 +4894,7 @@ impl<'a> Proof<'a> {
                     ways.push(super::tactics::bridge(BridgeTactic::Side, vec![]));
                     ways.extend(in_named);
                     ways.extend(parts);
-                    by_ways(ways)
+                    ways_proof(ways)
                 }
                 // A row the page works out by real arithmetic, = 3·ln(2).
                 None if line.cite == crate::corpus::Method::RealArithmetic.as_str() => {
@@ -4900,10 +4902,8 @@ impl<'a> Proof<'a> {
                         BridgeTactic::Real,
                         vec![],
                     ))
-                    .text()
                 }
-                None => super::doc::Proof::By(super::tactics::call("norm_num", vec![]))
-                    .text(),
+                None => super::doc::Proof::By(super::tactics::call("norm_num", vec![])),
             };
             // A chain of one link is that link, and its proof the step's:
             // Lean's calc would read the line after a lone link as another.
@@ -4921,7 +4921,7 @@ impl<'a> Proof<'a> {
             first: printed[0].clone(),
             links,
         });
-        Route::Built(super::doc::Proof::Block(block).text())
+        Route::Built(super::doc::Proof::Block(block))
     }
 
     /// Each sentence of the lines `refs` names, each conjunction taken apart
@@ -7582,11 +7582,16 @@ fn side_proof() -> String {
 /// `by` and the ways a step is closed, tried in order: `by t` of one way,
 /// `by first | a | b` of several.
 fn by_ways(ways: Vec<Tactic>) -> String {
+    ways_proof(ways).text()
+}
+
+/// The proof `by t` of one way, `by first | a | b` of several.
+fn ways_proof(ways: Vec<Tactic>) -> super::doc::Proof {
     let tactic = match <[Tactic; 1]>::try_from(ways) {
         Ok([one]) => one,
         Err(ways) => Tactic::First(ways),
     };
-    super::doc::Proof::By(tactic).text()
+    super::doc::Proof::By(tactic)
 }
 
 fn close(writer: &Writer, claim: &Node, term: &str) -> String {

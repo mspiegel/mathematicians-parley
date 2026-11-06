@@ -208,7 +208,7 @@ impl Tactic {
                     };
                     // A proof of several lines stands under its link,
                     // deeper than the link's own lines.
-                    let proof = link.proof.replace('\n', "\n    ");
+                    let proof = link.proof.text().replace('\n', "\n    ");
                     match k {
                         0 => out.push_str(&format!(" {reached} := {proof}")),
                         _ => out.push_str(&format!("\n  _ {reached} := {proof}")),
