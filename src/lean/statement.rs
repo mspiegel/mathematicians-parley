@@ -150,8 +150,8 @@ struct InSet {
     letter: String,
     ty: LetterType,
     fact: Fact,
-    /// A map's domain as Lean writes it, the A of `f : A → B`.
-    domain: Option<String>,
+    /// A map's domain, the A of `f : A → B`.
+    domain: Option<super::expr::Printed>,
 }
 
 /// What a line that introduces a letter says of it beside its type.
@@ -275,6 +275,7 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
                 (writer.set_term(from).built()?, writer.set_term(to).built()?);
             let lean = super::names::letter(&letter.text);
             let domain = from_text.at(super::expr::MAX);
+            let domain_term = from_text;
             // Between sets of numbers, f : ℝ ∖ {2} → ℝ, a function of the
             // numbers' types, so that f(x) is a number; between sets of
             // things, a map α → α.
@@ -298,7 +299,7 @@ fn introduces_in_set(writer: &Writer, node: &Node) -> Option<InSet> {
                     )),
                     false => Fact::Line,
                 },
-                domain: Some(domain),
+                domain: Some(domain_term),
             })
         }
         _ => None,
@@ -340,9 +341,7 @@ fn record_domain(writer: &mut Writer, node: &Node) {
         return;
     }
     if let Route::Built(d) = writer.set_term(from) {
-        writer
-            .domains
-            .insert(f.text.to_string(), d.at(super::expr::MAX));
+        writer.domains.insert(f.text.to_string(), d);
     }
 }
 
@@ -363,9 +362,7 @@ pub fn binders(
                 continue;
             }
             if let Route::Built(d) = writer.set_term(from) {
-                writer
-                    .domains
-                    .insert(f.text.to_string(), d.at(super::expr::MAX));
+                writer.domains.insert(f.text.to_string(), d);
             }
         }
         record_domain(writer, a.node);

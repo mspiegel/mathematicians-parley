@@ -700,27 +700,36 @@ impl Writer<'_> {
                 f.text
             ));
         };
-        Route::Built(Printed::raw(
-            format!(
-                "{} '' ({domain} ∩ {})",
-                super::names::letter(&f.text),
-                set.at(71)
-            ),
-            80,
-        ))
+        Route::Built(Printed {
+            kind: TermKind::Notation {
+                pieces: vec![
+                    Piece::text(format!("{} '' (", super::names::letter(&f.text))),
+                    Piece::term(domain, MAX),
+                    Piece::text(" ∩ "),
+                    Piece::term(set.clone(), 71),
+                    Piece::text(")"),
+                ],
+                prec: 80,
+            },
+            ty: set.ty.clone(),
+        })
     }
 
     /// The set a map or function is defined on, as Lean writes it: the one
     /// a line gives it, or for a function given between number systems,
     /// all of its type; None for one from ℕ, whose type Lean's ℕ begins at
     /// 0 where the page's begins at 1, and for any other letter.
-    pub fn domain_of(&self, f: &str) -> Option<String> {
+    pub fn domain_of(&self, f: &str) -> Option<Printed> {
         if let Some(d) = self.domains.get(f) {
             return Some(d.clone());
         }
         match self.letters.get(f) {
             Some(LetterType::Function { from, .. }) if *from != Num::Nat => {
-                Some(format!("(Set.univ : Set {})", from.lean()))
+                let of = LeanType::Set(Box::new(LeanType::Num(*from)));
+                Some(Printed::cast(
+                    Printed::head("Set.univ", Source::Mathlib),
+                    of,
+                ))
             }
             _ => None,
         }
@@ -739,14 +748,23 @@ impl Writer<'_> {
             ));
         };
         match self.set_term(z) {
-            Route::Built(z) => Route::Built(Printed::raw(
-                format!(
-                    "{domain} ∩ {} ⁻¹' {}",
-                    super::names::letter(&f.text),
-                    z.at(MAX)
-                ),
-                70,
-            )),
+            Route::Built(z) => {
+                let ty = domain.ty.clone();
+                Route::Built(Printed {
+                    kind: TermKind::Notation {
+                        pieces: vec![
+                            Piece::term(domain, MAX),
+                            Piece::text(format!(
+                                " ∩ {} ⁻¹' ",
+                                super::names::letter(&f.text)
+                            )),
+                            Piece::term(z, MAX),
+                        ],
+                        prec: 70,
+                    },
+                    ty,
+                })
+            }
             Route::Declined(d) => Route::Declined(d),
         }
     }
@@ -896,17 +914,29 @@ impl Writer<'_> {
             let Some(domain) = self.domains.get(g.text.as_str()) else {
                 return Route::no(format!("{}⁻¹, whose domain no line gives", g.text));
             };
-            return match self.set_term(x) {
-                Route::Built(p) => Route::Built(Printed::raw(
-                    format!(
-                        "{INVERSE} {} {domain} {}",
-                        super::names::letter(&g.text),
-                        p.at(MAX)
-                    ),
-                    1023,
-                )),
-                Route::Declined(d) => Route::Declined(d),
+            let from = self.letters.get(g.text.as_str()).map(LetterType::lean_type);
+            let letter = Printed {
+                kind: TermKind::Letter(super::names::letter(&g.text)),
+                ty: from,
             };
+            let domain = domain.clone();
+            return self.set_term(x).map(|p| {
+                let ty = domain.ty.clone();
+                Printed {
+                    kind: TermKind::App {
+                        head: Box::new(Printed::head(
+                            INVERSE,
+                            Source::Bridge("Functions".to_string()),
+                        )),
+                        args: [letter, domain, p]
+                            .into_iter()
+                            .map(super::doc::Arg::Explicit)
+                            .collect(),
+                        explicit: false,
+                    },
+                    ty,
+                }
+            });
         }
         let Some(map) = self.map_text(f) else {
             return Route::no(format!("{} applied, which is no map", f.text));

@@ -223,10 +223,9 @@ pub struct Writer<'a> {
     /// integers, f(a) of `f(a) ∈ ℤ` with f into ℝ: each is the integer that
     /// hypothesis gives, where the page computes with it in ℤ.
     pub integers: Vec<SaidInteger>,
-    /// The set each map letter is a map from, as Lean writes it, by the
-    /// letter: the A of `f : A → B`, within which a preimage is taken and
-    /// an inverse is found.
-    pub domains: IndexMap<String, String>,
+    /// The set each map letter is a map from, by the letter: the A of `f :
+    /// A → B`, within which a preimage is taken and an inverse is found.
+    pub domains: IndexMap<String, Printed>,
     /// Terms the theorem puts in a hole of type ℝ, A/B of ⌊A/B⌋, as the
     /// page prints them: each is computed in ℝ wherever it is written.
     pub reals: Vec<String>,
@@ -1042,7 +1041,7 @@ impl Writer<'_> {
 
     /// The function letter a term is the inverse of, g of g⁻¹, with the
     /// domain a line gives it; None for any other term.
-    fn inverse_of_function<'n>(&self, f: &'n Node) -> Option<(&'n Node, String)> {
+    fn inverse_of_function<'n>(&self, f: &'n Node) -> Option<(&'n Node, Printed)> {
         let [g] = f.children.as_slice() else {
             return None;
         };
@@ -1072,7 +1071,7 @@ impl Writer<'_> {
                     )),
                     args: vec![
                         super::doc::Arg::Explicit(letter),
-                        super::doc::Arg::Explicit(Printed::atom(domain)),
+                        super::doc::Arg::Explicit(domain),
                     ],
                     explicit: false,
                 },
@@ -1542,7 +1541,9 @@ impl Writer<'_> {
                 Piece::term(Printed::head("nhdsWithin", mathlib()), 0),
                 Piece::text(" "),
                 Piece::term(c.clone(), MAX),
-                Piece::text(format!(" ({domain} \\ {{")),
+                Piece::text(" ("),
+                Piece::term(domain, MAX),
+                Piece::text(" \\ {"),
                 Piece::term(c, MAX),
                 Piece::text("})) (nhds "),
                 Piece::term(l, MAX),
@@ -1655,12 +1656,20 @@ impl Writer<'_> {
                     vec![point],
                     LeanType::Set(Box::new(LeanType::Set(Box::new(real.clone())))),
                 );
-                match (relation_of("∈", Printed::atom(domain), near), at) {
-                    (Route::Built(inside), at) => match conjunction(inside, at) {
-                        Route::Built(c) => c,
-                        Route::Declined(d) => return Route::Declined(d),
-                    },
-                    (Route::Declined(d), _) => return Route::Declined(d),
+                // The domain stands bracketed as an argument does, as a
+                // map's domain is written everywhere it is named.
+                let inside = Printed::notation(
+                    vec![
+                        Piece::term(domain, MAX),
+                        Piece::text(" ∈ "),
+                        Piece::term(near, 51),
+                    ],
+                    50,
+                    LeanType::Prop,
+                );
+                match conjunction(inside, at) {
+                    Route::Built(c) => c,
+                    Route::Declined(d) => return Route::Declined(d),
                 }
             }
             false => at,

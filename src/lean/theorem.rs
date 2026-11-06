@@ -723,9 +723,7 @@ fn header_function(
         };
         match written {
             Route::Built(p) => {
-                writer
-                    .domains
-                    .insert(def.name.clone(), p.at(super::expr::MAX));
+                writer.domains.insert(def.name.clone(), p);
             }
             Route::Declined(why) => return Route::Declined(why),
         }
@@ -3476,9 +3474,7 @@ impl<'a> Proof<'a> {
         if !whole && from >= super::templates::Num::Real {
             match self.writer.numbers_at(domain, from) {
                 Route::Built(p) => {
-                    self.writer
-                        .domains
-                        .insert(def.name.clone(), p.at(super::expr::MAX));
+                    self.writer.domains.insert(def.name.clone(), p);
                 }
                 Route::Declined(why) => return Route::Declined(why),
             }
@@ -4746,11 +4742,13 @@ impl<'a> Proof<'a> {
         name: &str,
         binding: &crate::matching::Binding,
     ) -> Option<Route<String>> {
-        let (map, _) = sentence.domains.iter().find(|(_, d)| d.as_str() == name)?;
+        let (map, _) = sentence.domains.iter().find(|(_, d)| {
+            matches!(&d.kind, super::doc::TermKind::Letter(l) if *l == super::names::letter(name))
+        })?;
         let given = binding.get(&crate::formula::symbol::Symbol::of(map));
         Some(match given {
             Some(g) if g.is_name() => match self.writer.domain_of(&g.text) {
-                Some(d) => Route::Built(d),
+                Some(d) => Route::Built(d.at(super::expr::MAX)),
                 None => Route::no(format!("{}, whose domain no line gives", g.text)),
             },
             _ => Route::no(format!(

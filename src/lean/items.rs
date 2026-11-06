@@ -36,10 +36,10 @@ pub struct Sentence {
     pub arithmetic: std::collections::BTreeMap<String, usize>,
     /// What its general letters range over; None where it has none.
     pub general: Option<General>,
-    /// The domain each of its maps is on, as Lean writes it, by the map's
-    /// letter: the X of `f : X → W`, which a citation that gives f a value
-    /// and X none takes from that value's domain.
-    pub domains: IndexMap<String, String>,
+    /// The domain each of its maps is on, by the map's letter: the X of `f
+    /// : X → W`, which a citation that gives f a value and X none takes
+    /// from that value's domain.
+    pub domains: IndexMap<String, super::expr::Printed>,
 }
 
 /// An item of the library in Lean: its sentences, counted across its
@@ -1225,7 +1225,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                             f.text
                         ));
                     };
-                    w.domains.insert(f.text.to_string(), a.at(super::expr::MAX));
+                    w.domains.insert(f.text.to_string(), a);
                     continue;
                 }
                 let (Route::Built(a), Route::Built(b)) =
@@ -1245,7 +1245,7 @@ pub fn item(writer: &Writer, checked: &CheckedCorpus, record: &Record) -> Route<
                     ),
                     line: None,
                 });
-                w.domains.insert(f.text.to_string(), domain);
+                w.domains.insert(f.text.to_string(), a);
             }
             let prop = match w.formula(says) {
                 Route::Built(p) => p.text(),
