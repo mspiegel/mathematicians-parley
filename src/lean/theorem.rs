@@ -32,6 +32,32 @@ pub struct LeanFile {
     pub origins: Vec<Origin>,
 }
 
+/// An item applied to what a citation gives it.
+pub struct Instance {
+    /// The item's declaration applied to its arguments, with the
+    /// projection that takes the sentence: `(Decl (x := v) h).2`.
+    pub term: super::expr::Printed,
+    /// What it then says: the item's sentence with each letter put for by
+    /// the value the citation gives it, to be compared with the line it
+    /// proves.
+    pub statement: super::expr::Printed,
+}
+
+/// A proof given as an argument, as Lean text: a line's name or `(by
+/// parley_side)`.
+fn proof_arg(text: &str) -> super::doc::Arg {
+    super::doc::Arg::Explicit(super::expr::Printed::atom(text))
+}
+
+/// The module a declaration's full name is in, `Parley.Items.Stdlib.Counting`
+/// of `Parley.Items.Stdlib.Counting.mun_card_singleton`.
+fn module_of_decl(decl: &str) -> String {
+    match decl.rsplit_once('.') {
+        Some((module, _)) => module.to_string(),
+        None => decl.to_string(),
+    }
+}
+
 /// Where a line of a Lean file comes from.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Origin {
@@ -4750,14 +4776,22 @@ impl<'a> Proof<'a> {
         sentence: &Sentence,
         name: &str,
         binding: &crate::matching::Binding,
-    ) -> Option<Route<String>> {
+    ) -> Option<Route<super::expr::Printed>> {
         let (map, _) = sentence.domains.iter().find(|(_, d)| {
             matches!(&d.kind, super::doc::TermKind::Letter(l) if *l == super::names::letter(name))
         })?;
         let given = binding.get(&crate::formula::symbol::Symbol::of(map));
         Some(match given {
+            // The domain stands bracketed as an argument does.
             Some(g) if g.is_name() => match self.writer.domain_of(&g.text) {
-                Some(d) => Route::Built(d.at(super::expr::MAX)),
+                Some(d) if d.prec() < super::expr::MAX => {
+                    let ty = d.ty.clone();
+                    Route::Built(super::expr::Printed {
+                        kind: super::doc::TermKind::Paren(Box::new(d)),
+                        ty,
+                    })
+                }
+                Some(d) => Route::Built(d),
                 None => Route::no(format!("{}, whose domain no line gives", g.text)),
             },
             _ => Route::no(format!(
@@ -4988,6 +5022,21 @@ impl<'a> Proof<'a> {
         claim: Option<&Node>,
         cited_lines: &[super::algebra::Cited],
     ) -> Route<String> {
+        self.instance_of(sentence, binding, claim, cited_lines)
+            .map(|i| i.term.text())
+    }
+
+    /// The item applied to what the citation gives it (`instance`), and
+    /// what it then says.
+    fn instance_of(
+        &self,
+        sentence: &Sentence,
+        binding: &crate::matching::Binding,
+        claim: Option<&Node>,
+        cited_lines: &[super::algebra::Cited],
+    ) -> Route<Instance> {
+        let mut given: std::collections::BTreeMap<String, super::expr::Printed> =
+            std::collections::BTreeMap::new();
         let things = self.things_given(&sentence.binders, binding);
         // The type an item's general letters take: the least that holds the
         // claim and every value given them, a field's at least where the
@@ -5067,7 +5116,12 @@ impl<'a> Proof<'a> {
                                 (LetterType::Set(_), Some(Route::Declined(d))) => {
                                     return Route::Declined(d)
                                 }
-                                (LetterType::Set(_), None) => "Set.univ".to_string(),
+                                (LetterType::Set(_), None) => {
+                                    super::expr::Printed::head(
+                                        "Set.univ",
+                                        super::doc::Source::Mathlib,
+                                    )
+                                }
                                 // A function of a recursion the file lets, F of
                                 // D1, is the citing theorem's F, which the same
                                 // define lets.
@@ -5075,11 +5129,21 @@ impl<'a> Proof<'a> {
                                     if self.writer.letters.get(page.as_str())
                                         == Some(ty) =>
                                 {
-                                    super::names::letter(page)
+                                    super::expr::Printed::letter(
+                                        super::names::letter(page),
+                                        ty.lean_type(),
+                                    )
                                 }
-                                _ => "_".to_string(),
+                                _ => super::expr::Printed::of(
+                                    super::doc::TermKind::Elided,
+                                    ty.lean_type(),
+                                ),
                             };
-                        args.push(format!("({name} := {fill})"));
+                        given.insert(name.clone(), fill.clone());
+                        args.push(super::doc::Arg::Named {
+                            name: name.clone(),
+                            value: fill,
+                        });
                         continue;
                     };
                     // The value of a define that names its number, m/p of
@@ -5400,7 +5464,11 @@ impl<'a> Proof<'a> {
                     };
                     match printed {
                         Route::Built(p) => {
-                            args.push(format!("({name} := {})", p.text()))
+                            given.insert(name.clone(), p.clone());
+                            args.push(super::doc::Arg::Named {
+                                name: name.clone(),
+                                value: p,
+                            });
                         }
                         Route::Declined(d) => return Route::Declined(d),
                     }
@@ -5410,7 +5478,7 @@ impl<'a> Proof<'a> {
                 Binder::Fact { says, .. }
                     if self.given_whole(&says.text(), binding) =>
                 {
-                    args.push("(by parley_whole_side)".to_string())
+                    args.push(proof_arg("(by parley_whole_side)"))
                 }
                 // A hypothesis a cited line says, as Lean writes both: the
                 // line by its name.
@@ -5425,18 +5493,46 @@ impl<'a> Proof<'a> {
                     cited_lines,
                     &sentence.binders,
                 ) {
-                    Some(name) => args.push(name),
-                    None => args.push("(by parley_side)".to_string()),
+                    Some(name) => args.push(proof_arg(&name)),
+                    None => args.push(proof_arg("(by parley_side)")),
                 },
-                Binder::Fact { .. } => args.push("(by parley_side)".to_string()),
+                Binder::Fact { .. } => args.push(proof_arg("(by parley_side)")),
             }
         }
+        let decl = super::expr::Printed::head(
+            &sentence.decl,
+            super::doc::Source::Item(module_of_decl(&sentence.decl)),
+        );
         let head = if args.is_empty() {
-            sentence.decl.clone()
+            decl
         } else {
-            format!("({} {})", sentence.decl, args.join(" "))
+            super::expr::Printed {
+                kind: super::doc::TermKind::Paren(Box::new(super::expr::Printed {
+                    kind: super::doc::TermKind::App {
+                        head: Box::new(decl),
+                        args,
+                        explicit: false,
+                    },
+                    ty: Some(super::doc::LeanType::Prop),
+                })),
+                ty: Some(super::doc::LeanType::Prop),
+            }
         };
-        Route::Built(format!("{head}{}", sentence.part))
+        let term = match sentence.part.is_empty() {
+            true => head,
+            false => super::expr::Printed::notation(
+                vec![
+                    super::doc::Piece::term(head, 0),
+                    super::doc::Piece::text(sentence.part.clone()),
+                ],
+                super::expr::MAX,
+                super::doc::LeanType::Prop,
+            ),
+        };
+        Route::Built(Instance {
+            term,
+            statement: sentence.prop.substituted(&given),
+        })
     }
 
     /// The type a value given a general letter is in: a number's own, a

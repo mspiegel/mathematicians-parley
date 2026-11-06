@@ -442,6 +442,89 @@ impl Term {
         }
     }
 
+    /// The term with each letter `given` names put for by the term it
+    /// gives, as a citation gives an item's letters values. A letter bound
+    /// inside the term is left as it is where a quantifier binds it.
+    pub fn substituted(
+        &self,
+        given: &std::collections::BTreeMap<String, Term>,
+    ) -> Term {
+        let mut out = self.clone();
+        out.substitute(given);
+        out
+    }
+
+    fn substitute(&mut self, given: &std::collections::BTreeMap<String, Term>) {
+        if let TermKind::Letter(name) = &self.kind {
+            if let Some(value) = given.get(name) {
+                *self = value.clone();
+            }
+            return;
+        }
+        if let TermKind::Quantified { letter, .. } = &self.kind {
+            if given.contains_key(letter) {
+                let mut inner = given.clone();
+                inner.remove(letter);
+                self.substitute_children(&inner);
+                return;
+            }
+        }
+        self.substitute_children(given);
+    }
+
+    fn substitute_children(
+        &mut self,
+        given: &std::collections::BTreeMap<String, Term>,
+    ) {
+        match &mut self.kind {
+            TermKind::Raw { .. }
+            | TermKind::Letter(_)
+            | TermKind::Const(_)
+            | TermKind::Numeral(_)
+            | TermKind::Hole(_)
+            | TermKind::Elided => {}
+            TermKind::App { head, args, .. } => {
+                head.substitute(given);
+                for a in args {
+                    match a {
+                        Arg::Explicit(t) => t.substitute(given),
+                        Arg::Named { value, .. } => value.substitute(given),
+                    }
+                }
+            }
+            TermKind::Infix { lhs, rhs, .. } => {
+                lhs.substitute(given);
+                rhs.substitute(given);
+            }
+            TermKind::Not(t)
+            | TermKind::Neg(t)
+            | TermKind::ToNat(t)
+            | TermKind::Paren(t) => t.substitute(given),
+            TermKind::Cast { inner, .. }
+            | TermKind::Field { inner, .. }
+            | TermKind::Enclosed { inner, .. } => inner.substitute(given),
+            TermKind::Count { set, .. } => set.substitute(given),
+            TermKind::ModEq { a, b, n } => {
+                a.substitute(given);
+                b.substitute(given);
+                n.substitute(given);
+            }
+            TermKind::Quantified { guard, body, .. } => {
+                if let Some(g) = guard {
+                    g.substitute(given);
+                }
+                body.substitute(given);
+            }
+            TermKind::Notation { pieces, .. } => {
+                for p in pieces {
+                    if let Piece::Term { term, .. } = p {
+                        term.substitute(given);
+                    }
+                }
+            }
+        }
+    }
+
     /// A template's tree with hole i filled by `args[i − 1]`; None where a
     /// hole has no argument.
     pub fn instantiate(&self, args: &[Term]) -> Option<Term> {
