@@ -76,6 +76,13 @@ impl Op {
         assoc: Assoc::Right,
     };
 
+    /// Equality, `a = b`.
+    pub const EQUALS: Op = Op {
+        symbol: "=",
+        prec: 50,
+        assoc: Assoc::Neither,
+    };
+
     /// Multiplication, `a * b`, a group's operation too.
     pub const TIMES: Op = Op {
         symbol: "*",

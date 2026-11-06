@@ -3008,9 +3008,9 @@ impl<'a> Proof<'a> {
                     Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let mut lines = written_out(&defines);
+                let mut lines: Vec<Tactic> =
+                    written_out(&defines).into_iter().map(Tactic::Raw).collect();
                 lines.extend(haves);
-                let lines: Vec<Tactic> = lines.into_iter().map(Tactic::Raw).collect();
                 return Route::Built(haves_then(lines, proof));
             }
             Method::Arithmetic => {
@@ -3042,9 +3042,7 @@ impl<'a> Proof<'a> {
                 steps.push(super::tactics::bridge(close, vec![]));
                 super::doc::Proof::By(Tactic::Seq(steps))
             }
-            Method::Substitute => {
-                return self.substitute(just, node, writer).map(Proof::Raw)
-            }
+            Method::Substitute => return self.substitute(just, node, writer),
             Method::Calculation => return self.calculation(just, writer),
             Method::Exhibit => return self.exhibit(just, node),
             Method::Instantiate => return self.instantiate(just, node, writer),
@@ -4132,7 +4130,9 @@ impl<'a> Proof<'a> {
         just: &Justification,
         claim: &Node,
         writer: &Writer,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
         if !just.rows.is_empty() {
             return self.substitute_rows(just, writer);
         }
@@ -4140,9 +4140,19 @@ impl<'a> Proof<'a> {
         // equation for every x, put in where f is applied.
         if let Some(crate::corpus::skeleton::Source::At(place)) = &just.source {
             if let Some(hyp) = self.header_function_named(place.named()) {
-                return Route::Built(format!(
-                    "by (try simp only [{hyp}] at *); first | done | parley_side"
-                ));
+                let everywhere = TacticArg::At(vec![super::doc::Location::Everywhere]);
+                return Route::Built(Proof::By(Tactic::Seq(vec![
+                    t::try_(t::simp_only(
+                        false,
+                        None,
+                        vec![t::forwards(t::hyp(&hyp))],
+                        Some(everywhere),
+                    )),
+                    Tactic::First(vec![
+                        t::call("done", vec![]),
+                        t::bridge(BridgeTactic::Side, vec![]),
+                    ]),
+                ])));
             }
         }
         let mut haves = Vec::new();
@@ -4198,7 +4208,7 @@ impl<'a> Proof<'a> {
                         claim,
                         self.sources.ctx,
                     ) {
-                        return Route::Built(proof.text());
+                        return Route::Built(proof);
                     }
                 }
                 match chosen.as_ref().map(|(n, p)| (n, p)) {
@@ -4208,7 +4218,7 @@ impl<'a> Proof<'a> {
                             haves.extend(w.have);
                             stated = Some(name.clone());
                             put = Some(line.clone());
-                            w.name
+                            t::hyp(&w.name)
                         }
                         Route::Declined(d) => return Route::Declined(d),
                     },
@@ -4231,7 +4241,10 @@ impl<'a> Proof<'a> {
                     just.source,
                     Some(crate::corpus::skeleton::Source::RealArithmetic)
                 );
-                let tactic = if real { "parley_real" } else { "parley_side" };
+                let tactic = match real {
+                    true => BridgeTactic::Real,
+                    false => BridgeTactic::Side,
+                };
                 // Of numerals alone, cos(0) = 1, it is said in the type the
                 // claim is computed in, where it is put: `Complex.cos 0` in
                 // a line of complex numbers.
@@ -4251,11 +4264,13 @@ impl<'a> Proof<'a> {
                     false => self.writer.formula(&node),
                 };
                 match said {
-                    Route::Built(p) => format!("(show {} by {tactic})", p.text()),
+                    Route::Built(p) => {
+                        t::bracket(shown(p, Proof::By(t::bridge(tactic, vec![]))))
+                    }
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
-            _ => return Route::Built(side_proof()),
+            _ => return Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![]))),
         };
         // The line put into, cast up to the claim's type where it is
         // narrower. Of a line saying several things, the one the equation
@@ -4315,7 +4330,7 @@ impl<'a> Proof<'a> {
         // is, `∃ m : ℤ, (m : ℚ) = 2 ^ (p − 1) * 2 ∧ 2 ^ p − 1 ∣ m`, whose
         // term the equation turns into the claim's whole number, 2^p: the
         // line said of that number, the equation showing it is the term.
-        let mut witnessed: Vec<String> = Vec::new();
+        let mut witnessed: Vec<Tactic> = Vec::new();
         for (line, name) in &candidates {
             let Some((term, whole)) = self.writer.wide_in_slot(line) else {
                 continue;
@@ -4330,11 +4345,32 @@ impl<'a> Proof<'a> {
                 super::templates::Num::Nat => "parley_witness_at_nat",
                 _ => "parley_witness_at",
             };
-            for sign in ["", "-"] {
-                witnessed.push(format!(
-                    "exact {lemma} {name} ({}) (by push_cast; linear_combination (norm := parley_norm) {sign}{equation})",
-                    w.text()
-                ));
+            for by in [
+                equation.clone(),
+                Printed {
+                    kind: super::doc::TermKind::Neg(Box::new(equation.clone())),
+                    ty: equation.ty.clone(),
+                },
+            ] {
+                let shows = Proof::By(Tactic::Seq(vec![
+                    t::push_cast(None),
+                    t::linear_combination(by),
+                ]));
+                let applied = Printed {
+                    kind: super::doc::TermKind::App {
+                        head: Box::new(t::bridge_lemma(
+                            lemma,
+                            BridgeModule::PowerTactics,
+                        )),
+                        args: [t::hyp(name), t::bracket(w.clone()), proof_term(shows)]
+                            .into_iter()
+                            .map(super::doc::Arg::Explicit)
+                            .collect(),
+                        explicit: false,
+                    },
+                    ty: Some(super::doc::LeanType::Prop),
+                };
+                witnessed.push(Tactic::Exact(applied));
             }
         }
         for (i, (line, name)) in candidates.into_iter().enumerate() {
@@ -4357,7 +4393,10 @@ impl<'a> Proof<'a> {
             }
             if let Some(part) = parts.iter().find(|p| turns(&p.node)) {
                 let at_name = format!("at{i}");
-                haves.push(format!("have {at_name} := {}", part.proof));
+                haves.push(Tactic::Name {
+                    name: at_name.clone(),
+                    term: Printed::atom(part.proof.clone()),
+                });
                 match self.widened(&part.node, &at_name, claim, writer) {
                     Route::Built(w) => {
                         haves.extend(w.have);
@@ -4380,7 +4419,10 @@ impl<'a> Proof<'a> {
         // part of a fixed type, (4 − 2)! of a claim in ℚ.
         // Of several lines, each is rewritten into before any is simplified,
         // since a simplification that loops ends the search (`parley_put_at`).
-        let own = stated.clone().filter(|s| *s != equation);
+        let own = stated
+            .clone()
+            .map(|s| t::hyp(&s))
+            .filter(|s| *s != equation);
         // An equation of natural numbers, A = (n + 1)!, put where its term
         // stands as a natural number, the exponent of 2^A: Lean's exponent
         // is of ℕ, so the equation is put there in ℕ.
@@ -4395,11 +4437,16 @@ impl<'a> Proof<'a> {
                     .map(|c| self.writer.number(c, super::templates::Num::Nat))
                     .collect();
                 match sides.as_slice() {
-                    [Route::Built(l), Route::Built(r)] => Some(format!(
-                        "have e_nat : {} = {} := by exact_mod_cast {name}",
-                        l.at(51),
-                        r.at(51)
-                    )),
+                    [Route::Built(l), Route::Built(r)] => Some(Tactic::Have {
+                        name: "e_nat".to_string(),
+                        says: Printed::infix(
+                            super::doc::Op::EQUALS,
+                            l.clone(),
+                            r.clone(),
+                            super::doc::LeanType::Prop,
+                        ),
+                        proof: Box::new(Proof::By(t::exact_mod_cast(t::hyp(name)))),
+                    }),
                     _ => None,
                 }
             }
@@ -4419,8 +4466,8 @@ impl<'a> Proof<'a> {
                 }
                 if let Some(in_nat) = &in_nat {
                     ways.push(super::tactics::steps(vec![
-                        Tactic::Raw(in_nat.clone()),
-                        put_into(*tactic, "e_nat", line),
+                        in_nat.clone(),
+                        put_into(*tactic, &t::hyp("e_nat"), line),
                     ]));
                 }
             }
@@ -4431,9 +4478,8 @@ impl<'a> Proof<'a> {
                 ways.push(subst_by(own));
             }
         }
-        ways.extend(witnessed.into_iter().map(Tactic::Raw));
-        let tactic = by_ways(ways);
-        Route::Built(with_haves(&haves, &tactic))
+        ways.extend(witnessed);
+        Route::Built(haves_then(haves, ways_proof(ways)))
     }
 
     /// A cited "for all" of one letter, read where a closure method reads
@@ -4541,7 +4587,11 @@ impl<'a> Proof<'a> {
     /// `substitute` in rows: each row the row above with the change its
     /// reason proves put in, the first row the line it cites, and the last
     /// the claim.
-    fn substitute_rows(&self, just: &Justification, writer: &Writer) -> Route<String> {
+    fn substitute_rows(
+        &self,
+        just: &Justification,
+        writer: &Writer,
+    ) -> Route<super::doc::Proof> {
         let Some(Ok(rows)) =
             crate::corpus::proof::substitute_rows(just, &self.thm.path)
         else {
@@ -4572,8 +4622,8 @@ impl<'a> Proof<'a> {
                 Route::Built(n) => n,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let row_text = match writer.formula(&row_node) {
-                Route::Built(p) => p.text(),
+            let row_says = match writer.formula(&row_node) {
+                Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
             let Some(reason) = &row.reason else {
@@ -4586,8 +4636,8 @@ impl<'a> Proof<'a> {
                 Route::Built(n) => n,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            let change_text = match writer.formula(&change) {
-                Route::Built(p) => p.text(),
+            let change_says = match writer.formula(&change) {
+                Route::Built(p) => p,
                 Route::Declined(d) => return Route::Declined(d),
             };
             let proof = match self.proof_of(
@@ -4602,10 +4652,11 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let change_name = format!("c{k}");
-            haves.push(format!(
-                "have {change_name} : {change_text} := {}",
-                proof.text()
-            ));
+            haves.push(Tactic::Have {
+                name: change_name.clone(),
+                says: change_says,
+                proof: Box::new(proof),
+            });
             let used = match self.widened(&change, &change_name, &row_node, writer) {
                 Route::Built(w) => {
                     haves.extend(w.have);
@@ -4618,17 +4669,20 @@ impl<'a> Proof<'a> {
             // puts its equation in; each equation put by rewriting before
             // either by `simp`, which loops where one side stands in the
             // other, k in k + 1 − 1, and `first` goes on past no loop.
+            let (used_h, change_h) = (
+                super::tactics::hyp(&used),
+                super::tactics::hyp(&change_name),
+            );
             let put = if used == change_name {
-                put_into(BridgeTactic::SubstAt, &used, &above)
+                put_into(BridgeTactic::SubstAt, &used_h, &above)
             } else {
                 Tactic::First(vec![
-                    put_into(BridgeTactic::PutAt, &used, &above),
-                    put_into(BridgeTactic::PutAt, &change_name, &above),
-                    put_into(BridgeTactic::SubstAt, &used, &above),
-                    put_into(BridgeTactic::SubstAt, &change_name, &above),
+                    put_into(BridgeTactic::PutAt, &used_h, &above),
+                    put_into(BridgeTactic::PutAt, &change_h, &above),
+                    put_into(BridgeTactic::SubstAt, &used_h, &above),
+                    put_into(BridgeTactic::SubstAt, &change_h, &above),
                 ])
-            }
-            .text();
+            };
             // A row whose lines say counts both ways takes them to
             // integers first, as a step does (`count_conversion`).
             let lines: Vec<&Node> = std::iter::once(&change)
@@ -4637,14 +4691,22 @@ impl<'a> Proof<'a> {
                 .collect();
             let forms = self.count_forms(&lines);
             let put = match forms.mixed {
-                true => format!("parley_count_int; {put}"),
+                true => Tactic::Seq(vec![
+                    super::tactics::bridge(BridgeTactic::CountInt, vec![]),
+                    put,
+                ]),
                 false => put,
             };
-            haves.push(format!("have {row_name} : {row_text} := by {put}"));
+            haves.push(Tactic::Have {
+                name: row_name.clone(),
+                says: row_says,
+                proof: Box::new(super::doc::Proof::By(put)),
+            });
             above = row_name;
             above_node = Some(row_node);
         }
-        Route::Built(with_haves(&haves, &format!("by exact {above}")))
+        let last = super::doc::Proof::By(Tactic::Exact(super::tactics::hyp(&above)));
+        Route::Built(haves_then(haves, last))
     }
 
     /// An equation a line says, as a term to rewrite the claim with: the
@@ -4697,25 +4759,37 @@ impl<'a> Proof<'a> {
         let mut printed = Vec::new();
         for s in &sides {
             match writer.number(s, wanted) {
-                Route::Built(p) => printed.push(p.at(51)),
+                Route::Built(p) => printed.push(p),
                 Route::Declined(d) => return Route::Declined(d),
             }
         }
         // Numerals alone are told their type.
         if !sides.iter().any(|s| writer.pinned(s)) {
-            printed[0] = format!("({} : {})", printed[0], writer.type_name(wanted));
+            printed[0] = Printed::cast(printed[0].clone(), writer.num_type(wanted));
         }
+        let [left, right]: [Printed; 2] = match printed.try_into() {
+            Ok(both) => both,
+            Err(_) => return Route::no("an equation of other than two sides"),
+        };
         // The equation mapped into the wider type, its casts pushed in, and
         // compared with what is wanted up to the ring's laws.
         let wide = format!("{}_w", name.replace('.', "_"));
+        let said = Printed::infix(
+            super::doc::Op::EQUALS,
+            left,
+            right,
+            super::doc::LeanType::Prop,
+        );
         Route::Built(Widened {
-            have: Some(format!(
-                "have {wide} : {} = {} := by have h := congrArg (fun x : {} => (x : {})) {name}; push_cast at h; linear_combination (norm := parley_norm) h",
-                printed[0],
-                printed[1],
-                writer.type_name(own),
-                writer.type_name(wanted)
-            )),
+            have: Some(Tactic::Have {
+                name: wide.clone(),
+                says: said,
+                proof: Box::new(super::doc::Proof::By(Tactic::Seq(vec![
+                    super::tactics::name_h(&cast_up(writer, own, wanted, name)),
+                    super::tactics::push_cast(Some(super::tactics::at_h(false))),
+                    super::tactics::linear_combination(super::tactics::hyp("h")),
+                ]))),
+            }),
             name: wide,
         })
     }
@@ -7088,8 +7162,35 @@ struct Obtained {
 /// A cited line as a step uses it: the name to use, and the `have` that
 /// casts it up to the claim's type where it is narrower.
 struct Widened {
-    have: Option<String>,
+    have: Option<Tactic>,
     name: String,
+}
+
+/// `congrArg (fun x : A => (x : B)) e`: the equation e of A mapped into B.
+fn cast_up(
+    writer: &Writer,
+    own: super::templates::Num,
+    wanted: super::templates::Num,
+    equation: &str,
+) -> Printed {
+    use super::doc::Piece;
+    let map = Printed::notation(
+        vec![
+            Piece::text(format!("fun x : {} => ", writer.num_type(own).text())),
+            Piece::term(
+                Printed::cast(super::tactics::hyp("x"), writer.num_type(wanted)),
+                0,
+            ),
+        ],
+        0,
+        super::doc::LeanType::Prop,
+    );
+    Printed::applied(
+        "congrArg",
+        super::doc::Source::Core,
+        vec![super::tactics::bracket(map), super::tactics::hyp(equation)],
+        super::doc::LeanType::Prop,
+    )
 }
 
 /// A tactic proof with `have` lines written before it, inside its `by`
@@ -7712,21 +7813,36 @@ fn cast_then_linarith(cast: &'static str) -> Tactic {
 }
 
 /// `parley_subst e`: the equation e put into the goal.
-fn subst_by(equation: &str) -> Tactic {
+fn subst_by(equation: &Printed) -> Tactic {
     use super::tactics as t;
-    t::bridge(BridgeTactic::Subst, vec![TacticArg::Term(t::hyp(equation))])
+    t::bridge(BridgeTactic::Subst, vec![TacticArg::Term(equation.clone())])
 }
 
 /// `parley_put_at e h` or `parley_subst_at e h`: the equation e put into
 /// the line h.
-fn put_into(tactic: BridgeTactic, equation: &str, into: &str) -> Tactic {
+fn put_into(tactic: BridgeTactic, equation: &Printed, into: &str) -> Tactic {
     use super::tactics as t;
     t::bridge(
         tactic,
         vec![
-            TacticArg::Term(t::hyp(equation)),
+            TacticArg::Term(equation.clone()),
             TacticArg::Term(t::hyp(into)),
         ],
+    )
+}
+
+/// `show s by t`: a term saying s, proved by t.
+fn shown(says: Printed, proof: super::doc::Proof) -> Printed {
+    use super::doc::Piece;
+    Printed::notation(
+        vec![
+            Piece::text("show "),
+            Piece::term(says, 0),
+            Piece::text(" "),
+            Piece::term(proof_term(proof), 0),
+        ],
+        0,
+        super::doc::LeanType::Prop,
     )
 }
 
