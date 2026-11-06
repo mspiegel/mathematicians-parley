@@ -1841,7 +1841,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name,
                     says: fact.clone(),
-                    proof,
+                    proof: Box::new(super::doc::Proof::Raw(proof)),
                 },
                 r.line,
                 spot.clone(),
@@ -1920,7 +1920,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: names[k].clone(),
                     says: prop.clone(),
-                    proof,
+                    proof: Box::new(super::doc::Proof::Raw(proof)),
                 },
                 step.line,
                 spot.clone(),
@@ -3245,7 +3245,7 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: format!("{label}_kind"),
                     says,
-                    proof,
+                    proof: Box::new(super::doc::Proof::Raw(proof)),
                 },
                 line.line,
                 Spot::Statement,
@@ -3376,7 +3376,7 @@ impl<'a> Proof<'a> {
         let kind_line = Tactic::Have {
             name: format!("{}_kind", line_name(&line.label)),
             says,
-            proof,
+            proof: Box::new(super::doc::Proof::Raw(proof)),
         };
         let [_, set] = fact.children.as_slice() else {
             return Route::no("a kind's fact that is no membership");
@@ -6301,7 +6301,9 @@ impl<'a> Proof<'a> {
                 Tactic::Have {
                     name: name.clone(),
                     says: prop.clone(),
-                    proof: format!("by rw [{specs}]; exact_mod_cast {name}"),
+                    proof: Box::new(super::doc::Proof::Raw(format!(
+                        "by rw [{specs}]; exact_mod_cast {name}"
+                    ))),
                 },
                 step.line,
                 Self::step_spot(step),
@@ -6385,7 +6387,7 @@ impl<'a> Proof<'a> {
             Tactic::Have {
                 name: whole.clone(),
                 says: prop,
-                proof: "by".to_string(),
+                proof: Box::new(super::doc::Proof::Block(Vec::new())),
             },
             step.line,
             spot.clone(),
@@ -6965,7 +6967,14 @@ impl<'a> Proof<'a> {
                         Tactic::Have {
                             name: label.clone(),
                             says: says.clone(),
-                            proof: format!("by parley_suppose hc_{label}"),
+                            proof: Box::new(super::doc::Proof::By(
+                                super::tactics::bridge(
+                                    BridgeTactic::Suppose,
+                                    vec![TacticArg::Term(super::tactics::hyp(
+                                        &format!("hc_{label}"),
+                                    ))],
+                                ),
+                            )),
                         },
                         o.line,
                         spot.clone(),

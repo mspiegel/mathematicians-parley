@@ -182,7 +182,7 @@ impl Tactic {
             Tactic::Try(t) => format!("try {}", t.text()),
             Tactic::AllGoals(t) => format!("all_goals {}", t.text()),
             Tactic::Have { name, says, proof } => {
-                format!("have {name} : {} := {proof}", says.text())
+                format!("have {name} : {} := {}", says.text(), proof.text())
             }
             Tactic::Comment(text) => format!("-- {text}"),
             Tactic::Bullet(t) => format!("· {}", t.text()),
@@ -275,6 +275,7 @@ impl Proof {
     pub fn text(&self) -> String {
         match self {
             Proof::Term(t) => t.text(),
+            Proof::Raw(text) => text.clone(),
             Proof::By(t) => format!("by {}", t.text()),
             Proof::Block(tactics) => {
                 let mut out = String::from("by");

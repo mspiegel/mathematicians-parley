@@ -58,11 +58,11 @@ pub enum Tactic {
     /// `all_goals a`.
     AllGoals(Box<Tactic>),
     /// `have name : says := proof`: a line of the page proved, its proof
-    /// Lean text that may run over several lines.
+    /// on one line or several.
     Have {
         name: String,
         says: Term,
-        proof: String,
+        proof: Box<Proof>,
     },
     /// `-- text`: what a step of the page is, above its Lean.
     Comment(String),
@@ -158,6 +158,10 @@ pub enum Proof {
     By(Tactic),
     /// `by` and the tactics on the lines below it.
     Block(Vec<Tactic>),
+    /// Proof text the writer made without a tree. It stands only while
+    /// the writer's proofs move to values one at a time, and goes with
+    /// `Tactic::Raw`.
+    Raw(String),
 }
 
 impl Tactic {
