@@ -2422,7 +2422,7 @@ impl<'a> Proof<'a> {
         }
         self.said_used.borrow_mut().clear();
         let proof = match self.proof_by_reason(reason, k, node) {
-            Route::Built(p) => Proof::Raw(p),
+            Route::Built(p) => p,
             Route::Declined(d) => return Route::Declined(d),
         };
         // A citation given a line's number, ⌊m⌋ = m for the m of `A/B ∈
@@ -2654,9 +2654,16 @@ impl<'a> Proof<'a> {
         })
     }
 
-    fn proof_by_reason(&self, reason: Reason, k: usize, node: &Node) -> Route<String> {
+    fn proof_by_reason(
+        &self,
+        reason: Reason,
+        k: usize,
+        node: &Node,
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
+        use super::tactics as t;
         match &reason.just.head {
-            Head::Item { .. } => self.citation(reason, k, node),
+            Head::Item { .. } => self.citation(reason, k, node).map(Proof::Raw),
             Head::Method(m) => {
                 // A claim said of every member of a set is proved of one,
                 // taken as the method's letter. Substitute rows each say
@@ -2670,27 +2677,22 @@ impl<'a> Proof<'a> {
                     ),
                     false => self.peel(node),
                 };
-                let tactic = match self.method_proof(reason, *m, body, &writer) {
-                    Route::Built(t) => t,
+                let proof = match self.method_proof(reason, *m, body, &writer) {
+                    Route::Built(t) => Proof::Raw(t),
                     Route::Declined(d) => return Route::Declined(d),
                 };
-                let tactic = match self.count_conversion(*m, body, reason.just) {
-                    CountConversion::None => tactic,
-                    CountConversion::Before => {
-                        format!("by parley_count_int; {}", as_tactic(&tactic))
-                    }
-                    CountConversion::After => {
-                        format!("by parley_count_after ({tactic})")
-                    }
+                let proof = match self.count_conversion(*m, body, reason.just) {
+                    CountConversion::None => proof,
+                    CountConversion::Before => Proof::By(Tactic::Seq(vec![
+                        t::bridge(BridgeTactic::CountInt, vec![]),
+                        tactic_of(&proof),
+                    ])),
+                    CountConversion::After => Proof::By(t::bridge(
+                        BridgeTactic::CountAfter,
+                        vec![TacticArg::Term(t::bracket(Printed::atom(proof.text())))],
+                    )),
                 };
-                if intros.is_empty() {
-                    return Route::Built(tactic);
-                }
-                if tactic.starts_with("by\n") {
-                    return Route::Built(after_intros(&intros, &tactic));
-                }
-                let inner = tactic.strip_prefix("by ").unwrap_or(&tactic);
-                Route::Built(format!("by intro {}; {inner}", intros.join(" ")))
+                Route::Built(with_intros(&intros, proof))
             }
             // A step citing a define claims its equation, which Lean's `set`
             // put in scope under the define's label.
@@ -2699,23 +2701,33 @@ impl<'a> Proof<'a> {
                 Some(r) => {
                     let (intros, body, writer) = self.peel(node);
                     let cases = self.cited_parts(&reason.just.from);
-                    self.recursion_clause(&r, &cases, body, &writer).map(|t| {
-                        match intros.is_empty() {
-                            true => t,
-                            false => format!(
-                                "by intro {}; {}",
-                                intros.join(" "),
-                                as_tactic(&t)
-                            ),
-                        }
-                    })
+                    self.recursion_clause(&r, &cases, body, &writer)
+                        .map(|clause| {
+                            let clause = Proof::Raw(clause);
+                            match intros.is_empty() {
+                                true => clause,
+                                false => Proof::By(Tactic::Seq(vec![
+                                    Tactic::Intro(intros.clone()),
+                                    tactic_of(&clause),
+                                ])),
+                            }
+                        })
                 }
                 // A function the header lets by its value: its equation
                 // put in, f(a) its value at a, and the claim closed.
                 None => match self.header_function_cited(reason.just) {
-                    Some(hyp) => Route::Built(format!(
-                        "by (try simp only [{hyp}]); first | done | parley_side"
-                    )),
+                    Some(hyp) => Route::Built(Proof::By(Tactic::Seq(vec![
+                        t::try_(t::simp_only(
+                            false,
+                            None,
+                            vec![t::forwards(t::hyp(&hyp))],
+                            None,
+                        )),
+                        Tactic::First(vec![
+                            t::call("done", vec![]),
+                            t::bridge(BridgeTactic::Side, vec![]),
+                        ]),
+                    ]))),
                     // A define of the proof's, its equation under the
                     // define's label: unfolded, as a calculation row
                     // citing it is, L(k) = N(k)/10^k of L's `set`.
@@ -2728,7 +2740,7 @@ impl<'a> Proof<'a> {
                             .filter_map(|r| self.named.get(r).and_then(|n| n.first()))
                             .cloned()
                             .collect();
-                        Route::Built(match unfold.is_empty() {
+                        Route::Built(Proof::Raw(match unfold.is_empty() {
                             true => side_proof(),
                             false => {
                                 let mut ways = unfolded(&unfold);
@@ -2738,13 +2750,15 @@ impl<'a> Proof<'a> {
                                 ));
                                 by_ways(ways)
                             }
-                        })
+                        }))
                     }
                 },
             },
             // A requires line's lines, or one manipulation of one of them:
             // the fact is what they say, or follows from it by arithmetic.
-            Head::Lines | Head::Manipulation(_) => Route::Built(side_proof()),
+            Head::Lines | Head::Manipulation(_) => {
+                Route::Built(Proof::By(t::bridge(BridgeTactic::Side, vec![])))
+            }
         }
     }
 
@@ -7497,6 +7511,31 @@ fn after_intros(intros: &[String], proof: &str) -> String {
             format!("by\n{indent}intro {names}\n{block}")
         }
         None => format!("by intro {names}; {}", as_tactic(proof)),
+    }
+}
+
+/// A proof of a claim said of every member of a set, proved of one taken
+/// as these letters: `intro` first, inside the proof's `by`.
+fn with_intros(intros: &[String], proof: super::doc::Proof) -> super::doc::Proof {
+    use super::doc::Proof;
+    if intros.is_empty() {
+        return proof;
+    }
+    let intro = Tactic::Intro(intros.to_vec());
+    match proof {
+        Proof::By(t) => Proof::By(Tactic::Seq(vec![intro, t])),
+        Proof::Block(mut ts) => {
+            ts.insert(0, intro);
+            Proof::Block(ts)
+        }
+        Proof::Raw(text) if text.starts_with("by\n") => {
+            Proof::Raw(after_intros(intros, &text))
+        }
+        other => {
+            let text = other.text();
+            let inner = text.strip_prefix("by ").unwrap_or(&text).to_string();
+            Proof::Raw(format!("by intro {}; {inner}", intros.join(" ")))
+        }
     }
 }
 
