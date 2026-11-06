@@ -2678,7 +2678,7 @@ impl<'a> Proof<'a> {
                     false => self.peel(node),
                 };
                 let proof = match self.method_proof(reason, *m, body, &writer) {
-                    Route::Built(t) => Proof::Raw(t),
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let proof = match self.count_conversion(*m, body, reason.just) {
@@ -2916,7 +2916,8 @@ impl<'a> Proof<'a> {
         m: Method,
         node: &Node,
         writer: &Writer,
-    ) -> Route<String> {
+    ) -> Route<super::doc::Proof> {
+        use super::doc::Proof;
         let just = reason.just;
         Route::Built(match m {
             Method::Algebra => {
@@ -2983,25 +2984,22 @@ impl<'a> Proof<'a> {
                     &claim,
                     &cited,
                 ) {
-                    Route::Built(p) => p.text(),
+                    Route::Built(p) => p,
                     Route::Declined(d) => return Route::Declined(d),
                 };
                 let mut lines = written_out(&defines);
                 lines.extend(haves);
-                return Route::Built(with_haves(&lines, &proof));
+                let lines: Vec<Tactic> = lines.into_iter().map(Tactic::Raw).collect();
+                return Route::Built(haves_then(lines, proof));
             }
-            Method::Arithmetic => super::doc::Proof::By(super::tactics::bridge(
-                BridgeTactic::Arith,
-                vec![],
-            ))
-            .text(),
+            Method::Arithmetic => {
+                Proof::By(super::tactics::bridge(BridgeTactic::Arith, vec![]))
+            }
             // Arithmetic of real numbers, √8 = 2√2 or ln(2) ≠ 0: its own
             // tactic, which tries `parley_arith` first (`RealTactics`).
-            Method::RealArithmetic => super::doc::Proof::By(super::tactics::bridge(
-                BridgeTactic::Real,
-                vec![],
-            ))
-            .text(),
+            Method::RealArithmetic => {
+                Proof::By(super::tactics::bridge(BridgeTactic::Real, vec![]))
+            }
             // Rows are linear moves on the line the first row cites, so the
             // claim follows from that line by linear arithmetic, as a step
             // with no rows does from the lines it cites.
@@ -3021,15 +3019,24 @@ impl<'a> Proof<'a> {
                     false => BridgeTactic::Side,
                 };
                 steps.push(super::tactics::bridge(close, vec![]));
-                super::doc::Proof::By(Tactic::Seq(steps)).text()
+                super::doc::Proof::By(Tactic::Seq(steps))
             }
-            Method::Inspection => side_proof(),
-            Method::Substitute => return self.substitute(just, node, writer),
-            Method::Calculation => return self.calculation(just, writer),
-            Method::Exhibit => return self.exhibit(just, node),
-            Method::Instantiate => return self.instantiate(just, node, writer),
-            Method::Membership => return self.membership(just, node, writer),
-            Method::Restate | Method::Join => side_proof(),
+            Method::Substitute => {
+                return self.substitute(just, node, writer).map(Proof::Raw)
+            }
+            Method::Calculation => {
+                return self.calculation(just, writer).map(Proof::Raw)
+            }
+            Method::Exhibit => return self.exhibit(just, node).map(Proof::Raw),
+            Method::Instantiate => {
+                return self.instantiate(just, node, writer).map(Proof::Raw)
+            }
+            Method::Membership => {
+                return self.membership(just, node, writer).map(Proof::Raw)
+            }
+            Method::Inspection | Method::Restate | Method::Join => {
+                Proof::By(super::tactics::bridge(BridgeTactic::Side, vec![]))
+            }
             other => {
                 return Route::no(format!(
                     "the method {} is not written in Lean yet",
@@ -7034,20 +7041,30 @@ struct Widened {
     name: String,
 }
 
-/// A tactic proof with `have` lines written before it, inside its `by`.
+/// A tactic proof with `have` lines written before it, inside its `by`
+/// (`haves_then`), as text.
 fn with_haves(haves: &[String], tactic: &str) -> String {
+    let haves: Vec<Tactic> = haves.iter().cloned().map(Tactic::Raw).collect();
+    haves_then(haves, super::doc::Proof::Raw(tactic.to_string())).text()
+}
+
+/// A proof with these tactics before it, inside its `by`: a block of them
+/// and then the proof's own tactic, each line indented under the `by`.
+fn haves_then(haves: Vec<Tactic>, proof: super::doc::Proof) -> super::doc::Proof {
+    use super::doc::Proof;
     if haves.is_empty() {
-        return tactic.to_string();
+        return proof;
     }
-    let body = tactic.strip_prefix("by ").unwrap_or(tactic);
-    // Each line is indented, a `have` whose own proof runs over several
-    // lines included, so that its proof stays under it.
-    let mut out = String::from("by");
-    for h in haves {
-        out.push_str(&format!("\n  {}", h.replace('\n', "\n  ")));
-    }
-    out.push_str(&format!("\n  {}", body.replace('\n', "\n  ")));
-    out
+    let last = match proof {
+        Proof::By(t) => t,
+        other => {
+            let text = other.text();
+            Tactic::Raw(text.strip_prefix("by ").unwrap_or(&text).to_string())
+        }
+    };
+    let mut lines = haves;
+    lines.push(last);
+    Proof::Block(lines)
 }
 
 /// A claim `s ∈ S`, S ℤ, ℚ or ℝ and s of a wider type, shown by an
