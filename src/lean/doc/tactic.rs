@@ -92,6 +92,19 @@ pub enum Tactic {
     Induction { on: Vec<String>, using: Term },
     /// `| pattern =>`: a case of an induction.
     Alternative(String),
+    /// `calc a rel b := p` and `_ rel c := q` below it: a chain of
+    /// relations, each link with its proof.
+    Calc { first: Term, links: Vec<CalcLink> },
+}
+
+/// One link of a `calc`: the relation, the term it reaches, the modulus of
+/// a congruence, and the link's proof as Lean text.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CalcLink {
+    pub relation: String,
+    pub term: Term,
+    pub modulus: Option<Term>,
+    pub proof: String,
 }
 
 /// What follows a tactic's name.
@@ -139,7 +152,10 @@ pub enum Location {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Proof {
     Term(Term),
+    /// `by t`, on one line.
     By(Tactic),
+    /// `by` and the tactics on the lines below it.
+    Block(Vec<Tactic>),
 }
 
 impl Tactic {
@@ -171,7 +187,8 @@ impl Tactic {
                 | Tactic::Intro(_)
                 | Tactic::Replace { .. }
                 | Tactic::Induction { .. }
-                | Tactic::Alternative(_) => {}
+                | Tactic::Alternative(_)
+                | Tactic::Calc { .. } => {}
             }
             i += 1;
         }

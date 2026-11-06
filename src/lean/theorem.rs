@@ -4648,14 +4648,14 @@ impl<'a> Proof<'a> {
         if of_counts {
             for t in &terms {
                 match writer.count_term(t) {
-                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Built(p) => printed.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
         } else if of_sets {
             for t in &terms {
                 match writer.set_term(t) {
-                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Built(p) => printed.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
@@ -4668,15 +4668,20 @@ impl<'a> Proof<'a> {
             }
             for t in &terms {
                 match writer.number(t, at) {
-                    Route::Built(p) => printed.push(p.at(51)),
+                    Route::Built(p) => printed.push(p),
                     Route::Declined(d) => return Route::Declined(d),
                 }
             }
             // A first term whose type nothing in it fixes, numerals alone or
             // a power whose letters are only in its exponent, is told its
-            // type.
+            // type, bracketed inside as it stands in the chain.
             if !writer.pinned(&terms[0]) {
-                printed[0] = format!("({} : {})", printed[0], writer.type_name(at));
+                let first = printed[0].clone();
+                let first = match first.prec() < 51 {
+                    true => super::tactics::bracket(first),
+                    false => first,
+                };
+                printed[0] = Printed::cast(first, writer.num_type(at));
             }
         }
         // The claim, the first term and the last, is stated in its own
@@ -4698,20 +4703,20 @@ impl<'a> Proof<'a> {
         // A claim of numerals alone may be written in the chain's type
         // already, from the line it is reached from (`claimed`), and then
         // has nowhere to move.
-        let mut out = match (of_numbers && own < at, at) {
+        let mut block: Vec<Tactic> = match (of_numbers && own < at, at) {
             (true, super::templates::Num::Rat) => {
-                String::from("by\n  try qify\n  calc ")
+                vec![Tactic::Try(Box::new(super::tactics::call("qify", vec![])))]
             }
             (true, super::templates::Num::Real) => {
-                String::from("by\n  try rify\n  calc ")
+                vec![Tactic::Try(Box::new(super::tactics::call("rify", vec![])))]
             }
-            _ => String::from("by\n  calc "),
+            _ => Vec::new(),
         };
-        out.push_str(&printed[0]);
+        let mut links: Vec<super::doc::tactic::CalcLink> = Vec::new();
         let single = chain.lines.len() == 1;
         for (k, line) in chain.lines.iter().enumerate() {
-            let relation = match line.relation.as_str() {
-                r @ ("=" | "<" | ">" | "≤" | "≥") => r.to_string(),
+            let (relation, modulus) = match line.relation.as_str() {
+                r @ ("=" | "<" | ">" | "≤" | "≥") => (r.to_string(), None),
                 "≡" => {
                     let Some(modulus) = &line.modulus else {
                         return Route::no("a congruence with no modulus");
@@ -4721,7 +4726,7 @@ impl<'a> Proof<'a> {
                         Route::Declined(d) => return Route::Declined(d),
                     };
                     match writer.number_fixed(&modulus, super::templates::Num::Int) {
-                        Route::Built(m) => format!("≡ {{}} [ZMOD {}]", m.text()),
+                        Route::Built(m) => ("≡".to_string(), Some(m)),
                         Route::Declined(d) => return Route::Declined(d),
                     }
                 }
@@ -4784,7 +4789,7 @@ impl<'a> Proof<'a> {
                         .is_some_and(|p| p.has_to_nat());
                     let to_nat = [&printed[k], &printed[k + 1]]
                         .iter()
-                        .any(|p| p.contains(".toNat"))
+                        .any(|p| p.has_to_nat())
                         || line_to_nat;
                     // Each part of the line, 4.8 obtained as s4_8a, s4_8b, …
                     let parts: Vec<Tactic> = match to_nat {
@@ -4817,28 +4822,23 @@ impl<'a> Proof<'a> {
                 }
                 None => "by norm_num".to_string(),
             };
-            let term = &printed[k + 1];
-            // A congruence writes its modulus after the term it reaches.
-            let link = if relation.contains("{}") {
-                relation.replace("{}", term)
-            } else {
-                format!("{relation} {term}")
-            };
             // A chain of one link is that link, and its proof the step's:
             // Lean's calc would read the line after a lone link as another.
             if single {
                 return Route::Built(proof);
             }
-            // A proof of several lines stands under its link, deeper than
-            // the link's own lines.
-            let proof = proof.replace('\n', "\n      ");
-            if k == 0 {
-                out.push_str(&format!(" {link} := {proof}"));
-            } else {
-                out.push_str(&format!("\n    _ {link} := {proof}"));
-            }
+            links.push(super::doc::tactic::CalcLink {
+                relation,
+                term: printed[k + 1].clone(),
+                modulus,
+                proof,
+            });
         }
-        Route::Built(out)
+        block.push(Tactic::Calc {
+            first: printed[0].clone(),
+            links,
+        });
+        Route::Built(super::doc::Proof::Block(block).text())
     }
 
     /// Each sentence of the lines `refs` names, each conjunction taken apart

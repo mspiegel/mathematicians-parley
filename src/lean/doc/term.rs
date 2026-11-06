@@ -694,9 +694,15 @@ impl Term {
         self.walk().into_iter().any(|t| of(&t.kind))
     }
 
-    /// Whether the tree takes a whole number to ℕ somewhere, `n.toNat`.
+    /// Whether the tree takes a whole number to ℕ somewhere, `n.toNat`: a
+    /// ToNat node, or a text leaf that writes one, a named number's value
+    /// the writer keeps as text.
     pub fn has_to_nat(&self) -> bool {
-        self.has(|k| matches!(k, TermKind::ToNat(_)))
+        self.has(|k| match k {
+            TermKind::ToNat(_) => true,
+            TermKind::Raw { text, .. } => text.contains(".toNat"),
+            _ => false,
+        })
     }
 
     /// The constants the tree names.

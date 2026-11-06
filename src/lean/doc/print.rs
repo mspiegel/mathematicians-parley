@@ -193,6 +193,28 @@ impl Tactic {
                 format!("induction {} using {} with", on.join(", "), using.text())
             }
             Tactic::Alternative(pattern) => format!("| {pattern} =>"),
+            Tactic::Calc { first, links } => {
+                let mut out = format!("calc {}", first.at(51));
+                for (k, link) in links.iter().enumerate() {
+                    let reached = match &link.modulus {
+                        Some(m) => format!(
+                            "{} {} [ZMOD {}]",
+                            link.relation,
+                            link.term.at(51),
+                            m.text()
+                        ),
+                        None => format!("{} {}", link.relation, link.term.at(51)),
+                    };
+                    // A proof of several lines stands under its link,
+                    // deeper than the link's own lines.
+                    let proof = link.proof.replace('\n', "\n    ");
+                    match k {
+                        0 => out.push_str(&format!(" {reached} := {proof}")),
+                        _ => out.push_str(&format!("\n  _ {reached} := {proof}")),
+                    }
+                }
+                out
+            }
             Tactic::Obtain { names, says, from } => match says {
                 Some(s) => format!(
                     "obtain ⟨{}⟩ : {} := {}",
@@ -247,11 +269,20 @@ impl TacticArg {
 }
 
 impl Proof {
-    /// The proof as Lean text, on one line.
+    /// The proof as Lean text: a block's tactics each on a line of its
+    /// own, two spaces in, the lines a tactic runs over in with it.
     pub fn text(&self) -> String {
         match self {
             Proof::Term(t) => t.text(),
             Proof::By(t) => format!("by {}", t.text()),
+            Proof::Block(tactics) => {
+                let mut out = String::from("by");
+                for t in tactics {
+                    out.push_str("\n  ");
+                    out.push_str(&t.text().replace('\n', "\n  "));
+                }
+                out
+            }
         }
     }
 }
