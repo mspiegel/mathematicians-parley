@@ -62,8 +62,19 @@ pub struct Instance {
 /// file's lines, and what it was written for; its line number is set where
 /// the file is put together.
 struct ProofLine {
-    text: String,
+    /// How deep in the proof's blocks it stands.
+    depth: usize,
+    tactic: Tactic,
     origin: Origin,
+}
+
+impl ProofLine {
+    /// The line as Lean text, indented to its depth, each line its tactic
+    /// runs over too.
+    fn text(&self) -> String {
+        let pad = pad(self.depth);
+        format!("{pad}{}", indented(&self.tactic.text(), &pad))
+    }
 }
 
 /// A proof given as an argument, as Lean text: a line's name or `(by
@@ -1501,14 +1512,15 @@ pub fn theorem(
     let mut origins = Vec::new();
     let mut at = 1;
     for line in &proof.lines {
-        for _ in line.text.lines() {
+        let written = line.text();
+        for _ in written.lines() {
             origins.push(Origin {
                 line: at,
                 ..line.origin.clone()
             });
             at += 1;
         }
-        text.push_str(&line.text);
+        text.push_str(&written);
         text.push('\n');
     }
     let forms = proof.forms.take();
@@ -1535,8 +1547,14 @@ struct Reason<'r> {
 
 impl<'a> Proof<'a> {
     fn push(&mut self, line: String, page_line: usize, spot: Spot) {
+        self.push_at(0, Tactic::Raw(line), page_line, spot);
+    }
+
+    /// A tactic as a line of the proof at a depth of its blocks.
+    fn push_at(&mut self, depth: usize, tactic: Tactic, page_line: usize, spot: Spot) {
         self.lines.push(ProofLine {
-            text: line,
+            depth,
+            tactic,
             origin: Origin {
                 line: 0,
                 page_line,
@@ -1746,8 +1764,9 @@ impl<'a> Proof<'a> {
         }
         let spot = Self::step_spot(step);
         let p = pad(depth);
-        self.push(
-            format!("{p}-- {}. {}", step.number, step.just.text.trim()),
+        self.push_at(
+            depth,
+            Tactic::Comment(format!("{}. {}", step.number, step.just.text.trim())),
             step.line,
             spot.clone(),
         );
@@ -1806,8 +1825,13 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
             let name = format!("r{}_{}", step.line, k + 1);
-            self.push(
-                indented(&format!("{p}have {name} : {} := {proof}", fact.text()), &p),
+            self.push_at(
+                depth,
+                Tactic::Have {
+                    name,
+                    says: fact.clone(),
+                    proof,
+                },
                 r.line,
                 spot.clone(),
             );
@@ -1880,11 +1904,13 @@ impl<'a> Proof<'a> {
                 Route::Built(t) => t,
                 Route::Declined(d) => return Route::Declined(d),
             };
-            self.push(
-                indented(
-                    &format!("{p}have {} : {} := {proof}", names[k], prop.text()),
-                    &p,
-                ),
+            self.push_at(
+                depth,
+                Tactic::Have {
+                    name: names[k].clone(),
+                    says: prop.clone(),
+                    proof,
+                },
                 step.line,
                 spot.clone(),
             );

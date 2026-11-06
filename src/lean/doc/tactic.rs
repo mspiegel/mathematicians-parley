@@ -30,6 +30,15 @@ pub enum Tactic {
     Try(Box<Tactic>),
     /// `all_goals a`.
     AllGoals(Box<Tactic>),
+    /// `have name : says := proof`: a line of the page proved, its proof
+    /// Lean text that may run over several lines.
+    Have {
+        name: String,
+        says: Term,
+        proof: String,
+    },
+    /// `-- text`: what a step of the page is, above its Lean.
+    Comment(String),
 }
 
 /// A proof: a term, or tactics after `by`.
@@ -49,7 +58,11 @@ impl Tactic {
             match node {
                 Tactic::First(ts) | Tactic::Seq(ts) => out.extend(ts.iter()),
                 Tactic::Group(t) | Tactic::Try(t) | Tactic::AllGoals(t) => out.push(t),
-                Tactic::Raw(_) | Tactic::Exact(_) | Tactic::Call { .. } => {}
+                Tactic::Raw(_)
+                | Tactic::Exact(_)
+                | Tactic::Call { .. }
+                | Tactic::Have { .. }
+                | Tactic::Comment(_) => {}
             }
             i += 1;
         }
