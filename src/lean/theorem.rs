@@ -2957,8 +2957,8 @@ impl<'a> Proof<'a> {
                     &claim,
                     &cited,
                 ) {
-                    Route::Built(t) => t,
-                    declined => return declined,
+                    Route::Built(p) => p.text(),
+                    Route::Declined(d) => return Route::Declined(d),
                 };
                 let mut lines = written_out(&defines);
                 lines.extend(haves);

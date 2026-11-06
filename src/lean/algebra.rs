@@ -13,7 +13,10 @@
 use indexmap::IndexMap;
 use num_traits::{One, Signed};
 
+use super::doc::bridges::BridgeTactic;
+use super::doc::{Arg, Location, Proof, Tactic, TacticArg, TermKind};
 use super::expr::{Printed, Writer};
+use super::tactics as t;
 use super::templates::Num;
 use crate::formula::Node;
 use crate::methods::algebra::{combination, denominators, readings};
@@ -51,7 +54,7 @@ fn unequal(
     targets: &Targets,
     claim: &Node,
     cited: &[Cited],
-) -> Option<Route<String>> {
+) -> Option<Route<Proof>> {
     let supposed = denied(claim)?;
     let mut declined = None;
     for c in cited {
@@ -64,10 +67,20 @@ fn unequal(
         };
         match algebra(writer, targets, wanted, std::slice::from_ref(&given)) {
             Route::Built(inner) => {
-                return Some(Route::Built(format!(
-                    "by intro h; exact {} ({inner})",
-                    c.proof
-                )))
+                let refuted = Printed {
+                    kind: TermKind::App {
+                        head: Box::new(Printed::atom(c.proof.clone())),
+                        args: vec![Arg::Explicit(t::bracket(Printed::atom(
+                            inner.text(),
+                        )))],
+                        explicit: false,
+                    },
+                    ty: None,
+                };
+                return Some(Route::Built(Proof::By(Tactic::Seq(vec![
+                    Tactic::Intro(vec!["h".to_string()]),
+                    Tactic::Exact(refuted),
+                ]))));
             }
             Route::Declined(d) => declined = Some(Route::Declined(d)),
         }
@@ -81,14 +94,14 @@ pub fn algebra(
     targets: &Targets,
     claim: &Node,
     cited: &[Cited],
-) -> Route<String> {
+) -> Route<Proof> {
     if let Some(proof) = unequal(writer, targets, claim, cited) {
         return proof;
     }
     let labels = FloatLabels::new(IndexMap::new());
     let claimed = term_of_node(claim, targets);
     if cited.is_empty() {
-        return Route::Built("by parley_ring".to_string());
+        return Route::Built(Proof::By(t::bridge(BridgeTactic::Ring, vec![])));
     }
     let Some(want) = field::equation(&claimed, &labels) else {
         return Route::no("algebra whose claim is no equation");
@@ -125,11 +138,12 @@ pub fn algebra(
     // first, x the natural number it is, above 0, as set.mm's x ∈ ℕ gives
     // x ≠ 0.
     if given.is_empty() {
-        let unpacked: String = cited
+        let mut steps: Vec<Tactic> = cited
             .iter()
             .filter_map(|c| member_unpacked(writer, c))
             .collect();
-        return Route::Built(format!("by {unpacked}parley_ring"));
+        steps.push(t::bridge(BridgeTactic::Ring, vec![]));
+        return Route::Built(Proof::By(Tactic::Seq(steps)));
     }
     let claim_under = denominators(&claimed, &labels);
     let found = readings(&claimed, want, &labels)
@@ -209,15 +223,26 @@ pub fn algebra(
     };
     // The step moved to its cited lines' type first, where it is, and then
     // checked by the field's normal form where it divides.
-    let cast = moved.map_or(String::new(), |c| format!("{c} at *; "));
     let norm = if divided {
-        "parley_field"
+        BridgeTactic::Field
     } else {
-        "parley_norm"
+        BridgeTactic::Norm
     };
-    Route::Built(format!(
-        "by {cast}linear_combination (norm := {norm}) {sum}"
-    ))
+    let mut steps: Vec<Tactic> = moved
+        .map(|c| t::call(c, vec![TacticArg::At(vec![Location::Everywhere])]))
+        .into_iter()
+        .collect();
+    steps.push(t::call(
+        "linear_combination",
+        vec![
+            TacticArg::Setting {
+                key: "norm",
+                value: Box::new(t::bridge(norm, vec![])),
+            },
+            TacticArg::Term(Printed::atom(sum)),
+        ],
+    ));
+    Route::Built(Proof::By(Tactic::Seq(steps)))
 }
 
 /// `over` divided by the product of `under`, as a Lean term of type `at`:
@@ -228,7 +253,7 @@ pub fn algebra(
 /// `obtain` of a cited line that puts a letter of a wider type in ℕ, ℕ₀ or
 /// ℤ, written `∃ m, …, (m : T) = x`: the letter becomes that number. None
 /// for any other line.
-fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<String> {
+fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<Tactic> {
     let [x, set] = cited.node.children.as_slice() else {
         return None;
     };
@@ -237,13 +262,17 @@ fn member_unpacked(writer: &Writer, cited: &Cited) -> Option<String> {
     }
     let system = super::expr::system_of(set)?;
     let own = writer.carrier(x).built()?;
-    let pattern = match system {
-        super::expr::System::Positive if own > Num::Int => "⟨_, _, rfl⟩",
-        super::expr::System::NonNegative if own > Num::Int => "⟨_, rfl⟩",
-        super::expr::System::Type(Num::Int) if own > Num::Int => "⟨_, rfl⟩",
+    let pattern: &[&str] = match system {
+        super::expr::System::Positive if own > Num::Int => &["_", "_", "rfl"],
+        super::expr::System::NonNegative if own > Num::Int => &["_", "rfl"],
+        super::expr::System::Type(Num::Int) if own > Num::Int => &["_", "rfl"],
         _ => return None,
     };
-    Some(format!("obtain {pattern} := {}; ", cited.proof))
+    Some(Tactic::Obtain {
+        names: pattern.iter().map(|p| p.to_string()).collect(),
+        says: None,
+        from: Printed::atom(cited.proof.clone()),
+    })
 }
 
 fn ratio_text(
