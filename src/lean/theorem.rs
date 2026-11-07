@@ -4057,6 +4057,28 @@ impl<'a> Proof<'a> {
     /// statement is read with: Lean's `set`, of the least type holding the
     /// term it names, its equation named by the name.
     fn define_outside(&mut self, name: &str, body: &Node) -> Route<()> {
+        // A set it names, B = {1, 2}: the set, of the type its members give.
+        if let Some(members) = self.writer.members_of(body) {
+            let value = match self.writer.set_term(body) {
+                Route::Built(v) => v,
+                Route::Declined(d) => return Route::Declined(d),
+            };
+            let lean = super::names::letter(name);
+            let ty = LetterType::Set(members);
+            self.push_at(
+                1,
+                Tactic::Set {
+                    name: lean.clone(),
+                    ty: ty.lean_type(),
+                    value,
+                    with: format!("h_{lean}"),
+                },
+                self.thm.line,
+                Spot::Statement,
+            );
+            self.writer.letters.insert(name.to_string(), ty);
+            return Route::Built(());
+        }
         let ty = match self.writer.carrier(body) {
             Route::Built(n) => n,
             Route::Declined(d) => return Route::Declined(d),

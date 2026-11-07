@@ -671,6 +671,7 @@ public import Parley.Tests.Docs.Grammar.AGcdDivides
 public import Parley.Tests.Docs.Grammar.AChoiceOutOfRange
 public import Parley.Tests.Docs.Grammar.BoundedByItsSize
 public import Parley.Tests.Docs.Grammar.TheThirdTriangularNumber
+public import Parley.Tests.Docs.Grammar.InALargerSet
 public import Parley.Tests.Docs.Syntax.EvenSquare
 public import Parley.Tests.Docs.Syntax.SumNonnegBounded
 public import Parley.Tests.Docs.Syntax.SumNegBounded
