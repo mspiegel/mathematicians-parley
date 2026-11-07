@@ -50,6 +50,27 @@ lean-bridges/counting/pascal`, and the build writes
 `LeanBridges.Counting.pascal n k`. A generated file the build no longer
 makes is removed.
 
+## How a file is made
+
+The writer builds each file as a tree, not as text (`src/lean/doc/`). Every
+term carries its Lean type, and every constant and tactic carries its source:
+Mathlib, a bridge module or an item module. The printer is the one place text
+is made. A file's imports are read from the tree: the bridge and item modules
+it names, and for each constant, term and tactic it uses, the Mathlib modules
+Lean gives. Lean is asked once per name, by `lean/scripts/ModulesOf.lean`. The
+answers are kept in `lean/mathlib-modules.jsonl`, whose first line names the
+Mathlib revision and the hash of the script they came from, and the build asks
+again for any name that is missing or out of date.
+
+Where a citation's item, with its letters given, meets the line it proves, the
+two trees are compared (`doc::forms`). Casts are first pushed down, as
+`push_cast` pushes them, and a relation in a narrower type is cast up to the
+other's. What is left is a form the writer chose: a count in ℕ beside one in
+ℕ∞, a `toNat` on one side, or a cast to another type. A count is converted as
+described under "Sets and functions", and any other difference fails the
+build. An item that Lean writes exactly as it writes the line closes the step
+by `exact` alone.
+
 ## Which theorems are in
 
 A theorem is in the Lean build when every notation its page uses, every
@@ -128,18 +149,17 @@ above and from 0, `{n : ℤ | 0 < n}` and `{n : ℤ | 0 ≤ n}`, so that a map f
 them into ℤ, or a set of them an integer is said to be in, has one type in and
 out; a letter of ℕ stays a natural number, cast up where it meets them.
 
-A count is `Set.encard`, in ℕ∞, as set.mm's ♯ counts: an infinite set counts
-as ∞, a finite one as the natural number it is. A relation whose sides are
-counts, whole numerals and letters of ℕ joined by + and ·, k ≤ |W| or
-|X| = |Y| + 1, is written in ℕ∞ whatever the theorem knows of its sets, so one
-sentence is one Lean sentence in every theorem that states or cites it. A
-relation that computes with a count, |A| − |B| = 1, |S| = j of an integer j, or
-|A| ∈ ℕ, takes the count of a finite set as an integer, `(A.ncard : ℤ)`: the
-page has shown the count is a whole number (`card-nat0`, set.mm's `hashcl`)
-before computing with it. A set is finite where a hypothesis says so or puts it
-inside a finite set, and where it is ∅, listed, a range, or made by ∖, ∩, ∪, 𝒫,
-{x ∈ A : …} or {E(s) : s ∈ A} from finite sets; a step's line holds only from
-that step on, so it makes no set finite. Where a set is not finite by these, a
+A count is a natural number, `A.ncard`, where the lines in scope show its set
+finite, and otherwise `Set.encard`, in ℕ∞, as set.mm's ♯ counts an infinite
+set as ∞; a set has one count form in each theorem. A set is finite where a
+hypothesis, or a line in scope in words (`A is finite`, `B ⊆ A` of a finite
+A), says so, and where it is ∅, listed, a range, or made by ∖, ∩, ∪, 𝒫,
+{x ∈ A : …} or {E(s) : s ∈ A} from finite sets. A count given as a number,
+|Y| = 2, makes its set finite only as a hypothesis: a line cannot vouch for
+itself, so a step's |Y| = 2 is written in ℕ∞, and so are the lines after it. A
+citation whose item counts a set in the other form converts it: each count in
+ℕ∞ of a finite set is taken to its count in ℕ by `Set.Finite.cast_ncard_eq`,
+then `exact_mod_cast`. Where a set is not finite by these, a
 relation that computes with its count is not written. A step that computes by a
 ring or an order with counts in ℕ∞, or whose lines say one set's count both
 ways, first takes each count in ℕ∞ of a finite set standing outside any binder
@@ -154,9 +174,9 @@ A define in a proof is Lean's `set`: `let m = (a + b)/2` is
 `set m : ℚ := … with D1`, and a function of one argument,
 `let q(j) = F(j)², for j ∈ ℕ₀`, is `set q : ℤ → ℤ := fun j => …`. A function
 on ℕ, ℕ₀ or a range takes integers, as the build's sequences do, so that q(j)
-of a sum's index is written as it stands. A define of a kind of number whose
-value is wider than the kind, `let e = p/d, a positive integer`, is not yet
-written.
+of a sum's index is written as it stands. A define of a kind of number,
+`let e = p/d, a positive integer`, names a number of that kind from the kind's
+fact, whatever the type of its value, as `let m ∈ ℕ` does.
 
 A function the header lets is read as the page reads a let: a letter, with
 its definition as a hypothesis. `let f(x) = 2x + 1, for x ∈ ℝ` is
@@ -241,7 +261,7 @@ them, as Mathlib's own proofs do.
 | contradiction | `by_contra`, the suppose line from it |
 | cases | `rcases` on the line that says "or" |
 | both directions | `constructor` |
-| induction | from 0 over ℕ₀, Lean's induction; from 1 over ℕ, `Nat.le_induction` |
+| induction | from 0 over ℕ₀, Lean's induction; from 1 over ℕ, `Nat.le_induction`; on the parts of a finite set from ∅, `LeanBridges.Sets.subset_induction` |
 
 A requires line is a `have` proved by its own reason, and a define is
 `set m : ℝ := … with D1`. A define the statement is read with is written out
