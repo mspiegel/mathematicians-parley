@@ -90,6 +90,8 @@ Read the one that governs a change before making it.
   or rule to close a gap it may already close.
 - `docs/LEAN.md`: what the Lean writer does. Before changing the writer, a
   template or a bridge in `corpus/lean-bridges/`.
+- `docs/CHECKER.md`: what the checker records for each theorem, and which
+  backend reads each fact. Before adding a fact a backend needs (decision 20).
 - `docs/METHODS.md`: what each method expands to.
 - `docs/READERS.md`: who the text is for, dull facts and mundane steps.
   Before deciding whether something is named or mundane.
