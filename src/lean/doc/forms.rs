@@ -169,6 +169,18 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
     );
     match &inner.kind {
         TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to, widen),
+        // A sum or product over a Finset, onto its body (`Nat.cast_sum`,
+        // `Int.cast_prod`): the last of its terms.
+        TermKind::Notation { pieces, prec } if over_finset(pieces) => {
+            let mut pieces = pieces.clone();
+            if let Some(Piece::Term { term, .. }) = pieces.last_mut() {
+                **term = cast(term);
+            }
+            at(TermKind::Notation {
+                pieces,
+                prec: *prec,
+            })
+        }
         TermKind::App {
             head,
             args,
@@ -222,6 +234,12 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
         TermKind::Neg(x) if !natural => at(TermKind::Neg(Box::new(cast(x)))),
         _ => cast(inner),
     }
+}
+
+/// Whether a notation is a sum or product over a Finset, `∑ k ∈ s, t`,
+/// which a cast passes into; `∑ᶠ` over a set is not.
+fn over_finset(pieces: &[Piece]) -> bool {
+    matches!(pieces.first(), Some(Piece::Text(t)) if t.starts_with("∑ ") || t.starts_with("∏ "))
 }
 
 /// The term with brackets no precedence asks for taken off, and a type
