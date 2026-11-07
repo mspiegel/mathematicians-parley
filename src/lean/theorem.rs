@@ -6278,8 +6278,15 @@ impl<'a> Proof<'a> {
                 letters.insert(value.text.to_string(), x);
                 self.writer.with_letters(letters).carrier(body)
             }
+            // Given a map letter into numbers, t : X → ℤ, what it gives.
             (LetterType::Map { .. }, _) => {
-                self.writer.function_type(value).map(|(_, to)| to)
+                match self.writer.letters.get(&*value.text) {
+                    Some(LetterType::Map {
+                        to: super::expr::Members::Numbers(n),
+                        ..
+                    }) if value.is_name() => Route::Built(*n),
+                    _ => self.writer.function_type(value).map(|(_, to)| to),
+                }
             }
             // A set given for a `Set K` letter: the type of its numbers.
             (LetterType::Set(_), _) => match self.writer.set_members(value) {

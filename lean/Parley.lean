@@ -37,10 +37,12 @@ public import Parley.Stdlib.Divisibility.CoprimeSquare
 public import Parley.Stdlib.Divisibility.PrimePowerNotLess
 public import Parley.Stdlib.Divisibility.PrimePowerUnique
 public import Parley.Stdlib.Divisibility.PrimePowersUnique
+public import Parley.Stdlib.Divisibility.ProductCongruentTermwise
 public import Parley.Stdlib.Divisibility.ProductCongruent
 public import Parley.Stdlib.Geometry.HalfTurn
 public import Parley.Stdlib.Numbers.AbsBounds
 public import Parley.Stdlib.Sets.SubsetAntisymmetric
+public import Parley.Stdlib.Sums.ProductIntegerTerms
 public import Parley.Stdlib.Sums.ProductConstant
 public import Parley.Stdlib.Sums.ProductFactor
 public import Parley.Proofs.Hammack.AbsLimitZero.AbsLimitZero
