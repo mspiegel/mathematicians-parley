@@ -525,7 +525,7 @@ impl Term {
     }
 
     /// The terms directly inside this one, to change in place.
-    fn children_mut(&mut self) -> Vec<&mut Term> {
+    pub fn children_mut(&mut self) -> Vec<&mut Term> {
         match &mut self.kind {
             TermKind::By(_)
             | TermKind::Letter(_)

@@ -8,6 +8,7 @@
 //! line, is no question of form and is not reported.
 
 use super::term::{Arg, CountForm, LeanType, Piece, Term, TermKind};
+use crate::lean::templates::Num;
 
 /// One place two statements write a term in different forms.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -58,11 +59,75 @@ impl FormDifference {
 }
 
 /// Every place the item's statement and the line write one term in
-/// different forms; none where they agree.
+/// different forms; none where they agree. A cast is first taken down onto
+/// the parts of what it casts on both sides, as `push_cast` takes it:
+/// `((a - b : ℤ) : ℚ)` and `(a : ℚ) - (b : ℚ)` are one form, which Lean
+/// moves between by that one tactic, and only a difference it leaves is a
+/// form the writer chose.
 pub fn differences(item: &Term, line: &Term) -> Vec<FormDifference> {
     let mut out = Vec::new();
-    compare(item, line, &mut out);
+    compare(&pushed(item), &pushed(line), &mut out);
     out
+}
+
+/// The term with every cast taken down as far as `push_cast` takes it.
+fn pushed(term: &Term) -> Term {
+    let mut out = match &term.kind {
+        TermKind::Cast { inner, to } => cast_down(inner, to),
+        _ => term.clone(),
+    };
+    for child in out.children_mut() {
+        *child = pushed(child);
+    }
+    out
+}
+
+/// `(x : to)` with the cast taken onto x's parts: a numeral is written at
+/// `to`; a cast of a cast is one cast; through + · and ^ (onto the base),
+/// through − and negation outside ℕ, whose subtraction stops at 0, and
+/// through / in a field, whose division is exact.
+fn cast_down(inner: &Term, to: &LeanType) -> Term {
+    use super::term::Op;
+    let at = |kind: TermKind| Term {
+        kind,
+        ty: Some(to.clone()),
+    };
+    let cast = |x: &Term| match x.ty.as_ref() == Some(to) {
+        true => x.clone(),
+        false => at(TermKind::Cast {
+            inner: Box::new(x.clone()),
+            to: to.clone(),
+        }),
+    };
+    let from = inner.ty.as_ref();
+    let natural = matches!(from, Some(LeanType::Num(Num::Nat)));
+    let field = matches!(
+        from,
+        Some(LeanType::Num(Num::Rat | Num::Real | Num::Complex))
+    );
+    match &inner.kind {
+        TermKind::Paren(x) | TermKind::Cast { inner: x, .. } => cast_down(x, to),
+        TermKind::Numeral(digits) => at(TermKind::Numeral(digits.clone())),
+        TermKind::Infix { op, lhs, rhs }
+            if *op == Op::PLUS
+                || *op == Op::TIMES
+                || (*op == Op::MINUS && !natural)
+                || (*op == Op::DIVIDE && field) =>
+        {
+            at(TermKind::Infix {
+                op: *op,
+                lhs: Box::new(cast(lhs)),
+                rhs: Box::new(cast(rhs)),
+            })
+        }
+        TermKind::Infix { op, lhs, rhs } if *op == Op::POWER => at(TermKind::Infix {
+            op: *op,
+            lhs: Box::new(cast(lhs)),
+            rhs: rhs.clone(),
+        }),
+        TermKind::Neg(x) if !natural => at(TermKind::Neg(Box::new(cast(x)))),
+        _ => cast(inner),
+    }
 }
 
 /// The term with brackets no precedence asks for taken off, and a type
@@ -86,6 +151,13 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
             compare(a, b, out);
         }
         (TermKind::ToNat(a), TermKind::ToNat(b)) => compare(a, b, out),
+        // A cast or `toNat` on one side only is a form where taking it off
+        // leaves one term on both; where it leaves two, the item says
+        // something else there, which is no question of form.
+        (TermKind::ToNat(a) | TermKind::Cast { inner: a, .. }, _)
+            if !alike(a, line) => {}
+        (_, TermKind::ToNat(b) | TermKind::Cast { inner: b, .. })
+            if !alike(item, b) => {}
         (TermKind::ToNat(a), _) => {
             out.push(FormDifference::ToNat { in_item: true });
             compare(a, line, out);
@@ -132,6 +204,35 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
     }
 }
 
+/// Whether two terms are one term but for their forms: alike once every
+/// cast, `toNat` and spare bracket is taken off, with a count alike in
+/// either form.
+fn alike(a: &Term, b: &Term) -> bool {
+    let strip = |t: &Term| -> Term {
+        let mut t = t.clone();
+        while let TermKind::Paren(x)
+        | TermKind::Cast { inner: x, .. }
+        | TermKind::ToNat(x) = t.kind
+        {
+            t = *x;
+        }
+        t
+    };
+    let (a, b) = (strip(a), strip(b));
+    let leaves_agree = match (&a.kind, &b.kind) {
+        (TermKind::Letter(x), TermKind::Letter(y)) => x == y,
+        (TermKind::Numeral(x), TermKind::Numeral(y)) => x == y,
+        (TermKind::Const(x), TermKind::Const(y)) => x == y,
+        (TermKind::Infix { op: x, .. }, TermKind::Infix { op: y, .. }) => x == y,
+        (TermKind::Count { .. }, TermKind::Count { .. }) => true,
+        (x, y) => std::mem::discriminant(x) == std::mem::discriminant(y),
+    };
+    let (xs, ys) = (children(&a), children(&b));
+    leaves_agree
+        && xs.len() == ys.len()
+        && xs.into_iter().zip(ys).all(|(x, y)| alike(x, y))
+}
+
 /// The terms directly inside a node, in order, as both sides are walked.
 fn children(term: &Term) -> Vec<&Term> {
     match &term.kind {
@@ -156,7 +257,6 @@ fn children(term: &Term) -> Vec<&Term> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lean::templates::Num;
 
     fn count(form: CountForm) -> Term {
         let set = Term::letter("d", LeanType::Set(Box::new(LeanType::Num(Num::Int))));
@@ -180,6 +280,54 @@ mod tests {
                 line: CountForm::Natural
             }]
         );
+    }
+
+    fn int_letter(name: &str) -> Term {
+        Term::letter(name, LeanType::Num(Num::Int))
+    }
+
+    fn infix(op: super::super::term::Op, lhs: Term, rhs: Term, ty: Num) -> Term {
+        Term::of(
+            TermKind::Infix {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            },
+            LeanType::Num(ty),
+        )
+    }
+
+    fn to_rat(x: Term) -> Term {
+        Term::of(
+            TermKind::Cast {
+                inner: Box::new(x),
+                to: LeanType::Num(Num::Rat),
+            },
+            LeanType::Num(Num::Rat),
+        )
+    }
+
+    #[test]
+    fn a_cast_over_a_difference_is_the_difference_of_casts() {
+        use super::super::term::Op;
+        let whole =
+            to_rat(infix(Op::MINUS, int_letter("a"), int_letter("b"), Num::Int));
+        let parts = infix(
+            Op::MINUS,
+            to_rat(int_letter("a")),
+            to_rat(int_letter("b")),
+            Num::Rat,
+        );
+        assert!(differences(&whole, &parts).is_empty());
+    }
+
+    #[test]
+    fn a_cast_over_a_natural_difference_stays() {
+        use super::super::term::Op;
+        let nat = |n: &str| Term::letter(n, LeanType::Num(Num::Nat));
+        let whole = to_rat(infix(Op::MINUS, nat("a"), nat("b"), Num::Nat));
+        let parts = infix(Op::MINUS, to_rat(nat("a")), to_rat(nat("b")), Num::Rat);
+        assert!(!differences(&whole, &parts).is_empty());
     }
 
     #[test]
