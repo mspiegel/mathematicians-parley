@@ -8,8 +8,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from tests/elaborator/a-recursion-renamed.proof by parley build lean. -/
@@ -24,7 +22,7 @@ theorem a_recursion_rule_by_a_block (F : ℤ → ℤ) (hD1 : F 0 = (0 : ℤ) ∧
   have s1 : ∀ n : ℤ, 0 ≤ n → F (n + 1) = F n + 1 := by
     intro n hK1
     -- 1.1. D1
-    have s1_1 : F (n + 1) = F n + 1 := by have h := (hD1.2 ((n + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s1_1 : F (n + 1) = F n + 1 := by have h := (hD1.2 ((n + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     all_goals exact s1_1
   all_goals exact s1
 

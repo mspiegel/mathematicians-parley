@@ -2887,14 +2887,7 @@ impl<'a> Proof<'a> {
         let start = projection_path(at, n + 1);
         let steps = projection_path(n, n + 1);
         let step = projection_path(at, n);
-        // The rule in the type the recursion computes in, the claim in its
-        // own, N(0) = 0 in ℤ for (N 0 : ℝ) = 0 of a theorem in ℝ: the rule
-        // cast up first where the claim's type is wider.
-        let closed = Tactic::First(vec![
-            t::call("linarith", vec![]),
-            cast_then_linarith("rify"),
-            cast_then_linarith("qify"),
-        ]);
+        let closed = t::call("linarith", vec![]);
         let worked = t::try_(t::call("ring_nf", vec![t::at_h(true)]));
         if arg.notation() == crate::notations::NUMERAL && &*arg.text == "0" {
             return Route::Built(Proof::By(Tactic::Seq(vec![
@@ -8409,17 +8402,6 @@ fn finite_by_making(set: &Node) -> Option<Printed> {
         }
         _ => None,
     }
-}
-
-/// `(rify at h; (try push_cast at h ⊢); linarith)`, or `qify`: h cast up
-/// to the claim's type, then the claim by linear arithmetic from it.
-fn cast_then_linarith(cast: &'static str) -> Tactic {
-    use super::tactics as t;
-    t::steps(vec![
-        t::call(cast, vec![t::at_h(false)]),
-        t::try_(t::push_cast(Some(t::at_h(true)))),
-        t::call("linarith", vec![]),
-    ])
 }
 
 /// `parley_subst e`: the equation e put into the goal.

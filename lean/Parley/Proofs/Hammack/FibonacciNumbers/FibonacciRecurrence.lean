@@ -10,8 +10,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from proofs/hammack/fibonacci-numbers.proof by parley build lean. -/
@@ -26,11 +24,11 @@ theorem fibonacci_recurrence (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0
   have s1 : ∀ k : ℤ, 0 ≤ k → F (k + 2) = F k + F (k + 1) := by
     intro k hK1
     -- 1.1. D1
-    have s1_1 : F (k + 1 + 1) = G (k + 1) := by have h := (hD1.2.2 ((k + 1 + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s1_1 : F (k + 1 + 1) = G (k + 1) := by have h := (hD1.2.2 ((k + 1 + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 1.2. D1
-    have s1_2 : G (k + 1) = F k + G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s1_2 : G (k + 1) = F k + G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 1.3. D1
-    have s1_3 : F (k + 1) = G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s1_3 : F (k + 1) = G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 1.4. transitivity, from 1.1, 1.2
     have s1_4 : F (k + 1 + 1) = F k + G k := by parley_side
     -- 1.5. substitute F(k + 1) = G(k) (line 1.3) into line 1.4

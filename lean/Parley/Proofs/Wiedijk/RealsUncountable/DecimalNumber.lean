@@ -65,14 +65,14 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
   set L : ℤ → ℚ := fun k => (N k : ℚ) / 10 ^ k.toNat with hD5
   set U : ℤ → ℚ := fun k => ((N k : ℚ) + 1) / 10 ^ k.toNat with hD6
   -- 1. D3
-  have s1 : N 0 = 0 := by have h := hD3.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+  have s1 : N 0 = 0 := by have h := hD3.1; (try ring_nf at h ⊢); linarith
   -- 2. induction on k starting at 0
   -- what this block shows, Lean's types give
   -- 3. proof
   have s3 : ∀ k : ℤ, 0 ≤ k → L k ≤ L (k + 1) ∧ U (k + 1) ≤ U k := by
     intro k hK1
     -- 3.1. D3
-    have s3_1 : N (k + 1) = 10 * N k + d (k + 1) := by have h := (hD3.2 ((k + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s3_1 : N (k + 1) = 10 * N k + d (k + 1) := by have h := (hD3.2 ((k + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 3.2. mun:pos-int-nat
     have r192_1 : 0 < k + 1 := by parley_order
     have s3_2 : 0 < k + 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_pos_int_nat (m := k + 1) (by parley_set_side)); parley_set_side)
@@ -299,7 +299,7 @@ theorem decimal_number (d : ℤ → ℤ) (hH2 : ∀ n : ℤ, 0 < n → 0 ≤ d n
     have s16_1 : 0 ≤ n - 1 := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_set_side)) | exact ((Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_set_side))).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_set_side)) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_set_side)) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat_minus_one (n := n) (by parley_set_side)); parley_set_side)
     -- 16.2. D3
     have r531_1 : 0 ≤ n - 1 := by parley_set_side
-    have s16_2 : N (n - 1 + 1) = 10 * N (n - 1) + d (n - 1 + 1) := by have h := (hD3.2 ((n - 1 + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+    have s16_2 : N (n - 1 + 1) = 10 * N (n - 1) + d (n - 1 + 1) := by have h := (hD3.2 ((n - 1 + 1) - 1) (by omega)); simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
     -- 16.3. substitute
     have s16_3 : N n = 10 * N (n - 1) + d n := by
       have c1 : n - 1 + 1 = n := by parley_ring

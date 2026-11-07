@@ -9,8 +9,6 @@ public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
 public import Mathlib.Tactic.NormNum.Ineq
 public import Mathlib.Tactic.Positivity.Basic
-public import Mathlib.Tactic.Qify
-public import Mathlib.Tactic.Rify
 public import Mathlib.Tactic.Ring.RingNF
 
 /-! Written from proofs/hammack/fibonacci-numbers.proof by parley build lean. -/
@@ -29,9 +27,9 @@ theorem fibonacci_natural (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : 
     induction k, h_k using LeanBridges.Functions.le_induction with
     | base =>
       -- 1.1. D1
-      have s1_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+      have s1_1 : F 0 = 0 := by have h := hD1.1; (try ring_nf at h ⊢); linarith
       -- 1.2. D1
-      have s1_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+      have s1_2 : G 0 = 1 := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
       -- 1.3. membership, from 1.1
       have s1_3 : 0 ≤ F 0 := by parley_side
       -- 1.4. membership, from 1.2
@@ -41,9 +39,9 @@ theorem fibonacci_natural (F : ℤ → ℤ) (G : ℤ → ℤ) (hD1 : F 0 = (0 : 
       all_goals parley_side
     | succ k hK hIH =>
       -- 1.6. D1
-      have s1_6 : F (k + 1) = G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+      have s1_6 : F (k + 1) = G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 1.7. D1
-      have s1_7 : G (k + 1) = F k + G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+      have s1_7 : G (k + 1) = F k + G k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel] at h; (try ring_nf at h ⊢); linarith
       -- 1.8. membership, from IH, 1.6
       have s1_8 : 0 ≤ F (k + 1) := by parley_side
       -- 1.9. membership, from IH, 1.7

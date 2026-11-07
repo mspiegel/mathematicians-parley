@@ -38,9 +38,9 @@ set_option maxHeartbeats 1200000 in
 theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → ℤ) (b : ℤ → ℤ) (hD1 : a 0 = M ∧ b 0 = N ∧ ∀ k : ℤ, 0 ≤ k → a (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) (a k) (b k) ∧ b (k + 1) = @ite _ (b k = 0) (Classical.propDecidable (b k = 0)) 0 (a k % b k)) :
     a N = (Int.gcd M N : ℤ) := by
   -- 1. D1
-  have s1 : a 0 = M := by have h := hD1.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+  have s1 : a 0 = M := by have h := hD1.1; (try ring_nf at h ⊢); linarith
   -- 2. D1
-  have s2 : b 0 = N := by have h := hD1.2.1; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+  have s2 : b 0 = N := by have h := hD1.2.1; (try ring_nf at h ⊢); linarith
   -- 3. induction on k starting at 0
   have s3 : ∀ k : ℤ, 0 ≤ k → 0 ≤ a k ∧ 0 ≤ b k := by
     intro k h_k
@@ -62,9 +62,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         rcases s3_4 with hC1 | hC2
         · skip
           -- 3.5.1. D1, from C1
-          have s3_5_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s3_5_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.2. D1, from C1
-          have s3_5_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s3_5_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC1] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.3. substitute a(k + 1) = a(k) (line 3.5.1) into IH1
           have s3_5_3 : 0 ≤ a (k + 1) := by parley_subst_at s3_5_1 hIH1
           -- 3.5.4. membership, from 3.5.2
@@ -74,9 +74,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           all_goals parley_side
         · skip
           -- 3.5.6. D1, from C2
-          have s3_5_6 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s3_5_6 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.7. D1, from C2
-          have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s3_5_7 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC2] at h; (try ring_nf at h ⊢); linarith
           -- 3.5.8. mun:nat0-nonzero, from C2, IH1
           have s3_5_8 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC2); parley_side)
           -- 3.5.9. mun:mod-natural, from 3.5.8
@@ -108,9 +108,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         rcases s4_2 with hC3 | hC4
         · skip
           -- 4.3.1. D1, from C3
-          have s4_3_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC3] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s4_3_1 : a (k + 1) = a k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC3] at h; (try ring_nf at h ⊢); linarith
           -- 4.3.2. D1, from C3
-          have s4_3_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC3] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s4_3_2 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC3] at h; (try ring_nf at h ⊢); linarith
           -- 4.3.3. calculation
           have s4_3_3 : (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd M N : ℤ) := by
             calc (Int.gcd (a (k + 1)) (b (k + 1)) : ℤ) = (Int.gcd (a k) (b (k + 1)) : ℤ) := by parley_subst s4_3_1
@@ -120,9 +120,9 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
           all_goals parley_side
         · skip
           -- 4.3.4. D1, from C4
-          have s4_3_4 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s4_3_4 : a (k + 1) = b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).1; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); linarith
           -- 4.3.5. D1, from C4
-          have s4_3_5 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s4_3_5 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC4] at h; (try ring_nf at h ⊢); linarith
           -- 4.3.6. mun:nat0-nonzero, from C4, 3
           have s4_3_6 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC4); parley_side)
           -- 4.3.7. mun:nat0-int, from 3
@@ -157,13 +157,13 @@ theorem euclid (M : ℤ) (hH1 : 0 ≤ M) (N : ℤ) (hH2 : 0 ≤ N) (a : ℤ → 
         rcases s5_3 with hC5 | hC6
         · skip
           -- 5.4.1. D1, from C5
-          have s5_4_1 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC5] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s5_4_1 : b (k + 1) = 0 := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_left hC5] at h; (try ring_nf at h ⊢); linarith
           -- 5.4.2. mun:or-right, from 5.4.1
           have s5_4_2 : b (k + 1) + (k + 1) ≤ N ∨ b (k + 1) = 0 := by first | exact (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | exact ((Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1)).symm | simpa using (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | exact_mod_cast (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1) | (have h := (Parley.Items.Stdlib.Reasoning.mun_or_right (P := b (k + 1) + (k + 1) ≤ N) (Q := b (k + 1) = 0) s5_4_1); parley_side)
           all_goals parley_side
         · skip
           -- 5.4.3. D1, from C6
-          have s5_4_3 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC6] at h; (try ring_nf at h ⊢); first | linarith | (rify at h; (try push_cast at h ⊢); linarith) | (qify at h; (try push_cast at h ⊢); linarith)
+          have s5_4_3 : b (k + 1) = a k % b k := by have h := (hD1.2.2 ((k + 1) - 1) (by omega)).2; simp only [sub_add_cancel, add_sub_cancel_right] at h; rw [ite_eq_right hC6] at h; (try ring_nf at h ⊢); linarith
           -- 5.4.4. mun:nat0-nonzero, from C6, 3
           have s5_4_4 : 0 < b k := by first | exact (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | exact ((Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6)).symm | simpa using (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | exact_mod_cast (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6) | (have h := (Parley.Items.Stdlib.Numbers.mun_nat0_nonzero (m := b k) (by parley_side) hC6); parley_side)
           -- 5.4.5. mun:nat0-int, from 3
