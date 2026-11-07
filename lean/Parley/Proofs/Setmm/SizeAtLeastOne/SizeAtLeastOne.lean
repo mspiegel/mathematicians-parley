@@ -7,6 +7,7 @@ public import SetTactics
 public import SubstTactics
 public import Tactics
 public import Batteries.Tactic.Init
+public import Mathlib.Basic.Finite.Defs
 public import Mathlib.Data.ENat.Basic
 public import Mathlib.Data.ENat.Defs
 public import Mathlib.Data.Int.Notation
@@ -58,7 +59,7 @@ theorem size_at_least_one {α : Type*} (A : Set α) (hH2 : ¬ A = ∅) :
   -- 3. mun:singleton-subset, from 2
   have s3 : ({a} : Set α) ⊆ A := by first | exact (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2) | exact ((Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2)).symm | simpa using (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2) | exact_mod_cast (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2) | (have h := (Parley.Items.Stdlib.Sets.mun_singleton_subset (X := A) (a := a) s2); parley_set_side)
   -- 4. mun:card-subset A := {a}, B := A, from 3
-  have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by first | exact (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3) | exact ((Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3) | (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); parley_set_side)
+  have s4 : ((({a} : Set α).ncard : ℕ) : ℕ∞) ≤ A.encard := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := ({a} : Set α)) (B := A) s3); simp only [← Set.Finite.cast_ncard_eq (show ({a} : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
   -- 5. substitute
   have s5 : ((1 : ℕ) : ℕ∞) ≤ A.encard := by parley_count_after (by
     have c1 : (({a} : Set α).ncard : ℤ) = 1 := by first | linear_combination (norm := parley_norm) (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); (try push_cast at h); (try push_cast); linear_combination (norm := parley_norm) -h) | (parley_count_ext; exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)) | exact_mod_cast ((Parley.Items.Stdlib.Counting.mun_card_singleton (x := a))).symm | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); rify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); qify; linear_combination (norm := parley_norm) h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); parley_int_power h) | (have h := (Parley.Items.Stdlib.Counting.mun_card_singleton (x := a)); parley_set_side)

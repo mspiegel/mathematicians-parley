@@ -11,7 +11,6 @@ public import Mathlib.Data.Int.Notation
 public import Mathlib.Data.Nat.Notation
 public import Mathlib.Data.Set.Card
 public import Mathlib.Data.Set.Defs
-public import Mathlib.Tactic.Linarith.Frontend
 public import Mathlib.Tactic.LinearCombination
 public import Mathlib.Tactic.NormNum.Basic
 public import Mathlib.Tactic.NormNum.Eq
@@ -45,7 +44,7 @@ theorem size_of_union {α : Type*} (A : Set α) (B : Set α) (hH3 : A.Finite) (h
   -- 5. mun:card-nat0 X := B ∖ A, from 2
   have s5 : 0 ≤ ((B \ A).ncard : ℤ) := by first | exact (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | exact ((Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2)).symm | simpa using (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2) | (have h := (Parley.Items.Stdlib.Counting.mun_card_nat0 (X := B \ A) s2); parley_set_side)
   -- 6. mun:card-subset A := B ∖ A, from 1
-  have s6 : ((B \ A).ncard : ℤ) ≤ (B.ncard : ℤ) := by first | linarith [(Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1)] | (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); push_cast at h; linarith) | exact_mod_cast (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1) | (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); parley_set_side)
+  have s6 : ((B \ A).ncard : ℤ) ≤ (B.ncard : ℤ) := by (have h := (Parley.Items.Stdlib.Counting.mun_card_subset (A := B \ A) (B := B) s1); simp only [← Set.Finite.cast_ncard_eq (show (B \ A : Set α).Finite by parley_finite), ← Set.Finite.cast_ncard_eq (show (B : Set α).Finite by parley_finite)] at h ⊢; exact_mod_cast h)
   -- 7. proof
   have s7 : ∀ s ∈ B \ A, ¬ s ∈ A := by
     intro s hK

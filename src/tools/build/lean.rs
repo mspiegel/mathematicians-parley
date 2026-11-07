@@ -612,12 +612,16 @@ pub fn run(root: &Path, wanted: Option<&str>) -> Said {
             said.printed += &format!("  {name}: {why}\n");
         }
     }
+    // An item that writes a term in another form than the line it proves
+    // leaves Lean a search to close the step: the writer is to convert it
+    // (`doc::forms`), and the build fails until it does.
     if !made.forms.is_empty() {
-        said.printed +=
+        said.complained +=
             "\ncitations whose item writes a term in another form than the line:\n";
         for note in &made.forms {
-            said.printed += &format!("  {note}\n");
+            said.complained += &format!("  {note}\n");
         }
+        failed = true;
     }
     if !made.gaps.is_empty() {
         said.printed +=

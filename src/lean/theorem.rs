@@ -6310,7 +6310,12 @@ impl<'a> Proof<'a> {
                 Route::Declined(d) => return Route::Declined(d),
             };
         // An item read as written says what the claim says: where the two
-        // write one term in different forms, the build reports it.
+        // write one term in different forms, the build reports it. The
+        // sets whose counts differ only in form are converted.
+        let mut counted: Vec<Printed> = Vec::new();
+        // A line that is the item's equation turned round, compared turned
+        // back and closed by the equation's `symm`.
+        let mut turned = false;
         if concluded.way == Way::AsWritten {
             // A row of a calculation is written in the calculation's type
             // (`worked_in`), and compared as it is written there.
@@ -6323,9 +6328,35 @@ impl<'a> Proof<'a> {
             if let Route::Built(claim) = written {
                 let templates = self.writer.templates;
                 let widen = |head: &str, at| templates.same_function_at(head, at);
-                for d in
-                    super::doc::forms::differences(&instance.statement, &claim, &widen)
-                {
+                use super::doc::forms;
+                turned = forms::turned_round(&instance.statement, &claim);
+                let claim = match turned {
+                    true => forms::turned(&claim),
+                    false => claim,
+                };
+                let mut found = forms::differences(&instance.statement, &claim, &widen);
+                for d in &found {
+                    if let forms::FormDifference::Count {
+                        item_set, line_set, ..
+                    } = d
+                    {
+                        for set in [item_set, line_set] {
+                            if !counted.contains(set) {
+                                counted.push(set.clone());
+                            }
+                        }
+                    }
+                }
+                // Both rewritten as `counts_converted` rewrites them, what
+                // is left is what the conversion leaves.
+                if !counted.is_empty() {
+                    found = forms::differences(
+                        &forms::with_natural_counts(&instance.statement, &counted),
+                        &forms::with_natural_counts(&claim, &counted),
+                        &widen,
+                    );
+                }
+                for d in found {
                     self.forms.borrow_mut().push(FormNote {
                         page_line: reason.just.line,
                         item: cited.item.clone(),
@@ -6447,6 +6478,7 @@ impl<'a> Proof<'a> {
         // the page shows not negative, 2^(n − 1); the writer gives the
         // witness.
         let closed = match self.writer.integer_power_witness(node) {
+            _ if !counted.is_empty() => counts_converted(&term, &counted, turned),
             Some(witness) => ways_proof(vec![
                 Tactic::Exact(witness),
                 Tactic::Exact(t::bracket(super::tactics::by_term(close(
@@ -8424,6 +8456,64 @@ fn put_into(tactic: BridgeTactic, equation: &Printed, into: &Printed) -> Tactic 
             TacticArg::Term(into.clone()),
         ],
     )
+}
+
+/// A citation whose item counts a set in one form and the claim in the
+/// other: `(have h := t; simp only [← Set.Finite.cast_ncard_eq (show
+/// S.Finite by parley_finite)] at h ⊢; exact_mod_cast h)`, each count in ℕ∞
+/// of a finite S written as its count in ℕ, after which the two differ
+/// only by casts; `h.symm` where the claim is the item's equation turned
+/// round.
+fn counts_converted(
+    cited: &Printed,
+    sets: &[Printed],
+    turned: bool,
+) -> super::doc::Proof {
+    use super::tactics as t;
+    // Each told its type, `({a} : Set α)`, as the count writes it; one
+    // rule for each set as printed.
+    let mut typed: Vec<Printed> = Vec::new();
+    for s in sets {
+        let t = match &s.ty {
+            Some(ty) => Printed::cast(s.clone(), ty.clone()),
+            None => t::bracket(s.clone()),
+        };
+        if !typed.iter().any(|u| u.text() == t.text()) {
+            typed.push(t);
+        }
+    }
+    let rules = typed
+        .into_iter()
+        .map(|typed| {
+            let finite = Printed::of(
+                super::doc::TermKind::Field {
+                    inner: Box::new(typed),
+                    field: "Finite".to_string(),
+                },
+                super::doc::LeanType::Prop,
+            );
+            let proof = shown(
+                finite,
+                super::doc::Proof::By(t::bridge(BridgeTactic::Finite, vec![])),
+            );
+            t::backwards(Printed::applied(
+                "Set.Finite.cast_ncard_eq",
+                super::doc::Source::Mathlib,
+                vec![t::bracket(proof)],
+                super::doc::LeanType::Prop,
+            ))
+        })
+        .collect();
+    super::doc::Proof::By(t::on_h(
+        cited,
+        vec![
+            t::simp_only(false, None, rules, Some(t::at_h(true))),
+            t::exact_mod_cast(match turned {
+                true => t::symm(t::hyp("h")),
+                false => t::hyp("h"),
+            }),
+        ],
+    ))
 }
 
 /// `show s by t`: a term saying s, proved by t.

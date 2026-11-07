@@ -13,8 +13,14 @@ use crate::lean::templates::Num;
 /// One place two statements write a term in different forms.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum FormDifference {
-    /// A count, `ncard` in one and `encard` in the other.
-    Count { item: CountForm, line: CountForm },
+    /// A count, `ncard` in one and `encard` in the other, of one set as each
+    /// writes it, which may differ inside in form.
+    Count {
+        item: CountForm,
+        line: CountForm,
+        item_set: Term,
+        line_set: Term,
+    },
     /// A whole number taken to ℕ, `n.toNat`, in one and not the other.
     ToNat { in_item: bool },
     /// A term cast to a type in one and not, or to another, in the other.
@@ -36,7 +42,7 @@ impl FormDifference {
             None => "not cast".to_string(),
         };
         match self {
-            FormDifference::Count { item, line } => format!(
+            FormDifference::Count { item, line, .. } => format!(
                 "a count the item writes {} and the line {}",
                 count(item),
                 count(line)
@@ -74,9 +80,121 @@ impl FormDifference {
 pub fn differences(item: &Term, line: &Term, widen: &Widen) -> Vec<FormDifference> {
     let mut out = Vec::new();
     let (item, line) = (pushed(item, widen), pushed(line, widen));
+    let (item, line) = (in_naturals(&item), in_naturals(&line));
     let line = lifted(&line, &item, widen).unwrap_or(line);
     let item = lifted(&item, &line, widen).unwrap_or(item);
     compare(&item, &line, &mut out);
+    out
+}
+
+/// A relation between natural numbers cast to one type, `(a : ℤ) ≤ (b :
+/// ℤ)` or `(a : ℕ∞) = (1 : ℕ∞)`, as the relation in ℕ itself, `a ≤ b`,
+/// which `norm_cast` takes it to (`Nat.cast_le`, `Nat.cast_inj`); any
+/// other term as it is.
+fn in_naturals(term: &Term) -> Term {
+    let natural = |t: &Term| -> Option<Term> {
+        match &bare(t).kind {
+            TermKind::Cast { inner, .. }
+                if inner.ty == Some(LeanType::Num(Num::Nat)) =>
+            {
+                Some((**inner).clone())
+            }
+            TermKind::Numeral(d) => Some(Term::of(
+                TermKind::Numeral(d.clone()),
+                LeanType::Num(Num::Nat),
+            )),
+            _ => None,
+        }
+    };
+    if let TermKind::Infix { op, lhs, rhs } = &bare(term).kind {
+        if term.ty == Some(LeanType::Prop) {
+            if let (Some(l), Some(r)) = (natural(lhs), natural(rhs)) {
+                return Term::of(
+                    TermKind::Infix {
+                        op: *op,
+                        lhs: Box::new(l),
+                        rhs: Box::new(r),
+                    },
+                    LeanType::Prop,
+                );
+            }
+        }
+    }
+    term.clone()
+}
+
+/// Whether the line is the item's equation turned round: its left side
+/// alike the item's right and not its left, but for forms.
+pub fn turned_round(item: &Term, line: &Term) -> bool {
+    use super::term::Op;
+    match (&bare(item).kind, &bare(line).kind) {
+        (
+            TermKind::Infix {
+                op: a,
+                lhs: il,
+                rhs: ir,
+            },
+            TermKind::Infix {
+                op: b,
+                lhs: ll,
+                rhs: lr,
+            },
+        ) => {
+            *a == Op::EQUALS
+                && a == b
+                && alike(il, lr)
+                && alike(ir, ll)
+                && !alike(il, ll)
+        }
+        _ => false,
+    }
+}
+
+/// An equation with its sides swapped; any other term as it is.
+pub fn turned(term: &Term) -> Term {
+    match &bare(term).kind {
+        TermKind::Infix { op, lhs, rhs } => Term {
+            kind: TermKind::Infix {
+                op: *op,
+                lhs: rhs.clone(),
+                rhs: lhs.clone(),
+            },
+            ty: term.ty.clone(),
+        },
+        _ => term.clone(),
+    }
+}
+
+/// The term with each count in ℕ∞ of one of the sets, `S.encard`, written
+/// as its count in ℕ cast up, `(S.ncard : ℕ∞)`: what rewriting by
+/// `Set.Finite.cast_ncard_eq` backwards makes of it.
+pub fn with_natural_counts(term: &Term, sets: &[Term]) -> Term {
+    let mut out = term.clone();
+    if let TermKind::Count {
+        set,
+        form: CountForm::Extended,
+    } = &term.kind
+    {
+        if sets.iter().any(|s| alike(s, set)) {
+            let natural = Term::of(
+                TermKind::Count {
+                    set: set.clone(),
+                    form: CountForm::Natural,
+                },
+                LeanType::Num(Num::Nat),
+            );
+            return Term::of(
+                TermKind::Cast {
+                    inner: Box::new(natural),
+                    to: LeanType::ENat,
+                },
+                LeanType::ENat,
+            );
+        }
+    }
+    for child in out.children_mut() {
+        *child = with_natural_counts(child, sets);
+    }
     out
 }
 
@@ -257,11 +375,20 @@ fn cast_down(inner: &Term, to: &LeanType, widen: &Widen) -> Term {
                 rhs: Box::new(cast(rhs)),
             })
         }
-        TermKind::Infix { op, lhs, rhs } if *op == Op::POWER => at(TermKind::Infix {
-            op: *op,
-            lhs: Box::new(cast(lhs)),
-            rhs: rhs.clone(),
-        }),
+        // A real power, x ^ y of a real y, which the writer writes only of
+        // an x the lines show at least 0, onto both (`Complex.ofReal_cpow`);
+        // any other power onto its base.
+        TermKind::Infix { op, lhs, rhs } if *op == Op::POWER => {
+            let real_exponent = rhs.ty == Some(LeanType::Num(Num::Real));
+            at(TermKind::Infix {
+                op: *op,
+                lhs: Box::new(cast(lhs)),
+                rhs: Box::new(match real_exponent {
+                    true => cast(rhs),
+                    false => (**rhs).clone(),
+                }),
+            })
+        }
         TermKind::Neg(x) if !natural => at(TermKind::Neg(Box::new(cast(x)))),
         _ => cast(inner),
     }
@@ -303,7 +430,12 @@ fn compare(item: &Term, line: &Term, out: &mut Vec<FormDifference>) {
     match (&item.kind, &line.kind) {
         (TermKind::Count { set: a, form: f }, TermKind::Count { set: b, form: g }) => {
             if f != g {
-                out.push(FormDifference::Count { item: *f, line: *g });
+                out.push(FormDifference::Count {
+                    item: *f,
+                    line: *g,
+                    item_set: (**a).clone(),
+                    line_set: (**b).clone(),
+                });
             }
             compare(a, b, out);
         }
@@ -441,7 +573,15 @@ mod tests {
             found,
             [FormDifference::Count {
                 item: CountForm::Extended,
-                line: CountForm::Natural
+                line: CountForm::Natural,
+                item_set: Term::letter(
+                    "d",
+                    LeanType::Set(Box::new(LeanType::Num(Num::Int)))
+                ),
+                line_set: Term::letter(
+                    "d",
+                    LeanType::Set(Box::new(LeanType::Num(Num::Int)))
+                ),
             }]
         );
     }
